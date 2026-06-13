@@ -15,6 +15,8 @@ __pycache__/
 factories/*/build/
 **/build/
 
-# Free metrics stream (Tier 0 series; gitignored per ADR-008 §3)
+# Tier 0 memory cache (journal de hechos + métricas series): derivado, regenerable, NUNCA
+# autoridad (la verdad vive en docs+git). Gitignored por ADR-007/008. Borrar y regenerar es seguro.
+.metamem/
 .claude/metrics/
 metrics.jsonl

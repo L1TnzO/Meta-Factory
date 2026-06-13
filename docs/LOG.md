@@ -1,7 +1,22 @@
-<!-- meta:doc sha=75f0f86b73e034f700ac2f69de34e2eb13f310e9 updated=2026-06-13T15:34Z -->
+<!-- meta:doc sha=ca97927b8a21d0f7052ea69fc27a4ad1b89043ed updated=2026-06-13T20:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-13T19:55Z — Hooks verificados EN VIVO tras reiniciar (la columna y la memoria SÍ disparan)
+- **hecho**: el ingeniero reinició la sesión y pidió probar todo. Verifiqué los 5 hooks por el harness
+  REAL (no por invocación directa): `doc_stamp` auto-selló un `.md` nuevo + regeneró INDEX;
+  `proof_protect`/`permissions` denegaron Write/`open()`/`rm` a `.proof/`; `gate_guard` bloqueó
+  `meta station m02` salteando m01; `commit_guard` denegó commit con estación roja; `stop_proof` bloqueó
+  el cierre del turno (exit 2) con la estación roja y re-invocó al modelo.
+- **cierra el gap de HONEST-STATE §2**: lo que en la sesión 1 era "escrito pero INACTIVO" ahora está
+  "activo y verificado". La automatización de memoria (ADR-009 `doc_stamp`) funciona viva — este mismo
+  episodio se auto-selló al escribirlo.
+- **finding (a afinar, R2)**: `proof_protect` es sobre-celoso — bloquea cualquier comando con `.proof/`
+  y un `>` (incluido `2>/dev/null` de solo-lectura). Safe-side (jamás deja ESCRIBIR un veredicto), pero
+  molesta diagnósticos. Achicar el regex es trabajo futuro (toca un hook de la columna).
+- **estado**: dummy restaurado a verde; `meta check` PASS. STATE/HONEST-STATE actualizados.
+- **refs**: `reference/HONEST-STATE.md §2`; STATE §Agujeros honestos; `.claude/settings.json`.
 
 ## 2026-06-13T15:33Z — Honestidad de proceso: documenté al final y sin commits (G-M1/G-3 EN VIVO)
 - **gatillo**: el ingeniero preguntó si documenté a medida, si los hooks de memoria estaban vivos, y si

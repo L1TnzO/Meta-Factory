@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b2e76b942c2b2c00b3e389e67ee32d649d818bd5 updated=2026-06-13T15:33Z -->
+<!-- meta:doc sha=fc517449ec90d17c0e4f0a6d7679b0e55af79791 updated=2026-06-13T19:59Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -33,11 +33,17 @@ MENTIROSA, peor que ausente. No ocurrió solo porque llegué al cierre.
 ## 2. Hooks / harness: estado de ACTIVACIÓN
 - Escritos y cableados en `.claude/settings.json`: proof_protect · gate_guard · stop_proof ·
   commit_guard · doc_stamp.
-- **Activos en esta sesión: NINGUNO** (verificado empíricamente con un `.md` de prueba).
-- Demostrados por invocación directa (la LÓGICA funciona): `stop_proof` exit 2, `proof_protect` deny,
-  `recompute` reject. Pero el harness vivo no los corrió ni una vez.
-- **Acción requerida: reiniciar la sesión** para que el harness cargue `settings.json`. Recién ahí
-  `doc_stamp` auto-estampa, `commit_guard` bloquea commits sin proof, y `stop_proof` re-verifica al cierre.
+- **Sesión 1 (construcción): NINGUNO activo** — se cargan al inicio de sesión y `settings.json` se
+  escribió a mitad. Por eso documenté discrecional (§1). Esa es la causa raíz, no una excusa.
+- **Sesión 2 (tras reiniciar, 2026-06-13T19:54Z): LOS 5 VERIFICADOS EN VIVO por el harness real:**
+  - `doc_stamp` (PostToolUse) auto-selló un `.md` nuevo y regeneró `INDEX.md` (lo reportó el propio harness).
+  - `proof_protect` + `permissions.deny` denegaron un `Write` a `.proof/` y un `open()`/`rm` por shell.
+  - `gate_guard` bloqueó `meta station m02` salteando m01 — ANTES de ejecutar el comando.
+  - `commit_guard` denegó `git commit` con la estación activa roja.
+  - `stop_proof` bloqueó el cierre del turno (exit 2) con la estación roja y re-invocó al modelo.
+- **Finding (a afinar, no urgente):** `proof_protect` es sobre-celoso — bloquea cualquier comando que
+  mencione `.proof/` y contenga un `>` (incluso `2>/dev/null` de solo-lectura). Es safe-side (jamás deja
+  ESCRIBIR un veredicto; solo molesta lecturas con redirección); achicar el regex es trabajo futuro.
 
 ## 3. Técnicas de memoria: implementado vs definido
 | Técnica (MEMORY-ARCHITECTURE / ADR-007/008/009) | Estado |

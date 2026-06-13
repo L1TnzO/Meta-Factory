@@ -1,4 +1,4 @@
-<!-- meta:doc sha=94bf6b2828e4d665b01de89a49e779daf15e9ee7 updated=2026-06-13T15:33Z -->
+<!-- meta:doc sha=8cdc15918a3cf8cc82b154fcc65f115c9c03fd38 updated=2026-06-13T19:59Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -34,9 +34,10 @@
 - **Trusting-trust PARCIAL**: la re-derivación atrapa custodia comprometida; NO un compromiso de la FUENTE
   de `verifier.py` (eso lo atrapa el review R3 del diff, no un verificador diverso). Residual honesto declarado.
 - **ASF NO regenerado** (ADR-006, diferido): sigue CONGELADO como referencia de cosecha y paridad — NO tocado.
-- **Hooks NO activos esta sesión** (verificado): `settings.json` se carga al INICIO de sesión y se
-  escribió a mitad → la columna/memoria se demostró por invocación directa, no por el harness vivo.
-  **Reiniciar para activarlos.** G-8 (cascada): probado contra UNA fábrica (dummy); la 2ª destapará supuestos.
+- **Hooks: los 5 VERIFICADOS EN VIVO tras reiniciar** (sesión 2): `doc_stamp` auto-sella + regenera
+  INDEX, `proof_protect`/`permissions` deniegan `.proof/`, `gate_guard`/`commit_guard`/`stop_proof`
+  bloquean por exit code. En la sesión de CONSTRUCCIÓN no estaban activos (escritos a mitad) — de ahí
+  la doc discrecional. Detalle: `reference/HONEST-STATE.md §2`. G-8 (cascada): probado contra UNA fábrica.
 - **Disciplina de proceso fallada (honesto)**: documenté al CIERRE, no incremental; 0 commits durante
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 

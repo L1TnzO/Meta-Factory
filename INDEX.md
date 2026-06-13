@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `75f0f86b73e0` | 2026-06-13T15:34Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `94bf6b2828e4` | 2026-06-13T15:33Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `ca97927b8a21` | 2026-06-13T20:00Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `8cdc15918a3c` | 2026-06-13T19:59Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -20,7 +20,7 @@
 | `docs/reference/ARCHITECTURE.md` | `27963f9d7903` | 2026-06-13T14:57Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
-| `docs/reference/HONEST-STATE.md` | `b2e76b942c2b` | 2026-06-13T15:33Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
+| `docs/reference/HONEST-STATE.md` | `fc517449ec90` | 2026-06-13T19:59Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `f07cd846bb94` | 2026-06-13T14:57Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |

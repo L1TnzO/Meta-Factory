@@ -1,9 +1,9 @@
-<!-- meta:doc sha=ffabb0631767e9fecbc266f75a59476fd7620ecf updated=2026-06-13T14:57Z -->
+<!-- meta:doc sha=95516f660478327c9b29f9d55ab5e69621cf3d00 updated=2026-06-13T20:27Z -->
 # ADR-007 — Arquitectura de memoria: tres tiers, single source of truth, disparador no-discrecional
 
 | Campo | Valor |
 | --- | --- |
-| Estado | **Propuesto** (diseñado; pendiente de ratificación del ingeniero en la sesión de trabajo) |
+| Estado | **Aprobado + Implementado** (2026-06-13 sesión 2, incremento MEMORIA): los 3 tiers + el disparador no-discrecional construidos y verificados (`src/metafactory/memory/`, verbos `meta checkpoint/recall/rehydrate/journal/metrics`). Diseño completo y decisiones abiertas (índice semántico, diferido-hasta-medición) en MEMORY-ARCHITECTURE. |
 | Fecha | 2026-06-13T02:49Z |
 | Referencia | reference/MEMORY-ARCHITECTURE.md (diseño completo — la AUTORIDAD; este ADR es el registro de decisión, no la copia), ASF/ADR-019/021/023/004 |
 

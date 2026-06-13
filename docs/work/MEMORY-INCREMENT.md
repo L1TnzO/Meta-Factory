@@ -1,9 +1,10 @@
-<!-- meta:doc sha=394707bf5baa80739be18e219c2bc7364564b4b0 updated=2026-06-13T20:10Z -->
+<!-- meta:doc sha=5ae528622436a5d98f2849b5e6cba05a191be507 updated=2026-06-13T20:29Z -->
 # Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA
 
 > **Doc de gobierno.** Este doc ES el estado del incremento de memoria. Creado 2026-06-13T20:05Z
-> (sesión 2, hooks vivos). Estado: **ABIERTO**. Esta vez la disciplina se sigue de verdad:
-> captura continua (el engine escribe hechos), documentar a medida, commit por fase.
+> (sesión 2, hooks vivos). Estado: **CERRADO** (2026-06-13T20:30Z — 7 criterios demostrados, ver
+> §Evidencia). Esta vez la disciplina se siguió de verdad: captura continua (el engine escribe
+> hechos), commit por fase (MF1–MF6, hooks vivos), `meta checkpoint` para narrar.
 
 ## Objetivo
 La memoria decide si una fábrica repite errores o deriva (MEMORY-ARCHITECTURE). El bootstrap dejó
@@ -35,12 +36,12 @@ SessionStart. Este incremento los construye y los deja **medidos, deterministas 
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| MF1 | Tier 0 journal de eventos + captura at-source en el engine | ⬜ |
-| MF2 | Tier 0 métricas gratis + `meta metrics` + tabla de costo | ⬜ |
-| MF3 | Fix G-M1: proyección determinista + staleness check + `meta checkpoint` | ⬜ |
-| MF4 | Tier 2 `meta recall` medido (lexical+recencia+importancia) | ⬜ |
-| MF5 | SessionStart rehydration + Stop rollup | ⬜ |
-| MF6 | Docs (ADR-007/008 Aprobado/Implementado, lecciones) + tests | ⬜ |
+| MF1 | Tier 0 journal de eventos + captura at-source en el engine | ✅ (commit `87ecc4a`) |
+| MF2 | Tier 0 métricas gratis + `meta metrics` + tabla de costo | ✅ (Sonnet, 39 tests) |
+| MF3 | Fix G-M1: proyección determinista + staleness check + `meta checkpoint` | ✅ (`6df…`/commit MF2-MF3) |
+| MF4 | Tier 2 `meta recall` medido (lexical+recencia+importancia) | ✅ (commit `7368bfb`) |
+| MF5 | SessionStart rehydration + Stop rollup | ✅ (commit `892ce14`) |
+| MF6 | Docs (ADR-007/008 Aprobado/Implementado, lecciones) + tests | ✅ (30 tests, 206 total) |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. Correr una línea escribe eventos en el journal sin intervención del modelo (captura continua).
@@ -50,3 +51,18 @@ SessionStart. Este incremento los construye y los deja **medidos, deterministas 
 5. El hook SessionStart inyecta contexto al arrancar y loguea qué inyectó.
 6. Todo gitignored salvo los docs; borrar `.metamem/` y regenerar no pierde la verdad (re-derivable).
 7. Suite de tests del módulo memory verde; `meta check` verde.
+
+## Evidencia de cierre (output real, 2026-06-13T20:12–20:30Z)
+1. **✅ captura continua** — `meta product-run` escribió `station_run{s00,passed,gate_open}` al journal
+   sin que el modelo hiciera nada (el engine lo hace at-source en cada gate).
+2. **✅ `meta metrics`** — veredicto acotado (tasa de delegación, gates, racha); `mem_rollup` parseó un
+   transcript → `cost_total` $0.063 (tabla de precios × tokens, cero modelo). Costo verificado (Opus/Sonnet).
+3. **✅ proyección no-discrecional** — `meta checkpoint` insertó/refresca el bloque de STATE; `meta check`
+   GANÓ el check `projection` (hard) y SURFACE-ea "N hechos sin narrar" en PRÓXIMO (no-block, ADR-023).
+4. **✅ `meta recall`** — «trusting trust» devolvió ADR-005 + SELF-IMPROVEMENT §1 + LOG, scoreados; cada
+   recall registró `{query, refs}` en el journal (medición). Índice semántico diferido-hasta-medición.
+5. **✅ SessionStart** — `meta rehydrate`/`session_start` inyecta incremento+proyección+STATE+hechos+frescura
+   y loguea `session_start`. Cierra el problema vivido del reinicio.
+6. **✅ portable/regenerable** — `.metamem/` gitignored; borrarlo y regenerar no pierde la verdad (vive en docs+git).
+7. **✅ tests + check** — 30 tests del módulo memory (206 en total) verdes; `meta check` PASS (5 checks).
+   Disciplina: 6 commits por fase (MF1…MF6), hooks vivos, documentado a medida — NO al cierre (a diferencia del bootstrap).

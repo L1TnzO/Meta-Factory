@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2747ee12e632f69f0eb496738306e3af18018e73 updated=2026-06-13T20:18Z -->
+<!-- meta:doc sha=52abf015dc3ae3ec4d7db5318a7d2d06b5a8dc2b updated=2026-06-13T20:31Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MEMORY-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 
@@ -30,13 +30,16 @@
   capstone (3 cerrojos bloquean); M8 negativo; re-derivación en clon limpio (proof_sha == pineado;
   corrompido → ≠ → rojo); aislamiento PF-6; **seed auditado por reviewer opus de contexto fresco: 0 CRITICAL**
   (2 HIGH arreglados, 1 MEDIUM by-design). Suite: **137 tests verdes**.
-- **9 ADR** sin cambio de estado (001–006+009 Aprobados; 007–008 Propuestos). El código implementa el diseño.
+- **9 ADR**: 001–006+009 Aprobados; **007–008 Aprobados + Implementados** (incremento MEMORIA, sesión 2).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
 - **M4–M7 NO construidos**: template de producto completo + frontera generado/dominio (M4), memoria+RTM
   completos + métricas (M5), dos-verificadores como workflow corriendo en CI real (M6), harness completo
   de la fábrica (M7). El bootstrap acotó deliberadamente a M0–M3+M8.
-- **Métricas gratis (ADR-008) y memoria T2 (ADR-007, índice semántico) NO implementadas** — siguen Propuestas.
+- **Subsistema de MEMORIA COMPLETO** (incremento MEMORIA, sesión 2; ADR-007/008 Implementados):
+  Tier 0 (journal at-source + métricas/costo), fix de G-M1 (proyección + `meta checkpoint` + check),
+  Tier 2 medido (`meta recall`), rehidratación SessionStart. Único diferido a propósito: índice
+  semántico (embeddings), **hasta que la medición lo justifique** (`reference/HONEST-STATE.md §3`).
 - **Trusting-trust PARCIAL**: la re-derivación atrapa custodia comprometida; NO un compromiso de la FUENTE
   de `verifier.py` (eso lo atrapa el review R3 del diff, no un verificador diverso). Residual honesto declarado.
 - **ASF NO regenerado** (ADR-006, diferido): sigue CONGELADO como referencia de cosecha y paridad — NO tocado.
@@ -51,8 +54,9 @@
 1. Regenerar ASF como producto (ADR-006): factory-spec de ASF (Half A = sus opiniones), correr M0–M8, paridad.
 2. Completar M4–M7 (el sustrato que el dummy aún no ejerció: frontera generado/dominio, RTM/memoria completos,
    CI externo como workflow real, harness completo).
-3. Ratificar ADR-007/008 → métricas gratis (M5) + índice de recuperación medido.
-4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8).
+3. Afinar el `proof_protect` over-block (denylist `.proof/` + `>`) — finding de la sesión 2.
+4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
+   semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.
 
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)

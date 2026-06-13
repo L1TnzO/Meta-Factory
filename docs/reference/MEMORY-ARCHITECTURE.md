@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f07cd846bb942d2e26f8beaa817e5f25b2b1408c updated=2026-06-13T14:57Z -->
+<!-- meta:doc sha=44a889f45c517872845c2220d011437dfc0e24e4 updated=2026-06-13T20:27Z -->
 # Arquitectura de memoria — el subsistema más crítico de una fábrica
 
 | Campo | Valor |
@@ -258,3 +258,31 @@ no-discrecional, Propuesto) · **ADR-008** (métricas gratis, Propuesto) · **AD
 content-addressed, **APROBADO** — §9). Abiertas (necesitan input del ingeniero): índice semántico
 sí/no y formato del store (§4–6) + las de `OBSERVABILITY-METRICS §7`. Este doc es la AUTORIDAD del
 diseño; los ADR son punteros.
+
+## 11. Estado de implementación y lecciones de la PRÁCTICA (2026-06-13, incremento MEMORIA)
+
+El subsistema se **CONSTRUYÓ**, no solo se diseñó. ADR-007/008 pasaron a **Aprobado + Implementado**.
+Mapa implementado → módulo (`src/metafactory/memory/`):
+- **Tier 0 hechos**: `journal.py` (eventos station_run/delegation/recall/session_start) escrito
+  AT-SOURCE por el engine en cada gate (captura continua). `metrics.py` (series: tool-calls por hook
+  `mem_capture`, rollup de tokens/costo por `mem_rollup`, costo = tabla × tokens). Vista `meta metrics`.
+- **Tier 1 + disparador no-discrecional (el FIX de G-M1)**: `projection.py` proyecta hechos lentos
+  (incremento abierto, RTM por fábrica) a un bloque managed de STATE; `meta check` lo verifica (hard,
+  determinista); `meta checkpoint` lo refresca y OFRECE los hechos sin narrar (juicio surface, no
+  forzado, ADR-023); `meta check` SURFACE-ea en PRÓXIMO cuántos hechos faltan narrar.
+- **Tier 2 medido**: `recall.py` (`meta recall`) devuelve la rebanada relevante (lexical+recencia+
+  importancia, zero-dep, sin embeddings); cada recall registra un evento = MEDICIÓN.
+- **Rehidratación**: `rehydrate.py` + hook `SessionStart` inyecta contexto al arrancar. Todo
+  gitignored (`.metamem/`), caché derivado, regenerable; la verdad sigue en docs+git.
+
+**Lecciones VIVIDAS que moldearon el diseño** (no teoría — pasaron en estas sesiones):
+1. **El disparador discrecional se saltea**: documenté al cierre, no incremental (HONEST-STATE §1) →
+   la captura debe ser CONTINUA y AUTOMÁTICA (el engine escribe); el checkpoint cura SIGNIFICADO sobre
+   hechos ya capturados, no los recolecta.
+2. **Los hooks inactivos no salvan**: en la sesión de construcción estaban escritos pero no cargados →
+   el orquestador volvió a la escritura discrecional. La maquinaria sólo ayuda VIVA — validación de la
+   tesis del proyecto sobre sí mismo.
+3. **Reiniciar pierde TODO el contexto residente** (vivido) → SessionStart rehydration es esencial, no opcional.
+4. **El sello content-addressed (ADR-009) ya es media recuperación** (frescura): integrado a recall/rehydrate.
+5. **Medir antes de invertir**: se construyó el retrieval MEDIDO; el índice semántico (embeddings) sigue
+   **diferido-hasta-que-la-serie-`recall`-lo-justifique** — es la postura SOTA, no un gap. Hoy no se justifica.

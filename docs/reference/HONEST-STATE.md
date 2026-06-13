@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fc517449ec90d17c0e4f0a6d7679b0e55af79791 updated=2026-06-13T19:59Z -->
+<!-- meta:doc sha=f00f94ad19bd5a6cd883f43e46a5dfe1b2cc8a54 updated=2026-06-13T20:28Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -46,26 +46,33 @@ MENTIROSA, peor que ausente. No ocurrió solo porque llegué al cierre.
   ESCRIBIR un veredicto; solo molesta lecturas con redirección); achicar el regex es trabajo futuro.
 
 ## 3. Técnicas de memoria: implementado vs definido
+> ACTUALIZADO 2026-06-13 sesión 2 (incremento MEMORIA): el subsistema se CONSTRUYÓ. ADR-007/008 → Aprobado+Implementado.
+
 | Técnica (MEMORY-ARCHITECTURE / ADR-007/008/009) | Estado |
 | --- | --- |
 | Tier 1 narrativa (docs tipados, mutación por tipo) | ✅ existe |
-| ADR-009: sello in-band + `INDEX.md` generado + check en `meta check` | ✅ implementado (`docs_manifest.py`), verificado |
-| ADR-009: hook que auto-estampa (`doc_stamp`) | ⚠️ escrito, NO activo (§2) — corrí `doc-sync` a mano |
-| Disparador NO-discrecional (memoria = fase de gate/checkpoint) | ❌ NO en código — solo existe el CHECK de consistencia (detecta drift); nada FUERZA la escritura narrativa por estación |
-| Tier 0: journal de eventos + `metrics.jsonl` + `meta metrics` (ADR-008) | ❌ NO implementado (M5, diferido, Propuesto) |
-| Tier 2: índice de recuperación + `meta recall` (ADR-007) | ❌ NO implementado (M5, diferido, Propuesto) |
+| ADR-009: sello in-band + `INDEX.md` generado + check en `meta check` | ✅ implementado + **activo en vivo** (`doc_stamp` verificado, §2) |
+| Tier 0 hechos: journal at-source (engine) + `meta journal` | ✅ `memory/journal.py` — captura CONTINUA, no checkpoint discrecional |
+| Tier 0 series: `metrics.jsonl` + `meta metrics` + costo (ADR-008) | ✅ `memory/metrics.py` + hooks `mem_capture`/`mem_rollup`, cero modelo |
+| Disparador NO-discrecional (el FIX de G-M1) | ✅ `memory/projection.py` + `meta checkpoint`; `meta check` verifica la proyección (hard) y SURFACE-ea los hechos sin narrar (ADR-023) |
+| Tier 2 retrieval MEDIDO: `meta recall` | ✅ `memory/recall.py` (lexical+recencia+importancia); cada recall se MIDE |
+| Rehidratación SessionStart | ✅ `memory/rehydrate.py` + hook (activa al reinicio) |
+| Índice semántico (embeddings) | ⏳ **diferido-hasta-medición** (postura SOTA, NO un gap): se decide cuando la serie `recall` muestre que el lexical no alcanza |
 
-La memoria en-alcance del bootstrap (índice ADR-009) está construida y funciona, pero su
-AUTOMATIZACIÓN (el hook) no se ejerció viva. El resto (Tier 0/2) es M5, diferido por diseño. **El FIX
-de G-M1 (forzar la escritura como fase) NO está en código** — es el gap más honesto del bootstrap.
+El gap más honesto del bootstrap (el FIX de G-M1) está **CERRADO en código**: los hechos se capturan
+solos (engine at-source), la proyección es determinista y verificada por `meta check`, y los hechos sin
+narrar se SURFACE-ean (no se fuerza el juicio, ADR-023). Lo único pendiente es A PROPÓSITO: el índice
+semántico, hasta que la medición lo justifique. 30 tests del módulo memory (206 en total).
 
 ## 4. Implementado vs definido (panorama)
 - **En alcance y HECHO:** seed (Stage 0), engine+spec+bus+cli (Stage 1), M0–M3+M8, template, columna
-  (hooks escritos), dummy-fábrica, índice ADR-009, 137 tests, 8 criterios por bloqueo.
+  (hooks escritos Y verificados en vivo), dummy-fábrica, índice ADR-009, **subsistema de MEMORIA completo
+  (Tier 0/1/2 + disparador no-discrecional + rehidratación; ADR-007/008 Implementados)**, 206 tests, 8 criterios.
 - **Definido pero DIFERIDO (fuera de alcance, explícito):** M4–M7, regeneración de ASF (ADR-006),
-  métricas (ADR-008), memoria Tier 0/2 (ADR-007), loop de auto-mejora.
-- **Definido, en-alcance, y FALTÓ en la PRÁCTICA (no es scope, es disciplina):** documentación
-  incremental, commits de evidencia por requisito, activación viva de los hooks.
+  loop de auto-mejora, índice semántico de memoria (diferido-hasta-medición, §3).
+- **Disciplina de proceso:** en el BOOTSTRAP falló (doc al cierre, 0 commits, hooks inactivos — §1).
+  En el incremento de MEMORIA se siguió de verdad: commit por fase, hooks vivos, captura continua,
+  `meta checkpoint` para narrar. La maquinaria, ahora viva, hizo cumplir lo que antes era discrecional.
 
 ## 5. Evidencia por requisito (commits): el estado honesto
 La premisa I-10 es "cada requisito ↔ uno o varios commits con trailers (station/spec-refs/proof-sha)".

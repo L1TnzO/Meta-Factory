@@ -6,26 +6,26 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `ca97927b8a21` | 2026-06-13T20:00Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `2747ee12e632` | 2026-06-13T20:18Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `fa0289165a13` | 2026-06-13T20:30Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `52abf015dc3a` | 2026-06-13T20:31Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
 | `docs/decisions/004-bus-de-veredictos-economia-de-contexto.md` | `e5057bb6eec7` | 2026-06-13T14:57Z | ADR-004 — Bus de veredictos y economía de contexto del orquestador |
 | `docs/decisions/005-dos-verificadores-desde-el-nacimiento.md` | `ca58be7729e5` | 2026-06-13T14:57Z | ADR-005 — Dos verificadores (re-derivación sobre custodia) desde el nacimiento de cada fábrica |
 | `docs/decisions/006-asf-como-producto-regenerado.md` | `d0f0a98db9dc` | 2026-06-13T14:57Z | ADR-006 — ASF se regenera como producto del Meta-Factory (deja de auto-fabricarse) |
-| `docs/decisions/007-arquitectura-de-memoria.md` | `ffabb0631767` | 2026-06-13T14:57Z | ADR-007 — Arquitectura de memoria: tres tiers, single source of truth, disparador no-discrecional |
-| `docs/decisions/008-observabilidad-metricas-gratis.md` | `19b8c8170c88` | 2026-06-13T14:57Z | ADR-008 — Observabilidad y métricas: captura absolutamente gratis (cero llamadas al modelo) |
+| `docs/decisions/007-arquitectura-de-memoria.md` | `95516f660478` | 2026-06-13T20:27Z | ADR-007 — Arquitectura de memoria: tres tiers, single source of truth, disparador no-discrecional |
+| `docs/decisions/008-observabilidad-metricas-gratis.md` | `c78ab901b885` | 2026-06-13T20:27Z | ADR-008 — Observabilidad y métricas: captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/decisions/009-manifiesto-docs-content-addressed.md` | `adf6735aec8f` | 2026-06-13T14:57Z | ADR-009 — Manifiesto de docs content-addressed: hash de git + sello in-band (vista generada, no a mano) |
 | `docs/reference/ARCHITECTURE.md` | `27963f9d7903` | 2026-06-13T14:57Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
-| `docs/reference/HONEST-STATE.md` | `fc517449ec90` | 2026-06-13T19:59Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
-| `docs/reference/MEMORY-ARCHITECTURE.md` | `f07cd846bb94` | 2026-06-13T14:57Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
+| `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
+| `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/BOOTSTRAP-INCREMENT.md` | `d976acfd9db1` | 2026-06-13T15:22Z | Incremento BOOTSTRAP — el seed, la maquinaria base y la prueba del punto fijo |
-| `docs/work/MEMORY-INCREMENT.md` | `394707bf5baa` | 2026-06-13T20:10Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
+| `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `f62d7be84351` | 2026-06-13T15:21Z | Meta-Factory — orientación (fase de diseño) |

@@ -1,9 +1,9 @@
-<!-- meta:doc sha=19b8c8170c880041d6bc1091e292a3b3ef62d4e2 updated=2026-06-13T14:57Z -->
+<!-- meta:doc sha=c78ab901b885f0c29ca21ec98f2fbc7e082398cc updated=2026-06-13T20:27Z -->
 # ADR-008 — Observabilidad y métricas: captura absolutamente gratis (cero llamadas al modelo)
 
 | Campo | Valor |
 | --- | --- |
-| Estado | **Propuesto** (diseñado; pendiente de ratificación) |
+| Estado | **Aprobado + Implementado** (2026-06-13 sesión 2, incremento MEMORIA): `memory/metrics.py` + hook `mem_capture`/`mem_rollup` + `meta metrics`; costo = tabla de precios × tokens; captura por hooks, cero modelo. Display puro (sin umbrales BLOCK), como se decidió. |
 | Fecha | 2026-06-13T02:49Z |
 | Referencia | reference/OBSERVABILITY-METRICS.md (diseño completo — la AUTORIDAD), ADR-007 (es la mitad de "series" de T0), ASF/ADR-019/023 |
 

@@ -1,7 +1,31 @@
-<!-- meta:doc sha=ca97927b8a21d0f7052ea69fc27a4ad1b89043ed updated=2026-06-13T20:00Z -->
+<!-- meta:doc sha=fa0289165a13bbb73e65adc4828ec14c8b92c491 updated=2026-06-13T20:30Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-13T20:30Z — Incremento MEMORIA: subsistema completo y SOTA (Tier 0/1/2 + el fix de G-M1)
+- **hecho**: a pedido del ingeniero ("todo a memoria, dejarla terminada y SOTA"), construí el subsistema
+  de memoria completo en 6 fases con disciplina REAL (hooks vivos, commit por fase, documentado a medida):
+  Tier 0 (`journal` at-source en el engine + `metrics`/`meta metrics` + costo), el FIX de G-M1
+  (`projection` + `meta checkpoint` + check `projection` en `meta check`), Tier 2 (`meta recall` medido),
+  y rehidratación SessionStart. ADR-007/008 → **Aprobado+Implementado**. 30 tests nuevos (206 total).
+- **el fix de G-M1, por fin EN CÓDIGO**: los hechos se capturan SOLOS (el engine escribe `station_run` en
+  cada gate — captura continua, no checkpoint discrecional); la proyección de hechos lentos a STATE es
+  determinista y la verifica `meta check` (hard); los hechos sin narrar se SURFACE-ean en PRÓXIMO. No se
+  fuerza el juicio (ADR-023): se achica su superficie y se hace visible la deuda.
+- **delegación (modelo como dato)**: `metrics` y la suite de tests de memoria → writers **Sonnet** (bulk,
+  gateado por pytest); el core interlocking (journal/projection/recall/rehydrate/engine) lo escribí yo.
+- **lecciones VIVIDAS horneadas** (MEMORY-ARCHITECTURE §11): (1) el disparador discrecional se saltea →
+  captura continua automática; (2) los hooks inactivos no salvan → la maquinaria sólo ayuda VIVA; (3)
+  reiniciar pierde todo el contexto → SessionStart esencial; (4) el sello ADR-009 ya es media recuperación
+  (frescura); (5) medir antes de invertir → retrieval medido, índice semántico diferido-hasta-medición.
+- **descartado** (y por qué): índice de embeddings AHORA → prematuro, viola "medir antes de invertir" y
+  "cero dep"; un vector store como AUTORIDAD → cede el determinismo (la verdad sigue en docs+git, el índice
+  es caché); umbrales BLOCK en métricas → teatro (ADR-023), display puro primero.
+- **dogfood**: este episodio se preparó con `meta checkpoint` — el comando me OFRECIÓ los hechos sin narrar
+  y yo agregué el significado. El disparador no-discrecional funcionando sobre sí mismo.
+- **refs**: `work/MEMORY-INCREMENT.md §Evidencia`; `src/metafactory/memory/`; ADR-007/008;
+  `reference/MEMORY-ARCHITECTURE §11`; `reference/HONEST-STATE §3-4`.
 
 ## 2026-06-13T19:55Z — Hooks verificados EN VIVO tras reiniciar (la columna y la memoria SÍ disparan)
 - **hecho**: el ingeniero reinició la sesión y pidió probar todo. Verifiqué los 5 hooks por el harness

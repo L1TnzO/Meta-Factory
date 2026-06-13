@@ -35,7 +35,15 @@
     ],
     "Stop": [
       {
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/stop_proof.py" }]
+        "hooks": [
+          { "type": "command", "command": "python3 .claude/hooks/stop_proof.py" },
+          { "type": "command", "command": "python3 .claude/hooks/mem_rollup.py" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/session_start.py" }]
       }
     ]
   }

@@ -92,8 +92,11 @@ def cmd_check(args) -> int:
     proof = ctx.verifier.verify_station("metacheck", cmds, root, pythonpath=ctx.pythonpath)
     log = _copy_metacheck_log(proof)
     proof["log_path"] = log
-    v = report.from_proof("check", proof,
-                          next_pass="repo verde — listo para station/ci",
+    npass = "repo verde — listo para station/ci"
+    nfacts = _unnarrated_count(root)
+    if nfacts:
+        npass += f" · {nfacts} hecho(s) sin narrar: `meta checkpoint`"
+    v = report.from_proof("check", proof, next_pass=npass,
                           next_fail="abrí el ARTEFACTO o corré `triage` sobre él; no lo pegues al contexto")
     _print_verdict(v)
     return v.exit_code
@@ -366,6 +369,21 @@ def cmd_recall(args) -> int:
     return 0
 
 
+def cmd_rehydrate(args) -> int:
+    from .memory import rehydrate
+    print(rehydrate.build_payload(_meta_root()))
+    return 0
+
+
+def _unnarrated_count(root: Path) -> int:
+    """Hechos (station_run/delegation/commit) posteriores al último episodio de LOG. Surface,
+    no se fuerza: el modelo decide narrar (ADR-023). Lo determinista es DETECTAR, no coaccionar."""
+    from .memory import journal
+    last = _last_log_ts(root)
+    runs = [e for e in journal.read(root, kinds={"station_run", "delegation"}) if _parse_ts(e["ts"]) > _parse_ts(last)]
+    return len(runs) + len(_git_commits_since(root, last))
+
+
 # ── tiny utilities ───────────────────────────────────────────────────────────
 class _Synthetic:
     def __init__(self, id):
@@ -393,6 +411,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
     sp = sub.add_parser("recall"); sp.add_argument("query", nargs="+"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
+    sub.add_parser("rehydrate").set_defaults(func=cmd_rehydrate)
     return p
 
 

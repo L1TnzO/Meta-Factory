@@ -358,6 +358,14 @@ def cmd_metrics(args) -> int:
     return 0
 
 
+def cmd_recall(args) -> int:
+    root = _meta_root()
+    from .memory import recall
+    query = " ".join(args.query)
+    print(recall.render(root, query, recall.recall(root, query, k=args.k)))
+    return 0
+
+
 # ── tiny utilities ───────────────────────────────────────────────────────────
 class _Synthetic:
     def __init__(self, id):
@@ -384,6 +392,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
+    sp = sub.add_parser("recall"); sp.add_argument("query", nargs="+"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
     return p
 
 

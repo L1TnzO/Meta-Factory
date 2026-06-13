@@ -1,0 +1,35 @@
+# seed/external_ci.yml — la doctrina de los dos verificadores (M6, I-11, PF-10).
+#
+# STAGE 0 · trust-chain · R3. Es la ÚNICA capa intocable por el modelo, los hooks o el
+# ingeniero local: otra máquina, otro actor. Re-DERIVA el veredicto en un clon limpio y lo
+# compara contra el veredicto pineado (committed). No audita artefactos guardados —los
+# reconstruye— porque la custodia local no es la raíz de confianza (la replicabilidad lo es).
+#
+# Es además la defensa trusting-trust del auto-mejoramiento (SELF-IMPROVEMENT §1): un
+# Meta-Factory local comprometido produce un proof_sha que el runner limpio NO reproduce -> rojo.
+#
+# TODA la lógica vive en `meta ci --rederive` (CLI testeable). Este yaml es transporte de una
+# línea (ADR-005 §4): cero lógica duplicable que pueda divergir.
+
+name: meta-factory-external-ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  rederive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4         # clon limpio: .proof/ no existe (gitignored)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install pyyaml
+      - name: Re-derivar el veredicto y comparar contra el pineado
+        # Reconstruye la línea del dummy-fábrica desde su spec, recomputa cada proof_sha y
+        # exige el pineado (factories/<slug>/pinned_verdict.json). Desvío en CUALQUIER
+        # dirección = rojo (un PASS espontáneo sin prueba es fachada, no mejora).
+        run: ./meta ci --rederive
+      - name: Aislamiento PF-6 + consistencia de docs + suite
+        run: ./meta check

@@ -1,0 +1,5 @@
+{
+  "slug": "dummy",
+  "spec": "factory.spec.yml",
+  "produces": "un m\u00f3dulo de saludo trivial con un marcador invariante"
+}

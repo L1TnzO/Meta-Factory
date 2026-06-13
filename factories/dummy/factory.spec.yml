@@ -1,0 +1,42 @@
+# dummy.factory.spec.yml — la factory-spec mínima del dummy-fábrica (B5 del bootstrap).
+# Produce "un artefacto trivial" (un módulo de saludo) con UNA estación de producto y UN
+# invariante verificable (el marcador). Es la entrada que M0–M8 convierten en una fábrica real,
+# y la superficie de la prueba de bloqueo capstone (corromper el marcador -> la columna bloquea).
+
+factory:
+  name: "Dummy Factory"
+  slug: dummy
+  maturity: bootstrap
+
+# ── MITAD A: dominio de la fábrica ──
+domain:
+  produces: "un módulo de saludo trivial con un marcador invariante"
+  target_framework: { name: none, provider_agnostic: true }
+  product_capabilities:
+    - { id: invariant_marker, invariant: "el producto porta y devuelve el marcador DUMMY_OK" }
+  station_sequence:
+    - { id: s00, name: "build greeting", activation: always }
+  provision_modes: [prompt]
+  proof_check_types: [py_compile, import_runs, artifact_contains]
+  product:
+    product_module: greeting
+    greet_fn: greet
+    marker: DUMMY_OK
+
+# ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+  generated_domain_boundary: true
+  memory_schema: adr021
+  rtm: { required: true }
+  two_verifier_ci: { rederive: true, pinned_verdict: true }
+  placement_law: true
+  context_budget: { claude_md_max_lines: 120 }
+
+# ── REQUISITOS (espina SDD; id estable + satisfied_by a una estación activa) ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el producto compila, corre y devuelve el marcador invariante DUMMY_OK"
+      satisfied_by: [s00]

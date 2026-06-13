@@ -1,0 +1,38 @@
+{
+  "$comment": "El harness de construcción del Meta-Factory. Los hooks son las SOMBRAS deterministas de la columna (ley de colocación: lo impedido -> hook). permissions.deny es defensa en profundidad del Cerrojo 1. La lógica vive en src/metafactory + seed/; los hooks son transportes de una línea.",
+  "permissions": {
+    "deny": [
+      "Write(.proof/**)",
+      "Edit(.proof/**)",
+      "Write(**/.proof/**)",
+      "Edit(**/.proof/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/proof_protect.py" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "python3 .claude/hooks/proof_protect.py" },
+          { "type": "command", "command": "python3 .claude/hooks/gate_guard.py" },
+          { "type": "command", "command": "python3 .claude/hooks/commit_guard.py" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/doc_stamp.py" }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/stop_proof.py" }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+id: m08
+name: "Auto-test anti-fachada (e2e)"
+activation: always
+# M8 es la gate más importante y la que ASF aprendió tarde: una fábrica se prueba
+# CONSTRUYENDO de verdad un producto, no verificando que un template renderiza. Corre la
+# línea de producto de la fábrica recién nacida (build -> py_compile -> import+run -> invariante).
+# Render verde con producto roto DEBE poder fallar acá (test negativo del capstone).
+builds: []
+checks:
+  - { name: product_e2e, kind: product_run }

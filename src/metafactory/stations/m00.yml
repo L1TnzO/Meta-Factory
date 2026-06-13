@@ -1,0 +1,9 @@
+id: m00
+name: "Contrato de factory-spec (SDD)"
+activation: always
+# M0 valida la ENTRADA; no construye nada. Rehúsa specs incompletas o con RTM no cerrado
+# (ADR-003): sin requisitos válidos mapeados a estaciones activas, no hay línea.
+builds: []
+checks:
+  - { name: spec_schema, kind: spec_validate, spec: "{{spec_path}}" }
+  - { name: rtm_closure, kind: rtm_closure, spec: "{{spec_path}}" }

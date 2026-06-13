@@ -1,0 +1,12 @@
+id: m03
+name: "Bus de veredictos & memoria"
+activation: always
+# M3 cablea la economía de contexto de la fábrica: el árbol docs/ (esquema ADR-021) y la
+# garantía del bus (I-7). La gate exige que un veredicto FALLIDO quepa en ≤ max_lines y NO
+# embeba el log (solo un puntero) — la propiedad que mantiene limpio al orquestador.
+builds:
+  - { action: render_tree, src: "template/factory/docs", dest: "docs" }
+  - { action: render, src: "template/factory/README.md", dest: "README.md" }
+checks:
+  - { name: verdict_bounded, kind: bus_bounded }
+  - { name: memory_tree, kind: artifact_contains, file: "docs/STATE.md", marker: "Estado" }

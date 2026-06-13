@@ -27,6 +27,10 @@
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [{ "type": "command", "command": "python3 .claude/hooks/doc_stamp.py" }]
+      },
+      {
+        "matcher": "*",
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/mem_capture.py" }]
       }
     ],
     "Stop": [

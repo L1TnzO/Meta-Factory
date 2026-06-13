@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -78,6 +79,8 @@ def cmd_check(args) -> int:
         {"name": "compile", "kind": "command",
          "cmd": [py, "-m", "compileall", "-q", "src/metafactory", "seed"]},
         {"name": "docs", "kind": "docs_check"},
+        {"name": "projection", "kind": "command",
+         "cmd": [py, "-m", "metafactory.memory.projection", "check"]},
         {"name": "isolation", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests/test_isolation.py"]},
         {"name": "suite", "kind": "command",
@@ -273,6 +276,88 @@ def cmd_doc_sync(args) -> int:
     return 0
 
 
+# ── memoria (Tier 0/1/2) ─────────────────────────────────────────────────────
+def _parse_ts(s: str):
+    from datetime import datetime
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ"):
+        try:
+            return datetime.strptime(s, fmt)
+        except (ValueError, TypeError):
+            pass
+    return __import__("datetime").datetime.min
+
+
+def _last_log_ts(root: Path) -> str:
+    log = root / "docs" / "LOG.md"
+    if not log.exists():
+        return "0000-01-01T00:00Z"
+    m = re.search(r"^##\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z)", log.read_text(encoding="utf-8"), re.MULTILINE)
+    return m.group(1) if m else "0000-01-01T00:00Z"
+
+
+def _git_commits_since(root: Path, ts: str) -> list[str]:
+    import subprocess
+    try:
+        out = subprocess.run(["git", "log", f"--since={ts}", "--format=%h %s"],
+                             cwd=root, capture_output=True, text=True)
+        return [ln for ln in out.stdout.splitlines() if ln.strip()]
+    except OSError:
+        return []
+
+
+def cmd_checkpoint(args) -> int:
+    """El disparador NO-discrecional (fix de G-M1): refresca la proyección determinista de STATE
+    (hechos) y le ENTREGA al modelo los hechos sin narrar para que escriba el SIGNIFICADO. La parte
+    mecánica es un comando; el juicio se OFRECE (esqueleto), no se fuerza (ADR-023)."""
+    root = _meta_root()
+    from .memory import journal, projection
+    changed = projection.refresh(root)
+    docs_manifest.sync(root)  # re-sella STATE + regenera INDEX
+    last = _last_log_ts(root)
+    runs = [e for e in journal.read(root, kinds={"station_run"}) if _parse_ts(e["ts"]) > _parse_ts(last)]
+    delegs = [e for e in journal.read(root, kinds={"delegation"}) if _parse_ts(e["ts"]) > _parse_ts(last)]
+    commits = _git_commits_since(root, last)
+    print(f"VEREDICTO  checkpoint — {'proyección refrescada' if changed else 'proyección al día'}   (exit 0)")
+    print(f"RESUMEN    STATE proyectado de hechos · desde el último LOG ({last}): "
+          f"{len(runs)} station_run · {len(delegs)} delegation · {len(commits)} commit")
+    if runs or commits or delegs:
+        print("PRÓXIMO    el juicio NO se fuerza, se OFRECE — agregá el SIGNIFICADO al LOG. Hechos sin narrar:")
+        print(f"           ## {journal.now()[:16]}Z — <título: qué cambió y por qué>")
+        for c in commits[:6]:
+            print(f"           - commit: {c}")
+        seen = set()
+        for r in runs:
+            k = (r.get("slug"), r.get("station"), r.get("passed"))
+            if k in seen:
+                continue
+            seen.add(k)
+            print(f"           - station {r.get('station')} ({r.get('slug')}) passed={r.get('passed')} "
+                  f"gate={'OPEN' if r.get('gate_open') else 'SHUT'}")
+        for d in delegs:
+            print(f"           - delegación: {d.get('subagent_type')}/{d.get('model')} — {d.get('description', '')}")
+    else:
+        print("PRÓXIMO    nada nuevo que narrar desde el último episodio de LOG")
+    return 0
+
+
+def cmd_journal(args) -> int:
+    root = _meta_root()
+    from .memory import journal
+    evs = journal.read(root, limit=args.tail)
+    print(f"VEREDICTO  journal — {len(evs)} evento(s) (tail {args.tail})   (exit 0)")
+    for e in evs:
+        extra = {k: v for k, v in e.items() if k not in ("ts", "kind")}
+        print(f"  {e['ts']} {e['kind']}  {extra}")
+    return 0
+
+
+def cmd_metrics(args) -> int:
+    root = _meta_root()
+    from .memory import metrics
+    print(metrics.render(root, transcript=getattr(args, "transcript", None)))
+    return 0
+
+
 # ── tiny utilities ───────────────────────────────────────────────────────────
 class _Synthetic:
     def __init__(self, id):
@@ -296,6 +381,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_pin)
     sp = sub.add_parser("verify"); sp.add_argument("--rerun", action="store_true"); sp.set_defaults(func=cmd_verify)
     sub.add_parser("doc-sync").set_defaults(func=cmd_doc_sync)
+    sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
+    sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
+    sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
     return p
 
 

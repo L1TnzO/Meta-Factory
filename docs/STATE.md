@@ -1,8 +1,14 @@
-<!-- meta:doc sha=8cdc15918a3cf8cc82b154fcc65f115c9c03fd38 updated=2026-06-13T19:59Z -->
+<!-- meta:doc sha=2747ee12e632f69f0eb496738306e3af18018e73 updated=2026-06-13T20:18Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
+
+<!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
+> Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
+- Incremento abierto: MEMORY-INCREMENT.md
+- RTM por fábrica (re-derivado de `.proof/`): dummy: COMPLETE (1/1)
+<!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser

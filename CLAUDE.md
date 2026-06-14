@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f62d7be843514e30e11cc3e8737a56dd832229f7 updated=2026-06-13T15:21Z -->
+<!-- meta:doc sha=5528621bd76e97b5e3e03e99966ba38253a99df4 updated=2026-06-14T01:55Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -25,6 +25,11 @@ dummy-fábrica producido en `factories/dummy/`. Los 8 criterios de cierre pasan 
 - **Esquema de docs (mutación por tipo)**: STATE overwrite · LOG append (más nuevo arriba) ·
   decisions/ inmutable · work/ por-incremento · reference/ estable. Actualizar el doc correcto ES
   parte del trabajo, no es opcional (ADR-007: la memoria es fase de gate + checkpoint, no una pregunta).
+- **Commit = parte del trabajo, no se pregunta (ADR-010)**: al terminar un cambio —código o docs—,
+  commiteá (mensaje con trailers I-10); NUNCA ofrezcas «¿lo commiteo?». Esto OVERRIDE el default genérico
+  «commitear sólo cuando el usuario lo pide». El código lo enforza la máquina (`increment_guard`/`gate_guard`);
+  los **docs fuera de incremento NO tienen dientes** (residual aceptado, ADR-010 addendum) — ahí la disciplina
+  la sostiene esta regla: un parche que REDUCE lo no-commiteado sin agregar ruido, no que lo elimina.
 - **El seed (Stage 0) es trust-chain**: se escribe y revisa con ojos propios, no se delega
   (SELF-IMPROVEMENT §3). Lo determinista al CLI, lo impedido a hooks, lo de-cada-turno acá (con
   presupuesto), lo de-rol a agents, lo histórico a docs (CONTEXT-ECONOMY §3, ley de colocación).

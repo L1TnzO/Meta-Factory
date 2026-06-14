@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7ae0c58b8d0241c45d97561b540333325ea6354e updated=2026-06-14T01:34Z -->
+<!-- meta:doc sha=1d48e145312d4ee9cc4e18209e45e3730abe7171 updated=2026-06-14T01:57Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -53,6 +53,10 @@
   el mensaje ADR-010; `.md` y fuera-del-repo permitidos; árbol limpio antes/después (sin fuga del scratch).
   Cierra el patrón "escrito pero no cargado hasta el arranque" de la s2. `gate_guard` ya había bloqueado
   avance con deuda EN VIVO en la sesión de construcción.
+  **Residual ACEPTADO (ADR-010 addendum)**: docs `.md` fuera de un incremento NO tienen cadencia de commit
+  (`dirty_code` excluye `.md`); NO se endurece, por proporcionalidad — daño chico, la rebanada peligrosa
+  (proyección de STATE) ya enforced por `meta check`, y un nag por cada `.md` sería ruido que erosiona los
+  dientes reales. Mitigación no-máquina, sin ruido: la regla de commit en `CLAUDE.md` (override del default).
 - **Disciplina de proceso fallada (honesto)**: documenté al CIERRE, no incremental; 0 commits durante
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 

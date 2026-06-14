@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a773144a843db2cb9163bc35104a222b98d9accb updated=2026-06-14T01:27Z -->
+<!-- meta:doc sha=50f2c2eb9606705d3f186f60170562b3a60553e0 updated=2026-06-14T01:55Z -->
 # ADR-010 — Disciplina de commit: todo código vive en un incremento; cadencia por fase
 
 | Campo | Valor |
@@ -59,3 +59,26 @@ sólo la LEE y la proyecta. **Bloquea, NO auto-commitea**: el mensaje (con trail
 - **Gatear sólo DENTRO del incremento** (mi diseño inicial) → deja el agujero real (codificar fuera). El
   reencuadro lo cierra.
 - **Umbral/recordatorio discrecional** → el disparador discrecional se saltea (la lección del bootstrap). Hard.
+
+## Addendum 2026-06-14 — capstone cerrado + residual aceptado
+
+Hechos posteriores al cierre del incremento CADENCE, registrados SIN mutar la decisión (decisions/ inmutable):
+
+- **Capstone live-verify cerrado** (resuelve el límite «`increment_guard` se carga al inicio de sesión»):
+  verificado EN VIVO en sesión nueva — sin incremento abierto, `Write` de un `.py` → DENEGADO por el harness
+  con el mensaje ADR-010; `.md` y fuera-del-repo permitidos; árbol limpio antes/después (sin fuga del scratch).
+  Las dos capas quedan probadas en vivo (`gate_guard` ya había bloqueado avance con deuda). Evidencia: commit
+  `5ed511a`, STATE §Agujeros.
+
+- **Residual ACEPTADO — docs `.md` fuera de un incremento NO tienen cadencia de commit (no se endurece).**
+  `dirty_code` excluye `.md` y `stop_block` sólo mira dentro de un incremento abierto, así que un doc suelto
+  sin commitear no dispara dientes. Decisión deliberada: **no construir maquinaria para taparlo**, por
+  proporcionalidad — (a) el daño es chico: un `.md` sin commitear no rompe código, gate ni cadena de pruebas;
+  (b) la rebanada PELIGROSA de los docs (la proyección de hechos de STATE) YA está enforced en duro por
+  `meta check`; (c) el cortafuegos contra el derrame «se me hace hábito en código» está puesto en la frontera
+  del CÓDIGO (Capas 1/2), no de los docs — el hábito no puede cruzar; (d) un backstop que nag-uee por cada
+  `.md` sin commitear dispararía casi siempre (estás a mitad de un doc) → ruido que entrena a IGNORAR los
+  dientes que sí importan. Cambiar ruido barato por debilitar la columna es mal trueque (ADR-023: no forzar
+  lo de bajo riesgo). Mitigación proporcional —no-máquina, sin ruido en runtime—: una instrucción en
+  `CLAUDE.md` (commit como parte del trabajo, que OVERRIDE el default genérico). Es un parche que REDUCE lo
+  no-commiteado, no lo elimina; aceptado como tal.

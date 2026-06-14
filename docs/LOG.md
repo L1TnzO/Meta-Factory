@@ -1,7 +1,27 @@
-<!-- meta:doc sha=a696f521091d2e5a3773bf9994f7f4045a7213d4 updated=2026-06-14T01:28Z -->
+<!-- meta:doc sha=72d283d3b5d4a44b9e7b0a17d68307ea3075d0c5 updated=2026-06-14T14:39Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T14:38Z — M4/P1: dummy regenerado a la frontera I-5, landed y probado por el camino gateado
+- **gatillo**: handoff. La sesión opus anterior delegó a Sonnet el grind (regenerar el dummy a la frontera
+  M4 + test del gate) y se quedó sin quota a mitad de la verificación independiente.
+- **hecho**: revisé por bloqueo la obra de Sonnet (no confío en verde reportado) — `domain/greeting.py`
+  (HUMANO, skip_if_exists) + `generated/runner.py` (CHASIS) son frontera real, y `test_boundary.py` cubre el
+  gate (happy contra el dummy real + 2 negativos herméticos: domain sin skip y generated con skip → rojo).
+  Landed en `7139e9a` (e2e: `product_src/` borrado, `s00` ensambla `build/` desde la frontera y corre vía
+  `runner.run() == DUMMY_OK`).
+- **prueba por bloqueo (no narrada)**: committeé PRIMERO (deuda de cadencia a 0) y sólo entonces corrí
+  `meta station m04 --factory dummy` por el camino gateado real (`gate_guard` ya no bloquea sin deuda) → PASS
+  + **diff VACÍO** (idempotente: domain sobrevive, generated regenera byte-idéntico). `product-run --factory
+  dummy` → 3/3 (compile·runs·invariant). Resuelve el reparo del handoff: Sonnet había bypasseado `gate_guard`
+  con python directo; el camino gateado reproduce lo committeado SIN deuda. suite 235 passed, `meta check` 5/5.
+- **delegación**: el grind (regen + test) a Sonnet; la revisión trust-chain y el camino gateado, a mano
+  (SELF-IMPROVEMENT §3 — el seed/columna no se delega).
+- **honesto / pendiente**: P1 NO cerrado — `answers/migración` (re-scaffold determinista desde respuestas de
+  spec + migración de fábricas) sigue sin implementar (grep vacío). El criterio 1 (frontera no decorativa,
+  sobrevive el re-render) SÍ está hecho + gateado + e2e en el dummy. M5–M7 (P2–P4) pendientes.
+- **refs**: `7139e9a`, `af0d64d`; `work/M4-M7-INCREMENT.md §P1`; `tests/test_boundary.py`; STATE §Siguiente #2.
 
 ## 2026-06-14T01:28Z — Incremento CADENCE: disciplina de commit (ADR-010), todo código en un incremento
 - **gatillo**: el ingeniero preguntó si "dejé sin commitear porque no me lo pidió" estaba bien bajo la

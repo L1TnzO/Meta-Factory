@@ -1,7 +1,38 @@
-<!-- meta:doc sha=44ecc08446c95f974df6138d7ce64537355ff7e4 updated=2026-06-14T15:00Z -->
+<!-- meta:doc sha=8926f0637187c7b7f7915ca09e0b8d842ea1d9a0 updated=2026-06-14T15:27Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T15:27Z — M6/P3: gate clean_runner — los dos verificadores re-derivan en runner limpio
+- **gatillo**: el ingeniero pidió abrir el siguiente incremento delegando cuando corresponda. El abierto
+  (M4-M7) tenía M4✅/M5✅ y M6 (P3) como siguiente; lo continué.
+- **hallazgo (espejo de M4/M5)**: la doctrina de dos verificadores YA estaba cableada — la ley vive en
+  `meta ci --rederive`/`meta pin`, y M1 copia `seed/external_ci.yml` a cada fábrica. El agujero real de M6
+  era el GATE: una estación + check que EXIJA por bloqueo el criterio 3 (un runner limpio re-deriva y exige
+  el pineado; desvío en cualquier dirección → rojo), no-decorativo como `boundary_survives`/`rtm_rederive`.
+- **hecho (trust-chain, a mano)**: `verify/checks/clean_runner.py` (la gate) re-deriva en un CLON HERMÉTICO
+  de la fábrica (sin estado re-derivable, como checkout fresco) leyendo la fuente committeada y exige cada
+  proof_sha == pineado; NO toca el `.proof/` real, así compone dentro de la línea meta sin pisar los proofs
+  predecesores (m04/m05). Extraje la ÚNICA ley (`rederive_pinned`+`_compare_to_pinned`+`_run_product_line`
+  en cli.py) que comparten `meta ci`, el CI externo y el gate — cero lógica duplicable que diverja (ADR-005
+  §4). `record_active=False` en el runner para que la re-derivación hermética no contamine el active.json/
+  journal meta. `m06.yml` (gate pura como m08) + `clean_runner` kind (dato, I-2).
+- **prueba por bloqueo (no narrada)**: standalone clean_runner vs dummy → exit 0; NEGATIVOS externos (pin
+  corrompido → "VEREDICTO DESVIADO" exit 1; pin ausente → "SIN PINEAR" exit 1). Committeé el núcleo PRIMERO
+  (deuda 0) → corrí la línea M0–M8 completa por el camino GATEADO → todas PASS con gate OPEN (m06 nuevo; m08
+  con predecesor ahora m06); árbol limpio (idempotente); rtm dummy COMPLETE 1/1; `meta ci --rederive` PASS;
+  `meta check` 5/5. Cierra el criterio 5 de paso (línea M0–M8 completa verde).
+- **delegación**: el TEST (grind) a un writer Sonnet → `tests/test_clean_runner.py` (7 tests). Revisado por
+  BLOQUEO: corrí la suite yo (249 passed) y VERIFIQUÉ que el caso VEREDICTO DESVIADO ejerce la rama real
+  (imprime el mismatch, exit 1), no que pasa por otra. La trust-chain (el gate) NO se delegó (§3). Le di la
+  RESTRICCIÓN clave (el gate lee la fuente de meta_root, no de la copia → tamperá sólo el pineado) para que
+  no escribiera un negativo que pasara por la razón equivocada.
+- **honesto / pendiente**: P3 entrega el GATE (criterio 3 núcleo + criterio 5). DIFERIDO: el "pre-push" del
+  P3 (mirror local del segundo verificador) — el CI externo ya existe (`external_ci.yml`, M1) y `meta ci` es
+  la re-derivación local; un git pre-push es incómodo porque las fábricas no son repos independientes → cae
+  en M7/harness (donde se hornean hooks/sombras). Quedan P4 (M7) y P5 (cierre).
+- **refs**: `989b533`, `d59d64b`; `work/M4-M7-INCREMENT.md §P3`; `verify/checks/clean_runner.py`;
+  `seed/external_ci.yml`; ADR-005; STATE §Siguiente #2.
 
 ## 2026-06-14T15:00Z — M5/P2: gate rtm_rederive — el RTM se re-deriva de artefactos, no de prosa
 - **gatillo**: el ingeniero pidió continuar con P2/M5 (memoria & RTM), delegando cuando corresponda.

@@ -1,6 +1,6 @@
-<!-- meta:doc sha=964340e421a27b73fb183a745b8710c3ea5f79d4 updated=2026-06-14T15:01Z -->
+<!-- meta:doc sha=c008813ff528e3b9c19b6432212edda681679612 updated=2026-06-14T15:29Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-14T15:00Z · sesión: opus-4.8 (M4 landed · M5 gate landed) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-14T15:27Z · sesión: opus-4.8 (M6 gate landed · línea M0–M8 completa) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -21,7 +21,7 @@
   - `src/metafactory/` (Stage 1): engine dominio-agnóstico (station/sequence/gate/runner; estaciones
     como dato I-2), spec (modelo/loader/validator + `factory.schema.json`, espina SDD), verify (bus de
     veredictos I-7 + checks), codegen (render del chasis), `cli.py` (`meta check/new/station/product-run/rtm/ci/pin/verify`).
-  - `src/metafactory/stations/m00–m05+m08.yml` (meta-estaciones como dato; M4 frontera, M5 memoria), `template/factory/` (chasis heredable),
+  - `src/metafactory/stations/m00–m06+m08.yml` (meta-estaciones como dato; M4 frontera, M5 memoria, M6 dos verificadores), `template/factory/` (chasis heredable),
     columna `.claude/hooks/` (proof_protect·gate_guard·stop_proof·commit_guard·doc_stamp) + `settings.json`.
   - `factories/dummy/` (PRODUCIDO por la línea) desde `specs/dummy.factory.spec.yml`.
   - ADR-009 vivo: sello in-band en cada `.md` + `INDEX.md` generado + check de consistencia en `meta check`.
@@ -34,9 +34,10 @@
   Implementado** (disciplina de commit: todo código en un incremento + cadencia por fase, esta sesión).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
-- **M4 ✅ / M5 gate ✅ / M6–M7 pendientes** (incremento `M4-M7-INCREMENT`): M4 (frontera generado/dominio,
-  `boundary_survives`) y M5 (memoria & RTM, gate `rtm_rederive`: corromper un proof CAMBIA el RTM) LANDED+e2e
-  en el dummy; faltan M6 (dos-verificadores como workflow real) y M7 (harness + captura viva journal/métricas).
+- **M4 ✅ / M5 gate ✅ / M6 gate ✅ / M7 pendiente** (`M4-M7-INCREMENT`): M4 (`boundary_survives`), M5
+  (`rtm_rederive`) y M6 (`clean_runner`: un runner limpio re-deriva en clon hermético y exige el pineado,
+  desvío→rojo; UNA ley compartida por `meta ci`/CI externo/gate) LANDED+e2e — la línea M0–M8 corre completa
+  verde (criterio 5). Falta M7 (harness + captura viva); ahí caen el `pre-push` de M6 y la captura viva de M5.
 - **Subsistema de MEMORIA COMPLETO** (incremento MEMORIA, sesión 2; ADR-007/008 Implementados):
   Tier 0 (journal at-source + métricas/costo), fix de G-M1 (proyección + `meta checkpoint` + check),
   Tier 2 medido (`meta recall`), rehidratación SessionStart. Único diferido a propósito: índice
@@ -62,8 +63,8 @@
 
 ## Siguiente — en orden
 1. Regenerar ASF como producto (ADR-006): factory-spec de ASF (Half A = sus opiniones), correr M0–M8, paridad.
-2. Completar M5–M7 (M4 ya ejercido por el dummy: frontera generado/dominio): RTM/memoria (en curso),
-   CI externo como workflow real, harness completo.
+2. Completar M7 + cerrar el incremento (M4–M6 ya ejercidos e2e): harness (sombras agent→hook `agent_shadow`,
+   captura viva journal/métricas, pre-push) → P4; integración + `meta increment close` → P5.
 3. Afinar el `proof_protect` over-block (denylist `.proof/` + `>`) — finding de la sesión 2.
 4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
    semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.

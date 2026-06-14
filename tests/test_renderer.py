@@ -139,6 +139,51 @@ class TestApplyBuildsActions:
         assert (output / "rendered" / "a.txt").read_text() == "dummy"
         assert (output / "rendered" / "b.txt").read_text() == "static"
 
+    # ── skip_if_exists: la frontera generado/dominio (I-5, M4) ──────────────────
+    def _meta_with_tpl(self, tmp_path, body="domain {{slug}}"):
+        meta = tmp_path / "meta"
+        (meta / "tpl").mkdir(parents=True)
+        (meta / "tpl" / "d.txt").write_text(body, encoding="utf-8")
+        return meta
+
+    def test_render_skip_if_exists_preserves_domain(self, tmp_path):
+        """Un archivo de dominio editado a mano SOBREVIVE un re-render (skip_if_exists)."""
+        meta = self._meta_with_tpl(tmp_path)
+        out = tmp_path / "out"; out.mkdir()
+        ctx = RunContext(root=out, meta_root=meta)
+        st = make_station("m4", [{"action": "render", "src": "tpl/d.txt", "dest": "domain/d.txt",
+                                  "skip_if_exists": True}])
+        apply_builds(ctx, st, {"slug": "dummy"})           # primer scaffold
+        (out / "domain" / "d.txt").write_text("EDITADO A MANO", encoding="utf-8")
+        msgs = apply_builds(ctx, st, {"slug": "dummy"})    # re-scaffold
+        assert (out / "domain" / "d.txt").read_text() == "EDITADO A MANO"
+        assert any("skip(exists)" in m for m in msgs)
+
+    def test_render_without_flag_overwrites_generated(self, tmp_path):
+        """Sin el flag, generado/ SÍ se regenera (la otra cara de la frontera)."""
+        meta = self._meta_with_tpl(tmp_path, body="generated {{slug}}")
+        out = tmp_path / "out"; out.mkdir()
+        ctx = RunContext(root=out, meta_root=meta)
+        st = make_station("m4", [{"action": "render", "src": "tpl/d.txt", "dest": "generated/g.txt"}])
+        apply_builds(ctx, st, {"slug": "dummy"})
+        (out / "generated" / "g.txt").write_text("BASURA", encoding="utf-8")
+        apply_builds(ctx, st, {"slug": "dummy"})
+        assert (out / "generated" / "g.txt").read_text() == "generated dummy"
+
+    def test_render_tree_skip_if_exists_preserves_existing(self, tmp_path):
+        meta = tmp_path / "meta"
+        (meta / "tpl").mkdir(parents=True)
+        (meta / "tpl" / "a.txt").write_text("{{slug}}", encoding="utf-8")
+        out = tmp_path / "out"; out.mkdir()
+        ctx = RunContext(root=out, meta_root=meta)
+        st = make_station("m4", [{"action": "render_tree", "src": "tpl", "dest": "domain",
+                                  "skip_if_exists": True}])
+        apply_builds(ctx, st, {"slug": "dummy"})
+        (out / "domain" / "a.txt").write_text("MANUAL", encoding="utf-8")
+        msgs = apply_builds(ctx, st, {"slug": "dummy"})
+        assert (out / "domain" / "a.txt").read_text() == "MANUAL"
+        assert any("skip(exists)" in m for m in msgs)
+
     def test_unknown_action_raises_value_error(self, tmp_path):
         ctx = make_ctx(tmp_path)
         station = make_station("s1", [{"action": "teleport"}])

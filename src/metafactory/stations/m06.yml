@@ -1,0 +1,14 @@
+id: m06
+name: "Dos verificadores — re-derivación en runner limpio"
+activation: always
+# M6 cierra la doctrina de los dos verificadores (I-11, PF-10). El SEGUNDO verificador (CI externo,
+# `seed/external_ci.yml`, ya copiado a la fábrica por M1) re-deriva el veredicto en un runner LIMPIO y
+# exige el pineado (`pinned_verdict.json`, la constante honesta de `meta pin`). M6 lo hace NO-decorativo
+# por bloqueo: la gate `clean_runner` reconstruye la línea de producto en un clon hermético (sin .proof/
+# ni build/, como un checkout fresco) desde la fuente committeada y exige que cada proof_sha re-derivado
+# IGUALE el pineado; desvío en CUALQUIER dirección (proof distinto O pin distinto) -> rojo. La custodia
+# local no es la raíz de confianza; la replicabilidad lo es (criterio 3 de M4-M7). Gate pura como M8: no
+# renderiza chasis nuevo (la ley vive en `meta ci`/`external_ci.yml`); agrega el DIENTE que faltaba.
+builds: []
+checks:
+  - { name: clean_runner, kind: clean_runner }

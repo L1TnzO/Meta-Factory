@@ -153,31 +153,42 @@ def cmd_station(args) -> int:
     return _run_one(ctx, station, seq, subst, _meta_stations_dir(), fdir / "factory.spec.yml", verb="station")
 
 
+def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True):
+    """Run factory `slug`'s product line e2e on `fdir` (build a REAL product, compile+run it).
+    Returns (rc, last_run). `record_active=False` keeps a hermetic re-derivation (the clean_runner
+    gate) from leaking into the meta active-station pointer or the journal. Single source for both
+    `product-run` and the two-verifier re-derivation (no divergence, ADR-005 §4)."""
+    spec = load_spec(fdir / "factory.spec.yml")
+    subst = _subst_for(spec, fdir)
+    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug)
+    pseq = load_sequence(fdir / "stations")
+    if not pseq.active:
+        return 1, None
+    last, ok = None, True
+    for st in pseq.active:
+        run = run_station(ctx, st, pseq, subst, stations_dir=fdir / "stations",
+                          spec_path=fdir / "factory.spec.yml", record_active=record_active)
+        last = run
+        if not (run.passed and run.gate.opened):
+            ok = False
+            break
+    return (0 if ok else 1), last
+
+
 def cmd_product_run(args) -> int:
     """Run factory S's own product line e2e — builds a REAL product and compiles+runs it.
     This is what M8 calls; render-green alone cannot pass it (façade-trap closed)."""
     slug = args.factory
     fdir = _factory_dir(slug)
-    spec = load_spec(fdir / "factory.spec.yml")
-    subst = _subst_for(spec, fdir)
-    ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug)
-    pseq = load_sequence(fdir / "stations")
-    if not pseq.active:
+    rc, last = _run_product_line(fdir, _meta_root(), slug)
+    if last is None:
         print("VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    la fábrica no tiene línea de producto")
         return 1
-    last = None
-    ok = True
-    for st in pseq.active:
-        run = run_station(ctx, st, pseq, subst, stations_dir=fdir / "stations", spec_path=fdir / "factory.spec.yml")
-        last = run
-        if not (run.passed and run.gate.opened):
-            ok = False
-            break
     v = report.from_proof("product-run", last.proof,
                           next_pass=f"producto e2e OK · {last.gate.line()}",
                           next_fail=f"producto roto · {last.gate.line()}")
     _print_verdict(v)
-    return 0 if ok else 1
+    return 0 if rc == 0 else 1
 
 
 def cmd_rtm(args) -> int:
@@ -205,28 +216,50 @@ def cmd_rtm(args) -> int:
     return 0 if unsat == 0 else 1
 
 
+def _compare_to_pinned(verifier, fdir: Path, pinned: dict) -> list[str]:
+    """The two-verifier COMPARISON law (single source, ADR-005 §4): every pinned station's
+    re-derived proof_sha must equal the pinned constant. A deviation in EITHER direction
+    (re-derived proof distinto O pin distinto) is a mismatch -> red. Reused by `meta ci` and
+    by the clean_runner gate, so the gate cannot drift from the command it enforces."""
+    mismatches = []
+    for sid, want in pinned.items():
+        proof = verifier.load_proof(fdir, sid)
+        got = proof.get("proof_sha") if proof else None
+        if got != want:
+            mismatches.append(f"{sid}: pinned {str(want)[:12]} != re-derived {str(got)[:12]}")
+    return mismatches
+
+
+def rederive_pinned(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True):
+    """External re-derivation law (two-verifier doctrine, PF-10): wipe re-derivable state on
+    `fdir`, rebuild the product line from source on a clean tree, recompute each proof_sha and
+    demand the pinned verdict. ONE law shared by `meta ci`, the external CI and the clean_runner
+    gate (M6). The gate runs it against a throwaway clone so custody is never the root of trust —
+    replicability is. Returns (ok, mismatches, rc, has_pinned)."""
+    fdir = Path(fdir)
+    pinned_path = fdir / "pinned_verdict.json"
+    if not pinned_path.exists():
+        return False, [], 1, False
+    pinned = json.loads(pinned_path.read_text(encoding="utf-8"))
+    shutil.rmtree(fdir / ".proof", ignore_errors=True)
+    shutil.rmtree(fdir / "build", ignore_errors=True)
+    rc, _ = _run_product_line(fdir, meta_root, slug, record_active=record_active)
+    v = RunContext(root=fdir, meta_root=meta_root, slug=slug).verifier
+    mismatches = _compare_to_pinned(v, fdir, pinned)
+    return (rc == 0 and not mismatches), mismatches, rc, True
+
+
 def cmd_ci(args) -> int:
     """External re-derivation (two-verifier doctrine): wipe re-derivable state, rebuild the
     product line from source on a clean tree, and demand the pinned proof_sha. Any deviation
     (either direction) is red — a spontaneous PASS without proof is a façade, not a win."""
     slug = args.factory
     fdir = _factory_dir(slug)
-    pinned_path = fdir / "pinned_verdict.json"
-    if not pinned_path.exists():
+    ok, mismatches, rc, has_pinned = rederive_pinned(fdir, _meta_root(), slug)
+    if not has_pinned:
         print(f"VEREDICTO  ci --rederive — FAIL   (exit 1)\nRESUMEN    no hay pinned_verdict.json en {slug} (corré `meta pin`)")
         return 1
-    pinned = json.loads(pinned_path.read_text(encoding="utf-8"))
-    shutil.rmtree(fdir / ".proof", ignore_errors=True)
-    shutil.rmtree(fdir / "build", ignore_errors=True)
-    rc = cmd_product_run(_ns(factory=slug))
-    ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug)
-    mismatches = []
-    for sid, want in pinned.items():
-        proof = ctx.verifier.load_proof(fdir, sid)
-        got = proof.get("proof_sha") if proof else None
-        if got != want:
-            mismatches.append(f"{sid}: pinned {str(want)[:12]} != re-derived {str(got)[:12]}")
-    ok = rc == 0 and not mismatches
+    pinned = json.loads((fdir / "pinned_verdict.json").read_text(encoding="utf-8"))
     print(f"VEREDICTO  ci --rederive {slug} — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
     print(f"RESUMEN    re-derivado en árbol limpio · {len(pinned) - len(mismatches)}/{len(pinned)} proof_sha == pineado")
     for m in mismatches[:5]:
@@ -495,11 +528,6 @@ def _unnarrated_count(root: Path) -> int:
 class _Synthetic:
     def __init__(self, id):
         self.id = id
-
-
-def _ns(**kw):
-    import types
-    return types.SimpleNamespace(**kw)
 
 
 def build_parser() -> argparse.ArgumentParser:

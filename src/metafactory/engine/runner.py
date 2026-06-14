@@ -56,23 +56,31 @@ def run_station(
     stations_dir: Path,
     spec_path: Path | None = None,
     build: bool = True,
+    record_active: bool = True,
 ) -> StationRun:
+    """Run one station. `record_active=False` makes a HERMETIC run: it neither records the
+    meta active-station pointer (Lock #3) nor journals the run — used when a gate re-derives a
+    line in a throwaway clone (clean_runner, M6) so the re-derivation never leaks into the real
+    active.json/journal. Real advances always record (the default)."""
     from ..codegen import apply_builds
 
     build_msgs: list[str] = []
     if build:
         build_msgs = apply_builds(ctx, station, subst)
 
-    write_active(ctx, station, stations_dir, spec_path)
+    if record_active:
+        write_active(ctx, station, stations_dir, spec_path)
 
     cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, station, subst)} for c in station.checks]
     proof = ctx.verifier.verify_station(station.id, cmds, ctx.root, pythonpath=ctx.pythonpath)
     gate = open_gate(ctx, station, seq)
 
     # Tier 0 capture at-source (continua, no checkpoint discrecional): el hecho queda aunque
-    # la generación se corte. Best-effort: nunca rompe la línea.
-    from ..memory import journal
-    journal.append(ctx.meta_root, "station_run", station=station.id, slug=ctx.slug,
-                   passed=bool(proof.get("passed")), gate_open=gate.opened,
-                   proof_sha=proof.get("proof_sha", ""))
+    # la generación se corte. Best-effort: nunca rompe la línea. Una re-derivación hermética
+    # (record_active=False) NO es un avance real -> no se journaliza.
+    if record_active:
+        from ..memory import journal
+        journal.append(ctx.meta_root, "station_run", station=station.id, slug=ctx.slug,
+                       passed=bool(proof.get("passed")), gate_open=gate.opened,
+                       proof_sha=proof.get("proof_sha", ""))
     return StationRun(station, proof, gate, build_msgs)

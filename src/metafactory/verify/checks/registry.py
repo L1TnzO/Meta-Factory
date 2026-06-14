@@ -16,7 +16,7 @@ KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "bus_bounded", "product_run", "boundary_survives",
-    "rtm_rederive",
+    "rtm_rederive", "clean_runner",
 )
 
 
@@ -63,6 +63,10 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 str(subst.get("spec_path", "factory.spec.yml"))]
     if kind == "rtm_rederive":
         return [PY, "-m", "metafactory.verify.checks.rtm_rederive",
+                str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
+                str(subst.get("spec_path", "factory.spec.yml"))]
+    if kind == "clean_runner":
+        return [PY, "-m", "metafactory.verify.checks.clean_runner",
                 str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
                 str(subst.get("spec_path", "factory.spec.yml"))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

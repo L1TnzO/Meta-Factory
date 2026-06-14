@@ -1,0 +1,12 @@
+id: m05
+name: "Memoria & RTM — re-derivable de artefactos"
+activation: always
+# M5 cierra la memoria DINÁMICA de la fábrica: el RTM y su evidencia se RE-DERIVAN de `.proof/`, no
+# de prosa (I-8). M3 hornea el esquema narrativo (docs/, ADR-021); M5 hornea el contrato de memoria
+# re-derivable (docs/reference/MEMORY.md) y lo EXIGE por bloqueo: la gate `rtm_rederive` corrompe, en
+# una copia hermética, el proof de una estación que satisface un requisito y verifica que el RTM CAE a
+# UNSATISFIED (si no cambia, sería prosa) + que el ledger deriva de los proofs.
+builds:
+  - { action: render, src: "template/factory/memory/MEMORY.md", dest: "docs/reference/MEMORY.md" }
+checks:
+  - { name: rtm_rederive, kind: rtm_rederive }

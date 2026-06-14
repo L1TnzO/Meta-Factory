@@ -1,7 +1,7 @@
-<!-- meta:doc sha=5a0aa6daad2c1c58996725bfab46fe1e6ad3e866 updated=2026-06-14T01:28Z -->
+<!-- meta:doc sha=6e1cbb9fa169047967095d3b3e4e93a5dfe70a7e updated=2026-06-14T01:29Z -->
 # Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T00:55Z — sesión opus-4.8). Cerralo con
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-14T01:29Z) (creado 2026-06-14T00:55Z — sesión opus-4.8). Cerralo con
 > `meta increment close` (gateado: árbol limpio + estación activa verde). Implementa ADR-010.
 > Dogfood: este incremento se construye DENTRO de sí mismo (la cadencia se prueba sobre su propia obra).
 

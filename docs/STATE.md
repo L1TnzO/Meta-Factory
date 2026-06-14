@@ -1,6 +1,6 @@
-<!-- meta:doc sha=b120dc56d778c32eb21f4211c898dbd36e49ad88 updated=2026-06-14T14:53Z -->
+<!-- meta:doc sha=964340e421a27b73fb183a745b8710c3ea5f79d4 updated=2026-06-14T15:01Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-14T14:52Z · sesión: opus-4.8 (M4 landed · M5 en curso) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-14T15:00Z · sesión: opus-4.8 (M4 landed · M5 gate landed) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -34,9 +34,9 @@
   Implementado** (disciplina de commit: todo código en un incremento + cadencia por fase, esta sesión).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
-- **M4 ✅ / M5 en curso / M6–M7 pendientes** (incremento `M4-M7-INCREMENT`): M4 (frontera generado/dominio,
-  gateada por `boundary_survives` + e2e en el dummy) LANDED; M5 (memoria & RTM, gate `rtm_rederive`:
-  corromper un proof CAMBIA el RTM) en curso; faltan M6 (dos-verificadores como workflow real) y M7 (harness).
+- **M4 ✅ / M5 gate ✅ / M6–M7 pendientes** (incremento `M4-M7-INCREMENT`): M4 (frontera generado/dominio,
+  `boundary_survives`) y M5 (memoria & RTM, gate `rtm_rederive`: corromper un proof CAMBIA el RTM) LANDED+e2e
+  en el dummy; faltan M6 (dos-verificadores como workflow real) y M7 (harness + captura viva journal/métricas).
 - **Subsistema de MEMORIA COMPLETO** (incremento MEMORIA, sesión 2; ADR-007/008 Implementados):
   Tier 0 (journal at-source + métricas/costo), fix de G-M1 (proyección + `meta checkpoint` + check),
   Tier 2 medido (`meta recall`), rehidratación SessionStart. Único diferido a propósito: índice

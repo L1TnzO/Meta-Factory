@@ -1,7 +1,30 @@
-<!-- meta:doc sha=72d283d3b5d4a44b9e7b0a17d68307ea3075d0c5 updated=2026-06-14T14:39Z -->
+<!-- meta:doc sha=44ecc08446c95f974df6138d7ce64537355ff7e4 updated=2026-06-14T15:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T15:00Z — M5/P2: gate rtm_rederive — el RTM se re-deriva de artefactos, no de prosa
+- **gatillo**: el ingeniero pidió continuar con P2/M5 (memoria & RTM), delegando cuando corresponda.
+- **hallazgo**: el sustrato de memoria YA existía a nivel meta (`meta rtm/journal/metrics` re-derivan;
+  `memory/projection.py`). El agujero real de M5 era el GATE: una estación + check que EXIJA por bloqueo
+  que el RTM se re-deriva de `.proof/` (criterio 2), espejo de cómo M4 hizo no-decorativa la frontera.
+- **hecho (trust-chain, a mano)**: `verify/checks/rtm_rederive.py` (la gate; reusa el verifier del seed y
+  la ley de `meta rtm`, cero lógica duplicada) + `kind` en el registry (dato, no rama del engine; I-2) +
+  `m05.yml` (gate + render de docs/reference/MEMORY.md) + `template/factory/memory/MEMORY.md` (ADR-021).
+- **prueba por bloqueo (no narrada)**: standalone vs dummy → exit 0; el NEGATIVO interno corre de verdad
+  (corromper el proof de s00 en copia hermética tira REQ-F-001 a UNSATISFIED — si no cambiara, rojo) +
+  consistencia del ledger. Committeé el núcleo → corrí `meta station m05 --factory dummy` por el camino
+  GATEADO (sin deuda) → PASS, gate OPEN, re-run idempotente (diff vacío). rtm dummy COMPLETE 1/1;
+  product-run (m08 e2e) PASS; suite 242 passed; `meta check` 5/5.
+- **delegación**: el TEST (grind, fixtures herméticos) a Sonnet → `tests/test_rtm_rederive.py` (7 tests).
+  Revisado por bloqueo: corrí la suite yo y VERIFIQUÉ que el caso de ledger ejerce la rama real
+  ("EVIDENCIA INCONSISTENTE"), no que pasa por otra. La trust-chain (el check) NO se delegó (§3).
+- **honesto / pendiente**: P2 entrega el GATE (criterio 2 núcleo: RTM re-deriva, corromper un proof lo
+  cambia, evidencia del ledger consistente). DIFERIDO: captura VIVA de journal/métricas por hooks EN la
+  fábrica (hoy el journal es meta-level) y la proyección de RTM en el STATE de la fábrica (necesita una
+  proyección por-fábrica, no la meta) → caen en M7/seguimiento. Cerré de paso el descuido de no refrescar
+  STATE en fa173ef (lo atrapó `meta check` docs-consistency esta sesión).
+- **refs**: `77c65a9`, `e3c0e1e`; `work/M4-M7-INCREMENT.md §P2`; `verify/checks/rtm_rederive.py`; ADR-008, ASF/ADR-021.
 
 ## 2026-06-14T14:38Z — M4/P1: dummy regenerado a la frontera I-5, landed y probado por el camino gateado
 - **gatillo**: handoff. La sesión opus anterior delegó a Sonnet el grind (regenerar el dummy a la frontera

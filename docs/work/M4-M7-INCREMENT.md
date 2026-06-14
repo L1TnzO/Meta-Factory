@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a886db81f91e7135078b14911c405e697ee4a2e5 updated=2026-06-14T14:39Z -->
+<!-- meta:doc sha=d2396a5c81e26935f834de1d56611bd61279eaa5 updated=2026-06-14T15:01Z -->
 # Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T02:15Z — sesión opus-4.8). Cerralo con
@@ -21,7 +21,7 @@ hace falta, un check nuevo en el registry. El seed (trust-chain) NO se delega; e
 | Fase | Meta-estación | Contenido | Estado |
 | --- | --- | --- | --- |
 | P1 | **M4** Template & frontera | `m04.yml` + template `generated/` vs `domain/` (`_skip_if_exists`) + answers/migración; check `boundary_survives` | 🟡 frontera+test hechos, gateados y e2e en el dummy (criterio 1 ✅, `7139e9a`); `answers/migración` pendiente |
-| P2 | **M5** Memoria & RTM | `m05.yml` + hornear journal+docs(esquema ADR-021)+métricas(ADR-008) en el template; check `rtm_rederive` | ⏳ |
+| P2 | **M5** Memoria & RTM | `m05.yml` + hornear journal+docs(esquema ADR-021)+métricas(ADR-008) en el template; check `rtm_rederive` | 🟡 gate `rtm_rederive` hecho+gateado+e2e (criterio 2: RTM re-deriva de `.proof/`, corromper un proof lo cambia, ledger consistente; `e3c0e1e`) + MEMORY.md horneado; captura VIVA journal/métricas + proyección RTM en STATE de fábrica → M7/seguimiento |
 | P3 | **M6** Dos verificadores | `m06.yml` + workflow de re-derivación (seed ya trae `external_ci.yml`) + veredicto pineado + pre-push; check `clean_runner` | ⏳ |
 | P4 | **M7** Harness | `m07.yml` + hooks=sombras de columna + agents=contratos + commands + CLAUDE.md ≤ presupuesto; check `agent_shadow` | ⏳ |
 | P5 | Integración + cierre | dummy corre M0–M8 completo e2e; RTM COMPLETE re-derivado; STATE/LOG; suite verde; `meta increment close` | ⏳ |

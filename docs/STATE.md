@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a5dd34129c9dc2db670a95716ca09889dab1cbf2 updated=2026-06-14T01:14Z -->
+<!-- meta:doc sha=f2e85f14b92e2018470b5299b8d2616027909b42 updated=2026-06-14T01:27Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -30,7 +30,8 @@
   capstone (3 cerrojos bloquean); M8 negativo; re-derivación en clon limpio (proof_sha == pineado;
   corrompido → ≠ → rojo); aislamiento PF-6; **seed auditado por reviewer opus de contexto fresco: 0 CRITICAL**
   (2 HIGH arreglados, 1 MEDIUM by-design). Suite: **137 tests verdes**.
-- **9 ADR**: 001–006+009 Aprobados; **007–008 Aprobados + Implementados** (incremento MEMORIA, sesión 2).
+- **10 ADR**: 001–006+009 Aprobados; **007–008** Aprobados + Implementados (MEMORIA, s2); **010 Aprobado +
+  Implementado** (disciplina de commit: todo código en un incremento + cadencia por fase, esta sesión).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
 - **M4–M7 NO construidos**: template de producto completo + frontera generado/dominio (M4), memoria+RTM
@@ -47,6 +48,9 @@
   INDEX, `proof_protect`/`permissions` deniegan `.proof/`, `gate_guard`/`commit_guard`/`stop_proof`
   bloquean por exit code. En la sesión de CONSTRUCCIÓN no estaban activos (escritos a mitad) — de ahí
   la doc discrecional. Detalle: `reference/HONEST-STATE.md §2`. G-8 (cascada): probado contra UNA fábrica.
+  **6º hook `increment_guard` + cadencia en `gate_guard`/`stop_proof` (ADR-010, esta sesión)**: escritos,
+  unit + exit-code probados (gate_guard EN VIVO bloqueó avance con deuda); PENDIENTE live-verify tras
+  reiniciar (mismo patrón "escrito pero no cargado hasta el arranque" que la s2).
 - **Disciplina de proceso fallada (honesto)**: documenté al CIERRE, no incremental; 0 commits durante
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 
@@ -57,9 +61,10 @@
 3. Afinar el `proof_protect` over-block (denylist `.proof/` + `>`) — finding de la sesión 2.
 4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
    semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.
-5. **Política de commit fuera de incremento (diseño abierto)**: hoy NO se auto-commitea si no hay incremento
-   abierto — `commit_guard` solo gatea estaciones rojas, no la cadencia. Si la frontera (commit por-fase
-   forzado DENTRO del incremento vs. discrecional FUERA) debe volverse regla explícita/automatizada, por decidir.
+5. **Propagar la disciplina de commit (ADR-010) al `template/factory/harness`**: el núcleo ya está
+   Implementado en el harness de la meta-factory (`increment_guard` + cadencia en `gate_guard`/`stop_proof`
+   + `meta increment` + surface). Falta hornearlo en el sustrato para que TODA fábrica generada lo herede
+   (verificar en el dummy, G-8). Y refinar: ¿gatear también EJECUTAR la línea (`meta station`) sin incremento?
 
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)

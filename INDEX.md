@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `fa0289165a13` | 2026-06-13T20:30Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `a5dd34129c9d` | 2026-06-14T01:14Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `a696f521091d` | 2026-06-14T01:28Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `f2e85f14b92e` | 2026-06-14T01:27Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -17,6 +17,7 @@
 | `docs/decisions/007-arquitectura-de-memoria.md` | `95516f660478` | 2026-06-13T20:27Z | ADR-007 — Arquitectura de memoria: tres tiers, single source of truth, disparador no-discrecional |
 | `docs/decisions/008-observabilidad-metricas-gratis.md` | `c78ab901b885` | 2026-06-13T20:27Z | ADR-008 — Observabilidad y métricas: captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/decisions/009-manifiesto-docs-content-addressed.md` | `adf6735aec8f` | 2026-06-13T14:57Z | ADR-009 — Manifiesto de docs content-addressed: hash de git + sello in-band (vista generada, no a mano) |
+| `docs/decisions/010-disciplina-commit.md` | `a773144a843d` | 2026-06-14T01:27Z | ADR-010 — Disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/reference/ARCHITECTURE.md` | `27963f9d7903` | 2026-06-13T14:57Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
@@ -26,7 +27,7 @@
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/BOOTSTRAP-INCREMENT.md` | `d976acfd9db1` | 2026-06-13T15:22Z | Incremento BOOTSTRAP — el seed, la maquinaria base y la prueba del punto fijo |
-| `docs/work/CADENCE-INCREMENT.md` | `ca4f0a04b2cd` | 2026-06-14T01:14Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
+| `docs/work/CADENCE-INCREMENT.md` | `5a0aa6daad2c` | 2026-06-14T01:28Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `f62d7be84351` | 2026-06-13T15:21Z | Meta-Factory — orientación (fase de diseño) |

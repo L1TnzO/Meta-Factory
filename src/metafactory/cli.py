@@ -96,6 +96,9 @@ def cmd_check(args) -> int:
     nfacts = _unnarrated_count(root)
     if nfacts:
         npass += f" · {nfacts} hecho(s) sin narrar: `meta checkpoint`"
+    from .memory import cadence
+    if cadence.debt(root)[0]:
+        npass += " · cadencia: código sin commitear (`meta increment status`)"
     v = report.from_proof("check", proof, next_pass=npass,
                           next_fail="abrí el ARTEFACTO o corré `triage` sobre él; no lo pegues al contexto")
     _print_verdict(v)

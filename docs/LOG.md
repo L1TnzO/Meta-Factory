@@ -1,7 +1,29 @@
-<!-- meta:doc sha=fa0289165a13bbb73e65adc4828ec14c8b92c491 updated=2026-06-13T20:30Z -->
+<!-- meta:doc sha=a696f521091d2e5a3773bf9994f7f4045a7213d4 updated=2026-06-14T01:28Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T01:28Z — Incremento CADENCE: disciplina de commit (ADR-010), todo código en un incremento
+- **gatillo**: el ingeniero preguntó si "dejé sin commitear porque no me lo pidió" estaba bien bajo la
+  doctrina del repo. Verifiqué el estándar real (I-10, `commit_guard`, formato de mensajes) y reconocí que
+  mi default genérico choca con la doctrina (el pecado del bootstrap fue 0 commits). Pidió diseñar la
+  política de cadencia; al hacerlo, **reencuadró el problema** (mejor que mi framing): el agujero no era
+  no-commitear DENTRO de un incremento sino poder tocar código FUERA de todo incremento.
+- **hecho**: construí ADR-010 en 3 fases con disciplina real (commit por fase C1–C3, dogfood dentro de
+  `CADENCE-INCREMENT.md`): Capa 1 increment-gate (`increment_guard`: no se edita no-`.md` sin incremento;
+  decisión pura en `cadence.edit_allowed`), Capa 2 cadencia (deuda = incremento+código sin commitear; dientes
+  en `gate_guard` advance, `stop_proof` close, `meta increment close`, surface en `meta check`), + lifecycle
+  `meta increment open/close/status`. Cero modelo (git + file-IO). 17 tests nuevos.
+- **prueba por bloqueo (no narrada)**: con `m00` verde + deuda, `gate_guard` EN VIVO bloqueó el avance a `m01`
+  (exit 2, mensaje ADR-010); tras commitear, exit 0. Antes/después limpio. La teeth primaria (advance) es
+  justo la que habría atrapado el bootstrap (un build largo de un turno).
+- **delegación**: ninguna — es columna/trust-chain (la escribo yo, no se delega; SELF-IMPROVEMENT §3).
+- **honesto / pendiente**: `increment_guard` se carga al arrancar → live-verify recién tras reiniciar (mismo
+  patrón "escrito pero no cargado" de la s2); ejecutar la línea sin incremento aún no está gateado (sólo
+  EDITAR); propagar al `template/factory/harness` para que las fábricas generadas lo hereden quedó como #5.
+- **dogfood**: el incremento se construyó dentro de sí; la cadencia se probó sobre su propia obra; cerrado
+  con `meta increment close` (gateado).
+- **refs**: ADR-010; `work/CADENCE-INCREMENT.md §Criterio`; `src/metafactory/memory/cadence.py`; STATE #5.
 
 ## 2026-06-13T20:30Z — Incremento MEMORIA: subsistema completo y SOTA (Tier 0/1/2 + el fix de G-M1)
 - **hecho**: a pedido del ingeniero ("todo a memoria, dejarla terminada y SOTA"), construí el subsistema

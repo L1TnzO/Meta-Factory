@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ca4f0a04b2cd46a5956af432a520c3193757edd6 updated=2026-06-14T01:14Z -->
+<!-- meta:doc sha=5a0aa6daad2c1c58996725bfab46fe1e6ad3e866 updated=2026-06-14T01:28Z -->
 # Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T00:55Z — sesión opus-4.8). Cerralo con
@@ -23,9 +23,9 @@ cero-modelo, re-derivable.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| C1 | `cadence.py` (señal) + `meta increment open/close/status` + `tests/test_cadence.py` | ⏳ |
-| C2 | hooks: `increment_guard` nuevo + extender `gate_guard`/`stop_proof` + `settings.json` + tests de bloqueo | ⏳ |
-| C3 | surface en `meta check` + `ADR-010` + STATE #5 + LOG + cierre del incremento | ⏳ |
+| C1 | `cadence.py` (señal) + `meta increment open/close/status` + `tests/test_cadence.py` | ✅ |
+| C2 | hooks: `increment_guard` nuevo + extender `gate_guard`/`stop_proof` + `settings.json` + tests de bloqueo | ✅ |
+| C3 | surface en `meta check` + `ADR-010` + STATE #5 + LOG + cierre del incremento | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `cadence.debt` True con (incremento+código sin commitear), False al commitear/limpiar, False sin incremento.

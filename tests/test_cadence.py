@@ -142,6 +142,26 @@ class TestStopBlock:
 
 
 # ---------------------------------------------------------------------------
+# edit_allowed — Capa 1: no se codifica (no-.md) fuera de un incremento
+# ---------------------------------------------------------------------------
+class TestEditAllowed:
+    def test_md_always_allowed(self, repo: Path):
+        # sin incremento abierto, un .md sigue permitido (es como se ABRE uno)
+        assert cadence.edit_allowed(repo, str(repo / "docs" / "STATE.md")) is True
+
+    def test_py_blocked_without_increment(self, repo: Path):
+        assert cadence.edit_allowed(repo, str(repo / "src" / "foo.py")) is False
+
+    def test_py_allowed_with_increment(self, repo: Path):
+        _open_increment(repo)
+        assert cadence.edit_allowed(repo, str(repo / "src" / "foo.py")) is True
+
+    def test_outside_repo_allowed(self, repo: Path, tmp_path: Path):
+        outside = tmp_path.parent / "elsewhere.py"
+        assert cadence.edit_allowed(repo, str(outside)) is True
+
+
+# ---------------------------------------------------------------------------
 # Lifecycle — los RECHAZOS (las teeth); los success-paths los ejerce el dogfood
 # ---------------------------------------------------------------------------
 class TestLifecycleRefusals:

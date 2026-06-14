@@ -37,6 +37,16 @@ def main() -> int:
     v = load_seed_verifier()
     proof = v.load_proof(root / "factories" / slug, prev.id)
     if proof is not None and v.gate_recompute_ok(proof)[0]:
+        # predecesora VERDE: la cadencia (ADR-010) exige commitearla antes de avanzar de fase.
+        try:
+            from metafactory.memory import cadence
+            has_debt, reason = cadence.debt(root)
+        except Exception:
+            has_debt, reason = False, ""
+        if has_debt:
+            print(f"gate_guard: no avances a {station_id} con la fase anterior sin commitear "
+                  f"({reason}); commiteá (trailers I-10) y reintentá (ADR-010)", file=sys.stderr)
+            return 2
         return 0
     print(f"gate_guard: no podés correr {station_id}: la gate de {prev.id} no está abierta (orden de la línea)", file=sys.stderr)
     return 2

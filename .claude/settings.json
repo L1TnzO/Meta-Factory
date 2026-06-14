@@ -12,7 +12,10 @@
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit",
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/proof_protect.py" }]
+        "hooks": [
+          { "type": "command", "command": "python3 .claude/hooks/proof_protect.py" },
+          { "type": "command", "command": "python3 .claude/hooks/increment_guard.py" }
+        ]
       },
       {
         "matcher": "Bash",

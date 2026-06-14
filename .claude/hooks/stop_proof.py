@@ -19,12 +19,24 @@ def main() -> int:
     env = {**os.environ, "PYTHONPATH": "src"}
     r = subprocess.run([sys.executable, "-m", "metafactory.cli", "verify", "--rerun"],
                        env=env, capture_output=True, text=True)
-    if r.returncode == 0:
-        return 0
-    print("stop_proof: la estación activa NO pasa verify; el turno no puede cerrar (Cerrojo 3).", file=sys.stderr)
-    for line in (r.stdout.strip().splitlines() or ["verify falló"])[:5]:
-        print("  " + line, file=sys.stderr)
-    return 2
+    if r.returncode != 0:
+        print("stop_proof: la estación activa NO pasa verify; el turno no puede cerrar (Cerrojo 3).", file=sys.stderr)
+        for line in (r.stdout.strip().splitlines() or ["verify falló"])[:5]:
+            print("  " + line, file=sys.stderr)
+        return 2
+    # Cadencia (ADR-010): un gate verde sin commitear tampoco cierra el turno (backstop).
+    sys.path.insert(0, "src")
+    try:
+        from metafactory._seed import repo_root
+        from metafactory.memory import cadence
+        blocked, reason = cadence.stop_block(repo_root())
+    except Exception:
+        blocked, reason = False, ""
+    if blocked:
+        print(f"stop_proof: hay un gate verde sin commitear; el turno no cierra hasta commitear "
+              f"({reason}) (ADR-010).", file=sys.stderr)
+        return 2
+    return 0
 
 
 if __name__ == "__main__":

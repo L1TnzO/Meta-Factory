@@ -63,6 +63,20 @@ def debt(root: Path) -> tuple[bool, str]:
     return True, f"incremento {inc}: código sin commitear — {_fmt(dirty)}"
 
 
+def edit_allowed(root: Path, file_path: str) -> bool:
+    """Capa 1 (ADR-010): editar un archivo NO-`.md` bajo el repo exige un incremento abierto.
+    `.md` (es como se ABRE un incremento) y archivos fuera del repo: siempre permitidos. Función
+    PURA — la decisión vive acá; el hook `increment_guard` es sólo transporte (ley de colocación)."""
+    try:
+        target = Path(file_path).resolve()
+        target.relative_to(Path(root).resolve())
+    except (ValueError, OSError):
+        return True   # fuera del repo: no es código del proyecto
+    if target.suffix == ".md":
+        return True
+    return open_increment(root) is not None
+
+
 def _last_commit_dt(root: Path) -> datetime:
     iso = _git(root, "log", "-1", "--format=%cI").strip()
     if not iso:

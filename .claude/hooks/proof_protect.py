@@ -6,6 +6,33 @@ import json
 import re
 import sys
 
+# Vectores de ESCRITURA a `.proof/`. Denylist inherentemente incompleta (la raíz real es la
+# RE-DERIVACIÓN en clon limpio, donde .proof/ no existe); cubre los conocidos. Cada patrón liga un
+# operador de escritura con un TARGET dentro de `.proof/`, NO con `.proof/` en cualquier parte del
+# comando: así no se dispara con redirecciones de SOLO LECTURA (`2>&1`, `2>/dev/null`) ni con
+# `.proof/` mencionado como argumento de lectura (`ls .proof/`, `cat .proof/x`) o como texto
+# (un mensaje de commit con `.proof/` y flechas `->`). Antes el OR laxo lo volvía sobre-celoso.
+# Operando acotado con `[ \t]`/`[^ \t\n…]` (NO `\s`/`[^|;&]`): el target debe ser un token de la
+# MISMA línea, separado por espacios. Así un verbo de escritura mencionado en PROSA (p.ej. un mensaje
+# de commit multilínea que nombra `cp`/`tee` y, en otra línea, `.proof/`) no "alcanza" ese `.proof/`.
+_PROOF_WRITE = re.compile(
+    r"""(?x)
+    (?: >>? [ \t]* ['"]? [^\s'"|&;<>]* \.proof/ )                       # redirección: > .proof/x , >> dir/.proof/x
+  | (?: \b(?:tee|cp|mv|install|truncate|dd)\b                           # verbos que escriben un arg-archivo...
+        (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )   # ...un arg-target en .proof/
+  | (?: \bsed [ \t]+ -i\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # sed -i ... .proof/x
+  | (?: \bln  [ \t]+ -s\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # ln -s ... .proof/x
+  | (?: \bopen \s* \( \s* ['"] [^'"]* \.proof/ )                        # open('.proof/..', …)  (intérprete)
+    """
+)
+
+
+def bash_writes_to_proof(cmd: str) -> bool:
+    """True si el comando intenta ESCRIBIR en `.proof/` por shell o por intérprete. Las lecturas
+    (incluidas las redirecciones `2>&1`/`2>/dev/null`) y las menciones como argumento o texto no
+    cuentan: la raíz de confianza es la re-derivación, no atrapar toda mención de `.proof/`."""
+    return bool(_PROOF_WRITE.search(cmd))
+
 
 def main() -> int:
     try:
@@ -24,13 +51,8 @@ def main() -> int:
         if "/.proof/" in path or path.endswith("/.proof") or path.startswith(".proof/"):
             return deny(f"denegado: {path} es un artefacto de veredicto; solo el verifier escribe ahí (Cerrojo 1)")
     if tool == "Bash":
-        cmd = ti.get("command", "")
-        # Denylist (inherentemente incompleto: la raíz real es la RE-DERIVACIÓN en clon limpio,
-        # donde .proof/ no existe). Cubrimos los vectores conocidos: redirección/edición por shell
-        # y la escritura por intérprete (`python -c "open('.proof/..','w')"`, idea del audit del seed).
-        if ".proof/" in cmd and re.search(
-            r"(>>?|\btee\b|\bsed\s+-i\b|\bcp\b|\bmv\b|\btruncate\b|\bdd\b|\binstall\b|\bopen\s*\(|\bln\s+-s)", cmd):
-            return deny("denegado: el comando intenta escribir en .proof/ (Cerrojo 1; la raíz real es la re-derivación)")
+        if bash_writes_to_proof(ti.get("command", "")):
+            return deny("denegado: el comando ESCRIBE en .proof/ (Cerrojo 1; la raíz real es la re-derivación)")
     return 0
 
 

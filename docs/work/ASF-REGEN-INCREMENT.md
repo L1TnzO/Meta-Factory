@@ -1,4 +1,4 @@
-<!-- meta:doc sha=77c4590478f84b989848ec21ec130e8ef90b97ac updated=2026-06-14T20:33Z -->
+<!-- meta:doc sha=564dc035c399b1d09308d09213a5d70aa09dc4aa updated=2026-06-14T20:56Z -->
 # Incremento ASF-REGEN
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T20:32Z). Cerralo con `meta increment close`
@@ -8,6 +8,22 @@
 Regenerar ASF como **producto** del Meta-Factory (ADR-006): descomponerlo en factory-spec Mitad A
 (sus opiniones) + sustrato heredado (I-1…I-13), correr M0–M8 sobre esa spec, y demostrar **paridad
 funcional por re-derivación** con el ASF congelado — sin tocar `../../Agent_Systems_Factory/`.
+
+## Alcance (decisión de diseño · Opus/trust-chain, define el veredicto)
+> Leído el sustrato con ojos propios: el codegen de PRODUCTO está parametrizado para un único patrón
+> —una estación `s00` que renderiza `def f() -> str: return MARKER`— y `_run_product_line` corre sólo
+> el `stations/` GENERADO (siempre `s00`). El producto real de ASF (grafos LangGraph, las 7 capacidades,
+> la secuencia S0–S8) **no entra** en ese molde. Eso es exactamente el supuesto no parametrizado que
+> ADR-006 anticipa que la regeneración DESTAPA (G-8 vivo), no un bug a tapar.
+>
+> Por lo tanto "regenerar ASF" en este incremento = **regenerar el CHASIS de la fábrica de
+> sistemas-de-agentes** (seed, columna, gates, estaciones-como-dato, RTM, dos-verificadores, harness)
+> con las **opiniones de ASF descendidas FIELMENTE a `factory.spec.yml` como DATO** (framework,
+> 7 capacidades, S0–S8, modos de provisión, interrupt no-salteable). El e2e (M8) prueba el chasis con
+> un producto **proxy honesto** (marcador), NO simula haber construido LangGraph.
+> **Paridad** aquí = mismas GARANTÍAS del sustrato (línea M0–M8 verde, RTM re-derivado honesto, prueba
+> de bloqueo), NO paridad-byte del producto-agente. La generación real de la línea S0–S8 (codegen
+> multi-estación del dominio agente) es G-8 **explícitamente DIFERIDO** (criterio 5), no fingido.
 
 ## Delegación (ley de colocación · economía de tokens)
 > Este incremento **produce un producto**, no toca el seed/trust-chain (SELF-IMPROVEMENT §3). El

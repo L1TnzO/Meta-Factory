@@ -1,0 +1,96 @@
+# agent-systems-factory.factory.spec.yml — ASF regenerado como PRODUCTO del Meta-Factory (ADR-006).
+# Las opiniones de ASF DESCENDIDAS a factory-spec (Mitad A) + el sustrato heredado (Mitad B).
+# ALCANCE de este incremento: regenera el CHASIS con producto PROXY (marcador). La generación real
+# de la línea S0–S8 (codegen multi-estación del dominio agente) es G-8 DIFERIDO — declarado como dato.
+
+factory:
+  name: "Agent Systems Factory"
+  slug: agent-systems-factory
+  maturity: regenerated
+
+# ── MITAD A: dominio de la fábrica (las opiniones de ASF) ──
+domain:
+  produces: "el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de invariante; la línea S0–S8 real es G-8 diferido)"
+  target_framework: { name: langgraph, provider_agnostic: true }   # ADR-002: productos sobre LangGraph sin SDK de proveedor; el producto llama al modelo vía ChatModel de LangChain, nunca importa el SDK de un proveedor
+  # Las 7 capacidades de producción de ASF — DATO (no estaciones todavía; G-8 diferido):
+  product_capabilities:
+    # Fuente: ARCHITECTURE.md §1.3 (tabla canónica) + PRODUCTION-CAPABILITIES.md §3 (patrones e invariantes)
+    - id: observabilidad
+      statement: "árbol de trazas inspeccionable de toda decisión: un procesador de spans (generado) inyecta los atributos semánticos de provenance en cada span del producto; el invariante no depende de ningún nodo del agente"
+      status: declared-deferred
+    - id: trazabilidad_y_linaje
+      statement: "recorrido bidireccional salida↔evidencia sobre grafo W3C PROV+PAV en Neo4j; todo nodo de linaje estampa la clave de unión (trace_id, span_id, checkpoint_id)"
+      status: declared-deferred
+    - id: estado_durable_y_recuperacion
+      statement: "la máquina de estados es checkpointeada vía LangGraph PostgresSaver; un fallo de nodo no reejecuta lo completado — el ciclo es resumible desde el último checkpoint"
+      status: declared-deferred
+    - id: anclaje_de_fuentes
+      statement: "retrieval trazable por construcción: tabla de evidencia immutable (append-only), segmentación consciente de fronteras, interfaz retrieve() que retorna ProvenancePayload no opcional"
+      status: declared-deferred
+    - id: atribucion_y_fundamentacion
+      statement: "bandera grounded/inferred con confianza calibrada por ítem: un ítem sin fragmento de soporte se fuerza a grounded=false; la escalera de atribución (ContextCite / MiniCheck / NLI) corre como nodos del grafo, no interna a un nodo del agente"
+      status: declared-deferred
+    - id: control_y_supervision_humana
+      statement: "techo de autonomía imposible de saltear: ninguna ruta de finalización evita el interrupt() de LangGraph; toda edición humana en el resume crea una versión nueva con pav:curatedBy; la salida lleva etiqueta DRAFT; no existe ruta de auto-aprobación"
+      status: declared-deferred
+    - id: evaluabilidad
+      statement: "calidad medida con compuertas que bloquean: el CI termina con error si una métrica cae bajo su umbral (ej. faithfulness ≥ 0.7, recall crítico ≥ 0.9, parametrizados desde el spec); el gold set provisional queda etiquetado y la acción requerida documentada"
+      status: declared-deferred
+  # La secuencia S0–S8 de ASF como DATO (la línea generada hoy es sólo s00; esto documenta el objetivo G-8):
+  production_sequence_asf:
+    # Fuente: ARCHITECTURE.md §10 (tabla canónica de estaciones)
+    - id: s0
+      name: "Contrato de especificación"
+      purpose: "validar la especificación de entrada contra el mínimo de admisión (Definition of Ready): schema + completitud + referencias cruzadas; produce spec_assessment.md distinguiendo bloqueantes de provisionales; ninguna estación posterior avanza si hay bloqueantes"
+    - id: s1
+      name: "Sustrato de observabilidad"
+      purpose: "construir el procesador de spans, la instrumentación OTel GenAI semconv y el export OTLP (Langfuse/Phoenix); gateado por un árbol de spans con atributos provenance.* en InMemorySpanExporter"
+    - id: s2
+      name: "Sustrato de trazabilidad/linaje"
+      purpose: "construir el grafo de linaje W3C PROV+PAV en Neo4j y los recorridos bidireccionales (backward: salida→evidencia; forward: fuente→influidos) con clave de unión (trace_id, span_id, checkpoint_id); activación condicionada por profundidad de linaje en el spec"
+    - id: s3
+      name: "Estado durable y recuperación"
+      purpose: "construir el checkpointer AsyncPostgresSaver (LangGraph langgraph-checkpoint-postgres); gateado por prueba de fallo inyectado: los nodos completados no se reejecutan y el grafo resume desde el último checkpoint"
+    - id: s4
+      name: "Núcleo agéntico (lógica de negocio)"
+      purpose: "construir la topología del StateGraph, el blackboard tipado con reductores, los contratos de nodo/herramienta/reductor y las clases base instrumentadas; el interrupt() no-salteable se hornea estructuralmente; la lógica de dominio (modo prompt/integration) la implementa el ingeniero en domain/"
+    - id: s5
+      name: "Anclaje de fuentes"
+      purpose: "construir la tabla de evidencia inmutable (append-only), la segmentación consciente de fronteras y la interfaz tipada retrieve() → tuple[str, ProvenancePayload]; activación condicionada por source_grounded en el spec"
+    - id: s6
+      name: "Atribución y fundamentación"
+      purpose: "construir la escalera de atribución (provenance de retrieval → NLI/MiniCheck → ContextCite → bandera) como nodos del grafo; gateado por regla 'sin soporte ⇒ grounded=false' y presencia de bandera+confianza en cada ítem; activación condicionada por 'hace aserciones' en el spec"
+    - id: s7
+      name: "Control y supervisión humana"
+      purpose: "construir el paquete de revisión (peor-primero), el interrupt/resume con versionado PAV (pav:curatedBy por cada edición humana) y la etiqueta DRAFT en la salida; gateado por ausencia de ruta de auto-finalización que saltee el interrupt; activación condicionada por nivel de autonomía en el spec"
+    - id: s8
+      name: "Sustrato de evaluabilidad"
+      purpose: "construir el arnés de evaluación (DeepEval/promptfoo/RAGAS/Phoenix Evals/DSPy) y los gates de umbral en CI; gateado por prueba de que el CI termina con error ante un caso failing; sin gold set real, el artefacto sintético se etiqueta como provisional con la acción requerida documentada"
+  provision_modes: [prompt, integration, custom]   # ARCHITECTURE.md §11.2: prompt→Nivel A (nodo esencialmente LLM), integration→Nivel B/C (adaptador tipado + consentimiento), custom→reductor de canal Nivel B/C según complejidad de fusión
+  hitl: { non_skippable_interrupt: true }           # ARCHITECTURE.md §1.3 + §10 S7 + ADR-015: ninguna ruta de finalización evita interrupt(); verificado por alcanzabilidad sobre el grafo LangGraph compilado (get_graph()), no por AST
+  # La estación de PRODUCTO GENERADA hoy (única; proxy honesto del invariante):
+  station_sequence:
+    - { id: s00, name: "ensamblar el chasis del sistema de agentes (proxy de invariante)", activation: always }
+  proof_check_types: [py_compile, import_runs, artifact_contains]
+  product:
+    product_module: agent_system
+    greet_fn: assemble
+    marker: AGENT_SYSTEM_OK
+
+# ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+  generated_domain_boundary: true
+  memory_schema: adr021
+  rtm: { required: true }
+  two_verifier_ci: { rederive: true, pinned_verdict: true }
+  placement_law: true
+  context_budget: { claude_md_max_lines: 120 }
+
+# ── REQUISITOS (espina SDD; sólo lo que la línea PRUEBA hoy mapea a s00) ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el chasis de la fábrica de sistemas-de-agentes compila, corre vía el runner generado y porta el marcador invariante AGENT_SYSTEM_OK"
+      satisfied_by: [s00]

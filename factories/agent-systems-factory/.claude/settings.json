@@ -1,0 +1,18 @@
+{
+  "$comment": "Columna heredada de la fábrica agent-systems-factory — las sombras deterministas del seed. Mínima en el bootstrap (M7 completa el harness: gate_guard/stop_proof/commit_guard de la fábrica). permissions.deny + proof_protect ya hacen cumplir el Cerrojo 1 sobre los veredictos de la fábrica.",
+  "permissions": {
+    "deny": ["Write(.proof/**)", "Edit(.proof/**)", "Write(**/.proof/**)", "Edit(**/.proof/**)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/proof_protect.py" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/proof_protect.py" }]
+      }
+    ]
+  }
+}

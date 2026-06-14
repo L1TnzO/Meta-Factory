@@ -1,0 +1,13 @@
+id: m07
+name: "Harness — agents=contratos, sombras (I-12) y residencia ≤ presupuesto"
+activation: always
+# M7 completa el harness de la fábrica (Claude Code como sustrato): los agents (contratos de delegación,
+# instalados por M1 con la columna) declaran sus prohibiciones, y la residencia (CLAUDE.md) se mantiene
+# ≤ presupuesto (I-6). M7 hornea el CLAUDE.md y agrega el DIENTE que faltaba: la gate `agent_shadow`
+# (I-12) exige que toda prohibición declarada en un agent tenga una SOMBRA determinista que EXISTE y, si
+# es hook, esté CABLEADA — un contrato hueco es rojo — y que CLAUDE.md mida ≤ el presupuesto de la spec.
+# Gate con render mínimo (la ley I-12 vive en el gate; los contratos, en .claude/agents/ de M1).
+builds:
+  - { action: render, src: "template/factory/CLAUDE.md", dest: "CLAUDE.md" }
+checks:
+  - { name: agent_shadow, kind: agent_shadow }

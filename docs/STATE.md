@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9a4435d47872013f981912ef3c97d51836a8b878 updated=2026-06-14T00:53Z -->
+<!-- meta:doc sha=a5dd34129c9dc2db670a95716ca09889dab1cbf2 updated=2026-06-14T01:14Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: CADENCE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 

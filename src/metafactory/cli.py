@@ -279,6 +279,110 @@ def cmd_doc_sync(args) -> int:
     return 0
 
 
+# ── incremento (disciplina de commit, ADR-010) ───────────────────────────────
+_INCREMENT_SCAFFOLD = """# Incremento {slug}
+
+> **Doc de gobierno.** Estado: **ABIERTO** (creado {ts}). Cerralo con `meta increment close`
+> (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+
+## Objetivo
+<qué deja TERMINADO este incremento — una frase>
+
+## Fases
+| Fase | Contenido | Estado |
+| --- | --- | --- |
+| 1 | <…> | ⏳ |
+
+## Criterio de cierre (demostrable, no narrable)
+1. <…>
+"""
+
+
+def _now_min() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+
+
+def _work_dir(root: Path) -> Path:
+    return root / "docs" / "work"
+
+
+def _active_station_green(root: Path) -> bool:
+    """True si no hay estación activa o si recompone verde (reusa el seed verifier, como commit_guard)."""
+    active = root / ".proof" / "active.json"
+    if not active.exists():
+        return True
+    try:
+        from ._seed import load_seed_verifier
+        a = json.loads(active.read_text(encoding="utf-8"))
+        v = load_seed_verifier()
+        proof = v.load_proof(Path(a["root"]), a["station"])
+    except Exception:
+        return True
+    return proof is None or v.gate_recompute_ok(proof)[0]
+
+
+def cmd_increment(args) -> int:
+    """Lifecycle de incrementos (ADR-010): la unidad dentro de la cual vive todo cambio de código.
+    `open` abre uno (rehúsa si ya hay), `close` lo cierra gateado, `status` muestra abierto + deuda."""
+    root = _meta_root()
+    from .memory import cadence, projection
+    if args.inc_cmd == "status":
+        inc = projection.open_increment(root) or "ninguno"
+        has_debt, reason = cadence.debt(root)
+        print(f"VEREDICTO  increment status — {'DEUDA' if has_debt else 'OK'}   (exit 0)")
+        print(f"RESUMEN    incremento abierto: {inc}")
+        print(f"CADENCIA   {reason}")
+        return 0
+    if args.inc_cmd == "open":
+        cur = projection.open_increment(root)
+        if cur is not None:
+            print("VEREDICTO  increment open — FAIL   (exit 1)")
+            print(f"RESUMEN    ya hay un incremento abierto: {cur} (cerralo: `meta increment close`)")
+            return 1
+        name = f"{args.slug.upper()}-INCREMENT.md"
+        path = _work_dir(root) / name
+        if path.exists():
+            print("VEREDICTO  increment open — FAIL   (exit 1)")
+            print(f"RESUMEN    docs/work/{name} ya existe; no lo piso")
+            return 1
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_INCREMENT_SCAFFOLD.format(slug=args.slug.upper(), ts=_now_min()), encoding="utf-8")
+        docs_manifest.sync(root)        # sella el doc nuevo + regenera INDEX
+        projection.refresh(root)        # la proyección de STATE refleja el incremento abierto
+        docs_manifest.sync(root)        # re-sella STATE
+        print(f"VEREDICTO  increment open {args.slug} — PASS   (exit 0)")
+        print(f"RESUMEN    abierto docs/work/{name} (Estado ABIERTO); editá Objetivo/Fases")
+        print("PRÓXIMO    ya podés tocar código; cerralo con `meta increment close` (gateado)")
+        return 0
+    # close
+    cur = projection.open_increment(root)
+    if cur is None:
+        print("VEREDICTO  increment close — FAIL   (exit 1)\nRESUMEN    no hay incremento abierto")
+        return 1
+    has_debt, reason = cadence.debt(root)
+    if has_debt:
+        print("VEREDICTO  increment close — FAIL   (exit 1)")
+        print(f"RESUMEN    no podés cerrar con deuda: {reason}")
+        print("PRÓXIMO    commiteá el trabajo probado (mensaje con trailers I-10) y reintentá")
+        return 1
+    if not _active_station_green(root):
+        print("VEREDICTO  increment close — FAIL   (exit 1)")
+        print("RESUMEN    la estación activa no recompone verde; no se cierra trabajo roto")
+        return 1
+    path = _work_dir(root) / cur
+    text = path.read_text(encoding="utf-8")
+    path.write_text(re.sub(r"Estado:\s*\*\*ABIERTO\*\*", f"Estado: **CERRADO** ({_now_min()})", text, count=1),
+                    encoding="utf-8")
+    docs_manifest.sync(root)
+    projection.refresh(root)
+    docs_manifest.sync(root)
+    print(f"VEREDICTO  increment close {cur} — PASS   (exit 0)")
+    print(f"RESUMEN    {cur} → CERRADO; proyección de STATE refrescada")
+    print("PRÓXIMO    narrá el episodio en LOG (`meta checkpoint` te ofrece los hechos sin narrar)")
+    return 0
+
+
 # ── memoria (Tier 0/1/2) ─────────────────────────────────────────────────────
 def _parse_ts(s: str):
     from datetime import datetime
@@ -407,6 +511,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_pin)
     sp = sub.add_parser("verify"); sp.add_argument("--rerun", action="store_true"); sp.set_defaults(func=cmd_verify)
     sub.add_parser("doc-sync").set_defaults(func=cmd_doc_sync)
+    ip = sub.add_parser("increment"); ip.set_defaults(func=cmd_increment)
+    isub = ip.add_subparsers(dest="inc_cmd", required=True)
+    isub.add_parser("open").add_argument("slug")
+    isub.add_parser("close")
+    isub.add_parser("status")
     sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)

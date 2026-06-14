@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4bba9d889d75ef9642f1e40705d2ea405bc6d51c updated=2026-06-14T01:29Z -->
+<!-- meta:doc sha=7ae0c58b8d0241c45d97561b540333325ea6354e updated=2026-06-14T01:34Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -48,9 +48,11 @@
   INDEX, `proof_protect`/`permissions` deniegan `.proof/`, `gate_guard`/`commit_guard`/`stop_proof`
   bloquean por exit code. En la sesión de CONSTRUCCIÓN no estaban activos (escritos a mitad) — de ahí
   la doc discrecional. Detalle: `reference/HONEST-STATE.md §2`. G-8 (cascada): probado contra UNA fábrica.
-  **6º hook `increment_guard` + cadencia en `gate_guard`/`stop_proof` (ADR-010, esta sesión)**: escritos,
-  unit + exit-code probados (gate_guard EN VIVO bloqueó avance con deuda); PENDIENTE live-verify tras
-  reiniciar (mismo patrón "escrito pero no cargado hasta el arranque" que la s2).
+  **6º hook `increment_guard` + cadencia en `gate_guard`/`stop_proof` (ADR-010)**: VERIFICADO EN VIVO
+  (sesión nueva, 2026-06-14): sin incremento abierto, `Write` de un `.py` → DENEGADO por el harness con
+  el mensaje ADR-010; `.md` y fuera-del-repo permitidos; árbol limpio antes/después (sin fuga del scratch).
+  Cierra el patrón "escrito pero no cargado hasta el arranque" de la s2. `gate_guard` ya había bloqueado
+  avance con deuda EN VIVO en la sesión de construcción.
 - **Disciplina de proceso fallada (honesto)**: documenté al CIERRE, no incremental; 0 commits durante
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 

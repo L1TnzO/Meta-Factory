@@ -1,4 +1,4 @@
-<!-- meta:doc sha=564dc035c399b1d09308d09213a5d70aa09dc4aa updated=2026-06-14T20:56Z -->
+<!-- meta:doc sha=91f1381fb5d47bcc214c0a5dc4eb9e063ac2d49d updated=2026-06-14T21:15Z -->
 # Incremento ASF-REGEN
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T20:32Z). Cerralo con `meta increment close`
@@ -39,15 +39,46 @@ funcional por re-derivación** con el ASF congelado — sin tocar `../../Agent_S
 ## Fases
 | Fase | Contenido | Quién | Estado |
 | --- | --- | --- | --- |
-| 1 | `factories/agent-systems-factory/factory.spec.yml` — Mitad A: LangGraph agnóstico-de-proveedor, las 7 capacidades de producción, secuencia S0–S8 como dato, modos prompt/integration/custom, interrupt no-salteable; Mitad B = sustrato heredado | Sonnet (extracción) + Opus (revisa fidelidad) | ⏳ |
-| 2 | `meta new` + línea M0–M8 sobre la spec → produce `factories/agent-systems-factory/` aislada, seed heredado, gates propias, CI externo | Sonnet | ⏳ |
-| 3 | **Paridad**: re-derivar y comparar contra ASF congelado — mismas suites verdes, RTM honesto, prueba de bloqueo. Opus define el criterio que bloquea; reviewer fresco | Opus (criterio+juicio) + Sonnet (corre) | ⏳ |
-| 4 | Narrar (STATE/LOG; addendum a ADR-006 si aparece un supuesto NO parametrizado del sustrato — eso es G-8 vivo) y cerrar incremento gateado | Opus | ⏳ |
+| 1 | `factory.spec.yml` — Mitad A: LangGraph agnóstico-de-proveedor, las 7 capacidades, secuencia S0–S8 como dato, modos prompt/integration/custom, interrupt no-salteable; Mitad B = sustrato heredado | Sonnet (extracción) + Opus (revisó fidelidad) | ✅ |
+| 2 | `meta new` (M0 validate 0 problemas) + línea M0–M8 verde + product-run s00 + `meta pin` → `factories/agent-systems-factory/` producida, aislada, seed heredado byte-idéntico, gates propias | Sonnet (brief) + Opus (orquestó+commiteó por fase) | ✅ |
+| 3 | **Paridad** (Opus, ojos propios): RTM `COMPLETE 1/1` re-derivado; `meta ci --rederive` `1/1 proof_sha == pineado`; prueba de bloqueo (corromper marcador → `gate s00: SHUT`, restaurado+re-verde); reviewer fresco (Sonnet) **0 CRITICAL** | Opus (criterio+juicio) + Sonnet (reviewer) | ✅ |
+| 4 | Narrar (STATE/LOG, §Hallazgos G-8) y cerrar incremento gateado | Opus | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. El ASF regenerado vive en `factories/agent-systems-factory/`, producido por la línea (no a mano), con su seed heredado, sus gates y su CI externo — aislado del ASF congelado.
-2. **Paridad por re-derivación**: las mismas suites verdes que ASF, RTM honesto re-derivado de `.proof/`, y la prueba de bloqueo (corromper un invariante → la columna de ESA fábrica bloquea).
+2. **Paridad por re-derivación** = mismas GARANTÍAS del sustrato (NO mismas suites que ASF — el §Alcance lo superó): línea M0–M8 verde sobre `agent-systems-factory`, RTM honesto re-derivado de `.proof/`, y la prueba de bloqueo (corromper el invariante → la columna de ESA fábrica bloquea). ✅
 3. Re-derivación en clon limpio: `proof_sha == pineado`; corrompido → `≠` → rojo (trust-chain, no narrado).
 4. Reviewer de contexto fresco sobre el diff: **0 CRITICAL**.
 5. Cualquier opinión de ASF que NO entró limpia en la factory-spec queda registrada como **supuesto no parametrizado** (G-8) — cerrado o explícitamente diferido, no tapado.
-6. `../../Agent_Systems_Factory/` intacto (sigue siendo referencia de paridad).
+6. `../../Agent_Systems_Factory/` intacto (sigue siendo referencia de paridad). ✅ (`git diff` no toca nada fuera del repo)
+
+## Hallazgos G-8 (criterio 5 — supuestos NO parametrizados que la regeneración DESTAPÓ; DIFERIDOS, no tapados)
+Regenerar ASF surfaceó, por bloqueo y por revisión, supuestos del sustrato que sólo el dummy no exponía.
+Ninguno se parchea acá (fuera de alcance: R2/R3 sobre seed/codegen); se DECLARAN para un follow-up.
+1. **Codegen de producto de un solo patrón** (frontera M4/M2): el sustrato sólo genera `s00` con
+   `def f()->str: return MARKER`. La línea S0–S8 multi-estación de ASF (núcleo agéntico, retrieval,
+   atribución, HITL…) no entra. Es el supuesto raíz; los otros derivan de él.
+2. **Frontera generado/dominio de ASF (ASF/ADR-014)**: Copier dueño de `generated/`, ingeniero de
+   `domain/`, costura por registry `id→clase` — sin representación en el factory-spec; concierne al codegen.
+3. **Contratos por-nodo del producto** (`payload_mock.json`, `autonomy.level`/`interrupt_at`): viven en
+   el spec del PRODUCTO de ASF, no en el factory-spec meta; el sustrato no tiene dónde alojarlos hoy.
+4. **Postura de infraestructura** (Postgres+pgvector, Neo4j, Langfuse, Phoenix; ASF/PROD-CAP §4): un
+   deliverable real del producto ASF sin representación en el chasis.
+5. **Evidencia de build / `factory trace` (ASF/ADR-017-018)**: comportamientos del harness de ASF fuera
+   del alcance del chasis hoy.
+6. **`seed/external_ci.yml` NO parametrizado por fábrica** (hallazgo del reviewer fresco, HIGH): `copy_seed`
+   lo copia verbatim y corre `./meta ci --rederive` sin `--factory`; el CLI defaultea a `--factory dummy`
+   (`cli.py:541`). Una fábrica heredera re-derivaría el DUMMY por su CI externo. **Mitigación viva**: la
+   doctrina de dos verificadores de ASF SÍ está enforced localmente por la gate `m06 clean_runner` (recibe
+   el factory_root, verificado verde); sólo el scaffold de GitHub-Actions mis-targetea y es latente hasta
+   que la fábrica se separe a su repo. Fix raíz (parametrizar el seed/`copy_seed`) = R3, follow-up.
+
+## Evidencia (output REAL, no narrado)
+- `meta new agent-systems-factory` → PASS, **M0 validate 0 problemas**.
+- Línea: `m00..m08` → `gate OPEN` (9/9); `product-run` → 3 checks (compile·runs·invariant); `m08 product_e2e ok`.
+- `meta rtm --factory agent-systems-factory` → **COMPLETE 1/1**, `REQ-F-001 SATISFIED <- s00`.
+- `meta ci --rederive --factory agent-systems-factory` → **PASS, 1/1 proof_sha == pineado** (árbol limpio).
+- Prueba de bloqueo: marcador corrompido → `product-run FAIL` (`runs`+`invariant` red), `gate s00: SHUT`;
+  `git checkout` restauró → `product-run PASS`; árbol limpio.
+- Reviewer fresco (Sonnet, contexto limpio): **0 CRITICAL**; confirmó `seed/verifier.py` byte-idéntico al
+  root, columna/hooks reales, pinned_verdict recomputado a mano, ASF congelado intacto. 1 HIGH = hallazgo G-8 #6.

@@ -1,13 +1,13 @@
-<!-- meta:doc sha=691bb06b9617fc3ade12caa198703b804e7c8e8a updated=2026-06-14T20:32Z -->
+<!-- meta:doc sha=a4a7900f89f709479fecc13d8f300c936d01fa13 updated=2026-06-14T21:18Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-14T20:15Z · sesión: opus-4.8 (M4-M7 CERRADO · los 4 gates + harness) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: ASF-REGEN-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): dummy: COMPLETE (1/1)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -44,25 +44,26 @@
   semántico (embeddings), **hasta que la medición lo justifique** (`reference/HONEST-STATE.md §3`).
 - **Trusting-trust PARCIAL**: la re-derivación atrapa custodia comprometida; NO un compromiso de la FUENTE
   de `verifier.py` (eso lo atrapa el review R3 del diff, no un verificador diverso). Residual honesto declarado.
-- **ASF NO regenerado** (ADR-006, diferido): sigue CONGELADO como referencia de cosecha y paridad — NO tocado.
+- **ASF regenerado como CHASIS** (ADR-006; `ASF-REGEN` CERRADO): la línea M0–M8 produjo `factories/agent-systems-factory/`
+  (seed byte-idéntico, columna real, RTM `COMPLETE 1/1`, dos-verificadores `proof_sha==pineado`, prueba de bloqueo;
+  reviewer fresco 0 CRITICAL). Las opiniones de ASF (LangGraph, 7 capacidades, S0–S8, modos, interrupt) DESCENDIDAS a
+  `factory.spec.yml` como DATO; producto = PROXY honesto. El codegen real S0–S8 = **6 hallazgos G-8 DIFERIDOS**
+  (`work/ASF-REGEN-INCREMENT.md §Hallazgos`). El ASF congelado (`../../Agent_Systems_Factory/`) NO tocado.
 - **Hooks: los 5 VERIFICADOS EN VIVO tras reiniciar** (sesión 2): `doc_stamp` auto-sella + regenera
   INDEX, `proof_protect`/`permissions` deniegan `.proof/`, `gate_guard`/`commit_guard`/`stop_proof`
   bloquean por exit code. En la sesión de CONSTRUCCIÓN no estaban activos (escritos a mitad) — de ahí
-  la doc discrecional. Detalle: `reference/HONEST-STATE.md §2`. G-8 (cascada): probado contra UNA fábrica.
-  **6º hook `increment_guard` + cadencia en `gate_guard`/`stop_proof` (ADR-010)**: VERIFICADO EN VIVO
-  (sesión nueva, 2026-06-14): sin incremento abierto, `Write` de un `.py` → DENEGADO por el harness con
-  el mensaje ADR-010; `.md` y fuera-del-repo permitidos; árbol limpio antes/después (sin fuga del scratch).
-  Cierra el patrón "escrito pero no cargado hasta el arranque" de la s2. `gate_guard` ya había bloqueado
-  avance con deuda EN VIVO en la sesión de construcción.
+  la doc discrecional. Detalle: `reference/HONEST-STATE.md §2`. G-8 (cascada): ahora probado contra DOS fábricas (dummy + agent-systems-factory).
+  **6º hook `increment_guard` + cadencia en `gate_guard`/`stop_proof` (ADR-010)**: VERIFICADO EN VIVO — y
+  re-ejercitado en ASF-REGEN: `gate_guard` bloqueó avanzar a m05 con chasis sin commitear, `commit_guard`
+  rehusó commitear con estación roja → cadencia real por fase (6 commits). Detalle: `reference/HONEST-STATE.md §2`.
   **Residual ACEPTADO (ADR-010 addendum)**: docs `.md` fuera de un incremento NO tienen cadencia de commit
-  (`dirty_code` excluye `.md`); NO se endurece, por proporcionalidad — daño chico, la rebanada peligrosa
-  (proyección de STATE) ya enforced por `meta check`, y un nag por cada `.md` sería ruido que erosiona los
-  dientes reales. Mitigación no-máquina, sin ruido: la regla de commit en `CLAUDE.md` (override del default).
+  (proporcionalidad — la rebanada peligrosa ya enforced por `meta check`); mitigación: la regla en `CLAUDE.md`.
 - **Disciplina de proceso fallada (honesto)**: documenté al CIERRE, no incremental; 0 commits durante
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 
 ## Siguiente — en orden
-1. Regenerar ASF como producto (ADR-006): factory-spec de ASF (Half A = sus opiniones), correr M0–M8, paridad.
+1. ✅ ASF regenerado como chasis (`ASF-REGEN` CERRADO). FOLLOW-UP G-8 (lo destapado): parametrizar el codegen de producto
+   multi-estación (la línea S0–S8 real de ASF) y `seed/external_ci.yml` por-fábrica (hoy defaultea a `--factory dummy`).
 2. Follow-ups de M4-M7 (ya CERRADO): harness `commands/`, captura viva journal/métricas en la fábrica,
    `pre-push` mirror, `answers/migración` (re-scaffold determinista). Contenido, no dientes (las gates están).
 3. ✅ `proof_protect` over-block afinado (`2061ec6`): la escritura se liga al target; lecturas/menciones/`2>&1` pasan; test nuevo. Cerrojo 1 intacto.
@@ -76,5 +77,5 @@
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
-- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/dummy/` · CLI: `../meta`
+- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/`

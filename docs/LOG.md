@@ -1,7 +1,31 @@
-<!-- meta:doc sha=e77a7ac3ebd65a93d86cbf9fb52202db1a7b6f47 updated=2026-06-14T20:15Z -->
+<!-- meta:doc sha=c0d3c3a33df4a8bd9ff7deb5f2e3798d0fd57a08 updated=2026-06-14T21:17Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T21:06Z — ASF-REGEN: ASF regenerado como CHASIS (segunda fábrica, G-8 vivo)
+- **gatillo**: tras decidir mantener el orden (#1 antes que #4, por el oráculo de paridad), el ingeniero
+  pidió abrir y CORRER el incremento de regenerar ASF hasta terminar, delegando lo que corresponde
+  (es un PRODUCTO → se puede ahorrar más) y commiteando por fase, no sólo al final.
+- **alcance (Opus, ojos propios, define el veredicto)**: leído el sustrato, el codegen de producto sólo
+  parametriza UN patrón (`s00` → `def f()->str: return MARKER`) y `_run_product_line` corre sólo el
+  `stations/` generado. El producto real de ASF (LangGraph, 7 capacidades, S0–S8) NO entra → es el supuesto
+  no parametrizado que ADR-006 anticipa que la regeneración DESTAPA. Por eso: regenerar el CHASIS con las
+  opiniones de ASF DESCENDIDAS a `factory.spec.yml` como DATO; producto = proxy honesto; codegen S0–S8 = G-8 diferido.
+- **delegación (economía)**: el bulk caro —leer el ASF congelado y extraer sus opiniones al spec— a Sonnet,
+  con skeleton fijo y constraints duras (station_sequence=[s00], REQ→s00, sustrato verbatim, sin fingir
+  LangGraph). Yo (Opus) orquesté la línea, verifiqué cada gate por bloqueo y commiteé por fase. El reviewer
+  fresco (caza-fachada) también a Sonnet (R0). Fidelidad del spec revisada por mí: 7 capacidades + S0–S8
+  con sources ASF reales (ARCH §10, ASF/ADR-002/015), `status: declared-deferred` en todo lo no construido.
+- **prueba por bloqueo**: `meta new` PASS (M0 validate 0); línea M0–M8 verde (9/9 gate OPEN); RTM `COMPLETE 1/1`;
+  `meta ci --rederive` `1/1 proof_sha==pineado` (clon limpio, dos verificadores); capstone: marcador corrompido
+  → `gate s00: SHUT`, restaurado → verde. Reviewer fresco: **0 CRITICAL** (seed byte-idéntico al root, columna/hooks
+  reales, ASF congelado intacto). Cadencia ADR-010 re-ejercitada EN VIVO: `gate_guard`/`commit_guard` forzaron
+  6 commits por fase (incluso el catch-22 "estación roja activa" se resolvió con `product-run` honesto, no truco).
+- **lección / G-8 vivo**: la regeneración VALIÓ por lo que DESTAPÓ — 6 supuestos no parametrizados del sustrato
+  (codegen de un solo patrón; frontera generado/dominio de ASF; contratos por-nodo; infra; evidencia de build;
+  y `seed/external_ci.yml` que defaultea a `--factory dummy`). Todos DECLARADOS y diferidos, no tapados
+  (`work/ASF-REGEN-INCREMENT.md §Hallazgos`). G-8 ahora probado contra DOS fábricas.
 
 ## 2026-06-14T20:15Z — M7/P4 + P5: gate agent_shadow (I-12) y cierre del incremento M4-M7
 - **gatillo**: el ingeniero pidió continuar (y delegar). Tras el fix de proof_protect, la fase pendiente

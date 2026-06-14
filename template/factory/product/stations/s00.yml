@@ -1,15 +1,16 @@
 id: s00
 name: "{{produces}}"
 activation: always
-# La línea de PRODUCTO de la fábrica {{slug}} (estaciones como dato, I-2). Reconstruye el
-# producto desde su fuente (product_src -> build/, regenerable) y exige el invariante: el
-# producto compila, corre, y porta su marcador. build/ es gitignored: se RE-DERIVA, no se
-# custodia (PF-10). Corromper el marcador hace fallar `runs` -> passed=false -> gate cerrada.
+# La línea de PRODUCTO de la fábrica {{slug}} (estaciones como dato, I-2). Ensambla el producto desde
+# la frontera I-5 — domain/ (humano) + generated/ (chasis) → build/ (regenerable, gitignored, PF-10) —
+# y exige el invariante: compila, corre vía el runner generado, y porta el marcador. Corromper el
+# marcador hace fallar `runs` -> passed=false -> gate cerrada.
 builds:
-  - { action: render, src: "factories/{{slug}}/product_src/{{product_module}}.py", dest: "build/{{product_module}}.py" }
+  - { action: render, src: "factories/{{slug}}/domain/{{product_module}}.py", dest: "build/{{product_module}}.py" }
+  - { action: render, src: "factories/{{slug}}/generated/runner.py", dest: "build/runner.py" }
 checks:
-  - { name: compile, kind: py_compile, files: ["build/{{product_module}}.py"] }
+  - { name: compile, kind: py_compile, files: ["build/{{product_module}}.py", "build/runner.py"] }
   - name: runs
     kind: import_runs
-    code: "import sys; sys.path.insert(0, 'build'); import {{product_module}} as m; assert m.{{greet_fn}}() == '{{marker}}', 'invariante violado: el producto no devuelve el marcador {{marker}}'"
+    code: "import sys; sys.path.insert(0, 'build'); import runner; assert runner.run() == '{{marker}}', 'invariante violado: el producto no devuelve el marcador {{marker}}'"
   - { name: invariant, kind: artifact_contains, file: "build/{{product_module}}.py", marker: "{{marker}}" }

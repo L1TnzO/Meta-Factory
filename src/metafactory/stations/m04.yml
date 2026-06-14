@@ -1,0 +1,12 @@
+id: m04
+name: "Template de producto & frontera generado/dominio"
+activation: always
+# M4 establece la frontera I-5: el producto se parte en domain/ (HUMANO: rendererizado con
+# skip_if_exists, sobrevive un re-scaffold) y generated/ (CHASIS: re-renderizado siempre). La gate
+# (boundary_survives) exige que la frontera NO sea decorativa — una edición de dominio sobrevive el
+# re-render y generated/ se regenera; si alguien invierte los flags, falla por bloqueo.
+builds:
+  - { action: render, src: "template/factory/product/domain/product.py", dest: "domain/{{product_module}}.py", skip_if_exists: true }
+  - { action: render, src: "template/factory/product/generated/runner.py", dest: "generated/runner.py" }
+checks:
+  - { name: boundary_survives, kind: boundary_survives }

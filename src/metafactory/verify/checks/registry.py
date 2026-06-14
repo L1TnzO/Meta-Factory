@@ -15,7 +15,7 @@ PY = sys.executable
 KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "pytest", "isolation", "docs_check", "command",
-    "column_selftest", "bus_bounded", "product_run",
+    "column_selftest", "bus_bounded", "product_run", "boundary_survives",
 )
 
 
@@ -56,4 +56,8 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         return [PY, "-m", "metafactory.verify.checks.bus_bounded", str(subst.get("max_lines", 10))]
     if kind == "product_run":
         return [PY, "-m", "metafactory.cli", "product-run", "--factory", str(subst.get("slug", ""))]
+    if kind == "boundary_survives":
+        return [PY, "-m", "metafactory.verify.checks.boundary_survives",
+                str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
+                str(subst.get("spec_path", "factory.spec.yml"))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

@@ -8,6 +8,6 @@
   dos verificadores) cableado por construcción — no re-derivado a mano.
 
 ## Mapa
-- Línea de producto: `stations/` · Fuente de dominio: `product_src/` · Build re-derivable: `build/`
+- Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`
 - Raíz de confianza: `seed/` (columna) + `.claude/` (sombras) · CI externo: `seed/external_ci.yml`
 - Veredicto pineado (constante honesta): `pinned_verdict.json`

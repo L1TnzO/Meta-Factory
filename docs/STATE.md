@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c008813ff528e3b9c19b6432212edda681679612 updated=2026-06-14T15:29Z -->
+<!-- meta:doc sha=e2745d2884264dcf937d4ee94b00ccfe27a3254a updated=2026-06-14T19:56Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-14T15:27Z · sesión: opus-4.8 (M6 gate landed · línea M0–M8 completa) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -65,7 +65,7 @@
 1. Regenerar ASF como producto (ADR-006): factory-spec de ASF (Half A = sus opiniones), correr M0–M8, paridad.
 2. Completar M7 + cerrar el incremento (M4–M6 ya ejercidos e2e): harness (sombras agent→hook `agent_shadow`,
    captura viva journal/métricas, pre-push) → P4; integración + `meta increment close` → P5.
-3. Afinar el `proof_protect` over-block (denylist `.proof/` + `>`) — finding de la sesión 2.
+3. ✅ `proof_protect` over-block afinado (`2061ec6`): la escritura se liga al target; lecturas/menciones/`2>&1` pasan; test nuevo. Cerrojo 1 intacto.
 4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
    semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.
 5. **Propagar la disciplina de commit (ADR-010) al `template/factory/harness`**: el núcleo ya está

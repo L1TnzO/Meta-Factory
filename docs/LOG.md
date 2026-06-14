@@ -1,7 +1,31 @@
-<!-- meta:doc sha=8926f0637187c7b7f7915ca09e0b8d842ea1d9a0 updated=2026-06-14T15:27Z -->
+<!-- meta:doc sha=c883ea72ca5ef1eb894f9402354072166497817c updated=2026-06-14T19:57Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T18:40Z — proof_protect afinado: el Cerrojo 1 deja de sobre-bloquear lecturas de .proof/
+- **gatillo**: el ingeniero preguntó si había incrementos abiertos y, si no, abrir un mini-incremento
+  para el `proof_protect` sobre-celoso. SÍ había uno abierto (M4-M7) → no se abre otro; eligió hacerlo
+  DENTRO de M4-M7 (es columna/harness, afín a P4/M7).
+- **hallazgo**: el hook denegaba un Bash si `.proof/` aparecía en CUALQUIER parte junto a un token de
+  escritura en CUALQUIER parte (OR laxo). Disparaba con redirecciones de SOLO LECTURA (`2>&1`,
+  `2>/dev/null`) y con `.proof/` como argumento (`ls`/`cat`/`grep`) o como TEXTO — me bloqueó dos veces
+  esta sesión (un `ls` y un mensaje de commit con flechas). Safe-side, pero molesta sin sumar seguridad.
+- **hecho (columna, a mano — no se delega, §3)**: `_PROOF_WRITE` (regex verbose) liga cada operador de
+  escritura (redirección, tee, cp/mv/install, sed -i, truncate/dd, ln -s, `open()` del intérprete) a un
+  TARGET dentro de `.proof/`. Misma heurística horneada en el template (paridad G-8). Test nuevo
+  `tests/test_proof_protect.py` (23): corre el hook REAL por subproceso (deny/allow/Write-Edit).
+- **el dogfood cazó un bug (lección)**: el 1er intento usaba `[^|;&]*?`, que CRUZA saltos de línea — así
+  el propio mensaje de commit (que nombra `cp/mv/install` y `.proof/` en líneas distintas) se
+  AUTOBLOQUEÓ. O sea: seguía sobre-celoso, solo más angosto. Fix real: acotar el operando a tokens de la
+  MISMA línea (`[ \t]`/`[^ \t\n…]`, no `\s`/`[^|;&]`). Agregué el caso de regresión al test.
+- **prueba EN VIVO (el hook se re-lee en cada invocación, a diferencia de settings.json)**: una lectura
+  con redirección ahora corre; una escritura real a `.proof/` sigue DENEGADA (exit 2, sin crear el
+  archivo); y ESTE commit —cuyo mensaje menciona `.proof/` y `cp/mv/install`— pasó (antes lo bloqueaba).
+- **honesto / residual**: queda un falso positivo angosto y aceptado — prosa con un verbo de escritura y
+  `.proof/` en la MISMA línea (un `echo "usa tee en .proof/x"`) aún bloquea. Distinguirlo exige parsear
+  shell; la denylist es incompleta por diseño (la raíz real es la re-derivación). Proporcional.
+- **refs**: `2061ec6`; `.claude/hooks/proof_protect.py`; `tests/test_proof_protect.py`; STATE §Siguiente #3.
 
 ## 2026-06-14T15:27Z — M6/P3: gate clean_runner — los dos verificadores re-derivan en runner limpio
 - **gatillo**: el ingeniero pidió abrir el siguiente incremento delegando cuando corresponda. El abierto

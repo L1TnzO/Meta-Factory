@@ -1,7 +1,31 @@
-<!-- meta:doc sha=c883ea72ca5ef1eb894f9402354072166497817c updated=2026-06-14T19:57Z -->
+<!-- meta:doc sha=e77a7ac3ebd65a93d86cbf9fb52202db1a7b6f47 updated=2026-06-14T20:15Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-14T20:15Z — M7/P4 + P5: gate agent_shadow (I-12) y cierre del incremento M4-M7
+- **gatillo**: el ingeniero pidió continuar (y delegar). Tras el fix de proof_protect, la fase pendiente
+  era P4/M7 (harness) y luego P5 (cierre).
+- **hecho (M7, espejo de M4/M5/M6)**: la ley/contenido lo instala M1; M7 agrega el DIENTE. `agent_shadow`
+  (gate, trust-chain, a mano) declara la convención —cada `.claude/agents/<rol>.md` lleva en frontmatter
+  `shadows: [{prohibits, shadow}]`— y la exige: toda sombra declarada EXISTE como artefacto de la fábrica
+  y, si es hook, está CABLEADA en settings.json (no muerta); CLAUDE.md ≤ `context_budget` de la spec. Un
+  contrato hueco es rojo. Negativo no-decorativo: en clon hermético, borrar el target de una sombra → rojo.
+  `m07.yml` (renderiza CLAUDE.md) + `agent_shadow` kind (dato, I-2). CLAUDE.md de residencia (≤ presupuesto)
+  + 3 agents (writer/reviewer/triage) con sombras reales (proof_protect, verifier, external_ci).
+- **delegación**: la trust-chain (el gate + convención + CLAUDE.md + writer exemplar) la escribí yo (§3);
+  delegué a Sonnet el bulk —reviewer/triage (prosa) + `tests/test_agent_shadow.py` (8 tests)—. Revisado por
+  BLOQUEO: corrí la suite yo (280), el gate standalone contra el dummy real (3 agents → exit 0), y verifiqué
+  que "hook muerto" y "sombra colgada" imprimen las ramas reales. Limpié 2 homóglifos cirílicos del writer.
+- **prueba por bloqueo + P5 (cierre)**: línea M0–M8 completa por el camino gateado → todas PASS con gate
+  OPEN (m07 incluido; criterio 5); rtm dummy COMPLETE; `meta check` 5/5. **Capstone M8 demostrado**: corromper
+  el marcador del dominio → product-run FAIL (2/3 red), restaurar → PASS (el e2e real bloquea producto roto).
+  Los 6 criterios de cierre se cumplen → `meta increment close`.
+- **honesto / diferido (no bloquea los 6 criterios; tracked en STATE §Siguiente)**: P1 `answers/migración`;
+  P2 captura VIVA de journal/métricas en la fábrica; P3 `pre-push` mirror; P4 `commands/` + propagar la
+  columna COMPLETA (gate_guard/commit_guard) al harness (= STATE #5). Las gates (criterios 1–4) + el e2e
+  (5–6) están hechos y verificados; los diferidos son contenido de harness, no dientes.
+- **refs**: `f84b6e2`,`8c94dd4`; `work/M4-M7-INCREMENT.md`; `verify/checks/agent_shadow.py`; ADR-023, I-12.
 
 ## 2026-06-14T18:40Z — proof_protect afinado: el Cerrojo 1 deja de sobre-bloquear lecturas de .proof/
 - **gatillo**: el ingeniero preguntó si había incrementos abiertos y, si no, abrir un mini-incremento

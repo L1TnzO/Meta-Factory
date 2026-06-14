@@ -1,12 +1,12 @@
-<!-- meta:doc sha=e2745d2884264dcf937d4ee94b00ccfe27a3254a updated=2026-06-14T19:56Z -->
+<!-- meta:doc sha=25e244075f59a3c26707c72d1d440dbd5605297f updated=2026-06-14T20:17Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-14T15:27Z · sesión: opus-4.8 (M6 gate landed · línea M0–M8 completa) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-14T20:15Z · sesión: opus-4.8 (M4-M7 CERRADO · los 4 gates + harness) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: M4-M7-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 
@@ -34,10 +34,10 @@
   Implementado** (disciplina de commit: todo código en un incremento + cadencia por fase, esta sesión).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
-- **M4 ✅ / M5 gate ✅ / M6 gate ✅ / M7 pendiente** (`M4-M7-INCREMENT`): M4 (`boundary_survives`), M5
-  (`rtm_rederive`) y M6 (`clean_runner`: un runner limpio re-deriva en clon hermético y exige el pineado,
-  desvío→rojo; UNA ley compartida por `meta ci`/CI externo/gate) LANDED+e2e — la línea M0–M8 corre completa
-  verde (criterio 5). Falta M7 (harness + captura viva); ahí caen el `pre-push` de M6 y la captura viva de M5.
+- **M4–M7 ✅ — `M4-M7-INCREMENT` CERRADO** (6 criterios): los 4 gates LANDED+e2e — M4 `boundary_survives`,
+  M5 `rtm_rederive`, M6 `clean_runner` (clon hermético re-deriva y exige el pineado), M7 `agent_shadow`
+  (toda sombra de un agent existe/cableada; CLAUDE.md ≤ presupuesto). Línea M0–M8 verde; capstone M8 demostrado.
+  DIFERIDO (contenido, no dientes; en §Siguiente): `answers/migración`, captura viva, `pre-push`, `commands/`, columna→template (#5).
 - **Subsistema de MEMORIA COMPLETO** (incremento MEMORIA, sesión 2; ADR-007/008 Implementados):
   Tier 0 (journal at-source + métricas/costo), fix de G-M1 (proyección + `meta checkpoint` + check),
   Tier 2 medido (`meta recall`), rehidratación SessionStart. Único diferido a propósito: índice
@@ -63,8 +63,8 @@
 
 ## Siguiente — en orden
 1. Regenerar ASF como producto (ADR-006): factory-spec de ASF (Half A = sus opiniones), correr M0–M8, paridad.
-2. Completar M7 + cerrar el incremento (M4–M6 ya ejercidos e2e): harness (sombras agent→hook `agent_shadow`,
-   captura viva journal/métricas, pre-push) → P4; integración + `meta increment close` → P5.
+2. Follow-ups de M4-M7 (ya CERRADO): harness `commands/`, captura viva journal/métricas en la fábrica,
+   `pre-push` mirror, `answers/migración` (re-scaffold determinista). Contenido, no dientes (las gates están).
 3. ✅ `proof_protect` over-block afinado (`2061ec6`): la escritura se liga al target; lecturas/menciones/`2>&1` pasan; test nuevo. Cerrojo 1 intacto.
 4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
    semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.

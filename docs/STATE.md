@@ -1,4 +1,4 @@
-<!-- meta:doc sha=52abf015dc3ae3ec4d7db5318a7d2d06b5a8dc2b updated=2026-06-13T20:31Z -->
+<!-- meta:doc sha=9a4435d47872013f981912ef3c97d51836a8b878 updated=2026-06-14T00:53Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-13T15:14Z · sesión: opus-4.8 (bootstrap ejecutado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -21,7 +21,7 @@
   - `src/metafactory/` (Stage 1): engine dominio-agnóstico (station/sequence/gate/runner; estaciones
     como dato I-2), spec (modelo/loader/validator + `factory.schema.json`, espina SDD), verify (bus de
     veredictos I-7 + checks), codegen (render del chasis), `cli.py` (`meta check/new/station/product-run/rtm/ci/pin/verify`).
-  - `stations/m00–m03+m08.yml` (meta-estaciones como dato), `template/factory/` (chasis heredable),
+  - `src/metafactory/stations/m00–m03+m08.yml` (meta-estaciones como dato), `template/factory/` (chasis heredable),
     columna `.claude/hooks/` (proof_protect·gate_guard·stop_proof·commit_guard·doc_stamp) + `settings.json`.
   - `factories/dummy/` (PRODUCIDO por la línea) desde `specs/dummy.factory.spec.yml`.
   - ADR-009 vivo: sello in-band en cada `.md` + `INDEX.md` generado + check de consistencia en `meta check`.
@@ -57,9 +57,12 @@
 3. Afinar el `proof_protect` over-block (denylist `.proof/` + `>`) — finding de la sesión 2.
 4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
    semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.
+5. **Política de commit fuera de incremento (diseño abierto)**: hoy NO se auto-commitea si no hay incremento
+   abierto — `commit_guard` solo gatea estaciones rojas, no la cadencia. Si la frontera (commit por-fase
+   forzado DENTRO del incremento vs. discrecional FUERA) debe volverse regla explícita/automatizada, por decidir.
 
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
-- Código: `../seed/` · `../src/metafactory/` · `../template/` · `../factories/dummy/` · CLI: `../meta`
+- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/dummy/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/`

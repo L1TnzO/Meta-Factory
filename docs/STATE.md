@@ -1,4 +1,4 @@
-<!-- meta:doc sha=aba8c4f2bb49ba13294dd98f286bc2a18c51de10 updated=2026-06-15T13:20Z -->
+<!-- meta:doc sha=4ebd1b3f32d400288e7e89244edea8954d54106b updated=2026-06-15T13:22Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-15T13:18Z · sesión: opus-4.8 (Fase A ✅ — A1 gramática v2 + A2 ASF/skeletons; reviewer fresco PASS) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -77,19 +77,13 @@
 > **DIRECCIÓN (2026-06-15, mandato del ingeniero)**: la Meta-Factory genera el **100%** (ADR-011) desde
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
-> **Mapa completo y AUTOCONTENIDO de TODOS los incrementos**: `work/ROADMAP.md` — modelo Diseño→Build→Mejora,
-> fases A–G, estado final ASF-mejorado + Full-Stack + Mobile + IoT. Lo de abajo es backlog histórico que el ROADMAP subsume.
-1. ✅ ASF regenerado como chasis (`ASF-REGEN` CERRADO). FOLLOW-UP G-8 (lo destapado): parametrizar el codegen de producto
-   multi-estación (la línea S0–S8 real de ASF) y `seed/external_ci.yml` por-fábrica (hoy defaultea a `--factory dummy`).
-2. Follow-ups de M4-M7 (ya CERRADO): harness `commands/`, captura viva journal/métricas en la fábrica,
-   `pre-push` mirror, `answers/migración` (re-scaffold determinista). Contenido, no dientes (las gates están).
-3. ✅ `proof_protect` over-block afinado (`2061ec6`): la escritura se liga al target; lecturas/menciones/`2>&1` pasan; test nuevo. Cerrojo 1 intacto.
-4. Segunda fábrica (Full-Stack) para forzar la parametrización real del sustrato (G-8); índice
-   semántico de memoria SOLO cuando la serie `recall` muestre que el lexical no alcanza.
-5. **Propagar la disciplina de commit (ADR-010) al `template/factory/harness`**: el núcleo ya está
-   Implementado en el harness de la meta-factory (`increment_guard` + cadencia en `gate_guard`/`stop_proof`
-   + `meta increment` + surface). Falta hornearlo en el sustrato para que TODA fábrica generada lo herede
-   (verificar en el dummy, G-8). Y refinar: ¿gatear también EJECUTAR la línea (`meta station`) sin incremento?
+> **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
+> Diseño→Build→Mejora). Fase A ✅ (A1+A2). **Próximo: B1** (skill de primitivas) → B2 → C (motor de build).
+- **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
+  multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
+  propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);
+  M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria
+  SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
 
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–012; **011** 100%-generado, **012** primitivas-no-herramientas) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)

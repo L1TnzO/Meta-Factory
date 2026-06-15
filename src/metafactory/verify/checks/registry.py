@@ -6,6 +6,7 @@ add data (a new check entry), not engine branches (I-2).
 """
 from __future__ import annotations
 
+import json
 import sys
 
 from ...codegen.renderer import render_text
@@ -16,7 +17,7 @@ KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "bus_bounded", "product_run", "boundary_survives",
-    "rtm_rederive", "clean_runner", "agent_shadow",
+    "rtm_rederive", "clean_runner", "agent_shadow", "product_env",
 )
 
 
@@ -75,4 +76,12 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         return [PY, "-m", "metafactory.verify.checks.agent_shadow",
                 str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
                 str(subst.get("spec_path", "factory.spec.yml"))]
+    if kind == "product_env":
+        # C3 — proof en el toolchain DEL producto (runs_in: product_env, DES-8). `workdir`/`bootstrap`/`cmd`
+        # son DATA (argv); el sustrato no nombra tech (ADR-012). El helper corre bootstrap->proof en el env
+        # del producto (PYTHONPATH/venv de la fábrica scrubbed). JSON encode: argv arbitrario sin ambigüedad.
+        return [PY, "-m", "metafactory.verify.checks.product_env",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check.get("bootstrap", []), subst)),
+                json.dumps(_s(check["cmd"], subst))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

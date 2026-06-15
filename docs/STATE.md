@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0e9181cfcefc07cdc9aa24f8b859b6970464d5a7 updated=2026-06-15T02:50Z -->
+<!-- meta:doc sha=05864ddcdb3d24bf50bf26d254afe9df01455599 updated=2026-06-15T03:19Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -62,6 +62,9 @@
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 
 ## Siguiente — en orden
+> **Mapa completo de incrementos** (de la Meta-Factory actual → generación COMPLETA y GENERALISTA de
+> fábricas): `work/ROADMAP.md` — 6 fases (spec generalista · motor · columna heredada · infra+MCP ·
+> ASF completo + Full-Stack · loop). Lo de abajo es el backlog corto histórico; el ROADMAP lo subsume.
 1. ✅ ASF regenerado como chasis (`ASF-REGEN` CERRADO). FOLLOW-UP G-8 (lo destapado): parametrizar el codegen de producto
    multi-estación (la línea S0–S8 real de ASF) y `seed/external_ci.yml` por-fábrica (hoy defaultea a `--factory dummy`).
 2. Follow-ups de M4-M7 (ya CERRADO): harness `commands/`, captura viva journal/métricas en la fábrica,

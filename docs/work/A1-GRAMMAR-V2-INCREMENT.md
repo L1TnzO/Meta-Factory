@@ -1,7 +1,7 @@
-<!-- meta:doc sha=a832cda138df634eb567ab32b43d5757906e870d updated=2026-06-15T12:54Z -->
+<!-- meta:doc sha=c4f146d0e123b1b8f41f62a48de50added1c250f updated=2026-06-15T12:55Z -->
 # Incremento A1-GRAMMAR-V2
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T12:47Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T12:55Z) (creado 2026-06-15T12:47Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -12,8 +12,24 @@ factory:
 domain:
   produces: "un módulo de saludo trivial con un marcador invariante"
   target_framework: { name: none, provider_agnostic: true }
-  product_capabilities:
-    - { id: invariant_marker, invariant: "el producto porta y devuelve el marcador DUMMY_OK" }
+  # Capabilities (L1) con su `artifact` declarado: la HOJA del árbol de evidencia (C4). Cada requisito
+  # cita su capability (abajo); el gate `rtm_tree` exige que el artefacto exista (borrarlo → UNSATISFIED).
+  capabilities:
+    - id: invariant_marker
+      invariant: "el producto porta y devuelve el marcador DUMMY_OK"
+      artifact: build/greeting.py
+      proof: "s00: py_compile + import_runs + artifact_contains (el módulo lleva y devuelve DUMMY_OK)"
+      status: built
+    - id: release_manifest
+      invariant: "una 2ª estación genera un manifiesto de release que embebe la salida de s00 (cadena real)"
+      artifact: build/manifest.txt
+      proof: "s01: artifact_contains RELEASE_OK + DUMMY_OK (el manifiesto embebe el saludo de s00)"
+      status: built
+    - id: product_toolchain_proof
+      invariant: "la verificación del producto corre en su propio toolchain (venv aislado del de la fábrica)"
+      artifact: build/test_greeting.py
+      proof: "s02: product_env — el unittest del producto corre en su venv aislado (DES-8)"
+      status: built
   # La LÍNEA DE PRODUCTO vive acá como DATO (C2, I-2): cada estación lleva su realización ejecutable
   # (`builds`/`checks`). m02 la materializa en `stations/<id>.yml`. 100% derivable del spec (ADR-011).
   station_sequence:
@@ -83,10 +99,13 @@ requirements:
     - id: REQ-F-001
       statement: "el producto compila, corre y devuelve el marcador invariante DUMMY_OK"
       satisfied_by: [s00]
+      capability: invariant_marker
     - id: REQ-F-002
       statement: "una 2ª estación genera un manifiesto de release que embebe la salida de s00 (línea multi-estación)"
       satisfied_by: [s01]
+      capability: release_manifest
     - id: REQ-F-003
       statement: "la verificación del producto corre en su PROPIO toolchain (venv aislado del de la fábrica); un producto roto bloquea (DES-8, C3)"
       satisfied_by: [s02]
       verified_by: [product_unittest]
+      capability: product_toolchain_proof

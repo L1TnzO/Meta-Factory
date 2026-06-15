@@ -13,7 +13,7 @@ import pytest
 import yaml
 
 from metafactory.spec import load_spec, validate
-from metafactory.spec.design import design_coverage
+from metafactory.spec.design import design_coverage, design_review
 from metafactory.spec.primitives import catalog_ids, load_catalog
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -161,3 +161,75 @@ class TestDesignSkillDemonstration:
                 c.tech = ""
         probs = design_coverage(spec, _KNOWN)
         assert any(target in p and "no capability declaring a tech" in p for p in probs)
+
+
+# ── B2: design_review — the multi-phase SDD design gate (M0's teeth) ───────────
+
+def _blueprint(required, caps, reqs, verifiers=("v",)):
+    """An in-memory design-flow spec: required_primitives + capabilities (primitive/tech) + a station
+    that declares `verifiers` as proof_checks + requirements (each with its `verified_by`)."""
+    from metafactory.spec.model import (Capability, FactorySpec, ProofCheck,
+                                        Requirement, SpecStation)
+    station = SpecStation(id="s0", name="a",
+                          proof_checks=[ProofCheck(name=v) for v in verifiers])
+    return FactorySpec(
+        name="D", slug="d", maturity="x", produces="p",
+        stations=[station], substrate={},
+        capabilities=[Capability(id=c["id"], primitive=c.get("primitive", ""), tech=c.get("tech", ""))
+                      for c in caps],
+        requirements=[Requirement(id=r["id"], statement="s", satisfied_by=["s0"],
+                                  verified_by=r.get("verified_by", [])) for r in reqs],
+        required_primitives=required,
+    )
+
+
+class TestDesignReview:
+    """B2: a design that DECLARES itself complete (required_primitives) must BE complete — plan
+    (a tech per required primitive) AND criterios (every requirement cites a verifier)."""
+
+    def test_non_design_spec_is_a_noop(self):
+        # no required_primitives -> not a design-flow blueprint -> M0 holds it only to A1's grammar
+        spec = _blueprint([], [], [{"id": "REQ-F-001"}])  # requirement without a verifier, yet
+        assert design_review(spec, _KNOWN) == []
+
+    def test_complete_blueprint_passes(self):
+        spec = _blueprint(
+            ["DES-2", "DES-4"],
+            [{"id": "topo", "primitive": "DES-2", "tech": "t1"},
+             {"id": "store", "primitive": "DES-4", "tech": "t2"}],
+            [{"id": "REQ-F-001", "verified_by": ["v"]}],
+        )
+        assert design_review(spec, _KNOWN) == []
+
+    def test_required_primitive_without_tech_is_plan_problem(self):
+        spec = _blueprint(
+            ["DES-2", "DES-4"],
+            [{"id": "topo", "primitive": "DES-2", "tech": "t1"},
+             {"id": "store", "primitive": "DES-4"}],  # no tech
+            [{"id": "REQ-F-001", "verified_by": ["v"]}],
+        )
+        probs = design_review(spec, _KNOWN)
+        assert any(p.startswith("plan:") and "DES-4" in p for p in probs)
+
+    def test_requirement_without_verifier_is_criterios_problem(self):
+        """Prove by blocking: a requirement with no verified_by is rejected (the criterios tooth)."""
+        spec = _blueprint(
+            ["DES-2"],
+            [{"id": "topo", "primitive": "DES-2", "tech": "t1"}],
+            [{"id": "REQ-F-001", "verified_by": ["v"]},
+             {"id": "REQ-F-002"}],  # no verifier
+        )
+        probs = design_review(spec, _KNOWN)
+        assert any(p.startswith("criterios:") and "REQ-F-002" in p for p in probs)
+        assert not any("REQ-F-001" in p for p in probs)
+
+    def test_demo_blueprint_is_complete(self):
+        # the B1 demo (data-pipeline) is a complete design-flow blueprint: passes the B2 gate too
+        spec = load_spec(_DEMO)
+        assert design_review(spec) == [], f"data-pipeline should be a complete blueprint: {design_review(spec)}"
+
+    def test_demo_removing_a_verifier_breaks_criterios(self):
+        spec = load_spec(_DEMO)
+        spec.requirements[0].verified_by = []
+        probs = design_review(spec)
+        assert any(p.startswith("criterios:") and spec.requirements[0].id in p for p in probs)

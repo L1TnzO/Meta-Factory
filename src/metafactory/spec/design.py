@@ -44,3 +44,34 @@ def design_coverage(spec: FactorySpec, known: set[str] | None = None) -> list[st
             p.append(f"design incomplete: required primitive {prim} has no capability declaring a tech")
 
     return p
+
+
+def design_review(spec: FactorySpec, known: set[str] | None = None) -> list[str]:
+    """The multi-phase SDD design gate (B2): is this a COMPLETE design blueprint? M0 wires this in.
+
+    ACTIVE only when the spec declares `domain.required_primitives` — that declaration is the spec
+    asserting it went through the design-primitive flow (B1). A bootstrap/proxy spec that declares
+    none is NOT a design blueprint, so the gate is a no-op: the live dummy/ASF lines stay green, and
+    nothing forces a stub to pretend it was designed. It is not a hole — to BUILD (phase C) you need a
+    design-complete blueprint, and a real domain always requires primitives.
+
+    Two phases (spec & tareas are already gated by `validate`, A1):
+      plan      — every required primitive is real and provided by a capability that declares a tech
+                  (`design_coverage`, B1: the PLAN chose the tech, ADR-012).
+      criterios — every requirement cites a verifier. A requirement with no `verified_by` is an
+                  unfinished design (SDD's verification-criteria phase, SAFE-4/7). That the named
+                  verifier is REAL (no phantom) is grammar_v2's job (`validate`); the two run together
+                  in M0, so a complete blueprint has every requirement citing a real proof_check.
+
+    Problems are phase-labeled (`plan:` / `criterios:`) so the output reads as the blueprint review.
+    Names no technology — only DES ids and proof_check names — so the ADR-012 guard holds. Empty ==
+    a complete blueprint (or: not a design-flow spec, nothing to review)."""
+    if not spec.required_primitives:
+        return []
+    problems = [f"plan: {p}" for p in design_coverage(spec, known)]
+    for r in spec.requirements:
+        if not r.verified_by:
+            problems.append(
+                f"criterios: {r.id} has no verifier "
+                "(a requirement must cite the proof_check that verifies it, SAFE-4/7)")
+    return problems

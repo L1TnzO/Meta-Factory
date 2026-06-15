@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `31e1f2f4bf47` | 2026-06-15T13:35Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `a260027b85ca` | 2026-06-15T14:00Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `d656ee9b3784` | 2026-06-15T14:02Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `d7691348b063` | 2026-06-15T14:01Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -35,7 +35,7 @@
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |
 | `docs/work/B1-DESIGN-SKILL-INCREMENT.md` | `b5a05f609f9b` | 2026-06-15T13:35Z | Incremento B1-DESIGN-SKILL |
-| `docs/work/B2-SDD-DESIGN-FLOW-INCREMENT.md` | `731d6fb03eaf` | 2026-06-15T13:59Z | Incremento B2-SDD-DESIGN-FLOW |
+| `docs/work/B2-SDD-DESIGN-FLOW-INCREMENT.md` | `46a23a508164` | 2026-06-15T14:01Z | Incremento B2-SDD-DESIGN-FLOW |
 | `docs/work/BOOTSTRAP-INCREMENT.md` | `d976acfd9db1` | 2026-06-13T15:22Z | Incremento BOOTSTRAP — el seed, la maquinaria base y la prueba del punto fijo |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |

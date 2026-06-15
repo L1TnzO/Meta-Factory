@@ -1,7 +1,7 @@
-<!-- meta:doc sha=731d6fb03eaffc056ec001484d73c751716a5a4b updated=2026-06-15T13:59Z -->
+<!-- meta:doc sha=46a23a5081644a05e8295b6b83d54ea9ec6cdfca updated=2026-06-15T14:01Z -->
 # Incremento B2-SDD-DESIGN-FLOW
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:51Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T14:01Z) (creado 2026-06-15T13:51Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,7 +1,36 @@
-<!-- meta:doc sha=31e1f2f4bf47c3c7a4c311df410ed3a7828344d3 updated=2026-06-15T13:35Z -->
+<!-- meta:doc sha=d656ee9b37845725db603c81d3498e4b7067d44b updated=2026-06-15T14:02Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T14:02Z — B2: el flujo SDD de diseño con dientes en M0 (M0 rehúsa el diseño incompleto)
+- **gatillo**: el ingeniero pidió continuar a B2 — volver compuerta lo que B1 dejó callable y agregar el
+  flujo SDD de diseño (spec→plan→tareas→criterios) como gate M0.
+- **tensión central (decisión de diseño, Opus, ojos propios)**: las specs VIVAS que M0 corre (proxies
+  `factories/{dummy,agent-systems-factory}`) NO declaran `required_primitives` ni llevan `proof_checks` a
+  nivel de spec → un diente UNIVERSAL ("todo requisito verificado") rompería las líneas M0–M8. Resolución:
+  el gate es **condicional a `required_primitives`** — declararlas = aseverar "pasé el flujo de diseño B1",
+  y AHÍ M0 exige completitud total. No es un agujero: para CONSTRUIR (fase C) hace falta un blueprint
+  design-complete y un dominio real siempre requiere primitivas. Segundo: `validator.py` queda **intacto**
+  (catálogo-independiente, decoupling de A1) — los dientes viven en `design.py` y entran a M0 como un check
+  SEPARADO (`design_review`), no plegados en `validate()`. El guard ADR-012 sobre el sustrato no se toca.
+- **hecho (incremento `B2-SDD-DESIGN-FLOW`, 3 fases, 3 commits + 2 docs)**:
+  - P1 (`34b729e`): `design_review(spec)` multi-fase (etiquetado `plan:`/`criterios:`), condicional + CLI
+    `spec.cli design-review` + tests +/−. plan = `design_coverage` (B1) cableado; criterios = el diente nuevo
+    (todo requisito cita un verifier real).
+  - P2 (`666192e`): kind `design_review` en el registry + 3er check en `m00.yml`. El gate vive en M0.
+  - P3 (`e48db0d`): `full-stack` declara `required_primitives` (2º dominio, principio #6) + SKILL con la fase criterios.
+- **demostración (gate B2)**: **2 dominios** radicalmente distintos (data-pipeline ELT + full-stack web TS)
+  declaran primitivas, cubren+verifican todo → `validate`+`design-review` verdes. **Prueba por bloqueo
+  END-TO-END (estación, no sólo CLI)**: monté un factory scratch con el blueprint data-pipeline INCOMPLETO
+  (−1 `verified_by`, que pasa spec_schema+rtm_closure → aísla el diente) → `meta station m00` quedó **SHUT**
+  (1/3 red, `design_review FAIL`). Ambas fases bloquean: `criterios: REQ-F-001 has no verifier` y
+  `plan: …DES-7 has no capability declaring a tech` → exit 1. Líneas vivas dummy/ASF VERDES (no-op).
+- **veredicto**: suite **335**; `meta check` 5/5; árbol limpio; scratch removido. **Sigue C1** (motor de build).
+- **lección**: cuando un diente nuevo amenaza con romper artefactos legítimos (los proxies bootstrap), la
+  respuesta NO es debilitar el diente ni fingir verde — es encontrar el predicado HONESTO que separa "esto
+  es un diseño que se declara completo" de "esto es un stub". `required_primitives` ya era esa señal (B1 la
+  inventó para `design_coverage`); B2 sólo la elevó a disparador del gate. Diferir bien (A1→B1→B2) volvió a pagar.
 
 ## 2026-06-15T13:35Z — B1: el skill de primitivas de diseño (la planificación elige la tech, con dientes)
 - **gatillo**: el ingeniero pidió continuar a B1 — materializar `PRIMITIVES.md §3` como un skill de Claude Code.

@@ -1,7 +1,29 @@
-<!-- meta:doc sha=c5776f19d1522fb2e0e80157bfd66fc83b272239 updated=2026-06-15T03:50Z -->
+<!-- meta:doc sha=0061c1bfedc51d4e785ff25a76ae61bdd66de5df updated=2026-06-15T12:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T12:55Z — A1: gramática factory-spec v2, el primer incremento del ROADMAP con dientes
+- **gatillo**: el ingeniero pidió entender A1 (`work/ROADMAP.md §Fase A`) y ejecutarlo. A1 = extender la
+  factory-spec de v1 (2 mitades) a v2 (6 capas L0–L5) para que la fuente de verdad describa CUALQUIER fábrica.
+- **alcance (Opus, ojos propios)**: leí el sustrato del spec (model/loader/validator/schema), PRIMITIVES,
+  ADR-011/012 y los 2 specs reales. Decisión de diseño clave: el validator chequea **forma**, no tecnología
+  — `tech ⇒ primitive` y `primitive ~ ^DES-\d+$`, NUNCA un nombre de tech (whitelistear = hornear herramienta,
+  G-2 un nivel arriba). La membresía del catálogo de primitivas (¿es DES-7 la correcta?) es review de diseño
+  (el skill B1), no M0 — así el catálogo sigue siendo cantera viva (PRIMITIVES §3). Los campos nuevos son
+  OPCIONALES → los specs viejos (dummy, ASF) quedan verdes sin tocarlos (la regresión lo prueba).
+- **hecho (incremento `A1-GRAMMAR-V2`, 4 fases, 4 commits de código/tests + 2 de docs)**:
+  - P1 (`d9c2785`): `model.py`+`loader.py` — Capability/ProofCheck/Machinery + depends_on/proof_checks en
+    Station, verified_by/acceptance en Requirement; parse tolerante (lee `capabilities` o legacy `product_capabilities`).
+  - P2-P3 (`2959e6d`): `validate_grammar_v2` (status enum · cap-built-sin-proof · tech-sin-primitiva · primitive
+    mal formado · depends_on inexistente/inactivo/self/ciclo · runs_in enum · verifier fantasma) + schema espejo.
+  - P4 (`38f5591`): prueba por bloqueo — `rich_v2()` valida 0 problemas; 12 negativos BLOQUEAN; tech inventada
+    + DES-N pasa; un test prueba que `validator.py` no nombra ninguna tech. +19 tests (test_spec 27→46).
+- **veredicto**: `meta station m00` PASS en dummy y agent-systems-factory; suite **299**; `meta check` 5/5.
+  Incremento cerrado gateado. **Sigue A2** (harvest del ASF COMPLETO a v2 + skeletons Full-Stack/Mobile/IoT,
+  anti-overfit: la MISMA gramática con dominios distintos).
+- **lección**: la tentación de "validar que la tech sea conocida" reaparece en cada capa de la gramática; el
+  antídoto es siempre el mismo (forma, no nombre — ADR-012). Lo dejé horneado como test, no como nota.
 
 ## 2026-06-15T03:49Z — Medición A/B + giro de filosofía: 100% generado, primitivas no herramientas
 - **gatillo**: cerrado ASF-REGEN, el ingeniero pidió MEDIR la fábrica regenerada vs el ASF original (no sus

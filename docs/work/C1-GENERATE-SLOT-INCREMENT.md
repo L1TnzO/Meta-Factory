@@ -1,7 +1,7 @@
-<!-- meta:doc sha=602dbc5d0b288c0cab1a06471c669b3b0579725c updated=2026-06-15T17:57Z -->
+<!-- meta:doc sha=408171664cef0a94b7ae81e043bce42e7b2c15ee updated=2026-06-15T18:00Z -->
 # Incremento C1-GENERATE-SLOT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T17:50Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T18:00Z) (creado 2026-06-15T17:50Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

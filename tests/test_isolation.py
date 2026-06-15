@@ -18,6 +18,18 @@ def test_no_static_import_of_factories():
     assert not bad, f"metafactory statically imports factories: {bad}"
 
 
+def test_no_generation_tech_in_substrate():
+    """ADR-012/013 guard: the substrate names NO generation/domain tech. Generation happens via
+    a generator DECLARED IN DATA (`generate`'s `via`), never an `import` baked into `src/`. If a
+    stack package is imported here, the platform got opinionated to a stack (the G-2 of ASF, a
+    level up). New domains add data (a `via`), not a substrate dependency."""
+    techs = ("copier", "cookiecutter", "jinja2", "mako", "genshi",
+             "langgraph", "langchain", "llama_index", "openai", "anthropic")
+    pat = re.compile(rf"^\s*(from|import)\s+({'|'.join(techs)})(\.|\s|$)", re.MULTILINE)
+    bad = [str(py) for py in SRC.rglob("*.py") if pat.search(py.read_text(encoding="utf-8"))]
+    assert not bad, f"substrate imports generation/domain tech (must be `via` data, ADR-012): {bad}"
+
+
 def test_importing_metafactory_does_not_load_a_factory():
     for name in (
         "metafactory", "metafactory.cli", "metafactory.engine",

@@ -1,6 +1,7 @@
 """Unit tests for metafactory.codegen.renderer."""
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,14 @@ import pytest
 from metafactory.codegen.renderer import apply_builds, render_text, _copy_seed
 from metafactory.engine.run_context import RunContext
 from metafactory.engine.station import Station
+
+PY = sys.executable
+# A generator that reads its brief and EMITS the artifact (the substrate never writes dest itself).
+# Declared in DATA (`via`) — the substrate names no tech (ADR-012/013). This stand-in is deterministic
+# so the gate proof is reproducible; a live `claude -p` would be the same seam with different data.
+_GEN_FROM_BRIEF = ("import os; "
+                   "b=open(os.environ['METAFACTORY_BRIEF']).read(); "
+                   "open(os.environ['METAFACTORY_DEST'],'w').write(b)")
 
 # ── repo root for copy_seed ───────────────────────────────────────────────────
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -198,6 +207,93 @@ class TestApplyBuildsActions:
         ])
         msgs = apply_builds(ctx, station, {})
         assert len(msgs) == 2
+
+
+# ── generate: the creative slot (C1, ADR-013) ──────────────────────────────────
+
+class TestGenerateAction:
+    def test_generator_declared_in_data_produces_artifact(self, tmp_path):
+        """The substrate runs the generator from `via` (data); the generator writes dest."""
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [{"action": "generate", "dest": "build/out.py",
+                                  "brief": "MARK={{marker}}", "via": [PY, "-c", _GEN_FROM_BRIEF]}])
+        msgs = apply_builds(ctx, st, {"marker": "OK_1"})
+        assert (tmp_path / "build" / "out.py").read_text() == "MARK=OK_1"
+        assert any("generate build/out.py" in m and "produced=True" in m for m in msgs)
+
+    def test_brief_written_to_default_gen_location(self, tmp_path):
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [{"action": "generate", "dest": "build/x.py",
+                                  "brief": "blueprint {{slug}}", "via": [PY, "-c", _GEN_FROM_BRIEF]}])
+        msgs = apply_builds(ctx, st, {"slug": "demo"})
+        assert (tmp_path / ".gen" / "x.py.brief.md").read_text() == "blueprint demo"
+        assert any("brief .gen/x.py.brief.md" in m for m in msgs)
+
+    def test_substrate_does_not_fake_artifact_when_generator_produces_nothing(self, tmp_path):
+        """The honest seam: a generator that writes nothing leaves dest ABSENT — the substrate
+        never writes the artifact itself (the column will then render the honest red)."""
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [{"action": "generate", "dest": "build/none.py",
+                                  "brief": "x", "via": [PY, "-c", "pass"]}])
+        msgs = apply_builds(ctx, st, {})
+        assert not (tmp_path / "build" / "none.py").exists()
+        assert any("produced=False" in m for m in msgs)
+
+    def test_generator_that_cannot_launch_does_not_raise(self, tmp_path):
+        """Fail-safe: a generator binary that can't even launch never throws past the build —
+        dest stays absent and the column gates it red."""
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [{"action": "generate", "dest": "build/n.py",
+                                  "via": ["metafactory-no-such-binary-xyz"]}])
+        msgs = apply_builds(ctx, st, {})  # must not raise
+        assert not (tmp_path / "build" / "n.py").exists()
+        assert any("rc=127" in m and "produced=False" in m for m in msgs)
+
+    def test_stale_artifact_removed_before_generation(self, tmp_path):
+        """A failing generator must NOT pass on a stale artifact from a prior run."""
+        ctx = make_ctx(tmp_path)
+        dest = tmp_path / "build" / "s.py"
+        dest.parent.mkdir(parents=True)
+        dest.write_text("STALE-FROM-PRIOR-RUN")
+        st = make_station("c1", [{"action": "generate", "dest": "build/s.py",
+                                  "via": [PY, "-c", "pass"]}])  # produces nothing this run
+        apply_builds(ctx, st, {})
+        assert not dest.exists()  # stale removed, generator wrote nothing -> absent
+
+    def test_skip_if_exists_preserves_filled_slot(self, tmp_path):
+        """skip_if_exists: don't re-invoke the generator if the slot is already filled
+        (e.g. a non-deterministic LLM run)."""
+        ctx = make_ctx(tmp_path)
+        dest = tmp_path / "build" / "k.py"
+        dest.parent.mkdir(parents=True)
+        dest.write_text("ALREADY-GENERATED")
+        st = make_station("c1", [{"action": "generate", "dest": "build/k.py", "skip_if_exists": True,
+                                  "brief": "x", "via": [PY, "-c", _GEN_FROM_BRIEF]}])
+        msgs = apply_builds(ctx, st, {})
+        assert dest.read_text() == "ALREADY-GENERATED"
+        assert any("skip(exists)" in m for m in msgs)
+
+    def test_via_argv_receives_substitution(self, tmp_path):
+        """`via` argv gets {{var}} subst, so the design can parametrize the generator call."""
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [{"action": "generate", "dest": "build/v.txt",
+                                  "via": [PY, "-c", "import os;open(os.environ['METAFACTORY_DEST'],'w').write('{{payload}}')"]}])
+        apply_builds(ctx, st, {"payload": "FROM_ARGV"})
+        assert (tmp_path / "build" / "v.txt").read_text() == "FROM_ARGV"
+
+    def test_same_seam_is_domain_agnostic(self, tmp_path):
+        """principle #6 (ADR-012): the SAME action runs radically different generators with NO
+        per-tech branch — one emits Python, the other emits TypeScript."""
+        ctx = make_ctx(tmp_path)
+        st = make_station("c1", [
+            {"action": "generate", "dest": "build/mod.py",
+             "brief": "def greet(): return {{marker}}", "via": [PY, "-c", _GEN_FROM_BRIEF]},
+            {"action": "generate", "dest": "build/mod.ts",
+             "brief": "export const greet = () => {{marker}};", "via": [PY, "-c", _GEN_FROM_BRIEF]},
+        ])
+        apply_builds(ctx, st, {"marker": '"X"'})
+        assert (tmp_path / "build" / "mod.py").read_text() == 'def greet(): return "X"'
+        assert (tmp_path / "build" / "mod.ts").read_text() == 'export const greet = () => "X";'
 
 
 # ── copy_seed ─────────────────────────────────────────────────────────────────

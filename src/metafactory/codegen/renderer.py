@@ -6,18 +6,25 @@ Build actions (declared as data in the station YAML):
   - {action: render, src, dest}                    one template file (src rel meta_root)
   - {action: render_tree, src, dest}               a template subtree (paths + content)
   - {action: copy_seed}                            install the inherited column (M1)
+  - {action: generate, dest, via, brief?}          the CREATIVE SLOT (C1, ADR-013)
 
-`render`/`render_tree` accept `skip_if_exists: true`: if the dest already exists it is
-LEFT UNTOUCHED (not overwritten). This is the generated/domain boundary (I-5, M4): the
-factory's `domain/` is rendered with the flag (human-owned code survives a re-scaffold);
-`generated/` is rendered without it (the chassis owns it, re-rendered every time).
+`render`/`render_tree`/`generate` accept `skip_if_exists: true`: if the dest already exists it
+is LEFT UNTOUCHED. For render this is the generated/domain boundary (I-5, M4): the factory's
+`domain/` is rendered with the flag (human-owned code survives a re-scaffold); `generated/` is
+rendered without it (the chassis owns it, re-rendered every time). For `generate` the flag means
+"don't re-invoke the generator if the slot is already filled" (e.g. a non-deterministic LLM).
+
+`generate` is the seam that keeps generation OUT of the substrate (ADR-012, I-3): the substrate
+ORCHESTRATES a generator DECLARED IN DATA and VERIFIES nothing itself — see `_generate`.
 
 Placeholders use `{{var}}` and are filled from `subst` (derived from the factory-spec).
 """
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -69,8 +76,56 @@ def apply_builds(ctx: RunContext, station: Station, subst: dict) -> list[str]:
                                  subst, ctx.root, skip_if_exists=bool(b.get("skip_if_exists")))
         elif action == "copy_seed":
             msgs += _copy_seed(ctx)
+        elif action == "generate":
+            msgs += _generate(ctx, b, subst)
         else:
             raise ValueError(f"unknown build action {action!r} in station {station.id}")
+    return msgs
+
+
+def _generate(ctx: RunContext, b: dict, subst: dict) -> list[str]:
+    """The CREATIVE SLOT (C1, ADR-013) — the substrate ORCHESTRATES, it does NOT generate.
+
+    Steps: (1) write the blueprint BRIEF (the contract the generator works against — derived
+    deterministically from spec data, it is INPUT not the artifact); (2) run the generator
+    DECLARED IN DATA (`via` argv — the substrate names no tech, ADR-012); the generator is the
+    sole writer of `dest`. The substrate writes NEITHER the artifact NOR a verdict: if the
+    generator fails, can't launch, or produces nothing, `dest` is absent/wrong and the COLUMN
+    (the station's checks) renders the honest red. Determinism lives in verification, not here (I-3).
+
+    `via` may be a deterministic scaffolder OR a live `claude -p "<brief>"` — same seam, different
+    data. The generator reads its contract from env: METAFACTORY_BRIEF (path), METAFACTORY_DEST
+    (path it must write), METAFACTORY_ROOT (factory root). `via` argv also gets `{{var}}` subst.
+    """
+    dest = ctx.root / _render_path(b["dest"], subst)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if b.get("skip_if_exists") and dest.exists():
+        return [f"skip(exists) {dest.relative_to(ctx.root)}"]
+    # Start each generation from absent: a failing generator must NOT pass on a stale artifact
+    # (the no-fake invariant — each run's gate reflects exactly what THIS generation produced).
+    if dest.exists():
+        dest.unlink()
+
+    env = dict(os.environ)
+    env["METAFACTORY_DEST"] = str(dest)
+    env["METAFACTORY_ROOT"] = str(ctx.root)
+    msgs: list[str] = []
+    if "brief" in b:
+        rel = b.get("brief_dest") or f".gen/{dest.name}.brief.md"
+        brief = ctx.root / _render_path(rel, subst)
+        brief.parent.mkdir(parents=True, exist_ok=True)
+        brief.write_text(render_text(b["brief"], subst), encoding="utf-8")
+        env["METAFACTORY_BRIEF"] = str(brief)
+        msgs.append(f"brief {brief.relative_to(ctx.root)}")
+
+    via = [render_text(str(a), subst) for a in b["via"]]
+    try:
+        rc = subprocess.run(via, cwd=ctx.root, env=env, capture_output=True, text=True).returncode
+    except OSError as exc:
+        rc = 127  # generator could not even launch — never raise past the verdict (fail-safe)
+        msgs.append(f"generate-launch-error via={via[0] if via else '?'}: {type(exc).__name__}")
+    msgs.append(f"generate {dest.relative_to(ctx.root)} via={via[0] if via else '?'} "
+                f"rc={rc} produced={dest.exists()}")
     return msgs
 
 

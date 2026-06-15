@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from metafactory.spec import load_spec
+from metafactory.spec import load_spec, validate
 from metafactory.spec.design import design_coverage
 from metafactory.spec.primitives import catalog_ids, load_catalog
 
@@ -108,3 +108,56 @@ class TestDesignCoverage:
         # dummy/asf/skeletons declare no required_primitives -> coverage is vacuously satisfied
         for name in ("dummy.factory.spec.yml",):
             assert design_coverage(load_spec(_ROOT / "specs" / name), _KNOWN) == []
+
+
+# ── the skill + its demonstration (B1 gate) ───────────────────────────────────
+
+_SKILL = _ROOT / ".claude" / "skills" / "design-primitives" / "SKILL.md"
+_DEMO = _ROOT / "specs" / "skeletons" / "data-pipeline.factory.spec.yml"
+_A2_FRAMEWORKS = {"langgraph", "typescript", "react-native", "embedded-c-mqtt"}
+
+
+class TestDesignSkill:
+    def test_skill_exists_with_frontmatter(self):
+        assert _SKILL.exists(), f"skill not found at {_SKILL}"
+        text = _SKILL.read_text(encoding="utf-8")
+        assert text.startswith("---"), "SKILL.md needs YAML frontmatter"
+        fm = yaml.safe_load(text.split("---", 2)[1])
+        assert fm["name"] == "design-primitives"
+        assert fm.get("description"), "skill needs a description (for discovery)"
+
+    def test_skill_points_at_the_machine_catalog(self):
+        text = _SKILL.read_text(encoding="utf-8")
+        assert "primitives.yml" in text, "the skill must reference the single-source catalog"
+        assert "design-coverage" in text, "the skill must tell the designer to self-verify"
+
+
+class TestDesignSkillDemonstration:
+    """The B1 gate: the skill's OUTPUT on a fresh domain validates AND covers every required primitive."""
+
+    def test_demo_validates_and_covers(self):
+        spec = load_spec(_DEMO)
+        assert validate(spec) == [], f"demo should validate: {validate(spec)}"
+        assert design_coverage(spec, _KNOWN) == [], f"demo should cover: {design_coverage(spec, _KNOWN)}"
+
+    def test_demo_is_a_fresh_domain(self):
+        fw = load_spec(_DEMO).raw["domain"]["target_framework"]["name"]
+        assert fw not in _A2_FRAMEWORKS, f"demo domain {fw} is not fresh (overlaps A2)"
+
+    def test_demo_declares_a_tech_for_every_required_primitive(self):
+        spec = load_spec(_DEMO)
+        assert spec.required_primitives, "the demo declares required_primitives"
+        for prim in spec.required_primitives:
+            caps = [c for c in spec.capabilities if c.primitive == prim and c.tech]
+            assert caps, f"required primitive {prim} has no capability with a tech"
+
+    def test_demo_removing_a_tech_breaks_coverage(self):
+        """Prove by blocking: a required primitive without a tech is rejected (exit≠0 semantics)."""
+        spec = load_spec(_DEMO)
+        # in-memory: strip the tech of the first required primitive's capability
+        target = spec.required_primitives[0]
+        for c in spec.capabilities:
+            if c.primitive == target:
+                c.tech = ""
+        probs = design_coverage(spec, _KNOWN)
+        assert any(target in p and "no capability declaring a tech" in p for p in probs)

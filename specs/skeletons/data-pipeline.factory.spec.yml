@@ -1,0 +1,135 @@
+# data-pipeline.factory.spec.yml — DEMOSTRACIÓN de B1: el OUTPUT del skill `design-primitives`.
+# Dominio NUEVO (≠ asf/web/mobile/iot): un pipeline de datos batch (ETL/ELT). Producido siguiendo el
+# procedimiento del skill: dominio → primitivas requeridas → tech por primitiva → declarado acá.
+# status `planned` (es diseño, no se genera). Verificable: `validate` + `design-coverage` en verde.
+
+# ── L0 · identidad ──
+factory:
+  name: "Data Pipeline Factory"
+  slug: data-pipeline
+  maturity: skeleton
+
+# ── L1 · dominio ──
+domain:
+  produces: "un pipeline de datos batch (ELT): ingesta → transformación tipada → carga, con linaje a nivel columna, reruns idempotentes y compuertas de calidad que bloquean"
+  target_framework: { name: dagster-dbt, provider_agnostic: true }
+  # Paso 2 del skill: las primitivas que ESTE dominio requiere (honestas, no infladas).
+  required_primitives: [DES-2, DES-4, DES-5, DES-6, DES-7, DES-8]
+  # Paso 3: una tech por primitiva requerida (JUICIO, declarado como DATO; ADR-012).
+  capabilities:
+    - id: topologia_dag_verificable
+      invariant: "el DAG de assets es chequeable estáticamente: ningún asset depende de uno inexistente ni queda huérfano (sin correr el pipeline)"
+      primitive: DES-2            # Topología verificable
+      tech: "grafo de assets de Dagster compilado + lint de topología"
+      artifact: "pipeline/assets.py"
+      proof: "el grafo de assets resuelve sin nodos faltantes ni ciclos"
+      status: planned
+    - id: reruns_idempotentes
+      invariant: "un rerun parcial no reprocesa particiones ya materializadas; un fallo a mitad resume desde el último watermark"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "Dagster (particiones + watermarks) con tasks idempotentes"
+      artifact: "pipeline/partitions.py"
+      proof: "un fallo inyectado a mitad de un backfill no rematerializa lo ya hecho"
+      status: planned
+    - id: linaje_a_nivel_columna
+      invariant: "toda columna de salida rastrea a las columnas de entrada que la formaron (linaje column-level)"
+      primitive: DES-5            # Procedencia / trazabilidad
+      tech: "OpenLineage + Marquez (eventos de linaje a nivel columna)"
+      artifact: "pipeline/lineage.py"
+      proof: "backward de una columna de salida → sus columnas fuente con la clave de unión del run"
+      status: planned
+    - id: esquemas_tipados_versionados
+      invariant: "el contrato de cada tabla es tipado y versionado; un registro que viola el esquema se rechaza en la ingesta, no se carga"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "dbt contracts + Pydantic (esquemas versionados)"
+      artifact: "models/schema.yml"
+      proof: "un registro malformado es rechazado en la frontera de ingesta"
+      status: planned
+    - id: compuertas_de_calidad
+      invariant: "la calidad de datos se mide con expectativas que BLOQUEAN: el run falla si una métrica (nulls, unicidad, rango) cruza su umbral"
+      primitive: DES-7            # Evaluabilidad con compuertas
+      tech: "Great Expectations / dbt tests con umbrales que cortan el CI"
+      artifact: "quality/expectations/"
+      proof: "el run termina con error ante una violación de expectativa bajo umbral"
+      status: planned
+    - id: proof_en_toolchain_del_producto
+      invariant: "la verificación corre en el toolchain del producto (dbt/pytest), no en el de la fábrica"
+      primitive: DES-8            # Proof en el toolchain DEL producto
+      tech: "pytest + dbt test en el venv del producto"
+      artifact: "tests/"
+      proof: "dbt test y pytest verdes en el entorno del pipeline generado"
+      status: planned
+
+  # Paso 4: la línea como stations v2.
+  station_sequence:
+    - id: s0
+      name: "Contrato del pipeline (Definition of Ready)"
+      activation: always
+      status: planned
+      proof_checks:
+        - { name: pipeline_contract_complete, cmd: "validar fuentes + esquemas + expectativas", runs_in: factory_env, toolchain: metafactory, status: planned }
+    - id: s1
+      name: "Esquemas tipados + contratos"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: schema_contract_enforced, cmd: "dbt build --select schema", runs_in: product_env, toolchain: dbt, status: planned }
+    - id: s2
+      name: "Ingesta + transformación (DAG idempotente)"
+      activation: always
+      depends_on: [s1]
+      status: planned
+      proof_checks:
+        - { name: dag_resolves, cmd: "dagster asset list", runs_in: product_env, toolchain: dagster, status: planned }
+        - { name: idempotent_backfill, cmd: "pytest tests/test_idempotency.py", runs_in: product_env, toolchain: pytest, status: planned }
+    - id: s3
+      name: "Linaje a nivel columna"
+      activation: optional        # condicionada por profundidad de linaje en el spec
+      depends_on: [s2]
+      status: planned
+      proof_checks:
+        - { name: column_lineage_roundtrip, cmd: "pytest tests/test_lineage.py", runs_in: product_env, toolchain: pytest, status: planned }
+    - id: s4
+      name: "Compuertas de calidad de datos"
+      activation: always
+      depends_on: [s2]
+      status: planned
+      proof_checks:
+        - { name: quality_gate_blocks, cmd: "great_expectations checkpoint run", runs_in: product_env, toolchain: great_expectations, status: planned }
+
+# ── L3 · maquinaria ──
+machinery:
+  harness:
+    tech: "scripts de orquestación (dagster dev) + hooks de pre-commit (sqlfluff)"
+    primitive: DES-1
+    status: planned
+  infra:
+    tech: "warehouse efímero (DuckDB/Postgres) en el sandbox de CI"
+    primitive: DES-9             # Frontera de aislamiento
+    status: planned
+
+# ── L4 · sustrato ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+
+# ── L5 · requisitos ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "un registro que viola el contrato de esquema se rechaza en la ingesta, no se carga"
+      acceptance: "schema_contract_enforced verde; introducir un registro malformado lo pone rojo"
+      satisfied_by: [s1]
+      verified_by: [schema_contract_enforced]
+    - id: REQ-F-002
+      statement: "un fallo a mitad de un backfill no rematerializa las particiones ya hechas (idempotencia)"
+      acceptance: "idempotent_backfill verde con un fallo inyectado a mitad"
+      satisfied_by: [s2]
+      verified_by: [idempotent_backfill]
+  nonfunctional:
+    - id: REQ-NF-001
+      statement: "la calidad de datos se mide con una compuerta que BLOQUEA el run bajo umbral"
+      acceptance: "quality_gate_blocks hace fallar el run ante una violación de expectativa"
+      satisfied_by: [s4]
+      verified_by: [quality_gate_blocks]

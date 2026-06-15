@@ -6,7 +6,11 @@ activation: always
 # re-derivable (docs/reference/MEMORY.md) y lo EXIGE por bloqueo: la gate `rtm_rederive` corrompe, en
 # una copia hermética, el proof de una estación que satisface un requisito y verifica que el RTM CAE a
 # UNSATISFIED (si no cambia, sería prosa) + que el ledger deriva de los proofs.
+# C4: `rtm_tree` GENERALIZA el RTM al árbol de evidencia COMPLETO (req→capability→station→proof→artifact):
+# además del proof, borrar el artefacto que una capability certifica tira el requisito a UNSATISFIED
+# (tooth de evidencia rancia). Un tooth no-ejercitable (proxy sin artefacto) se reporta, no se finge.
 builds:
   - { action: render, src: "template/factory/memory/MEMORY.md", dest: "docs/reference/MEMORY.md" }
 checks:
   - { name: rtm_rederive, kind: rtm_rederive }
+  - { name: rtm_tree, kind: rtm_tree }

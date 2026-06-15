@@ -84,11 +84,14 @@ class Machinery:
 @dataclass
 class Requirement:
     """L5 — a requirement. `satisfied_by` -> the stations that build it; `verified_by` -> the proof_check(s)
-    that demonstrate it (a phantom verifier is refused, SAFE-4/7); `acceptance` is the human-readable bar."""
+    that demonstrate it (a phantom verifier is refused, SAFE-4/7); `capability` -> the L1 capability it
+    fulfills (the L5→L1 edge of the evidence tree, C4; a phantom capability is refused like a phantom
+    verifier); `acceptance` is the human-readable bar."""
     id: str
     statement: str
     satisfied_by: list[str]
     verified_by: list[str] = field(default_factory=list)
+    capability: str = ""   # the L1 capability id this requirement fulfills (C4 evidence-tree edge; optional)
     acceptance: str = ""
     kind: str = "functional"
 
@@ -117,6 +120,12 @@ class FactorySpec:
         """Every proof_check name declared across stations — the set a requirement's `verified_by`
         may point at. A reference outside this set is a phantom verifier (M0 cuts the gate)."""
         return {pc.name for s in self.stations for pc in s.proof_checks if pc.name}
+
+    @property
+    def capability_ids(self) -> set[str]:
+        """Every declared capability id — the set a requirement's `capability` may point at (C4).
+        A reference outside this set is a phantom capability (M0 cuts the gate, like a phantom verifier)."""
+        return {c.id for c in self.capabilities if c.id}
 
     @property
     def subst(self) -> dict:

@@ -17,7 +17,7 @@ KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "bus_bounded", "product_run", "boundary_survives",
-    "rtm_rederive", "clean_runner", "agent_shadow", "product_env",
+    "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env",
 )
 
 
@@ -66,6 +66,10 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 str(subst.get("spec_path", "factory.spec.yml"))]
     if kind == "rtm_rederive":
         return [PY, "-m", "metafactory.verify.checks.rtm_rederive",
+                str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
+                str(subst.get("spec_path", "factory.spec.yml"))]
+    if kind == "rtm_tree":
+        return [PY, "-m", "metafactory.verify.checks.rtm_tree",
                 str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
                 str(subst.get("spec_path", "factory.spec.yml"))]
     if kind == "clean_runner":

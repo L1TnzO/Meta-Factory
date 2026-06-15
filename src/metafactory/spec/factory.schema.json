@@ -132,7 +132,8 @@
           "statement": {"type": "string"},
           "acceptance": {"type": "string"},
           "satisfied_by": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-          "verified_by": {"type": "array", "items": {"type": "string"}}
+          "verified_by": {"type": "array", "items": {"type": "string"}},
+          "capability": {"type": "string", "description": "the L1 capability id this requirement fulfills — the L5→L1 edge of the build evidence tree (C4); a phantom capability is refused by the validator."}
         }
       }
     }

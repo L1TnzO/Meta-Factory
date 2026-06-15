@@ -192,28 +192,18 @@ def cmd_product_run(args) -> int:
 
 
 def cmd_rtm(args) -> int:
-    """Re-derive the RTM from artifacts only (I-10): a requirement is SATISFIED iff every
-    station in its satisfied_by has an OPEN gate (a passing, recompute-clean proof)."""
+    """Re-derive the build EVIDENCE TREE from artifacts only (I-10, C4): req → capability → station →
+    proof → artifact. A requirement is SATISFIED iff every edge holds — its capability is real, every
+    station's gate is OPEN (passing, recompute-clean proof), and every artifact its capability declares
+    exists on disk. Single source `verify.rtm` (shared with the `rtm_tree` gate)."""
+    from .verify import rtm
     slug = args.factory
     fdir = _factory_dir(slug)
     spec = load_spec(fdir / "factory.spec.yml")
     ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug)
-    rows, unsat = [], 0
-    for req in spec.requirements:
-        sat = True
-        for sid in req.satisfied_by:
-            proof = ctx.verifier.load_proof(fdir, sid)
-            ok = proof is not None and ctx.verifier.gate_recompute_ok(proof)[0]
-            sat = sat and ok
-        status = "SATISFIED" if (sat and req.satisfied_by) else "UNSATISFIED"
-        if status != "SATISFIED":
-            unsat += 1
-        rows.append((req.id, status, ",".join(req.satisfied_by)))
-    print(f"VEREDICTO  rtm {slug} — {'COMPLETE' if unsat == 0 else 'INCOMPLETE'}   (exit {0 if unsat == 0 else 1})")
-    print(f"RESUMEN    {len(rows) - unsat}/{len(rows)} requisitos SATISFIED (re-derivado de artefactos)")
-    for rid, status, by in rows:
-        print(f"           {rid} {status} <- {by}")
-    return 0 if unsat == 0 else 1
+    nodes = rtm.build_tree(spec, ctx.verifier, fdir)
+    print(rtm.render(slug, nodes))
+    return 0 if rtm.is_complete(nodes) else 1
 
 
 def _compare_to_pinned(verifier, fdir: Path, pinned: dict) -> list[str]:

@@ -81,6 +81,7 @@ def load_spec(path: str | Path) -> FactorySpec:
                 statement=_str(r.get("statement", "")),
                 satisfied_by=[_str(x) for x in (r.get("satisfied_by", []) or [])],
                 verified_by=[_str(x) for x in (r.get("verified_by", []) or [])],
+                capability=_str(r.get("capability", "")),
                 acceptance=_str(r.get("acceptance", "")),
                 kind=kind,
             ))

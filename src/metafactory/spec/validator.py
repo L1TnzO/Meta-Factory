@@ -166,13 +166,18 @@ def _depends_on_cycles(spec: FactorySpec) -> list[str]:
 
 
 def _validate_requirements_v2(spec: FactorySpec) -> list[str]:
-    """A requirement's `verified_by` must point at a real proof_check (no phantom verifier, SAFE-4/7)."""
+    """A requirement's `verified_by` must point at a real proof_check (no phantom verifier, SAFE-4/7),
+    and its `capability` (when declared) at a real capability (no phantom capability — the L5→L1 edge of
+    the evidence tree, C4: an honest, closed reference, same teeth as verified_by)."""
     p: list[str] = []
     known = spec.known_verifiers
+    caps = spec.capability_ids
     for r in spec.requirements:
         for v in r.verified_by:
             if v not in known:
                 p.append(f"{r.id}: verified_by -> {v!r} is a phantom verifier (no proof_check declares it)")
+        if r.capability and r.capability not in caps:
+            p.append(f"{r.id}: capability -> {r.capability!r} is a phantom capability (no capability declares it)")
     return p
 
 

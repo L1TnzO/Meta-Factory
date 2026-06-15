@@ -93,6 +93,7 @@ def load_spec(path: str | Path) -> FactorySpec:
         requirements=reqs,
         capabilities=capabilities,
         machinery=machinery,
+        required_primitives=[_str(x) for x in (domain.get("required_primitives", []) or [])],
         raw=data,
         path=path,
     )

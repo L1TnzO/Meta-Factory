@@ -4,8 +4,10 @@ requirement; SDD here is enforced deterministically, not suggested by a prompt."
 from .model import Capability, FactorySpec, Machinery, ProofCheck, Requirement, SpecStation
 from .loader import load_spec
 from .validator import rtm_closure, validate
+from .design import design_coverage
+from .primitives import catalog_ids, load_catalog
 
 __all__ = [
     "FactorySpec", "Requirement", "SpecStation", "Capability", "ProofCheck", "Machinery",
-    "load_spec", "validate", "rtm_closure",
+    "load_spec", "validate", "rtm_closure", "design_coverage", "catalog_ids", "load_catalog",
 ]

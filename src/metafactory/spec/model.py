@@ -96,6 +96,7 @@ class FactorySpec:
     requirements: list[Requirement]
     capabilities: list[Capability] = field(default_factory=list)
     machinery: Machinery = field(default_factory=Machinery)
+    required_primitives: list[str] = field(default_factory=list)  # L1 design input: DES-x the domain needs
     raw: dict = field(default_factory=dict)
     path: Path | None = None
 

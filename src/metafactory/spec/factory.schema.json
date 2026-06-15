@@ -21,6 +21,11 @@
       "properties": {
         "produces": {"type": "string"},
         "target_framework": {"type": "object"},
+        "required_primitives": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/primitive"},
+          "description": "L1 design input: the DES-x primitives the domain requires (the skill provides a tech for each)."
+        },
         "capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}},
         "product_capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}},
         "station_sequence": {

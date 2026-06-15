@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4ebd1b3f32d400288e7e89244edea8954d54106b updated=2026-06-15T13:22Z -->
+<!-- meta:doc sha=ebca2ef354719b5f459349a8f3d367072873971c updated=2026-06-15T13:27Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-15T13:18Z · sesión: opus-4.8 (Fase A ✅ — A1 gramática v2 + A2 ASF/skeletons; reviewer fresco PASS) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: B1-DESIGN-SKILL-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 

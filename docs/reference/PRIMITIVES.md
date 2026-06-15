@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ed985defee92793a7b6dd63042bbd43a2f5b1529 updated=2026-06-15T03:44Z -->
+<!-- meta:doc sha=e3ef1a4c9e7ce4d7a38a52e67fa136ebe1d72b2c updated=2026-06-15T13:29Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # PRIMITIVES — la filosofía: primitivas de diseño, no herramientas
 
@@ -64,6 +64,10 @@ tecnología" es ilustrativa — el plan elige según el dominio; el sustrato no 
 > Esta tabla ES el contenido del **skill de diseño** (§4). Crece: cuando un dominio nuevo (Mobile, IoT)
 > destapa una primitiva no listada, se agrega acá — es la cantera viva. Cada primitiva nombra el
 > CONCEPTO y deja la tecnología abierta.
+>
+> **Espejo legible-por-máquina (B1)**: el catálogo vive como DATO en `reference/primitives.yml` (single
+> source que el skill y el check `design_coverage` consumen); esta tabla es el espejo humano. Un test ata
+> ambos (`tests/test_design.py`): agregar una primitiva = editar el YAML + esta tabla, nunca el validator.
 
 ## 4. Dónde viven las primitivas: el skill de diseño (tiempo de DISEÑO)
 

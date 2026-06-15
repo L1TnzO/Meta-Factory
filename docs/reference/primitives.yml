@@ -1,0 +1,46 @@
+# primitives.yml — el catálogo de PRIMITIVAS DE DISEÑO (DES-*) como DATO legible-por-máquina.
+# Single source de la "cantera viva" (PRIMITIVES.md §3 es el espejo humano; un test ata md↔yml).
+# Cada primitiva nombra el CONCEPTO (qué resuelve); `example_techs` es ILUSTRATIVO — la tech la elige
+# el plan SDD por dominio, NUNCA se hardcodea en el sustrato (ADR-012). Crece editando ESTE archivo,
+# no el validator: así la membresía es chequeable (design_coverage) sin acoplar el sustrato a una tech.
+#
+# Las primitivas de SEGURIDAD (SAFE-*, PRIMITIVES.md §2) NO viven acá: son fijas, las hornea la columna.
+
+version: 1
+design_primitives:
+  - id: DES-1
+    name: "Andamiaje regenerable"
+    solves: "el producto es derivable del spec+diseño; regenerar es idempotente (con 100%-generado no hay código humano que proteger)"
+    example_techs: ["Copier", "Plop/Hygen", "plantillas", "el propio Claude Code"]
+  - id: DES-2
+    name: "Topología verificable"
+    solves: "la estructura del producto es chequeable estáticamente contra un invariante, sin correr el modelo"
+    example_techs: ["grafo compilado LangGraph (get_graph())", "AST de rutas", "schema de IaC"]
+  - id: DES-3
+    name: "Puntos de control no-salteables"
+    solves: "ciertas rutas no se pueden evitar; verificado por alcanzabilidad sobre la estructura compilada"
+    example_techs: ["interrupt() de LangGraph", "middleware de auth", "guards"]
+  - id: DES-4
+    name: "Estado durable / resumible"
+    solves: "un fallo no reejecuta lo completado; el ciclo resume desde el último checkpoint"
+    example_techs: ["PostgresSaver", "event store", "cola con checkpoints"]
+  - id: DES-5
+    name: "Procedencia / trazabilidad"
+    solves: "toda salida rastrea a su evidencia; clave de unión por nodo"
+    example_techs: ["OTel + Neo4j W3C PROV", "logs estructurados", "audit trail"]
+  - id: DES-6
+    name: "Contratos tipados en fronteras"
+    solves: "interfaces tipadas y chequeadas (consumes/produces) en los bordes del sistema"
+    example_techs: ["Pydantic", "TypeScript types", "OpenAPI", "protobuf"]
+  - id: DES-7
+    name: "Evaluabilidad con compuertas"
+    solves: "calidad medida por gates que BLOQUEAN (umbral → CI rojo)"
+    example_techs: ["RAGAS/DeepEval", "tests de contrato", "Lighthouse CI"]
+  - id: DES-8
+    name: "Proof en el toolchain DEL producto"
+    solves: "la verificación corre en el entorno del producto, no en el de la fábrica"
+    example_techs: ["pytest/mypy", "tsc/vitest/eslint", "detox", "qemu"]
+  - id: DES-9
+    name: "Frontera de aislamiento"
+    solves: "el producto no contamina a la fábrica ni viceversa"
+    example_techs: ["venv/sys.path", "workspace", "container", "emulador"]

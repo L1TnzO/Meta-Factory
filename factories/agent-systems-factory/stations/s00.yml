@@ -1,16 +1,26 @@
 id: s00
-name: "el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de invariante; la línea S0–S8 real es G-8 diferido)"
+name: el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de
+  invariante; la línea S0–S8 real es G-8 diferido)
 activation: always
-# La línea de PRODUCTO de la fábrica agent-systems-factory (estaciones como dato, I-2). Ensambla el producto desde
-# la frontera I-5 — domain/ (humano) + generated/ (chasis) → build/ (regenerable, gitignored, PF-10) —
-# y exige el invariante: compila, corre vía el runner generado, y porta el marcador. Corromper el
-# marcador hace fallar `runs` -> passed=false -> gate cerrada.
 builds:
-  - { action: render, src: "factories/agent-systems-factory/domain/agent_system.py", dest: "build/agent_system.py" }
-  - { action: render, src: "factories/agent-systems-factory/generated/runner.py", dest: "build/runner.py" }
+- action: render
+  src: factories/agent-systems-factory/domain/agent_system.py
+  dest: build/agent_system.py
+- action: render
+  src: factories/agent-systems-factory/generated/runner.py
+  dest: build/runner.py
 checks:
-  - { name: compile, kind: py_compile, files: ["build/agent_system.py", "build/runner.py"] }
-  - name: runs
-    kind: import_runs
-    code: "import sys; sys.path.insert(0, 'build'); import runner; assert runner.run() == 'AGENT_SYSTEM_OK', 'invariante violado: el producto no devuelve el marcador AGENT_SYSTEM_OK'"
-  - { name: invariant, kind: artifact_contains, file: "build/agent_system.py", marker: "AGENT_SYSTEM_OK" }
+- name: compile
+  kind: py_compile
+  files:
+  - build/agent_system.py
+  - build/runner.py
+- name: runs
+  kind: import_runs
+  code: 'import sys; sys.path.insert(0, ''build''); import runner; assert runner.run()
+    == ''AGENT_SYSTEM_OK'', ''invariante violado: el producto no devuelve el marcador
+    AGENT_SYSTEM_OK'''
+- name: invariant
+  kind: artifact_contains
+  file: build/agent_system.py
+  marker: AGENT_SYSTEM_OK

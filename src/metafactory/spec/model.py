@@ -50,13 +50,21 @@ class ProofCheck:
 
 @dataclass
 class SpecStation:
-    """L2 — a station in the line. `depends_on` are upstream stations that must run first (a DAG)."""
+    """L2 — a station in the line. `depends_on` are upstream stations that must run first (a DAG).
+
+    `proof_checks` is the SDD-DESCRIPTIVE contract (validated by M0, cited by requirements' verified_by).
+    `builds`/`checks` are the EXECUTABLE realization (C2): the build actions + engine checks m02 materializes
+    into `stations/<id>.yml` (estaciones como dato, I-2; 100% derivable del spec, ADR-011). They are raw dicts
+    the engine consumes verbatim — the substrate never enumerates a tech (ADR-012); a `generate` build's `via`
+    and a check's `kind` are free DATA the plan chose."""
     id: str
     name: str
     activation: str = "always"
     depends_on: list[str] = field(default_factory=list)
     proof_checks: list[ProofCheck] = field(default_factory=list)
     status: str = ""
+    builds: list[dict] = field(default_factory=list)   # executable build actions (C2 realization)
+    checks: list[dict] = field(default_factory=list)    # executable engine checks (C2 realization)
 
     @property
     def active(self) -> bool:

@@ -35,6 +35,8 @@ def _station(d: dict) -> SpecStation:
         depends_on=[_str(x) for x in (d.get("depends_on", []) or [])],
         proof_checks=[_proof_check(pc) for pc in (d.get("proof_checks", []) or [])],
         status=_str(d.get("status", "")),
+        builds=list(d.get("builds", []) or []),   # C2: executable realization, consumed verbatim
+        checks=list(d.get("checks", []) or []),
     )
 
 

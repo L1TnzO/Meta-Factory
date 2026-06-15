@@ -1,12 +1,13 @@
 id: m02
-name: "Engine & estaciones-como-dato"
+name: "Engine & estaciones-como-dato (línea materializada del spec)"
 activation: always
-# M2 materializa la línea de PRODUCTO de la fábrica como DATO (I-2): el YAML de su secuencia. El
-# CÓDIGO de dominio que fabrica el producto lo instala M4 (frontera generado/dominio). La gate exige
-# que la secuencia parsee y sea DETERMINISTA (mismo orden entre corridas) y que la estación s00 exista.
+# M2 materializa la línea de PRODUCTO de la fábrica DESDE EL SPEC (estaciones como dato, I-2; 100%
+# derivable, ADR-011): una `stations/<id>.yml` por entrada de `station_sequence`, con sus builds/checks
+# ejecutables. Mata el patrón único (ya no hay una `s00` fija). El CÓDIGO de dominio lo instala M4. La
+# gate exige que la línea materializada PARSEE, sea DETERMINISTA, y COINCIDA con la secuencia del spec.
 builds:
-  - { action: render, src: "template/factory/product/stations/s00.yml", dest: "stations/s00.yml" }
+  - { action: materialize_line, dest: "stations" }
 checks:
-  - name: stations_parse
+  - name: stations_match_spec
     kind: import_runs
-    code: "from metafactory.engine import load_sequence; a=load_sequence('stations'); b=load_sequence('stations'); assert a.ids()==b.ids() and a.ids(), 'secuencia vacía o no determinista'; assert 's00' in a.ids(), 'falta la estación de producto s00'"
+    code: "from metafactory.engine import load_sequence; from metafactory.spec import load_spec; spec=load_spec('factory.spec.yml'); declared=sorted(s.id for s in spec.stations if s.active); a=load_sequence('stations'); b=load_sequence('stations'); assert a.ids()==b.ids() and a.ids(), 'linea vacia o no determinista'; assert a.ids()==declared, 'linea materializada %r != secuencia del spec %r' % (a.ids(), declared)"

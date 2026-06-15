@@ -68,9 +68,21 @@ domain:
       purpose: "construir el arnés de evaluación (DeepEval/promptfoo/RAGAS/Phoenix Evals/DSPy) y los gates de umbral en CI; gateado por prueba de que el CI termina con error ante un caso failing; sin gold set real, el artefacto sintético se etiqueta como provisional con la acción requerida documentada"
   provision_modes: [prompt, integration, custom]   # ARCHITECTURE.md §11.2: prompt→Nivel A (nodo esencialmente LLM), integration→Nivel B/C (adaptador tipado + consentimiento), custom→reductor de canal Nivel B/C según complejidad de fusión
   hitl: { non_skippable_interrupt: true }           # ARCHITECTURE.md §1.3 + §10 S7 + ADR-015: ninguna ruta de finalización evita interrupt(); verificado por alcanzabilidad sobre el grafo LangGraph compilado (get_graph()), no por AST
-  # La estación de PRODUCTO GENERADA hoy (única; proxy honesto del invariante):
+  # La estación de PRODUCTO GENERADA hoy (única; proxy honesto del invariante). Su realización ejecutable
+  # vive acá como DATO (C2, I-2); m02 la materializa en stations/s00.yml. La línea S0–S8 real = F1.
   station_sequence:
-    - { id: s00, name: "ensamblar el chasis del sistema de agentes (proxy de invariante)", activation: always }
+    - id: s00
+      name: "el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de invariante; la línea S0–S8 real es G-8 diferido)"
+      activation: always
+      builds:
+        - { action: render, src: "factories/agent-systems-factory/domain/agent_system.py", dest: "build/agent_system.py" }
+        - { action: render, src: "factories/agent-systems-factory/generated/runner.py", dest: "build/runner.py" }
+      checks:
+        - { name: compile, kind: py_compile, files: ["build/agent_system.py", "build/runner.py"] }
+        - name: runs
+          kind: import_runs
+          code: "import sys; sys.path.insert(0, 'build'); import runner; assert runner.run() == 'AGENT_SYSTEM_OK', 'invariante violado: el producto no devuelve el marcador AGENT_SYSTEM_OK'"
+        - { name: invariant, kind: artifact_contains, file: "build/agent_system.py", marker: "AGENT_SYSTEM_OK" }
   proof_check_types: [py_compile, import_runs, artifact_contains]
   product:
     product_module: agent_system

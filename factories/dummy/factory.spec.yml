@@ -14,8 +14,34 @@ domain:
   target_framework: { name: none, provider_agnostic: true }
   product_capabilities:
     - { id: invariant_marker, invariant: "el producto porta y devuelve el marcador DUMMY_OK" }
+  # La LÍNEA DE PRODUCTO vive acá como DATO (C2, I-2): cada estación lleva su realización ejecutable
+  # (`builds`/`checks`). m02 la materializa en `stations/<id>.yml`. 100% derivable del spec (ADR-011).
   station_sequence:
-    - { id: s00, name: "build greeting", activation: always }
+    - id: s00
+      name: "build greeting"
+      activation: always
+      builds:
+        - { action: render, src: "factories/dummy/domain/greeting.py", dest: "build/greeting.py" }
+        - { action: render, src: "factories/dummy/generated/runner.py", dest: "build/runner.py" }
+      checks:
+        - { name: compile, kind: py_compile, files: ["build/greeting.py", "build/runner.py"] }
+        - name: runs
+          kind: import_runs
+          code: "import sys; sys.path.insert(0, 'build'); import runner; assert runner.run() == 'DUMMY_OK', 'invariante violado: el producto no devuelve el marcador DUMMY_OK'"
+        - { name: invariant, kind: artifact_contains, file: "build/greeting.py", marker: "DUMMY_OK" }
+    - id: s01
+      name: "release manifest (slot generate; embebe la salida de s00 -> cadena real)"
+      activation: always
+      depends_on: [s00]
+      builds:
+        - action: generate
+          dest: build/manifest.txt
+          brief: |
+            RELEASE_OK manifest for dummy
+          via: ["python", "-c", "import os; b=open(os.environ['METAFACTORY_BRIEF']).read(); g=open('build/greeting.py').read(); open(os.environ['METAFACTORY_DEST'],'w').write(b+g)"]
+      checks:
+        - { name: release_tag, kind: artifact_contains, file: "build/manifest.txt", marker: "RELEASE_OK" }
+        - { name: chain_marker, kind: artifact_contains, file: "build/manifest.txt", marker: "DUMMY_OK" }
   provision_modes: [prompt]
   proof_check_types: [py_compile, import_runs, artifact_contains]
   product:
@@ -40,3 +66,6 @@ requirements:
     - id: REQ-F-001
       statement: "el producto compila, corre y devuelve el marcador invariante DUMMY_OK"
       satisfied_by: [s00]
+    - id: REQ-F-002
+      statement: "una 2ª estación genera un manifiesto de release que embebe la salida de s00 (línea multi-estación)"
+      satisfied_by: [s01]

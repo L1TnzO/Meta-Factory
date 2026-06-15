@@ -1,16 +1,24 @@
 id: s00
-name: "un módulo de saludo trivial con un marcador invariante"
+name: build greeting
 activation: always
-# La línea de PRODUCTO de la fábrica dummy (estaciones como dato, I-2). Ensambla el producto desde
-# la frontera I-5 — domain/ (humano) + generated/ (chasis) → build/ (regenerable, gitignored, PF-10) —
-# y exige el invariante: compila, corre vía el runner generado, y porta el marcador. Corromper el
-# marcador hace fallar `runs` -> passed=false -> gate cerrada.
 builds:
-  - { action: render, src: "factories/dummy/domain/greeting.py", dest: "build/greeting.py" }
-  - { action: render, src: "factories/dummy/generated/runner.py", dest: "build/runner.py" }
+- action: render
+  src: factories/dummy/domain/greeting.py
+  dest: build/greeting.py
+- action: render
+  src: factories/dummy/generated/runner.py
+  dest: build/runner.py
 checks:
-  - { name: compile, kind: py_compile, files: ["build/greeting.py", "build/runner.py"] }
-  - name: runs
-    kind: import_runs
-    code: "import sys; sys.path.insert(0, 'build'); import runner; assert runner.run() == 'DUMMY_OK', 'invariante violado: el producto no devuelve el marcador DUMMY_OK'"
-  - { name: invariant, kind: artifact_contains, file: "build/greeting.py", marker: "DUMMY_OK" }
+- name: compile
+  kind: py_compile
+  files:
+  - build/greeting.py
+  - build/runner.py
+- name: runs
+  kind: import_runs
+  code: 'import sys; sys.path.insert(0, ''build''); import runner; assert runner.run()
+    == ''DUMMY_OK'', ''invariante violado: el producto no devuelve el marcador DUMMY_OK'''
+- name: invariant
+  kind: artifact_contains
+  file: build/greeting.py
+  marker: DUMMY_OK

@@ -7,6 +7,7 @@ Build actions (declared as data in the station YAML):
   - {action: render_tree, src, dest}               a template subtree (paths + content)
   - {action: copy_seed}                            install the inherited column (M1)
   - {action: generate, dest, via, brief?}          the CREATIVE SLOT (C1, ADR-013)
+  - {action: materialize_line, dest}               write the product line from the spec (C2, I-2)
 
 `render`/`render_tree`/`generate` accept `skip_if_exists: true`: if the dest already exists it
 is LEFT UNTOUCHED. For render this is the generated/domain boundary (I-5, M4): the factory's
@@ -78,8 +79,46 @@ def apply_builds(ctx: RunContext, station: Station, subst: dict) -> list[str]:
             msgs += _copy_seed(ctx)
         elif action == "generate":
             msgs += _generate(ctx, b, subst)
+        elif action == "materialize_line":
+            msgs += _materialize_line(ctx, b, subst)
         else:
             raise ValueError(f"unknown build action {action!r} in station {station.id}")
+    return msgs
+
+
+def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
+    """C2 — kill the single-station pattern: write the PRODUCT line from the spec's `station_sequence`
+    (estaciones como dato, I-2; 100% derivable del spec, ADR-011). One `stations/<id>.yml` per declared
+    station, carrying its executable `builds`/`checks` (the L2 realization) with `{{var}}` substituted to
+    literals. This is STRUCTURE (chassis derived from data) — not content: per-station content is generated
+    by `generate` (ADR-013). The substrate enumerates no tech; `via`/`kind` ride through as free data.
+
+    The dest dir is regenerated to match the spec EXACTLY: stale `*.yml` are removed first (a station dropped
+    from the spec disappears from the line). depends_on -> the engine's single `requires_prev` (linear chain;
+    multi-predecessor DAG gating is later).
+    """
+    import yaml
+
+    from ..spec.loader import load_spec
+
+    spec_path = ctx.root / "factory.spec.yml"
+    spec = load_spec(spec_path)
+    dest_dir = ctx.root / _render_path(b.get("dest", "stations"), subst)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    for stale in dest_dir.glob("*.yml"):
+        stale.unlink()
+
+    msgs: list[str] = []
+    for s in spec.stations:
+        node: dict = {"id": s.id, "name": s.name, "activation": s.activation}
+        if s.depends_on:
+            node["requires_prev"] = s.depends_on[-1]   # linear chain; engine gates one predecessor
+        node["builds"] = s.builds
+        node["checks"] = s.checks
+        text = render_text(yaml.safe_dump(node, sort_keys=False, allow_unicode=True), subst)
+        out = dest_dir / f"{s.id}.yml"
+        out.write_text(text, encoding="utf-8")
+        msgs.append(f"materialize {out.relative_to(ctx.root)}")
     return msgs
 
 

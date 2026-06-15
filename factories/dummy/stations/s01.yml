@@ -1,0 +1,24 @@
+id: s01
+name: release manifest (slot generate; embebe la salida de s00 -> cadena real)
+activation: always
+requires_prev: s00
+builds:
+- action: generate
+  dest: build/manifest.txt
+  brief: 'RELEASE_OK manifest for dummy
+
+    '
+  via:
+  - python
+  - -c
+  - import os; b=open(os.environ['METAFACTORY_BRIEF']).read(); g=open('build/greeting.py').read();
+    open(os.environ['METAFACTORY_DEST'],'w').write(b+g)
+checks:
+- name: release_tag
+  kind: artifact_contains
+  file: build/manifest.txt
+  marker: RELEASE_OK
+- name: chain_marker
+  kind: artifact_contains
+  file: build/manifest.txt
+  marker: DUMMY_OK

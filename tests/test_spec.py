@@ -7,10 +7,17 @@ import pytest
 import yaml
 
 from metafactory.spec import load_spec, validate
-from metafactory.spec.validator import validate_schema, validate_substrate, rtm_closure
+from metafactory.spec.validator import (
+    rtm_closure,
+    validate_grammar_v2,
+    validate_schema,
+    validate_substrate,
+)
 
-# ── path to the real dummy spec ───────────────────────────────────────────────
-_REAL_SPEC = Path(__file__).resolve().parents[1] / "specs" / "dummy.factory.spec.yml"
+# ── path to the real specs ────────────────────────────────────────────────────
+_SPECS = Path(__file__).resolve().parents[1] / "specs"
+_REAL_SPEC = _SPECS / "dummy.factory.spec.yml"
+_ASF_SPEC = _SPECS / "agent-systems-factory.factory.spec.yml"
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -258,3 +265,151 @@ class TestLoader:
         spec = load_spec(write_spec(tmp_path, data))
         kinds = [r.kind for r in spec.requirements]
         assert "nonfunctional" in kinds
+
+
+# ── v2 grammar (A1): the 6-layer spec with HONEST, CLOSED references ───────────
+
+def rich_v2() -> dict:
+    """A fully-populated v2 spec exercising every layer; validates with ZERO problems."""
+    return {
+        "factory": {"name": "Rich", "slug": "rich-factory", "maturity": "production"},
+        "domain": {
+            "produces": "a richly-described product",
+            "capabilities": [
+                {"id": "cap_topology", "invariant": "the product graph is statically checkable",
+                 "artifact": "graph.ts", "proof": "tests/test_topology.ts",
+                 "primitive": "DES-2", "tech": "some-graph-lib", "status": "built"},
+                {"id": "cap_future", "invariant": "added later", "status": "declared-deferred"},
+            ],
+            "station_sequence": [
+                {"id": "s0", "name": "spec", "activation": "always"},
+                {"id": "s1", "name": "build", "activation": "always", "depends_on": ["s0"],
+                 "status": "built",
+                 "proof_checks": [
+                     {"name": "compiles", "cmd": "tsc --noEmit", "runs_in": "product_env",
+                      "toolchain": "tsc", "status": "built"},
+                 ]},
+            ],
+        },
+        "machinery": {
+            "harness": {"tech": "some-harness", "primitive": "DES-1", "status": "built"},
+            "infra": {"tech": "some-store", "primitive": "DES-4", "status": "planned"},
+        },
+        "factory_substrate": {"anti_rubber_stamp_column": True, "verdict_bus": {"max_lines": 10}},
+        "requirements": {"functional": [
+            {"id": "REQ-F-001", "statement": "works", "acceptance": "it runs in prod",
+             "satisfied_by": ["s1"], "verified_by": ["compiles"]},
+        ]},
+    }
+
+
+class TestRichV2Valid:
+    def test_rich_v2_validates_clean(self, tmp_path):
+        spec = load_spec(write_spec(tmp_path, rich_v2()))
+        assert validate(spec) == [], f"rich v2 spec should be clean: {validate(spec)}"
+
+    def test_layers_parsed_into_model(self, tmp_path):
+        spec = load_spec(write_spec(tmp_path, rich_v2()))
+        assert {c.id for c in spec.capabilities} == {"cap_topology", "cap_future"}
+        s1 = next(s for s in spec.stations if s.id == "s1")
+        assert s1.depends_on == ["s0"]
+        assert s1.proof_checks[0].name == "compiles"
+        assert s1.proof_checks[0].runs_in == "product_env"
+        assert spec.machinery.harness["primitive"] == "DES-1"
+        assert spec.requirements[0].verified_by == ["compiles"]
+        assert spec.requirements[0].acceptance == "it runs in prod"
+        assert spec.known_verifiers == {"compiles"}
+
+    def test_legacy_product_capabilities_key_still_loads(self, tmp_path):
+        data = rich_v2()
+        data["domain"]["product_capabilities"] = data["domain"].pop("capabilities")
+        spec = load_spec(write_spec(tmp_path, data))
+        assert {c.id for c in spec.capabilities} == {"cap_topology", "cap_future"}
+
+
+class TestRichV2Teeth:
+    """Each defect is REFUSED by validate_grammar_v2 (negativos bloquean — prueba por bloqueo)."""
+
+    def _problems(self, tmp_path, mutate):
+        data = rich_v2()
+        mutate(data)
+        return validate_grammar_v2(load_spec(write_spec(tmp_path, data)))
+
+    def test_built_capability_without_proof_blocks(self, tmp_path):
+        def m(d): d["domain"]["capabilities"][0].pop("proof")
+        assert any("no proof" in p for p in self._problems(tmp_path, m))
+
+    def test_tech_without_primitive_blocks(self, tmp_path):
+        def m(d): d["domain"]["capabilities"][0].pop("primitive")
+        assert any("no primitive" in p for p in self._problems(tmp_path, m))
+
+    def test_malformed_primitive_blocks(self, tmp_path):
+        def m(d): d["domain"]["capabilities"][0]["primitive"] = "DESIGN-1"
+        assert any("malformed" in p for p in self._problems(tmp_path, m))
+
+    def test_bad_capability_status_blocks(self, tmp_path):
+        def m(d): d["domain"]["capabilities"][0]["status"] = "kinda-done"
+        assert any("status" in p and "not in" in p for p in self._problems(tmp_path, m))
+
+    def test_depends_on_unknown_station_blocks(self, tmp_path):
+        def m(d): d["domain"]["station_sequence"][1]["depends_on"] = ["ghost"]
+        assert any("ghost" in p and "depends_on" in p for p in self._problems(tmp_path, m))
+
+    def test_depends_on_inactive_station_blocks(self, tmp_path):
+        def m(d):
+            d["domain"]["station_sequence"].append({"id": "s2", "name": "off", "activation": "off"})
+            d["domain"]["station_sequence"][1]["depends_on"] = ["s2"]
+        assert any("not an active station" in p for p in self._problems(tmp_path, m))
+
+    def test_depends_on_self_blocks(self, tmp_path):
+        def m(d): d["domain"]["station_sequence"][1]["depends_on"] = ["s1"]
+        assert any("cannot depend on itself" in p for p in self._problems(tmp_path, m))
+
+    def test_depends_on_cycle_blocks(self, tmp_path):
+        def m(d):
+            d["domain"]["station_sequence"][0]["depends_on"] = ["s1"]  # s0->s1, s1->s0
+        assert any("cycle" in p for p in self._problems(tmp_path, m))
+
+    def test_bad_runs_in_blocks(self, tmp_path):
+        def m(d): d["domain"]["station_sequence"][1]["proof_checks"][0]["runs_in"] = "cloud"
+        assert any("runs_in" in p for p in self._problems(tmp_path, m))
+
+    def test_phantom_verifier_blocks(self, tmp_path):
+        def m(d): d["requirements"]["functional"][0]["verified_by"] = ["ghost_check"]
+        assert any("phantom verifier" in p for p in self._problems(tmp_path, m))
+
+    def test_machinery_tech_without_primitive_blocks(self, tmp_path):
+        def m(d): d["machinery"]["harness"].pop("primitive")
+        assert any("machinery.harness" in p and "no primitive" in p for p in self._problems(tmp_path, m))
+
+    def test_duplicate_capability_id_blocks(self, tmp_path):
+        def m(d): d["domain"]["capabilities"][1]["id"] = "cap_topology"
+        assert any("duplicate capability" in p for p in self._problems(tmp_path, m))
+
+
+class TestTechAgnostic:
+    """ADR-012: the validator never whitelists a technology — only the SHAPE tech⇒primitive."""
+
+    def test_arbitrary_tech_with_valid_primitive_passes(self, tmp_path):
+        data = rich_v2()
+        data["domain"]["capabilities"][0]["tech"] = "quantum-forge-9000-never-heard-of"
+        spec = load_spec(write_spec(tmp_path, data))
+        assert validate(spec) == []
+
+    def test_validator_source_names_no_technology(self):
+        src = (Path(__file__).resolve().parents[1] / "src" / "metafactory" / "spec"
+               / "validator.py").read_text(encoding="utf-8").lower()
+        for tool in ("copier", "langgraph", "plop", "hygen", "next.js", "vite",
+                     "react", "postgres", "neo4j", "pydantic"):
+            assert tool not in src, f"validator.py hardcodes tech {tool!r} (violates ADR-012)"
+
+
+# ── regression: the real shipped specs validate clean under the v2 grammar ─────
+
+class TestRealSpecsStayGreen:
+    def test_dummy_spec_clean(self):
+        assert validate(load_spec(_REAL_SPEC)) == []
+
+    def test_asf_spec_clean(self):
+        assert _ASF_SPEC.exists(), f"ASF spec not found at {_ASF_SPEC}"
+        assert validate(load_spec(_ASF_SPEC)) == []

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=05864ddcdb3d24bf50bf26d254afe9df01455599 updated=2026-06-15T03:19Z -->
+<!-- meta:doc sha=cac3518c76686e68f6b0b5faa15f362f40b7f9d4 updated=2026-06-15T03:48Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -62,9 +62,11 @@
   la construcción → sin evidencia-por-requisito en vivo. Es G-M1/G-3 en vivo. Detalle: `reference/HONEST-STATE.md`.
 
 ## Siguiente — en orden
-> **Mapa completo de incrementos** (de la Meta-Factory actual → generación COMPLETA y GENERALISTA de
-> fábricas): `work/ROADMAP.md` — 6 fases (spec generalista · motor · columna heredada · infra+MCP ·
-> ASF completo + Full-Stack · loop). Lo de abajo es el backlog corto histórico; el ROADMAP lo subsume.
+> **DIRECCIÓN (2026-06-15, mandato del ingeniero)**: la Meta-Factory genera el **100%** (ADR-011) desde
+> el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
+> ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
+> **Mapa completo y AUTOCONTENIDO de TODOS los incrementos**: `work/ROADMAP.md` — modelo Diseño→Build→Mejora,
+> fases A–G, estado final ASF-mejorado + Full-Stack + Mobile + IoT. Lo de abajo es backlog histórico que el ROADMAP subsume.
 1. ✅ ASF regenerado como chasis (`ASF-REGEN` CERRADO). FOLLOW-UP G-8 (lo destapado): parametrizar el codegen de producto
    multi-estación (la línea S0–S8 real de ASF) y `seed/external_ci.yml` por-fábrica (hoy defaultea a `--factory dummy`).
 2. Follow-ups de M4-M7 (ya CERRADO): harness `commands/`, captura viva journal/métricas en la fábrica,
@@ -78,7 +80,7 @@
    (verificar en el dummy, G-8). Y refinar: ¿gatear también EJECUTAR la línea (`meta station`) sin incremento?
 
 ## Mapa
-- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)
-- Referencia: `reference/` · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
+- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–012; **011** 100%-generado, **012** primitivas-no-herramientas) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
+- Referencia: `reference/` (filosofía: `PRIMITIVES.md`) · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (pin: `reference/ASF-PROVENANCE.md`) · auditoría A/B regenerada vs original: `reference/REGEN-AUDIT.md`

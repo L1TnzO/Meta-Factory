@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e01e7641a5b7e85f6ab574a3902e5602fa87d2e7 updated=2026-06-15T17:50Z -->
+<!-- meta:doc sha=602dbc5d0b288c0cab1a06471c669b3b0579725c updated=2026-06-15T17:57Z -->
 # Incremento C1-GENERATE-SLOT
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T17:50Z). Cerralo con `meta increment close`
@@ -13,9 +13,31 @@ la **columna VERIFICA** el output. Corromperlo → SHUT. El sustrato no importa 
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Acción `generate` en `codegen/renderer.py` (brief + `via` + sin-faking) + ADR-013 + guard ADR-012 (sin tech de generación en el sustrato) + tests del renderer | ⏳ |
-| 2 | Prueba por bloqueo END-TO-END reproducible (`test_generate.py` sobre el `run_station` real + seed verifier + gate): PASS / corromper-brief→SHUT / sin-generador→SHUT / dominio-agnóstico (2 generadores) | ⏳ |
-| 3 | Prueba viva por CLI (factory scratch con línea de producto `generate` → `meta product-run` PASS, corromper → SHUT) + docs (STATE/ROADMAP/LOG + evidencia acá) | ⏳ |
+| 1 | Acción `generate` en `codegen/renderer.py` (brief + `via` + sin-faking) + ADR-013 + guard ADR-012 (sin tech de generación en el sustrato) + tests del renderer | ✅ `cbe26fb` |
+| 2 | Prueba por bloqueo END-TO-END reproducible (`test_generate.py` sobre el `run_station` real + seed verifier + gate): PASS / corromper-brief→SHUT / sin-generador→SHUT / dominio-agnóstico (2 generadores) | ✅ `64f8576` |
+| 3 | Prueba viva por CLI (factory scratch con línea de producto `generate` → `meta product-run` PASS, corromper → SHUT) + docs (STATE/ROADMAP/LOG + evidencia acá) | ✅ |
+
+## Evidencia (demostrable, no narrable)
+- **El seam** (`codegen/renderer.py::_generate`, ADR-013): `generate` escribe el brief (INPUT del spec),
+  corre el generador de `via` (argv-dato; env `METAFACTORY_BRIEF/DEST/ROOT`), y **no escribe el artefacto ni
+  el veredicto**. `dest` arranca ausente cada corrida (no-fake sobre rancio); `skip_if_exists` para slots ya
+  llenos (LLM no-determinista).
+- **Prueba por bloqueo REPRODUCIBLE** (`tests/test_generate.py`, run_station+seed verifier+gate REALES):
+  generate→columna→**OPEN** (`proof.writer == seed/verifier.py`, el veredicto no lo escribe el runner) ·
+  brief corrompido→artefacto sin invariante→**SHUT** · generador que no produce→artefacto ausente→**SHUT** ·
+  mismo seam gatea un artefacto **TS** (principio #6). Tests del renderer (8): produce-vía-`via`, no-fake,
+  fail-safe si no arranca, stale removido, skip_if_exists, subst en argv, dominio-agnóstico (Python+TS).
+- **Prueba VIVA por CLI** (factory scratch `genscratch`, línea de producto con `generate`, removida pre-commit):
+  - `meta product-run --factory genscratch` → **PASS** (3/3: compile·runs·invariant); `build/greeting.py` lo
+    escribió el generador desde su brief, no el sustrato.
+  - brief corrompido (saqué el invariante del blueprint) → regenerar → **FAIL exit 1**, `gate s00: SHUT`
+    (`runs FAIL` + `invariant ABSENT marker='GEN_OK'`). El artefacto regenerado refleja el brief corrompido.
+- **Guard ADR-012** (`tests/test_isolation.py::test_no_generation_tech_in_substrate`): `src/metafactory/` no
+  importa tech de generación (copier/jinja2/langgraph/…); la tech es siempre `via` (dato).
+- **Veredicto**: suite **348** (era 335); `meta check` 5/5; árbol limpio; scratch removido.
+- **Residual honesto (declared-deferred, no agujero)**: el gate usa un generador determinista de prueba para
+  ser reproducible (y re-derivable por dos-verificadores). Cablear un `via: [claude, -p, …]` VIVO es el MISMO
+  seam con otra data; se ejercita para código de producto real en F1 (ADR-013 §residual).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. Una estación con un slot `generate` produce un artefacto vía un generador DECLARADO EN DATO; la columna lo

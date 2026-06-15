@@ -1,6 +1,6 @@
-<!-- meta:doc sha=0a10c272d4f73527874958aeadbb4493055ddcfd updated=2026-06-15T17:50Z -->
+<!-- meta:doc sha=50885095e7df7a8475e8eec54e50005501f325cf updated=2026-06-15T17:58Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T14:00Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ — gramática v2, ASF/skeletons, skill de primitivas, gate SDD de diseño en M0) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T18:00Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C arrancada — C1 ✅: el slot `generate` orquestado, motor de build con dientes) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -32,7 +32,16 @@
     criterios** (todo requisito cita un verifier real). Cableado a `m00.yml` (3er check); `validator.py` SIN
     TOCAR (catálogo-independiente, decoupling A1). **2 dominios** (data-pipeline + full-stack) PASAN; prueba
     por bloqueo END-TO-END: `meta station m00` SHUT ante blueprint incompleto (−verifier/−tech); líneas vivas
-    dummy/ASF verdes (no-op). Suite 335. **Sigue C1** (motor de build: generación como slot acotado) — `work/ROADMAP.md §Fase C`.
+    dummy/ASF verdes (no-op). Suite 335.
+- **Fase C arrancada — el motor de build genera con dientes**:
+  - **C1 (`C1-GENERATE-SLOT`, ADR-013)**: la acción `generate` (`codegen/renderer.py::_generate`) es el seam
+    creativo: el sustrato escribe el **brief** (blueprint), corre el **generador declarado en DATO** (`via`;
+    env `METAFACTORY_BRIEF/DEST/ROOT`) y **no escribe el artefacto NI el veredicto** — la columna es el único
+    árbitro (Cerrojo 1 intacto). `via` puede ser un scaffolder o `claude -p`: mismo seam, otra data. Prueba por
+    bloqueo reproducible (`test_generate.py`, run_station+seed reales): generate→OPEN · brief corrompido→SHUT ·
+    sin-generador→artefacto ausente→SHUT · mismo seam gatea TS (principio #6). Viva por CLI (scratch removido):
+    `product-run` PASS, brief corrompido→SHUT. Guard ADR-012 (test): cero tech de generación en `src/`. Suite 348.
+    **Sigue C2** (línea de producto multi-estación) — `work/ROADMAP.md §Fase C`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -41,8 +50,8 @@
   (trust-chain a mano: `verifier.py` único escritor de veredictos), `src/metafactory/` (engine dominio-agnóstico
   + spec + verify + codegen + `cli.py`), meta-estaciones `stations/m00–m08.yml` (dato I-2), columna
   `.claude/hooks/` (6 hooks), `template/factory/`, `factories/dummy/`. 8 criterios del bootstrap verdes
-  (e2e M0–M8, capstone bloquea, re-derivación dos-verificadores, seed 0 CRITICAL). **12 ADR** (001–012;
-  007–010 Implementados). ADR-009 vivo (sello in-band + INDEX + check de consistencia).
+  (e2e M0–M8, capstone bloquea, re-derivación dos-verificadores, seed 0 CRITICAL). **13 ADR** (001–013;
+  007–010 Implementados; **013** generación como slot orquestado). ADR-009 vivo (sello in-band + INDEX + check de consistencia).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
 - **M4–M7 ✅ — `M4-M7-INCREMENT` CERRADO** (6 criterios): los 4 gates LANDED+e2e — M4 `boundary_survives`,
@@ -77,8 +86,9 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2). **Próximo: C1** (motor de build: la
-> estación invoca a Claude Code para generar según el blueprint; la columna VERIFICA el output) → C2–C4.
+> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅. **Próximo: C2** (línea de
+> producto multi-estación, s00→sN como dato I-2: el motor corre el `station_sequence` del spec, cada estación
+> gatea con sus proof_checks; corromper el artefacto de s1 → s1 SHUT) → C3–C4.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
   propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);
@@ -86,7 +96,7 @@
   SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
 
 ## Mapa
-- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–012; **011** 100%-generado, **012** primitivas-no-herramientas) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
+- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–013; **011** 100%-generado, **012** primitivas-no-herramientas, **013** generación como slot orquestado) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md`) · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (pin: `reference/ASF-PROVENANCE.md`) · auditoría A/B regenerada vs original: `reference/REGEN-AUDIT.md`

@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `d656ee9b3784` | 2026-06-15T14:02Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `0a10c272d4f7` | 2026-06-15T17:50Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `df061c149ad3` | 2026-06-15T17:59Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `50885095e7df` | 2026-06-15T17:58Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -38,10 +38,10 @@
 | `docs/work/B1-DESIGN-SKILL-INCREMENT.md` | `b5a05f609f9b` | 2026-06-15T13:35Z | Incremento B1-DESIGN-SKILL |
 | `docs/work/B2-SDD-DESIGN-FLOW-INCREMENT.md` | `46a23a508164` | 2026-06-15T14:01Z | Incremento B2-SDD-DESIGN-FLOW |
 | `docs/work/BOOTSTRAP-INCREMENT.md` | `d976acfd9db1` | 2026-06-13T15:22Z | Incremento BOOTSTRAP — el seed, la maquinaria base y la prueba del punto fijo |
-| `docs/work/C1-GENERATE-SLOT-INCREMENT.md` | `e01e7641a5b7` | 2026-06-15T17:50Z | Incremento C1-GENERATE-SLOT |
+| `docs/work/C1-GENERATE-SLOT-INCREMENT.md` | `602dbc5d0b28` | 2026-06-15T17:57Z | Incremento C1-GENERATE-SLOT |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `4f7a572a2279` | 2026-06-15T13:59Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `e75af707f4cf` | 2026-06-15T17:57Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

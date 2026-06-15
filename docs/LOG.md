@@ -1,7 +1,38 @@
-<!-- meta:doc sha=d656ee9b37845725db603c81d3498e4b7067d44b updated=2026-06-15T14:02Z -->
+<!-- meta:doc sha=df061c149ad3a0b4bd30217bd30cfc416d10da93 updated=2026-06-15T17:59Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T17:59Z — C1: el slot `generate` orquestado (el sustrato orquesta+verifica, no genera)
+- **gatillo**: el ingeniero pidió continuar a C1 — arrancar el motor de build: que la estación GENERE el
+  artefacto según el blueprint y la columna lo verifique (ROADMAP §Fase C).
+- **decisión de diseño (Opus, ojos propios)**: el sustrato ya sabía *renderizar* (substitución `{{}}` cuya
+  lógica vive en `src/`) — bien para el chasis, mal como modelo general (mete determinismo en el contenido,
+  I-3; extenderlo a "un backend por stack" hornearía tech, el error ya rechazado en ADR-012). La respuesta:
+  `generate` como **seam**, no como generador. El sustrato (1) escribe el **brief** (rebanada del blueprint;
+  INPUT derivado del spec, NO el artefacto), (2) corre el **generador DECLARADO EN DATO** (`via` argv; env
+  `METAFACTORY_BRIEF/DEST/ROOT`) — sin nombrar ninguna tech, (3) **no escribe el artefacto NI el veredicto**:
+  si el generador falla/no produce, `dest` queda ausente y la **columna** computa el rojo (Cerrojo 1: único
+  escritor de veredictos, intacto). Cada corrida arranca con `dest` ausente (no-fake sobre rancio).
+  `via` puede ser un scaffolder determinista o `claude -p "<brief>"`: mismo seam, otra data. → **ADR-013**.
+- **hecho (incremento `C1-GENERATE-SLOT`, 3 fases, 2 commits + docs)**:
+  - P1 (`cbe26fb`): `_generate` en `codegen/renderer.py` + ADR-013 + guard ADR-012 (`test_isolation`: cero
+    import de tech de generación en `src/`) + 8 tests del renderer + `.gen/` gitignored.
+  - P2 (`64f8576`): `test_generate.py` — prueba por bloqueo END-TO-END con el `run_station` + seed verifier +
+    gate REALES (hermética: `record_active=False`, proofs en tmp).
+  - P3 (este): prueba VIVA por CLI con factory scratch + docs (STATE/ROADMAP/ADR-013/este LOG + evidencia).
+- **demostración (gate C1)**: reproducible — generate→columna→**OPEN** (`proof.writer==seed/verifier.py`) ·
+  **brief corrompido**→artefacto sin invariante→**SHUT** · **sin generador**→artefacto ausente→**SHUT** ·
+  mismo seam gatea un artefacto **TS** (principio #6). **VIVA por CLI** (scratch `genscratch`, línea de
+  producto con `generate`, removida pre-commit): `meta product-run` **PASS** (3/3); brief corrompido →
+  regenerar → **FAIL exit 1**, `gate s00: SHUT` (`runs FAIL` + `invariant ABSENT marker='GEN_OK'`). El
+  artefacto regenerado refleja el brief corrompido — lo escribió el generador, no el sustrato.
+- **veredicto**: suite **348** (era 335); `meta check` 5/5; árbol limpio; scratch removido.
+- **lección**: la diferencia entre `render` y `generate` NO es "otra forma de subprocess" — es DÓNDE vive la
+  lógica de generación. `render` la tiene en el sustrato; `generate` la deja FUERA (en el generador-dato),
+  y el sustrato queda como puro orquestador+verificador. Eso es ADR-012/I-3 vuelto mecanismo: el determinismo
+  envuelve (columna), no genera (contenido). Un generador determinista de prueba prueba el seam y la
+  re-derivación; el `via` LLM-vivo es el mismo seam, diferido honestamente a F1.
 
 ## 2026-06-15T14:02Z — B2: el flujo SDD de diseño con dientes en M0 (M0 rehúsa el diseño incompleto)
 - **gatillo**: el ingeniero pidió continuar a B2 — volver compuerta lo que B1 dejó callable y agregar el

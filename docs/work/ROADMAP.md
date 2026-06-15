@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4f7a572a2279ce8484b0d65eb7f8acc94c4b985e updated=2026-06-15T13:59Z -->
+<!-- meta:doc sha=e75af707f4cf1dd59bc94d1c3ed8e6a61178a839 updated=2026-06-15T17:57Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -116,11 +116,17 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   Depende: B1, A1.
 
 ### Fase C · Motor de build generalista (genera el 100%, verifica construyendo)
-- **C1 · Generación como slot creativo acotado (no backend hardcodeado).** La estación invoca a Claude
-  Code para generar los artefactos según el blueprint; la columna VERIFICA el output. El "generador" es lo
-  que el diseño declaró (renderizar una plantilla, o que el modelo escriba el TS) — el sustrato sólo
-  orquesta y verifica. *Gate*: una estación genera un artefacto, la columna lo verifica; corromperlo → SHUT.
-  **El sustrato no importa ninguna tech de generación** (ADR-012). Depende: A1, B2.
+- **C1 · Generación como slot creativo acotado (no backend hardcodeado).** ✅ **HECHO (2026-06-15,
+  `C1-GENERATE-SLOT`)**. La acción de build `generate` (`codegen/renderer.py::_generate`, **ADR-013**) es el
+  seam: el sustrato escribe el **brief** (blueprint, INPUT del spec), corre el **generador DECLARADO EN DATO**
+  (`via` argv; env `METAFACTORY_BRIEF/DEST/ROOT`), y **no escribe el artefacto NI el veredicto** — la columna
+  es el único árbitro (Cerrojo 1 intacto). `via` puede ser un scaffolder determinista o `claude -p "<brief>"`:
+  mismo seam, otra data. *Gate cumplido*: prueba por bloqueo reproducible (`test_generate.py`, run_station+seed
+  verifier reales) — generate→columna→**OPEN**, brief corrompido→**SHUT**, sin-generador→artefacto ausente→
+  **SHUT**, y el mismo seam gatea un artefacto **TS** (principio #6). Prueba VIVA por CLI (scratch `genscratch`
+  → `meta product-run` PASS; brief corrompido → SHUT). Guard ADR-012 (test): cero tech de generación en `src/`.
+  Residual declared-deferred: el `via` LLM-vivo es el mismo seam, se ejercita en F1. Evidencia:
+  `work/C1-GENERATE-SLOT-INCREMENT.md`. Depende: A1, B2.
 - **C2 · Línea de producto multi-estación (s00→sN como dato, I-2).** Mata el patrón único actual
   (`s00`→marcador). El motor corre el `station_sequence` del spec; cada estación gatea con sus proof_checks.
   *Gate*: una fábrica con ≥2 estaciones genera y gatea cada una; corromper el artefacto de s1 → s1 SHUT. Depende: C1.

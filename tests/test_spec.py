@@ -413,3 +413,82 @@ class TestRealSpecsStayGreen:
     def test_asf_spec_clean(self):
         assert _ASF_SPEC.exists(), f"ASF spec not found at {_ASF_SPEC}"
         assert validate(load_spec(_ASF_SPEC)) == []
+
+
+# ── A2: the 4 blueprints (ASF v2 + 3 skeletons) validate, and prove the grammar is
+#       generalist (not ASF-shaped) — anti-overfit, G-8 generalizado ──────────────
+
+_SKELETONS = _SPECS / "skeletons"
+_A2_SPECS = {
+    "agent-systems-factory": _ASF_SPEC,
+    "full-stack": _SKELETONS / "full-stack.factory.spec.yml",
+    "mobile": _SKELETONS / "mobile.factory.spec.yml",
+    "iot": _SKELETONS / "iot.factory.spec.yml",
+}
+
+
+def _all_primitives(spec) -> set[str]:
+    prims = {c.primitive for c in spec.capabilities if c.primitive}
+    for sec in (spec.machinery.harness, spec.machinery.mcp, spec.machinery.infra):
+        if isinstance(sec, dict) and sec.get("primitive"):
+            prims.add(str(sec["primitive"]))
+    return prims
+
+
+def _all_toolchains(spec) -> set[str]:
+    return {pc.toolchain for s in spec.stations for pc in s.proof_checks if pc.toolchain}
+
+
+class TestA2BlueprintsValidate:
+    @pytest.mark.parametrize("slug,path", list(_A2_SPECS.items()))
+    def test_blueprint_validates_clean(self, slug, path):
+        assert path.exists(), f"{slug} spec not found at {path}"
+        problems = validate(load_spec(path))
+        assert problems == [], f"{slug} should validate clean: {problems}"
+
+
+class TestGrammarGeneralist:
+    """The same grammar describes 4 radically different domains — not a forma-de-ASF."""
+
+    def test_covers_diverse_primitives(self):
+        prims: set[str] = set()
+        for path in _A2_SPECS.values():
+            prims |= _all_primitives(load_spec(path))
+        # at least 6 distinct design primitives exercised across the corpus
+        assert len(prims) >= 6, f"too few distinct primitives ({prims}) — grammar may be overfit"
+
+    def test_covers_diverse_toolchains(self):
+        tools: set[str] = set()
+        for path in _A2_SPECS.values():
+            tools |= _all_toolchains(load_spec(path))
+        # Python (pytest/mypy) ↔ TS (tsc/vitest) ↔ mobile (detox) ↔ embedded (qemu): not Python-bound
+        assert len(tools) >= 6, f"too few distinct toolchains ({tools}) — grammar may be Python/agent-bound"
+        assert "pytest" in tools and "tsc" in tools, "the corpus must span Python AND TypeScript toolchains"
+
+    def test_each_domain_uses_a_distinct_target_framework(self):
+        frameworks = {load_spec(p).raw["domain"]["target_framework"]["name"] for p in _A2_SPECS.values()}
+        assert len(frameworks) == len(_A2_SPECS), f"frameworks not distinct: {frameworks}"
+
+
+class TestAsfV2Fidelity:
+    """The ASF v2 blueprint keeps the load-bearing invariants of the pinned ASF (b1fcb1f)."""
+
+    def test_seven_capabilities_each_name_a_primitive(self):
+        spec = load_spec(_ASF_SPEC)
+        assert len(spec.capabilities) == 7, "ASF has 7 production capabilities"
+        assert all(c.primitive for c in spec.capabilities), "every ASF capability names a DES primitive"
+
+    def test_full_s0_s8_line_present(self):
+        spec = load_spec(_ASF_SPEC)
+        assert {s.id for s in spec.stations} == {f"s{i}" for i in range(9)}, "the full S0–S8 line"
+
+    def test_non_skippable_interrupt_is_a_real_verifier(self):
+        spec = load_spec(_ASF_SPEC)
+        reqs = {r.id: r for r in spec.requirements}
+        assert "interrupt_unbypassable" in reqs["REQ-F-001"].verified_by
+        assert "interrupt_unbypassable" in spec.known_verifiers
+
+    def test_eval_gate_blocks_ci(self):
+        spec = load_spec(_ASF_SPEC)
+        nf = next(r for r in spec.requirements if r.id == "REQ-NF-001")
+        assert nf.verified_by == ["eval_threshold_gate"]

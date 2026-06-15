@@ -1,4 +1,4 @@
-<!-- meta:doc sha=27963f9d7903337900020c3545c5246347a5ba0a updated=2026-06-13T14:57Z -->
+<!-- meta:doc sha=e0f4bf38faad84c86e7377ccf86a2de29e9cf05c updated=2026-06-15T03:48Z -->
 # Arquitectura del Meta-Factory
 
 | Campo | Valor |
@@ -63,7 +63,7 @@ qué fabrique. Es el análogo, un nivel arriba, de las "siete capacidades de pro
 | I-2 | **Estaciones como dato** | la línea es una secuencia de YAML, no ramas en el código; cero identidad de dominio hardcodeada | §9.1, anti-patrón #4 |
 | I-3 | **Frontera del determinismo** | modelo para lo creativo (slots acotados), código para lo invariante; el determinismo vive en proceso+verificación+contratos, nunca en el contenido generado | PF-1/PF-2, ASF/ADR-009 |
 | I-4 | **Escalera de automatización A/B/C** | automático / borrador+consentimiento / provisional-con-honestidad; nunca "bloquear o fabricar" | ADR-010 |
-| I-5 | **Frontera generado/dominio** | Copier es dueño de `generated/` (100% sobrescribible), el ingeniero de `domain/`; conexión por herencia/inyección → un update no pisa código humano | ADR-014 |
+| I-5 | **Frontera generado/dominio** ⚠️ **AMENDADO por `ADR-011`** (2026-06-15): el 100% se genera, NO hay `domain/` humano que proteger; sobrevive sólo la primitiva **DES-1** (andamiaje regenerable e idempotente, `reference/PRIMITIVES.md`). Copier es UNA herramienta elegible en el plan, no la plataforma (`ADR-012`). Texto histórico → | Copier es dueño de `generated/` (100% sobrescribible), el ingeniero de `domain/`; conexión por herencia/inyección → un update no pisa código humano | ADR-014 |
 | I-6 | **Ley de colocación** | cada pieza en el sustrato más determinista que la sostenga; el modelo es el último recurso; veredictos al contexto, logs al disco | ADR-020 |
 | I-7 | **Bus de veredictos** | toda operación cara emite veredicto ≤N líneas + puntero; revelación progresiva (triage haiku → slice quirúrgico) | `factory check`, D1 de CONTEXT |
 | I-8 | **Memoria como artefacto del repo** | hooks deterministas escriben el journal desde git+ledger (cero narrativa del modelo); clonar el repo = clonar la memoria | ADR-019 |

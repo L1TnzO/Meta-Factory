@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `c0d3c3a33df4` | 2026-06-14T21:17Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `05864ddcdb3d` | 2026-06-15T03:19Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `cac3518c7668` | 2026-06-15T03:48Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -18,13 +18,16 @@
 | `docs/decisions/008-observabilidad-metricas-gratis.md` | `c78ab901b885` | 2026-06-13T20:27Z | ADR-008 — Observabilidad y métricas: captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/decisions/009-manifiesto-docs-content-addressed.md` | `adf6735aec8f` | 2026-06-13T14:57Z | ADR-009 — Manifiesto de docs content-addressed: hash de git + sello in-band (vista generada, no a mano) |
 | `docs/decisions/010-disciplina-commit.md` | `50f2c2eb9606` | 2026-06-14T01:55Z | ADR-010 — Disciplina de commit: todo código vive en un incremento; cadencia por fase |
-| `docs/reference/ARCHITECTURE.md` | `27963f9d7903` | 2026-06-13T14:57Z | Arquitectura del Meta-Factory |
+| `docs/decisions/011-cien-por-ciento-generado.md` | `12603315201e` | 2026-06-15T03:45Z | ADR-011 — El 100% se genera; muere la frontera generado/dominio (I-5) |
+| `docs/decisions/012-primitivas-no-herramientas.md` | `6156e38ebfef` | 2026-06-15T03:45Z | ADR-012 — Primitivas de diseño, no herramientas: la tecnología se decide en el plan SDD |
+| `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
+| `docs/reference/PRIMITIVES.md` | `ed985defee92` | 2026-06-15T03:44Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
 | `docs/reference/REGEN-AUDIT.md` | `5ea7ae741990` | 2026-06-15T02:59Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
@@ -33,6 +36,6 @@
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `323172bd638f` | 2026-06-15T03:18Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA y GENERALISTA de fábricas |
+| `docs/work/ROADMAP.md` | `e9c72e8f497f` | 2026-06-15T03:47Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

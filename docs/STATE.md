@@ -1,6 +1,6 @@
-<!-- meta:doc sha=b4333802dcddf004d54f229760554107df4ee413 updated=2026-06-15T20:19Z -->
+<!-- meta:doc sha=10f2dfb5434ecd99581f856d46ed52405c542333 updated=2026-06-15T20:29Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T19:58Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C en curso — C1 ✅ slot `generate`, C2 ✅ línea multi-estación, C3 ✅ proof en el toolchain del producto) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T20:28Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** — C1 slot `generate`, C2 línea multi-estación, C3 proof en el toolchain del producto, C4 árbol de evidencia) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -33,7 +33,7 @@
     TOCAR (catálogo-independiente, decoupling A1). **2 dominios** (data-pipeline + full-stack) PASAN; prueba
     por bloqueo END-TO-END: `meta station m00` SHUT ante blueprint incompleto (−verifier/−tech); líneas vivas
     dummy/ASF verdes (no-op). Suite 335.
-- **Fase C arrancada — el motor de build genera con dientes**:
+- **Fase C ✅ (2026-06-15) — el motor de build genera con dientes y traza la evidencia**:
   - **C1 (`C1-GENERATE-SLOT`, ADR-013)**: la acción `generate` (`codegen/renderer.py::_generate`) es el seam
     creativo: el sustrato escribe el **brief** (blueprint), corre el **generador declarado en DATO** (`via`;
     env `METAFACTORY_BRIEF/DEST/ROOT`) y **no escribe el artefacto NI el veredicto** — la columna es el único
@@ -57,7 +57,16 @@
     3/3 verdes (re-deriva el bootstrap del venv); ASF intacto (pin 1/1). Bloqueo (`test_product_env.py` + CLI):
     `import metafactory` FALLA dentro de product_env (DES-8 real); producto roto → SHUT; test del producto en
     rojo → s02 SHUT con s00/s01 VERDES (aislado); 2º dominio `node --test` por el MISMO kind (principio #6).
-    Suite 364. **Sigue C4** (árbol de evidencia por build, RTM generalizado).
+  - **C4 (`C4-EVIDENCE-TREE`)**: el RTM se generaliza al **árbol de evidencia** completo
+    **req→capability→station→proof→artifact**, re-derivado SÓLO de `.proof/`+spec+artefactos (`verify/rtm.py`,
+    single source de `meta rtm` y del gate). Dos aristas nuevas: **req→capability** (`Requirement.capability`;
+    M0 rechaza capability fantasma, como verifier fantasma) y la **hoja proof→artifact** (`capability.artifact`
+    debe existir — atrapa **evidencia rancia**: proof passed pero el artefacto desapareció; distinto de M5
+    flip-exit y M6 rebuild). Gate `rtm_tree` (m05, junto a rtm_rederive): corromper proof→UNSAT **y** borrar
+    artefacto→UNSAT; tooth no-ejercitable (proxy) se REPORTA, no se finge. Dummy = árbol COMPLETO (3 caps con
+    artifact, RTM 3/3, M0–M8 + `ci --rederive` 3/3, pin intacto); ASF (proxy) verde con artifact N/A.
+    Bloqueo (`test_rtm_tree.py` 12 + CLI): borrar `build/greeting.py` con el proof intacto → REQ-F-001 UNSAT.
+    Suite 376. **Sigue D1** (columna completa heredada).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -102,10 +111,11 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅ + C2 ✅ + C3 ✅. **Próximo: C4**
-> (árbol de evidencia por build, RTM generalizado: req→capability→station→proof→artifact re-derivado de
-> `.proof/`, SAFE-4; el RTM re-deriva COMPLETE para una fábrica multi-estación y corromper un proof lo baja a
-> UNSATISFIED — hoy `meta rtm` ya re-deriva por estación, C4 lo cierra hasta capability/artifact). Después D1/D2.
+> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4).** **Próximo: D1**
+> (Fase D, seguridad: la **columna COMPLETA heredada** por la fábrica generada — hoy hereda sólo el Cerrojo 1
+> `proof_protect`; faltan Cerrojos 2/3 — `gate_guard` recompute, `stop_proof` re-verify — + cadencia
+> `commit_guard`/`increment_guard` + `external_ci` por-fábrica. *Gate*: una fábrica generada, en clon limpio,
+> bloquea el sello de goma sola). Después D2 (generación de harness por spec) → E → F (ASF/Full-Stack e2e).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
   propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);

@@ -1,7 +1,41 @@
-<!-- meta:doc sha=b83b98025e313f1a2cdf5c2901b0d2bc81666b97 updated=2026-06-15T20:00Z -->
+<!-- meta:doc sha=5cfa61f353e929a3997853a131989183f53f78c5 updated=2026-06-15T20:29Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T20:28Z — C4: el RTM se generaliza al árbol de evidencia por build (cierra la Fase C)
+- **gatillo**: el ingeniero pidió seguir con C4 — generalizar el RTM al árbol de evidencia completo
+  req→capability→station→proof→artifact, re-derivado de `.proof/`, con el gate que cae a UNSATISFIED al
+  corromper un proof. Cierra la Fase C (motor de build con dientes).
+- **diagnóstico (Opus, ojos propios)**: hoy `meta rtm` + M5 (`rtm_rederive`) ya re-derivan la ESPINA
+  req→station→proof y prueban la caída por corromper un proof. Faltaban dos aristas para que sea un ÁRBOL:
+  (a) **req→capability** — el borde L5→L1 no existía (la capability se describía aparte, sin atarse al
+  requisito); (b) la **hoja proof→artifact** — el RTM nunca aseveraba que el artefacto que el proof certifica
+  EXISTA. Si lo hubiera dado por hecho con lo que ya había, C4 sería fake (M5 ya hace lo de "corromper proof").
+- **decisión de diseño**: la arista req→capability es `Requirement.capability` (opcional), con los MISMOS
+  dientes que `verified_by`→verifier fantasma: M0 rechaza una capability fantasma. La hoja es el
+  `capability.artifact` declarado (dato L1): debe existir en disco. Single source `verify/rtm.py` (árbol +
+  re-derivación + render acotado al bus) consumido por `meta rtm` (display) y por el gate `rtm_tree` (block)
+  — sin duplicar la ley (disciplina de `rederive_pinned`). El gate `rtm_tree` se cabla a m05 JUNTO a
+  `rtm_rederive` (teeth complementarios, no lo reemplaza).
+- **lección (el tooth nuevo, no un restatement)**: la hoja proof→artifact atrapa una clase de fallo que ni
+  M5 ni M6 atrapaban — **evidencia rancia**: el proof dice passed pero el artefacto que certifica desapareció.
+  M5 voltea un exit code; M6 reconstruye entero; la hoja, barata, cruza "lo que el proof afirma" contra "lo
+  que hay en disco". Donde una capability no declara artefacto (ASF proxy), la hoja es vacía: NO se finge una
+  arista que el spec no declara — el gate REPORTA el tooth como N/A (honesto, SAFE-7).
+- **hecho (incremento `C4-EVIDENCE-TREE`, 3 fases, 2 commits de código + docs)**:
+  - `bb73620` (P1): arista req→capability (model/loader/validator/schema) + `verify/rtm.py` + `cmd_rtm`
+    generalizado + gate `rtm_tree` (kind+helper) cableado a m05 + `test_rtm_tree.py` (12 tests).
+  - `649a7ee` (P2a): dummy = árbol completo (3 capabilities con artifact + req→capability) + sync specs/dummy.
+    Sin re-pin: las aristas L1/L5 no tocan `stations/` → proof_sha intacto.
+- **demostración (gate C4)**: `meta rtm --factory dummy` muestra el árbol COMPLETO
+  (REQ→capability→station [artifact✓]); RTM 3/3; M0–M8 verdes (m05: `rtm_rederive ok · rtm_tree ok`);
+  `ci --rederive` 3/3 con pins intactos. ASF (proxy, sin la arista nueva): rtm_tree verde probando la espina,
+  artifact tooth N/A reportado. **Prueba por bloqueo** reproducible (`test_rtm_tree.py`) + **VIVA por CLI**:
+  borrar `build/greeting.py` con el proof de s00 INTACTO (passed) → REQ-F-001 **UNSATISFIED** (`artefacto
+  ausente`), restaurar → COMPLETE. Suite **376** (era 364); `meta check` 5/5.
+- **estado**: Fase C cerrada (C1 slot generate · C2 línea multi-estación · C3 proof en toolchain del producto
+  · C4 árbol de evidencia). Sigue D1 (columna completa heredada por la fábrica generada).
 
 ## 2026-06-15T20:00Z — C3: el proof corre en el toolchain DEL producto, aislado del de la fábrica (DES-8)
 - **gatillo**: el ingeniero pidió seguir con C3 — hacer EJECUTABLE el `runs_in: product_env` (hoy sólo

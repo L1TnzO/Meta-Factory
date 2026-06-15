@@ -1,4 +1,4 @@
-<!-- meta:doc sha=04356474f47da1b27078c7416facec078218c806 updated=2026-06-15T19:59Z -->
+<!-- meta:doc sha=a1aa2a7d3015963d1d90ffd18c88e6ce76ac0fdc updated=2026-06-15T20:29Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -115,7 +115,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   −tech `plan:`); líneas vivas dummy/ASF verdes (no-op). Evidencia: `work/B2-SDD-DESIGN-FLOW-INCREMENT.md`.
   Depende: B1, A1.
 
-### Fase C · Motor de build generalista (genera el 100%, verifica construyendo)
+### Fase C ✅ · Motor de build generalista (genera el 100%, verifica construyendo) — C1+C2+C3+C4 HECHOS
 - **C1 · Generación como slot creativo acotado (no backend hardcodeado).** ✅ **HECHO (2026-06-15,
   `C1-GENERATE-SLOT`)**. La acción de build `generate` (`codegen/renderer.py::_generate`, **ADR-013**) es el
   seam: el sustrato escribe el **brief** (blueprint, INPUT del spec), corre el **generador DECLARADO EN DATO**
@@ -149,9 +149,17 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   dentro de product_env (DES-8 real, no cosmético); producto roto → SHUT; test del producto en rojo → s02 SHUT
   con s00/s01 VERDES (aislado); 2º dominio `node --test` por el MISMO kind, sin rama por-tech (principio #6).
   Evidencia: `work/C3-PRODUCT-ENV-PROOF-INCREMENT.md`. Depende: C2.
-- **C4 · Árbol de evidencia por build (RTM generalizado).** req→capability→station→proof→artifact,
-  re-derivado de `.proof/` (SAFE-4). *Gate*: el RTM re-deriva COMPLETE para una fábrica multi-estación;
-  corromper un proof lo baja a UNSATISFIED. Depende: C2.
+- **C4 · Árbol de evidencia por build (RTM generalizado).** ✅ **HECHO (2026-06-15, `C4-EVIDENCE-TREE`)**.
+  El RTM se generaliza al árbol completo **req→capability→station→proof→artifact**, re-derivado SÓLO de
+  `.proof/` + spec + artefactos (`verify/rtm.py`, single source de `meta rtm` y del gate `rtm_tree`). Dos
+  aristas nuevas: **req→capability** (`Requirement.capability`; M0 rechaza una capability fantasma, mismos
+  dientes que verifier fantasma) y la **hoja proof→artifact** (`capability.artifact` debe existir en disco —
+  atrapa EVIDENCIA RANCIA: el proof dice passed pero el artefacto desapareció; distinto de M5 flip-exit y M6
+  rebuild). Gate `rtm_tree` cableado a m05 (junto a rtm_rederive). *Gate cumplido*: dummy = árbol COMPLETO
+  (3 caps con artifact → RTM 3/3; M0–M8 + `ci --rederive` 3/3, pin intacto — las aristas L1/L5 no tocan
+  `stations/`); ASF proxy verde (artifact tooth N/A, reportado no fingido). Prueba por bloqueo
+  (`test_rtm_tree.py`, 12 tests + viva por CLI): corromper proof → UNSAT; **borrar `build/greeting.py` con el
+  proof intacto → REQ-F-001 UNSAT** (evidencia rancia). Suite 376. Evidencia: `work/C4-EVIDENCE-TREE-INCREMENT.md`. Depende: C2.
 
 ### Fase D · Seguridad: la columna completa heredada ("de manera segura")
 - **D1 · Columna completa horneada en lo generado.** Hoy la fábrica generada hereda sólo el Cerrojo 1

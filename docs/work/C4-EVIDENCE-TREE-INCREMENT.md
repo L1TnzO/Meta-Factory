@@ -1,4 +1,4 @@
-<!-- meta:doc sha=74bf1aab151f0bf70b36395890db37baf2e42fa6 updated=2026-06-15T20:20Z -->
+<!-- meta:doc sha=90ae539e5ce66c8b6193b87f3b5201fc9156cddc updated=2026-06-15T20:30Z -->
 # Incremento C4-EVIDENCE-TREE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T20:19Z). Cerralo con `meta increment close`
@@ -30,9 +30,30 @@ cualquier punto baja el requisito a UNSATISFIED — y se prueba por bloqueo.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Arista req→capability (model/loader/validator/schema; M0 rechaza capability fantasma) + `verify/rtm.py` (árbol+re-derivación+render, single source) + `cmd_rtm` generalizado (mismo bus) + gate `rtm_tree` (kind+helper) cableado a m05 + tests (`test_rtm_tree.py` + negativos de validación): árbol re-deriva, corromper proof→UNSAT, borrar artefacto→UNSAT, capability fantasma bloquea M0 | ⏳ |
-| 2 | Dummy = demostrador del árbol COMPLETO: 3 capabilities con `artifact` (build/greeting.py · build/manifest.txt · build/test_greeting.py) + req.capability (REQ-F-00{1,2,3}) + sync `specs/dummy`. M0–M8 verdes (m05 corre rtm_tree); `meta rtm` muestra el árbol; prueba VIVA por CLI: borrar build/greeting.py → REQ-F-001 UNSATISFIED. ASF intacto (sin la arista nueva → hoja vacía, sólo prueba la espina) | ⏳ |
-| 3 | Docs (STATE/ROADMAP/LOG + evidencia) + cierre | ⏳ |
+| 1 | Arista req→capability (model/loader/validator/schema; M0 rechaza capability fantasma) + `verify/rtm.py` (árbol+re-derivación+render, single source) + `cmd_rtm` generalizado (mismo bus) + gate `rtm_tree` (kind+helper) cableado a m05 + `test_rtm_tree.py` (12 tests) | ✅ `bb73620` |
+| 2 | Dummy = demostrador del árbol COMPLETO: 3 capabilities con `artifact` (build/greeting.py · build/manifest.txt · build/test_greeting.py) + req.capability (REQ-F-00{1,2,3}) + sync `specs/dummy`. M0–M8 verdes (m05 corre rtm_tree); `meta rtm` muestra el árbol; viva por CLI: borrar build/greeting.py → REQ-F-001 UNSATISFIED. Sin re-pin (aristas L1/L5 no tocan `stations/`); ASF proxy verde (hoja vacía, espina probada) | ✅ `649a7ee` |
+| 3 | Docs (STATE/ROADMAP/LOG + evidencia) + cierre | ✅ |
+
+## Evidencia (demostrable, no narrable)
+- **`meta rtm` re-deriva el árbol completo** (dentro del bus, una línea por requisito): `REQ-F-001 SATISFIED
+  <- invariant_marker: s00 [build/greeting.py✓]` … 3/3 para el dummy. Single source `verify/rtm.py`,
+  compartido con el gate (sin duplicar la ley).
+- **Arista req→capability con dientes (M0)**: `Requirement.capability` (model/loader/schema); el validator
+  RECHAZA una capability fantasma (`test_m0_refuses_phantom_capability`), mismos dientes que verifier fantasma.
+- **Hoja proof→artifact (tooth NUEVO)**: el `capability.artifact` declarado debe EXISTIR. Atrapa evidencia
+  rancia — proof passed pero el artefacto desapareció. Distinto de M5 (flip-exit) y M6 (rebuild). Sin artefacto
+  declarado → hoja vacía, no se finge (`test_no_artifact_declared_is_not_faked`).
+- **Gate `rtm_tree` (m05, junto a rtm_rederive)**: re-deriva el árbol y prueba por bloqueo — corromper proof
+  (hermético) → UNSAT; **borrar el artefacto** (hermético) → UNSAT; proxy sin artefacto → tooth N/A REPORTADO.
+- **Dummy = árbol COMPLETO**: 3 capabilities con artifact + req→capability. M0–M8 verdes (`m05: rtm_rederive ok
+  · rtm_tree ok`); `meta rtm` 3/3; `ci --rederive` **3/3 proof_sha==pineado** (pin intacto — las aristas L1/L5
+  no se materializan en `stations/`). ASF (proxy): `rtm_tree` verde probando la espina, artifact tooth N/A.
+- **Prueba por bloqueo VIVA por CLI**: borrar `build/greeting.py` con el proof de s00 INTACTO (passed) →
+  `REQ-F-001 UNSATISFIED` (`artefacto ausente: build/greeting.py`), RTM 2/3; restaurar → COMPLETE 3/3.
+- **Veredicto**: suite **376** (era 364); `meta check` 5/5; árbol limpio.
+- **Diferido honesto (no agujero de C4)**: la hoja cruza existencia del artefacto, no su contenido vs. el proof
+  (eso ya lo cubre la re-derivación M6/`ci`); gating DAG multi-predecesor sigue diferido (C2). El árbol es por
+  requisito; un grafo capability↔station N:M más rico llega si un dominio lo pide (F1).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta rtm` re-deriva el árbol **req→capability→station→proof→artifact** de `.proof/`+artefactos, dentro del

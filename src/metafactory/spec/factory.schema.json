@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://meta-factory/factory.schema.json",
   "title": "factory-spec",
-  "description": "The SDD contract of a factory (ADR-003, ARCHITECTURE §5). Two halves: domain (per-factory) and factory_substrate (standardized by the Meta-Factory). The canonical enforcement is metafactory.spec.validator (zero-dep); this schema is the declarative mirror.",
+  "description": "The SDD contract of a factory in 6 layers (ADR-003, ARCHITECTURE §5; v2/A1). L0 factory · L1 domain (capabilities) · L2 line (station_sequence) · L3 machinery · L4 factory_substrate · L5 requirements. The canonical enforcement is metafactory.spec.validator (zero-dep); this schema is the declarative mirror. ADR-012: no technology name is whitelisted anywhere — `tech`/`toolchain` are free DATA the plan chose.",
   "type": "object",
   "required": ["factory", "domain", "factory_substrate", "requirements"],
   "properties": {
@@ -21,7 +21,8 @@
       "properties": {
         "produces": {"type": "string"},
         "target_framework": {"type": "object"},
-        "product_capabilities": {"type": "array"},
+        "capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}},
+        "product_capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}},
         "station_sequence": {
           "type": "array",
           "minItems": 1,
@@ -31,13 +32,25 @@
             "properties": {
               "id": {"type": "string"},
               "name": {"type": "string"},
-              "activation": {"type": "string", "enum": ["always", "optional", "off"]}
+              "activation": {"type": "string", "enum": ["always", "optional", "off"]},
+              "status": {"$ref": "#/$defs/status"},
+              "depends_on": {"type": "array", "items": {"type": "string"}},
+              "proof_checks": {"type": "array", "items": {"$ref": "#/$defs/proof_check"}}
             }
           }
         },
         "product": {"type": "object", "description": "domain payload for codegen substitution"},
         "provision_modes": {"type": "array"},
         "proof_check_types": {"type": "array"}
+      }
+    },
+    "machinery": {
+      "type": "object",
+      "description": "L3 — harness/mcp/infra the PLAN chose, as DATA (ADR-012); not opined by the substrate.",
+      "properties": {
+        "harness": {"$ref": "#/$defs/machinery_section"},
+        "mcp": {"$ref": "#/$defs/machinery_section"},
+        "infra": {"$ref": "#/$defs/machinery_section"}
       }
     },
     "factory_substrate": {
@@ -61,6 +74,49 @@
     }
   },
   "$defs": {
+    "status": {
+      "type": "string",
+      "enum": ["built", "declared-deferred", "planned"],
+      "description": "SAFE-7: honest status; aspiration is never confused with reality."
+    },
+    "primitive": {
+      "type": "string",
+      "pattern": "^DES-[0-9]+$",
+      "description": "the design primitive (CONCEPT) a tech provides — never a tech name (ADR-012)."
+    },
+    "capability": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string"},
+        "invariant": {"type": "string"},
+        "statement": {"type": "string", "description": "legacy alias for invariant"},
+        "artifact": {"type": "string"},
+        "proof": {"type": "string"},
+        "primitive": {"$ref": "#/$defs/primitive"},
+        "tech": {"type": "string", "description": "the technology the plan chose (free DATA)"},
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "proof_check": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "kind": {"type": "string"},
+        "cmd": {"type": ["string", "array"]},
+        "runs_in": {"type": "string", "enum": ["factory_env", "product_env"]},
+        "toolchain": {"type": "string", "description": "the toolchain the plan chose (free DATA)"},
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "machinery_section": {
+      "type": "object",
+      "properties": {
+        "tech": {"type": "string"},
+        "primitive": {"$ref": "#/$defs/primitive"},
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
     "reqlist": {
       "type": "array",
       "items": {
@@ -69,7 +125,9 @@
         "properties": {
           "id": {"type": "string", "pattern": "^REQ-[A-Z]+-[0-9]{3}$"},
           "statement": {"type": "string"},
-          "satisfied_by": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+          "acceptance": {"type": "string"},
+          "satisfied_by": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "verified_by": {"type": "array", "items": {"type": "string"}}
         }
       }
     }

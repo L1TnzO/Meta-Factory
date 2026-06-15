@@ -30,8 +30,10 @@ class StationRun:
 
 
 def write_active(ctx: RunContext, station: Station, stations_dir: Path, spec_path: Path | None) -> None:
-    """Record the active {root, station, stations_dir, spec} at the META root so the
-    Stop hook can re-run verify regardless of which factory's line is being driven."""
+    """Record the active {root, station, stations_dir, spec} at the META root so the meta Stop hook can
+    re-run verify regardless of which factory's line is being driven, AND a factory-local copy at the
+    FACTORY root so the factory's OWN inherited column (commit_guard/stop_proof, D1) can recompute its
+    active station with its own seed — defending itself alone, without the Meta-Factory's hooks."""
     active = {
         "root": str(ctx.root),
         "slug": ctx.slug,
@@ -40,11 +42,15 @@ def write_active(ctx: RunContext, station: Station, stations_dir: Path, spec_pat
         "spec": str(spec_path) if spec_path else "",
         "at": ctx.verifier.utc_now(),
     }
-    meta_active = ctx.verifier.active_path_for(ctx.meta_root)  # canonical slot, defined by the seed
-    meta_active.parent.mkdir(parents=True, exist_ok=True)
-    tmp = meta_active.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(active, indent=2) + "\n", encoding="utf-8")
-    os.replace(tmp, meta_active)
+    blob = json.dumps(active, indent=2) + "\n"
+    # canonical slot defined by the seed; write the meta pointer and the factory-local one (idempotent
+    # if they coincide). The factory-local pointer is what the inherited column reads (only `station`).
+    targets = {ctx.verifier.active_path_for(ctx.meta_root), ctx.verifier.active_path_for(ctx.root)}
+    for dest in targets:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_suffix(".json.tmp")
+        tmp.write_text(blob, encoding="utf-8")
+        os.replace(tmp, dest)
 
 
 def run_station(

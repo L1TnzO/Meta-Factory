@@ -1,6 +1,6 @@
-<!-- meta:doc sha=dfb15b00173d1f83b9faca190b69323655708710 updated=2026-06-15T12:55Z -->
+<!-- meta:doc sha=c2e9e304fc2cd3e5a99df6ae85e49a89b66151d4 updated=2026-06-15T12:56Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T12:56Z · sesión: opus-4.8 (A1-GRAMMAR-V2 CERRADO · gramática factory-spec v2 con dientes) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 

@@ -1,7 +1,26 @@
-<!-- meta:doc sha=c0d3c3a33df4a8bd9ff7deb5f2e3798d0fd57a08 updated=2026-06-14T21:17Z -->
+<!-- meta:doc sha=c5776f19d1522fb2e0e80157bfd66fc83b272239 updated=2026-06-15T03:50Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T03:49Z — Medición A/B + giro de filosofía: 100% generado, primitivas no herramientas
+- **gatillo**: cerrado ASF-REGEN, el ingeniero pidió MEDIR la fábrica regenerada vs el ASF original (no sus
+  productos): ¿qué % de ASF-la-fábrica regeneramos y qué falta? Decidió **pinear** ASF (no copiar el árbol).
+- **medición** (`reference/REGEN-AUDIT.md`, pin en `reference/ASF-PROVENANCE.md` @ `b1fcb1f`): chasis ~70–75%
+  regenerado (y partes mejores), motor de generación ~5–10%, maquinaria (MCP/infra/plantillas) ~0%; el spec
+  regenerado NO describe la fábrica (grep=0 de mcp/copier/template/command). Bimodal: buen chasis, motor vacío.
+- **giro de filosofía (el ingeniero corrigió 2 veces, clave)**: (1) no es ejecutar un incremento, es DOCUMENTAR
+  TODOS los futuros, autocontenidos (otros orquestadores implementan, el contexto muere). (2) Copier/LangGraph
+  son HERRAMIENTAS; la Meta-Factory encoda PRIMITIVAS (qué resuelven, abstraído) y la tech la elige la
+  PLANIFICACIÓN SDD o el spec — nunca hardcodeada. (3) **100% generado**: muere la frontera generado/dominio.
+- **mi error (registrado para no repetirlo)**: la 1ª versión del roadmap propuso "backends deterministas por
+  stack (Copier/Plop)" — violaba I-3 (determinismo en el CONTENIDO generado) y horneaba herramientas (G-2).
+  Causa: escribí el roadmap SIN haber leído VISION/ARCHITECTURE. Corregido tras leerlos (I-3, VISION §6, §8).
+- **hecho (Fase 0 del roadmap, docs, fuera de incremento — ADR-010 addendum)**: `reference/PRIMITIVES.md`
+  (primitivas SEGURIDAD fijas vs DISEÑO elegibles; el skill de diseño), `ADR-011` (100% generado, retira I-5),
+  `ADR-012` (primitivas no herramientas), `work/ROADMAP.md` reescrito autocontenido (modelo Diseño→Build→Mejora,
+  fases A–G, estado final ASF-mejorado+Full-Stack+Mobile+IoT), I-5 amendado en ARCHITECTURE. SDD-SOTA = Spec
+  Kit/Kiro/Tessl con dientes (ADR-003). `meta check` 5/5 verde; 2 commits (filosofía+roadmap, STATE).
 
 ## 2026-06-14T21:06Z — ASF-REGEN: ASF regenerado como CHASIS (segunda fábrica, G-8 vivo)
 - **gatillo**: tras decidir mantener el orden (#1 antes que #4, por el oráculo de paridad), el ingeniero

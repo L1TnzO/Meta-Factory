@@ -1,4 +1,4 @@
-<!-- meta:doc sha=66baa49b7f3006d7172e73555386ef888599d39d updated=2026-06-15T13:11Z -->
+<!-- meta:doc sha=a905236437c556827346ef0ea691b615e2b0edc2 updated=2026-06-15T13:20Z -->
 # Incremento A2-ASF-SKELETONS
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:11Z). Cerralo con `meta increment close`
@@ -30,13 +30,15 @@ que ejercen la MISMA gramática. Los 4 validan con 0 problemas (anti-overfit, G-
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `specs/agent-systems-factory…` → v2 COMPLETO (caps→DES/tech/status, S0–S8 como stations v2 con depends_on+proof_checks, requirements verified_by, machinery) | ⏳ |
-| 2 | `specs/skeletons/{full-stack,mobile,iot}.factory.spec.yml` — 3 dominios distintos, misma gramática | ⏳ |
-| 3 | tests: los 4 validan 0 problemas + grammar-generalista (≥K techs/primitivas distintas, no forma-de-ASF) | ⏳ |
+| 1 | `specs/agent-systems-factory…` → v2 COMPLETO (caps→DES/tech/status, S0–S8 como stations v2 con depends_on+proof_checks, requirements verified_by, machinery) | ✅ `abb10b1` (+`114d47a` fix linaje) |
+| 2 | `specs/skeletons/{full-stack,mobile,iot}.factory.spec.yml` — 3 dominios distintos, misma gramática | ✅ `6a0bdf5` |
+| 3 | tests: los 4 validan 0 problemas + grammar-generalista (≥K techs/primitivas distintas, no forma-de-ASF) | ✅ `f710822` |
 
-## Criterio de cierre (demostrable, no narrable)
-1. `validate` (M0) → **0 problemas** en los 4 specs (ASF v2 + 3 skeletons).
-2. Anti-overfit probado por test: los 4 cubren ≥6 primitivas DES y ≥4 toolchains distintos; ninguna tech
-   hardcodeada en el sustrato (sigue valiendo el guard de A1). `meta check` verde.
-3. **Fidelidad**: el ASF v2 mapea las 7 capacidades + la línea S0–S8 del ASF pineado sin perder invariantes
-   (interrupt no-salteable, grounded=false, gates de umbral). Confirmación de reviewer fresco (ofrecida).
+## Criterio de cierre (demostrable, no narrable) — Evidencia
+1. ✅ `validate` (M0) → **0 problemas** en los 4 specs (parametrizado en `TestA2BlueprintsValidate`).
+2. ✅ Anti-overfit (`TestGrammarGeneralist`): ≥6 primitivas DES distintas · ≥6 toolchains (pytest Y tsc) ·
+   4 target frameworks distintos; el guard de A1 (validator no nombra tech) sigue verde. `meta check` 5/5; suite **310**.
+3. ✅ **Fidelidad** (`TestAsfV2Fidelity` + **reviewer fresco Opus**): 7 caps→primitiva, línea S0–S8 completa,
+   interrupt no-salteable y eval-gate como verifiers reales. Reviewer de contexto fresco: **PASS 0 CRITICAL /
+   0 HIGH**; 2 MEDIUM — (a) arista `s2→s3` del linaje, ARREGLADA (`114d47a`); (b) 2º DES-3 (atribución)
+   defendible, marcado provisional → al skill B1. S4 sin capacidad es FIEL (la lógica de negocio no es capacidad de producción).

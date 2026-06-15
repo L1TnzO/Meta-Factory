@@ -1,6 +1,6 @@
-<!-- meta:doc sha=3630813b11ed0d76ef377e71c09ef53fcb3e9dbc updated=2026-06-15T13:11Z -->
+<!-- meta:doc sha=a83798cf5c0e1dcfe2a63087715f0f9f770b6d42 updated=2026-06-15T13:20Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T12:56Z · sesión: opus-4.8 (A1-GRAMMAR-V2 CERRADO · gramática factory-spec v2 con dientes) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T13:18Z · sesión: opus-4.8 (Fase A ✅ — A1 gramática v2 + A2 ASF/skeletons; reviewer fresco PASS) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -14,11 +14,15 @@
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
-- **A1 ✅ (2026-06-15, `A1-GRAMMAR-V2` CERRADO)** — primer incremento del ROADMAP. La factory-spec describe
-  CUALQUIER fábrica en 6 capas (L0–L5) y `validate_grammar_v2` le pone dientes: M0 RECHAZA lo deshonesto
-  (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo, verifier fantasma,
-  status/runs_in inválido) **sin nombrar ninguna tech** (ADR-012, probado). Dummy+ASF verdes; 12 negativos
-  bloquean; suite 299. Sigue A2 (harvest ASF completo + skeletons Full-Stack/Mobile/IoT).
+- **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
+  - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
+    RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,
+    verifier fantasma, status/runs_in inválido) **sin nombrar ninguna tech** (ADR-012, probado). 12 negativos bloquean.
+  - **A2 (`A2-ASF-SKELETONS`)**: ASF descrito COMPLETO en v2 (`specs/agent-systems-factory…`: 7 caps→DES,
+    línea S0–S8 con depends_on/proof_checks, machinery; blueprint `declared-deferred`, DIVERGE del proxy s00
+    registrado) + 3 skeletons (`specs/skeletons/{full-stack,mobile,iot}`) de dominios radicalmente distintos.
+    Los 4 validan 0 problemas; anti-overfit por test; **reviewer fresco Opus PASS 0 CRITICAL/HIGH**. Suite 310.
+  - **Sigue B1** (skill de primitivas de diseño: dado un dominio, mapea DES→tech) — `work/ROADMAP.md §Fase B`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

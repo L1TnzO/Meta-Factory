@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4626b236cb077bbb8d73ba95928c44dc9d6c9e04 updated=2026-06-15T12:54Z -->
+<!-- meta:doc sha=cd312fd7d21a4e3600a771ee51a3f5d71885bd98 updated=2026-06-15T13:20Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -84,10 +84,15 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   primitive mal formado, depends_on inexistente/inactivo/ciclo, verifier fantasma, status/runs_in fuera de
   enum) **shape-only, sin nombrar tech** (ADR-012, test lo prueba). Dummy y ASF verdes (secciones opcionales).
   Evidencia: `work/A1-GRAMMAR-V2-INCREMENT.md`. Depende: Fase 0.
-- **A2 · ASF descrito COMPLETO en v2 + skeletons Full-Stack/Mobile/IoT que validan.** Harvest del ASF
-  pineado (`ASF-PROVENANCE.md` @ `b1fcb1f`) a la gramática nueva. Los skeletons ejercitan la MISMA
-  gramática con dominios distintos (anti-overfit). *Gate*: los 4 validan (grammar generalista, no
-  forma-de-ASF); reviewer fresco confirma fidelidad. Depende: A1.
+- **A2 · ASF descrito COMPLETO en v2 + skeletons Full-Stack/Mobile/IoT que validan.** ✅ **HECHO
+  (2026-06-15, `A2-ASF-SKELETONS`)**. `specs/agent-systems-factory…` = blueprint del ASF pineado
+  (`ASF-PROVENANCE.md` @ `b1fcb1f`): 7 caps→primitivas DES, línea S0–S8 como stations v2 (depends_on +
+  proof_checks), machinery, requirements con verified_by — status `declared-deferred` (codegen=F1).
+  `specs/skeletons/{full-stack,mobile,iot}` ejercen la MISMA gramática con dominios radicalmente distintos
+  (tsc/vitest/playwright · jest/detox · protoc/unity/qemu). *Gate cumplido*: los 4 validan 0 problemas;
+  anti-overfit por test (≥6 primitivas/≥6 toolchains/4 frameworks); **reviewer fresco Opus: PASS 0 CRITICAL/HIGH**
+  (1 MEDIUM arreglado: arista linaje `s2→s3`; el 2º DES-3 de atribución provisional → B1). Evidencia:
+  `work/A2-ASF-SKELETONS-INCREMENT.md`. Depende: A1.
 
 ### Fase B · El skill de diseño + el flujo SDD (la PLANIFICACIÓN elige la tech)
 - **B1 · Skill de primitivas de diseño.** Materializa `PRIMITIVES.md §3` como un skill de Claude Code:

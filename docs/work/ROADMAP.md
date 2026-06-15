@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e9c72e8f497f462492803b1a77f14d61a30cd316 updated=2026-06-15T03:47Z -->
+<!-- meta:doc sha=4626b236cb077bbb8d73ba95928c44dc9d6c9e04 updated=2026-06-15T12:54Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -75,14 +75,15 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   es la base que evita malinterpretar lo de abajo. (`REGEN-AUDIT.md` ya medía el hueco.)
 
 ### Fase A · Spec generalista (la fuente de verdad sabe describir cualquier fábrica)
-- **A1 · Gramática factory-spec v2 (SDD-SOTA con dientes).** Extender `spec/{model,validator,loader}.py`
-  + `factory.schema.json`. Capas: L0 identidad · L1 dominio (`capabilities` {invariant, artifact, proof,
-  **primitiva DES-x que la provee**, `tech` declarada, status}) · L2 línea (`stations` {depends_on,
-  proof_checks {cmd, **runs_in**, **toolchain**, status}}) · L3 maquinaria (harness/mcp/infra como DATO
-  que el plan eligió) · L4 sustrato (SAFE-*) · L5 requisitos {acceptance, satisfied_by, **verified_by**}.
-  `status` enum (built/declared-deferred/planned). *Gate*: M0 valida; **negativos bloquean** (cap sin
-  proof, req con verifier fantasma, depends_on roto, tech sin primitiva); dummy verde (secciones opcionales).
-  **Sin tech hardcodeada en el validator** (ADR-012). Depende: Fase 0.
+- **A1 · Gramática factory-spec v2 (SDD-SOTA con dientes).** ✅ **HECHO (2026-06-15, `A1-GRAMMAR-V2`)**.
+  `spec/{model,loader,validator}.py` + `factory.schema.json` describen las 6 capas: L0 identidad · L1
+  dominio (`capabilities` {invariant, artifact, proof, **primitiva DES-x**, `tech`, status}) · L2 línea
+  (`stations` {depends_on, proof_checks {cmd, **runs_in**, **toolchain**, status}}) · L3 maquinaria
+  (harness/mcp/infra como DATO) · L4 sustrato (SAFE-*) · L5 requisitos {acceptance, satisfied_by, **verified_by**}.
+  `validate_grammar_v2` agrega los dientes (negativos que BLOQUEAN: cap-sin-proof, tech-sin-primitiva,
+  primitive mal formado, depends_on inexistente/inactivo/ciclo, verifier fantasma, status/runs_in fuera de
+  enum) **shape-only, sin nombrar tech** (ADR-012, test lo prueba). Dummy y ASF verdes (secciones opcionales).
+  Evidencia: `work/A1-GRAMMAR-V2-INCREMENT.md`. Depende: Fase 0.
 - **A2 · ASF descrito COMPLETO en v2 + skeletons Full-Stack/Mobile/IoT que validan.** Harvest del ASF
   pineado (`ASF-PROVENANCE.md` @ `b1fcb1f`) a la gramática nueva. Los skeletons ejercitan la MISMA
   gramática con dominios distintos (anti-overfit). *Gate*: los 4 validan (grammar generalista, no

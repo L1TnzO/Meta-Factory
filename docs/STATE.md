@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d8ea4767cf04391c332674f04eeaca984cf9240b updated=2026-06-15T12:47Z -->
+<!-- meta:doc sha=901f9e0dda7f48e75eaa1f8c8db579c55ce4a252 updated=2026-06-15T12:54Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -14,6 +14,11 @@
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
+- **A1 ✅ (2026-06-15, `A1-GRAMMAR-V2` CERRADO)** — primer incremento del ROADMAP. La factory-spec describe
+  CUALQUIER fábrica en 6 capas (L0–L5) y `validate_grammar_v2` le pone dientes: M0 RECHAZA lo deshonesto
+  (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo, verifier fantasma,
+  status/runs_in inválido) **sin nombrar ninguna tech** (ADR-012, probado). Dummy+ASF verdes; 12 negativos
+  bloquean; suite 299. Sigue A2 (harvest ASF completo + skeletons Full-Stack/Mobile/IoT).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

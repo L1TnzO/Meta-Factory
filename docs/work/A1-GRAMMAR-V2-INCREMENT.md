@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bb9262ca1c7154aeab912091e69b84bae66edfa3 updated=2026-06-15T12:47Z -->
+<!-- meta:doc sha=a832cda138df634eb567ab32b43d5757906e870d updated=2026-06-15T12:54Z -->
 # Incremento A1-GRAMMAR-V2
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T12:47Z). Cerralo con `meta increment close`
@@ -30,16 +30,17 @@ deshonesto — con **cero tecnología hardcodeada en el validator** (ADR-012). E
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `model.py` + `loader.py`: dataclasses v2 (Capability, ProofCheck, Machinery; campos nuevos en Station/Requirement) + parse tolerante (lee `capabilities` o legacy `product_capabilities`) | ⏳ |
-| 2 | `validator.py`: familia `validate_grammar_v2` (status enum · cap-sin-proof · tech-sin-primitiva · depends_on/ciclo · verifier-fantasma · runs_in) agregada a `validate()` | ⏳ |
-| 3 | `factory.schema.json`: espejo declarativo de los campos nuevos (todos opcionales/aditivos) | ⏳ |
-| 4 | tests: positivo rico v2 + un negativo por regla + regresión dummy/ASF verdes + tech-agnóstico | ⏳ |
+| 1 | `model.py` + `loader.py`: dataclasses v2 (Capability, ProofCheck, Machinery; campos nuevos en Station/Requirement) + parse tolerante (lee `capabilities` o legacy `product_capabilities`) | ✅ `d9c2785` |
+| 2 | `validator.py`: familia `validate_grammar_v2` (status enum · cap-sin-proof · tech-sin-primitiva · depends_on/ciclo · verifier-fantasma · runs_in) agregada a `validate()` | ✅ `2959e6d` |
+| 3 | `factory.schema.json`: espejo declarativo de los campos nuevos (todos opcionales/aditivos) | ✅ `2959e6d` |
+| 4 | tests: positivo rico v2 + un negativo por regla + regresión dummy/ASF verdes + tech-agnóstico | ✅ `38f5591` |
 
-## Criterio de cierre (demostrable, no narrable)
-1. `meta station m00 --factory dummy` y `--factory agent-systems-factory` → PASS (specs viejos verdes).
-2. Suite verde (`tests/test_spec.py` extendido) y `meta check` verde.
-3. **Prueba por bloqueo**: un spec v2 con cada defecto (cap sin proof · tech sin primitiva · depends_on roto ·
-   ciclo · verifier fantasma · status inválido) es RECHAZADO por `validate()` con `field: reason`; el spec
-   rico bien-formado pasa con 0 problemas.
-4. Tech-agnóstico: una `tech` arbitraria (string inventado) con `primitive: DES-N` válido PASA — el validator
-   no whitelistea ninguna herramienta (ADR-012). `grep` de nombres de tech en `validator.py` = 0.
+## Criterio de cierre (demostrable, no narrable) — Evidencia
+1. ✅ `meta station m00 --factory dummy` y `--factory agent-systems-factory` → **PASS** (`2 checks all green`).
+2. ✅ `meta check` → **5/5 verde**; suite **299 pass** (`test_spec` 46, de 27).
+3. ✅ **Prueba por bloqueo** (`TestRichV2Teeth`, 12 negativos): cada defecto (cap sin proof · tech sin
+   primitiva · primitive malformado · status inválido · depends_on inexistente/inactivo/self/ciclo ·
+   runs_in inválido · verifier fantasma · cap-id duplicado · machinery tech-sin-primitiva) es RECHAZADO;
+   `rich_v2()` (las 6 capas) valida con **0 problemas**.
+4. ✅ **Tech-agnóstico**: `tech="quantum-forge-9000…"` + `primitive: DES-2` PASA; `test_validator_source_names_no_technology`
+   prueba que `validator.py` no nombra ninguna tech (copier/langgraph/plop/…), ADR-012.

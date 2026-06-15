@@ -1,7 +1,7 @@
-<!-- meta:doc sha=3b715a1a3e1f6559ac126c67df42ef4afa58dfc9 updated=2026-06-15T19:17Z -->
+<!-- meta:doc sha=567554de5f5e89899707277221541f0701bca11e updated=2026-06-15T19:19Z -->
 # Incremento C2-MULTI-STATION-LINE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T19:02Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T19:19Z) (creado 2026-06-15T19:02Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

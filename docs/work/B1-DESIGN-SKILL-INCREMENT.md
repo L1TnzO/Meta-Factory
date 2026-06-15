@@ -1,7 +1,7 @@
-<!-- meta:doc sha=533b782d710f0d111f58893a29e742a4b3527244 updated=2026-06-15T13:34Z -->
+<!-- meta:doc sha=b5a05f609f9bd5a50a4bd7bc5dee44b77b355017 updated=2026-06-15T13:35Z -->
 # Incremento B1-DESIGN-SKILL
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:27Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T13:35Z) (creado 2026-06-15T13:27Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

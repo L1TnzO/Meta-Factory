@@ -1,7 +1,29 @@
-<!-- meta:doc sha=25057791214fd783acdf872d40f7dabf0af8ac04 updated=2026-06-15T13:21Z -->
+<!-- meta:doc sha=31e1f2f4bf47c3c7a4c311df410ed3a7828344d3 updated=2026-06-15T13:35Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T13:35Z — B1: el skill de primitivas de diseño (la planificación elige la tech, con dientes)
+- **gatillo**: el ingeniero pidió continuar a B1 — materializar `PRIMITIVES.md §3` como un skill de Claude Code.
+- **decisión de diseño (Opus, ojos propios)**: un skill es markdown (juicio de Claude); para darle DIENTES
+  sin narrar, lo acompañé de (1) el catálogo DES como DATO (`reference/primitives.yml`, single source; A1
+  había DIFERIDO la membresía justo para no acoplar el validator — ahora es chequeable contra datos, no
+  hardcode), y (2) `design_coverage`, un check que exige una tech por primitiva requerida. Clave del split
+  B1/B2: `design_coverage` queda CALLABLE (CLI `design-coverage`), NO en el gate M0 — así m00 sigue
+  catálogo-independiente y el guard ADR-012 sobre `validator.py` queda intacto; B2 lo vuelve compuerta.
+  Lo puse en `spec/design.py` (no en validator.py) por esa misma razón.
+- **hecho (incremento `B1-DESIGN-SKILL`, 3 fases, 3 commits + 2 docs)**:
+  - P1 (`53d5aca`): `primitives.yml` (9 DES como dato) + `spec/primitives.py` (loader, ids-only) + test md↔yml.
+  - P2 (`e2d1317`): `domain.required_primitives` (grammar) + `design_coverage` (membresía + cobertura) + CLI + tests +/−.
+  - P3 (`fa5dd3e`): `.claude/skills/design-primitives/SKILL.md` (procedimiento 4 pasos) + DEMOSTRACIÓN.
+- **demostración (gate B1)**: corrí el skill sobre un dominio FRESCO (Data-Pipeline ELT, framework
+  `dagster-dbt` ∉ A2): el diseño declara 6 primitivas requeridas con una tech cada una (Dagster/dbt/
+  OpenLineage/Great Expectations…) → `validate` y `design-coverage` verdes. Prueba por bloqueo: quitar la
+  tech de DES-7 → `design-coverage` exit 1; primitiva fuera del catálogo (DES-99) → rechazada.
+- **veredicto**: suite **326**; `meta check` 5/5; sustrato sin tech (guard A1 intacto). **Sigue B2.**
+- **lección**: lo que A1 difirió a propósito (membresía de primitivas) fue EXACTAMENTE lo que B1 necesitaba.
+  Diferir bien deja la pieza lista para el incremento que la usa — y la membresía contra DATOS (no hardcode)
+  mantiene viva la cantera (PRIMITIVES §3) sin volver opinado el sustrato.
 
 ## 2026-06-15T13:20Z — A2: ASF descrito COMPLETO en v2 + 3 skeletons (la gramática PROBADA generalista)
 - **gatillo**: tras cerrar A1, el ingeniero pidió continuar. A2 = probar que la gramática v2 no es

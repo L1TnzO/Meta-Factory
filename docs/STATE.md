@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b091761c1f2cf10e5b5abf97502cb8b251e6a4ab updated=2026-06-15T13:34Z -->
+<!-- meta:doc sha=e55ffcd5df3c91002d288af01af76e543895cb8c updated=2026-06-15T13:36Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-15T13:30Z · sesión: opus-4.8 (Fase A ✅ + B1 ✅ — gramática v2, ASF/skeletons, skill de primitivas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: B1-DESIGN-SKILL-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (1/1)
 <!-- /meta:projection -->
 
@@ -33,23 +33,12 @@
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
   superpoderes para construir fábricas", ahora con la maquinaria mínima cableada y demostrada.
-- **Construido (F1–F4 de `work/BOOTSTRAP-INCREMENT.md`, ✅)**:
-  - `seed/` (Stage 0, trust-chain, hecho a mano): `verifier.py` (200 líneas stdlib, ÚNICO escritor de
-    veredictos; `passed` solo desde exit codes reales), `column.md` (3 cerrojos), `external_ci.yml`.
-  - `src/metafactory/` (Stage 1): engine dominio-agnóstico (station/sequence/gate/runner; estaciones
-    como dato I-2), spec (modelo/loader/validator + `factory.schema.json`, espina SDD), verify (bus de
-    veredictos I-7 + checks), codegen (render del chasis), `cli.py` (`meta check/new/station/product-run/rtm/ci/pin/verify`).
-  - `src/metafactory/stations/m00–m06+m08.yml` (meta-estaciones como dato; M4 frontera, M5 memoria, M6 dos verificadores), `template/factory/` (chasis heredable),
-    columna `.claude/hooks/` (proof_protect·gate_guard·stop_proof·commit_guard·doc_stamp) + `settings.json`.
-  - `factories/dummy/` (PRODUCIDO por la línea) desde `specs/dummy.factory.spec.yml`.
-  - ADR-009 vivo: sello in-band en cada `.md` + `INDEX.md` generado + check de consistencia en `meta check`.
-- **Verificado (8 criterios, output REAL en `work/BOOTSTRAP §Evidencia`)**: `meta check` verde (≤10 líneas,
-  log al disco) y rojo con `file:line`; e2e M0–M8 con 5 gates + RTM `COMPLETE` re-derivado de artefactos;
-  capstone (3 cerrojos bloquean); M8 negativo; re-derivación en clon limpio (proof_sha == pineado;
-  corrompido → ≠ → rojo); aislamiento PF-6; **seed auditado por reviewer opus de contexto fresco: 0 CRITICAL**
-  (2 HIGH arreglados, 1 MEDIUM by-design). Suite: **137 tests verdes**.
-- **10 ADR**: 001–006+009 Aprobados; **007–008** Aprobados + Implementados (MEMORIA, s2); **010 Aprobado +
-  Implementado** (disciplina de commit: todo código en un incremento + cadencia por fase, esta sesión).
+- **Construido y VERIFICADO POR BLOQUEO (detalle en `work/BOOTSTRAP-INCREMENT.md §Evidencia`)**: `seed/`
+  (trust-chain a mano: `verifier.py` único escritor de veredictos), `src/metafactory/` (engine dominio-agnóstico
+  + spec + verify + codegen + `cli.py`), meta-estaciones `stations/m00–m08.yml` (dato I-2), columna
+  `.claude/hooks/` (6 hooks), `template/factory/`, `factories/dummy/`. 8 criterios del bootstrap verdes
+  (e2e M0–M8, capstone bloquea, re-derivación dos-verificadores, seed 0 CRITICAL). **12 ADR** (001–012;
+  007–010 Implementados). ADR-009 vivo (sello in-band + INDEX + check de consistencia).
 
 ## Agujeros honestos (ahora de implementación, no solo de diseño)
 - **M4–M7 ✅ — `M4-M7-INCREMENT` CERRADO** (6 criterios): los 4 gates LANDED+e2e — M4 `boundary_survives`,

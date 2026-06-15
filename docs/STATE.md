@@ -1,6 +1,6 @@
-<!-- meta:doc sha=ebca2ef354719b5f459349a8f3d367072873971c updated=2026-06-15T13:27Z -->
+<!-- meta:doc sha=b091761c1f2cf10e5b5abf97502cb8b251e6a4ab updated=2026-06-15T13:34Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T13:18Z · sesión: opus-4.8 (Fase A ✅ — A1 gramática v2 + A2 ASF/skeletons; reviewer fresco PASS) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T13:30Z · sesión: opus-4.8 (Fase A ✅ + B1 ✅ — gramática v2, ASF/skeletons, skill de primitivas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -22,7 +22,13 @@
     línea S0–S8 con depends_on/proof_checks, machinery; blueprint `declared-deferred`, DIVERGE del proxy s00
     registrado) + 3 skeletons (`specs/skeletons/{full-stack,mobile,iot}`) de dominios radicalmente distintos.
     Los 4 validan 0 problemas; anti-overfit por test; **reviewer fresco Opus PASS 0 CRITICAL/HIGH**. Suite 310.
-  - **Sigue B1** (skill de primitivas de diseño: dado un dominio, mapea DES→tech) — `work/ROADMAP.md §Fase B`.
+- **B1 ✅ (2026-06-15, `B1-DESIGN-SKILL`) — la PLANIFICACIÓN elige la tech**: catálogo DES como DATO
+  (`reference/primitives.yml`, single source, test md↔yml) + skill `.claude/skills/design-primitives/`
+  (dominio→primitivas→tech→spec) + `design_coverage` (`spec/design.py`, CLI) que exige una tech por
+  primitiva requerida — CALLABLE, no en el gate M0 (eso es B2). Demostrado en un dominio FRESCO
+  (`data-pipeline`, dagster-dbt): diseño con 6 primitivas+tech, `validate`+`design-coverage` verdes;
+  quitar una tech → coverage FALLA. Sustrato sin tech (ADR-012). Suite 326. **Sigue B2** (flujo SDD
+  multi-fase: rehúsa diseño incompleto como gate M0) — `work/ROADMAP.md §Fase B`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

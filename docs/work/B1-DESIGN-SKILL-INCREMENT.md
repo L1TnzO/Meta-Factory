@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7dd39197d8b7f00263e51f2e7388848b43caa425 updated=2026-06-15T13:27Z -->
+<!-- meta:doc sha=533b782d710f0d111f58893a29e742a4b3527244 updated=2026-06-15T13:34Z -->
 # Incremento B1-DESIGN-SKILL
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:27Z). Cerralo con `meta increment close`
@@ -28,13 +28,18 @@ por cada primitiva requerida (membresía al catálogo + cobertura). NADA de tech
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `docs/reference/primitives.yml` (catálogo DES) + `spec/primitives.py` (loader) + test consistencia md↔yml | ⏳ |
-| 2 | `domain.required_primitives` (model/loader/schema) + `design_coverage` (validator) + `spec.cli design-coverage` + tests +/− | ⏳ |
-| 3 | `.claude/skills/design-primitives/SKILL.md` + demo dominio fresco (Data-Pipeline) → coverage PASS + validate PASS; negativo FAIL | ⏳ |
+| 1 | `docs/reference/primitives.yml` (catálogo DES) + `spec/primitives.py` (loader) + test consistencia md↔yml | ✅ `53d5aca` |
+| 2 | `domain.required_primitives` (model/loader/schema) + `design_coverage` (`spec/design.py`) + `spec.cli design-coverage` + tests +/− | ✅ `e2d1317` |
+| 3 | `.claude/skills/design-primitives/SKILL.md` + demo dominio fresco (Data-Pipeline) → coverage PASS + validate PASS; negativo FAIL | ✅ `fa5dd3e` |
 
-## Criterio de cierre (demostrable, no narrable)
-1. **El skill existe** y materializa PRIMITIVES §3 (catálogo + procedimiento mapear-dominio→primitivas→tech).
-2. **Demostración (gate B1)**: corrido el skill sobre un dominio NUEVO (Data-Pipeline, ≠ asf/web/mobile/iot),
-   el diseño producido declara una tech por cada primitiva requerida → `design-coverage` PASS **y** `validate` PASS.
-3. **Prueba por bloqueo**: quitar la tech de una primitiva requerida → `design-coverage` FALLA (exit 1) con
-   `field: reason`; una primitiva fuera del catálogo → FALLA. `meta check` verde; sustrato sin tech (guard A1 sigue).
+## Criterio de cierre (demostrable, no narrable) — Evidencia
+1. ✅ **El skill existe** (`.claude/skills/design-primitives/SKILL.md`, frontmatter `name`/`description`) y
+   materializa PRIMITIVES §3 (catálogo `primitives.yml` single-source + procedimiento de 4 pasos). Tests:
+   `TestDesignSkill` + consistencia md↔yml (`TestCatalogConsistency`).
+2. ✅ **Demostración (gate B1)**: `specs/skeletons/data-pipeline.factory.spec.yml` (dominio FRESCO,
+   framework `dagster-dbt` ∉ A2) producido siguiendo el skill: declara 6 primitivas requeridas con una tech
+   cada una → `validate` 0 problemas **y** `design-coverage` 0 problemas (`TestDesignSkillDemonstration`).
+3. ✅ **Prueba por bloqueo**: quitar la tech de DES-7 → `design-coverage` exit 1 (`design incomplete:
+   required primitive DES-7 has no capability declaring a tech`); primitiva fuera del catálogo (DES-99) →
+   rechazada. `meta check` 5/5; suite **326**. El sustrato no nombra tech (guard A1 intacto; `design.py`
+   usa sólo ids). NOTA: `design_coverage` queda CALLABLE; cablearlo al gate M0 es B2.

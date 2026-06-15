@@ -1,4 +1,4 @@
-<!-- meta:doc sha=cd312fd7d21a4e3600a771ee51a3f5d71885bd98 updated=2026-06-15T13:20Z -->
+<!-- meta:doc sha=b36b172fe62cf4d7c256e5cc2a8f993224f189a8 updated=2026-06-15T13:34Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -95,10 +95,14 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   `work/A2-ASF-SKELETONS-INCREMENT.md`. Depende: A1.
 
 ### Fase B · El skill de diseño + el flujo SDD (la PLANIFICACIÓN elige la tech)
-- **B1 · Skill de primitivas de diseño.** Materializa `PRIMITIVES.md §3` como un skill de Claude Code:
-  dado un dominio, mapea las primitivas DES requeridas → razona qué tecnología las provee → la declara en
-  el diseño/spec. *Gate*: para un spec-stub de un dominio nuevo, correr el skill produce un diseño que
-  declara una tech por cada primitiva requerida, revisable; NADA se hardcodea en el sustrato. Depende: A1.
+- **B1 · Skill de primitivas de diseño.** ✅ **HECHO (2026-06-15, `B1-DESIGN-SKILL`)**. El catálogo DES vive
+  como DATO (`reference/primitives.yml`, single source; test ata md↔yml). El skill
+  `.claude/skills/design-primitives/SKILL.md` materializa el procedimiento dominio→primitivas→tech→declarar
+  en el spec. Dientes: `design_coverage` (`spec/design.py`, CLI `spec.cli design-coverage`) exige una tech
+  por primitiva requerida (`domain.required_primitives`) — CALLABLE, no en el gate M0 (eso es B2).
+  *Gate cumplido*: corrido el skill sobre un dominio FRESCO (`specs/skeletons/data-pipeline`, `dagster-dbt`),
+  el diseño declara 6 primitivas con tech → `validate`+`design-coverage` verdes; quitar una tech → coverage
+  FALLA. Sustrato sin tech (ADR-012). Evidencia: `work/B1-DESIGN-SKILL-INCREMENT.md`. Depende: A1.
 - **B2 · Flujo SDD de diseño (multi-fase, con dientes).** `spec inicial → plan → tareas → criterios`,
   enforced como M0 (rehúsa diseño incompleto). Produce el *blueprint* que consume el build. *Gate*: un
   diseño incompleto (primitiva requerida sin tech, requisito sin verifier) es RECHAZADO; uno completo pasa. Depende: B1, A1.

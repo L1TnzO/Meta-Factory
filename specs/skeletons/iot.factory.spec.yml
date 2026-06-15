@@ -1,0 +1,135 @@
+# iot.factory.spec.yml — SKELETON (blueprint, status planned) de una IoT-Factory.
+# Cuarto dominio (firmware embebido + broker MQTT + telemetría), MISMA gramática v2. Estira las
+# primitivas a un toolchain embebido (emulador QEMU, mensajes binarios). Anti-overfit máximo. NO genera (F3).
+
+# ── L0 · identidad ──
+factory:
+  name: "IoT Factory"
+  slug: iot
+  maturity: skeleton
+
+# ── L1 · dominio ──
+domain:
+  produces: "un sistema IoT: firmware de dispositivo + broker MQTT + pipeline de telemetría, con mensajes tipados y trazabilidad de cada lectura"
+  target_framework: { name: embedded-c-mqtt, provider_agnostic: true }
+  capabilities:
+    - id: topologia_de_dispositivos
+      invariant: "la topología de tópicos/dispositivos es chequeable estáticamente: ningún publisher escribe a un tópico que ningún subscriber consume"
+      primitive: DES-2            # Topología verificable
+      tech: "esquema de tópicos MQTT declarado + linter de topología"
+      artifact: "topology/topics.yaml"
+      proof: "el grafo publish/subscribe no tiene tópicos huérfanos"
+      status: planned
+    - id: telemetria_durable
+      invariant: "ninguna lectura confirmada se pierde ante un corte: la telemetría se bufferea y reenvía al reconectar"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "store-and-forward en el dispositivo + event store en el ingestor"
+      artifact: "firmware/buffer.c"
+      proof: "una lectura encolada sobrevive un corte de red y llega tras reconectar"
+      status: planned
+    - id: procedencia_de_lecturas
+      invariant: "toda lectura agregada rastrea a su dispositivo+timestamp+firmware-version de origen (audit trail)"
+      primitive: DES-5            # Procedencia / trazabilidad
+      tech: "audit trail con join key (device_id, ts, fw_version)"
+      artifact: "ingest/provenance.py"
+      proof: "una métrica agregada se recorre hasta las lecturas crudas que la formaron"
+      status: planned
+    - id: mensajes_tipados
+      invariant: "el contrato de mensajes device↔broker es tipado y versionado; un mensaje malformado se rechaza en el borde"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "Protobuf (esquema versionado) + validación en el gateway"
+      artifact: "proto/telemetry.proto"
+      proof: "un mensaje que viola el esquema es rechazado por el gateway, no ingerido"
+      status: planned
+    - id: gate_de_seguridad_firmware
+      invariant: "ninguna ruta de actualización de firmware se ejecuta sin pasar por la verificación de firma (techo no-salteable)"
+      primitive: DES-3            # Puntos de control no-salteables
+      tech: "secure boot + verificación de firma de OTA"
+      artifact: "firmware/ota_guard.c"
+      proof: "alcanzabilidad: toda ruta de flasheo pasa por la verificación de firma"
+      status: planned
+    - id: proof_en_emulador_hw
+      invariant: "la verificación corre en el toolchain del producto (emulador de HW), no en la fábrica"
+      primitive: DES-8            # Proof en el toolchain DEL producto
+      tech: "QEMU (emulación del target) + Unity (unit C) + broker MQTT efímero"
+      artifact: "test/"
+      proof: "la suite corre en QEMU contra un broker efímero y pasa"
+      status: planned
+
+  station_sequence:
+    - id: s0
+      name: "Contrato del sistema IoT"
+      activation: always
+      status: planned
+      proof_checks:
+        - { name: iot_contract_complete, cmd: "validar topología de tópicos + esquema de mensajes", runs_in: factory_env, toolchain: metafactory, status: planned }
+    - id: s1
+      name: "Esquema de mensajes tipado (Protobuf)"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: proto_compiles, cmd: "protoc --validate", runs_in: product_env, toolchain: protoc, status: planned }
+    - id: s2
+      name: "Firmware del dispositivo (buffer + OTA guard)"
+      activation: always
+      depends_on: [s1]
+      status: planned
+      proof_checks:
+        - { name: firmware_unit, cmd: "ceedling test:all", runs_in: product_env, toolchain: unity, status: planned }
+        - { name: ota_signature_gate, cmd: "qemu-test test/test_ota_guard", runs_in: product_env, toolchain: qemu, status: planned }
+    - id: s3
+      name: "Broker + ingestor de telemetría (procedencia)"
+      activation: always
+      depends_on: [s1]
+      status: planned
+      proof_checks:
+        - { name: provenance_roundtrip, cmd: "pytest ingest/test_provenance.py", runs_in: product_env, toolchain: pytest, status: planned }
+    - id: s4
+      name: "Hardware-in-the-loop (emulador)"
+      activation: always
+      depends_on: [s2, s3]
+      status: planned
+      proof_checks:
+        - { name: hw_in_loop, cmd: "qemu-test test/integration", runs_in: product_env, toolchain: qemu, status: planned }
+
+# ── L3 · maquinaria ──
+machinery:
+  harness:
+    tech: "scripts de build embebido (CMake/PlatformIO) + hooks"
+    primitive: DES-1
+    status: planned
+  infra:
+    tech: "broker MQTT (Mosquitto) + QEMU efímeros en el sandbox de CI"
+    primitive: DES-9             # Frontera de aislamiento
+    status: planned
+
+# ── L4 · sustrato ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+
+# ── L5 · requisitos ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "un mensaje que viola el esquema Protobuf se rechaza en el borde, no se ingiere"
+      acceptance: "proto_compiles verde Y el gateway rechaza un mensaje malformado"
+      satisfied_by: [s1]
+      verified_by: [proto_compiles]
+    - id: REQ-F-002
+      statement: "ninguna ruta de actualización de firmware se ejecuta sin verificar la firma"
+      acceptance: "ota_signature_gate: toda ruta de flasheo pasa por la verificación de firma"
+      satisfied_by: [s2]
+      verified_by: [ota_signature_gate]
+    - id: REQ-F-003
+      statement: "una métrica agregada se recorre hasta las lecturas crudas de origen (procedencia)"
+      acceptance: "provenance_roundtrip verde: backward de métrica→lecturas con join key"
+      satisfied_by: [s3]
+      verified_by: [provenance_roundtrip]
+  nonfunctional:
+    - id: REQ-NF-001
+      statement: "la suite corre en el emulador de HW (QEMU), no como render-green de fábrica"
+      acceptance: "hw_in_loop verde en QEMU contra un broker efímero"
+      satisfied_by: [s4]
+      verified_by: [hw_in_loop]

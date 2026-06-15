@@ -1,0 +1,122 @@
+# mobile.factory.spec.yml — SKELETON (blueprint, status planned) de una Mobile-Factory.
+# Tercer dominio (apps móviles: navegación, estado offline, puentes nativos), MISMA gramática v2.
+# Anti-overfit: estira las primitivas a un toolchain móvil (detox/jest, no pytest ni tsc-web). NO genera (F3).
+
+# ── L0 · identidad ──
+factory:
+  name: "Mobile Factory"
+  slug: mobile
+  maturity: skeleton
+
+# ── L1 · dominio ──
+domain:
+  produces: "una app móvil multiplataforma: navegación tipada, estado offline-first, puentes nativos tipados, verificada en emulador"
+  target_framework: { name: react-native, provider_agnostic: true }
+  capabilities:
+    - id: navegacion_verificable
+      invariant: "el grafo de navegación es chequeable estáticamente: ninguna pantalla es inalcanzable ni se navega a una ruta inexistente"
+      primitive: DES-2            # Topología verificable
+      tech: "React Navigation con rutas tipadas (o GoRouter en Flutter)"
+      artifact: "navigation/routes.ts"
+      proof: "el AST del grafo de navegación no tiene nodos huérfanos ni destinos inexistentes"
+      status: planned
+    - id: estado_offline_durable
+      invariant: "la app funciona offline; los cambios locales se reconcilian al reconectar sin perder los confirmados"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "store local persistente (WatermelonDB/SQLite) + cola de sync"
+      artifact: "state/offline_store.ts"
+      proof: "una mutación offline sobrevive un reinicio y sincroniza al reconectar"
+      status: planned
+    - id: permisos_no_salteables
+      invariant: "ninguna pantalla que requiere permiso de dispositivo se monta sin el gate de permiso concedido"
+      primitive: DES-3            # Puntos de control no-salteables
+      tech: "guard de permisos en el árbol de navegación"
+      artifact: "navigation/permission_gate.ts"
+      proof: "alcanzabilidad: toda pantalla con permiso pasa por el gate"
+      status: planned
+    - id: puente_nativo_tipado
+      invariant: "la interfaz con módulos nativos es tipada; un cambio de firma nativa rompe la compilación JS/TS"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "TurboModules con especificación tipada (Codegen)"
+      artifact: "native/specs/"
+      proof: "tsc falla si el consumidor usa una firma que el módulo nativo no expone"
+      status: planned
+    - id: proof_en_emulador
+      invariant: "la verificación corre en el toolchain del producto móvil (emulador), no en la fábrica"
+      primitive: DES-8            # Proof en el toolchain DEL producto
+      tech: "Detox (e2e en emulador) + Jest (unit)"
+      artifact: "e2e/"
+      proof: "detox test verde en un emulador efímero"
+      status: planned
+
+  station_sequence:
+    - id: s0
+      name: "Contrato de la app móvil"
+      activation: always
+      status: planned
+      proof_checks:
+        - { name: mobile_contract_complete, cmd: "validar pantallas + permisos + modelo offline", runs_in: factory_env, toolchain: metafactory, status: planned }
+    - id: s1
+      name: "Estado offline + sync"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: offline_persist_sync, cmd: "jest state/", runs_in: product_env, toolchain: jest, status: planned }
+    - id: s2
+      name: "Navegación tipada + UI"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: nav_typecheck, cmd: "tsc --noEmit", runs_in: product_env, toolchain: tsc, status: planned }
+    - id: s3
+      name: "Puentes nativos tipados"
+      activation: optional        # condicionada por uso de capacidades nativas en el spec
+      depends_on: [s2]
+      status: planned
+      proof_checks:
+        - { name: native_bridge_typecheck, cmd: "tsc --noEmit native/", runs_in: product_env, toolchain: tsc, status: planned }
+    - id: s4
+      name: "E2E en emulador"
+      activation: always
+      depends_on: [s1, s2]
+      status: planned
+      proof_checks:
+        - { name: device_e2e, cmd: "detox test", runs_in: product_env, toolchain: detox, status: planned }
+
+# ── L3 · maquinaria ──
+machinery:
+  harness:
+    tech: "scripts de Metro/Gradle/Xcode + hooks de pre-commit"
+    primitive: DES-1
+    status: planned
+  infra:
+    tech: "emulador Android/iOS efímero en el sandbox de CI"
+    primitive: DES-9             # Frontera de aislamiento (el emulador aísla el producto)
+    status: planned
+
+# ── L4 · sustrato ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+
+# ── L5 · requisitos ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el grafo de navegación es tipado y sin pantallas inalcanzables"
+      acceptance: "nav_typecheck verde; introducir una ruta inexistente lo pone rojo"
+      satisfied_by: [s2]
+      verified_by: [nav_typecheck]
+    - id: REQ-F-002
+      statement: "una mutación offline sobrevive un reinicio y sincroniza al reconectar"
+      acceptance: "offline_persist_sync verde con el ciclo offline→reinicio→reconexión"
+      satisfied_by: [s1]
+      verified_by: [offline_persist_sync]
+  nonfunctional:
+    - id: REQ-NF-001
+      statement: "la app pasa su suite e2e en un emulador real (no render-green de fábrica)"
+      acceptance: "device_e2e verde en emulador efímero"
+      satisfied_by: [s4]
+      verified_by: [device_e2e]

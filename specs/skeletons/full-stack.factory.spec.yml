@@ -1,0 +1,132 @@
+# full-stack.factory.spec.yml — SKELETON (blueprint, status planned) de una Full-Stack-Factory.
+# Dominio radicalmente distinto al ASF (web TS: frontend+backend+DB relacional), MISMA gramática v2.
+# Anti-overfit (A2/G-8): prueba que el motor no es Python/agente-bound. NO se genera nada acá (eso es F2);
+# este spec sólo VALIDA. Las primitivas son las mismas (DES-*), la TECH que las provee la eligió el plan.
+
+# ── L0 · identidad ──
+factory:
+  name: "Full-Stack Factory"
+  slug: full-stack
+  maturity: skeleton
+
+# ── L1 · dominio ──
+domain:
+  produces: "una app web full-stack: frontend tipado + backend tipado + base de datos relacional, todo verificado en su propio toolchain"
+  target_framework: { name: typescript, provider_agnostic: true }
+  capabilities:
+    - id: contratos_tipados_api
+      invariant: "el contrato request/response entre frontend y backend es tipado y chequeado estáticamente; un drift de tipos rompe la compilación"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "TypeScript + tRPC (o OpenAPI + tipos generados)"
+      artifact: "packages/contracts/"
+      proof: "tsc --noEmit falla si el cliente usa una forma que el server no declara"
+      status: planned
+    - id: datos_durables
+      invariant: "el estado de la app persiste con migraciones versionadas; un rollback no pierde datos comprometidos"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "PostgreSQL + migraciones (Prisma/Drizzle)"
+      artifact: "db/migrations/"
+      proof: "una migración aplica y revierte en una DB efímera sin pérdida"
+      status: planned
+    - id: rutas_protegidas
+      invariant: "ninguna ruta autenticada se alcanza sin pasar por el middleware de auth (techo no-salteable)"
+      primitive: DES-3            # Puntos de control no-salteables
+      tech: "middleware de auth + guards de ruta"
+      artifact: "server/middleware/auth.ts"
+      proof: "alcanzabilidad sobre el árbol de rutas: toda ruta protegida pasa por el guard"
+      status: planned
+    - id: topologia_de_rutas_verificable
+      invariant: "el mapa de rutas es chequeable estáticamente contra el contrato (sin levantar el server)"
+      primitive: DES-2            # Topología verificable
+      tech: "router basado en archivos + AST de rutas"
+      artifact: "app/routes/"
+      proof: "el AST de rutas matchea el contrato OpenAPI"
+      status: planned
+    - id: calidad_con_compuertas
+      invariant: "la calidad UX/perf se mide con gates que bloquean el merge bajo umbral"
+      primitive: DES-7            # Evaluabilidad con compuertas
+      tech: "Playwright (e2e) + Lighthouse CI (perf budget)"
+      artifact: "e2e/"
+      proof: "el CI falla si el score de Lighthouse cae bajo el presupuesto"
+      status: planned
+    - id: proof_en_toolchain_del_producto
+      invariant: "la verificación corre en el toolchain del producto (TS), no en el de la fábrica (Py)"
+      primitive: DES-8            # Proof en el toolchain DEL producto
+      tech: "tsc + vitest + eslint, en el venv/workspace del producto"
+      artifact: "package.json"
+      proof: "vitest run y tsc --noEmit verdes en el workspace generado"
+      status: planned
+
+  station_sequence:
+    - id: s0
+      name: "Contrato de la app (Definition of Ready)"
+      activation: always
+      status: planned
+      proof_checks:
+        - { name: app_contract_complete, cmd: "validar el contrato + el modelo de datos", runs_in: factory_env, toolchain: metafactory, status: planned }
+    - id: s1
+      name: "Esquema de datos + migraciones"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: migration_roundtrip, cmd: "aplicar+revertir en DB efímera", runs_in: product_env, toolchain: prisma, status: planned }
+    - id: s2
+      name: "Backend tipado (API)"
+      activation: always
+      depends_on: [s1]
+      status: planned
+      proof_checks:
+        - { name: api_typecheck, cmd: "tsc --noEmit", runs_in: product_env, toolchain: tsc, status: planned }
+        - { name: api_unit, cmd: "vitest run server/", runs_in: product_env, toolchain: vitest, status: planned }
+    - id: s3
+      name: "Frontend tipado (UI)"
+      activation: always
+      depends_on: [s2]
+      status: planned
+      proof_checks:
+        - { name: ui_typecheck, cmd: "tsc --noEmit", runs_in: product_env, toolchain: tsc, status: planned }
+    - id: s4
+      name: "E2E + compuertas de calidad"
+      activation: always
+      depends_on: [s2, s3]
+      status: planned
+      proof_checks:
+        - { name: e2e_flows, cmd: "playwright test", runs_in: product_env, toolchain: playwright, status: planned }
+        - { name: perf_budget_gate, cmd: "lhci autorun", runs_in: product_env, toolchain: lighthouse, status: planned }
+
+# ── L3 · maquinaria ──
+machinery:
+  harness:
+    tech: "scripts npm (build/test/migrate) + hooks de pre-commit"
+    primitive: DES-1
+    status: planned
+  infra:
+    tech: "PostgreSQL en docker-compose para el sandbox de pruebas"
+    primitive: DES-4
+    status: planned
+
+# ── L4 · sustrato (heredado, no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+
+# ── L5 · requisitos ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el contrato entre frontend y backend es tipado; un drift rompe la compilación"
+      acceptance: "api_typecheck y ui_typecheck verdes; introducir un drift de tipos los pone rojos"
+      satisfied_by: [s2, s3]
+      verified_by: [api_typecheck, ui_typecheck]
+    - id: REQ-F-002
+      statement: "ninguna ruta protegida se alcanza sin el middleware de auth"
+      acceptance: "los flujos e2e fallan si una ruta protegida se sirve sin auth"
+      satisfied_by: [s4]
+      verified_by: [e2e_flows]
+  nonfunctional:
+    - id: REQ-NF-001
+      statement: "la performance se mide con un gate que bloquea bajo presupuesto"
+      acceptance: "perf_budget_gate hace fallar el CI bajo el presupuesto de Lighthouse"
+      satisfied_by: [s4]
+      verified_by: [perf_budget_gate]

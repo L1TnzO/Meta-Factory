@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `5cfa61f353e9` | 2026-06-15T20:29Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `10f2dfb5434e` | 2026-06-15T20:29Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `3acdee0f2d81` | 2026-06-15T20:31Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -41,7 +41,7 @@
 | `docs/work/C1-GENERATE-SLOT-INCREMENT.md` | `408171664cef` | 2026-06-15T18:00Z | Incremento C1-GENERATE-SLOT |
 | `docs/work/C2-MULTI-STATION-LINE-INCREMENT.md` | `567554de5f5e` | 2026-06-15T19:19Z | Incremento C2-MULTI-STATION-LINE |
 | `docs/work/C3-PRODUCT-ENV-PROOF-INCREMENT.md` | `0bcc518ecc84` | 2026-06-15T20:01Z | Incremento C3-PRODUCT-ENV-PROOF |
-| `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `90ae539e5ce6` | 2026-06-15T20:30Z | Incremento C4-EVIDENCE-TREE |
+| `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |

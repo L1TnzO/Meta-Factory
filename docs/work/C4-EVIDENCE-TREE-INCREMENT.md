@@ -1,7 +1,7 @@
-<!-- meta:doc sha=90ae539e5ce66c8b6193b87f3b5201fc9156cddc updated=2026-06-15T20:30Z -->
+<!-- meta:doc sha=5248bee82233d547a46409ac5a8429b545a34f38 updated=2026-06-15T20:31Z -->
 # Incremento C4-EVIDENCE-TREE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T20:19Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T20:31Z) (creado 2026-06-15T20:19Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

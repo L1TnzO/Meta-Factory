@@ -1,7 +1,7 @@
-<!-- meta:doc sha=91f1381fb5d47bcc214c0a5dc4eb9e063ac2d49d updated=2026-06-14T21:15Z -->
+<!-- meta:doc sha=a240e822e8ec2bcdd50c4d3c5a39e7cd8eb02cc9 updated=2026-06-14T21:19Z -->
 # Incremento ASF-REGEN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-14T20:32Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-14T21:19Z) (creado 2026-06-14T20:32Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

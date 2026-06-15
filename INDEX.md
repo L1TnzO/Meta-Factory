@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `c0d3c3a33df4` | 2026-06-14T21:17Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `a4a7900f89f7` | 2026-06-14T21:18Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `61e4b1cc84c3` | 2026-06-14T21:19Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -26,7 +26,7 @@
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
-| `docs/work/ASF-REGEN-INCREMENT.md` | `91f1381fb5d4` | 2026-06-14T21:15Z | Incremento ASF-REGEN |
+| `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |
 | `docs/work/BOOTSTRAP-INCREMENT.md` | `d976acfd9db1` | 2026-06-13T15:22Z | Incremento BOOTSTRAP — el seed, la maquinaria base y la prueba del punto fijo |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |

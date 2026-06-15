@@ -1,7 +1,32 @@
-<!-- meta:doc sha=0061c1bfedc51d4e785ff25a76ae61bdd66de5df updated=2026-06-15T12:56Z -->
+<!-- meta:doc sha=25057791214fd783acdf872d40f7dabf0af8ac04 updated=2026-06-15T13:21Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T13:20Z — A2: ASF descrito COMPLETO en v2 + 3 skeletons (la gramática PROBADA generalista)
+- **gatillo**: tras cerrar A1, el ingeniero pidió continuar. A2 = probar que la gramática v2 no es
+  forma-de-ASF: describir el ASF pineado (`b1fcb1f`) COMPLETO en v2 y 3 skeletons de dominios distintos.
+- **decisión de alcance (Opus, ojos propios)**: el spec `specs/asf` pasa a ser el BLUEPRINT del target
+  (línea S0–S8 real, status `declared-deferred` porque el codegen es F1) y DIVERGE a propósito de la fábrica
+  REGISTRADA `factories/asf` (proxy s00, cerrada en ASF-REGEN, intacta). Es honesto: el blueprint describe
+  lo que ASF DEBE ser; la fábrica registrada corre lo que hay hoy. Verifiqué que ningún test corre la línea
+  de la fábrica registrada (sólo `test_spec` valida el spec) → cambiar el blueprint no rompe nada.
+- **hecho (incremento `A2-ASF-SKELETONS`, 3 fases + 1 fix de review, 4 commits de spec/tests + 2 de docs)**:
+  - P1 (`abb10b1`): `specs/asf` v2 — 7 caps→primitivas DES (5/5/4/6/3/3/7) + tech + proof; S0–S8 como
+    stations v2 con depends_on (s0→{s1,s3}→s4→{s5,s6,s7,s8}; condicionales `optional`) + proof_checks
+    (runs_in product_env, toolchain pytest/mypy); machinery; 4 requisitos con verified_by reales.
+  - P2 (`6a0bdf5`): `specs/skeletons/{full-stack,mobile,iot}` — mismas primitivas, tech por dominio
+    (tsc/vitest/playwright · jest/detox · protoc/unity/qemu). Blueprints `planned`.
+  - P3 (`f710822`): +11 tests — los 4 validan 0 problemas; anti-overfit (≥6 primitivas/≥6 toolchains/4
+    frameworks, pytest Y tsc); fidelidad ASF (7 caps, S0–S8, interrupt no-salteable y eval-gate como verifiers).
+  - fix (`114d47a`): arista de linaje `s2→s3` (la clave de unión usa checkpoint_id de S3) — del review.
+- **reviewer fresco (Opus, contexto fresco, spawneado a pedido del ingeniero)**: **PASS 0 CRITICAL / 0 HIGH**.
+  2 MEDIUM: (a) arista `s2→s3` — ARREGLADA; (b) 2º DES-3 (atribución) defendible, provisional → skill B1.
+  Confirmó: S4 sin capacidad es FIEL (la lógica de negocio no es capacidad de producción, PRODUCTION-CAPABILITIES).
+- **veredicto**: 4 specs validan 0 problemas; suite **310**; `meta check` 5/5. **Fase A cerrada.** Sigue B1.
+- **lección**: divergir el blueprint (`specs/`) de la fábrica registrada (`factories/`) es legítimo y honesto
+  cuando el status lo declara (`declared-deferred`) — la fuente de verdad es el spec; la fábrica registrada es
+  un artefacto de una fase anterior. No forzar que coincidan: la coincidencia llega cuando F1 genere la línea real.
 
 ## 2026-06-15T12:55Z — A1: gramática factory-spec v2, el primer incremento del ROADMAP con dientes
 - **gatillo**: el ingeniero pidió entender A1 (`work/ROADMAP.md §Fase A`) y ejecutarlo. A1 = extender la

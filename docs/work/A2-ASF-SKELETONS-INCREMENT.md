@@ -1,7 +1,7 @@
-<!-- meta:doc sha=a905236437c556827346ef0ea691b615e2b0edc2 updated=2026-06-15T13:20Z -->
+<!-- meta:doc sha=c2f68a7229dee5679fbcfdfe5c37af296bbb912b updated=2026-06-15T13:20Z -->
 # Incremento A2-ASF-SKELETONS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:11Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-15T13:20Z) (creado 2026-06-15T13:11Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

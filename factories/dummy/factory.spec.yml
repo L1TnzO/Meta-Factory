@@ -23,6 +23,7 @@ domain:
       builds:
         - { action: render, src: "factories/dummy/domain/greeting.py", dest: "build/greeting.py" }
         - { action: render, src: "factories/dummy/generated/runner.py", dest: "build/runner.py" }
+        - { action: render, src: "factories/dummy/generated/test_greeting.py", dest: "build/test_greeting.py" }
       checks:
         - { name: compile, kind: py_compile, files: ["build/greeting.py", "build/runner.py"] }
         - name: runs
@@ -42,6 +43,22 @@ domain:
       checks:
         - { name: release_tag, kind: artifact_contains, file: "build/manifest.txt", marker: "RELEASE_OK" }
         - { name: chain_marker, kind: artifact_contains, file: "build/manifest.txt", marker: "DUMMY_OK" }
+    - id: s02
+      name: "proof en el toolchain DEL producto (venv aislado del de la fábrica) — C3 / DES-8"
+      activation: always
+      depends_on: [s01]
+      # El proof del producto corre en SU PROPIO toolchain (un venv stdlib que el bootstrap crea), AISLADO
+      # del de la fábrica (PYTHONPATH scrubbed por el helper). `runs_in: product_env` deja de ser descriptivo
+      # y se vuelve EJECUTABLE (kind `product_env`). El sustrato no nombra tech: bootstrap/cmd son DATA (ADR-012).
+      proof_checks:
+        - { name: product_unittest, cmd: "unittest del producto en su venv (aislado de la fábrica)", runs_in: product_env, toolchain: "python-venv+unittest", status: built }
+      builds: []
+      checks:
+        - name: product_unittest
+          kind: product_env
+          workdir: build
+          bootstrap: ["python", "-m", "venv", "--without-pip", ".venv"]
+          cmd: [".venv/bin/python", "-m", "unittest", "discover", "-s", ".", "-p", "test_*.py"]
   provision_modes: [prompt]
   proof_check_types: [py_compile, import_runs, artifact_contains]
   product:
@@ -69,3 +86,7 @@ requirements:
     - id: REQ-F-002
       statement: "una 2ª estación genera un manifiesto de release que embebe la salida de s00 (línea multi-estación)"
       satisfied_by: [s01]
+    - id: REQ-F-003
+      statement: "la verificación del producto corre en su PROPIO toolchain (venv aislado del de la fábrica); un producto roto bloquea (DES-8, C3)"
+      satisfied_by: [s02]
+      verified_by: [product_unittest]

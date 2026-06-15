@@ -88,7 +88,7 @@ domain:
     - id: s2
       name: "Sustrato de trazabilidad/linaje"
       activation: optional        # condicionada por profundidad de linaje en el spec
-      depends_on: [s1]
+      depends_on: [s1, s3]        # la clave de unión del linaje incluye checkpoint_id (de S3, estado durable); PRODUCTION-CAPABILITIES S2
       status: declared-deferred
       proof_checks:
         - { name: lineage_join_key, cmd: "pytest tests/test_lineage.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }

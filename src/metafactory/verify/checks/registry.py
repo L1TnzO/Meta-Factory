@@ -14,7 +14,7 @@ from ..._seed import repo_root
 PY = sys.executable
 KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
-    "rtm_closure", "pytest", "isolation", "docs_check", "command",
+    "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "clean_runner", "agent_shadow",
 )
@@ -43,6 +43,8 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         return [PY, "-m", "metafactory.spec.cli", "validate", _s(check["spec"], subst)]
     if kind == "rtm_closure":
         return [PY, "-m", "metafactory.spec.cli", "rtm-closure", _s(check["spec"], subst)]
+    if kind == "design_review":
+        return [PY, "-m", "metafactory.spec.cli", "design-review", _s(check["spec"], subst)]
     if kind == "pytest":
         return [PY, "-m", "pytest", "-q", _s(check["path"], subst)]
     if kind == "isolation":

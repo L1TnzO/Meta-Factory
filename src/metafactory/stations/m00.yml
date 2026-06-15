@@ -3,7 +3,12 @@ name: "Contrato de factory-spec (SDD)"
 activation: always
 # M0 valida la ENTRADA; no construye nada. Rehúsa specs incompletas o con RTM no cerrado
 # (ADR-003): sin requisitos válidos mapeados a estaciones activas, no hay línea.
+# `design_review` (B2) agrega los dientes del flujo SDD de diseño: una spec que se declara
+# completa (domain.required_primitives) es RECHAZADA si una primitiva requerida no tiene tech
+# (plan) o un requisito no cita verifier (criterios). Es no-op para un proxy/stub sin
+# required_primitives — `validate` (catálogo-independiente) sigue siendo el gate universal.
 builds: []
 checks:
   - { name: spec_schema, kind: spec_validate, spec: "{{spec_path}}" }
   - { name: rtm_closure, kind: rtm_closure, spec: "{{spec_path}}" }
+  - { name: design_review, kind: design_review, spec: "{{spec_path}}" }

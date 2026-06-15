@@ -233,3 +233,21 @@ class TestDesignReview:
         spec.requirements[0].verified_by = []
         probs = design_review(spec)
         assert any(p.startswith("criterios:") and spec.requirements[0].id in p for p in probs)
+
+
+class TestDesignGateWiredToM0:
+    """B2: the design gate must live IN M0 (not just be callable). Guards the wiring against drift."""
+
+    def test_m00_declares_a_design_review_check(self):
+        m00 = yaml.safe_load((_ROOT / "src" / "metafactory" / "stations" / "m00.yml").read_text("utf-8"))
+        kinds = {c["kind"] for c in m00["checks"]}
+        assert "design_review" in kinds, "m00 must run design_review (B2: the SDD design gate in M0)"
+
+    def test_registry_resolves_design_review_to_the_cli(self):
+        from metafactory.verify.checks.registry import KINDS, resolve_check
+        assert "design_review" in KINDS
+
+        class _S:  # a stand-in station with an id (resolve_check only reads .id on error)
+            id = "m00"
+        argv = resolve_check({"kind": "design_review", "spec": "X.yml"}, None, _S(), {})
+        assert argv[-2:] == ["design-review", "X.yml"], argv

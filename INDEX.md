@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `c0d3c3a33df4` | 2026-06-14T21:17Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `61e4b1cc84c3` | 2026-06-14T21:19Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `0e9181cfcefc` | 2026-06-15T02:50Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -20,10 +20,12 @@
 | `docs/decisions/010-disciplina-commit.md` | `50f2c2eb9606` | 2026-06-14T01:55Z | ADR-010 — Disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/reference/ARCHITECTURE.md` | `27963f9d7903` | 2026-06-13T14:57Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
+| `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
+| `docs/reference/REGEN-AUDIT.md` | `1b6816e4bd14` | 2026-06-15T02:50Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

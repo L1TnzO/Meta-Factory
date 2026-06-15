@@ -1,4 +1,4 @@
-<!-- meta:doc sha=61e4b1cc84c35fc1c6a332f557279b2f206503f8 updated=2026-06-14T21:19Z -->
+<!-- meta:doc sha=0e9181cfcefc07cdc9aa24f8b859b6970464d5a7 updated=2026-06-15T02:50Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-14T21:06Z · sesión: opus-4.8 (ASF-REGEN CERRADO · ASF regenerado como chasis + 6 hallazgos G-8) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -78,4 +78,4 @@
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–009) · Trabajo: `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
-- Fuente cosechada (congelada): `../../Agent_Systems_Factory/`
+- Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (pin: `reference/ASF-PROVENANCE.md`) · auditoría A/B regenerada vs original: `reference/REGEN-AUDIT.md`

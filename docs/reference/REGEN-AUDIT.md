@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1b6816e4bd143452dc3a5f9e915f3fd6438c83b0 updated=2026-06-15T02:50Z -->
+<!-- meta:doc sha=5ea7ae74199047b0e38af14c0c79ab6b3c14d261 updated=2026-06-15T02:59Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T02:48Z -->
 # REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos)
 
@@ -112,7 +112,40 @@ Cada ausencia del §3/§4 → un incremento para parametrizar el sustrato. Orden
 > distinto (STATE §Siguiente #4, p.ej. Full-Stack) forzaría la misma parametrización por otro camino —
 > hacer ambas valida que el sustrato generaliza, no que se ajustó a un caso.
 
-## 7. Límites honestos de esta auditoría (I-13)
+## 7. ¿Qué % de ASF-la-fábrica regeneramos? (la pregunta directa — midiendo la FÁBRICA, no sus productos)
+
+> Pregunta del ingeniero: ¿cuánto nos faltó para llegar al estado de ASF (lo que hace HOY) o superarlo?
+> ¿La `factory.spec.yml` capturó TODA la maquinaria de ASF (el MCP, las plantillas…) o eso también falló?
+
+**Un solo número miente** — la cobertura es bimodal. Tres honestos, midiendo la **maquinaria** de ASF
+(no sus 4 productos):
+
+| Bloque de ASF-la-fábrica | Qué es | ¿Lo emite el Meta-Factory hoy? | % |
+| --- | --- | --- | --- |
+| **A · Chasis / confiabilidad** | engine (1481 líneas), spec/SDD (844), verify (244), RTM, dos-verificadores, memoria | sí — sustituido por el sustrato del Meta-Factory (y partes mejores) | **~70–75%** |
+| ↳ huecos del chasis | columna sólo **Cerrojo 1** (vs 3 + 8 hooks), **3 agents** (vs 5), **0 commands** (vs 7), CLI `meta` ≠ `factory`+`devcheck`+`devci` (1567) | parcial / falta | |
+| **B · Motor de generación** | codegen (941): `copier_driver`, `graph_ir`, `apply_station`, `pattern_request`, `memory_seeder` | **casi nada** — sólo el patrón único `s00`→marcador | **~5–10%** |
+| ↳ las **53 plantillas Copier** | `generated/{obs,prov,state,retrieval,attribution,control/hitl,eval,graph}` + slots `domain/` + 14 tests = las 7 capacidades MATERIALIZADAS | **0** — ni emitidas ni representadas | **0%** |
+| **C · Infra / MCP** | `mcp_server.py` (MCP `factory-infra`: `sandbox_up/status/down` sobre docker-compose) + sandbox (471) | **0** — ni en el sustrato ni en el spec | **0%** |
+| **D · Opiniones de dominio (spec)** | 7 capacidades + S0–S8 + modos + HITL como DATO | sí, `declared-deferred` (fielmente descendidas) | **~85%** de las opiniones de PRODUCTO |
+| ↳ el spec **no menciona** mcp / copier / template / command / sandbox / docker | `grep` = 0 | la maquinaria de fábrica NO entró al spec | **0%** |
+
+**Respuesta a "¿tenemos TODAS esas specs?": NO.** El spec capturó *qué debe HACER el producto* (las 7
+capacidades, con Neo4j/Postgres/Langfuse/Phoenix nombrados en la prosa) — pero **no** *qué debe CONTENER
+la fábrica para hacerlo*: el **MCP, las 53 plantillas Copier, los commands y el cableado de infra están
+CERO en el spec**. No es fallo silencioso (es el G-8 diferido), pero la verdad práctica es: **el spec NO
+es una descripción completa de ASF-la-fábrica; es el contrato del PRODUCTO objetivo.**
+
+**El número, sin esconder la bimodalidad:**
+- Como **chasis / plataforma de confiabilidad**: **~70–75%** (y partes superan a ASF — §3/§5).
+- Como **fábrica que de verdad EMITE el producto de ASF** (codegen + 53 plantillas + MCP): **~5–10%**.
+- Ponderado por dónde vive el valor de una fábrica (generar es su trabajo definitorio): **~30–40% global**
+  — promedio que esconde que el chasis está casi entero y el motor de generación casi vacío.
+
+**Lo que faltó, en una línea:** no faltó *chasis* — faltó **el motor que convierte el spec en producto**
+(codegen multi-estación + Copier + las 53 plantillas + el MCP de infra). Es exactamente el backlog §6 #1–#3.
+
+## 8. Límites honestos de esta auditoría (I-13)
 
 - **Es comparación de CALIDAD, no métrica 100% objetiva** (como el ingeniero anticipó). El **Eje 2**
   (línea de producto) es casi objetivo (existe/corre); el **Eje 1** (gobernanza) es argumentable y mezcla

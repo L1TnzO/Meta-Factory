@@ -25,7 +25,7 @@
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
-| `docs/reference/REGEN-AUDIT.md` | `1b6816e4bd14` | 2026-06-15T02:50Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
+| `docs/reference/REGEN-AUDIT.md` | `5ea7ae741990` | 2026-06-15T02:59Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5620f363352687eb339a6eafec377d870867f2c8 updated=2026-06-15T13:51Z -->
+<!-- meta:doc sha=731d6fb03eaffc056ec001484d73c751716a5a4b updated=2026-06-15T13:59Z -->
 # Incremento B2-SDD-DESIGN-FLOW
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T13:51Z). Cerralo con `meta increment close`
@@ -40,17 +40,30 @@ design-complete (M0 la certifica).
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `design_review(spec)` (plan+criterios, por-fase, condicional) en `spec/design.py` + verbo `spec.cli design-review` + tests +/− | ⏳ |
-| 2 | Cableado a M0: kind `design_review` (registry) + 3er check en `m00.yml`; prueba: líneas vivas dummy/ASF verdes (no-op), gate vivo | ⏳ |
-| 3 | Demo ≥2 dominios (data-pipeline + full-stack design-complete) PASAN M0; prueba por bloqueo (−tech / −verifier → RECHAZA); SKILL menciona criterios | ⏳ |
+| 1 | `design_review(spec)` (plan+criterios, por-fase, condicional) en `spec/design.py` + verbo `spec.cli design-review` + tests +/− | ✅ `34b729e` |
+| 2 | Cableado a M0: kind `design_review` (registry) + 3er check en `m00.yml`; prueba por bloqueo end-to-end; líneas vivas verdes | ✅ `666192e` |
+| 3 | Demo ≥2 dominios (data-pipeline + full-stack design-complete) PASAN M0; SKILL con fase criterios | ✅ `e48db0d` |
 
-## Criterio de cierre (demostrable, no narrable)
-1. **El gate vive en M0**: `m00.yml` corre `design_review`; `validator.py` sin tocar (sigue
-   catálogo-independiente; el test del guard ADR-012 pasa). Líneas vivas dummy + ASF en VERDE
-   (la compuerta es no-op por falta de `required_primitives`).
-2. **Un diseño completo PASA, en ≥2 dominios** (principio #6): `specs/skeletons/data-pipeline` y
-   `specs/skeletons/full-stack` declaran `required_primitives`, cubren cada una con una tech y verifican
-   cada requisito → `design-review` 0 problemas y `validate` 0 problemas.
-3. **Prueba por bloqueo**: quitar la tech de una primitiva requerida → `design-review` exit 1
-   (`plan: …`); quitar el `verified_by` de un requisito → exit 1 (`criterios: …requisito sin verifier`).
-4. `meta check` 5/5, suite verde, árbol limpio.
+## Criterio de cierre (demostrable, no narrable) — Evidencia
+1. ✅ **El gate vive en M0**: `m00.yml` corre un 3er check `design_review` (kind nuevo en el registry →
+   `spec.cli design-review {{spec_path}}`); `validator.py` SIN TOCAR (sigue catálogo-independiente — los
+   dientes viven en `design.py`). Líneas vivas en VERDE: `meta station m00 --factory {dummy,
+   agent-systems-factory}` → `3 checks all green · design_review ok` (no-op por falta de
+   `required_primitives`). Test `TestDesignGateWiredToM0` blinda el cableado.
+2. ✅ **Un diseño completo PASA, en ≥2 dominios** (principio #6): `data-pipeline` (ELT, dagster-dbt) y
+   `full-stack` (web TS) declaran `required_primitives`, cubren cada una con una tech y verifican cada
+   requisito → `validate` 0 y `design-review` 0. Test `test_two_domains_are_complete_blueprints`.
+3. ✅ **Prueba por bloqueo (END-TO-END, estación)**: un factory scratch con el blueprint `data-pipeline`
+   INCOMPLETO (−1 `verified_by`; pasa spec_schema+rtm_closure, aísla el diente) → `meta station m00`
+   queda **SHUT** (1/3 red, `design_review FAIL`). Ambas fases bloquean vía el argv exacto de m00:
+   `criterios: REQ-F-001 has no verifier` (−verifier) y `plan: …DES-7 has no capability declaring a tech`
+   (−tech) → exit 1. Negativos en `TestDesignReview`. Scratch removido (árbol limpio).
+4. ✅ `meta check` **5/5**, suite **335**, árbol limpio.
+
+## Residual honesto (declarado, no escondido)
+- El gate es **condicional a `required_primitives`** — un stub sin declararlas no es gateado por
+  `design_review`. No es un agujero: para CONSTRUIR (fase C) hace falta un blueprint design-complete, y un
+  dominio real siempre requiere primitivas. Los proxies vivos (dummy/ASF) quedan deliberadamente fuera
+  (son bootstrap, no blueprints de diseño). Subirlos = trabajo posterior, no diente.
+- El **blueprint** que consume el build = la spec design-complete (M0 la certifica). Un artefacto-blueprint
+  con formato propio se difiere a C1 (es su contrato de entrada), no a B2.

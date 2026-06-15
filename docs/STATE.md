@@ -1,6 +1,6 @@
-<!-- meta:doc sha=ee3f85f623de2af38f04094a9a1972ced9fe5183 updated=2026-06-15T13:51Z -->
+<!-- meta:doc sha=a260027b85cadb15c494885661464bf8248876c6 updated=2026-06-15T14:00Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T13:30Z · sesión: opus-4.8 (Fase A ✅ + B1 ✅ — gramática v2, ASF/skeletons, skill de primitivas) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T14:00Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ — gramática v2, ASF/skeletons, skill de primitivas, gate SDD de diseño en M0) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -22,13 +22,17 @@
     línea S0–S8 con depends_on/proof_checks, machinery; blueprint `declared-deferred`, DIVERGE del proxy s00
     registrado) + 3 skeletons (`specs/skeletons/{full-stack,mobile,iot}`) de dominios radicalmente distintos.
     Los 4 validan 0 problemas; anti-overfit por test; **reviewer fresco Opus PASS 0 CRITICAL/HIGH**. Suite 310.
-- **B1 ✅ (2026-06-15, `B1-DESIGN-SKILL`) — la PLANIFICACIÓN elige la tech**: catálogo DES como DATO
-  (`reference/primitives.yml`, single source, test md↔yml) + skill `.claude/skills/design-primitives/`
-  (dominio→primitivas→tech→spec) + `design_coverage` (`spec/design.py`, CLI) que exige una tech por
-  primitiva requerida — CALLABLE, no en el gate M0 (eso es B2). Demostrado en un dominio FRESCO
-  (`data-pipeline`, dagster-dbt): diseño con 6 primitivas+tech, `validate`+`design-coverage` verdes;
-  quitar una tech → coverage FALLA. Sustrato sin tech (ADR-012). Suite 326. **Sigue B2** (flujo SDD
-  multi-fase: rehúsa diseño incompleto como gate M0) — `work/ROADMAP.md §Fase B`.
+- **Fase B ✅ (2026-06-15) — la PLANIFICACIÓN elige la tech y M0 rehúsa el diseño incompleto**:
+  - **B1 (`B1-DESIGN-SKILL`)**: catálogo DES como DATO (`reference/primitives.yml`, single source, test
+    md↔yml) + skill `.claude/skills/design-primitives/` (dominio→primitivas→tech→spec) + `design_coverage`
+    (`spec/design.py`) que exige una tech por primitiva requerida. Demostrado en dominio FRESCO
+    (`data-pipeline`, dagster-dbt). Sustrato sin tech (ADR-012).
+  - **B2 (`B2-SDD-DESIGN-FLOW`)**: `design_review` es la **compuerta M0** del flujo SDD — ACTIVA sólo si la
+    spec declara `domain.required_primitives` (señal de "pasó B1"), exige **plan** (tech por primitiva) **+
+    criterios** (todo requisito cita un verifier real). Cableado a `m00.yml` (3er check); `validator.py` SIN
+    TOCAR (catálogo-independiente, decoupling A1). **2 dominios** (data-pipeline + full-stack) PASAN; prueba
+    por bloqueo END-TO-END: `meta station m00` SHUT ante blueprint incompleto (−verifier/−tech); líneas vivas
+    dummy/ASF verdes (no-op). Suite 335. **Sigue C1** (motor de build: generación como slot acotado) — `work/ROADMAP.md §Fase C`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -73,7 +77,8 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). Fase A ✅ (A1+A2). **Próximo: B1** (skill de primitivas) → B2 → C (motor de build).
+> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2). **Próximo: C1** (motor de build: la
+> estación invoca a Claude Code para generar según el blueprint; la columna VERIFICA el output) → C2–C4.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
   propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b36b172fe62cf4d7c256e5cc2a8f993224f189a8 updated=2026-06-15T13:34Z -->
+<!-- meta:doc sha=4f7a572a2279ce8484b0d65eb7f8acc94c4b985e updated=2026-06-15T13:59Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -103,9 +103,17 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   *Gate cumplido*: corrido el skill sobre un dominio FRESCO (`specs/skeletons/data-pipeline`, `dagster-dbt`),
   el diseño declara 6 primitivas con tech → `validate`+`design-coverage` verdes; quitar una tech → coverage
   FALLA. Sustrato sin tech (ADR-012). Evidencia: `work/B1-DESIGN-SKILL-INCREMENT.md`. Depende: A1.
-- **B2 · Flujo SDD de diseño (multi-fase, con dientes).** `spec inicial → plan → tareas → criterios`,
-  enforced como M0 (rehúsa diseño incompleto). Produce el *blueprint* que consume el build. *Gate*: un
-  diseño incompleto (primitiva requerida sin tech, requisito sin verifier) es RECHAZADO; uno completo pasa. Depende: B1, A1.
+- **B2 · Flujo SDD de diseño (multi-fase, con dientes).** ✅ **HECHO (2026-06-15, `B2-SDD-DESIGN-FLOW`)**.
+  `design_review` (`spec/design.py`, CLI `spec.cli design-review`) es la compuerta M0 del flujo de diseño:
+  ACTIVA sólo si la spec declara `domain.required_primitives` (aseverar "pasé el flujo B1"), exige dos fases
+  — **plan** (una tech por primitiva requerida; `design_coverage` cableado al fin) **+ criterios** (todo
+  requisito cita un verifier real; el diente nuevo). Cableado a m00 como 3er check (kind `design_review` en
+  el registry); `validator.py` SIN TOCAR (sigue catálogo-independiente, decoupling de A1). El *blueprint* que
+  consume el build = la spec design-complete que M0 certifica. *Gate cumplido*: **2 dominios** distintos
+  (data-pipeline ELT + full-stack web TS) declaran primitivas, cubren+verifican todo → PASAN; prueba por
+  bloqueo END-TO-END: `meta station m00` queda SHUT ante un blueprint incompleto (−verifier `criterios:` /
+  −tech `plan:`); líneas vivas dummy/ASF verdes (no-op). Evidencia: `work/B2-SDD-DESIGN-FLOW-INCREMENT.md`.
+  Depende: B1, A1.
 
 ### Fase C · Motor de build generalista (genera el 100%, verifica construyendo)
 - **C1 · Generación como slot creativo acotado (no backend hardcodeado).** La estación invoca a Claude

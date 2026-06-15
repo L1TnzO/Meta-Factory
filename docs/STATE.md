@@ -1,6 +1,6 @@
-<!-- meta:doc sha=ca694cc40460262eed6f0152678ff85ab3475caf updated=2026-06-15T19:14Z -->
+<!-- meta:doc sha=acd1906762fc0df68157e23f09c481a9ad77081c updated=2026-06-15T19:18Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T18:00Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C arrancada — C1 ✅: el slot `generate` orquestado, motor de build con dientes) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T19:15Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C en curso — C1 ✅ slot `generate`, C2 ✅ línea multi-estación materializada del spec) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -41,7 +41,13 @@
     bloqueo reproducible (`test_generate.py`, run_station+seed reales): generate→OPEN · brief corrompido→SHUT ·
     sin-generador→artefacto ausente→SHUT · mismo seam gatea TS (principio #6). Viva por CLI (scratch removido):
     `product-run` PASS, brief corrompido→SHUT. Guard ADR-012 (test): cero tech de generación en `src/`. Suite 348.
-    **Sigue C2** (línea de producto multi-estación) — `work/ROADMAP.md §Fase C`.
+  - **C2 (`C2-MULTI-STATION-LINE`)**: muere el patrón único — m02 ya no renderiza una `s00` fija: la acción
+    `materialize_line` escribe `stations/<id>.yml` por cada `station_sequence` del spec (`SpecStation` lleva
+    `builds`/`checks` ejecutables; estructura desde DATO, contenido = slot `generate`). El motor corre la
+    secuencia; cada estación gatea; la cadena usa `requires_prev`. Dummy = línea de **2 estaciones** (s00
+    greeting → s01 manifest que embebe s00), RTM 2/2, M0–M8 + `product-run` + `ci --rederive` verdes (re-pin);
+    ASF s00 materializado ≡ commit (pin válido). Bloqueo (`test_multistation.py` + CLI): corromper s1→s1 SHUT;
+    corromper s0→s0 SHUT + gate de s1 SHUT. Suite 354. **Sigue C3** (proof en el toolchain del producto).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -86,9 +92,10 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅. **Próximo: C2** (línea de
-> producto multi-estación, s00→sN como dato I-2: el motor corre el `station_sequence` del spec, cada estación
-> gatea con sus proof_checks; corromper el artefacto de s1 → s1 SHUT) → C3–C4.
+> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅ + C2 ✅. **Próximo: C3**
+> (proof en el toolchain DEL producto, `runs_in: product_env`: el toolchain — pytest/mypy ↔ tsc/vitest — y el
+> bootstrap de deps — uv ↔ npm — son DATO por spec; es el M8 real generalizado, SAFE-2; un proof_check corre en
+> el venv del producto y bloquea ante rojo, y el MISMO mecanismo acepta `tsc` sin tocar el sustrato) → C4.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
   propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);

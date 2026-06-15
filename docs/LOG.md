@@ -1,7 +1,41 @@
-<!-- meta:doc sha=df061c149ad3a0b4bd30217bd30cfc416d10da93 updated=2026-06-15T17:59Z -->
+<!-- meta:doc sha=0c71959a4cd7e1d97d72ec4096952ef22f523f25 updated=2026-06-15T19:19Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T19:18Z — C2: la línea de producto multi-estación, materializada del spec (muere el patrón único)
+- **gatillo**: el ingeniero pidió continuar a C2 — matar el patrón único (una sola estación `s00`) y que el
+  motor corra el `station_sequence` del spec, cada estación gateando con sus propios proof_checks.
+- **diagnóstico (Opus, ojos propios)**: el patrón único vivía en **m02**, que renderizaba UNA `s00.yml` fija
+  desde un template, ignorando el `station_sequence` del spec (que se cargaba pero no manejaba nada). El motor
+  (`_run_product_line`) y la cadena de gate (`Sequence.predecessor`) YA iteraban N estaciones — sólo nunca
+  había más de una. El hueco real era el PUENTE spec→línea ejecutable.
+- **decisión de diseño**: la línea de producto vive como **DATO en el spec** (`station_sequence[].builds/.checks`,
+  I-2; 100% derivable, ADR-011) y m02 la **materializa** (acción `materialize_line`: una `stations/<id>.yml` por
+  entrada, con subst, descartando stale). Clave de frontera: materializar la línea es **ESTRUCTURA** (chassis
+  desde dato, como `render`) — el **CONTENIDO** sigue siendo el slot `generate` (C1/ADR-013). Así C2 no mete
+  determinismo en el contenido (I-3) ni tech en el sustrato (`via`/`kind` son dato; guard ADR-012 intacto).
+- **tensión resuelta (compatibilidad)**: migrar m02 a `materialize_line` exigía que TODA fábrica registrada
+  declarara su línea ejecutable en el spec. Migré dummy **y** ASF. El `proof_sha` depende sólo de (nombre,exit)
+  de los checks, no del formato YAML → la `s00` materializada del ASF ≡ semánticamente la committeada →
+  **mismo `proof_sha` → pin válido sin re-pin**. El dummy sí re-pinó (agregó s01).
+- **hecho (incremento `C2-MULTI-STATION-LINE`, 3 fases, 1 commit de capacidad + docs)**:
+  - `e6dbbdd`: `SpecStation.builds/checks` (model+loader) + `materialize_line` (renderer) + m02 recableado
+    (check `stations_match_spec`) + retiro del template fijo + dummy 2-estaciones + REQ-F-002 + re-pin + ASF
+    migrado + `test_multistation.py`.
+- **demostración (gate C2)**: dummy = línea de **2 estaciones** encadenadas (s00 greeting → s01 `generate` que
+  embebe la salida de s00 en un manifiesto). RTM **2/2**; M0–M8 verdes; `product-run` PASS; `ci --rederive` 2/2.
+  **Prueba por bloqueo** reproducible (`test_multistation.py`, motor real) + **VIVA por CLI**: corromper SÓLO
+  el brief de s1 → `release_tag ABSENT` → **gate s01 SHUT**; corromper el marcador de s0 → **gate s00 SHUT**
+  (la línea se detiene antes de s1); el test prueba además que el gate de s1 SHUT por predecesor aunque su
+  propio artefacto esté bien. ASF: M0–M8 + `ci` verdes, pin intacto.
+- **veredicto**: suite **354** (era 348); `meta check` 5/5; árbol limpio.
+- **lección**: el patrón único no era una limitación del MOTOR (ya iteraba) sino del PUENTE — m02 no leía el
+  spec. Antes de "agrandar el engine", encontrá dónde la generalidad ya existe y qué la estrangula. Y al mover
+  artefactos load-bearing (la `s00` del ASF, su pin), el invariante correcto a preservar no es el BYTE del YAML
+  sino el `proof_sha` (la semántica del veredicto) — eso permitió migrar sin re-pinear ni fingir.
+- **diferido honesto**: gating de DAG multi-predecesor (`depends_on` >1) — hoy cadena lineal (`requires_prev`);
+  llega cuando un dominio lo pida (S0–S8, F1).
 
 ## 2026-06-15T17:59Z — C1: el slot `generate` orquestado (el sustrato orquesta+verifica, no genera)
 - **gatillo**: el ingeniero pidió continuar a C1 — arrancar el motor de build: que la estación GENERE el

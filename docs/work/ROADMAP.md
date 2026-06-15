@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e75af707f4cf1dd59bc94d1c3ed8e6a61178a839 updated=2026-06-15T17:57Z -->
+<!-- meta:doc sha=134adf24ef76080a529687e1b4a44ee7b2eeb897 updated=2026-06-15T19:17Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -127,9 +127,16 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   → `meta product-run` PASS; brief corrompido → SHUT). Guard ADR-012 (test): cero tech de generación en `src/`.
   Residual declared-deferred: el `via` LLM-vivo es el mismo seam, se ejercita en F1. Evidencia:
   `work/C1-GENERATE-SLOT-INCREMENT.md`. Depende: A1, B2.
-- **C2 · Línea de producto multi-estación (s00→sN como dato, I-2).** Mata el patrón único actual
-  (`s00`→marcador). El motor corre el `station_sequence` del spec; cada estación gatea con sus proof_checks.
-  *Gate*: una fábrica con ≥2 estaciones genera y gatea cada una; corromper el artefacto de s1 → s1 SHUT. Depende: C1.
+- **C2 · Línea de producto multi-estación (s00→sN como dato, I-2).** ✅ **HECHO (2026-06-15,
+  `C2-MULTI-STATION-LINE`)**. Mata el patrón único: m02 ya no renderiza una `s00` fija — la acción
+  `materialize_line` (`codegen/renderer.py`) escribe `stations/<id>.yml` por cada `station_sequence` del spec
+  (`SpecStation` lleva `builds`/`checks` ejecutables; estructura desde DATO — el contenido sigue siendo el slot
+  `generate`, ADR-013). El motor (`_run_product_line`, iterativo) corre la secuencia; cada estación gatea con
+  sus checks; la cadena usa `requires_prev` (de `depends_on`). *Gate cumplido*: dummy = línea de **2 estaciones**
+  encadenadas (s00 greeting → s01 manifest que embebe s00), RTM 2/2, M0–M8 + `product-run` + `ci --rederive`
+  verdes (re-pin s00+s01); ASF s00 materializado ≡ commit (pin válido). Prueba por bloqueo (`test_multistation.py`
+  + viva por CLI): corromper s1 → **s1 SHUT**; corromper s0 → **s0 SHUT** + gate de s1 **SHUT** (predecesor).
+  Diferido: gating DAG multi-predecesor (hoy cadena lineal). Evidencia: `work/C2-MULTI-STATION-LINE-INCREMENT.md`. Depende: C1.
 - **C3 · Proof en el toolchain DEL producto (`runs_in: product_env`).** El toolchain (pytest/mypy ↔
   tsc/vitest ↔ …) y el bootstrap de deps (uv ↔ npm ↔ …) son DATO por spec. Es el M8 real (SAFE-2)
   generalizado. *Gate*: un proof_check corre pytest en el venv del producto y bloquea ante rojo; el MISMO

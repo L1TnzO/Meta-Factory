@@ -1,7 +1,41 @@
-<!-- meta:doc sha=0c71959a4cd7e1d97d72ec4096952ef22f523f25 updated=2026-06-15T19:19Z -->
+<!-- meta:doc sha=b83b98025e313f1a2cdf5c2901b0d2bc81666b97 updated=2026-06-15T20:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-15T20:00Z — C3: el proof corre en el toolchain DEL producto, aislado del de la fábrica (DES-8)
+- **gatillo**: el ingeniero pidió seguir con C3 — hacer EJECUTABLE el `runs_in: product_env` (hoy sólo
+  descriptivo en L2): un proof_check que corre en el toolchain del PRODUCTO (pytest ↔ tsc ↔ node) y bloquea
+  ante rojo, con el MISMO mecanismo aceptando un toolchain no-Python sin tocar el sustrato. Es el M8 real (SAFE-2).
+- **diagnóstico (Opus, ojos propios)**: el sustrato corría TODOS los checks igual — `cwd=root` (dir de la
+  fábrica) y `env` con el `PYTHONPATH` del Meta-Factory inyectado, con el intérprete del Meta-Factory. Eso es
+  `factory_env`. Un proof "del producto" así puede APROBAR importando `metafactory` o usando los paquetes de la
+  fábrica → fachada (viola DES-8). El hueco real no era "correr un comando" (el kind `command` ya lo hace) sino
+  **el aislamiento del env** + el bootstrap de deps como dato gateado.
+- **decisión de diseño (la frontera)**: kind nuevo `product_env` → helper de sustrato
+  `verify/checks/product_env.py` que ORQUESTA (no verifica, como el slot `generate`/ADR-013): corre un
+  `bootstrap` y un `cmd` declarados como DATA (argv — el sustrato no nombra tech, ADR-012) con `cwd=workdir` y
+  env **scrubbed** (`PYTHONPATH`/`VIRTUAL_ENV`/`PYTHONHOME` fuera). Exit 0 sii ambos exit 0; fail-safe (127/2).
+  **Scrubbear el PYTHONPATH es el corazón de DES-8**: es lo que impide que el producto pase con el toolchain de
+  la fábrica. Engine·gate·verifier·seed INTACTOS — sólo un kind + un helper.
+- **lección (qué probar es el invariante correcto)**: el aislamiento tenía que ser DEMOSTRABLE, no asumido.
+  La prueba decisiva no es "el venv existe" sino que **`import metafactory` FALLA dentro de product_env** aunque
+  el `src/` esté en PYTHONPATH afuera (control verde). Aislamiento real, no cosmético.
+- **hecho (incremento `C3-PRODUCT-ENV-PROOF`, 3 fases, 4 commits I-10)**:
+  - `afd967b` (P1): helper `product_env.py` + kind en el registry + `test_product_env.py` (10 tests).
+  - `fb4841b` (P2a): dummy → 3 estaciones (s00 rendea el test del producto; s02 = proof `product_env`) +
+    REQ-F-003 + sync `specs/dummy` (mata el drift de C2).
+  - `5b5386f` (P2b): m02 re-materializa la línea de 3 + re-pin (s00/s01 proof_sha INTACTOS; suma s02 → 3/3).
+- **demostración (gate C3)**: dummy = línea de **3 estaciones**; s02 corre `.venv/bin/python -m unittest` en un
+  venv stdlib AISLADO. RTM **3/3**; M0–M8 verdes (m06 clean_runner re-derivó el venv en un clon; m08 capstone
+  corre s02); `product-run` PASS; `ci --rederive` **3/3** `proof_sha==pineado`. ASF intacto (pin 1/1).
+  **Prueba por bloqueo** reproducible (`test_product_env.py`): `import metafactory`→FALLA en product_env; producto
+  roto→SHUT; bootstrap roto→SHUT; workdir ausente→2; e2e por el motor real (estación gatea/SHUT); 2º dominio
+  `node --test` por el MISMO kind (principio #6). **VIVA por CLI**: corromper el test del producto → s00/s01
+  VERDES pero **s02 SHUT** (RTM 2/3, aislado); corromper el producto → s00 SHUT. Suite **364** (era 354).
+- **honesto / diferido**: el dummy usa venv stdlib (offline, portable); el dep-install real con red (`uv sync`/
+  `npm ci`) es el MISMO seam con otra data, se ejercita cuando un producto real tenga deps (F1/F2). El segundo
+  dominio en la suite es `node --test` con guard skipif (node presente en dev) — el núcleo Python nunca skipea.
 
 ## 2026-06-15T19:18Z — C2: la línea de producto multi-estación, materializada del spec (muere el patrón único)
 - **gatillo**: el ingeniero pidió continuar a C2 — matar el patrón único (una sola estación `s00`) y que el

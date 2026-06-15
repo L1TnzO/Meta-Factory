@@ -1,6 +1,6 @@
-<!-- meta:doc sha=180b9a416b4a248dd4cd23084a8de7bff51448ef updated=2026-06-15T19:44Z -->
+<!-- meta:doc sha=d7911aae4a218db35a6d655422350693ffcdc0ad updated=2026-06-15T19:59Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T19:15Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C en curso — C1 ✅ slot `generate`, C2 ✅ línea multi-estación materializada del spec) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-15T19:58Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + Fase C en curso — C1 ✅ slot `generate`, C2 ✅ línea multi-estación, C3 ✅ proof en el toolchain del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -47,7 +47,17 @@
     secuencia; cada estación gatea; la cadena usa `requires_prev`. Dummy = línea de **2 estaciones** (s00
     greeting → s01 manifest que embebe s00), RTM 2/2, M0–M8 + `product-run` + `ci --rederive` verdes (re-pin);
     ASF s00 materializado ≡ commit (pin válido). Bloqueo (`test_multistation.py` + CLI): corromper s1→s1 SHUT;
-    corromper s0→s0 SHUT + gate de s1 SHUT. Suite 354. **Sigue C3** (proof en el toolchain del producto).
+    corromper s0→s0 SHUT + gate de s1 SHUT.
+  - **C3 (`C3-PRODUCT-ENV-PROOF`, DES-8)**: el `runs_in: product_env` deja de ser descriptivo y se vuelve
+    EJECUTABLE — kind `product_env` (`verify/checks/product_env.py`): el sustrato ORQUESTA un `bootstrap` y un
+    `cmd` declarados como DATA (pytest ↔ tsc ↔ node — nunca nombrados, ADR-012) en `cwd=workdir`, con env
+    **scrubbed** (saca `PYTHONPATH`/`VIRTUAL_ENV`/`PYTHONHOME` del Meta-Factory): el producto NO aprueba pidiendo
+    prestado el toolchain de la fábrica (SAFE-2). Es el M8 real generalizado. Dummy = línea de **3 estaciones**
+    (s02 corre el unittest del producto en un venv aislado), RTM 3/3, M0–M8 + `product-run` + `ci --rederive`
+    3/3 verdes (re-deriva el bootstrap del venv); ASF intacto (pin 1/1). Bloqueo (`test_product_env.py` + CLI):
+    `import metafactory` FALLA dentro de product_env (DES-8 real); producto roto → SHUT; test del producto en
+    rojo → s02 SHUT con s00/s01 VERDES (aislado); 2º dominio `node --test` por el MISMO kind (principio #6).
+    Suite 364. **Sigue C4** (árbol de evidencia por build, RTM generalizado).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -92,10 +102,10 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅ + C2 ✅. **Próximo: C3**
-> (proof en el toolchain DEL producto, `runs_in: product_env`: el toolchain — pytest/mypy ↔ tsc/vitest — y el
-> bootstrap de deps — uv ↔ npm — son DATO por spec; es el M8 real generalizado, SAFE-2; un proof_check corre en
-> el venv del producto y bloquea ante rojo, y el MISMO mecanismo acepta `tsc` sin tocar el sustrato) → C4.
+> Diseño→Build→Mejora). Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C: C1 ✅ + C2 ✅ + C3 ✅. **Próximo: C4**
+> (árbol de evidencia por build, RTM generalizado: req→capability→station→proof→artifact re-derivado de
+> `.proof/`, SAFE-4; el RTM re-deriva COMPLETE para una fábrica multi-estación y corromper un proof lo baja a
+> UNSATISFIED — hoy `meta rtm` ya re-deriva por estación, C4 lo cierra hasta capability/artifact). Después D1/D2.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
   propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=134adf24ef76080a529687e1b4a44ee7b2eeb897 updated=2026-06-15T19:17Z -->
+<!-- meta:doc sha=04356474f47da1b27078c7416facec078218c806 updated=2026-06-15T19:59Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -137,10 +137,18 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   verdes (re-pin s00+s01); ASF s00 materializado ≡ commit (pin válido). Prueba por bloqueo (`test_multistation.py`
   + viva por CLI): corromper s1 → **s1 SHUT**; corromper s0 → **s0 SHUT** + gate de s1 **SHUT** (predecesor).
   Diferido: gating DAG multi-predecesor (hoy cadena lineal). Evidencia: `work/C2-MULTI-STATION-LINE-INCREMENT.md`. Depende: C1.
-- **C3 · Proof en el toolchain DEL producto (`runs_in: product_env`).** El toolchain (pytest/mypy ↔
-  tsc/vitest ↔ …) y el bootstrap de deps (uv ↔ npm ↔ …) son DATO por spec. Es el M8 real (SAFE-2)
-  generalizado. *Gate*: un proof_check corre pytest en el venv del producto y bloquea ante rojo; el MISMO
-  mecanismo acepta `tsc` sin cambiar el sustrato. Depende: C2.
+- **C3 · Proof en el toolchain DEL producto (`runs_in: product_env`).** ✅ **HECHO (2026-06-15,
+  `C3-PRODUCT-ENV-PROOF`)**. El `runs_in: product_env` (hoy sólo descriptivo, L2) se vuelve EJECUTABLE: kind
+  `product_env` (`verify/checks/product_env.py`) — el sustrato ORQUESTA un `bootstrap` y un `cmd` declarados
+  como DATA (pytest ↔ tsc ↔ node — nunca nombrados, ADR-012) en `cwd=workdir` con env **scrubbed**
+  (`PYTHONPATH`/`VIRTUAL_ENV`/`PYTHONHOME` del Meta-Factory fuera): el producto no aprueba con el toolchain de
+  la fábrica (SAFE-2/DES-8). Exit 0 sii bootstrap+proof exit 0; engine·gate·verifier·seed INTACTOS. *Gate
+  cumplido*: dummy = línea de 3 estaciones (s02 corre el unittest del producto en un venv stdlib AISLADO);
+  `product-run` PASS, M0–M8 + `ci --rederive` 3/3 (re-deriva el bootstrap del venv en árbol limpio), RTM 3/3;
+  ASF intacto (pin 1/1). Prueba por bloqueo (`test_product_env.py` + viva por CLI): `import metafactory` FALLA
+  dentro de product_env (DES-8 real, no cosmético); producto roto → SHUT; test del producto en rojo → s02 SHUT
+  con s00/s01 VERDES (aislado); 2º dominio `node --test` por el MISMO kind, sin rama por-tech (principio #6).
+  Evidencia: `work/C3-PRODUCT-ENV-PROOF-INCREMENT.md`. Depende: C2.
 - **C4 · Árbol de evidencia por build (RTM generalizado).** req→capability→station→proof→artifact,
   re-derivado de `.proof/` (SAFE-4). *Gate*: el RTM re-deriva COMPLETE para una fábrica multi-estación;
   corromper un proof lo baja a UNSATISFIED. Depende: C2.

@@ -223,10 +223,17 @@ class TestDesignReview:
         assert any(p.startswith("criterios:") and "REQ-F-002" in p for p in probs)
         assert not any("REQ-F-001" in p for p in probs)
 
-    def test_demo_blueprint_is_complete(self):
-        # the B1 demo (data-pipeline) is a complete design-flow blueprint: passes the B2 gate too
-        spec = load_spec(_DEMO)
-        assert design_review(spec) == [], f"data-pipeline should be a complete blueprint: {design_review(spec)}"
+    @pytest.mark.parametrize("name", [
+        "data-pipeline.factory.spec.yml",   # domain 1: batch ELT (dagster-dbt)
+        "full-stack.factory.spec.yml",      # domain 2: TS web full-stack — radically distinct (principle #6)
+    ])
+    def test_two_domains_are_complete_blueprints(self, name):
+        # ≥2 radically-distinct domains declare required_primitives, cover each with a tech and verify
+        # every requirement -> they PASS both the universal gate (validate) and the design gate.
+        spec = load_spec(_ROOT / "specs" / "skeletons" / name)
+        assert spec.required_primitives, f"{name} must declare required_primitives (a design-flow blueprint)"
+        assert validate(spec) == [], f"{name} should validate: {validate(spec)}"
+        assert design_review(spec) == [], f"{name} should be a complete blueprint: {design_review(spec)}"
 
     def test_demo_removing_a_verifier_breaks_criterios(self):
         spec = load_spec(_DEMO)

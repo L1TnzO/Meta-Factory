@@ -13,6 +13,10 @@ factory:
 domain:
   produces: "una app web full-stack: frontend tipado + backend tipado + base de datos relacional, todo verificado en su propio toolchain"
   target_framework: { name: typescript, provider_agnostic: true }
+  # Paso 2 del skill: las primitivas DES que ESTE dominio (web full-stack) requiere — distintas a las
+  # del data-pipeline (segundo dominio del gate B2, principio #6). El gate `design-review` exige una
+  # tech por cada una (abajo) y un verifier por cada requisito (L5).
+  required_primitives: [DES-2, DES-3, DES-4, DES-6, DES-7, DES-8]
   capabilities:
     - id: contratos_tipados_api
       invariant: "el contrato request/response entre frontend y backend es tipado y chequeado estáticamente; un drift de tipos rompe la compilación"

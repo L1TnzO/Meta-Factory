@@ -5,7 +5,8 @@ description: >-
   primitives (DES-*) it requires, choose the technology that provides each, and declare them in the
   factory-spec. Use when designing/planning a new factory or filling a spec-stub's tech choices.
   Materializes reference/PRIMITIVES.md §3. The technology is a PLAN choice (ADR-012) — never hardcoded
-  in src/metafactory/. Output is verified by `spec.cli design-coverage` (a tech per required primitive).
+  in src/metafactory/. Output is verified by `spec.cli design-review` — the M0 design gate (B2): a tech
+  per required primitive (plan) AND a verifier per requirement (criterios). M0 refuses an incomplete design.
 ---
 
 # Skill · Primitivas de diseño (mapear dominio → primitivas → tecnología)
@@ -42,15 +43,22 @@ frontera de aislamiento). **Leé el YAML antes de mapear** — es la cantera viv
    (con `depends_on` y `proof_checks` que declaran `runs_in: product_env` + `toolchain`), y atá los
    requisitos con `satisfied_by` (estaciones) y `verified_by` (proof_checks reales).
 
-## Verificá tu propio output (los dientes)
+## Verificá tu propio output (los dientes — ahora en M0)
 ```
-PYTHONPATH=src python3 -m metafactory.spec.cli validate        <spec>   # gramática v2 bien formada
-PYTHONPATH=src python3 -m metafactory.spec.cli design-coverage  <spec>   # una tech por primitiva requerida
+PYTHONPATH=src python3 -m metafactory.spec.cli validate       <spec>   # gramática v2 bien formada (A1)
+PYTHONPATH=src python3 -m metafactory.spec.cli design-review   <spec>   # blueprint COMPLETO: plan + criterios (B2)
 ```
-- `design-coverage` exit 0 ⇒ cada `required_primitive` tiene una capability con tech, y todo `primitive`
-  referenciado existe en el catálogo. Exit 1 ⇒ el diseño está INCOMPLETO (te falta elegir una tech) o
-  referenciaste una primitiva que no existe (typo o primitiva nueva sin registrar).
-- Si `validate` o `design-coverage` dan rojo, el diseño NO está listo. No narres "está completo": probalo.
+- `design-review` es **la compuerta M0** (B2): corre dentro de la meta-estación m00. Es el flujo SDD de
+  diseño con dientes, en dos fases:
+  - **plan** — cada `required_primitive` tiene una capability con tech, y toda `primitive` referenciada
+    existe en el catálogo (esto era `design-coverage`, B1; sigue disponible como sub-check).
+  - **criterios** — **cada requisito cita un `verified_by`** (un proof_check real). Un requisito sin
+    verifier es un diseño SIN terminar (la fase de criterios de verificación del SDD).
+- Sólo se activa si la spec declara `domain.required_primitives` (aseverás "pasé el flujo de diseño"):
+  ahí M0 te exige completitud TOTAL. Un stub sin primitivas no es un blueprint — pero tampoco se construye.
+- Exit 0 ⇒ blueprint listo para el build. Exit 1 ⇒ el diseño NO está listo (`plan:` te falta una tech ·
+  `criterios:` un requisito sin verifier). Si `validate` o `design-review` dan rojo, no narres "está
+  completo": probalo. M0 lo rehúsa igual.
 
 ## Las reglas duras (no negociables)
 - **Tech en el spec, NUNCA en el sustrato** (ADR-012). `src/metafactory/` no importa ni nombra tecnología.

@@ -8,6 +8,9 @@ builds:
 - action: render
   src: factories/dummy/generated/runner.py
   dest: build/runner.py
+- action: render
+  src: factories/dummy/generated/test_greeting.py
+  dest: build/test_greeting.py
 checks:
 - name: compile
   kind: py_compile

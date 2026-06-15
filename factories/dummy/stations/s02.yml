@@ -1,0 +1,24 @@
+id: s02
+name: proof en el toolchain DEL producto (venv aislado del de la fábrica) — C3 / DES-8
+activation: always
+requires_prev: s01
+builds: []
+checks:
+- name: product_unittest
+  kind: product_env
+  workdir: build
+  bootstrap:
+  - python
+  - -m
+  - venv
+  - --without-pip
+  - .venv
+  cmd:
+  - .venv/bin/python
+  - -m
+  - unittest
+  - discover
+  - -s
+  - .
+  - -p
+  - test_*.py

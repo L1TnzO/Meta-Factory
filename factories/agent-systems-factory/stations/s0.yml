@@ -1,5 +1,5 @@
 id: s0
 name: Contrato de especificación (Definition of Ready)
-activation: 'False'
+activation: 'off'
 builds: []
 checks: []

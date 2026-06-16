@@ -1,6 +1,6 @@
 id: s5
 name: Anclaje de fuentes (retrieve tipado — diferido con el linaje vivo)
-activation: 'False'
+activation: 'off'
 requires_prev: s4
 builds: []
 checks: []

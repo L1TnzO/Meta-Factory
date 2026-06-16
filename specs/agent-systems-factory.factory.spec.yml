@@ -7,7 +7,7 @@
 # función del spec (ADR-011, regenerar = re-correr). Paridad-o-mejor vs el congelado @ b1fcb1f
 # (ASF-PROVENANCE.md, intocable; es el oráculo). El generador es DETERMINISTA (no `claude -p` vivo):
 # lo exige la re-derivabilidad de `ci --rederive` (re-pinea idéntico). Las primitivas infra-VIVAS
-# (Postgres resume real, Neo4j linaje) quedan `activation: off` / `declared-deferred` — igual que el
+# (Postgres resume real, Neo4j linaje) quedan `activation: "off"` / `declared-deferred` — igual que el
 # ASF original las gateaba solo-CI con contenedor efímero (es paridad, no atajo).
 
 # ── L0 · identidad ──
@@ -115,7 +115,7 @@ domain:
   station_sequence:
     - id: s0
       name: "Contrato de especificación (Definition of Ready)"
-      activation: off            # la admisión de spec la hace la meta-estación M0 de la fábrica
+      activation: "off"            # la admisión de spec la hace la meta-estación M0 de la fábrica
       status: declared-deferred
       proof_checks:
         - { name: spec_admission, cmd: "validar spec contra schema+completitud+refs cruzadas", runs_in: factory_env, toolchain: metafactory, status: declared-deferred }
@@ -146,7 +146,7 @@ domain:
           cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_obs.py"]
     - id: s2
       name: "Sustrato de trazabilidad/linaje (Neo4j vivo — diferido)"
-      activation: off
+      activation: "off"
       depends_on: [s1]
       status: declared-deferred
       proof_checks:
@@ -187,7 +187,7 @@ domain:
           cmd: [".venv/bin/python", "-m", "mypy", "--strict", "src/agent_system"]
     - id: s5
       name: "Anclaje de fuentes (retrieve tipado — diferido con el linaje vivo)"
-      activation: off
+      activation: "off"
       depends_on: [s4]
       status: declared-deferred
       proof_checks:

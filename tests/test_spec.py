@@ -473,9 +473,15 @@ class TestGrammarGeneralist:
 class TestAsfV2Fidelity:
     """The ASF v2 blueprint keeps the load-bearing invariants of the pinned ASF (b1fcb1f)."""
 
-    def test_seven_capabilities_each_name_a_primitive(self):
+    def test_canonical_capabilities_each_name_a_primitive(self):
+        # The 7 canonical ASF production capabilities (ARCHITECTURE §1.3) survive in the F1 blueprint;
+        # F1 also makes the agentic core (typed compiled topology) an explicit artifact-bearing capability.
         spec = load_spec(_ASF_SPEC)
-        assert len(spec.capabilities) == 7, "ASF has 7 production capabilities"
+        ids = {c.id for c in spec.capabilities}
+        canonical = {"observabilidad", "trazabilidad_y_linaje", "estado_durable_y_recuperacion",
+                     "anclaje_de_fuentes", "atribucion_y_fundamentacion", "control_y_supervision_humana",
+                     "evaluabilidad"}
+        assert canonical <= ids, f"the 7 canonical ASF capabilities must survive; missing {canonical - ids}"
         assert all(c.primitive for c in spec.capabilities), "every ASF capability names a DES primitive"
 
     def test_full_s0_s8_line_present(self):

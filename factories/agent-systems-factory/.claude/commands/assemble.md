@@ -1,11 +1,12 @@
 ---
-description: Corre el producto (ensamble) y verifica el marcador invariante.
+description: Verifica que el generador del producto puede ensamblar la línea desde
+  el blueprint (selftest, no escribe).
 run:
 - python
-- -c
-- import sys; sys.path.insert(0, 'domain'); import agent_system; assert agent_system.assemble()
-  == 'AGENT_SYSTEM_OK'; print(agent_system.assemble())
+- codegen/scaffold_product.py
+- --selftest
 ---
 
-# /assemble — corré el producto de la fábrica agent-systems-factory
-Corré el ensamble del producto y confirmá que devuelve el marcador invariante AGENT_SYSTEM_OK.
+# /assemble — verificá que el producto de agent-systems-factory se puede ensamblar
+Corré el scaffolder en modo selftest: parsea el blueprint del spec y confirma que la línea
+LangGraph está lista para generarse. El producto e2e se construye con `meta product-run`.

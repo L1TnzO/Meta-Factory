@@ -183,8 +183,8 @@ def _validate_requirements_v2(spec: FactorySpec) -> list[str]:
 
 def _validate_machinery(spec: FactorySpec) -> list[str]:
     """L3 machinery is DATA the plan chose; M0 only enforces the cross-cutting invariants where they
-    appear (status honest, tech ⇒ primitive) plus SHAPE of the emitted harness (D2). Deeper infra/MCP
-    validation is later (E1/E2)."""
+    appear (status honest, tech ⇒ primitive) plus the SHAPE of the emittable surfaces — the harness (D2)
+    and the infra (E1) — so M0 refuses machinery that can't be emitted honestly. Deeper MCP validation is E2."""
     p: list[str] = []
     for name, section in (("harness", spec.machinery.harness),
                           ("mcp", spec.machinery.mcp),
@@ -195,6 +195,37 @@ def _validate_machinery(spec: FactorySpec) -> list[str]:
         p += _status_problem(str(section.get("status", "")), where)
         p += _tech_primitive_problem(str(section.get("tech", "")), str(section.get("primitive", "")), where)
     p += _validate_harness_surface(spec)
+    p += _validate_infra_surface(spec)
+    return p
+
+
+def _validate_infra_surface(spec: FactorySpec) -> list[str]:
+    """E1 — the emittable infra surface is SHAPE-checked so M0 refuses an infra that can't be emitted or
+    stood up honestly: an emitted glue file needs a `dest` (it places the file) and a `content` string,
+    and a declared service needs a `name`. NEVER a tech name — `dest`/`content`/services are free DATA the
+    plan chose (ADR-012); the lifecycle (up/proof/down) lives in the station check and is validated there."""
+    p: list[str] = []
+    infra = spec.machinery.infra
+    if not isinstance(infra, dict):
+        return p
+    emit = infra.get("emit", [])
+    if emit and not isinstance(emit, list):
+        p.append("machinery.infra.emit: must be a list of {dest, content}")
+    elif isinstance(emit, list):
+        for i, item in enumerate(emit):
+            where = f"machinery.infra.emit[{(item or {}).get('dest', i) if isinstance(item, dict) else i}]"
+            if not isinstance(item, dict) or not str(item.get("dest", "")).strip():
+                p.append(f"{where}: needs a dest (it places the emitted infra file)")
+                continue
+            if not isinstance(item.get("content", ""), str):
+                p.append(f"{where}: content must be a string (the emitted infra glue)")
+    services = infra.get("services", [])
+    if services and not isinstance(services, list):
+        p.append("machinery.infra.services: must be a list")
+    elif isinstance(services, list):
+        for i, svc in enumerate(services):
+            if not isinstance(svc, dict) or not str(svc.get("name", "")).strip():
+                p.append(f"machinery.infra.services[{i}]: needs a name (the declared service)")
     return p
 
 

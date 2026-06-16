@@ -19,10 +19,14 @@ import sys
 from pathlib import Path
 
 from metafactory._seed import repo_root
+from metafactory.codegen.renderer import apply_builds
 from metafactory.engine.run_context import RunContext
 from metafactory.engine.runner import run_station
 from metafactory.engine.sequence import Sequence
 from metafactory.engine.station import Station
+from metafactory.spec.loader import load_spec
+from metafactory.spec.model import FactorySpec, Machinery
+from metafactory.spec.validator import validate_grammar_v2
 from metafactory.verify.checks import infra_up
 from metafactory.verify.checks.registry import resolve_check
 
@@ -209,3 +213,68 @@ def test_same_kind_stands_up_a_tcp_service(tmp_path):
     # and a proof against a port nobody serves is red (the proof genuinely depends on the live service).
     assert infra_up.run(str(wd), [PY, "-c", "pass"], [PY, "client.py", str(_free_port())], [],
                         ready_timeout=2.0) != 0
+
+
+# ── emit_infra: the infra glue is GENERATED from L3 machinery.infra (ADR-011/012) ──
+
+_INFRA_SPEC = """\
+factory: {{name: Infra Probe, slug: {slug}, maturity: bootstrap}}
+domain:
+  produces: "una infra de sandbox declarada"
+  station_sequence:
+    - {{id: s00, name: infra, builds: [{{action: emit_infra}}], checks: []}}
+machinery:
+  infra:
+    tech: "socket Unix stdlib en el sandbox"
+    primitive: DES-9
+    status: built
+    services: [{{name: sandbox-svc, kind: socket-service}}]
+    emit:
+      - {{dest: build/infra/marker.txt, content: "INFRA_OK for {{{{slug}}}}"}}
+requirements:
+  functional:
+    - {{id: REQ-F-001, statement: la infra levanta, satisfied_by: [s00]}}
+"""
+
+
+def test_emit_infra_writes_declared_glue(tmp_path):
+    """emit_infra writes each `machinery.infra.emit` entry from DATA, with {{var}} substituted — the
+    substrate names no tech (ADR-012), a socket server or a compose.yml are the same action, other data."""
+    (tmp_path / "factory.spec.yml").write_text(_INFRA_SPEC.format(slug="probe"), encoding="utf-8")
+    spec = load_spec(tmp_path / "factory.spec.yml")
+    ctx = RunContext(root=tmp_path, meta_root=repo_root())
+    station = Station.from_dict({"id": "s00", "builds": [{"action": "emit_infra"}], "checks": []})
+    apply_builds(ctx, station, spec.subst)
+    glue = tmp_path / "build" / "infra" / "marker.txt"
+    assert glue.exists() and glue.read_text(encoding="utf-8") == "INFRA_OK for probe"
+
+
+# ── M0 shape-teeth: an infra that can't be emitted/stood up honestly is refused (no tech named) ──
+
+def _infra_problems(infra: dict) -> list[str]:
+    spec = FactorySpec(name="X", slug="x", maturity="m", produces="p", stations=[],
+                       substrate={}, requirements=[], machinery=Machinery(infra=infra))
+    return [p for p in validate_grammar_v2(spec) if "machinery.infra" in p]
+
+
+def test_validator_accepts_wellformed_infra():
+    assert _infra_problems({
+        "tech": "t", "primitive": "DES-9", "status": "built",
+        "services": [{"name": "svc"}],
+        "emit": [{"dest": "build/infra/server.py", "content": "..."}],
+    }) == []
+
+
+def test_validator_rejects_emit_without_dest():
+    probs = _infra_problems({"emit": [{"content": "no dest"}]})
+    assert any("needs a dest" in p for p in probs)
+
+
+def test_validator_rejects_service_without_name():
+    probs = _infra_problems({"services": [{"kind": "db"}]})
+    assert any("needs a name" in p for p in probs)
+
+
+def test_validator_rejects_nonstring_content():
+    probs = _infra_problems({"emit": [{"dest": "x", "content": 123}]})
+    assert any("content must be a string" in p for p in probs)

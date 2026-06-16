@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dc50d09cc59b39a6d9f5b88e9a4ed8b47853db98 updated=2026-06-16T22:03Z -->
+<!-- meta:doc sha=a66a02c4f2d580ca4d5b4f3c9b6521fa57fc334a updated=2026-06-16T23:17Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -246,9 +246,13 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   producto): reroute `synthesize→END`→s7 SHUT · error de tipo→`mypy --strict` rojo · validator roto→s6 SHUT.
   Paridad-o-mejor vs `b1fcb1f` (M8 por defecto); congelado intocado; dummy intacta (principio #4).
   Evidencia: `work/F1-INCREMENT.md`. Depende: C1–C4, D1–D2, E1.
-- **F2 · Full-Stack-Factory desde spec.** Frontend TS + backend TS + DB relacional. El segundo dominio
-  radicalmente distinto que PRUEBA que el motor no es Python/agente-bound. *Gate*: un producto full-stack
-  generado compila (`tsc`), pasa `vitest` y levanta su DB — todo gateado. Depende: C1–C4, D1–D2, E1.
+- **F2 · Full-Stack-Factory desde spec.** ✅ **HECHO (2026-06-16, `MAT-1-FULL-STACK` = MAT-1)**. El 2º dominio
+  radicalmente distinto (web TypeScript): `factories/full-stack/` emite contract+handler+ui+tests TS desde su
+  blueprint; verificado en su toolchain (`tsc --strict` DES-6 · `node:test` · DB `node:sqlite` viva por
+  `infra_up`). product-run PASS · M0–M8 · `ci --rederive` 3/3 == pineado. **`generality_parity` verde con
+  `product_env`/`generate`/`infra_up` ya `general`** (ts ⟂ python) — el lockstep de ADR-014 ejercido; `git
+  diff src/metafactory/` = 0. Evidencia: `work/MAT-1-FULL-STACK-INCREMENT.md`. **Sigue MAT-2** (generación viva
+  por LLM bajo gate) y **MAT-3** (producto contra infra viva), ambos en lockstep ASF↔Full-Stack.
 - **F3 · Mobile-Factory · IoT-Factory.** Dominios adicionales (React Native/Flutter; MQTT/embebido) que
   estiran las primitivas. *Gate*: cada una genera un producto que pasa su M8 en su toolchain. Depende: F1, F2.
 

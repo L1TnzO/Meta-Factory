@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6188ebb96ab03f59da8438d5bcdfaea816adf036 updated=2026-06-16T22:03Z -->
+<!-- meta:doc sha=b8974bd40b81fed3f6266513bf6245b0c4814ada updated=2026-06-16T23:17Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -109,7 +109,15 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - **Co-validación**: el propio check se prueba sobre dummy + ASF.
 - Depende: F1.
 
-### MAT-1 · Full-Stack-Factory MÍNIMA viva (el 2º dominio, traído al frente) — = ROADMAP F2
+### MAT-1 · Full-Stack-Factory MÍNIMA viva (el 2º dominio, traído al frente) — = ROADMAP F2 — ✅ HECHO (2026-06-16, `MAT-1-FULL-STACK`)
+> El 2º dominio (TypeScript) existe y prueba que el motor no es Python/agente-bound: `specs/full-stack` +
+> `factories/full-stack/codegen/scaffold_product.py` emiten un producto TS real (contract+handler+ui+tests),
+> verificado en su toolchain (DES-8): `tsc --strict` (DES-6) + `node:test` + DB `node:sqlite` viva sobre
+> socket-Unix por `infra_up` (DES-9). product-run PASS · M0–M8 · pin 3/3 · `ci --rederive` 3/3 == pineado
+> (re-corre npm install+tsc+node:test+DB hermético). **Capstone**: `product_env`/`generate`/`infra_up` ya
+> `general` en `parity.yml` (ts ⟂ python) → `generality_parity` verde **legítimo** — el lockstep ejercido.
+> **`git diff src/metafactory/` = 0 líneas** (§5). dummy/ASF intactos. Wart anotado: m04 (frontera I-5) es
+> Python-shaped (stub vestigial). Evidencia: `work/MAT-1-FULL-STACK-INCREMENT.md`.
 - **Build**: `specs/full-stack-factory/factory.spec.yml` (ya hay skeleton en `specs/skeletons/full-stack`) →
   fábrica con codegen LOCAL que emite un producto REAL mínimo: frontend TS + backend TS + DB relacional.
 - *Gate*: el producto full-stack compila (`tsc`), pasa `vitest` y levanta su DB — todo por `product_env`

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b84ada48426644f8ffac2716eac9af96fbbe6b4c updated=2026-06-16T22:48Z -->
+<!-- meta:doc sha=3bc2d05bf332ceedcbb944c499aee269b8682e6b updated=2026-06-16T23:17Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -140,8 +140,19 @@
       producto disjunto Y mezcla de primitivas distinta; pytest/mypy/venv→python). Cableado a `meta check`
       (6º check). Teeth por bloqueo (8). Demo vivo: `product_env` general[dummy,ASF]→rojo (ambos Python). El
       manifiesto real está todo en `prototype` (verde): nada califica como general hasta el 2º toolchain
-      (MAT-1) — la presión del lockstep. dummy/ASF `ci` 5/5·6/6 intactos. **Sigue MAT-1** (Full-Stack mínima
-      viva, el 2º dominio = ROADMAP F2; instrumento de co-validación de MAT-2..5).
+      (MAT-1) — la presión del lockstep. dummy/ASF `ci` 5/5·6/6 intactos.
+    - **MAT-1 (`MAT-1-FULL-STACK`) ✅ (2026-06-16) = ROADMAP F2** — el **2º dominio** (web TypeScript)
+      generado 100% desde su spec por un codegen LOCAL (`factories/full-stack/codegen/scaffold_product.py`):
+      contract+handler+ui+tests TS, verificado en SU toolchain (DES-8) — `tsc --strict` (DES-6, un drift del
+      contrato rompe la compilación) · `node:test` · DB `node:sqlite` VIVA sobre socket-Unix por `infra_up`
+      (DES-9, el análogo TS de E1, sin docker/red). Hermético: único `npm install` = typescript; resto Node
+      stdlib. product-run PASS · M0–M8 · pin 3/3 · `ci --rederive` **3/3 == pineado** (re-corre npm/tsc/
+      node:test/DB en clon limpio). **Capstone — lockstep ejercido**: `product_env`/`generate`/`infra_up`
+      promovidos a `general` en `parity.yml` (ts ⟂ python, primitivas distintas) → `generality_parity` verde
+      LEGÍTIMO (3 general + 1 prototype). **`git diff src/metafactory/` = 0 líneas** (§5): el motor generalizó
+      con CERO toques al sustrato. dummy/ASF intactos. Bloqueo vivo (3 dientes: drift→tsc rojo · test roto→
+      node:test rojo · DB caída→cliente rojo). Wart anotado: m04 (frontera I-5) Python-shaped (stub vestigial
+      `domain/webapp.py`, como ASF). **Sigue MAT-2** (generación viva por LLM bajo gate, lockstep ASF↔Full-Stack).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

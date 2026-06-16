@@ -1,4 +1,4 @@
-<!-- meta:doc sha=27be0d6dce395b6971e710fe3c3501734fa07403 updated=2026-06-16T13:14Z -->
+<!-- meta:doc sha=ed9b93107f4b7b5fec6b397d30ec2b142b9ac577 updated=2026-06-16T13:44Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -207,8 +207,22 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   3 lados sobre el glue emitido): levanta+usa → 0 · no levanta → rojo · proof decorativo → rojo · teardown
   libera el recurso · 2º dominio TCP por el MISMO kind (principio #6). Evidencia:
   `work/E1-INFRA-SANDBOX-INCREMENT.md`. Depende: B2, C3.
-- **E2 · Generación de MCP (primitiva de harness).** El MCP de la fábrica (tools tipados que el
-  orquestador llama) desde L3. *Gate*: el MCP generado expone las tools declaradas; el orquestador las invoca. Depende: D2.
+- **E2 · Generación de MCP (primitiva de harness, DES-6).** ✅ **HECHO (2026-06-16, `E2-MCP-GEN`)**. El MCP
+  de la fábrica (tools tipadas que el orquestador llama) deja de ser L3 descriptivo y se vuelve EJECUTABLE:
+  `machinery.mcp` declara las `tools` + el glue a emitir; la acción `emit_mcp` (`codegen/renderer.py`,
+  comparte `_emit_glue` con `emit_infra`) lo ESCRIBE desde DATO; el check `mcp_tools`
+  (`verify/checks/mcp_tools.py`) corre un `prove` — el prover ES el orquestador: habla MCP (JSON-RPC 2.0
+  sobre stdio) contra el server generado, hace `tools/list`, llama las tools, imprime `TOOLS:<csv>`. El gate
+  cruza el set DECLARADO (DATA del spec) contra el `tools/list` VIVO (EXPONE) y exige `prove` exit 0 (INVOCA).
+  Un `tools.json` en disco no basta (façade-trap del MCP). Diente embebido de dos lados (no decorativo): re-correr
+  el prover pidiéndole una tool inexistente debe FALLAR. El sustrato no nombra tech: `prove`/`tools` son DATA
+  (un SDK MCP o un impl stdlib, misma máquina). Validator suma shape-teeth (tool sin `name` / emit malformado
+  → M0 rojo; comparte `_emit_shape_problems`/`_named_items_problems` con infra). *Gate cumplido*: dummy =
+  línea de **5 estaciones** (s04 = server MCP stdlib + prover, sin dependencia externa, re-derivable); M0–M8 +
+  `product-run` + `ci --rederive` 5/5 (re-pin) + `meta check` (suite `tests/` 443) verdes; ASF intacto 1/1
+  (MCP real = F). Prueba por bloqueo (`test_mcp.py`, 14 tests + VIVO por CLI 3 lados): expone+invoca → 0 ·
+  tool declarada no expuesta → rojo · tool listada no invocable → rojo · server promiscuo → rojo · 2º dominio
+  (toolset aritmético) por el MISMO kind (principio #6). Evidencia: `work/E2-MCP-GEN-INCREMENT.md`. Depende: D2.
 
 ### Fase F · Las fábricas de referencia (prueban la generalidad por bloqueo, G-8)
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** La línea S0–S8 real, el producto LangGraph, las 7
@@ -236,7 +250,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 | no hay flujo de DISEÑO que elija tech por primitiva | — | B1, B2 |
 | motor de generación (sólo patrón único) | ~5–10% | C1, C2, C3, C4, F1 |
 | columna sólo Cerrojo 1 · commands 0 | ~40% / 0% | D1, D2 |
-| infra / MCP | infra ✅ E1 · MCP 0% | E1 ✅, E2 |
+| infra / MCP | infra ✅ E1 · MCP ✅ E2 | E1 ✅, E2 ✅ |
 | dominio-agnóstico (anti-G-2, generalidad real) | spec sí, motor no | A2, B1, F2, F3 |
 | loop de mejora / best product state | — | G1, G2 |
 

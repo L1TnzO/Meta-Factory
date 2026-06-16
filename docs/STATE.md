@@ -1,13 +1,13 @@
-<!-- meta:doc sha=cfb36e20ed411eb17129a331c852b7aae6a3ffc2 updated=2026-06-16T13:21Z -->
+<!-- meta:doc sha=eb612cdee9bec086a745bf5eb2f962bef9378ee1 updated=2026-06-16T13:43Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-16T13:14Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + **C ✅** + **D ✅** + **E1 ✅** — D1 columna anti-sello heredada + D2 harness EMITIDO del spec + E1 infra/sandbox EJECUTABLE del spec) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + **C ✅** + **D ✅** + **E ✅** — D2 harness + E1 infra/sandbox + E2 MCP, todos EMITIDOS y EJECUTABLES desde el spec) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: E2-MCP-GEN-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (4/4)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (5/5)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -102,8 +102,19 @@
     (emit sin `dest` / service sin `name` → M0 rojo). El sustrato no nombra tech: `up`/`proof`/`down` son
     DATA (un socket Unix, un TCP o `docker compose up` son la misma máquina, otra data). Dummy = línea de
     **4 estaciones** (s03 levanta un servicio socket-Unix stdlib, sin puertos: re-derivable); M0–M8 +
-    `product-run` + `ci --rederive` 4/4 (re-pin) + `meta check` (suite `tests/` 429) verdes; ASF intacto
-    1/1 (infra real = F1). Demo VIVO por CLI (3 lados) sobre el glue emitido. **Sigue E2** (MCP).
+    `product-run` + `ci --rederive` 4/4 (re-pin) + `meta check` verdes; ASF intacto 1/1 (infra real = F1).
+    Demo VIVO por CLI (3 lados) sobre el glue emitido.
+  - **E2 (`E2-MCP-GEN`)**: el **MCP** de la fábrica (tools tipadas que el orquestador llama) deja de ser L3
+    descriptivo y se vuelve EJECUTABLE — `machinery.mcp` declara las tools + el glue; `emit_mcp` (hermana de
+    `emit_infra`, comparten `_emit_glue`) lo ESCRIBE; el check `mcp_tools` corre un `prove` (el orquestador)
+    que habla MCP (JSON-RPC sobre stdio) contra el server generado: cruza el set DECLARADO contra el
+    `tools/list` VIVO (EXPONE) y exige que `prove` salga 0 (INVOCA). Un `tools.json` en disco no basta
+    (façade-trap del MCP). Diente embebido de dos lados: llamar a una tool inexistente debe FALLAR — si no,
+    decorativo → rojo. Validator suma shape-teeth (tool sin `name` / emit malformado → M0 rojo). Sustrato sin
+    tech: prove/tools son DATA (un SDK MCP o un impl stdlib, misma máquina). Dummy = línea de **5 estaciones**
+    (s04 = server MCP stdlib + prover, sin dependencia externa); M0–M8 + `product-run` + `ci --rederive` 5/5
+    (re-pin) + `meta check` (suite `tests/` 443) verdes; ASF intacto 1/1 (MCP real = F). Demo VIVO por CLI
+    (3 lados). **Cierra la Fase E. Sigue F1** (ASF completo e2e).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -148,14 +159,17 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). **Fase A ✅ · B ✅ · C ✅ · D ✅ · E1 ✅ (infra/sandbox EJECUTABLE del spec).**
-> **Próximo: E2** (Fase E, segunda mitad de la maquinaria: **MCP** — el MCP de la fábrica, tools tipadas
-> que el orquestador llama, generado desde L3 `machinery.mcp`. *Gate*: el MCP generado expone las tools
-> declaradas; el orquestador las invoca. Depende: D2). Después F (ASF/Full-Stack e2e) → G (loop).
+> Diseño→Build→Mejora). **Fase A ✅ · B ✅ · C ✅ · D ✅ · E ✅ (E1 infra + E2 MCP, maquinaria EJECUTABLE del spec).**
+> **Próximo: Fase F — las fábricas de referencia (prueban la generalidad por bloqueo, G-8)**: **F1** = ASF
+> COMPLETO y MEJORADO e2e (la línea S0–S8 real, producto LangGraph, 7 capacidades; paridad-o-mejor vs el ASF
+> pineado `b1fcb1f`; cierra el ~5–10% de la auditoría). *Gate*: un producto de ASF generado pasa su M8 real
+> (topología compilada, nodos con fake-LLM, `mypy --strict` en su venv). Depende: C1–C4, D1–D2, E1. Después
+> F2 (Full-Stack) → F3 (Mobile/IoT) → G (loop). Toda la maquinaria (motor + columna + harness + infra + MCP) ya está.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.
   **Cerrado por E1**: infra/sandbox declarada→generada→levantada-y-probada (`emit_infra` + `infra_up`).
+  **Cerrado por E2**: MCP declarado→generado→expuesto-y-invocado (`emit_mcp` + `mcp_tools`).
   Abierto: hooks de dominio desde L3 (sin necesidad concreta aún); cadencia/`increment_guard` heredada
   (necesita el lifecycle de incrementos propio de la fábrica); acotar el `gate_guard` del meta (sobre-matchea texto);
   M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria

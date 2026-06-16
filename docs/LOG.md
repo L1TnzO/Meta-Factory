@@ -1,7 +1,46 @@
-<!-- meta:doc sha=5a944e05d04bcc543759c9e10b27ff66b55d12ed updated=2026-06-16T13:15Z -->
+<!-- meta:doc sha=60d1b2274a938392db29bedae764707efa3e706f updated=2026-06-16T13:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-16T13:22Z — E2: el MCP de la fábrica se GENERA, EXPONE sus tools y el orquestador las invoca
+- **gatillo**: el ingeniero pidió seguir con E2 — segunda mitad de la Fase E: generación de MCP (tools
+  tipadas que el orquestador llama). Gate: el MCP generado expone las tools declaradas; el orquestador las invoca.
+- **diagnóstico (Opus, ojos propios)**: `machinery.mcp` ya viajaba como DATO (loader/A1) pero era L3
+  DESCRIPTIVO. La forma es la MISMA que E1 (infra): declarar → generar el glue → un gate que lo prueba VIVO.
+  La diferencia: la "prueba viva" del MCP es un protocolo (MCP = JSON-RPC 2.0 sobre stdio: initialize →
+  tools/list → tools/call), no un socket genérico. El façade-trap de M8 trasladado al MCP: un `tools.json`
+  en disco (render-verde) no demuestra que el server RESPONDA al protocolo.
+- **decisión de diseño**: dos piezas, hermanas de E1. (1) `emit_mcp` (build) — REFACTOR: comparte ahora
+  `_emit_glue(ctx, section, subst)` con `emit_infra` (escribe machinery.<section>.emit desde DATO). Un socket
+  server, un docker-compose.yml o un MCP server son la MISMA acción con otra data (ADR-012). (2) `mcp_tools`
+  (check) — orquestador como infra_up/product_env, pero SIN lifecycle de background: el prover spawnnea el
+  server por stdio y lo termina (más cerca de command_runs). El prover ES el orquestador: habla MCP, lista
+  las tools, las llama, imprime `TOOLS:<csv>`. El gate tiene AMBOS lados — el set DECLARADO (DATA) y el
+  `tools/list` VIVO — y cruza dos hechos: EXPONE (toda tool declarada ∈ list vivo) e INVOCA (prover exit 0).
+- **el diente nuevo (no un restatement)**: el negativo embebido de DOS lados — re-correr el prover pidiéndole
+  una tool con nombre uuid (imposible) debe FALLAR; si "pasa", el prover no alcanza el dispatch del server →
+  GATE DECORATIVO rojo. Atrapa un server PROMISCUO (responde a cualquier nombre). Es el análogo MCP de
+  command_runs/infra_up. El validator suma shape-teeth: tool sin `name` (el contrato que el gate cruza) / emit
+  malformado → M0 rojo, sin nombrar tech. REFACTOR: infra y mcp comparten `_emit_shape_problems`/`_named_items_problems`.
+- **decisión (impl del dummy)**: server MCP stdlib mínimo (initialize/tools/list/tools/call) + prover, ambos
+  stdlib puro → sin dependencia externa → re-derivable en `ci --rederive`. Un SDK MCP real (python `mcp`,
+  `@modelcontextprotocol/sdk`) sería la MISMA máquina con otra DATA, ejercido e2e en F. El 2º dominio
+  (principio #6) lo prueba el test con un toolset aritmético (otro contrato, MISMO kind).
+- **prueba por bloqueo**: `test_mcp.py` (14 tests, server+prover REALES sin mocks; suite `tests/` 443, era
+  429) — expone+invoca→0, tool declarada no expuesta→rojo, tool listada no invocable→rojo, server promiscuo→
+  rojo (negativo embebido), workdir ausente→2, prover no lanza→127, registry pass-through, emit_mcp con subst,
+  M0 rechaza mcp malformado. VIVO por CLI sobre el glue REAL emitido (3 lados). Línea dummy de 5 estaciones:
+  M0–M8 + product-run + RTM 5/5 + ci --rederive 5/5 (re-pin); ASF intacto 1/1; `meta check` 5/5.
+- **incidente de proceso (honesto)**: en la demo viva hice `cd` a un subdir gitignored (`build/mcp`) para
+  correr el prover; eso dejó el cwd del shell atascado ahí y los hooks PreToolUse (path relativo) dejaron de
+  encontrarse → deadlock de Bash/Write/Edit. Se resolvió reseteando el cwd (el ingeniero corrió `cd`). Lección:
+  no `cd` a subdirs en la demo — usar paths absolutos / `cwd=` del subprocess. El trabajo estaba intacto en disco.
+- **residuales honestos**: impl MCP stdlib mínimo (SDK real = DATA, e2e en F); `mcp_tools` no valida el
+  inputSchema tipado de cada tool contra la llamada (cruza presencia+invocabilidad); el prover es el
+  "orquestador" del gate (glue generado), no Claude-orquestador (mismo patrón que el `proof` cliente de E1).
+- **commits**: `43da8d5` (P1 seam) · `e2bcd1b` (P2 emit_mcp+M0, refactor `_emit_glue`) · `be38a75` (P3 dummy)
+  · docs+cierre. **Cierra la Fase E** (maquinaria de fábrica completa: harness + infra + MCP, todo del spec).
 
 ## 2026-06-16T13:14Z — E1: la infra declarada se GENERA, LEVANTA en el sandbox y un proof la usa
 - **gatillo**: el ingeniero pidió seguir con E1 — primera mitad de la Fase E (maquinaria de fábrica como

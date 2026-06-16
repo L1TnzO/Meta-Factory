@@ -1,7 +1,7 @@
-<!-- meta:doc sha=9c6c26b247e0cba0af07e1cb7a919b144c3c300e updated=2026-06-16T13:42Z -->
+<!-- meta:doc sha=5c92dbbd67f50f47d00115049058deb1e0829c6f updated=2026-06-16T13:45Z -->
 # Incremento E2-MCP-GEN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T13:21Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T13:45Z) (creado 2026-06-16T13:21Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

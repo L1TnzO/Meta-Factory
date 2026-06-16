@@ -1,7 +1,7 @@
-<!-- meta:doc sha=141b4acbcf665e2b068046ed87eaee55f0177845 updated=2026-06-16T23:17Z -->
+<!-- meta:doc sha=6313239ce678858cd6af93e68e468747f719dd88 updated=2026-06-16T23:18Z -->
 # Incremento MAT-1-FULL-STACK
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T22:24Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T23:18Z) (creado 2026-06-16T22:24Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

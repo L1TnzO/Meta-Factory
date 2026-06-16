@@ -35,6 +35,11 @@ domain:
       artifact: build/infra/server.py
       proof: "s03: infra_up — el servicio levanta en el sandbox y el proof cliente se conecta y lee el marcador INFRA_OK"
       status: built
+    - id: mcp_tools_exposed
+      invariant: "el MCP generado expone las tools declaradas (greet/echo) y el orquestador las invoca (el MCP es EJECUTABLE, no descriptivo)"
+      artifact: build/mcp/server.py
+      proof: "s04: mcp_tools — el prover habla MCP (JSON-RPC/stdio) contra el server generado, lista las tools y las llama"
+      status: built
   # La LÍNEA DE PRODUCTO vive acá como DATO (C2, I-2): cada estación lleva su realización ejecutable
   # (`builds`/`checks`). m02 la materializa en `stations/<id>.yml`. 100% derivable del spec (ADR-011).
   station_sequence:
@@ -100,6 +105,24 @@ domain:
           proof: ["python", "client.py", "infra.sock"]
           down: []
           timeout: 8
+    - id: s04
+      name: "MCP — el server generado EXPONE las tools declaradas y el orquestador las INVOCA (E2 / DES-6)"
+      activation: always
+      depends_on: [s03]
+      # El MCP se EMITE desde L3 (machinery.mcp.emit, abajo): un server MCP stdlib (JSON-RPC sobre stdio) +
+      # un prover. El check `mcp_tools` corre el prover (el orquestador): habla MCP contra el server, lista
+      # las tools y las llama. Cruza el set DECLARADO (`tools`) contra el tools/list VIVO. El sustrato no
+      # nombra tech: prove/tools son DATA (ADR-012). Un manifest tools.json en disco no basta.
+      proof_checks:
+        - { name: mcp_proof, cmd: "el server MCP expone greet/echo y el prover las invoca", runs_in: product_env, toolchain: "python-stdlib-jsonrpc-mcp", status: built }
+      builds:
+        - { action: emit_mcp }
+      checks:
+        - name: mcp_proof
+          kind: mcp_tools
+          workdir: build/mcp
+          prove: ["python", "prove.py"]
+          tools: [greet, echo]
   provision_modes: [prompt]
   proof_check_types: [py_compile, import_runs, artifact_contains]
   product:
@@ -202,6 +225,83 @@ machinery:
           except OSError:
               sys.exit(1)
           sys.exit(0 if b"INFRA_OK" in data else 2)
+  # ── L3 · MCP: el MCP de la fábrica EMITIDO desde el spec (E2). `tools` = el contrato tipado (DATO) que el
+  # gate `mcp_tools` de s04 cruza contra el tools/list VIVO; `emit` = el glue que `emit_mcp` escribe (un
+  # server MCP stdlib JSON-RPC/stdio + un prover que ES el orquestador). El plan ELIGIÓ un impl stdlib (sin
+  # dependencia externa, re-derivable); un SDK MCP real sería la MISMA máquina con otra DATA (ADR-012).
+  mcp:
+    tech: "servidor MCP stdlib (JSON-RPC 2.0 sobre stdio) + prover; el plan lo eligió"
+    primitive: DES-6                 # Contratos tipados en fronteras (tools tipadas que el orquestador llama)
+    status: built
+    tools:
+      - { name: greet, description: "devuelve el marcador invariante DUMMY_OK" }
+      - { name: echo, description: "devuelve su argumento text" }
+    emit:
+      - dest: build/mcp/server.py
+        content: |
+          import json, sys
+          TOOLS = {
+              "greet": ("devuelve el marcador invariante", lambda a: "DUMMY_OK"),
+              "echo":  ("devuelve el argumento text",       lambda a: str(a.get("text", ""))),
+          }
+          def handle(req):
+              m = req.get("method"); i = req.get("id")
+              if m == "initialize":
+                  return {"jsonrpc":"2.0","id":i,"result":{"protocolVersion":"2024-11-05",
+                          "capabilities":{"tools":{}},"serverInfo":{"name":"dummy-mcp","version":"0"}}}
+              if m == "tools/list":
+                  tools = [{"name":n,"description":d,"inputSchema":{"type":"object"}} for n,(d,_) in TOOLS.items()]
+                  return {"jsonrpc":"2.0","id":i,"result":{"tools":tools}}
+              if m == "tools/call":
+                  p = req.get("params") or {}; name = p.get("name"); args = p.get("arguments") or {}
+                  if name not in TOOLS:
+                      return {"jsonrpc":"2.0","id":i,"error":{"code":-32602,"message":"unknown tool"}}
+                  return {"jsonrpc":"2.0","id":i,"result":{"content":[{"type":"text","text":TOOLS[name][1](args)}]}}
+              if isinstance(m, str) and m.startswith("notifications/"):
+                  return None
+              return {"jsonrpc":"2.0","id":i,"error":{"code":-32601,"message":"method not found"}}
+          for line in sys.stdin:
+              line = line.strip()
+              if not line: continue
+              try: req = json.loads(line)
+              except Exception: continue
+              resp = handle(req)
+              if resp is not None:
+                  sys.stdout.write(json.dumps(resp) + "\n"); sys.stdout.flush()
+      - dest: build/mcp/prove.py
+        content: |
+          import json, subprocess, sys
+          def main():
+              target = sys.argv[1] if len(sys.argv) > 1 else None
+              proc = subprocess.Popen([sys.executable, "server.py"], stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE, text=True)
+              nid = [0]
+              def request(method, params=None):
+                  nid[0] += 1
+                  msg = {"jsonrpc":"2.0","id":nid[0],"method":method}
+                  if params is not None: msg["params"] = params
+                  proc.stdin.write(json.dumps(msg) + "\n"); proc.stdin.flush()
+                  return json.loads(proc.stdout.readline())
+              def notify(method):
+                  proc.stdin.write(json.dumps({"jsonrpc":"2.0","method":method}) + "\n"); proc.stdin.flush()
+              try:
+                  request("initialize", {"protocolVersion":"2024-11-05","capabilities":{}})
+                  notify("notifications/initialized")
+                  if target is not None:
+                      r = request("tools/call", {"name": target, "arguments": {}})
+                      sys.exit(3 if "error" in r else 0)
+                  names = [t["name"] for t in request("tools/list", {})["result"]["tools"]]
+                  print("TOOLS:" + ",".join(names))
+                  for n in names:
+                      if "error" in request("tools/call", {"name": n, "arguments": {"text":"x"}}):
+                          sys.exit(4)
+                  sys.exit(0)
+              finally:
+                  try: proc.stdin.close()
+                  except Exception: pass
+                  try: proc.wait(timeout=3)
+                  except Exception: proc.kill()
+          main()
 
 # ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
 factory_substrate:
@@ -235,3 +335,8 @@ requirements:
       satisfied_by: [s03]
       verified_by: [infra_proof]
       capability: infra_sandbox
+    - id: REQ-F-005
+      statement: "el MCP generado EXPONE las tools declaradas (greet/echo) y el orquestador las INVOCA; una tool declarada-no-expuesta o listada-no-invocable bloquea (DES-6, E2)"
+      satisfied_by: [s04]
+      verified_by: [mcp_proof]
+      capability: mcp_tools_exposed

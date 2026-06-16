@@ -1,0 +1,17 @@
+id: s04
+name: MCP — el server generado EXPONE las tools declaradas y el orquestador las INVOCA
+  (E2 / DES-6)
+activation: always
+requires_prev: s03
+builds:
+- action: emit_mcp
+checks:
+- name: mcp_proof
+  kind: mcp_tools
+  workdir: build/mcp
+  prove:
+  - python
+  - prove.py
+  tools:
+  - greet
+  - echo

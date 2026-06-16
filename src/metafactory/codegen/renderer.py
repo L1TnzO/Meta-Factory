@@ -10,6 +10,7 @@ Build actions (declared as data in the station YAML):
   - {action: materialize_line, dest}               write the product line from the spec (C2, I-2)
   - {action: emit_harness}                         write agents/commands/skills from L3 (D2)
   - {action: emit_infra}                           write the infra glue from L3 machinery.infra (E1)
+  - {action: emit_mcp}                             write the MCP glue from L3 machinery.mcp (E2)
 
 `render`/`render_tree`/`generate` accept `skip_if_exists: true`: if the dest already exists it
 is LEFT UNTOUCHED. For render this is the generated/domain boundary (I-5, M4): the factory's
@@ -86,7 +87,9 @@ def apply_builds(ctx: RunContext, station: Station, subst: dict) -> list[str]:
         elif action == "emit_harness":
             msgs += _emit_harness(ctx, b, subst)
         elif action == "emit_infra":
-            msgs += _emit_infra(ctx, b, subst)
+            msgs += _emit_glue(ctx, "infra", subst)
+        elif action == "emit_mcp":
+            msgs += _emit_glue(ctx, "mcp", subst)
         else:
             raise ValueError(f"unknown build action {action!r} in station {station.id}")
     return msgs
@@ -152,17 +155,18 @@ def _emit_harness(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     return msgs
 
 
-def _emit_infra(ctx: RunContext, b: dict, subst: dict) -> list[str]:
-    """E1 — emit the factory's L3 infra glue from the spec (`machinery.infra.emit`): the generated files
-    (server / client / compose descriptor / init script) the `infra_up` gate stands up and proves against.
-    100% derivable from the spec (ADR-011); the substrate enumerates NOTHING — each entry's `dest`/`content`
-    is free DATA the plan chose (ADR-012), a socket server or a docker-compose.yml are the same action with
-    other data. The `infra_up` LIFECYCLE (up/proof/down argv) rides in the station's check, like product_env;
-    this action only WRITES the artifacts those argv invoke. The COLUMN (L4) stays inherited — infra is L3."""
+def _emit_glue(ctx: RunContext, section: str, subst: dict) -> list[str]:
+    """E1/E2 — emit a factory's L3 machinery glue from the spec (`machinery.<section>.emit`): the generated
+    files a downstream gate stands up and proves against — infra (server/client/compose for `infra_up`, E1)
+    or MCP (server/prover for `mcp_tools`, E2). 100% derivable from the spec (ADR-011); the substrate
+    enumerates NOTHING — each entry's `dest`/`content` is free DATA the plan chose (ADR-012): a socket
+    server, a docker-compose.yml or an MCP server are the same action with other data. The LIFECYCLE/contract
+    (up/proof/down, prove/tools) rides in the station's check, like product_env; this action only WRITES the
+    artifacts those argv invoke. The COLUMN (L4) stays inherited — machinery is L3."""
     from ..spec.loader import load_spec
 
     spec = load_spec(ctx.root / "factory.spec.yml")
-    emit = (spec.machinery.infra or {}).get("emit", []) or []
+    emit = (getattr(spec.machinery, section) or {}).get("emit", []) or []
     msgs: list[str] = []
     for item in emit:
         if not isinstance(item, dict) or not str(item.get("dest", "")).strip():
@@ -170,7 +174,7 @@ def _emit_infra(ctx: RunContext, b: dict, subst: dict) -> list[str]:
         dest = ctx.root / _render_path(str(item["dest"]), subst)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(render_text(str(item.get("content", "")), subst), encoding="utf-8")
-        msgs.append(f"emit infra {dest.relative_to(ctx.root)}")
+        msgs.append(f"emit {section} {dest.relative_to(ctx.root)}")
     return msgs
 
 

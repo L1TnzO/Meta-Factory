@@ -183,8 +183,8 @@ def _validate_requirements_v2(spec: FactorySpec) -> list[str]:
 
 def _validate_machinery(spec: FactorySpec) -> list[str]:
     """L3 machinery is DATA the plan chose; M0 only enforces the cross-cutting invariants where they
-    appear (status honest, tech ⇒ primitive) plus the SHAPE of the emittable surfaces — the harness (D2)
-    and the infra (E1) — so M0 refuses machinery that can't be emitted honestly. Deeper MCP validation is E2."""
+    appear (status honest, tech ⇒ primitive) plus the SHAPE of the emittable surfaces — the harness (D2),
+    the infra (E1) and the MCP (E2) — so M0 refuses machinery that can't be emitted honestly."""
     p: list[str] = []
     for name, section in (("harness", spec.machinery.harness),
                           ("mcp", spec.machinery.mcp),
@@ -196,37 +196,56 @@ def _validate_machinery(spec: FactorySpec) -> list[str]:
         p += _tech_primitive_problem(str(section.get("tech", "")), str(section.get("primitive", "")), where)
     p += _validate_harness_surface(spec)
     p += _validate_infra_surface(spec)
+    p += _validate_mcp_surface(spec)
     return p
+
+
+def _emit_shape_problems(emit, where: str) -> list[str]:
+    """Shared E1/E2 — an emittable glue list (`machinery.<x>.emit`): each entry needs a `dest` (it places
+    the file) and a string `content`. NEVER a tech name — `dest`/`content` are free DATA (ADR-012)."""
+    p: list[str] = []
+    if emit and not isinstance(emit, list):
+        return [f"{where}: must be a list of {{dest, content}}"]
+    for i, item in enumerate(emit or []):
+        w = f"{where}[{(item or {}).get('dest', i) if isinstance(item, dict) else i}]"
+        if not isinstance(item, dict) or not str(item.get("dest", "")).strip():
+            p.append(f"{w}: needs a dest (it places the emitted glue file)")
+            continue
+        if not isinstance(item.get("content", ""), str):
+            p.append(f"{w}: content must be a string (the emitted glue)")
+    return p
+
+
+def _named_items_problems(items, where: str) -> list[str]:
+    """Shared — a list of declared things each needing a `name` (infra services, mcp tools). SHAPE only."""
+    if items and not isinstance(items, list):
+        return [f"{where}: must be a list"]
+    return [f"{where}[{i}]: needs a name (the declared item)"
+            for i, it in enumerate(items or [])
+            if not isinstance(it, dict) or not str(it.get("name", "")).strip()]
 
 
 def _validate_infra_surface(spec: FactorySpec) -> list[str]:
     """E1 — the emittable infra surface is SHAPE-checked so M0 refuses an infra that can't be emitted or
-    stood up honestly: an emitted glue file needs a `dest` (it places the file) and a `content` string,
-    and a declared service needs a `name`. NEVER a tech name — `dest`/`content`/services are free DATA the
-    plan chose (ADR-012); the lifecycle (up/proof/down) lives in the station check and is validated there."""
-    p: list[str] = []
+    stood up honestly: a glue file needs `dest`+`content`, a declared service needs a `name`. The lifecycle
+    (up/proof/down) lives in the station check and is validated there. No tech named (ADR-012)."""
     infra = spec.machinery.infra
     if not isinstance(infra, dict):
-        return p
-    emit = infra.get("emit", [])
-    if emit and not isinstance(emit, list):
-        p.append("machinery.infra.emit: must be a list of {dest, content}")
-    elif isinstance(emit, list):
-        for i, item in enumerate(emit):
-            where = f"machinery.infra.emit[{(item or {}).get('dest', i) if isinstance(item, dict) else i}]"
-            if not isinstance(item, dict) or not str(item.get("dest", "")).strip():
-                p.append(f"{where}: needs a dest (it places the emitted infra file)")
-                continue
-            if not isinstance(item.get("content", ""), str):
-                p.append(f"{where}: content must be a string (the emitted infra glue)")
-    services = infra.get("services", [])
-    if services and not isinstance(services, list):
-        p.append("machinery.infra.services: must be a list")
-    elif isinstance(services, list):
-        for i, svc in enumerate(services):
-            if not isinstance(svc, dict) or not str(svc.get("name", "")).strip():
-                p.append(f"machinery.infra.services[{i}]: needs a name (the declared service)")
-    return p
+        return []
+    return (_emit_shape_problems(infra.get("emit"), "machinery.infra.emit")
+            + _named_items_problems(infra.get("services"), "machinery.infra.services"))
+
+
+def _validate_mcp_surface(spec: FactorySpec) -> list[str]:
+    """E2 — the emittable MCP surface is SHAPE-checked so M0 refuses an MCP that can't be emitted or proved
+    honestly: a glue file needs `dest`+`content`, a declared tool needs a `name` (the contract the
+    `mcp_tools` gate cross-checks against the live tools/list). The prover argv lives in the station check.
+    No tech named (ADR-012) — a tool's inputSchema/impl is the plan's, emitted as DATA."""
+    mcp = spec.machinery.mcp
+    if not isinstance(mcp, dict):
+        return []
+    return (_emit_shape_problems(mcp.get("emit"), "machinery.mcp.emit")
+            + _named_items_problems(mcp.get("tools"), "machinery.mcp.tools"))
 
 
 def _validate_harness_surface(spec: FactorySpec) -> list[str]:

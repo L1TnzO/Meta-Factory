@@ -19,10 +19,14 @@ import sys
 from pathlib import Path
 
 from metafactory._seed import repo_root
+from metafactory.codegen.renderer import apply_builds
 from metafactory.engine.run_context import RunContext
 from metafactory.engine.runner import run_station
 from metafactory.engine.sequence import Sequence
 from metafactory.engine.station import Station
+from metafactory.spec.loader import load_spec
+from metafactory.spec.model import FactorySpec, Machinery
+from metafactory.spec.validator import validate_grammar_v2
 from metafactory.verify.checks import mcp_tools
 from metafactory.verify.checks.registry import resolve_check
 
@@ -219,3 +223,61 @@ def test_same_kind_proves_a_different_toolset(tmp_path):
     assert mcp_tools.run(str(wd), prove, ["add", "ping"]) == 0
     # and a tool this MCP does not expose is still red (the cross-check is real, not overfit).
     assert mcp_tools.run(str(wd), prove, ["add", "greet"]) != 0
+
+
+# ── emit_mcp: the MCP glue is GENERATED from L3 machinery.mcp (ADR-011/012) ─────
+
+_MCP_SPEC = """\
+factory: {{name: MCP Probe, slug: {slug}, maturity: bootstrap}}
+domain:
+  produces: "un MCP de fábrica declarado"
+  station_sequence:
+    - {{id: s00, name: mcp, builds: [{{action: emit_mcp}}], checks: []}}
+machinery:
+  mcp:
+    tech: "servidor MCP stdlib (JSON-RPC sobre stdio); el plan lo eligió"
+    primitive: DES-6
+    status: built
+    tools: [{{name: greet, description: saluda}}, {{name: echo, description: eco}}]
+    emit:
+      - {{dest: build/mcp/marker.txt, content: "MCP_OK for {{{{slug}}}}"}}
+requirements:
+  functional:
+    - {{id: REQ-F-001, statement: el mcp expone tools, satisfied_by: [s00]}}
+"""
+
+
+def test_emit_mcp_writes_declared_glue(tmp_path):
+    """emit_mcp writes each `machinery.mcp.emit` entry from DATA, with {{var}} substituted — the substrate
+    names no tech (ADR-012); shares the `_emit_glue` helper with emit_infra (other section, same machine)."""
+    (tmp_path / "factory.spec.yml").write_text(_MCP_SPEC.format(slug="probe"), encoding="utf-8")
+    spec = load_spec(tmp_path / "factory.spec.yml")
+    ctx = RunContext(root=tmp_path, meta_root=repo_root())
+    station = Station.from_dict({"id": "s00", "builds": [{"action": "emit_mcp"}], "checks": []})
+    apply_builds(ctx, station, spec.subst)
+    glue = tmp_path / "build" / "mcp" / "marker.txt"
+    assert glue.exists() and glue.read_text(encoding="utf-8") == "MCP_OK for probe"
+
+
+# ── M0 shape-teeth: an MCP that can't be emitted/proved honestly is refused (no tech named) ──
+
+def _mcp_problems(mcp: dict) -> list[str]:
+    spec = FactorySpec(name="X", slug="x", maturity="m", produces="p", stations=[],
+                       substrate={}, requirements=[], machinery=Machinery(mcp=mcp))
+    return [p for p in validate_grammar_v2(spec) if "machinery.mcp" in p]
+
+
+def test_validator_accepts_wellformed_mcp():
+    assert _mcp_problems({
+        "tech": "t", "primitive": "DES-6", "status": "built",
+        "tools": [{"name": "greet"}, {"name": "echo"}],
+        "emit": [{"dest": "build/mcp/server.py", "content": "..."}],
+    }) == []
+
+
+def test_validator_rejects_tool_without_name():
+    assert any("needs a name" in p for p in _mcp_problems({"tools": [{"description": "no name"}]}))
+
+
+def test_validator_rejects_mcp_emit_without_dest():
+    assert any("needs a dest" in p for p in _mcp_problems({"emit": [{"content": "no dest"}]}))

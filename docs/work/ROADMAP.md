@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a1aa2a7d3015963d1d90ffd18c88e6ce76ac0fdc updated=2026-06-15T20:29Z -->
+<!-- meta:doc sha=f019d98a964980c567d6145a856797dac609770e updated=2026-06-16T00:24Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -162,12 +162,24 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   proof intacto → REQ-F-001 UNSAT** (evidencia rancia). Suite 376. Evidencia: `work/C4-EVIDENCE-TREE-INCREMENT.md`. Depende: C2.
 
 ### Fase D · Seguridad: la columna completa heredada ("de manera segura")
-- **D1 · Columna completa horneada en lo generado.** Hoy la fábrica generada hereda sólo el Cerrojo 1
-  (`proof_protect`); faltan Cerrojos 2/3 (`gate_guard` recompute, `stop_proof` re-verify) + cadencia
-  (`commit_guard`/`increment_guard`) + `external_ci` parametrizado por fábrica (REGEN-AUDIT G-8 #6).
-  *Gate*: una fábrica generada, en clon limpio, bloquea el sello de goma sola (corromper veredicto → rojo). Depende: C1.
+- **D1 · Columna completa horneada en lo generado.** ✅ **HECHO (2026-06-16, `D1-FULL-COLUMN`)**. La fábrica
+  generada hereda los **tres** Cerrojos, no sólo el 1: `commit_guard` (C2, recompute de la activa en `git
+  commit`) y `stop_proof` (C3, recompute al cierre) como hooks **autocontenidos en el seed heredado** (cargan
+  `seed/verifier.py` por path, cero `metafactory.*`; el runner escribe un `active.json` local). Capstone
+  `column_full` (gate de M1 junto a `column_selftest`): en clon hermético invoca los hooks como el harness y
+  exige bloqueo del tampereado **y** paso del verde-limpio (DOS lados); + sombras I-12 (writer→
+  commit_guard/stop_proof) ⇒ `agent_shadow`/M7 exige la columna presente+cableada. `external_ci`
+  **por-fábrica** (re-deriva su propia fábrica; cierra REGEN-AUDIT G-8 #6). Decisión: el Lock 3 local es
+  recompute, no re-ejecución (re-correr los argv brickearía la sesión); el *artefacto rancio* sube al
+  `external_ci` (clon limpio con toolchain), como `column.md` pone el CI por encima de los locks locales.
+  *Gate cumplido*: dummy **y** ASF regenerados con la columna completa (principio #4); M0–M8 + `product-run`
+  + `ci --rederive` (dummy 3/3, ASF 1/1) + `meta check` (suite 394) verdes; **bloqueo VIVO por CLI**: clon
+  limpio de la dummy, corromper un veredicto → su propia `commit_guard`/`stop_proof` exit 2, sin la columna
+  del Meta-Factory. Diferido honesto: `increment_guard`/cadencia heredada → D2. Evidencia:
+  `work/D1-FULL-COLUMN-INCREMENT.md`. Depende: C1.
 - **D2 · Generación de harness por spec.** `hooks` (con su sombra I-12), `agents` (roles), `commands`,
-  `skills` emitidos desde L3. *Gate*: `agent_shadow` verde sobre la fábrica generada; un command generado corre. Depende: C2, D1.
+  `skills` emitidos desde L3; acá entra la **cadencia/`increment_guard` heredada** (diferida por D1).
+  *Gate*: `agent_shadow` verde sobre la fábrica generada; un command generado corre. Depende: C2, D1.
 
 ### Fase E · Maquinaria de fábrica (como primitivas elegidas en el plan, NO hardcodeadas)
 - **E1 · Infra/sandbox como primitiva (DES-4/5/8) elegida en planning.** `services`/topología/compose se

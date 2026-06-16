@@ -207,6 +207,12 @@ class TestColumnFullCheck:
         _build_factory(tmp_path)
         assert main([str(tmp_path)]) == 0
 
+    def test_passes_against_real_dummy(self):
+        """Contra la dummy REAL (con la columna completa instalada por M1, D1): exit 0 — el path de
+        producción, no sólo una fábrica armada a mano (espeja test_clean_runner)."""
+        from metafactory.verify.checks.column_full import main
+        assert main([str(_REPO_ROOT / "factories" / "dummy")]) == 0
+
     def test_hollow_when_hooks_missing(self, tmp_path):
         """Sin los hooks heredados, la columna es HUECA → exit 1 (el gate no es prosa)."""
         from metafactory.verify.checks.column_full import main

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a387ffe681f76e897ef30f1d290b562b63ab7e47 updated=2026-06-15T20:53Z -->
+<!-- meta:doc sha=d9129a8c316048007646bf626cbaf48dd864486c updated=2026-06-16T00:22Z -->
 # Incremento D1-FULL-COLUMN
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T20:50Z). Cerralo con `meta increment close`
@@ -37,9 +37,36 @@ lo tira a rojo).
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Hooks heredados `commit_guard` (C2, recompute en commit) + `stop_proof` (C3, recompute al cierre) autocontenidos + `active.json` local + wiring `settings.json` del template; `test_column_full` a nivel HOOK | ⏳ |
-| 2 | Capstone `column_full` (check que invoca los hooks heredados en clon hermético → exit 2; negativo-del-negativo) cableado a M1; sombras I-12 en los agents (writer→commit_guard/stop_proof) ⇒ `agent_shadow`/M7 exige la columna completa | ⏳ |
-| 3 | `external_ci` por-fábrica (`{{slug}}`); regenerar la dummy con la columna completa (re-pin si cambia el proof_sha); capstone vivo por CLI (corromper veredicto → la columna de la fábrica bloquea); docs/cierre | ⏳ |
+| 1 | Hooks heredados `commit_guard` (C2, recompute en commit) + `stop_proof` (C3, recompute al cierre) autocontenidos + `active.json` local + wiring `settings.json` del template; `test_column_full` a nivel HOOK | ✅ a7443d9 |
+| 2 | Capstone `column_full` (check que invoca los hooks heredados en clon hermético → exit 2; negativo-del-negativo) cableado a M1; sombras I-12 en los agents (writer→commit_guard/stop_proof) ⇒ `agent_shadow`/M7 exige la columna completa | ✅ 633b87d |
+| 3 | `external_ci` por-fábrica (`{{slug}}`); regenerar dummy + ASF con la columna completa (pin intacto); capstone vivo por CLI (corromper veredicto → la columna de la fábrica bloquea); docs/cierre | ✅ d448aa5·788a695·788a695 |
+
+## Evidencia (re-derivable, no narrable)
+- **Columna heredada autocontenida (criterios 1·2):** dummy lleva `commit_guard.py`+`stop_proof.py`+
+  `proof_protect.py` cableados (`.claude/settings.json`), cero `metafactory.*` (verificado por AST en
+  `test_column_full`). `meta station m01 --factory dummy` → gates `seed_present·column_blocks·column_wired`
+  verdes. `test_column_full` (19 tests): proof tampereado (passed pegado / proof_sha editado) → commit_guard
+  exit 2 **y** stop_proof exit 2; verde-limpio → 0/0; el check `column_full` cae a rojo si falta un hook /
+  si un hook siempre permite / si siempre bloquea (prueba de DOS lados, no decorativa); pasa contra la dummy real.
+- **agent_shadow (criterio 3):** M7 verde con las sombras nuevas (writer→commit_guard/stop_proof) — exige
+  que existan y estén cableadas; el negativo (borrar una sombra → rojo) lo trae `agent_shadow` de fábrica.
+- **external_ci por-fábrica (criterio 4):** `factories/dummy/seed/external_ci.yml` → `name: dummy-external-ci`,
+  `meta ci --rederive --factory dummy`; el de ASF → `agent-systems-factory`. Ya no es el del meta por default.
+- **Línea + dos verificadores (criterio 5):** dummy M0–M8 PASS · `product-run` PASS · `ci --rederive` 3/3
+  (pin intacto: la columna L4 no toca la línea de producto) · `meta check` 5/5 (suite 394). ASF: M0–M8 PASS ·
+  `ci --rederive` 1/1 (intacto) — y AHORA también hereda la columna completa (principio #4).
+- **Capstone VIVO por CLI (criterio 6):** clon limpio de la dummy en `/tmp` (sin la columna del Meta-Factory) →
+  verde-limpio: commit_guard 0 / stop_proof 0; corromper `s02.json` (passed=true sobre check exit≠0) → 2/2;
+  `proof_sha` editado → 2. La fábrica generada bloquea el sello de goma SOLA, con su propio seed.
+
+## Residual honesto (declarado, no oculto)
+- **Lock 3 local = recompute, no re-ejecución** (ver Diseño): el *artefacto rancio* lo atrapa el `external_ci`
+  por-fábrica (clon limpio con toolchain), no el `stop_proof` local. Es la capa que `column.md` pone por encima.
+- **`increment_guard`/cadencia NO heredados:** la fábrica no tiene el lifecycle de incrementos cableado
+  (eso toca D2, generación de harness). Es aid de proceso, no Cerrojo de seguridad (ADR-010 addendum).
+- **`gate_guard` del meta sobre-matchea texto:** parsea `station X --factory Y` en CUALQUIER comando (p.ej.
+  un mensaje de commit que lo nombra) → falso positivo. Es del harness del *meta*, no de la columna heredada;
+  follow-up fuera de D1 (acotar a invocaciones reales de `meta station`).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. La dummy generada lleva `commit_guard.py` + `stop_proof.py` heredados, **cableados** en su

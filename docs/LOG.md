@@ -1,7 +1,46 @@
-<!-- meta:doc sha=5cfa61f353e929a3997853a131989183f53f78c5 updated=2026-06-15T20:29Z -->
+<!-- meta:doc sha=6a01a6f3a25b5e7a07ca51c491ac03d5068663f3 updated=2026-06-16T00:24Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-16T00:25Z — D1: la columna anti-sello COMPLETA la hereda lo generado (abre la Fase D)
+- **gatillo**: el ingeniero pidió seguir con D1 — la fábrica generada hereda hoy sólo el Cerrojo 1; faltan
+  los Cerrojos 2/3 + `external_ci` por-fábrica, de modo que la fábrica, en clon limpio, bloquee el sello de
+  goma SOLA (corromper un veredicto → rojo) con su propia columna.
+- **diagnóstico (Opus, ojos propios)**: el seed heredado ya trae la LÓGICA del C2 (`gate_recompute_ok`) y
+  `column_selftest` ya prueba que la LIBRERÍA rechaza el tamper. Lo que faltaba son los HOOKS que ENFORZAN
+  C2/C3 durante la operación, y que la fábrica los ejerza con su PROPIO seed, no con el sustrato. Hallazgo
+  clave: el seed guarda en `proof.json` los `checks[].cmd` ya resueltos — tentador re-ejecutarlos para el C3.
+- **decisión de diseño (cambio de rumbo registrado)**: NO re-ejecutar al cierre. Algunos argv invocan
+  `metafactory.*` (`artifact_contains`/`product_env`); re-correrlos en cada Stop brickearía una sesión
+  interactiva (reconstruir un venv / fallar el import → rojo fail-safe sobre trabajo legítimo). Los dos locks
+  locales son **recompute seed-only en dos bordes**: `commit_guard` en `git commit` (C2), `stop_proof` al
+  cierre (C3 = "forzar el recómputo al cierre", la razón exacta del C3 en `column.md`). La RE-EJECUCIÓN que
+  atrapa el *artefacto rancio*/producto roto sube al `external_ci` por-fábrica (clon limpio que instala el
+  toolchain) — tal cual `column.md` pone el CI externo POR ENCIMA de los tres locks locales. Así D1 atrapa
+  AMBAS clases: tamper (locks locales, seed-only) + rancio/roto (external_ci). Autocontención real: los hooks
+  cargan `seed/verifier.py` por path (cero `metafactory.*`), derivan su raíz de `__file__` (clon-robusto); el
+  runner escribe un `active.json` local en la fábrica además del meta-root.
+- **el diente nuevo (no un restatement)**: el capstone `column_full` prueba la columna CABLEADA (no la
+  librería como `column_selftest`): en un clon hermético INVOCA los hooks como el harness y exige bloqueo del
+  veredicto tampereado **y** paso del verde-limpio — prueba de DOS lados, así una columna que siempre permite
+  cae en el primer lado y una que siempre bloquea, en el segundo. Cableado a M1 junto a `column_selftest`;
+  + sombras I-12 (writer→commit_guard/stop_proof) ⇒ `agent_shadow`/M7 exige la columna presente+cableada
+  (dos dientes: conductual + estático). `external_ci` se volvió template parametrizado (`{{slug}}`): re-deriva
+  su PROPIA fábrica (cierra REGEN-AUDIT G-8 #6).
+- **prueba por bloqueo**: `test_column_full` (19 tests) — proof tampereado (passed pegado / proof_sha editado)
+  → commit_guard exit 2 **y** stop_proof exit 2; verde-limpio → 0/0; `column_full` cae a rojo si falta un hook
+  / si un hook siempre permite / si siempre bloquea; pasa contra la dummy real. **VIVO por CLI**: clon limpio
+  de la dummy en `/tmp` (sin la columna del Meta-Factory) → corromper `s02.json` → su propia
+  `commit_guard`/`stop_proof` exit 2; `proof_sha` editado → 2. Dummy **y** ASF regenerados con la columna
+  completa (principio #4); dummy M0–M8 + `product-run` + `ci` 3/3 + `meta check` (suite 394) verdes; ASF M0–M8
+  + `ci` 1/1 intacto.
+- **lección**: la fábrica generada deja de "confiar en el Meta-Factory para no estampar": se defiende SOLA con
+  su propio trust root. La distinción C2 vs C3 no es "recompute vs re-ejecutar" sino "recompute en commit vs
+  recompute forzado al cierre"; la re-ejecución es del CI externo, por encima. Diferido honesto: la
+  cadencia/`increment_guard` heredada necesita el lifecycle de incrementos de la fábrica → D2. Residual del
+  meta: el `gate_guard` sobre-matchea `station X --factory Y` en cualquier texto (un mensaje de commit lo
+  disparó) — follow-up fuera de D1.
 
 ## 2026-06-15T20:28Z — C4: el RTM se generaliza al árbol de evidencia por build (cierra la Fase C)
 - **gatillo**: el ingeniero pidió seguir con C4 — generalizar el RTM al árbol de evidencia completo

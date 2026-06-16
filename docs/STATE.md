@@ -1,6 +1,6 @@
-<!-- meta:doc sha=c83a751cf178fbb656a2f4fb7956dd373e5f8806 updated=2026-06-15T20:50Z -->
+<!-- meta:doc sha=8c0c851be193f91513bbd9dfba33058610d22a24 updated=2026-06-16T00:23Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-15T20:28Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** — C1 slot `generate`, C2 línea multi-estación, C3 proof en el toolchain del producto, C4 árbol de evidencia) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-16T00:25Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** + **Fase D 🟡** — D1 columna anti-sello COMPLETA heredada por lo generado) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -66,7 +66,21 @@
     artefacto→UNSAT; tooth no-ejercitable (proxy) se REPORTA, no se finge. Dummy = árbol COMPLETO (3 caps con
     artifact, RTM 3/3, M0–M8 + `ci --rederive` 3/3, pin intacto); ASF (proxy) verde con artifact N/A.
     Bloqueo (`test_rtm_tree.py` 12 + CLI): borrar `build/greeting.py` con el proof intacto → REQ-F-001 UNSAT.
-    Suite 376. **Sigue D1** (columna completa heredada).
+    Suite 376.
+- **Fase D 🟡 (2026-06-16) — "de manera segura": la columna COMPLETA la hereda lo generado**:
+  - **D1 (`D1-FULL-COLUMN`)**: la fábrica generada hereda los **tres** Cerrojos, no sólo el 1. `commit_guard`
+    (C2: recompute de la activa en `git commit`) y `stop_proof` (C3: recompute al cierre del turno) como hooks
+    **autocontenidos en el seed heredado** (cero `metafactory.*`, cargan `seed/verifier.py` por path; el runner
+    escribe un `active.json` local). Capstone `column_full` (gate de M1, junto a `column_selftest`): en clon
+    hermético INVOCA los hooks como el harness y exige bloqueo del veredicto tampereado **y** paso del
+    verde-limpio (DOS lados, no decorativo); + sombras I-12 (writer→commit_guard/stop_proof) ⇒ `agent_shadow`/M7
+    exige la columna presente+cableada. `external_ci` **por-fábrica** (re-deriva su propia fábrica, cierra
+    REGEN-AUDIT G-8 #6). Decisión (ojos propios): el Lock 3 local es recompute, no re-ejecución (re-correr los
+    argv brickearía la sesión); el *artefacto rancio* sube al `external_ci` (clon limpio con toolchain), como
+    `column.md` pone el CI por encima de los locks. Dummy **y** ASF regenerados con la columna completa
+    (principio #4). Suite 394. Bloqueo VIVO por CLI: clon limpio de la dummy, corromper un veredicto → su
+    propia `commit_guard`/`stop_proof` bloquea (exit 2), **sin** la columna del Meta-Factory. **Sigue D2**
+    (generación de harness por spec). Diferido honesto: `increment_guard`/cadencia heredada (toca D2).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -111,14 +125,15 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4).** **Próximo: D1**
-> (Fase D, seguridad: la **columna COMPLETA heredada** por la fábrica generada — hoy hereda sólo el Cerrojo 1
-> `proof_protect`; faltan Cerrojos 2/3 — `gate_guard` recompute, `stop_proof` re-verify — + cadencia
-> `commit_guard`/`increment_guard` + `external_ci` por-fábrica. *Gate*: una fábrica generada, en clon limpio,
-> bloquea el sello de goma sola). Después D2 (generación de harness por spec) → E → F (ASF/Full-Stack e2e).
+> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4) · Fase D 🟡 (D1 ✅).**
+> **Próximo: D2** (Fase D, seguridad: **generación de harness por spec** — `hooks` con su sombra I-12, `agents`,
+> `commands`, `skills` emitidos desde L3; acá entra la **cadencia/`increment_guard` heredada** que D1 difirió.
+> *Gate*: `agent_shadow` verde sobre la fábrica generada + un command generado corre). D1 dejó la columna
+> anti-sello COMPLETA (Cerrojos 1/2/3) heredada y probada por bloqueo. Después E → F (ASF/Full-Stack e2e).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
-  multi-estación (la línea S0–S8 real = F1) y `external_ci.yml` por-fábrica (hoy `--factory dummy`);
-  propagar la disciplina de commit (ADR-010) al `template/factory/harness` (heredable, verificar en dummy);
+  multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica (re-deriva su
+  propia fábrica) y la columna anti-sello completa heredada por `template/factory/harness` (Cerrojos 1/2/3).
+  Abierto: cadencia/`increment_guard` heredada (D2); acotar el `gate_guard` del meta (sobre-matchea texto);
   M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria
   SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
 

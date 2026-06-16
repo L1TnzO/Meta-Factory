@@ -16,7 +16,7 @@ PY = sys.executable
 KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
-    "column_selftest", "bus_bounded", "product_run", "boundary_survives",
+    "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env",
 )
 
@@ -56,6 +56,8 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         return _s(check["cmd"], subst)
     if kind == "column_selftest":
         return [PY, "-m", "metafactory.verify.checks.column_selftest", str(subst.get("factory_root", "."))]
+    if kind == "column_full":
+        return [PY, "-m", "metafactory.verify.checks.column_full", str(subst.get("factory_root", "."))]
     if kind == "bus_bounded":
         return [PY, "-m", "metafactory.verify.checks.bus_bounded", str(subst.get("max_lines", 10))]
     if kind == "product_run":

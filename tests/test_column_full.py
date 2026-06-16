@@ -193,3 +193,44 @@ class TestNoOp:
         TestTamperedPassedBlocked()._tamper_passed_true(tmp_path)
         r = _run_hook(tmp_path, "stop_proof.py", {"stop_hook_active": True})
         assert r.returncode == 0, "la válvula anti-loop debe dejar pasar el segundo Stop"
+
+
+# ── el capstone column_full (gate de M1): la columna cableada bloquea, no decorativo ──
+
+class TestColumnFullCheck:
+    """El check `column_full` (gate de M1) arma un clon hermético de la fábrica, invoca los hooks
+    heredados contra un veredicto tampereado y exige exit 2, y contra el verde-limpio exige exit 0.
+    Prueba de dos lados → no decorativa. Negativo: una fábrica sin los hooks es HUECA (exit 1)."""
+
+    def test_passes_against_full_column(self, tmp_path):
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        assert main([str(tmp_path)]) == 0
+
+    def test_hollow_when_hooks_missing(self, tmp_path):
+        """Sin los hooks heredados, la columna es HUECA → exit 1 (el gate no es prosa)."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "commit_guard.py").unlink()
+        assert main([str(tmp_path)]) == 1
+
+    def test_hollow_when_hook_always_allows(self, tmp_path):
+        """Un commit_guard hueco (siempre exit 0) NO bloquea el tamper → el gate lo cae a rojo."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "commit_guard.py").write_text(
+            "import sys; sys.exit(0)\n", encoding="utf-8")
+        assert main([str(tmp_path)]) == 1
+
+    def test_hollow_when_hook_always_blocks(self, tmp_path):
+        """Un stop_proof que siempre bloquea (exit 2) rechaza el verde-limpio → el gate lo cae a rojo
+        (la prueba es de dos lados: sobre-bloquear también es romper la columna)."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "stop_proof.py").write_text(
+            "import sys; sys.exit(2)\n", encoding="utf-8")
+        assert main([str(tmp_path)]) == 1
+
+    def test_no_args_returns_2(self):
+        from metafactory.verify.checks.column_full import main
+        assert main([]) == 2

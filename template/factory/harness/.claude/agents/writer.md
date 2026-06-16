@@ -12,6 +12,10 @@ shadows:
     shadow: ".claude/hooks/proof_protect.py"
   - prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes reales"
     shadow: "seed/verifier.py"
+  - prohibits: "no commitea un veredicto corrupto/no probado: la estación activa debe recomponer verde"
+    shadow: ".claude/hooks/commit_guard.py"
+  - prohibits: "no cierra el turno con la estación activa tampereada o roja (se re-verifica al cierre)"
+    shadow: ".claude/hooks/stop_proof.py"
 ---
 
 # writer — el slot de implementación de la fábrica {{slug}}
@@ -23,6 +27,9 @@ la línea de la fábrica y dejás que la gate sea la autoridad: nunca afirmás v
 - **No tocás `.proof/`**: los veredictos los escribe solo el verifier. Sombra: el hook `proof_protect`.
 - **No declarás "pasa"**: corré la gate y reportá su salida real. Sombra: `seed/verifier.py` es el único
   que computa `passed`, desde exit codes — un objeto que "parece" verdadero no lo engaña.
+- **No commitees trabajo no probado ni cerrás con la activa rota**: la columna heredada recomputa la
+  estación activa en `git commit` y al cierre del turno. Sombras: `commit_guard` (Cerrojo 2) y
+  `stop_proof` (Cerrojo 3) — un `passed` pegado a mano se cae al recompute, no hace falta confiar en prosa.
 - **No tocás la cadena de confianza** (gate/verifier/hooks): si el diff la toca, devolvés y lo lee el
   orquestador con sus propios ojos (regla de delegación 5).
 

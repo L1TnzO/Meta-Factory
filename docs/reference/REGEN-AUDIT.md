@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4dc218fa3c7d4cbc58960df86d37cb496e010650 updated=2026-06-16T16:57Z -->
+<!-- meta:doc sha=f5cf2363e3c0d563732a17da4b9376bbdf0d88f6 updated=2026-06-16T17:24Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T02:48Z -->
 # REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos)
 
@@ -7,6 +7,11 @@
 > y el ASF original que se fabricó a sí mismo (`../../Agent_Systems_Factory/` @ `b1fcb1f`). El control
 > es limpio: regeneramos algo que YA existía → sabemos exactamente qué genera el Meta-Factory y qué no.
 > Cada ausencia es un candidato a incremento (§6). Honestidad de límites: §7 (I-13).
+
+> ⚠ **POST-F1**: las tablas de inventario §2–§3 describen la era PROXY (s00 único, "1 hook", 0 commands).
+> Tras F1 eso quedó obsoleto (9 estaciones, 6 reales; 3 cerrojos; 1 command). El veredicto head-to-head
+> actualizado y la decisión del orquestador viven en `reference/F1-AUDIT-REGEN-VS-LEGACY.md`. El §9 de
+> abajo trae el update F1; las tablas de cabecera se conservan como registro histórico.
 
 ## 0. La pregunta y la trampa de categoría
 

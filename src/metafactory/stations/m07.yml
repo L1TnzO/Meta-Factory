@@ -1,13 +1,15 @@
 id: m07
 name: "Harness — agents=contratos, sombras (I-12) y residencia ≤ presupuesto"
 activation: always
-# M7 completa el harness de la fábrica (Claude Code como sustrato): los agents (contratos de delegación,
-# instalados por M1 con la columna) declaran sus prohibiciones, y la residencia (CLAUDE.md) se mantiene
-# ≤ presupuesto (I-6). M7 hornea el CLAUDE.md y agrega el DIENTE que faltaba: la gate `agent_shadow`
-# (I-12) exige que toda prohibición declarada en un agent tenga una SOMBRA determinista que EXISTE y, si
-# es hook, esté CABLEADA — un contrato hueco es rojo — y que CLAUDE.md mida ≤ el presupuesto de la spec.
-# Gate con render mínimo (la ley I-12 vive en el gate; los contratos, en .claude/agents/ de M1).
+# M7 completa el harness de la fábrica (Claude Code como sustrato): EMITE los agents/commands/skills DESDE
+# el spec (L3 machinery.harness, D2 — no de un template fijo; el sustrato no hardcodea roles, ADR-011/012),
+# hornea la residencia (CLAUDE.md ≤ presupuesto, I-6), y agrega los DIENTES: `agent_shadow` (I-12) exige que
+# toda prohibición de un agent tenga una SOMBRA determinista que EXISTE y (si es hook) esté CABLEADA — un
+# contrato hueco es rojo; `command_runs` (D2) exige que cada command generado CORRA (exit 0) — no un archivo
+# muerto. La COLUMNA (hooks 1/2/3 + settings, L4) la instala M1 y NO es spec-driven (frontera de seguridad).
 builds:
   - { action: render, src: "template/factory/CLAUDE.md", dest: "CLAUDE.md" }
+  - { action: emit_harness }                 # D2: agents/commands/skills DESDE el spec (L3), no del template fijo
 checks:
   - { name: agent_shadow, kind: agent_shadow }
+  - { name: command_runs, kind: command_runs }   # D2: un command generado CORRE (exit 0), no es archivo muerto

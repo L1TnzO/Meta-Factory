@@ -82,6 +82,69 @@ domain:
     greet_fn: greet
     marker: DUMMY_OK
 
+# ── L3 · MAQUINARIA: el harness de la fábrica EMITIDO desde el spec (D2). agents (roles + sombras I-12),
+# commands (con su `run` ejecutable) y skills viajan como DATO; el codegen los escribe (emit_harness, M7).
+# La COLUMNA (Cerrojos 1/2/3 + settings) NO va acá: es L4 substrate, heredada verbatim (D1).
+machinery:
+  harness:
+    tech: "Claude Code: agents (delegación) + commands (operador) + skills, emitidos del spec"
+    primitive: DES-1                 # Andamiaje regenerable (el harness se deriva del spec)
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica dummy (implementación, no decisiones)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión: las decisiones las toma el orquestador). Trabajás
+          contra la línea y dejás que la gate sea la autoridad: nunca afirmás verde, lo demostrás.
+          ## Qué NO hacés (con sombra determinista, no prosa)
+          - No tocás `.proof/` (sombra: proof_protect). No declarás "pasa" (sombra: verifier.py).
+          - No commitees trabajo no probado ni cerrás con la activa rota (sombras: commit_guard, stop_proof).
+          - No tocás la cadena de confianza (gate/verifier/hooks): devolvés y la lee el orquestador.
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Recibís un DIFF que toca verifier/hooks/seed/gates. Revisás con ojos propios (la cadena de
+          confianza no se delega); nunca emitís un veredicto — reportás evidencia re-derivada y delegás
+          el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Recibís un log de gate rojo. Tu único producto es una causa raíz en ≤5 líneas que el orquestador
+          lee de un vistazo. No arreglás, no aprobás, no escribís.
+    commands:
+      - name: greet
+        description: "Corre el saludo del producto y verifica el marcador invariante."
+        run: ["python", "-c", "import sys; sys.path.insert(0, 'domain'); import greeting; assert greeting.greet() == 'DUMMY_OK'; print(greeting.greet())"]
+        body: |
+          # /greet — corré el producto de la fábrica {{slug}}
+          Corré el saludo del producto y confirmá que devuelve el marcador invariante DUMMY_OK.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
+          dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+
 # ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
 factory_substrate:
   anti_rubber_stamp_column: true

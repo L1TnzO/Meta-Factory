@@ -156,3 +156,61 @@ class TestValidatorTeeth:
             "skills": [{"name": "triage", "body": "y"}]})
         probs = [p for p in validate(spec) if "machinery.harness" in p]
         assert probs == [], probs
+
+
+# ── el gate command_runs: un command generado CORRE (no decorativo) ───────────
+
+class TestCommandRuns:
+    """`command_runs` ejecuta el `run` de cada command emitido y exige exit 0; un command roto/muerto cae
+    a rojo; sin commands es N/A. Prueba de dos lados (con el negativo hermético dentro del gate)."""
+
+    def test_passes_when_command_runs_clean(self, tmp_path):
+        from metafactory.verify.checks.command_runs import main
+        _write_spec(tmp_path, {"commands": [
+            {"name": "ok", "run": ["python", "-c", "import sys; sys.exit(0)"], "body": "x"}]})
+        _emit(tmp_path)
+        assert main([str(tmp_path)]) == 0
+
+    def test_red_when_command_exits_nonzero(self, tmp_path):
+        from metafactory.verify.checks.command_runs import main
+        _write_spec(tmp_path, {"commands": [
+            {"name": "broken", "run": ["python", "-c", "import sys; sys.exit(3)"], "body": "x"}]})
+        _emit(tmp_path)
+        assert main([str(tmp_path)]) == 1
+
+    def test_red_when_command_is_dead(self, tmp_path):
+        """Un command emitido sin `run` ejecutable (archivo muerto) → rojo."""
+        from metafactory.verify.checks.command_runs import main
+        # emit_harness no escribe `run` si no se declara; el .md queda sin run → command muerto
+        _write_spec(tmp_path, {"commands": [{"name": "dead", "body": "sólo prosa"}]})
+        _emit(tmp_path)
+        assert main([str(tmp_path)]) == 1
+
+    def test_na_when_no_commands(self, tmp_path):
+        from metafactory.verify.checks.command_runs import main
+        _write_spec(tmp_path, {"agents": [{"name": "w", "body": "a"}]})
+        _emit(tmp_path)
+        assert main([str(tmp_path)]) == 0  # N/A: la fábrica no declara commands
+
+    def test_no_args_returns_2(self):
+        from metafactory.verify.checks.command_runs import main
+        assert main([]) == 2
+
+    def test_passes_against_real_dummy_spec(self, tmp_path):
+        """El command `greet` que declara el spec de la dummy CORRE: emitimos el harness de la dummy real
+        en una copia con su domain/ y ejecutamos command_runs (el path de producción del gate de M7)."""
+        import shutil
+
+        from metafactory.codegen import apply_builds
+        dummy = _REPO_ROOT / "factories" / "dummy"
+        clone = tmp_path / "dummy"
+        clone.mkdir()
+        (clone / "factory.spec.yml").write_text(
+            (dummy / "factory.spec.yml").read_text(encoding="utf-8"), encoding="utf-8")
+        shutil.copytree(dummy / "domain", clone / "domain")
+        spec = load_spec(clone / "factory.spec.yml")
+        ctx = RunContext(root=clone, meta_root=_REPO_ROOT, slug=spec.slug)
+        apply_builds(ctx, SimpleNamespace(id="m07", builds=[{"action": "emit_harness"}]),
+                     {**spec.subst, "slug": spec.slug})
+        from metafactory.verify.checks.command_runs import main
+        assert main([str(clone)]) == 0

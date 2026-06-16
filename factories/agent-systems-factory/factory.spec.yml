@@ -89,6 +89,62 @@ domain:
     greet_fn: assemble
     marker: AGENT_SYSTEM_OK
 
+# ── L3 · MAQUINARIA: el harness de la fábrica EMITIDO desde el spec (D2). La COLUMNA (Cerrojos 1/2/3 +
+# settings) NO va acá: es L4, heredada verbatim (D1). agents/commands/skills viajan como DATO (emit_harness).
+machinery:
+  harness:
+    tech: "Claude Code: agents (delegación) + commands (operador) + skills, emitidos del spec"
+    primitive: DES-1                 # Andamiaje regenerable (el harness se deriva del spec)
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica agent-systems-factory (implementación)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión). Dejás que la gate sea la autoridad: nunca afirmás
+          verde, lo demostrás. No tocás `.proof/` ni la cadena de confianza (sombras deterministas, no prosa).
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Revisás con ojos propios (la cadena de confianza no se delega); nunca emitís un veredicto —
+          reportás evidencia re-derivada y delegás el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no aprobás, no escribís.
+    commands:
+      - name: assemble
+        description: "Corre el producto (ensamble) y verifica el marcador invariante."
+        run: ["python", "-c", "import sys; sys.path.insert(0, 'domain'); import agent_system; assert agent_system.assemble() == 'AGENT_SYSTEM_OK'; print(agent_system.assemble())"]
+        body: |
+          # /assemble — corré el producto de la fábrica {{slug}}
+          Corré el ensamble del producto y confirmá que devuelve el marcador invariante AGENT_SYSTEM_OK.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos, nunca el dump de tests.
+          Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+
 # ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
 factory_substrate:
   anti_rubber_stamp_column: true

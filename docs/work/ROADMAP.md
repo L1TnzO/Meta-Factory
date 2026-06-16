@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ed9b93107f4b7b5fec6b397d30ec2b142b9ac577 updated=2026-06-16T13:44Z -->
+<!-- meta:doc sha=782f97e48fabf402c737e71e0847e62e9f86da50 updated=2026-06-16T16:56Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -225,10 +225,19 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   (toolset aritmético) por el MISMO kind (principio #6). Evidencia: `work/E2-MCP-GEN-INCREMENT.md`. Depende: D2.
 
 ### Fase F · Las fábricas de referencia (prueban la generalidad por bloqueo, G-8)
-- **F1 · ASF COMPLETO y MEJORADO end-to-end.** La línea S0–S8 real, el producto LangGraph, las 7
-  capacidades materializadas; **paridad-o-mejor** vs el ASF pineado `b1fcb1f`. Cierra el ~5–10% de la
-  auditoría. *Gate*: un producto de ASF generado pasa su M8 real (topología compilada `get_graph()`, nodos
-  con fake-LLM, `mypy --strict` en su venv). Depende: C1–C4, D1–D2, E1.
+- **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
+  MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
+  REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,
+  vive en la FÁBRICA — ADR-012; lee el blueprint `domain.product` y emite 31 archivos en `build/product/`)
+  vía el slot `generate`, y cada estación prueba su capacidad en el venv del PRODUCTO (DES-8): s1 obs · s3
+  resume sin reejecución (MemorySaver) · s4 `get_graph()`+fake-LLM+`mypy --strict` · s6 grounded=false · s7
+  interrupt reachability+ReviewPackage · s8 eval gates. Diferido honesto (`activation:"off"`): s0/s2 linaje
+  Neo4j/s5 anclaje (infra viva = solo-CI, como el ASF original). *Gate cumplido*: `product-run` PASS · pin
+  6/6 · M0–M8 (m06 clean_runner re-deriva en clon == pineado) · `ci --rederive` 6/6 · RTM COMPLETE 6/6
+  (req→capability→station→artifact real) · `meta check` 5/5 (suite 443). Bloqueo VIVO (3 dientes sobre el
+  producto): reroute `synthesize→END`→s7 SHUT · error de tipo→`mypy --strict` rojo · validator roto→s6 SHUT.
+  Paridad-o-mejor vs `b1fcb1f` (M8 por defecto); congelado intocado; dummy intacta (principio #4).
+  Evidencia: `work/F1-INCREMENT.md`. Depende: C1–C4, D1–D2, E1.
 - **F2 · Full-Stack-Factory desde spec.** Frontend TS + backend TS + DB relacional. El segundo dominio
   radicalmente distinto que PRUEBA que el motor no es Python/agente-bound. *Gate*: un producto full-stack
   generado compila (`tsc`), pasa `vitest` y levanta su DB — todo gateado. Depende: C1–C4, D1–D2, E1.

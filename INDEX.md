@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `60d1b2274a93` | 2026-06-16T13:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `b7d3d7265dbb` | 2026-06-16T16:47Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `74318e180adb` | 2026-06-16T16:57Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `aac78fb9916a` | 2026-06-16T16:55Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -29,7 +29,7 @@
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PRIMITIVES.md` | `e3ef1a4c9e7c` | 2026-06-15T13:29Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
-| `docs/reference/REGEN-AUDIT.md` | `5ea7ae741990` | 2026-06-15T02:59Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
+| `docs/reference/REGEN-AUDIT.md` | `4dc218fa3c7d` | 2026-06-16T16:57Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
@@ -47,9 +47,9 @@
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
-| `docs/work/F1-INCREMENT.md` | `da45ce1eab33` | 2026-06-16T16:19Z | Incremento F1 |
+| `docs/work/F1-INCREMENT.md` | `7df47f187833` | 2026-06-16T16:55Z | Incremento F1 |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `ed9b93107f4b` | 2026-06-16T13:44Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `782f97e48fab` | 2026-06-16T16:56Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

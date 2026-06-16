@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5ea7ae74199047b0e38af14c0c79ab6b3c14d261 updated=2026-06-15T02:59Z -->
+<!-- meta:doc sha=4dc218fa3c7d4cbc58960df86d37cb496e010650 updated=2026-06-16T16:57Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T02:48Z -->
 # REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos)
 
@@ -155,3 +155,21 @@ es una descripción completa de ASF-la-fábrica; es el contrato del PRODUCTO obj
   CRITICAL). El pin hace la comparación reproducible; si el pin no verifica, esta auditoría caduca.
 - **"Mejor" no es "completo"**: el Meta-Factory ganó el argumento del SUSTRATO; el argumento del
   PRODUCTO está explícitamente abierto y es el backlog §6. No leer §5 sin leer §4.
+
+## 9. Update — F1 cerró el hueco del MOTOR DE PRODUCTO (2026-06-16, `F1-INCREMENT`)
+
+El argumento del PRODUCTO (§4, §7) dejó de estar abierto. F1 regeneró la MISMA fábrica
+`agent-systems-factory` desde su spec con la línea **S0–S8 REAL**: el producto LangGraph se GENERA por un
+scaffolder DETERMINISTA en la fábrica (`codegen/scaffold_product.py`) vía el slot `generate`, y cada estación
+prueba su capacidad en el venv del PRODUCTO (DES-8). El número del §7 se movió:
+
+| Bloque | Antes (este audit) | Después de F1 |
+| --- | --- | --- |
+| **B · Motor de generación** (codegen → producto) | ~5–10% (patrón único `s00`→marcador) | **producto LangGraph real e2e**: get_graph() compila, nodos fake-LLM, `mypy --strict`, resume sin reejecución, HITL no-salteable, eval gates — todo gateado en el venv del producto |
+| ↳ las capacidades materializadas | 0 (declared-deferred) | 6 con artifact REAL bajo `build/product/` (RTM COMPLETE 6/6); linaje/anclaje siguen diferidos (infra viva = solo-CI, como el original) |
+
+Cierra el backlog §6 **#1** (codegen multi-estación de producto), **#3** (proof_checks en el venv del
+producto) y, parcialmente, **#2/#4** (frontera y contratos viven en el blueprint `domain.product`). Lo NO
+cerrado y honesto: las 53 plantillas Copier exactas (acá es un scaffolder propio, no Copier), el MCP de
+infra real y los stores vivos (Postgres/Neo4j) — siguen como follow-ups. Paridad-o-mejor vs `b1fcb1f` al
+nivel del M8 por defecto; el congelado sigue intocado. Evidencia por bloqueo: `work/F1-INCREMENT.md §Evidencia`.

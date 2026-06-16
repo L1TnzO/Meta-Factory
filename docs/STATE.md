@@ -1,6 +1,6 @@
-<!-- meta:doc sha=b7d3d7265dbb6bcefc03abd24847d0a93ff1c710 updated=2026-06-16T16:47Z -->
+<!-- meta:doc sha=aac78fb9916a48b7aff6e99f001ac54a46f9a1a4 updated=2026-06-16T16:55Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + **C ✅** + **D ✅** + **E ✅** — D2 harness + E1 infra/sandbox + E2 MCP, todos EMITIDOS y EJECUTABLES desde el spec) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -114,7 +114,24 @@
     tech: prove/tools son DATA (un SDK MCP o un impl stdlib, misma máquina). Dummy = línea de **5 estaciones**
     (s04 = server MCP stdlib + prover, sin dependencia externa); M0–M8 + `product-run` + `ci --rederive` 5/5
     (re-pin) + `meta check` (suite `tests/` 443) verdes; ASF intacto 1/1 (MCP real = F). Demo VIVO por CLI
-    (3 lados). **Cierra la Fase E. Sigue F1** (ASF completo e2e).
+    (3 lados). **Cierra la Fase E.**
+- **Fase F (en curso) — las fábricas de referencia prueban la generalidad por bloqueo (G-8)**:
+  - **F1 (`F1-INCREMENT`) ✅ (2026-06-16) — ASF COMPLETO y MEJORADO e2e**: regenerado la MISMA fábrica
+    `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea **S0–S8 REAL**. El
+    producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`factories/agent-systems-factory/codegen/
+    scaffold_product.py`, vive en la FÁBRICA no en el sustrato — ADR-012; lee el blueprint `domain.product` y
+    emite 31 archivos en `build/product/`) vía el slot `generate` (ADR-013), y cada estación PRUEBA su
+    capacidad en el venv del PRODUCTO (DES-8, `pip install langgraph/otel/pydantic`): s1 obs (InMemory span
+    provenance) · s3 resume sin reejecución (MemorySaver + interrupt+resume) · **s4 `get_graph()` compila +
+    nodos fake-LLM + `mypy --strict`** (EL GATE) · s6 grounded=false sin soporte · s7 interrupt reachability +
+    ReviewPackage PAV · s8 eval gates que bloquean. Diferido honesto (`activation: "off"`): s0 admisión (la
+    hace M0), s2 linaje Neo4j vivo, s5 anclaje — igual que el ASF original los gateaba solo-CI. `product-run`
+    PASS · pin 6/6 · M0–M8 verde (m06 clean_runner re-deriva en clon limpio == pineado; m07 command_runs corre
+    el `assemble`) · `ci --rederive` 6/6 · **RTM COMPLETE 6/6** (req→capability→station→artifact REAL bajo
+    `build/product/`) · `meta check` 5/5 (suite 443). Bloqueo VIVO (3 dientes sobre el producto emitido):
+    reroute `synthesize→END`→s7 SHUT · `_bad: int="…"`→`mypy --strict` rojo (s4) · validator roto→s6 SHUT.
+    Paridad-o-mejor vs `@ b1fcb1f` (M8 por defecto, MemorySaver/InMemory); congelado intocado; dummy intacta
+    (`ci` 5/5, principio #4). **Sigue F2** (Full-Stack: 2º dominio que prueba que el motor no es Python/agente-bound).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

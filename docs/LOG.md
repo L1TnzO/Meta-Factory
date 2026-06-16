@@ -1,7 +1,50 @@
-<!-- meta:doc sha=60d1b2274a938392db29bedae764707efa3e706f updated=2026-06-16T13:44Z -->
+<!-- meta:doc sha=74318e180adb621c13e204de13f01dc2a6c48c15 updated=2026-06-16T16:57Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-16T16:50Z — F1: ASF COMPLETO e2e — el producto LangGraph se GENERA y pasa su M8 real
+- **gatillo**: el ingeniero pidió F1 — el incremento más grande del roadmap (cierra el ~5–10% de la auditoría).
+  Antes de tocar nada, una pregunta metodológica suya: ¿regenerar el ASF que ya está, o un v2 desde cero?
+- **decisión metodológica (Opus, ojos propios)**: regenerar la **MISMA** fábrica `agent-systems-factory`
+  desde su spec — ni v2 nuevo, ni construir sobre el proxy. La fábrica registrada es OUTPUT (ADR-011:
+  regenerar = re-correr); editar el output rompe el punto fijo y la re-derivación lo delata. ASF-REGEN +
+  REGEN-AUDIT montaron un experimento controlado; el valor de F1 como prueba-que-mejora-la-Meta-Factory es
+  el **delta antes/después sobre el MISMO slug** (motor viejo→proxy 5–10% vs motor nuevo→producto real) +
+  vs el congelado `b1fcb1f` (oráculo, intocado). Lo que cambia NO es el dir de la fábrica (output) sino el
+  **spec**: S0–S8 pasan de `declared-deferred` a builds/checks reales. Alcance elegido por el ingeniero:
+  **producto NO-INFRA completo** (s1/s3/s4/s6/s7/s8; linaje/resume LIVE diferidos solo-CI como el original).
+- **decisión de diseño**: el producto LangGraph se genera por un scaffolder DETERMINISTA
+  (`factories/agent-systems-factory/codegen/scaffold_product.py`) que **vive en la FÁBRICA, no en el
+  sustrato** (ADR-012: el sustrato no nombra LangGraph; la fábrica eligió esa tech). Lee el blueprint
+  `domain.product` del spec (nodos/canales/aristas/interrupt_at/umbrales) y emite 31 archivos en
+  `build/product/` vía el slot `generate` (ADR-013: el sustrato orquesta, no genera). Determinista —no
+  `claude -p` vivo— porque lo exige la re-derivabilidad de `ci --rederive`. Cada estación prueba su capacidad
+  en el venv del PRODUCTO (DES-8, `pip install langgraph/otel/pydantic`): el M8 por defecto del ASF (MemorySaver,
+  InMemorySpanExporter, estructural) NO necesita infra viva. Clave que lo hizo factible: `compute_proof_sha`
+  sólo hashea (station, check-name, exit) — NO el venv —, así que el proof_sha es estable aunque langgraph flote.
+- **los dientes**: s4 `topology_compiles` (get_graph()+nodos fake-LLM) + `typed_blackboard` (`mypy --strict`) —
+  EL GATE que nombra el roadmap; s7 `interrupt_unbypassable` (alcanzabilidad sobre get_graph()) + `hitl_review_package`;
+  s3 `resume_no_reexec` (MemorySaver + interrupt+resume, los nodos pre-interrupt corren UNA vez); s1 obs; s6 grounded;
+  s8 eval. RTM C4: cada req → capability → station → **artifact REAL bajo build/product/** (hoja de evidencia rancia).
+- **prueba por bloqueo VIVA** (3 dientes sobre el producto emitido; corromper → gate real → rojo → regenerar):
+  reroute `synthesize→END` (interrupt salteable) → `test_interrupt_makes_end_unreachable…` FALLA (s7);
+  `_bad: int="no soy int"` → `mypy --strict` error (s4); validator que no fuerza grounded=false → `test_attribution`
+  FALLA (s6). Sutileza honesta: el 1er intento (edge paralelo `synthesize→END`) NO rompió —LangGraph dedup-ea
+  edges estáticos por source— hasta que entendí que había que REROUTEAR el target, no agregar paralelo.
+- **resultado**: `product-run` PASS · pin 6/6 · M0–M8 verde (m06 clean_runner re-deriva en clon limpio ==
+  pineado: re-bootstrapea el venv y regenera el producto; m07 command_runs corre el `assemble` emitido) ·
+  `ci --rederive` 6/6 · RTM COMPLETE 6/6 · `meta check` 5/5 (suite 443, test de fidelidad A2 actualizado:
+  las 7 capacidades canónicas sobreviven + núcleo tipado). Dummy intacta (`ci` 5/5, principio #4). Congelado intocado.
+- **incidente de proceso (honesto)**: REINCIDÍ en el deadlock de cwd (memoria `no-cd-subdirs`) — un `cd` a la
+  subcarpeta de la fábrica al inicio de un comando movió el cwd persistente; los hooks de path relativo
+  (`gate_guard`/`increment_guard`) salieron exit 2 desde ahí y bloquearon Bash/Write/Edit (círculo: crear el
+  hook faltante requería Write, bloqueado por el hook faltante). Se resolvió con el ingeniero corriendo
+  `!cd <meta-root>` (el prefijo `!` saltea los hooks de herramienta). Lección reforzada: NUNCA `cd` a subdirs,
+  ni como parte de un comando compuesto — usar subshell `( cd … )` o `cwd=` del subprocess.
+- **bug atrapado**: `activation: off` en YAML 1.1 parsea como booleano False (no el string "off") → la estación
+  quedaba ACTIVA; m02 pasaba (bug consistente en ambos lados) pero product-run intentaba correr s0 sin checks.
+  Fix: `activation: "off"`. La lección: los gates lo atraparon (product-run rojo), no la prosa.
 
 ## 2026-06-16T13:22Z — E2: el MCP de la fábrica se GENERA, EXPONE sus tools y el orquestador las invoca
 - **gatillo**: el ingeniero pidió seguir con E2 — segunda mitad de la Fase E: generación de MCP (tools

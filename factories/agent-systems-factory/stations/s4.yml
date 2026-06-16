@@ -1,0 +1,27 @@
+id: s4
+name: Núcleo agéntico (topología tipada del StateGraph + mypy --strict)
+activation: always
+requires_prev: s3
+builds: []
+checks:
+- name: topology_compiles
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_topology.py
+  - tests/test_nodes.py
+- name: typed_blackboard
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - mypy
+  - --strict
+  - src/agent_system

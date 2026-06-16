@@ -1,0 +1,16 @@
+id: s3
+name: Estado durable y recuperación (resume sin reejecución, MemorySaver)
+activation: always
+requires_prev: s1
+builds: []
+checks:
+- name: resume_no_reexec
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_state.py

@@ -1,0 +1,34 @@
+id: s1
+name: Sustrato de observabilidad (+ genera el producto y bootstrapea su venv)
+activation: always
+builds:
+- action: generate
+  dest: build/product/MANIFEST.txt
+  brief: 'Generá el producto LangGraph de la fábrica agent-systems-factory en build/product/ desde
+    el blueprint
+
+    (domain.product del spec): paquete agent_system, nodos prompt con fake-LLM
+    en test,
+
+    interrupt no-salteable en ''human_review'', blackboard tipado, observabilidad
+    OTel,
+
+    estado durable (MemorySaver), atribución grounded=false, eval gates que bloquean.
+
+    '
+  via:
+  - python
+  - codegen/scaffold_product.py
+checks:
+- name: span_tree_provenance
+  kind: product_env
+  workdir: build/product
+  bootstrap:
+  - python3
+  - setup_env.py
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_obs.py

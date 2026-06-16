@@ -1,6 +1,6 @@
 # Agent Systems Factory — fábrica generada por el Meta-Factory
 
-Produce: **el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de invariante; la línea S0–S8 real es G-8 diferido)**.
+Produce: **una fábrica de sistemas de agentes LangGraph de grado-producción (línea S0–S8): topología tipada verificable que compila vía get_graph(), HITL no-salteable por alcanzabilidad, estado durable resumible, observabilidad con provenance y evaluación con compuertas que bloquean**.
 
 Esta fábrica nació con el sustrato de producción de fábricas ya horneado y verificado por
 construcción (los 13 invariantes). No se auto-fabrica: la gobierna el Meta-Factory, una capa

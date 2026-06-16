@@ -1,9 +1,14 @@
-# agent-systems-factory.factory.spec.yml — ASF descrito COMPLETO en la gramática v2 (A2).
-# BLUEPRINT (target) del ASF pineado @ b1fcb1f (reference/ASF-PROVENANCE.md). Describe, NO genera:
-# la línea S0–S8 real y las 7 capacidades quedan `declared-deferred` (su codegen es F1 del ROADMAP).
-# DIVERGE a propósito de la fábrica REGISTRADA factories/agent-systems-factory/ (proxy s00, cerrada en
-# ASF-REGEN): aquélla corre hoy; ésta es el target completo. El mapeo capacidad→primitiva es JUICIO
-# (provisional hasta el skill B1); el validator sólo exige la FORMA (tech⇒DES-N), nunca el nombre de tech.
+# agent-systems-factory.factory.spec.yml — ASF COMPLETO y MEJORADO e2e (F1 del ROADMAP).
+# La línea S0–S8 REAL: el producto LangGraph se GENERA (slot `generate`, ADR-013) por un scaffolder
+# DETERMINISTA dirigido por el blueprint de este spec, y cada estación PRUEBA su capacidad en el
+# `product_env` (el venv del PRODUCTO, DES-8/C3): pytest + `mypy --strict`, con LangGraph real.
+#
+# Regenera la MISMA fábrica registrada (factories/agent-systems-factory/) — no un v2: el output es
+# función del spec (ADR-011, regenerar = re-correr). Paridad-o-mejor vs el congelado @ b1fcb1f
+# (ASF-PROVENANCE.md, intocable; es el oráculo). El generador es DETERMINISTA (no `claude -p` vivo):
+# lo exige la re-derivabilidad de `ci --rederive` (re-pinea idéntico). Las primitivas infra-VIVAS
+# (Postgres resume real, Neo4j linaje) quedan `activation: off` / `declared-deferred` — igual que el
+# ASF original las gateaba solo-CI con contenedor efímero (es paridad, no atajo).
 
 # ── L0 · identidad ──
 factory:
@@ -11,151 +16,299 @@ factory:
   slug: agent-systems-factory
   maturity: regenerated
 
-# ── L1 · dominio: las 7 capacidades de producción, cada una con la primitiva DES que requiere y la
-#       tecnología que el plan eligió para proveerla (ADR-012). status declared-deferred (codegen = F1).
+# ── L1 · dominio: las capacidades de producción. Las materializadas en esta línea llevan status:built +
+#       el artifact REAL (la hoja del árbol de evidencia C4, bajo build/product/). Linaje/anclaje quedan
+#       declared-deferred (infra viva diferida). El mapeo capacidad→primitiva es JUICIO (B1); el validator
+#       sólo exige la FORMA (tech⇒DES-N), nunca el nombre de la tech (ADR-012).
 domain:
-  produces: "una fábrica de sistemas de agentes LangGraph de grado-producción (línea S0–S8): topología verificable, estado durable, linaje, anclaje, atribución, HITL no-salteable y evaluación con compuertas"
-  target_framework: { name: langgraph, provider_agnostic: true }   # ADR-002: productos sobre LangGraph; el producto llama al modelo vía ChatModel de LangChain, nunca importa el SDK de un proveedor
+  produces: "una fábrica de sistemas de agentes LangGraph de grado-producción (línea S0–S8): topología tipada verificable que compila vía get_graph(), HITL no-salteable por alcanzabilidad, estado durable resumible, observabilidad con provenance y evaluación con compuertas que bloquean"
+  target_framework: { name: langgraph, provider_agnostic: true }   # ADR-002: el producto llama al modelo vía ChatModel de LangChain (init_chat_model), nunca importa el SDK de un proveedor
   capabilities:
-    # Fuente: ARCHITECTURE.md §1.3 (tabla canónica) + PRODUCTION-CAPABILITIES.md §3 (patrones e invariantes)
     - id: observabilidad
-      invariant: "árbol de trazas inspeccionable de toda decisión: un procesador de spans (generado) inyecta los atributos semánticos de provenance en cada span del producto; el invariante no depende de ningún nodo del agente"
+      invariant: "un procesador de spans (generado) inyecta la clave de unión de provenance (checkpoint_id, trace_id, span_id) + service.name en CADA span; el invariante no depende de ningún nodo del agente"
       primitive: DES-5            # Procedencia / trazabilidad
-      tech: "OpenTelemetry GenAI semconv + export OTLP (Langfuse/Phoenix)"
-      artifact: "observability/span_processor.py"
-      proof: "un árbol de spans con atributos provenance.* en InMemorySpanExporter"
-      status: declared-deferred
+      tech: "OpenTelemetry SDK + InMemorySpanExporter (export OTLP en producción)"
+      artifact: build/product/src/agent_system/generated/obs/span_processor.py
+      proof: "s1: un árbol de spans con atributos provenance.* capturado por InMemorySpanExporter (sin red)"
+      status: built
     - id: trazabilidad_y_linaje
       invariant: "recorrido bidireccional salida↔evidencia sobre grafo W3C PROV+PAV en Neo4j; todo nodo de linaje estampa la clave de unión (trace_id, span_id, checkpoint_id)"
       primitive: DES-5
       tech: "Neo4j + modelo W3C PROV+PAV"
-      artifact: "lineage/graph.py"
-      proof: "recorridos backward (salida→evidencia) y forward (fuente→influidos) con la clave de unión presente"
+      proof: "recorridos backward/forward con clave de unión (requiere Neo4j vivo — solo-CI, diferido)"
       status: declared-deferred
     - id: estado_durable_y_recuperacion
-      invariant: "la máquina de estados es checkpointeada; un fallo de nodo no reejecuta lo completado — el ciclo es resumible desde el último checkpoint"
+      invariant: "la máquina de estados es checkpointeada; un nodo completado NO se reejecuta tras un interrupt+resume — el ciclo resume desde el último checkpoint (probado in-process con MemorySaver; el saver Postgres vivo es solo-CI)"
       primitive: DES-4            # Estado durable / resumible
-      tech: "LangGraph AsyncPostgresSaver (langgraph-checkpoint-postgres)"
-      artifact: "state/checkpointer.py"
-      proof: "prueba de fallo inyectado: los nodos completados no se reejecutan; el grafo resume"
-      status: declared-deferred
+      tech: "LangGraph checkpointer (MemorySaver en test/local; AsyncPostgresSaver en producción)"
+      artifact: build/product/src/agent_system/generated/state/checkpoint.py
+      proof: "s3: resume sin reejecución — un wrapper que cuenta ejecuciones demuestra que los nodos pre-interrupt corren UNA vez"
+      status: built
+    - id: nucleo_agentico
+      invariant: "la topología del StateGraph compila vía get_graph() con blackboard TIPADO (TypedDict + reductores); pasa mypy --strict en el venv del producto; los nodos prompt corren con un LLM falso (fake-LLM)"
+      primitive: DES-6            # Contratos tipados en fronteras (el blackboard tipado + get_graph())
+      tech: "LangGraph StateGraph + TypedDict con reductores Annotated; mypy --strict"
+      artifact: build/product/src/agent_system/generated/graph/topology.py
+      proof: "s4: topology_compiles (get_graph() + nodos con fake-LLM) Y typed_blackboard (mypy --strict src/)"
+      status: built
     - id: anclaje_de_fuentes
-      invariant: "retrieval trazable por construcción: tabla de evidencia inmutable (append-only), segmentación consciente de fronteras, interfaz retrieve() que retorna ProvenancePayload no opcional"
-      primitive: DES-6            # Contratos tipados en fronteras (el retrieve() tipado es el invariante exigible)
+      invariant: "retrieval trazable por construcción: tabla de evidencia inmutable, segmentación consciente de fronteras, interfaz retrieve() que retorna ProvenancePayload no opcional"
+      primitive: DES-6
       tech: "tabla de evidencia append-only + interfaz tipada retrieve()→tuple[str, ProvenancePayload]"
-      artifact: "grounding/retrieve.py"
-      proof: "mypy --strict sobre la firma + segmentación consciente de fronteras"
+      proof: "mypy --strict sobre la firma (diferido con el linaje vivo)"
       status: declared-deferred
     - id: atribucion_y_fundamentacion
-      invariant: "bandera grounded/inferred con confianza calibrada por ítem: un ítem sin fragmento de soporte se fuerza a grounded=false; la escalera de atribución (ContextCite/MiniCheck/NLI) corre como nodos del grafo, no interna a un nodo del agente"
-      primitive: DES-3            # Puntos de control no-salteables (la regla «sin soporte⇒grounded=false»); la escalera-como-nodos es DES-2
-      tech: "escalera de atribución (NLI/MiniCheck/ContextCite) como nodos del grafo"
-      artifact: "attribution/ladder.py"
-      proof: "regla 'sin soporte ⇒ grounded=false' + presencia de bandera+confianza en cada ítem"
-      status: declared-deferred
+      invariant: "bandera grounded/inferred con confianza calibrada por ítem: un ítem sin fragmento de soporte se FUERZA a grounded=false por un model_validator (no por convención)"
+      primitive: DES-3            # Puntos de control no-salteables (la regla «sin soporte⇒grounded=false»)
+      tech: "pydantic model_validator(mode='after') que fuerza grounded=false sin evidencia"
+      artifact: build/product/src/agent_system/generated/attribution/schema.py
+      proof: "s6: regla 'sin soporte ⇒ grounded=false' + presencia de bandera+confianza en cada ítem"
+      status: built
     - id: control_y_supervision_humana
-      invariant: "techo de autonomía imposible de saltear: ninguna ruta de finalización evita el interrupt() de LangGraph; toda edición humana en el resume crea una versión nueva con pav:curatedBy; la salida lleva etiqueta DRAFT; no existe ruta de auto-aprobación"
-      primitive: DES-3            # Puntos de control no-salteables (interrupt() es la primitiva canónica)
-      tech: "interrupt()/resume de LangGraph + versionado PAV"
-      artifact: "hitl/review.py"
-      proof: "alcanzabilidad sobre el grafo compilado get_graph(): ninguna ruta de finalización evita interrupt()"
-      status: declared-deferred
+      invariant: "techo de autonomía imposible de saltear: ninguna ruta de finalización evita el nodo interrupt; toda edición humana en el resume crea una versión nueva con pav (revision_of); la salida arranca DRAFT; no existe ruta de auto-aprobación"
+      primitive: DES-3            # Puntos de control no-salteables (interrupt es la primitiva canónica)
+      tech: "interrupt_before de LangGraph + ReviewPackage versionado PAV"
+      artifact: build/product/src/agent_system/generated/control/hitl.py
+      proof: "s7: alcanzabilidad sobre get_graph() (quitar el nodo interrupt hace END inalcanzable) + ReviewPackage DRAFT/approve/reject"
+      status: built
     - id: evaluabilidad
-      invariant: "calidad medida con compuertas que bloquean: el CI termina con error si una métrica cae bajo su umbral (ej. faithfulness ≥ 0.7, recall crítico ≥ 0.9, parametrizados desde el spec); el gold set provisional queda etiquetado y la acción requerida documentada"
+      invariant: "calidad medida con compuertas que BLOQUEAN: assert_eval_gates termina con error si una métrica cae bajo su umbral (faithfulness ≥ 0.7, recall crítico ≥ 0.9, parametrizados desde el spec)"
       primitive: DES-7            # Evaluabilidad con compuertas
-      tech: "DeepEval/RAGAS/Phoenix Evals con gates de umbral en CI"
-      artifact: "eval/harness.py"
-      proof: "el CI termina con error ante un caso failing bajo umbral"
-      status: declared-deferred
+      tech: "arnés de evaluación con gates de umbral (DeepEval/RAGAS en producción)"
+      artifact: build/product/src/agent_system/generated/eval/harness.py
+      proof: "s8: assert_eval_gates LANZA AssertionError ante un caso bajo umbral (la garantía de exit≠0 del CI)"
+      status: built
 
-  # ── L2 · línea: la secuencia S0–S8 real del ASF como stations v2 (depends_on + proof_checks).
-  #       Fuente: ARCHITECTURE.md §10 (tabla canónica de estaciones). status declared-deferred (codegen F1).
-  #       Activación: las estaciones condicionales del ASF (linaje/anclaje/atribución/HITL) son `optional`.
+  # ── BLUEPRINT del producto (DATO que consume el scaffolder determinista; 100% derivable, ADR-011) ──
+  #     El sustrato no nombra tech: esto es el PLAN del producto (nodos/canales/aristas/umbrales) que el
+  #     generador de la fábrica (codegen/scaffold_product.py) lee y materializa en LangGraph.
+  product:
+    product_module: agent_system
+    package_name: agent_system
+    greet_fn: assemble          # el producto-demo de la frontera M4 (domain/agent_system.py) expone assemble()
+    marker: AGENT_SYSTEM_OK
+    task_description: "investigar una consulta, sintetizar un borrador y pasar por revisión humana antes de finalizar"
+    default_model: "anthropic:claude-haiku-4-5"   # ADR-002: provider-agnóstico vía init_chat_model; en test se inyecta un fake-LLM
+    interrupt_at: human_review
+    autonomy_level: 1
+    faithfulness_min: 0.7
+    critical_recall_min: 0.9
+    semantic_attrs: ["gen_ai.system", "gen_ai.operation.name"]
+    channels:
+      - { id: input_text, type: str,  reducer: last }
+      - { id: findings,   type: list, reducer: append }
+      - { id: draft,      type: str,  reducer: last }
+      - { id: output,     type: str,  reducer: last }
+    nodes:
+      - { id: research,     provision: prompt, writes_to: findings, instruction: "Investigá la consulta y listá hallazgos con evidencia." }
+      - { id: synthesize,   provision: prompt, writes_to: draft,    instruction: "Sintetizá un borrador a partir de los hallazgos del blackboard." }
+      - { id: human_review, provision: prompt, writes_to: output,   instruction: "Producí la salida final revisada (tras la aprobación humana)." }
+    edges:
+      - [__start__, research]
+      - [research, synthesize]
+      - [synthesize, human_review]
+      - [human_review, __end__]
+
+  # ── L2 · línea S0–S8: las materializadas (s1,s3,s4,s6,s7,s8) llevan builds/checks EJECUTABLES; las
+  #       infra-vivas (s2 linaje Neo4j, s5 anclaje) y la admisión s0 (cubierta por m00) van activation:off
+  #       (declared-deferred, honesto). m02 materializa SOLO las activas (la gate exige que coincidan).
   station_sequence:
     - id: s0
       name: "Contrato de especificación (Definition of Ready)"
-      activation: always
+      activation: off            # la admisión de spec la hace la meta-estación M0 de la fábrica
       status: declared-deferred
       proof_checks:
         - { name: spec_admission, cmd: "validar spec contra schema+completitud+refs cruzadas", runs_in: factory_env, toolchain: metafactory, status: declared-deferred }
     - id: s1
-      name: "Sustrato de observabilidad"
+      name: "Sustrato de observabilidad (+ genera el producto y bootstrapea su venv)"
       activation: always
-      depends_on: [s0]
-      status: declared-deferred
+      status: built
       proof_checks:
-        - { name: span_tree_provenance, cmd: "pytest tests/test_observability.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
+        - { name: span_tree_provenance, cmd: "pytest tests/test_obs.py", runs_in: product_env, toolchain: pytest, status: built }
+      # s1 corre el slot `generate`: el scaffolder DETERMINISTA emite TODO el árbol del producto LangGraph
+      # (obs/graph/state/control/attribution/eval + tests + pyproject + conftest) en build/product/. dest =
+      # el manifiesto que el scaffolder escribe AL FINAL (canary de completitud). Su check bootstrapea el
+      # venv del producto (pip install langgraph/otel/pydantic/pytest/mypy) y prueba la observabilidad VIVA.
+      builds:
+        - action: generate
+          dest: build/product/MANIFEST.txt
+          brief: |
+            Generá el producto LangGraph de la fábrica {{slug}} en build/product/ desde el blueprint
+            (domain.product del spec): paquete {{package_name}}, nodos prompt con fake-LLM en test,
+            interrupt no-salteable en '{{interrupt_at}}', blackboard tipado, observabilidad OTel,
+            estado durable (MemorySaver), atribución grounded=false, eval gates que bloquean.
+          via: ["python", "codegen/scaffold_product.py"]
+      checks:
+        - name: span_tree_provenance
+          kind: product_env
+          workdir: build/product
+          bootstrap: ["python3", "setup_env.py"]
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_obs.py"]
     - id: s2
-      name: "Sustrato de trazabilidad/linaje"
-      activation: optional        # condicionada por profundidad de linaje en el spec
-      depends_on: [s1, s3]        # la clave de unión del linaje incluye checkpoint_id (de S3, estado durable); PRODUCTION-CAPABILITIES S2
+      name: "Sustrato de trazabilidad/linaje (Neo4j vivo — diferido)"
+      activation: off
+      depends_on: [s1]
       status: declared-deferred
       proof_checks:
         - { name: lineage_join_key, cmd: "pytest tests/test_lineage.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
     - id: s3
-      name: "Estado durable y recuperación"
+      name: "Estado durable y recuperación (resume sin reejecución, MemorySaver)"
       activation: always
-      depends_on: [s0]
-      status: declared-deferred
+      depends_on: [s1]
+      status: built
       proof_checks:
-        - { name: resume_no_reexec, cmd: "pytest tests/test_checkpoint_resume.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
+        - { name: resume_no_reexec, cmd: "pytest tests/test_state.py", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: resume_no_reexec
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_state.py"]
     - id: s4
-      name: "Núcleo agéntico (topología del StateGraph)"
+      name: "Núcleo agéntico (topología tipada del StateGraph + mypy --strict)"
       activation: always
       depends_on: [s1, s3]
-      status: declared-deferred
+      status: built
       proof_checks:
-        - { name: topology_compiles, cmd: "pytest tests/test_topology.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
-        - { name: typed_blackboard, cmd: "mypy --strict src/", runs_in: product_env, toolchain: mypy, status: declared-deferred }
+        - { name: topology_compiles, cmd: "pytest tests/test_topology.py tests/test_nodes.py", runs_in: product_env, toolchain: pytest, status: built }
+        - { name: typed_blackboard, cmd: "mypy --strict src/", runs_in: product_env, toolchain: mypy, status: built }
+      builds: []
+      checks:
+        - name: topology_compiles
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_topology.py", "tests/test_nodes.py"]
+        - name: typed_blackboard
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "mypy", "--strict", "src/agent_system"]
     - id: s5
-      name: "Anclaje de fuentes"
-      activation: optional        # condicionada por source_grounded en el spec
+      name: "Anclaje de fuentes (retrieve tipado — diferido con el linaje vivo)"
+      activation: off
       depends_on: [s4]
       status: declared-deferred
       proof_checks:
         - { name: typed_retrieve, cmd: "mypy --strict src/grounding/", runs_in: product_env, toolchain: mypy, status: declared-deferred }
     - id: s6
-      name: "Atribución y fundamentación"
-      activation: optional        # condicionada por 'hace aserciones' en el spec
-      depends_on: [s5]
-      status: declared-deferred
-      proof_checks:
-        - { name: no_support_ungrounded, cmd: "pytest tests/test_attribution.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
-    - id: s7
-      name: "Control y supervisión humana"
-      activation: optional        # condicionada por nivel de autonomía en el spec
-      depends_on: [s4]
-      status: declared-deferred
-      proof_checks:
-        - { name: interrupt_unbypassable, cmd: "pytest tests/test_hitl_reachability.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
-    - id: s8
-      name: "Sustrato de evaluabilidad"
+      name: "Atribución y fundamentación (sin soporte ⇒ grounded=false)"
       activation: always
       depends_on: [s4]
-      status: declared-deferred
+      status: built
       proof_checks:
-        - { name: eval_threshold_gate, cmd: "pytest tests/test_eval_gates.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
+        - { name: no_support_ungrounded, cmd: "pytest tests/test_attribution.py", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: no_support_ungrounded
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_attribution.py"]
+    - id: s7
+      name: "Control y supervisión humana (interrupt no-salteable + ReviewPackage PAV)"
+      activation: always
+      depends_on: [s4]
+      status: built
+      proof_checks:
+        - { name: interrupt_unbypassable, cmd: "pytest tests/test_topology.py -k interrupt", runs_in: product_env, toolchain: pytest, status: built }
+        - { name: hitl_review_package, cmd: "pytest tests/test_hitl.py", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: interrupt_unbypassable
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_topology.py", "-k", "interrupt"]
+        - name: hitl_review_package
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_hitl.py"]
+    - id: s8
+      name: "Sustrato de evaluabilidad (gates de umbral que bloquean)"
+      activation: always
+      depends_on: [s4]
+      status: built
+      proof_checks:
+        - { name: eval_threshold_gate, cmd: "pytest tests/test_eval.py", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: eval_threshold_gate
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_eval.py"]
 
-  provision_modes: [prompt, integration, custom]   # ARCHITECTURE.md §11.2: prompt→Nivel A · integration→Nivel B/C · custom→reductor de canal
-  hitl: { non_skippable_interrupt: true }           # §1.3 + §10 S7 + ADR-015: verificado por alcanzabilidad sobre get_graph()
-  product:
-    product_module: agent_system
-    greet_fn: assemble
-    marker: AGENT_SYSTEM_OK
+  provision_modes: [prompt, integration, custom]
+  hitl: { non_skippable_interrupt: true }
 
-# ── L3 · maquinaria: lo que el PLAN eligió (DATO, no opinado por el sustrato; ADR-012) ──
+# ── L3 · maquinaria: el harness EMITIDO del spec (D2). El comando `assemble` corre el scaffolder en modo
+#       --selftest (lee el blueprint, no escribe; no depende de build/) para que command_runs (M7) lo
+#       ejecute verde. La COLUMNA (Cerrojos 1/2/3 + settings, L4) sigue heredada verbatim (D1). mcp/infra
+#       declaran su tech (ADR-012); su materialización VIVA es follow-up.
 machinery:
   harness:
-    tech: "agents (roles S0–S8) + hooks (columna) + commands + MCP tipado"
-    primitive: DES-1              # Andamiaje regenerable (el harness se genera del spec)
-    status: declared-deferred
+    tech: "Claude Code: agents (delegación) + commands (operador) + skills, emitidos del spec"
+    primitive: DES-1
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica agent-systems-factory (implementación)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión). Dejás que la gate sea la autoridad: nunca afirmás
+          verde, lo demostrás. No tocás `.proof/` ni la cadena de confianza (sombras deterministas, no prosa).
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Revisás con ojos propios (la cadena de confianza no se delega); nunca emitís un veredicto —
+          reportás evidencia re-derivada y delegás el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no aprobás, no escribís.
+    commands:
+      - name: assemble
+        description: "Verifica que el generador del producto puede ensamblar la línea desde el blueprint (selftest, no escribe)."
+        run: ["python", "codegen/scaffold_product.py", "--selftest"]
+        body: |
+          # /assemble — verificá que el producto de {{slug}} se puede ensamblar
+          Corré el scaffolder en modo selftest: parsea el blueprint del spec y confirma que la línea
+          LangGraph está lista para generarse. El producto e2e se construye con `meta product-run`.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos, nunca el dump de tests.
+          Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
   mcp:
     tech: "MCP de la fábrica: tools tipadas (validate/station/rtm) que el orquestador invoca"
-    primitive: DES-6              # Contratos tipados en fronteras
+    primitive: DES-6
     status: declared-deferred
   infra:
     tech: "Postgres (checkpointer) + Neo4j (linaje), levantados en sandbox por compose"
-    primitive: DES-4              # Estado durable / resumible
+    primitive: DES-4
     status: declared-deferred
 
 # ── L4 · sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
@@ -169,27 +322,44 @@ factory_substrate:
   placement_law: true
   context_budget: { claude_md_max_lines: 120 }
 
-# ── L5 · requisitos (espina SDD): satisfied_by → estaciones; verified_by → proof_checks reales ──
+# ── L5 · requisitos (espina SDD): satisfied_by → estaciones activas; verified_by → proof_checks reales;
+#       capability → la hoja del árbol de evidencia (el artifact bajo build/product/ debe existir, C4) ──
 requirements:
   functional:
     - id: REQ-F-001
-      statement: "el núcleo agéntico compila su topología (get_graph()) y ninguna ruta de finalización evita el interrupt() (HITL no-salteable)"
-      acceptance: "topology_compiles verde Y la alcanzabilidad demuestra que toda terminación pasa por interrupt()"
+      statement: "el núcleo agéntico compila su topología tipada (get_graph()) y ninguna ruta de finalización evita el nodo interrupt (HITL no-salteable)"
+      acceptance: "topology_compiles verde Y la alcanzabilidad demuestra que quitar el nodo interrupt hace END inalcanzable desde START"
       satisfied_by: [s4, s7]
       verified_by: [topology_compiles, interrupt_unbypassable]
+      capability: nucleo_agentico
     - id: REQ-F-002
-      statement: "un fallo de nodo no reejecuta lo completado: el ciclo resume desde el último checkpoint"
-      acceptance: "resume_no_reexec verde con un fallo inyectado a mitad de la línea"
+      statement: "un nodo completado no se reejecuta: el ciclo resume desde el último checkpoint (durabilidad de estado)"
+      acceptance: "resume_no_reexec verde: tras interrupt+resume, los nodos pre-interrupt corrieron UNA sola vez"
       satisfied_by: [s3]
       verified_by: [resume_no_reexec]
+      capability: estado_durable_y_recuperacion
     - id: REQ-F-003
-      statement: "un ítem de salida sin fragmento de soporte se fuerza a grounded=false (atribución honesta)"
-      acceptance: "no_support_ungrounded verde: ningún ítem sin soporte queda grounded=true"
+      statement: "un ítem de salida sin fragmento de soporte se fuerza a grounded=false (atribución honesta por construcción)"
+      acceptance: "no_support_ungrounded verde: ningún ítem sin evidence_ids queda grounded=true"
       satisfied_by: [s6]
       verified_by: [no_support_ungrounded]
+      capability: atribucion_y_fundamentacion
+    - id: REQ-F-004
+      statement: "cada span del producto lleva la clave de unión de provenance (checkpoint_id, trace_id, span_id) + service.name, independiente de los nodos del agente"
+      acceptance: "span_tree_provenance verde: el InMemorySpanExporter captura spans con los atributos provenance.*"
+      satisfied_by: [s1]
+      verified_by: [span_tree_provenance]
+      capability: observabilidad
+    - id: REQ-F-005
+      statement: "toda salida pendiente de revisión arranca DRAFT y cada aprobación/rechazo crea una versión nueva (PAV revision_of); no hay ruta de auto-aprobación"
+      acceptance: "hitl_review_package verde: ReviewPackage default DRAFT; approve()/reject() devuelven una versión nueva con revision_of"
+      satisfied_by: [s7]
+      verified_by: [hitl_review_package]
+      capability: control_y_supervision_humana
   nonfunctional:
     - id: REQ-NF-001
-      statement: "la calidad se mide con compuertas que BLOQUEAN: el CI termina con error si una métrica cae bajo su umbral"
-      acceptance: "eval_threshold_gate hace fallar el CI ante un caso bajo umbral (faithfulness < 0.7)"
+      statement: "la calidad se mide con compuertas que BLOQUEAN: el arnés termina con error si una métrica cae bajo su umbral"
+      acceptance: "eval_threshold_gate verde: assert_eval_gates lanza AssertionError ante faithfulness < 0.7"
       satisfied_by: [s8]
       verified_by: [eval_threshold_gate]
+      capability: evaluabilidad

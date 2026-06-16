@@ -3,7 +3,7 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- Fábrica **agent-systems-factory** recién nacida por la línea M0–M8 del Meta-Factory. Produce: el chasis de una fábrica de sistemas de agentes LangGraph (producto proxy de invariante; la línea S0–S8 real es G-8 diferido).
+- Fábrica **agent-systems-factory** recién nacida por la línea M0–M8 del Meta-Factory. Produce: una fábrica de sistemas de agentes LangGraph de grado-producción (línea S0–S8): topología tipada verificable que compila vía get_graph(), HITL no-salteable por alcanzabilidad, estado durable resumible, observabilidad con provenance y evaluación con compuertas que bloquean.
 - Hereda el sustrato de toda fábrica confiable (columna anti-sello, bus de veredictos, RTM,
   dos verificadores) cableado por construcción — no re-derivado a mano.
 

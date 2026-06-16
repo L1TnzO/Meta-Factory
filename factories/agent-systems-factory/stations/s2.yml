@@ -1,0 +1,6 @@
+id: s2
+name: Sustrato de trazabilidad/linaje (Neo4j vivo — diferido)
+activation: 'False'
+requires_prev: s1
+builds: []
+checks: []

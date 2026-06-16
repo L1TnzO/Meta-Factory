@@ -1,0 +1,28 @@
+id: s7
+name: Control y supervisión humana (interrupt no-salteable + ReviewPackage PAV)
+activation: always
+requires_prev: s4
+builds: []
+checks:
+- name: interrupt_unbypassable
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_topology.py
+  - -k
+  - interrupt
+- name: hitl_review_package
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_hitl.py

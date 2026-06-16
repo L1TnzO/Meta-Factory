@@ -1,0 +1,16 @@
+id: s6
+name: Atribución y fundamentación (sin soporte ⇒ grounded=false)
+activation: always
+requires_prev: s4
+builds: []
+checks:
+- name: no_support_ungrounded
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_attribution.py

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=64e32665160933ff22057f7489d5e6d00a668ab7 updated=2026-06-16T22:04Z -->
+<!-- meta:doc sha=3dd08d943c385aed18b86363399ca610da8da463 updated=2026-06-16T22:04Z -->
 # Incremento MAT-0-GENERALITY-PARITY
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T21:50Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T22:04Z) (creado 2026-06-16T21:50Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

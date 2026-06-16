@@ -83,6 +83,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.memory.projection", "check"]},
         {"name": "isolation", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests/test_isolation.py"]},
+        {"name": "generality", "kind": "command",       # ADR-014 (MAT-0): ningún mecanismo de sustrato
+         "cmd": [py, "-m", "metafactory.verify.checks.generality_parity", str(root)]},  # `general` sin paridad de 2 dominios
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]

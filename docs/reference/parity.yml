@@ -1,0 +1,44 @@
+# parity.yml — el LIBRO DE PROMOCIÓN de mecanismos de SUSTRATO (ADR-014, MAT-0). SINGLE SOURCE.
+#
+# Un *mecanismo de sustrato* es una capacidad de generación/verificación/gating en `src/metafactory/`
+# o `seed/` (un `kind` de check del registry, o una build `action`). ADR-014 §2: un mecanismo NO promueve
+# —no cierra su incremento ni una fábrica confía en él como general— hasta estar probado verde en ≥2
+# fábricas de dominios RADICALMENTE DISTINTOS. Prototipar en un dominio está permitido (§"gobierna la
+# promoción, no la exploración"); declararlo general sin la 2ª prueba, no.
+#
+# Este archivo declara el CLAIM; el check `verify/checks/generality_parity.py` lo VERIFICA contra los
+# artefactos (`.proof/` recomputado) y los specs (toolchain + primitivas), no contra prosa.
+#
+# Campos por entrada:
+#   mechanism : el `kind` de check (registry) o la `action` de build que ES el mecanismo.
+#   status    : prototype  -> exploración en ≤N dominios; NO gatea (ADR-014 §2).
+#               general    -> PROMOVIDO; el check EXIGE ≥2 `domains` que lo prueben verde y un par
+#                             radicalmente distinto (§3: lenguaje de producto disjunto Y mezcla de
+#                             primitivas distinta). Si no se cumple -> ROJO.
+#   domains   : slugs de las fábricas que lo co-validan (las que el check audita).
+#   note      : por qué está donde está / qué lo promovería.
+#
+# HOY (post-F1): dummy y ASF son AMBOS Python -> NINGÚN mecanismo califica como `general` todavía. Todo
+# queda en `prototype`. El 2º toolchain (Full-Stack/TypeScript, MAT-1) es lo que habilita la promoción:
+# es el lockstep que ADR-014 §6 / MATURITY-PLAN §6 piden. Marcar algo `general` ahora -> el check ROJO.
+
+mechanisms:
+  - mechanism: product_env       # DES-8 (C3): proof en el toolchain DEL producto, venv aislado.
+    status: prototype
+    domains: [dummy, agent-systems-factory]
+    note: "Probado verde en dummy(s02) y ASF(s1/s3/s4/s6/s7/s8) pero AMBOS Python; promueve a general con un 2º lenguaje (MAT-1)."
+
+  - mechanism: generate          # ADR-013 (C1): el slot creativo (brief -> via -> artefacto; la columna arbitra).
+    status: prototype
+    domains: [dummy, agent-systems-factory]
+    note: "El `via` vivo por LLM (MAT-2) se cierra en lockstep ASF + Full-Stack; hoy scaffolder determinista, un lenguaje."
+
+  - mechanism: infra_up          # DES-9 (E1): la infra declarada levanta en el sandbox y un proof la usa.
+    status: prototype
+    domains: [dummy]
+    note: "Co-validado socket-Unix + TCP por test; promueve con infra real en 2 toolchains (MAT-3)."
+
+  - mechanism: mcp_tools         # DES-6 (E2): el MCP generado expone e invoca tools tipadas.
+    status: prototype
+    domains: [dummy]
+    note: "Co-validado stdlib + toolset aritmético por test; promueve con MCP en 2 toolchains."

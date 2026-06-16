@@ -22,7 +22,11 @@ def test_no_generation_tech_in_substrate():
     """ADR-012/013 guard: the substrate names NO generation/domain tech. Generation happens via
     a generator DECLARED IN DATA (`generate`'s `via`), never an `import` baked into `src/`. If a
     stack package is imported here, the platform got opinionated to a stack (the G-2 of ASF, a
-    level up). New domains add data (a `via`), not a substrate dependency."""
+    level up). New domains add data (a `via`), not a substrate dependency.
+
+    Su HERMANO es `verify/checks/generality_parity.py` (ADR-014, MAT-0): este guard prohíbe HORNEAR la
+    tech; aquél prohíbe DECLARAR `general` un mecanismo de sustrato probado en un solo dominio. Juntos
+    cierran el anti-overfitting (no nombrar la tech + no creerse general sin 2 dominios distintos)."""
     techs = ("copier", "cookiecutter", "jinja2", "mako", "genshi",
              "langgraph", "langchain", "llama_index", "openai", "anthropic")
     pat = re.compile(rf"^\s*(from|import)\s+({'|'.join(techs)})(\.|\s|$)", re.MULTILINE)

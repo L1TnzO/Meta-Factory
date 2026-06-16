@@ -10,6 +10,7 @@ activation: always
 builds:
   - { action: copy_seed }                                  # seed/verifier.py + column.md + external_ci.yml
   - { action: render_tree, src: "template/factory/harness", dest: "." }   # .claude/ hooks + permissions.deny
+  - { action: render, src: "template/factory/seed/external_ci.yml", dest: "seed/external_ci.yml" }  # D1: external_ci POR-FÁBRICA (re-deriva {{slug}}), pisa la copia verbatim
 checks:
   - { name: seed_present, kind: artifact_contains, file: "seed/verifier.py", marker: "recompute_passed" }
   - { name: column_blocks, kind: column_selftest }

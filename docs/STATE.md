@@ -1,6 +1,6 @@
-<!-- meta:doc sha=e3afe4194ca40df858e5fc8123ff890a16cfed98 updated=2026-06-16T00:34Z -->
+<!-- meta:doc sha=79f35230cf862b2cc129ed2d7532131501e8ed0b updated=2026-06-16T01:11Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-16T00:25Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** + **Fase D 🟡** — D1 columna anti-sello COMPLETA heredada por lo generado) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-16T01:05Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** + **Fase D ✅** — D1 columna anti-sello COMPLETA heredada + D2 harness EMITIDO desde el spec) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -67,7 +67,7 @@
     artifact, RTM 3/3, M0–M8 + `ci --rederive` 3/3, pin intacto); ASF (proxy) verde con artifact N/A.
     Bloqueo (`test_rtm_tree.py` 12 + CLI): borrar `build/greeting.py` con el proof intacto → REQ-F-001 UNSAT.
     Suite 376.
-- **Fase D 🟡 (2026-06-16) — "de manera segura": la columna COMPLETA la hereda lo generado**:
+- **Fase D ✅ (2026-06-16) — "de manera segura": columna completa heredada + harness generado del spec**:
   - **D1 (`D1-FULL-COLUMN`)**: la fábrica generada hereda los **tres** Cerrojos, no sólo el 1. `commit_guard`
     (C2: recompute de la activa en `git commit`) y `stop_proof` (C3: recompute al cierre del turno) como hooks
     **autocontenidos en el seed heredado** (cero `metafactory.*`, cargan `seed/verifier.py` por path; el runner
@@ -79,8 +79,19 @@
     argv brickearía la sesión); el *artefacto rancio* sube al `external_ci` (clon limpio con toolchain), como
     `column.md` pone el CI por encima de los locks. Dummy **y** ASF regenerados con la columna completa
     (principio #4). Suite 394. Bloqueo VIVO por CLI: clon limpio de la dummy, corromper un veredicto → su
-    propia `commit_guard`/`stop_proof` bloquea (exit 2), **sin** la columna del Meta-Factory. **Sigue D2**
-    (generación de harness por spec). Diferido honesto: `increment_guard`/cadencia heredada (toca D2).
+    propia `commit_guard`/`stop_proof` bloquea (exit 2), **sin** la columna del Meta-Factory.
+  - **D2 (`D2-HARNESS-GEN`)**: el **harness se EMITE desde el spec** (L3 `machinery.harness`), no de un
+    template fijo. Acción `emit_harness` (M7) escribe `.claude/agents/*.md` (roles + sombras I-12),
+    `.claude/commands/*.md` (con su `run` ejecutable en frontmatter) y `.claude/skills/*/SKILL.md` desde
+    DATO — el sustrato no hardcodea roles (ADR-011/012; agents quitados del template). La **columna**
+    (Cerrojos 1/2/3 + `settings.json`, L4) sigue heredada, NO spec-driven (frontera de seguridad). Dos
+    dientes en M7: `agent_shadow` (sombras presentes+cableadas; un agent con sombra fantasma → rojo) y
+    `command_runs` nuevo (ejecuta el `run` de cada command; roto/muerto → rojo — un command generado CORRE).
+    Validator suma shape-teeth (command sin `run` / agent sin `name` → M0 rojo). Dummy **y** ASF regenerados
+    con el harness 100% del spec; M0–M8 + `ci` (3/3 · 1/1, pin intacto) + `meta check` (suite 413) verdes.
+    Demo VIVO por CLI: el `run` del `greet.md` emitido corre (exit 0 → DUMMY_OK). **Sigue E1** (infra/sandbox
+    como primitiva). Diferido honesto: hooks de dominio desde L3 (sin necesidad concreta) y
+    `increment_guard`/cadencia heredada (necesita el lifecycle de incrementos propio de la fábrica).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -125,15 +136,16 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4) · Fase D 🟡 (D1 ✅).**
-> **Próximo: D2** (Fase D, seguridad: **generación de harness por spec** — `hooks` con su sombra I-12, `agents`,
-> `commands`, `skills` emitidos desde L3; acá entra la **cadencia/`increment_guard` heredada** que D1 difirió.
-> *Gate*: `agent_shadow` verde sobre la fábrica generada + un command generado corre). D1 dejó la columna
-> anti-sello COMPLETA (Cerrojos 1/2/3) heredada y probada por bloqueo. Después E → F (ASF/Full-Stack e2e).
+> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4) · Fase D ✅ (D1+D2).**
+> **Próximo: E1** (Fase E, maquinaria de fábrica como primitiva elegida en el plan: **infra/sandbox** —
+> `services`/topología/compose declarados en el diseño y generados. *Gate*: la infra declarada levanta en el
+> sandbox y un proof la usa. Depende: B2, C3). D2 dejó el harness (agents/commands/skills) EMITIDO desde el
+> spec, con dientes (`agent_shadow` + `command_runs`). Después E2 (MCP) → F (ASF/Full-Stack e2e) → G (loop).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
-  multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica (re-deriva su
-  propia fábrica) y la columna anti-sello completa heredada por `template/factory/harness` (Cerrojos 1/2/3).
-  Abierto: cadencia/`increment_guard` heredada (D2); acotar el `gate_guard` del meta (sobre-matchea texto);
+  multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
+  anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.
+  Abierto: hooks de dominio desde L3 (sin necesidad concreta aún); cadencia/`increment_guard` heredada
+  (necesita el lifecycle de incrementos propio de la fábrica); acotar el `gate_guard` del meta (sobre-matchea texto);
   M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria
   SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
 

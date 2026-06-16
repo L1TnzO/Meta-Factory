@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f019d98a964980c567d6145a856797dac609770e updated=2026-06-16T00:24Z -->
+<!-- meta:doc sha=eb7ce6b610bbd877ef185dad9b21365c37654a9a updated=2026-06-16T01:11Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -177,9 +177,18 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   limpio de la dummy, corromper un veredicto → su propia `commit_guard`/`stop_proof` exit 2, sin la columna
   del Meta-Factory. Diferido honesto: `increment_guard`/cadencia heredada → D2. Evidencia:
   `work/D1-FULL-COLUMN-INCREMENT.md`. Depende: C1.
-- **D2 · Generación de harness por spec.** `hooks` (con su sombra I-12), `agents` (roles), `commands`,
-  `skills` emitidos desde L3; acá entra la **cadencia/`increment_guard` heredada** (diferida por D1).
-  *Gate*: `agent_shadow` verde sobre la fábrica generada; un command generado corre. Depende: C2, D1.
+- **D2 · Generación de harness por spec.** ✅ **HECHO (2026-06-16, `D2-HARNESS-GEN`)**. El harness se EMITE
+  desde el spec (L3 `machinery.harness`), no de un template fijo: acción `emit_harness` (M7) escribe
+  `.claude/agents/*.md` (roles + sombras I-12), `.claude/commands/*.md` (con su `run` ejecutable en
+  frontmatter) y `.claude/skills/*/SKILL.md` desde DATO — el sustrato no hardcodea roles (ADR-011/012; agents
+  quitados del template). La **columna** (Cerrojos 1/2/3 + `settings.json`, L4) sigue heredada, NO spec-driven
+  (frontera de seguridad). Dientes en M7: `agent_shadow` (sombras presentes+cableadas; sombra fantasma → rojo)
+  + `command_runs` nuevo (ejecuta el `run`; roto/muerto → rojo). Validator suma shape-teeth (command sin `run`
+  / agent sin `name` → M0 rojo). *Gate cumplido*: dummy **y** ASF regenerados con el harness 100% del spec;
+  M0–M8 + `ci` (3/3 · 1/1, pin intacto) + `meta check` (suite 413) verdes; demo VIVO por CLI: el `run` del
+  `greet.md` emitido corre (exit 0 → DUMMY_OK). Diferido honesto: hooks de dominio desde L3 (sin necesidad
+  concreta) y `increment_guard`/cadencia heredada (necesita el lifecycle de incrementos propio de la fábrica).
+  Evidencia: `work/D2-HARNESS-GEN-INCREMENT.md`. Depende: C2, D1.
 
 ### Fase E · Maquinaria de fábrica (como primitivas elegidas en el plan, NO hardcodeadas)
 - **E1 · Infra/sandbox como primitiva (DES-4/5/8) elegida en planning.** `services`/topología/compose se

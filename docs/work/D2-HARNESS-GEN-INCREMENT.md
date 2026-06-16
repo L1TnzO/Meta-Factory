@@ -1,4 +1,4 @@
-<!-- meta:doc sha=51c7ee22508a997092329bea11d7a8bae8e14950 updated=2026-06-16T00:35Z -->
+<!-- meta:doc sha=ca53a29abe1b2a8c72d78ac99b64f40e9ec97cef updated=2026-06-16T01:10Z -->
 # Incremento D2-HARNESS-GEN
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T00:34Z). Cerralo con `meta increment close`
@@ -30,9 +30,38 @@ agent con sombra fantasma → rojo) **+** un command generado **CORRE** (`comman
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Gramática L3 (`schema` + dientes ligeros del validator para `harness.{agents,commands,skills}`) + acción `emit_harness` + quitar agents del template; test emisión + stale-removal + validator | ⏳ |
-| 2 | Gate `command_runs` (ejecuta el `run`, no decorativo) + specs (dummy+ASF) declaran agents+commands(+skill); cableo `emit_harness`+`command_runs` a M7; test | ⏳ |
-| 3 | Regenerar dummy+ASF; `agent_shadow`+`command_runs`+M0–M8+`ci` verdes; demo vivo (un command generado corre); docs/cierre | ⏳ |
+| 1 | Gramática L3 (`schema` + dientes ligeros del validator para `harness.{agents,commands,skills}`) + acción `emit_harness` + quitar agents del template; test emisión + stale-removal + validator | ✅ 0f0090d |
+| 2 | Gate `command_runs` (ejecuta el `run`, no decorativo) + specs (dummy+ASF) declaran agents+commands(+skill); cableo `emit_harness`+`command_runs` a M7; test | ✅ f74d64b |
+| 3 | Regenerar dummy+ASF; `agent_shadow`+`command_runs`+M0–M8+`ci` verdes; demo vivo (un command generado corre); docs/cierre | ✅ 6411760·(asf) |
+
+## Evidencia (re-derivable, no narrable)
+- **Harness emitido desde el spec (criterios 1·2):** `emit_harness` (renderer, en M7) escribe
+  `.claude/agents/*.md` + `.claude/commands/*.md` + `.claude/skills/*/SKILL.md` desde `machinery.harness`.
+  La dummy regenerada los lleva (writer/reviewer/triage + `greet` + `verificar-fabrica`), todos desde el
+  spec; la columna (hooks 1/2/3 + `settings.json`, L4) intacta. `test_harness_gen` (24 tests): emisión con
+  frontmatter parseable + subst, command lleva `run`, skill como dir, **stale-removal** (drop de un
+  agent/skill del spec → desaparece), columna NO tocada.
+- **`agent_shadow` desde el spec (criterio 3):** M7 verde con agents emitidos; demo vivo — un agent con
+  sombra **fantasma** en el spec → `agent_shadow` rojo.
+- **`command_runs` (criterio 4):** M7 verde; ejecuta el `run` de cada command; demo vivo — un command con
+  `run` que sale ≠0 → rojo; un command muerto (sin `run`) → rojo; negativo hermético dentro del gate.
+- **Validator (criterio 5):** command sin `run` / agent sin `name` / skill sin `name` → M0 rojo (shape-only).
+- **Línea + dos verificadores (criterio 6):** dummy **y** ASF M0–M8 PASS (m07: `agent_shadow ok ·
+  command_runs ok`); `ci --rederive` dummy 3/3 · ASF 1/1 (pin intacto: el harness L3 no toca la línea de
+  producto); `meta check` 5/5 (suite 413).
+- **Demo VIVO por CLI (criterio 7):** el `run` del `greet.md` emitido de la dummy CORRE (exit 0 → `DUMMY_OK`).
+
+## Residual honesto (declarado, no oculto)
+- **Hooks de dominio desde L3: NO generados.** La relación "hooks con su sombra I-12" se cumple con los
+  agents (L3) declarando sombras → columna (L4). Generar hooks de dominio nuevos es especulativo sin una
+  necesidad concreta; la maquinaria (`emit_harness`) ya soporta agregar la superficie cuando aparezca.
+- **Cadencia/`increment_guard` heredada: DIFERIDO** (corrige la nota previa del ROADMAP). Necesita el
+  lifecycle de incrementos propio de la fábrica — concern distinto, fuera del gate de D2.
+- **Fuente ASF (`specs/`) sin la superficie del harness:** describe el ASF full (S0–S8, F1) con
+  `harness.status: declared-deferred`; la desplegada (proxy) lleva el harness real emitido. Divergencia
+  legítima (full-desc vs proxy), igual que su `station_sequence`.
+- **`gate_guard` del meta sobre-matchea texto** (heredado de D1): un comando que contiene
+  `station mNN --factory <slug>` literal lo dispara. Follow-up del harness del *meta*, fuera de D2.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. El harness de la dummy (`.claude/agents/*.md` + `.claude/commands/*.md` + `.claude/skills/*/SKILL.md`)

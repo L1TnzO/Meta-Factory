@@ -1,7 +1,37 @@
-<!-- meta:doc sha=6a01a6f3a25b5e7a07ca51c491ac03d5068663f3 updated=2026-06-16T00:24Z -->
+<!-- meta:doc sha=a636115fadfe457917d6c996b39c08f23e0082e7 updated=2026-06-16T01:12Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-16T01:05Z — D2: el harness se EMITE desde el spec (cierra la Fase D)
+- **gatillo**: el ingeniero pidió seguir con D2 — generar el harness (agents/commands/skills) desde L3, no
+  de un template fijo. Gate: `agent_shadow` verde sobre lo generado + un command generado corre.
+- **diagnóstico (Opus, ojos propios)**: hoy el harness sale de un template FIJO (`template/factory/harness/`):
+  mismos agents para toda fábrica. El `loader` ya pasa `machinery.harness` como dict crudo → agents/commands/
+  skills pueden viajar como DATO sin tocarlo. Las specs sólo declaraban L3 a alto nivel (declared-deferred).
+- **decisión de diseño**: DOS tiers del harness. La **columna** (Cerrojos 1/2/3 + settings, L4) es
+  substrate: misma para toda fábrica, heredada verbatim (D1) — NO spec-driven (frontera de seguridad). El
+  **harness L3** (agents/commands/skills) es spec-driven: la acción `emit_harness` (M7) lo escribe desde
+  `machinery.harness`. La relación "hooks con su sombra I-12" se cumple con los agents (L3) declarando
+  sombras → columna (L4) — NO se generan hooks de dominio (especulativo sin necesidad). El command lleva su
+  `run` ejecutable en el frontmatter del `.md` emitido, así el gate verifica el ARTEFACTO (no el spec),
+  simétrico a `agent_shadow`. Los agents se QUITAN del template (git rm): el sustrato no hardcodea roles.
+- **el diente nuevo (no un restatement)**: `command_runs` ejecuta el `run` de cada command emitido y exige
+  exit 0 — un command generado no es un archivo muerto. Es complementario a `agent_shadow` (que chequea
+  PRESENCIA+cableado de sombras): acá el artefacto EMITIDO hace algo. Prueba de dos lados (negativo hermético
+  dentro del gate). El validator suma shape-teeth: command sin `run` / agent sin `name` → M0 rojo.
+- **prueba por bloqueo**: `test_harness_gen` (24 tests) — emisión con frontmatter+subst, command lleva `run`,
+  skill como dir, **stale-removal** (drop de un agent del spec → desaparece), columna NO tocada, validator
+  rechaza malformado, `command_runs` rojo con command roto/muerto y verde con uno limpio. **VIVO por CLI**:
+  el `run` del `greet.md` emitido de la dummy corre (exit 0 → DUMMY_OK); un command roto declarado en un spec
+  → `command_runs` rojo; un agent con sombra fantasma en un spec → `agent_shadow` rojo. Dummy **y** ASF
+  regenerados con el harness 100% del spec; M0–M8 + `ci` (3/3 · 1/1) + `meta check` (suite 413) verdes.
+- **lección**: el harness deja de ser opinión hardcodeada del sustrato y pasa a ser dato del spec (ADR-011),
+  pero la SEGURIDAD (la columna) NO se delega al spec — queda heredada (L4). La línea divisoria L3/L4 es la
+  misma que "primitivas de diseño (las elige el plan) vs de seguridad (fijas)" de PRIMITIVES.md. Diferido
+  honesto: hooks de dominio desde L3 (sin necesidad) y la cadencia/`increment_guard` heredada (necesita el
+  lifecycle de incrementos de la fábrica, concern distinto). Residual del meta (de D1): `gate_guard`
+  sobre-matchea `station X --factory Y` en cualquier texto — me bloqueó un comando que lo nombraba literal.
 
 ## 2026-06-16T00:25Z — D1: la columna anti-sello COMPLETA la hereda lo generado (abre la Fase D)
 - **gatillo**: el ingeniero pidió seguir con D1 — la fábrica generada hereda hoy sólo el Cerrojo 1; faltan

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f13e3ad2c4a3bf0eb3f62aa07ab0cd72059eea4d updated=2026-06-16T13:16Z -->
+<!-- meta:doc sha=cfb36e20ed411eb17129a331c852b7aae6a3ffc2 updated=2026-06-16T13:21Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:14Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + **C ✅** + **D ✅** + **E1 ✅** — D1 columna anti-sello heredada + D2 harness EMITIDO del spec + E1 infra/sandbox EJECUTABLE del spec) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: E2-MCP-GEN-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (4/4)
 <!-- /meta:projection -->
 

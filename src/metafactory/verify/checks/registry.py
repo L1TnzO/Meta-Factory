@@ -18,7 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up",
+    "infra_up", "mcp_tools",
 )
 
 
@@ -105,4 +105,12 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         if check.get("timeout"):   # optional readiness window (DATA the plan chose; slow infra boots slow)
             argv.append(str(check["timeout"]))
         return argv
+    if kind == "mcp_tools":
+        # E2 — el MCP generado expone las tools declaradas y el orquestador las invoca (DES-6). `workdir`/
+        # `prove` (el prober que habla MCP) son DATA; `tools` es el contrato declarado. El sustrato no nombra
+        # tech (ADR-012); un SDK MCP o un impl stdlib son la misma máquina con otra data. JSON encode: argv arbitrario.
+        return [PY, "-m", "metafactory.verify.checks.mcp_tools",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check["prove"], subst)),
+                json.dumps(_s(check.get("tools", []), subst))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

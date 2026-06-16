@@ -8,6 +8,7 @@ Build actions (declared as data in the station YAML):
   - {action: copy_seed}                            install the inherited column (M1)
   - {action: generate, dest, via, brief?}          the CREATIVE SLOT (C1, ADR-013)
   - {action: materialize_line, dest}               write the product line from the spec (C2, I-2)
+  - {action: emit_harness}                         write agents/commands/skills from L3 (D2)
 
 `render`/`render_tree`/`generate` accept `skip_if_exists: true`: if the dest already exists it
 is LEFT UNTOUCHED. For render this is the generated/domain boundary (I-5, M4): the factory's
@@ -81,6 +82,8 @@ def apply_builds(ctx: RunContext, station: Station, subst: dict) -> list[str]:
             msgs += _generate(ctx, b, subst)
         elif action == "materialize_line":
             msgs += _materialize_line(ctx, b, subst)
+        elif action == "emit_harness":
+            msgs += _emit_harness(ctx, b, subst)
         else:
             raise ValueError(f"unknown build action {action!r} in station {station.id}")
     return msgs
@@ -119,6 +122,79 @@ def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
         out = dest_dir / f"{s.id}.yml"
         out.write_text(text, encoding="utf-8")
         msgs.append(f"materialize {out.relative_to(ctx.root)}")
+    return msgs
+
+
+def _emit_harness(ctx: RunContext, b: dict, subst: dict) -> list[str]:
+    """D2 — emit the factory's L3 harness from the spec (`machinery.harness`): agents (delegation roles +
+    their I-12 shadows), commands (operator slash-commands, each carrying a runnable `run` the command_runs
+    gate executes) and skills. 100% derivable from the spec (ADR-011); the substrate enumerates NOTHING —
+    names/models/tools/shadows/run are free DATA the plan chose (ADR-012). The COLUMN (hooks + settings,
+    L4) stays INHERITED (D1, the security boundary); only this L3 surface is spec-driven. Each target dir
+    is regenerated to match the spec EXACTLY (a role dropped from the spec disappears from the harness)."""
+    from ..spec.loader import load_spec
+
+    spec = load_spec(ctx.root / "factory.spec.yml")
+    harness = spec.machinery.harness or {}
+    claude = ctx.root / ".claude"
+    msgs: list[str] = []
+    msgs += _emit_md_items(
+        claude / "agents", harness.get("agents", []) or [], subst, label="agent",
+        fields=lambda a: {"name": a.get("name"), "description": a.get("description"),
+                          "model": a.get("model"), "tools": a.get("tools"), "shadows": a.get("shadows")})
+    msgs += _emit_md_items(
+        claude / "commands", harness.get("commands", []) or [], subst, label="command",
+        fields=lambda c: {"description": c.get("description"), "run": c.get("run")})
+    msgs += _emit_skills(claude / "skills", harness.get("skills", []) or [], subst)
+    return msgs
+
+
+def _md_with_frontmatter(fields: dict, body: str, subst: dict) -> str:
+    """Compose a `.md` with a YAML frontmatter block (the structured DATA the gates parse) + a prose body.
+    Empty fields are dropped so the frontmatter stays honest. `{{var}}` is substituted across the whole file."""
+    import yaml
+
+    clean = {k: v for k, v in fields.items() if v not in (None, "", [], {})}
+    fm = yaml.safe_dump(clean, sort_keys=False, allow_unicode=True).rstrip("\n")
+    return render_text(f"---\n{fm}\n---\n\n{body.rstrip(chr(10))}\n", subst)
+
+
+def _emit_md_items(dest_dir: Path, items: list, subst: dict, *, label: str, fields) -> list[str]:
+    """Write one `<name>.md` per declared item with its frontmatter+body; remove stale `*.md` first so the
+    dir matches the spec EXACTLY. `name` is required to place the file (the validator enforces it at M0)."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    for stale in dest_dir.glob("*.md"):
+        stale.unlink()
+    msgs: list[str] = []
+    for item in items:
+        name = str(item.get("name", "")).strip()
+        if not name:
+            continue  # validator already flagged it at M0; skip defensively
+        out = dest_dir / f"{name}.md"
+        out.write_text(_md_with_frontmatter(fields(item), str(item.get("body", "")), subst), encoding="utf-8")
+        msgs.append(f"emit {label} {out.relative_to(dest_dir.parent.parent)}")
+    return msgs
+
+
+def _emit_skills(dest_dir: Path, skills: list, subst: dict) -> list[str]:
+    """A skill is a DIR `<name>/SKILL.md` (Claude Code layout). Regenerate to match the spec: drop skill
+    dirs (those carrying a SKILL.md) not in the declared set, then (re)write each declared skill."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    declared = {str(s.get("name", "")).strip() for s in skills if str(s.get("name", "")).strip()}
+    for sub in dest_dir.iterdir():
+        if sub.is_dir() and (sub / "SKILL.md").exists() and sub.name not in declared:
+            shutil.rmtree(sub, ignore_errors=True)
+    msgs: list[str] = []
+    for s in skills:
+        name = str(s.get("name", "")).strip()
+        if not name:
+            continue
+        sdir = dest_dir / name
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "SKILL.md").write_text(
+            _md_with_frontmatter({"name": name, "description": s.get("description")},
+                                 str(s.get("body", "")), subst), encoding="utf-8")
+        msgs.append(f"emit skill {name}/SKILL.md")
     return msgs
 
 

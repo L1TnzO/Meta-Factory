@@ -53,7 +53,7 @@
       "type": "object",
       "description": "L3 — harness/mcp/infra the PLAN chose, as DATA (ADR-012); not opined by the substrate.",
       "properties": {
-        "harness": {"$ref": "#/$defs/machinery_section"},
+        "harness": {"$ref": "#/$defs/harness_section"},
         "mcp": {"$ref": "#/$defs/machinery_section"},
         "infra": {"$ref": "#/$defs/machinery_section"}
       }
@@ -120,6 +120,55 @@
         "tech": {"type": "string"},
         "primitive": {"$ref": "#/$defs/primitive"},
         "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "harness_section": {
+      "type": "object",
+      "description": "L3 harness (D2): tech/primitive/status + the EMITTED surface (agents/commands/skills) the codegen writes from DATA. The column (hooks+settings, L4) is inherited, not declared here.",
+      "properties": {
+        "tech": {"type": "string"},
+        "primitive": {"$ref": "#/$defs/primitive"},
+        "status": {"$ref": "#/$defs/status"},
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {"type": "string"},
+              "description": {"type": "string"},
+              "model": {"type": "string"},
+              "tools": {"type": "array", "items": {"type": "string"}},
+              "shadows": {"type": "array"},
+              "body": {"type": "string"}
+            }
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "run"],
+            "properties": {
+              "name": {"type": "string"},
+              "description": {"type": "string"},
+              "run": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "the runnable argv command_runs executes (exit 0 = pass); a generated command is not a dead file."},
+              "body": {"type": "string"}
+            }
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {"type": "string"},
+              "description": {"type": "string"},
+              "body": {"type": "string"}
+            }
+          }
+        }
       }
     },
     "reqlist": {

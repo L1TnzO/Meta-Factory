@@ -183,7 +183,8 @@ def _validate_requirements_v2(spec: FactorySpec) -> list[str]:
 
 def _validate_machinery(spec: FactorySpec) -> list[str]:
     """L3 machinery is DATA the plan chose; M0 only enforces the cross-cutting invariants where they
-    appear (status honest, tech ⇒ primitive). Deeper infra/MCP validation is later (E1/E2)."""
+    appear (status honest, tech ⇒ primitive) plus SHAPE of the emitted harness (D2). Deeper infra/MCP
+    validation is later (E1/E2)."""
     p: list[str] = []
     for name, section in (("harness", spec.machinery.harness),
                           ("mcp", spec.machinery.mcp),
@@ -193,6 +194,32 @@ def _validate_machinery(spec: FactorySpec) -> list[str]:
         where = f"machinery.{name}"
         p += _status_problem(str(section.get("status", "")), where)
         p += _tech_primitive_problem(str(section.get("tech", "")), str(section.get("primitive", "")), where)
+    p += _validate_harness_surface(spec)
+    return p
+
+
+def _validate_harness_surface(spec: FactorySpec) -> list[str]:
+    """D2 — the emittable harness surface (agents/commands/skills) is SHAPE-checked so M0 refuses a harness
+    that can't be emitted honestly: a placed file needs a `name`, and a command's runnable proof (`run`,
+    what command_runs executes) must be a non-empty list. NEVER a tech/role name — free DATA (ADR-012)."""
+    p: list[str] = []
+    h = spec.machinery.harness
+    if not isinstance(h, dict):
+        return p
+    for kind in ("agents", "commands", "skills"):
+        items = h.get(kind, []) or []
+        if not isinstance(items, list):
+            p.append(f"machinery.harness.{kind}: must be a list")
+            continue
+        for i, item in enumerate(items):
+            where = f"machinery.harness.{kind}[{(item or {}).get('name', i) if isinstance(item, dict) else i}]"
+            if not isinstance(item, dict) or not str(item.get("name", "")).strip():
+                p.append(f"{where}: needs a name (it places the emitted file)")
+                continue
+            if kind == "commands":
+                run = item.get("run")
+                if not isinstance(run, list) or not run:
+                    p.append(f"{where}: a command needs a non-empty `run` list (command_runs executes it)")
     return p
 
 

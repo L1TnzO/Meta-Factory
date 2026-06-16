@@ -25,7 +25,7 @@
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
-| `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `c41fff5e67a0` | 2026-06-16T17:24Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
+| `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `e67526cdc767` | 2026-06-16T18:21Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |

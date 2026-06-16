@@ -1,5 +1,4 @@
-<!-- meta:doc sha=c41fff5e67a063de3c2a0a87db498cb70241d6ba updated=2026-06-16T17:24Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-16T17:22Z -->
+<!-- meta:doc sha=e67526cdc767e9595817478b4ce37e9cb796988d updated=2026-06-16T18:21Z -->
 # F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head
 
 > tipo: reference (estable) · creado: 2026-06-16T17:22Z · pin: `reference/REGEN-AUDIT.md`
@@ -183,7 +182,7 @@ diseño; W4 (reviewer en opus) es regla narrada sin sombra determinista.
 - **B-4** Activar s0 (admisión) y s5 (anclaje) en la línea, o documentar por qué el meta-gate M0 las
   cubre permanentemente.
 - **B-5** Probar un producto generado **LIVE vs un modelo real** (la legacy lo hizo y destapó 5 huecos;
-  la regenerada aún no pasó por ese fuego).
+  la regenerada aún no pasó por ese fuego). Caso testigo natural: **regenerar `Proyect_RE_Agent`** — ver §12.
 - **B-6** Cerrar el gap de harness: subir agents/commands del sustrato al template de la fábrica.
 
 ## 11. Hallazgo de higiene (doc drift)
@@ -192,6 +191,38 @@ diseño; W4 (reviewer en opus) es regla narrada sin sombra determinista.
 commands). **Post-F1 es falso**: la fábrica viva tiene 9 estaciones (6 reales), los **3 cerrojos** y 1
 command. El §9 de ese doc sí trae el update F1, pero la tabla de cabecera induce a error. Este documento
 (`F1-AUDIT-REGEN-VS-LEGACY.md`) supersede esas tablas; conviene un banner de reenvío en REGEN-AUDIT.md.
+
+## 12. Caso concreto — ¿qué fábrica generaría mejor `Proyect_RE_Agent`?
+
+Aplicar el **eje de capacidad (§5)** a un producto-objetivo real. *No* audita el producto (sigue fuera
+de alcance por mandato); lo usa de **vara** para medir qué fábrica podría emitirlo. `Proyect_RE_Agent`
+es el consejo de ingeniería de requisitos: topología `supervisor_fanout_fanin`, **13 nodos LLM + 1 de
+dominio** (retrieval), checkpointer Postgres, lineage Neo4j full-graph, source-grounding, interrupt
+no-saltable en `synthesizer`, eval con `faithfulness_min`/`critical_recall_min`
+(`Agent_Systems_Factory/projects/Proyect_RE_Agent/spec.yml`).
+
+> **Veredicto: la LEGACY, decisivo — y hoy la ÚNICA que puede generarlo entero.** No es casual: es el
+> producto alrededor del cual se construyó la legacy y el que ya corrió **LIVE vs modelo real**
+> (deepseek). Cada rasgo distintivo del producto cae sobre una estación que la regenerada tiene
+> **diferida** o **sólo in-memory**.
+
+| Requisito del producto (spec.yml) | Legacy | Regenerada | Eje |
+| --- | --- | --- | --- |
+| Topología `supervisor_fanout_fanin`, 13+1 nodos | ✅ 3 topologías, aristas custom validadas por BFS | ❌ 1 blueprint paramétrico; `domain/nodes.py` vacío | §5 |
+| Reducer custom de blackboard (`merge_findings`) | ✅ frontera generated/domain limpia | ❌ `reducers.py` se emite vacío | §8-deb(2) |
+| Lineage Neo4j full-graph (REQ-F-002, s02) | ✅ Docker `neo4j:5.26` | ❌ **s2 diferida** | §5 · B-1 |
+| Checkpointer Postgres + partial-failure recovery (REQ-F-005/006, s03) | ✅ Docker `postgres:16.4`, resume sin re-ejecución | ❌ sólo MemorySaver/InMemory | §5 · B-1 |
+| Source-grounding / contrato de retrieval (s05) | ✅ s05 real | ❌ **s5 diferida** | §3 · B-4 |
+| Eval faithfulness + critical-recall (REQ-F-007, s08) | ⚠ existe, scorer stub `0.0` | ❌ s8 sólo vs fake-LLM | §8 |
+| Interrupt no-saltable en `synthesizer` (HITL, ADR-015) | ✅ invariante sobre grafo compilado | ✅ probado en F1 (reroute→END→s7 SHUT) | §6 — **único empate** |
+| Correr LIVE vs modelo real | ✅ ya lo hizo (destapó 5 huecos) | ❌ nunca pasó por ese fuego | §5 · B-5 |
+
+**Lo medular:** la regenerada no "genera peor" este producto — con la línea de hoy **no puede
+generarlo fielmente**, porque sus tres rasgos definitorios (lineage Neo4j s2, checkpointer Postgres
+s3-live, source-grounding s5) son exactamente las estaciones en `activation:"off"`/in-memory. El único
+empate es el gate HITL. Pero —coherente con §7— el hueco es de **CONTENIDO, no de fundación**:
+backlog **B-1** (infra viva) + **B-3** (multi-blueprint; `domain/nodes.py` y `reducers.py` hoy vacíos)
++ **B-5** (correr LIVE). **Regenerar `Proyect_RE_Agent` es el caso testigo natural para cerrar el hueco.**
 
 ## Apéndice — evidencia (file:line / comandos)
 

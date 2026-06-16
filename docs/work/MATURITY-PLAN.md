@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2dfd262935acfef646ddbba5ca97293d45b186e0 updated=2026-06-16T18:31Z -->
+<!-- meta:doc sha=6188ebb96ab03f59da8438d5bcdfaea816adf036 updated=2026-06-16T22:03Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -92,7 +92,15 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 > fase con trailers). **Regla de oro del orden: ningún mecanismo de sustrato se promueve probado en UN solo
 > dominio** (§6). Por eso ASF y Full-Stack avanzan acoplados, no en serie.
 
-### MAT-0 · Ratificar la ley anti-overfitting como GATE (ADR-014)
+### MAT-0 · Ratificar la ley anti-overfitting como GATE (ADR-014) — ✅ HECHO (2026-06-16, `MAT-0-GENERALITY-PARITY`)
+> El ADR ya estaba; faltaba el **diente**. Ahora existe: `verify/checks/generality_parity.py` + el libro de
+> promoción `docs/reference/parity.yml`. Un mecanismo `status: general` cae a ROJO si tiene <2 fábricas que
+> lo prueban verde (proof RECOMPUESTO con `gate_recompute_ok`, no rancio) o si ningún par es radicalmente
+> distinto (§3: lenguaje de producto disjunto Y mezcla de primitivas distinta — pytest/mypy/venv→python).
+> Cableado al gate meta (`meta check`, 6º check). Teeth por bloqueo (8 tests). **Demo vivo**: marcar
+> `product_env` general[dummy, ASF] → rojo (ambos Python). Hoy el manifiesto real está todo en `prototype`
+> (verde): ningún mecanismo califica como general hasta el 2º toolchain (MAT-1) — eso ES la presión del
+> lockstep. Evidencia: `work/MAT-0-GENERALITY-PARITY-INCREMENT.md`.
 - **Build**: `decisions/014-two-domain-parity.md` — "todo mecanismo nuevo en `src/metafactory/` es compuerta
   dura: no se promueve sin proof en ≥2 fábricas de dominios radicalmente distintos". Un check
   `generality_parity` (`verify/checks/`) que, dado un mecanismo marcado como sustrato-nuevo, FALLA si sus

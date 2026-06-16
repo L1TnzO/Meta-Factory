@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4030cc52baf647747fea16c86d4a17a17531f45d updated=2026-06-16T21:50Z -->
+<!-- meta:doc sha=9bdb60b3facdfaf56f6e7510b3029062d4f4b9a8 updated=2026-06-16T22:03Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -131,7 +131,17 @@
     `build/product/`) · `meta check` 5/5 (suite 443). Bloqueo VIVO (3 dientes sobre el producto emitido):
     reroute `synthesize→END`→s7 SHUT · `_bad: int="…"`→`mypy --strict` rojo (s4) · validator roto→s6 SHUT.
     Paridad-o-mejor vs `@ b1fcb1f` (M8 por defecto, MemorySaver/InMemory); congelado intocado; dummy intacta
-    (`ci` 5/5, principio #4). **Sigue F2** (Full-Stack: 2º dominio que prueba que el motor no es Python/agente-bound).
+    (`ci` 5/5, principio #4).
+  - **Deepening Fase F (autoridad: `work/MATURITY-PLAN.md`, MAT-0..MAT-7)** — de PROXY delgado a BUENOS productos sin overfitting:
+    - **MAT-0 (`MAT-0-GENERALITY-PARITY`) ✅ (2026-06-16)** — el anti-overfit deja de ser principio narrado y
+      se vuelve DIENTE (ADR-014, SAFE-6): `verify/checks/generality_parity.py` + libro de promoción
+      `docs/reference/parity.yml`. Un mecanismo de sustrato `status: general` cae a ROJO si <2 fábricas lo
+      prueban verde (proof RECOMPUESTO, no rancio) o si ningún par es radicalmente distinto (§3: lenguaje de
+      producto disjunto Y mezcla de primitivas distinta; pytest/mypy/venv→python). Cableado a `meta check`
+      (6º check). Teeth por bloqueo (8). Demo vivo: `product_env` general[dummy,ASF]→rojo (ambos Python). El
+      manifiesto real está todo en `prototype` (verde): nada califica como general hasta el 2º toolchain
+      (MAT-1) — la presión del lockstep. dummy/ASF `ci` 5/5·6/6 intactos. **Sigue MAT-1** (Full-Stack mínima
+      viva, el 2º dominio = ROADMAP F2; instrumento de co-validación de MAT-2..5).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

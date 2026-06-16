@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2957ee1795b08187e01569b928b185e5cc7e2d03 updated=2026-06-16T21:54Z -->
+<!-- meta:doc sha=64e32665160933ff22057f7489d5e6d00a668ab7 updated=2026-06-16T22:04Z -->
 # Incremento MAT-0-GENERALITY-PARITY
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T21:50Z). Cerralo con `meta increment close`
@@ -29,11 +29,26 @@ Cierra la deuda de código de MAT-0 (el ADR ya está; el diente no) y desbloquea
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Manifiesto `parity.yml` + `verify/checks/generality_parity.py` (verifica claims `general`) | ⏳ |
-| 2 | Teeth deterministas (`tests/test_generality_parity.py`): verde 2-toolchain · borrar proof→rojo · mismo toolchain→rojo · proof rancio→rojo · prototype 1-dominio→verde | ⏳ |
-| 3 | Cableado a `meta check` (gate meta) + nota en el guard ADR-012 (test_isolation) | ⏳ |
-| 4 | Demo VIVO por bloqueo sobre fábricas reales: `product_env`→`general` cae a rojo (ambos Python); manifiesto honesto = verde | ⏳ |
-| 5 | Docs (STATE/ROADMAP/MATURITY-PLAN + esta evidencia) + cierre | ⏳ |
+| 1 | Manifiesto `parity.yml` + `verify/checks/generality_parity.py` (verifica claims `general`) | ✅ |
+| 2 | Teeth deterministas (`tests/test_generality_parity.py`): verde 2-toolchain · borrar proof→rojo · mismo toolchain→rojo · proof rancio→rojo · prototype 1-dominio→verde | ✅ |
+| 3 | Cableado a `meta check` (gate meta) + nota en el guard ADR-012 (test_isolation) | ✅ |
+| 4 | Demo VIVO por bloqueo sobre fábricas reales: `product_env`→`general` cae a rojo (ambos Python); manifiesto honesto = verde | ✅ |
+| 5 | Docs (STATE/ROADMAP/MATURITY-PLAN + esta evidencia) + cierre | ✅ |
+
+## Evidencia (verificable, no narrada)
+- **El diente, por bloqueo** (`tests/test_generality_parity.py`, 8 verdes): `general` con 2 dominios distintos
+  (python ⟂ ts) → verde · borrar la proof del 2º → rojo · mismo lenguaje (pytest↔unittest) → rojo · misma
+  mezcla de primitivas → rojo · proof rancio (`proof_sha` mentido) → rojo · `prototype` en 1 dominio → verde.
+- **Demo vivo sobre fábricas REALES** (`generality_parity . <manifiesto>`): `product_env` general[dummy,
+  agent-systems-factory] → `GENERALITY_PARITY ROJO … ningún par … es radicalmente distinto (§3): toolchain/
+  primitivas no difieren` (exit 1) — porque dummy y ASF son **ambos Python**. Manifiesto honesto (todo
+  `prototype`) → `OK … 4 en prototype` (exit 0).
+- **Cableado**: `meta check` → `6 checks all green · … generality ok` (suite 443→**451**).
+- **No rompe nada**: `ci --rederive` dummy **5/5** y agent-systems-factory **6/6** == pineado (clon limpio);
+  congelado `@ b1fcb1f` intocado.
+- **Hallazgo colateral** (no del increment): `specs/dummy.factory.spec.yml` (3 estaciones) está STALE vs la
+  spec REGISTRADA `factories/dummy/factory.spec.yml` (5, con s03 infra / s04 mcp). El check audita la
+  registrada (la que materializó los `.proof/`). El drift de `specs/` se aborda aparte (no es de paridad).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `generality_parity` cae a **rojo** si un mecanismo `general` tiene <2 fábricas que lo prueban verde, o si

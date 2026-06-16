@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ab65d57bd567c56f6a81c6037e84bca129e71ff4 updated=2026-06-16T18:32Z -->
+<!-- meta:doc sha=dc50d09cc59b39a6d9f5b88e9a4ed8b47853db98 updated=2026-06-16T22:03Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -231,6 +231,8 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > (ADR-014), **adelanta F2 como instrumento de co-validación en lockstep**, y construye los 3 mecanismos de
 > sustrato que faltan (generación-viva por LLM bajo gate · `eval_gate` con scorer real · `live_run`). Los
 > F1/F2/F3 de abajo siguen válidos; MATURITY-PLAN es la autoridad del orden y el detalle.
+> **MAT-0 ✅ (2026-06-16)**: el gate anti-overfitting (`generality_parity`, ADR-014) es diente real, cableado
+> a `meta check`. **Sigue MAT-1 = F2** (Full-Stack mínima viva, el 2º dominio / instrumento de co-validación).
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=658c621e3a578a62ea940e942e0e4a9922af7bf5 updated=2026-06-16T16:58Z -->
+<!-- meta:doc sha=10da71f2225eb9ad7c41e033a83578f8a5fc7c10 updated=2026-06-16T18:32Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -182,6 +182,12 @@
 > pineado `b1fcb1f`; cierra el ~5–10% de la auditoría). *Gate*: un producto de ASF generado pasa su M8 real
 > (topología compilada, nodos con fake-LLM, `mypy --strict` en su venv). Depende: C1–C4, D1–D2, E1. Después
 > F2 (Full-Stack) → F3 (Mobile/IoT) → G (loop). Toda la maquinaria (motor + columna + harness + infra + MCP) ya está.
+> **CORRECCIÓN POST-AUDITORÍA (2026-06-16)**: F1 cerró la FUNDACIÓN pero el producto ASF es **DELGADO** — la
+> legacy genera **Agent_RE** mejor y hoy es la única que puede entero (`reference/F1-AUDIT-REGEN-VS-LEGACY.md §12`).
+> El hueco es de CONTENIDO, no de fundación. El plan EXACTO para que **New ASF supere a la legacy** y **Full-Stack
+> salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
+> scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
+> **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

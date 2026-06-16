@@ -1,5 +1,4 @@
-<!-- meta:doc sha=782f97e48fabf402c737e71e0847e62e9f86da50 updated=2026-06-16T16:56Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
+<!-- meta:doc sha=ab65d57bd567c56f6a81c6037e84bca129e71ff4 updated=2026-06-16T18:32Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -225,6 +224,13 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   (toolset aritmético) por el MISMO kind (principio #6). Evidencia: `work/E2-MCP-GEN-INCREMENT.md`. Depende: D2.
 
 ### Fase F · Las fábricas de referencia (prueban la generalidad por bloqueo, G-8)
+> **PROFUNDIZACIÓN (2026-06-16, post-auditoría).** F1 cerró la FUNDACIÓN, pero el producto ASF es DELGADO:
+> la legacy genera Agent_RE **mejor** (`reference/F1-AUDIT-REGEN-VS-LEGACY.md §12`). El hueco es de CONTENIDO,
+> no de fundación. El plan EXACTO del deepening — para que **New ASF SUPERE a la legacy** y **Full-Stack salga
+> madura SIN overfitting** — es **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7): ratifica el gate anti-overfitting
+> (ADR-014), **adelanta F2 como instrumento de co-validación en lockstep**, y construye los 3 mecanismos de
+> sustrato que faltan (generación-viva por LLM bajo gate · `eval_gate` con scorer real · `live_run`). Los
+> F1/F2/F3 de abajo siguen válidos; MATURITY-PLAN es la autoridad del orden y el detalle.
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,

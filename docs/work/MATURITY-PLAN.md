@@ -1,0 +1,237 @@
+<!-- meta:doc sha=2dfd262935acfef646ddbba5ca97293d45b186e0 updated=2026-06-16T18:31Z -->
+# MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
+
+> tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
+> Asumí que la sesión que lo escribió murió: otro orquestador (que nace SÓLO con los docs) implementa desde
+> acá. Si algo no está en la doc, no existe.
+>
+> **Por qué existe este doc.** F1 cerró la **FUNDACIÓN** (`work/ROADMAP.md §F1`): el sustrato regenera el
+> ASF desde su spec y emite un producto LangGraph real, tipado (`mypy --strict`), gateado y con proofs
+> re-derivables. Pero la auditoría head-to-head encontró que ese producto es **DELGADO**: la legacy genera
+> `Proyect_RE_Agent` (Agent_RE) **mejor**, y hoy es la **única** que puede generarlo entero
+> (`reference/F1-AUDIT-REGEN-VS-LEGACY.md §5, §12`). El hueco ya **no es de fundación, es de CONTENIDO**.
+> Este plan da los pasos EXACTOS para cerrarlo con dos garantías acopladas:
+>   1. **New ASF emite un Agent_RE MEJOR que la legacy** (no sólo paridad).
+>   2. **No hay overfitting**: el mismo trabajo deja a Full-Stack-Factory (y Mobile/IoT) emitiendo BUENOS
+>      productos por el MISMO sustrato, **sin re-iterar la Meta-Factory** — fábrica madura recién salida.
+
+## 0. Si llegás sin contexto, leé en este orden
+
+1. `work/ROADMAP.md` — el mapa A–G y el modelo Diseño→Build→Mejora. Este doc PROFUNDIZA su Fase F.
+2. `reference/PRIMITIVES.md` — la filosofía: primitivas de SEGURIDAD (fijas, sustrato) vs de DISEÑO (la tech
+   la elige el plan). **Sin esto, este plan se malinterpreta.**
+3. `decisions/011` (100% generado) · `decisions/012` (primitivas, no herramientas) · `decisions/013`
+   (generación = slot orquestado: el `via`). Son las leyes que gobiernan cada paso de acá.
+4. `reference/F1-AUDIT-REGEN-VS-LEGACY.md` — **la medición que originó este plan** (§8 debilidades de cada
+   fábrica, §10 backlog B-1..B-6, §12 el caso Agent_RE). Cada increment de acá cierra una fila de ahí.
+5. `reference/ARCHITECTURE.md` — meta-estaciones M0–M8, los stages, los 13 invariantes.
+
+## 1. El objetivo, exacto (Definition of Done medible)
+
+"Llegamos" cuando las TRES cosas son verdad **por bloqueo**, no por prosa:
+
+- **DoD-A · New ASF > Legacy ASF.** New ASF regenera `Agent_RE` y, en la tabla de capacidad de la auditoría
+  (`F1-AUDIT §12`), **gana o empata en todas las filas**: infra viva (Neo4j+Postgres), multi-topología,
+  MCP, corrida LIVE vs modelo real — y **supera** a la legacy en gobernanza (ya lo hace), en **eval con
+  scorer real** (la legacy tiene scorer stub `0.0`) y en **generación de dominio AUTOMATIZADA y gateada**
+  (la legacy la deja como subagente narrado sin sombra determinista).
+- **DoD-B · Full-Stack-Factory emite un BUEN producto por el MISMO sustrato.** Un producto full-stack
+  (frontend TS + backend TS + DB relacional) pasa su M8 real, **con CERO código específico de ASF en
+  `src/metafactory/`** (medido, §6).
+- **DoD-C · La siguiente fábrica sale madura sin iterar el sustrato.** Una 3ª fábrica radicalmente distinta
+  (Mobile o IoT) pasa su M8 **sin tocar `src/metafactory/`** (sólo spec + plantillas/scorers locales de la
+  fábrica). Ésta es la prueba final de que no hubo overfitting (§6).
+
+Y, transversal: **re-derivar desde el spec re-deriva el sistema idéntico** (SAFE-3) — incluso con generación
+no-determinista (cómo, en §7).
+
+## 2. La trampa a evitar: overfitting — y la LEY DE CAPAS que lo previene
+
+El miedo del ingeniero es legítimo: que la Meta-Factory se vuelva **buenísima haciendo ASF** y, para hacer
+Full-Stack, haya que volver a iterarla una y otra vez. Eso pasa si "hacer Agent_RE bueno" se logra
+**metiendo conocimiento de ASF en el sustrato**. La defensa es una sola ley, ya latente en ADR-012, que acá
+se vuelve **operativa y gateada**:
+
+> **LEY DE CAPAS (anti-overfitting).** Tres capas, dueños disjuntos:
+> - **SUSTRATO** (`src/metafactory/`, `seed/`): sólo **MECANISMO dominio-agnóstico** — cómo generar un
+>   artefacto desde un brief, cómo correr un verifier, cómo gatear una estación, cómo levantar infra
+>   declarada, cómo correr un scorer declarado. **Nunca nombra una tech** (ni LangGraph, ni React, ni Neo4j).
+> - **FÁBRICA** (`factories/<x>/`, `specs/<x>/factory.spec.yml`): la **tech y el contenido** — los templates
+>   locales, el blueprint, los scorers, las imágenes de infra, las topologías. Acá vive todo lo que
+>   distingue a ASF de Full-Stack.
+> - **PRODUCTO** (`build/product/`, `…/projects/`): el output (Agent_RE, la web app).
+
+**El test de overfitting (una pregunta por cada línea de código):** *si esto que voy a escribir también lo
+va a necesitar Full-Stack-Factory, ¿es mecanismo general → va al sustrato? Si sólo lo necesita ASF → es
+contenido → va a la fábrica.* Si te descubrís escribiendo `langgraph`/`neo4j`/`council` dentro de
+`src/metafactory/`, **es un bug de filosofía** (ADR-012). El guard de imports ya atrapa parte de esto
+(`tests/` prueban "cero tech de generación en `src/`"); §6 lo endurece a paridad-de-dos-dominios.
+
+## 3. Diagnóstico — qué falta de verdad (mecanismo) vs qué es contenido de fábrica
+
+De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), separado por capa:
+
+| Capacidad que falta para un BUEN producto | ¿Mecanismo de SUSTRATO o contenido de FÁBRICA? | Estado hoy |
+| --- | --- | --- |
+| Generar **lógica de dominio rica** (no plantilla vacía; `domain/nodes.py`+`reducers.py` hoy se emiten vacíos) | **Sustrato**: el slot `via = claude -p` bajo gate (ADR-013) — **nunca ejercido**; F1 usó scaffolder determinista | ❌ seam existe, generación viva no |
+| Multi-topología (linear/supervisor/custom) con validación estructural | **Fábrica**: el codegen de ASF (`scaffold_product.py`) + un validador de topología (DES-2) | ⚠ 1 blueprint |
+| Producto contra **infra viva** (Neo4j lineage, Postgres checkpointer) bajo gate | **Sustrato**: `infra_up` (E1) ya existe — falta cablearlo al **M8 del producto** (hoy sólo en estaciones dummy). **Fábrica**: declarar los services | ⚠ mecanismo sí, en producto no |
+| MCP del producto | **Sustrato**: `emit_mcp`/`mcp_tools` (E2) ya existen. **Fábrica**: declararlo | ⚠ mecanismo sí, fábrica difirió |
+| **Eval con scorer REAL** que bloquea (la legacy tiene stub `0.0`) | **Sustrato**: un `eval_gate` nuevo (hermano de `infra_up`/`mcp_tools`, DES-7). **Fábrica**: el scorer + gold-set + umbrales | ❌ falta el mecanismo |
+| Corrida **LIVE vs modelo real**, gateada por estructura+eval | **Sustrato**: un `live_run` gate (no-determinista, gatea propiedades). **Fábrica**: provider/keys (tier solo-CI) | ❌ nunca pasó "ese fuego" |
+| Activar s0/s2/s5 (admisión/linaje/anclaje) en ASF | **Fábrica**: flip `activation` en `factory.spec.yml` + usar `infra_up` | ⚠ `activation:"off"` |
+
+**Lectura:** el grueso del hueco es **contenido de fábrica** (lo correcto — ahí NO hay overfitting). Quedan
+**tres mecanismos de sustrato genuinos** por construir/ejercer: la **generación viva por LLM bajo gate**, el
+**eval_gate** y el **live_run**. Esos tres son la palanca que vuelve buenos a TODOS los productos.
+
+## 4. Los increments, en orden (interleaved ASF ↔ Full-Stack)
+
+> Formato: **id · objetivo** — build · *gate (prueba por bloqueo)* · **co-validación (≥2 dominios)** ·
+> depende. Cada uno es un incremento gobernado (ADR-010: `meta increment open`, código gateado, commit por
+> fase con trailers). **Regla de oro del orden: ningún mecanismo de sustrato se promueve probado en UN solo
+> dominio** (§6). Por eso ASF y Full-Stack avanzan acoplados, no en serie.
+
+### MAT-0 · Ratificar la ley anti-overfitting como GATE (ADR-014)
+- **Build**: `decisions/014-two-domain-parity.md` — "todo mecanismo nuevo en `src/metafactory/` es compuerta
+  dura: no se promueve sin proof en ≥2 fábricas de dominios radicalmente distintos". Un check
+  `generality_parity` (`verify/checks/`) que, dado un mecanismo marcado como sustrato-nuevo, FALLA si sus
+  proofs existen para <2 fábricas. Extiende el guard de imports de ADR-012.
+- *Gate*: borrar la proof del 2º dominio de cualquier mecanismo compartido → `generality_parity` rojo.
+- **Co-validación**: el propio check se prueba sobre dummy + ASF.
+- Depende: F1.
+
+### MAT-1 · Full-Stack-Factory MÍNIMA viva (el 2º dominio, traído al frente) — = ROADMAP F2
+- **Build**: `specs/full-stack-factory/factory.spec.yml` (ya hay skeleton en `specs/skeletons/full-stack`) →
+  fábrica con codegen LOCAL que emite un producto REAL mínimo: frontend TS + backend TS + DB relacional.
+- *Gate*: el producto full-stack compila (`tsc`), pasa `vitest` y levanta su DB — todo por `product_env`
+  (DES-8) e `infra_up` (E1); `generality_parity` verde (sustrato intacto salvo mecanismo compartido).
+- **Co-validación**: es el INSTRUMENTO de co-validación de todo lo que sigue. Sin esto, MAT-2..5 no se pueden
+  promover honestamente.
+- Depende: MAT-0. *(Trae F2 antes que el deepening de ASF a propósito: es la red anti-overfitting.)*
+
+### MAT-2 · Generación de LÓGICA DE DOMINIO por slot LLM bajo gate (el seam nunca ejercido) — **la palanca**
+- **Build (sustrato)**: ejercer de verdad el `via = claude -p` (ADR-013): el slot `generate` corre un
+  generador VIVO que emite **lógica de dominio** (no sólo scaffold estructural) en el slot; la columna
+  verifica por bloqueo (typecheck + tests de contrato + topología). El sustrato sigue sin escribir el
+  artefacto ni el veredicto (Cerrojo 1 intacto). **Re-derivación con no-determinismo: ver §7** (se pinea el
+  artefacto ACEPTADO; regenerar es un acto gateado aparte, Fase G).
+- *Gate*: un producto cuya `domain/` se **genera** (no se templatea) pasa typecheck+contrato; brief
+  corrompido → rojo; **`domain/` vacío deja de ser aceptable** (el anti-patrón de F1 ahora bloquea).
+- **Co-validación**: ASF → genera los 8 prompts de researchers + el reducer `merge_findings` + la tabla de
+  evidencia como lógica REAL. Full-Stack → genera handlers de API + un componente desde un brief. **Ambos
+  gateados** por el MISMO kind, sin rama por-tech (principio #6).
+- Depende: MAT-1.
+
+### MAT-3 · El PRODUCTO contra infra viva bajo gate (no sólo estaciones dummy)
+- **Build**: cablear `infra_up` (E1) al **M8 del producto** de forma genérica; la fábrica declara los
+  services en `factory.spec.yml`.
+- *Gate*: ASF prueba **resume-sin-reejecución vs Postgres real** y **traversal de linaje vs Neo4j real**
+  (containers efímeros, health-gate, teardown SIEMPRE); con la infra caída el proof FALLA (diente de dos
+  lados de E1). Full-Stack: endpoint respaldado por DB real, gateado.
+- **Co-validación**: ASF (Neo4j+Postgres) + Full-Stack (DB relacional).
+- Depende: MAT-1 (paralelizable con MAT-2). *Cierra B-1 de la auditoría.*
+
+### MAT-4 · EVALUACIÓN bajo gate con scorer REAL (supera el stub-0.0 de la legacy)
+- **Build (sustrato)**: `eval_gate` (`verify/checks/eval_gate.py`, hermano de `infra_up`/`mcp_tools`,
+  primitiva DES-7): corre un `scorer` declarado contra un `gold_set` declarado y BLOQUEA bajo umbral.
+  scorer+gold-set+umbrales = DATA de la fábrica/spec (el sustrato no nombra RAGAS ni Lighthouse).
+- *Gate*: scorer bajo umbral → rojo; un scorer **decorativo** que ignora el output → rojo (diente de dos
+  lados, como E1/E2).
+- **Co-validación**: ASF (`faithfulness_min`/`critical_recall_min` con scorer real) + Full-Stack (pass-rate
+  e2e + umbral de performance, o tests de contrato).
+- Depende: MAT-2 (necesita outputs generados reales), MAT-3. *Supera la fila de eval de §12.*
+
+### MAT-5 · Corrida LIVE vs modelo real, gateada por estructura+eval (el "fuego" que la legacy pasó)
+- **Build (sustrato)**: `live_run` gate — corre el PRODUCTO contra un provider REAL; output no-determinista
+  gateado por **propiedades** (topología compilada, alcanzabilidad del interrupt, contrato de grounding) +
+  umbrales de MAT-4, **no por bytes**. Sin provider/keys → `declared-deferred` honesto (tier solo-CI, como
+  el live de la legacy).
+- *Gate*: la corrida produce un "DRAFT FOR VALIDATION" que pasa estructura + eval; provider ausente →
+  deferred visible, no fingido.
+- **Co-validación**: ASF → **Agent_RE LIVE** (el Agent_RE mejor) + Full-Stack → app servida + e2e contra el
+  stack corriendo (su análogo de "live").
+- Depende: MAT-3, MAT-4. *Cierra B-5 de la auditoría.*
+
+### MAT-6 · New ASF SUPERA a la legacy — re-auditoría head-to-head
+- **Build**: regenerar `Agent_RE` por New ASF con todo lo anterior; re-correr el eje de capacidad de
+  `F1-AUDIT §12`.
+- *Gate*: la tabla §12 **se da vuelta** — New ASF gana o empata en cada fila; re-auditoría documentada
+  (subagente forense fresco, como la original). Cierra B-1..B-6.
+- Depende: MAT-2..MAT-5.
+
+### MAT-7 · 3er dominio (Mobile o IoT) — la prueba de que NO hubo overfitting — = ROADMAP F3
+- **Build**: una fábrica Mobile o IoT desde su skeleton (`specs/skeletons/{mobile,iot}`), con SÓLO spec +
+  plantillas/scorers locales.
+- *Gate*: su producto pasa M8 en su toolchain **y `git diff src/metafactory/` por este dominio = 0 líneas**
+  (`generality_parity` verde). Si Mobile/IoT obligan a tocar el sustrato → hubo overfitting → el mecanismo
+  culpable se rediseña antes de promover.
+- Depende: MAT-6.
+
+*(Después, Fase G del ROADMAP: loop de mejora observar→proponer→verificar→promover→rollback — ahí
+"regenerar para mejorar" reemplaza el pin si re-pasa el gate y no baja ningún veredicto downstream.)*
+
+## 5. Cómo New ASF SUPERA a la legacy (mapeo a `F1-AUDIT §12`)
+
+| Fila §12 (qué pide Agent_RE) | Antes (F1) | Después (este plan) | Mecanismo |
+| --- | --- | --- | --- |
+| Lógica de dominio rica (researchers, reducer, evidencia) | ❌ `domain/` vacío | ✅ generada y gateada | MAT-2 |
+| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ✅ topologías + validador DES-2 | MAT-2 (fábrica) |
+| Lineage Neo4j (s2) | ❌ diferido | ✅ vivo bajo gate | MAT-3 |
+| Checkpointer Postgres + recovery (s3) | ❌ InMemory | ✅ vivo bajo gate | MAT-3 |
+| MCP | ❌ diferido | ✅ `emit_mcp`/`mcp_tools` cableados | E2 + fábrica |
+| Eval faithfulness/critical-recall | ❌ fake-LLM | ✅ scorer REAL que bloquea | MAT-4 → **supera legacy (stub 0.0)** |
+| Correr LIVE vs modelo real | ❌ nunca | ✅ gateado por estructura+eval | MAT-5 |
+| **Generación automatizada y gateada** | (legacy: subagente narrado, sin diente) | ✅ slot LLM + columna | MAT-2 → **supera legacy** |
+| Gobernanza re-derivable, 2 verificadores, DES-8 | ✅ ya gana | ✅ se mantiene | F1 |
+
+→ Resultado: New ASF alcanza la **amplitud** de la legacy (filas 1–7) y la **supera** en gobernanza
+(ya), eval real y generación gateada — un Agent_RE estrictamente mejor.
+
+## 6. La garantía anti-overfitting, operacional (cómo se SOSTIENE, no se promete)
+
+1. **Lockstep, no serie.** Full-Stack (MAT-1) se construye ANTES de profundizar ASF, y cada mecanismo de
+   sustrato (MAT-2/4/5) se cierra **probado en ambos dominios a la vez**. Un mecanismo probado en un solo
+   dominio es "supuesto no parametrizado" (ROADMAP principio #6) → no promueve.
+2. **El gate `generality_parity` (MAT-0)** lo vuelve diente: proof en <2 fábricas → rojo.
+3. **La medición dura**: `git diff src/metafactory/` atribuible a UN dominio = **0 líneas**. Todo lo
+   específico de ASF vive en `factories/agent-systems-factory/`; todo lo de Full-Stack en su carpeta. El
+   sustrato sólo crece en mecanismo compartido.
+4. **La prueba final (MAT-7)**: la 3ª fábrica sale madura **sin tocar el sustrato**. Si lo toca, el
+   mecanismo no era general → se rediseña. Esto es exactamente "que no haga falta iterar tanto".
+5. **Propiedad de composición (el porqué "sale madura de fábrica")**: una vez que el sustrato tiene
+   generación-viva-gateada + infra-viva-gateada + eval-gateada + live-run-gateada, **cualquier** fábrica
+   nueva las hereda gratis. El autor de la fábrica sólo escribe spec + plantillas + scorers. Por eso F2 es
+   más barata que F1, y F3 más barata que F2: el costo marginal por dominio **decrece**.
+
+## 7. Re-derivación con generación no-determinista (reconciliar I-3 con SAFE-3)
+
+F1 mantuvo la re-derivación byte-idéntica usando un scaffolder DETERMINISTA. MAT-2 introduce generación por
+LLM (no-determinista) — hay que preservar SAFE-3 ("regenerar re-deriva idéntico") sin matar la creatividad
+(I-3). El puente, que el implementador DEBE respetar:
+
+- **El artefacto generado, una vez ACEPTADO por la columna, se PINEA** y pasa a ser parte del conjunto
+  derivable del spec (content-addressed, como las proofs hoy). Es la "fuente" a partir de ese momento.
+- **Re-derivar (SAFE-3, `ci --rederive`) = re-VERIFICAR que el artefacto pineado pasa el gate**
+  (typecheck/tests/eval) en clon limpio — **no** que una generación fresca produzca los mismos bytes.
+  Esto es determinista y se mantiene verde.
+- **Regenerar (acto creativo, `claude -p` de nuevo) es un acto SEPARADO y gateado** (Fase G, loop de
+  mejora): puede reemplazar el pin **sólo si** re-pasa el gate **y** no baja ningún veredicto pineado
+  downstream (gate de blast-radius).
+- Corolario: el no-determinismo vive en el momento de PROPONER; la confianza vive en el VERIFICAR y en el
+  PIN. "El determinismo envuelve, no genera" (I-3) — acá, literal.
+
+## 8. Cómo retomar (para el próximo orquestador)
+
+- **Re-verificar > recordar**: `meta check`, `meta rtm --factory <x>`, `meta recall <tema>`.
+- **Disciplina** (no opcional, ADR-010): `meta increment open <slug>` antes de tocar código; commit por fase
+  con trailers; documentá en el gate, no al cierre.
+- **Delegación** (economía, `CONTEXT-ECONOMY.md`): el bulk (codegen de fábrica, scorers, suites, el 2º
+  dominio) → Sonnet; la trust-chain (los mecanismos de sustrato MAT-2/4/5, el gate anti-overfitting, el
+  juicio de cierre y la re-auditoría) → Opus, con ojos propios.
+- **Nunca fake-green**: el cierre lo sella la re-derivación + las gates + la co-validación en 2 dominios, no
+  la prosa. Si un mecanismo está probado en un solo dominio, es rojo.
+- **Honestidad de estado (corrección a aplicar ya)**: el ROADMAP marca F1 como "ASF COMPLETO y MEJORADO".
+  Tras la auditoría eso es optimista: F1 = **fundación cerrada + producto delgado**. Este plan es la
+  autoridad para el deepening; al avanzar, marcá MAT-n en este doc y refrescá STATE.
+```

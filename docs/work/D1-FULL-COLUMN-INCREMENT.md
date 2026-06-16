@@ -1,7 +1,7 @@
-<!-- meta:doc sha=d9129a8c316048007646bf626cbaf48dd864486c updated=2026-06-16T00:22Z -->
+<!-- meta:doc sha=6766ee3121647cae4d0749480449fe00cb2812ab updated=2026-06-16T00:25Z -->
 # Incremento D1-FULL-COLUMN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-15T20:50Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T00:25Z) (creado 2026-06-15T20:50Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

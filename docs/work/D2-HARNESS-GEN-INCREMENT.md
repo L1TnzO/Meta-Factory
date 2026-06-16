@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ca53a29abe1b2a8c72d78ac99b64f40e9ec97cef updated=2026-06-16T01:10Z -->
+<!-- meta:doc sha=d0178cc02b9ac12ea127b4a9e1acade93c248507 updated=2026-06-16T01:12Z -->
 # Incremento D2-HARNESS-GEN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T00:34Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T01:12Z) (creado 2026-06-16T00:34Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=abc97850c456ebc248d14bfb46d101dd6370db2e updated=2026-06-16T01:43Z -->
+<!-- meta:doc sha=5fb7f436f023009f24fa5fe2757e5e0d1ba1da87 updated=2026-06-16T13:13Z -->
 # Incremento E1-INFRA-SANDBOX
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T01:43Z). Cerralo con `meta increment close`
@@ -14,10 +14,27 @@ proof la USA (check `infra_up`, orquestador como `product_env` de C3). El sustra
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **El seam (`infra_up`)** — check orquestador: `up` en background → reintenta `proof` contra el servicio vivo → teardown SIEMPRE (finally). Diente embebido de dos lados (infra caída ⇒ proof rojo, si no es decorativo). Registry. Reproducible por bloqueo (`test_infra.py`: positivo · servicio que no levanta · proof decorativo · teardown limpio · 2º dominio). | ⏳ |
-| 2 | **`emit_infra` + dientes M0** — acción de build que escribe el glue de `machinery.infra.emit` desde DATO; validator suma shape-teeth (service sin `name` / emit sin `dest`/`content` → M0 rojo). | ⏳ |
-| 3 | **Demostración viva (dummy)** — `machinery.infra` + estación s03 (servicio TCP stdlib) en la dummy; M0–M8 + `product-run` + `ci --rederive` 4/4 (re-pin); ASF proxy intacto (1/1). | ⏳ |
-| 4 | **Cierre** — STATE/LOG/ROADMAP + este doc; `meta check` verde; `meta increment close`. | ⏳ |
+| 1 | **El seam (`infra_up`)** — check orquestador: `up` en background → reintenta `proof` contra el servicio vivo → teardown SIEMPRE (finally). Diente embebido de dos lados (infra caída ⇒ proof rojo, si no es decorativo). Registry. Reproducible por bloqueo (`test_infra.py`). | ✅ `c1abca5` |
+| 2 | **`emit_infra` + dientes M0** — acción de build que escribe el glue de `machinery.infra.emit` desde DATO; validator suma shape-teeth (service sin `name` / emit sin `dest`/`content` → M0 rojo). | ✅ `0113408` |
+| 3 | **Demostración viva (dummy)** — `machinery.infra` + estación s03 (servicio socket-Unix stdlib) en la dummy; M0–M8 + `product-run` + `ci --rederive` 4/4 (re-pin); ASF proxy intacto (1/1). | ✅ `14d9ae3` |
+| 4 | **Cierre** — STATE/LOG/ROADMAP + este doc; `meta check` verde; `meta increment close`. | ✅ |
+
+## Evidencia (re-derivable, no narrada)
+- **Seam por bloqueo** (`tests/test_infra.py`, 16 tests; suite `tests/` 429, era 413): levanta+usa → 0 ·
+  servicio que no levanta → rojo · **proof decorativo → rojo** (diente embebido) · teardown libera el
+  recurso · workdir ausente → 2 · up no lanza → 127 · down corre en teardown · 2º dominio TCP por el MISMO
+  kind (principio #6) · registry pass-through sin nombrar tech · `emit_infra` escribe el glue con subst ·
+  M0 RECHAZA emit-sin-dest / service-sin-name / content-no-string.
+- **Vivo por CLI sobre el glue REAL emitido de la dummy** (tres lados): servicio levanta + proof lo usa
+  → exit 0; infra que no levanta → proof no alcanza → exit 1; proof decorativo → `GATE DECORATIVO` exit 1.
+- **Línea completa**: M0–M8 verde; `product-run` PASS; `rtm` 4/4 (`REQ-F-004 SATISFIED <- infra_sandbox:
+  s03 [build/infra/server.py✓]`); re-pin 4 proof_sha; `ci --rederive` dummy **4/4** (la infra re-deriva en
+  árbol limpio) · ASF **1/1** (pin intacto). `meta check` 5/5.
+- **Residuales honestos (declarados)**: `emit_infra` no quita un emit stale que se cae del spec (la
+  superficie harness sí regenera el dir; infra escribe destinos explícitos); `runs_in` no tiene un valor
+  `sandbox_env` propio (uso `product_env`, el más cercano del enum — cambio de gramática fuera de alcance);
+  infra real (Postgres/docker-compose) sigue declarada como DATA, ejercida e2e en F1/F2; el socket Unix
+  deja un `.sock` stale tras teardown (el server hace `unlink` antes de bind → inocuo; `build/` gitignored).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `infra_up` corre dos lados POR BLOQUEO: infra levanta + proof la usa → exit 0; infra caída / proof que

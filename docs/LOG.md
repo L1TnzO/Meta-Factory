@@ -1,7 +1,41 @@
-<!-- meta:doc sha=a636115fadfe457917d6c996b39c08f23e0082e7 updated=2026-06-16T01:12Z -->
+<!-- meta:doc sha=5a944e05d04bcc543759c9e10b27ff66b55d12ed updated=2026-06-16T13:15Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-16T13:14Z — E1: la infra declarada se GENERA, LEVANTA en el sandbox y un proof la usa
+- **gatillo**: el ingeniero pidió seguir con E1 — primera mitad de la Fase E (maquinaria de fábrica como
+  primitiva elegida en el plan): infra/sandbox. Gate: la infra declarada levanta en el sandbox y un proof la usa.
+- **diagnóstico (Opus, ojos propios)**: `machinery.infra` ya viajaba como DATO (loader/A1), pero era L3
+  DESCRIPTIVO — los skeletons sólo declaraban `tech/primitive/status` (declared-deferred). Faltaba (a) GENERAR
+  el glue de infra desde el spec y (b) un gate que la LEVANTE y la PRUEBE viva. Es el façade-trap de M8
+  trasladado a la infra: un compose en disco (render-verde) no demuestra que el servicio LEVANTE.
+- **decisión de diseño**: dos piezas, calcadas de patrones ya probados. (1) `emit_infra` (build) = paralelo
+  exacto a `emit_harness` (D2): escribe `machinery.infra.emit` ({dest, content}) desde DATO; el sustrato no
+  nombra tech (un socket server o un docker-compose.yml son la misma acción, otra data, ADR-012). (2)
+  `infra_up` (check) = orquestador como `product_env` (C3), pero con LIFECYCLE: la infra es un proceso
+  DURABLE (no un one-shot). Levanta el `up` en BACKGROUND (process group propio, env scrubbed PYTHONPATH/
+  VIRTUAL_ENV/PYTHONHOME — DES-8/9), REINTENTA el `proof` contra el servicio vivo (la readiness se pliega en
+  el retry), y hace teardown SIEMPRE (down declarado + mata el grupo). `up`/`proof`/`down` = DATA; readiness
+  timeout opcional como DATA (infra real arranca lento). Maneja detached (docker -d) y foreground (un server).
+- **el diente nuevo (no un restatement)**: el diente embebido de DOS lados — tras pasar+bajar, el MISMO proof
+  se re-corre con la infra CAÍDA y debe FALLAR; si pasa, no usa el servicio vivo → `GATE DECORATIVO` rojo. Es
+  el análogo de `command_runs` (un command emitido CORRE) pero más fuerte: prueba a la vez que (i) el proof
+  DEPENDE del servicio vivo y (ii) el teardown LIBERÓ el recurso (sólo puede no-conectar si de verdad bajó).
+  El validator suma shape-teeth: emit sin `dest`/`content` / service sin `name` → M0 rojo (sin nombrar tech).
+- **decisión (transporte del dummy)**: socket Unix, NO TCP. El path vive bajo el workdir de la fábrica →
+  sin puertos → race-free y re-derivable en `ci --rederive` (el `.sock` stale tras teardown es inocuo: el
+  server hace `unlink` antes de bind; `build/` gitignored). El 2º dominio (principio #6) lo prueba el test
+  con un TCP efímero — otro transporte, MISMO kind, sin rama por-tech.
+- **prueba por bloqueo**: `test_infra.py` (16 tests; suite `tests/` 429, era 413) — levanta+usa→0, no
+  levanta→rojo, decorativo→rojo, teardown libera, workdir ausente→2, up no lanza→127, 2º dominio TCP,
+  registry pass-through, emit_infra con subst, M0 rechaza infra malformada. VIVO por CLI sobre el glue REAL
+  emitido (3 lados). Línea dummy de 4 estaciones: M0–M8 + product-run + RTM 4/4 + ci --rederive 4/4 (re-pin);
+  ASF intacto 1/1; `meta check` 5/5.
+- **residuales honestos (declarados)**: `emit_infra` no quita un emit stale que cae del spec; `runs_in` no
+  tiene `sandbox_env` propio (uso `product_env`, el más cercano del enum); infra real (Postgres/docker) sigue
+  declarada como DATA, e2e en F1/F2.
+- **commits**: `c1abca5` (P1 seam) · `0113408` (P2 emit_infra+M0) · `14d9ae3` (P3 dummy) · docs+cierre.
 
 ## 2026-06-16T01:05Z — D2: el harness se EMITE desde el spec (cierra la Fase D)
 - **gatillo**: el ingeniero pidió seguir con D2 — generar el harness (agents/commands/skills) desde L3, no

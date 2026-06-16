@@ -1,13 +1,13 @@
-<!-- meta:doc sha=f02dfe1de1db2f0af6ff2bf6998edfe6819e4d0c updated=2026-06-16T01:43Z -->
+<!-- meta:doc sha=031b029bf3654ff9dcbc2607f59d5b382761e938 updated=2026-06-16T13:14Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-16T01:05Z · sesión: opus-4.8 (Fase A ✅ + Fase B ✅ + **Fase C ✅** + **Fase D ✅** — D1 columna anti-sello COMPLETA heredada + D2 harness EMITIDO desde el spec) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-16T13:14Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + **C ✅** + **D ✅** + **E1 ✅** — D1 columna anti-sello heredada + D2 harness EMITIDO del spec + E1 infra/sandbox EJECUTABLE del spec) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: E1-INFRA-SANDBOX-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (3/3)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (1/1) · dummy: COMPLETE (4/4)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -89,9 +89,21 @@
     `command_runs` nuevo (ejecuta el `run` de cada command; roto/muerto → rojo — un command generado CORRE).
     Validator suma shape-teeth (command sin `run` / agent sin `name` → M0 rojo). Dummy **y** ASF regenerados
     con el harness 100% del spec; M0–M8 + `ci` (3/3 · 1/1, pin intacto) + `meta check` (suite 413) verdes.
-    Demo VIVO por CLI: el `run` del `greet.md` emitido corre (exit 0 → DUMMY_OK). **Sigue E1** (infra/sandbox
-    como primitiva). Diferido honesto: hooks de dominio desde L3 (sin necesidad concreta) y
-    `increment_guard`/cadencia heredada (necesita el lifecycle de incrementos propio de la fábrica).
+    Demo VIVO por CLI: el `run` del `greet.md` emitido corre (exit 0 → DUMMY_OK). Diferido honesto: hooks de
+    dominio desde L3 (sin necesidad concreta) y `increment_guard`/cadencia heredada (necesita el lifecycle).
+- **Fase E (en curso) — maquinaria de fábrica como primitiva elegida en el plan**:
+  - **E1 (`E1-INFRA-SANDBOX`)**: la **infra** deja de ser L3 descriptivo y se vuelve EJECUTABLE — se DECLARA
+    en `machinery.infra` (services/topología + el glue a emitir), se GENERA (acción `emit_infra`, paralela a
+    `emit_harness`) y un gate la LEVANTA en el sandbox y un proof la USA. Check `infra_up` (orquestador como
+    `product_env`): `up` en background (process group, env scrubbed DES-8/9), reintenta el `proof` contra el
+    servicio VIVO, teardown SIEMPRE. Render-verde no basta: el servicio tiene que LEVANTAR y ser alcanzable
+    (façade-trap de M8 para la infra). Diente embebido de dos lados: con la infra caída el `proof` debe
+    fallar — si pasa, es decorativo → rojo (doble función: prueba el teardown). Validator suma shape-teeth
+    (emit sin `dest` / service sin `name` → M0 rojo). El sustrato no nombra tech: `up`/`proof`/`down` son
+    DATA (un socket Unix, un TCP o `docker compose up` son la misma máquina, otra data). Dummy = línea de
+    **4 estaciones** (s03 levanta un servicio socket-Unix stdlib, sin puertos: re-derivable); M0–M8 +
+    `product-run` + `ci --rederive` 4/4 (re-pin) + `meta check` (suite `tests/` 429) verdes; ASF intacto
+    1/1 (infra real = F1). Demo VIVO por CLI (3 lados) sobre el glue emitido. **Sigue E2** (MCP).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -136,14 +148,14 @@
 > el spec, eligiendo la tecnología en la **planificación SDD** a partir de **primitivas** (`reference/PRIMITIVES.md`,
 > ADR-012), no de herramientas hardcodeadas. Determinismo en la verificación, no en la generación (I-3).
 > **El plan vivo y AUTORITATIVO de TODOS los incrementos es `work/ROADMAP.md`** (fases A–G, modelo
-> Diseño→Build→Mejora). **Fase A ✅ (A1+A2) · Fase B ✅ (B1+B2) · Fase C ✅ (C1+C2+C3+C4) · Fase D ✅ (D1+D2).**
-> **Próximo: E1** (Fase E, maquinaria de fábrica como primitiva elegida en el plan: **infra/sandbox** —
-> `services`/topología/compose declarados en el diseño y generados. *Gate*: la infra declarada levanta en el
-> sandbox y un proof la usa. Depende: B2, C3). D2 dejó el harness (agents/commands/skills) EMITIDO desde el
-> spec, con dientes (`agent_shadow` + `command_runs`). Después E2 (MCP) → F (ASF/Full-Stack e2e) → G (loop).
+> Diseño→Build→Mejora). **Fase A ✅ · B ✅ · C ✅ · D ✅ · E1 ✅ (infra/sandbox EJECUTABLE del spec).**
+> **Próximo: E2** (Fase E, segunda mitad de la maquinaria: **MCP** — el MCP de la fábrica, tools tipadas
+> que el orquestador llama, generado desde L3 `machinery.mcp`. *Gate*: el MCP generado expone las tools
+> declaradas; el orquestador las invoca. Depende: D2). Después F (ASF/Full-Stack e2e) → G (loop).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.
+  **Cerrado por E1**: infra/sandbox declarada→generada→levantada-y-probada (`emit_infra` + `infra_up`).
   Abierto: hooks de dominio desde L3 (sin necesidad concreta aún); cadencia/`increment_guard` heredada
   (necesita el lifecycle de incrementos propio de la fábrica); acotar el `gate_guard` del meta (sobre-matchea texto);
   M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria

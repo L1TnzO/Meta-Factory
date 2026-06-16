@@ -1,4 +1,4 @@
-<!-- meta:doc sha=eb7ce6b610bbd877ef185dad9b21365c37654a9a updated=2026-06-16T01:11Z -->
+<!-- meta:doc sha=27be0d6dce395b6971e710fe3c3501734fa07403 updated=2026-06-16T13:14Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
@@ -191,9 +191,22 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   Evidencia: `work/D2-HARNESS-GEN-INCREMENT.md`. Depende: C2, D1.
 
 ### Fase E · Maquinaria de fábrica (como primitivas elegidas en el plan, NO hardcodeadas)
-- **E1 · Infra/sandbox como primitiva (DES-4/5/8) elegida en planning.** `services`/topología/compose se
-  declaran en el diseño (el plan eligió Postgres/Neo4j para agentes, Postgres/Node para web…) y se generan.
-  *Gate*: la infra declarada levanta en el sandbox y un proof la usa. Depende: B2, C3.
+- **E1 · Infra/sandbox como primitiva (DES-9) elegida en planning.** ✅ **HECHO (2026-06-16,
+  `E1-INFRA-SANDBOX`)**. La infra deja de ser L3 descriptivo y se vuelve EJECUTABLE: `machinery.infra`
+  declara los `services`/topología + el glue a emitir; la acción `emit_infra` (`codegen/renderer.py`,
+  paralela a `emit_harness`) lo ESCRIBE desde DATO; el check `infra_up` (`verify/checks/infra_up.py`,
+  orquestador como `product_env`) LEVANTA el `up` en background (process group, env scrubbed DES-8/9),
+  REINTENTA el `proof` contra el servicio VIVO y hace teardown SIEMPRE. El sustrato no nombra tech:
+  `up`/`proof`/`down` son DATA (un socket Unix, un TCP o `docker compose up` son la misma máquina, otra
+  data, ADR-012). Diente embebido de dos lados (no decorativo, como command_runs): con la infra caída el
+  proof debe FALLAR — si pasa, no usa el servicio → rojo (doble función: prueba el teardown). Validator
+  suma shape-teeth (emit sin `dest`/`content` / service sin `name` → M0 rojo). *Gate cumplido*: dummy =
+  línea de **4 estaciones** (s03 levanta un servicio socket-Unix stdlib, sin puertos: race-free y
+  re-derivable); M0–M8 + `product-run` + `ci --rederive` 4/4 (re-pin) + `meta check` (suite `tests/` 429)
+  verdes; ASF intacto 1/1 (infra real = F1). Prueba por bloqueo (`test_infra.py`, 16 tests + VIVO por CLI
+  3 lados sobre el glue emitido): levanta+usa → 0 · no levanta → rojo · proof decorativo → rojo · teardown
+  libera el recurso · 2º dominio TCP por el MISMO kind (principio #6). Evidencia:
+  `work/E1-INFRA-SANDBOX-INCREMENT.md`. Depende: B2, C3.
 - **E2 · Generación de MCP (primitiva de harness).** El MCP de la fábrica (tools tipados que el
   orquestador llama) desde L3. *Gate*: el MCP generado expone las tools declaradas; el orquestador las invoca. Depende: D2.
 
@@ -223,7 +236,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 | no hay flujo de DISEÑO que elija tech por primitiva | — | B1, B2 |
 | motor de generación (sólo patrón único) | ~5–10% | C1, C2, C3, C4, F1 |
 | columna sólo Cerrojo 1 · commands 0 | ~40% / 0% | D1, D2 |
-| infra / MCP | 0% | E1, E2 |
+| infra / MCP | infra ✅ E1 · MCP 0% | E1 ✅, E2 |
 | dominio-agnóstico (anti-G-2, generalidad real) | spec sí, motor no | A2, B1, F2, F3 |
 | loop de mejora / best product state | — | G1, G2 |
 

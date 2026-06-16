@@ -1,7 +1,7 @@
-<!-- meta:doc sha=5fb7f436f023009f24fa5fe2757e5e0d1ba1da87 updated=2026-06-16T13:13Z -->
+<!-- meta:doc sha=dc9243d2fc15e4f9bc1eaa8511a36381ae6544a3 updated=2026-06-16T13:16Z -->
 # Incremento E1-INFRA-SANDBOX
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T01:43Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-16T13:16Z) (creado 2026-06-16T01:43Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

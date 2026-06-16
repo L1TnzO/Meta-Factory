@@ -1,0 +1,5 @@
+{
+  "slug": "full-stack",
+  "spec": "factory.spec.yml",
+  "produces": "una app web full-stack m\u00ednima: contrato tipado + backend + frontend + DB relacional, verificada en su propio toolchain (tsc --strict / node:test / node:sqlite)"
+}

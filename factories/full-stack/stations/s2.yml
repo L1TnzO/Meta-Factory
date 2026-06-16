@@ -1,0 +1,25 @@
+id: s2
+name: 'DB relacional VIVA: round-trip contra node:sqlite sobre socket-Unix (E1) —
+  DES-4/DES-9'
+activation: always
+requires_prev: s1
+builds:
+- action: emit_infra
+checks:
+- name: db_round_trip
+  kind: infra_up
+  workdir: build/infra
+  up:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - dbserver.ts
+  - db.sock
+  proof:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - dbclient.ts
+  - db.sock
+  down: []
+  timeout: 10

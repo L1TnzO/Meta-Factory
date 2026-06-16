@@ -1,0 +1,269 @@
+# full-stack.factory.spec.yml — Full-Stack-Factory MÍNIMA viva (MAT-1 / ROADMAP F2).
+# El 2º dominio radicalmente distinto (web TypeScript), generado 100% desde este spec por un codegen LOCAL
+# (factories/full-stack/codegen/scaffold_product.py, ADR-012). El sustrato del Meta-Factory NO nombra ninguna
+# tech TS. HERMÉTICO: el único `npm install` es typescript (el type-checker no tiene análogo stdlib; ASF paga
+# lo mismo con pip). Todo lo demás es Node stdlib: node --experimental-strip-types (corre TS), node:test
+# (runner), node:sqlite (DB relacional). La DB "levanta" como server node:sqlite sobre socket-Unix (el
+# análogo TS EXACTO del servicio E1 de dummy: sin docker, sin puertos, race-free, re-derivable).
+
+# ── L0 · identidad ──
+factory:
+  name: "Full-Stack Factory"
+  slug: full-stack
+  maturity: minimal
+
+# ── L1 · dominio ──
+domain:
+  produces: "una app web full-stack mínima: contrato tipado + backend + frontend + DB relacional, verificada en su propio toolchain (tsc --strict / node:test / node:sqlite)"
+  target_framework: { name: typescript, provider_agnostic: true }
+
+  # Blueprint del PRODUCTO — lo lee codegen/scaffold_product.py (el `via` del slot generate, ADR-013). Una
+  # entidad relacional única dirige el contrato tipado, el backend, el frontend y los tests.
+  product:
+    package_name: webapp
+    entity:
+      name: Todo
+      fields:
+        - { name: title, type: string }
+        - { name: done, type: boolean }
+    # Vars del template de FRONTERA I-5 (m04 renderiza un stub `domain/<product_module>.py` con marker que
+    # boundary_survives prueba que sobrevive un re-scaffold). El template del chasis es Python-shaped (un
+    # overfit de generalidad pre-existente que este 2º dominio revela, anotado en la evidencia); el stub es
+    # VESTIGIAL — el producto REAL es el árbol TS en build/product. ASF lleva el mismo stub (domain/agent_system.py).
+    product_module: webapp
+    greet_fn: marker
+    marker: WEBAPP_OK
+
+  # Capabilities (L1): cada una con su artifact REAL (la hoja del árbol de evidencia C4) bajo build/.
+  capabilities:
+    - id: contrato_tipado
+      invariant: "frontend y backend comparten un contrato tipado; un drift de tipos rompe la compilación (tsc --strict)"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "TypeScript (tsc --noEmit --strict) sobre un módulo de contrato compartido importado por front y back"
+      artifact: build/product/src/contract.ts
+      proof: "s0: tsc --noEmit --strict verde sobre src/ (contract+handler+ui); un drift del contrato → rojo"
+      status: built
+    - id: backend_logica
+      invariant: "la lógica del backend respeta el contrato y se prueba en el toolchain DEL producto (no en el de la fábrica)"
+      primitive: DES-8            # Proof en el toolchain del producto
+      tech: "node:test (vitest-analog stdlib) vía node --experimental-strip-types"
+      artifact: build/product/test/handler.test.ts
+      proof: "s1: node --test sobre el handler tipado (crea y lista respetando el contrato)"
+      status: built
+    - id: db_relacional_viva
+      invariant: "el estado persiste en una DB relacional VIVA: un round-trip INSERT+SELECT contra el servicio levantado (no un mock)"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "node:sqlite detrás de un socket-Unix (server stdlib, sin puertos)"
+      artifact: build/infra/dbserver.ts
+      proof: "s2: infra_up levanta el server node:sqlite y el cliente hace un round-trip relacional; DB caída → rojo"
+      status: built
+
+  # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
+  # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011).
+  station_sequence:
+    - id: s0
+      name: "generar el producto + contrato tipado (tsc --strict) — DES-6/DES-8"
+      activation: always
+      # s0 corre el slot generate: el scaffolder DETERMINISTA emite el producto TS completo (src/contract.ts,
+      # src/handler.ts, src/ui.ts, test/handler.test.ts, package.json, tsconfig.json) en build/product/. dest =
+      # un MANIFEST canary (lo escribe al final). El check bootstrapea el toolchain (npm install typescript) y
+      # corre tsc --noEmit --strict sobre src/: el contrato tipado compila junto a frontend+backend (drift → rojo).
+      proof_checks:
+        - { name: typed_contract, cmd: "tsc --noEmit --strict sobre src/ (contract+handler+ui)", runs_in: product_env, toolchain: tsc, status: built }
+      builds:
+        - action: generate
+          dest: build/product/MANIFEST.txt
+          brief: |
+            Generá la app web full-stack mínima de la fábrica {{slug}} en build/product/ desde el blueprint
+            (domain.product): entidad tipada, contrato compartido (DES-6), backend create/list, frontend que
+            renderiza la lista, tests node:test. tsc --noEmit --strict debe pasar sobre src/.
+          via: ["python", "codegen/scaffold_product.py"]
+      checks:
+        - name: typed_contract
+          kind: product_env
+          workdir: build/product
+          bootstrap: ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"]
+          cmd: ["node_modules/.bin/tsc", "--noEmit"]
+    - id: s1
+      name: "backend probado en el toolchain DEL producto (node:test) — DES-8"
+      activation: always
+      depends_on: [s0]
+      proof_checks:
+        - { name: backend_unit, cmd: "node --test test/handler.test.ts", runs_in: product_env, toolchain: "node-test", status: built }
+      builds: []
+      checks:
+        - name: backend_unit
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--test", "test/handler.test.ts"]
+    - id: s2
+      name: "DB relacional VIVA: round-trip contra node:sqlite sobre socket-Unix (E1) — DES-4/DES-9"
+      activation: always
+      depends_on: [s1]
+      proof_checks:
+        - { name: db_round_trip, cmd: "INSERT+SELECT contra el server node:sqlite vivo", runs_in: product_env, toolchain: "node-sqlite", status: built }
+      builds:
+        - { action: emit_infra }
+      checks:
+        - name: db_round_trip
+          kind: infra_up
+          workdir: build/infra
+          up: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "dbserver.ts", "db.sock"]
+          proof: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "dbclient.ts", "db.sock"]
+          down: []
+          timeout: 10
+
+  provision_modes: [scaffold]
+  proof_check_types: [product_env, infra_up]
+
+# ── L3 · MAQUINARIA: harness (emitido del spec, D2) + infra (emitida del spec, E1). La COLUMNA (Cerrojos
+# 1/2/3 + settings) NO va acá: es L4 substrate, heredada verbatim (D1).
+machinery:
+  harness:
+    tech: "Claude Code: agents (delegación) + commands (operador) + skills, emitidos del spec"
+    primitive: DES-1
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica full-stack (implementación, no decisiones)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión). Trabajás contra la línea y dejás que la gate sea la
+          autoridad: nunca afirmás verde, lo demostrás.
+          ## Qué NO hacés (con sombra determinista, no prosa)
+          - No tocás `.proof/` (sombra: proof_protect). No declarás "pasa" (sombra: verifier.py).
+          - No commitees trabajo no probado ni cerrás con la activa rota (sombras: commit_guard, stop_proof).
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Recibís un DIFF que toca verifier/hooks/seed/gates. Revisás con ojos propios; nunca emitís un
+          veredicto — reportás evidencia re-derivada y delegás el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Recibís un log de gate rojo. Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no
+          aprobás, no escribís.
+    commands:
+      - name: gen-check
+        description: "Corre el selftest del codegen del producto (parsea el blueprint, lista los archivos; no escribe)."
+        run: ["python", "codegen/scaffold_product.py", "--selftest"]
+        body: |
+          # /gen-check — verificá el codegen de la fábrica {{slug}}
+          Corré el selftest del scaffolder: parsea el blueprint (domain.product) y lista los archivos del
+          producto que emitiría. Exit 0 = el generador es invocable y el blueprint está completo.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
+          dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+  # ── L3 · INFRA: la DB relacional declarada, EMITIDA desde el spec (E1). `services` = la topología (DATO);
+  # `emit` = el glue que emit_infra escribe (dbserver/dbclient + package.json type:module); el ciclo de vida
+  # (up/proof/down) vive en el check infra_up de s2. El plan ELIGIÓ node:sqlite sobre socket-Unix (sin
+  # servidor externo: re-derivable). Un Postgres en docker-compose sería la MISMA máquina con otra DATA.
+  infra:
+    tech: "node:sqlite detrás de un socket-Unix (stdlib, sin puertos)"
+    primitive: DES-9
+    status: built
+    services:
+      - { name: db-svc, kind: socket-service, endpoint: "db.sock", marker: DB_UP }
+    emit:
+      - dest: build/infra/package.json
+        content: |
+          { "type": "module", "private": true }
+      - dest: build/infra/dbserver.ts
+        content: |
+          import { createServer } from "node:net";
+          import { DatabaseSync } from "node:sqlite";
+          import { rmSync } from "node:fs";
+          const sock = process.argv[2];
+          rmSync(sock, { force: true });   // un socket-Unix viejo -> EADDRINUSE; lo limpiamos (re-derivable)
+          const db = new DatabaseSync(":memory:");
+          db.exec("CREATE TABLE todo (id INTEGER PRIMARY KEY, title TEXT NOT NULL, done INTEGER NOT NULL)");
+          const server = createServer((c) => {
+            let buf = "";
+            c.on("data", (d) => { buf += d; });
+            c.on("end", () => {
+              const req = JSON.parse(buf || "{}");
+              if (req.op === "create") {
+                db.prepare("INSERT INTO todo (title, done) VALUES (?, ?)").run(req.title, req.done ? 1 : 0);
+                const n = (db.prepare("SELECT count(*) AS n FROM todo").get() as { n: number }).n;
+                c.end(JSON.stringify({ ok: true, count: n }));
+              } else if (req.op === "list") {
+                c.end(JSON.stringify({ ok: true, rows: db.prepare("SELECT id, title, done FROM todo").all() }));
+              } else {
+                c.end(JSON.stringify({ ok: false }));
+              }
+            });
+          });
+          server.listen(sock, () => process.stdout.write("DB_UP\n"));
+      - dest: build/infra/dbclient.ts
+        content: |
+          import { connect } from "node:net";
+          const sock = process.argv[2];
+          function call(req: object): Promise<any> {
+            return new Promise((res, rej) => {
+              const c = connect(sock, () => c.end(JSON.stringify(req)));
+              let d = "";
+              c.on("data", (b) => { d += b; });
+              c.on("end", () => res(JSON.parse(d)));
+              c.on("error", rej);
+            });
+          }
+          const ins = await call({ op: "create", title: "hermetic", done: false });
+          const lst = await call({ op: "list" });
+          if (!ins.ok || ins.count !== 1 || lst.rows.length !== 1 || lst.rows[0].title !== "hermetic") {
+            console.error("ROUND_TRIP_FAIL", JSON.stringify({ ins, lst }));
+            process.exit(1);
+          }
+          console.log("ROUND_TRIP_OK", JSON.stringify(lst.rows[0]));
+
+# ── L4 · sustrato (heredado verbatim, no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+  generated_domain_boundary: true
+  memory_schema: adr021
+  rtm: { required: true }
+  two_verifier_ci: { rederive: true, pinned_verdict: true }
+  placement_law: true
+  context_budget: { claude_md_max_lines: 120 }
+
+# ── L5 · requisitos (espina SDD; id estable + satisfied_by a una estación activa + capability + verified_by) ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "frontend y backend comparten un contrato tipado y el producto compila con tsc --strict; un drift del contrato bloquea (DES-6)"
+      satisfied_by: [s0]
+      verified_by: [typed_contract]
+      capability: contrato_tipado
+    - id: REQ-F-002
+      statement: "la lógica del backend se prueba en el toolchain DEL producto (node:test), aislado del de la fábrica; un test roto bloquea (DES-8)"
+      satisfied_by: [s1]
+      verified_by: [backend_unit]
+      capability: backend_logica
+    - id: REQ-F-003
+      statement: "la DB relacional declarada LEVANTA (node:sqlite sobre socket-Unix) y un proof cliente hace un round-trip INSERT+SELECT vivo; si no levanta o el proof no la usa, bloquea (DES-4/DES-9, E1)"
+      satisfied_by: [s2]
+      verified_by: [db_round_trip]
+      capability: db_relacional_viva

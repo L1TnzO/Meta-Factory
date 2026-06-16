@@ -1,0 +1,16 @@
+id: s1
+name: backend probado en el toolchain DEL producto (node:test) — DES-8
+activation: always
+requires_prev: s0
+builds: []
+checks:
+- name: backend_unit
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - --test
+  - test/handler.test.ts

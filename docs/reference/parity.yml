@@ -18,27 +18,29 @@
 #   domains   : slugs de las fábricas que lo co-validan (las que el check audita).
 #   note      : por qué está donde está / qué lo promovería.
 #
-# HOY (post-F1): dummy y ASF son AMBOS Python -> NINGÚN mecanismo califica como `general` todavía. Todo
-# queda en `prototype`. El 2º toolchain (Full-Stack/TypeScript, MAT-1) es lo que habilita la promoción:
-# es el lockstep que ADR-014 §6 / MATURITY-PLAN §6 piden. Marcar algo `general` ahora -> el check ROJO.
+# HOY (post-MAT-1): existe un 2º lenguaje radicalmente distinto — la Full-Stack-Factory (TypeScript:
+# tsc/node:test/node:sqlite) — que prueba verde los mecanismos compartidos. Por eso `product_env`,
+# `generate` e `infra_up` PROMUEVEN a `general` (ts ⟂ python, mezcla de primitivas distinta): el lockstep
+# de ADR-014 §6 / MATURITY-PLAN §6, ya ejercido. `mcp_tools` sigue `prototype` (full-stack mínima no hace
+# MCP: aún un solo dominio). Volver `general` a mcp_tools ahora -> el check ROJO (honesto).
 
 mechanisms:
-  - mechanism: product_env       # DES-8 (C3): proof en el toolchain DEL producto, venv aislado.
-    status: prototype
-    domains: [dummy, agent-systems-factory]
-    note: "Probado verde en dummy(s02) y ASF(s1/s3/s4/s6/s7/s8) pero AMBOS Python; promueve a general con un 2º lenguaje (MAT-1)."
+  - mechanism: product_env       # DES-8 (C3): proof en el toolchain DEL producto, aislado del de la fábrica.
+    status: general
+    domains: [dummy, agent-systems-factory, full-stack]
+    note: "Probado verde en Python (dummy/ASF) Y TypeScript (full-stack s0 tsc / s1 node:test). Dos lenguajes -> general."
 
   - mechanism: generate          # ADR-013 (C1): el slot creativo (brief -> via -> artefacto; la columna arbitra).
-    status: prototype
-    domains: [dummy, agent-systems-factory]
-    note: "El `via` vivo por LLM (MAT-2) se cierra en lockstep ASF + Full-Stack; hoy scaffolder determinista, un lenguaje."
+    status: general
+    domains: [dummy, agent-systems-factory, full-stack]
+    note: "Scaffolder determinista en 2 lenguajes (ASF emite LangGraph, full-stack emite TS). El `via` vivo por LLM es MAT-2."
 
   - mechanism: infra_up          # DES-9 (E1): la infra declarada levanta en el sandbox y un proof la usa.
-    status: prototype
-    domains: [dummy]
-    note: "Co-validado socket-Unix + TCP por test; promueve con infra real en 2 toolchains (MAT-3)."
+    status: general
+    domains: [dummy, full-stack]
+    note: "Socket-Unix en 2 lenguajes: dummy (python stdlib) Y full-stack (node:sqlite, s2 round-trip relacional vivo)."
 
   - mechanism: mcp_tools         # DES-6 (E2): el MCP generado expone e invoca tools tipadas.
     status: prototype
     domains: [dummy]
-    note: "Co-validado stdlib + toolset aritmético por test; promueve con MCP en 2 toolchains."
+    note: "Co-validado stdlib + toolset aritmético por test, pero un solo dominio (Python). Promueve con MCP en un 2º lenguaje."

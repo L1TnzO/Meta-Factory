@@ -1,4 +1,4 @@
-<!-- meta:doc sha=624841db705e8468948637af7e8b684dc08c145d updated=2026-06-16T22:04Z -->
+<!-- meta:doc sha=b84ada48426644f8ffac2716eac9af96fbbe6b4c updated=2026-06-16T22:48Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,8 +6,8 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (6/6) · dummy: COMPLETE (5/5)
+- Incremento abierto: MAT-1-FULL-STACK-INCREMENT.md
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (6/6) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (3/3)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy

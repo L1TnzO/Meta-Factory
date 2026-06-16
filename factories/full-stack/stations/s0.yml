@@ -1,0 +1,31 @@
+id: s0
+name: generar el producto + contrato tipado (tsc --strict) — DES-6/DES-8
+activation: always
+builds:
+- action: generate
+  dest: build/product/MANIFEST.txt
+  brief: 'Generá la app web full-stack mínima de la fábrica full-stack en build/product/
+    desde el blueprint
+
+    (domain.product): entidad tipada, contrato compartido (DES-6), backend create/list,
+    frontend que
+
+    renderiza la lista, tests node:test. tsc --noEmit --strict debe pasar sobre src/.
+
+    '
+  via:
+  - python
+  - codegen/scaffold_product.py
+checks:
+- name: typed_contract
+  kind: product_env
+  workdir: build/product
+  bootstrap:
+  - npm
+  - install
+  - --no-audit
+  - --no-fund
+  - --loglevel=error
+  cmd:
+  - node_modules/.bin/tsc
+  - --noEmit

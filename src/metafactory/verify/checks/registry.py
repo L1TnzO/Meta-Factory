@@ -18,6 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
+    "infra_up",
 )
 
 
@@ -92,4 +93,16 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 _s(check.get("workdir", "."), subst),
                 json.dumps(_s(check.get("bootstrap", []), subst)),
                 json.dumps(_s(check["cmd"], subst))]
+    if kind == "infra_up":
+        # E1 — la infra declarada levanta en el sandbox y un proof la usa (DES-9). `workdir`/`up`/`proof`/
+        # `down` son DATA (argv); el sustrato no nombra tech (ADR-012). El helper levanta `up` en background,
+        # reintenta `proof` contra el servicio vivo y hace teardown SIEMPRE. JSON encode: argv arbitrario.
+        argv = [PY, "-m", "metafactory.verify.checks.infra_up",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check.get("up", []), subst)),
+                json.dumps(_s(check["proof"], subst)),
+                json.dumps(_s(check.get("down", []), subst))]
+        if check.get("timeout"):   # optional readiness window (DATA the plan chose; slow infra boots slow)
+            argv.append(str(check["timeout"]))
+        return argv
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

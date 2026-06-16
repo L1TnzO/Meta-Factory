@@ -1,17 +1,18 @@
-# seed/external_ci.yml — la doctrina de los dos verificadores (M6, I-11, PF-10).
+# seed/external_ci.yml — la doctrina de los dos verificadores PARA LA FÁBRICA agent-systems-factory (M6, I-11, PF-10).
 #
-# STAGE 0 · trust-chain · R3. Es la ÚNICA capa intocable por el modelo, los hooks o el
-# ingeniero local: otra máquina, otro actor. Re-DERIVA el veredicto en un clon limpio y lo
-# compara contra el veredicto pineado (committed). No audita artefactos guardados —los
-# reconstruye— porque la custodia local no es la raíz de confianza (la replicabilidad lo es).
+# STAGE 0 · trust-chain · R3. La ÚNICA capa intocable por el modelo, los hooks o el ingeniero local:
+# otra máquina, otro actor. Re-DERIVA el veredicto de la fábrica agent-systems-factory en un clon limpio y lo compara
+# contra su veredicto pineado (`factories/agent-systems-factory/pinned_verdict.json`, committeado). No audita los
+# artefactos guardados —los reconstruye— porque la custodia local no es la raíz de confianza (la
+# replicabilidad lo es). Es el CI que `column.md` coloca POR ENCIMA de los tres locks locales de la
+# columna: un local comprometido produce un proof_sha que el runner limpio NO reproduce → rojo.
 #
-# Es además la defensa trusting-trust del auto-mejoramiento (SELF-IMPROVEMENT §1): un
-# Meta-Factory local comprometido produce un proof_sha que el runner limpio NO reproduce -> rojo.
-#
-# TODA la lógica vive en `meta ci --rederive` (CLI testeable). Este yaml es transporte de una
-# línea (ADR-005 §4): cero lógica duplicable que pueda divergir.
+# Parametrizado por fábrica (D1): re-deriva ESTA fábrica (`--factory agent-systems-factory`), no otra. TODA la lógica
+# vive en `meta ci --rederive` (CLI testeable); este yaml es transporte de una línea (ADR-005 §4) con el
+# slug como DATO — cero lógica duplicable que pueda divergir. El checkout es el repo del Meta-Factory
+# (la fábrica agent-systems-factory vive en `factories/agent-systems-factory/` y se re-deriva con su engine).
 
-name: meta-factory-external-ci
+name: agent-systems-factory-external-ci
 on:
   push:
   pull_request:
@@ -21,15 +22,13 @@ jobs:
   rederive:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4         # clon limpio: .proof/ no existe (gitignored)
+      - uses: actions/checkout@v4         # clon limpio: factories/agent-systems-factory/.proof/ no existe (gitignored)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - run: pip install pyyaml
-      - name: Re-derivar el veredicto y comparar contra el pineado
-        # Reconstruye la línea del dummy-fábrica desde su spec, recomputa cada proof_sha y
-        # exige el pineado (factories/<slug>/pinned_verdict.json). Desvío en CUALQUIER
-        # dirección = rojo (un PASS espontáneo sin prueba es fachada, no mejora).
-        run: ./meta ci --rederive
-      - name: Aislamiento PF-6 + consistencia de docs + suite
-        run: ./meta check
+      - name: Re-derivar el veredicto de agent-systems-factory y comparar contra el pineado
+        # Reconstruye la línea de producto de agent-systems-factory desde su spec, recomputa cada proof_sha y exige
+        # el pineado (factories/agent-systems-factory/pinned_verdict.json). Desvío en CUALQUIER dirección = rojo (un
+        # PASS espontáneo sin prueba es fachada, no mejora).
+        run: ./meta ci --rederive --factory agent-systems-factory

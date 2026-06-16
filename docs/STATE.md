@@ -1,4 +1,4 @@
-<!-- meta:doc sha=10da71f2225eb9ad7c41e033a83578f8a5fc7c10 updated=2026-06-16T18:32Z -->
+<!-- meta:doc sha=0c58976dca626aed0752a9d81242ee854e92b085 updated=2026-06-16T18:47Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -199,7 +199,7 @@
   SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
 
 ## Mapa
-- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–013; **011** 100%-generado, **012** primitivas-no-herramientas, **013** generación como slot orquestado) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
+- Bitácora: `LOG.md` · Decisiones: `decisions/` (001–014; **011** 100%-generado, **012** primitivas-no-herramientas, **013** generación como slot orquestado, **014** paridad-de-dos-dominios) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md`) · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (pin: `reference/ASF-PROVENANCE.md`) · auditoría A/B regenerada vs original: `reference/REGEN-AUDIT.md`

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `74318e180adb` | 2026-06-16T16:57Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `10da71f2225e` | 2026-06-16T18:32Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `0c58976dca62` | 2026-06-16T18:47Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -21,6 +21,7 @@
 | `docs/decisions/011-cien-por-ciento-generado.md` | `12603315201e` | 2026-06-15T03:45Z | ADR-011 — El 100% se genera; muere la frontera generado/dominio (I-5) |
 | `docs/decisions/012-primitivas-no-herramientas.md` | `6156e38ebfef` | 2026-06-15T03:45Z | ADR-012 — Primitivas de diseño, no herramientas: la tecnología se decide en el plan SDD |
 | `docs/decisions/013-generacion-como-slot-orquestado.md` | `2bfcf454a882` | 2026-06-15T17:52Z | ADR-013 — Generación como slot orquestado: el sustrato orquesta y verifica, no genera |
+| `docs/decisions/014-paridad-de-dos-dominios.md` | `0c5733ba01b7` | 2026-06-16T18:47Z | ADR-014 — Paridad de dos dominios: ningún mecanismo de sustrato promueve probado en uno solo |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |

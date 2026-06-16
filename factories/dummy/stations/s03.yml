@@ -1,0 +1,20 @@
+id: s03
+name: infra/sandbox — el servicio declarado LEVANTA y un proof lo usa (E1 / DES-9)
+activation: always
+requires_prev: s02
+builds:
+- action: emit_infra
+checks:
+- name: infra_proof
+  kind: infra_up
+  workdir: build/infra
+  up:
+  - python
+  - server.py
+  - infra.sock
+  proof:
+  - python
+  - client.py
+  - infra.sock
+  down: []
+  timeout: 8

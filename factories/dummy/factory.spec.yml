@@ -30,6 +30,11 @@ domain:
       artifact: build/test_greeting.py
       proof: "s02: product_env — el unittest del producto corre en su venv aislado (DES-8)"
       status: built
+    - id: infra_sandbox
+      invariant: "el sandbox levanta un servicio declarado y un proof cliente lo usa (la infra es EJECUTABLE, no descriptiva)"
+      artifact: build/infra/server.py
+      proof: "s03: infra_up — el servicio levanta en el sandbox y el proof cliente se conecta y lee el marcador INFRA_OK"
+      status: built
   # La LÍNEA DE PRODUCTO vive acá como DATO (C2, I-2): cada estación lleva su realización ejecutable
   # (`builds`/`checks`). m02 la materializa en `stations/<id>.yml`. 100% derivable del spec (ADR-011).
   station_sequence:
@@ -75,6 +80,26 @@ domain:
           workdir: build
           bootstrap: ["python", "-m", "venv", "--without-pip", ".venv"]
           cmd: [".venv/bin/python", "-m", "unittest", "discover", "-s", ".", "-p", "test_*.py"]
+    - id: s03
+      name: "infra/sandbox — el servicio declarado LEVANTA y un proof lo usa (E1 / DES-9)"
+      activation: always
+      depends_on: [s02]
+      # El glue de infra se EMITE desde L3 (machinery.infra.emit, abajo): un servicio socket-Unix stdlib
+      # (sin puertos: race-free, re-derivable). El check `infra_up` lo levanta en background, reintenta el
+      # proof cliente contra el servicio VIVO y hace teardown SIEMPRE. El sustrato no nombra tech: up/proof
+      # son DATA (ADR-012). Render-verde no basta: el servicio tiene que LEVANTAR y ser alcanzable.
+      proof_checks:
+        - { name: infra_proof, cmd: "el servicio del sandbox levanta y el cliente lo usa", runs_in: product_env, toolchain: "python-stdlib-uds", status: built }
+      builds:
+        - { action: emit_infra }
+      checks:
+        - name: infra_proof
+          kind: infra_up
+          workdir: build/infra
+          up: ["python", "server.py", "infra.sock"]
+          proof: ["python", "client.py", "infra.sock"]
+          down: []
+          timeout: 8
   provision_modes: [prompt]
   proof_check_types: [py_compile, import_runs, artifact_contains]
   product:
@@ -144,6 +169,39 @@ machinery:
           # verificar — re-verificá {{slug}} por bloqueo
           Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
           dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+  # ── L3 · INFRA: el sandbox declarado, EMITIDO desde el spec (E1). `services` = la topología (DATO); `emit`
+  # = el glue que `emit_infra` escribe (server/client); el ciclo de vida (up/proof/down) vive en el check
+  # `infra_up` de s03. El plan ELIGIÓ socket-Unix stdlib (sin puertos: race-free, re-derivable); la columna
+  # L4 NO va acá. Una infra real (Postgres en docker-compose) sería la MISMA máquina con otra DATA (ADR-012).
+  infra:
+    tech: "servicio socket-Unix stdlib en el sandbox (el plan lo eligió; sin dependencia externa)"
+    primitive: DES-9                 # Frontera de aislamiento (el servicio vive en el sandbox, no en la fábrica)
+    status: built
+    services:
+      - { name: sandbox-svc, kind: socket-service, endpoint: "infra.sock", marker: INFRA_OK }
+    emit:
+      - dest: build/infra/server.py
+        content: |
+          import os, socket, sys
+          path = sys.argv[1] if len(sys.argv) > 1 else "infra.sock"
+          try:
+              os.unlink(path)
+          except OSError:
+              pass
+          s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          s.bind(path); s.listen()
+          while True:
+              conn, _ = s.accept(); conn.sendall(b"INFRA_OK\n"); conn.close()
+      - dest: build/infra/client.py
+        content: |
+          import socket, sys
+          path = sys.argv[1] if len(sys.argv) > 1 else "infra.sock"
+          try:
+              c = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); c.settimeout(1)
+              c.connect(path); data = c.recv(64); c.close()
+          except OSError:
+              sys.exit(1)
+          sys.exit(0 if b"INFRA_OK" in data else 2)
 
 # ── MITAD B: sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
 factory_substrate:
@@ -172,3 +230,8 @@ requirements:
       satisfied_by: [s02]
       verified_by: [product_unittest]
       capability: product_toolchain_proof
+    - id: REQ-F-004
+      statement: "la infra declarada (un servicio de sandbox) LEVANTA y un proof la usa; si no levanta o el proof no la usa de verdad, bloquea (DES-9, E1)"
+      satisfied_by: [s03]
+      verified_by: [infra_proof]
+      capability: infra_sandbox

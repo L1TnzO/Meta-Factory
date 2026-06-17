@@ -1,0 +1,52 @@
+id: s9
+name: lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test pytest
+  — MAT-2 co-validación Python
+activation: always
+requires_prev: s4
+builds:
+- action: write
+  dest: domain_gen/conftest.py
+  content: '# Vacío a propósito: ancla el rootdir de pytest a domain_gen y lo agrega
+    a sys.path
+
+    # (import-mode prepend) para que `from merge_findings import merge_findings` resuelva,
+    hermético.
+
+    '
+- action: write
+  dest: domain_gen/test_merge.py
+  content: "from merge_findings import merge_findings\n\n\ndef test_dedup_keeps_highest_confidence_sorted_desc():\n\
+    \    findings = [\n        {\"id\": \"A\", \"confidence\": 0.5, \"text\": \"a1\"\
+    },\n        {\"id\": \"B\", \"confidence\": 0.9, \"text\": \"b1\"},\n        {\"\
+    id\": \"A\", \"confidence\": 0.8, \"text\": \"a2\"},\n    ]\n    out = merge_findings(findings)\n\
+    \    assert [f[\"id\"] for f in out] == [\"B\", \"A\"]\n    assert [f[\"confidence\"\
+    ] for f in out] == [0.9, 0.8]\n    assert out[1][\"text\"] == \"a2\"  # conservó\
+    \ el de MAYOR confianza, no el primero\n\n\ndef test_empty():\n    assert merge_findings([])\
+    \ == []\n"
+- action: generate
+  dest: domain_gen/merge_findings.py
+  skip_if_exists: true
+  brief: "Generá un módulo Python (sin dependencias externas; corre con pytest).\n\
+    Exportá EXACTAMENTE esta función (mismo nombre y firma):\n  def merge_findings(findings:\
+    \ list[dict]) -> list[dict]\nContrato de merge_findings (reducer de hallazgos\
+    \ por confianza):\n  - Cada finding es un dict con claves: \"id\" (str), \"confidence\"\
+    \ (float) y otras claves arbitrarias.\n  - Deduplicá por \"id\": si hay varios\
+    \ findings con el mismo \"id\", conservá SOLO el de MAYOR \"confidence\"\n   \
+    \ (con todas sus claves originales intactas).\n  - Devolvé la lista de findings\
+    \ deduplicados ORDENADA por \"confidence\" DESCENDENTE.\n  - Lista vacía → lista\
+    \ vacía.\nImportante: sin imports de terceros; código tipado (type hints).\nSalida:\
+    \ SOLO el código Python del módulo. Nada de explicaciones ni fences markdown.\n"
+  via:
+  - python
+  - codegen/gen_llm.py
+checks:
+- name: domain_logic_contract_live
+  kind: product_env
+  workdir: domain_gen
+  bootstrap: []
+  cmd:
+  - python3
+  - -m
+  - pytest
+  - -q
+  - test_merge.py

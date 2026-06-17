@@ -53,7 +53,7 @@
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |
-| `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `9604a511ae25` | 2026-06-17T15:41Z | Incremento MAT-2-LIVE-GEN |
+| `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `1c863816d0e2` | 2026-06-17T15:54Z | Incremento MAT-2-LIVE-GEN |
 | `docs/work/MATURITY-PLAN.md` | `b8974bd40b81` | 2026-06-16T23:17Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/ROADMAP.md` | `a66a02c4f2d5` | 2026-06-16T23:17Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |

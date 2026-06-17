@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e67526cdc767e9595817478b4ce37e9cb796988d updated=2026-06-16T18:21Z -->
+<!-- meta:doc sha=026dfc12bed11c89539959c98c2eb3d86692bd08 updated=2026-06-17T23:57Z -->
 # F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head
 
 > tipo: reference (estable) · creado: 2026-06-16T17:22Z · pin: `reference/REGEN-AUDIT.md`
@@ -193,6 +193,11 @@ command. El §9 de ese doc sí trae el update F1, pero la tabla de cabecera indu
 (`F1-AUDIT-REGEN-VS-LEGACY.md`) supersede esas tablas; conviene un banner de reenvío en REGEN-AUDIT.md.
 
 ## 12. Caso concreto — ¿qué fábrica generaría mejor `Proyect_RE_Agent`?
+
+> **⟶ SUPERSEDED por `reference/MAT-6-REAUDIT.md` (2026-06-17).** Esta tabla es el estado **pre-deepening**
+> (legacy decisiva). Tras MAT-0..MAT-6, New ASF **gana o empata 6/8 filas** (la de EVAL se da vuelta de forma
+> decisiva: recall de requisitos REAL 0.82 vs el stub `0.0` de la legacy, contra ground truth HUMANO). 2 filas
+> quedan como **residual honesto**: multi-topología (breadth) y s5 grounding. Leé el detalle dado-vuelta ahí.
 
 Aplicar el **eje de capacidad (§5)** a un producto-objetivo real. *No* audita el producto (sigue fuera
 de alcance por mandato); lo usa de **vara** para medir qué fábrica podría emitirlo. `Proyect_RE_Agent`

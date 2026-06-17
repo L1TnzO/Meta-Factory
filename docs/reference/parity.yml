@@ -49,3 +49,8 @@ mechanisms:
     status: general
     domains: [agent-systems-factory, full-stack]
     note: "MAT-4: scorer REAL que bloquea (supera el stub-0.0 de la legacy). Co-validado en 2 toolchains DISJUNTOS: ASF (faithfulness⟂critical_recall, scorer Python) Y full-stack (pass_rate⟂field_accuracy, scorer TypeScript/node). Diente de dos lados (el output degradado flipea el gate) probado en ambos; el sustrato no nombra tech (ADR-012). El scorer mide, el sustrato juzga."
+
+  - mechanism: live_run          # DES-7/8 (MAT-5): corre el PRODUCTO contra un provider REAL y GATEA por propiedades + umbrales (no por bytes).
+    status: general
+    domains: [agent-systems-factory, full-stack]
+    note: "MAT-5: el 'fuego' que la legacy pasó — corrida VIVA vs DeepSeek (endpoint OpenAI-compatible, mismo provider) gateada por PROPIEDADES estructurales + umbrales de cobertura, no por bytes; pin §7 (re-derive sin re-llamar). Co-validado en 2 toolchains DISJUNTOS por el MISMO kind: ASF (s10, grafo LangGraph; prop_hitl interrupt-a-runtime ⟂ prop_grounding contrato S6; driver+scorer Python/urllib stdlib) Y full-stack (s5, resumen NL; prop_summary afirma-el-total; driver+scorer node/fetch TypeScript). Diente de dos lados (el degraded flipea propiedades Y scorer) probado en ambos; el sustrato no nombra el provider (provider_env es DATA, ADR-012)."

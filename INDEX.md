@@ -56,7 +56,7 @@
 | `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `8cb96f80c006` | 2026-06-17T16:01Z | Incremento MAT-2-LIVE-GEN |
 | `docs/work/MAT-3-PRODUCT-INFRA-INCREMENT.md` | `a1491a7202bb` | 2026-06-17T16:56Z | Incremento MAT-3-PRODUCT-INFRA |
 | `docs/work/MAT-4-EVAL-GATE-INCREMENT.md` | `a9b234869233` | 2026-06-17T18:00Z | Incremento MAT-4-EVAL-GATE |
-| `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `606ca0789ceb` | 2026-06-17T20:11Z | Incremento MAT-5-LIVE-RUN |
+| `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `79b2a259d9b5` | 2026-06-17T20:14Z | Incremento MAT-5-LIVE-RUN |
 | `docs/work/MATURITY-PLAN.md` | `089bce0d2cc9` | 2026-06-17T17:58Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/ROADMAP.md` | `7748e76f6420` | 2026-06-17T16:54Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |

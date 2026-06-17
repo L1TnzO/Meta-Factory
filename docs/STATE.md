@@ -1,6 +1,6 @@
-<!-- meta:doc sha=ad9dda316f838106acc62812dea8c415bca442d5 updated=2026-06-17T20:11Z -->
+<!-- meta:doc sha=2e679b1114381f90467aea8ec49f43acfc0090d3 updated=2026-06-17T20:15Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-17T17:58Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅ MAT-4 ✅** — eval bajo gate con scorer REAL que bloquea (ASF faithfulness⟂recall Python + Full-Stack pass_rate⟂field_accuracy node/TS): supera el stub-0.0 de la legacy) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-17T20:15Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-5 ✅** — corrida LIVE vs provider REAL (DeepSeek) gateada por PROPIEDADES + umbrales, no por bytes: ASF Agent_RE LIVE (s10, LangGraph, interrupt-a-runtime ⟂ contrato-grounding) + Full-Stack resumen NL (s5, node/fetch); pin §7 re-derivable sin re-llamar) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -194,6 +194,23 @@
       degraded 0.0/0.0). `eval_gate` `general` en `parity.yml` (`generality_parity`: python ⟂ ts legítimo).
       `ci --rederive` ASF 8/8 + full-stack 5/5 == pineado · dummy 5/5 · `meta check` 6/6 · **`git diff src/+seed/`
       = 0**. Alcance honesto: output DETERMINISTA (fake-LLM); LIVE = MAT-5. **Cierra la fila eval de §12.**
+    - **MAT-5 (`MAT-5-LIVE-RUN`) ✅ (2026-06-17)** — el "fuego" que la legacy pasó y New ASF nunca: correr el
+      PRODUCTO contra un provider REAL (DeepSeek, endpoint OpenAI-compatible) y GATEARLO por **propiedades**
+      (no por bytes) + umbrales de cobertura. Mecanismo de sustrato `live_run` (`verify/checks/live_run.py`,
+      hermano de eval_gate/infra_up; generaliza eval_gate — reusa sus helpers): ORQUESTA la corrida viva,
+      DETECTA el provider (`provider_env` ausente + sin pin → `declared-deferred` VISIBLE, no fingido), y
+      BLOQUEA si una propiedad no se sostiene o una métrica cae bajo umbral. **§7 por bloqueo** (no-determinismo
+      en el PROPONER, determinismo en el VERIFICAR): el output vivo aceptado se PINEA en `live/` (TRACKED, no
+      `build/` gitignored) y `ci --rederive` lo re-verifica en clon limpio **SIN keys ni red** (propiedades/
+      scorer son stdlib sobre el pin; el driver NUNCA se re-llama con pin presente) — supera el defer-total de
+      la legacy. Co-validado **2 toolchains DISJUNTOS** por el MISMO kind: **ASF** (s10, grafo LangGraph vs
+      DeepSeek por urllib stdlib; **prop_hitl** interrupt no-salteable alcanzado a RUNTIME ⟂ **prop_grounding**
+      contrato S6 sobre el output del modelo; scorer Python critical_recall 1.0/key_term_coverage 0.85) +
+      **Full-Stack** (s5, resumen NL por node/`fetch`; prop_summary afirma-el-total; scorer TS 1.0/0.72). Diente
+      de dos lados VIVO en ambos (el `degraded` flipea propiedades Y scorer). `live_run` `general` en `parity.yml`
+      (python ⟂ ts). RTM **ASF 9/9 + full-stack 6/6** · `ci --rederive` 9/9 + 6/6 == pineado (sin keys) · dummy
+      5/5 · `meta check` 6/6. **`git diff src/+seed/` = solo el mecanismo general** (live_run + fix de orden
+      NATURAL de la línea que s10 surfaceó) — cero tech de dominio (anti-overfit §5). **Cierra B-5 de §12.**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -250,13 +267,15 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
-> **AVANCE (2026-06-17): MAT-0..MAT-4 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
-> (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1) y la
-> **evaluación con scorer REAL que bloquea** (ASF faithfulness⟂recall + Full-Stack pass_rate⟂field_accuracy;
-> supera el stub-0.0, cierra la fila eval de §12). **Próximo: MAT-5** — `live_run`: correr el PRODUCTO contra un
-> provider REAL, gateado por PROPIEDADES (topología compilada, alcanzabilidad del interrupt, contrato de
-> grounding) + los umbrales de MAT-4, no por bytes; sin keys → `declared-deferred` honesto (tier solo-CI).
-> Después MAT-6 (re-auditoría head-to-head) → MAT-7 (3er dominio, prueba final de no-overfitting).
+> **AVANCE (2026-06-17): MAT-0..MAT-5 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
+> (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la
+> **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12) y la **corrida LIVE vs provider REAL**
+> (`live_run`: ASF Agent_RE vs DeepSeek gateado por interrupt-a-runtime ⟂ contrato-grounding; Full-Stack resumen
+> NL; pin §7 re-derivable sin re-llamar; cierra B-5). **Próximo: MAT-6** — re-auditoría head-to-head: regenerar
+> `Agent_RE` por New ASF con todo lo anterior y dar vuelta la tabla §12 (New ASF gana/empata cada fila), con un
+> subagente forense fresco. Después MAT-7 (3er dominio Mobile/IoT, prueba final de no-overfitting: M8 verde con
+> `git diff src/metafactory/` = 0). Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
+> live_run) ya existen y son `general` — el costo marginal por dominio ahora decrece (§6 propiedad de composición).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

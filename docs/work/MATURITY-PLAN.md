@@ -1,4 +1,4 @@
-<!-- meta:doc sha=089bce0d2cc97e9ba54316fe37ac0161483f2350 updated=2026-06-17T17:58Z -->
+<!-- meta:doc sha=845790d59fe00826e685471b82050bc100609ea8 updated=2026-06-17T20:16Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -188,6 +188,23 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-2 (necesita outputs generados reales), MAT-3. *Supera la fila de eval de §12.*
 
 ### MAT-5 · Corrida LIVE vs modelo real, gateada por estructura+eval (el "fuego" que la legacy pasó)
+> ✅ **HECHO (2026-06-17, `MAT-5-LIVE-RUN`)**. `live_run` (`verify/checks/live_run.py`, hermano de
+> eval_gate/infra_up; GENERALIZA eval_gate — reusa sus helpers): el sustrato ORQUESTA la corrida viva, DETECTA
+> el provider (`provider_env` ausente + sin pin → `declared-deferred` VISIBLE, exit 2, no fingido) y GATEA por
+> PROPIEDADES estructurales **∧** umbrales (el diente de dos lados: el `degraded` flipea propiedades Y scorer).
+> **§7 por bloqueo**: el output vivo aceptado se PINEA en `live/` (TRACKED, no `build/` gitignored) y `ci
+> --rederive` lo re-verifica en clon limpio **SIN keys ni red** (propiedades/scorer stdlib sobre el pin; el
+> driver nunca se re-llama con pin presente) — supera el defer-total de la legacy. Co-validado **2 toolchains
+> DISJUNTOS** por el MISMO kind: **ASF (s10)** — grafo LangGraph vs **DeepSeek** (endpoint OpenAI-compatible por
+> urllib stdlib, sin SDK); prop_hitl (interrupt no-salteable alcanzado a RUNTIME) ⟂ prop_grounding (contrato S6
+> sobre el output del modelo); scorer Python (critical_recall 1.0 / key_term_coverage 0.85) — y **Full-Stack
+> (s5)** — resumen NL por node/`fetch`; prop_summary (afirma el conteo total); scorer TS (1.0 / 0.72). `live_run`
+> `general` en `parity.yml` (python ⟂ ts). RTM ASF 9/9 + full-stack 6/6 · `ci --rederive` 9/9 + 6/6 == pineado ·
+> dummy 5/5 · `meta check` 6/6. **`git diff src/+seed/` = solo el mecanismo general** (live_run + fix de orden
+> NATURAL de la línea que s10 surfaceó — lexicográfico encajaba s10 entre s1 y s2) — cero tech de dominio
+> (anti-overfit §5). El sustrato no nombra el provider (`provider_env`/`run` son DATA, ADR-012). Evidencia:
+> `work/MAT-5-LIVE-RUN-INCREMENT.md`. **Cierra B-5 de la auditoría.** Los TRES mecanismos de sustrato del plan
+> (live-gen MAT-2 · eval_gate MAT-4 · live_run MAT-5) existen y son `general`.
 - **Build (sustrato)**: `live_run` gate — corre el PRODUCTO contra un provider REAL; output no-determinista
   gateado por **propiedades** (topología compilada, alcanzabilidad del interrupt, contrato de grounding) +
   umbrales de MAT-4, **no por bytes**. Sin provider/keys → `declared-deferred` honesto (tier solo-CI, como

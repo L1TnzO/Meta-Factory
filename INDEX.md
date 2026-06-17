@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `a93123f8b156` | 2026-06-17T18:00Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `ad9dda316f83` | 2026-06-17T20:11Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `108c4d47e9a6` | 2026-06-17T20:16Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `2e679b111438` | 2026-06-17T20:15Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -56,9 +56,9 @@
 | `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `8cb96f80c006` | 2026-06-17T16:01Z | Incremento MAT-2-LIVE-GEN |
 | `docs/work/MAT-3-PRODUCT-INFRA-INCREMENT.md` | `a1491a7202bb` | 2026-06-17T16:56Z | Incremento MAT-3-PRODUCT-INFRA |
 | `docs/work/MAT-4-EVAL-GATE-INCREMENT.md` | `a9b234869233` | 2026-06-17T18:00Z | Incremento MAT-4-EVAL-GATE |
-| `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `79b2a259d9b5` | 2026-06-17T20:14Z | Incremento MAT-5-LIVE-RUN |
-| `docs/work/MATURITY-PLAN.md` | `089bce0d2cc9` | 2026-06-17T17:58Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `8f52f7ad1ddc` | 2026-06-17T20:18Z | Incremento MAT-5-LIVE-RUN |
+| `docs/work/MATURITY-PLAN.md` | `845790d59fe0` | 2026-06-17T20:16Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `7748e76f6420` | 2026-06-17T16:54Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `ad9f124c7e38` | 2026-06-17T20:17Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

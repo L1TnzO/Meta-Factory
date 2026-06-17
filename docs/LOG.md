@@ -1,7 +1,35 @@
-<!-- meta:doc sha=a93123f8b156fa6ff31e809db6a545db5fef5614 updated=2026-06-17T18:00Z -->
+<!-- meta:doc sha=108c4d47e9a67b8407faa4f51caf13e9d04deaf3 updated=2026-06-17T20:16Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-17T20:15Z — MAT-5: el "fuego" — el PRODUCTO corre VIVO vs un provider REAL, gateado por propiedades
+- **gatillo**: cerrado MAT-4, el ÚLTIMO mecanismo de sustrato del MATURITY-PLAN — `live_run` (B-5 de `F1-AUDIT §12`):
+  correr el PRODUCTO contra un modelo REAL y gatearlo por PROPIEDADES, no por bytes. El ingeniero dio keys reales
+  (DeepSeek, endpoint OpenAI-compatible) ⟹ se EJERCIÓ vivo, no `declared-deferred`.
+- **lo hecho (sustrato, ojos propios)**: `verify/checks/live_run.py`, hermano de eval_gate/infra_up — GENERALIZA
+  eval_gate (reusa `_grade`/`_parse_scores`/`_scorer_env`). ORQUESTA la corrida viva, DETECTA el provider
+  (`provider_env` ausente + sin pin → `declared-deferred` VISIBLE, exit 2, no fingido) y GATEA por PROPIEDADES
+  estructurales ∧ umbrales. Diente de dos lados: el `degraded` flipea propiedades Y scorer. 18 teeth + e2e por el
+  motor. El sustrato no nombra el provider (`provider_env`/`run` son DATA, ADR-012).
+- **§7 por bloqueo (lo crítico)**: una corrida viva es no-determinista; SAFE-3 exige re-derivar idéntico. El puente:
+  el output aceptado se PINEA en `live/` (TRACKED — `build/` está gitignored, ahí estuvo la trampa) y `ci --rederive`
+  lo re-verifica con stdlib sobre el pin **SIN keys ni red** (el driver NUNCA se re-llama con pin presente). Probado:
+  ASF 9/9 + full-stack 6/6 == pineado en clon limpio, con METAFACTORY_LLM_API_KEY AUSENTE. Supera el defer-total de la legacy.
+- **co-validación 2 toolchains DISJUNTOS, MISMO kind**: ASF s10 (grafo LangGraph vs DeepSeek por urllib stdlib;
+  prop_hitl=interrupt no-salteable alcanzado a RUNTIME ⟂ prop_grounding=contrato S6 sobre el output del modelo;
+  scorer Python 1.0/0.85) + Full-Stack s5 (resumen NL por node/`fetch`; prop_summary=afirma el total; scorer TS 1.0/0.72).
+  `live_run` `general` en `parity.yml` (python ⟂ ts). VIVO de verdad: el modelo respondió en español (las instrucciones
+  del producto ASF son español) → el gold se derivó de los hechos de dominio que una respuesta fiel cita (substring, robusto).
+- **bug general surfaceado por s10 (fix, ojos propios)**: `sequence.py` ordenaba la línea LEXICOGRÁFICAMENTE → s10
+  caía entre s1 y s2 (corriendo antes de su `requires_prev` s4 → `ci --rederive` habría fallado al borrar `.proof`).
+  Arreglado a orden NATURAL (numérico); idéntico para s0..s9 y m00..m08 (ninguna línea existente se mueve). 4 teeth.
+- **anti-overfit**: `git diff src/+seed/` = solo el mecanismo general (live_run + natural-sort), cero tech de dominio (§5).
+  `meta check` 6/6 · dummy 5/5 intacta. 5 commits P1–P5 con cadencia. Los TRES mecanismos del plan (live-gen·eval_gate·live_run)
+  ya son `general` — el costo marginal por dominio decrece (§6). **Próximo: MAT-6** (re-auditoría head-to-head New ASF vs legacy).
+- **tropiezo de proceso (honesto)**: al explorar, un `cd` a un subdir en Bash dejó el cwd atrapado donde los hooks de
+  ruta relativa no resuelven → deadlock de Bash/Write (la memoria `no-cd-subdirs` lo advertía). Salida: el ingeniero
+  corrió `!cd <root>`. Lección reforzada: rutas absolutas / `subprocess(cwd=)`, nunca `cd` a subdirs.
 
 ## 2026-06-17T17:58Z — MAT-4: la evaluación deja de ser un stub-0.0 y se vuelve compuerta con dientes
 - **gatillo**: cerrado MAT-3, retomar el MATURITY-PLAN — el 3er mecanismo de sustrato del deepening: `eval_gate`

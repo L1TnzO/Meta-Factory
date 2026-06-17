@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7748e76f6420f2a358984571b1de86eb9b09178e updated=2026-06-17T16:54Z -->
+<!-- meta:doc sha=ad9f124c7e38a2c01feab83849ef8d9a30bf6346 updated=2026-06-17T20:17Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -231,9 +231,12 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > (ADR-014), **adelanta F2 como instrumento de co-validación en lockstep**, y construye los 3 mecanismos de
 > sustrato que faltan (generación-viva por LLM bajo gate · `eval_gate` con scorer real · `live_run`). Los
 > F1/F2/F3 de abajo siguen válidos; MATURITY-PLAN es la autoridad del orden y el detalle.
-> **MAT-0..MAT-3 ✅ (2026-06-16/17)**: el gate anti-overfitting (`generality_parity`, ADR-014), el 2º dominio
-> (Full-Stack=F2), la generación VIVA por LLM bajo gate (MAT-2) y el PRODUCTO contra infra VIVA (MAT-3:
-> Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1). **Sigue MAT-4** (`eval_gate` con scorer REAL).
+> **MAT-0..MAT-5 ✅ (2026-06-16/17)**: el gate anti-overfitting (`generality_parity`, ADR-014), el 2º dominio
+> (Full-Stack=F2), la generación VIVA por LLM bajo gate (MAT-2), el PRODUCTO contra infra VIVA (MAT-3:
+> Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la **evaluación con scorer REAL que bloquea**
+> (MAT-4: supera el stub-0.0 de la legacy, cierra la fila eval de §12) y la **corrida LIVE vs provider REAL**
+> (MAT-5: `live_run` — ASF Agent_RE vs DeepSeek + Full-Stack resumen NL, gateado por propiedades+umbrales, pin
+> §7 re-derivable sin re-llamar; cierra B-5). Los 3 mecanismos del plan son `general`. **Sigue MAT-6** (re-auditoría head-to-head New ASF vs legacy).
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,

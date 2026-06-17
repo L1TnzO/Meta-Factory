@@ -1,4 +1,4 @@
-<!-- meta:doc sha=79b2a259d9b58dda45542e6532a7d0fa75504ffe updated=2026-06-17T20:14Z -->
+<!-- meta:doc sha=8f52f7ad1ddcec64fe3010a545d7cd8800948bb4 updated=2026-06-17T20:18Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Incremento MAT-5-LIVE-RUN
 
@@ -43,7 +43,7 @@ mete un verificador más débil para el negativo).
 | P2 | **ASF (fábrica)**: driver vivo (corre el grafo LangGraph contra DeepSeek hasta el interrupt; escribe `live/live_output.json` + degraded), propiedades (HITL-draft, grounding-contract), scorer cobertura; nueva estación s10; pin committeado; RTM 9/9; `ci --rederive` 9/9 (pin, sin provider). **+ fix general: orden NATURAL de la línea (s10 surfaceó el bug lexicográfico).** | ✅ |
 | P3 | **Full-Stack (fábrica)**: feature viva (resumen NL de todos por LLM, node `fetch` a DeepSeek), driver vivo TS (escribe `live/live_output.json` + degraded), propiedad `prop_summary` (afirma el conteo total) + scorer TS (critical_recall 1.0 ⟂ key_term_coverage 0.72; umbrales 0.7/0.6); nueva estación s5; pin committeado; RTM 6/6; `ci --rederive` 6/6 (sin provider). Co-validación TS ⟂ python. | ✅ |
 | P4 | **Promoción**: `live_run` → `general` en `parity.yml` [ASF, full-stack]; `generality_parity` verde (python ⟂ ts, primitivas distintas); 5 mecanismos `general`; `meta check` 6/6. | ✅ |
-| P5 | **Cierre**: evidencia + STATE/ROADMAP/MATURITY-PLAN (MAT-5 ✅); `meta increment close`. | ⏳ |
+| P5 | **Cierre**: evidencia + STATE/ROADMAP/MATURITY-PLAN/LOG (MAT-5 ✅); `meta increment close`. | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `live_run` corre el producto contra DeepSeek VIVO (log del provider) y BLOQUEA si una propiedad no se
@@ -54,3 +54,24 @@ mete un verificador más débil para el negativo).
    MISMO kind, mismo provider.
 4. `live_run` `general` en `parity.yml` con un par radicalmente distinto → `generality_parity` verde legítimo.
 5. `git diff src/metafactory/ + seed/` atribuible a un solo dominio = 0 (anti-overfit §5); dummy intacta.
+
+## Evidencia (CERRADO — 2026-06-17, 5 commits P1–P5)
+- **P1 · sustrato** (`a26f457`): `verify/checks/live_run.py` + registry/KINDS. Generaliza eval_gate (reusa sus
+  helpers). 18 teeth (`tests/test_live_run.py`): pin/re-verify sin driver, produce-con-provider, deferred-sin-
+  provider, propiedad/umbral falla, decorativo, property-only, fail-safe 2/127, registry pass-through, + e2e por
+  el motor (pin bueno abre, pin corrupto SHUT, veredicto por `seed/verifier.py`). Suite 487. `git diff seed/` = 0.
+- **P2 · ASF vivo** (`6284d55`): driver `live/run_live.py` (monkeypatch `_get_llm` → adaptador stdlib urllib a
+  DeepSeek; sin SDK; el producto sigue provider-agnóstico). s10 + capability `corrida_viva` + REQ-F-008.
+  prop_hitl (interrupt a RUNTIME) ⟂ prop_grounding (contrato S6) + scorer (1.0/0.85; umbrales 0.7/0.6). VIVO: 3
+  casos vs deepseek-chat, todos al interrupt. RTM 9/9 · `ci --rederive` 9/9 == pineado SIN keys. **+ fix general:
+  orden NATURAL de la línea (`sequence.py`) que s10 surfaceó (lexicográfico ponía s10 antes de s4); 4 teeth.**
+- **P3 · Full-Stack vivo** (`3bd8b53`): el 2º dominio del lockstep — driver `live/run_live.ts` (node `fetch` a
+  DeepSeek, sin SDK), prop_summary + scorer en node/TS (1.0/0.72). s5 + REQ-F-006. RTM 6/6 · `ci --rederive`
+  6/6 == pineado SIN keys. Co-validación ts ⟂ python por el MISMO kind.
+- **P4 · promoción** (`5295535`): `live_run` `general` en `parity.yml` [ASF, full-stack]; `generality_parity`
+  lo sostiene (lenguajes ['python']≠['ts'] Y primitivas distintas). 5 mecanismos `general`.
+- **Cierre (P5)**: `meta check` 6/6 · `git diff src/metafactory/ + seed/` del incremento = **solo el mecanismo
+  general** (live_run + natural-sort), cero tech de dominio. dummy intacta (`ci` 5/5). Los 5 criterios verdes.
+- **Alcance honesto**: provider real EJERCIDO (el ingeniero dio keys DeepSeek). Las propiedades+scorer son
+  proxies léxicos honestos y discriminantes (el `degraded` flipea); RAGAS/DeepEval serían DATA de fábrica.
+  **Cierra B-5 de `F1-AUDIT §12`.** Sigue MAT-6 (re-auditoría head-to-head New ASF vs legacy).

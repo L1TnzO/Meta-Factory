@@ -44,3 +44,8 @@ mechanisms:
     status: prototype
     domains: [dummy]
     note: "Co-validado stdlib + toolset aritmético por test, pero un solo dominio (Python). Promueve con MCP en un 2º lenguaje."
+
+  - mechanism: eval_gate         # DES-7 (MAT-4): un scorer declarado mide el output del producto y el sustrato BLOQUEA bajo umbral.
+    status: general
+    domains: [agent-systems-factory, full-stack]
+    note: "MAT-4: scorer REAL que bloquea (supera el stub-0.0 de la legacy). Co-validado en 2 toolchains DISJUNTOS: ASF (faithfulness⟂critical_recall, scorer Python) Y full-stack (pass_rate⟂field_accuracy, scorer TypeScript/node). Diente de dos lados (el output degradado flipea el gate) probado en ambos; el sustrato no nombra tech (ADR-012). El scorer mide, el sustrato juzga."

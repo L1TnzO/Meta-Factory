@@ -261,7 +261,7 @@ domain:
       depends_on: [s4]
       status: built
       proof_checks:
-        - { name: eval_threshold_gate, cmd: "eval_gate: scorer faithfulness+critical_recall vs output.json (degraded flipea el gate)", runs_in: product_env, toolchain: eval_gate, status: built }
+        - { name: eval_threshold_gate, cmd: "eval_gate: scorer faithfulness+critical_recall vs output.json (degraded flipea el gate)", runs_in: product_env, toolchain: python, status: built }
       builds: []
       checks:
         - name: eval_threshold_gate

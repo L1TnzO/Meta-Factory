@@ -208,7 +208,7 @@ domain:
       # thresholds: pass_rate ≥ 0.9 (4/4 casos correctos) y field_accuracy ≥ 0.9 (≥ 10.8/12 campos).
       # Diente de dos lados: positivo = output.json pasa ambos umbrales; negativo = degraded.json los viola.
       proof_checks:
-        - { name: eval_quality_gate, cmd: "eval_gate: scorer TS pass_rate+field_accuracy sobre gold set (degraded flipea el gate)", runs_in: product_env, toolchain: eval_gate, status: built }
+        - { name: eval_quality_gate, cmd: "eval_gate: scorer TS pass_rate+field_accuracy sobre gold set (degraded flipea el gate)", runs_in: product_env, toolchain: node, status: built }
       builds: []
       checks:
         - name: eval_quality_gate

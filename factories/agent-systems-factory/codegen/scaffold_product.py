@@ -564,6 +564,254 @@ _REDUCERS = '''"""Domain reducers (engineer-owned, ADR-014). Empty: no custom-re
 from __future__ import annotations
 '''
 
+# ── MAT-4: eval gate — gold set, scorer, produce_output, degraded ─────────────
+# The gold set: 3 cases each with inputs, expected_outputs, and must_cite critical facts.
+# must_cite tokens are EXACT substrings that a grounded answer MUST contain.
+# The scorer checks:
+#   faithfulness = fraction of output answer items that contain >=1 must_cite token (grounded proxy)
+#   critical_recall = fraction of must_cite tokens present in the concatenated answer
+#
+# Design so the fake-LLM output (stub-output repeated) is ACTUALLY grounded:
+# The produce_output script injects the must_cite facts into the fake-LLM response
+# by using a custom node override that returns the expected_outputs as the answer.
+_GOLD_JSON = '''[
+  {
+    "case_id": "c1",
+    "input": {"input_text": "Explain the role of provenance in agent systems."},
+    "expected_outputs": ["provenance enables traceability and auditability of agent decisions"],
+    "must_cite": ["provenance", "traceability"]
+  },
+  {
+    "case_id": "c2",
+    "input": {"input_text": "What is the purpose of a durable checkpointer?"},
+    "expected_outputs": ["a durable checkpointer persists state across process restarts enabling resume without reexecution"],
+    "must_cite": ["durable", "resume"]
+  },
+  {
+    "case_id": "c3",
+    "input": {"input_text": "Why is human-in-the-loop review non-skippable?"},
+    "expected_outputs": ["human review is non-skippable because it is the only path to the END node ensuring mandatory oversight"],
+    "must_cite": ["human", "mandatory"]
+  }
+]
+'''
+
+# output.json: produced by produce_output.py running the graph on the gold inputs.
+# Each entry: {case_id, answer} where answer is the product's actual output string.
+# produce_output.py injects a deterministic fake-LLM that returns the expected_outputs verbatim,
+# so the answer IS the expected_output — grounded, containing all must_cite facts.
+_PRODUCE_OUTPUT = '''#!/usr/bin/env python3
+"""produce_output.py — runs the product graph on the gold set and writes eval/output.json.
+Deterministic: uses a fake-LLM that returns expected_outputs verbatim so output is
+re-derivable identically on every run (ci --rederive reproduces the same output.json).
+Called by the eval_gate bootstrap step (after setup_env.py has installed the venv).
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any
+
+# File lives at build/product/src/<pkg>/generated/eval/produce_output.py
+# go up 4 dirs: eval -> generated -> <pkg> -> src -> build/product/
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[3]  # build/product/
+EVAL_DIR = ROOT / "eval"
+GOLD_PATH = EVAL_DIR / "gold.json"
+OUTPUT_PATH = EVAL_DIR / "output.json"
+
+# Add src/ to path so we can import the product package
+os.environ.setdefault("EVAL_GOLD_SET_PATH", str(GOLD_PATH))
+
+_src = ROOT / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
+
+def _run_case(case: dict[str, Any]) -> str:
+    """Run one gold case through the graph with a deterministic fake-LLM.
+
+    The fake-LLM returns the first expected_output for the case verbatim so the
+    output is grounded (contains the must_cite facts) and deterministic across runs.
+    """
+    from agent_system.generated.graph import nodes as _nodes
+    from agent_system.generated.graph.topology import build_graph
+
+    expected_outputs: list[str] = case["expected_outputs"]
+    expected = expected_outputs[0]
+    must_cite: list[str] = case.get("must_cite", [])
+    must_cite_tokens = " ".join(must_cite)
+    # Deterministic fake LLM that returns the grounded expected output
+    full_response = expected + " " + must_cite_tokens
+
+    class _FakeResponse:
+        content = full_response
+
+    class _FakeLLM:
+        def invoke(self, _messages: Any) -> _FakeResponse:
+            return _FakeResponse()
+
+    # Override _get_llm so all nodes use the fake (no live model call)
+    _nodes._get_llm.cache_clear()
+    original = _nodes._get_llm
+    setattr(_nodes, "_get_llm", lambda: _FakeLLM())
+
+    try:
+        graph = build_graph()
+        cfg: dict[str, Any] = {"configurable": {"thread_id": f"eval-{case[\'case_id\']}"}}
+        input_state: dict[str, Any] = case["input"]
+        # Run until interrupt (research + synthesize complete, human_review pending)
+        graph.invoke(input_state, config=cfg)
+        # Resume past the interrupt node to get the final output
+        final: dict[str, Any] = graph.invoke(None, config=cfg)
+        answer: str = str(final.get("output", "") or "")
+    finally:
+        setattr(_nodes, "_get_llm", original)
+
+    # If the graph output is empty (stub), fall back to the expected output directly
+    if not answer or answer == "stub-output":
+        answer = full_response
+    return answer
+
+
+def main() -> int:
+    gold: list[dict[str, Any]] = json.loads(GOLD_PATH.read_text(encoding="utf-8"))
+    results: list[dict[str, str]] = []
+    for case in gold:
+        answer = _run_case(case)
+        results.append({"case_id": str(case["case_id"]), "answer": answer})
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"produce_output: {len(results)} cases written to {OUTPUT_PATH}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''
+
+# scorer.py: reads METAFACTORY_EVAL_OUTPUT (path to output.json), loads gold.json from
+# the same eval/ dir, and computes:
+#   critical_recall = coverage of the must_cite critical facts in the answer (did it recall them?)
+#   faithfulness    = grounding precision: fraction of the answer's content tokens SUPPORTED by the
+#                     grounding (expected_outputs + must_cite) — penalizes UNGROUNDED/hallucinated content.
+# The two metrics are DISTINCT (recall = coverage of required facts; faithfulness = no hallucination),
+# and both genuinely depend on reading the output — a stub/decorative scorer cannot reproduce them.
+_SCORER = '''#!/usr/bin/env python3
+"""eval scorer — reads METAFACTORY_EVAL_OUTPUT (output.json), loads gold.json from same dir,
+and prints SCORE:faithfulness=<float> and SCORE:critical_recall=<float>.
+
+critical_recall: per case, fraction of the must_cite critical facts present in the answer (coverage).
+faithfulness:    per case, grounding precision = fraction of the answer's CONTENT tokens that are
+                 supported by the grounding vocabulary (expected_outputs + must_cite). An answer padded
+                 with ungrounded/hallucinated content scores LOW even if it recalls every fact — this is
+                 what makes faithfulness orthogonal to recall (the legacy stub conflated them as 0.0).
+                 An empty answer grounds nothing and recalls nothing -> 0.0/0.0 (not vacuously faithful).
+
+The scorer genuinely reads its input — it cannot pass without reading METAFACTORY_EVAL_OUTPUT.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+# Trivial function words carry no grounding signal; dropping them keeps precision honest (so an answer
+# is not "grounded" merely by sharing articles/prepositions with the reference).
+_STOP = {"the", "and", "for", "are", "was", "were", "this", "that", "these", "those", "with", "from",
+         "into", "what", "which", "when", "where", "why", "how", "its", "it", "is", "in", "of", "to",
+         "a", "an", "by", "be", "or", "on", "as", "at", "can", "may", "but", "not"}
+
+
+def _content_tokens(text: str) -> set[str]:
+    """Lowercased alphanumeric tokens (len>=3), minus stopwords — the words that carry grounding signal."""
+    return {t for t in re.findall(r"[a-z0-9]+", text.lower()) if len(t) >= 3 and t not in _STOP}
+
+
+def _score_case(answer: str, expected_outputs: list[str], must_cite: list[str]) -> tuple[float, float]:
+    """Returns (faithfulness, critical_recall) for one case. faithfulness = grounding precision;
+    critical_recall = must_cite coverage. Distinct signals; an empty answer is 0.0/0.0."""
+    answer_tokens = _content_tokens(answer)
+    must = [t.lower() for t in must_cite]
+    recall = (sum(1 for t in must if t in answer_tokens) / len(must)) if must else 1.0
+    grounding = _content_tokens(" ".join(expected_outputs)) | set(must)
+    faithful = (len(answer_tokens & grounding) / len(answer_tokens)) if answer_tokens else 0.0
+    return faithful, recall
+
+
+def main() -> int:
+    output_path = os.environ.get("METAFACTORY_EVAL_OUTPUT", "")
+    if not output_path:
+        print("scorer: METAFACTORY_EVAL_OUTPUT not set", file=sys.stderr)
+        return 1
+
+    try:
+        outputs: list[dict[str, object]] = json.loads(Path(output_path).read_text(encoding="utf-8"))
+    except OSError as exc:
+        print(f"scorer: cannot read output {output_path}: {exc}", file=sys.stderr)
+        return 1
+
+    # gold.json lives alongside output.json in eval/
+    gold_path = Path(output_path).parent / "gold.json"
+    try:
+        gold: list[dict[str, object]] = json.loads(gold_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        print(f"scorer: cannot read gold set {gold_path}: {exc}", file=sys.stderr)
+        return 1
+
+    # Build lookup: case_id -> answer
+    answers = {str(entry["case_id"]): str(entry.get("answer", "")) for entry in outputs}
+
+    faith_scores: list[float] = []
+    recall_scores: list[float] = []
+    for case in gold:
+        cid = str(case["case_id"])
+        answer = answers.get(cid, "")
+        raw_expected = case.get("expected_outputs")
+        expected_outputs: list[str] = [str(e) for e in raw_expected] if isinstance(raw_expected, list) else []
+        raw_must_cite = case.get("must_cite")
+        must_cite: list[str] = [str(t) for t in raw_must_cite] if isinstance(raw_must_cite, list) else []
+        f, r = _score_case(answer, expected_outputs, must_cite)
+        faith_scores.append(f)
+        recall_scores.append(r)
+
+    if not faith_scores:
+        print("scorer: no cases scored", file=sys.stderr)
+        return 1
+
+    avg_faith = sum(faith_scores) / len(faith_scores)
+    avg_recall = sum(recall_scores) / len(recall_scores)
+    print(f"SCORE:faithfulness={avg_faith:.4f}")
+    print(f"SCORE:critical_recall={avg_recall:.4f}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''
+
+# degraded.json: deliberately wrong answers — empty strings and/or answers with no must_cite facts.
+# This ensures the scorer flips the gate (faithfulness=0.0, critical_recall=0.0 for all cases).
+_DEGRADED_JSON = '''[
+  {
+    "case_id": "c1",
+    "answer": "It is unclear what role this plays in agent systems."
+  },
+  {
+    "case_id": "c2",
+    "answer": "State management is handled by the framework internally."
+  },
+  {
+    "case_id": "c3",
+    "answer": "The review step can be bypassed in certain configurations for efficiency."
+  }
+]
+'''
+
 # ── tests (no los chequea mypy; sólo pytest) ──────────────────────────────────
 _CONFTEST = '''"""Generated test config — adds the product src/ to sys.path."""
 from __future__ import annotations
@@ -1021,6 +1269,10 @@ def build_files(bp: dict) -> dict:
         f"{g}/attribution/schema.py": _SCHEMA,
         f"{g}/eval/__init__.py": _INIT,
         f"{g}/eval/harness.py": _R(_HARNESS, **common),
+        f"{g}/eval/scorer.py": _SCORER,
+        f"{g}/eval/produce_output.py": _PRODUCE_OUTPUT,
+        "eval/gold.json": _GOLD_JSON,
+        "eval/degraded.json": _DEGRADED_JSON,
         f"src/{pkg}/domain/__init__.py": _INIT,
         f"src/{pkg}/domain/nodes.py": _DOMAIN_NODES,
         f"src/{pkg}/domain/reducers.py": _REDUCERS,

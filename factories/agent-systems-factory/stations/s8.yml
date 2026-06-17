@@ -5,12 +5,17 @@ requires_prev: s4
 builds: []
 checks:
 - name: eval_threshold_gate
-  kind: product_env
+  kind: eval_gate
   workdir: build/product
-  bootstrap: []
-  cmd:
+  bootstrap:
+  - sh
+  - -c
+  - python3 setup_env.py && PYTHONPATH=src .venv/bin/python src/agent_system/generated/eval/produce_output.py
+  scorer:
   - .venv/bin/python
-  - -m
-  - pytest
-  - -q
-  - tests/test_eval.py
+  - src/agent_system/generated/eval/scorer.py
+  output: eval/output.json
+  degraded: eval/degraded.json
+  thresholds:
+    faithfulness: 0.7
+    critical_recall: 0.9

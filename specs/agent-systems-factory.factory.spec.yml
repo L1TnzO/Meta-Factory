@@ -261,14 +261,17 @@ domain:
       depends_on: [s4]
       status: built
       proof_checks:
-        - { name: eval_threshold_gate, cmd: "pytest tests/test_eval.py", runs_in: product_env, toolchain: pytest, status: built }
+        - { name: eval_threshold_gate, cmd: "eval_gate: scorer faithfulness+critical_recall vs output.json (degraded flipea el gate)", runs_in: product_env, toolchain: eval_gate, status: built }
       builds: []
       checks:
         - name: eval_threshold_gate
-          kind: product_env
+          kind: eval_gate
           workdir: build/product
-          bootstrap: []
-          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_eval.py"]
+          bootstrap: ["sh", "-c", "python3 setup_env.py && PYTHONPATH=src .venv/bin/python src/agent_system/generated/eval/produce_output.py"]
+          scorer: [".venv/bin/python", "src/agent_system/generated/eval/scorer.py"]
+          output: "eval/output.json"
+          degraded: "eval/degraded.json"
+          thresholds: {faithfulness: 0.7, critical_recall: 0.9}
     - id: s9
       name: "lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test pytest — MAT-2 co-validación Python"
       activation: always

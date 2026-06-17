@@ -9,6 +9,15 @@ branch. This is what makes `runs_in: <sandbox>` executable instead of descriptiv
 M8's façade-trap: a render-green compose file does NOT pass — the service must actually COME UP and be
 REACHABLE by the proof.
 
+MAT-3 — wiring infra to the PRODUCT's M8: an optional `bootstrap` (run ONCE, in `workdir`, with the same
+scrubbed env, BEFORE the service starts) prepares the PRODUCT's own toolchain (venv + pip install, npm ci)
+so the `proof` can be the product's OWN test (DES-8) running against the LIVE declared infra — not a
+standalone glue client. This is exactly the composition `product_env ⊕ infra_up`: the product stands on its
+own toolchain (scrubbed) AND is exercised against real infra. Bootstrap is DATA too (argv); it is optional
+(a proof with nothing to install passes `[]`). It runs before `up` so a failing bootstrap costs no
+container; it is NOT re-run in the negative phase (only the proof is). The two-sided tooth then proves the
+product genuinely USES the live infra: with the service down, the product's test must fail.
+
 Two non-negotiables make this an honest realization and not a façade:
 
   1. cwd == the infra `workdir` (where the emitted glue / compose / sources live), and the env is SCRUBBED
@@ -106,7 +115,7 @@ def _teardown(down: list, up: subprocess.Popen | None, cwd: Path, env: dict) -> 
         pass
 
 
-def run(workdir: str, up: list, proof: list, down: list,
+def run(workdir: str, up: list, proof: list, down: list, bootstrap: list | None = None,
         ready_timeout: float = _READY_TIMEOUT, down_timeout: float = _DOWN_TIMEOUT) -> int:
     wd = Path(workdir).resolve()
     if not wd.is_dir():
@@ -116,6 +125,16 @@ def run(workdir: str, up: list, proof: list, down: list,
         print("infra_up: no `proof` argv (a proof must USE the live infra)", file=sys.stderr)
         return 2
     env = _sandbox_env()
+
+    # 0. BOOTSTRAP (opcional, MAT-3): preparar el toolchain del PRODUCTO una vez, ANTES de levantar la
+    #    infra (un bootstrap roto no cuesta un contenedor). Mismo env scrubbed (DES-8): el producto no pide
+    #    prestado el toolchain de la fábrica. No se re-corre en la fase negativa.
+    if bootstrap:
+        rc = _run(bootstrap, wd, env)
+        if rc != 0:
+            print(f"infra_up: el bootstrap del producto falló (exit {rc}) antes de levantar la infra",
+                  file=sys.stderr)
+            return rc
 
     proc: subprocess.Popen | None = None
     try:
@@ -157,17 +176,19 @@ def run(workdir: str, up: list, proof: list, down: list,
 
 
 def main(argv: list[str]) -> int:
-    # argv: <workdir> <up-json> <proof-json> <down-json> [ready-timeout]. up/proof/down arrive JSON-encoded
-    # so arbitrary argv (spaces, flags) survive transport unambiguously; they are free DATA the plan chose
-    # (ADR-012). The optional readiness timeout is DATA too: real infra (a container) declares its own boot
-    # window, the substrate hardcodes none.
-    if len(argv) not in (4, 5):
-        print("usage: infra_up <workdir> <up-json> <proof-json> <down-json> [ready-timeout]", file=sys.stderr)
+    # argv: <workdir> <up-json> <proof-json> <down-json> <bootstrap-json> [ready-timeout]. up/proof/down/
+    # bootstrap arrive JSON-encoded so arbitrary argv (spaces, flags) survive transport unambiguously; they
+    # are free DATA the plan chose (ADR-012). The optional readiness timeout is DATA too: real infra (a
+    # container) declares its own boot window, the substrate hardcodes none.
+    if len(argv) not in (5, 6):
+        print("usage: infra_up <workdir> <up-json> <proof-json> <down-json> <bootstrap-json> [ready-timeout]",
+              file=sys.stderr)
         return 2
     kwargs = {}
-    if len(argv) == 5 and argv[4]:
-        kwargs["ready_timeout"] = float(argv[4])
-    return run(argv[0], json.loads(argv[1]), json.loads(argv[2]), json.loads(argv[3]), **kwargs)
+    if len(argv) == 6 and argv[5]:
+        kwargs["ready_timeout"] = float(argv[5])
+    return run(argv[0], json.loads(argv[1]), json.loads(argv[2]), json.loads(argv[3]),
+               bootstrap=json.loads(argv[4]), **kwargs)
 
 
 if __name__ == "__main__":

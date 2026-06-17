@@ -124,6 +124,38 @@ def test_down_runs_on_teardown(tmp_path):
     assert sentinel.exists(), "el `down` declarado no corrió en el teardown"
 
 
+# ── MAT-3: an optional bootstrap prepares the PRODUCT's toolchain, then the proof uses the LIVE infra ──
+
+def test_bootstrap_runs_once_before_the_live_proof(tmp_path):
+    """the optional bootstrap (MAT-3) runs ONCE in the workdir before `up`, so the proof can be the
+    product's OWN test against the LIVE service (product_env ⊕ infra_up). It is NOT re-run in the negative
+    phase: a counter the bootstrap appends to ends with exactly one entry after a full green run."""
+    wd, up, proof = _uds_sandbox(tmp_path)
+    counter = wd / "bootstrap_runs"
+    bootstrap = [PY, "-c", f"open({str(counter)!r}, 'a').write('x')"]
+    assert infra_up.run(str(wd), up, proof, [], bootstrap=bootstrap) == 0
+    assert counter.read_text() == "x", "el bootstrap no corrió EXACTAMENTE una vez (¿se re-corre en la fase negativa?)"
+
+
+def test_bootstrap_failure_blocks_before_any_infra(tmp_path):
+    """a failing bootstrap is red and costs NO container: it returns the bootstrap's code and `up` never
+    launches (its sentinel is absent) — a broken product toolchain is caught before standing up infra."""
+    wd, _up, proof = _uds_sandbox(tmp_path)
+    up_ran = wd / "up_launched"
+    up = [PY, "-c", f"open({str(up_ran)!r}, 'w').write('x'); __import__('time').sleep(5)"]
+    bootstrap = [PY, "-c", "import sys; sys.exit(7)"]
+    assert infra_up.run(str(wd), up, proof, [], bootstrap=bootstrap) == 7
+    assert not up_ran.exists(), "la infra (`up`) se levantó pese al bootstrap roto (debió cortar antes)"
+
+
+def test_registry_passes_bootstrap_through():
+    """MAT-3: the optional product `bootstrap` rides through as opaque DATA too (ADR-012), like up/proof/down."""
+    check = {"name": "i", "kind": "infra_up", "workdir": "wd",
+             "up": ["U"], "proof": ["P"], "down": ["D"], "bootstrap": ["npm", "ci"]}
+    argv = resolve_check(check, None, Station.from_dict({"id": "x"}), {})
+    assert json.dumps(["npm", "ci"]) in argv
+
+
 # ── ADR-012: the substrate is a PASS-THROUGH, it names no tech ──────────────────
 
 def test_registry_passes_infra_argv_through_verbatim():

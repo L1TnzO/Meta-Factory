@@ -1,0 +1,5 @@
+[
+  {"case_id": "c1", "summary": "Lorem ipsum dolor sit amet, contenido totalmente fuera de tema.", "total": 3, "done": 1, "pending": ["buy milk", "write report"]},
+  {"case_id": "c2", "summary": "Foo bar baz, nada que ver con ninguna tarea.", "total": 2, "done": 1, "pending": ["deploy app"]},
+  {"case_id": "c3", "summary": "Qux quux, relleno irrelevante sin información.", "total": 4, "done": 1, "pending": ["water plants", "read book", "clean desk"]}
+]

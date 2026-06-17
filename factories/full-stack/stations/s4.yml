@@ -1,6 +1,6 @@
 id: s4
-name: "evaluación con compuertas: scorer TypeScript sobre gold set — eval_gate con dientes (DES-7,\
-  \ MAT-4)"
+name: 'evaluación con compuertas: scorer TypeScript sobre gold set — eval_gate con
+  dientes (DES-7, MAT-4)'
 activation: always
 requires_prev: s3
 builds: []

@@ -71,6 +71,13 @@ domain:
       artifact: build/product/eval/scorer.ts
       proof: "s4: eval_gate corre el scorer TS sobre output.json (positivo) y sobre degraded.json (negativo, gate flipea); pass_rate+field_accuracy ≥ 0.9; un scorer decorativo → rojo"
       status: built
+    - id: corrida_viva
+      invariant: "una feature del PRODUCTO (resumen en lenguaje natural de una lista de todos) corre contra un provider REAL (no-determinista) y la corrida se gatea por PROPIEDADES (el resumen AFIRMA el conteo total) + umbrales de cobertura, NO por bytes; el output aceptado se PINEA y ci --rederive lo re-verifica sin re-llamar al provider; sin provider/pin → declared-deferred VISIBLE"
+      primitive: DES-7            # Evaluabilidad con compuertas — la corrida LIVE gateada (MAT-5)
+      tech: "corrida viva vs endpoint OpenAI-compatible (DeepSeek) por el fetch global de Node (stdlib, sin SDK); propiedad+scorer en node --experimental-strip-types (toolchain TS, ts ⟂ python); pin §7 + ci --rederive sin re-llamar"
+      artifact: live/live_output.json
+      proof: "s5: live_run corre el resumen vs el modelo real, gatea prop_summary (afirma el total) + scorer (critical_recall≥0.7, key_term_coverage≥0.6); el degraded flipea; el pin se re-verifica sin provider"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
   # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011).
@@ -222,6 +229,31 @@ domain:
           output: "eval/output.json"
           degraded: "eval/degraded.json"
           thresholds: {pass_rate: 0.9, field_accuracy: 0.9}
+    - id: s5
+      name: "Corrida LIVE vs provider REAL: resumen NL de todos gateado por propiedades+eval (MAT-5) — DES-7"
+      activation: always
+      depends_on: [s4]
+      # MAT-5: el sustrato `live_run` corre el driver de la fábrica (live/run_live.ts: fetch global de Node al
+      # endpoint OpenAI-compatible de DeepSeek; resume cada lista de todos del gold) SOLO si el pin
+      # (live/live_output.json) no existe Y hay keys (provider_env). El pin committeado se re-verifica con la
+      # toolchain TS (node --experimental-strip-types: prop_summary + scorer) SIN re-llamar al provider — ci
+      # --rederive verde sin keys ni red (§7). Diente de dos lados: el degraded (off-topic, sin el conteo)
+      # flipea la propiedad Y el scorer. Co-valida live_run en TS (ts ⟂ python ASF, anti-overfit §6, ADR-014).
+      proof_checks:
+        - { name: webapp_live, cmd: "live_run: resumen vs DeepSeek → prop_summary (afirma total) + scorer (critical_recall+key_term_coverage ≥ umbrales); degraded flipea; pin §7 sin re-llamar", runs_in: product_env, toolchain: node, status: built }
+      builds: []
+      checks:
+        - name: webapp_live
+          kind: live_run
+          workdir: .
+          provider_env: METAFACTORY_LLM_API_KEY
+          run: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "live/run_live.ts"]
+          output: "live/live_output.json"
+          degraded: "live/degraded.json"
+          properties:
+            - ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "live/prop_summary.ts"]
+          scorer: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "live/scorer.ts"]
+          thresholds: {critical_recall: 0.7, key_term_coverage: 0.6}
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]
@@ -369,3 +401,8 @@ requirements:
       satisfied_by: [s4]
       verified_by: [eval_quality_gate]
       capability: evaluabilidad
+    - id: REQ-F-006
+      statement: "una feature del producto (resumen NL de todos) corre contra un provider REAL y se gatea por PROPIEDADES (el resumen afirma el conteo total) + umbrales de cobertura (critical_recall≥0.7, key_term_coverage≥0.6), NO por bytes; el output aceptado se PINEA y re-derive lo verifica sin re-llamar al provider; sin provider/pin → declared-deferred visible; el degraded (off-topic) flipea el gate — co-validación TS de live_run (ts ⟂ python, MAT-5, §7/ADR-014)"
+      satisfied_by: [s5]
+      verified_by: [webapp_live]
+      capability: corrida_viva

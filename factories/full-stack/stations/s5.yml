@@ -1,0 +1,31 @@
+id: s5
+name: 'Corrida LIVE vs provider REAL: resumen NL de todos gateado por propiedades+eval
+  (MAT-5) — DES-7'
+activation: always
+requires_prev: s4
+builds: []
+checks:
+- name: webapp_live
+  kind: live_run
+  workdir: .
+  provider_env: METAFACTORY_LLM_API_KEY
+  run:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - live/run_live.ts
+  output: live/live_output.json
+  degraded: live/degraded.json
+  properties:
+  - - node
+    - --experimental-strip-types
+    - --disable-warning=ExperimentalWarning
+    - live/prop_summary.ts
+  scorer:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - live/scorer.ts
+  thresholds:
+    critical_recall: 0.7
+    key_term_coverage: 0.6

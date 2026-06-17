@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0155a8bdbac2d4df2d87356fa527ee34ef0f7e89 updated=2026-06-17T20:06Z -->
+<!-- meta:doc sha=606ca0789cebc9e45eefff7287b64b041bd12c71 updated=2026-06-17T20:11Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Incremento MAT-5-LIVE-RUN
 
@@ -41,7 +41,7 @@ mete un verificador más débil para el negativo).
 | --- | --- | --- |
 | P1 | **Sustrato (Opus, trust-chain)**: `verify/checks/live_run.py` + registry/KINDS + teeth (`tests/test_live_run.py`, helper + e2e por el motor). Detección de provider + deferred, pin §7, gate propiedades∧eval, diente de dos lados, fail-safe. | ✅ |
 | P2 | **ASF (fábrica)**: driver vivo (corre el grafo LangGraph contra DeepSeek hasta el interrupt; escribe `live/live_output.json` + degraded), propiedades (HITL-draft, grounding-contract), scorer cobertura; nueva estación s10; pin committeado; RTM 9/9; `ci --rederive` 9/9 (pin, sin provider). **+ fix general: orden NATURAL de la línea (s10 surfaceó el bug lexicográfico).** | ✅ |
-| P3 | **Full-Stack (fábrica)**: feature viva (resumen NL de todos por LLM, node fetch a DeepSeek), driver vivo (escribe `live/live_output.json` + degraded), propiedades (estructural: el resumen cita conteos/títulos), scorer; nueva estación s5; pin committeado; `ci --rederive`. | ⏳ |
+| P3 | **Full-Stack (fábrica)**: feature viva (resumen NL de todos por LLM, node `fetch` a DeepSeek), driver vivo TS (escribe `live/live_output.json` + degraded), propiedad `prop_summary` (afirma el conteo total) + scorer TS (critical_recall 1.0 ⟂ key_term_coverage 0.72; umbrales 0.7/0.6); nueva estación s5; pin committeado; RTM 6/6; `ci --rederive` 6/6 (sin provider). Co-validación TS ⟂ python. | ✅ |
 | P4 | **Promoción**: `live_run` → `general` en `parity.yml` [ASF, full-stack]; `generality_parity` verde (python ⟂ ts); `meta check`. | ⏳ |
 | P5 | **Cierre**: evidencia + STATE/ROADMAP/MATURITY-PLAN (MAT-5 ✅); `meta increment close`. | ⏳ |
 

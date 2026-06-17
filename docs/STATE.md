@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4a4e3b7480cd25f1920d6660dd604e98e60413e4 updated=2026-06-17T20:04Z -->
+<!-- meta:doc sha=ad9dda316f838106acc62812dea8c415bca442d5 updated=2026-06-17T20:11Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T17:58Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅ MAT-4 ✅** — eval bajo gate con scorer REAL que bloquea (ASF faithfulness⟂recall Python + Full-Stack pass_rate⟂field_accuracy node/TS): supera el stub-0.0 de la legacy) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: MAT-5-LIVE-RUN-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (9/9) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (5/5)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (9/9) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy

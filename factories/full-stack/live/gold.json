@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "c1",
+    "todos": [
+      {"id": 1, "title": "buy milk", "done": false},
+      {"id": 2, "title": "call dentist", "done": true},
+      {"id": 3, "title": "write report", "done": false}
+    ],
+    "must_cite": ["3", "milk"],
+    "key_terms": ["milk", "report", "dentist"]
+  },
+  {
+    "case_id": "c2",
+    "todos": [
+      {"id": 1, "title": "fix bug", "done": true},
+      {"id": 2, "title": "deploy app", "done": false}
+    ],
+    "must_cite": ["2", "deploy"],
+    "key_terms": ["deploy", "bug"]
+  },
+  {
+    "case_id": "c3",
+    "todos": [
+      {"id": 1, "title": "water plants", "done": false},
+      {"id": 2, "title": "read book", "done": false},
+      {"id": 3, "title": "pay rent", "done": true},
+      {"id": 4, "title": "clean desk", "done": false}
+    ],
+    "must_cite": ["4", "plants"],
+    "key_terms": ["plants", "book", "rent", "desk"]
+  }
+]

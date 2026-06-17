@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "c1",
+    "summary": "There are 3 todos in total, with 1 completed and 2 pending. The pending tasks are \"buy milk\" and \"write report\".",
+    "total": 3,
+    "done": 1,
+    "pending": [
+      "buy milk",
+      "write report"
+    ]
+  },
+  {
+    "case_id": "c2",
+    "summary": "There are 2 todos in total, with 1 completed. The only pending task is \"deploy app\".",
+    "total": 2,
+    "done": 1,
+    "pending": [
+      "deploy app"
+    ]
+  },
+  {
+    "case_id": "c3",
+    "summary": "There are 4 todos in total, with 1 completed (pay rent) and 3 pending. The pending tasks are: water plants, read book, and clean desk.",
+    "total": 4,
+    "done": 1,
+    "pending": [
+      "water plants",
+      "read book",
+      "clean desk"
+    ]
+  }
+]

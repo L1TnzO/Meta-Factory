@@ -1,16 +1,30 @@
 id: s3
-name: Estado durable y recuperación (resume sin reejecución, MemorySaver)
+name: 'Estado durable y recuperación: resume sin reejecución vs Postgres REAL (E1,
+  M8 del producto) — DES-4'
 activation: always
 requires_prev: s1
 builds: []
 checks:
 - name: resume_no_reexec
-  kind: product_env
+  kind: infra_up
   workdir: build/product
-  bootstrap: []
-  cmd:
+  bootstrap:
+  - python3
+  - setup_env.py
+  up:
+  - sh
+  - -c
+  - docker rm -f asf_mat3_pg >/dev/null 2>&1; exec docker run --rm --name asf_mat3_pg
+    -e POSTGRES_PASSWORD=metafactory -p 55433:5432 postgres:16-alpine
+  proof:
   - .venv/bin/python
   - -m
   - pytest
   - -q
   - tests/test_state.py
+  down:
+  - docker
+  - rm
+  - -f
+  - asf_mat3_pg
+  timeout: 90

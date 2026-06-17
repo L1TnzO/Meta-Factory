@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9ab0eae349d5cf4c08f919f8f33b90773e21d2f7 updated=2026-06-17T16:29Z -->
+<!-- meta:doc sha=d0095d676ee97c1b5a44f026dd18646d8988659f updated=2026-06-17T16:39Z -->
 # Incremento MAT-3-PRODUCT-INFRA
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
@@ -52,7 +52,7 @@ y **dos toolchains** (python ⟂ node), evidencia de generalidad MÁS fuerte.
 | --- | --- | --- |
 | 1 | **Sustrato**: `infra_up` acepta `bootstrap` opcional (una vez, scrubbed, antes del retry-loop) + cableado en registry/main; tests por bloqueo (bootstrap corre una vez · bootstrap roto → rojo antes de `up` · proof del producto contra servicio vivo verde · infra caída → rojo se mantiene). `git diff` acotado al mecanismo | ✅ 2026-06-17T16:18Z |
 | 2 | **Co-validación Full-Stack**: el PRODUCTO (test de integración tipado al contrato) respaldado por la DB viva; s2 con `infra_up` (proof = test del producto, no el glue) + bootstrap del toolchain (npm install); re-pin · product-run · `ci --rederive` 4/4 == pineado. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:28Z |
-| 3 | **ASF Postgres (s3)**: codegen del checkpointer PostgresSaver real; s3 → `infra_up` (up=contenedor postgres, proof=`test_state.py` resume-no-reexec, down=`docker rm -f`); deps += langgraph-checkpoint-postgres/psycopg; re-pin · product-run · `ci` | ⏳ |
+| 3 | **ASF Postgres (s3)**: codegen `durable_checkpointer` (PostgresSaver real) + test resume-no-reexec **cross-instancia** (instancia fresca contra la MISMA PG resume sin reejecutar — MemorySaver no podría); s3 → `infra_up` (up=`docker run postgres:16-alpine`, bootstrap=`setup_env.py`, proof=`pytest test_state.py`, down=`docker rm -f`); deps += langgraph-checkpoint-postgres/psycopg. product-run + m06 clean + `ci --rederive` **7/7 == pineado** (venv fresco + PG real); teardown limpio. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:38Z |
 | 4 | **ASF Neo4j (s2)**: activar s2; codegen del módulo de linaje (driver neo4j) + test de traversal con join-key; s2 → `infra_up` (contenedor neo4j); deps += neo4j; re-pin | ⏳ |
 | 5 | **Promoción + paridad**: `machinery.infra` `built` en ambos specs; `parity.yml` re-certifica `infra_up` (product-backed) en 2 dominios; `meta check` + `ci` ambas fábricas; demos VIVAS por CLI (3 lados: verde · infra-caída→rojo · decorativo→rojo) | ⏳ |
 | 6 | **Docs/evidencia**: STATE · ROADMAP · MATURITY-PLAN (MAT-3 ✅) · evidencia + cierre; dummy intacta | ⏳ |

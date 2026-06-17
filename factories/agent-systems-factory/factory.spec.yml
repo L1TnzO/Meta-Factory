@@ -38,11 +38,11 @@ domain:
       proof: "recorridos backward/forward con clave de unión (requiere Neo4j vivo — solo-CI, diferido)"
       status: declared-deferred
     - id: estado_durable_y_recuperacion
-      invariant: "la máquina de estados es checkpointeada; un nodo completado NO se reejecuta tras un interrupt+resume — el ciclo resume desde el último checkpoint (probado in-process con MemorySaver; el saver Postgres vivo es solo-CI)"
+      invariant: "la máquina de estados es checkpointeada en una DB DURABLE: un nodo completado NO se reejecuta tras interrupt+resume — una instancia FRESCA contra la MISMA Postgres resume desde el checkpoint (durabilidad cross-instancia que MemorySaver no puede dar; estructura también probada in-process con MemorySaver)"
       primitive: DES-4            # Estado durable / resumible
-      tech: "LangGraph checkpointer (MemorySaver en test/local; AsyncPostgresSaver en producción)"
+      tech: "LangGraph checkpointer: MemorySaver (estructura) + PostgresSaver durable (langgraph-checkpoint-postgres) probado contra un contenedor Postgres VIVO"
       artifact: build/product/src/agent_system/generated/state/checkpoint.py
-      proof: "s3: resume sin reejecución — un wrapper que cuenta ejecuciones demuestra que los nodos pre-interrupt corren UNA vez"
+      proof: "s3: resume sin reejecución vs Postgres REAL (cross-instancia, contenedor efímero por infra_up); con la DB caída el resume cae a rojo"
       status: built
     - id: nucleo_agentico
       invariant: "la topología del StateGraph compila vía get_graph() con blackboard TIPADO (TypedDict + reductores); pasa mypy --strict en el venv del producto; los nodos prompt corren con un LLM falso (fake-LLM)"
@@ -159,19 +159,26 @@ domain:
       proof_checks:
         - { name: lineage_join_key, cmd: "pytest tests/test_lineage.py", runs_in: product_env, toolchain: pytest, status: declared-deferred }
     - id: s3
-      name: "Estado durable y recuperación (resume sin reejecución, MemorySaver)"
+      name: "Estado durable y recuperación: resume sin reejecución vs Postgres REAL (E1, M8 del producto) — DES-4"
       activation: always
       depends_on: [s1]
       status: built
+      # MAT-3: el checkpointer durable se prueba contra un contenedor Postgres VIVO. `infra_up` bootstrapea
+      # el venv del producto, levanta el contenedor, corre el pytest del PRODUCTO (resume cross-instancia) y
+      # hace teardown SIEMPRE; con Postgres caído el resume cae a rojo (diente de dos lados de E1). docker es
+      # DATA de la fábrica (ADR-012): el sustrato no lo nombra. El `up` limpia un contenedor rancio antes de levantar.
       proof_checks:
-        - { name: resume_no_reexec, cmd: "pytest tests/test_state.py", runs_in: product_env, toolchain: pytest, status: built }
+        - { name: resume_no_reexec, cmd: "pytest tests/test_state.py (resume vs Postgres vivo, cross-instancia)", runs_in: product_env, toolchain: pytest, status: built }
       builds: []
       checks:
         - name: resume_no_reexec
-          kind: product_env
+          kind: infra_up
           workdir: build/product
-          bootstrap: []
-          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_state.py"]
+          bootstrap: ["python3", "setup_env.py"]
+          up: ["sh", "-c", "docker rm -f asf_mat3_pg >/dev/null 2>&1; exec docker run --rm --name asf_mat3_pg -e POSTGRES_PASSWORD=metafactory -p 55433:5432 postgres:16-alpine"]
+          proof: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_state.py"]
+          down: ["docker", "rm", "-f", "asf_mat3_pg"]
+          timeout: 90
     - id: s4
       name: "Núcleo agéntico (topología tipada del StateGraph + mypy --strict)"
       activation: always
@@ -376,9 +383,11 @@ machinery:
     primitive: DES-6
     status: declared-deferred
   infra:
-    tech: "Postgres (checkpointer) + Neo4j (linaje), levantados en sandbox por compose"
+    tech: "Postgres (checkpointer durable), contenedor efímero en el sandbox por docker; Neo4j (linaje) llega en s2"
     primitive: DES-4
-    status: declared-deferred
+    status: built
+    services:
+      - { name: postgres-checkpointer, kind: container, endpoint: "127.0.0.1:55433", marker: pg_isready }
 
 # ── L4 · sustrato estandarizado por el Meta-Factory (existencia no negociable) ──
 factory_substrate:
@@ -402,8 +411,8 @@ requirements:
       verified_by: [topology_compiles, interrupt_unbypassable]
       capability: nucleo_agentico
     - id: REQ-F-002
-      statement: "un nodo completado no se reejecuta: el ciclo resume desde el último checkpoint (durabilidad de estado)"
-      acceptance: "resume_no_reexec verde: tras interrupt+resume, los nodos pre-interrupt corrieron UNA sola vez"
+      statement: "un nodo completado no se reejecuta: el ciclo resume desde el último checkpoint DURABLE en Postgres VIVO (durabilidad cross-instancia); si Postgres está caído, bloquea (DES-4, E1, M8 del producto — MAT-3)"
+      acceptance: "resume_no_reexec verde: una instancia FRESCA contra la MISMA Postgres resume sin reejecutar los nodos pre-interrupt; Postgres caído → rojo"
       satisfied_by: [s3]
       verified_by: [resume_no_reexec]
       capability: estado_durable_y_recuperacion

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a5247279e57567d4e81532d219370afa33fee349 updated=2026-06-17T16:53Z -->
+<!-- meta:doc sha=089bce0d2cc97e9ba54316fe37ac0161483f2350 updated=2026-06-17T17:58Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -166,6 +166,18 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-1 (paralelizable con MAT-2). *Cierra B-1 de la auditoría.*
 
 ### MAT-4 · EVALUACIÓN bajo gate con scorer REAL (supera el stub-0.0 de la legacy)
+> ✅ **HECHO (2026-06-17, `MAT-4-EVAL-GATE`)**. `eval_gate` (`verify/checks/eval_gate.py`, hermano de
+> infra_up/mcp_tools): el sustrato ORQUESTA y GATEA, no puntúa — corre un `scorer` declarado que lee el output
+> (env `METAFACTORY_EVAL_OUTPUT`) e imprime `SCORE:<m>=<float>`; el **veredicto (comparar vs `thresholds`) vive
+> en el sustrato** (el scorer mide, el sustrato juzga). Diente de dos lados: output REAL ≥ umbral; output
+> `degraded` (respuesta deliberadamente mal, DATA de fábrica) DEBE flipear el gate — un scorer que ignora su
+> input es decorativo → rojo (la falla de la legacy hecha bloqueo). Co-validado **2 toolchains DISJUNTOS** por
+> el MISMO kind: **ASF** (faithfulness⟂critical_recall, scorer Python, s8) + **Full-Stack** (pass_rate⟂field_accuracy,
+> scorer **node/TS**, s4 nueva). `eval_gate` `general` en `parity.yml` (`generality_parity`: python ⟂ ts).
+> `ci --rederive` ASF 8/8 + full-stack 5/5 == pineado · dummy 5/5 · `meta check` 6/6 · `git diff src/+seed/` = 0.
+> **Alcance honesto**: puntúa output DETERMINISTA (fake-LLM); LIVE vs modelo real = MAT-5. Métricas = proxies
+> léxicos discriminantes (RAGAS/DeepEval serían DATA de fábrica). **Cierra la fila eval de §12.** Evidencia:
+> `work/MAT-4-EVAL-GATE-INCREMENT.md`.
 - **Build (sustrato)**: `eval_gate` (`verify/checks/eval_gate.py`, hermano de `infra_up`/`mcp_tools`,
   primitiva DES-7): corre un `scorer` declarado contra un `gold_set` declarado y BLOQUEA bajo umbral.
   scorer+gold-set+umbrales = DATA de la fábrica/spec (el sustrato no nombra RAGAS ni Lighthouse).

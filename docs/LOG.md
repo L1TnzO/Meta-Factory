@@ -1,7 +1,31 @@
-<!-- meta:doc sha=64bf3850b3a541a9dd75cff6ffa1f585434a4d2d updated=2026-06-17T16:00Z -->
+<!-- meta:doc sha=a93123f8b156fa6ff31e809db6a545db5fef5614 updated=2026-06-17T18:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-17T17:58Z — MAT-4: la evaluación deja de ser un stub-0.0 y se vuelve compuerta con dientes
+- **gatillo**: cerrado MAT-3, retomar el MATURITY-PLAN — el 3er mecanismo de sustrato del deepening: `eval_gate`
+  (DES-7), el que hace "evaluación con compuertas" REAL y supera la fila eval de `F1-AUDIT §12` (legacy = stub `0.0`).
+- **lo hecho (sustrato, ojos propios)**: `verify/checks/eval_gate.py`, hermano de infra_up/mcp_tools. El sustrato
+  ORQUESTA y GATEA, **no puntúa**: corre un `scorer` declarado que lee el output (env `METAFACTORY_EVAL_OUTPUT`) e
+  imprime `SCORE:<m>=<float>`; el **veredicto (vs `thresholds`) vive en el sustrato** (el scorer mide, el sustrato
+  juzga). Diente de dos lados — la falla de la legacy hecha bloqueo: output REAL ≥ umbral; output `degraded` DEBE
+  flipear el gate; un scorer que ignora su input es decorativo → rojo. **No empty-output** (una respuesta vacía es
+  vacuamente fiel: no bajaría faithfulness); el `degraded` es DATA de fábrica (como el gold-set, ADR-012), el
+  sustrato controla la sustitución. 15 teeth + e2e por el motor.
+- **co-validación 2 toolchains DISJUNTOS (delegada a Sonnet, revisada con ojos propios)**: ASF s8 (scorer Python:
+  faithfulness=precisión de anclaje ⟂ critical_recall=cobertura must_cite) + Full-Stack s4 nueva (scorer **node/TS**:
+  pass_rate ⟂ field_accuracy). En ambos `produce_output` corre el PRODUCTO real sobre un gold-set. `eval_gate`
+  `general` en `parity.yml`; `generality_parity`: python ⟂ ts.
+- **dos hallazgos de review (trust-chain, los arreglé yo)**: (1) Sonnet definió faithfulness ≡ recall (misma señal
+  must_cite, dos veces) → lo re-derivé a precisión-de-anclaje (penaliza alucinación aunque recuerde), ortogonal a
+  recall. (2) el `toolchain:` de los proof_checks era `eval_gate` (el KIND, no el toolchain del scorer) en AMBAS
+  fábricas → `_language_set` lo partía a {eval,gate} COMPARTIDO → `generality_parity` falso-rojo; corregido a
+  python/node (no toca proof_sha = name+exit).
+- **anti-overfit**: `git diff src/metafactory/ + seed/` = **0** (todo el contenido en fábricas/specs; el sustrato sólo
+  sumó el mecanismo general `eval_gate`). `ci --rederive` ASF 8/8 + full-stack 5/5 == pineado · dummy 5/5 · `meta check` 6/6.
+- **alcance honesto**: puntúa output DETERMINISTA (fake-LLM); LIVE vs modelo real = MAT-5. Métricas = proxies léxicos
+  discriminantes (RAGAS/DeepEval serían DATA de fábrica). 5 commits P1–P5 con cadencia.
 
 ## 2026-06-17T15:58Z — MAT-2: el seam creativo, por PRIMERA vez con un LLM VIVO (en 2 dominios)
 - **gatillo**: retomar MAT-2 tras corte de sesión — la estación s3 ya materializada, faltaba correr la 1ª

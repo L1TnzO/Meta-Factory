@@ -1,6 +1,6 @@
-<!-- meta:doc sha=0d354cc53c4793c304fe0b6b6da555c72b13a2ab updated=2026-06-17T17:53Z -->
+<!-- meta:doc sha=2c97a4e0d9e250a7e6ff2bf30d3206b10c6901db updated=2026-06-17T17:59Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-17T16:52Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅** — el PRODUCTO contra infra VIVA bajo gate: ASF resume vs Postgres + linaje vs Neo4j (contenedores reales), Full-Stack vs su DB) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-17T17:58Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅ MAT-4 ✅** — eval bajo gate con scorer REAL que bloquea (ASF faithfulness⟂recall Python + Full-Stack pass_rate⟂field_accuracy node/TS): supera el stub-0.0 de la legacy) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -182,6 +182,18 @@
       cobertura, REQ-F-007) · `ci --rederive` **ASF 8/8 + Full-Stack 4/4 == pineado** en clon limpio (re-levanta
       los contenedores; SAFE-3 ahora docker-dependiente, decisión del ingeniero por fidelidad a §12). `infra_up`
       `general` en `parity.yml` con [dummy, full-stack, ASF]; dummy intacta (`ci` 5/5).
+    - **MAT-4 (`MAT-4-EVAL-GATE`) ✅ (2026-06-17)** — la **evaluación** deja de ser un stub `0.0` (la falla de la
+      legacy, `F1-AUDIT §12`) y se vuelve una compuerta con dientes: `eval_gate` (`verify/checks/`, hermano de
+      infra_up/mcp_tools, DES-7) — el sustrato ORQUESTA y GATEA, **no puntúa**: corre un `scorer` declarado que lee
+      el output (env `METAFACTORY_EVAL_OUTPUT`) e imprime `SCORE:<m>=<float>`, y el **veredicto (comparar vs
+      `thresholds`) vive en el sustrato** (el scorer mide, el sustrato juzga). Diente de dos lados: output REAL ≥
+      umbral; output `degraded` (respuesta deliberadamente mal, DATA de fábrica) DEBE flipear el gate — un scorer
+      que ignora su input es decorativo → rojo. Co-validado **2 toolchains DISJUNTOS** por el MISMO kind: **ASF**
+      (s8, scorer **Python**: faithfulness=precisión de anclaje ⟂ critical_recall=cobertura must_cite; real 1.0/1.0,
+      degraded 0.19/0.0) + **Full-Stack** (s4 nueva, scorer **node/TS**: pass_rate ⟂ field_accuracy; real 1.0/1.0,
+      degraded 0.0/0.0). `eval_gate` `general` en `parity.yml` (`generality_parity`: python ⟂ ts legítimo).
+      `ci --rederive` ASF 8/8 + full-stack 5/5 == pineado · dummy 5/5 · `meta check` 6/6 · **`git diff src/+seed/`
+      = 0**. Alcance honesto: output DETERMINISTA (fake-LLM); LIVE = MAT-5. **Cierra la fila eval de §12.**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -238,11 +250,13 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
-> **AVANCE (2026-06-17): MAT-0..MAT-3 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
-> (2 dominios) y el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1).
-> **Próximo: MAT-4** — `eval_gate` con scorer REAL que bloquea (supera el stub-0.0 de la legacy), co-validado
-> ASF (faithfulness/critical-recall) + Full-Stack (pass-rate/umbral). Después MAT-5 (live_run) → MAT-6
-> (re-auditoría head-to-head) → MAT-7 (3er dominio, prueba final de no-overfitting).
+> **AVANCE (2026-06-17): MAT-0..MAT-4 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
+> (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1) y la
+> **evaluación con scorer REAL que bloquea** (ASF faithfulness⟂recall + Full-Stack pass_rate⟂field_accuracy;
+> supera el stub-0.0, cierra la fila eval de §12). **Próximo: MAT-5** — `live_run`: correr el PRODUCTO contra un
+> provider REAL, gateado por PROPIEDADES (topología compilada, alcanzabilidad del interrupt, contrato de
+> grounding) + los umbrales de MAT-4, no por bytes; sin keys → `declared-deferred` honesto (tier solo-CI).
+> Después MAT-6 (re-auditoría head-to-head) → MAT-7 (3er dominio, prueba final de no-overfitting).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

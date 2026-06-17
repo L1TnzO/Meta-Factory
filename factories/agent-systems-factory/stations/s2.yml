@@ -1,6 +1,30 @@
 id: s2
-name: Sustrato de trazabilidad/linaje (Neo4j vivo — diferido)
-activation: 'off'
+name: 'Trazabilidad/linaje sobre Neo4j REAL: recorrido bidireccional salida↔evidencia
+  (E1, M8 del producto) — DES-5'
+activation: always
 requires_prev: s1
 builds: []
-checks: []
+checks:
+- name: lineage_join_key
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - python3
+  - setup_env.py
+  up:
+  - sh
+  - -c
+  - docker rm -f asf_mat3_neo >/dev/null 2>&1; exec docker run --rm --name asf_mat3_neo
+    -e NEO4J_AUTH=neo4j/metafactorypass -p 57687:7687 neo4j:5.26.0-community
+  proof:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_lineage.py
+  down:
+  - docker
+  - rm
+  - -f
+  - asf_mat3_neo
+  timeout: 150

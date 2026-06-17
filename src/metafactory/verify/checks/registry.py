@@ -18,7 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up", "mcp_tools",
+    "infra_up", "mcp_tools", "eval_gate",
 )
 
 
@@ -115,4 +115,17 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 _s(check.get("workdir", "."), subst),
                 json.dumps(_s(check["prove"], subst)),
                 json.dumps(_s(check.get("tools", []), subst))]
+    if kind == "eval_gate":
+        # MAT-4 — un scorer declarado mide el output del producto y el sustrato BLOQUEA bajo umbral (DES-7).
+        # `workdir`/`scorer`/`output`/`degraded`/`bootstrap` son DATA (argv/paths); `thresholds` es el
+        # contrato del gate {métrica: float}. El sustrato no nombra tech (ADR-012): RAGAS, un pass-rate o un
+        # scorer stdlib son la misma máquina, otra data. El helper corre el scorer con el output REAL (debe
+        # pasar) y con el DEGRADADO (debe flipear el gate). JSON encode: argv/thresholds arbitrario.
+        return [PY, "-m", "metafactory.verify.checks.eval_gate",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check["scorer"], subst)),
+                _s(check["output"], subst),
+                _s(check["degraded"], subst),
+                json.dumps(_s(check["thresholds"], subst)),
+                json.dumps(_s(check.get("bootstrap", []), subst))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

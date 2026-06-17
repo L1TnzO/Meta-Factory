@@ -1,0 +1,20 @@
+[
+  {
+    "case_id": "c1",
+    "input": {"input_text": "Explicá el rol de la procedencia (provenance) en los sistemas de agentes."},
+    "must_cite": ["procedencia", "confianza"],
+    "key_terms": ["procedencia", "confianza", "custodia", "historial", "decision", "verific", "responsab"]
+  },
+  {
+    "case_id": "c2",
+    "input": {"input_text": "¿Cuál es el propósito de un checkpointer durable en un agente con estado?"},
+    "must_cite": ["durable", "reanud"],
+    "key_terms": ["durable", "checkpoint", "estado", "persist", "reanud", "recuper", "reinicio", "fallo"]
+  },
+  {
+    "case_id": "c3",
+    "input": {"input_text": "¿Por qué la revisión humana (human-in-the-loop) es no-salteable en esta topología de agente?"},
+    "must_cite": ["humana", "obligatori"],
+    "key_terms": ["humana", "revisión", "obligatori", "supervis", "end", "autonom"]
+  }
+]

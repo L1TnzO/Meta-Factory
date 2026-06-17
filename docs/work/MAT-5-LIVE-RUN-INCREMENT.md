@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3b7075f915468347ab09066e2c8c8c92a7192721 updated=2026-06-17T19:38Z -->
+<!-- meta:doc sha=0155a8bdbac2d4df2d87356fa527ee34ef0f7e89 updated=2026-06-17T20:06Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Incremento MAT-5-LIVE-RUN
 
@@ -39,8 +39,8 @@ mete un verificador más débil para el negativo).
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| P1 | **Sustrato (Opus, trust-chain)**: `verify/checks/live_run.py` + registry/KINDS + teeth (`tests/test_live_run.py`, helper + e2e por el motor). Detección de provider + deferred, pin §7, gate propiedades∧eval, diente de dos lados, fail-safe. | ⏳ |
-| P2 | **ASF (fábrica)**: driver vivo (corre el grafo LangGraph contra DeepSeek hasta el interrupt; escribe `live/live_output.json` + degraded), propiedades (HITL-draft, grounding-contract), eval reusa el scorer de s8; nueva estación s10; pin committeado; RTM; `ci --rederive` (pin, sin provider). | ⏳ |
+| P1 | **Sustrato (Opus, trust-chain)**: `verify/checks/live_run.py` + registry/KINDS + teeth (`tests/test_live_run.py`, helper + e2e por el motor). Detección de provider + deferred, pin §7, gate propiedades∧eval, diente de dos lados, fail-safe. | ✅ |
+| P2 | **ASF (fábrica)**: driver vivo (corre el grafo LangGraph contra DeepSeek hasta el interrupt; escribe `live/live_output.json` + degraded), propiedades (HITL-draft, grounding-contract), scorer cobertura; nueva estación s10; pin committeado; RTM 9/9; `ci --rederive` 9/9 (pin, sin provider). **+ fix general: orden NATURAL de la línea (s10 surfaceó el bug lexicográfico).** | ✅ |
 | P3 | **Full-Stack (fábrica)**: feature viva (resumen NL de todos por LLM, node fetch a DeepSeek), driver vivo (escribe `live/live_output.json` + degraded), propiedades (estructural: el resumen cita conteos/títulos), scorer; nueva estación s5; pin committeado; `ci --rederive`. | ⏳ |
 | P4 | **Promoción**: `live_run` → `general` en `parity.yml` [ASF, full-stack]; `generality_parity` verde (python ⟂ ts); `meta check`. | ⏳ |
 | P5 | **Cierre**: evidencia + STATE/ROADMAP/MATURITY-PLAN (MAT-5 ✅); `meta increment close`. | ⏳ |

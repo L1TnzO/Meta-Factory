@@ -86,6 +86,13 @@ domain:
       artifact: domain_gen/merge_findings.py
       proof: "s9: pytest ejercita merge_findings (dedup por confianza, orden desc); generación VIVA pineada (skip_if_exists), re-derive verifica el pin sin LLM"
       status: built
+    - id: corrida_viva
+      invariant: "el PRODUCTO corre contra un provider REAL (no-determinista) y la corrida produce un DRAFT FOR VALIDATION gateado por PROPIEDADES (el interrupt no-salteable alcanzado a RUNTIME + el contrato de grounding S6 sostenido sobre el output del modelo) + umbrales de eval (cobertura), NO por bytes; el output aceptado se PINEA y ci --rederive lo re-verifica sin re-llamar al provider; sin provider/pin → declared-deferred VISIBLE"
+      primitive: DES-7            # Evaluabilidad con compuertas — la corrida LIVE gateada (MAT-5)
+      tech: "corrida viva del grafo vs endpoint OpenAI-compatible (DeepSeek) por urllib stdlib (sin SDK de proveedor, ADR-002); pin §7 + ci --rederive sin re-llamar; scorer+propiedades stdlib"
+      artifact: live/live_output.json
+      proof: "s10: live_run corre el grafo vs el modelo real, gatea prop_hitl (interrupt+DRAFT) + prop_grounding (contrato S6) + scorer (critical_recall≥0.7, key_term_coverage≥0.6); el degraded flipea; el pin se re-verifica sin provider"
+      status: built
 
   # ── BLUEPRINT del producto (DATO que consume el scaffolder determinista; 100% derivable, ADR-011) ──
   #     El sustrato no nombra tech: esto es el PLAN del producto (nodos/canales/aristas/umbrales) que el
@@ -334,6 +341,34 @@ domain:
           workdir: domain_gen
           bootstrap: []
           cmd: ["python3", "-m", "pytest", "-q", "test_merge.py"]
+    - id: s10
+      name: "Corrida LIVE vs provider REAL: Agent_RE produce un DRAFT FOR VALIDATION gateado por propiedades+eval (MAT-5) — DES-7"
+      activation: always
+      depends_on: [s4]
+      status: built
+      # MAT-5: el sustrato `live_run` corre el driver de la fábrica (live/run_live.py: monkeypatch _get_llm →
+      # adaptador stdlib urllib al endpoint OpenAI-compatible de DeepSeek; corre el grafo hasta el interrupt)
+      # SOLO si el pin (live/live_output.json) no existe Y hay keys (provider_env). El pin committeado se
+      # re-verifica con stdlib (python3 propiedades+scorer) SIN re-llamar al provider — ci --rederive verde sin
+      # keys ni red (§7). Diente de dos lados: el degraded (off-topic + reached_interrupt=false + item grounded
+      # sin evidencia) flipea las 2 propiedades Y el scorer. El sustrato no nombra el provider (ADR-012):
+      # provider_env es el NOMBRE de la env-var; el endpoint/keys los lee el driver de la fábrica.
+      proof_checks:
+        - { name: agent_re_live, cmd: "live_run: grafo vs DeepSeek → prop_hitl (interrupt+DRAFT) + prop_grounding (contrato S6) + scorer ≥ umbrales; degraded flipea; pin §7 sin re-llamar", runs_in: product_env, toolchain: python, status: built }
+      builds: []
+      checks:
+        - name: agent_re_live
+          kind: live_run
+          workdir: .
+          provider_env: METAFACTORY_LLM_API_KEY
+          run: ["build/product/.venv/bin/python", "live/run_live.py"]
+          output: "live/live_output.json"
+          degraded: "live/degraded.json"
+          properties:
+            - ["python3", "live/prop_hitl.py"]
+            - ["python3", "live/prop_grounding.py"]
+          scorer: ["python3", "live/scorer.py"]
+          thresholds: {critical_recall: 0.7, key_term_coverage: 0.6}
 
   provision_modes: [prompt, integration, custom]
   hitl: { non_skippable_interrupt: true }
@@ -465,6 +500,12 @@ requirements:
       satisfied_by: [s2]
       verified_by: [lineage_join_key]
       capability: trazabilidad_y_linaje
+    - id: REQ-F-008
+      statement: "el PRODUCTO corre contra un provider REAL y produce un DRAFT FOR VALIDATION gateado por PROPIEDADES (interrupt no-salteable alcanzado a RUNTIME + contrato de grounding S6 sostenido sobre el output del modelo) + umbrales de eval (cobertura), NO por bytes; el output aceptado se PINEA y re-derive lo verifica sin re-llamar al provider; sin provider/pin → declared-deferred visible (MAT-5, §7)"
+      acceptance: "agent_re_live verde: 3 casos vivos vs el modelo real alcanzan el interrupt, cumplen el contrato de grounding y superan critical_recall≥0.7 + key_term_coverage≥0.6; el output degradado flipea el gate"
+      satisfied_by: [s10]
+      verified_by: [agent_re_live]
+      capability: corrida_viva
   nonfunctional:
     - id: REQ-NF-001
       statement: "la calidad se mide con compuertas que BLOQUEAN: el arnés termina con error si una métrica cae bajo su umbral"

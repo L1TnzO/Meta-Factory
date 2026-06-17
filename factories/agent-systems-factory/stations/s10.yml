@@ -1,0 +1,27 @@
+id: s10
+name: 'Corrida LIVE vs provider REAL: Agent_RE produce un DRAFT FOR VALIDATION gateado
+  por propiedades+eval (MAT-5) — DES-7'
+activation: always
+requires_prev: s4
+builds: []
+checks:
+- name: agent_re_live
+  kind: live_run
+  workdir: .
+  provider_env: METAFACTORY_LLM_API_KEY
+  run:
+  - build/product/.venv/bin/python
+  - live/run_live.py
+  output: live/live_output.json
+  degraded: live/degraded.json
+  properties:
+  - - python3
+    - live/prop_hitl.py
+  - - python3
+    - live/prop_grounding.py
+  scorer:
+  - python3
+  - live/scorer.py
+  thresholds:
+    critical_recall: 0.7
+    key_term_coverage: 0.6

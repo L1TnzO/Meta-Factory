@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9d307984fbffa2b6e3b128b5b65dd7eeae5aa6aa updated=2026-06-17T15:58Z -->
+<!-- meta:doc sha=33474d0d4d67de91992fba44bfda0a1e53bdb6c8 updated=2026-06-17T16:01Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T15:57Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅** — generación VIVA por LLM (claude -p) bajo gate en 2 dominios, §7 pin re-derivable sin LLM) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MAT-2-LIVE-GEN-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (7/7) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (4/4)
 <!-- /meta:projection -->
 

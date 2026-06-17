@@ -1,7 +1,7 @@
-<!-- meta:doc sha=2c70d0e221cfd9922fe34af7725d02993173dd3d updated=2026-06-17T15:59Z -->
+<!-- meta:doc sha=8cb96f80c006517d72013454a74fabb405932ac8 updated=2026-06-17T16:01Z -->
 # Incremento MAT-2-LIVE-GEN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T23:26Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-17T16:01Z) (creado 2026-06-16T23:26Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

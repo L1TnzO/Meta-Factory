@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5af54d4a524c94ad9cf03a66b2125fe528a93ca7 updated=2026-06-17T15:38Z -->
+<!-- meta:doc sha=9604a511ae25291d0e3c7cac8f656512b1a30cc2 updated=2026-06-17T15:41Z -->
 # Incremento MAT-2-LIVE-GEN
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-16T23:26Z). Cerralo con `meta increment close`
@@ -35,7 +35,7 @@ MATURITY-PLAN): el artefacto ACEPTADO se **PINEA** (se committea = es la fuente 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | Wrapper `gen_llm.py` (via=claude -p) + Full-Stack: estación s3 live-gen `summarizeTodos` (brief en spec, test+pkg.json emitidos, dest committeado, skip_if_exists). 1ª gen VIVA → gate verde → commit del pin | ✅ 2026-06-17T15:37Z |
-| 2 | §7 por bloqueo: `ci --rederive` verifica el pin SIN llamar al LLM (determinista) · corromper el pin → gate rojo · stub → contract test rojo | ⏳ |
+| 2 | §7 por bloqueo: `ci --rederive` verifica el pin SIN llamar al LLM (determinista) · corromper el pin → gate rojo · stub → contract test rojo | ✅ 2026-06-17T15:41Z |
 | 3 | ASF co-validación: live-gen `merge_findings` (Python) por el MISMO kind; gate `pytest`; 1ª gen viva → commit del pin | ⏳ |
 | 4 | Docs (STATE/ROADMAP/MATURITY-PLAN + evidencia) + cierre; dummy intacta; `meta check` verde | ⏳ |
 

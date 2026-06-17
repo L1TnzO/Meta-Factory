@@ -1,7 +1,7 @@
-<!-- meta:doc sha=d9cc6474c8c1c87c01280117722e632d4d97f9c6 updated=2026-06-17T16:54Z -->
+<!-- meta:doc sha=a1491a7202bb51c71bc188e8c9bda6161de5e9c4 updated=2026-06-17T16:56Z -->
 # Incremento MAT-3-PRODUCT-INFRA
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-17T16:56Z) (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

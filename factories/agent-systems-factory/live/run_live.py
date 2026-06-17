@@ -11,6 +11,11 @@ Corre con el python del venv del PRODUCTO (langgraph + langchain-core ya instala
 `live_run` SÓLO cuando el pin (live/live_output.json) NO existe y hay keys (§7). El output ACEPTADO se PINEA
 (committeado) y `ci --rederive` lo re-verifica sin re-llamar al provider — el no-determinismo vive sólo acá.
 
+MAT-6: el caso del gold trae una transcripción de entrevista REAL (dataset/example_conversation.txt) + una
+instrucción de RE; el input del grafo es instrucción+transcripción y el producto RECUPERA los requisitos
+funcionales (Agent_RE). El scorer mide el RECALL de esa recuperación contra los 28 requisitos que recuperaron
+los expertos humanos (dataset/experts_final_requirements.txt) — un ground truth REAL.
+
 Por cada caso del gold corre el grafo HASTA el interrupt (research+synthesize; human_review queda pendiente:
 el HITL no-salteable a RUNTIME contra el modelo real), captura el draft y los findings, resume para el output
 final, y construye los items de atribución vía el schema REAL del producto (OutputItem fuerza grounded=False
@@ -48,7 +53,7 @@ class _DeepSeekLLM:
     def invoke(self, messages: list) -> _Resp:
         msgs = [{"role": _ROLE.get(getattr(m, "type", "human"), "user"),
                  "content": getattr(m, "content", str(m))} for m in messages]
-        body = json.dumps({"model": MODEL, "messages": msgs, "temperature": 0, "max_tokens": 700}).encode()
+        body = json.dumps({"model": MODEL, "messages": msgs, "temperature": 0, "max_tokens": 3000}).encode()
         req = urllib.request.Request(
             f"{BASE_URL}/chat/completions", data=body,
             headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"})
@@ -62,7 +67,7 @@ def _content_tokens(text: str) -> set[str]:
     return {t for t in re.findall(r"[a-z0-9]+", text.lower()) if len(t) >= 4}
 
 
-def _run_case(case: dict) -> dict:
+def _run_case(case: dict, graph_input: dict) -> dict:
     from agent_system.generated.attribution.schema import OutputItem
     from agent_system.generated.graph import nodes as _nodes
     from agent_system.generated.graph.topology import build_graph
@@ -73,7 +78,7 @@ def _run_case(case: dict) -> dict:
     try:
         graph = build_graph()
         cfg = {"configurable": {"thread_id": f"live-{case['case_id']}"}}
-        graph.invoke(case["input"], config=cfg)
+        graph.invoke(graph_input, config=cfg)
         state = graph.get_state(cfg)
         reached_interrupt = "human_review" in (state.next or ())   # el grafo halló el interrupt no-salteable
         draft = str(state.values.get("draft", "") or "")
@@ -109,8 +114,12 @@ def main() -> int:
     gold = json.loads(GOLD.read_text(encoding="utf-8"))
     results = []
     for case in gold:
+        # MAT-6: el input del grafo se arma desde la instrucción de RE + la transcripción REAL (dataset/,
+        # relativa al gold). El producto recupera los requisitos funcionales de la transcripción.
+        transcript = (GOLD.parent / case["transcript_file"]).read_text(encoding="utf-8")
+        graph_input = {"input_text": f"{case['instruction']}\n\nTRANSCRIPT:\n{transcript}"}
         try:
-            results.append(_run_case(case))
+            results.append(_run_case(case, graph_input))
         except urllib.error.URLError as exc:
             print(f"run_live: error de red al provider en {case['case_id']}: {exc}", file=sys.stderr)
             return 1

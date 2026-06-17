@@ -1,0 +1,28 @@
+The system must allow team managers or owners to submit valid documents for team registration, which the IFA can approve, enabling the management of team resources such as players, coaches, and stadiums.
+The system must allow teams to register their own page on which to post team information, with customization options.
+The system must allow general users to register to have an account on the platform, with clear registration steps.
+The system must allow players to register their own page on which to post their information, ensuring privacy settings.
+The system must have a budgeting portal to allow teams to manage income and expenses, important for financial transparency.
+The system must allow the IFA financial team to specify policies for spending money, including policy update notifications.
+The system must allow the IFA financial team to access the financial data of the teams securely, with audit trails.
+The system must allow the IFA to appoint and register referees, ensuring a secure verification process.
+The system must allow referees to post events on a game in real-time, with a mobile interface.
+The system must ensure that only referees can update game events to maintain data coherence and reliability.
+The system must automatically schedule the games in a season according to predefined policies, including a conflict resolution mechanism.
+The system must allow the IFA representative to schedule and reschedule games, with an interface for scheduling and ensuring notifications for changes.
+The system must allow the IFA representative to define policies to guide the scheduling of games and the assignments of referees to games, ensuring fairness in assignments.
+The system must allow fans to register for notifications about their favorite players and teams, with customizable notification preferences.
+The system must send notifications to fans based on their registrations, ensuring timely delivery.
+The system must provide automatic notifications for users interested in specific match information, with user preferences management.
+The system must allow any user (also not registered to the platform) to see and download information about events posted, ensuring public access is read-only and including data export formats.
+The system must encrypt financial and budget data to comply with security standards and prevent data leakage.
+The system must maintain archives of past season schedules, ensuring they are searchable.
+The system must allow the IFA and teams to generate financial reports at specific intervals and on-demand, providing real-time data for ongoing monitoring.
+The system must allow access to at least 50000 users, ensuring scalability.
+The system must respond very fast (approximately 2 seconds) to all actors except referees, who should have immediate real-time updates during a game.
+The system must provide a web-based application for administrative and team use, ensuring cross-browser compatibility.
+The system must provide a mobile application for referees and fans, ensuring platform compatibility.
+The system must support live recording features for referees as a potential future enhancement.
+The system must allow the IFA administrator to set policies on notifications, with a policy management interface.
+The system must allow the IFA to define leagues and seasons, with hierarchical management.
+The system must allow team managers to report new players joining or leaving the team, and the number of events and losses in tournaments.

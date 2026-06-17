@@ -1,37 +1,13 @@
 [
   {
-    "case_id": "c1",
-    "answer": "Delta epsilon zeta. Lorem ipsum dolor sit amet, totalmente fuera de tema.",
+    "case_id": "re_ifa_transcript",
+    "answer": "Lorem ipsum dolor sit amet. This text is completely off-topic and recovers no requirements whatsoever; it mentions nothing about the IFA system.",
     "draft": "n/a",
     "status": "AUTO-APPROVED",
     "reached_interrupt": false,
     "findings": [],
     "grounded_items": [
-      {"content": "afirmación inventada sin soporte", "grounded": true, "confidence": 0.99,
-       "evidence_ids": [], "attribution_method": "none", "extra": {}}
-    ]
-  },
-  {
-    "case_id": "c2",
-    "answer": "Foo bar baz. Contenido irrelevante que no responde nada.",
-    "draft": "n/a",
-    "status": "AUTO-APPROVED",
-    "reached_interrupt": false,
-    "findings": [],
-    "grounded_items": [
-      {"content": "otra afirmación alucinada", "grounded": true, "confidence": 0.99,
-       "evidence_ids": [], "attribution_method": "none", "extra": {}}
-    ]
-  },
-  {
-    "case_id": "c3",
-    "answer": "Qux quux. Texto de relleno sin ninguna relación con la consulta.",
-    "draft": "n/a",
-    "status": "AUTO-APPROVED",
-    "reached_interrupt": false,
-    "findings": [],
-    "grounded_items": [
-      {"content": "tercera afirmación sin evidencia", "grounded": true, "confidence": 0.99,
+      {"content": "fabricated claim with no support", "grounded": true, "confidence": 0.99,
        "evidence_ids": [], "attribution_method": "none", "extra": {}}
     ]
   }

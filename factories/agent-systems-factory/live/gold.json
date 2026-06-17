@@ -1,20 +1,60 @@
 [
   {
-    "case_id": "c1",
-    "input": {"input_text": "Explicá el rol de la procedencia (provenance) en los sistemas de agentes."},
-    "must_cite": ["procedencia", "confianza"],
-    "key_terms": ["procedencia", "confianza", "custodia", "historial", "decision", "verific", "responsab"]
-  },
-  {
-    "case_id": "c2",
-    "input": {"input_text": "¿Cuál es el propósito de un checkpointer durable en un agente con estado?"},
-    "must_cite": ["durable", "reanud"],
-    "key_terms": ["durable", "checkpoint", "estado", "persist", "reanud", "recuper", "reinicio", "fallo"]
-  },
-  {
-    "case_id": "c3",
-    "input": {"input_text": "¿Por qué la revisión humana (human-in-the-loop) es no-salteable en esta topología de agente?"},
-    "must_cite": ["humana", "obligatori"],
-    "key_terms": ["humana", "revisión", "obligatori", "supervis", "end", "autonom"]
+    "case_id": "re_ifa_transcript",
+    "transcript_file": "dataset/example_conversation.txt",
+    "instruction": "You are a requirements engineer analyzing a stakeholder interview for the IFA (a national football association) software system. From the transcript below, recover ALL functional requirements the system must satisfy. Write each requirement as a separate 'The system must ...' statement, one per line, in ENGLISH. Be exhaustive and cover every stakeholder need mentioned: team and user registration, budgeting, financial reports, game scheduling and rescheduling, referees posting game events, fan notifications and subscriptions, public read-only access and data export, encryption of budget data, schedule archives, scalability and performance, web and mobile platforms, and policy definition. Do not omit any.",
+    "_note": "RE-recall gold (MAT-6): the 28 human-expert requirements recovered from this transcript (dataset/experts_final_requirements.txt). `critical_recall` = fraction of these 28 the live output covers; a requirement is covered if the answer contains ANY of its `any` anchors (substring, lowercased; bilingual EN/ES because the product instructs in Spanish and the model may answer in either). The anchors are the domain FACTS a faithful recovery cites, not the bytes of one run; the degraded (off-topic) answer covers ~none.",
+    "requirements": [
+      {"id": "R01", "any": ["team registration", "register a team", "registrar un equipo", "registro de equipo", "valid document", "documentos válidos", "manager or owner", "team manager"]},
+      {"id": "R02", "any": ["team page", "página del equipo", "team's own page", "team information", "post team", "customization", "personaliz"]},
+      {"id": "R03", "any": ["general user", "usuario general", "register to have an account", "create an account", "crear una cuenta", "cuenta en la plataforma", "user account", "register in the system", "registrarse en el sistema"]},
+      {"id": "R04", "any": ["player page", "página del jugador", "player's own page", "players to register", "player profile", "perfil del jugador", "privacy", "social network page", "red social"]},
+      {"id": "R05", "any": ["budgeting portal", "portal de presupuesto", "budget", "presupuesto", "income and expenses", "ingresos y gastos", "ingresos", "gastos"]},
+      {"id": "R06", "any": ["spending polic", "política de gasto", "budget polic", "política de presupuesto", "policy for spending", "policy update notification"]},
+      {"id": "R07", "any": ["financial data", "datos financieros", "access the financial", "acceder a los datos financieros", "audit trail", "registro de auditoría", "securely"]},
+      {"id": "R08", "any": ["appoint", "register referee", "registrar árbitros", "designar árbitros", "appoint and register referee", "verification process", "verificación"]},
+      {"id": "R09", "any": ["post events", "publicar eventos", "events on a game", "eventos del partido", "real-time", "tiempo real", "real time", "mobile interface"]},
+      {"id": "R10", "any": ["only referee", "solo el árbitro", "sólo los árbitros", "únicamente los árbitros", "only referees can update", "update game event", "coheren"]},
+      {"id": "R11", "any": ["automatically schedule", "programación automática", "schedule the games", "programar los partidos", "calendar", "calendario", "conflict resolution", "resolución de conflictos"]},
+      {"id": "R12", "any": ["reschedul", "reprogramar", "reschedule games", "reprogramar partidos", "schedule and reschedule", "notifications for changes", "notificaciones de cambios", "override the automatic schedule", "manual rescheduling"]},
+      {"id": "R13", "any": ["define policies", "definir políticas", "scheduling of games", "assignment of referee", "asignación de árbitros", "fairness", "equidad", "guide the scheduling"]},
+      {"id": "R14", "any": ["fans to register", "register for notifications", "favorite player", "jugador favorito", "favorite team", "equipo favorito", "notification preference", "preferencias de notificación", "subscribe to notifications", "suscribirse a notificaciones"]},
+      {"id": "R15", "any": ["send notifications to fans", "enviar notificaciones", "notifications to fans", "notificaciones a los aficionados", "timely delivery", "entrega oportuna"]},
+      {"id": "R16", "any": ["automatic notification", "notificaciones automáticas", "match information", "información del partido", "interested in specific match", "user preferences", "live game events", "tournament score", "eventos del partido en vivo"]},
+      {"id": "R17", "any": ["not registered", "no registrado", "any user", "cualquier usuario", "download", "descargar", "export", "exportar", "read-only", "solo lectura", "public access", "acceso público", "guest", "invitado"]},
+      {"id": "R18", "any": ["encrypt", "cifrar", "encriptar", "encryption", "cifrado", "financial and budget data", "datos financieros", "prevent data leakage", "fuga de datos", "security standard"]},
+      {"id": "R19", "any": ["archive", "archivo", "past season schedule", "temporadas pasadas", "schedule archive", "searchable", "buscable", "maintain archives", "histórico"]},
+      {"id": "R20", "any": ["financial report", "informe financiero", "reporte financiero", "generate financial report", "generar informes", "on-demand", "bajo demanda", "specific interval", "intervalos"]},
+      {"id": "R21", "any": ["50000", "50,000", "50.000", "access to at least", "scalab", "escalab", "concurrent user", "usuarios simultáneos"]},
+      {"id": "R22", "any": ["2 second", "2 segundo", "dos segundos", "respond very fast", "response time", "tiempo de respuesta", "real-time updates", "immediate", "inmediato"]},
+      {"id": "R23", "any": ["web-based", "web based", "aplicación web", "web application", "administrative and team", "cross-browser", "navegador", "compatibilidad de navegador"]},
+      {"id": "R24", "any": ["mobile application", "aplicación móvil", "mobile app", "app móvil", "for referees and fans", "para árbitros y aficionados", "platform compatibility"]},
+      {"id": "R25", "any": ["live recording", "grabación en vivo", "recording feature", "función de grabación", "future enhancement", "mejora futura", "potential future"]},
+      {"id": "R26", "any": ["policies on notifications", "políticas de notificación", "notification polic", "set policies on notification", "policy management", "gestión de políticas"]},
+      {"id": "R27", "any": ["define leagues", "definir ligas", "leagues and seasons", "ligas y temporadas", "league", "liga", "season", "temporada", "hierarchical"]},
+      {"id": "R28", "any": ["new players joining", "nuevos jugadores", "joining or leaving", "altas y bajas", "report new player", "players joining or leaving", "events and losses", "report from the team"]}
+    ],
+    "key_concepts": [
+      ["budget", "presupuesto"],
+      ["referee", "árbitro"],
+      ["schedul", "programa", "calendario"],
+      ["fan", "aficionado", "hincha"],
+      ["notification", "notificación"],
+      ["regist", "subscrib", "suscrib"],
+      ["encrypt", "cifr", "encript"],
+      ["mobile", "móvil"],
+      ["web"],
+      ["50000", "50,000"],
+      ["archive", "archivo", "histórico"],
+      ["polic", "polít"],
+      ["player", "jugador"],
+      ["season", "temporada"],
+      ["league", "liga"],
+      ["real-time", "real time", "tiempo real"],
+      ["event", "evento"],
+      ["report", "informe", "reporte"],
+      ["team", "equipo"],
+      ["game", "partido", "match"]
+    ]
   }
 ]

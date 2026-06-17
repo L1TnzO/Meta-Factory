@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `108c4d47e9a6` | 2026-06-17T20:16Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `ecbf58289cd6` | 2026-06-17T20:19Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `684ae1d095a6` | 2026-06-17T23:37Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -57,6 +57,7 @@
 | `docs/work/MAT-3-PRODUCT-INFRA-INCREMENT.md` | `a1491a7202bb` | 2026-06-17T16:56Z | Incremento MAT-3-PRODUCT-INFRA |
 | `docs/work/MAT-4-EVAL-GATE-INCREMENT.md` | `a9b234869233` | 2026-06-17T18:00Z | Incremento MAT-4-EVAL-GATE |
 | `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `3446fc3fb865` | 2026-06-17T20:19Z | Incremento MAT-5-LIVE-RUN |
+| `docs/work/MAT-6-RE-AUDIT-INCREMENT.md` | `d29b8b996dd7` | 2026-06-17T23:53Z | Incremento MAT-6-RE-AUDIT |
 | `docs/work/MATURITY-PLAN.md` | `845790d59fe0` | 2026-06-17T20:16Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/ROADMAP.md` | `ad9f124c7e38` | 2026-06-17T20:17Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |

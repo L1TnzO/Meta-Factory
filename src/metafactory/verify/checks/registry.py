@@ -18,7 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up", "mcp_tools", "eval_gate",
+    "infra_up", "mcp_tools", "eval_gate", "live_run",
 )
 
 
@@ -127,5 +127,22 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 _s(check["output"], subst),
                 _s(check["degraded"], subst),
                 json.dumps(_s(check["thresholds"], subst)),
+                json.dumps(_s(check.get("bootstrap", []), subst))]
+    if kind == "live_run":
+        # MAT-5 — corre el PRODUCTO contra un provider REAL y GATEA por propiedades + umbrales (DES-7/8).
+        # `workdir`/`run`/`properties`/`scorer`/`bootstrap` son DATA (argv); `output`/`degraded` son paths
+        # (el pin vivo, tracked, relativo a la raíz de fábrica), `thresholds` el contrato del gate, y
+        # `provider_env` el NOMBRE de la env-var a detectar (el sustrato no nombra el provider; ADR-012).
+        # El helper corre el driver SOLO si no hay pin (§7), gatea propiedades∧umbrales sobre el output real
+        # y el degradado (que debe flipear). JSON encode: argv arbitrario.
+        return [PY, "-m", "metafactory.verify.checks.live_run",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check.get("run", []), subst)),
+                _s(check["output"], subst),
+                _s(check["degraded"], subst),
+                json.dumps(_s(check.get("properties", []), subst)),
+                json.dumps(_s(check.get("scorer", []), subst)),
+                json.dumps(_s(check.get("thresholds", {}), subst)),
+                _s(check.get("provider_env", ""), subst),
                 json.dumps(_s(check.get("bootstrap", []), subst))]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2e679b1114381f90467aea8ec49f43acfc0090d3 updated=2026-06-17T20:15Z -->
+<!-- meta:doc sha=ecbf58289cd623da5c59e9bb7367fc54837c56f7 updated=2026-06-17T20:19Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T20:15Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-5 ✅** — corrida LIVE vs provider REAL (DeepSeek) gateada por PROPIEDADES + umbrales, no por bytes: ASF Agent_RE LIVE (s10, LangGraph, interrupt-a-runtime ⟂ contrato-grounding) + Full-Stack resumen NL (s5, node/fetch); pin §7 re-derivable sin re-llamar) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MAT-5-LIVE-RUN-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (9/9) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
 <!-- /meta:projection -->
 

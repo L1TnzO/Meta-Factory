@@ -1,8 +1,7 @@
-<!-- meta:doc sha=8f52f7ad1ddcec64fe3010a545d7cd8800948bb4 updated=2026-06-17T20:18Z -->
-<!-- meta:doc sha=PENDING updated=PENDING -->
+<!-- meta:doc sha=3446fc3fb865f2c42ef765239e351ffd91edaabe updated=2026-06-17T20:19Z -->
 # Incremento MAT-5-LIVE-RUN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T18:48Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-17T20:19Z) (creado 2026-06-17T18:48Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -64,6 +64,13 @@ domain:
       artifact: domain_gen/summarize.ts
       proof: "s3: node:test ejercita summarizeTodos (total/done/pending); generación VIVA pineada (skip_if_exists), re-derive verifica el pin sin LLM"
       status: built
+    - id: evaluabilidad
+      invariant: "la calidad del output de summarizeTodos se mide con un scorer REAL (node:test TS toolchain, no Python) sobre un gold set: pass_rate ≥ 0.9 y field_accuracy ≥ 0.9; un scorer decorativo (que no lee su input) o un output bajo umbral bloquean (DES-7, MAT-4)"
+      primitive: DES-7            # Evaluación con compuertas que bloquean (MAT-4)
+      tech: "scorer TypeScript (node --experimental-strip-types scorer.ts); gold set JSON; eval_gate sustrato — la TS toolchain prueba la agnosticidad de toolchain del mecanismo (ts ⊥ python, MATURITY-PLAN §6)"
+      artifact: build/product/eval/scorer.ts
+      proof: "s4: eval_gate corre el scorer TS sobre output.json (positivo) y sobre degraded.json (negativo, gate flipea); pass_rate+field_accuracy ≥ 0.9; un scorer decorativo → rojo"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
   # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011).
@@ -185,9 +192,39 @@ domain:
           workdir: domain_gen
           bootstrap: []
           cmd: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--test", "summarize.test.ts"]
+    - id: s4
+      name: "evaluación con compuertas: scorer TypeScript sobre gold set — eval_gate con dientes (DES-7, MAT-4)"
+      activation: always
+      depends_on: [s3]
+      # eval_gate: el sustrato ORQUESTA y GATEA; el scorer TS MIDE (la toolchain TypeScript prueba la
+      # agnosticidad de toolchain del mecanismo, ts ⊥ python, MATURITY-PLAN §6, ADR-012).
+      # bootstrap: npm install (instala devDeps del producto: typescript) + node produce_output.ts
+      #   (corre summarizeTodos sobre el gold set y escribe eval/output.json). La cadena sh -c es la
+      #   misma que usa ASF s8 (setup_env + produce_output), adaptada al toolchain TS.
+      # scorer: [node, --experimental-strip-types, eval/scorer.ts] corre en la toolchain DEL PRODUCTO
+      #   (workdir = build/product, el mismo npm que s0 instaló). Lee METAFACTORY_EVAL_OUTPUT.
+      # output: eval/output.json (producido por produce_output.ts en el bootstrap).
+      # degraded: eval/degraded.json (outputs deliberadamente incorrectos; pasa_rate=0, field_accuracy=0).
+      # thresholds: pass_rate ≥ 0.9 (4/4 casos correctos) y field_accuracy ≥ 0.9 (≥ 10.8/12 campos).
+      # Diente de dos lados: positivo = output.json pasa ambos umbrales; negativo = degraded.json los viola.
+      proof_checks:
+        - { name: eval_quality_gate, cmd: "eval_gate: scorer TS pass_rate+field_accuracy sobre gold set (degraded flipea el gate)", runs_in: product_env, toolchain: eval_gate, status: built }
+      builds: []
+      checks:
+        - name: eval_quality_gate
+          kind: eval_gate
+          workdir: build/product
+          bootstrap:
+            - "sh"
+            - "-c"
+            - "npm install --no-audit --no-fund --loglevel=error && node --experimental-strip-types --disable-warning=ExperimentalWarning eval/produce_output.ts"
+          scorer: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "eval/scorer.ts"]
+          output: "eval/output.json"
+          degraded: "eval/degraded.json"
+          thresholds: {pass_rate: 0.9, field_accuracy: 0.9}
 
   provision_modes: [scaffold]
-  proof_check_types: [product_env, infra_up]
+  proof_check_types: [product_env, infra_up, eval_gate]
 
 # ── L3 · MAQUINARIA: harness (emitido del spec, D2) + infra (emitida del spec, E1). La COLUMNA (Cerrojos
 # 1/2/3 + settings) NO va acá: es L4 substrate, heredada verbatim (D1).
@@ -327,3 +364,8 @@ requirements:
       satisfied_by: [s3]
       verified_by: [domain_logic_contract]
       capability: logica_dominio_generada
+    - id: REQ-F-005
+      statement: "la calidad del output de summarizeTodos se evalúa con un scorer TypeScript REAL (node --experimental-strip-types) sobre un gold set declarado: pass_rate ≥ 0.9 y field_accuracy ≥ 0.9; un scorer que no lee su input o un output bajo umbral bloquean; el diente negativo (degraded.json) DEBE flipear el gate — prueba de toolchain-agnosticidad (ts ⊥ python, DES-7, MAT-4)"
+      satisfied_by: [s4]
+      verified_by: [eval_quality_gate]
+      capability: evaluabilidad

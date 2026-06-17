@@ -10,6 +10,13 @@ por eso NO es un `claude -p` vivo (la generación-viva por LLM es MAT-2).
 El producto se verifica en SU PROPIO toolchain (DES-8): `tsc --noEmit --strict` sobre src/ (el contrato
 tipado compila junto a frontend+backend; un drift del contrato → rojo) y `node:test` sobre el handler.
 
+MAT-4 — eval gate (DES-7): el scaffolder también emite en build/product/eval/ el conjunto de oro
+(gold.json), el scorer TypeScript (scorer.ts, corre en node — TS toolchain, no Python), el productor
+de output (produce_output.ts, corre summarizeTodos del PRODUCTO sobre cada caso del oro), y el output
+degradado (degraded.json). El scorer mide pass_rate y field_accuracy sobre output.json; el sustrato
+compara contra los umbrales (la gate con dientes, MAT-4). La toolchain TS es la prueba de
+toolchain-agnosticidad de eval_gate (ts ⊥ python, ADR-012/MATURITY-PLAN §6).
+
 Uso:
   python codegen/scaffold_product.py            # emite el árbol en build/product/ (METAFACTORY_ROOT)
   python codegen/scaffold_product.py --selftest # parsea el blueprint y lista los archivos; no escribe
@@ -151,6 +158,232 @@ _TSCONFIG = ('{\n'
              '}\n')
 
 
+# ── MAT-4: eval gate — gold set, scorer TS, produce_output TS, degraded ─────────────────────────
+# gold.json: 4 casos con todos[] como input y {total,done,pending} como expected.
+# produce_output.ts: importa summarizeTodos desde ../../../domain_gen/summarize.ts (el PRODUCTO
+#   generado por el LLM en s3, el mismo que el contract test ejercita); corre cada caso y escribe
+#   eval/output.json. Determinista: summarizeTodos es determinista (puro, sin LLM).
+# scorer.ts: lee METAFACTORY_EVAL_OUTPUT (output.json), carga gold.json del mismo dir, computa:
+#   pass_rate       = fracción de casos donde los 3 campos (total,done,pending) coinciden exactamente.
+#   field_accuracy  = fracción de campos individuales correctos sobre todos los casos (3 por caso).
+#   Dos métricas ortogonales: pass_rate es todo-o-nada por caso; field_accuracy puede ser >0 aunque
+#   un pending esté mal (un caso con total/done bien pero pending mal suma 2/3 a field_accuracy).
+#   El scorer GENUINAMENTE lee su input — un output sin leer el archivo no puede computar nada.
+# degraded.json: outputs DELIBERADAMENTE INCORRECTOS — totales mal, pending con items extra/faltantes.
+#   El diente: field_accuracy = 0.0 y pass_rate = 0.0 para todos → ambas métricas caen bajo umbral.
+_GOLD_JSON = '''\
+[
+  {
+    "case_id": "c1",
+    "input": [
+      { "id": 1, "title": "comprar pan", "done": false },
+      { "id": 2, "title": "lavar ropa",  "done": true  },
+      { "id": 3, "title": "estudiar",    "done": false }
+    ],
+    "expected": { "total": 3, "done": 1, "pending": ["comprar pan", "estudiar"] }
+  },
+  {
+    "case_id": "c2",
+    "input": [],
+    "expected": { "total": 0, "done": 0, "pending": [] }
+  },
+  {
+    "case_id": "c3",
+    "input": [
+      { "id": 1, "title": "hacer ejercicio", "done": true  },
+      { "id": 2, "title": "leer",            "done": true  }
+    ],
+    "expected": { "total": 2, "done": 2, "pending": [] }
+  },
+  {
+    "case_id": "c4",
+    "input": [
+      { "id": 1, "title": "llamar al banco", "done": false },
+      { "id": 2, "title": "pagar factura",   "done": false },
+      { "id": 3, "title": "revisar email",   "done": true  },
+      { "id": 4, "title": "cocinar",         "done": false }
+    ],
+    "expected": { "total": 4, "done": 1, "pending": ["llamar al banco", "pagar factura", "cocinar"] }
+  }
+]
+'''
+
+# produce_output.ts: corre el PRODUCTO (summarizeTodos) en cada caso del oro y escribe output.json.
+# Importa desde ../../../domain_gen/summarize.ts (relativo a build/product/eval/): sube 3 niveles
+# (eval/ -> product/ -> build/ -> factories/full-stack/) y entra a domain_gen/. En un árbol limpio
+# (ci --rederive) domain_gen/ existe por el slot generate de s3 (skip_if_exists: true, pineado).
+# El import es un import REAL del producto — no una reimplementación; si summarizeTodos cambia, el
+# output cambia y el gate lo detecta. Sin dependencias npm: solo node stdlib + node --experimental-strip-types.
+_PRODUCE_OUTPUT_TS = '''\
+/**
+ * produce_output.ts — corre summarizeTodos (el PRODUCTO) sobre cada caso del gold set y escribe
+ * eval/output.json. Determinista: summarizeTodos es una función pura (sin LLM, sin red).
+ * Corre como: node --experimental-strip-types produce_output.ts
+ * (workdir = build/product, este archivo en build/product/eval/)
+ */
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+// build/product/eval/produce_output.ts -> up 3 dirs = factories/full-stack/
+const HERE = dirname(fileURLToPath(import.meta.url));
+const EVAL_DIR = HERE;                          // build/product/eval/
+const GOLD_PATH = join(EVAL_DIR, "gold.json");
+const OUTPUT_PATH = join(EVAL_DIR, "output.json");
+// Import del PRODUCTO real (../../../domain_gen/ relativo a build/product/eval/)
+const SUMMARIZE_PATH = join(HERE, "../../../domain_gen/summarize.ts");
+
+// Importamos el módulo del producto usando una URL de archivo (ESM dinámico).
+// El camino relativo funciona en el árbol derivado: build/product/eval/ -> ../../.. = factory root.
+const { summarizeTodos } = await import(SUMMARIZE_PATH) as {
+  summarizeTodos: (todos: { id: number; title: string; done: boolean }[]) =>
+    { total: number; done: number; pending: string[] }
+};
+
+interface GoldCase {
+  case_id: string;
+  input: { id: number; title: string; done: boolean }[];
+  expected: { total: number; done: number; pending: string[] };
+}
+
+const gold: GoldCase[] = JSON.parse(readFileSync(GOLD_PATH, "utf-8"));
+const results = gold.map((c) => {
+  const output = summarizeTodos(c.input);
+  return { case_id: c.case_id, output };
+});
+
+mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
+writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2) + "\\n", "utf-8");
+console.log(`produce_output: ${results.length} casos escritos en ${OUTPUT_PATH}`);
+'''
+
+# scorer.ts: lee METAFACTORY_EVAL_OUTPUT, carga gold.json del mismo dir, computa pass_rate y
+# field_accuracy, imprime SCORE:<metric>=<float>. El scorer GENUINAMENTE lee el archivo — un scorer
+# decorativo que no lee METAFACTORY_EVAL_OUTPUT no puede computar nada.
+_SCORER_TS = '''\
+/**
+ * scorer.ts — eval scorer para la fábrica full-stack (MAT-4, DES-7).
+ * Lee METAFACTORY_EVAL_OUTPUT (path a output.json), carga gold.json del mismo dir, y computa:
+ *
+ *   pass_rate      = fracción de casos donde los 3 campos (total, done, pending[]) coinciden
+ *                    exactamente con el expected del gold set. Métrica todo-o-nada por caso.
+ *   field_accuracy = fracción de campos individuales correctos sobre todos los casos (3 por caso:
+ *                    total, done, pending). Un caso con total/done correctos pero pending incorrecto
+ *                    suma 2/3. Métrica más granular que pass_rate — captura errores parciales.
+ *
+ * Las dos métricas son ORTOGONALES: pass_rate puede ser 0.0 mientras field_accuracy > 0.0 (si
+ * algunos campos están bien pero el pending está incorrecto). Eso hace que degraded.json con
+ * resultados totalmente incorrectos flipee AMBAS métricas bajo el umbral (diente de dos lados).
+ *
+ * El scorer corre en Node.js (toolchain TypeScript, no Python) — esto es la prueba de
+ * toolchain-agnosticidad de eval_gate (ts ⊥ python, MATURITY-PLAN §6, ADR-012).
+ *
+ * Uso: METAFACTORY_EVAL_OUTPUT=eval/output.json node --experimental-strip-types scorer.ts
+ * (workdir = build/product; scorer.ts en build/product/eval/)
+ */
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+const outputPath = process.env["METAFACTORY_EVAL_OUTPUT"] ?? "";
+if (!outputPath) {
+  process.stderr.write("scorer: METAFACTORY_EVAL_OUTPUT no está definido\\n");
+  process.exit(1);
+}
+
+interface GoldCase {
+  case_id: string;
+  input: { id: number; title: string; done: boolean }[];
+  expected: { total: number; done: number; pending: string[] };
+}
+
+interface OutputEntry {
+  case_id: string;
+  output: { total: number; done: number; pending: string[] };
+}
+
+let outputs: OutputEntry[];
+try {
+  outputs = JSON.parse(readFileSync(outputPath, "utf-8"));
+} catch (e) {
+  process.stderr.write(`scorer: no se pudo leer ${outputPath}: ${e}\\n`);
+  process.exit(1);
+}
+
+// gold.json vive junto a output.json en eval/
+const goldPath = join(dirname(outputPath), "gold.json");
+let gold: GoldCase[];
+try {
+  gold = JSON.parse(readFileSync(goldPath, "utf-8"));
+} catch (e) {
+  process.stderr.write(`scorer: no se pudo leer gold set ${goldPath}: ${e}\\n`);
+  process.exit(1);
+}
+
+// Índice de outputs por case_id
+const byId = new Map<string, { total: number; done: number; pending: string[] }>();
+for (const entry of outputs) {
+  byId.set(String(entry.case_id), entry.output);
+}
+
+let passCases = 0;
+let totalFields = 0;
+let correctFields = 0;
+
+for (const c of gold) {
+  const got = byId.get(String(c.case_id));
+  const exp = c.expected;
+
+  // pass_rate: los 3 campos deben coincidir exactamente
+  const totalOk  = got !== undefined && got.total === exp.total;
+  const doneOk   = got !== undefined && got.done  === exp.done;
+  const pendingOk = got !== undefined &&
+    JSON.stringify(got.pending) === JSON.stringify(exp.pending);
+
+  if (totalOk && doneOk && pendingOk) passCases++;
+
+  // field_accuracy: cada campo cuenta por separado (3 por caso)
+  totalFields += 3;
+  if (totalOk)   correctFields++;
+  if (doneOk)    correctFields++;
+  if (pendingOk) correctFields++;
+}
+
+const passRate     = gold.length > 0 ? passCases / gold.length : 0;
+const fieldAccuracy = totalFields > 0 ? correctFields / totalFields : 0;
+
+// El sustrato parsea estas líneas: SCORE:<metric>=<float>
+console.log(`SCORE:pass_rate=${passRate.toFixed(4)}`);
+console.log(`SCORE:field_accuracy=${fieldAccuracy.toFixed(4)}`);
+'''
+
+# degraded.json: outputs DELIBERADAMENTE INCORRECTOS.
+# c1: total mal (5 en vez de 3), done mal (3 en vez de 1), pending mal (falta un item).
+# c2: total mal (1 en vez de 0), done mal (1 en vez de 0), pending mal (item extra).
+# c3: total mal (0 en vez de 2), done mal (0 en vez de 2), pending mal (items fantasma).
+# c4: total mal (2 en vez de 4), done mal (3 en vez de 1), pending completamente distinto.
+# Resultado: pass_rate = 0.0, field_accuracy = 0.0 → ambas métricas BAJO el umbral → gate flipea.
+_DEGRADED_JSON = '''\
+[
+  {
+    "case_id": "c1",
+    "output": { "total": 5, "done": 3, "pending": ["comprar pan"] }
+  },
+  {
+    "case_id": "c2",
+    "output": { "total": 1, "done": 1, "pending": ["tarea extra"] }
+  },
+  {
+    "case_id": "c3",
+    "output": { "total": 0, "done": 0, "pending": ["hacer ejercicio", "leer"] }
+  },
+  {
+    "case_id": "c4",
+    "output": { "total": 2, "done": 3, "pending": ["revisar email"] }
+  }
+]
+'''
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ent = bp["entity"]
@@ -166,6 +399,10 @@ def build_files(bp: dict) -> dict[str, str]:
         "src/ui.ts": _ui_ts(name, string_fields[0]),
         "test/handler.test.ts": _test_ts(name, fields),
         "test/db_integration.test.ts": _db_integration_test_ts(name, fields),
+        "eval/gold.json": _GOLD_JSON,
+        "eval/scorer.ts": _SCORER_TS,
+        "eval/produce_output.ts": _PRODUCE_OUTPUT_TS,
+        "eval/degraded.json": _DEGRADED_JSON,
     }
 
 

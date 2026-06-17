@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0fe02b7413c1d9e9f35363059aba1f5e2c246a8d updated=2026-06-17T17:03Z -->
+<!-- meta:doc sha=0d354cc53c4793c304fe0b6b6da555c72b13a2ab updated=2026-06-17T17:53Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T16:52Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅** — el PRODUCTO contra infra VIVA bajo gate: ASF resume vs Postgres + linaje vs Neo4j (contenedores reales), Full-Stack vs su DB) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: MAT-4-EVAL-GATE-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (8/8) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (4/4)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (8/8) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (5/5)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy

@@ -1,0 +1,25 @@
+id: s4
+name: "evaluación con compuertas: scorer TypeScript sobre gold set — eval_gate con dientes (DES-7,\
+  \ MAT-4)"
+activation: always
+requires_prev: s3
+builds: []
+checks:
+- name: eval_quality_gate
+  kind: eval_gate
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - npm install --no-audit --no-fund --loglevel=error && node --experimental-strip-types
+    --disable-warning=ExperimentalWarning eval/produce_output.ts
+  scorer:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - eval/scorer.ts
+  output: eval/output.json
+  degraded: eval/degraded.json
+  thresholds:
+    pass_rate: 0.9
+    field_accuracy: 0.9

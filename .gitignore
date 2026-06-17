@@ -25,3 +25,8 @@ factories/*/build/
 .metamem/
 .claude/metrics/
 metrics.jsonl
+
+# Secrets — never committed
+.env
+.env.*
+!.env.example

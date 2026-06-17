@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2b4e8361583462d36eca8aea2e5b8d463e90d2b2 updated=2026-06-17T16:14Z -->
+<!-- meta:doc sha=9ab0eae349d5cf4c08f919f8f33b90773e21d2f7 updated=2026-06-17T16:29Z -->
 # Incremento MAT-3-PRODUCT-INFRA
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
@@ -50,8 +50,8 @@ y **dos toolchains** (python ⟂ node), evidencia de generalidad MÁS fuerte.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Sustrato**: `infra_up` acepta `bootstrap` opcional (una vez, scrubbed, antes del retry-loop) + cableado en registry/main; tests por bloqueo (bootstrap corre una vez · bootstrap roto → rojo antes de `up` · proof del producto contra servicio vivo verde · infra caída → rojo se mantiene). `git diff` acotado al mecanismo | ⏳ |
-| 2 | **Co-validación Full-Stack**: el PRODUCTO (handler) respaldado por la DB viva; estación con `infra_up` (proof = test del producto, no el glue) + bootstrap del toolchain; re-pin · product-run · `ci --rederive` | ⏳ |
+| 1 | **Sustrato**: `infra_up` acepta `bootstrap` opcional (una vez, scrubbed, antes del retry-loop) + cableado en registry/main; tests por bloqueo (bootstrap corre una vez · bootstrap roto → rojo antes de `up` · proof del producto contra servicio vivo verde · infra caída → rojo se mantiene). `git diff` acotado al mecanismo | ✅ 2026-06-17T16:18Z |
+| 2 | **Co-validación Full-Stack**: el PRODUCTO (test de integración tipado al contrato) respaldado por la DB viva; s2 con `infra_up` (proof = test del producto, no el glue) + bootstrap del toolchain (npm install); re-pin · product-run · `ci --rederive` 4/4 == pineado. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:28Z |
 | 3 | **ASF Postgres (s3)**: codegen del checkpointer PostgresSaver real; s3 → `infra_up` (up=contenedor postgres, proof=`test_state.py` resume-no-reexec, down=`docker rm -f`); deps += langgraph-checkpoint-postgres/psycopg; re-pin · product-run · `ci` | ⏳ |
 | 4 | **ASF Neo4j (s2)**: activar s2; codegen del módulo de linaje (driver neo4j) + test de traversal con join-key; s2 → `infra_up` (contenedor neo4j); deps += neo4j; re-pin | ⏳ |
 | 5 | **Promoción + paridad**: `machinery.infra` `built` en ambos specs; `parity.yml` re-certifica `infra_up` (product-backed) en 2 dominios; `meta check` + `ci` ambas fábricas; demos VIVAS por CLI (3 lados: verde · infra-caída→rojo · decorativo→rojo) | ⏳ |

@@ -90,6 +90,44 @@ def _test_ts(name: str, fields: list[dict]) -> str:
             f"}});\n")
 
 
+def _db_integration_test_ts(name: str, fields: list[dict]) -> str:
+    # MAT-3: el PRODUCTO contra la DB relacional VIVA. Un test de integración del producto (su toolchain,
+    # node:test) habla — tipado al CONTRATO compartido — con el server node:sqlite que `infra_up` levanta;
+    # hace un round-trip create+list. Con la DB caída el `connect` falla y el test cae a ROJO (diente de dos
+    # lados de E1): prueba que el producto USA la infra viva, no un mock. El cliente vive en el test (corre
+    # bajo node --experimental-strip-types: sin @types/node, sin tocar el gate tsc de src/).
+    create = ", ".join(f"{f['name']}: {_TS_SAMPLE[f['type']]}" for f in fields)
+    first = fields[0]["name"]
+    return (
+        f'import {{ test }} from "node:test";\n'
+        f'import assert from "node:assert/strict";\n'
+        f'import {{ connect }} from "node:net";\n'
+        f'import type {{ {name}, Create{name} }} from "../src/contract.ts";\n\n'
+        f'// El socket lo crea el server (cwd = build/product, levantado por infra_up); mismo path acá.\n'
+        f'const SOCK = "db.sock";\n'
+        f'function call(req: object): Promise<any> {{\n'
+        f'  return new Promise((res, rej) => {{\n'
+        f'    const c = connect(SOCK, () => c.end(JSON.stringify(req)));\n'
+        f'    let d = "";\n'
+        f'    c.on("data", (b) => {{ d += b; }});\n'
+        f'    c.on("end", () => res(JSON.parse(d)));\n'
+        f'    c.on("error", rej);\n'
+        f'  }});\n'
+        f'}}\n\n'
+        f'test("el producto persiste un {name} y lo lee de la DB relacional VIVA", async () => {{\n'
+        f'  const input: Create{name} = {{ {create} }};\n'
+        f'  const ins = await call({{ op: "create", ...input }});\n'
+        f'  assert.equal(ins.ok, true);\n'
+        f'  assert.equal(ins.count, 1);\n'
+        f'  const lst = await call({{ op: "list" }});\n'
+        f'  assert.equal(lst.ok, true);\n'
+        f'  const rows: {name}[] = lst.rows;\n'
+        f'  assert.equal(rows.length, 1);\n'
+        f'  assert.equal(rows[0].{first}, {_TS_SAMPLE[fields[0]["type"]]});\n'
+        f'}});\n'
+    )
+
+
 def _package_json(pkg: str) -> str:
     return ('{\n'
             f'  "name": "{pkg}",\n'
@@ -127,6 +165,7 @@ def build_files(bp: dict) -> dict[str, str]:
         "src/handler.ts": _handler_ts(name),
         "src/ui.ts": _ui_ts(name, string_fields[0]),
         "test/handler.test.ts": _test_ts(name, fields),
+        "test/db_integration.test.ts": _db_integration_test_ts(name, fields),
     }
 
 

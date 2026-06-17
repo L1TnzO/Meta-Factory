@@ -1,6 +1,6 @@
 id: s2
-name: 'DB relacional VIVA: round-trip contra node:sqlite sobre socket-Unix (E1) —
-  DES-4/DES-9'
+name: 'el PRODUCTO contra la DB relacional VIVA: integración node:test → server node:sqlite
+  (E1, M8 del producto) — DES-4/DES-9'
 activation: always
 requires_prev: s1
 builds:
@@ -8,18 +8,24 @@ builds:
 checks:
 - name: db_round_trip
   kind: infra_up
-  workdir: build/infra
+  workdir: build/product
+  bootstrap:
+  - npm
+  - install
+  - --no-audit
+  - --no-fund
+  - --loglevel=error
   up:
   - node
   - --experimental-strip-types
   - --disable-warning=ExperimentalWarning
-  - dbserver.ts
+  - ../infra/dbserver.ts
   - db.sock
   proof:
   - node
   - --experimental-strip-types
   - --disable-warning=ExperimentalWarning
-  - dbclient.ts
-  - db.sock
+  - --test
+  - test/db_integration.test.ts
   down: []
-  timeout: 10
+  timeout: 15

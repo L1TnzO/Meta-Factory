@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a66a02c4f2d580ca4d5b4f3c9b6521fa57fc334a updated=2026-06-16T23:17Z -->
+<!-- meta:doc sha=2786d8cfd617994c09824c975b8c925f4a93c171 updated=2026-06-17T15:59Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -251,8 +251,13 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   blueprint; verificado en su toolchain (`tsc --strict` DES-6 · `node:test` · DB `node:sqlite` viva por
   `infra_up`). product-run PASS · M0–M8 · `ci --rederive` 3/3 == pineado. **`generality_parity` verde con
   `product_env`/`generate`/`infra_up` ya `general`** (ts ⟂ python) — el lockstep de ADR-014 ejercido; `git
-  diff src/metafactory/` = 0. Evidencia: `work/MAT-1-FULL-STACK-INCREMENT.md`. **Sigue MAT-2** (generación viva
-  por LLM bajo gate) y **MAT-3** (producto contra infra viva), ambos en lockstep ASF↔Full-Stack.
+  diff src/metafactory/` = 0. Evidencia: `work/MAT-1-FULL-STACK-INCREMENT.md`.
+  - **MAT-2 ✅ HECHO (2026-06-17, `MAT-2-LIVE-GEN`)** — la generación VIVA por LLM bajo gate, en lockstep
+    ASF↔Full-Stack: `claude -p` (slot `generate`, `via` en la fábrica) genera lógica de dominio REAL en 2
+    dominios por el MISMO kind — Full-Stack s3 `summarizeTodos` (TS/node:test) + ASF s9 `merge_findings`
+    (Python/pytest); 1ª gen viva, stub bloquea. **§7 por bloqueo**: el pin (`skip_if_exists`) se re-verifica
+    SIN LLM (`ci --rederive` con `claude` saboteado: full-stack 4/4 · ASF 7/7 == pineado; reconcilia I-3 con
+    SAFE-3). `git diff src/metafactory/ + seed/` = 0. **Sigue MAT-3** (producto contra infra viva, lockstep).
 - **F3 · Mobile-Factory · IoT-Factory.** Dominios adicionales (React Native/Flutter; MQTT/embebido) que
   estiran las primitivas. *Gate*: cada una genera un producto que pasa su M8 en su toolchain. Depende: F1, F2.
 

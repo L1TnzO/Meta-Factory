@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `74318e180adb` | 2026-06-16T16:57Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `1211c698a85c` | 2026-06-16T23:26Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `64bf3850b3a5` | 2026-06-17T16:00Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `9d307984fbff` | 2026-06-17T15:58Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -53,9 +53,9 @@
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |
-| `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `1c863816d0e2` | 2026-06-17T15:54Z | Incremento MAT-2-LIVE-GEN |
-| `docs/work/MATURITY-PLAN.md` | `b8974bd40b81` | 2026-06-16T23:17Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MAT-2-LIVE-GEN-INCREMENT.md` | `2c70d0e221cf` | 2026-06-17T15:59Z | Incremento MAT-2-LIVE-GEN |
+| `docs/work/MATURITY-PLAN.md` | `cdcac8364d29` | 2026-06-17T15:59Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `a66a02c4f2d5` | 2026-06-16T23:17Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `2786d8cfd617` | 2026-06-17T15:59Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

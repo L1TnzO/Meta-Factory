@@ -1,13 +1,13 @@
-<!-- meta:doc sha=1211c698a85c153b66d5acbc3e704e9a74c54d48 updated=2026-06-16T23:26Z -->
+<!-- meta:doc sha=9d307984fbffa2b6e3b128b5b65dd7eeae5aa6aa updated=2026-06-17T15:58Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-16T13:22Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** — el ASF completo: producto LangGraph generado, línea S0–S8 real, M8 con get_graph()+mypy --strict en el venv del producto) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-17T15:57Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅** — generación VIVA por LLM (claude -p) bajo gate en 2 dominios, §7 pin re-derivable sin LLM) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: MAT-2-LIVE-GEN-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (6/6) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (3/3)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (7/7) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (4/4)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -153,6 +153,21 @@
       con CERO toques al sustrato. dummy/ASF intactos. Bloqueo vivo (3 dientes: drift→tsc rojo · test roto→
       node:test rojo · DB caída→cliente rojo). Wart anotado: m04 (frontera I-5) Python-shaped (stub vestigial
       `domain/webapp.py`, como ASF). **Sigue MAT-2** (generación viva por LLM bajo gate, lockstep ASF↔Full-Stack).
+    - **MAT-2 (`MAT-2-LIVE-GEN`) ✅ (2026-06-17)** — el seam creativo ejercido por PRIMERA vez con un **LLM
+      VIVO**: la acción `generate` con `via = claude -p` (wrapper `codegen/gen_llm.py`, vive en la FÁBRICA —
+      ADR-012; el sustrato no nombra `claude`) genera **lógica de dominio REAL** bajo gate, en **2 dominios
+      por el MISMO kind** (principio #6, ADR-014): **Full-Stack s3** → `summarizeTodos` (TS) gateado por
+      `node:test`; **ASF s9** → `merge_findings` (reducer Python: dedup por id con la mayor confianza, orden
+      desc, sobre el canal `findings` del blueprint) gateado por `pytest`. Ambas 1ª-gen VIVAS (log del LLM);
+      el LLM implementó de verdad — un **stub no pasa** el contract test (el anti-patrón "domain vacío" de F1
+      ahora BLOQUEA). **§7 reconciliado por bloqueo**: el artefacto aceptado se PINEA (`skip_if_exists: true` ⇒
+      committeado = fuente), y `ci --rederive` lo re-verifica **SIN re-invocar al LLM** — probado con `claude`
+      SABOTEADO (testigo ausente ⇒ el generador nunca se lanzó): **full-stack 4/4** y **ASF 7/7 == pineado** en
+      clon limpio (ASF reconstruye el venv). Pin corrompido / lógica incorrecta → gate ROJO, en ambos toolchains.
+      Determinismo en la verificación, no en la generación (I-3). **`git diff src/metafactory/ + seed/` = 0
+      líneas**: el seam ya existía (C1/ADR-013), MAT-2 lo EJERCIÓ. dummy intacta; congelado intocado; `meta
+      check` 6/6 (suite 451). El test de fidelidad ASF S0–S8 actualizado: la línea canónica sobrevive íntegra +
+      s9 (co-validación MAT-2 explícita, aditiva).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

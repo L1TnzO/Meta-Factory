@@ -1,7 +1,30 @@
-<!-- meta:doc sha=74318e180adb621c13e204de13f01dc2a6c48c15 updated=2026-06-16T16:57Z -->
+<!-- meta:doc sha=64bf3850b3a541a9dd75cff6ffa1f585434a4d2d updated=2026-06-17T16:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-17T15:58Z — MAT-2: el seam creativo, por PRIMERA vez con un LLM VIVO (en 2 dominios)
+- **gatillo**: retomar MAT-2 tras corte de sesión — la estación s3 ya materializada, faltaba correr la 1ª
+  generación viva. La sesión anterior murió justo en `claude -p` (límite de sesión); todo logeado.
+- **lo hecho**: ejercer por primera vez `via = claude -p` (ADR-013) generando **lógica de dominio REAL** bajo
+  gate, en **2 dominios por el MISMO kind** (ADR-014): Full-Stack **s3** `summarizeTodos` (TS/`node:test`) y
+  ASF **s9** `merge_findings` (reducer Python dedup-por-confianza sobre el canal `findings`, `pytest`). Ambas
+  1ª-gen VIVAS; el LLM implementó de verdad (no stub — un stub no pasa el contract test, el anti-patrón
+  "domain vacío" de F1 ahora BLOQUEA).
+- **§7 reconciliado por bloqueo** (lo central, no-determinismo vs SAFE-3): el artefacto aceptado se PINEA
+  (`skip_if_exists` ⇒ committeado = fuente), y `ci --rederive` lo re-verifica SIN re-invocar al LLM. Probado
+  con un `claude` SABOTEADO en el PATH (fake con testigo, sale 1 = "sin auth"): rederive **full-stack 4/4** y
+  **ASF 7/7 == pineado** en árbol limpio, y el **testigo quedó AUSENTE** ⇒ el generador nunca se lanzó.
+  Determinismo en la verificación, no en la generación (I-3).
+- **anti-overfit**: `git diff src/metafactory/ + seed/` = **0 líneas** — el seam ya existía (C1); MAT-2 lo
+  EJERCIÓ. La tech del LLM vive en la FÁBRICA (`codegen/gen_llm.py`, ADR-012); el sustrato no nombra `claude`.
+- **episodio operativo (lección)**: caí 4ª vez en el deadlock de `cd` a subdir (corrí el contract test Python
+  con `cd .../domain_gen && pytest` líder ⇒ cwd atascado ⇒ hooks relativos bloquean TODO Bash/Write/Edit).
+  Recuperado al toque pidiéndole al ingeniero `!cd <root>` (esta vez SÍ reseteó el shell del tool). Memoria
+  reforzada: el reflejo es `( cd … )` o `cwd=`, nunca un `cd` suelto.
+- **cierre**: dummy intacta (ci 5/5); congelado intocado; `meta check` 6/6 (suite 451; fidelidad S0–S8
+  actualizada: línea canónica íntegra + s9 aditiva). 4 commits por fase (cadencia ADR-010). **Sigue MAT-3**
+  (producto contra infra viva, lockstep ASF↔Full-Stack).
 
 ## 2026-06-16T16:50Z — F1: ASF COMPLETO e2e — el producto LangGraph se GENERA y pasa su M8 real
 - **gatillo**: el ingeniero pidió F1 — el incremento más grande del roadmap (cierra el ~5–10% de la auditoría).

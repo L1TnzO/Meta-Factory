@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b8974bd40b81fed3f6266513bf6245b0c4814ada updated=2026-06-16T23:17Z -->
+<!-- meta:doc sha=cdcac8364d29a382db725be9638b984fd4b35d94 updated=2026-06-17T15:59Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -127,6 +127,10 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-0. *(Trae F2 antes que el deepening de ASF a propósito: es la red anti-overfitting.)*
 
 ### MAT-2 · Generación de LÓGICA DE DOMINIO por slot LLM bajo gate (el seam nunca ejercido) — **la palanca**
+> ✅ **HECHO (2026-06-17, `MAT-2-LIVE-GEN`)**. 1ª gen VIVA por `claude -p` en 2 dominios por el MISMO kind:
+> Full-Stack s3 `summarizeTodos` (TS/node:test) + ASF s9 `merge_findings` (Python/pytest). §7 probado por
+> bloqueo (pin re-derivable SIN LLM: `claude` saboteado → full-stack 4/4 · ASF 7/7 == pineado; stub/corrupción
+> → rojo). `git diff src/metafactory/ + seed/` = 0 (el seam ya existía, se EJERCIÓ). Evidencia: `work/MAT-2-LIVE-GEN-INCREMENT.md`.
 - **Build (sustrato)**: ejercer de verdad el `via = claude -p` (ADR-013): el slot `generate` corre un
   generador VIVO que emite **lógica de dominio** (no sólo scaffold estructural) en el slot; la columna
   verifica por bloqueo (typecheck + tests de contrato + topología). El sustrato sigue sin escribir el

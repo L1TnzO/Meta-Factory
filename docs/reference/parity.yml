@@ -37,8 +37,8 @@ mechanisms:
 
   - mechanism: infra_up          # DES-9 (E1): la infra declarada levanta en el sandbox y un proof la usa.
     status: general
-    domains: [dummy, full-stack]
-    note: "Socket-Unix en 2 lenguajes: dummy (python stdlib) Y full-stack (node:sqlite, s2 round-trip relacional vivo)."
+    domains: [dummy, full-stack, agent-systems-factory]
+    note: "MAT-3: cableado al M8 del PRODUCTO (bootstrap del toolchain + proof = test del producto). Probado en 2 KINDS de infra y 2 lenguajes: full-stack (node:sqlite socket, el producto persiste/lee) Y ASF (docker: Postgres checkpointer s3 + Neo4j linaje s2, python). dummy mantiene el socket stdlib."
 
   - mechanism: mcp_tools         # DES-6 (E2): el MCP generado expone e invoca tools tipadas.
     status: prototype

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0bd0538b670e76481801cdea07852b199aa4fe89 updated=2026-06-17T16:47Z -->
+<!-- meta:doc sha=61b857f48ca65a7bea3a80c203814c94843327b9 updated=2026-06-17T16:50Z -->
 # Incremento MAT-3-PRODUCT-INFRA
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
@@ -54,7 +54,7 @@ y **dos toolchains** (python ⟂ node), evidencia de generalidad MÁS fuerte.
 | 2 | **Co-validación Full-Stack**: el PRODUCTO (test de integración tipado al contrato) respaldado por la DB viva; s2 con `infra_up` (proof = test del producto, no el glue) + bootstrap del toolchain (npm install); re-pin · product-run · `ci --rederive` 4/4 == pineado. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:28Z |
 | 3 | **ASF Postgres (s3)**: codegen `durable_checkpointer` (PostgresSaver real) + test resume-no-reexec **cross-instancia** (instancia fresca contra la MISMA PG resume sin reejecutar — MemorySaver no podría); s3 → `infra_up` (up=`docker run postgres:16-alpine`, bootstrap=`setup_env.py`, proof=`pytest test_state.py`, down=`docker rm -f`); deps += langgraph-checkpoint-postgres/psycopg. product-run + m06 clean + `ci --rederive` **7/7 == pineado** (venv fresco + PG real); teardown limpio. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:38Z |
 | 4 | **ASF Neo4j (s2)**: s2 ACTIVADA (de `off`→`always`); codegen `LineageStore` (driver neo4j, PROV salida↔evidencia) + test traversal backward/forward + join-key vs Neo4j real; s2 → `infra_up` (up=`docker run neo4j`, bootstrap=`setup_env.py`, down=`docker rm -f`); deps += neo4j; mypy override `neo4j.*`. **RTM 8/8** (s2 sube cobertura, REQ-F-007) · pin 8/8 · `ci --rederive` 8/8 == pineado (venv fresco + PG + Neo4j); teardown limpio. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:46Z |
-| 5 | **Promoción + paridad**: `machinery.infra` `built` en ambos specs; `parity.yml` re-certifica `infra_up` (product-backed) en 2 dominios; `meta check` + `ci` ambas fábricas; demos VIVAS por CLI (3 lados: verde · infra-caída→rojo · decorativo→rojo) | ⏳ |
+| 5 | **Promoción + paridad**: `machinery.infra` `built` en ambos specs; `parity.yml` agrega ASF a `infra_up` (general en 2 KINDS de infra: socket node + docker python); `generality_parity` verde LEGÍTIMO; demos VIVAS por CLI (infra caída → proof del PRODUCTO rojo, 3 frentes) | ✅ 2026-06-17T16:49Z |
 | 6 | **Docs/evidencia**: STATE · ROADMAP · MATURITY-PLAN (MAT-3 ✅) · evidencia + cierre; dummy intacta | ⏳ |
 
 ## Criterio de cierre (demostrable, no narrable)

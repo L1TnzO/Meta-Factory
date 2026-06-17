@@ -1,7 +1,7 @@
-<!-- meta:doc sha=1556b21f0960b77f64eae2eafa64b51ff0b923e8 updated=2026-06-17T17:58Z -->
+<!-- meta:doc sha=a9b234869233958e7fbf48eba36ae4c57cc1236a updated=2026-06-17T18:00Z -->
 # Incremento MAT-4-EVAL-GATE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T17:03Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-17T18:00Z) (creado 2026-06-17T17:03Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,0 +1,48 @@
+id: s3
+name: lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test — MAT-2
+activation: always
+requires_prev: s2
+builds:
+- action: write
+  dest: domain_gen/package.json
+  content: '{ "type": "module", "private": true }
+
+    '
+- action: write
+  dest: domain_gen/summarize.test.ts
+  content: "import { test } from \"node:test\";\nimport assert from \"node:assert/strict\"\
+    ;\nimport { summarizeTodos, type Todo } from \"./summarize.ts\";\n\ntest(\"summarizeTodos:\
+    \ total, done y los titles de los pendientes en orden\", () => {\n  const todos:\
+    \ Todo[] = [\n    { id: 1, title: \"comprar pan\", done: false },\n    { id: 2,\
+    \ title: \"lavar\", done: true },\n    { id: 3, title: \"estudiar\", done: false\
+    \ },\n  ];\n  const s = summarizeTodos(todos);\n  assert.equal(s.total, 3);\n\
+    \  assert.equal(s.done, 1);\n  assert.deepEqual(s.pending, [\"comprar pan\", \"\
+    estudiar\"]);\n});\n\ntest(\"summarizeTodos: lista vacía\", () => {\n  const s\
+    \ = summarizeTodos([]);\n  assert.equal(s.total, 0);\n  assert.equal(s.done, 0);\n\
+    \  assert.deepEqual(s.pending, []);\n});\n"
+- action: generate
+  dest: domain_gen/summarize.ts
+  skip_if_exists: true
+  brief: "Generá un módulo TypeScript para Node (ESM, corre con `node --experimental-strip-types`).\n\
+    Exportá EXACTAMENTE estos símbolos (mismos nombres y firmas):\n  export interface\
+    \ Todo { id: number; title: string; done: boolean; }\n  export function summarizeTodos(todos:\
+    \ Todo[]): { total: number; done: number; pending: string[] }\nContrato de summarizeTodos:\n\
+    \  - total  = cantidad total de todos.\n  - done   = cantidad de todos con done\
+    \ === true.\n  - pending = los `title` de los todos con done === false, EN EL\
+    \ ORDEN de entrada.\nImportante: NO uses imports externos; sin dependencias; código\
+    \ tipado que pase en strict.\nSalida: SOLO el código TypeScript del módulo. Nada\
+    \ de explicaciones ni fences markdown.\n"
+  via:
+  - python
+  - codegen/gen_llm.py
+checks:
+- name: domain_logic_contract
+  kind: product_env
+  workdir: domain_gen
+  bootstrap: []
+  cmd:
+  - node
+  - --experimental-strip-types
+  - --disable-warning=ExperimentalWarning
+  - --test
+  - summarize.test.ts

@@ -57,6 +57,13 @@ domain:
       artifact: build/infra/dbserver.ts
       proof: "s2: infra_up levanta el server node:sqlite y el cliente hace un round-trip relacional; DB caída → rojo"
       status: built
+    - id: logica_dominio_generada
+      invariant: "la lógica de dominio se GENERA por un LLM vivo (claude -p) y pasa un contract test que la EJERCITA; un stub no pasa (el anti-patrón de domain vacío de F1 ahora bloquea)"
+      primitive: DES-8            # Proof en el toolchain del producto (el contract test corre en node:test)
+      tech: "claude -p (slot generate, ADR-013) como `via`; node:test como contract gate; pin por skip_if_exists (§7)"
+      artifact: domain_gen/summarize.ts
+      proof: "s3: node:test ejercita summarizeTodos (total/done/pending); generación VIVA pineada (skip_if_exists), re-derive verifica el pin sin LLM"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
   # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011).
@@ -113,6 +120,67 @@ domain:
           proof: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "dbclient.ts", "db.sock"]
           down: []
           timeout: 10
+    - id: s3
+      name: "lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test — MAT-2"
+      activation: always
+      depends_on: [s2]
+      # El slot `generate` corre el `via = claude -p` (wrapper codegen/gen_llm.py): genera la IMPLEMENTACIÓN
+      # de summarizeTodos. `skip_if_exists: true` ⇒ una vez pineada (committeada) NO se re-genera; ci
+      # --rederive verifica el pin sin LLM (§7). El test + package.json se EMITEN deterministas (write); el
+      # ÚNICO artefacto no-determinista es summarize.ts. Un stub no pasa el contract test (anti-patrón F1).
+      proof_checks:
+        - { name: domain_logic_contract, cmd: "node --test sobre la lógica de dominio generada por LLM", runs_in: product_env, toolchain: "node-test", status: built }
+      builds:
+        - action: write
+          dest: domain_gen/package.json
+          content: |
+            { "type": "module", "private": true }
+        - action: write
+          dest: domain_gen/summarize.test.ts
+          content: |
+            import { test } from "node:test";
+            import assert from "node:assert/strict";
+            import { summarizeTodos, type Todo } from "./summarize.ts";
+
+            test("summarizeTodos: total, done y los titles de los pendientes en orden", () => {
+              const todos: Todo[] = [
+                { id: 1, title: "comprar pan", done: false },
+                { id: 2, title: "lavar", done: true },
+                { id: 3, title: "estudiar", done: false },
+              ];
+              const s = summarizeTodos(todos);
+              assert.equal(s.total, 3);
+              assert.equal(s.done, 1);
+              assert.deepEqual(s.pending, ["comprar pan", "estudiar"]);
+            });
+
+            test("summarizeTodos: lista vacía", () => {
+              const s = summarizeTodos([]);
+              assert.equal(s.total, 0);
+              assert.equal(s.done, 0);
+              assert.deepEqual(s.pending, []);
+            });
+        - action: generate
+          dest: domain_gen/summarize.ts
+          skip_if_exists: true
+          brief: |
+            Generá un módulo TypeScript para Node (ESM, corre con `node --experimental-strip-types`).
+            Exportá EXACTAMENTE estos símbolos (mismos nombres y firmas):
+              export interface Todo { id: number; title: string; done: boolean; }
+              export function summarizeTodos(todos: Todo[]): { total: number; done: number; pending: string[] }
+            Contrato de summarizeTodos:
+              - total  = cantidad total de todos.
+              - done   = cantidad de todos con done === true.
+              - pending = los `title` de los todos con done === false, EN EL ORDEN de entrada.
+            Importante: NO uses imports externos; sin dependencias; código tipado que pase en strict.
+            Salida: SOLO el código TypeScript del módulo. Nada de explicaciones ni fences markdown.
+          via: ["python", "codegen/gen_llm.py"]
+      checks:
+        - name: domain_logic_contract
+          kind: product_env
+          workdir: domain_gen
+          bootstrap: []
+          cmd: ["node", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--test", "summarize.test.ts"]
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up]
@@ -267,3 +335,8 @@ requirements:
       satisfied_by: [s2]
       verified_by: [db_round_trip]
       capability: db_relacional_viva
+    - id: REQ-F-004
+      statement: "la lógica de dominio se GENERA por un LLM vivo (claude -p, slot generate) y un contract test la ejercita; un stub o una generación incorrecta bloquea; el artefacto aceptado se pinea y re-derive lo verifica sin LLM (MAT-2, §7)"
+      satisfied_by: [s3]
+      verified_by: [domain_logic_contract]
+      capability: logica_dominio_generada

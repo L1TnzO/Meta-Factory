@@ -1,4 +1,4 @@
-<!-- meta:doc sha=61b857f48ca65a7bea3a80c203814c94843327b9 updated=2026-06-17T16:50Z -->
+<!-- meta:doc sha=d9cc6474c8c1c87c01280117722e632d4d97f9c6 updated=2026-06-17T16:54Z -->
 # Incremento MAT-3-PRODUCT-INFRA
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T16:13Z). Cerralo con `meta increment close`
@@ -55,7 +55,7 @@ y **dos toolchains** (python ⟂ node), evidencia de generalidad MÁS fuerte.
 | 3 | **ASF Postgres (s3)**: codegen `durable_checkpointer` (PostgresSaver real) + test resume-no-reexec **cross-instancia** (instancia fresca contra la MISMA PG resume sin reejecutar — MemorySaver no podría); s3 → `infra_up` (up=`docker run postgres:16-alpine`, bootstrap=`setup_env.py`, proof=`pytest test_state.py`, down=`docker rm -f`); deps += langgraph-checkpoint-postgres/psycopg. product-run + m06 clean + `ci --rederive` **7/7 == pineado** (venv fresco + PG real); teardown limpio. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:38Z |
 | 4 | **ASF Neo4j (s2)**: s2 ACTIVADA (de `off`→`always`); codegen `LineageStore` (driver neo4j, PROV salida↔evidencia) + test traversal backward/forward + join-key vs Neo4j real; s2 → `infra_up` (up=`docker run neo4j`, bootstrap=`setup_env.py`, down=`docker rm -f`); deps += neo4j; mypy override `neo4j.*`. **RTM 8/8** (s2 sube cobertura, REQ-F-007) · pin 8/8 · `ci --rederive` 8/8 == pineado (venv fresco + PG + Neo4j); teardown limpio. `git diff src/metafactory/` = 0 | ✅ 2026-06-17T16:46Z |
 | 5 | **Promoción + paridad**: `machinery.infra` `built` en ambos specs; `parity.yml` agrega ASF a `infra_up` (general en 2 KINDS de infra: socket node + docker python); `generality_parity` verde LEGÍTIMO; demos VIVAS por CLI (infra caída → proof del PRODUCTO rojo, 3 frentes) | ✅ 2026-06-17T16:49Z |
-| 6 | **Docs/evidencia**: STATE · ROADMAP · MATURITY-PLAN (MAT-3 ✅) · evidencia + cierre; dummy intacta | ⏳ |
+| 6 | **Docs/evidencia**: STATE · ROADMAP · MATURITY-PLAN (MAT-3 ✅) · evidencia + cierre; dummy intacta | ✅ 2026-06-17T16:53Z |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `infra_up` corre un `bootstrap` declarado una vez y luego el proof del PRODUCTO contra la infra viva; el
@@ -68,3 +68,47 @@ y **dos toolchains** (python ⟂ node), evidencia de generalidad MÁS fuerte.
 4. **2 dominios, mismo kind**: `infra_up` product-backed verde en ASF (docker) y Full-Stack (socket);
    `generality_parity` verde LEGÍTIMO. `git diff src/metafactory/` = solo el mecanismo `bootstrap` (anti-overfit).
 5. `meta check` verde; dummy intacta; demos vivas por CLI registradas en §Evidencia.
+
+## Evidencia (re-verificable, no narrada)
+
+**Sustrato (P1, único cambio en `src/`).** `infra_up.run(...)` acepta `bootstrap` opcional: corre UNA vez en
+`workdir` con env scrubbed (DES-8) ANTES de `up` (un bootstrap roto no cuesta contenedor) y NO se re-corre en
+la fase negativa (diente de dos lados intacto). Cableado en `registry.py` (5º arg JSON) + `main()`. Tests por
+bloqueo (`tests/test_infra.py`, 3 nuevos): corre exactamente una vez · falla antes de `up` (su `up` nunca
+lanza) · pasa por el registry como DATA. `git diff src/metafactory/ + seed/` = **~10 líneas funcionales, solo
+`bootstrap`** (medido en P2/P3/P4: 0 líneas adicionales — anti-overfit §5).
+
+**ASF (P3 Postgres + P4 Neo4j), docker REAL.**
+- s3 `resume_no_reexec` → `infra_up`: `up`=`docker run postgres:16-alpine` (efímero, limpia stale), `bootstrap`=
+  `setup_env.py` (venv + `langgraph-checkpoint-postgres`/`psycopg`), `proof`=`pytest test_state.py`, `down`=
+  `docker rm -f`. El test `test_resume_without_reexecution_vs_real_postgres` arma el grafo con un
+  `durable_checkpointer` (PostgresSaver) en **instancia A** (corre research+synthesize→interrupt) y resume en
+  una **instancia B FRESCA** contra la MISMA Postgres SIN re-ejecutar (MemorySaver no podría). proof `s3.json`
+  exit 0, `writer: seed/verifier.py`.
+- s2 ACTIVADA (`off`→`always`) `lineage_join_key` → `infra_up`: `up`=`docker run neo4j:5.26.0-community`
+  (timeout 150 por boot lento), `proof`=`pytest test_lineage.py`. `LineageStore` (driver `neo4j`) recorre
+  backward (salida→evidencia) y forward (evidencia→salida) sobre PROV y exige que ningún nodo quede sin la
+  join-key. proof `s2.json` exit 0.
+- **RTM COMPLETE 8/8** (REQ-F-007 nueva) · pin 8/8 · M0–M8 verde (m05 `rtm_tree` con artifact de linaje · m06
+  `clean_runner` re-deriva en clon limpio levantando ambos contenedores) · `ci --rederive` **8/8 == pineado**.
+  Sin fugas de contenedor (verificado `docker ps -a` tras cada corrida).
+
+**Full-Stack (P2), socket node:sqlite.** s2 `db_round_trip` → `infra_up`: `bootstrap`=`npm install`, `up`=server
+`node:sqlite`, `proof`=`node --test test/db_integration.test.ts` (test del PRODUCTO tipado al contrato, round-trip
+create+list contra la DB viva; el glue `dbclient.ts` se removió del emit). product-run PASS · pin 4/4 ·
+`ci --rederive` **4/4 == pineado** (clon limpio re-corre npm install + node:test + DB viva).
+
+**Diente de dos lados VIVO (demos por CLI, infra CAÍDA → proof del PRODUCTO ROJO).**
+- ASF resume vs Postgres caído → `OperationalError` (FAILED); los tests in-memory (MemorySaver) siguen verdes (4 passed).
+- ASF linaje vs Neo4j caído → `ServiceUnavailable` (FAILED).
+- Full-Stack producto vs DB caída → `connect ECONNREFUSED db.sock` (# pass 0).
+
+**Anti-overfit + no-regresión.** `infra_up` `general` en `parity.yml` con [dummy, full-stack, agent-systems-factory]
+(2 KINDS de infra: socket node ⟂ docker python); `generality_parity` verde LEGÍTIMO (recompone proofs, no
+levanta contenedores). dummy intacta (`ci --rederive` 5/5 == pineado). `meta check` verde tras refrescar la
+proyección.
+
+**Decisión registrada (mandato del ingeniero).** Contenedores reales en la línea verde por fidelidad a
+`F1-AUDIT §12`/paridad legacy ⇒ SAFE-3 pasa a ser **docker-dependiente** (`ci --rederive` requiere docker +
+imágenes; cacheadas localmente, re-derive sin red posible). Sin docker/imágenes → gate ROJO honesto, no
+fake-green. Verificado al inicio: daemon vivo, Postgres/Neo4j levantan, alcanzables desde el host, teardown libera.

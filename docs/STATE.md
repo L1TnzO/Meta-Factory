@@ -1,13 +1,13 @@
-<!-- meta:doc sha=39a7b65bbae996fa438500e7e80e480efc328455 updated=2026-06-17T16:13Z -->
+<!-- meta:doc sha=07a441ab692b8c5896a9dbb4d2e56dd0c93cf93f updated=2026-06-17T16:53Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-17T15:57Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅** — generación VIVA por LLM (claude -p) bajo gate en 2 dominios, §7 pin re-derivable sin LLM) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-17T16:52Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0 ✅ MAT-1 ✅ MAT-2 ✅ MAT-3 ✅** — el PRODUCTO contra infra VIVA bajo gate: ASF resume vs Postgres + linaje vs Neo4j (contenedores reales), Full-Stack vs su DB) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: MAT-3-PRODUCT-INFRA-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (7/7) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (4/4)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (8/8) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (4/4)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -168,6 +168,20 @@
       líneas**: el seam ya existía (C1/ADR-013), MAT-2 lo EJERCIÓ. dummy intacta; congelado intocado; `meta
       check` 6/6 (suite 451). El test de fidelidad ASF S0–S8 actualizado: la línea canónica sobrevive íntegra +
       s9 (co-validación MAT-2 explícita, aditiva).
+    - **MAT-3 (`MAT-3-PRODUCT-INFRA`) ✅ (2026-06-17)** — el PRODUCTO se prueba contra **infra VIVA** bajo gate,
+      no contra un glue ni un mock: `infra_up` (E1) suma un **`bootstrap` opcional** (una vez, env scrubbed
+      DES-8, antes de levantar la infra) ⇒ el `proof` pasa a ser el **test del PRODUCTO en su toolchain** contra
+      el servicio vivo (composición `product_env ⊕ infra_up`). Sigue sin nombrar tech (argv-DATA, ADR-012); el
+      contenedor es DATA de fábrica. **`git diff src/metafactory/ + seed/` = ~10 líneas** (solo el `bootstrap`).
+      Co-validación **2 dominios × 2 KINDS de infra** (principio #6): **ASF (docker real)** — s3 resume
+      sin-reejecución **cross-instancia vs Postgres** (instancia fresca contra la MISMA DB resume sin re-correr;
+      MemorySaver no podría) · **s2 ACTIVADA** (linaje PROV salida↔evidencia + join-key **vs Neo4j**); **Full-Stack
+      (socket node:sqlite)** — el handler/test del producto persiste/lee la DB viva. Contenedores efímeros,
+      health por reintento, **teardown SIEMPRE**, diente de dos lados VIVO (infra caída → el proof del producto
+      ROJO: Postgres→OperationalError · Neo4j→ServiceUnavailable · DB→ECONNREFUSED). **RTM ASF 8/8** (s2 sube
+      cobertura, REQ-F-007) · `ci --rederive` **ASF 8/8 + Full-Stack 4/4 == pineado** en clon limpio (re-levanta
+      los contenedores; SAFE-3 ahora docker-dependiente, decisión del ingeniero por fidelidad a §12). `infra_up`
+      `general` en `parity.yml` con [dummy, full-stack, ASF]; dummy intacta (`ci` 5/5).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -224,6 +238,11 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
+> **AVANCE (2026-06-17): MAT-0..MAT-3 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
+> (2 dominios) y el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1).
+> **Próximo: MAT-4** — `eval_gate` con scorer REAL que bloquea (supera el stub-0.0 de la legacy), co-validado
+> ASF (faithfulness/critical-recall) + Full-Stack (pass-rate/umbral). Después MAT-5 (live_run) → MAT-6
+> (re-auditoría head-to-head) → MAT-7 (3er dominio, prueba final de no-overfitting).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

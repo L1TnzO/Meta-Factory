@@ -1,4 +1,4 @@
-<!-- meta:doc sha=cdcac8364d29a382db725be9638b984fd4b35d94 updated=2026-06-17T15:59Z -->
+<!-- meta:doc sha=a5247279e57567d4e81532d219370afa33fee349 updated=2026-06-17T16:53Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -144,6 +144,19 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-1.
 
 ### MAT-3 · El PRODUCTO contra infra viva bajo gate (no sólo estaciones dummy)
+> ✅ **HECHO (2026-06-17, `MAT-3-PRODUCT-INFRA`)**. `infra_up` (E1) sumó un **`bootstrap` opcional** (una vez,
+> env scrubbed DES-8, antes de levantar la infra): el `proof` pasa a ser el **test del PRODUCTO en su toolchain**
+> contra el servicio vivo (composición `product_env ⊕ infra_up`), no un glue standalone. `git diff
+> src/metafactory/ + seed/` = ~10 líneas (solo el mecanismo `bootstrap`; el contenedor es DATA de fábrica,
+> ADR-012). Co-validación **2 dominios × 2 KINDS de infra**: **ASF (docker REAL)** — s3 resume-sin-reejecución
+> **cross-instancia vs Postgres** (instancia fresca contra la MISMA DB; MemorySaver no podría) + **s2 ACTIVADA**
+> (linaje PROV salida↔evidencia + join-key **vs Neo4j**); **Full-Stack (socket node:sqlite)** — el test del
+> producto persiste/lee la DB viva. Contenedores efímeros, teardown SIEMPRE, diente de dos lados VIVO (infra
+> caída → proof del producto ROJO: OperationalError · ServiceUnavailable · ECONNREFUSED). **RTM ASF 8/8** ·
+> `ci --rederive` ASF 8/8 + Full-Stack 4/4 == pineado (re-levanta los contenedores en clon limpio). `infra_up`
+> `general` en `parity.yml` [dummy, full-stack, ASF]. **Decisión del ingeniero**: contenedores reales en la
+> línea verde por fidelidad a §12 ⇒ SAFE-3 docker-dependiente (imágenes cacheadas; sin docker → rojo honesto).
+> Evidencia: `work/MAT-3-PRODUCT-INFRA-INCREMENT.md`. **Cierra B-1 de la auditoría.**
 - **Build**: cablear `infra_up` (E1) al **M8 del producto** de forma genérica; la fábrica declara los
   services en `factory.spec.yml`.
 - *Gate*: ASF prueba **resume-sin-reejecución vs Postgres real** y **traversal de linaje vs Neo4j real**

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2786d8cfd617994c09824c975b8c925f4a93c171 updated=2026-06-17T15:59Z -->
+<!-- meta:doc sha=7748e76f6420f2a358984571b1de86eb9b09178e updated=2026-06-17T16:54Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -231,8 +231,9 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > (ADR-014), **adelanta F2 como instrumento de co-validación en lockstep**, y construye los 3 mecanismos de
 > sustrato que faltan (generación-viva por LLM bajo gate · `eval_gate` con scorer real · `live_run`). Los
 > F1/F2/F3 de abajo siguen válidos; MATURITY-PLAN es la autoridad del orden y el detalle.
-> **MAT-0 ✅ (2026-06-16)**: el gate anti-overfitting (`generality_parity`, ADR-014) es diente real, cableado
-> a `meta check`. **Sigue MAT-1 = F2** (Full-Stack mínima viva, el 2º dominio / instrumento de co-validación).
+> **MAT-0..MAT-3 ✅ (2026-06-16/17)**: el gate anti-overfitting (`generality_parity`, ADR-014), el 2º dominio
+> (Full-Stack=F2), la generación VIVA por LLM bajo gate (MAT-2) y el PRODUCTO contra infra VIVA (MAT-3:
+> Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1). **Sigue MAT-4** (`eval_gate` con scorer REAL).
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,
@@ -257,7 +258,14 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     dominios por el MISMO kind — Full-Stack s3 `summarizeTodos` (TS/node:test) + ASF s9 `merge_findings`
     (Python/pytest); 1ª gen viva, stub bloquea. **§7 por bloqueo**: el pin (`skip_if_exists`) se re-verifica
     SIN LLM (`ci --rederive` con `claude` saboteado: full-stack 4/4 · ASF 7/7 == pineado; reconcilia I-3 con
-    SAFE-3). `git diff src/metafactory/ + seed/` = 0. **Sigue MAT-3** (producto contra infra viva, lockstep).
+    SAFE-3). `git diff src/metafactory/ + seed/` = 0.
+  - **MAT-3 ✅ HECHO (2026-06-17, `MAT-3-PRODUCT-INFRA`)** — el PRODUCTO contra infra VIVA bajo gate:
+    `infra_up` sumó `bootstrap` (toolchain del producto, env scrubbed) ⇒ el proof es el test del producto
+    contra el servicio vivo (`product_env ⊕ infra_up`). Co-validación 2 dominios × 2 kinds de infra — **ASF
+    docker REAL** (s3 resume cross-instancia vs Postgres + s2 ACTIVADA linaje vs Neo4j) + **Full-Stack** (DB
+    node:sqlite por socket). Teardown SIEMPRE, diente de dos lados VIVO (infra caída → producto ROJO). RTM ASF
+    8/8 · `ci --rederive` ASF 8/8 + FS 4/4 == pineado (re-levanta contenedores). `git diff src/metafactory/` =
+    ~10 líneas (solo `bootstrap`). `infra_up` `general` [dummy, full-stack, ASF]. **Sigue MAT-4** (`eval_gate`).
 - **F3 · Mobile-Factory · IoT-Factory.** Dominios adicionales (React Native/Flutter; MQTT/embebido) que
   estiran las primitivas. *Gate*: cada una genera un producto que pasa su M8 en su toolchain. Depende: F1, F2.
 

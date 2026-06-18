@@ -1,6 +1,6 @@
-<!-- meta:doc sha=b0f90101d29b7d04d90643674afc38439d63e116 updated=2026-06-18T02:30Z -->
+<!-- meta:doc sha=a2bb60875e636b0dc6e8bc879874bb4eeb748293 updated=2026-06-18T02:41Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-18T01:45Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** — MAT-6b: §12 8/8, RTM ASF 11/11; **MAT-7 (= ROADMAP F3)**: la prueba final de no-overfitting — 3er dominio radicalmente distinto (**IoT-Factory en Go**, Go ⟂ python ⟂ ts) generado 100% del spec, M0–M8 e2e, RTM 5/5, `ci --rederive` 4/4 == pineado, 4 dientes vivos — **con `git diff src/metafactory/ + seed/` = 0**: la 3ª fábrica salió madura SIN tocar el sustrato) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-18T02:35Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G arrancada — G1 ✅**: el loop de mejora observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`SELF-IMPROVEMENT.md §4`) — `meta promote` re-pinea una mejora SÓLO si ninguna fábrica downstream baja su veredicto; VERDE vivo (iot 5/5→6/6) + ROJO co-validado en los 3 lenguajes disjuntos (py ⟂ ts ⟂ go); anti-overfit: el sustrato no nombra fábrica ni tech) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -258,6 +258,24 @@
       estaba en `_LANG`; propiedad de composición §5: heredó generate·product_env·infra_up gratis). Tech
       DIVERGE del skeleton (C aspiracional→Go, ADR-012: la tech es PLAN). dummy/ASF/full-stack intactos.
       **Cierra el deepening MAT-0..MAT-7 — sigue Fase G (loop de mejora).**
+- **Fase G (arrancada) — el loop de mejora empuja el producto a su mejor estado, SIN poder corromper su raíz**:
+  - **G1 (`G1-IMPROVE-LOOP`) ✅ (2026-06-18)** — el loop **observar→proponer→verificar→promover→rollback**
+    con el **gate de blast-radius** (`SELF-IMPROVEMENT.md §4`), con dientes. El **veredicto** de una fábrica
+    se vuelve cantidad RE-DERIVABLE (`verify/verdict.py`): `line_green` (reconstruye e2e en clon limpio) +
+    `rtm_satisfied/total` (árbol C4). `dominates()` = la ley de no-regresión (build roto / SATISFIED caído /
+    total encogido = regresión, HECHO duro no juicio §6) — distinta de CUSTODIA (el `proof_sha` de `meta ci`:
+    una promoción re-pinea, las SHAs cambian legítimo; lo que NO baja es la COBERTURA). `meta promote
+    --factory X` (`verify/checks/blast_radius.py` + `cli.cmd_promote`) re-deriva el barrido downstream en
+    clones limpios y SÓLO en verde re-pinea + sube el `baseline_verdicts.json`; **no committea** (sube por
+    diff REVISADO §4). El sustrato no nombra fábrica ni tech (ADR-012). **VERDE** vivo: iot mejora 5/5→6/6
+    (capacidad genuina `ingestion_idempotente`/DES-4, GENERADA en `factories/iot/` no en el sustrato) →
+    promueve; `ci --rederive` iot 5/5 == pineado · RTM 6/6. **ROJO** co-validado en los **3 lenguajes de
+    producto disjuntos** (python ⟂ ts ⟂ go) por el MISMO gate ("la línea NO reconstruye verde"); **bloqueo
+    del verbo** con pin+baseline medidos IDÉNTICOS antes/después; **façade-trap** (promover sin mejora → exit
+    2). Negativo non-decorativo (doctrina clean_runner): una baseline +1 SATISFIED debe regresar. `test_blast_radius.py`
+    17 verdes. **Anti-overfit**: el diff de sustrato (~311 líneas) es SÓLO el mecanismo general — cero nombres
+    de fábrica/tech; la mejora vivió 100% en la fábrica (la composición §5: el gate heredó re-derivación·rtm·pin).
+    `meta check` 6/6 · dummy/full-stack/ASF intactos. **Sigue G2** (corpus de scenario-specs diversos).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -323,9 +341,11 @@
 > --rederive` 4/4 == pineado, 4 dientes vivos, **con `git diff src/metafactory/ + seed/` = 0** (la 3ª fábrica
 > salió madura SIN tocar el sustrato — la propiedad de composición §6 demostrada por bloqueo). Los TRES mecanismos
 > de sustrato del MATURITY-PLAN (live-gen · eval_gate · live_run) son `general`; el costo marginal por dominio
-> decrece (§6). **Próximo: Fase G del ROADMAP** — loop de mejora (observar→proponer→verificar→promover→rollback +
-> gate de blast-radius); ahí "regenerar para mejorar" reemplaza el pin si re-pasa el gate sin bajar veredictos
-> downstream.
+> decrece (§6). **Fase G ARRANCADA — G1 ✅**: el loop observar→proponer→verificar→promover→rollback con el gate
+> de blast-radius LANDED — `meta promote` re-pinea una mejora SÓLO si re-pasa el gate sin bajar el veredicto de
+> ninguna fábrica downstream (VERDE vivo iot 5/5→6/6 + ROJO en py⟂ts⟂go + bloqueo del verbo con pin/baseline
+> intactos; anti-overfit). **Próximo: G2** — corpus de scenario-specs diversos (formas de spec variadas
+> ejercitan el motor antes de promover; cierra G-8 de raíz; promover exige verde en N scenarios diversos).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

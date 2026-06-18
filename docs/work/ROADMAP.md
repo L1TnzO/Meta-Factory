@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6d3d8f2b95fbbbc2eda53ac7193a1c1ba31b10f9 updated=2026-06-18T01:46Z -->
+<!-- meta:doc sha=0b33bd667fa6d98c157b6f7dded64b16232d3250 updated=2026-06-18T02:40Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -294,8 +294,20 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 
 ### Fase G · Loop de mejora (el "mejor estado posible de los productos")
 - **G1 · observar→proponer→verificar→promover→rollback + gate de blast-radius** (`SELF-IMPROVEMENT.md`).
-  La Meta-Factory itera una fábrica hacia el mejor estado de su producto, desde su spec. *Gate*: una
-  promoción que baje el veredicto pineado de cualquier fábrica downstream → rojo. Depende: F1, F2.
+  ✅ **HECHO (2026-06-18, `G1-IMPROVE-LOOP`)**. El loop §4 con dientes: `verify/verdict.py` (el veredicto
+  de una fábrica como cantidad RE-DERIVABLE — `line_green` + `rtm_satisfied/total`; `dominates()` = la ley
+  de no-regresión, HECHO duro no juicio §6; distinto de CUSTODIA: una promoción re-pinea, las SHAs cambian
+  legítimo, lo que NO baja es la cobertura) + `verify/checks/blast_radius.py` (barre el baseline downstream,
+  BLOQUEA si alguna fábrica bajó; negativo non-decorativo: una baseline +1 SATISFIED debe regresar) +
+  `meta promote --factory X` (re-deriva el barrido, y SÓLO en verde re-pinea + sube baseline; NO committea
+  — sube por diff REVISADO §4). El sustrato no nombra fábrica ni tech (ADR-012). *Gate cumplido*: **VERDE**
+  vivo — iot mejora 5/5→6/6 (capacidad genuina `ingestion_idempotente`/DES-4 en la fábrica, no en el
+  sustrato) → promueve, re-pinea, sube baseline; `ci --rederive` iot 5/5 == pineado. **ROJO** co-validado en
+  los **3 lenguajes de producto disjuntos** (python ⟂ ts ⟂ go) por el MISMO gate (cada regresión → "la línea
+  NO reconstruye verde"); **bloqueo del verbo** con pin+baseline medidos IDÉNTICOS antes/después; façade-trap
+  (promover sin mejora → exit 2). **Anti-overfit**: el diff de sustrato es SÓLO el mecanismo general (cero
+  nombres de fábrica/tech); la mejora vivió 100% en `factories/iot/`. `meta check` 6/6 · ASF 11/11 intacto.
+  Evidencia: `work/G1-IMPROVE-LOOP-INCREMENT.md`. Depende: F1, F2.
 - **G2 · Corpus de scenario-specs diversos.** Formas de spec variadas (ECC 2.0: meta-harness/autocontext)
   ejercitan el motor antes de promover; cierra G-8 de raíz. *Gate*: promover exige verde en N scenarios diversos. Depende: G1.
 

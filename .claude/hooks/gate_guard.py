@@ -7,6 +7,20 @@ import re
 import sys
 from pathlib import Path
 
+# Liga el match a una INVOCACIÓN real de `meta station … --factory …` en un borde de comando (inicio
+# o tras `;`/`&`/`|`, con prefijo opcional de env VAR=val y `./`). El `\bstation … --factory …` previo
+# matcheaba la FRASE en cualquier parte — incluido un `echo "…"` o un mensaje de commit que la nombra
+# como TEXTO (el over-match que la nota de STATE pedía acotar). El engine sigue siendo la gate real.
+_STATION_CMD = re.compile(
+    r"(?:^\s*|[\n;&|]+\s*)(?:\w+=\S+\s+)*(?:\./)?meta\s+station\s+(\w+)\b[^\n]*?--factory\s+(\S+)"
+)
+
+
+def match_station_cmd(cmd: str) -> tuple[str, str] | None:
+    """(station_id, slug) sii `cmd` INVOCA `meta station … --factory …` (borde de comando), si no None."""
+    m = _STATION_CMD.search(cmd)
+    return (m.group(1), m.group(2)) if m else None
+
 
 def main() -> int:
     try:
@@ -16,10 +30,10 @@ def main() -> int:
     if data.get("tool_name") != "Bash":
         return 0
     cmd = (data.get("tool_input", {}) or {}).get("command", "")
-    m = re.search(r"\bstation\s+(\w+)\s+--factory\s+(\S+)", cmd)
-    if not m:
+    hit = match_station_cmd(cmd)
+    if not hit:
         return 0
-    station_id, slug = m.group(1), m.group(2)
+    station_id, slug = hit
     sys.path.insert(0, "src")
     try:
         from metafactory._seed import load_seed_verifier, repo_root

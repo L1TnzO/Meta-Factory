@@ -395,6 +395,75 @@ def _provenance_test_go(msg: dict, module: str) -> str:
     )
 
 
+# ── dedup/ (DES-4: ingestión idempotente) ────────────────────────────────────
+def _dedup_go(bp: dict, msg: dict, module: str) -> str:
+    name = msg["name"]
+    ftypes = _field_type_map(msg)
+    join = bp["provenance"]["join_key"]
+    key_members = "\n".join(f"\t{k} {ftypes[k]}" for k in join)
+    key_of = ", ".join(f"{k}: r.{k}" for k in join)
+    return (
+        "// Package dedup enforces idempotent ingestion (DES-4): at-least-once delivery must not corrupt\n"
+        "// durable state — a reading already accepted (same provenance join-key) is NOT counted twice.\n"
+        "// The dual of store-and-forward (telemetry): nothing lost, AND nothing double-counted.\n"
+        "package dedup\n\n"
+        f"import \"{module}/contract\"\n\n"
+        "// key is the idempotency join-key (domain.product.provenance.join_key — the same identity that\n"
+        "// provenance traces by, so a re-delivered reading is recognised as the same reading).\n"
+        f"type key struct {{\n{key_members}\n}}\n\n"
+        f"func keyOf(r contract.{name}) key {{\n"
+        f"\treturn key{{{key_of}}}\n"
+        "}\n\n"
+        "// Set tracks the join-keys already accepted.\n"
+        "type Set struct {\n"
+        "\tseen map[key]bool\n"
+        "}\n\n"
+        "func NewSet() *Set { return &Set{seen: map[key]bool{}} }\n\n"
+        "// Accept reports whether r is NEW (first time its join-key is seen). A duplicate returns false\n"
+        "// and leaves state unchanged beyond the first acceptance — idempotent ingestion (DES-4).\n"
+        f"func (s *Set) Accept(r contract.{name}) bool {{\n"
+        "\tk := keyOf(r)\n"
+        "\tif s.seen[k] {\n"
+        "\t\treturn false\n"
+        "\t}\n"
+        "\ts.seen[k] = true\n"
+        "\treturn true\n"
+        "}\n\n"
+        "// Count is how many distinct readings have been accepted.\n"
+        "func (s *Set) Count() int { return len(s.seen) }\n"
+    )
+
+
+def _dedup_test_go(msg: dict, module: str) -> str:
+    name = msg["name"]
+    r = '{DeviceID: "dev-1", Metric: "temp", Value: 20, TS: 1, FWVersion: "1.0.0"}'
+    r2 = '{DeviceID: "dev-2", Metric: "temp", Value: 22, TS: 2, FWVersion: "1.0.0"}'
+    return (
+        "package dedup\n\n"
+        "import (\n"
+        "\t\"testing\"\n\n"
+        f"\t\"{module}/contract\"\n"
+        ")\n\n"
+        "func TestAcceptsNewRejectsDuplicate(t *testing.T) {\n"
+        "\ts := NewSet()\n"
+        f"\tr := contract.{name}{r}\n"
+        "\tif !s.Accept(r) {\n"
+        "\t\tt.Fatal(\"first reading was not accepted as new\")\n"
+        "\t}\n"
+        "\tif s.Accept(r) {\n"
+        "\t\tt.Fatal(\"a duplicate reading (same join-key) was accepted twice — ingestion is not idempotent\")\n"
+        "\t}\n"
+        f"\tr2 := contract.{name}{r2}\n"
+        "\tif !s.Accept(r2) {\n"
+        "\t\tt.Fatal(\"a distinct reading was wrongly treated as a duplicate\")\n"
+        "\t}\n"
+        "\tif s.Count() != 2 {\n"
+        "\t\tt.Fatalf(\"accepted-count = %d, want 2 distinct readings\", s.Count())\n"
+        "\t}\n"
+        "}\n"
+    )
+
+
 # ── telemetry/ (DES-4) + cmd/broker (DES-9) ──────────────────────────────────
 def _forward_go(msg: dict, module: str) -> str:
     name = msg["name"]
@@ -562,6 +631,8 @@ def build_files(bp: dict) -> dict[str, str]:
         "ota/guard_test.go": _OTA_TEST_GO,
         "provenance/trail.go": _provenance_go(bp, msg, module),
         "provenance/trail_test.go": _provenance_test_go(msg, module),
+        "dedup/dedup.go": _dedup_go(bp, msg, module),
+        "dedup/dedup_test.go": _dedup_test_go(msg, module),
         "telemetry/forward.go": _forward_go(msg, module),
         "telemetry/live_test.go": _live_test_go(msg, module),
         "cmd/broker/main.go": _broker_go(msg, module),

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=eb1bbbfae9d028a8af7afd3de6626618c7e5a9a4 updated=2026-06-18T02:00Z -->
+<!-- meta:doc sha=b0f90101d29b7d04d90643674afc38439d63e116 updated=2026-06-18T02:30Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T01:45Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** — MAT-6b: §12 8/8, RTM ASF 11/11; **MAT-7 (= ROADMAP F3)**: la prueba final de no-overfitting — 3er dominio radicalmente distinto (**IoT-Factory en Go**, Go ⟂ python ⟂ ts) generado 100% del spec, M0–M8 e2e, RTM 5/5, `ci --rederive` 4/4 == pineado, 4 dientes vivos — **con `git diff src/metafactory/ + seed/` = 0**: la 3ª fábrica salió madura SIN tocar el sustrato) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: G1-IMPROVE-LOOP-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · iot: COMPLETE (5/5)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy

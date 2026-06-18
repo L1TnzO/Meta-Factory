@@ -99,6 +99,13 @@ domain:
       artifact: build/product/telemetry/forward.go
       proof: "s3: infra_up levanta el broker Go (go run ./cmd/broker sobre socket-Unix) y go test ./telemetry hace el store-and-forward round-trip vivo; broker caído → rojo (diente de dos lados de E1)"
       status: built
+    - id: ingestion_idempotente
+      invariant: "la ingestión es idempotente: una lectura ya aceptada (mismo join-key de procedencia device_id/ts/fw_version) NO se cuenta dos veces — la entrega at-least-once no corrompe el estado durable (el dual de la telemetría store-and-forward: nada perdido Y nada duplicado)"
+      primitive: DES-4            # Estado durable / resumible (exactly-once en ingestión)
+      tech: "Set Go indexado por el join-key del blueprint; Accept() rechaza duplicados; `go test ./dedup`"
+      artifact: build/product/dedup/dedup.go
+      proof: "s4: go test ./dedup prueba que una lectura nueva se acepta y un re-envío (mismo join-key) se rechaza (idempotente); contar dos veces → rojo"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
   # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011). El env Go se fija inline en cada
@@ -174,6 +181,22 @@ domain:
           proof: ["sh", "-c", "export IOTGW_SOCK=\"$PWD/telemetry.sock\"; exec env GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./telemetry"]
           down: []
           timeout: 30
+    - id: s4
+      name: "ingestión idempotente: dedup por join-key (go test ./dedup) — DES-4/DES-8"
+      activation: always
+      depends_on: [s3]
+      # El árbol Go completo (incl. dedup/) ya lo emite s0 (un solo `generate`); s4 sólo PRUEBA la nueva
+      # capacidad en el toolchain del producto (DES-8). El dual de s3 (telemetría durable): nada perdido Y
+      # nada duplicado. Sin builds (no re-genera): un check `go test ./dedup` por product_env.
+      proof_checks:
+        - { name: idempotent_ingestion, cmd: "go test ./dedup — una lectura nueva se acepta y un re-envío (mismo join-key) se rechaza", runs_in: product_env, toolchain: go, status: built }
+      builds: []
+      checks:
+        - name: idempotent_ingestion
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./dedup"]
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up]
@@ -288,3 +311,8 @@ requirements:
       satisfied_by: [s3]
       verified_by: [durable_telemetry_live]
       capability: telemetria_durable
+    - id: REQ-F-006
+      statement: "la ingestión es idempotente: una lectura re-enviada (mismo join-key de procedencia) no se cuenta dos veces; la entrega at-least-once no corrompe el estado durable; contar un duplicado bloquea (DES-4, DES-8)"
+      satisfied_by: [s4]
+      verified_by: [idempotent_ingestion]
+      capability: ingestion_idempotente

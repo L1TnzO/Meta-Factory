@@ -1,0 +1,14 @@
+id: s4
+name: 'ingestión idempotente: dedup por join-key (go test ./dedup) — DES-4/DES-8'
+activation: always
+requires_prev: s3
+builds: []
+checks:
+- name: idempotent_ingestion
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./dedup

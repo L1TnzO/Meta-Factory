@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ae4318cd18ba2c531c731285d6e656f8e1664f0b updated=2026-06-18T17:33Z -->
+<!-- meta:doc sha=96dd348908569fbba135dec964eaaf7df4337a14 updated=2026-06-18T17:33Z -->
 # Incremento H2-SUBSTRATE-HYGIENE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T16:48Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T17:33Z) (creado 2026-06-18T16:48Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

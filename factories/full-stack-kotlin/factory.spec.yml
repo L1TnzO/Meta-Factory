@@ -105,10 +105,10 @@ domain:
     - id: dureza_estatica
       invariant: "el código falla FUERTE por calidad: sin `any` (TS) ni warnings (Kotlin), exhaustividad obligatoria, complejidad acotada, errores no tragados — un escape-hatch → build rojo"
       primitive: DES-10
-      tech: "detekt + ktlint + `-Werror` (Kotlin) · ESLint strict + @typescript-eslint/no-explicit-any + ts-reset (TS)"
+      tech: "detekt (+ reglas ktlint vía detekt-formatting) + `-Werror` (Kotlin) · ESLint strict + @typescript-eslint/no-explicit-any + ts-reset (TS)"
       artifact: build/product/config/detekt.yml
-      proof: "s2: los linters corren en el toolchain del producto; introducir un `any`/warning/non-exhaustive `when` → rojo"
-      status: planned
+      proof: "s2: los linters corren en el toolchain del producto; introducir un `any` (TS)/excepción tragada (Kotlin) → rojo; el probe negativo embebido lo exige cada corrida"
+      status: built
     - id: frescura_de_api
       invariant: "el código generado usa SÓLO superficie de API no-deprecada y pineada; un símbolo deprecado se bloquea de forma DETERMINISTA, sin LLM (I-3)"
       primitive: DES-11
@@ -236,7 +236,34 @@ domain:
           proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew roundtrip -q --console=plain"]
           down: ["docker", "rm", "-f", "fsk_s1_pg"]
           timeout: 120
-    # s2–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s2
+      name: "dureza estática: detekt (+ reglas ktlint) + `-Werror` (Kotlin) · ESLint strict + no-explicit-any + ts-reset (TS) — DES-10"
+      activation: always
+      depends_on: [s1]
+      # DES-10 — el producto falla FUERTE por CALIDAD (no sólo tipos). Kotlin: detekt corre el análisis de
+      # calidad + las reglas ktlint (detekt-formatting, UN tool) sobre el código AUTORADO (src/main/kotlin;
+      # los fuentes generados openapi/jOOQ quedan fuera por construcción) con maxIssues:0, y `-Werror`
+      # (allWarningsAsErrors) vuelve error TODO warning de kotlinc. TS: ESLint strict + no-explicit-any sobre
+      # src/ (gen/ fuera). Cada check lleva su DIENTE NEGATIVO EMBEBIDO (no-decorativo, cada corrida): el MISMO
+      # linter sobre un fixture sucio (probe/, fuera de src → no se shippea) DEBE morder — se exige el hallazgo
+      # por grep (SwallowedException / no-explicit-any), fail-closed. El codegen (s0) ya emite la config + los
+      # probes → builds: [] (la estación sólo PRUEBA). Sustrato intacto: product_env corre DATA (ADR-012).
+      proof_checks:
+        - { name: static_hardness_kotlin, cmd: "detekt (maxIssues:0) + compileKotlin (-Werror) sobre el producto; detektProbe sobre probe/ DEBE morder (SwallowedException) o decorativo→rojo", runs_in: product_env, toolchain: "detekt-kotlinc", status: built }
+        - { name: static_hardness_ts, cmd: "eslint strict+no-explicit-any sobre src/; eslint sobre probe/ DEBE morder (no-explicit-any) o decorativo→rojo", runs_in: product_env, toolchain: "eslint", status: built }
+      builds: []
+      checks:
+        - name: static_hardness_kotlin
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JH=$(dirname $(dirname $(readlink -f $(command -v javac)))); JAVA_HOME=$JH ./gradlew detekt compileKotlin -q --console=plain || exit 1; JAVA_HOME=$JH ./gradlew detektProbe --console=plain 2>&1 | grep -q SwallowedException || { echo FSK_HARDNESS_DECORATIVE_KOTLIN; exit 1; }; echo FSK_HARDNESS_OK_KOTLIN"]
+        - name: static_hardness_ts
+          kind: product_env
+          workdir: build/product/frontend
+          bootstrap: ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"]
+          cmd: ["sh", "-c", "./node_modules/.bin/eslint 'src/**/*.ts' || exit 1; ./node_modules/.bin/eslint 'probe/**/*.ts' 2>&1 | grep -q no-explicit-any || { echo FSK_HARDNESS_DECORATIVE_TS; exit 1; }; echo FSK_HARDNESS_OK_TS"]
+    # s3–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -362,5 +389,11 @@ requirements:
       satisfied_by: [s0]
       verified_by: [isolation_boundary]
       capability: aislamiento_producto
-    # REQ-NF-002..007 DIFERIDAS con s2–s10 (re-añadidas al construir cada estación). Texto completo en
+    - id: REQ-NF-002
+      statement: "el código del producto falla FUERTE por calidad: detekt (+ ktlint) con maxIssues:0 y `-Werror` (Kotlin), ESLint strict + no-explicit-any (TS); un escape-hatch o un `any` → build rojo (DES-10)"
+      acceptance: "static_hardness_kotlin y static_hardness_ts verdes sobre el producto; el probe sucio embebido DEBE morder cada corrida (SwallowedException / no-explicit-any) o el gate es decorativo → rojo"
+      satisfied_by: [s2]
+      verified_by: [static_hardness_kotlin, static_hardness_ts]
+      capability: dureza_estatica
+    # REQ-NF-003..007 DIFERIDAS con s3–s10 (re-añadidas al construir cada estación). Texto completo en
     # docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).

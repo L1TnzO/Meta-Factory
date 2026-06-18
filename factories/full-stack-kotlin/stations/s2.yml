@@ -1,0 +1,33 @@
+id: s2
+name: 'dureza estática: detekt (+ reglas ktlint) + `-Werror` (Kotlin) · ESLint strict
+  + no-explicit-any + ts-reset (TS) — DES-10'
+activation: always
+requires_prev: s1
+builds: []
+checks:
+- name: static_hardness_kotlin
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JH=$(dirname $(dirname $(readlink -f $(command -v javac)))); JAVA_HOME=$JH ./gradlew
+    detekt compileKotlin -q --console=plain || exit 1; JAVA_HOME=$JH ./gradlew detektProbe
+    --console=plain 2>&1 | grep -q SwallowedException || { echo FSK_HARDNESS_DECORATIVE_KOTLIN;
+    exit 1; }; echo FSK_HARDNESS_OK_KOTLIN
+- name: static_hardness_ts
+  kind: product_env
+  workdir: build/product/frontend
+  bootstrap:
+  - npm
+  - install
+  - --no-audit
+  - --no-fund
+  - --loglevel=error
+  cmd:
+  - sh
+  - -c
+  - ./node_modules/.bin/eslint 'src/**/*.ts' || exit 1; ./node_modules/.bin/eslint
+    'probe/**/*.ts' 2>&1 | grep -q no-explicit-any || { echo FSK_HARDNESS_DECORATIVE_TS;
+    exit 1; }; echo FSK_HARDNESS_OK_TS

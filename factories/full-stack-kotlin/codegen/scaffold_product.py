@@ -38,6 +38,13 @@ OPENAPI_TS_VERSION = "7.13.0"
 JOOQ_VERSION = "3.21.6"
 FLYWAY_VERSION = "10.20.1"
 POSTGRES_JDBC_VERSION = "42.7.4"
+# Dureza estática (s2, DES-10): detekt (análisis de calidad) + detekt-formatting (reglas ktlint) en UN
+# tool · `-Werror` (allWarningsAsErrors) en kotlinc · ESLint strict + no-explicit-any + ts-reset en TS.
+DETEKT_VERSION = "1.23.8"
+ESLINT_VERSION = "9.18.0"
+TS_ESLINT_VERSION = "8.20.0"
+TS_RESET_VERSION = "0.6.1"
+MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 
 # campo del blueprint -> tipo OpenAPI (el contrato) y valor de muestra Kotlin/TS (determinista).
 _OAPI_TYPE = {
@@ -141,9 +148,15 @@ plugins {{
     kotlin("plugin.serialization") version "{KOTLIN_VERSION}"
     id("org.openapi.generator") version "{OPENAPI_GEN_VERSION}"
     id("org.jooq.jooq-codegen-gradle") version "{JOOQ_VERSION}"
+    // Dureza estática (s2, DES-10): detekt corre el análisis de calidad + las reglas ktlint (formatting).
+    id("io.gitlab.arturbosch.detekt") version "{DETEKT_VERSION}"
 }}
 repositories {{ mavenCentral() }}
-kotlin {{ jvmToolchain({JDK_TOOLCHAIN}) }}
+// `-Werror` (DES-10): TODO warning de kotlinc es error → el código falla FUERTE, no silencioso.
+kotlin {{
+    jvmToolchain({JDK_TOOLCHAIN})
+    compilerOptions {{ allWarningsAsErrors = true }}
+}}
 dependencies {{
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:{KOTLINX_SER_VERSION}")
     // Capa de datos (s1, DES-12/4): jOOQ tipado + Flyway (migraciones versionadas) + driver PostgreSQL.
@@ -153,6 +166,22 @@ dependencies {{
     implementation("org.postgresql:postgresql:{POSTGRES_JDBC_VERSION}")
     // Codegen jOOQ desde los .sql de Flyway (DDLDatabase) — sin DB viva (hermético, DES-12).
     jooqCodegen("org.jooq:jooq-meta-extensions:{JOOQ_VERSION}")
+    // detekt-formatting = las reglas de ktlint DENTRO de detekt (un solo tool, sin conflicto de versiones).
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:{DETEKT_VERSION}")
+}}
+// DES-10 — detekt SÓLO sobre el código autorado del producto (src/main/kotlin); los fuentes GENERADOS
+// (openapi-generator, jOOQ en build/) quedan fuera por construcción. maxIssues:0 (config) → hallazgo = rojo.
+detekt {{
+    buildUponDefaultConfig = true
+    config.setFrom(files("config/detekt.yml"))
+    source.setFrom(files("src/main/kotlin"))
+}}
+// Diente NEGATIVO embebido (DES-10): detekt sobre un fixture deliberadamente sucio (probe/kotlin) DEBE
+// fallar. El check static_hardness exige que muerda (grep de la regla) → un gate decorativo se delata.
+tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektProbe") {{
+    buildUponDefaultConfig = true
+    config.setFrom(files("config/detekt.yml"))
+    setSource(files("probe/kotlin"))
 }}
 val genDir = layout.buildDirectory.dir("generated")
 openApiGenerate {{
@@ -199,20 +228,27 @@ tasks.register<JavaExec>("roundtrip") {{
 '''
 
 
-def _handler_kt(pkg: str, entities: list[dict]) -> str:
+def _model_imports(entities: list[dict]) -> str:
+    """Imports EXPLÍCITOS de los models generados, ORDENADOS (DES-10: detekt WildcardImport prohíbe
+    `*`; ktlint import-ordering exige orden alfabético)."""
+    return "\n".join(sorted(f"import org.openapitools.client.models.{e['name']}" for e in entities))
+
+
+def _store_kt(pkg: str, entities: list[dict]) -> str:
     adds = "\n".join(
         f"    val {e['name'].lower()}s = mutableListOf<{e['name']}>()" for e in entities)
     fns = "\n".join(
         f"    fun add(x: {e['name']}) {{ {e['name'].lower()}s.add(x) }}" for e in entities)
+    # archivo Store.kt ⇄ declaración `object Store` (DES-10: detekt MatchingDeclarationName).
     return (f"package {pkg}\n\n"
-            f"import org.openapitools.client.models.*\n\n"
+            f"{_model_imports(entities)}\n\n"
             f"// Almacén en memoria tipado al CONTRATO generado (s0; la DB viva es s1/DES-4).\n"
             f"object Store {{\n{adds}\n{fns}\n}}\n")
 
 
 def _app_kt(pkg: str, entities: list[dict]) -> str:
     by_name = {e["name"]: e for e in entities}
-    ctor_lines, ref_reads, stores = [], [], []
+    ctor_lines, read_parts, stores = [], [], []
     for e in entities:
         var = e["name"][0].lower()
         args = ["id = 1L"]
@@ -227,16 +263,18 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
         stores.append(f"    Store.add({var})")
         # leer TODOS los campos: borrar cualquiera del contrato rompe ESTA línea (diente DES-6)
         reads = " ".join(f"{_camel(f['name'])}=${{{var}.{_camel(f['name'])}}}" for f in e["fields"])
-        ref_reads.append(f'"{e["name"]}[{reads}]"')
+        read_parts.append(f'        "{e["name"]}[{reads}]",')
     body = "\n".join(ctor_lines)
     stores_s = "\n".join(stores)
-    reads_s = " + \" \" + ".join(ref_reads)
+    parts_s = "\n".join(read_parts)
     counts = ", ".join(f"${{Store.{e['name'].lower()}s.size}}" for e in entities)
+    # Cada parte por entidad en su línea (DES-10: bajo MAX_LINE_LENGTH; coma final = ktlint_official).
     return (f"package {pkg}\n\n"
-            f"import org.openapitools.client.models.*\n\n"
+            f"{_model_imports(entities)}\n\n"
             f"// Ejerce el contrato: construye y LEE cada entidad. Un drift (campo borrado) → unresolved.\n"
             f"fun main() {{\n{body}\n{stores_s}\n"
-            f'    println("FSK_PRODUCT_OK " + {reads_s} + " counts=[{counts}]")\n'
+            f"    val parts = listOf(\n{parts_s}\n    )\n"
+            f'    println("FSK_PRODUCT_OK " + parts.joinToString(" ") + " counts=[{counts}]")\n'
             f"}}\n")
 
 
@@ -248,7 +286,10 @@ def _ts_package_json(pkg: str) -> str:
             '  "type": "module",\n'
             '  "devDependencies": {\n'
             f'    "typescript": "{TS_VERSION}",\n'
-            f'    "openapi-typescript": "{OPENAPI_TS_VERSION}"\n'
+            f'    "openapi-typescript": "{OPENAPI_TS_VERSION}",\n'
+            f'    "eslint": "{ESLINT_VERSION}",\n'
+            f'    "typescript-eslint": "{TS_ESLINT_VERSION}",\n'
+            f'    "@total-typescript/ts-reset": "{TS_RESET_VERSION}"\n'
             '  }\n'
             '}\n')
 
@@ -331,7 +372,7 @@ def _migration_sql(bp: dict) -> str:
 def _repository_kt(pkg: str, entities: list[dict]) -> str:
     """Queries jOOQ TIPADAS (DES-12): una por entidad, que SELECCIONA todas sus columnas (id + fields).
     Borrar/renombrar cualquier columna en la migración → jOOQ la quita → `Unresolved reference` (rojo)."""
-    imports = "\n".join(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities)
+    imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     fns = []
     for e in entities:
         tbl = _TBL(e)
@@ -349,19 +390,22 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
 
 _ROUNDTRIP_SKELETON = '''package %PKG%
 
-import java.sql.DriverManager
-import kotlin.system.exitProcess
 import org.flywaydb.core.Flyway
 import org.jooq.SQLDialect
 import org.jooq.conf.RenderQuotedNames
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 %IMPORTS%
+import java.sql.DriverManager
+import kotlin.system.exitProcess
 
 // DES-4 — el PRODUCTO persiste/lee contra una PostgreSQL VIVA (no un mock). Flyway aplica el schema
 // versionado (up), jOOQ hace un round-trip create+list tipado, y Flyway clean lo revierte (down) →
 // re-migrate da un schema VACÍO (la migración es reversible). DB caída → connect falla → exit 1 (el
 // diente de dos lados de infra_up). El nombre del servicio es DATA: lo provee env o el default.
+// @Suppress: el driver de round-trip atrapa Throwable A PROPÓSITO — un CLI que debe reportar CUALQUIER
+// fallo (connect refused incl.) y salir 1; es justo lo que hace vivo el diente DB-caída de infra_up.
+@Suppress("TooGenericExceptionCaught")
 fun main() {
     val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:55434/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
@@ -371,13 +415,13 @@ fun main() {
     val settings = Settings().withRenderQuotedNames(RenderQuotedNames.NEVER)
     try {
         val flyway = Flyway.configure().dataSource(url, user, pass).cleanDisabled(false).load()
-        flyway.migrate()                                            // UP: schema versionado vivo
+        flyway.migrate() // UP: schema versionado vivo
         DriverManager.getConnection(url, user, pass).use { conn ->
             val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)
 %INSERTS%
 %COUNTS%
         }
-        flyway.clean()                                             // DOWN: revierte (reversibilidad)
+        flyway.clean() // DOWN: revierte (reversibilidad)
         flyway.migrate()
         DriverManager.getConnection(url, user, pass).use { conn ->
             val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)
@@ -407,7 +451,7 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
     vals sin usar)."""
     referenced = {f["to"] for e in entities for f in e["fields"] if f["type"] == "ref"}
     idvar = {e["name"]: e["name"][0].lower() + e["name"][1:] + "Id" for e in entities}
-    imports = "\n".join(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities)
+    imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     inserts = []
     for e in entities:
         tbl = _TBL(e)
@@ -429,6 +473,90 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
             .replace("%OKCOUNTS%", " ".join(f"{_table(e)}=1" for e in entities)))
 
 
+# ── dureza estática (s2, DES-10): config de los linters + el probe NEGATIVO (DATA de la fábrica) ──
+def _detekt_yml() -> str:
+    """config/detekt.yml — el producto falla FUERTE por CALIDAD. buildUponDefaultConfig=true (en el
+    build.gradle.kts) arranca del default estricto de detekt; acá se overridea. maxIssues:0 → cualquier
+    hallazgo (detekt o ktlint) es rojo. Lo cosmético-ruidoso contra el DSL de jOOQ se apaga; lo de calidad
+    (WildcardImport, SwallowedException, MagicNumber, complejidad, excepciones genéricas) queda ESTRICTO."""
+    return f"""\
+# config/detekt.yml — DES-10 (dureza_estatica). Hallazgo de calidad → build rojo (la regla la corre el
+# toolchain del producto; este archivo es DATA de la fábrica, no del sustrato — ADR-012).
+build:
+  maxIssues: 0
+style:
+  MaxLineLength:
+    maxLineLength: {MAX_LINE_LENGTH}
+  WildcardImport:
+    active: true
+formatting:
+  active: true
+  MaximumLineLength:
+    maxLineLength: {MAX_LINE_LENGTH}
+  ArgumentListWrapping:
+    active: false
+  ParameterListWrapping:
+    active: false
+"""
+
+
+def _editorconfig() -> str:
+    """ktlint (vía detekt-formatting) lee de acá el code-style y el largo de línea."""
+    return ("root = true\n\n"
+            "[*.kt]\n"
+            "ktlint_code_style = ktlint_official\n"
+            f"max_line_length = {MAX_LINE_LENGTH}\n")
+
+
+def _probe_bad_kt() -> str:
+    """Fixture NEGATIVO (DES-10): una excepción TRAGADA (catch vacío) — el anti-patrón "errores no
+    tragados" que DES-10 prohíbe explícitamente. detektProbe DEBE marcarlo (SwallowedException); el check
+    static_hardness exige ESE hallazgo por grep → un gate decorativo se delata (fail-closed). Vive en
+    probe/ (FUERA de src/main/kotlin): no se compila, no entra en el jar, NO se shippea con el producto."""
+    return ("package probe\n\n"
+            "// NEGATIVO DES-10: una excepción TRAGADA (catch vacío) — el anti-patrón \"errores no\n"
+            "// tragados\" que DES-10 prohíbe. detekt DEBE morder (SwallowedException); static_hardness lo\n"
+            "// exige por grep. Si NO muerde → gate decorativo → rojo. No se compila ni se shippea.\n"
+            "fun bad(list: MutableList<String>) {\n"
+            "    try {\n"
+            "        list.removeAt(0)\n"
+            "    } catch (e: Exception) {\n"
+            "    }\n"
+            "}\n")
+
+
+def _eslint_config() -> str:
+    """eslint.config.js (flat, ESM) — ESLint strict + no-explicit-any (DES-10). gen/ (tipos del contrato)
+    fuera de alcance; probe/ es el fixture negativo (debe fallar). typescript-eslint `strict` no requiere
+    type-info (hermético: sin parserOptions.project)."""
+    return ('// DES-10 (dureza_estatica) — ESLint strict + @typescript-eslint/no-explicit-any. Un `any` o\n'
+            '// un escape-hatch → rojo. DATA de la fábrica (ADR-012): el sustrato no nombra eslint.\n'
+            'import tseslint from "typescript-eslint";\n\n'
+            'export default tseslint.config(\n'
+            '  { ignores: ["gen/**", "node_modules/**"] },\n'
+            '  ...tseslint.configs.strict,\n'
+            '  {\n'
+            '    rules: {\n'
+            '      "@typescript-eslint/no-explicit-any": "error",\n'
+            '    },\n'
+            '  },\n'
+            ');\n')
+
+
+def _reset_dts() -> str:
+    """ts-reset (DES-10): endurece los tipos del runtime (.json()→unknown, .filter(Boolean) narrowing…)."""
+    return ('// ts-reset (DES-10): endurece los tipos built-in del runtime para el producto entero.\n'
+            'import "@total-typescript/ts-reset";\n')
+
+
+def _probe_bad_ts() -> str:
+    """Fixture NEGATIVO (DES-10): un `any` explícito. eslint(strict)+no-explicit-any DEBE marcarlo; el
+    check static_hardness exige el hallazgo por grep (no-explicit-any). NO se shippea (fuera de src/)."""
+    return ('// NEGATIVO DES-10: `any` explícito. eslint DEBE morder (no-explicit-any). Si NO muerde,\n'
+            '// static_hardness es decorativo → rojo. Vive en probe/, fuera de src/ → no se shippea.\n'
+            'export const bad = (x: any): unknown => x;\n')
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -437,15 +565,22 @@ def build_files(bp: dict) -> dict[str, str]:
         "openapi.yaml": _openapi_yaml(bp),
         "settings.gradle.kts": _settings_gradle(pkg),
         "build.gradle.kts": _build_gradle(pkg),
-        f"{pkgdir}/Handler.kt": _handler_kt(pkg, ents),
+        f"{pkgdir}/Store.kt": _store_kt(pkg, ents),     # Store.kt ⇄ object Store (DES-10 MatchingDeclarationName)
         f"{pkgdir}/App.kt": _app_kt(pkg, ents),
         # capa de datos (s1): schema versionado + jOOQ tipado + round-trip vivo
         "src/main/resources/db/migration/V1__init.sql": _migration_sql(bp),
         f"{pkgdir}/Repository.kt": _repository_kt(pkg, ents),
         f"{pkgdir}/DbRoundTrip.kt": _roundtrip_kt(pkg, ents),
+        # dureza estática (s2, DES-10): config de los linters + fixtures NEGATIVOS (DATA de la fábrica)
+        "config/detekt.yml": _detekt_yml(),
+        ".editorconfig": _editorconfig(),
+        "probe/kotlin/Bad.kt": _probe_bad_kt(),
         "frontend/package.json": _ts_package_json(pkg),
         "frontend/tsconfig.json": _TS_TSCONFIG,
         "frontend/src/client.ts": _client_ts(ents),
+        "frontend/src/reset.d.ts": _reset_dts(),
+        "frontend/eslint.config.js": _eslint_config(),
+        "frontend/probe/bad.ts": _probe_bad_ts(),
     }
 
 

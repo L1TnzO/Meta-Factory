@@ -1,13 +1,13 @@
-<!-- meta:doc sha=99921e763d7a41971bed7d77ef9aba12dd8f8baa updated=2026-06-18T01:26Z -->
+<!-- meta:doc sha=7c1580f1ac019d06ef434b9aa3f9d36391a09649 updated=2026-06-18T01:45Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-18T01:05Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6b ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad (New ASF gana/empata 6/8, EVAL decisivo: recall REAL 0.82 vs stub 0.0); **MAT-6b**: cerradas las 2 residuales (multi-topología `supervisor_fanout_fanin`+validador BFS DES-2 · s5 grounding `retrieve()` tipado DES-6) → **§12 8/8**, RTM ASF **11/11**, `ci --rederive` 11/11) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-18T01:45Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** — MAT-6b: §12 8/8, RTM ASF 11/11; **MAT-7 (= ROADMAP F3)**: la prueba final de no-overfitting — 3er dominio radicalmente distinto (**IoT-Factory en Go**, Go ⟂ python ⟂ ts) generado 100% del spec, M0–M8 e2e, RTM 5/5, `ci --rederive` 4/4 == pineado, 4 dientes vivos — **con `git diff src/metafactory/ + seed/` = 0**: la 3ª fábrica salió madura SIN tocar el sustrato) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: MAT-7-IOT-GO-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · iot: COMPLETE (5/5)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -238,7 +238,26 @@
       pineado** (árbol limpio, docker s2/s3, s9/s10 keyless) · `meta check` suite verde. **Anti-overfit**: `git diff
       seed/`=0; `src/metafactory/`=**1 línea** — no tech de ASF sino un fix de orden GENERAL (el check m02 usaba
       `sorted()` lexicográfico vs el `_natural_key` del engine; bug latente desde s10/MAT-5 que la 11ª estación
-      re-surfaceó; twin del fix de orden NATURAL de MAT-5). **Próximo: MAT-7** (3er dominio, prueba final de no-overfitting).
+      re-surfaceó; twin del fix de orden NATURAL de MAT-5).
+    - **MAT-7 (`MAT-7-IOT-GO`) ✅ (2026-06-18) = ROADMAP F3 — la prueba FINAL de no-overfitting**: un **3er
+      dominio radicalmente distinto** — una **IoT-Factory en Go** (gateway/broker/telemetría; Go ⟂ python ⟂
+      ts) — generado 100% desde su spec por un codegen LOCAL determinista (`factories/iot/codegen/
+      scaffold_product.py`, 12 archivos Go desde el blueprint, ADR-012) y verificado en su propio toolchain
+      (DES-8, `go test`, `GOPROXY=off` hermético). Línea Go de 4 estaciones, cada primitiva por bloqueo: s0
+      generate+**DES-6** (contrato de mensaje tipado; `go vet ./...` + borde rechaza lo malformado) · s1
+      **DES-2** (validador **BFS** estructural sobre la topología pub/sub — el análogo Go del validador de
+      ASF s11) · s2 **DES-3** (gate de firma OTA no-salteable) + **DES-5** (procedencia con join-key) · s3
+      **DES-4/DES-9** (telemetría store-and-forward contra un **broker Go VIVO** sobre socket-Unix por
+      `infra_up` — el análogo Go del node:sqlite de full-stack; broker caído → rojo, con `go test -count=1`
+      para vencer el cache de Go). M0–M8 verde · product-run PASS · pin 4/4 · `ci --rederive` **4/4 ==
+      pineado** (re-deriva la línea Go en clon limpio) · RTM **COMPLETE 5/5** (artifacts Go reales) ·
+      `generality_parity` verde con iot como 3er lenguaje disjunto en product_env/generate/infra_up · `meta
+      check` 6/6. **4 dientes vivos** (drift de contrato→`go vet` rojo · nodo huérfano→BFS rojo · OTA
+      salteable→rojo · broker caído→`infra_up` rojo; regen→verde). **La medición dura: `git diff
+      src/metafactory/ + seed/` = 0 líneas** — la 3ª fábrica salió **madura SIN tocar el sustrato** (Go ya
+      estaba en `_LANG`; propiedad de composición §5: heredó generate·product_env·infra_up gratis). Tech
+      DIVERGE del skeleton (C aspiracional→Go, ADR-012: la tech es PLAN). dummy/ASF/full-stack intactos.
+      **Cierra el deepening MAT-0..MAT-7 — sigue Fase G (loop de mejora).**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -295,16 +314,18 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
-> **AVANCE (2026-06-18): MAT-0..MAT-6b ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
-> (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la
-> **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12), la **corrida LIVE vs provider REAL**
-> (`live_run`; cierra B-5), la **re-auditoría §12 dada vuelta con honestidad** (MAT-6: 6/8, eval decisivo: recall
-> REAL 0.82 vs stub 0.0) y **MAT-6b: cerradas las 2 residuales** (multi-topología `supervisor_fanout_fanin` +
-> validador BFS estructural DES-2/s11 · s5 grounding `retrieve()` tipado no-opcional DES-6 → cierra B-3+B-4) →
-> tabla §12 **8/8 ganadas/empatadas**, RTM ASF **11/11**, `ci --rederive` 11/11 == pineado. **Próximo: MAT-7** —
-> 3er dominio (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. Los TRES
-> mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate · live_run) ya existen y son `general` — el costo
-> marginal por dominio ahora decrece (§6 propiedad de composición).
+> **AVANCE (2026-06-18): MAT-0..MAT-7 ✅ — deepening COMPLETO.** Hecho: el 2º dominio (TS), la generación VIVA
+> por LLM bajo gate (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack;
+> cierra B-1), la **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12), la **corrida LIVE vs
+> provider REAL** (`live_run`; cierra B-5), la **re-auditoría §12 dada vuelta** (MAT-6: 6/8) + **MAT-6b** (las 2
+> residuales → §12 8/8, RTM ASF 11/11) y **MAT-7 (= F3): la prueba FINAL de no-overfitting** — 3er dominio
+> radicalmente distinto (**IoT-Factory en Go**, Go ⟂ python ⟂ ts) generado del spec, M0–M8 e2e, RTM 5/5, `ci
+> --rederive` 4/4 == pineado, 4 dientes vivos, **con `git diff src/metafactory/ + seed/` = 0** (la 3ª fábrica
+> salió madura SIN tocar el sustrato — la propiedad de composición §6 demostrada por bloqueo). Los TRES mecanismos
+> de sustrato del MATURITY-PLAN (live-gen · eval_gate · live_run) son `general`; el costo marginal por dominio
+> decrece (§6). **Próximo: Fase G del ROADMAP** — loop de mejora (observar→proponer→verificar→promover→rollback +
+> gate de blast-radius); ahí "regenerar para mejorar" reemplaza el pin si re-pasa el gate sin bajar veredictos
+> downstream.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.
@@ -318,5 +339,5 @@
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–014; **011** 100%-generado, **012** primitivas-no-herramientas, **013** generación como slot orquestado, **014** paridad-de-dos-dominios) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md`) · Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`
-- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory}/` · CLI: `../meta`
+- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` = meta-estaciones M0–M8 como dato) · `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,iot}/` · CLI: `../meta`
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (pin: `reference/ASF-PROVENANCE.md`) · auditoría A/B regenerada vs original: `reference/REGEN-AUDIT.md`

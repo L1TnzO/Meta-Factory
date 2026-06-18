@@ -1,4 +1,4 @@
-<!-- meta:doc sha=923411971788b2c9db75d2767bb5411e2f7db451 updated=2026-06-18T01:03Z -->
+<!-- meta:doc sha=6d3d8f2b95fbbbc2eda53ac7193a1c1ba31b10f9 updated=2026-06-18T01:46Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -243,7 +243,14 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > forma `supervisor_fanout_fanin` + validador BFS estructural DES-2, s11) + **s5 grounding** (`retrieve()`
 > tipado no-opcional, DES-6) → tabla §12 **8/8 ganadas/empatadas**, RTM ASF **11/11**, `ci --rederive` 11/11 ==
 > pineado; contenido de fábrica (anti-overfit: `git diff seed/`=0, `src/metafactory/`=1 línea de orden general).
-> Los 3 mecanismos del plan son `general`. **Sigue MAT-7** (3er dominio Mobile/IoT, prueba final de no-overfitting).
+> Los 3 mecanismos del plan son `general`. **MAT-7 ✅ (2026-06-18, `MAT-7-IOT-GO`) = F3 — la prueba FINAL de
+> no-overfitting**: 3er dominio radicalmente distinto (**IoT-Factory en Go**, Go ⟂ python ⟂ ts) generado 100% del
+> spec por un codegen LOCAL determinista (gateway/broker/telemetría: contrato tipado DES-6 · validador BFS de
+> topología DES-2 · gate OTA no-salteable DES-3 · procedencia DES-5 · telemetría durable vs broker Go vivo
+> DES-4/DES-9), verificado en su propio toolchain (`go test`, hermético `GOPROXY=off`). M0–M8 e2e · RTM 5/5 ·
+> `ci --rederive` 4/4 == pineado · `generality_parity` verde (iot 3er lenguaje disjunto) · 4 dientes vivos —
+> **con `git diff src/metafactory/ + seed/` = 0** (la 3ª fábrica salió madura SIN tocar el sustrato; Go ya en
+> `_LANG`). **Deepening MAT-0..MAT-7 COMPLETO. Sigue Fase G** (loop de mejora).
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,
@@ -276,8 +283,14 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     node:sqlite por socket). Teardown SIEMPRE, diente de dos lados VIVO (infra caída → producto ROJO). RTM ASF
     8/8 · `ci --rederive` ASF 8/8 + FS 4/4 == pineado (re-levanta contenedores). `git diff src/metafactory/` =
     ~10 líneas (solo `bootstrap`). `infra_up` `general` [dummy, full-stack, ASF]. **Sigue MAT-4** (`eval_gate`).
-- **F3 · Mobile-Factory · IoT-Factory.** Dominios adicionales (React Native/Flutter; MQTT/embebido) que
-  estiran las primitivas. *Gate*: cada una genera un producto que pasa su M8 en su toolchain. Depende: F1, F2.
+- **F3 · IoT-Factory.** ✅ **HECHO (2026-06-18, `MAT-7-IOT-GO` = MAT-7)**. La 3ª fábrica radicalmente distinta
+  (**IoT en Go**: gateway/broker/telemetría; Go ⟂ python ⟂ ts) estira las primitivas a un 3er toolchain disjunto
+  y prueba el **no-overfitting**: M0–M8 e2e · `go test` por estación (DES-6 contrato tipado · DES-2 validador BFS
+  de topología · DES-3 gate OTA · DES-5 procedencia · DES-4/DES-9 telemetría durable vs broker Go vivo) · RTM 5/5
+  · `ci --rederive` 4/4 == pineado · 4 dientes vivos · **`git diff src/metafactory/ + seed/` = 0** (sale madura
+  sin tocar el sustrato). Tech = elección de PLAN (ADR-012): diverge del skeleton C aspiracional → Go (instalado,
+  hermético, ya en `_LANG`). Evidencia: `work/MAT-7-IOT-GO-INCREMENT.md`. Depende: F1, F2. *(Mobile queda como
+  dominio adicional opcional; la generalidad ya está probada en 3 lenguajes.)*
 
 ### Fase G · Loop de mejora (el "mejor estado posible de los productos")
 - **G1 · observar→proponer→verificar→promover→rollback + gate de blast-radius** (`SELF-IMPROVEMENT.md`).

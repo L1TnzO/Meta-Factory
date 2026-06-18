@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1d5253a654ae00aed12a8c3e809eadf461844657 updated=2026-06-18T01:01Z -->
+<!-- meta:doc sha=f7c5464aca64cfe0b93b6463f5c39e2f3f97f8d7 updated=2026-06-18T01:46Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -286,11 +286,28 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
   en paralelo; cada uno tiene su propio gate).
 
 ### MAT-7 · 3er dominio (Mobile o IoT) — la prueba de que NO hubo overfitting — = ROADMAP F3
+> ✅ **HECHO (2026-06-18, `MAT-7-IOT-GO`)** — la prueba FINAL de no-overfitting (DoD-C §1), por bloqueo.
+> Elegido **IoT en Go** (Go ⟂ python ⟂ ts): el skeleton mobile (RN/`tsc`) habría COLISIONADO con el TS de
+> full-stack → `generality_parity` lo rechazaría; el skeleton IoT bosquejó C/protoc/qemu (no instalados). Go
+> provee el MISMO mix de primitivas IoT (DES-2/3/4/5/6), es un lenguaje IoT real, es disjunto y hermético, y
+> **ya está en `_LANG`** ⇒ ni el token de lenguaje tocó el sustrato. La tech es elección de PLAN (ADR-012), no
+> del sustrato; la divergencia del skeleton está documentada. Codegen LOCAL determinista
+> (`factories/iot/codegen/scaffold_product.py`, 12 archivos Go desde el blueprint); línea de 4 estaciones:
+> s0 generate+**DES-6** (contrato de mensaje tipado, `go vet`+borde rechaza lo malformado) · s1 **DES-2**
+> (validador **BFS** sobre la topología pub/sub — el análogo Go del de ASF s11) · s2 **DES-3** (gate OTA
+> no-salteable) + **DES-5** (procedencia join-key) · s3 **DES-4/DES-9** (telemetría store-and-forward vs broker
+> Go VIVO sobre socket-Unix por `infra_up`; broker caído → rojo, `go test -count=1` vence el cache de Go).
+> M0–M8 e2e · product-run PASS · pin 4/4 · `ci --rederive` **4/4 == pineado** · RTM **COMPLETE 5/5** ·
+> `generality_parity` verde (iot 3er lenguaje disjunto en product_env/generate/infra_up) · `meta check` 6/6 ·
+> 4 dientes vivos (corromper→rojo, regen→verde). **`git diff src/metafactory/ + seed/` = 0 líneas**: la 3ª
+> fábrica salió **madura sin iterar el sustrato** — la propiedad de composición (§5/§6.5) demostrada por
+> bloqueo: heredó generate·product_env·infra_up gratis. dummy/ASF/full-stack intactos. Evidencia:
+> `work/MAT-7-IOT-GO-INCREMENT.md`. **Cierra el deepening MAT-0..MAT-7.**
 - **Build**: una fábrica Mobile o IoT desde su skeleton (`specs/skeletons/{mobile,iot}`), con SÓLO spec +
-  plantillas/scorers locales.
+  plantillas/scorers locales. *(Realizado: IoT en Go — la tech la eligió el PLAN, ADR-012.)*
 - *Gate*: su producto pasa M8 en su toolchain **y `git diff src/metafactory/` por este dominio = 0 líneas**
   (`generality_parity` verde). Si Mobile/IoT obligan a tocar el sustrato → hubo overfitting → el mecanismo
-  culpable se rediseña antes de promover.
+  culpable se rediseña antes de promover. *(Cumplido: 0 líneas; el sustrato no se tocó.)*
 - Depende: MAT-6.
 
 *(Después, Fase G del ROADMAP: loop de mejora observar→proponer→verificar→promover→rollback — ahí

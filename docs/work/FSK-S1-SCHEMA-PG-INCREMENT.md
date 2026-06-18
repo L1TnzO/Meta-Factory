@@ -1,4 +1,4 @@
-<!-- meta:doc sha=cd1840da3d0a03f2c78d53b79db498c09d221249 updated=2026-06-18T21:14Z -->
+<!-- meta:doc sha=7a16127d483de546c614b2451d56df760d336312 updated=2026-06-18T22:10Z -->
 # Incremento FSK-S1-SCHEMA-PG — Full-Stack Kotlin · datos (s1)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T21:13Z). Cerralo con `meta increment close`
@@ -41,10 +41,12 @@ Medido en s0 (`command -v`): **docker ✅** (29.5), **psql ✅** (PG 18.3), **ja
 `codegen/assets/`). Lo que s1 agrega y hay que pinear/vendorizar (como s0 pineó Gradle/Kotlin):
 - **Imagen PostgreSQL pineada por digest** (p.ej. `postgres:18-alpine@sha256:…`) — sin digest, `ci --rederive`
   no es reproducible. Es DATA de la fábrica (`machinery.infra.services[postgres]`), no del sustrato.
-- **jOOQ + Flyway por el wrapper Gradle pineado** (plugins/deps resueltos del caché Gradle vendorizado de s0,
-  o agregados al caché offline). El codegen jOOQ corre sobre el **schema vivo** que Flyway migró en la PG
-  efímera → necesita la DB arriba DURANTE el build (orden: `infra_up` up → Flyway migrate → jOOQ codegen →
-  `compileKotlin`). Decidir si jOOQ corre dentro del `bootstrap` de `infra_up` o como paso del build Gradle.
+- **jOOQ + Flyway por el wrapper Gradle pineado** (deps del caché Gradle; red sólo en el 1er resolve, como s0).
+  **DECISIÓN de build (refina §6)**: jOOQ usa **DDLDatabase** → deriva los tipos PARSEANDO los `.sql` de
+  Flyway, **SIN DB viva** → el gate DES-12 (`schema_checked` = `jooqCodegen` + `compileKotlin`) es **hermético**
+  y NO acopla la compilación a docker. La DB viva queda SÓLO para el round-trip DES-4 (`db_roundtrip_live`,
+  `infra_up`). Es mejor que el "DB arriba DURANTE el build" que §6 marcó como riesgo — separación limpia
+  DES-12 (compile, hermético) ⟂ DES-4 (runtime, vivo). Plugin oficial `org.jooq.jooq-codegen-gradle` (Gradle 9).
 - **Hermeticidad**: `ci --rederive` re-levanta el container (Testcontainers/docker) en clon limpio. SAFE-3 pasa
   a depender de docker para esta fábrica — la MISMA decisión de ingeniero que MAT-3 (ASF vs Postgres real) por
   fidelidad a §12. Si el entorno del clon no tiene docker, el residual se declara `declared-deferred` VISIBLE
@@ -53,11 +55,11 @@ Medido en s0 (`command -v`): **docker ✅** (29.5), **psql ✅** (PG 18.3), **ja
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Esquema + migraciones**: el codegen de fábrica emite `db/migration/V1__init.sql` (Flyway) desde `domain.product` (las 3 entidades de s0) + la config jOOQ. Migración **reversible** (up/down). Smoke: Flyway migrate+revert contra una PG efímera. | ⏳ |
-| 2 | **jOOQ del schema vivo + DES-12 con dientes**: jOOQ genera tipos del schema migrado; un repository Kotlin tipado usa un query real; **diente**: borrar/renombrar una columna usada → `kotlinc` rojo (`Unresolved reference`); regen → verde. | ⏳ |
-| 3 | **DB viva (DES-4) por `infra_up` + `bootstrap`**: declarar el check `db_roundtrip_live` (kind `infra_up`, container postgres pineado, `bootstrap` = toolchain del producto). Kotest de integración: create+list round-trip contra la DB viva. **Diente de dos lados**: DB caída → rojo. | ⏳ |
-| 4 | **s1 ejecutable + materializado + verde e2e**: re-añadir s1 a `station_sequence` (`depends_on: [s0]`, activa, proof_checks) + REQ-F-003/004; `validate`+`design-review` 0 problemas; `meta product-run` PASS; **RTM COMPLETE** con artifacts reales (`db/migration/`, `DbIntegrationTest.kt`); pin; **m06 `clean_runner` == pineado**. | ⏳ |
-| 5 | **Pin + cierre**: caps→`built`; `product-run` PASS + **`ci --rederive` == pineado** (re-levanta el container); RTM verde; M0–M8 verde; **anti-overfit `git diff src/metafactory/ + seed/` = 0** (o sólo mecanismo general — `infra_up`/`product_env` ya existen de E1/MAT-3; jOOQ/Flyway/PG = DATA); STATE/ROADMAP; `meta increment close`. | ⏳ |
+| 1 | **Esquema + migraciones** ✅ — el codegen emite `src/main/resources/db/migration/V1__init.sql` (Flyway versionado) desde `domain.product` (3 entidades; tablas en plural evitan `user` reservado de PG) + FKs en orden de dependencia. | ✅ |
+| 2 | **jOOQ (DDLDatabase) + DES-12 hermético** ✅ — jOOQ deriva tipos de los `.sql` SIN DB viva; `Repository.kt` usa queries tipadas (todas las columnas); **diente VIVO**: drop de una columna usada → `Unresolved reference` → `gradle` exit 1; regen → exit 0. | ✅ |
+| 3 | **DB viva (DES-4) por `infra_up`** ✅ — `db_roundtrip_live` (container postgres pineado por digest, `bootstrap`=compile). `DbRoundTrip.kt`: Flyway migrate + jOOQ create/list + clean (reversibilidad). **Diente de dos lados VIVO**: DB caída → connect refused → `gradle` exit 1. | ✅ |
+| 4 | **s1 materializada + verde e2e** ✅ — s1 en `station_sequence` (`depends_on: [s0]`) + REQ-F-003/004; `validate`+`design-review` 0; `product-run` PASS; **RTM COMPLETE 5/5** (artifacts reales `V1__init.sql` + `DbRoundTrip.kt`); pin; **m06 `clean_runner` == pineado**. | ✅ |
+| 5 | **Pin + cierre** ✅ — `ci --rederive` **2/2 == pineado** (re-levanta el container en clon limpio); M0–M8 verde; **anti-overfit `git diff src/metafactory/ + seed/` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0+s1 y queda **PASS**; pin escrito.
@@ -71,14 +73,31 @@ Medido en s0 (`command -v`): **docker ✅** (29.5), **psql ✅** (PG 18.3), **ja
    general; cero nombres de jOOQ/Flyway/Postgres en el sustrato — son DATA de la fábrica, como MAT-3/MAT-7).
    Las otras fábricas (dummy/full-stack/iot/ASF) **intactas** (`ci` == pineado, principio #4).
 
-## 6. Riesgos / notas honestas
-- **Orden DB-viva-durante-el-build**: jOOQ necesita el schema MIGRADO vivo para generar tipos; eso obliga a
-  tener la PG arriba en el build, no sólo en el test. Es la diferencia con la DB-en-test de full-stack-TS:
-  acá la DB participa de la COMPILACIÓN (DES-12). Resolver dónde vive ese paso (bootstrap de `infra_up` vs
-  build Gradle) antes de escribir el codegen.
-- **Determinismo del codegen jOOQ**: el output de jOOQ debe ser idéntico entre corridas (orden de columnas,
-  timestamps) o `scaffold_idempotent`/`ci --rederive` rompe. Pinear versión de jOOQ y normalizar el output.
-- **docker en el clon de `ci --rederive`**: si no está disponible, declarar el residual VISIBLE (no fingir);
-  el gate de s1 no puede ser honesto sin la DB viva.
+## 6. Riesgos / notas honestas (resueltas en el build)
+- **Orden DB-viva-durante-el-build** — RESUELTO por la decisión §3: jOOQ **DDLDatabase** parsea los `.sql`,
+  NO necesita la PG arriba para el codegen → DES-12 hermético (compile sin docker). La PG viva queda SÓLO
+  para DES-4 (round-trip runtime). Separación más limpia que el acople compile↔docker que se temía.
+- **Determinismo del codegen jOOQ** — MOOT para los gates: el output de jOOQ vive en `build/generated-jooq`
+  (gitignored, producido por Gradle, no por el scaffold) → no entra en `scaffold_idempotent` (que compara la
+  salida del scaffold Python) ni en el `proof_sha`. `ci --rederive` 2/2 == pineado lo confirma.
+- **docker en el clon de `ci --rederive`** — el entorno lo tiene (29.5); SAFE-3 depende de docker para esta
+  fábrica (decisión del ingeniero, fidelidad a MAT-3). Si un clon no lo tuviera, el residual se declararía
+  VISIBLE (no se finge) — no fue necesario.
 - s1 es codegen DETERMINISTA (sin LLM). La **lógica de dominio viva por LLM** es s6 (DES-8, patrón MAT-2),
   otro incremento — no acá.
+
+## 7. Evidencia de cierre (por bloqueo, 2026-06-18 — re-derivable, no narrada)
+- **M0–M8 verde**: `validate`+`design-review` 0 problemas · `product-run` PASS (s1: `schema_checked` ok ·
+  `db_roundtrip_live` ok) · m03–m05 evidencia · **m06 `clean_runner` == pineado** (re-deriva la línea
+  Kotlin/jOOQ + el round-trip docker en clon limpio) · m07 harness · m08 product_e2e.
+- **RTM COMPLETE 5/5**: REQ-F-001/002/NF-001 (s0) + **REQ-F-003** ← `datos_esquema_chequeado` [s1,
+  `…/db/migration/V1__init.sql`✓] + **REQ-F-004** ← `datos_durables_vivos` [s1, `…/webapp/DbRoundTrip.kt`✓].
+- **`ci --rederive` full-stack-kotlin 2/2 == pineado** (re-levanta el contenedor PG en árbol limpio).
+- **2 dientes VIVOS (exit codes reales)**: (a) DES-12 — drop de una columna usada → `Unresolved reference` →
+  `gradle` **exit 1**; regen → **exit 0**. (b) DES-4 — DB caída → `FSK_DB_ROUNDTRIP_FAIL: Connection refused`
+  → `gradle` **exit 1** (el negativo embebido de `infra_up` ya lo exige cada corrida verde).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0**. La capa de datos (jOOQ 3.21.6 / Flyway
+  10.20.1 / `postgres@sha256:e013e867`) vivió 100% en la fábrica (DATA); compuso sobre `infra_up` (E1/MAT-3)
+  + `product_env` sin tocar el sustrato — la propiedad de composición §6 del ROADMAP, como MAT-7/FSK-s0.
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci` 5/5 == pineado (spot-check);
+  full-stack/iot/ASF inalteradas por construcción (cero diff fuera de la fábrica + sustrato).

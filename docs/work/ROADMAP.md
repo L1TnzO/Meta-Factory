@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1d2cddea84f7082451da3c301f374c14ee28ca47 updated=2026-06-18T20:28Z -->
+<!-- meta:doc sha=3680b7f49cc8560eb10dfce4af22f24272e64f7f updated=2026-06-18T22:11Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -38,7 +38,12 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   scaffold idempotente (DES-1), aislamiento (DES-9). M0–M8 verde · RTM 3/3 · `ci --rederive` 1/1 == pineado ·
 >   3 dientes vivos · **`git diff src/+seed/` = 0** (4ª fábrica sin tocar el sustrato). Toolchain pineado
 >   (Gradle 9.5.1 + Kotlin 2.4.0 + JDK 21 + TS 5.7.3). Evidencia: `work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md`.
-> - **s1–s10 pendientes** (esquema/jOOQ · dureza · currency · seguridad · auth · lógica LLM · pirámide · a11y/perf ·
+> - **s1 (`FSK-S1-SCHEMA-PG`) ✅** — capa de datos: schema versionado Flyway + **jOOQ DDLDatabase** tipado
+>   (DES-12, hermético: drop de columna usada → `compileKotlin` rojo) + **PostgreSQL VIVA** por `infra_up`
+>   (DES-4: round-trip create/list + reversibilidad; DB caída → rojo). M0–M8 verde · RTM 5/5 · `ci --rederive`
+>   2/2 == pineado · 2 dientes vivos · **`git diff src/+seed/` = 0** (jOOQ/Flyway/PG = DATA, compuso sobre
+>   `infra_up`/MAT-3). Evidencia: `work/FSK-S1-SCHEMA-PG-INCREMENT.md`.
+> - **s2–s10 pendientes** (dureza · currency · seguridad · auth · lógica LLM · pirámide · a11y/perf ·
 >   observabilidad · build hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA

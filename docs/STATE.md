@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5341c437fddf33d792fd838ca1c5f5ddb1d3030b updated=2026-06-18T21:13Z -->
+<!-- meta:doc sha=4eea95ed876a2149edcf04aaa01ec8692e24e28d updated=2026-06-18T22:12Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S1-SCHEMA-PG-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (3/3) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (5/5) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -320,7 +320,7 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0+s1 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
   para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
   TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
   `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
@@ -334,8 +334,20 @@
     --rederive` 1/1 == pineado** (re-deriva la línea Kotlin/TS en clon limpio). **3 dientes vivos**: drift del
     contrato → Kotlin `Unresolved reference` + TS `Property does not exist` (regen → verde) · aislamiento
     no-decorativo. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (4ª fábrica madura sin tocar el
-    sustrato — composición §6, como MAT-7). s1–s10 DIFERIDAS (se construyen capacidad por capacidad). dummy/
+    sustrato — composición §6, como MAT-7). s2–s10 DIFERIDAS (se construyen capacidad por capacidad). dummy/
     full-stack/iot/ASF intactas. Autoridad: `work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md`.
+  - **s1 (`FSK-S1-SCHEMA-PG`) ✅ — la CAPA DE DATOS, probada por bloqueo (2026-06-18)**: el codegen emite la
+    capa de datos desde `domain.product`; la fábrica gana 2 primitivas. **DES-12 (`schema_checked`, hermético)**:
+    migración Flyway versionada (`V1__init.sql`) + **jOOQ DDLDatabase** deriva los tipos parseando los `.sql`
+    SIN DB viva → `Repository.kt` tipado → `compileKotlin` gatea (plugin oficial `org.jooq.jooq-codegen-gradle`,
+    Gradle 9). **DES-4 (`db_roundtrip_live`, `infra_up`/MAT-3)**: `DbRoundTrip.kt` corre Flyway migrate + jOOQ
+    create/list + clean (reversibilidad) contra una **PostgreSQL VIVA** (contenedor pineado por digest). **M0–M8
+    verde · product-run PASS · RTM COMPLETE 5/5** (REQ-F-003/004 con artifacts reales) **· pin · `ci --rederive`
+    2/2 == pineado** (re-deriva la línea + re-levanta el contenedor en clon limpio). **2 dientes vivos (exit
+    reales)**: drop de columna usada → `Unresolved reference` → exit 1 (regen → 0) · DB caída → `Connection
+    refused` → exit 1. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (capa de datos = DATA: jOOQ
+    3.21.6 / Flyway 10.20.1 / `postgres@sha256:e013e867`; compuso sobre `infra_up`+`product_env`). dummy/full-
+    stack/iot/ASF intactas. Autoridad: `work/FSK-S1-SCHEMA-PG-INCREMENT.md`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

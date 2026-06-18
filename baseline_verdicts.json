@@ -1,0 +1,17 @@
+{
+  "dummy": {
+    "line_green": true,
+    "rtm_satisfied": 5,
+    "rtm_total": 5
+  },
+  "full-stack": {
+    "line_green": true,
+    "rtm_satisfied": 6,
+    "rtm_total": 6
+  },
+  "iot": {
+    "line_green": true,
+    "rtm_satisfied": 5,
+    "rtm_total": 5
+  }
+}

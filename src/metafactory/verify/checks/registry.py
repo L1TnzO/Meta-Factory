@@ -18,7 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up", "mcp_tools", "eval_gate", "live_run",
+    "infra_up", "mcp_tools", "eval_gate", "live_run", "blast_radius",
 )
 
 
@@ -145,4 +145,12 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 json.dumps(_s(check.get("thresholds", {}), subst)),
                 _s(check.get("provider_env", ""), subst),
                 json.dumps(_s(check.get("bootstrap", []), subst))]
+    if kind == "blast_radius":
+        # Fase G — el gate del loop de mejora: una promoción no debe bajar el veredicto de ninguna
+        # fábrica downstream (`SELF-IMPROVEMENT.md §4`). `baseline` es el registro committeado de
+        # veredictos downstream (DATA, path relativo a meta_root); el sustrato no nombra fábrica ni
+        # tech (ADR-012). El helper re-deriva cada fábrica del baseline y BLOQUEA si alguna bajó.
+        meta_root = str(subst.get("meta_root", repo_root()))
+        baseline = _s(check.get("baseline", "baseline_verdicts.json"), subst)
+        return [PY, "-m", "metafactory.verify.checks.blast_radius", meta_root, baseline]
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

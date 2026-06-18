@@ -1,0 +1,5 @@
+{
+  "slug": "iot",
+  "spec": "factory.spec.yml",
+  "produces": "un gateway IoT en Go: contrato de mensajes tipado, topolog\u00eda pub/sub verificable, gate de firma OTA no-salteable, procedencia de lecturas y telemetr\u00eda durable contra un broker vivo \u2014 verificado en su propio toolchain (go vet / go test)"
+}

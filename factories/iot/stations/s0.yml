@@ -1,0 +1,33 @@
+id: s0
+name: generar el producto Go + contrato de mensajes tipado (go vet + go test ./contract)
+  — DES-6/DES-8
+activation: always
+builds:
+- action: generate
+  dest: build/product/MANIFEST.txt
+  brief: 'Generá el gateway IoT en Go de la fábrica iot en build/product/ desde
+    el blueprint
+
+    (domain.product): módulo Go con contrato de mensaje tipado (DES-6), topología
+    pub/sub + validador
+
+    BFS (DES-2), gate de firma OTA no-salteable (DES-3), procedencia con join-key
+    (DES-5), telemetría
+
+    store-and-forward + broker socket-Unix (DES-4/DES-9). go vet ./... y go test por
+    paquete deben pasar.
+
+    '
+  via:
+  - python
+  - codegen/scaffold_product.py
+checks:
+- name: typed_message_contract
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - GOPROXY=off GOFLAGS=-mod=mod go vet ./... && GOPROXY=off GOFLAGS=-mod=mod go test
+    -count=1 ./contract

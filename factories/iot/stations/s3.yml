@@ -1,0 +1,23 @@
+id: s3
+name: 'telemetría durable contra el broker VIVO: store-and-forward round-trip (infra_up
+  → go test ./telemetry) — DES-4/DES-9'
+activation: always
+requires_prev: s2
+builds: []
+checks:
+- name: durable_telemetry_live
+  kind: infra_up
+  workdir: build/product
+  bootstrap: []
+  up:
+  - sh
+  - -c
+  - export IOTGW_SOCK="$PWD/telemetry.sock"; exec env GOPROXY=off GOFLAGS=-mod=mod
+    go run ./cmd/broker
+  proof:
+  - sh
+  - -c
+  - export IOTGW_SOCK="$PWD/telemetry.sock"; exec env GOPROXY=off GOFLAGS=-mod=mod
+    go test -count=1 ./telemetry
+  down: []
+  timeout: 30

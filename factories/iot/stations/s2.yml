@@ -1,0 +1,15 @@
+id: s2
+name: gate OTA no-salteable + procedencia de lecturas (go test ./ota ./provenance)
+  — DES-3/DES-5/DES-8
+activation: always
+requires_prev: s1
+builds: []
+checks:
+- name: ota_gate_and_provenance
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./ota ./provenance

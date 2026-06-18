@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c0cabe508a55040b6d9c40461e3c8b8a5d0e6720 updated=2026-06-18T01:10Z -->
+<!-- meta:doc sha=99921e763d7a41971bed7d77ef9aba12dd8f8baa updated=2026-06-18T01:26Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T01:05Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6b ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad (New ASF gana/empata 6/8, EVAL decisivo: recall REAL 0.82 vs stub 0.0); **MAT-6b**: cerradas las 2 residuales (multi-topología `supervisor_fanout_fanin`+validador BFS DES-2 · s5 grounding `retrieve()` tipado DES-6) → **§12 8/8**, RTM ASF **11/11**, `ci --rederive` 11/11) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: MAT-7-IOT-GO-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
 <!-- /meta:projection -->
 

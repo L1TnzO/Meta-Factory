@@ -1,0 +1,15 @@
+id: s1
+name: 'topología pub/sub verificable: validador BFS estructural (go test ./topology)
+  — DES-2/DES-8'
+activation: always
+requires_prev: s0
+builds: []
+checks:
+- name: topology_reachable
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./topology

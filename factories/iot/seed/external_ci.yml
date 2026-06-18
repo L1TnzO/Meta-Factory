@@ -1,0 +1,34 @@
+# seed/external_ci.yml — la doctrina de los dos verificadores PARA LA FÁBRICA iot (M6, I-11, PF-10).
+#
+# STAGE 0 · trust-chain · R3. La ÚNICA capa intocable por el modelo, los hooks o el ingeniero local:
+# otra máquina, otro actor. Re-DERIVA el veredicto de la fábrica iot en un clon limpio y lo compara
+# contra su veredicto pineado (`factories/iot/pinned_verdict.json`, committeado). No audita los
+# artefactos guardados —los reconstruye— porque la custodia local no es la raíz de confianza (la
+# replicabilidad lo es). Es el CI que `column.md` coloca POR ENCIMA de los tres locks locales de la
+# columna: un local comprometido produce un proof_sha que el runner limpio NO reproduce → rojo.
+#
+# Parametrizado por fábrica (D1): re-deriva ESTA fábrica (`--factory iot`), no otra. TODA la lógica
+# vive en `meta ci --rederive` (CLI testeable); este yaml es transporte de una línea (ADR-005 §4) con el
+# slug como DATO — cero lógica duplicable que pueda divergir. El checkout es el repo del Meta-Factory
+# (la fábrica iot vive en `factories/iot/` y se re-deriva con su engine).
+
+name: iot-external-ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  rederive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4         # clon limpio: factories/iot/.proof/ no existe (gitignored)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install pyyaml
+      - name: Re-derivar el veredicto de iot y comparar contra el pineado
+        # Reconstruye la línea de producto de iot desde su spec, recomputa cada proof_sha y exige
+        # el pineado (factories/iot/pinned_verdict.json). Desvío en CUALQUIER dirección = rojo (un
+        # PASS espontáneo sin prueba es fachada, no mejora).
+        run: ./meta ci --rederive --factory iot

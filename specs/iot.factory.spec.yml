@@ -1,0 +1,290 @@
+# iot.factory.spec.yml — IoT-Factory en Go (MATURITY-PLAN MAT-7 / ROADMAP F3).
+# El 3er dominio radicalmente distinto: un gateway/broker/telemetría IoT en Go (Go ⟂ python ⟂ ts),
+# generado 100% desde este spec por un codegen LOCAL (factories/iot/codegen/scaffold_product.py, ADR-012).
+# El sustrato del Meta-Factory NO nombra ninguna tech Go. HERMÉTICO: Go stdlib, `GOPROXY=off`, sin red ni
+# `go get` (el toolchain 1.26 está instalado; no hay deps externas). `go test` es el gate del producto en su
+# propio toolchain (DES-8) — el análogo Go EXACTO del `tsc --strict` de full-stack y el `mypy --strict` de ASF.
+# Tech = elección de PLAN (ADR-012): el skeleton IoT bosquejó C/protoc/qemu (no instalados); Go provee el
+# MISMO mix de primitivas (DES-2/3/4/5/6/8/9) y es un lenguaje IoT real (gateways/brokers/telemetría).
+
+# ── L0 · identidad ──
+factory:
+  name: "IoT Factory"
+  slug: iot
+  maturity: minimal
+
+# ── L1 · dominio ──
+domain:
+  produces: "un gateway IoT en Go: contrato de mensajes tipado, topología pub/sub verificable, gate de firma OTA no-salteable, procedencia de lecturas y telemetría durable contra un broker vivo — verificado en su propio toolchain (go vet / go test)"
+  target_framework: { name: go, provider_agnostic: true }
+
+  # Blueprint del PRODUCTO — lo lee codegen/scaffold_product.py (el `via` del slot generate, ADR-013).
+  # Un esquema de mensaje + una topología de tópicos + el join-key de procedencia dirigen TODO el codegen Go.
+  product:
+    package_name: iotgw
+    module_path: "example.com/iotgw"        # path del módulo Go (build/product/go.mod)
+
+    # Vars del template de FRONTERA I-5 (m04 renderiza un stub `domain/<product_module>.py` que
+    # boundary_survives prueba que sobrevive un re-scaffold). El chasis es Python-shaped (un overfit de
+    # generalidad pre-existente — full-stack lleva domain/webapp.py, ASF domain/agent_system.py por lo mismo);
+    # el stub es VESTIGIAL — el producto REAL es el árbol Go en build/product.
+    product_module: iotgw
+    greet_fn: marker
+    marker: IOTGW_OK
+
+    # Contrato de mensaje tipado (DES-6): un Reading que el gateway valida en el BORDE. Un drift de tipos o
+    # de validación rompe `go build`/`go test ./contract`.
+    message:
+      name: Reading
+      fields:
+        - { name: DeviceID,  type: string }
+        - { name: Metric,    type: string }
+        - { name: Value,     type: float64 }
+        - { name: TS,        type: int64 }
+        - { name: FWVersion, type: string }
+      # Campos no-vacíos exigidos por la validación del borde (un mensaje malformado se RECHAZA, no se ingiere).
+      required: [DeviceID, Metric, FWVersion]
+
+    # Topología pub/sub (DES-2): un grafo de tópicos. El validador BFS exige que NINGÚN tópico quede huérfano
+    # (todo publisher tiene subscriber y todo nodo es alcanzable desde la raíz de ingestión).
+    topology:
+      root: ingestor
+      topics:
+        - { name: "sensors/temp",     publisher: thermostat, subscriber: ingestor }
+        - { name: "sensors/humidity", publisher: hygrometer, subscriber: ingestor }
+        - { name: "telemetry/agg",    publisher: ingestor,   subscriber: dashboard }
+
+    # Gate OTA (DES-3): toda ruta de actualización de firmware DEBE pasar por la verificación de firma.
+    ota:
+      require_signature: true
+
+    # Procedencia (DES-5): toda métrica agregada rastrea a sus lecturas crudas por el join-key.
+    provenance:
+      join_key: [DeviceID, TS, FWVersion]
+
+  # Capabilities (L1): cada una con su artifact REAL (la hoja del árbol de evidencia C4) bajo build/product.
+  capabilities:
+    - id: mensajes_tipados
+      invariant: "el contrato de mensajes device→gateway es tipado; un mensaje malformado (campo requerido vacío) se RECHAZA en el borde, no se ingiere; un drift del esquema rompe la compilación (go build/go test)"
+      primitive: DES-6            # Contratos tipados en fronteras
+      tech: "structs Go tipados + Validate() en el borde; `go vet ./...` + `go test ./contract` como gate"
+      artifact: build/product/contract/message.go
+      proof: "s0: go vet ./... compila el módulo y go test ./contract prueba que un Reading sin campo requerido es rechazado; un drift de tipo → rojo"
+      status: built
+    - id: topologia_verificable
+      invariant: "la topología de tópicos pub/sub es chequeable estáticamente: ningún tópico queda huérfano (todo publisher tiene subscriber) y todo nodo es alcanzable desde la raíz de ingestión (validador BFS, sin correr el broker)"
+      primitive: DES-2            # Topología verificable
+      tech: "grafo de tópicos declarado + validador BFS estructural en Go; `go test ./topology`"
+      artifact: build/product/topology/topology.go
+      proof: "s1: go test ./topology corre el validador BFS sobre el grafo declarado (alcanzable + sin huérfanos); orfanar un nodo → rojo"
+      status: built
+    - id: gate_ota_no_salteable
+      invariant: "ninguna ruta de actualización de firmware se ejecuta sin pasar por la verificación de firma (techo no-salteable): un Apply sin firma válida es rechazado"
+      primitive: DES-3            # Puntos de control no-salteables
+      tech: "OTAGuard.Apply() exige VerifySignature antes de flashear; `go test ./ota`"
+      artifact: build/product/ota/guard.go
+      proof: "s2: go test ./ota prueba que Apply con firma inválida/ausente es rechazado y NO flashea; saltear el gate → rojo"
+      status: built
+    - id: procedencia_de_lecturas
+      invariant: "toda métrica agregada se recorre hacia atrás hasta las lecturas crudas que la formaron, por el join-key (device_id, ts, fw_version): audit trail completo"
+      primitive: DES-5            # Procedencia / trazabilidad
+      tech: "audit trail con join-key en Go; round-trip backward métrica→lecturas; `go test ./provenance`"
+      artifact: build/product/provenance/trail.go
+      proof: "s2: go test ./provenance hace el round-trip backward (agregado → lecturas crudas por join-key); una lectura sin trail → rojo"
+      status: built
+    - id: telemetria_durable
+      invariant: "ninguna lectura confirmada se pierde ante un corte: la telemetría se bufferea (store-and-forward) y se reenvía al reconectar contra un broker VIVO; el PRODUCTO (su toolchain) hace el round-trip contra el broker levantado, no contra un mock; broker caído → rojo (M8 del producto)"
+      primitive: DES-4            # Estado durable / resumible
+      tech: "store-and-forward en Go sobre un broker socket-Unix (stdlib, sin puertos); el cliente es un test del PRODUCTO (`go test ./telemetry`) contra el broker que infra_up levanta; broker caído → rojo (DES-9, E1)"
+      artifact: build/product/telemetry/forward.go
+      proof: "s3: infra_up levanta el broker Go (go run ./cmd/broker sobre socket-Unix) y go test ./telemetry hace el store-and-forward round-trip vivo; broker caído → rojo (diente de dos lados de E1)"
+      status: built
+
+  # La LÍNEA DE PRODUCTO como DATO (C2, I-2): cada estación lleva su realización ejecutable. m02 la
+  # materializa en stations/<id>.yml. 100% derivable del spec (ADR-011). El env Go se fija inline en cada
+  # cmd (`GOPROXY=off GOFLAGS=-mod=mod`): hermético, sin red — el sustrato no nombra Go, son argv DATA.
+  station_sequence:
+    - id: s0
+      name: "generar el producto Go + contrato de mensajes tipado (go vet + go test ./contract) — DES-6/DES-8"
+      activation: always
+      # s0 corre el slot generate: el scaffolder DETERMINISTA emite el módulo Go completo en build/product/
+      # (go.mod, contract/, topology/, ota/, provenance/, telemetry/, cmd/broker/). dest = un MANIFEST canary
+      # (lo escribe al final). El check corre `go vet ./...` (compila TODO el módulo: un drift del esquema o un
+      # error de tipo rompe acá) y `go test ./contract` (un mensaje malformado es rechazado en el borde).
+      proof_checks:
+        - { name: typed_message_contract, cmd: "go vet ./... && go test ./contract — el esquema compila y el borde rechaza lo malformado", runs_in: product_env, toolchain: go, status: built }
+      builds:
+        - action: generate
+          dest: build/product/MANIFEST.txt
+          brief: |
+            Generá el gateway IoT en Go de la fábrica {{slug}} en build/product/ desde el blueprint
+            (domain.product): módulo Go con contrato de mensaje tipado (DES-6), topología pub/sub + validador
+            BFS (DES-2), gate de firma OTA no-salteable (DES-3), procedencia con join-key (DES-5), telemetría
+            store-and-forward + broker socket-Unix (DES-4/DES-9). go vet ./... y go test por paquete deben pasar.
+          via: ["python", "codegen/scaffold_product.py"]
+      checks:
+        - name: typed_message_contract
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "GOPROXY=off GOFLAGS=-mod=mod go vet ./... && GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./contract"]
+    - id: s1
+      name: "topología pub/sub verificable: validador BFS estructural (go test ./topology) — DES-2/DES-8"
+      activation: always
+      depends_on: [s0]
+      proof_checks:
+        - { name: topology_reachable, cmd: "go test ./topology — el validador BFS acepta el grafo (alcanzable, sin huérfanos)", runs_in: product_env, toolchain: go, status: built }
+      builds: []
+      checks:
+        - name: topology_reachable
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./topology"]
+    - id: s2
+      name: "gate OTA no-salteable + procedencia de lecturas (go test ./ota ./provenance) — DES-3/DES-5/DES-8"
+      activation: always
+      depends_on: [s1]
+      proof_checks:
+        - { name: ota_gate_and_provenance, cmd: "go test ./ota ./provenance — el Apply OTA exige firma y la métrica rastrea a sus lecturas crudas", runs_in: product_env, toolchain: go, status: built }
+      builds: []
+      checks:
+        - name: ota_gate_and_provenance
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./ota ./provenance"]
+    - id: s3
+      name: "telemetría durable contra el broker VIVO: store-and-forward round-trip (infra_up → go test ./telemetry) — DES-4/DES-9"
+      activation: always
+      depends_on: [s2]
+      # MAT-3/E1: el proof es el TEST DEL PRODUCTO (`go test ./telemetry`, su toolchain) contra el broker Go
+      # que infra_up levanta (`go run ./cmd/broker` sobre socket-Unix). El socket es absoluto y compartido por
+      # `up` y `proof` vía IOTGW_SOCK="$PWD/telemetry.sock" (mismo cwd=build/product). Broker caído → el test
+      # del producto cae a rojo (diente de dos lados de E1, M8 del producto): prueba que USA la infra viva.
+      proof_checks:
+        - { name: durable_telemetry_live, cmd: "go test ./telemetry contra el broker Go vivo (socket-Unix); broker caído → rojo", runs_in: product_env, toolchain: go, status: built }
+      builds: []
+      checks:
+        - name: durable_telemetry_live
+          kind: infra_up
+          workdir: build/product
+          bootstrap: []
+          up: ["sh", "-c", "export IOTGW_SOCK=\"$PWD/telemetry.sock\"; exec env GOPROXY=off GOFLAGS=-mod=mod go run ./cmd/broker"]
+          proof: ["sh", "-c", "export IOTGW_SOCK=\"$PWD/telemetry.sock\"; exec env GOPROXY=off GOFLAGS=-mod=mod go test -count=1 ./telemetry"]
+          down: []
+          timeout: 30
+
+  provision_modes: [scaffold]
+  proof_check_types: [product_env, infra_up]
+
+# ── L3 · MAQUINARIA: harness (emitido del spec, D2) + infra (declarada). La COLUMNA (Cerrojos 1/2/3 +
+# settings) NO va acá: es L4 substrate, heredada verbatim (D1).
+machinery:
+  harness:
+    tech: "Claude Code: agents (delegación) + commands (operador) + skills, emitidos del spec"
+    primitive: DES-1
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica iot (implementación Go, no decisiones)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión). Trabajás contra la línea y dejás que la gate sea la
+          autoridad: nunca afirmás verde, lo demostrás (`go test` es el árbitro del producto).
+          ## Qué NO hacés (con sombra determinista, no prosa)
+          - No tocás `.proof/` (sombra: proof_protect). No declarás "pasa" (sombra: verifier.py).
+          - No commitees trabajo no probado ni cerrás con la activa rota (sombras: commit_guard, stop_proof).
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Recibís un DIFF que toca verifier/hooks/seed/gates. Revisás con ojos propios; nunca emitís un
+          veredicto — reportás evidencia re-derivada y delegás el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Recibís un log de gate rojo. Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no
+          aprobás, no escribís.
+    commands:
+      - name: gen-check
+        description: "Corre el selftest del codegen del producto (parsea el blueprint, lista los archivos; no escribe)."
+        run: ["python", "codegen/scaffold_product.py", "--selftest"]
+        body: |
+          # /gen-check — verificá el codegen de la fábrica {{slug}}
+          Corré el selftest del scaffolder: parsea el blueprint (domain.product) y lista los archivos del
+          producto Go que emitiría. Exit 0 = el generador es invocable y el blueprint está completo.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
+          dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+  # ── L3 · INFRA: el broker declarado. El plan ELIGIÓ un broker Go stdlib sobre socket-Unix (sin servidor
+  # externo, sin puertos: re-derivable, el análogo Go EXACTO del node:sqlite de full-stack y el socket de
+  # dummy). El glue (cmd/broker/main.go) lo emite el scaffolder del producto (s0 generate); el ciclo de vida
+  # (up/proof/down) vive en el check infra_up de s3. Un Mosquitto en docker sería la MISMA máquina con otra DATA.
+  infra:
+    tech: "broker Go stdlib (net.Listen unix) sobre socket-Unix, sin puertos"
+    primitive: DES-9
+    status: built
+    services:
+      - { name: broker-svc, kind: socket-service, endpoint: "telemetry.sock", marker: BROKER_UP }
+
+# ── L4 · sustrato (heredado verbatim, no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+  generated_domain_boundary: true
+  memory_schema: adr021
+  rtm: { required: true }
+  two_verifier_ci: { rederive: true, pinned_verdict: true }
+  placement_law: true
+  context_budget: { claude_md_max_lines: 120 }
+
+# ── L5 · requisitos (espina SDD; id estable + satisfied_by a una estación activa + capability + verified_by) ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el contrato de mensajes es tipado y el módulo Go compila (go vet ./...); un mensaje malformado (campo requerido vacío) se rechaza en el borde; un drift del esquema bloquea (DES-6, DES-8)"
+      satisfied_by: [s0]
+      verified_by: [typed_message_contract]
+      capability: mensajes_tipados
+    - id: REQ-F-002
+      statement: "la topología pub/sub es chequeable estáticamente por un validador BFS: ningún tópico huérfano y todo nodo alcanzable desde la raíz; orfanar un nodo bloquea (DES-2, DES-8)"
+      satisfied_by: [s1]
+      verified_by: [topology_reachable]
+      capability: topologia_verificable
+    - id: REQ-F-003
+      statement: "ninguna ruta de actualización OTA se ejecuta sin verificar la firma: un Apply sin firma válida es rechazado y NO flashea; saltear el gate bloquea (DES-3, DES-8)"
+      satisfied_by: [s2]
+      verified_by: [ota_gate_and_provenance]
+      capability: gate_ota_no_salteable
+    - id: REQ-F-004
+      statement: "toda métrica agregada se recorre hacia atrás hasta sus lecturas crudas por el join-key (device_id, ts, fw_version); una lectura sin trail bloquea (DES-5, DES-8)"
+      satisfied_by: [s2]
+      verified_by: [ota_gate_and_provenance]
+      capability: procedencia_de_lecturas
+    - id: REQ-F-005
+      statement: "la telemetría store-and-forward sobrevive un corte y se reenvía al reconectar contra un broker VIVO (socket-Unix); el PRODUCTO (su toolchain) hace el round-trip vivo; broker caído bloquea (DES-4/DES-9, E1, M8 del producto)"
+      satisfied_by: [s3]
+      verified_by: [durable_telemetry_live]
+      capability: telemetria_durable

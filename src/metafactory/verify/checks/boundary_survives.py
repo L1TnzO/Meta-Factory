@@ -1,15 +1,20 @@
 """boundary_survives — M4's gate: the generated/domain boundary (I-5) is NOT decorative.
 
-Renders the REAL m04 station into a throwaway dir, then re-renders it after editing a domain
-file by hand and clobbering a generated file. Exit 0 iff the domain edit SURVIVES the re-scaffold
-(rendered with `skip_if_exists`) AND the generated file IS regenerated (rendered without it).
+The boundary is the factory's DATA (`domain.product.boundary_*`, flowed through `subst`), not a
+substrate template — the substrate names no language (ADR-012). Where a factory declares it, this
+runs the REAL m04 station (`emit_boundary`) into a throwaway dir, then re-runs it after editing the
+domain file by hand and clobbering the generated file. Exit 0 iff the domain edit SURVIVES the
+re-scaffold (emitted with `skip_if_exists`) AND the generated file IS regenerated (emitted without).
 
-Catches the three ways the boundary can rot: dropping `skip_if_exists` from a domain build (the
-edit would be eaten), adding it to a generated build (stale generated code would persist), or a
+Catches the three ways the boundary can rot: dropping `skip_if_exists` from the domain emit (the
+edit would be eaten), adding it to the generated emit (stale generated code would persist), or a
 renderer that ignores the flag. All three would let a re-scaffold silently overwrite human code.
 
-Hermetic: only a temp dir is touched. Tied to the real station + templates + renderer, so it is
-a true gate, not a restatement of intent. Argv: <factory_root> <meta_root> <spec_path-rel>."""
+A factory whose product is 100% generated (no human/generated split) declares no boundary: the gate
+returns N/A (exit 0) HONESTLY — reported, not faked, not red.
+
+Hermetic: only a temp dir is touched. Tied to the real station + spec DATA + renderer, so it is a
+true gate, not a restatement of intent. Argv: <factory_root> <meta_root> <spec_path-rel>."""
 from __future__ import annotations
 
 import shutil
@@ -21,20 +26,16 @@ _SENTINEL = "# BOUNDARY-SENTINEL: edición humana que DEBE sobrevivir el re-scaf
 _GARBAGE = "# STALE-GARBAGE: NO debe sobrevivir (generated/ se regenera)\n"
 
 
-def _boundary_dests(station, subst: dict) -> tuple[str | None, str | None]:
-    """Read the station's render builds: the one with skip_if_exists is domain, the plain one
-    is generated. Returns (domain_rel, generated_rel) — dests relative to the factory root."""
+def _boundary_dests(subst: dict) -> tuple[str | None, str | None]:
+    """The boundary dests the factory declares as DATA (`domain.product.boundary_*_dest`, flowed
+    through `subst`): the domain stub (human-owned) and the generated runner (chassis-owned).
+    Returns (domain_rel, generated_rel) — either may be None: a factory whose product is fully
+    generated declares neither, and the gate reports that honestly (N/A), not red and not faked."""
     from ...codegen.renderer import render_text
-    domain = generated = None
-    for b in station.builds:
-        if b.get("action") not in ("render", "render_tree"):
-            continue
-        dest = render_text(b["dest"], subst)
-        if b.get("skip_if_exists"):
-            domain = domain or dest
-        else:
-            generated = generated or dest
-    return domain, generated
+    dd = str(subst.get("boundary_domain_dest", "")).strip()
+    gd = str(subst.get("boundary_generated_dest", "")).strip()
+    return (render_text(dd, subst) if dd else None,
+            render_text(gd, subst) if gd else None)
 
 
 def main(argv: list[str]) -> int:
@@ -58,9 +59,13 @@ def main(argv: list[str]) -> int:
     if station is None:
         print("BOUNDARY ROTTEN: la meta-estación m04 no existe")
         return 1
-    domain_rel, generated_rel = _boundary_dests(station, subst)
+    domain_rel, generated_rel = _boundary_dests(subst)
+    if not domain_rel and not generated_rel:
+        print("OK frontera N/A: la fábrica no declara split humano/generado (producto 100% generado)")
+        return 0
     if not domain_rel or not generated_rel:
-        print(f"BOUNDARY ROTTEN: m04 no declara la frontera (domain={domain_rel}, generated={generated_rel})")
+        print(f"BOUNDARY ROTTEN: declaración PARCIAL de la frontera (domain={domain_rel}, generated={generated_rel}) "
+              f"— declarala entera o ninguna")
         return 1
 
     tmp = Path(tempfile.mkdtemp(prefix="boundary_survives_"))

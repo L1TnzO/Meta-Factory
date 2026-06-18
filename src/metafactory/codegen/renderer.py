@@ -11,6 +11,7 @@ Build actions (declared as data in the station YAML):
   - {action: emit_harness}                         write agents/commands/skills from L3 (D2)
   - {action: emit_infra}                           write the infra glue from L3 machinery.infra (E1)
   - {action: emit_mcp}                             write the MCP glue from L3 machinery.mcp (E2)
+  - {action: emit_boundary}                        write the I-5 generated/domain boundary from spec DATA (M4)
 
 `render`/`render_tree`/`generate` accept `skip_if_exists: true`: if the dest already exists it
 is LEFT UNTOUCHED. For render this is the generated/domain boundary (I-5, M4): the factory's
@@ -90,8 +91,38 @@ def apply_builds(ctx: RunContext, station: Station, subst: dict) -> list[str]:
             msgs += _emit_glue(ctx, "infra", subst)
         elif action == "emit_mcp":
             msgs += _emit_glue(ctx, "mcp", subst)
+        elif action == "emit_boundary":
+            msgs += _emit_boundary(ctx, subst)
         else:
             raise ValueError(f"unknown build action {action!r} in station {station.id}")
+    return msgs
+
+
+def _emit_boundary(ctx: RunContext, subst: dict) -> list[str]:
+    """M4 — the generated/domain boundary (I-5) as the factory's DATA, not a substrate template. Emit it
+    ONLY where the spec declares it (inline content in `domain.product`, flowing through `subst`): the
+    HUMAN-owned domain stub (skip_if_exists -> survives a re-scaffold) + the CHASSIS-owned generated runner
+    (re-rendered every time). The substrate names NO language (ADR-012): dest/content are free DATA the plan
+    chose. A factory whose product is 100% generated (no human/generated split) declares nothing here and
+    carries no boundary stub — `boundary_survives` reports that honestly (N/A), it is not faked green."""
+    dd = str(subst.get("boundary_domain_dest", "")).strip()
+    gd = str(subst.get("boundary_generated_dest", "")).strip()
+    if not dd and not gd:
+        return ["boundary: no declarada (producto 100% generado)"]
+    msgs: list[str] = []
+    if dd:  # human-owned: render once, then survive (the I-5 contract)
+        dest = ctx.root / _render_path(dd, subst)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if dest.exists():
+            msgs.append(f"skip(exists) {dest.relative_to(ctx.root)}")
+        else:
+            dest.write_text(render_text(str(subst.get("boundary_domain_content", "")), subst), encoding="utf-8")
+            msgs.append(f"emit boundary {dest.relative_to(ctx.root)}")
+    if gd:  # chassis-owned: re-rendered every scaffold (a hand edit here is lost — that is the contract)
+        dest = ctx.root / _render_path(gd, subst)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(render_text(str(subst.get("boundary_generated_content", "")), subst), encoding="utf-8")
+        msgs.append(f"emit boundary {dest.relative_to(ctx.root)}")
     return msgs
 
 

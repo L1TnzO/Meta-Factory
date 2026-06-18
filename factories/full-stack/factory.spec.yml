@@ -26,12 +26,10 @@ domain:
       fields:
         - { name: title, type: string }
         - { name: done, type: boolean }
-    # Vars del template de FRONTERA I-5 (m04 renderiza un stub `domain/<product_module>.py` con marker que
-    # boundary_survives prueba que sobrevive un re-scaffold). El template del chasis es Python-shaped (un
-    # overfit de generalidad pre-existente que este 2º dominio revela, anotado en la evidencia); el stub es
-    # VESTIGIAL — el producto REAL es el árbol TS en build/product. ASF lleva el mismo stub (domain/agent_system.py).
-    product_module: webapp
-    greet_fn: marker
+    # Producto 100%-generado (el árbol TS en build/product, vía scaffold_product.py): NO hay split
+    # humano/generado, así que esta fábrica NO declara frontera I-5 (`domain.product.boundary_*`) y la
+    # gate `boundary_survives` (m04) reporta N/A honesto (H2). Antes m04 emitía un stub Python vestigial
+    # (`domain/webapp.py`) — borrado; el lenguaje vive en la spec, no en el sustrato (ADR-012).
     marker: WEBAPP_OK
 
   # Capabilities (L1): cada una con su artifact REAL (la hoja del árbol de evidencia C4) bajo build/.

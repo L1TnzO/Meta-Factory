@@ -5,8 +5,10 @@ activation: always
 # skip_if_exists, sobrevive un re-scaffold) y generated/ (CHASIS: re-renderizado siempre). La gate
 # (boundary_survives) exige que la frontera NO sea decorativa — una edición de dominio sobrevive el
 # re-render y generated/ se regenera; si alguien invierte los flags, falla por bloqueo.
+# La frontera es DATO de la fábrica (dest/content inline en domain.product → subst): `emit_boundary`
+# la escribe SÓLO si la spec la declara. El sustrato no hardcodea lenguaje (ADR-012); una fábrica de
+# producto 100% generado (sin split humano/generado) no la declara y boundary_survives reporta N/A.
 builds:
-  - { action: render, src: "template/factory/product/domain/product.py", dest: "domain/{{product_module}}.py", skip_if_exists: true }
-  - { action: render, src: "template/factory/product/generated/runner.py", dest: "generated/runner.py" }
+  - { action: emit_boundary }
 checks:
   - { name: boundary_survives, kind: boundary_survives }

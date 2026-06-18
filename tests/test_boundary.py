@@ -4,9 +4,10 @@ boundary_survives.main() verifica que la frontera generado/dominio NO sea decora
 - domain/ (skip_if_exists=True): las ediciones humanas SOBREVIVEN un re-scaffold.
 - generated/ (sin flag): se RE-RENDERIZA siempre.
 
-Estrategia: el test real invoca main() contra el dummy-fábrica (el artefacto existe en el repo).
-Los tests de aislamiento construyen un mini-meta-root hermético en tmp_path para verificar los
-casos de error sin depender del estado del disco."""
+Tras H2 la frontera es DATO de la fábrica (`domain.product.boundary_*`); m04 = `emit_boundary` la
+escribe SÓLO si está declarada, y una fábrica de producto 100%-generado no la declara (N/A honesto).
+Estrategia: contra el dummy/full-stack reales + specs sintéticas en tmp_path, usando el meta-root real
+(m04 ya es emit_boundary) — no se vuelve a hornear un m04 render-based."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -62,53 +63,33 @@ class TestBoundarySurvivesErrors:
         assert rc != 0
 
 
-# ── comportamiento hermético: m04 con flag vs. sin flag ──────────────────────
+# ── la frontera como DATO (H2): m04 = emit_boundary; el split lo declara la spec ─────────────
 
-class TestBoundarySurvivesHermetic:
-    """Construye un mini-meta-root hermético en tmp_path para aislar el check
-    de cualquier estado residual del repo."""
+class TestBoundaryAsData:
+    """Tras H2 la frontera I-5 es DATO de la fábrica (`domain.product.boundary_*`), no un template del
+    sustrato (ADR-012). `emit_boundary` la escribe SÓLO si está declarada; una fábrica de producto
+    100%-generado no la declara y la gate reporta N/A honesto. Tests contra el meta-root REAL (m04 ya es
+    emit_boundary) + specs sintéticas — sin volver a hornear un m04 render-based."""
 
-    def _make_meta_root(self, tmp_path: Path) -> Path:
-        """Arma un meta_root mínimo con m04.yml que apunta a templates sintéticos."""
-        meta = tmp_path / "meta"
-        stations = meta / "src" / "metafactory" / "stations"
-        stations.mkdir(parents=True)
+    _FULLSTACK = _REPO_ROOT / "factories" / "full-stack"
 
-        # Copiar el seed real para que load_seed_verifier() funcione desde el meta hermético
-        import shutil
-        shutil.copytree(_REPO_ROOT / "seed", meta / "seed")
-
-        # Templates mínimos
-        tpl_domain = meta / "tpl" / "domain" / "product.py"
-        tpl_generated = meta / "tpl" / "generated" / "runner.py"
-        tpl_domain.parent.mkdir(parents=True)
-        tpl_generated.parent.mkdir(parents=True)
-        tpl_domain.write_text('"""Domain of {{slug}}."""\nMARKER = "{{marker}}"\n', encoding="utf-8")
-        tpl_generated.write_text('"""Generated runner for {{slug}}."""\nVERSION = "v1"\n', encoding="utf-8")
-
-        # m04.yml hermético: domain/ con skip_if_exists, generated/ sin él
-        (stations / "m04.yml").write_text(
-            'id: m04\nname: "boundary test"\nactivation: always\nbuilds:\n'
-            '  - {action: render, src: "tpl/domain/product.py", dest: "domain/product.py", skip_if_exists: true}\n'
-            '  - {action: render, src: "tpl/generated/runner.py", dest: "generated/runner.py"}\n'
-            'checks:\n  - {name: boundary_survives, kind: boundary_survives}\n',
-            encoding="utf-8",
-        )
-        return meta
-
-    def _make_factory_root(self, tmp_path: Path, meta: Path) -> Path:
-        """Arma un factory_root mínimo con una spec válida."""
+    def _synthetic_factory(self, tmp_path: Path, *, domain: bool, generated: bool) -> Path:
+        """Un factory_root mínimo cuyo `domain.product` declara (o no) cada mitad de la frontera."""
+        product = ["    product_module: p", "    marker: T_OK"]
+        if domain:
+            product += ['    boundary_domain_dest: "domain/p.py"',
+                        '    boundary_domain_content: |', '      MARKER = "{{marker}}"']
+        if generated:
+            product += ['    boundary_generated_dest: "generated/runner.py"',
+                        '    boundary_generated_content: |', '      from p import MARKER  # {{marker}}']
         factory = tmp_path / "factory"
         factory.mkdir()
-        # Spec mínima que el loader puede parsear
         (factory / "factory.spec.yml").write_text(
             "factory:\n  name: Test\n  slug: test\n  maturity: bootstrap\n"
             "domain:\n  produces: test\n  target_framework: {name: none, provider_agnostic: true}\n"
-            "  product_capabilities: []\n"
-            "  station_sequence: []\n"
-            "  provision_modes: []\n"
+            "  product_capabilities: []\n  station_sequence: []\n  provision_modes: []\n"
             "  proof_check_types: []\n"
-            "  product:\n    product_module: product\n    greet_fn: greet\n    marker: TEST_OK\n"
+            "  product:\n" + "\n".join(product) + "\n"
             "factory_substrate:\n  anti_rubber_stamp_column: false\n  verdict_bus: {max_lines: 10}\n"
             "  generated_domain_boundary: false\n  memory_schema: adr021\n"
             "  rtm: {required: false}\n  two_verifier_ci: {rederive: false, pinned_verdict: false}\n"
@@ -118,41 +99,46 @@ class TestBoundarySurvivesHermetic:
         )
         return factory
 
-    def test_hermetic_boundary_passes(self, tmp_path):
-        """Con m04.yml correcto (domain=skip_if_exists, generated=siempre), el check pasa."""
-        meta = self._make_meta_root(tmp_path)
-        factory = self._make_factory_root(tmp_path, meta)
-        rc = main([str(factory), str(meta), "factory.spec.yml"])
-        assert rc == 0, "la frontera correctamente declarada debe pasar"
+    def test_optout_real_factory_is_na(self):
+        """Una fábrica de producto 100%-generado (full-stack, TS) no declara frontera → N/A (exit 0).
+        N/A honesto: ni verde fingido ni rojo — el split no existe, así que no hay nada que ejercitar."""
+        assert main([str(self._FULLSTACK), str(_REPO_ROOT), _SPEC_PATH]) == 0
 
-    def test_hermetic_boundary_rotten_if_domain_missing_skip_flag(self, tmp_path):
-        """Si domain/ NO tiene skip_if_exists, el check detecta que la edición se come."""
-        meta = self._make_meta_root(tmp_path)
-        factory = self._make_factory_root(tmp_path, meta)
-        # Reemplaza m04.yml: domain/ SIN skip_if_exists (frontera podrida)
-        stations = meta / "src" / "metafactory" / "stations"
-        (stations / "m04.yml").write_text(
-            'id: m04\nname: "rotten boundary"\nactivation: always\nbuilds:\n'
-            '  - {action: render, src: "tpl/domain/product.py", dest: "domain/product.py"}\n'
-            '  - {action: render, src: "tpl/generated/runner.py", dest: "generated/runner.py"}\n'
-            'checks:\n  - {name: boundary_survives, kind: boundary_survives}\n',
-            encoding="utf-8",
-        )
-        rc = main([str(factory), str(meta), "factory.spec.yml"])
-        assert rc != 0, "sin skip_if_exists en domain/, boundary_survives debe fallar"
+    def test_declared_boundary_passes(self, tmp_path):
+        """Frontera entera declarada (domain+generated) → emit_boundary la escribe, la edición de domain
+        sobrevive el re-scaffold y generated se regenera → 0 (el path de producción del dummy)."""
+        factory = self._synthetic_factory(tmp_path, domain=True, generated=True)
+        assert main([str(factory), str(_REPO_ROOT), _SPEC_PATH]) == 0
 
-    def test_hermetic_boundary_rotten_if_generated_has_skip_flag(self, tmp_path):
-        """Si generated/ TIENE skip_if_exists, el chasis no se regenera: frontera podrida."""
-        meta = self._make_meta_root(tmp_path)
-        factory = self._make_factory_root(tmp_path, meta)
-        # Reemplaza m04.yml: generated/ CON skip_if_exists (frontera podrida)
-        stations = meta / "src" / "metafactory" / "stations"
-        (stations / "m04.yml").write_text(
-            'id: m04\nname: "rotten generated"\nactivation: always\nbuilds:\n'
-            '  - {action: render, src: "tpl/domain/product.py", dest: "domain/product.py", skip_if_exists: true}\n'
-            '  - {action: render, src: "tpl/generated/runner.py", dest: "generated/runner.py", skip_if_exists: true}\n'
-            'checks:\n  - {name: boundary_survives, kind: boundary_survives}\n',
-            encoding="utf-8",
-        )
-        rc = main([str(factory), str(meta), "factory.spec.yml"])
-        assert rc != 0, "con skip_if_exists en generated/, boundary_survives debe fallar"
+    def test_no_boundary_is_na(self, tmp_path):
+        """Sin ninguna clave boundary_* → N/A (exit 0)."""
+        factory = self._synthetic_factory(tmp_path, domain=False, generated=False)
+        assert main([str(factory), str(_REPO_ROOT), _SPEC_PATH]) == 0
+
+    def test_partial_boundary_is_rotten(self, tmp_path):
+        """Declaración PARCIAL (sólo domain, sin generated) → ROTTEN (exit 1): entera o ninguna."""
+        factory = self._synthetic_factory(tmp_path, domain=True, generated=False)
+        assert main([str(factory), str(_REPO_ROOT), _SPEC_PATH]) == 1
+
+    def test_non_decorative_domain_must_survive(self, tmp_path, monkeypatch):
+        """Diente de DOS LADOS: si `emit_boundary` REGRESA y deja de respetar el skip en domain (una
+        edición humana se comería en el re-scaffold), boundary_survives DEBE ponerse rojo. Prueba que la
+        gate depende del comportamiento real, no es una reafirmación de intención."""
+        import metafactory.codegen.renderer as rnd
+        from metafactory.codegen.renderer import _render_path, render_text
+
+        def broken(ctx, subst):  # regresión: emite domain SIEMPRE (sin skip) → no sobrevive
+            msgs = []
+            for dest_rel, key in ((subst.get("boundary_domain_dest", ""), "boundary_domain_content"),
+                                  (subst.get("boundary_generated_dest", ""), "boundary_generated_content")):
+                if not str(dest_rel).strip():
+                    continue
+                dest = ctx.root / _render_path(str(dest_rel), subst)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(render_text(str(subst.get(key, "")), subst), encoding="utf-8")
+                msgs.append(f"emit {dest_rel}")
+            return msgs
+
+        monkeypatch.setattr(rnd, "_emit_boundary", broken)
+        factory = self._synthetic_factory(tmp_path, domain=True, generated=True)
+        assert main([str(factory), str(_REPO_ROOT), _SPEC_PATH]) == 1

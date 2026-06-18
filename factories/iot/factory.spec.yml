@@ -24,12 +24,10 @@ domain:
     package_name: iotgw
     module_path: "example.com/iotgw"        # path del módulo Go (build/product/go.mod)
 
-    # Vars del template de FRONTERA I-5 (m04 renderiza un stub `domain/<product_module>.py` que
-    # boundary_survives prueba que sobrevive un re-scaffold). El chasis es Python-shaped (un overfit de
-    # generalidad pre-existente — full-stack lleva domain/webapp.py, ASF domain/agent_system.py por lo mismo);
-    # el stub es VESTIGIAL — el producto REAL es el árbol Go en build/product.
-    product_module: iotgw
-    greet_fn: marker
+    # Producto 100%-generado (el árbol Go en build/product, vía scaffold_product.py): NO hay split
+    # humano/generado, así que esta fábrica NO declara frontera I-5 (`domain.product.boundary_*`) y la
+    # gate `boundary_survives` (m04) reporta N/A honesto (H2). Antes m04 emitía un stub Python vestigial
+    # (`domain/iotgw.py`) — borrado; el lenguaje vive en la spec, no en el sustrato (ADR-012).
     marker: IOTGW_OK
 
     # Contrato de mensaje tipado (DES-6): un Reading que el gateway valida en el BORDE. Un drift de tipos o

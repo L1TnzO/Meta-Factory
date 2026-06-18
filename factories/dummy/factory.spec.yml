@@ -129,6 +129,35 @@ domain:
     product_module: greeting
     greet_fn: greet
     marker: DUMMY_OK
+    # Frontera I-5 (M4) como DATO de la fábrica: el split humano(domain)/generado(generated) que el
+    # producto de la dummy SÍ tiene. `emit_boundary` (m04) la escribe; `boundary_survives` la ejercita
+    # por bloqueo. El sustrato no nombra lenguaje (ADR-012): dest/content son DATA. Una fábrica de
+    # producto 100%-generado (full-stack/iot/ASF) NO declara esto → la gate reporta N/A honesto.
+    boundary_domain_dest: "domain/greeting.py"
+    boundary_generated_dest: "generated/runner.py"
+    boundary_domain_content: |
+      """Dominio (HUMANO) de la fábrica {{slug}}: el módulo de producto que porta el marcador invariante.
+
+      Es la pieza que el ingeniero edita. La frontera I-5 la protege: rendererizada con skip_if_exists,
+      SOBREVIVE un re-scaffold (un `meta station m04` no la pisa). El sustrato (columna, gate, bus) la
+      rodea de garantías; si el marcador se corrompe, la columna lo detecta por bloqueo (no por prosa)."""
+
+      MARKER = "{{marker}}"
+
+
+      def {{greet_fn}}() -> str:
+          return MARKER
+    boundary_generated_content: |
+      """GENERADO por la fábrica {{slug}} — NO editar (se regenera en cada scaffold, frontera I-5).
+
+      El chasis es dueño de este archivo: el runner importa el módulo de DOMINIO ({{product_module}}, que
+      vive en domain/ y SOBREVIVE un re-scaffold) y expone run(). Una edición a mano acá se PIERDE al
+      re-renderizar — ese es justamente el contrato que boundary_survives verifica por bloqueo."""
+      from {{product_module}} import {{greet_fn}}
+
+
+      def run() -> str:
+          return {{greet_fn}}()
 
 # ── L3 · MAQUINARIA: el harness de la fábrica EMITIDO desde el spec (D2). agents (roles + sombras I-12),
 # commands (con su `run` ejecutable) y skills viajan como DATO; el codegen los escribe (emit_harness, M7).

@@ -106,9 +106,10 @@ domain:
   #     El sustrato no nombra tech: esto es el PLAN del producto (nodos/canales/aristas/umbrales) que el
   #     generador de la fábrica (codegen/scaffold_product.py) lee y materializa en LangGraph.
   product:
-    product_module: agent_system
+    # Producto 100%-generado (LangGraph en build/product, vía scaffold_product.py): sin split humano/generado,
+    # NO declara frontera I-5 (`boundary_*`); `boundary_survives` (m04) → N/A honesto (H2). El stub Python
+    # vestigial (`domain/agent_system.py`) que m04 emitía fue borrado. `marker` lo consume el scaffolder.
     package_name: agent_system
-    greet_fn: assemble          # el producto-demo de la frontera M4 (domain/agent_system.py) expone assemble()
     marker: AGENT_SYSTEM_OK
     task_description: "investigar una consulta, sintetizar un borrador y pasar por revisión humana antes de finalizar"
     default_model: "anthropic:claude-haiku-4-5"   # ADR-002: provider-agnóstico vía init_chat_model; en test se inyecta un fake-LLM

@@ -1,8 +1,8 @@
-<!-- meta:doc sha=af4cf59fe921fc9a0426515e66bb40ddf5de7246 updated=2026-06-18T22:45Z -->
+<!-- meta:doc sha=def0ce23ec1a7b06218e952f72a1637a29a45e2b updated=2026-06-18T22:48Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-18T22:45Z -->
 # Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T22:20Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T22:48Z) (creado 2026-06-18T22:20Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

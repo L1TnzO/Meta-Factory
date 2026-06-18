@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2f9c72728795964468632d5149588aa69077dae3 updated=2026-06-18T00:33Z -->
+<!-- meta:doc sha=923411971788b2c9db75d2767bb5411e2f7db451 updated=2026-06-18T01:03Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -231,17 +231,19 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > (ADR-014), **adelanta F2 como instrumento de co-validación en lockstep**, y construye los 3 mecanismos de
 > sustrato que faltan (generación-viva por LLM bajo gate · `eval_gate` con scorer real · `live_run`). Los
 > F1/F2/F3 de abajo siguen válidos; MATURITY-PLAN es la autoridad del orden y el detalle.
-> **MAT-0..MAT-6 ✅ (2026-06-16/17)**: el gate anti-overfitting (`generality_parity`, ADR-014), el 2º dominio
+> **MAT-0..MAT-6b ✅ (2026-06-16/18)**: el gate anti-overfitting (`generality_parity`, ADR-014), el 2º dominio
 > (Full-Stack=F2), la generación VIVA por LLM bajo gate (MAT-2), el PRODUCTO contra infra VIVA (MAT-3:
 > Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la **evaluación con scorer REAL que bloquea**
 > (MAT-4: supera el stub-0.0 de la legacy, cierra la fila eval de §12), la **corrida LIVE vs provider REAL**
 > (MAT-5: `live_run` — ASF Agent_RE vs DeepSeek + Full-Stack resumen NL, gateado por propiedades+umbrales, pin
 > §7 re-derivable sin re-llamar; cierra B-5) y la **re-auditoría §12 head-to-head dada vuelta con honestidad**
 > (MAT-6: New ASF gana/empata 6/8, la fila de eval decisiva — s10 mide **recall de requisitos REAL 0.82** vs el
-> oráculo HUMANO del dataset RECOVER, vs el stub 0.0 de la legacy; 2 filas residual honesto: multi-topología +
-> s5; `reference/MAT-6-REAUDIT.md`). Los 3 mecanismos del plan son `general`. **Sigue MAT-6b** (slot explícito
-> del residual de §12: multi-topología B-3 + s5 grounding B-4, contenido de fábrica single-domain, 0 sustrato)
-> **y MAT-7** (3er dominio, prueba final de no-overfitting) — order-independent entre sí.
+> oráculo HUMANO del dataset RECOVER, vs el stub 0.0 de la legacy; `reference/MAT-6-REAUDIT.md`) y **MAT-6b**
+> (2026-06-18, `MAT-6B-MULTITOPO-GROUNDING`): cerradas las 2 filas residual de §12 — **multi-topología** (2ª
+> forma `supervisor_fanout_fanin` + validador BFS estructural DES-2, s11) + **s5 grounding** (`retrieve()`
+> tipado no-opcional, DES-6) → tabla §12 **8/8 ganadas/empatadas**, RTM ASF **11/11**, `ci --rederive` 11/11 ==
+> pineado; contenido de fábrica (anti-overfit: `git diff seed/`=0, `src/metafactory/`=1 línea de orden general).
+> Los 3 mecanismos del plan son `general`. **Sigue MAT-7** (3er dominio Mobile/IoT, prueba final de no-overfitting).
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,

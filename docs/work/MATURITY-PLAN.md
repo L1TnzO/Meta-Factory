@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5c3f73b910a41b893ce771990e004d3c149afd3c updated=2026-06-18T00:33Z -->
+<!-- meta:doc sha=1d5253a654ae00aed12a8c3e809eadf461844657 updated=2026-06-18T01:01Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -237,11 +237,35 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-2..MAT-5.
 
 ### MAT-6b · Cerrar las 2 filas RESIDUALES de §12 (multi-topología + s5 grounding) — CONTENIDO de fábrica
+> ✅ **HECHO (2026-06-18, `MAT-6B-MULTITOPO-GROUNDING`)** — las 2 filas RESIDUALES de MAT-6 cerradas por
+> bloqueo, **la tabla §12 queda 8/8 ganadas/empatadas** (completa DoD-A §1).
+> - **B-3 (multi-topología, DES-2)**: el codegen deja de estar casado con UNA forma de blueprint. 2ª forma
+>   `supervisor_fanout_fanin` (DATA en `domain.product.topologies`: supervisor → fan-out a 3 researchers →
+>   fan-in a aggregator → human_review interrupt → END) + `generated/graph/topologies.py` (registro de N
+>   topologías) + `validate.py` (**validador BFS estructural** sobre `get_graph()` COMPILADO: todo nodo
+>   alcanzable desde `__start__`, `__end__` alcanzable, sin huérfanos — generaliza la alcanzabilidad del
+>   interrupt de s7 al grafo entero, sin correr el modelo). Estación **s11** (pytest, product_env). Diente de
+>   dos lados VIVO: orphanear un nodo / dejarlo sin-salida → s11 ROJO (demostrado: corromper→rojo, regen→verde).
+> - **B-4 (grounding, DES-6)**: activada la capability `anclaje_de_fuentes` (s5 `activation` off→always).
+>   `generated/grounding/retrieval.py`: `retrieve()→tuple[str, ProvenancePayload]` TIPADO no-opcional + tabla
+>   de evidencia append-only; `ProvenancePayload` exige >=1 evidence_id (sin evidencia → ValidationError —
+>   grounding obligatorio por construcción, como s6 fuerza grounded=false). Gate: `mypy --strict` sobre la
+>   firma + pytest. Diente de dos lados VIVO: evidencia opcional → s5 ROJO.
+> - **RTM 11/11** (REQ-F-009 multi_topologia→s11→topologies.py · REQ-F-010 anclaje_de_fuentes→s5→retrieval.py,
+>   artifacts REALES bajo build/product/) · `ci --rederive` **11/11 == pineado** en árbol limpio (docker s2/s3;
+>   s9/s10 keyless) · product-run 11/11 · `meta check` suite verde (sin tocar dummy/full-stack).
+> - **Anti-overfit (corrección honesta a la meta "= 0")**: `git diff seed/` = **0**; `git diff
+>   src/metafactory/` = **1 línea** — NO contenido de ASF/tech sino un **fix de orden GENERAL**: el check m02
+>   `stations_match_spec` comparaba con `sorted()` lexicográfico mientras el engine usa `_natural_key` (s10
+>   entre s1 y s2). Bug latente desde MAT-5 (s10), re-surfaceado por la 11ª estación; **twin** del fix de orden
+>   NATURAL que MAT-5 ya hizo en `load_sequence`. El sustrato sigue sin nombrar tech (ADR-012 intacto). La meta
+>   "0 sustrato" se cumple en ESPÍRITU (cero conocimiento de dominio/tech entró al sustrato); el 1 línea es
+>   corrección general que cualquier fábrica de ≥10 estaciones necesita. Evidencia: `work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md`.
 > **Slot explícito del residual honesto de MAT-6** (`reference/MAT-6-REAUDIT.md §5`) = **B-3 + B-4** de
-> `F1-AUDIT §10`. Es **CONTENIDO de FÁBRICA (ASF), no sustrato**: la meta es `git diff src/metafactory/ +
-> seed/` = **0** (como MAT-6). Por eso **NO necesita lockstep de 2 dominios** — la ley anti-overfit (§2/§6)
-> aplica a mecanismos de SUSTRATO; esto es DATA/codegen de la fábrica. Single-domain a propósito. Cierra las
-> 2 filas que MAT-6 dejó NO-ganadas → la tabla §12 queda **8/8 ganadas/empatadas** (completa DoD-A §1).
+> `F1-AUDIT §10`. Es **CONTENIDO de FÁBRICA (ASF), no sustrato** (salvo el 1-línea de orden general de arriba).
+> Por eso **NO necesitó lockstep de 2 dominios** — la ley anti-overfit (§2/§6) aplica a mecanismos de SUSTRATO;
+> esto es DATA/codegen de la fábrica. Single-domain a propósito. Cerró las 2 filas que MAT-6 dejó NO-ganadas
+> → la tabla §12 queda **8/8 ganadas/empatadas** (completa DoD-A §1).
 - **Build (fábrica)**:
   - **Multi-topología (B-3)**: una **2ª forma de blueprint** en ASF (`supervisor_fanout_fanin`: un supervisor
     que fan-out a N researchers y fan-in a un aggregator) + un **validador estructural** de la topología del
@@ -277,7 +301,7 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 | Fila §12 (qué pide Agent_RE) | Antes (F1) | Después (este plan) | Mecanismo |
 | --- | --- | --- | --- |
 | Lógica de dominio rica (researchers, reducer, evidencia) | ❌ `domain/` vacío | ✅ generada y gateada | MAT-2 |
-| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ⏳ **RESIDUAL → MAT-6b** (slot explícito): sigue 1 sola forma de blueprint, sin validador BFS; MAT-2 entregó `merge_findings` (reducer), no esto | **MAT-6b** (B-3; corrige el over-claim original "MAT-2 fábrica") |
+| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ✅ 2ª forma `supervisor_fanout_fanin` + validador BFS estructural (DES-2, s11) | **MAT-6b** (B-3) |
 | Lineage Neo4j (s2) | ❌ diferido | ✅ vivo bajo gate | MAT-3 |
 | Checkpointer Postgres + recovery (s3) | ❌ InMemory | ✅ vivo bajo gate | MAT-3 |
 | MCP | ❌ diferido | ✅ `emit_mcp`/`mcp_tools` cableados | E2 + fábrica |

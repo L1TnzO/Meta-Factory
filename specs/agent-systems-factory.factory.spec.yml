@@ -52,12 +52,20 @@ domain:
       artifact: build/product/src/agent_system/generated/graph/topology.py
       proof: "s4: topology_compiles (get_graph() + nodos con fake-LLM) Y typed_blackboard (mypy --strict src/)"
       status: built
+    - id: multi_topologia
+      invariant: "el codegen emite >1 forma de blueprint (linear + supervisor_fanout_fanin) y un validador estructural BFS sobre el grafo COMPILADO (get_graph()) acepta una topología sii todo nodo es alcanzable desde __start__, __end__ es alcanzable y ningún nodo es huérfano — generaliza la alcanzabilidad del interrupt (s7) al grafo entero, SIN correr el modelo"
+      primitive: DES-2            # Topología verificable (chequeo estático de estructura, sin correr el modelo)
+      tech: "registro de topologías LangGraph (build_*_graph) + validate_topology (BFS sobre get_graph())"
+      artifact: build/product/src/agent_system/generated/graph/topologies.py
+      proof: "s11: TOPOLOGIES tiene >=2 formas; ambas compilan y pasan validate_topology; un nodo inalcanzable/sin-salida lo FALLA (diente de dos lados)"
+      status: built
     - id: anclaje_de_fuentes
-      invariant: "retrieval trazable por construcción: tabla de evidencia inmutable, segmentación consciente de fronteras, interfaz retrieve() que retorna ProvenancePayload no opcional"
+      invariant: "retrieval trazable por construcción: tabla de evidencia inmutable, segmentación consciente de fronteras, interfaz retrieve() que retorna ProvenancePayload NO OPCIONAL (un payload sin evidencia es inválido por construcción, gateado por mypy --strict + un test)"
       primitive: DES-6
-      tech: "tabla de evidencia append-only + interfaz tipada retrieve()→tuple[str, ProvenancePayload]"
-      proof: "mypy --strict sobre la firma (diferido con el linaje vivo)"
-      status: declared-deferred
+      tech: "tabla de evidencia append-only + interfaz tipada retrieve()→tuple[str, ProvenancePayload]; pydantic model_validator que rechaza evidencia vacía"
+      artifact: build/product/src/agent_system/generated/grounding/retrieval.py
+      proof: "s5: mypy --strict sobre la firma retrieve()→tuple[str, ProvenancePayload] + un ProvenancePayload con evidencia vacía → ValidationError (grounding no-opcional)"
+      status: built
     - id: atribucion_y_fundamentacion
       invariant: "bandera grounded/inferred con confianza calibrada por ítem: un ítem sin fragmento de soporte se FUERZA a grounded=false por un model_validator (no por convención)"
       primitive: DES-3            # Puntos de control no-salteables (la regla «sin soporte⇒grounded=false»)
@@ -85,6 +93,13 @@ domain:
       tech: "claude -p (slot generate, ADR-013) como `via`; pytest como contract gate; pin por skip_if_exists (§7)"
       artifact: domain_gen/merge_findings.py
       proof: "s9: pytest ejercita merge_findings (dedup por confianza, orden desc); generación VIVA pineada (skip_if_exists), re-derive verifica el pin sin LLM"
+      status: built
+    - id: corrida_viva
+      invariant: "el PRODUCTO corre contra un provider REAL (no-determinista) y la corrida produce un DRAFT FOR VALIDATION gateado por PROPIEDADES (el interrupt no-salteable alcanzado a RUNTIME + el contrato de grounding S6 sostenido sobre el output del modelo) + umbrales de eval (cobertura), NO por bytes; el output aceptado se PINEA y ci --rederive lo re-verifica sin re-llamar al provider; sin provider/pin → declared-deferred VISIBLE"
+      primitive: DES-7            # Evaluabilidad con compuertas — la corrida LIVE gateada (MAT-5)
+      tech: "corrida viva del grafo vs endpoint OpenAI-compatible (DeepSeek) por urllib stdlib (sin SDK de proveedor, ADR-002); pin §7 + ci --rederive sin re-llamar; scorer+propiedades stdlib"
+      artifact: live/live_output.json
+      proof: "s10: live_run corre el grafo vs el modelo real, gatea prop_hitl (interrupt+DRAFT) + prop_grounding (contrato S6) + scorer (critical_recall≥0.7, key_term_coverage≥0.6); el degraded flipea; el pin se re-verifica sin provider"
       status: built
 
   # ── BLUEPRINT del producto (DATO que consume el scaffolder determinista; 100% derivable, ADR-011) ──
@@ -116,6 +131,30 @@ domain:
       - [research, synthesize]
       - [synthesize, human_review]
       - [human_review, __end__]
+    # ── B-3 · 2ª forma de blueprint (DATA): el codegen NO está casado con la topología lineal. El validador
+    #     BFS (DES-2) acepta ambas. La canónica ('linear', la de arriba) es la que usa el producto; ésta es
+    #     una topología ALTERNATIVA verificable: supervisor → fan-out a N researchers → fan-in a aggregator →
+    #     human_review (interrupt no-salteable, igual que la canónica) → END.
+    topologies:
+      - name: supervisor_fanout_fanin
+        interrupt_at: human_review
+        nodes:
+          - { id: supervisor,   provision: prompt, writes_to: findings, instruction: "Descomponé la consulta en sub-tareas de investigación para los researchers." }
+          - { id: research_1,   provision: prompt, writes_to: findings, instruction: "Investigá la sub-tarea 1 y agregá hallazgos con evidencia." }
+          - { id: research_2,   provision: prompt, writes_to: findings, instruction: "Investigá la sub-tarea 2 y agregá hallazgos con evidencia." }
+          - { id: research_3,   provision: prompt, writes_to: findings, instruction: "Investigá la sub-tarea 3 y agregá hallazgos con evidencia." }
+          - { id: aggregator,   provision: prompt, writes_to: draft,    instruction: "Sintetizá un borrador único a partir de TODOS los hallazgos del blackboard." }
+          - { id: human_review, provision: prompt, writes_to: output,   instruction: "Producí la salida final revisada (tras la aprobación humana)." }
+        edges:
+          - [__start__, supervisor]
+          - [supervisor, research_1]
+          - [supervisor, research_2]
+          - [supervisor, research_3]
+          - [research_1, aggregator]
+          - [research_2, aggregator]
+          - [research_3, aggregator]
+          - [aggregator, human_review]
+          - [human_review, __end__]
 
   # ── L2 · línea S0–S8: las materializadas (s1,s3,s4,s6,s7,s8) llevan builds/checks EJECUTABLES; las
   #       infra-vivas (s2 linaje Neo4j, s5 anclaje) y la admisión s0 (cubierta por m00) van activation:off
@@ -215,12 +254,29 @@ domain:
           bootstrap: []
           cmd: [".venv/bin/python", "-m", "mypy", "--strict", "src/agent_system"]
     - id: s5
-      name: "Anclaje de fuentes (retrieve tipado — diferido con el linaje vivo)"
-      activation: "off"
+      name: "Anclaje de fuentes: retrieve()→ProvenancePayload TIPADO no-opcional (B-4, DES-6)"
+      activation: always
       depends_on: [s4]
-      status: declared-deferred
+      status: built
+      # B-4: la capability anclaje_de_fuentes se ACTIVA. El contrato tipado retrieve()→tuple[str,
+      # ProvenancePayload] lo gatea mypy --strict sobre el módulo de grounding; un ProvenancePayload con
+      # evidencia VACÍA → ValidationError (grounding no-opcional, el diente). Corre en product_env (pytest+mypy)
+      # como s4/s7. El módulo lo emite el scaffolder determinista (generated/grounding/retrieval.py).
       proof_checks:
-        - { name: typed_retrieve, cmd: "mypy --strict src/grounding/", runs_in: product_env, toolchain: mypy, status: declared-deferred }
+        - { name: typed_retrieve, cmd: "mypy --strict src/agent_system/generated/grounding/", runs_in: product_env, toolchain: mypy, status: built }
+        - { name: grounding_requires_evidence, cmd: "pytest tests/test_grounding.py (payload sin evidencia → ValidationError)", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: typed_retrieve
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "mypy", "--strict", "src/agent_system/generated/grounding"]
+        - name: grounding_requires_evidence
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_grounding.py"]
     - id: s6
       name: "Atribución y fundamentación (sin soporte ⇒ grounded=false)"
       activation: always
@@ -334,6 +390,52 @@ domain:
           workdir: domain_gen
           bootstrap: []
           cmd: ["python3", "-m", "pytest", "-q", "test_merge.py"]
+    - id: s10
+      name: "Corrida LIVE vs provider REAL: Agent_RE produce un DRAFT FOR VALIDATION gateado por propiedades+eval (MAT-5) — DES-7"
+      activation: always
+      depends_on: [s4]
+      status: built
+      # MAT-5: el sustrato `live_run` corre el driver de la fábrica (live/run_live.py: monkeypatch _get_llm →
+      # adaptador stdlib urllib al endpoint OpenAI-compatible de DeepSeek; corre el grafo hasta el interrupt)
+      # SOLO si el pin (live/live_output.json) no existe Y hay keys (provider_env). El pin committeado se
+      # re-verifica con stdlib (python3 propiedades+scorer) SIN re-llamar al provider — ci --rederive verde sin
+      # keys ni red (§7). Diente de dos lados: el degraded (off-topic + reached_interrupt=false + item grounded
+      # sin evidencia) flipea las 2 propiedades Y el scorer. El sustrato no nombra el provider (ADR-012):
+      # provider_env es el NOMBRE de la env-var; el endpoint/keys los lee el driver de la fábrica.
+      proof_checks:
+        - { name: agent_re_live, cmd: "live_run: grafo vs DeepSeek → prop_hitl (interrupt+DRAFT) + prop_grounding (contrato S6) + scorer ≥ umbrales; degraded flipea; pin §7 sin re-llamar", runs_in: product_env, toolchain: python, status: built }
+      builds: []
+      checks:
+        - name: agent_re_live
+          kind: live_run
+          workdir: .
+          provider_env: METAFACTORY_LLM_API_KEY
+          run: ["build/product/.venv/bin/python", "live/run_live.py"]
+          output: "live/live_output.json"
+          degraded: "live/degraded.json"
+          properties:
+            - ["python3", "live/prop_hitl.py"]
+            - ["python3", "live/prop_grounding.py"]
+          scorer: ["python3", "live/scorer.py"]
+          thresholds: {critical_recall: 0.7, key_term_coverage: 0.6}
+    - id: s11
+      name: "Multi-topología: >=2 formas de blueprint + validador BFS estructural (B-3, DES-2)"
+      activation: always
+      depends_on: [s4]
+      status: built
+      # B-3: el codegen emite un registro de topologías (linear + supervisor_fanout_fanin) y un validador
+      # estructural BFS sobre get_graph() COMPILADO (validate_topology). Generaliza la alcanzabilidad del
+      # interrupt (s7) al grafo entero. Diente de dos lados: un nodo inalcanzable / sin-salida FALLA el
+      # validador. Corre en product_env (pytest) como s4/s7. Todo en DATA/codegen de fábrica (0 sustrato).
+      proof_checks:
+        - { name: multi_topology_bfs, cmd: "pytest tests/test_topology_multi.py (>=2 topologías compilan+validan; nodo inalcanzable → rojo)", runs_in: product_env, toolchain: pytest, status: built }
+      builds: []
+      checks:
+        - name: multi_topology_bfs
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: [".venv/bin/python", "-m", "pytest", "-q", "tests/test_topology_multi.py"]
 
   provision_modes: [prompt, integration, custom]
   hitl: { non_skippable_interrupt: true }
@@ -465,6 +567,24 @@ requirements:
       satisfied_by: [s2]
       verified_by: [lineage_join_key]
       capability: trazabilidad_y_linaje
+    - id: REQ-F-008
+      statement: "el PRODUCTO corre contra un provider REAL y produce un DRAFT FOR VALIDATION gateado por PROPIEDADES (interrupt no-salteable alcanzado a RUNTIME + contrato de grounding S6 sostenido sobre el output del modelo) + umbrales de eval (cobertura), NO por bytes; el output aceptado se PINEA y re-derive lo verifica sin re-llamar al provider; sin provider/pin → declared-deferred visible (MAT-5, §7)"
+      acceptance: "agent_re_live verde: 3 casos vivos vs el modelo real alcanzan el interrupt, cumplen el contrato de grounding y superan critical_recall≥0.7 + key_term_coverage≥0.6; el output degradado flipea el gate"
+      satisfied_by: [s10]
+      verified_by: [agent_re_live]
+      capability: corrida_viva
+    - id: REQ-F-009
+      statement: "el codegen emite MÁS DE UNA forma de blueprint (linear + supervisor_fanout_fanin) y un validador estructural BFS sobre el grafo COMPILADO (get_graph()) acepta una topología sii todo nodo es alcanzable desde __start__, __end__ es alcanzable y ningún nodo es huérfano; un nodo inalcanzable/sin-salida la BLOQUEA (B-3, DES-2 — cierra el residual de breadth de F1-AUDIT §7)"
+      acceptance: "multi_topology_bfs verde: TOPOLOGIES tiene >=2 formas, ambas compilan y pasan validate_topology, y el validador RECHAZA un nodo inalcanzable Y uno sin salida (diente de dos lados)"
+      satisfied_by: [s11]
+      verified_by: [multi_topology_bfs]
+      capability: multi_topologia
+    - id: REQ-F-010
+      statement: "el anclaje de fuentes es trazable por construcción: retrieve()→tuple[str, ProvenancePayload] es un contrato TIPADO no opcional (mypy --strict) y un ProvenancePayload sin evidencia es inválido (ValidationError); el grounding no se modela como Optional (B-4, DES-6)"
+      acceptance: "typed_retrieve verde (mypy --strict sobre la firma) Y grounding_requires_evidence verde: un ProvenancePayload con evidencia vacía lanza ValidationError"
+      satisfied_by: [s5]
+      verified_by: [typed_retrieve, grounding_requires_evidence]
+      capability: anclaje_de_fuentes
   nonfunctional:
     - id: REQ-NF-001
       statement: "la calidad se mide con compuertas que BLOQUEAN: el arnés termina con error si una métrica cae bajo su umbral"

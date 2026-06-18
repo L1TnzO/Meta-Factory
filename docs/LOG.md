@@ -1,7 +1,31 @@
-<!-- meta:doc sha=c65f75bb6c38e507d91e341fb357573e0b356741 updated=2026-06-18T00:00Z -->
+<!-- meta:doc sha=134d030f4897caec1214271fcad88bff0b377dc2 updated=2026-06-18T01:06Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-18T01:05Z — MAT-6b: cerradas las 2 residuales de §12 (multi-topología + s5 grounding) — §12 8/8
+- **gatillo**: MAT-6 dejó 6/8 con 2 filas RESIDUAL honesto (multi-topología de breadth · s5 grounding). El
+  ingeniero pidió el slot explícito (`MAT-6b`, = B-3+B-4 de F1-AUDIT §10), contenido de fábrica single-domain.
+- **lo hecho (P1, factory DATA/codegen)**: **B-3** — el codegen de ASF dejó de estar casado con UNA forma de
+  blueprint: 2ª forma `supervisor_fanout_fanin` (DATA en `domain.product.topologies`) + `generated/graph/
+  topologies.py` (registro de N topologías) + `validate.py` (**validador BFS estructural** sobre `get_graph()`
+  COMPILADO: alcanzabilidad desde `__start__`, `__end__` alcanzable, sin huérfanos — generaliza la del interrupt
+  de s7 al grafo entero); estación **s11**. **B-4** — capability `anclaje_de_fuentes` ACTIVADA (s5 off→always):
+  `generated/grounding/retrieval.py` con `retrieve()→tuple[str, ProvenancePayload]` TIPADO no-opcional + tabla de
+  evidencia append-only; `ProvenancePayload` exige >=1 evidence_id (sin evidencia → ValidationError). Gate: mypy
+  --strict + pytest.
+- **dientes de dos lados VIVOS**: orphanear / dejar-sin-salida un nodo → s11 ROJO; hacer la evidencia opcional →
+  s5 ROJO (corromper build/product → rojo, regenerar → verde, ambos demostrados).
+- **proof**: RTM **11/11** (REQ-F-009 multi_topologia→s11→topologies.py · REQ-F-010 anclaje_de_fuentes→s5→
+  retrieval.py, artifacts reales) · `ci --rederive` **11/11 == pineado** (árbol limpio, docker s2/s3, s9/s10
+  keyless) · `meta check` suite verde (dummy/full-stack intactos).
+- **lección (honestidad del anti-overfit)**: la meta era `git diff src/metafactory/ + seed/` = 0. Resultó
+  **seed/=0 y src/metafactory/=1 línea**: la 11ª estación re-surfaceó un **bug de orden GENERAL** preexistente —
+  el check m02 `stations_match_spec` comparaba con `sorted()` lexicográfico (s10 entre s1 y s2) mientras el engine
+  usa `_natural_key` (fix que MAT-5 hizo en `load_sequence` pero NO replicó en el check; rojo para ASF desde s10,
+  nunca re-corrido). Fix mínimo (1 línea, `key=_natural_key`), general, sin nombrar tech. **Lo honesto no es
+  fingir el "0" sino nombrar la excepción y por qué no es overfitting** (cero conocimiento de dominio/tech entró
+  al sustrato). → tabla §12 **8/8 ganadas/empatadas** (completa DoD-A). Sigue MAT-7 (3er dominio).
 
 ## 2026-06-17T23:55Z — MAT-6: la tabla §12 dada vuelta con HONESTIDAD — recall de requisitos REAL vs oráculo humano
 - **gatillo**: cerrado MAT-5 (los 3 mecanismos de sustrato existen y son `general`), tocaba la re-auditoría

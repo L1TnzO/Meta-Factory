@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dddd0b1cb5939a2d50a9a95b02b59a87982c6e67 updated=2026-06-18T00:33Z -->
+<!-- meta:doc sha=a508d47f96b96e3e24885db683ced613b1fcad64 updated=2026-06-18T01:03Z -->
 # MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad)
 
 > tipo: reference (estable) · creado: 2026-06-17 · supersede el VEREDICTO de `F1-AUDIT-REGEN-VS-LEGACY.md §12`
@@ -16,12 +16,11 @@ sustrato que faltaban, y MAT-6 corrió el producto contra un **ground truth HUMA
 mide cuántas filas de §12 se dieron vuelta — **sin fingir las que no**.
 
 ## 1. Veredicto en una línea
-> **New ASF GANA o EMPATA en 6 de las 8 filas de §12, y la fila de EVAL se da vuelta de forma decisiva**: la
-> legacy tiene un scorer stub `0.0`; New ASF mide **recall de requisitos REAL = 0.82 (23/28)** contra el
-> oráculo de expertos humanos del dataset RECOVER, gateado y re-derivable. **2 filas quedan como RESIDUAL
-> honesto** (multi-topología de breadth, y s5 grounding) — son CONTENIDO de fábrica no construido, declarado
-> como backlog, no fingido. El hueco que resta es exactamente el que F1-AUDIT §7 anticipó: breadth de línea,
-> no fundación.
+> **(Post-MAT-6b) New ASF GANA o EMPATA en las 8/8 filas de §12.** El snapshot MAT-6 era 6/8 con la fila de
+> EVAL dada vuelta de forma decisiva (legacy scorer stub `0.0` vs New ASF **recall REAL = 0.82 (23/28)** contra
+> el oráculo de expertos humanos del dataset RECOVER, gateado y re-derivable) y **2 filas RESIDUAL honesto**
+> (multi-topología de breadth, s5 grounding). **MAT-6b cerró esas 2 por bloqueo** (2ª topología + validador BFS;
+> s5 `retrieve()` tipado) → tabla §12 completa, sin filas sin proof. Ver §7 para el detalle de cierre.
 
 ## 2. Método (re-derivado por bloqueo, esta sesión)
 - **RTM** `meta rtm --factory agent-systems-factory` → **COMPLETE 9/9** (árbol req→capability→station→artifact
@@ -45,12 +44,13 @@ mide cuántas filas de §12 se dieron vuelta — **sin fingir las que no**.
 | **Lineage Neo4j full-graph** (s02) | ✅ Docker `neo4j:5.26` | ✅ s2 ACTIVA: traversal salida↔evidencia + join-key vs **Neo4j REAL** (contenedor efímero, teardown siempre) | **EMPATA** (+ New ASF re-derivable) | MAT-3 s2 `infra_up` |
 | **Checkpointer Postgres + recovery** (s03) | ✅ Docker `postgres:16.4`, resume | ✅ s3 resume **cross-instancia** sin reejecución vs **Postgres REAL**; DB caída → rojo | **EMPATA** (+ New ASF re-derivable) | MAT-3 s3 `infra_up` |
 | **Interrupt no-saltable HITL** (synthesizer) | ✅ invariante sobre grafo compilado | ✅ alcanzabilidad sobre `get_graph()` (reroute→END→s7 SHUT) **+ alcanzado a RUNTIME** en la corrida viva (prop_hitl) | **EMPATA** (+ prueba runtime live) | F1 s7 + MAT-5/6 prop_hitl |
-| **Topología `supervisor_fanout_fanin`, 13+1 nodos** | ✅ 3 topologías, aristas custom validadas por BFS | ❌ **1 sola forma de blueprint** (research→synthesize→human_review); valida SU topología por `get_graph()`+mypy+alcanzabilidad, pero no hay validador BFS de topologías custom ni 2ª forma | **RESIDUAL** (breadth no construida) | — (backlog, §5) |
-| **Source-grounding / contrato de retrieval** (s05) | ✅ s05 real | ❌ s5 `activation:"off"` (capability `anclaje_de_fuentes` declared-deferred) | **RESIDUAL** (no activada) | — (backlog, B-4) |
+| **Topología `supervisor_fanout_fanin`, 13+1 nodos** | ✅ 3 topologías, aristas custom validadas por BFS | ✅ **2ª forma `supervisor_fanout_fanin`** (supervisor → fan-out 3 researchers → fan-in aggregator → interrupt) + **validador BFS estructural** sobre `get_graph()` compilado (todo nodo alcanzable, `__end__` alcanzable, sin huérfanos); diente VIVO (orphanear un nodo → s11 rojo) | **EMPATA** (cerrada MAT-6b) | MAT-6b s11 `topologies.py`+`validate.py` (DES-2) |
+| **Source-grounding / contrato de retrieval** (s05) | ✅ s05 real | ✅ s5 ACTIVA: `retrieve()→tuple[str, ProvenancePayload]` TIPADO no-opcional (`mypy --strict`) + evidencia obligatoria (sin evidencia → ValidationError); diente VIVO (evidencia opcional → s5 rojo) | **EMPATA** (cerrada MAT-6b) | MAT-6b s5 `grounding/retrieval.py` (DES-6) |
 
-**Tally honesto: GANA 3 · EMPATA 3 · RESIDUAL 2.** Las 6 filas ganadas/empatadas están respaldadas por proof
-re-derivable (RTM 9/9 + `ci --rederive` 9/9 == pineado). Las 2 residuales NO tienen proof y se declaran como
-backlog — no fake-green (memoria: nunca declarar verde sin prueba).
+**Tally (post-MAT-6b): GANA 3 · EMPATA 5 · RESIDUAL 0 = 8/8 ganadas/empatadas.** (El tally del snapshot
+MAT-6 era 3·3·2 = 6/8; **MAT-6b cerró las 2 residuales por bloqueo** — ver §7.) Las 8 filas están respaldadas
+por proof re-derivable (RTM **11/11** + `ci --rederive` **11/11 == pineado**, árbol limpio). Ninguna fila
+queda sin proof — no fake-green (memoria: nunca declarar verde sin prueba).
 
 ## 4. La fila que importaba más, en detalle (eval — el "stub 0.0" de la legacy, dado vuelta)
 La debilidad titular de la legacy en `F1-AUDIT §8-deb(2)` y §12 era: **S8 evaluabilidad permanentemente
@@ -86,9 +86,9 @@ notificación, R28 altas/bajas-de-jugadores) — el modelo genuinamente no los r
   declared-deferred` / s5 `activation:"off"`. → fila NO ganada.
 
 Ambas son **CONTENIDO de fábrica** (no fundación): construirlas es escribir blueprint + codegen + un validador
-local, exactamente lo que F1-AUDIT §7 llamó "rellenar el spec con lo que la legacy ya sabe". Quedan agendadas
+local, exactamente lo que F1-AUDIT §7 llamó "rellenar el spec con lo que la legacy ya sabe". Se agendaron
 como **MAT-6b** (slot explícito del `MATURITY-PLAN §4`, = **B-3 + B-4** de F1-AUDIT §10; contenido de fábrica
-single-domain, 0 sustrato); no se prometen como hechas. Cerrarlas deja §12 en **8/8 ganadas/empatadas**.
+single-domain). **→ CERRADAS por MAT-6b (2026-06-18), ver §7.** §12 queda en **8/8 ganadas/empatadas**.
 
 ## 6. Veredicto del orquestador (sin colapsar el matiz)
 **Como evidencia del programa Meta-Factory**, MAT-6 es un éxito grande y honesto: New ASF pasó de "fundación
@@ -97,13 +97,34 @@ bloqueo**, con la fila de eval dada vuelta de forma decisiva contra un **ground 
 re-derivable (dos verificadores, 9/9 == pineado). El sustrato no creció: `git diff src/metafactory/ + seed/`
 del incremento = 0 (anti-overfit §5) — la mejora vivió 100% en DATA de fábrica.
 
-**Sin escaparle al matiz**: New ASF **todavía NO supera a la legacy en BREADTH de línea** — le faltan
-multi-topología y s5, las 2 filas residuales. La legacy sigue siendo, en amplitud, la única que generaría
-`Proyect_RE_Agent` con sus 3 topologías y su s05. Pero el carácter del hueco no cambió desde F1-AUDIT: es
-breadth de CONTENIDO, no fundación, y ahora está **medido y acotado a 2 filas nombradas**, no difuso.
+**El matiz que quedaba (y su cierre)**: al cierre de MAT-6, New ASF **todavía NO igualaba a la legacy en
+BREADTH de línea** — le faltaban multi-topología y s5, las 2 filas residuales (breadth de CONTENIDO, no
+fundación, acotado a 2 filas nombradas). **MAT-6b (§7) las cerró**: New ASF ahora alcanza también el breadth
+(2ª topología + validador BFS estructural; s5 grounding tipado), las 8/8 con proof re-derivable.
 
-→ La tabla §12 se dio vuelta donde el deepening MAT-0..MAT-6 la tocó (6/8); las 2 que faltan están declaradas,
-no fingidas. Eso ES "dar vuelta la tabla con honestidad" (el gate de MAT-6, leído sin trampa).
+→ La tabla §12 quedó **8/8** ganadas/empatadas, todas por bloqueo (RTM 11/11, `ci --rederive` 11/11). El
+snapshot MAT-6 (6/8 + 2 residual DECLARADAS, no fingidas) fue "dar vuelta la tabla con honestidad"; MAT-6b
+la completó sin atajos.
+
+## 7. Actualización MAT-6b (2026-06-18) — las 2 residuales, cerradas por bloqueo
+`MAT-6B-MULTITOPO-GROUNDING` cerró las 2 filas que MAT-6 dejó RESIDUAL, como **CONTENIDO de FÁBRICA**:
+- **Multi-topología (B-3, DES-2).** El codegen de ASF dejó de estar casado con UNA forma: 2ª forma de blueprint
+  `supervisor_fanout_fanin` (DATA en `domain.product.topologies`) + `generated/graph/topologies.py` (registro de
+  N topologías) + `generated/graph/validate.py` (**validador BFS estructural** sobre `get_graph()` COMPILADO —
+  todo nodo alcanzable desde `__start__`, `__end__` alcanzable, sin huérfanos; generaliza la alcanzabilidad del
+  interrupt de s7 al grafo entero, sin correr el modelo). Estación **s11** (pytest). Diente VIVO: orphanear/
+  dejar-sin-salida un nodo → s11 ROJO (corromper→rojo, regen→verde).
+- **Source-grounding (B-4, DES-6).** Capability `anclaje_de_fuentes` ACTIVADA (s5 `activation` off→always):
+  `generated/grounding/retrieval.py` con `retrieve()→tuple[str, ProvenancePayload]` TIPADO no-opcional + tabla
+  de evidencia append-only; `ProvenancePayload` exige >=1 evidence_id (sin evidencia → ValidationError). Gate:
+  `mypy --strict` + pytest. Diente VIVO: evidencia opcional → s5 ROJO.
+- **Proof**: RTM **11/11** (REQ-F-009 multi_topologia→s11→topologies.py · REQ-F-010 anclaje_de_fuentes→s5→
+  retrieval.py, artifacts REALES) · `ci --rederive` **11/11 == pineado** (árbol limpio, docker s2/s3, s9/s10
+  keyless) · `meta check` suite verde.
+- **Anti-overfit**: `git diff seed/` = 0; `git diff src/metafactory/` = **1 línea** — no contenido de ASF/tech,
+  sino un **fix de orden GENERAL** (el check m02 `stations_match_spec` usaba `sorted()` lexicográfico vs el
+  `_natural_key` del engine; bug latente desde MAT-5/s10 que la 11ª estación re-surfaceó). El sustrato sigue
+  sin nombrar tech (ADR-012). Evidencia: `work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md`.
 
 ## Apéndice — evidencia (file:line / comandos)
 - RTM 9/9: `meta rtm --factory agent-systems-factory` → COMPLETE; REQ-F-001..008 + REQ-NF-001 SATISFIED.

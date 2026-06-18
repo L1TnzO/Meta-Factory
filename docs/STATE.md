@@ -1,13 +1,13 @@
-<!-- meta:doc sha=a4c10fcd07a739f072648a2e7746aa34faebdd1a updated=2026-06-18T00:33Z -->
+<!-- meta:doc sha=8475a6ec0273e7480d331a70d0160206241689dc updated=2026-06-18T01:06Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-17T23:55Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6 ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad: New ASF gana/empata 6/8, la fila de EVAL decisiva — s10 mide **recall de requisitos REAL** (0.82, 23/28) vs el oráculo HUMANO del dataset RECOVER, **vs el stub 0.0 de la legacy**; 2 filas residual honesto: multi-topología + s5) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-18T01:05Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6b ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad (New ASF gana/empata 6/8, EVAL decisivo: recall REAL 0.82 vs stub 0.0); **MAT-6b**: cerradas las 2 residuales (multi-topología `supervisor_fanout_fanin`+validador BFS DES-2 · s5 grounding `retrieve()` tipado DES-6) → **§12 8/8**, RTM ASF **11/11**, `ci --rederive` 11/11) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (9/9) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
+- Incremento abierto: MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -223,8 +223,22 @@
       (NO inflados). RTM 9/9 · `ci --rederive` 9/9 == pineado · **`git diff src/metafactory/ + seed/` = 0** (la mejora
       vivió 100% en DATA de fábrica). **RESIDUAL honesto (2 filas NO fingidas)**: multi-topología (breadth: 1 forma
       de blueprint, sin validador BFS) + s5 grounding (`activation:"off"`) — CONTENIDO, no fundación; corrige el
-      over-claim del MATURITY-PLAN §5 (multi-topología NO la entregó MAT-2). **Próximo: MAT-7** (3er dominio, prueba
-      final de no-overfitting).
+      over-claim del MATURITY-PLAN §5 (multi-topología NO la entregó MAT-2). **Cerradas por MAT-6b.**
+    - **MAT-6b (`MAT-6B-MULTITOPO-GROUNDING`) ✅ (2026-06-18)** — cerradas las **2 filas RESIDUALES** de MAT-6
+      (F1-AUDIT §10 B-3+B-4) como CONTENIDO de FÁBRICA → la tabla §12 queda **8/8 ganadas/empatadas** (completa
+      DoD-A). **B-3 (multi-topología, DES-2)**: el codegen de ASF deja de estar casado con UNA forma — 2ª forma de
+      blueprint `supervisor_fanout_fanin` (DATA: supervisor → fan-out 3 researchers → fan-in aggregator →
+      interrupt) + `generated/graph/topologies.py` (registro de N topologías) + `validate.py` (**validador BFS
+      estructural** sobre `get_graph()` compilado: todo nodo alcanzable, `__end__` alcanzable, sin huérfanos —
+      generaliza la alcanzabilidad del interrupt de s7 al grafo entero, sin correr el modelo); estación **s11**.
+      **B-4 (grounding, DES-6)**: capability `anclaje_de_fuentes` ACTIVADA (s5 off→always) — `retrieve()→tuple[str,
+      ProvenancePayload]` TIPADO no-opcional (`mypy --strict`) + evidencia obligatoria (sin evidencia →
+      ValidationError). Dientes de dos lados VIVOS (orphanear un nodo → s11 rojo · evidencia opcional → s5 rojo;
+      corromper→rojo, regen→verde). **RTM 11/11** (REQ-F-009/010 con artifacts reales) · `ci --rederive` **11/11 ==
+      pineado** (árbol limpio, docker s2/s3, s9/s10 keyless) · `meta check` suite verde. **Anti-overfit**: `git diff
+      seed/`=0; `src/metafactory/`=**1 línea** — no tech de ASF sino un fix de orden GENERAL (el check m02 usaba
+      `sorted()` lexicográfico vs el `_natural_key` del engine; bug latente desde s10/MAT-5 que la 11ª estación
+      re-surfaceó; twin del fix de orden NATURAL de MAT-5). **Próximo: MAT-7** (3er dominio, prueba final de no-overfitting).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -281,16 +295,16 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
-> **AVANCE (2026-06-17): MAT-0..MAT-6 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
+> **AVANCE (2026-06-18): MAT-0..MAT-6b ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
 > (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la
 > **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12), la **corrida LIVE vs provider REAL**
-> (`live_run`; cierra B-5) y la **re-auditoría §12 dada vuelta con honestidad** (MAT-6: 6/8 ganadas/empatadas,
-> la fila de eval decisiva con **recall de requisitos REAL 0.82 vs el stub 0.0 de la legacy**, contra el oráculo
-> HUMANO del dataset RECOVER; 2 filas residual honesto: multi-topología + s5). **Próximo: MAT-7** — 3er dominio
-> (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. **MAT-6b
-> (slot explícito, post-MAT-6)**: cerrar las 2 filas residuales de §12 — multi-topología (B-3, validador BFS) +
-> s5 grounding (B-4); CONTENIDO de fábrica single-domain, 0 sustrato; order-independent con MAT-7. Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
-> live_run) ya existen y son `general` — el costo marginal por dominio ahora decrece (§6 propiedad de composición).
+> (`live_run`; cierra B-5), la **re-auditoría §12 dada vuelta con honestidad** (MAT-6: 6/8, eval decisivo: recall
+> REAL 0.82 vs stub 0.0) y **MAT-6b: cerradas las 2 residuales** (multi-topología `supervisor_fanout_fanin` +
+> validador BFS estructural DES-2/s11 · s5 grounding `retrieve()` tipado no-opcional DES-6 → cierra B-3+B-4) →
+> tabla §12 **8/8 ganadas/empatadas**, RTM ASF **11/11**, `ci --rederive` 11/11 == pineado. **Próximo: MAT-7** —
+> 3er dominio (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. Los TRES
+> mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate · live_run) ya existen y son `general` — el costo
+> marginal por dominio ahora decrece (§6 propiedad de composición).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

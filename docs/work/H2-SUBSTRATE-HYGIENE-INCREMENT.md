@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c371d0222ee3d7227d528a4319bff4d573c7e41e updated=2026-06-18T17:26Z -->
+<!-- meta:doc sha=ae4318cd18ba2c531c731285d6e656f8e1664f0b updated=2026-06-18T17:33Z -->
 # Incremento H2-SUBSTRATE-HYGIENE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T16:48Z). Cerralo con `meta increment close`
@@ -32,3 +32,17 @@ completo · (P3) el `gate_guard` del meta deja de sobre-matchear `station … --
    station` real fuera de orden (sombra del engine intacta).
 4. **Global**: `meta check` 6/6 · `ci --rederive` dummy/full-stack/iot/ASF == pineado · `git diff
    src/metafactory/ + seed/` sólo mecanismo general (0 nombres de fábrica/tech).
+
+## Evidencia (output REAL, no narrado)
+- **P1** `88c13d3`: byte-identity dummy (`emit_boundary` == comiteado) → sin re-pin; `boundary_survives`
+  EJERCITADO verde en dummy + N/A en full-stack(ts)/iot(go)/ASF(py); diente 2 lados por monkeypatch (regresión
+  de `_emit_boundary` → ROJO) + declaración parcial → ROTTEN. Borrados: `template/factory/product/` + 6 stubs.
+- **P2** `99571dc`: `tests/test_engine.py::TestDagGate` con proofs REALES (no mocks) — fan-in a,b→c OPEN sólo
+  con a∧b∧c verdes; SHUT si a O b cae/falta; `materialize_line` emite el DAG para fan-in, `requires_prev` para
+  lineal (cero churn). Líneas lineales y pins intactos.
+- **P3** `<este commit>`: `match_station_cmd` acotado; 13 tests dos lados; demo VIVO — el hook real ALLOW
+  (exit 0) un `git commit -m "…meta station m02 --factory iot…"`. Lógica de bloqueo intacta (engine = gate real).
+- **Global**: suite 551 verde · `meta check` 6/6 · `ci --rederive` dummy 5/5 · full-stack 6/6 · iot 5/5 ·
+  ASF 11/11 == pineado (árbol limpio, docker s2/s3) · anti-overfit `git diff src/+seed/` = sólo mecanismo general.
+- **Hallazgo**: el 4º wart histórico (`proof_protect` sobre-celoso, `HONEST-STATE §2`) ya estaba CERRADO en
+  código (docstring documenta el narrowing por token-boundary); la nota estaba rancia — fuera de alcance.

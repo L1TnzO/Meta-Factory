@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8b8e710739e33dc30dc7455298323f223a0cfa63 updated=2026-06-18T17:38Z -->
+<!-- meta:doc sha=bdaedff6def6931d5c51c8d9aebb54be8ca8d991 updated=2026-06-18T17:48Z -->
 # Incremento H1-FACTORY-SELFGOV
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T17:37Z). Cerralo con `meta increment close`
@@ -21,9 +21,9 @@ con la LEY en single-source (`seed/lifecycle.py`) reusada por el meta Y por la f
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| P1 | **La ley en el seed**: `seed/lifecycle.py` autocontenido (git+file-IO, cero `metafactory.*`) — `open_increment`/`dirty_code`/`edit_allowed`/`debt`. El meta DELEGA (`cadence.py`+`projection.open_increment` → la ley del seed), single-source sin divergencia. | ⏳ |
-| P2 | **El hook heredado**: `template/factory/harness/.claude/hooks/increment_guard.py` autocontenido (carga `seed/lifecycle.py` por path, raíz desde la ubicación del hook) + cableado en el `settings.json` heredado (PreToolUse Write/Edit/MultiEdit, junto a proof_protect). | ⏳ |
-| P3 | **Prueba por bloqueo + regen**: `column_full` (gate M1) extendido — en clon hermético el increment_guard heredado DENIEGA un edit no-`.md` sin incremento abierto (exit 2) y PERMITE con uno abierto (dos lados); `.md` siempre permitido. dummy + ASF regeneradas con la columna nueva (principio #4). | ⏳ |
+| P1 | **La ley en el seed**: `seed/lifecycle.py` autocontenido (git+file-IO, cero `metafactory.*`) — `open_increment`/`dirty_code`/`edit_allowed`/`debt`. El meta DELEGA (`cadence.py`+`projection.open_increment` → la ley del seed), single-source sin divergencia. | ✅ `1c60539` — `seed/lifecycle.py` + `_seed.load_seed_lifecycle`; meta delega sin regresión; `test_lifecycle.py` 12 dos lados |
+| P2 | **El hook heredado**: `template/factory/harness/.claude/hooks/increment_guard.py` autocontenido (carga `seed/lifecycle.py` por path, raíz desde la ubicación del hook) + cableado en el `settings.json` heredado (PreToolUse Write/Edit/MultiEdit, junto a proof_protect). | ✅ `1c60539` — hook self-contained + cableado; JSON válido; cero `metafactory.*` |
+| P3 | **Prueba por bloqueo + regen**: `column_full` (gate M1) extendido — en clon hermético el increment_guard heredado DENIEGA un edit no-`.md` sin incremento abierto (exit 2) y PERMITE con uno abierto (dos lados); `.md` siempre permitido. dummy + ASF regeneradas con la columna nueva (principio #4). | ✅ `70183f1` — column_full 3 lados VERDE en las 4 fábricas; +3 negativos; demo VIVO (dummy bloquea sola); seed/lifecycle byte-idéntico ×4; `ci` 5/6/5 == pin |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. **P1**: `seed/lifecycle.py` decide el lifecycle sin `metafactory.*`; el meta lo reusa (mismo veredicto
@@ -36,3 +36,20 @@ con la LEY en single-source (`seed/lifecycle.py`) reusada por el meta Y por la f
    re-pin: la columna no es estación de producto).
 4. **Global**: `meta check` 6/6 · suite verde · `git diff seed/` = sólo la ley general (0 nombres de
    fábrica/tech); el seed sigue siendo trust-chain escrito a mano (CLAUDE.md §seed).
+
+## Evidencia (output REAL, no narrado)
+- **P1** `1c60539`: `seed/lifecycle.py` (open_increment/dirty_code/edit_allowed/debt) cargado POR PATH —
+  `test_lifecycle.py` 12 dos lados (cold-start→None · ABIERTO/CERRADO · `.md` siempre allow · code deny
+  sin incremento / allow con · debt). El meta delega: `meta increment status` re-deriva la deuda de la ley
+  del seed; `meta check` 6/6 sin regresión. `grep import metafactory seed/` = 0.
+- **P2** `1c60539`: `increment_guard.py` heredado (carga `seed/lifecycle.py` por path, raíz desde `__file__`,
+  best-effort PERMITE) cableado en `settings.json` (Write|Edit|MultiEdit). JSON válido; cero `metafactory.*`.
+- **P3** `70183f1`: `column_full` 3 lados VERDE-exercised en dummy/full-stack/iot/ASF; `test_column_full.py`
+  +3 negativos (increment_guard ausente/siempre-permite/siempre-bloquea → HUECA). **VIVO**: el hook real de
+  `factories/dummy` DENIEGA `src/probe.py` sin incremento (exit 2) y PERMITE un `.md` (exit 0), SOLO. Las 4
+  fábricas regeneradas: `seed/lifecycle.py` byte-idéntico ×4 · `increment_guard` con slug substituido ·
+  `ci --rederive` dummy 5/5 · full-stack 6/6 · iot 5/5 · ASF 11/11 == pineado (la columna no es estación).
+- **Global**: suite 567 · `meta check` 6/6 · `git diff src/+seed/` = sólo mecanismo general (0 nombres
+  fábrica/tech). **Diferidos con razón (no fingidos)**: pre-push (git-hook ortogonal; el external_ci ya
+  re-deriva limpio) · answers/migración (modelo Copier no-usado; `boundary_survives`/H2 ya prueba la
+  preservación de dominio en re-scaffold).

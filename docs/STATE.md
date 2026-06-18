@@ -1,6 +1,6 @@
-<!-- meta:doc sha=ba3c7b75033bb97cf3545709a025b7fcb803c80e updated=2026-06-18T17:37Z -->
+<!-- meta:doc sha=997b8234284d950c1724533f4d21fe303d7bb913 updated=2026-06-18T17:49Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -294,7 +294,7 @@
     NO-decorativo: si `validate` se vuelve no-op → una `reject` se acepta → mismatch). **Anti-overfit**: `git
     diff src/metafactory/ + seed/` = sólo el mecanismo general (0 nombres de fábrica/tech); el corpus vive
     como DATA. `meta check` 6/6 · `ci --rederive` iot 5/5 == pineado. **Cierra el ROADMAP A–G.**
-- **Fase H (en curso, 2026-06-18) — cerrar los residuales honestos (post A–G), no nuevos rumbos**:
+- **Fase H ✅ (2026-06-18) — cerrados los residuales honestos (post A–G), no nuevos rumbos**:
   - **H2 (`H2-SUBSTRATE-HYGIENE`) ✅** — 3 warts de sustrato verificados EN CÓDIGO (no en docs rancios):
     **P1** la frontera I-5 deja de estar casada con un template Python del sustrato → es DATO de la fábrica
     (`domain.product.boundary_*` inline; acción `emit_boundary`, m04) y OPT-IN honesto: sólo la declara la
@@ -306,8 +306,20 @@
     real (`match_station_cmd`), ya no a la frase en prosa/echo/commit-msg (13 tests + demo vivo). El 4º wart
     histórico (`proof_protect` sobre-celoso) **ya estaba cerrado** (verificado en código, no en la nota). Suite
     551 · `meta check` 6/6 · `ci --rederive` dummy/full-stack/iot/ASF == pineado · anti-overfit: `git diff
-    src/+seed/` = sólo mecanismo general. *Sigue H1*: autogobierno de fábrica (lifecycle/`increment_guard`
-    heredado + journal/RTM en el STATE de la fábrica + pre-push), el residual sustantivo de D1/D2/M4-M7.
+    src/+seed/` = sólo mecanismo general.
+  - **H1 (`H1-FACTORY-SELFGOV`) ✅** — el residual sustantivo de D1/D2/M4-M7: una fábrica generada se
+    DEFIENDE (D1: Cerrojos 1/2/3) pero no se GOBERNABA sola (lifecycle de incrementos, ADR-010). Ahora la
+    LEY del lifecycle vive en `seed/lifecycle.py` autocontenido (open_increment/dirty_code/edit_allowed/
+    debt; git+file-IO, cero `metafactory.*`), single-source que el meta DELEGA (`memory.cadence`+
+    `projection`) y la fábrica HEREDA verbatim (byte-idéntico ×4). El `increment_guard` heredado
+    (`template/factory/harness/.claude/hooks/`, patrón D1: carga el seed por path) cableado en el
+    `settings.json` heredado → la fábrica rehúsa codificar fuera de un incremento abierto y lo ABRE
+    escribiendo un `.md` (auto-bootstrap). `column_full` (gate M1) extendido a 3 lados prueba el hook
+    heredado (deny sin incremento · allow con · `.md` siempre); las 4 fábricas REGENERADAS (principio #4);
+    demo VIVO: el increment_guard de la dummy clonada bloquea SOLO. suite 567 · `meta check` 6/6 · `ci
+    --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
+    pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
+    no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -379,23 +391,25 @@
 > intactos; anti-overfit). **G2 ✅** — corpus de scenario-specs diversos (12 scenarios DATA) que ejercita el
 > motor antes de promover (`meta promote` corre el corpus ANTES del barrido); cierra G-8 de raíz; dos lados +
 > diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit.
-> **El ROADMAP A–G está COMPLETO**; **Fase H** cierra los residuales honestos: **H2 ✅** (sustrato hygiene —
+> **El ROADMAP A–G está COMPLETO**; **Fase H ✅** cerró los residuales honestos: **H2 ✅** (sustrato hygiene —
 > frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado; el `proof_protect`
-> sobre-celoso ya estaba cerrado), **sigue H1** (autogobierno de fábrica: `increment_guard`/cadencia heredada +
-> journal/RTM en el STATE de la fábrica + pre-push — el residual sustantivo de D1/D2/M4-M7). Lo demás es
-> OPCIONAL/diferido por diseño (no en el camino crítico): Mobile como dominio adicional (la generalidad ya está
-> probada en 3 lenguajes disjuntos py⟂ts⟂go), índice semántico de memoria SOLO cuando la serie `recall` lo
-> justifique, hooks de dominio desde L3 (sin necesidad concreta).
+> sobre-celoso ya estaba cerrado) + **H1 ✅** (autogobierno de fábrica: la LEY del lifecycle en `seed/lifecycle.py`
+> single-source que el meta delega y la fábrica hereda + `increment_guard` heredado cableado + `column_full` a 3
+> lados + 4 fábricas regeneradas; el residual sustantivo de D1/D2/M4-M7). Lo que queda es OPCIONAL/diferido por
+> diseño (no en el camino crítico): Mobile como dominio adicional (la generalidad ya está probada en 3 lenguajes
+> disjuntos py⟂ts⟂go), índice semántico de memoria SOLO cuando la serie `recall` lo justifique, hooks de dominio
+> desde L3 (sin necesidad concreta), pre-push (git-hook ortogonal — el external_ci ya re-deriva limpio).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.
   **Cerrado por E1**: infra/sandbox declarada→generada→levantada-y-probada (`emit_infra` + `infra_up`).
   **Cerrado por E2**: MCP declarado→generado→expuesto-y-invocado (`emit_mcp` + `mcp_tools`).
   **Cerrado por H2**: frontera I-5 como DATO (opt-in, mata el wart Python-shaped) · gate DAG multi-predecesor ·
-  `gate_guard` del meta acotado a una invocación real. Abierto: hooks de dominio desde L3 (sin necesidad concreta
-  aún); cadencia/`increment_guard` heredada por fábrica (= H1, el lifecycle de incrementos propio de la fábrica);
-  M4-M7 (cerrado): `commands/`, captura viva, `pre-push`, `answers/migración`. Índice semántico de memoria
-  SOLO cuando la serie `recall` lo justifique (contenido, no dientes — las gates ya están).
+  `gate_guard` del meta acotado a una invocación real. **Cerrado por H1**: cadencia/`increment_guard` heredada
+  por fábrica (la ley del lifecycle en `seed/lifecycle.py`, single-source meta↔fábrica). Abierto: hooks de dominio
+  desde L3 (sin necesidad concreta aún); `pre-push` (git-hook ortogonal — el external_ci ya re-deriva limpio,
+  diferido con razón). Índice semántico de memoria SOLO cuando la serie `recall` lo justifique (contenido, no
+  dientes — las gates ya están).
 
 ## Mapa
 - Bitácora: `LOG.md` · Decisiones: `decisions/` (001–014; **011** 100%-generado, **012** primitivas-no-herramientas, **013** generación como slot orquestado, **014** paridad-de-dos-dominios) · Trabajo: `work/ROADMAP.md` (mapa vivo) · `work/BOOTSTRAP-INCREMENT.md` (cerrado)

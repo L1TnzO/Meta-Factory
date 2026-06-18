@@ -1,7 +1,7 @@
-<!-- meta:doc sha=bdaedff6def6931d5c51c8d9aebb54be8ca8d991 updated=2026-06-18T17:48Z -->
+<!-- meta:doc sha=3dc42e03fefe24ab04c1ad7de6939dcc9a591444 updated=2026-06-18T17:50Z -->
 # Incremento H1-FACTORY-SELFGOV
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T17:37Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T17:50Z) (creado 2026-06-18T17:37Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

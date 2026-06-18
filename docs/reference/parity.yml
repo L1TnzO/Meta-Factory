@@ -27,18 +27,18 @@
 mechanisms:
   - mechanism: product_env       # DES-8 (C3): proof en el toolchain DEL producto, aislado del de la fábrica.
     status: general
-    domains: [dummy, agent-systems-factory, full-stack]
-    note: "Probado verde en Python (dummy/ASF) Y TypeScript (full-stack s0 tsc / s1 node:test). Dos lenguajes -> general."
+    domains: [dummy, agent-systems-factory, full-stack, iot]
+    note: "Probado verde en Python (dummy/ASF), TypeScript (full-stack s0 tsc / s1 node:test) Y Go (iot s0-s2 `go vet`/`go test`, MAT-7). TRES lenguajes disjuntos -> general robusto (la 3ª fábrica heredó el mecanismo sin tocar el sustrato)."
 
   - mechanism: generate          # ADR-013 (C1): el slot creativo (brief -> via -> artefacto; la columna arbitra).
     status: general
-    domains: [dummy, agent-systems-factory, full-stack]
-    note: "Scaffolder determinista en 2 lenguajes (ASF emite LangGraph, full-stack emite TS). El `via` vivo por LLM es MAT-2."
+    domains: [dummy, agent-systems-factory, full-stack, iot]
+    note: "Scaffolder determinista en 3 lenguajes (ASF emite LangGraph/python, full-stack emite TS, iot emite un gateway Go, MAT-7). El `via` vivo por LLM es MAT-2."
 
   - mechanism: infra_up          # DES-9 (E1): la infra declarada levanta en el sandbox y un proof la usa.
     status: general
-    domains: [dummy, full-stack, agent-systems-factory]
-    note: "MAT-3: cableado al M8 del PRODUCTO (bootstrap del toolchain + proof = test del producto). Probado en 2 KINDS de infra y 2 lenguajes: full-stack (node:sqlite socket, el producto persiste/lee) Y ASF (docker: Postgres checkpointer s3 + Neo4j linaje s2, python). dummy mantiene el socket stdlib."
+    domains: [dummy, full-stack, agent-systems-factory, iot]
+    note: "MAT-3: cableado al M8 del PRODUCTO (bootstrap del toolchain + proof = test del producto). Probado en 3 KINDS de infra y 3 lenguajes: full-stack (node:sqlite socket, el producto persiste/lee), ASF (docker: Postgres checkpointer s3 + Neo4j linaje s2, python) Y iot (broker Go stdlib sobre socket-Unix, store-and-forward vivo, MAT-7). dummy mantiene el socket stdlib."
 
   - mechanism: mcp_tools         # DES-6 (E2): el MCP generado expone e invoca tools tipadas.
     status: prototype

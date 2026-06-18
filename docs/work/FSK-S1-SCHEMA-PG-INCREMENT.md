@@ -1,7 +1,7 @@
-<!-- meta:doc sha=7a16127d483de546c614b2451d56df760d336312 updated=2026-06-18T22:10Z -->
+<!-- meta:doc sha=1add96f125cd17d46bae36af1885e2fb15bd91e2 updated=2026-06-18T22:13Z -->
 # Incremento FSK-S1-SCHEMA-PG — Full-Stack Kotlin · datos (s1)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T21:13Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T22:13Z) (creado 2026-06-18T21:13Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

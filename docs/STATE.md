@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bcc4fb8469844e09d3fe706304b37b8ba845f459 updated=2026-06-17T23:59Z -->
+<!-- meta:doc sha=03cb887f8420edbd5150016e9b638165c49b474e updated=2026-06-18T00:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T23:55Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6 ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad: New ASF gana/empata 6/8, la fila de EVAL decisiva — s10 mide **recall de requisitos REAL** (0.82, 23/28) vs el oráculo HUMANO del dataset RECOVER, **vs el stub 0.0 de la legacy**; 2 filas residual honesto: multi-topología + s5) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MAT-6-RE-AUDIT-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (9/9) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6)
 <!-- /meta:projection -->
 

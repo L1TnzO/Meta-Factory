@@ -1,7 +1,7 @@
-<!-- meta:doc sha=7c9e1f9dee7f1a2182276d230a8869b36653134c updated=2026-06-18T00:00Z -->
+<!-- meta:doc sha=9e207fdf0b0d50869f4009f72f49c04b6d5d5d9f updated=2026-06-18T00:03Z -->
 # Incremento MAT-6-RE-AUDIT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T23:37Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T00:02Z) (creado 2026-06-17T23:37Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -28,7 +28,7 @@ blueprint** y NO un validador BFS de topologías custom. Igual, **s5 (anclaje/gr
 | P1 | **s10 → eval de recall de requisitos REAL**: el producto recupera requisitos de la transcripción (driver `run_live.py` arma input=instrucción+transcripción, max_tokens 3000); `gold.json` codifica los 28 requisitos como targets de recall (anchors bilingües, any-of) + `key_concepts` (cobertura robusta al idioma); `scorer.py` mide recall vs el oráculo humano. Corrida VIVA vs DeepSeek → pin nuevo §7; gate keyless (pin presente). | ✅ |
 | P2 | **Re-auditoría** de cada fila de §12 por bloqueo → nuevo doc `reference/MAT-6-REAUDIT.md` (tabla dada vuelta + residual honesto) + banner de reenvío en `F1-AUDIT §12`. | ✅ |
 | P3 | Docs: este doc (evidencia) + MATURITY-PLAN (MAT-6 ✅ + corrección del over-claim de §5) + STATE + ROADMAP + LOG. | ✅ |
-| P4 | Cierre: `git diff src/metafactory/ + seed/` = 0 (anti-overfit), `meta check` 6/6, dummy + full-stack intactos; `meta increment close`. | ⏳ |
+| P4 | Cierre: `git diff src/metafactory/ + seed/` = 0 (anti-overfit), `meta check` 6/6, dummy + full-stack intactos; `meta increment close`. | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. s10 corre el producto VIVO vs DeepSeek sobre la transcripción REAL y mide **recall de requisitos** contra
@@ -39,10 +39,9 @@ blueprint** y NO un validador BFS de topologías custom. Igual, **s5 (anclaje/gr
 3. `git diff src/metafactory/ + seed/` del incremento = **0** (MAT-6 es contenido/auditoría, no sustrato).
 4. `meta check` 6/6 · RTM ASF 9/9 · dummy 5/5 · full-stack 6/6 intactos.
 
-## Evidencia (en progreso)
-- **P0** (`<commit>`): `live/dataset/{example_conversation.txt (266 líneas), experts_final_requirements.txt (28 reqs)}`
-  copiados read-only del dataset RECOVER congelado (`Agent_Systems_Factory/projects/Proyect_RE_Agent/dataset/`).
-- **P1** (`<commit>`): s10 reconvertida a recall de requisitos REAL. Corrida VIVA vs `deepseek-chat` (1 caso, la
+## Evidencia (CERRADO — 2026-06-18, 4 commits P0/P1·P2·P3·cierre)
+- **P0+P1** (`04451ec`): `live/dataset/{example_conversation.txt (266 líneas), experts_final_requirements.txt (28
+  reqs)}` copiados read-only del dataset RECOVER congelado. s10 reconvertida a recall de requisitos REAL. Corrida VIVA vs `deepseek-chat` (1 caso, la
   transcripción IFA; output 4517 chars en inglés, 35+ "The system must…"). **Recall medido contra el oráculo
   humano: `critical_recall=0.8214` (23/28), `key_term_coverage=1.0` (20/20 conceptos)**; degraded `0.0/0.0`
   (flipea prop_hitl + prop_grounding + scorer). Gate s10 OPEN keyless (pin re-verificado sin provider, §7).

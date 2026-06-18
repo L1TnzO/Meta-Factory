@@ -1,7 +1,7 @@
-<!-- meta:doc sha=f41e8f2e538c5cac76fa594da2c4f78f5351e1f6 updated=2026-06-18T01:10Z -->
+<!-- meta:doc sha=76204cd81424a76b2f2007533c3a04abafb4b65c updated=2026-06-18T01:10Z -->
 # Incremento MAT-6B-MULTITOPO-GROUNDING
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T00:45Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T01:10Z) (creado 2026-06-18T00:45Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

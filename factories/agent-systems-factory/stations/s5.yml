@@ -1,6 +1,26 @@
 id: s5
-name: Anclaje de fuentes (retrieve tipado — diferido con el linaje vivo)
-activation: 'off'
+name: 'Anclaje de fuentes: retrieve()→ProvenancePayload TIPADO no-opcional (B-4, DES-6)'
+activation: always
 requires_prev: s4
 builds: []
-checks: []
+checks:
+- name: typed_retrieve
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - mypy
+  - --strict
+  - src/agent_system/generated/grounding
+- name: grounding_requires_evidence
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - .venv/bin/python
+  - -m
+  - pytest
+  - -q
+  - tests/test_grounding.py

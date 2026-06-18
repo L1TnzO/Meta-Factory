@@ -5,9 +5,12 @@ activation: always
 # derivable, ADR-011): una `stations/<id>.yml` por entrada de `station_sequence`, con sus builds/checks
 # ejecutables. Mata el patrón único (ya no hay una `s00` fija). El CÓDIGO de dominio lo instala M4. La
 # gate exige que la línea materializada PARSEE, sea DETERMINISTA, y COINCIDA con la secuencia del spec.
+# La comparación ordena `declared` con el MISMO _natural_key del engine (load_sequence) — si no, una línea
+# de ≥10 estaciones falla por orden lexicográfico (s10 entre s1 y s2) aunque sea correcta (twin del fix de
+# orden NATURAL de MAT-5; bug general latente que la 11ª estación de ASF re-surfaceó — no es tech de dominio).
 builds:
   - { action: materialize_line, dest: "stations" }
 checks:
   - name: stations_match_spec
     kind: import_runs
-    code: "from metafactory.engine import load_sequence; from metafactory.spec import load_spec; spec=load_spec('factory.spec.yml'); declared=sorted(s.id for s in spec.stations if s.active); a=load_sequence('stations'); b=load_sequence('stations'); assert a.ids()==b.ids() and a.ids(), 'linea vacia o no determinista'; assert a.ids()==declared, 'linea materializada %r != secuencia del spec %r' % (a.ids(), declared)"
+    code: "from metafactory.engine import load_sequence; from metafactory.engine.sequence import _natural_key; from metafactory.spec import load_spec; spec=load_spec('factory.spec.yml'); declared=sorted((s.id for s in spec.stations if s.active), key=_natural_key); a=load_sequence('stations'); b=load_sequence('stations'); assert a.ids()==b.ids() and a.ids(), 'linea vacia o no determinista'; assert a.ids()==declared, 'linea materializada %r != secuencia del spec %r' % (a.ids(), declared)"

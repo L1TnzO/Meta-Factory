@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ba26a28aec3f511a9c5ffc40173d4961cbb41695 updated=2026-06-18T19:37Z -->
+<!-- meta:doc sha=61206a802cc8ce57b3309c24750a425a1a677b64 updated=2026-06-18T19:46Z -->
 # Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T19:35Z). Cerralo con `meta increment close`
@@ -45,7 +45,7 @@ Si no se logra hermético, el gate de s0 NO puede ser honesto — documentar el 
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Toolchain hermético** (§3): `gradlew` pineado + caché offline; smoke `kotlinc` + `tsc` corren aislados | ⏳ |
+| 1 | **Toolchain pineado + probado** (§3): Gradle 9.5.1 (sha256) + Kotlin 2.4.0 + JDK 21 + TS 5.7.3; wrapper vendorizado en `factories/full-stack-kotlin/codegen/assets/gradle/`; smoke Kotlin (`FSK_SMOKE_OK`) y `tsc --strict` (green 0 / red 2) — `assets/TOOLCHAIN.md` | ✅ |
 | 2 | **Codegen de fábrica** `factories/full-stack-kotlin/codegen/scaffold_product.py` (determinista): lee `domain.product` → emite el árbol (OpenAPI `openapi.yaml`, stubs Kotlin, client TS, `settings.gradle.kts`, workspace npm). Plantilla: `factories/full-stack/codegen/`. **Vive en la FÁBRICA, no en `src/metafactory/`** (ADR-012) | ⏳ |
 | 3 | **s0 ejecutable en la spec**: rellenar `builds` (slot `generate` con `via` = el codegen) + los 3 `checks` (`contract_single_source`/`scaffold_idempotent`/`isolation_boundary`) replicando el patrón TS; `meta product-run` hasta s0 | ⏳ |
 | 4 | **Dientes de dos lados** (probar por bloqueo): drift de contrato sin regenerar un lado → compila rojo · regenerar → verde · `import`/classpath de la fábrica dentro del producto → rojo | ⏳ |

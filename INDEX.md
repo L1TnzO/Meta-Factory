@@ -51,7 +51,7 @@
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
-| `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `ba26a28aec3f` | 2026-06-18T19:37Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
+| `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `61206a802cc8` | 2026-06-18T19:46Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |

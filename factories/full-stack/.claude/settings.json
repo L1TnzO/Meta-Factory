@@ -1,5 +1,5 @@
 {
-  "$comment": "Columna heredada de la fábrica full-stack — las sombras deterministas del seed, AUTOCONTENIDAS (cargan seed/verifier.py por path, cero metafactory.*). Cerrojo 1: permissions.deny + proof_protect (el veredicto no se escribe). Cerrojo 2: commit_guard recomputa la estación activa en `git commit`. Cerrojo 3: stop_proof recomputa la activa al cierre del turno. La re-ejecución en limpio (artefacto rancio/producto roto) sube al external_ci por-fábrica (column.md). La fábrica se defiende SOLA con su propio trust root.",
+  "$comment": "Columna heredada de la fábrica full-stack — las sombras deterministas del seed, AUTOCONTENIDAS (cargan seed/{verifier,lifecycle}.py por path, cero metafactory.*). Cerrojo 1: permissions.deny + proof_protect (el veredicto no se escribe). Cerrojo 2: commit_guard recomputa la estación activa en `git commit`. Cerrojo 3: stop_proof recomputa la activa al cierre del turno. Cadencia (ADR-010): increment_guard rehúsa codificar fuera de un incremento abierto (Capa 1; la ley vive en seed/lifecycle.py). La re-ejecución en limpio (artefacto rancio/producto roto) sube al external_ci por-fábrica (column.md). La fábrica se defiende Y se gobierna SOLA con su propio trust root.",
   "permissions": {
     "deny": ["Write(.proof/**)", "Edit(.proof/**)", "Write(**/.proof/**)", "Edit(**/.proof/**)"]
   },
@@ -7,7 +7,10 @@
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit",
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/proof_protect.py" }]
+        "hooks": [
+          { "type": "command", "command": "python3 .claude/hooks/proof_protect.py" },
+          { "type": "command", "command": "python3 .claude/hooks/increment_guard.py" }
+        ]
       },
       {
         "matcher": "Bash",

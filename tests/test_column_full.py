@@ -24,11 +24,11 @@ _TEMPLATE_HOOKS = _REPO_ROOT / "template" / "factory" / "harness" / ".claude" / 
 
 def _build_factory(root: Path) -> None:
     """Arma una fábrica mínima con la columna heredada: seed/ + .claude/hooks/ (commit_guard,
-    stop_proof, proof_protect) tal como los instala M1 (copy_seed + render_tree del harness)."""
+    stop_proof, proof_protect, increment_guard) tal como los instala M1 (copy_seed + render_tree)."""
     shutil.copytree(_SEED_DIR, root / "seed")
     hooks = root / ".claude" / "hooks"
     hooks.mkdir(parents=True)
-    for name in ("commit_guard.py", "stop_proof.py", "proof_protect.py"):
+    for name in ("commit_guard.py", "stop_proof.py", "proof_protect.py", "increment_guard.py"):
         shutil.copy2(_TEMPLATE_HOOKS / name, hooks / name)
 
 
@@ -71,7 +71,7 @@ _STOP_EVENT: dict = {}
 # ── autocontención: cero metafactory.* en los hooks heredados ──────────────────
 
 class TestSelfContained:
-    @pytest.mark.parametrize("hook", ["commit_guard.py", "stop_proof.py", "proof_protect.py"])
+    @pytest.mark.parametrize("hook", ["commit_guard.py", "stop_proof.py", "proof_protect.py", "increment_guard.py"])
     def test_no_substrate_import(self, hook):
         """Un hook heredado NO importa `metafactory.*` NI lo usa como código: la fábrica se defiende
         con su seed, no con el sustrato del Meta-Factory (autocontención, D1). El chequeo es sobre
@@ -234,6 +234,31 @@ class TestColumnFullCheck:
         from metafactory.verify.checks.column_full import main
         _build_factory(tmp_path)
         (tmp_path / ".claude" / "hooks" / "stop_proof.py").write_text(
+            "import sys; sys.exit(2)\n", encoding="utf-8")
+        assert main([str(tmp_path)]) == 1
+
+    def test_hollow_when_increment_guard_missing(self, tmp_path):
+        """Sin el increment_guard heredado, la columna de cadencia es HUECA → exit 1 (H1)."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "increment_guard.py").unlink()
+        assert main([str(tmp_path)]) == 1
+
+    def test_hollow_when_increment_guard_always_allows(self, tmp_path):
+        """Un increment_guard hueco (siempre exit 0) NO bloquea editar código sin incremento → el gate
+        lo cae a rojo (el lado deny de la prueba de dos lados de la cadencia, H1)."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "increment_guard.py").write_text(
+            "import sys; sys.exit(0)\n", encoding="utf-8")
+        assert main([str(tmp_path)]) == 1
+
+    def test_hollow_when_increment_guard_always_blocks(self, tmp_path):
+        """Un increment_guard que siempre bloquea (exit 2) rechaza un `.md` y/o código con incremento
+        abierto → el gate lo cae a rojo (el lado allow; sobre-bloquear también rompe la cadencia)."""
+        from metafactory.verify.checks.column_full import main
+        _build_factory(tmp_path)
+        (tmp_path / ".claude" / "hooks" / "increment_guard.py").write_text(
             "import sys; sys.exit(2)\n", encoding="utf-8")
         assert main([str(tmp_path)]) == 1
 

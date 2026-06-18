@@ -9,9 +9,14 @@ and `stop_proof.py` (Cerrojo 3, at turn close). The proof is two-sided and there
   - a CLEAN-GREEN active proof → BOTH hooks exit 0 (a column that always-allowed fails the first, one
     that always-blocked fails the second).
 
+It ALSO proves the inherited `increment_guard.py` (Capa 1 de la cadencia, ADR-010, H1) governs the
+factory's OWN increment lifecycle — two-sided again: with NO open increment a non-`.md` edit is DENIED
+(exit 2), with an increment open it is ALLOWED (exit 0), and a `.md` is always allowed (it is how an
+increment is opened). A guard that always-allowed fails the deny side; one that always-blocked fails both.
+
 Runs against a hermetic CLONE of the factory (so the real `.proof/` is never touched), mirroring
-agent_shadow/clean_runner. The hooks are self-contained (they load the clone's `seed/verifier.py`), so
-this also exercises that the factory defends itself ALONE — without the Meta-Factory's hooks or substrate.
+agent_shadow/clean_runner. The hooks are self-contained (they load the clone's `seed/{verifier,lifecycle}.py`),
+so this also exercises that the factory defends AND governs itself ALONE — without the Meta-Factory's hooks.
 
 Exit 0 iff the wired column blocks the lie and passes the truth. Exit 1 means the column is hollow.
 Argv: <factory_root>."""
@@ -25,9 +30,19 @@ import sys
 import tempfile
 from pathlib import Path
 
-_HOOKS = ("commit_guard.py", "stop_proof.py")
+_HOOKS = ("commit_guard.py", "stop_proof.py", "increment_guard.py")
 _COMMIT_EVENT = json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}})
 _STOP_EVENT = json.dumps({})
+
+
+def _edit_event(path: Path) -> str:
+    return json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(path)}})
+
+
+def _open_increment_doc(root: Path) -> None:
+    d = root / "docs" / "work"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "COLFULL-INCREMENT.md").write_text("# inc\n> Estado: **ABIERTO**\n", encoding="utf-8")
 
 
 def _load_inherited_verifier(root: Path):
@@ -105,8 +120,28 @@ def main(argv: list[str]) -> int:
             print(f"COLUMN SOBRE-BLOQUEA: verde-limpio rechazado (commit_guard {gc}, stop_proof {gs})")
             return 1
 
+        # 3. CADENCIA (H1): el increment_guard heredado gobierna el lifecycle de la fábrica, dos lados.
+        code_target = clone / "src" / "selfgov_probe.py"
+        # 3a. SIN incremento abierto (el clon no trae docs/work/*ABIERTO): un edit no-`.md` se DENIEGA.
+        rc_deny = _run_hook(clone, "increment_guard.py", _edit_event(code_target))
+        if rc_deny != 2:
+            print(f"CADENCIA HUECA: increment_guard NO bloqueó editar código sin incremento (exit {rc_deny})")
+            return 1
+        # 3b. un `.md` SIEMPRE se permite (es como se abre un incremento — auto-bootstrap).
+        rc_md = _run_hook(clone, "increment_guard.py", _edit_event(clone / "docs" / "work" / "NEW-INCREMENT.md"))
+        if rc_md != 0:
+            print(f"CADENCIA SOBRE-BLOQUEA: increment_guard rechazó un `.md` (exit {rc_md})")
+            return 1
+        # 3c. CON un incremento abierto: el MISMO edit no-`.md` se PERMITE (el otro lado, no decorativo).
+        _open_increment_doc(clone)
+        rc_allow = _run_hook(clone, "increment_guard.py", _edit_event(code_target))
+        if rc_allow != 0:
+            print(f"CADENCIA SOBRE-BLOQUEA: increment_guard rechazó código con incremento abierto (exit {rc_allow})")
+            return 1
+
         print("OK columna heredada COMPLETA: commit_guard (C2) + stop_proof (C3) bloquean el veredicto "
-              "tampereado y pasan el verde-limpio, autocontenidos en el seed de la fábrica")
+              "tampereado y pasan el verde-limpio; increment_guard (cadencia, H1) deniega código sin "
+              "incremento y lo permite con uno — autocontenidos en el seed, la fábrica se gobierna sola")
         return 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

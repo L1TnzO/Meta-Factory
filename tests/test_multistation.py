@@ -97,6 +97,30 @@ def test_materialize_line_drops_stale_stations(tmp_path):
     assert seq.ids() == ["s00", "s01"]
 
 
+def test_materialize_line_emits_depends_on_for_fanin(tmp_path):
+    """A FAN-IN (>1 depends_on) materializes as the full `depends_on` DAG, not a single requires_prev,
+    so the engine gates EVERY upstream branch (H2 P2). A single depends_on stays a linear requires_prev."""
+    spec = textwrap.dedent("""
+        factory: {name: T, slug: t, maturity: bootstrap}
+        domain:
+          produces: x
+          station_sequence:
+            - {id: s00, name: a, activation: always, builds: [], checks: []}
+            - {id: s01, name: b, activation: always, builds: [], checks: []}
+            - {id: s02, name: join, activation: always, depends_on: [s00, s01], builds: [], checks: []}
+        factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+        requirements: {functional: [{id: REQ-F-001, statement: s, satisfied_by: [s00]}]}
+    """)
+    (tmp_path / "factory.spec.yml").write_text(spec, encoding="utf-8")
+    st = Station.from_dict({"id": "m02", "name": "m02",
+                            "builds": [{"action": "materialize_line", "dest": "stations"}]})
+    apply_builds(_ctx(tmp_path), st, {"slug": "t"})
+    seq = load_sequence(tmp_path / "stations")
+    join = seq.get("s02")
+    assert join.depends_on == ["s00", "s01"] and join.requires_prev is None  # full DAG, not collapsed
+    assert [s.id for s in seq.predecessors(join)] == ["s00", "s01"]           # engine gates BOTH branches
+
+
 # ── the multi-station gate (real engine): each gates + the chain ────────────────
 
 def test_two_station_line_each_gates_and_chains(tmp_path):

@@ -239,3 +239,65 @@ class TestOpenGate:
         # s3 requires s1 (which passed), so gate opens
         result = open_gate(ctx, s3, seq)
         assert result.opened is True
+
+
+# ── Sequence.predecessors — the DAG / fan-in set (H2 P2) ──────────────────────
+
+def _fanin_seq() -> Sequence:
+    """a, b (independent) -> c (a join that depends_on BOTH)."""
+    a = Station.from_dict({"id": "a", "name": "a"})
+    b = Station.from_dict({"id": "b", "name": "b"})
+    c = Station.from_dict({"id": "c", "name": "c", "depends_on": ["a", "b"]})
+    return Sequence([a, b, c])
+
+
+class TestSequencePredecessors:
+    def test_fanin_returns_all_declared(self):
+        seq = _fanin_seq()
+        assert [s.id for s in seq.predecessors(seq.get("c"))] == ["a", "b"]
+
+    def test_fanin_singular_predecessor_is_last(self):
+        """`predecessor` (the defense-in-depth shadow) collapses to the last; the engine uses `predecessors`."""
+        assert _fanin_seq().predecessor(_fanin_seq().get("c")).id == "b"
+
+    def test_linear_predecessors_is_single(self):
+        seq = make_seq("s1", "s2", "s3")
+        assert [s.id for s in seq.predecessors(seq.stations[2])] == ["s2"]
+
+    def test_first_has_no_predecessors(self):
+        assert make_seq("s1", "s2").predecessors(make_seq("s1", "s2").stations[0]) == []
+
+    def test_unknown_depends_on_filtered(self):
+        a = Station.from_dict({"id": "a", "name": "a"})
+        c = Station.from_dict({"id": "c", "name": "c", "depends_on": ["a", "ghost"]})
+        seq = Sequence([a, c])
+        assert [s.id for s in seq.predecessors(c)] == ["a"]
+
+
+# ── gate.open_gate over a fan-in DAG — two-sided (H2 P2) ──────────────────────
+
+class TestDagGate:
+    def test_fanin_open_only_when_every_branch_green(self, tmp_path):
+        for sid in ("a", "b", "c"):
+            write_passing_proof(tmp_path, sid)
+        assert open_gate(make_ctx(tmp_path), _fanin_seq().get("c"), _fanin_seq()).opened is True
+
+    def test_fanin_shut_when_first_branch_fails(self, tmp_path):
+        write_failing_proof(tmp_path, "a")
+        write_passing_proof(tmp_path, "b")
+        write_passing_proof(tmp_path, "c")
+        r = open_gate(make_ctx(tmp_path), _fanin_seq().get("c"), _fanin_seq())
+        assert r.opened is False and "predecessor a" in r.reason
+
+    def test_fanin_shut_when_second_branch_fails(self, tmp_path):
+        write_passing_proof(tmp_path, "a")
+        write_failing_proof(tmp_path, "b")
+        write_passing_proof(tmp_path, "c")
+        r = open_gate(make_ctx(tmp_path), _fanin_seq().get("c"), _fanin_seq())
+        assert r.opened is False and "predecessor b" in r.reason
+
+    def test_fanin_shut_when_a_branch_unproven(self, tmp_path):
+        write_passing_proof(tmp_path, "a")
+        write_passing_proof(tmp_path, "c")  # b has no proof at all
+        r = open_gate(make_ctx(tmp_path), _fanin_seq().get("c"), _fanin_seq())
+        assert r.opened is False and "predecessor b" in r.reason

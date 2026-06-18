@@ -16,7 +16,8 @@ class Station:
     activation: str = "always"          # always | optional
     builds: list[dict] = field(default_factory=list)   # [{action, ...}]
     checks: list[dict] = field(default_factory=list)    # [{name, kind, ...}]
-    requires_prev: str | None = None    # explicit predecessor id, or None => previous in order
+    requires_prev: str | None = None    # explicit single predecessor id, or None => previous in order
+    depends_on: list[str] = field(default_factory=list)  # explicit DAG predecessors (fan-in); ALL gate this one
     raw: dict = field(default_factory=dict)
 
     @classmethod
@@ -28,6 +29,7 @@ class Station:
             builds=list(d.get("builds", [])),
             checks=list(d.get("checks", [])),
             requires_prev=d.get("requires_prev"),
+            depends_on=list(d.get("depends_on", []) or []),
             raw=d,
         )
 

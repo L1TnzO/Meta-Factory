@@ -39,9 +39,25 @@ class Sequence:
     def ids(self) -> list[str]:
         return [s.id for s in self.active]
 
+    def predecessors(self, station: Station) -> list[Station]:
+        """All gate predecessors — the DAG a station's gate waits on. Explicit `depends_on` (fan-in:
+        EVERY one must be green before this gate may open) takes precedence; else the single linear
+        predecessor (`requires_prev` or the previous ACTIVE station in order); else none for the first.
+        Unknown/dropped ids are filtered (the validator already rejects depends_on -> unknown/inactive)."""
+        if station.depends_on:
+            return [self._by_id[d] for d in station.depends_on if d in self._by_id]
+        prev = self._linear_predecessor(station)
+        return [prev] if prev is not None else []
+
     def predecessor(self, station: Station) -> Station | None:
-        """The gate predecessor: an explicit `requires_prev`, else the previous ACTIVE
-        station in order, else None for the first."""
+        """The single representative predecessor (last in line order) — used by the defense-in-depth
+        `gate_guard` shadow. The ENGINE gate checks ALL of `predecessors` (the real DAG guard)."""
+        preds = self.predecessors(station)
+        return preds[-1] if preds else None
+
+    def _linear_predecessor(self, station: Station) -> Station | None:
+        """The linear predecessor: an explicit `requires_prev`, else the previous ACTIVE station in
+        order, else None for the first (the chain case, unchanged from before depends_on)."""
         if station.requires_prev is not None:
             return self._by_id.get(station.requires_prev)
         active = self.active

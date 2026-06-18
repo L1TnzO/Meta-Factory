@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6bba21e3588e565422af85aec7630727f3782846 updated=2026-06-18T16:59Z -->
+<!-- meta:doc sha=900596d4f9732adab7c7675213cc2087f193b863 updated=2026-06-18T17:19Z -->
 # Incremento H2-SUBSTRATE-HYGIENE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T16:48Z). Cerralo con `meta increment close`
@@ -16,8 +16,8 @@ completo · (P3) el `gate_guard` del meta deja de sobre-matchear `station … --
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| P1 | **m04 frontera-como-DATO (opt-in honesto)**: el stub dominio/generado lo declara la spec como contenido inline en `domain.product` (fluye a `spec.subst`); `emit_boundary` lo escribe SÓLO si está declarado; m04 deja de renderizar el template Python del sustrato. La frontera I-5 (split humano/generado) sólo aplica donde el producto LO TIENE: la dummy es el ejemplar; full-stack/iot/ASF (producto 100% scaffolded, sin capa humana) hacen opt-out y `boundary_survives` reporta N/A honesto. Mata el template Python del sustrato + los `domain/webapp.py`/`iotgw.py`/`agent_system.py`(demo) + `generated/runner.py` vestigiales. | ⏳ |
-| P2 | **Gate DAG multi-predecesor**: `engine/gate.py` + `Station` honran TODOS los `depends_on` (no sólo `requires_prev`); una estación fan-in queda SHUT si CUALQUIER predecesor no está verde. Prueba por bloqueo con fixture fan-in. | ⏳ |
+| P1 | **m04 frontera-como-DATO (opt-in honesto)**: el stub dominio/generado lo declara la spec como contenido inline en `domain.product` (fluye a `spec.subst`); `emit_boundary` lo escribe SÓLO si está declarado; m04 deja de renderizar el template Python del sustrato. La frontera I-5 (split humano/generado) sólo aplica donde el producto LO TIENE: la dummy es el ejemplar; full-stack/iot/ASF (producto 100% scaffolded, sin capa humana) hacen opt-out y `boundary_survives` reporta N/A honesto. Mata el template Python del sustrato + los `domain/webapp.py`/`iotgw.py`/`agent_system.py`(demo) + `generated/runner.py` vestigiales. | ✅ `88c13d3` — dummy ejercitada verde (byte-idéntico, sin re-pin) + diente 2 lados (monkeypatch→rojo); opt-out N/A py⟂ts⟂go; suite 528 · meta check 6/6 · ci 4 fábricas == pin |
+| P2 | **Gate DAG multi-predecesor**: `engine/gate.py` + `Station` honran TODOS los `depends_on` (no sólo `requires_prev`); una estación fan-in queda SHUT si CUALQUIER predecesor no está verde. Prueba por bloqueo con fixture fan-in. | ✅ — `Sequence.predecessors()` (DAG) + `gate` itera TODOS; `materialize_line` emite `depends_on` para fan-in (>1), `requires_prev` para lineal (sin churn). Fixture fan-in con proofs REALES: OPEN sólo con a∧b∧c verdes, SHUT si a O b cae/falta (10 tests); líneas lineales intactas |
 | P3 | **`gate_guard` acotado**: una mención de `station X --factory Y` en prosa/quote no dispara el deny; un `meta station` fuera de orden REAL sí. | ⏳ |
 
 ## Criterio de cierre (demostrable, no narrable)

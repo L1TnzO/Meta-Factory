@@ -134,8 +134,9 @@ def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     by `generate` (ADR-013). The substrate enumerates no tech; `via`/`kind` ride through as free data.
 
     The dest dir is regenerated to match the spec EXACTLY: stale `*.yml` are removed first (a station dropped
-    from the spec disappears from the line). depends_on -> the engine's single `requires_prev` (linear chain;
-    multi-predecessor DAG gating is later).
+    from the spec disappears from the line). A single `depends_on` materializes as the engine's linear
+    `requires_prev` (the chain, unchanged); a FAN-IN (>1 `depends_on`) materializes as `depends_on` so the
+    engine gates the full DAG — EVERY upstream branch must be green before the join's gate may open.
     """
     import yaml
 
@@ -151,8 +152,10 @@ def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     msgs: list[str] = []
     for s in spec.stations:
         node: dict = {"id": s.id, "name": s.name, "activation": s.activation}
-        if s.depends_on:
-            node["requires_prev"] = s.depends_on[-1]   # linear chain; engine gates one predecessor
+        if len(s.depends_on) == 1:
+            node["requires_prev"] = s.depends_on[0]    # linear chain; engine gates the one predecessor
+        elif len(s.depends_on) > 1:
+            node["depends_on"] = list(s.depends_on)    # fan-in; engine gates the full DAG (all must be green)
         node["builds"] = s.builds
         node["checks"] = s.checks
         text = render_text(yaml.safe_dump(node, sort_keys=False, allow_unicode=True), subst)

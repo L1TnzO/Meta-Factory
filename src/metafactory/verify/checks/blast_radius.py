@@ -65,6 +65,29 @@ def tooth_ok(candidates: dict, baseline: dict) -> bool:
     return ok is False
 
 
+def decide(candidates: dict, baseline: dict, slug: str, allow_hold: bool = False) -> tuple[str, object]:
+    """The PURE promote decision (no I/O), so `meta promote` and its tests share one law. Returns
+    (action, detail) where action is:
+      - "facade"      : the target did not actually improve (a hold is nothing to promote, §4);
+      - "blast"       : a downstream factory would lower its verdict (the blast radius);
+      - "decorative"  : the domination law has no teeth (a +1 baseline did not regress);
+      - "promote"     : safe to re-pin the target and bump the baseline.
+    Every branch is a HARD FACT over re-derived verdicts — never a judgment (SELF-IMPROVEMENT §6)."""
+    cand = candidates.get(slug)
+    if cand is None:
+        return "facade", "sin verdict candidato (no se pudo re-derivar)"
+    improved = V.raised(cand, baseline[slug])
+    held, hold_reason = V.dominates(cand, baseline[slug])
+    if not improved and not (allow_hold and held):
+        return "facade", (hold_reason if not held else "el candidato no superó la baseline (hold, no mejora)")
+    ok, regressions = evaluate(candidates, baseline)
+    if not ok:
+        return "blast", regressions
+    if not tooth_ok(candidates, baseline):
+        return "decorative", None
+    return "promote", improved
+
+
 def main(argv: list[str]) -> int:
     if len(argv) < 2:
         print("usage: blast_radius <meta_root> <baseline_path>", file=sys.stderr)

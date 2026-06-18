@@ -8,6 +8,7 @@ Verbs:
   rtm --factory S            re-derive the RTM from artifacts (SATISFIED/UNSATISFIED)
   ci --rederive              external re-derivation: rebuild on clean state, demand pinned
   pin --factory S            write the pinned verdict (committed honest constant)
+  promote --factory S        Fase G: promote an improvement iff it lowers no downstream verdict (blast-radius)
   verify --rerun             re-verify the active station (Lock #3, used by the Stop hook)
   doc-sync                   stamp docs + regenerate INDEX (used by the PostToolUse hook)
 
@@ -261,22 +262,97 @@ def cmd_ci(args) -> int:
     return 0 if ok else 1
 
 
-def cmd_pin(args) -> int:
-    """Write the pinned verdict from the current (honest) proofs of the product line."""
-    slug = args.factory
-    fdir = _factory_dir(slug)
-    spec = load_spec(fdir / "factory.spec.yml")
-    ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug)
+def _pin_from_proofs(fdir: Path, meta_root: Path, slug: str):
+    """Single source for writing the pinned verdict from the CURRENT (honest) proofs of the
+    product line. Returns (ok, pinned_or_badstation). Reused by `meta pin` and `meta promote`."""
+    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug)
     pseq = load_sequence(fdir / "stations")
     pinned = {}
     for st in pseq.active:
         proof = ctx.verifier.load_proof(fdir, st.id)
         if proof is None or not proof.get("passed"):
-            print(f"VEREDICTO  pin — FAIL   (exit 1)\nRESUMEN    {st.id} sin proof verde; corré product-run primero")
-            return 1
+            return False, st.id
         pinned[st.id] = proof["proof_sha"]
     (fdir / "pinned_verdict.json").write_text(json.dumps(pinned, indent=2) + "\n", encoding="utf-8")
-    print(f"VEREDICTO  pin {slug} — PASS   (exit 0)\nRESUMEN    pineados {len(pinned)} proof_sha en pinned_verdict.json")
+    return True, pinned
+
+
+def cmd_pin(args) -> int:
+    """Write the pinned verdict from the current (honest) proofs of the product line."""
+    slug = args.factory
+    ok, info = _pin_from_proofs(_factory_dir(slug), _meta_root(), slug)
+    if not ok:
+        print(f"VEREDICTO  pin — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde; corré product-run primero")
+        return 1
+    print(f"VEREDICTO  pin {slug} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
+    return 0
+
+
+def cmd_promote(args) -> int:
+    """Fase G — the improvement loop's PROMOTE phase, gated by blast-radius (`SELF-IMPROVEMENT.md §4`).
+
+    "Regenerate-to-improve replaces the pin only if it re-passes the gate WITHOUT lowering any
+    downstream verdict." Re-derives the candidate factory and the whole downstream baseline on clean
+    clones (custody is never the root of trust), and refuses unless: (1) the candidate ACTUALLY
+    improved its baseline (a hold is a façade — nothing to promote), and (2) NO factory in the
+    baseline lowered its verdict (the blast radius). On green it re-pins the candidate and bumps the
+    baseline; it does NOT commit — the promotion ascends by a REVIEWED diff (§4), never spontaneously."""
+    from .verify import verdict as V
+    from .verify.checks import blast_radius as BR
+
+    slug = args.factory
+    meta_root = _meta_root()
+    baseline_path = meta_root / args.baseline
+    baseline = V.load_baseline(baseline_path)
+    if slug not in baseline:
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\n"
+              f"RESUMEN    {slug} no está en el baseline ({args.baseline}); "
+              f"agregalo con `meta pin`+baseline antes de promover una mejora")
+        return 1
+
+    # 1. Re-derive the whole downstream sweep ONCE (the candidate is part of it) on clean clones,
+    #    then take the PURE decision (the law shared with the tests).
+    candidates = BR.sweep(meta_root, baseline)
+    cand_x = candidates[slug]
+    action, detail = BR.decide(candidates, baseline, slug, allow_hold=args.allow_hold)
+    if action == "facade":   # §4: a hold/regression of the target itself is nothing to promote.
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
+              f"RESUMEN    nada que promover: {detail} "
+              f"[{slug} candidato {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')} "
+              f"vs baseline {baseline[slug].get('rtm_satisfied')}/{baseline[slug].get('rtm_total')}]")
+        return 2
+    if action == "blast":    # a downstream factory would lower its verdict — pin/baseline INTACTOS.
+        print(f"VEREDICTO  promote {slug} — BLOQUEADA   (exit 2)\n"
+              f"RESUMEN    blast-radius: la promoción bajaría el veredicto de una fábrica downstream "
+              f"(pin y baseline INTACTOS):")
+        for r in detail[:6]:
+            print(f"           {r}")
+        return 2
+    if action == "decorative":
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
+              f"RESUMEN    gate decorativo: la ley de dominación no tiene dientes (no se promueve a ciegas)")
+        return 2
+
+    # 2. PROMOTE: refresh the candidate's REAL proofs, re-pin, and bump the baseline. No commit —
+    #    the diff (improvement + pin + baseline) ascends reviewed (§4).
+    improved = detail
+    fdir = _factory_dir(slug)
+    rc, _ = _run_product_line(fdir, meta_root, slug)
+    if rc != 0:
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\n"
+              f"RESUMEN    la línea real de {slug} no reconstruye al re-pinear (no debería tras el barrido)")
+        return 1
+    pin_ok, info = _pin_from_proofs(fdir, meta_root, slug)
+    if not pin_ok:
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde al re-pinear")
+        return 1
+    baseline[slug] = cand_x
+    V.save_baseline(baseline_path, baseline)
+    verb = "mejoró" if improved else "mantuvo (--allow-hold)"
+    print(f"VEREDICTO  promote {slug} — PASS   (exit 0)\n"
+          f"RESUMEN    {slug} {verb} a {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')}; "
+          f"re-pineado ({len(info)} estaciones) + baseline subido; blast-radius verde "
+          f"({len(baseline)} fábricas, ninguna bajó). Promoción NO committeada (subí por diff revisado, §4).")
     return 0
 
 
@@ -532,6 +608,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("rtm"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_rtm)
     sp = sub.add_parser("ci"); sp.add_argument("--rederive", action="store_true"); sp.add_argument("--factory", default="dummy"); sp.set_defaults(func=cmd_ci)
     sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_pin)
+    sp = sub.add_parser("promote"); sp.add_argument("--factory", required=True)
+    sp.add_argument("--baseline", default="baseline_verdicts.json"); sp.add_argument("--allow-hold", action="store_true")
+    sp.set_defaults(func=cmd_promote)
     sp = sub.add_parser("verify"); sp.add_argument("--rerun", action="store_true"); sp.set_defaults(func=cmd_verify)
     sub.add_parser("doc-sync").set_defaults(func=cmd_doc_sync)
     ip = sub.add_parser("increment"); ip.set_defaults(func=cmd_increment)

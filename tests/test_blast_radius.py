@@ -109,6 +109,43 @@ def test_tooth_detects_toothless_comparison():
         BR.V.dominates = saved  # type: ignore[attr-defined]
 
 
+# ── the promote DECISION (the law `meta promote` dispatches on) ─────────────────
+
+def test_decide_promote_on_real_improvement():
+    base = _baseline()
+    cands = {"dummy": _v(sat=6, total=6), "full-stack": _v(sat=6, total=6), "iot": _v(sat=4, total=4)}
+    action, improved = BR.decide(cands, base, "dummy")
+    assert action == "promote" and improved is True
+
+
+def test_decide_facade_on_hold():
+    # the target did not improve → nothing to promote (façade-trap, §4).
+    action, _ = BR.decide({"dummy": _v(sat=5), "full-stack": _v(sat=6, total=6), "iot": _v(sat=4, total=4)},
+                          _baseline(), "dummy")
+    assert action == "facade"
+
+
+def test_decide_allow_hold_promotes_a_neutral_repin():
+    action, improved = BR.decide(
+        {"dummy": _v(sat=5), "full-stack": _v(sat=6, total=6), "iot": _v(sat=4, total=4)},
+        _baseline(), "dummy", allow_hold=True)
+    assert action == "promote" and improved is False
+
+
+def test_decide_blast_when_target_improves_but_downstream_drops():
+    # dummy improves, but the change regresses iot (Go) → the blast radius blocks the promotion.
+    cands = {"dummy": _v(sat=6, total=6), "full-stack": _v(sat=6, total=6), "iot": _v(sat=3, total=4)}
+    action, regs = BR.decide(cands, _baseline(), "dummy")
+    assert action == "blast" and any("iot" in r for r in regs)
+
+
+def test_decide_facade_takes_priority_over_blast():
+    # if the target itself did not improve, that is reported first (nothing to promote).
+    cands = {"dummy": _v(sat=5), "full-stack": _v(line=False, sat=6, total=6), "iot": _v(sat=4, total=4)}
+    action, _ = BR.decide(cands, _baseline(), "dummy")
+    assert action == "facade"
+
+
 # ── the sweep re-derives every baseline factory (with an injected verdict_fn) ────
 
 def test_sweep_covers_all_baseline_factories():

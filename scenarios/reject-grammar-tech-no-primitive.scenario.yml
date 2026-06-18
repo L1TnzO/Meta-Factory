@@ -1,0 +1,14 @@
+# reject · GRAMMAR_V2 family (ADR-012 tooth): a declared tech must name the DES primitive it provides;
+# a floating tech is a hardcoded-tool smell. M0 must refuse it (SHAPE only — never the tech string).
+factory: {name: Floating Tech, slug: floating-tech-shape, maturity: production}
+domain:
+  produces: a widget
+  capabilities:
+    - {id: cap_x, invariant: it holds, artifact: x.txt, proof: tests/test_x.txt,
+       tech: some-floating-lib, status: built}
+  station_sequence:
+    - {id: s1, name: build, activation: always}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [s1]}

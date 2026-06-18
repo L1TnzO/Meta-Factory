@@ -1,0 +1,29 @@
+# reject · DESIGN family (B2 gate): the spec declares it went through the design flow
+# (required_primitives), but a required primitive (DES-6) has NO capability declaring a tech — an
+# INCOMPLETE design. design_review must refuse it (the skill must finish its job). `validate` alone
+# passes; the design gate is what trips, so this scenario declares `gate: design_review`.
+factory: {name: Incomplete Design, slug: incomplete-design-shape, maturity: production}
+domain:
+  produces: a designed product
+  required_primitives: [DES-2, DES-6]
+  capabilities:
+    - id: cap_graph
+      invariant: the graph is statically checkable
+      artifact: graph.ts
+      proof: tests/test_graph.ts
+      primitive: DES-2
+      tech: graph-lib
+      status: built
+  station_sequence:
+    - {id: s0, name: design, activation: always}
+    - id: s1
+      name: build
+      activation: always
+      depends_on: [s0]
+      status: built
+      proof_checks:
+        - {name: compiles, cmd: tsc --noEmit, runs_in: product_env, toolchain: tsc, status: built}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: the graph compiles, satisfied_by: [s1], capability: cap_graph, verified_by: [compiles]}

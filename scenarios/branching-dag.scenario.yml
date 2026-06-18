@@ -1,0 +1,18 @@
+# scenario shape: BRANCHING DAG · fan-out (s0→s1,s2,s3) then fan-in (s1,s2,s3→s4) · L1 capabilities.
+# Exercises the engine's multi-predecessor depends_on + the capability layer in one shape.
+factory: {name: Branching DAG, slug: branching-shape, maturity: production}
+domain:
+  produces: a fan-out/fan-in product
+  capabilities:
+    - {id: cap_parallel, invariant: parallel branches are independent, artifact: parallel.txt,
+       proof: tests/test_parallel.txt, primitive: DES-2, tech: some-graph-lib, status: built}
+  station_sequence:
+    - {id: s0, name: plan, activation: always}
+    - {id: s1, name: worker-a, activation: always, depends_on: [s0]}
+    - {id: s2, name: worker-b, activation: always, depends_on: [s0]}
+    - {id: s3, name: worker-c, activation: always, depends_on: [s0]}
+    - {id: s4, name: aggregate, activation: always, depends_on: [s1, s2, s3]}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: aggregates every worker, satisfied_by: [s4], capability: cap_parallel}

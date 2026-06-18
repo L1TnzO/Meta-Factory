@@ -1,0 +1,30 @@
+# scenario shape: full 6-layer · L1 capabilities + L2 proof_checks + L3 machinery + L5 verified_by.
+# The widest honest shape short of the design gate.
+factory: {name: Rich Layers, slug: rich-layers-shape, maturity: production}
+domain:
+  produces: a richly-described product
+  capabilities:
+    - id: cap_topology
+      invariant: the product graph is statically checkable
+      artifact: graph.ts
+      proof: tests/test_topology.ts
+      primitive: DES-2
+      tech: some-graph-lib
+      status: built
+    - {id: cap_future, invariant: added later, status: declared-deferred}
+  station_sequence:
+    - {id: s0, name: spec, activation: always}
+    - id: s1
+      name: build
+      activation: always
+      depends_on: [s0]
+      status: built
+      proof_checks:
+        - {name: compiles, cmd: tsc --noEmit, runs_in: product_env, toolchain: tsc, status: built}
+machinery:
+  harness: {tech: some-harness, primitive: DES-1, status: built}
+  infra: {tech: some-store, primitive: DES-4, status: planned}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: works, acceptance: it runs in prod, satisfied_by: [s1], verified_by: [compiles]}

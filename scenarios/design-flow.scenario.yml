@@ -1,0 +1,35 @@
+# scenario shape: DESIGN-GATE spec · declares domain.required_primitives, so design_review (B2) ACTIVATES.
+# A COMPLETE blueprint: every required primitive has a capability with a tech (plan), every requirement
+# cites a real proof_check (criterios). Exercises the engine's design gate, not just validate.
+factory: {name: Designed, slug: designed-shape, maturity: production}
+domain:
+  produces: a designed product
+  required_primitives: [DES-2, DES-6]
+  capabilities:
+    - id: cap_graph
+      invariant: the graph is statically checkable
+      artifact: graph.ts
+      proof: tests/test_graph.ts
+      primitive: DES-2
+      tech: graph-lib
+      status: built
+    - id: cap_contract
+      invariant: messages are typed at the boundary
+      artifact: contract.ts
+      proof: tests/test_contract.ts
+      primitive: DES-6
+      tech: schema-lib
+      status: built
+  station_sequence:
+    - {id: s0, name: design, activation: always}
+    - id: s1
+      name: build
+      activation: always
+      depends_on: [s0]
+      status: built
+      proof_checks:
+        - {name: compiles, cmd: tsc --noEmit, runs_in: product_env, toolchain: tsc, status: built}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: the graph compiles, satisfied_by: [s1], capability: cap_graph, verified_by: [compiles]}

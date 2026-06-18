@@ -1,0 +1,11 @@
+# reject · SCHEMA family: two stations share an id. M0 must refuse a non-unique station_sequence.
+factory: {name: Dup Station, slug: dup-station-shape, maturity: bootstrap}
+domain:
+  produces: a widget
+  station_sequence:
+    - {id: s1, name: A, activation: always}
+    - {id: s1, name: B, activation: always}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [s1]}

@@ -1,0 +1,70 @@
+# corpus.yml — G2's DIVERSE scenario-spec corpus (DATA, not code; ADR-012: names no tech, no factory).
+#
+# Each entry is a spec SHAPE + the engine verdict it must produce (the meta-harness pattern: input +
+# expected output). `meta promote` runs the engine over every scenario and BLOCKS if any diverges or if
+# the corpus is too narrow — closing G-8 at root ("tested in few spec shapes; new forms uncover cascade",
+# ASF-LESSONS §G-8). Fields:
+#   spec     — the scenario fixture (relative to this file)
+#   expect   — valid | reject (the engine's deterministic M0 verdict the shape must produce)
+#   problem  — (reject) a substring the engine's refusal must contain (rejected for the RIGHT reason)
+#   gate     — (optional) design_review, to also run B2's design gate over the shape
+#   family   — (reject) the validator family the shape trips (the diversity tooth counts distinct ones)
+#   shape    — (doc only) the structural form this scenario exercises
+#
+# Diversity is re-derived STRUCTURALLY (not from these tags), so the corpus cannot be gamed by relabeling.
+scenarios:
+  # ── VALID shapes (each a distinct structural signature: station count · topology · layers) ──────────
+  - spec: minimal.scenario.yml
+    expect: valid
+    shape: [single-station, flat]
+  - spec: linear-chain.scenario.yml
+    expect: valid
+    shape: [multi-station, linear]
+  - spec: branching-dag.scenario.yml
+    expect: valid
+    shape: [fan-out-fan-in, branching, capabilities]
+  - spec: rich-layers.scenario.yml
+    expect: valid
+    shape: [six-layer, capabilities, machinery, proof-checks]
+  - spec: design-flow.scenario.yml
+    expect: valid
+    gate: design_review
+    shape: [design-gate, required-primitives]
+
+  # ── REJECT shapes (each trips a distinct validator family — the two-sided / diversity teeth) ────────
+  - spec: reject-schema-dup-station.scenario.yml
+    expect: reject
+    problem: "duplicate station id"
+    family: schema
+    shape: [invalid, duplicate-station]
+  - spec: reject-substrate-no-column.scenario.yml
+    expect: reject
+    problem: "anti_rubber_stamp_column"
+    family: substrate
+    shape: [invalid, column-opt-out]
+  - spec: reject-rtm-orphan.scenario.yml
+    expect: reject
+    problem: "is not an active station"
+    family: rtm
+    shape: [invalid, orphan-requirement]
+  - spec: reject-grammar-cap-no-proof.scenario.yml
+    expect: reject
+    problem: "no proof"
+    family: grammar_v2
+    shape: [invalid, built-capability-no-proof]
+  - spec: reject-grammar-cycle.scenario.yml
+    expect: reject
+    problem: "cycle"
+    family: grammar_v2
+    shape: [invalid, depends-on-cycle]
+  - spec: reject-grammar-tech-no-primitive.scenario.yml
+    expect: reject
+    problem: "no primitive"
+    family: grammar_v2
+    shape: [invalid, floating-tech]
+  - spec: reject-design-incomplete.scenario.yml
+    expect: reject
+    gate: design_review
+    problem: "design incomplete"
+    family: design
+    shape: [invalid, design-gate, incomplete-plan]

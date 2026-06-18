@@ -1,0 +1,11 @@
+# reject · SUBSTRATE family: the anti-rubber-stamp column (I-1) is non-negotiable. M0 must refuse
+# a factory that opts out of its own column.
+factory: {name: No Column, slug: no-column-shape, maturity: bootstrap}
+domain:
+  produces: a widget
+  station_sequence:
+    - {id: s1, name: build, activation: always}
+factory_substrate: {anti_rubber_stamp_column: false, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [s1]}

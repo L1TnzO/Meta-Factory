@@ -1,0 +1,11 @@
+# reject · RTM family: a requirement is satisfied_by a station that does not exist. M0 must refuse a
+# broken RTM closure (a requirement no active station claims).
+factory: {name: Orphan Req, slug: orphan-req-shape, maturity: bootstrap}
+domain:
+  produces: a widget
+  station_sequence:
+    - {id: s1, name: build, activation: always}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [ghost-station]}

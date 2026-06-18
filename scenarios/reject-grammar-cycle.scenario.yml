@@ -1,0 +1,11 @@
+# reject · GRAMMAR_V2 family (DAG tooth): a depends_on cycle (s0→s1, s1→s0) is an unbuildable line.
+factory: {name: Cyclic Line, slug: cyclic-line-shape, maturity: bootstrap}
+domain:
+  produces: a widget
+  station_sequence:
+    - {id: s0, name: a, activation: always, depends_on: [s1]}
+    - {id: s1, name: b, activation: always, depends_on: [s0]}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [s0]}

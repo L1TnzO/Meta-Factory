@@ -1,0 +1,10 @@
+# scenario shape: minimal · single-station · flat (no depends_on). The smallest honest spec.
+factory: {name: Minimal, slug: minimal-shape, maturity: bootstrap}
+domain:
+  produces: a minimal widget
+  station_sequence:
+    - {id: s1, name: build, activation: always}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: it works, satisfied_by: [s1]}

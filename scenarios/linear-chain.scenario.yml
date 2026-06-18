@@ -1,0 +1,14 @@
+# scenario shape: multi-station · LINEAR chain (s0→s1→s2 via depends_on). No L1/L3 layers.
+factory: {name: Linear Chain, slug: linear-shape, maturity: bootstrap}
+domain:
+  produces: a multi-step widget
+  station_sequence:
+    - {id: s0, name: spec, activation: always}
+    - {id: s1, name: build, activation: always, depends_on: [s0]}
+    - {id: s2, name: verify, activation: always, depends_on: [s1]}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: spec exists, satisfied_by: [s0]}
+    - {id: REQ-F-002, statement: it builds, satisfied_by: [s1]}
+    - {id: REQ-F-003, statement: it verifies, satisfied_by: [s2]}

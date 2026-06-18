@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d8213f54cfea653ebbe829676b34659cb2dddce5 updated=2026-06-18T02:42Z -->
+<!-- meta:doc sha=5a9f6f8d1454ca7c975aa638560453cbe8545d9d updated=2026-06-18T16:16Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T02:35Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G arrancada — G1 ✅**: el loop de mejora observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`SELF-IMPROVEMENT.md §4`) — `meta promote` re-pinea una mejora SÓLO si ninguna fábrica downstream baja su veredicto; VERDE vivo (iot 5/5→6/6) + ROJO co-validado en los 3 lenguajes disjuntos (py ⟂ ts ⟂ go); anti-overfit: el sustrato no nombra fábrica ni tech) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: G2-SCENARIO-CORPUS-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 

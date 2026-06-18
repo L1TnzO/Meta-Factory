@@ -18,7 +18,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up", "mcp_tools", "eval_gate", "live_run", "blast_radius",
+    "infra_up", "mcp_tools", "eval_gate", "live_run", "blast_radius", "scenario_corpus",
 )
 
 
@@ -153,4 +153,14 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         meta_root = str(subst.get("meta_root", repo_root()))
         baseline = _s(check.get("baseline", "baseline_verdicts.json"), subst)
         return [PY, "-m", "metafactory.verify.checks.blast_radius", meta_root, baseline]
+    if kind == "scenario_corpus":
+        # Fase G (G2) — el corpus de scenario-specs diversos ejercita el MOTOR antes de promover
+        # (`SELF-IMPROVEMENT.md §4`; cierra G-8 de raíz). `corpus` es el manifiesto DATA (path relativo
+        # a meta_root); el sustrato no nombra fábrica ni tech (ADR-012). El helper corre el motor sobre
+        # cada scenario y BLOQUEA si regresa en cualquier forma o si el corpus es poco diverso.
+        meta_root = str(subst.get("meta_root", repo_root()))
+        argv = [PY, "-m", "metafactory.verify.checks.scenario_corpus", meta_root]
+        if check.get("corpus"):
+            argv.append(_s(check["corpus"], subst))
+        return argv
     raise ValueError(f"unknown check kind {kind!r} in station {station.id} (known: {KINDS})")

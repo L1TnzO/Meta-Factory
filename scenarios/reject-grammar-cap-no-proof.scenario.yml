@@ -1,0 +1,12 @@
+# reject · GRAMMAR_V2 family (capability tooth): a `built` capability must cite its proof (SAFE-4/7).
+factory: {name: Cap No Proof, slug: cap-no-proof-shape, maturity: production}
+domain:
+  produces: a widget
+  capabilities:
+    - {id: cap_x, invariant: it holds, artifact: x.txt, primitive: DES-2, tech: some-lib, status: built}
+  station_sequence:
+    - {id: s1, name: build, activation: always}
+factory_substrate: {anti_rubber_stamp_column: true, verdict_bus: {max_lines: 10}}
+requirements:
+  functional:
+    - {id: REQ-F-001, statement: x, satisfied_by: [s1]}

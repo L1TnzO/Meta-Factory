@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9eaef3f280de23f157a8cc038a1dce4a4c5b66ee updated=2026-06-18T22:13Z -->
+<!-- meta:doc sha=fd413be906f72d6b4662daef16a084580c467f95 updated=2026-06-18T22:47Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,8 +6,8 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (5/5) · iot: COMPLETE (6/6)
+- Incremento abierto: FSK-S2-HARDNESS-INCREMENT.md
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (6/6) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -348,6 +348,20 @@
     refused` → exit 1. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (capa de datos = DATA: jOOQ
     3.21.6 / Flyway 10.20.1 / `postgres@sha256:e013e867`; compuso sobre `infra_up`+`product_env`). dummy/full-
     stack/iot/ASF intactas. Autoridad: `work/FSK-S1-SCHEMA-PG-INCREMENT.md`.
+  - **s2 (`FSK-S2-HARDNESS`) ✅ — la DUREZA ESTÁTICA, probada por bloqueo (2026-06-18)**: el producto gana un
+    gate DES-10 donde el código **falla FUERTE por CALIDAD** (no sólo tipos). **Kotlin**: **detekt** (calidad)
+    + reglas **ktlint** (vía `detekt-formatting`, un tool) con `maxIssues:0` sobre el código AUTORADO
+    (`src/main/kotlin`; los fuentes generados quedan fuera) + **`-Werror`** (`allWarningsAsErrors`, compila
+    limpio incl. el código generado). **TS**: **ESLint strict + `no-explicit-any` + ts-reset** sobre `src/`.
+    Cada check lleva un **diente negativo EMBEBIDO** (no-decorativo, cada corrida): el MISMO linter sobre un
+    fixture sucio (`probe/`, fuera de `src/`→no se shippea) DEBE morder, exigido por grep (`SwallowedException`
+    / `no-explicit-any`), **fail-closed**. **M0–M8 verde · product-run PASS · RTM COMPLETE 6/6** (REQ-NF-002
+    con artifact `config/detekt.yml`) **· pin 3/3 · `ci --rederive` 3/3 == pineado** (re-corre detekt/`-Werror`/
+    ESLint/npm/gradle/docker en clon limpio). **2 dientes vivos de dos lados (exit reales)**: Kotlin excepción
+    tragada → `detekt` exit 1 (regen→0) · TS `any` → `eslint` exit 1 (regen→0). **Anti-overfit: `git diff
+    src/metafactory/ + seed/` = 0** (detekt 1.23.8 / `detekt-formatting` / ESLint 9 / typescript-eslint 8 /
+    ts-reset 0.6 = DATA; compuso sobre `product_env` sin tocar el sustrato). dummy/full-stack/iot/ASF intactas.
+    Autoridad: `work/FSK-S2-HARDNESS-INCREMENT.md`. Sigue s3 (frescura de API, DES-11).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3680b7f49cc8560eb10dfce4af22f24272e64f7f updated=2026-06-18T22:11Z -->
+<!-- meta:doc sha=d3cdaed000bcb28215fefe8c02d73f7676b720e3 updated=2026-06-18T22:48Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -43,8 +43,15 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   (DES-4: round-trip create/list + reversibilidad; DB caída → rojo). M0–M8 verde · RTM 5/5 · `ci --rederive`
 >   2/2 == pineado · 2 dientes vivos · **`git diff src/+seed/` = 0** (jOOQ/Flyway/PG = DATA, compuso sobre
 >   `infra_up`/MAT-3). Evidencia: `work/FSK-S1-SCHEMA-PG-INCREMENT.md`.
-> - **s2–s10 pendientes** (dureza · currency · seguridad · auth · lógica LLM · pirámide · a11y/perf ·
->   observabilidad · build hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
+> - **s2 (`FSK-S2-HARDNESS`) ✅** — dureza estática (DES-10): el código falla FUERTE por CALIDAD, no sólo por
+>   tipos. **Kotlin** detekt (+ reglas ktlint vía `detekt-formatting`, `maxIssues:0`) sobre el código autorado
+>   + `-Werror` (`allWarningsAsErrors`); **TS** ESLint strict + `no-explicit-any` + ts-reset. Diente negativo
+>   EMBEBIDO (fail-closed): el linter sobre un fixture sucio (`probe/`) DEBE morder (grep). M0–M8 verde · RTM
+>   6/6 · `ci --rederive` 3/3 == pineado · 2 dientes vivos de dos lados (Kotlin excepción tragada→rojo · TS
+>   `any`→rojo; regen→verde) · **`git diff src/+seed/` = 0** (detekt/eslint = DATA, compuso sobre `product_env`).
+>   Evidencia: `work/FSK-S2-HARDNESS-INCREMENT.md`.
+> - **s3–s10 pendientes** (currency · seguridad · auth · lógica LLM · pirámide · a11y/perf · observabilidad ·
+>   build hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=61206a802cc8ce57b3309c24750a425a1a677b64 updated=2026-06-18T19:46Z -->
+<!-- meta:doc sha=b27dd65d6f042d2a9dcf3c220136e2c4c2d9a273 updated=2026-06-18T20:20Z -->
 # Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T19:35Z). Cerralo con `meta increment close`
@@ -46,8 +46,9 @@ Si no se logra hermético, el gate de s0 NO puede ser honesto — documentar el 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | **Toolchain pineado + probado** (§3): Gradle 9.5.1 (sha256) + Kotlin 2.4.0 + JDK 21 + TS 5.7.3; wrapper vendorizado en `factories/full-stack-kotlin/codegen/assets/gradle/`; smoke Kotlin (`FSK_SMOKE_OK`) y `tsc --strict` (green 0 / red 2) — `assets/TOOLCHAIN.md` | ✅ |
-| 2 | **Codegen de fábrica** `factories/full-stack-kotlin/codegen/scaffold_product.py` (determinista): lee `domain.product` → emite el árbol (OpenAPI `openapi.yaml`, stubs Kotlin, client TS, `settings.gradle.kts`, workspace npm). Plantilla: `factories/full-stack/codegen/`. **Vive en la FÁBRICA, no en `src/metafactory/`** (ADR-012) | ⏳ |
-| 3 | **s0 ejecutable en la spec**: rellenar `builds` (slot `generate` con `via` = el codegen) + los 3 `checks` (`contract_single_source`/`scaffold_idempotent`/`isolation_boundary`) replicando el patrón TS; `meta product-run` hasta s0 | ⏳ |
+| 1.5 | **Arquitectura del contrato DE-RISKEADA por bloqueo** (antes de escribir el codegen): OpenAPI como fuente única → `openapi-generator` 7.23 (Kotlin, models + kotlinx-serialization) **compila**; `openapi-typescript` 7.13 (TS) bajo `tsc --strict` **compila**. **Diente DES-6 con dientes REALES en AMBOS**: quitar un campo del contrato → regenerar → Kotlin `Unresolved reference` (compile rojo) · TS `Property does not exist` (tsc rojo). Plugin portal + maven alcanzables | ✅ |
+| 2 | **Codegen de fábrica** `factories/full-stack-kotlin/codegen/scaffold_product.py` (determinista, 12 archivos): lee `domain.product` (3 entidades) → emite OpenAPI `openapi.yaml`, build Gradle con `openApiGenerate`, handler+app Kotlin que usan los models generados (refs camelCase), client TS con `openapi-typescript`, wrapper vendorizado. **Vive en la FÁBRICA** (ADR-012). `git diff src/+seed/`=0 | ✅ |
+| 3 | **s0 ejecutable + materializado + verde e2e**: spec staged (s0 activo/built + 3 caps built + REQ-F-001/002/NF-001; s1–s10 diferidas) → `validate`+`design-review` 0 problemas; `meta new`+`station m00..m06` PASS; **`product-run` PASS (4 checks)**; **RTM COMPLETE 3/3** (artifacts reales); pin escrito; **m06 `clean_runner` == pineado** (re-deriva la línea Kotlin/TS en clon limpio) | ✅ |
 | 4 | **Dientes de dos lados** (probar por bloqueo): drift de contrato sin regenerar un lado → compila rojo · regenerar → verde · `import`/classpath de la fábrica dentro del producto → rojo | ⏳ |
 | 5 | **Pin + cierre**: `status` s0 → `built`; `meta product-run` + `ci --rederive` == pineado; RTM cubre REQ-F-001/002; STATE/ROADMAP; `meta increment close` | ⏳ |
 

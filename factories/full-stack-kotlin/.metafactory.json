@@ -1,0 +1,5 @@
+{
+  "slug": "full-stack-kotlin",
+  "spec": "factory.spec.yml",
+  "produces": "una app web full-stack de grado-producci\u00f3n: contrato OpenAPI tipado como fuente \u00fanica, backend Kotlin, frontend TypeScript/React, base de datos PostgreSQL con esquema versionado (Flyway) y queries chequeados en compilaci\u00f3n (jOOQ), verificada ENTERA en su propio toolchain bajo criterios duros de ingenier\u00eda (dureza est\u00e1tica, frescura de API, seguridad de la cadena de suministro, calidad de experiencia, observabilidad), 100%-generada desde este spec."
+}

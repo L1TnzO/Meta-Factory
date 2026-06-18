@@ -73,21 +73,21 @@ domain:
       tech: "OpenAPI-codegen + Gradle/npm desde el blueprint (domain.product); scaffolder determinista en factories/full-stack-kotlin/codegen/"
       artifact: build/product/openapi.yaml
       proof: "s0: regenerar desde el spec produce un árbol idéntico (idempotente); un blueprint incompleto → s0 rojo"
-      status: planned
+      status: built
     - id: contrato_tipado_fuente_unica
       invariant: "el contrato OpenAPI es la FUENTE ÚNICA; el server Kotlin y el client TS se generan de ahí y un drift de tipos rompe la compilación de ambos lados"
       primitive: DES-6
       tech: "OpenAPI → stubs Kotlin (server) + client TS generado; kotlinc + tsc --strict sobre lo generado"
       artifact: build/product/openapi.yaml
       proof: "s0: kotlinc + tsc --strict verdes sobre el código generado del contrato; cambiar el contrato sin regenerar un lado → rojo"
-      status: planned
+      status: built
     - id: aislamiento_producto
       invariant: "el producto corre en SU propio toolchain (Gradle/npm), aislado del de la fábrica; importar la fábrica dentro del product_env falla (DES-9, SAFE-2)"
       primitive: DES-9
       tech: "workspace Gradle + workspace npm propios; env scrubbed (sin PYTHONPATH/clases de la fábrica)"
       artifact: build/product/settings.gradle.kts
       proof: "s0: el build del producto corre con su toolchain; un intento de cargar la fábrica adentro → rojo"
-      status: planned
+      status: built
     - id: datos_esquema_chequeado
       invariant: "el esquema PostgreSQL está versionado (migraciones reversibles) y los queries se chequean contra el schema vivo EN COMPILACIÓN: un query a una columna inexistente = error de compilación (la DB grita)"
       primitive: DES-12
@@ -180,83 +180,39 @@ domain:
     - id: s0
       name: "scaffold + contrato OpenAPI (fuente única) + aislamiento — DES-1/6/9"
       activation: always
-      status: planned
+      status: built
       proof_checks:
-        - { name: contract_single_source, cmd: "kotlinc + tsc --strict sobre el código generado del contrato; drift → rojo", runs_in: product_env, toolchain: "openapi-codegen", status: planned }
-        - { name: scaffold_idempotent, cmd: "regenerar desde el spec produce un árbol idéntico", runs_in: factory_env, toolchain: "metafactory", status: planned }
-        - { name: isolation_boundary, cmd: "el producto corre en su toolchain; cargar la fábrica adentro → rojo", runs_in: product_env, toolchain: "gradle-npm", status: planned }
-    - id: s1
-      name: "esquema PG versionado (Flyway) + queries chequeados (jOOQ) + DB viva — DES-12/4"
-      activation: always
-      depends_on: [s0]
-      status: planned
-      proof_checks:
-        - { name: schema_compile_checked, cmd: "Flyway up/down + jOOQ codegen + kotlinc; query a columna inexistente → compile error", runs_in: product_env, toolchain: "jooq-flyway", status: planned }
-        - { name: db_round_trip_live, cmd: "test de integración del producto vs PostgreSQL viva (Testcontainers); DB caída → rojo", runs_in: product_env, toolchain: "kotest", status: planned }
-    - id: s2
-      name: "dureza estática (sin any/warnings, exhaustividad) — DES-10"
-      activation: always
-      depends_on: [s0]
-      status: planned
-      proof_checks:
-        - { name: loudness_gate, cmd: "detekt + ktlint + -Werror / ESLint strict + no-explicit-any; un escape-hatch → rojo", runs_in: product_env, toolchain: "detekt-eslint", status: planned }
-    - id: s3
-      name: "frescura de API contra el pin (determinista) — DES-11"
-      activation: always
-      depends_on: [s0]
-      status: planned
-      proof_checks:
-        - { name: currency_gate, cmd: "linter de currency cruza el código vs el lock de superficie; símbolo deprecado/fuera-de-pin → rojo", runs_in: product_env, toolchain: "currency-linter", status: planned }
-    - id: s4
-      name: "seguridad de la cadena de suministro (vulns + SAST + secretos + SBOM) — DES-13"
-      activation: always
-      depends_on: [s0]
-      status: planned
-      proof_checks:
-        - { name: supply_chain_gate, cmd: "dep-audit + Semgrep + gitleaks + SBOM; CVE conocido o secreto → rojo", runs_in: product_env, toolchain: "depcheck-semgrep-gitleaks", status: planned }
-    - id: s5
-      name: "auth no-salteable + topología de rutas verificable — DES-3/2"
-      activation: always
-      depends_on: [s1]
-      status: planned
-      proof_checks:
-        - { name: auth_reachability, cmd: "alcanzabilidad: toda ruta protegida pasa por el guard; rerutear para saltearlo → rojo", runs_in: product_env, toolchain: "route-ast", status: planned }
-        - { name: route_topology, cmd: "el AST de rutas matchea el contrato OpenAPI; ruta sin contrato → rojo", runs_in: product_env, toolchain: "route-ast", status: planned }
-    - id: s6
-      name: "lógica de dominio GENERADA por claude -p bajo contract test — DES-8 (MAT-2)"
-      activation: always
-      depends_on: [s5]
-      status: planned
-      proof_checks:
-        - { name: domain_logic_contract, cmd: "Kotest ejercita la lógica LLM-generada; un stub → rojo; pin §7 re-verificado sin LLM", runs_in: product_env, toolchain: "kotest", status: planned }
-    - id: s7
-      name: "pirámide de tests en el toolchain del producto (unit+integración+contrato+e2e) — DES-8"
-      activation: always
-      depends_on: [s6]
-      status: planned
-      proof_checks:
-        - { name: test_pyramid, cmd: "Kotest + Testcontainers + contrato + Playwright; romper un nivel → rojo", runs_in: product_env, toolchain: "kotest-playwright", status: planned }
-    - id: s8
-      name: "calidad de experiencia: a11y (WCAG) + perf budget — DES-7"
-      activation: always
-      depends_on: [s7]
-      status: planned
-      proof_checks:
-        - { name: experience_budgets, cmd: "axe + Lighthouse + bundle-size; bajo presupuesto → rojo; degradado flipea el gate", runs_in: product_env, toolchain: "axe-lighthouse", status: planned }
-    - id: s9
-      name: "observabilidad del producto EMITE (logs+tracing+health) — DES-5"
-      activation: always
-      depends_on: [s7]
-      status: planned
-      proof_checks:
-        - { name: observability_emits, cmd: "una request produce un trace con correlation-id + log estructurado; /health responde; quitar la instrumentación → rojo", runs_in: product_env, toolchain: "otel", status: planned }
-    - id: s10
-      name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
-      activation: always
-      depends_on: [s2, s3, s4, s7, s8, s9]
-      status: planned
-      proof_checks:
-        - { name: hermetic_build, cmd: "ci --rederive reconstruye idéntico en clon limpio (== pineado); el CI del producto re-corre los gates", runs_in: product_env, toolchain: "gradle-docker", status: planned }
+        - { name: contract_single_source, cmd: "kotlinc + tsc --strict sobre el código generado del contrato; drift → rojo", runs_in: product_env, toolchain: "openapi-codegen", status: built }
+        - { name: scaffold_idempotent, cmd: "regenerar desde el spec produce un árbol idéntico", runs_in: factory_env, toolchain: "metafactory", status: built }
+        - { name: isolation_boundary, cmd: "el producto corre en su toolchain; cargar la fábrica adentro → rojo", runs_in: product_env, toolchain: "gradle-npm", status: built }
+      builds:
+        - action: generate
+          dest: build/product/MANIFEST.txt
+          brief: "Generá el producto Full-Stack Kotlin en build/product/ desde domain.product: openapi.yaml (contrato fuente única), build Gradle pineado con openApiGenerate (models Kotlin), handler+app que usan los models, client TS con openapi-typescript, wrapper Gradle vendorizado. compileKotlin y tsc --strict deben pasar."
+          via: [python3, codegen/scaffold_product.py]
+      checks:
+        - name: contract_single_source
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew compileKotlin -q --console=plain"]
+        - name: contract_client_ts
+          kind: product_env
+          workdir: build/product/frontend
+          bootstrap: [npm, install, --no-audit, --no-fund, --loglevel=error]
+          cmd: ["sh", "-c", "./node_modules/.bin/openapi-typescript ../openapi.yaml -o gen/api.ts && ./node_modules/.bin/tsc -p tsconfig.json"]
+        - name: scaffold_idempotent
+          kind: command
+          cmd: [python3, codegen/scaffold_product.py, --check-idempotent]
+        - name: isolation_boundary
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 -c 'import metafactory' 2>/dev/null && { echo LEAK; exit 1; } || exit 0"]
+    # s1–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
+    # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
+    # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]
@@ -267,7 +223,60 @@ machinery:
   harness:
     tech: "Claude Code: agents (writer/reviewer/triage con sombras deterministas) + commands + skills, emitidos del spec (D2)"
     primitive: DES-1
-    status: declared-deferred
+    status: built
+    agents:
+      - name: writer
+        description: "Escribe DIFFs acotados de la fábrica full-stack-kotlin (implementación, no decisiones)."
+        model: sonnet
+        tools: [Read, Edit, Write, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+        body: |
+          # writer — el slot de implementación de la fábrica {{slug}}
+          Recibís un DIFF a producir (no una decisión). Trabajás contra la línea y dejás que la gate sea la
+          autoridad: nunca afirmás verde, lo demostrás.
+          ## Qué NO hacés (con sombra determinista, no prosa)
+          - No tocás `.proof/` (sombra: proof_protect). No declarás "pasa" (sombra: verifier.py).
+          - No commitees trabajo no probado ni cerrás con la activa rota (sombras: commit_guard, stop_proof).
+      - name: reviewer
+        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        model: opus
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+        body: |
+          # reviewer — revisión de la cadena de confianza de {{slug}}
+          Recibís un DIFF que toca verifier/hooks/seed/gates. Revisás con ojos propios; nunca emitís un
+          veredicto — reportás evidencia re-derivada y delegás el juicio al orquestador.
+      - name: triage
+        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        model: haiku
+        tools: [Read, Bash, Grep, Glob]
+        shadows:
+          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+        body: |
+          # triage — diagnóstico rápido de log rojo en {{slug}}
+          Recibís un log de gate rojo. Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no
+          aprobás, no escribís.
+    commands:
+      - name: gen-check
+        description: "Corre el selftest del codegen del producto (parsea el blueprint, lista los archivos; no escribe)."
+        run: ["python3", "codegen/scaffold_product.py", "--selftest"]
+        body: |
+          # /gen-check — verificá el codegen de la fábrica {{slug}}
+          Corré el selftest del scaffolder: parsea el blueprint (domain.product) y lista los archivos del
+          producto que emitiría. Exit 0 = el generador es invocable y el blueprint está completo.
+    skills:
+      - name: verificar-fabrica
+        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        body: |
+          # verificar — re-verificá {{slug}} por bloqueo
+          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
+          dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
   mcp:
     tech: "server MCP de recall scopeado al PIN (Context7-tuneado): SÓLO los docs de las versiones pineadas de Kotlin/Ktor/jOOQ/React/etc., recall bajo demanda (E2); alimenta el oráculo de currency (DES-11)"
     primitive: DES-11
@@ -305,42 +314,8 @@ requirements:
       satisfied_by: [s0]
       verified_by: [scaffold_idempotent]
       capability: andamiaje_regenerable
-    - id: REQ-F-003
-      statement: "el esquema PG está versionado y los queries se chequean contra el schema en COMPILACIÓN: un query a una columna inexistente = error de compilación (DES-12)"
-      acceptance: "schema_compile_checked verde; romper una columna usada → compile error"
-      satisfied_by: [s1]
-      verified_by: [schema_compile_checked]
-      capability: datos_esquema_chequeado
-    - id: REQ-F-004
-      statement: "el PRODUCTO usa una PostgreSQL VIVA: un test de integración del producto hace un round-trip create+list; DB caída → rojo (DES-4, M8 del producto)"
-      acceptance: "db_round_trip_live verde con la DB levantada; DB caída → rojo"
-      satisfied_by: [s1]
-      verified_by: [db_round_trip_live]
-      capability: datos_durables_vivos
-    - id: REQ-F-005
-      statement: "ninguna ruta protegida se alcanza sin el middleware de auth (punto de control no-salteable, DES-3)"
-      acceptance: "auth_reachability verde; rerutear para saltear el guard → rojo"
-      satisfied_by: [s5]
-      verified_by: [auth_reachability]
-      capability: rutas_protegidas
-    - id: REQ-F-006
-      statement: "el mapa de rutas es chequeable estáticamente contra el contrato (DES-2)"
-      acceptance: "route_topology verde; una ruta sin contrato → rojo"
-      satisfied_by: [s5]
-      verified_by: [route_topology]
-      capability: topologia_rutas_verificable
-    - id: REQ-F-007
-      statement: "la lógica de dominio se GENERA por un LLM vivo bajo contract test; un stub no pasa; el artefacto se pinea y re-derive lo verifica sin LLM (DES-8, MAT-2, §7)"
-      acceptance: "domain_logic_contract verde; un stub → rojo; pin re-verificado sin LLM"
-      satisfied_by: [s6]
-      verified_by: [domain_logic_contract]
-      capability: logica_dominio_generada
-    - id: REQ-F-008
-      statement: "la verificación corre en el toolchain del producto en una pirámide (unit+integración+contrato+e2e); un test roto bloquea (DES-8)"
-      acceptance: "test_pyramid verde; romper cualquier nivel → rojo"
-      satisfied_by: [s7]
-      verified_by: [test_pyramid]
-      capability: pruebas_piramidales
+    # REQ-F-003..008 DIFERIDAS con s1–s10 (cada una se re-añade cuando su estación se construye). Texto
+    # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"
@@ -348,39 +323,5 @@ requirements:
       satisfied_by: [s0]
       verified_by: [isolation_boundary]
       capability: aislamiento_producto
-    - id: REQ-NF-002
-      statement: "el código falla FUERTE por calidad: sin any/warnings, exhaustividad, complejidad acotada (DES-10)"
-      acceptance: "loudness_gate verde; un any/warning/non-exhaustive when → rojo"
-      satisfied_by: [s2]
-      verified_by: [loudness_gate]
-      capability: dureza_estatica
-    - id: REQ-NF-003
-      statement: "el código generado usa sólo superficie de API no-deprecada y pineada; lo viejo se bloquea de forma DETERMINISTA (DES-11, I-3)"
-      acceptance: "currency_gate verde; un símbolo deprecado/fuera-de-pin → rojo"
-      satisfied_by: [s3]
-      verified_by: [currency_gate]
-      capability: frescura_de_api
-    - id: REQ-NF-004
-      statement: "el producto no shippea vulns conocidas, secretos ni código inseguro (DES-13)"
-      acceptance: "supply_chain_gate verde; un CVE conocido o un secreto hardcodeado → rojo"
-      satisfied_by: [s4]
-      verified_by: [supply_chain_gate]
-      capability: seguridad_cadena_suministro
-    - id: REQ-NF-005
-      statement: "la accesibilidad (WCAG) y la performance se miden con gates que bloquean bajo umbral (DES-7)"
-      acceptance: "experience_budgets verde; un score a11y/perf bajo presupuesto → rojo; el degradado flipea el gate"
-      satisfied_by: [s8]
-      verified_by: [experience_budgets]
-      capability: calidad_experiencia
-    - id: REQ-NF-006
-      statement: "el producto EMITE observabilidad (logs estructurados + tracing OTel + /health); verificado que emite, no que renderiza (DES-5)"
-      acceptance: "observability_emits verde; quitar la instrumentación → rojo"
-      satisfied_by: [s9]
-      verified_by: [observability_emits]
-      capability: observabilidad_producto
-    - id: REQ-NF-007
-      statement: "el build es hermético y reproducible (toolchain pineado, re-derive idéntico) y el producto shippea su propia mini-columna (DES-1, SAFE-3)"
-      acceptance: "hermetic_build verde; ci --rederive == pineado en clon limpio; el CI del producto re-corre los gates"
-      satisfied_by: [s10]
-      verified_by: [hermetic_build]
-      capability: build_hermetico_reproducible
+    # REQ-NF-002..007 DIFERIDAS con s2–s10 (re-añadidas al construir cada estación). Texto completo en
+    # docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).

@@ -1,0 +1,52 @@
+id: s0
+name: scaffold + contrato OpenAPI (fuente única) + aislamiento — DES-1/6/9
+activation: always
+builds:
+- action: generate
+  dest: build/product/MANIFEST.txt
+  brief: 'Generá el producto Full-Stack Kotlin en build/product/ desde domain.product:
+    openapi.yaml (contrato fuente única), build Gradle pineado con openApiGenerate
+    (models Kotlin), handler+app que usan los models, client TS con openapi-typescript,
+    wrapper Gradle vendorizado. compileKotlin y tsc --strict deben pasar.'
+  via:
+  - python3
+  - codegen/scaffold_product.py
+checks:
+- name: contract_single_source
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew compileKotlin
+    -q --console=plain
+- name: contract_client_ts
+  kind: product_env
+  workdir: build/product/frontend
+  bootstrap:
+  - npm
+  - install
+  - --no-audit
+  - --no-fund
+  - --loglevel=error
+  cmd:
+  - sh
+  - -c
+  - ./node_modules/.bin/openapi-typescript ../openapi.yaml -o gen/api.ts && ./node_modules/.bin/tsc
+    -p tsconfig.json
+- name: scaffold_idempotent
+  kind: command
+  cmd:
+  - python3
+  - codegen/scaffold_product.py
+  - --check-idempotent
+- name: isolation_boundary
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 -c 'import metafactory' 2>/dev/null && { echo LEAK; exit 1; } || exit
+    0

@@ -1,0 +1,40 @@
+id: s1
+name: 'capa de datos: schema versionado (Flyway) + jOOQ tipado (DES-12) + PostgreSQL
+  VIVA por infra_up (DES-4)'
+activation: always
+requires_prev: s0
+builds: []
+checks:
+- name: schema_checked
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew jooqCodegen
+    compileKotlin -q --console=plain
+- name: db_roundtrip_live
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew
+    classes -q --console=plain
+  up:
+  - sh
+  - -c
+  - docker rm -f fsk_s1_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s1_pg
+    -e POSTGRES_PASSWORD=metafactory -p 55434:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+  proof:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew
+    roundtrip -q --console=plain
+  down:
+  - docker
+  - rm
+  - -f
+  - fsk_s1_pg
+  timeout: 120

@@ -34,6 +34,10 @@ KOTLINX_SER_VERSION = "1.7.3"
 JDK_TOOLCHAIN = "21"
 TS_VERSION = "5.7.3"
 OPENAPI_TS_VERSION = "7.13.0"
+# Capa de datos (s1, DES-12/4): jOOQ (tipos del schema), Flyway (migraciones versionadas), driver PG.
+JOOQ_VERSION = "3.21.6"
+FLYWAY_VERSION = "10.20.1"
+POSTGRES_JDBC_VERSION = "42.7.4"
 
 # campo del blueprint -> tipo OpenAPI (el contrato) y valor de muestra Kotlin/TS (determinista).
 _OAPI_TYPE = {
@@ -128,7 +132,7 @@ def _settings_gradle(pkg: str) -> str:
             f'rootProject.name = "{pkg}"\n')
 
 
-def _build_gradle() -> str:
+def _build_gradle(pkg: str) -> str:
     return f'''\
 // Build pineado y reproducible (DES-1). openApiGenerate genera los models Kotlin del CONTRATO antes de
 // compilar; el handler usa esos models → un drift del contrato rompe `compileKotlin` (DES-6).
@@ -136,11 +140,19 @@ plugins {{
     kotlin("jvm") version "{KOTLIN_VERSION}"
     kotlin("plugin.serialization") version "{KOTLIN_VERSION}"
     id("org.openapi.generator") version "{OPENAPI_GEN_VERSION}"
+    id("org.jooq.jooq-codegen-gradle") version "{JOOQ_VERSION}"
 }}
 repositories {{ mavenCentral() }}
 kotlin {{ jvmToolchain({JDK_TOOLCHAIN}) }}
 dependencies {{
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:{KOTLINX_SER_VERSION}")
+    // Capa de datos (s1, DES-12/4): jOOQ tipado + Flyway (migraciones versionadas) + driver PostgreSQL.
+    implementation("org.jooq:jooq:{JOOQ_VERSION}")
+    implementation("org.flywaydb:flyway-core:{FLYWAY_VERSION}")
+    implementation("org.flywaydb:flyway-database-postgresql:{FLYWAY_VERSION}")
+    implementation("org.postgresql:postgresql:{POSTGRES_JDBC_VERSION}")
+    // Codegen jOOQ desde los .sql de Flyway (DDLDatabase) — sin DB viva (hermético, DES-12).
+    jooqCodegen("org.jooq:jooq-meta-extensions:{JOOQ_VERSION}")
 }}
 val genDir = layout.buildDirectory.dir("generated")
 openApiGenerate {{
@@ -150,8 +162,40 @@ openApiGenerate {{
     globalProperties.set(mapOf("models" to ""))            // sólo models (data classes del contrato)
     configOptions.set(mapOf("serializationLibrary" to "kotlinx_serialization"))
 }}
+// jOOQ: tipos generados del schema versionado (db/migration/*.sql) por DDLDatabase. La DB GRITA en
+// compilación (DES-12): un query a una columna inexistente no compila (ver Repository.kt).
+jooq {{
+    configuration {{
+        generator {{
+            name = "org.jooq.codegen.KotlinGenerator"
+            database {{
+                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                properties {{
+                    property {{ key = "scripts"; value = "src/main/resources/db/migration/*.sql" }}
+                    property {{ key = "sort"; value = "flyway" }}
+                    property {{ key = "unqualifiedSchema"; value = "none" }}
+                    property {{ key = "defaultNameCase"; value = "as_is" }}
+                }}
+            }}
+            generate {{ isRecords = true }}
+            target {{
+                packageName = "{pkg}.jooq"
+                directory = "build/generated-jooq"
+            }}
+        }}
+    }}
+}}
 sourceSets["main"].kotlin.srcDir(genDir.map {{ it.dir("src/main/kotlin") }})
-tasks.named("compileKotlin") {{ dependsOn("openApiGenerate") }}
+sourceSets["main"].kotlin.srcDir("build/generated-jooq")
+tasks.named("compileKotlin") {{ dependsOn("openApiGenerate", "jooqCodegen") }}
+
+// DES-4 — round-trip del producto contra una PostgreSQL VIVA (lo corre `infra_up` contra el contenedor).
+// JavaExec corre SIEMPRE (no up-to-date) → el diente negativo de infra_up re-corre con la DB caída y debe fallar.
+tasks.register<JavaExec>("roundtrip") {{
+    dependsOn("classes")
+    mainClass.set("{pkg}.DbRoundTripKt")
+    classpath = sourceSets["main"].runtimeClasspath
+}}
 '''
 
 
@@ -244,6 +288,147 @@ def _client_ts(entities: list[dict]) -> str:
             "}\n")
 
 
+# ── la capa de datos (s1): schema versionado (Flyway) + jOOQ tipado + round-trip vivo ───────────
+_PG_COL = {"string": "VARCHAR(255)", "boolean": "BOOLEAN"}     # ref → BIGINT FK (caso aparte)
+
+
+def _table(e: dict) -> str:
+    """nombre de tabla (plural, lower) — evita `user`, palabra reservada de Postgres."""
+    return e["name"].lower() + "s"
+
+
+def _TBL(e: dict) -> str:
+    """ref de tabla en el jOOQ generado (DDLDatabase normaliza a UPPER): users → USERS."""
+    return _table(e).upper()
+
+
+def _COL(name: str) -> str:
+    return name.upper()
+
+
+def _migration_sql(bp: dict) -> str:
+    """V1__init.sql (Flyway): CREATE TABLE por entidad desde domain.product. FUENTE del codegen jOOQ
+    (DDLDatabase) → un drift acá cambia los tipos generados (DES-12). Entidades en orden de dependencia
+    (un ref apunta a una entidad declarada antes → la tabla referida ya existe)."""
+    by = {e["name"]: e for e in bp["entities"]}
+    out = [
+        "-- V1__init.sql — esquema versionado (Flyway) y FUENTE del codegen jOOQ (DDLDatabase, DES-12).",
+        "-- Un query a una columna inexistente = error de compilación (la DB grita): ver Repository.kt.",
+        "",
+    ]
+    for e in bp["entities"]:
+        cols = ["  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY"]
+        for f in e["fields"]:
+            if f["type"] == "ref":
+                cols.append(f"  {f['name']} BIGINT NOT NULL REFERENCES {_table(by[f['to']])} (id)")
+            else:
+                uniq = " UNIQUE" if f.get("unique") else ""
+                cols.append(f"  {f['name']} {_PG_COL[f['type']]} NOT NULL{uniq}")
+        out += [f"CREATE TABLE {_table(e)} (", ",\n".join(cols), ");"]
+    return "\n".join(out) + "\n"
+
+
+def _repository_kt(pkg: str, entities: list[dict]) -> str:
+    """Queries jOOQ TIPADAS (DES-12): una por entidad, que SELECCIONA todas sus columnas (id + fields).
+    Borrar/renombrar cualquier columna en la migración → jOOQ la quita → `Unresolved reference` (rojo)."""
+    imports = "\n".join(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities)
+    fns = []
+    for e in entities:
+        tbl = _TBL(e)
+        cols = ", ".join([f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in e["fields"]])
+        fns.append(f"    fun all{e['name']}s(ctx: DSLContext) =\n"
+                   f"        ctx.select({cols}).from({tbl}).orderBy({tbl}.ID).fetch()")
+    return (f"package {pkg}\n\n"
+            f"import org.jooq.DSLContext\n{imports}\n\n"
+            "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
+            "// (src/main/resources/db/migration/*.sql). El codegen jOOQ (DDLDatabase) deriva los tipos de ESE\n"
+            "// schema; borrar/renombrar una columna usada acá → jOOQ la quita → kotlinc 'Unresolved reference'\n"
+            "// (rojo). La DB grita EN COMPILACIÓN, sin DB viva — es el diente DES-12.\n"
+            "object Repository {\n" + "\n".join(fns) + "\n}\n")
+
+
+_ROUNDTRIP_SKELETON = '''package %PKG%
+
+import java.sql.DriverManager
+import kotlin.system.exitProcess
+import org.flywaydb.core.Flyway
+import org.jooq.SQLDialect
+import org.jooq.conf.RenderQuotedNames
+import org.jooq.conf.Settings
+import org.jooq.impl.DSL
+%IMPORTS%
+
+// DES-4 — el PRODUCTO persiste/lee contra una PostgreSQL VIVA (no un mock). Flyway aplica el schema
+// versionado (up), jOOQ hace un round-trip create+list tipado, y Flyway clean lo revierte (down) →
+// re-migrate da un schema VACÍO (la migración es reversible). DB caída → connect falla → exit 1 (el
+// diente de dos lados de infra_up). El nombre del servicio es DATA: lo provee env o el default.
+fun main() {
+    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:55434/postgres"
+    val user = System.getenv("FSK_PG_USER") ?: "postgres"
+    val pass = System.getenv("FSK_PG_PASSWORD") ?: "metafactory"
+    // jOOQ generó identificadores UPPER; sin comillas Postgres los pliega a lower → matchea las tablas
+    // reales. Es el ajuste de case canónico jOOQ↔Postgres.
+    val settings = Settings().withRenderQuotedNames(RenderQuotedNames.NEVER)
+    try {
+        val flyway = Flyway.configure().dataSource(url, user, pass).cleanDisabled(false).load()
+        flyway.migrate()                                            // UP: schema versionado vivo
+        DriverManager.getConnection(url, user, pass).use { conn ->
+            val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)
+%INSERTS%
+%COUNTS%
+        }
+        flyway.clean()                                             // DOWN: revierte (reversibilidad)
+        flyway.migrate()
+        DriverManager.getConnection(url, user, pass).use { conn ->
+            val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)
+            check(Repository.all%FIRST%s(ctx).isEmpty()) { "down no revirtió el schema" }
+        }
+        println("FSK_DB_ROUNDTRIP_OK %OKCOUNTS% reversible=ok")
+    } catch (e: Throwable) {
+        System.err.println("FSK_DB_ROUNDTRIP_FAIL: ${e::class.simpleName}: ${e.message}")
+        exitProcess(1)
+    }
+}
+'''
+
+
+def _sample(f: dict, idvar: dict) -> str:
+    """valor de muestra Kotlin determinista por campo (ref → el id capturado de la entidad referida)."""
+    if f["type"] == "ref":
+        return idvar[f["to"]]
+    if f["type"] == "boolean":
+        return "false"
+    return f'"sample-{f["name"]}"'
+
+
+def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
+    """DbRoundTrip.kt (DES-4): inserta una fila por entidad (cableando los FK), lee de vuelta y asevera.
+    Derivado de domain.product → determinista. Sólo captura el id de las entidades referenciadas (sin
+    vals sin usar)."""
+    referenced = {f["to"] for e in entities for f in e["fields"] if f["type"] == "ref"}
+    idvar = {e["name"]: e["name"][0].lower() + e["name"][1:] + "Id" for e in entities}
+    imports = "\n".join(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities)
+    inserts = []
+    for e in entities:
+        tbl = _TBL(e)
+        sets = "".join(f".set({tbl}.{_COL(f['name'])}, {_sample(f, idvar)})" for f in e["fields"])
+        if e["name"] in referenced:
+            inserts.append(f"            val {idvar[e['name']]} = ctx.insertInto({tbl}){sets}\n"
+                           f"                .returning({tbl}.ID).fetchOne()!!.get({tbl}.ID)!!")
+        else:
+            inserts.append(f"            ctx.insertInto({tbl}){sets}.execute()")
+    counts = "\n".join(
+        f'            check(Repository.all{e["name"]}s(ctx).size == 1) {{ "round-trip {e["name"]}" }}'
+        for e in entities)
+    return (_ROUNDTRIP_SKELETON
+            .replace("%PKG%", pkg)
+            .replace("%IMPORTS%", imports)
+            .replace("%INSERTS%", "\n".join(inserts))
+            .replace("%COUNTS%", counts)
+            .replace("%FIRST%", entities[0]["name"])
+            .replace("%OKCOUNTS%", " ".join(f"{_table(e)}=1" for e in entities)))
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -251,9 +436,13 @@ def build_files(bp: dict) -> dict[str, str]:
     return {
         "openapi.yaml": _openapi_yaml(bp),
         "settings.gradle.kts": _settings_gradle(pkg),
-        "build.gradle.kts": _build_gradle(),
+        "build.gradle.kts": _build_gradle(pkg),
         f"{pkgdir}/Handler.kt": _handler_kt(pkg, ents),
         f"{pkgdir}/App.kt": _app_kt(pkg, ents),
+        # capa de datos (s1): schema versionado + jOOQ tipado + round-trip vivo
+        "src/main/resources/db/migration/V1__init.sql": _migration_sql(bp),
+        f"{pkgdir}/Repository.kt": _repository_kt(pkg, ents),
+        f"{pkgdir}/DbRoundTrip.kt": _roundtrip_kt(pkg, ents),
         "frontend/package.json": _ts_package_json(pkg),
         "frontend/tsconfig.json": _TS_TSCONFIG,
         "frontend/src/client.ts": _client_ts(ents),

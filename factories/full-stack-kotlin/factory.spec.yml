@@ -89,19 +89,19 @@ domain:
       proof: "s0: el build del producto corre con su toolchain; un intento de cargar la fábrica adentro → rojo"
       status: built
     - id: datos_esquema_chequeado
-      invariant: "el esquema PostgreSQL está versionado (migraciones reversibles) y los queries se chequean contra el schema vivo EN COMPILACIÓN: un query a una columna inexistente = error de compilación (la DB grita)"
+      invariant: "el esquema PostgreSQL está versionado (migraciones Flyway con prefijo de versión) y los queries se chequean contra el schema EN COMPILACIÓN: un query a una columna inexistente = error de compilación (la DB grita)"
       primitive: DES-12
-      tech: "Flyway (migraciones up/down) + jOOQ (tipos generados del schema vivo); kotlinc falla ante un query inválido"
-      artifact: build/product/db/migration/
-      proof: "s1: migración up+down en PG efímera (Testcontainers) + jOOQ codegen + kotlinc; romper una columna usada → compile error"
-      status: planned
+      tech: "Flyway (migraciones versionadas) + jOOQ (tipos derivados del schema por DDLDatabase, sin DB viva — hermético); kotlinc falla ante un query a una columna inexistente"
+      artifact: build/product/src/main/resources/db/migration/V1__init.sql
+      proof: "s1 schema_checked: jOOQ DDLDatabase deriva los tipos de db/migration/*.sql + compileKotlin; borrar una columna usada → Unresolved reference (compile rojo); regen → verde"
+      status: built
     - id: datos_durables_vivos
-      invariant: "el PRODUCTO persiste/lee contra una PostgreSQL VIVA: un test de integración del producto hace un round-trip create+list contra la DB levantada (no un mock); DB caída → rojo (DES-4, M8 del producto)"
+      invariant: "el PRODUCTO persiste/lee contra una PostgreSQL VIVA: un round-trip create+list del producto corre contra la DB levantada (no un mock); DB caída → rojo (DES-4, M8 del producto)"
       primitive: DES-4
-      tech: "PostgreSQL real vía Testcontainers (docker) bajo infra_up; el cliente es un test del PRODUCTO (Kotest) tipado al contrato"
-      artifact: build/product/src/test/kotlin/DbIntegrationTest.kt
-      proof: "s1: infra_up levanta PostgreSQL y bootstrapea el toolchain del producto; round-trip vivo; DB caída → rojo (diente de dos lados)"
-      status: planned
+      tech: "PostgreSQL real (contenedor pineado por digest) bajo infra_up; el cliente es un runner del PRODUCTO (Flyway migrate + jOOQ create/list) tipado al schema"
+      artifact: build/product/src/main/kotlin/webapp/DbRoundTrip.kt
+      proof: "s1 db_roundtrip_live: infra_up levanta PostgreSQL + bootstrapea el toolchain del producto; round-trip vivo + reversibilidad (Flyway clean); DB caída → rojo (diente de dos lados)"
+      status: built
     - id: dureza_estatica
       invariant: "el código falla FUERTE por calidad: sin `any` (TS) ni warnings (Kotlin), exhaustividad obligatoria, complejidad acotada, errores no tragados — un escape-hatch → build rojo"
       primitive: DES-10
@@ -209,7 +209,34 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 -c 'import metafactory' 2>/dev/null && { echo LEAK; exit 1; } || exit 0"]
-    # s1–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s1
+      name: "capa de datos: schema versionado (Flyway) + jOOQ tipado (DES-12) + PostgreSQL VIVA por infra_up (DES-4)"
+      activation: always
+      depends_on: [s0]
+      # DES-12 hermético: jOOQ (DDLDatabase) deriva los tipos del schema versionado db/migration/*.sql y
+      # compileKotlin gatea — un drift de columna → Unresolved reference (sin DB viva). DES-4: el round-trip
+      # del PRODUCTO (Flyway migrate + jOOQ create/list) corre contra una PostgreSQL VIVA (contenedor pineado
+      # por digest) que infra_up levanta; DB caída → rojo (diente de dos lados, MAT-3). El codegen (s0) ya
+      # emite migración + Repository + DbRoundTrip → builds: [] (la estación sólo PRUEBA).
+      proof_checks:
+        - { name: schema_checked, cmd: "jooqCodegen (DDLDatabase de db/migration/*.sql) + compileKotlin; un drift de columna → Unresolved reference", runs_in: product_env, toolchain: "jooq-kotlinc", status: built }
+        - { name: db_roundtrip_live, cmd: "round-trip create+list del producto (Flyway+jOOQ) contra PostgreSQL viva; DB caída → rojo", runs_in: product_env, toolchain: "gradle-postgres", status: built }
+      builds: []
+      checks:
+        - name: schema_checked
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew jooqCodegen compileKotlin -q --console=plain"]
+        - name: db_roundtrip_live
+          kind: infra_up
+          workdir: build/product
+          bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew classes -q --console=plain"]
+          up: ["sh", "-c", "docker rm -f fsk_s1_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s1_pg -e POSTGRES_PASSWORD=metafactory -p 55434:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
+          proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew roundtrip -q --console=plain"]
+          down: ["docker", "rm", "-f", "fsk_s1_pg"]
+          timeout: 120
+    # s2–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -314,7 +341,19 @@ requirements:
       satisfied_by: [s0]
       verified_by: [scaffold_idempotent]
       capability: andamiaje_regenerable
-    # REQ-F-003..008 DIFERIDAS con s1–s10 (cada una se re-añade cuando su estación se construye). Texto
+    - id: REQ-F-003
+      statement: "el esquema PostgreSQL está versionado (Flyway) y los queries son chequeados EN COMPILACIÓN por jOOQ: un query a una columna inexistente = compile error (DES-12)"
+      acceptance: "schema_checked verde; borrar una columna usada por un query → Unresolved reference (compile rojo); regen → verde"
+      satisfied_by: [s1]
+      verified_by: [schema_checked]
+      capability: datos_esquema_chequeado
+    - id: REQ-F-004
+      statement: "el producto persiste/lee contra una PostgreSQL VIVA (round-trip create+list); una DB caída lo pone en rojo (DES-4)"
+      acceptance: "db_roundtrip_live verde contra la DB viva; con la DB caída el round-trip del producto → rojo (diente de dos lados)"
+      satisfied_by: [s1]
+      verified_by: [db_roundtrip_live]
+      capability: datos_durables_vivos
+    # REQ-F-005..008 DIFERIDAS con s2–s10 (cada una se re-añade cuando su estación se construye). Texto
     # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001

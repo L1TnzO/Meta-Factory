@@ -1,7 +1,7 @@
-<!-- meta:doc sha=e3c8578c6889098d0a83c1271bc27775eecd4762 updated=2026-06-18T20:52Z -->
+<!-- meta:doc sha=4aa0f069206e638fd3a623d5e6b31f7ad0e6d728 updated=2026-06-18T20:54Z -->
 # Incremento HARDEN-HOOKS-CWD
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T20:44Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T20:54Z) (creado 2026-06-18T20:44Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

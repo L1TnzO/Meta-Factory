@@ -1,9 +1,9 @@
-<!-- meta:doc sha=0f434bf3030ef5c1841ed1446011257b039aec6d updated=2026-06-18T18:55Z -->
+<!-- meta:doc sha=71ef5eb452c3f1cb2e394c2dcd5b8dfc721275a2 updated=2026-06-18T19:35Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-18T18:10Z -->
 # Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO)
 
 > tipo: work (por-incremento) · creado: 2026-06-18T18:10Z · sesión: opus-4.8
-> **Estado: **ABIERTO** · fase: DISEÑO ✅ (este doc) → BUILD (próxima(s) sesión(es))
+> **Estado: **CERRADO** (2026-06-18T19:35Z) · fase: DISEÑO ✅ (este doc) → BUILD (próxima(s) sesión(es))
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que escribió esto MURIÓ. El próximo
 > orquestador implementa desde acá con contexto en blanco. Si algo no está acá (o en la spec/cantera que
 > referencia), no existe. Orden de lectura para retomar: §0.

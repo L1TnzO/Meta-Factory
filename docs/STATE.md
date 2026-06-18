@@ -1,6 +1,6 @@
-<!-- meta:doc sha=5a9f6f8d1454ca7c975aa638560453cbe8545d9d updated=2026-06-18T16:16Z -->
+<!-- meta:doc sha=c0b0ea25f17ff7084b43fa4546168ce54b373a12 updated=2026-06-18T16:32Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-18T02:35Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G arrancada — G1 ✅**: el loop de mejora observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`SELF-IMPROVEMENT.md §4`) — `meta promote` re-pinea una mejora SÓLO si ninguna fábrica downstream baja su veredicto; VERDE vivo (iot 5/5→6/6) + ROJO co-validado en los 3 lenguajes disjuntos (py ⟂ ts ⟂ go); anti-overfit: el sustrato no nombra fábrica ni tech) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -258,7 +258,7 @@
       estaba en `_LANG`; propiedad de composición §5: heredó generate·product_env·infra_up gratis). Tech
       DIVERGE del skeleton (C aspiracional→Go, ADR-012: la tech es PLAN). dummy/ASF/full-stack intactos.
       **Cierra el deepening MAT-0..MAT-7 — sigue Fase G (loop de mejora).**
-- **Fase G (arrancada) — el loop de mejora empuja el producto a su mejor estado, SIN poder corromper su raíz**:
+- **Fase G ✅ (2026-06-18) — el loop de mejora empuja el producto a su mejor estado, SIN poder corromper su raíz**:
   - **G1 (`G1-IMPROVE-LOOP`) ✅ (2026-06-18)** — el loop **observar→proponer→verificar→promover→rollback**
     con el **gate de blast-radius** (`SELF-IMPROVEMENT.md §4`), con dientes. El **veredicto** de una fábrica
     se vuelve cantidad RE-DERIVABLE (`verify/verdict.py`): `line_green` (reconstruye e2e en clon limpio) +
@@ -275,7 +275,24 @@
     2). Negativo non-decorativo (doctrina clean_runner): una baseline +1 SATISFIED debe regresar. `test_blast_radius.py`
     17 verdes. **Anti-overfit**: el diff de sustrato (~311 líneas) es SÓLO el mecanismo general — cero nombres
     de fábrica/tech; la mejora vivió 100% en la fábrica (la composición §5: el gate heredó re-derivación·rtm·pin).
-    `meta check` 6/6 · dummy/full-stack/ASF intactos. **Sigue G2** (corpus de scenario-specs diversos).
+    `meta check` 6/6 · dummy/full-stack/ASF intactos.
+  - **G2 (`G2-SCENARIO-CORPUS`) ✅ (2026-06-18)** — el **corpus de scenario-specs diversos** (patrón
+    meta-harness/autocontext, `SELF-IMPROVEMENT.md §4`) que **ejercita el motor** antes de promover; cierra
+    **G-8 de raíz** ("probada en pocas formas de spec; formas nuevas destapan cascada"). Un **scenario = una
+    FORMA de spec + el veredicto M0 que debe producir**; `verify/checks/scenario_corpus.py` RE-DERIVA la
+    decisión del motor (`validate` ± `design_review`) y la compara con lo declarado — **dos lados** (forma
+    `valid` rechazada **o** `reject` aceptada = cascada, HECHO duro no juicio §6) + diente de **diversidad**
+    (firmas STRUCTURALES, no etiquetas: pocas formas distintas / pocas familias de tooth / una sola polaridad
+    → rojo: "pocas formas de spec" ES la regresión que G-8 nombra). Cableado a `meta promote` (PRECEDE al
+    barrido): protege el COMPORTAMIENTO del motor; compone con blast-radius (que protege el VEREDICTO
+    downstream). Corpus = **12 scenarios DATA** (`scenarios/`): 5 formas válidas estructuralmente distintas +
+    7 reject que cubren las 4 familias del validador + el gate de diseño B2. **VIVO por bloqueo**: una
+    regresión REAL del motor (tooth ADR-012 `tech⇒primitive` neutralizado) → corpus ROJO → `meta promote
+    --factory iot` **BLOQUEADA** con pin+baseline **byte-idénticos** antes/después (bloqueó en 0.09s vs ~7s
+    del barrido); corpus recortado → "POCO DIVERSO". `test_scenario_corpus.py` 18 verdes (incl. el diente
+    NO-decorativo: si `validate` se vuelve no-op → una `reject` se acepta → mismatch). **Anti-overfit**: `git
+    diff src/metafactory/ + seed/` = sólo el mecanismo general (0 nombres de fábrica/tech); el corpus vive
+    como DATA. `meta check` 6/6 · `ci --rederive` iot 5/5 == pineado. **Cierra el ROADMAP A–G.**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -344,8 +361,13 @@
 > decrece (§6). **Fase G ARRANCADA — G1 ✅**: el loop observar→proponer→verificar→promover→rollback con el gate
 > de blast-radius LANDED — `meta promote` re-pinea una mejora SÓLO si re-pasa el gate sin bajar el veredicto de
 > ninguna fábrica downstream (VERDE vivo iot 5/5→6/6 + ROJO en py⟂ts⟂go + bloqueo del verbo con pin/baseline
-> intactos; anti-overfit). **Próximo: G2** — corpus de scenario-specs diversos (formas de spec variadas
-> ejercitan el motor antes de promover; cierra G-8 de raíz; promover exige verde en N scenarios diversos).
+> intactos; anti-overfit). **G2 ✅** — corpus de scenario-specs diversos (12 scenarios DATA) que ejercita el
+> motor antes de promover (`meta promote` corre el corpus ANTES del barrido); cierra G-8 de raíz; dos lados +
+> diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit.
+> **El ROADMAP A–G está COMPLETO.** Lo que queda es OPCIONAL/diferido (no en el camino crítico): Mobile como
+> dominio adicional (la generalidad ya está probada en 3 lenguajes disjuntos py⟂ts⟂go), índice semántico de
+> memoria SOLO cuando la serie `recall` lo justifique, hooks de dominio desde L3 (sin necesidad concreta),
+> acotar el `gate_guard` del meta (sobre-matchea texto), `increment_guard`/cadencia heredada por fábrica.
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna
   anti-sello completa heredada. **Cerrado por D2**: harness (agents/commands/skills) generado del spec.

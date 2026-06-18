@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `134d030f4897` | 2026-06-18T01:06Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `5a9f6f8d1454` | 2026-06-18T16:16Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `c0b0ea25f17f` | 2026-06-18T16:32Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -52,7 +52,7 @@
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
-| `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `450f2df1fc7d` | 2026-06-18T16:16Z | Incremento G2-SCENARIO-CORPUS |
+| `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `d1c9f891eaee` | 2026-06-18T16:30Z | Incremento G2-SCENARIO-CORPUS |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |
@@ -65,6 +65,6 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `0b33bd667fa6` | 2026-06-18T02:40Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `96affb289873` | 2026-06-18T16:30Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

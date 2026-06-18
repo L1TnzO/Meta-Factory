@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0b33bd667fa6d98c157b6f7dded64b16232d3250 updated=2026-06-18T02:40Z -->
+<!-- meta:doc sha=96affb28987339a7aad4eb7e938a4883e0c4c46f updated=2026-06-18T16:30Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -308,8 +308,21 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   (promover sin mejora → exit 2). **Anti-overfit**: el diff de sustrato es SÓLO el mecanismo general (cero
   nombres de fábrica/tech); la mejora vivió 100% en `factories/iot/`. `meta check` 6/6 · ASF 11/11 intacto.
   Evidencia: `work/G1-IMPROVE-LOOP-INCREMENT.md`. Depende: F1, F2.
-- **G2 · Corpus de scenario-specs diversos.** Formas de spec variadas (ECC 2.0: meta-harness/autocontext)
-  ejercitan el motor antes de promover; cierra G-8 de raíz. *Gate*: promover exige verde en N scenarios diversos. Depende: G1.
+- **G2 · Corpus de scenario-specs diversos.** ✅ **HECHO (2026-06-18, `G2-SCENARIO-CORPUS`)**. Formas de
+  spec variadas (ECC 2.0: meta-harness/autocontext) ejercitan el MOTOR antes de promover; cierra G-8 de raíz.
+  Un **scenario = una FORMA de spec + el veredicto M0 que debe producir**; `verify/checks/scenario_corpus.py`
+  RE-DERIVA la decisión del motor (`validate` ± `design_review`) y la compara con lo declarado — dos lados
+  (forma `valid` rechazada **o** `reject` aceptada = cascada, HECHO duro §6) + diente de **diversidad**
+  (firmas STRUCTURALES; pocas formas distintas / pocas familias de tooth / una polaridad → rojo: "pocas
+  formas de spec" ES la regresión que G-8 nombra). Cableado a `meta promote` (PRECEDE al barrido): protege el
+  COMPORTAMIENTO del motor; compone con blast-radius (que protege el VEREDICTO downstream). Corpus = **12
+  scenarios DATA** (5 formas válidas distintas + 7 reject que cubren las 4 familias del validador + el gate
+  de diseño B2). *Gate cumplido*: VIVO — una regresión REAL del motor (tooth ADR-012 neutralizado) → corpus
+  ROJO → `meta promote --factory iot` **BLOQUEADA** con pin+baseline **byte-idénticos** antes/después (bloqueó
+  en 0.09s vs ~7s del barrido); diversidad recortada → "POCO DIVERSO"; `test_scenario_corpus.py` 18 verdes
+  (incl. el diente no-decorativo). **Anti-overfit**: `git diff src/metafactory/ + seed/` = sólo el mecanismo
+  general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
+  --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

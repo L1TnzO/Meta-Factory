@@ -6,6 +6,10 @@ import re
 import sys
 from pathlib import Path
 
+# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
+# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
+
 
 def main() -> int:
     try:
@@ -17,7 +21,7 @@ def main() -> int:
     cmd = (data.get("tool_input", {}) or {}).get("command", "")
     if not re.search(r"\bgit\s+commit\b", cmd):
         return 0
-    sys.path.insert(0, "src")
+    sys.path.insert(0, _SRC)
     try:
         from metafactory._seed import load_seed_verifier, repo_root
     except Exception:

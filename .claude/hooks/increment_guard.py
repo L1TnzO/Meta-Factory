@@ -6,6 +6,11 @@ un incremento abierto. `.md` siempre permitido (es como se ABRE un incremento). 
 ante cualquier duda, PERMITE (no brickea la edición — la cadencia es un aid, no una frontera de seguridad)."""
 import json
 import sys
+from pathlib import Path
+
+# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
+# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
 
 
 def main() -> int:
@@ -18,7 +23,7 @@ def main() -> int:
     fp = (data.get("tool_input", {}) or {}).get("file_path", "")
     if not fp:
         return 0
-    sys.path.insert(0, "src")
+    sys.path.insert(0, _SRC)
     try:
         from metafactory._seed import repo_root
         from metafactory.memory import cadence

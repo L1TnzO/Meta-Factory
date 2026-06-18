@@ -1,5 +1,5 @@
 {
-  "$comment": "El harness de construcción del Meta-Factory. Los hooks son las SOMBRAS deterministas de la columna (ley de colocación: lo impedido -> hook). permissions.deny es defensa en profundidad del Cerrojo 1. La lógica vive en src/metafactory + seed/; los hooks son transportes de una línea.",
+  "$comment": "El harness de construcción del Meta-Factory. Los hooks son las SOMBRAS deterministas de la columna (ley de colocación: lo impedido -> hook). permissions.deny es defensa en profundidad del Cerrojo 1. La lógica vive en src/metafactory + seed/; los hooks son transportes de una línea. Las rutas de los scripts son ABSOLUTAS via $CLAUDE_PROJECT_DIR: un `cd` que filtre el cwd NO puede dejar al harness sin encontrar sus hooks (era el deadlock de cd — el script no resolvía, exit 2, bloqueaba toda mutación, incluido el `cd` de vuelta).",
   "permissions": {
     "deny": [
       "Write(.proof/**)",
@@ -13,40 +13,40 @@
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "python3 .claude/hooks/proof_protect.py" },
-          { "type": "command", "command": "python3 .claude/hooks/increment_guard.py" }
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/proof_protect.py\"" },
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/increment_guard.py\"" }
         ]
       },
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "python3 .claude/hooks/proof_protect.py" },
-          { "type": "command", "command": "python3 .claude/hooks/gate_guard.py" },
-          { "type": "command", "command": "python3 .claude/hooks/commit_guard.py" }
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/proof_protect.py\"" },
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/gate_guard.py\"" },
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit_guard.py\"" }
         ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit",
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/doc_stamp.py" }]
+        "hooks": [{ "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/doc_stamp.py\"" }]
       },
       {
         "matcher": "*",
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/mem_capture.py" }]
+        "hooks": [{ "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/mem_capture.py\"" }]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "python3 .claude/hooks/stop_proof.py" },
-          { "type": "command", "command": "python3 .claude/hooks/mem_rollup.py" }
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_proof.py\"" },
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/mem_rollup.py\"" }
         ]
       }
     ],
     "SessionStart": [
       {
-        "hooks": [{ "type": "command", "command": "python3 .claude/hooks/session_start.py" }]
+        "hooks": [{ "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_start.py\"" }]
       }
     ]
   }

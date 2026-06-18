@@ -7,6 +7,10 @@ import re
 import sys
 from pathlib import Path
 
+# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
+# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
+
 # Liga el match a una INVOCACIÓN real de `meta station … --factory …` en un borde de comando (inicio
 # o tras `;`/`&`/`|`, con prefijo opcional de env VAR=val y `./`). El `\bstation … --factory …` previo
 # matcheaba la FRASE en cualquier parte — incluido un `echo "…"` o un mensaje de commit que la nombra
@@ -34,7 +38,7 @@ def main() -> int:
     if not hit:
         return 0
     station_id, slug = hit
-    sys.path.insert(0, "src")
+    sys.path.insert(0, _SRC)
     try:
         from metafactory._seed import load_seed_verifier, repo_root
         from metafactory.engine import load_sequence

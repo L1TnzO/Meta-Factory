@@ -1,4 +1,4 @@
-<!-- meta:doc sha=03cb887f8420edbd5150016e9b638165c49b474e updated=2026-06-18T00:02Z -->
+<!-- meta:doc sha=a4c10fcd07a739f072648a2e7746aa34faebdd1a updated=2026-06-18T00:33Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-17T23:55Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6 ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad: New ASF gana/empata 6/8, la fila de EVAL decisiva — s10 mide **recall de requisitos REAL** (0.82, 23/28) vs el oráculo HUMANO del dataset RECOVER, **vs el stub 0.0 de la legacy**; 2 filas residual honesto: multi-topología + s5) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -287,9 +287,9 @@
 > (`live_run`; cierra B-5) y la **re-auditoría §12 dada vuelta con honestidad** (MAT-6: 6/8 ganadas/empatadas,
 > la fila de eval decisiva con **recall de requisitos REAL 0.82 vs el stub 0.0 de la legacy**, contra el oráculo
 > HUMANO del dataset RECOVER; 2 filas residual honesto: multi-topología + s5). **Próximo: MAT-7** — 3er dominio
-> (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. **Backlog explícito
-> de §12 (post-MAT-6)**: multi-topología (breadth + validador BFS) y s5 grounding — CONTENIDO de fábrica, no
-> fundación. Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
+> (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. **MAT-6b
+> (slot explícito, post-MAT-6)**: cerrar las 2 filas residuales de §12 — multi-topología (B-3, validador BFS) +
+> s5 grounding (B-4); CONTENIDO de fábrica single-domain, 0 sustrato; order-independent con MAT-7. Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
 > live_run) ya existen y son `general` — el costo marginal por dominio ahora decrece (§6 propiedad de composición).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna

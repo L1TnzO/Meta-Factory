@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bd61f5ea738571ef549e47444a34b884ee64913c updated=2026-06-17T23:57Z -->
+<!-- meta:doc sha=dddd0b1cb5939a2d50a9a95b02b59a87982c6e67 updated=2026-06-18T00:33Z -->
 # MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad)
 
 > tipo: reference (estable) · creado: 2026-06-17 · supersede el VEREDICTO de `F1-AUDIT-REGEN-VS-LEGACY.md §12`
@@ -86,8 +86,9 @@ notificación, R28 altas/bajas-de-jugadores) — el modelo genuinamente no los r
   declared-deferred` / s5 `activation:"off"`. → fila NO ganada.
 
 Ambas son **CONTENIDO de fábrica** (no fundación): construirlas es escribir blueprint + codegen + un validador
-local, exactamente lo que F1-AUDIT §7 llamó "rellenar el spec con lo que la legacy ya sabe". Quedan como
-backlog explícito; no se prometen como hechas.
+local, exactamente lo que F1-AUDIT §7 llamó "rellenar el spec con lo que la legacy ya sabe". Quedan agendadas
+como **MAT-6b** (slot explícito del `MATURITY-PLAN §4`, = **B-3 + B-4** de F1-AUDIT §10; contenido de fábrica
+single-domain, 0 sustrato); no se prometen como hechas. Cerrarlas deja §12 en **8/8 ganadas/empatadas**.
 
 ## 6. Veredicto del orquestador (sin colapsar el matiz)
 **Como evidencia del programa Meta-Factory**, MAT-6 es un éxito grande y honesto: New ASF pasó de "fundación

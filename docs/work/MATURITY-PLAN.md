@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2b68ba21c616bc7660a2fc75f9bb8e964a05e614 updated=2026-06-17T23:58Z -->
+<!-- meta:doc sha=5c3f73b910a41b893ce771990e004d3c149afd3c updated=2026-06-18T00:33Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -236,6 +236,31 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
   (re-derivada por bloqueo). Cierra B-1..B-6 **salvo** las 2 filas residuales (multi-topología, s5).
 - Depende: MAT-2..MAT-5.
 
+### MAT-6b · Cerrar las 2 filas RESIDUALES de §12 (multi-topología + s5 grounding) — CONTENIDO de fábrica
+> **Slot explícito del residual honesto de MAT-6** (`reference/MAT-6-REAUDIT.md §5`) = **B-3 + B-4** de
+> `F1-AUDIT §10`. Es **CONTENIDO de FÁBRICA (ASF), no sustrato**: la meta es `git diff src/metafactory/ +
+> seed/` = **0** (como MAT-6). Por eso **NO necesita lockstep de 2 dominios** — la ley anti-overfit (§2/§6)
+> aplica a mecanismos de SUSTRATO; esto es DATA/codegen de la fábrica. Single-domain a propósito. Cierra las
+> 2 filas que MAT-6 dejó NO-ganadas → la tabla §12 queda **8/8 ganadas/empatadas** (completa DoD-A §1).
+- **Build (fábrica)**:
+  - **Multi-topología (B-3)**: una **2ª forma de blueprint** en ASF (`supervisor_fanout_fanin`: un supervisor
+    que fan-out a N researchers y fan-in a un aggregator) + un **validador estructural** de la topología del
+    producto — alcanzabilidad/BFS sobre el `get_graph()` COMPILADO, generalizando lo que s7 ya hace para el
+    interrupt: todo nodo alcanzable desde `__start__`, `__end__` alcanzable, sin nodos huérfanos. Corre en
+    `product_env` (pytest), como s4/s7. Vive en `codegen/` + el blueprint del spec (DATA, ADR-012).
+  - **s5 grounding (B-4)**: activar la capability `anclaje_de_fuentes` (hoy `activation:"off"`): el contrato
+    `retrieve()→ProvenancePayload` TIPADO (no opcional) + gate (`mypy --strict` sobre la firma + un test de que
+    un retrieve sin evidencia rompe). Flip `activation: always` en la línea (s5).
+- *Gate (prueba por bloqueo)*: el producto con la 2ª topología compila (`get_graph()`) y el validador BFS la
+  acepta; **reordenar una arista para dejar un nodo inalcanzable → el validador FALLA** (diente). s5: el
+  contrato tipado pasa `mypy --strict`; un `retrieve()` con evidencia OPCIONAL → rojo. RTM sube (las 2
+  capabilities pasan a `built` con artifact real).
+- **Co-validación**: **N/A** — contenido de fábrica single-domain (no hay mecanismo de sustrato nuevo). El
+  anti-overfit se prueba **al revés**: `git diff src/metafactory/ + seed/` = 0.
+- *Cierra*: **B-3 + B-4** de `F1-AUDIT §10` → las 2 filas RESIDUAL de `MAT-6-REAUDIT.md §3`.
+- Depende: MAT-6. **Order-independent con MAT-7** (single-domain, 0 sustrato — se puede hacer antes, después o
+  en paralelo; cada uno tiene su propio gate).
+
 ### MAT-7 · 3er dominio (Mobile o IoT) — la prueba de que NO hubo overfitting — = ROADMAP F3
 - **Build**: una fábrica Mobile o IoT desde su skeleton (`specs/skeletons/{mobile,iot}`), con SÓLO spec +
   plantillas/scorers locales.
@@ -252,7 +277,7 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 | Fila §12 (qué pide Agent_RE) | Antes (F1) | Después (este plan) | Mecanismo |
 | --- | --- | --- | --- |
 | Lógica de dominio rica (researchers, reducer, evidencia) | ❌ `domain/` vacío | ✅ generada y gateada | MAT-2 |
-| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ⏳ **RESIDUAL (MAT-6): NO construido** — sigue 1 sola forma de blueprint, sin validador BFS de topologías custom; MAT-2 entregó `merge_findings` (reducer), no esto | backlog (corrección del over-claim original "MAT-2 fábrica") |
+| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ⏳ **RESIDUAL → MAT-6b** (slot explícito): sigue 1 sola forma de blueprint, sin validador BFS; MAT-2 entregó `merge_findings` (reducer), no esto | **MAT-6b** (B-3; corrige el over-claim original "MAT-2 fábrica") |
 | Lineage Neo4j (s2) | ❌ diferido | ✅ vivo bajo gate | MAT-3 |
 | Checkpointer Postgres + recovery (s3) | ❌ InMemory | ✅ vivo bajo gate | MAT-3 |
 | MCP | ❌ diferido | ✅ `emit_mcp`/`mcp_tools` cableados | E2 + fábrica |

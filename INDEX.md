@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `c65f75bb6c38` | 2026-06-18T00:00Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `03cb887f8420` | 2026-06-18T00:02Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `a4c10fcd07a7` | 2026-06-18T00:33Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -28,7 +28,7 @@
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `026dfc12bed1` | 2026-06-17T23:57Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
-| `docs/reference/MAT-6-REAUDIT.md` | `bd61f5ea7385` | 2026-06-17T23:57Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
+| `docs/reference/MAT-6-REAUDIT.md` | `dddd0b1cb593` | 2026-06-18T00:33Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PRIMITIVES.md` | `e3ef1a4c9e7c` | 2026-06-15T13:29Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
@@ -59,8 +59,8 @@
 | `docs/work/MAT-4-EVAL-GATE-INCREMENT.md` | `a9b234869233` | 2026-06-17T18:00Z | Incremento MAT-4-EVAL-GATE |
 | `docs/work/MAT-5-LIVE-RUN-INCREMENT.md` | `3446fc3fb865` | 2026-06-17T20:19Z | Incremento MAT-5-LIVE-RUN |
 | `docs/work/MAT-6-RE-AUDIT-INCREMENT.md` | `9e207fdf0b0d` | 2026-06-18T00:03Z | Incremento MAT-6-RE-AUDIT |
-| `docs/work/MATURITY-PLAN.md` | `2b68ba21c616` | 2026-06-17T23:58Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MATURITY-PLAN.md` | `5c3f73b910a4` | 2026-06-18T00:33Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `4c34dc897dff` | 2026-06-17T23:59Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `2f9c72728795` | 2026-06-18T00:33Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

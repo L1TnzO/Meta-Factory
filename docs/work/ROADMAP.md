@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4c34dc897dff12679d360b38ec870123d56a5f70 updated=2026-06-17T23:59Z -->
+<!-- meta:doc sha=2f9c72728795964468632d5149588aa69077dae3 updated=2026-06-18T00:33Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -239,8 +239,9 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 > §7 re-derivable sin re-llamar; cierra B-5) y la **re-auditoría §12 head-to-head dada vuelta con honestidad**
 > (MAT-6: New ASF gana/empata 6/8, la fila de eval decisiva — s10 mide **recall de requisitos REAL 0.82** vs el
 > oráculo HUMANO del dataset RECOVER, vs el stub 0.0 de la legacy; 2 filas residual honesto: multi-topología +
-> s5; `reference/MAT-6-REAUDIT.md`). Los 3 mecanismos del plan son `general`. **Sigue MAT-7** (3er dominio,
-> prueba final de no-overfitting). **Backlog §12**: multi-topología (breadth + validador BFS), s5 grounding.
+> s5; `reference/MAT-6-REAUDIT.md`). Los 3 mecanismos del plan son `general`. **Sigue MAT-6b** (slot explícito
+> del residual de §12: multi-topología B-3 + s5 grounding B-4, contenido de fábrica single-domain, 0 sustrato)
+> **y MAT-7** (3er dominio, prueba final de no-overfitting) — order-independent entre sí.
 - **F1 · ASF COMPLETO y MEJORADO end-to-end.** ✅ **HECHO (2026-06-16, `F1-INCREMENT`)**. Regenerada la
   MISMA fábrica `agent-systems-factory` desde su spec (no v2, no sobre el proxy; ADR-011) con la línea S0–S8
   REAL. El producto **LangGraph** se GENERA por un scaffolder DETERMINISTA (`codegen/scaffold_product.py`,

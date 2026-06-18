@@ -1,0 +1,386 @@
+# full-stack-kotlin.factory.spec.yml — Full-Stack Kotlin/TS/PG Factory (BLUEPRINT, status: planned).
+# Una fábrica de grado-producción para apps web world-class bajo CRITERIOS DUROS DE INGENIERÍA.
+# Autoridad del diseño + handoff de build: docs/work/FULLSTACK-KOTLIN-INCREMENT.md (leelo PRIMERO).
+#
+# Pila (PLAN, ADR-012 — NUNCA hardcodear en src/metafactory/): Kotlin (JVM) backend · TypeScript/React
+# frontend · PostgreSQL + jOOQ (SQL chequeado en compilación) + Flyway (migraciones versionadas).
+# Contrato OpenAPI como FUENTE ÚNICA → stubs Kotlin + client TS generados (drift imposible).
+#
+# Este spec PASA `validate` + `design-review` (exit 0): es un blueprint de diseño COMPLETO (13 primitivas
+# requeridas, cada una con una tech; cada requisito con un verifier real). NADA está `built` todavía: el
+# motor lo construye por incrementos, estación por estación, probado por bloqueo (SAFE-7). El próximo
+# orquestador rellena los `builds`/`checks` ejecutables y sube `status` a `built` SÓLO con `proof` real.
+
+# ── L0 · identidad ──
+factory:
+  name: "Full-Stack Kotlin/TS/PG Factory"
+  slug: full-stack-kotlin
+  maturity: skeleton
+
+# ── L1 · dominio ──
+domain:
+  produces: >-
+    una app web full-stack de grado-producción: contrato OpenAPI tipado como fuente única, backend Kotlin,
+    frontend TypeScript/React, base de datos PostgreSQL con esquema versionado (Flyway) y queries chequeados
+    en compilación (jOOQ), verificada ENTERA en su propio toolchain bajo criterios duros de ingeniería
+    (dureza estática, frescura de API, seguridad de la cadena de suministro, calidad de experiencia,
+    observabilidad), 100%-generada desde este spec.
+  target_framework: { name: kotlin, provider_agnostic: true }
+
+  # Las primitivas DES que ESTE dominio requiere (paso 2 del skill). design-review exige una tech por cada
+  # una (abajo, en capabilities) y un verifier por cada requisito (L5). DES-10..13 las destapó este dominio.
+  required_primitives: [DES-1, DES-2, DES-3, DES-4, DES-5, DES-6, DES-7, DES-8, DES-9, DES-10, DES-11, DES-12, DES-13]
+
+  # Blueprint del PRODUCTO de ejemplo — lo lee el codegen (factories/full-stack-kotlin/codegen/, ADR-012).
+  # Representativo: una app de gestión (User/Project/Task) con relaciones. El codegen real es del build.
+  product:
+    package_name: webapp
+    api_title: "Project Tracker API"
+    entities:
+      - name: User
+        fields:
+          - { name: email, type: string, unique: true }
+          - { name: name, type: string }
+      - name: Project
+        fields:
+          - { name: name, type: string }
+          - { name: owner_id, type: ref, to: User }
+      - name: Task
+        fields:
+          - { name: title, type: string }
+          - { name: done, type: boolean }
+          - { name: project_id, type: ref, to: Project }
+
+  # Restricciones — dónde esta pila es INSEGURA para un dominio (DATA hoy; darle dientes M0 = incremento
+  # de sustrato futuro chico, ver INCREMENT §8). El producto no debe planearse para estos dominios.
+  constraints:
+    excluded_domains:
+      - { domain: "tiempo-real-duro / safety-critical", reason: "el GC del JVM no da latencia determinista", future_factory: "Rust/Ada/C" }
+      - { domain: "ML / numérico pesado / entrenamiento", reason: "ecosistema equivocado para JVM/TS", future_factory: "Python/C++/CUDA" }
+      - { domain: "embebido / kernel / drivers", reason: "necesita sin-GC", future_factory: "Rust/C (parte: IoT-Go)" }
+      - { domain: "mobile nativo (UI iOS/Android)", reason: "esto es web full-stack", future_factory: "Mobile-Factory" }
+      - { domain: "HFT / ultra-baja-latencia", reason: "el GC es inaceptable", future_factory: "C++/Rust" }
+      - { domain: "smart contracts / on-chain", reason: "VM y lenguaje distintos", future_factory: "Solidity/Move" }
+      - { domain: "big-data ETL / streaming pesado", reason: "runtime distinto", future_factory: "Spark/dbt (data-pipeline)" }
+    affirmative_fit: "apps web transaccionales/CRUD, dashboards, SaaS, herramientas internas, APIs de negocio"
+
+  # Capabilities (L1): cada una con su primitiva DES + la tech que el PLAN eligió. status: planned (nada
+  # construido aún). El `artifact` y el `proof` documentan el objetivo del build (la hoja del árbol C4).
+  capabilities:
+    - id: andamiaje_regenerable
+      invariant: "el producto entero es derivable de este spec; regenerar es idempotente (100%-generado, sin código humano que proteger)"
+      primitive: DES-1
+      tech: "OpenAPI-codegen + Gradle/npm desde el blueprint (domain.product); scaffolder determinista en factories/full-stack-kotlin/codegen/"
+      artifact: build/product/openapi.yaml
+      proof: "s0: regenerar desde el spec produce un árbol idéntico (idempotente); un blueprint incompleto → s0 rojo"
+      status: planned
+    - id: contrato_tipado_fuente_unica
+      invariant: "el contrato OpenAPI es la FUENTE ÚNICA; el server Kotlin y el client TS se generan de ahí y un drift de tipos rompe la compilación de ambos lados"
+      primitive: DES-6
+      tech: "OpenAPI → stubs Kotlin (server) + client TS generado; kotlinc + tsc --strict sobre lo generado"
+      artifact: build/product/openapi.yaml
+      proof: "s0: kotlinc + tsc --strict verdes sobre el código generado del contrato; cambiar el contrato sin regenerar un lado → rojo"
+      status: planned
+    - id: aislamiento_producto
+      invariant: "el producto corre en SU propio toolchain (Gradle/npm), aislado del de la fábrica; importar la fábrica dentro del product_env falla (DES-9, SAFE-2)"
+      primitive: DES-9
+      tech: "workspace Gradle + workspace npm propios; env scrubbed (sin PYTHONPATH/clases de la fábrica)"
+      artifact: build/product/settings.gradle.kts
+      proof: "s0: el build del producto corre con su toolchain; un intento de cargar la fábrica adentro → rojo"
+      status: planned
+    - id: datos_esquema_chequeado
+      invariant: "el esquema PostgreSQL está versionado (migraciones reversibles) y los queries se chequean contra el schema vivo EN COMPILACIÓN: un query a una columna inexistente = error de compilación (la DB grita)"
+      primitive: DES-12
+      tech: "Flyway (migraciones up/down) + jOOQ (tipos generados del schema vivo); kotlinc falla ante un query inválido"
+      artifact: build/product/db/migration/
+      proof: "s1: migración up+down en PG efímera (Testcontainers) + jOOQ codegen + kotlinc; romper una columna usada → compile error"
+      status: planned
+    - id: datos_durables_vivos
+      invariant: "el PRODUCTO persiste/lee contra una PostgreSQL VIVA: un test de integración del producto hace un round-trip create+list contra la DB levantada (no un mock); DB caída → rojo (DES-4, M8 del producto)"
+      primitive: DES-4
+      tech: "PostgreSQL real vía Testcontainers (docker) bajo infra_up; el cliente es un test del PRODUCTO (Kotest) tipado al contrato"
+      artifact: build/product/src/test/kotlin/DbIntegrationTest.kt
+      proof: "s1: infra_up levanta PostgreSQL y bootstrapea el toolchain del producto; round-trip vivo; DB caída → rojo (diente de dos lados)"
+      status: planned
+    - id: dureza_estatica
+      invariant: "el código falla FUERTE por calidad: sin `any` (TS) ni warnings (Kotlin), exhaustividad obligatoria, complejidad acotada, errores no tragados — un escape-hatch → build rojo"
+      primitive: DES-10
+      tech: "detekt + ktlint + `-Werror` (Kotlin) · ESLint strict + @typescript-eslint/no-explicit-any + ts-reset (TS)"
+      artifact: build/product/config/detekt.yml
+      proof: "s2: los linters corren en el toolchain del producto; introducir un `any`/warning/non-exhaustive `when` → rojo"
+      status: planned
+    - id: frescura_de_api
+      invariant: "el código generado usa SÓLO superficie de API no-deprecada y pineada; un símbolo deprecado se bloquea de forma DETERMINISTA, sin LLM (I-3)"
+      primitive: DES-11
+      tech: "oráculo de superficie pineado (allow-list de símbolos por versión, alimentado por el MCP-recall/Context7) + linter determinista"
+      artifact: build/product/config/api-surface.lock
+      proof: "s3: el linter de currency cruza el código contra el lock; usar un símbolo deprecado/fuera del pin → rojo"
+      status: planned
+    - id: seguridad_cadena_suministro
+      invariant: "el producto no shippea vulnerabilidades conocidas, secretos ni código inseguro — gateado en el toolchain del producto"
+      primitive: DES-13
+      tech: "OWASP dep-check / npm audit / Gradle (vulns) + Semgrep/CodeQL (SAST) + gitleaks (secretos) + SBOM (CycloneDX)"
+      artifact: build/product/sbom.json
+      proof: "s4: los scanners corren; una dependencia con CVE conocido o un secreto hardcodeado → rojo (diente de dos lados)"
+      status: planned
+    - id: rutas_protegidas
+      invariant: "ninguna ruta autenticada se alcanza sin pasar por el middleware/guard de auth (punto de control no-salteable, verificado por alcanzabilidad)"
+      primitive: DES-3
+      tech: "middleware de auth (Ktor) + guards de ruta; alcanzabilidad sobre el árbol de rutas declarado"
+      artifact: build/product/src/main/kotlin/auth/
+      proof: "s5: alcanzabilidad estática: toda ruta protegida pasa por el guard; rerutear una para saltearlo → rojo"
+      status: planned
+    - id: topologia_rutas_verificable
+      invariant: "el mapa de rutas es chequeable estáticamente contra el contrato (sin levantar el server)"
+      primitive: DES-2
+      tech: "AST de rutas (Ktor) cruzado contra el contrato OpenAPI"
+      artifact: build/product/src/main/kotlin/routes/
+      proof: "s5: el AST de rutas matchea el contrato; una ruta sin contrato o un contrato sin ruta → rojo"
+      status: planned
+    - id: logica_dominio_generada
+      invariant: "la lógica de negocio se GENERA por un LLM vivo (claude -p, slot generate) y un contract test la EJERCITA; un stub no pasa (el anti-patrón de domain vacío de F1 bloquea); el artefacto se pinea (§7) y re-derive lo verifica sin LLM"
+      primitive: DES-8
+      tech: "claude -p (slot generate, ADR-013) como `via`; Kotest como contract gate; pin por skip_if_exists (§7)"
+      artifact: build/product/src/main/kotlin/domain/
+      proof: "s6: Kotest ejercita la lógica generada; un stub o una implementación incorrecta → rojo; pin re-verificado sin LLM"
+      status: planned
+    - id: pruebas_piramidales
+      invariant: "la verificación corre en el toolchain DEL producto en una pirámide: unit + integración (DB viva) + contrato + e2e; un test roto bloquea"
+      primitive: DES-8
+      tech: "Kotest (unit) + Testcontainers (integración PG) + el contrato OpenAPI + Playwright (e2e)"
+      artifact: build/product/src/test/
+      proof: "s7: la pirámide corre verde en el toolchain del producto; romper cualquier nivel → rojo"
+      status: planned
+    - id: calidad_experiencia
+      invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral"
+      primitive: DES-7
+      tech: "axe-core (a11y) + Lighthouse CI (perf budget) + presupuesto de bundle-size"
+      artifact: build/product/lighthouserc.json
+      proof: "s8: los gates corren; un score a11y/perf bajo el presupuesto → rojo; un output degradado debe flipear el gate"
+      status: planned
+    - id: observabilidad_producto
+      invariant: "el producto EMITE observabilidad: logs estructurados + tracing OTel con correlation-id + endpoints /health y /ready; verificado que emite (no que renderiza)"
+      primitive: DES-5
+      tech: "logs estructurados (JSON) + OpenTelemetry (tracing) + /health·/ready"
+      artifact: build/product/src/main/kotlin/observability/
+      proof: "s9: una request produce un trace con correlation-id y un log estructurado; /health responde; quitar la instrumentación → rojo"
+      status: planned
+    - id: build_hermetico_reproducible
+      invariant: "el build es hermético y reproducible: toolchain pineado; re-derivar en clon limpio da un resultado idéntico; el producto shippea su propia mini-columna (CI que re-corre los gates)"
+      primitive: DES-1
+      tech: "Gradle wrapper pineado + npm lockfile + imagen Docker base pineada; CI del producto que re-corre los gates"
+      artifact: build/product/Dockerfile
+      proof: "s10: ci --rederive reconstruye idéntico en clon limpio (== pineado); el CI del producto re-corre todos los gates verdes"
+      status: planned
+
+  # La LÍNEA DE PRODUCTO como DATO (C2/I-2). status: planned — los `builds`/`checks` ejecutables los
+  # rellena el build (plantilla: specs/full-stack.factory.spec.yml). Acá se declara el CONTRATO SDD
+  # (proof_checks) que los requisitos citan en verified_by. depends_on arma el DAG; s10 es fan-in (P2/H2).
+  station_sequence:
+    - id: s0
+      name: "scaffold + contrato OpenAPI (fuente única) + aislamiento — DES-1/6/9"
+      activation: always
+      status: planned
+      proof_checks:
+        - { name: contract_single_source, cmd: "kotlinc + tsc --strict sobre el código generado del contrato; drift → rojo", runs_in: product_env, toolchain: "openapi-codegen", status: planned }
+        - { name: scaffold_idempotent, cmd: "regenerar desde el spec produce un árbol idéntico", runs_in: factory_env, toolchain: "metafactory", status: planned }
+        - { name: isolation_boundary, cmd: "el producto corre en su toolchain; cargar la fábrica adentro → rojo", runs_in: product_env, toolchain: "gradle-npm", status: planned }
+    - id: s1
+      name: "esquema PG versionado (Flyway) + queries chequeados (jOOQ) + DB viva — DES-12/4"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: schema_compile_checked, cmd: "Flyway up/down + jOOQ codegen + kotlinc; query a columna inexistente → compile error", runs_in: product_env, toolchain: "jooq-flyway", status: planned }
+        - { name: db_round_trip_live, cmd: "test de integración del producto vs PostgreSQL viva (Testcontainers); DB caída → rojo", runs_in: product_env, toolchain: "kotest", status: planned }
+    - id: s2
+      name: "dureza estática (sin any/warnings, exhaustividad) — DES-10"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: loudness_gate, cmd: "detekt + ktlint + -Werror / ESLint strict + no-explicit-any; un escape-hatch → rojo", runs_in: product_env, toolchain: "detekt-eslint", status: planned }
+    - id: s3
+      name: "frescura de API contra el pin (determinista) — DES-11"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: currency_gate, cmd: "linter de currency cruza el código vs el lock de superficie; símbolo deprecado/fuera-de-pin → rojo", runs_in: product_env, toolchain: "currency-linter", status: planned }
+    - id: s4
+      name: "seguridad de la cadena de suministro (vulns + SAST + secretos + SBOM) — DES-13"
+      activation: always
+      depends_on: [s0]
+      status: planned
+      proof_checks:
+        - { name: supply_chain_gate, cmd: "dep-audit + Semgrep + gitleaks + SBOM; CVE conocido o secreto → rojo", runs_in: product_env, toolchain: "depcheck-semgrep-gitleaks", status: planned }
+    - id: s5
+      name: "auth no-salteable + topología de rutas verificable — DES-3/2"
+      activation: always
+      depends_on: [s1]
+      status: planned
+      proof_checks:
+        - { name: auth_reachability, cmd: "alcanzabilidad: toda ruta protegida pasa por el guard; rerutear para saltearlo → rojo", runs_in: product_env, toolchain: "route-ast", status: planned }
+        - { name: route_topology, cmd: "el AST de rutas matchea el contrato OpenAPI; ruta sin contrato → rojo", runs_in: product_env, toolchain: "route-ast", status: planned }
+    - id: s6
+      name: "lógica de dominio GENERADA por claude -p bajo contract test — DES-8 (MAT-2)"
+      activation: always
+      depends_on: [s5]
+      status: planned
+      proof_checks:
+        - { name: domain_logic_contract, cmd: "Kotest ejercita la lógica LLM-generada; un stub → rojo; pin §7 re-verificado sin LLM", runs_in: product_env, toolchain: "kotest", status: planned }
+    - id: s7
+      name: "pirámide de tests en el toolchain del producto (unit+integración+contrato+e2e) — DES-8"
+      activation: always
+      depends_on: [s6]
+      status: planned
+      proof_checks:
+        - { name: test_pyramid, cmd: "Kotest + Testcontainers + contrato + Playwright; romper un nivel → rojo", runs_in: product_env, toolchain: "kotest-playwright", status: planned }
+    - id: s8
+      name: "calidad de experiencia: a11y (WCAG) + perf budget — DES-7"
+      activation: always
+      depends_on: [s7]
+      status: planned
+      proof_checks:
+        - { name: experience_budgets, cmd: "axe + Lighthouse + bundle-size; bajo presupuesto → rojo; degradado flipea el gate", runs_in: product_env, toolchain: "axe-lighthouse", status: planned }
+    - id: s9
+      name: "observabilidad del producto EMITE (logs+tracing+health) — DES-5"
+      activation: always
+      depends_on: [s7]
+      status: planned
+      proof_checks:
+        - { name: observability_emits, cmd: "una request produce un trace con correlation-id + log estructurado; /health responde; quitar la instrumentación → rojo", runs_in: product_env, toolchain: "otel", status: planned }
+    - id: s10
+      name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
+      activation: always
+      depends_on: [s2, s3, s4, s7, s8, s9]
+      status: planned
+      proof_checks:
+        - { name: hermetic_build, cmd: "ci --rederive reconstruye idéntico en clon limpio (== pineado); el CI del producto re-corre los gates", runs_in: product_env, toolchain: "gradle-docker", status: planned }
+
+  provision_modes: [scaffold]
+  proof_check_types: [product_env, infra_up, eval_gate]
+
+# ── L3 · MAQUINARIA: declarada como DATO (ADR-012), status declared-deferred (especificada; su emit/codegen
+# lo hace el build). La COLUMNA (Cerrojos 1/2/3 + settings) NO va acá: es L4 substrate, heredada verbatim. ──
+machinery:
+  harness:
+    tech: "Claude Code: agents (writer/reviewer/triage con sombras deterministas) + commands + skills, emitidos del spec (D2)"
+    primitive: DES-1
+    status: declared-deferred
+  mcp:
+    tech: "server MCP de recall scopeado al PIN (Context7-tuneado): SÓLO los docs de las versiones pineadas de Kotlin/Ktor/jOOQ/React/etc., recall bajo demanda (E2); alimenta el oráculo de currency (DES-11)"
+    primitive: DES-11
+    status: declared-deferred
+  infra:
+    tech: "PostgreSQL real vía Testcontainers (docker) bajo infra_up; health por reintento, teardown SIEMPRE (E1/MAT-3)"
+    primitive: DES-9
+    status: declared-deferred
+    services:
+      - { name: postgres, kind: container, endpoint: "tcp:5432", marker: PG_UP }
+
+# ── L4 · sustrato (heredado verbatim, no negociable) ──
+factory_substrate:
+  anti_rubber_stamp_column: true
+  verdict_bus: { max_lines: 10 }
+  generated_domain_boundary: false   # 100%-generado (ADR-011): sin código humano → boundary opta-out (H2)
+  memory_schema: adr021
+  rtm: { required: true }
+  two_verifier_ci: { rederive: true, pinned_verdict: true }
+  placement_law: true
+  context_budget: { claude_md_max_lines: 120 }
+
+# ── L5 · requisitos (espina SDD; id estable + satisfied_by a una estación activa + capability + verified_by) ──
+requirements:
+  functional:
+    - id: REQ-F-001
+      statement: "el contrato OpenAPI es la fuente única; server Kotlin y client TS se generan de ahí y un drift de tipos rompe la compilación (DES-6)"
+      acceptance: "contract_single_source verde; un drift sin regenerar un lado → rojo"
+      satisfied_by: [s0]
+      verified_by: [contract_single_source]
+      capability: contrato_tipado_fuente_unica
+    - id: REQ-F-002
+      statement: "el producto es 100%-generado desde el spec y regenerar es idempotente (DES-1)"
+      acceptance: "scaffold_idempotent verde; regenerar produce un árbol idéntico"
+      satisfied_by: [s0]
+      verified_by: [scaffold_idempotent]
+      capability: andamiaje_regenerable
+    - id: REQ-F-003
+      statement: "el esquema PG está versionado y los queries se chequean contra el schema en COMPILACIÓN: un query a una columna inexistente = error de compilación (DES-12)"
+      acceptance: "schema_compile_checked verde; romper una columna usada → compile error"
+      satisfied_by: [s1]
+      verified_by: [schema_compile_checked]
+      capability: datos_esquema_chequeado
+    - id: REQ-F-004
+      statement: "el PRODUCTO usa una PostgreSQL VIVA: un test de integración del producto hace un round-trip create+list; DB caída → rojo (DES-4, M8 del producto)"
+      acceptance: "db_round_trip_live verde con la DB levantada; DB caída → rojo"
+      satisfied_by: [s1]
+      verified_by: [db_round_trip_live]
+      capability: datos_durables_vivos
+    - id: REQ-F-005
+      statement: "ninguna ruta protegida se alcanza sin el middleware de auth (punto de control no-salteable, DES-3)"
+      acceptance: "auth_reachability verde; rerutear para saltear el guard → rojo"
+      satisfied_by: [s5]
+      verified_by: [auth_reachability]
+      capability: rutas_protegidas
+    - id: REQ-F-006
+      statement: "el mapa de rutas es chequeable estáticamente contra el contrato (DES-2)"
+      acceptance: "route_topology verde; una ruta sin contrato → rojo"
+      satisfied_by: [s5]
+      verified_by: [route_topology]
+      capability: topologia_rutas_verificable
+    - id: REQ-F-007
+      statement: "la lógica de dominio se GENERA por un LLM vivo bajo contract test; un stub no pasa; el artefacto se pinea y re-derive lo verifica sin LLM (DES-8, MAT-2, §7)"
+      acceptance: "domain_logic_contract verde; un stub → rojo; pin re-verificado sin LLM"
+      satisfied_by: [s6]
+      verified_by: [domain_logic_contract]
+      capability: logica_dominio_generada
+    - id: REQ-F-008
+      statement: "la verificación corre en el toolchain del producto en una pirámide (unit+integración+contrato+e2e); un test roto bloquea (DES-8)"
+      acceptance: "test_pyramid verde; romper cualquier nivel → rojo"
+      satisfied_by: [s7]
+      verified_by: [test_pyramid]
+      capability: pruebas_piramidales
+  nonfunctional:
+    - id: REQ-NF-001
+      statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"
+      acceptance: "isolation_boundary verde; cargar la fábrica en el product_env → rojo"
+      satisfied_by: [s0]
+      verified_by: [isolation_boundary]
+      capability: aislamiento_producto
+    - id: REQ-NF-002
+      statement: "el código falla FUERTE por calidad: sin any/warnings, exhaustividad, complejidad acotada (DES-10)"
+      acceptance: "loudness_gate verde; un any/warning/non-exhaustive when → rojo"
+      satisfied_by: [s2]
+      verified_by: [loudness_gate]
+      capability: dureza_estatica
+    - id: REQ-NF-003
+      statement: "el código generado usa sólo superficie de API no-deprecada y pineada; lo viejo se bloquea de forma DETERMINISTA (DES-11, I-3)"
+      acceptance: "currency_gate verde; un símbolo deprecado/fuera-de-pin → rojo"
+      satisfied_by: [s3]
+      verified_by: [currency_gate]
+      capability: frescura_de_api
+    - id: REQ-NF-004
+      statement: "el producto no shippea vulns conocidas, secretos ni código inseguro (DES-13)"
+      acceptance: "supply_chain_gate verde; un CVE conocido o un secreto hardcodeado → rojo"
+      satisfied_by: [s4]
+      verified_by: [supply_chain_gate]
+      capability: seguridad_cadena_suministro
+    - id: REQ-NF-005
+      statement: "la accesibilidad (WCAG) y la performance se miden con gates que bloquean bajo umbral (DES-7)"
+      acceptance: "experience_budgets verde; un score a11y/perf bajo presupuesto → rojo; el degradado flipea el gate"
+      satisfied_by: [s8]
+      verified_by: [experience_budgets]
+      capability: calidad_experiencia
+    - id: REQ-NF-006
+      statement: "el producto EMITE observabilidad (logs estructurados + tracing OTel + /health); verificado que emite, no que renderiza (DES-5)"
+      acceptance: "observability_emits verde; quitar la instrumentación → rojo"
+      satisfied_by: [s9]
+      verified_by: [observability_emits]
+      capability: observabilidad_producto
+    - id: REQ-NF-007
+      statement: "el build es hermético y reproducible (toolchain pineado, re-derive idéntico) y el producto shippea su propia mini-columna (DES-1, SAFE-3)"
+      acceptance: "hermetic_build verde; ci --rederive == pineado en clon limpio; el CI del producto re-corre los gates"
+      satisfied_by: [s10]
+      verified_by: [hermetic_build]
+      capability: build_hermetico_reproducible

@@ -44,3 +44,21 @@ design_primitives:
     name: "Frontera de aislamiento"
     solves: "el producto no contamina a la fábrica ni viceversa"
     example_techs: ["venv/sys.path", "workspace", "container", "emulador"]
+  # DES-10..13: la cantera CRECIÓ con el dominio full-stack-kotlin (criterios duros de ingeniería,
+  # FULLSTACK-KOTLIN-INCREMENT.md §4). Conceptos nuevos que DES-1..9 no capturaban; tech ILUSTRATIVA.
+  - id: DES-10
+    name: "Análisis estático con dientes"
+    solves: "el código falla FUERTE por calidad, no sólo por tipos: sin escape-hatches (any/warnings), exhaustividad, complejidad acotada, errores no tragados — la dureza hecha gate ('grita en desarrollo')"
+    example_techs: ["detekt + ktlint + -Werror (Kotlin)", "ESLint strict + no-explicit-any + ts-reset (TS)", "clippy -D warnings (Rust)", "ruff/mypy --strict (Py)"]
+  - id: DES-11
+    name: "Currency / frescura de API"
+    solves: "el código generado usa SÓLO superficie de API no-deprecada y pineada; lo viejo se bloquea de forma DETERMINISTA (I-3: no un 'modelo barato'), comprando el riesgo de corpus stale del LLM"
+    example_techs: ["allow-list de símbolos por versión pineada (alimentada por Context7/MCP)", "linters de deprecación", "API-lint contra un baseline pineado"]
+  - id: DES-12
+    name: "Esquema versionado + queries chequeados"
+    solves: "el dato es un contrato VERIFICABLE en compilación: migraciones versionadas/reversibles y un query contra una columna inexistente = error de compilación (la DB 'grita'), con drift de schema detectado"
+    example_techs: ["Flyway/Liquibase + jOOQ", "sqlx (SQL compile-checked, Rust)", "sqlc (Go)", "type-providers"]
+  - id: DES-13
+    name: "Cadena de suministro / seguridad del producto"
+    solves: "el producto no shippea vulnerabilidades conocidas, secretos ni código inseguro — gateado en el toolchain del producto (distinto de SAFE-*, que protege la cadena de confianza de la FÁBRICA)"
+    example_techs: ["OWASP dep-check / npm audit / Gradle", "Semgrep/CodeQL (SAST)", "gitleaks (secretos)", "SBOM (CycloneDX)"]

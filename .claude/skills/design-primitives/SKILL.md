@@ -22,10 +22,12 @@ description: >-
 
 ## El catálogo (single source)
 Las primitivas de DISEÑO viven como DATO en `docs/reference/primitives.yml` (espejo humano:
-`PRIMITIVES.md §3`). Son CONCEPTOS (qué resuelve una herramienta), no herramientas. Hoy: DES-1..DES-9
+`PRIMITIVES.md §3`). Son CONCEPTOS (qué resuelve una herramienta), no herramientas. Hoy: DES-1..DES-13
 (andamiaje regenerable · topología verificable · puntos de control no-salteables · estado durable ·
 procedencia · contratos tipados · evaluabilidad con compuertas · proof en el toolchain del producto ·
-frontera de aislamiento). **Leé el YAML antes de mapear** — es la cantera viva y puede haber crecido.
+frontera de aislamiento · análisis estático con dientes · currency/frescura de API · esquema versionado
++ queries chequeados · cadena de suministro/seguridad del producto). DES-10..13 las destapó el dominio
+full-stack-kotlin (criterios duros). **Leé el YAML antes de mapear** — es la cantera viva y puede crecer.
 
 ## Procedimiento (4 pasos)
 1. **Entender el dominio.** Leé `domain.produces` y lo que la fábrica debe garantizar. Preguntá: ¿qué

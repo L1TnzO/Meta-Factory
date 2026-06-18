@@ -1,4 +1,4 @@
-<!-- meta:doc sha=96affb28987339a7aad4eb7e938a4883e0c4c46f updated=2026-06-18T16:30Z -->
+<!-- meta:doc sha=d73aa6780ad8068ba8c24ced23dcea389ab2ccc3 updated=2026-06-18T19:01Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -29,6 +29,11 @@ Fábricas-objetivo concretas (todas desde su spec, ninguna hardcodeada): **ASF a
 "Llegamos" cuando: (a) una factory-spec nueva produce chasis + producto, todo generado y verificado por
 construcción; (b) ≥2 dominios radicalmente distintos pasan su M8 real desde sus specs; (c) el orquestador
 nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema idéntico (código 100% derivable).
+
+> **Post A–H (2026-06-18): nueva fábrica EN DISEÑO — Full-Stack Kotlin/TS/PG** (apps web world-class bajo
+> criterios DUROS; supera a la `full-stack` TS mínima). DISEÑO ✅ (cantera DES-10..13 + blueprint validado
+> `specs/full-stack-kotlin.factory.spec.yml`); BUILD pendiente. **Autoridad+handoff autocontenido:
+> `work/FULLSTACK-KOTLIN-INCREMENT.md`** — el próximo orquestador construye desde ahí (s0→s10, por bloqueo).
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

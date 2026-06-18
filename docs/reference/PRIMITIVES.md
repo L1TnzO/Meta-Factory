@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e3ef1a4c9e7ce4d7a38a52e67fa136ebe1d72b2c updated=2026-06-15T13:29Z -->
+<!-- meta:doc sha=4b0155c55cbd56fa3782fdf0f4c3b08edf251222 updated=2026-06-18T18:56Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
 # PRIMITIVES — la filosofía: primitivas de diseño, no herramientas
 
@@ -60,6 +60,10 @@ tecnología" es ilustrativa — el plan elige según el dominio; el sustrato no 
 | **DES-7** | Evaluabilidad con compuertas | calidad medida por gates que BLOQUEAN (umbral → CI rojo) | RAGAS/DeepEval · tests de contrato · lighthouse CI |
 | **DES-8** | Proof en el toolchain DEL producto | la verificación corre en el entorno del producto, no de la fábrica | pytest/mypy (Py) · tsc/vitest/eslint (TS) · detox (mobile) |
 | **DES-9** | Frontera de aislamiento | el producto no contamina a la fábrica ni viceversa | venv/sys.path · workspace · container |
+| **DES-10** | Análisis estático con dientes | el código falla FUERTE por calidad, no sólo por tipos (sin `any`/warnings, exhaustividad, complejidad, errores no tragados): la dureza hecha gate | detekt+ktlint+`-Werror` · ESLint strict+`no-explicit-any` · `clippy -D warnings` |
+| **DES-11** | Currency / frescura de API | el código generado usa sólo superficie de API no-deprecada y pineada; lo viejo se bloquea DETERMINÍSTICAMENTE (I-3) | allow-list de símbolos por versión (vía Context7/MCP) · linters de deprecación |
+| **DES-12** | Esquema versionado + queries chequeados | el dato es contrato verificable en compilación: migraciones versionadas/reversibles + un query a una columna inexistente = error de compilación (la DB grita) | Flyway+jOOQ · sqlx · sqlc · type-providers |
+| **DES-13** | Cadena de suministro / seguridad del producto | el producto no shippea vulns conocidas, secretos ni código inseguro (≠ SAFE-*, que protege la confianza de la FÁBRICA) | dep-check/`npm audit` · Semgrep/CodeQL · gitleaks · SBOM |
 
 > Esta tabla ES el contenido del **skill de diseño** (§4). Crece: cuando un dominio nuevo (Mobile, IoT)
 > destapa una primitiva no listada, se agrega acá — es la cantera viva. Cada primitiva nombra el

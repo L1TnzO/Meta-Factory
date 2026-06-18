@@ -1,7 +1,7 @@
-<!-- meta:doc sha=d1c9f891eaee3278c0a7fa577fe4acc5e32f83f0 updated=2026-06-18T16:30Z -->
+<!-- meta:doc sha=86e82c0eddce7fda704d735e44c1be55899e1aa5 updated=2026-06-18T16:33Z -->
 # Incremento G2-SCENARIO-CORPUS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T16:16Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T16:33Z) (creado 2026-06-18T16:16Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

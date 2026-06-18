@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fc0f53d50bb1b1296cb2c5ad6200f3a8d0654a80 updated=2026-06-18T02:40Z -->
+<!-- meta:doc sha=e6e52dd5cf439e018baf620f2262174665d1ecfe updated=2026-06-18T02:42Z -->
 # Incremento G1-IMPROVE-LOOP
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T02:00Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T02:42Z) (creado 2026-06-18T02:00Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

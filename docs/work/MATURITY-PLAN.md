@@ -1,4 +1,4 @@
-<!-- meta:doc sha=845790d59fe00826e685471b82050bc100609ea8 updated=2026-06-17T20:16Z -->
+<!-- meta:doc sha=2b68ba21c616bc7660a2fc75f9bb8e964a05e614 updated=2026-06-17T23:58Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -216,10 +216,24 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 - Depende: MAT-3, MAT-4. *Cierra B-5 de la auditoría.*
 
 ### MAT-6 · New ASF SUPERA a la legacy — re-auditoría head-to-head
+> ✅ **HECHO (2026-06-17, `MAT-6-RE-AUDIT`)** — alcance elegido por el ingeniero: **"audit + honest residual"**
+> (sin contenido de producto nuevo). Re-auditoría re-derivada por bloqueo (`reference/MAT-6-REAUDIT.md`): la
+> tabla §12 se da vuelta donde el deepening MAT-0..MAT-6 la tocó — **GANA 3 · EMPATA 3 · RESIDUAL 2** (6/8
+> ganadas o empatadas). La fila de **EVAL se da vuelta de forma decisiva**: s10 se reconvirtió de un gold
+> sintético a un **eval REAL de recall de requisitos** — el producto recupera requisitos de una transcripción
+> de entrevista REAL (dataset RECOVER) y mide recall contra los **28 requisitos-experto HUMANOS**:
+> `critical_recall=0.8214` (23/28), `key_term_coverage=1.0`, el degraded flipea; pin §7 keyless. **vs el stub
+> `0.0` de la legacy** = estrictamente superior, con oráculo REAL. RTM 9/9 · `ci --rederive` 9/9 == pineado ·
+> **`git diff src/metafactory/ + seed/` = 0** (la mejora vivió 100% en DATA de fábrica, anti-overfit §5).
+> **Residual HONESTO (2 filas NO fingidas)**: **multi-topología** (breadth: 1 sola forma de blueprint, sin
+> validador BFS de topologías custom) y **s5 grounding** (`activation:"off"`). Son CONTENIDO de fábrica, no
+> fundación (F1-AUDIT §7). **Corrección a este plan**: la §5 de abajo decía que multi-topología la entregó
+> "MAT-2 (fábrica)" — es un **over-claim**: MAT-2 entregó `merge_findings`, no multi-topología. Queda como
+> backlog explícito (ver §5 corregido). Evidencia: `work/MAT-6-RE-AUDIT-INCREMENT.md` + `reference/MAT-6-REAUDIT.md`.
 - **Build**: regenerar `Agent_RE` por New ASF con todo lo anterior; re-correr el eje de capacidad de
   `F1-AUDIT §12`.
 - *Gate*: la tabla §12 **se da vuelta** — New ASF gana o empata en cada fila; re-auditoría documentada
-  (subagente forense fresco, como la original). Cierra B-1..B-6.
+  (re-derivada por bloqueo). Cierra B-1..B-6 **salvo** las 2 filas residuales (multi-topología, s5).
 - Depende: MAT-2..MAT-5.
 
 ### MAT-7 · 3er dominio (Mobile o IoT) — la prueba de que NO hubo overfitting — = ROADMAP F3
@@ -238,7 +252,7 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 | Fila §12 (qué pide Agent_RE) | Antes (F1) | Después (este plan) | Mecanismo |
 | --- | --- | --- | --- |
 | Lógica de dominio rica (researchers, reducer, evidencia) | ❌ `domain/` vacío | ✅ generada y gateada | MAT-2 |
-| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ✅ topologías + validador DES-2 | MAT-2 (fábrica) |
+| Multi-topología supervisor_fanout_fanin + custom | ❌ 1 blueprint | ⏳ **RESIDUAL (MAT-6): NO construido** — sigue 1 sola forma de blueprint, sin validador BFS de topologías custom; MAT-2 entregó `merge_findings` (reducer), no esto | backlog (corrección del over-claim original "MAT-2 fábrica") |
 | Lineage Neo4j (s2) | ❌ diferido | ✅ vivo bajo gate | MAT-3 |
 | Checkpointer Postgres + recovery (s3) | ❌ InMemory | ✅ vivo bajo gate | MAT-3 |
 | MCP | ❌ diferido | ✅ `emit_mcp`/`mcp_tools` cableados | E2 + fábrica |

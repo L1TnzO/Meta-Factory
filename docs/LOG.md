@@ -1,7 +1,37 @@
-<!-- meta:doc sha=108c4d47e9a67b8407faa4f51caf13e9d04deaf3 updated=2026-06-17T20:16Z -->
+<!-- meta:doc sha=c65f75bb6c38e507d91e341fb357573e0b356741 updated=2026-06-18T00:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-17T23:55Z — MAT-6: la tabla §12 dada vuelta con HONESTIDAD — recall de requisitos REAL vs oráculo humano
+- **gatillo**: cerrado MAT-5 (los 3 mecanismos de sustrato existen y son `general`), tocaba la re-auditoría
+  head-to-head New ASF vs legacy. El ingeniero acotó el alcance a **"audit + honest residual"** (sin contenido
+  de producto nuevo) y aportó un **ground truth REAL**: la transcripción de entrevista + los 28 requisitos que
+  recuperaron los expertos humanos (dataset RECOVER, RQ2) — "una rebanada pequeña pero un oráculo real".
+- **lo hecho (P1, factory DATA — `git diff src/+seed/` = 0)**: s10 dejó de medir un gold SINTÉTICO (conceptos de
+  agente) y ahora corre el **task REAL de Agent_RE**: el producto recupera requisitos de la transcripción REAL vs
+  DeepSeek, y el scorer mide **recall contra los 28 requisitos-experto**. Corrida VIVA: `critical_recall=0.8214`
+  (23/28), `key_term_coverage=1.0` (key_concepts any-of, robusto al idioma); el degraded off-topic flipea
+  prop_hitl+prop_grounding+scorer. Pin §7 re-verificado KEYLESS (`ci --rederive` 9/9 == pineado, sin keys).
+- **honestidad de la medición (lo crítico, ojos propios)**: la 1ª corrida dio 0.643; auditado a mano, 5 de los 10
+  "misses" eran **artefactos de fraseo** (el modelo SÍ recuperó el concepto: R03/R04/R12/R14/R16) → se agregaron
+  anchors GENERALES (no bytes únicos de la corrida) → 0.821. Los otros 5 (R02/R20/R25/R26/R28) son **misses
+  REALES** y se dejaron. NO se inflaron. El `key_terms` plano bilingüe penalizaba un answer monolingüe correcto
+  (artefacto de métrica) → `key_concepts` any-of. Todo documentado para que el auditor lo escrute.
+- **la re-auditoría (P2, `reference/MAT-6-REAUDIT.md`)**: re-derivada por bloqueo. **GANA 3 · EMPATA 3 · RESIDUAL
+  2** (6/8). La fila de EVAL se da vuelta DECISIVA: **recall REAL 0.82 vs el stub `0.0` de la legacy**, con
+  oráculo HUMANO. Banner de reenvío en `F1-AUDIT §12`.
+- **el residual, NO fingido**: multi-topología (breadth: 1 forma de blueprint, sin validador BFS) y s5 grounding
+  (`activation:"off"`) NO se ganaron — son CONTENIDO de fábrica, no fundación (F1-AUDIT §7). Hallazgo de proceso:
+  el **MATURITY-PLAN §5 over-claimaba** que multi-topología la entregó "MAT-2 (fábrica)" — falso (MAT-2 entregó
+  `merge_findings`). Corregido en el plan.
+- **lección**: un eval contra ground truth humano REAL desnuda dos sesgos opuestos del medidor — sub-contar por
+  fraseo (corregir) e inflar por gold-a-medida (resistir). La disciplina es fijar los anchors como HECHOS de
+  dominio generales, dejar los misses reales, y mostrarle el trabajo al auditor. "El determinismo envuelve" (I-3):
+  el no-determinismo vivió en la corrida; la confianza, en el pin keyless + el recall medido, no narrado.
+- **nota de proceso**: caí en el deadlock de cwd (un `cd` a un subdir en Bash dejó la cwd pegada → los hooks
+  relativos PreToolUse no encontraban su script → toda mutación bloqueada). Salida: el ingeniero corrió `!cd` a la
+  raíz. La memoria `no-cd-subdirs` lo advertía (6ª vez). Heredé la regla: absolutos siempre, nunca `cd` a subdir.
 
 ## 2026-06-17T20:15Z — MAT-5: el "fuego" — el PRODUCTO corre VIVO vs un provider REAL, gateado por propiedades
 - **gatillo**: cerrado MAT-4, el ÚLTIMO mecanismo de sustrato del MATURITY-PLAN — `live_run` (B-5 de `F1-AUDIT §12`):

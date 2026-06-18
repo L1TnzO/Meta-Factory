@@ -1,6 +1,6 @@
-<!-- meta:doc sha=684ae1d095a6cad3c1185320adfdaeaaae3482bb updated=2026-06-17T23:37Z -->
+<!-- meta:doc sha=bcc4fb8469844e09d3fe706304b37b8ba845f459 updated=2026-06-17T23:59Z -->
 # Estado — Meta-Factory
-> tipo: estado · actualizado: 2026-06-17T20:15Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-5 ✅** — corrida LIVE vs provider REAL (DeepSeek) gateada por PROPIEDADES + umbrales, no por bytes: ASF Agent_RE LIVE (s10, LangGraph, interrupt-a-runtime ⟂ contrato-grounding) + Full-Stack resumen NL (s5, node/fetch); pin §7 re-derivable sin re-llamar) · presupuesto: ≤80 líneas
+> tipo: estado · actualizado: 2026-06-17T23:55Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-6 ✅** — MAT-6: re-auditoría §12 dada vuelta con honestidad: New ASF gana/empata 6/8, la fila de EVAL decisiva — s10 mide **recall de requisitos REAL** (0.82, 23/28) vs el oráculo HUMANO del dataset RECOVER, **vs el stub 0.0 de la legacy**; 2 filas residual honesto: multi-topología + s5) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
 > Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
 
@@ -211,6 +211,20 @@
       (python ⟂ ts). RTM **ASF 9/9 + full-stack 6/6** · `ci --rederive` 9/9 + 6/6 == pineado (sin keys) · dummy
       5/5 · `meta check` 6/6. **`git diff src/+seed/` = solo el mecanismo general** (live_run + fix de orden
       NATURAL de la línea que s10 surfaceó) — cero tech de dominio (anti-overfit §5). **Cierra B-5 de §12.**
+    - **MAT-6 (`MAT-6-RE-AUDIT`) ✅ (2026-06-17)** — re-auditoría head-to-head New ASF vs legacy, **la tabla
+      `F1-AUDIT §12` dada vuelta con HONESTIDAD** (`reference/MAT-6-REAUDIT.md`). Alcance del ingeniero: "audit +
+      honest residual" (sin contenido de producto nuevo). **GANA 3 · EMPATA 3 · RESIDUAL 2** (6/8 ganadas/
+      empatadas, re-derivadas por bloqueo). La fila de **EVAL se da vuelta decisiva**: s10 dejó de medir un gold
+      SINTÉTICO y ahora corre el TASK REAL de Agent_RE — recupera requisitos de una **transcripción de entrevista
+      REAL** (`live/dataset/example_conversation.txt`, dataset RECOVER) vs DeepSeek, y mide **recall vs los 28
+      requisitos que recuperaron los EXPERTOS HUMANOS** (`experts_final_requirements.txt`): `critical_recall=0.8214`
+      (23/28), `key_term_coverage=1.0`; el degraded off-topic flipea (diente de dos lados); pin §7 re-verificado
+      KEYLESS. **vs el scorer stub `0.0` de la legacy = estrictamente superior, con oráculo REAL.** 5 misses honestos
+      (NO inflados). RTM 9/9 · `ci --rederive` 9/9 == pineado · **`git diff src/metafactory/ + seed/` = 0** (la mejora
+      vivió 100% en DATA de fábrica). **RESIDUAL honesto (2 filas NO fingidas)**: multi-topología (breadth: 1 forma
+      de blueprint, sin validador BFS) + s5 grounding (`activation:"off"`) — CONTENIDO, no fundación; corrige el
+      over-claim del MATURITY-PLAN §5 (multi-topología NO la entregó MAT-2). **Próximo: MAT-7** (3er dominio, prueba
+      final de no-overfitting).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con
@@ -267,14 +281,15 @@
 > salga madura SIN overfitting** (3 mecanismos de sustrato: generación-viva por LLM bajo gate · `eval_gate` con
 > scorer real · `live_run`; + lockstep ASF↔Full-Stack + gate de paridad de dos dominios ADR-014) es
 > **`work/MATURITY-PLAN.md`** (MAT-0..MAT-7) — autoridad del deepening de la Fase F.
-> **AVANCE (2026-06-17): MAT-0..MAT-5 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
+> **AVANCE (2026-06-17): MAT-0..MAT-6 ✅.** Hecho: el 2º dominio (TS), la generación VIVA por LLM bajo gate
 > (2 dominios), el PRODUCTO contra infra VIVA (Postgres+Neo4j reales en ASF, DB en Full-Stack; cierra B-1), la
-> **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12) y la **corrida LIVE vs provider REAL**
-> (`live_run`: ASF Agent_RE vs DeepSeek gateado por interrupt-a-runtime ⟂ contrato-grounding; Full-Stack resumen
-> NL; pin §7 re-derivable sin re-llamar; cierra B-5). **Próximo: MAT-6** — re-auditoría head-to-head: regenerar
-> `Agent_RE` por New ASF con todo lo anterior y dar vuelta la tabla §12 (New ASF gana/empata cada fila), con un
-> subagente forense fresco. Después MAT-7 (3er dominio Mobile/IoT, prueba final de no-overfitting: M8 verde con
-> `git diff src/metafactory/` = 0). Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
+> **evaluación con scorer REAL que bloquea** (cierra la fila eval de §12), la **corrida LIVE vs provider REAL**
+> (`live_run`; cierra B-5) y la **re-auditoría §12 dada vuelta con honestidad** (MAT-6: 6/8 ganadas/empatadas,
+> la fila de eval decisiva con **recall de requisitos REAL 0.82 vs el stub 0.0 de la legacy**, contra el oráculo
+> HUMANO del dataset RECOVER; 2 filas residual honesto: multi-topología + s5). **Próximo: MAT-7** — 3er dominio
+> (Mobile/IoT), prueba final de no-overfitting: M8 verde con `git diff src/metafactory/` = 0. **Backlog explícito
+> de §12 (post-MAT-6)**: multi-topología (breadth + validador BFS) y s5 grounding — CONTENIDO de fábrica, no
+> fundación. Los TRES mecanismos de sustrato del MATURITY-PLAN (live-gen · eval_gate ·
 > live_run) ya existen y son `general` — el costo marginal por dominio ahora decrece (§6 propiedad de composición).
 - **Follow-ups vivos (subsumidos por el ROADMAP, acá por visibilidad)**: G-8 — codegen de producto
   multi-estación (la línea S0–S8 real = F1). **Cerrados por D1**: `external_ci.yml` por-fábrica · columna

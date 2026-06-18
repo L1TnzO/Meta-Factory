@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d29b8b996dd7a4731c9f3b9176fb9df7ee0a5c5c updated=2026-06-17T23:53Z -->
+<!-- meta:doc sha=7c9e1f9dee7f1a2182276d230a8869b36653134c updated=2026-06-18T00:00Z -->
 # Incremento MAT-6-RE-AUDIT
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-17T23:37Z). Cerralo con `meta increment close`
@@ -26,8 +26,8 @@ blueprint** y NO un validador BFS de topologías custom. Igual, **s5 (anclaje/gr
 | --- | --- | --- |
 | P0 | Copiar el ground truth REAL a la fábrica como DATA (transcripción `example_conversation.txt` + 28 requisitos-experto `experts_final_requirements.txt`) bajo `live/dataset/`. | ✅ |
 | P1 | **s10 → eval de recall de requisitos REAL**: el producto recupera requisitos de la transcripción (driver `run_live.py` arma input=instrucción+transcripción, max_tokens 3000); `gold.json` codifica los 28 requisitos como targets de recall (anchors bilingües, any-of) + `key_concepts` (cobertura robusta al idioma); `scorer.py` mide recall vs el oráculo humano. Corrida VIVA vs DeepSeek → pin nuevo §7; gate keyless (pin presente). | ✅ |
-| P2 | **Re-auditoría forense** de cada fila de §12 por bloqueo → nuevo doc `reference/MAT-6-REAUDIT.md` (tabla dada vuelta + residual honesto) + banner de reenvío en `F1-AUDIT §12`. | ⏳ |
-| P3 | Docs: este doc (evidencia) + MATURITY-PLAN (MAT-6 ✅ + corrección del over-claim de §5) + STATE + ROADMAP + LOG. | ⏳ |
+| P2 | **Re-auditoría** de cada fila de §12 por bloqueo → nuevo doc `reference/MAT-6-REAUDIT.md` (tabla dada vuelta + residual honesto) + banner de reenvío en `F1-AUDIT §12`. | ✅ |
+| P3 | Docs: este doc (evidencia) + MATURITY-PLAN (MAT-6 ✅ + corrección del over-claim de §5) + STATE + ROADMAP + LOG. | ✅ |
 | P4 | Cierre: `git diff src/metafactory/ + seed/` = 0 (anti-overfit), `meta check` 6/6, dummy + full-stack intactos; `meta increment close`. | ⏳ |
 
 ## Criterio de cierre (demostrable, no narrable)
@@ -52,3 +52,9 @@ blueprint** y NO un validador BFS de topologías custom. Igual, **s5 (anclaje/gr
   no-recuperación): R03/R04/R12/R14/R16 — el modelo SÍ recuperó el concepto; se agregaron fraseos GENERALES
   (no bytes únicos de la corrida). `key_terms` plano bilingüe → `key_concepts` any-of (un answer monolingüe
   correcto no se penaliza). El scorer/propiedades son stdlib sobre el pin (keyless, §7).
+- **P1 cierre** (`04451ec`): `ci --rederive --factory agent-systems-factory` → PASS · **9/9 proof_sha == pineado**
+  en árbol limpio (s2/s3 con contenedores reales; s10 re-verifica el pin sin keys ni red). §7/SAFE-3 sostenido.
+- **P2** (`0362914`): `reference/MAT-6-REAUDIT.md` — re-auditoría §12 re-derivada por bloqueo. **GANA 3 · EMPATA
+  3 · RESIDUAL 2** (6/8). Eval decisivo (recall REAL 0.82 vs stub 0.0). Banner en `F1-AUDIT §12`.
+- **P3**: MATURITY-PLAN (MAT-6 ✅ + corrección del over-claim de §5 sobre multi-topología) · STATE (MAT-6 ✅ +
+  Próximo MAT-7 + backlog §12) · ROADMAP · LOG (episodio MAT-6 con la lección de medición honesta).

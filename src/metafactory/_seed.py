@@ -27,3 +27,20 @@ def load_seed_verifier(root: str | None = None) -> ModuleType:
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+@lru_cache(maxsize=8)
+def load_seed_lifecycle(root: str | None = None) -> ModuleType:
+    """Load <root>/seed/lifecycle.py — the increment-cadence LAW (ADR-010). Defaults to the
+    Meta-Factory repo. Single source for both the meta (`memory.cadence`/`memory.projection`
+    delegate here) and a produced factory (its inherited `increment_guard` loads its own copy),
+    so the factory and the meta enforce the IDENTICAL law (no divergence)."""
+    base = Path(root) if root else repo_root()
+    path = base / "seed" / "lifecycle.py"
+    if not path.exists():
+        raise FileNotFoundError(f"seed lifecycle not found at {path}")
+    spec = importlib.util.spec_from_file_location("seed_lifecycle", path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod

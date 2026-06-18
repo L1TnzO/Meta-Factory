@@ -22,14 +22,10 @@ BLOCK_RE = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
 
 
 def open_increment(root: Path) -> str | None:
-    workdir = Path(root) / "docs" / "work"
-    if not workdir.exists():
-        return None
-    for p in sorted(workdir.glob("*.md")):
-        m = re.search(r"Estado:\s*\*\*(ABIERTO|CERRADO)\*\*", p.read_text(encoding="utf-8"))
-        if m and m.group(1) == "ABIERTO":
-            return p.name
-    return None
+    """Delegates to the seed's lifecycle LAW (`seed/lifecycle.py`) — single source shared with a
+    produced factory's inherited `increment_guard`, so the meta and the factory never diverge."""
+    from .._seed import load_seed_lifecycle
+    return load_seed_lifecycle().open_increment(Path(root))
 
 
 def rtm_status(root: Path) -> list[str]:

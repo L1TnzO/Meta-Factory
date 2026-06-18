@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b5561c27ef83f2673a8ebdee78baf46534e6bcae updated=2026-06-18T01:44Z -->
+<!-- meta:doc sha=8168435739cbedaa00ba91e54ac8e840cb55f1f1 updated=2026-06-18T01:47Z -->
 # Incremento MAT-7-IOT-GO
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T01:26Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T01:47Z) (creado 2026-06-18T01:26Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

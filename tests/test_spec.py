@@ -490,9 +490,10 @@ class TestAsfV2Fidelity:
         # La línea canónica S0–S8 (paridad con el oráculo congelado) sobrevive ÍNTEGRA — el test
         # caza una estación canónica caída.
         assert {f"s{i}" for i in range(9)} <= ids, "the full canonical S0–S8 line"
-        # MAT-2 (ADR-014) añadió s9: la co-validación Python del seam live-gen (claude -p genera
-        # merge_findings, gateado por pytest), additiva y explícita — NO toca la línea S0–S8.
-        assert ids == {f"s{i}" for i in range(10)}, "S0–S8 canónica + s9 (co-validación MAT-2)"
+        # Estaciones ADITIVAS posteriores (NO tocan la línea canónica S0–S8): s9 = co-validación Python del
+        # seam live-gen (MAT-2, ADR-014); s10 = corrida LIVE vs provider real (MAT-5, live_run); s11 =
+        # multi-topología + validador BFS estructural (MAT-6b, DES-2, B-3).
+        assert ids == {f"s{i}" for i in range(12)}, "S0–S8 canónica + s9 (MAT-2) + s10 (MAT-5) + s11 (MAT-6b)"
 
     def test_non_skippable_interrupt_is_a_real_verifier(self):
         spec = load_spec(_ASF_SPEC)

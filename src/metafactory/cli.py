@@ -8,7 +8,7 @@ Verbs:
   rtm --factory S            re-derive the RTM from artifacts (SATISFIED/UNSATISFIED)
   ci --rederive              external re-derivation: rebuild on clean state, demand pinned
   pin --factory S            write the pinned verdict (committed honest constant)
-  promote --factory S        Fase G: promote an improvement iff it lowers no downstream verdict (blast-radius)
+  promote --factory S        Fase G: promote iff the engine passes a diverse scenario corpus AND no downstream verdict drops
   verify --rerun             re-verify the active station (Lock #3, used by the Stop hook)
   doc-sync                   stamp docs + regenerate INDEX (used by the PostToolUse hook)
 
@@ -292,13 +292,15 @@ def cmd_promote(args) -> int:
     """Fase G — the improvement loop's PROMOTE phase, gated by blast-radius (`SELF-IMPROVEMENT.md §4`).
 
     "Regenerate-to-improve replaces the pin only if it re-passes the gate WITHOUT lowering any
-    downstream verdict." Re-derives the candidate factory and the whole downstream baseline on clean
-    clones (custody is never the root of trust), and refuses unless: (1) the candidate ACTUALLY
-    improved its baseline (a hold is a façade — nothing to promote), and (2) NO factory in the
-    baseline lowered its verdict (the blast radius). On green it re-pins the candidate and bumps the
-    baseline; it does NOT commit — the promotion ascends by a REVIEWED diff (§4), never spontaneously."""
+    downstream verdict." Refuses unless THREE things hold: (0, G2) the engine still BEHAVES across the
+    diverse scenario corpus (a regressed engine makes every promotion unsafe — `scenario_corpus`,
+    closes G-8 at root), (1) the candidate ACTUALLY improved its baseline (a hold is a façade), and
+    (2) NO factory in the baseline lowered its verdict (the blast radius, re-derived on clean clones —
+    custody is never the root of trust). On green it re-pins the candidate and bumps the baseline; it
+    does NOT commit — the promotion ascends by a REVIEWED diff (§4), never spontaneously."""
     from .verify import verdict as V
     from .verify.checks import blast_radius as BR
+    from .verify.checks import scenario_corpus as SC
 
     slug = args.factory
     meta_root = _meta_root()
@@ -309,6 +311,26 @@ def cmd_promote(args) -> int:
               f"RESUMEN    {slug} no está en el baseline ({args.baseline}); "
               f"agregalo con `meta pin`+baseline antes de promover una mejora")
         return 1
+
+    # 0. G2 gate — the engine must still behave across the DIVERSE scenario corpus before ANY promotion
+    #    (G-8 root: diverse spec shapes exercise the engine; `SELF-IMPROVEMENT.md §4`). This protects the
+    #    engine's BEHAVIOR (vs blast_radius, which protects the downstream verdicts); a regressed engine
+    #    makes every promotion unsafe, so it precedes the downstream sweep.
+    corpus_path = meta_root / "scenarios" / "corpus.yml"
+    if not corpus_path.exists():
+        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
+              f"RESUMEN    no hay corpus de scenarios ({corpus_path}); G2 exige ejercitar el motor "
+              f"en N formas diversas antes de promover")
+        return 2
+    corpus_dir, scenarios = SC.load_corpus(corpus_path)
+    c_action, c_detail = SC.decide(corpus_dir, scenarios)
+    if c_action != "ok":
+        print(f"VEREDICTO  promote {slug} — BLOQUEADA   (exit 2)\n"
+              f"RESUMEN    el motor no pasa el corpus de scenarios diversos "
+              f"(pin y baseline INTACTOS):")
+        for r in (c_detail if isinstance(c_detail, list) else [c_detail])[:6]:
+            print(f"           {r}")
+        return 2
 
     # 1. Re-derive the whole downstream sweep ONCE (the candidate is part of it) on clean clones,
     #    then take the PURE decision (the law shared with the tests).
@@ -351,7 +373,8 @@ def cmd_promote(args) -> int:
     verb = "mejoró" if improved else "mantuvo (--allow-hold)"
     print(f"VEREDICTO  promote {slug} — PASS   (exit 0)\n"
           f"RESUMEN    {slug} {verb} a {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')}; "
-          f"re-pineado ({len(info)} estaciones) + baseline subido; blast-radius verde "
+          f"re-pineado ({len(info)} estaciones) + baseline subido; corpus verde "
+          f"({len(scenarios)} scenarios diversos) + blast-radius verde "
           f"({len(baseline)} fábricas, ninguna bajó). Promoción NO committeada (subí por diff revisado, §4).")
     return 0
 

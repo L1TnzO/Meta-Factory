@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `134d030f4897` | 2026-06-18T01:06Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `0757269f12f8` | 2026-06-18T20:28Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `6d63f00845a4` | 2026-06-18T20:29Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -51,7 +51,7 @@
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
-| `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `1a2f26535a63` | 2026-06-18T20:29Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
+| `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `a3e3aacbb08e` | 2026-06-18T20:29Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |

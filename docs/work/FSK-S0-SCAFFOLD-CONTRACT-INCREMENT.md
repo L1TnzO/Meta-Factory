@@ -1,7 +1,7 @@
-<!-- meta:doc sha=1a2f26535a63f06262276e159a73f554d674d9df updated=2026-06-18T20:29Z -->
+<!-- meta:doc sha=a3e3aacbb08e7512289f99342d37ea92f973810c updated=2026-06-18T20:29Z -->
 # Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T19:35Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T20:29Z) (creado 2026-06-18T19:35Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

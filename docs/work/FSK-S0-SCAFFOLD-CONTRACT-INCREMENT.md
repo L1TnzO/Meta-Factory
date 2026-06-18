@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b27dd65d6f042d2a9dcf3c220136e2c4c2d9a273 updated=2026-06-18T20:20Z -->
+<!-- meta:doc sha=1a2f26535a63f06262276e159a73f554d674d9df updated=2026-06-18T20:29Z -->
 # Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-18T19:35Z). Cerralo con `meta increment close`
@@ -49,8 +49,8 @@ Si no se logra hermético, el gate de s0 NO puede ser honesto — documentar el 
 | 1.5 | **Arquitectura del contrato DE-RISKEADA por bloqueo** (antes de escribir el codegen): OpenAPI como fuente única → `openapi-generator` 7.23 (Kotlin, models + kotlinx-serialization) **compila**; `openapi-typescript` 7.13 (TS) bajo `tsc --strict` **compila**. **Diente DES-6 con dientes REALES en AMBOS**: quitar un campo del contrato → regenerar → Kotlin `Unresolved reference` (compile rojo) · TS `Property does not exist` (tsc rojo). Plugin portal + maven alcanzables | ✅ |
 | 2 | **Codegen de fábrica** `factories/full-stack-kotlin/codegen/scaffold_product.py` (determinista, 12 archivos): lee `domain.product` (3 entidades) → emite OpenAPI `openapi.yaml`, build Gradle con `openApiGenerate`, handler+app Kotlin que usan los models generados (refs camelCase), client TS con `openapi-typescript`, wrapper vendorizado. **Vive en la FÁBRICA** (ADR-012). `git diff src/+seed/`=0 | ✅ |
 | 3 | **s0 ejecutable + materializado + verde e2e**: spec staged (s0 activo/built + 3 caps built + REQ-F-001/002/NF-001; s1–s10 diferidas) → `validate`+`design-review` 0 problemas; `meta new`+`station m00..m06` PASS; **`product-run` PASS (4 checks)**; **RTM COMPLETE 3/3** (artifacts reales); pin escrito; **m06 `clean_runner` == pineado** (re-deriva la línea Kotlin/TS en clon limpio) | ✅ |
-| 4 | **Dientes de dos lados** (probar por bloqueo): drift de contrato sin regenerar un lado → compila rojo · regenerar → verde · `import`/classpath de la fábrica dentro del producto → rojo | ⏳ |
-| 5 | **Pin + cierre**: `status` s0 → `built`; `meta product-run` + `ci --rederive` == pineado; RTM cubre REQ-F-001/002; STATE/ROADMAP; `meta increment close` | ⏳ |
+| 4 | **Dientes de dos lados VIVOS** (probados por bloqueo en el árbol real): drift del contrato (drop `User.email`) → Kotlin `compileKotlin` rojo (`Unresolved reference 'email'`) + TS `tsc` rojo (`Property 'email' does not exist`); regenerar → ambos verdes. Aislamiento NO-decorativo: la fábrica ES importable con `PYTHONPATH` (⇒ el pass scrubbed es aislamiento real, no imposibilidad) | ✅ |
+| 5 | **Pin + cierre**: s0 status→built; `product-run` PASS + **`ci --rederive` 1/1 == pineado**; RTM 3/3; M0–M8 verde; STATE/ROADMAP actualizados; **anti-overfit `git diff src/+seed/`=0**; `meta increment close` | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0 y queda **PASS**; pin escrito.

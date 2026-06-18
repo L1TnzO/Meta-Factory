@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c1e924e2beaf14678c36991a17532213ad689af2 updated=2026-06-18T19:35Z -->
+<!-- meta:doc sha=0757269f12f8ddc88a4a9eb597223a6a27e0c2de updated=2026-06-18T20:28Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -320,15 +320,22 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ (2026-06-18); BUILD pendiente (próxima sesión)**: nueva fábrica
-  de grado-producción para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN,
-  ADR-012): **Kotlin/JVM + TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. La cantera CRECIÓ:
-  **DES-10..13** (análisis estático con dientes · currency/frescura de API · esquema versionado+queries
-  chequeados · cadena de suministro/seguridad) en `primitives.yml`+`PRIMITIVES.md §3` (binding md↔yml verde).
-  Blueprint COMPLETO `specs/full-stack-kotlin.factory.spec.yml` pasa `validate`+`design-review` (exit 0; 13
-  primitivas requeridas, 15 capacidades, línea s0–s10 con fan-in DAG, 15 requisitos cada uno con verifier real),
-  todo `status: planned` (SAFE-7: nada built). Autoridad+handoff AUTOCONTENIDO para contexto limpio:
-  `work/FULLSTACK-KOTLIN-INCREMENT.md` (incremento ABIERTO). Anti-overfit: `git diff src/+seed/` = 0 (sólo DATA+docs).
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
+  para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
+  TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
+  `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
+  COMPLETA con su DAG vive en `work/FULLSTACK-KOTLIN-INCREMENT.md §6` + git @ `c318aaf`).
+  - **s0 (`FSK-S0-SCAFFOLD-CONTRACT`) ✅ — la FUNDACIÓN, probada por bloqueo**: codegen determinista de fábrica
+    (`factories/full-stack-kotlin/codegen/scaffold_product.py`, ADR-012) genera el producto desde `domain.product`
+    (3 entidades) → **OpenAPI = fuente única** → server **Kotlin** (`openapi-generator` → models, `compileKotlin`)
+    + client **TS** (`openapi-typescript` → tipos, `tsc --strict`); **DES-1** scaffold idempotente · **DES-6**
+    contrato tipado · **DES-9** aislamiento. Toolchain pineado+vendorizado (Gradle 9.5.1 sha256 + Kotlin 2.4.0 +
+    JDK 21 + TS 5.7.3; `codegen/assets/`). **M0–M8 verde · product-run PASS (4/4) · RTM COMPLETE 3/3 · pin · `ci
+    --rederive` 1/1 == pineado** (re-deriva la línea Kotlin/TS en clon limpio). **3 dientes vivos**: drift del
+    contrato → Kotlin `Unresolved reference` + TS `Property does not exist` (regen → verde) · aislamiento
+    no-decorativo. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (4ª fábrica madura sin tocar el
+    sustrato — composición §6, como MAT-7). s1–s10 DIFERIDAS (se construyen capacidad por capacidad). dummy/
+    full-stack/iot/ASF intactas. Autoridad: `work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md`.
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

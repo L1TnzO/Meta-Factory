@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d73aa6780ad8068ba8c24ced23dcea389ab2ccc3 updated=2026-06-18T19:01Z -->
+<!-- meta:doc sha=1d2cddea84f7082451da3c301f374c14ee28ca47 updated=2026-06-18T20:28Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -30,10 +30,16 @@ Fábricas-objetivo concretas (todas desde su spec, ninguna hardcodeada): **ASF a
 construcción; (b) ≥2 dominios radicalmente distintos pasan su M8 real desde sus specs; (c) el orquestador
 nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema idéntico (código 100% derivable).
 
-> **Post A–H (2026-06-18): nueva fábrica EN DISEÑO — Full-Stack Kotlin/TS/PG** (apps web world-class bajo
-> criterios DUROS; supera a la `full-stack` TS mínima). DISEÑO ✅ (cantera DES-10..13 + blueprint validado
-> `specs/full-stack-kotlin.factory.spec.yml`); BUILD pendiente. **Autoridad+handoff autocontenido:
-> `work/FULLSTACK-KOTLIN-INCREMENT.md`** — el próximo orquestador construye desde ahí (s0→s10, por bloqueo).
+> **Post A–H (2026-06-18): nueva fábrica Full-Stack Kotlin/TS/PG** (apps web world-class bajo criterios DUROS;
+> supera a la `full-stack` TS mínima). DISEÑO ✅ (cantera DES-10..13 + blueprint `specs/full-stack-kotlin.factory.spec.yml`).
+> Se construye **por incrementos, capacidad por capacidad** (s0→s10, por bloqueo):
+> - **s0 (`FSK-S0-SCAFFOLD-CONTRACT`) ✅** — la fundación: codegen determinista (Kotlin/TS/OpenAPI), **OpenAPI =
+>   fuente única** (DES-6: openapi-generator → Kotlin + openapi-typescript → TS; drift rompe AMBOS compiles),
+>   scaffold idempotente (DES-1), aislamiento (DES-9). M0–M8 verde · RTM 3/3 · `ci --rederive` 1/1 == pineado ·
+>   3 dientes vivos · **`git diff src/+seed/` = 0** (4ª fábrica sin tocar el sustrato). Toolchain pineado
+>   (Gradle 9.5.1 + Kotlin 2.4.0 + JDK 21 + TS 5.7.3). Evidencia: `work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md`.
+> - **s1–s10 pendientes** (esquema/jOOQ · dureza · currency · seguridad · auth · lógica LLM · pirámide · a11y/perf ·
+>   observabilidad · build hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

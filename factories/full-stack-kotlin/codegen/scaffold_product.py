@@ -45,6 +45,9 @@ DETEKT_VERSION = "1.23.8"
 ESLINT_VERSION = "9.18.0"
 TS_ESLINT_VERSION = "8.20.0"
 TS_RESET_VERSION = "0.6.1"
+# Pirámide de tests (s7, DES-8): Kotest sobre JUnit Platform (unit + integración PG viva); el tier TS
+# corre por node:test (stdlib, sin dep). Cacheado en ~/.gradle → ci --rederive sin red (como jOOQ/detekt).
+KOTEST_VERSION = "5.9.1"
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 
 # campo del blueprint -> tipo OpenAPI (el contrato) y valor de muestra Kotlin/TS (determinista).
@@ -236,6 +239,60 @@ tasks.register<JavaExec>("roundtrip") {{
     dependsOn("classes")
     mainClass.set("{pkg}.DbRoundTripKt")
     classpath = sourceSets["main"].runtimeClasspath
+}}
+
+// ── Pirámide de tests (s7, DES-8). Framework: Kotest sobre JUnit Platform (cacheado en ~/.gradle igual
+//    que jOOQ/Flyway/detekt → ci --rederive sin red). La forma de la pirámide es EJECUTABLE: el tier unit
+//    (`test`, src/test) corre SIN infra; el tier integración (`integrationTest`, src/integrationTest) corre
+//    contra la PostgreSQL VIVA que infra_up levanta. El probe negativo (`testProbe`, src/testProbe) es un
+//    test que DEBE fallar — el check exige que el runner lo reporte FAILED (mata la fachada "0 tests → verde").
+dependencies {{
+    testImplementation("io.kotest:kotest-runner-junit5:{KOTEST_VERSION}")
+    testImplementation("io.kotest:kotest-assertions-core:{KOTEST_VERSION}")
+}}
+sourceSets {{
+    create("integrationTest")
+    create("testProbe")
+}}
+// integración usa los models/jOOQ/Flyway/PG del main (implementation) + Kotest (testImplementation).
+configurations["integrationTestImplementation"].extendsFrom(
+    configurations["implementation"], configurations["testImplementation"],
+)
+configurations["integrationTestRuntimeOnly"].extendsFrom(
+    configurations["runtimeOnly"], configurations["testRuntimeOnly"],
+)
+configurations["testProbeImplementation"].extendsFrom(configurations["testImplementation"])
+configurations["testProbeRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+sourceSets["integrationTest"].apply {{          // ve las clases compiladas del producto (Repository, jOOQ)
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}}
+tasks.named("test", Test::class) {{
+    useJUnitPlatform()
+    testLogging {{ events("failed") }}
+}}
+// Tier integración: los tests de Repository corren contra la PG VIVA (proof de infra_up); DB caída → rojo.
+tasks.register<Test>("integrationTest") {{
+    description = "Tier de integración de la pirámide (Repository vs PostgreSQL viva, s7/DES-8)."
+    group = "verification"
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    useJUnitPlatform()
+    testLogging {{ events("failed") }}
+    outputs.upToDateWhen {{ false }}   // corre SIEMPRE (idiom roundtrip): infra_up re-corre el proof con la DB caída y DEBE fallar
+    mustRunAfter(tasks.named("test"))
+}}
+// Diente negativo EMBEBIDO (s7): un test que DEBE fallar. El check `pyramid_unit` exige que gradle lo
+// reporte FAILED (grep) — un runner que descubre 0 tests o no reporta fallos es DECORATIVO → rojo (fail-closed).
+tasks.register<Test>("testProbe") {{
+    description = "Probe negativo de la pirámide: un test que DEBE fallar (fail-closed, s7/DES-8)."
+    group = "verification"
+    testClassesDirs = sourceSets["testProbe"].output.classesDirs
+    classpath = sourceSets["testProbe"].runtimeClasspath
+    useJUnitPlatform()
+    ignoreFailures = true     // la TAREA no rompe el build; el CHECK exige el FAILED por grep
+    testLogging {{ events("failed") }}
+    outputs.upToDateWhen {{ false }}   // corre SIEMPRE → el FAILED se imprime en cada corrida del gate (no UP-TO-DATE)
 }}
 '''
 
@@ -726,6 +783,9 @@ def _direct_dependencies() -> list[tuple[str, str, str]]:
         ("maven", "org.postgresql:postgresql", POSTGRES_JDBC_VERSION),
         ("maven", "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", DETEKT_VERSION),
         ("maven", "io.gitlab.arturbosch.detekt:detekt-formatting", DETEKT_VERSION),
+        # pirámide de tests (s7, DES-8): el producto SHIPPEA estas deps de test → el scanner de s4 las VETA.
+        ("maven", "io.kotest:kotest-runner-junit5", KOTEST_VERSION),
+        ("maven", "io.kotest:kotest-assertions-core", KOTEST_VERSION),
         ("npm", "typescript", TS_VERSION),
         ("npm", "openapi-typescript", OPENAPI_TS_VERSION),
         ("npm", "eslint", ESLINT_VERSION),
@@ -1214,6 +1274,165 @@ def _probe_unguarded_route(entities: list[dict]) -> str:
             "}\n")
 
 
+# ── pirámide de tests (s7, DES-8): suites graduadas en el toolchain del producto (DATA de la fábrica) ──
+def _test_authguard_kt(pkg: str) -> str:
+    """Tier UNIT (sin infra): comportamiento del guard de auth (DES-3 en runtime, no sólo estático/s5)."""
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n"
+            f"import {pkg}.auth.AuthGuard\n\n"
+            "// Tier UNIT de la pirámide (s7, DES-8): el guard ACEPTA/RECHAZA en runtime — cobertura de\n"
+            "// comportamiento que s5 (estático) no da. Romper AuthGuard.authorize → este test rojo (diente).\n"
+            "class AuthGuardTest : StringSpec({\n"
+            '    "acepta un token con esquema Bearer" { AuthGuard.authorize("Bearer t") shouldBe true }\n'
+            '    "rechaza ausencia de token" { AuthGuard.authorize(null) shouldBe false }\n'
+            '    "rechaza un esquema desconocido" { AuthGuard.authorize("Basic t") shouldBe false }\n'
+            "})\n")
+
+
+def _test_routetable_kt(pkg: str) -> str:
+    """Tier UNIT: el dispatch de rutas honra el guard (protegida exige token; pública no; inexistente → false)."""
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n"
+            f"import {pkg}.routes.appRoutes\n\n"
+            "// Tier UNIT (s7): el despacho de rutas pasa por el guard SÓLO en las protegidas (runtime).\n"
+            "class RouteTableTest : StringSpec({\n"
+            '    "una ruta protegida exige un token autorizado" {\n'
+            '        appRoutes().dispatch("POST", "/users", null) shouldBe false\n'
+            '        appRoutes().dispatch("POST", "/users", "Bearer t") shouldBe true\n'
+            "    }\n"
+            '    "una ruta publica no exige token" {\n'
+            '        appRoutes().dispatch("GET", "/users", null) shouldBe true\n'
+            "    }\n"
+            '    "una ruta inexistente no despacha" {\n'
+            '        appRoutes().dispatch("DELETE", "/nope", "Bearer t") shouldBe false\n'
+            "    }\n"
+            "})\n")
+
+
+def _test_store_kt(pkg: str, entities: list[dict]) -> str:
+    """Tier UNIT: el Store tipado al contrato agrega y lista (orden-independiente, sin estado compartido frágil)."""
+    e = entities[0]
+    ctor = _ctor_call(e)
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n"
+            f"import org.openapitools.client.models.{e['name']}\n\n"
+            "// Tier UNIT (s7): el Store acepta entidades tipadas al CONTRATO generado y crece al agregarlas.\n"
+            "class StoreTest : StringSpec({\n"
+            f'    "add agrega una entidad tipada al contrato" {{\n'
+            f"        val before = Store.{e['name'].lower()}s.size\n"
+            f"        Store.add({ctor})\n"
+            f"        Store.{e['name'].lower()}s.size shouldBe before + 1\n"
+            "    }\n"
+            "})\n")
+
+
+def _ctor_call(e: dict) -> str:
+    """Llamada al constructor del model generado con valores de muestra deterministas (mismo idiom que App.kt)."""
+    args = ["id = 1L"] + [f"{f['name']} = {_KT_SAMPLE[f['type']]}" for f in e["fields"]]
+    return f"{e['name']}({', '.join(args)})"
+
+
+def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
+    """Tier INTEGRACIÓN (s7, DES-8): los queries jOOQ de Repository contra una PostgreSQL VIVA (lo corre
+    infra_up). Test de FRAMEWORK con aserciones — distinto del `main()` round-trip de s1. DB caída → rojo."""
+    by_name = {e["name"]: e for e in entities}
+    inserts, ids = [], {}
+    for e in entities:
+        TBL = _TBL(e)
+        sets = []
+        for f in e["fields"]:
+            COL = _COL(f["name"])
+            if f["type"] == "ref":
+                sets.append(f"set({TBL}.{COL}, {ids[by_name[f['to']]['name']]})")
+            elif f["type"] == "boolean":
+                sets.append(f"set({TBL}.{COL}, false)")
+            else:
+                sets.append(f'set({TBL}.{COL}, "it")')
+        idvar = f"{e['name'].lower()}Id"
+        ids[e["name"]] = idvar
+        chain = ".".join(sets)
+        inserts.append(
+            f"            val {idvar} = ctx.insertInto({TBL}).{chain}\n"
+            f"                .returning({TBL}.ID).fetchOne()!!.get({TBL}.ID)!!")
+    asserts = "\n".join(
+        f"            Repository.all{e['name']}s(ctx).size shouldBe 1" for e in entities)
+    body = "\n".join(inserts)
+    imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n"
+            "import org.flywaydb.core.Flyway\n"
+            "import org.jooq.SQLDialect\n"
+            "import org.jooq.conf.RenderQuotedNames\n"
+            "import org.jooq.conf.Settings\n"
+            "import org.jooq.impl.DSL\n"
+            f"{imports}\n"
+            "import java.sql.DriverManager\n\n"
+            "// Tier INTEGRACIÓN de la pirámide (s7, DES-8): los queries jOOQ tipados de Repository ejercidos\n"
+            "// contra una PostgreSQL VIVA (contenedor pineado, lo levanta infra_up). DB caída → connect falla\n"
+            "// → test rojo (diente de dos lados, como s1). Flyway migra el schema versionado; clean lo limpia.\n"
+            "class RepositoryIT : StringSpec({\n"
+            '    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:55435/postgres"\n'
+            '    val user = System.getenv("FSK_PG_USER") ?: "postgres"\n'
+            '    val pass = System.getenv("FSK_PG_PASSWORD") ?: "metafactory"\n'
+            "    val settings = Settings().withRenderQuotedNames(RenderQuotedNames.NEVER)\n\n"
+            '    "Repository lista lo que el producto persiste en la PG viva" {\n'
+            "        val flyway = Flyway.configure().dataSource(url, user, pass).cleanDisabled(false).load()\n"
+            "        flyway.clean()\n"
+            "        flyway.migrate()\n"
+            "        DriverManager.getConnection(url, user, pass).use { conn ->\n"
+            "            val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)\n"
+            f"{body}\n"
+            f"{asserts}\n"
+            "        }\n"
+            "    }\n"
+            "})\n")
+
+
+def _probe_fail_test_kt(pkg: str) -> str:
+    """El diente NEGATIVO embebido (s7): un test que DEBE fallar. Vive en el source set `testProbe` (NO en
+    la suite real `test`) → el check exige que gradle lo reporte FAILED. Si pasa, el runner es decorativo."""
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n\n"
+            "// Diente NEGATIVO embebido (s7, DES-8, fail-closed): este test DEBE fallar. El check pyramid_unit\n"
+            "// corre `gradle testProbe` y exige que el runner lo reporte FAILED (grep) — prueba que ejecuta\n"
+            "// aserciones y reporta fallos. Si este test PASARA (o no se descubriera), el gate sería decorativo.\n"
+            "class ProbeShouldFailTest : StringSpec({\n"
+            '    "DEBE fallar: el runner ejecuta aserciones y reporta fallos" { 1 shouldBe 2 }\n'
+            "})\n")
+
+
+def _ts_client_test() -> str:
+    """Tier UNIT TS (s7, dual-lenguaje como s2–s4): node:test ejercita el client tipado al contrato (stdlib,
+    sin dep nueva; corre por `node --experimental-strip-types`, el idiom de la full-stack TS)."""
+    return ('import { test } from "node:test";\n'
+            'import assert from "node:assert/strict";\n'
+            'import { summarize } from "../src/client.ts";\n'
+            'import type { components } from "../gen/api.ts";\n\n'
+            "// Tier UNIT del lado TS (s7, DES-8): la lógica del client se ejercita en SU toolchain (node:test).\n"
+            "// Romper summarize → este test rojo. Los tipos vienen del contrato (gen/api.ts) — type-only, stripped.\n"
+            'test("summarize concatena los campos del contrato en orden", () => {\n'
+            '  const user: components["schemas"]["User"] = { id: 1, email: "a@b.c", name: "n" };\n'
+            '  const project: components["schemas"]["Project"] = { id: 2, name: "p", owner_id: 1 };\n'
+            '  const task: components["schemas"]["Task"] = { id: 3, title: "t", done: false, project_id: 2 };\n'
+            '  assert.equal(summarize(user, project, task), "a@b.c n p 1 t false 2");\n'
+            "});\n")
+
+
+def _ts_probe_fail_test() -> str:
+    """Diente NEGATIVO TS embebido (s7): un test node:test que DEBE fallar (fuera de frontend/test → no es la
+    suite real). El check exige que `node --test` sobre él SALGA NO-CERO; si pasa, el runner TS es decorativo."""
+    return ('import { test } from "node:test";\n'
+            'import assert from "node:assert/strict";\n\n'
+            "// Diente NEGATIVO embebido (s7, fail-closed): DEBE fallar → node --test sale no-cero. Si pasara,\n"
+            "// el runner TS sería decorativo (el check pyramid_unit_ts lo exige).\n"
+            'test("DEBE fallar: el runner TS ejecuta aserciones", () => { assert.equal(1, 2); });\n')
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -1255,6 +1474,14 @@ def build_files(bp: dict) -> dict[str, str]:
         "tools/route_check.py": _route_check_py(),
         "probe/routes/phantom.kt": _probe_phantom_route(),
         "probe/routes/unguarded.kt": _probe_unguarded_route(ents),
+        # pirámide de tests (s7, DES-8): suites graduadas (unit Kotlin + integración PG + unit TS) + probe negativo
+        f"src/test/kotlin/{pkg}/AuthGuardTest.kt": _test_authguard_kt(pkg),
+        f"src/test/kotlin/{pkg}/RouteTableTest.kt": _test_routetable_kt(pkg),
+        f"src/test/kotlin/{pkg}/StoreTest.kt": _test_store_kt(pkg, ents),
+        f"src/integrationTest/kotlin/{pkg}/RepositoryIT.kt": _it_repository_kt(pkg, ents),
+        f"src/testProbe/kotlin/{pkg}/ProbeShouldFailTest.kt": _probe_fail_test_kt(pkg),
+        "frontend/test/client.test.ts": _ts_client_test(),
+        "frontend/probe-test/fail.test.ts": _ts_probe_fail_test(),
     }
 
 

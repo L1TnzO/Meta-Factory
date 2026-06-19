@@ -1,7 +1,7 @@
-<!-- meta:doc sha=9cd7557e6554195ad17ba59a41c155abba1e7b8c updated=2026-06-19T14:31Z -->
+<!-- meta:doc sha=c924311aa3273620ba7302c97868caea18f35772 updated=2026-06-19T14:51Z -->
 # Incremento FSK-S9-OBSERVABILITY — Full-Stack Kotlin · observabilidad del producto bajo gate (s9)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T14:24Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T14:51Z) (creado 2026-06-19T14:24Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.
@@ -94,9 +94,9 @@ rueda") con un **SpanExporter a archivo**. Divergencia registrada: el **server K
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` suma: `src/main/kotlin/webapp/observability/{Observability.kt,FileSpanExporter.kt,ObsServer.kt}` (server HTTP vivo + OTel + logs estructurados) + `tools/obs_check.py` (proof client stdlib) + `application` plugin + deps OTel en `build.gradle.kts` + las coords OTel en `sbom.json`. Idempotente; s0–s8 verdes con los archivos nuevos (compileKotlin/detekt/-Werror/currency/SBOM ok); `installDist` produce el launcher; obs server vivo emite span+log con cid. | ⏳ |
-| 2 | **s9 materializada + verde e2e** — s9 en `station_sequence` (`depends_on: [s8]`) con `observability_live` (`kind: infra_up`); cap `observabilidad_producto`→built + REQ-F-010; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 14/14**; pin 10/10. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **10/10 == pineado** (re-levanta el server + re-corre el toolchain s0–s8 en clon limpio, sin red); **dientes VIVOS de dos lados** (server caído→`observability_live` rojo [nativo infra_up]; quitar la instrumentación de tracing→span sin cid→rojo; quitar el logging→log sin cid→rojo; regen→verde); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP/spec; `meta increment close`. | ⏳ |
+| 1 | **Codegen** — `scaffold_product.py` suma: `src/main/kotlin/webapp/observability/{Observability.kt,FileSpanExporter.kt,ObsServer.kt}` (server HTTP vivo + OTel + logs estructurados) + `tools/obs_check.py` (proof client stdlib) + `application` plugin + deps OTel en `build.gradle.kts` + las coords OTel en `sbom.json`. Idempotente; s0–s8 verdes con los archivos nuevos (compileKotlin/detekt/-Werror/currency/SBOM ok); `installDist` produce el launcher; obs server vivo emite span+log con cid. | ✅ |
+| 2 | **s9 materializada + verde e2e** — s9 en `station_sequence` (`depends_on: [s8]`) con `observability_live` (`kind: infra_up`); cap `observabilidad_producto`→built + REQ-F-010; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 14/14**; pin 10/10. | ✅ |
+| 3 | **Pin + dientes + cierre** — `ci --rederive` **10/10 == pineado** (re-levanta el server + re-corre el toolchain s0–s8 en clon limpio, sin red); **dientes VIVOS de dos lados** (server caído→`observability_live` rojo [nativo infra_up]; quitar la instrumentación de tracing→span sin cid→rojo; quitar el logging→log sin cid→rojo; regen→verde); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP/spec; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s9 y queda **PASS**; pin escrito.
@@ -129,5 +129,41 @@ rueda") con un **SpanExporter a archivo**. Divergencia registrada: el **server K
   en runtime (DES-5), ortogonal a calidad-de-código (s2), frescura (s3), seguridad (s4), rutas-estático (s5),
   lógica-LLM (s6), pirámide (s7) y a11y/perf (s8).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada) — A COMPLETAR AL CERRAR
-- (M0–M8 · product-run · RTM 14/14 · ci --rederive 10/10 == pineado · dientes vivos · git diff src/+seed=0)
+## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s9.yml` (`observability_live`) · m05 RTM · **m06 `clean_runner` == pineado** (re-deriva la línea
+  s0..s9 + re-levanta el server HTTP del producto + el contenedor PG en clon limpio, **sin red** — OTel/Kotlin
+  cacheados en `~/.gradle`) · m07 harness · m08 product_e2e (levanta el server vivo).
+- **product-run PASS** — s9: `observability_live` (infra_up: el server HTTP del producto levanta; el proof hace
+  `/health` UP + `/ready` + una request a `/users` con `X-Correlation-Id` → el span OTel y el log estructurado
+  emitidos llevan el correlation-id). gate s9 OPEN.
+- **RTM COMPLETE 14/14**: REQ-F-001..010 + REQ-NF-001..004 — **REQ-F-010** ← `observabilidad_producto` [s9,
+  `build/product/src/main/kotlin/webapp/observability/ObsServer.kt`✓].
+- **`ci --rederive` full-stack-kotlin 10/10 == pineado** (re-deriva en clon limpio: re-levanta el server HTTP +
+  re-corre Kotest/node:test + detekt/ESLint + el scanner de s4 (con OTel en el SBOM) + el analizador de s5 + el
+  contract de s6 + el a11y/perf de s8 + el contenedor PG, **sin red** — OTel cacheado).
+- **dientes VIVOS de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría; igual que s1–s8), se re-buildea (`installDist`) y se corre el `obs_check` contra
+  el server vivo:
+  - clean: `obs-check OK: /health UP + /ready + request /users → span[GET /users] + log[GET /users 200] con
+    correlation-id fsk-trace-001` → exit 0.
+  - **server caído (nativo de `infra_up`)** — con la infra abajo el proof no conecta → `observability_live` rojo
+    (diente embebido de `infra_up`, exit 1; doble función: prueba el teardown). Se ejercita CADA corrida verde.
+  - **tracing (TOOTH A)** — quitar `.setAttribute(cidKey, cid)` del handler → el span emitido no lleva el cid →
+    `NO se emitió un span OTel con correlation-id` → exit 1; regen → exit 0.
+  - **logging (TOOTH B)** — quitar `Observability.log(...)` del handler → no hay log con el cid →
+    `NO se emitió un log estructurado con correlation-id` → exit 1; regen → exit 0.
+- **El gate cubre lo que ningún gate previo verifica**: emisión de observabilidad EN RUNTIME (trace OTel +
+  log estructurado con correlation-id + `/health`·`/ready`) contra un server HTTP VIVO. Es el **4º servicio de
+  `infra_up`** (el PROPIO server del producto, tras los 3 contenedores PostgreSQL de s1/s7/MAT-3) — co-valida
+  la agnosticidad del mecanismo (no sólo DBs).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0** (todo el incremento). La capa de obs (server +
+  exporter + logger) + el proof client + las coords OTel del SBOM viven 100% en la fábrica (DATA, ADR-012);
+  compuso sobre `infra_up` (E1/MAT-3, ya `general`) sin tocar el sustrato — el mecanismo ya existía, s9 lo
+  EJERCIÓ con un 4º servicio (composición §6, como s0–s8). `meta check` 6/6 · dummy intacta (spot-check).
+- **Diferido honesto (divergencia ADR-012 registrada)**: s9 entrega el PRIMER server HTTP vivo del producto
+  (motor OTel REAL + server stdlib del JDK, no Ktor — mínima superficie). El **server Ktor COMPLETO + e2e
+  (Playwright, s7) + Lighthouse (s8)** quedan `declared-deferred`: su propio incremento, que extiende ESTE
+  primer server vivo a servir la UI/API completa. Mismo shape EXACTO que Ktor→estático de s5 y Lighthouse→
+  esbuild de s8. Lo entregado (trace+log con correlation-id + health/ready, EMITIDOS en runtime) es un gate
+  DES-5 GENUINO que bloquea ante la ausencia de instrumentación.

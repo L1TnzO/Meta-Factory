@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1429030a6ca3338faec53dae85981d273af363f9 updated=2026-06-19T13:57Z -->
+<!-- meta:doc sha=034506d1c55a5dc750152b2ef8d7e90aed7a3432 updated=2026-06-19T14:51Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -109,8 +109,19 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   bloated→rojo · scorer decorativo→rojo; regen→verde) · **`git diff src/+seed/` = 0** (UI+drivers+scorers+
 >   probes+SBOM = DATA; eval_gate ya existía). Lighthouse (lab metrics: server vivo + Chrome) = declared-deferred
 >   (ADR-012, shape de Playwright→e2e de s7). Evidencia: `work/FSK-S8-A11Y-PERF-INCREMENT.md`.
-> - **s9–s10 pendientes** (observabilidad · build hermético). La línea COMPLETA con su DAG:
->   `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
+> - **s9 (`FSK-S9-OBSERVABILITY`) ✅** — observabilidad del producto (DES-5): trace OTel + log estructurado con
+>   correlation-id + `/health`·`/ready`, **EMITIDOS y verificados contra un server HTTP VIVO** (el PRIMER server
+>   vivo del producto). **Compone `infra_up`** (E1/MAT-3, ya general) con un **4º servicio: el propio server del
+>   producto** (los 3 previos eran contenedores PostgreSQL). Tech (PLAN, ADR-012): server HTTP del JDK
+>   (`com.sun.net.httpserver`, stdlib — NO Ktor) + **OTel SDK real** con un `SpanExporter` a archivo; el proof
+>   (stdlib) hace requests reales y exige que el span + el log lleven el cid. M0–M8 verde · RTM 14/14 · `ci
+>   --rederive` 10/10 == pineado (re-levanta el server, sin red) · dientes vivos de dos lados (server caído→rojo
+>   [nativo infra_up] · sin tracing→span sin cid→rojo · sin logging→log sin cid→rojo; regen→verde) · **`git diff
+>   src/+seed/` = 0** (OTel+server+proof = DATA, compuso sobre `infra_up`). Ktor completo + e2e Playwright (s7) +
+>   Lighthouse (s8) = declared-deferred (su propio incremento sobre este server vivo). Evidencia:
+>   `work/FSK-S9-OBSERVABILITY-INCREMENT.md`.
+> - **s10 pendiente** (build hermético reproducible + mini-columna del producto, fan-in DAG: depende de
+>   s2,s3,s4,s7,s8,s9). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

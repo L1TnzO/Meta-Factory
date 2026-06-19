@@ -1,4 +1,4 @@
-<!-- meta:doc sha=559ad16b393e3268c299d4a604c868dabfb88a1a updated=2026-06-19T14:24Z -->
+<!-- meta:doc sha=81fe6c9d7b523cc4128f7f351b9fe5cf79c824dc updated=2026-06-19T14:51Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,8 +6,8 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: FSK-S9-OBSERVABILITY-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (13/13) · iot: COMPLETE (6/6)
+- Incremento abierto: ninguno
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (14/14) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -320,7 +320,7 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s7 BUILT ✅ (2026-06-19)**: nueva fábrica de grado-producción
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s9 BUILT ✅ (2026-06-19)**: nueva fábrica de grado-producción
   para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
   TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
   `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
@@ -493,7 +493,29 @@
     cobertura real). dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S8-A11Y-PERF-INCREMENT.md`. **Diferido
     honesto (divergencia ADR-012)**: **Lighthouse** (lab metrics LCP/CLS/TBT) necesita server HTTP vivo (Ktor) +
     Chrome headless (binario por red → rompe `ci --rederive`) → `declared-deferred`, su propio incremento con el
-    server vivo de s9. Mismo shape que Playwright→e2e de s7. Sigue s9 (observabilidad, DES-5).
+    server vivo de s9. Mismo shape que Playwright→e2e de s7.
+  - **s9 (`FSK-S9-OBSERVABILITY`) ✅ — OBSERVABILIDAD DEL PRODUCTO BAJO GATE, probada por bloqueo (2026-06-19)**:
+    el producto gana **observabilidad EMITIDA y verificada contra un server HTTP VIVO** (DES-5) — el PRIMER
+    server vivo del producto. Una request real produce **(a)** un **trace OpenTelemetry con correlation-id** y
+    **(b)** un **log estructurado JSON** con ese mismo cid (la clave de unión), y **`/health`·`/ready`**
+    responden — verificado por requests HTTP REALES, no por un config "renderizado". **COMPONE el mecanismo de
+    sustrato `infra_up`** (E1/MAT-3, ya `general`) con un **4º servicio: el PROPIO server del producto** (los 3
+    previos eran contenedores PostgreSQL — co-valida que `infra_up` no es sólo-DBs). El codegen emite la capa de
+    obs (`observability/{FileSpanExporter,Observability,ObsServer}.kt`: server del JDK `com.sun.net.httpserver` —
+    stdlib, **NO Ktor** — + **OTel SDK real** con un `SpanExporter` a archivo + logs JSON) + `tools/obs_check.py`
+    (proof client stdlib, mini-columna s10); el span se exporta A DISCO (un proceso de prueba separado lee la
+    EMISIÓN) y el handler emite ANTES de responder (sin carrera). **M0–M8 verde · product-run PASS · RTM COMPLETE
+    14/14** (REQ-F-010 ← `observability/ObsServer.kt`✓) **· pin 10/10 · `ci --rederive` 10/10 == pineado**
+    (re-levanta el server + re-corre todo s0–s8 en clon limpio, **sin red** — OTel cacheado en `~/.gradle`).
+    **dientes vivos de dos lados (exit reales)**: server caído → `observability_live` rojo (diente **NATIVO** de
+    `infra_up`, cada corrida) · quitar el tracing (`.setAttribute`) → span sin cid → rojo · quitar el logging →
+    log sin cid → rojo; regen→verde. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (server + exporter
+    + logger + proof + coords OTel del SBOM = DATA; `infra_up` ya existía — s9 lo EJERCIÓ con un 4º servicio;
+    composición §6, como s0–s8). OTel api+sdk 1.45.0 al SBOM (s4 las VETA → cobertura real). dummy/full-stack/
+    iot/ASF intactas. Autoridad: `work/FSK-S9-OBSERVABILITY-INCREMENT.md`. **Diferido honesto (divergencia
+    ADR-012)**: el **server Ktor COMPLETO + e2e (Playwright, s7) + Lighthouse (s8)** quedan `declared-deferred`,
+    su propio incremento que extiende ESTE primer server vivo a servir la UI/API completa (mismo shape que
+    Ktor→estático de s5 y Lighthouse→esbuild de s8). **Sigue s10** (build hermético + mini-columna, fan-in DAG).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

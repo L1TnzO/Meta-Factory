@@ -117,12 +117,12 @@ domain:
       proof: "s3: el linter de currency cruza el código contra el lock; usar un símbolo deprecado/fuera del pin → rojo; el probe sucio embebido DEBE morder cada corrida"
       status: built
     - id: seguridad_cadena_suministro
-      invariant: "el producto no shippea vulnerabilidades conocidas, secretos ni código inseguro — gateado en el toolchain del producto"
+      invariant: "el producto no shippea dependencias con vulnerabilidades conocidas ni secretos hardcodeados — gateado DETERMINISTAMENTE en el toolchain del producto (sin red, sin LLM, I-3)"
       primitive: DES-13
-      tech: "OWASP dep-check / npm audit / Gradle (vulns) + Semgrep/CodeQL (SAST) + gitleaks (secretos) + SBOM (CycloneDX)"
+      tech: "SBOM CycloneDX-lite de deps directas (sbom.json) + oráculo de advisories pineado (config/supply-chain.lock: coordinate@rango-vulnerable→CVE por ecosistema + patrones de secretos) + scanner determinista stdlib (tools/supply_chain_scan.py); el feed vivo OSV/npm-audit y el SBOM transitivo quedan declared-deferred"
       artifact: build/product/sbom.json
-      proof: "s4: los scanners corren; una dependencia con CVE conocido o un secreto hardcodeado → rojo (diente de dos lados)"
-      status: planned
+      proof: "s4 supply_chain_gate: el scanner cruza el SBOM vs advisories + escanea secretos → 0; una dep en rango vulnerable (postgresql<42.7.2/CVE-2024-1597) o un secreto (AKIA…) → rojo; el probe sucio embebido DEBE morder cada corrida (diente de dos lados, fail-closed)"
+      status: built
     - id: rutas_protegidas
       invariant: "ninguna ruta autenticada se alcanza sin pasar por el middleware/guard de auth (punto de control no-salteable, verificado por alcanzabilidad)"
       primitive: DES-3
@@ -286,7 +286,32 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 tools/currency_lint.py src/main/kotlin frontend/src || exit 1; out=$(python3 tools/currency_lint.py probe/currency frontend/probe-currency 2>&1); echo \"$out\" | grep -q toUpperCase || { echo FSK_CURRENCY_DECORATIVE_KOTLIN; exit 1; }; echo \"$out\" | grep -q substr || { echo FSK_CURRENCY_DECORATIVE_TS; exit 1; }; echo FSK_CURRENCY_OK"]
-    # s4–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s4
+      name: "seguridad de la cadena de suministro: SBOM + oráculo de advisories pineado + scanner determinista (sin red, sin LLM) — DES-13"
+      activation: always
+      depends_on: [s3]
+      # DES-13 — el producto no shippea deps con vulnerabilidades conocidas ni secretos hardcodeados, gateado
+      # de forma DETERMINISTA (I-3, sin red). El codegen (s0) emite el SBOM sbom.json (CycloneDX-lite de deps
+      # directas), el ORÁCULO config/supply-chain.lock (advisories reales coordinate@rango→CVE + patrones de
+      # secretos) y el scanner stdlib tools/supply_chain_scan.py (parte de la mini-columna del PRODUCTO, s10)
+      # → builds: [] (la estación sólo PRUEBA). UN scanner general por DATA cubre DOS ejes: deps vulnerables
+      # (cruza el SBOM vs los advisories) + secretos (escanea src/main/kotlin+frontend/src) — anti-overfit (un
+      # mecanismo, dos ejes/ecosistemas). Eje DISTINTO de s2 (calidad) y s3 (frescura): acá seguridad de la
+      # cadena. Diente NEGATIVO EMBEBIDO (no-decorativo, cada corrida): el MISMO scanner sobre fixtures sucios
+      # (probe/security/vuln-sbom.json con lodash/postgresql@42.7.1; probe/security/leak.txt con AKIA…, FUERA de
+      # src → no se shippean) DEBE morder — se exige el hallazgo por grep (lodash + aws-access-key), fail-closed.
+      # Sustrato intacto: product_env corre DATA (ADR-012). Feed vivo (OSV/npm audit) + SBOM transitivo =
+      # declared-deferred (mismo shape que el MCP-recall de s3).
+      proof_checks:
+        - { name: supply_chain_gate, cmd: "el scanner cruza sbom.json vs config/supply-chain.lock (deps) + escanea src/main/kotlin+frontend/src (secretos) → 0; sobre probe/security DEBE morder (lodash + aws-access-key) o decorativo→rojo", runs_in: product_env, toolchain: "supply-chain-scanner", status: built }
+      builds: []
+      checks:
+        - name: supply_chain_gate
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/supply_chain_scan.py deps sbom.json || exit 1; python3 tools/supply_chain_scan.py secrets src/main/kotlin frontend/src || exit 1; dout=$(python3 tools/supply_chain_scan.py deps probe/security/vuln-sbom.json 2>&1); echo \"$dout\" | grep -q lodash || { echo FSK_SUPPLYCHAIN_DECORATIVE_DEPS; exit 1; }; sout=$(python3 tools/supply_chain_scan.py secrets probe/security 2>&1); echo \"$sout\" | grep -q aws-access-key || { echo FSK_SUPPLYCHAIN_DECORATIVE_SECRETS; exit 1; }; echo FSK_SUPPLYCHAIN_OK"]
+    # s5–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -424,5 +449,11 @@ requirements:
       satisfied_by: [s3]
       verified_by: [currency_gate]
       capability: frescura_de_api
-    # REQ-NF-004..007 DIFERIDAS con s4–s10 (re-añadidas al construir cada estación). Texto completo en
+    - id: REQ-NF-004
+      statement: "el producto no shippea dependencias con vulnerabilidades conocidas ni secretos hardcodeados; un CVE conocido o un secreto → build rojo de forma DETERMINISTA, sin red ni LLM (DES-13, I-3)"
+      acceptance: "supply_chain_gate verde sobre el SBOM + el código autorado; una dep en rango vulnerable (postgresql<42.7.2/CVE-2024-1597) o un secreto (AKIA…) → rojo; el probe sucio embebido DEBE morder cada corrida (lodash / aws-access-key) o el gate es decorativo → rojo"
+      satisfied_by: [s4]
+      verified_by: [supply_chain_gate]
+      capability: seguridad_cadena_suministro
+    # REQ-NF-005..007 DIFERIDAS con s5–s10 (re-añadidas al construir cada estación). Texto completo en
     # docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).

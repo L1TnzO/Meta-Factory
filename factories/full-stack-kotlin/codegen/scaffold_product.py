@@ -697,6 +697,269 @@ def _probe_stale_ts() -> str:
             'export const stale = (s: string): string => s.substr(0, 3);\n')
 
 
+# ── seguridad de la cadena de suministro (s4, DES-13): SBOM + oráculo de advisories + scanner (DATA) ──
+def _direct_dependencies() -> list[tuple[str, str, str]]:
+    """Las deps DIRECTAS/declaradas del producto como DATO ÚNICO — single source de build.gradle.kts /
+    frontend/package.json Y del SBOM (derivan de las MISMAS constantes de pin → no pueden driftar). El SBOM
+    transitivo (resolver el grafo con gradle/npm) necesita red → `declared-deferred` (rompería ci --rederive).
+    (ecosystem, coordinate, version). Maven = impl + plugins de build (un plugin comprometido ES supply-chain)."""
+    return [
+        ("maven", "org.jetbrains.kotlin:kotlin-gradle-plugin", KOTLIN_VERSION),
+        ("maven", "org.jetbrains.kotlinx:kotlinx-serialization-json", KOTLINX_SER_VERSION),
+        ("maven", "org.openapitools:openapi-generator-gradle-plugin", OPENAPI_GEN_VERSION),
+        ("maven", "org.jooq:jooq", JOOQ_VERSION),
+        ("maven", "org.jooq:jooq-meta-extensions", JOOQ_VERSION),
+        ("maven", "org.jooq:jooq-codegen-gradle", JOOQ_VERSION),
+        ("maven", "org.flywaydb:flyway-core", FLYWAY_VERSION),
+        ("maven", "org.flywaydb:flyway-database-postgresql", FLYWAY_VERSION),
+        ("maven", "org.postgresql:postgresql", POSTGRES_JDBC_VERSION),
+        ("maven", "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", DETEKT_VERSION),
+        ("maven", "io.gitlab.arturbosch.detekt:detekt-formatting", DETEKT_VERSION),
+        ("npm", "typescript", TS_VERSION),
+        ("npm", "openapi-typescript", OPENAPI_TS_VERSION),
+        ("npm", "eslint", ESLINT_VERSION),
+        ("npm", "typescript-eslint", TS_ESLINT_VERSION),
+        ("npm", "@total-typescript/ts-reset", TS_RESET_VERSION),
+    ]
+
+
+def _purl(eco: str, coord: str, ver: str) -> str:
+    if eco == "maven":
+        group, _, name = coord.partition(":")
+        return f"pkg:maven/{group}/{name}@{ver}"
+    ns = coord.replace("@", "%40", 1) if coord.startswith("@") else coord
+    return f"pkg:npm/{ns}@{ver}"
+
+
+def _sbom_json(pkg: str) -> str:
+    """sbom.json (CycloneDX-lite, DES-13) — el INVENTARIO de lo que el producto shippea (artifact de la cap
+    seguridad_cadena_suministro). DATA derivada de _direct_dependencies (mismos pins que el build) → el
+    scanner lo cruza contra el oráculo de advisories. Determinista (sin timestamps) → re-derivable."""
+    sbom = {
+        "bomFormat": "CycloneDX",
+        "specVersion": "1.5",
+        "_comment": ("SBOM de deps DIRECTAS, generado por scaffold_product.py desde los pins del PLAN "
+                     "(single source con build.gradle.kts/package.json). El scanner tools/supply_chain_scan.py "
+                     "lo cruza vs config/supply-chain.lock (DES-13). SBOM transitivo = declared-deferred (red)."),
+        "metadata": {"component": {"type": "application", "name": pkg}},
+        "components": [
+            {"type": "library", "ecosystem": eco, "coordinate": coord, "version": ver,
+             "purl": _purl(eco, coord, ver)}
+            for eco, coord, ver in _direct_dependencies()
+        ],
+    }
+    return json.dumps(sbom, indent=2, ensure_ascii=False) + "\n"
+
+
+def _supply_chain_lock() -> str:
+    """config/supply-chain.lock — el ORÁCULO de advisories PINEADO (DES-13). DATA de la fábrica (ADR-012): un
+    snapshot de advisories REALES (OSV/NVD: coordinate@rango-vulnerable → CVE, severidad, fixed_in) + patrones
+    de secretos. El scanner (tools/supply_chain_scan.py) cruza el SBOM y el código autorado contra esto;
+    DETERMINISTA, sin red, sin LLM (I-3). El feed VIVO que lo REFRESCA (OSV.dev/npm audit/Dependabot) es
+    declared-deferred (mismo shape que el MCP-recall de s3). Eje DISTINTO de s2/s3 (vulns de DEPS + secretos)."""
+    lock = {
+        "_comment": (
+            "Oráculo de advisories pineado (DES-13/seguridad_cadena_suministro). Snapshot de advisories "
+            "reales; el scanner determinista tools/supply_chain_scan.py lo cruza contra el SBOM (deps) y el "
+            "código autorado (secretos): una dep en rango vulnerable o un secreto hardcodeado → build rojo "
+            "(sin red, sin LLM, I-3). Refresco vivo (OSV/npm audit) = declared-deferred."
+        ),
+        "pin_date": "2026-06-18",
+        # advisories REALES (SAFE-7). postgresql<42.7.2 cubre la dep que el producto USA (42.7.4 = FIXED, safe);
+        # el resto son coords que el producto NO usa (cobertura disponible para el probe, sin falsos positivos).
+        "advisories": [
+            {"ecosystem": "maven", "coordinate": "org.postgresql:postgresql", "vulnerable_range": "<42.7.2",
+             "id": "CVE-2024-1597", "severity": "critical", "fixed_in": "42.7.2",
+             "summary": "SQL injection con PreferQueryMode=SIMPLE en pgjdbc"},
+            {"ecosystem": "maven", "coordinate": "com.fasterxml.jackson.core:jackson-databind",
+             "vulnerable_range": "<2.12.7.1", "id": "CVE-2022-42003", "severity": "high", "fixed_in": "2.12.7.1",
+             "summary": "DoS por deserializacion de entrada profundamente anidada"},
+            {"ecosystem": "maven", "coordinate": "org.yaml:snakeyaml", "vulnerable_range": "<2.0",
+             "id": "CVE-2022-1471", "severity": "critical", "fixed_in": "2.0",
+             "summary": "RCE por deserializacion insegura de SnakeYAML"},
+            {"ecosystem": "npm", "coordinate": "lodash", "vulnerable_range": "<4.17.21",
+             "id": "CVE-2021-23337", "severity": "high", "fixed_in": "4.17.21",
+             "summary": "Command injection via lodash template"},
+            {"ecosystem": "npm", "coordinate": "axios", "vulnerable_range": ">=0.8.1 <1.6.0",
+             "id": "CVE-2023-45857", "severity": "medium", "fixed_in": "1.6.0",
+             "summary": "SSRF / fuga de credenciales por configuracion de proxy"},
+        ],
+        # patrones de secretos ESPECÍFICOS (no matchean código limpio). El scanner NO salta comentarios: una
+        # key hardcodeada en un comentario sigue siendo una fuga.
+        "secret_patterns": [
+            {"id": "aws-access-key", "pattern": "AKIA[0-9A-Z]{16}", "desc": "AWS access key id"},
+            {"id": "pem-private-key", "pattern": "-----BEGIN (?:RSA |EC |OPENSSH |DSA |)PRIVATE KEY-----",
+             "desc": "clave privada PEM"},
+            {"id": "github-pat", "pattern": "ghp_[0-9A-Za-z]{36}", "desc": "GitHub personal access token"},
+            {"id": "slack-token", "pattern": "xox[baprs]-[0-9A-Za-z-]{10,}", "desc": "Slack token"},
+        ],
+    }
+    return json.dumps(lock, indent=2, ensure_ascii=False) + "\n"
+
+
+def _supply_chain_scan_py() -> str:
+    """tools/supply_chain_scan.py — el scanner DETERMINISTA de la cadena de suministro (DES-13), parte de la
+    mini-columna del PRODUCTO (s10). Stdlib puro, autocontenido (sin `import metafactory`, sin yaml, sin red)
+    → corre en product_env con env scrubbeado, igual que los hooks del seed. Raw-string: las regex (\\d, \\s)
+    se preservan verbatim en el archivo generado."""
+    return r'''#!/usr/bin/env python3
+"""supply_chain_scan.py - seguridad de la cadena de suministro (DES-13). DETERMINISTA, stdlib, SIN RED, sin
+LLM (I-3). Cruza el SBOM contra config/supply-chain.lock (advisories) y escanea el codigo por secretos. Es
+el gate de seguridad que el producto SHIPPEA (mini-columna, s10). Exit 1 si hay hallazgos, 0 si no.
+Uso:
+  supply_chain_scan.py deps    <sbom.json>...        # dep en rango vulnerable conocido -> VULN
+  supply_chain_scan.py secrets <archivo|dir>...      # secreto hardcodeado -> SECRET
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+_SKIP_DIRS = {"build", "gen", "node_modules", ".gradle", ".git"}
+
+
+def _lock() -> dict:
+    p = Path(__file__).resolve().parent.parent / "config" / "supply-chain.lock"
+    if not p.is_file():
+        print(f"supply-chain: falta el oraculo {p}", file=sys.stderr)
+        raise SystemExit(2)
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def _vtuple(v: str) -> tuple[int, ...]:
+    out = []
+    for part in re.split(r"[.\-+]", v.strip()):
+        m = re.match(r"\d+", part)
+        out.append(int(m.group(0)) if m else 0)
+    return tuple(out)
+
+
+def _cmp(a: str, b: str) -> int:
+    ta, tb = _vtuple(a), _vtuple(b)
+    n = max(len(ta), len(tb))
+    ta += (0,) * (n - len(ta))
+    tb += (0,) * (n - len(tb))
+    return (ta > tb) - (ta < tb)
+
+
+_OPS = {"<": lambda c: c < 0, "<=": lambda c: c <= 0, ">": lambda c: c > 0,
+        ">=": lambda c: c >= 0, "==": lambda c: c == 0, "=": lambda c: c == 0}
+
+
+def _in_range(version: str, range_str: str) -> bool:
+    """range_str = constraints separadas por espacio, TODAS deben cumplirse: '>=0.8.1 <1.6.0'."""
+    toks = range_str.split()
+    if not toks:
+        return False
+    for tok in toks:
+        m = re.match(r"(<=|>=|==|<|>|=)\s*(.+)", tok)
+        if not m:
+            return False
+        if not _OPS[m.group(1)](_cmp(version, m.group(2))):
+            return False
+    return True
+
+
+def _scan_deps(targets: list[str], lock: dict) -> int:
+    advisories = lock.get("advisories", [])
+    findings = 0
+    for t in targets:
+        sbom = json.loads(Path(t).read_text(encoding="utf-8"))
+        for comp in sbom.get("components", []):
+            eco, coord, ver = comp.get("ecosystem"), comp.get("coordinate"), comp.get("version", "")
+            for a in advisories:
+                if (a.get("ecosystem") == eco and a.get("coordinate") == coord
+                        and _in_range(ver, a.get("vulnerable_range", ""))):
+                    findings += 1
+                    print(f"VULN {coord}@{ver} [{a.get('id')}] {a.get('severity')} -- "
+                          f"{a.get('summary', '')}; fixed_in {a.get('fixed_in', '?')}")
+    if findings:
+        print(f"supply-chain: {findings} dependencia(s) vulnerable(s)", file=sys.stderr)
+        return 1
+    print("supply-chain: deps ok (ninguna en un rango vulnerable conocido)")
+    return 0
+
+
+def _files(targets: list[str]):
+    for t in targets:
+        p = Path(t)
+        if p.is_file():
+            yield p
+        elif p.is_dir():
+            for f in sorted(p.rglob("*")):
+                if f.is_file() and not (_SKIP_DIRS & set(f.parts)):
+                    yield f
+
+
+def _scan_secrets(targets: list[str], lock: dict) -> int:
+    pats = [(s["id"], re.compile(s["pattern"]), s.get("desc", "")) for s in lock.get("secret_patterns", [])]
+    findings = 0
+    for f in _files(targets):
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for i, line in enumerate(text.splitlines(), 1):
+            for sid, rx, desc in pats:
+                if rx.search(line):
+                    findings += 1
+                    print(f"SECRET {f}:{i}: [{sid}] {desc}")
+    if findings:
+        print(f"supply-chain: {findings} secreto(s) hardcodeado(s)", file=sys.stderr)
+        return 1
+    print("supply-chain: secrets ok (sin secretos hardcodeados)")
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) < 2:
+        print("usage: supply_chain_scan.py {deps|secrets} <archivo|dir>...", file=sys.stderr)
+        return 2
+    mode, targets = argv[0], argv[1:]
+    lock = _lock()
+    if mode == "deps":
+        return _scan_deps(targets, lock)
+    if mode == "secrets":
+        return _scan_secrets(targets, lock)
+    print(f"supply-chain: modo desconocido {mode!r}", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+'''
+
+
+def _probe_vuln_sbom() -> str:
+    """Fixture NEGATIVO (DES-13): un SBOM con deps VULNERABLES conocidas (lodash 4.17.20 / CVE-2021-23337 y
+    postgresql 42.7.1 / CVE-2024-1597). El scanner de deps DEBE morder; supply_chain_gate lo exige por grep
+    (`lodash`). Si NO muerde → gate decorativo → rojo. Vive en probe/security (FUERA de src/) → no se shippea."""
+    sbom = {
+        "bomFormat": "CycloneDX",
+        "specVersion": "1.5",
+        "_comment": ("FIXTURE NEGATIVO DES-13: deps con CVE conocido. El scanner DEBE morder (lodash + "
+                     "postgresql 42.7.1); supply_chain_gate lo exige por grep. No se shippea (fuera de src/)."),
+        "components": [
+            {"type": "library", "ecosystem": "npm", "coordinate": "lodash", "version": "4.17.20",
+             "purl": "pkg:npm/lodash@4.17.20"},
+            {"type": "library", "ecosystem": "maven", "coordinate": "org.postgresql:postgresql",
+             "version": "42.7.1", "purl": "pkg:maven/org.postgresql/postgresql@42.7.1"},
+        ],
+    }
+    return json.dumps(sbom, indent=2, ensure_ascii=False) + "\n"
+
+
+def _probe_leak_secret() -> str:
+    """Fixture NEGATIVO (DES-13): un secreto hardcodeado. Es la key de ejemplo CANÓNICA de AWS (pública, NO es
+    un secreto real) → matchea el patrón aws-access-key. El scanner DEBE morder; supply_chain_gate lo exige
+    por grep (`aws-access-key`). Si NO muerde → gate decorativo → rojo. No se shippea (fuera de src/)."""
+    return ("# NEGATIVO DES-13 (seguridad): secreto hardcodeado. El scanner de secretos DEBE morder\n"
+            "# (aws-access-key). La key de ejemplo CANONICA de AWS (publica, no es un secreto real):\n"
+            "aws_access_key_id = AKIAIOSFODNN7EXAMPLE\n")
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -726,6 +989,12 @@ def build_files(bp: dict) -> dict[str, str]:
         "frontend/eslint.config.js": _eslint_config(),
         "frontend/probe/bad.ts": _probe_bad_ts(),
         "frontend/probe-currency/stale.ts": _probe_stale_ts(),
+        # seguridad de la cadena de suministro (s4, DES-13): SBOM + oráculo de advisories + scanner + probes
+        "sbom.json": _sbom_json(pkg),
+        "config/supply-chain.lock": _supply_chain_lock(),
+        "tools/supply_chain_scan.py": _supply_chain_scan_py(),
+        "probe/security/vuln-sbom.json": _probe_vuln_sbom(),
+        "probe/security/leak.txt": _probe_leak_secret(),
     }
 
 

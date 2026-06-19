@@ -1,8 +1,8 @@
-<!-- meta:doc sha=71be3aebd84870fc9477c45c4897828e664a7648 updated=2026-06-19T01:46Z -->
+<!-- meta:doc sha=aac1d98e1400349efbe97da285509d5c6ecfb2ff updated=2026-06-19T01:46Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-19T01:32Z -->
 # Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T01:32Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T01:46Z) (creado 2026-06-19T01:32Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

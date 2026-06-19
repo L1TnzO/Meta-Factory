@@ -1,4 +1,4 @@
-<!-- meta:doc sha=73129ca880cb7a7a7a3bf012f660768fcd60b70f updated=2026-06-19T02:30Z -->
+<!-- meta:doc sha=df154741e833ce0e60416b75eaef0660ff813808 updated=2026-06-19T02:44Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S5-AUTH-ROUTES-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (8/8) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (10/10) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -320,7 +320,7 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s3 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s5 BUILT ✅ (2026-06-19)**: nueva fábrica de grado-producción
   para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
   TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
   `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
@@ -400,10 +400,34 @@
     `supply_chain_gate` exit 1 (CVE-2024-1597; regen→0) · `AKIA…` en el Kotlin autorado → exit 1 (regen→0); +
     probe vaciado → `DECORATIVE` exit 1 (fail-closed). **Anti-overfit: `git diff src/metafactory/ + seed/` =
     0** (SBOM + oráculo + scanner + probes = DATA; compuso sobre `product_env` sin tocar el sustrato).
-    dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S4-SUPPLYCHAIN-INCREMENT.md`. Sigue s5 (auth +
-    rutas protegidas, DES-3/2). **Diferido honesto**: el feed VIVO de advisories (OSV/npm audit/Dependabot) y
-    el SBOM transitivo quedan `declared-deferred` (mismo shape que el MCP-recall de s3; el oráculo es genuino y
-    determinista, su refresco vivo es contenido futuro, no diente).
+    dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S4-SUPPLYCHAIN-INCREMENT.md`. **Diferido honesto**:
+    el feed VIVO de advisories (OSV/npm audit/Dependabot) y el SBOM transitivo quedan `declared-deferred`
+    (mismo shape que el MCP-recall de s3; el oráculo es genuino y determinista, su refresco vivo es contenido futuro).
+  - **s5 (`FSK-S5-AUTH-ROUTES`) ✅ — AUTH NO-SALTEABLE + TOPOLOGÍA DE RUTAS, probada por bloqueo (2026-06-19)**:
+    el producto gana DOS gates de rutas, ambos **ESTÁTICOS** (sin levantar el server) y DETERMINISTAS (stdlib,
+    sin LLM, sin red, I-3). El codegen emite un **guard** (`auth/AuthGuard.kt`) + un **registro de rutas**
+    (`routes/RouteTable.kt`, **Kotlin REAL que compila**: las escrituras se registran dentro de
+    `authenticated {}` → `guarded`) + un **analizador estático** (`tools/route_check.py`, stdlib, sin PyYAML)
+    con DOS modos que cruza las rutas Kotlin declaradas contra el contrato `openapi.yaml`: **(DES-3,
+    `auth_reachability`)** toda op que el contrato marca con `security` está dentro del guard — **alcanzabilidad**
+    — y **(DES-2, `route_topology`)** el set de rutas == el contrato — **topología**. **UN analizador general por
+    DATA cubre DOS ejes**, como el scanner de s4. El **contrato OpenAPI es la FUENTE de "qué está protegido"**
+    (DES-6): el codegen le pone `security` a toda escritura → el gate cruza contra ESA decisión, no una lista
+    hardcodeada. Eje **DISTINTO de s2/s3/s4** (calidad/frescura/seguridad-de-cadena): acá **rutas**. Diente
+    negativo **EMBEBIDO** (no-decorativo, cada corrida): el MISMO analizador sobre fixtures sucios
+    (`probe/routes/phantom.kt` ruta sin contrato; `probe/routes/unguarded.kt` POST fuera del guard, fuera de
+    `src/`→no se shippean) DEBE morder, exigido por grep (`EXTRA` + `UNGUARDED`), **fail-closed**. El producto
+    **SHIPPEA** su gate (guard + registro + analizador en su mini-columna, s10). **M0–M8 verde · product-run
+    PASS · RTM COMPLETE 10/10** (REQ-F-005/006 con artifacts `AuthGuard.kt`/`RouteTable.kt`) **· pin 6/6 ·
+    `ci --rederive` 6/6 == pineado** (re-corre el analizador de rutas + detekt/ESLint + el scanner de s4 + el
+    contenedor PG de s1 en clon limpio, **sin red**). **dientes vivos de dos lados (exit reales)**: POST fuera
+    del guard → `auth_reachability` exit 1 (`UNGUARDED`; regen→0) · ruta sin contrato → `route_topology` exit 1
+    (`EXTRA`; regen→0); + probe vaciado → `DECORATIVE` exit 1 (fail-closed). **Anti-overfit: `git diff
+    src/metafactory/ + seed/` = 0** (guard + registro + analizador + probes = DATA; compuso sobre `product_env`
+    sin tocar el sustrato). dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S5-AUTH-ROUTES-INCREMENT.md`.
+    Sigue s6 (lógica de dominio generada por LLM vivo bajo gate, DES-8, patrón MAT-2). **Diferido honesto**: el
+    server HTTP vivo (Ktor real) + e2e (Playwright) y el gate de rutas TS quedan `declared-deferred` (s7/s9; la
+    verificación de s5 es estática por diseño — prueba que ninguna ruta protegida ESCAPA del guard por construcción).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

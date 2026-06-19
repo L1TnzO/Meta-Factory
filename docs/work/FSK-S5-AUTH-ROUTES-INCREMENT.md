@@ -1,4 +1,4 @@
-<!-- meta:doc sha=05764e246816bf057bb032c15670859d1b1d963b updated=2026-06-19T02:31Z -->
+<!-- meta:doc sha=934035d08a7851b0d3555b85372847bc2cb0514c updated=2026-06-19T02:43Z -->
 # Incremento FSK-S5-AUTH-ROUTES — Full-Stack Kotlin · auth no-salteable + topología de rutas (s5)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T02:30Z). Cerralo con `meta increment close`
@@ -86,9 +86,9 @@ exige que el analizador MUERDA fixtures sucios cada corrida (fail-closed). Cuelg
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` emite `auth/AuthGuard.kt` (guard de auth) + `routes/RouteTable.kt` (registro de rutas Kotlin real con `authenticated {}`) + `tools/route_check.py` (analizador estático stdlib, modos `topology`/`auth`) + `probe/routes/{phantom,unguarded}.kt` (fixtures negativos) + `security`/`securitySchemes` en `openapi.yaml`. idempotente (selftest + check-idempotent). | ⏳ |
-| 2 | **s5 materializada + verde e2e** — s5 en `station_sequence` (`depends_on: [s4]`) con `auth_reachability` + `route_topology` (product_env, dientes embebidos) + caps `rutas_protegidas`/`topologia_rutas_verificable`→built + REQ-F-005/006; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 10/10**; pin 6/6. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **6/6 == pineado**; **dientes VIVOS de dos lados** (rerutear un `POST` fuera del guard → `auth_reachability` rojo `UNGUARDED`; ruta/contrato desajustado → `route_topology` rojo `EXTRA`/`MISSING`; regen→verde) + probe vaciado→`DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ⏳ |
+| 1 | **Codegen** ✅ — `scaffold_product.py` emite `auth/AuthGuard.kt` (guard de auth) + `routes/RouteTable.kt` (registro de rutas Kotlin real con `authenticated {}`) + `tools/route_check.py` (analizador estático stdlib, modos `topology`/`auth`) + `probe/routes/{phantom,unguarded}.kt` (fixtures negativos) + `security`/`securitySchemes` en `openapi.yaml`. idempotente (selftest + check-idempotent, 35 archivos byte-idénticos); s0–s4 verdes con los nuevos archivos (compone). | ✅ |
+| 2 | **s5 materializada + verde e2e** ✅ — s5 en `station_sequence` (`depends_on: [s4]`) con `auth_reachability` + `route_topology` (product_env, dientes embebidos) + caps `rutas_protegidas`/`topologia_rutas_verificable`→built + REQ-F-005/006; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS (s5 OPEN); **RTM COMPLETE 10/10**; pin 6/6. | ✅ |
+| 3 | **Pin + dientes + cierre** ✅ — `ci --rederive` **6/6 == pineado**; **dientes VIVOS de dos lados** (rerutear un `POST` fuera del guard → `auth_reachability` rojo `UNGUARDED`; ruta sin contrato → `route_topology` rojo `EXTRA`; regen→verde) + probe vaciado→`DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s5 y queda **PASS**; pin escrito (6/6).
@@ -124,6 +124,35 @@ exige que el analizador MUERDA fixtures sucios cada corrida (fail-closed). Cuelg
   `product-run` (que regeneraría y borraría la corrupción) — igual que s1/s2/s3/s4.
 - s5 es codegen DETERMINISTA (sin LLM). La lógica de dominio viva por LLM es s6 (DES-8, patrón MAT-2).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada)
-> Se completa al cerrar (Fase 3): M0–M8, product-run, RTM 10/10, `ci --rederive` 6/6 == pineado, los dientes
-> vivos de dos lados con exit codes reales, `git diff src/+seed` = 0, dummy intacta. (Pendiente hasta el cierre.)
+## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s5.yml` (auth_reachability + route_topology) · m05 RTM · **m06 `clean_runner` == pineado**
+  (re-deriva la línea + el analizador de rutas + detekt/ESLint + el scanner de s4 + el contenedor PG de s1 en
+  clon limpio) · m07 harness · m08 product_e2e.
+- **product-run PASS** — s5: `auth_reachability` → `FSK_AUTH_OK` · `route_topology` → `FSK_TOPOLOGY_OK` (gate s5 OPEN).
+- **RTM COMPLETE 10/10**: REQ-F-001..006 + REQ-NF-001..004 — **REQ-F-005** ← `rutas_protegidas` [s5,
+  `…/webapp/auth/AuthGuard.kt`✓] · **REQ-F-006** ← `topologia_rutas_verificable` [s5, `…/webapp/routes/RouteTable.kt`✓].
+- **`ci --rederive` full-stack-kotlin 6/6 == pineado** (re-corre el analizador de rutas + detekt + `-Werror`
+  + ESLint + el scanner de supply-chain + npm + gradle + el contenedor PG de s1 en clon limpio, **sin red**).
+- **dientes VIVOS de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría y borraría la corrupción; igual que s1/s2/s3/s4):
+  - clean `auth_reachability` → `FSK_AUTH_OK` exit 0 · `route_topology` → `FSK_TOPOLOGY_OK` exit 0.
+  - **auth (DES-3)** — mover `route("POST", "/users")` FUERA de `authenticated {}` en `RouteTable.kt` →
+    `UNGUARDED POST /users` → exit 1; regen → exit 0.
+  - **topología (DES-2)** — declarar `route("GET", "/ghost")` (sin contrato) en `RouteTable.kt` →
+    `EXTRA GET /ghost` → exit 1; regen → exit 0.
+  - **fail-closed (probe embebido)** — vaciar `probe/routes/unguarded.kt` → el autorado pasa pero el probe NO
+    muerde → `FSK_AUTH_DECORATIVE` → exit 1 (el diente embebido es no-decorativo); regen → exit 0.
+- **El gate cubre lo que ningún gate previo verifica**: que una ruta protegida por el contrato pase por el
+  guard (DES-3) y que el mapa de rutas matchee el contrato (DES-2) — ortogonal a calidad (s2), frescura (s3)
+  y seguridad-de-cadena (s4). El contrato OpenAPI es la FUENTE de "qué está protegido" (DES-6).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0**. El guard (`AuthGuard.kt`) + el registro
+  (`RouteTable.kt`) + el analizador (`route_check.py`) + los probes viven 100% en la fábrica (DATA); compuso
+  sobre `product_env` (C3/E1) sin tocar el sustrato — la composición §6 del ROADMAP, como s0–s4/MAT-7.
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci --rederive` 5/5 == pineado
+  (spot-check); full-stack/iot/ASF inalteradas por construcción (diff de sustrato = 0).
+- **Diferido honesto**: el **server HTTP vivo (Ktor real) + e2e** (Playwright) que ejercitaría el guard con
+  requests reales queda `declared-deferred` (es la pirámide de tests s7 / la observabilidad s9) — mismo shape
+  que el feed-vivo diferido de s4. La verificación de s5 es ESTÁTICA por diseño ("alcanzabilidad estática",
+  "sin levantar el server"): prueba que ninguna ruta protegida ESCAPA del guard por construcción. El lado TS
+  no tiene gate de rutas (auth/routing es backend); su superficie de auth es contenido futuro (s8/s9).

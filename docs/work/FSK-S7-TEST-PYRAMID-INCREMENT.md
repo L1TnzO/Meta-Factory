@@ -1,7 +1,7 @@
-<!-- meta:doc sha=bda6ab6f67486773feb4ff8400f278f9ca204b27 updated=2026-06-19T13:22Z -->
+<!-- meta:doc sha=f75fafb4f5481abf1163043bb673cf1b26715c08 updated=2026-06-19T13:24Z -->
 # Incremento FSK-S7-TEST-PYRAMID — Full-Stack Kotlin · pirámide de tests graduada bajo gate (s7)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T13:00Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T13:23Z) (creado 2026-06-19T13:00Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.
@@ -65,10 +65,12 @@ es decorativo (mata la fachada clásica "0 tests → BUILD SUCCESSFUL"). El **e2
    datos sembrados (un test de framework con aserciones, distinto del `main()` round-trip de s1/DES-4).
 4. **El diente negativo es EMBEBIDO y mata la fachada del runner vacío** (doctrina s2/s3/s4/s5): la fachada
    clásica de una pirámide es `test` que descubre **0 tests** → `BUILD SUCCESSFUL` → verde vacuo. El probe es
-   una tarea `testProbe` (source set propio bajo `probe/testkit/`, FUERA de `src/` → no se shippea) con un
-   test que **falla a propósito**; el check exige que `gradle testProbe` **falle** y que la salida nombre el
-   test fallado (grep, no un compile-error) → si pasa, el runner es decorativo → rojo, **fail-closed**. Espejo
-   EXACTO de `detektProbe` (s2). Igual el lado TS: un `*.test.ts` probe que DEBE fallar bajo `node --test`.
+   una tarea `testProbe` con su PROPIO source set (`src/testProbe`, DISTINTO de la suite real `test` → no es
+   andamiaje de la suite shippeada) con un test que **falla a propósito**; corre SIEMPRE
+   (`outputs.upToDateWhen{false}`, idiom roundtrip) y el check exige que `gradle testProbe` reporte el test
+   FAILED (grep, no un compile-error) → si pasa o no se descubre, el runner es decorativo → rojo, **fail-closed**.
+   Espejo de `detektProbe` (s2). Igual el lado TS: un `*.test.ts` probe (en `frontend/probe-test/`, fuera de
+   `frontend/test/`) que DEBE fallar bajo `node --test`.
 5. **e2e (Playwright) `declared-deferred` — divergencia registrada** (ADR-012, la tech es PLAN): el ápice de
    la pirámide (browser-driven, full-stack vivo) necesita (a) **descargar binarios de browser** (RED → rompe
    `ci --rederive` hermético) y (b) un **server HTTP vivo** (Ktor, diferido en s5). Meterlo sería façade (un

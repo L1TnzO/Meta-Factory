@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fb043cd763c9f20f1da3980da27aa0b8183284a5 updated=2026-06-19T13:23Z -->
+<!-- meta:doc sha=1429030a6ca3338faec53dae85981d273af363f9 updated=2026-06-19T13:57Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -99,7 +99,17 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   5 dientes vivos · **`git diff src/+seed/` = 0** (suites + build de test + probes + SBOM = DATA, compuso
 >   sobre `product_env`/`infra_up`). e2e **Playwright** = `declared-deferred` (red + server vivo, ADR-012, shape
 >   de Ktor→estático s5; su incremento con el server de s9). Evidencia: `work/FSK-S7-TEST-PYRAMID-INCREMENT.md`.
-> - **s8–s10 pendientes** (a11y/perf · observabilidad · build hermético). La línea COMPLETA con su DAG:
+> - **s8 (`FSK-S8-A11Y-PERF`) ✅** — calidad de experiencia (DES-7): gates que BLOQUEAN bajo umbral,
+>   deterministas y herméticos (sin browser, sin red), **componiendo `eval_gate`** (MAT-4, ya general; 3er
+>   toolchain: node FSK). **a11y** = axe-core (motor WCAG) HEADLESS en jsdom sobre la UI generada del blueprint
+>   → `a11y_pass_rate` ≥ 1.0 (cero violaciones); **perf** = presupuesto de bundle-size con esbuild → `perf_budget
+>   _ratio` ≥ 1.0. Diente de dos lados NATIVO del eval_gate (el `degraded` flipea): UI mala auditada EN VIVO (6
+>   violaciones WCAG reales) + entry bloated bundleado EN VIVO. M0–M8 verde · RTM 13/13 · `ci --rederive` 9/9 ==
+>   pineado (axe/jsdom/esbuild cacheados en `~/.npm`) · 3 dientes vivos (a11y input-sin-label→rojo · perf
+>   bloated→rojo · scorer decorativo→rojo; regen→verde) · **`git diff src/+seed/` = 0** (UI+drivers+scorers+
+>   probes+SBOM = DATA; eval_gate ya existía). Lighthouse (lab metrics: server vivo + Chrome) = declared-deferred
+>   (ADR-012, shape de Playwright→e2e de s7). Evidencia: `work/FSK-S8-A11Y-PERF-INCREMENT.md`.
+> - **s9–s10 pendientes** (observabilidad · build hermético). La línea COMPLETA con su DAG:
 >   `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA

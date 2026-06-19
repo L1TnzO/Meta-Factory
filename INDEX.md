@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `134d030f4897` | 2026-06-18T01:06Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `18c410b98288` | 2026-06-19T13:34Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `8df11b709eaa` | 2026-06-19T13:57Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -59,7 +59,7 @@
 | `docs/work/FSK-S5-AUTH-ROUTES-INCREMENT.md` | `51b242b82524` | 2026-06-19T02:45Z | Incremento FSK-S5-AUTH-ROUTES — Full-Stack Kotlin · auth no-salteable + topología de rutas (s5) |
 | `docs/work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md` | `e07feebdd1da` | 2026-06-19T03:22Z | Incremento FSK-S6-DOMAIN-LOGIC — Full-Stack Kotlin · lógica de dominio generada por LLM vivo bajo gate (s6) |
 | `docs/work/FSK-S7-TEST-PYRAMID-INCREMENT.md` | `f75fafb4f548` | 2026-06-19T13:24Z | Incremento FSK-S7-TEST-PYRAMID — Full-Stack Kotlin · pirámide de tests graduada bajo gate (s7) |
-| `docs/work/FSK-S8-A11Y-PERF-INCREMENT.md` | `43a41f773359` | 2026-06-19T13:36Z | Incremento FSK-S8-A11Y-PERF — Full-Stack Kotlin · calidad de experiencia (a11y + perf) bajo gate (s8) |
+| `docs/work/FSK-S8-A11Y-PERF-INCREMENT.md` | `1c65a4bfb15a` | 2026-06-19T13:58Z | Incremento FSK-S8-A11Y-PERF — Full-Stack Kotlin · calidad de experiencia (a11y + perf) bajo gate (s8) |
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |
@@ -78,6 +78,6 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `fb043cd763c9` | 2026-06-19T13:23Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `1429030a6ca3` | 2026-06-19T13:57Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=18c410b98288b3b1822b4d086624652c4870d5a0 updated=2026-06-19T13:34Z -->
+<!-- meta:doc sha=8df11b709eaa0e9aa071e0710c8f0143301e739d updated=2026-06-19T13:57Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S8-A11Y-PERF-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (12/12) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (13/13) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -468,7 +468,32 @@
     `work/FSK-S7-TEST-PYRAMID-INCREMENT.md`. **Diferido honesto (ADR-012)**: el **e2e (Playwright)** —
     browser-driven, full-stack vivo — queda `declared-deferred` (necesita red para el binario de browser + un
     server HTTP vivo, diferido desde s5); su propio incremento, con el server vivo de s9. Mismo shape que
-    Ktor→estático de s5 y Kotest→`main()` de s6. Sigue s8 (a11y/perf, DES-7).
+    Ktor→estático de s5 y Kotest→`main()` de s6.
+  - **s8 (`FSK-S8-A11Y-PERF`) ✅ — CALIDAD DE EXPERIENCIA (a11y + perf) BAJO GATE, probada por bloqueo
+    (2026-06-19)**: el producto gana **gates de calidad de experiencia (DES-7) que BLOQUEAN bajo umbral**,
+    DETERMINISTAS y HERMÉTICOS (sin browser, sin red post-`npm install`), **COMPONIENDO el mecanismo de sustrato
+    `eval_gate`** (MAT-4, ya `general`; el sustrato ORQUESTA un `scorer` que imprime `SCORE:<m>=<float>` y JUZGA
+    contra `thresholds`; diente de dos lados NATIVO: el `degraded` DEBE flipear) — **3er toolchain de `eval_gate`**
+    (node FSK, tras python ASF y ts full-stack). **(a11y)** la UI accesible **generada del blueprint**
+    (`frontend/ui/index.html`: landmarks + `<label for>` por campo + `lang`/`title`) se audita con **axe-core**
+    (el motor WCAG estándar) **HEADLESS en jsdom** (sin browser) → `a11y_pass_rate` ≥ 1.0 (cero violaciones: real
+    0 violaciones/24 passes); un fixture de UI mala (`eval/probe/bad_ui.html`), auditado EN VIVO, flipea (6
+    violaciones WCAG reales: `label`/`image-alt`/`button-name`/`html-has-lang`/`region`/`document-title`).
+    **(perf)** un **presupuesto de bundle-size** medido con **esbuild** (bundle minificado del entry real
+    `src/app.ts`) → `perf_budget_ratio` = budget/bytes ≥ 1.0 (real 249 B vs 8192 budget); un entry bloated
+    (`eval/probe/bloated.ts`), bundleado EN VIVO, flipea (60 KB). Eje **DISTINTO de s2–s7**: calidad de
+    EXPERIENCIA, no de código/frescura/seguridad/rutas/lógica/tests. **M0–M8 verde · product-run PASS · RTM
+    COMPLETE 13/13** (REQ-F-009 ← `frontend/ui/index.html`✓) **· pin 9/9 · `ci --rederive` 9/9 == pineado**
+    (estable; re-audita axe+jsdom + re-bundlea esbuild + todo s0–s7 en clon limpio, **sin red** — axe/jsdom/esbuild
+    cacheados en `~/.npm`). **3 dientes vivos de dos lados (exit reales)**: input sin label en la UI →
+    `a11y_gate` `0.96 < 1.0` rojo · entry bloated → `perf_budget_gate` `0.40 < 1.0` rojo · scorer decorativo
+    (ignora su input) → `GATE DECORATIVO` rojo; regen→verde. **Anti-overfit: `git diff src/metafactory/ + seed/`
+    = 0** (UI + drivers + scorers + probes + deps al SBOM = DATA; `eval_gate` ya existía — s8 lo EJERCIÓ en un 3er
+    toolchain; composición §6, como s0–s7). axe-core 4.10.2/jsdom 25.0.1/esbuild 0.24.2 al SBOM (s4 las VETA →
+    cobertura real). dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S8-A11Y-PERF-INCREMENT.md`. **Diferido
+    honesto (divergencia ADR-012)**: **Lighthouse** (lab metrics LCP/CLS/TBT) necesita server HTTP vivo (Ktor) +
+    Chrome headless (binario por red → rompe `ci --rederive`) → `declared-deferred`, su propio incremento con el
+    server vivo de s9. Mismo shape que Playwright→e2e de s7. Sigue s9 (observabilidad, DES-5).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

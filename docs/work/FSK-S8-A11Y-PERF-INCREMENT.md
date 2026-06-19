@@ -1,4 +1,4 @@
-<!-- meta:doc sha=43a41f773359f02e12e3ae4cf46b64ec96fc8f0d updated=2026-06-19T13:36Z -->
+<!-- meta:doc sha=1c65a4bfb15a7ad754e997e5c2d13ea783db94bd updated=2026-06-19T13:58Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-19T13:34Z -->
 # Incremento FSK-S8-A11Y-PERF — Full-Stack Kotlin · calidad de experiencia (a11y + perf) bajo gate (s8)
 
@@ -102,9 +102,9 @@ incremento, con el server vivo de s9).
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` suma: `frontend/ui/index.html` (UI accesible generada del blueprint) + `frontend/src/app.ts` (entry de bundle) + `frontend/eval/{a11y_audit.mjs,perf_measure.mjs,a11y_scorer.mjs,perf_scorer.mjs}` + probes `frontend/eval/probe/{bad_ui.html,bloated.ts}` + budgets (`frontend/eval/budget.json`) + deps axe/jsdom/esbuild a `frontend/package.json` y al `sbom.json`. idempotente; s0–s7 verdes (UI/eval fuera de los scopes de s2/s3/s4/s5; nuevas deps al SBOM → s4 sigue verde). | ⏳ |
-| 2 | **s8 materializada + verde e2e** — s8 en `station_sequence` (`depends_on: [s7]`) con `a11y_gate` + `perf_budget_gate` (`kind: eval_gate`, bootstrap = npm install + driver); cap `calidad_experiencia`→built (Lighthouse declared-deferred) + REQ-F-009; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 13/13**; pin. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **== pineado** (npm cacheado, sin red); **dientes VIVOS de dos lados** (UI mala→`a11y_gate` flipea→rojo; bundle bloated→`perf_budget_gate` flipea→rojo; ambos scorers decorativos→rojo); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP/spec; `meta increment close`. | ⏳ |
+| 1 | **Codegen** ✅ — `scaffold_product.py` suma: `frontend/ui/index.html` (UI accesible generada del blueprint) + `frontend/src/app.ts` (entry de bundle) + `frontend/eval/{a11y_audit.mjs,perf_measure.mjs,a11y_scorer.mjs,perf_scorer.mjs}` + probes `frontend/eval/probe/{bad_ui.html,bloated.ts}` + budget (`frontend/eval/budget.json`) + deps axe/jsdom/esbuild a `frontend/package.json` y al `sbom.json`. idempotente 51/51; probado en vivo (a11y real 0 viol/1.0, bad 6 viol/0.5; perf real 249 B vs 8192, bloated 60 KB; eval_gate positivo pasa + negativo flipea); s0–s4 verdes con los archivos nuevos (tsc/eslint/currency/SBOM ok). | ✅ |
+| 2 | **s8 materializada + verde e2e** ✅ — s8 en `station_sequence` (`depends_on: [s7]`) con `a11y_gate` + `perf_budget_gate` (`kind: eval_gate`); cap `calidad_experiencia`→built (Lighthouse declared-deferred) + REQ-F-009; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 13/13**; pin 9/9. | ✅ |
+| 3 | **Pin + dientes + cierre** ✅ — `ci --rederive` **9/9 == pineado** (estable, npm cacheado, sin red); **3 dientes VIVOS de dos lados** (input-sin-label→`a11y_gate` `0.96<1.0` rojo; entry bloated→`perf_budget_gate` `0.40<1.0` rojo; scorer decorativo→`GATE DECORATIVO` rojo; regen→verde); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP/spec; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s8 y queda **PASS**; pin escrito.
@@ -134,5 +134,40 @@ incremento, con el server vivo de s9).
   EXPERIENCIA (DES-7), ortogonal a calidad-de-código (s2), frescura (s3), seguridad (s4), rutas (s5), lógica-LLM
   (s6) y pirámide de tests (s7).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada)
-<se completa al cerrar: M0–M8, product-run, RTM, ci --rederive, dientes vivos, anti-overfit, fábricas intactas>
+## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s8.yml` (a11y_gate + perf_budget_gate) · m05 RTM · **m06 `clean_runner` == pineado** (re-deriva la
+  línea s0..s8 + re-audita axe+jsdom + re-bundlea esbuild + el contenedor PG en clon limpio, **con axe/jsdom/
+  esbuild cacheados en `~/.npm`, sin red**) · m07 harness · m08 product_e2e.
+- **product-run PASS** — s8: `a11y_gate` (axe+jsdom: UI real 0 violaciones/24 passes/`pass_rate` 1.0) ·
+  `perf_budget_gate` (esbuild: bundle real 249 B vs 8192 budget, `perf_budget_ratio` 32.9). gate s8 OPEN.
+- **RTM COMPLETE 13/13**: REQ-F-001..009 + REQ-NF-001..004 — **REQ-F-009** ← `calidad_experiencia` [s8,
+  `build/product/frontend/ui/index.html`✓].
+- **`ci --rederive` full-stack-kotlin 9/9 == pineado** (estable, dos corridas; re-audita axe+jsdom + re-bundlea
+  esbuild + re-corre Kotest/node:test + detekt/ESLint + el scanner de s4 + el analizador de s5 + el contract de
+  s6 + el contenedor PG en clon limpio, **sin red** — npm cacheado).
+- **dientes VIVOS de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría; igual que s1–s7), y el `eval_gate` re-audita/re-bundlea en el bootstrap:
+  - clean: `a11y_gate` `SCORE:a11y_pass_rate=1` OK · `perf_budget_gate` `SCORE:perf_budget_ratio=32.8996` OK.
+  - **a11y (subject)** — inyectar un `<input>` sin label en `ui/index.html` → axe reporta violación →
+    `a11y_pass_rate 0.960 < 1.000` → "el output REAL no pasó el gate" → exit 1; regen → exit 0.
+  - **perf (subject)** — bloatear `src/app.ts` (literal grande) → bundle > presupuesto →
+    `perf_budget_ratio 0.404 < 1.000` → exit 1; regen → `32.8996` exit 0.
+  - **decorativo (eval_gate nativo)** — scorer que IGNORA su input (siempre `1.0`) → el `degraded` también pasa →
+    `GATE DECORATIVO — el output DEGRADADO pasó todos los umbrales` → exit 1; regen → exit 0.
+- **El gate cubre lo que ningún gate previo verifica**: calidad de EXPERIENCIA (a11y WCAG sobre la UI generada +
+  presupuesto de peso de bundle) — ortogonal a calidad-de-código (s2), frescura (s3), seguridad-de-cadena (s4),
+  rutas-estático (s5), lógica-LLM (s6) y pirámide de tests (s7). Es el **3er toolchain de `eval_gate`** (node
+  FSK, tras python ASF y ts full-stack) — co-valida la agnosticidad de toolchain del mecanismo (ADR-014).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0** (todo el incremento). La UI + los drivers
+  (a11y_audit/perf_measure) + los scorers + los probes + las entradas axe/jsdom/esbuild del SBOM viven 100% en
+  la fábrica (DATA, ADR-012); compuso sobre `eval_gate` (MAT-4, ya `general`) sin tocar el sustrato — el
+  mecanismo de DES-7 ya existía, s8 lo EJERCIÓ en un 3er toolchain (composición §6, como s0–s7).
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci --rederive` 5/5 == pineado
+  (spot-check); full-stack/iot/ASF inalteradas por construcción (diff de sustrato = 0). `meta check` 6/6.
+- **Diferido honesto (divergencia ADR-012 registrada)**: **Lighthouse** (lab metrics LCP/CLS/TBT) queda
+  `declared-deferred`: necesita (a) un **server HTTP vivo** (Ktor, diferido desde s5) y (b) **Chrome headless**
+  (descarga binario por **red** → rompería `ci --rederive` hermético). Es su propio incremento (con el server
+  vivo de s9). Mismo shape EXACTO que Playwright→e2e de s7 y Ktor→estático de s5. Lo entregado (axe-core HEADLESS
+  — el motor WCAG real, sólo sin browser — + el presupuesto de bundle-size) es un gate DES-7 GENUINO que bloquea
+  bajo umbral con diente de dos lados vivo.

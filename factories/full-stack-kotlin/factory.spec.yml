@@ -138,12 +138,12 @@ domain:
       proof: "s5 route_topology: route_check.py (topology) exige set(rutas) == set(contrato); una ruta sin contrato → EXTRA / un contrato sin ruta → MISSING (rojo); el probe sucio embebido DEBE morder cada corrida (fail-closed)"
       status: built
     - id: logica_dominio_generada
-      invariant: "la lógica de negocio se GENERA por un LLM vivo (claude -p, slot generate) y un contract test la EJERCITA; un stub no pasa (el anti-patrón de domain vacío de F1 bloquea); el artefacto se pinea (§7) y re-derive lo verifica sin LLM"
+      invariant: "la lógica de negocio se GENERA por un LLM vivo (claude -p, slot generate) y un contract test la EJERCITA en el toolchain del producto; un stub no pasa (el anti-patrón de domain vacío de F1 bloquea); el artefacto se pinea (§7) y re-derive lo verifica sin LLM"
       primitive: DES-8
-      tech: "claude -p (slot generate, ADR-013) como `via`; Kotest como contract gate; pin por skip_if_exists (§7)"
-      artifact: build/product/src/main/kotlin/domain/
-      proof: "s6: Kotest ejercita la lógica generada; un stub o una implementación incorrecta → rojo; pin re-verificado sin LLM"
-      status: planned
+      tech: "claude -p (slot generate, ADR-013) como `via` (wrapper codegen/gen_llm.py); contract gate = un main() de aserciones corrido por gradle `run` (idiom JavaExec del producto, igual que roundtrip s1); el módulo domain_gen vive decoupleado de build/product (tracked) → el LLM-artefacto Summary.kt se pinea (skip_if_exists). Kotest+Testcontainers+Playwright = pirámide s7 (declared-deferred, ADR-012)"
+      artifact: domain_gen/src/main/kotlin/domain/Summary.kt
+      proof: "s6: gradle run compila Model.kt + el Summary.kt GENERADO + SummaryContract.kt y corre el contract main; un stub o una implementación incorrecta → rojo; pin re-verificado sin LLM"
+      status: built
     - id: pruebas_piramidales
       invariant: "la verificación corre en el toolchain DEL producto en una pirámide: unit + integración (DB viva) + contrato + e2e; un test roto bloquea"
       primitive: DES-8
@@ -342,7 +342,148 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 tools/route_check.py topology openapi.yaml src/main/kotlin || exit 1; out=$(python3 tools/route_check.py topology openapi.yaml probe/routes/phantom.kt 2>&1); echo \"$out\" | grep -q EXTRA || { echo FSK_TOPOLOGY_DECORATIVE; exit 1; }; echo FSK_TOPOLOGY_OK"]
-    # s6–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s6
+      name: "lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test Kotlin — DES-8 (patrón MAT-2)"
+      activation: always
+      depends_on: [s5]
+      # DES-8 — la lógica de NEGOCIO la GENERA un LLM vivo (claude -p, slot generate, ADR-013, wrapper
+      # codegen/gen_llm.py) y un contract test la EJERCITA en el toolchain del producto (Kotlin/gradle). El
+      # módulo domain_gen/ vive DECOUPLEADO de build/product/ (tracked, factory root) → s2/s3/s4/s5 (que
+      # escanean src/main/kotlin+frontend/src DENTRO del producto) NO lo tocan; el LLM-artefacto Summary.kt se
+      # PINEA (skip_if_exists ⇒ committeado = fuente) y ci --rederive lo re-verifica SIN re-invocar al LLM (§7):
+      # determinismo en la VERIFICACIÓN, no en la generación (I-3). Un stub no pasa el contract test (el
+      # anti-patrón de domain vacío de F1 BLOQUEA). El modelo (Model.kt), el contract (SummaryContract.kt) y el
+      # build gradle se EMITEN deterministas (write); el ÚNICO artefacto no-determinista es Summary.kt. El LLM
+      # genera la LÓGICA; los TIPOS son el contrato fijo (robustez + foco DES-8). Divergencia de tech registrada
+      # (ADR-012): el diseño §5 dijo "Kotest"; el contract gate es un main() de aserciones corrido por gradle
+      # `run` (el MISMO idiom JavaExec que el producto usa para `roundtrip`, s1) — sin sumar un framework de test
+      # (Kotest = dep pesada a vetar en el SBOM de s4). La pirámide Kotest+Testcontainers+Playwright queda
+      # declared-deferred (s7), mismo shape que Ktor→estático de s5. Sustrato intacto: el seam generate (C1) y el
+      # check product_env (C3, ya general) corren DATA (ADR-012) — git diff src/+seed = 0 (composición, MAT-2).
+      proof_checks:
+        - { name: domain_logic_contract, cmd: "gradle run en domain_gen: compila Model.kt + el Summary.kt GENERADO por claude -p + SummaryContract.kt y corre el contract main(); un stub o lógica incorrecta → rojo; el pin (skip_if_exists) se re-verifica sin LLM (§7)", runs_in: product_env, toolchain: "kotlin-gradle", status: built }
+      builds:
+        - action: write
+          dest: domain_gen/settings.gradle.kts
+          content: |
+            rootProject.name = "domain_gen"
+        - action: write
+          dest: domain_gen/build.gradle.kts
+          content: |
+            // domain_gen — módulo Kotlin AUTOCONTENIDO (decoupleado de build/product) que ejercita la lógica
+            // de dominio GENERADA por el LLM (Summary.kt) bajo un contract test. Mismas versiones que el
+            // producto (Kotlin 2.4.0 / gradle 9.5.1 / JDK 21) → cache de ~/.gradle caliente → ci --rederive
+            // sin red. application/run corre el main() del contract (idiom JavaExec, igual que `roundtrip` s1).
+            plugins {
+                kotlin("jvm") version "2.4.0"
+                application
+            }
+            repositories { mavenCentral() }
+            // -Werror (dureza, DES-10): la lógica LLM-generada compila bajo la MISMA barra que el producto.
+            kotlin {
+                jvmToolchain(21)
+                compilerOptions { allWarningsAsErrors = true }
+            }
+            application { mainClass.set("domain.SummaryContractKt") }
+        - action: write
+          dest: domain_gen/src/main/kotlin/domain/Model.kt
+          content: |
+            package domain
+
+            /** Una tarea de un proyecto (espejo del dominio Task del blueprint domain.product). */
+            data class Task(val title: String, val done: Boolean)
+
+            /** Estado de avance de un proyecto. sealed ⇒ el `when` que lo consume es exhaustivo (dureza, DES-10). */
+            sealed interface ProjectStatus {
+                data object NotStarted : ProjectStatus
+                data object InProgress : ProjectStatus
+                data object Completed : ProjectStatus
+            }
+
+            /** Resumen de avance derivado de las tareas de un proyecto (lo que `summarize` produce). */
+            data class ProjectSummary(
+                val total: Int,
+                val done: Int,
+                val pending: List<String>,
+                val status: ProjectStatus,
+            )
+        - action: write
+          dest: domain_gen/src/main/kotlin/domain/SummaryContract.kt
+          content: |
+            package domain
+
+            import kotlin.system.exitProcess
+
+            /** El contract test (DES-8): EJERCITA la lógica generada (summarize). Un stub o una implementación
+             *  incorrecta hace exitProcess(1) → gradle `run` rojo. Es el tooth de MAT-2: domain vacío BLOQUEA. */
+            private fun ensure(cond: Boolean, msg: String) {
+                if (!cond) {
+                    System.err.println("CONTRACT FAIL: $msg")
+                    exitProcess(1)
+                }
+            }
+
+            fun main() {
+                val mixed = listOf(
+                    Task("disenar el schema", true),
+                    Task("implementar el handler", false),
+                    Task("documentar la API", false),
+                )
+                val s = summarize(mixed)
+                ensure(s.total == 3, "total esperado 3, fue ${s.total}")
+                ensure(s.done == 1, "done esperado 1, fue ${s.done}")
+                ensure(
+                    s.pending == listOf("implementar el handler", "documentar la API"),
+                    "pending order: ${s.pending}",
+                )
+                ensure(s.status == ProjectStatus.InProgress, "status esperado InProgress, fue ${s.status}")
+
+                val empty = summarize(emptyList())
+                ensure(empty.total == 0 && empty.done == 0 && empty.pending.isEmpty(), "empty counts: $empty")
+                ensure(empty.status == ProjectStatus.NotStarted, "empty status: ${empty.status}")
+
+                val allDone = summarize(listOf(Task("a", true), Task("b", true)))
+                ensure(allDone.status == ProjectStatus.Completed, "allDone status: ${allDone.status}")
+                ensure(allDone.pending.isEmpty(), "allDone pending: ${allDone.pending}")
+
+                val noneDone = summarize(listOf(Task("x", false), Task("y", false)))
+                ensure(noneDone.status == ProjectStatus.NotStarted, "noneDone status: ${noneDone.status}")
+                ensure(noneDone.pending == listOf("x", "y"), "noneDone pending: ${noneDone.pending}")
+
+                println("FSK_DOMAIN_CONTRACT_OK")
+            }
+        - action: generate
+          dest: domain_gen/src/main/kotlin/domain/Summary.kt
+          skip_if_exists: true
+          brief: |
+            Generá UN archivo Kotlin (package `domain`) con la lógica de resumen de avance de un proyecto.
+            NO redefinas los tipos: el archivo Model.kt (mismo package `domain`) YA define, y los usás tal cual:
+              data class Task(val title: String, val done: Boolean)
+              sealed interface ProjectStatus { data object NotStarted; data object InProgress; data object Completed }
+              data class ProjectSummary(val total: Int, val done: Int, val pending: List<String>, val status: ProjectStatus)
+            Implementá EXACTAMENTE esta función pública (misma firma):
+              fun summarize(tasks: List<Task>): ProjectSummary
+            Contrato (cumplilo al pie):
+              - total   = cantidad total de tareas.
+              - done    = cantidad de tareas con done == true.
+              - pending = los `title` de las tareas con done == false, EN EL ORDEN de entrada.
+              - status  = ProjectStatus.NotStarted  si done == 0
+                          ProjectStatus.Completed   si total > 0 && done == total
+                          ProjectStatus.InProgress  en cualquier otro caso
+            Requisitos del código:
+              - La PRIMERA línea debe ser exactamente: package domain
+              - Sin imports externos ni dependencias; Kotlin idiomático que compile con `kotlinc -Werror`
+                (sin warnings, sin imports ni variables sin usar, sin `when` no-exhaustivo).
+              - Referenciá ProjectStatus.NotStarted / InProgress / Completed por su nombre completo.
+            Salida: SOLO el código Kotlin del archivo. NADA de explicaciones ni fences markdown.
+          via: ["python3", "codegen/gen_llm.py"]
+      checks:
+        - name: domain_logic_contract
+          kind: product_env
+          workdir: domain_gen
+          bootstrap: []
+          cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew run -q --console=plain || exit 1; echo FSK_DOMAIN_OK"]
+    # s7–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -471,7 +612,13 @@ requirements:
       satisfied_by: [s5]
       verified_by: [route_topology]
       capability: topologia_rutas_verificable
-    # REQ-F-007..008 DIFERIDAS con s6–s10 (cada una se re-añade cuando su estación se construye). Texto
+    - id: REQ-F-007
+      statement: "la lógica de dominio se GENERA por un LLM vivo (claude -p, slot generate) bajo contract test; un stub no pasa; el artefacto se pinea y re-derive lo verifica sin LLM (DES-8, MAT-2, §7)"
+      acceptance: "domain_logic_contract verde sobre la lógica generada; un stub o lógica incorrecta → rojo; el pin (skip_if_exists) se re-verifica sin re-invocar al LLM"
+      satisfied_by: [s6]
+      verified_by: [domain_logic_contract]
+      capability: logica_dominio_generada
+    # REQ-F-008 DIFERIDA con s7–s10 (cada una se re-añade cuando su estación se construye). Texto
     # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001

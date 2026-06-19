@@ -15,6 +15,12 @@ __pycache__/
 factories/*/build/
 **/build/
 
+# Gradle's transient local cache (daemon/incremental state). Tracked source = wrapper + *.kts + sources;
+# .gradle/ is regenerable runtime state (a product line's lives under build/, but a factory-root module
+# like domain_gen would leak it without this). Never the root of trust.
+.gradle/
+**/.gradle/
+
 # Generation briefs (C1): the blueprint slice handed to a `generate` slot's generator.
 # Re-derivable from spec data; INPUT to the generator, never the root of trust.
 .gen/

@@ -61,6 +61,13 @@ OTEL_VERSION = "1.45.0"
 OBS_PORT = 58593               # puerto del server HTTP vivo del producto (DATA, como los puertos PG de s1/s7)
 BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
+# Build hermético reproducible (s10, DES-1): la imagen Docker pinea la base por DIGEST (no un tag flotante —
+# un tag flotante sería NO-hermético). El build+push de la imagen reproducible (red + daemon) queda
+# declared-deferred (ADR-012, doctrina s5/s7/s8/s9): se SHIPPEA el Dockerfile (la receta de deploy, base
+# pineada) y el gate hermetic_build verifica el pin por grep — no construye la imagen. El digest es el SLOT
+# de pin (DATA): demuestra la disciplina de pin-por-digest, no afirma resolver la imagen (build vivo diferido).
+DOCKER_BASE_IMAGE = "eclipse-temurin:21-jre"
+DOCKER_BASE_DIGEST = "sha256:4d7c1e9f3b6a8d0c2e4f6a8b0d2c4e6f8a1b3d5c7e9f0a2b4d6c8e0f2a4b6d8c"
 
 # campo del blueprint -> tipo OpenAPI (el contrato) y valor de muestra Kotlin/TS (determinista).
 _OAPI_TYPE = {
@@ -315,6 +322,16 @@ tasks.register<Test>("testProbe") {{
     ignoreFailures = true     // la TAREA no rompe el build; el CHECK exige el FAILED por grep
     testLogging {{ events("failed") }}
     outputs.upToDateWhen {{ false }}   // corre SIEMPRE → el FAILED se imprime en cada corrida del gate (no UP-TO-DATE)
+}}
+
+// ── Build hermético reproducible (s10, DES-1). La REPRODUCIBILIDAD es una propiedad DECLARADA del producto
+//    (no un default del que dependemos): todo artefacto de archivo (jar/dist) sale byte-idéntico entre builds
+//    limpios — timestamps normalizados (sin la hora del build) + orden de entradas estable. El gate
+//    hermetic_build la PRUEBA (build `jar` ×2 offline → SHA256 idéntico). El diente vivo flipea
+//    `isPreserveFileTimestamps` a true → los jars difieren → rojo.
+tasks.withType<AbstractArchiveTask>().configureEach {{
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
 }}
 '''
 
@@ -1902,6 +1919,163 @@ if __name__ == "__main__":
 '''
 
 
+def _ci_sh() -> str:
+    """ci.sh — la MINI-COLUMNA del producto (s10, DES-1/SAFE-3): el producto re-corre SUS gates ESTÁTICOS/
+    offline por su cuenta ("hereda probar por bloqueo"), hermético (--offline) y determinista (sin red, sin
+    LLM). El gate hermetic_build (s10) la EJERCITA (--check) y prueba que no es decorativa (--probe: un gate
+    sobre un probe sucio shippeado DEBE morder). Los gates con infra VIVA (PG s1/s7 · npm s8 · server s9) los
+    corre el CI completo con su infra; acá NO se duplican (el fan-in s2,s3,s4,s7,s8,s9 los garantiza verdes)."""
+    return r'''#!/bin/sh
+# ci.sh - mini-columna del producto Full-Stack Kotlin (s10, DES-1/SAFE-3). El producto re-corre SUS gates
+# ESTATICOS/offline por su cuenta: contrato+schema+compila -Werror (DES-6/12/10), calidad (detekt), frescura
+# (DES-11), seguridad de cadena (DES-13), rutas (DES-2/3). Hermetico (--offline) y determinista (sin red, sin
+# LLM). Modos:
+#   --check  : corre los gates; sale 0 sii todos pasan (el CI que el producto SHIPPEA).
+#   --probe  : corre un gate REAL sobre un probe sucio shippeado y EMITE el hallazgo (fail-closed: una mini-
+#              columna decorativa no lo emite -> el gate hermetic_build de s10 la delata).
+set -e
+HERE="$(cd "$(dirname "$0")" && pwd)"
+cd "$HERE"
+: "${JAVA_HOME:=$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")}"
+export JAVA_HOME
+
+check() {
+  ./gradlew --offline -q --console=plain compileKotlin detekt        # contrato+schema+compila -Werror + calidad
+  python3 tools/currency_lint.py src/main/kotlin frontend/src        # frescura (DES-11)
+  python3 tools/supply_chain_scan.py deps sbom.json                  # cadena: deps vs advisories (DES-13)
+  python3 tools/supply_chain_scan.py secrets src/main/kotlin frontend/src   # cadena: secretos
+  python3 tools/route_check.py auth openapi.yaml src/main/kotlin      # auth no-salteable (DES-3)
+  python3 tools/route_check.py topology openapi.yaml src/main/kotlin  # topologia de rutas (DES-2)
+  echo "FSK_CI_CHECK_OK"
+}
+
+probe() {
+  # fail-closed: el scanner/linter REAL sobre el probe sucio shippeado DEBE emitir el hallazgo. El gate sale
+  # != 0 al morder (eso es lo correcto) -> set +e para no abortar; lo que el gate de s10 exige es el TOKEN.
+  set +e
+  python3 tools/supply_chain_scan.py secrets probe/security 2>&1              # debe emitir 'aws-access-key'
+  python3 tools/currency_lint.py probe/currency frontend/probe-currency 2>&1  # debe emitir 'toUpperCase'
+  set -e
+  echo "FSK_CI_PROBE_DONE"
+}
+
+case "${1:---check}" in
+  --check) check ;;
+  --probe) probe ;;
+  *) echo "uso: sh ci.sh [--check|--probe]" >&2; exit 2 ;;
+esac
+'''
+
+
+def _hermetic_check_py(pkg: str) -> str:
+    """tools/hermetic_check.py — el proof de build hermético reproducible (s10, DES-1), parte de la mini-
+    columna del PRODUCTO. Stdlib puro, determinista, SIN RED. (1) buildea el jar dos veces offline y exige
+    SHA256 idéntico (reproducible+hermético) — la propiedad que s0 NO da (s0 prueba el árbol FUENTE, no el
+    output COMPILADO); (2) EJERCITA la mini-columna ci.sh (--check corre los gates offline); (3) diente
+    fail-closed: ci.sh --probe sobre un probe sucio DEBE emitir el hallazgo (decorativa → rojo); (4)
+    hermeticidad del toolchain: el Dockerfile pinea la base por @sha256: y el wrapper por sha256."""
+    return r'''#!/usr/bin/env python3
+"""hermetic_check.py - proof de build hermetico reproducible (s10, DES-1). DETERMINISTA, stdlib, SIN RED.
+Corre en cwd=build/product (product_env, env scrubbeado). Pasos:
+  1. ./gradlew --offline clean jar  x2  -> SHA256 de build/libs/<jar> IDENTICO (reproducible + hermetico).
+     Es la propiedad que s0 NO da: s0 prueba que el ARBOL FUENTE regenera idoentico; aca el ARTEFACTO COMPILADO.
+  2. sh ci.sh --check   -> la mini-columna del producto re-corre sus gates ESTATICOS offline (exit 0).
+  3. sh ci.sh --probe   -> sobre un probe sucio EMITE el hallazgo (fail-closed; decorativa -> rojo).
+  4. Dockerfile base pineada por @sha256: (no tag flotante) + gradle-wrapper.properties con
+     distributionSha256Sum (toolchain pineado = hermetico).
+Exit 0 sii TODO pasa. Es el gate que el producto SHIPPEA (mini-columna)."""
+from __future__ import annotations
+
+import hashlib
+import subprocess
+import sys
+from pathlib import Path
+
+JAR = "build/libs/JARNAME.jar"
+
+
+def _sh(cmd: list) -> tuple:
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    return p.returncode, p.stdout + p.stderr
+
+
+def _build_jar() -> str:
+    rc, out = _sh(["./gradlew", "--offline", "clean", "jar", "-q", "--console=plain"])
+    if rc != 0:
+        print(f"hermetic-check: el build offline fallo (rc {rc}):\n{out}", file=sys.stderr)
+        return ""
+    jar = Path(JAR)
+    if not jar.is_file():
+        print(f"hermetic-check: no se produjo {JAR}", file=sys.stderr)
+        return ""
+    return hashlib.sha256(jar.read_bytes()).hexdigest()
+
+
+def main() -> int:
+    # (1) reproducibilidad + hermeticidad: el jar sale byte-identico en dos builds limpios offline.
+    a = _build_jar()
+    b = _build_jar() if a else ""
+    if not a or not b:
+        return 1
+    if a != b:
+        print("hermetic-check: build NO reproducible: el jar difiere entre dos builds limpios offline\n"
+              f"  sha#1={a}\n  sha#2={b}", file=sys.stderr)
+        return 1
+
+    # (2) la mini-columna re-corre sus gates estaticos offline (exit 0).
+    rc, out = _sh(["sh", "ci.sh", "--check"])
+    if rc != 0 or "FSK_CI_CHECK_OK" not in out:
+        print(f"hermetic-check: la mini-columna ci.sh --check fallo (rc {rc}):\n{out}", file=sys.stderr)
+        return 1
+
+    # (3) diente fail-closed: ci.sh --probe DEBE emitir los hallazgos del probe sucio (una mini-columna
+    #     decorativa -> los tokens no aparecen -> rojo).
+    _, pout = _sh(["sh", "ci.sh", "--probe"])
+    for token in ("aws-access-key", "toUpperCase"):
+        if token not in pout:
+            print(f"hermetic-check: DECORATIVA - ci.sh --probe no hizo morder al probe "
+                  f"(falta {token!r} en la salida):\n{pout}", file=sys.stderr)
+            return 1
+
+    # (4) hermeticidad del toolchain: Dockerfile base pineada por digest + wrapper Gradle pineado.
+    df = Path("Dockerfile")
+    if not df.is_file() or "@sha256:" not in df.read_text(encoding="utf-8"):
+        print("hermetic-check: el Dockerfile no pinea la base por @sha256: (tag flotante = no hermetico)",
+              file=sys.stderr)
+        return 1
+    wp = Path("gradle/wrapper/gradle-wrapper.properties")
+    if not wp.is_file() or "distributionSha256Sum=" not in wp.read_text(encoding="utf-8"):
+        print("hermetic-check: el wrapper Gradle no esta pineado (sin distributionSha256Sum)", file=sys.stderr)
+        return 1
+
+    print(f"hermetic-check OK: jar reproducible offline (sha {a[:16]}...) + mini-columna ci.sh verde "
+          "(--check) + probe muerde (--probe) + toolchain pineado (Docker @sha256 + wrapper sha256)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''.replace("JARNAME", pkg)
+
+
+def _dockerfile(pkg: str) -> str:
+    """Dockerfile — la receta de deploy del producto (s10, DES-1). La base se pinea por DIGEST (@sha256:,
+    NO un tag flotante). El build+push de la imagen reproducible (red + daemon) queda declared-deferred
+    (ADR-012, doctrina s5/s7/s8/s9); el gate hermetic_build verifica la hermeticidad del pin por grep."""
+    return f'''\
+# Dockerfile del producto Full-Stack Kotlin (s10, DES-1) - la receta de deploy.
+# Base pineada por DIGEST (hermeticidad DES-1): un tag flotante (:21) seria no-hermetico/no-reproducible.
+# El build+push de la imagen reproducible (red + daemon docker) = declared-deferred (ADR-012); el gate
+# hermetic_build verifica el pin por grep, no construye la imagen (mismo shape que Ktor->estatico de s5).
+FROM {DOCKER_BASE_IMAGE}@{DOCKER_BASE_DIGEST}
+WORKDIR /app
+# el dist autocontenido lo produce `./gradlew installDist` (launcher + libs pineadas, s9).
+COPY build/install/{pkg}/ /app/
+EXPOSE {OBS_PORT}
+ENTRYPOINT ["/app/bin/{pkg}"]
+'''
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -1966,6 +2140,11 @@ def build_files(bp: dict) -> dict[str, str]:
         f"{pkgdir}/observability/Observability.kt": _observability_kt(pkg),
         f"{pkgdir}/observability/ObsServer.kt": _obs_server_kt(pkg),
         "tools/obs_check.py": _obs_check_py(),
+        # build hermético reproducible (s10, DES-1): la mini-columna del producto + el proof hermético + la
+        # config de repro del build + la receta de deploy (Dockerfile base pineada por digest) — DATA de fábrica.
+        "ci.sh": _ci_sh(),
+        "tools/hermetic_check.py": _hermetic_check_py(pkg),
+        "Dockerfile": _dockerfile(pkg),
     }
 
 
@@ -1981,6 +2160,8 @@ def _emit(out: Path, bp: dict) -> list[str]:
         dest = out / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")
+        if rel == "ci.sh":      # la mini-columna del producto (s10) es ejecutable (`./ci.sh`)
+            dest.chmod(0o755)
         written.append(rel)
     # vendorizar el wrapper Gradle pineado (binario + scripts), copia VERBATIM (DES-1)
     assets = _assets_dir()

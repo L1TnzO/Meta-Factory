@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3d8cf6cba4f25cb13175945fade6b6e33158fc82 updated=2026-06-19T02:45Z -->
+<!-- meta:doc sha=43de088a452403e06feebf70f348a3e8fe0daa7d updated=2026-06-19T03:23Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,8 +6,8 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (10/10) · iot: COMPLETE (6/6)
+- Incremento abierto: FSK-S6-DOMAIN-LOGIC-INCREMENT.md
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (11/11) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -428,6 +428,27 @@
     Sigue s6 (lógica de dominio generada por LLM vivo bajo gate, DES-8, patrón MAT-2). **Diferido honesto**: el
     server HTTP vivo (Ktor real) + e2e (Playwright) y el gate de rutas TS quedan `declared-deferred` (s7/s9; la
     verificación de s5 es estática por diseño — prueba que ninguna ruta protegida ESCAPA del guard por construcción).
+  - **s6 (`FSK-S6-DOMAIN-LOGIC`) ✅ — LÓGICA DE DOMINIO GENERADA POR LLM VIVO BAJO GATE, probada por bloqueo
+    (2026-06-19)**: la **lógica de negocio** del producto se **GENERA por un LLM vivo** (`claude -p`, slot
+    `generate`/ADR-013, vía `codegen/gen_llm.py` — DATA de la fábrica; el sustrato no nombra `claude`) y un
+    **contract test la EJERCITA en el toolchain del producto** (Kotlin/gradle). Es el **3er ejercicio del
+    patrón MAT-2** (tras Full-Stack `summarizeTodos` TS/node:test y ASF `merge_findings` Python/pytest), ahora
+    en un **3er toolchain** (Kotlin/gradle) — co-valida la agnosticidad de toolchain del seam. El módulo
+    `domain_gen/` vive **DECOUPLEADO de `build/product/`** (tracked, factory root): s2/s3/s4/s5 (que escanean
+    DENTRO del producto) no lo tocan, y el LLM-artefacto `Summary.kt` se **PINEA** (`skip_if_exists` ⇒
+    committeado = fuente). El LLM generó lógica REAL (`tasks.filter{!it.done}.map{it.title}` + `when` sobre un
+    sealed `ProjectStatus`), no un stub. El modelo (`Model.kt`), el contract (`SummaryContract.kt`) y el build
+    gradle se emiten deterministas; el contract gate = un `main()` de aserciones corrido por gradle `run` (el
+    **mismo idiom JavaExec que `roundtrip`/s1**). **M0–M8 verde · product-run PASS (1ª-gen VIVA) · RTM COMPLETE
+    11/11** (REQ-F-007 ← `Summary.kt`✓) **· pin 7/7 · `ci --rederive` 7/7 == pineado con `claude` SABOTEADO**
+    (el saboteo NO se disparó: el pin se re-verifica SIN LLM, sin red — §7, I-3, reconcilia con SAFE-3 igual
+    que MAT-2). **tooth VIVO de dos lados**: un **stub** (`return ProjectSummary(0,0,emptyList(),NotStarted)`,
+    el anti-patrón de domain vacío de F1) → `CONTRACT FAIL` → exit 1 (BLOQUEA); regen (LLM) → exit 0.
+    **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (`gen_llm.py` + `domain_gen/` = DATA; el seam
+    `generate`/C1 + `product_env`/C3 YA existían — s6 los EJERCIÓ; composición §6). dummy/full-stack/iot/ASF
+    intactas. Autoridad: `work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md`. Sigue s7 (pirámide de tests Kotest+
+    Testcontainers+Playwright, **`declared-deferred`** desde s6: el contract gate de s6 es un `main()`, no la
+    pirámide — divergencia de tech registrada, ADR-012, mismo shape que Ktor→estático de s5).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

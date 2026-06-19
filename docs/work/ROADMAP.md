@@ -1,4 +1,4 @@
-<!-- meta:doc sha=de57339554b71dfd461bc3d10e975baeb65c978f updated=2026-06-19T02:44Z -->
+<!-- meta:doc sha=0216da13c21cc83cff6738755871367b4ed46d7f updated=2026-06-19T03:23Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -80,7 +80,17 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   diff src/+seed/` = 0** (guard+registro+analizador = DATA, compuso sobre `product_env`). Divergencia de tech
 >   registrada (ADR-012): Ktor server vivo → registro autocontenido analizado estáticamente (Ktor real + e2e =
 >   declared-deferred, s7/s9). Evidencia: `work/FSK-S5-AUTH-ROUTES-INCREMENT.md`.
-> - **s6–s10 pendientes** (lógica LLM · pirámide · a11y/perf · observabilidad · build hermético). La
+> - **s6 (`FSK-S6-DOMAIN-LOGIC`) ✅** — lógica de dominio generada por **LLM vivo** bajo contract test (DES-8,
+>   patrón MAT-2): `claude -p` (slot `generate`/ADR-013, vía `codegen/gen_llm.py` — DATA) genera la lógica de
+>   negocio (`summarize`) y un contract test la EJERCITA en el toolchain del producto (Kotlin/gradle). 3er
+>   ejercicio del seam (tras TS/node:test y Python/pytest) en un 3er toolchain. Módulo `domain_gen/` DECOUPLEADO
+>   de `build/product` (tracked) → el LLM-artefacto `Summary.kt` se PINEA (`skip_if_exists`); un stub NO pasa (el
+>   anti-patrón de domain vacío de F1 BLOQUEA). Contract gate = un `main()` corrido por gradle `run` (idiom
+>   `roundtrip`/s1); Kotest+Testcontainers+Playwright = pirámide s7 (declared-deferred, ADR-012). M0–M8 verde ·
+>   RTM 11/11 · **`ci --rederive` 7/7 == pineado con `claude` SABOTEADO** (re-verifica el pin SIN LLM, §7) ·
+>   tooth vivo de dos lados (stub→`CONTRACT FAIL` rojo; regen→verde) · **`git diff src/+seed/` = 0** (el seam
+>   `generate`/C1 + `product_env`/C3 ya existían; composición, MAT-2). Evidencia: `work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md`.
+> - **s7–s10 pendientes** (pirámide de tests · a11y/perf · observabilidad · build hermético). La
 >   línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA

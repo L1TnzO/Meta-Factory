@@ -261,6 +261,20 @@ def _emit_skills(dest_dir: Path, skills: list, subst: dict) -> list[str]:
     return msgs
 
 
+def _resolve_via_against_chassis(arg: str, ctx: RunContext) -> str:
+    """Resolve a relative `via` file-arg (the generator script) against the CHASSIS (the factory's
+    `codegen/` home), so a PRODUCT INSTANCE whose workdir (`root`) differs from its chassis still finds
+    the factory's generator while cwd stays the workdir (R1, ADR-015). Only a RELATIVE arg that names an
+    existing file under the chassis is rewritten (to its absolute path); interpreters/flags/inline code
+    (`python`, `-c`, `…`) are left verbatim. For the default product (chassis == root) this rewrites the
+    same file to an absolute path — functionally identical (the generate slot is build-time; argv never
+    enters the exit-code-based proof_sha). The substrate names no tech: `arg` is free DATA the plan chose."""
+    if os.path.isabs(arg):
+        return arg
+    cand = ctx.chassis / arg
+    return str(cand.resolve()) if cand.is_file() else arg
+
+
 def _generate(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     """The CREATIVE SLOT (C1, ADR-013) — the substrate ORCHESTRATES, it does NOT generate.
 
@@ -296,7 +310,7 @@ def _generate(ctx: RunContext, b: dict, subst: dict) -> list[str]:
         env["METAFACTORY_BRIEF"] = str(brief)
         msgs.append(f"brief {brief.relative_to(ctx.root)}")
 
-    via = [render_text(str(a), subst) for a in b["via"]]
+    via = [_resolve_via_against_chassis(render_text(str(a), subst), ctx) for a in b["via"]]
     try:
         rc = subprocess.run(via, cwd=ctx.root, env=env, capture_output=True, text=True).returncode
     except OSError as exc:

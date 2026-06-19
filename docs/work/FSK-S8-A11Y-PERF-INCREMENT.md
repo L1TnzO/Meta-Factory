@@ -1,8 +1,7 @@
-<!-- meta:doc sha=1c65a4bfb15a7ad754e997e5c2d13ea783db94bd updated=2026-06-19T13:58Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-19T13:34Z -->
+<!-- meta:doc sha=e251a2f463b2bf149c9cb878f2377c3fd5b9fac8 updated=2026-06-19T13:59Z -->
 # Incremento FSK-S8-A11Y-PERF — Full-Stack Kotlin · calidad de experiencia (a11y + perf) bajo gate (s8)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T13:34Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T13:59Z) (creado 2026-06-19T13:34Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

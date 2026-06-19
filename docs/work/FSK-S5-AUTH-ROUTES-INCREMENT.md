@@ -1,7 +1,7 @@
-<!-- meta:doc sha=934035d08a7851b0d3555b85372847bc2cb0514c updated=2026-06-19T02:43Z -->
+<!-- meta:doc sha=51b242b8252495c49aec3ef5490e225cd4962f18 updated=2026-06-19T02:45Z -->
 # Incremento FSK-S5-AUTH-ROUTES — Full-Stack Kotlin · auth no-salteable + topología de rutas (s5)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T02:30Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T02:45Z) (creado 2026-06-19T02:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

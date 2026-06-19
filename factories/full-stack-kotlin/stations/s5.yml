@@ -1,0 +1,28 @@
+id: s5
+name: 'auth no-salteable + topología de rutas: guard (DES-3) + AST de rutas vs contrato
+  (DES-2), estático sin levantar server'
+activation: always
+requires_prev: s4
+builds: []
+checks:
+- name: auth_reachability
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 tools/route_check.py auth openapi.yaml src/main/kotlin || exit 1; out=$(python3
+    tools/route_check.py auth openapi.yaml probe/routes/unguarded.kt 2>&1); echo "$out"
+    | grep -q UNGUARDED || { echo FSK_AUTH_DECORATIVE; exit 1; }; echo FSK_AUTH_OK
+- name: route_topology
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 tools/route_check.py topology openapi.yaml src/main/kotlin || exit 1;
+    out=$(python3 tools/route_check.py topology openapi.yaml probe/routes/phantom.kt
+    2>&1); echo "$out" | grep -q EXTRA || { echo FSK_TOPOLOGY_DECORATIVE; exit 1;
+    }; echo FSK_TOPOLOGY_OK

@@ -124,19 +124,19 @@ domain:
       proof: "s4 supply_chain_gate: el scanner cruza el SBOM vs advisories + escanea secretos → 0; una dep en rango vulnerable (postgresql<42.7.2/CVE-2024-1597) o un secreto (AKIA…) → rojo; el probe sucio embebido DEBE morder cada corrida (diente de dos lados, fail-closed)"
       status: built
     - id: rutas_protegidas
-      invariant: "ninguna ruta autenticada se alcanza sin pasar por el middleware/guard de auth (punto de control no-salteable, verificado por alcanzabilidad)"
+      invariant: "ninguna ruta protegida por el contrato se alcanza sin pasar por el guard de auth (punto de control no-salteable, verificado por alcanzabilidad estática sobre el árbol de rutas declarado)"
       primitive: DES-3
-      tech: "middleware de auth (Ktor) + guards de ruta; alcanzabilidad sobre el árbol de rutas declarado"
-      artifact: build/product/src/main/kotlin/auth/
-      proof: "s5: alcanzabilidad estática: toda ruta protegida pasa por el guard; rerutear una para saltearlo → rojo"
-      status: planned
+      tech: "guard de auth (auth/AuthGuard.kt) + registro de rutas (routes/RouteTable.kt: las escrituras dentro de authenticated{}); analizador estático determinista (tools/route_check.py modo auth, stdlib, sin levantar server) cruza las rutas Kotlin contra el contrato. Ktor server vivo = declared-deferred (s7/s9)"
+      artifact: build/product/src/main/kotlin/webapp/auth/AuthGuard.kt
+      proof: "s5 auth_reachability: route_check.py (auth) exige que toda op con `security` en el contrato esté dentro de authenticated{}; rerutear un POST fuera del guard → UNGUARDED (rojo); el probe sucio embebido DEBE morder cada corrida (fail-closed)"
+      status: built
     - id: topologia_rutas_verificable
-      invariant: "el mapa de rutas es chequeable estáticamente contra el contrato (sin levantar el server)"
+      invariant: "el mapa de rutas es chequeable estáticamente contra el contrato OpenAPI (sin levantar el server): una ruta sin contrato o un contrato sin ruta → rojo"
       primitive: DES-2
-      tech: "AST de rutas (Ktor) cruzado contra el contrato OpenAPI"
-      artifact: build/product/src/main/kotlin/routes/
-      proof: "s5: el AST de rutas matchea el contrato; una ruta sin contrato o un contrato sin ruta → rojo"
-      status: planned
+      tech: "analizador estático determinista (tools/route_check.py modo topology, stdlib) que extrae las rutas Kotlin por tokens y las cruza contra openapi.yaml (fuente única, DES-6)"
+      artifact: build/product/src/main/kotlin/webapp/routes/RouteTable.kt
+      proof: "s5 route_topology: route_check.py (topology) exige set(rutas) == set(contrato); una ruta sin contrato → EXTRA / un contrato sin ruta → MISSING (rojo); el probe sucio embebido DEBE morder cada corrida (fail-closed)"
+      status: built
     - id: logica_dominio_generada
       invariant: "la lógica de negocio se GENERA por un LLM vivo (claude -p, slot generate) y un contract test la EJERCITA; un stub no pasa (el anti-patrón de domain vacío de F1 bloquea); el artefacto se pinea (§7) y re-derive lo verifica sin LLM"
       primitive: DES-8
@@ -311,7 +311,38 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 tools/supply_chain_scan.py deps sbom.json || exit 1; python3 tools/supply_chain_scan.py secrets src/main/kotlin frontend/src || exit 1; dout=$(python3 tools/supply_chain_scan.py deps probe/security/vuln-sbom.json 2>&1); echo \"$dout\" | grep -q lodash || { echo FSK_SUPPLYCHAIN_DECORATIVE_DEPS; exit 1; }; sout=$(python3 tools/supply_chain_scan.py secrets probe/security 2>&1); echo \"$sout\" | grep -q aws-access-key || { echo FSK_SUPPLYCHAIN_DECORATIVE_SECRETS; exit 1; }; echo FSK_SUPPLYCHAIN_OK"]
-    # s5–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s5
+      name: "auth no-salteable + topología de rutas: guard (DES-3) + AST de rutas vs contrato (DES-2), estático sin levantar server"
+      activation: always
+      depends_on: [s4]
+      # DES-3/DES-2 — el producto gana DOS gates de rutas, ambos ESTÁTICOS (sin levantar HTTP) y DETERMINISTAS
+      # (I-3, sin LLM, sin red). El codegen (s0) emite el guard auth/AuthGuard.kt + el registro routes/
+      # RouteTable.kt (Kotlin REAL: las escrituras dentro de authenticated{} → guarded) + el analizador stdlib
+      # tools/route_check.py (parte de la mini-columna del PRODUCTO, s10) → builds: [] (la estación sólo PRUEBA).
+      # UN analizador general por DATA cubre DOS ejes: alcanzabilidad de auth (toda op con `security` en el
+      # contrato está dentro del guard) + topología (set de rutas == contrato). El contrato openapi.yaml es la
+      # FUENTE de "qué está protegido" (DES-6). Eje DISTINTO de s2/s3/s4 (calidad/frescura/seguridad-de-cadena):
+      # acá RUTAS. Diente NEGATIVO EMBEBIDO (no-decorativo, cada corrida): el MISMO analizador sobre fixtures
+      # sucios (probe/routes/phantom.kt con una ruta sin contrato; probe/routes/unguarded.kt con un POST fuera
+      # del guard, FUERA de src → no se shippean) DEBE morder — se exige el hallazgo por grep (EXTRA + UNGUARDED),
+      # fail-closed. Sustrato intacto: product_env corre DATA (ADR-012). Ktor server vivo + e2e = declared-deferred
+      # (s7 pirámide / s9 observabilidad), mismo shape que el feed-vivo diferido de s4.
+      proof_checks:
+        - { name: auth_reachability, cmd: "route_check.py (auth) exige que toda op con `security` en el contrato esté dentro de authenticated{}; un POST fuera del guard → UNGUARDED; sobre probe/routes/unguarded.kt DEBE morder (UNGUARDED) o decorativo→rojo", runs_in: product_env, toolchain: "route-analyzer", status: built }
+        - { name: route_topology, cmd: "route_check.py (topology) exige set(rutas Kotlin) == set(contrato openapi.yaml); ruta sin contrato → EXTRA / contrato sin ruta → MISSING; sobre probe/routes/phantom.kt DEBE morder (EXTRA) o decorativo→rojo", runs_in: product_env, toolchain: "route-analyzer", status: built }
+      builds: []
+      checks:
+        - name: auth_reachability
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/route_check.py auth openapi.yaml src/main/kotlin || exit 1; out=$(python3 tools/route_check.py auth openapi.yaml probe/routes/unguarded.kt 2>&1); echo \"$out\" | grep -q UNGUARDED || { echo FSK_AUTH_DECORATIVE; exit 1; }; echo FSK_AUTH_OK"]
+        - name: route_topology
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/route_check.py topology openapi.yaml src/main/kotlin || exit 1; out=$(python3 tools/route_check.py topology openapi.yaml probe/routes/phantom.kt 2>&1); echo \"$out\" | grep -q EXTRA || { echo FSK_TOPOLOGY_DECORATIVE; exit 1; }; echo FSK_TOPOLOGY_OK"]
+    # s6–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -428,7 +459,19 @@ requirements:
       satisfied_by: [s1]
       verified_by: [db_roundtrip_live]
       capability: datos_durables_vivos
-    # REQ-F-005..008 DIFERIDAS con s2–s10 (cada una se re-añade cuando su estación se construye). Texto
+    - id: REQ-F-005
+      statement: "ninguna ruta protegida por el contrato se alcanza sin el guard de auth (punto de control no-salteable, verificado por alcanzabilidad estática, DES-3)"
+      acceptance: "auth_reachability verde sobre las rutas autoradas; rerutear un POST fuera de authenticated{} → UNGUARDED (rojo); el probe sucio embebido DEBE morder cada corrida (UNGUARDED) o el gate es decorativo → rojo"
+      satisfied_by: [s5]
+      verified_by: [auth_reachability]
+      capability: rutas_protegidas
+    - id: REQ-F-006
+      statement: "el mapa de rutas es chequeable estáticamente contra el contrato OpenAPI: una ruta sin contrato o un contrato sin ruta → rojo (DES-2)"
+      acceptance: "route_topology verde (set de rutas == contrato); declarar una ruta sin contrato → EXTRA (rojo); el probe sucio embebido DEBE morder cada corrida (EXTRA) o el gate es decorativo → rojo"
+      satisfied_by: [s5]
+      verified_by: [route_topology]
+      capability: topologia_rutas_verificable
+    # REQ-F-007..008 DIFERIDAS con s6–s10 (cada una se re-añade cuando su estación se construye). Texto
     # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001

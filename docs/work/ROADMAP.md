@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6d47201e4948a88aee4190c698cdb8b8c4188bc7 updated=2026-06-19T15:58Z -->
+<!-- meta:doc sha=f95cef7557e9b5116a02b69b29531048c3505578 updated=2026-06-19T23:42Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,6 +430,28 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🔲 PLANEADO (eje nuevo, post A–H)
+> Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
+> sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
+> sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
+> dominios, cada uno pineado/regenerable. El mecanismo de generación YA es parametrizado por dominio
+> (`scaffold_product.py` lee `domain.product`); lo que falta es el **ciclo de vida**, no el generador.
+- **R1 · Lifecycle de instancia de producto (sustrato).** 🔲 El motor pasa de "fábrica : 1 producto pineado" a
+  "fábrica : N productos": cada producto = una entrada de dominio (`domain.product` / product-spec) con su
+  **propio** árbol de evidencia y su **propio** pin. A resolver EN el incremento: dónde viven las instancias
+  (p.ej. `factories/<f>/products/<p>/`), cómo se nombra/instancia (un verbo tipo `meta product new --factory <f>
+  <product-spec>`), cómo `ci --rederive` re-deriva TODAS sin que una abra la gate de otra. *Gate por bloqueo
+  (propuesto)*: UNA fábrica produce **≥2 productos distintos**, cada uno `ci --rederive == su pin`; borrar el
+  proof del producto A **NO** abre la gate de B; el sustrato no nombra fábrica ni tech (ADR-012); co-validado en
+  ≥2 dominios (ADR-014). Abrir: `meta increment open R1-PRODUCT-INSTANCE`. Depende: C4 (árbol de evidencia),
+  G1 (pin/baseline), H.
+- **R2 · Expresividad de `domain.product` (track paralelo, POR-fábrica).** 🔲 SEPARADO de R1: hoy el blueprint
+  es entidades+campos (**CRUD-deep**). Apps reales (workflows, RBAC, reglas de negocio) necesitan más
+  expresividad — vía gramática extendida **o** lógica generada por LLM bajo contract test (patrón s6/MAT-2). Es
+  contenido de fábrica (ADR-012), un incremento por fábrica (p.ej. `FSK-S11-DOMAIN-EXPRESSIVENESS`). NO bloquea
+  R1; un caso real (p.ej. replicar Snipe-IT) necesita **ambos**: R1 para coexistir con el demo, R2 para expresar
+  el comportamiento.
+
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 
 | Hueco (REGEN-AUDIT) | % hoy | Incremento |
@@ -441,6 +463,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
 | infra / MCP | infra ✅ E1 · MCP ✅ E2 | E1 ✅, E2 ✅ |
 | dominio-agnóstico (anti-G-2, generalidad real) | spec sí, motor no | A2, B1, F2, F3 |
 | loop de mejora / best product state | — | G1, G2 |
+| fábrica reutilizable (1:N productos) · expresividad de dominio | — | R1, R2 (ADR-015) |
 
 ## 6. Dependencias y paralelización
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=46b4d317c5d9cffd7e399272c5f4864768ff0fec updated=2026-06-19T16:00Z -->
+<!-- meta:doc sha=4908f11cf4897f4891553bd4e9d2011804dd3bf1 updated=2026-06-19T23:42Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -14,6 +14,12 @@
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
+- **Próximo eje (2026-06-19) — Reutilización: una fábrica → N productos (lifecycle 1:N, ADR-015)**: el roadmap
+  A–H (sustrato generativo) está COMPLETO y la línea **FSK s0..s10 cerrada**. El mecanismo de generación YA es
+  parametrizado por dominio (`scaffold_product.py` lee `domain.product`), pero el lifecycle es 1 fábrica : 1
+  producto pineado (1:1 **depth-first deliberado**, anti-fachada M8 — NO un límite). Lo que sigue, esperado de
+  TODA fábrica: instanciar N productos desde N dominios, cada uno pineado/regenerable. Plan + incrementos a abrir
+  (**R1** lifecycle sustrato · **R2** expresividad por-fábrica, con gate por bloqueo): `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

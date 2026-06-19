@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `134d030f4897` | 2026-06-18T01:06Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `46b4d317c5d9` | 2026-06-19T16:00Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `f61e4d431c74` | 2026-06-19T23:42Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `4908f11cf489` | 2026-06-19T23:42Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -22,6 +22,7 @@
 | `docs/decisions/012-primitivas-no-herramientas.md` | `6156e38ebfef` | 2026-06-15T03:45Z | ADR-012 — Primitivas de diseño, no herramientas: la tecnología se decide en el plan SDD |
 | `docs/decisions/013-generacion-como-slot-orquestado.md` | `2bfcf454a882` | 2026-06-15T17:52Z | ADR-013 — Generación como slot orquestado: el sustrato orquesta y verifica, no genera |
 | `docs/decisions/014-paridad-de-dos-dominios.md` | `0c5733ba01b7` | 2026-06-16T18:47Z | ADR-014 — Paridad de dos dominios: ningún mecanismo de sustrato promueve probado en uno solo |
+| `docs/decisions/015-reutilizacion-factory-n-productos.md` | `80014a4827a5` | 2026-06-19T23:41Z | ADR-015 — Reutilización: la fábrica es un destino reutilizable (lifecycle 1:N producto) |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -80,6 +81,6 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `6d47201e4948` | 2026-06-19T15:58Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `f95cef7557e9` | 2026-06-19T23:42Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

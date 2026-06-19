@@ -1,7 +1,24 @@
-<!-- meta:doc sha=134d030f4897caec1214271fcad88bff0b377dc2 updated=2026-06-18T01:06Z -->
+<!-- meta:doc sha=f61e4d431c74baf5b4d31d4febd8ef5f286a6442 updated=2026-06-19T23:42Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-19T23:40Z — Eje nuevo identificado: Reutilización (fábrica → N productos, lifecycle 1:N) — ADR-015 + Fase R
+- **gatillo**: sesión de orientación. Tras cerrar **FSK s0..s10**, el ingeniero preguntó cómo apuntar la fábrica
+  FSK a otra app (p.ej. clonar Snipe-IT) y cómo sería el flujo de trabajo por incrementos. Salió una distinción
+  no documentada: el **mecanismo** de generación YA es parametrizado por dominio (`scaffold_product.py` lee
+  `domain.product` → el demo "Project Tracker" nació así), pero el **lifecycle** es 1 fábrica : 1 producto
+  pineado — no hay instanciación de un 2º producto sin re-pin destructivo, ni catálogo.
+- **conclusión (endosada por el ingeniero)**: el 1:1 fue **depth-first deliberado** (anti-fachada M8: una fábrica
+  se prueba construyendo UN producto real; el pin único hace significativo `ci --rederive`), NO un límite. La
+  generalización esperada de TODA fábrica es 1:N — "la fábrica es el destino reutilizable". Es trabajo nuevo, no
+  un bug. Dos brechas distintas: **R1** lifecycle 1:N (sustrato) · **R2** expresividad de `domain.product`
+  (CRUD-deep→app-deep, por-fábrica).
+- **documentado (autocontenido, para retomar tras /clear)**: `decisions/015` (decisión + rationale + rechazados)
+  · `work/ROADMAP.md §Fase R` (R1 + R2 con gate por bloqueo y verbo a abrir `meta increment open
+  R1-PRODUCT-INSTANCE`) · STATE «Ahora» (próximo eje) · fila en §5 trazabilidad.
+- **además**: reseteado `.proof/active.json` de la raíz (stale en dummy/s04 → verde por `product-run --factory
+  dummy`, desbloquea `stop_proof`). Esta sesión es **SÓLO planificación/docs**: `git diff src/+seed/` = 0.
 
 ## 2026-06-18T01:05Z — MAT-6b: cerradas las 2 residuales de §12 (multi-topología + s5 grounding) — §12 8/8
 - **gatillo**: MAT-6 dejó 6/8 con 2 filas RESIDUAL honesto (multi-topología de breadth · s5 grounding). El

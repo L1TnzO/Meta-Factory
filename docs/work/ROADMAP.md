@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0216da13c21cc83cff6738755871367b4ed46d7f updated=2026-06-19T03:23Z -->
+<!-- meta:doc sha=fb043cd763c9f20f1da3980da27aa0b8183284a5 updated=2026-06-19T13:23Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -90,8 +90,17 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   RTM 11/11 · **`ci --rederive` 7/7 == pineado con `claude` SABOTEADO** (re-verifica el pin SIN LLM, §7) ·
 >   tooth vivo de dos lados (stub→`CONTRACT FAIL` rojo; regen→verde) · **`git diff src/+seed/` = 0** (el seam
 >   `generate`/C1 + `product_env`/C3 ya existían; composición, MAT-2). Evidencia: `work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md`.
-> - **s7–s10 pendientes** (pirámide de tests · a11y/perf · observabilidad · build hermético). La
->   línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
+> - **s7 (`FSK-S7-TEST-PYRAMID`) ✅** — pirámide de tests GRADUADA bajo gate (DES-8): tier **unit** (Kotest,
+>   `src/test`, sin infra: AuthGuard/RouteTable/Store — comportamiento que s5 estático no da) + tier
+>   **integración** (Kotest, Repository vs **PostgreSQL viva** por `infra_up`, la capa Testcontainers; DB
+>   caída→rojo) + tier **unit TS** (`node:test`, dual-lenguaje). Diente negativo EMBEBIDO de dos lados: un
+>   `testProbe` (Kotlin) + un probe node (TS) que DEBEN fallar (corren SIEMPRE, fail-closed) — mata la fachada
+>   "0 tests → verde". M0–M8 verde · RTM 12/12 · `ci --rederive` 8/8 == pineado (Kotest cacheado, sin red) ·
+>   5 dientes vivos · **`git diff src/+seed/` = 0** (suites + build de test + probes + SBOM = DATA, compuso
+>   sobre `product_env`/`infra_up`). e2e **Playwright** = `declared-deferred` (red + server vivo, ADR-012, shape
+>   de Ktor→estático s5; su incremento con el server de s9). Evidencia: `work/FSK-S7-TEST-PYRAMID-INCREMENT.md`.
+> - **s8–s10 pendientes** (a11y/perf · observabilidad · build hermético). La línea COMPLETA con su DAG:
+>   `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

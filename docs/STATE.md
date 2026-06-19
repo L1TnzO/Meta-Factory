@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fd1d227ef95cb0160fa7a675e0675b1f96f184c4 updated=2026-06-19T13:00Z -->
+<!-- meta:doc sha=0b8764ed15a0851d76dcd4241765552ef8547772 updated=2026-06-19T13:23Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S7-TEST-PYRAMID-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (11/11) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (12/12) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -320,7 +320,7 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s5 BUILT ✅ (2026-06-19)**: nueva fábrica de grado-producción
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s7 BUILT ✅ (2026-06-19)**: nueva fábrica de grado-producción
   para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
   TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
   `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
@@ -446,9 +446,29 @@
     el anti-patrón de domain vacío de F1) → `CONTRACT FAIL` → exit 1 (BLOQUEA); regen (LLM) → exit 0.
     **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (`gen_llm.py` + `domain_gen/` = DATA; el seam
     `generate`/C1 + `product_env`/C3 YA existían — s6 los EJERCIÓ; composición §6). dummy/full-stack/iot/ASF
-    intactas. Autoridad: `work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md`. Sigue s7 (pirámide de tests Kotest+
-    Testcontainers+Playwright, **`declared-deferred`** desde s6: el contract gate de s6 es un `main()`, no la
-    pirámide — divergencia de tech registrada, ADR-012, mismo shape que Ktor→estático de s5).
+    intactas. Autoridad: `work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md`.
+  - **s7 (`FSK-S7-TEST-PYRAMID`) ✅ — PIRÁMIDE DE TESTS GRADUADA BAJO GATE, probada por bloqueo (2026-06-19)**:
+    el producto gana una **pirámide de tests GRADUADA** que corre en SU toolchain (DES-8) y **BLOQUEA por
+    nivel** — **tier UNIT** (Kotest sobre JUnit Platform, `src/test`, **sin infra**): comportamiento de la
+    lógica autorada (`AuthGuard.authorize` Bearer · `RouteTable.dispatch` guarded/público/inexistente · `Store`
+    tipado) — cobertura que s5 (estático) no da · **tier INTEGRACIÓN** (Kotest, `src/integrationTest`): los
+    queries jOOQ de `Repository` vs una **PostgreSQL VIVA** por `infra_up` (la capa Testcontainers; test de
+    framework con aserciones, distinto del `main()` round-trip de s1; DB caída → rojo) · **tier UNIT TS**
+    (`node:test`, stdlib, **dual-lenguaje** como s2–s4): el client (`summarize`). Cada check lleva un **diente
+    negativo EMBEBIDO** que mata la fachada "0 tests → BUILD SUCCESSFUL": un `testProbe` (Kotlin) + un probe
+    node (TS) que **DEBEN fallar** — corren SIEMPRE (`outputs.upToDateWhen{false}`, idiom roundtrip) y el check
+    exige el FAILED o decorativo→rojo (fail-closed). El producto **SHIPPEA** su pirámide (mini-columna, s10).
+    **M0–M8 verde · product-run PASS · RTM COMPLETE 12/12** (REQ-F-008 ← `src/test/`✓) **· pin 8/8 · `ci
+    --rederive` 8/8 == pineado** (re-corre Kotest + node:test + el contenedor PG + los linters s2–s5 en clon
+    limpio, **sin red** — Kotest cacheado en `~/.gradle`). **5 dientes vivos de dos lados (exit reales)**:
+    `AuthGuard`→true → `pyramid_unit` rojo · `summarize` roto → `pyramid_unit_ts` rojo · PG caída →
+    `pyramid_integration` rojo · ambos probes neutralizados → `DECORATIVE`; regen→verde. **Anti-overfit: `git
+    diff src/metafactory/ + seed/` = 0** (suites + build de test Kotest 5.9.1/node:test + probes + SBOM = DATA;
+    compuso sobre `product_env`/`infra_up` ya `general`). dummy/full-stack/iot/ASF intactas. Autoridad:
+    `work/FSK-S7-TEST-PYRAMID-INCREMENT.md`. **Diferido honesto (ADR-012)**: el **e2e (Playwright)** —
+    browser-driven, full-stack vivo — queda `declared-deferred` (necesita red para el binario de browser + un
+    server HTTP vivo, diferido desde s5); su propio incremento, con el server vivo de s9. Mismo shape que
+    Ktor→estático de s5 y Kotest→`main()` de s6. Sigue s8 (a11y/perf, DES-7).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

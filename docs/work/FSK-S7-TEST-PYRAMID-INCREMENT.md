@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1d9666d59d61c4dab68318d3767d5e188340d120 updated=2026-06-19T13:02Z -->
+<!-- meta:doc sha=bda6ab6f67486773feb4ff8400f278f9ca204b27 updated=2026-06-19T13:22Z -->
 # Incremento FSK-S7-TEST-PYRAMID — Full-Stack Kotlin · pirámide de tests graduada bajo gate (s7)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T13:00Z). Cerralo con `meta increment close`
@@ -90,9 +90,9 @@ es decorativo (mata la fachada clásica "0 tests → BUILD SUCCESSFUL"). El **e2
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` suma: deps Kotest + tasks `test`/`integrationTest`/`testProbe` + source sets al `build.gradle.kts`; suites `src/test/kotlin/webapp/*Test.kt` (unit) + `src/integrationTest/kotlin/webapp/RepositoryIT.kt` + `probe/testkit/kotlin/ProbeShouldFailTest.kt`; suite TS `frontend/test/client.test.ts` + probe `frontend/probe-test/fail.test.ts`; entradas Kotest en `sbom.json`. idempotente (selftest + check-idempotent); s0–s6 verdes con los nuevos archivos (compone, suites fuera de los scopes de s2/s3/s4/s5). | ⏳ |
-| 2 | **s7 materializada + verde e2e** — s7 en `station_sequence` (`depends_on: [s6]`) con `pyramid_unit` + `pyramid_integration` (infra_up) + `pyramid_unit_ts`, dientes embebidos; cap `pruebas_piramidales`→built + REQ-F-008; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 12/12**; pin 8/8. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **8/8 == pineado**; **dientes VIVOS de dos lados** (romper un test unit → `pyramid_unit` rojo; PG caída → `pyramid_integration` rojo; romper la suite TS → `pyramid_unit_ts` rojo; regen→verde) + probe neutralizado → `DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ⏳ |
+| 1 | **Codegen** ✅ — `scaffold_product.py` suma: deps Kotest + tasks `test`/`integrationTest`/`testProbe` (+`outputs.upToDateWhen{false}`) + source sets al `build.gradle.kts`; suites `src/test/kotlin/webapp/*Test.kt` (unit) + `src/integrationTest/kotlin/webapp/RepositoryIT.kt` + `src/testProbe/kotlin/webapp/ProbeShouldFailTest.kt`; suite TS `frontend/test/client.test.ts` + probe `frontend/probe-test/fail.test.ts`; entradas Kotest en `sbom.json`. idempotente 42/42; s0–s6 verdes (suites fuera de los scopes de s2/s3/s4/s5). | ✅ |
+| 2 | **s7 materializada + verde e2e** ✅ — s7 en `station_sequence` (`depends_on: [s6]`) con `pyramid_unit` + `pyramid_integration` (infra_up) + `pyramid_unit_ts`, dientes embebidos; cap `pruebas_piramidales`→built (e2e declared-deferred) + REQ-F-008; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 12/12**; pin 8/8. | ✅ |
+| 3 | **Pin + dientes + cierre** ✅ — `ci --rederive` **8/8 == pineado** (Kotest cacheado, sin red); **dientes VIVOS de dos lados** (AuthGuard→true→`pyramid_unit` rojo; PG caída→`pyramid_integration` rojo; `summarize` roto→`pyramid_unit_ts` rojo; regen→verde) + ambos probes neutralizados → `DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s7 y queda **PASS**; pin escrito (8/8).
@@ -121,4 +121,44 @@ es decorativo (mata la fachada clásica "0 tests → BUILD SUCCESSFUL"). El **e2
   Eje genuinamente nuevo: una suite GRADUADA que bloquea por nivel, no un script.
 
 ## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
-<se completa al cerrar, con exit codes reales — no narrar antes de tiempo>
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s7.yml` (pyramid_unit + pyramid_integration + pyramid_unit_ts) · m05 RTM · **m06 `clean_runner` ==
+  pineado** (re-deriva la línea s0..s7 + las suites Kotest/node:test + el contenedor PG en clon limpio, **con
+  Kotest cacheado en `~/.gradle`, sin red**) · m07 harness · m08 product_e2e.
+- **product-run PASS** — s7: `pyramid_unit` → `FSK_PYRAMID_UNIT_OK` (7 tests unit Kotest + testProbe FAILED) ·
+  `pyramid_integration` → Repository vs PG viva (1 test) · `pyramid_unit_ts` → `FSK_PYRAMID_UNIT_TS_OK` (gate s7 OPEN).
+- **RTM COMPLETE 12/12**: REQ-F-001..008 + REQ-NF-001..004 — **REQ-F-008** ← `pruebas_piramidales` [s7,
+  `build/product/src/test/`✓].
+- **`ci --rederive` full-stack-kotlin 8/8 == pineado** (re-corre las suites Kotest + node:test + detekt/ESLint
+  + el scanner de s4 + el analizador de rutas de s5 + el contract de s6 + el contenedor PG en clon limpio, **sin
+  red** — Kotest cacheado).
+- **dientes VIVOS de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría y borraría la corrupción; igual que s1–s6):
+  - clean: `pyramid_unit`→`FSK_PYRAMID_UNIT_OK` exit 0 · `pyramid_unit_ts`→`FSK_PYRAMID_UNIT_TS_OK` exit 0.
+  - **unit Kotlin (subject)** — `AuthGuard.authorize` → `return true` → `AuthGuardTest`/`RouteTableTest`
+    rompen (`7 tests completed, 3 failed`) → `gradle test` BUILD FAILED → exit 1; regen → exit 0.
+  - **unit TS (subject)** — romper `summarize` (prefijo `BROKEN`) → `not ok 1` (`ERR_ASSERTION`) → exit 1; regen → exit 0.
+  - **integración (DB caída)** — `gradle integrationTest` con PG abajo → `RepositoryIT` FAILED
+    (`ConnectException`) → exit 1. La `infra_up` re-corre el proof con la DB caída y EXIGE el fallo (two-sided
+    embebido, doctrina E1/MAT-3, como s1); regen+PG → exit 0.
+  - **fail-closed (probe Kotlin embebido)** — neutralizar `ProbeShouldFailTest` (`1 shouldBe 1`) → el probe ya
+    no se reporta FAILED → `FSK_PYRAMID_DECORATIVE` → exit 1 (el `testProbe` corre SIEMPRE via
+    `outputs.upToDateWhen { false }`, idiom roundtrip); regen → exit 0.
+  - **fail-closed (probe TS embebido)** — neutralizar `probe-test/fail.test.ts` (`assert.equal(1,1)`) →
+    `node --test` sale 0 → `FSK_PYRAMID_TS_DECORATIVE` → exit 1; regen → exit 0.
+- **El gate cubre lo que ningún gate previo verifica**: una suite de tests GRADUADA (unit Kotest sin infra +
+  integración Kotest vs PG viva + unit TS node:test) con un framework que BLOQUEA por nivel, y un probe que
+  prueba que el runner no es decorativo (mata la fachada "0 tests → BUILD SUCCESSFUL") — ortogonal a calidad
+  (s2), frescura (s3), seguridad-de-cadena (s4), rutas-estático (s5) y lógica-LLM (s6). s1 prueba un round-trip
+  vivo ÚNICO; s7 suma comportamiento UNIT (cobertura nueva) + tests de FRAMEWORK con aserciones.
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0** (todo el incremento). Las suites + el build de
+  test (Kotest 5.9.1 / JUnit Platform / node:test) + el probe + las entradas Kotest del SBOM viven 100% en la
+  fábrica (DATA, ADR-012); compuso sobre `product_env` (C3) + `infra_up` (E1, ya `general`) sin tocar el
+  sustrato — la composición §6 del ROADMAP, como s0–s6.
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci --rederive` 5/5 == pineado
+  (spot-check); full-stack/iot/ASF inalteradas por construcción (diff de sustrato = 0). `meta check` 6/6.
+- **Diferido honesto (divergencia ADR-012 registrada)**: el **e2e (Playwright)** — el ápice browser-driven
+  full-stack — queda `declared-deferred`: necesita (a) descargar binarios de browser por **red** (rompería
+  `ci --rederive` hermético) y (b) un **server HTTP vivo** (Ktor, diferido desde s5). Es su propio incremento
+  (con el server vivo de s9). Mismo shape que Ktor→estático de s5 y Kotest→`main()` de s6. La pirámide entregada
+  (unit + integración + el contrato cubierto por s0-compile/s6) es un multi-tier GENUINO que bloquea por nivel.

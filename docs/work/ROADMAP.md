@@ -1,4 +1,4 @@
-<!-- meta:doc sha=034506d1c55a5dc750152b2ef8d7e90aed7a3432 updated=2026-06-19T14:51Z -->
+<!-- meta:doc sha=6d47201e4948a88aee4190c698cdb8b8c4188bc7 updated=2026-06-19T15:58Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -120,8 +120,21 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   src/+seed/` = 0** (OTel+server+proof = DATA, compuso sobre `infra_up`). Ktor completo + e2e Playwright (s7) +
 >   Lighthouse (s8) = declared-deferred (su propio incremento sobre este server vivo). Evidencia:
 >   `work/FSK-S9-OBSERVABILITY-INCREMENT.md`.
-> - **s10 pendiente** (build hermético reproducible + mini-columna del producto, fan-in DAG: depende de
->   s2,s3,s4,s7,s8,s9). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
+> - **s10 (`FSK-S10-HERMETIC-BUILD`) ✅** — build hermético reproducible + mini-columna del producto (DES-1),
+>   la ÚLTIMA estación; **PRIMER fan-in DAG de la línea FSK** (`depends_on: [s2,s3,s4,s7,s8,s9]`). Prueba que el
+>   ARTEFACTO COMPILADO (`webapp.jar`) sale **byte-idéntico** entre dos builds limpios OFFLINE — la propiedad
+>   que s0 NO da (s0 sólo prueba el árbol FUENTE) — y que el producto **shippea su propia mini-columna** (`ci.sh`
+>   re-corre sus gates estáticos offline, "hereda probar por bloqueo", SAFE-3). NO-circular: el eje es la repro
+>   del jar + la mini-columna del PRODUCTO, no el `ci --rederive` del sustrato. Tech (PLAN): reproducibilidad
+>   DECLARADa del build Gradle (`AbstractArchiveTask` preserveFileTimestamps=false/reproducibleFileOrder=true) +
+>   `tools/hermetic_check.py` (stdlib, sin red: jar ×2 byte-idéntico + ci.sh --check/--probe + pin Dockerfile/
+>   wrapper). Compone `product_env` (general) + el fan-in del engine (P2/H2). M0–M8 verde · RTM 15/15 · `ci
+>   --rederive` 11/11 == pineado (re-buildea el jar ×2 offline en clon limpio) · **3 dientes vivos** (A:
+>   preserveFileTimestamps=true→jars difieren→rojo · B: ci.sh decorativa→probe no muerde→rojo · C: quitar SÓLO
+>   el proof de s4→s10 SHUT por fan-in [un gate lineal lo ignoraría]; regen→verde) · **`git diff src/+seed` = 0**
+>   (config repro + ci.sh + hermetic_check + Dockerfile = DATA, compuso sin tocar el sustrato). Build+push de la
+>   imagen Docker reproducible = declared-deferred (red+daemon, shape de Ktor→estático s5/Lighthouse s8). Evidencia:
+>   `work/FSK-S10-HERMETIC-BUILD-INCREMENT.md`. **CIERRA la línea FSK s0..s10.**
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

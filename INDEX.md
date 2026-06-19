@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `134d030f4897` | 2026-06-18T01:06Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `400e03a11bca` | 2026-06-19T15:36Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `af7b1835ae54` | 2026-06-19T15:59Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -53,7 +53,7 @@
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
 | `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `a3e3aacbb08e` | 2026-06-18T20:29Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
 | `docs/work/FSK-S1-SCHEMA-PG-INCREMENT.md` | `1add96f125cd` | 2026-06-18T22:13Z | Incremento FSK-S1-SCHEMA-PG — Full-Stack Kotlin · datos (s1) |
-| `docs/work/FSK-S10-HERMETIC-BUILD-INCREMENT.md` | `9e72ebb31dfa` | 2026-06-19T15:37Z | Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10) |
+| `docs/work/FSK-S10-HERMETIC-BUILD-INCREMENT.md` | `6d5ed1a42de6` | 2026-06-19T15:58Z | Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10) |
 | `docs/work/FSK-S2-HARDNESS-INCREMENT.md` | `def0ce23ec1a` | 2026-06-18T22:48Z | Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2) |
 | `docs/work/FSK-S3-CURRENCY-INCREMENT.md` | `aac1d98e1400` | 2026-06-19T01:46Z | Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3) |
 | `docs/work/FSK-S4-SUPPLYCHAIN-INCREMENT.md` | `be81b89bb8ff` | 2026-06-19T02:16Z | Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4) |
@@ -80,6 +80,6 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/ROADMAP.md` | `034506d1c55a` | 2026-06-19T14:51Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `6d47201e4948` | 2026-06-19T15:58Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

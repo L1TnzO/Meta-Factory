@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9e72ebb31dfa72b6583cd3d716ccaf26561fd954 updated=2026-06-19T15:37Z -->
+<!-- meta:doc sha=6d5ed1a42de6628a59dc5ea817fb7c3435020892 updated=2026-06-19T15:58Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-19T15:36Z -->
 # Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10)
 
@@ -99,9 +99,9 @@ digest, propiedad hermética verificada por grep determinista), no se construye 
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` suma a `build_files`: la config de reproducibilidad en `build.gradle.kts` (`AbstractArchiveTask` { preserveFileTimestamps=false; reproducibleFileOrder=true }) + `ci.sh` (mini-columna: `--check` corre los gates offline baratos; `--probe` re-corre un gate sobre un probe sucio y exige mordida) + `tools/hermetic_check.py` (proof: jar ×2 byte-idéntico + ci.sh --check + ci.sh --probe + grep de pin del Dockerfile/wrapper) + `Dockerfile` (base pineada por digest). Idempotente; s0–s9 verdes con los archivos nuevos. | ⏳ |
-| 2 | **s10 materializada + verde e2e** — s10 en `station_sequence` (`depends_on: [s2,s3,s4,s7,s8,s9]`) con `hermetic_build` (`kind: product_env`); cap `build_hermetico_reproducible`→built + REQ-NF-007; `validate`+`design-review` 0; M0–M8 verde (incl. el fan-in del engine); `product-run` PASS; **RTM COMPLETE 15/15**; pin 11/11. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **11/11 == pineado** (re-deriva la línea s0..s10 en clon limpio, **sin red**); **dientes VIVOS** (A: `isPreserveFileTimestamps=true`→jars difieren→rojo; B: `ci.sh` vaciado→probe no muerde→rojo; C: romper s4→`s10` SHUT por fan-in; regen→verde); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP/spec; `meta increment close`. | ⏳ |
+| 1 | **Codegen** — `scaffold_product.py` suma a `build_files`: la config de reproducibilidad en `build.gradle.kts` (`AbstractArchiveTask` { preserveFileTimestamps=false; reproducibleFileOrder=true }) + `ci.sh` (mini-columna: `--check` corre los gates offline baratos; `--probe` re-corre un gate sobre un probe sucio y exige mordida) + `tools/hermetic_check.py` (proof: jar ×2 byte-idéntico + ci.sh --check + ci.sh --probe + grep de pin del Dockerfile/wrapper) + `Dockerfile` (base pineada por digest). Idempotente; s0–s9 verdes con los archivos nuevos. | ✅ |
+| 2 | **s10 materializada + verde e2e** — s10 en `station_sequence` (`depends_on: [s2,s3,s4,s7,s8,s9]`) con `hermetic_build` (`kind: product_env`); cap `build_hermetico_reproducible`→built + REQ-NF-007; `validate`+`design-review` 0; M0–M8 verde (incl. el fan-in del engine); `product-run` PASS; **RTM COMPLETE 15/15**; pin 11/11. | ✅ |
+| 3 | **Pin + dientes + cierre** — `ci --rederive` **11/11 == pineado** (re-deriva la línea s0..s10 en clon limpio, **sin red**); **dientes VIVOS** (A: `isPreserveFileTimestamps=true`→jars difieren→rojo; B: `ci.sh` vaciado→probe no muerde→rojo; C: romper s4→`s10` SHUT por fan-in; regen→verde); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP/spec; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s10 y queda **PASS**; pin escrito (11/11).
@@ -130,7 +130,43 @@ digest, propiedad hermética verificada por grep determinista), no se construye 
   genuinamente nuevo: build hermético+reproducible (DES-1), ortogonal a contrato (s0), datos (s1), calidad (s2),
   frescura (s3), seguridad (s4), rutas (s5), lógica (s6), pirámide (s7), a11y/perf (s8) y observabilidad (s9).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada) — SE LLENA AL CERRAR
-- (pendiente: M0–M8 · product-run PASS · RTM 15/15 · ci --rederive 11/11 == pineado · dientes A/B/C · git diff=0)
+## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s10.yml` (`hermetic_build`, `depends_on: [s2,s3,s4,s7,s8,s9]`) · m05 RTM · **m06 `clean_runner`
+  == pineado** (re-deriva la línea s0..s10 en clon limpio + **re-buildea el jar ×2 offline** para s10, **sin
+  red**) · m07 harness · m08 `product_e2e` (corre la línea hasta s10: OPEN).
+- **product-run PASS** — s10: `hermetic_build` (product_env): el jar sale byte-idéntico en dos builds limpios
+  offline + la mini-columna `ci.sh --check` re-corre sus gates offline + `ci.sh --probe` hace morder al probe
+  sucio + Dockerfile/wrapper pineados. gate s10 OPEN. (full line s0..s10 verde, 60s.)
+- **RTM COMPLETE 15/15**: REQ-F-001..010 + REQ-NF-001..004 + **REQ-NF-007** ← `build_hermetico_reproducible`
+  [s10, `build/product/ci.sh`✓].
+- **`ci --rederive` full-stack-kotlin 11/11 == pineado** (re-deriva en clon limpio: re-buildea el jar ×2
+  offline para s10 + re-corre la mini-columna + re-corre el toolchain s0–s9 — Kotest/node:test + detekt/ESLint
+  + scanner s4 + analizador s5 + contract s6 + a11y/perf s8 + server obs s9 + contenedor PG, **sin red**). 68s.
+- **dientes VIVOS (exit codes reales)** — el árbol generado se corrompe directo (no via `product-run`, que
+  regeneraría; igual que s1–s9) y se re-corre el gate:
+  - clean: `hermetic-check OK: jar reproducible offline + mini-columna ci.sh verde (--check) + probe muerde
+    (--probe) + toolchain pineado` → exit 0.
+  - **TOOTH A (reproducibilidad)** — `isPreserveFileTimestamps = true` en `build.gradle.kts` → los dos jars
+    limpios difieren (`build NO reproducible: el jar difiere…`) → exit 1; regen → exit 0.
+  - **TOOTH B (mini-columna no-decorativa)** — `ci.sh` vaciado a `echo OK` → `--probe` no hace morder al probe
+    sucio shippeado (`DECORATIVA — falta 'aws-access-key'`) → exit 1; regen → exit 0.
+  - **TOOTH C (fan-in DAG)** — el predecesor LINEAL de s10 es s9, pero `depends_on` incluye s4; quitar SÓLO el
+    proof de s4 (s5..s9 verdes) → `open_gate(s10)` = **SHUT — predecessor s4 gate shut** (un gate lineal habría
+    IGNORADO s4). Co-valida el gating multi-predecesor (P2/H2) en una línea REAL. Restaurado → OPEN.
+- **El gate cubre lo que ningún gate previo verifica**: reproducibilidad del ARTEFACTO COMPILADO (jar
+  byte-idéntico offline — s0 sólo prueba el árbol FUENTE) + el producto SHIPPEA su mini-columna (`ci.sh`). Es
+  la PRIMERA estación de la línea FSK con fan-in DAG (s0–s9 eran cadena lineal).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0** (todo el incremento). La config de repro de
+  Gradle + `ci.sh` + `hermetic_check.py` + el `Dockerfile` viven 100% en la fábrica (DATA, ADR-012); compuso
+  sobre `product_env` (ya `general`) y sobre el fan-in del engine (P2/H2, ya en el sustrato) sin tocar el
+  sustrato (composición §6, como s0–s9). `meta check` 6/6 · dummy `ci --rederive` 5/5 == pineado · full-stack/
+  iot/ASF RTM COMPLETE (intactas).
+- **Diferido honesto (divergencia ADR-012 registrada)**: el **build+push de la imagen Docker reproducible**
+  (red + daemon) queda `declared-deferred` — se SHIPPEA el `Dockerfile` (base pineada por `@sha256:`, hermeticidad
+  verificada por grep) y el gate NO construye la imagen. Mismo shape EXACTO que Ktor→estático (s5), Playwright
+  (s7), Lighthouse (s8) y Ktor-completo (s9). Lo entregado (build offline byte-reproducible + mini-columna que
+  gatea + toolchain pineado) es un gate DES-1 GENUINO que bloquea ante la no-reproducibilidad o una mini-columna
+  decorativa. **s10 CIERRA la línea FSK s0..s10.**
 </content>
 </invoke>

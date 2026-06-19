@@ -1,4 +1,4 @@
-<!-- meta:doc sha=400e03a11bca246e8734ed8c0a446014bdf15548 updated=2026-06-19T15:36Z -->
+<!-- meta:doc sha=af7b1835ae54345b9e23116e1c96691beeddeb95 updated=2026-06-19T15:59Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S10-HERMETIC-BUILD-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (14/14) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (15/15) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -515,7 +515,31 @@
     iot/ASF intactas. Autoridad: `work/FSK-S9-OBSERVABILITY-INCREMENT.md`. **Diferido honesto (divergencia
     ADR-012)**: el **server Ktor COMPLETO + e2e (Playwright, s7) + Lighthouse (s8)** quedan `declared-deferred`,
     su propio incremento que extiende ESTE primer server vivo a servir la UI/API completa (mismo shape que
-    Ktor→estático de s5 y Lighthouse→esbuild de s8). **Sigue s10** (build hermético + mini-columna, fan-in DAG).
+    Ktor→estático de s5 y Lighthouse→esbuild de s8).
+  - **s10 (`FSK-S10-HERMETIC-BUILD`) ✅ — BUILD HERMÉTICO REPRODUCIBLE + MINI-COLUMNA DEL PRODUCTO, probada por
+    bloqueo (2026-06-19) — la ÚLTIMA estación; CIERRA la línea FSK s0..s10**: el producto gana un gate DES-1 donde
+    el **artefacto COMPILADO** (`webapp.jar`) sale **byte-idéntico** entre dos builds limpios **OFFLINE** (la
+    propiedad que s0 NO da — s0 sólo prueba que el ÁRBOL FUENTE regenera idéntico, no el OUTPUT) y donde el
+    producto **SHIPPEA su propia mini-columna** (`ci.sh`: re-corre sus gates estáticos offline — "hereda probar
+    por bloqueo", SAFE-3). **NO-circular** (el riesgo central): el eje NO es `ci --rederive` (mecanismo del
+    sustrato, ya verde desde s0) sino la **reproducibilidad del jar** + la **mini-columna del PRODUCTO**.
+    **PRIMER fan-in DAG de la línea FSK** (`depends_on: [s2,s3,s4,s7,s8,s9]`; s0–s9 eran cadena lineal) —
+    co-valida el gating multi-predecesor (P2/H2) en una línea REAL. Tech (PLAN, ADR-012): reproducibilidad
+    DECLARADa del build Gradle (`AbstractArchiveTask` preserveFileTimestamps=false/reproducibleFileOrder=true) +
+    `tools/hermetic_check.py` (stdlib, determinista, **sin red**: jar ×2 byte-idéntico + `ci.sh --check`/`--probe`
+    + pin del Dockerfile/wrapper) + `Dockerfile` (base pineada por `@sha256:`). **M0–M8 verde · product-run PASS ·
+    RTM COMPLETE 15/15** (REQ-NF-007 ← `build/product/ci.sh`✓) **· pin 11/11 · `ci --rederive` 11/11 == pineado**
+    (re-buildea el jar ×2 offline para s10 + re-corre todo s0–s9 en clon limpio, **sin red**). **3 dientes vivos
+    (exit reales)**: **A** `isPreserveFileTimestamps=true` → los jars difieren → `hermetic_build` rojo · **B**
+    `ci.sh` vaciado → `--probe` no hace morder al probe sucio → `DECORATIVA` rojo · **C** (fan-in) quitar SÓLO el
+    proof de s4 (s5..s9 verdes) → `open_gate(s10)` SHUT "predecessor s4 gate shut" — un gate lineal lo IGNORARÍA;
+    regen→verde. **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (config repro + `ci.sh` + `hermetic_
+    check.py` + `Dockerfile` = DATA; compuso sobre `product_env` [ya `general`] + el fan-in del engine [P2/H2, ya
+    en el sustrato] — composición §6, como s0–s9). dummy/full-stack/iot/ASF intactas. Autoridad:
+    `work/FSK-S10-HERMETIC-BUILD-INCREMENT.md`. **Diferido honesto (divergencia ADR-012)**: el **build+push de la
+    imagen Docker reproducible** (red + daemon) queda `declared-deferred` — se SHIPPEA el `Dockerfile` (base
+    pineada por digest, hermeticidad verificada por grep) y el gate NO construye la imagen (mismo shape que
+    Ktor→estático de s5 y Lighthouse→esbuild de s8). **La fábrica Full-Stack Kotlin va de s0..s10 — línea COMPLETA.**
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

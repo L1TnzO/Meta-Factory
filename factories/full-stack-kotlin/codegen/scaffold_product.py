@@ -105,6 +105,11 @@ def _openapi_yaml(bp: dict) -> str:
             f"              schema: {{ type: array, items: {{ $ref: {_yaml_str(ref)} }} }}",
             "    post:",
             f"      operationId: create{e['name']}",
+            # DES-3: la ESCRITURA exige auth. El contrato es la FUENTE de "qué está protegido" (DES-6): el
+            # registro de rutas (RouteTable.kt) debe registrar TODA op con `security` dentro del guard, y
+            # route_check.py (modo auth) lo cruza contra ESTA decisión — no contra una lista hardcodeada.
+            "      security:",
+            "        - bearerAuth: []",
             "      requestBody:",
             "        required: true",
             "        content:",
@@ -112,7 +117,13 @@ def _openapi_yaml(bp: dict) -> str:
             "      responses:",
             f"        '201': {{ description: created, content: {{ application/json: {{ schema: {{ $ref: {_yaml_str(ref)} }} }} }} }}",
         ]
-    lines += ["components:", "  schemas:"]
+    # securitySchemes: el esquema bearer que las ops de escritura referencian (DES-3). Los `get` quedan públicos.
+    lines += [
+        "components:",
+        "  securitySchemes:",
+        "    bearerAuth: { type: http, scheme: bearer }",
+        "  schemas:",
+    ]
     for e in bp["entities"]:
         names = ["id"] + [f["name"] for f in e["fields"]]
         lines += [
@@ -960,6 +971,249 @@ def _probe_leak_secret() -> str:
             "aws_access_key_id = AKIAIOSFODNN7EXAMPLE\n")
 
 
+# ── auth + topología de rutas (s5, DES-3/DES-2): guard + registro de rutas Kotlin + analizador estático ──
+def _auth_guard_kt(pkg: str) -> str:
+    """auth/AuthGuard.kt — el punto de control de auth (DES-3). Kotlin REAL y tipado: una ruta protegida sin
+    un token autorizado se rechaza → checkpoint NO-salteable. El registro de rutas (RouteTable) lo invoca en
+    `dispatch`. La verificación de s5 es ESTÁTICA (route_check.py); este guard es el comportamiento real que
+    esa topología garantiza alcanzable. Sin dependencia de server (Ktor real = declared-deferred, s7/s9)."""
+    return (f"package {pkg}.auth\n\n"
+            "/**\n"
+            " * Punto de control de auth (DES-3). El guard decide si una request a una ruta protegida procede:\n"
+            " * sin un token autorizado, se rechaza -> checkpoint NO-salteable. La alcanzabilidad estatica\n"
+            " * (tools/route_check.py) prueba que TODA ruta protegida pase por aca.\n"
+            " */\n"
+            "object AuthGuard {\n"
+            '    private const val SCHEME = "Bearer "\n\n'
+            "    fun authorize(token: String?): Boolean = token != null && token.startsWith(SCHEME)\n"
+            "}\n")
+
+
+def _routes_kt(pkg: str, entities: list[dict]) -> str:
+    """routes/RouteTable.kt — el registro de rutas (DES-2/DES-3), Kotlin REAL que COMPILA (entra en
+    compileKotlin de s0). Las rutas de ESCRITURA (post) se registran DENTRO de `authenticated { }` → quedan
+    `guarded`; las de lectura (get) afuera. El analizador estatico (route_check.py) lee ESTE archivo por
+    tokens (sin compilar): topologia (vs el contrato) + alcanzabilidad (protegida ⇒ dentro del guard).
+    Derivado de domain.product → las rutas == el contrato por construccion (un GET+POST por entidad)."""
+    gets = "\n".join(f'    route("GET", "/{_table(e)}")' for e in entities)
+    posts = "\n".join(f'        route("POST", "/{_table(e)}")' for e in entities)
+    return (f"package {pkg}.routes\n\n"
+            f"import {pkg}.auth.AuthGuard\n\n"
+            "/**\n"
+            " * Tabla de rutas declarada (DES-2/DES-3). El analizador estatico tools/route_check.py la cruza\n"
+            " * contra el contrato OpenAPI (topologia) y verifica que toda ruta protegida pase por el guard\n"
+            " * (alcanzabilidad), sin levantar el server. Las rutas de escritura se registran dentro de\n"
+            " * authenticated { } -> pasan por AuthGuard en runtime (dispatch).\n"
+            " */\n"
+            "class RouteTable {\n"
+            "    data class Route(val method: String, val path: String, val guarded: Boolean)\n\n"
+            "    val routes: MutableList<Route> = mutableListOf()\n"
+            "    private var inGuard = false\n\n"
+            "    fun route(method: String, path: String) {\n"
+            "        routes.add(Route(method, path, inGuard))\n"
+            "    }\n\n"
+            "    fun authenticated(block: RouteTable.() -> Unit) {\n"
+            "        inGuard = true\n"
+            "        try {\n"
+            "            block()\n"
+            "        } finally {\n"
+            "            inGuard = false\n"
+            "        }\n"
+            "    }\n\n"
+            "    /** Guard en runtime (DES-3): una ruta protegida exige un token autorizado; sin el, se rechaza. */\n"
+            "    fun dispatch(method: String, path: String, token: String?): Boolean {\n"
+            "        val match = routes.firstOrNull { it.method == method && it.path == path } ?: return false\n"
+            "        return !match.guarded || AuthGuard.authorize(token)\n"
+            "    }\n"
+            "}\n\n"
+            "fun appRoutes(): RouteTable = RouteTable().apply {\n"
+            f"{gets}\n"
+            "    authenticated {\n"
+            f"{posts}\n"
+            "    }\n"
+            "}\n")
+
+
+def _route_check_py() -> str:
+    """tools/route_check.py — el analizador ESTÁTICO de rutas (DES-2/DES-3), parte de la mini-columna del
+    PRODUCTO (s10). Stdlib puro, autocontenido (sin `import metafactory`, sin PyYAML, sin red, sin levantar
+    server) → corre en product_env con env scrubbeado, como los hooks del seed y los gates de s3/s4. Raw-string:
+    las regex (\\s, \\() se preservan verbatim. Cruza las rutas Kotlin declaradas contra el contrato OpenAPI."""
+    return r'''#!/usr/bin/env python3
+"""route_check.py - topologia de rutas + alcanzabilidad de auth (DES-2/DES-3). DETERMINISTA, stdlib, SIN RED y
+SIN levantar el server (analisis estatico). Cruza las rutas declaradas en Kotlin (route(...)/authenticated{})
+contra el contrato OpenAPI (openapi.yaml): topologia (el set de rutas == el contrato) y auth (toda ruta que el
+contrato marca con `security` esta dentro de un bloque authenticated{}). Es el gate de rutas que el producto
+SHIPPEA (mini-columna, s10). Exit 1 si hay hallazgos, 0 si no.
+Uso:
+  route_check.py topology <openapi.yaml> <archivo|dir>...   # ruta sin contrato / contrato sin ruta -> rojo
+  route_check.py auth     <openapi.yaml> <archivo|dir>...   # ruta protegida fuera del guard -> rojo
+"""
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+_SKIP_DIRS = {"build", "gen", "node_modules", ".gradle", ".git"}
+_METHODS = ("get", "post", "put", "delete", "patch")
+
+
+def _contract_ops(contract: Path) -> dict:
+    """Parsea openapi.yaml (sin PyYAML) -> {(METHOD, path): protected}. protected = la op declara `security:`.
+    El contrato es la FUENTE (DES-6): el codegen lo emite con un formato fijo e indentado (2/path, 4/metodo,
+    6/security). El lado positivo + el diente embebido atrapan un parser demasiado laxo."""
+    ops = {}
+    in_paths = False
+    cur_path = cur_method = None
+    for raw in contract.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        s = raw.strip()
+        if indent == 0:
+            in_paths = s == "paths:"
+            cur_path = cur_method = None
+            continue
+        if not in_paths:
+            continue
+        if indent == 2 and s.startswith("/") and s.endswith(":"):
+            cur_path, cur_method = s[:-1], None
+        elif indent == 4 and s.endswith(":") and s[:-1] in _METHODS and cur_path:
+            cur_method = s[:-1].upper()
+            ops[(cur_method, cur_path)] = False
+        elif indent == 6 and s.startswith("security:") and cur_path and cur_method:
+            ops[(cur_method, cur_path)] = True
+    return ops
+
+
+# token: el bloque authenticated{ , una llave, o una llamada route("METODO", "/path"). finditer respeta el
+# orden del documento -> una pila de llaves rastrea si una ruta esta dentro de un authenticated{} (guarded).
+_TOKEN = re.compile(r'authenticated\s*\{|route\s*\(\s*"([A-Z]+)"\s*,\s*"([^"]+)"|[{}]')
+
+
+def _kt_routes(text: str) -> list:
+    """Extrae (METHOD, path, guarded) de un archivo de rutas Kotlin por escaneo de tokens (sin compilar):
+    una ruta esta `guarded` si se registra dentro de un bloque authenticated { ... }."""
+    out = []
+    stack = []                          # un bool por '{' abierta: True si abrio un authenticated{}
+    for m in _TOKEN.finditer(text):
+        tok = m.group(0)
+        if tok.startswith("authenticated"):
+            stack.append(True)
+        elif tok == "{":
+            stack.append(False)
+        elif tok == "}":
+            if stack:
+                stack.pop()
+        else:
+            out.append((m.group(1), m.group(2), any(stack)))
+    return out
+
+
+def _kt_files(targets):
+    for t in targets:
+        p = Path(t)
+        if p.is_file():
+            yield p
+        elif p.is_dir():
+            for f in sorted(p.rglob("*.kt")):
+                if not (_SKIP_DIRS & set(f.parts)):
+                    yield f
+
+
+def _routes(targets) -> list:
+    routes = []
+    for f in _kt_files(targets):
+        routes.extend(_kt_routes(f.read_text(encoding="utf-8", errors="replace")))
+    return routes
+
+
+def _topology(contract: Path, targets: list) -> int:
+    ops = _contract_ops(contract)
+    rset = {(m, p) for m, p, _ in _routes(targets)}
+    cset = set(ops)
+    findings = 0
+    for m, p in sorted(rset - cset):
+        findings += 1
+        print(f"EXTRA {m} {p}  (ruta declarada que el contrato no tiene)")
+    for m, p in sorted(cset - rset):
+        findings += 1
+        print(f"MISSING {m} {p}  (contrato sin ruta declarada)")
+    if findings:
+        print(f"route-check: {findings} desajuste(s) de topologia vs el contrato", file=sys.stderr)
+        return 1
+    print(f"route-check: topologia ok ({len(cset)} ruta(s) == contrato)")
+    return 0
+
+
+def _auth(contract: Path, targets: list) -> int:
+    ops = _contract_ops(contract)
+    findings = 0
+    for m, p, guarded in _routes(targets):
+        protected = ops.get((m, p))
+        if protected is None:
+            continue                    # ruta sin contrato -> la atrapa topology, no auth
+        if protected and not guarded:
+            findings += 1
+            print(f"UNGUARDED {m} {p}  (protegida por el contrato, declarada fuera del guard)")
+        elif guarded and not protected:
+            findings += 1
+            print(f"STRAY_GUARD {m} {p}  (bajo el guard pero publica en el contrato)")
+    if findings:
+        print(f"route-check: {findings} ruta(s) con auth inconsistente vs el contrato", file=sys.stderr)
+        return 1
+    prot = sum(1 for v in ops.values() if v)
+    print(f"route-check: auth ok ({prot} ruta(s) protegida(s) pasan por el guard)")
+    return 0
+
+
+def main(argv: list) -> int:
+    if len(argv) < 3:
+        print("usage: route_check.py {topology|auth} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
+        return 2
+    mode, contract, targets = argv[0], Path(argv[1]), argv[2:]
+    if not contract.is_file():
+        print(f"route-check: falta el contrato {contract}", file=sys.stderr)
+        return 2
+    if mode == "topology":
+        return _topology(contract, targets)
+    if mode == "auth":
+        return _auth(contract, targets)
+    print(f"route-check: modo desconocido {mode!r}", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+'''
+
+
+def _probe_phantom_route() -> str:
+    """Fixture NEGATIVO (DES-2): una ruta declarada que el contrato OpenAPI NO tiene (`/__phantom__`). El
+    analizador (modo topology) DEBE morder (`EXTRA`); route_topology lo exige por grep. Vive en probe/routes
+    (FUERA de src/) → no se compila, no se shippea. No necesita compilar: el analizador lo lee por tokens."""
+    return ("// FIXTURE NEGATIVO DES-2 (topologia): una ruta declarada que el contrato OpenAPI NO tiene. El\n"
+            "// analizador route_check.py (modo topology) DEBE morder (EXTRA); route_topology lo exige por grep.\n"
+            "// Si NO muerde -> gate decorativo -> rojo. No se compila ni se shippea (fuera de src/).\n"
+            "fun phantom() = RouteTable().apply {\n"
+            '    route("GET", "/__phantom__")\n'
+            "}\n")
+
+
+def _probe_unguarded_route(entities: list[dict]) -> str:
+    """Fixture NEGATIVO (DES-3): una ruta de ESCRITURA (protegida por el contrato) declarada FUERA del bloque
+    authenticated{} → alcanzable sin pasar por el guard. El analizador (modo auth) DEBE morder (`UNGUARDED`);
+    auth_reachability lo exige por grep. Vive en probe/routes (fuera de src/) → no se compila ni se shippea."""
+    plural = _table(entities[0])
+    return ("// FIXTURE NEGATIVO DES-3 (alcanzabilidad): una ruta de escritura (protegida en el contrato)\n"
+            "// declarada FUERA de authenticated{} -> alcanzable sin pasar por el guard. El analizador (modo\n"
+            "// auth) DEBE morder (UNGUARDED); auth_reachability lo exige por grep. No se compila ni se shippea.\n"
+            "fun unguarded() = RouteTable().apply {\n"
+            f'    route("POST", "/{plural}")\n'
+            "}\n")
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -995,6 +1249,12 @@ def build_files(bp: dict) -> dict[str, str]:
         "tools/supply_chain_scan.py": _supply_chain_scan_py(),
         "probe/security/vuln-sbom.json": _probe_vuln_sbom(),
         "probe/security/leak.txt": _probe_leak_secret(),
+        # auth + topología de rutas (s5, DES-3/DES-2): guard + registro de rutas Kotlin + analizador + probes
+        f"{pkgdir}/auth/AuthGuard.kt": _auth_guard_kt(pkg),
+        f"{pkgdir}/routes/RouteTable.kt": _routes_kt(pkg, ents),
+        "tools/route_check.py": _route_check_py(),
+        "probe/routes/phantom.kt": _probe_phantom_route(),
+        "probe/routes/unguarded.kt": _probe_unguarded_route(ents),
     }
 
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d3cdaed000bcb28215fefe8c02d73f7676b720e3 updated=2026-06-18T22:48Z -->
+<!-- meta:doc sha=77cf19f39f883b0f27c260b41c85a3e840233d0f updated=2026-06-19T01:45Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -50,8 +50,16 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 >   6/6 · `ci --rederive` 3/3 == pineado · 2 dientes vivos de dos lados (Kotlin excepción tragada→rojo · TS
 >   `any`→rojo; regen→verde) · **`git diff src/+seed/` = 0** (detekt/eslint = DATA, compuso sobre `product_env`).
 >   Evidencia: `work/FSK-S2-HARDNESS-INCREMENT.md`.
-> - **s3–s10 pendientes** (currency · seguridad · auth · lógica LLM · pirámide · a11y/perf · observabilidad ·
->   build hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
+> - **s3 (`FSK-S3-CURRENCY`) ✅** — frescura de API (DES-11): el código usa SÓLO superficie no-deprecada y
+>   pineada; lo viejo se bloquea de forma DETERMINISTA, sin LLM (I-3). **Oráculo** `config/api-surface.lock`
+>   (versiones pineadas + deny-list por versión) + **linter determinista** `tools/currency_lint.py` (stdlib,
+>   language-agnostic: cruza Kotlin Y TS contra UN lock). Eje DISTINTO de s2: frescura, no calidad — cubre lo
+>   que el compilador CALLA (`java.util.Date` legacy; `.substr()` Annex-B). Diente negativo EMBEBIDO (grep
+>   `toUpperCase`+`substr`, fail-closed). M0–M8 verde · RTM 7/7 · `ci --rederive` 4/4 == pineado · diente vivo
+>   de dos lados (Kotlin `toUpperCase`→rojo · TS `substr`→rojo; regen→verde) · **`git diff src/+seed/` = 0**
+>   (oráculo+linter = DATA, compuso sobre `product_env`). Evidencia: `work/FSK-S3-CURRENCY-INCREMENT.md`.
+> - **s4–s10 pendientes** (seguridad · auth · lógica LLM · pirámide · a11y/perf · observabilidad · build
+>   hermético). La línea COMPLETA con su DAG: `work/FULLSTACK-KOTLIN-INCREMENT.md §6`.
 
 ## 2. El modelo de operación (3 fases) — DISEÑO → BUILD → MEJORA
 

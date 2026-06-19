@@ -1,4 +1,4 @@
-<!-- meta:doc sha=81c26df32e47e919e4ef1eb9b39e10dc5b78218e updated=2026-06-19T01:32Z -->
+<!-- meta:doc sha=261ab1ee5dbb70071282a65ab23d9e8bb0c27904 updated=2026-06-19T01:45Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S3-CURRENCY-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (6/6) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (7/7) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -320,7 +320,7 @@
     --rederive` == pineado (la columna no es estación → cero re-pin). **Diferidos con razón** (no fingidos):
     pre-push (git-hook ortogonal; el external_ci ya re-deriva limpio) · answers/migración (modelo Copier
     no-usado; `boundary_survives`/H2 ya prueba la preservación de dominio en re-scaffold). **Cierra Fase H.**
-- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0+s1 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
+- **Full-Stack Kotlin/TS/PG Factory — DISEÑO ✅ + s0..s3 BUILT ✅ (2026-06-18)**: nueva fábrica de grado-producción
   para apps web world-class bajo criterios DUROS (mandato del ingeniero). Pila (PLAN, ADR-012): **Kotlin/JVM +
   TS/React + PostgreSQL/jOOQ/Flyway**, contrato OpenAPI fuente única. Cantera **DES-10..13** en `primitives.yml`+
   `PRIMITIVES.md §3`. DISEÑO: blueprint completo `specs/full-stack-kotlin.factory.spec.yml` (la línea s0–s10
@@ -361,7 +361,25 @@
     tragada → `detekt` exit 1 (regen→0) · TS `any` → `eslint` exit 1 (regen→0). **Anti-overfit: `git diff
     src/metafactory/ + seed/` = 0** (detekt 1.23.8 / `detekt-formatting` / ESLint 9 / typescript-eslint 8 /
     ts-reset 0.6 = DATA; compuso sobre `product_env` sin tocar el sustrato). dummy/full-stack/iot/ASF intactas.
-    Autoridad: `work/FSK-S2-HARDNESS-INCREMENT.md`. Sigue s3 (frescura de API, DES-11).
+    Autoridad: `work/FSK-S2-HARDNESS-INCREMENT.md`.
+  - **s3 (`FSK-S3-CURRENCY`) ✅ — la FRESCURA DE API, probada por bloqueo (2026-06-18)**: el producto gana un
+    gate DES-11 donde el código usa **sólo superficie de API no-deprecada y pineada** — un **oráculo de
+    superficie pineado** (`config/api-surface.lock`: versiones pineadas + deny-list de símbolos deprecados/stale
+    por versión, con reemplazo) + un **linter DETERMINISTA** (`tools/currency_lint.py`, stdlib, **sin LLM** — I-3)
+    que cruza el código autorado contra el lock. **UN linter language-agnostic** cruza Kotlin (`src/main/kotlin`)
+    **y** TS (`frontend/src`) contra UN lock (el anti-overfit más fuerte: un mecanismo general por DATA, dos
+    lenguajes). Eje **DISTINTO de s2** (calidad): acá **frescura** — cubre lo que el compilador **CALLA**
+    (`java.util.Date` legacy en Kotlin; `.substr()` Annex-B en TS, que `tsc`/`eslint-strict` no marcan). Diente
+    negativo **EMBEBIDO** (no-decorativo, cada corrida): el MISMO linter sobre fixtures sucios (`probe/currency`,
+    `frontend/probe-currency`, fuera de `src/`→no se shippean) DEBE morder, exigido por grep (`toUpperCase` +
+    `substr`), **fail-closed**. El producto **SHIPPEA** su gate (lock + linter en su mini-columna, s10). **M0–M8
+    verde · product-run PASS · RTM COMPLETE 7/7** (REQ-NF-003 con artifact `config/api-surface.lock`) **· pin 4/4
+    · `ci --rederive` 4/4 == pineado** (re-corre el linter de currency + detekt/ESLint + el contenedor PG en clon
+    limpio). **diente vivo de dos lados (exit reales)**: `.toUpperCase()` en el Kotlin autorado → `currency_gate`
+    exit 1 (regen→0) · `.substr()` en el TS autorado → exit 1 (regen→0); + probe vaciado → `DECORATIVE` exit 1
+    (fail-closed). **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (oráculo + linter + probes = DATA;
+    compuso sobre `product_env` sin tocar el sustrato). dummy/full-stack/iot/ASF intactas. Autoridad:
+    `work/FSK-S3-CURRENCY-INCREMENT.md`. Sigue s4 (seguridad de la cadena de suministro, DES-13).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

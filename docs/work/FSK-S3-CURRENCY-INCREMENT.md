@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ecd294801beab2b52fb55df30ac80872509a63c7 updated=2026-06-19T01:33Z -->
+<!-- meta:doc sha=71be3aebd84870fc9477c45c4897828e664a7648 updated=2026-06-19T01:46Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-19T01:32Z -->
 # Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3)
 
@@ -63,9 +63,9 @@ MUERDA un fixture sucio cada corrida (fail-closed). Cuelga de s2; precede a s4 (
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` emite `config/api-surface.lock` (oráculo: versiones pineadas + deny-list), `tools/currency_lint.py` (linter determinista stdlib), `probe/currency/StaleApi.kt` + `frontend/probe-currency/stale.ts` (fixtures negativos). | ⏳ |
-| 2 | **s3 materializada + verde e2e** — s3 en `station_sequence` (`depends_on: [s2]`) con `currency_gate` (product_env, diente embebido) + cap `frescura_de_api`→built + REQ-NF-003; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 7/7**; pin 4/4. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **4/4 == pineado**; **diente VIVO de dos lados** (Kotlin `toUpperCase`→rojo · TS `substr`→rojo; regen→verde) + probe embebido; `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta; STATE/ROADMAP; `meta increment close`. | ⏳ |
+| 1 | **Codegen** ✅ — `scaffold_product.py` emite `config/api-surface.lock` (oráculo: versiones pineadas + deny-list por versión, JSON), `tools/currency_lint.py` (linter determinista stdlib, language-agnostic, salta líneas-comentario para no marcar prosa), `probe/currency/StaleApi.kt` + `frontend/probe-currency/stale.ts` (fixtures negativos). idempotente. | ✅ |
+| 2 | **s3 materializada + verde e2e** ✅ — s3 en `station_sequence` (`depends_on: [s2]`) con `currency_gate` (product_env, diente embebido) + cap `frescura_de_api`→built + REQ-NF-003; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 7/7**; pin 4/4. | ✅ |
+| 3 | **Pin + dientes + cierre** ✅ — `ci --rederive` **4/4 == pineado**; **diente VIVO de dos lados** (Kotlin `toUpperCase`→rojo · TS `substr`→rojo; regen→verde) + probe vaciado→`DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s3 y queda **PASS**; pin escrito (4/4).
@@ -91,5 +91,30 @@ MUERDA un fixture sucio cada corrida (fail-closed). Cuelga de s2; precede a s4 (
   `product-run` (que regeneraría y borraría la corrupción) — igual que s1/s2.
 - s3 es codegen DETERMINISTA (sin LLM). La lógica de dominio viva por LLM es s6 (DES-8, patrón MAT-2).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada)
-> Se completa al cerrar (Fase 3). Vacío hasta entonces (honestidad: nada verde sin proof).
+## 7. Evidencia de cierre (por bloqueo, 2026-06-18 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s3.yml` (currency_gate) · m05 RTM · **m06 `clean_runner` == pineado** (re-deriva la línea + el
+  linter de currency + detekt/ESLint + el contenedor PG en clon limpio) · m07 harness · m08 product_e2e.
+- **product-run PASS** — s3: `currency_gate` → `FSK_CURRENCY_OK`.
+- **RTM COMPLETE 7/7**: REQ-F-001/002/003/004 + REQ-NF-001/002 (s0/s1/s2) + **REQ-NF-003** ← `frescura_de_api`
+  [s3, `build/product/config/api-surface.lock`✓].
+- **`ci --rederive` full-stack-kotlin 4/4 == pineado** (re-corre el linter de currency + detekt + `-Werror` +
+  ESLint + npm + gradle + el contenedor PG de s1 en árbol limpio).
+- **diente VIVO de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría y borraría la corrupción; igual que s1/s2):
+  - clean `currency_gate` → `FSK_CURRENCY_OK` exit 0.
+  - **Kotlin** — `.toUpperCase()` en `App.kt` autorado → `STALE … [kt-uppercase-noarg]` → exit 1; regen → exit 0.
+  - **TS** — `.substr(` en `client.ts` autorado → `STALE … [ts-substr]` → exit 1; regen → exit 0.
+  - **fail-closed (probe embebido)** — vaciar `probe/currency/StaleApi.kt` → el autorado pasa pero el probe NO
+    muerde → `FSK_CURRENCY_DECORATIVE_KOTLIN` → exit 1 (el diente embebido es no-decorativo); regen → exit 0.
+- **El oráculo cubre lo que el compilador CALLA**: `java.util.Date`/`.substr()` no los marca `kotlinc -Werror`
+  (s2) ni `tsc`/`eslint-strict` — el eje frescura (DES-11) es ortogonal a calidad (DES-10), por eso son dientes.
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0**. El oráculo (`api-surface.lock`) + el linter
+  (`currency_lint.py`) + los probes viven 100% en la fábrica (DATA); compuso sobre `product_env` (C3/E1) sin
+  tocar el sustrato — la composición §6 del ROADMAP, como s0/s1/s2/MAT-7.
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci --rederive` 5/5 == pineado
+  (spot-check); full-stack/iot/ASF inalteradas por construcción (diff de sustrato = 0).
+- **Diferido honesto**: el MCP-recall vivo que ALIMENTA el oráculo desde los docs del pin (`machinery.mcp`,
+  DES-11) queda `declared-deferred` — hoy el lock es DATA del codegen; el oráculo es genuino y determinista, su
+  alimentación viva es contenido futuro (no diente). El `new Buffer()` está en el lock pero el producto no lo
+  usa → su tooth queda como deny-rule disponible, no ejercitado (honesto, no fingido).

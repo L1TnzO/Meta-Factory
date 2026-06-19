@@ -1,0 +1,35 @@
+id: s8
+name: 'calidad de experiencia: a11y (axe-core en jsdom) + perf (presupuesto de bundle-size
+  con esbuild) bajo eval_gate — DES-7'
+activation: always
+requires_prev: s7
+builds: []
+checks:
+- name: a11y_gate
+  kind: eval_gate
+  workdir: build/product/frontend
+  bootstrap:
+  - sh
+  - -c
+  - npm install --no-audit --no-fund --loglevel=error && node eval/a11y_audit.mjs
+  scorer:
+  - node
+  - eval/a11y_scorer.mjs
+  output: eval/a11y_output.json
+  degraded: eval/a11y_degraded.json
+  thresholds:
+    a11y_pass_rate: 1.0
+- name: perf_budget_gate
+  kind: eval_gate
+  workdir: build/product/frontend
+  bootstrap:
+  - sh
+  - -c
+  - npm install --no-audit --no-fund --loglevel=error && node eval/perf_measure.mjs
+  scorer:
+  - node
+  - eval/perf_scorer.mjs
+  output: eval/perf_output.json
+  degraded: eval/perf_degraded.json
+  thresholds:
+    perf_budget_ratio: 1.0

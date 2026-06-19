@@ -152,12 +152,12 @@ domain:
       proof: "s7 pyramid_unit: gradle test (suite unit) verde + testProbe DEBE reportar FAILED (o decorativo→rojo); s7 pyramid_integration: gradle integrationTest contra PostgreSQL viva (DB caída→rojo); s7 pyramid_unit_ts: node:test del client verde + un probe TS que DEBE fallar; romper cualquier nivel → rojo"
       status: built
     - id: calidad_experiencia
-      invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral"
+      invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral; un output degradado DEBE flipear el gate (no decorativo)"
       primitive: DES-7
-      tech: "axe-core (a11y) + Lighthouse CI (perf budget) + presupuesto de bundle-size"
-      artifact: build/product/lighthouserc.json
-      proof: "s8: los gates corren; un score a11y/perf bajo el presupuesto → rojo; un output degradado debe flipear el gate"
-      status: planned
+      tech: "eval_gate (DES-7, ya general): a11y = axe-core (motor WCAG) HEADLESS en jsdom (sin browser) sobre la UI generada; perf = presupuesto de bundle-size con esbuild (bundle minificado del entry). Lighthouse (lab metrics: server HTTP vivo + Chrome headless por red) = declared-deferred (ADR-012, shape de Playwright→e2e de s7)"
+      artifact: build/product/frontend/ui/index.html
+      proof: "s8 a11y_gate: axe+jsdom audita la UI generada → a11y_pass_rate ≥ 1.0 (cero violaciones); un fixture de UI mala flipea (degraded). s8 perf_budget_gate: esbuild mide el bundle → perf_budget_ratio (budget/bytes) ≥ 1.0; un entry bloated flipea. Un scorer decorativo → rojo"
+      status: built
     - id: observabilidad_producto
       invariant: "el producto EMITE observabilidad: logs estructurados + tracing OTel con correlation-id + endpoints /health y /ready; verificado que emite (no que renderiza)"
       primitive: DES-5
@@ -523,7 +523,48 @@ domain:
           workdir: build/product/frontend
           bootstrap: []
           cmd: ["sh", "-c", "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/client.test.ts || exit 1; node --experimental-strip-types --disable-warning=ExperimentalWarning --test probe-test/fail.test.ts >/dev/null 2>&1 && { echo FSK_PYRAMID_TS_DECORATIVE; exit 1; }; echo FSK_PYRAMID_UNIT_TS_OK"]
-    # s8–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s8
+      name: "calidad de experiencia: a11y (axe-core en jsdom) + perf (presupuesto de bundle-size con esbuild) bajo eval_gate — DES-7"
+      activation: always
+      depends_on: [s7]
+      # DES-7 — el producto gana gates de calidad de EXPERIENCIA que BLOQUEAN bajo umbral, DETERMINISTAS y
+      # HERMÉTICOS (sin browser, sin red post-npm-install). COMPONEN el mecanismo de sustrato eval_gate (MAT-4,
+      # ya general): el sustrato ORQUESTA un scorer declarado (lee METAFACTORY_EVAL_OUTPUT, imprime
+      # SCORE:<m>=<float>) y JUZGA contra thresholds; el diente de dos lados es NATIVO (el degraded DEBE
+      # flipear, doctrina MAT-4). a11y: axe-core (el motor WCAG estándar) corre HEADLESS en jsdom (sin browser)
+      # sobre la UI generada del blueprint (frontend/ui/index.html) → a11y_pass_rate ≥ 1.0 (cero violaciones);
+      # un fixture de UI mala (eval/probe/bad_ui.html), auditado EN VIVO en el bootstrap, flipea (6 violaciones
+      # WCAG reales). perf: esbuild (el bundler estándar) bundlea+minifica el entry real (src/app.ts) y mide los
+      # bytes vs un presupuesto declarado (eval/budget.json) → perf_budget_ratio (budget/bytes) ≥ 1.0; un entry
+      # bloated (eval/probe/bloated.ts), bundleado EN VIVO, flipea. El codegen (s0) emite la UI + los drivers +
+      # los scorers + los probes → builds: [] (la estación sólo PRUEBA). Sustrato intacto: eval_gate corre DATA
+      # (ADR-012) — git diff src/+seed = 0 (composición §6, como s0–s7; 3er toolchain de eval_gate: node FSK).
+      # Divergencia de tech registrada (ADR-012): el diseño §5 dijo "axe + Lighthouse CI + bundle-size"; se
+      # entrega axe (HEADLESS, motor real) + el presupuesto de bundle-size; Lighthouse (lab metrics: server HTTP
+      # vivo + Chrome headless por red) = declared-deferred, su propio incremento con el server vivo de s9 —
+      # MISMO shape que Playwright→e2e de s7 y Ktor→estático de s5.
+      proof_checks:
+        - { name: a11y_gate, cmd: "eval_gate: axe-core+jsdom audita la UI generada → a11y_pass_rate ≥ 1.0 (cero violaciones); un fixture de UI mala flipea (degraded) o decorativo→rojo", runs_in: product_env, toolchain: "axe-jsdom", status: built }
+        - { name: perf_budget_gate, cmd: "eval_gate: esbuild bundlea el entry → perf_budget_ratio (budget/bytes) ≥ 1.0; un entry bloated flipea (degraded) o decorativo→rojo", runs_in: product_env, toolchain: "esbuild", status: built }
+      builds: []
+      checks:
+        - name: a11y_gate
+          kind: eval_gate
+          workdir: build/product/frontend
+          bootstrap: ["sh", "-c", "npm install --no-audit --no-fund --loglevel=error && node eval/a11y_audit.mjs"]
+          scorer: ["node", "eval/a11y_scorer.mjs"]
+          output: "eval/a11y_output.json"
+          degraded: "eval/a11y_degraded.json"
+          thresholds: {a11y_pass_rate: 1.0}
+        - name: perf_budget_gate
+          kind: eval_gate
+          workdir: build/product/frontend
+          bootstrap: ["sh", "-c", "npm install --no-audit --no-fund --loglevel=error && node eval/perf_measure.mjs"]
+          scorer: ["node", "eval/perf_scorer.mjs"]
+          output: "eval/perf_output.json"
+          degraded: "eval/perf_degraded.json"
+          thresholds: {perf_budget_ratio: 1.0}
+    # s9–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -664,7 +705,13 @@ requirements:
       satisfied_by: [s7]
       verified_by: [pyramid_unit, pyramid_integration, pyramid_unit_ts]
       capability: pruebas_piramidales
-    # REQ-F-009 DIFERIDA con s8–s10 (cada una se re-añade cuando su estación se construye). Texto
+    - id: REQ-F-009
+      statement: "la calidad de experiencia se mide con gates que BLOQUEAN bajo umbral: a11y (WCAG, axe-core HEADLESS en jsdom) sobre la UI generada + perf (presupuesto de bundle-size, esbuild); un output degradado DEBE flipear el gate (DES-7)"
+      acceptance: "a11y_gate + perf_budget_gate verdes sobre el producto; una UI con violaciones WCAG → a11y_gate rojo; un bundle sobre presupuesto → perf_budget_gate rojo; un scorer decorativo (que ignora su input) → rojo. Lighthouse (lab metrics) queda declared-deferred (ADR-012)"
+      satisfied_by: [s8]
+      verified_by: [a11y_gate, perf_budget_gate]
+      capability: calidad_experiencia
+    # REQ-F-010 DIFERIDA con s9–s10 (cada una se re-añade cuando su estación se construye). Texto
     # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001

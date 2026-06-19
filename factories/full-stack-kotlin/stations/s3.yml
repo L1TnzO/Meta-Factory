@@ -1,0 +1,19 @@
+id: s3
+name: 'frescura de API: oráculo de superficie pineado + linter determinista (sin LLM)
+  — DES-11'
+activation: always
+requires_prev: s2
+builds: []
+checks:
+- name: currency_gate
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 tools/currency_lint.py src/main/kotlin frontend/src || exit 1; out=$(python3
+    tools/currency_lint.py probe/currency frontend/probe-currency 2>&1); echo "$out"
+    | grep -q toUpperCase || { echo FSK_CURRENCY_DECORATIVE_KOTLIN; exit 1; }; echo
+    "$out" | grep -q substr || { echo FSK_CURRENCY_DECORATIVE_TS; exit 1; }; echo
+    FSK_CURRENCY_OK

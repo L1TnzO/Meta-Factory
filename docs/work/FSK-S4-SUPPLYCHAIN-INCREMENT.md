@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f062cc8f0bb5b4c5a0a451ae44ee6be58bca3cfb updated=2026-06-19T02:01Z -->
+<!-- meta:doc sha=dc5431ced5cdb3b6255dff691c4bf64adf465eb3 updated=2026-06-19T02:16Z -->
 # Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4)
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T01:59Z). Cerralo con `meta increment close`
@@ -76,9 +76,9 @@ sucios cada corrida (fail-closed). Cuelga de s3; precede a s5 (auth/rutas).
 ## 4. Plan por fases (cada cambio de código vive en este incremento; commit por fase, trailers I-10)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Codegen** — `scaffold_product.py` emite `sbom.json` (CycloneDX-lite de deps directas), `config/supply-chain.lock` (advisories pineados + patrones de secretos, JSON), `tools/supply_chain_scan.py` (scanner determinista stdlib: modos `deps`/`secrets`), `probe/security/vuln-sbom.json` + `probe/security/leak.txt` (fixtures negativos). idempotente. | ⏳ |
-| 2 | **s4 materializada + verde e2e** — s4 en `station_sequence` (`depends_on: [s3]`) con `supply_chain_gate` (product_env, diente embebido) + cap `seguridad_cadena_suministro`→built + REQ-NF-004; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 8/8**; pin 5/5. | ⏳ |
-| 3 | **Pin + dientes + cierre** — `ci --rederive` **5/5 == pineado**; **diente VIVO de dos lados** (`postgresql@42.7.1` en el SBOM→rojo · `AKIA…` en el Kotlin autorado→rojo; regen→verde) + probe vaciado→`DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ⏳ |
+| 1 | **Codegen** ✅ — `scaffold_product.py` emite `sbom.json` (CycloneDX-lite de deps directas), `config/supply-chain.lock` (advisories pineados + patrones de secretos, JSON), `tools/supply_chain_scan.py` (scanner determinista stdlib: modos `deps`/`secrets`), `probe/security/vuln-sbom.json` + `probe/security/leak.txt` (fixtures negativos). idempotente (30 archivos byte-idénticos). | ✅ |
+| 2 | **s4 materializada + verde e2e** ✅ — s4 en `station_sequence` (`depends_on: [s3]`) con `supply_chain_gate` (product_env, diente embebido) + cap `seguridad_cadena_suministro`→built + REQ-NF-004; `validate`+`design-review` 0; M0–M8 verde; `product-run` PASS; **RTM COMPLETE 8/8**; pin 5/5. | ✅ |
+| 3 | **Pin + dientes + cierre** ✅ — `ci --rederive` **5/5 == pineado**; **diente VIVO de dos lados** (`postgresql@42.7.1` en el SBOM→rojo · `AKIA…` en el Kotlin autorado→rojo; regen→verde) + probe vaciado→`DECORATIVE` (fail-closed); `meta check` 6/6; **anti-overfit `git diff src/+seed` = 0**; dummy intacta (5/5); STATE/ROADMAP; `meta increment close`. | ✅ |
 
 ## 5. Criterio de cierre (demostrable por BLOQUEO, no narrable)
 1. `meta product-run --factory full-stack-kotlin` corre s0..s4 y queda **PASS**; pin escrito (5/5).
@@ -111,5 +111,32 @@ sucios cada corrida (fail-closed). Cuelga de s3; precede a s5 (auth/rutas).
   `product-run` (que regeneraría y borraría la corrupción) — igual que s1/s2/s3.
 - s4 es codegen DETERMINISTA (sin LLM). La lógica de dominio viva por LLM es s6 (DES-8, patrón MAT-2).
 
-## 7. Evidencia de cierre (por bloqueo — re-derivable, no narrada)
-<se completa al cerrar: M0–M8, product-run, RTM 8/8, ci --rederive 5/5, dientes vivos, diff=0, dummy 5/5>
+## 7. Evidencia de cierre (por bloqueo, 2026-06-19 — re-derivable, no narrada)
+- **M0–M8 verde** (corridos en orden, gate_guard): m00 `validate`+`design-review` 0 · m02 materializó
+  `stations/s4.yml` (supply_chain_gate) · m05 RTM · **m06 `clean_runner` == pineado** (re-deriva la línea +
+  el scanner de supply-chain + detekt/ESLint + el contenedor PG en clon limpio) · m07 harness · m08 product_e2e.
+- **product-run PASS** — s4: `supply_chain_gate` → `FSK_SUPPLYCHAIN_OK` (gate s4 OPEN).
+- **RTM COMPLETE 8/8**: REQ-F-001/002/003/004 + REQ-NF-001/002/003 (s0/s1/s2/s3) + **REQ-NF-004** ←
+  `seguridad_cadena_suministro` [s4, `build/product/sbom.json`✓].
+- **`ci --rederive` full-stack-kotlin 5/5 == pineado** (re-corre el scanner de supply-chain + detekt + `-Werror`
+  + ESLint + npm + gradle + el contenedor PG de s1 en árbol limpio, **sin red** — el oráculo y el SBOM son DATA).
+- **diente VIVO de dos lados (exit codes reales)** — el árbol generado se corrompe directo (no via
+  `product-run`, que regeneraría y borraría la corrupción; igual que s1/s2/s3):
+  - clean `supply_chain_gate` → `FSK_SUPPLYCHAIN_OK` exit 0.
+  - **deps** — `postgresql 42.7.4 → 42.7.1` en `sbom.json` → `VULN …[CVE-2024-1597] critical` → exit 1; regen → exit 0.
+  - **secretos** — `AKIAIOSFODNN7EXAMPLE` en `App.kt` autorado → `SECRET …[aws-access-key]` → exit 1; regen → exit 0.
+  - **fail-closed (probe embebido)** — vaciar `probe/security/leak.txt` → el autorado pasa pero el probe NO
+    muerde → `FSK_SUPPLYCHAIN_DECORATIVE_SECRETS` → exit 1 (el diente embebido es no-decorativo); regen → exit 0.
+- **El gate cubre lo que ningún linter marca**: una dep con CVE conocido (`postgresql<42.7.2`) y una key
+  hardcodeada (`AKIA…`) NO las marca `detekt`/`-Werror` (s2), `tsc`/`eslint-strict`, ni el linter de currency
+  (s3) — el eje seguridad-de-la-cadena (DES-13) es ortogonal a calidad (DES-10) y frescura (DES-11).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0**. El SBOM (`sbom.json`) + el oráculo
+  (`config/supply-chain.lock`) + el scanner (`supply_chain_scan.py`) + los probes viven 100% en la fábrica
+  (DATA); compuso sobre `product_env` (C3/E1) sin tocar el sustrato — la composición §6 del ROADMAP, como s0–s3/MAT-7.
+- **Fábricas intactas**: sólo cambió `factories/full-stack-kotlin/`; dummy `ci --rederive` 5/5 == pineado
+  (spot-check); full-stack/iot/ASF inalteradas por construcción (diff de sustrato = 0).
+- **Diferido honesto**: el feed VIVO de advisories (OSV.dev/`npm audit`/Dependabot) que REFRESCA el oráculo y
+  el **SBOM transitivo** (resolver el grafo con `gradle dependencies`/`npm ls` = red) quedan
+  `declared-deferred` — mismo shape que el MCP-recall de s3: el oráculo y el SBOM-directo son genuinos y
+  deterministas, su alimentación viva es contenido futuro (no diente). Los advisories de coords que el
+  producto no usa (jackson/snakeyaml/axios) quedan como deny-rules disponibles, no ejercitadas (honesto).

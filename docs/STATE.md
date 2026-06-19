@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e17bb1af35c86d06db94a6166d694d5be9e324b4 updated=2026-06-19T01:59Z -->
+<!-- meta:doc sha=af7cf8fd641bdb2cc8bbb3fa6e1e53486b243458 updated=2026-06-19T02:14Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S4-SUPPLYCHAIN-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (7/7) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (8/8) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -380,6 +380,30 @@
     (fail-closed). **Anti-overfit: `git diff src/metafactory/ + seed/` = 0** (oráculo + linter + probes = DATA;
     compuso sobre `product_env` sin tocar el sustrato). dummy/full-stack/iot/ASF intactas. Autoridad:
     `work/FSK-S3-CURRENCY-INCREMENT.md`. Sigue s4 (seguridad de la cadena de suministro, DES-13).
+  - **s4 (`FSK-S4-SUPPLYCHAIN`) ✅ — la SEGURIDAD DE LA CADENA DE SUMINISTRO, probada por bloqueo (2026-06-19)**:
+    el producto gana un gate DES-13 donde **no shippea deps con vulnerabilidades conocidas ni secretos
+    hardcodeados**, bloqueado de forma DETERMINISTA, **sin red y sin LLM** (I-3) — un **SBOM** (`sbom.json`,
+    CycloneDX-lite de deps directas, el inventario de lo que se shippea) + un **oráculo de advisories pineado**
+    (`config/supply-chain.lock`: advisories reales `coordinate@rango-vulnerable → CVE` por ecosistema +
+    patrones de secretos) + un **scanner DETERMINISTA** (`tools/supply_chain_scan.py`, stdlib) que (a) cruza el
+    SBOM contra los advisories y (b) escanea el código autorado por secretos. **UN scanner general por DATA
+    cubre DOS ejes** (deps vulnerables + secretos) y dos ecosistemas (Maven/npm) — el anti-overfit más fuerte.
+    Eje **DISTINTO de s2/s3**: s2 calidad, s3 frescura, s4 **seguridad de la cadena** — cubre lo que ningún
+    linter de s2/s3 marca (una dep con CVE conocido, una key hardcodeada). Diente negativo **EMBEBIDO**
+    (no-decorativo, cada corrida): el MISMO scanner sobre fixtures sucios (`probe/security/vuln-sbom.json` con
+    `lodash`/`postgresql@42.7.1`; `probe/security/leak.txt` con la key de ejemplo canónica de AWS `AKIA…`,
+    fuera de `src/`→no se shippean) DEBE morder, exigido por grep (`lodash` + `aws-access-key`), **fail-closed**.
+    El producto **SHIPPEA** su gate (SBOM + oráculo + scanner en su mini-columna, s10). **M0–M8 verde ·
+    product-run PASS · RTM COMPLETE 8/8** (REQ-NF-004 con artifact `build/product/sbom.json`) **· pin 5/5 ·
+    `ci --rederive` 5/5 == pineado** (re-corre el scanner + el contenedor PG + los linters de s2/s3 en clon
+    limpio, **sin red**). **diente vivo de dos lados (exit reales)**: `postgresql@42.7.1` en el SBOM →
+    `supply_chain_gate` exit 1 (CVE-2024-1597; regen→0) · `AKIA…` en el Kotlin autorado → exit 1 (regen→0); +
+    probe vaciado → `DECORATIVE` exit 1 (fail-closed). **Anti-overfit: `git diff src/metafactory/ + seed/` =
+    0** (SBOM + oráculo + scanner + probes = DATA; compuso sobre `product_env` sin tocar el sustrato).
+    dummy/full-stack/iot/ASF intactas. Autoridad: `work/FSK-S4-SUPPLYCHAIN-INCREMENT.md`. Sigue s5 (auth +
+    rutas protegidas, DES-3/2). **Diferido honesto**: el feed VIVO de advisories (OSV/npm audit/Dependabot) y
+    el SBOM transitivo quedan `declared-deferred` (mismo shape que el MCP-recall de s3; el oráculo es genuino y
+    determinista, su refresco vivo es contenido futuro, no diente).
 - **Fase: BOOTSTRAP EJECUTADO. Ya hay CÓDIGO y está verificado POR BLOQUEO.** El punto fijo dejó de ser
   aspiración (`reference/VISION.md §3`): la línea M0–M8 construye un dummy-fábrica e2e y la columna
   anti-sello bloquea de verdad (no por prosa). El Meta-Factory sigue siendo "un Claude Code con

@@ -1,0 +1,53 @@
+id: s7
+name: 'pirámide de tests GRADUADA en el toolchain del producto: unit + integración
+  (PG viva) + unit TS — DES-8'
+activation: always
+requires_prev: s6
+builds: []
+checks:
+- name: pyramid_unit
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JH=$(dirname $(dirname $(readlink -f $(command -v javac)))); JAVA_HOME=$JH ./gradlew
+    test -q --console=plain || exit 1; JAVA_HOME=$JH ./gradlew testProbe --console=plain
+    2>&1 | grep -q 'ProbeShouldFailTest.*FAILED' || { echo FSK_PYRAMID_DECORATIVE;
+    exit 1; }; echo FSK_PYRAMID_UNIT_OK
+- name: pyramid_integration
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew
+    integrationTestClasses -q --console=plain
+  up:
+  - sh
+  - -c
+  - docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg
+    -e POSTGRES_PASSWORD=metafactory -p 55435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+  proof:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew
+    integrationTest -q --console=plain
+  down:
+  - docker
+  - rm
+  - -f
+  - fsk_s7_pg
+  timeout: 120
+- name: pyramid_unit_ts
+  kind: product_env
+  workdir: build/product/frontend
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/client.test.ts
+    || exit 1; node --experimental-strip-types --disable-warning=ExperimentalWarning
+    --test probe-test/fail.test.ts >/dev/null 2>&1 && { echo FSK_PYRAMID_TS_DECORATIVE;
+    exit 1; }; echo FSK_PYRAMID_UNIT_TS_OK

@@ -145,12 +145,12 @@ domain:
       proof: "s6: gradle run compila Model.kt + el Summary.kt GENERADO + SummaryContract.kt y corre el contract main; un stub o una implementación incorrecta → rojo; pin re-verificado sin LLM"
       status: built
     - id: pruebas_piramidales
-      invariant: "la verificación corre en el toolchain DEL producto en una pirámide: unit + integración (DB viva) + contrato + e2e; un test roto bloquea"
+      invariant: "la verificación corre en el toolchain DEL producto en una pirámide GRADUADA: unit (sin infra) + integración (PostgreSQL viva) + contrato; un test roto bloquea — y un probe negativo embebido prueba que el runner no es decorativo (0 tests → verde es fachada)"
       primitive: DES-8
-      tech: "Kotest (unit) + Testcontainers (integración PG) + el contrato OpenAPI + Playwright (e2e)"
+      tech: "Kotest sobre JUnit Platform: tier unit (src/test, sin infra) + tier integración (src/integrationTest, Repository vs PostgreSQL viva por infra_up, como Testcontainers); tier unit TS por node:test (stdlib, dual-lenguaje); diente negativo embebido (gradle testProbe: un test que DEBE fallar). Contrato ya cubierto por s0 (compile) + s6 (contract main). Playwright/e2e (browser + server HTTP vivo) = declared-deferred (ADR-012, mismo shape que Ktor→estático de s5): necesita red para el binario de browser y un server vivo, diferido a s9"
       artifact: build/product/src/test/
-      proof: "s7: la pirámide corre verde en el toolchain del producto; romper cualquier nivel → rojo"
-      status: planned
+      proof: "s7 pyramid_unit: gradle test (suite unit) verde + testProbe DEBE reportar FAILED (o decorativo→rojo); s7 pyramid_integration: gradle integrationTest contra PostgreSQL viva (DB caída→rojo); s7 pyramid_unit_ts: node:test del client verde + un probe TS que DEBE fallar; romper cualquier nivel → rojo"
+      status: built
     - id: calidad_experiencia
       invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral"
       primitive: DES-7
@@ -483,7 +483,47 @@ domain:
           workdir: domain_gen
           bootstrap: []
           cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew run -q --console=plain || exit 1; echo FSK_DOMAIN_OK"]
-    # s7–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s7
+      name: "pirámide de tests GRADUADA en el toolchain del producto: unit + integración (PG viva) + unit TS — DES-8"
+      activation: always
+      depends_on: [s6]
+      # DES-8 — la verificación corre en el toolchain del producto como una pirámide GRADUADA que BLOQUEA por
+      # nivel: tier UNIT (Kotest, src/test, SIN infra) testea el comportamiento de la lógica autorada del
+      # producto (AuthGuard/RouteTable/Store — cobertura que s5 estático no da); tier INTEGRACIÓN (Kotest,
+      # src/integrationTest) corre los queries jOOQ de Repository contra una PostgreSQL VIVA por infra_up (la
+      # capa Testcontainers; DB caída → rojo, diente de dos lados); tier UNIT TS (node:test, stdlib, dual-
+      # lenguaje como s2–s4) testea el client. Cada check lleva un DIENTE NEGATIVO EMBEBIDO (no-decorativo): el
+      # `testProbe` (un test que DEBE fallar) mata la fachada "0 tests → BUILD SUCCESSFUL"; un probe TS análogo
+      # del lado node. El codegen (s0) emite las suites + el build de test → builds: [] (la estación sólo
+      # PRUEBA). Eje DISTINTO de s1–s6: ningún gate previo corre una suite GRADUADA con framework que bloquea
+      # por nivel. Sustrato intacto: product_env + infra_up corren DATA (ADR-012). Playwright/e2e (browser +
+      # server HTTP vivo) = declared-deferred (necesita red + el server vivo de s9), divergencia registrada
+      # ADR-012 (mismo shape que Ktor→estático de s5 y Kotest→main() de s6).
+      proof_checks:
+        - { name: pyramid_unit, cmd: "gradle test (suite unit Kotest: AuthGuard/RouteTable/Store) verde; gradle testProbe DEBE reportar el test FAILED (grep) o decorativo→rojo (fail-closed)", runs_in: product_env, toolchain: "kotest-junit5", status: built }
+        - { name: pyramid_integration, cmd: "gradle integrationTest (Repository vs PostgreSQL viva por infra_up); DB caída → rojo (diente de dos lados)", runs_in: product_env, toolchain: "kotest-postgres", status: built }
+        - { name: pyramid_unit_ts, cmd: "node:test del client TS (summarize) verde; un probe TS que DEBE fallar o decorativo→rojo (fail-closed)", runs_in: product_env, toolchain: "node-test", status: built }
+      builds: []
+      checks:
+        - name: pyramid_unit
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JH=$(dirname $(dirname $(readlink -f $(command -v javac)))); JAVA_HOME=$JH ./gradlew test -q --console=plain || exit 1; JAVA_HOME=$JH ./gradlew testProbe --console=plain 2>&1 | grep -q 'ProbeShouldFailTest.*FAILED' || { echo FSK_PYRAMID_DECORATIVE; exit 1; }; echo FSK_PYRAMID_UNIT_OK"]
+        - name: pyramid_integration
+          kind: infra_up
+          workdir: build/product
+          bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTestClasses -q --console=plain"]
+          up: ["sh", "-c", "docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg -e POSTGRES_PASSWORD=metafactory -p 55435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
+          proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTest -q --console=plain"]
+          down: ["docker", "rm", "-f", "fsk_s7_pg"]
+          timeout: 120
+        - name: pyramid_unit_ts
+          kind: product_env
+          workdir: build/product/frontend
+          bootstrap: []
+          cmd: ["sh", "-c", "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/client.test.ts || exit 1; node --experimental-strip-types --disable-warning=ExperimentalWarning --test probe-test/fail.test.ts >/dev/null 2>&1 && { echo FSK_PYRAMID_TS_DECORATIVE; exit 1; }; echo FSK_PYRAMID_UNIT_TS_OK"]
+    # s8–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -618,7 +658,13 @@ requirements:
       satisfied_by: [s6]
       verified_by: [domain_logic_contract]
       capability: logica_dominio_generada
-    # REQ-F-008 DIFERIDA con s7–s10 (cada una se re-añade cuando su estación se construye). Texto
+    - id: REQ-F-008
+      statement: "la verificación corre en el toolchain del producto en una pirámide GRADUADA (unit sin infra + integración con PostgreSQL viva + contrato + unit TS); un test roto bloquea y un probe negativo embebido prueba que el runner no es decorativo (DES-8)"
+      acceptance: "pyramid_unit + pyramid_integration + pyramid_unit_ts verdes sobre el producto; romper un test (o su sujeto) o tirar la PG → rojo; el probe negativo embebido DEBE fallar cada corrida (testProbe FAILED / node:test no-cero) o el gate es decorativo → rojo. El e2e (Playwright) queda declared-deferred (ADR-012)"
+      satisfied_by: [s7]
+      verified_by: [pyramid_unit, pyramid_integration, pyramid_unit_ts]
+      capability: pruebas_piramidales
+    # REQ-F-009 DIFERIDA con s8–s10 (cada una se re-añade cuando su estación se construye). Texto
     # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
   nonfunctional:
     - id: REQ-NF-001

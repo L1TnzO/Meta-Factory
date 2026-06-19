@@ -1,7 +1,7 @@
-<!-- meta:doc sha=dc5431ced5cdb3b6255dff691c4bf64adf465eb3 updated=2026-06-19T02:16Z -->
+<!-- meta:doc sha=be81b89bb8ff44c39ba1968fbdd29e0606d01755 updated=2026-06-19T02:16Z -->
 # Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T01:59Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T02:16Z) (creado 2026-06-19T01:59Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

@@ -1,0 +1,20 @@
+id: s10
+name: build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1
+activation: always
+depends_on:
+- s2
+- s3
+- s4
+- s7
+- s8
+- s9
+builds: []
+checks:
+- name: hermetic_build
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) python3 tools/hermetic_check.py

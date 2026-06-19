@@ -166,12 +166,12 @@ domain:
       proof: "s9 observability_live (infra_up): levanta el server HTTP del producto; el proof hace /health+/ready+una request instrumentada y exige que el span OTel y el log estructurado emitidos lleven el correlation-id; server caído → rojo (diente nativo); quitar la instrumentación → el cid no aparece → rojo"
       status: built
     - id: build_hermetico_reproducible
-      invariant: "el build es hermético y reproducible: toolchain pineado; re-derivar en clon limpio da un resultado idéntico; el producto shippea su propia mini-columna (CI que re-corre los gates)"
+      invariant: "el build es hermético y reproducible: toolchain pineado; el artefacto compilado sale byte-idéntico entre builds limpios offline; el producto shippea su propia mini-columna (CI que re-corre los gates)"
       primitive: DES-1
-      tech: "Gradle wrapper pineado + npm lockfile + imagen Docker base pineada; CI del producto que re-corre los gates"
-      artifact: build/product/Dockerfile
-      proof: "s10: ci --rederive reconstruye idéntico en clon limpio (== pineado); el CI del producto re-corre todos los gates verdes"
-      status: planned
+      tech: "reproducibilidad DECLARADa del build Gradle (AbstractArchiveTask: preserveFileTimestamps=false, reproducibleFileOrder=true → jar byte-idéntico) + mini-columna del producto ci.sh (re-corre los gates estáticos offline) + proof tools/hermetic_check.py (jar ×2 offline byte-idéntico + ci.sh --check/--probe + pin del Dockerfile/wrapper); toolchain pineado (Gradle wrapper sha256, JDK 21, base Docker por @sha256:). Build+push de la imagen Docker reproducible = declared-deferred (red+daemon, ADR-012)"
+      artifact: build/product/ci.sh
+      proof: "s10 hermetic_build (product_env): build del jar ×2 offline → SHA256 idéntico (reproducible+hermético, lo que s0 NO da); la mini-columna ci.sh re-corre sus gates offline (--check); diente fail-closed (ci.sh --probe sobre un probe sucio DEBE morder); flip de preserveFileTimestamps → jars difieren → rojo. Fan-in DAG (depends_on s2,s3,s4,s7,s8,s9): romper un predecesor → s10 SHUT"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2/I-2). status: planned — los `builds`/`checks` ejecutables los
   # rellena el build (plantilla: specs/full-stack.factory.spec.yml). Acá se declara el CONTRATO SDD
@@ -595,10 +595,38 @@ domain:
           proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:58593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
           down: []
           timeout: 120
-    # s10 DIFERIDA (se construye por incremento, "capacidad por capacidad"). La línea COMPLETA con su DAG,
-    # proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en git @
-    # c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con su
-    # depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
+    - id: s10
+      name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
+      activation: always
+      depends_on: [s2, s3, s4, s7, s8, s9]
+      # DES-1 — la ÚLTIMA estación de la línea FSK. Prueba que el build del producto es HERMÉTICO (offline) y
+      # REPRODUCIBLE (el artefacto compilado webapp.jar sale byte-idéntico entre dos builds limpios offline —
+      # la propiedad que s0 NO da: s0 prueba que el ÁRBOL FUENTE regenera idéntico, no que el OUTPUT COMPILADO
+      # sea reproducible) y que el producto SHIPPEA su propia MINI-COLUMNA (ci.sh: un CI que re-corre sus gates
+      # estáticos offline — "el producto hereda probar por bloqueo", SAFE-3). NO-CIRCULAR: el eje no es
+      # `ci --rederive` (mecanismo del sustrato, ya verde desde s0) sino la reproducibilidad del jar + la
+      # mini-columna del PRODUCTO. El codegen (s0) emite la config de repro del build.gradle.kts + ci.sh +
+      # tools/hermetic_check.py + el Dockerfile (base pineada por @sha256:) → builds: [] (sólo PRUEBA). COMPONE
+      # el kind product_env (ya general): hermetic_check.py (stdlib, determinista, SIN RED) buildea el jar dos
+      # veces offline y exige SHA256 idéntico, EJERCITA ci.sh (--check), y un diente fail-closed EMBEBIDO
+      # (ci.sh --probe re-corre un gate sobre un probe sucio shippeado y DEBE morder, o decorativo→rojo).
+      # PRIMER fan-in DAG de la línea FSK (depends_on múltiple; s0–s9 eran cadena lineal): co-valida el gating
+      # multi-predecesor (P2/H2) en una línea REAL — el engine queda SHUT si CUALQUIER predecesor está shut.
+      # Sustrato intacto: product_env corre DATA (ADR-012) — git diff src/+seed = 0 (composición §6, como s0–s9).
+      # Divergencia de tech registrada (ADR-012): el diseño §5 nombró "imagen Docker base pineada"; se entrega
+      # la propiedad REAL (build offline byte-reproducible + mini-columna + toolchain pineado por digest/sha256)
+      # con superficie mínima. El build+push de la IMAGEN Docker reproducible (red+daemon) queda declared-deferred
+      # (su propio incremento) — se SHIPPEA el Dockerfile y el gate verifica su pin por grep, no construye la
+      # imagen. Mismo shape EXACTO que Ktor→estático (s5), Playwright→deferred (s7), Lighthouse→esbuild (s8).
+      proof_checks:
+        - { name: hermetic_build, cmd: "hermetic_check.py: build del jar ×2 offline → SHA256 idéntico (reproducible+hermético); la mini-columna ci.sh re-corre sus gates offline (--check); ci.sh --probe sobre un probe sucio DEBE morder (fail-closed); Dockerfile/wrapper pineados; flip de preserveFileTimestamps → jars difieren → rojo; romper un predecesor → s10 SHUT (fan-in)", runs_in: product_env, toolchain: "gradle-jdk", status: built }
+      builds: []
+      checks:
+        - name: hermetic_build
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) python3 tools/hermetic_check.py"]
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]
@@ -773,5 +801,11 @@ requirements:
       satisfied_by: [s4]
       verified_by: [supply_chain_gate]
       capability: seguridad_cadena_suministro
-    # REQ-NF-005..007 DIFERIDAS con s5–s10 (re-añadidas al construir cada estación). Texto completo en
-    # docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
+    # NF-005 (s8 calidad_experiencia) y NF-006 (s9 observabilidad) del diseño se entregaron como REQ-F-009/010
+    # (functional) al construir esas estaciones; NF-007 (s10) es el último requisito de la línea.
+    - id: REQ-NF-007
+      statement: "el build del producto es hermético y reproducible: el artefacto compilado (webapp.jar) sale byte-idéntico entre dos builds limpios OFFLINE (toolchain pineado), y el producto shippea su propia mini-columna (CI que re-corre sus gates) — DES-1, SAFE-3"
+      acceptance: "hermetic_build verde: el jar ×2 offline → SHA256 idéntico (reproducible+hermético, lo que s0 NO da); la mini-columna ci.sh re-corre sus gates estáticos offline (--check); el diente fail-closed (ci.sh --probe sobre un probe sucio DEBE morder) o decorativo → rojo; flip de preserveFileTimestamps → los jars difieren → rojo; romper un predecesor (fan-in s2,s3,s4,s7,s8,s9) → s10 SHUT. Build+push de la imagen Docker reproducible queda declared-deferred (ADR-012)"
+      satisfied_by: [s10]
+      verified_by: [hermetic_build]
+      capability: build_hermetico_reproducible

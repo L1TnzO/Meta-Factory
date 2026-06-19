@@ -1,0 +1,28 @@
+id: s9
+name: 'observabilidad del producto: server HTTP vivo + tracing OTel + logs estructurados
+  con correlation-id (DES-5)'
+activation: always
+requires_prev: s8
+builds: []
+checks:
+- name: observability_live
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew
+    installDist -q --console=plain
+  up:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp
+  proof:
+  - python3
+  - tools/obs_check.py
+  - http://127.0.0.1:58593
+  - obs/spans.jsonl
+  - obs/access.jsonl
+  - fsk-trace-001
+  down: []
+  timeout: 120

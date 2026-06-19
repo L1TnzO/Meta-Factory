@@ -161,10 +161,10 @@ domain:
     - id: observabilidad_producto
       invariant: "el producto EMITE observabilidad: logs estructurados + tracing OTel con correlation-id + endpoints /health y /ready; verificado que emite (no que renderiza)"
       primitive: DES-5
-      tech: "logs estructurados (JSON) + OpenTelemetry (tracing) + /health·/ready"
-      artifact: build/product/src/main/kotlin/observability/
-      proof: "s9: una request produce un trace con correlation-id y un log estructurado; /health responde; quitar la instrumentación → rojo"
-      status: planned
+      tech: "server HTTP vivo del JDK (com.sun.net.httpserver, stdlib — NO Ktor, divergencia ADR-012) instrumentado con OpenTelemetry SDK real (SpanExporter a archivo) + logs estructurados JSON, ambos con correlation-id + /health·/ready; verificado por requests reales contra el server vivo (infra_up). Ktor completo + e2e Playwright (s7) + Lighthouse (s8) = declared-deferred"
+      artifact: build/product/src/main/kotlin/webapp/observability/ObsServer.kt
+      proof: "s9 observability_live (infra_up): levanta el server HTTP del producto; el proof hace /health+/ready+una request instrumentada y exige que el span OTel y el log estructurado emitidos lleven el correlation-id; server caído → rojo (diente nativo); quitar la instrumentación → el cid no aparece → rojo"
+      status: built
     - id: build_hermetico_reproducible
       invariant: "el build es hermético y reproducible: toolchain pineado; re-derivar en clon limpio da un resultado idéntico; el producto shippea su propia mini-columna (CI que re-corre los gates)"
       primitive: DES-1
@@ -564,10 +564,41 @@ domain:
           output: "eval/perf_output.json"
           degraded: "eval/perf_degraded.json"
           thresholds: {perf_budget_ratio: 1.0}
-    # s9–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
-    # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
-    # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
-    # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
+    - id: s9
+      name: "observabilidad del producto: server HTTP vivo + tracing OTel + logs estructurados con correlation-id (DES-5)"
+      activation: always
+      depends_on: [s8]
+      # DES-5 — el producto EMITE observabilidad y se verifica contra un server HTTP VIVO (no se "renderiza" un
+      # config): una request real produce un trace OTel con correlation-id + un log estructurado con ese mismo
+      # correlation-id (la clave de unión), y /health·/ready responden. COMPONE el mecanismo de sustrato infra_up
+      # (E1/MAT-3, ya general) con un 4º servicio: el PROPIO server del producto (los 3 previos eran contenedores
+      # PostgreSQL). El codegen (s0) emite la capa de obs (observability/{FileSpanExporter,Observability,ObsServer}
+      # .kt: server del JDK com.sun.net.httpserver — stdlib, NO Ktor — + OTel SDK real con SpanExporter a archivo)
+      # + tools/obs_check.py (el proof client, mini-columna s10) → builds: [] (la estación sólo PRUEBA). El
+      # bootstrap buildea el launcher (installDist), `up` lo levanta en background (proceso java plano, kill-eable
+      # por grupo), el proof hace las requests y lee los spans/logs emitidos. Diente de dos lados NATIVO de
+      # infra_up (server caído → el proof no conecta → rojo); + diente vivo "sin instrumentación → el cid no se
+      # emite → rojo". Sustrato intacto: infra_up corre DATA (ADR-012) — git diff src/+seed = 0 (composición §6,
+      # como s0–s8). Divergencia de tech registrada (ADR-012): el diseño §5 nombró "OTel + /health·/ready" y notas
+      # previas nominaron Ktor; se entrega el motor OTel REAL + un server HTTP vivo del JDK (mínima superficie).
+      # El server Ktor COMPLETO + e2e (Playwright, s7) + Lighthouse (s8) quedan declared-deferred, su propio
+      # incremento sobre este primer server vivo (mismo shape que Ktor→estático de s5 y Lighthouse→esbuild de s8).
+      proof_checks:
+        - { name: observability_live, cmd: "infra_up levanta el server HTTP del producto; obs_check.py hace /health+/ready+una request con X-Correlation-Id y exige que el span OTel y el log estructurado emitidos lleven el cid; server caído → rojo (diente nativo); quitar la instrumentación → cid ausente → rojo", runs_in: product_env, toolchain: "kotlin-otel-httpserver", status: built }
+      builds: []
+      checks:
+        - name: observability_live
+          kind: infra_up
+          workdir: build/product
+          bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew installDist -q --console=plain"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp"]
+          proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:58593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
+          down: []
+          timeout: 120
+    # s10 DIFERIDA (se construye por incremento, "capacidad por capacidad"). La línea COMPLETA con su DAG,
+    # proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en git @
+    # c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con su
+    # depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]
@@ -711,8 +742,12 @@ requirements:
       satisfied_by: [s8]
       verified_by: [a11y_gate, perf_budget_gate]
       capability: calidad_experiencia
-    # REQ-F-010 DIFERIDA con s9–s10 (cada una se re-añade cuando su estación se construye). Texto
-    # completo en docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).
+    - id: REQ-F-010
+      statement: "el producto EMITE observabilidad verificada contra un server HTTP VIVO: una request produce un trace OTel con correlation-id + un log estructurado con ese cid, y /health·/ready responden (DES-5)"
+      acceptance: "observability_live verde: el server levanta y el proof verifica que la request emite span + log con el correlation-id; server caído → rojo (diente nativo de infra_up); quitar la instrumentación → el cid no se emite → rojo. Ktor completo + e2e (Playwright) + Lighthouse quedan declared-deferred (ADR-012)"
+      satisfied_by: [s9]
+      verified_by: [observability_live]
+      capability: observabilidad_producto
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"

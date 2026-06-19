@@ -1,8 +1,8 @@
-<!-- meta:doc sha=6d5ed1a42de6628a59dc5ea817fb7c3435020892 updated=2026-06-19T15:58Z -->
+<!-- meta:doc sha=9be2e6e89f21294e1c6db090e7b72fd8737975b1 updated=2026-06-19T16:00Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-19T15:36Z -->
 # Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T15:36Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T16:00Z) (creado 2026-06-19T15:36Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Otro orquestador
 > construye desde acá. Si algo no está acá (o en la spec/handoff que referencia), no existe. Orden de lectura: §0.

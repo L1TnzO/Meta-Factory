@@ -21,6 +21,7 @@ Uso:
 from __future__ import annotations
 
 import filecmp
+import json
 import os
 import shutil
 import sys
@@ -557,6 +558,145 @@ def _probe_bad_ts() -> str:
             'export const bad = (x: any): unknown => x;\n')
 
 
+# ── frescura de API (s3, DES-11): el oráculo de superficie pineado + el linter determinista (DATA) ──
+def _api_surface_lock() -> str:
+    """config/api-surface.lock — el ORÁCULO de superficie PINEADO (DES-11). DATA de la fábrica (ADR-012):
+    versiones pineadas (lo que el MCP-recall/Context7 del pin "conoce") + una deny-list de la superficie
+    DEPRECADA/stale para ESAS versiones, con su reemplazo. El linter (tools/currency_lint.py) cruza el
+    código autorado contra esta lista; un símbolo deprecado/fuera-de-pin → rojo. DETERMINISTA, sin LLM (I-3).
+    Eje DISTINTO de s2 (calidad): acá frescura. Cubre lo que el compilador CALLA (date legacy / substr)."""
+    lock = {
+        "_comment": (
+            "Oráculo de superficie pineado (DES-11/frescura_de_api). Generado por scaffold_product.py "
+            "desde los pins del PLAN. El linter determinista tools/currency_lint.py lo cruza contra el "
+            "código autorado: superficie deprecada/fuera-de-pin → build rojo (sin LLM, I-3)."
+        ),
+        "pinned_versions": {
+            "kotlin": KOTLIN_VERSION,
+            "jdk": JDK_TOOLCHAIN,
+            "typescript": TS_VERSION,
+        },
+        # deny-list: cada símbolo es REALMENTE deprecado/stale en la versión pineada (SAFE-7, no inventado).
+        "forbidden": [
+            {"id": "kt-uppercase-noarg", "lang": "kotlin", "pattern": r"\.toUpperCase\s*\(\s*\)",
+             "reason": "String.toUpperCase() sin locale está deprecado desde Kotlin 1.5", "use": "uppercase()"},
+            {"id": "kt-lowercase-noarg", "lang": "kotlin", "pattern": r"\.toLowerCase\s*\(\s*\)",
+             "reason": "String.toLowerCase() sin locale está deprecado desde Kotlin 1.5", "use": "lowercase()"},
+            {"id": "kt-capitalize", "lang": "kotlin", "pattern": r"\.capitalize\s*\(",
+             "reason": "String.capitalize() está deprecado desde Kotlin 1.5", "use": "replaceFirstChar { it.uppercase() }"},
+            {"id": "kt-legacy-date", "lang": "kotlin", "pattern": r"\bjava\.util\.Date\b",
+             "reason": "java.util.Date es la date API legacy (el compilador la acepta; el oráculo la bloquea)", "use": "java.time.Instant"},
+            {"id": "kt-simpledateformat", "lang": "kotlin", "pattern": r"\bSimpleDateFormat\b",
+             "reason": "SimpleDateFormat es legacy y no thread-safe", "use": "java.time.format.DateTimeFormatter"},
+            {"id": "ts-substr", "lang": "typescript", "pattern": r"\.substr\s*\(",
+             "reason": "String.prototype.substr() está deprecado (Annex B; tsc y eslint-strict no lo marcan)", "use": "slice()"},
+            {"id": "ts-new-buffer", "lang": "typescript", "pattern": r"\bnew\s+Buffer\s*\(",
+             "reason": "el constructor new Buffer() está deprecado en Node", "use": "Buffer.from()"},
+        ],
+    }
+    return json.dumps(lock, indent=2, ensure_ascii=False) + "\n"
+
+
+def _currency_lint_py() -> str:
+    """tools/currency_lint.py — el linter DETERMINISTA de frescura (DES-11), parte de la mini-columna del
+    PRODUCTO (s10). Stdlib puro, autocontenido (sin `import metafactory`, sin yaml → corre en product_env con
+    env scrubbeado, igual que los hooks del seed). Lee el lock relativo a sí mismo, escanea los targets que
+    recibe (por extensión → lenguaje), e imprime `STALE …` por hallazgo; exit 1 si hay alguno, 0 si no."""
+    return '''\
+#!/usr/bin/env python3
+"""currency_lint.py — frescura de API (DES-11). Cruza el código contra config/api-surface.lock (oráculo de
+superficie pineado) y falla si usa superficie deprecada/fuera-de-pin. DETERMINISTA, sin LLM (I-3). Es el
+gate de frescura que el producto SHIPPEA (mini-columna, s10). Uso: currency_lint.py <archivo|dir>..."""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+_EXT_LANG = {".kt": "kotlin", ".kts": "kotlin", ".ts": "typescript", ".tsx": "typescript"}
+_SKIP_DIRS = {"build", "gen", "node_modules", ".gradle", "tools"}
+
+
+def _rules(lock: Path) -> list[tuple[str, str, "re.Pattern[str]", str, str]]:
+    data = json.loads(lock.read_text(encoding="utf-8"))
+    return [(r["id"], r["lang"], re.compile(r["pattern"]), r.get("reason", ""), r.get("use", ""))
+            for r in data.get("forbidden", [])]
+
+
+def _files(targets: list[str]):
+    for t in targets:
+        p = Path(t)
+        if p.is_file():
+            yield p
+        elif p.is_dir():
+            for f in sorted(p.rglob("*")):
+                if f.is_file() and not (_SKIP_DIRS & set(f.parts)):
+                    yield f
+
+
+def main(argv: list[str]) -> int:
+    if not argv:
+        print("usage: currency_lint.py <archivo|dir>...", file=sys.stderr)
+        return 2
+    lock = Path(__file__).resolve().parent.parent / "config" / "api-surface.lock"
+    if not lock.is_file():
+        print(f"currency: falta el oráculo {lock}", file=sys.stderr)
+        return 2
+    rules = _rules(lock)
+    findings = 0
+    for f in _files(argv):
+        lang = _EXT_LANG.get(f.suffix)
+        if lang is None:
+            continue
+        for i, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            if line.lstrip().startswith(("//", "*", "/*", "#")):
+                continue  # linea de comentario pura: un linter de deprecacion no marca prosa que la explica
+            for rid, rlang, rx, reason, use in rules:
+                if rlang != lang:
+                    continue
+                m = rx.search(line)
+                if m:
+                    findings += 1
+                    tail = f"; use {use}" if use else ""
+                    print(f"STALE {f}:{i}: [{rid}] {m.group(0).strip()} \\u2014 {reason}{tail}")
+    if findings:
+        print(f"currency: {findings} simbolo(s) deprecado(s)/fuera-de-pin", file=sys.stderr)
+        return 1
+    print("currency: ok (solo superficie no-deprecada y pineada)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+'''
+
+
+def _probe_stale_kt() -> str:
+    """Fixture NEGATIVO (DES-11): superficie DEPRECADA/stale — `.toUpperCase()` no-locale (deprecado desde
+    Kotlin 1.5) y `java.util.Date` (date API legacy que el compilador acepta). El linter de currency DEBE
+    morder (currency_gate lo exige por grep `toUpperCase`); si NO muerde → gate decorativo → rojo. Vive en
+    probe/currency (FUERA de src/ y de los source sets): no se compila, no entra en el jar, NO se shippea."""
+    return ("package probe.currency\n\n"
+            "// NEGATIVO DES-11 (frescura): superficie de API DEPRECADA/stale. El linter de currency DEBE\n"
+            "// morder (toUpperCase no-locale + java.util.Date legacy); currency_gate lo exige por grep. Si\n"
+            "// NO muerde → gate decorativo → rojo. No se compila ni se shippea (fuera de src/).\n"
+            "import java.util.Date\n\n"
+            "fun stale(name: String): String {\n"
+            "    val ts = Date()\n"
+            "    return name.toUpperCase() + ts.toString()\n"
+            "}\n")
+
+
+def _probe_stale_ts() -> str:
+    """Fixture NEGATIVO (DES-11): `.substr()` deprecado (Annex B; tsc/eslint-strict no lo marcan → muestra
+    la cobertura genuina del oráculo). El linter DEBE morder (currency_gate lo exige por grep `substr`). NO
+    se shippea (fuera de src/; dir propio probe-currency → decoupleado del probe de s2)."""
+    return ('// NEGATIVO DES-11 (frescura): `.substr()` esta deprecado (Annex B; tsc y eslint-strict NO lo\n'
+            '// marcan). El linter de currency DEBE morder; currency_gate lo exige por grep. No se shippea.\n'
+            'export const stale = (s: string): string => s.substr(0, 3);\n')
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -575,12 +715,17 @@ def build_files(bp: dict) -> dict[str, str]:
         "config/detekt.yml": _detekt_yml(),
         ".editorconfig": _editorconfig(),
         "probe/kotlin/Bad.kt": _probe_bad_kt(),
+        # frescura de API (s3, DES-11): el oráculo pineado + el linter determinista + el probe stale (DATA)
+        "config/api-surface.lock": _api_surface_lock(),
+        "tools/currency_lint.py": _currency_lint_py(),
+        "probe/currency/StaleApi.kt": _probe_stale_kt(),
         "frontend/package.json": _ts_package_json(pkg),
         "frontend/tsconfig.json": _TS_TSCONFIG,
         "frontend/src/client.ts": _client_ts(ents),
         "frontend/src/reset.d.ts": _reset_dts(),
         "frontend/eslint.config.js": _eslint_config(),
         "frontend/probe/bad.ts": _probe_bad_ts(),
+        "frontend/probe-currency/stale.ts": _probe_stale_ts(),
     }
 
 

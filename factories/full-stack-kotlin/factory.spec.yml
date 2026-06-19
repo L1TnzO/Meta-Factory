@@ -112,10 +112,10 @@ domain:
     - id: frescura_de_api
       invariant: "el código generado usa SÓLO superficie de API no-deprecada y pineada; un símbolo deprecado se bloquea de forma DETERMINISTA, sin LLM (I-3)"
       primitive: DES-11
-      tech: "oráculo de superficie pineado (allow-list de símbolos por versión, alimentado por el MCP-recall/Context7) + linter determinista"
+      tech: "oráculo de superficie pineado (config/api-surface.lock: versiones pineadas + deny-list por versión) + linter determinista (tools/currency_lint.py, stdlib, sin LLM)"
       artifact: build/product/config/api-surface.lock
-      proof: "s3: el linter de currency cruza el código contra el lock; usar un símbolo deprecado/fuera del pin → rojo"
-      status: planned
+      proof: "s3: el linter de currency cruza el código contra el lock; usar un símbolo deprecado/fuera del pin → rojo; el probe sucio embebido DEBE morder cada corrida"
+      status: built
     - id: seguridad_cadena_suministro
       invariant: "el producto no shippea vulnerabilidades conocidas, secretos ni código inseguro — gateado en el toolchain del producto"
       primitive: DES-13
@@ -263,7 +263,30 @@ domain:
           workdir: build/product/frontend
           bootstrap: ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"]
           cmd: ["sh", "-c", "./node_modules/.bin/eslint 'src/**/*.ts' || exit 1; ./node_modules/.bin/eslint 'probe/**/*.ts' 2>&1 | grep -q no-explicit-any || { echo FSK_HARDNESS_DECORATIVE_TS; exit 1; }; echo FSK_HARDNESS_OK_TS"]
-    # s3–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
+    - id: s3
+      name: "frescura de API: oráculo de superficie pineado + linter determinista (sin LLM) — DES-11"
+      activation: always
+      depends_on: [s2]
+      # DES-11 — el código generado usa SÓLO superficie no-deprecada y pineada; lo viejo se bloquea de forma
+      # DETERMINISTA (I-3, sin LLM). El codegen (s0) emite el ORÁCULO config/api-surface.lock (versiones
+      # pineadas + deny-list de símbolos deprecados/stale por versión) + el linter stdlib tools/currency_lint.py
+      # (parte de la mini-columna del PRODUCTO, s10) → builds: [] (la estación sólo PRUEBA). UN linter
+      # language-agnostic cruza Kotlin (src/main/kotlin) Y TS (frontend/src) contra UN lock — el anti-overfit
+      # más fuerte (un mecanismo general por DATA, dos lenguajes). Eje DISTINTO de s2 (calidad): acá frescura;
+      # cubre lo que el compilador CALLA (java.util.Date legacy en Kotlin; .substr() en TS). Diente NEGATIVO
+      # EMBEBIDO (no-decorativo, cada corrida): el MISMO linter sobre fixtures sucios (probe/currency,
+      # frontend/probe-currency, FUERA de src → no se shippean) DEBE morder — se exige el hallazgo por grep
+      # (toUpperCase Kotlin + substr TS), fail-closed. Sustrato intacto: product_env corre DATA (ADR-012).
+      proof_checks:
+        - { name: currency_gate, cmd: "el linter determinista cruza src/main/kotlin+frontend/src vs config/api-surface.lock → 0; sobre probe/currency+frontend/probe-currency DEBE morder (toUpperCase+substr) o decorativo→rojo", runs_in: product_env, toolchain: "currency-linter", status: built }
+      builds: []
+      checks:
+        - name: currency_gate
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/currency_lint.py src/main/kotlin frontend/src || exit 1; out=$(python3 tools/currency_lint.py probe/currency frontend/probe-currency 2>&1); echo \"$out\" | grep -q toUpperCase || { echo FSK_CURRENCY_DECORATIVE_KOTLIN; exit 1; }; echo \"$out\" | grep -q substr || { echo FSK_CURRENCY_DECORATIVE_TS; exit 1; }; echo FSK_CURRENCY_OK"]
+    # s4–s10 DIFERIDAS (se construyen por incremento, "capacidad por capacidad"). La línea COMPLETA con su
     # DAG, proof_checks y DES por estación vive en docs/work/FULLSTACK-KOTLIN-INCREMENT.md §6 (autoridad) y en
     # git @ c318aaf (la spec de DISEÑO). Cada futuro incremento RE-AÑADE su estación acá (activa + built) con
     # su depends_on y sus requirements. El spec buildable refleja lo CONSTRUIDO (SAFE-7), no la aspiración.
@@ -395,5 +418,11 @@ requirements:
       satisfied_by: [s2]
       verified_by: [static_hardness_kotlin, static_hardness_ts]
       capability: dureza_estatica
-    # REQ-NF-003..007 DIFERIDAS con s3–s10 (re-añadidas al construir cada estación). Texto completo en
+    - id: REQ-NF-003
+      statement: "el código generado usa sólo superficie de API no-deprecada y pineada; lo viejo se bloquea de forma DETERMINISTA, sin LLM (DES-11, I-3)"
+      acceptance: "currency_gate verde sobre el código autorado; un símbolo deprecado/fuera-de-pin → rojo; el probe sucio embebido DEBE morder cada corrida (toUpperCase / substr) o el gate es decorativo → rojo"
+      satisfied_by: [s3]
+      verified_by: [currency_gate]
+      capability: frescura_de_api
+    # REQ-NF-004..007 DIFERIDAS con s4–s10 (re-añadidas al construir cada estación). Texto completo en
     # docs/work/FULLSTACK-KOTLIN-INCREMENT.md y en git @ c318aaf (spec de DISEÑO).

@@ -1,9 +1,14 @@
-<!-- meta:doc sha=31a1d7bc7afba93da0d9153dff4e064b646d1485 updated=2026-06-20T14:13Z -->
+<!-- meta:doc sha=64ec65f1c9d9a725386f5c4edc3810683f445ef8 updated=2026-06-20T15:49Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-20T14:11Z -->
 # Incremento FSK-S13-DOMAIN-RBAC
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T14:11Z). Cerralo con `meta increment close`
-> (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T15:55Z, `meta increment close`: árbol limpio +
+> estación activa verde). Todo cambio de código vivió acá (ADR-010). **Resultado**: las 4 fases verdes —
+> gramática `roles`/`write_roles` + guard `Role`/`RoleGuard` generado, contrato `x-required-roles`,
+> `route_check.py` modo `rbac` con diente embebido, test de dos lados `RoleGuardTest`. Capability
+> `rbac_enforced` (DES-3) + REQ-F-012 en s5 → **RTM default 16→17 COMPLETE**. 2 productos con políticas de rol
+> DISTINTAS `ci --rederive == pin` (default 11/11 · assets 16/17, s6 LLM diferido keyless). **Anti-overfit:
+> `git diff src/metafactory/ + seed/` = 0** (RBAC es gramática de fábrica). Suite 573. Evidencia en §Fases.
 >
 > **HANDOFF (escrito 2026-06-20 por la sesión que cerró FSK-S12/workflows).** Este doc es AUTOCONTENIDO a
 > propósito: asumí que el contexto de quien lo abrió murió (`/clear`). Otro orquestador lo construye desde acá.
@@ -128,10 +133,10 @@ estación nueva** (más barato y honesto extender s5). **No hardcodees** roles e
 ## 4. Fases (plan; el orquestador las refina)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Gramática + validación + guard generado.** `roles`/`write_roles` en el blueprint; fail-closed en `_load_blueprint`; `x-required-roles` en el contrato; enum `Role` + `RoleGuard`/`AuthGuard` extendido; `route_check.py` modo `rbac` + probe. `--selftest`/`--check-idempotent` verdes; compile+detekt del demo verde. | ⏳ |
-| 2 | **El demo ejercita RBAC + re-derive == pin.** Agregá `roles` + `write_roles` al demo; check `rbac_enforced` en s5; test de dos lados; línea s0–s10 verde · `ci --rederive` == re-pin · **RTM 16→17**. | ⏳ |
-| 3 | **2º producto (assets) con roles DISTINTOS + co-validación (ADR-014).** La instancia `assets` declara roles propios (p.ej. `viewer` no escribe activos); `ci --rederive --product assets` == pin, aislada. | ⏳ |
-| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (objetivo: `src/metafactory/`+`seed/` = **0**) + suite + RTM + `meta increment close`. | ⏳ |
+| 1 | **Gramática + validación + guard generado.** `roles`/`write_roles` en el blueprint; fail-closed en `_load_blueprint`; `x-required-roles` en el contrato; enum `Role` + `RoleGuard`/`AuthGuard` extendido; `route_check.py` modo `rbac` + probe. `--selftest`/`--check-idempotent` verdes; compile+detekt del demo verde. | ✅ |
+| 2 | **El demo ejercita RBAC + re-derive == pin.** Agregá `roles` + `write_roles` al demo; check `rbac_enforced` en s5; test de dos lados; línea s0–s10 verde · `ci --rederive` == re-pin · **RTM 16→17**. | ✅ |
+| 3 | **2º producto (assets) con roles DISTINTOS + co-validación (ADR-014).** La instancia `assets` declara roles propios (p.ej. `viewer` no escribe activos); `ci --rederive --product assets` == pin, aislada. | ✅ |
+| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (objetivo: `src/metafactory/`+`seed/` = **0**) + suite + RTM + `meta increment close`. | ✅ |
 
 ## 5. Gate (prueba por bloqueo — dientes de dos lados, no decorativos)
 - **RBAC enforced (dos lados):** un rol PERMITIDO escribe ✓ Y un rol NO-permitido es rechazado ✗ (en el test

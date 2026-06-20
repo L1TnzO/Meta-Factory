@@ -1,4 +1,4 @@
-<!-- meta:doc sha=18df7354907dbfd8c61ee04e6de1f4f795781af4 updated=2026-06-20T14:01Z -->
+<!-- meta:doc sha=a32b98ea3741001b50953d8dfdcdddab88ecc3eb updated=2026-06-20T15:48Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,7 +430,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows + RBAC)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
@@ -477,9 +477,19 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     distinta** (demo stepwise sin terminal ↔ assets lifecycle con terminal `archived`): `ci --rederive` == pin
     (default 11/11 · assets 10/10). Capability `workflow_enforced` + REQ-F-011 → **RTM default 16/16**. Sustrato
     `src/+seed/` = 0 (todo `codegen/`+spec+stations+product.yml). Evidencia: `work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md`.
-  - **R2·{otras fábricas} + ejes superiores restantes** (RBAC/autorización por rol · reglas-LLM bajo gate, otras
-    fábricas): 🔲 pendientes, un incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA
-    (R1 coexistencia + R2 campos arbitrarios + workflows).
+  - **R2·FSK eje #3 — RBAC / autorización por rol.** ✅ (2026-06-20, `FSK-S13-DOMAIN-RBAC`). `domain.product`
+    gana `roles` + `write_roles` por entidad → capa de AUTORIZACIÓN por rol DETERMINISTA encima de la
+    autenticación de s5: enum `Role` type-safe (`auth/Role.kt`) + `RoleGuard` + el `RouteTable` registra cada
+    escritura con su `Set<Role>`; un rol no-autorizado se rechaza por construcción (DES-3). Single-source DES-6:
+    el contrato marca `x-required-roles` → `route_check.py` modo `rbac` lo cruza contra el Kotlin (tamper de un
+    lado → `ROLE_MISMATCH`). Diente negativo embebido (`wrong_roles.kt`) + diente de DOS lados runtime
+    (`RoleGuardTest` Kotest). **2 productos con políticas de rol DISTINTAS** (demo admin/editor/viewer ↔ assets
+    admin/manager/auditor): `ci --rederive` == pin (default 11/11 · assets 16/17, s6 diferido). Capability
+    `rbac_enforced` + REQ-F-012 en s5 → **RTM default 16→17**. Sustrato `src/+seed/` = 0 (todo `codegen/`+spec+
+    `stations/s5.yml`+product.yml). Evidencia: `work/FSK-S13-DOMAIN-RBAC-INCREMENT.md`.
+  - **R2·{otras fábricas} + ejes superiores restantes** (reglas-LLM bajo gate · ABAC/ownership a nivel de fila,
+    otras fábricas): 🔲 pendientes, un incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO +
+    CICLO-DE-VIDA (R1 coexistencia + R2 campos arbitrarios + workflows + control de acceso por rol).
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

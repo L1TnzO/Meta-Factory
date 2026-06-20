@@ -1,7 +1,48 @@
-<!-- meta:doc sha=579094db2438527597a07c1753ccebada2c15355 updated=2026-06-20T14:02Z -->
+<!-- meta:doc sha=bfba13d2b6b1a59c17a2179b9091eb1a6acc0f5b updated=2026-06-20T15:48Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T15:50Z — R2·FSK eje #3 ✅ — RBAC / autorización por rol sobre las escrituras (`FSK-S13-DOMAIN-RBAC`)
+- **qué cambió**: `domain.product` gana `roles` (universo de roles, top-level) + `write_roles` por entidad
+  (quién puede POST-ear) en la gramática del blueprint. El codegen emite una capa de **AUTORIZACIÓN por rol
+  DETERMINISTA** (sin LLM, I-3) ENCIMA de la **autenticación** que ya da s5: `auth/Role.kt` (enum class
+  type-safe derivado de `roles`) + `auth/RoleGuard.kt` (`authorize(token, required)`: extrae el rol del token
+  `"Bearer <rol>"` — mismo esquema estático que `AuthGuard`, sin server vivo — y exige membresía en el set
+  requerido; un set vacío cae a `AuthGuard` = sólo autenticación). El `RouteTable` registra cada escritura con
+  su `Set<Role>` y `dispatch` lo cruza via `RoleGuard`. Un rol no-autorizado se rechaza por construcción
+  (DES-3, no-salteable). Todo en `codegen/` (ADR-012).
+- **single-source DES-6**: el contrato documenta los roles requeridos como `x-required-roles` (vendor
+  extension, ignorada por openapi-generator/openapi-typescript — el contrato sigue parseando). `route_check.py`
+  gana un modo `rbac` que cruza el set del contrato contra el registrado en el Kotlin (por tokens, stdlib, sin
+  compilar) → tamper de un lado sin el otro → `ROLE_MISMATCH` (verificado vivo: editar `x-required-roles` del
+  contrato sin tocar el `RouteTable` → rojo). El tamper-tooth real es el cruce determinista, no una lista
+  paralela decorativa (misma honestidad que FSK-S12).
+- **diente de DOS lados** (no-decorativo): (1) NEGATIVO embebido en s5, idiom `auth`/`topology` —
+  `probe/routes/wrong_roles.kt` (escritura con el set de roles equivocado, FUERA de `src/` → no se shippea)
+  DEBE morder por grep (`ROLE_MISMATCH`) o el check es decorativo → rojo. (2) RUNTIME — tier unit Kotest
+  `RoleGuardTest` asevera rol PERMITIDO ✓ Y no-permitido ✗ (+ set vacío cae a auth); con `RoleGuard` saboteado
+  a `return true`, 3 tests → FAILED → rojo. Validación fail-closed en `_load_blueprint` (vivos: `write_roles`
+  sin `roles` · rol ∉ `roles` · roles no-identificador-lowercase / duplicados → `SystemExit`).
+- **co-validación 2 productos con políticas de rol DISTINTAS** (ADR-014), ambos `ci --rederive == pin` en clon
+  limpio, aislados: **demo** `[admin, editor, viewer]` con `viewer` read-only (User→[admin], Project/Task→
+  [admin, editor]) → 11/11; **instancia `assets`** un vocabulario PROPIO `[admin, manager, auditor]` con
+  política distinta (Holder→[admin], Asset→[admin, manager]; `auditor` read-only) → RTM 16/17 (s6 LLM diferido
+  keyless, honesto). Capability `rbac_enforced` (DES-3) + REQ-F-012 + check `rbac_enforced` en **s5** (su casa
+  natural: ahí viven `AuthGuard`/`RouteTable`/`route_check.py`) → **RTM default 16→17 COMPLETE**.
+- **anti-overfit**: `git diff src/metafactory/ + seed/` = **0** en todo el incremento — RBAC es gramática de
+  FÁBRICA: vive 100% en `codegen/` + el spec + `stations/s5.yml` + `product.yml` (DATA, ADR-012). Compuso sobre
+  la topología de rutas de s5 ya existente (s5 pasó de DOS gates a TRES). Opt-in: una entidad sin `write_roles`
+  (o un producto sin `roles`) → sólo autenticación, FSK-S5 intacto (probado con specs sintéticos). Suite 573.
+- **decisiones de diseño (ojos propios)**: (1) el enum `Role` se emite en `auth/` PROPIO (del blueprint, no del
+  contrato — el contrato no tiene un schema de Role), espejo de cómo s5 ya separa auth del modelo. (2) detekt
+  `ReturnCount` (≤2) mordió un `dispatch` con 3 returns → lo colapsé a `!match.guarded || RoleGuard.authorize(...)`
+  (espeja la forma legacy con `AuthGuard`). (3) el modo `rbac` distingue `MISSING_RBAC` (op con roles sin
+  registro, incl. registrarla sin roles: `emptySet` ≠ requerido) de `ROLE_MISMATCH` (set distinto) — dos fallos
+  honestos, no uno genérico.
+- **proceso**: el `cd` a un subdir filtró el cwd persistente (memoria `no-cd-subdirs-hook-deadlock`) → paths
+  absolutos + subshells de ahí en más. Sandbox mata gradle → `dangerouslyDisableSandbox`. Línea en foreground.
+  `proof_protect` deniega leer `.proof/` por shell → usé `meta rtm` (re-deriva el árbol) para el conteo.
 
 ## 2026-06-20T14:00Z — R2·FSK eje #2 ✅ — workflows / máquinas de estado sobre `enum` (`FSK-S12-DOMAIN-WORKFLOWS`)
 - **qué cambió**: un campo `enum` gana dos modifiers OPCIONALES — `initial` + `transitions` (la máquina de

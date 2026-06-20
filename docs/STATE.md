@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c9f3ba74755547dac25971a9c2e95d9f7ee6a731 updated=2026-06-20T14:11Z -->
+<!-- meta:doc sha=e3506082063d38ec3820ae27b9793ec0735aa1a6 updated=2026-06-20T15:49Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,15 +6,15 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: FSK-S13-DOMAIN-RBAC-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (16/16) · iot: COMPLETE (6/6)
+- Incremento abierto: ninguno
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (17/17) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
-- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2·FSK ✅ (campos 2026-06-19 + workflows 2026-06-20)**:
+- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2·FSK ✅ (campos 2026-06-19 + workflows + RBAC 2026-06-20)**:
   - **R1 (lifecycle, sustrato)**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos**.
     Una instancia vive en `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` + `pinned_verdict.json`; el
     sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea por corrida (`ensure_product_instance`).
@@ -41,9 +41,24 @@
     assets 10/10**). Capability `workflow_enforced` (DES-3) + REQ-F-011 → **RTM default 15→16 COMPLETE**.
     **Sustrato `seed/`+`src/metafactory/` = 0** (todo `codegen/`+spec+`stations/s7.yml`+`product.yml`, DATA de
     fábrica; compuso sobre `product_env`+pirámide s7). Opt-in: un enum sin `transitions` no emite nada (FSK-S11 intacto).
-  - **Sigue**: R2 ejes superiores (RBAC/autorización por rol · reglas de negocio por LLM bajo gate) + R2 en otras
-    fábricas, un incremento por fábrica/eje (ADR-012). El caso "clonar Snipe-IT" ya tiene PISO+CICLO-DE-VIDA (R1
-    coexistencia + R2 campos arbitrarios + workflows). `work/ROADMAP.md §Fase R`.
+  - **R2·FSK eje #3 — RBAC / autorización por rol ✅ (FSK-S13, 2026-06-20)**: `domain.product` gana `roles`
+    (universo) + `write_roles` por entidad (gramática del blueprint) → el codegen emite una capa de
+    **AUTORIZACIÓN por rol DETERMINISTA** encima de la **autenticación** de s5: enum `Role` type-safe
+    (`auth/Role.kt`) + `RoleGuard` (`authorize(token, required)` cruza el rol del token contra el set requerido)
+    + el `RouteTable` registra cada escritura con su `Set<Role>`. Un rol no-autorizado se rechaza por
+    construcción (DES-3, sin LLM/I-3). Single-source DES-6: el contrato marca `x-required-roles` →
+    `route_check.py` gana el modo `rbac` que cruza el set del contrato contra el registrado en el Kotlin →
+    tamper de un lado sin el otro → `ROLE_MISMATCH` (verificado vivo). **Diente negativo embebido** en s5
+    (`probe/routes/wrong_roles.kt`) + **diente de DOS lados** en runtime (tier unit Kotest `RoleGuardTest`: rol
+    permitido ✓ / no-permitido ✗; romper `RoleGuard` → rojo). Fail-closed en el blueprint. **2 productos con
+    políticas de rol DISTINTAS** (demo admin/editor/viewer, viewer read-only ↔ assets admin/manager/auditor,
+    manager escribe activos): `ci --rederive` == pin, aislados (**default 11/11 · assets 16/17, s6 LLM diferido
+    keyless**). Capability `rbac_enforced` (DES-3) + REQ-F-012 en **s5** → **RTM default 16→17 COMPLETE**.
+    **Sustrato `seed/`+`src/metafactory/` = 0** (todo `codegen/`+spec+`stations/s5.yml`+`product.yml`, DATA de
+    fábrica; compuso sobre la topología de rutas de s5). Opt-in: una entidad sin `write_roles` → sólo autenticación (FSK-S5 intacto).
+  - **Sigue**: R2 ejes superiores (reglas de negocio por LLM bajo gate · ABAC/ownership a nivel de fila) + R2 en
+    otras fábricas, un incremento por fábrica/eje (ADR-012). El caso "clonar Snipe-IT" ya tiene PISO+CICLO-DE-VIDA
+    (R1 coexistencia + R2 campos arbitrarios + workflows + control de acceso por rol). `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

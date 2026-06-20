@@ -41,6 +41,11 @@ domain:
     # type-safe + RoleGuard (cruza el rol del token contra el set requerido), el contrato marca x-required-roles
     # y route_check.py (modo rbac) lo verifica. `viewer` es read-only (no escribe ninguna entidad).
     roles: [admin, editor, viewer]
+    # ownership / autorización a nivel de FILA (R2/FSK-S14, DES-3): un actor no-privilegiado sólo modifica las
+    # filas que le PERTENECEN; `owner_bypass_roles` = los roles que IGNORAN ownership (admin administra todo). El
+    # codegen emite OwnershipGuard.canModify + OwnershipPolicy (entidad→campo dueño), el contrato marca x-owned-by
+    # y route_check.py (modo ownership) lo verifica. Compone sobre RBAC (rol×entidad) + auth (autenticación).
+    owner_bypass_roles: [admin]
     entities:
       - name: User
         write_roles: [admin]          # sólo admin crea usuarios
@@ -49,6 +54,7 @@ domain:
           - { name: name, type: string }
       - name: Project
         write_roles: [admin, editor]
+        owned_by: owner_id            # el dueño de la fila es el User que owner_id referencia (ownership)
         fields:
           - { name: name, type: string }
           - { name: owner_id, type: ref, to: User }
@@ -183,6 +189,13 @@ domain:
       tech: "gramática del blueprint (domain.product): `roles` (universo) + `write_roles` por entidad (R2/FSK-S13) → el codegen emite un enum Role type-safe (auth/Role.kt) + RoleGuard (auth/RoleGuard.kt: authorize(token, required) cruza el rol del token contra el set requerido) + el RouteTable registra cada escritura con su Set<Role> + un test de DOS lados (tier unit, Kotest). El contrato documenta los roles requeridos como x-required-roles (DES-6, inspectable); route_check.py (modo rbac) cruza el set del contrato contra el registrado en el Kotlin. Opt-in: una entidad sin write_roles (o un producto sin roles) → sólo autenticación (FSK-S5 intacto)"
       artifact: build/product/src/main/kotlin/webapp/auth/RoleGuard.kt
       proof: "s5 rbac_enforced: route_check.py (rbac) exige que cada op con x-required-roles esté registrada en el RouteTable con ESE set de roles; un set distinto (tamper del contrato sin tocar el Kotlin, o viceversa) → ROLE_MISMATCH (rojo); el probe sucio embebido (probe/routes/wrong_roles.kt, roles equivocados) DEBE morder (ROLE_MISMATCH) o decorativo→rojo. El test de dos lados (tier unit, RoleGuardTest) ejercita el guard en runtime: rol permitido ✓ / no-permitido ✗; romper RoleGuard → rojo"
+      status: built
+    - id: ownership_enforced
+      invariant: "una entidad declara qué campo identifica al DUEÑO de cada fila (owned_by) y un guard DETERMINISTA (sin LLM, I-3) lo enforza: un actor no-privilegiado sólo modifica las filas que le PERTENECEN (su principal == el dueño); un rol de owner_bypass_roles bypassa — autorización a nivel de FILA (ownership / ABAC acotado, no-salteable, DES-3) encima del RBAC de s5"
+      primitive: DES-3
+      tech: "gramática del blueprint (domain.product): `owned_by` por entidad (el campo ref dueño) + `owner_bypass_roles` (R2/FSK-S14) → el codegen emite OwnershipGuard.canModify (auth/OwnershipGuard.kt, genérico type-safe sobre Role) + el registro OwnershipPolicy (auth/OwnershipPolicy.kt: entidad→campo dueño, derivado del blueprint) + un test de DOS+ lados (tier unit, Kotest, type-bound al model del contrato). El contrato documenta el dueño como x-owned-by (DES-6, inspectable); route_check.py (modo ownership) cruza el campo del contrato contra el registrado en el Kotlin. Opt-in: una entidad sin owned_by → sólo RBAC (FSK-S13 intacto)"
+      artifact: build/product/src/main/kotlin/webapp/auth/OwnershipGuard.kt
+      proof: "s5 ownership_enforced: route_check.py (ownership) exige que cada entidad con x-owned-by esté registrada en OwnershipPolicy con ESE campo; un campo distinto (tamper del contrato sin tocar el Kotlin, o viceversa) → OWNER_MISMATCH (rojo); el probe sucio embebido (probe/routes/wrong_owner.kt, campo equivocado) DEBE morder (OWNER_MISMATCH) o decorativo→rojo. El test de dos+ lados (tier unit, OwnershipGuardTest) ejercita el guard en runtime: el dueño modifica ✓ / un no-dueño es rechazado ✗ / un rol de bypass bypassa ✓; romper OwnershipGuard → rojo"
       status: built
     - id: calidad_experiencia
       invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral; un output degradado DEBE flipear el gate (no decorativo)"
@@ -369,6 +382,7 @@ domain:
         - { name: auth_reachability, cmd: "route_check.py (auth) exige que toda op con `security` en el contrato esté dentro de authenticated{}; un POST fuera del guard → UNGUARDED; sobre probe/routes/unguarded.kt DEBE morder (UNGUARDED) o decorativo→rojo", runs_in: product_env, toolchain: "route-analyzer", status: built }
         - { name: route_topology, cmd: "route_check.py (topology) exige set(rutas Kotlin) == set(contrato openapi.yaml); ruta sin contrato → EXTRA / contrato sin ruta → MISSING; sobre probe/routes/phantom.kt DEBE morder (EXTRA) o decorativo→rojo", runs_in: product_env, toolchain: "route-analyzer", status: built }
         - { name: rbac_enforced, cmd: "route_check.py (rbac, RBAC/FSK-S13) exige que cada op con x-required-roles esté registrada en el RouteTable con ESE set de roles; un set distinto → ROLE_MISMATCH; sobre probe/routes/wrong_roles.kt DEBE morder (ROLE_MISMATCH) o decorativo→rojo. Opt-in: un producto sin roles → 0 ops, verde (FSK-S5 intacto)", runs_in: product_env, toolchain: "route-analyzer", status: built }
+        - { name: ownership_enforced, cmd: "route_check.py (ownership, FSK-S14) exige que cada entidad con x-owned-by esté registrada en OwnershipPolicy con ESE campo dueño; un campo distinto → OWNER_MISMATCH; sobre probe/routes/wrong_owner.kt DEBE morder (OWNER_MISMATCH) o decorativo→rojo. Opt-in: un producto sin owned_by → 0 entidades, verde (FSK-S13 intacto)", runs_in: product_env, toolchain: "route-analyzer", status: built }
       builds: []
       checks:
         - name: auth_reachability
@@ -386,6 +400,11 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 tools/route_check.py rbac openapi.yaml src/main/kotlin || exit 1; if [ -f probe/routes/wrong_roles.kt ]; then out=$(python3 tools/route_check.py rbac openapi.yaml probe/routes/wrong_roles.kt 2>&1); echo \"$out\" | grep -q ROLE_MISMATCH || { echo FSK_RBAC_DECORATIVE; exit 1; }; fi; echo FSK_RBAC_OK"]
+        - name: ownership_enforced
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/route_check.py ownership openapi.yaml src/main/kotlin || exit 1; if [ -f probe/routes/wrong_owner.kt ]; then out=$(python3 tools/route_check.py ownership openapi.yaml probe/routes/wrong_owner.kt 2>&1); echo \"$out\" | grep -q OWNER_MISMATCH || { echo FSK_OWNERSHIP_DECORATIVE; exit 1; }; fi; echo FSK_OWNERSHIP_OK"]
     - id: s6
       name: "lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test Kotlin — DES-8 (patrón MAT-2)"
       activation: always
@@ -838,6 +857,12 @@ requirements:
       satisfied_by: [s5]
       verified_by: [rbac_enforced]
       capability: rbac_enforced
+    - id: REQ-F-013
+      statement: "una entidad declara qué campo identifica al dueño de cada fila (owned_by) y un guard DETERMINISTA lo enforza: un actor no-privilegiado sólo modifica las filas que le pertenecen (su principal == el dueño), un rol de owner_bypass_roles bypassa — autorización a nivel de FILA (ownership / ABAC acotado) encima del RBAC de s5 (DES-3, R2/FSK-S14)"
+      acceptance: "ownership_enforced verde: route_check.py (ownership) exige que cada entidad con x-owned-by esté registrada en OwnershipPolicy con ESE campo; un campo distinto (tamper del contrato sin tocar el Kotlin, o viceversa) → OWNER_MISMATCH (rojo); el probe sucio embebido (wrong_owner.kt) DEBE morder (OWNER_MISMATCH) o decorativo→rojo. El test de dos+ lados (OwnershipGuardTest, tier unit) ejercita el guard en runtime: el dueño modifica ✓ / un no-dueño es rechazado ✗ / un rol de bypass bypassa ✓; romper OwnershipGuard → rojo. Opt-in: una entidad sin owned_by → sólo RBAC (FSK-S13 intacto)"
+      satisfied_by: [s5]
+      verified_by: [ownership_enforced]
+      capability: ownership_enforced
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"

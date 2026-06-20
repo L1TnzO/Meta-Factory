@@ -37,3 +37,14 @@ checks:
     -f probe/routes/wrong_roles.kt ]; then out=$(python3 tools/route_check.py rbac
     openapi.yaml probe/routes/wrong_roles.kt 2>&1); echo "$out" | grep -q ROLE_MISMATCH
     || { echo FSK_RBAC_DECORATIVE; exit 1; }; fi; echo FSK_RBAC_OK
+- name: ownership_enforced
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 tools/route_check.py ownership openapi.yaml src/main/kotlin || exit 1;
+    if [ -f probe/routes/wrong_owner.kt ]; then out=$(python3 tools/route_check.py
+    ownership openapi.yaml probe/routes/wrong_owner.kt 2>&1); echo "$out" | grep -q
+    OWNER_MISMATCH || { echo FSK_OWNERSHIP_DECORATIVE; exit 1; }; fi; echo FSK_OWNERSHIP_OK

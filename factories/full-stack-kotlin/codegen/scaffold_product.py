@@ -201,6 +201,31 @@ def _load_blueprint(root: Path) -> dict:
         for r in wr:
             if r not in role_set:
                 raise SystemExit(f"scaffold: write_roles de {e.get('name')!r}: rol {r!r} fuera de 'roles'")
+    # R2 (FSK-S14, ownership / ABAC acotado): autorización a nivel de FILA OPCIONAL. `owned_by` (por entidad)
+    # nombra el campo `ref` que apunta al principal DUEÑO de la fila; `owner_bypass_roles` (top-level) = los
+    # roles privilegiados que IGNORAN ownership (default []). Ownership COMPONE sobre RBAC (el guard cruza el
+    # rol del actor contra el bypass) → fail-closed: `owned_by`/`owner_bypass_roles` exigen `roles`. Opt-in: sin
+    # `owned_by` el producto se comporta EXACTO como FSK-S13 (sólo rol×entidad, sin noción de dueño de fila).
+    obr = bp.get("owner_bypass_roles")
+    if obr is not None:
+        if roles is None:
+            raise SystemExit("scaffold: 'owner_bypass_roles' sin 'roles' (ownership compone sobre RBAC, fail-closed)")
+        if not isinstance(obr, list) or not all(isinstance(r, str) for r in obr):
+            raise SystemExit("scaffold: 'owner_bypass_roles' debe ser una lista de strings")
+        for r in obr:
+            if r not in role_set:
+                raise SystemExit(f"scaffold: owner_bypass_roles: rol {r!r} fuera de 'roles'")
+    for e in ents:
+        ob = e.get("owned_by")
+        if ob is None:
+            continue
+        if roles is None:
+            raise SystemExit(f"scaffold: entidad {e.get('name')!r} declara 'owned_by' sin 'roles' (fail-closed)")
+        fld = next((f for f in e["fields"] if f.get("name") == ob), None)
+        if fld is None:
+            raise SystemExit(f"scaffold: owned_by de {e.get('name')!r} nombra un campo inexistente {ob!r}")
+        if fld.get("type") != "ref":
+            raise SystemExit(f"scaffold: owned_by de {e.get('name')!r}: el campo {ob!r} no es type 'ref' (el dueño es una FK a un principal)")
     return bp
 
 
@@ -264,6 +289,14 @@ def _openapi_yaml(bp: dict) -> str:
             f"    {e['name']}:",
             "      type: object",
             f"      required: [{', '.join(required)}]",
+        ]
+        # Ownership (FSK-S14, DES-3): el schema documenta el campo DUEÑO de la fila como vendor extension
+        # x-owned-by (openapi-generator/openapi-typescript la IGNORAN — verificado: el contrato sigue
+        # parseando). Es la FUENTE inspectable de "qué campo es el dueño" (DES-6); route_check.py (modo
+        # ownership) la cruza contra el registro Kotlin (OwnershipPolicy) → tamper de un lado → OWNER_MISMATCH.
+        if e.get("owned_by"):
+            lines.append(f"      x-owned-by: {e['owned_by']}")
+        lines += [
             "      properties:",
             "        id: { type: integer, format: int64 }",
         ]
@@ -1431,6 +1464,50 @@ def _role_guard_kt(pkg: str) -> str:
             "}\n")
 
 
+def _ownership_guard_kt(pkg: str) -> str:
+    """auth/OwnershipGuard.kt — autorización a nivel de FILA (ownership / ABAC acotado, FSK-S14, DES-3) encima
+    del RBAC. `canModify(actorRole, actorPrincipalId, rowOwnerId, bypass)`: un actor no-privilegiado sólo
+    modifica las filas que le PERTENECEN (su principal == el dueño de la fila); un rol de `bypass` (p.ej. admin)
+    ignora ownership. Guard genérico (no por-entidad) → una sola declaración top-level (MatchingDeclarationName).
+    DETERMINISTA (sin LLM, I-3). Mismo paquete que Role → sin imports; ≤2 returns (detekt ReturnCount)."""
+    return (f"package {pkg}.auth\n\n"
+            "/**\n"
+            " * Autorizacion a nivel de FILA (ownership, ABAC acotado, FSK-S14, DES-3) encima del RBAC. Un actor\n"
+            " * no-privilegiado solo puede modificar las filas que le PERTENECEN (su principal == el dueno de la\n"
+            " * fila); un rol de bypass (p.ej. admin) ignora ownership. DETERMINISTA (sin LLM, I-3).\n"
+            " */\n"
+            "object OwnershipGuard {\n"
+            "    fun canModify(actorRole: Role, actorPrincipalId: Long, rowOwnerId: Long, bypass: Set<Role>): "
+            "Boolean {\n"
+            "        return actorRole in bypass || actorPrincipalId == rowOwnerId\n"
+            "    }\n"
+            "}\n")
+
+
+def _ownership_policy_kt(pkg: str, owned: list[dict], bypass_roles: list[str]) -> str:
+    """auth/OwnershipPolicy.kt — el registro de ownership GENERADO del blueprint (`owned_by`/`owner_bypass_roles`,
+    FSK-S14, DES-3): por entidad con dueño, qué campo (del contrato, snake_case) identifica al dueño de la fila,
+    + el set de roles que bypassan. route_check.py (modo ownership) lo cruza por tokens contra x-owned-by del
+    contrato (single-source DES-6): un drift (cambiar x-owned-by sin regenerar el registro, o viceversa) →
+    OWNER_MISMATCH. El type-binding al model del contrato lo da OwnershipGuardTest (lee row.<ownerField>)."""
+    entries = "\n".join(f'        "{e["name"]}" to "{e["owned_by"]}",' for e in owned)
+    if bypass_roles:
+        bypass = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in bypass_roles) + ")"
+    else:
+        bypass = "emptySet()"
+    return (f"package {pkg}.auth\n\n"
+            "// Registro de ownership (FSK-S14, DES-3) -- DERIVADO del blueprint domain.product (owned_by /\n"
+            "// owner_bypass_roles). route_check.py (modo ownership) cruza ownerField (por tokens) contra\n"
+            "// x-owned-by del contrato (single-source DES-6): un drift de un lado -> OWNER_MISMATCH (rojo). El\n"
+            "// type-binding al model lo da OwnershipGuardTest (construye la entidad y lee row.<ownerField>).\n"
+            "object OwnershipPolicy {\n"
+            "    val ownerField: Map<String, String> = mapOf(\n"
+            f"{entries}\n"
+            "    )\n"
+            f"    val bypass: Set<Role> = {bypass}\n"
+            "}\n")
+
+
 def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
     """routes/RouteTable.kt — el registro de rutas (DES-2/DES-3), Kotlin REAL que COMPILA (entra en
     compileKotlin de s0). Las rutas de ESCRITURA (post) se registran DENTRO de `authenticated { }` → quedan
@@ -1543,7 +1620,8 @@ SHIPPEA (mini-columna, s10). Exit 1 si hay hallazgos, 0 si no.
 Uso:
   route_check.py topology <openapi.yaml> <archivo|dir>...   # ruta sin contrato / contrato sin ruta -> rojo
   route_check.py auth     <openapi.yaml> <archivo|dir>...   # ruta protegida fuera del guard -> rojo
-  route_check.py rbac     <openapi.yaml> <archivo|dir>...   # escritura con set de roles != x-required-roles -> rojo
+  route_check.py rbac      <openapi.yaml> <archivo|dir>...  # escritura con set de roles != x-required-roles -> rojo
+  route_check.py ownership <openapi.yaml> <archivo|dir>...  # registro de dueno != x-owned-by del contrato -> rojo
 """
 from __future__ import annotations
 
@@ -1611,6 +1689,35 @@ def _contract_role_ops(contract: Path) -> dict:
     return ops
 
 
+def _contract_owned(contract: Path) -> dict:
+    """Parsea openapi.yaml (sin PyYAML) -> {Entity: ownerField} por cada schema con `x-owned-by` (ownership,
+    FSK-S14). El contrato es la FUENTE inspectable de "que campo es el dueno de cada entidad" (DES-6). Mismo
+    formato fijo indentado que emite el codegen: components(0) -> schemas(2) -> <Entity>(4) -> x-owned-by(6)."""
+    out = {}
+    in_schemas = False
+    cur_entity = None
+    for raw in contract.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        s = raw.strip()
+        if indent == 0:
+            in_schemas = False
+            cur_entity = None
+            continue
+        if indent == 2:
+            in_schemas = s == "schemas:"
+            cur_entity = None
+            continue
+        if not in_schemas:
+            continue
+        if indent == 4 and s.endswith(":"):
+            cur_entity = s[:-1]
+        elif indent == 6 and s.startswith("x-owned-by:") and cur_entity:
+            out[cur_entity] = s.split(":", 1)[1].strip()
+    return out
+
+
 # token: el bloque authenticated{ , una llave, o una llamada route("METODO", "/path"). finditer respeta el
 # orden del documento -> una pila de llaves rastrea si una ruta esta dentro de un authenticated{} (guarded).
 _TOKEN = re.compile(r'authenticated\s*\{|route\s*\(\s*"([A-Z]+)"\s*,\s*"([^"]+)"|[{}]')
@@ -1650,6 +1757,16 @@ def _kt_route_roles(text: str) -> dict:
         blob = m.group(3) or ""
         out[(m.group(1), m.group(2))] = {r.group(1).lower() for r in _ROLE_REF.finditer(blob)}
     return out
+
+
+# ownership (FSK-S14): captura las entradas del registro OwnershipPolicy -> "Entity" to "owner_field". El
+# patron string->string es exclusivo de ese registro (el resto de los mapas Kotlin usan Role.X / enum refs).
+_OWNERSHIP_ENTRY = re.compile(r'"([A-Za-z]\w*)"\s+to\s+"([a-z]\w*)"')
+
+
+def _kt_ownership(text: str) -> dict:
+    """{Entity: ownerField} por cada entrada "Entity" to "field" del registro OwnershipPolicy (FSK-S14)."""
+    return {m.group(1): m.group(2) for m in _OWNERSHIP_ENTRY.finditer(text)}
 
 
 def _kt_files(targets):
@@ -1735,9 +1852,35 @@ def _rbac(contract: Path, targets: list) -> int:
     return 0
 
 
+def _ownership(contract: Path, targets: list) -> int:
+    """Ownership (DES-3, FSK-S14): cada entidad que el contrato marca con `x-owned-by` DEBE tener su registro de
+    dueno en el Kotlin (OwnershipPolicy) con EXACTAMENTE ese campo. Un campo distinto -> OWNER_MISMATCH (tamper
+    del contrato sin tocar el registro, o viceversa); una entidad con dueno sin registro -> MISSING_OWNERSHIP.
+    Cruce determinista (single-source DES-6), analogo a rbac/auth/topology. Una entidad sin x-owned-by no es
+    asunto de ownership (la cubre rbac/auth). Opt-in: un producto sin x-owned-by -> 0 entidades, verde."""
+    want = _contract_owned(contract)
+    got = {}
+    for f in _kt_files(targets):
+        got.update(_kt_ownership(f.read_text(encoding="utf-8", errors="replace")))
+    findings = 0
+    for ent, field in sorted(want.items()):
+        reg = got.get(ent)
+        if reg is None:
+            findings += 1
+            print(f"MISSING_OWNERSHIP {ent}  (el contrato marca x-owned-by {field} pero no hay registro)")
+        elif reg != field:
+            findings += 1
+            print(f"OWNER_MISMATCH {ent}  (contrato {field} != registrado {reg})")
+    if findings:
+        print(f"route-check: {findings} desajuste(s) de ownership vs el contrato", file=sys.stderr)
+        return 1
+    print(f"route-check: ownership ok ({len(want)} entidad(es) con dueno cruzadas == contrato)")
+    return 0
+
+
 def main(argv: list) -> int:
     if len(argv) < 3:
-        print("usage: route_check.py {topology|auth|rbac} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
+        print("usage: route_check.py {topology|auth|rbac|ownership} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
         return 2
     mode, contract, targets = argv[0], Path(argv[1]), argv[2:]
     if not contract.is_file():
@@ -1749,6 +1892,8 @@ def main(argv: list) -> int:
         return _auth(contract, targets)
     if mode == "rbac":
         return _rbac(contract, targets)
+    if mode == "ownership":
+        return _ownership(contract, targets)
     print(f"route-check: modo desconocido {mode!r}", file=sys.stderr)
     return 2
 
@@ -1809,6 +1954,24 @@ def _probe_wrong_roles(bp: dict) -> str:
             "    authenticated {\n"
             f'        route("POST", "/{_table(ent)}", {roleset})\n'
             "    }\n"
+            "}\n")
+
+
+def _probe_wrong_owner(bp: dict) -> str:
+    """Fixture NEGATIVO (DES-3/ownership, FSK-S14): un registro de ownership con el campo dueño EQUIVOCADO (!=
+    x-owned-by del contrato). route_check.py (modo ownership) DEBE morder (OWNER_MISMATCH); el check
+    ownership_enforced lo exige por grep → un gate decorativo se delata (fail-closed). Vive en probe/routes
+    (fuera de src/) → no se compila ni se shippea; el analizador lo lee por tokens. Apunta a la 1ra entidad
+    con owned_by (la que el contrato marca con x-owned-by)."""
+    ent = next(e for e in bp["entities"] if e.get("owned_by"))
+    wrong = "wrong_" + ent["owned_by"]
+    return ("// FIXTURE NEGATIVO DES-3/ownership (FSK-S14): un registro de ownership con el campo dueño\n"
+            "// EQUIVOCADO (!= x-owned-by del contrato). route_check.py (modo ownership) DEBE morder\n"
+            "// (OWNER_MISMATCH); ownership_enforced lo exige por grep. No se compila ni se shippea (fuera de src/).\n"
+            "object WrongOwnerPolicy {\n"
+            "    val ownerField: Map<String, String> = mapOf(\n"
+            f'        "{ent["name"]}" to "{wrong}",\n'
+            "    )\n"
             "}\n")
 
 
@@ -1889,6 +2052,60 @@ def _test_role_guard_kt(pkg: str, bp: dict) -> str:
             "        RoleGuard.authorize(null, emptySet()) shouldBe false\n"
             "    }\n"
             "})\n")
+
+
+def _test_ownership_guard_kt(pkg: str, bp: dict) -> str:
+    """auth/OwnershipGuardTest.kt (Kotest, tier unit) — el DIENTE de DOS+ lados del ownership en RUNTIME: el
+    DUEÑO modifica su fila ✓ · un NO-dueño no-privilegiado es rechazado ✗ · un rol de owner_bypass_roles
+    (admin) bypassa ✓. Romper OwnershipGuard (devolver true siempre) → el lado del no-dueño falla → rojo.
+    Type-bound al model del contrato: construye un <Entity> real y lee row.<ownerFieldCamel> → un drift del
+    contrato (rename del campo dueño) → unresolved reference → compile rojo (diente DES-6). Sólo con owned_by."""
+    ent = next(e for e in bp["entities"] if e.get("owned_by"))
+    owner_camel = _camel(ent["owned_by"])
+    owner_id, other_id = "7L", "99L"
+    # construir la entidad con muestras deterministas (idiom _model_ctor_args) pero el campo dueño = owner_id,
+    # para que row.<ownerField> sea EXACTAMENTE el dueño que el test cruza (type-bound al model del contrato).
+    args = [f"{owner_camel} = {owner_id}" if a.split(" = ", 1)[0].strip() == owner_camel else a
+            for a in _model_ctor_args(ent)]
+    ctor = _kt_call("        val row = ", ent["name"], args, "        ")
+    extra = "".join(imp + "\n" for imp in _kt_type_imports([ent]))   # date → java.time.LocalDate, etc.
+    bypass_roles = bp.get("owner_bypass_roles") or []
+    write_roles = ent.get("write_roles") or bp["roles"]
+    non_bypass = [r for r in write_roles if r not in bypass_roles] or write_roles
+    actor = non_bypass[0].upper()       # un rol NO-privilegiado que escribe esta entidad
+    lines = [
+        f"package {pkg}.auth\n",
+        "import io.kotest.core.spec.style.StringSpec",
+        "import io.kotest.matchers.shouldBe",
+        f"import org.openapitools.client.models.{ent['name']}",
+        extra.rstrip("\n"),
+        "",
+        "// Tier UNIT (DES-3/ownership, FSK-S14) -- el guard de autorizacion a nivel de FILA. Diente de DOS+",
+        "// lados: el DUENO modifica su fila / un no-dueno no-privilegiado es rechazado / un rol de bypass",
+        "// (admin) bypassa. Romper OwnershipGuard (true siempre) -> el lado del no-dueno falla -> rojo.",
+        "// Type-bound al model del contrato: lee row." + owner_camel + " -> rename del campo -> unresolved -> rojo.",
+        "class OwnershipGuardTest : StringSpec({",
+        '    "el dueno modifica su fila" {',
+        ctor,
+        f"        OwnershipGuard.canModify(Role.{actor}, {owner_id}, row.{owner_camel}, "
+        "OwnershipPolicy.bypass) shouldBe true",
+        "    }",
+        '    "un no-dueno no-privilegiado es rechazado" {',
+        ctor,
+        f"        OwnershipGuard.canModify(Role.{actor}, {other_id}, row.{owner_camel}, "
+        "OwnershipPolicy.bypass) shouldBe false",
+        "    }",
+    ]
+    if bypass_roles:
+        lines += [
+            '    "un rol de bypass (admin) bypassa ownership" {',
+            ctor,
+            f"        OwnershipGuard.canModify(Role.{bypass_roles[0].upper()}, {other_id}, row.{owner_camel}, "
+            "OwnershipPolicy.bypass) shouldBe true",
+            "    }",
+        ]
+    lines.append("})")
+    return "\n".join(lines) + "\n"
 
 
 def _test_store_kt(pkg: str, entities: list[dict]) -> str:
@@ -2753,6 +2970,17 @@ def build_files(bp: dict) -> dict[str, str]:
         files[f"{pkgdir}/auth/RoleGuard.kt"] = _role_guard_kt(pkg)
         files["probe/routes/wrong_roles.kt"] = _probe_wrong_roles(bp)
         files[f"src/test/kotlin/{pkg}/auth/RoleGuardTest.kt"] = _test_role_guard_kt(pkg, bp)
+    # ownership / autorización a nivel de FILA (s5, DES-3, R2/FSK-S14): OPT-IN — sólo cuando ≥1 entidad declara
+    # `owned_by`. El guard OwnershipGuard.canModify (genérico, type-safe sobre Role) + el registro OwnershipPolicy
+    # (entidad→campo dueño, derivado del blueprint); el contrato emite x-owned-by; route_check.py (modo ownership)
+    # cruza ambos; el probe sucio (wrong_owner.kt) + el test de dos+ lados (tier unit, type-bound al model)
+    # muerden. Compone sobre RBAC (exige `roles`). Sin `owned_by`, FSK-S13 intacto (sólo rol×entidad).
+    owned = [e for e in ents if e.get("owned_by")]
+    if owned:
+        files[f"{pkgdir}/auth/OwnershipGuard.kt"] = _ownership_guard_kt(pkg)
+        files[f"{pkgdir}/auth/OwnershipPolicy.kt"] = _ownership_policy_kt(pkg, owned, bp.get("owner_bypass_roles") or [])
+        files["probe/routes/wrong_owner.kt"] = _probe_wrong_owner(bp)
+        files[f"src/test/kotlin/{pkg}/auth/OwnershipGuardTest.kt"] = _test_ownership_guard_kt(pkg, bp)
     return files
 
 

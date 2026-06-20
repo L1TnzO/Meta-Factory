@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1e49052c475ecd01f702c7dc970871571b624592 updated=2026-06-20T16:57Z -->
+<!-- meta:doc sha=02140d37ebefc0ac0890a90b353e00e90b28e6b0 updated=2026-06-20T18:45Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,7 +430,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows + RBAC + ownership)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows + RBAC + ownership + endpoints vivos)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
@@ -499,10 +499,25 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     owned_by holder_id→Holder): `ci --rederive` == pin (default 11/11 · assets 17/18, s6 diferido). Capability
     `ownership_enforced` + REQ-F-013 en s5 (de TRES a CUATRO gates) → **RTM default 17→18**. Sustrato `src/+seed/`
     = 0 (todo `codegen/`+spec+`stations/s5.yml`+product.yml). Evidencia: `work/FSK-S14-DOMAIN-OWNERSHIP-INCREMENT.md`.
+  - **R2·FSK eje #5 — endpoints vivos / control de acceso a RUNTIME.** ✅ (2026-06-20, `FSK-S15-LIVE-ENDPOINTS`).
+    La trilogía de control de acceso (auth→RBAC→ownership) estaba probada ESTÁTICA + UNIT pero **ningún server
+    vivo la invocaba sobre requests reales**. El codegen emite `endpoints/AppServer.kt` (server HTTP del JDK
+    `com.sun.net.httpserver` — stdlib, NO Ktor, divergencia ADR-012) que monta GET/POST/**PUT `/<plural>/{id}`** de
+    la entidad con dueño e INVOCA los guards generados (AuthGuard→RoleGuard→OwnershipGuard) + persiste/lee contra
+    la **PostgreSQL VIVA** vía `Repository`. Token con principal (`RoleGuard.principalOf`, `"Bearer <rol>:<id>"`,
+    estático). Verificación e2e: check `access_control_live` (`kind: infra_up` en s9, compone MAT-3: PG viva +
+    server por `java -cp` del dist) + proof client urllib que asevera de DOS+ lados (POST rol prohibido→403 /
+    permitido→201 · PUT fila ajena→403 / dueño→200 / bypass→200). Diente VIVO: `OwnershipGuard` saboteado → 403 se
+    vuelve 200 → rojo; server caído → rojo (nativo de infra_up). **2 productos con políticas DISTINTAS a runtime**
+    (demo `/projects` editor↔viewer ↔ assets `/assets` manager↔auditor): `ci --rederive` == pin (default 11/11 ·
+    assets 10/10, s6 diferido). Capability `control_acceso_runtime` + REQ-F-014 en s9 → **RTM default 18→19**.
+    Sustrato `src/+seed/` = 0 (todo `codegen/`+spec+`stations/s9.yml`). Scope honesto (§7): JWT/identidad real +
+    frontend React + e2e Playwright + CRUD-completo = declared-deferred. Evidencia: `work/FSK-S15-LIVE-ENDPOINTS-INCREMENT.md`.
   - **R2·{otras fábricas} + ejes superiores restantes** (reglas-de-negocio-LLM bajo gate · ABAC arbitrario por
-    atributos · endpoints de modificación VIVOS PUT/PATCH/DELETE · otras fábricas): 🔲 pendientes, un incremento
-    por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA (R1 coexistencia + R2 campos
-    arbitrarios + workflows + control de acceso por rol + ownership a nivel de fila).
+    atributos · CRUD completo + DELETE/PATCH · otras fábricas): 🔲 pendientes, un incremento por fábrica/eje. El
+    caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA + APP-QUE-CORRE (R1 coexistencia + R2 campos arbitrarios +
+    workflows + control de acceso por rol + ownership a nivel de fila + endpoints vivos enforzados a runtime).
+    **Bifurcación abierta (relevo `FSK-S16`)**: ¿seguir con R2·FSK/otras fábricas, o construir el PRIMER PRODUCTO real?
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

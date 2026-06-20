@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c1e28067f67d1d274cafed653d7010e332966183 updated=2026-06-20T17:49Z -->
+<!-- meta:doc sha=831b70bac1117fa3aa761b5fdc06bf0a465ecff7 updated=2026-06-20T18:46Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,15 +6,15 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: FSK-S15-LIVE-ENDPOINTS-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (18/18) · iot: COMPLETE (6/6)
+- Incremento abierto: ninguno
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (19/19) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
-- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2·FSK ✅ (campos 2026-06-19 + workflows + RBAC + ownership 2026-06-20)**:
+- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2·FSK ✅ (campos 2026-06-19 + workflows + RBAC + ownership + endpoints vivos 2026-06-20)**:
   - **R1 (lifecycle, sustrato)**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos**.
     Una instancia vive en `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` + `pinned_verdict.json`; el
     sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea por corrida (`ensure_product_instance`).
@@ -73,10 +73,35 @@
     `ownership_enforced` (DES-3) + REQ-F-013 en **s5** (de TRES a CUATRO gates) → **RTM default 17→18 COMPLETE**.
     **Sustrato `seed/`+`src/metafactory/` = 0** (todo `codegen/`+spec+`stations/s5.yml`+`product.yml`, DATA de
     fábrica; compuso sobre el RBAC de s5 + la opcionalidad de FSK-S11). Opt-in: una entidad sin `owned_by` → sólo RBAC (FSK-S13 intacto).
-  - **Sigue**: R2 ejes superiores (reglas de negocio por LLM bajo gate · ABAC arbitrario por atributos · endpoints
-    de modificación VIVOS PUT/PATCH/DELETE) + R2 en otras fábricas, un incremento por fábrica/eje (ADR-012). El
-    caso "clonar Snipe-IT" ya tiene PISO+CICLO-DE-VIDA (R1 coexistencia + R2 campos arbitrarios + workflows +
-    control de acceso por rol + ownership a nivel de fila). `work/ROADMAP.md §Fase R`.
+  - **R2·FSK eje #5 — endpoints vivos / control de acceso a RUNTIME ✅ (FSK-S15, 2026-06-20)**: la trilogía de
+    control de acceso (auth → RBAC → ownership) estaba probada ESTÁTICA (route_check s5) + UNIT (Kotest s7) pero
+    **ningún server vivo la invocaba sobre requests reales**. Ahora el codegen emite `endpoints/AppServer.kt`
+    (server HTTP del JDK **`com.sun.net.httpserver`** — stdlib, NO Ktor, divergencia ADR-012) que monta GET/POST/
+    **PUT `/<plural>/{id}`** de la entidad con dueño e **INVOCA los guards generados** (AuthGuard→RoleGuard→
+    OwnershipGuard) ANTES de ejecutar, **persistiendo/leyendo contra la PostgreSQL VIVA** vía `Repository`
+    (`<owned>OwnerId` carga el dueño tipado; Flyway migra; `seedRows` inserta el dueño + una fila suya). El token
+    gana principal (`RoleGuard.principalOf`, `"Bearer <rol>:<principal>"`, estático/determinista — JWT real
+    diferido). El contrato gana `put /<plural>/{id}` (security + x-required-roles) registrada en el `RouteTable`
+    (route_check topology/auth/rbac cuadran). **Verificación e2e a runtime** (check `access_control_live`, `kind:
+    infra_up` en **s9**): bootstrap levanta la **PG viva** (5º servicio por infra_up, idiom MAT-3) + `installDist`;
+    `up` corre el server por `java -cp` del dist (proceso java plano, kill-eable); el **proof client urllib**
+    (`tools/access_control_check.py`) hace requests REALES y asevera el veredicto de **DOS+ lados**: POST rol
+    prohibido → **403** / permitido → **201** · PUT fila ajena por no-dueño → **403** / por dueño → **200** / por
+    bypass → **200**. **Diente VIVO** (verificado por CLI): `OwnershipGuard` saboteado (`canModify→true`) → el 403
+    del no-dueño se vuelve 200 → el proof FALLA; **server caído → el proof no conecta → rojo** (diente nativo de
+    infra_up). **2 productos con políticas DISTINTAS a runtime** (demo `/projects` editor↔viewer ↔ assets
+    `/assets` manager↔auditor, Asset/Holder): `ci --rederive` == pin, aislados (**default 11/11 · assets 10/10,
+    s6 LLM diferido keyless**). Capability `control_acceso_runtime` (DES-3) + REQ-F-014 en **s9** → **RTM default
+    18→19 COMPLETE** (assets 18/19, s6 deferral VISIBLE). **Sustrato `seed/`+`src/metafactory/` = 0** (todo
+    `codegen/`+spec+`stations/s9.yml`, DATA de fábrica; compuso sobre el server vivo de s9 + infra_up + la PG de
+    s1/s7 + los guards de s5). Opt-in: sin `owned_by` no se emite el server (FSK-S14 intacto). **Cierra la trilogía
+    de control de acceso de FSK como app que CORRE.** Scope honesto (§7): JWT/identidad real + frontend React +
+    e2e Playwright + CRUD-completo (mutación real) = declared-deferred — el diente es la DECISIÓN de acceso.
+  - **Sigue**: R2 ejes superiores (reglas de negocio por LLM bajo gate · ABAC arbitrario por atributos · CRUD
+    completo + DELETE/PATCH) + R2 en otras fábricas, un incremento por fábrica/eje (ADR-012). El caso "clonar
+    Snipe-IT" ya tiene PISO+CICLO-DE-VIDA + APP-QUE-CORRE (R1 coexistencia + R2 campos arbitrarios + workflows +
+    control de acceso por rol + ownership a nivel de fila + **endpoints vivos enforzados a runtime**).
+    **Decisión abierta (relevo FSK-S16)**: ¿más R2·FSK, o ya construir el PRIMER PRODUCTO real? `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

@@ -1,8 +1,24 @@
-<!-- meta:doc sha=ea1c1bc76692a35bfbc8c35e0bf9462eb077b656 updated=2026-06-20T17:52Z -->
+<!-- meta:doc sha=335b99a801e69733387ddc066c02ba01bcd87bab updated=2026-06-20T18:45Z -->
 # Incremento FSK-S15-LIVE-ENDPOINTS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T17:49Z). Cerralo con `meta increment close`
-> (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno.** Estado: **CERRADO** ✅ (2026-06-20T18:45Z). Construido por bloqueo. Todo cambio de código
+> vivió acá (ADR-010).
+>
+> **EVIDENCIA DEL CIERRE (re-derivable, no narrada):**
+> - **RTM default 18→19 COMPLETE** (REQ-F-014 ← `control_acceso_runtime`: s9, artifact `endpoints/AppServer.kt`);
+>   assets 18/19 (s6 LLM diferido keyless, deferral VISIBLE).
+> - `ci --rederive` **default 11/11 + assets 10/10 == pin** en clon limpio (re-levanta PG viva + server, re-corre
+>   el proof e2e). product-run PASS en ambos.
+> - **Diente de DOS+ lados VIVO**: POST rol prohibido→403 / permitido→201 · PUT fila ajena por no-dueño→403 /
+>   dueño→200 / bypass→200. `OwnershipGuard` saboteado (`canModify→true`) → el 403 del no-dueño se vuelve 200 → el
+>   proof FALLA (exit 1). Server caído → el proof no conecta → rojo (diente nativo de infra_up).
+> - **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0 líneas** (server/endpoints = DATA de fábrica).
+>   route_check topology/auth/rbac/ownership verdes con la ruta PUT nueva. `meta check` 6/6 (post-cierre).
+> - **2 políticas DISTINTAS a runtime** (demo Project/User editor↔viewer ↔ assets Asset/Holder manager↔auditor).
+> - Commits: `7efb373` (default) · `42cd155` (assets) · cierre (docs + `meta increment close`).
+>
+> **Relevo abierto: `FSK-S16` (handoff post-/clear)** — ¿seguir con R2·FSK / otras fábricas, o construir el
+> PRIMER PRODUCTO real? Ver el doc de relevo + STATE §Ahora.
 >
 > **HANDOFF (escrito 2026-06-20 por la sesión que cerró FSK-S14/ownership, con el contexto fresco).** Este doc
 > es AUTOCONTENIDO a propósito: asumí que mi contexto murió (`/clear`). Otro orquestador lo construye desde

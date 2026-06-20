@@ -1,7 +1,45 @@
-<!-- meta:doc sha=0d67a9dff7607bff65d0c25d31a93bd9dfd79147 updated=2026-06-20T16:56Z -->
+<!-- meta:doc sha=63ab83cbb91b6d6c71fa457b81d0958b44c218ce updated=2026-06-20T18:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T18:45Z — R2·FSK eje #5 ✅ — endpoints vivos / control de acceso a RUNTIME (`FSK-S15-LIVE-ENDPOINTS`)
+- **el gap**: la trilogía de control de acceso (auth s5 → RBAC s5 → ownership s5) + workflows estaba probada
+  ESTÁTICA (route_check) + UNIT (Kotest s7), pero **ningún server vivo la invocaba sobre requests reales**: FSK
+  generaba componentes verificados, no una app que CORRE. Ninguna ruta donde un POST con rol prohibido reciba 403,
+  ni un PUT de una fila ajena reciba 403, a runtime.
+- **qué cambió** (todo `codegen/`+spec+`stations/s9.yml`, DATA de fábrica, ADR-012): el codegen emite
+  `endpoints/AppServer.kt` — un server HTTP del JDK (`com.sun.net.httpserver`, stdlib, NO Ktor: divergencia
+  ADR-012) que monta GET/POST/**PUT `/<plural>/{id}`** de la entidad con dueño e **INVOCA los guards generados**
+  (AuthGuard→RoleGuard→OwnershipGuard) ANTES de ejecutar, persistiendo/leyendo contra la **PostgreSQL VIVA** vía
+  `Repository`. Aditivos: `Repository.<owned>OwnerId` (carga el dueño tipado de la PG), `RoleGuard.principalOf`
+  (token `"Bearer <rol>:<principal>"`, estático/determinista — JWT real diferido; `roleOf` ignora el sufijo →
+  FSK-S13 intacto), `put /<plural>/{id}` en el contrato (security + x-required-roles) + en el `RouteTable`.
+- **verificación e2e a runtime** (check `access_control_live`, `kind: infra_up` en **s9**, compone E1/MAT-3):
+  bootstrap levanta la **PG viva** por docker (5º servicio por infra_up; los 4 previos eran PG de s1/s7 + servers
+  de obs) + `installDist`; `up` corre el server por `java -cp build/install/webapp/lib/*` (proceso java plano,
+  kill-eable por grupo, NO el daemon de gradle); el **proof client urllib** (`tools/access_control_check.py`) hace
+  requests REALES y asevera el veredicto de **DOS+ lados**. El server siembra el dueño + una fila y expone `/seed`
+  (id, dueño) → el proof ejercita ownership con el dueño REAL de la fila.
+- **diente de DOS+ lados** (no-decorativo): POST rol prohibido → **403** / permitido → **201** · PUT fila ajena por
+  no-dueño → **403** / por dueño → **200** / por bypass → **200**. Verificado VIVO por CLI: `OwnershipGuard`
+  saboteado (`canModify→true`) → el 403 del no-dueño se vuelve 200 → el proof FALLA (exit 1). **Server caído → el
+  proof no conecta → rojo** (diente nativo de infra_up, doble función con el teardown). route_check topology/auth/
+  rbac/ownership verdes con la ruta PUT nueva (single-source DES-6).
+- **probado por bloqueo**: product-run PASS · **RTM default 18→19 COMPLETE** (REQ-F-014 ← access_control_live: s9,
+  artifact `endpoints/AppServer.kt`) · `ci --rederive` default **11/11** == pin en clon limpio (re-levanta PG +
+  server, re-corre el proof). **Co-validación ADR-014**: instancia `assets` con política DISTINTA a runtime
+  (`/assets`, manager↔auditor, Asset/Holder) → product-run PASS · RTM 18/19 (s6 LLM diferido keyless, VISIBLE) ·
+  `ci --rederive --product assets` **10/10** == pin. **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0**
+  líneas (el server/endpoints son DATA de fábrica) · `meta check` 5/6 (sólo proyección STATE, refrescada al cierre).
+- **lección**: para un server VIVO largo bajo infra_up, correrlo por `java -cp` del dist (proceso plano) y NO por
+  `gradle run`/JavaExec (el daemon de gradle podría forkear el JVM fuera del process-group → leak del puerto en el
+  teardown → falsa-verde en la fase negativa). installDist da el `lib/` con todas las deps; el server es plano.
+- **scope honesto (§7)**: JWT/identidad real + frontend React que consume + e2e Playwright + CRUD-completo (mutación
+  real de columnas, DELETE/PATCH) = declared-deferred. El diente es la DECISIÓN de acceso (403/200/201), no la
+  mutación; la persistencia real la dan el seed + list + owner-lookup vía `Repository` contra la PG viva.
+- **relevo**: `FSK-S16` abierto — handoff que pregunta si seguir con R2·FSK o construir el PRIMER PRODUCTO real.
+- commits: `7efb373` (default) · `42cd155` (assets) · cierre (docs/STATE/ROADMAP/LOG + `meta increment close`).
 
 ## 2026-06-20T16:56Z — R2·FSK eje #4 ✅ — ownership / autorización a nivel de FILA (`FSK-S14-DOMAIN-OWNERSHIP`)
 - **qué cambió**: `domain.product` gana `owned_by` por entidad (el campo `ref` que apunta al principal DUEÑO de

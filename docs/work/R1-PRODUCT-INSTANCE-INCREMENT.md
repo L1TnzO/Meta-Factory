@@ -1,7 +1,7 @@
-<!-- meta:doc sha=67af5e2ae44c1df8af9958347f6006d71b62ab21 updated=2026-06-20T00:28Z -->
+<!-- meta:doc sha=37b0538d58cc6d6c0df165253378108094224eff updated=2026-06-20T00:28Z -->
 # Incremento R1-PRODUCT-INSTANCE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T23:53Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T00:28Z) (creado 2026-06-19T23:53Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

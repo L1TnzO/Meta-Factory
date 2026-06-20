@@ -37,10 +37,11 @@ checks:
     -p tsconfig.json
 - name: scaffold_idempotent
   kind: command
+  # chassis (codegen/) en la FÁBRICA, no en la instancia (R1): cwd==fábrica → codegen/ · cwd==products/<p>/ → ../../codegen
   cmd:
-  - python3
-  - codegen/scaffold_product.py
-  - --check-idempotent
+  - sh
+  - -c
+  - 'cg=codegen; [ -d "$cg" ] || cg=../../codegen; python3 "$cg/scaffold_product.py" --check-idempotent'
 - name: isolation_boundary
   kind: product_env
   workdir: build/product

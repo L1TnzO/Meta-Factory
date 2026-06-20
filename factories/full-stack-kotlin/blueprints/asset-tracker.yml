@@ -1,0 +1,20 @@
+# Blueprint de instancia R1 (lifecycle 1:N, ADR-015) para la fábrica full-stack-kotlin.
+# Vocabulario de campos DISTINTO del demo (Snipe-IT-lite): ejercita TODO el vocabulario R2 (FSK-S11) —
+# int/number/date/enum + opcionalidad — en una topología propia. Es DATA: `meta product new` lo instala
+# como products/assets/product.yml y la fábrica re-deriva el spec efectivo (base ⊕ product.yml).
+package_name: webapp
+api_title: "Asset Tracker API"
+entities:
+  - name: Holder
+    fields:
+      - { name: email, type: string, unique: true }
+      - { name: department, type: enum, values: [it, ops, sales, support] }
+  - name: Asset
+    fields:
+      - { name: serial, type: string, unique: true }
+      - { name: quantity, type: int }
+      - { name: cost, type: number }
+      - { name: purchased, type: date }
+      - { name: status, type: enum, values: [deployed, ready, archived, broken] }
+      - { name: holder_id, type: ref, to: Holder, required: false }
+      - { name: notes, type: string, required: false }

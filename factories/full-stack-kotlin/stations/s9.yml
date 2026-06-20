@@ -20,7 +20,7 @@ checks:
   proof:
   - python3
   - tools/obs_check.py
-  - http://127.0.0.1:58593
+  - http://127.0.0.1:18593
   - obs/spans.jsonl
   - obs/access.jsonl
   - fsk-trace-001

@@ -58,7 +58,8 @@ ESBUILD_VERSION = "0.24.2"
 # SpanExporter a archivo; el server HTTP es stdlib del JDK (com.sun.net.httpserver, no Ktor). El BOM pinea
 # api+sdk a una versión. Cacheado en ~/.gradle → ci --rederive sin red (como jOOQ/Kotest/detekt).
 OTEL_VERSION = "1.45.0"
-OBS_PORT = 58593               # puerto del server HTTP vivo del producto (DATA, como los puertos PG de s1/s7)
+OBS_PORT = 18593               # server HTTP vivo del producto. DATA, FUERA del rango efímero del SO (32768–60999)
+#                                para que un socket efímero del host no robe el puerto y haga flakear la gate.
 BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # Build hermético reproducible (s10, DES-1): la imagen Docker pinea la base por DIGEST (no un tag flotante —
@@ -69,19 +70,67 @@ MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son larg
 DOCKER_BASE_IMAGE = "eclipse-temurin:21-jre"
 DOCKER_BASE_DIGEST = "sha256:4d7c1e9f3b6a8d0c2e4f6a8b0d2c4e6f8a1b3d5c7e9f0a2b4d6c8e0f2a4b6d8c"
 
-# campo del blueprint -> tipo OpenAPI (el contrato) y valor de muestra Kotlin/TS (determinista).
+# campo del blueprint -> tipo OpenAPI (el contrato) + columna PG + muestra Kotlin (determinista).
+# R2 (FSK-S11, expresividad de domain.product): el vocabulario de tipos es DATO del blueprint, no 3 tipos
+# hardcodeados. `enum` es especial (lleva `values` → contrato cerrado → openapi-generator emite un enum class
+# Kotlin = type-safety; el sample usa `<Model>.<Prop>.entries.first()`, que SÓLO compila si el tipo ES un
+# enum → diente DES-6). La opcionalidad es el modifier `required: false` (default true): columna nullable +
+# fuera del `required[]` del contrato. Los samples evitan magic-numbers crudos (detekt MagicNumber escanea
+# src/main/kotlin incl. DbRoundTrip.kt): int=2 (en el ignore-list de detekt), number dentro de un string.
 _OAPI_TYPE = {
-    "string": {"type": "string"},
+    "string":  {"type": "string"},
     "boolean": {"type": "boolean"},
-    "ref": {"type": "integer", "format": "int64"},   # FK: id de otra entidad
-}
-_KT_SAMPLE = {"string": '"x"', "boolean": "false", "ref": "1L"}
+    "int":     {"type": "integer", "format": "int32"},
+    "number":  {"type": "number", "format": "double"},
+    "date":    {"type": "string", "format": "date"},
+    "ref":     {"type": "integer", "format": "int64"},   # FK: id de otra entidad
+}                                                        # `enum` -> ver _oapi_inline (depende de `values`)
+_KT_SAMPLE = {"string": '"x"', "boolean": "false", "int": "2",
+              "number": '"9.99".toDouble()', "date": 'LocalDate.parse("2026-01-15")', "ref": "1L"}
+# tipos cuyo sample Kotlin requiere un import extra en el .kt que los samplea (java.time, etc.).
+_KT_TYPE_IMPORT = {"date": "java.time.LocalDate"}
 
 
 def _camel(s: str) -> str:
     """snake_case -> camelCase (openapi-generator nombra así los campos Kotlin; owner_id -> ownerId)."""
     head, *rest = s.split("_")
     return head + "".join(p[:1].upper() + p[1:] for p in rest)
+
+
+def _pascal(s: str) -> str:
+    """snake_case -> PascalCase (openapi-generator nombra así el enum class anidado: status -> Status)."""
+    return "".join(p[:1].upper() + p[1:] for p in s.split("_"))
+
+
+def _kt_type_imports(entities: list[dict]) -> list[str]:
+    """imports extra que piden los samples por tipo (p.ej. date → java.time.LocalDate), ordenados."""
+    want = {_KT_TYPE_IMPORT[f["type"]] for e in entities for f in e["fields"]
+            if f["type"] in _KT_TYPE_IMPORT}
+    return sorted(f"import {m}" for m in want)
+
+
+def _kt_call(lead: str, prefix: str, args: list[str], indent: str) -> str:
+    """`{lead}{prefix}(arg, arg, ...)` en UNA línea si entra bajo MAX_LINE_LENGTH; si no, uno-por-línea con
+    coma final — el patrón multi-línea que ktlint_official acepta (TrailingCommaOnCallSite). Soporta entidades
+    con MUCHOS campos sin pasar el presupuesto de línea (DES-10): la expresividad de R2 no fuerza líneas largas.
+    `indent` es la sangría de la sentencia (el `)` de cierre alinea ahí; los args van a +4)."""
+    single = f"{lead}{prefix}({', '.join(args)})"
+    if len(single) <= MAX_LINE_LENGTH:
+        return single
+    pad = indent + "    "
+    body = "".join(f"{pad}{a},\n" for a in args)
+    return f"{lead}{prefix}(\n{body}{indent})"
+
+
+def _jooq_chain(indent: str, lead: str, head: str, calls: list[str]) -> str:
+    """Cadena fluida jOOQ (`{head}.{call}.{call}...`) en UNA línea si entra, si no wrapeada con cada `.call`
+    en su línea a +4 (ChainWrapping de ktlint_official). Escala a inserts de muchas columnas sin pasar 160."""
+    single = f"{indent}{lead}{head}." + ".".join(calls)
+    if len(single) <= MAX_LINE_LENGTH:
+        return single
+    pad = indent + "    "
+    wrapped = "\n".join(f"{pad}.{c}" for c in calls)
+    return f"{indent}{lead}{head}\n{wrapped}"
 
 
 def _load_blueprint(root: Path) -> dict:
@@ -93,12 +142,20 @@ def _load_blueprint(root: Path) -> dict:
     ents = bp.get("entities") or []
     if not ents:
         raise SystemExit("scaffold: blueprint domain.product sin 'entities' (spec incompleto)")
+    by = {e.get("name"): e for e in ents}
     for e in ents:
         if not e.get("name") or not e.get("fields"):
             raise SystemExit(f"scaffold: entidad {e.get('name')!r} sin 'name'/'fields'")
         for f in e["fields"]:
-            if f.get("type") not in _OAPI_TYPE:
-                raise SystemExit(f"scaffold: campo {f.get('name')!r} con tipo no soportado {f.get('type')!r}")
+            t = f.get("type")
+            if t not in _OAPI_TYPE and t != "enum":          # vocabulario cerrado (fail-closed, R2)
+                raise SystemExit(f"scaffold: campo {f.get('name')!r} con tipo no soportado {t!r}")
+            if t == "enum" and not f.get("values"):
+                raise SystemExit(f"scaffold: campo enum {f.get('name')!r} sin 'values'")
+            if t == "ref" and f.get("to") not in by:
+                raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
+            if "required" in f and not isinstance(f["required"], bool):
+                raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'required' no booleano")
     return bp
 
 
@@ -147,19 +204,27 @@ def _openapi_yaml(bp: dict) -> str:
         "  schemas:",
     ]
     for e in bp["entities"]:
-        names = ["id"] + [f["name"] for f in e["fields"]]
+        # `required[]` del contrato = id + los campos sin `required: false` (R2: opcionalidad como DATO).
+        required = ["id"] + [f["name"] for f in e["fields"] if f.get("required", True)]
         lines += [
             f"    {e['name']}:",
             "      type: object",
-            f"      required: [{', '.join(names)}]",
+            f"      required: [{', '.join(required)}]",
             "      properties:",
             "        id: { type: integer, format: int64 }",
         ]
         for f in e["fields"]:
-            t = _OAPI_TYPE[f["type"]]
-            spec = ", ".join(f"{k}: {v}" for k, v in t.items())
-            lines.append(f"        {f['name']}: {{ {spec} }}")
+            lines.append(f"        {f['name']}: {_oapi_inline(f)}")
     return "\n".join(lines) + "\n"
+
+
+def _oapi_inline(f: dict) -> str:
+    """schema inline del campo en el contrato (DES-6). enum → tipo string CERRADO (`enum: [...]`) del que
+    openapi-generator deriva un enum class Kotlin (type-safety); el resto, del mapa de tipos base."""
+    if f["type"] == "enum":
+        vals = ", ".join(_yaml_str(v) for v in f["values"])
+        return f"{{ type: string, enum: [{vals}] }}"
+    return "{ " + ", ".join(f"{k}: {v}" for k, v in _OAPI_TYPE[f["type"]].items()) + " }"
 
 
 def _yaml_str(s: str) -> str:
@@ -342,6 +407,13 @@ def _model_imports(entities: list[dict]) -> str:
     return "\n".join(sorted(f"import org.openapitools.client.models.{e['name']}" for e in entities))
 
 
+def _kt_imports(entities: list[dict]) -> str:
+    """Imports de App.kt: los models del contrato + los imports de tipo (date → java.time), con org.*
+    primero y java.* después (el orden que la config detekt/ktlint de la fábrica acepta; ver DbRoundTrip)."""
+    models = sorted(f"import org.openapitools.client.models.{e['name']}" for e in entities)
+    return "\n".join(models + _kt_type_imports(entities))
+
+
 def _store_kt(pkg: str, entities: list[dict]) -> str:
     adds = "\n".join(
         f"    val {e['name'].lower()}s = mutableListOf<{e['name']}>()" for e in entities)
@@ -365,20 +437,26 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
                 tgt = by_name.get(f["to"])
                 tv = tgt["name"][0].lower() if tgt else "1L"
                 args.append(f"{_camel(f['name'])} = {tv}.id" if tgt else f"{_camel(f['name'])} = 1L")
+            elif f["type"] == "enum":
+                # .entries.first() SÓLO compila si <Model>.<Prop> ES un enum class (del contrato cerrado):
+                # romper el `enum:` del contrato → el campo pasa a String → unresolved reference → rojo (diente).
+                args.append(f"{_camel(f['name'])} = {e['name']}.{_pascal(f['name'])}.entries.first()")
             else:
                 args.append(f"{_camel(f['name'])} = {_KT_SAMPLE[f['type']]}")
-        ctor_lines.append(f"    val {var} = {e['name']}({', '.join(args)})")
+        ctor_lines.append(_kt_call(f"    val {var} = ", e["name"], args, "    "))
         stores.append(f"    Store.add({var})")
-        # leer TODOS los campos: borrar cualquiera del contrato rompe ESTA línea (diente DES-6)
-        reads = " ".join(f"{_camel(f['name'])}=${{{var}.{_camel(f['name'])}}}" for f in e["fields"])
-        read_parts.append(f'        "{e["name"]}[{reads}]",')
+        # leer TODOS los campos (uno por entrada → escala a entidades anchas sin pasar 160): borrar cualquiera
+        # del contrato rompe SU línea (diente DES-6).
+        for f in e["fields"]:
+            cf = _camel(f["name"])
+            read_parts.append(f'        "{e["name"]}.{cf}=${{{var}.{cf}}}",')
     body = "\n".join(ctor_lines)
     stores_s = "\n".join(stores)
     parts_s = "\n".join(read_parts)
     counts = ", ".join(f"${{Store.{e['name'].lower()}s.size}}" for e in entities)
     # Cada parte por entidad en su línea (DES-10: bajo MAX_LINE_LENGTH; coma final = ktlint_official).
     return (f"package {pkg}\n\n"
-            f"{_model_imports(entities)}\n\n"
+            f"{_kt_imports(entities)}\n\n"
             f"// Ejerce el contrato: construye y LEE cada entidad. Un drift (campo borrado) → unresolved.\n"
             f"fun main() {{\n{body}\n{stores_s}\n"
             f"    val parts = listOf(\n{parts_s}\n    )\n"
@@ -441,7 +519,8 @@ def _client_ts(entities: list[dict]) -> str:
 
 
 # ── la capa de datos (s1): schema versionado (Flyway) + jOOQ tipado + round-trip vivo ───────────
-_PG_COL = {"string": "VARCHAR(255)", "boolean": "BOOLEAN"}     # ref → BIGINT FK (caso aparte)
+_PG_COL = {"string": "VARCHAR(255)", "boolean": "BOOLEAN", "int": "INTEGER",
+           "number": "DOUBLE PRECISION", "date": "DATE", "enum": "VARCHAR(255)"}  # ref → BIGINT FK (caso aparte)
 
 
 def _table(e: dict) -> str:
@@ -471,11 +550,12 @@ def _migration_sql(bp: dict) -> str:
     for e in bp["entities"]:
         cols = ["  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY"]
         for f in e["fields"]:
+            nn = " NOT NULL" if f.get("required", True) else ""   # R2: opcionalidad → columna nullable
             if f["type"] == "ref":
-                cols.append(f"  {f['name']} BIGINT NOT NULL REFERENCES {_table(by[f['to']])} (id)")
+                cols.append(f"  {f['name']} BIGINT{nn} REFERENCES {_table(by[f['to']])} (id)")
             else:
                 uniq = " UNIQUE" if f.get("unique") else ""
-                cols.append(f"  {f['name']} {_PG_COL[f['type']]} NOT NULL{uniq}")
+                cols.append(f"  {f['name']} {_PG_COL[f['type']]}{nn}{uniq}")
         out += [f"CREATE TABLE {_table(e)} (", ",\n".join(cols), ");"]
     return "\n".join(out) + "\n"
 
@@ -487,9 +567,15 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     fns = []
     for e in entities:
         tbl = _TBL(e)
-        cols = ", ".join([f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in e["fields"]])
-        fns.append(f"    fun all{e['name']}s(ctx: DSLContext) =\n"
-                   f"        ctx.select({cols}).from({tbl}).orderBy({tbl}.ID).fetch()")
+        cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in e["fields"]]
+        tail = f".from({tbl}).orderBy({tbl}.ID).fetch()"
+        single = f"        ctx.select({', '.join(cols)}){tail}"
+        if len(single) <= MAX_LINE_LENGTH:
+            body = single
+        else:   # entidad ancha: una columna por línea (coma final), el .from/.orderBy/.fetch en el cierre
+            argblock = "".join(f"            {c},\n" for c in cols)
+            body = f"        ctx.select(\n{argblock}        ){tail}"
+        fns.append(f"    fun all{e['name']}s(ctx: DSLContext) =\n{body}")
     return (f"package {pkg}\n\n"
             f"import org.jooq.DSLContext\n{imports}\n\n"
             "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
@@ -507,7 +593,7 @@ import org.jooq.conf.RenderQuotedNames
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 %IMPORTS%
-import java.sql.DriverManager
+import java.sql.DriverManager%EXTRA_TIME_IMPORT%
 import kotlin.system.exitProcess
 
 // DES-4 — el PRODUCTO persiste/lee contra una PostgreSQL VIVA (no un mock). Flyway aplica el schema
@@ -518,7 +604,7 @@ import kotlin.system.exitProcess
 // fallo (connect refused incl.) y salir 1; es justo lo que hace vivo el diente DB-caída de infra_up.
 @Suppress("TooGenericExceptionCaught")
 fun main() {
-    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:55434/postgres"
+    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:5434/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
     val pass = System.getenv("FSK_PG_PASSWORD") ?: "metafactory"
     // jOOQ generó identificadores UPPER; sin comillas Postgres los pliega a lower → matchea las tablas
@@ -548,11 +634,16 @@ fun main() {
 
 
 def _sample(f: dict, idvar: dict) -> str:
-    """valor de muestra Kotlin determinista por campo (ref → el id capturado de la entidad referida)."""
+    """valor de muestra Kotlin determinista para el INSERT jOOQ (tipos del schema PG): ref → el id capturado;
+    enum → el 1er valor declarado (la columna es VARCHAR); int/number/date → del mapa de samples."""
     if f["type"] == "ref":
         return idvar[f["to"]]
     if f["type"] == "boolean":
         return "false"
+    if f["type"] == "enum":
+        return _yaml_str(f["values"][0])
+    if f["type"] in ("int", "number", "date"):
+        return _KT_SAMPLE[f["type"]]
     return f'"sample-{f["name"]}"'
 
 
@@ -560,24 +651,33 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
     """DbRoundTrip.kt (DES-4): inserta una fila por entidad (cableando los FK), lee de vuelta y asevera.
     Derivado de domain.product → determinista. Sólo captura el id de las entidades referenciadas (sin
     vals sin usar)."""
-    referenced = {f["to"] for e in entities for f in e["fields"] if f["type"] == "ref"}
+    # sólo se captura el id de una entidad si un ref REQUERIDO lo usa: un ref opcional (required: false) se
+    # saltea en el insert (queda NULL), así que capturar el id de su target sería una `val` sin usar (-Werror/detekt).
+    referenced = {f["to"] for e in entities for f in e["fields"]
+                  if f["type"] == "ref" and f.get("required", True)}
     idvar = {e["name"]: e["name"][0].lower() + e["name"][1:] + "Id" for e in entities}
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     inserts = []
     for e in entities:
         tbl = _TBL(e)
-        sets = "".join(f".set({tbl}.{_COL(f['name'])}, {_sample(f, idvar)})" for f in e["fields"])
+        # los campos opcionales (required: false) NO se setean → quedan NULL: prueba positiva de que la
+        # columna nullable acepta ausencia (la contracara del NOT NULL de los required, R2).
+        sets = [f"set({tbl}.{_COL(f['name'])}, {_sample(f, idvar)})"
+                for f in e["fields"] if f.get("required", True)]
         if e["name"] in referenced:
-            inserts.append(f"            val {idvar[e['name']]} = ctx.insertInto({tbl}){sets}\n"
-                           f"                .returning({tbl}.ID).fetchOne()!!.get({tbl}.ID)!!")
+            calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
+            inserts.append(_jooq_chain("            ", f"val {idvar[e['name']]} = ",
+                                       f"ctx.insertInto({tbl})", calls))
         else:
-            inserts.append(f"            ctx.insertInto({tbl}){sets}.execute()")
+            inserts.append(_jooq_chain("            ", "", f"ctx.insertInto({tbl})", sets + ["execute()"]))
     counts = "\n".join(
         f'            check(Repository.all{e["name"]}s(ctx).size == 1) {{ "round-trip {e["name"]}" }}'
         for e in entities)
+    has_date = any(f["type"] == "date" for e in entities for f in e["fields"])
     return (_ROUNDTRIP_SKELETON
             .replace("%PKG%", pkg)
             .replace("%IMPORTS%", imports)
+            .replace("%EXTRA_TIME_IMPORT%", "\nimport java.time.LocalDate" if has_date else "")
             .replace("%INSERTS%", "\n".join(inserts))
             .replace("%COUNTS%", counts)
             .replace("%FIRST%", entities[0]["name"])
@@ -1339,8 +1439,11 @@ def _test_authguard_kt(pkg: str) -> str:
             "})\n")
 
 
-def _test_routetable_kt(pkg: str) -> str:
-    """Tier UNIT: el dispatch de rutas honra el guard (protegida exige token; pública no; inexistente → false)."""
+def _test_routetable_kt(pkg: str, entities: list[dict]) -> str:
+    """Tier UNIT: el dispatch de rutas honra el guard (protegida exige token; pública no; inexistente → false).
+    La ruta se DERIVA del blueprint (R2: sin `/users` hardcodeado) — la ruta plural de la 1ª entidad, que el
+    RouteTable registra realmente (POST protegida, GET pública); un drift del blueprint cambia ambos a la vez."""
+    route = "/" + _table(entities[0])
     return (f"package {pkg}\n\n"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
@@ -1348,11 +1451,11 @@ def _test_routetable_kt(pkg: str) -> str:
             "// Tier UNIT (s7): el despacho de rutas pasa por el guard SÓLO en las protegidas (runtime).\n"
             "class RouteTableTest : StringSpec({\n"
             '    "una ruta protegida exige un token autorizado" {\n'
-            '        appRoutes().dispatch("POST", "/users", null) shouldBe false\n'
-            '        appRoutes().dispatch("POST", "/users", "Bearer t") shouldBe true\n'
+            f'        appRoutes().dispatch("POST", "{route}", null) shouldBe false\n'
+            f'        appRoutes().dispatch("POST", "{route}", "Bearer t") shouldBe true\n'
             "    }\n"
             '    "una ruta publica no exige token" {\n'
-            '        appRoutes().dispatch("GET", "/users", null) shouldBe true\n'
+            f'        appRoutes().dispatch("GET", "{route}", null) shouldBe true\n'
             "    }\n"
             '    "una ruta inexistente no despacha" {\n'
             '        appRoutes().dispatch("DELETE", "/nope", "Bearer t") shouldBe false\n'
@@ -1363,25 +1466,33 @@ def _test_routetable_kt(pkg: str) -> str:
 def _test_store_kt(pkg: str, entities: list[dict]) -> str:
     """Tier UNIT: el Store tipado al contrato agrega y lista (orden-independiente, sin estado compartido frágil)."""
     e = entities[0]
-    ctor = _ctor_call(e)
+    ctor = _kt_call("        val x = ", e["name"], _model_ctor_args(e), "        ")
+    extra = "".join(imp + "\n" for imp in _kt_type_imports([e]))   # date → java.time.LocalDate
     return (f"package {pkg}\n\n"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
-            f"import org.openapitools.client.models.{e['name']}\n\n"
+            f"import org.openapitools.client.models.{e['name']}\n{extra}\n"
             "// Tier UNIT (s7): el Store acepta entidades tipadas al CONTRATO generado y crece al agregarlas.\n"
             "class StoreTest : StringSpec({\n"
             f'    "add agrega una entidad tipada al contrato" {{\n'
+            f"{ctor}\n"
             f"        val before = Store.{e['name'].lower()}s.size\n"
-            f"        Store.add({ctor})\n"
+            f"        Store.add(x)\n"
             f"        Store.{e['name'].lower()}s.size shouldBe before + 1\n"
             "    }\n"
             "})\n")
 
 
-def _ctor_call(e: dict) -> str:
-    """Llamada al constructor del model generado con valores de muestra deterministas (mismo idiom que App.kt)."""
-    args = ["id = 1L"] + [f"{f['name']} = {_KT_SAMPLE[f['type']]}" for f in e["fields"]]
-    return f"{e['name']}({', '.join(args)})"
+def _model_ctor_args(e: dict) -> list[str]:
+    """args del constructor del model con muestras deterministas (mismo idiom que App.kt): enum →
+    <Model>.<Prop>.entries.first() (type-safe); el resto del mapa de samples; nombres camelCase."""
+    args = ["id = 1L"]
+    for f in e["fields"]:
+        if f["type"] == "enum":
+            args.append(f"{_camel(f['name'])} = {e['name']}.{_pascal(f['name'])}.entries.first()")
+        else:
+            args.append(f"{_camel(f['name'])} = {_KT_SAMPLE[f['type']]}")
+    return args
 
 
 def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
@@ -1398,18 +1509,22 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
                 sets.append(f"set({TBL}.{COL}, {ids[by_name[f['to']]['name']]})")
             elif f["type"] == "boolean":
                 sets.append(f"set({TBL}.{COL}, false)")
+            elif f["type"] == "enum":
+                sets.append(f"set({TBL}.{COL}, {_yaml_str(f['values'][0])})")
+            elif f["type"] in ("int", "number", "date"):
+                sets.append(f"set({TBL}.{COL}, {_KT_SAMPLE[f['type']]})")
             else:
                 sets.append(f'set({TBL}.{COL}, "it")')
         idvar = f"{e['name'].lower()}Id"
         ids[e["name"]] = idvar
-        chain = ".".join(sets)
-        inserts.append(
-            f"            val {idvar} = ctx.insertInto({TBL}).{chain}\n"
-            f"                .returning({TBL}.ID).fetchOne()!!.get({TBL}.ID)!!")
+        calls = sets + [f"returning({TBL}.ID)", "fetchOne()!!", f"get({TBL}.ID)!!"]
+        inserts.append(_jooq_chain("            ", f"val {idvar} = ", f"ctx.insertInto({TBL})", calls))
     asserts = "\n".join(
         f"            Repository.all{e['name']}s(ctx).size shouldBe 1" for e in entities)
     body = "\n".join(inserts)
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
+    time_imp = "import java.time.LocalDate\n" if any(
+        f["type"] == "date" for e in entities for f in e["fields"]) else ""
     return (f"package {pkg}\n\n"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
@@ -1419,12 +1534,12 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
             "import org.jooq.conf.Settings\n"
             "import org.jooq.impl.DSL\n"
             f"{imports}\n"
-            "import java.sql.DriverManager\n\n"
+            f"import java.sql.DriverManager\n{time_imp}\n"
             "// Tier INTEGRACIÓN de la pirámide (s7, DES-8): los queries jOOQ tipados de Repository ejercidos\n"
             "// contra una PostgreSQL VIVA (contenedor pineado, lo levanta infra_up). DB caída → connect falla\n"
             "// → test rojo (diente de dos lados, como s1). Flyway migra el schema versionado; clean lo limpia.\n"
             "class RepositoryIT : StringSpec({\n"
-            '    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:55435/postgres"\n'
+            '    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:5435/postgres"\n'
             '    val user = System.getenv("FSK_PG_USER") ?: "postgres"\n'
             '    val pass = System.getenv("FSK_PG_PASSWORD") ?: "metafactory"\n'
             "    val settings = Settings().withRenderQuotedNames(RenderQuotedNames.NEVER)\n\n"
@@ -1455,20 +1570,57 @@ def _probe_fail_test_kt(pkg: str) -> str:
             "})\n")
 
 
-def _ts_client_test() -> str:
+def _ts_field_sample(f: dict, ids: dict) -> tuple[str, str]:
+    """muestra TS de un campo → (literal en el objeto, repr en runtime que produce `${var.campo}`). Derivado
+    del tipo del contrato (R2): ref→id de la entidad referida · enum→1er valor · string→el nombre del campo
+    (detecta reordenamiento) · int/number/date→muestra fija (string para date, como el contrato OpenAPI)."""
+    t = f["type"]
+    if t == "ref":
+        v = str(ids[f["to"]])
+        return v, v
+    if t == "boolean":
+        return "false", "false"
+    if t == "enum":
+        v = f["values"][0]
+        return json.dumps(v), v
+    if t == "int":
+        return "2", "2"
+    if t == "number":
+        return "9.99", "9.99"
+    if t == "date":
+        return '"2026-01-15"', "2026-01-15"
+    return json.dumps(f["name"]), f["name"]            # string → el nombre (orden-sensible)
+
+
+def _ts_client_test(entities: list[dict]) -> str:
     """Tier UNIT TS (s7, dual-lenguaje como s2–s4): node:test ejercita el client tipado al contrato (stdlib,
-    sin dep nueva; corre por `node --experimental-strip-types`, el idiom de la full-stack TS)."""
+    sin dep nueva; corre por `node --experimental-strip-types`, el idiom de la full-stack TS). Fixtures +
+    esperado DERIVADOS del blueprint (R2: sin vocabulario de campos hardcodeado): un campo nuevo en el
+    contrato fluye al fixture y al esperado; romper summarize/el contrato → este test rojo."""
+    ids = {e["name"]: i + 1 for i, e in enumerate(entities)}
+    consts, expected = [], []
+    for e in entities:
+        var = e["name"].lower()
+        props = [f"id: {ids[e['name']]}"]
+        for f in e["fields"]:
+            lit, rep = _ts_field_sample(f, ids)
+            props.append(f"{f['name']}: {lit}")
+            expected.append(rep)
+        consts.append(f'  const {var}: components["schemas"]["{e["name"]}"] = '
+                       f'{{ {", ".join(props)} }};')
+    args = ", ".join(e["name"].lower() for e in entities)
+    consts_s = "\n".join(consts)
+    exp = " ".join(expected)
     return ('import { test } from "node:test";\n'
             'import assert from "node:assert/strict";\n'
             'import { summarize } from "../src/client.ts";\n'
             'import type { components } from "../gen/api.ts";\n\n'
             "// Tier UNIT del lado TS (s7, DES-8): la lógica del client se ejercita en SU toolchain (node:test).\n"
             "// Romper summarize → este test rojo. Los tipos vienen del contrato (gen/api.ts) — type-only, stripped.\n"
+            "// Fixtures + esperado derivados del blueprint (R2): un campo nuevo del contrato aparece acá solo.\n"
             'test("summarize concatena los campos del contrato en orden", () => {\n'
-            '  const user: components["schemas"]["User"] = { id: 1, email: "a@b.c", name: "n" };\n'
-            '  const project: components["schemas"]["Project"] = { id: 2, name: "p", owner_id: 1 };\n'
-            '  const task: components["schemas"]["Task"] = { id: 3, title: "t", done: false, project_id: 2 };\n'
-            '  assert.equal(summarize(user, project, task), "a@b.c n p 1 t false 2");\n'
+            f"{consts_s}\n"
+            f'  assert.equal(summarize({args}), "{exp}");\n'
             "});\n")
 
 
@@ -1487,12 +1639,18 @@ def _ts_probe_fail_test() -> str:
 # axe/jsdom/esbuild. La UI se genera 100% del blueprint (DES-1) y ES el sujeto real del audit a11y; el entry
 # de bundle es código de cliente real (perf). Los probes (UI mala / entry bloated) viven FUERA de lo
 # shippeado y se auditan/bundlean EN VIVO para el diente de dos lados nativo de eval_gate (el degraded flipea).
-_UI_INPUT_TYPE = {"string": "text", "boolean": "checkbox", "ref": "number"}
+_UI_INPUT_TYPE = {"string": "text", "boolean": "checkbox", "int": "number",
+                  "number": "number", "date": "date", "ref": "number"}
 
 
 def _ui_field(entity_lc: str, f: dict) -> str:
     fid = f"{entity_lc}-{f['name'].replace('_', '-')}"
     label = f["name"].replace("_", " ").capitalize()
+    if f["type"] == "enum":
+        # enum → <select> con <option>s: el control accesible (axe/WCAG OK) para un dominio cerrado (R2).
+        opts = "".join(f'          <option value="{v}">{v}</option>\n' for v in f["values"])
+        return (f'        <label for="{fid}">{label}</label>\n'
+                f'        <select id="{fid}" name="{f["name"]}">\n{opts}        </select>\n')
     itype = _UI_INPUT_TYPE[f["type"]]
     return (f'        <label for="{fid}">{label}</label>\n'
             f'        <input id="{fid}" name="{f["name"]}" type="{itype}">\n')
@@ -1569,18 +1727,21 @@ def _probe_bad_ui_html() -> str:
 def _app_ts(entities: list[dict]) -> str:
     """El entry de bundle del frontend (perf, s8): código de cliente REAL (importa summarize de client.ts) →
     esbuild bundlea el grafo real y mide su peso minificado vs el presupuesto. Pasa tsc --strict + ESLint
-    (s2) + currency (s3) como todo lo de src/. El `import type` de gen/api.ts se stripea en el bundle."""
-    has_task = any(e["name"] == "Task" for e in entities)
-    typ = ('type Task = components["schemas"]["Task"];\n'
-           if has_task else 'type Task = { title: string; done: boolean };\n')
+    (s2) + currency (s3) como todo lo de src/. El `import type` de gen/api.ts se stripea en el bundle.
+    DERIVADO del blueprint (R2: sin hardcodear "Task"): tipa la 1ª entidad vía `components` (siempre la usa,
+    sin import muerto) y renderiza su 1er campo string/enum (siempre hay uno renderizable)."""
+    e = entities[0]
+    name = e["name"]
+    field = next((f["name"] for f in e["fields"] if f["type"] in ("string", "enum")),
+                 e["fields"][0]["name"])
     return (
         '// Entry de bundle del frontend (perf, s8/DES-7): código de cliente REAL → esbuild mide su peso\n'
         '// minificado vs el presupuesto declarado. El bundle resuelve el grafo real (client.ts).\n'
         'import { summarize } from "./client.ts";\n'
         'import type { components } from "../gen/api.ts";\n\n'
-        f'{typ}\n'
-        'export function renderTaskList(tasks: readonly Task[]): string {\n'
-        '  const items = tasks.map((t) => `<li>${t.title}${t.done ? " (done)" : ""}</li>`).join("");\n'
+        f'type {name} = components["schemas"]["{name}"];\n\n'
+        f'export function render{name}List(rows: readonly {name}[]): string {{\n'
+        f'  const items = rows.map((r) => `<li>${{r.{field}}}</li>`).join("");\n'
         '  return `<ul>${items}</ul>`;\n'
         '}\n\n'
         'export { summarize };\n')
@@ -2119,11 +2280,11 @@ def build_files(bp: dict) -> dict[str, str]:
         "probe/routes/unguarded.kt": _probe_unguarded_route(ents),
         # pirámide de tests (s7, DES-8): suites graduadas (unit Kotlin + integración PG + unit TS) + probe negativo
         f"src/test/kotlin/{pkg}/AuthGuardTest.kt": _test_authguard_kt(pkg),
-        f"src/test/kotlin/{pkg}/RouteTableTest.kt": _test_routetable_kt(pkg),
+        f"src/test/kotlin/{pkg}/RouteTableTest.kt": _test_routetable_kt(pkg, ents),
         f"src/test/kotlin/{pkg}/StoreTest.kt": _test_store_kt(pkg, ents),
         f"src/integrationTest/kotlin/{pkg}/RepositoryIT.kt": _it_repository_kt(pkg, ents),
         f"src/testProbe/kotlin/{pkg}/ProbeShouldFailTest.kt": _probe_fail_test_kt(pkg),
-        "frontend/test/client.test.ts": _ts_client_test(),
+        "frontend/test/client.test.ts": _ts_client_test(ents),
         "frontend/probe-test/fail.test.ts": _ts_probe_fail_test(),
         # calidad de experiencia (s8, DES-7): UI accesible generada + drivers a11y/perf + scorers + probes
         "frontend/ui/index.html": _ui_index_html(bp),

@@ -28,7 +28,7 @@ checks:
   - sh
   - -c
   - docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg
-    -e POSTGRES_PASSWORD=metafactory -p 55435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    -e POSTGRES_PASSWORD=metafactory -p 5435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
   proof:
   - sh
   - -c

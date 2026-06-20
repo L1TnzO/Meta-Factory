@@ -45,11 +45,16 @@ domain:
         fields:
           - { name: name, type: string }
           - { name: owner_id, type: ref, to: User }
+          - { name: budget, type: number }
       - name: Task
         fields:
           - { name: title, type: string }
           - { name: done, type: boolean }
           - { name: project_id, type: ref, to: Project }
+          - { name: priority, type: enum, values: [low, medium, high] }
+          - { name: estimate, type: int }
+          - { name: due, type: date }
+          - { name: notes, type: string, required: false }
 
   # Restricciones — dónde esta pila es INSEGURA para un dominio (DATA hoy; darle dientes M0 = incremento
   # de sustrato futuro chico, ver INCREMENT §8). El producto no debe planearse para estos dominios.
@@ -203,7 +208,10 @@ domain:
           cmd: ["sh", "-c", "./node_modules/.bin/openapi-typescript ../openapi.yaml -o gen/api.ts && ./node_modules/.bin/tsc -p tsconfig.json"]
         - name: scaffold_idempotent
           kind: command
-          cmd: [python3, codegen/scaffold_product.py, --check-idempotent]
+          # El generador (codegen/) vive en la FÁBRICA (chassis), no en cada instancia (R1/ADR-015): para el
+          # producto default cwd==fábrica → `codegen/`; para una instancia cwd==products/<p>/ → `../../codegen`.
+          # Resolución relativa (sin path absoluto, portable). METAFACTORY_ROOT default==cwd lee el blueprint correcto.
+          cmd: ["sh", "-c", "cg=codegen; [ -d \"$cg\" ] || cg=../../codegen; python3 \"$cg/scaffold_product.py\" --check-idempotent"]
         - name: isolation_boundary
           kind: product_env
           workdir: build/product
@@ -232,7 +240,7 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew classes -q --console=plain"]
-          up: ["sh", "-c", "docker rm -f fsk_s1_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s1_pg -e POSTGRES_PASSWORD=metafactory -p 55434:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
+          up: ["sh", "-c", "docker rm -f fsk_s1_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s1_pg -e POSTGRES_PASSWORD=metafactory -p 5434:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
           proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew roundtrip -q --console=plain"]
           down: ["docker", "rm", "-f", "fsk_s1_pg"]
           timeout: 120
@@ -514,7 +522,7 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTestClasses -q --console=plain"]
-          up: ["sh", "-c", "docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg -e POSTGRES_PASSWORD=metafactory -p 55435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
+          up: ["sh", "-c", "docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg -e POSTGRES_PASSWORD=metafactory -p 5435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
           proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTest -q --console=plain"]
           down: ["docker", "rm", "-f", "fsk_s7_pg"]
           timeout: 120
@@ -592,7 +600,7 @@ domain:
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew installDist -q --console=plain"]
           up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp"]
-          proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:58593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
+          proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:18593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
           down: []
           timeout: 120
     - id: s10

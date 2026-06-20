@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `0d67a9dff760` | 2026-06-20T16:56Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `db44b1fb82be` | 2026-06-20T16:58Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `c1e28067f67d` | 2026-06-20T17:49Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -59,6 +59,7 @@
 | `docs/work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md` | `1b93efd7956c` | 2026-06-20T14:04Z | Incremento FSK-S12-DOMAIN-WORKFLOWS |
 | `docs/work/FSK-S13-DOMAIN-RBAC-INCREMENT.md` | `531e589727c8` | 2026-06-20T15:51Z | Incremento FSK-S13-DOMAIN-RBAC |
 | `docs/work/FSK-S14-DOMAIN-OWNERSHIP-INCREMENT.md` | `ed877ac5d6f5` | 2026-06-20T16:58Z | Incremento FSK-S14-DOMAIN-OWNERSHIP |
+| `docs/work/FSK-S15-LIVE-ENDPOINTS-INCREMENT.md` | `ea1c1bc76692` | 2026-06-20T17:52Z | Incremento FSK-S15-LIVE-ENDPOINTS |
 | `docs/work/FSK-S2-HARDNESS-INCREMENT.md` | `def0ce23ec1a` | 2026-06-18T22:48Z | Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2) |
 | `docs/work/FSK-S3-CURRENCY-INCREMENT.md` | `aac1d98e1400` | 2026-06-19T01:46Z | Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3) |
 | `docs/work/FSK-S4-SUPPLYCHAIN-INCREMENT.md` | `be81b89bb8ff` | 2026-06-19T02:16Z | Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4) |

@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `66ec440d8cf2` | 2026-06-20T20:08Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `8c2a26a95b93` | 2026-06-20T20:08Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `2a9d8c88b03d` | 2026-06-20T23:44Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `0f9769800c49` | 2026-06-20T23:44Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -28,6 +28,7 @@
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `ebe94c01c576` | 2026-06-20T23:43Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |

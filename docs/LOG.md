@@ -1,7 +1,27 @@
-<!-- meta:doc sha=66ec440d8cf2a229fa8589d0a7d2bababe7e10b7 updated=2026-06-20T20:08Z -->
+<!-- meta:doc sha=2a9d8c88b03d90102fb9181536a8022bde6ab188 updated=2026-06-20T23:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T23:40Z — Cuestión de gobierno: layering de docs/incrementos por nivel (análisis)
+- **lo que disparó esto**: al ubicar los docs de Snipe-IT (dominio → ¿fábrica? gobierno → ¿meta?) me peleé
+  con la colocación. El ingeniero lo notó y preguntó si es raro construir meta vs fábrica vs producto, y pidió
+  arreglar la maquinaria ANTES de generar Snipe-IT (lo no documentado muere → autocontenido).
+- **diagnóstico** (fundado en código, no a ojo): el modelo de docs/gobierno se quedó ATRÁS del de cardinalidad.
+  ADR-015 hizo fábrica:productos = 1:N, pero (a) el lifecycle de incrementos sigue GLOBAL/uno-a-la-vez a nivel
+  meta (el `increment_guard` activo es el del meta y gobierna todo el árbol; el de la fábrica, H1, está DORMIDO
+  in-tree), (b) el check de consistencia es meta-only (`doc_set`), y (c) el PRODUCTO no tiene casa de docs
+  (commitea sólo product.yml + pin) → su dominio derramó a `factories/.../docs/reference/` y su gobierno (P1) a
+  `docs/work/` del meta. Conviven DOS filosofías sin elegir: meta-único-operador (ADR-006) ↔ auto-gobierno por
+  nivel (ADR-007 single-source + H1); el producto cayó en el hueco.
+- **entregable**: `reference/GOVERNANCE-LAYERING.md` (AUTORIDAD) — los 3 niveles, la realidad actual con
+  evidencia, el catálogo de 7 problemas (P1 casa-de-producto · P2 slot-único de incremento · P3 lifecycle de
+  fábrica dormido · P4 churn de frescura de STATE · P5 `product new` corre la línea entera · P6 cd→cwd-leak ·
+  P7 las 4 restricciones del codegen FSK, otro carril), 3 opciones (A separación por nivel / B casa de producto
+  / C convenciones) y un plan faseado. Recomendado: Opción A faseada, con la casa del producto (Fase 1) ANTES
+  de generar Snipe-IT. **Decisión de dirección: ABIERTA** (la elige el ingeniero → ADR-016 candidato).
+- **lección**: cuando un eje nuevo extiende la CARDINALIDAD (1:N), revisar si el modelo de DOCS/GOBIERNO la
+  sigue — acá no lo hizo y el síntoma (docs que no saben dónde vivir) tardó hasta tener un producto real.
 
 ## 2026-06-20T20:10Z — P1·Snipe-IT — Fase 1: el SPEC del primer producto real (`P1-SNIPE-IT-PRODUCT`)
 - **el objetivo de la sesión** (decisión del ingeniero): NO profundizar más FSK sino PRODUCIR — cosechar el

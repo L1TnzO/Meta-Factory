@@ -156,6 +156,26 @@ def _load_blueprint(root: Path) -> dict:
                 raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
             if "required" in f and not isinstance(f["required"], bool):
                 raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'required' no booleano")
+            # R2 (FSK-S12, workflows): un campo enum puede declarar una máquina de estado OPCIONAL (`initial` +
+            # `transitions`). Validación fail-closed (mismo patrón que el guard de tipo): los modifiers sólo
+            # sobre enum; `initial` ∈ values; toda clave/destino de `transitions` ∈ values (sin estados fantasma).
+            if ("initial" in f or "transitions" in f) and t != "enum":
+                raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'initial'/'transitions' no es enum")
+            vals = set(f.get("values") or [])
+            if "initial" in f and f["initial"] not in vals:
+                raise SystemExit(f"scaffold: enum {f.get('name')!r}: 'initial' {f.get('initial')!r} fuera de values")
+            if "transitions" in f:
+                tr = f["transitions"]
+                if not isinstance(tr, dict):
+                    raise SystemExit(f"scaffold: enum {f.get('name')!r}: 'transitions' no es un mapa")
+                for src, dsts in tr.items():
+                    if src not in vals:
+                        raise SystemExit(f"scaffold: enum {f.get('name')!r}: estado origen {src!r} fuera de values")
+                    if not isinstance(dsts, list):
+                        raise SystemExit(f"scaffold: enum {f.get('name')!r}: destinos de {src!r} no son una lista")
+                    for d in dsts:
+                        if d not in vals:
+                            raise SystemExit(f"scaffold: enum {f.get('name')!r}: destino {d!r} fuera de values")
     return bp
 
 
@@ -220,15 +240,133 @@ def _openapi_yaml(bp: dict) -> str:
 
 def _oapi_inline(f: dict) -> str:
     """schema inline del campo en el contrato (DES-6). enum → tipo string CERRADO (`enum: [...]`) del que
-    openapi-generator deriva un enum class Kotlin (type-safety); el resto, del mapa de tipos base."""
+    openapi-generator deriva un enum class Kotlin (type-safety); el resto, del mapa de tipos base. R2/FSK-S12:
+    un enum con workflow documenta su máquina de estado como extensiones `x-initial`/`x-transitions` (vendor
+    extensions que openapi-generator y openapi-typescript IGNORAN) — el contrato es la fuente inspectable de
+    "qué transición es legal"; el guard Kotlin (workflow/) la enforza, type-bound al MISMO enum class."""
     if f["type"] == "enum":
         vals = ", ".join(_yaml_str(v) for v in f["values"])
-        return f"{{ type: string, enum: [{vals}] }}"
+        ext = ""
+        if "initial" in f:
+            ext += f", x-initial: {_yaml_str(f['initial'])}"
+        if "transitions" in f:
+            pairs = ", ".join(
+                f"{_yaml_str(s)}: [{', '.join(_yaml_str(d) for d in dsts)}]"
+                for s, dsts in f["transitions"].items())
+            ext += f", x-transitions: {{{pairs}}}"
+        return f"{{ type: string, enum: [{vals}]{ext} }}"
     return "{ " + ", ".join(f"{k}: {v}" for k, v in _OAPI_TYPE[f["type"]].items()) + " }"
 
 
 def _yaml_str(s: str) -> str:
     return '"' + s.replace('"', '\\"') + '"'
+
+
+# ── workflows / máquinas de estado (R2/FSK-S12, DES-3): un campo enum con `transitions` gana un GUARD de
+#    dominio DETERMINISTA (sin LLM, I-3). Opt-in: sin `transitions` no se emite nada (FSK-S11 intacto). El
+#    guard es type-safe sobre el enum class GENERADO del contrato → un tamper del `enum:` rompe su compile
+#    (mismo diente DES-6 que App.kt/FSK-S11), ahora cubriendo también la máquina de estado. ────────────────
+def _workflow_fields(entities: list[dict]) -> list[tuple[dict, dict]]:
+    """(entity, field) por cada campo enum con `transitions` declaradas (el workflow es opt-in)."""
+    return [(e, f) for e in entities for f in e["fields"]
+            if f["type"] == "enum" and f.get("transitions")]
+
+
+def _enum_class(entity: dict, field: dict) -> str:
+    """el enum class anidado que openapi-generator emite: <Entity>.<FieldPascal> (p.ej. Asset.Status)."""
+    return f"{entity['name']}.{_pascal(field['name'])}"
+
+
+def _enum_ref(entity: dict, field: dict, value: str) -> str:
+    """referencia type-safe a una entry: <Entity>.<FieldPascal>.<value>. openapi-generator nombra la entry
+    con el valor LITERAL (@Suppress(\"EnumEntryName\")) → la entry == el valor del blueprint, verificado vivo."""
+    return f"{_enum_class(entity, field)}.{value}"
+
+
+def _workflow_obj(entity: dict, field: dict) -> str:
+    return f"{entity['name']}{_pascal(field['name'])}Workflow"
+
+
+def _workflow_kt(pkg: str, entity: dict, field: dict) -> str:
+    """workflow/<Entity><Field>Workflow.kt — la máquina de estado del campo (DES-3). `canTransition(from,to)`
+    gatea las transiciones declaradas; una no declarada se rechaza por construcción (no-salteable). `initial`
+    = el estado de una entidad recién creada. Derivado del MISMO blueprint que el contrato (single-source);
+    type-bound al enum class del contrato → tamper del `enum:` → unresolved reference → compile rojo (DES-6)."""
+    enum_t = _enum_class(entity, field)
+    init = _enum_ref(entity, field, field["initial"]) if field.get("initial") else f"{enum_t}.entries.first()"
+    rows = []
+    for src, dsts in field["transitions"].items():
+        lead = f"        {_enum_ref(entity, field, src)} to "
+        if dsts:
+            rows.append(_kt_call(lead, "setOf", [_enum_ref(entity, field, d) for d in dsts], "        ") + ",")
+        else:
+            rows.append(f"{lead}emptySet(),")    # estado terminal: sin salidas
+    body = "\n".join(rows)
+    return (f"package {pkg}.workflow\n\n"
+            f"import org.openapitools.client.models.{entity['name']}\n\n"
+            f"// Máquina de estado de {entity['name']}.{field['name']} (workflow, R2/FSK-S12, DES-3). DETERMINISTA\n"
+            f"// (sin LLM, I-3): una transición declarada es válida; una no declarada se rechaza por construcción.\n"
+            f"// Type-safe sobre el enum class GENERADO del contrato ({enum_t}): tamper del `enum:` del contrato\n"
+            f"// → {enum_t} unresolved → compile rojo (diente DES-6, como App.kt/FSK-S11).\n"
+            f"object {_workflow_obj(entity, field)} {{\n"
+            f"    val initial: {enum_t} = {init}\n"
+            f"    private val allowed: Map<{enum_t}, Set<{enum_t}>> = mapOf(\n"
+            f"{body}\n"
+            f"    )\n\n"
+            f"    fun canTransition(from: {enum_t}, to: {enum_t}): Boolean = allowed[from]?.contains(to) ?: false\n"
+            f"}}\n")
+
+
+def _workflow_pairs(field: dict) -> tuple[tuple[str, str], tuple[str, str]]:
+    """(válida, inválida) derivadas del mapa de transiciones, para el diente de DOS lados del test. Válida =
+    el 1er (estado, destino-declarado). Inválida = el 1er (estado, otro-estado) que NO está en sus destinos."""
+    tr = field["transitions"]
+    valid = next(((s, dsts[0]) for s, dsts in tr.items() if dsts), None)
+    invalid = None
+    for src in tr:
+        allowed = set(tr[src])
+        for d in field["values"]:
+            if d != src and d not in allowed:
+                invalid = (src, d)
+                break
+        if invalid:
+            break
+    if valid is None or invalid is None:
+        raise SystemExit(f"scaffold: el workflow de {field['name']!r} no tiene un par válido+inválido para el test")
+    return valid, invalid
+
+
+def _test_workflow_kt(pkg: str, entity: dict, field: dict) -> str:
+    """workflow/<Entity><Field>WorkflowTest.kt (Kotest, tier unit de s7) — el DIENTE de DOS lados del workflow:
+    una transición declarada VÁLIDA pasa Y una INVÁLIDA es rechazada (+ el estado inicial es el declarado).
+    Romper canTransition (aceptar todo) → falla el lado inválido; (rechazar todo) → falla el válido → rojo."""
+    obj = _workflow_obj(entity, field)
+    (vf, vt), (inf, intt) = _workflow_pairs(field)
+    lines = [
+        f"package {pkg}.workflow\n",
+        "import io.kotest.core.spec.style.StringSpec",
+        "import io.kotest.matchers.shouldBe",
+        f"import org.openapitools.client.models.{entity['name']}\n",
+        f"// Tier UNIT (s7, DES-3) — la máquina de estado de {entity['name']}.{field['name']} (workflow, FSK-S12).",
+        "// Diente de DOS lados: una transición declarada VÁLIDA pasa Y una INVÁLIDA es rechazada (no-decorativo).",
+        f"class {obj}Test : StringSpec({{",
+    ]
+    if field.get("initial"):
+        lines += [
+            '    "el estado inicial es el declarado" {',
+            f"        {obj}.initial shouldBe {_enum_ref(entity, field, field['initial'])}",
+            "    }",
+        ]
+    lines += [
+        '    "una transición declarada es válida" {',
+        f"        {obj}.canTransition({_enum_ref(entity, field, vf)}, {_enum_ref(entity, field, vt)}) shouldBe true",
+        "    }",
+        '    "una transición no declarada es rechazada" {',
+        f"        {obj}.canTransition({_enum_ref(entity, field, inf)}, {_enum_ref(entity, field, intt)}) shouldBe false",
+        "    }",
+        "})",
+    ]
+    return "\n".join(lines) + "\n"
 
 
 # ── el server Kotlin: usa los models GENERADOS del contrato (un drift rompe el compile) ─────────
@@ -347,6 +485,7 @@ dependencies {{
 sourceSets {{
     create("integrationTest")
     create("testProbe")
+    create("workflowTest")
 }}
 // integración usa los models/jOOQ/Flyway/PG del main (implementation) + Kotest (testImplementation).
 configurations["integrationTestImplementation"].extendsFrom(
@@ -357,7 +496,13 @@ configurations["integrationTestRuntimeOnly"].extendsFrom(
 )
 configurations["testProbeImplementation"].extendsFrom(configurations["testImplementation"])
 configurations["testProbeRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+configurations["workflowTestImplementation"].extendsFrom(configurations["testImplementation"])
+configurations["workflowTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
 sourceSets["integrationTest"].apply {{          // ve las clases compiladas del producto (Repository, jOOQ)
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}}
+sourceSets["workflowTest"].apply {{            // ve el guard del workflow + los enum class del contrato (main)
     compileClasspath += sourceSets["main"].output
     runtimeClasspath += sourceSets["main"].output
 }}
@@ -387,6 +532,18 @@ tasks.register<Test>("testProbe") {{
     ignoreFailures = true     // la TAREA no rompe el build; el CHECK exige el FAILED por grep
     testLogging {{ events("failed") }}
     outputs.upToDateWhen {{ false }}   // corre SIEMPRE → el FAILED se imprime en cada corrida del gate (no UP-TO-DATE)
+}}
+// Tier WORKFLOW (s7, DES-3, R2/FSK-S12): el diente de DOS lados de cada máquina de estado (una transición
+// declarada válida pasa / una no declarada se rechaza). Source set propio → el check workflow_enforced lo corre
+// aislado del resto de la pirámide. Si NO hay enum con `transitions`, el source set está vacío → 0 tests (opt-in).
+tasks.register<Test>("workflowTest") {{
+    description = "Tier workflow: el guard canTransition de cada enum con transitions (s7/DES-3)."
+    group = "verification"
+    testClassesDirs = sourceSets["workflowTest"].output.classesDirs
+    classpath = sourceSets["workflowTest"].runtimeClasspath
+    useJUnitPlatform()
+    testLogging {{ events("failed") }}
+    outputs.upToDateWhen {{ false }}   // corre SIEMPRE (idiom roundtrip): el diente se re-evalúa cada corrida del gate
 }}
 
 // ── Build hermético reproducible (s10, DES-1). La REPRODUCIBILIDAD es una propiedad DECLARADA del producto
@@ -2241,7 +2398,7 @@ def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
     pkgdir = f"src/main/kotlin/{pkg}"
-    return {
+    files = {
         "openapi.yaml": _openapi_yaml(bp),
         "settings.gradle.kts": _settings_gradle(pkg),
         "build.gradle.kts": _build_gradle(pkg),
@@ -2307,6 +2464,16 @@ def build_files(bp: dict) -> dict[str, str]:
         "tools/hermetic_check.py": _hermetic_check_py(pkg),
         "Dockerfile": _dockerfile(pkg),
     }
+    # workflows / máquinas de estado (s7, DES-3, R2/FSK-S12): OPT-IN — sólo se emiten para los campos enum que
+    # declaran `transitions` (un enum sin máquina se comporta EXACTO como FSK-S11). El guard vive en el código
+    # autorado (workflow/, type-bound al contrato); el test de dos lados, en la pirámide unit (src/test).
+    for e, f in _workflow_fields(ents):
+        obj = _workflow_obj(e, f)
+        files[f"{pkgdir}/workflow/{obj}.kt"] = _workflow_kt(pkg, e, f)
+        # tier dedicado `workflowTest` (source set propio, idiom integrationTest/testProbe): aísla el diente del
+        # workflow → el check `workflow_enforced` lo corre solo (atribución limpia, sin filtro Kotest frágil).
+        files[f"src/workflowTest/kotlin/{pkg}/workflow/{obj}Test.kt"] = _test_workflow_kt(pkg, e, f)
+    return files
 
 
 def _assets_dir() -> Path:

@@ -51,3 +51,13 @@ checks:
     || exit 1; node --experimental-strip-types --disable-warning=ExperimentalWarning
     --test probe-test/fail.test.ts >/dev/null 2>&1 && { echo FSK_PYRAMID_TS_DECORATIVE;
     exit 1; }; echo FSK_PYRAMID_UNIT_TS_OK
+- name: workflow_enforced
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew workflowTest
+    -q --console=plain || exit 1; ls build/test-results/workflowTest/*.xml >/dev/null
+    2>&1 || { echo FSK_WORKFLOW_NO_TESTS; exit 1; }; echo FSK_WORKFLOW_OK

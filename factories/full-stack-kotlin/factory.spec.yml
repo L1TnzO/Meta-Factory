@@ -51,7 +51,13 @@ domain:
           - { name: title, type: string }
           - { name: done, type: boolean }
           - { name: project_id, type: ref, to: Project }
-          - { name: priority, type: enum, values: [low, medium, high] }
+          # priority es un WORKFLOW (R2/FSK-S12, DES-3): la prioridad sólo cambia de a un paso (no low↔high de
+          # golpe). initial + transitions → guard canTransition DETERMINISTA, type-bound al enum del contrato.
+          - name: priority
+            type: enum
+            values: [low, medium, high]
+            initial: low
+            transitions: { low: [medium], medium: [low, high], high: [medium] }
           - { name: estimate, type: int }
           - { name: due, type: date }
           - { name: notes, type: string, required: false }
@@ -155,6 +161,13 @@ domain:
       tech: "Kotest sobre JUnit Platform: tier unit (src/test, sin infra) + tier integración (src/integrationTest, Repository vs PostgreSQL viva por infra_up, como Testcontainers); tier unit TS por node:test (stdlib, dual-lenguaje); diente negativo embebido (gradle testProbe: un test que DEBE fallar). Contrato ya cubierto por s0 (compile) + s6 (contract main). Playwright/e2e (browser + server HTTP vivo) = declared-deferred (ADR-012, mismo shape que Ktor→estático de s5): necesita red para el binario de browser y un server vivo, diferido a s9"
       artifact: build/product/src/test/
       proof: "s7 pyramid_unit: gradle test (suite unit) verde + testProbe DEBE reportar FAILED (o decorativo→rojo); s7 pyramid_integration: gradle integrationTest contra PostgreSQL viva (DB caída→rojo); s7 pyramid_unit_ts: node:test del client verde + un probe TS que DEBE fallar; romper cualquier nivel → rojo"
+      status: built
+    - id: workflow_enforced
+      invariant: "un campo enum con ciclo de vida declara su máquina de estado (initial + transitions) y un guard DETERMINISTA (sin LLM, I-3) la enforza: una transición declarada es válida, una no declarada se rechaza por construcción (no-salteable, DES-3)"
+      primitive: DES-3
+      tech: "gramática del blueprint (domain.product): un enum gana initial/transitions opcionales (R2/FSK-S12) → el codegen emite un guard type-safe (workflow/<Entity><Field>Workflow.kt: canTransition derivado del mapa, type-bound al enum class del contrato) + un test de DOS lados (tier workflowTest, Kotest). El contrato documenta la máquina como x-initial/x-transitions (DES-6, inspectable). Opt-in: un enum sin transitions no emite nada (FSK-S11 intacto)"
+      artifact: build/product/src/main/kotlin/webapp/workflow/
+      proof: "s7 workflow_enforced: gradle workflowTest verde — una transición declarada VÁLIDA pasa Y una INVÁLIDA es rechazada (diente de dos lados); romper canTransition (aceptar todo) → falla el lado inválido (o rechazar todo → falla el válido) → rojo; tamper del `enum:` del contrato → el guard no compila (DES-6)"
       status: built
     - id: calidad_experiencia
       invariant: "la accesibilidad (WCAG) y la performance se miden con gates que BLOQUEAN bajo umbral; un output degradado DEBE flipear el gate (no decorativo)"
@@ -511,6 +524,7 @@ domain:
         - { name: pyramid_unit, cmd: "gradle test (suite unit Kotest: AuthGuard/RouteTable/Store) verde; gradle testProbe DEBE reportar el test FAILED (grep) o decorativo→rojo (fail-closed)", runs_in: product_env, toolchain: "kotest-junit5", status: built }
         - { name: pyramid_integration, cmd: "gradle integrationTest (Repository vs PostgreSQL viva por infra_up); DB caída → rojo (diente de dos lados)", runs_in: product_env, toolchain: "kotest-postgres", status: built }
         - { name: pyramid_unit_ts, cmd: "node:test del client TS (summarize) verde; un probe TS que DEBE fallar o decorativo→rojo (fail-closed)", runs_in: product_env, toolchain: "node-test", status: built }
+        - { name: workflow_enforced, cmd: "gradle workflowTest: el guard canTransition de cada enum con transitions — transición válida pasa Y no-declarada rechazada (diente de dos lados, DES-3); romper el guard → rojo", runs_in: product_env, toolchain: "kotest-junit5", status: built }
       builds: []
       checks:
         - name: pyramid_unit
@@ -531,6 +545,11 @@ domain:
           workdir: build/product/frontend
           bootstrap: []
           cmd: ["sh", "-c", "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/client.test.ts || exit 1; node --experimental-strip-types --disable-warning=ExperimentalWarning --test probe-test/fail.test.ts >/dev/null 2>&1 && { echo FSK_PYRAMID_TS_DECORATIVE; exit 1; }; echo FSK_PYRAMID_UNIT_TS_OK"]
+        - name: workflow_enforced
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) ./gradlew workflowTest -q --console=plain || exit 1; ls build/test-results/workflowTest/*.xml >/dev/null 2>&1 || { echo FSK_WORKFLOW_NO_TESTS; exit 1; }; echo FSK_WORKFLOW_OK"]
     - id: s8
       name: "calidad de experiencia: a11y (axe-core en jsdom) + perf (presupuesto de bundle-size con esbuild) bajo eval_gate — DES-7"
       activation: always
@@ -784,6 +803,12 @@ requirements:
       satisfied_by: [s9]
       verified_by: [observability_live]
       capability: observabilidad_producto
+    - id: REQ-F-011
+      statement: "un campo enum con ciclo de vida declara su máquina de estado (initial + transitions) y un guard DETERMINISTA la enforza: una transición declarada es válida, una no declarada se rechaza por construcción (workflow, DES-3, R2/FSK-S12)"
+      acceptance: "workflow_enforced verde: gradle workflowTest ejercita el guard canTransition con un diente de DOS lados (transición declarada VÁLIDA pasa ✓ / no-declarada rechazada ✗); romper el guard (aceptar todo → falla el lado inválido; rechazar todo → falla el válido) → rojo; tamper del `enum:` del contrato → el guard type-bound no compila (DES-6). Opt-in: un enum sin transitions no emite guard (FSK-S11 intacto)"
+      satisfied_by: [s7]
+      verified_by: [workflow_enforced]
+      capability: workflow_enforced
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"

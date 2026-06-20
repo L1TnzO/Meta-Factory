@@ -176,6 +176,31 @@ def _load_blueprint(root: Path) -> dict:
                     for d in dsts:
                         if d not in vals:
                             raise SystemExit(f"scaffold: enum {f.get('name')!r}: destino {d!r} fuera de values")
+    # R2 (FSK-S13, RBAC): autorización por rol OPCIONAL. `roles` (top-level) = el universo de roles del
+    # producto; `write_roles` (por entidad) = quién puede ESCRIBIR (POST) esa entidad. Fail-closed (mismo
+    # patrón que el guard de tipo de FSK-S11 y el de workflows de FSK-S12): write_roles sólo si hay `roles`;
+    # todo rol ∈ roles; formas bien formadas (listas de identificadores lowercase, sin duplicados → enum class
+    # Role type-safe). Opt-in: sin `roles` el producto se comporta EXACTO como FSK-S5 (sólo autenticación).
+    roles = bp.get("roles")
+    if roles is not None:
+        if not isinstance(roles, list) or not all(isinstance(r, str) for r in roles):
+            raise SystemExit("scaffold: 'roles' debe ser una lista de strings")
+        if any(not (r.isidentifier() and r == r.lower()) for r in roles):
+            raise SystemExit("scaffold: cada rol debe ser un identificador lowercase (p.ej. admin, editor)")
+        if len(set(roles)) != len(roles):
+            raise SystemExit("scaffold: 'roles' tiene roles duplicados")
+    role_set = set(roles or [])
+    for e in ents:
+        wr = e.get("write_roles")
+        if wr is None:
+            continue
+        if roles is None:
+            raise SystemExit(f"scaffold: entidad {e.get('name')!r} declara 'write_roles' sin 'roles' (fail-closed)")
+        if not isinstance(wr, list) or not all(isinstance(r, str) for r in wr):
+            raise SystemExit(f"scaffold: 'write_roles' de {e.get('name')!r} debe ser una lista de strings")
+        for r in wr:
+            if r not in role_set:
+                raise SystemExit(f"scaffold: write_roles de {e.get('name')!r}: rol {r!r} fuera de 'roles'")
     return bp
 
 
@@ -209,6 +234,15 @@ def _openapi_yaml(bp: dict) -> str:
             # route_check.py (modo auth) lo cruza contra ESTA decisión — no contra una lista hardcodeada.
             "      security:",
             "        - bearerAuth: []",
+        ]
+        # RBAC (FSK-S13, DES-3): la op de escritura documenta los roles requeridos como vendor extension
+        # x-required-roles (openapi-generator/openapi-typescript la IGNORAN — verificado: el contrato sigue
+        # parseando). El contrato es la FUENTE inspectable de "qué rol necesita cada escritura"; route_check.py
+        # (modo rbac) la cruza contra el set registrado en el RouteTable → tamper del contrato sin tocar el
+        # Kotlin (o viceversa) → ROLE_MISMATCH (rojo). Opt-in: sin write_roles, no se emite (FSK-S5 intacto).
+        if e.get("write_roles"):
+            lines.append(f"      x-required-roles: [{', '.join(e['write_roles'])}]")
+        lines += [
             "      requestBody:",
             "        required: true",
             "        content:",
@@ -1355,28 +1389,123 @@ def _auth_guard_kt(pkg: str) -> str:
             "}\n")
 
 
-def _routes_kt(pkg: str, entities: list[dict]) -> str:
+def _role_enum_kt(pkg: str, roles: list[str]) -> str:
+    """auth/Role.kt — el enum class de roles GENERADO del blueprint (`roles`), type-safe (RBAC, FSK-S13,
+    DES-3). Las entries son los roles en UPPER (convención Kotlin) → el RouteTable registra cada escritura con
+    un Set<Role>: referenciar un rol inexistente NO compila (el registro se type-checkea contra ESTE enum).
+    Sólo se emite si el blueprint declara `roles` (opt-in: sin roles, FSK-S5 intacto, sin noción de rol)."""
+    entries = "\n".join(f"    {r.upper()}," for r in roles)
+    return (f"package {pkg}.auth\n\n"
+            "// Roles del producto (RBAC, FSK-S13, DES-3) -- DERIVADO del blueprint domain.product (`roles`).\n"
+            "// Type-safe: el RouteTable registra cada escritura con un Set<Role> -> un rol inexistente no\n"
+            "// compila. El guard (RoleGuard) cruza el rol del token contra el set requerido por la operacion.\n"
+            "enum class Role {\n"
+            f"{entries}\n"
+            "}\n")
+
+
+def _role_guard_kt(pkg: str) -> str:
+    """auth/RoleGuard.kt — autorización por ROL encima de la autenticación de AuthGuard (RBAC, FSK-S13, DES-3).
+    `authorize(token, required)` extrae el rol del token ("Bearer <rol>", mismo esquema estático/determinista
+    que AuthGuard — sin server vivo) y exige membresía en el set requerido por la operación. Opt-in: un set
+    requerido VACÍO → cae a AuthGuard (sólo autenticación, el comportamiento de FSK-S5). DETERMINISTA (sin LLM,
+    I-3). Mismo paquete que Role/AuthGuard → sin imports; ≤2 returns por fun (detekt ReturnCount)."""
+    return (f"package {pkg}.auth\n\n"
+            "/**\n"
+            " * Autorizacion por ROL (RBAC, FSK-S13, DES-3) encima de la autenticacion de AuthGuard. Una\n"
+            " * operacion declara que roles la pueden ejecutar; el guard extrae el rol del token y exige\n"
+            " * membresia. Un set requerido VACIO cae a AuthGuard (solo autenticacion) -> FSK-S5 intacto.\n"
+            " */\n"
+            "object RoleGuard {\n"
+            '    private const val SCHEME = "Bearer "\n\n'
+            "    fun roleOf(token: String?): Role? {\n"
+            "        if (token == null || !token.startsWith(SCHEME)) return null\n"
+            "        val raw = token.removePrefix(SCHEME).trim()\n"
+            "        return Role.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }\n"
+            "    }\n\n"
+            "    fun authorize(token: String?, required: Set<Role>): Boolean {\n"
+            "        if (required.isEmpty()) return AuthGuard.authorize(token)\n"
+            "        val role = roleOf(token)\n"
+            "        return role != null && role in required\n"
+            "    }\n"
+            "}\n")
+
+
+def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
     """routes/RouteTable.kt — el registro de rutas (DES-2/DES-3), Kotlin REAL que COMPILA (entra en
     compileKotlin de s0). Las rutas de ESCRITURA (post) se registran DENTRO de `authenticated { }` → quedan
     `guarded`; las de lectura (get) afuera. El analizador estatico (route_check.py) lee ESTE archivo por
     tokens (sin compilar): topologia (vs el contrato) + alcanzabilidad (protegida ⇒ dentro del guard).
-    Derivado de domain.product → las rutas == el contrato por construccion (un GET+POST por entidad)."""
+    Derivado de domain.product → las rutas == el contrato por construccion (un GET+POST por entidad).
+    RBAC (FSK-S13, opt-in): si el blueprint declara `roles`, cada escritura se registra con su Set<Role> y el
+    dispatch cruza el rol del token via RoleGuard (una entidad sin write_roles → emptySet → sólo auth, FSK-S5)."""
     gets = "\n".join(f'    route("GET", "/{_table(e)}")' for e in entities)
-    posts = "\n".join(f'        route("POST", "/{_table(e)}")' for e in entities)
+    if not rbac:
+        posts = "\n".join(f'        route("POST", "/{_table(e)}")' for e in entities)
+        return (f"package {pkg}.routes\n\n"
+                f"import {pkg}.auth.AuthGuard\n\n"
+                "/**\n"
+                " * Tabla de rutas declarada (DES-2/DES-3). El analizador estatico tools/route_check.py la cruza\n"
+                " * contra el contrato OpenAPI (topologia) y verifica que toda ruta protegida pase por el guard\n"
+                " * (alcanzabilidad), sin levantar el server. Las rutas de escritura se registran dentro de\n"
+                " * authenticated { } -> pasan por AuthGuard en runtime (dispatch).\n"
+                " */\n"
+                "class RouteTable {\n"
+                "    data class Route(val method: String, val path: String, val guarded: Boolean)\n\n"
+                "    val routes: MutableList<Route> = mutableListOf()\n"
+                "    private var inGuard = false\n\n"
+                "    fun route(method: String, path: String) {\n"
+                "        routes.add(Route(method, path, inGuard))\n"
+                "    }\n\n"
+                "    fun authenticated(block: RouteTable.() -> Unit) {\n"
+                "        inGuard = true\n"
+                "        try {\n"
+                "            block()\n"
+                "        } finally {\n"
+                "            inGuard = false\n"
+                "        }\n"
+                "    }\n\n"
+                "    /** Guard en runtime (DES-3): una ruta protegida exige un token autorizado; sin el, se rechaza. */\n"
+                "    fun dispatch(method: String, path: String, token: String?): Boolean {\n"
+                "        val match = routes.firstOrNull { it.method == method && it.path == path } ?: return false\n"
+                "        return !match.guarded || AuthGuard.authorize(token)\n"
+                "    }\n"
+                "}\n\n"
+                "fun appRoutes(): RouteTable = RouteTable().apply {\n"
+                f"{gets}\n"
+                "    authenticated {\n"
+                f"{posts}\n"
+                "    }\n"
+                "}\n")
+    posts_lines = []
+    for e in entities:
+        wr = e.get("write_roles")
+        if wr:
+            roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
+            posts_lines.append(f'        route("POST", "/{_table(e)}", {roleset})')
+        else:
+            posts_lines.append(f'        route("POST", "/{_table(e)}")')   # sin write_roles → emptySet → sólo auth
+    posts = "\n".join(posts_lines)
     return (f"package {pkg}.routes\n\n"
-            f"import {pkg}.auth.AuthGuard\n\n"
+            f"import {pkg}.auth.Role\n"
+            f"import {pkg}.auth.RoleGuard\n\n"
             "/**\n"
-            " * Tabla de rutas declarada (DES-2/DES-3). El analizador estatico tools/route_check.py la cruza\n"
-            " * contra el contrato OpenAPI (topologia) y verifica que toda ruta protegida pase por el guard\n"
-            " * (alcanzabilidad), sin levantar el server. Las rutas de escritura se registran dentro de\n"
-            " * authenticated { } -> pasan por AuthGuard en runtime (dispatch).\n"
+            " * Tabla de rutas declarada (DES-2/DES-3/RBAC FSK-S13). El analizador estatico tools/route_check.py\n"
+            " * la cruza contra el contrato OpenAPI: topologia (set de rutas == contrato), alcanzabilidad (toda\n"
+            " * protegida dentro del guard) y rbac (cada escritura registrada con el set de roles que el contrato\n"
+            " * exige via x-required-roles). En runtime el dispatch cruza el rol del token via RoleGuard.\n"
             " */\n"
             "class RouteTable {\n"
-            "    data class Route(val method: String, val path: String, val guarded: Boolean)\n\n"
+            "    data class Route(\n"
+            "        val method: String,\n"
+            "        val path: String,\n"
+            "        val guarded: Boolean,\n"
+            "        val roles: Set<Role> = emptySet(),\n"
+            "    )\n\n"
             "    val routes: MutableList<Route> = mutableListOf()\n"
             "    private var inGuard = false\n\n"
-            "    fun route(method: String, path: String) {\n"
-            "        routes.add(Route(method, path, inGuard))\n"
+            "    fun route(method: String, path: String, roles: Set<Role> = emptySet()) {\n"
+            "        routes.add(Route(method, path, inGuard, roles))\n"
             "    }\n\n"
             "    fun authenticated(block: RouteTable.() -> Unit) {\n"
             "        inGuard = true\n"
@@ -1386,10 +1515,10 @@ def _routes_kt(pkg: str, entities: list[dict]) -> str:
             "            inGuard = false\n"
             "        }\n"
             "    }\n\n"
-            "    /** Guard en runtime (DES-3): una ruta protegida exige un token autorizado; sin el, se rechaza. */\n"
+            "    /** Guard en runtime (DES-3/RBAC): una ruta protegida exige un token con un rol autorizado. */\n"
             "    fun dispatch(method: String, path: String, token: String?): Boolean {\n"
             "        val match = routes.firstOrNull { it.method == method && it.path == path } ?: return false\n"
-            "        return !match.guarded || AuthGuard.authorize(token)\n"
+            "        return !match.guarded || RoleGuard.authorize(token, match.roles)\n"
             "    }\n"
             "}\n\n"
             "fun appRoutes(): RouteTable = RouteTable().apply {\n"
@@ -1414,6 +1543,7 @@ SHIPPEA (mini-columna, s10). Exit 1 si hay hallazgos, 0 si no.
 Uso:
   route_check.py topology <openapi.yaml> <archivo|dir>...   # ruta sin contrato / contrato sin ruta -> rojo
   route_check.py auth     <openapi.yaml> <archivo|dir>...   # ruta protegida fuera del guard -> rojo
+  route_check.py rbac     <openapi.yaml> <archivo|dir>...   # escritura con set de roles != x-required-roles -> rojo
 """
 from __future__ import annotations
 
@@ -1453,6 +1583,34 @@ def _contract_ops(contract: Path) -> dict:
     return ops
 
 
+def _contract_role_ops(contract: Path) -> dict:
+    """Parsea openapi.yaml (sin PyYAML) -> {(METHOD, path): set(roles)} para cada op con `x-required-roles`
+    (RBAC, FSK-S13). Mismo parser indentado fijo que _contract_ops; x-required-roles vive a indent 6 (como
+    `security`). El contrato es la FUENTE inspectable de "que rol exige cada escritura" (DES-6)."""
+    ops = {}
+    in_paths = False
+    cur_path = cur_method = None
+    for raw in contract.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        s = raw.strip()
+        if indent == 0:
+            in_paths = s == "paths:"
+            cur_path = cur_method = None
+            continue
+        if not in_paths:
+            continue
+        if indent == 2 and s.startswith("/") and s.endswith(":"):
+            cur_path, cur_method = s[:-1], None
+        elif indent == 4 and s.endswith(":") and s[:-1] in _METHODS and cur_path:
+            cur_method = s[:-1].upper()
+        elif indent == 6 and s.startswith("x-required-roles:") and cur_path and cur_method:
+            blob = s.split(":", 1)[1].strip().strip("[]")
+            ops[(cur_method, cur_path)] = {r.strip() for r in blob.split(",") if r.strip()}
+    return ops
+
+
 # token: el bloque authenticated{ , una llave, o una llamada route("METODO", "/path"). finditer respeta el
 # orden del documento -> una pila de llaves rastrea si una ruta esta dentro de un authenticated{} (guarded).
 _TOKEN = re.compile(r'authenticated\s*\{|route\s*\(\s*"([A-Z]+)"\s*,\s*"([^"]+)"|[{}]')
@@ -1474,6 +1632,23 @@ def _kt_routes(text: str) -> list:
                 stack.pop()
         else:
             out.append((m.group(1), m.group(2), any(stack)))
+    return out
+
+
+# RBAC (FSK-S13): captura el set de roles opcional de una ruta — route("METODO", "/path", setOf(Role.X, ...)).
+# El 3er grupo es el contenido del setOf() (None si la ruta no declara roles); los roles se leen como Role.<X>.
+_ROUTE_ROLES = re.compile(r'route\s*\(\s*"([A-Z]+)"\s*,\s*"([^"]+)"\s*(?:,\s*setOf\(([^)]*)\))?')
+_ROLE_REF = re.compile(r'Role\.(\w+)')
+
+
+def _kt_route_roles(text: str) -> dict:
+    """{(METHOD, path): set(roles_lower)} por cada route(...) declarada en Kotlin. Sin setOf -> set vacio.
+    Los roles se normalizan a lower para cruzar contra el contrato (el enum Role usa UPPER; x-required-roles,
+    lower)."""
+    out = {}
+    for m in _ROUTE_ROLES.finditer(text):
+        blob = m.group(3) or ""
+        out[(m.group(1), m.group(2))] = {r.group(1).lower() for r in _ROLE_REF.finditer(blob)}
     return out
 
 
@@ -1534,9 +1709,35 @@ def _auth(contract: Path, targets: list) -> int:
     return 0
 
 
+def _rbac(contract: Path, targets: list) -> int:
+    """RBAC (DES-3, FSK-S13): cada op que el contrato marca con `x-required-roles` DEBE estar registrada en el
+    RouteTable Kotlin con EXACTAMENTE ese set de roles. Un set distinto -> ROLE_MISMATCH (tamper del contrato
+    sin tocar el Kotlin, o de un registro sin tocar el contrato); una op con roles sin registro -> MISSING_RBAC
+    (incluye registrarla sin roles: emptySet != el set requerido). Cruce determinista (single-source DES-6),
+    analogo a auth/topology. Una entidad sin x-required-roles no es asunto de rbac (la cubre auth/topology)."""
+    want = _contract_role_ops(contract)
+    got = {}
+    for f in _kt_files(targets):
+        got.update(_kt_route_roles(f.read_text(encoding="utf-8", errors="replace")))
+    findings = 0
+    for (m, p), roles in sorted(want.items()):
+        reg = got.get((m, p))
+        if reg is None:
+            findings += 1
+            print(f"MISSING_RBAC {m} {p}  (el contrato exige roles {sorted(roles)} pero no hay registro)")
+        elif reg != roles:
+            findings += 1
+            print(f"ROLE_MISMATCH {m} {p}  (contrato {sorted(roles)} != registrado {sorted(reg)})")
+    if findings:
+        print(f"route-check: {findings} desajuste(s) de RBAC vs el contrato", file=sys.stderr)
+        return 1
+    print(f"route-check: rbac ok ({len(want)} op(s) con roles cruzados == contrato)")
+    return 0
+
+
 def main(argv: list) -> int:
     if len(argv) < 3:
-        print("usage: route_check.py {topology|auth} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
+        print("usage: route_check.py {topology|auth|rbac} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
         return 2
     mode, contract, targets = argv[0], Path(argv[1]), argv[2:]
     if not contract.is_file():
@@ -1546,6 +1747,8 @@ def main(argv: list) -> int:
         return _topology(contract, targets)
     if mode == "auth":
         return _auth(contract, targets)
+    if mode == "rbac":
+        return _rbac(contract, targets)
     print(f"route-check: modo desconocido {mode!r}", file=sys.stderr)
     return 2
 
@@ -1580,6 +1783,35 @@ def _probe_unguarded_route(entities: list[dict]) -> str:
             "}\n")
 
 
+def _wrong_role_set(roles: list[str], write_roles: list[str]) -> list[str]:
+    """un set de roles GARANTIZADO distinto del write_roles de una entidad (para el probe negativo y el lado
+    prohibido del test): un rol del universo que NO está en write_roles si existe (set claramente distinto);
+    si write_roles == roles (todos pueden), un subconjunto estricto (quitar el primero, puede quedar vacío)."""
+    extra = [r for r in roles if r not in write_roles]
+    if extra:
+        return [extra[0]]
+    return write_roles[:-1]
+
+
+def _probe_wrong_roles(bp: dict) -> str:
+    """Fixture NEGATIVO (DES-3/RBAC, FSK-S13): una escritura registrada con el set de roles EQUIVOCADO (!=
+    x-required-roles del contrato). route_check.py (modo rbac) DEBE morder (ROLE_MISMATCH); el check
+    rbac_enforced lo exige por grep -> un gate decorativo se delata (fail-closed). Vive en probe/routes (fuera
+    de src/) -> no se compila ni se shippea; el analizador lo lee por tokens. Apunta a la 1ra entidad con
+    write_roles (la que el contrato marca con x-required-roles)."""
+    ent = next(e for e in bp["entities"] if e.get("write_roles"))
+    wrong = _wrong_role_set(bp["roles"], ent["write_roles"])
+    roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wrong) + ")"
+    return ("// FIXTURE NEGATIVO DES-3/RBAC (FSK-S13): una escritura registrada con el set de roles EQUIVOCADO\n"
+            "// (!= x-required-roles del contrato). route_check.py (modo rbac) DEBE morder (ROLE_MISMATCH);\n"
+            "// rbac_enforced lo exige por grep. No se compila ni se shippea (fuera de src/).\n"
+            "fun wrongRoles() = RouteTable().apply {\n"
+            "    authenticated {\n"
+            f'        route("POST", "/{_table(ent)}", {roleset})\n'
+            "    }\n"
+            "}\n")
+
+
 # ── pirámide de tests (s7, DES-8): suites graduadas en el toolchain del producto (DATA de la fábrica) ──
 def _test_authguard_kt(pkg: str) -> str:
     """Tier UNIT (sin infra): comportamiento del guard de auth (DES-3 en runtime, no sólo estático/s5)."""
@@ -1601,6 +1833,11 @@ def _test_routetable_kt(pkg: str, entities: list[dict]) -> str:
     La ruta se DERIVA del blueprint (R2: sin `/users` hardcodeado) — la ruta plural de la 1ª entidad, que el
     RouteTable registra realmente (POST protegida, GET pública); un drift del blueprint cambia ambos a la vez."""
     route = "/" + _table(entities[0])
+    # RBAC (FSK-S13): si la 1ra entidad declara write_roles, el token autorizado DEBE portar un rol permitido
+    # ("Bearer <rol>"); un "Bearer t" (rol desconocido) sería rechazado por RoleGuard. Sin write_roles (opt-in
+    # o FSK-S5), la ruta sólo exige autenticación → "Bearer t" basta.
+    wr = entities[0].get("write_roles")
+    token = f'"Bearer {wr[0]}"' if wr else '"Bearer t"'
     return (f"package {pkg}\n\n"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
@@ -1609,13 +1846,47 @@ def _test_routetable_kt(pkg: str, entities: list[dict]) -> str:
             "class RouteTableTest : StringSpec({\n"
             '    "una ruta protegida exige un token autorizado" {\n'
             f'        appRoutes().dispatch("POST", "{route}", null) shouldBe false\n'
-            f'        appRoutes().dispatch("POST", "{route}", "Bearer t") shouldBe true\n'
+            f'        appRoutes().dispatch("POST", "{route}", {token}) shouldBe true\n'
             "    }\n"
             '    "una ruta publica no exige token" {\n'
             f'        appRoutes().dispatch("GET", "{route}", null) shouldBe true\n'
             "    }\n"
             '    "una ruta inexistente no despacha" {\n'
-            '        appRoutes().dispatch("DELETE", "/nope", "Bearer t") shouldBe false\n'
+            f'        appRoutes().dispatch("DELETE", "/nope", {token}) shouldBe false\n'
+            "    }\n"
+            "})\n")
+
+
+def _test_role_guard_kt(pkg: str, bp: dict) -> str:
+    """auth/RoleGuardTest.kt (Kotest, tier unit de s7) — el DIENTE de DOS lados del RBAC en RUNTIME: un rol
+    PERMITIDO autoriza la escritura ✓ Y un rol NO-permitido (o un token sin rol conocido) es rechazado ✗ (+ un
+    set vacío cae a autenticación, opt-in). Romper RoleGuard (autorizar todo) → el lado prohibido falla → rojo.
+    Derivado de la política del blueprint (write_roles de la 1ra entidad con RBAC). Sólo se emite con `roles`."""
+    ent = next(e for e in bp["entities"] if e.get("write_roles"))
+    wr = ent["write_roles"]
+    allowed = wr[0]
+    req_set = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
+    denied = [r for r in bp["roles"] if r not in wr]
+    if denied:
+        neg_token, neg_desc = f'"Bearer {denied[0]}"', "un rol no permitido es rechazado"
+    else:
+        neg_token, neg_desc = '"Bearer nobody"', "un token sin rol conocido es rechazado"
+    return (f"package {pkg}.auth\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n\n"
+            "// Tier UNIT (s7, DES-3/RBAC, FSK-S13) -- el guard de autorizacion por rol. Diente de DOS lados:\n"
+            "// un rol PERMITIDO autoriza la escritura Y uno NO-permitido es rechazado (no-decorativo). Romper\n"
+            "// RoleGuard (autorizar todo) -> el lado prohibido falla -> rojo.\n"
+            "class RoleGuardTest : StringSpec({\n"
+            '    "un rol permitido autoriza la escritura" {\n'
+            f'        RoleGuard.authorize("Bearer {allowed}", {req_set}) shouldBe true\n'
+            "    }\n"
+            f'    "{neg_desc}" {{\n'
+            f"        RoleGuard.authorize({neg_token}, {req_set}) shouldBe false\n"
+            "    }\n"
+            '    "un set de roles vacio cae a autenticacion (opt-in)" {\n'
+            f'        RoleGuard.authorize("Bearer {allowed}", emptySet()) shouldBe true\n'
+            "        RoleGuard.authorize(null, emptySet()) shouldBe false\n"
             "    }\n"
             "})\n")
 
@@ -2431,7 +2702,7 @@ def build_files(bp: dict) -> dict[str, str]:
         "probe/security/leak.txt": _probe_leak_secret(),
         # auth + topología de rutas (s5, DES-3/DES-2): guard + registro de rutas Kotlin + analizador + probes
         f"{pkgdir}/auth/AuthGuard.kt": _auth_guard_kt(pkg),
-        f"{pkgdir}/routes/RouteTable.kt": _routes_kt(pkg, ents),
+        f"{pkgdir}/routes/RouteTable.kt": _routes_kt(pkg, ents, bool(bp.get("roles"))),
         "tools/route_check.py": _route_check_py(),
         "probe/routes/phantom.kt": _probe_phantom_route(),
         "probe/routes/unguarded.kt": _probe_unguarded_route(ents),
@@ -2473,6 +2744,15 @@ def build_files(bp: dict) -> dict[str, str]:
         # tier dedicado `workflowTest` (source set propio, idiom integrationTest/testProbe): aísla el diente del
         # workflow → el check `workflow_enforced` lo corre solo (atribución limpia, sin filtro Kotest frágil).
         files[f"src/workflowTest/kotlin/{pkg}/workflow/{obj}Test.kt"] = _test_workflow_kt(pkg, e, f)
+    # RBAC / autorización por rol (s5, DES-3, R2/FSK-S13): OPT-IN — sólo cuando el blueprint declara `roles`. El
+    # enum Role + el RoleGuard se generan del blueprint; el RouteTable registra cada escritura con su set de
+    # roles (ver _routes_kt); el contrato emite x-required-roles; route_check.py (modo rbac) cruza ambos; el
+    # probe sucio (route_check rbac) y el test de dos lados (tier unit) muerden. Sin `roles`, FSK-S5 intacto.
+    if bp.get("roles"):
+        files[f"{pkgdir}/auth/Role.kt"] = _role_enum_kt(pkg, bp["roles"])
+        files[f"{pkgdir}/auth/RoleGuard.kt"] = _role_guard_kt(pkg)
+        files["probe/routes/wrong_roles.kt"] = _probe_wrong_roles(bp)
+        files[f"src/test/kotlin/{pkg}/auth/RoleGuardTest.kt"] = _test_role_guard_kt(pkg, bp)
     return files
 
 

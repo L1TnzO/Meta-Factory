@@ -1,4 +1,4 @@
-<!-- meta:doc sha=95fa4fea230473f1b47d49331a6e5cea022977ba updated=2026-06-20T02:25Z -->
+<!-- meta:doc sha=18df7354907dbfd8c61ee04e6de1f4f795781af4 updated=2026-06-20T14:01Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,7 +430,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2 arrancó: FSK ✅)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
@@ -470,12 +470,16 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     en `engine/sequence.py` (fix GENERAL de R1 — deferral mid-line, cero nombres dominio/tech); el vocabulario
     vive 100% en `codegen/`. Suite 573. Expuso+cerró 3 gaps de R1 (chassis-cmd + puertos efímeros = DATA;
     `requires_prev`-a-través-de-diferida = engine general). Evidencia: `work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md`.
-  - **R2·FSK eje #2 — workflows / máquinas de estado.** 🟡 ABIERTO (`FSK-S12-DOMAIN-WORKFLOWS`, 2026-06-20).
-    Un campo `enum` gana `initial` + `transitions` (máquina de estado) enforced determinista; doc de gobierno
-    AUTOCONTENIDO para handoff en frío: `work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md`. Sigue el patrón de FSK-S11.
-  - **R2·{otras fábricas} + ejes superiores restantes** (RBAC/reglas-LLM, otras fábricas): 🔲 pendientes, un
-    incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios)
-    y, con FSK-S12, el ciclo de vida.
+  - **R2·FSK eje #2 — workflows / máquinas de estado.** ✅ (2026-06-20, `FSK-S12-DOMAIN-WORKFLOWS`). Un campo
+    `enum` gana `initial` + `transitions` (máquina de estado) → guard `canTransition` DETERMINISTA generado
+    (`workflow/<Entity><Field>Workflow.kt`, type-bound al enum del contrato; transición no-declarada rechazada por
+    construcción, DES-3). Diente de DOS lados (tier `workflowTest` Kotest). **2 productos con workflows de FORMA
+    distinta** (demo stepwise sin terminal ↔ assets lifecycle con terminal `archived`): `ci --rederive` == pin
+    (default 11/11 · assets 10/10). Capability `workflow_enforced` + REQ-F-011 → **RTM default 16/16**. Sustrato
+    `src/+seed/` = 0 (todo `codegen/`+spec+stations+product.yml). Evidencia: `work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md`.
+  - **R2·{otras fábricas} + ejes superiores restantes** (RBAC/autorización por rol · reglas-LLM bajo gate, otras
+    fábricas): 🔲 pendientes, un incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA
+    (R1 coexistencia + R2 campos arbitrarios + workflows).
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

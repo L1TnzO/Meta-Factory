@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d039513ceb8009af6dfa2447ecf1ebc6b8ffd2d2 updated=2026-06-20T02:23Z -->
+<!-- meta:doc sha=d636793598b7b43751056d4c7a34f9225c765b26 updated=2026-06-20T14:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,14 +7,14 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (15/15) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (16/16) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
-- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2 arrancó: FSK ✅ (2026-06-19)**:
+- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2·FSK ✅ (campos 2026-06-19 + workflows 2026-06-20)**:
   - **R1 (lifecycle, sustrato)**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos**.
     Una instancia vive en `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` + `pinned_verdict.json`; el
     sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea por corrida (`ensure_product_instance`).
@@ -29,8 +29,21 @@
     **8 líneas** en `engine/sequence.py` (fix GENERAL de R1 — deferral mid-line, cero nombres dominio/tech); el
     vocabulario vive 100% en `codegen/`. Cerró 3 gaps de R1 que el producto rico expuso (chassis-cmd + puertos
     efímeros = DATA · `requires_prev`-a-través-de-diferida = engine). Suite 573.
-  - **Sigue**: R2 en otras fábricas + ejes superiores (workflows/RBAC/reglas), un incremento por fábrica/eje
-    (ADR-012). El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios). `work/ROADMAP.md §Fase R`.
+  - **R2·FSK eje #2 — workflows / máquinas de estado ✅ (FSK-S12, 2026-06-20)**: un campo `enum` gana modifiers
+    OPCIONALES `initial` + `transitions` (gramática del blueprint) → el codegen emite un **guard de dominio
+    DETERMINISTA** (`workflow/<Entity><Field>Workflow.kt`: `canTransition` derivado del mapa, type-bound al enum
+    class del contrato; una transición no declarada se rechaza por construcción, DES-3, sin LLM/I-3). El contrato
+    documenta la máquina (`x-initial`/`x-transitions`, DES-6 inspectable); tamper del `enum:` → el guard no
+    compila. **Diente de DOS lados** (tier `workflowTest` Kotest, source set propio): transición declarada VÁLIDA
+    pasa ✓ / no-declarada rechazada ✗ (guard que acepta todo → rojo, verificado vivo). Fail-closed en el
+    blueprint. **2 productos con workflows de FORMA distinta** (demo `Task.priority` stepwise sin terminal ↔
+    assets `Asset.status` lifecycle con TERMINAL `archived`): `ci --rederive` == pin, aislados (**default 11/11 ·
+    assets 10/10**). Capability `workflow_enforced` (DES-3) + REQ-F-011 → **RTM default 15→16 COMPLETE**.
+    **Sustrato `seed/`+`src/metafactory/` = 0** (todo `codegen/`+spec+`stations/s7.yml`+`product.yml`, DATA de
+    fábrica; compuso sobre `product_env`+pirámide s7). Opt-in: un enum sin `transitions` no emite nada (FSK-S11 intacto).
+  - **Sigue**: R2 ejes superiores (RBAC/autorización por rol · reglas de negocio por LLM bajo gate) + R2 en otras
+    fábricas, un incremento por fábrica/eje (ADR-012). El caso "clonar Snipe-IT" ya tiene PISO+CICLO-DE-VIDA (R1
+    coexistencia + R2 campos arbitrarios + workflows). `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

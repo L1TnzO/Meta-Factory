@@ -1,4 +1,4 @@
-<!-- meta:doc sha=67ff03804e176d3a9ebbc42ccdc413f68b74a819 updated=2026-06-20T02:25Z -->
+<!-- meta:doc sha=d6990d957691c06d176b39a22e989b1b48544519 updated=2026-06-20T14:00Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-20T02:23Z -->
 # Incremento FSK-S12-DOMAIN-WORKFLOWS
 
@@ -101,10 +101,34 @@ es más barato y honesto). **No hardcodees** el workflow en el sustrato — vive
 ## 4. Fases (plan; el orquestador las refina)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Gramática + validación + guard generado.** Modifiers `initial`/`transitions` en el blueprint; fail-closed en `_load_blueprint`; `x-transitions` en el contrato; `_workflow_kt` (guard `canTransition`/`initial` derivado del contrato). `--selftest`/`--check-idempotent` verdes. | ⏳ |
-| 2 | **El demo ejercita un workflow + re-derive == pin.** Agregá `transitions`/`initial` al `Task.priority` o a un `status` nuevo del demo; test de dos lados; línea s0–s10 verde · `ci --rederive` == re-pin · RTM +1. | ⏳ |
-| 3 | **2º producto con workflow DISTINTO (R1) + co-validación (ADR-014).** Reutilizá/extendé la instancia `assets` (su `Asset.status` deployed/ready/archived/broken es el caso natural de ciclo de vida) o creá otra; `ci --rederive --product <p>` == pin, aislada. | ⏳ |
-| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (objetivo: `src/metafactory/`+`seed/` = 0 — los workflows son gramática de fábrica, NO deberían tocar el sustrato) + suite + RTM + `meta increment close`. | ⏳ |
+| 1 | **Gramática + validación + guard generado.** Modifiers `initial`/`transitions` en el blueprint; fail-closed en `_load_blueprint`; `x-transitions`/`x-initial` en el contrato; `_workflow_kt` (guard `canTransition`/`initial`, type-bound al enum class del contrato) + `_test_workflow_kt` (dos lados, tier `workflowTest`). `--selftest`/`--check-idempotent` verdes. | ✅ |
+| 2 | **El demo ejercita un workflow + re-derive == pin.** `Task.priority` gana `initial: low` + transiciones stepwise (low↔high prohibido); capability `workflow_enforced` (DES-3) + REQ-F-011 + check en s7; línea s0–s10 verde · `ci --rederive` 11/11 == re-pin · **RTM 15→16 COMPLETE**. | ✅ |
+| 3 | **2º producto con workflow DISTINTO (R1) + co-validación (ADR-014).** La instancia `assets` gana un workflow sobre `Asset.status` con estado TERMINAL `archived` (forma distinta del demo); `ci --rederive --product assets` 10/10 == pin, aislada · RTM 15/16 (s6 LLM diferido honesto). | ✅ |
+| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (`src/metafactory/`+`seed/` = **0**) + suite verde + RTM + `meta increment close`. | ✅ |
+
+## Evidencia (cierre 2026-06-20)
+- **Gramática + guard (por bloqueo)**: un enum gana `initial`/`transitions` opcionales → el codegen emite
+  `workflow/<Entity><Field>Workflow.kt` (`object` con `val initial` + `fun canTransition`, mapa `allowed`
+  derivado del blueprint) type-bound al enum class del contrato. Validación fail-closed VIVA (4 casos
+  verificados: `initial` fuera de values · destino fuera · origen fuera · `transitions` en no-enum → `SystemExit`).
+- **Diente de DOS lados VIVO** (tier `workflowTest`, Kotest, source set propio idiom `integrationTest`/`testProbe`):
+  guard correcto → 3 tests verdes; guard que **acepta todo** (`= true`) → `una transición no declarada es
+  rechazada` FAILED → `workflowTest` rojo. Cubre los dos lados (válida ✓ / inválida ✗) + `initial`.
+- **DES-6 (single-source)**: el contrato emite `x-initial`/`x-transitions` (vendor extensions inspectables,
+  ignoradas por openapi-generator/openapi-typescript — el contrato no rompe); el guard se deriva del MISMO
+  blueprint y es **type-bound** al enum class del contrato → tamper del `enum:` → `<Enum>` unresolved →
+  compile rojo (el mismo mecanismo probado en FSK-S11, ahora cubriendo la máquina de estado).
+- **2 productos, workflows de FORMA distinta** (criterio #3): demo `Task.priority` (stepwise simétrico, sin
+  terminal) ↔ assets `Asset.status` (ciclo de vida con TERMINAL `archived`, fan-out asimétrico). Ambos
+  `ci --rederive` == pin en clon limpio, aislados: **default 11/11 · assets 10/10**.
+- **RTM**: default **COMPLETE 16/16** (REQ-F-011 ← `workflow_enforced` ← s7, artifact `…/webapp/workflow/`);
+  assets 15/16 (REQ-F-011 ✓; REQ-F-007 s6 LLM diferido keyless, honesto). `meta check`: suite/isolation/
+  generality verdes (otras fábricas intactas).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/` = **0** en todo el incremento — los workflows viven
+  100% en `codegen/` + el spec + `stations/s7.yml` + `product.yml` (DATA de fábrica, ADR-012). Compuso sobre
+  `product_env` + la pirámide de s7 ya existentes (§6, como s0–s10). Ninguna otra fábrica tocada.
+- **Opt-in no-regresivo**: `Holder.department` (ambos productos) es un enum SIN `transitions` → no emite guard
+  ni test (FSK-S11 intacto). El feature es opt-in a nivel de campo.
 
 ## 5. Gate (prueba por bloqueo — dientes de dos lados, no decorativos)
 - **Transición enforced (dos lados):** el test generado prueba que una transición declarada VÁLIDa pasa Y una

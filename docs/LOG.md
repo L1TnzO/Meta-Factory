@@ -1,7 +1,41 @@
-<!-- meta:doc sha=ba15a9e31bf2fe990a8cea123a8463aba6d70061 updated=2026-06-20T02:15Z -->
+<!-- meta:doc sha=579094db2438527597a07c1753ccebada2c15355 updated=2026-06-20T14:02Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T14:00Z — R2·FSK eje #2 ✅ — workflows / máquinas de estado sobre `enum` (`FSK-S12-DOMAIN-WORKFLOWS`)
+- **qué cambió**: un campo `enum` gana dos modifiers OPCIONALES — `initial` + `transitions` (la máquina de
+  estado) — en la gramática del blueprint `domain.product`. El codegen emite un **guard de dominio
+  DETERMINISTA** (sin LLM, I-3): `workflow/<Entity><Field>Workflow.kt` = un `object` con `val initial` + `fun
+  canTransition(from,to)` cuyo mapa `allowed` se deriva de `transitions`. Una transición declarada es válida;
+  una no declarada se rechaza por construcción (DES-3, no-salteable). **Type-bound al enum class GENERADO del
+  contrato** (`<Entity>.<FieldPascal>.<value>`; las entries de openapi-generator son el valor literal) → un
+  tamper del `enum:` del contrato rompe el compile del guard (el mismo diente DES-6 de FSK-S11/App.kt, ahora
+  cubriendo la máquina de estado). El contrato documenta la máquina como `x-initial`/`x-transitions` (vendor
+  extensions inspectables, ignoradas por openapi-generator/openapi-typescript). Todo en `codegen/` (ADR-012).
+- **diente de DOS lados** (no-decorativo): un tier dedicado `workflowTest` (Kotest, source set propio — idiom
+  `integrationTest`/`testProbe`) corre un test que asevera una transición VÁLIDA permitida ✓ Y una INVÁLIDA
+  rechazada ✗ (+ `initial`). Verificado vivo: con el guard saboteado a `= true`, "una transición no declarada
+  es rechazada" → FAILED → `workflowTest` rojo. Validación fail-closed en `_load_blueprint` (4 casos vivos:
+  `initial`/destino/origen fuera de `values` · `transitions` en no-enum → `SystemExit`).
+- **co-validación 2 productos con workflows de FORMA distinta** (ADR-014), ambos `ci --rederive == pin` en clon
+  limpio, aislados: **demo** `Task.priority` (stepwise simétrico, sin terminal: `low↔high` de golpe prohibido)
+  → 11/11; **instancia `assets`** `Asset.status` (ciclo de vida con estado TERMINAL `archived`, fan-out
+  asimétrico — el caso Snipe-IT) → 10/10. Capability `workflow_enforced` (DES-3) + REQ-F-011 + check en s7 →
+  **RTM default 15→16 COMPLETE**; assets 15/16 (s6 LLM diferido keyless, honesto).
+- **anti-overfit**: `git diff src/metafactory/ + seed/` = **0** en todo el incremento — los workflows son
+  gramática de FÁBRICA: viven 100% en `codegen/` + el spec + `stations/s7.yml` + `product.yml` (DATA, ADR-012).
+  Compusieron sobre `product_env` + la pirámide de s7 ya existentes (propiedad de composición §6, como s0–s10).
+  Ninguna otra fábrica tocada (`meta check`: suite/isolation/generality verdes). Opt-in: `Holder.department`
+  (enum sin `transitions`) no emite nada → FSK-S11 intacto.
+- **decisiones de diseño (ojos propios)**: (1) `--tests '*WorkflowTest'` de gradle NO matchea specs Kotest
+  ("No tests found") → fui al patrón establecido (source set dedicado `workflowTest`), más limpio y sin filtro
+  frágil. (2) la "single-source" honesta: el guard se deriva del blueprint (no del texto de `x-transitions`,
+  que sería decorativo si nada lo lee) y queda type-bound al enum del contrato → el tamper-tooth real es el
+  compile, no una lista paralela. (3) re-materializar `stations/s7.yml` surfaceó un drift pre-existente en
+  `s0.yml` (un comentario humano que `yaml.safe_dump` no preserva) → lo revertí (fuera de alcance).
+- **proceso**: el `cd` a un subdir filtró el cwd persistente (memoria `no-cd-subdirs-hook-deadlock`) → subshells
+  `( cd … )` de ahí en más. Sandbox mata gradle → `dangerouslyDisableSandbox`. Línea en foreground.
 
 ## 2026-06-20T02:10Z — R2·FSK ✅ — expresividad de `domain.product`: vocabulario de campos arbitrario (`FSK-S11-DOMAIN-EXPRESSIVENESS`)
 - **qué cambió**: el scaffold de FSK pasó de **3** tipos de campo (`string`/`boolean`/`ref`) a **8** —

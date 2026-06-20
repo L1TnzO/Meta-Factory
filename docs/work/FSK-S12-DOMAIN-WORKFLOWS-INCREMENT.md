@@ -1,8 +1,8 @@
-<!-- meta:doc sha=d6990d957691c06d176b39a22e989b1b48544519 updated=2026-06-20T14:00Z -->
+<!-- meta:doc sha=1b93efd7956ca92f5e101e7cef6115e2096d04e4 updated=2026-06-20T14:04Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-20T02:23Z -->
 # Incremento FSK-S12-DOMAIN-WORKFLOWS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T02:23Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T14:04Z) (creado 2026-06-20T02:23Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > **HANDOFF (escrito 2026-06-20 por la sesión que cerró R2·FSK/FSK-S11).** Este doc es AUTOCONTENIDO a

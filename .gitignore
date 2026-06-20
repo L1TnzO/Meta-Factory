@@ -20,6 +20,10 @@ factories/*/build/
 # re-derived from `product.yml` on every run (like build/ + .proof/ — never the root of trust).
 factories/*/products/*/factory.spec.yml
 factories/*/products/*/stations/
+# domain_gen/ de una INSTANCIA: el módulo LLM (s6) es scaffold re-derivable por la línea. Con la estación
+# LLM diferida (activation:off) NO hay artefacto pineado que persistir → re-derivable como stations/ (el
+# `ci --rederive` en clon limpio lo confirma). En la FÁBRICA (default) sí se commitea (pin de Summary.kt).
+factories/*/products/*/domain_gen/
 
 # Gradle's transient local cache (daemon/incremental state). Tracked source = wrapper + *.kts + sources;
 # .gradle/ is regenerable runtime state (a product line's lives under build/, but a factory-root module

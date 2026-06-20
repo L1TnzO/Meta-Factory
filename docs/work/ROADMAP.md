@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c759aaf4bc50f61f000b2a3dd91c973014f50160 updated=2026-06-20T02:14Z -->
+<!-- meta:doc sha=95fa4fea230473f1b47d49331a6e5cea022977ba updated=2026-06-20T02:25Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -470,8 +470,12 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     en `engine/sequence.py` (fix GENERAL de R1 — deferral mid-line, cero nombres dominio/tech); el vocabulario
     vive 100% en `codegen/`. Suite 573. Expuso+cerró 3 gaps de R1 (chassis-cmd + puertos efímeros = DATA;
     `requires_prev`-a-través-de-diferida = engine general). Evidencia: `work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md`.
-  - **R2·{otras fábricas} + ejes superiores** (workflows/RBAC/reglas, gramática o LLM): 🔲 pendientes, un
-    incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios).
+  - **R2·FSK eje #2 — workflows / máquinas de estado.** 🟡 ABIERTO (`FSK-S12-DOMAIN-WORKFLOWS`, 2026-06-20).
+    Un campo `enum` gana `initial` + `transitions` (máquina de estado) enforced determinista; doc de gobierno
+    AUTOCONTENIDO para handoff en frío: `work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md`. Sigue el patrón de FSK-S11.
+  - **R2·{otras fábricas} + ejes superiores restantes** (RBAC/reglas-LLM, otras fábricas): 🔲 pendientes, un
+    incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios)
+    y, con FSK-S12, el ciclo de vida.
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

@@ -1,157 +1,140 @@
-<!-- meta:doc sha=02fc70cb55162a6ed8982710c6fba82c87601ed8 updated=2026-06-20T20:05Z -->
-# Incremento P1-SNIPE-IT-PRODUCT — el PRIMER PRODUCTO real
+<!-- meta:doc sha=8041296bdd242bc75f9adba300573d47e1b9ee8b updated=2026-06-20T23:36Z -->
+<!-- meta:doc sha=PENDING updated=PENDING -->
+# Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT)
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T18:50Z). Cerralo con `meta increment close`
-> (o flip del header a CERRADO). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno.** Estado: **ABIERTO**. Cerralo con `meta increment close` (gateado: árbol limpio +
+> estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
-> **HANDOFF (escrito 2026-06-20 por la sesión que cerró FSK-S15/endpoints-vivos, con el contexto fresco; la
-> decisión de dirección la tomó el ingeniero).** Este doc es AUTOCONTENIDO a propósito: asumí que mi contexto
-> murió (`/clear`). **Empezás EN FRÍO y eso es DELIBERADO** — esta sesión que escribe está cargada de contexto
-> de construir FSK; la INVESTIGACIÓN profunda de Snipe-IT (desmenuzar el repo real, derivar el dominio) merece
-> una sesión limpia con presupuesto de contexto entero. Construí por bloqueo, documentá en el gate, commit por
-> fase con trailers I-10.
->
-> **EL GIRO (decisión del ingeniero, 2026-06-20):** se cierra la fase de PROFUNDIZAR FSK y se abre la de
-> PRODUCIR. FSK cruzó el umbral: 5 ejes R2 (campos arbitrarios · workflows · RBAC · ownership · **endpoints
-> vivos / control de acceso enforzado a RUNTIME**) sobre una línea s0–s10 que genera una app web REAL
-> (contrato OpenAPI fuente única → server Kotlin + client TS · PostgreSQL viva jOOQ/Flyway · trilogía
-> auth→RBAC→ownership enforzada a runtime contra la PG · pirámide de tests · a11y/perf · observabilidad · build
-> hermético). El próximo paso de MAYOR valor NO es otro eje especulativo (ABAC/LLM-rules = rendimientos
-> decrecientes; CRUD-completo/frontend = especulación sin un dominio real que los forme) sino **shippear el
-> PRIMER PRODUCTO real** — doctrina anti-fachada (M8) + precedente R1 (el producto rico expuso los huecos
-> REALES mejor que adivinarlos). **El producto: Snipe-IT real** (gestión de activos de grado-producción, el
-> mandato original; la instancia `assets` actual es sólo un BOCETO Snipe-IT-lite, no un producto).
+> **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total: todo lo que
+> necesitás para avanzar está ACÁ o en los archivos que este doc nombra. La Fase 1 (el SPEC) está HECHA y
+> commiteada; **tu trabajo es la Fase 2: GENERAR el producto por la línea FSK hasta verde.**
 
-## 0. Orientación — leé esto primero (orquestador en frío)
-1. `docs/STATE.md` §Ahora → el eje Reutilización (R1 ✅ lifecycle · R2·FSK ✅: 5 ejes). FSK es una fábrica
-   MADURA que genera una app que CORRE con control de acceso enforzado a runtime. Este incremento la USA para
-   producir, no la profundiza (salvo los huecos que el producto real fuerce — §4).
-2. **`docs/work/FSK-S15-LIVE-ENDPOINTS-INCREMENT.md` (CERRADO)** — el predecesor: el server vivo que enforza
-   auth→RBAC→ownership a runtime. Su **§7 (scope honesto)** lista los huecos que un producto real VA a tocar:
-   CRUD-completo (mutación real de columnas, no sólo el veredicto de autz), frontend React que CONSUME los
-   endpoints, deploy (Docker build+push). Esos son el trabajo de fábrica que el producto va a FORMAR (§4).
-3. **R1 / lifecycle de instancia (ADR-015)** — cómo nace un producto: `factories/full-stack-kotlin/products/
-   <p>/` con SÓLO `product.yml` (el blueprint del dominio) + `pinned_verdict.json`; el sustrato re-deriva el
-   spec efectivo (`base ⊕ product.yml`) + la línea por corrida. `meta product new --factory full-stack-kotlin
-   --product snipeit` lo bootstrapea. Mirá `products/assets/product.yml` — es el MOLDE EXACTO de un blueprint
-   de producto (entidades/fields/refs/enums/workflows/roles/write_roles/owned_by/owner_bypass_roles) y el
-   boceto Snipe-IT-lite que vas a SUPERAR con el dominio real.
-4. **El vocabulario que FSK YA soporta** (lo que tu blueprint puede expresar HOY, sin tocar la fábrica) — leé
-   `factories/full-stack-kotlin/codegen/scaffold_product.py::_load_blueprint` (la gramática + sus dientes
-   fail-closed): tipos `string/boolean/int/number/date/ref/enum` + opcionalidad (`required: false`) + `unique`
-   · workflows (`enum` con `initial`+`transitions`) · RBAC (`roles` + `write_roles` por entidad) · ownership
-   (`owned_by` + `owner_bypass_roles`). Si el dominio Snipe-IT pide algo FUERA de esto, es un hueco de fábrica
-   (§4) — un incremento GENERAL, no un hack en el product.yml.
+---
 
-## 1. Objetivo
-Producir un **producto Snipe-IT real** (gestión de activos de grado-producción) como instancia de FSK
-(`products/snipeit/`), derivado FIELMENTE del sistema real, corrido por la línea FSK hasta **RTM COMPLETE**
-(o con deferrals HONESTOS y visibles, como `assets` con s6) y `ci --rederive == pin` en clon limpio. Es un
-DELIVERABLE real, no un fixture de co-validación. El producto va a EXPONER los huecos reales de FSK (§4); esos
-se arreglan como contenido GENERAL de fábrica (codegen+spec, `git diff src/metafactory/+seed/` = 0 idealmente,
-o sólo mecanismo general), DRIVEN por el producto — no especulados.
+## ★ EMPEZÁ ACÁ (post-clear) — qué hacer YA
 
-## 2. El trabajo es RESEARCH-FIRST (por eso una sesión nueva)
-**Insumo del ingeniero:** el link del repo de Snipe-IT (canónico: `https://github.com/snipe/snipe-it` —
-Laravel/PHP; CONFIRMALO con el ingeniero al arrancar). **Snipe-IT es PHP/Laravel; FSK genera Kotlin/TS/PG** →
-NO portás el código: **cosechás el DOMINIO** (modelo de datos + reglas) y lo expresás como blueprint FSK.
+**Lo hecho (Fase 1, commit `0f01ae1`):** el dominio real de Snipe-IT (grokability v8.6.3) está cosechado a un
+blueprint FSK FIEL, validado por bloqueo SIN gradle (`scaffold --selftest`: 19 entidades → 66 archivos,
+idempotente, 0 forward-refs). **Tu trabajo:** correr la línea FSK real (gradle) sobre ese spec, arreglar lo
+que el compile/gates REALES rompan, hasta `product-run` PASS · RTM · `ci --rederive == pin`.
 
-**Cómo desmenuzar (fan-out con sub-agentes — para esto SON):** lanzá agentes `Explore`/`general-purpose` sobre
-un clon del repo para mapear, en paralelo, las distintas caras del dominio y devolver UN resumen estructurado:
-- **Entidades + campos**: los modelos Eloquent (`app/Models/`) + las migraciones (`database/migrations/`) =
-  la fuente dura del schema (tablas, columnas, tipos, nullability, unique, FKs). Núcleo: Asset, AssetModel,
-  Category, Manufacturer, Location, Company, Supplier, User, License, Accessory, Consumable, Component,
-  Depreciation, StatusLabel, CustomField, y las de checkout/checkin/audit.
-- **Relaciones (refs)**: las FKs entre tablas → tus campos `ref` (`to:`). Snipe-IT tiene una topología rica
-  (Asset → AssetModel → Category/Manufacturer; Asset → Location/Company/Supplier/StatusLabel; checkouts
-  polimórficos). Mapeá el grafo; FSK exige que un `ref` apunte a una entidad declarada (fail-closed).
-- **Roles/permisos**: el sistema de permisos (`app/Http/...`, `config/permissions.php`, roles superadmin/
-  admin/user) → tu `roles` + `write_roles` por entidad. Snipe-IT es granular; mapeá a una política tratable.
-- **Workflow del activo**: el ciclo de vida (Status Labels: Ready to Deploy / Deployed / Pending / Archived /
-  Broken / Lost...) → un `enum status` con `initial`+`transitions` (como `assets` ya hace, pero el REAL).
-- **Ownership**: a quién "pertenece"/está asignado un activo (checkout a un User/Location/Asset) → `owned_by`
-  (el campo ref del responsable) + `owner_bypass_roles` (admin administra todo). Esta es la esencia de
-  ownership-a-nivel-de-fila que FSK-S14/S15 enforza: un manager toca SUS activos, admin todos.
+**Los 3 archivos que tenés que leer primero (en orden):**
+1. `factories/full-stack-kotlin/products/snipeit/product.yml` — **el SPEC** (la fuente; 19 entidades). Es DATA.
+2. `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` — el dominio completo + el mapeo + **12
+   deferrals honestos** + **las 4 restricciones DURAS de FSK** (las repito en §3 acá). Leelo entero.
+3. Este doc (§2–§6).
 
-**Producto de la investigación:** un `products/snipeit/product.yml` FIEL (entidades reales, campos reales,
-refs reales, roles/workflow/ownership reales) + un `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md`
-que justifique las decisiones de mapeo (qué se incluyó, qué se simplificó/difirió y POR QUÉ — honestidad, no
-over-claim). **Ambos viven DENTRO de FSK** (no en la raíz Meta-Factory): el producto es de la fábrica.
+**El primer comando (corré la línea, mirá qué rompe):**
+```
+cd /home/enzo/University/Integración/APP/Meta_Factory
+PYTHONPATH=src python3 -m metafactory.cli product-run --factory full-stack-kotlin --product snipeit
+```
+⚠️ **DEBE correr con `dangerouslyDisableSandbox: true`** (el sandbox de Bash mata gradle: exit 144 sin
+output). FOREGROUND, por-producto. Es la PRIMERA vez que estas 19 entidades pasan por gradle de verdad —
+esperá que el compile/detekt/tests surfacen cosas que el selftest (codegen en memoria) no ve. Iterá a verde.
 
-## 3. Cómo instanciar y correr (R1 lifecycle) — mecánica REAL (corregida 2026-06-20)
-> `meta = PYTHONPATH=src python3 -m metafactory.cli`. **Ojo**: `meta product new` corre la LÍNEA COMPLETA
-> (gradle + pin), no es un scaffold liviano. Para SÓLO el spec (sin gradle), ver la validación barata abajo.
-1. `meta product new --factory full-stack-kotlin --name snipeit <blueprint.yml>` → copia el blueprint a
-   `products/snipeit/product.yml` y **corre product-run + pin**. (La firma es `--name` + un blueprint
-   posicional, NO `--product`.) Para esta sesión NO se corrió (es generación, próxima sesión).
-2. `meta product-run --factory full-stack-kotlin --product snipeit` → re-materializa la instancia + corre la
-   línea s0–s10 (FOREGROUND, `dangerouslyDisableSandbox`, por-producto). Iterá hasta verde.
-3. `meta rtm --product snipeit` (COMPLETE o deferrals visibles) → `meta pin --product snipeit` → `meta ci
-   --rederive --product snipeit` (== pin en clon limpio).
-4. Co-validación ADR-014 ya la dan los productos existentes (demo + assets); el de Snipe-IT es el 3ro.
-5. **Validación barata SIN gradle** (la usada en esta sesión para PROBAR el spec): materializar el spec
-   efectivo (`ensure_product_instance`) + `METAFACTORY_ROOT=products/snipeit scaffold_product.py --selftest`
-   (parsea el blueprint + corre TODO el codegen en memoria: dientes fail-closed + restricción de seed) y
-   `--check-idempotent`. Verde = el spec genera un árbol consistente; el compile gradle es la próxima sesión.
+---
 
-## 4. Los huecos que el producto VA a forzar (honesto, de FSK-S15 §7) — arreglalos como fábrica GENERAL
-Driven por el producto, NO especulados. Cada uno probablemente su propio sub-incremento, contenido de fábrica
-(`codegen/`+spec; `git diff src/metafactory/+seed/` = 0 idealmente). En orden de probable necesidad:
-1. **CRUD real (mutación)**: hoy POST/PUT del server vivo (FSK-S15) devuelven el VEREDICTO de autorización
-   (403/200/201) pero no MUTAN columnas end-to-end (la persistencia probada es seed+read vía Repository). Un
-   producto usable necesita INSERT/UPDATE/DELETE reales tipados (jOOQ) bajo el control de acceso ya enforzado.
-   El diente: un round-trip e2e (POST crea → GET lista lo creado → PUT muta → GET ve el cambio → DELETE borra).
-2. **Frontend React vivo que CONSUME los endpoints**: hoy existen los TIPOS TS del contrato (s0) + una UI
-   estática a11y (s8), pero NADA cablea una UI viva al server vivo. Un producto necesita el front que llama a
-   los endpoints (e2e, p.ej. Playwright — que FSK-S15 dejó declared-deferred). Diente: un flujo de browser real.
-3. **Deploy** (Docker build+push reproducible): el Dockerfile existe (s10, base pineada por digest), el
-   build+push de la imagen quedó declared-deferred. Un producto deployable lo necesita.
-4. **Lo que el dominio Snipe-IT pida y FSK no exprese** (p.ej. custom fields dinámicos, checkout polimórfico,
-   depreciación calculada, multi-tenancy por Company): cada uno → evaluar si es gramática nueva del blueprint
-   (incremento de fábrica GENERAL) o si se modela con lo existente. NO hackear el product.yml con casos
-   especiales; si FSK no lo expresa, es un eje de fábrica.
+## 1. Objetivo (qué deja TERMINADO este incremento)
+Un **producto Snipe-IT real** generado por la línea FSK: `meta product-run --product snipeit` PASS · RTM
+COMPLETE (o deferrals VISIBLES, como `assets` con s6) · `meta ci --rederive --product snipeit == pin` en clon
+limpio. El producto es un DELIVERABLE, no un fixture. **Anti-overfit duro: `git diff src/metafactory/ + seed/`
+= 0** — el producto es DATA; todo hueco de fábrica que el producto fuerce se arregla como mecanismo GENERAL
+(en `codegen/`+spec de FSK), idealmente en su PROPIO sub-incremento, NUNCA hackeando el `product.yml`.
 
-## 5. Fases (plan; el orquestador las refina) — NO hervir el océano en un incremento
+## 2. Estado de las fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Investigación + blueprint fiel.** Fan-out de 7 agentes sobre el repo (grokability v8.6.3) → dominio estructurado → `products/snipeit/product.yml` (19 entidades) + `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` (decisiones de mapeo + 12 deferrals honestos). Validado por bloqueo: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs. | ✅ (2026-06-20) |
-| 2 | **Slice vertical core a verde.** Entidades núcleo (Asset/AssetModel/Category/Manufacturer/Location/User/StatusLabel + workflow del activo + checkout-ownership + roles) por la línea FSK → product-run PASS · RTM (COMPLETE o deferrals visibles) · ci --rederive == pin. | ⏳ (próxima sesión: gradle) |
-| 3 | **Huecos que el slice exponga** (§4: probablemente CRUD-mutación primero) como fábrica GENERAL — un sub-incremento por hueco, `git diff src/+seed=0`. | ⏳ |
-| 4 | **Breadth** (License/Accessory/Consumable/Component/Audit/Depreciation…) + frontend vivo + deploy, en incrementos sucesivos. | ⏳ |
-| 5 | **Cierre del slice.** STATE/ROADMAP/LOG + evidencia (RTM, pin, ci --rederive, anti-overfit). | ⏳ |
+| 1 | **Investigación + blueprint fiel** (fan-out 7 agentes → 19 entidades + domain doc + 12 deferrals; validado por `scaffold --selftest`/`--check-idempotent`/0 forward-refs). | ✅ (2026-06-20, `0f01ae1`) |
+| 2 | **Generar el slice core a verde** por la línea FSK (gradle): product-run PASS · RTM · ci --rederive == pin. Arreglar lo que el compile/gates REALES rompan (gap de fábrica → GENERAL). | ⏳ **ACTIVA** |
+| 3 | **Huecos que el slice exponga** (§5) como fábrica GENERAL — un sub-incremento por hueco, `git diff src/+seed=0`. | ⏳ |
+| 4 | **Breadth + CRUD-mutación real + frontend vivo + deploy** (§5), incrementos sucesivos. | ⏳ |
+| 5 | **Cierre** — STATE/ROADMAP/LOG de FSK + meta + evidencia (RTM, pin, ci --rederive, anti-overfit). | ⏳ |
 
-## 6. Disciplina (no se negocia)
-- **El producto es DATA** (`product.yml` + lo derivado); un hueco de fábrica se arregla GENERAL (cero nombres
-  de Snipe-IT en `src/metafactory/`/`seed/`, ADR-012). Anti-overfit medido: `git diff src/metafactory/+seed/`.
-- **La trust-chain ya existe** (la columna FSK + R1 lifecycle): el producto se verifica por la línea FSK
-  existente, no inventás gates. Probá por bloqueo (RTM re-derivado + ci --rederive == pin), nunca por prosa.
-- **Honestidad sobre fidelidad**: si simplificás/diferís parte del dominio Snipe-IT, DECILO en
-  `SNIPEIT-DOMAIN.md` con el por qué (deferral visible, no over-claim) — igual que `assets` difiere s6 keyless.
-- **Agentes para el RESEARCH fan-out** (su propósito); la trust-chain (gates/verifier) la leés con ojos propios.
+## 3. Las 4 restricciones DURAS de FSK (el spec YA las respeta — leelas antes de TOCAR el product.yml)
+Descubiertas leyendo `factories/full-stack-kotlin/codegen/scaffold_product.py`. Violarlas = codegen/compile
+rojo. Si editás el spec (agregar/mover entidades, cambiar refs), respetalas o vas a romper la generación:
+1. **Orden topológico, TODOS los refs.** `_migration_sql` emite un FK `REFERENCES` por CADA ref (requerido u
+   opcional) en orden de declaración → todo `ref.to` apunta a una entidad declarada ANTES (o a sí misma).
+   **Ciclos = ilegales** (Snipe-IT: se quitaron `Location.manager_id`, `Department.manager_id`→User).
+2. **El campo `owned_by` DEBE ser `required: true`.** `OwnershipGuard.canModify(rowOwnerId: Long)` es
+   no-nullable y el server vivo trata `ownerId == null` como 404. (`Asset.owned_by: assigned_user_id` requerido.)
+3. **El seed del server vivo (FSK-S15) prohíbe refs REQUERIDOS no-dueño** en la entidad con dueño (Asset) y en
+   su dueño (User). Por eso `Asset.model_id` va `required:false` (Snipe lo exige = gap documentado). User no
+   tiene ningún ref requerido.
+4. **Sin self-refs (todavía).** `_it_repository_kt` (seeder del tier integración s7) setea TODO ref incl. el
+   opcional y referencia `ids[self]` antes de insertar → `KeyError`. Por eso `Location.parent_id` y
+   `User.manager_id` están DIFERIDOS. **Si querés restaurarlos**, primero el fix GENERAL (§5.2).
 
-### Lecciones caras de correr la línea FSK (NO re-aprendas — son de FSK-S11..S15):
-- **El sandbox de Bash MATA gradle** (exit 144 sin output): toda corrida de línea/gradle necesita
-  `dangerouslyDisableSandbox: true`. Corré la línea en **FOREGROUND**, **por-producto** (`--product snipeit`),
-  NO `--all-products` (dos líneas no entran en 600s).
-- **Server vivo largo bajo infra_up: corré por `java -cp build/install/<pkg>/lib/*` del dist (proceso plano),
-  NO `gradle run`/JavaExec** (el daemon de gradle puede forkear el JVM fuera del process-group → leak del
-  puerto en el teardown → falsa-verde). installDist da el `lib/` con todas las deps. (Lección FSK-S15.)
-- **`proof_protect` DENIEGA tocar `.proof/` por shell** (incluso leer): usá `meta rtm`/`recall`/`journal`.
-- **Mantené el cwd de Bash en la raíz del repo** + paths absolutos + subshells `( cd <abs> && … )` (un `cd`
-  filtrado a un subdir rompe el cierre de turno — 4 hooks cwd-relativos, memoria `no-cd-subdirs-hook-deadlock`).
-- **Las INSTANCIAS se re-materializan en cada corrida** (no editás sus `stations/` a mano); el DEFAULT no
-  (ahí sí se appendea a mano `stations/<id>.yml`). El producto Snipe-IT es una instancia → sólo editás su
-  `product.yml`.
-- **PG/server vivos = docker dependiente** (SAFE-3, decisión de fidelidad): el digest de Postgres ya está
-  cacheado (s1/s7/s9). Puertos DATA fuera del rango efímero (s1=5434, s7=5435, s9 AC=5436, server obs=18593,
-  AC=18594) — si agregás infra viva nueva, elegí puertos/contenedores propios.
+## 4. Cómo correr la línea — comandos + lecciones caras (NO re-aprendas)
+`meta = PYTHONPATH=src python3 -m metafactory.cli`. Mantené el cwd de Bash en la RAÍZ del repo (un `cd` a
+subdir filtra el cwd y rompe el cierre de turno — 4 hooks cwd-relativos; usá paths absolutos / subshells).
+1. `meta product-run --factory full-stack-kotlin --product snipeit` → re-materializa la instancia (base ⊕
+   product.yml) + corre s0–s10. **`dangerouslyDisableSandbox: true`, FOREGROUND, por-producto** (dos líneas
+   no entran en 600s; ~3 min/producto con gradle caliente).
+2. `meta rtm --product snipeit` (COMPLETE o deferrals visibles) → `meta pin --product snipeit` → `meta ci
+   --rederive --product snipeit` (== pin en clon limpio).
+3. `meta check` (6/6) al final.
 
-## 7. Criterio de cierre (de este incremento; demostrable, no narrable)
-1. `products/snipeit/product.yml` existe y deriva FIELMENTE el dominio Snipe-IT núcleo (Fase 1+2), con
-   `docs/reference/SNIPEIT-DOMAIN.md` justificando el mapeo (inclusiones + deferrals honestos).
-2. `meta product-run --product snipeit` PASS · RTM COMPLETE (o deferrals visibles) · `ci --rederive --product
+**Lecciones caras (de FSK-S11..S15, NO re-descubrir):**
+- **El sandbox mata gradle** (exit 144) → `dangerouslyDisableSandbox: true` en TODA corrida de línea/gradle.
+- **Server vivo largo: `java -cp build/install/<pkg>/lib/*`**, NUNCA `gradle run`/JavaExec (el daemon forkea el
+  JVM fuera del process-group → leak de puerto → falsa-verde). Ya está cableado así en s9; respetalo.
+- **`proof_protect` DENIEGA tocar `.proof/` por shell** (incluso leer) → usá `meta rtm`/`recall`/`journal`.
+- **Las INSTANCIAS se re-materializan cada corrida** (no edites sus `stations/`/`factory.spec.yml` a mano —
+  son gitignored, derivados). Sólo editás `products/snipeit/product.yml`. El DEFAULT sí se appendea a mano.
+- **Si una station no aplica keyless** (p.ej. s6 LLM), el deferral honesto es `station_activation: {s6: off}` en
+  el product.yml (ya está) — la opción que el propio gate sanciona, no fakear verde.
+- **Slice si el presupuesto aprieta**: 19 entidades es un compile gordo. Si no entra/explota, generá un slice
+  core (Company/Manufacturer/Category/Depreciation/Location/User/AssetModel/Asset) primero y breadth después
+  (License/seats, Accessory, Consumable, Component, Maintenance, Department) — comentando entidades en el
+  product.yml. Respetá el orden topológico (§3.1) al recortar.
+- **Validación barata SIN gradle** (la de la Fase 1, útil para iterar el spec rápido antes de pagar gradle):
+  materializar (`from metafactory.cli import ensure_product_instance`) + `METAFACTORY_ROOT=products/snipeit
+  python3 codegen/scaffold_product.py --selftest` / `--check-idempotent`.
+
+## 5. Los huecos que el producto VA a forzar (de SNIPEIT-DOMAIN.md §3) — arreglalos GENERAL, driven por el producto
+Cada uno probablemente su PROPIO sub-incremento, contenido de fábrica (`codegen/`+spec; `git diff
+src/metafactory/+seed/`=0). En orden de probable necesidad:
+1. **CRUD-mutación real** — hoy el server vivo (FSK-S15) devuelve el VEREDICTO de autz (403/200/201/404) pero
+   no MUTA columnas end-to-end. Un producto usable necesita INSERT/UPDATE/DELETE tipados (jOOQ) bajo el control
+   de acceso ya enforzado. Diente: round-trip e2e (POST crea → GET lista → PUT muta → GET ve → DELETE borra).
+2. **Self-ref** (restricción §3.4) — fix acotado: que `_it_repository_kt` saltee los refs opcionales (como ya
+   hace `_roundtrip_kt`) y/o maneje self-ref → restaura `Location.parent_id` + `User.manager_id`.
+3. **Ownership opcional / RTD** (restricciones §3.2/§3.3) — dueño nullable (asset sin asignar = estado RTD real)
+   + seed transitivo en el server vivo → permite `Asset.model_id` requerido (faithful).
+4. **Custom fields dinámicos** — el eje GRANDE: campos definidos por usuario (EAV-como-columnas en Snipe-IT).
+   Pide gramática nueva del blueprint. Difiéralo hasta que el core esté verde.
+5. **Frontend React vivo + deploy** + breadth de endpoints/operaciones (checkout/checkin/audit/request/bulk).
+6. Resto de los 12 deferrals (company-scoping, depreciación calculada, soft-deletes, audit-log, kits) — ver
+   SNIPEIT-DOMAIN.md §3; cada uno evaluado como gramática nueva (incremento) vs modelable con lo existente.
+
+## 6. Disciplina (no se negocia) + dónde van los docs
+- **El producto es DATA**; un hueco de fábrica se arregla GENERAL (cero nombres de Snipe-IT en
+  `src/metafactory/`/`seed/`, ADR-012). Medí anti-overfit: `git diff src/metafactory/ + seed/` = 0.
+- **Probá por bloqueo** (RTM re-derivado + ci --rederive == pin), nunca por prosa. No fakees verde. La
+  trust-chain (gates/verifier) la leés con ojos propios.
+- **Honestidad sobre fidelidad**: todo lo que simplifiques/difieras va a SNIPEIT-DOMAIN.md con el por qué.
+- **DÓNDE VAN LOS DOCS** (la regla, aclarada esta sesión):
+  - Dominio/decisiones de mapeo → `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md`.
+  - Cambios de la FÁBRICA (codegen/spec/stations) → `factories/full-stack-kotlin/docs/{STATE,LOG}.md`.
+  - Gobierno del incremento (ESTE doc) → `docs/work/` del **meta** — es donde el `increment_guard` ACTIVO
+    (`$CLAUDE_PROJECT_DIR/.claude/hooks/`) trackea el incremento abierto y te deja editar el codegen de la
+    fábrica. Las hooks anidadas de FSK son DATA dormida en este árbol (sólo cuentan en un checkout standalone).
+  - Estado del meta → `docs/STATE.md` + `docs/LOG.md` del meta. Commit = parte del trabajo (ADR-010), nunca lo
+    preguntes; mensaje con trailers I-10.
+
+## 7. Criterio de cierre de P1 (demostrable, no narrable)
+1. `meta product-run --product snipeit` PASS · RTM COMPLETE (o deferrals VISIBLES) · `ci --rederive --product
    snipeit == pin` en clon limpio.
-3. **Anti-overfit**: `git diff src/metafactory/ + seed/` = 0 (el producto es DATA; todo hueco de fábrica
-   arreglado fue mecanismo GENERAL). `meta check` 6/6.
-4. Los huecos descubiertos (§4) quedan REGISTRADOS (STATE/ROADMAP) como los siguientes incrementos — el slice
-   vertical core verde es el deliverable de ESTE; breadth/CRUD-completo/frontend/deploy son sucesivos.
+2. **Anti-overfit**: `git diff src/metafactory/ + seed/` = 0. `meta check` 6/6.
+3. Los huecos descubiertos (§5) quedan REGISTRADOS (STATE/ROADMAP del meta + FSK) como sub-incrementos
+   sucesivos — el slice core verde es el deliverable de ESTE incremento; CRUD-mutación/frontend/deploy/breadth
+   son los siguientes.
+
+## 8. Dónde está la investigación cruda (si la necesitás)
+El clon de Snipe-IT vive en `../snipe-it` (hermano del repo, 93M, FUERA del árbol). La investigación
+estructurada de los 7 agentes (≈6.4k líneas) está en `../snipe-it/_research/01..07.md` (schema · models ·
+permissions · workflows · rules · endpoints · screens). **PUEDE estar borrado** (el ingeniero podía limpiarlo);
+si no está, todo lo esencial ya está destilado en SNIPEIT-DOMAIN.md. Re-clonar: `git clone --depth 1
+https://github.com/grokability/snipe-it.git ../snipe-it`.

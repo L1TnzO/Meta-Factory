@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `f61e4d431c74` | 2026-06-19T23:42Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `9fe9dcebf9bb` | 2026-06-19T23:53Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `47831227c268` | 2026-06-20T00:27Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `c3676d6ab9a9` | 2026-06-20T00:26Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -81,7 +81,7 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `84c5bc460ad0` | 2026-06-20T00:24Z | Incremento R1-PRODUCT-INSTANCE |
-| `docs/work/ROADMAP.md` | `f95cef7557e9` | 2026-06-19T23:42Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `67af5e2ae44c` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
+| `docs/work/ROADMAP.md` | `c8db2839e06c` | 2026-06-20T00:26Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `5528621bd76e` | 2026-06-14T01:55Z | Meta-Factory — orientación (fase de diseño) |

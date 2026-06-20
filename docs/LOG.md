@@ -1,7 +1,37 @@
-<!-- meta:doc sha=f61e4d431c74baf5b4d31d4febd8ef5f286a6442 updated=2026-06-19T23:42Z -->
+<!-- meta:doc sha=47831227c268021b93d1c28a0fa00e4a0b3e88fd updated=2026-06-20T00:27Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T00:30Z — R1 ✅ — lifecycle de instancia de producto (1 fábrica → N productos) por bloqueo
+- **qué cambió**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos** (R1 de ADR-015).
+  Una instancia vive en `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` (su blueprint `domain.product`,
+  el único punto de variación) + `pinned_verdict.json`; el sustrato re-deriva el spec efectivo (`base ⊕ product.yml`)
+  + la línea materializada en cada corrida (`ensure_product_instance`), así un checkout fresco con sólo `product.yml`
+  reconstruye toda la instancia. Verbo `meta product {new,list}` + `--product` en product-run/ci/pin/rtm + `ci
+  --rederive --all-products`.
+- **el seam de motor (mínimo, por qué)**: `RunContext` ganó `chassis` (el generador `codegen/` vive en la fábrica
+  aunque la evidencia + pin de la instancia vivan en otra raíz); `_generate` resuelve el `via` relativo contra el
+  chasis (cwd sigue siendo el workdir). Para el producto **default** (chassis==root) el comportamiento es
+  byte-idéntico — el generate es build-time y el `proof_sha` es exit-code-based. `infra_up` ganó un cwd-alias corto
+  (symlink /tmp): un socket-Unix derivado de `$PWD` queda bajo el budget de `sun_path` (108B) aunque el workdir de
+  instancia anide +15B más hondo; el archivo socket aterriza en el wd real (el link resuelve allí). Tech-agnóstico.
+- **gate con dientes**: `products_rederive` (m06, hermano de clean_runner) re-deriva CADA instancia == su pin en
+  clon limpio, **aislada** (raíz propia → borrar el proof de A no abre la gate de B, probado VIVO) y con negativo
+  no-decorativo (pin tampereado → rojo). N/A honesto sin instancias. iot pasa m00..m06 en secuencia con el gate.
+- **co-validación 2 toolchains disjuntos (ADR-014)**: `iot/fleet` (Go, RTM COMPLETE 6/6) + `full-stack/tasks` (TS).
+  El full-stack ejerció el seam LLM: s3 (`claude -p`) generó lógica FRESCA para la entidad nueva → pineada §7
+  (skip_if_exists) → `ci --rederive` keyless (no re-llama al LLM); s5 (corrida live sin provider) DIFERIDA
+  honestamente vía `station_activation:off` — la opción que el propio `live_run` sugiere, visible en product.yml.
+- **límites honestos hallados (NO fingidos)**: el scaffold de iot y de full-stack **hardcodea el vocabulario de
+  campos** de su demo (iot: DeviceID/Value; full-stack: title/done) — un 2º producto varía nombre/package/topología
+  pero respeta ese vocabulario. La expresividad de campos arbitrarios es **R2** (separada, ADR-015 §4), no R1.
+  `dummy` NO sirve de 2º dominio: su línea renderiza archivos fijos del chasis (`render src: …/domain/greeting.py`),
+  no el blueprint → una instancia sería idéntica al demo.
+- **anti-overfit**: `git diff src/+seed` ~287 líneas — **cero nombres de fábrica/tech**; el seed (raíz de confianza)
+  intacto. Las instancias son DATA. Suite 573 · `meta check` verde · `ci --rederive` default == pin (iot 5/5,
+  full-stack 6/6, dummy 5/5 — el seam no rompe el 1:1). **Diferido**: migrar el demo a instancia #1 (simetría total;
+  R1 probó coexistencia, no la pide).
 
 ## 2026-06-19T23:40Z — Eje nuevo identificado: Reutilización (fábrica → N productos, lifecycle 1:N) — ADR-015 + Fase R
 - **gatillo**: sesión de orientación. Tras cerrar **FSK s0..s10**, el ingeniero preguntó cómo apuntar la fábrica

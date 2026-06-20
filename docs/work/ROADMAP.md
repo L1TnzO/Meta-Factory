@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f95cef7557e9b5116a02b69b29531048c3505578 updated=2026-06-19T23:42Z -->
+<!-- meta:doc sha=c8db2839e06c24551e5b2379faa83482adfb867d updated=2026-06-20T00:26Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,21 +430,28 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🔲 PLANEADO (eje nuevo, post A–H)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2 pendiente)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
 > dominios, cada uno pineado/regenerable. El mecanismo de generación YA es parametrizado por dominio
 > (`scaffold_product.py` lee `domain.product`); lo que falta es el **ciclo de vida**, no el generador.
-- **R1 · Lifecycle de instancia de producto (sustrato).** 🔲 El motor pasa de "fábrica : 1 producto pineado" a
-  "fábrica : N productos": cada producto = una entrada de dominio (`domain.product` / product-spec) con su
-  **propio** árbol de evidencia y su **propio** pin. A resolver EN el incremento: dónde viven las instancias
-  (p.ej. `factories/<f>/products/<p>/`), cómo se nombra/instancia (un verbo tipo `meta product new --factory <f>
-  <product-spec>`), cómo `ci --rederive` re-deriva TODAS sin que una abra la gate de otra. *Gate por bloqueo
-  (propuesto)*: UNA fábrica produce **≥2 productos distintos**, cada uno `ci --rederive == su pin`; borrar el
-  proof del producto A **NO** abre la gate de B; el sustrato no nombra fábrica ni tech (ADR-012); co-validado en
-  ≥2 dominios (ADR-014). Abrir: `meta increment open R1-PRODUCT-INSTANCE`. Depende: C4 (árbol de evidencia),
-  G1 (pin/baseline), H.
+- **R1 · Lifecycle de instancia de producto (sustrato).** ✅ (2026-06-19, `R1-PRODUCT-INSTANCE`) El motor pasa de
+  "fábrica : 1 producto pineado" a "fábrica : N productos": una instancia vive en `factories/<f>/products/<p>/`
+  y commitea SÓLO `product.yml` (su blueprint `domain.product`, el único punto de variación) + `pinned_verdict.json`;
+  el sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea materializada en cada corrida
+  (`ensure_product_instance`). Seam mínimo en el motor: `RunContext.chassis` (el generador compartido vive en la
+  fábrica aunque la evidencia + pin de la instancia vivan en otra raíz; default chassis==root = byte-idéntico) +
+  `_generate` resuelve el `via` relativo contra el chasis. Verbo `meta product {new,list}` + `--product` en
+  product-run/ci/pin/rtm + `ci --rederive --all-products`. **Gate por bloqueo**: `products_rederive` (m06) re-deriva
+  CADA instancia == su pin en clon limpio, aislada (raíz propia → borrar el proof de A no abre la gate de B) y con
+  diente no-decorativo (pin tampereado → rojo); N/A honesto sin instancias. **Co-validado en 2 toolchains disjuntos**
+  (ADR-014): `iot/fleet` (Go, RTM COMPLETE 6/6) **y** `full-stack/tasks` (TS, s3 claude pineado §7 → re-derive
+  keyless; s5 live diferido honesto vía `station_activation:off`). **Anti-overfit**: `git diff src/+seed` ~287 líneas,
+  cero nombres de fábrica/tech, seed intacto; las instancias son DATA. `infra_up` ganó un cwd-alias corto (budget
+  sun_path para workdirs de instancia más hondos). **Diferido honesto**: migrar el demo a instancia #1 (simetría
+  total; R1 probó coexistencia default+instancia, no la pide); factories con línea LLM/heavy (full-stack s5, ASF,
+  FSK) instancian con key/pin o `activation:off` (no es límite del mecanismo).
 - **R2 · Expresividad de `domain.product` (track paralelo, POR-fábrica).** 🔲 SEPARADO de R1: hoy el blueprint
   es entidades+campos (**CRUD-deep**). Apps reales (workflows, RBAC, reglas de negocio) necesitan más
   expresividad — vía gramática extendida **o** lógica generada por LLM bajo contract test (patrón s6/MAT-2). Es

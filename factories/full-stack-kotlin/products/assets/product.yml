@@ -19,6 +19,11 @@ api_title: "Asset Tracker API"
 # no escribe ninguna entidad). Co-validación ADR-014: el enum Role + RoleGuard se generan del product.yml
 # (DATA) y la instancia re-deriva == su pin, aislada. Es una topología de autorización propia, no la del demo.
 roles: [admin, manager, auditor]
+# ownership / autorización a nivel de FILA (R2/FSK-S14, DES-3) con una política DISTINTA del demo (demo: Project
+# owned_by owner_id → User). Acá el dueño de un Asset es su responsable (Holder) vía holder_id, y sólo `admin`
+# bypassa: un manager administra activos pero, salvo bypass, sólo toca los SUYOS (su principal == el holder de
+# la fila). Topología de ownership propia (entidad Asset / principal Holder), co-validación ADR-014.
+owner_bypass_roles: [admin]
 entities:
   - name: Holder
     write_roles: [admin]
@@ -27,6 +32,7 @@ entities:
       - { name: department, type: enum, values: [it, ops, sales, support] }
   - name: Asset
     write_roles: [admin, manager]
+    owned_by: holder_id           # el dueño de la fila es el Holder que holder_id referencia (ownership)
     fields:
       - { name: serial, type: string, unique: true }
       - { name: quantity, type: int }
@@ -44,5 +50,8 @@ entities:
           deployed: [ready, broken, archived]
           broken: [ready, archived]
           archived: []
-      - { name: holder_id, type: ref, to: Holder, required: false }
+      # holder_id es REQUERIDO (FSK-S14): ownership obligatorio ⇒ toda fila tiene un dueño no-nulo (row.holderId:
+      # Long no-opcional, type-bound en OwnershipGuardTest). `notes` queda opcional → la opcionalidad R2 (FSK-S11)
+      # sigue ejercida.
+      - { name: holder_id, type: ref, to: Holder, required: true }
       - { name: notes, type: string, required: false }

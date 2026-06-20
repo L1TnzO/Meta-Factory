@@ -1,7 +1,51 @@
-<!-- meta:doc sha=bfba13d2b6b1a59c17a2179b9091eb1a6acc0f5b updated=2026-06-20T15:48Z -->
+<!-- meta:doc sha=0d67a9dff7607bff65d0c25d31a93bd9dfd79147 updated=2026-06-20T16:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T16:56Z — R2·FSK eje #4 ✅ — ownership / autorización a nivel de FILA (`FSK-S14-DOMAIN-OWNERSHIP`)
+- **qué cambió**: `domain.product` gana `owned_by` por entidad (el campo `ref` que apunta al principal DUEÑO de
+  la fila) + `owner_bypass_roles` (top-level, los roles que IGNORAN ownership) en la gramática del blueprint. El
+  codegen emite una capa de **AUTORIZACIÓN A NIVEL DE FILA DETERMINISTA** (sin LLM, I-3) ENCIMA del RBAC de s5
+  (que es rol×entidad): `auth/OwnershipGuard.kt` (`canModify(actorRole, actorPrincipalId, rowOwnerId, bypass)` =
+  `actorRole in bypass || actorPrincipalId == rowOwnerId`; genérico, no por-entidad, type-safe sobre `Role`) +
+  `auth/OwnershipPolicy.kt` (registro entidad→campo dueño + el set de bypass, derivado del blueprint). Un
+  no-dueño no-privilegiado se rechaza por construcción (DES-3, no-salteable). Todo en `codegen/` (ADR-012).
+- **single-source DES-6**: el contrato documenta el campo dueño como `x-owned-by` a nivel del schema object
+  (vendor extension, ignorada por openapi-generator/openapi-typescript — el contrato sigue parseando).
+  `route_check.py` gana un 4º modo `ownership` que cruza el campo del contrato contra `OwnershipPolicy` en el
+  Kotlin (por tokens, stdlib, sin compilar) → tamper de un lado sin el otro → `OWNER_MISMATCH` (verificado vivo:
+  editar `x-owned-by` del contrato sin regenerar el registro → rojo). El type-binding al model lo da el TEST
+  (construye un `<Entity>` real y lee `row.<ownerFieldCamel>` → un rename del campo en el contrato → unresolved
+  → compile rojo). El tamper-tooth real es el cruce determinista + el compile type-bound, no una lista paralela.
+- **diente de DOS+ lados** (no-decorativo): (1) NEGATIVO embebido en s5, idiom `auth`/`topology`/`rbac` —
+  `probe/routes/wrong_owner.kt` (registro con el campo dueño equivocado, FUERA de `src/` → no se shippea) DEBE
+  morder por grep (`OWNER_MISMATCH`) o el check es decorativo → rojo. (2) RUNTIME — tier unit Kotest
+  `OwnershipGuardTest` (type-bound al model) asevera el DUEÑO modifica ✓ · un no-dueño no-privilegiado es
+  rechazado ✗ · un rol de `owner_bypass_roles` (admin) bypassa ✓; con `OwnershipGuard` saboteado a `return
+  true`, gradle test → 1 FAILED (el lado del no-dueño) → rojo (verificado vivo). Validación fail-closed en
+  `_load_blueprint` (vivos: `owned_by` sin `roles` · campo inexistente · campo no-`ref` · `owner_bypass_roles`
+  ∉ `roles` → `SystemExit`).
+- **co-validación 2 productos con políticas de ownership DISTINTAS** (ADR-014), ambos `ci --rederive == pin` en
+  clon limpio, aislados: **demo** `Project owned_by owner_id` (dueño = User), bypass `[admin]` → 11/11;
+  **instancia `assets`** `Asset owned_by holder_id` (dueño = Holder — otra entidad Y otro principal),
+  `holder_id` pasado a `required` (ownership obligatorio ⇒ `row.holderId` no-nulo) → RTM 17/18 (s6 LLM diferido
+  keyless, honesto). Capability `ownership_enforced` (DES-3) + REQ-F-013 + check `ownership_enforced` en **s5**
+  (su casa natural: ahí viven `AuthGuard`/`RoleGuard`/`RouteTable`/`route_check.py`; s5 pasó de TRES gates a
+  CUATRO) → **RTM default 17→18 COMPLETE**.
+- **anti-overfit**: `git diff src/metafactory/ + seed/` = **0** en todo el incremento — ownership es gramática de
+  FÁBRICA: vive 100% en `codegen/` + el spec + `stations/s5.yml` + `product.yml` (DATA, ADR-012). Compuso sobre
+  el RBAC de s5 (FSK-S13) + el vocabulario de campos de FSK-S11 (la opcionalidad). Opt-in: una entidad sin
+  `owned_by` → sólo RBAC, FSK-S13 intacto (probado con specs sintéticos).
+- **decisiones de diseño (ojos propios)**: (1) ownership COMPONE sobre RBAC — el guard toma `actorRole: Role` y
+  el bypass es por rol → fail-closed: `owned_by` exige `roles` (sin Role enum no hay guard). (2) `OwnershipGuard`
+  es UN guard genérico (no por-entidad) → una sola declaración top-level (detekt `MatchingDeclarationName`) y un
+  bloque con UN return (`ReturnCount` ≤ 2). (3) `OwnershipPolicy` registra el campo dueño como string snake_case
+  (para el cruce del analizador contra `x-owned-by`); la type-safety al model la aporta el test (`row.holderId`),
+  no el registro — misma honestidad que FSK-S13 (el cruce determinista + el compile, no una lista decorativa).
+- **proceso**: paths absolutos + subshells (memoria `no-cd-subdirs-hook-deadlock`). Sandbox mata gradle →
+  `dangerouslyDisableSandbox`. Línea en foreground, `ci --rederive` por-producto. `proof_protect` deniega leer
+  `.proof/` por shell → `meta rtm` (re-deriva el árbol) para el conteo.
 
 ## 2026-06-20T15:50Z — R2·FSK eje #3 ✅ — RBAC / autorización por rol sobre las escrituras (`FSK-S13-DOMAIN-RBAC`)
 - **qué cambió**: `domain.product` gana `roles` (universo de roles, top-level) + `write_roles` por entidad

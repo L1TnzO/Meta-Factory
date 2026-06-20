@@ -1,8 +1,15 @@
-<!-- meta:doc sha=f240b7eaf45ef897fe2422e880e9065f1a3b2cb1 updated=2026-06-20T16:26Z -->
+<!-- meta:doc sha=ed877ac5d6f5ad861256736536a623668bc3cda3 updated=2026-06-20T16:58Z -->
 # Incremento FSK-S14-DOMAIN-OWNERSHIP
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T16:24Z). Cerralo con `meta increment close`
-> (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T16:57Z; gate satisfecho: árbol limpio + estación activa
+> verde + RTM 18/18). Todo cambio de código vivió acá (ADR-010). **Resultado**: las 4 fases verdes — gramática
+> `owned_by`/`owner_bypass_roles` + guard `OwnershipGuard.canModify` + registro `OwnershipPolicy`, contrato
+> `x-owned-by`, `route_check.py` 4º modo `ownership` con diente embebido (`wrong_owner.kt`), test de dos+ lados
+> `OwnershipGuardTest` (dueño ✓ / no-dueño ✗ / bypass ✓, type-bound al model). Capability `ownership_enforced`
+> (DES-3) + REQ-F-013 en s5 → **RTM default 17→18 COMPLETE**. 2 productos con ownership DISTINTO `ci --rederive
+> == pin` (default 11/11 · assets 17/18, s6 LLM diferido keyless). **Anti-overfit: `git diff src/metafactory/ +
+> seed/` = 0** (ownership es gramática de fábrica). Evidencia por bloqueo en §Fases. Commits: `a488dc2` (fase
+> 1+2) · `d48ee3f` (fase 3) · este (fase 4, cierre).
 >
 > **HANDOFF (escrito 2026-06-20 por la sesión que cerró FSK-S13/RBAC, con el contexto fresco).** Este doc es
 > AUTOCONTENIDO a propósito: asumí que mi contexto murió (`/clear`). Otro orquestador lo construye desde acá.
@@ -148,10 +155,10 @@ en el sustrato — vive 100% en `factories/full-stack-kotlin/codegen/` + el spec
 ## 4. Fases (plan; el orquestador las refina)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Gramática + validación + guard generado.** `owned_by`/`owner_bypass_roles` en el blueprint; fail-closed en `_load_blueprint`; `x-owned-by` en el contrato; `OwnershipGuard` type-safe; `route_check.py` modo `ownership` + probe; `OwnershipGuardTest` de dos lados. `--selftest`/`--check-idempotent` verdes; compile+detekt+test del demo verde; cruce estático ownership verde + probe muerde + tamper del contrato → rojo. | ⏳ |
-| 2 | **El demo ejercita ownership + re-derive == pin.** Agregá `owned_by` (p.ej. `Project owned_by owner_id`, owner = User) + `owner_bypass_roles: [admin]` al demo; check `ownership_enforced` en s5 (spec + `stations/s5.yml`); línea s0–s10 verde · `ci --rederive` == re-pin · **RTM 17→18**. | ⏳ |
-| 3 | **2º producto (assets) con ownership DISTINTO + co-validación (ADR-014).** La instancia `assets` declara ownership propio (p.ej. `Asset owned_by holder_id` — OJO: hoy `holder_id` es `required: false`; hacelo `required: true` para ownership obligatorio, o elegí otra forma); `ci --rederive --product assets` == pin, aislada. | ⏳ |
-| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (objetivo: `src/metafactory/`+`seed/` = **0**) + suite + RTM + cerrar (flip header a CERRADO bajo `seed/lifecycle.py`, o `meta increment close`). | ⏳ |
+| 1 | **Gramática + validación + guard generado.** `owned_by`/`owner_bypass_roles` en el blueprint; fail-closed en `_load_blueprint`; `x-owned-by` en el contrato; `OwnershipGuard`+`OwnershipPolicy` type-safe; `route_check.py` modo `ownership` + probe; `OwnershipGuardTest` de dos+ lados. | ✅ `--selftest`/`--check-idempotent` verdes (64/68 archivos); 4 formas inválidas → `SystemExit` + 1 válida aceptada; cruce estático ownership verde + `wrong_owner.kt` muerde (`OWNER_MISMATCH`) + tamper de `x-owned-by` → `OWNER_MISMATCH` (restaurado → verde). |
+| 2 | **El demo ejercita ownership + re-derive == pin.** `Project owned_by owner_id` (owner = User) + `owner_bypass_roles: [admin]`; check `ownership_enforced` en s5 (spec + `stations/s5.yml`); línea verde · `ci --rederive` == re-pin · **RTM 17→18**. | ✅ `product-run` PASS · `pin` 11 proof_sha · `ci --rederive` **11/11 == pin** en clon limpio · RTM **18/18 COMPLETE** (REQ-F-013 ← ownership_enforced: s5). Diente runtime VIVO: `OwnershipGuard`→`return true` → gradle test 13 tests, 1 FAILED (lado no-dueño) → BUILD FAILED. |
+| 3 | **2º producto (assets) con ownership DISTINTO + co-validación (ADR-014).** `Asset owned_by holder_id` (owner = Holder), `holder_id` a `required: true`; `ci --rederive --product assets` == pin, aislada. | ✅ `product-run` PASS · `pin` 10 proof_sha · `ci --rederive --product assets` **10/10 == pin** en clon limpio, aislada · RTM **17/18** (REQ-F-013 ✓ · REQ-F-007 s6 LLM diferido keyless, honesto). Política DISTINTA: demo Project/User ↔ assets Asset/Holder (otra entidad Y otro principal). |
+| 4 | **Cierre.** STATE/ROADMAP/LOG + diff sustrato honesto (`src/metafactory/`+`seed/` = **0**) + suite + RTM + flip header a CERRADO. | ✅ STATE/ROADMAP/LOG actualizados · `git diff 8c685a5 -- src/metafactory/ seed/` = **0 líneas** · `meta check` 6/6 (proyección refrescada con `meta checkpoint`) · header CERRADO. |
 
 ## 5. Gate (prueba por bloqueo — dientes de dos lados, no decorativos)
 - **Ownership enforced (dos+ lados):** el DUEÑO modifica ✓ · un no-dueño no-privilegiado es rechazado ✗ · un rol

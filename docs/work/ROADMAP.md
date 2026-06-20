@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a32b98ea3741001b50953d8dfdcdddab88ecc3eb updated=2026-06-20T15:48Z -->
+<!-- meta:doc sha=1e49052c475ecd01f702c7dc970871571b624592 updated=2026-06-20T16:57Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,7 +430,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows + RBAC)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2·FSK ✅: campos + workflows + RBAC + ownership)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
@@ -487,9 +487,22 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     admin/manager/auditor): `ci --rederive` == pin (default 11/11 · assets 16/17, s6 diferido). Capability
     `rbac_enforced` + REQ-F-012 en s5 → **RTM default 16→17**. Sustrato `src/+seed/` = 0 (todo `codegen/`+spec+
     `stations/s5.yml`+product.yml). Evidencia: `work/FSK-S13-DOMAIN-RBAC-INCREMENT.md`.
-  - **R2·{otras fábricas} + ejes superiores restantes** (reglas-LLM bajo gate · ABAC/ownership a nivel de fila,
-    otras fábricas): 🔲 pendientes, un incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO +
-    CICLO-DE-VIDA (R1 coexistencia + R2 campos arbitrarios + workflows + control de acceso por rol).
+  - **R2·FSK eje #4 — ownership / autorización a nivel de fila (ABAC acotado).** ✅ (2026-06-20,
+    `FSK-S14-DOMAIN-OWNERSHIP`). `domain.product` gana `owned_by` por entidad (el campo `ref` dueño) +
+    `owner_bypass_roles` → capa de AUTORIZACIÓN A NIVEL DE FILA DETERMINISTA encima del RBAC de s5:
+    `OwnershipGuard.canModify` (genérico, type-safe sobre `Role`) + `OwnershipPolicy` (registro entidad→campo
+    dueño); un no-dueño no-privilegiado se rechaza por construcción, un rol de bypass administra todo (DES-3).
+    Single-source DES-6: el contrato marca `x-owned-by` → `route_check.py` 4º modo `ownership` lo cruza contra el
+    Kotlin (tamper de un lado → `OWNER_MISMATCH`); type-binding al model por el test (`row.<ownerField>`). Diente
+    negativo embebido (`wrong_owner.kt`) + diente de DOS+ lados runtime (`OwnershipGuardTest`: dueño ✓ / no-dueño
+    ✗ / bypass ✓). **2 productos con ownership DISTINTO** (demo Project owned_by owner_id→User ↔ assets Asset
+    owned_by holder_id→Holder): `ci --rederive` == pin (default 11/11 · assets 17/18, s6 diferido). Capability
+    `ownership_enforced` + REQ-F-013 en s5 (de TRES a CUATRO gates) → **RTM default 17→18**. Sustrato `src/+seed/`
+    = 0 (todo `codegen/`+spec+`stations/s5.yml`+product.yml). Evidencia: `work/FSK-S14-DOMAIN-OWNERSHIP-INCREMENT.md`.
+  - **R2·{otras fábricas} + ejes superiores restantes** (reglas-de-negocio-LLM bajo gate · ABAC arbitrario por
+    atributos · endpoints de modificación VIVOS PUT/PATCH/DELETE · otras fábricas): 🔲 pendientes, un incremento
+    por fábrica/eje. El caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA (R1 coexistencia + R2 campos
+    arbitrarios + workflows + control de acceso por rol + ownership a nivel de fila).
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

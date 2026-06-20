@@ -60,6 +60,10 @@ ESBUILD_VERSION = "0.24.2"
 OTEL_VERSION = "1.45.0"
 OBS_PORT = 18593               # server HTTP vivo del producto. DATA, FUERA del rango efímero del SO (32768–60999)
 #                                para que un socket efímero del host no robe el puerto y haga flakear la gate.
+AC_PORT = 18594                # endpoints vivos / control de acceso a runtime (FSK-S15): el server CRUD del
+#                                producto. DATA, propio (≠ OBS_PORT) para no chocar con el server de obs (s9).
+AC_PG_PORT = 5436              # PostgreSQL viva del check access_control_live (s1=5434, s7 IT=5435). DATA propio.
+AC_PG_CONTAINER = "fsk_s9_ac_pg"  # nombre del contenedor PG del check (rm -f por nombre en bootstrap + down).
 BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # Build hermético reproducible (s10, DES-1): la imagen Docker pinea la base por DIGEST (no un tag flotante —
@@ -275,6 +279,32 @@ def _openapi_yaml(bp: dict) -> str:
             "      responses:",
             f"        '201': {{ description: created, content: {{ application/json: {{ schema: {{ $ref: {_yaml_str(ref)} }} }} }} }}",
         ]
+        # Endpoints VIVOS / ownership a runtime (FSK-S15, DES-3): una entidad con dueño gana una ruta de
+        # MODIFICACIÓN por id (put /<plural>/{id}) — donde ownership tiene sentido (modificar una fila
+        # EXISTENTE de un dueño). security + x-required-roles (= write_roles del POST): el server vivo cruza
+        # RBAC (rol) Y ownership (principal vs dueño de la fila) ANTES de ejecutar. route_check (topology/auth/
+        # rbac) la exige registrada en el RouteTable; sin owned_by no se emite (opt-in, FSK-S13 intacto).
+        if e.get("owned_by"):
+            lines += [
+                f"  /{plural}/{{id}}:",
+                "    put:",
+                f"      operationId: update{e['name']}",
+                "      security:",
+                "        - bearerAuth: []",
+            ]
+            if e.get("write_roles"):
+                lines.append(f"      x-required-roles: [{', '.join(e['write_roles'])}]")
+            lines += [
+                "      parameters:",
+                "        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }",
+                "      requestBody:",
+                "        required: true",
+                "        content:",
+                f"          application/json: {{ schema: {{ $ref: {_yaml_str(ref)} }} }}",
+                "      responses:",
+                f"        '200': {{ description: ok, content: {{ application/json: {{ schema: {{ $ref: {_yaml_str(ref)} }} }} }} }}",
+                "        '404': { description: not found }",
+            ]
     # securitySchemes: el esquema bearer que las ops de escritura referencian (DES-3). Los `get` quedan públicos.
     lines += [
         "components:",
@@ -800,6 +830,13 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             argblock = "".join(f"            {c},\n" for c in cols)
             body = f"        ctx.select(\n{argblock}        ){tail}"
         fns.append(f"    fun all{e['name']}s(ctx: DSLContext) =\n{body}")
+        # Ownership a RUNTIME (FSK-S15): para una entidad con dueño, el query TIPADO que carga el principal
+        # DUEÑO de UNA fila por id (el server vivo lo cruza contra el actor via OwnershipGuard). fetchOne →
+        # null si la fila no existe (404). Type-bound al schema (la columna dueño DEBE existir → DES-12).
+        if e.get("owned_by"):
+            oc = f"{tbl}.{_COL(e['owned_by'])}"
+            fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
+                       f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
     return (f"package {pkg}\n\n"
             f"import org.jooq.DSLContext\n{imports}\n\n"
             "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
@@ -1439,8 +1476,11 @@ def _role_enum_kt(pkg: str, roles: list[str]) -> str:
 
 def _role_guard_kt(pkg: str) -> str:
     """auth/RoleGuard.kt — autorización por ROL encima de la autenticación de AuthGuard (RBAC, FSK-S13, DES-3).
-    `authorize(token, required)` extrae el rol del token ("Bearer <rol>", mismo esquema estático/determinista
-    que AuthGuard — sin server vivo) y exige membresía en el set requerido por la operación. Opt-in: un set
+    `authorize(token, required)` extrae el rol del token y exige membresía en el set requerido por la operación.
+    El token es estático/determinista (sin server de identidad vivo): "Bearer <rol>" para RBAC, y, desde FSK-S15
+    (endpoints vivos), "Bearer <rol>:<principalId>" para ownership — `principalOf` extrae el `<principalId>` (el
+    actor que el OwnershipGuard cruza contra el dueño de la fila). `roleOf` IGNORA el sufijo `:<id>` (toma lo
+    previo al primer ':'), así que "Bearer <rol>" sigue funcionando idéntico (FSK-S13 intacto). Opt-in: un set
     requerido VACÍO → cae a AuthGuard (sólo autenticación, el comportamiento de FSK-S5). DETERMINISTA (sin LLM,
     I-3). Mismo paquete que Role/AuthGuard → sin imports; ≤2 returns por fun (detekt ReturnCount)."""
     return (f"package {pkg}.auth\n\n"
@@ -1448,13 +1488,21 @@ def _role_guard_kt(pkg: str) -> str:
             " * Autorizacion por ROL (RBAC, FSK-S13, DES-3) encima de la autenticacion de AuthGuard. Una\n"
             " * operacion declara que roles la pueden ejecutar; el guard extrae el rol del token y exige\n"
             " * membresia. Un set requerido VACIO cae a AuthGuard (solo autenticacion) -> FSK-S5 intacto.\n"
+            " * El token es estatico/determinista: \"Bearer <rol>\" (RBAC) o \"Bearer <rol>:<principalId>\"\n"
+            " * (ownership a runtime, FSK-S15); principalOf extrae el actor, roleOf ignora el sufijo :<id>.\n"
             " */\n"
             "object RoleGuard {\n"
             '    private const val SCHEME = "Bearer "\n\n'
             "    fun roleOf(token: String?): Role? {\n"
             "        if (token == null || !token.startsWith(SCHEME)) return null\n"
-            "        val raw = token.removePrefix(SCHEME).trim()\n"
+            "        val raw = token.removePrefix(SCHEME).trim().substringBefore(':')\n"
             "        return Role.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }\n"
+            "    }\n\n"
+            "    /** El principal del actor (FSK-S15): \"Bearer <rol>:<principalId>\". Sin :<id> -> null (RBAC no\n"
+            "     *  lo necesita; ownership si). Token estatico/determinista: sin IdP vivo (JWT real = diferido). */\n"
+            "    fun principalOf(token: String?): Long? {\n"
+            "        if (token == null || !token.startsWith(SCHEME)) return null\n"
+            '        return token.removePrefix(SCHEME).trim().substringAfter(\':\', "").toLongOrNull()\n'
             "    }\n\n"
             "    fun authorize(token: String?, required: Set<Role>): Boolean {\n"
             "        if (required.isEmpty()) return AuthGuard.authorize(token)\n"
@@ -1562,6 +1610,15 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
             posts_lines.append(f'        route("POST", "/{_table(e)}", {roleset})')
         else:
             posts_lines.append(f'        route("POST", "/{_table(e)}")')   # sin write_roles → emptySet → sólo auth
+        # Endpoints VIVOS / ownership a runtime (FSK-S15): la entidad con dueño registra su ruta de modificación
+        # por id DENTRO del guard (RBAC + ownership en el dispatch del server vivo) → route_check (topology/auth/
+        # rbac) la cruza contra put /<plural>/{id} del contrato. Mismo set de roles que el POST (x-required-roles).
+        if e.get("owned_by"):
+            if wr:
+                roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
+                posts_lines.append(f'        route("PUT", "/{_table(e)}/{{id}}", {roleset})')
+            else:
+                posts_lines.append(f'        route("PUT", "/{_table(e)}/{{id}}")')
     posts = "\n".join(posts_lines)
     return (f"package {pkg}.routes\n\n"
             f"import {pkg}.auth.Role\n"
@@ -2725,6 +2782,306 @@ if __name__ == "__main__":
 '''
 
 
+# ── endpoints VIVOS + control de acceso a RUNTIME (s9, DES-3, R2/FSK-S15): el server HTTP del producto monta
+#    las rutas del contrato para la entidad con dueño e INVOCA los guards generados (Auth→RBAC→ownership) +
+#    persiste/lee contra la PostgreSQL VIVA (Repository). Opt-in: sólo se emite si ≥1 entidad declara owned_by
+#    (compone sobre RBAC/ownership de s5). Transforma la trilogía de control de acceso de "probada por
+#    construcción" (s5 estático + s7 unit) a "enforzada a runtime" (un proof e2e de DOS+ lados, abajo). ────────
+def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None) -> str:
+    """INSERT jOOQ TIPADO que siembra una fila de `e` y captura su id generado (idiom DbRoundTrip). Para la
+    entidad con dueño, el campo `owner_field` se fija al `owner_var` capturado (el principal dueño); el resto
+    de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL."""
+    tbl = _TBL(e)
+    sets = []
+    for f in e["fields"]:
+        if not f.get("required", True):
+            continue
+        col = f"{tbl}.{_COL(f['name'])}"
+        if owner_field and f["name"] == owner_field:
+            sets.append(f"set({col}, {owner_var})")
+        elif f["type"] == "ref":
+            raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "
+                             f"{f['name']!r} (FSK-S15 siembra sólo el dueño + campos escalares)")
+        else:
+            sets.append(f"set({col}, {_sample(f, {})})")
+    calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
+    return _jooq_chain("    ", f"val {var} = ", f"ctx.insertInto({tbl})", calls)
+
+
+def _app_server_kt(pkg: str, bp: dict) -> str:
+    """endpoints/AppServer.kt — el server HTTP VIVO de control de acceso (FSK-S15, DES-3). com.sun.net.httpserver
+    (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
+    guards ANTES de ejecutar: POST → RoleGuard (RBAC) → 201/403; PUT /<plural>/{id} → RBAC + OwnershipGuard
+    (principal del token vs dueño de la fila cargado de la PG viva via Repository) → 200/403/404; GET (público) →
+    lista via Repository → 200. Persiste/lee contra PostgreSQL real (Flyway migra; seedRows inserta el dueño +
+    una fila suya); /seed expone (id, dueño) para que el proof e2e ejercite ownership con valores reales. Pasa
+    detekt (≤2 returns/fun, ≤160/línea, sin wildcard) + -Werror. mainClass = {pkg}.endpoints.AppServerKt
+    (corrido por `java -cp build/install/{pkg}/lib/*` del dist de installDist — proceso java plano, kill-eable)."""
+    ents = bp["entities"]
+    by = {e["name"]: e for e in ents}
+    owned = next(e for e in ents if e.get("owned_by"))
+    owner_field = owned["owned_by"]
+    owner_to = next(f for f in owned["fields"] if f["name"] == owner_field)["to"]
+    owner_ent = by[owner_to]
+    plural = "/" + _table(owned)
+    all_fn = f"all{owned['name']}s"
+    owner_fn = f"{owned['name'].lower()}OwnerId"
+    tbls = sorted({_TBL(owned), _TBL(owner_ent)})
+    imports = ([
+        "import com.sun.net.httpserver.HttpExchange",
+        "import com.sun.net.httpserver.HttpServer",
+        "import org.flywaydb.core.Flyway",
+        "import org.jooq.DSLContext",
+        "import org.jooq.SQLDialect",
+        "import org.jooq.conf.RenderQuotedNames",
+        "import org.jooq.conf.Settings",
+        "import org.jooq.impl.DSL",
+        f"import {pkg}.Repository",
+        f"import {pkg}.auth.OwnershipGuard",
+        f"import {pkg}.auth.OwnershipPolicy",
+        f"import {pkg}.auth.Role",
+        f"import {pkg}.auth.RoleGuard",
+    ] + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + [
+        f"import {pkg}.routes.appRoutes",
+        "import java.net.InetSocketAddress",
+        "import java.nio.charset.StandardCharsets",
+        "import java.sql.Connection",
+        "import java.sql.DriverManager",
+        "import java.sql.SQLException",
+    ] + _kt_type_imports([owned, owner_ent]))
+    seed_owner = _seed_chain("ownerId", owner_ent)
+    seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
+    return (_APP_SERVER_SKELETON
+            .replace("%IMPORTS%", "\n".join(imports))
+            .replace("%PKG%", pkg)
+            .replace("%PLURAL%", plural)
+            .replace("%AC_PORT%", str(AC_PORT))
+            .replace("%AC_PG_PORT%", str(AC_PG_PORT))
+            .replace("%OWNER_FN%", owner_fn)
+            .replace("%ALL_FN%", all_fn)
+            .replace("%SEED_OWNER%", seed_owner)
+            .replace("%SEED_OWNED%", seed_owned))
+
+
+_APP_SERVER_SKELETON = '''package %PKG%.endpoints
+
+%IMPORTS%
+
+private const val HTTP_OK = 200
+private const val HTTP_CREATED = 201
+private const val HTTP_FORBIDDEN = 403
+private const val HTTP_NOT_FOUND = 404
+private const val DEFAULT_PORT = %AC_PORT%
+private const val PG_RETRIES = 60
+private const val PG_RETRY_MS = 500L
+private const val PLURAL = "%PLURAL%"
+
+// Server HTTP VIVO de control de acceso a RUNTIME (FSK-S15, DES-3). Monta las rutas del contrato para la
+// entidad con dueño e INVOCA los guards generados (Auth->RBAC->ownership) ANTES de ejecutar, persistiendo/
+// leyendo contra una PostgreSQL VIVA via Repository. El veredicto de AUTORIZACION (403/200/201/404) es lo que
+// el proof e2e (tools/access_control_check.py) asevera; saboteado un guard, el 403 se vuelve 200 -> el proof
+// falla (no decorativo). Server stdlib del JDK (com.sun.net.httpserver, NO Ktor: divergencia ADR-012).
+
+private data class Seed(val ownedId: Long, val ownerId: Long)
+
+private fun respond(ex: HttpExchange, status: Int, body: String) {
+    val bytes = body.toByteArray(StandardCharsets.UTF_8)
+    ex.responseHeaders.add("Content-Type", "application/json")
+    ex.sendResponseHeaders(status, bytes.size.toLong())
+    ex.responseBody.use { it.write(bytes) }
+}
+
+// Espera a que la PostgreSQL viva acepte conexiones (el contenedor arranca en background, MAT-3): reintenta
+// hasta PG_RETRIES. La unica salida es una conexion abierta o, agotados los intentos, la excepcion (throw e).
+private fun connect(url: String, user: String, pass: String): Connection {
+    var attempt = 0
+    while (true) {
+        try {
+            return DriverManager.getConnection(url, user, pass)
+        } catch (e: SQLException) {
+            attempt += 1
+            if (attempt >= PG_RETRIES) throw e
+            Thread.sleep(PG_RETRY_MS)
+        }
+    }
+}
+
+// Siembra el principal DUENO + una fila suya en la PG viva (persistencia real via Repository/jOOQ). Devuelve
+// los ids generados para que /seed los exponga: el proof ejercita ownership con el dueno REAL de la fila.
+private fun seedRows(ctx: DSLContext): Seed {
+%SEED_OWNER%
+%SEED_OWNED%
+    return Seed(ownedId, ownerId)
+}
+
+private fun seedJson(seed: Seed): String =
+    """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId}}"""
+
+// El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
+// fuente que route_check.py cruza contra x-required-roles del contrato: single-source DES-6).
+private fun writeRoles(): Set<Role> =
+    appRoutes().routes.first { it.method == "POST" && it.path == PLURAL }.roles
+
+private fun statusForPost(token: String?): Int =
+    if (RoleGuard.authorize(token, writeRoles())) HTTP_CREATED else HTTP_FORBIDDEN
+
+// PUT /<plural>/{id}: RBAC (rol) Y ownership (el principal del token == el dueno de la fila, o un rol de
+// bypass). Carga el dueno de la PG VIVA (Repository); fila inexistente -> 404. El veredicto es el diente.
+private fun statusForPut(ctx: DSLContext, token: String?, id: Long): Int {
+    val authorized = RoleGuard.authorize(token, writeRoles())
+    val ownerId = if (authorized) Repository.%OWNER_FN%(ctx, id) else null
+    val role = RoleGuard.roleOf(token)
+    val principal = RoleGuard.principalOf(token)
+    return when {
+        !authorized -> HTTP_FORBIDDEN
+        ownerId == null -> HTTP_NOT_FOUND
+        role != null && principal != null && OwnershipGuard.canModify(role, principal, ownerId, OwnershipPolicy.bypass) -> HTTP_OK
+        else -> HTTP_FORBIDDEN
+    }
+}
+
+private fun handle(ctx: DSLContext, ex: HttpExchange) {
+    val token = ex.requestHeaders.getFirst("Authorization")
+    val rest = ex.requestURI.path.removePrefix(PLURAL).trim('/')
+    val id = rest.toLongOrNull()
+    val collection = rest.isEmpty()
+    val status = when {
+        ex.requestMethod == "GET" && collection -> HTTP_OK
+        ex.requestMethod == "POST" && collection -> statusForPost(token)
+        ex.requestMethod == "PUT" && id != null -> statusForPut(ctx, token, id)
+        else -> HTTP_NOT_FOUND
+    }
+    val body = if (ex.requestMethod == "GET" && collection) {
+        """{"count":${Repository.%ALL_FN%(ctx).size}}"""
+    } else {
+        """{"status":$status}"""
+    }
+    respond(ex, status, body)
+}
+
+fun main() {
+    val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:%AC_PG_PORT%/postgres"
+    val user = System.getenv("FSK_PG_USER") ?: "postgres"
+    val pass = System.getenv("FSK_PG_PASSWORD") ?: "metafactory"
+    val settings = Settings().withRenderQuotedNames(RenderQuotedNames.NEVER)
+    connect(url, user, pass).close()
+    val flyway = Flyway.configure().dataSource(url, user, pass).cleanDisabled(false).load()
+    flyway.clean()
+    flyway.migrate()
+    val ctx = DSL.using(DriverManager.getConnection(url, user, pass), SQLDialect.POSTGRES, settings)
+    val seed = seedRows(ctx)
+    val port = (System.getenv("FSK_AC_PORT") ?: DEFAULT_PORT.toString()).toInt()
+    val server = HttpServer.create(InetSocketAddress(port), 0)
+    server.createContext("/health") { ex -> respond(ex, HTTP_OK, """{"status":"UP"}""") }
+    server.createContext("/seed") { ex -> respond(ex, HTTP_OK, seedJson(seed)) }
+    server.createContext(PLURAL) { ex -> handle(ctx, ex) }
+    server.start()
+    println("FSK_AC_LISTENING $port")
+}
+'''
+
+
+def _access_control_check_py(bp: dict) -> str:
+    """tools/access_control_check.py — el proof e2e de control de acceso a RUNTIME (FSK-S15), parte de la
+    verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import metafactory`, sin
+    deps) → corre con env scrubbeado, como obs_check.py. Hace requests HTTP REALES al server vivo y asevera el
+    veredicto de AUTORIZACION de DOS+ lados: POST con rol prohibido → 403 / permitido → 201; PUT de una fila
+    ajena por un no-dueño no-privilegiado → 403 / por el dueño → 200 / por un rol de bypass → 200. Server caído
+    → URLError → exit 1 (diente nativo de infra_up). Los roles/principal son DATA del blueprint (per-producto)."""
+    owned = next(e for e in bp["entities"] if e.get("owned_by"))
+    plural = "/" + _table(owned)
+    write_roles = owned["write_roles"]
+    bypass = bp.get("owner_bypass_roles") or []
+    non_bypass = [r for r in write_roles if r not in bypass] or write_roles
+    owner_role = non_bypass[0]
+    forbidden = next((r for r in bp["roles"] if r not in write_roles), "nobody")
+    bypass_role = bypass[0] if bypass else ""
+    return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%PLURAL%", plural)
+            .replace("%ALLOWED%", owner_role)
+            .replace("%FORBIDDEN%", forbidden)
+            .replace("%OWNER%", owner_role)
+            .replace("%BYPASS%", bypass_role))
+
+
+_ACCESS_CONTROL_CHECK_SKELETON = r'''#!/usr/bin/env python3
+"""access_control_check.py - proof e2e de control de acceso a RUNTIME (FSK-S15, DES-3). Hace requests HTTP
+REALES al server vivo (com.sun.net.httpserver) y asevera el VEREDICTO de autorizacion de DOS+ lados:
+  - POST /<plural> con un rol PROHIBIDO -> 403 ; con un rol PERMITIDO -> 201 (RBAC en runtime).
+  - PUT /<plural>/{id} de una fila AJENA por un no-dueno no-privilegiado -> 403 ; por el DUENO -> 200 ;
+    por un rol de BYPASS -> 200 (ownership en runtime; el dueno real se lee de /seed).
+DETERMINISTA, stdlib, sin red externa. Saboteado un guard (autorizar todo) el 403 se vuelve 200 -> falla (no
+decorativo). Server caido -> URLError -> exit 1 (diente nativo de infra_up). Los roles/principal son DATA del
+blueprint (per-producto). Uso: access_control_check.py <base_url>"""
+from __future__ import annotations
+
+import json
+import sys
+import urllib.error
+import urllib.request
+
+PLURAL = "%PLURAL%"
+ALLOWED_ROLE = "%ALLOWED%"
+FORBIDDEN_ROLE = "%FORBIDDEN%"
+OWNER_ROLE = "%OWNER%"
+BYPASS_ROLE = "%BYPASS%"
+
+
+def _req(base: str, method: str, path: str, token: str | None) -> int:
+    headers = {"Authorization": token} if token else {}
+    req = urllib.request.Request(base + path, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=3) as r:
+            return r.status
+    except urllib.error.HTTPError as exc:
+        return exc.code
+
+
+def _body(base: str, path: str) -> str:
+    with urllib.request.urlopen(urllib.request.Request(base + path), timeout=3) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def _expect(actual: int, want: int, label: str) -> bool:
+    if actual != want:
+        print(f"access-control: {label}: esperaba {want}, obtuvo {actual}", file=sys.stderr)
+        return False
+    print(f"access-control OK: {label} -> {actual}")
+    return True
+
+
+def main(argv: list) -> int:
+    if len(argv) != 1:
+        print("usage: access_control_check.py <base_url>", file=sys.stderr)
+        return 2
+    base = argv[0]
+    try:
+        ok = _expect(_req(base, "GET", "/health", None), 200, "health")
+        ok &= _expect(_req(base, "GET", PLURAL, None), 200, "list (publica)")
+        ok &= _expect(_req(base, "POST", PLURAL, f"Bearer {FORBIDDEN_ROLE}:1"), 403,
+                      f"POST rol PROHIBIDO ({FORBIDDEN_ROLE})")
+        ok &= _expect(_req(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:1"), 201,
+                      f"POST rol permitido ({ALLOWED_ROLE})")
+        seed = json.loads(_body(base, "/seed"))
+        rid, owner = seed["id"], seed["owner"]
+        ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner + 1}"), 403,
+                      f"PUT fila AJENA por no-dueno ({OWNER_ROLE}:{owner + 1})")
+        ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner}"), 200,
+                      f"PUT por el DUENO ({OWNER_ROLE}:{owner})")
+        if BYPASS_ROLE:
+            ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {BYPASS_ROLE}:{owner + 1}"), 200,
+                          f"PUT por rol de BYPASS ({BYPASS_ROLE})")
+    except (urllib.error.URLError, OSError) as exc:
+        print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+'''
+
+
 def _ci_sh() -> str:
     """ci.sh — la MINI-COLUMNA del producto (s10, DES-1/SAFE-3): el producto re-corre SUS gates ESTÁTICOS/
     offline por su cuenta ("hereda probar por bloqueo"), hermético (--offline) y determinista (sin red, sin
@@ -2981,6 +3338,15 @@ def build_files(bp: dict) -> dict[str, str]:
         files[f"{pkgdir}/auth/OwnershipPolicy.kt"] = _ownership_policy_kt(pkg, owned, bp.get("owner_bypass_roles") or [])
         files["probe/routes/wrong_owner.kt"] = _probe_wrong_owner(bp)
         files[f"src/test/kotlin/{pkg}/auth/OwnershipGuardTest.kt"] = _test_ownership_guard_kt(pkg, bp)
+        # endpoints VIVOS + control de acceso a RUNTIME (s9, DES-3, R2/FSK-S15): el server HTTP del producto
+        # monta GET/POST/PUT de la entidad con dueño e INVOCA los guards (Auth→RBAC→ownership) + persiste/lee
+        # contra la PG VIVA (Repository) → la trilogía de control de acceso pasa de estática/unit a runtime. El
+        # proof e2e (urllib) lo asevera de DOS+ lados (403 por rol / 403 por dueño / 200 dueño / 200 bypass). El
+        # server vive en src/main/kotlin (lo compila s0/s1, lo lintea detekt); el check `access_control_live`
+        # (s9, infra_up) lo levanta por `java -cp` del dist (installDist) contra la PG viva. Opt-in: sólo con
+        # owned_by (compone sobre ownership/RBAC). El sustrato no nombra tech: todo `codegen/`+spec (ADR-012).
+        files[f"{pkgdir}/endpoints/AppServer.kt"] = _app_server_kt(pkg, bp)
+        files["tools/access_control_check.py"] = _access_control_check_py(bp)
     return files
 
 

@@ -211,6 +211,13 @@ domain:
       artifact: build/product/src/main/kotlin/webapp/observability/ObsServer.kt
       proof: "s9 observability_live (infra_up): levanta el server HTTP del producto; el proof hace /health+/ready+una request instrumentada y exige que el span OTel y el log estructurado emitidos lleven el correlation-id; server caído → rojo (diente nativo); quitar la instrumentación → el cid no aparece → rojo"
       status: built
+    - id: control_acceso_runtime
+      invariant: "el control de acceso se ENFORZA a RUNTIME: un server HTTP vivo monta las rutas del contrato para la entidad con dueño e INVOCA los guards generados (auth → RBAC → ownership) + persiste/lee contra la PostgreSQL viva (Repository); ninguna request real saltea el control"
+      primitive: DES-3
+      tech: "server HTTP vivo del JDK (com.sun.net.httpserver, stdlib — NO Ktor, divergencia ADR-012) que monta GET/POST/PUT de la entidad con dueño e invoca RoleGuard (RBAC) + OwnershipGuard (principal del token vs dueño de la fila cargado de la PG viva via Repository) ANTES de ejecutar; verificado e2e por un proof client urllib (requests reales) que asevera el veredicto de autorización de DOS+ lados. JWT/identidad real + frontend que consume (React) + e2e Playwright = declared-deferred (token estático Bearer <rol>:<principal>)"
+      artifact: build/product/src/main/kotlin/webapp/endpoints/AppServer.kt
+      proof: "s9 access_control_live (infra_up): levanta la PostgreSQL viva + el server HTTP del producto; el proof client hace requests REALES y exige POST rol prohibido → 403 / permitido → 201 · PUT fila ajena por no-dueño → 403 / por dueño → 200 / por rol de bypass → 200; saboteá un guard → el 403 se vuelve 200 → rojo; server caído → rojo (diente nativo de infra_up)"
+      status: built
     - id: build_hermetico_reproducible
       invariant: "el build es hermético y reproducible: toolchain pineado; el artefacto compilado sale byte-idéntico entre builds limpios offline; el producto shippea su propia mini-columna (CI que re-corre los gates)"
       primitive: DES-1
@@ -652,8 +659,19 @@ domain:
       # previas nominaron Ktor; se entrega el motor OTel REAL + un server HTTP vivo del JDK (mínima superficie).
       # El server Ktor COMPLETO + e2e (Playwright, s7) + Lighthouse (s8) quedan declared-deferred, su propio
       # incremento sobre este primer server vivo (mismo shape que Ktor→estático de s5 y Lighthouse→esbuild de s8).
+      # R2/FSK-S15 — endpoints VIVOS + control de acceso a RUNTIME (DES-3): un 2º check infra_up en s9 compone
+      # el server HTTP del producto (AppServer.kt, com.sun.net.httpserver) con una PostgreSQL VIVA (5º servicio
+      # por infra_up, idiom MAT-3: bootstrap levanta el contenedor PG detached + installDist; `up` corre el
+      # server por `java -cp` del dist — proceso java plano, kill-eable por grupo). El server monta GET/POST/PUT
+      # de la entidad con dueño e INVOCA los guards generados (Auth→RBAC→ownership) + Repository contra la PG
+      # viva; el proof client (urllib) asevera el veredicto de autorización de DOS+ lados (403 por rol / 403 por
+      # dueño / 200 dueño / 200 bypass). Diente nativo de infra_up: server caído → el proof no conecta → rojo;
+      # diente de control: saboteado un guard, el 403 se vuelve 200 → el proof falla. Transforma la trilogía de
+      # control de acceso (s5 estático + s7 unit) en "enforzada a runtime". Opt-in: sólo con owned_by (el codegen
+      # no emite AppServer si no hay dueño). Sustrato intacto: infra_up corre DATA (ADR-012), git diff src/+seed=0.
       proof_checks:
         - { name: observability_live, cmd: "infra_up levanta el server HTTP del producto; obs_check.py hace /health+/ready+una request con X-Correlation-Id y exige que el span OTel y el log estructurado emitidos lleven el cid; server caído → rojo (diente nativo); quitar la instrumentación → cid ausente → rojo", runs_in: product_env, toolchain: "kotlin-otel-httpserver", status: built }
+        - { name: access_control_live, cmd: "infra_up levanta la PostgreSQL viva + el server HTTP del producto (AppServer); access_control_check.py hace requests REALES y exige POST rol prohibido→403 / permitido→201, PUT fila ajena por no-dueño→403 / por dueño→200 / por bypass→200; saboteá un guard → 403 se vuelve 200 → rojo; server caído → rojo (diente nativo)", runs_in: product_env, toolchain: "kotlin-httpserver-pg", status: built }
       builds: []
       checks:
         - name: observability_live
@@ -663,6 +681,14 @@ domain:
           up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp"]
           proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:18593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
           down: []
+          timeout: 120
+        - name: access_control_live
+          kind: infra_up
+          workdir: build/product
+          bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_ac_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_ac_pg -e POSTGRES_PASSWORD=metafactory -p 5436:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); exec \"$JAVA_HOME/bin/java\" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt"]
+          proof: ["python3", "tools/access_control_check.py", "http://127.0.0.1:18594"]
+          down: ["docker", "rm", "-f", "fsk_s9_ac_pg"]
           timeout: 120
     - id: s10
       name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
@@ -863,6 +889,12 @@ requirements:
       satisfied_by: [s5]
       verified_by: [ownership_enforced]
       capability: ownership_enforced
+    - id: REQ-F-014
+      statement: "el control de acceso se ENFORZA a RUNTIME: un server HTTP vivo monta las rutas del contrato para la entidad con dueño e INVOCA los guards generados (auth → RBAC → ownership) + persiste/lee contra la PostgreSQL viva (Repository); ninguna request real saltea el control (endpoints vivos, DES-3, R2/FSK-S15)"
+      acceptance: "access_control_live verde (infra_up: PG viva + server vivo): el proof client hace requests REALES y exige POST rol prohibido → 403 / permitido → 201 · PUT fila ajena por no-dueño → 403 / por dueño → 200 / por rol de bypass → 200; saboteá un guard (autorizar todo) → el 403 se vuelve 200 → el proof falla; server caído → el proof no conecta → rojo (diente nativo de infra_up). JWT/identidad real + frontend que consume (React) + e2e Playwright = declared-deferred (token estático Bearer <rol>:<principal>). Opt-in: sin owned_by no se emite el server (FSK-S14 intacto)"
+      satisfied_by: [s9]
+      verified_by: [access_control_live]
+      capability: control_acceso_runtime
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"

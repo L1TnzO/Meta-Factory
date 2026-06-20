@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d584119aaa69eac4f104892967b3013ff42095bb updated=2026-06-20T18:57Z -->
+<!-- meta:doc sha=02fc70cb55162a6ed8982710c6fba82c87601ed8 updated=2026-06-20T20:05Z -->
 # Incremento P1-SNIPE-IT-PRODUCT — el PRIMER PRODUCTO real
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T18:50Z). Cerralo con `meta increment close`
@@ -74,17 +74,25 @@ un clon del repo para mapear, en paralelo, las distintas caras del dominio y dev
   ownership-a-nivel-de-fila que FSK-S14/S15 enforza: un manager toca SUS activos, admin todos.
 
 **Producto de la investigación:** un `products/snipeit/product.yml` FIEL (entidades reales, campos reales,
-refs reales, roles/workflow/ownership reales) + un breve `docs/reference/SNIPEIT-DOMAIN.md` que justifique las
-decisiones de mapeo (qué se incluyó, qué se simplificó/difirió y POR QUÉ — honestidad, no over-claim).
+refs reales, roles/workflow/ownership reales) + un `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md`
+que justifique las decisiones de mapeo (qué se incluyó, qué se simplificó/difirió y POR QUÉ — honestidad, no
+over-claim). **Ambos viven DENTRO de FSK** (no en la raíz Meta-Factory): el producto es de la fábrica.
 
-## 3. Cómo instanciar y correr (R1 lifecycle, mecánica YA probada)
-1. `meta product new --factory full-stack-kotlin --product snipeit` → crea `products/snipeit/product.yml`
-   (editalo con el dominio derivado). `meta = PYTHONPATH=src python3 -m metafactory.cli`.
+## 3. Cómo instanciar y correr (R1 lifecycle) — mecánica REAL (corregida 2026-06-20)
+> `meta = PYTHONPATH=src python3 -m metafactory.cli`. **Ojo**: `meta product new` corre la LÍNEA COMPLETA
+> (gradle + pin), no es un scaffold liviano. Para SÓLO el spec (sin gradle), ver la validación barata abajo.
+1. `meta product new --factory full-stack-kotlin --name snipeit <blueprint.yml>` → copia el blueprint a
+   `products/snipeit/product.yml` y **corre product-run + pin**. (La firma es `--name` + un blueprint
+   posicional, NO `--product`.) Para esta sesión NO se corrió (es generación, próxima sesión).
 2. `meta product-run --factory full-stack-kotlin --product snipeit` → re-materializa la instancia + corre la
-   línea s0–s10. Iterá hasta verde (el blueprint fail-closed te va a gritar lo malformado en M0/s0).
+   línea s0–s10 (FOREGROUND, `dangerouslyDisableSandbox`, por-producto). Iterá hasta verde.
 3. `meta rtm --product snipeit` (COMPLETE o deferrals visibles) → `meta pin --product snipeit` → `meta ci
    --rederive --product snipeit` (== pin en clon limpio).
 4. Co-validación ADR-014 ya la dan los productos existentes (demo + assets); el de Snipe-IT es el 3ro.
+5. **Validación barata SIN gradle** (la usada en esta sesión para PROBAR el spec): materializar el spec
+   efectivo (`ensure_product_instance`) + `METAFACTORY_ROOT=products/snipeit scaffold_product.py --selftest`
+   (parsea el blueprint + corre TODO el codegen en memoria: dientes fail-closed + restricción de seed) y
+   `--check-idempotent`. Verde = el spec genera un árbol consistente; el compile gradle es la próxima sesión.
 
 ## 4. Los huecos que el producto VA a forzar (honesto, de FSK-S15 §7) — arreglalos como fábrica GENERAL
 Driven por el producto, NO especulados. Cada uno probablemente su propio sub-incremento, contenido de fábrica
@@ -106,8 +114,8 @@ Driven por el producto, NO especulados. Cada uno probablemente su propio sub-inc
 ## 5. Fases (plan; el orquestador las refina) — NO hervir el océano en un incremento
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Investigación + blueprint fiel.** Fan-out de agentes sobre el repo Snipe-IT → dominio estructurado → `products/snipeit/product.yml` + `docs/reference/SNIPEIT-DOMAIN.md` (decisiones de mapeo, honestas). | ⏳ |
-| 2 | **Slice vertical core a verde.** Entidades núcleo (Asset/AssetModel/Category/Manufacturer/Location/User/StatusLabel + workflow del activo + checkout-ownership + roles) por la línea FSK → product-run PASS · RTM (COMPLETE o deferrals visibles) · ci --rederive == pin. | ⏳ |
+| 1 | **Investigación + blueprint fiel.** Fan-out de 7 agentes sobre el repo (grokability v8.6.3) → dominio estructurado → `products/snipeit/product.yml` (19 entidades) + `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` (decisiones de mapeo + 12 deferrals honestos). Validado por bloqueo: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs. | ✅ (2026-06-20) |
+| 2 | **Slice vertical core a verde.** Entidades núcleo (Asset/AssetModel/Category/Manufacturer/Location/User/StatusLabel + workflow del activo + checkout-ownership + roles) por la línea FSK → product-run PASS · RTM (COMPLETE o deferrals visibles) · ci --rederive == pin. | ⏳ (próxima sesión: gradle) |
 | 3 | **Huecos que el slice exponga** (§4: probablemente CRUD-mutación primero) como fábrica GENERAL — un sub-incremento por hueco, `git diff src/+seed=0`. | ⏳ |
 | 4 | **Breadth** (License/Accessory/Consumable/Component/Audit/Depreciation…) + frontend vivo + deploy, en incrementos sucesivos. | ⏳ |
 | 5 | **Cierre del slice.** STATE/ROADMAP/LOG + evidencia (RTM, pin, ci --rederive, anti-overfit). | ⏳ |

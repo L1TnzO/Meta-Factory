@@ -1,4 +1,4 @@
-<!-- meta:doc sha=831b70bac1117fa3aa761b5fdc06bf0a465ecff7 updated=2026-06-20T18:46Z -->
+<!-- meta:doc sha=8c2a26a95b9356a6354af53a4def4abbe30717e5 updated=2026-06-20T20:08Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: P1-SNIPE-IT-PRODUCT-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (19/19) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -101,7 +101,16 @@
     completo + DELETE/PATCH) + R2 en otras fábricas, un incremento por fábrica/eje (ADR-012). El caso "clonar
     Snipe-IT" ya tiene PISO+CICLO-DE-VIDA + APP-QUE-CORRE (R1 coexistencia + R2 campos arbitrarios + workflows +
     control de acceso por rol + ownership a nivel de fila + **endpoints vivos enforzados a runtime**).
-    **Decisión abierta (relevo FSK-S16)**: ¿más R2·FSK, o ya construir el PRIMER PRODUCTO real? `work/ROADMAP.md §Fase R`.
+    **Decisión TOMADA (2026-06-20)**: FSK madura → construir el PRIMER PRODUCTO real (Snipe-IT), incremento `P1`.
+  - **P1·Snipe-IT — Fase 1 (spec) ✅ (2026-06-20)**: réplica del dominio real de Snipe-IT (grokability v8.6.3,
+    investigado por fan-out de 7 agentes) cosechada a un blueprint FSK FIEL: `products/snipeit/product.yml` (**19
+    entidades** en orden topológico — reference/Asset+workflow/User-owner/licencias+seats/accesorios/consumibles/
+    componentes/mantenimientos; RBAC 4-roles superadmin/admin/manager/auditor; ownership `Asset.owned_by`;
+    pivots M:N → entidades) + `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` (dominio + mapeo +
+    **12 deferrals honestos**: custom-fields dinámicos, checkout polimórfico, RTD/owner-opcional, self-ref,
+    depreciación calculada, company-scoping, … cada uno = hueco de fábrica para un incremento GENERAL). Validado
+    POR BLOQUEO sin gradle: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs. La
+    GENERACIÓN (línea s0–s10 por gradle, slice core→breadth) es la próxima sesión (P1 Fase 2). `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

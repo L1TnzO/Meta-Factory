@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `63ab83cbb91b` | 2026-06-20T18:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `831b70bac111` | 2026-06-20T18:46Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `66ec440d8cf2` | 2026-06-20T20:08Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `8c2a26a95b93` | 2026-06-20T20:08Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -86,7 +86,7 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/P1-SNIPE-IT-PRODUCT-INCREMENT.md` | `d584119aaa69` | 2026-06-20T18:57Z | Incremento P1-SNIPE-IT-PRODUCT — el PRIMER PRODUCTO real |
+| `docs/work/P1-SNIPE-IT-PRODUCT-INCREMENT.md` | `02fc70cb5516` | 2026-06-20T20:05Z | Incremento P1-SNIPE-IT-PRODUCT — el PRIMER PRODUCTO real |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/ROADMAP.md` | `02140d37ebef` | 2026-06-20T18:45Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

@@ -1,0 +1,218 @@
+# Snipe-IT — dominio cosechado y mapeo a la gramática FSK
+
+> tipo: reference · estable · justifica el blueprint `products/snipeit/product.yml`.
+> **Fuente**: github.com/grokability/snipe-it, **v8.6.3** (Laravel/PHP), clon investigado 2026-06-20.
+> **Método**: fan-out de 7 sub-agentes sobre el repo real (migraciones · modelos Eloquent · permisos ·
+> workflows · reglas/validaciones · rutas · vistas). El raw de la investigación (≈6.4k líneas) vive en el
+> clon (`_research/01..07.md`), re-derivable; ESTE doc es la destilación autoritativa.
+
+Snipe-IT es PHP/Laravel; FSK genera Kotlin/TS/PostgreSQL. **No se porta el código: se cosecha el DOMINIO**
+(modelo de datos + reglas) y se expresa en la gramática del blueprint FSK. Este doc registra (1) el dominio
+real, (2) qué entró al blueprint y cómo, y (3) las decisiones de mapeo — inclusiones y **deferrals honestos**
+(infidelidades deliberadas + huecos de fábrica) — para no over-claim. La honestidad sobre la fidelidad es la
+regla (P1 §6): si algo se simplificó o difirió, está acá con su POR QUÉ.
+
+---
+
+## 1. El dominio real (resumen autoritativo)
+
+Snipe-IT es gestión de activos de TI de grado-producción: **41 modelos**, **446 migraciones**, **~226
+endpoints API**, **30 Form Requests** de validación, **22 Policies**. Núcleo:
+
+### Entidades y la topología de referencias (el grafo)
+- **Asset** (activo) — la entidad central. `belongsTo` AssetModel (`model_id`), StatusLabel (`status_id`),
+  Location (`location_id` efectiva + `rtd_location_id` "ready to deploy"), Company, Supplier. Vía el modelo
+  alcanza Manufacturer/Category/Depreciation (`hasOneThrough` AssetModel). **Checkout polimórfico**:
+  `assigned_to`/`assigned_type` → {User | Location | Asset}. `belongsToMany` License (pivot `license_seats`)
+  y Component (pivot `components_assets`). `hasMany` Maintenance, Actionlog.
+- **AssetModel** (`models`) — plantilla make/model. `belongsTo` Category, Manufacturer, Depreciation,
+  CustomFieldset (`fieldset_id`); `belongsToMany` CustomField (defaults por modelo).
+- **Reference/lookup**: Category (con `category_type` ∈ asset/accessory/consumable/component/license),
+  Manufacturer, Supplier, Location (jerarquía self `parent_id` + `manager_id`→User), Company (multi-tenancy),
+  Depreciation (esquema lineal: `months` + piso), StatusLabel (etiquetas con tipo deployable/pending/
+  archived/undeployable), Department.
+- **User** — `belongsTo` Company/Location/Department/manager(self). `belongsToMany` Group (permisos),
+  Company (pivot FMCS `company_user`). Recibe checkouts polimórficos de Asset/Accessory; tiene seats de
+  License, asignaciones de Consumable.
+- **Consumibles de checkout** (4 tipos, cada uno distinto):
+  - **License** → **LicenseSeat** (un row por asiento; se asigna a User O a Asset; finito = `seats`).
+  - **Accessory** (qty) → **AccessoryCheckout** (pivot polimórfico User|Location|Asset; con checkin).
+  - **Consumable** (qty) → **ConsumableAssignment** (`consumables_users`; consumo PERMANENTE, sin checkin).
+  - **Component** (qty) → **ComponentAssignment** (`components_assets`, con `assigned_qty`; a Assets; checkin
+    parcial reduce qty).
+- **Maintenance** (`maintenances`) — registros por activo (8 tipos: maintenance/repair/upgrade/PAT test/
+  calibration/sw-support/hw-support/config-change; `is_warranty`, `start_date`, `completion_date`, `cost`).
+- **Soporte**: CustomField/CustomFieldset (campos dinámicos), Actionlog (auditoría polimórfica), Group
+  (permisos), CheckoutRequest (solicitudes), CheckoutAcceptance (firma/EULA), Kit (bundles), Depreciation.
+
+### El workflow del activo (la máquina de estado real)
+El estado efectivo NO es un enum plano: es **(StatusLabel.type) × (asignación)**. Los 4 tipos de etiqueta:
+`deployable`, `pending`, `archived`, `undeployable`. De ahí:
+- **RTD** (Ready-To-Deploy): label deployable + sin asignar.
+- **Deployed**: label deployable + `assigned_to` no nulo.
+- **Pending**: label pending. **Archived**: flag archived (no checkout-eable). **Undeployable** (broken/lost).
+Transiciones: checkout (RTD→Deployed), checkin (Deployed→RTD, resetea location a `rtd_location_id`), cambio de
+etiqueta (guard: no poner una etiqueta no-deployable/no-pending a un activo asignado → auto-checkin).
+
+### Autorización (el modelo real)
+**No hay roles fijos.** Hay **Grupos** con un blob JSON de permisos granulares **tri-state** (1=grant,
+−1=deny, 0/ausente=inherit) + overrides por usuario + dos superflags (`is_superuser`, `admin`) + permisos
+**self.*** de auto-servicio. ~20 categorías de permiso (assets, accessories, consumables, licenses,
+components, kits, users, models, categories, departments, statuslabels, customfields, suppliers,
+manufacturers, depreciations, locations, companies, reports, import, superuser). **Verbos más allá de CRUD**:
+`checkout`, `checkin`, `audit` (assets), `keys` (licenses), `files` (adjuntos), `view.requestable`,
+`view.encrypted_custom_fields`. Resolución: superuser → grant usuario → deny usuario → grant grupo → deny por
+defecto. **Multi-tenancy (FMCS)**: scoping por `company_id` cuando `full_multiple_companies_support` está on.
+
+### Reglas de negocio clave (más allá de validación de campos)
+- **Guards de borrado** (casi toda entidad): no se borra si tiene asociados. License: todos los seats libres.
+  User: cero assets/licenses/accessories/managed. Location/Company/Manufacturer: cero referencias. No borrarse
+  a sí mismo.
+- **Precondición de checkout (asset)**: `assigned_to` nulo Y `status.deployable=1` Y `archived=0`; no a sí
+  mismo. **License**: asientos libres ≥1 Y no expirada/terminada. **Cantidades**: no checkout de más
+  consumibles/seats que los disponibles; qty de accessory no editable por debajo de lo prestado.
+- **Validaciones** (Form Requests + `$rules` en modelos): `asset_tag` required+unique-undeleted; `serial`
+  unique condicional (setting); `purchase_cost` numeric gte:0; `model_id`/`status_id` required (asset);
+  `category.name` unique por `category_type`; `manufacturer.name` unique; email/url con formato.
+
+### Pantallas (arquetipos)
+Navegación: Dashboard → Assets (con sub-filtros de estado) → Licenses → Accessories → Consumables →
+Components → Kits → People → Import → Settings (Custom Fields/Status Labels/Models/Categories/.../Depreciation)
+→ Reports. Arquetipos: **lista** (Bootstrap-Table API-driven, columnas + filtros + bulk + acciones por fila),
+**detalle de 2 columnas** (tabs: detalles/historial/licencias/componentes/files/maintenances/audits — el de
+Asset tiene 11 tabs), **formulario CRUD** (con la sección dinámica de custom-fields que aparece al elegir el
+modelo, y el selector de estado que muestra/oculta el destino de checkout según deployable).
+
+---
+
+## 2. Qué entró al blueprint (el mapeo)
+
+`products/snipeit/product.yml` declara **19 entidades** en orden topológico, en la gramática FSK
+(`string/boolean/int/number/date/ref/enum` + `required`/`unique` · workflow `enum`+`initial`+`transitions` ·
+RBAC `roles`+`write_roles` · ownership `owned_by`+`owner_bypass_roles`). Validado por bloqueo:
+`scaffold --selftest` (19 entidades → 66 archivos) + `--check-idempotent` (byte-idéntico) + 0 forward-refs en
+la migración.
+
+| # | Entidad | Notas de mapeo |
+|---|---------|----------------|
+| 1 | Company | multi-tenancy → ref opcional (scoping NO enforzado, ver §3) |
+| 2 | Manufacturer | `name` unique |
+| 3 | Supplier | |
+| 4 | Depreciation | `months`+`depreciation_min`+`depreciation_type`(enum amount/percentage); CÁLCULO diferido |
+| 5 | Category | `category_type` enum cerrado (5 valores) |
+| 6 | Location | jerarquía `parent_id` (self) + `manager_id` DIFERIDOS (ver §3) |
+| 7 | Department | `manager_id` DIFERIDO (ciclo) |
+| 8 | User | el **dueño** (principal de ownership); SIN refs requeridos (restricción de seed) |
+| 9 | AssetModel | `category_id` requerido (faithful) |
+| 10 | **Asset** | **workflow** (`status`) + **ownership** (`owned_by: assigned_user_id`) |
+| 11 | License | `seats` (int); con asientos |
+| 12 | LicenseSeat | pivot `license_seats` como entidad (a User O Asset) |
+| 13 | Accessory | qty |
+| 14 | AccessoryCheckout | pivot; target polimórfico → simplificado a User |
+| 15 | Consumable | qty |
+| 16 | ConsumableAssignment | pivot; consumo permanente |
+| 17 | Component | qty |
+| 18 | ComponentAssignment | pivot `components_assets` con `assigned_qty` |
+| 19 | Maintenance | `maintenance_type` enum (8 tipos) |
+
+**RBAC** → 4 roles fijos que aproximan el sistema granular: `superadmin` (is_superuser), `admin` (admin flag),
+`manager` (entidades operativas, sólo las suyas vía ownership), `auditor` (read-only — en ningún
+`write_roles`). `owner_bypass_roles: [superadmin, admin]`. Reference data + usuarios: `write_roles:
+[superadmin, admin]`. Operativas (Asset/License/Accessory/...): `[superadmin, admin, manager]`.
+
+**Workflow** → el ciclo de vida del activo se modela como enum-workflow sobre `Asset.status`
+(`[pending, ready, deployed, archived, broken]`, initial `ready`): `archived` es TERMINAL, `broken` se repara
+a `ready`. Es la destilación del (StatusLabel.type × asignación) real a la primitiva FSK.
+
+**Ownership** → `Asset.owned_by: assigned_user_id` (el activo "pertenece" a su asignado). Un `manager` toca
+sólo los suyos; admin bypassa. Es la esencia del checkout-a-usuario de Snipe-IT, enforzada a runtime (FSK-S15).
+
+**M:N → entidades**: FSK no tiene M:N; los 4 pivots de Snipe-IT (license_seats, accessories_checkout,
+consumables_users, components_assets) se modelan como **entidades propias** con refs — fiel y expresable.
+
+---
+
+## 3. Deferrals honestos — infidelidades deliberadas y HUECOS DE FÁBRICA
+
+Cada uno es deliberado y visible. Los marcados **[GAP-FÁBRICA]** son límites de FSK que un futuro incremento
+GENERAL (codegen+spec, `git diff src/+seed=0`) debería levantar — driven por este producto (P1 §4), no
+especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptadas para la réplica.
+
+1. **Custom fields dinámicos** [GAP-FÁBRICA, alto impacto]. Snipe-IT permite campos definidos por el usuario,
+   almacenados como columnas `_snipeit_<x>` agregadas dinámicamente a `assets` (EAV-como-columnas), agrupados
+   en CustomFieldset y ligados a modelos. FSK tiene campos FIJOS por entidad. **Diferido entero**: el blueprint
+   no modela CustomField/CustomFieldset. Levantar esto pide gramática nueva (campos dinámicos / sub-esquema
+   por modelo) — es probablemente el eje de fábrica más grande que Snipe-IT fuerza.
+
+2. **Checkout polimórfico** (Asset/Accessory `assigned_to` → User|Location|Asset) [SIMPLIF + GAP-FÁBRICA].
+   FSK `ref` apunta a UNA entidad. Se simplificó a **User** (el caso dominante). Para fidelidad plena se
+   necesitaría una primitiva de ref polimórfico (unión de targets) — gap de fábrica.
+
+3. **Asignación opcional (RTD) vs owner requerido** [GAP-FÁBRICA]. En Snipe-IT un activo RTD está SIN asignar
+   (dueño nulo). FSK exige el campo `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId:
+   Long)` es no-nullable y el server vivo conflaciona owner-nulo con 404. Por eso en el blueprint todo Asset
+   tiene un asignado obligatorio. Levantar ownership-opcional (dueño nullable, estado RTD real) es un gap.
+
+4. **`Asset.model_id` requerido → opcional** [GAP-FÁBRICA]. Snipe-IT exige `model_id` (y `status_id`). Pero la
+   restricción de seed del server vivo (FSK-S15) prohíbe refs REQUERIDOS no-dueño en la entidad-con-dueño y su
+   dueño. Por eso `model_id` (y los demás refs de Asset salvo el dueño) van `required: false`. Faithful pediría
+   un seed transitivo (cadena de dependencias) en el server vivo — gap.
+
+5. **Jerarquías self-ref**: `Location.parent_id`→Location y `User.manager_id`→User [GAP-FÁBRICA]. FSK no
+   soporta refs self: `_it_repository_kt` (seeder del tier integración, s7) setea TODO ref —incluido el
+   opcional— y referencia `ids[self]` antes de insertar la fila → `KeyError`. **Diferidas** (la migración y el
+   roundtrip sí las tolerarían: optional→NULL). Fix general probable: que `_it_repository_kt` saltee los refs
+   opcionales (como hace `_roundtrip_kt`) y/o maneje self-ref. Es un gap chico y acotado.
+
+6. **Ciclos de referencia rotos**: `Location.manager_id`→User y `Department.manager_id`→User [SIMPLIF].
+   Crearían ciclos (Location↔User, User↔Department) que el migration en orden de declaración no admite (FK a
+   tabla posterior). Se QUITARON (los lados débiles). El management de ubicación/departamento se difiere.
+
+7. **Depreciación calculada** [GAP-FÁBRICA]. Se almacenan los INPUTS (`months`, `depreciation_min`,
+   `depreciation_type`) pero el valor actual (straight-line: `(cost−piso)·(1−meses_transcurridos/months)+piso`)
+   es lógica derivada. FSK no tiene campos computados; el cálculo viviría en s6 (lógica de dominio por LLM,
+   hoy diferida keyless) o pediría una primitiva de campo computado — gap.
+
+8. **Multi-tenancy / company scoping** [GAP-FÁBRICA]. `company_id` se modela como ref, pero el SCOPING
+   transversal (toda query filtrada por la compañía del actor, superuser exento) no es expresable: la ownership
+   de FSK es por-fila por-un-dueño, no un filtro de tenant. El filtro por compañía es un gap (ABAC/scoping).
+
+9. **Permisos granulares tri-state + self-service** [SIMPLIF]. El sistema real (grupos × permisos tri-state ×
+   superflags × self.*) se aproxima con 4 roles fijos. Se pierde granularidad (p.ej. checkout sin edit) y el
+   auto-servicio. Aceptado: una política tratable, co-validada (ADR-014), distinta de la del demo.
+
+10. **StatusLabel como entidad customizable** [SIMPLIF]. Snipe-IT externaliza las etiquetas (admin define
+    labels custom mapeadas a 4 tipos). Se modeló el CICLO como enum-workflow sobre Asset (la primitiva FSK más
+    fuerte aquí). La customización de etiquetas se difiere.
+
+11. **Verbos de operación** (checkout/checkin/audit/request/clone/bulk/import) [GAP-FÁBRICA, ya en P1 §4]. El
+    server vivo (FSK-S15) devuelve el VEREDICTO de autorización (403/200/201/404) pero no MUTA columnas
+    end-to-end ni ejecuta la semántica (decrementar qty, liberar seat, registrar Actionlog). CRUD-mutación
+    real + las operaciones de dominio son el primer hueco que P1 va a forzar.
+
+12. **Diferidos menores** [SIMPLIF]: soft-deletes (`deleted_at`), Actionlog (auditoría polimórfica), Kits
+    (bundles), CheckoutRequest/Acceptance (solicitudes/firma), campos operativos (counters, image, timestamps,
+    ldap, 2FA, password — no-dominio), y la mayoría de las ~226 rutas (el blueprint genera el contrato CRUD +
+    el server de control de acceso; el resto de la superficie de endpoints es breadth posterior).
+
+---
+
+## 4. Próximos pasos (gaps priorizados → incrementos)
+
+Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden probable de necesidad:
+1. **CRUD-mutación real** (deferral 11) — INSERT/UPDATE/DELETE tipados bajo el control de acceso ya enforzado.
+2. **Self-ref** (deferral 5) — fix acotado en `_it_repository_kt` → restaura jerarquías Location/User.
+3. **Ownership opcional / RTD** (deferrals 3, 4) — dueño nullable + seed transitivo en el server vivo.
+4. **Custom fields** (deferral 1) — el eje grande: campos dinámicos por modelo.
+5. **Frontend vivo + deploy** (P1 §4) y breadth de endpoints/operaciones (checkout/checkin/audit/…).
+
+## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
+- Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:
+  `meta product-run --factory full-stack-kotlin --product snipeit` (FOREGROUND, `dangerouslyDisableSandbox`,
+  por-producto — lecciones FSK-S11..S15 en P1 §6). Iterar a verde → `meta rtm/pin/ci --rederive --product
+  snipeit`.
+- Si el compile de 19 entidades excede el presupuesto, generar en slices: core (Company/Manufacturer/Category/
+  Depreciation/Location/User/AssetModel/Asset) primero; breadth (License/seats, Accessory, Consumable,
+  Component, Maintenance, Department) después.
+- Validación barata SIN gradle (la de esta sesión): materializar (`ensure_product_instance`) + `scaffold
+  --selftest`/`--check-idempotent` sobre `products/snipeit`.

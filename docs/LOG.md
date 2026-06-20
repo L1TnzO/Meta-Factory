@@ -1,7 +1,42 @@
-<!-- meta:doc sha=63ab83cbb91b6d6c71fa457b81d0958b44c218ce updated=2026-06-20T18:44Z -->
+<!-- meta:doc sha=66ec440d8cf2a229fa8589d0a7d2bababe7e10b7 updated=2026-06-20T20:08Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T20:10Z — P1·Snipe-IT — Fase 1: el SPEC del primer producto real (`P1-SNIPE-IT-PRODUCT`)
+- **el objetivo de la sesión** (decisión del ingeniero): NO profundizar más FSK sino PRODUCIR — cosechar el
+  dominio real de Snipe-IT y expresarlo como blueprint FSK. Goal acotado: lograr el SPEC; la generación (gradle)
+  es la próxima sesión. Corrección de modelo registrada: no hay "Meta-Factory, usá FSK para consumir este spec";
+  el producto nace como INSTANCIA R1 de FSK (`product.yml`), y el flujo `meta product new` corre la línea completa.
+- **research-first por fan-out** (sub-agentes baratos Sonnet, su propósito): clon shallow de github.com/
+  grokability/snipe-it (v8.6.3, Laravel/PHP, 41 modelos · 446 migraciones · ~226 endpoints · 30 Form Requests ·
+  22 Policies). 7 agentes en paralelo → schema · modelos/relaciones · permisos · workflows · reglas/validaciones ·
+  endpoints · pantallas → `_research/01..07.md` (≈6.4k líneas, en el clon, re-derivable). 3 terminaron limpio, 4
+  cortaron por límite de sesión y se relanzaron. La SÍNTESIS a spec la leyó el orquestador con ojos propios.
+- **el spec** (`factories/full-stack-kotlin/products/snipeit/product.yml`, DATA): **19 entidades** en orden
+  topológico (reference → Location/Department → User[owner] → AssetModel → **Asset** [workflow `status` +
+  ownership `owned_by: assigned_user_id`] → License/LicenseSeat → Accessory/+Checkout → Consumable/+Assignment →
+  Component/+Assignment → Maintenance). RBAC 4-roles (superadmin/admin/manager/auditor) aproxima el sistema
+  granular tri-state real; los 4 pivots M:N de Snipe-IT → entidades; el ciclo de vida (StatusLabel.type ×
+  asignación) → enum-workflow sobre Asset (archived terminal). Doc autoritativo `docs/reference/SNIPEIT-DOMAIN.md`.
+- **3 restricciones DURAS de FSK descubiertas leyendo el codegen** (ordenan el spec; documentadas como gaps):
+  (1) el migration emite `REFERENCES` para TODO ref → orden topológico estricto, ciclos rotos (Location/Department
+  no refieren User); (2) `OwnershipGuard.canModify(rowOwnerId: Long)` no-nullable → el campo `owned_by` DEBE ser
+  `required:true` (Snipe-IT RTD sin asignar = gap); (3) el seed del server vivo (FSK-S15) prohíbe refs requeridos
+  no-dueño en Asset y su owner → `model_id` opcional (Snipe lo exige = gap). **+1 gap que el selftest CAZÓ**:
+  self-ref (`Location.parent_id`, `User.manager_id`) rompe `_it_repository_kt` (setea refs opcionales + `ids[self]`
+  antes de existir) → diferidas.
+- **validación POR BLOQUEO sin gradle** (barata, la apropiada para "lograr el spec"): `ensure_product_instance`
+  materializa el spec efectivo (base ⊕ product.yml) + `scaffold_product.py --selftest` (corre TODO el codegen en
+  memoria: dientes fail-closed de `_load_blueprint` + restricción de seed) = **19 entidades → 66 archivos** ·
+  `--check-idempotent` byte-idéntico · 0 forward-refs en la migración. El compile gradle = próxima sesión.
+- **honestidad**: 12 deferrals visibles en SNIPEIT-DOMAIN.md (custom-fields dinámicos = el eje grande · checkout
+  polimórfico · RTD/owner-opcional · self-ref · depreciación calculada · company-scoping · permisos granulares ·
+  CRUD-mutación real · soft-deletes · audit-log · kits · breadth de endpoints). Cada uno = incremento GENERAL
+  futuro driven por el producto (P1 §4), no especulado. Anti-overfit: `git diff src/metafactory/+seed/` = 0.
+- **lección**: validar el spec por bloqueo BARATO (selftest del codegen en memoria) caza huecos reales (self-ref)
+  sin pagar gradle — el camino correcto cuando el goal es el SPEC, no la app. Un `cd` a subdir filtró el cwd de
+  Bash (riesgo deadlock conocido) → restaurado a la raíz; PYTHONPATH/METAFACTORY_ROOT absolutos.
 
 ## 2026-06-20T18:45Z — R2·FSK eje #5 ✅ — endpoints vivos / control de acceso a RUNTIME (`FSK-S15-LIVE-ENDPOINTS`)
 - **el gap**: la trilogía de control de acceso (auth s5 → RBAC s5 → ownership s5) + workflows estaba probada

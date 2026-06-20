@@ -1,0 +1,292 @@
+# ============================================================================
+# Snipe-IT — blueprint de instancia R1 (lifecycle 1:N, ADR-015) de full-stack-kotlin.
+# ============================================================================
+# Réplica FIEL del dominio de Snipe-IT (gestión de activos de TI de grado-producción,
+# github.com/grokability/snipe-it v8.6.3, Laravel/PHP) expresada en la GRAMÁTICA de FSK.
+# NO es un port del código PHP: se cosechó el DOMINIO (modelo de datos + reglas) y se
+# mapeó a Kotlin/TS/PostgreSQL. La derivación completa + las decisiones de mapeo
+# (inclusiones y deferrals HONESTOS) viven en docs/reference/SNIPEIT-DOMAIN.md.
+#
+# Es DATA: la fábrica re-deriva el spec efectivo (base ⊕ product.yml) + la línea s0–s10.
+# `git diff src/metafactory/ + seed/` = 0 (el producto no toca el sustrato; ADR-012).
+#
+# ── RESTRICCIONES DE FSK que ordenan este archivo (probadas leyendo el codegen) ─────────
+# 1. ORDEN TOPOLÓGICO: el migration emite `REFERENCES` para TODO ref (req u opcional) en
+#    orden de declaración → todo `ref` apunta a una entidad declarada ANTES (o a sí misma).
+#    Los ciclos de Snipe-IT (Location↔User, User↔Department) se rompen quitando el lado
+#    débil (ver SNIPEIT-DOMAIN.md §gaps): Location/Department NO referencian a User.
+# 2. OWNER REQUERIDO: el campo `owned_by` de Asset DEBE ser `required: true` — el guard
+#    `OwnershipGuard.canModify(rowOwnerId: Long)` es no-nullable. En Snipe-IT un asset RTD
+#    está SIN asignar (dueño nulo); acá la asignación es obligatoria → gap documentado.
+# 3. SEED DEL SERVER VIVO (FSK-S15): Asset (entidad con dueño) y User (su dueño) NO pueden
+#    tener refs REQUERIDOS salvo el dueño mismo. Por eso Asset.model_id va `required:false`
+#    aunque Snipe-IT lo exige; y User no tiene ningún ref requerido. Gap documentado.
+# ============================================================================
+
+package_name: snipeit
+api_title: "Snipe-IT Asset Management API"
+
+# s6 (lógica de dominio generada por LLM vivo, `claude -p`) se DIFIERE keyless para esta
+# instancia (activation:off, la opción que el propio gate sanciona — doctrina R1, igual que
+# `assets`): la instancia prueba que el dominio fluye por las estaciones DETERMINISTAS
+# (s0–s5, s7–s10). Deferral VISIBLE, no over-claim. Ver SNIPEIT-DOMAIN.md.
+station_activation:
+  s6: off
+
+# ── RBAC (FSK-S13) ──────────────────────────────────────────────────────────
+# Snipe-IT NO tiene roles fijos: usa GRUPOS con un blob JSON de permisos granulares tri-state
+# (grant/deny/inherit) + dos superflags (is_superuser, admin) + permisos self.* de auto-servicio.
+# Eso es inexpresable en la gramática FSK (roles fijos). Se mapea a una aproximación tratable de
+# 4 roles fijos (derivada en 03-permissions.md / SNIPEIT-DOMAIN.md §RBAC):
+#   superadmin → is_superuser: todo, sin scoping de compañía.
+#   admin      → admin flag: gestiona todo (org + reference data + usuarios).
+#   manager    → gestiona ENTIDADES OPERATIVAS (activos/licencias/accesorios/...), sólo las SUYAS
+#                (ownership de fila), no usuarios ni reference data.
+#   auditor    → read-only (audita): en NINGÚN write_roles ⇒ no escribe nada.
+roles: [superadmin, admin, manager, auditor]
+# Ownership a nivel de FILA (FSK-S14): superadmin/admin IGNORAN ownership (bypass); un manager,
+# salvo bypass, sólo toca las filas cuyo dueño es su principal. Componer sobre RBAC (fail-closed).
+owner_bypass_roles: [superadmin, admin]
+
+entities:
+  # ══ REFERENCE / LOOKUP (sin refs — declaradas primero) ════════════════════
+  - name: Company           # multi-tenancy: en Snipe-IT toda entidad lleva company_id (scoping). FSK
+    write_roles: [superadmin, admin]   # no enforza el scoping transversal → company_id se modela como ref
+    fields:                            # opcional pero el FILTRO por compañía es un gap (SNIPEIT-DOMAIN §gaps).
+      - { name: name, type: string, unique: true }
+      - { name: email, type: string, required: false }
+      - { name: phone, type: string, required: false }
+
+  - name: Manufacturer
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string, unique: true }
+      - { name: url, type: string, required: false }
+      - { name: support_email, type: string, required: false }
+      - { name: support_phone, type: string, required: false }
+
+  - name: Supplier
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - { name: contact, type: string, required: false }
+      - { name: email, type: string, required: false }
+      - { name: phone, type: string, required: false }
+      - { name: city, type: string, required: false }
+      - { name: country, type: string, required: false }
+
+  - name: Depreciation       # esquema de depreciación lineal. El CÁLCULO del valor actual
+    write_roles: [superadmin, admin]   # (straight-line sobre `months` desde la compra, con piso) es
+    fields:                            # lógica derivada → gap (necesita s6 o campos computados).
+      - { name: name, type: string }
+      - { name: months, type: int }    # período de depreciación en meses
+      - { name: depreciation_min, type: number, required: false }   # piso (monto o %)
+      - name: depreciation_type        # enum cerrado (no workflow): cómo interpretar el piso
+        type: enum
+        values: [amount, percentage]
+
+  - name: Category           # categoriza activos/accesorios/consumibles/componentes/licencias
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - name: category_type            # enum cerrado (no workflow): el tipo de ítem que agrupa
+        type: enum
+        values: [asset, accessory, consumable, component, license]
+      - { name: require_acceptance, type: boolean, required: false }
+      - { name: use_default_eula, type: boolean, required: false }
+
+  - name: Location           # En Snipe-IT Location tiene parent_id→Location (jerarquía) y manager_id→User.
+    write_roles: [superadmin, admin]   # AMBOS se DIFIEREN: manager_id rompería el ciclo Location↔User; parent_id
+    fields:                            # es self-ref y FSK aún no lo soporta (gap _it_repository_kt). Ver §gaps.
+      - { name: name, type: string }
+      - { name: city, type: string, required: false }
+      - { name: state, type: string, required: false }
+      - { name: country, type: string, required: false }
+      - { name: zip, type: string, required: false }
+
+  - name: Department         # En Snipe-IT Department también tiene manager_id→User: SE QUITA para
+    write_roles: [superadmin, admin]   # romper el ciclo User↔Department (User.department_id→Department).
+    fields:
+      - { name: name, type: string }
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+
+  - name: User               # DUEÑO de los activos (principal de ownership, FSK-S14/S15). Por la
+    write_roles: [superadmin, admin]   # restricción de seed del server vivo, NO tiene refs REQUERIDOS.
+    fields:                            # Campos de auth (password, 2FA, activation) se omiten (no-dominio).
+      - { name: first_name, type: string }
+      - { name: last_name, type: string, required: false }
+      - { name: username, type: string, unique: true }
+      - { name: email, type: string, required: false }
+      - { name: jobtitle, type: string, required: false }
+      - { name: employee_num, type: string, required: false }
+      - { name: phone, type: string, required: false }
+      - { name: vip, type: boolean, required: false }
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+      - { name: department_id, type: ref, to: Department, required: false }
+      # manager_id→User (self-ref, jerarquía de management) DIFERIDO: FSK aún no soporta self-ref (§gaps).
+
+  - name: AssetModel         # plantilla make/model de un activo. category_id REQUERIDO (Snipe-IT) —
+    write_roles: [superadmin, admin]   # OK: NO es entidad del server vivo, el roundtrip encadena el FK.
+    fields:
+      - { name: name, type: string }
+      - { name: model_number, type: string, required: false }
+      - { name: category_id, type: ref, to: Category }                 # requerido (faithful)
+      - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
+      - { name: depreciation_id, type: ref, to: Depreciation, required: false }
+      - { name: eol, type: int, required: false }                      # meses hasta End-of-Life
+
+  # ══ ASSET — la entidad central, con WORKFLOW (FSK-S12) + OWNERSHIP (FSK-S14/S15) ══
+  - name: Asset
+    write_roles: [superadmin, admin, manager]   # un manager administra activos…
+    owned_by: assigned_user_id                   # …pero sólo los SUYOS (su principal == el asignado), salvo bypass
+    fields:
+      - { name: asset_tag, type: string, unique: true }   # etiqueta única del activo (asset_tag, faithful)
+      - { name: name, type: string, required: false }
+      - { name: serial, type: string, required: false }   # Snipe: unique condicional (setting); acá opcional
+      - { name: purchase_date, type: date, required: false }
+      - { name: purchase_cost, type: number, required: false }
+      - { name: order_number, type: string, required: false }
+      - { name: warranty_months, type: int, required: false }
+      - { name: asset_eol_date, type: date, required: false }
+      - { name: requestable, type: boolean, required: false }
+      - { name: byod, type: boolean, required: false }
+      - { name: notes, type: string, required: false }
+      # WORKFLOW de ciclo de vida (FSK-S12). En Snipe-IT el estado efectivo es (StatusLabel.type ×
+      # asignación); StatusLabel es una entidad customizable (defer, ver §gaps). Acá se modela el
+      # CICLO canónico como enum-workflow sobre Asset.status: `archived` es TERMINAL (un activo
+      # archivado no vuelve), `broken` se repara a `ready`. Guard canTransition determinista.
+      - name: status
+        type: enum
+        values: [pending, ready, deployed, archived, broken]
+        initial: ready
+        transitions:
+          ready:    [deployed, pending, broken, archived]   # RTD → checkout/pending/avería/archivo
+          deployed: [ready, pending, broken, archived]       # checkin → ready; etc.
+          pending:  [ready, deployed, broken, archived]
+          broken:   [ready, archived]                        # reparado → ready, o se archiva
+          archived: []                                       # TERMINAL
+      # Dueño de la fila (ownership). REQUERIDO por la restricción de FSK (guard no-nullable). En
+      # Snipe-IT el asignado es polimórfico (User|Location|Asset) y opcional (RTD) → ambos son gaps.
+      - { name: assigned_user_id, type: ref, to: User, required: true }
+      - { name: model_id, type: ref, to: AssetModel, required: false }   # Snipe: requerido; FSK-S15 seed → opcional (gap)
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+      - { name: rtd_location_id, type: ref, to: Location, required: false }   # ubicación "ready to deploy"
+      - { name: supplier_id, type: ref, to: Supplier, required: false }
+
+  # ══ LICENCIAS (con asientos) ══════════════════════════════════════════════
+  - name: License
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: name, type: string }
+      - { name: serial, type: string, required: false }   # product key
+      - { name: seats, type: int }                         # total de asientos
+      - { name: license_name, type: string, required: false }   # nombre del licenciatario
+      - { name: license_email, type: string, required: false }
+      - { name: purchase_date, type: date, required: false }
+      - { name: purchase_cost, type: number, required: false }
+      - { name: expiration_date, type: date, required: false }
+      - { name: termination_date, type: date, required: false }
+      - { name: min_amt, type: int, required: false }
+      - { name: category_id, type: ref, to: Category }     # requerido (faithful)
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
+      - { name: supplier_id, type: ref, to: Supplier, required: false }
+      - { name: depreciation_id, type: ref, to: Depreciation, required: false }
+
+  - name: LicenseSeat        # el pivot license_seats modelado como ENTIDAD (FSK no tiene M:N): un
+    write_roles: [superadmin, admin, manager]   # asiento se asigna a un User O a un Asset (ambos opcionales).
+    fields:
+      - { name: license_id, type: ref, to: License }       # requerido
+      - { name: assigned_user_id, type: ref, to: User, required: false }
+      - { name: asset_id, type: ref, to: Asset, required: false }
+      - { name: unreassignable_seat, type: boolean, required: false }
+
+  # ══ ACCESORIOS (qty, checkout a user) ═════════════════════════════════════
+  - name: Accessory
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: name, type: string }
+      - { name: qty, type: int }                           # cantidad total
+      - { name: min_amt, type: int, required: false }
+      - { name: model_number, type: string, required: false }
+      - { name: purchase_date, type: date, required: false }
+      - { name: purchase_cost, type: number, required: false }
+      - { name: requestable, type: boolean, required: false }
+      - { name: category_id, type: ref, to: Category }     # requerido (faithful)
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+      - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
+      - { name: supplier_id, type: ref, to: Supplier, required: false }
+
+  - name: AccessoryCheckout  # el pivot accessories_checkout como ENTIDAD. En Snipe-IT el target es
+    write_roles: [superadmin, admin, manager]   # polimórfico (User|Location|Asset) → acá se simplifica a User (gap).
+    fields:
+      - { name: accessory_id, type: ref, to: Accessory }   # requerido
+      - { name: assigned_user_id, type: ref, to: User, required: false }
+      - { name: note, type: string, required: false }
+
+  # ══ CONSUMIBLES (se consumen: checkout sin checkin) ═══════════════════════
+  - name: Consumable
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: name, type: string }
+      - { name: qty, type: int }
+      - { name: min_amt, type: int, required: false }
+      - { name: model_number, type: string, required: false }
+      - { name: item_no, type: string, required: false }
+      - { name: purchase_date, type: date, required: false }
+      - { name: purchase_cost, type: number, required: false }
+      - { name: category_id, type: ref, to: Category }     # requerido (faithful)
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+      - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
+      - { name: supplier_id, type: ref, to: Supplier, required: false }
+
+  - name: ConsumableAssignment   # pivot consumables_users como ENTIDAD. Consumo PERMANENTE (sin checkin).
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: consumable_id, type: ref, to: Consumable }   # requerido
+      - { name: assigned_user_id, type: ref, to: User }      # requerido (se consume a un user)
+      - { name: note, type: string, required: false }
+
+  # ══ COMPONENTES (qty asignada a assets) ═══════════════════════════════════
+  - name: Component
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: name, type: string }
+      - { name: qty, type: int }
+      - { name: min_amt, type: int, required: false }
+      - { name: serial_number, type: string, required: false }
+      - { name: purchase_date, type: date, required: false }
+      - { name: purchase_cost, type: number, required: false }
+      - { name: category_id, type: ref, to: Category }     # requerido (faithful)
+      - { name: company_id, type: ref, to: Company, required: false }
+      - { name: location_id, type: ref, to: Location, required: false }
+      - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
+      - { name: supplier_id, type: ref, to: Supplier, required: false }
+
+  - name: ComponentAssignment    # pivot components_assets como ENTIDAD: cantidad asignada a un asset.
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: component_id, type: ref, to: Component }   # requerido
+      - { name: asset_id, type: ref, to: Asset }           # requerido (se asigna a un asset)
+      - { name: assigned_qty, type: int }                  # cantidad asignada
+      - { name: note, type: string, required: false }
+
+  # ══ MANTENIMIENTOS (registros por asset) ══════════════════════════════════
+  - name: Maintenance
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: asset_id, type: ref, to: Asset }           # requerido
+      - { name: name, type: string }
+      - name: maintenance_type         # enum cerrado (no workflow): los 8 tipos built-in de Snipe-IT
+        type: enum
+        values: [maintenance, repair, upgrade, pat_test, calibration, software_support, hardware_support, configuration_change]
+      - { name: is_warranty, type: boolean, required: false }
+      - { name: start_date, type: date }                   # requerido
+      - { name: completion_date, type: date, required: false }
+      - { name: cost, type: number, required: false }
+      - { name: supplier_id, type: ref, to: Supplier, required: false }

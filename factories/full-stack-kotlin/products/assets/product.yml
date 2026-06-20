@@ -13,12 +13,20 @@ station_activation:
 
 package_name: webapp
 api_title: "Asset Tracker API"
+# RBAC (R2/FSK-S13, DES-3) con un vocabulario de roles DISTINTO del demo (admin/editor/viewer): el caso
+# Snipe-IT usa admin/manager/auditor, y una POLÍTICA por-entidad distinta — sólo `admin` da de alta a los
+# responsables (Holder), pero un `manager` SÍ administra activos (Asset). `auditor` es read-only (audita,
+# no escribe ninguna entidad). Co-validación ADR-014: el enum Role + RoleGuard se generan del product.yml
+# (DATA) y la instancia re-deriva == su pin, aislada. Es una topología de autorización propia, no la del demo.
+roles: [admin, manager, auditor]
 entities:
   - name: Holder
+    write_roles: [admin]
     fields:
       - { name: email, type: string, unique: true }
       - { name: department, type: enum, values: [it, ops, sales, support] }
   - name: Asset
+    write_roles: [admin, manager]
     fields:
       - { name: serial, type: string, unique: true }
       - { name: quantity, type: int }

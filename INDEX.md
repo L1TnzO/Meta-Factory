@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `579094db2438` | 2026-06-20T14:02Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `b1fc938bc6b3` | 2026-06-20T14:04Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `c9f3ba747555` | 2026-06-20T14:11Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -57,6 +57,7 @@
 | `docs/work/FSK-S10-HERMETIC-BUILD-INCREMENT.md` | `9be2e6e89f21` | 2026-06-19T16:00Z | Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10) |
 | `docs/work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md` | `bcea3f10046f` | 2026-06-20T02:18Z | Incremento FSK-S11-DOMAIN-EXPRESSIVENESS |
 | `docs/work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md` | `1b93efd7956c` | 2026-06-20T14:04Z | Incremento FSK-S12-DOMAIN-WORKFLOWS |
+| `docs/work/FSK-S13-DOMAIN-RBAC-INCREMENT.md` | `31a1d7bc7afb` | 2026-06-20T14:13Z | Incremento FSK-S13-DOMAIN-RBAC |
 | `docs/work/FSK-S2-HARDNESS-INCREMENT.md` | `def0ce23ec1a` | 2026-06-18T22:48Z | Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2) |
 | `docs/work/FSK-S3-CURRENCY-INCREMENT.md` | `aac1d98e1400` | 2026-06-19T01:46Z | Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3) |
 | `docs/work/FSK-S4-SUPPLYCHAIN-INCREMENT.md` | `be81b89bb8ff` | 2026-06-19T02:16Z | Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4) |

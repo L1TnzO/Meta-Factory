@@ -57,9 +57,15 @@ class Sequence:
 
     def _linear_predecessor(self, station: Station) -> Station | None:
         """The linear predecessor: an explicit `requires_prev`, else the previous ACTIVE station in
-        order, else None for the first (the chain case, unchanged from before depends_on)."""
+        order, else None for the first (the chain case, unchanged from before depends_on). A DEFERRED
+        (`activation: off`) explicit predecessor is TRANSPARENT — the gate falls through to ITS own
+        predecessor — so a MID-line station can be deferred without wedging its whole tail (R1/ADR-015,
+        consistent with the else-branch which already skips to the previous ACTIVE station). Domain-agnostic."""
         if station.requires_prev is not None:
-            return self._by_id.get(station.requires_prev)
+            prev = self._by_id.get(station.requires_prev)
+            if prev is not None and not prev.active:
+                return self._linear_predecessor(prev)
+            return prev
         active = self.active
         try:
             idx = active.index(station)

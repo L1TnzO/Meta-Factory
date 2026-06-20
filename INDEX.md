@@ -57,7 +57,7 @@
 | `docs/work/FSK-S10-HERMETIC-BUILD-INCREMENT.md` | `9be2e6e89f21` | 2026-06-19T16:00Z | Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10) |
 | `docs/work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md` | `bcea3f10046f` | 2026-06-20T02:18Z | Incremento FSK-S11-DOMAIN-EXPRESSIVENESS |
 | `docs/work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md` | `1b93efd7956c` | 2026-06-20T14:04Z | Incremento FSK-S12-DOMAIN-WORKFLOWS |
-| `docs/work/FSK-S13-DOMAIN-RBAC-INCREMENT.md` | `64ec65f1c9d9` | 2026-06-20T15:49Z | Incremento FSK-S13-DOMAIN-RBAC |
+| `docs/work/FSK-S13-DOMAIN-RBAC-INCREMENT.md` | `531e589727c8` | 2026-06-20T15:51Z | Incremento FSK-S13-DOMAIN-RBAC |
 | `docs/work/FSK-S2-HARDNESS-INCREMENT.md` | `def0ce23ec1a` | 2026-06-18T22:48Z | Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2) |
 | `docs/work/FSK-S3-CURRENCY-INCREMENT.md` | `aac1d98e1400` | 2026-06-19T01:46Z | Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3) |
 | `docs/work/FSK-S4-SUPPLYCHAIN-INCREMENT.md` | `be81b89bb8ff` | 2026-06-19T02:16Z | Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4) |

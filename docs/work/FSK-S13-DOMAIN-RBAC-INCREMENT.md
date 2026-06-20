@@ -1,9 +1,9 @@
-<!-- meta:doc sha=64ec65f1c9d9a725386f5c4edc3810683f445ef8 updated=2026-06-20T15:49Z -->
+<!-- meta:doc sha=531e589727c8d2ee70456bff15b3f54dea9e8cfb updated=2026-06-20T15:51Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-20T14:11Z -->
 # Incremento FSK-S13-DOMAIN-RBAC
 
-> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T15:55Z, `meta increment close`: árbol limpio +
-> estación activa verde). Todo cambio de código vivió acá (ADR-010). **Resultado**: las 4 fases verdes —
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T15:51Z, flip del header bajo la ley `seed/lifecycle.py`;
+> gate satisfecho: árbol limpio + estación activa verde + RTM 17/17). Todo cambio de código vivió acá (ADR-010). **Resultado**: las 4 fases verdes —
 > gramática `roles`/`write_roles` + guard `Role`/`RoleGuard` generado, contrato `x-required-roles`,
 > `route_check.py` modo `rbac` con diente embebido, test de dos lados `RoleGuardTest`. Capability
 > `rbac_enforced` (DES-3) + REQ-F-012 en s5 → **RTM default 16→17 COMPLETE**. 2 productos con políticas de rol

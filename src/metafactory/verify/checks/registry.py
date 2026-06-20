@@ -19,6 +19,7 @@ KINDS = (
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
     "infra_up", "mcp_tools", "eval_gate", "live_run", "blast_radius", "scenario_corpus",
+    "products_rederive",
 )
 
 
@@ -81,6 +82,11 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
         return [PY, "-m", "metafactory.verify.checks.clean_runner",
                 str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),
                 str(subst.get("spec_path", "factory.spec.yml"))]
+    if kind == "products_rederive":
+        # R1 (ADR-015) — cada instancia de producto (products/<p>/) re-deriva == su pin en clon limpio,
+        # aislada (raíz propia); pin tampereado → rojo (no decorativo). N/A si la fábrica no tiene instancias.
+        return [PY, "-m", "metafactory.verify.checks.products_rederive",
+                str(subst.get("factory_root", ".")), str(subst.get("meta_root", ""))]
     if kind == "agent_shadow":
         return [PY, "-m", "metafactory.verify.checks.agent_shadow",
                 str(subst.get("factory_root", ".")), str(subst.get("meta_root", "")),

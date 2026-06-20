@@ -9,6 +9,10 @@ activation: always
 # IGUALE el pineado; desvío en CUALQUIER dirección (proof distinto O pin distinto) -> rojo. La custodia
 # local no es la raíz de confianza; la replicabilidad lo es (criterio 3 de M4-M7). Gate pura como M8: no
 # renderiza chasis nuevo (la ley vive en `meta ci`/`external_ci.yml`); agrega el DIENTE que faltaba.
+# R1 (ADR-015) extiende el segundo verificador a la cardinalidad 1:N: `products_rederive` re-deriva CADA
+# instancia de producto (products/<p>/) desde su propio `product.yml`+pin en clon limpio, aislada (raíz
+# propia) y con diente (pin tampereado → rojo). N/A honesto si la fábrica no declara instancias.
 builds: []
 checks:
   - { name: clean_runner, kind: clean_runner }
+  - { name: products_rederive, kind: products_rederive }

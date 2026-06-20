@@ -56,6 +56,17 @@ def _list_products(slug: str) -> list[str]:
     return sorted(p.name for p in pdir.iterdir() if (p / "product.yml").is_file())
 
 
+def _norm_activation(v) -> str:
+    """Canonicalize a station activation override to the engine's vocabulary ("off" = inactive, else
+    active). YAML 1.1 parses a bare `off`/`no` as the bool False, so normalize bools/strings alike — a
+    raw False would stringify to "False" and (being != "off") read as ACTIVE, the opposite of intent."""
+    if v is False or str(v).strip().lower() in ("off", "false", "no", "0"):
+        return "off"
+    if v is True or str(v).strip().lower() in ("on", "always", "true", "yes", "1"):
+        return "always"
+    return str(v)
+
+
 def ensure_product_instance(chassis: Path, product_root: Path, meta_root: Path, slug: str) -> None:
     """R1 (ADR-015) — materialize a product instance's DERIVED root from its committed source.
 
@@ -76,8 +87,16 @@ def ensure_product_instance(chassis: Path, product_root: Path, meta_root: Path, 
     chassis, product_root = Path(chassis).resolve(), Path(product_root).resolve()
     base = yaml.safe_load((chassis / "factory.spec.yml").read_text(encoding="utf-8")) or {}
     blueprint = yaml.safe_load((product_root / "product.yml").read_text(encoding="utf-8")) or {}
+    # Reserved instance-config key (popped so it never reaches the scaffold's domain.product): per-instance
+    # station ACTIVATION overrides. A product legitimately may not run a station the demo does — e.g. a live
+    # station with no provider key for THIS instance (the `live_run` check itself sanctions activation:off as
+    # the honest deferral, vs faking green). General + visible (it lives in the committed product.yml).
+    overrides = blueprint.pop("station_activation", {}) if isinstance(blueprint, dict) else {}
     effective = copy.deepcopy(base)
     effective.setdefault("domain", {})["product"] = blueprint
+    for st in effective.get("domain", {}).get("station_sequence", []) or []:
+        if isinstance(st, dict) and st.get("id") in overrides:
+            st["activation"] = _norm_activation(overrides[st["id"]])
     product_root.mkdir(parents=True, exist_ok=True)
     (product_root / "factory.spec.yml").write_text(
         yaml.safe_dump(effective, sort_keys=False, allow_unicode=True), encoding="utf-8")

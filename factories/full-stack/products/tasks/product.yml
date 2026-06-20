@@ -1,0 +1,16 @@
+# 2º producto de la fábrica full-stack (R1, ADR-015): otra app web TS — entidad Task (≠ Todo) + package
+# distinto. Respeta el vocabulario de campos que el codegen parametriza hoy (title/done; campos arbitrarios
+# son R2, diferida). El slot generate (s3, claude -p) sintetiza lógica de dominio FRESCA para Task. Mismo
+# chassis, otro domain.product.
+package_name: taskapp
+entity:
+  name: Task
+  fields:
+    - { name: title, type: string }
+    - { name: done, type: boolean }
+marker: TASKAPP_OK
+# La instancia no tiene provider key para la corrida viva (s5): la difiere HONESTAMENTE (activation:off,
+# la opción que el propio live_run sugiere) — visible en este product.yml, no fingida. s0–s4 (contrato
+# tipado, backend, DB viva, lógica generada por claude, eval) corren HERMÉTICOS.
+station_activation:
+  s5: off

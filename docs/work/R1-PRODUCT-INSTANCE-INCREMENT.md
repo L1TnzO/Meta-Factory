@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3f3c4efdf2e1c27d83566627a6cb7e9699de81d7 updated=2026-06-19T23:56Z -->
+<!-- meta:doc sha=84c5bc460ad0b3ec41f13fc55c46a94ca7ef74d3 updated=2026-06-20T00:24Z -->
 # Incremento R1-PRODUCT-INSTANCE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-19T23:53Z). Cerralo con `meta increment close`
@@ -29,10 +29,10 @@ fábrica ni tech, ADR-012; promovido sólo en ≥2 dominios distintos, ADR-014).
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Seam de sustrato**: `RunContext.chassis` (default=root) + `_generate` resuelve el `via` relativo contra el chasis. Test: generador en chasis, output en workdir distinto. Suite sin regresión (default byte-idéntico). | ⏳ |
-| 2 | **Lifecycle de instancia**: `ensure_product_instance` (spec efectivo `base⊕product.yml` + materializar stations) + `_run_product_line`/`rederive_pinned`/`_pin_from_proofs` toman `(root, chassis)` + verbo `meta product {new,list}` + `--product` en product-run/ci/pin/rtm + `ci --rederive --all-products`. Test: 1 fábrica → 2 productos distintos, cada pin re-deriva; isolation. | ⏳ |
-| 3 | **Gate con dientes**: check `products_rederive` (clon → re-deriva CADA instancia == su pin; negativo no-decorativo: pin tampereado → mismatch), cableado en m06 (N/A-pass sin instancias). **Co-validación en 2 dominios reales** (toolchains disjuntos): 2º producto en `iot` (Go) **y** en `full-stack` (TS); `ci --rederive --product` == pin en ambos; m06 verde con `products_rederive` activo; isolation VIVO por CLI. Anti-overfit: `git diff src/` = sólo mecanismo general (cero nombres de fábrica/tech). | ⏳ |
-| 4 | **Cierre**: STATE «Ahora» + ROADMAP R1→✅ + LOG + sello ADR-015. `meta check` verde · `ci --rederive` de las 5 fábricas == pineado. `meta increment close`. | ⏳ |
+| 1 | **Seam de sustrato**: `RunContext.chassis` (default=root) + `_generate` resuelve el `via` relativo contra el chasis. Test: generador en chasis, output en workdir distinto. Suite sin regresión (default byte-idéntico). | ✅ (`7f484ce`) |
+| 2 | **Lifecycle de instancia**: `ensure_product_instance` (spec efectivo `base⊕product.yml` + materializar stations) + `_run_product_line`/`rederive_pinned`/`_pin_from_proofs` toman `(root, chassis)` + verbo `meta product {new,list}` + `--product` en product-run/ci/pin/rtm + `ci --rederive --all-products`. `infra_up` con cwd-alias corto (budget sun_path para workdirs hondos). Test: 1 fábrica → 2 productos distintos, cada pin re-deriva; isolation. Dominio 1 (Go): `iot/fleet`. | ✅ (`0b79775`) |
+| 3 | **Gate con dientes**: check `products_rederive` (clon → re-deriva CADA instancia == su pin; negativo no-decorativo: pin tampereado → mismatch), cableado en m06 (N/A-pass sin instancias). **Co-validación 2 dominios disjuntos**: `iot/fleet` (Go) **y** `full-stack/tasks` (TS, s3 claude pineado §7, s5 diferido honesto); `ci --rederive --product` == pin en ambos (keyless); m06 iot verde en secuencia con `products_rederive`; isolation + negativo VIVOS por CLI. `station_activation` override (la instancia difiere honestamente una estación live sin provider — lo que el propio `live_run` sugiere). Anti-overfit: `git diff src/+seed` = ~287 líneas, **cero nombres de fábrica/tech**, seed intacto. | ✅ |
+| 4 | **Cierre**: STATE «Ahora» + ROADMAP R1→✅ + LOG + sello ADR-015. `meta check` verde · `ci --rederive` de las fábricas == pineado. `meta increment close`. | ⏳ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. **≥2 productos por UNA fábrica**, cada uno `meta ci --rederive --product <p> == su pin` (re-derivado en árbol limpio).

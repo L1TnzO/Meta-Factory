@@ -162,3 +162,32 @@ def test_products_are_isolated(tmp_path: Path):
     # B re-deriva verde con total independencia del estado de A
     ok, mism, _, has = rederive_pinned(b, repo_root(), "t", record_active=False, chassis=chassis)
     assert has and ok and not mism
+
+
+# ── Fase 3 — el gate `products_rederive`: cada instancia == su pin, con diente ──
+
+def test_products_rederive_gate(tmp_path: Path):
+    """El gate re-deriva CADA instancia == su pin en clon limpio; un pin tampereado lo pone rojo."""
+    import json
+
+    from metafactory.verify.checks import products_rederive as PR
+    chassis = _chassis(tmp_path, product_name="alpha")
+    _instantiate(chassis, "pa", "aaa")
+    _instantiate(chassis, "pb", "bbb")
+
+    # verde: dos instancias re-derivan == su pin
+    assert PR.main([str(chassis), str(repo_root())]) == 0
+
+    # rojo: un pin corrupto en una instancia bloquea (desvío re-derivado != pineado)
+    pin = chassis / "products" / "pa" / "pinned_verdict.json"
+    data = json.loads(pin.read_text())
+    sid = next(iter(data)); data[sid] = "deadbeef" + str(data[sid])[8:]
+    pin.write_text(json.dumps(data))
+    assert PR.main([str(chassis), str(repo_root())]) == 1
+
+
+def test_products_rederive_na_without_instances(tmp_path: Path):
+    """Sin instancias (products/) el gate reporta N/A honesto (no finge verde) — opt-out como boundary."""
+    from metafactory.verify.checks import products_rederive as PR
+    chassis = _chassis(tmp_path, product_name="alpha")
+    assert PR.main([str(chassis), str(repo_root())]) == 0   # N/A → exit 0 (no aplica)

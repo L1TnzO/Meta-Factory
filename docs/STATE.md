@@ -1,4 +1,4 @@
-<!-- meta:doc sha=51f054373b80ffdd38dfdabba0ba118d33360a5a updated=2026-06-20T00:35Z -->
+<!-- meta:doc sha=fbf613186ca8df2ab501fe7a8bec6107c17c120b updated=2026-06-20T02:14Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -14,18 +14,23 @@
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.
-- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2 pendiente**: el
-  motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos**. Una instancia vive en
-  `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` (su blueprint `domain.product`) + `pinned_verdict.json`;
-  el sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea en cada corrida (`ensure_product_instance`).
-  Seam de motor: `RunContext.chassis` (generador compartido, default==root byte-idéntico) + `_generate` resuelve el
-  `via` contra el chasis. Verbo `meta product {new,list}` + `--product` en product-run/ci/pin/rtm + `ci --rederive
-  --all-products`. **Gate `products_rederive` (m06)**: cada instancia re-deriva == su pin en clon limpio, aislada
-  (borrar el proof de A no abre la gate de B) y con diente (pin tampereado → rojo); N/A sin instancias. **Co-validado
-  2 toolchains disjuntos** (ADR-014): `iot/fleet` (Go) + `full-stack/tasks` (TS, keyless). `git diff src/+seed` ~287
-  líneas, cero nombres de fábrica/tech, seed intacto. **Sigue R2** (expresividad de `domain.product`: hoy CRUD-deep
-  con vocabulario de campos fijo por scaffold; apps reales necesitan workflows/RBAC — por-fábrica, ADR-012):
-  `work/ROADMAP.md §Fase R`.
+- **Eje Reutilización — fábrica → N productos (lifecycle 1:N, ADR-015): R1 ✅ (2026-06-19) · R2 arrancó: FSK ✅ (2026-06-19)**:
+  - **R1 (lifecycle, sustrato)**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos**.
+    Una instancia vive en `factories/<f>/products/<p>/` y commitea SÓLO `product.yml` + `pinned_verdict.json`; el
+    sustrato re-deriva el spec efectivo (`base ⊕ product.yml`) + la línea por corrida (`ensure_product_instance`).
+    Seam: `RunContext.chassis` + `_generate` resuelve el `via` contra el chasis. `meta product {new,list}` +
+    `--product` en product-run/ci/pin/rtm. **Gate `products_rederive` (m06)** re-deriva cada instancia == su pin en
+    clon limpio, aislada. Co-validado `iot/fleet` (Go) + `full-stack/tasks` (TS, keyless).
+  - **R2·FSK (expresividad de tipos, contenido de fábrica)**: el scaffold de FSK pasó de **3** tipos de campo
+    (`string`/`boolean`/`ref`) a **8** (`+int`/`number`/`date`/`enum` type-safe + **opcionalidad**), fluyendo
+    END-TO-END (contrato → SQL+nullability → jOOQ → tests vs **PG viva**). **2 productos con vocabularios DISTINTOS**
+    re-derivan `==pin` en clon limpio: demo enriquecido **11/11** + instancia `assets` (Snipe-IT-lite, s6 LLM diferido
+    keyless) **10/10**. Dientes fail-closed + enum type-safety dos-lados. **Sustrato**: `seed/`=0, `src/metafactory/`=
+    **8 líneas** en `engine/sequence.py` (fix GENERAL de R1 — deferral mid-line, cero nombres dominio/tech); el
+    vocabulario vive 100% en `codegen/`. Cerró 3 gaps de R1 que el producto rico expuso (chassis-cmd + puertos
+    efímeros = DATA · `requires_prev`-a-través-de-diferida = engine). Suite 573.
+  - **Sigue**: R2 en otras fábricas + ejes superiores (workflows/RBAC/reglas), un incremento por fábrica/eje
+    (ADR-012). El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios). `work/ROADMAP.md §Fase R`.
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

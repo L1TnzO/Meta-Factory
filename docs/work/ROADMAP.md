@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c8db2839e06c24551e5b2379faa83482adfb867d updated=2026-06-20T00:26Z -->
+<!-- meta:doc sha=c759aaf4bc50f61f000b2a3dd91c973014f50160 updated=2026-06-20T02:14Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -430,7 +430,7 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   general (0 nombres de fábrica/tech); el corpus vive como DATA en `scenarios/`. `meta check` 6/6 · `ci
   --rederive` iot 5/5 == pineado. Evidencia: `work/G2-SCENARIO-CORPUS-INCREMENT.md`. Depende: G1.
 
-### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2 pendiente)
+### Fase R · Reutilización: una fábrica → N productos (lifecycle 1:N) — 🟡 EN CURSO (R1 ✅ · R2 arrancó: FSK ✅)
 > Cierre conceptual de la sesión 2026-06-19 (**ADR-015**). A–H construyó el sustrato generativo y lo probó
 > sobre **UN** producto por fábrica (1:1, depth-first anti-fachada — la doctrina M8, NO un límite). El eje que
 > sigue —y que se espera de **TODA** fábrica— es volverla un **destino reutilizable**: N productos desde N
@@ -452,12 +452,26 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
   sun_path para workdirs de instancia más hondos). **Diferido honesto**: migrar el demo a instancia #1 (simetría
   total; R1 probó coexistencia default+instancia, no la pide); factories con línea LLM/heavy (full-stack s5, ASF,
   FSK) instancian con key/pin o `activation:off` (no es límite del mecanismo).
-- **R2 · Expresividad de `domain.product` (track paralelo, POR-fábrica).** 🔲 SEPARADO de R1: hoy el blueprint
-  es entidades+campos (**CRUD-deep**). Apps reales (workflows, RBAC, reglas de negocio) necesitan más
-  expresividad — vía gramática extendida **o** lógica generada por LLM bajo contract test (patrón s6/MAT-2). Es
-  contenido de fábrica (ADR-012), un incremento por fábrica (p.ej. `FSK-S11-DOMAIN-EXPRESSIVENESS`). NO bloquea
-  R1; un caso real (p.ej. replicar Snipe-IT) necesita **ambos**: R1 para coexistir con el demo, R2 para expresar
-  el comportamiento.
+- **R2 · Expresividad de `domain.product` (track paralelo, POR-fábrica).** 🟡 ARRANCÓ. SEPARADO de R1: el
+  blueprint era entidades+campos con vocabulario de tipos LIMITADO. R2 lo amplía por-fábrica — vía gramática
+  extendida (determinista) **o** lógica generada por LLM bajo contract test (patrón s6/MAT-2). Es contenido de
+  fábrica (ADR-012), un incremento por fábrica. NO bloquea R1; un caso real (p.ej. replicar Snipe-IT) necesita
+  **ambos**: R1 para coexistir con el demo, R2 para expresar el comportamiento.
+  - **R2·FSK — vocabulario de campos arbitrario.** ✅ (2026-06-19, `FSK-S11-DOMAIN-EXPRESSIVENESS`). El
+    scaffold de FSK pasó de **3** tipos (`string`/`boolean`/`ref`) a **8** (`+int`/`number`/`date`/`enum` con
+    `values`→enum class Kotlin type-safe + **opcionalidad** `required:false`→columna nullable), fluyendo
+    END-TO-END (contrato OpenAPI `enum`/`int32`/`double`/`format:date` → SQL+nullability → jOOQ tipado → tests
+    del producto contra **PG viva**). Generalizó 3 generadores que hardcodeaban el vocabulario del demo (TS
+    test, UI/`app.ts`, `RouteTableTest`) + wrapping de codegen para entidades anchas (límite 160 detekt). **2
+    productos con vocabularios DISTINTOS** re-derivan `==pin` en clon limpio: demo enriquecido **11/11** (RTM
+    15/15) + instancia `assets` (Snipe-IT-lite, s6 LLM diferido keyless) **10/10** (RTM 14/15 honesto).
+    Dientes: fail-closed (tipo desconocido/enum-sin-values/ref-colgante→exit 1) + enum type-safety dos lados
+    (tamper `enum:`→`Unresolved 'Status'`→rojo). **Anti-overfit**: `seed/`=0, `src/metafactory/`=**8 líneas**
+    en `engine/sequence.py` (fix GENERAL de R1 — deferral mid-line, cero nombres dominio/tech); el vocabulario
+    vive 100% en `codegen/`. Suite 573. Expuso+cerró 3 gaps de R1 (chassis-cmd + puertos efímeros = DATA;
+    `requires_prev`-a-través-de-diferida = engine general). Evidencia: `work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md`.
+  - **R2·{otras fábricas} + ejes superiores** (workflows/RBAC/reglas, gramática o LLM): 🔲 pendientes, un
+    incremento por fábrica/eje. El caso "clonar Snipe-IT" ya tiene el PISO (R1 coexistencia + R2 campos arbitrarios).
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

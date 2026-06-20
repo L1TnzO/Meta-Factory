@@ -1,7 +1,42 @@
-<!-- meta:doc sha=47831227c268021b93d1c28a0fa00e4a0b3e88fd updated=2026-06-20T00:27Z -->
+<!-- meta:doc sha=ba15a9e31bf2fe990a8cea123a8463aba6d70061 updated=2026-06-20T02:15Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T02:10Z — R2·FSK ✅ — expresividad de `domain.product`: vocabulario de campos arbitrario (`FSK-S11-DOMAIN-EXPRESSIVENESS`)
+- **qué cambió**: el scaffold de FSK pasó de **3** tipos de campo (`string`/`boolean`/`ref`) a **8** —
+  `+int`/`number`/`date`/`enum` (con `values` → enum class Kotlin **type-safe**, vía openapi-generator) +
+  **opcionalidad** (`required:false` → columna nullable + fuera de `required[]` del contrato). El tipo fluye
+  END-TO-END: contrato OpenAPI (`enum`/`int32`/`double`/`format:date`) → schema SQL (col + NOT NULL/nullable) →
+  jOOQ tipado → tests del producto contra **PG viva**. Validador fail-closed (tipo desconocido · enum sin
+  `values` · ref colgante · `required` no-bool). Todo en `codegen/scaffold_product.py` (contenido de fábrica, ADR-012).
+- **generalicé 3 generadores que hardcodeaban el vocabulario del demo** (el gotcha de R1): el TS client test
+  (fixtures+esperado), la UI/`app.ts` (tipaba `components["schemas"]["Task"]` o caía a un literal → import muerto)
+  y `RouteTableTest` (ruta `/users` fija). Ahora derivan de la 1ª entidad del blueprint. + wrapping de codegen
+  (App.kt/jOOQ insert/Repository select/ctor de tests) para que entidades anchas no pasen el límite de 160 (detekt).
+- **co-validación 2 productos con vocabularios DISTINTOS** (ADR-014), ambos `ci --rederive == pin` en clon limpio:
+  **demo enriquecido** (`Project.budget:number`, `Task.{priority:enum, estimate:int, due:date, notes:opcional}`) →
+  11/11, RTM 15/15; **instancia `assets`** (Snipe-IT-lite: int/number/date/2 enums/ref-opcional/notes-opcional, s6
+  LLM diferido keyless `station_activation:off`) → 10/10, RTM 14/15 (s6 honestamente insatisfecho). PG viva:
+  `FSK_DB_ROUNDTRIP_OK reversible=ok`.
+- **dientes por bloqueo**: fail-closed VIVO (blueprint con `uuid`/enum-sin-values/ref-colgante → exit 1; válido con
+  los 8 tipos → exit 0); **enum type-safety dos lados** (tamper `enum:[...]` del contrato → `Unresolved reference
+  'Status'` → compile rojo; regen → verde) — el drift del enum rompe el compile (DES-6 extendido).
+- **3 gaps de R1 que el producto FSK rico expuso (ninguno es de R2; R1 se co-validó con líneas más simples)**:
+  (1) `kind: command` chassis-relativo (`scaffold_idempotent` corría `codegen/…` con cwd=instancia, donde no
+  existe) → fix DATA (`sh -c` resuelve `codegen`|`../../codegen`); (2) puertos PG/obs pineados en el rango
+  efímero del SO (55434/55435/58593 ∈ 32768–60999) → el navegador del ingeniero robó 55434 → gate roja por
+  construcción (exit 125) → fix DATA (5434/5435/18593); (3) `requires_prev` no veía a través de una estación
+  **diferida** → deferir s6 (mid-line) wedgeaba s7–s10 aunque sus checks pasaran (R1 sólo había diferido la
+  ÚLTIMA estación). Fix GENERAL en `engine/sequence.py` (8 líneas, domain-agnóstico): predecesor explícito
+  inactivo = transparente.
+- **anti-overfit**: `git diff seed/` = 0; `src/metafactory/` = **8 líneas** en `engine/sequence.py`, cero nombres
+  de fábrica/tech/dominio (grep). El vocabulario de tipos vive 100% en la fábrica. Suite `tests/` **573 verde**.
+- **proceso (lecciones)**: el sandbox de Bash MATA gradle (señal 16) — las corridas de la línea necesitan
+  `dangerouslyDisableSandbox`. Y un `product-run` en background + cierre de turno dispara `stop_proof` sobre la
+  estación activa, que choca con el contenedor/puerto de la línea en vuelo: correr la línea en FOREGROUND (termina
+  en s10, sin puerto) evita la colisión.
+- **evidencia**: `work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md`. Depende: R1 (`R1-PRODUCT-INSTANCE`), MAT-1/FSK-s0..s10.
 
 ## 2026-06-20T00:30Z — R1 ✅ — lifecycle de instancia de producto (1 fábrica → N productos) por bloqueo
 - **qué cambió**: el motor pasó de **1 fábrica : 1 producto pineado** a **1 fábrica : N productos** (R1 de ADR-015).

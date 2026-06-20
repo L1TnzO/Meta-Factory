@@ -39,6 +39,53 @@ def _factory_dir(slug: str) -> Path:
     return _meta_root() / "factories" / slug
 
 
+def _products_dir(slug: str) -> Path:
+    return _factory_dir(slug) / "products"
+
+
+def _product_dir(slug: str, product: str) -> Path:
+    return _products_dir(slug) / product
+
+
+def _list_products(slug: str) -> list[str]:
+    """The named product instances of a factory (R1): a dir under `products/` carrying a `product.yml`
+    (its domain blueprint, the committed source). The DEFAULT product (factory root) is not listed here."""
+    pdir = _products_dir(slug)
+    if not pdir.is_dir():
+        return []
+    return sorted(p.name for p in pdir.iterdir() if (p / "product.yml").is_file())
+
+
+def ensure_product_instance(chassis: Path, product_root: Path, meta_root: Path, slug: str) -> None:
+    """R1 (ADR-015) — materialize a product instance's DERIVED root from its committed source.
+
+    A product instance commits only two files: `product.yml` (its `domain.product` blueprint — the sole
+    point of variation between a factory's products) and `pinned_verdict.json` (its pin). Everything else
+    is re-derivable: this writes the EFFECTIVE spec (the factory's base spec with `domain.product` replaced
+    by the instance's blueprint) and re-materializes the instance's `stations/` from it (reusing the engine's
+    `_materialize_line`, single source — the line STRUCTURE is the factory's; only the blueprint differs).
+    Idempotent: safe to call before every run (`ci --rederive`, the gate's clean clone), so a fresh checkout
+    that carries only `product.yml` rebuilds the whole instance. The substrate names no tech (ADR-012)."""
+    import copy
+
+    import yaml
+
+    from .codegen.renderer import _materialize_line
+    from .engine import RunContext
+
+    chassis, product_root = Path(chassis).resolve(), Path(product_root).resolve()
+    base = yaml.safe_load((chassis / "factory.spec.yml").read_text(encoding="utf-8")) or {}
+    blueprint = yaml.safe_load((product_root / "product.yml").read_text(encoding="utf-8")) or {}
+    effective = copy.deepcopy(base)
+    effective.setdefault("domain", {})["product"] = blueprint
+    product_root.mkdir(parents=True, exist_ok=True)
+    (product_root / "factory.spec.yml").write_text(
+        yaml.safe_dump(effective, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    eff_spec = load_spec(product_root / "factory.spec.yml")
+    ctx = RunContext(root=product_root, meta_root=meta_root, slug=slug, chassis=chassis)
+    _materialize_line(ctx, {"action": "materialize_line", "dest": "stations"}, _subst_for(eff_spec, product_root))
+
+
 def _meta_stations_dir() -> Path:
     return _meta_root() / "src" / "metafactory" / "stations"
 
@@ -156,14 +203,24 @@ def cmd_station(args) -> int:
     return _run_one(ctx, station, seq, subst, _meta_stations_dir(), fdir / "factory.spec.yml", verb="station")
 
 
-def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True):
+def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True,
+                      chassis: Path | None = None):
     """Run factory `slug`'s product line e2e on `fdir` (build a REAL product, compile+run it).
     Returns (rc, last_run). `record_active=False` keeps a hermetic re-derivation (the clean_runner
     gate) from leaking into the meta active-station pointer or the journal. Single source for both
-    `product-run` and the two-verifier re-derivation (no divergence, ADR-005 §4)."""
+    `product-run` and the two-verifier re-derivation (no divergence, ADR-005 §4).
+
+    `chassis` (R1, ADR-015): when `fdir` is a PRODUCT INSTANCE (`products/<p>/`) its generator lives in
+    the factory chassis, not in `fdir`. Passing it (a) re-derives the instance's effective spec + line from
+    its committed `product.yml` and (b) runs the line with `RunContext(root=fdir, chassis=chassis)` so the
+    `generate` slot finds the shared generator. For the DEFAULT product chassis defaults to fdir (1:1, byte-identical)."""
+    fdir = Path(fdir).resolve()
+    chassis = Path(chassis).resolve() if chassis else fdir
+    if chassis != fdir:
+        ensure_product_instance(chassis, fdir, meta_root, slug)
     spec = load_spec(fdir / "factory.spec.yml")
     subst = _subst_for(spec, fdir)
-    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug)
+    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug, chassis=chassis)
     pseq = load_sequence(fdir / "stations")
     if not pseq.active:
         return 1, None
@@ -178,20 +235,89 @@ def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: 
     return (0 if ok else 1), last
 
 
+def _resolve_target(slug: str, product: str | None):
+    """(root, chassis) for a factory's DEFAULT product or a named INSTANCE (R1, ADR-015). Default:
+    root == factory dir, chassis None (1:1, byte-identical). Instance: root == products/<p>, chassis
+    == factory dir (the shared generator). The substrate names no factory/tech — `product` is DATA."""
+    if product:
+        return _product_dir(slug, product), _factory_dir(slug)
+    return _factory_dir(slug), None
+
+
 def cmd_product_run(args) -> int:
     """Run factory S's own product line e2e — builds a REAL product and compiles+runs it.
-    This is what M8 calls; render-green alone cannot pass it (façade-trap closed)."""
+    This is what M8 calls; render-green alone cannot pass it (façade-trap closed). `--product <p>`
+    runs a named INSTANCE's line (R1) instead of the default product."""
     slug = args.factory
-    fdir = _factory_dir(slug)
-    rc, last = _run_product_line(fdir, _meta_root(), slug)
+    product = getattr(args, "product", None)
+    root, chassis = _resolve_target(slug, product)
+    if product and not (root / "product.yml").is_file():
+        print(f"VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    no existe el producto {product!r} en {slug} "
+              f"(creálo con `meta product new`)")
+        return 1
+    rc, last = _run_product_line(root, _meta_root(), slug, chassis=chassis)
     if last is None:
         print("VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    la fábrica no tiene línea de producto")
         return 1
-    v = report.from_proof("product-run", last.proof,
+    label = f"product-run {slug}/{product}" if product else "product-run"
+    v = report.from_proof(label, last.proof,
                           next_pass=f"producto e2e OK · {last.gate.line()}",
                           next_fail=f"producto roto · {last.gate.line()}")
     _print_verdict(v)
     return 0 if rc == 0 else 1
+
+
+def cmd_product(args) -> int:
+    """R1 (ADR-015) — the product-instance lifecycle verb: a factory is a REUSABLE target (1:N).
+
+    `new --factory F --name P <blueprint.yml>` registers a NEW product instance: it commits the
+    blueprint as products/P/product.yml (the sole point of variation — a `domain.product` subtree),
+    materializes the instance from it, runs the factory's line e2e on the instance's OWN evidence root
+    and pins it. `list --factory F` shows the default product + every instance with its pin status.
+    The substrate names no factory/tech (ADR-012); instances are DATA, not branches in the codegen."""
+    slug = args.factory
+    meta_root = _meta_root()
+    fdir = _factory_dir(slug)
+    if not (fdir / "factory.spec.yml").is_file():
+        print(f"VEREDICTO  product — FAIL   (exit 1)\nRESUMEN    no existe la fábrica {slug!r}")
+        return 1
+    if args.prod_cmd == "list":
+        products = _list_products(slug)
+        print(f"VEREDICTO  product list {slug} — {len(products) + 1} producto(s)   (exit 0)")
+        print(f"RESUMEN    default + {len(products)} instancia(s) (cada una con pin propio)")
+        dpin = "pin ✓" if (fdir / "pinned_verdict.json").is_file() else "sin pin"
+        print(f"           default (raíz de la fábrica) · {dpin}")
+        for p in products:
+            ppin = "pin ✓" if (_product_dir(slug, p) / "pinned_verdict.json").is_file() else "sin pin"
+            print(f"           {p} (products/{p}/) · {ppin}")
+        return 0
+    # new
+    name = args.name
+    product_root = _product_dir(slug, name)
+    if (product_root / "product.yml").is_file():
+        print(f"VEREDICTO  product new — FAIL   (exit 1)\nRESUMEN    el producto {name!r} ya existe en {slug} "
+              f"(no lo piso)")
+        return 1
+    blueprint_path = Path(args.blueprint)
+    if not blueprint_path.is_file():
+        print(f"VEREDICTO  product new — FAIL   (exit 1)\nRESUMEN    no existe el blueprint {args.blueprint}")
+        return 1
+    product_root.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(blueprint_path, product_root / "product.yml")
+    rc, last = _run_product_line(product_root, meta_root, slug, chassis=fdir)
+    if last is None or rc != 0:
+        line = last.gate.line() if last is not None else "la fábrica no tiene línea de producto"
+        print(f"VEREDICTO  product new {slug}/{name} — FAIL   (exit 1)\nRESUMEN    el producto no construye verde · {line}")
+        print("PRÓXIMO    corregí el blueprint products/{0}/product.yml y reintentá".format(name))
+        return 1
+    pin_ok, info = _pin_from_proofs(product_root, meta_root, slug, chassis=fdir)
+    if not pin_ok:
+        print(f"VEREDICTO  product new {slug}/{name} — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde al pinear")
+        return 1
+    print(f"VEREDICTO  product new {slug}/{name} — PASS   (exit 0)")
+    print(f"RESUMEN    instancia products/{name}/ construida e2e + pineada ({len(info)} estaciones)")
+    print(f"PRÓXIMO    re-derivá su pin con `meta ci --rederive --factory {slug} --product {name}`")
+    return 0
 
 
 def cmd_rtm(args) -> int:
@@ -201,11 +327,14 @@ def cmd_rtm(args) -> int:
     exists on disk. Single source `verify.rtm` (shared with the `rtm_tree` gate)."""
     from .verify import rtm
     slug = args.factory
-    fdir = _factory_dir(slug)
+    product = getattr(args, "product", None)
+    fdir, chassis = _resolve_target(slug, product)
+    if product:
+        ensure_product_instance(chassis, fdir, _meta_root(), slug)
     spec = load_spec(fdir / "factory.spec.yml")
-    ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug)
+    ctx = RunContext(root=fdir, meta_root=_meta_root(), slug=slug, chassis=chassis)
     nodes = rtm.build_tree(spec, ctx.verifier, fdir)
-    print(rtm.render(slug, nodes))
+    print(rtm.render(f"{slug}/{product}" if product else slug, nodes))
     return 0 if rtm.is_complete(nodes) else 1
 
 
@@ -223,12 +352,14 @@ def _compare_to_pinned(verifier, fdir: Path, pinned: dict) -> list[str]:
     return mismatches
 
 
-def rederive_pinned(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True):
+def rederive_pinned(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True,
+                    chassis: Path | None = None):
     """External re-derivation law (two-verifier doctrine, PF-10): wipe re-derivable state on
     `fdir`, rebuild the product line from source on a clean tree, recompute each proof_sha and
     demand the pinned verdict. ONE law shared by `meta ci`, the external CI and the clean_runner
     gate (M6). The gate runs it against a throwaway clone so custody is never the root of trust —
-    replicability is. Returns (ok, mismatches, rc, has_pinned)."""
+    replicability is. `chassis` (R1): re-derive a PRODUCT INSTANCE whose generator lives in the
+    factory chassis (`fdir` = `products/<p>/`). Returns (ok, mismatches, rc, has_pinned)."""
     fdir = Path(fdir)
     pinned_path = fdir / "pinned_verdict.json"
     if not pinned_path.exists():
@@ -236,36 +367,59 @@ def rederive_pinned(fdir: Path, meta_root: Path, slug: str, *, record_active: bo
     pinned = json.loads(pinned_path.read_text(encoding="utf-8"))
     shutil.rmtree(fdir / ".proof", ignore_errors=True)
     shutil.rmtree(fdir / "build", ignore_errors=True)
-    rc, _ = _run_product_line(fdir, meta_root, slug, record_active=record_active)
-    v = RunContext(root=fdir, meta_root=meta_root, slug=slug).verifier
+    rc, _ = _run_product_line(fdir, meta_root, slug, record_active=record_active, chassis=chassis)
+    v = RunContext(root=fdir, meta_root=meta_root, slug=slug, chassis=chassis).verifier
     mismatches = _compare_to_pinned(v, fdir, pinned)
     return (rc == 0 and not mismatches), mismatches, rc, True
+
+
+def _ci_one(slug: str, product: str | None) -> tuple[bool, str]:
+    """Re-derive ONE product (default or instance) and return (ok, one-line summary). Single
+    re-derivation law (`rederive_pinned`); each product has its OWN root, so the products are
+    isolated — re-deriving B never reads A's `.proof/` (R1 isolation, ADR-015)."""
+    root, chassis = _resolve_target(slug, product)
+    label = f"{slug}/{product}" if product else slug
+    ok, mismatches, rc, has_pinned = rederive_pinned(root, _meta_root(), slug, chassis=chassis)
+    if not has_pinned:
+        return False, f"{label}: SIN PINEAR (no hay pinned_verdict.json; corré `meta pin`)"
+    pinned = json.loads((root / "pinned_verdict.json").read_text(encoding="utf-8"))
+    note = f"{label}: {len(pinned) - len(mismatches)}/{len(pinned)} proof_sha == pineado"
+    if not ok:
+        note += " · " + ("; ".join(mismatches[:3]) if mismatches else f"product-run rc={rc} (producto roto)")
+    return ok, note
 
 
 def cmd_ci(args) -> int:
     """External re-derivation (two-verifier doctrine): wipe re-derivable state, rebuild the
     product line from source on a clean tree, and demand the pinned proof_sha. Any deviation
-    (either direction) is red — a spontaneous PASS without proof is a façade, not a win."""
+    (either direction) is red — a spontaneous PASS without proof is a façade, not a win.
+
+    `--product <p>` re-derives a named INSTANCE (R1); `--all-products` re-derives the DEFAULT
+    plus EVERY instance, each demanding its own pin — one product's failure never masks another's,
+    and their separate roots make the re-derivations isolated (ADR-015)."""
     slug = args.factory
-    fdir = _factory_dir(slug)
-    ok, mismatches, rc, has_pinned = rederive_pinned(fdir, _meta_root(), slug)
-    if not has_pinned:
-        print(f"VEREDICTO  ci --rederive — FAIL   (exit 1)\nRESUMEN    no hay pinned_verdict.json en {slug} (corré `meta pin`)")
-        return 1
-    pinned = json.loads((fdir / "pinned_verdict.json").read_text(encoding="utf-8"))
-    print(f"VEREDICTO  ci --rederive {slug} — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
-    print(f"RESUMEN    re-derivado en árbol limpio · {len(pinned) - len(mismatches)}/{len(pinned)} proof_sha == pineado")
-    for m in mismatches[:5]:
-        print(f"           {m}")
-    if not ok and rc != 0:
-        print("           product-run falló al reconstruir (producto roto en la fuente)")
+    if getattr(args, "all_products", False):
+        targets: list[str | None] = [None, *_list_products(slug)]
+        results = [_ci_one(slug, p) for p in targets]
+        ok = all(r[0] for r in results)
+        print(f"VEREDICTO  ci --rederive {slug} --all-products — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
+        print(f"RESUMEN    {sum(r[0] for r in results)}/{len(results)} productos re-derivados == su pin")
+        for _, note in results:
+            print(f"           {note}")
+        return 0 if ok else 1
+    product = getattr(args, "product", None)
+    ok, note = _ci_one(slug, product)
+    label = f"{slug}/{product}" if product else slug
+    print(f"VEREDICTO  ci --rederive {label} — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
+    print(f"RESUMEN    re-derivado en árbol limpio · {note}")
     return 0 if ok else 1
 
 
-def _pin_from_proofs(fdir: Path, meta_root: Path, slug: str):
+def _pin_from_proofs(fdir: Path, meta_root: Path, slug: str, *, chassis: Path | None = None):
     """Single source for writing the pinned verdict from the CURRENT (honest) proofs of the
-    product line. Returns (ok, pinned_or_badstation). Reused by `meta pin` and `meta promote`."""
-    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug)
+    product line. Returns (ok, pinned_or_badstation). Reused by `meta pin` and `meta promote`.
+    `chassis` (R1): pin a PRODUCT INSTANCE (`fdir` = `products/<p>/`) whose pin lives beside it."""
+    ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug, chassis=chassis)
     pseq = load_sequence(fdir / "stations")
     pinned = {}
     for st in pseq.active:
@@ -278,13 +432,17 @@ def _pin_from_proofs(fdir: Path, meta_root: Path, slug: str):
 
 
 def cmd_pin(args) -> int:
-    """Write the pinned verdict from the current (honest) proofs of the product line."""
+    """Write the pinned verdict from the current (honest) proofs of the product line.
+    `--product <p>` pins a named INSTANCE (R1), writing products/<p>/pinned_verdict.json."""
     slug = args.factory
-    ok, info = _pin_from_proofs(_factory_dir(slug), _meta_root(), slug)
+    product = getattr(args, "product", None)
+    root, chassis = _resolve_target(slug, product)
+    ok, info = _pin_from_proofs(root, _meta_root(), slug, chassis=chassis)
     if not ok:
         print(f"VEREDICTO  pin — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde; corré product-run primero")
         return 1
-    print(f"VEREDICTO  pin {slug} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
+    label = f"pin {slug}/{product}" if product else f"pin {slug}"
+    print(f"VEREDICTO  {label} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
     return 0
 
 
@@ -627,10 +785,15 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("check").set_defaults(func=cmd_check)
     sp = sub.add_parser("new"); sp.add_argument("spec"); sp.set_defaults(func=cmd_new)
     sp = sub.add_parser("station"); sp.add_argument("id"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_station)
-    sp = sub.add_parser("product-run"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_product_run)
-    sp = sub.add_parser("rtm"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_rtm)
-    sp = sub.add_parser("ci"); sp.add_argument("--rederive", action="store_true"); sp.add_argument("--factory", default="dummy"); sp.set_defaults(func=cmd_ci)
-    sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_pin)
+    sp = sub.add_parser("product-run"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_product_run)
+    pp = sub.add_parser("product"); pp.set_defaults(func=cmd_product)
+    psub = pp.add_subparsers(dest="prod_cmd", required=True)
+    pn = psub.add_parser("new"); pn.add_argument("--factory", required=True); pn.add_argument("--name", required=True); pn.add_argument("blueprint")
+    pl = psub.add_parser("list"); pl.add_argument("--factory", required=True)
+    sp = sub.add_parser("rtm"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_rtm)
+    sp = sub.add_parser("ci"); sp.add_argument("--rederive", action="store_true"); sp.add_argument("--factory", default="dummy")
+    sp.add_argument("--product", default=None); sp.add_argument("--all-products", action="store_true"); sp.set_defaults(func=cmd_ci)
+    sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_pin)
     sp = sub.add_parser("promote"); sp.add_argument("--factory", required=True)
     sp.add_argument("--baseline", default="baseline_verdicts.json"); sp.add_argument("--allow-hold", action="store_true")
     sp.set_defaults(func=cmd_promote)

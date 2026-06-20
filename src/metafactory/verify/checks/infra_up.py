@@ -38,9 +38,11 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -59,6 +61,23 @@ def _sandbox_env() -> dict:
     for leak in _LEAKY_ENV:
         env.pop(leak, None)
     return env
+
+
+def _short_cwd(wd: Path) -> tuple[Path, str, callable]:
+    """Give the check a SHORT logical cwd aliasing `wd`, so a service that derives a Unix-socket path from
+    `$PWD` stays under sun_path's ~108-byte budget even when the re-derivable workdir nests deep — e.g. a
+    PRODUCT INSTANCE under `products/<p>/build/product` (R1, ADR-015), which adds ~15 bytes over a 1:1 line
+    and can tip a long repo path over the limit. A short symlink in /tmp points at `wd`; running with
+    cwd=link AND env PWD=link keeps `$PWD` short, while the bound socket FILE still lands in the real `wd`
+    (the link resolves there). Tech-AGNOSTIC: the substrate only shortens the path — it never knows a socket
+    is bound (ADR-012). Falls back to `wd` itself if the alias cannot be made. Returns (cwd, pwd, cleanup)."""
+    try:
+        holder = tempfile.mkdtemp(prefix="mfu-", dir=tempfile.gettempdir())
+        link = Path(holder) / "w"
+        link.symlink_to(wd)
+        return link, str(link), lambda: shutil.rmtree(holder, ignore_errors=True)
+    except OSError:
+        return wd, str(wd), lambda: None
 
 
 def _run(argv: list, cwd: Path, env: dict) -> int:
@@ -125,12 +144,22 @@ def run(workdir: str, up: list, proof: list, down: list, bootstrap: list | None 
         print("infra_up: no `proof` argv (a proof must USE the live infra)", file=sys.stderr)
         return 2
     env = _sandbox_env()
+    # cwd is a SHORT alias of `wd` (sun_path budget for deep INSTANCE workdirs, R1); `$PWD` follows it so a
+    # socket derived from $PWD stays short while its file lands in the real wd (the link resolves there).
+    cwd, env["PWD"], cleanup = _short_cwd(wd)
+    try:
+        return _run_phases(cwd, up, proof, down, bootstrap, env, ready_timeout, down_timeout)
+    finally:
+        cleanup()   # always remove the short alias (a symlink in /tmp; the real wd is untouched)
 
+
+def _run_phases(cwd: Path, up: list, proof: list, down: list, bootstrap: list | None,
+                env: dict, ready_timeout: float, down_timeout: float) -> int:
     # 0. BOOTSTRAP (opcional, MAT-3): preparar el toolchain del PRODUCTO una vez, ANTES de levantar la
     #    infra (un bootstrap roto no cuesta un contenedor). Mismo env scrubbed (DES-8): el producto no pide
     #    prestado el toolchain de la fábrica. No se re-corre en la fase negativa.
     if bootstrap:
-        rc = _run(bootstrap, wd, env)
+        rc = _run(bootstrap, cwd, env)
         if rc != 0:
             print(f"infra_up: el bootstrap del producto falló (exit {rc}) antes de levantar la infra",
                   file=sys.stderr)
@@ -140,20 +169,20 @@ def run(workdir: str, up: list, proof: list, down: list, bootstrap: list | None 
     try:
         if up:
             try:
-                proc = subprocess.Popen(list(up), cwd=str(wd), env=env, start_new_session=True,
+                proc = subprocess.Popen(list(up), cwd=str(cwd), env=env, start_new_session=True,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             except OSError as exc:
                 print(f"infra_up: la infra (`up`) no pudo lanzar ({up[0]}): "
                       f"{type(exc).__name__}: {exc}", file=sys.stderr)
                 return 127
         # 1. POSITIVO: el proof alcanza el servicio vivo (reintenta mientras arranca).
-        rc = _retry_proof(proof, wd, env, time.monotonic() + ready_timeout, proc)
+        rc = _retry_proof(proof, cwd, env, time.monotonic() + ready_timeout, proc)
         if rc != 0:
             print(f"infra_up: el proof no alcanzó la infra viva en {ready_timeout:.0f}s (exit {rc})",
                   file=sys.stderr)
             return rc
     finally:
-        _teardown(down, proc, wd, env)
+        _teardown(down, proc, cwd, env)
 
     # 2. NEGATIVO embebido (no decorativo): con la infra YA caída, el MISMO proof debe FALLAR. Un proof
     #    que pasa sin servicio vivo no usa la infra (sería prosa). Doble función: prueba que el teardown
@@ -161,7 +190,7 @@ def run(workdir: str, up: list, proof: list, down: list, bootstrap: list | None 
     deadline = time.monotonic() + down_timeout
     neg = 1
     while time.monotonic() < deadline:
-        neg = _run(proof, wd, env)
+        neg = _run(proof, cwd, env)
         if neg != 0:
             break
         time.sleep(_POLL)

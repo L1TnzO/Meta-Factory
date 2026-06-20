@@ -1,0 +1,26 @@
+# 2º producto de la fábrica iot (R1, ADR-015): un gateway de telemetría de FLOTA — message name,
+# package, module, topología, required y join_key DISTINTOS del demo (sensores domésticos). Respeta
+# el vocabulario de campos que el codegen de la fábrica parametriza hoy (la expresividad de campos
+# arbitrarios es R2, diferida). Mismo chassis (codegen Go), otro domain.product.
+package_name: fleetgw
+module_path: "example.com/fleetgw"
+marker: FLEETGW_OK
+message:
+  name: Telemetry
+  fields:
+    - { name: DeviceID,  type: string }
+    - { name: Metric,    type: string }
+    - { name: Value,     type: float64 }
+    - { name: TS,        type: int64 }
+    - { name: FWVersion, type: string }
+  required: [DeviceID, FWVersion]
+topology:
+  root: hub
+  topics:
+    - { name: "fleet/engine",  publisher: vehicle, subscriber: hub }
+    - { name: "fleet/cabin",   publisher: vehicle, subscriber: hub }
+    - { name: "ops/agg",       publisher: hub,     subscriber: opsroom }
+ota:
+  require_signature: true
+provenance:
+  join_key: [DeviceID, TS]

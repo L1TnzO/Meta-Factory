@@ -15,6 +15,12 @@ __pycache__/
 factories/*/build/
 **/build/
 
+# Product instances (R1, ADR-015): a `products/<p>/` instance commits only `product.yml` (its
+# domain blueprint) + `pinned_verdict.json` (its pin). The EFFECTIVE spec + materialized line are
+# re-derived from `product.yml` on every run (like build/ + .proof/ — never the root of trust).
+factories/*/products/*/factory.spec.yml
+factories/*/products/*/stations/
+
 # Gradle's transient local cache (daemon/incremental state). Tracked source = wrapper + *.kts + sources;
 # .gradle/ is regenerable runtime state (a product line's lives under build/, but a factory-root module
 # like domain_gen would leak it without this). Never the root of trust.

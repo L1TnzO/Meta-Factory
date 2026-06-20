@@ -107,3 +107,58 @@ def test_generate_default_product_chassis_equals_root(tmp_path: Path):
     run = run_station(ctx, _gen_station(), _seq(), {}, stations_dir=chassis, spec_path=None, record_active=False)
     assert run.passed and run.gate.opened
     assert (chassis / "build" / "product" / "PRODUCT.txt").read_text().strip() == "PRODUCT name=alpha"
+
+
+# ── Fase 2 — el lifecycle de instancia: 1 fábrica → N productos, pin propio ─────
+
+def _instantiate(chassis: Path, name: str, product_name: str):
+    """Crear products/<name>/product.yml, materializar, correr la línea y pinear. Devuelve (root, ok)."""
+    import yaml
+
+    from metafactory.cli import _pin_from_proofs, _run_product_line, ensure_product_instance
+    product_root = chassis / "products" / name
+    product_root.mkdir(parents=True, exist_ok=True)
+    (product_root / "product.yml").write_text(yaml.safe_dump({"name": product_name}), encoding="utf-8")
+    ensure_product_instance(chassis, product_root, repo_root(), "t")
+    rc, _ = _run_product_line(product_root, repo_root(), "t", record_active=False, chassis=chassis)
+    pin_ok, _ = _pin_from_proofs(product_root, repo_root(), "t", chassis=chassis)
+    return product_root, (rc == 0 and pin_ok)
+
+
+def test_one_factory_n_products_each_with_own_pin(tmp_path: Path):
+    """Una fábrica instancia DOS productos distintos; cada uno con su propia evidencia + pin que re-deriva."""
+    from metafactory.cli import rederive_pinned
+    chassis = _chassis(tmp_path, product_name="alpha")   # el demo/default
+    a, ok_a = _instantiate(chassis, "pa", "aaa")
+    b, ok_b = _instantiate(chassis, "pb", "bbb")
+    assert ok_a and ok_b
+
+    # productos DISTINTOS (el blueprint varió el output) y evidencia/pin SEPARADOS
+    assert (a / "build" / "product" / "PRODUCT.txt").read_text().strip() == "PRODUCT name=aaa"
+    assert (b / "build" / "product" / "PRODUCT.txt").read_text().strip() == "PRODUCT name=bbb"
+    assert (a / ".proof").resolve() != (b / ".proof").resolve()
+    assert (a / "pinned_verdict.json").is_file() and (b / "pinned_verdict.json").is_file()
+
+    # cada pin re-deriva en árbol limpio (wipe .proof+build, reconstruir desde product.yml)
+    ok, mism, _, has = rederive_pinned(a, repo_root(), "t", record_active=False, chassis=chassis)
+    assert has and ok and not mism
+    ok, mism, _, has = rederive_pinned(b, repo_root(), "t", record_active=False, chassis=chassis)
+    assert has and ok and not mism
+
+
+def test_products_are_isolated(tmp_path: Path):
+    """Borrar el `.proof/` del producto A NO toca el de B ni abre/altera su gate (raíces separadas)."""
+    import shutil
+
+    from metafactory.cli import rederive_pinned
+    chassis = _chassis(tmp_path, product_name="alpha")
+    a, _ = _instantiate(chassis, "pa", "aaa")
+    b, _ = _instantiate(chassis, "pb", "bbb")
+
+    shutil.rmtree(a / ".proof")                     # demoler la evidencia de A
+    assert not (a / ".proof").exists()
+    assert (b / ".proof" / "s0.json").exists()      # la de B intacta
+
+    # B re-deriva verde con total independencia del estado de A
+    ok, mism, _, has = rederive_pinned(b, repo_root(), "t", record_active=False, chassis=chassis)
+    assert has and ok and not mism

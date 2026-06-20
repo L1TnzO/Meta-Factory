@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ab5f740a57b16595798a56d4b43bf693b78f34b9 updated=2026-06-20T02:13Z -->
+<!-- meta:doc sha=bcea3f10046f1a3aa66ca2cc49ef0b4de60c8b70 updated=2026-06-20T02:18Z -->
 # Incremento FSK-S11-DOMAIN-EXPRESSIVENESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-20T00:35Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T02:18Z) (creado 2026-06-20T00:35Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

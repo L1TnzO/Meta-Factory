@@ -1,7 +1,8 @@
 # Blueprint de instancia R1 (lifecycle 1:N, ADR-015) para la fábrica full-stack-kotlin.
 # Vocabulario de campos DISTINTO del demo (Snipe-IT-lite): ejercita TODO el vocabulario R2 (FSK-S11) —
-# int/number/date/enum + opcionalidad — en una topología propia. Es DATA: `meta product new` lo instala
-# como products/assets/product.yml y la fábrica re-deriva el spec efectivo (base ⊕ product.yml).
+# int/number/date/enum + opcionalidad — Y un WORKFLOW de ciclo de vida (FSK-S12) sobre Asset.status, en una
+# topología propia. Es DATA: `meta product new` lo instala como products/assets/product.yml y la fábrica
+# re-deriva el spec efectivo (base ⊕ product.yml).
 
 # s6 (lógica de dominio generada por LLM vivo, `claude -p`) se DIFIERE keyless para esta instancia
 # (activation:off, la opción que el propio gate sanciona, doctrina R1): la instancia prueba que el
@@ -23,6 +24,17 @@ entities:
       - { name: quantity, type: int }
       - { name: cost, type: number }
       - { name: purchased, type: date }
-      - { name: status, type: enum, values: [deployed, ready, archived, broken] }
+      # WORKFLOW de ciclo de vida del activo (R2/FSK-S12, DES-3) — DISTINTO del demo (Task.priority es
+      # stepwise simétrico sin terminal; éste tiene un estado TERMINAL `archived` y fan-out asimétrico, el
+      # caso Snipe-IT: un activo archivado no vuelve). Guard canTransition determinista, type-bound al enum.
+      - name: status
+        type: enum
+        values: [deployed, ready, archived, broken]
+        initial: ready
+        transitions:
+          ready: [deployed, broken]
+          deployed: [ready, broken, archived]
+          broken: [ready, archived]
+          archived: []
       - { name: holder_id, type: ref, to: Holder, required: false }
       - { name: notes, type: string, required: false }

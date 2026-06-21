@@ -1,10 +1,9 @@
 # Incremento FSK-CRUD-BODY-PARSING — el server vivo acepta el CUERPO real del request (no samples fijos)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T13:49Z). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
-> limpio + estación activa verde) **o** flippeando este header a CERRADO (lo mismo: el `increment status` lee el
-> header). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento
-> abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-21T14:52Z; abierto 2026-06-21T13:49Z). Evidencia por bloqueo en §Evidencia (al final). El
+> `increment_guard` elige el lifecycle por la RUTA editada (ADR-016); con el incremento cerrado, editar
+> `factories/full-stack-kotlin/**` no-`.md` exige abrir uno nuevo.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Venís de **FSK-S16
 > ✅** (CRUD-mutación real: el server vivo MUTA columnas — POST/PUT/DELETE jOOQ tipado — bajo el control de
@@ -183,3 +182,45 @@ gradle/línea. FOREGROUND, por-producto (~3 min con gradle caliente).
 - **La trilogía de control de acceso vive** (FSK-S13 RBAC · S14 ownership · S15 endpoints vivos) + **FSK-S16
   CRUD-mutación**. Este incremento es el SIGUIENTE escalón: que ese CRUD acepte **input real del cliente** —
   el último gran hueco backend antes del frontend (React que consume + deploy + e2e).
+
+---
+
+## Evidencia (2026-06-21T14:52Z) — demostrable, no narrable
+
+**Qué quedó hecho.** El server vivo lee el **CUERPO real** del request y lo persiste **type-coerced por el
+schema** (DES-12), todo bajo el control de acceso ya enforzado:
+- **POST** inserta con los valores del body (data class `<E>Input` + parser `kotlinx.serialization.json`; dueño
+  = principal del token, NO del body). **GET /{id}** devuelve la **fila completa** type-correct (string/date/enum
+  entrecomillados, int/number/boolean/ref crudos). **PUT** actualiza la columna escalar al valor del body (PATCH).
+- **Fail-closed**: JSON inválido / tipo equivocado (número crudo↔string, enum∉values) / required ausente → **400**
+  (`runCatching`→null→badRequest), nunca 500 ni "traga". El dueño se mantiene = principal → no rompe el FK→User.
+- **Dónde vive** (todo FÁBRICA, GENERAL): `codegen/scaffold_product.py` (`_input_fields`/`_input_data_class`/
+  `_body_codec`/`_row_json_fn`/`_mutation_fns` reescrito/`_app_server_handlers` reescrito/skeleton lee `requestBody`/
+  proof reescrito) + `factory.spec.yml` (cap `entrada_tipada_runtime` + **REQ-F-016**, s9 desc).
+
+**Probado POR BLOQUEO:**
+- `product-run` **PASS** en los **3** productos (default/demo · assets · snipeit) — s0→s10 por gradle real.
+- **RTM snipeit 20/21 SATISFIED**: **REQ-F-016 `entrada_tipada_runtime` SATISFIED** (artifact `AppServer.kt`);
+  único UNSAT = REQ-F-007/s6 LLM (deferral keyless VISIBLE). REQ-F-014/015 (s9) siguen SATISFIED.
+- `ci --rederive --factory full-stack-kotlin --all-products` **3/3 == pin** (default 11/11 · assets 10/10 ·
+  snipeit 10/10) en clones limpios.
+- `meta check` **6/6** — `generality` **verde** (la tooth anti-overfit real).
+- **Anti-overfit medido**: `git diff src/metafactory/ + seed/` = **0** · `git diff` de todo `product.yml` = **0**.
+
+**Diente de DOS lados, VIVO y PRECISO** (la prueba de que el round-trip del body no es decorativo):
+saboteé el codegen para que el INSERT meta el **sample** del 1er escalar **no-unique** (snipeit: `status`) en vez
+del body. Corrida viva del proof contra el server saboteado:
+```
+access-control: GET /{id} ve body[status] (type-correct): esperaba 'ready', obtuvo 'pending'   ← ROJO
+access-control OK: GET /{id} ve body[asset_tag] (type-correct) -> 'posted-asset_tag-uniq'      ← el OTRO campo sí honra el body
+access-control OK: POST JSON invalido -> 400 ; POST tipo equivocado -> 400                      ← los 400 siguen
+access-control OK: GET /{id} ve el valor del PUT (body) -> 'patched-name'                       ← el PUT sí honra el body
+```
+→ `access_control_live` **rojo en s9** (exit 1). Revertido el sabotaje → **verde**. Un campo saboteado muerde
+EXACTAMENTE una aserción: el diente es preciso (no "todo verde" ni "todo rojo"). (Además, sabotear el INSERT
+ENTERO deja `input` sin usar → `UnusedParameter` de detekt → **s2 rojo**: prueba que el body está cableado.)
+
+**Huecos honestos que QUEDAN** (próximos incrementos): PUT-total vs PATCH-split · refs requeridos no-dueño desde
+el body (validar id existente) · UNIQUE-from-body→409 · CRUD de entidades sin dueño · self-ref · custom-fields
+dinámicos · **frontend React que consume + deploy + e2e Playwright** (el backend ya está vivo y CRUD-completo;
+el siguiente gran eje es la cara visible). Abierto a continuación: **FSK-FRONTEND-CONSUME** (handoff en su doc).

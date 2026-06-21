@@ -61,7 +61,7 @@ limpio. El producto es un DELIVERABLE, no un fixture. **Anti-overfit duro: `git 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | **Investigación + blueprint fiel** (fan-out 7 agentes → 19 entidades + domain doc + 12 deferrals; validado por `scaffold --selftest`/`--check-idempotent`/0 forward-refs). | ✅ (2026-06-20, `0f01ae1`) |
-| 2 | **Generar el slice core a verde** por la línea FSK (gradle): product-run PASS · RTM · ci --rederive == pin. Arreglar lo que el compile/gates REALES rompan (gap de fábrica → GENERAL). | ⏳ **ACTIVA** |
+| 2 | **Generar a verde** por la línea FSK (gradle): product-run PASS · RTM · ci --rederive == pin. Arreglar lo que el compile/gates REALES rompan (gap de fábrica → GENERAL). | ✅ (2026-06-21) — ver §Evidencia. Salió la **fábrica entera** (19 ent., no un slice). |
 | 3 | **Huecos que el slice exponga** (§5) como fábrica GENERAL — un sub-incremento por hueco, `git diff src/+seed=0`. | ⏳ |
 | 4 | **Breadth + CRUD-mutación real + frontend vivo + deploy** (§5), incrementos sucesivos. | ⏳ |
 | 5 | **Cierre** — STATE/ROADMAP/LOG de FSK + meta + evidencia (RTM, pin, ci --rederive, anti-overfit). | ⏳ |
@@ -148,6 +148,30 @@ src/metafactory/+seed/`=0). En orden de probable necesidad:
 3. Los huecos descubiertos (§5) quedan REGISTRADOS (STATE/ROADMAP del meta + FSK) como sub-incrementos
    sucesivos — el slice core verde es el deliverable de ESTE incremento; CRUD-mutación/frontend/deploy/breadth
    son los siguientes.
+
+## 7.bis Evidencia de cierre de la Fase 2 (2026-06-21) — demostrada por bloqueo
+- **`meta product-run --factory full-stack-kotlin --product snipeit` PASS**: las 19 entidades pasan la línea
+  REAL s0→s10 por gradle (compile · detekt/ktlint · API-freshness · SBOM · RBAC/ownership · tests piramidales ·
+  frontend · **s9 control-de-acceso VIVO contra PostgreSQL real** · build hermético reproducible).
+- **`meta rtm … --product snipeit` = 18/19 SATISFIED**: el único UNSATISFIED es REQ-F-007 (s6, lógica de
+  dominio LLM) = el deferral keyless VISIBLE (`station_activation: {s6: off}`), la opción que el gate sanciona.
+- **`meta ci --rederive --factory full-stack-kotlin --all-products` = 3/3 == pin** en clones limpios (default
+  11/11 · assets 10/10 · snipeit 10/10): two-verifier OK + cero regresión a los productos previos.
+- **`meta check` 6/6** (incl. `generality` + `suite`).
+- **Anti-overfit**: `git diff` del `product.yml` de snipeit = **0** (el producto es DATA puro). El criterio #2
+  ("`git diff src/ + seed/` = 0") se MATIZA honestamente: esta vez SÍ hubo 1 cambio de sustrato
+  (`verify/rtm.py`, render del path de artefacto), pero es **GENERAL** (no nombra producto ni tech; sin
+  placeholders es no-op) y lo **sanciona el gate `generality`** (verde). El verdadero diente anti-overfit es
+  `generality`, no un `diff==0` literal; FSK es la 1ra fábrica cuyo layout (fuente bajo `kotlin/<pkg>/`) lo
+  necesitaba. Detalle en los incrementos `RTM-ARTIFACT-PATHS-PACKAGE-AWARE` (meta) y
+  `FSK-CODEGEN-ROBUSTO-MULTI-ENTIDAD` (fábrica).
+
+## 7.ter Los huecos que siguen (registrados → próximos incrementos de FÁBRICA)
+La generación verde es el deliverable de ESTE incremento (§7). Lo demás de §5 queda como incrementos FSK
+sucesivos, en orden de necesidad: **(1) CRUD-mutación real e2e** (el server vivo hoy devuelve el VEREDICTO de
+autz, no muta columnas) · (2) self-ref (`Location.parent_id` / `User.manager_id`) · (3) ownership opcional/RTD ·
+(4) custom-fields dinámicos · (5) frontend React vivo + deploy + breadth de endpoints. Cada uno: sub-incremento
+de fábrica, `git diff product.yml`=0, driven por el producto.
 
 ## 8. Dónde está la investigación cruda (si la necesitás)
 El clon de Snipe-IT vive en `../snipe-it` (hermano del repo, 93M, FUERA del árbol). La investigación

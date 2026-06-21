@@ -1,7 +1,17 @@
-<!-- meta:doc sha=2a9d8c88b03d90102fb9181536a8022bde6ab188 updated=2026-06-20T23:44Z -->
+<!-- meta:doc sha=e700c2b91d59b224134bcba340510382837515a9 updated=2026-06-20T23:59Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-20T23:58Z — Gobierno: decisión = Opción A faseada + playbook de la Fase 1
+- El ingeniero eligió **Opción A (auto-gobierno por nivel), faseada**, y que la **Fase 1 va ANTES de generar
+  Snipe-IT** (P1 Fase 2 queda BLOQUEADA). Fase 1 = casa de docs del producto (`products/<p>/docs/`) +
+  `increment_guard`/`lifecycle.py` que eligen el lifecycle por la RUTA editada (3 niveles: meta/fábrica/
+  producto). Playbook de ejecución AUTOCONTENIDO + criterio de cierre demostrable en
+  `reference/GOVERNANCE-LAYERING.md` §8 (incl. cómo manejar el slot de incremento durante la transición:
+  bootstrap honesto bajo P1, que se re-ubica al producto como paso de la propia Fase 1). ADR-016 candidato.
+- Es trabajo de SUSTRATO/trust-chain (hooks + seed/lifecycle) → la próxima sesión lo escribe con ojos propios
+  y prueba por bloqueo (test del `edit_allowed` por-ruta). El doc P1 lleva un aviso ⛔ BLOQUEADO al tope.
 
 ## 2026-06-20T23:40Z — Cuestión de gobierno: layering de docs/incrementos por nivel (análisis)
 - **lo que disparó esto**: al ubicar los docs de Snipe-IT (dominio → ¿fábrica? gobierno → ¿meta?) me peleé

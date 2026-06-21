@@ -1,13 +1,18 @@
-<!-- meta:doc sha=8041296bdd242bc75f9adba300573d47e1b9ee8b updated=2026-06-20T23:36Z -->
-<!-- meta:doc sha=PENDING updated=PENDING -->
+<!-- meta:doc sha=77b6710e7ae8b23f4ab6882f622459380b6f8477 updated=2026-06-20T23:58Z -->
 # Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT)
 
 > **Doc de gobierno.** Estado: **ABIERTO**. Cerralo con `meta increment close` (gateado: árbol limpio +
 > estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
+> **⛔ BLOQUEADO (2026-06-20): la Fase 2 (generar) NO empieza todavía.** El ingeniero decidió arreglar primero
+> la maquinaria de docs/gobierno (Opción A faseada, `reference/GOVERNANCE-LAYERING.md` §8): casa de docs del
+> producto + lifecycle de incrementos por nivel. ESA Fase 1 va ANTES de generar. Como parte de ella, ESTE doc
+> P1 se MUEVE a `factories/full-stack-kotlin/products/snipeit/docs/work/` (su casa correcta). Hacé el refactor
+> primero; volvé acá para la generación cuando el modelo nuevo esté verde.
+>
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total: todo lo que
 > necesitás para avanzar está ACÁ o en los archivos que este doc nombra. La Fase 1 (el SPEC) está HECHA y
-> commiteada; **tu trabajo es la Fase 2: GENERAR el producto por la línea FSK hasta verde.**
+> commiteada; **luego del refactor de gobierno, tu trabajo es la Fase 2: GENERAR el producto por la línea FSK.**
 
 ---
 

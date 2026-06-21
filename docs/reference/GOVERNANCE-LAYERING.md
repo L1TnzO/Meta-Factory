@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ebe94c01c576309d1d8cd0f5b910921f08319517 updated=2026-06-20T23:43Z -->
+<!-- meta:doc sha=f55b391ac47ce13d03abc64d0113aed5baf1031e updated=2026-06-20T23:58Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
@@ -93,12 +93,64 @@ principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océ
   incrementos meta-residentes de fábrica. Arregla P3.
 - **Fase 3:** `meta product new --no-run` (P5) + cualquier residuo de P4.
 
-**Lo que falta para decidir (lo elige el ingeniero):** ¿Opción A (separación por nivel) / B (sólo casa de
-producto) / C (convenciones)? ¿Y se hace ANTES de generar Snipe-IT (recomendado, Fase 1) o en paralelo?
-Cuando se decida, se registra acá + un ADR (candidato: ADR-016 "layering de gobierno por nivel") y se abre
-el/los incremento(s). **Hasta entonces, este doc es la memoria — lo no documentado muere.**
+**DECISIÓN TOMADA (2026-06-20, el ingeniero): Opción A FASEADA, y la Fase 1 va ANTES de generar Snipe-IT.**
+Próximo paso: registrar un ADR (candidato ADR-016 "layering de gobierno por nivel") y ejecutar la Fase 1 (§8).
 
-## 7. El target limpio (si se elige A) — referencia rápida
+## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
+> Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la
+> RUTA editada.** Arregla P1 (derrame) y P2 (slot único) para el carril del producto. Es trabajo de
+> SUSTRATO/trust-chain (hooks + `seed/lifecycle.py`) → escribilo con ojos propios, probá POR BLOQUEO, nunca
+> fakees verde (working-style). Empezá leyendo §2–§3 de este doc + `docs/decisions/010-disciplina-commit.md`.
+
+### 8.1 El modelo objetivo del lifecycle (lo que `lifecycle.py` debe computar)
+Hoy `open_increment(root)` busca UN `docs/work/*.md` con `Estado: **ABIERTO**` y `edit_allowed(root, fp)`
+exige que exista ESE único incremento global. **Nuevo:** `edit_allowed` resuelve el NIVEL por la ruta del
+archivo editado y exige el incremento abierto de ESE nivel (el más específico que contenga la ruta):
+- ruta bajo `factories/<f>/products/<p>/**` → exige abierto en `factories/<f>/products/<p>/docs/work/`.
+- ruta bajo `factories/<f>/**` (no `products/`) → exige abierto en `factories/<f>/docs/work/`.
+- resto del árbol (`src/metafactory/`, `seed/`, `stations/`, raíz) → exige abierto en `docs/work/` (meta).
+- un `.md` siempre permitido (así se ABRE un incremento — auto-bootstrap, igual que hoy).
+Esto es DATA-agnóstico (no nombra fábrica/producto concretos): el guard parte la ruta, no hardcodea slugs.
+
+### 8.2 Pasos concretos (cada uno probado por bloqueo)
+1. **Casa de docs del producto.** Crear `factories/full-stack-kotlin/products/snipeit/docs/` y MOVER ahí
+   `SNIPEIT-DOMAIN.md` (hoy en `factories/full-stack-kotlin/docs/reference/` — sacarlo de la fábrica). Mover el
+   gobierno **P1** de `docs/work/P1-...md` (meta) a `…/products/snipeit/docs/work/P1-...md`. Actualizar los
+   punteros (STATE/LOG/INDEX, y el propio P1 §6 "dónde van los docs"). Decidir si `products/<p>/docs/` se
+   commitea (sí: es la narrativa del producto, junto a `product.yml`) → quitar del `.gitignore` si aplica.
+2. **`seed/lifecycle.py` level-aware.** Implementar §8.1 en `open_increment`/`edit_allowed` (single-source:
+   recordá que `lifecycle.py` está COPIADO en cada fábrica por H1 — el cambio es del seed meta y se propaga al
+   regenerar; mientras tanto el que CUENTA in-tree es el del meta). Mantené la firma + el fail-closed.
+3. **`increment_guard.py` (hook activo del meta)** ya delega en `lifecycle.edit_allowed` → con (2) hecho,
+   debería “just work”. Verificá el mensaje de error (que nombre el nivel correcto).
+4. **CLI `meta increment {open,close,status}` level-aware.** Hoy asume meta `docs/work/`. Agregá un
+   `--factory`/`--product` (o inferí por ruta) para abrir/cerrar/consultar el incremento del nivel correcto.
+   `meta increment status` debería listar el abierto POR NIVEL.
+5. **`docs_manifest`/consistencia.** Hoy `doc_set` es meta-only. Decidir: ¿sellar + chequear consistencia de
+   los docs de fábrica/producto también? Mínimo Fase 1: que mover P1/SNIPEIT-DOMAIN NO rompa el check meta
+   (sacarlos de `docs/` del meta los saca de `doc_set` — ok) y que el nuevo home tenga su propio sellado si se
+   decide (puede diferirse a Fase 2). NO dejar el check meta-only “mintiendo” sobre docs que ya no están.
+6. **Tests.** Correr `meta check` (6/6) + `pytest tests/` (hay suite + `test_isolation`). Si hay tests que
+   asumen el slot global, actualizarlos. Agregar un test del nuevo `edit_allowed` por-ruta (los 3 niveles +
+   el caso `.md`-siempre-permitido) — diente por bloqueo.
+7. **El slot durante la transición (bootstrap honesto).** P1 está abierto en `docs/work/` del meta y hoy eso
+   HABILITA editar código meta (el guard global ve P1 abierto) → la sesión PUEDE empezar a tocar
+   `seed/`/hooks/`src/` de una. La Fase 1 RE-UBICA P1 al producto como uno de sus pasos (paso 1). El trabajo de
+   ESTA refactor es META → documentalo como tal en LOG + ADR-016, no como parte de “construir Snipe-IT”.
+   Tras la Fase 1: meta `docs/work/` queda para incrementos META; P1 vive en el producto y gobierna sólo
+   ediciones del producto. (Si querés un incremento meta formal para la refactor, abrilo DESPUÉS de mover P1,
+   cuando el slot meta quede libre.)
+
+### 8.3 Criterio de cierre de la Fase 1 (demostrable)
+- `SNIPEIT-DOMAIN.md` vive en `products/snipeit/docs/`; P1 en `products/snipeit/docs/work/`; cero docs de
+  Snipe-IT bajo `factories/full-stack-kotlin/docs/` ni bajo `docs/` del meta.
+- Editar `products/snipeit/product.yml` SIN un incremento abierto en `products/snipeit/docs/work/` → BLOQUEADO
+  (diente); con él → permitido. Idem un cambio bajo `src/metafactory/` exige el incremento META. Probado.
+- `meta check` 6/6 + `pytest tests/` verde + test nuevo del `edit_allowed` por-ruta.
+- ADR-016 escrito; STATE/LOG del meta narran la refactor; `git diff` no deja residuo no-commiteado.
+- Recién ENTONCES: P1 Fase 2 (generar Snipe-IT) procede bajo el modelo nuevo.
+
+## 9. El target limpio (Opción A elegida) — referencia rápida
 | Nivel | Construye | Casa de docs | Lifecycle (incremento) | Opera |
 | --- | --- | --- | --- | --- |
 | Meta | el sustrato | `docs/` | `docs/work/` | el ingeniero en el repo meta |

@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `2a9d8c88b03d` | 2026-06-20T23:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `0f9769800c49` | 2026-06-20T23:44Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `e700c2b91d59` | 2026-06-20T23:59Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `6639a47b35c6` | 2026-06-20T23:58Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -28,7 +28,7 @@
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `ebe94c01c576` | 2026-06-20T23:43Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `f55b391ac47c` | 2026-06-20T23:58Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
@@ -87,7 +87,7 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/P1-SNIPE-IT-PRODUCT-INCREMENT.md` | `8041296bdd24` | 2026-06-20T23:36Z | Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT) |
+| `docs/work/P1-SNIPE-IT-PRODUCT-INCREMENT.md` | `77b6710e7ae8` | 2026-06-20T23:58Z | Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT) |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/ROADMAP.md` | `02140d37ebef` | 2026-06-20T18:45Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

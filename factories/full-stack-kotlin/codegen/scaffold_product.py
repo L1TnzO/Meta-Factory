@@ -2738,28 +2738,120 @@ def _probe_bad_ui_html() -> str:
         '</html>\n')
 
 
+def _form_input_type(f: dict) -> str:
+    """El `type` del <input> que el FORM genera por campo (FSK-BROWSER-FORM): un hint de UI DATA-agnóstico por
+    tipo del contrato (number/checkbox/date/text). No es el tooth (el server valida); sólo la forma del input."""
+    t = f["type"]
+    if t == "boolean":
+        return "checkbox"
+    if t in ("int", "number", "ref"):
+        return "number"
+    if t == "date":
+        return "date"
+    return "text"   # string / enum
+
+
+def _form_coerce(f: dict, var: str, ename: str) -> str:
+    """Expresión TS que lee el <input> `var` y lo coacciona al tipo del campo del contrato (FSK-BROWSER-FORM): el
+    body de create<E> debe ser type-correct bajo tsc --strict (DES-6). boolean→.checked; int/number/ref→Number();
+    enum→.value casteado a la unión literal del contrato (<E>["campo"]); string/date→.value (openapi string)."""
+    t = f["type"]
+    if t == "boolean":
+        return f"{var}.checked"
+    if t in ("int", "number", "ref"):
+        return f"Number({var}.value)"
+    if t == "enum":
+        return f'{var}.value as {ename}["{f["name"]}"]'
+    return f"{var}.value"   # string / date
+
+
 def _app_ts(entities: list[dict]) -> str:
     """El entry de bundle del frontend (perf, s8): código de cliente REAL (importa summarize de client.ts) →
     esbuild bundlea el grafo real y mide su peso minificado vs el presupuesto. Pasa tsc --strict + ESLint
     (s2) + currency (s3) como todo lo de src/. El `import type` de gen/api.ts se stripea en el bundle.
     DERIVADO del blueprint (R2: sin hardcodear "Task"): tipa la entidad CON DUEÑO vía `components` (la única con
     capa viva — list<E>/render<E>List la alimentan con datos del server, FSK-FRONTEND-RENDER-LIST; sin dueño cae
-    en la 1ª entidad, s8 sigue midiendo el bundle) y renderiza su 1er campo string/enum (siempre hay uno)."""
-    e = next((x for x in entities if x.get("owned_by")), entities[0])
+    en la 1ª entidad, s8 sigue midiendo el bundle) y renderiza su 1er campo string/enum (siempre hay uno).
+    FSK-BROWSER-FORM: con `owned_by`, además emite `mount<E>(doc, base, token)` — el frontend se MONTA en un DOM
+    real (Document) con un FORM (un <input> por campo de _input_fields) cuyo submit postea vía create<E> (cliente
+    vivo) y RE-RENDERIZA la lista → la fila nueva aparece como NODO del DOM. Opt-in a `owned_by` (la única con
+    cliente vivo); sin dueño, sólo el render-string + summarize (FSK-FRONTEND-RENDER-LIST intacto)."""
+    owned = next((x for x in entities if x.get("owned_by")), None)
+    e = owned or entities[0]
     name = e["name"]
     field = next((f["name"] for f in e["fields"] if f["type"] in ("string", "enum")),
                  e["fields"][0]["name"])
-    return (
+    head = (
         '// Entry de bundle del frontend (perf, s8/DES-7): código de cliente REAL → esbuild mide su peso\n'
-        '// minificado vs el presupuesto declarado. El bundle resuelve el grafo real (client.ts).\n'
-        'import { summarize } from "./client.ts";\n'
-        'import type { components } from "../gen/api.ts";\n\n'
+        '// minificado vs el presupuesto declarado. El bundle resuelve el grafo real (client.ts).\n')
+    render = (
         f'type {name} = components["schemas"]["{name}"];\n\n'
         f'export function render{name}List(rows: readonly {name}[]): string {{\n'
         f'  const items = rows.map((r) => `<li>${{r.{field}}}</li>`).join("");\n'
         '  return `<ul>${items}</ul>`;\n'
-        '}\n\n'
-        'export { summarize };\n')
+        '}\n\n')
+    if owned is None:
+        return (head
+                + 'import { summarize } from "./client.ts";\n'
+                + 'import type { components } from "../gen/api.ts";\n\n'
+                + render
+                + 'export { summarize };\n')
+    # con dueño: el frontend se MONTA en un DOM real + un FORM postea vía el cliente vivo (FSK-BROWSER-FORM).
+    flds = _input_fields(owned)
+    inputs = "".join(
+        f'  const {_camel(f["name"])}Input = doc.createElement("input");\n'
+        f'  {_camel(f["name"])}Input.name = "{f["name"]}";\n'
+        f'  {_camel(f["name"])}Input.type = "{_form_input_type(f)}";\n'
+        f'  form.appendChild({_camel(f["name"])}Input);\n'
+        for f in flds)
+    body = "\n".join(
+        f'          {f["name"]}: {_form_coerce(f, _camel(f["name"]) + "Input", name)},' for f in flds)
+    mount = (
+        f'// FSK-BROWSER-FORM — el frontend se MONTA en un DOM real (Document) y un FORM (un <input> por campo del\n'
+        f'// cuerpo, _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la\n'
+        f'// lista → la fila nueva aparece como NODO del DOM. El proof (consume_check.ts, jsdom) lo corre e2e\n'
+        f'// contra el server vivo. Opt-in a `owned_by` (la única con cliente vivo). El submit es async: lee los\n'
+        f'// <input>, coacciona al tipo del contrato (DES-6), postea, re-trae la lista y re-renderiza (o marca el\n'
+        f'// error si el server rechaza — el 400 NO se traga). `Document` viene de la lib `dom` de TS (tsconfig).\n'
+        f'export async function mount{name}(doc: Document, base: string, token: string): Promise<void> {{\n'
+        f'  const root = doc.createElement("div");\n'
+        f'  const form = doc.createElement("form");\n'
+        f'{inputs}'
+        f'  const submitBtn = doc.createElement("button");\n'
+        f'  submitBtn.type = "submit";\n'
+        f'  submitBtn.textContent = "create";\n'
+        f'  form.appendChild(submitBtn);\n'
+        f'  const listContainer = doc.createElement("div");\n'
+        f'  const feedback = doc.createElement("p");\n'
+        f'  const renderRows = (rows: readonly {name}[]): void => {{\n'
+        f'    listContainer.innerHTML = render{name}List(rows);\n'
+        f'  }};\n'
+        f'  form.addEventListener("submit", (ev: Event): void => {{\n'
+        f'    ev.preventDefault();\n'
+        f'    void (async (): Promise<void> => {{\n'
+        f'      try {{\n'
+        f'        await create{name}(base, token, {{\n'
+        f'{body}\n'
+        f'        }});\n'
+        f'        renderRows(await list{name}(base));\n'
+        f'        feedback.textContent = "ok";\n'
+        f'      }} catch {{\n'
+        f'        feedback.textContent = "error";\n'
+        f'      }}\n'
+        f'    }})();\n'
+        f'  }});\n'
+        f'  root.appendChild(form);\n'
+        f'  root.appendChild(listContainer);\n'
+        f'  root.appendChild(feedback);\n'
+        f'  doc.body.appendChild(root);\n'
+        f'  renderRows(await list{name}(base));\n'
+        f'}}\n\n')
+    return (head
+            + f'import {{ summarize, create{name}, list{name} }} from "./client.ts";\n'
+            + 'import type { components } from "../gen/api.ts";\n\n'
+            + render
+            + mount
+            + 'export { summarize };\n')
 
 
 def _budget_json() -> str:
@@ -3669,6 +3761,24 @@ def _proof_wrong_value(f: dict):
     return 123 if f["type"] == "string" else "wrong-type"
 
 
+def _proof_form_value(f: dict):
+    """Valor que el FORM del frontend postea (FSK-BROWSER-FORM) — type-correct y DISTINTO del `_proof_post_value`
+    (que ya creó una fila por API antes del bloque jsdom): para campos UNIQUE el valor distinto evita el choque de
+    la 2ª inserción (la fila del form), y para el campo renderizado da un texto identificable en el <li> nuevo."""
+    t = f["type"]
+    if t == "string":
+        return f"form-{f['name']}" + ("-uniq" if f.get("unique") else "")
+    if t == "int":
+        return 11           # ≠ post 7, ≠ sample 2
+    if t == "number":
+        return 73.25        # ≠ post 42.5, ≠ sample 9.99; exacto en binario (round-trip sin pérdida)
+    if t == "boolean":
+        return True
+    if t == "date":
+        return "2031-03-20"  # ≠ post 2030-06-15, ≠ sample 2026-01-15
+    return f["values"][1] if len(f["values"]) > 1 else f["values"][0]   # enum: 2º valor si se puede
+
+
 def _access_control_check_py(bp: dict) -> str:
     """tools/access_control_check.py — el proof e2e de control de acceso + CRUD del CUERPO real (FSK-CRUD-BODY-
     PARSING), parte de la verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import
@@ -4001,16 +4111,59 @@ def _consume_check_ts(bp: dict) -> str:
     post_body = {f["name"]: _proof_post_value(f) for f in flds}
     bad_body = dict(post_body)
     bad_body[flds[0]["name"]] = _proof_wrong_value(flds[0])   # corromper SÓLO el tipo del 1er campo → 400
+    form_body = {f["name"]: _proof_form_value(f) for f in flds}   # FSK-BROWSER-FORM: lo que el FORM postea
     # El campo que render<E>List renderiza (FSK-FRONTEND-RENDER-LIST): el 1er string/enum de la entidad con
     # dueño — la MISMA heurística que _app_ts → el consumer asevera contra EXACTAMENTE lo que el render emite.
     render_field = next((f["name"] for f in owned["fields"] if f["type"] in ("string", "enum")),
                         owned["fields"][0]["name"])
     return (_CONSUME_CHECK_SKELETON
+            .replace("%BROWSER_FORM_BLOCK%", _browser_form_block(name, render_field, render_field in form_body))
             .replace("%ENTITY%", name)
             .replace("%WRITE_ROLE%", write_role)
             .replace("%RENDER_FIELD%", render_field)
             .replace("%POST_BODY%", json.dumps(post_body))
+            .replace("%FORM_BODY%", json.dumps(form_body))
             .replace("%BAD_BODY%", json.dumps(bad_body)))
+
+
+def _browser_form_block(name: str, render_field: str, render_in_form: bool) -> str:
+    """El bloque jsdom del proof (FSK-BROWSER-FORM): monta el frontend en un DOM real, llena el FORM con FORM_BODY,
+    dispara el submit y asevera que un <li> NUEVO aparece en el DOM (count N→N+1). DIENTE de dos lados: un mount que
+    no renderiza, un form cuyo submit no postea, o un re-render que no crea el nodo → el count no sube → rojo. Si el
+    campo renderizado está en el cuerpo del form, además asevera que el <li> nuevo muestra el valor posteado.
+    Generado Python-side (no `.replace` de placeholders) para emitir la aserción del valor sólo cuando aplica. El
+    bloque NO se type-checkea (vive en frontend/consume_check.ts, fuera del include de tsc)."""
+    lines = [
+        "  // 5) FSK-BROWSER-FORM — el frontend se MONTA en un DOM real (jsdom) y un FORM postea via el cliente",
+        "  //    vivo -> la fila aparece como NODO del DOM (no string). jsdom da document+eventos sin browser real",
+        "  //    (Playwright diferido). DIENTE: el count de <li> sube N -> N+1 tras el submit (un mount/form/re-",
+        "  //    render roto -> el nodo no aparece -> rojo).",
+        '  const dom = new JSDOM("<!DOCTYPE html><body></body>");',
+        f"  await mount{name}(dom.window.document, base, token);",
+        '  const liCount = () => dom.window.document.querySelectorAll("li").length;',
+        "  const before = liCount();",
+        '  const form = dom.window.document.querySelector("form");',
+        "  for (const [k, v] of Object.entries(FORM_BODY)) {",
+        '    const input = form.querySelector(`[name="${k}"]`);',
+        '    if (input.type === "checkbox") { input.checked = v === true; }',
+        "    else { input.value = String(v); }",
+        "  }",
+        '  form.dispatchEvent(new dom.window.Event("submit", { cancelable: true, bubbles: true }));',
+        "  // el handler del submit es async -> poll el DOM hasta que aparezca el nodo nuevo (o timeout ~5s).",
+        "  let after = before;",
+        "  for (let i = 0; i < 100 && after === before; i++) {",
+        "    await new Promise((r) => setTimeout(r, 50));",
+        "    after = liCount();",
+        "  }",
+        f'  check(after, before + 1, "mount{name}: el submit del FORM crea un <li> NUEVO en el DOM real (N -> N+1)");',
+    ]
+    if render_in_form:
+        lines += [
+            '  const liTexts = [...dom.window.document.querySelectorAll("li")].map((li) => li.textContent);',
+            f'  check(liTexts.includes(String(FORM_BODY["{render_field}"])), true,',
+            f'        "el <li> nuevo muestra el valor que el FORM posteo ({render_field})");',
+        ]
+    return "\n".join(lines)
 
 
 _CONSUME_CHECK_SKELETON = '''\
@@ -4022,12 +4175,17 @@ _CONSUME_CHECK_SKELETON = '''\
 // FSK-FRONTEND-RENDER-LIST: ademas trae la LISTA viva (list<E>) y la renderiza (render<E>List, importada de
 // src/app.ts) -> asevera que el html refleja la coleccion VIVA (cada fila, incl. la recien creada). Un render
 // que dropea/garbla/hardcodea filas, o un list<E> truncado -> el html != la lista viva -> exit 1.
-// Corre por `node --experimental-strip-types`. Uso: consume_check.ts <base_url>
+// FSK-BROWSER-FORM: ademas MONTA el frontend en un DOM real (jsdom, ya dep de s8) y dispara un submit del FORM
+// generado -> la fila creada por el FORM (via el cliente vivo) aparece como NODO del DOM (count <li> N -> N+1).
+// jsdom da `document`+eventos sin browser real (Playwright sigue diferido); el `fetch` global de node cruza el
+// codigo bajo prueba contra el server vivo. Corre por `node --experimental-strip-types`. Uso: consume_check.ts <base_url>
 import { create%ENTITY%, get%ENTITY%, list%ENTITY% } from "./src/client.ts";
-import { render%ENTITY%List } from "./src/app.ts";
+import { render%ENTITY%List, mount%ENTITY% } from "./src/app.ts";
+import { JSDOM } from "jsdom";
 
 const POST_BODY = %POST_BODY%;
 const BAD_BODY = %BAD_BODY%;
+const FORM_BODY = %FORM_BODY%;
 const WRITE_ROLE = "%WRITE_ROLE%";
 
 let ok = true;
@@ -4085,6 +4243,8 @@ async function main(base) {
   check(allRendered, true, "render%ENTITY%List refleja CADA fila viva en el html (drop/garble/hardcode -> rojo)");
   // (iii) la lista viva no es trivial: tiene la fila sembrada + la creada (>=2). No es un numero fijo del seed.
   check(rows.length >= 2, true, "la lista viva tiene >=2 filas (sembrada + creada)");
+
+%BROWSER_FORM_BLOCK%
 }
 
 const base = process.argv[2];

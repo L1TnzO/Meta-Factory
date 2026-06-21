@@ -20,6 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ..codegen.renderer import render_text
+
 
 @dataclass
 class StationNode:
@@ -83,7 +85,11 @@ def build_tree(spec, verifier, factory_root) -> list[ReqNode]:
         artifacts: list[ArtifactNode] = []
         cap = caps.get(req.capability) if req.capability else None
         if cap and cap.artifact:
-            artifacts.append(ArtifactNode(cap.artifact, (root / cap.artifact).exists()))
+            # El path del artefacto se renderiza con la subst del spec (igual que stations/builds): un
+            # `{{package_name}}` se resuelve por instancia. Necesario donde el layout del producto anida el
+            # fuente bajo un directorio con el nombre del paquete; sin placeholders es no-op. ADR-012 (sin tech).
+            art = render_text(cap.artifact, spec.subst)
+            artifacts.append(ArtifactNode(art, (root / art).exists()))
         nodes.append(ReqNode(req.id, req.capability, cap_ok, stations, artifacts))
     return nodes
 

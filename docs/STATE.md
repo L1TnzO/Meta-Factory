@@ -1,4 +1,4 @@
-<!-- meta:doc sha=258323bcc8cd510fe425cd7ea43e4a30e3502977 updated=2026-06-21T02:07Z -->
+<!-- meta:doc sha=b37fd49bb878b148f750e17e87a830ee2267125f updated=2026-06-21T03:20Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (19/19) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -109,8 +109,19 @@
     pivots M:N → entidades) + `…/products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (dominio + mapeo +
     **12 deferrals honestos**: custom-fields dinámicos, checkout polimórfico, RTD/owner-opcional, self-ref,
     depreciación calculada, company-scoping, … cada uno = hueco de fábrica para un incremento GENERAL). Validado
-    POR BLOQUEO sin gradle: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs. La
-    GENERACIÓN (línea s0–s10 por gradle, slice core→breadth) es la próxima sesión (P1 Fase 2). `work/ROADMAP.md §Fase R`.
+    POR BLOQUEO sin gradle: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs.
+  - **P1·Snipe-IT — Fase 2 (GENERAR) ✅ (2026-06-21)**: la **fábrica entera** (19 entidades, no un slice) pasa la
+    línea REAL FSK s0→s10 por gradle — `product-run` PASS · RTM **18/19** (único UNSATISFIED = REQ-F-007/s6 LLM,
+    deferral keyless VISIBLE) · `ci --rederive --all-products` **3/3 == pin** en clones limpios (default 11/11 ·
+    assets 10/10 · snipeit 10/10). **El producto es DATA**: `git diff product.yml` = 0. Pasar por gradle real
+    destapó **2 huecos**, arreglados GENERALES (cero nombres de Snipe-IT, sancionado por `generality`): **(a)
+    fábrica** `FSK-CODEGEN-ROBUSTO-MULTI-ENTIDAD` — el codegen no soportaba productos ANCHOS (var-local por
+    inicial→colisión · ktlint PropertyWrapping 120 · LongMethod/TooManyFunctions en main/Store/Repo · import de
+    tipo no-usado · paquete `webapp` hardcodeado en el `up` de s9); **(b) sustrato** `RTM-ARTIFACT-PATHS-PACKAGE-
+    AWARE` — el RTM leía el path de `cap.artifact` verbatim → no resolvía `{{package_name}}` (1ra fábrica cuyo
+    layout anida el fuente bajo `kotlin/<pkg>/`; iot/full-stack no lo exponen). **Sigue (huecos→incrementos FSK):**
+    CRUD-mutación real e2e (el server vivo da el VEREDICTO de autz, no muta columnas) → self-ref → ownership
+    opcional/RTD → custom-fields → frontend React+deploy+breadth. `work/ROADMAP.md §Fase R`.
   - **Gobierno — layering de docs/incrementos por nivel: Opción A faseada · Fase 1 ✅ (2026-06-21, ADR-016)**: el
     ingeniero notó (2026-06-20) que la colocación de docs es poco intuitiva entre construir meta vs fábrica vs
     producto. Diagnóstico: el modelo de docs/gobierno se quedó atrás del de cardinalidad (ADR-015 hizo

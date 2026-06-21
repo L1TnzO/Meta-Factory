@@ -1,10 +1,9 @@
 # Incremento FSK-CRUD-OWNERLESS — la capa VIVA deja de ser opt-in a `owned_by` (CRUD RBAC-only)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T18:33Z). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
-> limpio + estación activa verde) **o** flippeando este header a CERRADO (lo mismo: el `increment status` lee el
-> header). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento
-> abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T18:33Z · cerrado 2026-06-21T19:28Z, commit `feat(fsk): FSK-CRUD-OWNERLESS`). Editar
+> `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige un incremento abierto — el
+> `increment_guard` elige el lifecycle por la RUTA editada (ADR-016). **Evidencia del cierre: §9 al final.**
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión
 > anterior (que cerró FSK-FRONTEND-RENDER-LIST) con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -184,3 +183,34 @@ se mueven).
   DUEÑO.** Este incremento abre la capa viva al RESTO del dominio (ownerless), que es lo que un producto real
   (Snipe-IT, ~23 entidades, 1 con dueño) necesita para ser usable. El slot meta queda libre; la fábrica abre su
   propio incremento (ADR-016).
+
+---
+
+## 9. Evidencia del cierre (2026-06-21T19:28Z — demostrable, no narrable)
+
+**Qué quedó hecho.** El server vivo (`AppServer`) monta TAMBIÉN la 1ª entidad **ownerless** servible
+(`_live_ownerless`/`_live_entities`, DATA-agnóstico: **User**/**Holder**/**Company** en default/assets/snipeit) con
+**CRUD RBAC-only** — handlers sufijados (`doPost<E>`/`listAll<E>`/`getOne<E>`/`doDelete<E>`/`handle<E>`), verdict
+`RoleGuard.authorize` (sin `OwnershipGuard` ni `ownerId` del token), `Repository.insert<E>(ctx, input)` de TODOS los
+escalares del cuerpo, codec compartido sobre la unión de entidades servidas (`_codec_helpers`). La entidad con dueño
+quedó **intacta**. Decisión de arquitectura: **2º contexto aditivo** (lo recomendado en §1), no la generalización a N
+(diferida). PUT/update ownerless **diferido** (sin PUT en el dispatch ownerless).
+
+**Cómo se cierra el §7, por bloqueo (cada línea reproducible):**
+1. **`product-run` PASS en los 3** (default·assets·snipeit) por la línea real de gradle s0→s10. Una entidad ownerless
+   tiene CRUD vivo: el proof `access_control_check.py` (extendido) asevera el round-trip RBAC-only.
+2. **Diente de DOS lados verificado VIVO**: saboteado el guard RBAC ownerless en el codegen (de forma que compila pero
+   un rol prohibido pasa) → snipeit `product-run` **FAIL, s9 SHUT, `1/3 checks red: access_control_live`** con
+   `observability_live` + `frontend_consume_live` **VERDES** → revertido → **PASS**. El diente muerde SÓLO la capa
+   ownerless, no a los hermanos.
+3. **`ci --rederive --all-products` 3/3 == pin** (default 11/11 · assets 10/10 · snipeit 10/10) · **`meta check` 6/6**
+   (`generality` verde; `projection` re-sincronizada por `meta checkpoint`) · **`git diff product.yml` = 0** (los 3) ·
+   **`git diff src/metafactory/ + seed/` = 0**. Como se **EXTENDIÓ** el check existente `access_control_live` (sin
+   sumar check), el `proof_sha` **no cambió** → pines byte-idénticos, **sin re-materializar el chasis**.
+4. **Scope honesto actualizado**: `docs/STATE.md` + `docs/LOG.md` registran "CRUD ownerless RBAC-only ✅" y los huecos
+   que QUEDAN. Trazabilidad RTM: capability `crud_ownerless_runtime` (DES-3) + **REQ-F-019** citando el check → RTM
+   default **24/24 COMPLETE**, assets/snipeit **23/24** (único UNSAT = REQ-F-007/s6 LLM keyless), **REQ-F-019
+   SATISFIED**. El **SIGUIENTE** incremento (`FSK-REFS-IN-BODY`) queda **abierto** con handoff autocontenido.
+
+**Anti-overfit**: el cambio vive 100% en `codegen/scaffold_product.py` + `factory.spec.yml` (DATA de la fábrica, cero
+nombres de dominio); `generality` verde lo sanciona. El producto es DATA (ADR-012): `git diff product.yml` = 0.

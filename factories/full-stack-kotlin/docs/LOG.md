@@ -1,6 +1,38 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-21T19:28Z — FSK-CRUD-OWNERLESS ✅: la capa VIVA deja de ser opt-in a `owned_by` (CRUD RBAC-only)
+- **Abre el DOMINIO a runtime**: hasta hoy toda la capa viva (server CRUD, cliente, render, consumer e2e) era
+  **opt-in a `owned_by`** → sólo la entidad con dueño tenía server/CRUD vivo; el resto del dominio generaba a nivel
+  de contrato (s0→s8) pero **ninguna otra entidad era usable a runtime**. En Snipe-IT eso es **1 de ~23** (sólo
+  `Asset` tiene dueño). Ahora una entidad **SIN dueño** también obtiene CRUD vivo, gobernado por **RBAC-only**.
+- **Deliverable (FÁBRICA, GENERAL — `codegen/scaffold_product.py` + `factory.spec.yml`, cero nombres de dominio)**:
+  (a) **Selección** — `_live_ownerless`/`_live_entities` (fuente única que cruzan Repository y AppServer): la 1ª
+  entidad sin dueño con `write_roles` cuyos campos requeridos son TODOS escalares (heurística DATA-agnóstica, ADR-012:
+  **User** en default · **Holder** en assets · **Company** en snipeit). (b) **Repository** — `_mutation_fns`
+  generalizada para `owner=None`: `insert<E>(ctx, input)` sin `ownerId` (todos los escalares del cuerpo); Input + CRUD
+  para CADA entidad viva. (c) **Codec compartido** — `_codec_helpers` emite los helpers de coerción (prim/str/
+  parse<E>Input) **una vez sobre la unión** de entidades servidas → sin colisión al montar >1 entidad. (d) **Server** —
+  bloque ownerless ADITIVO con handlers SUFIJADOS por entidad (`doPost<E>`/`listAll<E>`/`getOne<E>`/`doDelete<E>`/
+  `handle<E>`), verdict **RBAC-only** (`RoleGuard.authorize`, sin `OwnershipGuard` ni `ownerId` del token) + un 2º
+  `createContext`; **la entidad con dueño queda intacta** (sus dientes no se mueven).
+- **El diente RBAC de DOS lados** (extiende el check EXISTENTE `access_control_live`, s9 infra_up): el proof client
+  ejercita la entidad ownerless — rol **PROHIBIDO** → 403 y el count NO cambia / rol **PERMITIDO** → 201 + count+1 ·
+  round-trip del cuerpo (POST {valores ≠ samples} → GET /{id} type-correct) · body tipo equivocado → 400 · DELETE
+  prohibido → 403 (sin borrar) / permitido → 200 → 404. **Verificado VIVO**: saboteado el guard RBAC ownerless (que
+  un rol prohibido pase) → **SÓLO `access_control_live` ROJO** (1/3, con `frontend_consume_live` + `observability_live`
+  VERDES); revertido → verde.
+- **Sin check nuevo**: extiende `access_control_check.py` (el MISMO `access_control_live`) → el `proof_sha` NO cambia →
+  **pines byte-idénticos, sin re-materializar el chasis ni re-pinear** (la lección de FSK-FRONTEND-CONSUME no aplicó,
+  como en RENDER-LIST). Capability `crud_ownerless_runtime` (DES-3) + **REQ-F-019** citando ese check → RTM default
+  **24/24 COMPLETE**, assets/snipeit **23/24** (único UNSAT sigue REQ-F-007/s6 LLM keyless), **REQ-F-019 SATISFIED**.
+- **Probado por bloqueo**: `product-run` PASS en los 3 (default·assets·snipeit) · `ci --rederive --all-products`
+  **3/3 == pin** (11/11·10/10·10/10) · `meta check` **6/6** (`generality` verde, `projection` re-sincronizada por
+  `checkpoint`) · `git diff src/metafactory/ + seed/ = 0` (sustrato intacto) · `git diff product.yml = 0` (los 3).
+- **Alcance honesto (lo que QUEDA)**: **refs requeridos en el body** (el espinazo relacional — el eje hermano, el
+  SIGUIENTE incremento) · CRUD de **TODAS** las ownerless (hoy sólo la 1ª) · PUT/update ownerless · producto
+  sólo-ownerless (sin entidad-ancla con dueño) · render/cliente/form para la entidad ownerless · browser/deploy/Playwright.
+
 ## 2026-06-21T18:30Z — FSK-FRONTEND-RENDER-LIST ✅: la UI RENDERIZA la lista VIVA (server lista → cliente trae → render)
 - **Cierra el eslabón "la UI renderiza datos vivos"**: hasta hoy `render<E>List` era una función pura que el bundle
   de s8 medía pero que **NADIE alimentaba con filas del server**, y `GET /<plural>` devolvía sólo `{"count":N}` (no

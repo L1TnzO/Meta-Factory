@@ -29,13 +29,23 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
-- **Sigue** (huecos honestos → próximos incrementos): **CRUD de entidades SIN dueño** (hoy la capa viva es opt-in a
-  `owned_by` → sólo la entidad con dueño tiene server/cliente/render vivo; en Snipe-IT eso es **1 de ~23** → el de
-  mayor palanca) · **refs no-dueño desde el body** (el espinazo relacional) · **render EN BROWSER (mount real DOM +
-  eventos)** · **el FORM que postea vía el cliente** · **deploy real (Dockerfile vivo)** · **e2e Playwright** ·
-  UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. El cliente ya CONSUME **y RENDERIZA la lista**;
-  lo que falta para un Snipe-IT **usable** es levantar el opt-in (entidades sin dueño + refs del body) antes que el
-  pulido de browser.
+- **CRUD vivo para entidades SIN dueño (FSK-CRUD-OWNERLESS, 2026-06-21)**: la capa viva dejó de ser **opt-in a
+  `owned_by`**. El server vivo monta TAMBIÉN la 1ª entidad **ownerless** servible (con `write_roles`, campos
+  requeridos todos escalares; DATA-agnóstico: **User**/**Holder**/**Company** en los 3 productos) con CRUD gobernado
+  por **RBAC-only** — handlers sufijados por entidad (`doPost<E>`/`listAll<E>`/`getOne<E>`/`doDelete<E>`), verdict
+  `RoleGuard.authorize` (sin `OwnershipGuard` ni `ownerId` del token), `insert<E>(ctx, input)` de TODOS los escalares
+  del cuerpo, codec del cuerpo COMPARTIDO sobre la unión de entidades servidas. **El DOMINIO ENTERO** (no sólo la
+  entidad con dueño) empieza a ser usable a runtime. Diente RBAC de DOS lados (rol prohibido→403 sin INSERT /
+  permitido→201+count+1 · round-trip del cuerpo · DELETE prohibido→403 / permitido→200→404), extiende el MISMO
+  `access_control_live` (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). Capability `crud_ownerless_runtime`
+  (DES-3) + **REQ-F-019** → RTM default **24/24 COMPLETE**. Verificado VIVO (sólo `access_control_live` rojo al sabotear).
+- **Sigue** (huecos honestos → próximos incrementos): **refs no-dueño desde el body** (el espinazo relacional — el
+  EJE HERMANO, el de mayor palanca ahora: muchas ownerless tienen un ref REQUERIDO, p.ej. `AssetModel.category_id`)
+  · **CRUD de TODAS las ownerless** (hoy sólo la 1ª) · PUT/update ownerless · producto sólo-ownerless · **render/
+  cliente/form para la entidad ownerless** · **render EN BROWSER (mount real DOM + eventos)** · **deploy real
+  (Dockerfile vivo)** · **e2e Playwright** · UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. La capa
+  viva ya cubre la entidad con dueño **y la 1ª ownerless**; lo que falta para un Snipe-IT **usable** es levantar los
+  refs del body (encadenar entidades relacionadas) antes que el pulido de browser.
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

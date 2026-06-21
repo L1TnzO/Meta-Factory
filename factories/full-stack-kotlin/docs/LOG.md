@@ -1,6 +1,38 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-21T18:30Z — FSK-FRONTEND-RENDER-LIST ✅: la UI RENDERIZA la lista VIVA (server lista → cliente trae → render)
+- **Cierra el eslabón "la UI renderiza datos vivos"**: hasta hoy `render<E>List` era una función pura que el bundle
+  de s8 medía pero que **NADIE alimentaba con filas del server**, y `GET /<plural>` devolvía sólo `{"count":N}` (no
+  las filas). Ahora el server **LISTA**, el cliente **TRAE** y el render **RENDERIZA** la colección viva, e2e.
+- **Deliverable (FÁBRICA, GENERAL — `codegen/scaffold_product.py` + `factory.spec.yml`, cero nombres de dominio)**:
+  (a) **Server** — `GET /<plural>` (colección) pasa de `{"count":N}` a `{"count":N,"rows":[<rowJson>,…]}` vía un
+  helper `listAll`; cada fila la serializa `Repository.all<E>RowsJson` que **REUSA `<e>RowJson`** (mapea `all<E>s →
+  <e>RowJson(id)`, type-correct, DES-12). `count` SIGUE primero → **backward-compat** (`access_control_check.py::_count`
+  intacto). (b) **Cliente** — `client.ts` gana `list<E>(base): Promise<<E>[]>` (GET → `.rows`; `res.json()` narrow
+  desde `unknown` a `unknown[]` sin `any`, ts-reset/DES-10; el callsite castea a `<E>[]` type-bound al contrato).
+  (c) **Render** — `render<E>List` (ya type-bound a `components["schemas"][<E>]`, DES-6) ahora apunta a la entidad
+  **CON DUEÑO** (la única con capa viva — `_app_ts` elige `owned` si existe, si no cae en `entities[0]` para que s8
+  siga midiendo el bundle). (d) **Consumer** — `consume_check.ts` extiende el round-trip: tras `create<E>→get<E>`,
+  hace `list<E>(base) → render<E>List(rows)` y **asevera que el HTML refleja la lista VIVA** (la fila recién creada
+  está en la lista traída; el markup contiene el campo renderizado de CADA fila; ≥2 filas vivas).
+- **El diente** pasó de "el cliente trae UNA fila" a "**la UI refleja la COLECCIÓN viva**": un render que
+  **dropea/garbla/hardcodea** filas, o un `list<E>` truncado/stale → `HTML ≠ lista viva` → rojo. **Verificado VIVO
+  (dos lados)**: saboteado `render<E>List` (drop de filas) → **sólo `frontend_consume_live` ROJO**, con
+  `observability_live` + `access_control_live` VERDES; revertido → verde.
+- **Sin check nuevo**: extiende el MISMO `frontend_consume_live` (s9, infra_up) → el `proof_sha` NO cambia → **no
+  hubo que re-materializar el chasis ni re-pinear** (la lección cara de FSK-FRONTEND-CONSUME **no aplicó**: los 3
+  pines quedaron byte-idénticos). Capability `frontend_render_live` (DES-6) + **REQ-F-018** citando ese check → RTM
+  snipeit **22/23** (único UNSAT sigue REQ-F-007/s6 LLM keyless). `tsc --strict`/ESLint/`no-explicit-any`/ts-reset
+  muerden `client.ts`; el consumer en `frontend/` no se type-checkea (runner). Sin dep nueva (`fetch` global, ADR-012).
+- **Probado por bloqueo**: `product-run` PASS en los 3 (default·assets·snipeit) · `ci --rederive --all-products`
+  **3/3 == pin** · `meta check` **6/6** (`generality` verde, `projection` re-sincronizada por `checkpoint`) · `git
+  diff src/metafactory/ + seed/ = 0` (sustrato intacto) · `git diff product.yml = 0` (los 3). Un gap de tipo jOOQ
+  surgió y se fijó GENERAL: `it[<TBL>.ID]` es `Long?` → `!!` (consistente con `fetchOne()!!`/`get(...)!!` ya usados).
+- **Sigue** (lo de mayor palanca para un Snipe-IT **usable**): CRUD de entidades **sin dueño** (la capa viva es
+  opt-in a `owned_by` → 1 de ~23 en Snipe-IT) + **refs del body** (el espinazo relacional), ANTES que el render en
+  browser / form / Playwright. Handoff: `docs/work/FSK-CRUD-OWNERLESS-INCREMENT.md`.
+
 ## 2026-06-21T16:14Z — FSK-FRONTEND-CONSUME ✅: el cliente TS generado CONSUME el backend vivo (fetch e2e real)
 - **Abre el eje frontend real**: hasta hoy el frontend era **funciones puras** (`client.ts::summarize` interpola
   campos; `app.ts::render<E>List` arma `<ul>`; `index.html` es un form estático) — **nada en `frontend/` tocaba

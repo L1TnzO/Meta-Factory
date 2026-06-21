@@ -829,6 +829,16 @@ def _client_consume_ts(entities: list[dict]) -> str:
         "  }\n"
         f'  throw new Error("create{name}: el server no devolvió un id numérico");\n'
         "}\n\n"
+        "// FSK-FRONTEND-RENDER-LIST — list<E> trae la COLECCIÓN viva: GET /<plural> → {count,rows[]} (el server\n"
+        "// extendió la colección de count a count+rows, backward-compat). res.json() es `unknown` (ts-reset) →\n"
+        "// se NARROW a `unknown[]` sin `any` (Array.isArray, DES-10); el callsite lo castea a <E>[] (Pick del\n"
+        "// contrato). Un list<E> que ignora/trunca .rows → la lista viva no se refleja → el consumer lo caza.\n"
+        "function expectRows(json: unknown): unknown[] {\n"
+        '  if (typeof json === "object" && json !== null && "rows" in json && Array.isArray(json.rows)) {\n'
+        "    return json.rows;\n"
+        "  }\n"
+        f'  throw new Error("list{name}: el server no devolvió rows[]");\n'
+        "}\n\n"
         f"export async function create{name}(base: string, token: string, "
         f"body: {name}Input): Promise<{{ id: number }}> {{\n"
         f"  const res = await fetch(`${{base}}{plural}`, {{\n"
@@ -847,6 +857,13 @@ def _client_consume_ts(entities: list[dict]) -> str:
         f'    throw new Error(`get{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         f"  return (await res.json()) as {name};\n"
+        "}\n\n"
+        f"export async function list{name}(base: string): Promise<{name}[]> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}`);\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`list{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        f"  return expectRows(await res.json()) as {name}[];\n"
         "}\n"
     )
 
@@ -985,6 +1002,13 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
         f"    fun delete{name}(ctx: DSLContext, id: Long): Int =\n"
         f"        ctx.deleteFrom({tbl}).where({tbl}.ID.eq(id)).execute()",
         _row_json_fn(e, tbl),
+        # FSK-FRONTEND-RENDER-LIST: la COLECCIÓN serializada (lo que GET /<plural> devuelve en "rows") —
+        # mapea all<E>s → <e>RowJson(id) (REUSA la serialización type-correct, DES-12) → array JSON. El
+        # cliente list<E> lo lee y render<E>List lo renderiza; un drop/garble en el render se caza vivo.
+        f"    fun all{name}RowsJson(ctx: DSLContext): String =\n"
+        + _jooq_chain("        ", "", f"all{name}s(ctx)",
+                      [f"mapNotNull {{ {e['name'].lower()}RowJson(ctx, it[{tbl}.ID]!!) }}",
+                       'joinToString(",", "[", "]")']),
     ]
     mf = _mutable_field(e)
     if mf:   # PATCH del body: el server actualiza esta columna escalar al string del cuerpo (FSK-CRUD-BODY-PARSING)
@@ -2642,9 +2666,10 @@ def _app_ts(entities: list[dict]) -> str:
     """El entry de bundle del frontend (perf, s8): código de cliente REAL (importa summarize de client.ts) →
     esbuild bundlea el grafo real y mide su peso minificado vs el presupuesto. Pasa tsc --strict + ESLint
     (s2) + currency (s3) como todo lo de src/. El `import type` de gen/api.ts se stripea en el bundle.
-    DERIVADO del blueprint (R2: sin hardcodear "Task"): tipa la 1ª entidad vía `components` (siempre la usa,
-    sin import muerto) y renderiza su 1er campo string/enum (siempre hay uno renderizable)."""
-    e = entities[0]
+    DERIVADO del blueprint (R2: sin hardcodear "Task"): tipa la entidad CON DUEÑO vía `components` (la única con
+    capa viva — list<E>/render<E>List la alimentan con datos del server, FSK-FRONTEND-RENDER-LIST; sin dueño cae
+    en la 1ª entidad, s8 sigue midiendo el bundle) y renderiza su 1er campo string/enum (siempre hay uno)."""
+    e = next((x for x in entities if x.get("owned_by")), entities[0])
     name = e["name"]
     field = next((f["name"] for f in e["fields"] if f["type"] in ("string", "enum")),
                  e["fields"][0]["name"])
@@ -3120,6 +3145,16 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         "    }\n"
         "}\n\n"
     )
+    list_all = (
+        "// GET /<plural> (coleccion, FSK-FRONTEND-RENDER-LIST): count + rows[] (cada fila type-correct via\n"
+        "// <e>RowJson). count SIGUE primero -> backward-compat (access_control_check lee .count); el cliente\n"
+        "// list<E> lee .rows y render<E>List las renderiza -> la UI refleja la coleccion VIVA.\n"
+        "private fun listAll(ctx: DSLContext): Pair<Int, String> {\n"
+        f"    val count = Repository.all{name}s(ctx).size\n"
+        f"    val rows = Repository.all{name}RowsJson(ctx)\n"
+        '    return HTTP_OK to """{"count":$count,"rows":$rows}"""\n'
+        "}\n\n"
+    )
     get_one = (
         "// GET /<plural>/{id} (FSK-CRUD-BODY-PARSING): lee la FILA COMPLETA de la PG viva, serializada\n"
         "// type-correct (un int es int, un string es string); inexistente -> 404. Es lo que el round-trip e2e\n"
@@ -3180,7 +3215,7 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
             "    }\n"
             "}\n\n"
         )
-    return helpers + codec + "\n\n" + get_one + do_post + do_put + do_delete
+    return helpers + codec + "\n\n" + list_all + get_one + do_post + do_put + do_delete
 
 
 def _app_server_kt(pkg: str, bp: dict) -> str:
@@ -3330,9 +3365,9 @@ private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {
 }
 
 %HANDLERS%
-// Dispatch del server vivo (FSK-S15/S16/CRUD-BODY-PARSING): GET coleccion (count) + GET /{id} (fila completa) +
-// POST (inserta del body) + PUT /{id} (actualiza del body) + DELETE /{id} (borra). Cada mutacion pasa por su
-// guard antes de tocar la PG viva; POST/PUT leen el CUERPO real del request (type-coerced por el schema, DES-12).
+// Dispatch del server vivo (FSK-S15/S16/CRUD-BODY-PARSING/RENDER-LIST): GET coleccion (count+rows[]) + GET /{id}
+// (fila completa) + POST (inserta del body) + PUT /{id} (actualiza del body) + DELETE /{id} (borra). Cada mutacion
+// pasa por su guard antes de tocar la PG viva; POST/PUT leen el CUERPO real del request (type-coerced, DES-12).
 private fun handle(ctx: DSLContext, ex: HttpExchange) {
     val token = ex.requestHeaders.getFirst("Authorization")
     val rest = ex.requestURI.path.removePrefix(PLURAL).trim('/')
@@ -3341,7 +3376,7 @@ private fun handle(ctx: DSLContext, ex: HttpExchange) {
     val method = ex.requestMethod
     val payload = String(ex.requestBody.readBytes(), StandardCharsets.UTF_8)
     val (status, out) = when {
-        method == "GET" && collection -> HTTP_OK to """{"count":${Repository.%ALL_FN%(ctx).size}}"""
+        method == "GET" && collection -> listAll(ctx)
         method == "GET" && id != null -> getOne(ctx, id)
         method == "POST" && collection -> doPost(ctx, token, payload)
         method == "PUT" && id != null -> doPut(ctx, token, id, payload)
@@ -3586,9 +3621,11 @@ if __name__ == "__main__":
 
 
 def _consume_check_ts(bp: dict) -> str:
-    """frontend/consume_check.ts — el proof e2e de la CAPA CLIENTE (FSK-FRONTEND-CONSUME), parte de s9 (kind
-    infra_up, check frontend_consume_live). IMPORTA las funciones del CLIENTE GENERADO (src/client.ts:
-    create<E>/get<E>) y las corre contra el AppServer VIVO (PG real detrás) → el round-trip e2e cruza el
+    """frontend/consume_check.ts — el proof e2e de la CAPA CLIENTE (FSK-FRONTEND-CONSUME + RENDER-LIST), parte de
+    s9 (kind infra_up, check frontend_consume_live). IMPORTA las funciones del CLIENTE GENERADO (src/client.ts:
+    create<E>/get<E>/list<E>) + el render generado (src/app.ts: render<E>List) y los corre contra el AppServer
+    VIVO (PG real detrás): el round-trip create→get cruza el cuerpo posteado, y list<E>→render<E>List asevera que
+    el markup refleja la COLECCIÓN viva (cada fila, incl. la recién creada). El round-trip e2e cruza el
     protocolo de cable REAL: contrato → client.fetch → server vivo → PG → respuesta → client.parse. Asevera
     (1) el cuerpo posteado vuelve EXACTO y type-correct por GET /{id} (un cliente que ignora la respuesta del
     server — eco/literal — → mismatch → rojo); (2) el negativo — un body de tipo equivocado → 400 → el cliente
@@ -3606,9 +3643,14 @@ def _consume_check_ts(bp: dict) -> str:
     post_body = {f["name"]: _proof_post_value(f) for f in flds}
     bad_body = dict(post_body)
     bad_body[flds[0]["name"]] = _proof_wrong_value(flds[0])   # corromper SÓLO el tipo del 1er campo → 400
+    # El campo que render<E>List renderiza (FSK-FRONTEND-RENDER-LIST): el 1er string/enum de la entidad con
+    # dueño — la MISMA heurística que _app_ts → el consumer asevera contra EXACTAMENTE lo que el render emite.
+    render_field = next((f["name"] for f in owned["fields"] if f["type"] in ("string", "enum")),
+                        owned["fields"][0]["name"])
     return (_CONSUME_CHECK_SKELETON
             .replace("%ENTITY%", name)
             .replace("%WRITE_ROLE%", write_role)
+            .replace("%RENDER_FIELD%", render_field)
             .replace("%POST_BODY%", json.dumps(post_body))
             .replace("%BAD_BODY%", json.dumps(bad_body)))
 
@@ -3619,8 +3661,12 @@ _CONSUME_CHECK_SKELETON = '''\
 // cruza el protocolo de cable REAL (contrato -> client.fetch -> server vivo -> PG -> client.parse). Un cliente
 // que ignora la respuesta del server (eco/literal) -> mismatch -> exit 1. Un cliente que no chequea res.ok ->
 // traga el 400 -> el negativo lo delata. Server caido -> fetch tira -> exit 1 (diente nativo de infra_up).
+// FSK-FRONTEND-RENDER-LIST: ademas trae la LISTA viva (list<E>) y la renderiza (render<E>List, importada de
+// src/app.ts) -> asevera que el html refleja la coleccion VIVA (cada fila, incl. la recien creada). Un render
+// que dropea/garbla/hardcodea filas, o un list<E> truncado -> el html != la lista viva -> exit 1.
 // Corre por `node --experimental-strip-types`. Uso: consume_check.ts <base_url>
-import { create%ENTITY%, get%ENTITY% } from "./src/client.ts";
+import { create%ENTITY%, get%ENTITY%, list%ENTITY% } from "./src/client.ts";
+import { render%ENTITY%List } from "./src/app.ts";
 
 const POST_BODY = %POST_BODY%;
 const BAD_BODY = %BAD_BODY%;
@@ -3662,6 +3708,25 @@ async function main(base) {
     threw = true;
   }
   check(threw, true, "create%ENTITY% propaga el error del server (body invalido -> 400, no se traga)");
+
+  // 4) LISTA VIVA -> RENDER (FSK-FRONTEND-RENDER-LIST): list<E> trae la coleccion (GET /<plural> -> .rows),
+  //    render<E>List la renderiza a markup. El DIENTE: el html refleja la lista VIVA traida de la PG.
+  const rows = await list%ENTITY%(base);
+  const html = render%ENTITY%List(rows);
+  const createdValue = String(row["%RENDER_FIELD%"]);
+  const renderedValues = rows.map((r) => String(r["%RENDER_FIELD%"]));
+  // (i) list<E> trajo la coleccion VIVA, no una stale/truncada: la fila recien creada esta en la lista.
+  check(renderedValues.includes(createdValue), true, "list%ENTITY% incluye la fila recien creada (no stale/truncada)");
+  // (ii) la UI refleja CADA fila viva: el html contiene el campo renderizado de cada fila (drop/garble -> rojo).
+  let allRendered = true;
+  for (const r of rows) {
+    if (!html.includes(String(r["%RENDER_FIELD%"]))) {
+      allRendered = false;
+    }
+  }
+  check(allRendered, true, "render%ENTITY%List refleja CADA fila viva en el html (drop/garble/hardcode -> rojo)");
+  // (iii) la lista viva no es trivial: tiene la fila sembrada + la creada (>=2). No es un numero fijo del seed.
+  check(rows.length >= 2, true, "la lista viva tiene >=2 filas (sembrada + creada)");
 }
 
 const base = process.argv[2];
@@ -3943,11 +4008,12 @@ def build_files(bp: dict) -> dict[str, str]:
         # owned_by (compone sobre ownership/RBAC). El sustrato no nombra tech: todo `codegen/`+spec (ADR-012).
         files[f"{pkgdir}/endpoints/AppServer.kt"] = _app_server_kt(pkg, bp)
         files["tools/access_control_check.py"] = _access_control_check_py(bp)
-        # frontend que CONSUME el backend vivo (s9, DES-6/DES-4, FSK-FRONTEND-CONSUME): el cliente TS generado
-        # (frontend/src/client.ts) gana create<E>/get<E> que hacen fetch REAL contra el AppServer; el consumer
-        # node (frontend/consume_check.ts) los importa y prueba el round-trip e2e contra el server vivo + PG. El
-        # check `frontend_consume_live` (s9, infra_up) lo corre por `node --experimental-strip-types`. Opt-in:
-        # sólo con owned_by (compone sobre el server vivo de FSK-S15). Sin tech nueva: fetch global, ADR-012.
+        # frontend que CONSUME + RENDERIZA el backend vivo (s9, DES-6/DES-4, FSK-FRONTEND-CONSUME/RENDER-LIST): el
+        # cliente TS generado (frontend/src/client.ts) gana create<E>/get<E>/list<E> (fetch REAL contra el AppServer)
+        # y el render generado (frontend/src/app.ts: render<E>List) renderiza la lista viva; el consumer node
+        # (frontend/consume_check.ts) los importa y prueba e2e (round-trip create→get + list→render) contra el server
+        # vivo + PG. El check `frontend_consume_live` (s9, infra_up) lo corre por `node --experimental-strip-types`.
+        # Opt-in: sólo con owned_by (compone sobre el server vivo de FSK-S15). Sin tech nueva: fetch global, ADR-012.
         files["frontend/consume_check.ts"] = _consume_check_ts(bp)
     return files
 

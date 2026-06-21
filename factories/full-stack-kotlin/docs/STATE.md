@@ -20,10 +20,22 @@
   narrow desde `unknown`, DES-10). Un consumer node (`consume_check.ts`) los IMPORTA y corre el **round-trip e2e**
   (`create<E>` POST → `get<E>` GET → cada campo vuelve EXACTO type-correct) por `node --experimental-strip-types`,
   verificado por un **3er check `frontend_consume_live`** (infra_up) en s9. `fetch` global → sin dep nueva (ADR-012).
-- **Sigue** (huecos honestos → próximos incrementos): **React que RENDERIZA la lista + el form que postea (browser)**
-  · **deploy real (Dockerfile vivo)** · **e2e Playwright (browser headless)** · CRUD de entidades sin dueño ·
-  refs no-dueño desde el body · UNIQUE-from-body→409 · PUT-total vs PATCH-split · ownership opcional/RTD · self-ref
-  · custom-fields. El cliente ya CONSUME; falta el RENDER en browser y el ship.
+- **Frontend que RENDERIZA la lista VIVA (FSK-FRONTEND-RENDER-LIST, 2026-06-21)**: el render generado dejó de ser
+  una función que **nadie alimentaba**. El server **LISTA las filas** (`GET /<plural>` → `{"count":N,"rows":[…]}`,
+  backward-compat, cada fila vía `Repository.all<E>RowsJson` que REUSA `<e>RowJson` type-correct), el cliente las
+  **TRAE** (`list<E>(): Promise<<E>[]>`, narrow desde `unknown`, DES-10) y **`render<E>List`** (ya type-bound al
+  contrato; ahora apunta a la entidad **CON DUEÑO**, la única con capa viva) las **renderiza** a markup. El consumer
+  (`consume_check.ts`) trae la lista viva y **asevera que el HTML la refleja** (cada fila, incl. la recién creada;
+  un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
+  (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
+  `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **Sigue** (huecos honestos → próximos incrementos): **CRUD de entidades SIN dueño** (hoy la capa viva es opt-in a
+  `owned_by` → sólo la entidad con dueño tiene server/cliente/render vivo; en Snipe-IT eso es **1 de ~23** → el de
+  mayor palanca) · **refs no-dueño desde el body** (el espinazo relacional) · **render EN BROWSER (mount real DOM +
+  eventos)** · **el FORM que postea vía el cliente** · **deploy real (Dockerfile vivo)** · **e2e Playwright** ·
+  UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. El cliente ya CONSUME **y RENDERIZA la lista**;
+  lo que falta para un Snipe-IT **usable** es levantar el opt-in (entidades sin dueño + refs del body) antes que el
+  pulido de browser.
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

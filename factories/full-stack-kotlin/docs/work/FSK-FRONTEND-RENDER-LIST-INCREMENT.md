@@ -1,10 +1,9 @@
 # Incremento FSK-FRONTEND-RENDER-LIST — el frontend RENDERIZA la lista VIVA (lista del server → cliente → UI)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T16:30Z). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
-> limpio + estación activa verde) **o** flippeando este header a CERRADO (lo mismo: el `increment status` lee el
-> header). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento
-> abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T16:30Z · cerrado 2026-06-21T18:30Z, commit en §Evidencia). El deliverable está VIVO y
+> probado por bloqueo (ver §Evidencia). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations)
+> exige un incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Venís de
 > **FSK-FRONTEND-CONSUME ✅** (2026-06-21, commit 0c981dd; ver `…/work/FSK-FRONTEND-CONSUME-INCREMENT.md
@@ -206,3 +205,45 @@ gradle/línea. FOREGROUND, por-producto (~3 min con gradle caliente).
   → mutación → cuerpo tipado → cliente que hace `fetch`, todo e2e vs PG viva). Este incremento es el SIGUIENTE
   eslabón del frontend real: que la **UI RENDERICE** los datos que el cliente trae — antes del render EN BROWSER,
   el form que postea, deploy y e2e Playwright.
+
+---
+
+## Evidencia (cierre 2026-06-21T18:30Z) — demostrable, no narrable
+
+**Hecho** (todo en `codegen/scaffold_product.py` + `factory.spec.yml`, FÁBRICA/GENERAL, cero nombres de dominio):
+1. **Server** — `_app_server_handlers` gana `listAll(ctx): Pair<Int,String>` → `GET /<plural>` colección pasa de
+   `{"count":N}` a `{"count":N,"rows":[…]}` (count primero, **backward-compat**); el dispatch del skeleton llama
+   `listAll(ctx)`. Cada fila la serializa **`Repository.all<E>RowsJson`** (nuevo en `_mutation_fns`): mapea
+   `all<E>s(ctx) → <e>RowJson(ctx, it[<TBL>.ID]!!)` — **REUSA** la serialización type-correct (DES-12). El `!!`
+   porque `it[<TBL>.ID]` es `Long?` (jOOQ) y `<e>RowJson` toma `Long` (consistente con `fetchOne()!!`/`get(...)!!`).
+2. **Cliente** — `_client_consume_ts` gana `list<E>(base): Promise<<E>[]>` (GET → `.rows`) + helper `expectRows`
+   que narrow `res.json()` de `unknown` a `unknown[]` (ts-reset/DES-10, sin `any`); el callsite castea a `<E>[]`.
+3. **Render** — `_app_ts` ahora elige la entidad **CON DUEÑO** (`next((x for x… if x.owned_by), entities[0])`) →
+   `render<E>List` apunta a la entidad con capa viva (consistente con `list<E>`/`create<E>`/`get<E>`); sin dueño
+   cae en `entities[0]` y s8 sigue midiendo el bundle. (En los 3 productos `owned != entities[0]`: Project/Asset/Asset.)
+4. **Consumer** — `_CONSUME_CHECK_SKELETON` importa `list<E>` (de `client.ts`) + `render<E>List` (de `app.ts`) y,
+   tras `create→get`, hace `list<E>(base) → render<E>List(rows)` y asevera: (i) la fila creada está en la lista
+   traída; (ii) el HTML contiene el campo renderizado de CADA fila viva; (iii) ≥2 filas. `%RENDER_FIELD%` = el 1er
+   string/enum de la entidad con dueño (MISMA heurística que `_app_ts`).
+5. **Spec** — capability `frontend_render_live` (DES-6) + **REQ-F-018** (`verified_by: [frontend_consume_live]`,
+   `capability: frontend_render_live`); descripción del check y notas de deferral actualizadas. `validate` +
+   `design-review` = **0 problemas**.
+
+**Probado POR BLOQUEO**:
+- `product-run` **PASS** en los 3 (default · assets · snipeit), s0→s10.
+- **RTM snipeit 22/23** SATISFIED — `REQ-F-018 SATISFIED <- frontend_render_live: s9 [app.ts✓]` (único UNSAT
+  sigue `REQ-F-007`/s6 LLM keyless). s9: `observability_live`+`access_control_live`+`frontend_consume_live` = exit 0.
+- **Diente de DOS lados VIVO**: saboteado `render<E>List` (`rows.filter(() => false).map(…)` → dropea filas) →
+  `product-run --product snipeit` **FAIL** con `1/3 checks red` = **sólo `frontend_consume_live` FAIL(1)**,
+  `observability_live ok · access_control_live ok`; revertido → verde.
+- `ci --rederive --all-products` **3/3 == pin** (11/11 · 10/10 · 10/10). `meta check` **6/6** (`generality` verde;
+  `projection` re-sincronizada con `meta checkpoint`).
+- **Anti-overfit**: `git diff src/metafactory/ + seed/ = 0` (sustrato intacto) · `git diff product.yml = 0` (los 3).
+  **Sin check nuevo** → `proof_sha` intacto → los 3 `pinned_verdict.json` quedaron **byte-idénticos** (no hizo
+  falta re-materializar el chasis: la lección cara de FSK-FRONTEND-CONSUME NO aplicó este eje).
+
+**Commit**: `feat(fsk): FSK-FRONTEND-RENDER-LIST` (trailers I-10).
+
+**Siguiente** (decidido y abierto sin intervención, ADR-016): **`FSK-CRUD-OWNERLESS`** — levantar el opt-in a
+entidades **sin dueño** (lo de mayor palanca para un Snipe-IT usable: hoy la capa viva cubre 1 de ~23 entidades) +
+preparar refs del body. Handoff autocontenido: `docs/work/FSK-CRUD-OWNERLESS-INCREMENT.md`.

@@ -66,6 +66,11 @@ AC_PG_PORT = 5436              # PostgreSQL viva del check access_control_live (
 AC_PG_CONTAINER = "fsk_s9_ac_pg"  # nombre del contenedor PG del check (rm -f por nombre en bootstrap + down).
 BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
+# ktlint `PropertyWrapping` (formatting, sin override en detekt.yml → su default) exige envolver una
+# declaración `val x = Ctor(...)` que pase de 120 — INDEPENDIENTE del MaxLineLength=160 de detekt. Sólo se
+# notó con entidades anchas (Snipe-IT): los productos previos no pasaban de ~88/línea. Las construcciones de
+# propiedad se envuelven a 120 → forma multilínea con coma final (la que ktlint_official acepta).
+PROPERTY_WRAP = 120
 # Build hermético reproducible (s10, DES-1): la imagen Docker pinea la base por DIGEST (no un tag flotante —
 # un tag flotante sería NO-hermético). El build+push de la imagen reproducible (red + daemon) queda
 # declared-deferred (ADR-012, doctrina s5/s7/s8/s9): se SHIPPEA el Dockerfile (la receta de deploy, base
@@ -113,13 +118,14 @@ def _kt_type_imports(entities: list[dict]) -> list[str]:
     return sorted(f"import {m}" for m in want)
 
 
-def _kt_call(lead: str, prefix: str, args: list[str], indent: str) -> str:
-    """`{lead}{prefix}(arg, arg, ...)` en UNA línea si entra bajo MAX_LINE_LENGTH; si no, uno-por-línea con
+def _kt_call(lead: str, prefix: str, args: list[str], indent: str, budget: int = MAX_LINE_LENGTH) -> str:
+    """`{lead}{prefix}(arg, arg, ...)` en UNA línea si entra bajo `budget`; si no, uno-por-línea con
     coma final — el patrón multi-línea que ktlint_official acepta (TrailingCommaOnCallSite). Soporta entidades
     con MUCHOS campos sin pasar el presupuesto de línea (DES-10): la expresividad de R2 no fuerza líneas largas.
-    `indent` es la sangría de la sentencia (el `)` de cierre alinea ahí; los args van a +4)."""
+    `indent` es la sangría de la sentencia (el `)` de cierre alinea ahí; los args van a +4). `budget` por
+    defecto MAX_LINE_LENGTH (160); las DECLARACIONES `val` pasan PROPERTY_WRAP (120) por la regla ktlint."""
     single = f"{lead}{prefix}({', '.join(args)})"
-    if len(single) <= MAX_LINE_LENGTH:
+    if len(single) <= budget:
         return single
     pad = indent + "    "
     body = "".join(f"{pad}{a},\n" for a in args)
@@ -673,23 +679,29 @@ def _store_kt(pkg: str, entities: list[dict]) -> str:
         f"    val {e['name'].lower()}s = mutableListOf<{e['name']}>()" for e in entities)
     fns = "\n".join(
         f"    fun add(x: {e['name']}) {{ {e['name'].lower()}s.add(x) }}" for e in entities)
+    # un `add` TIPADO por entidad: con >11 entidades supera TooManyFunctions(11) de detekt dentro de objetos.
+    # Es un almacén GENERADO 1:1 con el contrato (no una clase-Dios mantenible); @Suppress sólo cuando aplica.
+    suppress = '@Suppress("TooManyFunctions")\n' if len(entities) > 11 else ""
     # archivo Store.kt ⇄ declaración `object Store` (DES-10: detekt MatchingDeclarationName).
     return (f"package {pkg}\n\n"
             f"{_model_imports(entities)}\n\n"
             f"// Almacén en memoria tipado al CONTRATO generado (s0; la DB viva es s1/DES-4).\n"
-            f"object Store {{\n{adds}\n{fns}\n}}\n")
+            f"{suppress}object Store {{\n{adds}\n{fns}\n}}\n")
 
 
 def _app_kt(pkg: str, entities: list[dict]) -> str:
     by_name = {e["name"]: e for e in entities}
     ctor_lines, read_parts, stores = [], [], []
     for e in entities:
-        var = e["name"][0].lower()
+        # var local = nombre completo en minúsculas (único por entidad): la inicial sola colisiona
+        # cuando dos entidades comparten primera letra (Company/Category/… → `c`) → "Conflicting
+        # declarations" en App.kt. El nombre completo es la misma convención que Store (DES-agnóstica).
+        var = e["name"].lower()
         args = ["id = 1L"]
         for f in e["fields"]:
             if f["type"] == "ref":
                 tgt = by_name.get(f["to"])
-                tv = tgt["name"][0].lower() if tgt else "1L"
+                tv = tgt["name"].lower() if tgt else "1L"
                 args.append(f"{_camel(f['name'])} = {tv}.id" if tgt else f"{_camel(f['name'])} = 1L")
             elif f["type"] == "enum":
                 # .entries.first() SÓLO compila si <Model>.<Prop> ES un enum class (del contrato cerrado):
@@ -697,7 +709,9 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
                 args.append(f"{_camel(f['name'])} = {e['name']}.{_pascal(f['name'])}.entries.first()")
             else:
                 args.append(f"{_camel(f['name'])} = {_KT_SAMPLE[f['type']]}")
-        ctor_lines.append(_kt_call(f"    val {var} = ", e["name"], args, "    "))
+        # val de propiedad → presupuesto PROPERTY_WRAP (120): una entidad ancha se envuelve (multilínea con
+        # coma final) en vez de pasarse de la regla ktlint PropertyWrapping.
+        ctor_lines.append(_kt_call(f"    val {var} = ", e["name"], args, "    ", budget=PROPERTY_WRAP))
         stores.append(f"    Store.add({var})")
         # leer TODOS los campos (uno por entrada → escala a entidades anchas sin pasar 160): borrar cualquiera
         # del contrato rompe SU línea (diente DES-6).
@@ -707,14 +721,21 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
     body = "\n".join(ctor_lines)
     stores_s = "\n".join(stores)
     parts_s = "\n".join(read_parts)
-    counts = ", ".join(f"${{Store.{e['name'].lower()}s.size}}" for e in entities)
-    # Cada parte por entidad en su línea (DES-10: bajo MAX_LINE_LENGTH; coma final = ktlint_official).
+    # counts como listOf envuelto (una talla por línea) en vez de una interpolación gigante en el println: con
+    # 19 entidades el println de una sola línea pasaba de 160 (MaxLineLength). joinToString reconstruye `[a, b]`.
+    counts_items = "\n".join(f"        Store.{e['name'].lower()}s.size," for e in entities)
+    # main exhaustivo (construye+lee N entidades) → con muchas entidades supera LongMethod(60); es un ejercedor
+    # GENERADO, no lógica mantenible. @Suppress sólo cuando de hecho lo excede (cuenta de líneas del cuerpo).
+    body_lines = body.count("\n") + stores_s.count("\n") + parts_s.count("\n") + len(entities) + 8
+    suppress = '@Suppress("LongMethod")\n' if body_lines > 58 else ""
     return (f"package {pkg}\n\n"
             f"{_kt_imports(entities)}\n\n"
             f"// Ejerce el contrato: construye y LEE cada entidad. Un drift (campo borrado) → unresolved.\n"
-            f"fun main() {{\n{body}\n{stores_s}\n"
+            f"{suppress}fun main() {{\n{body}\n{stores_s}\n"
             f"    val parts = listOf(\n{parts_s}\n    )\n"
-            f'    println("FSK_PRODUCT_OK " + parts.joinToString(" ") + " counts=[{counts}]")\n'
+            f"    val counts = listOf(\n{counts_items}\n    )\n"
+            f'    println("FSK_PRODUCT_OK " + parts.joinToString(" ") + '
+            f'" counts=" + counts.joinToString(", ", "[", "]"))\n'
             f"}}\n")
 
 
@@ -837,13 +858,16 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             oc = f"{tbl}.{_COL(e['owned_by'])}"
             fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
+    # un query TIPADO por entidad (+ ownerId por entidad con dueño): con >11 entidades supera
+    # TooManyFunctions(11). Es un repositorio GENERADO 1:1 con el contrato; @Suppress sólo cuando aplica.
+    suppress = '@Suppress("TooManyFunctions")\n' if len(fns) > 11 else ""
     return (f"package {pkg}\n\n"
             f"import org.jooq.DSLContext\n{imports}\n\n"
             "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
             "// (src/main/resources/db/migration/*.sql). El codegen jOOQ (DDLDatabase) deriva los tipos de ESE\n"
             "// schema; borrar/renombrar una columna usada acá → jOOQ la quita → kotlinc 'Unresolved reference'\n"
             "// (rojo). La DB grita EN COMPILACIÓN, sin DB viva — es el diente DES-12.\n"
-            "object Repository {\n" + "\n".join(fns) + "\n}\n")
+            f"{suppress}object Repository {{\n" + "\n".join(fns) + "\n}\n")
 
 
 _ROUNDTRIP_SKELETON = '''package %PKG%
@@ -863,7 +887,8 @@ import kotlin.system.exitProcess
 // diente de dos lados de infra_up). El nombre del servicio es DATA: lo provee env o el default.
 // @Suppress: el driver de round-trip atrapa Throwable A PROPÓSITO — un CLI que debe reportar CUALQUIER
 // fallo (connect refused incl.) y salir 1; es justo lo que hace vivo el diente DB-caída de infra_up.
-@Suppress("TooGenericExceptionCaught")
+// (Con muchas entidades el cuerpo supera LongMethod(60): es un ejercedor GENERADO, no lógica mantenible.)
+%MAIN_SUPPRESS%
 fun main() {
     val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:5434/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
@@ -885,7 +910,8 @@ fun main() {
             val ctx = DSL.using(conn, SQLDialect.POSTGRES, settings)
             check(Repository.all%FIRST%s(ctx).isEmpty()) { "down no revirtió el schema" }
         }
-        println("FSK_DB_ROUNDTRIP_OK %OKCOUNTS% reversible=ok")
+%OKCOUNTS_VAL%
+        println("FSK_DB_ROUNDTRIP_OK $okCounts reversible=ok")
     } catch (e: Throwable) {
         System.err.println("FSK_DB_ROUNDTRIP_FAIL: ${e::class.simpleName}: ${e.message}")
         exitProcess(1)
@@ -935,6 +961,16 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
         f'            check(Repository.all{e["name"]}s(ctx).size == 1) {{ "round-trip {e["name"]}" }}'
         for e in entities)
     has_date = any(f["type"] == "date" for e in entities for f in e["fields"])
+    # okCounts como listOf envuelto + joinToString (no una string gigante en el println): con muchas
+    # entidades la línea de una sola pasaba de 160 (MaxLineLength). El texto resultante es idéntico.
+    okcounts_items = "\n".join(f'            "{_table(e)}=1",' for e in entities)
+    okcounts_val = (f'        val okCounts = listOf(\n{okcounts_items}\n'
+                    f'        ).joinToString(" ")')
+    # LongMethod(60): el cuerpo crece con la cantidad de entidades (insert+check por entidad). @Suppress
+    # sólo cuando de hecho lo excede; TooGenericExceptionCaught siempre (catch Throwable del driver).
+    main_lines = "\n".join(inserts).count("\n") + counts.count("\n") + len(entities) + 24
+    suppresses = ['"TooGenericExceptionCaught"'] + (['"LongMethod"'] if main_lines > 58 else [])
+    main_suppress = f"@Suppress({', '.join(suppresses)})"
     return (_ROUNDTRIP_SKELETON
             .replace("%PKG%", pkg)
             .replace("%IMPORTS%", imports)
@@ -942,7 +978,8 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
             .replace("%INSERTS%", "\n".join(inserts))
             .replace("%COUNTS%", counts)
             .replace("%FIRST%", entities[0]["name"])
-            .replace("%OKCOUNTS%", " ".join(f"{_table(e)}=1" for e in entities)))
+            .replace("%MAIN_SUPPRESS%", main_suppress)
+            .replace("%OKCOUNTS_VAL%", okcounts_val))
 
 
 # ── dureza estática (s2, DES-10): config de los linters + el probe NEGATIVO (DATA de la fábrica) ──
@@ -2848,7 +2885,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         "import java.sql.Connection",
         "import java.sql.DriverManager",
         "import java.sql.SQLException",
-    ] + _kt_type_imports([owned, owner_ent]))
+    # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un
+    # campo `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports.
+    ] + _kt_type_imports([{"fields": [f for f in e["fields"] if f.get("required", True)]}
+                          for e in (owned, owner_ent)]))
     seed_owner = _seed_chain("ownerId", owner_ent)
     seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
     return (_APP_SERVER_SKELETON

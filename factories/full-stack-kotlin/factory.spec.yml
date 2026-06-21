@@ -124,7 +124,7 @@ domain:
       invariant: "el PRODUCTO persiste/lee contra una PostgreSQL VIVA: un round-trip create+list del producto corre contra la DB levantada (no un mock); DB caída → rojo (DES-4, M8 del producto)"
       primitive: DES-4
       tech: "PostgreSQL real (contenedor pineado por digest) bajo infra_up; el cliente es un runner del PRODUCTO (Flyway migrate + jOOQ create/list) tipado al schema"
-      artifact: build/product/src/main/kotlin/webapp/DbRoundTrip.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/DbRoundTrip.kt
       proof: "s1 db_roundtrip_live: infra_up levanta PostgreSQL + bootstrapea el toolchain del producto; round-trip vivo + reversibilidad (Flyway clean); DB caída → rojo (diente de dos lados)"
       status: built
     - id: dureza_estatica
@@ -152,14 +152,14 @@ domain:
       invariant: "ninguna ruta protegida por el contrato se alcanza sin pasar por el guard de auth (punto de control no-salteable, verificado por alcanzabilidad estática sobre el árbol de rutas declarado)"
       primitive: DES-3
       tech: "guard de auth (auth/AuthGuard.kt) + registro de rutas (routes/RouteTable.kt: las escrituras dentro de authenticated{}); analizador estático determinista (tools/route_check.py modo auth, stdlib, sin levantar server) cruza las rutas Kotlin contra el contrato. Ktor server vivo = declared-deferred (s7/s9)"
-      artifact: build/product/src/main/kotlin/webapp/auth/AuthGuard.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/auth/AuthGuard.kt
       proof: "s5 auth_reachability: route_check.py (auth) exige que toda op con `security` en el contrato esté dentro de authenticated{}; rerutear un POST fuera del guard → UNGUARDED (rojo); el probe sucio embebido DEBE morder cada corrida (fail-closed)"
       status: built
     - id: topologia_rutas_verificable
       invariant: "el mapa de rutas es chequeable estáticamente contra el contrato OpenAPI (sin levantar el server): una ruta sin contrato o un contrato sin ruta → rojo"
       primitive: DES-2
       tech: "analizador estático determinista (tools/route_check.py modo topology, stdlib) que extrae las rutas Kotlin por tokens y las cruza contra openapi.yaml (fuente única, DES-6)"
-      artifact: build/product/src/main/kotlin/webapp/routes/RouteTable.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/routes/RouteTable.kt
       proof: "s5 route_topology: route_check.py (topology) exige set(rutas) == set(contrato); una ruta sin contrato → EXTRA / un contrato sin ruta → MISSING (rojo); el probe sucio embebido DEBE morder cada corrida (fail-closed)"
       status: built
     - id: logica_dominio_generada
@@ -180,21 +180,21 @@ domain:
       invariant: "un campo enum con ciclo de vida declara su máquina de estado (initial + transitions) y un guard DETERMINISTA (sin LLM, I-3) la enforza: una transición declarada es válida, una no declarada se rechaza por construcción (no-salteable, DES-3)"
       primitive: DES-3
       tech: "gramática del blueprint (domain.product): un enum gana initial/transitions opcionales (R2/FSK-S12) → el codegen emite un guard type-safe (workflow/<Entity><Field>Workflow.kt: canTransition derivado del mapa, type-bound al enum class del contrato) + un test de DOS lados (tier workflowTest, Kotest). El contrato documenta la máquina como x-initial/x-transitions (DES-6, inspectable). Opt-in: un enum sin transitions no emite nada (FSK-S11 intacto)"
-      artifact: build/product/src/main/kotlin/webapp/workflow/
+      artifact: build/product/src/main/kotlin/{{package_name}}/workflow/
       proof: "s7 workflow_enforced: gradle workflowTest verde — una transición declarada VÁLIDA pasa Y una INVÁLIDA es rechazada (diente de dos lados); romper canTransition (aceptar todo) → falla el lado inválido (o rechazar todo → falla el válido) → rojo; tamper del `enum:` del contrato → el guard no compila (DES-6)"
       status: built
     - id: rbac_enforced
       invariant: "una operación de ESCRITURA declara qué roles la pueden ejecutar (write_roles) y un guard DETERMINISTA (sin LLM, I-3) lo enforza: un rol autorizado escribe, uno no-autorizado se rechaza por construcción — autorización por rol encima de la autenticación de s5 (RBAC, no-salteable, DES-3)"
       primitive: DES-3
       tech: "gramática del blueprint (domain.product): `roles` (universo) + `write_roles` por entidad (R2/FSK-S13) → el codegen emite un enum Role type-safe (auth/Role.kt) + RoleGuard (auth/RoleGuard.kt: authorize(token, required) cruza el rol del token contra el set requerido) + el RouteTable registra cada escritura con su Set<Role> + un test de DOS lados (tier unit, Kotest). El contrato documenta los roles requeridos como x-required-roles (DES-6, inspectable); route_check.py (modo rbac) cruza el set del contrato contra el registrado en el Kotlin. Opt-in: una entidad sin write_roles (o un producto sin roles) → sólo autenticación (FSK-S5 intacto)"
-      artifact: build/product/src/main/kotlin/webapp/auth/RoleGuard.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/auth/RoleGuard.kt
       proof: "s5 rbac_enforced: route_check.py (rbac) exige que cada op con x-required-roles esté registrada en el RouteTable con ESE set de roles; un set distinto (tamper del contrato sin tocar el Kotlin, o viceversa) → ROLE_MISMATCH (rojo); el probe sucio embebido (probe/routes/wrong_roles.kt, roles equivocados) DEBE morder (ROLE_MISMATCH) o decorativo→rojo. El test de dos lados (tier unit, RoleGuardTest) ejercita el guard en runtime: rol permitido ✓ / no-permitido ✗; romper RoleGuard → rojo"
       status: built
     - id: ownership_enforced
       invariant: "una entidad declara qué campo identifica al DUEÑO de cada fila (owned_by) y un guard DETERMINISTA (sin LLM, I-3) lo enforza: un actor no-privilegiado sólo modifica las filas que le PERTENECEN (su principal == el dueño); un rol de owner_bypass_roles bypassa — autorización a nivel de FILA (ownership / ABAC acotado, no-salteable, DES-3) encima del RBAC de s5"
       primitive: DES-3
       tech: "gramática del blueprint (domain.product): `owned_by` por entidad (el campo ref dueño) + `owner_bypass_roles` (R2/FSK-S14) → el codegen emite OwnershipGuard.canModify (auth/OwnershipGuard.kt, genérico type-safe sobre Role) + el registro OwnershipPolicy (auth/OwnershipPolicy.kt: entidad→campo dueño, derivado del blueprint) + un test de DOS+ lados (tier unit, Kotest, type-bound al model del contrato). El contrato documenta el dueño como x-owned-by (DES-6, inspectable); route_check.py (modo ownership) cruza el campo del contrato contra el registrado en el Kotlin. Opt-in: una entidad sin owned_by → sólo RBAC (FSK-S13 intacto)"
-      artifact: build/product/src/main/kotlin/webapp/auth/OwnershipGuard.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/auth/OwnershipGuard.kt
       proof: "s5 ownership_enforced: route_check.py (ownership) exige que cada entidad con x-owned-by esté registrada en OwnershipPolicy con ESE campo; un campo distinto (tamper del contrato sin tocar el Kotlin, o viceversa) → OWNER_MISMATCH (rojo); el probe sucio embebido (probe/routes/wrong_owner.kt, campo equivocado) DEBE morder (OWNER_MISMATCH) o decorativo→rojo. El test de dos+ lados (tier unit, OwnershipGuardTest) ejercita el guard en runtime: el dueño modifica ✓ / un no-dueño es rechazado ✗ / un rol de bypass bypassa ✓; romper OwnershipGuard → rojo"
       status: built
     - id: calidad_experiencia
@@ -208,14 +208,14 @@ domain:
       invariant: "el producto EMITE observabilidad: logs estructurados + tracing OTel con correlation-id + endpoints /health y /ready; verificado que emite (no que renderiza)"
       primitive: DES-5
       tech: "server HTTP vivo del JDK (com.sun.net.httpserver, stdlib — NO Ktor, divergencia ADR-012) instrumentado con OpenTelemetry SDK real (SpanExporter a archivo) + logs estructurados JSON, ambos con correlation-id + /health·/ready; verificado por requests reales contra el server vivo (infra_up). Ktor completo + e2e Playwright (s7) + Lighthouse (s8) = declared-deferred"
-      artifact: build/product/src/main/kotlin/webapp/observability/ObsServer.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/observability/ObsServer.kt
       proof: "s9 observability_live (infra_up): levanta el server HTTP del producto; el proof hace /health+/ready+una request instrumentada y exige que el span OTel y el log estructurado emitidos lleven el correlation-id; server caído → rojo (diente nativo); quitar la instrumentación → el cid no aparece → rojo"
       status: built
     - id: control_acceso_runtime
       invariant: "el control de acceso se ENFORZA a RUNTIME: un server HTTP vivo monta las rutas del contrato para la entidad con dueño e INVOCA los guards generados (auth → RBAC → ownership) + persiste/lee contra la PostgreSQL viva (Repository); ninguna request real saltea el control"
       primitive: DES-3
       tech: "server HTTP vivo del JDK (com.sun.net.httpserver, stdlib — NO Ktor, divergencia ADR-012) que monta GET/POST/PUT de la entidad con dueño e invoca RoleGuard (RBAC) + OwnershipGuard (principal del token vs dueño de la fila cargado de la PG viva via Repository) ANTES de ejecutar; verificado e2e por un proof client urllib (requests reales) que asevera el veredicto de autorización de DOS+ lados. JWT/identidad real + frontend que consume (React) + e2e Playwright = declared-deferred (token estático Bearer <rol>:<principal>)"
-      artifact: build/product/src/main/kotlin/webapp/endpoints/AppServer.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/endpoints/AppServer.kt
       proof: "s9 access_control_live (infra_up): levanta la PostgreSQL viva + el server HTTP del producto; el proof client hace requests REALES y exige POST rol prohibido → 403 / permitido → 201 · PUT fila ajena por no-dueño → 403 / por dueño → 200 / por rol de bypass → 200; saboteá un guard → el 403 se vuelve 200 → rojo; server caído → rojo (diente nativo de infra_up)"
       status: built
     - id: build_hermetico_reproducible
@@ -678,7 +678,7 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew installDist -q --console=plain"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/{{package_name}}/bin/{{package_name}}"]
           proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:18593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
           down: []
           timeout: 120
@@ -686,7 +686,7 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_ac_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_ac_pg -e POSTGRES_PASSWORD=metafactory -p 5436:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); exec \"$JAVA_HOME/bin/java\" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["python3", "tools/access_control_check.py", "http://127.0.0.1:18594"]
           down: ["docker", "rm", "-f", "fsk_s9_ac_pg"]
           timeout: 120

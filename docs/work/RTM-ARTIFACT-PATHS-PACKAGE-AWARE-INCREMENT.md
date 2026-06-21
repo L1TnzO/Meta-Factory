@@ -1,7 +1,7 @@
-<!-- meta:doc sha=609295f458b5a12736f478a0ebba78a7b818ffa7 updated=2026-06-21T03:16Z -->
+<!-- meta:doc sha=0843675ff623fcc9f5cc96f91bb44c8faf9a3984 updated=2026-06-21T03:22Z -->
 # Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-21T03:05Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-21T03:22Z) (creado 2026-06-21T03:05Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

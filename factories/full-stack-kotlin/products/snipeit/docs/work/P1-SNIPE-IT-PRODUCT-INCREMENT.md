@@ -1,19 +1,22 @@
 # Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT)
 
 > **Doc de gobierno del PRODUCTO** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016).
-> Estado: **ABIERTO**. Esta es su CASA correcta: `…/products/snipeit/docs/work/`. Gestionalo level-aware:
+> Estado: **CERRADO** (2026-06-21T03:22Z). Esta es su CASA correcta: `…/products/snipeit/docs/work/`. Gestionalo level-aware:
 > `meta increment status --factory full-stack-kotlin --product snipeit` (y `… close …` para cerrarlo,
 > gateado). Editar `products/snipeit/**` (no-`.md`) exige ESTE incremento abierto — el `increment_guard`
 > elige el lifecycle por la ruta editada. Todo cambio de código del producto vive acá (ADR-010 + ADR-016).
 >
-> **✅ Refactor de gobierno HECHO → Fase 2 (generar) en GO.** La Fase 1 del layering (ADR-016, commits
-> `8e8a512`+`4674a90`) cerró: este producto tiene su casa de docs (ESTE doc ya está en ella) + el edit-gate
-> elige el lifecycle por la RUTA editada. `meta check` 6/6 bajo el modelo nuevo; el incremento META cerrado;
-> **ESTE incremento P1 está ABIERTO a nivel producto** → ya podés editar `products/snipeit/**` (lo gatea P1).
+> **✅ CERRADO (2026-06-21): Fase 2 HECHA — el primer producto real generado VERDE por la línea FSK.** La
+> fábrica entera (19 entidades) pasa s0→s10 por gradle: `product-run` PASS · RTM 18/19 (único UNSATISFIED =
+> s6 LLM, deferral keyless VISIBLE) · `ci --rederive == pin` en clon limpio. Evidencia detallada en §7.bis. Los
+> 2 huecos que gradle destapó se arreglaron GENERALES (incrementos `FSK-CODEGEN-ROBUSTO-MULTI-ENTIDAD` de
+> fábrica + `RTM-ARTIFACT-PATHS-PACKAGE-AWARE` de sustrato, ambos CERRADOS). `product.yml` NO se tocó (DATA).
 >
-> **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total: todo lo que
-> necesitás para avanzar está ACÁ o en los archivos que este doc nombra. La Fase 1 (el SPEC) está HECHA y
-> commiteada, y el refactor de gobierno también; **tu trabajo es la Fase 2: GENERAR el producto por la línea FSK.**
+> **Lo que SIGUE (§7.ter) son incrementos de FÁBRICA nuevos, NO este P1**: CRUD-mutación real e2e (el server
+> vivo da el VEREDICTO de autz, no muta columnas) → self-ref → ownership opcional/RTD → custom-fields →
+> frontend React + deploy + breadth. Abrí cada uno con `meta increment open <slug> --factory full-stack-kotlin`.
+>
+> **El histórico de abajo (★ EMPEZÁ ACÁ, §1–§6) quedó como registro de la Fase 2; ya está HECHA.**
 
 ---
 

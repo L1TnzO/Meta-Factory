@@ -1,7 +1,34 @@
-<!-- meta:doc sha=26b87b00a8b7e28e49cf807edea260c145379b0a updated=2026-06-21T02:04Z -->
+<!-- meta:doc sha=13eabbf5f2a265dd0393f56f831d03a184032d8f updated=2026-06-21T03:23Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-21T03:22Z — P1·Snipe-IT Fase 2 ✅: el PRIMER producto real, generado VERDE por la línea FSK
+- **La fábrica entera (19 entidades, no un slice) pasa la línea REAL FSK s0→s10 por gradle**: `product-run`
+  PASS (compile · detekt/ktlint · API-freshness · SBOM · RBAC/ownership · pirámide de tests · frontend · **s9
+  control-de-acceso VIVO vs PostgreSQL real** · build hermético) · RTM **18/19** (único UNSATISFIED =
+  REQ-F-007/s6 LLM = deferral keyless VISIBLE) · `ci --rederive --all-products` **3/3 == pin** en clones limpios
+  (default 11/11 · assets 10/10 · snipeit 10/10). `git diff product.yml` = 0: **el producto es DATA pura**.
+- **Tres slots de incremento independientes (ADR-016 level-aware), cerrados los tres**: producto (P1, generación
+  verde) + fábrica (`FSK-CODEGEN-ROBUSTO-MULTI-ENTIDAD`) + sustrato (`RTM-ARTIFACT-PATHS-PACKAGE-AWARE`). El
+  edit-gate por-ruta enrutó cada cambio a su nivel sin que se pisaran.
+- **Hueco de FÁBRICA — el codegen no soportaba productos ANCHOS** (los previos eran ≤4 ent., paquete `webapp`,
+  ≤88 char/línea, sin inicial repetida). Surfaceado iterando gradle a verde, cada fix DATA-agnóstico: var-local
+  por nombre COMPLETO (la inicial colisiona: Company/Category/… → `c` → "Conflicting declarations") · ktlint
+  **PropertyWrapping a 120** (≠ detekt MaxLineLength 160) → `_kt_call(budget=)` + `PROPERTY_WRAP` · println de 19
+  counts >160 → `listOf` envuelto + joinToString · LongMethod/TooManyFunctions en main/Store/Repository →
+  `@Suppress` CONDICIONAL (sólo cuando excede el umbral real) · import de tipo no-usado en AppServer → derivado
+  de los campos REQUERIDOS (lo que el seed setea) · paquete `webapp` hardcodeado en el `up` de s9 → `{{package_name}}`.
+- **Hueco de SUSTRATO — el RTM leía `cap.artifact` VERBATIM** → un `{{package_name}}` no resolvía. FSK es la 1ra
+  fábrica cuyo layout anida el fuente bajo `kotlin/<pkg>/` (iot `fleetgw`/full-stack `taskapp` no lo exponen:
+  Go/TS no anidan por paquete). Fix: `build_tree` renderiza el path con `render_text(…, spec.subst)`, igual que
+  ya hace con stations/builds. **GENERAL** (no nombra producto ni tech; sin placeholders es no-op).
+- **Lección — el anti-overfit real es el gate `generality`, no un `git diff src/==0` literal.** Esta vez SÍ hubo
+  1 cambio de sustrato (`verify/rtm.py`), pero es general y `meta check` (incl. `generality`) lo sancionó 6/6.
+  El `diff==0` es heurística; el diente es que el sustrato no nombre dominio/tech. Matizado en P1 §7.bis.
+- **Sigue**: los huecos de §5 como incrementos de FÁBRICA sucesivos, en orden de necesidad — **CRUD-mutación
+  real e2e** (hoy el server vivo da el VEREDICTO de autz, no muta columnas) → self-ref → ownership opcional/RTD
+  → custom-fields dinámicos → frontend React + deploy + breadth de endpoints.
 
 ## 2026-06-21T02:02Z — Gobierno Fase 1 ✅: casa de docs del producto + edit-gate level-aware (ADR-016)
 - **Ejecutada la Fase 1** del refactor de layering (incremento META `GOV-LAYERING-FASE1`, abierto como slot

@@ -85,6 +85,65 @@ def test_edit_outside_repo_allowed(repo):
     assert lc.edit_allowed(repo, "/tmp/elsewhere.py") is True
 
 
+# ── edit_allowed level-aware (ADR-016): el nivel se resuelve por la RUTA ───────
+
+def _meta_code(repo: Path) -> str:
+    return str(repo / "src" / "x.py")
+
+
+def _factory_code(repo: Path) -> str:
+    return str(repo / "factories" / "f" / "codegen" / "x.py")
+
+
+def _product_code(repo: Path) -> str:
+    return str(repo / "factories" / "f" / "products" / "p" / "product.yml")
+
+
+def _open_at(repo: Path, *parts: str, name: str = "I.md", status: str = "ABIERTO") -> None:
+    wd = repo.joinpath(*parts)
+    wd.mkdir(parents=True, exist_ok=True)
+    (wd / name).write_text(f"# I\n> Estado: **{status}**\n", encoding="utf-8")
+
+
+def test_level_workdir_resolves_three_levels(repo):
+    assert lc.level_workdir(repo, _meta_code(repo)).relative_to(repo) == Path("docs/work")
+    assert lc.level_workdir(repo, _factory_code(repo)).relative_to(repo) == Path("factories/f/docs/work")
+    assert lc.level_workdir(repo, _product_code(repo)).relative_to(repo) == Path(
+        "factories/f/products/p/docs/work")
+
+
+def test_edit_gate_isolates_levels(repo):
+    """Un incremento META abierto NO autoriza editar código de fábrica/producto (la ley de ADR-016)."""
+    _open_inc(repo)                                            # docs/work (meta)
+    assert lc.edit_allowed(repo, _meta_code(repo)) is True
+    assert lc.edit_allowed(repo, _factory_code(repo)) is False
+    assert lc.edit_allowed(repo, _product_code(repo)) is False
+
+
+def test_edit_gate_product_level(repo):
+    pc = _product_code(repo)
+    assert lc.edit_allowed(repo, pc) is False                  # sin incremento de producto
+    _open_at(repo, "factories", "f", "products", "p", "docs", "work")
+    assert lc.edit_allowed(repo, pc) is True                   # con el incremento del producto
+    assert lc.edit_allowed(repo, _meta_code(repo)) is False    # pero NO autoriza el meta (aislamiento)
+
+
+def test_edit_gate_factory_level(repo):
+    fc = _factory_code(repo)
+    assert lc.edit_allowed(repo, fc) is False                  # sin incremento de fábrica
+    _open_at(repo, "factories", "f", "docs", "work")
+    assert lc.edit_allowed(repo, fc) is True                   # con el incremento de la fábrica
+    assert lc.edit_allowed(repo, _product_code(repo)) is False  # no derrama al producto
+
+
+def test_required_workdir_rel_names_level(repo):
+    assert lc.required_workdir_rel(repo, _meta_code(repo)) == "docs/work"
+    assert lc.required_workdir_rel(repo, _factory_code(repo)) == "factories/f/docs/work"
+    assert lc.required_workdir_rel(repo, _product_code(repo)) == "factories/f/products/p/docs/work"
+    assert lc.required_workdir_rel(repo, str(repo / "x.md")) is None       # un .md no necesita incremento
+    assert lc.required_workdir_rel(repo, "/tmp/z.py") is None              # fuera del repo
+
+
 # ── dirty_code / debt ─────────────────────────────────────────────────────────
 
 def test_dirty_code_excludes_md(repo):

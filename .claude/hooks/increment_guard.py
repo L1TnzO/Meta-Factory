@@ -27,12 +27,16 @@ def main() -> int:
     try:
         from metafactory._seed import repo_root
         from metafactory.memory import cadence
-        if cadence.edit_allowed(repo_root(), fp):
+        root = repo_root()
+        if cadence.edit_allowed(root, fp):
             return 0
+        wd = cadence.required_workdir_rel(root, fp) or "docs/work"
+        level = wd[:-len("/docs/work")] if wd.endswith("/docs/work") else "meta"
     except Exception:
         return 0  # best-effort: no bloquear si no podemos decidir
-    print("increment_guard: no se codifica fuera de un incremento (ADR-010). Abrí uno con "
-          "`meta increment open <slug>` (o editá un `.md`).", file=sys.stderr)
+    print(f"increment_guard: no se codifica fuera de un incremento (ADR-010 + ADR-016, level-aware). "
+          f"Este archivo es del nivel `{level}`: abrí un incremento en `{wd}/` (o editá un `.md`).",
+          file=sys.stderr)
     return 2
 
 

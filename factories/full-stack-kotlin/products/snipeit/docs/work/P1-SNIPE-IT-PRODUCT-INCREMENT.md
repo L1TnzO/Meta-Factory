@@ -1,14 +1,15 @@
-<!-- meta:doc sha=77b6710e7ae8b23f4ab6882f622459380b6f8477 updated=2026-06-20T23:58Z -->
 # Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT)
 
-> **Doc de gobierno.** Estado: **ABIERTO**. Cerralo con `meta increment close` (gateado: árbol limpio +
-> estación activa verde). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno del PRODUCTO** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016).
+> Estado: **ABIERTO**. Esta es su CASA correcta: `…/products/snipeit/docs/work/`. Gestionalo level-aware:
+> `meta increment status --factory full-stack-kotlin --product snipeit` (y `… close …` para cerrarlo,
+> gateado). Editar `products/snipeit/**` (no-`.md`) exige ESTE incremento abierto — el `increment_guard`
+> elige el lifecycle por la ruta editada. Todo cambio de código del producto vive acá (ADR-010 + ADR-016).
 >
-> **⛔ BLOQUEADO (2026-06-20): la Fase 2 (generar) NO empieza todavía.** El ingeniero decidió arreglar primero
-> la maquinaria de docs/gobierno (Opción A faseada, `reference/GOVERNANCE-LAYERING.md` §8): casa de docs del
-> producto + lifecycle de incrementos por nivel. ESA Fase 1 va ANTES de generar. Como parte de ella, ESTE doc
-> P1 se MUEVE a `factories/full-stack-kotlin/products/snipeit/docs/work/` (su casa correcta). Hacé el refactor
-> primero; volvé acá para la generación cuando el modelo nuevo esté verde.
+> **⛔ Fase 2 (generar) DESBLOQUEADA cuando cierre la Fase 1 del refactor de gobierno** (incremento META
+> `GOV-LAYERING-FASE1`; autoridad: el meta `docs/reference/GOVERNANCE-LAYERING.md` §8 + ADR-016). Ese
+> refactor le dio a este producto su casa de docs (ESTE doc ya está en ella) + el edit-gate por nivel.
+> Con `meta check` verde bajo el modelo nuevo y el incremento META cerrado, arrancá la Fase 2 acá.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total: todo lo que
 > necesitás para avanzar está ACÁ o en los archivos que este doc nombra. La Fase 1 (el SPEC) está HECHA y
@@ -25,8 +26,8 @@ que el compile/gates REALES rompan, hasta `product-run` PASS · RTM · `ci --red
 
 **Los 3 archivos que tenés que leer primero (en orden):**
 1. `factories/full-stack-kotlin/products/snipeit/product.yml` — **el SPEC** (la fuente; 19 entidades). Es DATA.
-2. `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` — el dominio completo + el mapeo + **12
-   deferrals honestos** + **las 4 restricciones DURAS de FSK** (las repito en §3 acá). Leelo entero.
+2. `factories/full-stack-kotlin/products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` — el dominio completo + el
+   mapeo + **12 deferrals honestos** + **las 4 restricciones DURAS de FSK** (las repito en §3 acá). Leelo entero.
 3. Este doc (§2–§6).
 
 **El primer comando (corré la línea, mirá qué rompe):**
@@ -120,14 +121,16 @@ src/metafactory/+seed/`=0). En orden de probable necesidad:
 - **Probá por bloqueo** (RTM re-derivado + ci --rederive == pin), nunca por prosa. No fakees verde. La
   trust-chain (gates/verifier) la leés con ojos propios.
 - **Honestidad sobre fidelidad**: todo lo que simplifiques/difieras va a SNIPEIT-DOMAIN.md con el por qué.
-- **DÓNDE VAN LOS DOCS** (la regla, aclarada esta sesión):
-  - Dominio/decisiones de mapeo → `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md`.
-  - Cambios de la FÁBRICA (codegen/spec/stations) → `factories/full-stack-kotlin/docs/{STATE,LOG}.md`.
-  - Gobierno del incremento (ESTE doc) → `docs/work/` del **meta** — es donde el `increment_guard` ACTIVO
-    (`$CLAUDE_PROJECT_DIR/.claude/hooks/`) trackea el incremento abierto y te deja editar el codegen de la
-    fábrica. Las hooks anidadas de FSK son DATA dormida en este árbol (sólo cuentan en un checkout standalone).
-  - Estado del meta → `docs/STATE.md` + `docs/LOG.md` del meta. Commit = parte del trabajo (ADR-010), nunca lo
-    preguntes; mensaje con trailers I-10.
+- **DÓNDE VAN LOS DOCS** (la regla, ahora cableada por ADR-016 — el edit-gate elige el nivel por la RUTA):
+  - Dominio/decisiones de mapeo de ESTE producto → `…/products/snipeit/docs/reference/SNIPEIT-DOMAIN.md`
+    (su casa; ya NO en los docs de la fábrica).
+  - Gobierno del incremento del producto (ESTE doc) → `…/products/snipeit/docs/work/` — editar
+    `products/snipeit/**` (no-`.md`) exige ESTE incremento abierto (lo elige el `increment_guard` por la ruta).
+  - Cambios de la FÁBRICA (codegen/spec/stations FSK, un hueco GENERAL) → `factories/full-stack-kotlin/docs/`
+    y exigen un incremento de FÁBRICA en `factories/full-stack-kotlin/docs/work/` (abrilo con
+    `meta increment open <slug> --factory full-stack-kotlin`; hoy no existe → se crea al necesitarlo).
+  - Estado/decisiones del META (sustrato) → `docs/STATE.md` + `docs/LOG.md` + `docs/decisions/` del meta.
+  - Commit = parte del trabajo (ADR-010), nunca lo preguntes; mensaje con trailers I-10.
 
 ## 7. Criterio de cierre de P1 (demostrable, no narrable)
 1. `meta product-run --product snipeit` PASS · RTM COMPLETE (o deferrals VISIBLES) · `ci --rederive --product

@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `e700c2b91d59` | 2026-06-20T23:59Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `6639a47b35c6` | 2026-06-20T23:58Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `26b87b00a8b7` | 2026-06-21T02:04Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `d5b7ea71f554` | 2026-06-21T02:04Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -23,12 +23,13 @@
 | `docs/decisions/013-generacion-como-slot-orquestado.md` | `2bfcf454a882` | 2026-06-15T17:52Z | ADR-013 — Generación como slot orquestado: el sustrato orquesta y verifica, no genera |
 | `docs/decisions/014-paridad-de-dos-dominios.md` | `0c5733ba01b7` | 2026-06-16T18:47Z | ADR-014 — Paridad de dos dominios: ningún mecanismo de sustrato promueve probado en uno solo |
 | `docs/decisions/015-reutilizacion-factory-n-productos.md` | `80014a4827a5` | 2026-06-19T23:41Z | ADR-015 — Reutilización: la fábrica es un destino reutilizable (lifecycle 1:N producto) |
+| `docs/decisions/016-layering-gobierno-por-nivel.md` | `aaa4111890a6` | 2026-06-21T02:03Z | ADR-016 — Layering de gobierno por nivel (docs + lifecycle de incrementos: meta / fábrica / producto) |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `f55b391ac47c` | 2026-06-20T23:58Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `573d038dddc4` | 2026-06-21T02:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `44a889f45c51` | 2026-06-13T20:27Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
@@ -72,6 +73,7 @@
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |
+| `docs/work/GOV-LAYERING-FASE1-INCREMENT.md` | `e04a4382438b` | 2026-06-21T02:05Z | Incremento GOV-LAYERING-FASE1 — casa de docs del producto + lifecycle de incrementos por nivel |
 | `docs/work/H1-FACTORY-SELFGOV-INCREMENT.md` | `3dc42e03fefe` | 2026-06-18T17:50Z | Incremento H1-FACTORY-SELFGOV |
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
@@ -87,7 +89,6 @@
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
-| `docs/work/P1-SNIPE-IT-PRODUCT-INCREMENT.md` | `77b6710e7ae8` | 2026-06-20T23:58Z | Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT) |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/ROADMAP.md` | `02140d37ebef` | 2026-06-20T18:45Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

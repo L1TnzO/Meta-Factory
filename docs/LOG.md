@@ -1,7 +1,29 @@
-<!-- meta:doc sha=e700c2b91d59b224134bcba340510382837515a9 updated=2026-06-20T23:59Z -->
+<!-- meta:doc sha=26b87b00a8b7e28e49cf807edea260c145379b0a updated=2026-06-21T02:04Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-21T02:02Z — Gobierno Fase 1 ✅: casa de docs del producto + edit-gate level-aware (ADR-016)
+- **Ejecutada la Fase 1** del refactor de layering (incremento META `GOV-LAYERING-FASE1`, abierto como slot
+  dedicado mientras P1 seguía abierto; P1 se movió al producto al final — la transición que el ingeniero pidió
+  confirmar antes de tocar `lifecycle.py`). Trabajo de SUSTRATO/trust-chain, escrito con ojos propios.
+- **Casa de docs del producto**: `git mv` de `SNIPEIT-DOMAIN.md` (era doc de FÁBRICA) y `P1-…md` (era doc del
+  META) → `factories/full-stack-kotlin/products/snipeit/docs/{reference,work}/`. `doc_set` es meta-only → el
+  INDEX meta los soltó; los docs del producto quedan SIN sellar (diferido honesto de Fase 2). `.gitignore` ya
+  trackeaba `products/*/docs/` (sin tocar). Punteros de P1 (§1/§6/banner) re-apuntados a la casa nueva.
+- **Edit-gate level-aware** (`seed/lifecycle.py`, la LEY single-source que el meta delega y la fábrica hereda):
+  `level_workdir(root, fp)` parte la ruta (DATA-agnóstico, cero slugs, ADR-012) → `edit_allowed` exige el
+  incremento abierto del nivel del archivo (meta/fábrica/producto, el más específico). `required_workdir_rel`
+  para el mensaje; `increment_guard` nombra el nivel; `cadence` delega; `meta increment {open,close,status}`
+  ganó `--factory`/`--product`. Los callers meta (projection/rehydrate/debt) intactos (siguen meta).
+- **Probado POR BLOQUEO** a través del hook REAL (5 casos): producto snipeit con P1 abierto → permitido ·
+  producto assets / código de fábrica FSK sin incremento → BLOQUEADO (mensaje nombra el nivel correcto) ·
+  código meta con GOV abierto → permitido · `.md` siempre. + 5 tests unitarios del `edit_allowed` por-ruta
+  (3 niveles + aislamiento + `.md`/fuera-de-repo). `pytest` 578 · `meta check` 6/6.
+- **Diferido a Fase 2 (declarado, no fingido)**: lifecycle de FÁBRICA in-tree dormido (editar `factories/<f>/**`
+  ya EXIGE incremento de fábrica, pero ninguna fábrica tiene `docs/work/` aún → self-bootstrap al necesitarlo) ·
+  sellado/consistencia de docs de fábrica/producto · gate de close acotado al nivel. **P1 Fase 2 (generar
+  Snipe-IT) DESBLOQUEADA** bajo el modelo nuevo (su incremento vive en la casa del producto). ADR-016 escrito.
 
 ## 2026-06-20T23:58Z — Gobierno: decisión = Opción A faseada + playbook de la Fase 1
 - El ingeniero eligió **Opción A (auto-gobierno por nivel), faseada**, y que la **Fase 1 va ANTES de generar

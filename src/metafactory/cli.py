@@ -607,8 +607,19 @@ def _now_min() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 
 
-def _work_dir(root: Path) -> Path:
+def _work_dir(root: Path, factory: str | None = None, product: str | None = None) -> Path:
+    """The `docs/work/` of the ADDRESSED level (ADR-016). `--product` requires `--factory`."""
+    if product:
+        return root / "factories" / factory / "products" / product / "docs" / "work"
+    if factory:
+        return root / "factories" / factory / "docs" / "work"
     return root / "docs" / "work"
+
+
+def _level_label(factory: str | None, product: str | None) -> str:
+    if product:
+        return f"factories/{factory}/products/{product}"
+    return f"factories/{factory}" if factory else "meta"
 
 
 def _active_station_green(root: Path) -> bool:
@@ -627,42 +638,51 @@ def _active_station_green(root: Path) -> bool:
 
 
 def cmd_increment(args) -> int:
-    """Lifecycle de incrementos (ADR-010): la unidad dentro de la cual vive todo cambio de código.
-    `open` abre uno (rehúsa si ya hay), `close` lo cierra gateado, `status` muestra abierto + deuda."""
+    """Lifecycle de incrementos (ADR-010 + ADR-016, level-aware): la unidad dentro de la cual vive todo
+    cambio de código. `open` abre uno (rehúsa si ya hay en ESE nivel), `close` lo cierra gateado, `status`
+    muestra abierto + deuda. `--factory`/`--product` direccionan el nivel (default: meta `docs/work/`)."""
     root = _meta_root()
     from .memory import cadence, projection
+    factory = getattr(args, "factory", None)
+    product = getattr(args, "product", None)
+    if product and not factory:
+        print("VEREDICTO  increment — FAIL   (exit 1)\nRESUMEN    --product requiere --factory")
+        return 1
+    workdir = _work_dir(root, factory, product)
+    label = _level_label(factory, product)
+    wd_rel = workdir.relative_to(root)
     if args.inc_cmd == "status":
-        inc = projection.open_increment(root) or "ninguno"
+        inc = cadence.open_increment_in(workdir) or "ninguno"
         has_debt, reason = cadence.debt(root)
-        print(f"VEREDICTO  increment status — {'DEUDA' if has_debt else 'OK'}   (exit 0)")
-        print(f"RESUMEN    incremento abierto: {inc}")
+        print(f"VEREDICTO  increment status [{label}] — {'DEUDA' if has_debt else 'OK'}   (exit 0)")
+        print(f"RESUMEN    incremento abierto ({wd_rel}/): {inc}")
         print(f"CADENCIA   {reason}")
         return 0
     if args.inc_cmd == "open":
-        cur = projection.open_increment(root)
+        cur = cadence.open_increment_in(workdir)
         if cur is not None:
             print("VEREDICTO  increment open — FAIL   (exit 1)")
-            print(f"RESUMEN    ya hay un incremento abierto: {cur} (cerralo: `meta increment close`)")
+            print(f"RESUMEN    ya hay un incremento abierto en [{label}]: {cur} (cerralo primero)")
             return 1
         name = f"{args.slug.upper()}-INCREMENT.md"
-        path = _work_dir(root) / name
+        path = workdir / name
         if path.exists():
             print("VEREDICTO  increment open — FAIL   (exit 1)")
-            print(f"RESUMEN    docs/work/{name} ya existe; no lo piso")
+            print(f"RESUMEN    {wd_rel}/{name} ya existe; no lo piso")
             return 1
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_INCREMENT_SCAFFOLD.format(slug=args.slug.upper(), ts=_now_min()), encoding="utf-8")
-        docs_manifest.sync(root)        # sella el doc nuevo + regenera INDEX
-        projection.refresh(root)        # la proyección de STATE refleja el incremento abierto
+        docs_manifest.sync(root)        # sella el doc nuevo (si es meta) + regenera INDEX
+        projection.refresh(root)        # la proyección de STATE refleja el incremento meta abierto
         docs_manifest.sync(root)        # re-sella STATE
-        print(f"VEREDICTO  increment open {args.slug} — PASS   (exit 0)")
-        print(f"RESUMEN    abierto docs/work/{name} (Estado ABIERTO); editá Objetivo/Fases")
-        print("PRÓXIMO    ya podés tocar código; cerralo con `meta increment close` (gateado)")
+        print(f"VEREDICTO  increment open {args.slug} [{label}] — PASS   (exit 0)")
+        print(f"RESUMEN    abierto {wd_rel}/{name} (Estado ABIERTO); editá Objetivo/Fases")
+        print("PRÓXIMO    ya podés tocar código del nivel; cerralo con `meta increment close` (gateado)")
         return 0
     # close
-    cur = projection.open_increment(root)
+    cur = cadence.open_increment_in(workdir)
     if cur is None:
-        print("VEREDICTO  increment close — FAIL   (exit 1)\nRESUMEN    no hay incremento abierto")
+        print(f"VEREDICTO  increment close — FAIL   (exit 1)\nRESUMEN    no hay incremento abierto en [{label}]")
         return 1
     has_debt, reason = cadence.debt(root)
     if has_debt:
@@ -674,7 +694,7 @@ def cmd_increment(args) -> int:
         print("VEREDICTO  increment close — FAIL   (exit 1)")
         print("RESUMEN    la estación activa no recompone verde; no se cierra trabajo roto")
         return 1
-    path = _work_dir(root) / cur
+    path = workdir / cur
     text = path.read_text(encoding="utf-8")
     path.write_text(re.sub(r"Estado:\s*\*\*ABIERTO\*\*", f"Estado: **CERRADO** ({_now_min()})", text, count=1),
                     encoding="utf-8")
@@ -820,9 +840,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("doc-sync").set_defaults(func=cmd_doc_sync)
     ip = sub.add_parser("increment"); ip.set_defaults(func=cmd_increment)
     isub = ip.add_subparsers(dest="inc_cmd", required=True)
-    isub.add_parser("open").add_argument("slug")
-    isub.add_parser("close")
-    isub.add_parser("status")
+    for _name in ("open", "close", "status"):
+        _sp = isub.add_parser(_name)
+        if _name == "open":
+            _sp.add_argument("slug")
+        _sp.add_argument("--factory", default=None)        # nivel fábrica: factories/<f>/docs/work
+        _sp.add_argument("--product", default=None)        # nivel producto (requiere --factory)
     sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)

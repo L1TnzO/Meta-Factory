@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f55b391ac47ce13d03abc64d0113aed5baf1031e updated=2026-06-20T23:58Z -->
+<!-- meta:doc sha=573d038dddc42b1f05a49c05fbd663bb4248f109 updated=2026-06-21T02:05Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
@@ -94,7 +94,9 @@ principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océ
 - **Fase 3:** `meta product new --no-run` (P5) + cualquier residuo de P4.
 
 **DECISIÓN TOMADA (2026-06-20, el ingeniero): Opción A FASEADA, y la Fase 1 va ANTES de generar Snipe-IT.**
-Próximo paso: registrar un ADR (candidato ADR-016 "layering de gobierno por nivel") y ejecutar la Fase 1 (§8).
+**Fase 1 EJECUTADA ✅ (2026-06-21, ADR-016)** — casa de docs del producto + edit-gate level-aware, probado por
+bloqueo (`meta check` 6/6 · suite 578). Sigue: Fase 2 (lifecycle de fábrica in-tree + sellado de docs de
+fábrica/producto + gate de close por-nivel) — diferida, NO bloquea generar Snipe-IT (P1 Fase 2 desbloqueada).
 
 ## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
 > Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la

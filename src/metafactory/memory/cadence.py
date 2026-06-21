@@ -48,6 +48,14 @@ def edit_allowed(root: Path, file_path: str) -> bool:
     return load_seed_lifecycle().edit_allowed(Path(root), file_path)
 
 
+def open_increment_in(workdir: Path) -> str | None:
+    return load_seed_lifecycle().open_increment_in(Path(workdir))
+
+
+def required_workdir_rel(root: Path, file_path: str) -> str | None:
+    return load_seed_lifecycle().required_workdir_rel(Path(root), file_path)
+
+
 def _fmt(paths: list[str]) -> str:
     head = ", ".join(paths[:3])
     return head + (f" (+{len(paths) - 3} más)" if len(paths) > 3 else "")

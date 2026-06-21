@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6639a47b35c60b2bad91b3f6df1c0d93e62f8183 updated=2026-06-20T23:58Z -->
+<!-- meta:doc sha=d5b7ea71f55491fda748cdac09b8da9081b4465f updated=2026-06-21T02:04Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: P1-SNIPE-IT-PRODUCT-INCREMENT.md
+- Incremento abierto: GOV-LAYERING-FASE1-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (19/19) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -106,20 +106,26 @@
     investigado por fan-out de 7 agentes) cosechada a un blueprint FSK FIEL: `products/snipeit/product.yml` (**19
     entidades** en orden topológico — reference/Asset+workflow/User-owner/licencias+seats/accesorios/consumibles/
     componentes/mantenimientos; RBAC 4-roles superadmin/admin/manager/auditor; ownership `Asset.owned_by`;
-    pivots M:N → entidades) + `factories/full-stack-kotlin/docs/reference/SNIPEIT-DOMAIN.md` (dominio + mapeo +
+    pivots M:N → entidades) + `…/products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (dominio + mapeo +
     **12 deferrals honestos**: custom-fields dinámicos, checkout polimórfico, RTD/owner-opcional, self-ref,
     depreciación calculada, company-scoping, … cada uno = hueco de fábrica para un incremento GENERAL). Validado
     POR BLOQUEO sin gradle: `scaffold --selftest` (19→66 archivos) + `--check-idempotent` + 0 forward-refs. La
     GENERACIÓN (línea s0–s10 por gradle, slice core→breadth) es la próxima sesión (P1 Fase 2). `work/ROADMAP.md §Fase R`.
-  - **Gobierno — layering de docs/incrementos por nivel: DECISIÓN TOMADA (2026-06-20) = Opción A faseada**: el
-    ingeniero notó que la colocación de docs es poco intuitiva entre construir meta vs fábrica vs producto.
-    Diagnóstico: el modelo de docs/gobierno se quedó atrás del de cardinalidad (ADR-015 hizo fábrica:productos
-    1:N pero el lifecycle de incremento sigue GLOBAL/meta-only y el PRODUCTO no tiene casa de docs → derrama;
-    conviven 2 filosofías sin elegir: meta-único-operador ↔ auto-gobierno por nivel/H1). Elegido: **auto-gobierno
-    por nivel, faseado**. **PRÓXIMO TRABAJO (antes de generar Snipe-IT): Fase 1** — casa de docs del producto
-    (`products/<p>/docs/`) + `increment_guard`/`lifecycle.py` que eligen el lifecycle por la RUTA editada.
-    Playbook autocontenido + criterio de cierre en `reference/GOVERNANCE-LAYERING.md` §8 (AUTORIDAD); ADR-016
-    candidato. **P1 Fase 2 (generar) queda BLOQUEADA por esta Fase 1.**
+  - **Gobierno — layering de docs/incrementos por nivel: Opción A faseada · Fase 1 ✅ (2026-06-21, ADR-016)**: el
+    ingeniero notó (2026-06-20) que la colocación de docs es poco intuitiva entre construir meta vs fábrica vs
+    producto. Diagnóstico: el modelo de docs/gobierno se quedó atrás del de cardinalidad (ADR-015 hizo
+    fábrica:productos 1:N pero el lifecycle de incremento era GLOBAL/meta-only y el PRODUCTO no tenía casa de
+    docs → derramaba; 2 filosofías sin elegir: meta-único-operador ↔ auto-gobierno por nivel/H1). Elegido:
+    **auto-gobierno por nivel, faseado**. **Fase 1 HECHA**: (a) el producto ganó casa de docs
+    (`…/products/snipeit/docs/{reference,work}/`; `SNIPEIT-DOMAIN.md` + `P1` MOVIDOS ahí, cero docs de Snipe-IT en
+    los docs de la fábrica o del meta); (b) el edit-gate (`seed/lifecycle.py::edit_allowed`) elige el lifecycle
+    por la RUTA editada (meta/fábrica/producto, aritmética de rutas DATA-agnóstica, ADR-012); el `increment_guard`
+    nombra el nivel; `meta increment {open,close,status}` ganó `--factory`/`--product`. **Probado POR BLOQUEO** a
+    través del hook real (producto/fábrica sin incremento → bloqueado; meta con incremento → permitido; `.md`
+    siempre) + 5 tests nuevos del `edit_allowed` por-ruta. `meta check` 6/6 · suite 578. Anti-overfit: la ley vive
+    en el seed (single-source H1); el guard no nombra slugs. AUTORIDAD: `reference/GOVERNANCE-LAYERING.md`. **Fase 2
+    diferida** (lifecycle de fábrica in-tree + sellado de docs de producto + gate de close por-nivel). **P1 Fase 2
+    (generar Snipe-IT) DESBLOQUEADA**: procede bajo el modelo nuevo (su incremento P1 vive en la casa del producto).
 - **Fase A ✅ (2026-06-15) — la spec describe y prueba ser generalista**:
   - **A1 (`A1-GRAMMAR-V2`)**: factory-spec v2 en 6 capas (L0–L5) + `validate_grammar_v2` con dientes — M0
     RECHAZA lo deshonesto (cap-sin-proof, tech-sin-primitiva, primitive mal formado, depends_on roto/ciclo,

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=e04a4382438b860f5914c8bc56cdeb38906baa0b updated=2026-06-21T02:05Z -->
+<!-- meta:doc sha=808f6dd08c9b6cea5754c14afd758adda4eb8360 updated=2026-06-21T02:07Z -->
 # Incremento GOV-LAYERING-FASE1 — casa de docs del producto + lifecycle de incrementos por nivel
 
-> **Doc de gobierno (META).** Estado: **ABIERTO** (creado 2026-06-21). Cerralo con `meta increment close`
+> **Doc de gobierno (META).** Estado: **CERRADO** (2026-06-21T02:07Z) (creado 2026-06-21). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > **Qué es esto.** La Fase 1 del refactor de layering de gobierno (Opción A faseada, decidida por el

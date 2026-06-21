@@ -1,13 +1,51 @@
 # Incremento FSK-BROWSER-FORM — la UI se MONTA en un DOM real (jsdom) y un FORM postea vía el cliente vivo
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T20:54Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA
-> editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T20:54Z · cerrado 2026-06-21T21:59Z). Evidencia de cierre abajo (§Evidencia).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-REFS-IN-BODY con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
+
+---
+
+## ✅ Evidencia de cierre (2026-06-21T21:59Z)
+
+Cerrado por BLOQUEO, no por prosa. Todo en FÁBRICA, GENERAL (`codegen/scaffold_product.py` + `factory.spec.yml`,
+cero nombres de dominio); `git diff product.yml` = 0, `git diff src/metafactory + seed` = 0.
+
+**Qué se construyó** (los 3 seams del handoff, resueltos GENERAL):
+- **`_app_ts`** gana `mount<E>(doc: Document, base, token): Promise<void>` (opt-in a `owned_by`): un FORM con un
+  `<input>` por campo de `_input_fields` (helpers nuevos `_form_input_type`/`_form_coerce`: coacción type-correct por
+  tipo del contrato — `Number()` int/number/ref · `.checked` boolean · `.value` string/date · `.value as <E>["campo"]`
+  enum, DES-6), cuyo `submit` (async `void`-IIFE + `try/catch`) postea vía `create<E>`, re-trae `list<E>` y
+  RE-RENDERIZA (`listContainer.innerHTML = render<E>List(rows)` — REUSA el render-string, aditivo, no toca el diente
+  de RENDER-LIST); el 400 NO se traga (catch → `feedback="error"`). `app.ts` importa ahora `create<E>`/`list<E>`.
+- **El proof EXTIENDE `consume_check.ts`** (helpers `_browser_form_block` + `_proof_form_value`): `import { JSDOM }`,
+  monta en `new JSDOM(...).window.document`, llena el FORM, dispara `form.dispatchEvent(new dom.window.Event("submit",
+  {cancelable,bubbles}))`, hace **poll** del DOM (~5 s) hasta el nodo nuevo y asevera **count `<li>` N→N+1** + que el
+  `<li>` nuevo muestra el valor posteado (cuando el campo renderizado está en el form). `FORM_BODY` ≠ `POST_BODY`
+  (evita choque UNIQUE en la 2ª inserción).
+- **Spec honesto**: `frontend_consume_live`/`frontend_render_live` (REQ-F-017/018) — la prosa `tech`/`proof` movió
+  "render EN BROWSER (mount/eventos) + el form que postea" de **declared-deferred** a **hecho**; quedan deferred sólo
+  **deploy (Dockerfile vivo) + e2e Playwright (browser real)**.
+
+**Verificación (toda verde)**:
+- **3 product-run PASS** (default · assets · snipeit, foreground): el FORM monta en un DOM jsdom y su submit crea un
+  `<li>` nuevo vía `create<E>` contra el AppServer vivo + PG real.
+- **Diente de DOS lados VIVO**: saboteé el re-render del submit (`renderRows(...)` → `await list<E>(...)` sin render)
+  en el codegen → `meta product-run` (default) → `observability_live ok · access_control_live ok ·
+  frontend_consume_live FAIL(1)` (**SÓLO** ése rojo) → revertí → verde. (+ smoke jsdom hermético con `fetch` mockeado:
+  positivo N→N+1 con el valor del form en el `<li>`; negativo 400 → fila NO agregada + `feedback="error"`.)
+- **`ci --rederive --all-products` == pin** (default 11/11 · assets 10/10 · snipeit 10/10, byte-idéntico — extendí el
+  check existente → `proof_sha` intacto, sin re-materializar/re-pinear). `proof_sha` digiere `{station, sorted
+  (check_name, exit)}` (`seed/verifier.py:compute_proof_sha`) → extender contenido generado NO lo toca.
+- **`meta check` 6/6** (`generality` verde) · tsc --strict + ESLint strict + no-explicit-any verdes (s2, `mount<E>`
+  vive en `src/app.ts`) · bundle 1943–3687 B < 8192 (s8) · `consume_check.ts` parsea por `node --experimental-strip-types`.
+- **RTM snipeit 23/24** (único UNSAT = s6 LLM keyless), sin cambio de conteo (plegado en REQ-F-018, sin requisito nuevo).
+
+**SIGUIENTE incremento abierto**: `docs/work/FSK-DEPLOY-INCREMENT.md` (deploy real — BUILD la imagen + smoke vivo).
+
+---
 
 ---
 

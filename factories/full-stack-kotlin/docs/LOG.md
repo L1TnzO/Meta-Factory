@@ -1,6 +1,43 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-21T21:59Z — FSK-BROWSER-FORM ✅: la UI se MONTA en un DOM real (jsdom) + un FORM postea vía el cliente vivo
+- **Cierra el hueco de "UI media-verdad"**: el cliente `fetch`eaba de verdad y el render producía markup como
+  STRING, pero **nada montaba ese markup en un DOM ni había un FORM** para crear una fila (el proof corría en `node`
+  sin DOM, aseverando sobre el string). Ahora el frontend de la entidad CON DUEÑO **se MONTA en un DOM real** y un
+  **FORM** generado postea → la fila aparece como **NODO del DOM**. El salto de "usable por API" a "usable por un
+  humano que llena un formulario". Tras esto, lo único FSK-general que falta para "Snipe-IT deployado" es el **deploy real**.
+- **Deliverable (FÁBRICA, GENERAL — `codegen/scaffold_product.py` + `factory.spec.yml`, cero nombres de dominio)**:
+  (a) **`_app_ts`** gana `mount<E>(doc: Document, base, token): Promise<void>` (opt-in a `owned_by`): crea un FORM con
+  **un `<input>` por campo de `_input_fields`** (helpers `_form_input_type`/`_form_coerce` — coacción type-correct por
+  tipo del contrato: `Number()` para int/number/ref, `.checked` para boolean, `.value` para string/date, `.value as
+  <E>["campo"]` para enum, DES-6), cuyo `submit` (async, `void`-IIFE, `try/catch`) postea vía `create<E>`, re-trae
+  `list<E>` y **RE-RENDERIZA** (`listContainer.innerHTML = render<E>List(rows)` — REUSA el render-string, aditivo);
+  el 400 NO se traga (catch → `feedback="error"`). `app.ts` ahora importa `create<E>`/`list<E>` del cliente vivo.
+  (b) **El proof EXTIENDE `consume_check.ts`** (helper `_browser_form_block` + `_proof_form_value`): `import { JSDOM }`
+  (idéntico a `_a11y_audit_mjs`), monta en `new JSDOM(...).window.document`, llena el FORM (`input.value`/`.checked`),
+  dispara `form.dispatchEvent(new dom.window.Event("submit",{cancelable,bubbles}))`, **poll** del DOM (~5 s) hasta el
+  nodo nuevo, asevera **count `<li>` N→N+1** + (si el campo renderizado está en el form) que el `<li>` muestra el valor
+  posteado. `FORM_BODY` usa valores DISTINTOS de `POST_BODY` (evita choque UNIQUE en la 2ª inserción).
+- **Por qué hermético sin browser**: jsdom YA es dependencia (`JSDOM_VERSION`, s8 a11y) → `document`+eventos+`fetch`
+  global de node sin binario de browser ni red. **Playwright (browser real) sigue declared-deferred** (ADR-012).
+- **Probado POR BLOQUEO (no narrado)**:
+  - **3 product-run PASS** (default·assets·snipeit, foreground): el FORM monta en un DOM jsdom y su submit crea un
+    `<li>` nuevo vía `create<E>` contra el AppServer vivo + PG real.
+  - **Diente de DOS lados VIVO**: saboteé el re-render del submit (`renderRows(...)`→`await list<E>(...)` sin render)
+    → `meta product-run` (default) → **`observability_live ok · access_control_live ok · frontend_consume_live FAIL(1)`**
+    (1/3 rojo, SÓLO ése) → revertí → verde. (+ smoke jsdom hermético con `fetch` mockeado: positivo N→N+1 con el valor
+    del form en el `<li>`; negativo 400 → fila NO agregada + `feedback="error"`.)
+  - **`ci --rederive --all-products` == pin** (default 11/11 · assets 10/10 · snipeit 10/10, byte-idéntico — extendí el
+    check existente → `proof_sha` intacto, sin re-materializar/re-pinear).
+  - **`meta check` 6/6** (`generality` verde) · `git diff product.yml`=0 · `git diff src/metafactory + seed`=0 ·
+    tsc --strict+ESLint verdes (s2), bundle 1943–3687 B < 8192 (s8).
+- **Scope honesto / RTM**: **no agrega requisito** (default/assets también montan su entidad con dueño, sin sobre-
+  prometer) — se pliega en **REQ-F-018** (`frontend_render_live`), prosa de `tech`/`proof` actualizada (mount+form ya
+  NO es deferred; sólo deploy+Playwright). RTM snipeit **23/24** (único UNSAT = s6 LLM keyless), sin cambio de conteo.
+- **Lección reafirmada**: `meta station` corre la META-línea (m00–m08), NO la línea de producto FSK → la única forma
+  de re-correr s9 con un sabotaje es `product-run` (re-materializa de codegen). Corré s9 FOREGROUND (puerto fijo 18595).
+
 ## 2026-06-21T20:50Z — FSK-REFS-IN-BODY ✅: el ESPINAZO RELACIONAL — refs requeridos no-dueño desde el body
 - **Cierra el último hueco de la capa de DATOS**: hasta hoy `_input_fields` EXCLUÍA los `ref` y
   `_mutation_fns`/el seed LANZABAN ante un ref requerido no-dueño → toda entidad cuyo POST necesita una FK

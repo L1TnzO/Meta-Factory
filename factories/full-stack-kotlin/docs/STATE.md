@@ -53,14 +53,30 @@
   **No agrega requisito** (evita over-claim: default/assets no tienen una entidad así): se plegó en **REQ-F-016**
   (`entrada_tipada_runtime`) → RTM snipeit **23/24** (sólo s6 keyless). Sustrato (`src/metafactory/`+`seed/`) = 0;
   `product.yml` = 0. Detalle: `docs/work/FSK-REFS-IN-BODY-INCREMENT.md §Evidencia`.
-- **Sigue** (huecos honestos → próximos incrementos): **render EN BROWSER (mount real DOM + eventos) + el FORM que
-  postea** (el siguiente eje de mayor palanca: hace a Snipe-IT *usable en un navegador*) · **deploy real (Dockerfile
-  vivo) + e2e Playwright** · **CRUD de TODAS las entidades vivas** (hoy 1 con dueño + 1ª ownerless + 1ª con-ref) ·
-  cadenas de refs de profundidad >1 (Task→Project→User) · self-refs (`Location.parent_id`) · refs polimórficos · refs
-  OPCIONALES del body · PUT/update ownerless · UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. **La
-  capa de DATOS de Snipe-IT queda COMPLETA** (el grafo entero es CRUD-able por API); lo que separa de un Snipe-IT
-  usable+deployado es el browser/form + el deploy. Después, lo que QUEDA es product-specific (los 12 deferrals de
-  `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md`).
+- **La UI se MONTA en un DOM real + un FORM postea (FSK-BROWSER-FORM, 2026-06-21)**: la capa de UI dejó de ser
+  media-verdad (el cliente `fetch`eaba y el render producía un STRING, pero **nada montaba ese markup en un DOM ni
+  había un FORM para crear una fila**). Ahora `app.ts` gana **`mount<E>(doc: Document, base, token)`** — crea en el
+  `Document` un **FORM** (un `<input>` por campo de `_input_fields`, coacción type-correct por tipo del contrato:
+  number/checkbox/date/text; enum casteado a la unión literal, DES-6) cuyo **submit** postea vía **`create<E>`** (el
+  cliente vivo), re-trae **`list<E>`** y **RE-RENDERIZA** la lista → **la fila nueva aparece como NODO del DOM**. El
+  salto de "usable por API" a "usable por un humano que llena un formulario". ★ Hecho factible porque **jsdom YA es
+  dep** (s8 a11y) → `document`+eventos sin browser real (**Playwright sigue diferido**). El proof EXTIENDE el MISMO
+  check `frontend_consume_live` (s9): monta en un DOM jsdom, llena el FORM, dispara el `submit` y asevera que un `<li>`
+  NUEVO aparece (**count N→N+1**; sin check nuevo → `proof_sha` intacto, **pin byte-idéntico**). `mount<E>` pasa
+  `tsc --strict`+ESLint (s2) y el bundle (1943–3687 B < 8192, s8). **No agrega requisito** — se pliega en **REQ-F-018**
+  (`frontend_render_live`). Diente de DOS lados verificado VIVO (saboteé el re-render del submit → **SÓLO**
+  `frontend_consume_live` rojo, hermanos `observability_live`+`access_control_live` verdes; revertí→verde). Sustrato
+  (`src/metafactory/`+`seed/`)=0; `product.yml`=0. Detalle: `docs/work/FSK-BROWSER-FORM-INCREMENT.md §Evidencia`.
+- **Sigue** (huecos honestos → próximos incrementos): **deploy real — el `Dockerfile` se GENERA (base pineada por
+  digest) pero no se levanta/verifica vivo**: BUILDear la imagen + smoke-test contra el contenedor (docker ya está
+  vía el infra_up de s9/MAT-3; build+push a un registry sigue diferido por red) — **el siguiente eje de mayor palanca:
+  el último hueco FSK-general antes de que el trabajo sea product-specific** · **e2e Playwright** (browser real,
+  diferido por red para el binario) · **CRUD/FORM de TODAS las entidades vivas** (hoy form sólo para la entidad con
+  dueño; ownerless y con-ref difieren, mismo patrón) · edición/borrado desde la UI (hoy CREATE+LIST) · cadenas de refs
+  de profundidad >1 (Task→Project→User) · self-refs (`Location.parent_id`) · refs polimórficos · refs OPCIONALES del
+  body · PUT/update ownerless · UNIQUE-from-body→409 · custom-fields. **La capa de DATOS de Snipe-IT está COMPLETA y la
+  UI es usable por un humano**; lo único que separa de un Snipe-IT *deployado* es el deploy real. Después, lo que QUEDA
+  es product-specific (los 12 deferrals de `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md`).
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

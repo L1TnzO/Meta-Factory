@@ -98,11 +98,12 @@ _KT_SAMPLE = {"string": '"x"', "boolean": "false", "int": "2",
               "number": '"9.99".toDouble()', "date": 'LocalDate.parse("2026-01-15")', "ref": "1L"}
 # tipos cuyo sample Kotlin requiere un import extra en el .kt que los samplea (java.time, etc.).
 _KT_TYPE_IMPORT = {"date": "java.time.LocalDate"}
-# tipo Kotlin de cada campo escalar en el data class de entrada (FSK-CRUD-BODY-PARSING): el cuerpo del request
-# se deserializa a ESTE tipo (type-coercion JSON→columna jOOQ, DES-12). `ref` no entra (el dueño viene del
-# token, no del body; un ref requerido no-dueño se difiere, restricción #3 del blueprint FSK).
+# tipo Kotlin de cada campo en el data class de entrada (FSK-CRUD-BODY-PARSING): el cuerpo del request se
+# deserializa a ESTE tipo (type-coercion JSON→columna jOOQ, DES-12). El dueño (`owned_by`) sigue viniendo del
+# token (no del body, restricción #3); pero un `ref` REQUERIDO no-dueño SÍ entra por el cuerpo (FSK-REFS-IN-BODY)
+# como `Long` (el id de la FK) — el espinazo relacional: el POST referencia una fila que DEBE existir.
 _KT_FIELD_TYPE = {"string": "String", "int": "Int", "number": "Double",
-                  "boolean": "Boolean", "date": "LocalDate", "enum": "String"}
+                  "boolean": "Boolean", "date": "LocalDate", "enum": "String", "ref": "Long"}
 
 
 def _camel(s: str) -> str:
@@ -901,13 +902,13 @@ def _mutable_field(e: dict) -> dict | None:
 
 def _input_fields(e: dict) -> list[dict]:
     """Los campos que el server vivo LEE del cuerpo del request para INSERTAR una fila (FSK-CRUD-BODY-PARSING):
-    todo campo REQUERIDO escalar (no-ref) que NO sea el dueño. El dueño viene del token (no del body, restricción
-    #3 del blueprint FSK → no rompe el FK→User). Las columnas UNIQUE entran (el cliente provee el valor; si choca,
-    la DB lo rechaza). Un ref requerido no-dueño NO entra: lo rechaza _mutation_fns (se difiere a otro eje, como en
-    FSK-S16). DATA-agnóstico: heurística sobre el blueprint, cero nombres de dominio (ADR-012)."""
+    todo campo REQUERIDO que NO sea el dueño — los escalares (no-ref) Y, desde FSK-REFS-IN-BODY, los `ref`
+    REQUERIDOS no-dueño (el id de la FK entra por el cuerpo, mapeado a Long). El dueño (`owned_by`) sigue viniendo
+    del token (no del body, restricción #3 del blueprint FSK → no rompe el FK→User). Las columnas UNIQUE entran
+    (el cliente provee el valor; si choca, la DB lo rechaza). DATA-agnóstico: heurística sobre el blueprint, cero
+    nombres de dominio (ADR-012)."""
     owner = e.get("owned_by")
-    return [f for f in e["fields"]
-            if f.get("required", True) and f["type"] != "ref" and f["name"] != owner]
+    return [f for f in e["fields"] if f.get("required", True) and f["name"] != owner]
 
 
 def _live_ownerless(entities: list[dict]) -> dict | None:
@@ -923,14 +924,55 @@ def _live_ownerless(entities: list[dict]) -> dict | None:
                  and _input_fields(e)), None)
 
 
+def _ref_target_seedable(target: dict) -> bool:
+    """Un target de ref es SEMBRABLE standalone (FSK-REFS-IN-BODY, camino A) si NO tiene ningún ref REQUERIDO
+    propio → _seed_chain lo siembra con muestras sin encadenar. Una cadena de profundidad >1 (target con su
+    propio ref requerido, p.ej. default Task→Project→User por el owner_id requerido de Project) se DIFIERE."""
+    return not any(f["type"] == "ref" and f.get("required", True) for f in target["fields"])
+
+
+def _live_with_ref(entities: list[dict]) -> dict | None:
+    """La 1ª entidad SIN dueño con un `ref` REQUERIDO no-dueño que obtiene CAPA VIVA (FSK-REFS-IN-BODY): el POST
+    acepta el id del ref en el cuerpo (Long, type-bound), la FK existe → 201, cuelga → 4xx fail-closed. El
+    espinazo RELACIONAL — convierte "entidades sueltas usables" en "una app relacional usable". Requiere
+    `write_roles` (diente RBAC) y que TODO ref requerido apunte a un target SEMBRABLE (_ref_target_seedable: el
+    AppServer lo siembra y expone su id por /seed para que el proof POSTee una FK válida). Heurística
+    DATA-agnóstica (cero nombres de dominio, ADR-012): en snipeit da AssetModel (category_id→Category, sembrable).
+    Disjunta de _live_ownerless (que EXCLUYE entidades con ref requerido). Opt-in: sin entidad así → None
+    (assets no tiene refs requeridos no-dueño; default Task→Project no es sembrable → cadena diferida)."""
+    by = {e["name"]: e for e in entities}
+    for e in entities:
+        if e.get("owned_by") or not e.get("write_roles"):
+            continue
+        reqrefs = [f for f in e["fields"] if f["type"] == "ref" and f.get("required", True)]
+        if reqrefs and all(_ref_target_seedable(by[f["to"]]) for f in reqrefs):
+            return e
+    return None
+
+
+def _ref_targets(e: dict, entities: list[dict]) -> list[dict]:
+    """Las entidades target DISTINTAS de los refs REQUERIDOS de `e` (FSK-REFS-IN-BODY), en orden de primera
+    aparición: el AppServer siembra UNA fila de cada una (FK del POST) y expone su id por /seed. None-safe."""
+    if not e:
+        return []
+    by = {x["name"]: x for x in entities}
+    out: list[dict] = []
+    for f in e["fields"]:
+        if f["type"] == "ref" and f.get("required", True) and by[f["to"]] not in out:
+            out.append(by[f["to"]])
+    return out
+
+
 def _live_entities(entities: list[dict]) -> list[dict]:
     """Las entidades que obtienen la CAPA VIVA del server (AppServer CRUD + Repository de mutación + <E>Input):
     la(s) entidad(es) con dueño (FSK-S15, CRUD bajo ownership) + la 1ª ownerless servible (FSK-CRUD-OWNERLESS,
-    CRUD bajo RBAC-only). Es la fuente única que cruzan Repository (qué entidades llevan insert/rowJson/Input) y
-    AppServer (qué entidades sirve). DATA-agnóstico; refs requeridos en el cuerpo = eje hermano (diferido)."""
+    CRUD bajo RBAC-only) + la 1ª con un ref requerido no-dueño (FSK-REFS-IN-BODY, CRUD con FK del cuerpo). Es la
+    fuente única que cruzan Repository (qué entidades llevan insert/rowJson/Input) y AppServer (qué sirve).
+    DATA-agnóstico; las tres selecciones son disjuntas por construcción."""
     owned = [e for e in entities if e.get("owned_by")]
     ownerless = _live_ownerless(entities)
-    return owned + ([ownerless] if ownerless else [])
+    with_ref = _live_with_ref(entities)
+    return owned + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
 
 
 def _input_data_class(e: dict) -> str:
@@ -1000,7 +1042,9 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
     CUERPO del request type-coerced (`input.<campo>`), y —si la entidad tiene dueño (`owned_by`)— ese campo se
     fija al `ownerId` (el principal del actor, no del body, restricción #3 del blueprint); una entidad SIN dueño
     (FSK-CRUD-OWNERLESS) toma TODOS sus escalares del body (la firma del insert no lleva ownerId). Un ref
-    requerido no-dueño se rechaza (eje hermano, diferido). DELETE por id; <e>RowJson lee la fila COMPLETA (lo que
+    REQUERIDO no-dueño (FSK-REFS-IN-BODY) también viene del body (el id de la FK, Long): la DB valida la
+    existencia (cuelga → DataAccessException → el server la atrapa → 4xx). DELETE por id; <e>RowJson lee la fila
+    COMPLETA (lo que
     GET /{id} y el round-trip e2e observan); y —si la entidad tiene dueño y columna mutable (_mutable_field)—
     UPDATE de esa columna al valor del body (PATCH-like, PUT sólo bajo ownership por ahora). Todo type-bound al
     schema: una columna inexistente NO compila (la DB grita en compilación, DES-12)."""
@@ -1015,11 +1059,9 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
         col = f"{tbl}.{_COL(f['name'])}"
         if owner and f["name"] == owner:
             set_calls.append(f"set({col}, ownerId)")
-        elif f["type"] == "ref":
-            raise SystemExit(f"scaffold: Repository.insert{name}: ref requerido no-dueño {f['name']!r} "
-                             f"(inserta sólo el dueño + escalares del body; restricción #3 del blueprint FSK)")
-        else:   # escalar requerido (incl. UNIQUE) → del cuerpo del request, type-coerced (DES-12)
-            set_calls.append(f"set({col}, input.{_camel(f['name'])})")
+        else:   # escalar requerido (incl. UNIQUE) o ref requerido no-dueño (FSK-REFS-IN-BODY): del CUERPO del
+            set_calls.append(f"set({col}, input.{_camel(f['name'])})")   # request, type-coerced (DES-12); el id
+            #                                                              de la FK (Long) lo valida la DB (cuelga → 4xx)
     ins_calls = set_calls + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
     ins = _jooq_chain("        ", "", f"ctx.insertInto({tbl})", ins_calls)
     # con dueño: insert(ctx, ownerId, input); sin dueño (ownerless): insert(ctx, input) — el dueño no aplica.
@@ -3086,7 +3128,7 @@ def _parse_fn(e: dict) -> str:
     entrecomillado se RECHAZA y un string-donde-va-número también → coerción estricta, fail-closed."""
     name = e["name"]
     coerce = {"string": 'str(o, "%s")', "int": 'int32(o, "%s")', "number": 'dbl(o, "%s")',
-              "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")'}
+              "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
     args = []
     for f in _input_fields(e):
         expr = (f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)' if f["type"] == "enum"
@@ -3130,6 +3172,11 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
                      "    return requireNotNull(p.booleanOrNull) { k }\n}")
     if "date" in types:
         parts.append("private fun dateOf(o: JsonObject, k: String): LocalDate = LocalDate.parse(str(o, k))")
+    if "ref" in types:   # FSK-REFS-IN-BODY: el id de la FK (Long); un string entrecomillado se RECHAZA (fail-closed)
+        parts.append("private fun longOf(o: JsonObject, k: String): Long {\n"
+                     "    val p = prim(o, k)\n"
+                     "    require(!p.isString) { k }\n"
+                     "    return p.long\n}")
     if "enum" in types:
         parts.append("private fun enumOf(o: JsonObject, k: String, allowed: Set<String>): String {\n"
                      "    val v = str(o, k)\n"
@@ -3151,6 +3198,8 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
         imps.add("import kotlinx.serialization.json.double")
     if "boolean" in types:
         imps.add("import kotlinx.serialization.json.booleanOrNull")
+    if "ref" in types:
+        imps.add("import kotlinx.serialization.json.long")
     return "\n\n".join(parts), sorted(imps)
 
 
@@ -3263,36 +3312,58 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
     return helpers + list_all + get_one + do_post + do_put + do_delete
 
 
-def _ownerless_handlers(e: dict) -> str:
+def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
     """Los handlers del server vivo para una entidad SIN dueño (FSK-CRUD-OWNERLESS): CRUD gobernado por RBAC-only
     (no hay dueño que cargar → sin OwnershipGuard; el guard se reduce a RoleGuard.authorize). Funciones SUFIJADAS
     por la entidad (doPost<E>/listAll<E>/getOne<E>/doDelete<E>/handle<E>) → coexisten con las de la entidad con
-    dueño (sin sufijo) sin colisión. POST: rol prohibido → 403, body malo → 400, OK → 201 + INSERT de TODOS los
-    escalares del cuerpo (sin dueño del token). DELETE: rol prohibido → 403 (sin borrar), inexistente → 404. GET
-    lista (count+rows[]) + GET /{id} (fila completa). PUT/update se difiere (eje hermano). Reusa los helpers
-    compartidos (forbidden/notFound/badRequest), el codec (parse<E>Input) y el Repository de mutación ownerless.
-    DATA-agnóstico: nombres derivados del blueprint, cero nombres de dominio (ADR-012)."""
+    dueño (sin sufijo) y con otra ownerless sin colisión. POST: rol prohibido → 403, body malo → 400, OK → 201 +
+    INSERT de TODOS los campos del cuerpo (sin dueño del token). DELETE: rol prohibido → 403 (sin borrar),
+    inexistente → 404. GET lista (count+rows[]) + GET /{id} (fila completa). PUT/update se difiere (eje hermano).
+    Reusa los helpers compartidos (forbidden/notFound/badRequest), el codec (parse<E>Input) y el Repository de
+    mutación. Cuando `catch_fk` (entidad con un `ref` REQUERIDO no-dueño, FSK-REFS-IN-BODY) el INSERT se envuelve
+    en runCatching: un ref COLGANTE (id inexistente) viola la FK → DataAccessException → 409 fail-closed (no 500,
+    no traga). DATA-agnóstico: nombres derivados del blueprint, cero nombres de dominio (ADR-012)."""
     name, lower = e["name"], e["name"].lower()
     plural_const = f"PLURAL_{name.upper()}"
     write_fn = f"writeRoles{name}"
+    if catch_fk:   # FSK-REFS-IN-BODY: el INSERT puede violar una FK (ref colgante) → atrapar → 409 (no 500)
+        fk_helpers = (
+            "// FK fail-closed (FSK-REFS-IN-BODY): un ref VALIDO -> INSERT -> 201 + id; un ref COLGANTE (id\n"
+            "// inexistente) viola la FK -> DataAccessException -> 409 (no 500, no traga). conflict() es compartido.\n"
+            "private fun conflict(): Pair<Int, String> = HTTP_CONFLICT to \"\"\"{\"status\":$HTTP_CONFLICT}\"\"\"\n\n"
+            f"private fun insert{name}OrConflict(ctx: DSLContext, input: {name}Input): Pair<Int, String> ="
+            " runCatching {\n"
+            f"    val newId = Repository.insert{name}(ctx, input)\n"
+            '    HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
+            "}.getOrElse { conflict() }\n\n"
+        )
+        do_post_ok = f"        else -> insert{name}OrConflict(ctx, input)\n"
+        post_doc = ("// POST /<plural> (FSK-REFS-IN-BODY): RBAC-only; el cuerpo trae el id del ref REQUERIDO (Long).\n"
+                    "// Rol prohibido -> 403; body malo/tipo equivocado -> 400; ref VALIDO -> 201 + id; ref COLGANTE\n"
+                    "// -> 409 (la FK del INSERT lo rechaza, atrapado). El INSERT inserta los campos del CUERPO.\n")
+    else:
+        fk_helpers = ""
+        do_post_ok = ("        else -> {\n"
+                      f"            val newId = Repository.insert{name}(ctx, input)\n"
+                      '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
+                      "        }\n")
+        post_doc = ("// POST /<plural> (FSK-CRUD-OWNERLESS): RBAC-only (sin dueno) -- autorizar por rol; body\n"
+                    "// parseado; si ambos pasan, INSERTA una fila con TODOS los escalares del CUERPO (sin dueno del\n"
+                    "// token). Rol prohibido -> 403 (y el count NO cambia); body malo -> 400; OK -> 201 + id.\n")
     return (
         f'private const val {plural_const} = "/{_table(e)}"\n\n'
+        + fk_helpers +
         "// El set de roles que el contrato exige para escribir esta entidad ownerless, LEIDO del RouteTable\n"
         "// generado (la MISMA fuente que route_check.py cruza contra x-required-roles: single-source DES-6).\n"
         f"private fun {write_fn}(): Set<Role> =\n"
         f'    appRoutes().routes.first {{ it.method == "POST" && it.path == {plural_const} }}.roles\n\n'
-        "// POST /<plural> (FSK-CRUD-OWNERLESS): RBAC-only (sin dueno) -- autorizar por rol; body parseado; si\n"
-        "// ambos pasan, INSERTA una fila con TODOS los escalares del CUERPO (no hay dueno que venga del token).\n"
-        "// Rol prohibido -> 403 (y el count NO cambia); body malo -> 400; OK -> 201 + id.\n"
+        + post_doc +
         f"private fun doPost{name}(ctx: DSLContext, token: String?, body: String): Pair<Int, String> {{\n"
         f"    val input = parse{name}Input(body)\n"
         "    return when {\n"
         f"        !RoleGuard.authorize(token, {write_fn}()) -> forbidden()\n"
         "        input == null -> badRequest()\n"
-        "        else -> {\n"
-        f"            val newId = Repository.insert{name}(ctx, input)\n"
-        '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
-        "        }\n"
+        + do_post_ok +
         "    }\n"
         "}\n\n"
         "// GET /<plural> (coleccion): count + rows[] (cada fila type-correct via <e>RowJson), igual que la\n"
@@ -3341,24 +3412,31 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
     guards ANTES de ejecutar: POST → RoleGuard (RBAC) → 201/403; PUT /<plural>/{id} → RBAC + OwnershipGuard
     (principal del token vs dueño de la fila cargado de la PG viva via Repository) → 200/403/404; GET (público) →
-    lista via Repository → 200. Persiste/lee contra PostgreSQL real (Flyway migra; seedRows inserta el dueño +
-    una fila suya); /seed expone (id, dueño) para que el proof e2e ejercite ownership con valores reales. Pasa
-    detekt (≤2 returns/fun, ≤160/línea, sin wildcard) + -Werror. mainClass = {pkg}.endpoints.AppServerKt
-    (corrido por `java -cp build/install/{pkg}/lib/*` del dist de installDist — proceso java plano, kill-eable)."""
+    lista via Repository → 200. Monta TAMBIÉN (opt-in) la 1ª entidad ownerless servible (CRUD RBAC-only,
+    FSK-CRUD-OWNERLESS) y la 1ª con un ref REQUERIDO no-dueño (CRUD con la FK del cuerpo, FSK-REFS-IN-BODY: el
+    POST trae el id del ref → 201 si la FK existe, 409 si cuelga). Persiste/lee contra PostgreSQL real (Flyway
+    migra; seedRows inserta el dueño + una fila suya + una fila de cada target de ref requerido); /seed expone
+    (id, dueño, refs) para que el proof e2e ejercite ownership y FKs válidas con valores reales. Pasa detekt
+    (≤2 returns/fun, ≤160/línea, sin wildcard) + -Werror. mainClass = {pkg}.endpoints.AppServerKt (corrido por
+    `java -cp build/install/{pkg}/lib/*` del dist de installDist — proceso java plano, kill-eable)."""
     ents = bp["entities"]
     by = {e["name"]: e for e in ents}
     owned = next(e for e in ents if e.get("owned_by"))
     owner_field = owned["owned_by"]
     owner_to = next(f for f in owned["fields"] if f["name"] == owner_field)["to"]
     owner_ent = by[owner_to]
-    # FSK-CRUD-OWNERLESS: el server monta TAMBIÉN la 1ª entidad ownerless servible (CRUD RBAC-only). `served` es
-    # la fuente única de qué entidades sirve → codec compartido (unión, sin colisión) + un Input por entidad.
+    # FSK-CRUD-OWNERLESS: el server monta TAMBIÉN la 1ª entidad ownerless servible (CRUD RBAC-only); FSK-REFS-IN-
+    # BODY: y la 1ª con un ref REQUERIDO no-dueño (CRUD con la FK del cuerpo). `served` es la fuente única de qué
+    # entidades sirve → codec compartido (unión, sin colisión) + un Input por entidad. `ref_targets` = las
+    # entidades target de los refs requeridos de with_ref → el AppServer las siembra (FK del POST) y expone su id.
     ownerless = _live_ownerless(ents)
-    served = [owned] + ([ownerless] if ownerless else [])
+    with_ref = _live_with_ref(ents)
+    served = [owned] + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
+    ref_targets = _ref_targets(with_ref, ents)
     plural = "/" + _table(owned)
     all_fn = f"all{owned['name']}s"
     owner_fn = f"{owned['name'].lower()}OwnerId"
-    tbls = sorted({_TBL(owned), _TBL(owner_ent)})
+    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets})
     codec_kt, codec_imports = _codec_helpers(served)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
@@ -3384,23 +3462,38 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports. El
     # parser (dateOf) usa LocalDate sólo si hay un `date` REQUERIDO → coincide con lo sembrado (mismo gating). El
     # parser ownerless aporta sus propios tipos de _input_fields (p.ej. un `date` requerido → LocalDate).
+    # Los imports de tipo (java.time.LocalDate, …) se derivan de los campos que el .kt SAMPLEA o COERCE: los
+    # sembrados (campos requeridos de owner/owned + targets de refs) y los parseados (input de cada servida, incl.
+    # with_ref que aporta su propio `date` requerido si lo tuviera). Un import no usado → NoUnusedImports (rojo).
+    type_src = ([{"fields": [f for f in e["fields"] if f.get("required", True)]}
+                 for e in [owned, owner_ent] + ref_targets]
+                + [{"fields": _input_fields(e)} for e in served])
     java_imports = sorted([
         "import java.net.InetSocketAddress",
         "import java.nio.charset.StandardCharsets",
         "import java.sql.Connection",
         "import java.sql.DriverManager",
         "import java.sql.SQLException",
-    ] + _kt_type_imports([{"fields": [f for f in e["fields"] if f.get("required", True)]}
-                          for e in (owned, owner_ent)]
-                         + ([{"fields": _input_fields(ownerless)}] if ownerless else [])))
+    ] + _kt_type_imports(type_src))
     imports = main_imports + java_imports
     seed_owner = _seed_chain("ownerId", owner_ent)
     seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
+    # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
+    # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
+    tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
+    seed_ref_lines = "\n".join(_seed_chain(tvar[t["name"]], t) for t in ref_targets)
+    seed_ref = ("\n" + seed_ref_lines) if seed_ref_lines else ""
+    ref_map = ("mapOf(" + ", ".join(f'"{f["name"]}" to {tvar[f["to"]]}' for f in with_ref["fields"]
+                                    if f["type"] == "ref" and f.get("required", True)) + ")") if with_ref else "emptyMap()"
+    conflict_const = "private const val HTTP_CONFLICT = 409\n" if with_ref else ""
     handlers = _app_server_handlers(owned, f"insert{owned['name']}",
                                     f"delete{owned['name']}", _mutable_field(owned))
     ownerless_block = ("\n" + _ownerless_handlers(ownerless)) if ownerless else ""
+    with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True)) if with_ref else ""
     ownerless_context = (f"    server.createContext(PLURAL_{ownerless['name'].upper()}) "
                          f"{{ ex -> handle{ownerless['name']}(ctx, ex) }}\n") if ownerless else ""
+    with_ref_context = (f"    server.createContext(PLURAL_{with_ref['name'].upper()}) "
+                        f"{{ ex -> handle{with_ref['name']}(ctx, ex) }}\n") if with_ref else ""
     return (_APP_SERVER_SKELETON
             .replace("%IMPORTS%", "\n".join(imports))
             .replace("%CODEC%", codec_kt)
@@ -3410,11 +3503,16 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%AC_PG_PORT%", str(AC_PG_PORT))
             .replace("%OWNER_FN%", owner_fn)
             .replace("%ALL_FN%", all_fn)
+            .replace("%CONFLICT_CONST%", conflict_const)
             .replace("%HANDLERS%", handlers)
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
+            .replace("%WITH_REF_BLOCK%", with_ref_block)
             .replace("%OWNERLESS_CONTEXT%", ownerless_context)
+            .replace("%WITH_REF_CONTEXT%", with_ref_context)
             .replace("%SEED_OWNER%", seed_owner)
-            .replace("%SEED_OWNED%", seed_owned))
+            .replace("%SEED_OWNED%", seed_owned)
+            .replace("%SEED_REF_TARGETS%", seed_ref)
+            .replace("%REF_TARGETS_MAP%", ref_map))
 
 
 _APP_SERVER_SKELETON = '''@file:Suppress("TooManyFunctions")
@@ -3428,7 +3526,7 @@ private const val HTTP_CREATED = 201
 private const val HTTP_BAD_REQUEST = 400
 private const val HTTP_FORBIDDEN = 403
 private const val HTTP_NOT_FOUND = 404
-private const val DEFAULT_PORT = %AC_PORT%
+%CONFLICT_CONST%private const val DEFAULT_PORT = %AC_PORT%
 private const val PG_RETRIES = 60
 private const val PG_RETRY_MS = 500L
 private const val PLURAL = "%PLURAL%"
@@ -3439,7 +3537,9 @@ private const val PLURAL = "%PLURAL%"
 // el proof e2e (tools/access_control_check.py) asevera; saboteado un guard, el 403 se vuelve 200 -> el proof
 // falla (no decorativo). Server stdlib del JDK (com.sun.net.httpserver, NO Ktor: divergencia ADR-012).
 
-private data class Seed(val ownedId: Long, val ownerId: Long)
+// refs (FSK-REFS-IN-BODY): id sembrado de cada target de ref REQUERIDO no-dueño (campo ref -> id) que /seed
+// expone para que el proof POSTee una FK VALIDA. Vacio si ninguna entidad servida tiene un ref requerido.
+private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>)
 
 private fun respond(ex: HttpExchange, status: Int, body: String) {
     val bytes = body.toByteArray(StandardCharsets.UTF_8)
@@ -3463,16 +3563,19 @@ private fun connect(url: String, user: String, pass: String): Connection {
     }
 }
 
-// Siembra el principal DUENO + una fila suya en la PG viva (persistencia real via Repository/jOOQ). Devuelve
-// los ids generados para que /seed los exponga: el proof ejercita ownership con el dueno REAL de la fila.
+// Siembra el principal DUENO + una fila suya + (FSK-REFS-IN-BODY) una fila de cada target de ref requerido en
+// la PG viva (persistencia real via Repository/jOOQ). Devuelve los ids generados para que /seed los exponga: el
+// proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
 private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED%
-    return Seed(ownedId, ownerId)
+%SEED_OWNED%%SEED_REF_TARGETS%
+    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%)
 }
 
-private fun seedJson(seed: Seed): String =
-    """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId}}"""
+private fun seedJson(seed: Seed): String {
+    val refs = seed.refs.entries.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }
+    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs}"""
+}
 
 // El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
 // fuente que route_check.py cruza contra x-required-roles del contrato: single-source DES-6).
@@ -3520,7 +3623,7 @@ private fun handle(ctx: DSLContext, ex: HttpExchange) {
     }
     respond(ex, status, out)
 }
-%OWNERLESS_BLOCK%
+%OWNERLESS_BLOCK%%WITH_REF_BLOCK%
 fun main() {
     val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:%AC_PG_PORT%/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
@@ -3537,7 +3640,7 @@ fun main() {
     server.createContext("/health") { ex -> respond(ex, HTTP_OK, """{"status":"UP"}""") }
     server.createContext("/seed") { ex -> respond(ex, HTTP_OK, seedJson(seed)) }
     server.createContext(PLURAL) { ex -> handle(ctx, ex) }
-%OWNERLESS_CONTEXT%    server.start()
+%OWNERLESS_CONTEXT%%WITH_REF_CONTEXT%    server.start()
     println("FSK_AC_LISTENING $port")
 }
 '''
@@ -3602,6 +3705,17 @@ def _access_control_check_py(bp: dict) -> str:
     ol_bad = dict(ol_post)
     if ol_flds:
         ol_bad[ol_flds[0]["name"]] = _proof_wrong_value(ol_flds[0])
+    # FSK-REFS-IN-BODY: la 1ra entidad servible con un ref REQUERIDO no-dueño (CRUD con la FK del cuerpo). El proof
+    # POSTea sus escalares (≠ samples) + el id de cada ref LEÍDO de /seed refs (FK VÁLIDA → 201). El diente NUEVO:
+    # un ref COLGANTE (id sembrado + 9999) → 409 fail-closed. Sin entidad así → todo vacío → el bloque se saltea.
+    wr = _live_with_ref(bp["entities"])
+    wr_plural = "/" + _table(wr) if wr else ""
+    wr_allowed = wr["write_roles"][0] if wr else ""
+    wr_forbidden = next((r for r in bp["roles"] if r not in wr["write_roles"]), "") if wr else ""
+    wr_flds = _input_fields(wr) if wr else []
+    wr_scalars = {f["name"]: _proof_post_value(f) for f in wr_flds if f["type"] != "ref"}
+    wr_ref_fields = [f["name"] for f in wr_flds if f["type"] == "ref"]   # el id viene de /seed refs (FK válida)
+    wr_bad = {wr_flds[0]["name"]: _proof_wrong_value(wr_flds[0])} if wr_flds else {}
     return (_ACCESS_CONTROL_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
@@ -3617,7 +3731,13 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%OWNERLESS_ALLOWED%", ol_allowed)
             .replace("%OWNERLESS_FORBIDDEN%", ol_forbidden)
             .replace("%OWNERLESS_POST_BODY%", json.dumps(ol_post))
-            .replace("%OWNERLESS_BAD_BODY%", json.dumps(ol_bad)))
+            .replace("%OWNERLESS_BAD_BODY%", json.dumps(ol_bad))
+            .replace("%WR_PLURAL%", wr_plural)
+            .replace("%WR_ALLOWED%", wr_allowed)
+            .replace("%WR_FORBIDDEN%", wr_forbidden)
+            .replace("%WR_POST_SCALARS%", json.dumps(wr_scalars))
+            .replace("%WR_REF_FIELDS%", json.dumps(wr_ref_fields))
+            .replace("%WR_BAD%", json.dumps(wr_bad)))
 
 
 _ACCESS_CONTROL_CHECK_SKELETON = r'''#!/usr/bin/env python3
@@ -3630,6 +3750,8 @@ DES-3/DES-12). Hace requests HTTP REALES al server vivo (com.sun.net.httpserver)
     != lo posteado -> rojo.
   - NEGATIVO: body JSON invalido / tipo equivocado -> 400 (no 500, no 201). Un server que traga cualquier
     cosa -> no-400 -> rojo.
+  - REFS (FSK-REFS-IN-BODY, el espinazo relacional): una entidad con un ref REQUERIDO no-dueno -> POST con la FK
+    VALIDA (id sembrado, de /seed refs) -> 201 + round-trip; ref COLGANTE (id inexistente) -> 409 fail-closed.
 DETERMINISTA, stdlib, sin red externa. Server caido -> URLError -> exit 1 (diente nativo de infra_up). Los
 roles/principal/cuerpos son DATA del blueprint (per-producto). Uso: access_control_check.py <base_url>"""
 from __future__ import annotations
@@ -3657,6 +3779,14 @@ OWNERLESS_ALLOWED = "%OWNERLESS_ALLOWED%"       # rol PERMITIDO (en write_roles)
 OWNERLESS_FORBIDDEN = "%OWNERLESS_FORBIDDEN%"   # rol PROHIBIDO (fuera de write_roles) -> 403; vacio -> sin lado prohibido
 OWNERLESS_POST_BODY = json.loads('%OWNERLESS_POST_BODY%')  # cuerpo del POST ownerless (todos los escalares requeridos)
 OWNERLESS_BAD_BODY = json.loads('%OWNERLESS_BAD_BODY%')    # mismo cuerpo con el 1er campo del TIPO equivocado (-> 400)
+# FSK-REFS-IN-BODY: la 1ra entidad servible con un ref REQUERIDO no-dueno (CRUD con la FK del cuerpo). Vacio ->
+# el producto no tiene una entidad asi (refs requeridos no-dueno con target sembrable) -> el bloque se saltea.
+WR_PLURAL = "%WR_PLURAL%"
+WR_ALLOWED = "%WR_ALLOWED%"                       # rol PERMITIDO (en write_roles) -> POST 201
+WR_FORBIDDEN = "%WR_FORBIDDEN%"                   # rol PROHIBIDO (fuera de write_roles) -> 403; vacio -> sin lado prohibido
+WR_POST_SCALARS = json.loads('%WR_POST_SCALARS%')  # escalares del cuerpo (!= samples); el id del ref viene de /seed
+WR_REF_FIELDS = json.loads('%WR_REF_FIELDS%')      # campos ref REQUERIDOS: el id (FK valida) se lee de /seed refs
+WR_BAD = json.loads('%WR_BAD%')                    # {1er campo: valor del TIPO equivocado} -> 400
 
 
 def _req(base: str, method: str, path: str, token: str | None) -> int:
@@ -3803,6 +3933,40 @@ def main(argv: list) -> int:
                 ok &= _expect(_count_at(base, OWNERLESS_PLURAL), m0, "[ownerless] count tras DELETE (la fila se fue)")
                 ok &= _expect(_req(base, "GET", f"{OWNERLESS_PLURAL}/{oid}", None), 404,
                               "[ownerless] GET /{id} de fila borrada -> 404")
+        # *** FSK-REFS-IN-BODY: una entidad con un ref REQUERIDO no-dueno tiene CRUD vivo; el cuerpo trae el id ***
+        # del ref (la FK). El espinazo RELACIONAL: una FK VALIDA (id sembrado, leido de /seed refs) -> 201 + round-
+        # trip; el DIENTE NUEVO de dos lados -> un ref COLGANTE (id inexistente) -> 409 fail-closed (no 500, no 201).
+        if WR_PLURAL:
+            seed_refs = seed.get("refs", {})
+            valid = dict(WR_POST_SCALARS)
+            for rf in WR_REF_FIELDS:
+                valid[rf] = seed_refs[rf]   # FK VALIDA: el id del target sembrado que /seed expone
+            w0 = _count_at(base, WR_PLURAL)
+            if WR_FORBIDDEN:
+                ok &= _expect(_send(base, "POST", WR_PLURAL, f"Bearer {WR_FORBIDDEN}:1", valid)[0], 403,
+                              f"[with-ref] POST rol PROHIBIDO ({WR_FORBIDDEN})")
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras POST prohibido (sin INSERT)")
+            status, body = _send(base, "POST", WR_PLURAL, f"Bearer {WR_ALLOWED}:1", valid)
+            ok &= _expect(status, 201, f"[with-ref] POST ref VALIDO -> 201 ({WR_ALLOWED})")
+            wid = body.get("id")
+            ok &= _expect(_count_at(base, WR_PLURAL), w0 + 1, "[with-ref] count tras POST valido (INSERT real)")
+            if wid is not None:
+                row = json.loads(_body(base, f"{WR_PLURAL}/{wid}"))
+                for key, want in valid.items():
+                    ok &= _expect_value(row.get(key), want, f"[with-ref] GET /{{id}} ve body[{key}] (incl. la FK)")
+            # *** EL DIENTE NUEVO: ref COLGANTE (id sembrado + 9999, inexistente) -> 409 fail-closed (no 500). ***
+            dangling = dict(valid)
+            dangling[WR_REF_FIELDS[0]] = seed_refs[WR_REF_FIELDS[0]] + 9999
+            ok &= _expect(_send(base, "POST", WR_PLURAL, f"Bearer {WR_ALLOWED}:1", dangling)[0], 409,
+                          "[with-ref] POST ref COLGANTE -> 409 (FK fail-closed)")
+            ok &= _expect(_count_at(base, WR_PLURAL), w0 + 1, "[with-ref] count tras ref colgante (no inserto)")
+            ok &= _expect(_send(base, "POST", WR_PLURAL, f"Bearer {WR_ALLOWED}:1", {**valid, **WR_BAD})[0], 400,
+                          "[with-ref] POST tipo equivocado -> 400")
+            ok &= _expect(_count_at(base, WR_PLURAL), w0 + 1, "[with-ref] count tras 400 (no inserto)")
+            if wid is not None:
+                ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
+                              f"[with-ref] DELETE permitido ({WR_ALLOWED})")
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

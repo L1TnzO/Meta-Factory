@@ -32,11 +32,11 @@ checks:
   bootstrap:
   - sh
   - -c
-  - 'set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
+  - set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
     ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_ac_pg >/dev/null
     2>&1 || true; docker run -d --name fsk_s9_ac_pg -e POSTGRES_PASSWORD=metafactory
     -p 5436:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
-    >/dev/null'
+    >/dev/null
   up:
   - sh
   - -c
@@ -51,4 +51,32 @@ checks:
   - rm
   - -f
   - fsk_s9_ac_pg
+  timeout: 120
+- name: frontend_consume_live
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
+    ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_fe_pg >/dev/null
+    2>&1 || true; docker run -d --name fsk_s9_fe_pg -e POSTGRES_PASSWORD=metafactory
+    -p 5437:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    >/dev/null
+  up:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18595
+    FSK_PG_URL=jdbc:postgresql://localhost:5437/postgres; exec "$JAVA_HOME/bin/java"
+    -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+  proof:
+  - sh
+  - -c
+  - cd frontend && exec node --experimental-strip-types --disable-warning=ExperimentalWarning
+    consume_check.ts http://127.0.0.1:18595
+  down:
+  - docker
+  - rm
+  - -f
+  - fsk_s9_fe_pg
   timeout: 120

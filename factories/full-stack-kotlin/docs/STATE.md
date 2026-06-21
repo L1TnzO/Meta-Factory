@@ -14,9 +14,16 @@
   **type-coerced por el schema** (POST inserta los valores del body, GET /{id} devuelve la fila completa
   type-correct, PUT actualiza del body; body malo → 400, fail-closed) vía `kotlinx.serialization.json`. Detalle e
   historia: `docs/LOG.md`.
-- **Sigue** (huecos honestos → próximos incrementos): PUT-total vs PATCH-split · refs no-dueño desde el body ·
-  UNIQUE-from-body→409 · CRUD de entidades sin dueño · ownership opcional/RTD · self-ref · custom-fields ·
-  **frontend React que consume + deploy + e2e Playwright** (el último gran eje: el backend ya está vivo y CRUD-completo).
+- **Frontend que CONSUME el backend vivo (FSK-FRONTEND-CONSUME, 2026-06-21)**: el **cliente TS GENERADO** dejó de
+  ser funciones puras — `client.ts` gana `create<E>`/`get<E>` que hacen **`fetch` REAL** contra el AppServer vivo
+  (type-bound al contrato: `Pick<components["schemas"][<E>]>` → un drift rompe `tsc --strict`, DES-6; `res.json()`
+  narrow desde `unknown`, DES-10). Un consumer node (`consume_check.ts`) los IMPORTA y corre el **round-trip e2e**
+  (`create<E>` POST → `get<E>` GET → cada campo vuelve EXACTO type-correct) por `node --experimental-strip-types`,
+  verificado por un **3er check `frontend_consume_live`** (infra_up) en s9. `fetch` global → sin dep nueva (ADR-012).
+- **Sigue** (huecos honestos → próximos incrementos): **React que RENDERIZA la lista + el form que postea (browser)**
+  · **deploy real (Dockerfile vivo)** · **e2e Playwright (browser headless)** · CRUD de entidades sin dueño ·
+  refs no-dueño desde el body · UNIQUE-from-body→409 · PUT-total vs PATCH-split · ownership opcional/RTD · self-ref
+  · custom-fields. El cliente ya CONSUME; falta el RENDER en browser y el ship.
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

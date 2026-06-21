@@ -771,6 +771,7 @@ _TS_TSCONFIG = ('{\n'
                 '    "module": "NodeNext",\n'
                 '    "moduleResolution": "NodeNext",\n'
                 '    "target": "ES2022",\n'
+                '    "lib": ["ES2022", "DOM"],\n'
                 '    "allowImportingTsExtensions": true,\n'
                 '    "types": []\n'
                 '  },\n'
@@ -795,7 +796,59 @@ def _client_ts(entities: list[dict]) -> str:
             f"{types}\n\n"
             f"export function summarize({params}): string {{\n"
             f'  return `{body}`;\n'
-            "}\n")
+            "}\n"
+            + _client_consume_ts(entities))
+
+
+def _client_consume_ts(entities: list[dict]) -> str:
+    """La capa de cliente VIVA del frontend (FSK-FRONTEND-CONSUME): create<E>/get<E> hacen `fetch` REAL contra
+    el AppServer vivo (com.sun.net.httpserver) — el cliente generado y el server generado hablan el MISMO
+    protocolo de cable, e2e. OPT-IN: sólo para la entidad con dueño (la única que el AppServer monta); sin
+    `owned_by` el client.ts queda sólo con `summarize` (FSK-S15 intacto). Type-bound al contrato (DES-6): el
+    body es un `Pick<<E>, …>` de las claves de _input_fields → un drift del contrato (campo renombrado) rompe
+    el Pick en tsc --strict (s2). `fetch` es global (DOM lib / Node 18+, sin dep, ADR-012); `res.json()` es
+    `unknown` (ts-reset, DES-10) → se NARROW al contrato sin `any`. DATA-agnóstico: nombres del blueprint."""
+    owned = next((e for e in entities if e.get("owned_by")), None)
+    if owned is None:
+        return ""
+    name = owned["name"]
+    plural = "/" + _table(owned)
+    keys = " | ".join(f'"{f["name"]}"' for f in _input_fields(owned))
+    return (
+        "\n\n"
+        "// ── FSK-FRONTEND-CONSUME — la capa de cliente VIVA: create/get hacen fetch REAL contra el AppServer\n"
+        '// (com.sun.net.httpserver). Type-safe contra components["schemas"] (DES-6: un drift del contrato →\n'
+        "// rompe tsc --strict en s2). El round-trip e2e (consume_check.ts) IMPORTA estas funciones y cruza el\n"
+        "// cuerpo posteado contra lo que vuelve por GET /{id}: un cliente que ignora la respuesta del server\n"
+        "// (eco/literal) → mismatch → rojo. `fetch` es global (DOM lib / Node 18+); res.json() es `unknown`\n"
+        "// (ts-reset) → se NARROW al contrato, sin `any` (DES-10).\n"
+        f"type {name}Input = Pick<{name}, {keys}>;\n\n"
+        "function expectId(json: unknown): { id: number } {\n"
+        '  if (typeof json === "object" && json !== null && "id" in json && typeof json.id === "number") {\n'
+        "    return { id: json.id };\n"
+        "  }\n"
+        f'  throw new Error("create{name}: el server no devolvió un id numérico");\n'
+        "}\n\n"
+        f"export async function create{name}(base: string, token: string, "
+        f"body: {name}Input): Promise<{{ id: number }}> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}`, {{\n"
+        '    method: "POST",\n'
+        '    headers: { "Authorization": token, "Content-Type": "application/json" },\n'
+        "    body: JSON.stringify(body),\n"
+        "  });\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`create{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        "  return expectId(await res.json());\n"
+        "}\n\n"
+        f"export async function get{name}(base: string, id: number): Promise<{name}> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}/${{id}}`);\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`get{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        f"  return (await res.json()) as {name};\n"
+        "}\n"
+    )
 
 
 # ── la capa de datos (s1): schema versionado (Flyway) + jOOQ tipado + round-trip vivo ───────────
@@ -3532,6 +3585,99 @@ if __name__ == "__main__":
 '''
 
 
+def _consume_check_ts(bp: dict) -> str:
+    """frontend/consume_check.ts — el proof e2e de la CAPA CLIENTE (FSK-FRONTEND-CONSUME), parte de s9 (kind
+    infra_up, check frontend_consume_live). IMPORTA las funciones del CLIENTE GENERADO (src/client.ts:
+    create<E>/get<E>) y las corre contra el AppServer VIVO (PG real detrás) → el round-trip e2e cruza el
+    protocolo de cable REAL: contrato → client.fetch → server vivo → PG → respuesta → client.parse. Asevera
+    (1) el cuerpo posteado vuelve EXACTO y type-correct por GET /{id} (un cliente que ignora la respuesta del
+    server — eco/literal — → mismatch → rojo); (2) el negativo — un body de tipo equivocado → 400 → el cliente
+    DEBE propagar (un cliente que no chequea res.ok lo traga → rojo). Server caído → fetch tira → exit 1
+    (diente nativo de infra_up). NO type-checked (vive en frontend/, fuera del include de tsc, como
+    access_control_check.py): el tooth DES-6 vive en src/client.ts (Pick del contrato). Corre por
+    `node --experimental-strip-types`. Roles/cuerpos = DATA del blueprint (per-producto)."""
+    owned = next(e for e in bp["entities"] if e.get("owned_by"))
+    name = owned["name"]
+    write_roles = owned["write_roles"]
+    bypass = bp.get("owner_bypass_roles") or []
+    non_bypass = [r for r in write_roles if r not in bypass] or write_roles
+    write_role = non_bypass[0]
+    flds = _input_fields(owned)
+    post_body = {f["name"]: _proof_post_value(f) for f in flds}
+    bad_body = dict(post_body)
+    bad_body[flds[0]["name"]] = _proof_wrong_value(flds[0])   # corromper SÓLO el tipo del 1er campo → 400
+    return (_CONSUME_CHECK_SKELETON
+            .replace("%ENTITY%", name)
+            .replace("%WRITE_ROLE%", write_role)
+            .replace("%POST_BODY%", json.dumps(post_body))
+            .replace("%BAD_BODY%", json.dumps(bad_body)))
+
+
+_CONSUME_CHECK_SKELETON = '''\
+// consume_check.ts - proof e2e de la CAPA CLIENTE (FSK-FRONTEND-CONSUME). Importa create<E>/get<E> del
+// cliente GENERADO (src/client.ts) y los corre contra el AppServer VIVO (PG real detras): el round-trip e2e
+// cruza el protocolo de cable REAL (contrato -> client.fetch -> server vivo -> PG -> client.parse). Un cliente
+// que ignora la respuesta del server (eco/literal) -> mismatch -> exit 1. Un cliente que no chequea res.ok ->
+// traga el 400 -> el negativo lo delata. Server caido -> fetch tira -> exit 1 (diente nativo de infra_up).
+// Corre por `node --experimental-strip-types`. Uso: consume_check.ts <base_url>
+import { create%ENTITY%, get%ENTITY% } from "./src/client.ts";
+
+const POST_BODY = %POST_BODY%;
+const BAD_BODY = %BAD_BODY%;
+const WRITE_ROLE = "%WRITE_ROLE%";
+
+let ok = true;
+
+function check(actual, want, label) {
+  if (JSON.stringify(actual) === JSON.stringify(want)) {
+    console.log(`consume OK: ${label} -> ${JSON.stringify(actual)}`);
+    return;
+  }
+  console.error(`consume: ${label}: esperaba ${JSON.stringify(want)}, obtuvo ${JSON.stringify(actual)}`);
+  ok = false;
+}
+
+async function main(base) {
+  // /seed: el principal duenio sembrado (mismo idiom que access_control_check.py). token = Bearer rol:duenio.
+  const seedRes = await fetch(`${base}/seed`);
+  const seed = await seedRes.json();
+  const token = `Bearer ${WRITE_ROLE}:${seed.owner}`;
+
+  // 1) create<E> via el CLIENTE generado (POST real) -> id nuevo.
+  const created = await create%ENTITY%(base, token, POST_BODY);
+  console.log(`consume OK: create%ENTITY% -> id ${created.id}`);
+
+  // 2) get<E> via el CLIENTE generado (GET real) -> EL DIENTE CENTRAL: cada campo posteado vuelve EXACTO y
+  //    type-correct. Un get<E> que devuelve un literal / ignora la respuesta -> mismatch -> rojo.
+  const row = await get%ENTITY%(base, created.id);
+  for (const key of Object.keys(POST_BODY)) {
+    check(row[key], POST_BODY[key], `get%ENTITY% ve body[${key}] (type-correct)`);
+  }
+
+  // 3) NEGATIVO: un body de tipo equivocado -> el server da 400 -> el cliente DEBE propagar (no tragarlo).
+  let threw = false;
+  try {
+    await create%ENTITY%(base, token, BAD_BODY);
+  } catch {
+    threw = true;
+  }
+  check(threw, true, "create%ENTITY% propaga el error del server (body invalido -> 400, no se traga)");
+}
+
+const base = process.argv[2];
+if (base === undefined) {
+  console.error("usage: consume_check.ts <base_url>");
+  process.exit(2);
+}
+main(base)
+  .then(() => process.exit(ok ? 0 : 1))
+  .catch((err) => {
+    console.error(`consume: server inalcanzable o error: ${err}`);
+    process.exit(1);
+  });
+'''
+
+
 def _ci_sh() -> str:
     """ci.sh — la MINI-COLUMNA del producto (s10, DES-1/SAFE-3): el producto re-corre SUS gates ESTÁTICOS/
     offline por su cuenta ("hereda probar por bloqueo"), hermético (--offline) y determinista (sin red, sin
@@ -3797,6 +3943,12 @@ def build_files(bp: dict) -> dict[str, str]:
         # owned_by (compone sobre ownership/RBAC). El sustrato no nombra tech: todo `codegen/`+spec (ADR-012).
         files[f"{pkgdir}/endpoints/AppServer.kt"] = _app_server_kt(pkg, bp)
         files["tools/access_control_check.py"] = _access_control_check_py(bp)
+        # frontend que CONSUME el backend vivo (s9, DES-6/DES-4, FSK-FRONTEND-CONSUME): el cliente TS generado
+        # (frontend/src/client.ts) gana create<E>/get<E> que hacen fetch REAL contra el AppServer; el consumer
+        # node (frontend/consume_check.ts) los importa y prueba el round-trip e2e contra el server vivo + PG. El
+        # check `frontend_consume_live` (s9, infra_up) lo corre por `node --experimental-strip-types`. Opt-in:
+        # sólo con owned_by (compone sobre el server vivo de FSK-S15). Sin tech nueva: fetch global, ADR-012.
+        files["frontend/consume_check.ts"] = _consume_check_ts(bp)
     return files
 
 

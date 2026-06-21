@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8ab0ebe6c97faa7883b5cf48e2279305a71b77fe updated=2026-06-21T14:55Z -->
+<!-- meta:doc sha=7d9154bfd59327d9f0dbe2fb22cc602df4b23797 updated=2026-06-21T16:17Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (21/21) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (22/22) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -125,8 +125,13 @@
     valores del body, GET /{id} devuelve la fila completa type-correct, PUT actualiza del body, body malo → 400
     fail-closed; vía `kotlinx.serialization.json`; RTM snipeit 20/21, REQ-F-016 SATISFIED; diente de dos lados
     vivo y preciso; narrado en la fábrica, `factories/full-stack-kotlin/docs/LOG.md` + `…/work/FSK-CRUD-BODY-
-    PARSING-INCREMENT.md §Evidencia`). El backend ya está VIVO y CRUD-completo con input real.** Sigue:
-    **frontend React que consume + deploy + e2e Playwright** (el gran eje restante) → CRUD de entidades sin dueño →
+    PARSING-INCREMENT.md §Evidencia`) + **el frontend CONSUME el backend vivo ✅ (FSK-FRONTEND-CONSUME, 2026-06-21:
+    el cliente TS generado gana `create<E>`/`get<E>` que hacen `fetch` REAL contra el AppServer, type-bound al
+    contrato; un consumer node prueba el round-trip e2e por `node --experimental-strip-types`, verificado por un 3er
+    check `frontend_consume_live` (infra_up) en s9; RTM snipeit 21/22, REQ-F-017 SATISFIED; diente de dos lados vivo
+    y preciso; `git diff src+seed=0`; narrado en la fábrica, `…/docs/LOG.md` + `…/work/FSK-FRONTEND-CONSUME-INCREMENT.md
+    §Evidencia`). El backend está VIVO+CRUD-completo y el cliente lo CONSUME.** Sigue: **React que RENDERIZA (browser)
+    + deploy real (Dockerfile vivo) + e2e Playwright** (el gran eje restante) → CRUD de entidades sin dueño →
     self-ref → ownership opcional/RTD → custom-fields. `work/ROADMAP.md §Fase R`.
   - **Gobierno — layering de docs/incrementos por nivel: Opción A faseada · Fase 1 ✅ (2026-06-21, ADR-016)**: el
     ingeniero notó (2026-06-20) que la colocación de docs es poco intuitiva entre construir meta vs fábrica vs

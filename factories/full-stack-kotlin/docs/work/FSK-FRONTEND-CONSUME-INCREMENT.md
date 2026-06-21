@@ -1,7 +1,7 @@
 # Incremento FSK-FRONTEND-CONSUME — el cliente TS generado CONSUME el backend vivo (fetch e2e real)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T14:58Z). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T14:58Z · cerrado 2026-06-21T16:29Z; evidencia al pie). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
 > limpio + estación activa verde) **o** flippeando este header a CERRADO (lo mismo: el `increment status` lee el
 > header). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento
 > abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
@@ -189,3 +189,48 @@ gradle/línea. FOREGROUND, por-producto (~3 min con gradle caliente).
 - **El backend FSK está VIVO y CRUD-completo con input real** (auth → RBAC → ownership → mutación → cuerpo
   tipado, todo enforzado a runtime vs PG viva). Este incremento es el SIGUIENTE escalón: que la **cara cliente**
   lo CONSUMA — el primer eslabón del frontend real, antes de React que renderiza + deploy + e2e Playwright.
+
+---
+
+## Evidencia (cierre 2026-06-21T16:14Z) — demostrable, no narrable
+**Deliverable entregado** (todo en `codegen/scaffold_product.py` + `factory.spec.yml`; `git diff src/metafactory/ +
+seed/` = **0**, `git diff product.yml` = **0**):
+- **(a)** `client.ts` gana `create<E>(base, token, body): Promise<{id:number}>` (POST `/<plural>`) y
+  `get<E>(base, id): Promise<<E>>` (GET `/<plural>/{id}`) con `fetch` global, **type-bound al contrato**: el body es
+  `Pick<components["schemas"][<E>], …>` de `_input_fields` (un drift del contrato → el Pick no compila en `tsc
+  --strict`, s2, DES-6); `res.json()` se narrow desde `unknown` (ts-reset) sin `any` (DES-10). OPT-IN: sólo la
+  entidad con dueño (sin `owned_by`, `client.ts` queda con `summarize`, FSK-S15 intacto). `tsconfig` ganó
+  `lib:["ES2022","DOM"]` para tipar `fetch`/`Response` (GENERAL, un frontend legítimamente incluye DOM).
+- **(b)** `frontend/consume_check.ts` IMPORTA esas funciones y, contra el server vivo: GET `/seed` → `{id,owner}`;
+  `create<E>(Bearer <write_role>:<owner>, {valores ≠ samples})`; `get<E>(id)` → asevera **cada campo posteado
+  type-correct**; + negativo (body de tipo equivocado → 400 → el cliente propaga). Corre por `node
+  --experimental-strip-types` (sin `npm install`: los imports de tipo se stripean). NO type-checked (vive en
+  `frontend/`, fuera del include de tsc — como `access_control_check.py`).
+- **(c)** **3er check `frontend_consume_live`** (kind `infra_up`) en s9, hermano de `access_control_live`: mismo
+  AppServer con puerto/PG PROPIOS por env (`FSK_AC_PORT=18595` / `FSK_PG_URL`…5437, contenedor `fsk_s9_fe_pg`).
+  Capability `frontend_consume_live` (DES-6) + **REQ-F-017**.
+
+**Verificado POR BLOQUEO**:
+- `product-run` **PASS** en los 3 (demo · assets · snipeit) · RTM snipeit **21/22** (REQ-F-017 `frontend_consume_live`
+  SATISFIED <- s9 `[…/frontend/src/client.ts✓]`; único UNSAT = REQ-F-007/s6 LLM keyless, deferral VISIBLE).
+- `ci --rederive --all-products` **3/3 == pin** (11/11 · 10/10 · 10/10) en clones limpios · `meta check` **6/6**
+  (`generality` verde).
+- **Diente de DOS lados VIVO y PRECISO**: saboteado `get<E>` (ignora la respuesta del server, devuelve `{}`) →
+  `product-run snipeit` **FAIL**, **sólo `frontend_consume_live` rojo** con `observability_live` +
+  `access_control_live` VERDES (el server estaba sano; falló el CONSUMO); revertido → **PASS**.
+- Eyeball pre-gradle: `--check-idempotent` verde · `node --experimental-strip-types --check` sobre el `client.ts` y
+  `consume_check.ts` generados (Node v22.22) → SYNTAX OK.
+
+**Lección reusable (estructura de estación) — para el próximo que agregue/quite un check**: el `proof_sha` de un
+gate es `hash(station_id + sorted(check_name, exit))` (`seed/verifier.py::compute_proof_sha`). Agregar un check
+CAMBIA ese sha → los **productos INSTANCIA** (`assets`/`snipeit`) re-materializan su línea del spec en cada corrida
+(`ensure_product_instance` → `_materialize_line`), así que toman el check nuevo solos; pero el **producto DEFAULT
+usa el `stations/` COMMITEADO de la fábrica**, que NO se re-materializa en `product-run`. Hay que re-materializar el
+chasis a mano (mismo `_materialize_line`, dest `stations`) para que el default también corra el check nuevo — si no,
+su `s9` queda en el sha viejo (2 checks) y `ci --rederive` pasa pero el default NO ejercita el tooth. Acá se
+re-materializó `stations/s9.yml` (sólo el check nuevo; la churn cosmética de `s0.yml` se revirtió) y se re-pineó el
+default → s9 == el de las instancias (3 checks). Verificado: los 3 pines comparten `s9` y `ci --rederive` 3/3 == pin.
+
+**Scope honesto — lo que QUEDA** (próximos incrementos): React que RENDERIZA la lista + el form que postea (browser)
+· deploy real (Dockerfile vivo) · e2e Playwright (browser headless) · CRUD de entidades sin dueño · refs del body ·
+custom-fields. El cliente ya CONSUME; falta el RENDER en browser y el ship.

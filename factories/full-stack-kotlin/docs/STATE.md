@@ -39,13 +39,28 @@
   permitido→201+count+1 · round-trip del cuerpo · DELETE prohibido→403 / permitido→200→404), extiende el MISMO
   `access_control_live` (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). Capability `crud_ownerless_runtime`
   (DES-3) + **REQ-F-019** → RTM default **24/24 COMPLETE**. Verificado VIVO (sólo `access_control_live` rojo al sabotear).
-- **Sigue** (huecos honestos → próximos incrementos): **refs no-dueño desde el body** (el espinazo relacional — el
-  EJE HERMANO, el de mayor palanca ahora: muchas ownerless tienen un ref REQUERIDO, p.ej. `AssetModel.category_id`)
-  · **CRUD de TODAS las ownerless** (hoy sólo la 1ª) · PUT/update ownerless · producto sólo-ownerless · **render/
-  cliente/form para la entidad ownerless** · **render EN BROWSER (mount real DOM + eventos)** · **deploy real
-  (Dockerfile vivo)** · **e2e Playwright** · UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. La capa
-  viva ya cubre la entidad con dueño **y la 1ª ownerless**; lo que falta para un Snipe-IT **usable** es levantar los
-  refs del body (encadenar entidades relacionadas) antes que el pulido de browser.
+- **El ESPINAZO RELACIONAL: refs requeridos no-dueño desde el body (FSK-REFS-IN-BODY, 2026-06-21)**: una entidad
+  ownerless con un `ref` REQUERIDO no-dueño dejó de quedar fuera de la capa viva — ahora obtiene **CRUD vivo con la
+  FK del CUERPO**. Selección DATA-agnóstica `_live_with_ref` (la 1ª sin dueño, con `write_roles`, cuyos refs
+  requeridos apuntan a targets SEMBRABLES — `_ref_target_seedable`): en snipeit **AssetModel** (`category_id`→
+  Category); default (Task→Project, cadena profundidad >1) y assets (sin ref requerido no-dueño) → **None**, opt-out
+  intacto. El POST acepta el id del ref (`Long` vía `longOf`, codec compartido), type-bound; el server **siembra el
+  target** (`seedRows`→`_ref_targets`/`_seed_chain`) y expone su id por **`/seed refs`**; el INSERT con FK colgante
+  se **ATRAPA** (`runCatching` → **409**, no 500). **El grafo relacional entero del dominio pasa a ser CRUD-able por
+  API** (no sólo entidades sueltas). Diente de DOS lados (ref VÁLIDO→201+round-trip que cruza el id · ref COLGANTE→
+  409 fail-closed), extiende el MISMO `access_control_live` (sin check nuevo → `proof_sha` intacto, pin byte-idéntico).
+  Verificado VIVO (saboteado el atrape de la FK → SÓLO `access_control_live` rojo, hermanos verdes; revertí→verde).
+  **No agrega requisito** (evita over-claim: default/assets no tienen una entidad así): se plegó en **REQ-F-016**
+  (`entrada_tipada_runtime`) → RTM snipeit **23/24** (sólo s6 keyless). Sustrato (`src/metafactory/`+`seed/`) = 0;
+  `product.yml` = 0. Detalle: `docs/work/FSK-REFS-IN-BODY-INCREMENT.md §Evidencia`.
+- **Sigue** (huecos honestos → próximos incrementos): **render EN BROWSER (mount real DOM + eventos) + el FORM que
+  postea** (el siguiente eje de mayor palanca: hace a Snipe-IT *usable en un navegador*) · **deploy real (Dockerfile
+  vivo) + e2e Playwright** · **CRUD de TODAS las entidades vivas** (hoy 1 con dueño + 1ª ownerless + 1ª con-ref) ·
+  cadenas de refs de profundidad >1 (Task→Project→User) · self-refs (`Location.parent_id`) · refs polimórficos · refs
+  OPCIONALES del body · PUT/update ownerless · UNIQUE-from-body→409 · PUT-total vs PATCH-split · custom-fields. **La
+  capa de DATOS de Snipe-IT queda COMPLETA** (el grafo entero es CRUD-able por API); lo que separa de un Snipe-IT
+  usable+deployado es el browser/form + el deploy. Después, lo que QUEDA es product-specific (los 12 deferrals de
+  `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md`).
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

@@ -1,6 +1,46 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-21T20:50Z — FSK-REFS-IN-BODY ✅: el ESPINAZO RELACIONAL — refs requeridos no-dueño desde el body
+- **Cierra el último hueco de la capa de DATOS**: hasta hoy `_input_fields` EXCLUÍA los `ref` y
+  `_mutation_fns`/el seed LANZABAN ante un ref requerido no-dueño → toda entidad cuyo POST necesita una FK
+  (en Snipe-IT: AssetModel/License/Accessory/Consumable/Component → Category, los pivots → su padre)
+  generaba a nivel de contrato pero **no era creable a runtime**. Ahora **el grafo relacional ENTERO es
+  CRUD-able por API**: creás una Category, después un AssetModel que la referencia. "Entidades sueltas
+  usables" → "una app relacional usable".
+- **Deliverable (FÁBRICA, GENERAL — `codegen/scaffold_product.py` + `factory.spec.yml`, cero nombres de
+  dominio)**: (a) **tipo** — `_KT_FIELD_TYPE` mapea `ref`→`Long`; `_input_fields` incluye el ref REQUERIDO
+  no-dueño (el dueño SIGUE viniendo del token). (b) **Selección DATA-agnóstica** — `_live_with_ref`: la 1ª
+  entidad sin dueño, con `write_roles`, cuyos refs requeridos apuntan a targets SEMBRABLES
+  (`_ref_target_seedable`: el target no tiene refs requeridos propios → cadena de profundidad 1) → snipeit
+  **AssetModel** (`category_id`→Category); default (Task→Project, profundidad >1) y assets (sin ref req
+  no-dueño) → **None**, opt-out intacto. (c) **codec** — `longOf` (id de la FK, estricto `require(!isString)`)
+  + import `kotlinx.serialization.json.long`, sobre la unión de entidades servidas. (d) **mutación** —
+  `_mutation_fns` setea el ref desde `input.<camel>`. (e) **seed del target** — `seedRows`/`_ref_targets`
+  siembra UNA fila de cada target de ref requerido y `/seed` la expone como `"refs":{<campo>:<id>}`. (f)
+  **FK fail-closed** — `_ownerless_handlers(catch_fk=True)`: `insert<E>OrConflict` envuelve el INSERT en
+  `runCatching` → un ref COLGANTE viola la FK → `DataAccessException` → **409** (`HTTP_CONFLICT`), no 500.
+  La entidad con dueño y la 1ª ownerless quedan **intactas** (aditivo, 3er `createContext`).
+- **El diente NUEVO de DOS lados** (extiende el check EXISTENTE `access_control_live`, s9 infra_up): ref
+  **VÁLIDO** (id del target sembrado, leído de `/seed refs`) → **201** + round-trip que cruza el id del ref ·
+  ref **COLGANTE** (id+9999) → **409** fail-closed · rol prohibido → 403 · tipo equivocado → 400 · count
+  invariante. **Verificado VIVO**: saboteado el atrape de la FK (with_ref al camino sin `runCatching`) →
+  `product-run snipeit` **FAIL 1/3, SÓLO `access_control_live` ROJO** (`observability_live` +
+  `frontend_consume_live` VERDES); revertido → PASS.
+- **Sin check nuevo → pin byte-idéntico**: como EXTENDÍ `access_control_check.py` (el MISMO
+  `access_control_live`), el `proof_sha` NO cambió → `ci --rederive` **snipeit 10/10 · default 11/11 · assets
+  10/10 == pineado** en clon limpio, **sin re-materializar**. `pinned_verdict.json` es per-estación (NO el RTM).
+- **Trazabilidad**: NO agrega requisito (evita over-claim — default/assets no tienen una entidad con ref
+  requerido no-dueño sembrable): se PLEGÓ en `entrada_tipada_runtime` (**REQ-F-016**), cuyo invariant/tech/
+  proof ahora cubren el ref del body + el diente FK→409. Se removió "refs-en-el-body = declared-deferred" de
+  REQ-F-015/016/019 + `crud_mutacion_runtime`/`crud_ownerless_runtime`. RTM snipeit **23/24** (sólo s6 keyless).
+- **Anti-overfit**: `meta check` **6/6** (`generality` verde) · `git diff product.yml` = **0** (producto = DATA)
+  · `git diff src/metafactory/ + seed/` = **0** (sustrato intacto; todo en codegen+spec). El único nombre de
+  dominio en el diff es un EJEMPLO en docstring (estilo `_live_ownerless`). Probado por gradle real foreground
+  (la colisión de puerto fijo de s9 obliga a no-paralelo; un background race con `stop_proof` da falso rojo).
+- **Lección confirmada al derecho** (de FSK-CRUD-OWNERLESS/RENDER-LIST): EXTENDER el check existente (no sumar)
+  → `proof_sha` intacto → pines byte-idénticos, sin re-materializar el chasis. Detalle: `…/work/FSK-REFS-IN-BODY-INCREMENT.md §Evidencia`.
+
 ## 2026-06-21T19:28Z — FSK-CRUD-OWNERLESS ✅: la capa VIVA deja de ser opt-in a `owned_by` (CRUD RBAC-only)
 - **Abre el DOMINIO a runtime**: hasta hoy toda la capa viva (server CRUD, cliente, render, consumer e2e) era
   **opt-in a `owned_by`** → sólo la entidad con dueño tenía server/CRUD vivo; el resto del dominio generaba a nivel

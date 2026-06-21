@@ -1,13 +1,60 @@
 # Incremento FSK-REFS-IN-BODY — el espinazo RELACIONAL: refs requeridos desde el cuerpo del request
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T19:28Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA
-> editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (abierto 2026-06-21T19:28Z · cerrado 2026-06-21T20:50Z). Evidencia abajo (§Evidencia).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-CRUD-OWNERLESS con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
+
+---
+
+## Evidencia (cierre, 2026-06-21T20:50Z) — demostrado POR BLOQUEO, no narrado
+
+**Qué quedó VIVO.** Una entidad ownerless con un `ref` REQUERIDO no-dueño obtiene **CRUD vivo con la FK del cuerpo**
+(el espinazo RELACIONAL). Selección DATA-agnóstica `_live_with_ref` (cero nombres de dominio): la 1ª entidad sin
+dueño, con `write_roles`, cuyos refs requeridos apuntan a targets **sembrables** (`_ref_target_seedable`: el target
+no tiene refs requeridos propios) → en **snipeit = AssetModel** (`category_id`→Category). default (Task→Project, no
+sembrable: Project tiene `owner_id` requerido → cadena de profundidad >1, diferida) y assets (sin refs requeridos
+no-dueño) → **None** → opt-out limpio (intactos). El POST acepta el id del ref (`Long` vía `longOf`, codec
+compartido), lo persiste type-bound; el server **siembra el target** (`seedRows`/`_seed_chain` generalizado a
+`_ref_targets`) y expone su id por **`/seed` `refs`**; el INSERT con FK colgante se **ATRAPA** (`runCatching` →
+**409**, no 500). Aditivo: la entidad con dueño y la 1ª ownerless quedan intactas (sus dientes no se mueven).
+
+**1. `product-run` PASS en los 3** (gradle real, foreground por la colisión de puerto fijo de s9): snipeit PASS ·
+default PASS · assets PASS. RTM snipeit **23/24** (único UNSAT = REQ-F-007/s6 LLM keyless, deferral VISIBLE).
+
+**2. Diente de DOS lados verificado VIVO.** Saboteé el atrape de la FK (forcé el with_ref al camino sin
+`runCatching` + quité el const `HTTP_CONFLICT`, compila limpio sin símbolos sin usar) → `product-run snipeit` **FAIL
+1/3**: **SÓLO `access_control_live` ROJO** (`observability_live` + `frontend_consume_live` VERDES) — el ref colgante
+deja de ser fail-closed → el proof no obtiene 409 → rojo PRECISO y AISLADO. Revertí → `product-run snipeit` PASS.
+
+**3. `ci --rederive` == pin en los 3** (árbol limpio, aislado): snipeit **10/10** · default **11/11** · assets
+**10/10** proof_sha **== pineado**. Como EXTENDÍ el check existente `access_control_live` (sin check nuevo) el
+`proof_sha` NO cambió → **pines byte-idénticos, sin re-materializar** (la lección de §3, confirmada al derecho).
+
+**4. `meta check` 6/6** (compile · docs · projection · isolation · **generality** · suite). **Anti-overfit**:
+`git diff` de TODO `product.yml` = **0** (el producto es DATA, ADR-012) · `git diff src/metafactory/ + seed/` = **0**
+(el sustrato no se tocó; todo cabe en `codegen/scaffold_product.py` + `factory.spec.yml`). El único "nombre de
+dominio" en el diff de codegen es un EJEMPLO en un docstring (`_live_with_ref` da AssetModel en snipeit), idéntico al
+estilo de `_live_ownerless` — la LÓGICA es DATA-agnóstica.
+
+**5. RTM / trazabilidad.** refs-en-el-body **no agrega requisito nuevo** (evita over-claim: default/assets no tienen
+una entidad así): se PLEGÓ en la capability existente **`entrada_tipada_runtime` (REQ-F-016)** — el invariant/tech/
+proof ahora cubren el ref del cuerpo + el diente FK-colgante→409. Se quitó "refs-en-el-body = declared-deferred" de
+REQ-F-015/016/019 y de `crud_mutacion_runtime`/`crud_ownerless_runtime`. `pinned_verdict.json` es **per-estación**
+(s0..s10), NO el RTM → cambiar prosa del spec no toca el pin.
+
+**Seams tocados** (todo en `codegen/scaffold_product.py`): `_KT_FIELD_TYPE` (`ref`→`Long`) · `_input_fields`
+(incluye el ref requerido no-dueño) · `_live_with_ref`/`_ref_targets`/`_ref_target_seedable` (selección nueva) ·
+`_live_entities` (suma with_ref) · `_mutation_fns` (ref del body) · `_parse_fn`/`_codec_helpers` (`longOf` + import
+`kotlinx.serialization.json.long`) · `_ownerless_handlers(catch_fk)` (FK-catch→409) · `_app_server_kt` +
+`_APP_SERVER_SKELETON` (seed de targets, `/seed refs`, mount, `HTTP_CONFLICT`) · `_access_control_check_py` +
+skeleton (bloque with-ref: válido→201+round-trip, colgante→409, prohibido→403, tipo-equivocado→400, count).
+
+**Huecos que QUEDAN** (próximos ejes, ver el SIGUIENTE incremento): cadenas de refs de profundidad >1 (target con su
+propio ref requerido, p.ej. Task→Project→User) · self-refs (`Location.parent_id`) · refs polimórficos · refs
+OPCIONALES del body · CRUD de TODAS las entidades vivas (hoy 1 con dueño + 1ª ownerless + 1ª con-ref) · render EN
+BROWSER (mount DOM + eventos) + el form que postea · deploy real (Dockerfile vivo) + e2e Playwright.
 
 ---
 

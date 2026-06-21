@@ -6,14 +6,14 @@
 > gateado). Editar `products/snipeit/**` (no-`.md`) exige ESTE incremento abierto — el `increment_guard`
 > elige el lifecycle por la ruta editada. Todo cambio de código del producto vive acá (ADR-010 + ADR-016).
 >
-> **⛔ Fase 2 (generar) DESBLOQUEADA cuando cierre la Fase 1 del refactor de gobierno** (incremento META
-> `GOV-LAYERING-FASE1`; autoridad: el meta `docs/reference/GOVERNANCE-LAYERING.md` §8 + ADR-016). Ese
-> refactor le dio a este producto su casa de docs (ESTE doc ya está en ella) + el edit-gate por nivel.
-> Con `meta check` verde bajo el modelo nuevo y el incremento META cerrado, arrancá la Fase 2 acá.
+> **✅ Refactor de gobierno HECHO → Fase 2 (generar) en GO.** La Fase 1 del layering (ADR-016, commits
+> `8e8a512`+`4674a90`) cerró: este producto tiene su casa de docs (ESTE doc ya está en ella) + el edit-gate
+> elige el lifecycle por la RUTA editada. `meta check` 6/6 bajo el modelo nuevo; el incremento META cerrado;
+> **ESTE incremento P1 está ABIERTO a nivel producto** → ya podés editar `products/snipeit/**` (lo gatea P1).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total: todo lo que
 > necesitás para avanzar está ACÁ o en los archivos que este doc nombra. La Fase 1 (el SPEC) está HECHA y
-> commiteada; **luego del refactor de gobierno, tu trabajo es la Fase 2: GENERAR el producto por la línea FSK.**
+> commiteada, y el refactor de gobierno también; **tu trabajo es la Fase 2: GENERAR el producto por la línea FSK.**
 
 ---
 
@@ -23,6 +23,15 @@
 blueprint FSK FIEL, validado por bloqueo SIN gradle (`scaffold --selftest`: 19 entidades → 66 archivos,
 idempotente, 0 forward-refs). **Tu trabajo:** correr la línea FSK real (gradle) sobre ese spec, arreglar lo
 que el compile/gates REALES rompan, hasta `product-run` PASS · RTM · `ci --rederive == pin`.
+
+**El edit-gate ahora es LEVEL-AWARE (ADR-016) — sabé en qué carril estás antes de editar:**
+- Editar `products/snipeit/**` (el `product.yml`, etc.) → lo gatea ESTE incremento P1, que YA está abierto. Listo.
+- Arreglar un **hueco de FÁBRICA** (§5: el codegen/spec/stations de FSK — el caso normal cuando el producto
+  fuerza una capacidad nueva) → es otro nivel: abrí un incremento de fábrica
+  `meta increment open <slug> --factory full-stack-kotlin` (hoy no existe `factories/full-stack-kotlin/docs/work/`
+  → se crea solo). El guard te BLOQUEA editar codegen de FSK sin ese incremento, y te dirá el nivel.
+- Un fix de **sustrato/meta** (raro; el producto NO debería forzarlo, anti-overfit `git diff src/+seed=0`) →
+  incremento META en `docs/work/`. Tres carriles, tres slots independientes: no se pisan.
 
 **Los 3 archivos que tenés que leer primero (en orden):**
 1. `factories/full-stack-kotlin/products/snipeit/product.yml` — **el SPEC** (la fuente; 19 entidades). Es DATA.

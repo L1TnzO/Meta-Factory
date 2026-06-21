@@ -1,9 +1,10 @@
 # Incremento FSK-CRUD-MUTACION-REAL — el server vivo MUTA columnas (no sólo da el veredicto)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T03:40Z). Cerralo con `meta increment close --factory full-stack-kotlin` (gateado: árbol
-> limpio + estación activa verde). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations)
-> exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T03:40Z · cerrado 2026-06-21T13:44Z). El server vivo de FSK **MUTA columnas reales** bajo
+> el control de acceso ya enforzado (POST inserta · PUT actualiza · DELETE borra), type-bound jOOQ, y el diente
+> pasó de VEREDICTO a ROUND-TRIP e2e. Evidencia al final (§Evidencia). Editar `factories/full-stack-kotlin/**`
+> no-`.md` exige un incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Este es el **primer
 > hueco de §5** que el primer producto real (Snipe-IT) expuso, ya registrado: hoy el server vivo de FSK
@@ -149,3 +150,50 @@ gradle/línea. FOREGROUND, por-producto (~3 min con gradle caliente).
 - **La trilogía de control de acceso vive** (FSK-S13 RBAC · S14 ownership · S15 endpoints vivos): el server YA
   invoca Auth→RBAC→Ownership sobre requests reales contra PG viva. Este incremento es el SIGUIENTE escalón:
   que esos endpoints, además de decidir, MUTEN.
+
+---
+
+## ✅ Evidencia (cierre 2026-06-21T13:44Z) — FSK-S16, CRUD-mutación real
+**Qué se entregó (contenido de FÁBRICA, GENERAL):** el server vivo (`AppServer.kt`) MUTA bajo el control de
+acceso ya enforzado — **POST** inserta una fila tipada jOOQ (dueño = principal del actor; columnas UNIQUE con
+valor único en runtime `"u${System.nanoTime()}"` para no chocar con el seed) y devuelve el id · **PUT** /{id}
+actualiza la 1ª columna `string` no-unique no-dueño a un valor nuevo determinista · **DELETE** /{id} borra ·
++ ruta viva **GET /{id}** (lee 1 fila). Todo DESPUÉS del veredicto OK (RBAC + ownership), reutilizando
+`modifyVerdict` (ex `statusForPut`) para PUT y DELETE. Las queries de mutación viven en `Repository.kt`
+(`insert<E>`/`update<E><Col>`/`delete<E>`/`<e><Col>`), type-bound al schema (DES-12).
+
+**El diente pasó de VEREDICTO a ROUND-TRIP** (`access_control_check.py`): `POST(dueño)→count+1` ·
+`PUT(dueño)→GET /{id} ve "mutated"` · `DELETE(dueño)→count vuelve, GET /{id}→404`; **los dientes de acceso
+siguen** (rol prohibido→403 y count NO cambia; no-dueño→403 sin mutar).
+
+**Probado POR BLOQUEO (no narrado):**
+- `product-run --product snipeit` **PASS** s0→s10 · RTM **19/20** (único UNSAT = REQ-F-007/s6 LLM, deferral
+  keyless VISIBLE; REQ-F-015 `crud_mutacion_runtime`→s9→`Repository.kt`✓ SATISFIED). default y assets PASS.
+- **Diente de DOS lados VIVO**: saboteado el UPDATE (matchea 0 filas → 200 decorativo) → `access_control_live`
+  **FALLA en s9** (el value-check `GET /{id}.name == "mutated"` rojo); revertido → verde. Confirma que el
+  round-trip NO es decorativo.
+- `ci --rederive --all-products` **3/3 == pin** en clones limpios (default 11/11 · assets 10/10 · snipeit 10/10).
+- `meta check`: `compile`/`docs`/`isolation`/**`generality`**/`suite` verdes. **Anti-overfit**: `git diff
+  src/metafactory/ + seed/` = **0** (cero sustrato); `git diff` de TODO `product.yml` = **0** (el producto es
+  DATA). El cambio vive 100% en `codegen/scaffold_product.py` + `factory.spec.yml` (capability
+  `crud_mutacion_runtime` + REQ-F-015 + descripción de la check s9).
+
+**Gaps que el camino destapó y se arreglaron GENERAL (en este mismo incremento):**
+1. **Colisión de columna UNIQUE**: el seed ya inserta 1 fila; un POST reusando el sample determinista violaría
+   la constraint (`serial`/`asset_tag`). → columnas UNIQUE usan valor único en runtime (nanoTime). El handoff
+   asumía "mismos samples del seed" sin notar esto.
+2. **Layout de imports de ktlint_official**: una columna `date` REQUERIDA en la entidad con dueño (assets
+   `Asset.purchased`) mete `import java.time.LocalDate` en `Repository.kt`; pure-ASCII lo ordena PRIMERO →
+   ktlint rojo (el layout quiere `java.*` AL FINAL, como `AppServer.kt`). → orden no-java sorted + java al final.
+3. **detekt `TooManyFunctions`**: `AppServer.kt` pasó de 9 a ~15 funciones (>11 thresholdInFiles) →
+   `@file:Suppress("TooManyFunctions")` (mismo precedente que el `@Suppress` de `Repository.kt`).
+
+**Restricciones DURAS de FSK respetadas** (las 4 del blueprint): el INSERT del POST setea dueño + escalares
+(rechaza ref requerido no-dueño, restricción #3); `owned_by` required → dueño siempre seteado; FK satisfecho
+porque el e2e POSTea con principal = el dueño sembrado (fila User existente).
+
+**Honest scope / huecos que QUEDAN (próximos incrementos FSK):** body-parsing de JSON real (campos
+arbitrarios) + PATCH · CRUD de entidades SIN dueño · ownership opcional / RTD (owner nullable) · self-ref ·
+custom-fields dinámicos · frontend React que consume + deploy + e2e Playwright + breadth. (Degrade honesto:
+si una entidad con dueño no tiene columna `string` mutable, el server degrada a insert/delete + veredicto sin
+el tooth de valor; ninguna columna UNIQUE no-string soportada en el INSERT → fail-closed documentado.)

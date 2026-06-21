@@ -812,6 +812,30 @@ def _COL(name: str) -> str:
     return name.upper()
 
 
+def _mutable_field(e: dict) -> dict | None:
+    """El 1er campo `string` NO-unique, NO-ref, NO-dueño de la entidad: la columna escalar que el PUT del
+    server vivo MUTA (FSK-S16) y que GET /{id} observa. DATA-agnóstico (heurística sobre el blueprint, sin
+    nombres de dominio, ADR-012). None si la entidad no tiene ninguna → el server DEGRADA (PUT sólo da el
+    veredicto; sin tooth de valor): el insert/delete round-trip sigue, el update se difiere para ese producto."""
+    owner = e.get("owned_by")
+    for f in e["fields"]:
+        if f["type"] == "string" and not f.get("unique") and f["name"] != owner:
+            return f
+    return None
+
+
+def _unique_sample(f: dict) -> str:
+    """Valor ÚNICO en runtime para una columna UNIQUE en el INSERT del POST (FSK-S16). El sample determinista
+    chocaría con la fila YA sembrada (mismo valor) o entre POSTs sucesivos → violación de la constraint → no
+    201. Para `string` (el caso real: los identificadores únicos suelen ser strings — serial, asset_tag) se usa
+    un sufijo `nanoTime` (único por llamada, sin estado). Otro tipo unique se difiere fail-closed (documentado),
+    mismo estilo que el rechazo de refs requeridos no-dueño en _seed_chain."""
+    if f["type"] == "string":
+        return '"u${System.nanoTime()}"'
+    raise SystemExit(f"scaffold: columna UNIQUE no-string {f['name']!r} ({f['type']!r}) en el INSERT del "
+                     f"server vivo no soportada (FSK-S16 difiere: los identificadores únicos suelen ser string)")
+
+
 def _migration_sql(bp: dict) -> str:
     """V1__init.sql (Flyway): CREATE TABLE por entidad desde domain.product. FUENTE del codegen jOOQ
     (DDLDatabase) → un drift acá cambia los tipos generados (DES-12). Entidades en orden de dependencia
@@ -835,10 +859,62 @@ def _migration_sql(bp: dict) -> str:
     return "\n".join(out) + "\n"
 
 
+def _mutation_fns(e: dict, tbl: str) -> list[str]:
+    """CRUD-mutación tipada (FSK-S16, DES-3/DES-12) para la entidad con dueño, que el server vivo invoca
+    DESPUÉS del veredicto de acceso: INSERT (dueño = `ownerId` = el principal del actor; columnas UNIQUE con
+    valor único en runtime para no chocar con el seed/otros POSTs; escalares requeridos con samples
+    deterministas; un ref requerido no-dueño se rechaza, restricción #3 del blueprint) → id nuevo; DELETE por
+    id; y —si hay columna mutable (_mutable_field)— UPDATE de esa columna a un valor nuevo + lectura de 1 fila
+    (lo que GET /{id} y el round-trip e2e observan). Todo type-bound al schema: una columna inexistente NO
+    compila (la DB grita en compilación, DES-12)."""
+    name, owner = e["name"], e["owned_by"]
+    set_calls = []
+    for f in e["fields"]:
+        if not f.get("required", True):
+            continue
+        col = f"{tbl}.{_COL(f['name'])}"
+        if f["name"] == owner:
+            set_calls.append(f"set({col}, ownerId)")
+        elif f.get("unique"):
+            set_calls.append(f"set({col}, {_unique_sample(f)})")
+        elif f["type"] == "ref":
+            raise SystemExit(f"scaffold: Repository.insert{name}: ref requerido no-dueño {f['name']!r} "
+                             f"(FSK-S16 inserta sólo el dueño + escalares; restricción #3 del blueprint FSK)")
+        else:
+            set_calls.append(f"set({col}, {_sample(f, {})})")
+    ins_calls = set_calls + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
+    ins = _jooq_chain("        ", "", f"ctx.insertInto({tbl})", ins_calls)
+    out = [
+        f"    fun insert{name}(ctx: DSLContext, ownerId: Long): Long =\n{ins}",
+        f"    fun delete{name}(ctx: DSLContext, id: Long): Int =\n"
+        f"        ctx.deleteFrom({tbl}).where({tbl}.ID.eq(id)).execute()",
+    ]
+    mf = _mutable_field(e)
+    if mf:
+        mc, pas = f"{tbl}.{_COL(mf['name'])}", _pascal(mf["name"])
+        out.append(f"    fun {name.lower()}{pas}(ctx: DSLContext, id: Long): String? =\n"
+                   f"        ctx.select({mc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({mc})")
+        out.append(f"    fun update{name}{pas}(ctx: DSLContext, id: Long, value: String): Int =\n"
+                   f"        ctx.update({tbl}).set({mc}, value).where({tbl}.ID.eq(id)).execute()")
+    return out
+
+
 def _repository_kt(pkg: str, entities: list[dict]) -> str:
     """Queries jOOQ TIPADAS (DES-12): una por entidad, que SELECCIONA todas sus columnas (id + fields).
-    Borrar/renombrar cualquier columna en la migración → jOOQ la quita → `Unresolved reference` (rojo)."""
-    imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
+    Borrar/renombrar cualquier columna en la migración → jOOQ la quita → `Unresolved reference` (rojo). La
+    entidad con dueño suma además las queries de mutación (insert/update/delete/read-1-fila, FSK-S16)."""
+    # los samples del INSERT de mutación (FSK-S16) pueden requerir imports de tipo (p.ej. una columna `date`
+    # requerida → java.time.LocalDate); las columnas UNIQUE usan nanoTime (sin import). Sólo entidades con dueño.
+    insert_sample_fields = [{"fields": [f for f in e["fields"]
+                                        if f.get("required", True) and f["type"] != "ref"
+                                        and not f.get("unique") and f["name"] != e["owned_by"]]}
+                            for e in entities if e.get("owned_by")]
+    table_imports = [f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities]
+    # Layout de imports de ktlint_official: todo ordenado pero los `java.*`/`javax.*` AL FINAL (mismo orden que
+    # AppServer.kt: org.* → {pkg}.* → java.*). Los imports de tipo del insert de mutación (p.ej. una columna
+    # `date` requerida → java.time.LocalDate) van al final; pure-ASCII los pondria primero → ktlint rojo.
+    type_imports = _kt_type_imports(insert_sample_fields)   # java.* (LocalDate, …) → al final
+    imports = "\n".join(sorted({"import org.jooq.DSLContext"} | set(table_imports)) + type_imports)
     fns = []
     for e in entities:
         tbl = _TBL(e)
@@ -858,11 +934,12 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             oc = f"{tbl}.{_COL(e['owned_by'])}"
             fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
+            fns.extend(_mutation_fns(e, tbl))   # CRUD-mutación tipada (FSK-S16): insert/update/delete/read-1
     # un query TIPADO por entidad (+ ownerId por entidad con dueño): con >11 entidades supera
     # TooManyFunctions(11). Es un repositorio GENERADO 1:1 con el contrato; @Suppress sólo cuando aplica.
     suppress = '@Suppress("TooManyFunctions")\n' if len(fns) > 11 else ""
     return (f"package {pkg}\n\n"
-            f"import org.jooq.DSLContext\n{imports}\n\n"
+            f"{imports}\n\n"
             "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
             "// (src/main/resources/db/migration/*.sql). El codegen jOOQ (DDLDatabase) deriva los tipos de ESE\n"
             "// schema; borrar/renombrar una columna usada acá → jOOQ la quita → kotlinc 'Unresolved reference'\n"
@@ -2845,6 +2922,94 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
     return _jooq_chain("    ", f"val {var} = ", f"ctx.insertInto({tbl})", calls)
 
 
+_MUT_VALUE = "mutated"   # FSK-S16: el valor nuevo determinista al que el PUT muta la columna escalar; el
+#                          round-trip e2e lo OBSERVA (GET /{id}). Distinto del sample del seed/insert ("x"/
+#                          "sample-…") y de NULL (columna opcional no insertada) → un PUT que no muta lo delata.
+
+
+def _app_server_handlers(owned: dict, owner_fn: str, insert_fn: str, delete_fn: str, mf: dict | None) -> str:
+    """Las funciones de manejo del server vivo (FSK-S16): doPost INSERTA (dueño = principal del token),
+    doPut/doDelete MUTAN sólo tras el veredicto OK de modifyVerdict (RBAC + ownership), getOne lee 1 fila. La
+    mutación va SIEMPRE detrás del guard. Si la entidad no tiene columna mutable (_mutable_field None), el
+    server DEGRADA: getOne devuelve sólo {id}, el PUT da el veredicto sin UPDATE (insert/delete round-trip
+    intacto). DATA-agnóstico: nombres de fn/columna derivados del blueprint, cero nombres de dominio."""
+    name = owned["name"]
+    helpers = (
+        'private fun forbidden(): Pair<Int, String> = HTTP_FORBIDDEN to """{"status":$HTTP_FORBIDDEN}"""\n\n'
+        'private fun notFound(): Pair<Int, String> = HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""\n\n'
+    )
+    # POST: RBAC; si pasa, INSERTA una fila cuyo dueño = el principal del token (que /seed garantiza como fila
+    # existente -> satisface el FK del dueño) y devuelve el id nuevo (201 + id). principal nulo -> 403.
+    do_post = (
+        "// POST /<plural> (FSK-S16): RBAC; si pasa, INSERTA una fila (jOOQ tipado) cuyo dueño = el principal\n"
+        "// del token y devuelve el id nuevo. Un 201 que no insertara seria decorativo -> el round-trip lo caza.\n"
+        "private fun doPost(ctx: DSLContext, token: String?): Pair<Int, String> {\n"
+        "    val principal = RoleGuard.principalOf(token)\n"
+        "    return when {\n"
+        "        !RoleGuard.authorize(token, writeRoles()) || principal == null -> forbidden()\n"
+        "        else -> {\n"
+        f"            val newId = Repository.{insert_fn}(ctx, principal)\n"
+        '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
+        "        }\n"
+        "    }\n"
+        "}\n\n"
+    )
+    do_delete = (
+        "// DELETE /<plural>/{id} (FSK-S16): mismo guard que PUT (RBAC + ownership); solo en 200 BORRA la fila.\n"
+        "private fun doDelete(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
+        "    val verdict = modifyVerdict(ctx, token, id)\n"
+        "    return when (verdict) {\n"
+        "        HTTP_OK -> {\n"
+        f"            Repository.{delete_fn}(ctx, id)\n"
+        '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+        "        }\n"
+        '        else -> verdict to """{"status":$verdict}"""\n'
+        "    }\n"
+        "}\n"
+    )
+    if mf:
+        mut_read = f"{name.lower()}{_pascal(mf['name'])}"
+        mut_update = f"update{name}{_pascal(mf['name'])}"
+        mut_block = (
+            f'private const val MUT_VALUE = "{_MUT_VALUE}"\n\n'
+            "private fun jsonStr(v: String?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"\n\n"
+            "// GET /<plural>/{id} (FSK-S16): lee 1 fila de la PG viva; inexistente -> 404; existe -> 200 con la\n"
+            "// columna mutable (lo que el round-trip observa tras el PUT). ownerId NOT NULL -> null == ausente.\n"
+            "private fun getOne(ctx: DSLContext, id: Long): Pair<Int, String> =\n"
+            f"    when (Repository.{owner_fn}(ctx, id)) {{\n"
+            "        null -> notFound()\n"
+            f'        else -> HTTP_OK to """{{"id":$id,"{mf["name"]}":${{jsonStr(Repository.{mut_read}(ctx, id))}}}}"""\n'
+            "    }\n\n"
+            "// PUT /<plural>/{id} (FSK-S16): el guard decide; solo en 200 MUTA una columna escalar a un valor\n"
+            "// nuevo determinista (UPDATE tipado). Un 200 que no mutara seria decorativo -> el round-trip lo caza.\n"
+            "private fun doPut(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
+            "    val verdict = modifyVerdict(ctx, token, id)\n"
+            "    return when (verdict) {\n"
+            "        HTTP_OK -> {\n"
+            f"            Repository.{mut_update}(ctx, id, MUT_VALUE)\n"
+            '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+            "        }\n"
+            '        else -> verdict to """{"status":$verdict}"""\n'
+            "    }\n"
+            "}\n\n"
+        )
+    else:   # degrade: sin columna mutable, getOne solo confirma existencia, PUT solo da el veredicto (sin UPDATE)
+        mut_block = (
+            "// GET /<plural>/{id} (FSK-S16, degradado: la entidad no tiene columna mutable): existencia -> 200/404.\n"
+            "private fun getOne(ctx: DSLContext, id: Long): Pair<Int, String> =\n"
+            f"    when (Repository.{owner_fn}(ctx, id)) {{\n"
+            "        null -> notFound()\n"
+            '        else -> HTTP_OK to """{"id":$id}"""\n'
+            "    }\n\n"
+            "// PUT /<plural>/{id} (FSK-S16, degradado): el guard decide; sin columna mutable no hay UPDATE que observar.\n"
+            "private fun doPut(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
+            "    val verdict = modifyVerdict(ctx, token, id)\n"
+            '    return verdict to """{"status":$verdict}"""\n'
+            "}\n\n"
+        )
+    return helpers + mut_block + do_post + do_delete
+
+
 def _app_server_kt(pkg: str, bp: dict) -> str:
     """endpoints/AppServer.kt — el server HTTP VIVO de control de acceso (FSK-S15, DES-3). com.sun.net.httpserver
     (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
@@ -2891,6 +3056,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                           for e in (owned, owner_ent)]))
     seed_owner = _seed_chain("ownerId", owner_ent)
     seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
+    handlers = _app_server_handlers(owned, owner_fn, f"insert{owned['name']}",
+                                    f"delete{owned['name']}", _mutable_field(owned))
     return (_APP_SERVER_SKELETON
             .replace("%IMPORTS%", "\n".join(imports))
             .replace("%PKG%", pkg)
@@ -2899,11 +3066,14 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%AC_PG_PORT%", str(AC_PG_PORT))
             .replace("%OWNER_FN%", owner_fn)
             .replace("%ALL_FN%", all_fn)
+            .replace("%HANDLERS%", handlers)
             .replace("%SEED_OWNER%", seed_owner)
             .replace("%SEED_OWNED%", seed_owned))
 
 
-_APP_SERVER_SKELETON = '''package %PKG%.endpoints
+_APP_SERVER_SKELETON = '''@file:Suppress("TooManyFunctions")
+
+package %PKG%.endpoints
 
 %IMPORTS%
 
@@ -2962,12 +3132,10 @@ private fun seedJson(seed: Seed): String =
 private fun writeRoles(): Set<Role> =
     appRoutes().routes.first { it.method == "POST" && it.path == PLURAL }.roles
 
-private fun statusForPost(token: String?): Int =
-    if (RoleGuard.authorize(token, writeRoles())) HTTP_CREATED else HTTP_FORBIDDEN
-
-// PUT /<plural>/{id}: RBAC (rol) Y ownership (el principal del token == el dueno de la fila, o un rol de
-// bypass). Carga el dueno de la PG VIVA (Repository); fila inexistente -> 404. El veredicto es el diente.
-private fun statusForPut(ctx: DSLContext, token: String?, id: Long): Int {
+// El veredicto de MODIFICACION (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership (el principal del
+// token == el dueno de la fila, o un rol de bypass). Carga el dueno de la PG VIVA (Repository); fila
+// inexistente -> 404. Es el guard que DECIDE; la mutacion (FSK-S16) ocurre DESPUES, solo en la rama HTTP_OK.
+private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {
     val authorized = RoleGuard.authorize(token, writeRoles())
     val ownerId = if (authorized) Repository.%OWNER_FN%(ctx, id) else null
     val role = RoleGuard.roleOf(token)
@@ -2980,21 +3148,22 @@ private fun statusForPut(ctx: DSLContext, token: String?, id: Long): Int {
     }
 }
 
+%HANDLERS%
+// Dispatch del server vivo (FSK-S15/S16): GET coleccion (count) + GET /{id} (lee 1 fila) + POST (inserta) +
+// PUT /{id} (actualiza) + DELETE /{id} (borra). Cada mutacion pasa por su guard antes de tocar la PG viva.
 private fun handle(ctx: DSLContext, ex: HttpExchange) {
     val token = ex.requestHeaders.getFirst("Authorization")
     val rest = ex.requestURI.path.removePrefix(PLURAL).trim('/')
     val id = rest.toLongOrNull()
     val collection = rest.isEmpty()
-    val status = when {
-        ex.requestMethod == "GET" && collection -> HTTP_OK
-        ex.requestMethod == "POST" && collection -> statusForPost(token)
-        ex.requestMethod == "PUT" && id != null -> statusForPut(ctx, token, id)
-        else -> HTTP_NOT_FOUND
-    }
-    val body = if (ex.requestMethod == "GET" && collection) {
-        """{"count":${Repository.%ALL_FN%(ctx).size}}"""
-    } else {
-        """{"status":$status}"""
+    val method = ex.requestMethod
+    val (status, body) = when {
+        method == "GET" && collection -> HTTP_OK to """{"count":${Repository.%ALL_FN%(ctx).size}}"""
+        method == "GET" && id != null -> getOne(ctx, id)
+        method == "POST" && collection -> doPost(ctx, token)
+        method == "PUT" && id != null -> doPut(ctx, token, id)
+        method == "DELETE" && id != null -> doDelete(ctx, token, id)
+        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
     }
     respond(ex, status, body)
 }
@@ -3036,12 +3205,15 @@ def _access_control_check_py(bp: dict) -> str:
     owner_role = non_bypass[0]
     forbidden = next((r for r in bp["roles"] if r not in write_roles), "nobody")
     bypass_role = bypass[0] if bypass else ""
+    mf = _mutable_field(owned)   # FSK-S16: la columna que el round-trip de mutación observa (vacía → degrada)
     return (_ACCESS_CONTROL_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
             .replace("%FORBIDDEN%", forbidden)
             .replace("%OWNER%", owner_role)
-            .replace("%BYPASS%", bypass_role))
+            .replace("%BYPASS%", bypass_role)
+            .replace("%MUT_COL%", mf["name"] if mf else "")
+            .replace("%MUT_VALUE%", _MUT_VALUE))
 
 
 _ACCESS_CONTROL_CHECK_SKELETON = r'''#!/usr/bin/env python3
@@ -3065,6 +3237,8 @@ ALLOWED_ROLE = "%ALLOWED%"
 FORBIDDEN_ROLE = "%FORBIDDEN%"
 OWNER_ROLE = "%OWNER%"
 BYPASS_ROLE = "%BYPASS%"
+MUT_COL = "%MUT_COL%"        # columna escalar que el PUT muta (vacia si la entidad no tiene ninguna -> degrada)
+MUT_VALUE = "%MUT_VALUE%"    # valor nuevo determinista al que el server vivo muta esa columna (FSK-S16)
 
 
 def _req(base: str, method: str, path: str, token: str | None) -> int:
@@ -3090,6 +3264,33 @@ def _expect(actual: int, want: int, label: str) -> bool:
     return True
 
 
+def _count(base: str) -> int:
+    """count vivo de la coleccion (GET /<plural> -> {"count":N}). El round-trip lo usa para PROBAR que el
+    INSERT/DELETE paso DE VERDAD (no solo que el codigo fue 201/200): un 201/200 que no muta deja el count igual."""
+    return int(json.loads(_body(base, PLURAL))["count"])
+
+
+def _post(base: str, token: str) -> tuple[int, dict]:
+    """POST a la coleccion -> (status, body json). El body de un 201 trae el id nuevo (FSK-S16)."""
+    req = urllib.request.Request(base + PLURAL, headers={"Authorization": token}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=3) as r:
+            return r.status, json.loads(r.read().decode("utf-8", "replace"))
+    except urllib.error.HTTPError as exc:
+        return exc.code, {}
+
+
+def _expect_field(base: str, path: str, key: str, want: str, label: str) -> bool:
+    """Asevera que GET <path> devuelve {key: want} (el valor MUTADO observado). Un PUT que devuelve 200 sin
+    actualizar deja el valor viejo (sample del insert o null) != want -> rojo: el diente de la mutacion REAL."""
+    actual = json.loads(_body(base, path)).get(key)
+    if actual != want:
+        print(f"access-control: {label}: esperaba {key}={want!r}, obtuvo {actual!r}", file=sys.stderr)
+        return False
+    print(f"access-control OK: {label} -> {key}={actual!r}")
+    return True
+
+
 def main(argv: list) -> int:
     if len(argv) != 1:
         print("usage: access_control_check.py <base_url>", file=sys.stderr)
@@ -3098,16 +3299,39 @@ def main(argv: list) -> int:
     try:
         ok = _expect(_req(base, "GET", "/health", None), 200, "health")
         ok &= _expect(_req(base, "GET", PLURAL, None), 200, "list (publica)")
-        ok &= _expect(_req(base, "POST", PLURAL, f"Bearer {FORBIDDEN_ROLE}:1"), 403,
-                      f"POST rol PROHIBIDO ({FORBIDDEN_ROLE})")
-        ok &= _expect(_req(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:1"), 201,
-                      f"POST rol permitido ({ALLOWED_ROLE})")
         seed = json.loads(_body(base, "/seed"))
         rid, owner = seed["id"], seed["owner"]
+        n0 = _count(base)
+        # RBAC: un rol PROHIBIDO no escribe -> 403 Y el count NO cambia (no inserto detras del guard).
+        ok &= _expect(_req(base, "POST", PLURAL, f"Bearer {FORBIDDEN_ROLE}:{owner}"), 403,
+                      f"POST rol PROHIBIDO ({FORBIDDEN_ROLE})")
+        ok &= _expect(_count(base), n0, "count tras POST prohibido (sin INSERT)")
+        # POST permitido por el DUENO sembrado (su principal existe como fila -> satisface el FK del dueno):
+        # 201 + id, y el INSERT pasa DE VERDAD (count == n0 + 1; un 201 sin insertar dejaria n0 -> rojo).
+        status, body = _post(base, f"Bearer {ALLOWED_ROLE}:{owner}")
+        ok &= _expect(status, 201, f"POST rol permitido / INSERT ({ALLOWED_ROLE})")
+        new_id = body.get("id")
+        ok &= _expect(_count(base), n0 + 1, "count tras POST permitido (INSERT real)")
+        # ownership: PUT de fila ajena por un no-dueno -> 403 (la mutacion esta DETRAS del guard de fila).
         ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner + 1}"), 403,
                       f"PUT fila AJENA por no-dueno ({OWNER_ROLE}:{owner + 1})")
-        ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner}"), 200,
-                      f"PUT por el DUENO ({OWNER_ROLE}:{owner})")
+        if new_id is not None:
+            # UPDATE real: el DUENO actualiza SU fila nueva -> 200 y GET /{id} ve el VALOR NUEVO (un 200 que no
+            # actualiza dejaria el valor viejo -> rojo). El value-check solo si la entidad tiene columna mutable.
+            ok &= _expect(_req(base, "PUT", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}"), 200,
+                          f"PUT por el DUENO / UPDATE ({OWNER_ROLE}:{owner})")
+            if MUT_COL:
+                ok &= _expect_field(base, f"{PLURAL}/{new_id}", MUT_COL, MUT_VALUE,
+                                    "GET /{id} ve el valor MUTADO (UPDATE real)")
+            # DELETE: ajena por no-dueno -> 403 (sin borrar); por el dueno -> 200 y la fila SE FUE (count, 404).
+            ok &= _expect(_req(base, "DELETE", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner + 1}"), 403,
+                          "DELETE fila por no-dueno (sin borrar)")
+            ok &= _expect(_count(base), n0 + 1, "count tras DELETE prohibido (sin borrar)")
+            ok &= _expect(_req(base, "DELETE", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}"), 200,
+                          f"DELETE por el DUENO ({OWNER_ROLE}:{owner})")
+            ok &= _expect(_count(base), n0, "count tras DELETE (la fila se fue)")
+            ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404,
+                          "GET /{id} de fila borrada -> 404")
         if BYPASS_ROLE:
             ok &= _expect(_req(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {BYPASS_ROLE}:{owner + 1}"), 200,
                           f"PUT por rol de BYPASS ({BYPASS_ROLE})")

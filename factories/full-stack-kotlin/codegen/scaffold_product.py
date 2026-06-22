@@ -285,6 +285,33 @@ def _load_blueprint(root: Path) -> dict:
             raise SystemExit(f"scaffold: owned_by de {e.get('name')!r} nombra un campo inexistente {ob!r}")
         if fld.get("type") != "ref":
             raise SystemExit(f"scaffold: owned_by de {e.get('name')!r}: el campo {ob!r} no es type 'ref' (el dueño es una FK a un principal)")
+    # R2 (FSK-COMPANY-SCOPING, ABAC / multi-tenancy): SCOPING por compañía OPCIONAL. `company_scoped` (por entidad)
+    # nombra el campo `ref` que apunta al TENANT (la compañía) dueña de la fila; `company_scope_bypass_roles`
+    # (top-level) = los roles que IGNORAN el scope (p.ej. superadmin; default []). Generaliza ownership ("fila ×
+    # principal") a un scope por atributo COMPARTIDO ("fila × tenant"), e introduce el FILTRADO DE LECTURA (la lista
+    # se acota a la compañía del actor). Compone sobre ownership + RBAC → fail-closed: `company_scoped` /
+    # `company_scope_bypass_roles` exigen `roles`; el campo debe ser un `ref` (la FK al tenant); bypass ⊆ roles.
+    # Opt-in: sin `company_scoped` el producto se comporta EXACTO como FSK-S15 (sin noción de tenant/scope).
+    csbr = bp.get("company_scope_bypass_roles")
+    if csbr is not None:
+        if roles is None:
+            raise SystemExit("scaffold: 'company_scope_bypass_roles' sin 'roles' (company-scope compone sobre RBAC, fail-closed)")
+        if not isinstance(csbr, list) or not all(isinstance(r, str) for r in csbr):
+            raise SystemExit("scaffold: 'company_scope_bypass_roles' debe ser una lista de strings")
+        for r in csbr:
+            if r not in role_set:
+                raise SystemExit(f"scaffold: company_scope_bypass_roles: rol {r!r} fuera de 'roles'")
+    for e in ents:
+        cs = e.get("company_scoped")
+        if cs is None:
+            continue
+        if roles is None:
+            raise SystemExit(f"scaffold: entidad {e.get('name')!r} declara 'company_scoped' sin 'roles' (fail-closed)")
+        fld = next((f for f in e["fields"] if f.get("name") == cs), None)
+        if fld is None:
+            raise SystemExit(f"scaffold: company_scoped de {e.get('name')!r} nombra un campo inexistente {cs!r}")
+        if fld.get("type") != "ref":
+            raise SystemExit(f"scaffold: company_scoped de {e.get('name')!r}: el campo {cs!r} no es type 'ref' (el tenant es una FK a la compañía)")
     # R2 (FSK-DOMAIN-OPS): verbos de DOMINIO OPCIONALES. `operations` (por entidad) = una lista de transiciones
     # NOMBRADAS de un campo enum-workflow con efecto sobre un campo `ref` (assigns/clears) — checkout/checkin son
     # el caso central de Snipe-IT. El verbo COMPONE sobre lo ya construido: RBAC + ownership (modifyVerdict) +
@@ -447,6 +474,11 @@ def _openapi_yaml(bp: dict) -> str:
         # ownership) la cruza contra el registro Kotlin (OwnershipPolicy) → tamper de un lado → OWNER_MISMATCH.
         if e.get("owned_by"):
             lines.append(f"      x-owned-by: {e['owned_by']}")
+        # Company-scoping (FSK-COMPANY-SCOPING, DES-3): el schema documenta el campo TENANT (la compañía dueña de
+        # la fila) como vendor extension x-company-scoped (openapi-generator/typescript la IGNORAN). FUENTE
+        # inspectable de "qué campo acota el scope" (DES-6); el AppServer vivo la enforza (read-filter + verdict).
+        if e.get("company_scoped"):
+            lines.append(f"      x-company-scoped: {e['company_scoped']}")
         lines += [
             "      properties:",
             "        id: { type: integer, format: int64 }",
@@ -1299,6 +1331,27 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             oc = f"{tbl}.{_COL(e['owned_by'])}"
             fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
+        # Company-scoping (FSK-COMPANY-SCOPING): el TENANT de UNA fila (el verdict de escritura lo cruza contra la
+        # compañía del actor) + la lista FILTRADA por compañía (read-filter: tenant == ? OR tenant IS NULL — una
+        # fila SIN tenant es NO-scopeada, visible a todos). Type-bound al schema (la columna tenant DEBE existir →
+        # DES-12). Opt-in: sólo para la entidad scopeada (sin `company_scoped` no se emite → FSK-S15 intacto).
+        if e.get("company_scoped"):
+            lc = e["name"].lower()
+            cc = f"{tbl}.{_COL(e['company_scoped'])}"
+            fns.append(f"    fun {lc}CompanyId(ctx: DSLContext, id: Long): Long? =\n"
+                       f"        ctx.select({cc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({cc})")
+            tailc = f".from({tbl}).where({cc}.eq(company).or({cc}.isNull)).orderBy({tbl}.ID).fetch()"
+            singlec = f"        ctx.select({', '.join(cols)}){tailc}"
+            if len(singlec) <= MAX_LINE_LENGTH:
+                bodyc = singlec
+            else:   # entidad ancha: una columna por línea (coma final), el .from/.where/.orderBy/.fetch en el cierre
+                argblockc = "".join(f"            {c},\n" for c in cols)
+                bodyc = f"        ctx.select(\n{argblockc}        ){tailc}"
+            fns.append(f"    fun {lc}sByCompany(ctx: DSLContext, company: Long) =\n{bodyc}")
+            fns.append(f"    fun all{e['name']}RowsJsonByCompany(ctx: DSLContext, company: Long): String =\n"
+                       + _jooq_chain("        ", "", f"{lc}sByCompany(ctx, company)",
+                                     [f"mapNotNull {{ {lc}RowJson(ctx, it[{tbl}.ID]!!) }}",
+                                      'joinToString(",", "[", "]")']))
         # CRUD tipado para CADA entidad viva (con dueño y ownerless): insert(body)/delete/<e>RowJson/allRowsJson/
         # [update]. La ownerless inserta TODOS sus escalares del body (sin ownerId); la con dueño suma el ownerId.
         if e["name"] in live_names:
@@ -1371,21 +1424,25 @@ fun main() {
 '''
 
 
-def _sample(f: dict, idvar: dict, alt: bool = False) -> str:
+def _sample(f: dict, idvar: dict, alt: bool = False, variant: int = 0) -> str:
     """valor de muestra Kotlin determinista para el INSERT jOOQ (tipos del schema PG): ref → el id capturado;
     enum → el 1er valor declarado (la columna es VARCHAR); int/number/date → del mapa de samples.
     `alt` (FSK-OWNERSHIP-OPTIONAL): una 2ª fila de la MISMA entidad (p.ej. la fila RTD sembrada) debe DIFERIR en
-    sus columnas UNIQUE → valor alterno (≠ la 1ª fila); con `alt=False` el output es byte-idéntico al previo."""
+    sus columnas UNIQUE → valor alterno (≠ la 1ª fila); con `alt=False` el output es byte-idéntico al previo.
+    `variant` (FSK-COMPANY-SCOPING): generaliza `alt` a la N-ésima fila distinta (una 3ª fila scopeada por
+    compañía no debe chocar en sus columnas UNIQUE con la 1ª ni la RTD). `alt=True` ⟺ `variant=1` (compat); el
+    índice efectivo `i = 1 if alt else variant`. Para variant 0/1 el output es byte-idéntico (sin re-derivar)."""
+    i = 1 if alt else variant
     if f["type"] == "ref":
         return idvar[f["to"]]
     if f["type"] == "boolean":
-        return "true" if alt else "false"
+        return "true" if i % 2 == 1 else "false"
     if f["type"] == "enum":
         vals = f["values"]
-        return _yaml_str(vals[1] if alt and len(vals) > 1 else vals[0])
+        return _yaml_str(vals[min(i, len(vals) - 1)])
     if f["type"] in ("int", "number", "date"):
-        return (_KT_SAMPLE_ALT if alt else _KT_SAMPLE)[f["type"]]
-    return f'"{"alt" if alt else "sample"}-{f["name"]}"'
+        return (_KT_SAMPLE_ALT if i % 2 == 1 else _KT_SAMPLE)[f["type"]]
+    return f'"{("sample", "alt", "scoped")[i]}-{f["name"]}"'
 
 
 def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
@@ -1965,7 +2022,7 @@ def _role_enum_kt(pkg: str, roles: list[str]) -> str:
             "}\n")
 
 
-def _role_guard_kt(pkg: str) -> str:
+def _role_guard_kt(pkg: str, scoped: bool = False) -> str:
     """auth/RoleGuard.kt — autorización por ROL encima de la autenticación de AuthGuard (RBAC, FSK-S13, DES-3).
     `authorize(token, required)` extrae el rol del token y exige membresía en el set requerido por la operación.
     El token es estático/determinista (sin server de identidad vivo): "Bearer <rol>" para RBAC, y, desde FSK-S15
@@ -1973,7 +2030,22 @@ def _role_guard_kt(pkg: str) -> str:
     actor que el OwnershipGuard cruza contra el dueño de la fila). `roleOf` IGNORA el sufijo `:<id>` (toma lo
     previo al primer ':'), así que "Bearer <rol>" sigue funcionando idéntico (FSK-S13 intacto). Opt-in: un set
     requerido VACÍO → cae a AuthGuard (sólo autenticación, el comportamiento de FSK-S5). DETERMINISTA (sin LLM,
-    I-3). Mismo paquete que Role/AuthGuard → sin imports; ≤2 returns por fun (detekt ReturnCount)."""
+    I-3). Mismo paquete que Role/AuthGuard → sin imports; ≤2 returns por fun (detekt ReturnCount).
+
+    FSK-COMPANY-SCOPING — `scoped` (opt-in: ≥1 entidad con `company_scoped`): el token gana un 3er segmento
+    "Bearer <rol>:<principalId>:<companyId>" y aparece `companyOf` (la compañía del actor, que el CompanyScopeGuard
+    cruza contra el tenant de la fila). `principalOf` toma SÓLO el principal (substringBefore del 2º ':'); sin
+    scope el token es "<rol>:<principal>" → el substringBefore es no-op → mismo resultado, pero se gatea para
+    mantener byte-idéntico FSK-S15 (default/assets sin re-derivar)."""
+    principal_tail = ".substringBefore(':')" if scoped else ""
+    company_fn = (
+        "\n    /** La compania del actor (FSK-COMPANY-SCOPING): \"Bearer <rol>:<principalId>:<companyId>\". Sin\n"
+        "     *  3er segmento -> null (el scope no aplica). Token estatico/determinista: sin IdP vivo (JWT diferido). */\n"
+        "    fun companyOf(token: String?): Long? {\n"
+        "        if (token == null || !token.startsWith(SCHEME)) return null\n"
+        "        return token.removePrefix(SCHEME).trim().split(':').getOrNull(2)?.toLongOrNull()\n"
+        "    }\n"
+    ) if scoped else ""
     return (f"package {pkg}.auth\n\n"
             "/**\n"
             " * Autorizacion por ROL (RBAC, FSK-S13, DES-3) encima de la autenticacion de AuthGuard. Una\n"
@@ -1993,8 +2065,9 @@ def _role_guard_kt(pkg: str) -> str:
             "     *  lo necesita; ownership si). Token estatico/determinista: sin IdP vivo (JWT real = diferido). */\n"
             "    fun principalOf(token: String?): Long? {\n"
             "        if (token == null || !token.startsWith(SCHEME)) return null\n"
-            '        return token.removePrefix(SCHEME).trim().substringAfter(\':\', "").toLongOrNull()\n'
-            "    }\n\n"
+            f'        return token.removePrefix(SCHEME).trim().substringAfter(\':\', ""){principal_tail}.toLongOrNull()\n'
+            "    }\n"
+            f"{company_fn}\n"
             "    fun authorize(token: String?, required: Set<Role>): Boolean {\n"
             "        if (required.isEmpty()) return AuthGuard.authorize(token)\n"
             "        val role = roleOf(token)\n"
@@ -2057,6 +2130,32 @@ def _ownership_policy_kt(pkg: str, owned: list[dict], bypass_roles: list[str]) -
             f"{entries}\n"
             "    )\n"
             f"    val bypass: Set<Role> = {bypass}\n"
+            "}\n")
+
+
+def _company_scope_guard_kt(pkg: str) -> str:
+    """auth/CompanyScopeGuard.kt — control de acceso por TENANT (company-scoping / ABAC, FSK-COMPANY-SCOPING,
+    DES-3) encima de ownership+RBAC. `canAccess(actorRole, actorCompanyId, rowCompanyId, bypass)`: un actor
+    no-privilegiado sólo ve/modifica filas de SU compañía (su companyId == el tenant de la fila); un rol de
+    `bypass` (p.ej. superadmin) ignora el scope; una fila SIN tenant (rowCompanyId == null) es NO-scopeada
+    (accesible a todos — datos compartidos / sin compañía). Generaliza OwnershipGuard de "fila × principal" a
+    "fila × tenant" e introduce el FILTRADO DE LECTURA (la lista del actor se acota a su compañía). Genérico (no
+    por-entidad) → una sola declaración top-level. DETERMINISTA (sin LLM, I-3). Mismo paquete que Role → sin
+    imports; 1 return (detekt ReturnCount). El bypass es DATA del blueprint (lo provee el AppServer)."""
+    return (f"package {pkg}.auth\n\n"
+            "/**\n"
+            " * Control de acceso por TENANT (company-scoping, ABAC, FSK-COMPANY-SCOPING, DES-3) encima de\n"
+            " * ownership+RBAC. Un actor no-privilegiado solo ve/modifica filas de SU compania (su companyId ==\n"
+            " * el tenant de la fila); un rol de bypass (p.ej. superadmin) ignora el scope; una fila SIN tenant\n"
+            " * (rowCompanyId == null) es NO-scopeada (accesible a todos). DETERMINISTA (sin LLM, I-3).\n"
+            " */\n"
+            "object CompanyScopeGuard {\n"
+            "    fun canAccess(\n"
+            "        actorRole: Role,\n"
+            "        actorCompanyId: Long?,\n"
+            "        rowCompanyId: Long?,\n"
+            "        bypass: Set<Role>,\n"
+            "    ): Boolean = actorRole in bypass || rowCompanyId == null || actorCompanyId == rowCompanyId\n"
             "}\n")
 
 
@@ -2692,6 +2791,48 @@ def _test_ownership_guard_kt(pkg: str, bp: dict) -> str:
                 "OwnershipPolicy.bypass) shouldBe true",
                 "    }",
             ]
+    lines.append("})")
+    return "\n".join(lines) + "\n"
+
+
+def _test_company_scope_guard_kt(pkg: str, bp: dict) -> str:
+    """auth/CompanyScopeGuardTest.kt (Kotest, tier unit) — el DIENTE de DOS+ lados del company-scoping en RUNTIME:
+    un actor de la MISMA compañía accede ✓ · uno de OTRA compañía es rechazado ✗ · una fila SIN tenant (null) es
+    accesible a todos ✓ · un rol de bypass ignora el scope ✓. Romper CompanyScopeGuard (devolver true siempre) →
+    el lado de otra-compañía falla → rojo. Sólo con `company_scoped` (opt-in). El bypass se construye DATA del
+    blueprint (company_scope_bypass_roles), como lo inyecta el AppServer vivo."""
+    scoped = next(e for e in bp["entities"] if e.get("company_scoped"))
+    bypass_roles = bp.get("company_scope_bypass_roles") or []
+    write_roles = scoped.get("write_roles") or bp["roles"]
+    non_bypass = [r for r in write_roles if r not in bypass_roles] or write_roles
+    actor = non_bypass[0].upper()       # un rol NO-privilegiado (no-bypass) que escribe esta entidad
+    bset = ("setOf(" + ", ".join(f"Role.{r.upper()}" for r in bypass_roles) + ")") if bypass_roles else "emptySet()"
+    lines = [
+        f"package {pkg}.auth\n",
+        "import io.kotest.core.spec.style.StringSpec",
+        "import io.kotest.matchers.shouldBe",
+        "",
+        "// Tier UNIT (DES-3/company-scoping, FSK-COMPANY-SCOPING) -- el guard de acceso por TENANT. Diente de DOS+",
+        "// lados: misma compania accede / OTRA compania es rechazada / una fila SIN tenant (null) es accesible a",
+        "// todos / un rol de bypass ignora el scope. Romper CompanyScopeGuard (true siempre) -> otra-compania -> rojo.",
+        "class CompanyScopeGuardTest : StringSpec({",
+        f"    val bypass = {bset}",
+        '    "un actor accede a una fila de SU compania" {',
+        f"        CompanyScopeGuard.canAccess(Role.{actor}, 1L, 1L, bypass) shouldBe true",
+        "    }",
+        '    "un actor de OTRA compania es rechazado" {',
+        f"        CompanyScopeGuard.canAccess(Role.{actor}, 1L, 2L, bypass) shouldBe false",
+        "    }",
+        '    "una fila SIN tenant (null) es accesible a todos" {',
+        f"        CompanyScopeGuard.canAccess(Role.{actor}, 1L, null, bypass) shouldBe true",
+        "    }",
+    ]
+    if bypass_roles:
+        lines += [
+            '    "un rol de bypass ignora el scope" {',
+            f"        CompanyScopeGuard.canAccess(Role.{bypass_roles[0].upper()}, 1L, 2L, bypass) shouldBe true",
+            "    }",
+        ]
     lines.append("})")
     return "\n".join(lines) + "\n"
 
@@ -3472,7 +3613,7 @@ if __name__ == "__main__":
 #    (compone sobre RBAC/ownership de s5). Transforma la trilogía de control de acceso de "probada por
 #    construcción" (s5 estático + s7 unit) a "enforzada a runtime" (un proof e2e de DOS+ lados, abajo). ────────
 def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None,
-                alt: bool = False, ref_wiring: dict | None = None) -> str:
+                alt: bool = False, ref_wiring: dict | None = None, variant: int = 0) -> str:
     """INSERT jOOQ TIPADO que siembra una fila de `e` y captura su id generado (idiom DbRoundTrip). Para la
     entidad con dueño, el campo `owner_field` se fija al `owner_var` capturado (el principal dueño); el resto
     de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL.
@@ -3492,15 +3633,19 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
         if owner_field and f["name"] == owner_field:   # fila ASIGNADA: el dueño = el principal capturado
             sets.append(f"set({col}, {owner_var})")
             continue
+        # un ref EXPLÍCITAMENTE cableado (ref_wiring) se siembra AUNQUE sea opcional (FSK-COMPANY-SCOPING: la fila
+        # scopeada fija su tenant `company_id` —ref OPCIONAL— al target sembrado). Va ANTES del skip-optional. El
+        # caso requerido no-dueño (FSK-OWNED-REQUIRED-REFS) entra por acá idéntico → byte-neutro para lo previo.
+        if f["type"] == "ref" and f["name"] in ref_wiring:
+            sets.append(f"set({col}, {ref_wiring[f['name']]})")
+            continue
         if not f.get("required", True):                # opcional (incl. el dueño en la fila RTD) → NULL
             continue
-        if f["type"] == "ref":
-            if f["name"] in ref_wiring:                # ref requerido no-dueño: cableado al target sembrado
-                sets.append(f"set({col}, {ref_wiring[f['name']]})")
-                continue
+        if f["type"] == "ref":                          # ref requerido no-dueño SIN cableado → raise honesto
             raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "
                              f"{f['name']!r} sin cableado (target no sembrable / ciclo — deferral honesto)")
-        sets.append(f"set({col}, {_sample(f, {}, alt=(alt and f.get('unique', False)))})")
+        uvar = variant if f.get("unique") else 0
+        sets.append(f"set({col}, {_sample(f, {}, alt=(alt and f.get('unique', False)), variant=uvar)})")
     calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
     return _jooq_chain("    ", f"val {var} = ", f"ctx.insertInto({tbl})", calls)
 
@@ -3640,7 +3785,7 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
 
 
 def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict | None,
-                         need_conflict: bool = False) -> str:
+                         need_conflict: bool = False, scoped: bool = False) -> str:
     """Las funciones de manejo del server vivo (FSK-CRUD-BODY-PARSING): doPost LEE el cuerpo del request, lo
     type-coerce por el schema (parse<E>Input) e INSERTA con ESOS valores (dueño = principal del token, no del
     body); getOne devuelve la FILA COMPLETA type-correct; doPut LEE el body y actualiza la columna mutable
@@ -3681,16 +3826,38 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         "    }\n"
         "}\n\n"
     )
-    list_all = (
-        "// GET /<plural> (coleccion, FSK-FRONTEND-RENDER-LIST): count + rows[] (cada fila type-correct via\n"
-        "// <e>RowJson). count SIGUE primero -> backward-compat (access_control_check lee .count); el cliente\n"
-        "// list<E> lee .rows y render<E>List las renderiza -> la UI refleja la coleccion VIVA.\n"
-        "private fun listAll(ctx: DSLContext): Pair<Int, String> {\n"
-        f"    val count = Repository.all{name}s(ctx).size\n"
-        f"    val rows = Repository.all{name}RowsJson(ctx)\n"
-        '    return HTTP_OK to """{"count":$count,"rows":$rows}"""\n'
-        "}\n\n"
-    )
+    if scoped:
+        # FSK-COMPANY-SCOPING: el read-filter. Un actor no-bypass CON compañía ve SÓLO su tenant (lista acotada,
+        # WHERE company == ? OR company IS NULL); anónimo / bypass / sin-compañía ven TODO (baseline público). El
+        # count cuadra con las filas devueltas. Saboteado el filtro (devolver allRowsJson) → el actor ve OTRA
+        # compañía → access_control_live rojo (diente vivo). El verbo lee `companyScopeBypass()`/companyOf (token).
+        list_all = (
+            "// GET /<plural> (coleccion, FSK-COMPANY-SCOPING): un actor NO-bypass con compania ve SOLO su tenant\n"
+            "// (read-filter: company == ? OR company IS NULL); anonimo / bypass / sin-compania -> TODO (baseline\n"
+            "// publico). count cuadra con las filas. El cliente list<E> lee .rows y render<E>List las renderiza.\n"
+            "private fun listAll(ctx: DSLContext, token: String?): Pair<Int, String> {\n"
+            "    val role = RoleGuard.roleOf(token)\n"
+            "    val company = RoleGuard.companyOf(token)\n"
+            "    val (count, rows) = if (role != null && company != null && role !in companyScopeBypass()) {\n"
+            f"        Repository.{name.lower()}sByCompany(ctx, company).size to "
+            f"Repository.all{name}RowsJsonByCompany(ctx, company)\n"
+            "    } else {\n"
+            f"        Repository.all{name}s(ctx).size to Repository.all{name}RowsJson(ctx)\n"
+            "    }\n"
+            '    return HTTP_OK to """{"count":$count,"rows":$rows}"""\n'
+            "}\n\n"
+        )
+    else:
+        list_all = (
+            "// GET /<plural> (coleccion, FSK-FRONTEND-RENDER-LIST): count + rows[] (cada fila type-correct via\n"
+            "// <e>RowJson). count SIGUE primero -> backward-compat (access_control_check lee .count); el cliente\n"
+            "// list<E> lee .rows y render<E>List las renderiza -> la UI refleja la coleccion VIVA.\n"
+            "private fun listAll(ctx: DSLContext): Pair<Int, String> {\n"
+            f"    val count = Repository.all{name}s(ctx).size\n"
+            f"    val rows = Repository.all{name}RowsJson(ctx)\n"
+            '    return HTTP_OK to """{"count":$count,"rows":$rows}"""\n'
+            "}\n\n"
+        )
     get_one = (
         "// GET /<plural>/{id} (FSK-CRUD-BODY-PARSING): lee la FILA COMPLETA de la PG viva, serializada\n"
         "// type-correct (un int es int, un string es string); inexistente -> 404. Es lo que el round-trip e2e\n"
@@ -3849,7 +4016,7 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
     )
 
 
-def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool) -> str:
+def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, company_fn: str = "") -> str:
     """modifyVerdict — el veredicto de MODIFICACIÓN (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership
     (el principal del token == el dueño de la fila, o un rol de bypass). El guard que DECIDE; la mutación
     (FSK-S16) ocurre DESPUÉS, sólo en la rama HTTP_OK.
@@ -3857,32 +4024,71 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool) ->
     EXISTE (no es 404), pero canModify(…, null, …) sólo la deja pasar a un rol de bypass. La existencia se lee
     reusando <e>RowJson (!= null), sin agregar una query nueva al Repository. Con dueño REQUERIDO el cuerpo
     queda EXACTO al previo (byte-idéntico): el `ownerId == null` ⟺ fila inexistente ⟺ 404 (la columna NOT NULL
-    nunca es null en una fila existente)."""
+    nunca es null en una fila existente).
+    FSK-COMPANY-SCOPING — con `company_fn` (la entidad servida es company_scoped) el veredicto COMPONE company-scope
+    DESPUÉS de ownership: `scopeOk = CompanyScopeGuard.canAccess(rol, compañía-del-actor, tenant-de-la-fila, bypass)`
+    → un actor de OTRA compañía es rechazado AUNQUE sea el dueño (403). El tenant se lee de la PG viva. Sin
+    `company_fn` el cuerpo queda EXACTO al previo (byte-idéntico → default/assets sin re-derivar)."""
     head = "private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {\n"
+    if not company_fn:   # === byte-idéntico al previo (FSK-S15/OWNERSHIP-OPTIONAL): sin company-scope ===
+        if owner_optional:
+            return (head
+                    + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
+                    + f"    val exists = authorized && Repository.{row_json_fn}(ctx, id) != null\n"
+                    + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
+                    + "    val role = RoleGuard.roleOf(token)\n"
+                    + "    val principal = RoleGuard.principalOf(token)\n"
+                    + "    return when {\n"
+                    + "        !authorized -> HTTP_FORBIDDEN\n"
+                    + "        !exists -> HTTP_NOT_FOUND\n"
+                    + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, "
+                    + "ownerId, OwnershipPolicy.bypass) -> HTTP_OK\n"
+                    + "        else -> HTTP_FORBIDDEN\n"
+                    + "    }\n}")
+        return (head
+                + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
+                + f"    val ownerId = if (authorized) Repository.{owner_fn}(ctx, id) else null\n"
+                + "    val role = RoleGuard.roleOf(token)\n"
+                + "    val principal = RoleGuard.principalOf(token)\n"
+                + "    return when {\n"
+                + "        !authorized -> HTTP_FORBIDDEN\n"
+                + "        ownerId == null -> HTTP_NOT_FOUND\n"
+                + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, ownerId, "
+                + "OwnershipPolicy.bypass) -> HTTP_OK\n"
+                + "        else -> HTTP_FORBIDDEN\n"
+                + "    }\n}")
+    # === FSK-COMPANY-SCOPING: compone company-scope (scopeOk) DESPUÉS de ownership (ownerOk). Vals en una línea
+    # (≤160, sin continuación) → el `when` decide `ownerOk && scopeOk`. El tenant de la fila se lee de la PG viva. ===
+    own = ("    val ownerOk = role != null && principal != null && OwnershipGuard.canModify(role, principal, "
+           "ownerId, OwnershipPolicy.bypass)\n")
+    scope = ("    val scopeOk = role != null && CompanyScopeGuard.canAccess(role, RoleGuard.companyOf(token), "
+             "rowCompany, companyScopeBypass())\n")
     if owner_optional:
         return (head
                 + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
                 + f"    val exists = authorized && Repository.{row_json_fn}(ctx, id) != null\n"
                 + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
+                + f"    val rowCompany = if (exists) Repository.{company_fn}(ctx, id) else null\n"
                 + "    val role = RoleGuard.roleOf(token)\n"
                 + "    val principal = RoleGuard.principalOf(token)\n"
+                + own + scope
                 + "    return when {\n"
                 + "        !authorized -> HTTP_FORBIDDEN\n"
                 + "        !exists -> HTTP_NOT_FOUND\n"
-                + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, "
-                + "ownerId, OwnershipPolicy.bypass) -> HTTP_OK\n"
+                + "        ownerOk && scopeOk -> HTTP_OK\n"
                 + "        else -> HTTP_FORBIDDEN\n"
                 + "    }\n}")
     return (head
             + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
             + f"    val ownerId = if (authorized) Repository.{owner_fn}(ctx, id) else null\n"
+            + f"    val rowCompany = if (ownerId != null) Repository.{company_fn}(ctx, id) else null\n"
             + "    val role = RoleGuard.roleOf(token)\n"
             + "    val principal = RoleGuard.principalOf(token)\n"
+            + own + scope
             + "    return when {\n"
             + "        !authorized -> HTTP_FORBIDDEN\n"
             + "        ownerId == null -> HTTP_NOT_FOUND\n"
-            + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, ownerId, "
-            + "OwnershipPolicy.bypass) -> HTTP_OK\n"
+            + "        ownerOk && scopeOk -> HTTP_OK\n"
             + "        else -> HTTP_FORBIDDEN\n"
             + "    }\n}")
 
@@ -3971,6 +4177,44 @@ def _operations_dispatch(ops: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _seed_decl_kt(params: list[str]) -> str:
+    """La declaración `private data class Seed(...)` del AppServer — una línea si entra en MAX_LINE_LENGTH, o
+    multi-línea (un parámetro por línea, trailing comma) si no (ktlint max-line-length). Los `params` se arman
+    OPT-IN (rtdId/ownedRefs/company* según el producto) → para los productos sin esos ejes (default/assets) el
+    resultado de UNA línea es byte-idéntico al previo (sin re-derivar). FSK-COMPANY-SCOPING surfaceó el wrap."""
+    one = "private data class Seed(" + ", ".join(params) + ")"
+    if len(one) <= MAX_LINE_LENGTH:
+        return one
+    return "private data class Seed(\n" + "".join(f"    {p},\n" for p in params) + ")"
+
+
+def _seed_json_kt(parts: list[str]) -> str:
+    """La línea `return \"\"\"{...}\"\"\"` de seedJson — una línea si entra en MAX_LINE_LENGTH, o partida en chunks
+    concatenados (cada chunk un \"\"\"<json>\"\"\" + ; la coma entre chunks va como prefijo del chunk) si no
+    (ktlint max-line-length). OPT-IN: para los productos sin company-scoping el resultado de UNA línea es
+    byte-idéntico al previo. Greedy: agrupa campos JSON sin que ninguna línea física pase MAX_LINE_LENGTH."""
+    one = '    return """{' + ",".join(parts) + '}"""'
+    if len(one) <= MAX_LINE_LENGTH:
+        return one
+    chunks: list[str] = []
+    cur: list[str] = []
+    for p in parts:
+        if cur and len(f'        """,{",".join(cur + [p])}""" +') > MAX_LINE_LENGTH:
+            chunks.append(",".join(cur))
+            cur = [p]
+        else:
+            cur.append(p)
+    chunks.append(",".join(cur))
+    lines, n = [], len(chunks)
+    for i, c in enumerate(chunks):
+        pre = "{" if i == 0 else ","
+        suf = "}" if i == n - 1 else ""
+        tail = " +" if i < n - 1 else ""
+        lead = '    return """' if i == 0 else '        """'
+        lines.append(f'{lead}{pre}{c}{suf}"""{tail}')
+    return "\n".join(lines)
+
+
 def _app_server_kt(pkg: str, bp: dict) -> str:
     """endpoints/AppServer.kt — el server HTTP VIVO de control de acceso (FSK-S15, DES-3). com.sun.net.httpserver
     (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
@@ -4008,6 +4252,13 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         op_imports += sorted({f"import {pkg}.workflow.{_workflow_obj(owned, next(f for f in owned['fields'] if f['name'] == op['field']))}"
                               for op in operations})
     need_conflict = bool(with_ref) or bool(operations)
+    # FSK-COMPANY-SCOPING: la entidad CON DUEÑO puede declarar `company_scoped` (el campo `ref` al TENANT/compañía).
+    # El server vivo FILTRA la lectura por compañía (listAll) y COMPONE company-scope en el verdict de escritura, y
+    # siembra ≥2 compañías + una fila scopeada a otra compañía para el diente. company_fn = el reader del tenant de
+    # la fila. Opt-in: sin `company_scoped` todo queda "" → AppServer byte-idéntico (default/assets sin re-derivar).
+    scope_field = owned.get("company_scoped")
+    company_ent = by[next(f for f in owned["fields"] if f["name"] == scope_field)["to"]] if scope_field else None
+    company_fn = f"{owned['name'].lower()}CompanyId" if scope_field else ""
     # FSK-OWNED-REQUIRED-REFS: la entidad CON DUEÑO puede ahora tener refs REQUERIDOS no-dueño (p.ej.
     # Asset.model_id). El seeder TRANSITIVO siembra sus dependencias topológicamente (deduplicado, ciclos →
     # raise honesto) ANTES del owned y devuelve el cableado {campo → val}. dep_entities = lo sembrado, para
@@ -4019,7 +4270,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     plural = "/" + _table(owned)
     all_fn = f"all{owned['name']}s"
     owner_fn = f"{owned['name'].lower()}OwnerId"
-    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets + dep_entities})
+    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets + dep_entities}
+                  | ({_TBL(company_ent)} if company_ent else set()))   # FSK-COMPANY-SCOPING: la tabla del tenant
     codec_kt, codec_imports = _codec_helpers(served)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
@@ -4039,7 +4291,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         f"import {pkg}.auth.Role",
         f"import {pkg}.auth.RoleGuard",
         f"import {pkg}.routes.appRoutes",
-    ] + [f"import {pkg}.{e['name']}Input" for e in served]   # un data class de cuerpo por entidad servida
+    ] + ([f"import {pkg}.auth.CompanyScopeGuard"] if scope_field else [])   # FSK-COMPANY-SCOPING (opt-in)
+      + [f"import {pkg}.{e['name']}Input" for e in served]   # un data class de cuerpo por entidad servida
       + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports + op_imports)
     # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un campo
     # `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports. El
@@ -4068,13 +4321,13 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # alternos en las UNIQUE) para que el proof ejercite el veredicto RTD vivo. Opt-in por el `required` del
     # `owned_by`: con dueño REQUERIDO el bloque queda EXACTO (byte-idéntico → default/assets sin re-derivar).
     owner_optional = not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
-    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional)
+    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional, company_fn)
     if owner_optional:
         # fila RTD: dueño NULL, UNIQUE alternos; REUSA las deps ya sembradas (registry) → wirea sus refs requeridos
         seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring)
-        rtd_field, rtd_arg, rtd_json = ", val rtdId: Long", ", rtdId", ',"rtd":${seed.rtdId}'
+        rtd_arg = ", rtdId"
     else:
-        seed_rtd, rtd_field, rtd_arg, rtd_json = "", "", "", ""
+        seed_rtd, rtd_arg = "", ""
     # FSK-OWNED-REQUIRED-REFS: /seed expone los ids de los refs REQUERIDOS no-dueño del owned (campo → id sembrado)
     # para que el proof POSTee una FK VÁLIDA (como `refs` para with_ref, pero de la entidad-con-dueño). Opt-in:
     # sin refs requeridos no-dueño (default/assets) → todo "" → Seed/seedJson byte-idénticos (sin re-derivar).
@@ -4083,13 +4336,11 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             "// ownedRefs (FSK-OWNED-REQUIRED-REFS): id sembrado de cada ref REQUERIDO no-dueno de la entidad CON\n"
             "// DUENO (campo -> id), sembrado TRANSITIVAMENTE; /seed lo expone para que el POST del owned traiga FKs\n"
             "// VALIDAS (como `refs` para with_ref, pero de la entidad-con-dueno).\n")
-        owned_refs_field = ", val ownedRefs: Map<String, Long>"
         owned_refs_arg = ", mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in owned_wiring.items()) + ")"
         owned_refs_json_val = ('    val ownedRefs = seed.ownedRefs.entries'
                                '.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }\n')
-        owned_refs_json = ',"ownedRefs":$ownedRefs'
     else:
-        owned_refs_doc = owned_refs_field = owned_refs_arg = owned_refs_json_val = owned_refs_json = ""
+        owned_refs_doc = owned_refs_arg = owned_refs_json_val = ""
     # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
     # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
     tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
@@ -4099,7 +4350,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                                     if f["type"] == "ref" and f.get("required", True)) + ")") if with_ref else "emptyMap()"
     conflict_const = "private const val HTTP_CONFLICT = 409\n" if need_conflict else ""
     handlers = _app_server_handlers(owned, f"insert{owned['name']}",
-                                    f"delete{owned['name']}", _mutable_field(owned), need_conflict)
+                                    f"delete{owned['name']}", _mutable_field(owned), need_conflict, bool(scope_field))
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): los handlers de los verbos + las ramas del dispatch. Opt-in: "" sin
     # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
     ops_handlers = _operations_handlers(owned, operations) if operations else ""
@@ -4115,6 +4366,41 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                          f"{{ ex -> handle{ownerless['name']}(ctx, ex) }}\n") if ownerless else ""
     with_ref_context = (f"    server.createContext(PLURAL_{with_ref['name'].upper()}) "
                         f"{{ ex -> handle{with_ref['name']}(ctx, ex) }}\n") if with_ref else ""
+    # FSK-COMPANY-SCOPING: siembra ≥2 compañías (nombres UNIQUE distintos) + una fila del owned scopeada a la 2ª
+    # compañía (dueño = ownerId → ownership pasa; tenant != el del actor → el diente de scope). /seed expone
+    # companyA/companyB/scopedId. Reusa owned_wiring (deps ya sembradas) + cablea el tenant OPCIONAL (companyBId).
+    if scope_field:
+        seed_company_scope = (
+            "\n" + _seed_chain("companyAId", company_ent)
+            + "\n" + _seed_chain("companyBId", company_ent, variant=1)
+            + "\n" + _seed_chain("scopedId", owned, owner_field=owner_field, owner_var="ownerId",
+                                 ref_wiring={**owned_wiring, scope_field: "companyBId"}, variant=2))
+        cs_arg = ", companyAId, companyBId, scopedId"
+        bypass_roles = bp.get("company_scope_bypass_roles") or []
+        bypass_set = ("setOf(" + ", ".join(f"Role.{r.upper()}" for r in bypass_roles) + ")") if bypass_roles else "emptySet()"
+        company_scope_bypass = (
+            "\n// El set de roles que IGNORAN el company-scoping (FSK-COMPANY-SCOPING) -- DERIVADO del blueprint\n"
+            "// (company_scope_bypass_roles). El read-filter (listAll) y el verdict lo consultan; type-safe sobre Role.\n"
+            f"private fun companyScopeBypass(): Set<Role> = {bypass_set}\n")
+        listall_token = ", token"
+    else:
+        seed_company_scope = cs_arg = company_scope_bypass = listall_token = ""
+    # Seed data class + seedJson: armados OPT-IN (rtdId/ownedRefs/company* según ejes) y WRAPPEADOS si pasan
+    # MAX_LINE_LENGTH (FSK-COMPANY-SCOPING los empujó >160). Una línea byte-idéntica al previo para los productos
+    # sin company-scoping (default/assets) → sin re-derivar.
+    seed_params = ["val ownedId: Long", "val ownerId: Long", "val refs: Map<String, Long>"]
+    json_parts = ['"path":"$PLURAL"', '"id":${seed.ownedId}', '"owner":${seed.ownerId}', '"refs":$refs']
+    if owner_optional:
+        seed_params.append("val rtdId: Long")
+        json_parts.append('"rtd":${seed.rtdId}')
+    if owned_wiring:
+        seed_params.append("val ownedRefs: Map<String, Long>")
+        json_parts.append('"ownedRefs":$ownedRefs')
+    if scope_field:
+        seed_params += ["val companyA: Long", "val companyB: Long", "val scopedId: Long"]
+        json_parts += ['"companyA":${seed.companyA}', '"companyB":${seed.companyB}', '"scopedId":${seed.scopedId}']
+    seed_decl = _seed_decl_kt(seed_params)
+    seed_json = _seed_json_kt(json_parts)
     return (_APP_SERVER_SKELETON
             .replace("%IMPORTS%", "\n".join(imports))
             .replace("%CODEC%", codec_kt)
@@ -4138,15 +4424,17 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%SEED_OWNED%", seed_owned)
             .replace("%SEED_REF_TARGETS%", seed_ref)
             .replace("%SEED_RTD%", seed_rtd)
-            .replace("%RTD_FIELD%", rtd_field)
             .replace("%RTD_ARG%", rtd_arg)
-            .replace("%RTD_JSON%", rtd_json)
             .replace("%OWNED_REFS_DOC%", owned_refs_doc)
-            .replace("%OWNED_REFS_FIELD%", owned_refs_field)
             .replace("%OWNED_REFS_ARG%", owned_refs_arg)
             .replace("%OWNED_REFS_JSON_VAL%", owned_refs_json_val)
-            .replace("%OWNED_REFS_JSON%", owned_refs_json)
-            .replace("%REF_TARGETS_MAP%", ref_map))
+            .replace("%REF_TARGETS_MAP%", ref_map)
+            .replace("%SEED_COMPANY_SCOPE%", seed_company_scope)
+            .replace("%CS_ARG%", cs_arg)
+            .replace("%SEED_DECL%", seed_decl)
+            .replace("%SEED_JSON%", seed_json)
+            .replace("%COMPANY_SCOPE_BYPASS%", company_scope_bypass)
+            .replace("%LISTALL_TOKEN%", listall_token))
 
 
 _APP_SERVER_SKELETON = '''@file:Suppress("TooManyFunctions")
@@ -4175,7 +4463,7 @@ private const val PLURAL = "%PLURAL%"
 // expone para que el proof POSTee una FK VALIDA. Vacio si ninguna entidad servida tiene un ref requerido.
 // rtdId (FSK-OWNERSHIP-OPTIONAL): id de una fila Ready-To-Deploy (dueno NULL) -- solo cuando el dueno es
 // nullable. /seed lo expone para que el proof ejercite el veredicto RTD (no-bypass -> 403 / bypass -> 200).
-%OWNED_REFS_DOC%private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>%RTD_FIELD%%OWNED_REFS_FIELD%)
+%OWNED_REFS_DOC%%SEED_DECL%
 
 private fun respond(ex: HttpExchange, status: Int, body: String) {
     val bytes = body.toByteArray(StandardCharsets.UTF_8)
@@ -4204,20 +4492,20 @@ private fun connect(url: String, user: String, pass: String): Connection {
 // proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
 private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%
-    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%)
+%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%
+    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%%CS_ARG%)
 }
 
 private fun seedJson(seed: Seed): String {
     val refs = seed.refs.entries.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }
-%OWNED_REFS_JSON_VAL%    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs%RTD_JSON%%OWNED_REFS_JSON%}"""
+%OWNED_REFS_JSON_VAL%%SEED_JSON%
 }
 
 // El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
 // fuente que route_check.py cruza contra x-required-roles del contrato: single-source DES-6).
 private fun writeRoles(): Set<Role> =
     appRoutes().routes.first { it.method == "POST" && it.path == PLURAL }.roles
-
+%COMPANY_SCOPE_BYPASS%
 // El veredicto de MODIFICACION (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership (el principal del
 // token == el dueno de la fila, o un rol de bypass). Carga el dueno de la PG VIVA (Repository); fila
 // inexistente -> 404. Es el guard que DECIDE; la mutacion (FSK-S16) ocurre DESPUES, solo en la rama HTTP_OK.
@@ -4241,7 +4529,7 @@ private fun writeRoles(): Set<Role> =
     val method = ex.requestMethod
     val payload = String(ex.requestBody.readBytes(), StandardCharsets.UTF_8)
     val (status, out) = when {
-        method == "GET" && collection -> listAll(ctx)
+        method == "GET" && collection -> listAll(ctx%LISTALL_TOKEN%)
         method == "GET" && id != null -> getOne(ctx, id)
         method == "POST" && collection -> doPost(ctx, token, payload)
         method == "PUT" && id != null -> doPut(ctx, token, id, payload)
@@ -4394,6 +4682,43 @@ _BAD_FORMAT_PROOF = '''
         ok &= _expect(_count(base), n0 + 1, "count tras 400 de formato (no inserto)")'''
 
 
+# FSK-COMPANY-SCOPING: el diente de DOS lados a RUNTIME del scoping por compañía — el read-filter (la lista del
+# actor se acota a SU tenant) Y el verdict de escritura (un actor de OTRA compañía es rechazado aunque sea el
+# dueño). El token gana 3er segmento ":<compania>". %SCOPE_ACTOR% = un write_role NO-bypass; %SCOPE_BYPASS% = un
+# rol de company_scope_bypass_roles. Saboteado canAccess (true) o el read-filter -> rojo SOLO aca. 8 indent (try).
+_COMPANY_SCOPE_PROOF = '''
+        # *** FSK-COMPANY-SCOPING: read-filter (lista acotada al tenant del actor) + verdict de escritura por ***
+        # COMPANIA. El server siembra >=2 companias + una fila (scopedId) de la 2a cuyo dueno ES el actor (ownership
+        # PASA -> aisla el scope de ownership). Token: "Bearer <rol>:<principal>:<compania>". Diente de DOS lados.
+        company_a = seed["companyA"]      # la compania del ACTOR no-bypass
+        company_b = seed["companyB"]      # la compania de scopedId (!= company_a)
+        scoped_id = seed["scopedId"]
+
+        def _scope_rows(tok):
+            req = urllib.request.Request(base + PLURAL, headers={"Authorization": tok})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                return json.loads(resp.read().decode("utf-8", "replace")).get("rows", [])
+        # READ: un actor no-bypass de company_a NO ve la fila de company_b (read-filter). Saboteado -> la ve -> rojo.
+        a_ids = [row["id"] for row in _scope_rows(f"Bearer %SCOPE_ACTOR%:{owner}:{company_a}")]
+        ok &= _expect_value(scoped_id in a_ids, False,
+                            "[scope] actor no-bypass NO ve la fila de OTRA compania (read-filter)")
+        # WRITE: PUT de la fila de company_b por el actor de company_a -> 403 (AUNQUE sea el dueno: company-scope la
+        # corta tras ownership); por el actor de company_b -> 200 (compania == tenant).
+        ok &= _expect(_send(base, "PUT", f"{PLURAL}/{scoped_id}", f"Bearer %SCOPE_ACTOR%:{owner}:{company_a}", PUT_BODY)[0],
+                      403, "[scope] PUT fila de OTRA compania por su DUENO (company mismatch) -> 403")
+        ok &= _expect(_send(base, "PUT", f"{PLURAL}/{scoped_id}", f"Bearer %SCOPE_ACTOR%:{owner}:{company_b}", PUT_BODY)[0],
+                      200, "[scope] PUT fila de SU compania por su dueno -> 200")%SCOPE_BYPASS_PART%'''
+
+
+# La parte BYPASS del diente (sólo si hay company_scope_bypass_roles): un rol de bypass ve TODAS las companias
+# (read sin filtro) y escribe cualquier tenant (scope ignorado). Vacío -> no se emite (byte-neutro sin bypass).
+_SCOPE_BYPASS_PART = '''
+        b_ids = [row["id"] for row in _scope_rows(f"Bearer %SCOPE_BYPASS%:{owner}:{company_a}")]
+        ok &= _expect_value(scoped_id in b_ids, True, "[scope] un rol de BYPASS ve TODAS las companias")
+        ok &= _expect(_send(base, "PUT", f"{PLURAL}/{scoped_id}", f"Bearer %SCOPE_BYPASS%:{owner}:{company_a}", PUT_BODY)[0],
+                      200, "[scope] PUT por rol de BYPASS (scope ignorado) -> 200")'''
+
+
 def _access_control_check_py(bp: dict) -> str:
     """tools/access_control_check.py — el proof e2e de control de acceso + CRUD del CUERPO real (FSK-CRUD-BODY-
     PARSING), parte de la verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import
@@ -4465,9 +4790,23 @@ def _access_control_check_py(bp: dict) -> str:
     bad_format_block = (_BAD_FORMAT_PROOF
                         .replace("%FMT_FIELD%", fmt_field["name"])
                         .replace("%FMT_BAD_VALUE%", "!! invalido !!")) if fmt_field else ""
+    # FSK-COMPANY-SCOPING: el bloque del diente a runtime (read-filter + escritura por compañía) — sólo si la
+    # entidad servida con dueño es company_scoped. SCOPE_ACTOR = un write_role NO-bypass; SCOPE_BYPASS = un rol
+    # de company_scope_bypass_roles. Opt-in: sin `company_scoped` → "" → el proof queda byte-idéntico.
+    if owned.get("company_scoped"):
+        cs_bypass_roles = bp.get("company_scope_bypass_roles") or []
+        cs_actor = next((r for r in owned["write_roles"] if r not in cs_bypass_roles), owned["write_roles"][0])
+        cs_bypass = cs_bypass_roles[0] if cs_bypass_roles else ""
+        bypass_part = _SCOPE_BYPASS_PART.replace("%SCOPE_BYPASS%", cs_bypass) if cs_bypass else ""
+        company_scope_block = (_COMPANY_SCOPE_PROOF
+                               .replace("%SCOPE_BYPASS_PART%", bypass_part)
+                               .replace("%SCOPE_ACTOR%", cs_actor))
+    else:
+        company_scope_block = ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
+            .replace("%COMPANY_SCOPE_BLOCK%", company_scope_block)
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
@@ -4732,7 +5071,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
@@ -5223,11 +5562,20 @@ def build_files(bp: dict) -> dict[str, str]:
     # enum Role + el RoleGuard se generan del blueprint; el RouteTable registra cada escritura con su set de
     # roles (ver _routes_kt); el contrato emite x-required-roles; route_check.py (modo rbac) cruza ambos; el
     # probe sucio (route_check rbac) y el test de dos lados (tier unit) muerden. Sin `roles`, FSK-S5 intacto.
+    scoped_entities = [e for e in ents if e.get("company_scoped")]   # FSK-COMPANY-SCOPING (opt-in)
     if bp.get("roles"):
         files[f"{pkgdir}/auth/Role.kt"] = _role_enum_kt(pkg, bp["roles"])
-        files[f"{pkgdir}/auth/RoleGuard.kt"] = _role_guard_kt(pkg)
+        files[f"{pkgdir}/auth/RoleGuard.kt"] = _role_guard_kt(pkg, bool(scoped_entities))
         files["probe/routes/wrong_roles.kt"] = _probe_wrong_roles(bp)
         files[f"src/test/kotlin/{pkg}/auth/RoleGuardTest.kt"] = _test_role_guard_kt(pkg, bp)
+    # company-scoping / multi-tenancy (FSK-COMPANY-SCOPING, DES-3): OPT-IN — sólo cuando ≥1 entidad declara
+    # `company_scoped`. El guard CompanyScopeGuard.canAccess (genérico, type-safe sobre Role) + el test de DOS+
+    # lados (tier unit). El AppServer vivo (s9) lo enforza (read-filter por compañía + verdict de escritura); el
+    # bypass es DATA del blueprint (lo inyecta el AppServer). Compone sobre ownership+RBAC (exige `roles`). El
+    # contrato emite x-company-scoped (FUENTE inspectable, DES-6). Sin `company_scoped`, FSK-S15 intacto.
+    if scoped_entities:
+        files[f"{pkgdir}/auth/CompanyScopeGuard.kt"] = _company_scope_guard_kt(pkg)
+        files[f"src/test/kotlin/{pkg}/auth/CompanyScopeGuardTest.kt"] = _test_company_scope_guard_kt(pkg, bp)
     # ownership / autorización a nivel de FILA (s5, DES-3, R2/FSK-S14): OPT-IN — sólo cuando ≥1 entidad declara
     # `owned_by`. El guard OwnershipGuard.canModify (genérico, type-safe sobre Role) + el registro OwnershipPolicy
     # (entidad→campo dueño, derivado del blueprint); el contrato emite x-owned-by; route_check.py (modo ownership)

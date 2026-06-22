@@ -183,6 +183,7 @@ def _load_blueprint(root: Path) -> dict:
     if not ents:
         raise SystemExit("scaffold: blueprint domain.product sin 'entities' (spec incompleto)")
     by = {e.get("name"): e for e in ents}
+    idx = {e.get("name"): i for i, e in enumerate(ents)}   # orden de declaración (forward-ref / ciclos)
     for e in ents:
         if not e.get("name") or not e.get("fields"):
             raise SystemExit(f"scaffold: entidad {e.get('name')!r} sin 'name'/'fields'")
@@ -194,6 +195,14 @@ def _load_blueprint(root: Path) -> dict:
                 raise SystemExit(f"scaffold: campo enum {f.get('name')!r} sin 'values'")
             if t == "ref" and f.get("to") not in by:
                 raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
+            # FSK-XENTITY-CYCLES: un ref FORWARD (target declarado DESPUÉS de la entidad) abre/cierra un CICLO en
+            # el grafo. El migration lo emite como constraint DIFERIDA (ALTER TABLE ADD CONSTRAINT tras crear ambas
+            # tablas) y el seed lo cablea NULL-then-UPDATE → DEBE ser OPCIONAL: un lado REQUERIDO no tiene orden de
+            # siembra (el target no existe cuando se inserta la fila). Fail-closed (mismo patrón que los demás guards).
+            if t == "ref" and f.get("to") in by and idx[f["to"]] > idx[e["name"]] and f.get("required", True):
+                raise SystemExit(f"scaffold: ref forward {e['name']}.{f.get('name')} -> {f.get('to')} (declarado "
+                                 f"después) debe ser opcional (required: false): un ciclo con un lado requerido no "
+                                 f"se puede sembrar sin un orden que no existe (deferral honesto, FSK-XENTITY-CYCLES)")
             if "required" in f and not isinstance(f["required"], bool):
                 raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'required' no booleano")
             # FSK-CUSTOM-FIELDS (Avenue A): un campo `string` puede declarar un `format` (regla de validación del
@@ -803,6 +812,7 @@ def _store_kt(pkg: str, entities: list[dict]) -> str:
 
 def _app_kt(pkg: str, entities: list[dict]) -> str:
     by_name = {e["name"]: e for e in entities}
+    idx = {e["name"]: i for i, e in enumerate(entities)}   # orden de declaración (self-ref / forward, FSK-XENTITY-CYCLES)
     ctor_lines, read_parts, stores = [], [], []
     for e in entities:
         # var local = nombre completo en minúsculas (único por entidad): la inicial sola colisiona
@@ -813,8 +823,11 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
         for f in e["fields"]:
             if f["type"] == "ref":
                 tgt = by_name.get(f["to"])
-                if tgt and f["to"] == e["name"]:        # SELF-REF: el sample no se referencia a sí mismo
-                    args.append(f"{_camel(f['name'])} = null")   # (la raíz: sin padre/manager; Long? nullable)
+                # SELF-REF (to == e) o FORWARD (to declarado DESPUÉS, FSK-XENTITY-CYCLES): el `val` del target aún
+                # no está construido en este `main()` → el sample lo deja en null (ambos refs son opcionales →
+                # Long? nullable). Un ref BACKWARD usa el `val` ya construido del target (orden de declaración).
+                if tgt and idx[f["to"]] >= idx[e["name"]]:
+                    args.append(f"{_camel(f['name'])} = null")
                 else:
                     tv = tgt["name"].lower() if tgt else "1L"
                     args.append(f"{_camel(f['name'])} = {tv}.id" if tgt else f"{_camel(f['name'])} = 1L")
@@ -1099,21 +1112,34 @@ def _migration_sql(bp: dict) -> str:
     (DDLDatabase) → un drift acá cambia los tipos generados (DES-12). Entidades en orden de dependencia
     (un ref apunta a una entidad declarada antes → la tabla referida ya existe)."""
     by = {e["name"]: e for e in bp["entities"]}
+    idx = {e["name"]: i for i, e in enumerate(bp["entities"])}   # orden de declaración (FSK-XENTITY-CYCLES)
     out = [
         "-- V1__init.sql — esquema versionado (Flyway) y FUENTE del codegen jOOQ (DDLDatabase, DES-12).",
         "-- Un query a una columna inexistente = error de compilación (la DB grita): ver Repository.kt.",
         "",
     ]
+    deferred = []   # FSK-XENTITY-CYCLES: FKs FORWARD/cíclicas → ALTER TABLE ADD CONSTRAINT tras crear ambas tablas
     for e in bp["entities"]:
         cols = ["  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY"]
         for f in e["fields"]:
             nn = " NOT NULL" if f.get("required", True) else ""   # R2: opcionalidad → columna nullable
             if f["type"] == "ref":
-                cols.append(f"  {f['name']} BIGINT{nn} REFERENCES {_table(by[f['to']])} (id)")
+                tgt = by[f["to"]]
+                # un ref FORWARD (target declarado DESPUÉS) no puede llevar la FK inline (la tabla destino aún no
+                # existe en este CREATE TABLE) → columna BIGINT pelada + la FK como constraint DIFERIDA al final.
+                # El ref es opcional (lo exige _load_blueprint) → el seed la cablea NULL-then-UPDATE. Determinista
+                # (orden de declaración) e idempotente. Opt-in: sin forward refs `deferred` queda vacío → byte-idéntico.
+                if idx[f["to"]] > idx[e["name"]]:
+                    cols.append(f"  {f['name']} BIGINT{nn}")
+                    deferred.append(f"ALTER TABLE {_table(e)} ADD CONSTRAINT fk_{_table(e)}_{f['name']} "
+                                    f"FOREIGN KEY ({f['name']}) REFERENCES {_table(tgt)} (id);")
+                else:
+                    cols.append(f"  {f['name']} BIGINT{nn} REFERENCES {_table(tgt)} (id)")
             else:
                 uniq = " UNIQUE" if f.get("unique") else ""
                 cols.append(f"  {f['name']} {_PG_COL[f['type']]}{nn}{uniq}")
         out += [f"CREATE TABLE {_table(e)} (", ",\n".join(cols), ");"]
+    out += deferred   # las FKs forward/cíclicas, una vez que TODAS las tablas existen
     return "\n".join(out) + "\n"
 
 
@@ -2711,7 +2737,8 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
     es `to == nombre de la entidad`, sin nombres de dominio (ADR-012); es la misma regla que `_roundtrip_kt`
     aplica a un opcional (no setear → NULL), acotada al self-ref (chicken-and-egg: `ids[self]` aún no existe)."""
     by_name = {e["name"]: e for e in entities}
-    inserts, ids, selfref_ents = [], {}, set()
+    idx = {e["name"]: i for i, e in enumerate(entities)}   # orden de declaración (self-ref / forward, FSK-XENTITY-CYCLES)
+    inserts, ids, selfref_ents, fwd_refs = [], {}, set(), []
 
     def _sets(e: dict, selfval: str | None) -> list[str]:
         """los set(...) de una fila de `e`. Un SELF-REF se setea a `selfval`; con selfval=None se OMITE → la
@@ -2728,6 +2755,8 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
                 if f["to"] == e["name"]:                       # SELF-REF: raíz=NULL, hijo→raíz
                     if child:
                         out.append(f"set({TBL}.{COL}, {selfval})")
+                elif idx[f["to"]] > idx[e["name"]]:            # FORWARD ref (ciclo): el target aún no se sembró →
+                    pass                                       # se cablea DESPUÉS (NULL-then-UPDATE, FSK-XENTITY-CYCLES)
                 else:
                     out.append(f"set({TBL}.{COL}, {ids[by_name[f['to']]['name']]})")
             elif f["type"] == "boolean":
@@ -2758,6 +2787,24 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
             inserts.append(
                 f"            ctx.select({TBL}.{SELFCOL}).from({TBL}).where({TBL}.ID.eq({childvar}))"
                 f".fetchOne()!!.get({TBL}.{SELFCOL}) shouldBe {idvar}")
+        # FSK-XENTITY-CYCLES: los refs FORWARD de `e` (target declarado DESPUÉS) se cablean cuando TODAS las filas
+        # existen (NULL-then-UPDATE) — los recolectamos acá y los wireamos tras el loop. No es self-ref (ese ya va arriba).
+        fwd_refs.extend((e, f) for f in e["fields"]
+                        if f["type"] == "ref" and f["to"] != e["name"] and idx[f["to"]] > idx[e["name"]])
+    # el cableado del CICLO VIVO + diente de dos lados (s7): con TODAS las filas sembradas, una FK FORWARD apuntando
+    # a una fila EXISTENTE round-trippea; una FK forward COLGANTE la RECHAZA la constraint DIFERIDA del migration.
+    for e, f in fwd_refs:
+        TBL, COL = _TBL(e), _COL(f["name"])
+        eid, tid = ids[e["name"]], ids[f["to"]]
+        inserts.append(
+            f"            // FSK-XENTITY-CYCLES: cablear el ciclo VIVO (FK FORWARD → fila EXISTENTE) y round-\n"
+            f"            // trippearlo; una FK forward COLGANTE la RECHAZA la constraint DIFERIDA (fail-closed).\n"
+            f"            ctx.update({TBL}).set({TBL}.{COL}, {tid}).where({TBL}.ID.eq({eid})).execute()\n"
+            f"            ctx.select({TBL}.{COL}).from({TBL}).where({TBL}.ID.eq({eid}))"
+            f".fetchOne()!!.get({TBL}.{COL}) shouldBe {tid}\n"
+            f"            shouldThrow<DataAccessException> {{\n"
+            f"                ctx.update({TBL}).set({TBL}.{COL}, -{tid}).where({TBL}.ID.eq({eid})).execute()\n"
+            f"            }}")
     asserts = "\n".join(
         f"            Repository.all{e['name']}s(ctx).size shouldBe "
         f"{2 if e['name'] in selfref_ents else 1}" for e in entities)
@@ -2765,13 +2812,19 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     time_imp = "import java.time.LocalDate\n" if any(
         f["type"] == "date" for e in entities for f in e["fields"]) else ""
+    # FSK-XENTITY-CYCLES: el diente del ciclo usa shouldThrow (kotest) + DataAccessException (jOOQ). Opt-in:
+    # sin forward refs ambos quedan "" → byte-idéntico (sin import no usado). Posición ascii del layout ktlint_official.
+    throw_imp = "import io.kotest.assertions.throwables.shouldThrow\n" if fwd_refs else ""
+    dae_imp = "import org.jooq.exception.DataAccessException\n" if fwd_refs else ""
     return (f"package {pkg}\n\n"
+            f"{throw_imp}"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
             "import org.flywaydb.core.Flyway\n"
             "import org.jooq.SQLDialect\n"
             "import org.jooq.conf.RenderQuotedNames\n"
             "import org.jooq.conf.Settings\n"
+            f"{dae_imp}"
             "import org.jooq.impl.DSL\n"
             f"{imports}\n"
             f"import java.sql.DriverManager\n{time_imp}\n"

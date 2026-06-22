@@ -141,6 +141,41 @@ def _pascal(s: str) -> str:
     return "".join(p[:1].upper() + p[1:] for p in s.split("_"))
 
 
+def _is_poly(f: dict) -> bool:
+    """Un ref POLIMÓRFICO (FSK-POLYMORPHIC-REFS): un `ref` cuyo `to` es una LISTA — apunta a una UNIÓN de
+    entidades (User|Location|Asset), no a un solo target. Es el ÚLTIMO eje de modelo-de-datos faithful: un
+    target de un conjunto CERRADO de entidades (el hermano sobre refs de lo que el enum es sobre valores).
+    Sin FK posible (no hay integridad referencial a una unión, wrinkle #1): el campo se materializa como DOS
+    columnas (`<campo>_type` discriminador + `<campo>_id`), y el round-trip de (tipo, id) es el diente."""
+    return f.get("type") == "ref" and isinstance(f.get("to"), list)
+
+
+def _poly_subfields(f: dict) -> list[dict]:
+    """Las DOS sub-columnas de un ref polimórfico (wrinkle #2: un campo → 2 columnas). `<campo>_type` es el
+    DISCRIMINADOR: un enum CERRADO de los nombres de target (fail-closed por el codec `enumOf`, doc en el
+    contrato) — VARCHAR, entrecomillado en JSON. `<campo>_id` es el id DENTRO de esa tabla: BIGINT SIN FK
+    (`poly_id`, no hay integridad a una unión), Long type-bound, crudo en JSON. Ambas heredan la opcionalidad
+    del campo. Es la expansión que cruza migration/rowJson/insert/parse/seed/contrato; una entidad SIN poly
+    nunca la dispara → byte-idéntico para todo lo previo (opt-in puro)."""
+    req = f.get("required", True)
+    return [
+        {"name": f"{f['name']}_type", "type": "enum", "values": list(f["to"]), "required": req, "poly_type": True},
+        {"name": f"{f['name']}_id", "type": "ref", "poly_id": True, "required": req},
+    ]
+
+
+def _cols_of(e: dict) -> list[dict]:
+    """Los campos de `e` EXPANDIDOS a COLUMNAS: un ref polimórfico (FSK-POLYMORPHIC-REFS) → sus 2 sub-columnas
+    (`<campo>_type` + `<campo>_id`); el resto pasa SIN tocar. Para una entidad sin ningún campo poly devuelve
+    los MISMOS objetos de `e["fields"]` (byte-idéntico). Es la fuente única que cruzan los emisores por-columna
+    (migration · rowJson · insert · contrato · App.kt · seed · los tests jOOQ/TS) — la generalización del
+    supuesto 1-campo=1-columna que el ref polimórfico rompe (wrinkle estructural). DATA-agnóstico (ADR-012)."""
+    out: list[dict] = []
+    for f in e["fields"]:
+        out += _poly_subfields(f) if _is_poly(f) else [f]
+    return out
+
+
 def _kt_type_imports(entities: list[dict]) -> list[str]:
     """imports extra que piden los samples por tipo (p.ej. date → java.time.LocalDate), ordenados."""
     want = {_KT_TYPE_IMPORT[f["type"]] for e in entities for f in e["fields"]
@@ -193,13 +228,34 @@ def _load_blueprint(root: Path) -> dict:
                 raise SystemExit(f"scaffold: campo {f.get('name')!r} con tipo no soportado {t!r}")
             if t == "enum" and not f.get("values"):
                 raise SystemExit(f"scaffold: campo enum {f.get('name')!r} sin 'values'")
-            if t == "ref" and f.get("to") not in by:
+            # FSK-POLYMORPHIC-REFS: un `ref` cuyo `to` es una LISTA es POLIMÓRFICO (apunta a una UNIÓN de
+            # entidades). Fail-closed (mismo patrón que los demás guards): ≥2 targets, cada uno ∈ entidades, sin
+            # duplicados; NO sobre el campo `owned_by` (wrinkle #3: el guard de ownership cruza un Long único — un
+            # target de una unión no es un principal; el polimórfico vive en un campo NO-dueño). Se materializa
+            # como 2 columnas SIN FK (wrinkle #1, no hay integridad a una unión) → NO entra al guard de forward-ref/
+            # ciclo de abajo (ese asume un solo target con FK). Opt-in: sin lista en `to` el ref se comporta EXACTO.
+            if _is_poly(f):
+                tos = f["to"]
+                if len(tos) < 2:
+                    raise SystemExit(f"scaffold: ref polimórfico {f.get('name')!r} con <2 targets {tos!r} "
+                                     f"(una unión necesita ≥2 entidades; un solo target usa `to: <Entidad>`)")
+                if len(set(tos)) != len(tos):
+                    raise SystemExit(f"scaffold: ref polimórfico {f.get('name')!r} con targets duplicados {tos!r}")
+                for tgt in tos:
+                    if tgt not in by:
+                        raise SystemExit(f"scaffold: ref polimórfico {f.get('name')!r} apunta a entidad "
+                                         f"inexistente {tgt!r}")
+                if e.get("owned_by") == f.get("name"):
+                    raise SystemExit(f"scaffold: el campo `owned_by` {f.get('name')!r} de {e['name']!r} no puede "
+                                     f"ser polimórfico (el ownership cruza un principal único, no una unión — "
+                                     f"FSK-POLYMORPHIC-REFS wrinkle #3; montá el polimórfico en un campo no-dueño)")
+            if t == "ref" and not _is_poly(f) and f.get("to") not in by:
                 raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
             # FSK-XENTITY-CYCLES: un ref FORWARD (target declarado DESPUÉS de la entidad) abre/cierra un CICLO en
             # el grafo. El migration lo emite como constraint DIFERIDA (ALTER TABLE ADD CONSTRAINT tras crear ambas
             # tablas) y el seed lo cablea NULL-then-UPDATE → DEBE ser OPCIONAL: un lado REQUERIDO no tiene orden de
             # siembra (el target no existe cuando se inserta la fila). Fail-closed (mismo patrón que los demás guards).
-            if t == "ref" and f.get("to") in by and idx[f["to"]] > idx[e["name"]] and f.get("required", True):
+            if t == "ref" and not _is_poly(f) and f.get("to") in by and idx[f["to"]] > idx[e["name"]] and f.get("required", True):
                 raise SystemExit(f"scaffold: ref forward {e['name']}.{f.get('name')} -> {f.get('to')} (declarado "
                                  f"después) debe ser opcional (required: false): un ciclo con un lado requerido no "
                                  f"se puede sembrar sin un orden que no existe (deferral honesto, FSK-XENTITY-CYCLES)")
@@ -482,8 +538,9 @@ def _openapi_yaml(bp: dict) -> str:
         "  schemas:",
     ]
     for e in bp["entities"]:
-        # `required[]` del contrato = id + los campos sin `required: false` (R2: opcionalidad como DATO).
-        required = ["id"] + [f["name"] for f in e["fields"] if f.get("required", True)]
+        # `required[]` del contrato = id + las COLUMNAS sin `required: false` (R2: opcionalidad como DATO). Un ref
+        # polimórfico (FSK-POLYMORPHIC-REFS) aporta sus 2 sub-columnas (`<campo>_type`/`<campo>_id`), no el campo.
+        required = ["id"] + [f["name"] for f in _cols_of(e) if f.get("required", True)]
         lines += [
             f"    {e['name']}:",
             "      type: object",
@@ -504,7 +561,10 @@ def _openapi_yaml(bp: dict) -> str:
             "      properties:",
             "        id: { type: integer, format: int64 }",
         ]
-        for f in e["fields"]:
+        # FSK-POLYMORPHIC-REFS: un ref polimórfico documenta sus 2 sub-columnas como propiedades — `<campo>_type`
+        # (string enum CERRADO de los nombres de target: el discriminador, DES-6 inspectable; openapi-generator
+        # deriva un enum class) + `<campo>_id` (integer int64). openapi-generator/typescript las parsean normal.
+        for f in _cols_of(e):
             lines.append(f"        {f['name']}: {_oapi_inline(f)}")
     return "\n".join(lines) + "\n"
 
@@ -873,9 +933,9 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
         # declarations" en App.kt. El nombre completo es la misma convención que Store (DES-agnóstica).
         var = e["name"].lower()
         args = ["id = 1L"]
-        for f in e["fields"]:
+        for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: un ref polimórfico → `<campo>_type` (enum) + `<campo>_id` (1L)
             if f["type"] == "ref":
-                tgt = by_name.get(f["to"])
+                tgt = by_name.get(f.get("to"))   # poly_id: to=None → tgt=None → `= 1L` (sin target a construir)
                 # SELF-REF (to == e) o FORWARD (to declarado DESPUÉS, FSK-XENTITY-CYCLES): el `val` del target aún
                 # no está construido en este `main()` → el sample lo deja en null (ambos refs son opcionales →
                 # Long? nullable). Un ref BACKWARD usa el `val` ya construido del target (orden de declaración).
@@ -894,9 +954,9 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
         # coma final) en vez de pasarse de la regla ktlint PropertyWrapping.
         ctor_lines.append(_kt_call(f"    val {var} = ", e["name"], args, "    ", budget=PROPERTY_WRAP))
         stores.append(f"    Store.add({var})")
-        # leer TODOS los campos (uno por entrada → escala a entidades anchas sin pasar 160): borrar cualquiera
-        # del contrato rompe SU línea (diente DES-6).
-        for f in e["fields"]:
+        # leer TODAS las columnas (una por entrada → escala a entidades anchas sin pasar 160): borrar cualquiera
+        # del contrato rompe SU línea (diente DES-6). FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly se leen ambas.
+        for f in _cols_of(e):
             cf = _camel(f["name"])
             read_parts.append(f'        "{e["name"]}.{cf}=${{{var}.{cf}}}",')
     body = "\n".join(ctor_lines)
@@ -963,7 +1023,7 @@ def _client_ts(entities: list[dict]) -> str:
     reads = []
     for e in entities:
         var = e["name"].lower()
-        for f in e["fields"]:
+        for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly (nombres EXACTOS del contrato)
             reads.append(f"${{{var}.{f['name']}}}")
     body = " ".join(reads)
     return ('// Client tipado: los tipos vienen de gen/api.ts (openapi-typescript del MISMO contrato).\n'
@@ -1086,6 +1146,18 @@ def _input_fields(e: dict) -> list[dict]:
     return [f for f in e["fields"] if f.get("required", True) and f["name"] != owner]
 
 
+def _input_cols(e: dict) -> list[dict]:
+    """`_input_fields` EXPANDIDO a columnas (FSK-POLYMORPHIC-REFS): un ref polimórfico requerido no-dueño →
+    sus 2 sub-columnas (`<campo>_type` + `<campo>_id`), ambas del cuerpo del POST. Lo que el data class <E>Input,
+    el parser parse<E>Input y el codec emiten (una key por columna). Para una entidad sin poly == _input_fields(e)
+    (mismos objetos → byte-idéntico). El cruce `_input_fields` (campos lógicos, para selección/proof) ↔
+    `_input_cols` (columnas físicas, para el cuerpo) es la separación que el ref de-2-columnas necesita."""
+    out: list[dict] = []
+    for f in _input_fields(e):
+        out += _poly_subfields(f) if _is_poly(f) else [f]
+    return out
+
+
 def _live_ownerless(entities: list[dict]) -> dict | None:
     """La 1ª entidad SIN dueño que obtiene CAPA VIVA RBAC-only (FSK-CRUD-OWNERLESS): tiene `write_roles` (para
     el diente RBAC: un rol prohibido → 403) y sus campos REQUERIDOS son TODOS escalares (sin ref requerido) con
@@ -1095,15 +1167,17 @@ def _live_ownerless(entities: list[dict]) -> dict | None:
     producto sin entidad así → None → no se monta capa ownerless (sólo la entidad con dueño, FSK-S15 intacto)."""
     return next((e for e in entities
                  if not e.get("owned_by") and e.get("write_roles")
-                 and not any(f["type"] == "ref" and f.get("required", True) for f in e["fields"])
+                 and not any(f["type"] == "ref" and not _is_poly(f) and f.get("required", True)
+                             for f in e["fields"])
                  and _input_fields(e)), None)
 
 
 def _ref_target_seedable(target: dict) -> bool:
     """Un target de ref es SEMBRABLE standalone (FSK-REFS-IN-BODY, camino A) si NO tiene ningún ref REQUERIDO
     propio → _seed_chain lo siembra con muestras sin encadenar. Una cadena de profundidad >1 (target con su
-    propio ref requerido, p.ej. default Task→Project→User por el owner_id requerido de Project) se DIFIERE."""
-    return not any(f["type"] == "ref" and f.get("required", True) for f in target["fields"])
+    propio ref requerido, p.ej. default Task→Project→User por el owner_id requerido de Project) se DIFIERE.
+    Un ref polimórfico (FSK-POLYMORPHIC-REFS) no cuenta: se siembra como (tipo, id) literal sin FK ni cadena."""
+    return not any(f["type"] == "ref" and not _is_poly(f) and f.get("required", True) for f in target["fields"])
 
 
 def _qty_ops(e: dict) -> list[dict]:
@@ -1131,7 +1205,8 @@ def _live_with_ref(entities: list[dict]) -> dict | None:
     for e in entities:
         if e.get("owned_by") or not e.get("write_roles"):
             continue
-        reqrefs = [f for f in e["fields"] if f["type"] == "ref" and f.get("required", True)]
+        reqrefs = [f for f in e["fields"]
+                   if f["type"] == "ref" and not _is_poly(f) and f.get("required", True)]
         if reqrefs and all(_ref_target_seedable(by[f["to"]]) for f in reqrefs):
             candidates.append(e)
     if not candidates:
@@ -1147,7 +1222,7 @@ def _ref_targets(e: dict, entities: list[dict]) -> list[dict]:
     by = {x["name"]: x for x in entities}
     out: list[dict] = []
     for f in e["fields"]:
-        if f["type"] == "ref" and f.get("required", True) and by[f["to"]] not in out:
+        if f["type"] == "ref" and not _is_poly(f) and f.get("required", True) and by[f["to"]] not in out:
             out.append(by[f["to"]])
     return out
 
@@ -1169,7 +1244,7 @@ def _input_data_class(e: dict) -> str:
     requerida no-dueño, con su tipo Kotlin (_KT_FIELD_TYPE). El parser (AppServer) lo construye desde el JSON;
     Repository.insert<E> lo persiste type-bound. Vive en Repository.kt (paquete raíz) → AppServer lo importa."""
     lines = [f"data class {e['name']}Input("]
-    lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}," for f in _input_fields(e)]
+    lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}," for f in _input_cols(e)]
     lines.append(")")
     return "\n".join(lines)
 
@@ -1188,9 +1263,15 @@ def _migration_sql(bp: dict) -> str:
     deferred = []   # FSK-XENTITY-CYCLES: FKs FORWARD/cíclicas → ALTER TABLE ADD CONSTRAINT tras crear ambas tablas
     for e in bp["entities"]:
         cols = ["  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY"]
-        for f in e["fields"]:
+        for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: un ref polimórfico se expande a sus 2 columnas
             nn = " NOT NULL" if f.get("required", True) else ""   # R2: opcionalidad → columna nullable
-            if f["type"] == "ref":
+            if f.get("poly_id"):
+                # FSK-POLYMORPHIC-REFS (wrinkle #1): la columna id de un ref polimórfico es BIGINT SIN `REFERENCES`
+                # — no hay FK posible a una UNIÓN de tablas. El discriminador `<campo>_type` (VARCHAR, el otro
+                # sub-campo) dice a CUÁL apunta; la integridad NO la caza la DB (es la limitación real del patrón,
+                # no un bug) → el diente se vuelve sobre el ROUND-TRIP de (tipo, id), no sobre la FK.
+                cols.append(f"  {f['name']} BIGINT{nn}")
+            elif f["type"] == "ref":
                 tgt = by[f["to"]]
                 # un ref FORWARD (target declarado DESPUÉS) no puede llevar la FK inline (la tabla destino aún no
                 # existe en este CREATE TABLE) → columna BIGINT pelada + la FK como constraint DIFERIDA al final.
@@ -1217,7 +1298,7 @@ def _row_json_fn(e: dict, tbl: str) -> str:
     GET /{id} devuelve: el round-trip e2e cruza CADA campo posteado contra lo que vuelve, type-correct (un int
     es int, un string es string) → un server que ignora el body (inserta samples) devuelve ≠ lo posteado → rojo.
     fetchOne → null si la fila no existe (404). Type-bound al schema: una columna inexistente NO compila (DES-12)."""
-    cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in e["fields"]]
+    cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]
     tail = f".from({tbl}).where({tbl}.ID.eq(id)).fetchOne()"
     single = f"        val r = ctx.select({', '.join(cols)}){tail} ?: return null"
     if len(single) <= MAX_LINE_LENGTH:
@@ -1226,8 +1307,11 @@ def _row_json_fn(e: dict, tbl: str) -> str:
         argblock = "".join(f"            {c},\n" for c in cols)
         sel = f"        val r = ctx.select(\n{argblock}        ){tail} ?: return null"
     quoted = {"string", "date", "enum"}   # salen entrecomillados (jsonVal); el resto, crudos
+    # FSK-POLYMORPHIC-REFS: el ref polimórfico serializa AMBAS sub-columnas — `<campo>_type` (enum → entrecomillado,
+    # el DISCRIMINADOR que el round-trip cruza) + `<campo>_id` (ref → crudo). Dropear/hardcodear `<campo>_type` acá
+    # → el GET no refleja el target posteado → el round-trip del proof (s9) rojo: ES el diente del discriminador.
     elems = [f'"\\"id\\":${{r[{tbl}.ID]}}"']
-    for f in e["fields"]:
+    for f in _cols_of(e):
         ref = f"r[{tbl}.{_COL(f['name'])}]"
         val = f"jsonVal({ref})" if f["type"] in quoted else ref
         elems.append(f'"\\"{f["name"]}\\":${{{val}}}"')
@@ -1255,7 +1339,7 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
         raise SystemExit(f"scaffold: {name}: entidad VIVA SIN columna escalar requerida no-dueño — el POST "
                          f"necesita ≥1 campo del body (otro eje: CRUD de entidades sólo-dueño/ownership-opcional)")
     set_calls = []
-    for f in e["fields"]:
+    for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly entran del cuerpo como dos campos
         col = f"{tbl}.{_COL(f['name'])}"
         # el dueño (`owned_by`) SIEMPRE se fija al principal del token (el creador es el dueño), aunque la columna
         # sea OPCIONAL (FSK-OWNERSHIP-OPTIONAL): el caso RTD/sin-dueño lo siembra el server (2ª fila, owner NULL),
@@ -1361,7 +1445,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     fns = []
     for e in entities:
         tbl = _TBL(e)
-        cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in e["fields"]]
+        cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]   # FSK-POLYMORPHIC-REFS: 2 cols
         tail = f".from({tbl}).orderBy({tbl}.ID).fetch()"
         single = f"        ctx.select({', '.join(cols)}){tail}"
         if len(single) <= MAX_LINE_LENGTH:
@@ -1480,6 +1564,8 @@ def _sample(f: dict, idvar: dict, alt: bool = False, variant: int = 0) -> str:
     índice efectivo `i = 1 if alt else variant`. Para variant 0/1 el output es byte-idéntico (sin re-derivar)."""
     i = 1 if alt else variant
     if f["type"] == "ref":
+        if f.get("poly_id"):   # FSK-POLYMORPHIC-REFS: id de un ref polimórfico (sin FK) → muestra literal, no encadena
+            return "1L"
         return idvar[f["to"]]
     if f["type"] == "boolean":
         return "true" if i % 2 == 1 else "false"
@@ -1498,7 +1584,7 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
     # sólo se captura el id de una entidad si un ref REQUERIDO lo usa: un ref opcional (required: false) se
     # saltea en el insert (queda NULL), así que capturar el id de su target sería una `val` sin usar (-Werror/detekt).
     referenced = {f["to"] for e in entities for f in e["fields"]
-                  if f["type"] == "ref" and f.get("required", True)}
+                  if f["type"] == "ref" and not _is_poly(f) and f.get("required", True)}
     idvar = {e["name"]: e["name"][0].lower() + e["name"][1:] + "Id" for e in entities}
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     inserts = []
@@ -1507,7 +1593,7 @@ def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
         # los campos opcionales (required: false) NO se setean → quedan NULL: prueba positiva de que la
         # columna nullable acepta ausencia (la contracara del NOT NULL de los required, R2).
         sets = [f"set({tbl}.{_COL(f['name'])}, {_sample(f, idvar)})"
-                for f in e["fields"] if f.get("required", True)]
+                for f in _cols_of(e) if f.get("required", True)]   # FSK-POLYMORPHIC-REFS: 2 sub-columnas
         if e["name"] in referenced:
             calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
             inserts.append(_jooq_chain("            ", f"val {idvar[e['name']]} = ",
@@ -2907,7 +2993,7 @@ def _model_ctor_args(e: dict) -> list[str]:
     """args del constructor del model con muestras deterministas (mismo idiom que App.kt): enum →
     <Model>.<Prop>.entries.first() (type-safe); el resto del mapa de samples; nombres camelCase."""
     args = ["id = 1L"]
-    for f in e["fields"]:
+    for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → entries.first) + `<campo>_id` (ref → 1L)
         if f["type"] == "enum":
             args.append(f"{_camel(f['name'])} = {e['name']}.{_pascal(f['name'])}.entries.first()")
         else:
@@ -2935,10 +3021,12 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
         TBL = _TBL(e)
         child = selfval is not None
         out = []
-        for f in e["fields"]:
+        for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum) + `<campo>_id` (id sin FK)
             COL = _COL(f["name"])
             alt = child and f.get("unique")     # el hijo difiere en sus UNIQUE (no viola el constraint)
-            if f["type"] == "ref":
+            if f.get("poly_id"):                               # FSK-POLYMORPHIC-REFS: id sin FK → muestra literal
+                out.append(f"set({TBL}.{COL}, 1L)")
+            elif f["type"] == "ref":
                 if f["to"] == e["name"]:                       # SELF-REF: raíz=NULL, hijo→raíz
                     if child:
                         out.append(f"set({TBL}.{COL}, {selfval})")
@@ -2977,7 +3065,8 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
         # FSK-XENTITY-CYCLES: los refs FORWARD de `e` (target declarado DESPUÉS) se cablean cuando TODAS las filas
         # existen (NULL-then-UPDATE) — los recolectamos acá y los wireamos tras el loop. No es self-ref (ese ya va arriba).
         fwd_refs.extend((e, f) for f in e["fields"]
-                        if f["type"] == "ref" and f["to"] != e["name"] and idx[f["to"]] > idx[e["name"]])
+                        if f["type"] == "ref" and not _is_poly(f)
+                        and f["to"] != e["name"] and idx[f["to"]] > idx[e["name"]])
     # el cableado del CICLO VIVO + diente de dos lados (s7): con TODAS las filas sembradas, una FK FORWARD apuntando
     # a una fila EXISTENTE round-trippea; una FK forward COLGANTE la RECHAZA la constraint DIFERIDA del migration.
     for e, f in fwd_refs:
@@ -3056,6 +3145,8 @@ def _ts_field_sample(f: dict, ids: dict) -> tuple[str, str]:
     (detecta reordenamiento) · int/number/date→muestra fija (string para date, como el contrato OpenAPI)."""
     t = f["type"]
     if t == "ref":
+        if f.get("poly_id"):   # FSK-POLYMORPHIC-REFS: id de un ref polimórfico (sin FK) → muestra literal
+            return "1", "1"
         v = str(ids[f["to"]])
         return v, v
     if t == "boolean":
@@ -3082,7 +3173,7 @@ def _ts_client_test(entities: list[dict]) -> str:
     for e in entities:
         var = e["name"].lower()
         props = [f"id: {ids[e['name']]}"]
-        for f in e["fields"]:
+        for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: fixture con las 2 sub-columnas (mismo orden que client.ts)
             lit, rep = _ts_field_sample(f, ids)
             props.append(f"{f['name']}: {lit}")
             expected.append(rep)
@@ -3144,7 +3235,9 @@ def _ui_index_html(bp: dict) -> str:
     sections = []
     for e in bp["entities"]:
         lc = e["name"].lower()
-        inputs = "".join(_ui_field(lc, f) for f in e["fields"])
+        # FSK-POLYMORPHIC-REFS: el ref polimórfico rinde 2 controles — un <select> de targets (`<campo>_type`) +
+        # un <input number> (`<campo>_id`); ambos accesibles (axe OK). _cols_of expande; sin poly queda idéntico.
+        inputs = "".join(_ui_field(lc, f) for f in _cols_of(e))
         sections.append(
             '    <section>\n'
             f'      <h2>New {e["name"]}</h2>\n'
@@ -3674,7 +3767,7 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
     ref_wiring = ref_wiring or {}
     tbl = _TBL(e)
     sets = []
-    for f in e["fields"]:
+    for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → muestra) + `<campo>_id` (id literal, sin FK)
         col = f"{tbl}.{_COL(f['name'])}"
         if owner_field and f["name"] == owner_field:   # fila ASIGNADA: el dueño = el principal capturado
             sets.append(f"set({col}, {owner_var})")
@@ -3687,8 +3780,11 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
             continue
         if not f.get("required", True):                # opcional (incl. el dueño en la fila RTD) → NULL
             continue
-        if f["type"] == "ref":                          # ref requerido no-dueño SIN cableado → raise honesto
-            raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "
+        if f["type"] == "ref":
+            if f.get("poly_id"):   # FSK-POLYMORPHIC-REFS: id de un ref polimórfico → muestra literal (sin FK ni cadena)
+                sets.append(f"set({col}, 1L)")
+                continue
+            raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "  # sin cableado
                              f"{f['name']!r} sin cableado (target no sembrable / ciclo — deferral honesto)")
         uvar = variant if f.get("unique") else 0
         sets.append(f"set({col}, {_sample(f, {}, alt=(alt and f.get('unique', False)), variant=uvar)})")
@@ -3707,7 +3803,7 @@ def _seed_deps(e: dict, by: dict, registry: dict, visiting: set, lines: list) ->
     owner = e.get("owned_by")
     wiring = {}
     for f in e["fields"]:
-        if f["type"] == "ref" and f.get("required", True) and f["name"] != owner:
+        if f["type"] == "ref" and not _is_poly(f) and f.get("required", True) and f["name"] != owner:
             wiring[f["name"]] = _ensure_seeded(by[f["to"]], by, registry, visiting, lines)
     return wiring
 
@@ -3740,7 +3836,7 @@ def _parse_fn(e: dict) -> str:
     coerce = {"string": 'str(o, "%s")', "int": 'int32(o, "%s")', "number": 'dbl(o, "%s")',
               "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
     args = []
-    for f in _input_fields(e):
+    for f in _input_cols(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → enumOf, discriminador) + `<campo>_id` (longOf)
         if f["type"] == "enum":
             expr = f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)'
         elif f["type"] == "string" and f.get("format"):   # FSK-CUSTOM-FIELDS: valida el VALOR (no sólo el tipo)
@@ -3761,7 +3857,7 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
     ownerless), y cada helper lo USA ≥1 parser → sin UnusedPrivateMember de detekt. Cada coerción es fail-closed:
     tipo equivocado / faltante / JSON inválido → excepción → runCatching → null → 400 (no 500, no traga). Usa
     kotlinx.serialization.json (dep INTENCIONAL de la fábrica, no viola ADR-012). Devuelve (kotlin, imports)."""
-    flds = [f for e in entities for f in _input_fields(e)]
+    flds = [f for e in entities for f in _input_cols(e)]   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly
     types = {f["type"] for f in flds}
     parts = ["private fun prim(o: JsonObject, k: String): JsonPrimitive = requireNotNull(o[k]) { k }.jsonPrimitive"]
     if {"string", "date", "enum"} & types:
@@ -4432,7 +4528,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     seed_ref_lines = "\n".join(_seed_chain(tvar[t["name"]], t) for t in ref_targets)
     seed_ref = ("\n" + seed_ref_lines) if seed_ref_lines else ""
     ref_map = ("mapOf(" + ", ".join(f'"{f["name"]}" to {tvar[f["to"]]}' for f in with_ref["fields"]
-                                    if f["type"] == "ref" and f.get("required", True)) + ")") if with_ref else "emptyMap()"
+                                    if f["type"] == "ref" and not _is_poly(f) and f.get("required", True))
+               + ")") if with_ref else "emptyMap()"   # FSK-POLYMORPHIC-REFS: el poly no es una FK de /seed
     # FSK-QTY-OPERATIONS: si la entidad with_ref declara verbos de STOCK, el server los MONTA sobre su handler
     # ownerless (RBAC-only, _ownerless_handlers ops=) y siembra una fila de stock (qtyId) con su(s) FK requerida(s)
     # —reusando los ref targets ya sembrados (tvar)— para que el proof ejercite el decremento + out-of-stock a
@@ -4440,7 +4537,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     wr_qty_ops = _qty_ops(with_ref) if with_ref else []
     if wr_qty_ops:
         wr_wiring = {f["name"]: tvar[f["to"]] for f in with_ref["fields"]
-                     if f["type"] == "ref" and f.get("required", True)}
+                     if f["type"] == "ref" and not _is_poly(f) and f.get("required", True)}
         seed_qty = "\n" + _seed_chain("qtyId", with_ref, ref_wiring=wr_wiring)
         qty_arg = ", qtyId"
         # la siembra de la fila de stock empuja seedRows >60 líneas (LongMethod): es un seeder GENERADO 1:1 con
@@ -4804,6 +4901,44 @@ _QTY_PROOF = '''
                           f"[qty] {qty_verb} sin stock (qty==0) -> 409 (out-of-stock)")'''
 
 
+# FSK-POLYMORPHIC-REFS: agrega al cuerpo `valid` del bloque with-ref las 2 keys del ref polimórfico — `<campo>_type`
+# (el 1er target = el DISCRIMINADOR) + `<campo>_id` (un id ARBITRARIO; no hay FK a la unión, wrinkle #1). El POST
+# del with-ref es requerido → DEBE incluirlas; el round-trip de ese bloque (valid.items()) ya las cruza (target[0]).
+# Va inmediatamente tras el cableado de las FKs del with-ref (12-space, dentro del `if WR_PLURAL:`). Opt-in: ""
+# sin poly → byte-idéntico. Define WR_POLY local (lo reusa el bloque de DOS lados, _POLY_PROOF, ya en scope).
+_WR_POLY_VALID = '''
+            WR_POLY = json.loads('%WR_POLY%')
+            for _p in WR_POLY:
+                valid[_p["field"] + "_type"] = _p["targets"][0]
+                valid[_p["field"] + "_id"] = 1'''
+
+
+# FSK-POLYMORPHIC-REFS: el DIENTE de DOS lados del ref polimórfico VIVO — el discriminador distingue >=2 targets.
+# La 1ra fila (target[0]) ya la cruzó el round-trip del bloque with-ref (valid trae `<campo>_type`/`<campo>_id`).
+# Aquí se POSTea una 2da fila con el 2do target -> GET la devuelve con tipo/id DISTINTOS. Degradar el rowJson del
+# discriminador (dropear/hardcodear `<campo>_type`) -> el GET no refleja el target posteado -> rojo SOLO en s9
+# (access_control_live). Reusa WR_POLY/WR_POST_SCALARS/WR_REF_FIELDS/seed_refs (en scope tras el `if WR_PLURAL:`).
+# Corre al final del try (8-space, como el bloque qty). Opt-in: "" sin poly -> el proof queda byte-idéntico.
+_POLY_PROOF = '''
+        # *** FSK-POLYMORPHIC-REFS: un ref a una UNION de entidades round-trippea (tipo, id); el discriminador ***
+        # distingue >=2 targets. POST una 2da fila con el 2do target -> GET devuelve el tipo/id posteados EXACTOS.
+        for _p in WR_POLY:
+            if len(_p["targets"]) >= 2:
+                _pb = dict(WR_POST_SCALARS)
+                for _rf in WR_REF_FIELDS:
+                    _pb[_rf] = seed_refs[_rf]
+                _pb[_p["field"] + "_type"] = _p["targets"][1]   # 2do target: el discriminador cambia
+                _pb[_p["field"] + "_id"] = 2
+                _ps, _pob = _send(base, "POST", WR_PLURAL, f"Bearer {WR_ALLOWED}:1", _pb)
+                ok &= _expect(_ps, 201, f"[poly] POST 2do target ({_p['targets'][1]}) -> 201")
+                _pid = _pob.get("id")
+                if _pid is not None:
+                    _prow = json.loads(_body(base, f"{WR_PLURAL}/{_pid}"))
+                    ok &= _expect_value(_prow.get(_p["field"] + "_type"), _p["targets"][1],
+                                        "[poly] GET ve el 2do tipo (el discriminador distingue el target)")
+                    ok &= _expect_value(_prow.get(_p["field"] + "_id"), 2, "[poly] GET ve el 2do id (round-trip)")'''
+
+
 # FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
 # que VIOLA la regla del campo → 400 (el codec `strFmt` lo rechaza a runtime, fail-closed) + el count NO cambia.
 # Saltear strFmt (aceptar cualquier string — p.ej. el patrón degradado a ".*") → 201 → rojo SÓLO en este check
@@ -4879,7 +5014,7 @@ def _access_control_check_py(bp: dict) -> str:
     # requeridos no-dueño (default/assets) → scalars == flds, owned_ref_fields == [] → cuerpos byte-idénticos.
     flds = _input_fields(owned)
     scalars = [f for f in flds if f["type"] != "ref"]
-    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref"]
+    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref" and not _is_poly(f)]
     post_body = {f["name"]: _proof_post_value(f) for f in scalars}
     bad_type_body = dict(post_body)
     bad_type_body[scalars[0]["name"]] = _proof_wrong_value(scalars[0])   # corromper SÓLO el tipo del 1er escalar
@@ -4906,8 +5041,16 @@ def _access_control_check_py(bp: dict) -> str:
     wr_forbidden = next((r for r in bp["roles"] if r not in wr["write_roles"]), "") if wr else ""
     wr_flds = _input_fields(wr) if wr else []
     wr_scalars = {f["name"]: _proof_post_value(f) for f in wr_flds if f["type"] != "ref"}
-    wr_ref_fields = [f["name"] for f in wr_flds if f["type"] == "ref"]   # el id viene de /seed refs (FK válida)
+    wr_ref_fields = [f["name"] for f in wr_flds
+                     if f["type"] == "ref" and not _is_poly(f)]   # el id viene de /seed refs (FK válida)
     wr_bad = {wr_flds[0]["name"]: _proof_wrong_value(wr_flds[0])} if wr_flds else {}
+    # FSK-POLYMORPHIC-REFS: los refs POLIMÓRFICOS de la entidad with_ref (ref a una UNIÓN). El cuerpo del POST lleva
+    # `<campo>_type` (un nombre de target) + `<campo>_id` (un id ARBITRARIO — no hay FK a la unión, wrinkle #1); GET
+    # los devuelve EXACTOS, distinguiendo el target. Opt-in: sin poly → "" → el proof queda byte-idéntico.
+    wr_poly = [f for f in wr_flds if _is_poly(f)] if wr else []
+    wr_poly_data = [{"field": f["name"], "targets": list(f["to"])} for f in wr_poly]
+    wr_poly_valid = _WR_POLY_VALID if wr_poly else ""
+    wr_poly_block = _POLY_PROOF if wr_poly else ""
     # FSK-QTY-OPERATIONS: el diente del verbo de STOCK VIVO sobre la entidad with_ref (RBAC-only) — sólo si ésta
     # declara verbos qty. QTY_VERB = el 1er verbo de stock; QTY_FIELD = el campo `int` que decrementa. El server
     # sembró la fila qtyId. Opt-in: sin verbos qty → "" → el proof queda byte-idéntico.
@@ -4955,6 +5098,9 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%QTY_BLOCK%", qty_block)
             .replace("%QTY_VERB%", qty_verb)
             .replace("%QTY_FIELD%", qty_field)
+            .replace("%WR_POLY_VALID%", wr_poly_valid)   # FSK-POLYMORPHIC-REFS: 1ro insertan los bloques (con %WR_POLY%),
+            .replace("%WR_POLY_BLOCK%", wr_poly_block)
+            .replace("%WR_POLY%", json.dumps(wr_poly_data))   # …luego se rellena el DATA (no-op sin poly: "" → sin %WR_POLY%)
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
@@ -5193,7 +5339,7 @@ def main(argv: list) -> int:
             seed_refs = seed.get("refs", {})
             valid = dict(WR_POST_SCALARS)
             for rf in WR_REF_FIELDS:
-                valid[rf] = seed_refs[rf]   # FK VALIDA: el id del target sembrado que /seed expone
+                valid[rf] = seed_refs[rf]   # FK VALIDA: el id del target sembrado que /seed expone%WR_POLY_VALID%
             w0 = _count_at(base, WR_PLURAL)
             if WR_FORBIDDEN:
                 ok &= _expect(_send(base, "POST", WR_PLURAL, f"Bearer {WR_FORBIDDEN}:1", valid)[0], 403,
@@ -5219,7 +5365,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%%WR_POLY_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
@@ -5256,7 +5402,7 @@ def _consume_check_ts(bp: dict) -> str:
     # (default/assets) → scalars == flds, owned_ref_fields == [] → cuerpos + merge byte-idénticos.
     flds = _input_fields(owned)
     scalars = [f for f in flds if f["type"] != "ref"]
-    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref"]
+    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref" and not _is_poly(f)]  # FSK-POLYMORPHIC-REFS
     post_body = {f["name"]: _proof_post_value(f) for f in scalars}
     bad_body = dict(post_body)
     bad_body[scalars[0]["name"]] = _proof_wrong_value(scalars[0])   # corromper SÓLO el tipo del 1er escalar → 400

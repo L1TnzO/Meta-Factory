@@ -11,10 +11,11 @@
 # `git diff src/metafactory/ + seed/` = 0 (el producto no toca el sustrato; ADR-012).
 #
 # ── RESTRICCIONES DE FSK que ordenan este archivo (probadas leyendo el codegen) ─────────
-# 1. ORDEN TOPOLÓGICO: el migration emite `REFERENCES` para TODO ref (req u opcional) en
-#    orden de declaración → todo `ref` apunta a una entidad declarada ANTES (o a sí misma).
-#    Los ciclos de Snipe-IT (Location↔User, User↔Department) se rompen quitando el lado
-#    débil (ver SNIPEIT-DOMAIN.md §gaps): Location/Department NO referencian a User.
+# 1. ORDEN TOPOLÓGICO (relajado por FSK-XENTITY-CYCLES): un ref BACKWARD/self emite la FK inline
+#    `REFERENCES` en orden de declaración; un ref FORWARD (target declarado DESPUÉS, p.ej. el ciclo
+#    Location↔User vía Location.manager_id→User) emite la FK como constraint DIFERIDA (ALTER TABLE
+#    tras crear ambas tablas) + seed NULL-then-UPDATE → el forward DEBE ser opcional. Los ciclos de
+#    Snipe-IT (Location↔User, User↔Department) están RESTAURADOS (ver SNIPEIT-DOMAIN.md §3 deferral 6).
 # 2. OWNER REQUERIDO: el campo `owned_by` de Asset DEBE ser `required: true` — el guard
 #    `OwnershipGuard.canModify(rowOwnerId: Long)` es no-nullable. En Snipe-IT un asset RTD
 #    está SIN asignar (dueño nulo); acá la asignación es obligatoria → gap documentado.
@@ -97,21 +98,23 @@ entities:
       - { name: use_default_eula, type: boolean, required: false }
 
   - name: Location           # En Snipe-IT Location tiene parent_id→Location (jerarquía) y manager_id→User.
-    write_roles: [superadmin, admin]   # parent_id (self-ref, jerarquía de ubicaciones) RE-HABILITADO (FSK-SELF-REF).
-    fields:                            # manager_id→User SIGUE diferido: rompería el ciclo Location↔User (§3 deferral 6).
-      - { name: name, type: string }
-      - { name: city, type: string, required: false }
-      - { name: state, type: string, required: false }
+    write_roles: [superadmin, admin]   # parent_id (self-ref) RE-HABILITADO (FSK-SELF-REF); manager_id→User
+    fields:                            # RE-HABILITADO (FSK-XENTITY-CYCLES): cierra el ciclo Location↔User
+      - { name: name, type: string }   # (User.location_id→Location). User se declara DESPUÉS → ref FORWARD →
+      - { name: city, type: string, required: false }     # FK como constraint DIFERIDA (ALTER) + seed NULL-then-UPDATE;
+      - { name: state, type: string, required: false }    # forward DEBE ser opcional (un lado del ciclo sin orden de seed).
       - { name: country, type: string, required: false }
       - { name: zip, type: string, required: false }
       - { name: parent_id, type: ref, to: Location, required: false }   # self-ref: jerarquía de ubicaciones (FSK-SELF-REF)
+      - { name: manager_id, type: ref, to: User, required: false }      # forward/cíclico → User (FSK-XENTITY-CYCLES)
 
-  - name: Department         # En Snipe-IT Department también tiene manager_id→User: SE QUITA para
-    write_roles: [superadmin, admin]   # romper el ciclo User↔Department (User.department_id→Department).
-    fields:
+  - name: Department         # En Snipe-IT Department tiene manager_id→User: RE-HABILITADO (FSK-XENTITY-CYCLES)
+    write_roles: [superadmin, admin]   # — cierra el ciclo User↔Department (User.department_id→Department). User se
+    fields:                            # declara DESPUÉS → ref FORWARD → FK DIFERIDA (ALTER) + seed NULL-then-UPDATE.
       - { name: name, type: string }
       - { name: company_id, type: ref, to: Company, required: false }
       - { name: location_id, type: ref, to: Location, required: false }
+      - { name: manager_id, type: ref, to: User, required: false }      # forward/cíclico → User (FSK-XENTITY-CYCLES)
 
   - name: User               # DUEÑO de los activos (principal de ownership, FSK-S14/S15). Por la
     write_roles: [superadmin, admin]   # restricción de seed del server vivo, NO tiene refs REQUERIDOS.

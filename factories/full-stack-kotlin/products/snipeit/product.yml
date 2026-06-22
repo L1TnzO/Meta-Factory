@@ -253,6 +253,16 @@ entities:
       - { name: location_id, type: ref, to: Location, required: false }
       - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
       - { name: supplier_id, type: ref, to: Supplier, required: false }
+      # REF POLIMÓRFICO (FSK-POLYMORPHIC-REFS, deferral 2): el TARGET de un checkout en Snipe-IT es POLIMÓRFICO —
+      # se asigna a un User O una Location O un Asset (la entidad accessories_checkout lleva assigned_type +
+      # assigned_to). Acá se modela esa primitiva sobre el ACCESSORY servido (la entidad with_ref viva, donde el
+      # round-trip a runtime es observable): `to` es una LISTA → el campo se materializa como DOS columnas
+      # `checkout_target_type` (discriminador, enum cerrado de los targets) + `checkout_target_id` (id, BIGINT SIN
+      # FK — no hay integridad a una unión, wrinkle #1). El server vivo round-trippea (tipo, id) y el GET los
+      # devuelve EXACTOS, distinguiendo el target. Requerido para que entre al cuerpo del POST (el diente VIVO).
+      # Lo faithful pleno (el `assigns` polimórfico del verbo checkout + el assigned_to polimórfico de Asset —que ES
+      # su owner, wrinkle #3—) sigue diferido (1er-cut = la primitiva sola). Ver SNIPEIT-DOMAIN.md §3 deferral 2.
+      - { name: checkout_target, type: ref, to: [User, Location, Asset] }
 
   - name: AccessoryCheckout  # el pivot accessories_checkout como ENTIDAD. En Snipe-IT el target es
     write_roles: [superadmin, admin, manager]   # polimórfico (User|Location|Asset) → acá se simplifica a User (gap).

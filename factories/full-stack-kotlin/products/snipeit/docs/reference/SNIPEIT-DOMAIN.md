@@ -138,11 +138,17 @@ Cada uno es deliberado y visible. Los marcados **[GAP-FÁBRICA]** son límites d
 GENERAL (codegen+spec, `git diff src/+seed=0`) debería levantar — driven por este producto (P1 §4), no
 especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptadas para la réplica.
 
-1. **Custom fields dinámicos** [GAP-FÁBRICA, alto impacto]. Snipe-IT permite campos definidos por el usuario,
-   almacenados como columnas `_snipeit_<x>` agregadas dinámicamente a `assets` (EAV-como-columnas), agrupados
-   en CustomFieldset y ligados a modelos. FSK tiene campos FIJOS por entidad. **Diferido entero**: el blueprint
-   no modela CustomField/CustomFieldset. Levantar esto pide gramática nueva (campos dinámicos / sub-esquema
-   por modelo) — es probablemente el eje de fábrica más grande que Snipe-IT fuerza.
+1. **Custom fields** [GAP-FÁBRICA, alto impacto]. **Sub-eje `format`/validación ✓ HECHO (FSK-CUSTOM-FIELDS, Avenue A,
+   2026-06-22)**; **EAV dinámico a runtime (Avenue B) DIFERIDO y VISIBLE**. Snipe-IT permite campos definidos por el
+   usuario, con un TIPO + un **`format`** (regla de validación: MAC/IP/EMAIL/URL/NUMERIC/ALPHA), almacenados como
+   columnas `_snipeit_<x>` agregadas dinámicamente a `assets` (EAV-como-columnas), agrupados en CustomFieldset y ligados
+   a modelos. **Levantado (Avenue A)**: un campo `string` DECLARADO en el blueprint gana `format: <nombre>` (vocabulario
+   cerrado) → el server vivo VALIDA el valor a runtime (no-match → 400, fail-closed, vía el codec `strFmt`); GENERAL,
+   `git diff src/+seed=0`, opt-in/byte-neutro. snipeit adoptó `Asset.mac_address` (format MAC). **DIFERIDO (Avenue B)**:
+   la DEFINICIÓN-A-RUNTIME (un admin crea campos sin re-generar — EAV genérico `custom_field_values` o columnas
+   dinámicas) choca con el modelo tipado-en-compile de FSK (jOOQ tipa los queries DESDE el schema build-time); es un
+   cambio de ARQUITECTURA, no aditivo. También diferidos: fieldset↔model como entidad de definición, `field_values`
+   (select de opciones — hoy expresable como `enum`), `encrypted`. Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md`.
 
 2. **Checkout polimórfico** (Asset/Accessory `assigned_to` → User|Location|Asset) [SIMPLIF + GAP-FÁBRICA].
    FSK `ref` apunta a UNA entidad. Se simplificó a **User** (el caso dominante). Para fidelidad plena se
@@ -235,13 +241,19 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    (`status` + asigna/limpia `assigned_user_id`); estado inválido → 409; diente de dos lados VIVO (s9). El 1er eje de
    COMPORTAMIENTO; cierra el over-claim "workflow enforced". Sub-eje diferido: la semántica con CANTIDADES
    (decrementar `qty`, liberar seat).
-6. **Custom fields dinámicos** (deferral 1) — **SIGUIENTE, el eje GRANDE**: campos definidos por usuario por
-   modelo (EAV-como-columnas). Probablemente el mayor eje de fábrica que Snipe-IT fuerza — gramática de campos
-   dinámicos / schema build-time-declarado vs runtime. Mayor riesgo de diseño → va tras el eje de comportamiento.
-   Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md` (handoff abierto).
-7. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
-   AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2) ·
-   cantidades (qty decrement en checkout de Accessory/Consumable).
+6. ~~**Custom fields** (deferral 1, el eje GRANDE)~~ **✓ HECHO (sub-eje `format`/validación, FSK-CUSTOM-FIELDS,
+   Avenue A, 2026-06-22)**: un campo `string` gana `format: <nombre>` (MAC/IP/EMAIL/URL/NUMERIC/ALPHA) → el server vivo
+   VALIDA el valor a runtime (no-match → 400). snipeit adoptó `Asset.mac_address` (format MAC); diente de dos lados VIVO
+   (s9). **EAV dinámico a runtime (Avenue B) DIFERIDO** (schema build-time vs runtime). Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md §Evidencia`.
+7. **Ciclos cross-entidad** (deferral 6) — **SIGUIENTE (FSK-XENTITY-CYCLES, abierto)**: el 1er eje de CICLO en el grafo.
+   Hoy todo `ref` apunta a una entidad declarada ANTES (el migration emite `REFERENCES` en orden de declaración); los
+   ciclos de Snipe-IT (Location/Department.manager_id→User con User declarado DESPUÉS) están rotos quitando el lado
+   débil. Levantarlo pide FK forward/cíclica como constraint DIFERIDA (`ALTER TABLE ADD CONSTRAINT` tras crear ambas
+   tablas) + seed NULL-then-UPDATE (el ref forward debe ser OPCIONAL). Bounded, faithful, distinto a lo hecho (es
+   SCHEMA, no access-control). Ver `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md` (handoff abierto).
+8. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+   AppServer-en-contenedor con PG · checkout polimórfico (deferral 2) · cantidades (qty decrement en checkout de
+   Accessory/Consumable — sub-eje de los verbos) · company-scoping (deferral 8) · EAV dinámico a runtime (Avenue B).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

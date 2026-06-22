@@ -1,7 +1,8 @@
 # Incremento FSK-CUSTOM-FIELDS — campos personalizados por modelo (el EJE GRANDE)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T13:50Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-22T14:31Z) — Avenue A, **sub-eje `format`/validación** entregado (ver §Evidencia al final). El EAV
+> dinámico a runtime (Avenue B) sigue DIFERIDO y VISIBLE. Creado 2026-06-22T13:50Z. El `increment status` lee este header **o**
 > con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
@@ -161,3 +162,55 @@ Orden del push Snipe-IT (`products/snipeit/docs/reference/SNIPEIT-DOMAIN.md §4`
 - **diferidos DUROS** (red/scope): push a un registry · e2e Playwright · AppServer-en-contenedor con PG · ciclos
   cross-entidad (deferral 6) · checkout polimórfico (deferral 2) · **cantidades** (qty decrement en checkout de
   Accessory/Consumable) · EAV dinámico a runtime (Avenue B) si no se abarcó acá.
+
+---
+
+## Evidencia (CERRADO 2026-06-22T14:31Z) — Avenue A, sub-eje `format`/validación
+
+**Qué se entregó (la DECISIÓN del §★ resuelta = Avenue A, el sub-eje `format`).** Un campo `string` del blueprint
+gana un modifier OPCIONAL `format: <nombre>` (vocabulario CERRADO: `numeric`/`alpha`/`email`/`url`/`ip`/`mac`) — la
+REGLA DE VALIDACIÓN del VALOR, el aporte nuevo de un custom field sobre un string normal. El codegen la emite y un
+gate la PRUEBA por bloqueo. Los campos se DECLARAN en DATA (no se crean a runtime); el EAV dinámico (Avenue B) queda
+diferido y VISIBLE (deferral 1 / SNIPEIT-DOMAIN §3 #1). **El EJE GRANDE, acotado a un increment honesto** (handoff §★).
+
+**El mecanismo (todo GENERAL, `git diff src/metafactory + seed = 0`; cero nombres de dominio):**
+- **Gramática + vocabulario cerrado** (`scaffold_product.py`): `_FORMAT_REGEX` (nombre→patrón regex). Validación
+  fail-closed en `_load_blueprint`: `format` sólo sobre `string`; el nombre ∈ `_FORMAT_REGEX` (un format fantasma →
+  `raise`), mismo patrón que el guard de tipos/operations.
+- **El codec a RUNTIME** (`_codec_helpers`/`_parse_fn`): un string con `format` se parsea con `strFmt(o, k, FMT_<NAME>)`
+  — `val s = str(o, k); require(re.matches(s)) { k }` → un valor que no matchea el patrón (match COMPLETO) → excepción
+  → `runCatching` → null → **400** (compone sobre el body-parsing de FSK-CRUD-BODY-PARSING; `Regex` es default-import
+  de `kotlin.text` → sin import nuevo). Un `FMT_<NAME>` por format USADO (dedup/sorted, raw-string), cada uno ≥1 parser
+  (sin `UnusedPrivateMember`).
+- **El contrato** (`_oapi_inline`): un string con `format` documenta la regla como vendor extension `x-format: <nombre>`
+  (como `x-transitions`/`x-required-roles`/`x-owned-by`; openapi-generator/openapi-typescript la IGNORAN — el contrato
+  sigue parseando) → fuente inspectable de "qué regla valida ese campo" (DES-6).
+- **El proof** (`_access_control_check_py`): bloque opt-in `%BAD_FORMAT_BLOCK%` — un cuerpo VÁLIDO de tipo (string)
+  pero que VIOLA el format → **400** + el count NO cambia. Los samples del POST/FORM (`_proof_post_value`/
+  `_proof_form_value` vía `_format_sample`) pasan a ser valores VÁLIDOS para el format (si no, el POST normal 201 se
+  rompería).
+
+**Opt-in/byte-neutro** (verificado por EYEBALL importlib HEAD vs working, sin gradle): **default + assets 68/68
+byte-idénticos** (un campo sin `format` → contrato/codec/proof byte-idénticos). `git diff` default+assets product.yml
+= 0. **`proof_sha` INTACTO → SIN re-pin** (la regla vive DENTRO de `access_control_live`/s9 + s0 compile + s5
+route_check, ya pineados; pin snipeit/assets/default sin tocar).
+
+**Adopción PRODUCTO** (ADR-016, incremento `CUSTOM-FIELDS-ADOPT` aparte): snipeit `Asset` gana
+`{ name: mac_address, type: string, format: mac }` (REQUERIDO → el server vivo lo lee del cuerpo, `_input_fields`) —
+el custom field canónico de Snipe-IT ("MAC Address" con format MAC).
+
+**Verde, no fingido (POR BLOQUEO):**
+- `product-run --product snipeit` **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless; el format NO
+  agrega requisito → se prueba dentro de `access_control_live`, sin over-claim).
+- **Diente de DOS lados VIVO** (s9): degradé el patrón `FMT_MAC` a `.*` (acepta cualquier string — flip de codegen
+  que NO introduce hallazgo estático, la línea llegó a s9) → `observability_live ok · access_control_live FAIL(1) ·
+  frontend_consume_live ok` (el POST de formato inválido pasó de 400 a 201) → revertí → **PASS**.
+- `ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11** == pin (clones limpios). `meta check` **6/6**
+  (`generality` verde). `git diff src/metafactory + seed = 0`.
+
+**Lección destilada (de las del §3):** el sabotaje que muerde a RUNTIME sin tocar lo estático fue **degradar el
+PATRÓN** (`FMT_MAC = Regex(".*")`) — `re` sigue usado, ningún símbolo no-usado, ningún MagicNumber (los `{n}` viven
+dentro del string literal del regex). Idéntico espíritu al `canTransition` de FSK-DOMAIN-OPS.
+
+**Commits:** `feat(fsk): FSK-CUSTOM-FIELDS — format/validación de campo (Avenue A)` · `feat(snipeit): Asset.mac_address
+format:mac` · `docs(fsk): cerrar FSK-CUSTOM-FIELDS + CUSTOM-FIELDS-ADOPT (§Evidencia) + abrir FSK-XENTITY-CYCLES`.

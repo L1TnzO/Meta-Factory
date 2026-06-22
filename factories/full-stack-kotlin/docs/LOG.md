@@ -1,6 +1,33 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T14:31Z — FSK-CUSTOM-FIELDS ✅: campos personalizados con `format`/validación (Avenue A) — el EJE GRANDE, acotado
+- **El eje GRANDE de Snipe-IT (custom fields, deferral 1), entregado ACOTADO** (handoff §★): resuelta la decisión de
+  diseño = **Avenue A** (campos DECLARADOS en el blueprint) **sub-eje `format`/validación**. Un campo `string` gana un
+  modifier OPCIONAL `format: <nombre>` (vocabulario CERRADO `numeric`/`alpha`/`email`/`url`/`ip`/`mac`) — la REGLA DE
+  VALIDACIÓN del VALOR, el aporte NUEVO de un custom field sobre un string normal. El **EAV dinámico a runtime
+  (Avenue B)** sigue DIFERIDO y VISIBLE (la tensión schema build-time vs runtime no se resuelve por inercia).
+- **Levantado GENERAL** (codegen de fábrica, `generality` verde, `git diff src/+seed=0`), opt-in/byte-neutro:
+  - **Gramática + vocabulario cerrado**: `_FORMAT_REGEX` (nombre→patrón). Validación fail-closed en `_load_blueprint`
+    (`format` sólo sobre `string`; nombre ∈ `_FORMAT_REGEX`; format fantasma → `raise`).
+  - **El codec a RUNTIME** (`_codec_helpers`/`_parse_fn`): un string con `format` se parsea con `strFmt(o, k,
+    FMT_<NAME>)` = `require(re.matches(s))` → no-match (match COMPLETO) → null → **400** (compone sobre
+    FSK-CRUD-BODY-PARSING; `Regex` default-import → sin import nuevo; un `FMT_<NAME>` por format usado, dedup/sorted).
+  - **El contrato** (`_oapi_inline`): `x-format: <nombre>` vendor extension (openapi-generator/openapi-typescript la
+    IGNORAN), fuente inspectable de la regla (DES-6).
+  - **El proof** (`_access_control_check_py`): bloque opt-in `%BAD_FORMAT_BLOCK%` — cuerpo válido de TIPO pero que
+    VIOLA el format → 400 + count sin cambiar; los samples del POST/FORM pasan a valores VÁLIDOS para el format.
+- **Opt-in/byte-neutro** (EYEBALL importlib HEAD vs working, sin gradle): default+assets **68/68 byte-idénticos**;
+  default+assets product.yml = 0. **`proof_sha` INTACTO → SIN re-pin** (la regla vive dentro de `access_control_live`/
+  s9 + s0 + s5, ya pineados). **No agrega requisito** (se prueba dentro de `access_control_live`, sin over-claim).
+- **Adopción PRODUCTO** (ADR-016, incremento `CUSTOM-FIELDS-ADOPT`): snipeit `Asset` gana `{ name: mac_address, type:
+  string, format: mac }` (requerido) — el custom field canónico de Snipe-IT ("MAC Address", format MAC).
+- **Verde, no fingido**: `product-run --product snipeit` **PASS** · RTM **24/25** · **diente de DOS lados VIVO** (s9:
+  `FMT_MAC` degradado a `.*` → `observability_live ok · access_control_live FAIL(1) · frontend_consume_live ok` →
+  revertí → PASS) · `ci --rederive` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde). **Lección**: el
+  sabotaje que muerde a RUNTIME sin tocar lo estático fue degradar el PATRÓN (`re` sigue usado, los `{n}` viven dentro
+  del string del regex → no MagicNumber). Detalle: `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md §Evidencia`.
+
 ## 2026-06-22T13:45Z — FSK-DOMAIN-OPS ✅: verbos de DOMINIO (checkout/checkin) — el 1er eje de COMPORTAMIENTO
 - **El primer eje de COMPORTAMIENTO tras 4 ejes de MODELO-DE-DATOS** (CRUD · self-ref · ownership opcional · refs
   requeridos). En Snipe-IT la operación CENTRAL no es un PUT genérico: es **checkout** (asignar un activo a un usuario:

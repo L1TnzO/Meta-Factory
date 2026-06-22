@@ -141,18 +141,34 @@
   revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive --all-products` 12/12·11/11·11/11 == pin · `meta
   check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle:
   `docs/work/FSK-DOMAIN-OPS-INCREMENT.md §Evidencia`.
+- **CUSTOM FIELDS con FORMAT / validación — el eje GRANDE, ACOTADO, GENERAL (FSK-CUSTOM-FIELDS, 2026-06-22)**: el mayor
+  eje de fábrica que Snipe-IT fuerza (deferral 1), entregado acotado. Resuelta la decisión de diseño = **Avenue A**
+  (campos DECLARADOS en el blueprint) **sub-eje `format`/validación**: un campo `string` gana un modifier OPCIONAL
+  `format: <nombre>` (vocabulario CERRADO `numeric`/`alpha`/`email`/`url`/`ip`/`mac`) — la REGLA DE VALIDACIÓN del
+  VALOR (el aporte NUEVO de un custom field sobre un string normal). El codegen la emite (`_FORMAT_REGEX` + validación
+  fail-closed en `_load_blueprint`; el codec `strFmt(o, k, FMT_<NAME>)` = `require(re.matches(s))` → no-match → null →
+  **400**, compone sobre FSK-CRUD-BODY-PARSING; `x-format` en el contrato, DES-6) y un gate la PRUEBA. El **EAV
+  dinámico a runtime (Avenue B)** sigue DIFERIDO y VISIBLE (schema build-time vs runtime). **Opt-in/byte-neutro**
+  (default+assets 68/68 byte-idénticos; **`proof_sha` intacto → SIN re-pin**; no agrega requisito → se prueba dentro de
+  `access_control_live`). **Adopción PRODUCTO** (ADR-016): snipeit `Asset` gana `mac_address` (string, format: mac,
+  requerido) — el custom field canónico de Snipe-IT. Diente de DOS lados VIVO (s9: `FMT_MAC` degradado a `.*` → **SÓLO**
+  `access_control_live` rojo, hermanos verdes; revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive`
+  12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets
+  product.yml = 0.** Detalle: `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
   humano** (monta en DOM + FORM que postea) → y **deploya en un contenedor que responde**. **El último hueco
   claramente-FSK-general (deploy) está cerrado.** Lo que QUEDA:
   - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
-    `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico ·
-    ~~RTD/owner-opcional~~ **✓ hecho FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos
-    no-dueño / seed transitivo~~ **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho
-    FSK-DOMAIN-OPS** · depreciación calculada · company-scoping · …).
-    **SIGUIENTE = custom-fields dinámicos (FSK-CUSTOM-FIELDS, abierto)** — el eje GRANDE (campos por modelo, schema
-    build-time vs runtime); es el mayor eje de fábrica que Snipe-IT fuerza. **Metodología probada**:
+    `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (~~custom-fields (format/validación)~~ **✓ hecho FSK-CUSTOM-FIELDS
+    (Avenue A); EAV dinámico/Avenue B diferido** · checkout polimórfico · ~~RTD/owner-opcional~~ **✓ hecho
+    FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
+    **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
+    depreciación calculada · company-scoping · …).
+    **SIGUIENTE = ciclos cross-entidad (FSK-XENTITY-CYCLES, abierto, deferral 6)** — el 1er eje de CICLO en el grafo
+    (FK forward/cíclica → constraint diferida + seed NULL-then-UPDATE; restaura Location/Department/User.manager_id→User,
+    faithful). Alternativas framed en el handoff: cantidades (qty) · company-scoping. **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

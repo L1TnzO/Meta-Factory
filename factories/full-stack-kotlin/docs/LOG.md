@@ -1,6 +1,39 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T00:06Z — FSK-DEPLOY ✅: la imagen del producto se CONSTRUYE y el contenedor RESPONDE /health VIVO
+- **Cierra la ÚLTIMA media-verdad FSK**: hasta s10 el `Dockerfile` se SHIPPEA y `hermetic_build` verifica el PIN de
+  la base por **grep**, pero **NADIE construía la imagen ni levantaba el contenedor** (la misma media-verdad que
+  browser-form cerró para la UI, pero para el deploy). Ahora la imagen **se CONSTRUYE de verdad** (`docker build`) y
+  el **contenedor LEVANTA y RESPONDE** `{"status":"UP"}` en `/health`. Tras esto **FSK está MADURO** → el trabajo
+  pasa a ser product-specific (Snipe-IT).
+- **Decisión §3 — había RED → opción (A)**: el `DOCKER_BASE_DIGEST` placeholder ficticio se reemplazó por el
+  **digest REAL** de `eclipse-temurin:21-jre` (`sha256:8ec353b2…684603`); la base se pulleó UNA vez (cacheada local →
+  `docker build` resuelve offline después, como las `postgres@sha256:` de s9). El **push a un registry** (credenciales
+  + red sostenida) sigue declared-deferred.
+- **Deliverable (FÁBRICA, GENERAL — `codegen/scaffold_product.py` + `factory.spec.yml` + `stations/`, cero nombres de
+  dominio)**: (a) consts `DEPLOY_PORT=18596`/`DEPLOY_IMAGE` + `DOCKER_BASE_DIGEST` real; (b) **`_deploy_check_py()`**
+  (proof stdlib urllib, le pega `/health` y exige UP — idiom de `obs_check.py`) emitido como `tools/deploy_check.py`;
+  (c) **estación `s11`** (`depends_on: [s10]`) con check **`deploy_smoke` kind `infra_up`**: `bootstrap` =
+  `installDist` + `docker build -q -t fsk_s11_deploy .` + `docker run -d -p 18596:18593`; `up: []` (el contenedor ES
+  el servicio); `proof` = `deploy_check.py /health`; `down` = `docker rm -f`; (d) capability **`deploy_vivo`** (DES-1,
+  artifact `Dockerfile`) + **REQ-NF-008**; (e) el ENTRYPOINT del dist = `bin/<pkg>` = **ObsServerKt PG-free** → el
+  smoke NO necesita PostgreSQL (AppServer-en-contenedor con PG = scope mayor, diferido).
+- **Diente de DOS lados VIVO**: (1) NATIVO de `infra_up` — contenedor caído tras teardown → el MISMO proof re-corrido
+  falla (lo ejerce cada corrida verde); (2) saboteado el `ENTRYPOINT` (`/app/bin/NONEXISTENT`) → `meta verify` (re-
+  corre s11) → **`deploy_smoke FAIL(127)`, gate s11 SHUT** (docker no arranca el contenedor) → restaurado (re-emit) →
+  **verde**. El contenedor sano loguea `FSK_OBS_LISTENING 18593`.
+- **Verde (no fingido)**: 3 product-run PASS (default·assets·snipeit, foreground) · `ci --rederive --all-products`
+  **12/12 · 11/11 · 11/11 == pin** (byte-idéntico CON s11) · `meta check` **6/6** (`generality` verde) · `git diff
+  src/metafactory + seed = 0` · `git diff product.yml = 0` · RTM default **24→25 COMPLETE**.
+- **⚠️ Lecciones para la próxima sesión**: (i) el DEFAULT **NO re-materializa** `stations/` (lee los committeados); un
+  check/estación NUEVO → re-materializar a mano (`_materialize_line` sobre la fábrica) + re-pinear los 3. **Pero**
+  re-materializar TODO sobrescribe el comentario hand-edit de `s0.yml` (nota R1 del fallback `cg=codegen`) →
+  restaurar `s0.yml` y quedarse SÓLO con `s11.yml` nuevo. (ii) `meta verify` re-corre la ESTACIÓN ACTIVA con
+  `build=False` → ideal para el sabotaje (no regenera el artefacto). (iii) en docker 29.x `docker run -d` con
+  ENTRYPOINT roto devuelve **127** en el bootstrap (fail-fast, mejor que esperar el timeout del proof).
+- Detalle de cierre: `docs/work/FSK-DEPLOY-INCREMENT.md §Evidencia`.
+
 ## 2026-06-21T21:59Z — FSK-BROWSER-FORM ✅: la UI se MONTA en un DOM real (jsdom) + un FORM postea vía el cliente vivo
 - **Cierra el hueco de "UI media-verdad"**: el cliente `fetch`eaba de verdad y el render producía markup como
   STRING, pero **nada montaba ese markup en un DOM ni había un FORM** para crear una fila (el proof corría en `node`

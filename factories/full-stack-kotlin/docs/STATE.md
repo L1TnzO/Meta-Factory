@@ -67,16 +67,36 @@
   (`frontend_render_live`). Diente de DOS lados verificado VIVO (saboteé el re-render del submit → **SÓLO**
   `frontend_consume_live` rojo, hermanos `observability_live`+`access_control_live` verdes; revertí→verde). Sustrato
   (`src/metafactory/`+`seed/`)=0; `product.yml`=0. Detalle: `docs/work/FSK-BROWSER-FORM-INCREMENT.md §Evidencia`.
-- **Sigue** (huecos honestos → próximos incrementos): **deploy real — el `Dockerfile` se GENERA (base pineada por
-  digest) pero no se levanta/verifica vivo**: BUILDear la imagen + smoke-test contra el contenedor (docker ya está
-  vía el infra_up de s9/MAT-3; build+push a un registry sigue diferido por red) — **el siguiente eje de mayor palanca:
-  el último hueco FSK-general antes de que el trabajo sea product-specific** · **e2e Playwright** (browser real,
-  diferido por red para el binario) · **CRUD/FORM de TODAS las entidades vivas** (hoy form sólo para la entidad con
-  dueño; ownerless y con-ref difieren, mismo patrón) · edición/borrado desde la UI (hoy CREATE+LIST) · cadenas de refs
-  de profundidad >1 (Task→Project→User) · self-refs (`Location.parent_id`) · refs polimórficos · refs OPCIONALES del
-  body · PUT/update ownerless · UNIQUE-from-body→409 · custom-fields. **La capa de DATOS de Snipe-IT está COMPLETA y la
-  UI es usable por un humano**; lo único que separa de un Snipe-IT *deployado* es el deploy real. Después, lo que QUEDA
-  es product-specific (los 12 deferrals de `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md`).
+- **DEPLOY VIVO — la imagen se CONSTRUYE y el contenedor RESPONDE (FSK-DEPLOY, 2026-06-22)**: la receta de deploy
+  dejó de ser una media-verdad (hasta s10 el `Dockerfile` se SHIPPEA y `hermetic_build` verifica el PIN de la base por
+  grep, pero **nadie construía la imagen ni levantaba el contenedor**). Ahora un gate nuevo **`deploy_smoke` (estación
+  **s11**, `infra_up`, `depends_on: [s10]`)** corre `installDist` + **`docker build`** (Dockerfile generado, base
+  `eclipse-temurin:21-jre` pineada por **digest REAL** cacheado) + **`docker run -d`** del contenedor, y un proof
+  client stdlib (`tools/deploy_check.py`, urllib) le pega **`/health`** y exige **`{"status":"UP"}`**. El ENTRYPOINT
+  del dist = `bin/<pkg>` = **ObsServerKt PG-free** → el smoke NO necesita PostgreSQL (AppServer-en-contenedor con PG =
+  scope mayor, diferido). docker es **DATA** (mismo idiom que la PG viva de s9, ADR-012). Diente de DOS lados: NATIVO
+  de `infra_up` (contenedor caído tras teardown → el MISMO proof falla) + saboteado el `ENTRYPOINT`/`COPY` → docker no
+  arranca → **SÓLO `deploy_smoke` rojo** (s9/s10 verdes), verificado VIVO. Capability `deploy_vivo` (DES-1) +
+  **REQ-NF-008** → RTM default **24→25 COMPLETE** (snipeit 24, s6 keyless). Check NUEVO → re-materializar `stations/`
+  del default + re-pinear los 3. Sustrato (`src/metafactory/`+`seed/`)=0; `product.yml`=0. **3 product-run PASS · `ci
+  --rederive --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6.** Detalle: `docs/work/FSK-DEPLOY-INCREMENT.md
+  §Evidencia`.
+- **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
+  un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
+  (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
+  humano** (monta en DOM + FORM que postea) → y **deploya en un contenedor que responde**. **El último hueco
+  claramente-FSK-general (deploy) está cerrado.** Lo que QUEDA:
+  - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
+    `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico · RTD/owner-
+    opcional · self-ref `Location.parent_id` · depreciación calculada · company-scoping · …). **Metodología probada**:
+    el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
+    `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
+    cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).
+  - **ejes FSK-general OPCIONALES** que un producto puede destapar (no especular hasta que un caso real los pida):
+    CRUD/FORM de TODAS las entidades en la UI (hoy form sólo de la entidad con dueño) · edición/borrado desde la UI ·
+    cadenas de refs profundidad >1 · refs polimórficos/opcionales · PUT/update ownerless · UNIQUE-from-body→409.
+  - **diferidos DUROS (red/scope)**: push de la imagen a un **registry** · **e2e Playwright** (browser real) ·
+    AppServer-en-contenedor con PG.
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

@@ -1,10 +1,9 @@
 # Incremento FSK-DEPLOY — el Dockerfile generado se CONSTRUYE en una imagen y el contenedor responde VIVO
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-21T21:59Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA
-> editada (ADR-016).
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-21T21:59Z · cerrado 2026-06-22T00:06Z). Evidencia de cierre al final (§Evidencia). Editar
+> `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige un incremento abierto — el
+> `increment_guard` elige el lifecycle por la RUTA editada (ADR-016).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-BROWSER-FORM con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -187,3 +186,46 @@ deploya en un contenedor que responde**. Lo que QUEDA es:
   `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields, checkout polimórfico, company-scoping,
   depreciación calculada, …). Eso YA no es FSK; es construir Snipe-IT sobre una fábrica madura.
 - **diferidos duros (red)**: push de la imagen a un registry · e2e Playwright (browser real).
+
+---
+
+## §Evidencia — cierre (2026-06-22T00:06Z)
+
+**HECHO (probado por bloqueo, no narrado): la imagen del producto se CONSTRUYE de verdad y el contenedor RESPONDE
+vivo.** Se eligió la **opción (A)** del §3 (había red): el `DOCKER_BASE_DIGEST` placeholder se reemplazó por el
+**digest REAL** de `eclipse-temurin:21-jre` (`sha256:8ec353b20d3aab0758572236b81b967c7077c40c4d0819ce97f9a1329d684603`),
+la base se pulleó UNA vez (cacheada local → `docker build` resuelve offline después). El gate nuevo **`deploy_smoke`
+(s11, infra_up)** corre `installDist` + `docker build` (Dockerfile generado) + `docker run -d` del contenedor y un
+proof client stdlib (`tools/deploy_check.py`, urllib) le pega `/health` y exige `{"status":"UP"}`. El contenedor
+loguea `FSK_OBS_LISTENING 18593` y responde — el ENTRYPOINT del dist = `bin/<pkg>` = ObsServerKt (PG-free).
+
+**Todo en FÁBRICA, GENERAL** (cero nombres de dominio; `generality` verde lo sanciona):
+- **`codegen/scaffold_product.py`**: `DOCKER_BASE_DIGEST` real · consts `DEPLOY_PORT=18596`/`DEPLOY_IMAGE` ·
+  `_deploy_check_py()` (el smoke stdlib) emitido como `tools/deploy_check.py` · `_dockerfile` comenta que s11 lo
+  CONSTRUYE (deploy ya no es "diferido por grep").
+- **`factory.spec.yml`**: capability `deploy_vivo` (DES-1, artifact `Dockerfile`) · **estación s11** (`depends_on:
+  [s10]`, check `deploy_smoke` kind `infra_up`: bootstrap installDist+`docker build`+`docker run -d`, proof
+  `deploy_check.py /health`, down `docker rm -f`, `timeout: 60`) · **REQ-NF-008** → `deploy_smoke`/`deploy_vivo` ·
+  texto de deferral de REQ-NF-007/REQ-F-017/REQ-F-018 actualizado (el BUILD ya no es diferido; sólo el PUSH+Playwright).
+- **`stations/s11.yml`** re-materializado para el DEFAULT (las instancias re-materializan solas vía
+  `ensure_product_instance`). ⚠️ Lección: re-materializar TODO el chasis sobrescribe un comentario hand-edit en
+  `s0.yml` (nota R1 del fallback `cg=codegen`) → se restauró `s0.yml` a mano; sólo `s11.yml` es nuevo.
+
+**Verificación verde (no fingida):**
+- **3 product-run PASS** (default · assets · snipeit, foreground) con `deploy_smoke ok`.
+- **Diente de DOS lados VIVO**: saboteado el `ENTRYPOINT` del Dockerfile (`/app/bin/NONEXISTENT`) → `meta verify`
+  (re-corre s11) → **`deploy_smoke FAIL(127)`, gate s11 SHUT** (docker no puede arrancar el contenedor; s9/s10
+  intactos) → restaurado (re-emit) → **verde**. + el diente NATIVO de `infra_up` (contenedor caído tras teardown →
+  el MISMO proof falla) lo ejerce cada corrida verde.
+- **`ci --rederive --all-products` == pin**: 3/3 (**default 12/12 · assets 11/11 · snipeit 11/11**, byte-idéntico
+  CON s11). Re-pin a mano de los 3 (check NUEVO → `proof_sha` de s11 nuevo en el SET → re-materializar + re-pinear,
+  §1).
+- **`meta check` 6/6** (`generality` verde) · **`git diff src/metafactory + seed = 0`** · **`git diff product.yml =
+  0`** (los 3 productos son DATA).
+- **RTM default 24→25 COMPLETE** (REQ-NF-008/`deploy_smoke`/s11; snipeit 23→24, único UNSAT sigue siendo REQ-F-007/s6
+  LLM keyless).
+
+**Scope honesto — lo que QUEDA declared-deferred** (red/scope, NO fingido): push de la imagen a un **registry**
+(credenciales + red sostenida) · **AppServer-en-contenedor** (el server CRUD necesita PG viva dentro/al-lado del
+contenedor — scope mayor) · **e2e Playwright** (browser real). **FSK está MADURO**: genera → prueba e2e → UI usable
+→ **deploya en un contenedor que responde**. Siguiente incremento abierto: ver `docs/STATE.md` + el LOG.

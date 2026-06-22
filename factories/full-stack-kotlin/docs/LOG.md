@@ -1,6 +1,35 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T20:58Z — FSK-POLYMORPHIC-REFS ✅: ref polimórfico (un ref a una UNIÓN de entidades) — el ÚLTIMO eje de modelo-de-datos
+- **El ÚLTIMO eje de MODELO-DE-DATOS faithful** (deferral 2). Un `ref` con `to: <LISTA>` apunta a una UNIÓN de
+  entidades — el hermano sobre refs de lo que el enum es sobre valores. Tras él, modelo + acceso + comportamiento-núcleo
+  quedan COMPLETOS; lo que resta es VALORES DERIVADOS (depreciación) y breadth pura.
+- **El wrinkle estructural (#2): 1 campo → 2 columnas**, que TODO el codegen asumía 1:1. Resuelto con una abstracción
+  única, byte-neutra para todo lo previo:
+  - **`_is_poly(f)`** = `ref` con `to` LISTA. **`_poly_subfields(f)`** = `<campo>_type` (enum CERRADO de los nombres de
+    target, el DISCRIMINADOR, `poly_type`) + `<campo>_id` (BIGINT SIN FK, `poly_id` — wrinkle #1: no hay integridad a una
+    unión). **`_cols_of(e)`** / **`_input_cols(e)`** expanden campos→columnas (sin poly → los MISMOS objetos → byte-idéntico).
+  - **Emisores por-columna** → `_cols_of`/`_input_cols`: `_migration_sql` (poly_id → `BIGINT` sin `REFERENCES`) ·
+    `_row_json_fn` (serializa ambas; `<campo>_type` entrecomillado = el diente) · `_mutation_fns`/`_repository_kt`/
+    `_input_data_class`/`_parse_fn`/`_codec_helpers` (insert/parse de 2 cols, `enumOf`+`longOf`) · `_openapi_yaml`
+    (2 props + required) · `_app_kt`/`_client_ts`/`_model_ctor_args`/`_it_repository_kt`/`_ts_client_test`/`_ui_index_html`/
+    `_roundtrip_kt`/`_sample`/`_ts_field_sample`.
+  - **Selección/seed** (campos LÓGICOS): `not _is_poly(f)` en `_live_ownerless`/`_live_with_ref`/`_ref_target_seedable`/
+    `_ref_targets`/`_seed_deps` + el guard forward-ref de `_load_blueprint` (un `to` lista es unhashable para `in by`) —
+    un poly NO es una FK que encadenar/sembrar; se siembra como (tipo, id) literal.
+  - **El proof** (`_WR_POLY_VALID`/`_POLY_PROOF`, OPT-IN como `_QTY_PROOF`): el cuerpo with_ref suma `<campo>_type`/
+    `<campo>_id`; el round-trip cruza el 1er target; el bloque poly POSTea el 2do → GET tipo/id DISTINTOS.
+- **Adopción** (`products/snipeit/product.yml`, increment `POLYMORPHIC-REFS-ADOPT`): `Accessory.checkout_target →
+  [User, Location, Asset]` (la entidad with_ref viva, round-trip observable).
+- **Verde por bloqueo**: EYEBALL default/assets **68/68** + snipeit-sin-poly **70/70** byte-idénticos · product-run
+  **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) · **pin INTACTO** (sin re-pin) · **diente de DOS
+  lados VIVO** (saboteé el discriminador del rowJson → SÓLO `access_control_live` s9 rojo, hermanos+s0–s8 verdes →
+  revertí → verde) · `meta check` **6/6** (`generality` verde) · `ci --rederive` **12/12·11/11·11/11** == pin ·
+  `git diff src/metafactory+seed = 0` · default+assets product.yml = 0.
+- **Honesto (diferido, 1er-cut)**: el `assigns` POLIMÓRFICO del verbo checkout + el `assigned_to` polimórfico de Asset
+  (su owner — wrinkle #3, el ownership cruza un principal único). Detalle: `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
+
 ## 2026-06-22T19:46Z — FSK-QTY-OPERATIONS ✅: verbo de STOCK (decremento qty + out-of-stock) sobre entidad SIN dueño
 - **El 1er eje de COMPORTAMIENTO con STOCK + el 1er montaje de VERBOS sobre una entidad SIN dueño** (deferral 9,
   sub-eje de FSK-DOMAIN-OPS). Todo verbo previo (checkout/checkin de Asset) vivía sobre la entidad CON dueño

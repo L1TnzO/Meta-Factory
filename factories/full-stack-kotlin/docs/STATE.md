@@ -205,6 +205,19 @@
   → SÓLO `access_control_live` rojo). Opt-in byte-neutral (default/assets 68/68 + snipeit-sin-qty 70/70; `proof_sha`
   intacto → sin re-pin); `git diff src/+seed=0`; `meta check` 6/6; `ci --rederive` 12/12·11/11·11/11 == pin. Scope
   honesto: `creates: <pivot>` DIFERIDO. Detalle: `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
+- **REF POLIMÓRFICO — el ÚLTIMO eje de MODELO-DE-DATOS faithful, GENERAL (FSK-POLYMORPHIC-REFS, 2026-06-22)**: un `ref`
+  con `to: <LISTA>` apunta a una UNIÓN de entidades (el hermano sobre refs de lo que el enum es sobre valores). Se
+  materializa como DOS columnas — `<campo>_type` (discriminador, enum CERRADO de los nombres de target) + `<campo>_id`
+  (BIGINT **SIN FK**: no hay integridad a una unión, la limitación real del patrón). El wrinkle estructural (1 campo →
+  2 columnas, que TODO el codegen asumía 1:1) se resolvió con una abstracción única — `_is_poly`/`_poly_subfields`/
+  `_cols_of`/`_input_cols` — byte-neutra para todo lo previo: los emisores por-columna iteran `_cols_of`; selección/seed
+  excluyen el poly (`not _is_poly`, no es una FK que encadenar). snipeit adoptó `Accessory.checkout_target → [User,
+  Location, Asset]` (la entidad with_ref viva). El server vivo round-trippea (tipo, id) y GET los devuelve EXACTOS,
+  distinguiendo el target. **Diente de DOS lados VIVO** (s9, degradar el discriminador del rowJson → SÓLO
+  `access_control_live` rojo). Opt-in byte-neutral (default/assets 68/68 + snipeit-sin-poly 70/70; `proof_sha` intacto →
+  sin re-pin); `git diff src/+seed=0`; `meta check` 6/6; `ci --rederive` 12/12·11/11·11/11 == pin. **Con esto el MODELO
+  DE DATOS faithful queda COMPLETO.** Diferido faithful: el `assigns` polimórfico del verbo + el owner polimórfico de
+  Asset (wrinkle #3). Detalle: `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -216,12 +229,14 @@
     FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
     ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · ~~company-scoping~~ **✓ hecho FSK-COMPANY-SCOPING** ·
-    ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · depreciación calculada · …).
-    **SIGUIENTE = checkout polimórfico (FSK-POLYMORPHIC-REFS, abierto, deferral 2)** — el ÚLTIMO eje de
-    MODELO-DE-DATOS faithful: un `ref` que apunta a una UNIÓN de entidades (`assigned_to` → User|Location|Asset).
-    Pide una primitiva de tipo NUEVA (ref polimórfico = columna `*_type` + `*_id`, sin FK posible a una unión);
-    toca model/migration/seed/contrato + el `assigns` del verbo de workflow. Tras él, modelo+acceso+comportamiento-
-    núcleo quedan COMPLETOS; lo que resta es breadth. Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md` (handoff).
+    ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · ~~checkout polimórfico~~ **✓ hecho FSK-POLYMORPHIC-REFS** ·
+    depreciación calculada · …).
+    **Con el ref polimórfico, el MODELO DE DATOS faithful queda COMPLETO** (modelo + acceso + comportamiento-núcleo).
+    **SIGUIENTE = depreciación calculada (FSK-COMPUTED-FIELDS, abierto, deferral 7)** — el 1er CAMPO COMPUTADO: un
+    valor DERIVADO por una fórmula aritmética DETERMINISTA de otros campos (el valor actual de un activo, straight-line
+    sobre `Depreciation.months`). NO necesita s6/LLM (aritmética pura). Más LIMPIO que el poly (sin 2-columnas/no-FK),
+    pero introduce un mini-vocabulario de fórmula GENERAL. Cierra la dimensión de VALORES DERIVADOS; tras él, lo que
+    resta es breadth pura. Ver `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` (handoff).
     **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se

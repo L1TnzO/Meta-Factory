@@ -150,9 +150,18 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    cambio de ARQUITECTURA, no aditivo. También diferidos: fieldset↔model como entidad de definición, `field_values`
    (select de opciones — hoy expresable como `enum`), `encrypted`. Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md`.
 
-2. **Checkout polimórfico** (Asset/Accessory `assigned_to` → User|Location|Asset) [SIMPLIF + GAP-FÁBRICA].
-   FSK `ref` apunta a UNA entidad. Se simplificó a **User** (el caso dominante). Para fidelidad plena se
-   necesitaría una primitiva de ref polimórfico (unión de targets) — gap de fábrica.
+2. **Checkout polimórfico** (Asset/Accessory `assigned_to` → User|Location|Asset) **✓ HECHO (la PRIMITIVA,
+   FSK-POLYMORPHIC-REFS, 2026-06-22)** — el ÚLTIMO eje de MODELO-DE-DATOS faithful. Antes [GAP-FÁBRICA]: un FSK
+   `ref` apuntaba a UNA entidad. **Levantado GENERAL** (codegen de fábrica, `generality` verde, `git diff
+   src/+seed=0`, sin re-pin): un `ref` con `to: <LISTA>` es POLIMÓRFICO → se materializa como DOS columnas —
+   `<campo>_type` (discriminador, enum CERRADO de los nombres de target, doc en el contrato) + `<campo>_id`
+   (BIGINT SIN FK: no hay integridad a una unión, wrinkle #1). El server vivo round-trippea (tipo, id) y GET los
+   devuelve EXACTOS, distinguiendo el target; diente de DOS lados (degradar el discriminador del rowJson → SÓLO
+   s9 rojo). **Adoptado** en `Accessory.checkout_target → [User, Location, Asset]` (la entidad with_ref viva,
+   donde el round-trip es observable). **1er-cut = la PRIMITIVA sola**; sigue diferido lo faithful pleno: el
+   `assigns` POLIMÓRFICO del verbo checkout (setear 2 columnas del cuerpo) y el `assigned_to` polimórfico de
+   **Asset** —que ES su owner (wrinkle #3: el ownership cruza un principal único, no una unión)—. Ver
+   `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
 
 3. **Asignación opcional (RTD) vs owner requerido** **✓ HECHO (FSK-OWNERSHIP-OPTIONAL, 2026-06-22)**. Antes
    [GAP-FÁBRICA]: FSK exigía `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId: Long)`
@@ -276,14 +285,24 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    DIFERIDO honesto**: `creates: <pivot>` (insertar la fila de asignación AccessoryCheckout) — pide observabilidad
    del pivot no-servido para un diente honesto; el modelo `decrements` (qty := qty-1) es la aproximación faithful
    del stock. Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
-10. **SIGUIENTE = checkout polimórfico (deferral 2)** — el ÚLTIMO eje de MODELO-DE-DATOS faithful: un `ref` que
-    apunta a una UNIÓN de entidades (`assigned_to` → User|Location|Asset). Pide una primitiva de tipo NUEVA (un
-    ref polimórfico = columna `*_type` + `*_id`, sin FK posible a una unión). Toca model/migration/seed/contrato +
-    el `assigns` del verbo de workflow (hoy asigna un ref único). Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md`
-    (handoff). Tras él, el modelo+acceso+comportamiento-núcleo quedan COMPLETOS — lo que resta es breadth.
-11. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
-    AppServer-en-contenedor con PG · `creates`/pivot de qty · EAV dinámico a runtime (Avenue B) ·
-    depreciación calculada (deferral 7, campo computado, dep. de s6 keyless).
+10. ~~**Checkout polimórfico (deferral 2)** — el ÚLTIMO eje de MODELO-DE-DATOS faithful~~ **✓ HECHO (la
+    PRIMITIVA, FSK-POLYMORPHIC-REFS, 2026-06-22)**: un `ref` con `to: <LISTA>` apunta a una UNIÓN de entidades →
+    se materializa como 2 columnas `<campo>_type` (discriminador enum cerrado) + `<campo>_id` (BIGINT SIN FK).
+    snipeit adoptó `Accessory.checkout_target → [User, Location, Asset]` (la entidad with_ref viva). El server vivo
+    round-trippea (tipo, id) distinguiendo el target; diente de DOS lados VIVO (s9, degradar el discriminador →
+    SÓLO access_control_live rojo). `git diff src/+seed=0`, sin re-pin. **Con esto el MODELO DE DATOS faithful
+    queda COMPLETO.** Diferido faithful: el `assigns` polimórfico del verbo + el `assigned_to` polimórfico de Asset
+    (su owner, wrinkle #3). Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
+11. **SIGUIENTE = depreciación calculada (deferral 7)** — el 1er CAMPO COMPUTADO (derivado por una fórmula
+    aritmética DETERMINISTA de otros campos, no almacenado): el valor actual de un activo = straight-line desde la
+    compra sobre `Depreciation.months` con piso. NO necesita s6/LLM (aritmética pura). Pide un mini-vocabulario de
+    fórmula GENERAL (operadores sobre campos del blueprint, sin volverse domain-specific). Más LIMPIO que el poly
+    (sin 2-columnas/no-FK). Diente: POST con costo+meses → GET devuelve el valor computado; degradar la fórmula →
+    rojo. Ver `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` (handoff). Cierra la dimensión de VALORES DERIVADOS;
+    tras él, lo que resta es breadth pura.
+12. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+    AppServer-en-contenedor con PG · `creates`/pivot de qty · `assigns`/owner POLIMÓRFICO (sub-ejes de deferral 2) ·
+    EAV dinámico a runtime (Avenue B).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

@@ -1,9 +1,8 @@
 # Incremento FSK-POLYMORPHIC-REFS — ref polimórfico (un ref a una UNIÓN de entidades) · el ÚLTIMO eje de modelo-de-datos
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T19:57Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T19:57Z · cerrado 2026-06-22T20:58Z). La PRIMITIVA del ref polimórfico VIVA y verificada por
+> bloqueo (§Evidencia). 1er-cut: la primitiva sola; `assigns` polimórfico + owner polimórfico DIFERIDOS (honesto).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-QTY-OPERATIONS con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -215,3 +214,47 @@ acceso COMPLETO + comportamiento con stock + app que corre** está entero. Lo qu
 **el ref polimórfico (este)** — y, opcional, el campo computado (depreciación). **Estimación honesta: el núcleo funcional
 está a ~1 incremento más (este); la paridad de superficie completa (~226 rutas, soft-deletes, Kits, EAV) es trabajo mayor
 pero son los flecos, no el corazón.** Tras el polimórfico, el MODELO DE DATOS faithful queda COMPLETO.
+
+---
+
+## Evidencia (cerrado 2026-06-22T20:58Z)
+
+**Construido — la PRIMITIVA del ref polimórfico (1er-cut: la primitiva sola)**, 100% en `codegen/scaffold_product.py`
+(FÁBRICA), GENERAL (cero nombres de dominio, `generality` verde). El wrinkle estructural (#2: 1 campo → 2 columnas, que
+TODO el codegen asumía 1:1) se resolvió con una abstracción única que mantiene byte-neutralidad para todo lo previo:
+
+- **`_is_poly(f)`** = `ref` con `to` LISTA. **`_poly_subfields(f)`** = las 2 sub-columnas: `<campo>_type` (enum CERRADO
+  de los nombres de target, el DISCRIMINADOR, `poly_type`) + `<campo>_id` (BIGINT SIN FK, `poly_id`). **`_cols_of(e)`**
+  expande los campos a columnas (poly → 2; sin poly → los MISMOS objetos → byte-idéntico). **`_input_cols(e)`** = el
+  análogo sobre `_input_fields` (el cuerpo del POST).
+- **Emisores por-columna** cambiados a `_cols_of`/`_input_cols` (byte-neutros sin poly): `_migration_sql` (poly_id →
+  `BIGINT` sin `REFERENCES`, wrinkle #1) · `_row_json_fn` (serializa ambas; `<campo>_type` entrecomillado = el diente) ·
+  `_mutation_fns` (insert de 2 cols del cuerpo) · `_repository_kt` (select) · `_input_data_class`/`_parse_fn`
+  (`enumOf` + `longOf`) · `_codec_helpers` (`<CAMPO>_TYPE_VALUES`) · `_openapi_yaml` (2 props + required) ·
+  `_app_kt`/`_client_ts`/`_model_ctor_args`/`_it_repository_kt`/`_ts_client_test`/`_ui_index_html`/`_roundtrip_kt`/
+  `_seed_chain`/`_sample`/`_ts_field_sample` (las muestras/lecturas).
+- **Selección/seed** (campos LÓGICOS, no columnas): `not _is_poly(f)` en `_live_ownerless`/`_live_with_ref`/
+  `_ref_target_seedable`/`_ref_targets`/`_seed_deps` + el guard forward-ref/ciclo de `_load_blueprint` (un `to` lista
+  es unhashable para `in by`) — un poly NO es una FK que encadenar/sembrar; se siembra como (tipo, id) literal.
+- **El proof** (`_access_control_check_py` + `_WR_POLY_VALID`/`_POLY_PROOF`, OPT-IN como `_QTY_PROOF`): el cuerpo del
+  with_ref suma `<campo>_type`/`<campo>_id`; el round-trip del bloque with-ref cruza el 1er target; el bloque poly POSTea
+  el 2do target → GET devuelve tipo/id DISTINTOS (el discriminador distingue).
+- **Adopción** (`products/snipeit/product.yml`, nivel PRODUCTO, increment `POLYMORPHIC-REFS-ADOPT`):
+  `Accessory.checkout_target → [User, Location, Asset]` (la entidad with_ref viva, round-trip observable).
+
+**Verde por bloqueo, no fingido:**
+- **EYEBALL** (`/tmp/eyeball_poly.py`, importlib HEAD-vs-working): default **68/68** · assets **68/68** · snipeit-SIN-poly
+  **70/70** byte-IDÉNTICOS (opt-in puro). Cazó 0 leaks (el guard `_is_poly` los previene de raíz).
+- **product-run** snipeit **PASS** (s0→s11) · **RTM 24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) · **pin INTACTO**
+  (el cambio vive dentro de `access_control_live` s9, `proof_sha` igual → SIN re-pin).
+- **Diente de DOS lados VIVO**: saboteé el rowJson (dropear el discriminador `<campo>_type`) → product-run **FAIL** con
+  **SÓLO `access_control_live` (s9) rojo** (hermanos `observability_live`+`frontend_consume_live` verdes, s0–s8 verdes) →
+  revertí → **PASS** (activa s11 restaurada). El sabotaje degrada la SERIALIZACIÓN (lógica), no la forma Kotlin → cero
+  hallazgo estático.
+- **meta check 6/6** (`generality` verde) · **ci --rederive** base **12/12** · assets **11/11** · snipeit **11/11** ==
+  pin (clones limpios) · **`git diff src/metafactory + seed = 0`** · default+assets product.yml = 0.
+
+**Honesto (diferido, 1er-cut):** el `assigns` POLIMÓRFICO del verbo checkout (setear las 2 columnas desde el cuerpo del
+verbo) y el `assigned_to` polimórfico de **Asset** (que ES su owner — wrinkle #3, el ownership cruza un principal único)
+siguen diferidos. **Con la primitiva, el MODELO DE DATOS faithful queda COMPLETO** — lo que sigue es VALORES DERIVADOS
+(depreciación calculada, deferral 7) y luego breadth. Handoff del siguiente: `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md`.

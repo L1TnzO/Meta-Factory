@@ -1066,14 +1066,19 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
                          f"necesita ≥1 campo del body (otro eje: CRUD de entidades sólo-dueño/ownership-opcional)")
     set_calls = []
     for f in e["fields"]:
-        if not f.get("required", True):
-            continue
         col = f"{tbl}.{_COL(f['name'])}"
+        # el dueño (`owned_by`) SIEMPRE se fija al principal del token (el creador es el dueño), aunque la columna
+        # sea OPCIONAL (FSK-OWNERSHIP-OPTIONAL): el caso RTD/sin-dueño lo siembra el server (2ª fila, owner NULL),
+        # no el POST → un activo creado por su dueño sigue round-trippeando bajo ownership. Va ANTES del skip-
+        # optional para no quedar como parámetro `ownerId` sin usar cuando el dueño es nullable.
         if owner and f["name"] == owner:
             set_calls.append(f"set({col}, ownerId)")
-        else:   # escalar requerido (incl. UNIQUE) o ref requerido no-dueño (FSK-REFS-IN-BODY): del CUERPO del
-            set_calls.append(f"set({col}, input.{_camel(f['name'])})")   # request, type-coerced (DES-12); el id
-            #                                                              de la FK (Long) lo valida la DB (cuelga → 4xx)
+            continue
+        if not f.get("required", True):
+            continue
+        # escalar requerido (incl. UNIQUE) o ref requerido no-dueño (FSK-REFS-IN-BODY): del CUERPO del request,
+        set_calls.append(f"set({col}, input.{_camel(f['name'])})")   # type-coerced (DES-12); el id de la FK
+        #                                                              (Long) lo valida la DB (cuelga → 4xx)
     ins_calls = set_calls + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
     ins = _jooq_chain("        ", "", f"ctx.insertInto({tbl})", ins_calls)
     # con dueño: insert(ctx, ownerId, input); sin dueño (ownerless): insert(ctx, input) — el dueño no aplica.
@@ -1207,18 +1212,21 @@ fun main() {
 '''
 
 
-def _sample(f: dict, idvar: dict) -> str:
+def _sample(f: dict, idvar: dict, alt: bool = False) -> str:
     """valor de muestra Kotlin determinista para el INSERT jOOQ (tipos del schema PG): ref → el id capturado;
-    enum → el 1er valor declarado (la columna es VARCHAR); int/number/date → del mapa de samples."""
+    enum → el 1er valor declarado (la columna es VARCHAR); int/number/date → del mapa de samples.
+    `alt` (FSK-OWNERSHIP-OPTIONAL): una 2ª fila de la MISMA entidad (p.ej. la fila RTD sembrada) debe DIFERIR en
+    sus columnas UNIQUE → valor alterno (≠ la 1ª fila); con `alt=False` el output es byte-idéntico al previo."""
     if f["type"] == "ref":
         return idvar[f["to"]]
     if f["type"] == "boolean":
-        return "false"
+        return "true" if alt else "false"
     if f["type"] == "enum":
-        return _yaml_str(f["values"][0])
+        vals = f["values"]
+        return _yaml_str(vals[1] if alt and len(vals) > 1 else vals[0])
     if f["type"] in ("int", "number", "date"):
-        return _KT_SAMPLE[f["type"]]
-    return f'"sample-{f["name"]}"'
+        return (_KT_SAMPLE_ALT if alt else _KT_SAMPLE)[f["type"]]
+    return f'"{"alt" if alt else "sample"}-{f["name"]}"'
 
 
 def _roundtrip_kt(pkg: str, entities: list[dict]) -> str:
@@ -1836,12 +1844,27 @@ def _role_guard_kt(pkg: str) -> str:
             "}\n")
 
 
-def _ownership_guard_kt(pkg: str) -> str:
+def _ownership_guard_kt(pkg: str, owner_optional: bool = False) -> str:
     """auth/OwnershipGuard.kt — autorización a nivel de FILA (ownership / ABAC acotado, FSK-S14, DES-3) encima
     del RBAC. `canModify(actorRole, actorPrincipalId, rowOwnerId, bypass)`: un actor no-privilegiado sólo
     modifica las filas que le PERTENECEN (su principal == el dueño de la fila); un rol de `bypass` (p.ej. admin)
     ignora ownership. Guard genérico (no por-entidad) → una sola declaración top-level (MatchingDeclarationName).
-    DETERMINISTA (sin LLM, I-3). Mismo paquete que Role → sin imports; ≤2 returns (detekt ReturnCount)."""
+    DETERMINISTA (sin LLM, I-3). Mismo paquete que Role → sin imports; ≤2 returns (detekt ReturnCount).
+
+    FSK-OWNERSHIP-OPTIONAL — `owner_optional` (opt-in por el `required` del `owned_by`): cuando el dueño de la
+    fila es NULLABLE (un activo Ready-To-Deploy está SIN asignar — el caso NORMAL de Snipe-IT), `rowOwnerId`
+    pasa a `Long?` y una fila SIN dueño (rowOwnerId == null) sólo la modifica un rol de bypass (no hay principal
+    contra quien cruzar). Con dueño REQUERIDO la firma queda `Long` EXACTA → byte-idéntico (default/assets sin
+    re-derivar)."""
+    if owner_optional:
+        sig = ("    fun canModify(actorRole: Role, actorPrincipalId: Long, rowOwnerId: Long?, bypass: "
+               "Set<Role>): Boolean {\n")
+        # una fila SIN dueño (RTD) no tiene principal contra quien cruzar → sólo un rol de bypass la modifica.
+        body = "        return actorRole in bypass || (rowOwnerId != null && actorPrincipalId == rowOwnerId)\n"
+    else:
+        sig = ("    fun canModify(actorRole: Role, actorPrincipalId: Long, rowOwnerId: Long, bypass: Set<Role>): "
+               "Boolean {\n")
+        body = "        return actorRole in bypass || actorPrincipalId == rowOwnerId\n"
     return (f"package {pkg}.auth\n\n"
             "/**\n"
             " * Autorizacion a nivel de FILA (ownership, ABAC acotado, FSK-S14, DES-3) encima del RBAC. Un actor\n"
@@ -1849,10 +1872,8 @@ def _ownership_guard_kt(pkg: str) -> str:
             " * fila); un rol de bypass (p.ej. admin) ignora ownership. DETERMINISTA (sin LLM, I-3).\n"
             " */\n"
             "object OwnershipGuard {\n"
-            "    fun canModify(actorRole: Role, actorPrincipalId: Long, rowOwnerId: Long, bypass: Set<Role>): "
-            "Boolean {\n"
-            "        return actorRole in bypass || actorPrincipalId == rowOwnerId\n"
-            "    }\n"
+            + sig + body
+            + "    }\n"
             "}\n")
 
 
@@ -2440,9 +2461,12 @@ def _test_ownership_guard_kt(pkg: str, bp: dict) -> str:
     DUEÑO modifica su fila ✓ · un NO-dueño no-privilegiado es rechazado ✗ · un rol de owner_bypass_roles
     (admin) bypassa ✓. Romper OwnershipGuard (devolver true siempre) → el lado del no-dueño falla → rojo.
     Type-bound al model del contrato: construye un <Entity> real y lee row.<ownerFieldCamel> → un drift del
-    contrato (rename del campo dueño) → unresolved reference → compile rojo (diente DES-6). Sólo con owned_by."""
+    contrato (rename del campo dueño) → unresolved reference → compile rojo (diente DES-6). Sólo con owned_by.
+    FSK-OWNERSHIP-OPTIONAL — si el dueño es NULLABLE (RTD), suma un 4º caso: una fila SIN dueño (rowOwnerId=null)
+    sólo la modifica un rol de bypass (no-bypass → false). row.<ownerCamel> es Long? → cierra el binding del null."""
     ent = next(e for e in bp["entities"] if e.get("owned_by"))
     owner_camel = _camel(ent["owned_by"])
+    owner_optional = not next(f for f in ent["fields"] if f["name"] == ent["owned_by"]).get("required", True)
     owner_id, other_id = "7L", "99L"
     # construir la entidad con muestras deterministas (idiom _model_ctor_args) pero el campo dueño = owner_id,
     # para que row.<ownerField> sea EXACTAMENTE el dueño que el test cruza (type-bound al model del contrato).
@@ -2485,6 +2509,19 @@ def _test_ownership_guard_kt(pkg: str, bp: dict) -> str:
             "OwnershipPolicy.bypass) shouldBe true",
             "    }",
         ]
+    if owner_optional:   # FSK-OWNERSHIP-OPTIONAL: una fila SIN dueño (RTD) -> sólo un rol de bypass la modifica.
+        lines += [
+            '    "una fila SIN dueno (RTD) solo la modifica un rol de bypass" {',
+            f"        OwnershipGuard.canModify(Role.{actor}, {owner_id}, null, OwnershipPolicy.bypass) shouldBe false",
+            "    }",
+        ]
+        if bypass_roles:
+            lines += [
+                '    "un rol de bypass modifica una fila SIN dueno (RTD)" {',
+                f"        OwnershipGuard.canModify(Role.{bypass_roles[0].upper()}, {owner_id}, null, "
+                "OwnershipPolicy.bypass) shouldBe true",
+                "    }",
+            ]
     lines.append("})")
     return "\n".join(lines) + "\n"
 
@@ -3237,23 +3274,28 @@ if __name__ == "__main__":
 #    persiste/lee contra la PostgreSQL VIVA (Repository). Opt-in: sólo se emite si ≥1 entidad declara owned_by
 #    (compone sobre RBAC/ownership de s5). Transforma la trilogía de control de acceso de "probada por
 #    construcción" (s5 estático + s7 unit) a "enforzada a runtime" (un proof e2e de DOS+ lados, abajo). ────────
-def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None) -> str:
+def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None,
+                alt: bool = False) -> str:
     """INSERT jOOQ TIPADO que siembra una fila de `e` y captura su id generado (idiom DbRoundTrip). Para la
     entidad con dueño, el campo `owner_field` se fija al `owner_var` capturado (el principal dueño); el resto
-    de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL."""
+    de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL.
+    FSK-OWNERSHIP-OPTIONAL — la fila Ready-To-Deploy: con `owner_field=None` el dueño (ya opcional) se omite →
+    queda NULL (sin dueño); `alt=True` da valores alternos en las columnas UNIQUE para no chocar con la 1ª fila
+    sembrada (misma entidad). El `owner_field` se resuelve ANTES del skip-optional → la fila ASIGNADA fija el
+    dueño aunque la columna sea nullable (con `alt=False` el output queda byte-idéntico al previo)."""
     tbl = _TBL(e)
     sets = []
     for f in e["fields"]:
-        if not f.get("required", True):
-            continue
         col = f"{tbl}.{_COL(f['name'])}"
-        if owner_field and f["name"] == owner_field:
+        if owner_field and f["name"] == owner_field:   # fila ASIGNADA: el dueño = el principal capturado
             sets.append(f"set({col}, {owner_var})")
-        elif f["type"] == "ref":
+            continue
+        if not f.get("required", True):                # opcional (incl. el dueño en la fila RTD) → NULL
+            continue
+        if f["type"] == "ref":
             raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "
                              f"{f['name']!r} (FSK-S15 siembra sólo el dueño + campos escalares)")
-        else:
-            sets.append(f"set({col}, {_sample(f, {})})")
+        sets.append(f"set({col}, {_sample(f, {}, alt=(alt and f.get('unique', False)))})")
     calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
     return _jooq_chain("    ", f"val {var} = ", f"ctx.insertInto({tbl})", calls)
 
@@ -3544,6 +3586,44 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
     )
 
 
+def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool) -> str:
+    """modifyVerdict — el veredicto de MODIFICACIÓN (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership
+    (el principal del token == el dueño de la fila, o un rol de bypass). El guard que DECIDE; la mutación
+    (FSK-S16) ocurre DESPUÉS, sólo en la rama HTTP_OK.
+    FSK-OWNERSHIP-OPTIONAL — con dueño NULLABLE (RTD) hay que separar EXISTENCIA de DUEÑO: una fila SIN dueño
+    EXISTE (no es 404), pero canModify(…, null, …) sólo la deja pasar a un rol de bypass. La existencia se lee
+    reusando <e>RowJson (!= null), sin agregar una query nueva al Repository. Con dueño REQUERIDO el cuerpo
+    queda EXACTO al previo (byte-idéntico): el `ownerId == null` ⟺ fila inexistente ⟺ 404 (la columna NOT NULL
+    nunca es null en una fila existente)."""
+    head = "private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {\n"
+    if owner_optional:
+        return (head
+                + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
+                + f"    val exists = authorized && Repository.{row_json_fn}(ctx, id) != null\n"
+                + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
+                + "    val role = RoleGuard.roleOf(token)\n"
+                + "    val principal = RoleGuard.principalOf(token)\n"
+                + "    return when {\n"
+                + "        !authorized -> HTTP_FORBIDDEN\n"
+                + "        !exists -> HTTP_NOT_FOUND\n"
+                + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, "
+                + "ownerId, OwnershipPolicy.bypass) -> HTTP_OK\n"
+                + "        else -> HTTP_FORBIDDEN\n"
+                + "    }\n}")
+    return (head
+            + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
+            + f"    val ownerId = if (authorized) Repository.{owner_fn}(ctx, id) else null\n"
+            + "    val role = RoleGuard.roleOf(token)\n"
+            + "    val principal = RoleGuard.principalOf(token)\n"
+            + "    return when {\n"
+            + "        !authorized -> HTTP_FORBIDDEN\n"
+            + "        ownerId == null -> HTTP_NOT_FOUND\n"
+            + "        role != null && principal != null && OwnershipGuard.canModify(role, principal, ownerId, "
+            + "OwnershipPolicy.bypass) -> HTTP_OK\n"
+            + "        else -> HTTP_FORBIDDEN\n"
+            + "    }\n}")
+
+
 def _app_server_kt(pkg: str, bp: dict) -> str:
     """endpoints/AppServer.kt — el server HTTP VIVO de control de acceso (FSK-S15, DES-3). com.sun.net.httpserver
     (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
@@ -3615,6 +3695,17 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     imports = main_imports + java_imports
     seed_owner = _seed_chain("ownerId", owner_ent)
     seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
+    # FSK-OWNERSHIP-OPTIONAL — el dueño de la entidad servida es NULLABLE (RTD): el server distingue EXISTENCIA
+    # de DUEÑO (una fila sin dueño existe → no es 404) y siembra una 2ª fila SIN dueño (owner NULL, valores
+    # alternos en las UNIQUE) para que el proof ejercite el veredicto RTD vivo. Opt-in por el `required` del
+    # `owned_by`: con dueño REQUERIDO el bloque queda EXACTO (byte-idéntico → default/assets sin re-derivar).
+    owner_optional = not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
+    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional)
+    if owner_optional:
+        seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True)   # fila RTD: dueño NULL, UNIQUE alternos
+        rtd_field, rtd_arg, rtd_json = ", val rtdId: Long", ", rtdId", ',"rtd":${seed.rtdId}'
+    else:
+        seed_rtd, rtd_field, rtd_arg, rtd_json = "", "", "", ""
     # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
     # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
     tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
@@ -3638,7 +3729,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%PLURAL%", plural)
             .replace("%AC_PORT%", str(AC_PORT))
             .replace("%AC_PG_PORT%", str(AC_PG_PORT))
-            .replace("%OWNER_FN%", owner_fn)
+            .replace("%MODIFY_VERDICT%", modify_verdict)
             .replace("%ALL_FN%", all_fn)
             .replace("%CONFLICT_CONST%", conflict_const)
             .replace("%HANDLERS%", handlers)
@@ -3649,6 +3740,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%SEED_OWNER%", seed_owner)
             .replace("%SEED_OWNED%", seed_owned)
             .replace("%SEED_REF_TARGETS%", seed_ref)
+            .replace("%SEED_RTD%", seed_rtd)
+            .replace("%RTD_FIELD%", rtd_field)
+            .replace("%RTD_ARG%", rtd_arg)
+            .replace("%RTD_JSON%", rtd_json)
             .replace("%REF_TARGETS_MAP%", ref_map))
 
 
@@ -3676,7 +3771,9 @@ private const val PLURAL = "%PLURAL%"
 
 // refs (FSK-REFS-IN-BODY): id sembrado de cada target de ref REQUERIDO no-dueño (campo ref -> id) que /seed
 // expone para que el proof POSTee una FK VALIDA. Vacio si ninguna entidad servida tiene un ref requerido.
-private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>)
+// rtdId (FSK-OWNERSHIP-OPTIONAL): id de una fila Ready-To-Deploy (dueno NULL) -- solo cuando el dueno es
+// nullable. /seed lo expone para que el proof ejercite el veredicto RTD (no-bypass -> 403 / bypass -> 200).
+private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>%RTD_FIELD%)
 
 private fun respond(ex: HttpExchange, status: Int, body: String) {
     val bytes = body.toByteArray(StandardCharsets.UTF_8)
@@ -3705,13 +3802,13 @@ private fun connect(url: String, user: String, pass: String): Connection {
 // proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
 private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED%%SEED_REF_TARGETS%
-    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%)
+%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%
+    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%)
 }
 
 private fun seedJson(seed: Seed): String {
     val refs = seed.refs.entries.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }
-    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs}"""
+    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs%RTD_JSON%}"""
 }
 
 // El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
@@ -3722,18 +3819,9 @@ private fun writeRoles(): Set<Role> =
 // El veredicto de MODIFICACION (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership (el principal del
 // token == el dueno de la fila, o un rol de bypass). Carga el dueno de la PG VIVA (Repository); fila
 // inexistente -> 404. Es el guard que DECIDE; la mutacion (FSK-S16) ocurre DESPUES, solo en la rama HTTP_OK.
-private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {
-    val authorized = RoleGuard.authorize(token, writeRoles())
-    val ownerId = if (authorized) Repository.%OWNER_FN%(ctx, id) else null
-    val role = RoleGuard.roleOf(token)
-    val principal = RoleGuard.principalOf(token)
-    return when {
-        !authorized -> HTTP_FORBIDDEN
-        ownerId == null -> HTTP_NOT_FOUND
-        role != null && principal != null && OwnershipGuard.canModify(role, principal, ownerId, OwnershipPolicy.bypass) -> HTTP_OK
-        else -> HTTP_FORBIDDEN
-    }
-}
+// FSK-OWNERSHIP-OPTIONAL: con dueno nullable separa EXISTENCIA de DUENO (una fila SIN dueno existe -> no 404;
+// canModify(..., null, ...) solo la deja a un rol de bypass). Con dueno requerido el cuerpo queda EXACTO.
+%MODIFY_VERDICT%
 
 // Codec del cuerpo COMPARTIDO (FSK-CRUD-BODY-PARSING/OWNERLESS): helpers de coercion JSON->tipo (unionados sobre
 // las entidades servidas, sin colision) + parse<E>Input por entidad. Cada coercion es fail-closed -> 400.
@@ -4058,6 +4146,20 @@ def main(argv: list) -> int:
         if BYPASS_ROLE:
             ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {BYPASS_ROLE}:{owner + 1}", PUT_BODY)[0], 200,
                           f"PUT por rol de BYPASS ({BYPASS_ROLE})")
+        # *** FSK-OWNERSHIP-OPTIONAL: una fila Ready-To-Deploy (dueno NULL) EXISTE pero no la posee nadie. El ***
+        # veredicto DEBE distinguir RTD de fila-inexistente: RTD + no-bypass -> 403 (no hay principal contra quien
+        # cruzar) / RTD + bypass -> 200 / inexistente -> 404 (NO confundida con RTD). seed.rtd ausente (dueno
+        # requerido) -> el bloque se saltea. Sabotear canModify (ignorar el null) o modifyVerdict (RTD -> 200) flipea
+        # el 403 a 200 -> rojo SOLO en este check (diente de dos lados del RTD vivo).
+        rtd = seed.get("rtd")
+        if rtd is not None:
+            ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rtd}", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 403,
+                          f"PUT fila RTD (dueno NULL) por no-bypass ({OWNER_ROLE}) -> 403")
+            ok &= _expect(_send(base, "PUT", f"{PLURAL}/999999", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 404,
+                          "PUT fila INEXISTENTE -> 404 (no confundida con RTD)")
+            if BYPASS_ROLE:
+                ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rtd}", f"Bearer {BYPASS_ROLE}:{owner}", PUT_BODY)[0], 200,
+                              f"PUT fila RTD por rol de BYPASS ({BYPASS_ROLE}) -> 200")
         # *** FSK-CRUD-OWNERLESS: una entidad SIN dueno tiene CRUD vivo gobernado por RBAC-only (sin ownership). ***
         # El principal del token es irrelevante (no hay dueno): el guard se reduce a RoleGuard. Diente de DOS lados:
         # rol PROHIBIDO -> 403 sin INSERT; rol PERMITIDO -> 201 + count+1; round-trip del cuerpo; DELETE idem.
@@ -4614,7 +4716,12 @@ def build_files(bp: dict) -> dict[str, str]:
     # muerden. Compone sobre RBAC (exige `roles`). Sin `owned_by`, FSK-S13 intacto (sólo rol×entidad).
     owned = [e for e in ents if e.get("owned_by")]
     if owned:
-        files[f"{pkgdir}/auth/OwnershipGuard.kt"] = _ownership_guard_kt(pkg)
+        # FSK-OWNERSHIP-OPTIONAL: si CUALQUIER entidad con dueño lo declara `required: false` (un RTD sin
+        # asignar), canModify pasa a `Long?` (acepta filas sin dueño); con todos los dueños requeridos queda
+        # EXACTO (byte-idéntico → default/assets sin re-derivar). Opt-in por el `required` del `owned_by`.
+        owner_optional = any(not next(f for f in e["fields"] if f["name"] == e["owned_by"]).get("required", True)
+                             for e in owned)
+        files[f"{pkgdir}/auth/OwnershipGuard.kt"] = _ownership_guard_kt(pkg, owner_optional)
         files[f"{pkgdir}/auth/OwnershipPolicy.kt"] = _ownership_policy_kt(pkg, owned, bp.get("owner_bypass_roles") or [])
         files["probe/routes/wrong_owner.kt"] = _probe_wrong_owner(bp)
         files[f"src/test/kotlin/{pkg}/auth/OwnershipGuardTest.kt"] = _test_ownership_guard_kt(pkg, bp)

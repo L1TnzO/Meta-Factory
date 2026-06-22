@@ -312,23 +312,25 @@ def _load_blueprint(root: Path) -> dict:
             raise SystemExit(f"scaffold: company_scoped de {e.get('name')!r} nombra un campo inexistente {cs!r}")
         if fld.get("type") != "ref":
             raise SystemExit(f"scaffold: company_scoped de {e.get('name')!r}: el campo {cs!r} no es type 'ref' (el tenant es una FK a la compañía)")
-    # R2 (FSK-DOMAIN-OPS): verbos de DOMINIO OPCIONALES. `operations` (por entidad) = una lista de transiciones
-    # NOMBRADAS de un campo enum-workflow con efecto sobre un campo `ref` (assigns/clears) — checkout/checkin son
-    # el caso central de Snipe-IT. El verbo COMPONE sobre lo ya construido: RBAC + ownership (modifyVerdict) +
-    # la precondición de WORKFLOW (canTransition, hasta hoy sólo-UNIT). Fail-closed (mismo patrón que los demás
-    # ejes): `operations` exige `owned_by` (el verbo decide acceso vía ownership); `field` debe ser un enum CON
-    # `transitions` (un workflow); `from`/`to` ∈ values Y la transición `from→to` DEBE estar DECLARADA en el
-    # workflow (un verbo que nombra una transición inexistente → raise honesto); `assigns`/`clears` (excluyentes,
-    # opcionales) nombran un campo `ref`. Opt-in: sin `operations` el producto es EXACTO (FSK-S16 intacto).
+    # R2 (FSK-DOMAIN-OPS): verbos de DOMINIO OPCIONALES. `operations` (por entidad) = una lista de verbos NOMBRADOS.
+    # Hay DOS KINDs (excluyentes por operación):
+    #   • WORKFLOW (FSK-DOMAIN-OPS): una transición de un campo enum-workflow con efecto sobre un campo `ref`
+    #     (assigns/clears) — checkout/checkin de un Asset. COMPONE sobre RBAC + ownership (modifyVerdict) + la
+    #     precondición de WORKFLOW (canTransition). Fail-closed: exige `owned_by` (el verbo decide acceso por
+    #     ownership); `field` enum CON `transitions`; `from`/`to` ∈ values Y la transición `from→to` DECLARADA;
+    #     `assigns`/`clears` (excluyentes, opcionales) nombran un campo `ref`.
+    #   • QTY / STOCK (FSK-QTY-OPERATIONS): un verbo que DECREMENTA un campo `int` (el stock) con guard de
+    #     out-of-stock — el checkout de un accesorio/consumible (entidad SIN dueño). NO es una transición de
+    #     máquina de estado (un decremento aritmético) → NO exige `owned_by` (gatea RBAC-only) ni `field`; declara
+    #     `decrements: <campo int>`. Fail-closed: `decrements` ∈ los `int` de la entidad; la entidad exige
+    #     `write_roles` (el verbo gatea por rol). El KIND se detecta por la presencia de `decrements`.
+    # Opt-in: sin `operations` el producto es EXACTO (FSK-S16 intacto).
     for e in ents:
         ops = e.get("operations")
         if ops is None:
             continue
         if not isinstance(ops, list) or not ops:
             raise SystemExit(f"scaffold: 'operations' de {e['name']!r} debe ser una lista no vacía")
-        if e.get("owned_by") is None:
-            raise SystemExit(f"scaffold: entidad {e['name']!r} declara 'operations' sin 'owned_by' "
-                             f"(el verbo decide acceso por ownership — fail-closed)")
         fld_by = {f["name"]: f for f in e["fields"]}
         seen_ops: set[str] = set()
         for op in ops:
@@ -338,6 +340,25 @@ def _load_blueprint(root: Path) -> dict:
             if nm in seen_ops:
                 raise SystemExit(f"scaffold: operation duplicada {nm!r} en {e['name']!r}")
             seen_ops.add(nm)
+            # KIND qty (FSK-QTY-OPERATIONS): el verbo de STOCK. Detectado por `decrements`. Excluye las claves del
+            # KIND workflow (excluyentes); `decrements` debe nombrar un `int`; la entidad exige `write_roles`.
+            if "decrements" in op:
+                wf_keys = [k for k in ("field", "from", "to", "assigns", "clears") if k in op]
+                if wf_keys:
+                    raise SystemExit(f"scaffold: operation qty {nm!r} de {e['name']!r}: declara claves de workflow "
+                                     f"{wf_keys} junto a 'decrements' (los KINDs qty y workflow son excluyentes)")
+                dec = fld_by.get(op["decrements"])
+                if dec is None or dec.get("type") != "int":
+                    raise SystemExit(f"scaffold: operation qty {nm!r}: 'decrements' {op['decrements']!r} no es un "
+                                     f"campo 'int' de {e['name']!r} (el stock es una cantidad entera)")
+                if not e.get("write_roles"):
+                    raise SystemExit(f"scaffold: operation qty {nm!r} de {e['name']!r} sin 'write_roles' "
+                                     f"(el verbo qty gatea por RBAC — fail-closed)")
+                continue
+            # KIND workflow: exige `owned_by` (el verbo decide acceso por ownership) + el campo enum-workflow.
+            if e.get("owned_by") is None:
+                raise SystemExit(f"scaffold: entidad {e['name']!r} declara una operation de workflow sin 'owned_by' "
+                                 f"(el verbo decide acceso por ownership — fail-closed; un verbo de stock usa 'decrements')")
             wf = fld_by.get(op.get("field"))
             if wf is None or wf.get("type") != "enum" or not wf.get("transitions"):
                 raise SystemExit(f"scaffold: operation {nm!r}: 'field' {op.get('field')!r} no es un campo enum con "
@@ -1085,6 +1106,13 @@ def _ref_target_seedable(target: dict) -> bool:
     return not any(f["type"] == "ref" and f.get("required", True) for f in target["fields"])
 
 
+def _qty_ops(e: dict) -> list[dict]:
+    """Las operaciones de KIND qty/stock (FSK-QTY-OPERATIONS) de `e`: un verbo que DECREMENTA un campo `int` con
+    guard out-of-stock (detectado por `decrements`), distinto del KIND workflow (`field`/`from`/`to`). None-safe;
+    vacío si la entidad no declara ninguna → byte-neutro para los productos sin stock (default/assets)."""
+    return [op for op in (e.get("operations") or []) if op.get("decrements")]
+
+
 def _live_with_ref(entities: list[dict]) -> dict | None:
     """La 1ª entidad SIN dueño con un `ref` REQUERIDO no-dueño que obtiene CAPA VIVA (FSK-REFS-IN-BODY): el POST
     acepta el id del ref en el cuerpo (Long, type-bound), la FK existe → 201, cuelga → 4xx fail-closed. El
@@ -1093,15 +1121,22 @@ def _live_with_ref(entities: list[dict]) -> dict | None:
     AppServer lo siembra y expone su id por /seed para que el proof POSTee una FK válida). Heurística
     DATA-agnóstica (cero nombres de dominio, ADR-012): en snipeit da AssetModel (category_id→Category, sembrable).
     Disjunta de _live_ownerless (que EXCLUYE entidades con ref requerido). Opt-in: sin entidad así → None
-    (assets no tiene refs requeridos no-dueño; default Task→Project no es sembrable → cadena diferida)."""
+    (assets no tiene refs requeridos no-dueño; default Task→Project no es sembrable → cadena diferida).
+    FSK-QTY-OPERATIONS — entre las candidatas, PREFIERE una que declare operaciones de stock (`_qty_ops`): así la
+    capa viva ejerce el verbo qty a runtime (el server monta sus verbos sobre la entidad with_ref/ownerless). Regla
+    GENERAL (cero nombres de dominio): un producto sin verbos qty cae en la 1ª candidata como antes → byte-neutro
+    para default/assets (que ni siquiera tienen entidad with_ref)."""
     by = {e["name"]: e for e in entities}
+    candidates = []
     for e in entities:
         if e.get("owned_by") or not e.get("write_roles"):
             continue
         reqrefs = [f for f in e["fields"] if f["type"] == "ref" and f.get("required", True)]
         if reqrefs and all(_ref_target_seedable(by[f["to"]]) for f in reqrefs):
-            return e
-    return None
+            candidates.append(e)
+    if not candidates:
+        return None
+    return next((e for e in candidates if _qty_ops(e)), candidates[0])
 
 
 def _ref_targets(e: dict, entities: list[dict]) -> list[dict]:
@@ -1267,15 +1302,17 @@ def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
     `to` declarado + (assigns) un ref al target del body O (clears) lo pone NULL, por id. Type-bound al schema
     (columna inexistente → no compila, DES-12). Opt-in: sin `operations` no se emite (default/assets byte-idéntico)."""
     out = []
+    wf_ops = [op for op in e["operations"] if not op.get("decrements")]   # KIND workflow (enum/transition)
+    qty_ops = [op for op in e["operations"] if op.get("decrements")]      # KIND qty/stock (FSK-QTY-OPERATIONS)
     fields_done: set[str] = set()
-    for op in e["operations"]:
+    for op in wf_ops:
         fld = op["field"]
         if fld not in fields_done:   # un lector por campo enum-workflow (dedup si varios verbos comparten campo)
             fields_done.add(fld)
             col = f"{tbl}.{_COL(fld)}"
             out.append(f"    fun {e['name'].lower()}{_pascal(fld)}Of(ctx: DSLContext, id: Long): String? =\n"
                        f"        ctx.select({col}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({col})")
-    for op in e["operations"]:
+    for op in wf_ops:
         col = f"{tbl}.{_COL(op['field'])}"
         sets = [f'set({col}, "{op["to"]}")']   # el `to` declarado (la columna es VARCHAR del enum-workflow)
         if op.get("assigns"):
@@ -1289,6 +1326,15 @@ def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
         calls = sets + [f"where({tbl}.ID.eq(id))", "execute()"]
         chain = _jooq_chain("        ", "", f"ctx.update({tbl})", calls)
         out.append(f"    fun {sig}: Int =\n{chain}")
+    # FSK-QTY-OPERATIONS: la mutación ATÓMICA del verbo de stock — un UPDATE CONDICIONAL que decrementa el campo
+    # `int` SÓLO si hay stock (`AND <qty> > 0`). Devuelve las filas afectadas: 0 ⟺ sin stock (qty==0) o fila
+    # inexistente → el server lo traduce a 409 (out-of-stock). El guard `> 0` ES el diente: quitarlo → el
+    # decremento pasa a -1 y devuelve 1 → el 409 desaparece (rojo SÓLO en s9). Type-bound a jOOQ (DES-12).
+    for op in qty_ops:
+        dcol = f"{tbl}.{_COL(op['decrements'])}"
+        calls = [f"set({dcol}, {dcol}.minus(1))", f"where({tbl}.ID.eq(id).and({dcol}.gt(0)))", "execute()"]
+        chain = _jooq_chain("        ", "", f"ctx.update({tbl})", calls)
+        out.append(f"    fun {op['name']}{e['name']}(ctx: DSLContext, id: Long): Int =\n{chain}")
     return out
 
 
@@ -3921,7 +3967,7 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
     return helpers + list_all + get_one + do_post + do_put + do_delete
 
 
-def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
+def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None = None) -> str:
     """Los handlers del server vivo para una entidad SIN dueño (FSK-CRUD-OWNERLESS): CRUD gobernado por RBAC-only
     (no hay dueño que cargar → sin OwnershipGuard; el guard se reduce a RoleGuard.authorize). Funciones SUFIJADAS
     por la entidad (doPost<E>/listAll<E>/getOne<E>/doDelete<E>/handle<E>) → coexisten con las de la entidad con
@@ -3931,10 +3977,42 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
     Reusa los helpers compartidos (forbidden/notFound/badRequest), el codec (parse<E>Input) y el Repository de
     mutación. Cuando `catch_fk` (entidad con un `ref` REQUERIDO no-dueño, FSK-REFS-IN-BODY) el INSERT se envuelve
     en runCatching: un ref COLGANTE (id inexistente) viola la FK → DataAccessException → 409 fail-closed (no 500,
-    no traga). DATA-agnóstico: nombres derivados del blueprint, cero nombres de dominio (ADR-012)."""
+    no traga). DATA-agnóstico: nombres derivados del blueprint, cero nombres de dominio (ADR-012).
+    FSK-QTY-OPERATIONS — con `ops` (verbos de STOCK montados sobre esta entidad ownerless, RBAC-only) emite un
+    handler por verbo (POST /<plural>/{id}/<verbo>): autoriza por rol → decrementa el stock con guard out-of-stock
+    (Repository.<verbo><E> devuelve 0 ⟺ sin stock → 409). Es el 1er montaje de VERBOS sobre una entidad SIN dueño
+    (los verbos previos vivían sólo en la entidad con dueño, vía modifyVerdict). Opt-in: sin `ops` el handler es
+    byte-idéntico (FSK-CRUD-OWNERLESS/REFS-IN-BODY intactos)."""
+    ops = ops or []
     name, lower = e["name"], e["name"].lower()
     plural_const = f"PLURAL_{name.upper()}"
     write_fn = f"writeRoles{name}"
+    # FSK-QTY-OPERATIONS: los handlers de los verbos de stock + las ramas del dispatch. Vacío sin `ops` → byte-neutro.
+    qty_handlers, qty_dispatch, qty_suppress = "", "", ""
+    if ops:
+        verb_fns, disp_lines = [], []
+        for op in ops:
+            v = op["name"]
+            verb_fns.append(
+                f"// POST /<plural>/{{id}}/{v} (FSK-QTY-OPERATIONS): RBAC-only; decrementa el stock con guard\n"
+                f"// out-of-stock. Rol prohibido -> 403; fila inexistente / sin stock -> 409 (el UPDATE condicional\n"
+                f"// afecta 0 filas); OK -> 200. El opId sale del sub-path /<plural>/{{id}}/{v}.\n"
+                f"private fun {v}{name}(ctx: DSLContext, token: String?, rest: String): Pair<Int, String> {{\n"
+                '    val opId = rest.split("/").firstOrNull()?.toLongOrNull()\n'
+                "    return when {\n"
+                "        opId == null -> notFound()\n"
+                f"        !RoleGuard.authorize(token, {write_fn}()) -> forbidden()\n"
+                f"        Repository.{v}{name}(ctx, opId) == 0 -> conflict()\n"
+                '        else -> HTTP_OK to """{"status":$HTTP_OK}"""\n'
+                "    }\n"
+                "}")
+            disp_lines.append(
+                f'        method == "POST" && rest.split("/").getOrNull(1) == "{v}" -> {v}{name}(ctx, token, rest)\n')
+        qty_handlers = "\n".join(verb_fns) + "\n\n"
+        qty_dispatch = "".join(disp_lines)
+        # los verbos suman ramas al `when` (tabla de ruteo generada) → empujan la complejidad ciclomática; @Suppress
+        # method-level, OPT-IN (byte-neutro sin `ops`), como el `handle` de la entidad con dueño con operations.
+        qty_suppress = '@Suppress("CyclomaticComplexMethod")\n'
     if catch_fk:   # FSK-REFS-IN-BODY: el INSERT puede violar una FK (ref colgante) → atrapar → 409 (no 500)
         fk_helpers = (
             "// FK fail-closed (FSK-REFS-IN-BODY): un ref VALIDO -> INSERT -> 201 + id; un ref COLGANTE (id\n"
@@ -3995,8 +4073,10 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
         f"    Repository.delete{name}(ctx, id) == 0 -> notFound()\n"
         '    else -> HTTP_OK to """{"status":$HTTP_OK}"""\n'
         "}\n\n"
+        + qty_handlers +
         "// Dispatch de la entidad ownerless: GET coleccion / GET {id} / POST (RBAC) / DELETE {id} (RBAC). PUT se\n"
         "// difiere (eje hermano) -> cae en el 404 del else, sin tocar la DB.\n"
+        + qty_suppress +
         f"private fun handle{name}(ctx: DSLContext, ex: HttpExchange) {{\n"
         '    val token = ex.requestHeaders.getFirst("Authorization")\n'
         f"    val rest = ex.requestURI.path.removePrefix({plural_const}).trim('/')\n"
@@ -4009,6 +4089,7 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
         f'        method == "GET" && id != null -> getOne{name}(ctx, id)\n'
         f'        method == "POST" && collection -> doPost{name}(ctx, token, payload)\n'
         f'        method == "DELETE" && id != null -> doDelete{name}(ctx, token, id)\n'
+        + qty_dispatch +
         '        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""\n'
         "    }\n"
         "    respond(ex, status, out)\n"
@@ -4241,11 +4322,13 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     with_ref = _live_with_ref(ents)
     served = [owned] + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
     ref_targets = _ref_targets(with_ref, ents)
-    # Verbos de DOMINIO (FSK-DOMAIN-OPS): la entidad CON DUEÑO puede declarar `operations` (checkout/checkin). El
-    # handler del verbo invoca la máquina de estado del workflow (canTransition) a RUNTIME → necesita el enum class
-    # del contrato (model {owned}) + el guard {owned}{Field}Workflow. Opt-in: sin `operations` no se importa nada
-    # (default/assets byte-idéntico). need_conflict: el server necesita conflict()/409 si hay with_ref O operations.
-    operations = owned.get("operations") or []
+    # Verbos de DOMINIO (FSK-DOMAIN-OPS): la entidad CON DUEÑO puede declarar `operations` de WORKFLOW
+    # (checkout/checkin). El handler del verbo invoca la máquina de estado del workflow (canTransition) a RUNTIME →
+    # necesita el enum class del contrato (model {owned}) + el guard {owned}{Field}Workflow. Opt-in: sin
+    # `operations` no se importa nada (default/assets byte-idéntico). need_conflict: el server necesita
+    # conflict()/409 si hay with_ref O operations. FSK-QTY-OPERATIONS: los verbos de STOCK (KIND qty) NO se montan
+    # acá (sobre el owned) sino sobre la entidad ownerless/with_ref (RBAC-only) → se filtran del set del owned.
+    operations = [op for op in (owned.get("operations") or []) if not op.get("decrements")]
     op_imports = []
     if operations:
         op_imports.append(f"import org.openapitools.client.models.{owned['name']}")
@@ -4271,7 +4354,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     all_fn = f"all{owned['name']}s"
     owner_fn = f"{owned['name'].lower()}OwnerId"
     tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets + dep_entities}
-                  | ({_TBL(company_ent)} if company_ent else set()))   # FSK-COMPANY-SCOPING: la tabla del tenant
+                  | ({_TBL(company_ent)} if company_ent else set())   # FSK-COMPANY-SCOPING: la tabla del tenant
+                  # FSK-QTY-OPERATIONS: la tabla de la entidad with_ref, que seedRows inserta inline (fila de stock)
+                  | ({_TBL(with_ref)} if with_ref and _qty_ops(with_ref) else set()))
     codec_kt, codec_imports = _codec_helpers(served)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
@@ -4348,6 +4433,21 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     seed_ref = ("\n" + seed_ref_lines) if seed_ref_lines else ""
     ref_map = ("mapOf(" + ", ".join(f'"{f["name"]}" to {tvar[f["to"]]}' for f in with_ref["fields"]
                                     if f["type"] == "ref" and f.get("required", True)) + ")") if with_ref else "emptyMap()"
+    # FSK-QTY-OPERATIONS: si la entidad with_ref declara verbos de STOCK, el server los MONTA sobre su handler
+    # ownerless (RBAC-only, _ownerless_handlers ops=) y siembra una fila de stock (qtyId) con su(s) FK requerida(s)
+    # —reusando los ref targets ya sembrados (tvar)— para que el proof ejercite el decremento + out-of-stock a
+    # runtime. Opt-in: sin verbos qty todo queda "" → AppServer byte-idéntico (default/assets ni tienen with_ref).
+    wr_qty_ops = _qty_ops(with_ref) if with_ref else []
+    if wr_qty_ops:
+        wr_wiring = {f["name"]: tvar[f["to"]] for f in with_ref["fields"]
+                     if f["type"] == "ref" and f.get("required", True)}
+        seed_qty = "\n" + _seed_chain("qtyId", with_ref, ref_wiring=wr_wiring)
+        qty_arg = ", qtyId"
+        # la siembra de la fila de stock empuja seedRows >60 líneas (LongMethod): es un seeder GENERADO 1:1 con
+        # los ejes activos (no mantenible a mano) → @Suppress method-level, OPT-IN (byte-neutro sin verbos qty).
+        seedrows_suppress = '@Suppress("LongMethod")\n'
+    else:
+        seed_qty = qty_arg = seedrows_suppress = ""
     conflict_const = "private const val HTTP_CONFLICT = 409\n" if need_conflict else ""
     handlers = _app_server_handlers(owned, f"insert{owned['name']}",
                                     f"delete{owned['name']}", _mutable_field(owned), need_conflict, bool(scope_field))
@@ -4361,7 +4461,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # method-level, OPT-IN (byte-neutro sin operations: el `handle` de default/assets queda EXACTO).
     handle_suppress = '@Suppress("CyclomaticComplexMethod")\n' if operations else ""
     ownerless_block = ("\n" + _ownerless_handlers(ownerless)) if ownerless else ""
-    with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True)) if with_ref else ""
+    with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True, ops=wr_qty_ops)) if with_ref else ""
     ownerless_context = (f"    server.createContext(PLURAL_{ownerless['name'].upper()}) "
                          f"{{ ex -> handle{ownerless['name']}(ctx, ex) }}\n") if ownerless else ""
     with_ref_context = (f"    server.createContext(PLURAL_{with_ref['name'].upper()}) "
@@ -4399,6 +4499,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     if scope_field:
         seed_params += ["val companyA: Long", "val companyB: Long", "val scopedId: Long"]
         json_parts += ['"companyA":${seed.companyA}', '"companyB":${seed.companyB}', '"scopedId":${seed.scopedId}']
+    if wr_qty_ops:   # FSK-QTY-OPERATIONS: el id de la fila de stock sembrada (el proof la decrementa hasta 0 → 409)
+        seed_params.append("val qtyId: Long")
+        json_parts.append('"qtyId":${seed.qtyId}')
     seed_decl = _seed_decl_kt(seed_params)
     seed_json = _seed_json_kt(json_parts)
     return (_APP_SERVER_SKELETON
@@ -4431,6 +4534,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%REF_TARGETS_MAP%", ref_map)
             .replace("%SEED_COMPANY_SCOPE%", seed_company_scope)
             .replace("%CS_ARG%", cs_arg)
+            .replace("%SEED_QTY%", seed_qty)
+            .replace("%QTY_ARG%", qty_arg)
+            .replace("%SEEDROWS_SUPPRESS%", seedrows_suppress)
             .replace("%SEED_DECL%", seed_decl)
             .replace("%SEED_JSON%", seed_json)
             .replace("%COMPANY_SCOPE_BYPASS%", company_scope_bypass)
@@ -4490,10 +4596,10 @@ private fun connect(url: String, user: String, pass: String): Connection {
 // Siembra el principal DUENO + una fila suya + (FSK-REFS-IN-BODY) una fila de cada target de ref requerido en
 // la PG viva (persistencia real via Repository/jOOQ). Devuelve los ids generados para que /seed los exponga: el
 // proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
-private fun seedRows(ctx: DSLContext): Seed {
+%SEEDROWS_SUPPRESS%private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%
-    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%%CS_ARG%)
+%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%%SEED_QTY%
+    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%%CS_ARG%%QTY_ARG%)
 }
 
 private fun seedJson(seed: Seed): String {
@@ -4667,6 +4773,37 @@ _OPERATIONS_PROOF = '''
                     ok &= _expect_value(_row2.get(_rev["clear"]), None, f"[ops] {_rev['name']} limpio {_rev['clear']} -> null")'''
 
 
+# FSK-QTY-OPERATIONS: el DIENTE de dos lados del verbo de STOCK VIVO sobre la entidad SIN dueño (RBAC-only). El
+# server sembró una fila (qtyId) con stock; el verbo lo DECREMENTA con guard out-of-stock. Estructura GENERAL
+# (DATA-agnóstica, sólo QTY_VERB/QTY_FIELD/WR_* varían): rol prohibido -> 403 sin decrementar; checkout hasta
+# agotar -> 200 + decremento (GET lo confirma); sin stock (qty==0) -> 409. Quitar el guard `AND qty > 0` del
+# UPDATE -> el decremento sigue a -1 y devuelve 1 -> el 409 se vuelve 200 -> rojo SÓLO en access_control_live
+# (s9). Opt-in: sin verbos qty en la entidad with_ref -> "" -> el proof queda byte-idéntico. Corre al final (8 indent).
+_QTY_PROOF = '''
+        # *** FSK-QTY-OPERATIONS: el verbo de STOCK decrementa una cantidad con guard out-of-stock, sobre la ***
+        # entidad SIN dueno (RBAC-only). El server sembro una fila (qtyId) con stock. DIENTE de DOS lados.
+        qty_verb = "%QTY_VERB%"      # el verbo que decrementa el stock (POST /<plural>/{id}/<verbo>)
+        qty_field = "%QTY_FIELD%"    # el campo `int` (stock) que el verbo decrementa
+        qty_id = seed.get("qtyId")
+        if qty_id is not None:
+            _q0 = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
+            _qpath = f"{WR_PLURAL}/{qty_id}/{qty_verb}"
+            if WR_FORBIDDEN:   # rol prohibido -> 403 y el stock NO cambia
+                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_FORBIDDEN}:1", {})[0], 403,
+                              f"[qty] {qty_verb} rol PROHIBIDO ({WR_FORBIDDEN}) -> 403")
+                _after = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
+                ok &= _expect_value(_after, _q0, "[qty] stock intacto tras rol prohibido")
+            # checkout hasta agotar el stock: cada uno -> 200 + decremento de 1 (GET lo confirma).
+            for _i in range(_q0):
+                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", {})[0], 200,
+                              f"[qty] {qty_verb} con stock -> 200")
+                _cur = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
+                ok &= _expect_value(_cur, _q0 - _i - 1, f"[qty] {qty_verb} decremento el stock")
+            # *** EL DIENTE: sin stock (qty==0) -> 409 (el UPDATE condicional afecta 0 filas). ***
+            ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", {})[0], 409,
+                          f"[qty] {qty_verb} sin stock (qty==0) -> 409 (out-of-stock)")'''
+
+
 # FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
 # que VIOLA la regla del campo → 400 (el codec `strFmt` lo rechaza a runtime, fail-closed) + el count NO cambia.
 # Saltear strFmt (aceptar cualquier string — p.ej. el patrón degradado a ".*") → 201 → rojo SÓLO en este check
@@ -4771,6 +4908,13 @@ def _access_control_check_py(bp: dict) -> str:
     wr_scalars = {f["name"]: _proof_post_value(f) for f in wr_flds if f["type"] != "ref"}
     wr_ref_fields = [f["name"] for f in wr_flds if f["type"] == "ref"]   # el id viene de /seed refs (FK válida)
     wr_bad = {wr_flds[0]["name"]: _proof_wrong_value(wr_flds[0])} if wr_flds else {}
+    # FSK-QTY-OPERATIONS: el diente del verbo de STOCK VIVO sobre la entidad with_ref (RBAC-only) — sólo si ésta
+    # declara verbos qty. QTY_VERB = el 1er verbo de stock; QTY_FIELD = el campo `int` que decrementa. El server
+    # sembró la fila qtyId. Opt-in: sin verbos qty → "" → el proof queda byte-idéntico.
+    wr_qty = _qty_ops(wr) if wr else []
+    qty_verb = wr_qty[0]["name"] if wr_qty else ""
+    qty_field = wr_qty[0]["decrements"] if wr_qty else ""
+    qty_block = _QTY_PROOF if wr_qty else ""
     # FSK-OWNED-REQUIRED-REFS: inyecta las FKs VÁLIDAS del owned (ids de /seed ownedRefs) en los cuerpos del POST,
     # como el bloque with-ref. Opt-in: sin refs requeridos no-dueño → "" → el proof queda byte-idéntico.
     owned_ref_merge = ("\n        _owned_refs = seed.get(\"ownedRefs\", {})\n"
@@ -4778,8 +4922,9 @@ def _access_control_check_py(bp: dict) -> str:
                        "            POST_BODY[_k] = _v\n"
                        "            BAD_TYPE_BODY[_k] = _v") if owned_ref_fields else ""
     # FSK-DOMAIN-OPS: el bloque del proof de los verbos de dominio (forward→200+mutación, re-aplicar→409 diente,
-    # rol/dueño→403, inverso→200+clear). Opt-in: sin `operations` → "" → el proof queda byte-idéntico.
-    ops = owned.get("operations") or []
+    # rol/dueño→403, inverso→200+clear). Sólo los verbos de WORKFLOW (los de STOCK viven en el bloque qty, sobre la
+    # entidad with_ref). Opt-in: sin `operations` de workflow → "" → el proof queda byte-idéntico.
+    ops = [op for op in (owned.get("operations") or []) if not op.get("decrements")]
     operations_block = (_OPERATIONS_PROOF.replace("%OPS_DATA%", json.dumps(
         [{"name": o["name"], "from": o["from"], "to": o["to"],
           "assign": o.get("assigns"), "clear": o.get("clears")} for o in ops]))
@@ -4807,6 +4952,9 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
             .replace("%COMPANY_SCOPE_BLOCK%", company_scope_block)
+            .replace("%QTY_BLOCK%", qty_block)
+            .replace("%QTY_VERB%", qty_verb)
+            .replace("%QTY_FIELD%", qty_field)
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
@@ -5071,7 +5219,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

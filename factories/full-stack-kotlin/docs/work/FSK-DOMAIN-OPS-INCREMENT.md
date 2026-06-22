@@ -1,7 +1,7 @@
 # Incremento FSK-DOMAIN-OPS — verbos de dominio (checkout/checkin) que MUTAN semántica bajo guard
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T04:01Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T04:01Z · cerrado 2026-06-22T13:45Z — ver §Evidencia al final). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
 > con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
@@ -169,3 +169,53 @@ Orden del push Snipe-IT (`products/snipeit/docs/reference/SNIPEIT-DOMAIN.md §4`
   schema build-time-declarado). El mayor eje de fábrica que Snipe-IT fuerza.
 - **diferidos DUROS** (red/scope): push a un registry · e2e Playwright · AppServer-en-contenedor con PG · ciclos
   cross-entidad (deferral 6) · checkout polimórfico (deferral 2) · cantidades (qty decrement en Accessory/Consumable).
+
+---
+
+## Evidencia (cierre 2026-06-22T13:45Z) — probado POR BLOQUEO
+
+**Lo construido — GENERAL, opt-in, byte-neutro.** Una entidad con dueño declara `operations: [{name, field, from,
+to, assigns|clears}]`. El codegen (todo en `codegen/scaffold_product.py`) emite:
+- **Validación** (`_load_blueprint`): fail-closed — `operations` exige `owned_by`; `field` enum CON `transitions`;
+  `from`/`to` ∈ values **Y `from→to` declarada** (un verbo que nombra una transición inexistente → `raise`);
+  `assigns`/`clears` excluyentes, nombran un `ref`.
+- **Contrato** (`_openapi_yaml`) `post /<plural>/{id}/<verbo>` + `security` + `x-required-roles`; **rutas**
+  (`_routes_kt`) `route("POST", "/<plural>/{id}/<verbo>", roleset)` DENTRO del guard → `route_check` topology/auth/
+  rbac/ownership VERDE (cruce GRATIS, single-source DES-6).
+- **Mutación** (`_operation_repo_fns`, Repository) `<e><Field>Of` (lee estado) + `<verbo><E>` (UPDATE atómico: `set
+  (campo, to)` + `set(ref, target)` / `setNull(ref)`).
+- **Handler** (`_operations_handlers`, AppServer): un `return when` (ReturnCount ≤ 2) que compone **modifyVerdict
+  (RBAC+ownership) → `<Entity><Field>Workflow.canTransition(Enum.valueOf(estado_actual), to)` → mutación**. Estado
+  inválido → 409; rol/dueño → 403/404. `conflict()`/`HTTP_CONFLICT` centralizados (with_ref O operations); `handle`
+  gana `@Suppress("CyclomaticComplexMethod")` (opt-in; las 2 ramas nuevas lo empujaron a 16 > 15).
+- **Proof** (`_access_control_check_py`, bloque `_OPERATIONS_PROOF`): forward (estado válido)→200 + verifica
+  `field=to` y `assign`/`clear`; **re-aplica (ya en `to`)→409** (el diente de la precondición); rol/dueño→403; verbo
+  inverso→200 + verifica clear→null.
+
+**Cierra el over-claim "workflow enforced"**: el guard `canTransition` (FSK-S12) pasó de SÓLO-UNIT (s7) a
+ENFORZADO A RUNTIME (el verbo lo invoca con el estado actual de la fila).
+
+**Adopción PRODUCTO** (ADR-016, incremento `DOMAIN-OPS-ADOPT`): `products/snipeit/product.yml` `Asset` gana
+`operations: [checkout, checkin]` (assigns/clears `assigned_user_id`, que es el dueño y el campo de asignación).
+
+**Verificación (no fingida):**
+- `product-run --product snipeit` **PASS** (s0→s11); RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente de DOS lados VIVO** (s9): invertí la precondición (saqué el `!` de `canTransition` en el handler — flip de
+  RUNTIME, `current`/Workflow siguen usados → SIN hallazgo estático) → el verbo rechaza el checkout válido →
+  `observability_live ok · access_control_live FAIL(1) · frontend_consume_live ok` → revertí → PASS.
+- `ci --rederive --factory full-stack-kotlin` (base) **12/12** · `--product assets` **11/11** · `--product snipeit`
+  **11/11** == pin en clon limpio. **`proof_sha` INTACTO → SIN re-pin** (el verbo vive dentro de s9).
+- `meta check` **6/6** (`generality` verde). `git diff src/metafactory + seed = 0`. `git diff` factory.spec.yml +
+  assets/product.yml = **0** (default/assets byte-idénticos — eyeball HEAD-vs-working 68/68 confirmó la opt-in).
+- **Eyeball ANTES del gradle**: dump default/assets byte-idéntico + `route_check` 4 modos verdes + `py_compile` del
+  proof. Destapó `handle` complejidad 16>15 → `@Suppress` opt-in (1 sola corrida perdida).
+
+**Commits**: `feat(fsk): …` (codegen) · `feat(snipeit): …` (product.yml) · `docs(fsk): …` (cierre + apertura del siguiente).
+
+**Lecciones aplicadas/destiladas:**
+- El sabotaje que muerde a RUNTIME NO puede introducir un hallazgo ESTÁTICO: invertir `canTransition` (drop `!`)
+  cambia el VEREDICTO sin volver `current`/Workflow no-usados → mordió EXACTO en s9, no en s2.
+- `Enum.valueOf(current)` con `serializationLibrary=kotlinx_serialization`: la entry del enum se nombra con el
+  VALOR LITERAL → `valueOf("ready")` resuelve (requiere values = identificadores válidos; los de Snipe-IT lo son).
+- El `from` es validación de CODEGEN (la transición debe existir); el guard de RUNTIME es `canTransition(actual, to)`
+  — un verbo sobre un estado del que `to` no es alcanzable → 409.

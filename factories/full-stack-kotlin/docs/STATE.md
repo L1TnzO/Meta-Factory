@@ -125,6 +125,22 @@
   en el POST → **SÓLO** `access_control_live` rojo, hermanos s9 verdes; revertí→verde). **`product-run` PASS · RTM 24/25 ·
   `ci --rederive --factory full-stack-kotlin --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality`
   verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle: `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md §Evidencia`.
+- **VERBOS DE DOMINIO checkout/checkin — el 1er eje de COMPORTAMIENTO, GENERAL (FSK-DOMAIN-OPS, 2026-06-22)**: tras 4
+  ejes de MODELO-DE-DATOS, el 1er eje de COMPORTAMIENTO. La operación central de Snipe-IT no es un PUT genérico: es
+  **checkout** (`status ready→deployed` + asigna el activo a un usuario) / **checkin** (`deployed→ready` + lo libera).
+  Una entidad con dueño declara **`operations: [{name, field, from, to, assigns|clears}]`** (DATA, ADR-012): un verbo =
+  una transición NOMBRADA de un campo enum-workflow + un efecto sobre un `ref`, que MUTA bajo **precondición de
+  WORKFLOW + RBAC + ownership**. El codegen emite ruta (`post /<plural>/{id}/<verbo>` + RouteTable, route_check
+  auth/rbac GRATIS) + handler (`return when` que compone **modifyVerdict → `canTransition(estado_actual, to)` →
+  mutación atómica**; estado inválido → **409**) + mutación tipada (`<verbo><E>` UPDATE) + proof. **Cierra el
+  over-claim "workflow enforced"**: el guard `canTransition` (FSK-S12) pasó de SÓLO-UNIT (s7) a **ENFORZADO A RUNTIME**.
+  Validación fail-closed: un verbo cuyo `from→to` no es una transición declarada → `raise`. **Opt-in/byte-neutro** (sin
+  `operations` → AppServer/Repository/contrato/proof byte-idénticos; **sin check nuevo → `proof_sha` intacto, SIN
+  re-pin**). **Adopción PRODUCTO** (ADR-016): snipeit `Asset` gana `operations: [checkout, checkin]`. Diente de DOS
+  lados VIVO (s9: invertir la precondición `canTransition` → **SÓLO** `access_control_live` rojo, hermanos verdes;
+  revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive --all-products` 12/12·11/11·11/11 == pin · `meta
+  check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle:
+  `docs/work/FSK-DOMAIN-OPS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -133,9 +149,10 @@
   - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
     `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico ·
     ~~RTD/owner-opcional~~ **✓ hecho FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos
-    no-dueño / seed transitivo~~ **✓ hecho FSK-OWNED-REQUIRED-REFS** · depreciación calculada · company-scoping · …).
-    **SIGUIENTE = verbos de dominio checkout/checkin (FSK-DOMAIN-OPS, abierto)** — el 1er eje de COMPORTAMIENTO; luego
-    custom-fields (el eje GRANDE). **Metodología probada**:
+    no-dueño / seed transitivo~~ **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho
+    FSK-DOMAIN-OPS** · depreciación calculada · company-scoping · …).
+    **SIGUIENTE = custom-fields dinámicos (FSK-CUSTOM-FIELDS, abierto)** — el eje GRANDE (campos por modelo, schema
+    build-time vs runtime); es el mayor eje de fábrica que Snipe-IT fuerza. **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

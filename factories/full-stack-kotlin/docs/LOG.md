@@ -1,6 +1,42 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T13:45Z — FSK-DOMAIN-OPS ✅: verbos de DOMINIO (checkout/checkin) — el 1er eje de COMPORTAMIENTO
+- **El primer eje de COMPORTAMIENTO tras 4 ejes de MODELO-DE-DATOS** (CRUD · self-ref · ownership opcional · refs
+  requeridos). En Snipe-IT la operación CENTRAL no es un PUT genérico: es **checkout** (asignar un activo a un usuario:
+  `status ready→deployed` + set `assigned_to`) y **checkin** (devolver: `deployed→ready` + clear `assigned_to`). Son
+  **VERBOS de dominio**: transiciones NOMBRADAS de un campo enum-workflow con efecto sobre un campo `ref`, que MUTAN
+  bajo **precondición de WORKFLOW** + RBAC + ownership. **Cierra el over-claim "workflow enforced"**: el guard
+  `canTransition` (FSK-S12) estaba SÓLO-UNIT (s7); ahora se INVOCA a RUNTIME desde el verbo.
+- **Levantado GENERAL** (codegen de fábrica, `generality` verde, `git diff src/+seed=0`), opt-in por placeholders:
+  - **Gramática del blueprint** (DATA, ADR-012): una entidad con dueño declara `operations: [{name, field, from, to,
+    assigns|clears}]`. Validación fail-closed en `_load_blueprint`: `operations` exige `owned_by`; `field` debe ser un
+    enum CON `transitions`; `from`/`to` ∈ values **Y la transición `from→to` DEBE estar DECLARADA** (un verbo no puede
+    nombrar una transición inexistente → `raise`); `assigns`/`clears` (excluyentes) nombran un `ref`.
+  - **El contrato** (`_openapi_yaml`): emite `post /<plural>/{id}/<verbo>` con `security` + `x-required-roles` →
+    `route_check` (auth/rbac) lo cruza GRATIS contra el RouteTable (single-source DES-6). **El registro de rutas**
+    (`_routes_kt`): registra la ruta del verbo DENTRO del guard, con el roleset del POST.
+  - **La mutación** (`_operation_repo_fns`, Repository): `<e><Field>Of` lee el estado actual (String) + `<verbo><E>` es
+    el UPDATE atómico (campo=`to` + `set(ref, target)` / `setNull(ref)`).
+  - **El handler** (`_operations_handlers`, AppServer): un `return when` (ReturnCount ≤ 2) que COMPONE **modifyVerdict**
+    (RBAC + ownership) → **precondición de WORKFLOW VIVA** (`<Entity><Field>Workflow.canTransition(estado_actual, to)`,
+    con `Enum.valueOf(current)`) → mutación. Estado inválido → **409**; rol/dueño → 403/404. `conflict()`/`HTTP_CONFLICT`
+    CENTRALIZADOS (antes sólo en el bloque with-ref) cuando hace falta (with_ref O operations). El `handle` dispatcher
+    gana `@Suppress("CyclomaticComplexMethod")` (tabla de ruteo generada; opt-in) por las 2 ramas nuevas.
+- **Eyeball ANTES del gradle**: dump de default/assets (HEAD vs working) **byte-idéntico** (68/68) + `route_check`
+  topology/auth/rbac/ownership VERDE sobre el árbol snipeit-con-ops + `py_compile` del proof. La 1ª corrida destapó
+  **`handle` complejidad 16 > 15** (detekt CyclomaticComplexMethod) → `@Suppress` opt-in (consistente con el
+  `@file:Suppress("TooManyFunctions")` y el `%MAIN_SUPPRESS%` de DbRoundTrip; complejidad inherente a un dispatcher).
+- **Producto**: `snipeit/product.yml` `Asset` gana `operations: [checkout, checkin]` (nivel PRODUCTO, ADR-016,
+  incremento `DOMAIN-OPS-ADOPT`). El verbo asigna/limpia `assigned_user_id` (= el dueño, también el campo de asignación
+  de Snipe-IT). Target polimórfico (User|Location|Asset) → simplificado a User (deferral 2, sigue diferido).
+- **Diente de DOS lados VIVO** (s9 `access_control_live`): invertí la precondición (saqué el `!` de `canTransition` en el
+  handler — **flip de RUNTIME, sin hallazgo estático**: `current`/Workflow siguen usados) → el verbo rechaza el checkout
+  VÁLIDO → `access_control_live FAIL(1)` con `observability_live`/`frontend_consume_live` VERDES → revertí → PASS.
+- **Verde, no fingido**: `product-run --product snipeit` PASS · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) ·
+  `ci --rederive` **3/3 == pin** (base 12/12 · assets 11/11 · snipeit 11/11; `proof_sha` INTACTO → SIN re-pin, el verbo
+  vive dentro de s9) · `meta check` 6/6 · `git diff src/+seed = 0` · default+assets product.yml = 0.
+
 ## 2026-06-22T04:00Z — FSK-OWNED-REQUIRED-REFS ✅: refs REQUERIDOS no-dueño / SEED TRANSITIVO — el 4º gap del push Snipe-IT
 - **El companion directo de FSK-OWNERSHIP-OPTIONAL.** En Snipe-IT `Asset.model_id` es REQUERIDO (un activo SIEMPRE es de
   un modelo), pero el server vivo (FSK-S15) no sabía sembrar un `ref` REQUERIDO no-dueño en la entidad-con-dueño

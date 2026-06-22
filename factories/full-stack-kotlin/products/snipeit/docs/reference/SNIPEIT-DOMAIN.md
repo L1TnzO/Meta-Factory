@@ -203,10 +203,14 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
     labels custom mapeadas a 4 tipos). Se modeló el CICLO como enum-workflow sobre Asset (la primitiva FSK más
     fuerte aquí). La customización de etiquetas se difiere.
 
-11. **Verbos de operación** (checkout/checkin/audit/request/clone/bulk/import) [GAP-FÁBRICA, ya en P1 §4]. El
-    server vivo (FSK-S15) devuelve el VEREDICTO de autorización (403/200/201/404) pero no MUTA columnas
-    end-to-end ni ejecuta la semántica (decrementar qty, liberar seat, registrar Actionlog). CRUD-mutación
-    real + las operaciones de dominio son el primer hueco que P1 va a forzar.
+11. **Verbos de operación** (checkout/checkin/audit/request/clone/bulk/import). **checkout/checkin ✓ HECHO
+    (FSK-DOMAIN-OPS, 2026-06-22)**: `Asset` declara `operations: [checkout, checkin]` y el server vivo expone
+    `POST /assets/{id}/{checkout,checkin}` que MUTA semántica bajo guard — **modifyVerdict (RBAC+ownership) →
+    precondición de WORKFLOW VIVA (`canTransition(estado_actual, to)`, antes sólo-UNIT) → mutación atómica
+    (`status=to` + asigna/limpia `assigned_user_id`)**; estado inválido → 409; diente de dos lados VIVO (s9). Cierra
+    el over-claim "workflow enforced". **Sigue [GAP-FÁBRICA]**: la semántica con CANTIDADES (checkout de
+    Accessory/Consumable decrementa `qty`, libera seat de License) + Actionlog + audit/request/clone/bulk/import.
+    Detalle: `docs/work/FSK-DOMAIN-OPS-INCREMENT.md` (fábrica) + `…/work/DOMAIN-OPS-ADOPT-INCREMENT.md` (producto).
 
 12. **Diferidos menores** [SIMPLIF]: soft-deletes (`deleted_at`), Actionlog (auditoría polimórfica), Kits
     (bundles), CheckoutRequest/Acceptance (solicitudes/firma), campos operativos (counters, image, timestamps,
@@ -217,7 +221,7 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
 
 ## 4. Próximos pasos (gaps priorizados → incrementos)
 
-Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-OWNED-REQUIRED-REFS:
+Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-DOMAIN-OPS:
 1. ~~**CRUD-mutación real** (deferral 11)~~ **✓ HECHO** (FSK-S16 + body-parsing + ownerless + refs-in-body).
 2. ~~**Self-ref** (deferral 5)~~ **✓ HECHO** (FSK-SELF-REF, 2026-06-22) — jerarquías Location/User vivas.
 3. ~~**Ownership opcional / RTD** (deferral 3)~~ **✓ HECHO** (FSK-OWNERSHIP-OPTIONAL, 2026-06-22) — dueño
@@ -225,17 +229,19 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
 4. ~~**Refs requeridos no-dueño / seed transitivo** (deferral 4)~~ **✓ HECHO** (FSK-OWNED-REQUIRED-REFS,
    2026-06-22) — `Asset.model_id` requerido; el server vivo siembra TRANSITIVAMENTE Category→AssetModel→Asset y
    `/seed` expone `ownedRefs` para FKs válidas en el POST/FORM; diente de dos lados VIVO (s9, FK colgante → rojo).
-5. **Operaciones de dominio — checkout/checkin** (deferral 11b) — **SIGUIENTE**: un VERBO de dominio
-   (`POST /assets/{id}/checkout`) que MUTA semántica bajo guard (precondición workflow `ready`→`deployed` + ownership
-   + set `assigned_user_id`) — la operación CENTRAL de Snipe-IT. **Elegido antes que custom-fields** (re-priorizado
-   2026-06-22): es BOUNDED, central, y COMPONE sobre los primitivos ya construidos (workflow+ownership+CRUD); cierra
-   el primer eje de COMPORTAMIENTO tras 4 ejes de modelo-de-datos seguidos, y de-risk antes del eje GRANDE.
-   Ver `docs/work/FSK-DOMAIN-OPS-INCREMENT.md` (handoff abierto).
-6. **Custom fields dinámicos** (deferral 1) — **el eje GRANDE** (después de #5): campos definidos por usuario por
+5. ~~**Operaciones de dominio — checkout/checkin** (deferral 11b)~~ **✓ HECHO** (FSK-DOMAIN-OPS, 2026-06-22): el
+   server vivo expone `POST /assets/{id}/{checkout,checkin}` que MUTA semántica bajo guard — modifyVerdict
+   (RBAC+ownership) → **precondición de WORKFLOW VIVA** (`canTransition`, antes sólo-UNIT s7) → mutación atómica
+   (`status` + asigna/limpia `assigned_user_id`); estado inválido → 409; diente de dos lados VIVO (s9). El 1er eje de
+   COMPORTAMIENTO; cierra el over-claim "workflow enforced". Sub-eje diferido: la semántica con CANTIDADES
+   (decrementar `qty`, liberar seat).
+6. **Custom fields dinámicos** (deferral 1) — **SIGUIENTE, el eje GRANDE**: campos definidos por usuario por
    modelo (EAV-como-columnas). Probablemente el mayor eje de fábrica que Snipe-IT fuerza — gramática de campos
-   dinámicos / schema build-time-declarado vs runtime. Mayor riesgo de diseño → va tras un eje de comportamiento.
+   dinámicos / schema build-time-declarado vs runtime. Mayor riesgo de diseño → va tras el eje de comportamiento.
+   Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md` (handoff abierto).
 7. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
-   AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
+   AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2) ·
+   cantidades (qty decrement en checkout de Accessory/Consumable).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

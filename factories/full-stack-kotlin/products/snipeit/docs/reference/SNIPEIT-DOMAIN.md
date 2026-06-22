@@ -148,15 +148,23 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    FSK `ref` apunta a UNA entidad. Se simplificó a **User** (el caso dominante). Para fidelidad plena se
    necesitaría una primitiva de ref polimórfico (unión de targets) — gap de fábrica.
 
-3. **Asignación opcional (RTD) vs owner requerido** [GAP-FÁBRICA]. En Snipe-IT un activo RTD está SIN asignar
-   (dueño nulo). FSK exige el campo `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId:
-   Long)` es no-nullable y el server vivo conflaciona owner-nulo con 404. Por eso en el blueprint todo Asset
-   tiene un asignado obligatorio. Levantar ownership-opcional (dueño nullable, estado RTD real) es un gap.
+3. **Asignación opcional (RTD) vs owner requerido** **✓ HECHO (FSK-OWNERSHIP-OPTIONAL, 2026-06-22)**. Antes
+   [GAP-FÁBRICA]: FSK exigía `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId: Long)`
+   era no-nullable y el server vivo conflaciona owner-nulo con 404. **Levantado GENERAL** (codegen de fábrica,
+   `generality` verde, `git diff src/+seed=0`), opt-in por el `required` del `owned_by`: `canModify(rowOwnerId:
+   Long?)` (una fila SIN dueño sólo la modifica un rol de bypass); `modifyVerdict` separa EXISTENCIA (reusa
+   `<e>RowJson != null`) de DUEÑO (RTD existe → no es 404); el server siembra una 2ª fila RTD (owner NULL, ALT
+   en las UNIQUE) que el proof ejercita VIVO (RTD+no-bypass→403 / RTD+bypass→200 / inexistente→404). Con dueño
+   REQUERIDO el codegen queda EXACTO (default/assets byte-idéntico). **`Asset.assigned_user_id` ahora
+   `required: false`** (un RTD está SIN asignar — el caso normal). Detalle: `docs/work/FSK-OWNERSHIP-OPTIONAL-
+   INCREMENT.md` (fábrica) + `…/OWNERSHIP-OPTIONAL-ADOPT-INCREMENT.md` (producto).
 
-4. **`Asset.model_id` requerido → opcional** [GAP-FÁBRICA]. Snipe-IT exige `model_id` (y `status_id`). Pero la
-   restricción de seed del server vivo (FSK-S15) prohíbe refs REQUERIDOS no-dueño en la entidad-con-dueño y su
-   dueño. Por eso `model_id` (y los demás refs de Asset salvo el dueño) van `required: false`. Faithful pediría
-   un seed transitivo (cadena de dependencias) en el server vivo — gap.
+4. **`Asset.model_id` requerido → opcional** [GAP-FÁBRICA] — **SIGUIENTE** (companion de #3, ahora destapado).
+   Snipe-IT exige `model_id` (y `status_id`). Pero la restricción de seed del server vivo (FSK-S15, el `raise`
+   en `_seed_chain`) prohíbe refs REQUERIDOS no-dueño en la entidad-con-dueño. Por eso `model_id` (y los demás
+   refs de Asset salvo el dueño) van `required: false`. Faithful pediría un **seed transitivo** (cadena de
+   dependencias multi-nivel: Category → AssetModel → Asset.model_id) en el server vivo — gap. Ver
+   `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md` (handoff abierto).
 
 5. **Jerarquías self-ref**: `Location.parent_id`→Location y `User.manager_id`→User **✓ HECHO (FSK-SELF-REF,
    2026-06-22)**. Antes [GAP-FÁBRICA]: FSK no soportaba refs self (`_it_repository_kt` seteaba TODO ref —incl. el
@@ -202,17 +210,19 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
 
 ## 4. Próximos pasos (gaps priorizados → incrementos)
 
-Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-SELF-REF:
+Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-OWNERSHIP-OPTIONAL:
 1. ~~**CRUD-mutación real** (deferral 11)~~ **✓ HECHO** (FSK-S16 + body-parsing + ownerless + refs-in-body).
 2. ~~**Self-ref** (deferral 5)~~ **✓ HECHO** (FSK-SELF-REF, 2026-06-22) — jerarquías Location/User vivas.
-3. **Ownership opcional / RTD** (deferrals 3, 4) — **SIGUIENTE**: dueño **nullable** + estado Ready-To-Deploy real +
-   seed transitivo en el server vivo. El más CORE de Snipe-IT (un activo SIN asignar es el caso normal) pero más
-   involucrado: toca `OwnershipGuard.canModify(rowOwnerId: Long)` no-nullable + la conflación owner-null/404 del
-   server vivo (FSK-S15). Ver `docs/work/FSK-OWNERSHIP-OPTIONAL-INCREMENT.md` (handoff abierto).
-4. **Custom fields dinámicos** (deferral 1) — el eje GRANDE: campos definidos por usuario por modelo (EAV-como-columnas).
-5. **Operaciones de dominio** (deferral 11b): checkout/checkin/audit como verbos que MUTAN semántica (decrementar qty,
+3. ~~**Ownership opcional / RTD** (deferral 3)~~ **✓ HECHO** (FSK-OWNERSHIP-OPTIONAL, 2026-06-22) — dueño
+   **nullable** + estado Ready-To-Deploy real, opt-in por `required`; diente de dos lados VIVO (s9) + UNIT (s7).
+4. **Refs requeridos no-dueño en la entidad-con-dueño / seed transitivo** (deferral 4) — **SIGUIENTE**: el server
+   vivo no sabe sembrar un ref REQUERIDO no-dueño en la entidad con dueño (FSK-S15 lo `raise`ea). Faithful exige
+   `Asset.model_id` requerido (Snipe-IT lo pide) → seed transitivo multi-nivel (Category→AssetModel→Asset). Bien
+   acotado. Ver `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md` (handoff abierto).
+5. **Custom fields dinámicos** (deferral 1) — el eje GRANDE: campos definidos por usuario por modelo (EAV-como-columnas).
+6. **Operaciones de dominio** (deferral 11b): checkout/checkin/audit como verbos que MUTAN semántica (decrementar qty,
    liberar seat, Actionlog) — más allá del veredicto de acceso.
-6. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+7. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
    AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)

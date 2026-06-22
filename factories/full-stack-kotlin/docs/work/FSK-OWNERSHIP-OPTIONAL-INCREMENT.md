@@ -1,9 +1,7 @@
 # Incremento FSK-OWNERSHIP-OPTIONAL — dueño NULLABLE / estado RTD (Ready-To-Deploy) real → el push Snipe-IT
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T01:56Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T01:56Z · cerrado 2026-06-22T03:11Z). Evidencia abajo (§Evidencia).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-SELF-REF con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -174,3 +172,42 @@ Orden del push Snipe-IT (re-priorizado, ver `products/snipeit/docs/reference/SNI
   liberar seat, Actionlog) — más allá del veredicto de acceso.
 - **diferidos DUROS (red/scope)**: push de la imagen a un registry · e2e Playwright (browser real) · AppServer-en-
   contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
+
+---
+
+## Evidencia (CERRADO 2026-06-22T03:11Z) — probado por bloqueo, no narrado
+
+**Qué se levantó.** Un activo Ready-To-Deploy está SIN asignar (dueño NULL) — el caso NORMAL de Snipe-IT.
+Opt-in por el `required` del `owned_by`: con dueño REQUERIDO el codegen queda **byte-idéntico** (default/assets
+sin re-derivar). El handoff señalaba 2 sitios (firma de `canModify` + conflación 404); **generar de verdad
+destapó 4** (la lección de FSK-SELF-REF se repitió):
+
+1. **`_ownership_guard_kt`** — `canModify(rowOwnerId: Long?)`: `actorRole in bypass || (rowOwnerId != null &&
+   actorPrincipalId == rowOwnerId)`. Una fila SIN dueño (RTD) no tiene principal contra quien cruzar → sólo un
+   rol de bypass la modifica. Opt-in: con dueño requerido, la firma `Long` queda EXACTA.
+2. **`_modify_verdict_kt`** (NUEVO helper, extraído del skeleton) — separa **EXISTENCIA** de **DUEÑO**: la
+   existencia se lee reusando `<e>RowJson != null` (sin agregar query al Repository), una fila RTD EXISTE (no es
+   404), e inexistente sigue 404. Con dueño requerido el cuerpo queda EXACTO (`ownerId == null -> 404`).
+3. **`_mutation_fns`** (NO estaba en el handoff) — el dueño se fija al principal del token SIEMPRE (el creador es
+   dueño), aunque la columna sea opcional. Antes el skip-optional lo saltaba → `ownerId` quedaría sin usar (rojo).
+4. **`_seed_chain` + `_sample`** (la 2ª fila + las UNIQUE, NO en el handoff) — el server siembra una 2ª fila RTD
+   (owner NULL, valores **ALT** en las columnas UNIQUE para no chocar con la fila asignada: `asset_tag` =
+   `"alt-asset_tag"` ≠ `"sample-asset_tag"`); `/seed` expone su `rtd` id. Sin esto el tooth no tendría fila RTD.
+
+**El producto** (`snipeit/product.yml`): `Asset.assigned_user_id` → `required: false` (RTD real).
+
+**Verde, no fingido:**
+- `product-run --product snipeit` **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente de DOS lados VIVO** (s9 `access_control_live`): saboteé `modifyVerdict` (rama `ownerId == null ->
+  HTTP_OK` → RTD modificable por cualquiera) → `product-run` **FAIL**: `access_control_live FAIL(1)` con
+  `observability_live ok` + `frontend_consume_live ok` (hermanos de s9 VERDES — aislado al tooth RTD), s10/s11 no
+  corren · revertí → **PASS** (activa s11 verde). Tooth: RTD+no-bypass→403 / RTD+bypass→200 / inexistente→404.
+- + **diente UNIT** (s7 `OwnershipGuardTest`): 2 casos nuevos (RTD+no-bypass→false / RTD+bypass→true).
+- `ci --rederive --all-products` **3/3 == pin** (default 12/12 · assets 11/11 · snipeit 11/11; **proof_sha intacto
+  → SIN re-pin**: sólo se fortalecieron checks existentes, mismos nombres+exit).
+- `meta check` **6/6** (`generality` verde) · `git diff src/metafactory + seed = 0` · default+assets product.yml = 0.
+
+**Commits:** `59ebfb9` (feat-fsk codegen) + `c2b4079` (feat-snipeit product.yml) + el docs de cierre.
+**Eyeball SIN gradle** (handoff §3): emití snipeit con `importlib` sobre `scaffold_product.py` y leí AppServer/
+OwnershipGuard/migration ANTES del gradle → confirmé los 4 sitios y verifiqué que default/assets quedan
+byte-idénticos (firma `Long`), sin esperar la línea lenta. cwd de Bash en la RAÍZ todo el tiempo (sin deadlock).

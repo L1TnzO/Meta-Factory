@@ -1,6 +1,32 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T03:11Z — FSK-OWNERSHIP-OPTIONAL ✅: dueño NULLABLE / RTD real — el 3er gap del push Snipe-IT
+- **El caso más CORE de Snipe-IT, arreglado GENERAL.** Un activo Ready-To-Deploy está SIN asignar (dueño NULL): el
+  caso NORMAL, no un borde. FSK exigía `owned_by` `required: true` porque `OwnershipGuard.canModify(rowOwnerId: Long)`
+  era no-nullable y el server vivo conflaciona owner-nulo con 404. **Levantado opt-in por el `required` del `owned_by`**:
+  con dueño REQUERIDO el codegen queda **byte-idéntico** (default/assets sin re-derivar); con dueño NULLABLE emite la
+  variante RTD. El handoff señalaba 2 sitios; **generar de verdad destapó 4** (la lección de FSK-SELF-REF, otra vez):
+  - **`_ownership_guard_kt`**: `canModify(rowOwnerId: Long?)` → `actorRole in bypass || (rowOwnerId != null &&
+    actorPrincipalId == rowOwnerId)`. Una fila SIN dueño sólo la modifica un rol de bypass.
+  - **`_modify_verdict_kt`** (NUEVO helper, extraído del skeleton): separa **EXISTENCIA** (reusa `<e>RowJson != null`,
+    sin query nueva) de **DUEÑO** → una fila RTD EXISTE (no es 404); inexistente sigue 404. Rompe la conflación.
+  - **`_mutation_fns`** (NO en el handoff): el dueño se fija al principal del token SIEMPRE (el creador es dueño),
+    aunque la columna sea opcional — antes el skip-optional lo saltaba → `ownerId` sin usar (rojo).
+  - **`_seed_chain` + `_sample`** (la 2ª fila, NO en el handoff): el server siembra una 2ª fila RTD (owner NULL,
+    valores **ALT** en las UNIQUE: `"alt-asset_tag"` ≠ `"sample-asset_tag"`); `/seed` expone su `rtd` id.
+- **Producto**: `snipeit/product.yml` `Asset.assigned_user_id` → `required: false` (RTD real). Nivel PRODUCTO (ADR-016).
+- **Diente de DOS lados VIVO** (s9 `access_control_live`): saboteé `modifyVerdict` (RTD→HTTP_OK para cualquiera) →
+  `access_control_live FAIL(1)` con `observability_live`/`frontend_consume_live` VERDES (hermanos de s9 — aislado) →
+  revertí → verde. Tooth: RTD+no-bypass→403 / RTD+bypass→200 / inexistente→404. + diente UNIT (s7 `OwnershipGuardTest`,
+  2 casos nuevos).
+- **Verde, no fingido**: `product-run` PASS · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) · `ci --rederive
+  --all-products` **3/3 == pin** (12/12 · 11/11 · 11/11; **proof_sha intacto → SIN re-pin**, sólo se fortalecieron
+  checks existentes) · `meta check` **6/6** (`generality` verde) · `git diff src/metafactory + seed = 0` ·
+  default+assets product.yml = 0. Commits `59ebfb9` (codegen) + `c2b4079` (product.yml) + docs.
+- **SIGUIENTE** (abierto): FSK-OWNED-REQUIRED-REFS (deferral 4 — `Asset.model_id` requerido vía seed transitivo
+  multi-nivel; el server vivo no sabe sembrar un ref requerido no-dueño en la entidad con dueño, FSK-S15 lo `raise`ea).
+
 ## 2026-06-22T01:48Z — FSK-SELF-REF ✅: jerarquías self-ref (Location.parent_id, User.manager_id) — 1er gap del push Snipe-IT
 - **El 1er gap product-driven del push Snipe-IT, arreglado GENERAL.** Una entidad con un `ref` cuyo `to` es ELLA MISMA
   (jerarquía padre/hijo) rompía la generación. Dos sitios del codegen lo asumían imposible:

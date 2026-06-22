@@ -96,14 +96,30 @@
   **3 product-run PASS · `ci --rederive --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality`
   verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle: `docs/work/FSK-SELF-REF-INCREMENT.md
   §Evidencia`.
+- **DUEÑO NULLABLE / RTD real — el 3er gap del push Snipe-IT, GENERAL (FSK-OWNERSHIP-OPTIONAL, 2026-06-22)**: un activo
+  Ready-To-Deploy está SIN asignar (dueño NULL) — el caso NORMAL de Snipe-IT, antes inexpresable (FSK exigía `owned_by`
+  `required: true`: `canModify(rowOwnerId: Long)` no-nullable + el server vivo conflaciona owner-nulo con 404).
+  **Levantado opt-in por el `required` del `owned_by`** (con dueño REQUERIDO el codegen queda byte-idéntico →
+  default/assets sin re-derivar): `canModify(rowOwnerId: Long?)` (una fila SIN dueño sólo la modifica un rol de bypass);
+  `modifyVerdict` separa **EXISTENCIA** (reusa `<e>RowJson != null`) de **DUEÑO** (RTD existe → no es 404; inexistente
+  sigue 404); el server siembra una **2ª fila RTD** (owner NULL, valores ALT en las UNIQUE) que `/seed` expone. El
+  handoff señalaba 2 sitios; generar destapó **4** (sumó `_mutation_fns`: el creador es dueño aunque la columna sea
+  opcional; y `_seed_chain`/`_sample`: la 2ª fila). Fix 100% en **codegen de FÁBRICA**; **sin check/estación nuevos →
+  `proof_sha` intacto, SIN re-pin**. **Adopción PRODUCTO** (ADR-016): snipeit `Asset.assigned_user_id` → `required:
+  false`. Diente de DOS lados VIVO (s9 `access_control_live`: saboteé `modifyVerdict` → RTD modificable por cualquiera →
+  **SÓLO** `access_control_live` rojo, hermanos s9 verdes; revertí→verde; RTD+no-bypass→403 / RTD+bypass→200 /
+  inexistente→404) + UNIT (s7 `OwnershipGuardTest`, 2 casos). **`product-run` PASS · RTM 24/25 · `ci --rederive
+  --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` ·
+  default+assets product.yml = 0.** Detalle: `docs/work/FSK-OWNERSHIP-OPTIONAL-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
   humano** (monta en DOM + FORM que postea) → y **deploya en un contenedor que responde**. **El último hueco
   claramente-FSK-general (deploy) está cerrado.** Lo que QUEDA:
   - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
-    `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico · RTD/owner-
-    opcional · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · depreciación calculada · company-scoping · …). **Metodología probada**:
+    `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico ·
+    ~~RTD/owner-opcional~~ **✓ hecho FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · depreciación
+    calculada · company-scoping · …). **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

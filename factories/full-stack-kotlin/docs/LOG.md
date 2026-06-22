@@ -1,6 +1,42 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T19:46Z — FSK-QTY-OPERATIONS ✅: verbo de STOCK (decremento qty + out-of-stock) sobre entidad SIN dueño
+- **El 1er eje de COMPORTAMIENTO con STOCK + el 1er montaje de VERBOS sobre una entidad SIN dueño** (deferral 9,
+  sub-eje de FSK-DOMAIN-OPS). Todo verbo previo (checkout/checkin de Asset) vivía sobre la entidad CON dueño
+  (modifyVerdict). El qty-checkout es un KIND de operación DISTINTO: un decremento aritmético con guard de stock,
+  no una transición de máquina de estado. Resuelve los 2 sub-ejes del wrinkle (verbos-en-ownerless + KIND qty).
+- **Levantado GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde, `git diff src/+seed=0`):
+  - **`_load_blueprint`**: el KIND qty se detecta por `decrements: <campo int>` (excluyente con las claves de
+    workflow `field`/`from`/`to`/`assigns`/`clears`); `decrements` ∈ los `int` de la entidad; exige `write_roles`
+    (RBAC); NO exige `owned_by` (RBAC-only sobre una ownerless). El KIND workflow movió su exigencia de `owned_by`
+    DENTRO de su rama.
+  - **`_operation_repo_fns`**: para el KIND qty, un UPDATE CONDICIONAL `SET qty = qty - 1 WHERE id = ? AND qty > 0`
+    (filas afectadas: 0 ⟺ sin stock o fila inexistente). El guard `> 0` ES el diente.
+  - **`_ownerless_handlers`** gana `ops`: emite un handler por verbo (`POST /<plural>/{id}/<verbo>`: rol prohibido
+    →403 · sin stock→409 · OK→200) + las ramas del dispatch (1er ruteo de VERBOS sobre una entidad ownerless).
+  - **`_live_with_ref`** PREFIERE una candidata con verbos qty (la capa viva los ejerce) → snipeit sirve Accessory
+    (antes AssetModel; el eje with_ref/FSK-REFS-IN-BODY se ejerce idéntico, mismo diente de FK). Byte-neutro sin qty.
+  - **`_app_server_kt`**: filtra los verbos de workflow del owned (los qty se montan sobre la ownerless); siembra
+    una fila de stock (`qtyId`) con su FK requerida (reusa los ref targets); importa su tabla; `@Suppress("LongMethod")`
+    opt-in en seedRows (la siembra lo empujó a 63 líneas).
+  - **`_openapi_yaml`/`RouteTable`** ya emitían la ruta del verbo (con 409) para CUALQUIER entidad con `operations`
+    → route_check (topology/auth/rbac) la cruza GRATIS.
+  - **proof e2e** (`access_control_check.py`, bloque qty): rol prohibido → 403 sin decrementar · checkout hasta
+    agotar el stock → 200 + decremento (GET lo confirma) · sin stock (qty==0) → 409.
+- **Diente de DOS lados VIVO** (verificado por CLI): saboteado el guard de stock (quitar `AND qty > 0` del UPDATE)
+  → el checkout sin stock decrementa a -1 y devuelve 200 en vez de 409 → **SÓLO** `access_control_live` (s9) rojo,
+  hermanos s9 (observability/frontend) verdes + s0–s8 verdes (la degradación muerde a RUNTIME, no estáticamente —
+  no hay hallazgo detekt/ktlint que enmascare) → revertido → verde.
+- **Anti-overfit / verde no fingido**: EYEBALL importlib (default+assets 68/68 + snipeit-SIN-qty 70/70
+  byte-idénticos HEAD vs working) · `product-run --product snipeit` PASS · RTM **24/25** (qty extiende
+  `access_control_live`, sin check/estación nuevos → `proof_sha` intacto → SIN re-pin) · `meta check` 6/6
+  (`generality` verde) · `ci --rederive` base **12/12** + assets **11/11** + snipeit **11/11** == pin ·
+  `git diff src/metafactory + seed = 0` · default+assets product.yml = 0.
+- **Scope honesto**: `creates: <pivot>` (insertar la fila AccessoryCheckout) DIFERIDO — un diente honesto del
+  pivot pide observabilidad de una entidad no-servida; el modelo `decrements` (qty := qty-1 con guard) es la
+  aproximación faithful del stock. Detalle: `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
+
 ## 2026-06-22T17:05Z — FSK-COMPANY-SCOPING ✅: scoping por compañía (multi-tenancy/ABAC) — el 1er eje con FILTRADO de LECTURA
 - **Tras 7 ejes, el último gran hueco del modelo de acceso faithful y el 1er eje que FILTRA LECTURAS** (deferral 8).
   Todo lo previo (auth/RBAC/ownership) gateaba ESCRITURAS; con FMCS un actor no-superadmin ve/edita SÓLO las filas

@@ -1,9 +1,9 @@
 # Incremento FSK-QTY-OPERATIONS — cantidades / stock (checkout que decrementa qty) + operaciones en entidades SIN dueño
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T18:39Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T18:39Z · cerrado 2026-06-22T19:46Z). Evidencia abajo (§Evidencia). Editar
+> `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige un incremento abierto — el
+> `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-COMPANY-SCOPING con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -204,3 +204,50 @@ acceso COMPLETO + app que corre** está entero. Lo que queda para el núcleo fun
 polimórfico** (2 ejes ~1 sesión c/u). Después, breadth/flecos: las ~226 rutas, soft-deletes/Actionlog, Kits,
 CheckoutRequest, EAV dinámico, depreciación. **Estimación honesta: el núcleo funcional está a ~1-2 incrementos más;
 la paridad de superficie completa es trabajo mayor pero son los flecos, no el corazón.**
+
+---
+
+## §Evidencia (CERRADO 2026-06-22T19:46Z)
+
+**Qué se construyó** — el 1er eje de COMPORTAMIENTO con STOCK + el 1er montaje de VERBOS sobre una entidad SIN
+dueño. Nuevo KIND de operación (`decrements: <campo int>`, detectado por la presencia de `decrements`, EXCLUYENTE
+con el KIND workflow `field`/`from`/`to`/`assigns`/`clears`) que decrementa el stock con guard out-of-stock,
+RBAC-only, montado sobre la entidad ownerless/with_ref. **Resueltos los 2 sub-ejes del wrinkle** (verbos-en-ownerless
++ KIND qty) en un solo incremento, driven por Accessory (con `category_id` requerido → with_ref).
+
+**Maquinaria (toda en `codegen/scaffold_product.py`, FÁBRICA, GENERAL — cero nombres de dominio):**
+- `_load_blueprint`: detecta el KIND qty por `decrements`; valida `decrements`∈int, `write_roles` presente, exclusión
+  con las claves de workflow; relaja `owned_by` (RBAC-only). El KIND workflow movió su exigencia de `owned_by` a su rama.
+- `_operation_repo_fns`: para el KIND qty, `ctx.update(<T>).set(<QTY>, <QTY>.minus(1)).where(ID.eq(id).and(<QTY>.gt(0))).execute()`
+  (0 filas afectadas ⟺ sin stock o fila inexistente). El guard `> 0` ES el diente.
+- `_ownerless_handlers(e, catch_fk, ops)`: nuevo param `ops` → handler `POST /<plural>/{id}/<verbo>` (rol→403 ·
+  sin stock→409 · OK→200) + ramas del dispatch (1er ruteo de verbos sobre ownerless) + `@Suppress("CyclomaticComplexMethod")` opt-in.
+- `_live_with_ref`: PREFIERE una candidata con verbos qty (`_qty_ops`) → snipeit sirve Accessory (antes AssetModel;
+  el eje with_ref/FK se ejerce idéntico). Byte-neutro sin qty.
+- `_app_server_kt`: filtra los verbos de workflow del owned; siembra una fila de stock (`qtyId`) con su FK requerida
+  (reusa los ref targets); importa su tabla; `@Suppress("LongMethod")` opt-in en seedRows (la siembra → 63 líneas).
+- `_openapi_yaml`/`RouteTable` ya emitían la ruta del verbo (con 409) para cualquier entidad → route_check la cruza gratis.
+- proof e2e (`_QTY_PROOF`): rol prohibido→403 sin decremento · checkout hasta agotar→200+decremento (GET confirma) · sin stock→409.
+
+**Adopción (PRODUCTO, `products/snipeit/product.yml`, incremento `QTY-OPERATIONS-ADOPT`):** `Accessory.operations:
+[{ name: checkout, decrements: qty }]`.
+
+**Verde POR BLOQUEO (no fingido):**
+- EYEBALL importlib (HEAD vs working): default 68/68 · assets 68/68 · **snipeit-SIN-qty 70/70 byte-idénticos** (opt-in puro).
+- `product-run --product snipeit` **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless; qty extiende
+  `access_control_live` sin check/estación nuevos → `proof_sha` intacto → **SIN re-pin**).
+- **Diente de DOS lados VIVO**: saboteado `AND qty > 0` → checkout sin stock devuelve 200 en vez de 409 → **SÓLO
+  `access_control_live` (s9) rojo** (`observability_live`/`frontend_consume_live` verdes + s0–s8 verdes — la
+  degradación muerde a RUNTIME, no estáticamente) → revertido → **PASS**.
+- `meta check` **6/6** (`generality` verde) · `ci --rederive` base **12/12** + assets **11/11** + snipeit **11/11**
+  == pin · `git diff src/metafactory + seed = 0` · default+assets product.yml = 0.
+
+**Scope honesto / DIFERIDO:** `creates: <pivot>` (insertar la fila AccessoryCheckout en el checkout) — un diente
+honesto del pivot pide observabilidad de una entidad no-servida (HTTP read del pivot); el modelo `decrements`
+(qty := qty-1 con guard) es la aproximación faithful del stock. Va al diferido duro de §4.
+
+**Commits:** `feat(fsk): FSK-QTY-OPERATIONS …` (codegen) + `feat(snipeit): Accessory.checkout decrementa qty …`
+(product.yml) + `docs(fsk): cerrar FSK-QTY-OPERATIONS + QTY-OPERATIONS-ADOPT (§Evidencia) + abrir FSK-POLYMORPHIC-REFS`.
+
+**SIGUIENTE = FSK-POLYMORPHIC-REFS** (checkout polimórfico, deferral 2) — el último eje de modelo-de-datos faithful.
+Handoff autocontenido en `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md`.

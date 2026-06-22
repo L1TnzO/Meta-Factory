@@ -194,6 +194,17 @@
   `MagicNumber` muerde el literal 3 (`getOrNull(2)`) · `Seed`/`seedJson` cruzan 160 al sumar campos (wrap opt-in).
   Detalle: `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`. **La trilogía+1 de acceso (auth → RBAC →
   ownership → company-scope) está COMPLETA y VIVA a runtime.**
+- **VERBOS DE STOCK / qty — el 1er eje de COMPORTAMIENTO con stock + 1er VERBO sobre entidad SIN dueño, GENERAL
+  (FSK-QTY-OPERATIONS, 2026-06-22)**: un nuevo KIND de operación (`decrements: <campo int>`, detectado por la
+  presencia de `decrements`, EXCLUYENTE con el KIND workflow) decrementa el stock con guard out-of-stock —
+  RBAC-only sobre una entidad SIN dueño (el 1er montaje de VERBOS fuera de la entidad con dueño). `_load_blueprint`
+  valida el KIND (relaja `owned_by`, exige `write_roles` + `decrements`∈int); `_operation_repo_fns` emite un UPDATE
+  CONDICIONAL `SET qty=qty-1 WHERE id=? AND qty>0`; `_ownerless_handlers` gana `ops` (handler `POST
+  /<plural>/{id}/<verbo>` + dispatch); `_live_with_ref` PREFIERE la entidad con verbos qty; el server siembra una
+  fila de stock (`qtyId`). snipeit adoptó `Accessory.checkout`. **Diente de DOS lados VIVO** (s9, quitar `AND qty>0`
+  → SÓLO `access_control_live` rojo). Opt-in byte-neutral (default/assets 68/68 + snipeit-sin-qty 70/70; `proof_sha`
+  intacto → sin re-pin); `git diff src/+seed=0`; `meta check` 6/6; `ci --rederive` 12/12·11/11·11/11 == pin. Scope
+  honesto: `creates: <pivot>` DIFERIDO. Detalle: `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -205,13 +216,13 @@
     FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
     ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · ~~company-scoping~~ **✓ hecho FSK-COMPANY-SCOPING** ·
-    depreciación calculada · …).
-    **SIGUIENTE = cantidades (qty) (FSK-QTY-OPERATIONS, abierto, sub-eje de FSK-DOMAIN-OPS)** — el 1er eje de
-    COMPORTAMIENTO con STOCK: checkout de Accessory/Consumable decrementa `qty` + crea la fila de asignación;
-    out-of-stock → 409. ⚠️ Wrinkle (framed en el handoff): el server vivo hoy monta `operations` SÓLO en la
-    entidad con dueño (Asset, sin qty) → ejercerlo VIVO pide montar verbos en entidades SIN dueño + una operación
-    de KIND nuevo (decremento aritmético, no transición de workflow). Alternativa framed: checkout polimórfico
-    (deferral 2, ref→unión de targets). **Metodología probada**:
+    ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · depreciación calculada · …).
+    **SIGUIENTE = checkout polimórfico (FSK-POLYMORPHIC-REFS, abierto, deferral 2)** — el ÚLTIMO eje de
+    MODELO-DE-DATOS faithful: un `ref` que apunta a una UNIÓN de entidades (`assigned_to` → User|Location|Asset).
+    Pide una primitiva de tipo NUEVA (ref polimórfico = columna `*_type` + `*_id`, sin FK posible a una unión);
+    toca model/migration/seed/contrato + el `assigns` del verbo de workflow. Tras él, modelo+acceso+comportamiento-
+    núcleo quedan COMPLETOS; lo que resta es breadth. Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md` (handoff).
+    **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

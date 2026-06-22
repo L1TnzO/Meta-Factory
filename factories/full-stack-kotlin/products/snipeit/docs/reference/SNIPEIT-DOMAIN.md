@@ -267,13 +267,22 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    (read-path NUEVO) y compone el scope tras ownership en el verdict de escritura (otra compañía → 403 aunque
    sea el dueño; bypass → 200). Generaliza ownership a "fila × tenant". Diente de dos lados VIVO (s9). Cierra el
    último gran hueco del modelo de acceso faithful. Ver `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`.
-9. **SIGUIENTE = cantidades (qty)** (sub-eje de FSK-DOMAIN-OPS) — el 1er eje de COMPORTAMIENTO con stock: checkout
-   de Accessory/Consumable decrementa `qty` + crea la fila de asignación. ⚠️ Wrinkle: el server vivo hoy monta
-   `operations` SÓLO en la entidad con dueño (Asset, sin qty); ejercerlo VIVO pide montar verbos en entidades SIN
-   dueño (Accessory). Es 2 sub-ejes. Alternativa framed: checkout polimórfico (deferral 2, ref→unión de targets).
-   Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md` (handoff).
-10. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
-    AppServer-en-contenedor con PG · checkout polimórfico (deferral 2) · EAV dinámico a runtime (Avenue B) ·
+9. ~~**Cantidades (qty)** (sub-eje de FSK-DOMAIN-OPS)~~ **✓ HECHO** (FSK-QTY-OPERATIONS, 2026-06-22): el 1er eje de
+   COMPORTAMIENTO con STOCK + el 1er montaje de VERBOS sobre una entidad SIN dueño. Un nuevo KIND de operación
+   (`decrements: <campo int>`, ≠ transición de workflow) decrementa el stock con guard out-of-stock. snipeit adoptó
+   `Accessory.checkout` (decrements: qty). El server vivo monta `POST /accessorys/{id}/checkout` RBAC-only (rol
+   prohibido→403 · sin stock→409 · OK→200+decremento). Resueltos los 2 sub-ejes del wrinkle (verbos-en-ownerless +
+   KIND qty). Diente de dos lados VIVO (s9, quitar `AND qty>0` → SÓLO access_control_live rojo). **Sub-eje
+   DIFERIDO honesto**: `creates: <pivot>` (insertar la fila de asignación AccessoryCheckout) — pide observabilidad
+   del pivot no-servido para un diente honesto; el modelo `decrements` (qty := qty-1) es la aproximación faithful
+   del stock. Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
+10. **SIGUIENTE = checkout polimórfico (deferral 2)** — el ÚLTIMO eje de MODELO-DE-DATOS faithful: un `ref` que
+    apunta a una UNIÓN de entidades (`assigned_to` → User|Location|Asset). Pide una primitiva de tipo NUEVA (un
+    ref polimórfico = columna `*_type` + `*_id`, sin FK posible a una unión). Toca model/migration/seed/contrato +
+    el `assigns` del verbo de workflow (hoy asigna un ref único). Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md`
+    (handoff). Tras él, el modelo+acceso+comportamiento-núcleo quedan COMPLETOS — lo que resta es breadth.
+11. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+    AppServer-en-contenedor con PG · `creates`/pivot de qty · EAV dinámico a runtime (Avenue B) ·
     depreciación calculada (deferral 7, campo computado, dep. de s6 keyless).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)

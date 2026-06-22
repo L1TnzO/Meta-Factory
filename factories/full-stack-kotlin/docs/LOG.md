@@ -1,6 +1,34 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T15:42Z — FSK-XENTITY-CYCLES ✅: ciclos cross-entidad (FK forward/cíclica) — el 1er eje de CICLO en el grafo
+- **Tras 6 ejes (modelo-de-datos/comportamiento/validación), el 1er CICLO entre entidades DISTINTAS** (deferral 6).
+  Hoy un `ref` BACKWARD/self emite la FK inline en orden de declaración; un `ref` FORWARD (target declarado DESPUÉS →
+  abre/cierra un ciclo, p.ej. `Location.manager_id`→User con User declarado después) rompía el migration (FK a tabla
+  que aún no existe → SQL error). Es SCHEMA/seed, distinto a todo lo hecho (no access-control ni comportamiento).
+- **Levantado GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde, `git diff src/+seed=0`):
+  - **`_load_blueprint`**: validación fail-closed — un ref forward (`idx[to] > idx[e]`) REQUERIDO → `SystemExit` (un
+    lado del ciclo no tiene orden de siembra). Opcional → OK.
+  - **`_migration_sql`**: el ref forward → columna `BIGINT` pelada + la FK como constraint **DIFERIDA** (`ALTER TABLE
+    <t> ADD CONSTRAINT fk_<t>_<col> FOREIGN KEY (<col>) REFERENCES <dst> (id);`) emitida al FINAL (tras todos los
+    `CREATE TABLE`). Determinista (orden de declaración). Backward/self sigue inline (sin cambio).
+  - **`_app_kt`** (s0): el sample deja en `null` un ref forward (`idx[to] >= idx[e]`, unifica self-ref + forward).
+  - **`_it_repository_kt`** (s7): saltea el forward en el INSERT inicial y, con TODAS las filas sembradas, lo cablea
+    **NULL-then-UPDATE**, round-trippea el ciclo VIVO (read-back cruza el id) + diente negativo (FK colgante `-id` →
+    la constraint diferida la RECHAZA → `shouldThrow<DataAccessException>`). Imports condicionales (sólo si hay forward).
+- **Opt-in/byte-neutro** (EYEBALL importlib HEAD vs working, sin gradle): default+assets **68/68 byte-idénticos**;
+  default+assets product.yml = 0. **`proof_sha` INTACTO → SIN re-pin** (vive en s1/s7, ya pineados). No agrega requisito.
+- **Adopción PRODUCTO** (ADR-016, incremento `XENTITY-CYCLES-ADOPT`): snipeit re-habilitó `Location.manager_id`→User
+  y `Department.manager_id`→User (forward/cíclicos, opcionales) — restaura los ciclos Location↔User y User↔Department.
+- **Verde, no fingido**: `product-run --product snipeit` **PASS** · RTM **24/25** · **diente de DOS lados VIVO** (s7:
+  comenté `out += deferred` → quité la constraint diferida → la FK colgante dejó de rechazarse → **SÓLO**
+  `pyramid_integration` rojo, hermanos s7 verdes; revertí→verde; el sabotaje SQL/Python no tripea s2 estático) ·
+  `ci --rederive --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde). Detalle:
+  `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md §Evidencia`.
+- **Sub-eje diferido**: un ref forward REQUERIDO que cierre ciclo (sin orden de seed) — sigue como deferral honesto.
+- **SIGUIENTE**: FSK-COMPANY-SCOPING (multi-tenancy / ABAC con filtrado de lectura, deferral 8) — handoff en
+  `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md`.
+
 ## 2026-06-22T14:31Z — FSK-CUSTOM-FIELDS ✅: campos personalizados con `format`/validación (Avenue A) — el EJE GRANDE, acotado
 - **El eje GRANDE de Snipe-IT (custom fields, deferral 1), entregado ACOTADO** (handoff §★): resuelta la decisión de
   diseño = **Avenue A** (campos DECLARADOS en el blueprint) **sub-eje `format`/validación**. Un campo `string` gana un

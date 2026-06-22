@@ -1,9 +1,8 @@
 # Incremento FSK-XENTITY-CYCLES — ciclos cross-entidad (FK forward/cíclica, el 1er eje de CICLO)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T14:35Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-22T15:42Z). Resuelto por la avenida que el handoff recomendó: FK forward/cíclica como constraint
+> DIFERIDA (`ALTER TABLE ADD CONSTRAINT`) + seed NULL-then-UPDATE; el forward DEBE ser opcional. Ver §Evidencia.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-CUSTOM-FIELDS con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -162,6 +161,49 @@ otras candidatas BOUNDED, product-driven, framed honestamente:
   FILTRADO de lectura (list/get, hoy públicos) → cambio más grande al modelo de acceso. Live en Asset (s9). Bounded
   pero se parece a FSK-S14 (ownership).
 - **Orden general del push** (`SNIPEIT-DOMAIN.md §4`): ~~CRUD~~ ✅ · ~~self-ref~~ ✅ · ~~ownership opcional~~ ✅ ·
-  ~~refs requeridos/seed transitivo~~ ✅ · ~~verbos checkout/checkin~~ ✅ · ~~custom-fields format~~ ✅ · **(este)
-  ciclos cross-entidad** · diferidos DUROS (registry · Playwright · AppServer-en-contenedor con PG · checkout
-  polimórfico · qty · company-scoping · EAV dinámico/Avenue B).
+  ~~refs requeridos/seed transitivo~~ ✅ · ~~verbos checkout/checkin~~ ✅ · ~~custom-fields format~~ ✅ ·
+  ~~ciclos cross-entidad~~ ✅ (este) · diferidos DUROS (registry · Playwright · AppServer-en-contenedor con PG ·
+  checkout polimórfico · qty · company-scoping · EAV dinámico/Avenue B).
+
+---
+
+## §Evidencia (CERRADO 2026-06-22) — el 1er eje de CICLO en el grafo, GENERAL
+
+**Qué se construyó** (100% en `codegen/scaffold_product.py`, FÁBRICA; cero nombres de dominio, ADR-012). Un `ref`
+FORWARD (target declarado DESPUÉS de la entidad → cierra/abre un ciclo) deja de ser inexpresable:
+
+1. **`_load_blueprint`** (~L186): validación fail-closed nueva — un ref forward (`idx[to] > idx[e]`) REQUERIDO →
+   `SystemExit` honesto (un lado del ciclo no tiene orden de siembra). Opcional → OK. (Mismo patrón que los demás guards.)
+2. **`_migration_sql`** (~L1097): el ref forward NO lleva la FK inline (la tabla destino aún no existe en su
+   `CREATE TABLE`) → columna `BIGINT` pelada + la FK como constraint **DIFERIDA** (`ALTER TABLE <t> ADD CONSTRAINT
+   fk_<t>_<col> FOREIGN KEY (<col>) REFERENCES <dst> (id);`) emitida al FINAL, tras todos los `CREATE TABLE`.
+   Determinista (orden de declaración). Un ref BACKWARD/self sigue inline (sin cambio).
+3. **`_app_kt`** (~L804): el sample del contrato (s0) deja en `null` un ref forward (`idx[to] >= idx[e]`, unifica
+   self-ref + forward) — el `val` del target aún no se construyó en ese `main()`.
+4. **`_it_repository_kt`** (~L2705): el seeder del tier integración (s7, vs PG viva) saltea el ref forward en el
+   INSERT inicial y, con TODAS las filas sembradas, lo cablea **NULL-then-UPDATE** (`ctx.update(...).set(col,
+   targetId)`), round-trippea el ciclo VIVO (read-back cruza el id) y embebe el **diente negativo**: una FK forward
+   COLGANTE (`-targetId`) la RECHAZA la constraint diferida → `shouldThrow<DataAccessException>`. Imports condicionales
+   (`shouldThrow` + `DataAccessException`) sólo si hay forward refs.
+
+**OPT-IN / byte-neutro**: sin ref forward (default/assets/snipeit-actual antes del cambio) → migration/seeders
+byte-idénticos. **EYEBALL** (importlib HEAD vs working, `/tmp/eyeball_xc.py`): default+assets **68/68 byte-idénticos**;
+inyectado `Location.manager_id`→User → ALTER diferida + `manager_id BIGINT` pelado + bloque de ciclo en RepositoryIT
+(0 líneas > 160) + `managerId = null` en App.kt; validación: forward REQUERIDO rechazado / OPCIONAL aceptado.
+
+**Verde POR BLOQUEO** (gradle real, 2026-06-22):
+- `product-run --product snipeit` **PASS** (s0→s11), RTM **24/25** (único UNSAT REQ-F-007 = s6 LLM keyless).
+- **Diente de DOS lados VIVO y PRECISO**: comenté `out += deferred` (quité la constraint diferida) → `product-run`
+  FAIL, **SÓLO** `pyramid_integration` rojo (la FK colgante dejó de rechazarse → `shouldThrow` no vio excepción),
+  hermanos s7 (`pyramid_unit`, `pyramid_unit_ts`, `workflow_enforced`) VERDES → revertí → **PASS**. El sabotaje vive
+  en el lado SQL/Python → no introduce hallazgo estático (s2 verde).
+- `ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11** == pin (proof_sha INTACTO → **sin re-pin**;
+  `pinned_verdict.json` sin diff). `meta check` **6/6** (`generality` verde). `git diff src/metafactory + seed = 0`;
+  default+assets `product.yml` = 0.
+
+**Adopción PRODUCTO** (ADR-016, par dual-nivel): `products/snipeit/product.yml` re-habilitó `Location.manager_id`→User
+y `Department.manager_id`→User (forward/cíclicos, opcionales) — restaura los ciclos Location↔User y User↔Department
+del Snipe-IT real. Lado-producto: `products/snipeit/docs/work/XENTITY-CYCLES-ADOPT-INCREMENT.md`.
+
+**Sub-eje aún diferido**: un ref forward REQUERIDO que cierre ciclo (no expresable sin un orden de seed que no existe) —
+sigue como deferral honesto (el guard de `_load_blueprint` lo nombra). El cableado NULL-then-UPDATE asume el lado opcional.

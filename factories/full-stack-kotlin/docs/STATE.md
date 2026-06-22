@@ -155,6 +155,24 @@
   `access_control_live` rojo, hermanos verdes; revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive`
   12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets
   product.yml = 0.** Detalle: `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md §Evidencia`.
+- **CICLOS CROSS-ENTIDAD — el 1er eje de CICLO en el grafo, GENERAL (FSK-XENTITY-CYCLES, 2026-06-22)**: tras 6 ejes
+  de modelo-de-datos/comportamiento/validación, el 1er CICLO entre entidades distintas. Hoy un `ref` BACKWARD/self
+  emite la FK inline en orden de declaración; un `ref` FORWARD (target declarado DESPUÉS → abre/cierra un ciclo, p.ej.
+  `Location.manager_id`→User con User declarado después) rompía el migration (FK a tabla inexistente). **Levantado
+  GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde): el ref forward se emite como columna
+  `BIGINT` pelada + la FK como **constraint DIFERIDA** (`ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY … REFERENCES …`)
+  al FINAL del migration (tras todos los `CREATE TABLE`); el seeder de s7 lo cablea **NULL-then-UPDATE** (inserta sin
+  el forward, luego `UPDATE` al id capturado), round-trippea el ciclo VIVO vs PG y embebe el **diente negativo** (FK
+  forward COLGANTE → la constraint diferida la RECHAZA → `shouldThrow<DataAccessException>`). El forward DEBE ser
+  OPCIONAL (un lado del ciclo no tiene orden de siembra; requerido → `raise` honesto en `_load_blueprint`). También
+  `_app_kt` (s0) samplea el forward como `null` (unifica self-ref + forward). **Opt-in/byte-neutro** (sin forward refs
+  → migration/seeders byte-idénticos; default+assets 68/68 byte-idénticos por EYEBALL; **sin check nuevo → `proof_sha`
+  intacto, SIN re-pin**). **Adopción PRODUCTO** (ADR-016): snipeit re-habilitó `Location.manager_id`→User y
+  `Department.manager_id`→User (forward/cíclicos, opcionales) — restaura los ciclos Location↔User y User↔Department.
+  Diente de DOS lados VIVO (s7: quité la constraint diferida → **SÓLO** `pyramid_integration` rojo, hermanos s7
+  verdes; revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive --all-products` 12/12·11/11·11/11 == pin ·
+  `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle:
+  `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -165,10 +183,11 @@
     (Avenue A); EAV dinámico/Avenue B diferido** · checkout polimórfico · ~~RTD/owner-opcional~~ **✓ hecho
     FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
-    depreciación calculada · company-scoping · …).
-    **SIGUIENTE = ciclos cross-entidad (FSK-XENTITY-CYCLES, abierto, deferral 6)** — el 1er eje de CICLO en el grafo
-    (FK forward/cíclica → constraint diferida + seed NULL-then-UPDATE; restaura Location/Department/User.manager_id→User,
-    faithful). Alternativas framed en el handoff: cantidades (qty) · company-scoping. **Metodología probada**:
+    ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · depreciación calculada · …).
+    **SIGUIENTE = company-scoping / multi-tenancy (FSK-COMPANY-SCOPING, abierto, deferral 8)** — el 1er eje de
+    ACCESO-POR-ATRIBUTO (ABAC) y el último gran hueco de modelo-de-acceso faithful: un actor no-superadmin ve/edita
+    SÓLO las filas de SU compañía. Genuinamente NUEVO: el 1er eje con FILTRADO de LECTURA (list/get hoy públicos).
+    Alternativas framed en el handoff: cantidades (qty) · checkout polimórfico. **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

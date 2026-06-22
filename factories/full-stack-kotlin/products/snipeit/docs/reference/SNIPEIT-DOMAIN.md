@@ -188,9 +188,16 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    blueprint (opcionales). `Location.manager_id`/`Department.manager_id`→User SIGUEN diferidos (ciclos cross-entidad,
    ver deferral 6). Detalle: `docs/work/FSK-SELF-REF-INCREMENT.md` (fábrica) + `…/SNIPEIT-SELF-REF-INCREMENT.md` (producto).
 
-6. **Ciclos de referencia rotos**: `Location.manager_id`→User y `Department.manager_id`→User [SIMPLIF].
-   Crearían ciclos (Location↔User, User↔Department) que el migration en orden de declaración no admite (FK a
-   tabla posterior). Se QUITARON (los lados débiles). El management de ubicación/departamento se difiere.
+6. **Ciclos de referencia cross-entidad**: `Location.manager_id`→User y `Department.manager_id`→User **✓ HECHO
+   (FSK-XENTITY-CYCLES, 2026-06-22)**. Antes [SIMPLIF]: crearían ciclos (Location↔User, User↔Department) que el
+   migration en orden de declaración no admitía (FK a tabla posterior → inline → SQL error). **Levantado GENERAL**
+   (codegen de fábrica, `generality` verde, `git diff src/+seed=0`): un `ref` FORWARD (target declarado DESPUÉS) se
+   emite como constraint **DIFERIDA** (`ALTER TABLE ADD CONSTRAINT` tras crear ambas tablas) + columna `BIGINT`
+   pelada; el seed lo cablea **NULL-then-UPDATE** (s7: inserta, luego UPDATE al id capturado, round-trippea el ciclo
+   VIVO vs PG; FK colgante → la constraint diferida la RECHAZA, diente `shouldThrow`). El forward DEBE ser OPCIONAL
+   (un lado del ciclo no tiene orden de siembra; un forward REQUERIDO → `raise` honesto). Opt-in/byte-neutro.
+   **Ambos `manager_id`→User RE-HABILITADOS** en el blueprint. **Sigue diferido**: un ref forward REQUERIDO que cierre
+   ciclo. Detalle: `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md` (fábrica) + `…/work/XENTITY-CYCLES-ADOPT-INCREMENT.md` (producto).
 
 7. **Depreciación calculada** [GAP-FÁBRICA]. Se almacenan los INPUTS (`months`, `depreciation_min`,
    `depreciation_type`) pero el valor actual (straight-line: `(cost−piso)·(1−meses_transcurridos/months)+piso`)
@@ -245,15 +252,20 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    Avenue A, 2026-06-22)**: un campo `string` gana `format: <nombre>` (MAC/IP/EMAIL/URL/NUMERIC/ALPHA) → el server vivo
    VALIDA el valor a runtime (no-match → 400). snipeit adoptó `Asset.mac_address` (format MAC); diente de dos lados VIVO
    (s9). **EAV dinámico a runtime (Avenue B) DIFERIDO** (schema build-time vs runtime). Ver `docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md §Evidencia`.
-7. **Ciclos cross-entidad** (deferral 6) — **SIGUIENTE (FSK-XENTITY-CYCLES, abierto)**: el 1er eje de CICLO en el grafo.
-   Hoy todo `ref` apunta a una entidad declarada ANTES (el migration emite `REFERENCES` en orden de declaración); los
-   ciclos de Snipe-IT (Location/Department.manager_id→User con User declarado DESPUÉS) están rotos quitando el lado
-   débil. Levantarlo pide FK forward/cíclica como constraint DIFERIDA (`ALTER TABLE ADD CONSTRAINT` tras crear ambas
-   tablas) + seed NULL-then-UPDATE (el ref forward debe ser OPCIONAL). Bounded, faithful, distinto a lo hecho (es
-   SCHEMA, no access-control). Ver `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md` (handoff abierto).
-8. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+7. ~~**Ciclos cross-entidad** (deferral 6)~~ **✓ HECHO** (FSK-XENTITY-CYCLES, 2026-06-22): el 1er eje de CICLO en el
+   grafo. Un `ref` FORWARD (target declarado DESPUÉS) → FK como constraint DIFERIDA (`ALTER TABLE ADD CONSTRAINT`) +
+   seed NULL-then-UPDATE; el forward debe ser OPCIONAL. `Location/Department.manager_id`→User RE-HABILITADOS (ciclos
+   Location↔User, User↔Department restaurados). Diente de dos lados VIVO (s7, quitar la constraint diferida → SÓLO
+   `pyramid_integration` rojo). Ver `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md §Evidencia`.
+8. **SIGUIENTE = company-scoping / multi-tenancy** (deferral 8) — el 1er eje de ACCESO-POR-ATRIBUTO (ABAC) y el último
+   gran hueco de modelo-de-acceso faithful. En Snipe-IT, con FMCS on, un actor no-superadmin sólo ve/edita las filas
+   de SU compañía (`company_id`). Generaliza ownership (dueño = principal-match; company-scope = company-match) y, a
+   diferencia de todo lo anterior, agrega **FILTRADO de LECTURA** (list/get, hoy públicos). Bounded, product-driven,
+   live en Asset (s9). Alternativa framed: cantidades (qty) — diferida por su wrinkle (los verbos viven sólo en la
+   entidad con dueño). Ver `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md` (handoff).
+9. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
    AppServer-en-contenedor con PG · checkout polimórfico (deferral 2) · cantidades (qty decrement en checkout de
-   Accessory/Consumable — sub-eje de los verbos) · company-scoping (deferral 8) · EAV dinámico a runtime (Avenue B).
+   Accessory/Consumable — sub-eje de los verbos) · EAV dinámico a runtime (Avenue B).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

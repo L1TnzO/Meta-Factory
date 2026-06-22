@@ -143,6 +143,16 @@ entities:
   - name: Asset
     write_roles: [superadmin, admin, manager]   # un manager administra activos…
     owned_by: assigned_user_id                   # …pero sólo los SUYOS (su principal == el asignado), salvo bypass
+    # Verbos de DOMINIO (FSK-DOMAIN-OPS): checkout/checkin — las operaciones CENTRALES de Snipe-IT. NO son un PUT
+    # genérico: son transiciones NOMBRADAS del workflow `status` con efecto sobre `assigned_user_id` (el dueño de
+    # la fila), que el server vivo enforza componiendo RBAC + ownership + la precondición de WORKFLOW (canTransition,
+    # antes sólo-UNIT en s7, ahora VIVA a runtime). checkout: status ready→deployed + ASIGNA el activo al usuario
+    # del body (assigns). checkin: deployed→ready + lo LIBERA (clears → dueño NULL = RTD). Un verbo sobre un estado
+    # inválido (p.ej. checkout de algo ya deployed) → 409 (precondición). En Snipe-IT el target del checkout es
+    # polimórfico (User|Location|Asset); acá se simplifica a User — ese eje sigue diferido (deferral 2).
+    operations:
+      - { name: checkout, field: status, from: ready,    to: deployed, assigns: assigned_user_id }
+      - { name: checkin,  field: status, from: deployed, to: ready,    clears:  assigned_user_id }
     fields:
       - { name: asset_tag, type: string, unique: true }   # etiqueta única del activo (asset_tag, faithful)
       - { name: name, type: string, required: false }

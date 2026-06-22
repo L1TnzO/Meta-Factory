@@ -165,6 +165,14 @@ entities:
       - { name: requestable, type: boolean, required: false }
       - { name: byod, type: boolean, required: false }
       - { name: notes, type: string, required: false }
+      # CUSTOM FIELD con FORMAT (FSK-CUSTOM-FIELDS, Avenue A). En Snipe-IT un admin define campos personalizados por
+      # modelo (CustomField + CustomFieldset), cada uno con un TIPO + un FORMAT (regla de validación: MAC/IP/EMAIL/
+      # URL/NUMERIC/ALPHA). El caso canónico es "MAC Address" (format MAC). Acá el campo se DECLARA en el blueprint
+      # (no se crea a runtime — el EAV dinámico, definición-a-runtime, sigue diferido, Avenue B/deferral 1): el aporte
+      # NUEVO sobre un string normal es la REGLA — `format: mac` → el server vivo VALIDA el valor a runtime (un valor
+      # que no matchea el patrón MAC → 400, fail-closed, vía el codec strFmt). Requerido (un custom field requerido es
+      # expresable en Snipe-IT) para que el server vivo lo lea del cuerpo (_input_fields) y el diente lo ejercite.
+      - { name: mac_address, type: string, format: mac }
       # WORKFLOW de ciclo de vida (FSK-S12). En Snipe-IT el estado efectivo es (StatusLabel.type ×
       # asignación); StatusLabel es una entidad customizable (defer, ver §gaps). Acá se modela el
       # CICLO canónico como enum-workflow sobre Asset.status: `archived` es TERMINAL (un activo

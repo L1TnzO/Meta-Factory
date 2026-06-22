@@ -64,6 +64,10 @@ AC_PORT = 18594                # endpoints vivos / control de acceso a runtime (
 #                                producto. DATA, propio (≠ OBS_PORT) para no chocar con el server de obs (s9).
 AC_PG_PORT = 5436              # PostgreSQL viva del check access_control_live (s1=5434, s7 IT=5435). DATA propio.
 AC_PG_CONTAINER = "fsk_s9_ac_pg"  # nombre del contenedor PG del check (rm -f por nombre en bootstrap + down).
+DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> OBS_PORT del contenedor. DATA propio,
+#                                FUERA del rango efímero y ≠ OBS/AC (18593/18594/18595) para no chocar con s9.
+DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
+#                                corridas son secuenciales (un producto a la vez), como los nombres fijos de PG en s9.
 BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # ktlint `PropertyWrapping` (formatting, sin override en detekt.yml → su default) exige envolver una
@@ -72,12 +76,13 @@ MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son larg
 # propiedad se envuelven a 120 → forma multilínea con coma final (la que ktlint_official acepta).
 PROPERTY_WRAP = 120
 # Build hermético reproducible (s10, DES-1): la imagen Docker pinea la base por DIGEST (no un tag flotante —
-# un tag flotante sería NO-hermético). El build+push de la imagen reproducible (red + daemon) queda
-# declared-deferred (ADR-012, doctrina s5/s7/s8/s9): se SHIPPEA el Dockerfile (la receta de deploy, base
-# pineada) y el gate hermetic_build verifica el pin por grep — no construye la imagen. El digest es el SLOT
-# de pin (DATA): demuestra la disciplina de pin-por-digest, no afirma resolver la imagen (build vivo diferido).
+# un tag flotante sería NO-hermético). El digest es REAL: la base se resuelve y el gate de deploy vivo (s11,
+# deploy_smoke) CONSTRUYE la imagen y levanta el contenedor (FSK-DEPLOY). Pineado por digest → el `docker
+# build` resuelve la base offline una vez cacheada (como las imágenes postgres@sha256: de s9). El gate
+# hermetic_build (s10) sigue verificando el PIN por grep (la hermeticidad de la receta); s11 la EJECUTA. El
+# push a un registry (credenciales/red sostenida) queda declared-deferred (ADR-012, su propio incremento).
 DOCKER_BASE_IMAGE = "eclipse-temurin:21-jre"
-DOCKER_BASE_DIGEST = "sha256:4d7c1e9f3b6a8d0c2e4f6a8b0d2c4e6f8a1b3d5c7e9f0a2b4d6c8e0f2a4b6d8c"
+DOCKER_BASE_DIGEST = "sha256:8ec353b20d3aab0758572236b81b967c7077c40c4d0819ce97f9a1329d684603"
 
 # campo del blueprint -> tipo OpenAPI (el contrato) + columna PG + muestra Kotlin (determinista).
 # R2 (FSK-S11, expresividad de domain.product): el vocabulario de tipos es DATO del blueprint, no 3 tipos
@@ -4401,20 +4406,74 @@ if __name__ == "__main__":
 
 
 def _dockerfile(pkg: str) -> str:
-    """Dockerfile — la receta de deploy del producto (s10, DES-1). La base se pinea por DIGEST (@sha256:,
-    NO un tag flotante). El build+push de la imagen reproducible (red + daemon) queda declared-deferred
-    (ADR-012, doctrina s5/s7/s8/s9); el gate hermetic_build verifica la hermeticidad del pin por grep."""
+    """Dockerfile — la receta de deploy del producto (s10 hermético-pin / s11 deploy VIVO, DES-1). La base se
+    pinea por DIGEST (@sha256:, NO un tag flotante). El gate deploy_smoke (s11) CONSTRUYE esta imagen y levanta
+    el contenedor → /health responde {"status":"UP"} (FSK-DEPLOY). El entrypoint es el launcher del dist
+    (`bin/<pkg>` = ObsServerKt, el server de observabilidad PG-free); el push a un registry queda deferred."""
     return f'''\
-# Dockerfile del producto Full-Stack Kotlin (s10, DES-1) - la receta de deploy.
+# Dockerfile del producto Full-Stack Kotlin (s10 pin / s11 deploy vivo, DES-1) - la receta de deploy.
 # Base pineada por DIGEST (hermeticidad DES-1): un tag flotante (:21) seria no-hermetico/no-reproducible.
-# El build+push de la imagen reproducible (red + daemon docker) = declared-deferred (ADR-012); el gate
-# hermetic_build verifica el pin por grep, no construye la imagen (mismo shape que Ktor->estatico de s5).
+# s11 deploy_smoke CONSTRUYE la imagen (`docker build`) y la levanta (`docker run`): el contenedor RESPONDE
+# /health. El push a un registry (red sostenida + credenciales) = declared-deferred (ADR-012, su incremento).
 FROM {DOCKER_BASE_IMAGE}@{DOCKER_BASE_DIGEST}
 WORKDIR /app
 # el dist autocontenido lo produce `./gradlew installDist` (launcher + libs pineadas, s9).
 COPY build/install/{pkg}/ /app/
 EXPOSE {OBS_PORT}
+# el launcher del dist = ObsServerKt (mainClass): server de observabilidad stdlib con /health -> {{"status":"UP"}},
+# PG-free (NO es el AppServer CRUD, que necesita PG). El smoke del contenedor (s11) le pega /health.
 ENTRYPOINT ["/app/bin/{pkg}"]
+'''
+
+
+def _deploy_check_py() -> str:
+    """tools/deploy_check.py — el proof del deploy VIVO (s11, DES-1). Stdlib puro, autocontenido (sin
+    `import metafactory`, sin deps) → corre en infra_up con env scrubbeado, como obs_check/access_control_check.
+    Le pega /health al CONTENEDOR construido+levantado y exige {"status":"UP"}: un ENTRYPOINT roto, un COPY del
+    dist equivocado o un EXPOSE/puerto mal cableado → el contenedor no responde → exit 1 (diente nativo de
+    infra_up: con el contenedor caído el MISMO proof falla)."""
+    return r'''#!/usr/bin/env python3
+"""deploy_check.py - proof del deploy VIVO (s11, DES-1). Le pega /health al CONTENEDOR del producto
+(construido con `docker build` y levantado con `docker run`) y exige {"status":"UP"}. DETERMINISTA, stdlib,
+sin red externa. Es el smoke de deploy que el producto SHIPPEA (mini-columna). Exit 1 si el contenedor no
+responde (diente nativo de infra_up) o si /health no esta UP.
+Uso: deploy_check.py <base_url>"""
+from __future__ import annotations
+
+import json
+import sys
+import urllib.error
+import urllib.request
+
+
+def main(argv: list) -> int:
+    if len(argv) != 1:
+        print("usage: deploy_check.py <base_url>", file=sys.stderr)
+        return 2
+    base = argv[0].rstrip("/")
+    try:
+        with urllib.request.urlopen(f"{base}/health", timeout=3) as r:
+            status, body = r.status, r.read().decode("utf-8", "replace")
+    except (urllib.error.URLError, OSError) as exc:
+        print(f"deploy-check: el contenedor no responde en {base}/health: {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+        return 1
+    if status != 200:
+        print(f"deploy-check: /health status {status} (esperaba 200)", file=sys.stderr)
+        return 1
+    try:
+        ok = json.loads(body).get("status") == "UP"
+    except json.JSONDecodeError:
+        ok = False
+    if not ok:
+        print(f"deploy-check: /health no UP (body {body!r})", file=sys.stderr)
+        return 1
+    print(f"deploy-check OK: el contenedor responde /health -> {body.strip()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
 '''
 
 
@@ -4487,6 +4546,8 @@ def build_files(bp: dict) -> dict[str, str]:
         "ci.sh": _ci_sh(),
         "tools/hermetic_check.py": _hermetic_check_py(pkg),
         "Dockerfile": _dockerfile(pkg),
+        # deploy vivo (s11, DES-1): el smoke del contenedor construido — le pega /health y exige UP (DATA).
+        "tools/deploy_check.py": _deploy_check_py(),
     }
     # workflows / máquinas de estado (s7, DES-3, R2/FSK-S12): OPT-IN — sólo se emiten para los campos enum que
     # declaran `transitions` (un enum sin máquina se comporta EXACTO como FSK-S11). El guard vive en el código

@@ -256,9 +256,16 @@ domain:
     - id: build_hermetico_reproducible
       invariant: "el build es hermético y reproducible: toolchain pineado; el artefacto compilado sale byte-idéntico entre builds limpios offline; el producto shippea su propia mini-columna (CI que re-corre los gates)"
       primitive: DES-1
-      tech: "reproducibilidad DECLARADa del build Gradle (AbstractArchiveTask: preserveFileTimestamps=false, reproducibleFileOrder=true → jar byte-idéntico) + mini-columna del producto ci.sh (re-corre los gates estáticos offline) + proof tools/hermetic_check.py (jar ×2 offline byte-idéntico + ci.sh --check/--probe + pin del Dockerfile/wrapper); toolchain pineado (Gradle wrapper sha256, JDK 21, base Docker por @sha256:). Build+push de la imagen Docker reproducible = declared-deferred (red+daemon, ADR-012)"
+      tech: "reproducibilidad DECLARADa del build Gradle (AbstractArchiveTask: preserveFileTimestamps=false, reproducibleFileOrder=true → jar byte-idéntico) + mini-columna del producto ci.sh (re-corre los gates estáticos offline) + proof tools/hermetic_check.py (jar ×2 offline byte-idéntico + ci.sh --check/--probe + pin del Dockerfile/wrapper); toolchain pineado (Gradle wrapper sha256, JDK 21, base Docker por @sha256:). El BUILD de la imagen ya NO es deferral: lo EJECUTA s11 (deploy_vivo, deploy_smoke); el PUSH a un registry (red sostenida + credenciales) = declared-deferred (ADR-012)"
       artifact: build/product/ci.sh
       proof: "s10 hermetic_build (product_env): build del jar ×2 offline → SHA256 idéntico (reproducible+hermético, lo que s0 NO da); la mini-columna ci.sh re-corre sus gates offline (--check); diente fail-closed (ci.sh --probe sobre un probe sucio DEBE morder); flip de preserveFileTimestamps → jars difieren → rojo. Fan-in DAG (depends_on s2,s3,s4,s7,s8,s9): romper un predecesor → s10 SHUT"
+      status: built
+    - id: deploy_vivo
+      invariant: "la receta de deploy NO es una media-verdad: la imagen del producto se CONSTRUYE de verdad (docker build sobre el Dockerfile generado, base pineada por digest) y el CONTENEDOR levanta y RESPONDE vivo a una request HTTP real (/health → {\"status\":\"UP\"}). El gate hermetic_build (s10) prueba que el pin es hermético; deploy_smoke (s11) prueba que la imagen construye y el contenedor sirve"
+      primitive: DES-1
+      tech: "el Dockerfile generado (FROM eclipse-temurin:21-jre@<digest real>, COPY del dist installDist, ENTRYPOINT bin/<pkg> = ObsServerKt PG-free) se CONSTRUYE con `docker build` y se levanta con `docker run -d -p <host>:<OBS_PORT>` bajo infra_up (E1/MAT-3, mismo idiom que la PG viva de s9: docker es DATA, ADR-012); el smoke es un proof client stdlib (tools/deploy_check.py, urllib) que HTTP-GETea /health del contenedor y exige {\"status\":\"UP\"}. AppServer-en-contenedor (necesita PG) + push a un registry + e2e Playwright (browser real) = declared-deferred (red/scope, su propio incremento)"
+      artifact: build/product/Dockerfile
+      proof: "s11 deploy_smoke (infra_up): el bootstrap corre installDist + `docker build` de la imagen + `docker run -d` del contenedor; el proof client le pega /health y exige {\"status\":\"UP\"}; un ENTRYPOINT roto / COPY del dist equivocado / EXPOSE mal cableado → el contenedor no responde → rojo; diente nativo de infra_up: con el contenedor CAÍDO (teardown `docker rm -f`) el MISMO proof falla. depends_on s10 (la receta debe pasar el pin hermético antes de construirse)"
       status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2/I-2). status: planned — los `builds`/`checks` ejecutables los
@@ -782,6 +789,45 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) python3 tools/hermetic_check.py"]
+    - id: s11
+      name: "deploy vivo: la imagen del producto se CONSTRUYE y el contenedor RESPONDE /health (DES-1)"
+      activation: always
+      depends_on: [s10]
+      # DES-1 — FSK-DEPLOY: cierra la ÚLTIMA media-verdad de la línea FSK. Hasta s10 el Dockerfile se SHIPPEA y
+      # el gate hermetic_build verifica el PIN de la base por grep, pero NADIE construye la imagen ni levanta el
+      # contenedor (la misma media-verdad que browser-form cerró para la UI: la receta existe, nadie la ejecuta).
+      # s11 la EJECUTA: COMPONE el kind infra_up (E1/MAT-3, ya general) con docker como DATA (mismo idiom que la
+      # PostgreSQL viva de s9, que ya hace `docker run postgres@sha256:` — ADR-012, el sustrato no nombra docker):
+      # el bootstrap corre installDist (el dist autocontenido que el COPY del Dockerfile necesita) + `docker build`
+      # de la imagen (base eclipse-temurin pineada por digest REAL, cacheada local) + `docker run -d` del
+      # contenedor mapeando un puerto fijo del host (DEPLOY_PORT=18596, ≠ 18593/18594/18595 de s9) al OBS_PORT del
+      # contenedor; el proof client (tools/deploy_check.py, stdlib urllib) le pega /health y exige {"status":"UP"}.
+      # El ENTRYPOINT del dist es bin/<pkg> = ObsServerKt (el server de observabilidad PG-free, /health → UP) — el
+      # smoke NO necesita PostgreSQL (el AppServer CRUD, que sí la necesita, no es el entrypoint del dist: su smoke
+      # en-contenedor = scope mayor, declared-deferred). Diente NATIVO de infra_up de dos lados: con el contenedor
+      # caído (teardown `docker rm -f`) el MISMO proof debe FALLAR (no conecta) — un smoke que pasa sin contenedor
+      # sería decorativo → rojo; doble función: prueba que el teardown liberó el recurso. Diente vivo: saboteá el
+      # ENTRYPOINT/COPY del Dockerfile → el contenedor no responde → SÓLO deploy_smoke rojo (s9/s10 verdes). PRIMER
+      # gate que CONSTRUYE+LEVANTA un contenedor del PRODUCTO (s9 levanta el server por `java -cp`, no la imagen).
+      # Sustrato intacto: infra_up corre DATA (ADR-012) — git diff src/+seed = 0 (composición §6, como s0–s10). El
+      # push a un registry (red sostenida + credenciales) + AppServer-en-contenedor (PG) + e2e Playwright (browser
+      # real) quedan declared-deferred (red/scope), su propio incremento — mismo shape que Ktor→estático (s5).
+      proof_checks:
+        - { name: deploy_smoke, cmd: "infra_up: bootstrap installDist + `docker build` (Dockerfile, base por digest real) + `docker run -d` del contenedor; deploy_check.py le pega /health y exige {\"status\":\"UP\"}; ENTRYPOINT/COPY/EXPOSE roto → no responde → rojo; contenedor caído (teardown docker rm -f) → el MISMO proof falla (diente nativo)", runs_in: product_env, toolchain: "docker-jdk-httpserver", status: built }
+      builds: []
+      checks:
+        - name: deploy_smoke
+          kind: infra_up
+          workdir: build/product
+          # bootstrap (una vez, env scrubbed DES-8): el dist + la imagen + el contenedor detached. `docker rm -f`
+          # idempotente por si una corrida previa dejó el contenedor (nombres fijos, corridas secuenciales).
+          bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s11_deploy >/dev/null 2>&1 || true; docker build -q -t fsk_s11_deploy . >/dev/null; docker run -d --name fsk_s11_deploy -p 18596:18593 fsk_s11_deploy >/dev/null"]
+          # up vacío: el contenedor (levantado detached en bootstrap) ES el servicio; el proof le pega directo y el
+          # teardown `down` lo baja (la fase negativa de infra_up re-corre el proof con el contenedor ya caído).
+          up: []
+          proof: ["python3", "tools/deploy_check.py", "http://127.0.0.1:18596"]
+          down: ["docker", "rm", "-f", "fsk_s11_deploy"]
+          timeout: 60
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]
@@ -969,13 +1015,13 @@ requirements:
       capability: entrada_tipada_runtime
     - id: REQ-F-017
       statement: "el frontend CONSUME el backend vivo: el cliente TS GENERADO hace fetch REAL contra el AppServer (PG viva detrás) y el round-trip e2e (create<E> POST → get<E> GET → aseverar) cruza el MISMO protocolo de cable que el server generado, a través del CÓDIGO DE CLIENTE real — el frontend deja de ser funciones puras que nunca llaman al server (capa cliente que consume, DES-6, FSK-FRONTEND-CONSUME)"
-      acceptance: "frontend_consume_live verde (infra_up: PG viva + AppServer en puerto/PG propios): el cliente generado create<E>(body DISTINTO de los samples) POSTea → get<E>(id) GETea → cada campo posteado vuelve EXACTO y type-correct (un cliente que devuelve un literal / ignora la respuesta → mismatch → rojo, verificado vivo); un body de tipo equivocado → 400 → el cliente lo propaga (un cliente que no chequea res.ok lo traga → rojo); server caído → fetch tira → rojo (diente nativo de infra_up). El tooth DES-6 vive en client.ts (Pick del contrato → un drift rompe tsc --strict en s2). El render de la lista viva lo cubre REQ-F-018; render EN BROWSER (mount/eventos) + el form que postea + deploy + e2e Playwright = declared-deferred. Opt-in: sin owned_by no se emite el cliente vivo (FSK-S15 intacto)"
+      acceptance: "frontend_consume_live verde (infra_up: PG viva + AppServer en puerto/PG propios): el cliente generado create<E>(body DISTINTO de los samples) POSTea → get<E>(id) GETea → cada campo posteado vuelve EXACTO y type-correct (un cliente que devuelve un literal / ignora la respuesta → mismatch → rojo, verificado vivo); un body de tipo equivocado → 400 → el cliente lo propaga (un cliente que no chequea res.ok lo traga → rojo); server caído → fetch tira → rojo (diente nativo de infra_up). El tooth DES-6 vive en client.ts (Pick del contrato → un drift rompe tsc --strict en s2). El render de la lista viva lo cubre REQ-F-018; render EN BROWSER (mount/eventos) + el form que postea lo cubre REQ-F-018 (FSK-BROWSER-FORM); el deploy (Dockerfile vivo) lo cubre REQ-NF-008 (s11, FSK-DEPLOY); e2e Playwright = declared-deferred. Opt-in: sin owned_by no se emite el cliente vivo (FSK-S15 intacto)"
       satisfied_by: [s9]
       verified_by: [frontend_consume_live]
       capability: frontend_consume_live
     - id: REQ-F-018
       statement: "la UI RENDERIZA la lista VIVA: el server LISTA las filas (GET /<plural> → {count,rows[]}, backward-compat), el cliente generado las TRAE (list<E>) y el render generado (render<E>List) las renderiza a markup que refleja la colección viva — el render deja de ser una función pura que nadie alimenta con datos del server (capa de render de datos vivos, DES-6, FSK-FRONTEND-RENDER-LIST)"
-      acceptance: "frontend_consume_live verde (el MISMO check infra_up, extendido): tras create<E>→get<E>, el consumer hace list<E>(base) → render<E>List(rows) y asevera que el html refleja la LISTA VIVA — la fila recién creada aparece en la lista traída (list<E> truncado/stale → rojo) y el markup contiene el campo renderizado de CADA fila viva (render que dropea/garbla/hardcodea filas → html ≠ lista viva → rojo, verificado vivo); server caído → fetch tira → rojo. El tooth DES-6 vive en client.ts (list<E> type-bound al contrato → drift rompe tsc --strict en s2). Render EN BROWSER (mount/eventos) + el form que postea + deploy + e2e Playwright = declared-deferred. Opt-in: sin owned_by no se emite"
+      acceptance: "frontend_consume_live verde (el MISMO check infra_up, extendido): tras create<E>→get<E>, el consumer hace list<E>(base) → render<E>List(rows) y asevera que el html refleja la LISTA VIVA — la fila recién creada aparece en la lista traída (list<E> truncado/stale → rojo) y el markup contiene el campo renderizado de CADA fila viva (render que dropea/garbla/hardcodea filas → html ≠ lista viva → rojo, verificado vivo); server caído → fetch tira → rojo. El tooth DES-6 vive en client.ts (list<E> type-bound al contrato → drift rompe tsc --strict en s2). Render EN BROWSER (mount/eventos) + el form que postea ya están hechos (FSK-BROWSER-FORM, este mismo check); el deploy (Dockerfile vivo) lo cubre REQ-NF-008 (s11, FSK-DEPLOY); e2e Playwright = declared-deferred. Opt-in: sin owned_by no se emite"
       satisfied_by: [s9]
       verified_by: [frontend_consume_live]
       capability: frontend_render_live
@@ -1011,10 +1057,16 @@ requirements:
       verified_by: [supply_chain_gate]
       capability: seguridad_cadena_suministro
     # NF-005 (s8 calidad_experiencia) y NF-006 (s9 observabilidad) del diseño se entregaron como REQ-F-009/010
-    # (functional) al construir esas estaciones; NF-007 (s10) es el último requisito de la línea.
+    # (functional) al construir esas estaciones; NF-007 (s10) + NF-008 (s11) cierran la línea.
     - id: REQ-NF-007
       statement: "el build del producto es hermético y reproducible: el artefacto compilado (webapp.jar) sale byte-idéntico entre dos builds limpios OFFLINE (toolchain pineado), y el producto shippea su propia mini-columna (CI que re-corre sus gates) — DES-1, SAFE-3"
-      acceptance: "hermetic_build verde: el jar ×2 offline → SHA256 idéntico (reproducible+hermético, lo que s0 NO da); la mini-columna ci.sh re-corre sus gates estáticos offline (--check); el diente fail-closed (ci.sh --probe sobre un probe sucio DEBE morder) o decorativo → rojo; flip de preserveFileTimestamps → los jars difieren → rojo; romper un predecesor (fan-in s2,s3,s4,s7,s8,s9) → s10 SHUT. Build+push de la imagen Docker reproducible queda declared-deferred (ADR-012)"
+      acceptance: "hermetic_build verde: el jar ×2 offline → SHA256 idéntico (reproducible+hermético, lo que s0 NO da); la mini-columna ci.sh re-corre sus gates estáticos offline (--check); el diente fail-closed (ci.sh --probe sobre un probe sucio DEBE morder) o decorativo → rojo; flip de preserveFileTimestamps → los jars difieren → rojo; romper un predecesor (fan-in s2,s3,s4,s7,s8,s9) → s10 SHUT. El BUILD de la imagen lo cubre REQ-NF-008 (deploy_smoke, s11); el push a un registry queda declared-deferred (ADR-012)"
       satisfied_by: [s10]
       verified_by: [hermetic_build]
       capability: build_hermetico_reproducible
+    - id: REQ-NF-008
+      statement: "el deploy NO es una media-verdad: la imagen del producto se CONSTRUYE de verdad (docker build sobre el Dockerfile generado, base pineada por digest) y el CONTENEDOR levanta y RESPONDE vivo a una request HTTP real — la receta de deploy deja de ser sólo un pin verificado por grep y pasa a 'la imagen construye y el contenedor sirve' (DES-1, FSK-DEPLOY)"
+      acceptance: "deploy_smoke verde (infra_up): el bootstrap corre installDist + `docker build` de la imagen (base eclipse-temurin pineada por digest real) + `docker run -d` del contenedor; el proof client (deploy_check.py, urllib) le pega /health y exige {\"status\":\"UP\"}; un ENTRYPOINT roto / COPY del dist equivocado / EXPOSE mal cableado → el contenedor no responde → rojo; con el contenedor caído (teardown `docker rm -f`) el MISMO proof falla (diente nativo de infra_up, no decorativo). AppServer-en-contenedor (necesita PG) + push a un registry + e2e Playwright (browser real) = declared-deferred (red/scope, su propio incremento)"
+      satisfied_by: [s11]
+      verified_by: [deploy_smoke]
+      capability: deploy_vivo

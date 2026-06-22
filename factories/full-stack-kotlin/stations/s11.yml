@@ -1,0 +1,28 @@
+id: s11
+name: 'deploy vivo: la imagen del producto se CONSTRUYE y el contenedor RESPONDE /health
+  (DES-1)'
+activation: always
+requires_prev: s10
+builds: []
+checks:
+- name: deploy_smoke
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
+    ./gradlew installDist -q --console=plain; docker rm -f fsk_s11_deploy >/dev/null
+    2>&1 || true; docker build -q -t fsk_s11_deploy . >/dev/null; docker run -d --name
+    fsk_s11_deploy -p 18596:18593 fsk_s11_deploy >/dev/null
+  up: []
+  proof:
+  - python3
+  - tools/deploy_check.py
+  - http://127.0.0.1:18596
+  down:
+  - docker
+  - rm
+  - -f
+  - fsk_s11_deploy
+  timeout: 60

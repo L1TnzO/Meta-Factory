@@ -49,6 +49,11 @@ roles: [superadmin, admin, manager, auditor]
 # Ownership a nivel de FILA (FSK-S14): superadmin/admin IGNORAN ownership (bypass); un manager,
 # salvo bypass, sólo toca las filas cuyo dueño es su principal. Componer sobre RBAC (fail-closed).
 owner_bypass_roles: [superadmin, admin]
+# Company-scoping / multi-tenancy (FSK-COMPANY-SCOPING, deferral 8). En Snipe-IT con FMCS
+# (full_multiple_companies_support) un actor no-superadmin sólo VE/EDITA las filas de SU compañía
+# (company_id). superadmin (y admin, que administra toda la org) IGNORAN el scope (bypass). Es el 1er
+# eje que agrega FILTRADO DE LECTURA (la lista se acota a la compañía del actor) además del de escritura.
+company_scope_bypass_roles: [superadmin, admin]
 
 entities:
   # ══ REFERENCE / LOOKUP (sin refs — declaradas primero) ════════════════════
@@ -146,6 +151,7 @@ entities:
   - name: Asset
     write_roles: [superadmin, admin, manager]   # un manager administra activos…
     owned_by: assigned_user_id                   # …pero sólo los SUYOS (su principal == el asignado), salvo bypass
+    company_scoped: company_id                   # …y SÓLO los de su COMPAÑÍA (multi-tenancy/FMCS), salvo bypass (FSK-COMPANY-SCOPING)
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): checkout/checkin — las operaciones CENTRALES de Snipe-IT. NO son un PUT
     # genérico: son transiciones NOMBRADAS del workflow `status` con efecto sobre `assigned_user_id` (el dueño de
     # la fila), que el server vivo enforza componiendo RBAC + ownership + la precondición de WORKFLOW (canTransition,

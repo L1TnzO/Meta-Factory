@@ -101,6 +101,10 @@ _OAPI_TYPE = {
 }                                                        # `enum` -> ver _oapi_inline (depende de `values`)
 _KT_SAMPLE = {"string": '"x"', "boolean": "false", "int": "2",
               "number": '"9.99".toDouble()', "date": 'LocalDate.parse("2026-01-15")', "ref": "1L"}
+# Muestra ALTERNA por tipo: una 2ª fila de la MISMA entidad que debe DIFERIR en sus columnas UNIQUE (p.ej.
+# el hijo de una jerarquía self-ref en el seeder de integración, FSK-SELF-REF). Distinta de _KT_SAMPLE.
+_KT_SAMPLE_ALT = {"string": '"it2"', "boolean": "true", "int": "3",
+                  "number": '"8.88".toDouble()', "date": 'LocalDate.parse("2026-02-15")'}
 # tipos cuyo sample Kotlin requiere un import extra en el .kt que los samplea (java.time, etc.).
 _KT_TYPE_IMPORT = {"date": "java.time.LocalDate"}
 # tipo Kotlin de cada campo en el data class de entrada (FSK-CRUD-BODY-PARSING): el cuerpo del request se
@@ -712,8 +716,11 @@ def _app_kt(pkg: str, entities: list[dict]) -> str:
         for f in e["fields"]:
             if f["type"] == "ref":
                 tgt = by_name.get(f["to"])
-                tv = tgt["name"].lower() if tgt else "1L"
-                args.append(f"{_camel(f['name'])} = {tv}.id" if tgt else f"{_camel(f['name'])} = 1L")
+                if tgt and f["to"] == e["name"]:        # SELF-REF: el sample no se referencia a sí mismo
+                    args.append(f"{_camel(f['name'])} = null")   # (la raíz: sin padre/manager; Long? nullable)
+                else:
+                    tv = tgt["name"].lower() if tgt else "1L"
+                    args.append(f"{_camel(f['name'])} = {tv}.id" if tgt else f"{_camel(f['name'])} = 1L")
             elif f["type"] == "enum":
                 # .entries.first() SÓLO compila si <Model>.<Prop> ES un enum class (del contrato cerrado):
                 # romper el `enum:` del contrato → el campo pasa a String → unresolved reference → rojo (diente).
@@ -2516,30 +2523,63 @@ def _model_ctor_args(e: dict) -> list[str]:
 
 def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
     """Tier INTEGRACIÓN (s7, DES-8): los queries jOOQ de Repository contra una PostgreSQL VIVA (lo corre
-    infra_up). Test de FRAMEWORK con aserciones — distinto del `main()` round-trip de s1. DB caída → rojo."""
+    infra_up). Test de FRAMEWORK con aserciones — distinto del `main()` round-trip de s1. DB caída → rojo.
+    Una entidad con SELF-REF (un `ref` cuyo `to` es la propia entidad — p.ej. una jerarquía padre/hijo) se
+    siembra como cadena raíz→hijo: la raíz con el self-ref en NULL y un hijo apuntándola; la FK self valida
+    la jerarquía contra la PG viva y el round-trip cruza el id leído de vuelta. DATA-agnóstico: la heurística
+    es `to == nombre de la entidad`, sin nombres de dominio (ADR-012); es la misma regla que `_roundtrip_kt`
+    aplica a un opcional (no setear → NULL), acotada al self-ref (chicken-and-egg: `ids[self]` aún no existe)."""
     by_name = {e["name"]: e for e in entities}
-    inserts, ids = [], {}
-    for e in entities:
+    inserts, ids, selfref_ents = [], {}, set()
+
+    def _sets(e: dict, selfval: str | None) -> list[str]:
+        """los set(...) de una fila de `e`. Un SELF-REF se setea a `selfval`; con selfval=None se OMITE → la
+        columna queda NULL (la raíz). El hijo (selfval no-None) usa un valor ALTERNO en cada columna UNIQUE
+        (mismo constraint, otro valor) para no chocar con la raíz; un NON-self ref usa el id ya capturado del
+        target (orden topo)."""
         TBL = _TBL(e)
-        sets = []
+        child = selfval is not None
+        out = []
         for f in e["fields"]:
             COL = _COL(f["name"])
+            alt = child and f.get("unique")     # el hijo difiere en sus UNIQUE (no viola el constraint)
             if f["type"] == "ref":
-                sets.append(f"set({TBL}.{COL}, {ids[by_name[f['to']]['name']]})")
+                if f["to"] == e["name"]:                       # SELF-REF: raíz=NULL, hijo→raíz
+                    if child:
+                        out.append(f"set({TBL}.{COL}, {selfval})")
+                else:
+                    out.append(f"set({TBL}.{COL}, {ids[by_name[f['to']]['name']]})")
             elif f["type"] == "boolean":
-                sets.append(f"set({TBL}.{COL}, false)")
+                out.append(f"set({TBL}.{COL}, {'true' if alt else 'false'})")
             elif f["type"] == "enum":
-                sets.append(f"set({TBL}.{COL}, {_yaml_str(f['values'][0])})")
+                out.append(f"set({TBL}.{COL}, {_yaml_str(f['values'][0])})")
             elif f["type"] in ("int", "number", "date"):
-                sets.append(f"set({TBL}.{COL}, {_KT_SAMPLE[f['type']]})")
+                out.append(f"set({TBL}.{COL}, {(_KT_SAMPLE_ALT if alt else _KT_SAMPLE)[f['type']]})")
             else:
-                sets.append(f'set({TBL}.{COL}, "it")')
+                val = '"it2"' if alt else '"it"'
+                out.append(f"set({TBL}.{COL}, {val})")
+        return out
+
+    for e in entities:
+        TBL = _TBL(e)
         idvar = f"{e['name'].lower()}Id"
-        ids[e["name"]] = idvar
-        calls = sets + [f"returning({TBL}.ID)", "fetchOne()!!", f"get({TBL}.ID)!!"]
-        inserts.append(_jooq_chain("            ", f"val {idvar} = ", f"ctx.insertInto({TBL})", calls))
+        ids[e["name"]] = idvar          # disponible para el hijo del self-ref y para otras entidades
+        rootcalls = _sets(e, None) + [f"returning({TBL}.ID)", "fetchOne()!!", f"get({TBL}.ID)!!"]
+        inserts.append(_jooq_chain("            ", f"val {idvar} = ", f"ctx.insertInto({TBL})", rootcalls))
+        selfref = next((f for f in e["fields"] if f["type"] == "ref" and f["to"] == e["name"]), None)
+        if selfref:
+            selfref_ents.add(e["name"])
+            childvar = f"{e['name'].lower()}ChildId"
+            childcalls = _sets(e, idvar) + [f"returning({TBL}.ID)", "fetchOne()!!", f"get({TBL}.ID)!!"]
+            inserts.append(
+                _jooq_chain("            ", f"val {childvar} = ", f"ctx.insertInto({TBL})", childcalls))
+            SELFCOL = _COL(selfref["name"])   # round-trip de la jerarquía VIVA: el hijo apunta a la raíz
+            inserts.append(
+                f"            ctx.select({TBL}.{SELFCOL}).from({TBL}).where({TBL}.ID.eq({childvar}))"
+                f".fetchOne()!!.get({TBL}.{SELFCOL}) shouldBe {idvar}")
     asserts = "\n".join(
-        f"            Repository.all{e['name']}s(ctx).size shouldBe 1" for e in entities)
+        f"            Repository.all{e['name']}s(ctx).size shouldBe "
+        f"{2 if e['name'] in selfref_ents else 1}" for e in entities)
     body = "\n".join(inserts)
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     time_imp = "import java.time.LocalDate\n" if any(

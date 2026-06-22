@@ -1,6 +1,39 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T01:48Z — FSK-SELF-REF ✅: jerarquías self-ref (Location.parent_id, User.manager_id) — 1er gap del push Snipe-IT
+- **El 1er gap product-driven del push Snipe-IT, arreglado GENERAL.** Una entidad con un `ref` cuyo `to` es ELLA MISMA
+  (jerarquía padre/hijo) rompía la generación. Dos sitios del codegen lo asumían imposible:
+  - **`_it_repository_kt`** (seeder del tier integración, s7 `pyramid_integration`): seteaba TODO ref —incl. el self—
+    referenciando `ids[self]` ANTES de insertar la fila → `KeyError` (y aún capturado, FK a fila inexistente). Por eso
+    Location.parent_id / User.manager_id estaban DIFERIDOS en el blueprint.
+  - **`_app_kt`** (el ejercedor del contrato, s0 `contract_single_source`): emitía `managerId = user.id` DENTRO del
+    propio `val user = User(...)` → auto-referencia de variable → compile rojo (este lo destapó el 1er product-run, no
+    estaba en el handoff: el handoff sólo señaló `_it_repository_kt`).
+- **Fix (FÁBRICA, GENERAL, cero nombres de dominio — `codegen/scaffold_product.py`)**: heurística DATA-agnóstica `to ==
+  nombre de la entidad`. (a) `_it_repository_kt` siembra la self-ref como **cadena raíz→hijo**: la **raíz** con el
+  self-ref en NULL (idiom de `_roundtrip_kt` con un opcional), un **hijo** apuntando a la raíz, y un **read-back** que
+  cruza el id leído de la PG viva → la **FK self valida la jerarquía VIVA**. El hijo usa valores **ALTERNOS** en sus
+  columnas UNIQUE (`_KT_SAMPLE_ALT`) para no violar el constraint (lo destapó User.username: root y child colisionaban
+  en "it" → IntegrityConstraintViolation). `size shouldBe 2` para las entidades self-ref. (b) `_app_kt`: una self-ref
+  del sample = `null` (la raíz no tiene padre; `Long?` nullable).
+- **Adopción en el PRODUCTO** (incremento de producto APARTE — `products/snipeit/docs/work/SNIPEIT-SELF-REF-INCREMENT.md`,
+  ADR-016 dual-nivel, el guard elige por ruta): snipeit re-habilitó `Location.parent_id`→Location y
+  `User.manager_id`→User (self-ref opcionales). `Location.manager_id`→User y `Department.manager_id`→User SIGUEN
+  diferidos (ciclos cross-entidad, deferral 6, otro incremento).
+- **⚠️ `proof_sha` INTACTO**: no agrega check ni estación (el fix vive DENTRO de `pyramid_integration`/s0) → pines
+  byte-idénticos, **SIN re-materializar, SIN re-pinear** (distinto de FSK-DEPLOY). `git diff snipeit/product.yml ≠ 0`
+  es ESPERADO (trabajo de producto); el sustrato + default/assets product.yml = 0.
+- **Diente de DOS lados VIVO**: saboteé el seeder self-ref (hijo → id inexistente `999999L`) → `product-run` →
+  **`pyramid_integration FAIL(1)`, gate s7 SHUT**, hermanos s7 (`pyramid_unit`/`pyramid_unit_ts`/`workflow_enforced`)
+  **verdes** → revertí → **verde**. (+ el diente nativo de `infra_up`: PG caída → rojo.)
+- **Verde (no fingido)**: 3 product-run/`ci --rederive --all-products` **12/12 · 11/11 · 11/11 == pin** · `meta check`
+  **6/6** (`generality` verde) · `git diff src/metafactory + seed = 0` · `git diff` default+assets product.yml = 0 ·
+  RTM snipeit 24/25 (sólo s6 keyless, sin cambio: self-ref no es requisito nuevo).
+- **Lección para la próxima**: un gap "chico y acotado" del handoff (1 función) en la práctica tocó **3** sitios del
+  codegen (`_it_repository_kt` + `_app_kt` + el alt-sample de UNIQUE). El eyeball SIN gradle cazó el 1er sitio; el
+  gradle real (compile s0 + FK s7) cazó los otros dos. **Generar de verdad sigue siendo el que encuentra los huecos.**
+
 ## 2026-06-22T00:06Z — FSK-DEPLOY ✅: la imagen del producto se CONSTRUYE y el contenedor RESPONDE /health VIVO
 - **Cierra la ÚLTIMA media-verdad FSK**: hasta s10 el `Dockerfile` se SHIPPEA y `hermetic_build` verifica el PIN de
   la base por **grep**, pero **NADIE construía la imagen ni levantaba el contenedor** (la misma media-verdad que

@@ -81,6 +81,21 @@
   del default + re-pinear los 3. Sustrato (`src/metafactory/`+`seed/`)=0; `product.yml`=0. **3 product-run PASS · `ci
   --rederive --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6.** Detalle: `docs/work/FSK-DEPLOY-INCREMENT.md
   §Evidencia`.
+- **JERARQUÍAS SELF-REF — el 1er gap del push Snipe-IT, GENERAL (FSK-SELF-REF, 2026-06-22)**: una entidad con un
+  `ref` cuyo `to` es ELLA MISMA (jerarquía padre/hijo) dejó de romper el seeder del tier integración. El seeder de s7
+  (`_it_repository_kt`) seteaba TODO ref —incl. el self— y referenciaba `ids[self]` ANTES de insertar la fila →
+  `KeyError`/FK colgante. Ahora una self-ref se siembra como **cadena raíz→hijo** (DATA-agnóstico, heurística `to ==
+  nombre de la entidad`, cero nombres de dominio): la **raíz** con el self-ref en NULL, un **hijo** apuntándola, y un
+  **read-back** que cruza el id leído de la PG viva → la **FK self valida la jerarquía VIVA** y round-trippea. El hijo
+  usa valores ALTERNOS en sus columnas UNIQUE (no choca con la raíz). También `_app_kt` (el ejercedor del contrato, s0)
+  dejó de auto-referenciarse (`managerId = user.id` dentro del propio `val user` → self-ref del sample = `null`). Fix
+  100% en **codegen de FÁBRICA** (`scaffold_product.py`); **sin check/estación nuevos → `proof_sha` intacto, pin
+  byte-idéntico, SIN re-pin**. **Adopción en el PRODUCTO** (incremento de producto aparte, ADR-016): snipeit re-habilitó
+  `Location.parent_id`→Location y `User.manager_id`→User (self-ref opcionales antes diferidos). Diente de DOS lados
+  VIVO (self-ref del hijo → id inexistente → **SÓLO** `pyramid_integration` rojo, hermanos s7 verdes; revertí→verde).
+  **3 product-run PASS · `ci --rederive --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality`
+  verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle: `docs/work/FSK-SELF-REF-INCREMENT.md
+  §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -88,7 +103,7 @@
   claramente-FSK-general (deploy) está cerrado.** Lo que QUEDA:
   - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
     `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico · RTD/owner-
-    opcional · self-ref `Location.parent_id` · depreciación calculada · company-scoping · …). **Metodología probada**:
+    opcional · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · depreciación calculada · company-scoping · …). **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

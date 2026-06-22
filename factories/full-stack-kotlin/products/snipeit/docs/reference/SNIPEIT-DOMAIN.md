@@ -158,11 +158,14 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    dueño. Por eso `model_id` (y los demás refs de Asset salvo el dueño) van `required: false`. Faithful pediría
    un seed transitivo (cadena de dependencias) en el server vivo — gap.
 
-5. **Jerarquías self-ref**: `Location.parent_id`→Location y `User.manager_id`→User [GAP-FÁBRICA]. FSK no
-   soporta refs self: `_it_repository_kt` (seeder del tier integración, s7) setea TODO ref —incluido el
-   opcional— y referencia `ids[self]` antes de insertar la fila → `KeyError`. **Diferidas** (la migración y el
-   roundtrip sí las tolerarían: optional→NULL). Fix general probable: que `_it_repository_kt` saltee los refs
-   opcionales (como hace `_roundtrip_kt`) y/o maneje self-ref. Es un gap chico y acotado.
+5. **Jerarquías self-ref**: `Location.parent_id`→Location y `User.manager_id`→User **✓ HECHO (FSK-SELF-REF,
+   2026-06-22)**. Antes [GAP-FÁBRICA]: FSK no soportaba refs self (`_it_repository_kt` seteaba TODO ref —incl. el
+   opcional— y referenciaba `ids[self]` antes de insertar → `KeyError`; y `_app_kt` se auto-referenciaba en el sample).
+   **Levantado GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde): una self-ref (heurística
+   `to == nombre de la entidad`) se siembra como cadena **raíz→hijo** con read-back que valida la FK self contra la PG
+   viva; el sample del contrato usa `null`; el hijo difiere en sus UNIQUE. **Ambos campos RE-HABILITADOS** en el
+   blueprint (opcionales). `Location.manager_id`/`Department.manager_id`→User SIGUEN diferidos (ciclos cross-entidad,
+   ver deferral 6). Detalle: `docs/work/FSK-SELF-REF-INCREMENT.md` (fábrica) + `…/SNIPEIT-SELF-REF-INCREMENT.md` (producto).
 
 6. **Ciclos de referencia rotos**: `Location.manager_id`→User y `Department.manager_id`→User [SIMPLIF].
    Crearían ciclos (Location↔User, User↔Department) que el migration en orden de declaración no admite (FK a
@@ -199,12 +202,18 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
 
 ## 4. Próximos pasos (gaps priorizados → incrementos)
 
-Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden probable de necesidad:
-1. **CRUD-mutación real** (deferral 11) — INSERT/UPDATE/DELETE tipados bajo el control de acceso ya enforzado.
-2. **Self-ref** (deferral 5) — fix acotado en `_it_repository_kt` → restaura jerarquías Location/User.
-3. **Ownership opcional / RTD** (deferrals 3, 4) — dueño nullable + seed transitivo en el server vivo.
-4. **Custom fields** (deferral 1) — el eje grande: campos dinámicos por modelo.
-5. **Frontend vivo + deploy** (P1 §4) y breadth de endpoints/operaciones (checkout/checkin/audit/…).
+Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-SELF-REF:
+1. ~~**CRUD-mutación real** (deferral 11)~~ **✓ HECHO** (FSK-S16 + body-parsing + ownerless + refs-in-body).
+2. ~~**Self-ref** (deferral 5)~~ **✓ HECHO** (FSK-SELF-REF, 2026-06-22) — jerarquías Location/User vivas.
+3. **Ownership opcional / RTD** (deferrals 3, 4) — **SIGUIENTE**: dueño **nullable** + estado Ready-To-Deploy real +
+   seed transitivo en el server vivo. El más CORE de Snipe-IT (un activo SIN asignar es el caso normal) pero más
+   involucrado: toca `OwnershipGuard.canModify(rowOwnerId: Long)` no-nullable + la conflación owner-null/404 del
+   server vivo (FSK-S15). Ver `docs/work/FSK-OWNERSHIP-OPTIONAL-INCREMENT.md` (handoff abierto).
+4. **Custom fields dinámicos** (deferral 1) — el eje GRANDE: campos definidos por usuario por modelo (EAV-como-columnas).
+5. **Operaciones de dominio** (deferral 11b): checkout/checkin/audit como verbos que MUTAN semántica (decrementar qty,
+   liberar seat, Actionlog) — más allá del veredicto de acceso.
+6. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+   AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

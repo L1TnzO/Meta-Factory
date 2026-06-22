@@ -1,8 +1,7 @@
 # Incremento FSK-SELF-REF — jerarquías self-ref (Location.parent_id, User.manager_id) → el 1er paso del push Snipe-IT
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T00:06Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-22T01:48Z; abierto 2026-06-22T00:06Z). Ver §Evidencia. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA
 > editada (ADR-016).
 >
@@ -176,3 +175,42 @@ producto):
   liberar seat, Actionlog) — más allá del veredicto de acceso.
 - **diferidos DUROS (red/scope)**: push de la imagen a un registry · e2e Playwright (browser real) · AppServer-en-
   contenedor con PG.
+
+---
+
+## Evidencia (cierre, 2026-06-22T01:48Z) — demostrable, no narrable
+
+**Lo construido (FÁBRICA, GENERAL, cero nombres de dominio — `codegen/scaffold_product.py`)**. El handoff señaló
+**1** función (`_it_repository_kt`); el gradle real destapó que eran **3** sitios — el patrón se repetía en cada
+generador que asumía "ningún ref apunta a su propia entidad":
+1. **`_it_repository_kt`** (seeder s7, el del handoff): una self-ref (heurística DATA-agnóstica `f["to"] ==
+   e["name"]`) se siembra como cadena **raíz→hijo** — la raíz con el self-ref en NULL, un hijo apuntándola, y un
+   **read-back** (`ctx.select(<selfcol>)…shouldBe <rootId>`) que cruza el id leído de la PG viva. `size shouldBe 2`
+   para las entidades self-ref. Patrón calcado de `_roundtrip_kt` (skip-optional→NULL), acotado al self-ref.
+2. **`_app_kt`** (ejercedor del contrato, s0 `contract_single_source`) — **NO estaba en el handoff**: emitía
+   `managerId = user.id` DENTRO del propio `val user = User(...)` → auto-referencia de variable → compile rojo.
+   Fix: una self-ref del sample = `null` (la raíz no tiene padre; `Long?` nullable).
+3. **`_KT_SAMPLE_ALT` + el hijo difiere en sus UNIQUE** — **NO estaba en el handoff**: lo destapó `User.username`
+   (`unique`): root y child seedeaban ambos `"it"` → `IntegrityConstraintViolationException` (UNIQUE). El hijo usa
+   valores alternos en sus columnas `unique`.
+
+`_migration_sql` y `_seed_chain` (s9) NO necesitaron tocarse: ya toleraban la self-ref opcional (columna nullable
+self-FK / skip-optional). El sustrato (`src/metafactory/` + `seed/`) = **0**.
+
+**§1 (RE-PIN) confirmado**: NO se agregó check ni estación (el fix vive DENTRO de `pyramid_integration`/s0, mismos
+nombres+exit) → `proof_sha` INTACTO → **pines byte-idénticos, SIN re-materializar, SIN re-pinear**. `git status`
+no muestra ningún `pinned_verdict.json` modificado.
+
+**Adopción en el producto** (incremento de PRODUCTO aparte, `products/snipeit/docs/work/SNIPEIT-SELF-REF-INCREMENT.md`):
+`Location.parent_id`→Location y `User.manager_id`→User re-habilitados (self-ref opcionales).
+
+**Criterio de cierre (§6) — TODOS ✅**:
+1. snipeit `product-run` **PASS** (s0→s11); la jerarquía self-ref se siembra y round-trippea VIVA en s7. default +
+   assets siguen PASS (no tocados). ✅
+2. **Diente de DOS lados VIVO**: saboteé el seeder (hijo self-ref → `999999L`, id inexistente) → `product-run` →
+   `pyramid_integration FAIL(1)`, **gate s7 SHUT**, hermanos s7 (`pyramid_unit`/`pyramid_unit_ts`/`workflow_enforced`)
+   **verdes** → revertí → **verde**. ✅
+3. `ci --rederive --all-products` **12/12 · 11/11 · 11/11 == pin** (proof_sha INTACTO). `meta check` **6/6**
+   (`generality` verde). `git diff src/metafactory + seed = 0`. `git diff` default+assets product.yml = 0. ✅
+4. STATE/LOG (fábrica) + `SNIPEIT-DOMAIN.md §3 deferral 5 (GAP→hecho)/§4 (re-priorizado)` actualizados. SIGUIENTE
+   abierto con handoff: `docs/work/FSK-OWNERSHIP-OPTIONAL-INCREMENT.md` (deferrals 3+4). ✅

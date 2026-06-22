@@ -251,6 +251,49 @@ def _load_blueprint(root: Path) -> dict:
             raise SystemExit(f"scaffold: owned_by de {e.get('name')!r} nombra un campo inexistente {ob!r}")
         if fld.get("type") != "ref":
             raise SystemExit(f"scaffold: owned_by de {e.get('name')!r}: el campo {ob!r} no es type 'ref' (el dueño es una FK a un principal)")
+    # R2 (FSK-DOMAIN-OPS): verbos de DOMINIO OPCIONALES. `operations` (por entidad) = una lista de transiciones
+    # NOMBRADAS de un campo enum-workflow con efecto sobre un campo `ref` (assigns/clears) — checkout/checkin son
+    # el caso central de Snipe-IT. El verbo COMPONE sobre lo ya construido: RBAC + ownership (modifyVerdict) +
+    # la precondición de WORKFLOW (canTransition, hasta hoy sólo-UNIT). Fail-closed (mismo patrón que los demás
+    # ejes): `operations` exige `owned_by` (el verbo decide acceso vía ownership); `field` debe ser un enum CON
+    # `transitions` (un workflow); `from`/`to` ∈ values Y la transición `from→to` DEBE estar DECLARADA en el
+    # workflow (un verbo que nombra una transición inexistente → raise honesto); `assigns`/`clears` (excluyentes,
+    # opcionales) nombran un campo `ref`. Opt-in: sin `operations` el producto es EXACTO (FSK-S16 intacto).
+    for e in ents:
+        ops = e.get("operations")
+        if ops is None:
+            continue
+        if not isinstance(ops, list) or not ops:
+            raise SystemExit(f"scaffold: 'operations' de {e['name']!r} debe ser una lista no vacía")
+        if e.get("owned_by") is None:
+            raise SystemExit(f"scaffold: entidad {e['name']!r} declara 'operations' sin 'owned_by' "
+                             f"(el verbo decide acceso por ownership — fail-closed)")
+        fld_by = {f["name"]: f for f in e["fields"]}
+        seen_ops: set[str] = set()
+        for op in ops:
+            nm = op.get("name")
+            if not (isinstance(nm, str) and nm.isidentifier() and nm == nm.lower()):
+                raise SystemExit(f"scaffold: operation de {e['name']!r}: 'name' {nm!r} debe ser identificador lowercase")
+            if nm in seen_ops:
+                raise SystemExit(f"scaffold: operation duplicada {nm!r} en {e['name']!r}")
+            seen_ops.add(nm)
+            wf = fld_by.get(op.get("field"))
+            if wf is None or wf.get("type") != "enum" or not wf.get("transitions"):
+                raise SystemExit(f"scaffold: operation {nm!r}: 'field' {op.get('field')!r} no es un campo enum con "
+                                 f"'transitions' (workflow) de {e['name']!r}")
+            vals = set(wf.get("values") or [])
+            frm, to = op.get("from"), op.get("to")
+            if frm not in vals or to not in vals:
+                raise SystemExit(f"scaffold: operation {nm!r}: 'from'/'to' fuera de los values del enum {op.get('field')!r}")
+            if to not in (wf["transitions"].get(frm) or []):
+                raise SystemExit(f"scaffold: operation {nm!r}: la transición {frm!r}->{to!r} no está declarada en el "
+                                 f"workflow de {op.get('field')!r} (un verbo no puede nombrar una transición inexistente)")
+            if "assigns" in op and "clears" in op:
+                raise SystemExit(f"scaffold: operation {nm!r}: declara 'assigns' Y 'clears' (son excluyentes)")
+            for key in ("assigns", "clears"):
+                ref = op.get(key)
+                if ref is not None and (fld_by.get(ref) is None or fld_by[ref].get("type") != "ref"):
+                    raise SystemExit(f"scaffold: operation {nm!r}: '{key}' {ref!r} no es un campo 'ref' de {e['name']!r}")
     return bp
 
 
@@ -325,6 +368,29 @@ def _openapi_yaml(bp: dict) -> str:
                 "      responses:",
                 f"        '200': {{ description: ok, content: {{ application/json: {{ schema: {{ $ref: {_yaml_str(ref)} }} }} }} }}",
                 "        '404': { description: not found }",
+            ]
+        # Verbos de DOMINIO (FSK-DOMAIN-OPS, DES-3): una operación nombrada = POST /<plural>/{id}/<verbo> que muta
+        # bajo precondición de workflow + RBAC + ownership. security + x-required-roles (= write_roles) → route_check
+        # (modos auth/rbac) la cruza GRATIS contra el RouteTable (single-source DES-6). El cuerpo (el target del
+        # `assigns`) lo parsea el server vivo a mano → el contrato no lo modela (detalle de implementación). 409 =
+        # precondición de estado violada. Opt-in: sin `operations` no se emite nada (FSK-S16 intacto).
+        for op in e.get("operations") or []:
+            lines += [
+                f"  /{plural}/{{id}}/{op['name']}:",
+                "    post:",
+                f"      operationId: {op['name']}{e['name']}",
+                "      security:",
+                "        - bearerAuth: []",
+            ]
+            if e.get("write_roles"):
+                lines.append(f"      x-required-roles: [{', '.join(e['write_roles'])}]")
+            lines += [
+                "      parameters:",
+                "        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }",
+                "      responses:",
+                "        '200': { description: ok }",
+                "        '404': { description: not found }",
+                "        '409': { description: conflict }",
             ]
     # securitySchemes: el esquema bearer que las ops de escritura referencian (DES-3). Los `get` quedan públicos.
     lines += [
@@ -1105,6 +1171,38 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
     return out
 
 
+def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
+    """Las queries jOOQ TIPADAS que un verbo de DOMINIO (FSK-DOMAIN-OPS) necesita: (1) `<e><Field>Of` lee el valor
+    ACTUAL del campo enum-workflow (String, la columna VARCHAR) — el server lo cruza contra la máquina de estado
+    (canTransition) a RUNTIME; (2) `<verbo><E>` es la MUTACIÓN atómica del verbo: un UPDATE que setea el campo al
+    `to` declarado + (assigns) un ref al target del body O (clears) lo pone NULL, por id. Type-bound al schema
+    (columna inexistente → no compila, DES-12). Opt-in: sin `operations` no se emite (default/assets byte-idéntico)."""
+    out = []
+    fields_done: set[str] = set()
+    for op in e["operations"]:
+        fld = op["field"]
+        if fld not in fields_done:   # un lector por campo enum-workflow (dedup si varios verbos comparten campo)
+            fields_done.add(fld)
+            col = f"{tbl}.{_COL(fld)}"
+            out.append(f"    fun {e['name'].lower()}{_pascal(fld)}Of(ctx: DSLContext, id: Long): String? =\n"
+                       f"        ctx.select({col}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({col})")
+    for op in e["operations"]:
+        col = f"{tbl}.{_COL(op['field'])}"
+        sets = [f'set({col}, "{op["to"]}")']   # el `to` declarado (la columna es VARCHAR del enum-workflow)
+        if op.get("assigns"):
+            sets.append(f"set({tbl}.{_COL(op['assigns'])}, target)")
+            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long, target: Long)"
+        elif op.get("clears"):
+            sets.append(f"setNull({tbl}.{_COL(op['clears'])})")
+            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long)"
+        else:
+            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long)"
+        calls = sets + [f"where({tbl}.ID.eq(id))", "execute()"]
+        chain = _jooq_chain("        ", "", f"ctx.update({tbl})", calls)
+        out.append(f"    fun {sig}: Int =\n{chain}")
+    return out
+
+
 def _repository_kt(pkg: str, entities: list[dict]) -> str:
     """Queries jOOQ TIPADAS (DES-12): una por entidad, que SELECCIONA todas sus columnas (id + fields).
     Borrar/renombrar cualquier columna en la migración → jOOQ la quita → `Unresolved reference` (rojo). La
@@ -1148,6 +1246,10 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         # [update]. La ownerless inserta TODOS sus escalares del body (sin ownerId); la con dueño suma el ownerId.
         if e["name"] in live_names:
             fns.extend(_mutation_fns(e, tbl))
+        # Verbos de DOMINIO (FSK-DOMAIN-OPS): el lector de estado + la mutación atómica de cada verbo. Opt-in:
+        # sin `operations` no agrega nada (la entidad con verbos es la que tiene dueño → ya es live).
+        if e.get("operations"):
+            fns.extend(_operation_repo_fns(e, tbl))
     if data_classes:   # helper de serialización JSON usado por <e>RowJson (sólo si hay entidad viva)
         fns.insert(0, "    private fun jsonVal(v: Any?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"")
     # un query TIPADO por entidad (+ ownerId/CRUD por entidad con dueño): con >11 entidades supera
@@ -1964,6 +2066,17 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
                 posts_lines.append(f'        route("PUT", "/{_table(e)}/{{id}}", {roleset})')
             else:
                 posts_lines.append(f'        route("PUT", "/{_table(e)}/{{id}}")')
+        # Verbos de DOMINIO (FSK-DOMAIN-OPS): cada operación registra su ruta POST /<plural>/{id}/<verbo> DENTRO
+        # del guard (RBAC + ownership en el dispatch del server vivo), con el mismo set de roles que el POST
+        # (x-required-roles del contrato) → route_check (topology/auth/rbac) la cruza GRATIS. Opt-in: sin
+        # `operations` no se registra nada (FSK-S16 intacto).
+        for op in e.get("operations") or []:
+            verb_path = f'"/{_table(e)}/{{id}}/{op["name"]}"'
+            if wr:
+                roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
+                posts_lines.append(f'        route("POST", {verb_path}, {roleset})')
+            else:
+                posts_lines.append(f'        route("POST", {verb_path})')
     posts = "\n".join(posts_lines)
     return (f"package {pkg}.routes\n\n"
             f"import {pkg}.auth.Role\n"
@@ -3425,7 +3538,8 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
     return "\n\n".join(parts), sorted(imps)
 
 
-def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict | None) -> str:
+def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict | None,
+                         need_conflict: bool = False) -> str:
     """Las funciones de manejo del server vivo (FSK-CRUD-BODY-PARSING): doPost LEE el cuerpo del request, lo
     type-coerce por el schema (parse<E>Input) e INSERTA con ESOS valores (dueño = principal del token, no del
     body); getOne devuelve la FILA COMPLETA type-correct; doPut LEE el body y actualiza la columna mutable
@@ -3442,6 +3556,11 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         'private fun notFound(): Pair<Int, String> = HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""\n\n'
         'private fun badRequest(): Pair<Int, String> = HTTP_BAD_REQUEST to """{"status":$HTTP_BAD_REQUEST}"""\n\n'
     )
+    # conflict() COMPARTIDO (FSK-REFS-IN-BODY: FK colgante → 409; FSK-DOMAIN-OPS: precondición de workflow violada
+    # → 409). Se emite UNA vez acá (no en cada bloque) cuando el server lo necesita (with_ref O operations); el
+    # const HTTP_CONFLICT acompaña arriba (%CONFLICT_CONST%). Sin ninguno de los dos → no se emite (byte-neutro).
+    if need_conflict:
+        helpers += 'private fun conflict(): Pair<Int, String> = HTTP_CONFLICT to """{"status":$HTTP_CONFLICT}"""\n\n'
     # POST: RBAC + body parseado; si ambos pasan, INSERTA una fila cuyo dueño = el principal del token (que /seed
     # garantiza como fila existente -> satisface el FK del dueño) con los ESCALARES del body, y devuelve el id.
     do_post = (
@@ -3551,8 +3670,8 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False) -> str:
     if catch_fk:   # FSK-REFS-IN-BODY: el INSERT puede violar una FK (ref colgante) → atrapar → 409 (no 500)
         fk_helpers = (
             "// FK fail-closed (FSK-REFS-IN-BODY): un ref VALIDO -> INSERT -> 201 + id; un ref COLGANTE (id\n"
-            "// inexistente) viola la FK -> DataAccessException -> 409 (no 500, no traga). conflict() es compartido.\n"
-            "private fun conflict(): Pair<Int, String> = HTTP_CONFLICT to \"\"\"{\"status\":$HTTP_CONFLICT}\"\"\"\n\n"
+            "// inexistente) viola la FK -> DataAccessException -> 409 (no 500, no traga). conflict() es compartido\n"
+            "// (emitido una vez en los helpers del server cuando hace falta: with_ref O operations, FSK-DOMAIN-OPS).\n"
             f"private fun insert{name}OrConflict(ctx: DSLContext, input: {name}Input): Pair<Int, String> ="
             " runCatching {\n"
             f"    val newId = Repository.insert{name}(ctx, input)\n"
@@ -3667,6 +3786,90 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool) ->
             + "    }\n}")
 
 
+def _operations_handlers(owned: dict, ops: list[dict]) -> str:
+    """Los handlers de los verbos de DOMINIO del server vivo (FSK-DOMAIN-OPS): un POST /<plural>/{id}/<verbo> que
+    COMPONE los guards EN ORDEN — modifyVerdict (RBAC + ownership, mismo veredicto que PUT/DELETE) → precondición
+    de WORKFLOW VIVA (`<Entity><Field>Workflow.canTransition(estado_actual, to)`, hasta hoy sólo-UNIT en s7) →
+    mutación atómica (campo=to + assigns/clears). Estado inválido (la transición no es legal desde el estado
+    actual) → 409; rol/dueño equivocado → 403/404 (heredado de modifyVerdict). Cada handler es UN `return when`
+    (ReturnCount ≤ 2 de detekt). El sub-path se parsea con opVerb/opId. DATA-agnóstico: nombres derivados del
+    blueprint (ADR-012). Opt-in: sin `operations` esta función no se invoca (default/assets byte-idéntico)."""
+    name = owned["name"]
+    lower = name.lower()
+    parts = [
+        "// FSK-DOMAIN-OPS: parseo del sub-path del verbo (/<plural>/{id}/<verbo>). DATA-agnostico.\n"
+        'private fun opVerb(rest: String): String? = rest.split("/").takeIf { it.size == 2 }?.get(1)\n\n'
+        'private fun opId(rest: String): Long? = rest.split("/").firstOrNull()?.toLongOrNull()',
+    ]
+    if any(op.get("assigns") for op in ops):   # el `assigns` toma el id del ref (Long) del cuerpo (reusa longOf)
+        parts.append('// El target del `assigns` (el id del ref) viene del cuerpo del request (FSK-DOMAIN-OPS).\n'
+                     'private fun longArg(body: String, key: String): Long? =\n'
+                     '    runCatching { longOf(Json.parseToJsonElement(body).jsonObject, key) }.getOrNull()')
+    for op in ops:
+        fld = next(f for f in owned["fields"] if f["name"] == op["field"])
+        wf_obj, enum_cls, to_ref = _workflow_obj(owned, fld), _enum_class(owned, fld), _enum_ref(owned, fld, op["to"])
+        status_fn = f"{lower}{_pascal(op['field'])}Of"
+        # la precondición de WORKFLOW VIVA: la transición DEBE ser legal desde el estado ACTUAL (no sólo desde el
+        # `from` declarado) — un verbo sobre un estado inválido (p.ej. checkout de algo ya deployed) → no transita.
+        precond = f"!{wf_obj}.canTransition({enum_cls}.valueOf(current), {to_ref})"
+        verbatim = (f'verdict to """{{"status":$verdict}}"""')
+        okline = (f'HTTP_OK to """{{"status":$HTTP_OK}}"""')
+        if op.get("assigns"):
+            parts.append(
+                f"// POST /<plural>/{{id}}/{op['name']} (FSK-DOMAIN-OPS, assigns {op['assigns']}): RBAC+ownership +\n"
+                f"// precondicion de WORKFLOW VIVA ({wf_obj}.canTransition, antes solo-UNIT s7). Estado invalido -> 409;\n"
+                f"// rol/dueno -> 403/404; OK -> muta {op['field']}={op['to']} y asigna {op['assigns']} al target del body.\n"
+                f"private fun {op['name']}(ctx: DSLContext, token: String?, rest: String, body: String): Pair<Int, String> {{\n"
+                f"    val id = opId(rest)\n"
+                f"    val verdict = if (id == null) HTTP_NOT_FOUND else modifyVerdict(ctx, token, id)\n"
+                f"    val current = if (id != null && verdict == HTTP_OK) Repository.{status_fn}(ctx, id) else null\n"
+                f'    val target = longArg(body, "{op["assigns"]}")\n'
+                f"    return when {{\n"
+                f"        id == null -> notFound()\n"
+                f"        verdict != HTTP_OK -> {verbatim}\n"
+                f"        current == null -> notFound()\n"
+                f"        {precond} -> conflict()\n"
+                f"        target == null -> badRequest()\n"
+                f"        else -> {{\n"
+                f"            Repository.{op['name']}{name}(ctx, id, target)\n"
+                f"            {okline}\n"
+                f"        }}\n"
+                f"    }}\n"
+                f"}}")
+        else:
+            tail = f" y limpia {op['clears']}" if op.get("clears") else ""
+            parts.append(
+                f"// POST /<plural>/{{id}}/{op['name']} (FSK-DOMAIN-OPS): RBAC+ownership + precondicion de WORKFLOW\n"
+                f"// VIVA ({wf_obj}.canTransition). Estado invalido -> 409; rol/dueno -> 403/404; OK -> muta\n"
+                f"// {op['field']}={op['to']}{tail}.\n"
+                f"private fun {op['name']}(ctx: DSLContext, token: String?, rest: String): Pair<Int, String> {{\n"
+                f"    val id = opId(rest)\n"
+                f"    val verdict = if (id == null) HTTP_NOT_FOUND else modifyVerdict(ctx, token, id)\n"
+                f"    val current = if (id != null && verdict == HTTP_OK) Repository.{status_fn}(ctx, id) else null\n"
+                f"    return when {{\n"
+                f"        id == null -> notFound()\n"
+                f"        verdict != HTTP_OK -> {verbatim}\n"
+                f"        current == null -> notFound()\n"
+                f"        {precond} -> conflict()\n"
+                f"        else -> {{\n"
+                f"            Repository.{op['name']}{name}(ctx, id)\n"
+                f"            {okline}\n"
+                f"        }}\n"
+                f"    }}\n"
+                f"}}")
+    return "\n" + "\n\n".join(parts) + "\n"
+
+
+def _operations_dispatch(ops: list[dict]) -> str:
+    """Las ramas del `when` de `handle` que rutean cada verbo (POST /<plural>/{id}/<verbo>). Reusan rest/token/
+    payload ya en scope → no agrega vals a `handle` (byte-neutro cuando es "" para un producto sin operations)."""
+    lines = []
+    for op in ops:
+        args = "ctx, token, rest, payload" if op.get("assigns") else "ctx, token, rest"
+        lines.append(f'        method == "POST" && opVerb(rest) == "{op["name"]}" -> {op["name"]}({args})')
+    return "\n".join(lines) + "\n"
+
+
 def _app_server_kt(pkg: str, bp: dict) -> str:
     """endpoints/AppServer.kt — el server HTTP VIVO de control de acceso (FSK-S15, DES-3). com.sun.net.httpserver
     (stdlib del JDK, NO Ktor — divergencia ADR-012). Monta GET/POST/PUT de la 1ra entidad con dueño e INVOCA los
@@ -3693,6 +3896,17 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     with_ref = _live_with_ref(ents)
     served = [owned] + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
     ref_targets = _ref_targets(with_ref, ents)
+    # Verbos de DOMINIO (FSK-DOMAIN-OPS): la entidad CON DUEÑO puede declarar `operations` (checkout/checkin). El
+    # handler del verbo invoca la máquina de estado del workflow (canTransition) a RUNTIME → necesita el enum class
+    # del contrato (model {owned}) + el guard {owned}{Field}Workflow. Opt-in: sin `operations` no se importa nada
+    # (default/assets byte-idéntico). need_conflict: el server necesita conflict()/409 si hay with_ref O operations.
+    operations = owned.get("operations") or []
+    op_imports = []
+    if operations:
+        op_imports.append(f"import org.openapitools.client.models.{owned['name']}")
+        op_imports += sorted({f"import {pkg}.workflow.{_workflow_obj(owned, next(f for f in owned['fields'] if f['name'] == op['field']))}"
+                              for op in operations})
+    need_conflict = bool(with_ref) or bool(operations)
     # FSK-OWNED-REQUIRED-REFS: la entidad CON DUEÑO puede ahora tener refs REQUERIDOS no-dueño (p.ej.
     # Asset.model_id). El seeder TRANSITIVO siembra sus dependencias topológicamente (deduplicado, ciclos →
     # raise honesto) ANTES del owned y devuelve el cableado {campo → val}. dep_entities = lo sembrado, para
@@ -3725,7 +3939,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         f"import {pkg}.auth.RoleGuard",
         f"import {pkg}.routes.appRoutes",
     ] + [f"import {pkg}.{e['name']}Input" for e in served]   # un data class de cuerpo por entidad servida
-      + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports)
+      + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports + op_imports)
     # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un campo
     # `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports. El
     # parser (dateOf) usa LocalDate sólo si hay un `date` REQUERIDO → coincide con lo sembrado (mismo gating). El
@@ -3782,9 +3996,18 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     seed_ref = ("\n" + seed_ref_lines) if seed_ref_lines else ""
     ref_map = ("mapOf(" + ", ".join(f'"{f["name"]}" to {tvar[f["to"]]}' for f in with_ref["fields"]
                                     if f["type"] == "ref" and f.get("required", True)) + ")") if with_ref else "emptyMap()"
-    conflict_const = "private const val HTTP_CONFLICT = 409\n" if with_ref else ""
+    conflict_const = "private const val HTTP_CONFLICT = 409\n" if need_conflict else ""
     handlers = _app_server_handlers(owned, f"insert{owned['name']}",
-                                    f"delete{owned['name']}", _mutable_field(owned))
+                                    f"delete{owned['name']}", _mutable_field(owned), need_conflict)
+    # Verbos de DOMINIO (FSK-DOMAIN-OPS): los handlers de los verbos + las ramas del dispatch. Opt-in: "" sin
+    # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
+    ops_handlers = _operations_handlers(owned, operations) if operations else ""
+    ops_dispatch = _operations_dispatch(operations) if operations else ""
+    # Los verbos suman ramas al `when` de `handle` (tabla de ruteo GENERADA): empuja la complejidad ciclomática
+    # sobre el umbral de detekt (15). Es complejidad INHERENTE a un dispatcher generado (no mantenible a mano),
+    # como el @file:Suppress("TooManyFunctions") de arriba o el %MAIN_SUPPRESS% de DbRoundTrip → @Suppress
+    # method-level, OPT-IN (byte-neutro sin operations: el `handle` de default/assets queda EXACTO).
+    handle_suppress = '@Suppress("CyclomaticComplexMethod")\n' if operations else ""
     ownerless_block = ("\n" + _ownerless_handlers(ownerless)) if ownerless else ""
     with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True)) if with_ref else ""
     ownerless_context = (f"    server.createContext(PLURAL_{ownerless['name'].upper()}) "
@@ -3802,6 +4025,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%ALL_FN%", all_fn)
             .replace("%CONFLICT_CONST%", conflict_const)
             .replace("%HANDLERS%", handlers)
+            .replace("%OPS_HANDLERS%", ops_handlers)
+            .replace("%OPS_DISPATCH%", ops_dispatch)
+            .replace("%HANDLE_SUPPRESS%", handle_suppress)
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
             .replace("%WITH_REF_BLOCK%", with_ref_block)
             .replace("%OWNERLESS_CONTEXT%", ownerless_context)
@@ -3902,11 +4128,11 @@ private fun writeRoles(): Set<Role> =
 // las entidades servidas, sin colision) + parse<E>Input por entidad. Cada coercion es fail-closed -> 400.
 %CODEC%
 
-%HANDLERS%
+%HANDLERS%%OPS_HANDLERS%
 // Dispatch del server vivo (FSK-S15/S16/CRUD-BODY-PARSING/RENDER-LIST): GET coleccion (count+rows[]) + GET /{id}
 // (fila completa) + POST (inserta del body) + PUT /{id} (actualiza del body) + DELETE /{id} (borra). Cada mutacion
 // pasa por su guard antes de tocar la PG viva; POST/PUT leen el CUERPO real del request (type-coerced, DES-12).
-private fun handle(ctx: DSLContext, ex: HttpExchange) {
+%HANDLE_SUPPRESS%private fun handle(ctx: DSLContext, ex: HttpExchange) {
     val token = ex.requestHeaders.getFirst("Authorization")
     val rest = ex.requestURI.path.removePrefix(PLURAL).trim('/')
     val id = rest.toLongOrNull()
@@ -3919,7 +4145,7 @@ private fun handle(ctx: DSLContext, ex: HttpExchange) {
         method == "POST" && collection -> doPost(ctx, token, payload)
         method == "PUT" && id != null -> doPut(ctx, token, id, payload)
         method == "DELETE" && id != null -> doDelete(ctx, token, id)
-        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
+%OPS_DISPATCH%        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
     }
     respond(ex, status, out)
 }
@@ -3987,6 +4213,51 @@ def _proof_form_value(f: dict):
     return f["values"][1] if len(f["values"]) > 1 else f["values"][0]   # enum: 2º valor si se puede
 
 
+# Bloque del proof e2e de los verbos de DOMINIO (FSK-DOMAIN-OPS). DATA-agnóstico: la lógica es fija, sólo
+# OPERATIONS (la lista de verbos) y OP_FIELD (el campo workflow) varían por producto. Corre al final del try
+# (indent 8), reusando base/owner/ok/PLURAL/OWNER_ROLE/FORBIDDEN_ROLE/POST_BODY/_send/_expect/_expect_value/_body.
+# Estructura GENERAL: aplica el verbo FORWARD (from==estado posteado) → 200 + mutación; lo RE-aplica (ya en `to`,
+# no en `from`) → 409 (el DIENTE de la precondición de workflow VIVA); rol/dueño equivocado → 403; luego el verbo
+# INVERSO (from==forward.to) → 200 + limpieza. Saltear canTransition en el handler → el 409 se vuelve 200 → rojo.
+_OPERATIONS_PROOF = '''
+        # *** FSK-DOMAIN-OPS: verbos de DOMINIO que MUTAN bajo precondicion de WORKFLOW (canTransition, antes ***
+        # solo-UNIT s7, ahora ENFORZADO A RUNTIME) + RBAC + ownership (modifyVerdict). Una fila fresca, propiedad
+        # del actor (el POST fija dueno=principal), en el estado que el POST siembra.
+        OPERATIONS = json.loads('%OPS_DATA%')
+        OP_FIELD = "%OP_FIELD%"
+        _st, _ob = _send(base, "POST", PLURAL, f"Bearer {OWNER_ROLE}:{owner}", POST_BODY)
+        _aid = _ob.get("id")
+        _fwd = next((o for o in OPERATIONS if o["from"] == POST_BODY.get(OP_FIELD)), None)
+        if _aid is not None and _fwd is not None:
+            _vp = f"{PLURAL}/{_aid}/{_fwd['name']}"
+            _vbody = {_fwd["assign"]: owner} if _fwd.get("assign") else {}
+            if FORBIDDEN_ROLE != "nobody":
+                ok &= _expect(_send(base, "POST", _vp, f"Bearer {FORBIDDEN_ROLE}:{owner}", _vbody)[0], 403,
+                              f"[ops] {_fwd['name']} rol PROHIBIDO ({FORBIDDEN_ROLE}) -> 403")
+            ok &= _expect(_send(base, "POST", _vp, f"Bearer {OWNER_ROLE}:{owner + 1}", _vbody)[0], 403,
+                          f"[ops] {_fwd['name']} por NO-dueno -> 403")
+            ok &= _expect(_send(base, "POST", _vp, f"Bearer {OWNER_ROLE}:{owner}", _vbody)[0], 200,
+                          f"[ops] {_fwd['name']} por el dueno (estado valido) -> 200")
+            _row = json.loads(_body(base, f"{PLURAL}/{_aid}"))
+            ok &= _expect_value(_row.get(OP_FIELD), _fwd["to"], f"[ops] {_fwd['name']} muto {OP_FIELD} -> {_fwd['to']}")
+            if _fwd.get("assign"):
+                ok &= _expect_value(_row.get(_fwd["assign"]), owner, f"[ops] {_fwd['name']} asigno {_fwd['assign']} -> dueno")
+            # *** EL DIENTE de DOS lados: re-aplicar el verbo (la fila ya esta en `to`, no en `from`) viola la ***
+            # precondicion del workflow -> 409. Saltear canTransition en el handler -> 200 -> rojo SOLO en s9.
+            ok &= _expect(_send(base, "POST", _vp, f"Bearer {OWNER_ROLE}:{owner}", _vbody)[0], 409,
+                          f"[ops] {_fwd['name']} sobre estado INVALIDO -> 409 (precondicion workflow VIVA)")
+            _rev = next((o for o in OPERATIONS if o["from"] == _fwd["to"]), None)
+            if _rev is not None:
+                _rp = f"{PLURAL}/{_aid}/{_rev['name']}"
+                _rbody = {_rev["assign"]: owner} if _rev.get("assign") else {}
+                ok &= _expect(_send(base, "POST", _rp, f"Bearer {OWNER_ROLE}:{owner}", _rbody)[0], 200,
+                              f"[ops] {_rev['name']} (verbo inverso) por el dueno -> 200")
+                _row2 = json.loads(_body(base, f"{PLURAL}/{_aid}"))
+                ok &= _expect_value(_row2.get(OP_FIELD), _rev["to"], f"[ops] {_rev['name']} muto {OP_FIELD} -> {_rev['to']}")
+                if _rev.get("clear"):
+                    ok &= _expect_value(_row2.get(_rev["clear"]), None, f"[ops] {_rev['name']} limpio {_rev['clear']} -> null")'''
+
+
 def _access_control_check_py(bp: dict) -> str:
     """tools/access_control_check.py — el proof e2e de control de acceso + CRUD del CUERPO real (FSK-CRUD-BODY-
     PARSING), parte de la verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import
@@ -4045,7 +4316,15 @@ def _access_control_check_py(bp: dict) -> str:
                        "        for _k, _v in _owned_refs.items():\n"
                        "            POST_BODY[_k] = _v\n"
                        "            BAD_TYPE_BODY[_k] = _v") if owned_ref_fields else ""
+    # FSK-DOMAIN-OPS: el bloque del proof de los verbos de dominio (forward→200+mutación, re-aplicar→409 diente,
+    # rol/dueño→403, inverso→200+clear). Opt-in: sin `operations` → "" → el proof queda byte-idéntico.
+    ops = owned.get("operations") or []
+    operations_block = (_OPERATIONS_PROOF.replace("%OPS_DATA%", json.dumps(
+        [{"name": o["name"], "from": o["from"], "to": o["to"],
+          "assign": o.get("assigns"), "clear": o.get("clears")} for o in ops]))
+        .replace("%OP_FIELD%", ops[0]["field"])) if ops else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%OPERATIONS_BLOCK%", operations_block)
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
@@ -4310,7 +4589,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

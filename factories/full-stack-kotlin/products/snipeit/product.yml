@@ -96,13 +96,14 @@ entities:
       - { name: use_default_eula, type: boolean, required: false }
 
   - name: Location           # En Snipe-IT Location tiene parent_id→Location (jerarquía) y manager_id→User.
-    write_roles: [superadmin, admin]   # AMBOS se DIFIEREN: manager_id rompería el ciclo Location↔User; parent_id
-    fields:                            # es self-ref y FSK aún no lo soporta (gap _it_repository_kt). Ver §gaps.
+    write_roles: [superadmin, admin]   # parent_id (self-ref, jerarquía de ubicaciones) RE-HABILITADO (FSK-SELF-REF).
+    fields:                            # manager_id→User SIGUE diferido: rompería el ciclo Location↔User (§3 deferral 6).
       - { name: name, type: string }
       - { name: city, type: string, required: false }
       - { name: state, type: string, required: false }
       - { name: country, type: string, required: false }
       - { name: zip, type: string, required: false }
+      - { name: parent_id, type: ref, to: Location, required: false }   # self-ref: jerarquía de ubicaciones (FSK-SELF-REF)
 
   - name: Department         # En Snipe-IT Department también tiene manager_id→User: SE QUITA para
     write_roles: [superadmin, admin]   # romper el ciclo User↔Department (User.department_id→Department).
@@ -125,7 +126,7 @@ entities:
       - { name: company_id, type: ref, to: Company, required: false }
       - { name: location_id, type: ref, to: Location, required: false }
       - { name: department_id, type: ref, to: Department, required: false }
-      # manager_id→User (self-ref, jerarquía de management) DIFERIDO: FSK aún no soporta self-ref (§gaps).
+      - { name: manager_id, type: ref, to: User, required: false }   # self-ref: cadena de management (FSK-SELF-REF; optional → seed s9 lo saltea)
 
   - name: AssetModel         # plantilla make/model de un activo. category_id REQUERIDO (Snipe-IT) —
     write_roles: [superadmin, admin]   # OK: NO es entidad del server vivo, el roundtrip encadena el FK.

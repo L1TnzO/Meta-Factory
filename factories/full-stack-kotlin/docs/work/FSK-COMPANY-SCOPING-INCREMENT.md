@@ -1,9 +1,9 @@
 # Incremento FSK-COMPANY-SCOPING — multi-tenancy / acceso por atributo (ABAC), con FILTRADO de lectura
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T15:45Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T15:45Z · cerrado 2026-06-22T17:05Z; ver §Evidencia al pie). Editar
+> `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige un incremento de fábrica abierto —
+> el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-XENTITY-CYCLES con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -178,5 +178,49 @@ candidatas BOUNDED, product-driven, framed honestamente:
   una primitiva de columna derivada. Diferida por la dependencia keyless.
 - **Orden general del push** (`SNIPEIT-DOMAIN.md §4`): ~~CRUD~~ ✅ · ~~self-ref~~ ✅ · ~~ownership opcional~~ ✅ ·
   ~~refs requeridos/seed transitivo~~ ✅ · ~~verbos checkout/checkin~~ ✅ · ~~custom-fields format~~ ✅ · ~~ciclos
-  cross-entidad~~ ✅ · **(este) company-scoping** · diferidos DUROS (registry · Playwright · AppServer-en-contenedor
+  cross-entidad~~ ✅ · ~~company-scoping~~ ✅ · diferidos DUROS (registry · Playwright · AppServer-en-contenedor
   con PG · checkout polimórfico · qty · EAV dinámico/Avenue B · depreciación calculada).
+
+---
+
+## ✅ EVIDENCIA (cerrado 2026-06-22T17:05Z)
+
+**Lo construido** — el 1er eje de ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. Una entidad con
+dueño declara `company_scoped: <campo ref>` (el tenant) + `company_scope_bypass_roles` (top-level). 100% en
+`codegen/scaffold_product.py` (FÁBRICA), GENERAL (cero nombres de dominio), opt-in/byte-neutro. Maquinaria:
+1. **`_load_blueprint`**: valida `company_scoped` (campo ∈ `ref`) + bypass ⊆ roles, exige `roles` (fail-closed,
+   mismo patrón que `owned_by`).
+2. **`CompanyScopeGuard.canAccess(rol, compañíaActor, tenantFila, bypass)`** = `bypass || tenantFila==null ||
+   match`. Una fila SIN tenant es NO-scopeada (pública). Type-safe sobre `Role` + `CompanyScopeGuardTest` (4 casos,
+   tier unit, hermano de OwnershipGuardTest).
+3. **`RoleGuard.companyOf`** (3er segmento `"Bearer rol:principal:compañía"` → `split(':').getOrNull(2)`);
+   `principalOf` safe a 3 segmentos. GATEADO por `scoped` → token de 2 segmentos byte-idéntico (FSK-S15 intacto).
+4. **Repository**: `<e>CompanyId` (tenant de la fila) + `<e>sByCompany`/`all<E>RowsJsonByCompany` (read-filter
+   `WHERE company = ? OR company IS NULL`).
+5. **AppServer s9**: `listAll` FILTRA por la compañía del token (read-path NUEVO; destructuring `(count, rows)`
+   para no disparar `-Werror` "always true"); `modifyVerdict` compone `scopeOk` DESPUÉS de `ownerOk` (otra
+   compañía → 403 aunque sea el dueño); `seedRows` siembra ≥2 compañías + una fila scopeada a la 2ª (dueño=actor,
+   `variant=2` en `_sample`/`_seed_chain` para UNIQUEs sin colisión → aísla scope de ownership). `Seed`/`seedJson`
+   ganan helpers `_seed_decl_kt`/`_seed_json_kt` que WRAPPEAN si pasan 160 (ktlint).
+6. **Contrato**: `x-company-scoped` (vendor ext inspectable, DES-6).
+7. **Proof e2e** (s9 `access_control_live`): read-filter (actor no-bypass NO ve otra compañía / bypass ve todas)
+   + escritura (PUT fila de otra compañía por su dueño → 403 / su compañía → 200 / bypass → 200).
+
+**Verde no fingido (por bloqueo):**
+- EYEBALL (`/tmp/eyeball_cs.py`, importlib HEAD vs working): default+assets **68/68 byte-idénticos**.
+- `product-run --product snipeit` **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless, visible).
+- **Diente de DOS lados VIVO** (s9): saboteé `companyScopeBypass()` → `Role.entries.toSet()` (manager bypass →
+  scope inerte) → **SÓLO `access_control_live` rojo** (s9), hermanos `observability_live`/`frontend_consume_live`
+  verdes → revertí → verde. El sabotaje vive en la LÓGICA (set de roles) → no tripea s2 estático.
+- `ci --rederive`: base **12/12** · assets **11/11** · snipeit **11/11 == pin** (proof_sha intacto → **sin re-pin**).
+- `meta check` **6/6** (generality verde) · **`git diff src/metafactory + seed = 0`** · default+assets product.yml = 0.
+
+**Lecciones nuevas (destiladas):** (a) el read-path se sub-estima — agregar token+filtro tocó `listAll` (firma +
+dispatch) Y el proof; (b) `-Werror` de Kotlin flagea `company != null` redundante tras `scoped` ("Condition is
+always true") → usar destructuring que smart-castea directo; (c) `MagicNumber` de detekt muerde el literal `3` →
+`getOrNull(2)` (índice 2 ignorado por detekt); (d) `Seed`/`seedJson` cruzaron 160 al sumar 3 campos → helper de
+wrap opt-in (byte-neutro a 1 línea para quien no scopea).
+
+**Adopción producto** (ADR-016, `COMPANY-SCOPING-ADOPT`): `Asset.company_scoped: company_id` +
+`company_scope_bypass_roles: [superadmin, admin]` (FMCS faithful). 2 commits (`feat(fsk)` codegen + `feat(snipeit)`
+product.yml).

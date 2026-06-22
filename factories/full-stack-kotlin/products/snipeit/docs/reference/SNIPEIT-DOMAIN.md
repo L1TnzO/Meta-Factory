@@ -95,7 +95,7 @@ la migración.
 
 | # | Entidad | Notas de mapeo |
 |---|---------|----------------|
-| 1 | Company | multi-tenancy → ref opcional (scoping NO enforzado, ver §3) |
+| 1 | Company | multi-tenancy → ref; scoping ENFORZADO en Asset (FSK-COMPANY-SCOPING, deferral 8 ✓), ver §3 |
 | 2 | Manufacturer | `name` unique |
 | 3 | Supplier | |
 | 4 | Depreciation | `months`+`depreciation_min`+`depreciation_type`(enum amount/percentage); CÁLCULO diferido |
@@ -204,9 +204,13 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    es lógica derivada. FSK no tiene campos computados; el cálculo viviría en s6 (lógica de dominio por LLM,
    hoy diferida keyless) o pediría una primitiva de campo computado — gap.
 
-8. **Multi-tenancy / company scoping** [GAP-FÁBRICA]. `company_id` se modela como ref, pero el SCOPING
-   transversal (toda query filtrada por la compañía del actor, superuser exento) no es expresable: la ownership
-   de FSK es por-fila por-un-dueño, no un filtro de tenant. El filtro por compañía es un gap (ABAC/scoping).
+8. ~~**Multi-tenancy / company scoping**~~ **✓ HECHO** (FSK-COMPANY-SCOPING, 2026-06-22): el 1er eje de
+   ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. Una entidad con dueño declara
+   `company_scoped: <campo ref>` (el tenant) + `company_scope_bypass_roles` → el server vivo (s9) FILTRA la
+   LECTURA por la compañía del actor (list acotada: `WHERE company = ? OR company IS NULL`) y compone el scope
+   en el verdict de escritura (otra compañía → 403 aunque sea el dueño; bypass → 200). Generaliza ownership
+   ("fila × principal") a "fila × tenant". `Asset.company_scoped: company_id` (FMCS); diente de dos lados VIVO
+   (s9). Ver `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`.
 
 9. **Permisos granulares tri-state + self-service** [SIMPLIF]. El sistema real (grupos × permisos tri-state ×
    superflags × self.*) se aproxima con 4 roles fijos. Se pierde granularidad (p.ej. checkout sin edit) y el
@@ -257,15 +261,20 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    seed NULL-then-UPDATE; el forward debe ser OPCIONAL. `Location/Department.manager_id`→User RE-HABILITADOS (ciclos
    Location↔User, User↔Department restaurados). Diente de dos lados VIVO (s7, quitar la constraint diferida → SÓLO
    `pyramid_integration` rojo). Ver `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md §Evidencia`.
-8. **SIGUIENTE = company-scoping / multi-tenancy** (deferral 8) — el 1er eje de ACCESO-POR-ATRIBUTO (ABAC) y el último
-   gran hueco de modelo-de-acceso faithful. En Snipe-IT, con FMCS on, un actor no-superadmin sólo ve/edita las filas
-   de SU compañía (`company_id`). Generaliza ownership (dueño = principal-match; company-scope = company-match) y, a
-   diferencia de todo lo anterior, agrega **FILTRADO de LECTURA** (list/get, hoy públicos). Bounded, product-driven,
-   live en Asset (s9). Alternativa framed: cantidades (qty) — diferida por su wrinkle (los verbos viven sólo en la
-   entidad con dueño). Ver `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md` (handoff).
-9. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
-   AppServer-en-contenedor con PG · checkout polimórfico (deferral 2) · cantidades (qty decrement en checkout de
-   Accessory/Consumable — sub-eje de los verbos) · EAV dinámico a runtime (Avenue B).
+8. ~~**Company-scoping / multi-tenancy** (deferral 8)~~ **✓ HECHO** (FSK-COMPANY-SCOPING, 2026-06-22): el 1er eje de
+   ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. `Asset.company_scoped: company_id` +
+   `company_scope_bypass_roles: [superadmin, admin]` → el server vivo FILTRA la lista por la compañía del actor
+   (read-path NUEVO) y compone el scope tras ownership en el verdict de escritura (otra compañía → 403 aunque
+   sea el dueño; bypass → 200). Generaliza ownership a "fila × tenant". Diente de dos lados VIVO (s9). Cierra el
+   último gran hueco del modelo de acceso faithful. Ver `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`.
+9. **SIGUIENTE = cantidades (qty)** (sub-eje de FSK-DOMAIN-OPS) — el 1er eje de COMPORTAMIENTO con stock: checkout
+   de Accessory/Consumable decrementa `qty` + crea la fila de asignación. ⚠️ Wrinkle: el server vivo hoy monta
+   `operations` SÓLO en la entidad con dueño (Asset, sin qty); ejercerlo VIVO pide montar verbos en entidades SIN
+   dueño (Accessory). Es 2 sub-ejes. Alternativa framed: checkout polimórfico (deferral 2, ref→unión de targets).
+   Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md` (handoff).
+10. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+    AppServer-en-contenedor con PG · checkout polimórfico (deferral 2) · EAV dinámico a runtime (Avenue B) ·
+    depreciación calculada (deferral 7, campo computado, dep. de s6 keyless).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

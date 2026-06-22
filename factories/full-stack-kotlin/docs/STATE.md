@@ -173,6 +173,27 @@
   verdes; revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive --all-products` 12/12·11/11·11/11 == pin ·
   `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle:
   `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md §Evidencia`.
+- **COMPANY-SCOPING — el 1er eje de ACCESO-POR-ATRIBUTO (ABAC) + el 1er FILTRADO DE LECTURA, GENERAL
+  (FSK-COMPANY-SCOPING, 2026-06-22)**: tras 7 ejes, el último gran hueco del modelo de acceso faithful y el
+  1er eje que filtra LECTURAS (todo lo anterior gateaba escrituras). Una entidad con dueño declara
+  `company_scoped: <campo ref>` (el TENANT) + `company_scope_bypass_roles` (top-level) → el server vivo (s9)
+  **FILTRA la lista por la compañía del actor** (read-path NUEVO: `WHERE company = ? OR company IS NULL` — fila
+  sin tenant = NO-scopeada/pública) y **compone el scope DESPUÉS de ownership en el verdict de escritura** (otra
+  compañía → 403 aunque sea el dueño; bypass → 200). Generaliza ownership ("fila × principal") a "fila × tenant".
+  **Levantado GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde): `CompanyScopeGuard`
+  (type-safe sobre `Role`, hermano de `OwnershipGuard`) + `CompanyScopeGuardTest` (4 casos unit) · `RoleGuard`
+  gana `companyOf` (3er segmento `"Bearer rol:principal:compañía"`, gateado → token de 2 segmentos byte-idéntico)
+  · Repository gana `<e>CompanyId` + el read-filter `<e>sByCompany` · `x-company-scoped` en el contrato (DES-6).
+  **Opt-in/byte-neutro** (sin `company_scoped` → default+assets 68/68 byte-idénticos por EYEBALL; **sin check
+  nuevo → `proof_sha` intacto, SIN re-pin**). **Adopción PRODUCTO** (ADR-016): `Asset.company_scoped: company_id`
+  + `company_scope_bypass_roles: [superadmin, admin]` (FMCS faithful). Diente de DOS lados VIVO (s9: saboteé
+  `companyScopeBypass()→Role.entries.toSet()` → **SÓLO** `access_control_live` rojo, hermanos verdes;
+  revertí→verde). **`product-run` PASS · RTM 24/25 · `ci --rederive` 12/12·11/11·11/11 == pin · `meta check` 6/6
+  (`generality` verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Lecciones nuevas: el
+  read-path se sub-estima · `-Werror` flagea `company != null` redundante tras `scoped` (usar destructuring) ·
+  `MagicNumber` muerde el literal 3 (`getOrNull(2)`) · `Seed`/`seedJson` cruzan 160 al sumar campos (wrap opt-in).
+  Detalle: `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`. **La trilogía+1 de acceso (auth → RBAC →
+  ownership → company-scope) está COMPLETA y VIVA a runtime.**
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -183,11 +204,14 @@
     (Avenue A); EAV dinámico/Avenue B diferido** · checkout polimórfico · ~~RTD/owner-opcional~~ **✓ hecho
     FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
-    ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · depreciación calculada · …).
-    **SIGUIENTE = company-scoping / multi-tenancy (FSK-COMPANY-SCOPING, abierto, deferral 8)** — el 1er eje de
-    ACCESO-POR-ATRIBUTO (ABAC) y el último gran hueco de modelo-de-acceso faithful: un actor no-superadmin ve/edita
-    SÓLO las filas de SU compañía. Genuinamente NUEVO: el 1er eje con FILTRADO de LECTURA (list/get hoy públicos).
-    Alternativas framed en el handoff: cantidades (qty) · checkout polimórfico. **Metodología probada**:
+    ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · ~~company-scoping~~ **✓ hecho FSK-COMPANY-SCOPING** ·
+    depreciación calculada · …).
+    **SIGUIENTE = cantidades (qty) (FSK-QTY-OPERATIONS, abierto, sub-eje de FSK-DOMAIN-OPS)** — el 1er eje de
+    COMPORTAMIENTO con STOCK: checkout de Accessory/Consumable decrementa `qty` + crea la fila de asignación;
+    out-of-stock → 409. ⚠️ Wrinkle (framed en el handoff): el server vivo hoy monta `operations` SÓLO en la
+    entidad con dueño (Asset, sin qty) → ejercerlo VIVO pide montar verbos en entidades SIN dueño + una operación
+    de KIND nuevo (decremento aritmético, no transición de workflow). Alternativa framed: checkout polimórfico
+    (deferral 2, ref→unión de targets). **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

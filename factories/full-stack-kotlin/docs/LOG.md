@@ -1,6 +1,41 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T17:05Z — FSK-COMPANY-SCOPING ✅: scoping por compañía (multi-tenancy/ABAC) — el 1er eje con FILTRADO de LECTURA
+- **Tras 7 ejes, el último gran hueco del modelo de acceso faithful y el 1er eje que FILTRA LECTURAS** (deferral 8).
+  Todo lo previo (auth/RBAC/ownership) gateaba ESCRITURAS; con FMCS un actor no-superadmin ve/edita SÓLO las filas
+  de SU compañía (`company_id`). Generaliza ownership ("fila × principal") a un scope por atributo compartido
+  ("fila × tenant", lectura+escritura). Es ABAC acotado, hermano de FSK-S14 pero distinto.
+- **Levantado GENERAL** (codegen de fábrica, cero nombres de dominio, `generality` verde, `git diff src/+seed=0`):
+  - **`_load_blueprint`**: valida `company_scoped: <campo ref>` (∈ `ref`) + `company_scope_bypass_roles` ⊆ roles,
+    exige `roles` (fail-closed, mismo patrón que `owned_by`).
+  - **`CompanyScopeGuard.canAccess(rol, compañíaActor, tenantFila, bypass)`** = `bypass || tenantFila==null ||
+    match`. Fila SIN tenant = NO-scopeada (pública). Genérico, type-safe sobre `Role`; + `CompanyScopeGuardTest`
+    (4 casos, tier unit, hermano de `OwnershipGuardTest`).
+  - **`RoleGuard.companyOf`**: 3er segmento `"Bearer rol:principal:compañía"` (`split(':').getOrNull(2)`);
+    `principalOf` safe a 3 segmentos. GATEADO por `scoped` → token de 2 segmentos byte-idéntico (FSK-S15 intacto).
+  - **Repository**: `<e>CompanyId` (tenant de UNA fila) + `<e>sByCompany`/`all<E>RowsJsonByCompany` (read-filter
+    `WHERE company = ? OR company IS NULL`).
+  - **AppServer s9**: `listAll` FILTRA por la compañía del token (read-path NUEVO; destructuring `(count, rows)`
+    para no disparar `-Werror`); `modifyVerdict` compone `scopeOk` DESPUÉS de `ownerOk` (otra compañía → 403 aunque
+    sea el dueño); `seedRows` siembra ≥2 compañías + una fila scopeada a la 2ª (dueño=actor → aísla scope de
+    ownership; `variant` en `_sample`/`_seed_chain` para UNIQUEs sin colisión). `Seed`/`seedJson` wrappean si >160.
+  - **Contrato**: `x-company-scoped` (vendor ext inspectable, DES-6).
+  - **Proof e2e** (s9 `access_control_live`): read-filter (no-bypass NO ve otra compañía / bypass ve todas) +
+    escritura (PUT fila de otra compañía por su dueño → 403 / su compañía → 200 / bypass → 200).
+- **Opt-in/byte-neutro**: sin `company_scoped` → default+assets 68/68 byte-idénticos (EYEBALL); **sin check nuevo →
+  `proof_sha` intacto, SIN re-pin**. **Adopción PRODUCTO** (ADR-016): `Asset.company_scoped: company_id` +
+  `company_scope_bypass_roles: [superadmin, admin]` (FMCS faithful).
+- **Verde no fingido (por bloqueo)**: `product-run --product snipeit` PASS · RTM 24/25 (único UNSAT s6 LLM keyless)
+  · **diente de DOS lados VIVO** (s9: saboteé `companyScopeBypass()→Role.entries.toSet()` → manager bypass → SÓLO
+  `access_control_live` rojo, hermanos verdes → revertí → verde) · `ci --rederive` base 12/12 · assets 11/11 ·
+  snipeit 11/11 == pin · `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` · default+assets
+  product.yml = 0. Detalle: `docs/work/FSK-COMPANY-SCOPING-INCREMENT.md §Evidencia`.
+- **Lecciones**: el read-path se sub-estima (token+filtro toca firma+dispatch+proof) · `-Werror` flagea
+  `company != null` redundante tras `scoped` → destructuring que smart-castea · `MagicNumber` muerde el literal 3 →
+  `getOrNull(2)` · `Seed`/`seedJson` cruzan 160 al sumar campos → helpers de wrap opt-in (byte-neutro a 1 línea).
+- **SIGUIENTE**: `FSK-QTY-OPERATIONS` (cantidades, sub-eje de FSK-DOMAIN-OPS) — abierto con handoff.
+
 ## 2026-06-22T15:42Z — FSK-XENTITY-CYCLES ✅: ciclos cross-entidad (FK forward/cíclica) — el 1er eje de CICLO en el grafo
 - **Tras 6 ejes (modelo-de-datos/comportamiento/validación), el 1er CICLO entre entidades DISTINTAS** (deferral 6).
   Hoy un `ref` BACKWARD/self emite la FK inline en orden de declaración; un `ref` FORWARD (target declarado DESPUÉS →

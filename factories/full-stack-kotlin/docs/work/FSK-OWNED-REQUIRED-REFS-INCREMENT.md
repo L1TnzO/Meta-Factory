@@ -1,9 +1,8 @@
 # Incremento FSK-OWNED-REQUIRED-REFS — refs REQUERIDOS no-dueño en la entidad-con-dueño / SEED TRANSITIVO
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T03:16Z). Cerralo flippeando este header a CERRADO (el `increment status` lee el header) **o**
-> con `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T03:16Z · cerrado 2026-06-22T04:00Z). **§Evidencia abajo.** Editar `factories/full-stack-kotlin/**`
+> no-`.md` (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-OWNERSHIP-OPTIONAL con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -156,3 +155,46 @@ Orden del push Snipe-IT (`products/snipeit/docs/reference/SNIPEIT-DOMAIN.md §4`
 - **operaciones de dominio** (deferral 11b): checkout/checkin/audit como verbos que MUTAN semántica.
 - **diferidos DUROS** (red/scope): push a un registry · e2e Playwright · AppServer-en-contenedor con PG · ciclos
   cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
+
+---
+
+## §Evidencia (CERRADO 2026-06-22T04:00Z) — probado por bloqueo, no narrado
+
+**Qué se construyó (codegen de FÁBRICA, `scaffold_product.py`, nivel `factories/full-stack-kotlin/`):**
+- **`_seed_chain` se volvió transitivo** — gana `ref_wiring` (campo→`val`): un ref REQUERIDO no-dueño se cablea al id
+  capturado de su target (antes: `raise`); sin cableado para ese campo, sigue el `raise` honesto.
+- **Dos seeders recursivos nuevos** — `_seed_deps(e)` devuelve el cableado de los refs requeridos no-dueño de `e`,
+  sembrando cada target via **`_ensure_seeded`** (topológico, **deduplicado** por registry, **ciclos → `SystemExit`**
+  honesto = deferral 6). El handoff estimaba "el `raise` en `_seed_chain`" como el sitio; **generar de verdad confirmó
+  que s1 (`_roundtrip_kt`) y s7 (`_it_repository_kt`) YA siembran topológicamente** (no necesitaron cambio — la lección
+  "el handoff sub-estima" se invirtió: 2 de los 3 seeders ya estaban listos), y que el form (`_app_ts`) YA mapea `ref`→
+  `<input number>`+`Number()` (sin cambio). **El gap real era un único camino**: el seed del server vivo (s9).
+- **`_app_server_kt`**: siembra las deps del owned ANTES del owned (`%SEED_OWNED_DEPS%`), pasa `ref_wiring` al owned y a
+  la fila RTD (REUSA las deps via registry), agrega las tablas/imports/tipos de las deps, y expone **`ownedRefs`** (campo
+  →id sembrado) en `Seed`/`/seed` — **opt-in por placeholder** (sin ref requerido no-dueño → todo `""` → byte-idéntico).
+- **Los proofs** (`access_control_check.py` + `consume_check.ts`): el POST/FORM del owned manda los ESCALARES estáticos
+  y **inyecta los refs desde `/seed ownedRefs` en runtime** (como el bloque with-ref); sin refs requeridos no-dueño → el
+  merge es `""` (byte-idéntico). Evita el `KeyError` de `_proof_post_value`/`_proof_form_value` sobre un `ref`.
+
+**EYEBALL antes del gradle** (importlib → `build_files(bp)`): default/assets/snipeit@HEAD **byte-idénticos** al baseline
+(eje OPT-IN); snipeit con `model_id` requerido emite `depCategoryId`→`depAssetModelId`→`ownedId`(model_id=dep)→`rtdId`
+(reusa dep), `Seed` gana `ownedRefs`, `/seed` expone `"ownedRefs":{"model_id":…}`, `ASSETMODELS` importado.
+
+**Verde, no fingido** (CLI, gradle real, cwd en raíz, FOREGROUND):
+- `product-run --product snipeit` **PASS** · **RTM 24/25** (único UNSAT = REQ-F-007/s6 LLM keyless, deferral VISIBLE).
+- **Diente de DOS lados VIVO**: saboteé el FK del POST en el proof (`POST_BODY[k] = _v + 9999`, lado Python → no toca
+  detekt) → **SÓLO `access_control_live` ROJO** (1/3), hermanos s9 **`observability_live` + `frontend_consume_live` VERDES**
+  (el server + PG VIVOS y alcanzables; el fallo es la aserción 201 sobre una FK colgante, no una caída) → revertí → **PASS**.
+  (1er intento: saboteé el lado Kotlin con `+ 9999L` → **detekt MagicNumber → rojo en s2**, antes de s9 → lección: el
+  sabotaje del FK va en el PROOF Python, no en el Kotlin generado.)
+- `ci --rederive --factory full-stack-kotlin --all-products` **3/3 == pin** (default 12/12 · assets 11/11 · **snipeit 11/11**,
+  `proof_sha` INTACTO → **SIN re-pin**, el fix vive dentro de los checks existentes) · `meta check` **6/6** (`generality` verde).
+- **Anti-overfit**: `git diff src/metafactory + seed = 0` · `git diff` default(`factory.spec.yml`)+assets `product.yml` = 0.
+- **Producto (DATA)**: `products/snipeit/product.yml` → `Asset.model_id: required: true` (+ header §restricción 3 reescrita).
+
+**Disciplina dual-nivel (ADR-016)**: el codegen lo cubrió ESTE incremento (FÁBRICA); la adopción `product.yml`, el
+incremento de PRODUCTO `OWNED-REQUIRED-REFS-ADOPT`. Commits I-10: `feat(fsk)` (codegen) + `feat(snipeit)` (product.yml)
++ `docs(fsk)`. **Lecciones para el próximo**: (a) el handoff puede SOBRE-estimar tanto como sub-estimar — verificá qué
+seeders ya son topológicos ANTES de tocarlos; (b) un sabotaje que debe morder a RUNTIME no puede introducir un hallazgo
+ESTÁTICO (MagicNumber/ktlint) que muerda antes — ponelo en el lado no-linteado (Python del proof); (c) ktlint/detekt
+default ignora -1/0/1/2 pero NO 9999.

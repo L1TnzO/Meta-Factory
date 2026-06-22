@@ -1,6 +1,33 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-22T04:00Z — FSK-OWNED-REQUIRED-REFS ✅: refs REQUERIDOS no-dueño / SEED TRANSITIVO — el 4º gap del push Snipe-IT
+- **El companion directo de FSK-OWNERSHIP-OPTIONAL.** En Snipe-IT `Asset.model_id` es REQUERIDO (un activo SIEMPRE es de
+  un modelo), pero el server vivo (FSK-S15) no sabía sembrar un `ref` REQUERIDO no-dueño en la entidad-con-dueño
+  (`_seed_chain` hacía `raise`). Faithful pedía un **SEED TRANSITIVO** multi-nivel (Category → AssetModel → Asset).
+- **Levantado GENERAL** (codegen de fábrica, `generality` verde, `git diff src/+seed=0`), opt-in por placeholders:
+  - **`_seed_chain` se volvió transitivo** (gana `ref_wiring`: un ref requerido no-dueño se cablea al id capturado de su
+    target; sin cableado → `raise` honesto). Dos seeders recursivos nuevos: **`_seed_deps`** (cableado de los refs
+    requeridos de una entidad) + **`_ensure_seeded`** (siembra topológica, **deduplicada** por registry, **ciclos →
+    `SystemExit`** honesto = deferral 6).
+  - **`_app_server_kt`**: siembra las deps ANTES del owned, pasa el cableado al owned y a la fila RTD (REUSA via registry),
+    suma tablas/imports/tipos de las deps, y expone **`ownedRefs`** (campo→id) en `Seed`/`/seed` para que el POST/FORM traiga
+    FKs VÁLIDAS — todo opt-in (sin ref requerido no-dueño → byte-idéntico).
+  - **Los proofs** (`access_control_check.py` + `consume_check.ts`): el POST/FORM del owned manda los ESCALARES y **inyecta
+    los refs desde `/seed ownedRefs` en runtime** (como el bloque with-ref) → evita el `KeyError` de `_proof_post_value` sobre un ref.
+- **La lección de "el handoff sub-estima los sitios" se INVIRTIÓ**: el handoff señalaba `_seed_chain`; el eyeball confirmó que
+  **s1 (`_roundtrip_kt`) y s7 (`_it_repository_kt`) YA siembran topológicamente** (2 de 3 seeders listos) y el form (`_app_ts`)
+  ya mapea `ref`→`<input number>`+`Number()` — el gap real era **un único camino** (el seed del server vivo, s9).
+- **Producto**: `snipeit/product.yml` `Asset.model_id` → `required: true` (faithful). Nivel PRODUCTO (ADR-016).
+- **Diente de DOS lados VIVO** (s9 `access_control_live`): saboteé el FK del POST en el proof (lado Python, `+ 9999`) → FK
+  colgante → `access_control_live FAIL(1)` con `observability_live`/`frontend_consume_live` VERDES (hermanos de s9, server
+  VIVO y alcanzable — el fallo es la aserción 201, no una caída) → revertí → PASS. **(1er intento con `+ 9999L` en el Kotlin
+  → detekt MagicNumber → rojo en s2 ANTES de s9 → lección: el sabotaje runtime va al lado no-linteado.)**
+- **Verde, no fingido**: `product-run --product snipeit` PASS · RTM **24/25** (único UNSAT = REQ-F-007/s6 keyless) · `ci
+  --rederive --factory full-stack-kotlin --all-products` **3/3 == pin** (default 12/12 · assets 11/11 · snipeit 11/11,
+  `proof_sha` INTACTO → SIN re-pin) · `meta check` 6/6 (`generality` verde) · `git diff src/metafactory+seed = 0` ·
+  default(`factory.spec.yml`)+assets `product.yml` = 0. Detalle: `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md §Evidencia`.
+
 ## 2026-06-22T03:11Z — FSK-OWNERSHIP-OPTIONAL ✅: dueño NULLABLE / RTD real — el 3er gap del push Snipe-IT
 - **El caso más CORE de Snipe-IT, arreglado GENERAL.** Un activo Ready-To-Deploy está SIN asignar (dueño NULL): el
   caso NORMAL, no un borde. FSK exigía `owned_by` `required: true` porque `OwnershipGuard.canModify(rowOwnerId: Long)`

@@ -159,12 +159,19 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    `required: false`** (un RTD está SIN asignar — el caso normal). Detalle: `docs/work/FSK-OWNERSHIP-OPTIONAL-
    INCREMENT.md` (fábrica) + `…/OWNERSHIP-OPTIONAL-ADOPT-INCREMENT.md` (producto).
 
-4. **`Asset.model_id` requerido → opcional** [GAP-FÁBRICA] — **SIGUIENTE** (companion de #3, ahora destapado).
-   Snipe-IT exige `model_id` (y `status_id`). Pero la restricción de seed del server vivo (FSK-S15, el `raise`
-   en `_seed_chain`) prohíbe refs REQUERIDOS no-dueño en la entidad-con-dueño. Por eso `model_id` (y los demás
-   refs de Asset salvo el dueño) van `required: false`. Faithful pediría un **seed transitivo** (cadena de
-   dependencias multi-nivel: Category → AssetModel → Asset.model_id) en el server vivo — gap. Ver
-   `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md` (handoff abierto).
+4. **`Asset.model_id` requerido en la entidad-con-dueño / SEED TRANSITIVO** **✓ HECHO (FSK-OWNED-REQUIRED-REFS,
+   2026-06-22)**. Antes [GAP-FÁBRICA]: la restricción de seed del server vivo (FSK-S15, el `raise` en `_seed_chain`)
+   prohibía refs REQUERIDOS no-dueño en la entidad-con-dueño → `model_id` iba `required: false` aunque Snipe-IT lo
+   exige. **Levantado GENERAL** (codegen de fábrica, `generality` verde, `git diff src/+seed=0`): un **seeder
+   TRANSITIVO** (`_seed_deps`/`_ensure_seeded`) siembra topológicamente las dependencias por ref requerido (cadena
+   multi-nivel **Category → AssetModel → Asset**, deduplicado, ciclos → `raise` honesto = deferral 6) ANTES del
+   owned y wirea la FK; `/seed` expone `ownedRefs` (campo→id sembrado) para que el POST/FORM traiga FKs VÁLIDAS.
+   Reúsa la fila ASIGNADA y la RTD (FSK-OWNERSHIP-OPTIONAL). Opt-in: sin ref requerido no-dueño (default/assets:
+   sólo el dueño) el codegen queda byte-idéntico. s1/s7 ya sembraban topológicamente (sin cambio). **`Asset.model_id`
+   ahora `required: true`** (faithful). Diente de DOS lados VIVO: FK colgante en el POST → `access_control_live`
+   ROJO, hermanos s9 (observability/frontend) VERDES. Detalle: `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md`
+   (fábrica) + `…/OWNED-REQUIRED-REFS-ADOPT-INCREMENT.md` (producto). PENDIENTE: un ref requerido que cierre CICLO
+   (Location/Department.manager_id→User) sigue diferido (deferral 6).
 
 5. **Jerarquías self-ref**: `Location.parent_id`→Location y `User.manager_id`→User **✓ HECHO (FSK-SELF-REF,
    2026-06-22)**. Antes [GAP-FÁBRICA]: FSK no soportaba refs self (`_it_repository_kt` seteaba TODO ref —incl. el
@@ -210,18 +217,23 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
 
 ## 4. Próximos pasos (gaps priorizados → incrementos)
 
-Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-OWNERSHIP-OPTIONAL:
+Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden actualizado tras FSK-OWNED-REQUIRED-REFS:
 1. ~~**CRUD-mutación real** (deferral 11)~~ **✓ HECHO** (FSK-S16 + body-parsing + ownerless + refs-in-body).
 2. ~~**Self-ref** (deferral 5)~~ **✓ HECHO** (FSK-SELF-REF, 2026-06-22) — jerarquías Location/User vivas.
 3. ~~**Ownership opcional / RTD** (deferral 3)~~ **✓ HECHO** (FSK-OWNERSHIP-OPTIONAL, 2026-06-22) — dueño
    **nullable** + estado Ready-To-Deploy real, opt-in por `required`; diente de dos lados VIVO (s9) + UNIT (s7).
-4. **Refs requeridos no-dueño en la entidad-con-dueño / seed transitivo** (deferral 4) — **SIGUIENTE**: el server
-   vivo no sabe sembrar un ref REQUERIDO no-dueño en la entidad con dueño (FSK-S15 lo `raise`ea). Faithful exige
-   `Asset.model_id` requerido (Snipe-IT lo pide) → seed transitivo multi-nivel (Category→AssetModel→Asset). Bien
-   acotado. Ver `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md` (handoff abierto).
-5. **Custom fields dinámicos** (deferral 1) — el eje GRANDE: campos definidos por usuario por modelo (EAV-como-columnas).
-6. **Operaciones de dominio** (deferral 11b): checkout/checkin/audit como verbos que MUTAN semántica (decrementar qty,
-   liberar seat, Actionlog) — más allá del veredicto de acceso.
+4. ~~**Refs requeridos no-dueño / seed transitivo** (deferral 4)~~ **✓ HECHO** (FSK-OWNED-REQUIRED-REFS,
+   2026-06-22) — `Asset.model_id` requerido; el server vivo siembra TRANSITIVAMENTE Category→AssetModel→Asset y
+   `/seed` expone `ownedRefs` para FKs válidas en el POST/FORM; diente de dos lados VIVO (s9, FK colgante → rojo).
+5. **Operaciones de dominio — checkout/checkin** (deferral 11b) — **SIGUIENTE**: un VERBO de dominio
+   (`POST /assets/{id}/checkout`) que MUTA semántica bajo guard (precondición workflow `ready`→`deployed` + ownership
+   + set `assigned_user_id`) — la operación CENTRAL de Snipe-IT. **Elegido antes que custom-fields** (re-priorizado
+   2026-06-22): es BOUNDED, central, y COMPONE sobre los primitivos ya construidos (workflow+ownership+CRUD); cierra
+   el primer eje de COMPORTAMIENTO tras 4 ejes de modelo-de-datos seguidos, y de-risk antes del eje GRANDE.
+   Ver `docs/work/FSK-DOMAIN-OPS-INCREMENT.md` (handoff abierto).
+6. **Custom fields dinámicos** (deferral 1) — **el eje GRANDE** (después de #5): campos definidos por usuario por
+   modelo (EAV-como-columnas). Probablemente el mayor eje de fábrica que Snipe-IT fuerza — gramática de campos
+   dinámicos / schema build-time-declarado vs runtime. Mayor riesgo de diseño → va tras un eje de comportamiento.
 7. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
    AppServer-en-contenedor con PG · ciclos cross-entidad (deferral 6) · checkout polimórfico (deferral 2).
 

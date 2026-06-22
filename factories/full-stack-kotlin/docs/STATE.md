@@ -111,6 +111,20 @@
   inexistente→404) + UNIT (s7 `OwnershipGuardTest`, 2 casos). **`product-run` PASS · RTM 24/25 · `ci --rederive
   --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality` verde) · `git diff src/+seed = 0` ·
   default+assets product.yml = 0.** Detalle: `docs/work/FSK-OWNERSHIP-OPTIONAL-INCREMENT.md §Evidencia`.
+- **REFS REQUERIDOS no-dueño / SEED TRANSITIVO — el 4º gap del push Snipe-IT, GENERAL (FSK-OWNED-REQUIRED-REFS,
+  2026-06-22)**: `Asset.model_id` es REQUERIDO en Snipe-IT (un activo SIEMPRE es de un modelo), pero el server vivo
+  (FSK-S15) no sabía sembrar un `ref` REQUERIDO no-dueño en la entidad-con-dueño (`_seed_chain` hacía `raise`); el
+  target es de PROFUNDIDAD >1 (AssetModel→Category). **Levantado opt-in por placeholder** (sin ref requerido no-dueño →
+  byte-idéntico): `_seed_chain` gana `ref_wiring`; dos seeders recursivos nuevos **`_seed_deps`/`_ensure_seeded`**
+  siembran TOPOLÓGICAMENTE las dependencias (deduplicado por registry, **ciclos → `raise` honesto = deferral 6**) ANTES
+  del owned; el server expone **`ownedRefs`** en `/seed` para que el POST/FORM traiga FKs VÁLIDAS; el RTD reusa las deps.
+  Los proofs inyectan los refs desde `/seed` en runtime (evita el `KeyError` sobre un `ref`). **La lección "el handoff
+  sub-estima los sitios" se INVIRTIÓ**: s1/s7 YA sembraban topológicamente + el form ya mapeaba `ref`→input → el gap real
+  era UN camino (s9). Fix 100% en **codegen de FÁBRICA**; **sin check/estación nuevos → `proof_sha` intacto, SIN re-pin**.
+  **Adopción PRODUCTO** (ADR-016): snipeit `Asset.model_id` → `required: true`. Diente de DOS lados VIVO (s9: FK colgante
+  en el POST → **SÓLO** `access_control_live` rojo, hermanos s9 verdes; revertí→verde). **`product-run` PASS · RTM 24/25 ·
+  `ci --rederive --factory full-stack-kotlin --all-products` 12/12·11/11·11/11 == pin · `meta check` 6/6 (`generality`
+  verde) · `git diff src/+seed = 0` · default+assets product.yml = 0.** Detalle: `docs/work/FSK-OWNED-REQUIRED-REFS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -118,8 +132,10 @@
   claramente-FSK-general (deploy) está cerrado.** Lo que QUEDA:
   - **product-specific = construir Snipe-IT** sobre la fábrica madura: los **12 deferrals** de
     `products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` (custom-fields dinámicos · checkout polimórfico ·
-    ~~RTD/owner-opcional~~ **✓ hecho FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · depreciación
-    calculada · company-scoping · …). **Metodología probada**:
+    ~~RTD/owner-opcional~~ **✓ hecho FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos
+    no-dueño / seed transitivo~~ **✓ hecho FSK-OWNED-REQUIRED-REFS** · depreciación calculada · company-scoping · …).
+    **SIGUIENTE = verbos de dominio checkout/checkin (FSK-DOMAIN-OPS, abierto)** — el 1er eje de COMPORTAMIENTO; luego
+    custom-fields (el eje GRANDE). **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se
     cazaron así (CRUD/body/frontend/ownerless/refs/form/deploy).

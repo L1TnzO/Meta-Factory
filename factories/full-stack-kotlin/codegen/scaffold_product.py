@@ -113,6 +113,21 @@ _KT_TYPE_IMPORT = {"date": "java.time.LocalDate"}
 # como `Long` (el id de la FK) — el espinazo relacional: el POST referencia una fila que DEBE existir.
 _KT_FIELD_TYPE = {"string": "String", "int": "Int", "number": "Double",
                   "boolean": "Boolean", "date": "LocalDate", "enum": "String", "ref": "Long"}
+# FSK-CUSTOM-FIELDS (Avenue A): un campo `string` puede declarar un `format` — una REGLA DE VALIDACIÓN nombrada
+# (vocabulario CERRADO) que el codec del cuerpo enforza a RUNTIME (un valor del tipo correcto pero que VIOLA la
+# regla → 400, fail-closed). Es el sub-eje composable de los campos personalizados de Snipe-IT: un custom field
+# tiene un tipo + un `format` (MAC/IP/EMAIL/URL/NUMERIC/ALPHA). El nombre → un patrón que `strFmt` aplica con
+# `Regex.matches` (match COMPLETO de la cadena). Cerrado: M0 RECHAZA un format fuera de este set (fail-closed, como
+# el vocabulario de tipos). El patrón es DATA — vive sólo en la cadena del Kotlin (no en compile/jOOQ): la
+# definición-a-runtime (EAV dinámico, Avenue B) sigue diferida. Ver docs/work/FSK-CUSTOM-FIELDS-INCREMENT.md.
+_FORMAT_REGEX = {
+    "numeric": r"-?\d+(\.\d+)?",
+    "alpha":   r"[A-Za-z]+",
+    "email":   r"[^@\s]+@[^@\s]+\.[^@\s]+",
+    "url":     r"https?://\S+",
+    "ip":      r"(\d{1,3}\.){3}\d{1,3}",
+    "mac":     r"([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}",
+}
 
 
 def _camel(s: str) -> str:
@@ -181,6 +196,16 @@ def _load_blueprint(root: Path) -> dict:
                 raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
             if "required" in f and not isinstance(f["required"], bool):
                 raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'required' no booleano")
+            # FSK-CUSTOM-FIELDS (Avenue A): un campo `string` puede declarar un `format` (regla de validación del
+            # VALOR). Fail-closed (mismo patrón que el guard de tipo): sólo sobre string; el nombre ∈ vocabulario
+            # CERRADO (_FORMAT_REGEX). Opt-in: sin `format` el campo se comporta EXACTO (FSK-CRUD-BODY-PARSING intacto).
+            if "format" in f:
+                if t != "string":
+                    raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'format' no es type 'string' "
+                                     f"(la regla valida el cuerpo string, FSK-CUSTOM-FIELDS)")
+                if f["format"] not in _FORMAT_REGEX:
+                    raise SystemExit(f"scaffold: campo {f.get('name')!r}: format {f.get('format')!r} fuera del "
+                                     f"vocabulario cerrado {sorted(_FORMAT_REGEX)} (fail-closed)")
             # R2 (FSK-S12, workflows): un campo enum puede declarar una máquina de estado OPCIONAL (`initial` +
             # `transitions`). Validación fail-closed (mismo patrón que el guard de tipo): los modifiers sólo
             # sobre enum; `initial` ∈ values; toda clave/destino de `transitions` ∈ values (sin estados fantasma).
@@ -439,6 +464,12 @@ def _oapi_inline(f: dict) -> str:
                 for s, dsts in f["transitions"].items())
             ext += f", x-transitions: {{{pairs}}}"
         return f"{{ type: string, enum: [{vals}]{ext} }}"
+    # FSK-CUSTOM-FIELDS: un campo string con `format` documenta su regla como vendor extension x-format (como
+    # x-transitions/x-required-roles/x-owned-by: openapi-generator y openapi-typescript la IGNORAN — el contrato
+    # sigue parseando). Es la FUENTE inspectable de "qué regla valida ese campo" (DES-6); el codec `strFmt` la
+    # enforza a runtime. Opt-in: sin `format` el schema queda byte-idéntico (sólo el tipo base).
+    if f["type"] == "string" and f.get("format"):
+        return f"{{ type: string, x-format: {f['format']} }}"
     return "{ " + ", ".join(f"{k}: {v}" for k, v in _OAPI_TYPE[f["type"]].items()) + " }"
 
 
@@ -3466,8 +3497,12 @@ def _parse_fn(e: dict) -> str:
               "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
     args = []
     for f in _input_fields(e):
-        expr = (f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)' if f["type"] == "enum"
-                else coerce[f["type"]] % f["name"])
+        if f["type"] == "enum":
+            expr = f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)'
+        elif f["type"] == "string" and f.get("format"):   # FSK-CUSTOM-FIELDS: valida el VALOR (no sólo el tipo)
+            expr = f'strFmt(o, "{f["name"]}", FMT_{f["format"].upper()})'
+        else:
+            expr = coerce[f["type"]] % f["name"]
         args.append(f"        {_camel(f['name'])} = {expr},")
     return (f"private fun parse{name}Input(body: String): {name}Input? = runCatching {{\n"
             "    val o = Json.parseToJsonElement(body).jsonObject\n"
@@ -3523,6 +3558,19 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
             seen.add(_COL(f["name"]))
             vals = ", ".join(_yaml_str(v) for v in f["values"])
             parts.append(f'private val {_COL(f["name"])}_VALUES = setOf({vals})')
+    # FSK-CUSTOM-FIELDS (Avenue A): si alguna entidad viva tiene un campo string con `format`, se emite el helper
+    # `strFmt` (valida el VALOR con el patrón nombrado → no-match → require → null → 400, fail-closed) + un
+    # `FMT_<NAME>` por format USADO (dedup, sorted; raw-string → el regex va literal). `strFmt` reusa `str` (siempre
+    # presente: un format implica string ∈ types). `Regex` es default-import de kotlin.text → sin import nuevo. Cada
+    # FMT lo usa ≥1 parser (sin UnusedPrivateMember). Opt-in: sin `format` no se emite nada → codec byte-idéntico.
+    fmt_names = sorted({f["format"] for f in flds if f["type"] == "string" and f.get("format")})
+    if fmt_names:
+        parts.append("private fun strFmt(o: JsonObject, k: String, re: Regex): String {\n"
+                     "    val s = str(o, k)\n"
+                     "    require(re.matches(s)) { k }\n"
+                     "    return s\n}")
+        for nm in fmt_names:
+            parts.append(f'private val FMT_{nm.upper()} = Regex("""{_FORMAT_REGEX[nm]}""")')
     parts += [_parse_fn(e) for e in entities]
     imps = {"import kotlinx.serialization.json.Json", "import kotlinx.serialization.json.JsonObject",
             "import kotlinx.serialization.json.JsonPrimitive", "import kotlinx.serialization.json.jsonObject",
@@ -4172,11 +4220,29 @@ fun main() {
 '''
 
 
+def _format_sample(fmt: str, alt: bool = False) -> str:
+    """Un valor VÁLIDO para el `format` (FSK-CUSTOM-FIELDS): el proof postea esto → el codec `strFmt` lo ACEPTA →
+    201. `alt` da un 2º valor válido DISTINTO (el cuerpo del FORM, para no chocar con el POST por API). Cubre el
+    vocabulario cerrado de _FORMAT_REGEX (un valor por format que matchea su patrón Kotlin con Regex.matches)."""
+    return {
+        "numeric": ("246", "135"),
+        "alpha":   ("AlphaPost", "AlphaForm"),
+        "email":   ("post@example.com", "form@example.com"),
+        "url":     ("https://example.com/post", "https://example.com/form"),
+        "ip":      ("10.0.0.1", "10.0.0.2"),
+        "mac":     ("AA:BB:CC:DD:EE:01", "AA:BB:CC:DD:EE:02"),
+    }[fmt][1 if alt else 0]
+
+
 def _proof_post_value(f: dict):
     """Valor Python para el cuerpo del POST del proof — DISTINTO de los samples del seed/insert (para que un
-    server que ignora el body y mete samples se delate) y type-correct. UNIQUE → sufijo único (≠ la fila sembrada)."""
+    server que ignora el body y mete samples se delate) y type-correct. UNIQUE → sufijo único (≠ la fila sembrada).
+    FSK-CUSTOM-FIELDS: un string con `format` postea un valor VÁLIDO para esa regla (sin sufijo, que rompería el
+    formato) → el codec lo acepta (201); el lado NEGATIVO (formato inválido → 400) lo cubre BAD_FORMAT_BODY."""
     t = f["type"]
     if t == "string":
+        if f.get("format"):
+            return _format_sample(f["format"])
         return f"posted-{f['name']}" + ("-uniq" if f.get("unique") else "")
     if t == "int":
         return 7            # ≠ sample 2
@@ -4201,6 +4267,8 @@ def _proof_form_value(f: dict):
     la 2ª inserción (la fila del form), y para el campo renderizado da un texto identificable en el <li> nuevo."""
     t = f["type"]
     if t == "string":
+        if f.get("format"):                       # FSK-CUSTOM-FIELDS: el FORM postea un 2º valor VÁLIDO (≠ el POST API)
+            return _format_sample(f["format"], alt=True)
         return f"form-{f['name']}" + ("-uniq" if f.get("unique") else "")
     if t == "int":
         return 11           # ≠ post 7, ≠ sample 2
@@ -4256,6 +4324,21 @@ _OPERATIONS_PROOF = '''
                 ok &= _expect_value(_row2.get(OP_FIELD), _rev["to"], f"[ops] {_rev['name']} muto {OP_FIELD} -> {_rev['to']}")
                 if _rev.get("clear"):
                     ok &= _expect_value(_row2.get(_rev["clear"]), None, f"[ops] {_rev['name']} limpio {_rev['clear']} -> null")'''
+
+
+# FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
+# que VIOLA la regla del campo → 400 (el codec `strFmt` lo rechaza a runtime, fail-closed) + el count NO cambia.
+# Saltear strFmt (aceptar cualquier string — p.ej. el patrón degradado a ".*") → 201 → rojo SÓLO en este check
+# (s9 access_control_live), hermanos verdes. El valor malo lleva espacios → no matchea NINGÚN format del set.
+# Opt-in: sin campo `format` en el owned → "" → el proof queda byte-idéntico. Corre tras el diente de tipo (8 indent).
+_BAD_FORMAT_PROOF = '''
+        # *** FSK-CUSTOM-FIELDS: un campo con `format` valida el VALOR a runtime (no sólo el tipo). Un string que ***
+        # VIOLA el format -> 400 (strFmt fail-closed). Degradar el patron a ".*" -> 201 -> rojo SOLO en s9.
+        BAD_FORMAT_BODY = dict(POST_BODY)
+        BAD_FORMAT_BODY["%FMT_FIELD%"] = "%FMT_BAD_VALUE%"
+        ok &= _expect(_send(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:{owner}", BAD_FORMAT_BODY)[0], 400,
+                      "POST formato invalido -> 400 (regla de validacion VIVA, FSK-CUSTOM-FIELDS)")
+        ok &= _expect(_count(base), n0 + 1, "count tras 400 de formato (no inserto)")'''
 
 
 def _access_control_check_py(bp: dict) -> str:
@@ -4323,7 +4406,14 @@ def _access_control_check_py(bp: dict) -> str:
         [{"name": o["name"], "from": o["from"], "to": o["to"],
           "assign": o.get("assigns"), "clear": o.get("clears")} for o in ops]))
         .replace("%OP_FIELD%", ops[0]["field"])) if ops else ""
+    # FSK-CUSTOM-FIELDS: el diente del `format` VIVO sobre el 1er escalar del owned con regla (un valor con espacios
+    # → ningún format del set lo matchea → 400). Opt-in: sin campo `format` → "" → el proof queda byte-idéntico.
+    fmt_field = next((f for f in scalars if f.get("format")), None)
+    bad_format_block = (_BAD_FORMAT_PROOF
+                        .replace("%FMT_FIELD%", fmt_field["name"])
+                        .replace("%FMT_BAD_VALUE%", "!! invalido !!")) if fmt_field else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
@@ -4485,7 +4575,7 @@ def main(argv: list) -> int:
                       "POST JSON invalido -> 400")
         ok &= _expect(_send(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:{owner}", BAD_TYPE_BODY)[0], 400,
                       "POST tipo equivocado -> 400")
-        ok &= _expect(_count(base), n0 + 1, "count tras 400 (no inserto)")
+        ok &= _expect(_count(base), n0 + 1, "count tras 400 (no inserto)")%BAD_FORMAT_BLOCK%
         # ownership: PUT de fila ajena por un no-dueno -> 403 (la mutacion esta DETRAS del guard de fila).
         ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner + 1}", PUT_BODY)[0], 403,
                       f"PUT fila AJENA por no-dueno ({OWNER_ROLE}:{owner + 1})")

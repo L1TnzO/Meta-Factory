@@ -3275,14 +3275,19 @@ if __name__ == "__main__":
 #    (compone sobre RBAC/ownership de s5). Transforma la trilogía de control de acceso de "probada por
 #    construcción" (s5 estático + s7 unit) a "enforzada a runtime" (un proof e2e de DOS+ lados, abajo). ────────
 def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None,
-                alt: bool = False) -> str:
+                alt: bool = False, ref_wiring: dict | None = None) -> str:
     """INSERT jOOQ TIPADO que siembra una fila de `e` y captura su id generado (idiom DbRoundTrip). Para la
     entidad con dueño, el campo `owner_field` se fija al `owner_var` capturado (el principal dueño); el resto
     de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL.
     FSK-OWNERSHIP-OPTIONAL — la fila Ready-To-Deploy: con `owner_field=None` el dueño (ya opcional) se omite →
     queda NULL (sin dueño); `alt=True` da valores alternos en las columnas UNIQUE para no chocar con la 1ª fila
     sembrada (misma entidad). El `owner_field` se resuelve ANTES del skip-optional → la fila ASIGNADA fija el
-    dueño aunque la columna sea nullable (con `alt=False` el output queda byte-idéntico al previo)."""
+    dueño aunque la columna sea nullable (con `alt=False` el output queda byte-idéntico al previo).
+    FSK-OWNED-REQUIRED-REFS — un ref REQUERIDO no-dueño se cablea al id capturado de su target (`ref_wiring`:
+    campo→`val`, lo arma el seeder transitivo _seed_deps); SIN cableado para ese campo (un producto que no usa
+    el eje) sigue el `raise` honesto. Con `ref_wiring=None`/vacío y sin ref requerido no-dueño (default/assets:
+    sólo el dueño es ref requerido) el output queda byte-idéntico al previo — el eje es OPT-IN."""
+    ref_wiring = ref_wiring or {}
     tbl = _TBL(e)
     sets = []
     for f in e["fields"]:
@@ -3293,11 +3298,49 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
         if not f.get("required", True):                # opcional (incl. el dueño en la fila RTD) → NULL
             continue
         if f["type"] == "ref":
+            if f["name"] in ref_wiring:                # ref requerido no-dueño: cableado al target sembrado
+                sets.append(f"set({col}, {ref_wiring[f['name']]})")
+                continue
             raise SystemExit(f"scaffold: AppServer seed: {e['name']} tiene un ref requerido no-dueño "
-                             f"{f['name']!r} (FSK-S15 siembra sólo el dueño + campos escalares)")
+                             f"{f['name']!r} sin cableado (target no sembrable / ciclo — deferral honesto)")
         sets.append(f"set({col}, {_sample(f, {}, alt=(alt and f.get('unique', False)))})")
     calls = sets + [f"returning({tbl}.ID)", "fetchOne()!!", f"get({tbl}.ID)!!"]
     return _jooq_chain("    ", f"val {var} = ", f"ctx.insertInto({tbl})", calls)
+
+
+def _seed_deps(e: dict, by: dict, registry: dict, visiting: set, lines: list) -> dict:
+    """SEED TRANSITIVO (FSK-OWNED-REQUIRED-REFS) — el cableado {campo ref → `val`} de los refs REQUERIDOS no-dueño
+    de `e`, sembrando cada target topológicamente ANTES de `e` (via _ensure_seeded), deduplicado por entidad
+    (registry compartido → cada dependencia se siembra UNA vez aunque varias la referencien). Agrega los INSERT a
+    `lines` en orden de dependencia. Vacío si `e` no tiene ningún ref requerido no-dueño (default/assets: la
+    entidad con dueño sólo lleva el dueño como ref requerido) → el INSERT de `e` queda byte-idéntico. El eje es
+    OPT-IN: no toca la selección _live_with_ref/_ref_target_seedable que gobierna default/assets. DATA-agnóstico
+    (cero nombres de dominio, ADR-012)."""
+    owner = e.get("owned_by")
+    wiring = {}
+    for f in e["fields"]:
+        if f["type"] == "ref" and f.get("required", True) and f["name"] != owner:
+            wiring[f["name"]] = _ensure_seeded(by[f["to"]], by, registry, visiting, lines)
+    return wiring
+
+
+def _ensure_seeded(t: dict, by: dict, registry: dict, visiting: set, lines: list) -> str:
+    """Garantiza que la entidad target `t` esté sembrada (con sus PROPIAS dependencias transitivas primero) y
+    devuelve el nombre de la `val` que captura su id. Memoiza en `registry` (un target compartido se siembra una
+    vez). `visiting` detecta CICLOS de refs requeridos (un ref requerido que cierra ciclo → SystemExit honesto,
+    sigue diferido — deferral 6); sin cerrojo sería recursión infinita."""
+    if t["name"] in registry:
+        return registry[t["name"]]
+    if t["name"] in visiting:
+        raise SystemExit(f"scaffold: AppServer seed: ciclo de refs requeridos en {t['name']!r} "
+                         f"(un ref requerido que cierra un ciclo sigue diferido — deferral 6)")
+    visiting.add(t["name"])
+    wiring = _seed_deps(t, by, registry, visiting, lines)   # las dependencias de `t`, ANTES de `t`
+    visiting.discard(t["name"])
+    var = f"dep{t['name']}Id"
+    lines.append(_seed_chain(var, t, ref_wiring=wiring))
+    registry[t["name"]] = var
+    return var
 
 
 def _parse_fn(e: dict) -> str:
@@ -3650,10 +3693,18 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     with_ref = _live_with_ref(ents)
     served = [owned] + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
     ref_targets = _ref_targets(with_ref, ents)
+    # FSK-OWNED-REQUIRED-REFS: la entidad CON DUEÑO puede ahora tener refs REQUERIDOS no-dueño (p.ej.
+    # Asset.model_id). El seeder TRANSITIVO siembra sus dependencias topológicamente (deduplicado, ciclos →
+    # raise honesto) ANTES del owned y devuelve el cableado {campo → val}. dep_entities = lo sembrado, para
+    # imports/tablas/tipos. Vacío (default/assets: sólo el dueño es ref requerido) → byte-idéntico (eje OPT-IN).
+    dep_registry: dict = {}
+    dep_lines: list = []
+    owned_wiring = _seed_deps(owned, by, dep_registry, set(), dep_lines)
+    dep_entities = [by[n] for n in dep_registry]
     plural = "/" + _table(owned)
     all_fn = f"all{owned['name']}s"
     owner_fn = f"{owned['name'].lower()}OwnerId"
-    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets})
+    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets + dep_entities})
     codec_kt, codec_imports = _codec_helpers(served)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
@@ -3683,7 +3734,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # sembrados (campos requeridos de owner/owned + targets de refs) y los parseados (input de cada servida, incl.
     # with_ref que aporta su propio `date` requerido si lo tuviera). Un import no usado → NoUnusedImports (rojo).
     type_src = ([{"fields": [f for f in e["fields"] if f.get("required", True)]}
-                 for e in [owned, owner_ent] + ref_targets]
+                 for e in [owned, owner_ent] + ref_targets + dep_entities]
                 + [{"fields": _input_fields(e)} for e in served])
     java_imports = sorted([
         "import java.net.InetSocketAddress",
@@ -3694,7 +3745,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     ] + _kt_type_imports(type_src))
     imports = main_imports + java_imports
     seed_owner = _seed_chain("ownerId", owner_ent)
-    seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId")
+    seed_owned_deps = ("\n".join(dep_lines) + "\n") if dep_lines else ""   # deps ANTES del owned (topológico)
+    seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId",
+                             ref_wiring=owned_wiring)
     # FSK-OWNERSHIP-OPTIONAL — el dueño de la entidad servida es NULLABLE (RTD): el server distingue EXISTENCIA
     # de DUEÑO (una fila sin dueño existe → no es 404) y siembra una 2ª fila SIN dueño (owner NULL, valores
     # alternos en las UNIQUE) para que el proof ejercite el veredicto RTD vivo. Opt-in por el `required` del
@@ -3702,10 +3755,26 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     owner_optional = not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
     modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional)
     if owner_optional:
-        seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True)   # fila RTD: dueño NULL, UNIQUE alternos
+        # fila RTD: dueño NULL, UNIQUE alternos; REUSA las deps ya sembradas (registry) → wirea sus refs requeridos
+        seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring)
         rtd_field, rtd_arg, rtd_json = ", val rtdId: Long", ", rtdId", ',"rtd":${seed.rtdId}'
     else:
         seed_rtd, rtd_field, rtd_arg, rtd_json = "", "", "", ""
+    # FSK-OWNED-REQUIRED-REFS: /seed expone los ids de los refs REQUERIDOS no-dueño del owned (campo → id sembrado)
+    # para que el proof POSTee una FK VÁLIDA (como `refs` para with_ref, pero de la entidad-con-dueño). Opt-in:
+    # sin refs requeridos no-dueño (default/assets) → todo "" → Seed/seedJson byte-idénticos (sin re-derivar).
+    if owned_wiring:
+        owned_refs_doc = (
+            "// ownedRefs (FSK-OWNED-REQUIRED-REFS): id sembrado de cada ref REQUERIDO no-dueno de la entidad CON\n"
+            "// DUENO (campo -> id), sembrado TRANSITIVAMENTE; /seed lo expone para que el POST del owned traiga FKs\n"
+            "// VALIDAS (como `refs` para with_ref, pero de la entidad-con-dueno).\n")
+        owned_refs_field = ", val ownedRefs: Map<String, Long>"
+        owned_refs_arg = ", mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in owned_wiring.items()) + ")"
+        owned_refs_json_val = ('    val ownedRefs = seed.ownedRefs.entries'
+                               '.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }\n')
+        owned_refs_json = ',"ownedRefs":$ownedRefs'
+    else:
+        owned_refs_doc = owned_refs_field = owned_refs_arg = owned_refs_json_val = owned_refs_json = ""
     # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
     # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
     tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
@@ -3738,12 +3807,18 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%OWNERLESS_CONTEXT%", ownerless_context)
             .replace("%WITH_REF_CONTEXT%", with_ref_context)
             .replace("%SEED_OWNER%", seed_owner)
+            .replace("%SEED_OWNED_DEPS%", seed_owned_deps)
             .replace("%SEED_OWNED%", seed_owned)
             .replace("%SEED_REF_TARGETS%", seed_ref)
             .replace("%SEED_RTD%", seed_rtd)
             .replace("%RTD_FIELD%", rtd_field)
             .replace("%RTD_ARG%", rtd_arg)
             .replace("%RTD_JSON%", rtd_json)
+            .replace("%OWNED_REFS_DOC%", owned_refs_doc)
+            .replace("%OWNED_REFS_FIELD%", owned_refs_field)
+            .replace("%OWNED_REFS_ARG%", owned_refs_arg)
+            .replace("%OWNED_REFS_JSON_VAL%", owned_refs_json_val)
+            .replace("%OWNED_REFS_JSON%", owned_refs_json)
             .replace("%REF_TARGETS_MAP%", ref_map))
 
 
@@ -3773,7 +3848,7 @@ private const val PLURAL = "%PLURAL%"
 // expone para que el proof POSTee una FK VALIDA. Vacio si ninguna entidad servida tiene un ref requerido.
 // rtdId (FSK-OWNERSHIP-OPTIONAL): id de una fila Ready-To-Deploy (dueno NULL) -- solo cuando el dueno es
 // nullable. /seed lo expone para que el proof ejercite el veredicto RTD (no-bypass -> 403 / bypass -> 200).
-private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>%RTD_FIELD%)
+%OWNED_REFS_DOC%private data class Seed(val ownedId: Long, val ownerId: Long, val refs: Map<String, Long>%RTD_FIELD%%OWNED_REFS_FIELD%)
 
 private fun respond(ex: HttpExchange, status: Int, body: String) {
     val bytes = body.toByteArray(StandardCharsets.UTF_8)
@@ -3802,13 +3877,13 @@ private fun connect(url: String, user: String, pass: String): Connection {
 // proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
 private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%
-    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%)
+%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%
+    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%)
 }
 
 private fun seedJson(seed: Seed): String {
     val refs = seed.refs.entries.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }
-    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs%RTD_JSON%}"""
+%OWNED_REFS_JSON_VAL%    return """{"path":"$PLURAL","id":${seed.ownedId},"owner":${seed.ownerId},"refs":$refs%RTD_JSON%%OWNED_REFS_JSON%}"""
 }
 
 // El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
@@ -3930,10 +4005,15 @@ def _access_control_check_py(bp: dict) -> str:
     forbidden = next((r for r in bp["roles"] if r not in write_roles), "nobody")
     bypass_role = bypass[0] if bypass else ""
     mf = _mutable_field(owned)   # la columna string que el PUT del body actualiza (vacía → el server degrada)
+    # FSK-OWNED-REQUIRED-REFS: el POST del owned manda los ESCALARES (≠ samples) acá, y los refs REQUERIDOS
+    # no-dueño los inyecta en runtime desde /seed ownedRefs (FK VÁLIDA; como with_ref con /seed refs). Sin refs
+    # requeridos no-dueño (default/assets) → scalars == flds, owned_ref_fields == [] → cuerpos byte-idénticos.
     flds = _input_fields(owned)
-    post_body = {f["name"]: _proof_post_value(f) for f in flds}
+    scalars = [f for f in flds if f["type"] != "ref"]
+    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref"]
+    post_body = {f["name"]: _proof_post_value(f) for f in scalars}
     bad_type_body = dict(post_body)
-    bad_type_body[flds[0]["name"]] = _proof_wrong_value(flds[0])   # corromper SÓLO el tipo del 1er campo
+    bad_type_body[scalars[0]["name"]] = _proof_wrong_value(scalars[0])   # corromper SÓLO el tipo del 1er escalar
     put_value = f"patched-{mf['name']}" if mf else ""
     put_body = {mf["name"]: put_value} if mf else {}
     # FSK-CRUD-OWNERLESS: la 1ra entidad servible SIN dueño (CRUD RBAC-only). allowed = un rol en write_roles;
@@ -3959,7 +4039,14 @@ def _access_control_check_py(bp: dict) -> str:
     wr_scalars = {f["name"]: _proof_post_value(f) for f in wr_flds if f["type"] != "ref"}
     wr_ref_fields = [f["name"] for f in wr_flds if f["type"] == "ref"]   # el id viene de /seed refs (FK válida)
     wr_bad = {wr_flds[0]["name"]: _proof_wrong_value(wr_flds[0])} if wr_flds else {}
+    # FSK-OWNED-REQUIRED-REFS: inyecta las FKs VÁLIDAS del owned (ids de /seed ownedRefs) en los cuerpos del POST,
+    # como el bloque with-ref. Opt-in: sin refs requeridos no-dueño → "" → el proof queda byte-idéntico.
+    owned_ref_merge = ("\n        _owned_refs = seed.get(\"ownedRefs\", {})\n"
+                       "        for _k, _v in _owned_refs.items():\n"
+                       "            POST_BODY[_k] = _v\n"
+                       "            BAD_TYPE_BODY[_k] = _v") if owned_ref_fields else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%PLURAL%", plural)
             .replace("%ALLOWED%", owner_role)
             .replace("%FORBIDDEN%", forbidden)
@@ -4098,7 +4185,7 @@ def main(argv: list) -> int:
         ok = _expect(_req(base, "GET", "/health", None), 200, "health")
         ok &= _expect(_req(base, "GET", PLURAL, None), 200, "list (publica)")
         seed = json.loads(_body(base, "/seed"))
-        rid, owner = seed["id"], seed["owner"]
+        rid, owner = seed["id"], seed["owner"]%OWNED_REF_MERGE%
         n0 = _count(base)
         # RBAC: un rol PROHIBIDO no escribe (aun con body valido) -> 403 Y el count NO cambia.
         ok &= _expect(_send(base, "POST", PLURAL, f"Bearer {FORBIDDEN_ROLE}:{owner}", POST_BODY)[0], 403,
@@ -4254,17 +4341,27 @@ def _consume_check_ts(bp: dict) -> str:
     bypass = bp.get("owner_bypass_roles") or []
     non_bypass = [r for r in write_roles if r not in bypass] or write_roles
     write_role = non_bypass[0]
+    # FSK-OWNED-REQUIRED-REFS: el client/FORM postea los ESCALARES acá; los refs REQUERIDOS no-dueño se inyectan
+    # en runtime desde /seed ownedRefs (FK VÁLIDA). El FORM generado (_app_ts) ya emite un <input number> por ref
+    # y lo coacciona a Number → el bloque jsdom lo llena con el id de /seed. Opt-in: sin refs requeridos no-dueño
+    # (default/assets) → scalars == flds, owned_ref_fields == [] → cuerpos + merge byte-idénticos.
     flds = _input_fields(owned)
-    post_body = {f["name"]: _proof_post_value(f) for f in flds}
+    scalars = [f for f in flds if f["type"] != "ref"]
+    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref"]
+    post_body = {f["name"]: _proof_post_value(f) for f in scalars}
     bad_body = dict(post_body)
-    bad_body[flds[0]["name"]] = _proof_wrong_value(flds[0])   # corromper SÓLO el tipo del 1er campo → 400
-    form_body = {f["name"]: _proof_form_value(f) for f in flds}   # FSK-BROWSER-FORM: lo que el FORM postea
+    bad_body[scalars[0]["name"]] = _proof_wrong_value(scalars[0])   # corromper SÓLO el tipo del 1er escalar → 400
+    form_body = {f["name"]: _proof_form_value(f) for f in scalars}   # FSK-BROWSER-FORM: lo que el FORM postea
+    owned_ref_merge = ("\n  const ownedRefs = seed.ownedRefs ?? {};\n"
+                       "  for (const [k, v] of Object.entries(ownedRefs)) {\n"
+                       "    POST_BODY[k] = v;\n    BAD_BODY[k] = v;\n    FORM_BODY[k] = v;\n  }") if owned_ref_fields else ""
     # El campo que render<E>List renderiza (FSK-FRONTEND-RENDER-LIST): el 1er string/enum de la entidad con
     # dueño — la MISMA heurística que _app_ts → el consumer asevera contra EXACTAMENTE lo que el render emite.
     render_field = next((f["name"] for f in owned["fields"] if f["type"] in ("string", "enum")),
                         owned["fields"][0]["name"])
     return (_CONSUME_CHECK_SKELETON
             .replace("%BROWSER_FORM_BLOCK%", _browser_form_block(name, render_field, render_field in form_body))
+            .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%ENTITY%", name)
             .replace("%WRITE_ROLE%", write_role)
             .replace("%RENDER_FIELD%", render_field)
@@ -4350,7 +4447,7 @@ async function main(base) {
   // /seed: el principal duenio sembrado (mismo idiom que access_control_check.py). token = Bearer rol:duenio.
   const seedRes = await fetch(`${base}/seed`);
   const seed = await seedRes.json();
-  const token = `Bearer ${WRITE_ROLE}:${seed.owner}`;
+  const token = `Bearer ${WRITE_ROLE}:${seed.owner}`;%OWNED_REF_MERGE%
 
   // 1) create<E> via el CLIENTE generado (POST real) -> id nuevo.
   const created = await create%ENTITY%(base, token, POST_BODY);

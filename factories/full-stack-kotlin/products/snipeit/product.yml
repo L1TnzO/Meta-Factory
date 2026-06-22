@@ -238,6 +238,8 @@ entities:
   # ══ ACCESORIOS (qty, checkout a user) ═════════════════════════════════════
   - name: Accessory
     write_roles: [superadmin, admin, manager]
+    operations:   # FSK-QTY-OPERATIONS: el checkout de un accesorio DECREMENTA el stock (qty) con guard
+      - { name: checkout, decrements: qty }   # out-of-stock; verbo sobre entidad SIN dueño (RBAC-only)
     fields:
       - { name: name, type: string }
       - { name: qty, type: int }                           # cantidad total

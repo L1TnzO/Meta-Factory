@@ -146,6 +146,11 @@ entities:
       - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
       - { name: depreciation_id, type: ref, to: Depreciation, required: false }
       - { name: eol, type: int, required: false }                      # meses hasta End-of-Life
+      # FSK-XENTITY-COMPUTED: el período de depreciación VIVE EN EL MODELO (todos los activos de un modelo se
+      # deprecian sobre el MISMO período), no en el activo individual. Antes estaba SIMPLIFICADO como un campo del
+      # propio Asset (same-entity); ahora vive acá y `Asset.current_value` lo lee CROSS-ENTITY (resuelve model_id →
+      # JOIN a AssetModel → lee esta columna). REQUERIDO (1er-cut: ref+campo requeridos → el valor es observable).
+      - { name: depreciation_months, type: int }                       # meses de vida útil (faithful: per-MODELO)
 
   # ══ ASSET — la entidad central, con WORKFLOW (FSK-S12) + OWNERSHIP (FSK-S14/S15) ══
   - name: Asset
@@ -170,18 +175,20 @@ entities:
       - { name: name, type: string, required: false }
       - { name: serial, type: string, required: false }   # Snipe: unique condicional (setting); acá opcional
       - { name: purchase_date, type: date, required: false }
-      # FSK-COMPUTED-FIELDS (deferral 7): el VALOR ACTUAL de un activo NO se almacena — se COMPUTA por depreciación
-      # straight-line desde la compra (la dimensión de VALORES DERIVADOS). Snipe-IT lo deriva de
-      # Depreciation.months (vía AssetModel) + el tiempo transcurrido; ese eje cross-entity + time-elapsed sigue
-      # DIFERIDO. Acá el 1er-cut BOUNDED SAME-ENTITY: `depreciation_months` vive en el PROPIO Asset y `current_value`
-      # se computa de `purchase_cost`/`depreciation_months` del MISMO Asset (la fórmula como AST determinista). Las
-      # fuentes son REQUERIDAS para que el server las inserte del cuerpo y el valor derivado sea OBSERVABLE en el GET
-      # (un campo computado sobre fuentes opcionales —default 0— es un refinamiento diferido).
-      - { name: purchase_cost, type: number }                  # REQUERIDO (fuente del valor derivado; Snipe lo permite null → diferido)
-      - { name: depreciation_months, type: int }               # meses de vida útil (en Snipe vive en Depreciation → cross-entity diferido)
-      # `current_value` = max(purchase_cost - purchase_cost/depreciation_months, 0): el valor tras una depreciación
-      # straight-line de un período, con piso 0 (max) y guard de div-por-cero (safeDiv). NO se guarda: 0 columnas,
-      # read-only, computado a read-time en rowJson. El AST usa SÓLO operadores del set cerrado (`- / max`).
+      # FSK-COMPUTED-FIELDS (deferral 7) + FSK-XENTITY-COMPUTED: el VALOR ACTUAL de un activo NO se almacena — se
+      # COMPUTA por depreciación straight-line desde la compra (la dimensión de VALORES DERIVADOS). Snipe-IT deriva
+      # el período de depreciación del MODELO (AssetModel), no del activo individual. El 1er-cut de FSK-COMPUTED-FIELDS
+      # lo SIMPLIFICÓ a un campo del propio Asset (same-entity); FSK-XENTITY-COMPUTED lo hace FAITHFUL: el período
+      # (`depreciation_months`) vive en `AssetModel` y `current_value` lo lee CROSS-ENTITY — resuelve `model_id` →
+      # LEFT JOIN a AssetModel → lee su columna (la fórmula como AST determinista). `purchase_cost` (same-entity) +
+      # `model_id.depreciation_months` (cross-entity) son REQUERIDOS → el valor es OBSERVABLE en el GET. (Refinamiento
+      # DIFERIDO: el período REAL vive en `Depreciation` vía `AssetModel.depreciation_id` —depth-2— + el tiempo
+      # transcurrido; este 1er-cut cross-entity es depth-1: el ref DIRECTO del Asset a su modelo.)
+      - { name: purchase_cost, type: number }                  # REQUERIDO (fuente same-entity del valor derivado)
+      # `current_value` = max(purchase_cost - purchase_cost/model_id.depreciation_months, 0): el valor tras una
+      # depreciación straight-line de un período, con piso 0 (max) y guard de div-por-cero (safeDiv). NO se guarda:
+      # 0 columnas, read-only, computado a read-time en rowJson tras el JOIN. AST: operadores del set cerrado (`- / max`);
+      # `model_id.depreciation_months` = el operando CROSS-ENTITY (un ref REQUERIDO `.` un campo numérico del target).
       - name: current_value
         type: number
         computed:
@@ -190,7 +197,7 @@ entities:
             - op: "-"
               args:
                 - purchase_cost
-                - { op: "/", args: [purchase_cost, depreciation_months] }
+                - { op: "/", args: [purchase_cost, model_id.depreciation_months] }
             - 0
       - { name: order_number, type: string, required: false }
       - { name: warranty_months, type: int, required: false }

@@ -29,6 +29,22 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **CHECKOUT POLIMÓRFICO — el último eje behavioral FAITHFUL (FSK-POLY-ASSIGNS, 2026-06-23)**: un verbo de workflow
+  con `assigns`/`clears` cuyo campo es un **ref POLIMÓRFICO** (FSK-POLYMORPHIC-REFS) setea/limpia las DOS sub-columnas
+  (`<campo>_type`+`<campo>_id`) en vez de un Long único — el checkout que asigna a un **User|Location|Asset**.
+  COMPONE dos primitivas probadas (cero mecanismo nuevo): `_operation_repo_fns` (poly → `set(_TYPE).set(_ID)` /
+  `clears` poly → `setNull` ambas), `_operations_handlers` (parsea `<campo>_type` vía `enumOf` contra los targets,
+  fail-closed → 400; + `<campo>_id`), `_OPERATIONS_PROOF` (placeholders byte-neutros: DEFAULT = ref simple; POLY =
+  round-trip de AMBAS + diente fail-closed). Fix GENERAL surfaced: `@Suppress("LongMethod")` en `_row_json_fn` cuando
+  el serializador exhaustivo supera 60 líneas (entidad ancha + 2 columnas poly). **Adopción PRODUCTO** (ADR-016):
+  snipeit Asset gana `checkout_target` (poly, opcional, ≠ `owned_by` — wrinkle #3); `checkout` lo asigna, `checkin` lo
+  libera. Diente de DOS lados VIVO (anulé el discriminador → `"UserX"`≠`"User"` → SÓLO `access_control_live` (s9) rojo,
+  hermanos verdes; revertí→verde). RTM snipeit **24/25** (sólo s6 keyless; sin requisito nuevo → se pliega en
+  REQ-F-014). **product-run PASS · `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) · `meta
+  check` 6/6 · `git diff src/+seed+default/assets product.yml = 0`.** **NÚCLEO FUNCIONAL + BEHAVIORAL FAITHFUL
+  COMPLETO** (modelo de datos · acceso · workflow/stock/trash-restore · valores derivados same+cross-entity · checkout
+  polimórfico · app que CORRE); sigue **breadth pura** (creates/pivot de qty, owner poly, cross-entity depth-2, ~226
+  rutas, EAV dinámico). Detalle: `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia` · `docs/LOG.md`.
 - **CRUD vivo para entidades SIN dueño (FSK-CRUD-OWNERLESS, 2026-06-21)**: la capa viva dejó de ser **opt-in a
   `owned_by`**. El server vivo monta TAMBIÉN la 1ª entidad **ownerless** servible (con `write_roles`, campos
   requeridos todos escalares; DATA-agnóstico: **User**/**Holder**/**Company** en los 3 productos) con CRUD gobernado

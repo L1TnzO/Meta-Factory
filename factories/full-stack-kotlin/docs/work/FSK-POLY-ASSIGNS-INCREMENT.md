@@ -1,8 +1,7 @@
 # Incremento FSK-POLY-ASSIGNS — el verbo de workflow ASIGNA a un ref POLIMÓRFICO (checkout a User|Location|Asset)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-23T13:38Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-23T13:38Z · cerrado 2026-06-23T16:41Z — ver §Evidencia). Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
@@ -172,3 +171,39 @@ BOUNDED, framed honestamente:
 (same-entity + cross-entity) + app que CORRE (CRUD vivo + frontend + deploy). **Poly-assigns (este)** completa el
 checkout polimórfico FAITHFUL. Tras él, la paridad de superficie completa (~226 rutas, Kits, EAV dinámico, creates/
 pivot, owner polimórfico, cross-entity depth-2) es trabajo de BREADTH — los flecos, no el corazón.
+
+---
+
+## §Evidencia — CERRADO 2026-06-23T16:41Z
+
+Construido EXACTO como el camino BOUNDED de §0 (cero invención). Todo en `codegen/scaffold_product.py` (FÁBRICA,
+GENERAL, opt-in byte-neutro) + adopción en `products/snipeit/product.yml` (PRODUCTO).
+
+- **Codegen** (commit `feat(fsk): FSK-POLY-ASSIGNS …`): `_operation_repo_fns` ramifica poly (assigns →
+  `set(<campo>_TYPE, assignType).set(<campo>_ID, assignId)`, firma `(ctx, id, assignType: String, assignId: Long)`;
+  clears → `setNull` ambas) · `_operations_handlers` parsea el discriminador con `enumOf` contra `<verbo><E>Types`
+  (set CERRADO de los targets, fail-closed → 400) + `<campo>_id` con `longArg` · `_OPERATIONS_PROOF` con placeholders
+  byte-neutros (`%POLY_ASSIGN_SETUP/FC%`, `%VERB_BODY_FWD/REV%`, `%ASSIGN_CHECK_FWD%`, `%CLEAR_CHECK_REV%`) cuyo
+  DEFAULT reproduce EXACTO el texto previo · `_row_json_fn` gana `@Suppress("LongMethod")` cuando el serializador
+  exhaustivo supera 60 líneas (fix GENERAL surfaced — las 2 columnas poly empujaron `assetRowJson` al límite de detekt).
+- **Producto** (commit `feat(snipeit): Asset.checkout polimórfico …`): Asset gana `checkout_target` (ref poly opcional
+  `[User, Location, Asset]`, DISTINTO de `owned_by: assigned_user_id` — wrinkle #3); `checkout` lo ASIGNA, `checkin` lo
+  LIBERA. El ownership de fila sigue en `assigned_user_id` (Long único).
+- **Verde por bloqueo**:
+  1. **EYEBALL byte-neutro** — HEAD-codegen vs working-codegen sobre el MISMO HEAD product.yml: base/assets/snipeit
+     byte-idénticos (el eje del producto, no del codegen).
+  2. **`product-run --product snipeit` PASS** · **RTM 24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+  3. **Diente de DOS lados VIVO**: anulé el discriminador en el repo-fn (`assignType + "X"`) → `"UserX"` ≠ `"User"` →
+     **SÓLO** `access_control_live` (s9) rojo; `observability_live` + `frontend_consume_live` VERDES sobre el MISMO
+     server vivo (no era server-caído, era la aserción del round-trip poly) → revertí → product-run verde.
+  4. **`ci --rederive`** clon limpio == pin (SIN re-pin, `proof_sha` estructural): base **12/12** · assets **11/11** ·
+     snipeit **11/11**.
+  5. **`meta check` 6/6** (`generality` verde) · **`git diff src/metafactory + seed = 0`** · default+assets product.yml = 0.
+- **Lección destilada** (ya en el LOG + memoria cross-sesión): un sabotaje runtime que dropea el `set(<campo>_type)`
+  deja `assignType` SIN usar → `-Werror` lo flagearía ESTÁTICO antes que s9 → degradá la LÓGICA manteniendo el param
+  usado (`assignType + "X"`). Y un `@Suppress` sobre una declaración necesita una línea EN BLANCO antes
+  (`SpacingBetweenDeclarationsWithAnnotations` de detekt).
+
+**Siguiente** abierto con handoff autocontenido: `docs/work/FSK-CREATES-PIVOT-INCREMENT.md` (breadth — el `creates`/
+pivot de qty, p.ej. AccessoryCheckout: un verbo que INSERTA una fila pivote en vez de decrementar). El núcleo
+funcional + behavioral está COMPLETO; lo que resta es BREADTH.

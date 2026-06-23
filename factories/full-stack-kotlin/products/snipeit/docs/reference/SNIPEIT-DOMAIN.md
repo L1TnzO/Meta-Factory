@@ -158,10 +158,17 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    (BIGINT SIN FK: no hay integridad a una unión, wrinkle #1). El server vivo round-trippea (tipo, id) y GET los
    devuelve EXACTOS, distinguiendo el target; diente de DOS lados (degradar el discriminador del rowJson → SÓLO
    s9 rojo). **Adoptado** en `Accessory.checkout_target → [User, Location, Asset]` (la entidad with_ref viva,
-   donde el round-trip es observable). **1er-cut = la PRIMITIVA sola**; sigue diferido lo faithful pleno: el
-   `assigns` POLIMÓRFICO del verbo checkout (setear 2 columnas del cuerpo) y el `assigned_to` polimórfico de
-   **Asset** —que ES su owner (wrinkle #3: el ownership cruza un principal único, no una unión)—. Ver
-   `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
+   donde el round-trip es observable). La cara BEHAVIORAL — **el `assigns` POLIMÓRFICO del verbo checkout** — **✓
+   HECHO (FSK-POLY-ASSIGNS, 2026-06-23)**: un verbo de workflow con `assigns`/`clears` cuyo campo es un ref poly
+   setea/limpia las DOS sub-columnas del cuerpo (componiendo FSK-POLYMORPHIC-REFS + FSK-DOMAIN-OPS, cero mecanismo
+   nuevo). **Adoptado** en `Asset.checkout_target → [User, Location, Asset]` (campo NUEVO, OPCIONAL): `checkout`
+   ASIGNA (setea `checkout_target_type` ∈ la unión fail-closed + `checkout_target_id` del cuerpo), `checkin` LIBERA
+   (ambas NULL = RTD). El `checkout_target` es DISTINTO del `owned_by: assigned_user_id` (wrinkle #3: el ownership
+   cruza un principal Long único, no una unión → el polimórfico vive en un campo no-dueño; el owner queda como el
+   manager responsable, Long). **El checkout polimórfico FAITHFUL queda COMPLETO** (data + behavior). Diente de DOS
+   lados VIVO (anulé el discriminador → SÓLO s9 rojo). Ver `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia`.
+   Sigue diferido SÓLO: el `assigned_to` polimórfico que ES el owner (requeriría un OwnershipGuard sobre una unión —
+   eje aparte, "owner polimórfico", breadth).
 
 3. **Asignación opcional (RTD) vs owner requerido** **✓ HECHO (FSK-OWNERSHIP-OPTIONAL, 2026-06-22)**. Antes
    [GAP-FÁBRICA]: FSK exigía `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId: Long)`

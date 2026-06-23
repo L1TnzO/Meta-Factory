@@ -1,6 +1,43 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-23T16:41Z — FSK-POLY-ASSIGNS ✅: el verbo de workflow ASIGNA a un ref POLIMÓRFICO (checkout a User|Location|Asset)
+- **El ÚLTIMO eje behavioral genuino: el checkout polimórfico FAITHFUL.** Hasta hoy un verbo de dominio con
+  `assigns` (FSK-DOMAIN-OPS) asignaba a un ref de UN SOLO target (un `Long` al cuerpo → `set(<campo>, target)`). En
+  Snipe-IT el checkout asigna a un target POLIMÓRFICO — un activo se asigna a un **User | Location | Asset**
+  (`assets.assigned_type`+`assigned_to`). Este eje COMPONE dos primitivas YA probadas (FSK-POLYMORPHIC-REFS, la DATA
+  de un ref a una unión; FSK-DOMAIN-OPS, el verbo con `assigns`/`clears`): un `assigns`/`clears` cuyo campo es un ref
+  polimórfico setea/limpia las DOS sub-columnas (`<campo>_type`+`<campo>_id`) en vez de un Long único. CERO mecanismo
+  nuevo, determinista (sin s6/LLM). Todo en `codegen/scaffold_product.py` (FÁBRICA, GENERAL, opt-in byte-neutro).
+- **La mutación** (`_operation_repo_fns`): para un `assigns` poly emite `set(<campo>_TYPE, assignType).set(<campo>_ID,
+  assignId)` con firma `(ctx, id, assignType: String, assignId: Long)`; un `clears` poly → `setNull` de AMBAS. Sin
+  poly el camino queda EXACTO (`set(<campo>, target)`, firma `(ctx, id, target: Long)`) → byte-idéntico.
+- **El handler** (`_operations_handlers`): parsea `<campo>_type` (vía `enumOf` contra un set CERRADO de los targets
+  de la unión — fail-closed, igual que el codec del POST poly: un tipo fuera de la unión → null → 400) + `<campo>_id`
+  (`longArg`). Emite `<verbo><E>Types` (el set) + `<verbo><E>TypeArg` SÓLO si hay `assigns` poly. El `when`:
+  `assignType == null || assignId == null -> badRequest()` (cubre discriminador inválido O id ausente).
+- **El proof** (`_OPERATIONS_PROOF`): placeholders byte-neutros (`%POLY_ASSIGN_SETUP%`/`%POLY_ASSIGN_FC%`/
+  `%VERB_BODY_FWD%`/`%VERB_BODY_REV%`/`%ASSIGN_CHECK_FWD%`/`%CLEAR_CHECK_REV%`) — el RELLENO DEFAULT reproduce EXACTO
+  el texto previo (ref simple: cuerpo `{<campo>: dueño}`, round-trip de un Long), la variante POLY arma el cuerpo
+  `{<campo>_type: targets[0], <campo>_id: 7}`, cruza el round-trip de AMBAS sub-columnas, y agrega el diente
+  fail-closed (discriminador `"__nope__"` fuera de la unión → 400). `checkin` (clears poly) cruza ambas a NULL.
+- **Lección destilada (general, surfaced por el eje)**: `Asset.assetRowJson` es un serializador GENERADO exhaustivo
+  (1 línea por columna); las 2 columnas poly nuevas lo empujaron a 60 líneas → `detekt LongMethod ≤ 60` ROJO en s2.
+  Fix GENERAL (cero nombres de dominio, mismo idiom que `main()`/`seedRows`/`Store`): `_row_json_fn` prepende
+  `@Suppress("LongMethod")` cuando el conteo de líneas RENDERIZADAS supera 60 (con un `\n` inicial por
+  `SpacingBetweenDeclarationsWithAnnotations` de detekt). Byte-neutro para las entidades angostas (< 60 líneas).
+- **Adopción FAITHFUL (snipeit)**: Asset gana `checkout_target` (ref poly opcional `[User, Location, Asset]`,
+  DISTINTO del `owned_by: assigned_user_id` — wrinkle #3: el ownership cruza un Long único, no una unión); `checkout`
+  ASIGNA `checkout_target`, `checkin` lo LIBERA. El ownership de fila sigue en `assigned_user_id` (el principal Long).
+- **Verde por bloqueo**: EYEBALL byte-neutro (base/assets/snipeit-sin-poly == HEAD) · `product-run snipeit` PASS · RTM
+  **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) · **diente de DOS lados VIVO** (anulé el discriminador en el
+  repo-fn → `"UserX"` ≠ `"User"` → **SÓLO** `access_control_live` (s9) rojo; `observability_live`+`frontend_consume_live`
+  verdes sobre el MISMO server vivo → no era server-caído → revertí → verde) · `ci --rederive` base 12/12 · assets
+  11/11 · snipeit 11/11 **== pin** (SIN re-pin: el `proof_sha` es estructural, el eje vive dentro de s9 sin
+  check/estación nuevos) · `meta check` 6/6 (`generality` verde) · `git diff src/metafactory + seed + default/assets
+  product.yml = 0`. **NÚCLEO FUNCIONAL + BEHAVIORAL FAITHFUL COMPLETO.** Sigue: breadth pura (creates/pivot de qty,
+  owner poly, cross-entity depth-2, ~226 rutas, EAV dinámico) → `work/FSK-CREATES-PIVOT-INCREMENT.md` (handoff).
+
 ## 2026-06-23T13:38Z — FSK-XENTITY-COMPUTED ✅: la fórmula de un campo computado lee una entidad RELACIONADA (JOIN)
 - **La contracara del 1er-cut SAME-ENTITY de FSK-COMPUTED-FIELDS.** Un operando del AST puede ser `<ref>.<campo>`:
   resolver un ref REQUERIDO no-poly → LEFT JOIN al target → leer su columna → computar. Completa la depreciación

@@ -1601,11 +1601,20 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
             # exige sin llaves (a diferencia de las columnas `${r[...]}`/`${jsonVal(...)}`, que SÍ las necesitan).
             elems.append(f'"\\"{cf["name"]}\\":${vname}"')
     body = "".join(f"            {x},\n" for x in elems)
-    return (f"    fun {e['name'].lower()}RowJson(ctx: DSLContext, id: Long): String? {{\n"
-            f"{sel}\n"
-            f"{prelude}"
-            f"        return listOf(\n{body}        ).joinToString(\",\", \"{{\", \"}}\")\n"
-            f"    }}")
+    fn = (f"    fun {e['name'].lower()}RowJson(ctx: DSLContext, id: Long): String? {{\n"
+          f"{sel}\n"
+          f"{prelude}"
+          f"        return listOf(\n{body}        ).joinToString(\",\", \"{{\", \"}}\")\n"
+          f"    }}")
+    # detekt LongMethod ≤ 60: el serializador es 1:1 con las columnas (id + cada columna + cada computado + el JOIN
+    # cross-entity), así que una entidad ANCHA (p.ej. + un ref polimórfico → 2 columnas) lo empuja al límite. Es un
+    # emisor GENERADO exhaustivo (como main()/seedRows/Store), no lógica mantenible → @Suppress SÓLO cuando de hecho
+    # lo excede (byte-neutro para las entidades angostas: el conteo de líneas renderizadas decide, sin nombres de dominio).
+    if fn.count("\n") + 1 > 59:
+        # el `\n` inicial deja una línea EN BLANCO antes de la declaración anotada (los fns se unen con un solo
+        # `\n` → detekt SpacingBetweenDeclarationsWithAnnotations exige el blanco). Sólo cuando se anota (byte-neutro).
+        fn = '\n    @Suppress("LongMethod")\n' + fn
+    return fn
 
 
 def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
@@ -1691,6 +1700,7 @@ def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
     out = []
     wf_ops = [op for op in e["operations"] if not op.get("decrements")]   # KIND workflow (enum/transition)
     qty_ops = [op for op in e["operations"] if op.get("decrements")]      # KIND qty/stock (FSK-QTY-OPERATIONS)
+    fld_by = {f["name"]: f for f in e["fields"]}   # FSK-POLY-ASSIGNS: ¿el assigns/clears apunta a un ref POLIMÓRFICO?
     fields_done: set[str] = set()
     for op in wf_ops:
         fld = op["field"]
@@ -1702,14 +1712,21 @@ def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
     for op in wf_ops:
         col = f"{tbl}.{_COL(op['field'])}"
         sets = [f'set({col}, "{op["to"]}")']   # el `to` declarado (la columna es VARCHAR del enum-workflow)
+        sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long)"
         if op.get("assigns"):
-            sets.append(f"set({tbl}.{_COL(op['assigns'])}, target)")
-            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long, target: Long)"
+            if _is_poly(fld_by[op["assigns"]]):   # FSK-POLY-ASSIGNS: el verbo asigna a un ref POLIMÓRFICO →
+                sets.append(f"set({tbl}.{_COL(op['assigns'] + '_type')}, assignType)")   # setea las DOS sub-columnas
+                sets.append(f"set({tbl}.{_COL(op['assigns'] + '_id')}, assignId)")        # (discriminador + id) del cuerpo
+                sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long, assignType: String, assignId: Long)"
+            else:
+                sets.append(f"set({tbl}.{_COL(op['assigns'])}, target)")
+                sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long, target: Long)"
         elif op.get("clears"):
-            sets.append(f"setNull({tbl}.{_COL(op['clears'])})")
-            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long)"
-        else:
-            sig = f"{op['name']}{e['name']}(ctx: DSLContext, id: Long)"
+            if _is_poly(fld_by[op["clears"]]):   # FSK-POLY-ASSIGNS: limpiar un ref poly → ambas sub-columnas a NULL
+                sets.append(f"setNull({tbl}.{_COL(op['clears'] + '_type')})")
+                sets.append(f"setNull({tbl}.{_COL(op['clears'] + '_id')})")
+            else:
+                sets.append(f"setNull({tbl}.{_COL(op['clears'])})")
         calls = sets + [f"where({tbl}.ID.eq(id))", "execute()"]
         chain = _jooq_chain("        ", "", f"ctx.update({tbl})", calls)
         out.append(f"    fun {sig}: Int =\n{chain}")
@@ -4621,6 +4638,7 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
     blueprint (ADR-012). Opt-in: sin `operations` esta función no se invoca (default/assets byte-idéntico)."""
     name = owned["name"]
     lower = name.lower()
+    fld_by = {f["name"]: f for f in owned["fields"]}   # FSK-POLY-ASSIGNS: ¿el assigns es un ref POLIMÓRFICO?
     parts = [
         "// FSK-DOMAIN-OPS: parseo del sub-path del verbo (/<plural>/{id}/<verbo>). DATA-agnostico.\n"
         'private fun opVerb(rest: String): String? = rest.split("/").takeIf { it.size == 2 }?.get(1)\n\n'
@@ -4630,6 +4648,17 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
         parts.append('// El target del `assigns` (el id del ref) viene del cuerpo del request (FSK-DOMAIN-OPS).\n'
                      'private fun longArg(body: String, key: String): Long? =\n'
                      '    runCatching { longOf(Json.parseToJsonElement(body).jsonObject, key) }.getOrNull()')
+    # FSK-POLY-ASSIGNS: un assigns a un ref POLIMÓRFICO parsea ADEMÁS el discriminador `<campo>_type` — un enum
+    # CERRADO de los targets de la unión (fail-closed por `enumOf`, igual que el codec del POST poly: un tipo fuera
+    # de la unión → null → 400). Opt-in: sin assigns poly no se emite (el verbo de un ref simple queda byte-idéntico).
+    for op in ops:
+        if op.get("assigns") and _is_poly(fld_by[op["assigns"]]):
+            tset = ", ".join(_yaml_str(t) for t in fld_by[op["assigns"]]["to"])
+            parts.append(f'// FSK-POLY-ASSIGNS: el discriminador del `assigns` poly de {op["name"]} (∈ los targets, fail-closed).\n'
+                         f'private val {op["name"]}{name}Types = setOf({tset})\n'
+                         f'private fun {op["name"]}{name}TypeArg(body: String): String? = runCatching {{\n'
+                         f'    enumOf(Json.parseToJsonElement(body).jsonObject, "{op["assigns"]}_type", {op["name"]}{name}Types)\n'
+                         f'}}.getOrNull()')
     for op in ops:
         fld = next(f for f in owned["fields"] if f["name"] == op["field"])
         wf_obj, enum_cls, to_ref = _workflow_obj(owned, fld), _enum_class(owned, fld), _enum_ref(owned, fld, op["to"])
@@ -4639,7 +4668,33 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
         precond = f"!{wf_obj}.canTransition({enum_cls}.valueOf(current), {to_ref})"
         verbatim = (f'verdict to """{{"status":$verdict}}"""')
         okline = (f'HTTP_OK to """{{"status":$HTTP_OK}}"""')
-        if op.get("assigns"):
+        if op.get("assigns") and _is_poly(fld_by[op["assigns"]]):
+            # FSK-POLY-ASSIGNS: el verbo asigna a un ref POLIMÓRFICO — parsea el discriminador `<campo>_type`
+            # (∈ la unión, fail-closed) + el `<campo>_id` del cuerpo y setea AMBAS sub-columnas. Discriminador
+            # fuera de la unión / id ausente → 400 (assignType/assignId == null). Compone POLYMORPHIC-REFS + DOMAIN-OPS.
+            parts.append(
+                f"// POST /<plural>/{{id}}/{op['name']} (FSK-POLY-ASSIGNS, assigns poly {op['assigns']}): RBAC+ownership +\n"
+                f"// precondicion de WORKFLOW VIVA ({wf_obj}.canTransition). Estado invalido -> 409; rol/dueno -> 403/404;\n"
+                f"// OK -> muta {op['field']}={op['to']} y asigna {op['assigns']}_type (∈ union) + {op['assigns']}_id del body.\n"
+                f"private fun {op['name']}(ctx: DSLContext, token: String?, rest: String, body: String): Pair<Int, String> {{\n"
+                f"    val id = opId(rest)\n"
+                f"    val verdict = if (id == null) HTTP_NOT_FOUND else modifyVerdict(ctx, token, id)\n"
+                f"    val current = if (id != null && verdict == HTTP_OK) Repository.{status_fn}(ctx, id) else null\n"
+                f'    val assignType = {op["name"]}{name}TypeArg(body)\n'
+                f'    val assignId = longArg(body, "{op["assigns"]}_id")\n'
+                f"    return when {{\n"
+                f"        id == null -> notFound()\n"
+                f"        verdict != HTTP_OK -> {verbatim}\n"
+                f"        current == null -> notFound()\n"
+                f"        {precond} -> conflict()\n"
+                f"        assignType == null || assignId == null -> badRequest()\n"
+                f"        else -> {{\n"
+                f"            Repository.{op['name']}{name}(ctx, id, assignType, assignId)\n"
+                f"            {okline}\n"
+                f"        }}\n"
+                f"    }}\n"
+                f"}}")
+        elif op.get("assigns"):
             parts.append(
                 f"// POST /<plural>/{{id}}/{op['name']} (FSK-DOMAIN-OPS, assigns {op['assigns']}): RBAC+ownership +\n"
                 f"// precondicion de WORKFLOW VIVA ({wf_obj}.canTransition, antes solo-UNIT s7). Estado invalido -> 409;\n"
@@ -5209,13 +5264,13 @@ _OPERATIONS_PROOF = '''
         # solo-UNIT s7, ahora ENFORZADO A RUNTIME) + RBAC + ownership (modifyVerdict). Una fila fresca, propiedad
         # del actor (el POST fija dueno=principal), en el estado que el POST siembra.
         OPERATIONS = json.loads('%OPS_DATA%')
-        OP_FIELD = "%OP_FIELD%"
+        OP_FIELD = "%OP_FIELD%"%POLY_ASSIGN_SETUP%
         _st, _ob = _send(base, "POST", PLURAL, f"Bearer {OWNER_ROLE}:{owner}", POST_BODY)
         _aid = _ob.get("id")
         _fwd = next((o for o in OPERATIONS if o["from"] == POST_BODY.get(OP_FIELD)), None)
         if _aid is not None and _fwd is not None:
             _vp = f"{PLURAL}/{_aid}/{_fwd['name']}"
-            _vbody = {_fwd["assign"]: owner} if _fwd.get("assign") else {}
+            _vbody = %VERB_BODY_FWD%%POLY_ASSIGN_FC%
             if FORBIDDEN_ROLE != "nobody":
                 ok &= _expect(_send(base, "POST", _vp, f"Bearer {FORBIDDEN_ROLE}:{owner}", _vbody)[0], 403,
                               f"[ops] {_fwd['name']} rol PROHIBIDO ({FORBIDDEN_ROLE}) -> 403")
@@ -5225,8 +5280,7 @@ _OPERATIONS_PROOF = '''
                           f"[ops] {_fwd['name']} por el dueno (estado valido) -> 200")
             _row = json.loads(_body(base, f"{PLURAL}/{_aid}"))
             ok &= _expect_value(_row.get(OP_FIELD), _fwd["to"], f"[ops] {_fwd['name']} muto {OP_FIELD} -> {_fwd['to']}")
-            if _fwd.get("assign"):
-                ok &= _expect_value(_row.get(_fwd["assign"]), owner, f"[ops] {_fwd['name']} asigno {_fwd['assign']} -> dueno")
+%ASSIGN_CHECK_FWD%
             # *** EL DIENTE de DOS lados: re-aplicar el verbo (la fila ya esta en `to`, no en `from`) viola la ***
             # precondicion del workflow -> 409. Saltear canTransition en el handler -> 200 -> rojo SOLO en s9.
             ok &= _expect(_send(base, "POST", _vp, f"Bearer {OWNER_ROLE}:{owner}", _vbody)[0], 409,
@@ -5234,13 +5288,64 @@ _OPERATIONS_PROOF = '''
             _rev = next((o for o in OPERATIONS if o["from"] == _fwd["to"]), None)
             if _rev is not None:
                 _rp = f"{PLURAL}/{_aid}/{_rev['name']}"
-                _rbody = {_rev["assign"]: owner} if _rev.get("assign") else {}
+                _rbody = %VERB_BODY_REV%
                 ok &= _expect(_send(base, "POST", _rp, f"Bearer {OWNER_ROLE}:{owner}", _rbody)[0], 200,
                               f"[ops] {_rev['name']} (verbo inverso) por el dueno -> 200")
                 _row2 = json.loads(_body(base, f"{PLURAL}/{_aid}"))
                 ok &= _expect_value(_row2.get(OP_FIELD), _rev["to"], f"[ops] {_rev['name']} muto {OP_FIELD} -> {_rev['to']}")
-                if _rev.get("clear"):
-                    ok &= _expect_value(_row2.get(_rev["clear"]), None, f"[ops] {_rev['name']} limpio {_rev['clear']} -> null")'''
+%CLEAR_CHECK_REV%'''
+
+
+# FSK-POLY-ASSIGNS: los RELLENOS byte-neutros de los placeholders de _OPERATIONS_PROOF. El DEFAULT reproduce
+# EXACTO el texto previo (un `assigns` a un ref SIMPLE: cuerpo `{<campo>: dueño}`, round-trip de un Long) → un
+# producto SIN assigns poly queda byte-idéntico. La variante POLY (un `assigns` a un ref de UNIÓN) arma el cuerpo
+# con `<campo>_type`+`<campo>_id`, cruza el round-trip de AMBAS sub-columnas y agrega el diente fail-closed (un
+# discriminador fuera de la unión → 400). El `assign_poly`/`clear_poly` del DATA de cada verbo (ausente sin poly)
+# selecciona la rama a proof-time; el helper `_verb_body` se define en %POLY_ASSIGN_SETUP% (vacío sin poly).
+_OPS_BODY_FWD_DEFAULT = '{_fwd["assign"]: owner} if _fwd.get("assign") else {}'
+_OPS_BODY_REV_DEFAULT = '{_rev["assign"]: owner} if _rev.get("assign") else {}'
+_OPS_ASSIGN_CHECK_DEFAULT = (
+    '            if _fwd.get("assign"):\n'
+    '                ok &= _expect_value(_row.get(_fwd["assign"]), owner, '
+    'f"[ops] {_fwd[\'name\']} asigno {_fwd[\'assign\']} -> dueno")')
+_OPS_CLEAR_CHECK_DEFAULT = (
+    '                if _rev.get("clear"):\n'
+    '                    ok &= _expect_value(_row2.get(_rev["clear"]), None, '
+    'f"[ops] {_rev[\'name\']} limpio {_rev[\'clear\']} -> null")')
+
+_OPS_POLY_SETUP = (
+    '\n        _ASSIGN_ID = 7   # FSK-POLY-ASSIGNS: id ARBITRARIO del target poly (sin FK a la union, wrinkle #1)\n'
+    '\n        def _verb_body(o):\n'
+    '            if o.get("assign_poly"):\n'
+    '                _ap = o["assign_poly"]\n'
+    '                return {_ap["field"] + "_type": _ap["targets"][0], _ap["field"] + "_id": _ASSIGN_ID}\n'
+    '            return {o["assign"]: owner} if o.get("assign") else {}')
+_OPS_POLY_FC = (
+    '\n            if _fwd.get("assign_poly"):\n'
+    '                _fcf = _fwd["assign_poly"]["field"]\n'
+    '                _badt = {_fcf + "_type": "__nope__", _fcf + "_id": _ASSIGN_ID}\n'
+    '                ok &= _expect(_send(base, "POST", _vp, f"Bearer {OWNER_ROLE}:{owner}", _badt)[0], 400,\n'
+    '                              f"[ops] {_fwd[\'name\']} discriminador fuera de la union -> 400 (fail-closed)")')
+_OPS_ASSIGN_CHECK_POLY = (
+    '            if _fwd.get("assign_poly"):\n'
+    '                _ap = _fwd["assign_poly"]\n'
+    '                ok &= _expect_value(_row.get(_ap["field"] + "_type"), _ap["targets"][0],\n'
+    '                                    f"[ops] {_fwd[\'name\']} asigno el discriminador poly (round-trip tipo)")\n'
+    '                ok &= _expect_value(_row.get(_ap["field"] + "_id"), _ASSIGN_ID,\n'
+    '                                    f"[ops] {_fwd[\'name\']} asigno el id poly (round-trip id)")\n'
+    '            elif _fwd.get("assign"):\n'
+    '                ok &= _expect_value(_row.get(_fwd["assign"]), owner, '
+    'f"[ops] {_fwd[\'name\']} asigno {_fwd[\'assign\']} -> dueno")')
+_OPS_CLEAR_CHECK_POLY = (
+    '                if _rev.get("clear_poly"):\n'
+    '                    _cp = _rev["clear_poly"]\n'
+    '                    ok &= _expect_value(_row2.get(_cp["field"] + "_type"), None,\n'
+    '                                        f"[ops] {_rev[\'name\']} limpio el discriminador poly -> null")\n'
+    '                    ok &= _expect_value(_row2.get(_cp["field"] + "_id"), None,\n'
+    '                                        f"[ops] {_rev[\'name\']} limpio el id poly -> null")\n'
+    '                elif _rev.get("clear"):\n'
+    '                    ok &= _expect_value(_row2.get(_rev["clear"]), None, '
+    'f"[ops] {_rev[\'name\']} limpio {_rev[\'clear\']} -> null")')
 
 
 # FSK-QTY-OPERATIONS: el DIENTE de dos lados del verbo de STOCK VIVO sobre la entidad SIN dueño (RBAC-only). El
@@ -5511,10 +5616,33 @@ def _access_control_check_py(bp: dict) -> str:
     # rol/dueño→403, inverso→200+clear). Sólo los verbos de WORKFLOW (los de STOCK viven en el bloque qty, sobre la
     # entidad with_ref). Opt-in: sin `operations` de workflow → "" → el proof queda byte-idéntico.
     ops = [op for op in (owned.get("operations") or []) if not op.get("decrements")]
-    operations_block = (_OPERATIONS_PROOF.replace("%OPS_DATA%", json.dumps(
-        [{"name": o["name"], "from": o["from"], "to": o["to"],
-          "assign": o.get("assigns"), "clear": o.get("clears")} for o in ops]))
-        .replace("%OP_FIELD%", ops[0]["field"])) if ops else ""
+    # FSK-POLY-ASSIGNS: el DATA de cada verbo marca `assign_poly`/`clear_poly` cuando el assigns/clears apunta a un
+    # ref POLIMÓRFICO → el proof arma el cuerpo con `<campo>_type`+`<campo>_id` y cruza el round-trip de AMBAS. Sin
+    # poly el dict queda {name,from,to,assign,clear} (byte-idéntico) y los rellenos caen en el DEFAULT (ref simple).
+    owned_fld_by = {f["name"]: f for f in owned["fields"]}
+
+    def _op_proof_data(o: dict) -> dict:
+        d = {"name": o["name"], "from": o["from"], "to": o["to"],
+             "assign": o.get("assigns"), "clear": o.get("clears")}
+        if o.get("assigns") and _is_poly(owned_fld_by[o["assigns"]]):
+            d["assign"] = None
+            d["assign_poly"] = {"field": o["assigns"], "targets": list(owned_fld_by[o["assigns"]]["to"])}
+        if o.get("clears") and _is_poly(owned_fld_by[o["clears"]]):
+            d["clear"] = None
+            d["clear_poly"] = {"field": o["clears"]}
+        return d
+
+    op_poly = any((o.get("assigns") and _is_poly(owned_fld_by[o["assigns"]]))
+                  or (o.get("clears") and _is_poly(owned_fld_by[o["clears"]])) for o in ops)
+    operations_block = (_OPERATIONS_PROOF
+        .replace("%OPS_DATA%", json.dumps([_op_proof_data(o) for o in ops]))
+        .replace("%OP_FIELD%", ops[0]["field"])
+        .replace("%POLY_ASSIGN_SETUP%", _OPS_POLY_SETUP if op_poly else "")
+        .replace("%POLY_ASSIGN_FC%", _OPS_POLY_FC if op_poly else "")
+        .replace("%VERB_BODY_FWD%", "_verb_body(_fwd)" if op_poly else _OPS_BODY_FWD_DEFAULT)
+        .replace("%VERB_BODY_REV%", "_verb_body(_rev)" if op_poly else _OPS_BODY_REV_DEFAULT)
+        .replace("%ASSIGN_CHECK_FWD%", _OPS_ASSIGN_CHECK_POLY if op_poly else _OPS_ASSIGN_CHECK_DEFAULT)
+        .replace("%CLEAR_CHECK_REV%", _OPS_CLEAR_CHECK_POLY if op_poly else _OPS_CLEAR_CHECK_DEFAULT)) if ops else ""
     # FSK-CUSTOM-FIELDS: el diente del `format` VIVO sobre el 1er escalar del owned con regla (un valor con espacios
     # → ningún format del set lo matchea → 400). Opt-in: sin campo `format` → "" → el proof queda byte-idéntico.
     fmt_field = next((f for f in scalars if f.get("format")), None)

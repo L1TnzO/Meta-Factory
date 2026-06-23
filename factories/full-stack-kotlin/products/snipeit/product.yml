@@ -167,7 +167,28 @@ entities:
       - { name: name, type: string, required: false }
       - { name: serial, type: string, required: false }   # Snipe: unique condicional (setting); acá opcional
       - { name: purchase_date, type: date, required: false }
-      - { name: purchase_cost, type: number, required: false }
+      # FSK-COMPUTED-FIELDS (deferral 7): el VALOR ACTUAL de un activo NO se almacena — se COMPUTA por depreciación
+      # straight-line desde la compra (la dimensión de VALORES DERIVADOS). Snipe-IT lo deriva de
+      # Depreciation.months (vía AssetModel) + el tiempo transcurrido; ese eje cross-entity + time-elapsed sigue
+      # DIFERIDO. Acá el 1er-cut BOUNDED SAME-ENTITY: `depreciation_months` vive en el PROPIO Asset y `current_value`
+      # se computa de `purchase_cost`/`depreciation_months` del MISMO Asset (la fórmula como AST determinista). Las
+      # fuentes son REQUERIDAS para que el server las inserte del cuerpo y el valor derivado sea OBSERVABLE en el GET
+      # (un campo computado sobre fuentes opcionales —default 0— es un refinamiento diferido).
+      - { name: purchase_cost, type: number }                  # REQUERIDO (fuente del valor derivado; Snipe lo permite null → diferido)
+      - { name: depreciation_months, type: int }               # meses de vida útil (en Snipe vive en Depreciation → cross-entity diferido)
+      # `current_value` = max(purchase_cost - purchase_cost/depreciation_months, 0): el valor tras una depreciación
+      # straight-line de un período, con piso 0 (max) y guard de div-por-cero (safeDiv). NO se guarda: 0 columnas,
+      # read-only, computado a read-time en rowJson. El AST usa SÓLO operadores del set cerrado (`- / max`).
+      - name: current_value
+        type: number
+        computed:
+          op: max
+          args:
+            - op: "-"
+              args:
+                - purchase_cost
+                - { op: "/", args: [purchase_cost, depreciation_months] }
+            - 0
       - { name: order_number, type: string, required: false }
       - { name: warranty_months, type: int, required: false }
       - { name: asset_eol_date, type: date, required: false }

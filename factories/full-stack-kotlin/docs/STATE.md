@@ -254,6 +254,20 @@
   src/+seed=0`; `meta check` 6/6 (`generality`); `ci --rederive` 12/12·11/11·11/11 == pin; RTM snipeit **24/25** (sólo s6
   LLM keyless). **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO — lo que resta es breadth pura.** Detalle:
   `docs/work/FSK-SOFT-DELETES-INCREMENT.md §Evidencia`.
+- **CAMPO COMPUTADO CROSS-ENTITY — la fórmula lee una entidad RELACIONADA, GENERAL (FSK-XENTITY-COMPUTED, 2026-06-23)**:
+  la contracara del 1er-cut SAME-ENTITY de FSK-COMPUTED-FIELDS. Un operando del AST puede ser `<ref>.<campo>` →
+  resolver un ref REQUERIDO no-poly → LEFT JOIN al target → leer su columna → computar. `_validate_computed_ast`
+  acepta el operando con `.` (cruza `<ref>` ∈ refs requeridos + `<campo>` ∈ numéricos requeridos del target,
+  fail-closed); `_row_json_fn` (recibe el grafo `by`) separa fuentes same-entity/cross-entity, emite un LEFT JOIN por
+  ref distinto y wrappea el chasis de la query (ChainWrapping) cuando entidad ancha + JOIN pasa 160; el oráculo
+  (`%XSRC_SETUP%` opt-in) re-deriva con el valor SEMBRADO del target (`_SEED_NUM`, espeja `_KT_SAMPLE`). 1er-cut:
+  ref+campo REQUERIDOS, depth-1 (el ref directo); depth-2 (vía `AssetModel.depreciation_id→Depreciation`) +
+  time-elapsed diferidos. **Diente de DOS lados VIVO** (anular el valor del JOIN → SÓLO `access_control_live` (s9)
+  rojo, hermanos verdes; revertí→verde). Opt-in byte-neutral (base/assets + snipeit-same-entity 0 diffs; `proof_sha`
+  intacto → **sin re-pin**); `git diff src/+seed=0`; `meta check` 6/6 (`generality`); `ci --rederive` 12/12·11/11·11/11
+  == pin; RTM snipeit **24/25**. snipeit MOVIÓ `depreciation_months` de `Asset` a `AssetModel` (faithful: el período
+  es per-modelo) y deriva `current_value` cross-entity. Se pliega en **REQ-F-014**. Detalle:
+  `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -265,18 +279,21 @@
     FSK-OWNERSHIP-OPTIONAL** · ~~self-ref~~ **✓ hecho FSK-SELF-REF** · ~~refs requeridos no-dueño / seed transitivo~~
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
     ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · ~~company-scoping~~ **✓ hecho FSK-COMPANY-SCOPING** ·
-    ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · ~~checkout polimórfico~~ **✓ hecho FSK-POLYMORPHIC-REFS** ·
-    ~~depreciación calculada~~ **✓ hecho FSK-COMPUTED-FIELDS** · …).
-    **Con el campo computado, el NÚCLEO FUNCIONAL faithful queda COMPLETO** (modelo de datos + acceso +
-    comportamiento + valores derivados + app que corre); ~~borrado lógico~~ **✓ hecho FSK-SOFT-DELETES** cerró el
-    último eje BEHAVIORAL → **NÚCLEO FUNCIONAL + BEHAVIORAL COMPLETO**.
-    **SIGUIENTE (recomendado, abierto) = derivación CROSS-ENTITY del campo computado (FSK-XENTITY-COMPUTED)** — la
-    contracara del 1er-cut SAME-ENTITY de FSK-COMPUTED-FIELDS: la fórmula referencia un campo de una entidad
-    RELACIONADA (resolver el ref → JOIN → leer la columna del target). Completa el straight-line REAL de Snipe-IT
-    (los `depreciation_months` viven en `Depreciation` vía `AssetModel`, hoy SIMPLIFICADO a un campo de Asset).
-    Acotado, faithful, determinista, diente claro. **Es DECISIÓN de la próxima sesión** (con research): alternativas
-    honestas = `assigns` POLIMÓRFICO del verbo (checkout a User|Location|Asset, compone POLYMORPHIC-REFS+DOMAIN-OPS)
-    · o pivotar a **breadth pura** (~226 rutas, Kits, EAV dinámico, Actionlog). Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md` (handoff).
+    ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · ~~checkout polimórfico (modelo de datos)~~ **✓ hecho
+    FSK-POLYMORPHIC-REFS** · ~~depreciación calculada same-entity~~ **✓ hecho FSK-COMPUTED-FIELDS** · ~~depreciación
+    cross-entity~~ **✓ hecho FSK-XENTITY-COMPUTED** · …).
+    **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO** (modelo de datos incl. refs polimórficos + acceso
+    auth→RBAC→ownership→company-scope + comportamiento workflow/stock/trash-restore + valores derivados same+cross-entity
+    + app que corre); ~~borrado lógico~~ **✓ hecho FSK-SOFT-DELETES** · ~~cross-entity computed~~ **✓ hecho
+    FSK-XENTITY-COMPUTED**.
+    **SIGUIENTE (recomendado, abierto) = `assigns` POLIMÓRFICO del verbo (FSK-POLY-ASSIGNS)** — el último eje
+    behavioral genuino: un verbo de workflow (checkout) que ASIGNA a un ref POLIMÓRFICO (setear `<campo>_type` +
+    `<campo>_id` del cuerpo del verbo). COMPONE dos ejes ya probados — FSK-POLYMORPHIC-REFS (el ref a una UNIÓN) +
+    FSK-DOMAIN-OPS (el verbo de workflow con `assigns`). Completa el checkout polimórfico FAITHFUL (en Snipe-IT el
+    target del checkout es User|Location|Asset, hoy simplificado a User). Acotado, determinista, diente claro. **Es
+    DECISIÓN de la próxima sesión** (con research): alternativas honestas = `creates`/pivot de qty (insertar
+    AccessoryCheckout) · derivación cross-entity DEPTH-2 (Asset→AssetModel→Depreciation.months) · o pivotar a
+    **breadth pura** (~226 rutas, Kits, EAV dinámico, Actionlog). Ver `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md` (handoff).
     **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se

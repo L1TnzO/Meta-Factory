@@ -1,6 +1,43 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-23T13:38Z — FSK-XENTITY-COMPUTED ✅: la fórmula de un campo computado lee una entidad RELACIONADA (JOIN)
+- **La contracara del 1er-cut SAME-ENTITY de FSK-COMPUTED-FIELDS.** Un operando del AST puede ser `<ref>.<campo>`:
+  resolver un ref REQUERIDO no-poly → LEFT JOIN al target → leer su columna → computar. Completa la depreciación
+  FAITHFUL de Snipe-IT (el período de depreciación vive en el MODELO, no en el activo individual). Determinista, sin
+  s6/LLM. REUSA toda la maquinaria de FSK-COMPUTED-FIELDS (AST/`_computed_kt`/`_COMPUTED_PROOF`); la dimensión NUEVA =
+  el operando cross-entity + el JOIN en `_row_json_fn` + el oráculo lee el valor SEMBRADO del target. Todo en
+  `codegen/scaffold_product.py` (FÁBRICA, GENERAL, opt-in byte-neutro).
+- **La gramática del operando cross-entity** (`_validate_computed_ast` + `_load_blueprint`): un STRING con `.`
+  (`<ref>.<campo>`) → `<ref>` ∈ `xnumeric` (un ref REQUERIDO no-poly de la entidad) y `<campo>` ∈ los numéricos
+  REQUERIDOS no-computados del target. Fail-closed (ref/campo inexistente o no-requerido → scaffold rojo). **1er-cut:
+  ref+campo REQUERIDOS** (la FK siempre seteada + el campo siempre sembrado → el valor derivado es OBSERVABLE).
+- **El JOIN** (`_row_json_fn`, ahora recibe `by` = el grafo): separa fuentes SAME-entity (`val c<Campo>`) de
+  CROSS-entity (`val x<Ref><Campo>`); emite un LEFT JOIN por ref DISTINTO (`leftJoin(TGT).on(TBL.<REF>.eq(TGT.ID))`),
+  selecciona `TGT.<CAMPO>` y lee el valor null-safe (igual que same-entity). **Dos refs a la MISMA tabla → fail-closed**
+  (necesitaría alias jOOQ, diferido). El chasis de la query se emite como CADENA de calls (`from`→`leftJoin`→`on`→
+  `where`→`fetchOne`) que **WRAPPEA cada call en su línea (ChainWrapping ktlint)** cuando una entidad ANCHA + el JOIN
+  hacen pasar el cierre de 160 — Asset (ancho) + 1 JOIN = 163 sin wrap (lección: una entidad ancha con JOIN rompe el
+  presupuesto de línea del cierre).
+- **El oráculo (proof)** OPT-IN: `%XSRC_SETUP%` (vacío sin cross-entity → byte-idéntico) trae `XSRC` = el valor
+  SEMBRADO de cada `<ref>.<campo>` (el target de un ref requerido se siembra TRANSITIVAMENTE con samples
+  DETERMINISTAS → el campo numérico requerido del target = `_SEED_NUM[type]`, que ESPEJA `_KT_SAMPLE` variant-0). El
+  eval cruza `POST_BODY ∪ XSRC` (las claves cross-entity llevan `.` → sin colisión). El server lee el valor del JOIN,
+  el oráculo lo conoce porque siembra el mismo target → comparación EXACTA.
+- **Adopción FAITHFUL (snipeit)**: `depreciation_months` se MOVIÓ de `Asset` (la simplificación same-entity) a
+  `AssetModel` (donde el período pertenece per-modelo, requerido); `Asset.current_value = max(purchase_cost −
+  purchase_cost/model_id.depreciation_months, 0)` lo lee cross-entity (depth-1: el ref DIRECTO Asset→AssetModel). El
+  período REAL vive en `Depreciation` vía `AssetModel.depreciation_id` (depth-2) + tiempo transcurrido → refinamiento
+  DIFERIDO.
+- **Verde POR BLOQUEO, no fingido**: EYEBALL byte-neutro (base/assets + snipeit-same-entity 0 diffs) · `product-run
+  snipeit` **PASS** · RTM **24/25** (único UNSAT = s6 LLM keyless) · **diente de DOS lados VIVO** (anulé el valor leído
+  del JOIN —`val x… = 0.0`— → SÓLO `access_control_live` (s9) rojo, hermanos verdes + s0–s8 verdes → revertí → verde) ·
+  `ci --rederive` 12/12·11/11·11/11 == pin (sin re-pin: el eje vive dentro de s9) · `meta check` 6/6 (`generality`) ·
+  `git diff src/metafactory + seed = 0` · base/assets product.yml = 0.
+- **Lección de forma**: el 1er sabotaje (`val x = 0.0  // TOOTH`) tenía DOBLE espacio antes del `//` → ktlint
+  `NoMultipleSpaces` (s2 rojo, ANTES de s9) — un sabotaje runtime NO puede introducir un hallazgo de FORMA. La
+  versión limpia (`val x = 0.0`, sin comentario) degrada sólo la LÓGICA → muerde en s9.
+
 ## 2026-06-23T03:16Z — FSK-SOFT-DELETES ✅: borrado LÓGICO (papelera + restore) — el ÚLTIMO eje BEHAVIORAL
 - **El último eje behavioral genuino antes de la breadth pura** (deferral 12). Una entidad opta-in `soft_delete: true`
   → DELETE deja de ser PERMANENTE: pasa a `UPDATE deleted_at` (la fila SIGUE existiendo, invisible a las lecturas) y un

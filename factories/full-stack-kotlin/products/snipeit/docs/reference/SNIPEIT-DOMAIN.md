@@ -208,14 +208,15 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    **Ambos `manager_id`→User RE-HABILITADOS** en el blueprint. **Sigue diferido**: un ref forward REQUERIDO que cierre
    ciclo. Detalle: `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md` (fábrica) + `…/work/XENTITY-CYCLES-ADOPT-INCREMENT.md` (producto).
 
-7. ~~**Depreciación calculada**~~ **✓ HECHO** (FSK-COMPUTED-FIELDS, 2026-06-23): la dimensión de VALORES DERIVADOS.
-   Un campo `int`/`number` con `computed: <AST>` deriva su valor por una FÓRMULA aritmética DETERMINISTA de otros
-   campos numéricos (no almacenado, computado a READ-time; aritmética pura, sin s6/LLM). `Asset.current_value =
-   max(purchase_cost − purchase_cost/depreciation_months, 0)`. **1er-cut SAME-ENTITY**: `depreciation_months` vive en
-   el PROPIO Asset; la derivación cross-entity REAL (`months`/`depreciation_min`/`depreciation_type` viven en
-   `Depreciation` vía AssetModel) + el **time-elapsed** (`meses_transcurridos`) del straight-line completo siguen
-   DIFERIDOS (resolver un ref y leer la columna del target = OTRO eje). Detalle: `docs/work/FSK-COMPUTED-FIELDS-
-   INCREMENT.md` (fábrica) + `…/work/COMPUTED-FIELDS-ADOPT-INCREMENT.md` (producto).
+7. ~~**Depreciación calculada**~~ **✓ HECHO** (FSK-COMPUTED-FIELDS same-entity 2026-06-23 + FSK-XENTITY-COMPUTED
+   cross-entity 2026-06-23): la dimensión de VALORES DERIVADOS. Un campo `int`/`number` con `computed: <AST>` deriva su
+   valor por una FÓRMULA aritmética DETERMINISTA (no almacenado, computado a READ-time; aritmética pura, sin s6/LLM). El
+   AST referencia campos numéricos de la entidad O —cross-entity— `<ref>.<campo>` de una entidad RELACIONADA (LEFT JOIN
+   al target). `Asset.current_value = max(purchase_cost − purchase_cost/model_id.depreciation_months, 0)`:
+   `depreciation_months` vive en `AssetModel` (faithful: el período es per-MODELO) y se lee cross-entity (depth-1).
+   **DIFERIDO**: el período REAL vive en `Depreciation` vía `AssetModel.depreciation_id` (depth-2) + el **time-elapsed**
+   (`meses_transcurridos`) del straight-line completo. Detalle: `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` +
+   `…/FSK-XENTITY-COMPUTED-INCREMENT.md` (fábrica) + los `…-ADOPT-INCREMENT.md` (producto).
 
 8. ~~**Multi-tenancy / company scoping**~~ **✓ HECHO** (FSK-COMPANY-SCOPING, 2026-06-22): el 1er eje de
    ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. Una entidad con dueño declara
@@ -312,14 +313,24 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     borrar — faithful). Dos wrinkles de COMPOSICIÓN resueltos: existencia SIN filtrar para modifyVerdict owner-optional
     (RTD) + el UNIQUE parcial. Diente de DOS lados VIVO (s9). **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO.** Ver
     `docs/work/FSK-SOFT-DELETES-INCREMENT.md §Evidencia` + `…/SOFT-DELETES-ADOPT-INCREMENT.md` (producto).
-13. **SIGUIENTE (recomendado) = derivación CROSS-ENTITY del campo computado (FSK-XENTITY-COMPUTED)** — la fórmula de un
-    campo computado referencia un campo de una entidad RELACIONADA (resolver el ref → JOIN → leer la columna del target).
-    Completa el straight-line REAL de Snipe-IT (los `depreciation_months` viven en `Depreciation` vía `AssetModel`, hoy
-    SIMPLIFICADO a un campo de Asset). Acotado, faithful, determinista. Decisión de la próxima sesión (alternativas:
-    `assigns` polimórfico del verbo · breadth pura). Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md` (handoff).
-14. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
-    AppServer-en-contenedor con PG · `creates`/pivot de qty · `assigns`/owner POLIMÓRFICO (sub-ejes de deferral 2) ·
-    EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · las ~226 rutas · Kits.
+13. ~~**Derivación CROSS-ENTITY del campo computado (FSK-XENTITY-COMPUTED)**~~ **✓ HECHO (2026-06-23)** — la fórmula
+    de un campo computado referencia `<ref>.<campo>` (resolver el ref REQUERIDO → LEFT JOIN al target → leer su columna).
+    `depreciation_months` se MOVIÓ de `Asset` a `AssetModel` (faithful: el período es per-MODELO) y `Asset.current_value
+    = max(purchase_cost − purchase_cost/model_id.depreciation_months, 0)` lo lee cross-entity (depth-1). Diente de DOS
+    lados VIVO (s9, anular el valor del JOIN → SÓLO access_control_live rojo). `git diff src/+seed=0`, sin re-pin.
+    Diferido: depth-2 (el período REAL vive en `Depreciation` vía `AssetModel.depreciation_id`) + el tiempo
+    transcurrido. **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO.** Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md
+    §Evidencia` + `…/XENTITY-COMPUTED-ADOPT-INCREMENT.md` (producto).
+14. **SIGUIENTE (recomendado) = `assigns` POLIMÓRFICO del verbo (FSK-POLY-ASSIGNS, sub-eje de deferral 2)** — un verbo
+    de workflow (checkout) que ASIGNA a un ref POLIMÓRFICO (setear `<campo>_type` + `<campo>_id` del cuerpo). COMPONE
+    FSK-POLYMORPHIC-REFS (el ref a una unión) + FSK-DOMAIN-OPS (el verbo con `assigns`). Completa el checkout
+    polimórfico FAITHFUL (en Snipe-IT el target del checkout es User|Location|Asset, hoy simplificado a User). Decisión
+    de la próxima sesión (alternativas: `creates`/pivot de qty · cross-entity depth-2 · breadth pura). Ver
+    `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md` (handoff).
+15. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
+    AppServer-en-contenedor con PG · `creates`/pivot de qty · owner POLIMÓRFICO de Asset (wrinkle #3 de deferral 2) ·
+    cross-entity DEPTH-2 (Asset→AssetModel→Depreciation) + time-elapsed · EAV dinámico a runtime (Avenue B) ·
+    Actionlog (auditoría polimórfica) · las ~226 rutas · Kits.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

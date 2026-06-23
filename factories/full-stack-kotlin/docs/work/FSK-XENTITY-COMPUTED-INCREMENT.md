@@ -1,9 +1,8 @@
 # Incremento FSK-XENTITY-COMPUTED — el campo COMPUTADO referencia una entidad RELACIONADA (derivación CROSS-ENTITY)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-23T03:16Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-23T03:16Z · cerrado 2026-06-23T13:38Z — ver §Evidencia). Editar `factories/full-stack-kotlin/**`
+> no-`.md` exige un incremento abierto; el siguiente es `FSK-POLY-ASSIGNS` (`docs/work/FSK-POLY-ASSIGNS-INCREMENT.md`).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-SOFT-DELETES con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -176,3 +175,41 @@ control de acceso (auth→RBAC→ownership→company-scope) + comportamiento (wo
 derivados (campo computado same-entity) + app que CORRE (CRUD vivo + frontend + deploy). **Cross-entity-computed (este)**
 completa la depreciación faithful. Tras él, la paridad de superficie completa (~226 rutas, Kits, EAV dinámico, assigns
 polimórfico) es trabajo de BREADTH — los flecos, no el corazón.
+
+---
+
+## §Evidencia — CERRADO 2026-06-23T13:38Z (verde por bloqueo, no narrado)
+
+**Construido GENERAL en `codegen/scaffold_product.py` (FÁBRICA, opt-in byte-neutro), adoptado en `products/snipeit/
+product.yml`:**
+- **Gramática** (`_validate_computed_ast` gana `xnumeric`): un operando STRING con `.` (`<ref>.<campo>`) → `<ref>` ∈ los
+  refs REQUERIDOS no-poly de la entidad, `<campo>` ∈ los numéricos REQUERIDOS no-computados del target. `_load_blueprint`
+  arma `xnumeric` y lo pasa. Fail-closed (ref/campo inexistente o no-requerido → scaffold rojo). 1er-cut: ref+campo
+  REQUERIDOS, depth-1.
+- **El JOIN** (`_row_json_fn` ahora recibe `by`; threadeado por `_mutation_fns`/`_repository_kt`): separa fuentes
+  same-entity (`c<Campo>`) / cross-entity (`x<Ref><Campo>`); un LEFT JOIN por ref DISTINTO
+  (`leftJoin(TGT).on(TBL.<REF>.eq(TGT.ID))`), selecciona `TGT.<CAMPO>`, lee null-safe. Dos refs a la MISMA tabla →
+  fail-closed (alias jOOQ diferido). El chasis se emite como cadena de calls que **wrappea (ChainWrapping) cuando una
+  entidad ANCHA + el JOIN pasan 160** (`_SEED_NUM` nuevo + la rama de wrap del `sel`).
+- **El oráculo** (`_COMPUTED_PROOF` gana `%XSRC_SETUP%`/`%CEVAL_SRC%` OPT-IN): con cross-entity, `XSRC` trae el valor
+  SEMBRADO de cada `<ref>.<campo>` (el target de un ref requerido se siembra con samples deterministas = `_SEED_NUM`,
+  espeja `_KT_SAMPLE`) y el eval cruza `POST_BODY ∪ XSRC`; sin cross-entity usa `POST_BODY` directo → byte-idéntico.
+- **Adopción faithful (snipeit)**: `depreciation_months` MOVIDO de `Asset` a `AssetModel` (per-modelo, requerido);
+  `Asset.current_value = max(purchase_cost − purchase_cost/model_id.depreciation_months, 0)` lo lee cross-entity (depth-1).
+
+**Verificación POR BLOQUEO:**
+- EYEBALL byte-neutro: base/assets + snipeit-same-entity (la rama opt-in vacía) → 0 diffs.
+- `product-run --product snipeit` → **PASS**; RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente de DOS lados VIVO**: anulé el valor leído del JOIN (`val x<…> = 0.0`) → `product-run` → **SÓLO**
+  `access_control_live` (s9) rojo, hermanos (`observability_live`+`frontend_consume_live`) + s0–s8 verdes → revertí →
+  PASS. ⚠️ El 1er intento (`val x = 0.0  // TOOTH`) tenía DOBLE espacio → ktlint `NoMultipleSpaces` (s2, antes de s9):
+  un sabotaje runtime no puede meter un hallazgo de FORMA — degradá sólo la LÓGICA.
+- `ci --rederive`: full-stack-kotlin **12/12** · assets **11/11** · snipeit **11/11** == pin (SIN re-pin: el eje vive
+  dentro de s9, ningún check/estación nuevo).
+- `meta check` **6/6** (`generality`). `git diff src/metafactory + seed = 0`. base/assets `product.yml` = 0.
+
+**Commits:** `feat(fsk): FSK-XENTITY-COMPUTED …` (codegen) + `feat(snipeit): Asset.current_value cross-entity …`
+(producto) + `docs(fsk): cerrar FSK-XENTITY-COMPUTED (§Evidencia) + abrir FSK-POLY-ASSIGNS`.
+
+**Siguiente (abierto, recomendado):** `FSK-POLY-ASSIGNS` — el `assigns` polimórfico del verbo de workflow (ver §7 +
+`docs/work/FSK-POLY-ASSIGNS-INCREMENT.md`). Es DECISIÓN de la próxima sesión (alternativas en §7).

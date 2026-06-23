@@ -242,10 +242,12 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
     Accessory/Consumable decrementa `qty`, libera seat de License) + Actionlog + audit/request/clone/bulk/import.
     Detalle: `docs/work/FSK-DOMAIN-OPS-INCREMENT.md` (fábrica) + `…/work/DOMAIN-OPS-ADOPT-INCREMENT.md` (producto).
 
-12. **Diferidos menores** [SIMPLIF]: soft-deletes (`deleted_at`), Actionlog (auditoría polimórfica), Kits
-    (bundles), CheckoutRequest/Acceptance (solicitudes/firma), campos operativos (counters, image, timestamps,
-    ldap, 2FA, password — no-dominio), y la mayoría de las ~226 rutas (el blueprint genera el contrato CRUD +
-    el server de control de acceso; el resto de la superficie de endpoints es breadth posterior).
+12. ~~**soft-deletes** (`deleted_at`)~~ **✓ HECHO** (FSK-SOFT-DELETES, 2026-06-23): `Asset.soft_delete: true` →
+    DELETE lógico (papelera) + `restore` + read-filter `IS NULL` + índice único PARCIAL (reusar `asset_tag` tras
+    borrar). Faithful: Snipe-IT NUNCA hard-deletea (Laravel SoftDeletes). **Diferidos menores restantes** [SIMPLIF]:
+    Actionlog (auditoría polimórfica), Kits (bundles), CheckoutRequest/Acceptance (solicitudes/firma), campos
+    operativos (counters, image, timestamps, ldap, 2FA, password — no-dominio), y la mayoría de las ~226 rutas (el
+    blueprint genera el contrato CRUD + el server de control de acceso; el resto de la superficie es breadth posterior).
 
 ---
 
@@ -304,16 +306,20 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     diferidos). Diente de DOS lados VIVO (s9, degradar la aritmética → SÓLO access_control_live rojo). `git diff
     src/+seed=0`, sin re-pin. **Con esto el NÚCLEO FUNCIONAL faithful queda COMPLETO.** Ver
     `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md §Evidencia`.
-12. **SIGUIENTE = borrado lógico / trash + restore (deferral 12, FSK-SOFT-DELETES)** — el último eje BEHAVIORAL
-    genuino antes de la breadth pura. Snipe-IT NUNCA hard-deletea por defecto (SoftDeletes de Laravel): una entidad
-    opta-in `soft_delete: true` → DELETE pasa a UPDATE `deleted_at` (no borra), las lecturas FILTRAN las filas
-    borradas (read-filter, compone la maquinaria de FSK-COMPANY-SCOPING) y un verbo `restore` las recupera.
-    Determinista, sin LLM. Diente de dos lados: DELETE→GET /{id} 404 (filtrada) pero la fila EXISTE → restore→GET 200.
-    Ver `docs/work/FSK-SOFT-DELETES-INCREMENT.md` (handoff).
-13. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
+12. ~~**Borrado lógico / trash + restore (deferral 12, FSK-SOFT-DELETES)**~~ **✓ HECHO (2026-06-23)** — el ÚLTIMO
+    eje BEHAVIORAL. `Asset.soft_delete: true` → DELETE pasa a UPDATE `deleted_at` (no borra; la fila EXISTE invisible)
+    + read-filter `IS NULL` (compone company-scope) + verbo `restore` + índice único PARCIAL (reusar `asset_tag` tras
+    borrar — faithful). Dos wrinkles de COMPOSICIÓN resueltos: existencia SIN filtrar para modifyVerdict owner-optional
+    (RTD) + el UNIQUE parcial. Diente de DOS lados VIVO (s9). **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO.** Ver
+    `docs/work/FSK-SOFT-DELETES-INCREMENT.md §Evidencia` + `…/SOFT-DELETES-ADOPT-INCREMENT.md` (producto).
+13. **SIGUIENTE (recomendado) = derivación CROSS-ENTITY del campo computado (FSK-XENTITY-COMPUTED)** — la fórmula de un
+    campo computado referencia un campo de una entidad RELACIONADA (resolver el ref → JOIN → leer la columna del target).
+    Completa el straight-line REAL de Snipe-IT (los `depreciation_months` viven en `Depreciation` vía `AssetModel`, hoy
+    SIMPLIFICADO a un campo de Asset). Acotado, faithful, determinista. Decisión de la próxima sesión (alternativas:
+    `assigns` polimórfico del verbo · breadth pura). Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md` (handoff).
+14. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
     AppServer-en-contenedor con PG · `creates`/pivot de qty · `assigns`/owner POLIMÓRFICO (sub-ejes de deferral 2) ·
-    derivación CROSS-ENTITY del campo computado (resolver un ref y leer la columna del target) · EAV dinámico a
-    runtime (Avenue B) · las ~226 rutas · Kits.
+    EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · las ~226 rutas · Kits.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

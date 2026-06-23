@@ -236,6 +236,24 @@
   (`generality` verde); `ci --rederive` 12/12·11/11·11/11 == pin. Se pliega en **REQ-F-014** (sin requisito nuevo).
   **Con esto la dimensión de VALORES DERIVADOS queda cubierta — el núcleo funcional faithful está COMPLETO.**
   Detalle: `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md §Evidencia`.
+- **BORRADO LÓGICO — el ÚLTIMO eje BEHAVIORAL, GENERAL (FSK-SOFT-DELETES, 2026-06-23)**: una entidad puede declarar
+  `soft_delete: true` → DELETE deja de ser PERMANENTE: pasa a `UPDATE deleted_at` (la fila SIGUE existiendo, invisible
+  a las lecturas) y un verbo `restore` IMPLÍCITO la recupera. Faithful a Snipe-IT (Laravel SoftDeletes: NUNCA
+  hard-deletea por defecto). `deleted_at DATE` es columna de SISTEMA (como `id`, fuera de `_cols_of`); el read-filter
+  `IS NULL` toca TODOS los read-paths de USUARIO (`all<E>s`/`<e>RowJson`/`sByCompany`, compone sobre el read-filter de
+  FSK-COMPANY-SCOPING) pero NO los lookups del guard (`<e>OwnerId`/`<e>CompanyId` ven la fila borrada); el verbo
+  `restore` (`POST /<plural>/{id}/restore`, `setNull`) se monta como un verbo más, gateado por el MISMO `modifyVerdict`
+  que DELETE/PUT, registrado en contrato+RouteTable. **Dos wrinkles de COMPOSICIÓN resueltos**: (1) modifyVerdict
+  (owner-OPTIONAL, p.ej. Asset/RTD) chequeaba existencia via `<e>RowJson` que ahora filtra → una fila borrada parecía
+  inexistente y restore era IMPOSIBLE (404); fix: existencia SIN filtrar `<e>Exists` (la decisión de acceso es
+  independiente del borrado); (2) el UNIQUE inline ocupaba el valor aún borrado → un POST que reusa el valor (proof de
+  `operations`) violaba UNIQUE → el server crasheaba; fix FAITHFUL: índice UNIQUE **PARCIAL** `WHERE deleted_at IS NULL`
+  (una fila borrada no ocupa el valor → se reusa tras borrar) + el proof re-deletea tras restaurar. **Diente de DOS
+  lados VIVO** (saboteé el read-filter `IS NULL` → SÓLO `access_control_live` (s9) rojo, hermanos verdes → revertí →
+  verde). Opt-in byte-neutral (default/assets/snipeit-sin-soft 0 diffs; `proof_sha` intacto → **sin re-pin**); `git diff
+  src/+seed=0`; `meta check` 6/6 (`generality`); `ci --rederive` 12/12·11/11·11/11 == pin; RTM snipeit **24/25** (sólo s6
+  LLM keyless). **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO — lo que resta es breadth pura.** Detalle:
+  `docs/work/FSK-SOFT-DELETES-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -250,14 +268,15 @@
     ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · ~~checkout polimórfico~~ **✓ hecho FSK-POLYMORPHIC-REFS** ·
     ~~depreciación calculada~~ **✓ hecho FSK-COMPUTED-FIELDS** · …).
     **Con el campo computado, el NÚCLEO FUNCIONAL faithful queda COMPLETO** (modelo de datos + acceso +
-    comportamiento + valores derivados + app que corre).
-    **SIGUIENTE = borrado lógico / trash + restore (FSK-SOFT-DELETES, abierto, deferral 12)** — el último eje
-    behavioral genuino antes de la breadth pura: una entidad opta-in `soft_delete: true` → DELETE deja de ser
-    permanente (UPDATE `deleted_at`), las lecturas FILTRAN las filas borradas (read-filter, compone la maquinaria de
-    FSK-COMPANY-SCOPING) y un verbo `restore` las recupera. Faithful (Snipe-IT NUNCA hard-deletea por defecto —
-    SoftDeletes de Laravel). Determinista, sin LLM. Diente de dos lados: DELETE→GET 404 (filtrada) + restore→GET 200.
-    Tras él, lo que resta es **breadth pura** (~226 rutas, Kits, EAV dinámico, `assigns` polimórfico del verbo).
-    Ver `docs/work/FSK-SOFT-DELETES-INCREMENT.md` (handoff).
+    comportamiento + valores derivados + app que corre); ~~borrado lógico~~ **✓ hecho FSK-SOFT-DELETES** cerró el
+    último eje BEHAVIORAL → **NÚCLEO FUNCIONAL + BEHAVIORAL COMPLETO**.
+    **SIGUIENTE (recomendado, abierto) = derivación CROSS-ENTITY del campo computado (FSK-XENTITY-COMPUTED)** — la
+    contracara del 1er-cut SAME-ENTITY de FSK-COMPUTED-FIELDS: la fórmula referencia un campo de una entidad
+    RELACIONADA (resolver el ref → JOIN → leer la columna del target). Completa el straight-line REAL de Snipe-IT
+    (los `depreciation_months` viven en `Depreciation` vía `AssetModel`, hoy SIMPLIFICADO a un campo de Asset).
+    Acotado, faithful, determinista, diente claro. **Es DECISIÓN de la próxima sesión** (con research): alternativas
+    honestas = `assigns` POLIMÓRFICO del verbo (checkout a User|Location|Asset, compone POLYMORPHIC-REFS+DOMAIN-OPS)
+    · o pivotar a **breadth pura** (~226 rutas, Kits, EAV dinámico, Actionlog). Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md` (handoff).
     **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se

@@ -1,6 +1,51 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-23T03:16Z — FSK-SOFT-DELETES ✅: borrado LÓGICO (papelera + restore) — el ÚLTIMO eje BEHAVIORAL
+- **El último eje behavioral genuino antes de la breadth pura** (deferral 12). Una entidad opta-in `soft_delete: true`
+  → DELETE deja de ser PERMANENTE: pasa a `UPDATE deleted_at` (la fila SIGUE existiendo, invisible a las lecturas) y un
+  verbo `restore` la recupera. Faithful a Snipe-IT (Laravel SoftDeletes: NUNCA hard-deletea por defecto). Determinista,
+  sin s6/LLM. Compone el read-filter de FSK-COMPANY-SCOPING + el montaje de verbos de FSK-QTY/DOMAIN-OPS. Todo en
+  `codegen/scaffold_product.py` (FÁBRICA, GENERAL, opt-in byte-neutro). **Con esto el NÚCLEO FUNCIONAL + BEHAVIORAL
+  faithful está COMPLETO; lo que resta es breadth pura.**
+- **La columna de SISTEMA `deleted_at`** (como `id`): `_soft_delete(e)` = `bool(e.get("soft_delete"))`. `deleted_at DATE`
+  nullable se APPENDEA en `_migration_sql` FUERA de `_cols_of` → automáticamente fuera de insert/contrato-required/
+  input/parser/tests/UI (todos iteran `_cols_of`). NULL = viva, una fecha = borrada-en. Fail-closed en `_load_blueprint`
+  (bool).
+- **El read-filter `deleted_at IS NULL`** en TODOS los read-paths de USUARIO — `all<E>s` (lista), `<e>RowJson` (get-one),
+  `sByCompany` (compone sobre el `company == ? OR company IS NULL` de FSK-COMPANY-SCOPING) — pero NO en los lookups
+  INTERNOS del guard (`<e>OwnerId`/`<e>CompanyId`): el guard DEBE ver la fila borrada (para restaurarla).
+- **El DELETE soft** (`_mutation_fns` branchea por `_soft_delete`): `UPDATE set deleted_at = java.time.LocalDate.now()`
+  (FQN inline → sin import; la fecha nunca se serializa → no-determinismo invisible) en vez de `deleteFrom`. El handler
+  `doDelete` del AppServer es BYTE-IDÉNTICO (llama `Repository.delete<E>`): la semántica vive en el Repository.
+- **El verbo `restore` IMPLÍCITO** (lo habilita la flag, como `deleted_at`): `POST /<plural>/{id}/restore` → `setNull
+  (deleted_at)`. Montado como un verbo más (`%RESTORE_HANDLER%`/`%RESTORE_DISPATCH%`, parsea el id del sub-path por sí
+  mismo, sin depender de `opVerb`), gateado por el MISMO `modifyVerdict` que DELETE/PUT, registrado en contrato +
+  RouteTable (route_check topology/auth/rbac cuadran, single-source DES-6).
+- **DOS wrinkles de COMPOSICIÓN caros (destilados — no re-aprender):**
+  1. **modifyVerdict (camino owner-OPTIONAL) chequeaba EXISTENCIA via `<e>RowJson`** — que ahora FILTRA `deleted_at IS
+     NULL`. Una fila soft-deleteada parecía INEXISTENTE → toda mutación (PUT/DELETE/**restore**) sobre ella → 404 → restore
+     IMPOSIBLE. Fix: una query de existencia SIN filtrar `<e>Exists` (`select id ... fetchOne() != null`), usada por
+     modifyVerdict SÓLO en el camino owner-optional cuando soft (la decisión de acceso es INDEPENDIENTE del borrado). El
+     camino owner-REQUERIDO ya usa `<e>OwnerId` (sin filtrar) → ningún cambio. **Asset es owner-OPTIONAL (RTD)** → pegó.
+  2. **El UNIQUE inline ocupaba el valor aún borrado** → un POST posterior que REUSA un valor único (p.ej. el proof de
+     `operations`/checkout reusa `POST_BODY` con el mismo `asset_tag`) chocaba con la fila soft-deleteada → violación de
+     UNIQUE → excepción no atrapada en `doPost` del owned → el server CIERRA la conexión (RemoteDisconnected). Fix
+     FAITHFUL: las columnas UNIQUE de una entidad soft van como **índice PARCIAL** `CREATE UNIQUE INDEX ... WHERE
+     deleted_at IS NULL` (una fila borrada NO ocupa el valor → se reusa tras borrar; jOOQ DDLDatabase parsea el `WHERE`,
+     probado). + el proof RE-DELETEA `new_id` tras el restore (lo devuelve a la papelera → libera el `asset_tag`).
+- **Verde POR BLOQUEO, no fingido**: EYEBALL byte-neutro (default/assets/snipeit-sin-soft 0 diffs) · `product-run snipeit`
+  **PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless) · **diente de DOS lados VIVO**: saboteé el read-filter
+  (`one_where` sin `.and(DELETED_AT.isNull)`) → **SÓLO** `access_control_live` (s9) rojo, hermanos (observability_live +
+  frontend_consume_live) + s0–s8 verdes → revertí → verde · `ci --rederive` base+assets+snipeit **12/12·11/11·11/11 ==
+  pin** (sin re-pin: proof_sha intacto, sólo sumó una ruta a s5 + lógica a s9) · `meta check` 6/6 (generality) · `git diff
+  src/metafactory + seed = 0` · default/assets product.yml = 0.
+- **Lecciones de forma (jOOQ/ktlint/-Werror)**: `setNull(field)` y `set(field, value)` son jOOQ nativo · `fetchOne() !=
+  null` para existencia · `java.time.LocalDate.now()` FQN inline evita el import (NoUnusedImports) · `handle` con verbos
+  → `@Suppress("CyclomaticComplexMethod")` (ya activo por `operations` en Asset). Diagnóstico del crash: com.sun.net.
+  httpserver NO loguea la excepción del handler (cierra la conexión en silencio) → reproducir manualmente con `java -cp
+  dist/lib/*` + curl + `psql` directo a la PG.
+
 ## 2026-06-23T01:45Z — FSK-COMPUTED-FIELDS ✅: campo COMPUTADO (un valor derivado por fórmula) — la dimensión de VALORES DERIVADOS
 - **La dimensión de VALORES DERIVADOS** (deferral 7). Un campo `int`/`number` con `computed: <AST>` deriva su valor
   por una FÓRMULA aritmética DETERMINISTA de otros campos numéricos de la MISMA entidad. El INVERSO del poly: 1 campo

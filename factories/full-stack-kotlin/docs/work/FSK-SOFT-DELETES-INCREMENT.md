@@ -1,9 +1,8 @@
 # Incremento FSK-SOFT-DELETES — borrado LÓGICO (trash + restore): DELETE no es permanente, las lecturas filtran, un verbo recupera
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-23T01:55Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-23T01:55Z · cerrado 2026-06-23T03:16Z — ver §Evidencia). Editar `factories/full-stack-kotlin/**`
+> no-`.md` exige un incremento abierto; el siguiente es `FSK-XENTITY-COMPUTED` (`docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md`).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-COMPUTED-FIELDS con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -204,3 +203,39 @@ reglas + control de acceso (auth→RBAC→ownership→company-scope) + comportam
 (campo computado) + app que CORRE (CRUD vivo + frontend + deploy). **Soft-deletes (este)** cierra el último eje
 behavioral genuino (trash/restore, que Snipe-IT usa pervasivamente). Tras él, la paridad de superficie completa (~226
 rutas, Kits, EAV dinámico, cross-entity, assigns polimórfico) es trabajo de BREADTH — los flecos, no el corazón.
+
+---
+
+## §Evidencia — CERRADO 2026-06-23T03:16Z (verde por bloqueo, no narrado)
+
+**Construido GENERAL en `codegen/scaffold_product.py` (FÁBRICA, opt-in byte-neutro), adoptado en `products/snipeit/
+product.yml` (`Asset.soft_delete: true`):**
+- `_soft_delete(e)` = `bool(e.get("soft_delete"))`; fail-closed (bool) en `_load_blueprint`.
+- columna de SISTEMA `deleted_at DATE` appendeada en `_migration_sql` FUERA de `_cols_of` (como `id`).
+- read-filter `deleted_at IS NULL` en `all<E>s` · `<e>RowJson` (get-one) · `sByCompany` (compone sobre el
+  `company == ? OR company IS NULL`); NO en `<e>OwnerId`/`<e>CompanyId` (el guard ve la fila borrada).
+- DELETE soft (`_mutation_fns`: `UPDATE deleted_at = java.time.LocalDate.now()` vs `deleteFrom`); verbo `restore`
+  IMPLÍCITO (`setNull`) montado vía `%RESTORE_HANDLER%`/`%RESTORE_DISPATCH%`, gateado por `modifyVerdict`, registrado
+  en contrato + RouteTable.
+- **Wrinkle de composición #1**: modifyVerdict (owner-OPTIONAL) chequeaba existencia via `<e>RowJson` (ahora filtrado)
+  → fila borrada parecía inexistente → restore 404. Fix: `<e>Exists` SIN filtrar (param `exists_fn` de
+  `_modify_verdict_kt`, usado sólo en el camino owner-optional cuando soft). Asset es owner-optional (RTD) → pegó.
+- **Wrinkle de composición #2**: el UNIQUE inline ocupaba el valor aún borrado → POST que reusa el valor (proof de
+  `operations`) → violación de UNIQUE → crash del server (RemoteDisconnected). Fix FAITHFUL: índice UNIQUE **PARCIAL**
+  `WHERE deleted_at IS NULL` (jOOQ DDLDatabase parsea el `WHERE`, probado) + el proof re-deletea `new_id` tras restore.
+
+**Verificación POR BLOQUEO:**
+- EYEBALL byte-neutro: default/assets/snipeit-SIN-soft → 0 diffs (`build_files` HEAD vs working).
+- `product-run --product snipeit` → **PASS**; RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless — deferral VISIBLE).
+- **Diente de DOS lados VIVO**: saboteé `one_where` (sin `.and(DELETED_AT.isNull)`) → `product-run` → **SÓLO**
+  `access_control_live` (s9) rojo, hermanos (`observability_live`+`frontend_consume_live`) + s0–s8 verdes → revertí →
+  `product-run` PASS.
+- `ci --rederive`: full-stack-kotlin **12/12** · assets **11/11** · snipeit **11/11** — `proof_sha == pineado` en clon
+  limpio (SIN re-pin: la flag sumó una ruta a s5 + lógica a s9, ningún check/estación nuevo).
+- `meta check` **6/6** (`generality` verde). `git diff src/metafactory + seed = 0`. default/assets `product.yml` = 0.
+
+**Commits:** `feat(fsk): FSK-SOFT-DELETES …` (codegen) + `feat(snipeit): Asset.soft_delete=true …` (producto) + este
+`docs(fsk): cerrar FSK-SOFT-DELETES (§Evidencia) + abrir FSK-XENTITY-COMPUTED`.
+
+**Siguiente (abierto, recomendado):** `FSK-XENTITY-COMPUTED` — derivación cross-entity del campo computado (ver §7 +
+`docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md`). Es DECISIÓN de la próxima sesión (alternativas en §7).

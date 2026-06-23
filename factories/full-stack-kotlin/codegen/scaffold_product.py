@@ -164,14 +164,104 @@ def _poly_subfields(f: dict) -> list[dict]:
     ]
 
 
+def _is_computed(f: dict) -> bool:
+    """Un campo COMPUTADO (FSK-COMPUTED-FIELDS): un campo numérico (`int`/`number`) cuyo valor NO se almacena
+    sino que se DERIVA por una FÓRMULA determinista de otros campos numéricos de la MISMA entidad (la dimensión
+    de VALORES DERIVADOS, el inverso del modelo de datos: no "qué guarda" sino "qué deriva"). Es el ÚLTIMO eje
+    no-breadth tras el modelo de datos faithful. Wrinkle estructural: 1 campo → 0 COLUMNAS (ni migration, ni
+    insert, ni input, ni seed) — se computa a READ-time en rowJson y se documenta read-only en el contrato. La
+    fórmula es un AST declarado (`computed: {op, args}` | número | nombre de campo), fail-closed validado en
+    `_load_blueprint` (operadores de un set CERRADO, operandos = campos numéricos no-computados o literales).
+    Determinista (aritmética pura, sin LLM/I-3). Opt-in: sin `computed` el campo es un número almacenado normal."""
+    return "computed" in f
+
+
+_COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores (fail-closed; nada domain-specific)
+_COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
+
+
+def _validate_computed_ast(node, numeric: set, ename: str, fname: str) -> None:
+    """Valida el AST de un campo computado fail-closed (mismo patrón que los guards de format/workflow/poly):
+    un nodo es un NÚMERO (literal), un STRING (nombre de un campo numérico no-computado de la entidad) o un
+    `{op, args}` con `op` ∈ el set CERRADO y `args` una lista de ≥2 nodos (binario para `-`/`/`). M0/scaffold
+    RECHAZA un operador fuera del set, una referencia a un campo inexistente/no-numérico/computado, o aridad mala."""
+    if isinstance(node, bool):                  # bool ⊂ int en Python → excluir explícito (no es operando numérico)
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: un booleano no es un operando numérico")
+    if isinstance(node, (int, float)):
+        return
+    if isinstance(node, str):
+        if node not in numeric:
+            raise SystemExit(f"scaffold: computed {ename}.{fname}: la referencia {node!r} no es un campo numérico "
+                             f"(int/number, no-computado) de {ename} (fail-closed)")
+        return
+    if not isinstance(node, dict) or "op" not in node or "args" not in node:
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: nodo inválido {node!r} (esperaba un número, un "
+                         f"nombre de campo o un mapa {{op, args}})")
+    op, args = node["op"], node["args"]
+    if op not in _COMPUTED_OPS:
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: operador {op!r} fuera del set cerrado "
+                         f"{sorted(_COMPUTED_OPS)} (fail-closed)")
+    if not isinstance(args, list) or len(args) < 2:
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: 'args' de {op!r} debe ser una lista de ≥2 nodos")
+    if op in _COMPUTED_BINARY and len(args) != 2:
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: el operador {op!r} es BINARIO (exactamente 2 args)")
+    for a in args:
+        _validate_computed_ast(a, numeric, ename, fname)
+
+
+def _computed_srcs(node, out: set) -> None:
+    """Los nombres de campo (strings) que el AST referencia — las COLUMNAS FUENTE que rowJson lee y extrae a
+    `val`s locales antes de computar. DFS sobre el AST."""
+    if isinstance(node, dict):
+        for a in node["args"]:
+            _computed_srcs(a, out)
+    elif isinstance(node, str):
+        out.add(node)
+
+
+def _ast_uses_div(node) -> bool:
+    """True si el AST usa el operador `/` en algún nivel → la entidad VIVA con ese campo necesita el helper
+    `safeDiv` (división con guard de div-por-cero) en el Repository. Sin `/` no se emite (byte-neutro/sin unused)."""
+    return isinstance(node, dict) and (node["op"] == "/" or any(_ast_uses_div(a) for a in node["args"]))
+
+
+def _computed_kt(node, srcvar: dict) -> str:
+    """AST → expresión Kotlin `Double` sobre los `val`s de fuente ya extraídos (`srcvar`: nombre de campo → nombre
+    del `val` local). Un literal → Double (`0.0`); un campo → su `val`; `/` → `safeDiv(n, d)` (guard div-por-cero,
+    miembro del Repository); `min`/`max` → fold a `minOf`/`maxOf` binario (cubre n-ario sin vararg). Acá vive la
+    ARITMÉTICA que el diente del proof cruza: degradar un operador/operando → otro número → rojo SÓLO en s9."""
+    if isinstance(node, (int, float)):
+        return repr(float(node))                       # literal Double (0 → "0.0", en el ignore-list de MagicNumber)
+    if isinstance(node, str):
+        return srcvar[node]
+    op = node["op"]
+    a = [_computed_kt(x, srcvar) for x in node["args"]]
+    if op == "+":
+        return "(" + " + ".join(a) + ")"
+    if op == "*":
+        return "(" + " * ".join(a) + ")"
+    if op == "-":
+        return f"({a[0]} - {a[1]})"
+    if op == "/":
+        return f"safeDiv({a[0]}, {a[1]})"
+    fn = "maxOf" if op == "max" else "minOf"           # fold binario (kotlin.comparisons, auto-importado)
+    expr = a[0]
+    for nxt in a[1:]:
+        expr = f"{fn}({expr}, {nxt})"
+    return expr
+
+
 def _cols_of(e: dict) -> list[dict]:
     """Los campos de `e` EXPANDIDOS a COLUMNAS: un ref polimórfico (FSK-POLYMORPHIC-REFS) → sus 2 sub-columnas
-    (`<campo>_type` + `<campo>_id`); el resto pasa SIN tocar. Para una entidad sin ningún campo poly devuelve
-    los MISMOS objetos de `e["fields"]` (byte-idéntico). Es la fuente única que cruzan los emisores por-columna
-    (migration · rowJson · insert · contrato · App.kt · seed · los tests jOOQ/TS) — la generalización del
-    supuesto 1-campo=1-columna que el ref polimórfico rompe (wrinkle estructural). DATA-agnóstico (ADR-012)."""
+    (`<campo>_type` + `<campo>_id`); un campo COMPUTADO (FSK-COMPUTED-FIELDS) se EXCLUYE (0 columnas: es derivado,
+    no almacenado); el resto pasa SIN tocar. Para una entidad sin poly ni computado devuelve los MISMOS objetos
+    de `e["fields"]` (byte-idéntico). Es la fuente única que cruzan los emisores por-columna (migration · rowJson ·
+    insert · contrato · App.kt · seed · los tests jOOQ/TS) — la generalización del supuesto 1-campo=1-columna que
+    el ref polimórfico (→2) y el campo computado (→0) rompen (wrinkles estructurales). DATA-agnóstico (ADR-012)."""
     out: list[dict] = []
     for f in e["fields"]:
+        if _is_computed(f):                            # 0 columnas: el valor se deriva a read-time (rowJson), no se guarda
+            continue
         out += _poly_subfields(f) if _is_poly(f) else [f]
     return out
 
@@ -271,6 +361,22 @@ def _load_blueprint(root: Path) -> dict:
                 if f["format"] not in _FORMAT_REGEX:
                     raise SystemExit(f"scaffold: campo {f.get('name')!r}: format {f.get('format')!r} fuera del "
                                      f"vocabulario cerrado {sorted(_FORMAT_REGEX)} (fail-closed)")
+            # FSK-COMPUTED-FIELDS: un campo `int`/`number` puede declarar `computed: <AST>` — un valor DERIVADO por
+            # una fórmula determinista de otros campos numéricos de la MISMA entidad (no almacenado, computado a
+            # read-time). Fail-closed (mismo patrón que format/workflow/poly): sólo sobre int/number; no puede ser el
+            # dueño (el ownership cruza una FK, no un derivado); la fórmula referencia SÓLO campos numéricos
+            # no-computados de la entidad (1er-cut SAME-ENTITY: la derivación cross-entity sigue diferida) + operadores
+            # de un set CERRADO. Opt-in: sin `computed` el campo es un número almacenado normal (byte-neutro).
+            if _is_computed(f):
+                if t not in ("int", "number"):
+                    raise SystemExit(f"scaffold: campo {f.get('name')!r} con 'computed' no es type 'int'/'number' "
+                                     f"(un valor derivado es numérico, FSK-COMPUTED-FIELDS)")
+                if e.get("owned_by") == f.get("name"):
+                    raise SystemExit(f"scaffold: el campo `owned_by` {f.get('name')!r} de {e['name']!r} no puede "
+                                     f"ser computado (el ownership cruza una FK a un principal, no un derivado)")
+                numeric = {g["name"] for g in e["fields"]
+                           if g.get("type") in ("int", "number") and not _is_computed(g)}
+                _validate_computed_ast(f["computed"], numeric, e["name"], f["name"])
             # R2 (FSK-S12, workflows): un campo enum puede declarar una máquina de estado OPCIONAL (`initial` +
             # `transitions`). Validación fail-closed (mismo patrón que el guard de tipo): los modifiers sólo
             # sobre enum; `initial` ∈ values; toda clave/destino de `transitions` ∈ values (sin estados fantasma).
@@ -566,6 +672,11 @@ def _openapi_yaml(bp: dict) -> str:
         # deriva un enum class) + `<campo>_id` (integer int64). openapi-generator/typescript las parsean normal.
         for f in _cols_of(e):
             lines.append(f"        {f['name']}: {_oapi_inline(f)}")
+        # FSK-COMPUTED-FIELDS: los campos COMPUTADOS NO son columnas (los excluyó `_cols_of`) pero SÍ son
+        # propiedades read-only de la respuesta — se documentan tras las columnas (DES-6). Sin computado → no-op.
+        for f in e["fields"]:
+            if _is_computed(f):
+                lines.append(f"        {f['name']}: {_oapi_inline(f)}")
     return "\n".join(lines) + "\n"
 
 
@@ -592,6 +703,13 @@ def _oapi_inline(f: dict) -> str:
     # enforza a runtime. Opt-in: sin `format` el schema queda byte-idéntico (sólo el tipo base).
     if f["type"] == "string" and f.get("format"):
         return f"{{ type: string, x-format: {f['format']} }}"
+    # FSK-COMPUTED-FIELDS: un campo computado se documenta read-only (`readOnly: true` + vendor extension
+    # x-computed que openapi-generator/typescript IGNORAN). Es la FUENTE inspectable de "qué valor es derivado"
+    # (DES-6): no entra al `required[]` (no se postea) → openapi lo genera como propiedad opcional/nullable (un
+    # ctor con args nombrados que la omite sigue compilando). El server vivo lo COMPUTA en rowJson.
+    if _is_computed(f):
+        base = ", ".join(f"{k}: {v}" for k, v in _OAPI_TYPE[f["type"]].items())
+        return f"{{ {base}, readOnly: true, x-computed: true }}"
     return "{ " + ", ".join(f"{k}: {v}" for k, v in _OAPI_TYPE[f["type"]].items()) + " }"
 
 
@@ -1141,9 +1259,11 @@ def _input_fields(e: dict) -> list[dict]:
     REQUERIDOS no-dueño (el id de la FK entra por el cuerpo, mapeado a Long). El dueño (`owned_by`) sigue viniendo
     del token (no del body, restricción #3 del blueprint FSK → no rompe el FK→User). Las columnas UNIQUE entran
     (el cliente provee el valor; si choca, la DB lo rechaza). DATA-agnóstico: heurística sobre el blueprint, cero
-    nombres de dominio (ADR-012)."""
+    nombres de dominio (ADR-012). FSK-COMPUTED-FIELDS: un campo computado se EXCLUYE (read-only, derivado —
+    no se postea ni se inserta), igual que el dueño."""
     owner = e.get("owned_by")
-    return [f for f in e["fields"] if f.get("required", True) and f["name"] != owner]
+    return [f for f in e["fields"]
+            if f.get("required", True) and f["name"] != owner and not _is_computed(f)]
 
 
 def _input_cols(e: dict) -> list[dict]:
@@ -1315,9 +1435,42 @@ def _row_json_fn(e: dict, tbl: str) -> str:
         ref = f"r[{tbl}.{_COL(f['name'])}]"
         val = f"jsonVal({ref})" if f["type"] in quoted else ref
         elems.append(f'"\\"{f["name"]}\\":${{{val}}}"')
+    # FSK-COMPUTED-FIELDS: un campo COMPUTADO no es columna (no entró al SELECT/elems vía _cols_of) — su valor se
+    # DERIVA acá, a READ-time, de las columnas FUENTE ya seleccionadas. Las fuentes se extraen a `val`s locales
+    # `Double` null-safe (jOOQ DDLDatabase tipa toda columna nullable → `?.toDouble() ?: 0.0`, sin warning) y la
+    # fórmula (AST → Kotlin) se computa sobre ellas; el resultado (number/int → crudo) se serializa como un campo
+    # más. ACÁ vive el diente: degradar la aritmética → el GET devuelve otro número → rojo SÓLO en s9. Sin
+    # computado → prelude vacío → byte-idéntico para todo lo previo (opt-in puro).
+    computed = [f for f in e["fields"] if _is_computed(f)]
+    prelude = ""
+    if computed:
+        field_by = {f["name"]: f for f in e["fields"]}
+        srcs: set = set()
+        for cf in computed:
+            _computed_srcs(cf["computed"], srcs)
+        srcvar = {s: f"c{_pascal(s)}" for s in sorted(srcs)}
+        # jOOQ DDLDatabase tipa toda columna nullable. Un `number` ya es `Double?` → `?: 0.0` (un `.toDouble()`
+        # sería REDUNDANTE → -Werror); un `int` es `Int?` → `?.toDouble() ?: 0.0` (conversión real). El AST sólo
+        # referencia campos int/number (validado), así que estos dos casos cubren todo.
+        prelude = "".join(
+            f"        val {srcvar[s]} = " + (f"r[{tbl}.{_COL(s)}] ?: 0.0\n" if field_by[s]["type"] == "number"
+                                            else f"r[{tbl}.{_COL(s)}]?.toDouble() ?: 0.0\n")
+            for s in sorted(srcs))
+        for cf in computed:
+            vname = f"{_camel(cf['name'])}Computed"
+            line = f"        val {vname} = {_computed_kt(cf['computed'], srcvar)}"
+            if len(line) > MAX_LINE_LENGTH:   # el wrapping de una fórmula compleja se difiere (1er-cut SAME-ENTITY)
+                raise SystemExit(f"scaffold: computed {e['name']}.{cf['name']}: la expresión Kotlin supera "
+                                 f"{MAX_LINE_LENGTH} columnas (wrapping de fórmulas complejas diferido — "
+                                 f"usá una fórmula más simple)")
+            prelude += line + "\n"
+            # `$vname` SIN llaves: es un identificador simple (un `val`), no una expresión → ktlint StringTemplate
+            # exige sin llaves (a diferencia de las columnas `${r[...]}`/`${jsonVal(...)}`, que SÍ las necesitan).
+            elems.append(f'"\\"{cf["name"]}\\":${vname}"')
     body = "".join(f"            {x},\n" for x in elems)
     return (f"    fun {e['name'].lower()}RowJson(ctx: DSLContext, id: Long): String? {{\n"
             f"{sel}\n"
+            f"{prelude}"
             f"        return listOf(\n{body}        ).joinToString(\",\", \"{{\", \"}}\")\n"
             f"    }}")
 
@@ -1492,6 +1645,11 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             fns.extend(_operation_repo_fns(e, tbl))
     if data_classes:   # helper de serialización JSON usado por <e>RowJson (sólo si hay entidad viva)
         fns.insert(0, "    private fun jsonVal(v: Any?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"")
+    # FSK-COMPUTED-FIELDS: el helper de división con guard de div-por-cero (la fórmula de un campo computado lo
+    # usa) — sólo si alguna entidad VIVA tiene un campo computado cuyo AST usa `/` (sin `/` no se emite → byte-
+    # neutro y sin UnusedPrivateMember de detekt). Compartido por los rowJson (miembros del mismo object Repository).
+    if any(_ast_uses_div(f["computed"]) for e in live for f in e["fields"] if _is_computed(f)):
+        fns.insert(0, "    private fun safeDiv(a: Double, b: Double): Double = if (b == 0.0) 0.0 else a / b")
     # un query TIPADO por entidad (+ ownerId/CRUD por entidad con dueño): con >11 entidades supera
     # TooManyFunctions(11). Es un repositorio GENERADO 1:1 con el contrato; @Suppress sólo cuando aplica.
     suppress = '@Suppress("TooManyFunctions")\n' if len(fns) > 11 else ""
@@ -4939,6 +5097,43 @@ _POLY_PROOF = '''
                     ok &= _expect_value(_prow.get(_p["field"] + "_id"), 2, "[poly] GET ve el 2do id (round-trip)")'''
 
 
+# FSK-COMPUTED-FIELDS: el DIENTE de dos lados del campo COMPUTADO VIVO. Tras el POST del owned (POST_BODY trae las
+# fuentes), el GET de la fila recién creada (`row`, ya leído) debe traer <campo> == el valor que la MISMA fórmula
+# (el AST, re-derivado en Python) da sobre las fuentes posteadas. _ceval replica EXACTO la aritmética Kotlin (IEEE
+# 754 double, mismo orden de ops, div-por-cero → 0.0) → la comparación es EXACTA (el string round-trippea al mismo
+# double). Degradar la expresión Kotlin del rowJson (un operador / un operando) → el GET devuelve otro número → rojo
+# SÓLO en s9 (access_control_live). Va DENTRO del `if new_id is not None:` (12 indent), ANTES del DELETE (la fila aún
+# existe). Opt-in: sin campo computado en el owned → "" → el proof queda byte-idéntico. El DATA (los AST) va DENTRO.
+_COMPUTED_PROOF = '''
+            COMPUTED = json.loads('%COMPUTED_DATA%')   # [{"name": <campo>, "ast": <AST: num | "campo" | {op,args}>}]
+
+            def _ceval(node, src):
+                if isinstance(node, dict):
+                    v = [_ceval(x, src) for x in node["args"]]
+                    op = node["op"]
+                    if op == "-":
+                        return v[0] - v[1]
+                    if op == "/":
+                        return 0.0 if v[1] == 0.0 else v[0] / v[1]
+                    if op == "min":
+                        return min(v)
+                    if op == "max":
+                        return max(v)
+                    acc = v[0]
+                    for _x in v[1:]:
+                        acc = (acc + _x) if op == "+" else (acc * _x)
+                    return acc
+                if isinstance(node, str):
+                    _s = src.get(node)
+                    return float(_s) if _s is not None else 0.0
+                return float(node)
+            # *** FSK-COMPUTED-FIELDS: el GET trae el valor DERIVADO por formula (no almacenado, computado a ***
+            # read-time). Degradar la aritmetica del rowJson Kotlin -> otro numero -> rojo SOLO en s9.
+            for _c in COMPUTED:
+                ok &= _expect_value(row.get(_c["name"]), _ceval(_c["ast"], POST_BODY),
+                                    f"[computed] GET ve {_c['name']} == formula determinista de las fuentes")'''
+
+
 # FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
 # que VIOLA la regla del campo → 400 (el codec `strFmt` lo rechaza a runtime, fail-closed) + el count NO cambia.
 # Saltear strFmt (aceptar cualquier string — p.ej. el patrón degradado a ".*") → 201 → rojo SÓLO en este check
@@ -5091,7 +5286,14 @@ def _access_control_check_py(bp: dict) -> str:
                                .replace("%SCOPE_ACTOR%", cs_actor))
     else:
         company_scope_block = ""
+    # FSK-COMPUTED-FIELDS: el bloque del diente del campo COMPUTADO — sólo si la entidad servida con dueño declara
+    # uno. POST_BODY (las fuentes) ya se postea; el GET de la fila nueva trae el valor derivado. Opt-in: sin campo
+    # computado en el owned → "" → el proof queda byte-idéntico.
+    computed_fields = [f for f in owned["fields"] if _is_computed(f)]
+    computed_block = (_COMPUTED_PROOF.replace("%COMPUTED_DATA%", json.dumps(
+        [{"name": f["name"], "ast": f["computed"]} for f in computed_fields]))) if computed_fields else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%COMPUTED_BLOCK%", computed_block)
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
             .replace("%COMPANY_SCOPE_BLOCK%", company_scope_block)
@@ -5255,7 +5457,7 @@ def main(argv: list) -> int:
         if new_id is not None:
             row = json.loads(_body(base, f"{PLURAL}/{new_id}"))
             for key, want in POST_BODY.items():
-                ok &= _expect_value(row.get(key), want, f"GET /{{id}} ve body[{key}] (type-correct)")
+                ok &= _expect_value(row.get(key), want, f"GET /{{id}} ve body[{key}] (type-correct)")%COMPUTED_BLOCK%
         # *** EL DIENTE NEGATIVO: body malformado / tipo equivocado -> 400, sin insertar. ***
         ok &= _expect(_send(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:{owner}", BAD_JSON)[0], 400,
                       "POST JSON invalido -> 400")

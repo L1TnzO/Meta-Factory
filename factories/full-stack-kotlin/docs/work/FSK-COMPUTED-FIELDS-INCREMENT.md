@@ -1,7 +1,7 @@
 # Incremento FSK-COMPUTED-FIELDS — campo COMPUTADO (un valor derivado por fórmula, no almacenado) · la dimensión de VALORES DERIVADOS
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-22T21:05Z). Cerralo flippeando este header a CERRADO **o** con
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-22T21:05Z · cerrado 2026-06-23T01:50Z — ver §Evidencia al final). Cerralo flippeando este header a CERRADO **o** con
 > `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
@@ -194,3 +194,49 @@ candidatas BOUNDED, framed honestamente:
 control de acceso (auth→RBAC→ownership→company-scope) + comportamiento (workflow + stock) + app que CORRE (CRUD vivo +
 frontend que consume/renderiza + deploy). El campo computado (este) cierra los VALORES DERIVADOS; tras él, la paridad de
 superficie completa (~226 rutas, soft-deletes, Kits, EAV dinámico) es trabajo de BREADTH — los flecos, no el corazón.
+
+---
+
+## Evidencia (cierre 2026-06-23T01:50Z)
+
+**QUÉ se construyó** (todo en `codegen/scaffold_product.py`, FÁBRICA — GENERAL, cero nombres de dominio):
+- **Gramática**: un campo `int`/`number` con `computed: <AST>`. AST = número | nombre-de-campo | `{op, args}`.
+  `_validate_computed_ast` fail-closed en `_load_blueprint`: `op` ∈ set CERRADO `{+ - * / min max}`; operandos = campos
+  numéricos NO-computados de la entidad o literales; `-`/`/` BINARIOS. (No el `owned_by`; sólo int/number.)
+- **Helpers** (hermanos de `_is_poly`): `_is_computed` · `_computed_srcs` (campos fuente del AST) · `_ast_uses_div` ·
+  `_computed_kt` (AST → expresión Kotlin Double).
+- **0 columnas**: `_cols_of` y `_input_fields` EXCLUYEN el computado → automáticamente fuera de migration/insert/seed/
+  contrato-`required[]`/input/parser/data-class/tests/UI (todos iteran esas fuentes). No es columna, no se postea.
+- **Cómputo a READ-time** en `_row_json_fn`: tras el SELECT, extrae cada fuente a un `val Double` null-safe — **un
+  `number` ya es `Double?`** → `r[COL] ?: 0.0` (un `.toDouble()` sería REDUNDANTE → `-Werror`, **lección cara**: s0
+  rojo en el 1er intento); un `int` es `Int?` → `r[COL]?.toDouble() ?: 0.0`. La expresión del AST: `/` → helper
+  `safeDiv(a,b)=if(b==0.0)0.0 else a/b` (miembro del Repository, emitido SÓLO si algún AST vivo usa `/`); `min`/`max`
+  → fold a `minOf`/`maxOf`. El valor se serializa como un campo más (number → crudo, **sin llaves** `$vname` =
+  identificador simple, ktlint StringTemplate — **2ª lección cara**: `${...}` redundante → s2 rojo).
+- **Contrato** read-only (`_oapi_inline`: `readOnly: true`+`x-computed`; tras las columnas en `_openapi_yaml`).
+  openapi-generator/typescript lo generan opcional/nullable → ctores con args nombrados no se rompen.
+- **Proof** OPT-IN `_COMPUTED_PROOF` dentro de `access_control_live` (s9): re-deriva la MISMA fórmula en Python
+  (`_ceval`, IEEE 754 double idéntico al Kotlin → comparación **EXACTA**, el string round-trippea al mismo double) y
+  cruza `GET[campo]` contra ella. El DATA (los AST) va DENTRO del bloque substituido (`%COMPUTED_DATA%`), nunca en el
+  SKELETON → byte-neutro sin computado.
+
+**Adopción** (`products/snipeit/product.yml`, PRODUCTO, incremento `COMPUTED-FIELDS-ADOPT`): `Asset.current_value =
+max(purchase_cost − purchase_cost/depreciation_months, 0)` — 1er-cut SAME-ENTITY (`depreciation_months` propio; cross-
+entity + time-elapsed DIFERIDOS). Fuentes hechas REQUERIDAS (el server inserta sólo required → el valor es observable).
+
+**Verde por BLOQUEO**:
+- EYEBALL byte-neutro (HEAD vs working): default **68/68** · assets **68/68** · snipeit-sin-computed **70/70**.
+- Validación fail-closed probada (positivo + 4 negativos: op `pow` · ref no-numérico · `/` 3-args · bool operando).
+- `product-run --product snipeit` **PASS** (s0→s11) · RTM snipeit **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente de DOS lados VIVO** (s9): saboteé `_computed_kt` `-`→`+` → `product-run` FAIL, **SÓLO `access_control_live`
+  rojo** (hermanos `observability_live`+`frontend_consume_live` verdes; "proof no alcanzó la infra en 120s" = la falla
+  determinista reintentada) → revertí → `product-run` PASS.
+- `ci --rederive`: snipeit **11/11** · base **12/12** · assets **11/11** == pin (**`proof_sha` intacto → SIN re-pin**).
+- `meta check` **6/6** (`generality` verde) · `git diff src/metafactory + seed = 0` · default+assets `product.yml` = 0.
+
+**Honesto (diferido)**: derivación CROSS-ENTITY (resolver un ref y leer la columna del target) · time-elapsed del
+straight-line completo · fórmulas que pasan 160 columnas (wrapping diferido — `_row_json_fn` lanza SystemExit honesto) ·
+literales ≥3 en una fórmula (detekt MagicNumber los mordería — el set actual usa sólo el piso `0`).
+
+**Siguiente** (determinado con MÁS contexto): **FSK-SOFT-DELETES** (borrado lógico / trash + restore, deferral 12) —
+el último eje behavioral genuino antes de la breadth pura. Handoff autocontenido: `docs/work/FSK-SOFT-DELETES-INCREMENT.md`.

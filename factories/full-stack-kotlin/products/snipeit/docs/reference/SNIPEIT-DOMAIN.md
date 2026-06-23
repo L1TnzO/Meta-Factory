@@ -208,10 +208,14 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    **Ambos `manager_id`→User RE-HABILITADOS** en el blueprint. **Sigue diferido**: un ref forward REQUERIDO que cierre
    ciclo. Detalle: `docs/work/FSK-XENTITY-CYCLES-INCREMENT.md` (fábrica) + `…/work/XENTITY-CYCLES-ADOPT-INCREMENT.md` (producto).
 
-7. **Depreciación calculada** [GAP-FÁBRICA]. Se almacenan los INPUTS (`months`, `depreciation_min`,
-   `depreciation_type`) pero el valor actual (straight-line: `(cost−piso)·(1−meses_transcurridos/months)+piso`)
-   es lógica derivada. FSK no tiene campos computados; el cálculo viviría en s6 (lógica de dominio por LLM,
-   hoy diferida keyless) o pediría una primitiva de campo computado — gap.
+7. ~~**Depreciación calculada**~~ **✓ HECHO** (FSK-COMPUTED-FIELDS, 2026-06-23): la dimensión de VALORES DERIVADOS.
+   Un campo `int`/`number` con `computed: <AST>` deriva su valor por una FÓRMULA aritmética DETERMINISTA de otros
+   campos numéricos (no almacenado, computado a READ-time; aritmética pura, sin s6/LLM). `Asset.current_value =
+   max(purchase_cost − purchase_cost/depreciation_months, 0)`. **1er-cut SAME-ENTITY**: `depreciation_months` vive en
+   el PROPIO Asset; la derivación cross-entity REAL (`months`/`depreciation_min`/`depreciation_type` viven en
+   `Depreciation` vía AssetModel) + el **time-elapsed** (`meses_transcurridos`) del straight-line completo siguen
+   DIFERIDOS (resolver un ref y leer la columna del target = OTRO eje). Detalle: `docs/work/FSK-COMPUTED-FIELDS-
+   INCREMENT.md` (fábrica) + `…/work/COMPUTED-FIELDS-ADOPT-INCREMENT.md` (producto).
 
 8. ~~**Multi-tenancy / company scoping**~~ **✓ HECHO** (FSK-COMPANY-SCOPING, 2026-06-22): el 1er eje de
    ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. Una entidad con dueño declara
@@ -293,16 +297,23 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     SÓLO access_control_live rojo). `git diff src/+seed=0`, sin re-pin. **Con esto el MODELO DE DATOS faithful
     queda COMPLETO.** Diferido faithful: el `assigns` polimórfico del verbo + el `assigned_to` polimórfico de Asset
     (su owner, wrinkle #3). Ver `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
-11. **SIGUIENTE = depreciación calculada (deferral 7)** — el 1er CAMPO COMPUTADO (derivado por una fórmula
-    aritmética DETERMINISTA de otros campos, no almacenado): el valor actual de un activo = straight-line desde la
-    compra sobre `Depreciation.months` con piso. NO necesita s6/LLM (aritmética pura). Pide un mini-vocabulario de
-    fórmula GENERAL (operadores sobre campos del blueprint, sin volverse domain-specific). Más LIMPIO que el poly
-    (sin 2-columnas/no-FK). Diente: POST con costo+meses → GET devuelve el valor computado; degradar la fórmula →
-    rojo. Ver `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` (handoff). Cierra la dimensión de VALORES DERIVADOS;
-    tras él, lo que resta es breadth pura.
-12. **Diferidos DUROS** (red/scope): push de la imagen a un registry · e2e Playwright (browser real) ·
+11. ~~**Depreciación calculada (deferral 7)** — el 1er CAMPO COMPUTADO~~ **✓ HECHO (FSK-COMPUTED-FIELDS,
+    2026-06-23)**: un campo `int`/`number` con `computed: <AST>` deriva su valor por una fórmula aritmética
+    DETERMINISTA de otros campos numéricos (no almacenado, READ-time; sin s6/LLM). `Asset.current_value =
+    max(purchase_cost − purchase_cost/depreciation_months, 0)` (1er-cut SAME-ENTITY; cross-entity + time-elapsed
+    diferidos). Diente de DOS lados VIVO (s9, degradar la aritmética → SÓLO access_control_live rojo). `git diff
+    src/+seed=0`, sin re-pin. **Con esto el NÚCLEO FUNCIONAL faithful queda COMPLETO.** Ver
+    `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md §Evidencia`.
+12. **SIGUIENTE = borrado lógico / trash + restore (deferral 12, FSK-SOFT-DELETES)** — el último eje BEHAVIORAL
+    genuino antes de la breadth pura. Snipe-IT NUNCA hard-deletea por defecto (SoftDeletes de Laravel): una entidad
+    opta-in `soft_delete: true` → DELETE pasa a UPDATE `deleted_at` (no borra), las lecturas FILTRAN las filas
+    borradas (read-filter, compone la maquinaria de FSK-COMPANY-SCOPING) y un verbo `restore` las recupera.
+    Determinista, sin LLM. Diente de dos lados: DELETE→GET /{id} 404 (filtrada) pero la fila EXISTE → restore→GET 200.
+    Ver `docs/work/FSK-SOFT-DELETES-INCREMENT.md` (handoff).
+13. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
     AppServer-en-contenedor con PG · `creates`/pivot de qty · `assigns`/owner POLIMÓRFICO (sub-ejes de deferral 2) ·
-    EAV dinámico a runtime (Avenue B).
+    derivación CROSS-ENTITY del campo computado (resolver un ref y leer la columna del target) · EAV dinámico a
+    runtime (Avenue B) · las ~226 rutas · Kits.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

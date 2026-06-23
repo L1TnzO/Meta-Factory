@@ -1,6 +1,44 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-23T01:45Z — FSK-COMPUTED-FIELDS ✅: campo COMPUTADO (un valor derivado por fórmula) — la dimensión de VALORES DERIVADOS
+- **La dimensión de VALORES DERIVADOS** (deferral 7). Un campo `int`/`number` con `computed: <AST>` deriva su valor
+  por una FÓRMULA aritmética DETERMINISTA de otros campos numéricos de la MISMA entidad. El INVERSO del poly: 1 campo
+  → **0 columnas** (no almacenado, computado a READ-time). Con esto el NÚCLEO FUNCIONAL faithful queda COMPLETO;
+  lo que resta es breadth pura. **Determinista, sin s6/LLM** (aritmética pura, I-3).
+- **El wrinkle estructural (#1, INVERSO al poly): 1 campo → 0 columnas.** Resuelto byte-neutro, todo en `codegen/`:
+  - **`_is_computed(f)`** = tiene `computed`. **`_cols_of(e)`** lo EXCLUYE (no es columna) → automáticamente fuera de
+    migration/insert/seed/contrato-required/input/tests/UI (todos iteran `_cols_of`). **`_input_fields(e)`** lo
+    excluye también (read-only, no se postea ni inserta).
+  - **La FÓRMULA como AST GENERAL** (cero dominio): `_validate_computed_ast` fail-closed en `_load_blueprint`
+    (operadores ∈ set CERRADO `+ - * / min max`; operandos ∈ campos numéricos no-computados o literales; `-`/`/`
+    binarios). Negativos probados: op `pow`→reject · ref a `name` (no numérico)→reject · `/` con 3 args→reject ·
+    bool operando→reject.
+  - **El cómputo a READ-time** vive en **`_row_json_fn`** (donde el poly serializaba sus 2 columnas): tras el SELECT,
+    extrae las fuentes a `val`s `Double` null-safe (**un `number` ya es `Double?`** → `?: 0.0`; un `int` es `Int?` →
+    `?.toDouble() ?: 0.0` — un `.toDouble()` redundante sobre Double dispara `-Werror`, lección cara) y emite la
+    expresión Kotlin del AST (`_computed_kt`): `/` → helper `safeDiv(a,b)=if(b==0.0)0.0 else a/b` (guard div-por-cero,
+    miembro del Repository emitido SÓLO si algún AST usa `/`); `min`/`max` → fold a `minOf`/`maxOf`. El valor se
+    serializa como un campo más (number/int → crudo, **sin llaves** `$vname` = identificador simple, ktlint
+    StringTemplate). El contrato lo documenta read-only (`_oapi_inline`: `readOnly: true`+`x-computed`).
+  - **El proof** (bloque OPT-IN `_COMPUTED_PROOF` dentro de `access_control_live`): re-deriva la MISMA fórmula en
+    Python (`_ceval`, IEEE 754 double idéntico al Kotlin → comparación **EXACTA**, el string round-trippea al mismo
+    double) y cruza GET[campo] contra ella. El DATA (los AST) va DENTRO del bloque substituido (`%COMPUTED_DATA%`),
+    nunca en el SKELETON → byte-neutro sin computado.
+- **Adopción (producto, ADR-016, incremento COMPUTED-FIELDS-ADOPT)**: `Asset.current_value = max(purchase_cost -
+  purchase_cost/depreciation_months, 0)` — 1er-cut SAME-ENTITY (`depreciation_months` propio del Asset; la
+  derivación cross-entity desde `Depreciation.months` vía AssetModel + el time-elapsed siguen DIFERIDAS). Las fuentes
+  se hicieron REQUERIDAS para que el server las inserte del cuerpo y el valor sea OBSERVABLE.
+- **Diente de DOS lados VIVO** (s9): saboteé el `-`→`+` del rowJson → SÓLO `access_control_live` rojo (hermanos
+  `observability_live`+`frontend_consume_live` verdes, "proof no alcanzó la infra en 120s" = la falla determinista
+  reintentada) → revertí → verde.
+- **Verde por bloqueo**: EYEBALL byte-neutro (default/assets 68/68 + snipeit-sin-computed 70/70 HEAD vs working) ·
+  `product-run --product snipeit` **PASS** · RTM snipeit **24/25** (sólo s6 LLM keyless) · `ci --rederive`
+  12/12·11/11·11/11 == pin (**`proof_sha` intacto → SIN re-pin**) · `meta check` **6/6** (`generality` verde) ·
+  `git diff src/metafactory + seed = 0` · default+assets `product.yml` = 0.
+- **Siguiente** (determinado con más contexto): **FSK-SOFT-DELETES** (borrado lógico / trash + restore, deferral 12)
+  — el último eje behavioral genuino; tras él, breadth pura. Handoff: `docs/work/FSK-SOFT-DELETES-INCREMENT.md`.
+
 ## 2026-06-22T20:58Z — FSK-POLYMORPHIC-REFS ✅: ref polimórfico (un ref a una UNIÓN de entidades) — el ÚLTIMO eje de modelo-de-datos
 - **El ÚLTIMO eje de MODELO-DE-DATOS faithful** (deferral 2). Un `ref` con `to: <LISTA>` apunta a una UNIÓN de
   entidades — el hermano sobre refs de lo que el enum es sobre valores. Tras él, modelo + acceso + comportamiento-núcleo

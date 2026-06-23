@@ -218,6 +218,24 @@
   sin re-pin); `git diff src/+seed=0`; `meta check` 6/6; `ci --rederive` 12/12·11/11·11/11 == pin. **Con esto el MODELO
   DE DATOS faithful queda COMPLETO.** Diferido faithful: el `assigns` polimórfico del verbo + el owner polimórfico de
   Asset (wrinkle #3). Detalle: `docs/work/FSK-POLYMORPHIC-REFS-INCREMENT.md §Evidencia`.
+- **CAMPO COMPUTADO — la dimensión de VALORES DERIVADOS, GENERAL (FSK-COMPUTED-FIELDS, 2026-06-23)**: un campo
+  `int`/`number` puede declarar `computed: <AST>` — un valor DERIVADO por una FÓRMULA aritmética DETERMINISTA de
+  otros campos numéricos de la MISMA entidad (no "qué guarda" sino "qué deriva"). Wrinkle estructural INVERSO al
+  poly: 1 campo → **0 columnas** (no entra a migration/insert/input/seed; `_cols_of` lo EXCLUYE) — se computa a
+  **READ-time en `rowJson`** y se documenta read-only en el contrato (`readOnly: true`+`x-computed`). La fórmula es
+  un **AST declarado** (`{op, args}` | número | nombre de campo), fail-closed en `_load_blueprint`: operadores de un
+  set CERRADO (`+ - * / min max`), operandos = campos numéricos no-computados o literales (un op/ref/aridad inválido
+  → M0 rojo). El codegen extrae las fuentes a `val`s `Double` null-safe y emite la expresión Kotlin (`/` → helper
+  `safeDiv` con guard div-por-cero; `min`/`max` → `minOf`/`maxOf`); el proof re-deriva la MISMA fórmula en Python
+  (IEEE 754 idéntico → comparación EXACTA). **No necesita s6/LLM** (aritmética pura, I-3). snipeit adoptó
+  `Asset.current_value = max(purchase_cost - purchase_cost/depreciation_months, 0)` (1er-cut SAME-ENTITY; la
+  derivación cross-entity —months en Depreciation— + time-elapsed siguen diferidas). **Diente de DOS lados VIVO**
+  (degradar la aritmética del rowJson `-`→`+` → SÓLO `access_control_live` (s9) rojo, hermanos
+  `observability_live`+`frontend_consume_live` verdes; revertí→verde). Opt-in byte-neutral (default/assets 68/68 +
+  snipeit-sin-computed 70/70; `proof_sha` intacto → **sin re-pin**); `git diff src/+seed=0`; `meta check` 6/6
+  (`generality` verde); `ci --rederive` 12/12·11/11·11/11 == pin. Se pliega en **REQ-F-014** (sin requisito nuevo).
+  **Con esto la dimensión de VALORES DERIVADOS queda cubierta — el núcleo funcional faithful está COMPLETO.**
+  Detalle: `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md §Evidencia`.
 - **★ FSK MADURO (2026-06-22) → el trabajo pasa a ser product-specific (Snipe-IT)**: un producto se **genera** desde
   un blueprint → se **prueba e2e** en su toolchain bajo gates duros → tiene **CRUD vivo del grafo relacional ENTERO**
   (con/sin dueño, refs del body) bajo control de acceso (auth→RBAC→ownership) a runtime → una **UI usable por un
@@ -230,13 +248,16 @@
     **✓ hecho FSK-OWNED-REQUIRED-REFS** · ~~verbos de dominio checkout/checkin~~ **✓ hecho FSK-DOMAIN-OPS** ·
     ~~ciclos cross-entidad~~ **✓ hecho FSK-XENTITY-CYCLES** · ~~company-scoping~~ **✓ hecho FSK-COMPANY-SCOPING** ·
     ~~cantidades (qty)~~ **✓ hecho FSK-QTY-OPERATIONS** · ~~checkout polimórfico~~ **✓ hecho FSK-POLYMORPHIC-REFS** ·
-    depreciación calculada · …).
-    **Con el ref polimórfico, el MODELO DE DATOS faithful queda COMPLETO** (modelo + acceso + comportamiento-núcleo).
-    **SIGUIENTE = depreciación calculada (FSK-COMPUTED-FIELDS, abierto, deferral 7)** — el 1er CAMPO COMPUTADO: un
-    valor DERIVADO por una fórmula aritmética DETERMINISTA de otros campos (el valor actual de un activo, straight-line
-    sobre `Depreciation.months`). NO necesita s6/LLM (aritmética pura). Más LIMPIO que el poly (sin 2-columnas/no-FK),
-    pero introduce un mini-vocabulario de fórmula GENERAL. Cierra la dimensión de VALORES DERIVADOS; tras él, lo que
-    resta es breadth pura. Ver `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` (handoff).
+    ~~depreciación calculada~~ **✓ hecho FSK-COMPUTED-FIELDS** · …).
+    **Con el campo computado, el NÚCLEO FUNCIONAL faithful queda COMPLETO** (modelo de datos + acceso +
+    comportamiento + valores derivados + app que corre).
+    **SIGUIENTE = borrado lógico / trash + restore (FSK-SOFT-DELETES, abierto, deferral 12)** — el último eje
+    behavioral genuino antes de la breadth pura: una entidad opta-in `soft_delete: true` → DELETE deja de ser
+    permanente (UPDATE `deleted_at`), las lecturas FILTRAN las filas borradas (read-filter, compone la maquinaria de
+    FSK-COMPANY-SCOPING) y un verbo `restore` las recupera. Faithful (Snipe-IT NUNCA hard-deletea por defecto —
+    SoftDeletes de Laravel). Determinista, sin LLM. Diente de dos lados: DELETE→GET 404 (filtrada) + restore→GET 200.
+    Tras él, lo que resta es **breadth pura** (~226 rutas, Kits, EAV dinámico, `assigns` polimórfico del verbo).
+    Ver `docs/work/FSK-SOFT-DELETES-INCREMENT.md` (handoff).
     **Metodología probada**:
     el producto EXPONE un gap → si es genuinamente FSK-general se arregla GENERAL (cero nombres de dominio,
     `generality` verde) en su propio incremento; si es del dominio, vive en el producto. Casi todos los gaps de FSK se

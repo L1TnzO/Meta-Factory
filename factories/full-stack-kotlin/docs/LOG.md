@@ -1,6 +1,43 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-23T19:38Z — FSK-CREATES-PIVOT ✅: un verbo qty INSERTA una fila PIVOTE (el M:N del checkout de accesorios)
+- **El ÚLTIMO mecanismo behavioral genuino: insert-on-verb.** Hasta hoy un verbo hacía UPDATE (workflow muta enum +
+  assigns/clears ref; qty decrementa int). NINGUNO INSERTABA una fila. En Snipe-IT el checkout de un **accesorio** es
+  un M:N real: además de decrementar el stock, INSERTA una fila en `accessories_checkout` (el log de "quién tiene qué").
+  Este eje agrega `creates: <PivotEntity>` a un verbo qty → al disparar INSERTA una fila en la pivote. COMPONE
+  FSK-QTY-OPERATIONS (decrementa) + FSK-REFS-IN-BODY (FK de cuerpo fail-closed), cero mecanismo nuevo. Determinista
+  (sin s6/LLM). Todo en `codegen/scaffold_product.py` (FÁBRICA, GENERAL, opt-in byte-neutro).
+- **Gramática** (`_load_blueprint`): `creates` SÓLO en un verbo qty; fail-closed → la pivote debe existir, tener un
+  `ref` AL SUJETO (`to == la entidad del verbo` = el FK-al-sujeto) y ≥1 campo de cuerpo (requerido no-sujeto). `creates`
+  en un verbo de workflow → rechazado. Helpers `_creates_ops`/`_creates_subject_fk`/`_creates_body_fields`/`_creates_pivots`.
+- **Repo** (`_operation_repo_fns(+by)`): `<verbo><E>Create` = `ctx.transactionResult { ... }` ATÓMICO — el decremento
+  qty EXISTENTE reusado dentro de la transacción + el INSERT pivote (FK-al-sujeto = el id de la URL; los demás del
+  `input`); null ⟺ sin stock; FK de cuerpo colgante lanza → rollback. Más `_row_json_fn(pivote)` (la fila insertada).
+- **Codec**: `_creates_input_data_class` (`<Pivot>CreateInput` SIN el FK-al-sujeto) · `_parse_fn`→`_parse_fields_fn`
+  (refactor byte-idéntico) · `_codec_helpers(+extra_parsers)` emite `parse<Pivot>CreateInput` y unona sus tipos. AppServer
+  importa `{pkg}.<Pivot>CreateInput`.
+- **Handler** (`_ownerless_handlers(+by)`): el verbo qty con `creates` gana `body` → parsea el `<Pivot>CreateInput` (body
+  malo → 400) → `<verbo><E>Row` (runCatching: null → 409 sin stock; excepción FK → 409 rollback; OK → 200 + la fila
+  pivote `rowJson`); el dispatch pasa `payload`. Sin `creates`, el handler qty queda BYTE-IDÉNTICO.
+- **Proof** (bloque qty): el verbo toma `_cobody` (escalares + cada ref de cuerpo cableado al `owner` sembrado) en vez de
+  `{}` (`%QTY_BODY%`==`{}` sin creates → byte-idéntico) + el diente del INSERT pivote VIVO sobre una accessory FRESCA
+  (201 → checkout 200 → la pivote round-trippea SUJETO+cuerpo; FK de cuerpo colgante → 409 rollback).
+- **Producto** (ADR-016): snipeit `Accessory.checkout` gana `creates: AccessoryCheckout`; la pivote gana
+  `assigned_user_id` (FK al User, fail-closed) + `note` (round-trip del diente) REQUERIDOS.
+- **Verde por bloqueo**: EYEBALL byte-neutro (base/assets/snipeit-sin-creates == HEAD; con creates, diff de snipeit =
+  EXACTO 3 archivos) · `product-run --product snipeit` PASS · RTM **24/25** · **diente de DOS lados VIVO** (degradé
+  `set(NOTE, input.note + "X")` → SÓLO la aserción `[creates] round-trippea note` roja, `/health` UP antes/después +
+  TODAS las demás creates verdes [sujeto `accessory_id==4` · FK `assigned_user_id==1` · FK colgante→409 rollback] →
+  revertí → verde) · `ci --rederive` base **12/12**·assets **11/11**·snipeit **11/11** == pin (SIN re-pin) · `meta check`
+  6/6 (`generality`) · `git diff src/metafactory + seed = 0` · default+assets product.yml = 0.
+- **Lecciones**: (a) componer qty+creates rompe la byte-neutralidad del cuerpo del verbo (qty-solo manda `{}`, creates
+  EXIGE cuerpo) → parametrizar `%QTY_BODY%` (`{}` sin creates) + reemplazar `%QTY_BODY_SETUP%` ANTES (es substring);
+  (b) atomicidad por `transactionResult` = diente limpio (sin ella, el FK colgante decrementa stock antes de fallar);
+  (c) el diente sobre un escalar (`note + "X"`) es el más limpio (200 + valor equivocado, sin FK, sin `-Werror`);
+  (d) observar la fila insertada (lo no-trivial): el verbo la DEVUELVE (rowJson re-leído) en su 200 → el proof la cruza
+  directo; el body-FK válido = `seed["owner"]` (el User dueño que /seed expone). **NÚCLEO FUNCIONAL+BEHAVIORAL COMPLETO.**
+
 ## 2026-06-23T16:41Z — FSK-POLY-ASSIGNS ✅: el verbo de workflow ASIGNA a un ref POLIMÓRFICO (checkout a User|Location|Asset)
 - **El ÚLTIMO eje behavioral genuino: el checkout polimórfico FAITHFUL.** Hasta hoy un verbo de dominio con
   `assigns` (FSK-DOMAIN-OPS) asignaba a un ref de UN SOLO target (un `Long` al cuerpo → `set(<campo>, target)`). En

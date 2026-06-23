@@ -29,6 +29,24 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **INSERT-ON-VERB — el ÚLTIMO mecanismo behavioral (FSK-CREATES-PIVOT, 2026-06-23)**: un verbo qty (`decrements`)
+  puede ADEMÁS `creates: <PivotEntity>` — al disparar INSERTA una fila en la pivote (el M:N real del checkout de
+  accesorios) seteando el **FK-al-sujeto** (del id de la URL, detectado por `to == la entidad del verbo`) + los campos
+  del cuerpo (los requeridos no-sujeto de la pivote). **ATÓMICO** (`ctx.transactionResult`: el decremento qty reusado
+  dentro de la transacción + el INSERT; null ⟺ sin stock → 409; FK de cuerpo colgante lanza → rollback → 409). El
+  handler devuelve 200 + la fila pivote (`rowJson` re-leído de la PG) para que el proof cruce que EXISTE con el sujeto +
+  el cuerpo correctos. COMPONE FSK-QTY-OPERATIONS (decrementa) + FSK-REFS-IN-BODY (FK de cuerpo fail-closed), cero
+  mecanismo nuevo. Codegen GENERAL opt-in byte-neutro: gramática (`creates` sólo en verbo qty, fail-closed), data class
+  `<Pivot>CreateInput` + `parse…CreateInput` (codec `extra_parsers`, SIN el FK-al-sujeto), `<verbo><E>Create`/`rowJson`
+  en `_operation_repo_fns(+by)`, el handler qty con `body`, el bloque qty del proof parametrizado (`%QTY_BODY%`==`{}`
+  sin creates → byte-idéntico) + el diente del INSERT pivote. **Adopción PRODUCTO**: snipeit `Accessory.checkout` gana
+  `creates: AccessoryCheckout` (la pivote con `assigned_user_id`+`note` requeridos). Diente de DOS lados VIVO (degradé
+  `set(NOTE, input.note + "X")` → SÓLO `[creates] round-trippea note` rojo, `/health` UP, hermanos verdes; revertí→verde).
+  **product-run PASS · RTM snipeit 24/25 · `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) ·
+  `meta check` 6/6 · `git diff src/+seed+default/assets product.yml = 0`.** Con esto el **NÚCLEO FUNCIONAL + BEHAVIORAL
+  FAITHFUL está COMPLETO**; lo que resta es **breadth/depth-de-detalle** (owner poly — wrinkle #3, cross-entity depth-2,
+  ~226 rutas, Kits, Actionlog, EAV dinámico, PUT-opcionales, Playwright). Detalle: `docs/work/FSK-CREATES-PIVOT-INCREMENT.md
+  §Evidencia` · `docs/work/FSK-OWNER-POLY-INCREMENT.md` (próximo abierto) · `docs/LOG.md`.
 - **CHECKOUT POLIMÓRFICO — el último eje behavioral FAITHFUL (FSK-POLY-ASSIGNS, 2026-06-23)**: un verbo de workflow
   con `assigns`/`clears` cuyo campo es un **ref POLIMÓRFICO** (FSK-POLYMORPHIC-REFS) setea/limpia las DOS sub-columnas
   (`<campo>_type`+`<campo>_id`) en vez de un Long único — el checkout que asigna a un **User|Location|Asset**.
@@ -43,8 +61,7 @@
   REQ-F-014). **product-run PASS · `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) · `meta
   check` 6/6 · `git diff src/+seed+default/assets product.yml = 0`.** **NÚCLEO FUNCIONAL + BEHAVIORAL FAITHFUL
   COMPLETO** (modelo de datos · acceso · workflow/stock/trash-restore · valores derivados same+cross-entity · checkout
-  polimórfico · app que CORRE); sigue **breadth pura** (creates/pivot de qty, owner poly, cross-entity depth-2, ~226
-  rutas, EAV dinámico). Detalle: `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia` · `docs/LOG.md`.
+  polimórfico · app que CORRE). Detalle: `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia` · `docs/LOG.md`.
 - **CRUD vivo para entidades SIN dueño (FSK-CRUD-OWNERLESS, 2026-06-21)**: la capa viva dejó de ser **opt-in a
   `owned_by`**. El server vivo monta TAMBIÉN la 1ª entidad **ownerless** servible (con `write_roles`, campos
   requeridos todos escalares; DATA-agnóstico: **User**/**Holder**/**Company** en los 3 productos) con CRUD gobernado

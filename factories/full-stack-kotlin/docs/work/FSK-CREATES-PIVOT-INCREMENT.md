@@ -1,8 +1,7 @@
 # Incremento FSK-CREATES-PIVOT — un verbo de workflow/stock INSERTA una fila PIVOTE (el checkout M:N real)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-23T16:41Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-23T16:41Z · cerrado 2026-06-23T19:38Z — ver §Evidencia). Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
@@ -176,3 +175,56 @@ candidatas BOUNDED, framed honestamente:
 **Creates/pivot (este)** agrega el ÚLTIMO mecanismo behavioral (insert-on-verb, el M:N del checkout de accesorios). Tras
 él, lo que resta (owner poly, cross-entity depth-2, las ~226 rutas, Kits, EAV, Actionlog, PUT-opcionales, Playwright,
 AppServer-en-contenedor) es trabajo de BREADTH y de PROFUNDIDAD-de-detalle — los flecos, no el corazón.
+
+---
+
+## §Evidencia — CERRADO 2026-06-23T19:38Z
+
+Construido EXACTO como el camino BOUNDED de §0/§★ (cero invención). Todo en `codegen/scaffold_product.py` (FÁBRICA,
+GENERAL, opt-in byte-neutro) + adopción en `products/snipeit/product.yml` (PRODUCTO). El ÚLTIMO mecanismo behavioral
+genuino: un verbo que INSERTA una fila (vs los tres update-on-verb previos). El **núcleo funcional + behavioral faithful
+está COMPLETO** tras este incremento.
+
+- **Codegen** (commit `feat(fsk): FSK-CREATES-PIVOT …`):
+  - **Gramática** (`_load_blueprint`, rama qty): `creates: <Entity>` SÓLO en un verbo qty (compone sobre el decremento);
+    fail-closed → la pivote debe existir, tener un `ref` AL SUJETO (`to == la entidad del verbo`) y ≥1 campo de cuerpo
+    (requerido no-sujeto). `creates` en un verbo de workflow → rechazado.
+  - **Helpers** `_creates_ops`/`_creates_subject_fk`/`_creates_body_fields`/`_creates_pivots` (DATA-agnósticos).
+  - **`_operation_repo_fns(+by)`**: `<verbo><E>Create` = `ctx.transactionResult { ... }` ATÓMICO (el decremento qty
+    EXISTENTE reusado dentro de la transacción + el INSERT pivote; null ⟺ sin stock; FK de cuerpo colgante lanza →
+    rollback) · `_row_json_fn(pivote)` (la fila insertada, para devolverla).
+  - **Codec**: `_input_data_class`→`_creates_input_data_class` (data class `<Pivot>CreateInput` SIN el FK-al-sujeto) ·
+    `_parse_fn`→`_parse_fields_fn` (refactor byte-idéntico, generalizado a parser/dc/campos) · `_codec_helpers(+extra_parsers)`
+    emite `parse<Pivot>CreateInput` y unona sus tipos (helpers/enum-VALUES). AppServer importa `{pkg}.<Pivot>CreateInput`.
+  - **Handler** (`_ownerless_handlers(+by)`): el verbo qty con `creates` gana `body` → parsea el `<Pivot>CreateInput`
+    (body malo → 400) → `<verbo><E>Row` (runCatching: null → 409 sin stock; excepción FK → 409 rollback; OK → 200 + la
+    fila pivote `rowJson`); el dispatch pasa `payload`. Sin `creates` el handler qty queda BYTE-IDÉNTICO.
+  - **Proof** (bloque qty): el verbo toma `_cobody` (escalares + cada ref de cuerpo cableado al `owner` sembrado) en vez
+    de `{}` (`%QTY_BODY%`==`{}` sin creates → byte-idéntico) + `%CREATES_ROUNDTRIP%` (sobre una accessory FRESCA: 201 →
+    checkout 200 → la pivote round-trippea SUJETO+cuerpo; FK de cuerpo colgante → 409 rollback). `_QTY_BODY_SETUP`/
+    `_CREATES_ROUNDTRIP` opt-in (vacíos sin creates).
+- **Producto** (commit `feat(snipeit): Accessory.checkout `creates: AccessoryCheckout`…`): el verbo `checkout` gana
+  `creates: AccessoryCheckout` (antes sólo `decrements: qty`); la pivote `AccessoryCheckout` gana `assigned_user_id`
+  (FK al User, fail-closed) + `note` (round-trip del diente) REQUERIDOS; `accessory_id` = el FK-al-sujeto (del id de la URL).
+- **Verde por bloqueo**:
+  1. **EYEBALL byte-neutro** — HEAD-codegen vs working-codegen sobre el MISMO bp: base/assets/snipeit-sin-creates
+     byte-idénticos; con creates, el diff de snipeit es EXACTAMENTE 3 archivos (Repository.kt · AppServer.kt · access_control_check.py).
+  2. **`product-run --product snipeit` PASS** · **RTM 24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+  3. **Diente de DOS lados VIVO** (sobre el server real + PG): degradé el `set(NOTE, input.note)` → `input.note + "X"` →
+     `"posted-noteX"` ≠ `"posted-note"` → **SÓLO** la aserción `[creates] round-trippea note` roja; `/health` UP ANTES y
+     DESPUÉS (era la ASERCIÓN, no server-caído) + TODAS las demás creates verdes (sujeto `accessory_id==4` · FK
+     `assigned_user_id==1` · FK colgante → 409 rollback) → revertí → verde.
+  4. **`ci --rederive`** clon limpio == pin (SIN re-pin, `proof_sha` estructural): base **12/12** · assets **11/11** ·
+     snipeit **11/11**.
+  5. **`meta check` 6/6** (`generality` verde) · **`git diff src/metafactory + seed = 0`** · default+assets product.yml = 0.
+- **Lecciones destiladas** (al LOG + memoria cross-sesión):
+  - **Composición qty+creates rompe la byte-neutralidad del cuerpo del verbo qty**: el verbo qty-solo manda `{}`; con
+    `creates` EXIGE cuerpo → el bloque qty del proof parametrizó `%QTY_BODY%` (`{}` sin creates → byte-idéntico) +
+    `%QTY_BODY_SETUP%` (substring de `%QTY_BODY%` → reemplazar SETUP ANTES que BODY).
+  - **Atomicidad por transacción = diente limpio**: sin `transactionResult` el FK colgante decrementa stock ANTES de
+    fallar (artefacto que ensucia la contabilidad de stock del proof); la transacción rollback lo deja intacto.
+  - **El diente sobre un escalar (note) es el más limpio** (200 + valor equivocado, sin FK, sin `-Werror`): `input.note + "X"`
+    mantiene el param usado. Un diente sobre el FK-al-sujeto (`id + 1`) manifiesta como 409 (rollback) — válido pero menos limpio.
+  - **Observar la fila insertada** (lo no-trivial, wrinkle #3): NO se sirvió la pivote (más mecanismo); el verbo DEVUELVE
+    la fila (rowJson re-leído de la PG) en su respuesta 200 → el proof la cruza directo. El body-FK válido = `seed["owner"]`
+    (el User dueño que /seed ya expone) — para un body-FK a otra entidad haría falta sembrarla (diferido, ver §7 del próximo).

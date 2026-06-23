@@ -296,9 +296,8 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
    `Accessory.checkout` (decrements: qty). El server vivo monta `POST /accessorys/{id}/checkout` RBAC-only (rol
    prohibido→403 · sin stock→409 · OK→200+decremento). Resueltos los 2 sub-ejes del wrinkle (verbos-en-ownerless +
    KIND qty). Diente de dos lados VIVO (s9, quitar `AND qty>0` → SÓLO access_control_live rojo). **Sub-eje
-   DIFERIDO honesto**: `creates: <pivot>` (insertar la fila de asignación AccessoryCheckout) — pide observabilidad
-   del pivot no-servido para un diente honesto; el modelo `decrements` (qty := qty-1) es la aproximación faithful
-   del stock. Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
+   `creates: <pivot>`** (insertar la fila de asignación AccessoryCheckout) **✓ HECHO** (FSK-CREATES-PIVOT, 2026-06-23,
+   ver item 15). Ver `docs/work/FSK-QTY-OPERATIONS-INCREMENT.md §Evidencia`.
 10. ~~**Checkout polimórfico (deferral 2)** — el ÚLTIMO eje de MODELO-DE-DATOS faithful~~ **✓ HECHO (la
     PRIMITIVA, FSK-POLYMORPHIC-REFS, 2026-06-22)**: un `ref` con `to: <LISTA>` apunta a una UNIÓN de entidades →
     se materializa como 2 columnas `<campo>_type` (discriminador enum cerrado) + `<campo>_id` (BIGINT SIN FK).
@@ -328,16 +327,25 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     Diferido: depth-2 (el período REAL vive en `Depreciation` vía `AssetModel.depreciation_id`) + el tiempo
     transcurrido. **NÚCLEO FUNCIONAL + BEHAVIORAL faithful COMPLETO.** Ver `docs/work/FSK-XENTITY-COMPUTED-INCREMENT.md
     §Evidencia` + `…/XENTITY-COMPUTED-ADOPT-INCREMENT.md` (producto).
-14. **SIGUIENTE (recomendado) = `assigns` POLIMÓRFICO del verbo (FSK-POLY-ASSIGNS, sub-eje de deferral 2)** — un verbo
+14. ~~**`assigns` POLIMÓRFICO del verbo (FSK-POLY-ASSIGNS, sub-eje de deferral 2)**~~ **✓ HECHO (2026-06-23)** — un verbo
     de workflow (checkout) que ASIGNA a un ref POLIMÓRFICO (setear `<campo>_type` + `<campo>_id` del cuerpo). COMPONE
-    FSK-POLYMORPHIC-REFS (el ref a una unión) + FSK-DOMAIN-OPS (el verbo con `assigns`). Completa el checkout
-    polimórfico FAITHFUL (en Snipe-IT el target del checkout es User|Location|Asset, hoy simplificado a User). Decisión
-    de la próxima sesión (alternativas: `creates`/pivot de qty · cross-entity depth-2 · breadth pura). Ver
-    `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md` (handoff).
-15. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
-    AppServer-en-contenedor con PG · `creates`/pivot de qty · owner POLIMÓRFICO de Asset (wrinkle #3 de deferral 2) ·
+    FSK-POLYMORPHIC-REFS (el ref a una unión) + FSK-DOMAIN-OPS (el verbo con `assigns`). snipeit adoptó
+    `Asset.checkout_target → [User, Location, Asset]` (poly, opcional, ≠ `owned_by` — wrinkle #3); `checkout` lo asigna,
+    `checkin` lo libera. Diente de DOS lados VIVO (s9). Ver `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia`.
+15. ~~**Insert-on-verb / M:N — la fila pivote (FSK-CREATES-PIVOT, sub-eje de item 9)**~~ **✓ HECHO (2026-06-23)** — el
+    ÚLTIMO mecanismo behavioral genuino. Un verbo qty puede ADEMÁS `creates: <PivotEntity>`: al disparar INSERTA una fila
+    en la pivote (FK-al-sujeto del id de la URL + el cuerpo), ATÓMICO (transacción decremento+insert; FK colgante →
+    rollback → 409). snipeit `Accessory.checkout` gana `creates: AccessoryCheckout` (la pivote con `assigned_user_id`+`note`
+    requeridos). Diente de DOS lados VIVO (s9, degradar el `set(NOTE)` → SÓLO access_control_live rojo). **NÚCLEO
+    FUNCIONAL + BEHAVIORAL faithful COMPLETO** (data · acceso · comportamiento · valores derivados · app que CORRE). Ver
+    `docs/work/FSK-CREATES-PIVOT-INCREMENT.md §Evidencia` + `…/CREATES-PIVOT-ADOPT-INCREMENT.md` (producto). **SIGUIENTE
+    (recomendado) = owner POLIMÓRFICO de Asset** (wrinkle #3: `assigned_to` en Snipe-IT ES el owner Y es polimórfico → el
+    OwnershipGuard cruza (tipo, id) en vez de un Long). Alternativas: cross-entity depth-2 · breadth pura. Ver
+    `docs/work/FSK-OWNER-POLY-INCREMENT.md` (handoff).
+16. **Diferidos DUROS** (red/scope/breadth): push de la imagen a un registry · e2e Playwright (browser real) ·
+    AppServer-en-contenedor con PG · owner POLIMÓRFICO de Asset (wrinkle #3 de deferral 2) ·
     cross-entity DEPTH-2 (Asset→AssetModel→Depreciation) + time-elapsed · EAV dinámico a runtime (Avenue B) ·
-    Actionlog (auditoría polimórfica) · las ~226 rutas · Kits.
+    Actionlog (auditoría polimórfica) · las ~226 rutas · Kits · PUT de campos opcionales arbitrarios.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

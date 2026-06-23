@@ -561,8 +561,30 @@ def _load_blueprint(root: Path) -> dict:
                 if not e.get("write_roles"):
                     raise SystemExit(f"scaffold: operation qty {nm!r} de {e['name']!r} sin 'write_roles' "
                                      f"(el verbo qty gatea por RBAC — fail-closed)")
+                # FSK-CREATES-PIVOT: un verbo qty puede ADEMÁS de decrementar INSERTAR una fila en una entidad
+                # PIVOTE (el M:N del checkout de accesorios: `creates: <PivotEntity>`). Fail-closed (mismo patrón que
+                # los demás guards): la pivote debe EXISTIR, tener un `ref` AL SUJETO (`to == la entidad del verbo` —
+                # el FK-al-sujeto, seteado del id del verbo, no del cuerpo) Y ≥1 campo de CUERPO (requerido no-sujeto:
+                # lo que el insert toma del request, fail-closed en FK colgante). Opt-in: sin `creates` el verbo qty
+                # se comporta EXACTO (sólo decrementa, FSK-QTY-OPERATIONS intacto).
+                if "creates" in op:
+                    pivot = by.get(op["creates"])
+                    if pivot is None:
+                        raise SystemExit(f"scaffold: operation qty {nm!r}: 'creates' {op['creates']!r} no es una "
+                                         f"entidad del blueprint (FSK-CREATES-PIVOT, fail-closed)")
+                    subj = [f for f in pivot["fields"]
+                            if f.get("type") == "ref" and not _is_poly(f) and f.get("to") == e["name"]]
+                    if not subj:
+                        raise SystemExit(f"scaffold: operation qty {nm!r}: la pivote {op['creates']!r} no tiene un "
+                                         f"`ref` AL SUJETO ({e['name']!r}) — el FK-al-sujeto es obligatorio (fail-closed)")
+                    if not [f for f in _input_fields(pivot) if f["name"] != subj[0]["name"]]:
+                        raise SystemExit(f"scaffold: operation qty {nm!r}: la pivote {op['creates']!r} no tiene campos "
+                                         f"de CUERPO (requeridos no-sujeto) para insertar (FSK-CREATES-PIVOT)")
                 continue
             # KIND workflow: exige `owned_by` (el verbo decide acceso por ownership) + el campo enum-workflow.
+            if "creates" in op:   # FSK-CREATES-PIVOT: `creates` compone SÓLO sobre un verbo qty (tras el decremento)
+                raise SystemExit(f"scaffold: operation {nm!r} de {e['name']!r}: 'creates' sólo se permite en un verbo "
+                                 f"qty (con 'decrements') — el insert pivote compone sobre el decremento de stock")
             if e.get("owned_by") is None:
                 raise SystemExit(f"scaffold: entidad {e['name']!r} declara una operation de workflow sin 'owned_by' "
                                  f"(el verbo decide acceso por ownership — fail-closed; un verbo de stock usa 'decrements')")
@@ -1372,6 +1394,28 @@ def _qty_ops(e: dict) -> list[dict]:
     return [op for op in (e.get("operations") or []) if op.get("decrements")]
 
 
+def _creates_ops(e: dict) -> list[dict]:
+    """Las operaciones qty de `e` que ADEMÁS INSERTAN una fila pivote (FSK-CREATES-PIVOT): un verbo `creates:
+    <PivotEntity>` (el M:N del checkout de accesorios). None-safe; vacío sin `creates` → byte-neutro (el verbo qty
+    sólo decrementa)."""
+    return [op for op in _qty_ops(e) if op.get("creates")]
+
+
+def _creates_subject_fk(pivot: dict, subject: str) -> dict | None:
+    """El `ref` de la pivote que apunta al SUJETO del verbo (`to == subject`) — el FK-al-sujeto, que el insert
+    setea del id del verbo (NO del cuerpo). La gramática garantiza que existe (fail-closed); el 1ero si hay varios."""
+    return next((f for f in pivot["fields"]
+                 if f["type"] == "ref" and not _is_poly(f) and f.get("to") == subject), None)
+
+
+def _creates_body_fields(pivot: dict, subject: str) -> list[dict]:
+    """Los campos de la pivote que vienen del CUERPO del verbo (FSK-CREATES-PIVOT): `_input_fields` (requeridos
+    no-dueño) MENOS el FK-al-sujeto (que sale del id del verbo). Un `ref` de cuerpo es fail-closed (FK colgante →
+    409); un escalar round-trippea. La pivote no tiene dueño → `_input_fields` no excluye nada más."""
+    subj = _creates_subject_fk(pivot, subject)
+    return [f for f in _input_fields(pivot) if not (subj and f["name"] == subj["name"])]
+
+
 def _live_with_ref(entities: list[dict]) -> dict | None:
     """La 1ª entidad SIN dueño con un `ref` REQUERIDO no-dueño que obtiene CAPA VIVA (FSK-REFS-IN-BODY): el POST
     acepta el id del ref en el cuerpo (Long, type-bound), la FK existe → 201, cuelga → 4xx fail-closed. El
@@ -1432,6 +1476,34 @@ def _input_data_class(e: dict) -> str:
     lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}," for f in _input_cols(e)]
     lines.append(")")
     return "\n".join(lines)
+
+
+def _creates_input_data_class(pivot: dict, body: list[dict]) -> str:
+    """data class <Pivot>CreateInput: el cuerpo del verbo `creates` (FSK-CREATES-PIVOT) — un campo por campo de
+    CUERPO de la pivote (sus requeridos MENOS el FK-al-sujeto, que sale del id del verbo). El parser
+    parse<Pivot>CreateInput lo construye del JSON; Repository.<verbo><E>Create lo inserta. Distinto de <Pivot>Input
+    (que llevaría el FK-al-sujeto): el sujeto viene de la URL, no del cuerpo."""
+    lines = [f"data class {pivot['name']}CreateInput("]
+    lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}," for f in body]
+    lines.append(")")
+    return "\n".join(lines)
+
+
+def _creates_pivots(entities: list[dict]) -> list[tuple[dict, dict, list[dict]]]:
+    """Los (entidad-verbo, pivote, campos-de-cuerpo) de cada verbo `creates` del producto (FSK-CREATES-PIVOT),
+    deduplicado por pivote. Fuente única que cruzan Repository (data class + insert + rowJson) y AppServer (parser +
+    handler + import). Vacío sin `creates` → byte-neutro. DATA-agnóstico (deriva del blueprint, ADR-012)."""
+    by = {e["name"]: e for e in entities}
+    out: list[tuple[dict, dict, list[dict]]] = []
+    seen: set[str] = set()
+    for e in entities:
+        for op in _creates_ops(e):
+            pivot = by[op["creates"]]
+            if pivot["name"] in seen:
+                continue
+            seen.add(pivot["name"])
+            out.append((e, pivot, _creates_body_fields(pivot, e["name"])))
+    return out
 
 
 def _migration_sql(bp: dict) -> str:
@@ -1691,12 +1763,14 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
     return out
 
 
-def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
+def _operation_repo_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
     """Las queries jOOQ TIPADAS que un verbo de DOMINIO (FSK-DOMAIN-OPS) necesita: (1) `<e><Field>Of` lee el valor
     ACTUAL del campo enum-workflow (String, la columna VARCHAR) — el server lo cruza contra la máquina de estado
     (canTransition) a RUNTIME; (2) `<verbo><E>` es la MUTACIÓN atómica del verbo: un UPDATE que setea el campo al
     `to` declarado + (assigns) un ref al target del body O (clears) lo pone NULL, por id. Type-bound al schema
-    (columna inexistente → no compila, DES-12). Opt-in: sin `operations` no se emite (default/assets byte-idéntico)."""
+    (columna inexistente → no compila, DES-12). Opt-in: sin `operations` no se emite (default/assets byte-idéntico).
+    FSK-CREATES-PIVOT: un verbo qty con `creates` suma `<verbo><E>Create` (decrementa + INSERTA la fila pivote en UNA
+    transacción) + el `<pivote>RowJson` (para devolver la fila insertada). `by` (el grafo) resuelve la pivote."""
     out = []
     wf_ops = [op for op in e["operations"] if not op.get("decrements")]   # KIND workflow (enum/transition)
     qty_ops = [op for op in e["operations"] if op.get("decrements")]      # KIND qty/stock (FSK-QTY-OPERATIONS)
@@ -1739,6 +1813,31 @@ def _operation_repo_fns(e: dict, tbl: str) -> list[str]:
         calls = [f"set({dcol}, {dcol}.minus(1))", f"where({tbl}.ID.eq(id).and({dcol}.gt(0)))", "execute()"]
         chain = _jooq_chain("        ", "", f"ctx.update({tbl})", calls)
         out.append(f"    fun {op['name']}{e['name']}(ctx: DSLContext, id: Long): Int =\n{chain}")
+    # FSK-CREATES-PIVOT: un verbo qty con `creates` ADEMÁS del decremento INSERTA una fila en la entidad PIVOTE (el
+    # M:N del checkout de accesorios). ATÓMICO (transactionResult): el decremento (la fn qty de arriba) y el insert
+    # van en UNA transacción → el insert SÓLO si el decremento afectó 1 fila (hay stock); un FK de cuerpo COLGANTE
+    # lanza → rollback (no se pierde stock). Devuelve el id de la fila insertada (null ⟺ sin stock → el server 409).
+    # El FK-al-sujeto sale del id del verbo; los demás campos, del `input`. Opt-in: sin `creates` no se emite nada.
+    for op in (_creates_ops(e) if by is not None else []):
+        pivot = by[op["creates"]]
+        ptbl, pin = _TBL(pivot), f"{pivot['name']}CreateInput"
+        subj = _creates_subject_fk(pivot, e["name"])
+        ins_calls = ([f"set({ptbl}.{_COL(subj['name'])}, id)"]
+                     + [f"set({ptbl}.{_COL(f['name'])}, input.{_camel(f['name'])})"
+                        for f in _creates_body_fields(pivot, e["name"])]
+                     + [f"returning({ptbl}.ID)", "fetchOne()!!", f"get({ptbl}.ID)"])
+        ins_chain = _jooq_chain("                ", "", f"tx.insertInto({ptbl})", ins_calls)
+        out.append(
+            f"    fun {op['name']}{e['name']}Create(ctx: DSLContext, id: Long, input: {pin}): Long? =\n"
+            f"        ctx.transactionResult {{ cfg ->\n"
+            f"            val tx = cfg.dsl()\n"
+            f"            if ({op['name']}{e['name']}(tx, id) == 0) {{\n"
+            f"                null\n"
+            f"            }} else {{\n"
+            f"{ins_chain}\n"
+            f"            }}\n"
+            f"        }}")
+        out.append(_row_json_fn(pivot, ptbl, by))   # la fila pivote insertada, para que el handler la devuelva
     return out
 
 
@@ -1752,7 +1851,12 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # (FSK-CRUD-OWNERLESS) — fuente única _live_entities, la MISMA que el AppServer monta.
     live = _live_entities(entities)
     live_names = {e["name"] for e in live}
-    input_live = [{"fields": _input_fields(e)} for e in live]
+    # FSK-CREATES-PIVOT: las pivotes que un verbo `creates` inserta — suman un data class <Pivot>CreateInput (sus
+    # campos de cuerpo) y sus tipos al cómputo de imports (p.ej. un `date` de cuerpo → java.time.LocalDate). Vacío
+    # sin `creates` → byte-neutro (default/assets/snipeit-sin-creates sin re-derivar).
+    creates_pivots = _creates_pivots(entities)
+    input_live = ([{"fields": _input_fields(e)} for e in live]
+                  + [{"fields": body} for _, _, body in creates_pivots])
     table_imports = [f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities]
     # Layout de imports de ktlint_official: todo ordenado pero los `java.*`/`javax.*` AL FINAL (mismo orden que
     # AppServer.kt: org.* → {pkg}.* → java.*). Los imports de tipo del Input (p.ej. una columna `date` requerida →
@@ -1762,6 +1866,9 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # El data class de entrada por entidad VIVA (el cuerpo del POST type-coerced, DES-12): top-level, antes del
     # object Repository (mismo paquete → AppServer lo importa como {pkg}.<E>Input).
     data_classes = "".join(_input_data_class(e) + "\n\n" for e in live)
+    # FSK-CREATES-PIVOT: el data class del cuerpo del verbo `creates`, por pivote (mismo paquete → AppServer lo
+    # importa como {pkg}.<Pivot>CreateInput). Opt-in: "" sin `creates` → byte-idéntico.
+    data_classes += "".join(_creates_input_data_class(pivot, body) + "\n\n" for _, pivot, body in creates_pivots)
     by = {e["name"]: e for e in entities}   # FSK-XENTITY-COMPUTED: el grafo, para resolver un ref → su target en el JOIN
     fns = []
     for e in entities:
@@ -1823,7 +1930,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         # Verbos de DOMINIO (FSK-DOMAIN-OPS): el lector de estado + la mutación atómica de cada verbo. Opt-in:
         # sin `operations` no agrega nada (la entidad con verbos es la que tiene dueño → ya es live).
         if e.get("operations"):
-            fns.extend(_operation_repo_fns(e, tbl))
+            fns.extend(_operation_repo_fns(e, tbl, by))
     if data_classes:   # helper de serialización JSON usado por <e>RowJson (sólo si hay entidad viva)
         fns.insert(0, "    private fun jsonVal(v: Any?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"")
     # FSK-COMPUTED-FIELDS: el helper de división con guard de div-por-cero (la fórmula de un campo computado lo
@@ -4181,11 +4288,18 @@ def _parse_fn(e: dict) -> str:
     schema (FSK-CRUD-BODY-PARSING/OWNERLESS, DES-12). runCatching → null ante JSON inválido / tipo equivocado /
     clave ausente (el server responde 400). Usa los helpers de coerción COMPARTIDOS (_codec_helpers): un número
     entrecomillado se RECHAZA y un string-donde-va-número también → coerción estricta, fail-closed."""
-    name = e["name"]
+    return _parse_fields_fn(f"parse{e['name']}Input", f"{e['name']}Input", _input_cols(e))
+
+
+def _parse_fields_fn(parser: str, dc: str, fields: list[dict]) -> str:
+    """El cuerpo de un parser JSON→data class type-coerced (la maquinaria de `_parse_fn`, generalizada a un nombre
+    de parser + data class + lista de columnas explícitos). Lo reusa `parse<E>Input` (served) y, FSK-CREATES-PIVOT,
+    `parse<Pivot>CreateInput` (los campos de cuerpo del verbo `creates`, sin el FK-al-sujeto). Misma coerción
+    estricta fail-closed (un número entrecomillado → rechazado → null → 400)."""
     coerce = {"string": 'str(o, "%s")', "int": 'int32(o, "%s")', "number": 'dbl(o, "%s")',
               "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
     args = []
-    for f in _input_cols(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → enumOf, discriminador) + `<campo>_id` (longOf)
+    for f in fields:   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → enumOf, discriminador) + `<campo>_id` (longOf)
         if f["type"] == "enum":
             expr = f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)'
         elif f["type"] == "string" and f.get("format"):   # FSK-CUSTOM-FIELDS: valida el VALOR (no sólo el tipo)
@@ -4193,20 +4307,24 @@ def _parse_fn(e: dict) -> str:
         else:
             expr = coerce[f["type"]] % f["name"]
         args.append(f"        {_camel(f['name'])} = {expr},")
-    return (f"private fun parse{name}Input(body: String): {name}Input? = runCatching {{\n"
+    return (f"private fun {parser}(body: String): {dc}? = runCatching {{\n"
             "    val o = Json.parseToJsonElement(body).jsonObject\n"
-            f"    {name}Input(\n" + "\n".join(args) + "\n    )\n"
+            f"    {dc}(\n" + "\n".join(args) + "\n    )\n"
             "}.getOrNull()")
 
 
-def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
+def _codec_helpers(entities: list[dict],
+                   extra_parsers: list[tuple[str, str, list[dict]]] = ()) -> tuple[str, list[str]]:
     """Helpers de coerción JSON→tipo COMPARTIDOS por las entidades VIVAS + el parser parse<E>Input de cada una
     (FSK-CRUD-BODY-PARSING/OWNERLESS, DES-12). Los helpers (prim/str/int32/…) se emiten UNA vez sobre la UNIÓN de
     tipos de todas las entidades servidas → sin colisión cuando el AppServer monta >1 entidad (con dueño +
     ownerless), y cada helper lo USA ≥1 parser → sin UnusedPrivateMember de detekt. Cada coerción es fail-closed:
     tipo equivocado / faltante / JSON inválido → excepción → runCatching → null → 400 (no 500, no traga). Usa
-    kotlinx.serialization.json (dep INTENCIONAL de la fábrica, no viola ADR-012). Devuelve (kotlin, imports)."""
-    flds = [f for e in entities for f in _input_cols(e)]   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly
+    kotlinx.serialization.json (dep INTENCIONAL de la fábrica, no viola ADR-012). Devuelve (kotlin, imports).
+    FSK-CREATES-PIVOT: `extra_parsers` (parser, data_class, campos) suma parsers fuera de las servidas (el cuerpo del
+    verbo `creates`) — sus tipos entran a la UNIÓN (helpers/enum-VALUES) y su parser se emite. Vacío → byte-idéntico."""
+    flds = ([f for e in entities for f in _input_cols(e)]   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly
+            + [f for _, _, fields in extra_parsers for f in fields])   # FSK-CREATES-PIVOT: los campos de cuerpo
     types = {f["type"] for f in flds}
     parts = ["private fun prim(o: JsonObject, k: String): JsonPrimitive = requireNotNull(o[k]) { k }.jsonPrimitive"]
     if {"string", "date", "enum"} & types:
@@ -4261,6 +4379,7 @@ def _codec_helpers(entities: list[dict]) -> tuple[str, list[str]]:
         for nm in fmt_names:
             parts.append(f'private val FMT_{nm.upper()} = Regex("""{_FORMAT_REGEX[nm]}""")')
     parts += [_parse_fn(e) for e in entities]
+    parts += [_parse_fields_fn(parser, dc, fields) for parser, dc, fields in extra_parsers]   # FSK-CREATES-PIVOT
     imps = {"import kotlinx.serialization.json.Json", "import kotlinx.serialization.json.JsonObject",
             "import kotlinx.serialization.json.JsonPrimitive", "import kotlinx.serialization.json.jsonObject",
             "import kotlinx.serialization.json.jsonPrimitive"}
@@ -4412,7 +4531,8 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
     return helpers + list_all + get_one + do_post + do_put + do_delete
 
 
-def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None = None) -> str:
+def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None = None,
+                        by: dict | None = None) -> str:
     """Los handlers del server vivo para una entidad SIN dueño (FSK-CRUD-OWNERLESS): CRUD gobernado por RBAC-only
     (no hay dueño que cargar → sin OwnershipGuard; el guard se reduce a RoleGuard.authorize). Funciones SUFIJADAS
     por la entidad (doPost<E>/listAll<E>/getOne<E>/doDelete<E>/handle<E>) → coexisten con las de la entidad con
@@ -4438,6 +4558,43 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None 
         verb_fns, disp_lines = [], []
         for op in ops:
             v = op["name"]
+            if op.get("creates") and by is not None:
+                # FSK-CREATES-PIVOT: el verbo qty ADEMÁS de decrementar INSERTA una fila en la pivote (M:N). Toma el
+                # cuerpo (los campos de la pivote menos el FK-al-sujeto, que sale del id de la URL); body malo -> 400.
+                # El insert ATÓMICO (Repository.<verbo><E>Create): null ⟺ sin stock -> 409; FK de cuerpo COLGANTE ->
+                # rollback -> 409; OK -> 200 + la fila pivote insertada (rowJson) para que el proof la cruce.
+                pivot = by[op["creates"]]
+                pin, plower = f"{pivot['name']}CreateInput", pivot["name"].lower()
+                verb_fns.append(
+                    f"// POST /<plural>/{{id}}/{v} (FSK-CREATES-PIVOT): RBAC-only; decrementa el stock Y INSERTA una\n"
+                    f"// fila en la pivote {pivot['name']} (M:N, atomico). Rol prohibido -> 403; body malo -> 400; sin\n"
+                    f"// stock o FK de cuerpo COLGANTE -> 409; OK -> 200 + la fila pivote. El sujeto sale del id de la URL.\n"
+                    f"private fun {v}{name}(ctx: DSLContext, token: String?, rest: String, body: String): "
+                    "Pair<Int, String> {\n"
+                    '    val opId = rest.split("/").firstOrNull()?.toLongOrNull()\n'
+                    f"    val input = parse{pivot['name']}CreateInput(body)\n"
+                    "    return when {\n"
+                    "        opId == null -> notFound()\n"
+                    f"        !RoleGuard.authorize(token, {write_fn}()) -> forbidden()\n"
+                    "        input == null -> badRequest()\n"
+                    f"        else -> {v}{name}Row(ctx, opId, input)\n"
+                    "    }\n"
+                    "}\n\n"
+                    f"// el insert pivote ATOMICO: null ⟺ sin stock -> 409; un FK de cuerpo COLGANTE lanza -> rollback\n"
+                    f"// -> 409; OK -> 200 + la fila pivote (rowJson). Degradar el insert (FK-al-sujeto / un campo del\n"
+                    f"// cuerpo) -> el round-trip del proof falla -> rojo SOLO en s9 (access_control_live).\n"
+                    f"private fun {v}{name}Row(ctx: DSLContext, opId: Long, input: {pin}): Pair<Int, String> =\n"
+                    "    runCatching {\n"
+                    f"        when (val pid = Repository.{v}{name}Create(ctx, opId, input)) {{\n"
+                    "            null -> conflict()\n"
+                    f'            else -> HTTP_OK to """{{"status":$HTTP_OK,"{plower}":'
+                    f'${{Repository.{plower}RowJson(ctx, pid)}}}}"""\n'
+                    "        }\n"
+                    "    }.getOrElse { conflict() }")
+                disp_lines.append(
+                    f'        method == "POST" && rest.split("/").getOrNull(1) == "{v}" -> '
+                    f"{v}{name}(ctx, token, rest, payload)\n")
+                continue
             verb_fns.append(
                 f"// POST /<plural>/{{id}}/{v} (FSK-QTY-OPERATIONS): RBAC-only; decrementa el stock con guard\n"
                 f"// out-of-stock. Rol prohibido -> 403; fila inexistente / sin stock -> 409 (el UPDATE condicional\n"
@@ -4849,7 +5006,12 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                   | ({_TBL(company_ent)} if company_ent else set())   # FSK-COMPANY-SCOPING: la tabla del tenant
                   # FSK-QTY-OPERATIONS: la tabla de la entidad with_ref, que seedRows inserta inline (fila de stock)
                   | ({_TBL(with_ref)} if with_ref and _qty_ops(with_ref) else set()))
-    codec_kt, codec_imports = _codec_helpers(served)
+    # FSK-CREATES-PIVOT: las pivotes que un verbo `creates` inserta — el codec gana un parse<Pivot>CreateInput (el
+    # cuerpo del verbo, sin el FK-al-sujeto) y el AppServer importa el data class. Opt-in: "" sin `creates`.
+    creates_pivots = _creates_pivots(ents)
+    creates_parsers = [(f"parse{p['name']}CreateInput", f"{p['name']}CreateInput", body)
+                       for _, p, body in creates_pivots]
+    codec_kt, codec_imports = _codec_helpers(served, creates_parsers)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
     # `kotlin.**` → cae en el grupo principal. Construyo cada grupo y lo ordeno con sorted() (mismo orden ascii).
@@ -4870,6 +5032,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         f"import {pkg}.routes.appRoutes",
     ] + ([f"import {pkg}.auth.CompanyScopeGuard"] if scope_field else [])   # FSK-COMPANY-SCOPING (opt-in)
       + [f"import {pkg}.{e['name']}Input" for e in served]   # un data class de cuerpo por entidad servida
+      + [f"import {pkg}.{p['name']}CreateInput" for _, p, _ in creates_pivots]   # FSK-CREATES-PIVOT (opt-in)
       + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports + op_imports)
     # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un campo
     # `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports. El
@@ -4984,7 +5147,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # → @Suppress method-level, OPT-IN (byte-neutro sin verbos: el `handle` de default/assets queda EXACTO).
     handle_suppress = '@Suppress("CyclomaticComplexMethod")\n' if (operations or soft) else ""
     ownerless_block = ("\n" + _ownerless_handlers(ownerless)) if ownerless else ""
-    with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True, ops=wr_qty_ops)) if with_ref else ""
+    with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True, ops=wr_qty_ops, by=by)) if with_ref else ""
     ownerless_context = (f"    server.createContext(PLURAL_{ownerless['name'].upper()}) "
                          f"{{ ex -> handle{ownerless['name']}(ctx, ex) }}\n") if ownerless else ""
     with_ref_context = (f"    server.createContext(PLURAL_{with_ref['name'].upper()}) "
@@ -5360,23 +5523,64 @@ _QTY_PROOF = '''
         qty_verb = "%QTY_VERB%"      # el verbo que decrementa el stock (POST /<plural>/{id}/<verbo>)
         qty_field = "%QTY_FIELD%"    # el campo `int` (stock) que el verbo decrementa
         qty_id = seed.get("qtyId")
-        if qty_id is not None:
+        if qty_id is not None:%QTY_BODY_SETUP%
             _q0 = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
             _qpath = f"{WR_PLURAL}/{qty_id}/{qty_verb}"
             if WR_FORBIDDEN:   # rol prohibido -> 403 y el stock NO cambia
-                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_FORBIDDEN}:1", {})[0], 403,
+                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_FORBIDDEN}:1", %QTY_BODY%)[0], 403,
                               f"[qty] {qty_verb} rol PROHIBIDO ({WR_FORBIDDEN}) -> 403")
                 _after = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
                 ok &= _expect_value(_after, _q0, "[qty] stock intacto tras rol prohibido")
             # checkout hasta agotar el stock: cada uno -> 200 + decremento de 1 (GET lo confirma).
             for _i in range(_q0):
-                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", {})[0], 200,
+                ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", %QTY_BODY%)[0], 200,
                               f"[qty] {qty_verb} con stock -> 200")
                 _cur = json.loads(_body(base, f"{WR_PLURAL}/{qty_id}")).get(qty_field)
                 ok &= _expect_value(_cur, _q0 - _i - 1, f"[qty] {qty_verb} decremento el stock")
             # *** EL DIENTE: sin stock (qty==0) -> 409 (el UPDATE condicional afecta 0 filas). ***
-            ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", {})[0], 409,
-                          f"[qty] {qty_verb} sin stock (qty==0) -> 409 (out-of-stock)")'''
+            ok &= _expect(_send(base, "POST", _qpath, f"Bearer {WR_ALLOWED}:1", %QTY_BODY%)[0], 409,
+                          f"[qty] {qty_verb} sin stock (qty==0) -> 409 (out-of-stock)")%CREATES_ROUNDTRIP%'''
+
+
+# FSK-CREATES-PIVOT: el SETUP del cuerpo del verbo qty cuando ADEMÁS `creates` una fila pivote — el verbo pasa a
+# EXIGIR cuerpo (los campos de la pivote menos el FK-al-sujeto). `_cobody` = los escalares + cada ref de cuerpo
+# cableado al `owner` sembrado (una FK VÁLIDA: el User dueño). Opt-in: "" sin `creates` → `%QTY_BODY%`==`{}` y el
+# bloque qty queda BYTE-IDÉNTICO (el verbo qty-solo no toma cuerpo). 12 indent (dentro del `if qty_id is not None:`).
+_QTY_BODY_SETUP = '''
+            _qcreates_scalars = json.loads('%CREATES_SCALARS%')   # escalares del cuerpo (round-trip directo)
+            _qcreates_refs = json.loads('%CREATES_REFS%')         # refs de cuerpo: FK VALIDA = el User dueno (/seed owner)
+            _cobody = dict(_qcreates_scalars)
+            for _rf in _qcreates_refs:
+                _cobody[_rf] = owner'''
+
+
+# FSK-CREATES-PIVOT: el DIENTE de dos lados del INSERT pivote VIVO. Sobre una entidad FRESCA con stock (reusa el
+# cuerpo `valid` del with-ref): el verbo qty checkoutea -> 200 + la fila pivote EXISTE con el SUJETO (FK-al-sujeto =
+# el id del verbo, de la URL) + los campos del cuerpo (round-trip via la respuesta). Un FK de cuerpo COLGANTE ->
+# 409 (fail-closed, la transaccion ROLLBACK -> no pierde stock). Degradar el insert (el set del FK-al-sujeto / un
+# campo del cuerpo) en el Repository -> el round-trip falla -> rojo SOLO en s9. 12 indent (dentro del `if qty_id`).
+_CREATES_ROUNDTRIP = '''
+            # *** FSK-CREATES-PIVOT: el verbo qty ADEMAS de decrementar INSERTA una fila PIVOTE (el M:N del checkout ***
+            # de accesorios). Sobre una accessory FRESCA con stock: checkout -> 200 + la pivote con (SUJETO, cuerpo).
+            _cs, _cob = _send(base, "POST", WR_PLURAL, f"Bearer {WR_ALLOWED}:1", valid)
+            ok &= _expect(_cs, 201, "[creates] POST de una accessory FRESCA (con stock) -> 201")
+            _caid = _cob.get("id")
+            if _caid is not None:
+                _xs, _xob = _send(base, "POST", f"{WR_PLURAL}/{_caid}/{qty_verb}", f"Bearer {WR_ALLOWED}:1", _cobody)
+                ok &= _expect(_xs, 200, f"[creates] {qty_verb} con stock INSERTA la pivote -> 200")
+                _piv = _xob.get("%CREATES_KEY%") or {}
+                ok &= _expect_value(_piv.get("%CREATES_SUBJECT%"), _caid,
+                                    "[creates] la fila pivote apunta al SUJETO (FK-al-sujeto = el id del verbo)")
+                for _k, _v in _qcreates_scalars.items():
+                    ok &= _expect_value(_piv.get(_k), _v, f"[creates] la pivote round-trippea el campo {_k} del cuerpo")
+                for _rf in _qcreates_refs:
+                    ok &= _expect_value(_piv.get(_rf), owner, f"[creates] la pivote round-trippea la FK {_rf} del cuerpo")
+                if _qcreates_refs:   # *** EL DIENTE FK fail-closed: un FK de cuerpo COLGANTE -> 409 (rollback) ***
+                    _dang = dict(_cobody)
+                    _dang[_qcreates_refs[0]] = owner + 9999
+                    ok &= _expect(_send(base, "POST", f"{WR_PLURAL}/{_caid}/{qty_verb}",
+                                        f"Bearer {WR_ALLOWED}:1", _dang)[0], 409,
+                                  "[creates] FK de cuerpo COLGANTE -> 409 (fail-closed, rollback de la transaccion)")'''
 
 
 # FSK-POLYMORPHIC-REFS: agrega al cuerpo `valid` del bloque with-ref las 2 keys del ref polimórfico — `<campo>_type`
@@ -5606,6 +5810,23 @@ def _access_control_check_py(bp: dict) -> str:
     qty_verb = wr_qty[0]["name"] if wr_qty else ""
     qty_field = wr_qty[0]["decrements"] if wr_qty else ""
     qty_block = _QTY_PROOF if wr_qty else ""
+    # FSK-CREATES-PIVOT: si el verbo qty del with_ref ADEMÁS `creates` una pivote, el verbo EXIGE cuerpo (los campos
+    # de la pivote MENOS el FK-al-sujeto, que sale del id de la URL) → el bloque qty lo provee (_cobody) Y suma el
+    # diente del INSERT pivote VIVO: tras checkout, la fila pivote EXISTE con el SUJETO + el cuerpo (round-trip via
+    # la respuesta); un FK de cuerpo COLGANTE → 409 (rollback). Opt-in: sin `creates` → "" / `{}` → byte-idéntico.
+    creates_op = next((op for op in wr_qty if op.get("creates")), None)
+    _cents = {e["name"]: e for e in bp["entities"]}
+    if creates_op:
+        pivot = _cents[creates_op["creates"]]
+        body = _creates_body_fields(pivot, wr["name"])
+        creates_scalars = {f["name"]: _proof_post_value(f) for f in body if f["type"] != "ref"}
+        creates_refs = [f["name"] for f in body if f["type"] == "ref" and not _is_poly(f)]
+        creates_key = pivot["name"].lower()
+        creates_subject = _creates_subject_fk(pivot, wr["name"])["name"]
+        qty_body_setup, qty_body, creates_roundtrip = _QTY_BODY_SETUP, "_cobody", _CREATES_ROUNDTRIP
+    else:
+        creates_scalars, creates_refs, creates_key, creates_subject = {}, [], "", ""
+        qty_body_setup, qty_body, creates_roundtrip = "", "{}", ""
     # FSK-OWNED-REQUIRED-REFS: inyecta las FKs VÁLIDAS del owned (ids de /seed ownedRefs) en los cuerpos del POST,
     # como el bloque with-ref. Opt-in: sin refs requeridos no-dueño → "" → el proof queda byte-idéntico.
     owned_ref_merge = ("\n        _owned_refs = seed.get(\"ownedRefs\", {})\n"
@@ -5701,6 +5922,13 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%OPERATIONS_BLOCK%", operations_block)
             .replace("%COMPANY_SCOPE_BLOCK%", company_scope_block)
             .replace("%QTY_BLOCK%", qty_block)
+            .replace("%QTY_BODY_SETUP%", qty_body_setup)   # FSK-CREATES-PIVOT (antes que %QTY_BODY%: es substring)
+            .replace("%QTY_BODY%", qty_body)
+            .replace("%CREATES_ROUNDTRIP%", creates_roundtrip)
+            .replace("%CREATES_SCALARS%", json.dumps(creates_scalars))
+            .replace("%CREATES_REFS%", json.dumps(creates_refs))
+            .replace("%CREATES_KEY%", creates_key)
+            .replace("%CREATES_SUBJECT%", creates_subject)
             .replace("%QTY_VERB%", qty_verb)
             .replace("%QTY_FIELD%", qty_field)
             .replace("%WR_POLY_VALID%", wr_poly_valid)   # FSK-POLYMORPHIC-REFS: 1ro insertan los bloques (con %WR_POLY%),

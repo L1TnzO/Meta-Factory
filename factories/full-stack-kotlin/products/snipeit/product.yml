@@ -152,6 +152,9 @@ entities:
     write_roles: [superadmin, admin, manager]   # un manager administra activos…
     owned_by: assigned_user_id                   # …pero sólo los SUYOS (su principal == el asignado), salvo bypass
     company_scoped: company_id                   # …y SÓLO los de su COMPAÑÍA (multi-tenancy/FMCS), salvo bypass (FSK-COMPANY-SCOPING)
+    soft_delete: true                            # BORRADO LÓGICO (FSK-SOFT-DELETES, deferral 12): Snipe-IT NUNCA hard-deletea
+    #                                              (Laravel SoftDeletes) — DELETE → papelera (deleted_at), las lecturas filtran,
+    #                                              y `restore` recupera. Compone el read-filter de company-scope + IS NULL.
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): checkout/checkin — las operaciones CENTRALES de Snipe-IT. NO son un PUT
     # genérico: son transiciones NOMBRADAS del workflow `status` con efecto sobre `assigned_user_id` (el dueño de
     # la fila), que el server vivo enforza componiendo RBAC + ownership + la precondición de WORKFLOW (canTransition,

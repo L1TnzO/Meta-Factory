@@ -176,6 +176,18 @@ def _is_computed(f: dict) -> bool:
     return "computed" in f
 
 
+def _soft_delete(e: dict) -> bool:
+    """Una entidad con BORRADO LÓGICO (FSK-SOFT-DELETES): `soft_delete: true` (top-level por-entidad, hermano de
+    `company_scoped`/`owned_by`) → DELETE deja de ser PERMANENTE. La fila gana una columna de SISTEMA `deleted_at`
+    (nullable date, hilada a mano como `id` — NO es un field de usuario, fuera de `_cols_of`/insert/contrato): el
+    DELETE pasa a `UPDATE deleted_at = hoy` (la fila SIGUE existiendo) y las lecturas FILTRAN las borradas
+    (`deleted_at IS NULL`), con un verbo `restore` IMPLÍCITO que las recupera. Faithful a Snipe-IT (Laravel
+    SoftDeletes: nunca hard-deletea por defecto). Opt-in: sin la flag el DELETE es un `deleteFrom` permanente
+    (byte-idéntico para todo lo previo). Compone el read-filter de FSK-COMPANY-SCOPING + el montaje de verbos de
+    FSK-QTY/DOMAIN-OPS (el predicado acá es `deleted_at IS NULL`, sin bypass: filtrar SIEMPRE, restore para recuperar)."""
+    return bool(e.get("soft_delete"))
+
+
 _COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores (fail-closed; nada domain-specific)
 _COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
 
@@ -312,6 +324,11 @@ def _load_blueprint(root: Path) -> dict:
     for e in ents:
         if not e.get("name") or not e.get("fields"):
             raise SystemExit(f"scaffold: entidad {e.get('name')!r} sin 'name'/'fields'")
+        # FSK-SOFT-DELETES: opt-in por-entidad. Fail-closed (mismo patrón que los demás guards): un bool. Sin la
+        # flag el DELETE es permanente (byte-idéntico). La columna de sistema `deleted_at` y el verbo `restore`
+        # los hila el codegen donde hace falta (migration · read-filter · DELETE · restore), fuera de `_cols_of`.
+        if "soft_delete" in e and not isinstance(e["soft_delete"], bool):
+            raise SystemExit(f"scaffold: entidad {e['name']!r} con 'soft_delete' no booleano (fail-closed)")
         for f in e["fields"]:
             t = f.get("type")
             if t not in _OAPI_TYPE and t != "enum":          # vocabulario cerrado (fail-closed, R2)
@@ -635,6 +652,26 @@ def _openapi_yaml(bp: dict) -> str:
                 "        '200': { description: ok }",
                 "        '404': { description: not found }",
                 "        '409': { description: conflict }",
+            ]
+        # FSK-SOFT-DELETES: el verbo `restore` IMPLÍCITO (lo habilita `soft_delete: true`) — POST /<plural>/{id}/
+        # restore recupera una fila borrada lógicamente. security + x-required-roles (= write_roles) → route_check
+        # (auth/rbac) lo cruza contra el RouteTable (single-source DES-6). Opt-in: sin la flag no se emite (FSK-S16 intacto).
+        if _soft_delete(e):
+            lines += [
+                f"  /{plural}/{{id}}/restore:",
+                "    post:",
+                f"      operationId: restore{e['name']}",
+                "      security:",
+                "        - bearerAuth: []",
+            ]
+            if e.get("write_roles"):
+                lines.append(f"      x-required-roles: [{', '.join(e['write_roles'])}]")
+            lines += [
+                "      parameters:",
+                "        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }",
+                "      responses:",
+                "        '200': { description: ok }",
+                "        '404': { description: not found }",
             ]
     # securitySchemes: el esquema bearer que las ops de escritura referencian (DES-3). Los `get` quedan públicos.
     lines += [
@@ -1382,7 +1419,9 @@ def _migration_sql(bp: dict) -> str:
     ]
     deferred = []   # FSK-XENTITY-CYCLES: FKs FORWARD/cíclicas → ALTER TABLE ADD CONSTRAINT tras crear ambas tablas
     for e in bp["entities"]:
+        soft = _soft_delete(e)
         cols = ["  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY"]
+        partial_uniques: list = []   # FSK-SOFT-DELETES: las UNIQUE de una entidad soft → índice PARCIAL (ver abajo)
         for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: un ref polimórfico se expande a sus 2 columnas
             nn = " NOT NULL" if f.get("required", True) else ""   # R2: opcionalidad → columna nullable
             if f.get("poly_id"):
@@ -1404,9 +1443,26 @@ def _migration_sql(bp: dict) -> str:
                 else:
                     cols.append(f"  {f['name']} BIGINT{nn} REFERENCES {_table(tgt)} (id)")
             else:
-                uniq = " UNIQUE" if f.get("unique") else ""
+                # FSK-SOFT-DELETES: en una entidad soft, una columna UNIQUE NO lleva el constraint inline — va como
+                # índice PARCIAL `WHERE deleted_at IS NULL` (abajo): una fila BORRADA no ocupa el valor único, así un
+                # valor se puede REUSAR tras soft-deletear el viejo (faithful: la unicidad de Laravel/Snipe-IT ignora
+                # los borrados). Sin soft, UNIQUE inline (byte-idéntico).
+                if f.get("unique") and soft:
+                    partial_uniques.append(f["name"])
+                    uniq = ""
+                else:
+                    uniq = " UNIQUE" if f.get("unique") else ""
                 cols.append(f"  {f['name']} {_PG_COL[f['type']]}{nn}{uniq}")
+        # FSK-SOFT-DELETES: una entidad soft gana una columna de SISTEMA `deleted_at` (nullable date, NULL = viva,
+        # una fecha = borrada-en). Como `id`, se hila a mano FUERA de `_cols_of` (no es un field de usuario → no va
+        # al insert/contrato/parser); el read-filter (`IS NULL`) y el DELETE-soft la usan. Opt-in: byte-neutro sin la flag.
+        if soft:
+            cols.append("  deleted_at DATE")
         out += [f"CREATE TABLE {_table(e)} (", ",\n".join(cols), ");"]
+        # FSK-SOFT-DELETES: el índice PARCIAL de cada UNIQUE de la entidad soft (una fila borrada no ocupa el valor —
+        # se reusa tras borrar). jOOQ DDLDatabase parsea el `WHERE` (probado). Vacío sin columnas unique soft → byte-neutro.
+        for u in partial_uniques:
+            out.append(f"CREATE UNIQUE INDEX uq_{_table(e)}_{u} ON {_table(e)} ({u}) WHERE deleted_at IS NULL;")
     out += deferred   # las FKs forward/cíclicas, una vez que TODAS las tablas existen
     return "\n".join(out) + "\n"
 
@@ -1419,7 +1475,11 @@ def _row_json_fn(e: dict, tbl: str) -> str:
     es int, un string es string) → un server que ignora el body (inserta samples) devuelve ≠ lo posteado → rojo.
     fetchOne → null si la fila no existe (404). Type-bound al schema: una columna inexistente NO compila (DES-12)."""
     cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]
-    tail = f".from({tbl}).where({tbl}.ID.eq(id)).fetchOne()"
+    # FSK-SOFT-DELETES: una entidad soft FILTRA las filas borradas en CADA read-path. El get-one suma
+    # `AND deleted_at IS NULL` → una fila soft-deleteada: GET /{id} → null → 404 (sigue EXISTIENDO; restore la trae).
+    # Quitar este `.and(...)` (sabotaje del read-filter) → la fila borrada se ve → rojo SÓLO en s9. Byte-neutro sin la flag.
+    one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else f"{tbl}.ID.eq(id)"
+    tail = f".from({tbl}).where({one_where}).fetchOne()"
     single = f"        val r = ctx.select({', '.join(cols)}){tail} ?: return null"
     if len(single) <= MAX_LINE_LENGTH:
         sel = single
@@ -1511,10 +1571,19 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
     # con dueño: insert(ctx, ownerId, input); sin dueño (ownerless): insert(ctx, input) — el dueño no aplica.
     ins_sig = (f"insert{name}(ctx: DSLContext, ownerId: Long, input: {name}Input)" if owner
                else f"insert{name}(ctx: DSLContext, input: {name}Input)")
+    # FSK-SOFT-DELETES: para una entidad soft el DELETE es LÓGICO — `UPDATE deleted_at = hoy` (la fila SIGUE
+    # existiendo, sólo invisible a las lecturas); para el resto, el `deleteFrom` PERMANENTE de siempre. El handler
+    # doDelete del AppServer es byte-idéntico (llama Repository.delete<E>): la semántica del borrado vive ACÁ.
+    # Degradarlo a `deleteFrom` (sabotaje) → restore no halla la fila → GET sigue 404 tras restore → rojo SÓLO en s9.
+    if _soft_delete(e):
+        del_body = _jooq_chain("        ", "", f"ctx.update({tbl})",
+                               [f"set({tbl}.DELETED_AT, java.time.LocalDate.now())",
+                                f"where({tbl}.ID.eq(id))", "execute()"])
+    else:
+        del_body = f"        ctx.deleteFrom({tbl}).where({tbl}.ID.eq(id)).execute()"
     out = [
         f"    fun {ins_sig}: Long =\n{ins}",
-        f"    fun delete{name}(ctx: DSLContext, id: Long): Int =\n"
-        f"        ctx.deleteFrom({tbl}).where({tbl}.ID.eq(id)).execute()",
+        f"    fun delete{name}(ctx: DSLContext, id: Long): Int =\n{del_body}",
         _row_json_fn(e, tbl),
         # FSK-FRONTEND-RENDER-LIST: la COLECCIÓN serializada (lo que GET /<plural> devuelve en "rows") —
         # mapea all<E>s → <e>RowJson(id) (REUSA la serialización type-correct, DES-12) → array JSON. El
@@ -1524,6 +1593,14 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
                       [f"mapNotNull {{ {e['name'].lower()}RowJson(ctx, it[{tbl}.ID]!!) }}",
                        'joinToString(",", "[", "]")']),
     ]
+    # FSK-SOFT-DELETES: el verbo `restore` (IMPLÍCITO — lo habilita la flag, como `deleted_at`) — restaura una fila
+    # borrada lógicamente (deleted_at = NULL). El handler doRestore del AppServer lo invoca tras el MISMO veredicto
+    # de acceso que DELETE (el owner lookup de modifyVerdict NO filtra deleted_at → halla la fila borrada). Opt-in:
+    # byte-neutro sin la flag (la entidad no-soft no gana ni columna ni verbo).
+    if _soft_delete(e):
+        restore_body = _jooq_chain("        ", "", f"ctx.update({tbl})",
+                                   [f"setNull({tbl}.DELETED_AT)", f"where({tbl}.ID.eq(id))", "execute()"])
+        out.append(f"    fun restore{name}(ctx: DSLContext, id: Long): Int =\n{restore_body}")
     mf = _mutable_field(e)
     if owner and mf:   # PATCH del body (sólo bajo ownership por ahora): el server actualiza esta columna escalar
         mc, pas = f"{tbl}.{_COL(mf['name'])}", _pascal(mf["name"])   # al string del cuerpo (FSK-CRUD-BODY-PARSING)
@@ -1599,7 +1676,10 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     for e in entities:
         tbl = _TBL(e)
         cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]   # FSK-POLYMORPHIC-REFS: 2 cols
-        tail = f".from({tbl}).orderBy({tbl}.ID).fetch()"
+        # FSK-SOFT-DELETES: la lista (read-path principal) filtra las filas borradas (deleted_at IS NULL) — una
+        # fila soft-deleteada desaparece de TODA lectura. Byte-neutro sin la flag (opt-in puro).
+        soft_w = f".where({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else ""
+        tail = f".from({tbl}){soft_w}.orderBy({tbl}.ID).fetch()"
         single = f"        ctx.select({', '.join(cols)}){tail}"
         if len(single) <= MAX_LINE_LENGTH:
             body = single
@@ -1614,6 +1694,13 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             oc = f"{tbl}.{_COL(e['owned_by'])}"
             fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
+            # FSK-SOFT-DELETES: el camino owner-OPTIONAL de modifyVerdict chequea EXISTENCIA via <e>RowJson, que para
+            # una entidad soft ahora FILTRA las borradas → una fila soft-deleteada parecería inexistente (404) y
+            # restore no podría recuperarla. Esta query de existencia NO filtra (la decisión de acceso es independiente
+            # del borrado: una fila borrada SIGUE existiendo). Opt-in: sólo para una entidad soft con dueño.
+            if _soft_delete(e):
+                fns.append(f"    fun {e['name'].lower()}Exists(ctx: DSLContext, id: Long): Boolean =\n"
+                           f"        ctx.select({tbl}.ID).from({tbl}).where({tbl}.ID.eq(id)).fetchOne() != null")
         # Company-scoping (FSK-COMPANY-SCOPING): el TENANT de UNA fila (el verdict de escritura lo cruza contra la
         # compañía del actor) + la lista FILTRADA por compañía (read-filter: tenant == ? OR tenant IS NULL — una
         # fila SIN tenant es NO-scopeada, visible a todos). Type-bound al schema (la columna tenant DEBE existir →
@@ -1623,7 +1710,10 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             cc = f"{tbl}.{_COL(e['company_scoped'])}"
             fns.append(f"    fun {lc}CompanyId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({cc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({cc})")
-            tailc = f".from({tbl}).where({cc}.eq(company).or({cc}.isNull)).orderBy({tbl}.ID).fetch()"
+            # FSK-SOFT-DELETES: compone el read-filter de soft-deletes (deleted_at IS NULL) SOBRE el de company-
+            # scope → `WHERE (tenant == ? OR tenant IS NULL) AND deleted_at IS NULL`. Byte-neutro sin la flag.
+            soft_and = f".and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else ""
+            tailc = f".from({tbl}).where({cc}.eq(company).or({cc}.isNull)){soft_and}.orderBy({tbl}.ID).fetch()"
             singlec = f"        ctx.select({', '.join(cols)}){tailc}"
             if len(singlec) <= MAX_LINE_LENGTH:
                 bodyc = singlec
@@ -2523,6 +2613,16 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
                 posts_lines.append(f'        route("POST", {verb_path}, {roleset})')
             else:
                 posts_lines.append(f'        route("POST", {verb_path})')
+        # FSK-SOFT-DELETES: el verbo `restore` IMPLÍCITO registra su ruta POST /<plural>/{id}/restore DENTRO del
+        # guard, con el mismo set de roles que el POST (x-required-roles del contrato) → route_check (topology/auth/
+        # rbac) la cruza GRATIS. Opt-in: sin `soft_delete` no se registra nada (FSK-S16 intacto).
+        if _soft_delete(e):
+            restore_path = f'"/{_table(e)}/{{id}}/restore"'
+            if wr:
+                roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
+                posts_lines.append(f'        route("POST", {restore_path}, {roleset})')
+            else:
+                posts_lines.append(f'        route("POST", {restore_path})')
     posts = "\n".join(posts_lines)
     return (f"package {pkg}.routes\n\n"
             f"import {pkg}.auth.Role\n"
@@ -4351,7 +4451,8 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None 
     )
 
 
-def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, company_fn: str = "") -> str:
+def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, company_fn: str = "",
+                       exists_fn: str = "") -> str:
     """modifyVerdict — el veredicto de MODIFICACIÓN (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership
     (el principal del token == el dueño de la fila, o un rol de bypass). El guard que DECIDE; la mutación
     (FSK-S16) ocurre DESPUÉS, sólo en la rama HTTP_OK.
@@ -4363,13 +4464,21 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, co
     FSK-COMPANY-SCOPING — con `company_fn` (la entidad servida es company_scoped) el veredicto COMPONE company-scope
     DESPUÉS de ownership: `scopeOk = CompanyScopeGuard.canAccess(rol, compañía-del-actor, tenant-de-la-fila, bypass)`
     → un actor de OTRA compañía es rechazado AUNQUE sea el dueño (403). El tenant se lee de la PG viva. Sin
-    `company_fn` el cuerpo queda EXACTO al previo (byte-idéntico → default/assets sin re-derivar)."""
+    `company_fn` el cuerpo queda EXACTO al previo (byte-idéntico → default/assets sin re-derivar).
+    FSK-SOFT-DELETES — con `exists_fn` (la entidad es soft) la EXISTENCIA en el camino owner-optional se chequea con
+    una query SIN FILTRAR (<e>Exists), NO con <e>RowJson (que ahora filtra `deleted_at IS NULL`): la decisión de
+    acceso es INDEPENDIENTE del borrado — una fila soft-deleteada SIGUE existiendo y `restore` (gateado por este
+    mismo veredicto) DEBE poder alcanzarla. Sin `exists_fn` el cuerpo queda EXACTO (byte-idéntico). El camino
+    owner-REQUERIDO no lo necesita (usa <e>OwnerId, ya sin filtrar → ve la fila borrada)."""
+    # FSK-SOFT-DELETES: existencia SIN filtrar para soft (ve la fila borrada → restore la alcanza); byte-idéntico sin la flag.
+    exists_expr = (f"Repository.{exists_fn}(ctx, id)" if exists_fn else f"Repository.{row_json_fn}(ctx, id) != null")
+    exists_line = f"    val exists = authorized && {exists_expr}\n"
     head = "private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {\n"
     if not company_fn:   # === byte-idéntico al previo (FSK-S15/OWNERSHIP-OPTIONAL): sin company-scope ===
         if owner_optional:
             return (head
                     + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
-                    + f"    val exists = authorized && Repository.{row_json_fn}(ctx, id) != null\n"
+                    + exists_line
                     + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
                     + "    val role = RoleGuard.roleOf(token)\n"
                     + "    val principal = RoleGuard.principalOf(token)\n"
@@ -4401,7 +4510,7 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, co
     if owner_optional:
         return (head
                 + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
-                + f"    val exists = authorized && Repository.{row_json_fn}(ctx, id) != null\n"
+                + exists_line
                 + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
                 + f"    val rowCompany = if (exists) Repository.{company_fn}(ctx, id) else null\n"
                 + "    val role = RoleGuard.roleOf(token)\n"
@@ -4660,7 +4769,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # alternos en las UNIQUE) para que el proof ejercite el veredicto RTD vivo. Opt-in por el `required` del
     # `owned_by`: con dueño REQUERIDO el bloque queda EXACTO (byte-idéntico → default/assets sin re-derivar).
     owner_optional = not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
-    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional, company_fn)
+    # FSK-SOFT-DELETES: para una entidad soft, modifyVerdict chequea existencia con <e>Exists (SIN filtrar) en el
+    # camino owner-optional → restore (gateado por este veredicto) alcanza la fila borrada. "" sin soft → byte-idéntico.
+    exists_fn = f"{owned['name'].lower()}Exists" if _soft_delete(owned) else ""
+    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional, company_fn, exists_fn)
     if owner_optional:
         # fila RTD: dueño NULL, UNIQUE alternos; REUSA las deps ya sembradas (registry) → wirea sus refs requeridos
         seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring)
@@ -4710,11 +4822,38 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
     ops_handlers = _operations_handlers(owned, operations) if operations else ""
     ops_dispatch = _operations_dispatch(operations) if operations else ""
-    # Los verbos suman ramas al `when` de `handle` (tabla de ruteo GENERADA): empuja la complejidad ciclomática
-    # sobre el umbral de detekt (15). Es complejidad INHERENTE a un dispatcher generado (no mantenible a mano),
-    # como el @file:Suppress("TooManyFunctions") de arriba o el %MAIN_SUPPRESS% de DbRoundTrip → @Suppress
-    # method-level, OPT-IN (byte-neutro sin operations: el `handle` de default/assets queda EXACTO).
-    handle_suppress = '@Suppress("CyclomaticComplexMethod")\n' if operations else ""
+    # FSK-SOFT-DELETES: el handler + la rama de dispatch del verbo `restore` IMPLÍCITO (lo habilita `soft_delete`).
+    # Es un verbo MÁS (POST /<plural>/{id}/restore) que COMPONE el montaje de verbos: gateado por el MISMO
+    # modifyVerdict que DELETE/PUT (el owner lookup NO filtra deleted_at → halla la fila borrada). Parsea el id del
+    # sub-path por sí mismo (sin depender de opVerb, que sólo existe con `operations`). Opt-in: "" sin la flag.
+    soft = _soft_delete(owned)
+    if soft:
+        restore_handler = (
+            "\n// POST /<plural>/{id}/restore (FSK-SOFT-DELETES): restaura una fila borrada LOGICAMENTE. Mismo guard\n"
+            "// que DELETE/PUT (modifyVerdict: RBAC + ownership [+ company-scope]); el owner lookup NO filtra\n"
+            "// deleted_at -> halla la fila borrada -> la recupera (deleted_at = NULL). Rol/dueno -> 403/404.\n"
+            "private fun doRestore(ctx: DSLContext, token: String?, rest: String): Pair<Int, String> {\n"
+            '    val id = rest.split("/").firstOrNull()?.toLongOrNull()\n'
+            "    val verdict = if (id == null) HTTP_NOT_FOUND else modifyVerdict(ctx, token, id)\n"
+            "    return when {\n"
+            "        id == null -> notFound()\n"
+            '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
+            "        else -> {\n"
+            f"            Repository.restore{owned['name']}(ctx, id)\n"
+            '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+            "        }\n"
+            "    }\n"
+            "}\n"
+        )
+        restore_dispatch = ('        method == "POST" && rest.split("/").getOrNull(1) == "restore" '
+                            "-> doRestore(ctx, token, rest)\n")
+    else:
+        restore_handler = restore_dispatch = ""
+    # Los verbos (operations + restore) suman ramas al `when` de `handle` (tabla de ruteo GENERADA): empuja la
+    # complejidad ciclomática sobre el umbral de detekt (15). Es complejidad INHERENTE a un dispatcher generado (no
+    # mantenible a mano), como el @file:Suppress("TooManyFunctions") de arriba o el %MAIN_SUPPRESS% de DbRoundTrip
+    # → @Suppress method-level, OPT-IN (byte-neutro sin verbos: el `handle` de default/assets queda EXACTO).
+    handle_suppress = '@Suppress("CyclomaticComplexMethod")\n' if (operations or soft) else ""
     ownerless_block = ("\n" + _ownerless_handlers(ownerless)) if ownerless else ""
     with_ref_block = ("\n" + _ownerless_handlers(with_ref, catch_fk=True, ops=wr_qty_ops)) if with_ref else ""
     ownerless_context = (f"    server.createContext(PLURAL_{ownerless['name'].upper()}) "
@@ -4772,6 +4911,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%HANDLERS%", handlers)
             .replace("%OPS_HANDLERS%", ops_handlers)
             .replace("%OPS_DISPATCH%", ops_dispatch)
+            .replace("%RESTORE_HANDLER%", restore_handler)
+            .replace("%RESTORE_DISPATCH%", restore_dispatch)
             .replace("%HANDLE_SUPPRESS%", handle_suppress)
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
             .replace("%WITH_REF_BLOCK%", with_ref_block)
@@ -4878,7 +5019,7 @@ private fun writeRoles(): Set<Role> =
 // las entidades servidas, sin colision) + parse<E>Input por entidad. Cada coercion es fail-closed -> 400.
 %CODEC%
 
-%HANDLERS%%OPS_HANDLERS%
+%HANDLERS%%OPS_HANDLERS%%RESTORE_HANDLER%
 // Dispatch del server vivo (FSK-S15/S16/CRUD-BODY-PARSING/RENDER-LIST): GET coleccion (count+rows[]) + GET /{id}
 // (fila completa) + POST (inserta del body) + PUT /{id} (actualiza del body) + DELETE /{id} (borra). Cada mutacion
 // pasa por su guard antes de tocar la PG viva; POST/PUT leen el CUERPO real del request (type-coerced, DES-12).
@@ -4895,7 +5036,7 @@ private fun writeRoles(): Set<Role> =
         method == "POST" && collection -> doPost(ctx, token, payload)
         method == "PUT" && id != null -> doPut(ctx, token, id, payload)
         method == "DELETE" && id != null -> doDelete(ctx, token, id)
-%OPS_DISPATCH%        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
+%OPS_DISPATCH%%RESTORE_DISPATCH%        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
     }
     respond(ex, status, out)
 }
@@ -5186,6 +5327,29 @@ _SCOPE_BYPASS_PART = '''
                       200, "[scope] PUT por rol de BYPASS (scope ignorado) -> 200")'''
 
 
+# FSK-SOFT-DELETES: el diente de DOS lados del borrado LOGICO VIVO. El DELETE de la fila nueva (new_id, arriba) fue
+# LOGICO -> la fila AUN EXISTE pero invisible a las lecturas (el GET 404 de arriba ya lo prueba); `restore` la
+# recupera. Va DENTRO del `if new_id is not None:` (12 indent), DESPUES del DELETE+GET-404. Reusa PLURAL/OWNER_ROLE/
+# owner/new_id/n0 (en scope). DOS dientes: (a) sabotear el read-filter (`IS NULL`) -> la borrada se ve -> el GET 404
+# de arriba se vuelve 200 -> rojo; (b) degradar el DELETE-soft a hard (`deleteFrom`) -> restore no halla la fila ->
+# el GET tras restore sigue 404 -> rojo. Ambos SOLO en s9. Opt-in: sin `soft_delete` en el owned -> "" -> byte-identico.
+_SOFT_DELETE_PROOF = '''
+            # *** FSK-SOFT-DELETES: el DELETE de arriba fue LOGICO (la fila AUN EXISTE, invisible a las lecturas); ***
+            # `restore` la recupera. Gateado como la entidad (modifyVerdict: rol/dueno equivocado -> 403/404).
+            ok &= _expect(_send(base, "POST", f"{PLURAL}/{new_id}/restore", f"Bearer {OWNER_ROLE}:{owner + 1}", {})[0],
+                          403, "restore por NO-dueno -> 403 (gateado como la entidad)")
+            ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404, "sigue borrada tras restore prohibido")
+            ok &= _expect(_send(base, "POST", f"{PLURAL}/{new_id}/restore", f"Bearer {OWNER_ROLE}:{owner}", {})[0],
+                          200, "restore por el DUENO -> 200 (la fila vuelve)")
+            ok &= _expect(_count(base), n0 + 1, "count tras restore (el DELETE no fue permanente)")
+            ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 200, "GET /{id} tras restore -> 200 (visible)")
+            # re-DELETE: la fila vuelve a la papelera -> deja LIBRE su valor unico (indice PARCIAL) para que un POST
+            # posterior lo REUSE (faithful: Snipe-IT reusa un asset_tag tras borrar). Cierra el ciclo trash/restore.
+            ok &= _expect(_req(base, "DELETE", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}"), 200,
+                          "re-DELETE tras restore -> 200 (vuelve a la papelera)")
+            ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404, "GET /{id} tras re-DELETE -> 404")'''
+
+
 def _access_control_check_py(bp: dict) -> str:
     """tools/access_control_check.py — el proof e2e de control de acceso + CRUD del CUERPO real (FSK-CRUD-BODY-
     PARSING), parte de la verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import
@@ -5292,7 +5456,11 @@ def _access_control_check_py(bp: dict) -> str:
     computed_fields = [f for f in owned["fields"] if _is_computed(f)]
     computed_block = (_COMPUTED_PROOF.replace("%COMPUTED_DATA%", json.dumps(
         [{"name": f["name"], "ast": f["computed"]} for f in computed_fields]))) if computed_fields else ""
+    # FSK-SOFT-DELETES: el bloque del diente del borrado lógico — sólo si la entidad servida con dueño es soft.
+    # Reusa new_id (ya soft-deleteado por el DELETE de arriba). Opt-in: sin `soft_delete` → "" → byte-idéntico.
+    soft_delete_block = _SOFT_DELETE_PROOF if _soft_delete(owned) else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%SOFT_DELETE_BLOCK%", soft_delete_block)
             .replace("%COMPUTED_BLOCK%", computed_block)
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
@@ -5486,7 +5654,7 @@ def main(argv: list) -> int:
                           f"DELETE por el DUENO ({OWNER_ROLE}:{owner})")
             ok &= _expect(_count(base), n0, "count tras DELETE (la fila se fue)")
             ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404,
-                          "GET /{id} de fila borrada -> 404")
+                          "GET /{id} de fila borrada -> 404")%SOFT_DELETE_BLOCK%
         if BYPASS_ROLE:
             ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {BYPASS_ROLE}:{owner + 1}", PUT_BODY)[0], 200,
                           f"PUT por rol de BYPASS ({BYPASS_ROLE})")

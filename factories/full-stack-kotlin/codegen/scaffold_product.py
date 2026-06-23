@@ -105,6 +105,11 @@ _KT_SAMPLE = {"string": '"x"', "boolean": "false", "int": "2",
 # el hijo de una jerarquía self-ref en el seeder de integración, FSK-SELF-REF). Distinta de _KT_SAMPLE.
 _KT_SAMPLE_ALT = {"string": '"it2"', "boolean": "true", "int": "3",
                   "number": '"8.88".toDouble()', "date": 'LocalDate.parse("2026-02-15")'}
+# FSK-XENTITY-COMPUTED: el valor NUMÉRICO que el seed inserta en un campo int/number REQUERIDO (variant 0). El
+# oráculo del proof (_ceval) lo necesita para re-derivar un operando cross-entity `<ref>.<campo>` (que el server
+# lee del target via JOIN). ESPEJA _KT_SAMPLE variant-0 (int "2" / number "9.99") — un cambio del sample debe
+# reflejarse acá (acoplamiento mínimo y deliberado: el server y el oráculo siembran/leen el MISMO valor).
+_SEED_NUM = {"int": 2, "number": 9.99}
 # tipos cuyo sample Kotlin requiere un import extra en el .kt que los samplea (java.time, etc.).
 _KT_TYPE_IMPORT = {"date": "java.time.LocalDate"}
 # tipo Kotlin de cada campo en el data class de entrada (FSK-CRUD-BODY-PARSING): el cuerpo del request se
@@ -192,16 +197,30 @@ _COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores
 _COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
 
 
-def _validate_computed_ast(node, numeric: set, ename: str, fname: str) -> None:
+def _validate_computed_ast(node, numeric: set, ename: str, fname: str, xnumeric: dict | None = None) -> None:
     """Valida el AST de un campo computado fail-closed (mismo patrón que los guards de format/workflow/poly):
     un nodo es un NÚMERO (literal), un STRING (nombre de un campo numérico no-computado de la entidad) o un
     `{op, args}` con `op` ∈ el set CERRADO y `args` una lista de ≥2 nodos (binario para `-`/`/`). M0/scaffold
-    RECHAZA un operador fuera del set, una referencia a un campo inexistente/no-numérico/computado, o aridad mala."""
+    RECHAZA un operador fuera del set, una referencia a un campo inexistente/no-numérico/computado, o aridad mala.
+    FSK-XENTITY-COMPUTED — un STRING con un punto `<ref>.<campo>` es un operando CROSS-ENTITY: `<ref>` ∈
+    `xnumeric` (un ref REQUERIDO no-poly de la entidad) y `<campo>` ∈ `xnumeric[<ref>]` (un numérico REQUERIDO
+    no-computado del target). 1er-cut: ref+campo REQUERIDOS (la FK siempre seteada + el campo siempre sembrado →
+    el valor derivado es observable; el cross-entity sobre ref/campo OPCIONAL —default 0— sigue diferido)."""
     if isinstance(node, bool):                  # bool ⊂ int en Python → excluir explícito (no es operando numérico)
         raise SystemExit(f"scaffold: computed {ename}.{fname}: un booleano no es un operando numérico")
     if isinstance(node, (int, float)):
         return
     if isinstance(node, str):
+        if "." in node:                          # FSK-XENTITY-COMPUTED: operando cross-entity `<ref>.<campo>`
+            xn = xnumeric or {}
+            ref, _, fld = node.partition(".")
+            if ref not in xn:
+                raise SystemExit(f"scaffold: computed {ename}.{fname}: {ref!r} en {node!r} no es un ref REQUERIDO "
+                                 f"no-polimórfico de {ename} (cross-entity 1er-cut: ref requerido, fail-closed)")
+            if fld not in xn[ref]:
+                raise SystemExit(f"scaffold: computed {ename}.{fname}: {fld!r} en {node!r} no es un campo numérico "
+                                 f"REQUERIDO no-computado del target de {ref!r} (fail-closed)")
+            return
         if node not in numeric:
             raise SystemExit(f"scaffold: computed {ename}.{fname}: la referencia {node!r} no es un campo numérico "
                              f"(int/number, no-computado) de {ename} (fail-closed)")
@@ -218,7 +237,7 @@ def _validate_computed_ast(node, numeric: set, ename: str, fname: str) -> None:
     if op in _COMPUTED_BINARY and len(args) != 2:
         raise SystemExit(f"scaffold: computed {ename}.{fname}: el operador {op!r} es BINARIO (exactamente 2 args)")
     for a in args:
-        _validate_computed_ast(a, numeric, ename, fname)
+        _validate_computed_ast(a, numeric, ename, fname, xnumeric)
 
 
 def _computed_srcs(node, out: set) -> None:
@@ -393,7 +412,16 @@ def _load_blueprint(root: Path) -> dict:
                                      f"ser computado (el ownership cruza una FK a un principal, no un derivado)")
                 numeric = {g["name"] for g in e["fields"]
                            if g.get("type") in ("int", "number") and not _is_computed(g)}
-                _validate_computed_ast(f["computed"], numeric, e["name"], f["name"])
+                # FSK-XENTITY-COMPUTED: el universo de operandos CROSS-ENTITY `<ref>.<campo>` — por cada ref REQUERIDO
+                # no-poly de la entidad, los campos numéricos REQUERIDOS no-computados de su target (el JOIN de rowJson
+                # los lee). 1er-cut: ref+campo REQUERIDOS. Vacío si la entidad no tiene refs requeridos → sólo same-entity.
+                xnumeric = {
+                    g["name"]: {h["name"] for h in by[g["to"]]["fields"]
+                                if h.get("type") in ("int", "number") and not _is_computed(h) and h.get("required", True)}
+                    for g in e["fields"]
+                    if g.get("type") == "ref" and not _is_poly(g) and g.get("required", True) and g.get("to") in by
+                }
+                _validate_computed_ast(f["computed"], numeric, e["name"], f["name"], xnumeric)
             # R2 (FSK-S12, workflows): un campo enum puede declarar una máquina de estado OPCIONAL (`initial` +
             # `transitions`). Validación fail-closed (mismo patrón que el guard de tipo): los modifiers sólo
             # sobre enum; `initial` ∈ values; toda clave/destino de `transitions` ∈ values (sin estados fantasma).
@@ -1467,26 +1495,64 @@ def _migration_sql(bp: dict) -> str:
     return "\n".join(out) + "\n"
 
 
-def _row_json_fn(e: dict, tbl: str) -> str:
+def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
     """fun <e>RowJson(ctx, id): String? — lee la FILA COMPLETA (id + todas las columnas) de la PG viva y la
     serializa a JSON type-correct (FSK-CRUD-BODY-PARSING): un string/date/enum sale entrecomillado (jsonVal),
     un int/number/boolean/ref sale crudo (Kotlin renderiza Int/Double/Boolean/Long, y null→"null"). Es lo que
     GET /{id} devuelve: el round-trip e2e cruza CADA campo posteado contra lo que vuelve, type-correct (un int
     es int, un string es string) → un server que ignora el body (inserta samples) devuelve ≠ lo posteado → rojo.
-    fetchOne → null si la fila no existe (404). Type-bound al schema: una columna inexistente NO compila (DES-12)."""
-    cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]
+    fetchOne → null si la fila no existe (404). Type-bound al schema: una columna inexistente NO compila (DES-12).
+    FSK-XENTITY-COMPUTED — una fuente de un campo computado puede ser `<ref>.<campo>` (cross-entity): el SELECT gana
+    un LEFT JOIN al target (`leftJoin(TGT).on(TBL.<REF>.eq(TGT.ID))`) y selecciona `TGT.<CAMPO>`; el valor se lee del
+    target (null-safe). Sin fuentes cross-entity → 0 joins → la query queda BYTE-IDÉNTICA (opt-in)."""
+    by = by or {}
+    quoted = {"string", "date", "enum"}   # salen entrecomillados (jsonVal); el resto, crudos
+    computed = [f for f in e["fields"] if _is_computed(f)]
+    field_by = {f["name"]: f for f in e["fields"]}
+    # FSK-XENTITY-COMPUTED: separá las fuentes en SAME-entity (sin punto) y CROSS-entity (`<ref>.<campo>`). Cada
+    # cross-entity usa un ref de la entidad → su target; agrupá por ref (un LEFT JOIN por ref DISTINTO) y seleccioná
+    # `TGT.<CAMPO>`. 1er-cut: dos refs a la MISMA tabla necesitarían alias jOOQ → fail-closed (diferido).
+    srcs: set = set()
+    for cf in computed:
+        _computed_srcs(cf["computed"], srcs)
+    same_srcs = sorted(s for s in srcs if "." not in s)
+    x_srcs = sorted(s for s in srcs if "." in s)
+    joins: list = []          # (TGT_TBL, REF_COL) por ref distinto
+    x_cols: list = []         # las columnas del target a SELECCIONAR (fuentes cross-entity)
+    seen_tgt: dict = {}
+    for s in x_srcs:
+        ref, _, fld = s.partition(".")
+        tgt_tbl = _TBL(by[field_by[ref]["to"]])
+        if tgt_tbl in seen_tgt and seen_tgt[tgt_tbl] != ref:
+            raise SystemExit(f"scaffold: computed cross-entity en {e['name']}: dos refs ({seen_tgt[tgt_tbl]!r}, "
+                             f"{ref!r}) a la MISMA tabla {tgt_tbl} requieren alias jOOQ (diferido, 1er-cut)")
+        if ref not in {r for _, r in joins}:
+            joins.append((tgt_tbl, _COL(ref)))
+            seen_tgt[tgt_tbl] = ref
+        x_cols.append(f"{tgt_tbl}.{_COL(fld)}")
+    cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)] + x_cols
     # FSK-SOFT-DELETES: una entidad soft FILTRA las filas borradas en CADA read-path. El get-one suma
     # `AND deleted_at IS NULL` → una fila soft-deleteada: GET /{id} → null → 404 (sigue EXISTIENDO; restore la trae).
     # Quitar este `.and(...)` (sabotaje del read-filter) → la fila borrada se ve → rojo SÓLO en s9. Byte-neutro sin la flag.
     one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else f"{tbl}.ID.eq(id)"
-    tail = f".from({tbl}).where({one_where}).fetchOne()"
+    # FSK-XENTITY-COMPUTED: el chasis de la query como CADENA de calls (from → [leftJoin → on]* → where → fetchOne).
+    # Sin joins es `.from(TBL).where(...).fetchOne()` (byte-idéntico al previo); con joins, cada leftJoin/on suma calls.
+    tail_calls = [f"from({tbl})"]
+    for jt, jc in joins:
+        tail_calls += [f"leftJoin({jt})", f"on({tbl}.{jc}.eq({jt}.ID))"]
+    tail_calls += [f"where({one_where})", "fetchOne()"]
+    tail = "." + ".".join(tail_calls)
     single = f"        val r = ctx.select({', '.join(cols)}){tail} ?: return null"
     if len(single) <= MAX_LINE_LENGTH:
         sel = single
-    else:   # entidad ancha: una columna por línea (coma final), el .from/.where/.fetchOne en el cierre
+    elif len(f"        ){tail} ?: return null") <= MAX_LINE_LENGTH:
+        # entidad ancha: una columna por línea (coma final), el .from/.join/.where/.fetchOne en el cierre
         argblock = "".join(f"            {c},\n" for c in cols)
         sel = f"        val r = ctx.select(\n{argblock}        ){tail} ?: return null"
-    quoted = {"string", "date", "enum"}   # salen entrecomillados (jsonVal); el resto, crudos
+    else:   # ancha Y con joins: el chasis tampoco entra en el cierre → cada call en su línea (ChainWrapping ktlint)
+        argblock = "".join(f"            {c},\n" for c in cols)
+        chain = "\n".join(f"            .{c}" for c in tail_calls)
+        sel = f"        val r = ctx.select(\n{argblock}        )\n{chain} ?: return null"
     # FSK-POLYMORPHIC-REFS: el ref polimórfico serializa AMBAS sub-columnas — `<campo>_type` (enum → entrecomillado,
     # el DISCRIMINADOR que el round-trip cruza) + `<campo>_id` (ref → crudo). Dropear/hardcodear `<campo>_type` acá
     # → el GET no refleja el target posteado → el round-trip del proof (s9) rojo: ES el diente del discriminador.
@@ -1495,27 +1561,34 @@ def _row_json_fn(e: dict, tbl: str) -> str:
         ref = f"r[{tbl}.{_COL(f['name'])}]"
         val = f"jsonVal({ref})" if f["type"] in quoted else ref
         elems.append(f'"\\"{f["name"]}\\":${{{val}}}"')
-    # FSK-COMPUTED-FIELDS: un campo COMPUTADO no es columna (no entró al SELECT/elems vía _cols_of) — su valor se
-    # DERIVA acá, a READ-time, de las columnas FUENTE ya seleccionadas. Las fuentes se extraen a `val`s locales
-    # `Double` null-safe (jOOQ DDLDatabase tipa toda columna nullable → `?.toDouble() ?: 0.0`, sin warning) y la
-    # fórmula (AST → Kotlin) se computa sobre ellas; el resultado (number/int → crudo) se serializa como un campo
-    # más. ACÁ vive el diente: degradar la aritmética → el GET devuelve otro número → rojo SÓLO en s9. Sin
-    # computado → prelude vacío → byte-idéntico para todo lo previo (opt-in puro).
-    computed = [f for f in e["fields"] if _is_computed(f)]
+    # FSK-COMPUTED-FIELDS: un campo COMPUTADO no es columna (no entró a elems vía _cols_of) — su valor se DERIVA acá,
+    # a READ-time, de las columnas FUENTE ya seleccionadas (de la entidad O —cross-entity— del target JOINeado). Las
+    # fuentes se extraen a `val`s locales `Double` null-safe y la fórmula (AST → Kotlin) se computa sobre ellas; el
+    # resultado (number/int → crudo) se serializa como un campo más. ACÁ vive el diente: degradar la aritmética O el
+    # JOIN → el GET devuelve otro número → rojo SÓLO en s9. Sin computado → prelude vacío → byte-idéntico (opt-in).
     prelude = ""
     if computed:
-        field_by = {f["name"]: f for f in e["fields"]}
-        srcs: set = set()
-        for cf in computed:
-            _computed_srcs(cf["computed"], srcs)
-        srcvar = {s: f"c{_pascal(s)}" for s in sorted(srcs)}
+        srcvar = {s: f"c{_pascal(s)}" for s in same_srcs}
+        # FSK-XENTITY-COMPUTED: una fuente cross-entity gana un `val` con prefijo `x` (≠ las `c` de same-entity).
+        for s in x_srcs:
+            ref, _, fld = s.partition(".")
+            srcvar[s] = f"x{_pascal(ref)}{_pascal(fld)}"
         # jOOQ DDLDatabase tipa toda columna nullable. Un `number` ya es `Double?` → `?: 0.0` (un `.toDouble()`
         # sería REDUNDANTE → -Werror); un `int` es `Int?` → `?.toDouble() ?: 0.0` (conversión real). El AST sólo
         # referencia campos int/number (validado), así que estos dos casos cubren todo.
         prelude = "".join(
             f"        val {srcvar[s]} = " + (f"r[{tbl}.{_COL(s)}] ?: 0.0\n" if field_by[s]["type"] == "number"
                                             else f"r[{tbl}.{_COL(s)}]?.toDouble() ?: 0.0\n")
-            for s in sorted(srcs))
+            for s in same_srcs)
+        # FSK-XENTITY-COMPUTED: las fuentes cross-entity se leen de la columna del TARGET ya seleccionada (LEFT JOIN
+        # → null-safe igual que las same-entity; el tipo lo da el campo del target).
+        for s in x_srcs:
+            ref, _, fld = s.partition(".")
+            tgt = by[field_by[ref]["to"]]
+            tcol = f"{_TBL(tgt)}.{_COL(fld)}"
+            num = next(h for h in tgt["fields"] if h["name"] == fld)["type"] == "number"
+            prelude += f"        val {srcvar[s]} = " + (f"r[{tcol}] ?: 0.0\n" if num
+                                                       else f"r[{tcol}]?.toDouble() ?: 0.0\n")
         for cf in computed:
             vname = f"{_camel(cf['name'])}Computed"
             line = f"        val {vname} = {_computed_kt(cf['computed'], srcvar)}"
@@ -1535,7 +1608,7 @@ def _row_json_fn(e: dict, tbl: str) -> str:
             f"    }}")
 
 
-def _mutation_fns(e: dict, tbl: str) -> list[str]:
+def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
     """CRUD-mutación tipada (FSK-S16 + FSK-CRUD-BODY-PARSING/OWNERLESS, DES-3/DES-12) para una entidad VIVA, que
     el server vivo invoca DESPUÉS del veredicto de acceso. INSERT: las columnas escalares requeridas vienen del
     CUERPO del request type-coerced (`input.<campo>`), y —si la entidad tiene dueño (`owned_by`)— ese campo se
@@ -1584,7 +1657,7 @@ def _mutation_fns(e: dict, tbl: str) -> list[str]:
     out = [
         f"    fun {ins_sig}: Long =\n{ins}",
         f"    fun delete{name}(ctx: DSLContext, id: Long): Int =\n{del_body}",
-        _row_json_fn(e, tbl),
+        _row_json_fn(e, tbl, by),
         # FSK-FRONTEND-RENDER-LIST: la COLECCIÓN serializada (lo que GET /<plural> devuelve en "rows") —
         # mapea all<E>s → <e>RowJson(id) (REUSA la serialización type-correct, DES-12) → array JSON. El
         # cliente list<E> lo lee y render<E>List lo renderiza; un drop/garble en el render se caza vivo.
@@ -1672,6 +1745,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # El data class de entrada por entidad VIVA (el cuerpo del POST type-coerced, DES-12): top-level, antes del
     # object Repository (mismo paquete → AppServer lo importa como {pkg}.<E>Input).
     data_classes = "".join(_input_data_class(e) + "\n\n" for e in live)
+    by = {e["name"]: e for e in entities}   # FSK-XENTITY-COMPUTED: el grafo, para resolver un ref → su target en el JOIN
     fns = []
     for e in entities:
         tbl = _TBL(e)
@@ -1728,7 +1802,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         # CRUD tipado para CADA entidad viva (con dueño y ownerless): insert(body)/delete/<e>RowJson/allRowsJson/
         # [update]. La ownerless inserta TODOS sus escalares del body (sin ownerId); la con dueño suma el ownerId.
         if e["name"] in live_names:
-            fns.extend(_mutation_fns(e, tbl))
+            fns.extend(_mutation_fns(e, tbl, by))
         # Verbos de DOMINIO (FSK-DOMAIN-OPS): el lector de estado + la mutación atómica de cada verbo. Opt-in:
         # sin `operations` no agrega nada (la entidad con verbos es la que tiene dueño → ya es live).
         if e.get("operations"):
@@ -5246,7 +5320,7 @@ _POLY_PROOF = '''
 # SÓLO en s9 (access_control_live). Va DENTRO del `if new_id is not None:` (12 indent), ANTES del DELETE (la fila aún
 # existe). Opt-in: sin campo computado en el owned → "" → el proof queda byte-idéntico. El DATA (los AST) va DENTRO.
 _COMPUTED_PROOF = '''
-            COMPUTED = json.loads('%COMPUTED_DATA%')   # [{"name": <campo>, "ast": <AST: num | "campo" | {op,args}>}]
+            COMPUTED = json.loads('%COMPUTED_DATA%')   # [{"name": <campo>, "ast": <AST: num | "campo" | {op,args}>}]%XSRC_SETUP%
 
             def _ceval(node, src):
                 if isinstance(node, dict):
@@ -5271,8 +5345,18 @@ _COMPUTED_PROOF = '''
             # *** FSK-COMPUTED-FIELDS: el GET trae el valor DERIVADO por formula (no almacenado, computado a ***
             # read-time). Degradar la aritmetica del rowJson Kotlin -> otro numero -> rojo SOLO en s9.
             for _c in COMPUTED:
-                ok &= _expect_value(row.get(_c["name"]), _ceval(_c["ast"], POST_BODY),
+                ok &= _expect_value(row.get(_c["name"]), _ceval(_c["ast"], %CEVAL_SRC%),
                                     f"[computed] GET ve {_c['name']} == formula determinista de las fuentes")'''
+
+
+# FSK-XENTITY-COMPUTED: el setup OPT-IN del oraculo cuando la formula tiene fuentes cross-entity `<ref>.<campo>` —
+# XSRC trae el valor SEMBRADO de cada una (el server lo lee del target via JOIN; el oraculo lo conoce porque /seed
+# siembra el target con samples DETERMINISTAS). El src del eval pasa de POST_BODY a `_csrc` = POST_BODY U XSRC (las
+# claves cross-entity llevan `.` -> sin colision). Vacio sin cross-entity -> el bloque queda byte-identico al previo.
+_XSRC_SETUP = '''
+            XSRC = json.loads('%XSRC_DATA%')   # {"<ref>.<campo>": <valor sembrado del target>}
+            _csrc = dict(POST_BODY)
+            _csrc.update(XSRC)'''
 
 
 # FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
@@ -5454,8 +5538,31 @@ def _access_control_check_py(bp: dict) -> str:
     # uno. POST_BODY (las fuentes) ya se postea; el GET de la fila nueva trae el valor derivado. Opt-in: sin campo
     # computado en el owned → "" → el proof queda byte-idéntico.
     computed_fields = [f for f in owned["fields"] if _is_computed(f)]
-    computed_block = (_COMPUTED_PROOF.replace("%COMPUTED_DATA%", json.dumps(
-        [{"name": f["name"], "ast": f["computed"]} for f in computed_fields]))) if computed_fields else ""
+    # FSK-XENTITY-COMPUTED: el valor SEMBRADO de cada fuente cross-entity `<ref>.<campo>` (el server lo lee del target
+    # via JOIN). El target de un ref REQUERIDO se siembra (transitivamente) con samples DETERMINISTAS → el campo
+    # REQUERIDO numérico del target = _SEED_NUM[type] (variant 0, espeja _KT_SAMPLE). El oraculo cruza ese valor.
+    by = {ent["name"]: ent for ent in bp["entities"]}
+    owned_field_by = {f["name"]: f for f in owned["fields"]}
+    xsrc: dict = {}
+    for cf in computed_fields:
+        _csrcs: set = set()
+        _computed_srcs(cf["computed"], _csrcs)
+        for s in _csrcs:
+            if "." not in s:
+                continue
+            ref, _, fld = s.partition(".")
+            tgt = by[owned_field_by[ref]["to"]]
+            tfld = next(h for h in tgt["fields"] if h["name"] == fld)
+            xsrc[s] = _SEED_NUM[tfld["type"]]
+    # FSK-XENTITY-COMPUTED opt-in: con fuentes cross-entity, el oraculo merge-a XSRC (POST_BODY U XSRC = `_csrc`);
+    # sin ellas, el bloque usa POST_BODY directo -> byte-identico al previo (same-entity computed sin re-derivar).
+    xsrc_setup = _XSRC_SETUP.replace("%XSRC_DATA%", json.dumps(xsrc)) if xsrc else ""
+    ceval_src = "_csrc" if xsrc else "POST_BODY"
+    computed_block = (_COMPUTED_PROOF
+                      .replace("%COMPUTED_DATA%", json.dumps([{"name": f["name"], "ast": f["computed"]}
+                                                              for f in computed_fields]))
+                      .replace("%XSRC_SETUP%", xsrc_setup)
+                      .replace("%CEVAL_SRC%", ceval_src)) if computed_fields else ""
     # FSK-SOFT-DELETES: el bloque del diente del borrado lógico — sólo si la entidad servida con dueño es soft.
     # Reusa new_id (ya soft-deleteado por el DELETE de arriba). Opt-in: sin `soft_delete` → "" → byte-idéntico.
     soft_delete_block = _SOFT_DELETE_PROOF if _soft_delete(owned) else ""

@@ -1,6 +1,6 @@
 # Incremento FSK-DEPLOY-APPSERVER-PG — el AppServer REAL en un contenedor con PG (deploy de verdad)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-06-24T21:20Z)
 > (creado 2026-06-24). Cerralo flippeando este header a CERRADO **o** con
 > `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
@@ -196,3 +196,47 @@ las entidades se sirven, el frontend se VE y se SUBMITEA en un navegador REAL, y
 ESTE eje, **deploya de VERDAD el AppServer con su PG**. Lo que RESTA es breadth de dominio (Actionlog, Kits, PUT-
 opcionales, el tail de ~226 rutas no-dominio) + diferidos de red (push a registry, EAV dinámico). **No queda ningún
 hueco de NÚCLEO, SUPERFICIE, VALORES-DERIVADOS ni UX: son refinamientos de breadth/fidelidad/infra.**
+
+---
+
+## Evidencia (cierre 2026-06-24) — CERRADO ✅
+
+**Qué se construyó:** un check NUEVO en s11, `deploy_appserver_live` (`kind: infra_up`, hermano de `deploy_smoke`),
+despliega el **AppServer REAL en un contenedor que HABLA con una PG en una red docker**. Diseño tal cual el handoff
+recomendó (GENERAL, cero nombres de dominio):
+- El bootstrap REÚSA la misma imagen `fsk_s11_deploy` (ya construida por `deploy_smoke`) + `docker network create
+  fsk_s11_net` + la PG `postgres@sha256:e013e8…` (sólo en la red, sin `-p` al host) + espera `pg_isready` en loop +
+  el AppServer en un contenedor de la MISMA imagen con el **ENTRYPOINT override-eado**: `docker run --entrypoint
+  java fsk_s11_deploy -cp '/app/lib/*' <pkg>.endpoints.AppServerKt` (la imagen ya trae todas las libs; el
+  `bin/<pkg>`=ObsServerKt queda intacto para `deploy_smoke`). El host de la PG = el NOMBRE de su contenedor
+  (`jdbc:postgresql://fsk_s11_pg:5432/postgres`); `-p 18598:18598` SÓLO para el AppServer (que el proof lo alcance).
+- El proof = un tool nuevo `tools/deploy_appserver_check.py` (stdlib): `/health` UP (el AppServer connecta a PG AL
+  BOOT — si no la alcanza, crashea) **+** `GET /<plural>` devuelve la fila SEMBRADA (`count≥1` → alcanza su PG y
+  sirve una query jOOQ VIVA a request-time). El `<plural>` sale del blueprint (la entidad con dueño) y se **HORNEA**
+  en el tool como DATA (igual que `_dockerfile` hornea el package) → el argv de la estación queda product-agnóstico.
+
+**Maquinaria GENERAL (cero overfit):** todo en `codegen/scaffold_product.py` (`_deploy_appserver_check_py(bp)` +
+la entrada en `build_files`) + `factory.spec.yml` s11 + `stations/s11.yml`. **`git diff src/metafactory + seed =
+0`** (DATA de fábrica, ADR-012). El `meta check` da `generality` verde.
+
+**Probado POR BLOQUEO (con mis ojos):**
+- **EYEBALL** (≈10s): `build_files` emite el tool nuevo en los 3 productos con el plural correcto horneado
+  (base `/projects`, snipeit/assets `/assets`), 0 líneas Kotlin >160 (no se tocó Kotlin).
+- **`product-run` base/assets/snipeit = PASS**; `deploy_smoke ok · deploy_appserver_live ok`. RTM snipeit **25/26**
+  (único UNSAT = REQ-F-007/s6 LLM keyless), REQ-NF-008 (deploy_vivo) SATISFIED.
+- **DIENTE de DOS lados VIVO** contra la dist recompilada + PG real en docker: red cableada → `/health UP` +
+  `GET /assets → count=3` → verde; **saboteá el cableado** (`FSK_PG_URL → host inexistente`) → el AppServer no
+  connecta al boot → `/health` no responde (Connection reset) → exit 1; **revert → verde**. + **diente NATIVO de
+  infra_up** (parte del check verde): con el contenedor caído (teardown `docker rm -f` + `network rm`) el MISMO
+  proof no conecta → rojo (teardown verificado, no decorativo).
+- **RE-PIN de los 3** (check NUEVO → el set `(check_name, exit)` de s11 cambia → `proof_sha` de s11 cambia): la
+  línea s11 de cada `pinned_verdict.json` pasó a `3e7e3587…` (sólo esa línea). **Dos verificadores**: `ci
+  --rederive` en árbol limpio == el pin NUEVO — snipeit **11/11** (yo), base **12/12** + assets **11/11** (subagente
+  Sonnet, cross-check). `meta check` **6/6**.
+
+**Lección destilada:** el proof debe ser un ÚNICO intento RÁPIDO — `infra_up` ya REINTENTA el proof mientras el
+AppServer arranca (`_retry_proof` hasta `ready_timeout` = el `timeout` de la estación) y, en la fase NEGATIVA
+(contenedor caído), lo corre con un `down_timeout` de 2s → un proof con su propio loop largo haría la fase negativa
+lentísima. Esperá `pg_isready` ANTES de lanzar el AppServer (connecta a PG al boot; sin PG lista → crashea).
+
+Commits: `d2bc542` (feat — codegen + spec + station + re-pin de los 3) + el docs de cierre.

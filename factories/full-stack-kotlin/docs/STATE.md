@@ -29,6 +29,29 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **EL DEPLOY DE VERDAD — el AppServer REAL en un contenedor con PG sobre una red docker (FSK-DEPLOY-APPSERVER-PG,
+  2026-06-24)**: hasta hoy s11 `deploy_smoke` construía la imagen y levantaba el contenedor, pero el ENTRYPOINT del
+  dist = `bin/<pkg>` = **`ObsServerKt`** (el server de observabilidad **PG-free**); la app REAL (el AppServer CRUD con
+  PG) sólo corría bajo `java -cp` directo en s9. Ahora un check NUEVO en s11, **`deploy_appserver_live`** (`infra_up`,
+  hermano de `deploy_smoke`), despliega el **AppServer REAL en un contenedor que HABLA con una PG en una red docker**:
+  reúsa la imagen `fsk_s11_deploy` + `docker network create` + la PG `postgres@sha256:` (sólo en la red) + espera
+  `pg_isready` + el AppServer en un contenedor de la MISMA imagen con el **ENTRYPOINT override-eado** (`docker run
+  --entrypoint java … -cp '/app/lib/*' <pkg>.endpoints.AppServerKt` — la imagen ya trae todas las libs; el
+  `bin/<pkg>`=ObsServer queda intacto para `deploy_smoke`). El host de la PG = el NOMBRE de su contenedor en la red.
+  El proof (`tools/deploy_appserver_check.py`, stdlib) le pega **`/health` UP** (el AppServer connecta a PG AL BOOT —
+  si no la alcanza, crashea) **+ `GET /<plural>`** que devuelve la fila SEMBRADA (`count≥1` → alcanza su PG y sirve
+  una query jOOQ VIVA a request-time). El `<plural>` sale del blueprint y se **HORNEA** en el tool como DATA (igual
+  que `_dockerfile` hornea el package) → el argv de la estación queda product-agnóstico. **Anti-overfit**: todo en
+  `codegen/scaffold_product.py` + `factory.spec.yml` s11 + `stations/s11.yml` (FÁBRICA, GENERAL); **`git diff
+  src/metafactory + seed = 0`**. **Probado por bloqueo**: EYEBALL (plural correcto horneado en los 3, 0 Kotlin >160) ·
+  `product-run` base/assets/snipeit PASS (`deploy_smoke ok · deploy_appserver_live ok`) · RTM snipeit **25/26** ·
+  **diente VIVO dos-lados** (red cableada → `/health UP` + `GET /assets count=3` verde; saboteá `FSK_PG_URL`→host
+  inexistente → el AppServer no connecta al boot → rojo; revert→verde) + **diente NATIVO de infra_up** (teardown →
+  el MISMO proof no conecta → rojo) · **RE-PIN de los 3** (check NUEVO → `proof_sha` de s11 cambia, sólo esa línea →
+  `3e7e3587…`) · **dos verificadores** `ci --rederive` == pin (snipeit 11/11 a ojo + base 12/12 + assets 11/11) ·
+  `meta check` 6/6. **El DEPLOY queda COMPLETO** (el AppServer con su PG deploya de verdad, no el server de obs).
+  Detalle: `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md §Evidencia` · `docs/LOG.md`. Siguiente: `FSK-ACTIONLOG`
+  (la bitácora de actividad polimórfica — toda mutación deja rastro; el de mayor valor-dominio restante).
 - **EL SUBMIT DEL FORM EN UN CHROMIUM REAL — la UX end-to-end COMPLETA (FSK-FORM-BROWSER-E2E, 2026-06-24)**: el
   frontend ya se RENDERIZABA en un Chromium real (FSK-FRONTEND-BROWSER: la lista viva como `<li>` en el DOM real),
   pero el **SUBMIT del FORM** (el usuario CREA una fila desde el navegador) sólo se probaba en **jsdom**

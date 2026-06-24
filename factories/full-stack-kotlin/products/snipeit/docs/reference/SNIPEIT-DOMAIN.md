@@ -388,10 +388,9 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     (same-entity + cross-entity depth-N + tiempo) queda COMPLETA.** Diente de DOS lados VIVO (s9, `MONTHS`→`YEARS` → sólo
     `[computed]` rojo) + bonus (dos `FSK_NOW` → distinto `current_value`). `git diff src/+seed=0`, sin re-pin. Ver
     `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` + `…/TIME-COMPUTED-ADOPT-INCREMENT.md` (producto).
-20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **AppServer-en-contenedor con
-    PG** (s11 hoy usa el ObsServer PG-free — **el siguiente**, `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md`) ·
-    push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · Kits
-    (bundles) · PUT de campos opcionales arbitrarios.
+20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **Actionlog (auditoría
+    polimórfica)** (**el siguiente**, `docs/work/FSK-ACTIONLOG-INCREMENT.md`) · push de la imagen a un registry · EAV
+    dinámico a runtime (Avenue B) · Kits (bundles) · PUT de campos opcionales arbitrarios.
 21. **El SUBMIT del FORM en un Chromium real ✅ (FSK-FORM-BROWSER-E2E, 2026-06-24)** — la UX del frontend COMPLETA
     end-to-end. `browser_check.ts` (s9, Playwright) gana una fase de SUBMIT: LLENA el FORM generado (`page.fill`/
     `page.check` por `[name]`), dispara el evento `submit` (el MISMO `dispatchEvent` que el bloque jsdom — un click
@@ -402,6 +401,20 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     Diente de DOS lados VIVO (s9, saboteado el re-render del submit → SÓLO los 2 asserts del submit rojos, los de render
     verdes; `esperaba 4 obtuvo 3`). `git diff src/+seed=0`, sin re-pin. **El render Y el submit del frontend están en
     un browser REAL.** Ver `docs/work/FSK-FORM-BROWSER-E2E-INCREMENT.md §Evidencia`.
+22. **El AppServer REAL deploya en un contenedor con PG ✅ (FSK-DEPLOY-APPSERVER-PG, 2026-06-24)** — el DEPLOY de
+    verdad. Hasta hoy s11 `deploy_smoke` construía la imagen y la levantaba, pero el ENTRYPOINT del dist = `bin/<pkg>`
+    = `ObsServerKt` (el server de observabilidad **PG-free**); la app REAL (el AppServer CRUD con PG) sólo corría bajo
+    `java -cp` directo en s9. Un check NUEVO en s11, **`deploy_appserver_live`** (`infra_up`, hermano de
+    `deploy_smoke`), despliega el **AppServer REAL en un contenedor que HABLA con una PG en una red docker**: reúsa la
+    imagen + `docker network create` + la PG `postgres@sha256:` (sólo en la red) + espera `pg_isready` + el AppServer
+    en un contenedor de la MISMA imagen con el ENTRYPOINT override-eado (`docker run --entrypoint java … -cp
+    '/app/lib/*' <pkg>.endpoints.AppServerKt`; el host de la PG = el NOMBRE de su contenedor en la red). El proof
+    (`tools/deploy_appserver_check.py`, stdlib) exige `/health` UP (connecta a PG al boot) + `GET /assets` count≥1 (la
+    fila sembrada vuelve → alcanza su PG con una query jOOQ viva). El plural se HORNEA en el tool como DATA (argv
+    product-agnóstico). Diente de DOS lados VIVO (red cableada → `/health UP` + count=3; saboteá `FSK_PG_URL`→host
+    inexistente → no connecta al boot → rojo; revert→verde) + diente NATIVO de infra_up (teardown → rojo). `git diff
+    src/metafactory+seed=0`. **Check NUEVO → re-pin de los 3** (sólo la línea s11). `ci --rederive` 12·11·11 == pin ·
+    `meta check` 6/6. **El DEPLOY queda COMPLETO.** Ver `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md §Evidencia`.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

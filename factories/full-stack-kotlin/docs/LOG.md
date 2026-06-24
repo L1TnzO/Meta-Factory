@@ -1,6 +1,43 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T21:20Z — FSK-DEPLOY-APPSERVER-PG ✅: el AppServer REAL en un contenedor con PG sobre una red docker — el DEPLOY de verdad
+- **Cierra la última media-verdad del DEPLOY.** Hasta hoy s11 `deploy_smoke` CONSTRUYE la imagen y levanta el
+  contenedor, pero el ENTRYPOINT del dist = `bin/<pkg>` = **`ObsServerKt`** (el server de observabilidad **PG-free**);
+  la app REAL (el AppServer CRUD con PG) sólo corría bajo `java -cp` directo en s9 (server FUERA de contenedor). Ahora
+  un check NUEVO en s11, **`deploy_appserver_live`** (`kind: infra_up`, hermano de `deploy_smoke`), despliega el
+  **AppServer REAL en un contenedor que HABLA con una PG en una red docker**. Todo en `codegen/scaffold_product.py`
+  (`_deploy_appserver_check_py(bp)` + `build_files`) + `factory.spec.yml` s11 + `stations/s11.yml` (FÁBRICA, GENERAL);
+  **`src/metafactory/ + seed/ = 0`**.
+- **El diseño (GENERAL, cero nombres de dominio)**: el bootstrap REÚSA la imagen `fsk_s11_deploy` (ya construida por
+  `deploy_smoke`) + `docker network create fsk_s11_net` + la PG `postgres@sha256:e013e8…` (sólo en la red, sin `-p` al
+  host) + espera `pg_isready` en loop + el AppServer en un contenedor de la MISMA imagen con el **ENTRYPOINT
+  override-eado**: `docker run --entrypoint java fsk_s11_deploy -cp '/app/lib/*' <pkg>.endpoints.AppServerKt` (la
+  imagen ya trae TODAS las libs en `/app/lib/`; el `bin/<pkg>`=ObsServerKt queda intacto para `deploy_smoke`). El host
+  de la PG = el NOMBRE de su contenedor en la red (`jdbc:postgresql://fsk_s11_pg:5432/postgres`); `-p 18598:18598`
+  SÓLO para el AppServer (que el proof lo alcance). El proof (`tools/deploy_appserver_check.py`, urllib stdlib) exige
+  **`/health` UP** (el AppServer connecta a PG AL BOOT — si no la alcanza, crashea → no responde) **+ `GET /<plural>`**
+  que devuelve la fila SEMBRADA (`count≥1` → alcanza su PG y sirve una query jOOQ VIVA a request-time, no sólo que
+  connectó al boot). El `<plural>` sale del blueprint (la entidad con dueño) y se **HORNEA** en el tool como DATA —
+  igual que `_dockerfile` hornea el package — así el argv de la estación queda product-agnóstico (sólo el `base_url`).
+- **Lección destilada (la sorpresa del eje)**: el proof debe ser un ÚNICO intento RÁPIDO — `infra_up` ya REINTENTA el
+  proof mientras el AppServer arranca (`_retry_proof` hasta `ready_timeout` = el `timeout` de la estación) y, en la
+  fase NEGATIVA (contenedor caído), lo corre con `down_timeout` = 2s → un proof con su PROPIO loop largo haría la fase
+  negativa lentísima. Y esperá `pg_isready` ANTES de lanzar el AppServer (connecta a PG al boot; sin PG lista →
+  crashea → el contenedor sale).
+- **Probado por bloqueo**: EYEBALL (`build_files` emite el tool nuevo con el plural correcto en los 3 — base
+  `/projects`, snipeit/assets `/assets` — 0 Kotlin >160, no se tocó Kotlin) · `product-run` base/assets/snipeit
+  **PASS** · RTM snipeit **25/26** (único UNSAT = REQ-F-007/s6 LLM keyless; REQ-NF-008 deploy_vivo SATISFIED) ·
+  **DIENTE de DOS lados VIVO** contra la dist recompilada + PG real en docker: red cableada → `/health UP` + `GET
+  /assets → count=3` verde; saboteá el cableado (`FSK_PG_URL → host inexistente`) → el AppServer no connecta al boot →
+  `/health` no responde (Connection reset) → exit 1; revert → verde · + **diente NATIVO de infra_up** (parte del check
+  verde): con el contenedor caído (teardown `docker rm -f` + `network rm`) el MISMO proof no conecta → rojo (teardown
+  verificado, no decorativo).
+- **Re-pin**: check NUEVO → el set `(check_name, exit)` de s11 cambia → `proof_sha` de s11 cambia → **re-pin de los 3**
+  (base/assets/snipeit; sólo la línea s11 de cada `pinned_verdict.json` pasó a `3e7e3587…`). **Dos verificadores**:
+  `ci --rederive` en árbol limpio == el pin NUEVO — snipeit **11/11** (a ojo) + base **12/12** + assets **11/11**
+  (subagente Sonnet, cross-check). `meta check` **6/6** (`generality` verde). Commits: `d2bc542` (feat) + este docs.
+
 ## 2026-06-24T20:10Z — FSK-FORM-BROWSER-E2E ✅: el SUBMIT del FORM en un Chromium REAL (no jsdom) — la UX del frontend COMPLETA end-to-end
 - **El más bounded de los ejes que quedaban, y completa la UX.** El frontend ya se RENDERIZABA en un Chromium real
   (FSK-FRONTEND-BROWSER: la lista viva como `<li>` en el DOM real), pero el **SUBMIT del FORM** (el usuario CREA una

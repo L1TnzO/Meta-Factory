@@ -144,13 +144,15 @@ entities:
       - { name: model_number, type: string, required: false }
       - { name: category_id, type: ref, to: Category }                 # requerido (faithful)
       - { name: manufacturer_id, type: ref, to: Manufacturer, required: false }
-      - { name: depreciation_id, type: ref, to: Depreciation, required: false }
+      # FSK-XENTITY-DEPTH2 (deferral 13): el período de depreciación NO vive en el modelo sino en `Depreciation`,
+      # alcanzado por ESTE ref → `Asset.current_value` lo lee CROSS-ENTITY a DEPTH-2 (`model_id.depreciation_id.months`,
+      # cadena de 2 JOINs Asset→AssetModel→Depreciation). El ref del medio es REQUERIDO en ESTA adopción (no opcional —
+      # faithful real) para que el seeder TRANSITIVO siembre la cadena completa → el valor derivado es OBSERVABLE y el
+      # diente del proof (s9) muerde; el MECANISMO admite un ref del medio opcional (LEFT JOIN null-safe → 0.0), pero
+      # sembrarlo observable necesitaría extender el seeder (residual, eje aparte). Antes el período estaba en una columna
+      # `depreciation_months` del PROPIO AssetModel (depth-1): reemplazada por la REAL `Depreciation.months`.
+      - { name: depreciation_id, type: ref, to: Depreciation }         # REQUERIDO en la adopción (seed transitivo → observable)
       - { name: eol, type: int, required: false }                      # meses hasta End-of-Life
-      # FSK-XENTITY-COMPUTED: el período de depreciación VIVE EN EL MODELO (todos los activos de un modelo se
-      # deprecian sobre el MISMO período), no en el activo individual. Antes estaba SIMPLIFICADO como un campo del
-      # propio Asset (same-entity); ahora vive acá y `Asset.current_value` lo lee CROSS-ENTITY (resuelve model_id →
-      # JOIN a AssetModel → lee esta columna). REQUERIDO (1er-cut: ref+campo requeridos → el valor es observable).
-      - { name: depreciation_months, type: int }                       # meses de vida útil (faithful: per-MODELO)
 
   # ══ ASSET — la entidad central, con WORKFLOW (FSK-S12) + OWNERSHIP (FSK-S14/S15) ══
   - name: Asset
@@ -179,20 +181,19 @@ entities:
       - { name: name, type: string, required: false }
       - { name: serial, type: string, required: false }   # Snipe: unique condicional (setting); acá opcional
       - { name: purchase_date, type: date, required: false }
-      # FSK-COMPUTED-FIELDS (deferral 7) + FSK-XENTITY-COMPUTED: el VALOR ACTUAL de un activo NO se almacena — se
-      # COMPUTA por depreciación straight-line desde la compra (la dimensión de VALORES DERIVADOS). Snipe-IT deriva
-      # el período de depreciación del MODELO (AssetModel), no del activo individual. El 1er-cut de FSK-COMPUTED-FIELDS
-      # lo SIMPLIFICÓ a un campo del propio Asset (same-entity); FSK-XENTITY-COMPUTED lo hace FAITHFUL: el período
-      # (`depreciation_months`) vive en `AssetModel` y `current_value` lo lee CROSS-ENTITY — resuelve `model_id` →
-      # LEFT JOIN a AssetModel → lee su columna (la fórmula como AST determinista). `purchase_cost` (same-entity) +
-      # `model_id.depreciation_months` (cross-entity) son REQUERIDOS → el valor es OBSERVABLE en el GET. (Refinamiento
-      # DIFERIDO: el período REAL vive en `Depreciation` vía `AssetModel.depreciation_id` —depth-2— + el tiempo
-      # transcurrido; este 1er-cut cross-entity es depth-1: el ref DIRECTO del Asset a su modelo.)
+      # FSK-COMPUTED-FIELDS (deferral 7) + FSK-XENTITY-DEPTH2 (deferral 13): el VALOR ACTUAL de un activo NO se almacena
+      # — se COMPUTA por depreciación straight-line desde la compra (la dimensión de VALORES DERIVADOS). El período de
+      # depreciación es FAITHFUL ahora: NO un proxy en el modelo, sino el REAL de `Depreciation.months`, alcanzado
+      # CROSS-ENTITY a DEPTH-2 — `current_value` resuelve la cadena `model_id.depreciation_id.months` (Asset→AssetModel→
+      # Depreciation, 2 LEFT JOINs encadenados, la fórmula como AST determinista). `purchase_cost` (same-entity) +
+      # `model_id.depreciation_id.months` (cross-entity depth-2) → el valor es OBSERVABLE en el GET (el ref del medio es
+      # requerido en la adopción → el seeder transitivo siembra la cadena). (Refinamiento DIFERIDO: el tiempo TRANSCURRIDO
+      # —meses desde la compra hasta hoy— es un eje aparte, FSK-TIME-COMPUTED: necesita mockear `now` en el oráculo.)
       - { name: purchase_cost, type: number }                  # REQUERIDO (fuente same-entity del valor derivado)
-      # `current_value` = max(purchase_cost - purchase_cost/model_id.depreciation_months, 0): el valor tras una
+      # `current_value` = max(purchase_cost - purchase_cost/model_id.depreciation_id.months, 0): el valor tras una
       # depreciación straight-line de un período, con piso 0 (max) y guard de div-por-cero (safeDiv). NO se guarda:
-      # 0 columnas, read-only, computado a read-time en rowJson tras el JOIN. AST: operadores del set cerrado (`- / max`);
-      # `model_id.depreciation_months` = el operando CROSS-ENTITY (un ref REQUERIDO `.` un campo numérico del target).
+      # 0 columnas, read-only, computado a read-time en rowJson tras la cadena de JOINs. AST: operadores del set cerrado
+      # (`- / max`); `model_id.depreciation_id.months` = el operando CROSS-ENTITY DEPTH-2 (cadena de 2 refs `.` un numérico).
       - name: current_value
         type: number
         computed:
@@ -201,7 +202,7 @@ entities:
             - op: "-"
               args:
                 - purchase_cost
-                - { op: "/", args: [purchase_cost, model_id.depreciation_months] }
+                - { op: "/", args: [purchase_cost, model_id.depreciation_id.months] }
             - 0
       - { name: order_number, type: string, required: false }
       - { name: warranty_months, type: int, required: false }

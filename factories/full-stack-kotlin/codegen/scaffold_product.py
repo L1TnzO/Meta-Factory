@@ -214,6 +214,20 @@ def _soft_delete(e: dict) -> bool:
     return bool(e.get("soft_delete"))
 
 
+def _audited(e: dict) -> bool:
+    """Una entidad AUDITADA (FSK-ACTIONLOG): `audited: true` (top-level por-entidad, hermano de `soft_delete`/
+    `company_scoped`) → TODA mutación de la fila (create/update/delete + los verbos de DOMINIO) appendea una fila
+    a la TABLA DE SISTEMA `action_logs` con (actor, action, SUJETO POLIMÓRFICO = (subject_type, subject_id)),
+    ATÓMICA con la mutación (misma transacción). El sujeto es POLIMÓRFICO porque la MISMA tabla `action_logs`
+    recibe el rastro de CUALQUIER entidad auditada (subject_type = el nombre de la entidad, discriminador; con ≥2
+    entidades auditadas compone FSK-POLYMORPHIC-REFS sin mecanismo nuevo). Feature ESTRELLA de Snipe-IT (la
+    bitácora de actividad). System-table como `deleted_at`: la declara el flag, no el usuario campo-a-campo. Opt-in:
+    sin la flag no se emite ni la tabla ni el append (byte-neutro). 1er-cut: sólo la entidad SERVIDA con dueño
+    (create/update/delete/verbos pasan por sus handlers, donde el actor = el principal del token); auditar las
+    ownerless/qty + el verbo `restore` queda diferido (eje hermano)."""
+    return bool(e.get("audited"))
+
+
 _COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores (fail-closed; nada domain-specific)
 _COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
 # FSK-TIME-COMPUTED: ops de TIEMPO — UNARIOS, cuyo único arg NO es un numérico sino un campo `date` de la entidad,
@@ -448,6 +462,17 @@ def _load_blueprint(root: Path) -> dict:
         # los hila el codegen donde hace falta (migration · read-filter · DELETE · restore), fuera de `_cols_of`.
         if "soft_delete" in e and not isinstance(e["soft_delete"], bool):
             raise SystemExit(f"scaffold: entidad {e['name']!r} con 'soft_delete' no booleano (fail-closed)")
+        # FSK-ACTIONLOG: opt-in por-entidad. Fail-closed (mismo patrón que `soft_delete`): un bool. `audited: true`
+        # sólo en una entidad CON DUEÑO (la SERVIDA): los caminos de mutación auditados (create/update/delete +
+        # verbos) viven en los handlers de la entidad-con-dueño, donde el actor = el principal del token. Una
+        # ownerless/qty no pasa por ese veredicto → su auditoría se difiere (eje hermano). Sin la flag, byte-idéntico.
+        if "audited" in e:
+            if not isinstance(e["audited"], bool):
+                raise SystemExit(f"scaffold: entidad {e['name']!r} con 'audited' no booleano (fail-closed)")
+            if e["audited"] and not e.get("owned_by"):
+                raise SystemExit(f"scaffold: entidad {e['name']!r} con 'audited: true' sin 'owned_by' — la "
+                                 f"auditoría riega los caminos de mutación de la entidad-con-dueño (el actor es el "
+                                 f"principal del token); auditar una entidad ownerless/qty es un eje hermano (FSK-ACTIONLOG)")
         for f in e["fields"]:
             t = f.get("type")
             if t not in _OAPI_TYPE and t != "enum":          # vocabulario cerrado (fail-closed, R2)
@@ -1678,6 +1703,22 @@ def _migration_sql(bp: dict) -> str:
         # se reusa tras borrar). jOOQ DDLDatabase parsea el `WHERE` (probado). Vacío sin columnas unique soft → byte-neutro.
         for u in partial_uniques:
             out.append(f"CREATE UNIQUE INDEX uq_{_table(e)}_{u} ON {_table(e)} ({u}) WHERE deleted_at IS NULL;")
+    # FSK-ACTIONLOG: la tabla de SISTEMA `action_logs` — el rastro de auditoría de CADA mutación auditada. Como
+    # `deleted_at` (soft-delete), la declara el flag `audited`, NO el usuario campo-a-campo (fuera de _cols_of / insert
+    # / contrato). El SUJETO es POLIMÓRFICO: subject_type (discriminador = el nombre de la entidad) + subject_id (BIGINT
+    # SIN FK — el rastro de CUALQUIER entidad auditada cae en la MISMA tabla; no hay FK a una unión, wrinkle #1 de poly).
+    # actor_id (el principal del token) y action (create/update/delete/<verbo>) son DATA del request. Opt-in: emitida
+    # SÓLO si alguna entidad declara `audited` → byte-neutro sin la flag (default/assets sin la tabla).
+    if any(_audited(e) for e in bp["entities"]):
+        alog_cols = [
+            "  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY",
+            "  created_at TIMESTAMP NOT NULL",
+            "  actor_id BIGINT NOT NULL",
+            "  action VARCHAR(255) NOT NULL",
+            "  subject_type VARCHAR(255) NOT NULL",
+            "  subject_id BIGINT NOT NULL",
+        ]
+        out += ["CREATE TABLE action_logs (", ",\n".join(alog_cols), ");"]
     out += deferred   # las FKs forward/cíclicas, una vez que TODAS las tablas existen
     return "\n".join(out) + "\n"
 
@@ -2015,10 +2056,17 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     input_live = ([{"fields": _input_fields(e)} for e in live]
                   + [{"fields": body} for _, _, body in creates_pivots])
     table_imports = [f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities]
+    # FSK-ACTIONLOG: si alguna entidad es auditada, el Repository gana la tabla de SISTEMA ACTION_LOGS (el append +
+    # las lecturas de la bitácora la referencian). Opt-in: sin `audited` no se importa → byte-idéntico (default/assets).
+    audited_any = any(_audited(e) for e in entities)
+    if audited_any:
+        table_imports.append(f"import {pkg}.jooq.tables.references.ACTION_LOGS")
     # Layout de imports de ktlint_official: todo ordenado pero los `java.*`/`javax.*` AL FINAL (mismo orden que
     # AppServer.kt: org.* → {pkg}.* → java.*). Los imports de tipo del Input (p.ej. una columna `date` requerida →
     # java.time.LocalDate) van al final; pure-ASCII los pondria primero → ktlint rojo.
     type_imports = _kt_type_imports(input_live)   # java.* (LocalDate, …) → al final
+    if audited_any:   # FSK-ACTIONLOG: appendActionLog estampa created_at = LocalDateTime.now() (la columna TIMESTAMP)
+        type_imports = sorted(set(type_imports) | {"import java.time.LocalDateTime"})
     # FSK-TIME-COMPUTED: una entidad VIVA con un op de tiempo (`months_since`) pide java.time.* en el Repository
     # (`today` + `monthsSince`). Se unionan al grupo java.* (deduplicado: una columna `date` de input ya pudo traer
     # LocalDate) y se re-ordenan ascii (ChronoUnit detrás de LocalDate). Sin op de tiempo → byte-idéntico (opt-in).
@@ -2104,6 +2152,43 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         # sin `operations` no agrega nada (la entidad con verbos es la que tiene dueño → ya es live).
         if e.get("operations"):
             fns.extend(_operation_repo_fns(e, tbl, by))
+    # FSK-ACTIONLOG: la maquinaria de la bitácora de SISTEMA — un APPEND (estampa la fila de auditoría: actor, action,
+    # sujeto POLIMÓRFICO + created_at) y las LECTURAS (count + colección serializada para GET /action_logs). El append
+    # lo invoca el AppServer DENTRO de la MISMA transacción que la mutación (atomicidad: rollback ⇒ no queda rastro). El
+    # sujeto se materializa en 2 columnas (subject_type discriminador + subject_id Long) — REUSA jsonVal (ya en scope:
+    # la entidad auditada es viva → data_classes no vacío). Opt-in: sin `audited` no se emite (default/assets byte-idéntico).
+    if audited_any:
+        fns.append(
+            "    fun appendActionLog(\n"
+            "        ctx: DSLContext,\n"
+            "        actorId: Long,\n"
+            "        action: String,\n"
+            "        subjectType: String,\n"
+            "        subjectId: Long,\n"
+            "    ) {\n"
+            "        ctx.insertInto(ACTION_LOGS)\n"
+            "            .set(ACTION_LOGS.CREATED_AT, LocalDateTime.now())\n"
+            "            .set(ACTION_LOGS.ACTOR_ID, actorId)\n"
+            "            .set(ACTION_LOGS.ACTION, action)\n"
+            "            .set(ACTION_LOGS.SUBJECT_TYPE, subjectType)\n"
+            "            .set(ACTION_LOGS.SUBJECT_ID, subjectId)\n"
+            "            .execute()\n"
+            "    }")
+        fns.append("    fun actionLogCount(ctx: DSLContext): Int = ctx.fetchCount(ACTION_LOGS)")
+        fns.append(
+            "    fun allActionLogRowsJson(ctx: DSLContext): String =\n"
+            "        ctx.select(\n"
+            "            ACTION_LOGS.ID,\n"
+            "            ACTION_LOGS.ACTOR_ID,\n"
+            "            ACTION_LOGS.ACTION,\n"
+            "            ACTION_LOGS.SUBJECT_TYPE,\n"
+            "            ACTION_LOGS.SUBJECT_ID,\n"
+            '        ).from(ACTION_LOGS).orderBy(ACTION_LOGS.ID).fetch().joinToString(",", "[", "]") { r ->\n'
+            "            val act = jsonVal(r[ACTION_LOGS.ACTION])\n"
+            "            val sub = jsonVal(r[ACTION_LOGS.SUBJECT_TYPE])\n"
+            '            """{"id":${r[ACTION_LOGS.ID]},"actor_id":${r[ACTION_LOGS.ACTOR_ID]},""" +\n'
+            '                """"action":$act,"subject_type":$sub,"subject_id":${r[ACTION_LOGS.SUBJECT_ID]}}"""\n'
+            "        }")
     if data_classes:   # helper de serialización JSON usado por <e>RowJson (sólo si hay entidad viva)
         fns.insert(0, "    private fun jsonVal(v: Any?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"")
     # FSK-COMPUTED-FIELDS: el helper de división con guard de div-por-cero (la fórmula de un campo computado lo
@@ -4606,7 +4691,7 @@ def _codec_helpers(entities: list[dict],
 
 
 def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict | None,
-                         need_conflict: bool = False, scoped: bool = False) -> str:
+                         need_conflict: bool = False, scoped: bool = False, audited: bool = False) -> str:
     """Las funciones de manejo del server vivo (FSK-CRUD-BODY-PARSING): doPost LEE el cuerpo del request, lo
     type-coerce por el schema (parse<E>Input) e INSERTA con ESOS valores (dueño = principal del token, no del
     body); getOne devuelve la FILA COMPLETA type-correct; doPut LEE el body y actualiza la columna mutable
@@ -4616,6 +4701,47 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
     nombres de fn/columna derivados del blueprint, cero nombres de dominio (ADR-012)."""
     name = owned["name"]
     row_json = f"{name.lower()}RowJson"
+    # FSK-ACTIONLOG: con `audited`, cada mutación (create/update/delete) se ENVUELVE en una transacción que appendea
+    # la fila de auditoría ATÓMICAMENTE (rollback ⇒ sin rastro) — el append vive en el HANDLER (la capa del request),
+    # donde el ACTOR existe: el `principal` (creador/dueño) para create; el principal del token (?: 0L fail-safe) para
+    # update/delete. La capa de persistencia (Repository) queda INTACTA. El sujeto es POLIMÓRFICO (subject_type = el
+    # nombre de la entidad, subject_id = la fila). Opt-in: sin `audited` los 3 cuerpos quedan EXACTOS (byte-idéntico →
+    # default/assets/owned-no-auditado sin re-derivar). El PUT degradado (sin columna mutable) NO se audita (no muta).
+    if audited:
+        post_ok = (
+            "        else -> {\n"
+            "            val newId = ctx.transactionResult { cfg ->\n"
+            "                val tx = cfg.dsl()\n"
+            f"                val nid = Repository.{insert_fn}(tx, principal, input)\n"
+            f'                Repository.appendActionLog(tx, principal, "create", "{name}", nid)\n'
+            "                nid\n"
+            "            }\n"
+            '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
+            "        }\n"
+        )
+        delete_ok = (
+            "        HTTP_OK -> {\n"
+            "            ctx.transaction { cfg ->\n"
+            "                val tx = cfg.dsl()\n"
+            f"                Repository.{delete_fn}(tx, id)\n"
+            f'                Repository.appendActionLog(tx, RoleGuard.principalOf(token) ?: 0L, "delete", "{name}", id)\n'
+            "            }\n"
+            '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+            "        }\n"
+        )
+    else:
+        post_ok = (
+            "        else -> {\n"
+            f"            val newId = Repository.{insert_fn}(ctx, principal, input)\n"
+            '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
+            "        }\n"
+        )
+        delete_ok = (
+            "        HTTP_OK -> {\n"
+            f"            Repository.{delete_fn}(ctx, id)\n"
+            '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+            "        }\n"
+        )
     # Helpers de respuesta COMPARTIDOS (los reusa también el bloque ownerless; el orden de las fun top-level no
     # importa en Kotlin). El codec (prim/str/parse<E>Input) sale aparte a %CODEC% (unión sobre entidades vivas).
     helpers = (
@@ -4640,10 +4766,7 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         "    return when {\n"
         "        !RoleGuard.authorize(token, writeRoles()) || principal == null -> forbidden()\n"
         "        input == null -> badRequest()\n"
-        "        else -> {\n"
-        f"            val newId = Repository.{insert_fn}(ctx, principal, input)\n"
-        '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
-        "        }\n"
+        + post_ok +
         "    }\n"
         "}\n\n"
     )
@@ -4694,16 +4817,31 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         "private fun doDelete(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
         "    val verdict = modifyVerdict(ctx, token, id)\n"
         "    return when (verdict) {\n"
-        "        HTTP_OK -> {\n"
-        f"            Repository.{delete_fn}(ctx, id)\n"
-        '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
-        "        }\n"
+        + delete_ok +
         '        else -> verdict to """{"status":$verdict}"""\n'
         "    }\n"
         "}\n"
     )
     if mf:
         mut_update = f"update{name}{_pascal(mf['name'])}"
+        if audited:   # FSK-ACTIONLOG: el UPDATE + el append a action_logs en la MISMA transacción (atómico)
+            put_ok = (
+                "        else -> {\n"
+                "            ctx.transaction { cfg ->\n"
+                "                val tx = cfg.dsl()\n"
+                f"                Repository.{mut_update}(tx, id, value)\n"
+                f'                Repository.appendActionLog(tx, RoleGuard.principalOf(token) ?: 0L, "update", "{name}", id)\n'
+                "            }\n"
+                '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+                "        }\n"
+            )
+        else:
+            put_ok = (
+                "        else -> {\n"
+                f"            Repository.{mut_update}(ctx, id, value)\n"
+                '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
+                "        }\n"
+            )
         do_put = (
             "private fun parsePut(body: String): String? = runCatching {\n"
             f'    str(Json.parseToJsonElement(body).jsonObject, "{mf["name"]}")\n'
@@ -4716,10 +4854,7 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
             "    return when {\n"
             '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
             "        value == null -> badRequest()\n"
-            "        else -> {\n"
-            f"            Repository.{mut_update}(ctx, id, value)\n"
-            '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
-            "        }\n"
+            + put_ok +
             "    }\n"
             "}\n\n"
         )
@@ -5007,17 +5142,39 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, co
             + "    }\n}")
 
 
-def _operations_handlers(owned: dict, ops: list[dict]) -> str:
+def _operations_handlers(owned: dict, ops: list[dict], audited: bool = False) -> str:
     """Los handlers de los verbos de DOMINIO del server vivo (FSK-DOMAIN-OPS): un POST /<plural>/{id}/<verbo> que
     COMPONE los guards EN ORDEN — modifyVerdict (RBAC + ownership, mismo veredicto que PUT/DELETE) → precondición
     de WORKFLOW VIVA (`<Entity><Field>Workflow.canTransition(estado_actual, to)`, hasta hoy sólo-UNIT en s7) →
     mutación atómica (campo=to + assigns/clears). Estado inválido (la transición no es legal desde el estado
     actual) → 409; rol/dueño equivocado → 403/404 (heredado de modifyVerdict). Cada handler es UN `return when`
     (ReturnCount ≤ 2 de detekt). El sub-path se parsea con opVerb/opId. DATA-agnóstico: nombres derivados del
-    blueprint (ADR-012). Opt-in: sin `operations` esta función no se invoca (default/assets byte-idéntico)."""
+    blueprint (ADR-012). Opt-in: sin `operations` esta función no se invoca (default/assets byte-idéntico).
+    FSK-ACTIONLOG: con `audited`, el verbo MUTA + appendea su rastro de auditoría (action = el nombre del verbo,
+    sujeto = (la entidad, la fila)) en UNA transacción (atómico). Sin `audited` la rama de éxito queda EXACTA
+    (byte-idéntico). El actor = el principal del token (?: 0L fail-safe)."""
     name = owned["name"]
     lower = name.lower()
     fld_by = {f["name"]: f for f in owned["fields"]}   # FSK-POLY-ASSIGNS: ¿el assigns es un ref POLIMÓRFICO?
+
+    def _op_ok(op_name: str, extra: str) -> str:
+        # FSK-ACTIONLOG: la rama de ÉXITO del verbo. Con `audited`, muta + appendea en la MISMA transacción; sin él,
+        # la mutación directa (byte-idéntica al previo). `extra` = los args del verbo tras `id` (target / poly / nada).
+        ok = 'HTTP_OK to """{"status":$HTTP_OK}"""'
+        if audited:
+            return ("        else -> {\n"
+                    "            ctx.transaction { cfg ->\n"
+                    "                val tx = cfg.dsl()\n"
+                    f"                Repository.{op_name}{name}(tx, id{extra})\n"
+                    f'                Repository.appendActionLog(tx, RoleGuard.principalOf(token) ?: 0L, '
+                    f'"{op_name}", "{name}", id)\n'
+                    "            }\n"
+                    f"            {ok}\n"
+                    "        }\n")
+        return ("        else -> {\n"
+                f"            Repository.{op_name}{name}(ctx, id{extra})\n"
+                f"            {ok}\n"
+                "        }\n")
     parts = [
         "// FSK-DOMAIN-OPS: parseo del sub-path del verbo (/<plural>/{id}/<verbo>). DATA-agnostico.\n"
         'private fun opVerb(rest: String): String? = rest.split("/").takeIf { it.size == 2 }?.get(1)\n\n'
@@ -5046,7 +5203,6 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
         # `from` declarado) — un verbo sobre un estado inválido (p.ej. checkout de algo ya deployed) → no transita.
         precond = f"!{wf_obj}.canTransition({enum_cls}.valueOf(current), {to_ref})"
         verbatim = (f'verdict to """{{"status":$verdict}}"""')
-        okline = (f'HTTP_OK to """{{"status":$HTTP_OK}}"""')
         if op.get("assigns") and _is_poly(fld_by[op["assigns"]]):
             # FSK-POLY-ASSIGNS: el verbo asigna a un ref POLIMÓRFICO — parsea el discriminador `<campo>_type`
             # (∈ la unión, fail-closed) + el `<campo>_id` del cuerpo y setea AMBAS sub-columnas. Discriminador
@@ -5067,10 +5223,7 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
                 f"        current == null -> notFound()\n"
                 f"        {precond} -> conflict()\n"
                 f"        assignType == null || assignId == null -> badRequest()\n"
-                f"        else -> {{\n"
-                f"            Repository.{op['name']}{name}(ctx, id, assignType, assignId)\n"
-                f"            {okline}\n"
-                f"        }}\n"
+                f"{_op_ok(op['name'], ', assignType, assignId')}"
                 f"    }}\n"
                 f"}}")
         elif op.get("assigns"):
@@ -5089,10 +5242,7 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
                 f"        current == null -> notFound()\n"
                 f"        {precond} -> conflict()\n"
                 f"        target == null -> badRequest()\n"
-                f"        else -> {{\n"
-                f"            Repository.{op['name']}{name}(ctx, id, target)\n"
-                f"            {okline}\n"
-                f"        }}\n"
+                f"{_op_ok(op['name'], ', target')}"
                 f"    }}\n"
                 f"}}")
         else:
@@ -5110,10 +5260,7 @@ def _operations_handlers(owned: dict, ops: list[dict]) -> str:
                 f"        verdict != HTTP_OK -> {verbatim}\n"
                 f"        current == null -> notFound()\n"
                 f"        {precond} -> conflict()\n"
-                f"        else -> {{\n"
-                f"            Repository.{op['name']}{name}(ctx, id)\n"
-                f"            {okline}\n"
-                f"        }}\n"
+                f"{_op_ok(op['name'], '')}"
                 f"    }}\n"
                 f"}}")
     return "\n" + "\n\n".join(parts) + "\n"
@@ -5353,11 +5500,16 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     else:
         seed_qty = seedrows_suppress = ""
     conflict_const = "private const val HTTP_CONFLICT = 409\n" if need_conflict else ""
-    handlers = _app_server_handlers(owned, f"insert{owned['name']}",
-                                    f"delete{owned['name']}", _mutable_field(owned), need_conflict, bool(scope_field))
+    # FSK-ACTIONLOG: la entidad servida con dueño puede ser AUDITADA (`audited: true`) → cada mutación de su CRUD
+    # (create/update/delete) + sus verbos appendea una fila a action_logs ATÓMICAMENTE (el append vive en el handler,
+    # donde el actor existe). El server gana además la ruta de LECTURA GET /action_logs. Opt-in: sin `audited` los
+    # handlers/verbos quedan EXACTOS y no se monta la ruta (byte-idéntico → default/assets sin re-derivar).
+    audited = _audited(owned)
+    handlers = _app_server_handlers(owned, f"insert{owned['name']}", f"delete{owned['name']}",
+                                    _mutable_field(owned), need_conflict, bool(scope_field), audited)
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): los handlers de los verbos + las ramas del dispatch. Opt-in: "" sin
     # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
-    ops_handlers = _operations_handlers(owned, operations) if operations else ""
+    ops_handlers = _operations_handlers(owned, operations, audited) if operations else ""
     ops_dispatch = _operations_dispatch(operations) if operations else ""
     # FSK-SOFT-DELETES: el handler + la rama de dispatch del verbo `restore` IMPLÍCITO (lo habilita `soft_delete`).
     # Es un verbo MÁS (POST /<plural>/{id}/restore) que COMPONE el montaje de verbos: gateado por el MISMO
@@ -5406,6 +5558,22 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                            for e in extras)
     extra_contexts = "".join(f"    server.createContext(PLURAL_{e['name'].upper()}) "
                              f"{{ ex -> handle{e['name']}(ctx, ex) }}\n" for e in extras)
+    # FSK-ACTIONLOG: el handler de LECTURA de la bitácora (GET /action_logs → {count, rows[]}, lectura pública) + su
+    # contexto. Las filas las appendean los handlers de mutación auditados; este sólo las LEE (count vivo + colección
+    # serializada via Repository). Opt-in: sin entidad auditada → ambos "" → byte-idéntico (default/assets sin la ruta).
+    if audited:
+        actionlog_handler = (
+            "\n// GET /action_logs (FSK-ACTIONLOG): la bitacora de actividad COMPLETA (lectura publica, count+rows[]).\n"
+            "// Cada mutacion auditada (create/update/delete/verbo) appendeo una fila con (actor, action, sujeto\n"
+            "// POLIMORFICO = subject_type+subject_id). Es lo que el proof e2e cruza: tras mutar, la fila aparece aqui.\n"
+            "private fun handleActionLogs(ctx: DSLContext, ex: HttpExchange) {\n"
+            "    val count = Repository.actionLogCount(ctx)\n"
+            "    val rows = Repository.allActionLogRowsJson(ctx)\n"
+            '    respond(ex, HTTP_OK, """{"count":$count,"rows":$rows}""")\n'
+            "}\n")
+        actionlog_context = '    server.createContext("/action_logs") { ex -> handleActionLogs(ctx, ex) }\n'
+    else:
+        actionlog_handler = actionlog_context = ""
     # FSK-COMPANY-SCOPING: siembra ≥2 compañías (nombres UNIQUE distintos) + una fila del owned scopeada a la 2ª
     # compañía (dueño = ownerId → ownership pasa; tenant != el del actor → el diente de scope). /seed expone
     # companyA/companyB/scopedId. Reusa owned_wiring (deps ya sembradas) + cablea el tenant OPCIONAL (companyBId).
@@ -5487,6 +5655,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
             .replace("%WITH_REF_BLOCK%", with_ref_block)
             .replace("%EXTRA_BLOCKS%", extra_blocks)
+            .replace("%ACTIONLOG_HANDLER%", actionlog_handler)   # FSK-ACTIONLOG: GET /action_logs (opt-in)
+            .replace("%ACTIONLOG_CONTEXT%", actionlog_context)
             .replace("%OWNERLESS_CONTEXT%", ownerless_context)
             .replace("%WITH_REF_CONTEXT%", with_ref_context)
             .replace("%EXTRA_CONTEXTS%", extra_contexts)
@@ -5640,7 +5810,7 @@ private fun writeRoles(): Set<Role> =
     }
     respond(ex, status, out)
 }
-%OWNERLESS_BLOCK%%WITH_REF_BLOCK%%EXTRA_BLOCKS%
+%OWNERLESS_BLOCK%%WITH_REF_BLOCK%%EXTRA_BLOCKS%%ACTIONLOG_HANDLER%
 fun main() {
     val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:%AC_PG_PORT%/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
@@ -5658,7 +5828,7 @@ fun main() {
     server.createContext("/health") { ex -> respond(ex, HTTP_OK, """{"status":"UP"}""") }
     server.createContext("/seed") { ex -> respond(ex, HTTP_OK, seedJson(seed)) }
     server.createContext(PLURAL) { ex -> handle(ctx, ex) }
-%OWNERLESS_CONTEXT%%WITH_REF_CONTEXT%%EXTRA_CONTEXTS%    server.start()
+%ACTIONLOG_CONTEXT%%OWNERLESS_CONTEXT%%WITH_REF_CONTEXT%%EXTRA_CONTEXTS%    server.start()
     println("FSK_AC_LISTENING $port")
 }
 '''
@@ -6075,6 +6245,28 @@ _SOFT_DELETE_PROOF = '''
             ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404, "GET /{id} tras re-DELETE -> 404")'''
 
 
+# FSK-ACTIONLOG: el diente VIVO de la bitacora de auditoria. Corre justo tras el ciclo create->update->delete de
+# new_id (12 indent, dentro de `if new_id is not None`), ANTES del bloque soft-delete (asi el sujeto tiene EXACTO 3
+# rastros, uno por accion). GET /action_logs, filtra por el SUJETO POLIMORFICO (subject_type = la entidad + subject_id
+# = new_id) y asevera: las 3 acciones presentes + el actor del create == el dueno. Diente de DOS lados: suprimir el
+# append (o garblear el subject_type/action) en el handler -> faltan/no-matchean las filas -> SOLO este bloque rojo,
+# hermanos verdes (el server sigue vivo, el round-trip CRUD intacto). Opt-in: "" sin entidad auditada -> byte-identico.
+_ACTIONLOG_PROOF = '''
+            # *** FSK-ACTIONLOG: cada mutacion AUDITADA de new_id (POST create / PUT update / DELETE) dejo una fila ***
+            # en /action_logs con (actor, action, SUJETO POLIMORFICO = subject_type+subject_id). Filtramos por el
+            # sujeto (la entidad + new_id) y aseveramos las 3 acciones + el actor del create (= el dueno).
+            _alogs = json.loads(_body(base, "/action_logs"))
+            ok &= _expect_value(_alogs["count"] >= 3, True, "[actionlog] >=3 filas tras create/update/delete")
+            _mine = [r for r in _alogs["rows"]
+                     if r.get("subject_id") == new_id and r.get("subject_type") == "%AUDIT_SUBJECT%"]
+            _acts = {r.get("action") for r in _mine}
+            ok &= _expect_value("create" in _acts, True, "[actionlog] POST -> fila create del sujeto")
+            ok &= _expect_value("update" in _acts, True, "[actionlog] PUT -> fila update del sujeto")
+            ok &= _expect_value("delete" in _acts, True, "[actionlog] DELETE -> fila delete del sujeto")
+            _crow = next((r for r in _mine if r.get("action") == "create"), None)
+            ok &= _expect_value(_crow.get("actor_id") if _crow else None, owner, "[actionlog] actor del create = dueno")'''
+
+
 # FSK-SERVE-ALL-ENTITIES: el diente de DOS lados de las entidades ANTES no montadas. El server ahora monta CRUD
 # para TODAS las servibles (no sólo 3 representativas); este bloque ejercita a RUNTIME las escalares-solo más allá
 # de la ownerless PRIMARIA (POST fresco, sin seed/FK). Por cada una: POST rol PROHIBIDO -> 403 sin INSERT /
@@ -6290,6 +6482,9 @@ def _access_control_check_py(bp: dict) -> str:
     # FSK-SOFT-DELETES: el bloque del diente del borrado lógico — sólo si la entidad servida con dueño es soft.
     # Reusa new_id (ya soft-deleteado por el DELETE de arriba). Opt-in: sin `soft_delete` → "" → byte-idéntico.
     soft_delete_block = _SOFT_DELETE_PROOF if _soft_delete(owned) else ""
+    # FSK-ACTIONLOG: el bloque del diente de la bitácora — sólo si la entidad servida con dueño es auditada. El SUJETO
+    # del rastro es POLIMÓRFICO: subject_type = el nombre de la entidad (discriminador). Opt-in: "" → byte-idéntico.
+    actionlog_block = _ACTIONLOG_PROOF.replace("%AUDIT_SUBJECT%", owned["name"]) if _audited(owned) else ""
     # FSK-SERVE-ALL-ENTITIES: las entidades servibles escalares-solo MÁS ALLÁ de la ownerless PRIMARIA (`ol`) — las
     # monta este eje y se prueban de dos lados por POST fresco (sin seed/FK). Se EXCLUYEN las que tienen un ref
     # requerido (mounted, no e2e-probadas acá: necesitarían sembrar su FK — honesto, wrinkle #1) y la primaria (ya
@@ -6309,6 +6504,7 @@ def _access_control_check_py(bp: dict) -> str:
     serve_all_block = _SERVE_ALL_PROOF.replace("%SERVE_ALL_DATA%", json.dumps(serve_all_data)) if serve_all_data else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
             .replace("%SERVE_ALL_BLOCK%", serve_all_block)
+            .replace("%ACTIONLOG_BLOCK%", actionlog_block)
             .replace("%SOFT_DELETE_BLOCK%", soft_delete_block)
             .replace("%COMPUTED_BLOCK%", computed_block)
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
@@ -6510,7 +6706,7 @@ def main(argv: list) -> int:
                           f"DELETE por el DUENO ({OWNER_ROLE}:{owner})")
             ok &= _expect(_count(base), n0, "count tras DELETE (la fila se fue)")
             ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404,
-                          "GET /{id} de fila borrada -> 404")%SOFT_DELETE_BLOCK%
+                          "GET /{id} de fila borrada -> 404")%ACTIONLOG_BLOCK%%SOFT_DELETE_BLOCK%
         if BYPASS_ROLE:
             ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {BYPASS_ROLE}:{owner + 1}", PUT_BODY)[0], 200,
                           f"PUT por rol de BYPASS ({BYPASS_ROLE})")

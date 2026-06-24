@@ -7217,6 +7217,91 @@ if __name__ == "__main__":
 '''
 
 
+def _deploy_appserver_check_py(bp: dict) -> str:
+    """tools/deploy_appserver_check.py — el proof del deploy del AppServer REAL en un contenedor con una PG
+    en una red docker (s11 deploy_appserver_live, DES-1). Stdlib puro, autocontenido (sin `import metafactory`,
+    sin deps) → corre en infra_up con env scrubbeado, como deploy_check.py/obs_check. A diferencia de
+    deploy_check.py (que smoke-tea el ObsServer PG-free por /health), este le pega al AppServer CRUD desplegado
+    en un contenedor que HABLA con su PG por la red docker: (1) /health UP — el AppServer connecta a PG AL BOOT
+    (connect + Flyway migrate + seedRows); si no la alcanza CRASHEA al arrancar → no responde; (2) GET <plural>
+    devuelve la fila SEMBRADA (count≥1) → prueba que el contenedor desplegado ALCANZA su base y sirve una query
+    jOOQ VIVA a request-time (no sólo que connectó al boot). El plural sale del blueprint (la entidad con dueño)
+    y se HORNEA acá como DATA — igual que _dockerfile hornea el package — así el argv de la estación queda
+    product-agnóstico (sólo el base_url). Un único intento RÁPIDO: infra_up reintenta mientras el AppServer
+    arranca (ready_timeout) y, en la fase NEGATIVA (contenedor caído tras teardown), el MISMO proof no conecta
+    → rojo en ~ms (diente nativo). Diente vivo: saboteá el cableado de la red (FSK_PG_URL a un host inexistente
+    / el AppServer fuera de la red) → no connecta al boot → crashea → /health no responde → exit 1."""
+    owned = next(e for e in bp["entities"] if e.get("owned_by"))
+    plural = "/" + _table(owned)
+    return r'''#!/usr/bin/env python3
+"""deploy_appserver_check.py - proof del deploy del AppServer REAL en un contenedor con PG en una red docker
+(s11 deploy_appserver_live, DES-1). Stdlib puro, autocontenido, sin red externa. Exige: (1) /health UP (el
+AppServer connecta a PG AL BOOT; si no la alcanza crashea → no responde) + (2) GET <plural> devuelve la fila
+SEMBRADA (count>=1 → el contenedor ALCANZA su PG y sirve una query jOOQ viva). Exit 1 si el contenedor no
+responde (diente nativo de infra_up) o si no alcanza su base. El <plural> esta horneado (DATA del blueprint).
+Uso: deploy_appserver_check.py <base_url>"""
+from __future__ import annotations
+
+import json
+import sys
+import urllib.error
+import urllib.request
+
+PLURAL = "%PLURAL%"
+
+
+def _get(url: str) -> tuple[int, str]:
+    with urllib.request.urlopen(url, timeout=3) as r:
+        return r.status, r.read().decode("utf-8", "replace")
+
+
+def _json(body: str) -> dict:
+    try:
+        v = json.loads(body)
+    except json.JSONDecodeError:
+        return {}
+    return v if isinstance(v, dict) else {}
+
+
+def main(argv: list) -> int:
+    if len(argv) != 1:
+        print("usage: deploy_appserver_check.py <base_url>", file=sys.stderr)
+        return 2
+    base = argv[0].rstrip("/")
+    # (1) /health UP: el AppServer connecta a PG al boot; si no la alcanza, crashea y el contenedor no responde.
+    try:
+        status, body = _get(f"{base}/health")
+    except (urllib.error.URLError, OSError) as exc:
+        print(f"deploy-appserver-check: el contenedor no responde en {base}/health: "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    if status != 200 or _json(body).get("status") != "UP":
+        print(f"deploy-appserver-check: /health no UP (status {status}, body {body!r})", file=sys.stderr)
+        return 1
+    # (2) GET <plural>: la fila SEMBRADA vuelve de la PG (count>=1) -> el contenedor ALCANZA su base por la red.
+    try:
+        status, body = _get(f"{base}%PLURAL%")
+    except (urllib.error.URLError, OSError) as exc:
+        print(f"deploy-appserver-check: GET %PLURAL% fallo: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    if status != 200:
+        print(f"deploy-appserver-check: GET %PLURAL% status {status} (esperaba 200)", file=sys.stderr)
+        return 1
+    count = _json(body).get("count")
+    if not isinstance(count, int) or count < 1:
+        print(f"deploy-appserver-check: GET %PLURAL% no trajo la fila sembrada (count={count!r}, "
+              f"body {body[:200]!r})", file=sys.stderr)
+        return 1
+    print(f"deploy-appserver-check OK: el AppServer-en-contenedor responde /health UP y GET %PLURAL% -> "
+          f"count={count} (alcanza su PG en la red docker)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+'''.replace("%PLURAL%", plural)
+
+
 def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
@@ -7288,6 +7373,10 @@ def build_files(bp: dict) -> dict[str, str]:
         "Dockerfile": _dockerfile(pkg),
         # deploy vivo (s11, DES-1): el smoke del contenedor construido — le pega /health y exige UP (DATA).
         "tools/deploy_check.py": _deploy_check_py(),
+        # deploy del AppServer REAL en un contenedor con PG en una red docker (s11 deploy_appserver_live, DES-1):
+        # le pega /health (connect+migrate al boot) + GET <plural> (fila sembrada → alcanza su PG). El plural,
+        # horneado del blueprint (DATA), deja el argv de la estación product-agnóstico (sólo el base_url).
+        "tools/deploy_appserver_check.py": _deploy_appserver_check_py(bp),
     }
     # workflows / máquinas de estado (s7, DES-3, R2/FSK-S12): OPT-IN — sólo se emiten para los campos enum que
     # declaran `transitions` (un enum sin máquina se comporta EXACTO como FSK-S11). El guard vive en el código

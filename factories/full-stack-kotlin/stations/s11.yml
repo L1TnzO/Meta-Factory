@@ -26,3 +26,31 @@ checks:
   - -f
   - fsk_s11_deploy
   timeout: 60
+- name: deploy_appserver_live
+  kind: infra_up
+  workdir: build/product
+  bootstrap:
+  - sh
+  - -c
+  - set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
+    ./gradlew installDist -q --console=plain; docker rm -f fsk_s11_app fsk_s11_pg
+    >/dev/null 2>&1 || true; docker network rm fsk_s11_net >/dev/null 2>&1 || true;
+    docker network create fsk_s11_net >/dev/null 2>&1 || true; docker build -q -t
+    fsk_s11_deploy . >/dev/null; docker run -d --name fsk_s11_pg --network fsk_s11_net
+    -e POSTGRES_PASSWORD=metafactory postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    >/dev/null; i=0; until docker exec fsk_s11_pg pg_isready -U postgres >/dev/null
+    2>&1 || [ $i -ge 60 ]; do i=$((i+1)); sleep 1; done; docker run -d --name fsk_s11_app
+    --network fsk_s11_net -p 18598:18598 -e FSK_AC_PORT=18598 -e FSK_PG_URL=jdbc:postgresql://fsk_s11_pg:5432/postgres
+    --entrypoint java fsk_s11_deploy -cp '/app/lib/*' webapp.endpoints.AppServerKt
+    >/dev/null
+  up: []
+  proof:
+  - python3
+  - tools/deploy_appserver_check.py
+  - http://127.0.0.1:18598
+  down:
+  - sh
+  - -c
+  - docker rm -f fsk_s11_app fsk_s11_pg >/dev/null 2>&1 || true; docker network rm
+    fsk_s11_net >/dev/null 2>&1 || true
+  timeout: 150

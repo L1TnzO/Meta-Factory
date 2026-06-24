@@ -839,6 +839,7 @@ domain:
       # real) quedan declared-deferred (red/scope), su propio incremento — mismo shape que Ktor→estático (s5).
       proof_checks:
         - { name: deploy_smoke, cmd: "infra_up: bootstrap installDist + `docker build` (Dockerfile, base por digest real) + `docker run -d` del contenedor; deploy_check.py le pega /health y exige {\"status\":\"UP\"}; ENTRYPOINT/COPY/EXPOSE roto → no responde → rojo; contenedor caído (teardown docker rm -f) → el MISMO proof falla (diente nativo)", runs_in: product_env, toolchain: "docker-jdk-httpserver", status: built }
+        - { name: deploy_appserver_live, cmd: "infra_up: bootstrap installDist + `docker build` (misma imagen) + `docker network create` + `docker run -d` de la PG (postgres@sha256:, sólo en la red) + espera pg_isready + `docker run -d --entrypoint java` del AppServer REAL en un contenedor de la MISMA imagen (override del entrypoint: bin/<pkg>=ObsServer→java -cp /app/lib/* <pkg>.endpoints.AppServerKt) cableado a la PG por el NOMBRE del contenedor en la red; deploy_appserver_check.py le pega /health (UP → connectó+migró al boot) + GET <plural> (la fila SEMBRADA vuelve, count>=1 → alcanza su PG); saboteá el cableado (FSK_PG_URL a host inexistente / fuera de la red) → crashea al boot → rojo; contenedor caído (teardown docker rm -f + network rm) → el MISMO proof no conecta (diente nativo)", runs_in: product_env, toolchain: "docker-jdk-postgres-httpserver", status: built }
       builds: []
       checks:
         - name: deploy_smoke
@@ -853,6 +854,25 @@ domain:
           proof: ["python3", "tools/deploy_check.py", "http://127.0.0.1:18596"]
           down: ["docker", "rm", "-f", "fsk_s11_deploy"]
           timeout: 60
+        # deploy del AppServer REAL en un contenedor con PG en una red docker (cierra la última media-verdad del
+        # deploy: deploy_smoke ship-ea el ObsServer PG-free; ESTE despliega el AppServer CRUD que HABLA con su PG).
+        # COMPONE infra_up (E1/MAT-3) + docker como DATA (mismo idiom que la PG viva de s9, ADR-012): build la
+        # imagen (REUSA fsk_s11_deploy, ya construida por deploy_smoke) + una red + la PG (sólo en la red, sin -p) +
+        # el AppServer en un contenedor de la MISMA imagen con el entrypoint OVERRIDE-eado a `java -cp /app/lib/*`
+        # (la imagen ya trae todas las libs; bin/<pkg>=ObsServerKt sigue intacto para deploy_smoke). El host de la
+        # PG = el NOMBRE de su contenedor en la red (fsk_s11_pg), -p al host SÓLO para el AppServer (que el proof lo
+        # alcance). El AppServer connecta a PG AL BOOT (connect+Flyway+seed) → si no la alcanza CRASHEA. Diente
+        # NATIVO de dos lados: con el contenedor caído (teardown rm -f + network rm) el MISMO proof no conecta →
+        # rojo. Diente vivo: saboteá el cableado de la red → no connecta al boot → /health no responde → SÓLO este
+        # check rojo (s9/s10/deploy_smoke verdes). El push a un registry queda declared-deferred (ADR-012).
+        - name: deploy_appserver_live
+          kind: infra_up
+          workdir: build/product
+          bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s11_app fsk_s11_pg >/dev/null 2>&1 || true; docker network rm fsk_s11_net >/dev/null 2>&1 || true; docker network create fsk_s11_net >/dev/null 2>&1 || true; docker build -q -t fsk_s11_deploy . >/dev/null; docker run -d --name fsk_s11_pg --network fsk_s11_net -e POSTGRES_PASSWORD=metafactory postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null; i=0; until docker exec fsk_s11_pg pg_isready -U postgres >/dev/null 2>&1 || [ $i -ge 60 ]; do i=$((i+1)); sleep 1; done; docker run -d --name fsk_s11_app --network fsk_s11_net -p 18598:18598 -e FSK_AC_PORT=18598 -e FSK_PG_URL=jdbc:postgresql://fsk_s11_pg:5432/postgres --entrypoint java fsk_s11_deploy -cp '/app/lib/*' {{package_name}}.endpoints.AppServerKt >/dev/null"]
+          up: []
+          proof: ["python3", "tools/deploy_appserver_check.py", "http://127.0.0.1:18598"]
+          down: ["sh", "-c", "docker rm -f fsk_s11_app fsk_s11_pg >/dev/null 2>&1 || true; docker network rm fsk_s11_net >/dev/null 2>&1 || true"]
+          timeout: 150
 
   provision_modes: [scaffold]
   proof_check_types: [product_env, infra_up, eval_gate]

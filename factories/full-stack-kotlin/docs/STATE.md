@@ -29,6 +29,26 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **OWNER POLIMÓRFICO — el ÚLTIMO gap de MODELO+AUTH (FSK-OWNER-POLY, 2026-06-24): NÚCLEO COMPLETO.** El campo
+  `owned_by` de una entidad puede ser un ref POLIMÓRFICO → el dueño de la fila cruza una UNIÓN `(tipo, id)` en vez de
+  un `Long` único (wrinkle #3, CERRADO). Camino BOUNDED que COMPONE FSK-OWNERSHIP-OPTIONAL + FSK-POLYMORPHIC-REFS,
+  cero modelo nuevo de auth: un owner de tipo NO-principal (Location/Asset) ≡ owner NULL → sólo bypass modifica. El
+  gating vive en `modifyVerdict` (**`effectiveOwnerId = ownerType == targets[0] ? ownerId : null`**) → `OwnershipGuard.
+  canModify` (Long?) queda **INTACTO** (reusa el branch owner-NULL). Cambios GENERALES opt-in byte-neutro en
+  `scaffold_product.py`: gramática (levanta la restricción wrinkle #3), `_repository_kt` (`<e>OwnerId` lee `<owner>_id`
+  + nuevo `<e>OwnerType`), `_modify_verdict_kt` (lee tipo, gatea id), `_mutation_fns` (POST fija type=principal/id),
+  `_seed_chain` (siembra type+id; la 2ª fila = tipo NO-principal, **mismo id = el diente**), `_test_ownership_guard_kt`
+  (cruza `<owner>_id` Long?). **Decisión (con más contexto): NO se fusionó `assigned_to`↔`checkout_target`** — el verbo
+  `checkout` reasignaría el dueño y rompería el proof de operaciones (el checkin por el dueño daría 403); y es más
+  honesto (el editor de un activo ≠ su holder). **Adopción PRODUCTO**: snipeit `Asset.assigned_user_id` → `assigned_to`
+  poly `[User, Location, Asset]` = `owned_by`. Diente de DOS lados VIVO y PRECISO (degradé el gate de tipo → la fila
+  asignada a una Location se vuelve "del actor" → "PUT RTD por no-bypass → 403" se vuelve 200, SÓLO en
+  `access_control_live` (s9), server VIVO, hermanas verdes; revertí→verde). **product-run PASS · RTM snipeit 24/25 ·
+  `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) · `meta check` 6/6 · `git diff src/+seed +
+  default/assets product.yml = 0`.** **Con esto el NÚCLEO FUNCIONAL + BEHAVIORAL + de MODELO/AUTH faithful está COMPLETO**
+  (data·acceso·comportamiento·valores-derivados·app-que-corre). Lo que RESTA es BREADTH y profundidad-de-detalle.
+  Detalle: `docs/work/FSK-OWNER-POLY-INCREMENT.md §Evidencia` · `docs/work/FSK-XENTITY-DEPTH2-INCREMENT.md` (próximo
+  abierto) · `docs/LOG.md`.
 - **INSERT-ON-VERB — el ÚLTIMO mecanismo behavioral (FSK-CREATES-PIVOT, 2026-06-23)**: un verbo qty (`decrements`)
   puede ADEMÁS `creates: <PivotEntity>` — al disparar INSERTA una fila en la pivote (el M:N real del checkout de
   accesorios) seteando el **FK-al-sujeto** (del id de la URL, detectado por `to == la entidad del verbo`) + los campos
@@ -43,10 +63,9 @@
   `creates: AccessoryCheckout` (la pivote con `assigned_user_id`+`note` requeridos). Diente de DOS lados VIVO (degradé
   `set(NOTE, input.note + "X")` → SÓLO `[creates] round-trippea note` rojo, `/health` UP, hermanos verdes; revertí→verde).
   **product-run PASS · RTM snipeit 24/25 · `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) ·
-  `meta check` 6/6 · `git diff src/+seed+default/assets product.yml = 0`.** Con esto el **NÚCLEO FUNCIONAL + BEHAVIORAL
-  FAITHFUL está COMPLETO**; lo que resta es **breadth/depth-de-detalle** (owner poly — wrinkle #3, cross-entity depth-2,
-  ~226 rutas, Kits, Actionlog, EAV dinámico, PUT-opcionales, Playwright). Detalle: `docs/work/FSK-CREATES-PIVOT-INCREMENT.md
-  §Evidencia` · `docs/work/FSK-OWNER-POLY-INCREMENT.md` (próximo abierto) · `docs/LOG.md`.
+  `meta check` 6/6 · `git diff src/+seed+default/assets product.yml = 0`.** Con esto el **núcleo BEHAVIORAL faithful
+  quedó COMPLETO** (el de MODELO+AUTH lo cerró FSK-OWNER-POLY, arriba). Detalle: `docs/work/FSK-CREATES-PIVOT-INCREMENT.md
+  §Evidencia` · `docs/LOG.md`.
 - **CHECKOUT POLIMÓRFICO — el último eje behavioral FAITHFUL (FSK-POLY-ASSIGNS, 2026-06-23)**: un verbo de workflow
   con `assigns`/`clears` cuyo campo es un **ref POLIMÓRFICO** (FSK-POLYMORPHIC-REFS) setea/limpia las DOS sub-columnas
   (`<campo>_type`+`<campo>_id`) en vez de un Long único — el checkout que asigna a un **User|Location|Asset**.

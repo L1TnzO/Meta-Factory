@@ -104,7 +104,7 @@ la migración.
 | 7 | Department | `manager_id` DIFERIDO (ciclo) |
 | 8 | User | el **dueño** (principal de ownership); SIN refs requeridos (restricción de seed) |
 | 9 | AssetModel | `category_id` requerido (faithful) |
-| 10 | **Asset** | **workflow** (`status`) + **ownership** (`owned_by: assigned_user_id`) |
+| 10 | **Asset** | **workflow** (`status`) + **ownership** (`owned_by: assigned_to`, POLI [User\|Location\|Asset]) |
 | 11 | License | `seats` (int); con asientos |
 | 12 | LicenseSeat | pivot `license_seats` como entidad (a User O Asset) |
 | 13 | Accessory | qty |
@@ -124,7 +124,7 @@ la migración.
 (`[pending, ready, deployed, archived, broken]`, initial `ready`): `archived` es TERMINAL, `broken` se repara
 a `ready`. Es la destilación del (StatusLabel.type × asignación) real a la primitiva FSK.
 
-**Ownership** → `Asset.owned_by: assigned_user_id` (el activo "pertenece" a su asignado). Un `manager` toca
+**Ownership** → `Asset.owned_by: assigned_to` (poli `[User|Location|Asset]`, FSK-OWNER-POLY: el activo "pertenece" a su asignado; un asignado de tipo no-principal ≡ sin dueño). Un `manager` toca
 sólo los suyos; admin bypassa. Es la esencia del checkout-a-usuario de Snipe-IT, enforzada a runtime (FSK-S15).
 
 **M:N → entidades**: FSK no tiene M:N; los 4 pivots de Snipe-IT (license_seats, accessories_checkout,
@@ -167,8 +167,20 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    cruza un principal Long único, no una unión → el polimórfico vive en un campo no-dueño; el owner queda como el
    manager responsable, Long). **El checkout polimórfico FAITHFUL queda COMPLETO** (data + behavior). Diente de DOS
    lados VIVO (anulé el discriminador → SÓLO s9 rojo). Ver `docs/work/FSK-POLY-ASSIGNS-INCREMENT.md §Evidencia`.
-   Sigue diferido SÓLO: el `assigned_to` polimórfico que ES el owner (requeriría un OwnershipGuard sobre una unión —
-   eje aparte, "owner polimórfico", breadth).
+3. **Owner POLIMÓRFICO** (el `assigned_to` que ES el owner Y es polimórfico, wrinkle #3) **✓ HECHO (FSK-OWNER-POLY,
+   2026-06-24)** — el ÚLTIMO gap de MODELO+AUTH. Antes [GAP-FÁBRICA]: el `owned_by` cruzaba un `Long` único → el
+   polimórfico vivía en un campo no-dueño (`checkout_target`) y el owner quedaba como un `assigned_user_id` Long. AHORA
+   el `owned_by` puede ser un ref polimórfico → el ownership cruza `(tipo, id)`. Camino BOUNDED (compone
+   FSK-OWNERSHIP-OPTIONAL + FSK-POLYMORPHIC-REFS, cero modelo nuevo de auth): un owner de tipo NO-principal
+   (Location/Asset) ≡ owner NULL → sólo bypass modifica; el gating vive en `modifyVerdict`
+   (`effectiveOwnerId = ownerType == targets[0] ? ownerId : null`), `OwnershipGuard.canModify` (Long?) INTACTO.
+   **Adoptado**: `Asset.assigned_user_id` → `assigned_to` poly `[User, Location, Asset]` = `owned_by` (faithful a
+   `assets.assigned_type+assigned_to`). El POST fija `(User, principal)`; una asignación a un tipo no-principal ≡ RTD.
+   `checkout_target` + las operaciones quedan INTACTAS (acoplar "el verbo reasigna al dueño" con el control de acceso
+   por-principal es un eje BEHAVIORAL aparte: el editor de un activo ≠ su holder). Diente de DOS lados VIVO (degradé el
+   gate de tipo → la fila asignada a una Location se vuelve "del actor" → SÓLO s9 rojo). Ver
+   `docs/work/FSK-OWNER-POLY-INCREMENT.md §Evidencia`. **El checkout polimórfico Y el owner polimórfico FAITHFUL quedan
+   COMPLETOS — el modelo de datos + auth faithful está terminado.**
 
 3. **Asignación opcional (RTD) vs owner requerido** **✓ HECHO (FSK-OWNERSHIP-OPTIONAL, 2026-06-22)**. Antes
    [GAP-FÁBRICA]: FSK exigía `owned_by` **`required: true`** porque `OwnershipGuard.canModify(rowOwnerId: Long)`

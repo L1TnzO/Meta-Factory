@@ -1,12 +1,58 @@
 # Incremento FSK-OWNER-POLY — el `owned_by` de una entidad es un ref POLIMÓRFICO (el owner cruza una UNIÓN, wrinkle #3)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-23T19:45Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (creado 2026-06-23T19:45Z · cerrado 2026-06-24T00:30Z). Evidencia de cierre en §Evidencia (abajo).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-CREATES-PIVOT con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
+
+---
+
+## ✅ Evidencia de cierre (2026-06-24, demostrable, no narrable)
+
+**El `owned_by` puede ser un ref POLIMÓRFICO — el dueño cruza una UNIÓN (tipo, id), wrinkle #3 CERRADO.** Camino
+BOUNDED REALIZADO (incluso más limpio que el §★ sugería): en vez de agregar un param a `canModify`, el gating vive
+en `modifyVerdict` como **`effectiveOwnerId = (ownerType == targets[0]) ? ownerId : null`** → un owner de tipo
+NO-principal ≡ owner NULL → cae al branch owner-NULL de FSK-OWNERSHIP-OPTIONAL → **`OwnershipGuard.canModify` (Long?)
+queda INTACTO**. Compone ownership-optional + poly, cero modelo nuevo de auth.
+
+**Decisión clave (con más contexto): NO se fusionó `assigned_to`↔`checkout_target`.** El bloque de operaciones del
+proof POSTea una fila propiedad del actor y hace checkout→checkin **por el dueño**; si `checkout` reasignara el
+`owned_by`, el dueño cambiaría a `(User, 7)` → el checkin posterior por el dueño daría 403 (no 200) y el re-apply
+409→403 → ROMPERÍA el proof de operaciones. Además es más HONESTO: en Snipe-IT el editor de un activo ≠ su holder
+(managers/admins editan, no el asignado). → `assigned_to` ES el owner-poly; `checkout_target` + las operaciones
+quedan intactas.
+
+**Cambios (todo `codegen/scaffold_product.py`, FÁBRICA, GENERAL, opt-in byte-neutro):** helper `_owner_poly` ·
+gramática (levanta la restricción wrinkle #3) · `_repository_kt` (`<e>OwnerId` lee `<owner>_id` + nuevo `<e>OwnerType`
+lee `<owner>_type`) · `_modify_verdict_kt` (params `owner_type_fn`/`principal_entity`; lee tipo, gatea id) ·
+`_mutation_fns` (el POST fija `type=targets[0]`, `id=ownerId`) · `_seed_chain` (param `owner_poly_type`; la fila del
+dueño = `(User, ownerId)`, la 2ª = `(Location, ownerId)` — **mismo id, distinto tipo = el diente**) · el seed de
+`scopedId` (company-scope) también pasa `owner_poly_type` · `_test_ownership_guard_kt` (cruza `<owner>_id` Long?) ·
+`_app_server_kt` (resuelve `to` poly → `targets[0]`, wirea todo) · `build_files` (`owner_optional` incluye poly).
+
+**Adopción PRODUCTO** (`products/snipeit/product.yml`, incremento `OWNER-POLY-ADOPT`): `Asset.assigned_user_id` →
+`assigned_to` poly `[User, Location, Asset]`, sigue siendo `owned_by`.
+
+**Verde por BLOQUEO:**
+- **EYEBALL byte-neutro**: con el scaffold NUEVO y `product.yml` sin cambiar, los 3 productos byte-IDÉNTICOS a HEAD
+  (0 diffs) → el cambio es puro opt-in. Tras la adopción: base/assets **byte-idénticos**, snipeit con el diff esperado.
+- **product-run --product snipeit PASS** · **RTM snipeit 24/25** (único UNSAT = REQ-F-007/s6 LLM keyless, deferral VISIBLE).
+- **Diente de DOS lados VIVO y PRECISO** (proof manual sobre el server real + PG): degradé el gate de tipo
+  (`ownerType == "User"` → `ownerType != "__never__"`, neutralizado pero `ownerType` SIGUE usado → COMPILA, sin
+  hallazgo estático) → la fila asignada a una Location se vuelve "del actor" → **"PUT fila RTD por no-bypass → 403"
+  se vuelve 200 (ROJO)**, con `health → 200` (server VIVO = es MI aserción) y TODAS las hermanas (dueño-principal,
+  bypass, ajena, ops, qty, creates) VERDES → sabotaje quirúrgico → revertí → verde.
+- **`ci --rederive` base + assets + snipeit == pin** (clones limpios, SIN re-pin — `proof_sha` intacto, `pinned_verdict.json`
+  sin cambios) · **`meta check` 6/6** (generality verde) · **`git diff src/metafactory + seed = 0`** · default/assets
+  `product.yml = 0`.
+
+**El NÚCLEO FUNCIONAL + BEHAVIORAL + de MODELO/AUTH faithful está COMPLETO.** Lo que resta es BREADTH y
+PROFUNDIDAD-de-detalle. Siguiente abierto: **FSK-XENTITY-DEPTH2** (ver `docs/work/FSK-XENTITY-DEPTH2-INCREMENT.md`).
+
+---
+
+### Handoff original (referencia histórica — el diseño que esta sesión ejecutó)
 
 ---
 

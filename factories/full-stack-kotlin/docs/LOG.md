@@ -1,6 +1,42 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T00:30Z — FSK-OWNER-POLY ✅: el `owned_by` puede ser un ref POLIMÓRFICO (el owner cruza una UNIÓN, wrinkle #3) — NÚCLEO MODELO+AUTH COMPLETO
+- **El ÚLTIMO gap de MODELO+AUTH.** Hoy el dueño de una fila cruza un `Long` único (principal del token == `row.owner_id`).
+  En Snipe-IT REAL `assigned_to` ES el owner Y es polimórfico (`User|Location|Asset`). Este eje hace que `owned_by` pueda
+  ser un ref polimórfico → el ownership cruza `(tipo, id)`. Determinista (sin s6/LLM). Todo en `codegen/scaffold_product.py`
+  (FÁBRICA, GENERAL, opt-in byte-neutro).
+- **Camino BOUNDED — incluso más limpio que el §★ del handoff sugería.** En vez de agregar un param `ownerType` a
+  `canModify`, el gating vive en `modifyVerdict`: **`effectiveOwnerId = (ownerType == targets[0]) ? ownerId : null`** → un
+  owner de tipo NO-principal (Location/Asset) cae al branch owner-NULL de FSK-OWNERSHIP-OPTIONAL (sólo bypass modifica) →
+  **`OwnershipGuard.canModify` (Long?) queda INTACTO**. Compone ownership-optional + poly, cero modelo nuevo de auth.
+- **Cambios** (helper `_owner_poly`): gramática (levanta la restricción wrinkle #3) · `_repository_kt` (`<e>OwnerId` lee
+  `<owner>_id` + nuevo `<e>OwnerType` lee `<owner>_type`) · `_modify_verdict_kt` (params `owner_type_fn`/`principal_entity`;
+  lee tipo, gatea id) · `_mutation_fns` (el POST fija `type=targets[0]`, `id=ownerId`) · `_seed_chain` (param
+  `owner_poly_type`; la fila del dueño = `(User, ownerId)`, la 2ª = `(Location, ownerId)` — mismo id distinto tipo = el
+  diente; el seed de `scopedId` de company-scope también lo pasa) · `_test_ownership_guard_kt` (cruza `<owner>_id` Long?) ·
+  `_app_server_kt` (resuelve el `to` poly → `targets[0]`, evita `by[list]`) · `build_files` (`owner_optional` incluye poly).
+- **Decisión clave (con más contexto): NO se fusionó `assigned_to`↔`checkout_target`.** El bloque de operaciones del proof
+  POSTea una fila propiedad del actor y hace checkout→checkin **por el dueño**; si `checkout` reasignara el `owned_by`, el
+  dueño cambiaría a `(User, 7)` → el checkin posterior por el dueño daría 403 y el re-apply 409→403 → ROMPERÍA el proof de
+  operaciones. Además es más HONESTO (en Snipe-IT el editor de un activo ≠ su holder). → `checkout_target` + las operaciones
+  quedan INTACTAS.
+- **Bug atrapado por el proof MANUAL (no fingido)**: la 1ª corrida falló SÓLO en `[scope] PUT fila de SU compania por su
+  dueno → 200` (obtuvo 403). El infra_up NO surfacea el stdout del proof (se ve como "no alcanzó la infra viva en 120s",
+  stdout vacío); el proof manual sobre la dist DESTAPÓ la aserción exacta. Causa: el `_seed_chain` de `scopedId` no pasaba
+  `owner_poly_type` → ese row quedaba con dueño NULL. Fix: pasarlo. (Los hermanos `frontend_consume_live` —mismo AppServerKt—
+  estaban VERDES → el server vivía, era la aserción.)
+- **Adopción PRODUCTO** (incremento `OWNER-POLY-ADOPT`): snipeit `Asset.assigned_user_id` → `assigned_to` poly
+  `[User, Location, Asset]` = `owned_by`.
+- **Verde por BLOQUEO**: EYEBALL byte-neutro (los 3 productos == HEAD sin owner-poly activo; base/assets == HEAD tras la
+  adopción) · **product-run --product snipeit PASS · RTM snipeit 24/25** (único UNSAT = s6 LLM keyless) · **diente de DOS
+  lados VIVO y PRECISO** (degradé el gate de tipo —`ownerType != "__never__"`, `ownerType` sigue usado → COMPILA, sin
+  hallazgo estático— → "PUT RTD por no-bypass → 403" se vuelve 200, SÓLO s9, `/health` 200, hermanas verdes; revertí→verde)
+  · **`ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin, `proof_sha` intacto)** · `meta check` 6/6
+  (generality) · `git diff src/metafactory + seed = 0` · default/assets `product.yml = 0`.
+- **NÚCLEO FUNCIONAL + BEHAVIORAL + de MODELO/AUTH faithful COMPLETO.** Próximo abierto: `FSK-XENTITY-DEPTH2` (cross-entity
+  depth-2: Depreciation vía AssetModel, deferral 13) — o pivot a breadth (frontend-en-browser/Playwright, ~226 rutas).
+
 ## 2026-06-23T19:38Z — FSK-CREATES-PIVOT ✅: un verbo qty INSERTA una fila PIVOTE (el M:N del checkout de accesorios)
 - **El ÚLTIMO mecanismo behavioral genuino: insert-on-verb.** Hasta hoy un verbo hacía UPDATE (workflow muta enum +
   assigns/clears ref; qty decrementa int). NINGUNO INSERTABA una fila. En Snipe-IT el checkout de un **accesorio** es

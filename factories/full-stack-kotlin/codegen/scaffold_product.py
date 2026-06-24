@@ -364,11 +364,14 @@ def _kt_call(lead: str, prefix: str, args: list[str], indent: str, budget: int =
     return f"{lead}{prefix}(\n{body}{indent})"
 
 
-def _jooq_chain(indent: str, lead: str, head: str, calls: list[str]) -> str:
-    """Cadena fluida jOOQ (`{head}.{call}.{call}...`) en UNA línea si entra, si no wrapeada con cada `.call`
-    en su línea a +4 (ChainWrapping de ktlint_official). Escala a inserts de muchas columnas sin pasar 160."""
+def _jooq_chain(indent: str, lead: str, head: str, calls: list[str], budget: int = MAX_LINE_LENGTH) -> str:
+    """Cadena fluida jOOQ (`{head}.{call}.{call}...`) en UNA línea si entra (≤ `budget`), si no wrapeada con
+    cada `.call` en su línea a +4 (ChainWrapping de ktlint_official). Escala a inserts de muchas columnas sin
+    pasar 160. `budget` por defecto MAX_LINE_LENGTH (160); una cadena con un LAMBDA (`.mapNotNull { … }`) usa un
+    budget MENOR (120) porque la regla ktlint `Wrapping` ("Missing newline after {") salta BAJO el MaxLineLength
+    de 160 — envolver la cadena baja el lambda a su propia línea corta, sin trip de Wrapping (FSK-SERVE-ALL-ENTITIES)."""
     single = f"{indent}{lead}{head}." + ".".join(calls)
-    if len(single) <= MAX_LINE_LENGTH:
+    if len(single) <= budget:
         return single
     pad = indent + "    "
     wrapped = "\n".join(f"{pad}.{c}" for c in calls)
@@ -1498,16 +1501,35 @@ def _ref_targets(e: dict, entities: list[dict]) -> list[dict]:
     return out
 
 
+def _has_req_ref(e: dict) -> bool:
+    """`e` tiene ≥1 `ref` REQUERIDO no-dueño no-polimórfico (FSK-REFS-IN-BODY): el INSERT puede violar una FK
+    (ref colgante) → el handler necesita `catch_fk` (runCatching → 409) y el server necesita conflict()/409.
+    None-safe; el campo dueño (`owned_by`) NO cuenta (lo fija el token, no el cuerpo). DATA-agnóstico."""
+    return any(f["type"] == "ref" and not _is_poly(f) and f.get("required", True)
+               and f["name"] != e.get("owned_by") for f in e["fields"])
+
+
+def _servible_ownerless(entities: list[dict]) -> list[dict]:
+    """TODA entidad SIN dueño SERVIBLE a runtime (FSK-SERVE-ALL-ENTITIES): tiene `write_roles` (diente RBAC) y
+    un cuerpo POSTeable (`_input_fields` no vacío), EXCEPTO las pivotes de un verbo `creates` (FSK-CREATES-PIVOT)
+    — esas ya se sirven vía su verbo padre y montarlas aparte DUPLICARÍA su <e>RowJson (redeclaración → no
+    compila). Generaliza la SELECCIÓN: de "la 1ª ownerless + la 1ª con-ref" (_live_ownerless/_live_with_ref, que
+    siguen eligiendo las PRIMARIAS del seed+proof) a TODAS, en orden de declaración. DATA-agnóstico (cero nombres
+    de dominio, ADR-012). Un ref requerido no-dueño se monta con `catch_fk` (FK colgante → 409); un escalar-solo,
+    RBAC-only directo."""
+    pivots = {p["name"] for _, p, _ in _creates_pivots(entities)}
+    return [e for e in entities
+            if not e.get("owned_by") and e.get("write_roles") and _input_fields(e) and e["name"] not in pivots]
+
+
 def _live_entities(entities: list[dict]) -> list[dict]:
     """Las entidades que obtienen la CAPA VIVA del server (AppServer CRUD + Repository de mutación + <E>Input):
-    la(s) entidad(es) con dueño (FSK-S15, CRUD bajo ownership) + la 1ª ownerless servible (FSK-CRUD-OWNERLESS,
-    CRUD bajo RBAC-only) + la 1ª con un ref requerido no-dueño (FSK-REFS-IN-BODY, CRUD con FK del cuerpo). Es la
-    fuente única que cruzan Repository (qué entidades llevan insert/rowJson/Input) y AppServer (qué sirve).
-    DATA-agnóstico; las tres selecciones son disjuntas por construcción."""
+    la(s) entidad(es) con dueño (FSK-S15, CRUD bajo ownership) + TODAS las ownerless servibles
+    (FSK-SERVE-ALL-ENTITIES: el dominio ENTERO usable a runtime, no sólo 3 representativas). Es la fuente única
+    que cruzan Repository (qué entidades llevan insert/rowJson/Input) y AppServer (qué sirve). DATA-agnóstico;
+    owned y ownerless son disjuntas por construcción (una entidad con dueño no está en _servible_ownerless)."""
     owned = [e for e in entities if e.get("owned_by")]
-    ownerless = _live_ownerless(entities)
-    with_ref = _live_with_ref(entities)
-    return owned + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
+    return owned + _servible_ownerless(entities)
 
 
 def _input_data_class(e: dict) -> str:
@@ -1804,7 +1826,7 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
         f"    fun all{name}RowsJson(ctx: DSLContext): String =\n"
         + _jooq_chain("        ", "", f"all{name}s(ctx)",
                       [f"mapNotNull {{ {e['name'].lower()}RowJson(ctx, it[{tbl}.ID]!!) }}",
-                       'joinToString(",", "[", "]")']),
+                       'joinToString(",", "[", "]")'], budget=PROPERTY_WRAP),   # lambda-chain → wrap bajo 120
     ]
     # FSK-SOFT-DELETES: el verbo `restore` (IMPLÍCITO — lo habilita la flag, como `deleted_at`) — restaura una fila
     # borrada lógicamente (deleted_at = NULL). El handler doRestore del AppServer lo invoca tras el MISMO veredicto
@@ -1990,7 +2012,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             fns.append(f"    fun all{e['name']}RowsJsonByCompany(ctx: DSLContext, company: Long): String =\n"
                        + _jooq_chain("        ", "", f"{lc}sByCompany(ctx, company)",
                                      [f"mapNotNull {{ {lc}RowJson(ctx, it[{tbl}.ID]!!) }}",
-                                      'joinToString(",", "[", "]")']))
+                                      'joinToString(",", "[", "]")'], budget=PROPERTY_WRAP))   # lambda-chain
         # CRUD tipado para CADA entidad viva (con dueño y ownerless): insert(body)/delete/<e>RowJson/allRowsJson/
         # [update]. La ownerless inserta TODOS sus escalares del body (sin ownerId); la con dueño suma el ownerId.
         if e["name"] in live_names:
@@ -2008,7 +2030,15 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         fns.insert(0, "    private fun safeDiv(a: Double, b: Double): Double = if (b == 0.0) 0.0 else a / b")
     # un query TIPADO por entidad (+ ownerId/CRUD por entidad con dueño): con >11 entidades supera
     # TooManyFunctions(11). Es un repositorio GENERADO 1:1 con el contrato; @Suppress sólo cuando aplica.
-    suppress = '@Suppress("TooManyFunctions")\n' if len(fns) > 11 else ""
+    # FSK-SERVE-ALL-ENTITIES: sirviendo TODAS las entidades el object Repository crece y supera LargeClass(600
+    # líneas) de detekt → @Suppress("LargeClass") cuando el cuerpo es grande (>550, margen). Es un repositorio
+    # GENERADO 1:1 con el contrato (no mantenible a mano), como TooManyFunctions. Opt-in por tamaño: un producto
+    # chico (default/assets) NO lo gatilla → su línea @Suppress queda EXACTA (byte-idéntica → sin re-derivar).
+    body_lines = sum(f.count("\n") + 1 for f in fns)
+    sup = ["TooManyFunctions"] if len(fns) > 11 else []
+    if body_lines > 550:
+        sup.append("LargeClass")
+    suppress = ("@Suppress(" + ", ".join(f'"{s}"' for s in sup) + ")\n") if sup else ""
     return (f"package {pkg}\n\n"
             f"{imports}\n\n"
             "// Queries jOOQ TIPADAS (DES-12): cada columna referenciada DEBE existir en el schema versionado\n"
@@ -4449,8 +4479,11 @@ def _codec_helpers(entities: list[dict],
     for f in flds:
         if f["type"] == "enum" and _COL(f["name"]) not in seen:
             seen.add(_COL(f["name"]))
-            vals = ", ".join(_yaml_str(v) for v in f["values"])
-            parts.append(f'private val {_COL(f["name"])}_VALUES = setOf({vals})')
+            # FSK-SERVE-ALL-ENTITIES: un enum con MUCHOS valores (p.ej. un `type` de 8) pasa MAX_LINE_LENGTH (160)
+            # al servir su entidad → _kt_call lo envuelve (un valor por línea, coma final; ktlint ArgumentListWrapping).
+            # Byte-idéntico para los enums cortos (≤160 → una línea: mismo string que el `setOf(...)` previo).
+            vals = [_yaml_str(v) for v in f["values"]]
+            parts.append(_kt_call(f'private val {_COL(f["name"])}_VALUES = ', "setOf", vals, ""))
     # FSK-CUSTOM-FIELDS (Avenue A): si alguna entidad viva tiene un campo string con `format`, se emite el helper
     # `strFmt` (valida el VALOR con el patrón nombrado → no-match → require → null → 400, fail-closed) + un
     # `FMT_<NAME>` por format USADO (dedup, sorted; raw-string → el regex va literal). `strFmt` reusa `str` (siempre
@@ -5068,13 +5101,18 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     owner_ent = by[principal_entity]
     owner_type_fn = f"{owned['name'].lower()}OwnerType" if owner_poly else ""
     non_principal = owner_to[1] if owner_poly else None
-    # FSK-CRUD-OWNERLESS: el server monta TAMBIÉN la 1ª entidad ownerless servible (CRUD RBAC-only); FSK-REFS-IN-
-    # BODY: y la 1ª con un ref REQUERIDO no-dueño (CRUD con la FK del cuerpo). `served` es la fuente única de qué
-    # entidades sirve → codec compartido (unión, sin colisión) + un Input por entidad. `ref_targets` = las
-    # entidades target de los refs requeridos de with_ref → el AppServer las siembra (FK del POST) y expone su id.
+    # FSK-SERVE-ALL-ENTITIES: el server monta CRUD para TODAS las entidades servibles (no sólo 3 representativas)
+    # → el dominio ENTERO usable a runtime. `ownerless`/`with_ref` siguen siendo las PRIMARIAS (gobiernan el seed
+    # + los dientes especiales — qty/creates/poly — del proof; byte-estables); las DEMÁS servibles (`extras`) se
+    # montan como CRUD RBAC-only (con `catch_fk` si tienen un ref requerido). `served` (= _live_entities) es la
+    # fuente única de qué entidades sirve → codec compartido (unión, sin colisión) + un Input por entidad; cruza
+    # con Repository (mismas entidades con insert/rowJson/Input). `ref_targets` = los targets de los refs
+    # requeridos de la with_ref PRIMARIA → el AppServer los siembra (FK del POST) y expone su id por /seed.
     ownerless = _live_ownerless(ents)
     with_ref = _live_with_ref(ents)
-    served = [owned] + ([ownerless] if ownerless else []) + ([with_ref] if with_ref else [])
+    served = _live_entities(ents)
+    primary_names = {e["name"] for e in (ownerless, with_ref) if e}
+    extras = [e for e in _servible_ownerless(ents) if e["name"] not in primary_names]
     ref_targets = _ref_targets(with_ref, ents)
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): la entidad CON DUEÑO puede declarar `operations` de WORKFLOW
     # (checkout/checkin). El handler del verbo invoca la máquina de estado del workflow (canTransition) a RUNTIME →
@@ -5088,7 +5126,11 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         op_imports.append(f"import org.openapitools.client.models.{owned['name']}")
         op_imports += sorted({f"import {pkg}.workflow.{_workflow_obj(owned, next(f for f in owned['fields'] if f['name'] == op['field']))}"
                               for op in operations})
-    need_conflict = bool(with_ref) or bool(operations)
+    # FSK-SERVE-ALL-ENTITIES: el server necesita conflict()/409 si CUALQUIER entidad servible montada tiene un ref
+    # REQUERIDO no-dueño (FK colgante → 409, vía catch_fk) — no sólo la with_ref PRIMARIA — O si el owned tiene
+    # operations (precondición de workflow → 409). Generaliza `bool(with_ref)` a `any(_has_req_ref)` sobre las
+    # servibles (with_ref ⊆ servibles → superconjunto del previo; con with_ref None pero un extra con-ref → True).
+    need_conflict = any(_has_req_ref(e) for e in _servible_ownerless(ents)) or bool(operations)
     # FSK-COMPANY-SCOPING: la entidad CON DUEÑO puede declarar `company_scoped` (el campo `ref` al TENANT/compañía).
     # El server vivo FILTRA la lectura por compañía (listAll) y COMPONE company-scope en el verdict de escritura, y
     # siembra ≥2 compañías + una fila scopeada a otra compañía para el diente. company_fn = el reader del tenant de
@@ -5266,6 +5308,15 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                          f"{{ ex -> handle{ownerless['name']}(ctx, ex) }}\n") if ownerless else ""
     with_ref_context = (f"    server.createContext(PLURAL_{with_ref['name'].upper()}) "
                         f"{{ ex -> handle{with_ref['name']}(ctx, ex) }}\n") if with_ref else ""
+    # FSK-SERVE-ALL-ENTITIES: las DEMÁS entidades servibles (más allá de las 2 primarias) — un bloque de handlers
+    # (CRUD RBAC-only, `catch_fk` si la entidad tiene un ref requerido no-dueño) + un contexto por cada una. Reusa
+    # la MISMA maquinaria que las primarias (_ownerless_handlers, ya parametrizada). Las primarias quedan EXACTAS
+    # (su bloque/contexto se emite arriba, byte-idéntico) → el diff de un producto sin extras es vacío. Sin verbos
+    # qty en una extra (caso común) → ops=[] → bloque RBAC-only. APPEND (orden de declaración) tras las primarias.
+    extra_blocks = "".join("\n" + _ownerless_handlers(e, catch_fk=_has_req_ref(e), ops=_qty_ops(e), by=by)
+                           for e in extras)
+    extra_contexts = "".join(f"    server.createContext(PLURAL_{e['name'].upper()}) "
+                             f"{{ ex -> handle{e['name']}(ctx, ex) }}\n" for e in extras)
     # FSK-COMPANY-SCOPING: siembra ≥2 compañías (nombres UNIQUE distintos) + una fila del owned scopeada a la 2ª
     # compañía (dueño = ownerId → ownership pasa; tenant != el del actor → el diente de scope). /seed expone
     # companyA/companyB/scopedId. Reusa owned_wiring (deps ya sembradas) + cablea el tenant OPCIONAL (companyBId).
@@ -5323,8 +5374,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%HANDLE_SUPPRESS%", handle_suppress)
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
             .replace("%WITH_REF_BLOCK%", with_ref_block)
+            .replace("%EXTRA_BLOCKS%", extra_blocks)
             .replace("%OWNERLESS_CONTEXT%", ownerless_context)
             .replace("%WITH_REF_CONTEXT%", with_ref_context)
+            .replace("%EXTRA_CONTEXTS%", extra_contexts)
             .replace("%SEED_OWNER%", seed_owner)
             .replace("%SEED_OWNED_DEPS%", seed_owned_deps)
             .replace("%SEED_OWNED%", seed_owned)
@@ -5479,7 +5532,7 @@ private fun writeRoles(): Set<Role> =
     }
     respond(ex, status, out)
 }
-%OWNERLESS_BLOCK%%WITH_REF_BLOCK%
+%OWNERLESS_BLOCK%%WITH_REF_BLOCK%%EXTRA_BLOCKS%
 fun main() {
     val url = System.getenv("FSK_PG_URL") ?: "jdbc:postgresql://localhost:%AC_PG_PORT%/postgres"
     val user = System.getenv("FSK_PG_USER") ?: "postgres"
@@ -5497,7 +5550,7 @@ fun main() {
     server.createContext("/health") { ex -> respond(ex, HTTP_OK, """{"status":"UP"}""") }
     server.createContext("/seed") { ex -> respond(ex, HTTP_OK, seedJson(seed)) }
     server.createContext(PLURAL) { ex -> handle(ctx, ex) }
-%OWNERLESS_CONTEXT%%WITH_REF_CONTEXT%    server.start()
+%OWNERLESS_CONTEXT%%WITH_REF_CONTEXT%%EXTRA_CONTEXTS%    server.start()
     println("FSK_AC_LISTENING $port")
 }
 '''
@@ -5891,6 +5944,45 @@ _SOFT_DELETE_PROOF = '''
             ok &= _expect(_req(base, "GET", f"{PLURAL}/{new_id}", None), 404, "GET /{id} tras re-DELETE -> 404")'''
 
 
+# FSK-SERVE-ALL-ENTITIES: el diente de DOS lados de las entidades ANTES no montadas. El server ahora monta CRUD
+# para TODAS las servibles (no sólo 3 representativas); este bloque ejercita a RUNTIME las escalares-solo más allá
+# de la ownerless PRIMARIA (POST fresco, sin seed/FK). Por cada una: POST rol PROHIBIDO -> 403 sin INSERT /
+# PERMITIDO -> 201 + round-trip del cuerpo; tipo equivocado -> 400; DELETE prohibido -> 403 / permitido -> 200 +
+# fila ida (404). count RELATIVO (_e0 ± n) → robusto a filas pre-sembradas (p.ej. un ref-target). Degradar el guard
+# RBAC de UNA entidad nueva -> SÓLO este check rojo (hermanos verdes). Opt-in: lista vacía -> "" -> byte-idéntico
+# (default/assets sin una 2ª escalar-solo no cambian este proof). Corre al final del try (8 indent). DATA-agnóstico.
+_SERVE_ALL_PROOF = '''
+        # *** FSK-SERVE-ALL-ENTITIES: las entidades ANTES no montadas responden a runtime, gobernadas por RBAC. ***
+        # El dominio ENTERO usable, no solo 3 representativas. Diente de DOS lados por entidad (POST fresco).
+        for _ent in json.loads('%SERVE_ALL_DATA%'):
+            _ep, _ea, _ef = _ent["plural"], _ent["allowed"], _ent["forbidden"]
+            _e0 = _count_at(base, _ep)
+            if _ef:
+                ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ef}:1", _ent["post"])[0], 403,
+                              f"[serve-all] {_ep} POST rol PROHIBIDO ({_ef}) -> 403")
+                ok &= _expect(_count_at(base, _ep), _e0, f"[serve-all] {_ep} count tras POST prohibido (sin INSERT)")
+            _es, _eb = _send(base, "POST", _ep, f"Bearer {_ea}:1", _ent["post"])
+            ok &= _expect(_es, 201, f"[serve-all] {_ep} POST permitido / INSERT del body ({_ea}) -> 201")
+            _eid = _eb.get("id")
+            ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras POST permitido (INSERT real)")
+            if _eid is not None:
+                _erow = json.loads(_body(base, f"{_ep}/{_eid}"))
+                for _ek, _ev in _ent["post"].items():
+                    ok &= _expect_value(_erow.get(_ek), _ev, f"[serve-all] {_ep} GET /{{id}} ve body[{_ek}] (type-correct)")
+            ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _ent["bad"])[0], 400,
+                          f"[serve-all] {_ep} POST tipo equivocado -> 400")
+            ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras 400 (no inserto)")
+            if _eid is not None:
+                if _ef:
+                    ok &= _expect(_req(base, "DELETE", f"{_ep}/{_eid}", f"Bearer {_ef}:1"), 403,
+                                  f"[serve-all] {_ep} DELETE rol PROHIBIDO (sin borrar)")
+                ok &= _expect(_req(base, "DELETE", f"{_ep}/{_eid}", f"Bearer {_ea}:1"), 200,
+                              f"[serve-all] {_ep} DELETE permitido ({_ea}) -> 200")
+                ok &= _expect(_count_at(base, _ep), _e0, f"[serve-all] {_ep} count tras DELETE (la fila se fue)")
+                ok &= _expect(_req(base, "GET", f"{_ep}/{_eid}", None), 404,
+                              f"[serve-all] {_ep} GET /{{id}} de fila borrada -> 404")'''
+
+
 def _access_control_check_py(bp: dict) -> str:
     """tools/access_control_check.py — el proof e2e de control de acceso + CRUD del CUERPO real (FSK-CRUD-BODY-
     PARSING), parte de la verificación de s9 (kind infra_up). Stdlib puro (urllib), autocontenido (sin `import
@@ -6061,7 +6153,25 @@ def _access_control_check_py(bp: dict) -> str:
     # FSK-SOFT-DELETES: el bloque del diente del borrado lógico — sólo si la entidad servida con dueño es soft.
     # Reusa new_id (ya soft-deleteado por el DELETE de arriba). Opt-in: sin `soft_delete` → "" → byte-idéntico.
     soft_delete_block = _SOFT_DELETE_PROOF if _soft_delete(owned) else ""
+    # FSK-SERVE-ALL-ENTITIES: las entidades servibles escalares-solo MÁS ALLÁ de la ownerless PRIMARIA (`ol`) — las
+    # monta este eje y se prueban de dos lados por POST fresco (sin seed/FK). Se EXCLUYEN las que tienen un ref
+    # requerido (mounted, no e2e-probadas acá: necesitarían sembrar su FK — honesto, wrinkle #1) y la primaria (ya
+    # cubierta por el bloque ownerless). Opt-in: lista vacía → "" → el proof queda byte-idéntico (default/assets
+    # sin una 2ª escalar-solo no cambian este bloque).
+    serve_all_ents = [e for e in _servible_ownerless(bp["entities"])
+                      if not _has_req_ref(e) and (ol is None or e["name"] != ol["name"])]
+    serve_all_data = []
+    for se in serve_all_ents:
+        se_flds = _input_fields(se)
+        se_post = {f["name"]: _proof_post_value(f) for f in se_flds}
+        se_bad = dict(se_post)
+        se_bad[se_flds[0]["name"]] = _proof_wrong_value(se_flds[0])
+        serve_all_data.append({"plural": "/" + _table(se), "allowed": se["write_roles"][0],
+                               "forbidden": next((r for r in bp["roles"] if r not in se["write_roles"]), ""),
+                               "post": se_post, "bad": se_bad})
+    serve_all_block = _SERVE_ALL_PROOF.replace("%SERVE_ALL_DATA%", json.dumps(serve_all_data)) if serve_all_data else ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
+            .replace("%SERVE_ALL_BLOCK%", serve_all_block)
             .replace("%SOFT_DELETE_BLOCK%", soft_delete_block)
             .replace("%COMPUTED_BLOCK%", computed_block)
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
@@ -6344,7 +6454,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%%WR_POLY_BLOCK%
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%%WR_POLY_BLOCK%%SERVE_ALL_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

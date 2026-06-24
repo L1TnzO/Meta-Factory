@@ -1,6 +1,34 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T15:45Z — FSK-SERVE-ALL-ENTITIES ✅: el AppServer vivo monta CRUD para TODAS las entidades servibles — última superficie del backend faithful
+- **El núcleo + el frontend-en-browser estaban hechos; éste cierra la BREADTH de SUPERFICIE: que TODO el dominio sea
+  usable a runtime, no sólo 3 entidades representativas.** Hasta hoy el AppServer montaba CRUD para la entidad con dueño
+  + la 1ª ownerless + la 1ª with_ref (3 en snipeit); las otras 16 existían en contrato+schema+jOOQ pero SIN rutas vivas.
+  Ahora monta CRUD RBAC/ownership-aware para CADA entidad servible → **snipeit sirve 18** (era 3). Todo en
+  `codegen/scaffold_product.py` (FÁBRICA, GENERAL); **`src/metafactory/ + seed/ = 0`**.
+- **Camino BOUNDED de primer-cut (el que recomendaba el handoff §0.1):** generalizar la SELECCIÓN, no reescribir el
+  server. `_servible_ownerless` = toda ownerless con `write_roles`+cuerpo POSTeable, MENOS las pivotes `creates` (ya
+  servidas vía su verbo padre; montarlas duplicaría su `<e>RowJson` → no compila). `_live_entities = owned +
+  servible_ownerless` (fuente única Repository↔AppServer). Las primarias (ownerless/with_ref) siguen gobernando el seed
+  + los dientes especiales (qty/creates/poly) **byte-estables**; las `extras` se montan con `_ownerless_handlers` (ya
+  parametrizado) + un contexto c/u. `need_conflict` generalizado a `any(_has_req_ref)`.
+- **El diente NUEVO (proof):** bloque `serve-all` opt-in que ejercita de DOS lados las escalares-solo nuevas (POST
+  rol prohibido→403 sin INSERT / permitido→201 + round-trip + tipo equivocado→400 + DELETE 403/200/404), POST fresco
+  sin seed/FK (count RELATIVO). snipeit prueba **7 entidades nuevas** (Manufacturer/Supplier/Depreciation/Category/
+  Location/Department/User). Las con-ref se montan pero no se e2e-prueban acá (necesitarían sembrar su FK — honesto).
+- **3 gaps ktlint a escala que destapó gradle, arreglados GENERAL** (opt-in por tamaño → default/assets sin re-derivar):
+  enum VALUES largo → `_kt_call` wrap; `all<E>RowsJson` lambda-chain de nombre largo tripeaba la regla **Wrapping**
+  (salta BAJO el MaxLineLength 160) → `_jooq_chain` gana `budget`, las lambda-chains usan `PROPERTY_WRAP`(120); el
+  `object Repository` con 18 entidades supera **LargeClass**(600) → `@Suppress("LargeClass")` cuando el cuerpo es grande.
+- **Probado por bloqueo:** EYEBALL (assets **byte-IDÉNTICO** —ya servía todo—; base gana Task; snipeit 3 archivos) ·
+  `product-run` snipeit + base **PASS** · **DIENTE vivo dos-lados** (saboteado `writeRolesManufacturer`→all roles → SÓLO
+  las 2 aserciones de Manufacturer rojas, hermanas verdes; limpio→verde) · `ci --rederive --all-products` **3/3 == pin**
+  (12·11·11) · `meta check` **6/6** · `git diff src+seed=0`. **proof_sha byte-neutro → SIN re-pin** (extiende checks
+  existentes, no agrega; `compute_proof_sha` es exit-code-based). Detalle: `work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md §Evidencia`.
+- **Siguiente abierto: `FSK-TIME-COMPUTED`** (el último fleco de VALORES DERIVADOS — `current_value` sobre meses
+  TRANSCURRIDOS desde la compra a `now`, mockeando `now`). Handoff en `work/FSK-TIME-COMPUTED-INCREMENT.md`.
+
 ## 2026-06-24T14:17Z — FSK-FRONTEND-BROWSER ✅: el frontend GENERADO en un Chromium HEADLESS REAL (Playwright, mismo-origen) — 1er eje de BREADTH tras el núcleo
 - **El núcleo estaba COMPLETO; éste abre la BREADTH con el eje de mayor retorno percibido: que la app se VEA en un
   navegador de verdad.** Hasta hoy el frontend GENERADO (`render<E>List`/`mount<E>`) se ejercitaba en `node + jsdom`

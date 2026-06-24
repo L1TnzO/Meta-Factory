@@ -372,13 +372,16 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     `playwright-core` pineado (rev chromium 1217, binario en `~/.cache/ms-playwright` — precondición de entorno como
     docker). `git diff src/+seed=0`. **Sigue diferido** (item 18): el e2e del **submit del FORM** en browser real (hoy
     el render de la LISTA está en Chromium; el FORM sigue sólo en jsdom). Ver `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia`.
-18. **Diferidos DUROS** (breadth/profundidad-de-detalle — los flecos, NO el corazón): las **~226 rutas / servir TODAS
-    las entidades** (hoy el AppServer sirve un subconjunto: owned + 1 ownerless + 1 with_ref — **el siguiente gran hito
-    de superficie**, ver `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md`) · **time-elapsed** (`current_value` sobre meses
-    TRANSCURRIDOS, FSK-TIME-COMPUTED, necesita mockear `now`) · **e2e del FORM en browser** (extender FSK-FRONTEND-BROWSER
-    al submit en Chromium) · AppServer-en-contenedor con PG (s11 hoy usa el ObsServer PG-free) · push de la imagen a un
-    registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · Kits (bundles) · PUT de campos
-    opcionales arbitrarios.
+18. **Servir TODAS las entidades ✅ (FSK-SERVE-ALL-ENTITIES, 2026-06-24)**: el AppServer vivo monta CRUD
+    RBAC/ownership-aware para TODAS las entidades servibles (snipeit: **18**, era 3 — owned + 1 ownerless + 1 with_ref).
+    El dominio ENTERO es usable a runtime; el proof ejercita de dos lados 7 entidades nuevas. (La superficie *total* de
+    Snipe-IT son ~226 rutas con sub-recursos/acciones operativas no-dominio —counters, image, ldap, 2FA— fuera de alcance;
+    el CRUD de cada ENTIDAD del dominio está cubierto.) Ver `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md §Evidencia`.
+19. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **time-elapsed** (`current_value`
+    sobre meses TRANSCURRIDOS, FSK-TIME-COMPUTED, necesita mockear `now` — **el siguiente**) · **e2e del FORM en browser**
+    (extender FSK-FRONTEND-BROWSER al submit en Chromium) · AppServer-en-contenedor con PG (s11 hoy usa el ObsServer
+    PG-free) · push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) ·
+    Kits (bundles) · PUT de campos opcionales arbitrarios.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

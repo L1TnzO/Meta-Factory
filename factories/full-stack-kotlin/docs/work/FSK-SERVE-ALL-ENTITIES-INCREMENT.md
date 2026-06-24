@@ -1,9 +1,8 @@
 # Incremento FSK-SERVE-ALL-ENTITIES — el AppServer vivo monta CRUD para TODAS las entidades del blueprint
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-24). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-24; ver §Evidencia al final). Editar `factories/full-stack-kotlin/**` no-`.md`
+> (codegen/spec/stations) exige un incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-FRONTEND-BROWSER con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -184,3 +183,50 @@ o querés algo MÁS tight:
 un navegador REAL y deploya (smoke).** Lo que RESTA es superficie (servir todas las entidades — ESTE) y profundidad-de-
 detalle (time-elapsed, Kits, Actionlog, EAV, PUT-opcionales, deploy del AppServer-en-contenedor). El siguiente gran hito
 de superficie es que TODO el dominio sea usable a runtime, no sólo 3 entidades.
+
+---
+
+## §Evidencia — CERRADO 2026-06-24 (opus-4.8)
+
+**Hecho (primer-cut BOUNDED, exactamente como recomendaba §0.1):** el AppServer vivo monta CRUD para TODAS las
+entidades ownerless servibles, no sólo 3 representativas. snipeit pasó de servir **3** entidades (Asset · Company ·
+Accessory) a **18** (Asset con dueño + 17 ownerless). El dominio ENTERO es usable a runtime.
+
+**Diseño (todo en `codegen/scaffold_product.py`, FÁBRICA, GENERAL, cero nombres de dominio):**
+- **`_servible_ownerless(entities)`** (nuevo): toda ownerless con `write_roles` + cuerpo POSTeable (`_input_fields`),
+  EXCEPTO las pivotes de un verbo `creates` — esas ya se sirven vía su verbo padre y montarlas aparte DUPLICARÍA su
+  `<e>RowJson` (redeclaración → no compila). `_live_entities = owned + _servible_ownerless` → fuente única que cruzan
+  Repository (insert/rowJson/Input por entidad) y AppServer (qué sirve). `_has_req_ref(e)` (nuevo) decide `catch_fk`.
+- **`_app_server_kt`**: `ownerless`/`with_ref` siguen siendo las PRIMARIAS (gobiernan el seed + los dientes especiales
+  qty/creates/poly, byte-estables); las DEMÁS servibles (`extras`) se montan con `_ownerless_handlers` (ya
+  parametrizado) + un contexto c/u (`%EXTRA_BLOCKS%`/`%EXTRA_CONTEXTS%`). `need_conflict` generalizado a
+  `any(_has_req_ref) over servibles or operations`.
+- **`access_control_check.py`**: bloque `serve-all` (opt-in) que ejercita de DOS lados las escalares-solo NUEVAS
+  (más allá de la ownerless primaria): POST rol prohibido→403 sin INSERT / permitido→201 + round-trip + tipo
+  equivocado→400 + DELETE 403/200/404. POST fresco, sin seed/FK (count RELATIVO → robusto a filas pre-sembradas).
+  Las con-ref se montan pero NO se e2e-prueban acá (necesitarían sembrar su FK — honesto, wrinkle #1).
+- **ktlint a escala (gaps reales que destapó gradle, arreglados GENERAL):** (a) un enum VALUES largo (`Maintenance.type`,
+  8 valores → 170c) pasaba MaxLineLength → `_kt_call` lo envuelve (byte-idéntico para enums cortos); (b) `all<E>RowsJson`
+  con nombre largo (ConsumableAssignment/ComponentAssignment, 142-145c) tripeaba la regla ktlint **Wrapping** ("Missing
+  newline after {") que salta BAJO el 160 → `_jooq_chain` gana `budget` y las lambda-chains usan `PROPERTY_WRAP` (120);
+  (c) el `object Repository` con 18 entidades supera **LargeClass** (600) → `@Suppress("LargeClass")` cuando el cuerpo
+  es grande. Los tres opt-in por tamaño → default/assets sin re-derivar.
+
+**Probado POR BLOQUEO (con ojos propios):**
+- **EYEBALL** (HEAD vs working, `build_files` de los 3): **assets byte-IDÉNTICO** (ya servía todo: Holder+Asset);
+  base ~2 archivos (gana Task servido); snipeit 3 archivos (Repository 503→1061 · AppServer 701→1872 ·
+  access_control_check 458→487). Cero líneas Kotlin >160; sin imports sin usar; 103/103 `Repository.X` llamados por
+  AppServer existen; proof py_compile OK; `accessorycheckoutRowJson` 1× (sin dup); `main` 37 líneas (<60).
+- **`product-run --product snipeit` PASS** (s0→s11) · **`product-run` base PASS** (base cambió).
+- **DIENTE de DOS lados VIVO** (proof manual contra el dist recompilado + PG docker): saboteado
+  `writeRolesManufacturer()→Role.entries.toSet()` (RBAC neutralizado) → SÓLO las 2 aserciones de Manufacturer rojas
+  (`[serve-all] /manufacturers POST rol PROHIBIDO (manager) -> 403: esperaba 403, obtuvo 201`), TODAS las hermanas
+  (owned · ownerless · demás serve-all) VERDES → exit 1 localizado. Versión limpia → s9 verde.
+- **`ci --rederive --all-products` PASS — 3/3 == pin** (base 12/12 · assets 11/11 · snipeit 11/11) · **`meta check`
+  6/6** (`generality` verde) · **`git diff src/metafactory + seed = 0`** (sólo `codegen/scaffold_product.py`).
+- **proof_sha BYTE-NEUTRO → SIN re-pin**: el increment EXTIENDE checks existentes (access_control_live/s2) sin agregar
+  ninguno; `compute_proof_sha` hashea `station_id + (check_name, exit)` (NO el artefacto) → pin byte-idéntico (commit
+  feat = sólo el codegen). `ci --rederive` re-deriva los MISMOS proof_sha == pin.
+
+**Criterio de cierre §6: 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (este §Evidencia + SNIPEIT-DOMAIN actualizado + el SIGUIENTE abierto:
+`FSK-TIME-COMPUTED-INCREMENT.md`).**

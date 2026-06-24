@@ -29,6 +29,22 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **TODO EL DOMINIO USABLE A RUNTIME — la última superficie del backend faithful (FSK-SERVE-ALL-ENTITIES, 2026-06-24)**:
+  el AppServer vivo dejó de montar CRUD para sólo **3 entidades representativas** (la con dueño + la 1ª ownerless + la 1ª
+  with_ref) y ahora monta CRUD RBAC/ownership-aware para **TODAS las entidades servibles** → **snipeit sirve 18** (era 3).
+  Camino BOUNDED: se generaliza la SELECCIÓN, no se reescribe el server. `_servible_ownerless` (toda ownerless con
+  `write_roles`+cuerpo POSTeable, MENOS las pivotes `creates` —ya servidas vía su verbo padre—) alimenta `_live_entities`
+  (fuente única Repository↔AppServer); las primarias (ownerless/with_ref) siguen gobernando el seed + los dientes
+  especiales (qty/creates/poly) **byte-estables**; las `extras` se montan con `_ownerless_handlers` (ya parametrizado,
+  `catch_fk` si tienen ref requerido) + un contexto c/u. El proof gana un bloque `serve-all` (opt-in) que ejercita de DOS
+  lados las escalares-solo NUEVAS (snipeit: 7) por POST fresco sin seed/FK. 3 gaps ktlint a escala arreglados GENERAL
+  (enum VALUES largo→`_kt_call`; `all<E>RowsJson` lambda-chain→budget `PROPERTY_WRAP`; `object Repository`→`@Suppress
+  ("LargeClass")`), opt-in por tamaño. **Probado por bloqueo**: assets **byte-IDÉNTICO** (ya servía todo), base gana Task;
+  `product-run` snipeit+base PASS; **diente vivo dos-lados** (saboteado `writeRolesManufacturer` → SÓLO sus 2 aserciones
+  rojas, hermanas verdes); `ci --rederive --all-products` **3/3 == pin** (12·11·11, **SIN re-pin**: proof_sha exit-code-
+  based, extiende checks existentes sin agregar); `meta check` 6/6; **`git diff src/metafactory + seed = 0`**. **Con esto
+  el backend faithful está COMPLETO de SUPERFICIE**; lo que resta es profundidad-de-detalle. Detalle:
+  `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md §Evidencia` · `docs/LOG.md`. Siguiente: `FSK-TIME-COMPUTED`.
 - **FRONTEND EN UN BROWSER REAL — el 1er eje de BREADTH tras el núcleo (FSK-FRONTEND-BROWSER, 2026-06-24)**: el frontend
   GENERADO dejó de probarse SÓLO en jsdom y se monta en un **Chromium HEADLESS REAL** (Playwright). El AppServer gana
   `GET /` (una página mínima) + `GET /app.js` (sirve el bundle desde disco vía `FSK_WEB_DIR`) → MISMO-ORIGEN (sin CORS);

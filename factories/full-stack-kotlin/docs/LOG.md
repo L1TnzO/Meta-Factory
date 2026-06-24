@@ -1,6 +1,38 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T01:00Z — FSK-XENTITY-DEPTH2 ✅: un campo computado cruza una CADENA de refs `<r1>.<r2>.<campo>` (depth-2) — VALORES DERIVADOS faithful COMPLETO
+- **El ÚLTIMO refinamiento genuino de VALORES DERIVADOS.** FSK-XENTITY-COMPUTED (depth-1) leía `model_id.depreciation_months`
+  (el ref DIRECTO Asset→AssetModel). En Snipe-IT REAL el período vive en `Depreciation`, alcanzado por
+  `AssetModel.depreciation_id` (deferral 13). Depth-2 resuelve la CADENA `model_id.depreciation_id.months` = 2 JOINs
+  encadenados (Asset→AssetModel→Depreciation). Determinista (sin s6/LLM). Todo en `codegen/scaffold_product.py` (FÁBRICA,
+  GENERAL, opt-in byte-neutro); `src/metafactory/ + seed/ = 0`.
+- **Camino BOUNDED — un helper ÚNICO `_xref_resolve(start, by, parts, …)`** que camina la cadena de refs (cada hop un ref
+  no-poly cuyo `to` ∈ el grafo, REQUERIDO **u** OPCIONAL — el LEFT JOIN es null-safe `?: 0.0`) y exige campo final numérico
+  no-computado; devuelve `(steps, tgt, tfld)`. Lo COMPARTEN: (a) la VALIDACIÓN (`_validate_computed_ast` recibe `(e, by)` en
+  vez del viejo mapa `xnumeric` depth-1-only); (b) el `_row_json_fn` (JOINs por HOP dedup por prefijo, ENCADENADOS:
+  `on(from.ref.eq(to.ID))` con `from` = la tabla del hop, no la entidad; `val` nombrado con todos los segmentos); (c) el
+  ORÁCULO del proof (cruza el `_SEED_NUM` sembrado a N hops). Generaliza a profundidad arbitraria. depth-1 y depth-2+ por
+  el MISMO camino → el refactor preservó depth-1 BYTE-IDÉNTICO (eyeball base/assets 0 diffs).
+- **Adopción PRODUCTO** (snipeit): `Asset.current_value = max(purchase_cost − purchase_cost/model_id.depreciation_id.months,
+  0)` lee `Depreciation.months` (el período REAL). **Decisión: `AssetModel.depreciation_id` REQUERIDO en la adopción** —
+  para que el diente muerda el valor debe ser OBSERVABLE (no-cero), y eso exige sembrar la cadena; el seeder TRANSITIVO
+  siembra los refs requeridos no-dueño automáticamente → con `depreciation_id` requerido la cadena entera se siembra SIN
+  tocar el seeder (`Depreciation.months=2` → `current_value = purchase_cost/2`). `depreciation_months` removido de
+  `AssetModel` (reemplazado por la columna REAL). El MECANISMO admite un ref del medio opcional (null→0.0); sembrarlo
+  observable necesitaría extender el seeder (residual honesto, eje aparte). Cierra el **deferral 13** de SNIPEIT-DOMAIN.
+- **Diente de DOS lados VIVO y PRECISO** (proof MANUAL contra la dist compilada — el infra_up no surfacea el stdout del
+  proof): degradé el 2º JOIN (`eq`→`ne`, sabotaje de LÓGICA que COMPILA) → de ~110 asserts SÓLO el `[computed]` rojo
+  (`esperaba 21.25, obtuvo 42.5`: el degradado lee `months` null → `0.0` → `safeDiv(42.5, 0)=0` → `42.5`), con `/health`
+  200 y todos los hermanos verdes (server VIVO) → revertí → verde.
+- **Verde por bloqueo**: EYEBALL byte-neutro (base/assets 0 diffs) · `product-run --product snipeit` PASS · RTM **24/25**
+  (único UNSAT = REQ-F-007/s6 LLM keyless) · `meta check` 6/6 (`generality` verde) · `git diff src/metafactory + seed = 0` ·
+  default+assets `product.yml` = 0 · **SIN re-pin** (`proof_sha` intacto: el cambio vive DENTRO del `[computed]` de s9 y del
+  `_row_json_fn`, cero check/estación nuevos) · `ci --rederive` base+assets+snipeit == pin (clones limpios).
+- **3 commits** (codegen · product.yml · docs). **EL NÚCLEO (modelo·acceso·comportamiento·valores-derivados·app-que-corre)
+  está COMPLETO.** Lo que RESTA es BREADTH: el SIGUIENTE abierto = **FSK-FRONTEND-BROWSER** (React en un browser real +
+  Playwright, el de MAYOR retorno percibido). Detalle: `docs/work/FSK-XENTITY-DEPTH2-INCREMENT.md §Evidencia`.
+
 ## 2026-06-24T00:30Z — FSK-OWNER-POLY ✅: el `owned_by` puede ser un ref POLIMÓRFICO (el owner cruza una UNIÓN, wrinkle #3) — NÚCLEO MODELO+AUTH COMPLETO
 - **El ÚLTIMO gap de MODELO+AUTH.** Hoy el dueño de una fila cruza un `Long` único (principal del token == `row.owner_id`).
   En Snipe-IT REAL `assigned_to` ES el owner Y es polimórfico (`User|Location|Asset`). Este eje hace que `owned_by` pueda

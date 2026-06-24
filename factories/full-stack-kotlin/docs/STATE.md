@@ -47,8 +47,21 @@
   `ci --rederive` base 12/12·assets 11/11·snipeit 11/11 == pin (SIN re-pin) · `meta check` 6/6 · `git diff src/+seed +
   default/assets product.yml = 0`.** **Con esto el NÚCLEO FUNCIONAL + BEHAVIORAL + de MODELO/AUTH faithful está COMPLETO**
   (data·acceso·comportamiento·valores-derivados·app-que-corre). Lo que RESTA es BREADTH y profundidad-de-detalle.
-  Detalle: `docs/work/FSK-OWNER-POLY-INCREMENT.md §Evidencia` · `docs/work/FSK-XENTITY-DEPTH2-INCREMENT.md` (próximo
-  abierto) · `docs/LOG.md`.
+  Detalle: `docs/work/FSK-OWNER-POLY-INCREMENT.md §Evidencia` · `docs/LOG.md`.
+- **CROSS-ENTITY DEPTH-2 — el ÚLTIMO refinamiento de VALORES DERIVADOS (FSK-XENTITY-DEPTH2, 2026-06-24)**: el AST de un
+  campo computado admite un operando cross-entity de PROFUNDIDAD ARBITRARIA `<r1>[.<r2>...].<campo>` — una CADENA de refs
+  resuelta por un helper único `_xref_resolve` (camina la cadena; cada hop un ref no-poly cuyo `to` ∈ el grafo, REQUERIDO
+  **u** OPCIONAL: el LEFT JOIN es null-safe `?: 0.0`; campo final numérico no-computado) que sirve a la VALIDACIÓN, al
+  `_row_json_fn` (JOINs por HOP, ENCADENADOS: `on(from.ref.eq(to.ID))` con `from` = la tabla del hop) y al ORÁCULO del
+  proof (cruza el `_SEED_NUM` sembrado a N hops). depth-1 y depth-2+ por el MISMO camino. **Adopción**: snipeit
+  `Asset.current_value` pasa a `model_id.depreciation_id.months` → lee `Depreciation.months` (el período REAL) por 2 JOINs
+  (Asset→AssetModel→Depreciation), cierra el **deferral 13** de SNIPEIT-DOMAIN; `AssetModel.depreciation_id` REQUERIDO en
+  la adopción (el seeder transitivo siembra la cadena → valor observable), `depreciation_months` removido (reemplazado por
+  la columna REAL). Diente de DOS lados VIVO y PRECISO (degradé el 2º JOIN `eq`→`ne` → SÓLO el `[computed]` assert de s9
+  rojo: `esperaba 21.25, obtuvo 42.5`, server VIVO, ~110 hermanos verdes; revertí→verde). **product-run PASS · RTM snipeit
+  24/25 · `meta check` 6/6 · `git diff src/+seed + default/assets product.yml = 0` · SIN re-pin** (proof_sha intacto). **EL
+  NÚCLEO (modelo·acceso·comportamiento·valores-derivados) está COMPLETO; lo que resta es BREADTH** (el de mayor retorno =
+  frontend en un BROWSER real). Detalle: `docs/work/FSK-XENTITY-DEPTH2-INCREMENT.md §Evidencia` · `docs/LOG.md`.
 - **INSERT-ON-VERB — el ÚLTIMO mecanismo behavioral (FSK-CREATES-PIVOT, 2026-06-23)**: un verbo qty (`decrements`)
   puede ADEMÁS `creates: <PivotEntity>` — al disparar INSERTA una fila en la pivote (el M:N real del checkout de
   accesorios) seteando el **FK-al-sujeto** (del id de la URL, detectado por `to == la entidad del verbo`) + los campos

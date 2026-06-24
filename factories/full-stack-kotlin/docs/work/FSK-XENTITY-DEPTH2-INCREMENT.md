@@ -1,9 +1,10 @@
 # Incremento FSK-XENTITY-DEPTH2 — un campo computado CROSS-ENTITY a DEPTH-2 (una cadena de 2 refs `<r1>.<r2>.<campo>`)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-24T00:30Z). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-24). Abierto 2026-06-24T00:30Z. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> Evidencia de cierre al final (§Evidencia). La adopción de NIVEL PRODUCTO vive en
+> `products/snipeit/docs/work/XENTITY-DEPTH2-ADOPT-INCREMENT.md`.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-OWNER-POLY con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -177,3 +178,46 @@ renderiza y deploya). **Depth-2 (este)** cierra el ÚLTIMO refinamiento de valor
 (frontend-en-browser, ~226 rutas, time-elapsed, Kits, Actionlog, EAV, PUT-opcionales) es trabajo de BREADTH y
 PROFUNDIDAD-de-detalle — los flecos. El backend faithful está, en lo esencial, TERMINADO; el siguiente gran hito es el
 FRONTEND real (browser).
+
+---
+
+## §Evidencia (cierre 2026-06-24)
+
+**Construido — el AST de un campo computado admite un operando CROSS-ENTITY de PROFUNDIDAD ARBITRARIA**
+`<r1>[.<r2>...].<campo>` (depth-1 y depth-2+ por el MISMO camino). Todo en `codegen/scaffold_product.py` (DATA de
+fábrica, ADR-012); `src/metafactory/ + seed/` = **0 líneas**.
+
+- **Helper único `_xref_resolve(start, by, parts, …)`** — camina la cadena de refs (cada hop un ref no-poly de la
+  entidad en curso cuyo `to` ∈ el grafo; REQUERIDO **u** OPCIONAL: el LEFT JOIN es null-safe `?: 0.0`) y exige que
+  el campo final sea numérico no-computado. Devuelve `(steps, tgt, tfld)` → sirve a la VALIDACIÓN, al `_row_json_fn`
+  y al ORÁCULO del proof (un solo lugar de verdad). Generaliza a profundidad N.
+- **Validación** (`_validate_computed_ast`): un string con punto(s) llama `_xref_resolve` (fail-closed). Se le pasa
+  `(e, by)` en vez del viejo mapa `xnumeric` (depth-1-only). Relaja la exigencia de "ref requerido" del 1er-cut
+  depth-1 (el null-safety lo cubre) — sin efecto en ningún producto (base/assets sin computado; snipeit pasa a depth-2).
+- **`_row_json_fn`**: los JOINs se construyen por HOP, deduplicados por PREFIJO de cadena, ENCADENADOS (`leftJoin(to)`
+  + `on(from.ref.eq(to.ID))` con `from` = la tabla del hop, no la entidad) → depth-2 = 2 JOINs encadenados
+  (Asset→AssetModel→Depreciation). El `val` de fuente se nombra con TODOS los segmentos (`xR1R2Campo`, sin colisión).
+- **Oráculo** (`_COMPUTED_PROOF`/XSRC): `_xref_resolve` resuelve el campo final → su valor sembrado `_SEED_NUM` se
+  cruza a N hops (`{"model_id.depreciation_id.months": 2}`).
+
+**Verde por bloqueo (demostrado, no narrado):**
+- **EYEBALL byte-neutro** — HEAD-vs-working sobre los 3 productos: `base` y `assets` **byte-idénticos** (0 diffs); el
+  refactor preserva depth-1 EXACTO. (snipeit no se puede comparar HEAD-vs-working porque HEAD rechaza el blueprint
+  depth-2 nuevo — limitación esperada del eyeball; la salida WORKING de snipeit se inspeccionó aparte.)
+- **Salida WORKING de snipeit** (`assetRowJson`): 2 `leftJoin` encadenados, el 2º `on(ASSETMODELS.DEPRECIATION_ID.eq(
+  DEPRECIATIONS.ID))` (from = ASSETMODELS, no ASSETS), selecciona `DEPRECIATIONS.MONTHS`, lee null-safe; sin líneas >160.
+- **`product-run --product snipeit` PASS** · RTM **24/25** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente de DOS lados VIVO y preciso** (proof MANUAL contra la dist compilada — el infra_up no surfacea el stdout):
+  degradé el 2º JOIN (`eq`→`ne`, sabotaje de LÓGICA que compila) → de ~110 asserts SÓLO `[computed]` rojo
+  (`esperaba 21.25, obtuvo 42.5`: el chain intacto da `max(42.5 − 42.5/2, 0)=21.25`, el degradado lee months null →
+  `0.0` → `42.5`), con `/health` 200 y todos los hermanos verdes (server VIVO) → revertí → verde.
+- **`ci --rederive`** base + assets + snipeit == pin (clones limpios, sin re-pin: `proof_sha` intacto — el cambio vive
+  DENTRO del `[computed]` de s9 y del `_row_json_fn`, cero check/estación nuevos) · **`meta check` 6/6** (`generality`
+  verde) · **`git diff src/metafactory + seed = 0`** · default+assets `product.yml` = 0.
+
+**Adopción faithful**: `Asset.current_value = max(purchase_cost − purchase_cost/model_id.depreciation_id.months, 0)`
+→ lee `Depreciation.months` (el período REAL) vía `AssetModel.depreciation_id` (2 JOINs). Cierra el **deferral 13** de
+`SNIPEIT-DOMAIN.md`. Decisión: el ref del medio es REQUERIDO en la adopción (observabilidad del seed transitivo);
+el mecanismo admite opcional (null→0.0), pero sembrarlo observable necesitaría extender el seeder (residual, eje aparte).
+
+**3 commits** (codegen · product.yml · docs). El SIGUIENTE incremento abierto: ver el handoff hermano.

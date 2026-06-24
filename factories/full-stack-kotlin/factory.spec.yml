@@ -748,7 +748,10 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_ac_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_ac_pg -e POSTGRES_PASSWORD=metafactory -p 5436:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
+          # FSK-TIME-COMPUTED: FSK_NOW mockea el reloj del server (un campo computado sobre meses-transcurridos seria
+          # NO-determinista con el reloj real). Fecha fija (DATA, sin nombres de dominio): el server la lee y la expone
+          # por /seed (single source); el oraculo del proof la lee de /seed. Un producto sin op de tiempo la IGNORA.
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["python3", "tools/access_control_check.py", "http://127.0.0.1:18594"]
           down: ["docker", "rm", "-f", "fsk_s9_ac_pg"]
           timeout: 120

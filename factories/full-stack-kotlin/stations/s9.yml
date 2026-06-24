@@ -40,8 +40,8 @@ checks:
   up:
   - sh
   - -c
-  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); exec "$JAVA_HOME/bin/java"
-    -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15;
+    exec "$JAVA_HOME/bin/java" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
   proof:
   - python3
   - tools/access_control_check.py

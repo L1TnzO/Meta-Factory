@@ -216,6 +216,13 @@ def _soft_delete(e: dict) -> bool:
 
 _COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores (fail-closed; nada domain-specific)
 _COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
+# FSK-TIME-COMPUTED: ops de TIEMPO — UNARIOS, cuyo único arg NO es un numérico sino un campo `date` de la entidad,
+# y que producen los MESES TRANSCURRIDOS entre esa fecha y `now`. `now` es NO-determinista (cambia cada día) → se
+# MOCKEA por la env `FSK_NOW` (el server la lee, default = hoy real; el proof la fija para un valor reproducible)
+# y se expone por /seed (single source: el oráculo del proof lee el reloj DEL server, no un literal aparte). La
+# dimensión de VALORES DERIVADOS sobre el TIEMPO: la depreciación straight-line REAL corre sobre los meses
+# transcurridos desde la compra, no sobre un período estático. Cerrado (fail-closed, como `_COMPUTED_OPS`).
+_COMPUTED_TIME_OPS = {"months_since"}                  # `{op: months_since, args: [<campo date>]}` → meses date→now
 
 
 def _xref_resolve(start: dict, by: dict, parts: list, ename: str, fname: str) -> tuple:
@@ -275,6 +282,20 @@ def _validate_computed_ast(node, numeric: set, ename: str, fname: str,
         raise SystemExit(f"scaffold: computed {ename}.{fname}: nodo inválido {node!r} (esperaba un número, un "
                          f"nombre de campo o un mapa {{op, args}})")
     op, args = node["op"], node["args"]
+    # FSK-TIME-COMPUTED: un op de TIEMPO (`months_since`) es UNARIO y su arg es un campo `date` de la entidad
+    # (NO un numérico) → se valida ACÁ y NO se recursa como operando numérico (fail-closed: arg = nombre de un
+    # campo `date` existente de `ename`). Va ANTES del chequeo de `_COMPUTED_OPS` (no pertenece a ese set).
+    if op in _COMPUTED_TIME_OPS:
+        if not isinstance(args, list) or len(args) != 1:
+            raise SystemExit(f"scaffold: computed {ename}.{fname}: el op de tiempo {op!r} es UNARIO "
+                             f"(exactamente 1 arg: el nombre de un campo `date`)")
+        arg = args[0]
+        df = next((g for g in (ent or {}).get("fields", [])
+                   if g.get("name") == arg and g.get("type") == "date"), None)
+        if not isinstance(arg, str) or df is None:
+            raise SystemExit(f"scaffold: computed {ename}.{fname}: el arg {arg!r} de {op!r} no es un campo "
+                             f"`date` de {ename} (fail-closed)")
+        return
     if op not in _COMPUTED_OPS:
         raise SystemExit(f"scaffold: computed {ename}.{fname}: operador {op!r} fuera del set cerrado "
                          f"{sorted(_COMPUTED_OPS)} (fail-closed)")
@@ -287,13 +308,38 @@ def _validate_computed_ast(node, numeric: set, ename: str, fname: str,
 
 
 def _computed_srcs(node, out: set) -> None:
-    """Los nombres de campo (strings) que el AST referencia — las COLUMNAS FUENTE que rowJson lee y extrae a
-    `val`s locales antes de computar. DFS sobre el AST."""
+    """Los nombres de campo NUMÉRICOS (strings) que el AST referencia — las COLUMNAS FUENTE que rowJson lee y
+    extrae a `val`s `Double` locales antes de computar. DFS sobre el AST. FSK-TIME-COMPUTED: un op de tiempo
+    (`months_since`) NO contribuye fuentes numéricas — su arg es un campo `date` (lo recoge `_computed_date_srcs`,
+    leído como LocalDate, no Double) → se PODA acá para no tratar la fecha como un numérico (fail-closed)."""
     if isinstance(node, dict):
+        if node["op"] in _COMPUTED_TIME_OPS:
+            return
         for a in node["args"]:
             _computed_srcs(a, out)
     elif isinstance(node, str):
         out.add(node)
+
+
+def _computed_date_srcs(node, out: set) -> None:
+    """FSK-TIME-COMPUTED: los nombres de campo `date` que un op de tiempo (`months_since`) referencia — las
+    COLUMNAS FUENTE que rowJson lee como `LocalDate` y convierte a meses-transcurridos-hasta-`now`. DFS; el arg
+    de un op de tiempo es la fecha (no se recursa como AST). Separado de `_computed_srcs` (numéricos) porque una
+    fecha se lee distinto (LocalDate vs Double) y se computa distinto (ChronoUnit.MONTHS.between, no aritmética)."""
+    if isinstance(node, dict):
+        if node["op"] in _COMPUTED_TIME_OPS:
+            out.add(node["args"][0])
+        else:
+            for a in node["args"]:
+                _computed_date_srcs(a, out)
+
+
+def _ast_uses_time(node) -> bool:
+    """True si el AST usa un op de TIEMPO (`months_since`) en algún nivel → la entidad VIVA con ese campo necesita
+    los miembros `today` (el reloj mockeable por FSK_NOW) + `monthsSince` en el Repository, los imports
+    java.time.* y la exposición de `now` por /seed. Sin op de tiempo no se emite nada (byte-neutro/sin unused)."""
+    return isinstance(node, dict) and (node["op"] in _COMPUTED_TIME_OPS
+                                       or any(_ast_uses_time(a) for a in node["args"]))
 
 
 def _ast_uses_div(node) -> bool:
@@ -312,6 +358,11 @@ def _computed_kt(node, srcvar: dict) -> str:
     if isinstance(node, str):
         return srcvar[node]
     op = node["op"]
+    # FSK-TIME-COMPUTED: un op de tiempo NO se recursa (su arg es una fecha, no un sub-AST numérico): su val ya
+    # está PRE-COMPUTADO en el prelude (`monthsSince(<col date>, today)` → Double) y `srcvar` lo mapea por el
+    # nombre del campo `date`. Va ANTES del fold genérico (que asumiría un operando numérico → roto sobre la fecha).
+    if op in _COMPUTED_TIME_OPS:
+        return srcvar[node["args"][0]]
     a = [_computed_kt(x, srcvar) for x in node["args"]]
     if op == "+":
         return "(" + " + ".join(a) + ")"
@@ -1654,6 +1705,12 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
         _computed_srcs(cf["computed"], srcs)
     same_srcs = sorted(s for s in srcs if "." not in s)
     x_srcs = sorted(s for s in srcs if "." in s)
+    # FSK-TIME-COMPUTED: las fuentes `date` de un op de tiempo (`months_since`) — leídas como LocalDate y
+    # convertidas a meses-transcurridos-hasta-`today` (vía el helper `monthsSince`, member del Repository).
+    time_srcs: set = set()
+    for cf in computed:
+        _computed_date_srcs(cf["computed"], time_srcs)
+    time_srcs = sorted(time_srcs)
     joins: list = []          # (FROM_TBL, REF_COL, TGT_TBL) por hop distinto, en orden de cadena
     x_cols: list = []         # las columnas del target FINAL a SELECCIONAR (fuentes cross-entity)
     x_meta: dict = {}         # fuente → (TGT_TBL_final, campo_dict_final), para leerla null-safe en el prelude
@@ -1716,6 +1773,11 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
         # incluye TODOS los segmentos de la cadena (depth-2 `r1.r2.campo` → `xR1R2Campo`) para no colisionar entre cadenas.
         for s in x_srcs:
             srcvar[s] = "x" + "".join(_pascal(p) for p in s.split("."))
+        # FSK-TIME-COMPUTED: una fuente `date` gana un `val` con prefijo `m` (≠ las `c`/`x`) = los meses
+        # transcurridos hasta `today` (un Double ya, vía `monthsSince`). `_computed_kt` la referencia por el
+        # nombre del campo (el op de tiempo devuelve `srcvar[<campo date>]`).
+        for s in time_srcs:
+            srcvar[s] = "m" + _pascal(s)
         # jOOQ DDLDatabase tipa toda columna nullable. Un `number` ya es `Double?` → `?: 0.0` (un `.toDouble()`
         # sería REDUNDANTE → -Werror); un `int` es `Int?` → `?.toDouble() ?: 0.0` (conversión real). El AST sólo
         # referencia campos int/number (validado), así que estos dos casos cubren todo.
@@ -1732,13 +1794,27 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
             num = tfld["type"] == "number"
             prelude += f"        val {srcvar[s]} = " + (f"r[{tcol}] ?: 0.0\n" if num
                                                        else f"r[{tcol}]?.toDouble() ?: 0.0\n")
+        # FSK-TIME-COMPUTED: la fuente `date` se lee como LocalDate de su columna y `monthsSince` la convierte
+        # a los meses transcurridos hasta `today` (el reloj mockeable por FSK_NOW); una fecha NULL → 0.0 (guard
+        # en el helper). El diente vive ACÁ: degradar la aritmética del tiempo (MONTHS→YEARS, invertir el orden
+        # date↔today) → otro número → rojo SÓLO en s9. Sin op de tiempo → time_srcs vacío → byte-idéntico (opt-in).
+        for s in time_srcs:
+            prelude += f"        val {srcvar[s]} = monthsSince(r[{tbl}.{_COL(s)}], today)\n"
         for cf in computed:
             vname = f"{_camel(cf['name'])}Computed"
-            line = f"        val {vname} = {_computed_kt(cf['computed'], srcvar)}"
-            if len(line) > MAX_LINE_LENGTH:   # el wrapping de una fórmula compleja se difiere (1er-cut SAME-ENTITY)
-                raise SystemExit(f"scaffold: computed {e['name']}.{cf['name']}: la expresión Kotlin supera "
-                                 f"{MAX_LINE_LENGTH} columnas (wrapping de fórmulas complejas diferido — "
-                                 f"usá una fórmula más simple)")
+            expr = _computed_kt(cf['computed'], srcvar)
+            line = f"        val {vname} = {expr}"
+            # ktlint PropertyWrapping (>120, INDEPENDIENTE del MaxLineLength=160): una fórmula que pasa de 120 en una
+            # línea exige el valor en su PROPIA línea (`val x =\n    <expr>`, continuación a +4). Lo surfaceó
+            # FSK-TIME-COMPUTED (el factor `* months_since(...)` engordó la fórmula de current_value de snipeit a 136).
+            # Sólo si la expr envuelta sigue pasando MAX_LINE_LENGTH se difiere (wrapping de la expr INTERNA, 1er-cut).
+            if len(line) > PROPERTY_WRAP:
+                wrapped = f"        val {vname} =\n            {expr}"
+                if len(f"            {expr}") > MAX_LINE_LENGTH:
+                    raise SystemExit(f"scaffold: computed {e['name']}.{cf['name']}: la expresión Kotlin supera "
+                                     f"{MAX_LINE_LENGTH} columnas aun envuelta (wrapping de la expr interna "
+                                     f"diferido — usá una fórmula más simple)")
+                line = wrapped
             prelude += line + "\n"
             # `$vname` SIN llaves: es un identificador simple (un `val`), no una expresión → ktlint StringTemplate
             # exige sin llaves (a diferencia de las columnas `${r[...]}`/`${jsonVal(...)}`, que SÍ las necesitan).
@@ -1943,6 +2019,13 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # AppServer.kt: org.* → {pkg}.* → java.*). Los imports de tipo del Input (p.ej. una columna `date` requerida →
     # java.time.LocalDate) van al final; pure-ASCII los pondria primero → ktlint rojo.
     type_imports = _kt_type_imports(input_live)   # java.* (LocalDate, …) → al final
+    # FSK-TIME-COMPUTED: una entidad VIVA con un op de tiempo (`months_since`) pide java.time.* en el Repository
+    # (`today` + `monthsSince`). Se unionan al grupo java.* (deduplicado: una columna `date` de input ya pudo traer
+    # LocalDate) y se re-ordenan ascii (ChronoUnit detrás de LocalDate). Sin op de tiempo → byte-idéntico (opt-in).
+    uses_time = any(_ast_uses_time(f["computed"]) for e in live for f in e["fields"] if _is_computed(f))
+    if uses_time:
+        type_imports = sorted(set(type_imports)
+                              | {"import java.time.LocalDate", "import java.time.temporal.ChronoUnit"})
     imports = "\n".join(sorted({"import org.jooq.DSLContext"} | set(table_imports)) + type_imports)
     # El data class de entrada por entidad VIVA (el cuerpo del POST type-coerced, DES-12): top-level, antes del
     # object Repository (mismo paquete → AppServer lo importa como {pkg}.<E>Input).
@@ -2028,6 +2111,15 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # neutro y sin UnusedPrivateMember de detekt). Compartido por los rowJson (miembros del mismo object Repository).
     if any(_ast_uses_div(f["computed"]) for e in live for f in e["fields"] if _is_computed(f)):
         fns.insert(0, "    private fun safeDiv(a: Double, b: Double): Double = if (b == 0.0) 0.0 else a / b")
+    # FSK-TIME-COMPUTED: el reloj `today` (mockeable por FSK_NOW, default = hoy real) + el helper `monthsSince`
+    # (meses COMPLETOS date→today, una fecha NULL → 0.0) — miembros del Repository que rowJson usa, emitidos SÓLO
+    # si una entidad viva tiene un op de tiempo (sin él → no se emiten → byte-neutro + sin UnusedPrivateMember).
+    # `today` NO es private: seedRows (AppServer) lo lee (`Repository.today.toString()`) para exponer `now` por
+    # /seed — single source del reloj (el server lo computa, el oráculo del proof lo lee de /seed, sin literal aparte).
+    if uses_time:
+        fns.insert(0, "    private fun monthsSince(d: LocalDate?, today: LocalDate): Double =\n"
+                      "        if (d == null) 0.0 else ChronoUnit.MONTHS.between(d, today).toDouble()")
+        fns.insert(0, '    val today: LocalDate = System.getenv("FSK_NOW")?.let(LocalDate::parse) ?: LocalDate.now()')
     # un query TIPADO por entidad (+ ownerId/CRUD por entidad con dueño): con >11 entidades supera
     # TooManyFunctions(11). Es un repositorio GENERADO 1:1 con el contrato; @Suppress sólo cuando aplica.
     # FSK-SERVE-ALL-ENTITIES: sirviendo TODAS las entidades el object Repository crece y supera LargeClass(600
@@ -5182,7 +5274,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
       + [f"import {pkg}.{p['name']}CreateInput" for _, p, _ in creates_pivots]   # FSK-CREATES-PIVOT (opt-in)
       + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports + op_imports)
     # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un campo
-    # `date` opcional (p.ej. Asset.purchase_date) no se siembra → importar LocalDate sería NoUnusedImports. El
+    # `date` OPCIONAL no se siembra → importar LocalDate sería NoUnusedImports. El
     # parser (dateOf) usa LocalDate sólo si hay un `date` REQUERIDO → coincide con lo sembrado (mismo gating). El
     # parser ownerless aporta sus propios tipos de _input_fields (p.ej. un `date` requerido → LocalDate).
     # Los imports de tipo (java.time.LocalDate, …) se derivan de los campos que el .kt SAMPLEA o COERCE: los
@@ -5224,9 +5316,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring,
                                       owner_field=owner_field if owner_poly else None, owner_var="ownerId",
                                       owner_poly_type=non_principal)
-        rtd_arg = ", rtdId"
     else:
-        seed_rtd, rtd_arg = "", ""
+        seed_rtd = ""
     # FSK-OWNED-REQUIRED-REFS: /seed expone los ids de los refs REQUERIDOS no-dueño del owned (campo → id sembrado)
     # para que el proof POSTee una FK VÁLIDA (como `refs` para with_ref, pero de la entidad-con-dueño). Opt-in:
     # sin refs requeridos no-dueño (default/assets) → todo "" → Seed/seedJson byte-idénticos (sin re-derivar).
@@ -5235,11 +5326,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             "// ownedRefs (FSK-OWNED-REQUIRED-REFS): id sembrado de cada ref REQUERIDO no-dueno de la entidad CON\n"
             "// DUENO (campo -> id), sembrado TRANSITIVAMENTE; /seed lo expone para que el POST del owned traiga FKs\n"
             "// VALIDAS (como `refs` para with_ref, pero de la entidad-con-dueno).\n")
-        owned_refs_arg = ", mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in owned_wiring.items()) + ")"
         owned_refs_json_val = ('    val ownedRefs = seed.ownedRefs.entries'
                                '.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }\n')
     else:
-        owned_refs_doc = owned_refs_arg = owned_refs_json_val = ""
+        owned_refs_doc = owned_refs_json_val = ""
     # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
     # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
     tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
@@ -5257,12 +5347,11 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         wr_wiring = {f["name"]: tvar[f["to"]] for f in with_ref["fields"]
                      if f["type"] == "ref" and not _is_poly(f) and f.get("required", True)}
         seed_qty = "\n" + _seed_chain("qtyId", with_ref, ref_wiring=wr_wiring)
-        qty_arg = ", qtyId"
         # la siembra de la fila de stock empuja seedRows >60 líneas (LongMethod): es un seeder GENERADO 1:1 con
         # los ejes activos (no mantenible a mano) → @Suppress method-level, OPT-IN (byte-neutro sin verbos qty).
         seedrows_suppress = '@Suppress("LongMethod")\n'
     else:
-        seed_qty = qty_arg = seedrows_suppress = ""
+        seed_qty = seedrows_suppress = ""
     conflict_const = "private const val HTTP_CONFLICT = 409\n" if need_conflict else ""
     handlers = _app_server_handlers(owned, f"insert{owned['name']}",
                                     f"delete{owned['name']}", _mutable_field(owned), need_conflict, bool(scope_field))
@@ -5327,7 +5416,6 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             + "\n" + _seed_chain("scopedId", owned, owner_field=owner_field, owner_var="ownerId",
                                  ref_wiring={**owned_wiring, scope_field: "companyBId"}, variant=2,
                                  owner_poly_type=principal_entity if owner_poly else None))
-        cs_arg = ", companyAId, companyBId, scopedId"
         bypass_roles = bp.get("company_scope_bypass_roles") or []
         bypass_set = ("setOf(" + ", ".join(f"Role.{r.upper()}" for r in bypass_roles) + ")") if bypass_roles else "emptySet()"
         company_scope_bypass = (
@@ -5336,7 +5424,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             f"private fun companyScopeBypass(): Set<Role> = {bypass_set}\n")
         listall_token = ", token"
     else:
-        seed_company_scope = cs_arg = company_scope_bypass = listall_token = ""
+        seed_company_scope = company_scope_bypass = listall_token = ""
     # Seed data class + seedJson: armados OPT-IN (rtdId/ownedRefs/company* según ejes) y WRAPPEADOS si pasan
     # MAX_LINE_LENGTH (FSK-COMPANY-SCOPING los empujó >160). Una línea byte-idéntica al previo para los productos
     # sin company-scoping (default/assets) → sin re-derivar.
@@ -5354,8 +5442,32 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     if wr_qty_ops:   # FSK-QTY-OPERATIONS: el id de la fila de stock sembrada (el proof la decrementa hasta 0 → 409)
         seed_params.append("val qtyId: Long")
         json_parts.append('"qtyId":${seed.qtyId}')
+    # FSK-TIME-COMPUTED: si una entidad servida computa un valor sobre el TIEMPO (months_since), /seed expone el
+    # reloj del server (`now` = el FSK_NOW mockeado, vía Repository.today) → el oráculo del proof lo lee de /seed
+    # (single source: el server es la autoridad del reloj; sin literal de fecha duplicado en el oráculo). Opt-in:
+    # sin op de tiempo → seed_params/json_parts byte-idénticos (default/assets sin re-derivar).
+    has_time = any(_ast_uses_time(f["computed"]) for e in served for f in e["fields"] if _is_computed(f))
+    if has_time:
+        seed_params.append("val now: String")
+        json_parts.append('"now":"${seed.now}"')
     seed_decl = _seed_decl_kt(seed_params)
     seed_json = _seed_json_kt(json_parts)
+    # La llamada Seed(...) en seedRows: los args en el MISMO orden que seed_params, OPT-IN (rtd/ownedRefs/company×3/
+    # qty/now según los ejes activos). `_kt_call` la da en UNA línea byte-idéntica al template previo cuando entra en
+    # MAX_LINE_LENGTH (default/assets sin re-derivar) y la ENVUELVE (un arg por línea) si no — con TODOS los ejes
+    # activos (snipeit) la línea pasa de 160 (FSK-TIME-COMPUTED lo surfaceó al sumar `now`). seed_args = single source.
+    seed_args = ["ownedId", "ownerId", ref_map]
+    if owner_optional:
+        seed_args.append("rtdId")
+    if owned_wiring:
+        seed_args.append("mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in owned_wiring.items()) + ")")
+    if scope_field:
+        seed_args += ["companyAId", "companyBId", "scopedId"]
+    if wr_qty_ops:
+        seed_args.append("qtyId")
+    if has_time:
+        seed_args.append("Repository.today.toString()")
+    seed_return = _kt_call("    return ", "Seed", seed_args, "    ")
     return (_APP_SERVER_SKELETON
             .replace("%IMPORTS%", "\n".join(imports))
             .replace("%CODEC%", codec_kt)
@@ -5383,15 +5495,11 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%SEED_OWNED%", seed_owned)
             .replace("%SEED_REF_TARGETS%", seed_ref)
             .replace("%SEED_RTD%", seed_rtd)
-            .replace("%RTD_ARG%", rtd_arg)
             .replace("%OWNED_REFS_DOC%", owned_refs_doc)
-            .replace("%OWNED_REFS_ARG%", owned_refs_arg)
             .replace("%OWNED_REFS_JSON_VAL%", owned_refs_json_val)
-            .replace("%REF_TARGETS_MAP%", ref_map)
             .replace("%SEED_COMPANY_SCOPE%", seed_company_scope)
-            .replace("%CS_ARG%", cs_arg)
             .replace("%SEED_QTY%", seed_qty)
-            .replace("%QTY_ARG%", qty_arg)
+            .replace("%SEED_RETURN%", seed_return)   # FSK-TIME-COMPUTED: Seed(...) armado+envuelto (single source)
             .replace("%SEEDROWS_SUPPRESS%", seedrows_suppress)
             .replace("%SEED_DECL%", seed_decl)
             .replace("%SEED_JSON%", seed_json)
@@ -5487,7 +5595,7 @@ private fun connect(url: String, user: String, pass: String): Connection {
 %SEEDROWS_SUPPRESS%private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
 %SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%%SEED_QTY%
-    return Seed(ownedId, ownerId, %REF_TARGETS_MAP%%RTD_ARG%%OWNED_REFS_ARG%%CS_ARG%%QTY_ARG%)
+%SEED_RETURN%
 }
 
 private fun seedJson(seed: Seed): String {
@@ -5830,10 +5938,10 @@ _POLY_PROOF = '''
 # SÓLO en s9 (access_control_live). Va DENTRO del `if new_id is not None:` (12 indent), ANTES del DELETE (la fila aún
 # existe). Opt-in: sin campo computado en el owned → "" → el proof queda byte-idéntico. El DATA (los AST) va DENTRO.
 _COMPUTED_PROOF = '''
-            COMPUTED = json.loads('%COMPUTED_DATA%')   # [{"name": <campo>, "ast": <AST: num | "campo" | {op,args}>}]%XSRC_SETUP%
+            COMPUTED = json.loads('%COMPUTED_DATA%')   # [{"name": <campo>, "ast": <AST: num | "campo" | {op,args}>}]%XSRC_SETUP%%TIME_SETUP%
 
             def _ceval(node, src):
-                if isinstance(node, dict):
+                if isinstance(node, dict):%CEVAL_TIME%
                     v = [_ceval(x, src) for x in node["args"]]
                     op = node["op"]
                     if op == "-":
@@ -5867,6 +5975,29 @@ _XSRC_SETUP = '''
             XSRC = json.loads('%XSRC_DATA%')   # {"<ref>.<campo>": <valor sembrado del target>}
             _csrc = dict(POST_BODY)
             _csrc.update(XSRC)'''
+
+
+# FSK-TIME-COMPUTED: el setup OPT-IN del oraculo cuando la formula tiene un op de TIEMPO (months_since). `now` = el
+# reloj del server (el FSK_NOW mockeado) LEIDO de /seed -- single source: el server computa `today`, el oraculo lo
+# lee, sin literal de fecha duplicado. `_months_between` replica EXACTO ChronoUnit.MONTHS.between(LocalDate) (meses
+# COMPLETOS date1->date2: (y2-y1)*12 + (m2-m1) - 1 si el dia2 < dia1). Vacio sin op de tiempo -> byte-identico.
+_TIME_SETUP = '''
+            now = seed["now"]   # el reloj del server (FSK_NOW mockeado), expuesto por /seed
+
+            def _months_between(d1, d2):
+                _p1 = [int(_x) for _x in d1.split("-")]
+                _p2 = [int(_x) for _x in d2.split("-")]
+                return (_p2[0] - _p1[0]) * 12 + (_p2[1] - _p1[1]) - (1 if _p2[2] < _p1[2] else 0)'''
+
+
+# FSK-TIME-COMPUTED: la rama OPT-IN de `_ceval` para un nodo de tiempo (months_since) — se evalua ANTES del fold
+# generico (su arg es una FECHA, no un sub-AST numerico: pasarla por `_ceval` reventaria en `float(<fecha>)`).
+# Lee la fecha de `src` (POST_BODY/_csrc) y cuenta los meses hasta `now`; una fecha ausente -> 0.0 (espeja el
+# guard de `monthsSince`). Va justo tras `if isinstance(node, dict):`. Vacio sin op de tiempo -> byte-identico.
+_CEVAL_TIME = '''
+                    if node["op"] == "months_since":
+                        _d = src.get(node["args"][0])
+                        return float(_months_between(_d, now)) if _d is not None else 0.0'''
 
 
 # FSK-CUSTOM-FIELDS (Avenue A): el DIENTE de dos lados del `format` VIVO. Un cuerpo VÁLIDO de tipo (string) pero
@@ -6145,10 +6276,16 @@ def _access_control_check_py(bp: dict) -> str:
     # sin ellas, el bloque usa POST_BODY directo -> byte-identico al previo (same-entity computed sin re-derivar).
     xsrc_setup = _XSRC_SETUP.replace("%XSRC_DATA%", json.dumps(xsrc)) if xsrc else ""
     ceval_src = "_csrc" if xsrc else "POST_BODY"
+    # FSK-TIME-COMPUTED opt-in: si algun campo computado del owned usa un op de tiempo, el oraculo lee `now` de
+    # /seed (el reloj del server) + define `_months_between` + gana la rama `months_since` en `_ceval`. Sin op de
+    # tiempo -> ambos placeholders vacios -> el bloque queda byte-identico al previo (same/cross-entity sin re-derivar).
+    has_time = any(_ast_uses_time(f["computed"]) for f in computed_fields)
     computed_block = (_COMPUTED_PROOF
                       .replace("%COMPUTED_DATA%", json.dumps([{"name": f["name"], "ast": f["computed"]}
                                                               for f in computed_fields]))
                       .replace("%XSRC_SETUP%", xsrc_setup)
+                      .replace("%TIME_SETUP%", _TIME_SETUP if has_time else "")
+                      .replace("%CEVAL_TIME%", _CEVAL_TIME if has_time else "")
                       .replace("%CEVAL_SRC%", ceval_src)) if computed_fields else ""
     # FSK-SOFT-DELETES: el bloque del diente del borrado lógico — sólo si la entidad servida con dueño es soft.
     # Reusa new_id (ya soft-deleteado por el DELETE de arriba). Opt-in: sin `soft_delete` → "" → byte-idéntico.

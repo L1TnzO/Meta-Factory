@@ -1,7 +1,7 @@
 # Incremento FSK-FRONTEND-BROWSER — el frontend GENERADO montado en un BROWSER REAL (headless) + e2e que hace CLICK
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-24T01:02Z). Cerralo flippeando este header a CERRADO **o** con
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-24T14:17Z; ver §Evidencia al final). Creado 2026-06-24T01:02Z. Se cerró flippeando este header **o** con
 > `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
 > (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
@@ -187,3 +187,46 @@ consume, renderiza-a-string y deploya). Lo que RESTA son DOS ejes de breadth: **
 (este — el de mayor retorno percibido) y **(b) servir todas las entidades/rutas**. Tras ellos, el resto (time-elapsed,
 Kits, Actionlog, EAV, PUT-opcionales) es profundidad-de-detalle. El siguiente GRAN hito visible es que la app se VEA y se
 USE en un navegador.
+
+---
+
+## §Evidencia (CERRADO 2026-06-24T14:17Z)
+
+**Qué se construyó** (todo en `codegen/scaffold_product.py` + `factory.spec.yml`, FÁBRICA/GENERAL, opt-in a `owned_by`):
+- **AppServer mismo-origen**: `GET /` (página `index.html` mínima) + `GET /app.js` (sirve el bundle desde disco vía
+  `FSK_WEB_DIR`, default `frontend/dist`); helpers `respondWeb`/`webFile`/`serveApp` (contexto `/` catch-all). `respond`
+  (application/json) intacto. La página + el bundle se generan TS-side → cero raw-string Kotlin.
+- **Bundle del browser**: `frontend/src/browser_entry.ts` (entry, `tsc --strict`) importa `mount<E>` y al cargar la
+  página REAL lo invoca contra `location.origin`; `frontend/build_bundle.mjs` (esbuild) → IIFE `dist/app.js` +
+  `dist/index.html`.
+- **Proof Playwright**: `frontend/browser_check.ts` (no type-checked) maneja Chromium vía `playwright-core` (1.59.1 →
+  rev 1217, binario en `~/.cache/ms-playwright`), abre `GET /`, espera el selector `li`, asevera que cada fila viva
+  (mismo `GET /<plural>` que `mount<E>`) aparece como `<li>` en el DOM REAL.
+- **Check `frontend_browser_live`** (4º infra_up de s9): server 18597 + PG 5438 + el bundle en el bootstrap. Capability
+  `frontend_browser_render` (DES-7) + **REQ-F-020**. `playwright-core` en `package.json` + SBOM (`_direct_dependencies`).
+
+**RIESGO #1 (browser en sandbox) — RESUELTO**: Chromium headless REAL corre acá (`--no-sandbox`); binario cacheado en
+HOME → sobrevive el clon limpio de `ci --rederive` (precondición de entorno como docker/SAFE-3); `playwright-core` sin
+postinstall-download → `npm install` limpio.
+
+**Verde por bloqueo (demostrado, no narrado)**:
+- **EYEBALL HEAD-vs-working** (importlib build_files): los 3 productos ganan la MISMA capa IDÉNTICA — +`browser_entry.ts`
+  /`build_bundle.mjs`/`browser_check.ts`, cambian `AppServer.kt`/`package.json`/`sbom.json`; cero nombres de dominio.
+- **product-run** base/assets/snipeit **PASS**.
+- **RTM base 26/26 COMPLETE · snipeit 25/26** (único UNSAT = REQ-F-007/s6 LLM keyless); `REQ-F-020 SATISFIED <-
+  frontend_browser_render: s9 [build/product/frontend/browser_check.ts✓]`.
+- **Diente de DOS lados VIVO y preciso** (contra la DIST REAL + PG + Chromium, no stub): degradar `renderAssetList` →
+  "lista viva ≥1 fila" VERDE (server vivo, `/health` 200) + "cada fila se renderiza" ROJO (esperaba `true`, obtuvo
+  `false`); revertir → verde. (Pre-validado además con un stub server same-origin en Chromium real, antes de gradle.)
+- **`ci --rederive`** base **12/12** · assets **11/11** · snipeit **11/11** == pin (re-pin: SÓLO `s9` cambió en los 3).
+- **`meta check` 6/6** (compile · docs · projection · isolation · generality · suite) · **`git diff src/metafactory +
+  seed = 0`**.
+
+**GOTCHAS caras capturadas** (para la próxima): (1) editar `factory.spec.yml` `station_sequence` re-materializa los
+PRODUCTOS pero **NO** la línea base committeada (`stations/<id>.yml`) — sincronizarla a mano (re-materializar del spec
+con `render_text`+subst `package_name=webapp`), si no base pasa VERDE sin el check nuevo. (2) ktlint **NoMultipleSpaces**
+(un multi-espacio antes de `//` → s2 rojo). (3) Pre-validá barato SIN gradle: `tsc --noEmit` + `eslint` + `esbuild` +
+un stub HTTP same-origin con Chromium real.
+
+**SIGUIENTE abierto**: **FSK-SERVE-ALL-ENTITIES** (servir TODAS las entidades del blueprint a runtime, no sólo owned + 1
+ownerless + 1 with_ref) — `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md` (handoff autocontenido).

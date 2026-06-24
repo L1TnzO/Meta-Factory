@@ -1,6 +1,50 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T14:17Z — FSK-FRONTEND-BROWSER ✅: el frontend GENERADO en un Chromium HEADLESS REAL (Playwright, mismo-origen) — 1er eje de BREADTH tras el núcleo
+- **El núcleo estaba COMPLETO; éste abre la BREADTH con el eje de mayor retorno percibido: que la app se VEA en un
+  navegador de verdad.** Hasta hoy el frontend GENERADO (`render<E>List`/`mount<E>`) se ejercitaba en `node + jsdom`
+  (sin browser real). Ahora se monta en un **Chromium HEADLESS REAL** vía Playwright. Determinista, hermético, todo en
+  `codegen/scaffold_product.py` + `factory.spec.yml` (FÁBRICA, GENERAL, opt-in a `owned_by`); **`src/metafactory/ +
+  seed/ = 0`**.
+- **RIESGO #1 resuelto PRIMERO** (como mandaba el handoff): un Chromium real ES factible acá. Binario cacheado en
+  `~/.cache/ms-playwright` (HOME → sobrevive el clon limpio de `ci --rederive`, precondición de entorno como docker/
+  SAFE-3); **`playwright-core` pineado a 1.59.1 → rev chromium 1217** (mapea al binario cacheado); `--no-sandbox`
+  requerido. `playwright-core` NO descarga browser en postinstall → `npm install` limpio (1 paquete).
+- **Mismo-origen (sin CORS) — la decisión de diseño clave**: el AppServer (`com.sun.net.httpserver`) gana `GET /` (una
+  página mínima `index.html`) + `GET /app.js` (sirve el bundle desde disco vía `FSK_WEB_DIR`, default `frontend/dist`) →
+  la página y su `fetch` viven en el MISMO origen. Helpers Kotlin nuevos: `respondWeb`/`webFile`/`serveApp` (contexto
+  `/` catch-all; las rutas específicas ganan por prefijo); `respond` (application/json) intacto. La página + el bundle se
+  generan **TS-side** (no en el Kotlin) → cero raw-string Kotlin (evita el riesgo ktlint de indent de raw-strings).
+- **El bundle**: `frontend/src/browser_entry.ts` (entry, type-checked por `tsc --strict` en s2) importa `mount<E>` y al
+  cargar la página REAL lo invoca contra `location.origin`; `frontend/build_bundle.mjs` (esbuild, ya dep de s8)
+  bundlea a un IIFE (`dist/app.js`) + escribe `dist/index.html`. El `import type` de `gen/api.ts` lo dropea esbuild.
+- **El proof**: `frontend/browser_check.ts` (NO type-checked, como `consume_check.ts`) maneja Chromium vía
+  `playwright-core`: abre `GET /`, espera el selector `li` (determinista, no sleep), y asevera que cada fila viva
+  (derivada del MISMO `GET /<plural>` que `mount<E>` usa → siempre == la lista renderizada salvo que el render mienta)
+  aparece como `<li>` en el **DOM REAL**. **4º check infra_up de s9 `frontend_browser_live`** (server 18597 + PG 5438 +
+  el bundle en el bootstrap).
+- **Diente de DOS lados VIVO y preciso** (verificado contra la DIST REAL + PG + Chromium): degradar `renderAssetList`
+  → "lista viva ≥1 fila" queda VERDE (server vivo, `/health` 200, data fluye) mientras "cada fila se renderiza" flipea
+  ROJO (esperaba `true`, obtuvo `false`); revertir → verde. Distingue server-vivo de render-roto. Server/página caídos →
+  no carga → rojo (nativo de infra_up).
+- **`playwright-core` en el SBOM** (`_direct_dependencies`, single source con `package.json`): el scanner de s4 lo
+  inventaria (no está en el oráculo de advisories → sin falso positivo). Honesto: la dep shippeada figura en el SBOM.
+- **GOTCHA cara (capturada)**: editar el `station_sequence` de `factory.spec.yml` re-materializa los PRODUCTOS
+  (assets/snipeit, vía `ensure_product_instance`) pero **NO** la línea base committeada en `stations/<id>.yml` (base
+  ejecuta su `stations/` committeado). Hay que sincronizar `stations/s9.yml` a mano (re-materializado del spec con
+  `render_text`+subst `package_name=webapp`). Sin esto, base pasa VERDE pero SIN el check nuevo (su pin no cambia,
+  `dist/app.js` ausente). Otra: **ktlint NoMultipleSpaces** (un triple-espacio antes de `//` me rojó s2; un solo
+  espacio). Pre-validé barato SIN gradle (tsc/eslint/esbuild + un stub server same-origin con Chromium real).
+- **Verde por bloqueo (demostrado, no narrado)**: EYEBALL HEAD-vs-working (los 3 productos ganan la MISMA capa
+  IDÉNTICA: +`browser_entry.ts`/`build_bundle.mjs`/`browser_check.ts`, cambian `AppServer.kt`/`package.json`/`sbom.json`,
+  cero nombres de dominio) · **product-run** base/assets/snipeit PASS · **RTM base 26/26 · snipeit 25/26** (único UNSAT
+  = REQ-F-007/s6 LLM keyless), REQ-F-020 `frontend_browser_render` (DES-7) SATISFIED · diente de dos lados VIVO ·
+  **`ci --rederive` base 12/12 · assets 11/11 · snipeit 11/11 == pin** (re-pin: SÓLO s9 cambió en los 3) · **`meta
+  check` 6/6** · **`git diff src/metafactory + seed = 0`**. RTM default 25→26.
+- Detalle + handoff del siguiente: `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia`. SIGUIENTE abierto:
+  **FSK-SERVE-ALL-ENTITIES** (servir TODAS las entidades del blueprint, no sólo 3) — `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md`.
+
 ## 2026-06-24T01:00Z — FSK-XENTITY-DEPTH2 ✅: un campo computado cruza una CADENA de refs `<r1>.<r2>.<campo>` (depth-2) — VALORES DERIVADOS faithful COMPLETO
 - **El ÚLTIMO refinamiento genuino de VALORES DERIVADOS.** FSK-XENTITY-COMPUTED (depth-1) leía `model_id.depreciation_months`
   (el ref DIRECTO Asset→AssetModel). En Snipe-IT REAL el período vive en `Depreciation`, alcanzado por

@@ -363,12 +363,22 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     (null-safe → 0.0). Diente de DOS lados VIVO (s9, degradar el 2º JOIN → SÓLO access_control_live rojo). `git diff
     src/+seed=0`, sin re-pin. **EL NÚCLEO (modelo·acceso·comportamiento·valores-derivados) está COMPLETO.** Ver
     `docs/work/FSK-OWNER-POLY-INCREMENT.md` + `…/FSK-XENTITY-DEPTH2-INCREMENT.md §Evidencia` (fábrica) + los `…-ADOPT…`.
-17. **Diferidos DUROS** (breadth/profundidad-de-detalle — los flecos, NO el corazón): **frontend en un BROWSER real +
-    e2e Playwright** (hoy el frontend es un consumer node, no hay React montado — la alternativa de MAYOR retorno
-    percibido) · las **~226 rutas** (hoy el AppServer sirve un subconjunto: owned + 1 ownerless + 1 with_ref) ·
-    **time-elapsed** (`current_value` sobre meses TRANSCURRIDOS, FSK-TIME-COMPUTED, necesita mockear `now`) ·
-    AppServer-en-contenedor con PG (s11 hoy usa el ObsServer PG-free) · push de la imagen a un registry · EAV dinámico
-    a runtime (Avenue B) · Actionlog (auditoría polimórfica) · Kits (bundles) · PUT de campos opcionales arbitrarios.
+17. ~~**Frontend en un BROWSER real**~~ **✓ HECHO** (FSK-FRONTEND-BROWSER, 2026-06-24) — el frontend GENERADO se monta
+    en un **Chromium HEADLESS REAL** (Playwright), NO jsdom: el entry del bundle (`browser_entry.ts`, esbuild→
+    `dist/app.js`) llama `mountAsset` al cargar la página servida MISMO-ORIGEN por el AppServer (`GET /` + `GET
+    /app.js`, sin CORS), trae la lista VIVA (PG real detrás) y la renderiza en el **DOM REAL** del navegador. Check
+    `frontend_browser_live` (s9, infra_up, server propio 18597 + PG 5438); diente de DOS lados VIVO (garblear
+    `renderAssetList` → la fila no aparece en el DOM real → SÓLO este check rojo, "lista viva ≥1" verde = server vivo).
+    `playwright-core` pineado (rev chromium 1217, binario en `~/.cache/ms-playwright` — precondición de entorno como
+    docker). `git diff src/+seed=0`. **Sigue diferido** (item 18): el e2e del **submit del FORM** en browser real (hoy
+    el render de la LISTA está en Chromium; el FORM sigue sólo en jsdom). Ver `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia`.
+18. **Diferidos DUROS** (breadth/profundidad-de-detalle — los flecos, NO el corazón): las **~226 rutas / servir TODAS
+    las entidades** (hoy el AppServer sirve un subconjunto: owned + 1 ownerless + 1 with_ref — **el siguiente gran hito
+    de superficie**, ver `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md`) · **time-elapsed** (`current_value` sobre meses
+    TRANSCURRIDOS, FSK-TIME-COMPUTED, necesita mockear `now`) · **e2e del FORM en browser** (extender FSK-FRONTEND-BROWSER
+    al submit en Chromium) · AppServer-en-contenedor con PG (s11 hoy usa el ObsServer PG-free) · push de la imagen a un
+    registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · Kits (bundles) · PUT de campos
+    opcionales arbitrarios.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

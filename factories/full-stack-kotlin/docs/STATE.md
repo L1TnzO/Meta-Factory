@@ -29,6 +29,22 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **FRONTEND EN UN BROWSER REAL — el 1er eje de BREADTH tras el núcleo (FSK-FRONTEND-BROWSER, 2026-06-24)**: el frontend
+  GENERADO dejó de probarse SÓLO en jsdom y se monta en un **Chromium HEADLESS REAL** (Playwright). El AppServer gana
+  `GET /` (una página mínima) + `GET /app.js` (sirve el bundle desde disco vía `FSK_WEB_DIR`) → MISMO-ORIGEN (sin CORS);
+  un entry de bundle (`frontend/src/browser_entry.ts`, type-checked por `tsc --strict`) importa `mount<E>` y al cargar la
+  página REAL lo invoca contra `location.origin` → trae la lista VIVA (`GET /<plural>`, PG real detrás) y la renderiza en
+  el **DOM REAL** del navegador; esbuild (`build_bundle.mjs`, ya dep de s8) lo bundlea a un IIFE + escribe `index.html`. El
+  proof (`frontend/browser_check.ts`) maneja Chromium vía **`playwright-core`** (rev pineada 1217; binario en
+  `~/.cache/ms-playwright`, precondición de entorno como docker) y asevera que cada fila viva (mismo `GET /<plural>` que
+  `mount<E>`) aparece como `<li>` en el DOM real. **4º check infra_up de s9 `frontend_browser_live`** (server 18597 + PG
+  5438 + el bundle). Diente de DOS lados VIVO (degradar `render<E>List` → la fila no aparece en el DOM real → SÓLO el
+  check nuevo rojo, "lista viva ≥1" verde = server/data vivos; verificado contra la dist real). **Anti-overfit**: todo en
+  `codegen/scaffold_product.py` + `factory.spec.yml` (FÁBRICA, GENERAL — los 3 productos ganan la misma capa IDÉNTICA,
+  cero nombres de dominio); **`git diff src/metafactory + seed = 0`**. RTM snipeit **25/26** (REQ-F-020, capability
+  `frontend_browser_render`, DES-7). **Con el núcleo COMPLETO, éste abre la BREADTH; el siguiente eje grande de superficie
+  = servir TODAS las entidades** (`docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md`). Detalle:
+  `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia` · `docs/LOG.md`.
 - **OWNER POLIMÓRFICO — el ÚLTIMO gap de MODELO+AUTH (FSK-OWNER-POLY, 2026-06-24): NÚCLEO COMPLETO.** El campo
   `owned_by` de una entidad puede ser un ref POLIMÓRFICO → el dueño de la fila cruza una UNIÓN `(tipo, id)` en vez de
   un `Long` único (wrinkle #3, CERRADO). Camino BOUNDED que COMPONE FSK-OWNERSHIP-OPTIONAL + FSK-POLYMORPHIC-REFS,

@@ -1,6 +1,39 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T17:30Z — FSK-TIME-COMPUTED ✅: un campo computado depende del TIEMPO TRANSCURRIDO (meses entre una fecha y `now`) — la dimensión de valores-derivados COMPLETA
+- **El último fleco de VALORES DERIVADOS y el más bounded.** Hasta hoy un campo computado podía cruzar campos
+  numéricos same-entity (FSK-COMPUTED-FIELDS) y cadenas de refs cross-entity (FSK-XENTITY-COMPUTED/DEPTH2), pero NO el
+  TIEMPO. Ahora el AST gana un operando de tiempo `months_since(<campo date>)` = los MESES TRANSCURRIDOS entre esa
+  fecha y `now`. `Asset.current_value` (snipeit) deja de ser una constante por-modelo y se vuelve la depreciación
+  straight-line REAL: `max(purchase_cost − (purchase_cost/period_months) * months_since(purchase_date), 0)` — BAJA con
+  el tiempo. Todo en `codegen/scaffold_product.py` (FÁBRICA, GENERAL); **`src/metafactory/ + seed/ = 0`**.
+- **El WRINKLE central — `now` es NO-determinista — resuelto por mock + single-source:** el server lee
+  `today = System.getenv("FSK_NOW")?.let(LocalDate::parse) ?: LocalDate.now()` (default = hoy real; el `up` de s9
+  access_control_live fija `FSK_NOW=2030-07-15`, DATA del spec, sin nombres de dominio). El reloj se expone por
+  **`/seed` (`now`)** → el oráculo del proof lo LEE de ahí, NO de un literal duplicado: el server es la ÚNICA autoridad
+  del reloj, sin riesgo de drift entre server y oráculo. `monthsSince(d, today)` replica `ChronoUnit.MONTHS.between`;
+  el oráculo Python `_months_between` la espeja exacto (`(y2−y1)*12+(m2−m1)−1 si d2<d1`).
+- **La maquinaria (extiende, no reescribe):** op de tiempo en un set cerrado `_COMPUTED_TIME_OPS` (fail-closed: el arg
+  DEBE ser un campo `date` de la entidad) · `_computed_date_srcs` separa las fuentes `date` (leídas como LocalDate) de
+  las numéricas · rowJson emite `val mX = monthsSince(r[TBL.COL], today)` + los miembros `today`/`monthsSince` del
+  Repository (opt-in, sólo si hay op de tiempo → sin él, byte-neutro + sin import/unused) · `/seed` gana `now` opt-in.
+  Surfaceó **ktlint PropertyWrapping (>120, ≠ MaxLineLength 160)**: la fórmula engordada (136) exige el valor en su
+  propia línea → el computed-val ahora se envuelve a 120. Y la línea `Seed(...)` con todos los ejes (+`now`) pasó de
+  160 → se ARMA como lista + se ENVUELVE con `_kt_call` (single source; una línea byte-idéntica cuando entra).
+- **Probado por bloqueo (ojos propios):** EYEBALL (base/assets **byte-IDÉNTICO**; snipeit Repository/AppServer/proof) ·
+  `product-run` snipeit **PASS** · RTM snipeit **25/26** (único UNSAT = REQ-F-007/s6 LLM keyless) · **DIENTE vivo de
+  DOS lados** contra dist recompilado + PG real: con `FSK_NOW=2030-07-15` el GET `current_value == 21.25` (la fórmula
+  re-derivada, observable y NO saturada); saboteado `ChronoUnit.MONTHS`→`YEARS` → **SÓLO** `[computed]` rojo (1 rojo /
+  178 verdes, los 47 hermanos ops/qty/creates/with-ref/ownership/scope VERDES → server vivo) → revertí → verde.
+  **BONUS (prueba que `now` entra):** el MISMO asset con dos relojes → `FSK_NOW=2030-06-20`→`42.5` (0 meses) vs
+  `2030-07-15`→`21.25` (1 mes). · `git diff src+seed=0`. **proof_sha byte-neutro → SIN re-pin** (extiende el rowJson y
+  el oráculo del check `access_control_live` existente, no agrega check/estación). `ci --rederive --all-products` ==
+  pin (12·11·11). Detalle: `work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia`.
+- **NÚCLEO + SUPERFICIE + VALORES-DERIVADOS COMPLETOS.** De acá, sólo profundidad-de-detalle. **Siguiente abierto:
+  `FSK-FORM-BROWSER-E2E`** (el submit del FORM en un Chromium REAL — hoy FSK-FRONTEND-BROWSER prueba el RENDER de la
+  lista en el navegador; el submit del FORM sigue sólo en jsdom). Handoff en `work/FSK-FORM-BROWSER-E2E-INCREMENT.md`.
+
 ## 2026-06-24T15:45Z — FSK-SERVE-ALL-ENTITIES ✅: el AppServer vivo monta CRUD para TODAS las entidades servibles — última superficie del backend faithful
 - **El núcleo + el frontend-en-browser estaban hechos; éste cierra la BREADTH de SUPERFICIE: que TODO el dominio sea
   usable a runtime, no sólo 3 entidades representativas.** Hasta hoy el AppServer montaba CRUD para la entidad con dueño

@@ -29,6 +29,22 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **VALORES DERIVADOS COMPLETOS — un campo computado depende del TIEMPO transcurrido (FSK-TIME-COMPUTED, 2026-06-24)**:
+  el AST de un campo computado gana el operando de TIEMPO `months_since(<campo date>)` = los MESES entre una fecha y
+  `now`. `Asset.current_value` (snipeit) dejó de ser una constante por-modelo y se volvió la depreciación straight-line
+  REAL `max(purchase_cost − (purchase_cost/model_id.depreciation_id.months) * months_since(purchase_date), 0)` — BAJA con
+  el tiempo. **El wrinkle `now` no-determinista** se resuelve por MOCK (`FSK_NOW`, el server lo lee, default = hoy real) +
+  SINGLE-SOURCE: el server EXPONE `now` por `/seed` → el oráculo del proof lo LEE de ahí, sin literal duplicado (cero
+  drift). `monthsSince`=`ChronoUnit.MONTHS.between`; el oráculo Python lo espeja. Extiende, no reescribe: op de tiempo en
+  un set cerrado fail-closed (arg = campo `date`), `today`/`monthsSince` miembros opt-in del Repository, rowJson +
+  oráculo opt-in. Surfaceó **ktlint PropertyWrapping (>120 ≠ MaxLineLength 160)** → el computed-val se envuelve a 120; y
+  la línea `Seed(...)` con `now` pasó de 160 → se arma como lista + se envuelve con `_kt_call`. **Probado por bloqueo**:
+  base/assets **byte-IDÉNTICO**; `product-run` snipeit PASS (RTM 25/26); **diente vivo dos-lados** (`MONTHS`→`YEARS` →
+  SÓLO `[computed]` rojo: 1 rojo / 178 verdes, server vivo) + **bonus** (dos `FSK_NOW` → `42.5` vs `21.25`, prueba que
+  `now` entra); `ci --rederive --all-products` == pin (12·11·11, **SIN re-pin**: proof_sha exit-code-based); `meta check`
+  6/6; **`git diff src/metafactory + seed = 0`**. **La dimensión de VALORES DERIVADOS (same-entity + cross-entity depth-N
+  + tiempo) queda COMPLETA.** Detalle: `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` · `docs/LOG.md`. Siguiente:
+  `FSK-FORM-BROWSER-E2E` (el submit del FORM en un Chromium real).
 - **TODO EL DOMINIO USABLE A RUNTIME — la última superficie del backend faithful (FSK-SERVE-ALL-ENTITIES, 2026-06-24)**:
   el AppServer vivo dejó de montar CRUD para sólo **3 entidades representativas** (la con dueño + la 1ª ownerless + la 1ª
   with_ref) y ahora monta CRUD RBAC/ownership-aware para **TODAS las entidades servibles** → **snipeit sirve 18** (era 3).

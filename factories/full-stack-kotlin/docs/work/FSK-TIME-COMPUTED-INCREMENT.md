@@ -1,9 +1,8 @@
 # Incremento FSK-TIME-COMPUTED — un campo computado depende del TIEMPO TRANSCURRIDO (meses entre una fecha y `now`)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-24). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-24T17:30Z). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige un
+> incremento de fábrica abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Asumí amnesia total. Lo escribió la sesión que
 > cerró FSK-SERVE-ALL-ENTITIES con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
@@ -182,3 +181,60 @@ querés mayor VALOR:
 se sirven a runtime, el frontend se VE en un navegador REAL y deploya (smoke).** Lo que RESTA es profundidad-de-detalle
 (time-elapsed —ESTE—, deploy del AppServer-en-contenedor, FORM-en-browser, Kits, Actionlog, EAV, PUT-opcionales). No queda
 ningún hueco de SUPERFICIE ni de NÚCLEO: son refinamientos.
+
+---
+
+## §Evidencia (CERRADO 2026-06-24T17:30Z)
+
+**Qué se construyó.** El AST de un campo computado gana el operando de TIEMPO `months_since(<campo date>)` = los MESES
+TRANSCURRIDOS entre esa fecha y `now`. `Asset.current_value` (snipeit) pasó de la depreciación de UN período (constante
+por-modelo) a la straight-line REAL sobre los meses transcurridos desde `purchase_date`:
+`max(purchase_cost − (purchase_cost / model_id.depreciation_id.months) * months_since(purchase_date), 0)` — el valor
+BAJA con el tiempo. Cierra la dimensión de VALORES DERIVADOS (same-entity + cross-entity depth-N + TIEMPO). Todo en
+`codegen/scaffold_product.py` (FÁBRICA, GENERAL, cero nombres de dominio) + el `up` de s9 (DATA del spec) + el blueprint
+de snipeit (adopción, su propio incremento `TIME-COMPUTED-ADOPT`).
+
+**El wrinkle `now` no-determinista, resuelto por MOCK + SINGLE-SOURCE.** El server lee
+`today = System.getenv("FSK_NOW")?.let(LocalDate::parse) ?: LocalDate.now()` (default = hoy real; el `up` de
+`access_control_live` fija `FSK_NOW=2030-07-15`, DATA del spec sin nombres de dominio) y lo EXPONE por `/seed` (`now`).
+El oráculo del proof LEE `seed["now"]` — NO un literal duplicado: el server es la única autoridad del reloj, sin drift
+posible entre server y oráculo. `monthsSince(d, today)` = `ChronoUnit.MONTHS.between`; el oráculo Python `_months_between`
+la espeja exacto.
+
+**Maquinaria (extiende, no reescribe).** `_COMPUTED_TIME_OPS={months_since}` (UNARIO, fail-closed: el arg DEBE ser un
+campo `date` de la entidad) validado en `_validate_computed_ast` ANTES del set numérico · `_computed_date_srcs` separa
+las fuentes `date` de las numéricas (`_computed_srcs` poda el arg del op de tiempo) · `_computed_kt` rama `months_since`
+→ el `val` pre-computado · rowJson emite `val m<X> = monthsSince(r[TBL.COL], today)` + los miembros `today`/`monthsSince`
+del Repository (opt-in: sólo con op de tiempo → sin él byte-neutro + sin import java.time + sin UnusedPrivateMember) ·
+`/seed` gana `now` (opt-in) · el oráculo gana `%TIME_SETUP%`/`%CEVAL_TIME%` (opt-in).
+
+**2 sorpresas de ktlint a escala, arregladas GENERAL** (opt-in por tamaño → default/assets byte-idénticos):
+1. **PropertyWrapping (>120, INDEPENDIENTE del MaxLineLength=160)**: la fórmula engordada por `* months_since(...)` llegó
+   a 136 → ktlint exige el valor del `val` en su propia línea. El computed-val ahora se envuelve a `PROPERTY_WRAP` (120)
+   con continuación a +4 (sólo si pasa; bajo 120 queda byte-idéntico).
+2. **La línea `Seed(...)` con TODOS los ejes + `now` pasó de 160** → se ARMA como lista de args (single source,
+   reemplaza los 6 placeholders `%REF_TARGETS_MAP%`/`%RTD_ARG%`/… concatenados) y se ENVUELVE con `_kt_call`: una línea
+   byte-idéntica al template previo cuando entra, multilínea (un arg por línea, coma final) cuando no.
+
+**Probado por bloqueo (ojos propios).**
+- **EYEBALL** (`importlib`, HEAD vs working sin gradle): base/assets **byte-IDÉNTICO** (+0 −0 ~0); snipeit cambia
+  Repository.kt + AppServer.kt + access_control_check.py; **0 líneas Kotlin >160**. El oráculo Python re-derivado da
+  `current_value = 21.25` (observable, NO saturado al piso).
+- **`product-run --product snipeit` PASS** (línea s0–s11). RTM snipeit **25/26** (único UNSAT = REQ-F-007 / s6 LLM keyless).
+- **DIENTE vivo de DOS lados** (dist recompilado + PG real en docker, server por `java -cp` con `FSK_NOW`):
+  - GREEN: `/seed` expone `now=2030-07-15`; el proof asevera `[computed] GET ve current_value == formula determinista
+    -> 21.25`. exit 0.
+  - SABOTAJE `ChronoUnit.MONTHS`→`YEARS` (degrade de runtime, compila): **exit 1 con 1 SOLA aserción roja** —
+    `[computed]: esperaba 21.25, obtuvo 42.5` — y **178 verdes** (los 47 hermanos ops/qty/creates/with-ref/ownership/
+    scope VERDES → el server vive: el diente es PRECISO, no un server-down falso-rojo). Revertí → verde.
+  - **BONUS (prueba que `now` ENTRA):** el MISMO asset con dos relojes → `FSK_NOW=2030-06-20` → `current_value=42.5`
+    (0 meses, sin depreciación) vs `FSK_NOW=2030-07-15` → `21.25` (1 mes). El valor depende del reloj = depreciación REAL.
+- **`git diff src/metafactory + seed = 0`** (la mejora vivió 100% en DATA de fábrica + codegen).
+- **proof_sha byte-neutro → SIN re-pin** (extiende el rowJson + el oráculo del check `access_control_live` existente,
+  no agrega check ni estación; `compute_proof_sha` es exit-code-based). **`ci --rederive --all-products` == pin** (base
+  12/12 · assets 11/11 · snipeit 11/11) · **`meta check` 6/6** (`generality` verde). [confirmado por re-derivación en
+  clon limpio; bulk delegado a subagente Sonnet, veredictos cruzados]
+
+**Adopción (producto):** `products/snipeit/docs/work/TIME-COMPUTED-ADOPT-INCREMENT.md` — `purchase_date` → requerida
+(observable; el mecanismo admite `date` opcional → 0 meses, residual igual que el ref-del-medio de DEPTH-2) +
+`current_value` multiplica la cuota mensual por `months_since(purchase_date)`.

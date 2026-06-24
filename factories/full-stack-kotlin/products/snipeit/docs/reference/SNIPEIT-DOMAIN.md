@@ -234,10 +234,13 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    entidades RELACIONADAS (cadena de LEFT JOINs al target final). `Asset.current_value = max(purchase_cost −
    purchase_cost/model_id.depreciation_id.months, 0)`: lee `Depreciation.months` (el período REAL) por DEPTH-2
    (`Asset→AssetModel→Depreciation`, 2 JOINs) — **FSK-XENTITY-DEPTH2, 2026-06-24 (cierra el deferral 13)**.
-   **DIFERIDO**: sólo el **time-elapsed** (`meses_transcurridos` desde la compra hasta hoy) del straight-line completo,
-   eje aparte **FSK-TIME-COMPUTED** (necesita mockear `now` en el oráculo). Detalle:
+   **time-elapsed ✓ HECHO (FSK-TIME-COMPUTED, 2026-06-24)**: el AST gana el operando de TIEMPO
+   `months_since(<campo date>)` (meses entre una fecha y `now`, mockeable por `FSK_NOW`, expuesto por /seed → el
+   oráculo lo lee, single source) → `Asset.current_value = max(purchase_cost − (purchase_cost/model_id.depreciation_id.months)
+   * months_since(purchase_date), 0)` = la depreciación straight-line REAL que BAJA con el tiempo. **La dimensión de
+   VALORES DERIVADOS queda COMPLETA** (same-entity + cross-entity depth-N + tiempo). Detalle:
    `docs/work/FSK-COMPUTED-FIELDS-INCREMENT.md` + `…/FSK-XENTITY-COMPUTED-INCREMENT.md` + `…/FSK-XENTITY-DEPTH2-INCREMENT.md`
-   (fábrica) + los `…-ADOPT-INCREMENT.md` (producto).
+   + `…/FSK-TIME-COMPUTED-INCREMENT.md` (fábrica) + los `…-ADOPT-INCREMENT.md` (producto).
 
 8. ~~**Multi-tenancy / company scoping**~~ **✓ HECHO** (FSK-COMPANY-SCOPING, 2026-06-22): el 1er eje de
    ACCESO-POR-ATRIBUTO (ABAC) y el 1er FILTRADO DE LECTURA. Una entidad con dueño declara
@@ -377,11 +380,18 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     El dominio ENTERO es usable a runtime; el proof ejercita de dos lados 7 entidades nuevas. (La superficie *total* de
     Snipe-IT son ~226 rutas con sub-recursos/acciones operativas no-dominio —counters, image, ldap, 2FA— fuera de alcance;
     el CRUD de cada ENTIDAD del dominio está cubierto.) Ver `docs/work/FSK-SERVE-ALL-ENTITIES-INCREMENT.md §Evidencia`.
-19. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **time-elapsed** (`current_value`
-    sobre meses TRANSCURRIDOS, FSK-TIME-COMPUTED, necesita mockear `now` — **el siguiente**) · **e2e del FORM en browser**
-    (extender FSK-FRONTEND-BROWSER al submit en Chromium) · AppServer-en-contenedor con PG (s11 hoy usa el ObsServer
-    PG-free) · push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) ·
-    Kits (bundles) · PUT de campos opcionales arbitrarios.
+19. **Depreciación sobre el TIEMPO transcurrido ✅ (FSK-TIME-COMPUTED, 2026-06-24)** — el ÚLTIMO fleco de VALORES
+    DERIVADOS. El AST gana el operando de TIEMPO `months_since(<campo date>)` (meses entre una fecha y `now`); `now` se
+    mockea por `FSK_NOW` (el server lo lee + lo expone por /seed → el oráculo lo lee de ahí, single source, sin literal
+    duplicado). `Asset.current_value` pasó de la depreciación de UN período (constante por-modelo) a la straight-line
+    REAL sobre los meses transcurridos desde `purchase_date` → BAJA con el tiempo. **La dimensión de VALORES DERIVADOS
+    (same-entity + cross-entity depth-N + tiempo) queda COMPLETA.** Diente de DOS lados VIVO (s9, `MONTHS`→`YEARS` → sólo
+    `[computed]` rojo) + bonus (dos `FSK_NOW` → distinto `current_value`). `git diff src/+seed=0`, sin re-pin. Ver
+    `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` + `…/TIME-COMPUTED-ADOPT-INCREMENT.md` (producto).
+20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **e2e del FORM en browser**
+    (extender FSK-FRONTEND-BROWSER al submit en Chromium — **el siguiente**) · AppServer-en-contenedor con PG (s11 hoy
+    usa el ObsServer PG-free) · push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog
+    (auditoría polimórfica) · Kits (bundles) · PUT de campos opcionales arbitrarios.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

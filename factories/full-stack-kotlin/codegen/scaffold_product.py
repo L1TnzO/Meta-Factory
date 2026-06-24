@@ -169,6 +169,22 @@ def _poly_subfields(f: dict) -> list[dict]:
     ]
 
 
+def _owner_poly(e: dict) -> dict | None:
+    """El campo `owned_by` de `e` SI es un ref POLIMÓRFICO (FSK-OWNER-POLY, wrinkle #3): el dueño de la fila cruza
+    una UNIÓN `(tipo, id)` en vez de un `Long` único. None si `e` no tiene dueño o el dueño es un ref simple
+    (→ byte-idéntico para todo lo previo). El último gap de MODELO+AUTH: en Snipe-IT `assigned_to` ES el owner Y es
+    polimórfico (User|Location|Asset). Camino BOUNDED (compone FSK-OWNERSHIP-OPTIONAL + FSK-POLYMORPHIC-REFS, cero
+    modelo nuevo de auth): un owner de tipo NO-principal (Location/Asset) se comporta EXACTO como un owner NULL (no
+    hay principal contra quien cruzar → sólo bypass modifica). CONVENCIÓN: `targets[0]` = la entidad-principal (el
+    tipo del principal del token, un User). El gating vive en `modifyVerdict` (effectiveOwnerId = ownerType ==
+    principal ? ownerId : null) → `OwnershipGuard.canModify` (Long?) queda INTACTO (reusa el branch owner-NULL)."""
+    ob = e.get("owned_by")
+    if not ob:
+        return None
+    f = next((g for g in e["fields"] if g["name"] == ob), None)
+    return f if f is not None and _is_poly(f) else None
+
+
 def _is_computed(f: dict) -> bool:
     """Un campo COMPUTADO (FSK-COMPUTED-FIELDS): un campo numérico (`int`/`number`) cuyo valor NO se almacena
     sino que se DERIVA por una FÓRMULA determinista de otros campos numéricos de la MISMA entidad (la dimensión
@@ -371,10 +387,11 @@ def _load_blueprint(root: Path) -> dict:
                     if tgt not in by:
                         raise SystemExit(f"scaffold: ref polimórfico {f.get('name')!r} apunta a entidad "
                                          f"inexistente {tgt!r}")
-                if e.get("owned_by") == f.get("name"):
-                    raise SystemExit(f"scaffold: el campo `owned_by` {f.get('name')!r} de {e['name']!r} no puede "
-                                     f"ser polimórfico (el ownership cruza un principal único, no una unión — "
-                                     f"FSK-POLYMORPHIC-REFS wrinkle #3; montá el polimórfico en un campo no-dueño)")
+                # FSK-OWNER-POLY (wrinkle #3): un `owned_by` poly YA es válido — el dueño cruza una UNIÓN (tipo, id).
+                # Compone FSK-OWNERSHIP-OPTIONAL + FSK-POLYMORPHIC-REFS (cero modelo nuevo de auth): un owner de tipo
+                # NO-principal ≡ owner NULL → sólo bypass modifica. CONVENCIÓN: `targets[0]` = la entidad-principal
+                # (el tipo del principal del token). Un owner poly es SIEMPRE owner-optional (puede ser no-principal).
+                # Sin forma DATA-agnóstica de VERIFICAR cuál target es "principal" más allá de la convención targets[0].
             if t == "ref" and not _is_poly(f) and f.get("to") not in by:
                 raise SystemExit(f"scaffold: ref {f.get('name')!r} apunta a entidad inexistente {f.get('to')!r}")
             # FSK-XENTITY-CYCLES: un ref FORWARD (target declarado DESPUÉS de la entidad) abre/cierra un CICLO en
@@ -1702,6 +1719,7 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
     UPDATE de esa columna al valor del body (PATCH-like, PUT sólo bajo ownership por ahora). Todo type-bound al
     schema: una columna inexistente NO compila (la DB grita en compilación, DES-12)."""
     name, owner = e["name"], e.get("owned_by")
+    op = _owner_poly(e)   # FSK-OWNER-POLY: el dueño poly se materializa en 2 sub-columnas → el POST fija ambas
     if not _input_fields(e):   # el data class <E>Input quedaría vacío → Kotlin lo prohíbe (fail-closed, difiérelo)
         raise SystemExit(f"scaffold: {name}: entidad VIVA SIN columna escalar requerida no-dueño — el POST "
                          f"necesita ≥1 campo del body (otro eje: CRUD de entidades sólo-dueño/ownership-opcional)")
@@ -1712,6 +1730,15 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
         # sea OPCIONAL (FSK-OWNERSHIP-OPTIONAL): el caso RTD/sin-dueño lo siembra el server (2ª fila, owner NULL),
         # no el POST → un activo creado por su dueño sigue round-trippeando bajo ownership. Va ANTES del skip-
         # optional para no quedar como parámetro `ownerId` sin usar cuando el dueño es nullable.
+        # FSK-OWNER-POLY (wrinkle #3): un dueño POLIMÓRFICO → el POST fija las 2 sub-columnas — el creador es un
+        # User (la entidad-principal, targets[0]) → `<owner>_type` = el principal, `<owner>_id` = el ownerId del
+        # token. La 2ª fila (asignada a un tipo NO-principal) la siembra el server, no el POST (wrinkle #5).
+        if op and f["name"] == f"{owner}_type":
+            set_calls.append(f'set({col}, "{op["to"][0]}")')
+            continue
+        if op and f["name"] == f"{owner}_id":
+            set_calls.append(f"set({col}, ownerId)")
+            continue
         if owner and f["name"] == owner:
             set_calls.append(f"set({col}, ownerId)")
             continue
@@ -1889,9 +1916,18 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
         # DUEÑO de UNA fila por id (el server vivo lo cruza contra el actor via OwnershipGuard). fetchOne →
         # null si la fila no existe (404). Type-bound al schema (la columna dueño DEBE existir → DES-12).
         if e.get("owned_by"):
-            oc = f"{tbl}.{_COL(e['owned_by'])}"
+            # FSK-OWNER-POLY (wrinkle #3): un dueño POLIMÓRFICO cruza (tipo, id) → el reader de ownerId lee la
+            # sub-columna `<owner>_id` (Long?, sin FK) y se suma `<e>OwnerType` que lee `<owner>_type` (String?, el
+            # discriminador). modifyVerdict cruza AMBAS (effectiveOwnerId). Un dueño SIMPLE → `<owner>` directo (byte-
+            # idéntico → default/assets sin re-derivar). Type-bound al schema: la columna DEBE existir (DES-12).
+            op = _owner_poly(e)
+            oc = f"{tbl}.{_COL((e['owned_by'] + '_id') if op else e['owned_by'])}"
             fns.append(f"    fun {e['name'].lower()}OwnerId(ctx: DSLContext, id: Long): Long? =\n"
                        f"        ctx.select({oc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({oc})")
+            if op:
+                tyc = f"{tbl}.{_COL(e['owned_by'] + '_type')}"
+                fns.append(f"    fun {e['name'].lower()}OwnerType(ctx: DSLContext, id: Long): String? =\n"
+                           f"        ctx.select({tyc}).from({tbl}).where({tbl}.ID.eq(id)).fetchOne({tyc})")
             # FSK-SOFT-DELETES: el camino owner-OPTIONAL de modifyVerdict chequea EXISTENCIA via <e>RowJson, que para
             # una entidad soft ahora FILTRA las borradas → una fila soft-deleteada parecería inexistente (404) y
             # restore no podría recuperarla. Esta query de existencia NO filtra (la decisión de acceso es independiente
@@ -3322,8 +3358,12 @@ def _test_ownership_guard_kt(pkg: str, bp: dict) -> str:
     FSK-OWNERSHIP-OPTIONAL — si el dueño es NULLABLE (RTD), suma un 4º caso: una fila SIN dueño (rowOwnerId=null)
     sólo la modifica un rol de bypass (no-bypass → false). row.<ownerCamel> es Long? → cierra el binding del null."""
     ent = next(e for e in bp["entities"] if e.get("owned_by"))
-    owner_camel = _camel(ent["owned_by"])
-    owner_optional = not next(f for f in ent["fields"] if f["name"] == ent["owned_by"]).get("required", True)
+    # FSK-OWNER-POLY (wrinkle #3): un dueño POLIMÓRFICO → canModify cruza la sub-columna `<owner>_id` (Long?, el
+    # principal); el guard queda owner-optional (un owner no-principal ≡ owner NULL). type-bound a `row.<owner>Id`
+    # (rename → unresolved → compile rojo). Sin poly → el campo dueño directo (byte-idéntico → default/assets).
+    op = _owner_poly(ent)
+    owner_camel = _camel((ent["owned_by"] + "_id") if op else ent["owned_by"])
+    owner_optional = op is not None or not next(f for f in ent["fields"] if f["name"] == ent["owned_by"]).get("required", True)
     owner_id, other_id = "7L", "99L"
     # construir la entidad con muestras deterministas (idiom _model_ctor_args) pero el campo dueño = owner_id,
     # para que row.<ownerField> sea EXACTAMENTE el dueño que el test cruza (type-bound al model del contrato).
@@ -4208,7 +4248,8 @@ if __name__ == "__main__":
 #    (compone sobre RBAC/ownership de s5). Transforma la trilogía de control de acceso de "probada por
 #    construcción" (s5 estático + s7 unit) a "enforzada a runtime" (un proof e2e de DOS+ lados, abajo). ────────
 def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: str | None = None,
-                alt: bool = False, ref_wiring: dict | None = None, variant: int = 0) -> str:
+                alt: bool = False, ref_wiring: dict | None = None, variant: int = 0,
+                owner_poly_type: str | None = None) -> str:
     """INSERT jOOQ TIPADO que siembra una fila de `e` y captura su id generado (idiom DbRoundTrip). Para la
     entidad con dueño, el campo `owner_field` se fija al `owner_var` capturado (el principal dueño); el resto
     de los campos requeridos, a muestras deterministas. Los opcionales (required: false) quedan NULL.
@@ -4225,6 +4266,16 @@ def _seed_chain(var: str, e: dict, owner_field: str | None = None, owner_var: st
     sets = []
     for f in _cols_of(e):   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → muestra) + `<campo>_id` (id literal, sin FK)
         col = f"{tbl}.{_COL(f['name'])}"
+        # FSK-OWNER-POLY (wrinkle #3/#5): un dueño POLIMÓRFICO se siembra como 2 sub-columnas. La fila del DUEÑO
+        # (owner_poly_type == la entidad-principal) → `(targets[0], owner_var)` round-trippea bajo ownership; la 2ª
+        # fila (owner_poly_type == un tipo NO-principal, p.ej. Location) → `(Location, owner_var)` = el caso bypass-only
+        # (mismo id → si el server IGNORA el tipo, parecería del actor → el diente). Va ANTES del skip-optional.
+        if owner_field and owner_poly_type and f["name"] == f"{owner_field}_type":
+            sets.append(f'set({col}, "{owner_poly_type}")')
+            continue
+        if owner_field and owner_poly_type and f["name"] == f"{owner_field}_id":
+            sets.append(f"set({col}, {owner_var})")
+            continue
         if owner_field and f["name"] == owner_field:   # fila ASIGNADA: el dueño = el principal capturado
             sets.append(f"set({col}, {owner_var})")
             continue
@@ -4700,7 +4751,7 @@ def _ownerless_handlers(e: dict, catch_fk: bool = False, ops: list[dict] | None 
 
 
 def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, company_fn: str = "",
-                       exists_fn: str = "") -> str:
+                       exists_fn: str = "", owner_type_fn: str = "", principal_entity: str = "") -> str:
     """modifyVerdict — el veredicto de MODIFICACIÓN (PUT/DELETE) sobre /<plural>/{id}: RBAC (rol) Y ownership
     (el principal del token == el dueño de la fila, o un rol de bypass). El guard que DECIDE; la mutación
     (FSK-S16) ocurre DESPUÉS, sólo en la rama HTTP_OK.
@@ -4722,12 +4773,23 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, co
     exists_expr = (f"Repository.{exists_fn}(ctx, id)" if exists_fn else f"Repository.{row_json_fn}(ctx, id) != null")
     exists_line = f"    val exists = authorized && {exists_expr}\n"
     head = "private fun modifyVerdict(ctx: DSLContext, token: String?, id: Long): Int {\n"
+    # FSK-OWNER-POLY (wrinkle #3): con un dueño POLIMÓRFICO (owner_type_fn set) el reader cruza (tipo, id) →
+    # effectiveOwnerId = ownerId SÓLO si ownerType == la entidad-principal (targets[0]); si no, null → cae al branch
+    # owner-NULL de FSK-OWNERSHIP-OPTIONAL (sólo bypass modifica). `OwnershipGuard.canModify` (Long?) queda INTACTO —
+    # owner-poly COMPONE ownership-optional + poly, cero modelo nuevo de auth. Sólo en el camino owner-optional (un
+    # dueño poly es SIEMPRE owner-optional). Sin poly → la línea EXACTA de antes (byte-idéntico → default/assets).
+    if owner_type_fn:
+        owner_read = (f"    val ownerType = if (exists) Repository.{owner_type_fn}(ctx, id) else null\n"
+                      f"    val ownerId = if (ownerType == \"{principal_entity}\") "
+                      f"Repository.{owner_fn}(ctx, id) else null\n")
+    else:
+        owner_read = f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
     if not company_fn:   # === byte-idéntico al previo (FSK-S15/OWNERSHIP-OPTIONAL): sin company-scope ===
         if owner_optional:
             return (head
                     + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
                     + exists_line
-                    + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
+                    + owner_read
                     + "    val role = RoleGuard.roleOf(token)\n"
                     + "    val principal = RoleGuard.principalOf(token)\n"
                     + "    return when {\n"
@@ -4759,7 +4821,7 @@ def _modify_verdict_kt(owner_fn: str, row_json_fn: str, owner_optional: bool, co
         return (head
                 + "    val authorized = RoleGuard.authorize(token, writeRoles())\n"
                 + exists_line
-                + f"    val ownerId = if (exists) Repository.{owner_fn}(ctx, id) else null\n"
+                + owner_read
                 + f"    val rowCompany = if (exists) Repository.{company_fn}(ctx, id) else null\n"
                 + "    val role = RoleGuard.roleOf(token)\n"
                 + "    val principal = RoleGuard.principalOf(token)\n"
@@ -4961,8 +5023,16 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     by = {e["name"]: e for e in ents}
     owned = next(e for e in ents if e.get("owned_by"))
     owner_field = owned["owned_by"]
+    # FSK-OWNER-POLY (wrinkle #3): el dueño puede ser POLIMÓRFICO (`to` es una LISTA) → la entidad-principal (el tipo
+    # del principal del token) es targets[0] (convención); el server siembra un principal y captura su id como ownerId.
+    # owner_type_fn lee el discriminador `<owner>_type`; non_principal = un target NO-principal (la 2ª fila del diente
+    # bypass-only). Sin poly → `to` es un nombre → todo queda EXACTO (byte-idéntico → default/assets sin re-derivar).
+    owner_poly = _owner_poly(owned)
     owner_to = next(f for f in owned["fields"] if f["name"] == owner_field)["to"]
-    owner_ent = by[owner_to]
+    principal_entity = owner_to[0] if owner_poly else owner_to
+    owner_ent = by[principal_entity]
+    owner_type_fn = f"{owned['name'].lower()}OwnerType" if owner_poly else ""
+    non_principal = owner_to[1] if owner_poly else None
     # FSK-CRUD-OWNERLESS: el server monta TAMBIÉN la 1ª entidad ownerless servible (CRUD RBAC-only); FSK-REFS-IN-
     # BODY: y la 1ª con un ref REQUERIDO no-dueño (CRUD con la FK del cuerpo). `served` es la fuente única de qué
     # entidades sirve → codec compartido (unión, sin colisión) + un Input por entidad. `ref_targets` = las
@@ -5055,19 +5125,27 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     seed_owner = _seed_chain("ownerId", owner_ent)
     seed_owned_deps = ("\n".join(dep_lines) + "\n") if dep_lines else ""   # deps ANTES del owned (topológico)
     seed_owned = _seed_chain("ownedId", owned, owner_field=owner_field, owner_var="ownerId",
-                             ref_wiring=owned_wiring)
+                             ref_wiring=owned_wiring, owner_poly_type=principal_entity if owner_poly else None)
     # FSK-OWNERSHIP-OPTIONAL — el dueño de la entidad servida es NULLABLE (RTD): el server distingue EXISTENCIA
     # de DUEÑO (una fila sin dueño existe → no es 404) y siembra una 2ª fila SIN dueño (owner NULL, valores
     # alternos en las UNIQUE) para que el proof ejercite el veredicto RTD vivo. Opt-in por el `required` del
     # `owned_by`: con dueño REQUERIDO el bloque queda EXACTO (byte-idéntico → default/assets sin re-derivar).
-    owner_optional = not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
+    # FSK-OWNER-POLY: un dueño poly es SIEMPRE owner-optional (un owner no-principal ≡ owner NULL). Sin poly → la
+    # opcionalidad la da el `required` del campo (byte-idéntico).
+    owner_optional = owner_poly is not None or not next(f for f in owned["fields"] if f["name"] == owner_field).get("required", True)
     # FSK-SOFT-DELETES: para una entidad soft, modifyVerdict chequea existencia con <e>Exists (SIN filtrar) en el
     # camino owner-optional → restore (gateado por este veredicto) alcanza la fila borrada. "" sin soft → byte-idéntico.
     exists_fn = f"{owned['name'].lower()}Exists" if _soft_delete(owned) else ""
-    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional, company_fn, exists_fn)
+    modify_verdict = _modify_verdict_kt(owner_fn, f"{owned['name'].lower()}RowJson", owner_optional, company_fn,
+                                        exists_fn, owner_type_fn, principal_entity if owner_poly else "")
     if owner_optional:
-        # fila RTD: dueño NULL, UNIQUE alternos; REUSA las deps ya sembradas (registry) → wirea sus refs requeridos
-        seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring)
+        # fila RTD: dueño NULL, UNIQUE alternos; REUSA las deps ya sembradas (registry) → wirea sus refs requeridos.
+        # FSK-OWNER-POLY: con dueño poly, la 2ª fila NO es owner-NULL sino owner de tipo NO-principal (Location, mismo
+        # id que el principal) → el server, si IGNORA el tipo, la creería del actor → el diente bypass-only. Sin poly →
+        # owner NULL (RTD) EXACTO (byte-idéntico).
+        seed_rtd = "\n" + _seed_chain("rtdId", owned, alt=True, ref_wiring=owned_wiring,
+                                      owner_field=owner_field if owner_poly else None, owner_var="ownerId",
+                                      owner_poly_type=non_principal)
         rtd_arg = ", rtdId"
     else:
         seed_rtd, rtd_arg = "", ""
@@ -5160,7 +5238,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             "\n" + _seed_chain("companyAId", company_ent)
             + "\n" + _seed_chain("companyBId", company_ent, variant=1)
             + "\n" + _seed_chain("scopedId", owned, owner_field=owner_field, owner_var="ownerId",
-                                 ref_wiring={**owned_wiring, scope_field: "companyBId"}, variant=2))
+                                 ref_wiring={**owned_wiring, scope_field: "companyBId"}, variant=2,
+                                 owner_poly_type=principal_entity if owner_poly else None))
         cs_arg = ", companyAId, companyBId, scopedId"
         bypass_roles = bp.get("company_scope_bypass_roles") or []
         bypass_set = ("setOf(" + ", ".join(f"Role.{r.upper()}" for r in bypass_roles) + ")") if bypass_roles else "emptySet()"
@@ -6713,7 +6792,8 @@ def build_files(bp: dict) -> dict[str, str]:
         # FSK-OWNERSHIP-OPTIONAL: si CUALQUIER entidad con dueño lo declara `required: false` (un RTD sin
         # asignar), canModify pasa a `Long?` (acepta filas sin dueño); con todos los dueños requeridos queda
         # EXACTO (byte-idéntico → default/assets sin re-derivar). Opt-in por el `required` del `owned_by`.
-        owner_optional = any(not next(f for f in e["fields"] if f["name"] == e["owned_by"]).get("required", True)
+        owner_optional = any(_owner_poly(e) is not None   # FSK-OWNER-POLY: un dueño poly es SIEMPRE owner-optional
+                             or not next(f for f in e["fields"] if f["name"] == e["owned_by"]).get("required", True)
                              for e in owned)
         files[f"{pkgdir}/auth/OwnershipGuard.kt"] = _ownership_guard_kt(pkg, owner_optional)
         files[f"{pkgdir}/auth/OwnershipPolicy.kt"] = _ownership_policy_kt(pkg, owned, bp.get("owner_bypass_roles") or [])

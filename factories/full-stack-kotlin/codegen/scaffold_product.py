@@ -54,6 +54,11 @@ KOTEST_VERSION = "5.9.1"
 AXE_VERSION = "4.10.2"
 JSDOM_VERSION = "25.0.1"
 ESBUILD_VERSION = "0.24.2"
+# Frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER, s9): Playwright maneja un Chromium HEADLESS real (no
+# jsdom) para probar el render VIVO en el DOM real. `playwright-core` (sin el postinstall que descarga el
+# browser) pinea la rev de chromium=1217; el binario vive en ~/.cache/ms-playwright (HOME → sobrevive el clon
+# limpio de ci --rederive, precondición de entorno como docker/SAFE-3). Cacheado en ~/.npm → sin red.
+PLAYWRIGHT_VERSION = "1.59.1"
 # Observabilidad (s9, DES-5): OpenTelemetry SDK real (el motor de tracing — "no reinventar la rueda") con un
 # SpanExporter a archivo; el server HTTP es stdlib del JDK (com.sun.net.httpserver, no Ktor). El BOM pinea
 # api+sdk a una versión. Cacheado en ~/.gradle → ci --rederive sin red (como jOOQ/Kotest/detekt).
@@ -1235,7 +1240,8 @@ def _ts_package_json(pkg: str) -> str:
             f'    "@total-typescript/ts-reset": "{TS_RESET_VERSION}",\n'
             f'    "axe-core": "{AXE_VERSION}",\n'
             f'    "jsdom": "{JSDOM_VERSION}",\n'
-            f'    "esbuild": "{ESBUILD_VERSION}"\n'
+            f'    "esbuild": "{ESBUILD_VERSION}",\n'
+            f'    "playwright-core": "{PLAYWRIGHT_VERSION}"\n'
             '  }\n'
             '}\n')
 
@@ -2386,6 +2392,9 @@ def _direct_dependencies() -> list[tuple[str, str, str]]:
         ("npm", "axe-core", AXE_VERSION),
         ("npm", "jsdom", JSDOM_VERSION),
         ("npm", "esbuild", ESBUILD_VERSION),
+        # frontend en browser real (FSK-FRONTEND-BROWSER, s9): el producto SHIPPEA playwright-core (gate dep) →
+        # el scanner de s4 lo inventaria y cruza vs advisories (single source con package.json: PLAYWRIGHT_VERSION).
+        ("npm", "playwright-core", PLAYWRIGHT_VERSION),
         # observabilidad (s9, DES-5): el producto SHIPPEA el SDK OTel → el scanner de s4 lo cruza vs advisories.
         ("maven", "io.opentelemetry:opentelemetry-api", OTEL_VERSION),
         ("maven", "io.opentelemetry:opentelemetry-sdk", OTEL_VERSION),
@@ -5141,6 +5150,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                  for e in [owned, owner_ent] + ref_targets + dep_entities]
                 + [{"fields": _input_fields(e)} for e in served])
     java_imports = sorted([
+        "import java.io.File",   # FSK-FRONTEND-BROWSER: serve el bundle del browser (GET /app.js) desde disco
         "import java.net.InetSocketAddress",
         "import java.nio.charset.StandardCharsets",
         "import java.sql.Connection",
@@ -5371,6 +5381,38 @@ private fun respond(ex: HttpExchange, status: Int, body: String) {
     ex.responseBody.use { it.write(bytes) }
 }
 
+// FSK-FRONTEND-BROWSER: responde con un Content-Type ARBITRARIO (text/html, application/javascript) para
+// servir la pagina + el bundle MISMO-ORIGEN (respond es application/json fijo, intacto -> el resto del server
+// no cambia). El bundle se sirve sin cache para que el proof siempre vea el render actual.
+private fun respondWeb(ex: HttpExchange, status: Int, body: String, contentType: String) {
+    val bytes = body.toByteArray(StandardCharsets.UTF_8)
+    ex.responseHeaders.add("Content-Type", contentType)
+    ex.sendResponseHeaders(status, bytes.size.toLong())
+    ex.responseBody.use { it.write(bytes) }
+}
+
+// FSK-FRONTEND-BROWSER: lee un archivo web (index.html / app.js) del frontend desde disco. FSK_WEB_DIR
+// (default frontend/dist, relativo al cwd del server) lo localiza; build_bundle.mjs (esbuild de
+// browser_entry.ts) los escribe. Ausente -> "" (la lista nunca monta -> el proof Playwright no halla la fila
+// -> rojo: bundle faltante ES una falla real). La página y el bundle se generan TS-side (no en este Kotlin).
+private fun webFile(name: String): String {
+    val dir = System.getenv("FSK_WEB_DIR") ?: "frontend/dist"
+    val file = File("$dir/$name")
+    return if (file.exists()) file.readText() else ""
+}
+
+// FSK-FRONTEND-BROWSER: sirve la pagina (GET /) + el bundle (GET /app.js) MISMO-ORIGEN -> el `fetch` del
+// bundle pega al MISMO server (sin CORS). El contexto "/" es el catch-all (las rutas mas especificas --
+// /health, /seed, /<plural> -- ganan por prefijo); lo demas -> 404. Inerte para los otros checks de s9 (no
+// pegan a / ni a /app.js); el proof Playwright (browser_check.ts) carga GET / en un Chromium REAL.
+private fun serveApp(ex: HttpExchange) {
+    when (ex.requestURI.path) {
+        "/" -> respondWeb(ex, HTTP_OK, webFile("index.html"), "text/html; charset=utf-8")
+        "/app.js" -> respondWeb(ex, HTTP_OK, webFile("app.js"), "application/javascript; charset=utf-8")
+        else -> respondWeb(ex, HTTP_NOT_FOUND, "not found", "text/plain; charset=utf-8")
+    }
+}
+
 // Espera a que la PostgreSQL viva acepte conexiones (el contenedor arranca en background, MAT-3): reintenta
 // hasta PG_RETRIES. La unica salida es una conexion abierta o, agotados los intentos, la excepcion (throw e).
 private fun connect(url: String, user: String, pass: String): Connection {
@@ -5451,6 +5493,7 @@ fun main() {
     val seed = seedRows(ctx)
     val port = (System.getenv("FSK_AC_PORT") ?: DEFAULT_PORT.toString()).toInt()
     val server = HttpServer.create(InetSocketAddress(port), 0)
+    server.createContext("/") { ex -> serveApp(ex) } // FSK-FRONTEND-BROWSER: pagina + bundle mismo-origen
     server.createContext("/health") { ex -> respond(ex, HTTP_OK, """{"status":"UP"}""") }
     server.createContext("/seed") { ex -> respond(ex, HTTP_OK, seedJson(seed)) }
     server.createContext(PLURAL) { ex -> handle(ctx, ex) }
@@ -6496,6 +6539,159 @@ main(base)
 '''
 
 
+def _browser_entry_ts(bp: dict) -> str:
+    """frontend/src/browser_entry.ts — el ENTRY del bundle del browser (FSK-FRONTEND-BROWSER). Importa mount<E>
+    (app.ts) y, al cargar la pagina en un navegador REAL, lo invoca contra el AppServer MISMO-ORIGEN
+    (location.origin) → trae la lista VIVA (GET /<plural>) y la renderiza en el DOM REAL. esbuild
+    (build_bundle.mjs) lo bundlea a un IIFE cargable por <script> (dist/app.js); el AppServer lo sirve en GET
+    /app.js. Vive en src/ → tsc --strict lo type-checkea (DES-6: un drift del contrato rompe la compilacion).
+    Opt-in a owned_by (la unica entidad con cliente vivo + mount<E>). El token (Bearer rol:principal) lo arma de
+    /seed para que el FORM tambien postee; la lista renderiza sin token (GET publico)."""
+    owned = next(e for e in bp["entities"] if e.get("owned_by"))
+    name = owned["name"]
+    write_roles = owned["write_roles"]
+    bypass = bp.get("owner_bypass_roles") or []
+    non_bypass = [r for r in write_roles if r not in bypass] or write_roles
+    write_role = non_bypass[0]
+    return (
+        "// FSK-FRONTEND-BROWSER — el ENTRY del bundle del browser: importa mount<E> (app.ts) y, al cargar la\n"
+        "// pagina en un navegador REAL, lo invoca contra el AppServer MISMO-ORIGEN (location.origin) -> trae la\n"
+        "// lista VIVA y la renderiza en el DOM REAL. esbuild (build_bundle.mjs) lo bundlea a un IIFE cargable\n"
+        "// por <script> (dist/app.js); el AppServer lo sirve en GET /app.js. tsc --strict lo type-checkea.\n"
+        f'import {{ mount{name} }} from "./app.ts";\n\n'
+        f'const WRITE_ROLE = "{write_role}";\n\n'
+        "async function boot(): Promise<void> {\n"
+        "  const base = location.origin;\n"
+        "  const seedRes = await fetch(`${base}/seed`);\n"
+        "  const seed = (await seedRes.json()) as { owner: number };\n"
+        "  const token = `Bearer ${WRITE_ROLE}:${seed.owner}`;\n"
+        f"  await mount{name}(document, base, token);\n"
+        "}\n\n"
+        "void boot();\n")
+
+
+def _build_bundle_mjs() -> str:
+    """frontend/build_bundle.mjs — bundlea el frontend para el BROWSER REAL (FSK-FRONTEND-BROWSER). esbuild (ya
+    dep de s8) bundlea+transpila el entry (src/browser_entry.ts → mount<E>/app.ts → client.ts) a un IIFE
+    cargable por <script> en Chromium (dist/app.js). Sin minify (el render emite el texto que el proof busca en
+    el DOM; legible para el diente). El `import type` de gen/api.ts lo dropea esbuild. Lo corre el bootstrap del
+    check frontend_browser_live (s9) antes de levantar el server; el AppServer lo sirve en GET /app.js."""
+    return (
+        '// build_bundle.mjs (FSK-FRONTEND-BROWSER, s9): esbuild bundlea el entry del browser (browser_entry.ts\n'
+        '// -> mount<E>/app.ts -> client.ts) a un IIFE cargable por <script> en un Chromium REAL (dist/app.js), y\n'
+        '// escribe la pagina minima (dist/index.html, un <body> que carga /app.js). El AppServer los sirve\n'
+        '// MISMO-ORIGEN (GET / + GET /app.js, FSK_WEB_DIR); el proof Playwright (browser_check.ts) abre GET / en un\n'
+        '// navegador headless y asevera que la lista VIVA se renderiza en el DOM real. Sin red (esbuild local).\n'
+        'import { buildSync } from "esbuild";\n'
+        'import { mkdirSync, writeFileSync } from "node:fs";\n\n'
+        'const INDEX_HTML = [\n'
+        '  "<!DOCTYPE html>",\n'
+        '  \'<html lang="en">\',\n'
+        '  \'<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">\' +\n'
+        '    "<title>App</title></head>",\n'
+        '  \'<body><main id="app"></main><script src="/app.js"></script></body>\',\n'
+        '  "</html>",\n'
+        '  "",\n'
+        '].join("\\n");\n\n'
+        'mkdirSync("dist", { recursive: true });\n'
+        'buildSync({\n'
+        '  entryPoints: ["src/browser_entry.ts"],\n'
+        '  bundle: true,\n'
+        '  format: "iife",\n'
+        '  outfile: "dist/app.js",\n'
+        '  logLevel: "silent",\n'
+        '});\n'
+        'writeFileSync("dist/index.html", INDEX_HTML);\n'
+        'console.log("bundle: src/browser_entry.ts -> dist/app.js + dist/index.html");\n')
+
+
+def _browser_check_ts(bp: dict) -> str:
+    """frontend/browser_check.ts — el proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER), parte de
+    s9 (kind infra_up, check frontend_browser_live). Abre GET / (servido MISMO-ORIGEN por el AppServer) en un
+    Chromium HEADLESS real (Playwright): el bundle (dist/app.js) monta mount<E> → trae la lista VIVA (GET
+    /<plural>, PG real detras) y la renderiza en el DOM REAL del navegador. EL DIENTE: cada fila viva (su campo
+    renderizado) aparece como <li> en el DOM real. Un render<E>List que dropea/garbla una fila → el texto no
+    aparece → exit 1. Pagina/server caidos → no carga → rojo (nativo de infra_up). `expected` se deriva del
+    MISMO endpoint que mount<E> usa (GET /<plural>, sin token) → siempre == la lista viva renderizada salvo que
+    el render mienta. NO type-checked (vive en frontend/, fuera del include de tsc, como consume_check.ts); el
+    tooth DES-6 vive en src/. Corre por node. Datos = del blueprint. Uso: browser_check.ts <base_url>."""
+    owned = next(e for e in bp["entities"] if e.get("owned_by"))
+    plural = "/" + _table(owned)
+    render_field = next((f["name"] for f in owned["fields"] if f["type"] in ("string", "enum")),
+                        owned["fields"][0]["name"])
+    return (_BROWSER_CHECK_SKELETON
+            .replace("%PLURAL%", plural)
+            .replace("%RENDER_FIELD%", render_field))
+
+
+_BROWSER_CHECK_SKELETON = '''\
+// browser_check.ts - proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER, s9). Abre GET / (servido
+// MISMO-ORIGEN por el AppServer) en un Chromium HEADLESS real via Playwright: el bundle (dist/app.js) monta
+// mount<E> -> trae la lista VIVA (GET /<plural>, PG real detras) y la renderiza en el DOM REAL del navegador.
+// EL DIENTE: cada fila viva (su campo renderizado) aparece como <li> en el DOM real. Un render<E>List que
+// dropea/garbla una fila -> el texto no aparece -> exit 1. Pagina/server caidos -> no carga -> rojo (nativo de
+// infra_up). `expected` se deriva del MISMO GET /<plural> (sin token) que mount<E> usa -> siempre == la lista
+// renderizada salvo que el render mienta. NO type-checked (vive en frontend/, fuera del include de tsc). Corre
+// por node (Chromium del cache ~/.cache/ms-playwright; --no-sandbox requerido). Uso: browser_check.ts <base_url>
+import { chromium } from "playwright-core";
+
+const PLURAL = "%PLURAL%";
+const RENDER_FIELD = "%RENDER_FIELD%";
+
+let ok = true;
+
+function check(actual, want, label) {
+  if (JSON.stringify(actual) === JSON.stringify(want)) {
+    console.log(`browser OK: ${label} -> ${JSON.stringify(actual)}`);
+    return;
+  }
+  console.error(`browser: ${label}: esperaba ${JSON.stringify(want)}, obtuvo ${JSON.stringify(actual)}`);
+  ok = false;
+}
+
+async function main(base) {
+  // 1) la lista VIVA via la API (lo que list<E> trae): los valores del campo renderizado que DEBEN estar en el DOM.
+  const res = await fetch(`${base}${PLURAL}`);
+  const json = await res.json();
+  const expected = json.rows.map((r) => String(r[RENDER_FIELD]));
+
+  // 2) abrir GET / en un navegador REAL headless (Chromium via Playwright) -> el bundle monta la lista viva.
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+  try {
+    const page = await browser.newPage();
+    await page.goto(`${base}/`);
+    // mount<E> renderiza la lista viva en el DOM real (async) -> esperamos por el selector, no por sleep (determinista).
+    await page.waitForSelector("li", { timeout: 10000 });
+    const domTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    // (i) la lista viva no es trivial (>=1 fila sembrada).
+    check(expected.length >= 1, true, "la lista viva (API) tiene >=1 fila");
+    // (ii) EL DIENTE: cada fila viva se renderiza como <li> en el DOM REAL del navegador (drop/garble -> rojo).
+    let allRendered = true;
+    for (const v of expected) {
+      if (!domTexts.includes(v)) {
+        allRendered = false;
+      }
+    }
+    check(allRendered, true, "cada fila viva se renderiza como <li> en el DOM REAL del navegador (Chromium)");
+  } finally {
+    await browser.close();
+  }
+}
+
+const base = process.argv[2];
+if (base === undefined) {
+  console.error("usage: browser_check.ts <base_url>");
+  process.exit(2);
+}
+main(base)
+  .then(() => process.exit(ok ? 0 : 1))
+  .catch((err) => {
+    console.error(`browser: server/pagina inalcanzable o error: ${err}`);
+    process.exit(1);
+  });
+'''
+
+
 def _ci_sh() -> str:
     """ci.sh — la MINI-COLUMNA del producto (s10, DES-1/SAFE-3): el producto re-corre SUS gates ESTÁTICOS/
     offline por su cuenta ("hereda probar por bloqueo"), hermético (--offline) y determinista (sin red, sin
@@ -6839,6 +7035,15 @@ def build_files(bp: dict) -> dict[str, str]:
         # vivo + PG. El check `frontend_consume_live` (s9, infra_up) lo corre por `node --experimental-strip-types`.
         # Opt-in: sólo con owned_by (compone sobre el server vivo de FSK-S15). Sin tech nueva: fetch global, ADR-012.
         files["frontend/consume_check.ts"] = _consume_check_ts(bp)
+        # frontend en un BROWSER REAL (s9, DES-7/DES-4, FSK-FRONTEND-BROWSER): el render generado (mount<E>/
+        # render<E>List) deja de probarse SÓLO en jsdom y se monta en un Chromium HEADLESS real (Playwright). El
+        # entry del bundle (browser_entry.ts) llama mount<E> al cargar la página REAL; esbuild (build_bundle.mjs)
+        # lo bundlea a dist/app.js; el AppServer lo sirve MISMO-ORIGEN (GET / + GET /app.js → sin CORS); el proof
+        # (browser_check.ts) abre GET / en Chromium y asevera que la lista VIVA se renderiza en el DOM real. El
+        # check `frontend_browser_live` (s9, infra_up) lo corre. Opt-in: sólo con owned_by (la única con mount<E>).
+        files["frontend/src/browser_entry.ts"] = _browser_entry_ts(bp)
+        files["frontend/build_bundle.mjs"] = _build_bundle_mjs()
+        files["frontend/browser_check.ts"] = _browser_check_ts(bp)
     return files
 
 

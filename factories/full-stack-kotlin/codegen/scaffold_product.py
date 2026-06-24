@@ -213,29 +213,54 @@ _COMPUTED_OPS = {"+", "-", "*", "/", "min", "max"}   # set CERRADO de operadores
 _COMPUTED_BINARY = {"-", "/"}                          # estrictamente 2 args (resta y división no son asociativas)
 
 
-def _validate_computed_ast(node, numeric: set, ename: str, fname: str, xnumeric: dict | None = None) -> None:
+def _xref_resolve(start: dict, by: dict, parts: list, ename: str, fname: str) -> tuple:
+    """Resuelve un operando CROSS-ENTITY `<r1>[.<r2>...].<campo>` (`parts` = los segmentos punteados) desde la
+    entidad `start`, caminando la CADENA de refs (FSK-XENTITY-COMPUTED depth-1 = 1 ref; FSK-XENTITY-DEPTH2 = N
+    refs). Cada hop es un ref NO-poly de la entidad EN CURSO cuyo `to` ∈ `by` — REQUERIDO u OPCIONAL: el LEFT JOIN
+    de rowJson es null-safe (`?: 0.0`), así que un ref del medio OPCIONAL (p.ej. AssetModel.depreciation_id) NO se
+    rechaza; si a runtime es NULL el operando cae a 0.0. `<campo>` DEBE ser un numérico (int/number) no-computado
+    del target FINAL. Fail-closed (SystemExit) — mismo patrón que los demás guards del scaffold. Devuelve
+    (steps, tgt, tfld): `steps` = [(prefix, from_ent, ref_field, to_ent)] (un hop por ref, para emitir los LEFT
+    JOIN encadenados de rowJson, deduplicados por `prefix`); `tgt` = la entidad target FINAL; `tfld` = el campo
+    numérico leído. depth-1 (1 ref) y depth-2+ (N refs) por el MISMO camino — generaliza a profundidad arbitraria."""
+    *refs, fld = parts
+    steps: list = []
+    cur = start
+    prefix: tuple = ()
+    for r in refs:
+        rf = next((g for g in cur["fields"] if g["name"] == r), None)
+        if rf is None or rf.get("type") != "ref" or _is_poly(rf) or rf.get("to") not in by:
+            raise SystemExit(f"scaffold: computed {ename}.{fname}: {r!r} en {'.'.join(parts)!r} no es un ref "
+                             f"no-polimórfico de {cur['name']!r} (cross-entity, fail-closed)")
+        tgt = by[rf["to"]]
+        prefix = prefix + (r,)
+        steps.append((prefix, cur, rf, tgt))
+        cur = tgt
+    tfld = next((h for h in cur["fields"] if h["name"] == fld
+                 and h.get("type") in ("int", "number") and not _is_computed(h)), None)
+    if tfld is None:
+        raise SystemExit(f"scaffold: computed {ename}.{fname}: {fld!r} en {'.'.join(parts)!r} no es un campo "
+                         f"numérico (int/number) no-computado del target final de la cadena (fail-closed)")
+    return steps, cur, tfld
+
+
+def _validate_computed_ast(node, numeric: set, ename: str, fname: str,
+                           ent: dict | None = None, by: dict | None = None) -> None:
     """Valida el AST de un campo computado fail-closed (mismo patrón que los guards de format/workflow/poly):
     un nodo es un NÚMERO (literal), un STRING (nombre de un campo numérico no-computado de la entidad) o un
     `{op, args}` con `op` ∈ el set CERRADO y `args` una lista de ≥2 nodos (binario para `-`/`/`). M0/scaffold
     RECHAZA un operador fuera del set, una referencia a un campo inexistente/no-numérico/computado, o aridad mala.
-    FSK-XENTITY-COMPUTED — un STRING con un punto `<ref>.<campo>` es un operando CROSS-ENTITY: `<ref>` ∈
-    `xnumeric` (un ref REQUERIDO no-poly de la entidad) y `<campo>` ∈ `xnumeric[<ref>]` (un numérico REQUERIDO
-    no-computado del target). 1er-cut: ref+campo REQUERIDOS (la FK siempre seteada + el campo siempre sembrado →
-    el valor derivado es observable; el cross-entity sobre ref/campo OPCIONAL —default 0— sigue diferido)."""
+    FSK-XENTITY-COMPUTED / FSK-XENTITY-DEPTH2 — un STRING con uno o más PUNTOS `<r1>[.<r2>...].<campo>` es un
+    operando CROSS-ENTITY que cruza una CADENA de refs (depth-1 = `<ref>.<campo>`, depth-2 = `<r1>.<r2>.<campo>`,
+    …). `_xref_resolve` camina la cadena (cada ref no-poly de la entidad en curso, REQUERIDO u OPCIONAL — el LEFT
+    JOIN es null-safe `?: 0.0`) y exige que `<campo>` sea un numérico no-computado del target FINAL, fail-closed."""
     if isinstance(node, bool):                  # bool ⊂ int en Python → excluir explícito (no es operando numérico)
         raise SystemExit(f"scaffold: computed {ename}.{fname}: un booleano no es un operando numérico")
     if isinstance(node, (int, float)):
         return
     if isinstance(node, str):
-        if "." in node:                          # FSK-XENTITY-COMPUTED: operando cross-entity `<ref>.<campo>`
-            xn = xnumeric or {}
-            ref, _, fld = node.partition(".")
-            if ref not in xn:
-                raise SystemExit(f"scaffold: computed {ename}.{fname}: {ref!r} en {node!r} no es un ref REQUERIDO "
-                                 f"no-polimórfico de {ename} (cross-entity 1er-cut: ref requerido, fail-closed)")
-            if fld not in xn[ref]:
-                raise SystemExit(f"scaffold: computed {ename}.{fname}: {fld!r} en {node!r} no es un campo numérico "
-                                 f"REQUERIDO no-computado del target de {ref!r} (fail-closed)")
+        if "." in node:                          # FSK-XENTITY-COMPUTED/DEPTH2: operando cross-entity `<r1>[.<r2>...].<campo>`
+            _xref_resolve(ent or {}, by or {}, node.split("."), ename, fname)   # fail-closed (valida la cadena)
             return
         if node not in numeric:
             raise SystemExit(f"scaffold: computed {ename}.{fname}: la referencia {node!r} no es un campo numérico "
@@ -253,7 +278,7 @@ def _validate_computed_ast(node, numeric: set, ename: str, fname: str, xnumeric:
     if op in _COMPUTED_BINARY and len(args) != 2:
         raise SystemExit(f"scaffold: computed {ename}.{fname}: el operador {op!r} es BINARIO (exactamente 2 args)")
     for a in args:
-        _validate_computed_ast(a, numeric, ename, fname, xnumeric)
+        _validate_computed_ast(a, numeric, ename, fname, ent, by)
 
 
 def _computed_srcs(node, out: set) -> None:
@@ -429,16 +454,10 @@ def _load_blueprint(root: Path) -> dict:
                                      f"ser computado (el ownership cruza una FK a un principal, no un derivado)")
                 numeric = {g["name"] for g in e["fields"]
                            if g.get("type") in ("int", "number") and not _is_computed(g)}
-                # FSK-XENTITY-COMPUTED: el universo de operandos CROSS-ENTITY `<ref>.<campo>` — por cada ref REQUERIDO
-                # no-poly de la entidad, los campos numéricos REQUERIDOS no-computados de su target (el JOIN de rowJson
-                # los lee). 1er-cut: ref+campo REQUERIDOS. Vacío si la entidad no tiene refs requeridos → sólo same-entity.
-                xnumeric = {
-                    g["name"]: {h["name"] for h in by[g["to"]]["fields"]
-                                if h.get("type") in ("int", "number") and not _is_computed(h) and h.get("required", True)}
-                    for g in e["fields"]
-                    if g.get("type") == "ref" and not _is_poly(g) and g.get("required", True) and g.get("to") in by
-                }
-                _validate_computed_ast(f["computed"], numeric, e["name"], f["name"], xnumeric)
+                # FSK-XENTITY-COMPUTED/DEPTH2: un operando con punto(s) `<r1>[.<r2>...].<campo>` cruza una CADENA de
+                # refs; `_validate_computed_ast` la resuelve contra el grafo (`e`+`by`) vía `_xref_resolve` (cada ref
+                # no-poly de la entidad en curso, REQUERIDO u OPCIONAL — null-safe; el campo final numérico no-computado).
+                _validate_computed_ast(f["computed"], numeric, e["name"], f["name"], e, by)
             # R2 (FSK-S12, workflows): un campo enum puede declarar una máquina de estado OPCIONAL (`initial` +
             # `transitions`). Validación fail-closed (mismo patrón que el guard de tipo): los modifiers sólo
             # sobre enum; `initial` ∈ values; toda clave/destino de `transitions` ∈ values (sin estados fantasma).
@@ -1598,37 +1617,44 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
     quoted = {"string", "date", "enum"}   # salen entrecomillados (jsonVal); el resto, crudos
     computed = [f for f in e["fields"] if _is_computed(f)]
     field_by = {f["name"]: f for f in e["fields"]}
-    # FSK-XENTITY-COMPUTED: separá las fuentes en SAME-entity (sin punto) y CROSS-entity (`<ref>.<campo>`). Cada
-    # cross-entity usa un ref de la entidad → su target; agrupá por ref (un LEFT JOIN por ref DISTINTO) y seleccioná
-    # `TGT.<CAMPO>`. 1er-cut: dos refs a la MISMA tabla necesitarían alias jOOQ → fail-closed (diferido).
+    # FSK-XENTITY-COMPUTED/DEPTH2: separá las fuentes en SAME-entity (sin punto) y CROSS-entity (`<r1>[.<r2>...].<campo>`,
+    # una CADENA de refs). `_xref_resolve` la resuelve a sus HOPS (un LEFT JOIN por ref distinto de la cadena, ENCADENADOS:
+    # entidad→target(r1)→target(r2)→…) + el campo del target FINAL. Dedup por PREFIJO de cadena (dos fuentes que comparten
+    # `r1.r2` comparten ambos JOINs). 1er-cut: dos cadenas distintas a la MISMA tabla necesitarían alias jOOQ → fail-closed.
     srcs: set = set()
     for cf in computed:
         _computed_srcs(cf["computed"], srcs)
     same_srcs = sorted(s for s in srcs if "." not in s)
     x_srcs = sorted(s for s in srcs if "." in s)
-    joins: list = []          # (TGT_TBL, REF_COL) por ref distinto
-    x_cols: list = []         # las columnas del target a SELECCIONAR (fuentes cross-entity)
-    seen_tgt: dict = {}
+    joins: list = []          # (FROM_TBL, REF_COL, TGT_TBL) por hop distinto, en orden de cadena
+    x_cols: list = []         # las columnas del target FINAL a SELECCIONAR (fuentes cross-entity)
+    x_meta: dict = {}         # fuente → (TGT_TBL_final, campo_dict_final), para leerla null-safe en el prelude
+    seen_prefix: set = set()
+    seen_tgt: dict = {}       # TGT_TBL → prefijo de cadena (fail-closed si la MISMA tabla por cadenas distintas)
     for s in x_srcs:
-        ref, _, fld = s.partition(".")
-        tgt_tbl = _TBL(by[field_by[ref]["to"]])
-        if tgt_tbl in seen_tgt and seen_tgt[tgt_tbl] != ref:
-            raise SystemExit(f"scaffold: computed cross-entity en {e['name']}: dos refs ({seen_tgt[tgt_tbl]!r}, "
-                             f"{ref!r}) a la MISMA tabla {tgt_tbl} requieren alias jOOQ (diferido, 1er-cut)")
-        if ref not in {r for _, r in joins}:
-            joins.append((tgt_tbl, _COL(ref)))
-            seen_tgt[tgt_tbl] = ref
-        x_cols.append(f"{tgt_tbl}.{_COL(fld)}")
+        steps, tgt_ent, tfld = _xref_resolve(e, by, s.split("."), e["name"], "<rowJson>")
+        for prefix, from_ent, ref_field, to_ent in steps:
+            tgt_tbl = _TBL(to_ent)
+            if tgt_tbl in seen_tgt and seen_tgt[tgt_tbl] != prefix:
+                raise SystemExit(f"scaffold: computed cross-entity en {e['name']}: dos cadenas de refs a la MISMA "
+                                 f"tabla {tgt_tbl} requieren alias jOOQ (diferido, 1er-cut)")
+            if prefix not in seen_prefix:
+                joins.append((_TBL(from_ent), _COL(ref_field["name"]), tgt_tbl))
+                seen_prefix.add(prefix)
+                seen_tgt[tgt_tbl] = prefix
+        x_meta[s] = (_TBL(tgt_ent), tfld)
+        x_cols.append(f"{_TBL(tgt_ent)}.{_COL(s.split('.')[-1])}")
     cols = [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)] + x_cols
     # FSK-SOFT-DELETES: una entidad soft FILTRA las filas borradas en CADA read-path. El get-one suma
     # `AND deleted_at IS NULL` → una fila soft-deleteada: GET /{id} → null → 404 (sigue EXISTIENDO; restore la trae).
     # Quitar este `.and(...)` (sabotaje del read-filter) → la fila borrada se ve → rojo SÓLO en s9. Byte-neutro sin la flag.
     one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else f"{tbl}.ID.eq(id)"
-    # FSK-XENTITY-COMPUTED: el chasis de la query como CADENA de calls (from → [leftJoin → on]* → where → fetchOne).
-    # Sin joins es `.from(TBL).where(...).fetchOne()` (byte-idéntico al previo); con joins, cada leftJoin/on suma calls.
+    # FSK-XENTITY-COMPUTED/DEPTH2: el chasis de la query como CADENA de calls (from → [leftJoin → on]* → where →
+    # fetchOne). Sin joins es `.from(TBL).where(...).fetchOne()` (byte-idéntico al previo); cada hop suma su leftJoin/on,
+    # ENCADENADO desde la tabla FROM del hop (la entidad para r1, el target del hop previo para r2…) → depth-2 = 2 JOINs.
     tail_calls = [f"from({tbl})"]
-    for jt, jc in joins:
-        tail_calls += [f"leftJoin({jt})", f"on({tbl}.{jc}.eq({jt}.ID))"]
+    for from_tbl, ref_col, to_tbl in joins:
+        tail_calls += [f"leftJoin({to_tbl})", f"on({from_tbl}.{ref_col}.eq({to_tbl}.ID))"]
     tail_calls += [f"where({one_where})", "fetchOne()"]
     tail = "." + ".".join(tail_calls)
     single = f"        val r = ctx.select({', '.join(cols)}){tail} ?: return null"
@@ -1658,10 +1684,10 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
     prelude = ""
     if computed:
         srcvar = {s: f"c{_pascal(s)}" for s in same_srcs}
-        # FSK-XENTITY-COMPUTED: una fuente cross-entity gana un `val` con prefijo `x` (≠ las `c` de same-entity).
+        # FSK-XENTITY-COMPUTED/DEPTH2: una fuente cross-entity gana un `val` con prefijo `x` (≠ las `c` de same-entity);
+        # incluye TODOS los segmentos de la cadena (depth-2 `r1.r2.campo` → `xR1R2Campo`) para no colisionar entre cadenas.
         for s in x_srcs:
-            ref, _, fld = s.partition(".")
-            srcvar[s] = f"x{_pascal(ref)}{_pascal(fld)}"
+            srcvar[s] = "x" + "".join(_pascal(p) for p in s.split("."))
         # jOOQ DDLDatabase tipa toda columna nullable. Un `number` ya es `Double?` → `?: 0.0` (un `.toDouble()`
         # sería REDUNDANTE → -Werror); un `int` es `Int?` → `?.toDouble() ?: 0.0` (conversión real). El AST sólo
         # referencia campos int/number (validado), así que estos dos casos cubren todo.
@@ -1669,13 +1695,13 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
             f"        val {srcvar[s]} = " + (f"r[{tbl}.{_COL(s)}] ?: 0.0\n" if field_by[s]["type"] == "number"
                                             else f"r[{tbl}.{_COL(s)}]?.toDouble() ?: 0.0\n")
             for s in same_srcs)
-        # FSK-XENTITY-COMPUTED: las fuentes cross-entity se leen de la columna del TARGET ya seleccionada (LEFT JOIN
-        # → null-safe igual que las same-entity; el tipo lo da el campo del target).
+        # FSK-XENTITY-COMPUTED/DEPTH2: las fuentes cross-entity se leen de la columna del TARGET FINAL ya seleccionada
+        # (la cadena de LEFT JOINs → null-safe igual que las same-entity; un ref del medio NULL → la columna es null →
+        # `?: 0.0`; el tipo lo da el campo del target final, resuelto por `_xref_resolve` en `x_meta`).
         for s in x_srcs:
-            ref, _, fld = s.partition(".")
-            tgt = by[field_by[ref]["to"]]
-            tcol = f"{_TBL(tgt)}.{_COL(fld)}"
-            num = next(h for h in tgt["fields"] if h["name"] == fld)["type"] == "number"
+            tgt_tbl, tfld = x_meta[s]
+            tcol = f"{tgt_tbl}.{_COL(s.split('.')[-1])}"
+            num = tfld["type"] == "number"
             prelude += f"        val {srcvar[s]} = " + (f"r[{tcol}] ?: 0.0\n" if num
                                                        else f"r[{tcol}]?.toDouble() ?: 0.0\n")
         for cf in computed:
@@ -5966,11 +5992,11 @@ def _access_control_check_py(bp: dict) -> str:
     # uno. POST_BODY (las fuentes) ya se postea; el GET de la fila nueva trae el valor derivado. Opt-in: sin campo
     # computado en el owned → "" → el proof queda byte-idéntico.
     computed_fields = [f for f in owned["fields"] if _is_computed(f)]
-    # FSK-XENTITY-COMPUTED: el valor SEMBRADO de cada fuente cross-entity `<ref>.<campo>` (el server lo lee del target
-    # via JOIN). El target de un ref REQUERIDO se siembra (transitivamente) con samples DETERMINISTAS → el campo
-    # REQUERIDO numérico del target = _SEED_NUM[type] (variant 0, espeja _KT_SAMPLE). El oraculo cruza ese valor.
+    # FSK-XENTITY-COMPUTED/DEPTH2: el valor SEMBRADO de cada fuente cross-entity `<r1>[.<r2>...].<campo>` (el server lo
+    # lee del target FINAL via la cadena de JOINs). El target de un ref REQUERIDO se siembra (transitivamente) con
+    # samples DETERMINISTAS → el campo REQUERIDO numérico del target FINAL = _SEED_NUM[type] (variant 0, espeja
+    # _KT_SAMPLE). `_xref_resolve` camina la cadena y devuelve ese campo; el oraculo cruza su valor sembrado a N hops.
     by = {ent["name"]: ent for ent in bp["entities"]}
-    owned_field_by = {f["name"]: f for f in owned["fields"]}
     xsrc: dict = {}
     for cf in computed_fields:
         _csrcs: set = set()
@@ -5978,9 +6004,7 @@ def _access_control_check_py(bp: dict) -> str:
         for s in _csrcs:
             if "." not in s:
                 continue
-            ref, _, fld = s.partition(".")
-            tgt = by[owned_field_by[ref]["to"]]
-            tfld = next(h for h in tgt["fields"] if h["name"] == fld)
+            _, _, tfld = _xref_resolve(owned, by, s.split("."), owned["name"], cf["name"])
             xsrc[s] = _SEED_NUM[tfld["type"]]
     # FSK-XENTITY-COMPUTED opt-in: con fuentes cross-entity, el oraculo merge-a XSRC (POST_BODY U XSRC = `_csrc`);
     # sin ellas, el bloque usa POST_BODY directo -> byte-identico al previo (same-entity computed sin re-derivar).

@@ -1,6 +1,41 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T20:10Z — FSK-FORM-BROWSER-E2E ✅: el SUBMIT del FORM en un Chromium REAL (no jsdom) — la UX del frontend COMPLETA end-to-end
+- **El más bounded de los ejes que quedaban, y completa la UX.** El frontend ya se RENDERIZABA en un Chromium real
+  (FSK-FRONTEND-BROWSER: la lista viva como `<li>` en el DOM real), pero el **SUBMIT del FORM** (el usuario CREA una
+  fila desde el navegador) sólo se probaba en **jsdom** (`_browser_form_block` de `consume_check.ts`). Ahora
+  `browser_check.ts` (s9, check `frontend_browser_live`, Playwright/Chromium) gana una **fase de SUBMIT**: LLENA los
+  `<input>` del FORM generado (`page.fill`/`page.check` por `[name]`), dispara el submit y asevera que la fila NUEVA
+  aparece en el **DOM REAL** (count `<li>` N→N+1 + el valor posteado visible). El handler async del bundle corre EN EL
+  NAVEGADOR REAL: preventDefault + `create<E>` (POST por la red) + re-render. Todo en `codegen/scaffold_product.py`
+  (FÁBRICA, GENERAL); **`src/metafactory/ + seed/ = 0`**.
+- **Reusa el MISMO `FORM_BODY` que el bloque jsdom** (escalares por `_proof_form_value` + los refs requeridos no-dueño
+  llenados de `/seed.ownedRefs`, la FK válida); el token de ESCRITURA lo arma el bundle (`browser_entry.ts`) de `/seed`
+  → el submit pasa RBAC/ownership. **Paridad EXACTA con el round-trip que el jsdom probaba sin browser** — el browser
+  proof y el jsdom proof postean el MISMO cuerpo por el MISMO `create<E>`. Opt-in a `owned_by`; sin refs no-dueño
+  (default/assets) el `owned_ref_merge` queda `""` (byte-estable).
+- **Lección CARA (la sorpresa del eje):** el handoff sugería `page.click('button[type=submit]')`, pero clickear el
+  `<button submit>` de un FORM **sin `action`** dispara una **NAVEGACIÓN nativa por GET** que RECARGA la página ANTES
+  de que el handler async (preventDefault + `create<E>` + re-render) complete → el count NO sube (FALSO ROJO; debug
+  Playwright: `navs=1`, feedback vacío). **Solución (más faithful y robusta):** disparar el **evento `submit` directo**
+  vía `page.evaluate` (el MISMO `dispatchEvent(new Event("submit", {cancelable, bubbles}))` que el bloque jsdom) — lo
+  procesa el sistema de eventos REAL del browser, corre el handler real, sin la carrera de la navegación (debug:
+  `POST /assets 201`, N→N+1, feedback `"ok"`). Es EXACTAMENTE el round-trip del jsdom, ahora en Chromium real.
+- **Probado por bloqueo (ojos propios):** EYEBALL (sólo `frontend/browser_check.ts` cambia en los 3 productos =
+  mecanismo GENERAL; 0 líneas Kotlin >160) · `product-run` snipeit **PASS** · RTM snipeit **25/26** (único UNSAT =
+  REQ-F-007/s6 LLM keyless; REQ-F-020 `frontend_browser_render` SATISFIED) · **DIENTE vivo de DOS lados** contra dist
+  recompilada + PG real (ports 18600/18601, mock recipe del handoff §3): con el form cableado el submit en Chromium
+  agrega la fila → `N→N+1` verde + el `<li>` nuevo muestra el valor posteado; **saboteado el re-render del submit en
+  `mount<E>`** (la fila NO aparece aunque el POST landea, `esperaba 4 obtuvo 3`) → **SÓLO los 2 asserts del submit
+  rojos** (los 2 de render verdes = server/data vivos) → exit 1; revertí + re-bundle → verde. · `ci --rederive
+  --all-products` **3/3 == pin** (12·11·11, re-derivación delegada a un subagente Sonnet, cross-check contra mi
+  `product-run`) · `meta check` 6/6 (`generality` verde) · `git diff src+seed=0`. **proof_sha byte-neutro → SIN
+  re-pin** (extiende el check `frontend_browser_live`, no agrega check ni estación → `pinned_verdict.json` byte-idéntico).
+- **Con esto la UX del frontend está COMPLETA end-to-end** (render + submit en un browser REAL). Sigue:
+  `FSK-DEPLOY-APPSERVER-PG` (el AppServer REAL en un contenedor con PG — el último gran hito de deploy; hoy s11
+  `deploy_smoke` despliega el ObsServer PG-free). Handoff: `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md`.
+
 ## 2026-06-24T17:30Z — FSK-TIME-COMPUTED ✅: un campo computado depende del TIEMPO TRANSCURRIDO (meses entre una fecha y `now`) — la dimensión de valores-derivados COMPLETA
 - **El último fleco de VALORES DERIVADOS y el más bounded.** Hasta hoy un campo computado podía cruzar campos
   numéricos same-entity (FSK-COMPUTED-FIELDS) y cadenas de refs cross-entity (FSK-XENTITY-COMPUTED/DEPTH2), pero NO el

@@ -373,8 +373,8 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     `frontend_browser_live` (s9, infra_up, server propio 18597 + PG 5438); diente de DOS lados VIVO (garblear
     `renderAssetList` → la fila no aparece en el DOM real → SÓLO este check rojo, "lista viva ≥1" verde = server vivo).
     `playwright-core` pineado (rev chromium 1217, binario en `~/.cache/ms-playwright` — precondición de entorno como
-    docker). `git diff src/+seed=0`. **Sigue diferido** (item 18): el e2e del **submit del FORM** en browser real (hoy
-    el render de la LISTA está en Chromium; el FORM sigue sólo en jsdom). Ver `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia`.
+    docker). `git diff src/+seed=0`. **El e2e del submit del FORM se cerró en item 21** (FSK-FORM-BROWSER-E2E). Ver
+    `docs/work/FSK-FRONTEND-BROWSER-INCREMENT.md §Evidencia`.
 18. **Servir TODAS las entidades ✅ (FSK-SERVE-ALL-ENTITIES, 2026-06-24)**: el AppServer vivo monta CRUD
     RBAC/ownership-aware para TODAS las entidades servibles (snipeit: **18**, era 3 — owned + 1 ownerless + 1 with_ref).
     El dominio ENTERO es usable a runtime; el proof ejercita de dos lados 7 entidades nuevas. (La superficie *total* de
@@ -388,10 +388,20 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     (same-entity + cross-entity depth-N + tiempo) queda COMPLETA.** Diente de DOS lados VIVO (s9, `MONTHS`→`YEARS` → sólo
     `[computed]` rojo) + bonus (dos `FSK_NOW` → distinto `current_value`). `git diff src/+seed=0`, sin re-pin. Ver
     `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` + `…/TIME-COMPUTED-ADOPT-INCREMENT.md` (producto).
-20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **e2e del FORM en browser**
-    (extender FSK-FRONTEND-BROWSER al submit en Chromium — **el siguiente**) · AppServer-en-contenedor con PG (s11 hoy
-    usa el ObsServer PG-free) · push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog
-    (auditoría polimórfica) · Kits (bundles) · PUT de campos opcionales arbitrarios.
+20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **AppServer-en-contenedor con
+    PG** (s11 hoy usa el ObsServer PG-free — **el siguiente**, `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md`) ·
+    push de la imagen a un registry · EAV dinámico a runtime (Avenue B) · Actionlog (auditoría polimórfica) · Kits
+    (bundles) · PUT de campos opcionales arbitrarios.
+21. **El SUBMIT del FORM en un Chromium real ✅ (FSK-FORM-BROWSER-E2E, 2026-06-24)** — la UX del frontend COMPLETA
+    end-to-end. `browser_check.ts` (s9, Playwright) gana una fase de SUBMIT: LLENA el FORM generado (`page.fill`/
+    `page.check` por `[name]`), dispara el evento `submit` (el MISMO `dispatchEvent` que el bloque jsdom — un click
+    nativo sobre el `<button submit>` de un FORM sin `action` navega por GET y RECARGA la página ANTES de que el
+    handler async termine, falso rojo) y asevera que la fila NUEVA aparece en el **DOM REAL** (count `<li>` N→N+1 + el
+    valor posteado visible). El handler del bundle corre en el navegador REAL: preventDefault + `createAsset` (POST por
+    la red) + re-render. Reusa el MISMO `FORM_BODY` que el bloque jsdom (escalares + refs no-dueño de `/seed.ownedRefs`).
+    Diente de DOS lados VIVO (s9, saboteado el re-render del submit → SÓLO los 2 asserts del submit rojos, los de render
+    verdes; `esperaba 4 obtuvo 3`). `git diff src/+seed=0`, sin re-pin. **El render Y el submit del frontend están en
+    un browser REAL.** Ver `docs/work/FSK-FORM-BROWSER-E2E-INCREMENT.md §Evidencia`.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

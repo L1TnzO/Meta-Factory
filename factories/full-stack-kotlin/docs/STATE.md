@@ -29,6 +29,27 @@
   un render que dropea/garbla/hardcodea → HTML ≠ lista viva → rojo). Extiende el MISMO check `frontend_consume_live`
   (sin check nuevo → `proof_sha` intacto, pin byte-idéntico). RTM snipeit **22/23** (REQ-F-018, capability
   `frontend_render_live`). Diente de dos lados verificado VIVO.
+- **EL SUBMIT DEL FORM EN UN CHROMIUM REAL — la UX end-to-end COMPLETA (FSK-FORM-BROWSER-E2E, 2026-06-24)**: el
+  frontend ya se RENDERIZABA en un Chromium real (FSK-FRONTEND-BROWSER: la lista viva como `<li>` en el DOM real),
+  pero el **SUBMIT del FORM** (el usuario CREA una fila desde el navegador) sólo se probaba en **jsdom**
+  (`_browser_form_block` de `consume_check.ts`). Ahora `browser_check.ts` (s9, check `frontend_browser_live`,
+  Playwright) gana una **fase de SUBMIT**: LLENA los `<input>` del FORM generado (`page.fill`/`page.check` por
+  `[name]`), dispara el submit y asevera que la fila NUEVA aparece en el **DOM REAL** (count `<li>` N→N+1 + el valor
+  posteado visible). El handler async del bundle corre EN EL NAVEGADOR REAL: preventDefault + `create<E>` (POST por
+  la red) + re-render. `FORM_BODY` = el MISMO dato que el bloque jsdom (escalares por `_proof_form_value` + refs
+  no-dueño de `/seed.ownedRefs`); el token de ESCRITURA lo arma el bundle (`browser_entry.ts`) → el submit pasa
+  RBAC/ownership. **Lección CARA**: clickear el `<button submit>` de un FORM SIN `action` dispara una navegación GET
+  que RECARGA la página ANTES de que el handler async termine (falso rojo) → se dispara el **evento `submit` directo**
+  (el MISMO `dispatchEvent` que el jsdom) vía `page.evaluate`, que el sistema de eventos REAL del browser procesa sin
+  esa carrera. **Anti-overfit**: todo en `codegen/scaffold_product.py` (FÁBRICA, GENERAL — los 3 productos ganan la
+  fase IDÉNTICA); **`git diff src/metafactory + seed = 0`**; **proof_sha byte-neutro** (extiende el check, no agrega →
+  **SIN re-pin**). **Probado por bloqueo**: EYEBALL (sólo `browser_check.ts` cambia, 0 Kotlin >160) · `product-run`
+  snipeit PASS · RTM snipeit **25/26** (REQ-F-020 `frontend_browser_render`) · **diente VIVO dos-lados** (saboteado el
+  re-render del submit → SÓLO los 2 asserts del submit rojos, los de render verdes; `esperaba 4 obtuvo 3`;
+  revertí→verde) · `ci --rederive --all-products` **3/3 == pin** (12·11·11) · `meta check` 6/6. **La UX del frontend
+  está COMPLETA end-to-end** (render + submit en un browser REAL). Detalle:
+  `docs/work/FSK-FORM-BROWSER-E2E-INCREMENT.md §Evidencia` · `docs/LOG.md`. Siguiente: `FSK-DEPLOY-APPSERVER-PG` (el
+  AppServer REAL en un contenedor con PG — el último gran hito de deploy).
 - **VALORES DERIVADOS COMPLETOS — un campo computado depende del TIEMPO transcurrido (FSK-TIME-COMPUTED, 2026-06-24)**:
   el AST de un campo computado gana el operando de TIEMPO `months_since(<campo date>)` = los MESES entre una fecha y
   `now`. `Asset.current_value` (snipeit) dejó de ser una constante por-modelo y se volvió la depreciación straight-line

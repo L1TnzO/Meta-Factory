@@ -1,12 +1,55 @@
 # Incremento FSK-FORM-BROWSER-E2E — el submit del FORM en un Chromium REAL (no jsdom)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
-> (creado 2026-06-24). Cerralo flippeando este header a CERRADO **o** con
-> `meta increment close --factory full-stack-kotlin`. Editar `factories/full-stack-kotlin/**` no-`.md`
-> (codegen/spec/stations) exige ESTE incremento abierto — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-24). Construido y verificado por bloqueo (§Evidencia).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
 > FSK-TIME-COMPUTED con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
+
+---
+
+## ✅ Evidencia (cierre, 2026-06-24)
+
+**HECHO exactamente como el handoff anticipó** (el más bounded de los que quedaban): `browser_check.ts`
+(s9, check `frontend_browser_live`, Playwright/Chromium) ganó una FASE DE SUBMIT que LLENA el FORM generado
+(`page.fill`/`page.check` por `[name]`), dispara el submit y asevera que la fila NUEVA aparece en el DOM REAL
+(count `<li>` N→N+1 + el valor posteado visible). **El submit del FORM, que sólo se probaba en jsdom
+(`_browser_form_block`), ahora corre en un Chromium REAL.** Reusa el MISMO `FORM_BODY` que el bloque jsdom
+(escalares por `_proof_form_value` + refs requeridos no-dueño de `/seed.ownedRefs`); el token de ESCRITURA lo
+arma el bundle (`browser_entry.ts`) de `/seed` → el submit pasa RBAC/ownership. **Paridad EXACTA con el
+round-trip que el jsdom probaba sin browser.**
+
+**Lección CARA (la sorpresa del eje)**: el handoff sugería `page.click('button[type=submit]')`, pero clickear
+el `<button submit>` de un FORM **sin `action`** dispara una NAVEGACIÓN nativa por GET que RECARGA la página
+ANTES de que el handler async (preventDefault + `create<E>` + re-render) termine → el count NO sube (falso
+rojo). **Solución (más faithful y más robusta)**: disparar el **evento `submit` directo** vía `page.evaluate`
+(el MISMO `dispatchEvent(new Event("submit"))` que el bloque jsdom) — lo procesa el sistema de eventos REAL del
+browser, corre el handler real, sin la carrera de la navegación. Es EXACTAMENTE el round-trip del jsdom, ahora
+en Chromium real. (Verificado con un debug Playwright que capturó la navegación: el click → `navs=1`/feedback
+vacío; el dispatch → `POST /assets 201`/N→N+1/feedback `"ok"`.)
+
+**Probado por bloqueo, con ojos propios**:
+- **EYEBALL**: sólo `frontend/browser_check.ts` cambia en los 3 productos (mecanismo GENERAL); 0 líneas Kotlin >160.
+- **DIENTE de DOS lados VIVO** (manual, dist recompilada + PG real, port 18600/18601): con el form cableado el
+  submit en Chromium agrega la fila → `N→N+1` verde + el `<li>` nuevo muestra el valor posteado; **saboteado el
+  re-render del submit en `mount<E>`** (la fila nueva NO aparece en el DOM aunque el POST landea, `esperaba 4
+  obtuvo 3`) → **SÓLO los 2 asserts del submit rojos** (los 2 de render verdes = server/data vivos) → exit 1;
+  revertí + re-bundle → verde.
+- **`product-run --product snipeit` PASS** · **RTM snipeit 25/26** (único UNSAT = REQ-F-007/s6 LLM keyless;
+  REQ-F-020 `frontend_browser_render` SATISFIED con `browser_check.ts✓`).
+- **`ci --rederive --all-products` PASS 3/3 == pin** (default 12/12 · assets 11/11 · snipeit 11/11) en clon
+  re-derivado · **`meta check` 6/6** (`generality` verde). (Re-derivación pesada delegada a un subagente Sonnet,
+  cross-check contra mi `product-run`.)
+- **`git diff src/metafactory + seed = 0`** (todo `codegen/scaffold_product.py`, DATA de fábrica). **proof_sha
+  byte-neutro** (extiende el check `frontend_browser_live`, no agrega check ni estación) → `pinned_verdict.json`
+  byte-idéntico, **NO re-pin**.
+
+**SIGUIENTE**: `FSK-DEPLOY-APPSERVER-PG` (el AppServer REAL en un contenedor con PG, el último gran hito de
+deploy). Handoff: `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md`.
+
+---
+
+> ⓘ El handoff original (la guía de diseño que esta sesión siguió) sigue ABAJO, como registro.
 
 ---
 

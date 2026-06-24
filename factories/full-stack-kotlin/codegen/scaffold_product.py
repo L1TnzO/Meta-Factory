@@ -6853,33 +6853,65 @@ def _build_bundle_mjs() -> str:
 
 
 def _browser_check_ts(bp: dict) -> str:
-    """frontend/browser_check.ts — el proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER), parte de
-    s9 (kind infra_up, check frontend_browser_live). Abre GET / (servido MISMO-ORIGEN por el AppServer) en un
-    Chromium HEADLESS real (Playwright): el bundle (dist/app.js) monta mount<E> → trae la lista VIVA (GET
-    /<plural>, PG real detras) y la renderiza en el DOM REAL del navegador. EL DIENTE: cada fila viva (su campo
-    renderizado) aparece como <li> en el DOM real. Un render<E>List que dropea/garbla una fila → el texto no
-    aparece → exit 1. Pagina/server caidos → no carga → rojo (nativo de infra_up). `expected` se deriva del
-    MISMO endpoint que mount<E> usa (GET /<plural>, sin token) → siempre == la lista viva renderizada salvo que
-    el render mienta. NO type-checked (vive en frontend/, fuera del include de tsc, como consume_check.ts); el
-    tooth DES-6 vive en src/. Corre por node. Datos = del blueprint. Uso: browser_check.ts <base_url>."""
+    """frontend/browser_check.ts — el proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER +
+    FSK-FORM-BROWSER-E2E), parte de s9 (kind infra_up, check frontend_browser_live). Abre GET / (servido
+    MISMO-ORIGEN por el AppServer) en un Chromium HEADLESS real (Playwright): el bundle (dist/app.js) monta
+    mount<E> → trae la lista VIVA (GET /<plural>, PG real detras) y la renderiza en el DOM REAL del navegador.
+    DIENTE #1 (render): cada fila viva (su campo renderizado) aparece como <li> en el DOM real. Un render<E>List
+    que dropea/garbla una fila → el texto no aparece → exit 1. DIENTE #2 (FSK-FORM-BROWSER-E2E): el proof LLENA el
+    FORM generado, CLICKEA submit y asevera que la fila NUEVA aparece en el DOM REAL (count <li> N → N+1, y el
+    valor posteado visible si el campo renderizado está en el form) — el round-trip del SUBMIT que el bloque jsdom
+    de consume_check.ts probaba sin browser, ahora en Chromium REAL. Un mount/form/re-render roto (submit que no
+    postea, re-render que no agrega el nodo) → el count NO sube → exit 1. Pagina/server caidos → no carga → rojo
+    (nativo de infra_up). El FORM_BODY (escalares por _proof_form_value + refs requeridos no-dueño de /seed.ownedRefs)
+    es el MISMO dato que el bloque jsdom → paridad. El token de ESCRITURA lo arma el bundle (browser_entry.ts) de
+    /seed → el submit pasa RBAC/ownership. NO type-checked (vive en frontend/, fuera del include de tsc, como
+    consume_check.ts); el tooth DES-6 vive en src/. Corre por node. Datos = del blueprint. Uso: browser_check.ts <base_url>."""
     owned = next(e for e in bp["entities"] if e.get("owned_by"))
     plural = "/" + _table(owned)
     render_field = next((f["name"] for f in owned["fields"] if f["type"] in ("string", "enum")),
                         owned["fields"][0]["name"])
+    # FSK-FORM-BROWSER-E2E: el SUBMIT del FORM en el browser REAL reusa el MISMO FORM_BODY que el bloque jsdom
+    # (_browser_form_block en consume_check.ts): los escalares por _proof_form_value + los refs REQUERIDOS no-dueño
+    # llenados de /seed.ownedRefs (la FK VÁLIDA). Mismo dato → mismo cuerpo posteado vía create<E> → si el jsdom
+    # submitea verde, el browser también. Sin refs no-dueño (default/assets) → owned_ref_merge == "" (byte-estable).
+    flds = _input_fields(owned)
+    scalars = [f for f in flds if f["type"] != "ref"]
+    owned_ref_fields = [f["name"] for f in flds if f["type"] == "ref" and not _is_poly(f)]  # FSK-POLYMORPHIC-REFS
+    form_body = {f["name"]: _proof_form_value(f) for f in scalars}
+    owned_ref_merge = ("\n    const ownedRefs = seed.ownedRefs ?? {};\n"
+                       "    for (const [k, v] of Object.entries(ownedRefs)) {\n"
+                       "      FORM_BODY[k] = v;\n    }") if owned_ref_fields else ""
+    # Si el campo renderizado está en el cuerpo del FORM, además asevera que el <li> nuevo MUESTRA el valor
+    # posteado (no sólo que el count subió). Igual heurística que el bloque jsdom (_browser_form_block).
+    value_assert = ""
+    if render_field in form_body:
+        value_assert = (
+            '\n    const newTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));\n'
+            f'    check(newTexts.includes(String(FORM_BODY["{render_field}"])), true,\n'
+            '          "el <li> nuevo muestra el valor que el FORM posteo en el browser REAL (Chromium)");')
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
-            .replace("%RENDER_FIELD%", render_field))
+            .replace("%RENDER_FIELD%", render_field)
+            .replace("%FORM_BODY%", json.dumps(form_body))
+            .replace("%OWNED_REF_MERGE%", owned_ref_merge)
+            .replace("%VALUE_ASSERT%", value_assert))
 
 
 _BROWSER_CHECK_SKELETON = '''\
-// browser_check.ts - proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER, s9). Abre GET / (servido
-// MISMO-ORIGEN por el AppServer) en un Chromium HEADLESS real via Playwright: el bundle (dist/app.js) monta
-// mount<E> -> trae la lista VIVA (GET /<plural>, PG real detras) y la renderiza en el DOM REAL del navegador.
-// EL DIENTE: cada fila viva (su campo renderizado) aparece como <li> en el DOM real. Un render<E>List que
-// dropea/garbla una fila -> el texto no aparece -> exit 1. Pagina/server caidos -> no carga -> rojo (nativo de
-// infra_up). `expected` se deriva del MISMO GET /<plural> (sin token) que mount<E> usa -> siempre == la lista
-// renderizada salvo que el render mienta. NO type-checked (vive en frontend/, fuera del include de tsc). Corre
-// por node (Chromium del cache ~/.cache/ms-playwright; --no-sandbox requerido). Uso: browser_check.ts <base_url>
+// browser_check.ts - proof e2e del frontend en un BROWSER REAL (FSK-FRONTEND-BROWSER + FSK-FORM-BROWSER-E2E, s9).
+// Abre GET / (servido MISMO-ORIGEN por el AppServer) en un Chromium HEADLESS real via Playwright: el bundle
+// (dist/app.js) monta mount<E> -> trae la lista VIVA (GET /<plural>, PG real detras) y la renderiza en el DOM
+// REAL del navegador. DIENTE #1 (render): cada fila viva (su campo renderizado) aparece como <li> en el DOM real;
+// un render<E>List que dropea/garbla una fila -> el texto no aparece -> exit 1. DIENTE #2 (FORM e2e): el proof
+// LLENA el FORM generado (page.fill/check por [name]), CLICKEA submit y espera que la fila NUEVA aparezca en el
+// DOM REAL (count <li> N -> N+1, y el valor posteado visible) -> el round-trip del SUBMIT que el bloque jsdom
+// probaba sin browser, ahora en Chromium REAL; un mount/form/re-render roto -> el count NO sube -> exit 1.
+// Pagina/server caidos -> no carga -> rojo (nativo de infra_up). FORM_BODY = los escalares por _proof_form_value
+// (mismo dato que el bloque jsdom) + los refs requeridos no-dueño de /seed.ownedRefs. El token de ESCRITURA lo
+// arma el bundle (browser_entry.ts) de /seed -> el submit pasa RBAC/ownership. NO type-checked (vive en frontend/,
+// fuera del include de tsc). Corre por node (Chromium del cache ~/.cache/ms-playwright; --no-sandbox requerido).
+// Uso: browser_check.ts <base_url>
 import { chromium } from "playwright-core";
 
 const PLURAL = "%PLURAL%";
@@ -6920,6 +6952,41 @@ async function main(base) {
       }
     }
     check(allRendered, true, "cada fila viva se renderiza como <li> en el DOM REAL del navegador (Chromium)");
+
+    // 3) FSK-FORM-BROWSER-E2E - el SUBMIT del FORM en el navegador REAL: llena los <input> del FORM generado,
+    //    clickea submit y asevera que la fila NUEVA aparece en el DOM REAL (count <li> N -> N+1). El token de
+    //    ESCRITURA lo arma el bundle (browser_entry.ts) de /seed -> el submit pasa RBAC/ownership; los refs
+    //    REQUERIDOS no-dueno se llenan con la FK VALIDA de /seed.ownedRefs (mismo dato que el bloque jsdom).
+    const seedRes = await fetch(`${base}/seed`);
+    const seed = await seedRes.json();
+    const FORM_BODY = %FORM_BODY%;%OWNED_REF_MERGE%
+    const before = await page.$$eval("li", (els) => els.length);
+    for (const [k, v] of Object.entries(FORM_BODY)) {
+      const sel = `[name="${k}"]`;
+      if (typeof v === "boolean") {
+        if (v) { await page.check(sel); } else { await page.uncheck(sel); }
+      } else {
+        await page.fill(sel, String(v));
+      }
+    }
+    // dispara el SUBMIT del FORM (el MISMO evento que el bloque jsdom: dispatchEvent "submit") -> el handler async
+    // del bundle corre EN EL NAVEGADOR REAL: preventDefault + create<E> (POST real por la red) + re-render. Un
+    // click nativo sobre el <button type=submit> de un form sin `action` navega por GET y recarga la pagina ANTES
+    // de que el handler async termine; el evento submit directo (lo que el handler ESCUCHA) lo procesa el sistema
+    // de eventos REAL del browser sin esa carrera -> exactamente el round-trip que el jsdom probaba, ahora en Chromium.
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    // el submit es async (postea via el cliente vivo, re-trae la lista, re-renderiza) -> esperamos por el DOM
+    // (determinista, no sleep) a que el count suba; un submit/re-render roto -> timeout -> after queda == before.
+    try {
+      await page.waitForFunction((n) => document.querySelectorAll("li").length > n, before, { timeout: 10000 });
+    } catch {
+      // timeout: el count no subio -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const after = await page.$$eval("li", (els) => els.length);
+    check(after, before + 1, "el submit del FORM en Chromium REAL crea un <li> NUEVO en el DOM (N -> N+1)");%VALUE_ASSERT%
   } finally {
     await browser.close();
   }

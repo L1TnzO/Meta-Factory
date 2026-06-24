@@ -180,20 +180,25 @@ entities:
       - { name: asset_tag, type: string, unique: true }   # etiqueta única del activo (asset_tag, faithful)
       - { name: name, type: string, required: false }
       - { name: serial, type: string, required: false }   # Snipe: unique condicional (setting); acá opcional
-      - { name: purchase_date, type: date, required: false }
-      # FSK-COMPUTED-FIELDS (deferral 7) + FSK-XENTITY-DEPTH2 (deferral 13): el VALOR ACTUAL de un activo NO se almacena
-      # — se COMPUTA por depreciación straight-line desde la compra (la dimensión de VALORES DERIVADOS). El período de
-      # depreciación es FAITHFUL ahora: NO un proxy en el modelo, sino el REAL de `Depreciation.months`, alcanzado
-      # CROSS-ENTITY a DEPTH-2 — `current_value` resuelve la cadena `model_id.depreciation_id.months` (Asset→AssetModel→
-      # Depreciation, 2 LEFT JOINs encadenados, la fórmula como AST determinista). `purchase_cost` (same-entity) +
-      # `model_id.depreciation_id.months` (cross-entity depth-2) → el valor es OBSERVABLE en el GET (el ref del medio es
-      # requerido en la adopción → el seeder transitivo siembra la cadena). (Refinamiento DIFERIDO: el tiempo TRANSCURRIDO
-      # —meses desde la compra hasta hoy— es un eje aparte, FSK-TIME-COMPUTED: necesita mockear `now` en el oráculo.)
+      # FSK-TIME-COMPUTED: la fecha de compra es la FUENTE del tiempo transcurrido de la depreciación (current_value
+      # corre sobre los meses desde ESTA fecha hasta `now`). REQUERIDA en la adopción (Snipe la deja nullable) para
+      # que el seeder/POST la provean → el valor derivado es OBSERVABLE y el diente del proof (s9) muerde; el
+      # MECANISMO admite un `date` opcional (NULL → 0 meses → sin depreciación), pero observarlo necesitaría
+      # postearlo (residual, mismo trato que el ref del medio requerido de FSK-XENTITY-DEPTH2).
+      - { name: purchase_date, type: date }
+      # FSK-COMPUTED-FIELDS (deferral 7) + FSK-XENTITY-DEPTH2 (deferral 13) + FSK-TIME-COMPUTED: el VALOR ACTUAL de un
+      # activo NO se almacena — se COMPUTA por depreciación straight-line REAL (la dimensión de VALORES DERIVADOS, ahora
+      # COMPLETA). Tres fuentes: `purchase_cost` (same-entity) + `model_id.depreciation_id.months` (cross-entity DEPTH-2:
+      # el período REAL de `Depreciation.months`, alcanzado por la cadena Asset→AssetModel→Depreciation, 2 LEFT JOINs) +
+      # `months_since(purchase_date)` (TIEMPO: los MESES TRANSCURRIDOS desde la compra hasta `now`, mockeado por FSK_NOW
+      # y leído de /seed por el oráculo). El valor BAJA con el tiempo (la depreciación de verdad), ya no es una constante
+      # por-modelo. OBSERVABLE en el GET (purchase_date y el ref del medio son requeridos en la adopción → sembrados).
       - { name: purchase_cost, type: number }                  # REQUERIDO (fuente same-entity del valor derivado)
-      # `current_value` = max(purchase_cost - purchase_cost/model_id.depreciation_id.months, 0): el valor tras una
-      # depreciación straight-line de un período, con piso 0 (max) y guard de div-por-cero (safeDiv). NO se guarda:
-      # 0 columnas, read-only, computado a read-time en rowJson tras la cadena de JOINs. AST: operadores del set cerrado
-      # (`- / max`); `model_id.depreciation_id.months` = el operando CROSS-ENTITY DEPTH-2 (cadena de 2 refs `.` un numérico).
+      # `current_value` = max(purchase_cost − (purchase_cost/period_months) * months_elapsed, 0): la depreciación
+      # straight-line REAL — el costo menos la cuota mensual (costo/período) por los meses TRANSCURRIDOS, con piso 0
+      # (max) y guard de div-por-cero (safeDiv). NO se guarda: 0 columnas, read-only, computado a read-time en rowJson.
+      # AST: operadores del set cerrado (`- * / max`) + `model_id.depreciation_id.months` (operando CROSS-ENTITY
+      # DEPTH-2) + `months_since(purchase_date)` (operando de TIEMPO, unario sobre un campo `date`).
       - name: current_value
         type: number
         computed:
@@ -202,7 +207,10 @@ entities:
             - op: "-"
               args:
                 - purchase_cost
-                - { op: "/", args: [purchase_cost, model_id.depreciation_id.months] }
+                - op: "*"
+                  args:
+                    - { op: "/", args: [purchase_cost, model_id.depreciation_id.months] }
+                    - { op: months_since, args: [purchase_date] }
             - 0
       - { name: order_number, type: string, required: false }
       - { name: warranty_months, type: int, required: false }

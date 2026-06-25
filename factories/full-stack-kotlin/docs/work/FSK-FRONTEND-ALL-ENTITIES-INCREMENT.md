@@ -1,7 +1,8 @@
 # Incremento FSK-FRONTEND-ALL-ENTITIES — el frontend RENDERIZA todas las entidades (de 1 pantalla a N)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T01:10Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-25T04:05Z; creado 2026-06-25T01:10Z). Evidencia de cierre al pie (§Evidencia). El SIGUIENTE eje
+> abierto es **FSK-FRONTEND-DETAIL** (`work/FSK-FRONTEND-DETAIL-INCREMENT.md`).
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
@@ -131,6 +132,57 @@ Una vez renderizadas todas las entidades, las pantallas que faltan para una UI S
 Y los backend pendientes (ortogonales): **FSK-PUT-UNIQUE-REFS** (flecos del PATCH: UNIQUE→409 + refs, handoff ya
 escrito en `…/work/FSK-PUT-UNIQUE-REFS-INCREMENT.md`, BACKLOG) · PUT-ownerless · Kits · EAV dinámico · el tail de
 ~226 rutas no-dominio.
+
+---
+
+## ✅ Evidencia (CERRADO 2026-06-25T04:05Z, commit `b067ba9`)
+
+**Qué se construyó.** El frontend generado pasó de **1 pantalla** (la entidad con dueño) a **N** (una por entidad
+servida) + un **NAV**. GENERAL, cero nombres de dominio: generaliza la SELECCIÓN (de `owned` a `served =
+_live_entities`), igual que FSK-SERVE-ALL-ENTITIES generalizó el backend. En `codegen/scaffold_product.py`:
+- **`_app_ts`** itera `served` y factoriza **`_render_list_ts(e)`** + **`_mount_ts(e)`** por entidad (antes 1 sola).
+  El mount host = `#screen` (el nav lo limpia entre pantallas) o `<body>` (jsdom) → **fallback byte-compatible**
+  con el proof previo (`getElementById("screen") ?? doc.body`).
+- **`_client_consume_ts`** emite `create<E>`/`get<E>`/`list<E>` por entidad servida (factorizado a
+  **`_consume_entity_ts(e)`**); **`expectId`/`expectRows` son helpers compartidos** (genéricos, emitidos 1 vez).
+- **El Pick y el FORM usan `_input_cols`** (columnas FÍSICAS), no `_input_fields` (campos lógicos): un **ref
+  polimórfico** requerido no-dueño (p.ej. Consumable/Accessory `checkout_target`) entra como sus 2 sub-columnas
+  `_type`/`_id` del contrato. SIN esto, `tsc --strict` rojo en las ownerless con poly (lo cazó el eyeball).
+- **`_browser_entry_ts`** arma un `<nav>` (un `<button data-entity=…>` por entidad servida) + `#screen`; el token
+  `Bearer <rol>:<principal>` lo arma POR ENTIDAD (1er `write_role` no-bypass) de `/seed`; la 1ra pantalla se monta
+  por defecto. Type-checked (`interface Screen`, `tsc --strict`).
+- **`budget.json` escala** con las entidades servidas (`BUNDLE_BUDGET_BASE_BYTES + …PER_ENTITY × n_served`),
+  DATA-agnóstico. El probe bloated (60000 B fijo) **sigue mordiendo** mientras `budget < 60052` → válido hasta
+  ~36 entidades servidas. snipeit (18): real **25 855 B** < budget **31 744 B** < probe **60 052 B** (ratio 1.23).
+- **`browser_check.ts`** (+`_SECOND_SCREEN_BLOCK`): asevera el nav de **N=18 botones** + navega a una **2da
+  entidad** (la 1ra ownerless sin refs requeridos, no company-scoped, con su campo renderizado en el FORM) → su
+  FORM crea una fila que `render<E>List` muestra en el Chromium REAL → el render se ejercita para **2+ pantallas**.
+- **`build_bundle.mjs`** reconcilia el codegen al estado PROBADO (cwd-DEPENDIENTE, como el producto materializado
+  verde + el handoff `afcfe95`): se revirtió el `import.meta.url` de `e39b41a` que NO matcheaba lo materializado.
+
+**Probado por bloqueo (con mis ojos).**
+- `product-run --product snipeit` **PASS** · RTM **25/26** (sólo el deferral s6 `logica_dominio_generada`).
+- **Diente VIVO de dos lados en Chromium REAL** (s9 `frontend_browser_render`): cableado → los 6 asserts verdes
+  (lista viva + submit + nav 18 + 2da entidad). Saboteé `renderCompanyList` (garble del campo, TS válido) → **SÓLO
+  la pantalla de Company roja**; Asset render+submit y el nav de 18 **verdes**. Revertí → verde. **Con PG FRESCA por
+  corrida** (descubrí que re-correr el proof contra la MISMA PG colisiona el UNIQUE del FORM → falso rojo del submit
+  de Asset; en el gate real cada corrida re-siembra). Lo corrí MANUALMENTE vs dist+PG en puerto aislado (18950/PG
+  5501), sin tocar el stack del ingeniero (18900/5500), y desarmé mi infra (cero contenedores/JVMs colgados).
+- `ci --rederive --factory full-stack-kotlin --all-products`: base **12/12** · assets **11/11** · snipeit **11/11**
+  == pin. **Byte-neutro → SIN re-pin** (el diente vive dentro de `frontend_browser_render`, check ya existente; el
+  artefacto frontend cambia pero el `proof_sha` no → la gate `generality` lo sanciona, no un `==0` literal).
+- `meta check` **6/6** (`generality` verde) · `tsc --strict` 0 + `eslint` 0 + bundle buildea · `git diff
+  src/metafactory + seed = 0`.
+- Pre-validación SIN gradle (≈20s, el patrón de FSK-FRONTEND-BROWSER): `tsc --noEmit` + `eslint src` + `node
+  build_bundle.mjs` + Chromium real — cazó el bug del poly-ref ANTES de la línea completa.
+
+**Gotchas nuevos destilados** (para la memoria): (1) el FORM/Pick de una entidad con **poly ref** debe usar
+`_input_cols`, no `_input_fields` (2 sub-cols del contrato, o `tsc` rojo). (2) **Re-correr `browser_check.ts`
+manualmente contra la misma PG colisiona el UNIQUE** del FORM (Asset name) → falso rojo del submit; resetear la PG
+(drop+recreate+restart server, seedRows corre al boot) entre corridas. (3) `budget.json` ahora escala con
+`_live_entities` — un eje futuro que agregue/quite entidades servidas mueve el budget (DATA-agnóstico, esperado).
+(4) editar `frontend/dist` (rebuild bundle) hace que el server YA CORRIENDO del ingeniero sirva el frontend nuevo al
+refrescar (mismo-origen estático por request) — bonus: su `http://localhost:18900/` ahora muestra el nav de 18.
 
 ## 6. ¿Cuánto falta para una réplica Snipe-IT funcional honesta?
 **Backend faithful COMPLETO** (modelo·acceso·comportamiento·valores-derivados·deploy·auditoría·edición-escalar; las

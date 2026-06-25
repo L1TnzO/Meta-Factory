@@ -1,6 +1,35 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T04:05Z — FSK-FRONTEND-ALL-ENTITIES ✅: el frontend renderiza TODAS las entidades servidas (1 → N pantallas)
+- **La UI dejó de mostrar 1 pantalla.** El frontend generado renderizaba sólo la entidad CON DUEÑO (Asset: lista +
+  form, en Chromium real); el backend ya servía las 19. Ahora emite `render<E>List` + `mount<E>` (en `_app_ts`) +
+  `create<E>`/`get<E>`/`list<E>` (en `_consume_entity_ts`/`_client_consume_ts`) por **CADA entidad de
+  `_live_entities`** (la MISMA fuente que el AppServer monta) + un **NAV**. GENERAL: generaliza la SELECCIÓN (de
+  `owned` a `served`), cero nombres de dominio (ADR-012) — el espejo frontend de FSK-SERVE-ALL-ENTITIES.
+- **Maquinaria** (toda en `codegen/scaffold_product.py`): `_app_ts` itera `served` y factoriza `_render_list_ts(e)` +
+  `_mount_ts(e)` por entidad (el mount host = `getElementById("screen") ?? doc.body` → **fallback byte-compatible**
+  con el proof jsdom previo). `_client_consume_ts` factoriza `_consume_entity_ts(e)` con `expectId`/`expectRows`
+  **compartidos** (genéricos, 1 vez). `_browser_entry_ts` arma un `<nav>` (`<button data-entity=…>` por entidad) +
+  `#screen`, monta la 1ra por defecto, `interface Screen` type-checked. `budget.json` escala
+  (`BUNDLE_BUDGET_BASE_BYTES + …PER_ENTITY × n_served`).
+- **El Pick y el FORM pasaron de `_input_fields` (lógicos) a `_input_cols` (físicos)**: un **ref polimórfico**
+  requerido no-dueño (Consumable/Accessory `checkout_target`) entra como sus 2 sub-columnas `_type`/`_id` del
+  contrato. SIN esto, `tsc --strict` rojo en las ownerless con poly — lo cazó el eyeball, NO la línea gradle.
+- **Probado por bloqueo (con mis ojos)**: pre-validación sin gradle (`tsc --noEmit` 0 + `eslint src` 0 +
+  `build_bundle.mjs` + Chromium real) → `product-run` snipeit **PASS** · RTM **25/26** (sólo el deferral s6). **Diente
+  VIVO dos-lados en Chromium REAL** (s9 `frontend_browser_render`): cableado → 6 asserts verdes (lista + submit + nav
+  18 botones + 2da entidad lista+form); saboteé `renderCompanyList` (garble, TS válido) → **SÓLO la pantalla de Company
+  roja**, Asset render+submit y el nav verdes; revertí → verde. **Con PG FRESCA por corrida** (re-correr el proof
+  contra la misma PG colisiona el UNIQUE del FORM de Asset → falso rojo del submit; en el gate cada corrida re-siembra).
+  Lo corrí MANUALMENTE vs dist+PG en puerto AISLADO (18950 / PG 5501) sin tocar el stack del ingeniero (18900 / 5500),
+  e desarmé mi infra (cero colgados). `ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11** == pin →
+  **byte-neutro, SIN re-pin** (el diente vive dentro de `frontend_browser_render`, check ya existente; el artefacto
+  frontend cambia pero el `proof_sha` no → la gate `generality` lo sanciona, no un `==0` literal). `meta check` **6/6** ·
+  `git diff src/metafactory + seed = 0`.
+- **Commit** `b067ba9` (feat, I-10). **Siguiente** abierto: `FSK-FRONTEND-DETAIL` (clic en fila → vista de detalle;
+  `get<E>` ya está). Detalle completo + gotchas: `docs/work/FSK-FRONTEND-ALL-ENTITIES-INCREMENT.md §Evidencia`.
+
 ## 2026-06-25T01:05Z — FSK-PUT-OPTIONAL ✅: el PUT pasó de mutar UNA columna a un PATCH del cuerpo (edición fiel)
 - **La EDICIÓN dejó de ser parcial.** El `PUT /<plural>/{id}` del AppServer vivo actualizaba SÓLO la "columna
   mutable" (`_mutable_field`: el 1er string no-unique no-ref no-dueño) — los demás campos del Asset no eran

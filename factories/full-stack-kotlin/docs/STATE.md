@@ -3,31 +3,31 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- **LA EDICIÓN FIEL — el PUT pasó de mutar UNA columna a un PATCH del cuerpo (FSK-PUT-OPTIONAL, 2026-06-25)**: el
-  `PUT /<plural>/{id}` del AppServer vivo dejaba de ser fiel — actualizaba SÓLO la "columna mutable" (el 1er string
-  no-unique). Ahora aplica un **PATCH-like**: acepta CUALQUIER **campo updatable** provisto en el cuerpo (un
-  SUBCONJUNTO), type-coerced por el schema, y persiste sólo las claves presentes (**PATCH-semantics**: las ausentes
-  quedan intactas). GENERAL, cero nombres de dominio (ADR-012). **Updatable** = escalar/enum no-dueño, no-computed,
-  no-unique, no-ref, **no-workflow** (el estado se mueve por sus verbos/transiciones, no por un PUT directo — DES-3).
-  Maquinaria: `_patchable_fields`/`_workflow_field_names` (reemplazan `_mutable_field`) · Repository `data class
-  <E>Patch` (nullable) + `update<E>(ctx,id,patch)` con **set DINÁMICO** (`Map<Field,Any?>`, sólo los no-null; vacío →
-  0 filas) · AppServer `parse<E>Patch` TOLERANTE (clave ausente → null) reusando el MISMO codec (`_coerce_expr`
-  extraído) + `doPut` PATCH-like. **COMPONE FSK-ACTIONLOG** (el update sigue appendeando `"update"` en la misma
-  transacción). **Anti-overfit**: todo en `codegen/scaffold_product.py`; **`git diff src/metafactory + seed = 0`**.
-  **Probado por bloqueo**: eyeball (3 productos, 0 Kotlin >160; snipeit = 11 updatables incl. int/bool/format) ·
-  `product-run` snipeit PASS · RTM **25/26** · **diente VIVO dos-lados** (vs dist+PG: cableado → los 10 asserts
-  `[patch]` verdes; saboteado el set de `purchase_cost` → SÓLO ese rojo, 9 hermanos + el intacto + el 400 verdes;
-  revert→verde) · **byte-neutro → SIN re-pin** (`ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11**
-  == pin) · `meta check` 6/6 (`generality` verde). **La EDICIÓN es ahora faithful** para los escalares de la
-  entidad-con-dueño. Diferido honesto (cada uno su eje): PUT de **UNIQUE** (→409) · PUT de **refs** · update
-  **ownerless** · auditar `restore`/ownerless. Detalle: `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md §Evidencia` ·
-  `docs/LOG.md`. **NÚCLEO + SUPERFICIE + VALORES-DERIVADOS + UX + DEPLOY + AUDITORÍA + EDICIÓN COMPLETOS.** Lo que
-  RESTA es breadth de dominio (Kits, el tail no-dominio) + diferidos de red/arquitectura (push a registry, EAV).
-  **Siguiente (RE-PRIORIZADO 2026-06-25 a pedido del ingeniero — VER la app con sus PANTALLAS): `FSK-FRONTEND-ALL-
-  ENTITIES`** — el frontend renderiza HOY 1 pantalla (Asset, en Chromium real); el backend sirve las 19 → emitir
-  `render<E>List`+`mount<E>` por entidad servida + navegación (BREADTH de FSK-SERVE-ALL + FSK-FRONTEND-BROWSER).
-  Backlog backend ortogonal: `FSK-PUT-UNIQUE-REFS` (flecos del PATCH: UNIQUE→409 + refs) · `FSK-KITS` ·
-  `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ verificar `registry:2` cacheado antes).
+- **LA APP SE VE — el frontend renderiza TODAS las entidades servidas (FSK-FRONTEND-ALL-ENTITIES, 2026-06-25)**: el
+  frontend generado renderizaba **1 pantalla** (la entidad con dueño) aunque el backend ya servía las 19. Ahora emite
+  `render<E>List` + `mount<E>` + `create/get/list<E>` por **CADA entidad de `_live_entities`** (la MISMA fuente que el
+  AppServer monta) + un **NAV** (un botón por entidad → `#screen` que se limpia entre pantallas; el token `Bearer
+  rol:principal` por entidad). GENERAL: generaliza la SELECCIÓN (de `owned` a `served`), cero nombres de dominio
+  (ADR-012). El Pick/FORM usan `_input_cols` (un poly ref → sus 2 sub-columnas del contrato; sin esto `tsc` rojo en las
+  ownerless con poly). El `budget.json` **escala** con las entidades servidas (DATA-agnóstico; el probe bloated de
+  60 KB sigue mordiendo — snipeit 18: real 25.9 KB < budget 31.7 KB < 60 KB). **Probado por bloqueo**: `product-run`
+  snipeit PASS · RTM **25/26** · **diente VIVO dos-lados en Chromium REAL** (nav de 18 + una 2da pantalla lista+form;
+  saboteé `renderCompanyList` → SÓLO esa pantalla roja, Asset+nav verdes; revert→verde, **con PG fresca por corrida**)
+  · **byte-neutro → SIN re-pin** (`ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11** == pin; la gate
+  `generality` lo sanciona) · `meta check` 6/6 · `tsc`+`eslint` 0 · `git diff src/metafactory + seed = 0`. **La UI pasó
+  de 1 a ~18 pantallas navegables.** Detalle: `docs/work/FSK-FRONTEND-ALL-ENTITIES-INCREMENT.md §Evidencia` · `LOG.md`.
+  **Siguiente (FRONTEND-FIRST a pedido del ingeniero — VER la app montándose): `FSK-FRONTEND-DETAIL`** (clic en fila →
+  vista de DETALLE; `get<E>` ya emitido por entidad) → luego `FSK-FRONTEND-EDIT` (usa el PATCH de FSK-PUT-OPTIONAL) ·
+  `FSK-FRONTEND-OPERATIONS` (checkout/checkin/restore) · `FSK-FRONTEND-DASHBOARD`. Handoff EN FRÍO:
+  `docs/work/FSK-FRONTEND-DETAIL-INCREMENT.md`. Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-PUT-UNIQUE-REFS`
+  · PUT-ownerless · `FSK-KITS` · EAV · `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
+- **LA EDICIÓN FIEL — el PUT pasó de mutar UNA columna a un PATCH del cuerpo (FSK-PUT-OPTIONAL, 2026-06-25)** ✅: el
+  `PUT /<plural>/{id}` aplica un **PATCH-like** — acepta CUALQUIER campo **updatable** (escalar/enum no-dueño,
+  no-computed, no-unique, no-ref, **no-workflow**) presente, type-coerced, persistiendo sólo las claves dadas
+  (ausentes intactas). `data class <E>Patch` + `update<E>` con set DINÁMICO jOOQ · `parse<E>Patch` tolerante · `doPut`
+  PATCH-like. COMPONE FSK-ACTIONLOG. RTM 25/26 · diente dos-lados · byte-neutro. Detalle:
+  `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md §Evidencia`. **NÚCLEO+SUPERFICIE+VALORES-DERIVADOS+UX+DEPLOY+AUDITORÍA+
+  EDICIÓN COMPLETOS** — lo que resta es **frontend breadth** (pantallas) + diferidos de dominio/red.
 - **LA BITÁCORA DE ACTIVIDAD POLIMÓRFICA — toda mutación deja rastro (FSK-ACTIONLOG, 2026-06-24)**: la feature
   ESTRELLA de Snipe-IT (el Actionlog), GENERAL y VIVA. Una entidad marcada `audited: true` appendea, en CADA mutación
   (create/update/delete + los verbos de DOMINIO checkout/checkin), una fila a la **tabla de SISTEMA `action_logs`**,

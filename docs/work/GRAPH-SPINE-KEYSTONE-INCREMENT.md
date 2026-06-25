@@ -1,7 +1,7 @@
-<!-- meta:doc sha=18cbbc0109ae5003a73ecf1f1b74bd6b3f93f4fb updated=2026-06-25T22:38Z -->
+<!-- meta:doc sha=ab176b3d8865e9fb869cf9a53865a39532573b8e updated=2026-06-25T22:40Z -->
 # Incremento GRAPH-SPINE-KEYSTONE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (retomado 2026-06-25T22:00Z; creado EN FRÍO 2026-06-25T21:42Z).
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-25T22:40Z) (retomado 2026-06-25T22:00Z; creado EN FRÍO 2026-06-25T21:42Z).
 > Cerralo con `meta increment close` (gateado: árbol limpio + estación activa verde). Todo cambio de código
 > vive acá (ADR-010). Autoridad del PLAN: **ADR-017**.
 

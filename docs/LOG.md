@@ -1,7 +1,38 @@
-<!-- meta:doc sha=13eabbf5f2a265dd0393f56f831d03a184032d8f updated=2026-06-21T03:23Z -->
+<!-- meta:doc sha=08d77ec83070bfeb4037c7bda42eb07e2229582e updated=2026-06-25T22:42Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-25T22:41Z — GRAPH-SPINE-KEYSTONE ✅ (SOTA Fase 1): el grafo-columna + gate de calidad + billing, delegado
+- **La piedra angular del rediseño (ADR-017).** UN solo grafo content-addressed (`src/metafactory/graph/`,
+  paquete cohesivo) que re-deriva del AST (stdlib `ast`) los nodos `File`/`Symbol` (DEFINED_IN·IMPORTS·CALLS)
+  y **UNIFICA** con los grafos que YA teníamos —RTM (`Requirement·Capability·Station·Proof·Artifact`) + ADRs
+  (`Decision`, GOVERNS por citación)— en una pieza consultable: **`meta graph build`** = 729 nodos / 1833
+  aristas. **Query de 2 saltos SIN LLM** viva: `meta graph query --symbol …::validate` → `Decision:003,012`
+  (símbolo→archivo←ADR). El error #1 del SOTA es el "grafo sólo-código"; nosotros arrancamos adelante uniéndolo.
+- **Tech de PLAN, medida en el acto (ADR-012).** tree-sitter/networkx/SQLite del plan NO están instaladas →
+  elección fiel a "no hervir el océano": **stdlib pura** (`ast` + store JSON + PageRank a mano), 0 deps nuevas,
+  hermético. tree-sitter multi-lenguaje + SCIP + graph-DB = diferidos-hasta-medición (2º lenguaje del sustrato).
+- **Incremental por hash de archivo** (Merkle-leaf, extiende los sha-stamps de ADR-009): tocar 1 archivo
+  re-deriva SÓLO su sub-grafo; el resto REUSA su fragmento (mismo objeto, sin re-parse). Probado por bloqueo.
+- **Gate de calidad SWE determinista `quality`** (LOC/funcs/func-LOC/ciclos) **cableado a `meta check` → 7/7**,
+  dogfood de DOS lados como `rtm_tree`: el sustrato re-deriva LIMPIO **y** el diente RED vive sobre
+  `scaffold_product.py` (8552 LOC / 179 funcs / 367 LOC-de-función). Auto-guarda: umbrales laxos ⇒ el monolito
+  pasa ⇒ el check se declara DECORATIVO (exit 1). **Lección — el falso ciclo de imports**: contar imports
+  diferidos (dentro de funciones) inventaba un ciclo cli↔verdict↔blast_radius que NO existe a load-time (es el
+  idiom que lo ROMPE) → el grafo de dependencias cuenta SÓLO imports a nivel de módulo. Honesto > impresionante.
+- **Dogfood del modelo de costos (verificar-no-revisar).** Construido DELEGANDO el bulk: 2 módulos a **Sonnet**
+  (`python_index`, `repomap`) con contrato explícito (firma + self-check) + 1 bulk-read a **Haiku** (esquema del
+  billing-ledger de PWF). Opus (cerebro) diseñó los contratos, integró y **verificó por BLOQUEO** (2 self-checks
+  Sonnet PASS + 16 tests Opus), no leyendo línea-a-línea. **Billing-ledger** del propio build
+  (`work/GRAPH-SPINE-KEYSTONE-billing.json`, `meta billing`): **brain/opus 116k · generate/sonnet 52k ·
+  read/haiku 13k** — ~36% de tokens a modelos baratos (~$0.18) vs cerebro (~$2.82); `source=harness` donde el
+  harness dio el número real, `source=estimate` (honesto) donde no. Primer instrumento de OUTCOME real (costo).
+- **Anti-overfit**: el grafo/gate no nombran fábrica/dominio/tech (lo sanciona `generality`, 7/7). Regla
+  multi-archivo: el gate la enforza sobre el propio sustrato; ningún módulo nuevo >220 líneas.
+- **Sigue**: **Fase 2 `DELEGATION-HARNESS`** (formalizar el arnés: `.claude/agents`/skills/hooks + PBT + gate al
+  `declared-deferred`) · Fase 3 `MONOLITH-REFACTOR` (el gate `quality` ya marca el monolito ROJO y lo FUERZA) ·
+  Fase 4 `REAIM-SWEET-SPOT`. Roadmap: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
 
 ## 2026-06-21T03:22Z — P1·Snipe-IT Fase 2 ✅: el PRIMER producto real, generado VERDE por la línea FSK
 - **La fábrica entera (19 entidades, no un slice) pasa la línea REAL FSK s0→s10 por gradle**: `product-run`

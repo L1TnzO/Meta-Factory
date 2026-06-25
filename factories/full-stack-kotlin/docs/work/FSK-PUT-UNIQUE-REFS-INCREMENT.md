@@ -1,9 +1,10 @@
 # Incremento FSK-PUT-UNIQUE-REFS — los flecos del PATCH: PUT de campos UNIQUE (→409) + de refs
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T01:05Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
-> Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto
-> — el `increment_guard` elige el lifecycle por la RUTA editada.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **BACKLOG (no abierto)**.
+> RE-PRIORIZADO 2026-06-25: el ingeniero pidió VER la app terminada con sus PANTALLAS → el incremento ABIERTO pasó a
+> ser **FSK-FRONTEND-ALL-ENTITIES** (frontend breadth, `…/work/FSK-FRONTEND-ALL-ENTITIES-INCREMENT.md`). Este eje
+> (los flecos del PATCH backend) sigue siendo un incremento REAL y bien-scopeado — reabrilo cuando toque cerrar la
+> fidelidad de edición. Para trabajarlo, flippeá este header a ABIERTO (y asegurate de que no haya otro abierto).
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
 > FSK-PUT-OPTIONAL con MÁS contexto. NO re-aprendas lo que ya sabemos.

@@ -23,8 +23,11 @@
   **ownerless** · auditar `restore`/ownerless. Detalle: `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md §Evidencia` ·
   `docs/LOG.md`. **NÚCLEO + SUPERFICIE + VALORES-DERIVADOS + UX + DEPLOY + AUDITORÍA + EDICIÓN COMPLETOS.** Lo que
   RESTA es breadth de dominio (Kits, el tail no-dominio) + diferidos de red/arquitectura (push a registry, EAV).
-  Siguiente: `FSK-PUT-UNIQUE-REFS` (cerrar los flecos de PATCH: UNIQUE→409 + refs). Alternativas con autoridad para
-  reabrir: `FSK-DEPLOY-PUSH-REGISTRY` (cierra el eje deploy; ⚠️ verificar `registry:2` cacheado antes) · `FSK-KITS`.
+  **Siguiente (RE-PRIORIZADO 2026-06-25 a pedido del ingeniero — VER la app con sus PANTALLAS): `FSK-FRONTEND-ALL-
+  ENTITIES`** — el frontend renderiza HOY 1 pantalla (Asset, en Chromium real); el backend sirve las 19 → emitir
+  `render<E>List`+`mount<E>` por entidad servida + navegación (BREADTH de FSK-SERVE-ALL + FSK-FRONTEND-BROWSER).
+  Backlog backend ortogonal: `FSK-PUT-UNIQUE-REFS` (flecos del PATCH: UNIQUE→409 + refs) · `FSK-KITS` ·
+  `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ verificar `registry:2` cacheado antes).
 - **LA BITÁCORA DE ACTIVIDAD POLIMÓRFICA — toda mutación deja rastro (FSK-ACTIONLOG, 2026-06-24)**: la feature
   ESTRELLA de Snipe-IT (el Actionlog), GENERAL y VIVA. Una entidad marcada `audited: true` appendea, en CADA mutación
   (create/update/delete + los verbos de DOMINIO checkout/checkin), una fila a la **tabla de SISTEMA `action_logs`**,

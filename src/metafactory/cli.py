@@ -152,6 +152,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "pytest", "-q", "tests/test_isolation.py"]},
         {"name": "generality", "kind": "command",       # ADR-014 (MAT-0): ningún mecanismo de sustrato
          "cmd": [py, "-m", "metafactory.verify.checks.generality_parity", str(root)]},  # `general` sin paridad de 2 dominios
+        {"name": "quality", "kind": "command",           # ADR-017 (Fase 1): gate SWE determinista sobre el
+         "cmd": [py, "-m", "metafactory.verify.checks.quality_gate", str(root)]},  # grafo (tamaño/acoplamiento), dogfood dos-lados
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]
@@ -803,6 +805,18 @@ def cmd_rehydrate(args) -> int:
     return 0
 
 
+def cmd_graph(args) -> int:
+    """Project-spine (ADR-017): build the content-addressed graph, query it 2-hop (no LLM), repo-map."""
+    from .graph.cli import run_graph
+    return run_graph(args, _meta_root())
+
+
+def cmd_billing(args) -> int:
+    """Show the delegation split (Opus·Sonnet·Haiku) of a billing-ledger (ADR-017, Fase 5)."""
+    from .graph.cli import run_billing
+    return run_billing(args, _meta_root())
+
+
 def _unnarrated_count(root: Path) -> int:
     """Hechos (station_run/delegation/commit) posteriores al último episodio de LOG. Surface,
     no se fuerza: el modelo decide narrar (ADR-023). Lo determinista es DETECTAR, no coaccionar."""
@@ -851,6 +865,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
     sp = sub.add_parser("recall"); sp.add_argument("query", nargs="+"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
     sub.add_parser("rehydrate").set_defaults(func=cmd_rehydrate)
+    gp = sub.add_parser("graph"); gp.set_defaults(func=cmd_graph)
+    gsub = gp.add_subparsers(dest="graph_cmd", required=True)
+    gb = gsub.add_parser("build"); gb.add_argument("--factory", action="append", default=None)
+    gq = gsub.add_parser("query"); gq.add_argument("--symbol", required=True)
+    gr = gsub.add_parser("repomap"); gr.add_argument("--budget", type=int, default=4000)
+    bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
     return p
 
 

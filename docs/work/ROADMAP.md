@@ -1,4 +1,4 @@
-<!-- meta:doc sha=52c1db17a7fd6a0b5ab71d30aedeef380f8f0447 updated=2026-06-25T21:37Z -->
+<!-- meta:doc sha=fa6314357275dc9c55c635248330944f90bb6765 updated=2026-06-25T22:39Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -14,6 +14,13 @@
 > verificar-no-revisar · Fase 3 refactor del monolito · Fase 4 re-apuntar al sweet-spot) viven en
 > **`docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`** + **ADR-017**. Snipe-IT → benchmark de regresión, no
 > de partida. Lo de abajo es el historial A–G (contexto), no el plan vigente.
+>
+> **Progreso SOTA:** **Fase 0 `SOTA-REDESIGN-DIRECTION` ✅** · **Fase 1 `GRAPH-SPINE-KEYSTONE` ✅ (2026-06-25)**
+> — grafo content-addressed (AST+RTM+ADR, 2-hop sin LLM, incremental) + gate de calidad `quality` cableado a
+> `meta check` (7/7, dogfood dos-lados) + billing-ledger con split brain/generate/read; construido delegando 2
+> módulos a Sonnet + 1 read a Haiku (verificar-no-revisar). **Siguiente = Fase 2 `DELEGATION-HARNESS`**
+> (agents/skills/hooks de `.claude/` + PBT + gate al `declared-deferred`) · Fase 3 `MONOLITH-REFACTOR` (el gate
+> `quality` ya marca `scaffold_product.py` ROJO y lo FUERZA) · Fase 4 `REAIM-SWEET-SPOT`.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

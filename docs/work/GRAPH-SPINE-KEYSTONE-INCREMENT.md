@@ -1,9 +1,19 @@
-<!-- meta:doc sha=ed8709dc9d7a212eec4c6e7edf1b5ce2f9dc0f37 updated=2026-06-25T21:44Z -->
+<!-- meta:doc sha=18cbbc0109ae5003a73ecf1f1b74bd6b3f93f4fb updated=2026-06-25T22:38Z -->
 # Incremento GRAPH-SPINE-KEYSTONE
 
-> **Doc de gobierno.** Estado: **DIFERIDO** (handoff EN FRÍO, creado 2026-06-25T21:42Z). Para retomar:
-> flippeá este header a **ABIERTO** (o `meta increment open GRAPH-SPINE-KEYSTONE` si ya no figura). Gateado al
-> cerrar: árbol limpio + estación activa verde. Todo cambio de código vive acá (ADR-010). Autoridad del PLAN: **ADR-017**.
+> **Doc de gobierno.** Estado: **ABIERTO** (retomado 2026-06-25T22:00Z; creado EN FRÍO 2026-06-25T21:42Z).
+> Cerralo con `meta increment close` (gateado: árbol limpio + estación activa verde). Todo cambio de código
+> vive acá (ADR-010). Autoridad del PLAN: **ADR-017**.
+
+## Decisión de tech (PLAN, ADR-012 — registrada al retomar 2026-06-25T22:00Z)
+El plan listó `tree-sitter`+`networkx`+SQLite como candidatas de arranque MÍNIMO. Medición en el acto:
+NINGUNA está instalada en este entorno (sólo stdlib). La elección de PLAN, fiel a "no hervir el océano" y a
+I-3 (determinismo en la verificación), es **stdlib pura**: `ast` para el grafo estructural del **sustrato
+Python** (lo que la Fase 1 manda empezar), un **store JSON** re-derivable/diffeable (no binario), y un
+**PageRank power-iteration a mano** (~30 líneas) en vez de `networkx`. Cero dependencias nuevas ⇒ hermético,
+re-derivable en clon limpio, sin `pip install`. tree-sitter (py/kt/ts/go), SCIP, graph-DB = upgrades
+DIFERIDOS-hasta-medición (cuando un 2º lenguaje del sustrato lo exija). Esto es una elección de PLAN, no
+maquinaria horneada en `src/` (el grafo analiza NUESTRO código; no genera productos — ADR-012 intacto).
 
 ## Objetivo
 Construir la **piedra angular del rediseño SOTA (Fase 1)**: el **grafo de proyecto mínimo content-addressed**
@@ -16,15 +26,15 @@ El error #1 del SOTA es el "grafo sólo-código"; nosotros YA tenemos RTM (`req�
 + ADRs + `.proof/` como grafos → arrancamos adelante uniéndolos con el grafo estructural del código que falta.
 Esta Fase es la que vuelve baratas y seguras a TODAS las demás (navegación → delegación → refactor del monolito).
 
-## Fases (PROPUESTAS — la sesión que retome las afina; orden por dependencia)
+## Fases (EJECUTADAS 2026-06-25; orden por dependencia)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Grafo estructural del código** por `tree-sitter` (empezar por el sustrato Python): nodos `File`/`Symbol` + aristas `DEFINED_IN`/`IMPORTS`/`CALLS`. Store liviano (SQLite o JSON). Re-derivado del AST, NO narrado. | ⏳ |
-| 2 | **Unificar** con los grafos existentes: ingerir RTM + nodos `Decision(ADR)`/`Station`/`Proof`; cablear `IMPLEMENTS`/`VERIFIES`/`GOVERNS`/`SATISFIES`. Query de 2 saltos ("¿qué ADR gobierna este símbolo?") SIN LLM. | ⏳ |
-| 3 | **Incrementalidad**: hash por nodo + dirty-propagation por aristas (extiende los sha-stamps de ADR-009; Merkle-DAG) → re-deriva sólo el sub-grafo cambiado. Probado por test. | ⏳ |
-| 4 | **Gate de calidad determinista** (tamaño de archivo, nº de funciones, ciclos de dependencia, código muerto) como kind de `meta check` o check de estación. Dogfood: `scaffold_product.py` = ROJO; un módulo sano = VERDE (diente de DOS lados). | ⏳ |
-| 5 | **Billing-ledger** por corrida/estación (token+costo+tiempo) — cosechar la FORMA de PWF (`../Professor_Web_Factory_1.0`, `billing-ledger.json`). Primer instrumento de outcome real. | ⏳ |
-| 6 | **Vista repo-map** (PageRank sobre el grafo → digest ~1k tokens) como capa de navegación del orquestador. | ⏳ |
+| 1 | **Grafo estructural del código** por **stdlib `ast`** (sustrato Python): nodos `File`/`Symbol` + aristas `DEFINED_IN`/`IMPORTS`/`CALLS`. Store **JSON**. Re-derivado del AST, NO narrado. | ✅ |
+| 2 | **Unificar** con los grafos existentes: ingiere RTM (`Requirement`/`Capability`/`Station`/`Proof`/`Artifact`) + `Decision(ADR)`; cablea `IMPLEMENTS`/`VERIFIES`/`GOVERNS`/`SATISFIES`. Query de 2 saltos ("¿qué ADR gobierna este símbolo?") SIN LLM. | ✅ |
+| 3 | **Incrementalidad**: hash por archivo (Merkle-leaf, extiende los sha-stamps de ADR-009) + reúso de fragmentos → re-deriva SÓLO el sub-grafo cambiado. Probado por test. | ✅ |
+| 4 | **Gate de calidad determinista** (LOC de archivo, nº de funciones, LOC de función, ciclos de import) cableado a `meta check`. Dogfood: `scaffold_product.py` = ROJO; sustrato = VERDE (diente de DOS lados). | ✅ |
+| 5 | **Billing-ledger** por work-item (token+costo+tiempo), FORMA cosechada de PWF + eje `role` (brain/generate/read) + `source` (harness/estimate). Emitido para ESTA construcción. | ✅ |
+| 6 | **Vista repo-map** (PageRank a mano sobre el grafo → digest acotado) como capa de navegación del orquestador. | ✅ |
 
 ## Disciplina (no negociable — viene de ADR-012 / I-3 / la regla multi-archivo)
 - **La tech es PLAN, no mandato (ADR-012)**: `tree-sitter` + `networkx`(PageRank) + SQLite son candidatas de
@@ -53,3 +63,35 @@ mide el split de costo. Lectura de bulk (el monolito de 8,5k líneas, specs larg
 - **`docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`** — el roadmap faseado completo (Fases 1-4 + diferido) y el diagnóstico.
 - **Memoria de sesión Claude Code**: `sota-redesign-graph-spine` (esquema de nodos/aristas + recipe verificar-no-revisar + fuentes), `target-operating-model-sota`, `honest-reassessment-2026-06-25`.
 - **Fuentes SOTA**: repo-map de Aider (tree-sitter+PageRank) · SCIP (scip-code.org) · RepoGraph (ICLR 2025) · PBT codegen (arXiv 2506.18315) · Anthropic "Building Effective Agents".
+
+## Evidencia (cierre — re-derivable, no narrada)
+**Código** — `src/metafactory/graph/` (paquete cohesivo, regla multi-archivo; ninguno >220 líneas):
+`model.py` (Node/Edge/Graph content-addressed + serde + traversal) · `python_index.py` (Fase 1, `ast`) ·
+`build.py` (resolución de aristas cross-file + queries) · `ingest.py` (Fase 2, RTM+ADR) · `incremental.py`
+(Fase 3) · `quality.py` (Fase 4) · `repomap.py` (Fase 6, PageRank) · `billing.py` (Fase 5) · `cli.py` (surface).
+Gate: `verify/checks/quality_gate.py` cableado a `cmd_check`. Tests: `tests/test_graph.py` (16, todos verdes).
+
+**Los 5 criterios, por bloqueo** (`tests/test_graph.py` + CLI viva):
+1. **Re-deriva del AST + ingiere RTM+ADR + 2-hop sin LLM** — `meta graph build` = 729 nodos / 1833 aristas
+   (File·Symbol·Requirement·Capability·Station·Proof·Artifact·Decision; 7 tipos de arista). `meta graph query
+   --symbol …::validate` → `Decision:003, Decision:012` (símbolo→archivo←ADR, 0 LLM). Tests `test_governing_adrs_two_hop_no_llm`, `test_ingest_rtm_edges_and_query`.
+2. **Incrementalidad** — `test_incremental_touch_one_file`: tocar 1 archivo ⇒ `dirty == [ese]`, el resto REUSA
+   su fragmento (mismo objeto, sin re-parse); `test_incremental_equals_full` (incremental ≡ full).
+3. **Gate de calidad dos-lados, cableado** — `meta check` ahora **7/7** con el check `quality`: sustrato LIMPIO
+   (64 archivos, 0 violaciones, 0 ciclos) **y** diente RED vivo sobre `scaffold_product.py` (file_loc=8552,
+   funcs=179, func_loc=367). Auto-guarda: umbrales laxos ⇒ el monolito pasa ⇒ el check se declara DECORATIVO
+   (exit 1). Tests `test_quality_two_sided_tooth`, `test_quality_gate_check_passes_and_self_guards`, `test_import_cycle_detection`.
+   El falso-ciclo de imports diferidos (cli↔verdict↔blast_radius) se evitó contando SÓLO imports a nivel de módulo.
+4. **Billing-ledger del propio build** — `docs/work/GRAPH-SPINE-KEYSTONE-billing.json` (`meta billing`):
+   **brain/opus 116k tok · generate/sonnet 51.95k (2 módulos) · read/haiku 12.9k**. Sonnet/total + latencia son
+   `source=harness` (subagent_tokens reales); opus/haiku `source=estimate` (el harness no expone su conteo exacto).
+   **Lección del dogfood: ~36% de los tokens se delegaron a modelos más baratos (~$0.18) vs el cerebro (~$2.82)** —
+   verificar-no-revisar funcionó (2 self-checks Sonnet PASS + 16 tests Opus por bloqueo; cero líneas re-tipeadas).
+5. **`meta check` 7/7 verde** (incl. `generality` ⇒ anti-overfit: el grafo/gate no nombran fábrica/dominio/tech) ·
+   **regla multi-archivo respetada** (el gate la enforza sobre el propio sustrato; ningún módulo nuevo es monolito).
+
+**Tech de PLAN ejercida** (§Decisión de tech): stdlib pura (`ast`+JSON+PageRank a mano), 0 deps nuevas, hermético.
+**Diferido honesto**: tree-sitter multi-lenguaje (kt/ts/go) + SCIP + graph-DB = upgrades-hasta-medición (2º
+lenguaje del sustrato). El arnés formal de delegación (`.claude/agents`/skills/hooks + PBT + gate al
+`declared-deferred`) es **Fase 2 `DELEGATION-HARNESS`**. El split del monolito es **Fase 3 `MONOLITH-REFACTOR`**,
+ahora FORZADO por el gate `quality` de esta fase.

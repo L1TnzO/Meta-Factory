@@ -1,0 +1,132 @@
+{
+  "run_id": "GRAPH-SPINE-KEYSTONE",
+  "currency": "USD",
+  "pricing": "estimate-usd-per-mtok",
+  "entries": [
+    {
+      "item": "graph/python_index.py",
+      "role": "generate",
+      "model": "sonnet",
+      "input_tokens": 26808,
+      "output_tokens": 600,
+      "total_tokens": 27408,
+      "est_cost_usd": 0.089424,
+      "latency_ms": 103942,
+      "source": "harness",
+      "status": "complete"
+    },
+    {
+      "item": "graph/repomap.py",
+      "role": "generate",
+      "model": "sonnet",
+      "input_tokens": 24192,
+      "output_tokens": 350,
+      "total_tokens": 24542,
+      "est_cost_usd": 0.077826,
+      "latency_ms": 72109,
+      "source": "harness",
+      "status": "complete"
+    },
+    {
+      "item": "harvest PWF billing-ledger schema",
+      "role": "read",
+      "model": "haiku",
+      "input_tokens": 12000,
+      "output_tokens": 900,
+      "total_tokens": 12900,
+      "est_cost_usd": 0.0165,
+      "latency_ms": 45000,
+      "source": "estimate",
+      "status": "complete"
+    },
+    {
+      "item": "design+contracts+integration+verification (this session)",
+      "role": "brain",
+      "model": "opus",
+      "input_tokens": 98000,
+      "output_tokens": 18000,
+      "total_tokens": 116000,
+      "est_cost_usd": 2.82,
+      "latency_ms": 0,
+      "source": "estimate",
+      "status": "complete"
+    }
+  ],
+  "totals": {
+    "input_tokens": 161000,
+    "output_tokens": 19850,
+    "total_tokens": 180850,
+    "est_cost_usd": 3.00375,
+    "latency_ms": 221051
+  },
+  "split_by_model": {
+    "haiku": {
+      "input_tokens": 12000,
+      "output_tokens": 900,
+      "total_tokens": 12900,
+      "est_cost_usd": 0.0165,
+      "latency_ms": 45000,
+      "items": 1,
+      "roles": [
+        "read"
+      ]
+    },
+    "opus": {
+      "input_tokens": 98000,
+      "output_tokens": 18000,
+      "total_tokens": 116000,
+      "est_cost_usd": 2.82,
+      "latency_ms": 0,
+      "items": 1,
+      "roles": [
+        "brain"
+      ]
+    },
+    "sonnet": {
+      "input_tokens": 51000,
+      "output_tokens": 950,
+      "total_tokens": 51950,
+      "est_cost_usd": 0.16725,
+      "latency_ms": 176051,
+      "items": 2,
+      "roles": [
+        "generate"
+      ]
+    }
+  },
+  "split_by_role": {
+    "brain": {
+      "input_tokens": 98000,
+      "output_tokens": 18000,
+      "total_tokens": 116000,
+      "est_cost_usd": 2.82,
+      "latency_ms": 0,
+      "items": 1,
+      "models": [
+        "opus"
+      ]
+    },
+    "generate": {
+      "input_tokens": 51000,
+      "output_tokens": 950,
+      "total_tokens": 51950,
+      "est_cost_usd": 0.16725,
+      "latency_ms": 176051,
+      "items": 2,
+      "models": [
+        "sonnet"
+      ]
+    },
+    "read": {
+      "input_tokens": 12000,
+      "output_tokens": 900,
+      "total_tokens": 12900,
+      "est_cost_usd": 0.0165,
+      "latency_ms": 45000,
+      "items": 1,
+      "models": [
+        "haiku"
+      ]
+    }
+  }
+}

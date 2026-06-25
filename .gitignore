@@ -10,6 +10,7 @@ __pycache__/
 .proof/
 **/.proof/
 .meta_check/
+.graph/
 
 # Produced products of factories (re-derived by the line; not source)
 factories/*/build/

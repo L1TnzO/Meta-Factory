@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c5c797103670680e54d62708c45835af731d9e51 updated=2026-06-25T21:45Z -->
+<!-- meta:doc sha=cd26bbddf2ee6a6f8dcf7c3a5d395fb403811975 updated=2026-06-25T22:39Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,17 +6,30 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: GRAPH-SPINE-KEYSTONE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
 - **🧭 RE-DIRECCIÓN SOTA (2026-06-25, ADR-017) — el norte vigente.** Auditoría profunda (6+3 subagentes):
   el motor FUNCIONA (FSK genera apps reales verificadas por bloqueo), falta la capa de **DIRECCIÓN**
-  (outer-loop). Próximo = **grafo de proyecto content-addressed** (navegación + delegación + handoff +
+  (outer-loop). Norte = **grafo de proyecto content-addressed** (navegación + delegación + handoff +
   alcance-de-verificación en UNA pieza) + **delegación "verificar-no-revisar"** (Opus cerebro · Sonnet genera ·
   Haiku lee) + gates de calidad dogfoodeados; `declared-deferred` con dientes; Snipe-IT → regresión.
-  **Siguiente incremento = `GRAPH-SPINE-KEYSTONE`** (Fase 1). Roadmap: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
+  Roadmap: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
+- **GRAPH-SPINE-KEYSTONE ✅ (Fase 1, 2026-06-25)** — la **piedra angular**: un solo grafo content-addressed
+  re-derivado del AST (stdlib `ast`, **tech de PLAN** — 0 deps; tree-sitter/SCIP diferidos) que **unifica** el
+  grafo estructural del código (File·Symbol; DEFINED_IN·IMPORTS·CALLS) con los grafos que YA teníamos: RTM
+  (Requirement·Capability·Station·Proof·Artifact) + ADRs (Decision; GOVERNS por citación) → **query de 2 saltos
+  SIN LLM** ("¿qué ADR gobierna este símbolo?"). **Incremental** por hash de archivo (Merkle-leaf, extiende
+  ADR-009): tocar 1 archivo re-deriva SÓLO su sub-grafo. **Gate de calidad SWE determinista** (`quality`,
+  tamaño/acoplamiento/ciclos) **cableado a `meta check` (ahora 7/7)**, dogfoodeado dos-lados: sustrato LIMPIO ·
+  `scaffold_product.py` ROJO (8552 LOC). **Billing-ledger** del propio build (`work/GRAPH-SPINE-KEYSTONE-billing.json`,
+  `meta billing`) que muestra el split **brain/opus 116k · generate/sonnet 52k (2 módulos) · read/haiku 13k** —
+  ~36% de tokens delegados a modelos baratos (~$0.18) vs cerebro (~$2.82), **verificar-no-revisar** probado en
+  el acto (2 self-checks Sonnet PASS + 16 tests Opus por bloqueo). `meta graph build|query|repomap` + `meta billing`.
+  Evidencia: `work/GRAPH-SPINE-KEYSTONE-INCREMENT.md §Evidencia`. **Siguiente = `DELEGATION-HARNESS`** (Fase 2:
+  agents/skills/hooks de `.claude/` + PBT + gate al `declared-deferred`).
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

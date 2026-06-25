@@ -1,4 +1,4 @@
-<!-- meta:doc sha=02140d37ebefc0ac0890a90b353e00e90b28e6b0 updated=2026-06-20T18:45Z -->
+<!-- meta:doc sha=52c1db17a7fd6a0b5ab71d30aedeef380f8f0447 updated=2026-06-25T21:37Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -6,6 +6,14 @@
 > orquestador implementa desde acá. Si algo no está en la doc, no existe. Orden de lectura para retomar
 > en §0. Reescrito 2026-06-15 tras el mandato del ingeniero: **100% generado** (ADR-011), **primitivas
 > no herramientas** (ADR-012), determinismo en verificación no en generación (I-3).
+
+> **⚠️ RE-DIRECCIÓN SOTA (2026-06-25, ADR-017) — LEÉ ESTO PRIMERO.** Las fases A–G de abajo se EJECUTARON
+> (el motor funciona: FSK genera apps reales verificadas por bloqueo). Auditoría profunda (6+3 subagentes)
+> halló que **falta la capa de DIRECCIÓN** (outer-loop), no la maquinaria. El nuevo norte y el roadmap
+> faseado (Fase 1 grafo-columna + gate de calidad + billing-ledger · Fase 2 arnés de delegación
+> verificar-no-revisar · Fase 3 refactor del monolito · Fase 4 re-apuntar al sweet-spot) viven en
+> **`docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`** + **ADR-017**. Snipe-IT → benchmark de regresión, no
+> de partida. Lo de abajo es el historial A–G (contexto), no el plan vigente.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

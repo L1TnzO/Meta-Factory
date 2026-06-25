@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8caabc7de2388f79814eaabe7ec3484dd8802bad updated=2026-06-24T14:15Z -->
+<!-- meta:doc sha=1e5725ef68bdd0daed33c1d69a61d7feeac0cb0a updated=2026-06-25T21:38Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,11 +6,17 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: SOTA-REDESIGN-DIRECTION-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
+- **🧭 RE-DIRECCIÓN SOTA (2026-06-25, ADR-017) — el norte vigente.** Auditoría profunda (6+3 subagentes):
+  el motor FUNCIONA (FSK genera apps reales verificadas por bloqueo), falta la capa de **DIRECCIÓN**
+  (outer-loop). Próximo = **grafo de proyecto content-addressed** (navegación + delegación + handoff +
+  alcance-de-verificación en UNA pieza) + **delegación "verificar-no-revisar"** (Opus cerebro · Sonnet genera ·
+  Haiku lee) + gates de calidad dogfoodeados; `declared-deferred` con dientes; Snipe-IT → regresión.
+  **Siguiente incremento = `GRAPH-SPINE-KEYSTONE`** (Fase 1). Roadmap: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

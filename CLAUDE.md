@@ -1,4 +1,4 @@
-<!-- meta:doc sha=15ad1d55c8661a64febefd26a52e6cbfe6cc3cd7 updated=2026-06-25T19:06Z -->
+<!-- meta:doc sha=61ff4c74cb1d52431a82927d72f09c0b2db53377 updated=2026-06-25T21:37Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -15,6 +15,11 @@
 `src/metafactory/` (engine·spec·bus·cli), `stations/` (M0–M3+M8), `template/factory/`, y un
 dummy-fábrica producido en `factories/dummy/`. Los 8 criterios de cierre pasan (ver
 `docs/work/BOOTSTRAP-INCREMENT.md §Evidencia`). Diferido: M4–M7, regeneración de ASF, métricas/memoria-T2.
+
+**RE-DIRECCIÓN SOTA (2026-06-25, ADR-017).** Tras auditoría profunda: el motor FUNCIONA; falta la capa de
+DIRECCIÓN. Próximo norte = un **grafo de proyecto content-addressed** (navegación + delegación + handoff +
+alcance-de-verificación en UNA pieza) + **delegación "verificar-no-revisar"** (Opus cerebro · Sonnet genera ·
+Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
 
 ## Reglas de esta fase
 - **NO tocar `../Agent_Systems_Factory/` (ASF)**: es referencia CONGELADA de cosecha y paridad
@@ -38,3 +43,7 @@ dummy-fábrica producido en `factories/dummy/`. Los 8 criterios de cierre pasan 
   archivos NUEVOS de miles de líneas (si uno nuevo tiende a ~800+, partilo en módulos). Los monolitos
   EXISTENTES son deuda conocida (`factories/full-stack-kotlin/codegen/scaffold_product.py`, ~8k líneas) —
   no los reescribas salvo pedido explícito.
+- **Inglés de acá en adelante (2026-06-25, ADR-017)**: el código y los artefactos técnicos NUEVOS (codegen,
+  capa de grafo/abstracts, definiciones de `.claude/agents` y skills) se autoran en INGLÉS (norma SWE + mejor
+  desempeño del modelo). NO churnees la historia inmutable (`decisions/` previas, `LOG`) ni traduzcas en masa
+  la prosa de gobierno española existente (rompería sha-stamps, ADR-009). La transición es hacia-adelante.

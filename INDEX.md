@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `13eabbf5f2a2` | 2026-06-21T03:23Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `8caabc7de238` | 2026-06-24T14:15Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `1e5725ef68bd` | 2026-06-25T21:38Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -24,6 +24,7 @@
 | `docs/decisions/014-paridad-de-dos-dominios.md` | `0c5733ba01b7` | 2026-06-16T18:47Z | ADR-014 — Paridad de dos dominios: ningún mecanismo de sustrato promueve probado en uno solo |
 | `docs/decisions/015-reutilizacion-factory-n-productos.md` | `80014a4827a5` | 2026-06-19T23:41Z | ADR-015 — Reutilización: la fábrica es un destino reutilizable (lifecycle 1:N producto) |
 | `docs/decisions/016-layering-gobierno-por-nivel.md` | `aaa4111890a6` | 2026-06-21T02:03Z | ADR-016 — Layering de gobierno por nivel (docs + lifecycle de incrementos: meta / fábrica / producto) |
+| `docs/decisions/017-espina-de-grafo-y-delegacion-verificada.md` | `8e4f68e3e161` | 2026-06-25T21:36Z | ADR-017 — Re-dirección SOTA: espina de grafo de proyecto + delegación verificada (no revisada) |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -90,7 +91,8 @@
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
-| `docs/work/ROADMAP.md` | `02140d37ebef` | 2026-06-20T18:45Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `52c1db17a7fd` | 2026-06-25T21:37Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
+| `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `ae73e42d65c4` | 2026-06-25T21:33Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `15ad1d55c866` | 2026-06-25T19:06Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `61ff4c74cb1d` | 2026-06-25T21:37Z | Meta-Factory — orientación (fase de diseño) |

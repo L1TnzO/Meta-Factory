@@ -75,10 +75,13 @@ DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del
 #                                corridas son secuenciales (un producto a la vez), como los nombres fijos de PG en s9.
 # presupuesto de bundle minificado (perf, DES-7). FSK-FRONTEND-ALL-ENTITIES: la UI emite render<E>List+mount<E>
 # por CADA entidad servida → el bundle crece LINEAL con la cuenta de entidades. El presupuesto la sigue: base +
-# per-entidad × served. DATA-agnóstico (escala por ESTRUCTURA, cero nombres). El probe bloated (60000B fijo) sigue
-# mordiendo mientras el budget < 60052 → válido hasta ~36 entidades servidas (snipeit: 18, bundle real ~25.9KB).
+# per-entidad × served. DATA-agnóstico (escala por ESTRUCTURA, cero nombres). El probe bloated (60045B fijo) sigue
+# mordiendo mientras el budget < 60045 → válido hasta ~29 entidades servidas (snipeit: 18, bundle real ~34.8KB).
+# FSK-FRONTEND-DETAIL subió el per-entidad de 1536→1920: cada pantalla ganó render<E>Detail + el handler de click
+# delegado en mount<E> + get<E> (≈220B/entidad minificados) — medido (snipeit 18 srv: real 35689B, budget 38656B,
+# ~8% de holgura; el probe bloated 60045B > 38656B → el gate sigue mordiendo).
 BUNDLE_BUDGET_BASE_BYTES = 4096       # piso (runtime del cliente: expectId/expectRows/summarize/nav/boot)
-BUNDLE_BUDGET_PER_ENTITY_BYTES = 1536  # margen por pantalla servida (render<E>List + mount<E> + create/get/list<E>)
+BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # ktlint `PropertyWrapping` (formatting, sin override en detekt.yml → su default) exige envolver una
 # declaración `val x = Ctor(...)` que pase de 120 — INDEPENDIENTE del MaxLineLength=160 de detekt. Sólo se
@@ -4135,15 +4138,36 @@ def _render_field(e: dict) -> str:
 def _render_list_ts(e: dict) -> str:
     """render<E>List(rows): el markup `<ul>` de la lista viva de UNA entidad (su 1er campo string/enum por fila).
     Tipado a `components["schemas"]["<E>"]` (DES-6: un drift del contrato rompe tsc --strict). FSK-FRONTEND-ALL-
-    ENTITIES: se emite por CADA entidad servida (no sólo la con dueño)."""
+    ENTITIES: se emite por CADA entidad servida (no sólo la con dueño). FSK-FRONTEND-DETAIL: cada `<li>` lleva su
+    `data-id` (el `id` del schema, columna requerida) → la fila es SELECCIONABLE (un click delegado en mount<E> lee
+    el `data-id`, trae el registro por get<E> y lo muestra). El texto renderizado (el campo) NO cambia (los asserts
+    de la lista quedan intactos)."""
     name = e["name"]
     field = _render_field(e)
     return (
         f'type {name} = components["schemas"]["{name}"];\n\n'
         f'export function render{name}List(rows: readonly {name}[]): string {{\n'
-        f'  const items = rows.map((r) => `<li>${{r.{field}}}</li>`).join("");\n'
+        f'  const items = rows.map((r) => `<li data-id="${{r.id}}">${{r.{field}}}</li>`).join("");\n'
         '  return `<ul>${items}</ul>`;\n'
         '}\n\n')
+
+
+def _render_detail_ts(e: dict) -> str:
+    """render<E>Detail(record): el markup del bloque de DETALLE de UN registro (FSK-FRONTEND-DETAIL) — recorre las
+    claves del objeto que get<E> devuelve (el registro COMPLETO, no un Pick) y emite un `<dl>` clave:valor por
+    campo. Es DATA-agnóstico (camina `Object.entries` → cero nombres de dominio, ADR-012): muestra TODOS los campos
+    del contrato (incl. `id` y los computados read-time), no sólo el campo de la lista → el detalle trae MÁS que la
+    lista. Cada par lleva `data-field` (el nombre de la clave) para que el proof asevere por campo. Tipado a `<E>`
+    (DES-6). Los valores del schema son escalares (string/number/boolean/enum) → `String(v)` es seguro."""
+    name = e["name"]
+    return (
+        f'export function render{name}Detail(record: {name}): string {{\n'
+        f'  const fields = Object.entries(record)\n'
+        f'    .map(([k, v]) => `<div class="field" data-field="${{k}}"><dt>${{k}}</dt>'
+        f'<dd>${{String(v)}}</dd></div>`)\n'
+        f'    .join("");\n'
+        f'  return `<dl class="detail">${{fields}}</dl>`;\n'
+        f'}}\n\n')
 
 
 def _mount_ts(e: dict) -> str:
@@ -4179,10 +4203,30 @@ def _mount_ts(e: dict) -> str:
         f'  submitBtn.textContent = "create";\n'
         f'  form.appendChild(submitBtn);\n'
         f'  const listContainer = doc.createElement("div");\n'
+        f'  const detailContainer = doc.createElement("div");\n'
         f'  const feedback = doc.createElement("p");\n'
         f'  const renderRows = (rows: readonly {name}[]): void => {{\n'
         f'    listContainer.innerHTML = render{name}List(rows);\n'
         f'  }};\n'
+        f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
+        f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
+        f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
+        f'  listContainer.addEventListener("click", (ev: Event): void => {{\n'
+        f'    const target = ev.target as HTMLElement;\n'
+        f'    const row = target.closest("li[data-id]");\n'
+        f'    if (row === null) {{\n'
+        f'      return;\n'
+        f'    }}\n'
+        f'    const id = Number(row.getAttribute("data-id"));\n'
+        f'    void (async (): Promise<void> => {{\n'
+        f'      try {{\n'
+        f'        const record = await get{name}(base, id);\n'
+        f'        detailContainer.innerHTML = render{name}Detail(record);\n'
+        f'      }} catch {{\n'
+        f'        detailContainer.textContent = "error";\n'
+        f'      }}\n'
+        f'    }})();\n'
+        f'  }});\n'
         f'  form.addEventListener("submit", (ev: Event): void => {{\n'
         f'    ev.preventDefault();\n'
         f'    void (async (): Promise<void> => {{\n'
@@ -4199,6 +4243,7 @@ def _mount_ts(e: dict) -> str:
         f'  }});\n'
         f'  root.appendChild(form);\n'
         f'  root.appendChild(listContainer);\n'
+        f'  root.appendChild(detailContainer);\n'
         f'  root.appendChild(feedback);\n'
         f'  host.appendChild(root);\n'
         f'  renderRows(await list{name}(base));\n'
@@ -4224,11 +4269,14 @@ def _app_ts(entities: list[dict]) -> str:
                 + 'import type { components } from "../gen/api.ts";\n\n'
                 + _render_list_ts(entities[0])
                 + 'export { summarize };\n')
-    imports = "summarize, " + ", ".join(f"create{e['name']}, list{e['name']}" for e in served)
+    # FSK-FRONTEND-DETAIL: cada pantalla consume get<E> (el registro completo por id) → se importa de client.ts.
+    imports = "summarize, " + ", ".join(
+        f"create{e['name']}, get{e['name']}, list{e['name']}" for e in served)
     return (head
             + f'import {{ {imports} }} from "./client.ts";\n'
             + 'import type { components } from "../gen/api.ts";\n\n'
             + "".join(_render_list_ts(e) for e in served)
+            + "".join(_render_detail_ts(e) for e in served)
             + "".join(_mount_ts(e) for e in served)
             + 'export { summarize };\n')
 
@@ -7281,7 +7329,9 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%VALUE_ASSERT%", value_assert)
             .replace("%NAV_COUNT%", str(len(served)))
-            .replace("%SECOND_BLOCK%", second_block))
+            .replace("%SECOND_BLOCK%", second_block)
+            .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
+            .replace("%OWNED_ENTITY%", owned["name"]))
 
 
 _BROWSER_CHECK_SKELETON = '''\
@@ -7378,7 +7428,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%
   } finally {
     await browser.close();
   }
@@ -7429,6 +7479,36 @@ _SECOND_SCREEN_BLOCK = '''
     const texts2 = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
     check(texts2.some((t) => t.includes(want2)), true,
           "2da entidad (%SECOND_ENTITY%): el FORM crea una fila que render<E>List muestra en el DOM REAL (Chromium)");'''
+
+
+# FSK-FRONTEND-DETAIL — el bloque del proof para la SELECCIÓN-DE-FILA: navega a la entidad con dueño (sembrada,
+# >=1 fila), clickea la 1ra fila (data-id) y asevera que get<E> trajo el REGISTRO COMPLETO y render<E>Detail lo
+# mostró: (i) el detalle muestra el VALOR de la fila clickeada; (ii) trae >1 campo (incl. id, que la lista NO
+# renderiza como texto -> el detalle trae MÁS que la lista). Saboteá render<E>Detail / el click -> el valor no
+# aparece -> rojo; la lista/nav quedan verdes (diente AISLADO al detalle, prerequisito de FSK-FRONTEND-EDIT).
+_DETAIL_ASSERT_BLOCK = '''
+
+    await page.click(`[data-entity="%OWNED_ENTITY%"]`);
+    await page.waitForSelector("li[data-id]", { timeout: 10000 });
+    const detailRow = await page.$("li[data-id]");
+    const detailRowText = (await detailRow.evaluate((el) => el.textContent ?? "")).trim();
+    await detailRow.click();
+    try {
+      await page.waitForFunction(
+        (t) => {
+          const d = document.querySelector("dl.detail");
+          return d !== null && (d.textContent ?? "").includes(t);
+        },
+        detailRowText, { timeout: 10000 });
+    } catch {
+      // timeout: el detalle no aparecio o no muestra el valor de la fila clickeada -> el check flipea (rojo). DIENTE.
+    }
+    const detailTexts = await page.$$eval("dl.detail", (els) => els.map((d) => d.textContent ?? ""));
+    check(detailTexts.some((t) => t.includes(detailRowText)), true,
+          "FSK-FRONTEND-DETAIL: clic en una fila muestra su valor en el bloque de detalle del DOM REAL (Chromium)");
+    const detailFields = await page.$$eval("dl.detail [data-field]", (els) => els.length);
+    check(detailFields >= 2, true,
+          "el detalle trae el REGISTRO COMPLETO (>1 campo, incl. id que la lista NO renderiza como texto)");'''
 
 
 def _ci_sh() -> str:

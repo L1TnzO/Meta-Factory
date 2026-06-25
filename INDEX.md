@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `13eabbf5f2a2` | 2026-06-21T03:23Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `1e5725ef68bd` | 2026-06-25T21:38Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `c5c797103670` | 2026-06-25T21:45Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -75,6 +75,7 @@
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |
 | `docs/work/GOV-LAYERING-FASE1-INCREMENT.md` | `808f6dd08c9b` | 2026-06-21T02:07Z | Incremento GOV-LAYERING-FASE1 — casa de docs del producto + lifecycle de incrementos por nivel |
+| `docs/work/GRAPH-SPINE-KEYSTONE-INCREMENT.md` | `ed8709dc9d7a` | 2026-06-25T21:44Z | Incremento GRAPH-SPINE-KEYSTONE |
 | `docs/work/H1-FACTORY-SELFGOV-INCREMENT.md` | `3dc42e03fefe` | 2026-06-18T17:50Z | Incremento H1-FACTORY-SELFGOV |
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
@@ -93,6 +94,6 @@
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/ROADMAP.md` | `52c1db17a7fd` | 2026-06-25T21:37Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
-| `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `ae73e42d65c4` | 2026-06-25T21:33Z | Incremento SOTA-REDESIGN-DIRECTION |
+| `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `61ff4c74cb1d` | 2026-06-25T21:37Z | Meta-Factory — orientación (fase de diseño) |

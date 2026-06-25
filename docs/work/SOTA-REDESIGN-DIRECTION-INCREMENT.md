@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ae73e42d65c49d1571a26c8df07c64c3cb291b1d updated=2026-06-25T21:33Z -->
+<!-- meta:doc sha=f8eb9152e3d85abc2eb0b0d51095b684487c11ae updated=2026-06-25T21:42Z -->
 # Incremento SOTA-REDESIGN-DIRECTION
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-25T21:30Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-25T21:42Z) (creado 2026-06-25T21:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -49,9 +49,9 @@ conocimiento del proyecto, content-addressed. Detalle completo + fuentes en §Pu
 ## Fases (de ESTE incremento)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Escribir `docs/decisions/017-*.md` (ADR: grafo-columna + verificar-no-revisar + routing de modelos como dato) | ⏳ |
-| 2 | Registrar el roadmap faseado en `docs/work/ROADMAP.md` + nota «Siguiente» concisa en STATE | ⏳ |
-| 3 | Ratificar "inglés de acá en adelante" en CLAUDE.md (sustrato vivo; NO churnear historia inmutable) | ⏳ |
+| 1 | Escribir `docs/decisions/017-*.md` (ADR: grafo-columna + verificar-no-revisar + routing de modelos como dato) | ✅ |
+| 2 | Registrar el roadmap faseado en `docs/work/ROADMAP.md` + nota «Siguiente» concisa en STATE | ✅ |
+| 3 | Ratificar "inglés de acá en adelante" en CLAUDE.md (sustrato vivo; NO churnear historia inmutable) | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `docs/decisions/017-*.md` existe (Estado: Aceptado) y fija la arquitectura SIN volver obligatoria una tech (ADR-012).

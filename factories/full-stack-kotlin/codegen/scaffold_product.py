@@ -73,7 +73,12 @@ DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> O
 #                                FUERA del rango efímero y ≠ OBS/AC (18593/18594/18595) para no chocar con s9.
 DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
 #                                corridas son secuenciales (un producto a la vez), como los nombres fijos de PG en s9.
-BUNDLE_BUDGET_BYTES = 8192     # presupuesto de bundle minificado (perf, DES-7): el entry real pesa ~cientos de bytes
+# presupuesto de bundle minificado (perf, DES-7). FSK-FRONTEND-ALL-ENTITIES: la UI emite render<E>List+mount<E>
+# por CADA entidad servida → el bundle crece LINEAL con la cuenta de entidades. El presupuesto la sigue: base +
+# per-entidad × served. DATA-agnóstico (escala por ESTRUCTURA, cero nombres). El probe bloated (60000B fijo) sigue
+# mordiendo mientras el budget < 60052 → válido hasta ~36 entidades servidas (snipeit: 18, bundle real ~25.9KB).
+BUNDLE_BUDGET_BASE_BYTES = 4096       # piso (runtime del cliente: expectId/expectRows/summarize/nav/boot)
+BUNDLE_BUDGET_PER_ENTITY_BYTES = 1536  # margen por pantalla servida (render<E>List + mount<E> + create/get/list<E>)
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # ktlint `PropertyWrapping` (formatting, sin override en detekt.yml → su default) exige envolver una
 # declaración `val x = Ctor(...)` que pase de 120 — INDEPENDIENTE del MaxLineLength=160 de detekt. Sólo se
@@ -1362,45 +1367,16 @@ def _client_ts(entities: list[dict]) -> str:
             + _client_consume_ts(entities))
 
 
-def _client_consume_ts(entities: list[dict]) -> str:
-    """La capa de cliente VIVA del frontend (FSK-FRONTEND-CONSUME): create<E>/get<E> hacen `fetch` REAL contra
-    el AppServer vivo (com.sun.net.httpserver) — el cliente generado y el server generado hablan el MISMO
-    protocolo de cable, e2e. OPT-IN: sólo para la entidad con dueño (la única que el AppServer monta); sin
-    `owned_by` el client.ts queda sólo con `summarize` (FSK-S15 intacto). Type-bound al contrato (DES-6): el
-    body es un `Pick<<E>, …>` de las claves de _input_fields → un drift del contrato (campo renombrado) rompe
-    el Pick en tsc --strict (s2). `fetch` es global (DOM lib / Node 18+, sin dep, ADR-012); `res.json()` es
-    `unknown` (ts-reset, DES-10) → se NARROW al contrato sin `any`. DATA-agnóstico: nombres del blueprint."""
-    owned = next((e for e in entities if e.get("owned_by")), None)
-    if owned is None:
-        return ""
-    name = owned["name"]
-    plural = "/" + _table(owned)
-    keys = " | ".join(f'"{f["name"]}"' for f in _input_fields(owned))
+def _consume_entity_ts(e: dict) -> str:
+    """create<E>/get<E>/list<E> + el tipo <E>Input de UNA entidad: `fetch` REAL contra el AppServer vivo, type-
+    bound al contrato (DES-6: `Pick<<E>, …>` de _input_fields → un drift rompe tsc --strict). FSK-FRONTEND-ALL-
+    ENTITIES: se emite por CADA entidad servida (no sólo la con dueño). expectId/expectRows son helpers
+    compartidos (emitidos una vez por _client_consume_ts)."""
+    name = e["name"]
+    plural = "/" + _table(e)
+    keys = " | ".join(f'"{f["name"]}"' for f in _input_cols(e))   # columnas físicas (poly ref → 2 sub-cols)
     return (
-        "\n\n"
-        "// ── FSK-FRONTEND-CONSUME — la capa de cliente VIVA: create/get hacen fetch REAL contra el AppServer\n"
-        '// (com.sun.net.httpserver). Type-safe contra components["schemas"] (DES-6: un drift del contrato →\n'
-        "// rompe tsc --strict en s2). El round-trip e2e (consume_check.ts) IMPORTA estas funciones y cruza el\n"
-        "// cuerpo posteado contra lo que vuelve por GET /{id}: un cliente que ignora la respuesta del server\n"
-        "// (eco/literal) → mismatch → rojo. `fetch` es global (DOM lib / Node 18+); res.json() es `unknown`\n"
-        "// (ts-reset) → se NARROW al contrato, sin `any` (DES-10).\n"
         f"type {name}Input = Pick<{name}, {keys}>;\n\n"
-        "function expectId(json: unknown): { id: number } {\n"
-        '  if (typeof json === "object" && json !== null && "id" in json && typeof json.id === "number") {\n'
-        "    return { id: json.id };\n"
-        "  }\n"
-        f'  throw new Error("create{name}: el server no devolvió un id numérico");\n'
-        "}\n\n"
-        "// FSK-FRONTEND-RENDER-LIST — list<E> trae la COLECCIÓN viva: GET /<plural> → {count,rows[]} (el server\n"
-        "// extendió la colección de count a count+rows, backward-compat). res.json() es `unknown` (ts-reset) →\n"
-        "// se NARROW a `unknown[]` sin `any` (Array.isArray, DES-10); el callsite lo castea a <E>[] (Pick del\n"
-        "// contrato). Un list<E> que ignora/trunca .rows → la lista viva no se refleja → el consumer lo caza.\n"
-        "function expectRows(json: unknown): unknown[] {\n"
-        '  if (typeof json === "object" && json !== null && "rows" in json && Array.isArray(json.rows)) {\n'
-        "    return json.rows;\n"
-        "  }\n"
-        f'  throw new Error("list{name}: el server no devolvió rows[]");\n'
-        "}\n\n"
         f"export async function create{name}(base: string, token: string, "
         f"body: {name}Input): Promise<{{ id: number }}> {{\n"
         f"  const res = await fetch(`${{base}}{plural}`, {{\n"
@@ -1426,7 +1402,46 @@ def _client_consume_ts(entities: list[dict]) -> str:
         f'    throw new Error(`list{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         f"  return expectRows(await res.json()) as {name}[];\n"
-        "}\n"
+        "}\n\n"
+    )
+
+
+def _client_consume_ts(entities: list[dict]) -> str:
+    """La capa de cliente VIVA del frontend (FSK-FRONTEND-CONSUME): create<E>/get<E>/list<E> hacen `fetch` REAL
+    contra el AppServer vivo (com.sun.net.httpserver) — el cliente generado y el server generado hablan el MISMO
+    protocolo de cable, e2e. FSK-FRONTEND-ALL-ENTITIES: se emiten por CADA entidad de _live_entities (la MISMA
+    fuente que el AppServer monta), no sólo la con dueño. OPT-IN a `owned_by` (la precondición de la capa viva);
+    sin dueño el client.ts queda sólo con `summarize` (FSK-S15 intacto). Type-bound al contrato (DES-6): el body
+    es un `Pick<<E>, …>` de _input_fields → un drift del contrato (campo renombrado) rompe el Pick en tsc --strict
+    (s2). `fetch` es global (DOM lib / Node 18+, sin dep, ADR-012); `res.json()` es `unknown` (ts-reset, DES-10) →
+    se NARROW al contrato sin `any`. expectId/expectRows son helpers compartidos (genéricos). DATA-agnóstico."""
+    owned = next((e for e in entities if e.get("owned_by")), None)
+    if owned is None:
+        return ""
+    served = _live_entities(entities)
+    return (
+        "\n\n"
+        "// ── FSK-FRONTEND-CONSUME — la capa de cliente VIVA: create/get/list hacen fetch REAL contra el AppServer\n"
+        '// (com.sun.net.httpserver). Type-safe contra components["schemas"] (DES-6: un drift del contrato →\n'
+        "// rompe tsc --strict en s2). El round-trip e2e (consume_check.ts) IMPORTA estas funciones y cruza el\n"
+        "// cuerpo posteado contra lo que vuelve por GET /{id}: un cliente que ignora la respuesta del server\n"
+        "// (eco/literal) → mismatch → rojo. `fetch` es global (DOM lib / Node 18+); res.json() es `unknown`\n"
+        "// (ts-reset) → se NARROW al contrato, sin `any` (DES-10). FSK-FRONTEND-RENDER-LIST: list<E> trae la\n"
+        "// COLECCIÓN viva (GET /<plural> → {count,rows[]}); un list<E> que ignora/trunca .rows → la lista viva no\n"
+        "// se refleja → el consumer lo caza. FSK-FRONTEND-ALL-ENTITIES: una tripleta por cada entidad servida.\n"
+        "function expectId(json: unknown): { id: number } {\n"
+        '  if (typeof json === "object" && json !== null && "id" in json && typeof json.id === "number") {\n'
+        "    return { id: json.id };\n"
+        "  }\n"
+        '  throw new Error("create: el server no devolvió un id numérico");\n'
+        "}\n\n"
+        "function expectRows(json: unknown): unknown[] {\n"
+        '  if (typeof json === "object" && json !== null && "rows" in json && Array.isArray(json.rows)) {\n'
+        "    return json.rows;\n"
+        "  }\n"
+        '  throw new Error("list: el server no devolvió rows[]");\n'
+        "}\n\n"
+        + "".join(_consume_entity_ts(e) for e in served).rstrip("\n") + "\n"
     )
 
 
@@ -4110,39 +4125,37 @@ def _form_coerce(f: dict, var: str, ename: str) -> str:
     return f"{var}.value"   # string / date
 
 
-def _app_ts(entities: list[dict]) -> str:
-    """El entry de bundle del frontend (perf, s8): código de cliente REAL (importa summarize de client.ts) →
-    esbuild bundlea el grafo real y mide su peso minificado vs el presupuesto. Pasa tsc --strict + ESLint
-    (s2) + currency (s3) como todo lo de src/. El `import type` de gen/api.ts se stripea en el bundle.
-    DERIVADO del blueprint (R2: sin hardcodear "Task"): tipa la entidad CON DUEÑO vía `components` (la única con
-    capa viva — list<E>/render<E>List la alimentan con datos del server, FSK-FRONTEND-RENDER-LIST; sin dueño cae
-    en la 1ª entidad, s8 sigue midiendo el bundle) y renderiza su 1er campo string/enum (siempre hay uno).
-    FSK-BROWSER-FORM: con `owned_by`, además emite `mount<E>(doc, base, token)` — el frontend se MONTA en un DOM
-    real (Document) con un FORM (un <input> por campo de _input_fields) cuyo submit postea vía create<E> (cliente
-    vivo) y RE-RENDERIZA la lista → la fila nueva aparece como NODO del DOM. Opt-in a `owned_by` (la única con
-    cliente vivo); sin dueño, sólo el render-string + summarize (FSK-FRONTEND-RENDER-LIST intacto)."""
-    owned = next((x for x in entities if x.get("owned_by")), None)
-    e = owned or entities[0]
+def _render_field(e: dict) -> str:
+    """El campo que render<E>List renderiza: el 1er string/enum de la entidad (siempre hay uno utilizable).
+    Heurística ÚNICA que cruzan _render_list_ts, _consume_check_ts y _browser_check_ts → el proof asevera
+    contra EXACTAMENTE lo que el render emite."""
+    return next((f["name"] for f in e["fields"] if f["type"] in ("string", "enum")), e["fields"][0]["name"])
+
+
+def _render_list_ts(e: dict) -> str:
+    """render<E>List(rows): el markup `<ul>` de la lista viva de UNA entidad (su 1er campo string/enum por fila).
+    Tipado a `components["schemas"]["<E>"]` (DES-6: un drift del contrato rompe tsc --strict). FSK-FRONTEND-ALL-
+    ENTITIES: se emite por CADA entidad servida (no sólo la con dueño)."""
     name = e["name"]
-    field = next((f["name"] for f in e["fields"] if f["type"] in ("string", "enum")),
-                 e["fields"][0]["name"])
-    head = (
-        '// Entry de bundle del frontend (perf, s8/DES-7): código de cliente REAL → esbuild mide su peso\n'
-        '// minificado vs el presupuesto declarado. El bundle resuelve el grafo real (client.ts).\n')
-    render = (
+    field = _render_field(e)
+    return (
         f'type {name} = components["schemas"]["{name}"];\n\n'
         f'export function render{name}List(rows: readonly {name}[]): string {{\n'
         f'  const items = rows.map((r) => `<li>${{r.{field}}}</li>`).join("");\n'
         '  return `<ul>${items}</ul>`;\n'
         '}\n\n')
-    if owned is None:
-        return (head
-                + 'import { summarize } from "./client.ts";\n'
-                + 'import type { components } from "../gen/api.ts";\n\n'
-                + render
-                + 'export { summarize };\n')
-    # con dueño: el frontend se MONTA en un DOM real + un FORM postea vía el cliente vivo (FSK-BROWSER-FORM).
-    flds = _input_fields(owned)
+
+
+def _mount_ts(e: dict) -> str:
+    """mount<E>(doc, base, token): MONTA la pantalla de UNA entidad en un DOM real (Document) — un FORM (un <input>
+    por campo de _input_fields) cuyo submit postea vía create<E> (cliente vivo) y RE-RENDERIZA list<E> → la fila
+    nueva aparece como NODO del DOM. El host es `#screen` (el nav lo limpia entre pantallas) o el `<body>` (jsdom,
+    sin nav → fallback byte-compatible con el proof consume_check). FSK-FRONTEND-ALL-ENTITIES: se emite por CADA
+    entidad servida; el token (rol+principal) lo arma el nav por entidad. El submit es async: lee los <input>,
+    coacciona al tipo del contrato (DES-6), postea, re-trae y re-renderiza (o marca el error si el server rechaza —
+    el 400 NO se traga). `Document` viene de la lib `dom` de TS (tsconfig)."""
+    name = e["name"]
+    flds = _input_cols(e)   # FSK-POLYMORPHIC-REFS: columnas físicas (un poly ref → sus 2 sub-cols del contrato)
     inputs = "".join(
         f'  const {_camel(f["name"])}Input = doc.createElement("input");\n'
         f'  {_camel(f["name"])}Input.name = "{f["name"]}";\n'
@@ -4151,14 +4164,13 @@ def _app_ts(entities: list[dict]) -> str:
         for f in flds)
     body = "\n".join(
         f'          {f["name"]}: {_form_coerce(f, _camel(f["name"]) + "Input", name)},' for f in flds)
-    mount = (
-        f'// FSK-BROWSER-FORM — el frontend se MONTA en un DOM real (Document) y un FORM (un <input> por campo del\n'
-        f'// cuerpo, _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la\n'
-        f'// lista → la fila nueva aparece como NODO del DOM. El proof (consume_check.ts, jsdom) lo corre e2e\n'
-        f'// contra el server vivo. Opt-in a `owned_by` (la única con cliente vivo). El submit es async: lee los\n'
-        f'// <input>, coacciona al tipo del contrato (DES-6), postea, re-trae la lista y re-renderiza (o marca el\n'
-        f'// error si el server rechaza — el 400 NO se traga). `Document` viene de la lib `dom` de TS (tsconfig).\n'
+    return (
+        f'// FSK-FRONTEND-ALL-ENTITIES — la PANTALLA de {name}: un FORM (un <input> por campo del cuerpo,\n'
+        f'// _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la lista →\n'
+        f'// la fila nueva aparece como NODO del DOM. El host es #screen (el nav lo limpia entre pantallas) o el\n'
+        f'// <body> (jsdom). El proof (consume_check.ts jsdom + browser_check.ts Chromium) lo corre e2e vs el server vivo.\n'
         f'export async function mount{name}(doc: Document, base: string, token: string): Promise<void> {{\n'
+        f'  const host = doc.getElementById("screen") ?? doc.body;\n'
         f'  const root = doc.createElement("div");\n'
         f'  const form = doc.createElement("form");\n'
         f'{inputs}'
@@ -4188,22 +4200,47 @@ def _app_ts(entities: list[dict]) -> str:
         f'  root.appendChild(form);\n'
         f'  root.appendChild(listContainer);\n'
         f'  root.appendChild(feedback);\n'
-        f'  doc.body.appendChild(root);\n'
+        f'  host.appendChild(root);\n'
         f'  renderRows(await list{name}(base));\n'
         f'}}\n\n')
+
+
+def _app_ts(entities: list[dict]) -> str:
+    """El entry de bundle del frontend (perf, s8): código de cliente REAL → esbuild bundlea el grafo real y mide
+    su peso minificado vs el presupuesto (DES-7). Pasa tsc --strict + ESLint (s2) + currency (s3) como todo src/.
+    El `import type` de gen/api.ts se stripea en el bundle. FSK-FRONTEND-ALL-ENTITIES: con dueño (la precondición
+    de la capa viva), emite render<E>List + mount<E> por CADA entidad de _live_entities (la MISMA fuente que el
+    AppServer monta) → la UI pasa de 1 pantalla a N, navegables (el nav vive en browser_entry.ts). Generaliza la
+    SELECCIÓN (de la con-dueño a la servida), no inventa arquitectura. Sin dueño → sólo el render-string +
+    summarize (sin capa viva; byte-idéntico al estado previo, ningún producto actual cae acá)."""
+    served = _live_entities(entities)
+    owned = next((x for x in entities if x.get("owned_by")), None)
+    head = (
+        '// Entry de bundle del frontend (perf, s8/DES-7): código de cliente REAL → esbuild mide su peso\n'
+        '// minificado vs el presupuesto declarado. El bundle resuelve el grafo real (client.ts).\n')
+    if owned is None:
+        return (head
+                + 'import { summarize } from "./client.ts";\n'
+                + 'import type { components } from "../gen/api.ts";\n\n'
+                + _render_list_ts(entities[0])
+                + 'export { summarize };\n')
+    imports = "summarize, " + ", ".join(f"create{e['name']}, list{e['name']}" for e in served)
     return (head
-            + f'import {{ summarize, create{name}, list{name} }} from "./client.ts";\n'
+            + f'import {{ {imports} }} from "./client.ts";\n'
             + 'import type { components } from "../gen/api.ts";\n\n'
-            + render
-            + mount
+            + "".join(_render_list_ts(e) for e in served)
+            + "".join(_mount_ts(e) for e in served)
             + 'export { summarize };\n')
 
 
-def _budget_json() -> str:
+def _budget_json(n_served: int) -> str:
+    budget = BUNDLE_BUDGET_BASE_BYTES + BUNDLE_BUDGET_PER_ENTITY_BYTES * n_served
     return json.dumps({
-        "bundle_bytes": BUNDLE_BUDGET_BYTES,
+        "bundle_bytes": budget,
         "_comment": ("presupuesto de bundle minificado (perf, DES-7). perf_measure.mjs lo lee; el gate exige "
-                     "budget_bytes/bundle_bytes >= 1.0 (dentro del presupuesto)."),
+                     "budget_bytes/bundle_bytes >= 1.0 (dentro del presupuesto). FSK-FRONTEND-ALL-ENTITIES: "
+                     f"escala con las entidades servidas (base {BUNDLE_BUDGET_BASE_BYTES} + "
+                     f"{BUNDLE_BUDGET_PER_ENTITY_BYTES}/entidad × {n_served})."),
     }, indent=2) + "\n"
 
 
@@ -7077,32 +7114,68 @@ main(base)
 
 
 def _browser_entry_ts(bp: dict) -> str:
-    """frontend/src/browser_entry.ts — el ENTRY del bundle del browser (FSK-FRONTEND-BROWSER). Importa mount<E>
-    (app.ts) y, al cargar la pagina en un navegador REAL, lo invoca contra el AppServer MISMO-ORIGEN
-    (location.origin) → trae la lista VIVA (GET /<plural>) y la renderiza en el DOM REAL. esbuild
-    (build_bundle.mjs) lo bundlea a un IIFE cargable por <script> (dist/app.js); el AppServer lo sirve en GET
-    /app.js. Vive en src/ → tsc --strict lo type-checkea (DES-6: un drift del contrato rompe la compilacion).
-    Opt-in a owned_by (la unica entidad con cliente vivo + mount<E>). El token (Bearer rol:principal) lo arma de
-    /seed para que el FORM tambien postee; la lista renderiza sin token (GET publico)."""
-    owned = next(e for e in bp["entities"] if e.get("owned_by"))
-    name = owned["name"]
-    write_roles = owned["write_roles"]
+    """frontend/src/browser_entry.ts — el ENTRY del bundle del browser (FSK-FRONTEND-BROWSER + FSK-FRONTEND-ALL-
+    ENTITIES). Importa mount<E> (app.ts) de CADA entidad servida y, al cargar la pagina en un navegador REAL,
+    arma un NAV (un boton por entidad) + un contenedor #screen; al elegir una entidad MONTA su pantalla contra el
+    AppServer MISMO-ORIGEN (location.origin) -> trae la lista VIVA (GET /<plural>) y la renderiza en el DOM REAL.
+    esbuild (build_bundle.mjs) lo bundlea a un IIFE cargable por <script> (dist/app.js); el AppServer lo sirve en
+    GET /app.js. Vive en src/ -> tsc --strict lo type-checkea (DES-6). El token (Bearer rol:principal) lo arma de
+    /seed por entidad (rol = el 1er write_role no-bypass) para que el FORM postee; la lista renderiza sin token
+    (GET publico). Opt-in a owned_by (la precondicion de la capa viva); la 1ra pantalla se monta por defecto."""
+    served = _live_entities(bp["entities"])
     bypass = bp.get("owner_bypass_roles") or []
-    non_bypass = [r for r in write_roles if r not in bypass] or write_roles
-    write_role = non_bypass[0]
+
+    def role_of(e: dict) -> str:
+        nb = [r for r in e["write_roles"] if r not in bypass] or e["write_roles"]
+        return nb[0]
+
+    names = [e["name"] for e in served]
+    imports = ", ".join(f"mount{n}" for n in names)
+    screens = "".join(
+        f'  {{ label: "{e["name"]}", role: "{role_of(e)}", mount: mount{e["name"]} }},\n'
+        for e in served)
     return (
-        "// FSK-FRONTEND-BROWSER — el ENTRY del bundle del browser: importa mount<E> (app.ts) y, al cargar la\n"
-        "// pagina en un navegador REAL, lo invoca contra el AppServer MISMO-ORIGEN (location.origin) -> trae la\n"
-        "// lista VIVA y la renderiza en el DOM REAL. esbuild (build_bundle.mjs) lo bundlea a un IIFE cargable\n"
-        "// por <script> (dist/app.js); el AppServer lo sirve en GET /app.js. tsc --strict lo type-checkea.\n"
-        f'import {{ mount{name} }} from "./app.ts";\n\n'
-        f'const WRITE_ROLE = "{write_role}";\n\n'
+        "// FSK-FRONTEND-ALL-ENTITIES — el ENTRY del bundle del browser: importa mount<E> (app.ts) de CADA entidad\n"
+        "// servida y arma un NAV (un boton por entidad) + un #screen; al elegir una entidad MONTA su pantalla\n"
+        "// contra el AppServer MISMO-ORIGEN (location.origin) -> trae la lista VIVA y la renderiza en el DOM REAL.\n"
+        "// esbuild (build_bundle.mjs) lo bundlea a un IIFE (dist/app.js); el AppServer lo sirve en GET /app.js.\n"
+        f'import {{ {imports} }} from "./app.ts";\n\n'
+        "interface Screen {\n"
+        "  label: string;\n"
+        "  role: string;\n"
+        "  mount: (doc: Document, base: string, token: string) => Promise<void>;\n"
+        "}\n\n"
+        "const SCREENS: readonly Screen[] = [\n"
+        f"{screens}"
+        "];\n\n"
         "async function boot(): Promise<void> {\n"
         "  const base = location.origin;\n"
         "  const seedRes = await fetch(`${base}/seed`);\n"
         "  const seed = (await seedRes.json()) as { owner: number };\n"
-        "  const token = `Bearer ${WRITE_ROLE}:${seed.owner}`;\n"
-        f"  await mount{name}(document, base, token);\n"
+        '  const app = document.getElementById("app") ?? document.body;\n'
+        '  const nav = document.createElement("nav");\n'
+        '  const screen = document.createElement("div");\n'
+        '  screen.id = "screen";\n'
+        "  const show = async (s: Screen): Promise<void> => {\n"
+        "    screen.replaceChildren();\n"
+        "    const token = `Bearer ${s.role}:${seed.owner}`;\n"
+        "    await s.mount(document, base, token);\n"
+        "  };\n"
+        "  for (const s of SCREENS) {\n"
+        '    const btn = document.createElement("button");\n'
+        "    btn.textContent = s.label;\n"
+        '    btn.setAttribute("data-entity", s.label);\n'
+        "    btn.addEventListener(\"click\", () => {\n"
+        "      void show(s);\n"
+        "    });\n"
+        "    nav.appendChild(btn);\n"
+        "  }\n"
+        "  app.appendChild(nav);\n"
+        "  app.appendChild(screen);\n"
+        "  const first = SCREENS[0];\n"
+        "  if (first !== undefined) {\n"
+        "    await show(first);\n"
+        "  }\n"
         "}\n\n"
         "void boot();\n")
 
@@ -7120,10 +7193,7 @@ def _build_bundle_mjs() -> str:
         '// MISMO-ORIGEN (GET / + GET /app.js, FSK_WEB_DIR); el proof Playwright (browser_check.ts) abre GET / en un\n'
         '// navegador headless y asevera que la lista VIVA se renderiza en el DOM real. Sin red (esbuild local).\n'
         'import { buildSync } from "esbuild";\n'
-        'import { mkdirSync, writeFileSync } from "node:fs";\n'
-        'import { fileURLToPath } from "node:url";\n'
-        'import { dirname, resolve } from "node:path";\n\n'
-        'const __dir = dirname(fileURLToPath(import.meta.url));\n\n'
+        'import { mkdirSync, writeFileSync } from "node:fs";\n\n'
         'const INDEX_HTML = [\n'
         '  "<!DOCTYPE html>",\n'
         '  \'<html lang="en">\',\n'
@@ -7133,15 +7203,15 @@ def _build_bundle_mjs() -> str:
         '  "</html>",\n'
         '  "",\n'
         '].join("\\n");\n\n'
-        'mkdirSync(resolve(__dir, "dist"), { recursive: true });\n'
+        'mkdirSync("dist", { recursive: true });\n'
         'buildSync({\n'
-        '  entryPoints: [resolve(__dir, "src/browser_entry.ts")],\n'
+        '  entryPoints: ["src/browser_entry.ts"],\n'
         '  bundle: true,\n'
         '  format: "iife",\n'
-        '  outfile: resolve(__dir, "dist/app.js"),\n'
+        '  outfile: "dist/app.js",\n'
         '  logLevel: "silent",\n'
         '});\n'
-        'writeFileSync(resolve(__dir, "dist/index.html"), INDEX_HTML);\n'
+        'writeFileSync("dist/index.html", INDEX_HTML);\n'
         'console.log("bundle: src/browser_entry.ts -> dist/app.js + dist/index.html");\n')
 
 
@@ -7183,12 +7253,35 @@ def _browser_check_ts(bp: dict) -> str:
             '\n    const newTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));\n'
             f'    check(newTexts.includes(String(FORM_BODY["{render_field}"])), true,\n'
             '          "el <li> nuevo muestra el valor que el FORM posteo en el browser REAL (Chromium)");')
+    # FSK-FRONTEND-ALL-ENTITIES: el nav lista una pantalla por entidad servida; la 2da entidad ejercita
+    # render<E>List de OTRA pantalla (DIENTE de dos lados: saboteá el render de UNA → SÓLO esa pantalla falla). La
+    # 2da = la 1ra ownerless servible SIN refs requeridos (form-submitteable con sólo escalares), NO company-scoped
+    # (su fila se lee sin filtro), y cuyo campo renderizado es un escalar del FORM → asevero por el VALOR posteado
+    # (sin carrera de conteo: la fila nueva aparece con su texto). Sin candidata (1 sola entidad) → bloque vacío.
+    served = _live_entities(bp["entities"])
+    scoped = {e["name"] for e in bp["entities"] if e.get("company_scoped")}
+    second_block = ""
+    for e in served:
+        if e.get("owned_by") or e["name"] in scoped:
+            continue
+        if any(f["type"] == "ref" and f.get("required") for f in e["fields"]):
+            continue
+        rf2 = _render_field(e)
+        sbody = {f["name"]: _proof_form_value(f) for f in _input_fields(e) if f["type"] != "ref"}
+        if rf2 in sbody:
+            second_block = (_SECOND_SCREEN_BLOCK
+                            .replace("%SECOND_ENTITY%", e["name"])
+                            .replace("%SECOND_RENDER_FIELD%", rf2)
+                            .replace("%SECOND_FORM_BODY%", json.dumps(sbody)))
+            break
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
             .replace("%FORM_BODY%", json.dumps(form_body))
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
-            .replace("%VALUE_ASSERT%", value_assert))
+            .replace("%VALUE_ASSERT%", value_assert)
+            .replace("%NAV_COUNT%", str(len(served)))
+            .replace("%SECOND_BLOCK%", second_block))
 
 
 _BROWSER_CHECK_SKELETON = '''\
@@ -7280,6 +7373,12 @@ async function main(base) {
     }
     const after = await page.$$eval("li", (els) => els.length);
     check(after, before + 1, "el submit del FORM en Chromium REAL crea un <li> NUEVO en el DOM (N -> N+1)");%VALUE_ASSERT%
+
+    // FSK-FRONTEND-ALL-ENTITIES - el NAV lista una pantalla por CADA entidad servida; navegar a una SEGUNDA
+    // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
+    // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
+    const navButtons = await page.$$eval("nav button", (els) => els.length);
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%
   } finally {
     await browser.close();
   }
@@ -7297,6 +7396,39 @@ main(base)
     process.exit(1);
   });
 '''
+
+
+# FSK-FRONTEND-ALL-ENTITIES — el bloque del proof para la SEGUNDA pantalla: clickea su botón en el nav (montando su
+# pantalla via el bundle, con el token que el nav arma por entidad), llena su FORM con escalares y dispara el submit;
+# asevera que la fila NUEVA aparece en el DOM REAL por su VALOR renderizado (render<E>List de OTRA entidad). Junto al
+# bloque del dueño, ejercita el render de 2+ entidades → un render<E>List saboteado de UNA hace fallar SÓLO su pantalla.
+_SECOND_SCREEN_BLOCK = '''
+
+    await page.click(`[data-entity="%SECOND_ENTITY%"]`);
+    const SECOND_BODY = %SECOND_FORM_BODY%;
+    const want2 = String(SECOND_BODY["%SECOND_RENDER_FIELD%"]);
+    for (const [k, v] of Object.entries(SECOND_BODY)) {
+      const sel = `[name="${k}"]`;
+      if (typeof v === "boolean") {
+        if (v) { await page.check(sel); } else { await page.uncheck(sel); }
+      } else {
+        await page.fill(sel, String(v));
+      }
+    }
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    try {
+      await page.waitForFunction(
+        (t) => [...document.querySelectorAll("li")].some((li) => (li.textContent ?? "").includes(t)),
+        want2, { timeout: 10000 });
+    } catch {
+      // timeout: la fila nueva de la 2da entidad no aparecio en el DOM -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const texts2 = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    check(texts2.some((t) => t.includes(want2)), true,
+          "2da entidad (%SECOND_ENTITY%): el FORM crea una fila que render<E>List muestra en el DOM REAL (Chromium)");'''
 
 
 def _ci_sh() -> str:
@@ -7647,7 +7779,7 @@ def build_files(bp: dict) -> dict[str, str]:
         # calidad de experiencia (s8, DES-7): UI accesible generada + drivers a11y/perf + scorers + probes
         "frontend/ui/index.html": _ui_index_html(bp),
         "frontend/src/app.ts": _app_ts(ents),
-        "frontend/eval/budget.json": _budget_json(),
+        "frontend/eval/budget.json": _budget_json(len(_live_entities(ents))),
         "frontend/eval/a11y_audit.mjs": _a11y_audit_mjs(),
         "frontend/eval/a11y_scorer.mjs": _a11y_scorer_mjs(),
         "frontend/eval/perf_measure.mjs": _perf_measure_mjs(),

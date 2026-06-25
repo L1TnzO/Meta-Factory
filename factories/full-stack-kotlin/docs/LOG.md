@@ -1,6 +1,24 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T16:08Z — FSK-DEV-RUN ✅: un launcher de 1 comando para correr la app (DX)
+- **El ingeniero pidió una forma fácil de iniciar la app** (correrla a mano = secuencia larga y frágil: PG docker +
+  JAVA_HOME + bundle + `java -cp` con 4 env vars, sin matar otros `java`). Resuelto con `factories/full-stack-kotlin/
+  tools/dev_run.sh [producto|stop|status]` + skill `correr-app`. **NO es una capacidad con diente** — es DX (la prueba
+  de que la app corre la tiene `frontend_browser_render`/s9). Sustrato `seed/`+`src/metafactory/` = **0**.
+- **Maquinaria**: `up` autodetecta `JAVA_HOME`, elige puerto libre para app y PG (`python3 socket`), levanta una PG
+  docker propia (`fsk-dev-<p>`, digest = el del proof s1/s7/s9), re-bundlea el frontend, lanza `<pkg>.endpoints.
+  AppServerKt` con las env vars, espera `/health`, imprime la URL; si falta el build lo construye (`installDist`/`npm
+  install`). `stop` mata SÓLO su PID + borra SÓLO su PG/url/pid. DATA-agnóstico: `package_name` del spec efectivo.
+- **Lección reusable (bug encontrado y corregido en vivo)**: lanzar con `nohup env java` → `nohup` FORKEA → `app.pid`
+  apuntaba al wrapper y `stop` dejaba el `java` HUÉRFANO (verificado: el JVM seguía vivo tras `stop`). Fix: el idiom
+  `( cd …; export …; exec java ) >log 2>&1 & echo $! >app.pid; disown` → el subshell hace EXEC a java → `$!` (en el
+  padre) ES el PID de java → `stop` lo mata de verdad. Vale para cualquier launcher de proceso de fondo de la fábrica.
+- **Verificado VIVO (ciclo completo, con mis ojos)**: `dev_run.sh snipeit` → `/health` `{"status":"UP"}` · `app.pid`==el
+  java (`pgrep -x java`) · `GET /assets` count=3 · `browser_check.ts` (Chromium REAL) contra la URL del launcher → la
+  HOME con el dashboard de conteos vivos · `stop` → `kill -0` confirma el java MUERTO + PG/url/pid limpios · el
+  `java -jar app.jar` del ingeniero (4020) intacto todo el ciclo. Commit `0c3c509`. Siguiente: `FSK-FRONTEND-DELETE`.
+
 ## 2026-06-25T15:51Z — FSK-FRONTEND-DASHBOARD ✅: la HOME con conteo VIVO por entidad → CIERRA el arco frontend
 - **La app ABRE en una HOME/dashboard con un conteo VIVO por entidad** (`Asset: 3`, …), el landing por defecto del nav.
   Lo 1ro que ve el ingeniero. **Frontend-only, CERO backend** (el `count` ya viene en `{count,rows}` de `GET /<plural>`;

@@ -3,6 +3,24 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **UN LAUNCHER DE 1 COMANDO PARA CORRER LA APP (FSK-DEV-RUN, 2026-06-25)** ✅: pedido del ingeniero — correr la app a
+  mano requería una secuencia larga y frágil (PG docker + `JAVA_HOME` + bundle + `java -cp` con 4 env vars, cuidando no
+  matar otros `java`). Ahora **`factories/full-stack-kotlin/tools/dev_run.sh [producto|stop|status]`** (+ skill
+  `correr-app`): levanta el `AppServerKt` CRUD+frontend contra una PG viva, espera `/health`, **imprime la URL**.
+  Robusto: puerto libre AUTO (app y PG) · PG propia (`fsk-dev-<p>`, digest = el del proof) · `JAVA_HOME` autodetectado ·
+  re-bundlea · si falta el build lo construye (`installDist`/`npm install`) · **NUNCA toca otros `java`/contenedores**
+  (mata SÓLO su PID trackeado). DATA-agnóstico (paquete del spec efectivo, ADR-012). **NO es capacidad con diente** — es
+  DX (la prueba de que la app corre la tiene `frontend_browser_render`/s9); sustrato `seed/`+`src/metafactory/` = **0**.
+  Lección reusable: el server se lanza con el idiom **`( … exec java ) & echo $!`** → `app.pid` ES el java (un `nohup`/
+  bash intermedio lo dejaría huérfano en `stop`; bug encontrado y corregido en vivo). **Verificado VIVO** (ciclo
+  completo): `/health` UP, `app.pid`==el java, dashboard con conteos vivos en Chromium REAL vía la URL del launcher,
+  `stop` MATA el java (`kill -0`) + borra PG/url/pid, el `java -jar app.jar` del ingeniero intacto. Commit `0c3c509`.
+  Detalle: `docs/work/FSK-DEV-RUN-INCREMENT.md §Evidencia`.
+  **Siguiente — `FSK-FRONTEND-DELETE` (elegido por el ingeniero, 2026-06-25)**: un botón "borrar" en el detalle →
+  completa el **CRUD desde el browser** (C/R/U ya están; falta D). Backend DELETE ya vivo+enforzado (route
+  `DELETE /<plural>/{id}` con ownership/RBAC; `Repository.delete<E>` soft para Asset); falta el cliente `delete<E>` +
+  botón + diente. Handoff EN FRÍO: `docs/work/FSK-FRONTEND-DELETE-INCREMENT.md`. Alternativas documentadas (§6 del
+  handoff): pulido frontend (restore/PICKER) · backlog backend (PUT-ownerless…) · fidelidad de dominio (12 deferrals).
 - **LA HOME CON CONTEO VIVO POR ENTIDAD → CIERRA EL ARCO FRONTEND (FSK-FRONTEND-DASHBOARD, 2026-06-25)** ✅: la app
   ABRE en una **HOME / dashboard** con un **conteo VIVO por entidad** (`Asset: 3`, `User: …`, …) — lo 1ro que ve el
   ingeniero al entrar. **Frontend-only, CERO backend** (el `count` ya viene en `{count,rows}` de `GET /<plural>`). Todo

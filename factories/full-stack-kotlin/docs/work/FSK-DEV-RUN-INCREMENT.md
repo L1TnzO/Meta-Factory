@@ -1,7 +1,7 @@
 # Incremento FSK-DEV-RUN — una forma FÁCIL de iniciar la app (DX, no-fragil)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T15:51Z). Cerralo flippeando este header a CERRADO.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-25T16:08Z; ver §Evidencia). Abierto 2026-06-25T15:51Z.
 > Editar `factories/full-stack-kotlin/**` no-`.md` exige ESTE incremento abierto.
 
 ---
@@ -46,4 +46,30 @@ sustrato (`seed/`, `src/metafactory/`) NO se toca: vive 100% en `factories/full-
 2. NO toca otros procesos (el `java -jar app.jar` del ingeniero sigue vivo). Sustrato `seed/`+`src/metafactory/` = 0.
 3. STATE/LOG (fábrica) actualizados. Abrí/decidí el siguiente con el ingeniero (pulido frontend vs backend backlog).
 
-## Evidencia (cierre — se completa al terminar)
+## Evidencia (cierre 2026-06-25T16:08Z, commit feat `0c3c509`)
+**Construido** — `factories/full-stack-kotlin/tools/dev_run.sh` (bash) + skill `correr-app`. Sustrato `seed/`+
+`src/metafactory/` = **0**. `tools/dev_run.sh [PRODUCTO|stop|status] [PRODUCTO]`:
+- **`up`** (default `snipeit`): autodetecta `JAVA_HOME`; **puerto libre AUTO** para app y PG (via el SO, `python3
+  socket`); PG docker propia (`fsk-dev-<p>`, digest pineado = el del proof s1/s7/s9); re-bundlea el frontend; lanza
+  `<pkg>.endpoints.AppServerKt` con las env vars; espera `/health`; **imprime la URL**. Si falta el build →
+  `./gradlew installDist` / `npm install` (self-heal). DATA-agnóstico: `package_name` del spec efectivo (ADR-012).
+- **`stop`** mata SÓLO su PID + borra SÓLO su PG/url/pid · **`status`** muestra URL+vida.
+
+**Decisión técnica clave (bug encontrado y corregido en vivo)**: el server se lanza con el idiom `( cd …; export …;
+exec java ) >log 2>&1 & echo $! >app.pid; disown`. La 1ra versión usó `nohup env java` → `nohup` FORKEA (no exec) →
+`app.pid` apuntaba al wrapper y `stop` dejaba el `java` HUÉRFANO (verificado: tras `stop`, el JVM seguía vivo). El
+`exec` hace que el subshell SE CONVIERTA en java → `$!` (capturado en el padre) ES el PID de java → `stop` lo mata de
+verdad. Lección reusable para cualquier launcher de proceso de fondo en esta fábrica.
+
+**Verificado VIVO (con mis ojos, ciclo completo)**:
+- `dev_run.sh snipeit` → PG en puerto libre + bundle + AppServer en puerto libre → **`/health` `{"status":"UP"}`** ·
+  `app.pid` == el PID real del java (`pgrep -x java`) · `GET /assets` count=3.
+- **camino completo launcher→app→browser**: `browser_check.ts` (Chromium REAL) contra la URL del launcher → la HOME
+  muestra el **dashboard con conteos VIVOS** (`Asset: 3`), lista/form/detalle/edit/operations verdes.
+- **`stop`**: `kill -0` confirma el java MUERTO + PG eliminada + url/pid borrados, sin huérfanos.
+- **Seguridad**: el `java -jar app.jar` del ingeniero (PID 4020) queda **intacto** en todo el ciclo (el launcher usa
+  puerto+PG+PID propios, jamás `pkill java`).
+
+**Resultado**: el ingeniero corre la app con `factories/full-stack-kotlin/tools/dev_run.sh` (o el skill `correr-app` /
+"corré la app"). Se eliminó la secuencia larga y frágil. **Siguiente**: ver `FSK-FRONTEND-DELETE-INCREMENT.md` (la
+recomendación) o el fork de §3 del handoff de DASHBOARD (pulido frontend vs backend backlog) — decisión con el ingeniero.

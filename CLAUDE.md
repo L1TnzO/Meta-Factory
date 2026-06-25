@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5528621bd76e97b5e3e03e99966ba38253a99df4 updated=2026-06-14T01:55Z -->
+<!-- meta:doc sha=15ad1d55c8661a64febefd26a52e6cbfe6cc3cd7 updated=2026-06-25T19:06Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -33,3 +33,8 @@ dummy-fábrica producido en `factories/dummy/`. Los 8 criterios de cierre pasan 
 - **El seed (Stage 0) es trust-chain**: se escribe y revisa con ojos propios, no se delega
   (SELF-IMPROVEMENT §3). Lo determinista al CLI, lo impedido a hooks, lo de-cada-turno acá (con
   presupuesto), lo de-rol a agents, lo histórico a docs (CONTEXT-ECONOMY §3, ley de colocación).
+- **Multi-archivo por mantenibilidad (2026-06-25)**: el código que escribas de ahora en adelante —sustrato,
+  codegen, o artefacto generado— va en archivos cohesivos por responsabilidad, NO en un monolito; no agregues
+  archivos NUEVOS de miles de líneas (si uno nuevo tiende a ~800+, partilo en módulos). Los monolitos
+  EXISTENTES son deuda conocida (`factories/full-stack-kotlin/codegen/scaffold_product.py`, ~8k líneas) —
+  no los reescribas salvo pedido explícito.

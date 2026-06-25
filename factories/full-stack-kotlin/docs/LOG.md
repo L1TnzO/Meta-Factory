@@ -1,6 +1,48 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T01:05Z — FSK-PUT-OPTIONAL ✅: el PUT pasó de mutar UNA columna a un PATCH del cuerpo (edición fiel)
+- **La EDICIÓN dejó de ser parcial.** El `PUT /<plural>/{id}` del AppServer vivo actualizaba SÓLO la "columna
+  mutable" (`_mutable_field`: el 1er string no-unique no-ref no-dueño) — los demás campos del Asset no eran
+  PUT-eables. Ahora aplica un **PATCH-like**: acepta CUALQUIER **campo updatable** provisto en el cuerpo (un
+  SUBCONJUNTO), type-coerced por el schema, y persiste sólo las claves PRESENTES (**PATCH-semantics**: las ausentes
+  quedan intactas). GENERAL, cero nombres de dominio (ADR-012).
+- **Updatable** = escalar/enum, **no-dueño** (fijado al crear), **no-computed** (read-only derivado), **no-unique**
+  (un choque → 409, eje hermano), **no-ref** (validación de FK del PATCH = eje hermano), **no-workflow** (un enum con
+  `initial`/`transitions` o el `field` de una `operation` NO es PUT-eable — el estado se mueve por sus verbos, DES-3;
+  un PUT directo bypasearía la máquina de estado). Helpers `_patchable_fields` + `_workflow_field_names` (reemplazan
+  `_mutable_field`).
+- **Maquinaria compuesta** (toda en `codegen/scaffold_product.py`): **Repository** gana `data class <E>Patch(` (un
+  campo NULLABLE `= null` por updatable) + `update<E>(ctx, id, patch)` con un **set DINÁMICO** (`mutableMapOf<org.jooq.
+  Field<*>, Any?>()`; `patch.<f>?.let { sets[<COL>] = it }` por campo; `if (sets.isEmpty()) 0 else
+  ctx.update(...).set(sets)...` — un patch sin claves → 0 filas, no-op, sin SQL inválido). **AppServer** gana
+  `parse<E>Patch` TOLERANTE (`if ("k" in o) <coerce> else null` por clave — una ausente no se toca; una presente con
+  tipo equivocado → coerción tira → null → 400) reusando el MISMO codec (extraje **`_coerce_expr`**, compartido por
+  `_parse_fields_fn` y `_patch_parse_fn` — cero coerción nueva) + `doPut` PATCH-like. **COMPONE FSK-ACTIONLOG**: el
+  update sigue dentro de la `ctx.transaction{}` que appendea `"update"` a `action_logs` (atómico).
+- **proof s9** (`access_control_check.py`, DENTRO de `access_control_live` → byte-neutro, SIN re-pin): `PUT_BODY` =
+  multi-campo con valores NUEVOS (`_proof_form_value`, ≠ los del POST); `PATCH_UNTOUCHED` = un updatable que está en
+  el POST pero NO en el patch; `PATCH_BAD` = `{1er campo: tipo equivocado}`. Asserts: PUT (PATCH) → 200; GET ve CADA
+  `patch[k]` actualizado; el NO-pacheado **intacto**; PATCH tipo equivocado → 400.
+- **Probado POR BLOQUEO**: eyeball barato (3 productos renderizan los 4 artefactos; snipeit = 11 updatables incl.
+  `mac_address`/format → `strFmt`, `warranty_months` int, `requestable`/`byod` bool → el codec ganó `int32`/`bool` +
+  imports kotlinx; **0 Kotlin >160**) · `product-run --product snipeit` **PASS** (gradle real compiló el update
+  dinámico + el parser tolerante + el data class) · RTM **25/26** (único UNSAT = REQ-F-007/s6 LLM keyless).
+- **Diente VIVO de DOS lados** (vs dist compilada + PG real, `FSK_NOW=2030-07-15`, puerto 18599 / PG 5446):
+  **cableado** → EXIT 0 (los 10 asserts `[patch]` verdes + hermanos s9); **saboteado** (borrar el `.set()` de
+  `purchase_cost` + `installDist`) → EXIT 1 con **UN SOLO assert rojo** (`esperaba 73.25, obtuvo 42.5`), los 9 campos
+  restantes + el intacto + el 400 + todos los hermanos serve-all/ops/ownerless VERDES (server vivo) = teeth PRECISOS;
+  revertido (`ci --rederive` regenera la dist) → verde.
+- **`ci --rederive` == pin en clon limpio**: **base 12/12 · assets 11/11 · snipeit 11/11** — byte-neutro → SIN re-pin
+  (el proof_sha hashea el SET de checks/exits, no el artefacto; el diente vive dentro de `access_control_live`).
+  base/assets NO son byte-idénticos (su AppServer/Repository ganan la maquinaria del patch) pero re-derivan == su pin
+  — el cambio GENERAL que la gate `generality` sanciona (no el `==0` literal). · `meta check` **6/6** ·
+  **`git diff src/metafactory + seed = 0`**.
+- **Diferido honesto** (cada uno su eje hermano): PUT de campos **UNIQUE** (→409, decidir el código) · PUT de **refs**
+  (validación de FK / reasignar) · PUT/update de entidades **ownerless** · auditar `restore`/ownerless. **La EDICIÓN
+  es ahora faithful** para los escalares de la entidad-con-dueño. Detalle: `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md
+  §Evidencia`. Siguiente: `FSK-PUT-UNIQUE-REFS`.
+
 ## 2026-06-24T23:53Z — FSK-ACTIONLOG ✅: la bitácora de actividad polimórfica — toda mutación deja rastro
 - **La feature ESTRELLA de Snipe-IT (el Actionlog), como mecanismo de fábrica GENERAL.** Una entidad marcada
   `audited: true` (eje OPT-IN por-entidad, hermano de `soft_delete`/`company_scoped`; fail-closed: exige `owned_by`)

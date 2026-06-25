@@ -389,8 +389,8 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     `[computed]` rojo) + bonus (dos `FSK_NOW` → distinto `current_value`). `git diff src/+seed=0`, sin re-pin. Ver
     `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` + `…/TIME-COMPUTED-ADOPT-INCREMENT.md` (producto).
 20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): push de la imagen a un
-    registry · EAV dinámico a runtime (Avenue B) · Kits (bundles) · PUT de campos opcionales arbitrarios. (Actionlog
-    ✅ HECHO — ver item 23; checkout/checkin ✅ desde FSK-POLY-ASSIGNS.)
+    registry · EAV dinámico a runtime (Avenue B) · Kits (bundles). (Actionlog ✅ HECHO — ver item 23; checkout/checkin
+    ✅ desde FSK-POLY-ASSIGNS; **PUT de campos arbitrarios ✅ HECHO — ver item 24**, restan los flecos UNIQUE/refs.)
 21. **El SUBMIT del FORM en un Chromium real ✅ (FSK-FORM-BROWSER-E2E, 2026-06-24)** — la UX del frontend COMPLETA
     end-to-end. `browser_check.ts` (s9, Playwright) gana una fase de SUBMIT: LLENA el FORM generado (`page.fill`/
     `page.check` por `[name]`), dispara el evento `submit` (el MISMO `dispatchEvent` que el bloque jsdom — un click
@@ -426,6 +426,19 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     create → SÓLO los `[actionlog]` rojos (update/delete verdes); revert→verde. `git diff src/metafactory+seed=0`,
     **byte-neutro → SIN re-pin** (`ci --rederive` 12·11·11 == pin · `meta check` 6/6). `restore` audita-diferido (eje
     hermano). Ver `docs/work/FSK-ACTIONLOG-INCREMENT.md §Evidencia` + `…/SNIPEIT-ACTIONLOG-ADOPT-INCREMENT.md` (producto).
+24. **La EDICIÓN FIEL — PUT de cualquier campo ✅ (FSK-PUT-OPTIONAL, 2026-06-25)** — en Snipe-IT editás CUALQUIER campo
+    de un activo; el `PUT /<plural>/{id}` del AppServer vivo actualizaba SÓLO una columna. Ahora aplica un **PATCH-like**:
+    acepta cualquier **campo updatable** del cuerpo (un SUBCONJUNTO), type-coerced por el schema, persiste sólo las
+    claves presentes (las ausentes intactas). **Updatable** = escalar/enum no-dueño, no-computed, no-unique, no-ref,
+    **no-workflow** (el `status` se mueve por checkout/checkin, no por PUT — DES-3). En snipeit el Asset gana 11 campos
+    PUT-eables (`name`/`serial`/`purchase_date`/`purchase_cost`/`order_number`/`warranty_months`/`asset_eol_date`/
+    `requestable`/`byod`/`notes`/`mac_address`). Maquinaria GENERAL (cero nombres de dominio): `<E>Patch` (nullable) +
+    `update<E>` con set DINÁMICO jOOQ + `parse<E>Patch` tolerante (reusa el codec) + `doPut` PATCH-like, COMPONE
+    FSK-ACTIONLOG (el update sigue auditando). Diente de DOS lados VIVO (s9, dentro de `access_control_live`): cableado →
+    los 10 asserts `[patch]` verdes; saboteado el set de `purchase_cost` → SÓLO ese rojo (9 campos + el intacto + el 400
+    verdes); revert→verde. `git diff src/metafactory+seed=0`, **byte-neutro → SIN re-pin** (`ci --rederive` 12·11·11 ==
+    pin · `meta check` 6/6). **La EDICIÓN es ahora faithful** para los escalares de la entidad-con-dueño. Diferido: PUT de
+    UNIQUE (→409) · refs · ownerless. Ver `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md §Evidencia`.
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

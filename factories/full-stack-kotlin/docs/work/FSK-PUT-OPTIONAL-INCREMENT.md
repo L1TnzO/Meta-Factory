@@ -1,7 +1,7 @@
 # Incremento FSK-PUT-OPTIONAL — editar CUALQUIER campo (no sólo la columna mutable única)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-24T23:58Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-25T01:05Z; abierto 2026-06-24T23:58Z). Ver **§Evidencia** al final.
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto
 > — el `increment_guard` elige el lifecycle por la RUTA editada.
 >
@@ -162,3 +162,62 @@ Si al investigar preferís otro eje (cualquiera es legítimo; reabrí con `meta 
   ANTES — si no, la hermeticidad de `ci --rederive` se rompe). El de mayor "cierre de axis".
 - **FSK-KITS** — bundles (M:N agrupado), domain breadth, compone FSK-CREATES-PIVOT.
 - **EAV dinámico** — el de mayor esfuerzo/riesgo (cambio de arquitectura).
+
+---
+
+## §Evidencia (cierre 2026-06-25T01:05Z)
+
+**HECHO tal como el handoff lo planteó: el PUT pasó de mutar UNA columna a un PATCH del cuerpo.** GENERAL, cero
+nombres de dominio (sancionado por `generality`); `git diff src/metafactory + seed = 0` — toda la generalización
+vive en `codegen/scaffold_product.py` (164+/70−).
+
+**Diseño REALIZADO (PATCH-like, recomendación del §0 confirmada):**
+- **`_patchable_fields`** (reemplaza `_mutable_field`) = los campos EDITABLES: escalar/enum, **no-dueño**,
+  **no-computed**, **no-unique**, **no-ref**, **no-workflow** (+ `_workflow_field_names`: un enum con
+  `initial`/`transitions` o el `field` de una `operation` NO es PUT-eable — el estado se mueve por sus verbos,
+  DES-3; un PUT directo bypasearía la máquina). UNIQUE y ref los difiere el eje hermano (un UNIQUE chocado → 409;
+  la validación de FK del PATCH es otro eje).
+- **Repository**: `data class <E>Patch(` (un campo NULLABLE `= null` por updatable) + `update<E>(ctx, id, patch)`
+  con un **set DINÁMICO** (`mutableMapOf<org.jooq.Field<*>, Any?>()`; `patch.<f>?.let { sets[<COL>] = it }` por
+  campo; `if (sets.isEmpty()) 0 else ctx.update(...).set(sets)...` — un patch sin claves → 0 filas, no-op, sin SQL
+  inválido). jOOQ resuelve el bind por el `DataType` de la columna.
+- **AppServer**: `parse<E>Patch` TOLERANTE (`if ("k" in o) <coerce> else null` por clave → una ausente no se toca,
+  PATCH-semantics; una presente con tipo equivocado → coerción tira → runCatching → null → 400). REUSA el MISMO
+  codec — extraje **`_coerce_expr`** (compartido por `_parse_fields_fn` y `_patch_parse_fn`), cero coerción nueva.
+  `doPut` arma el patch y, en 200, llama `update<E>`. **COMPONE FSK-ACTIONLOG**: el update sigue dentro de la
+  `ctx.transaction{}` que appendea `"update"` a `action_logs` (atómico) — no rompí esa rama auditada.
+- **proof s9** (`access_control_check.py`, DENTRO de `access_control_live` → **byte-neutro, SIN re-pin**):
+  `PUT_BODY` = multi-campo con valores NUEVOS (`_proof_form_value`, ≠ los del POST), `PATCH_UNTOUCHED` = un
+  updatable que está en el POST pero NO en el patch (su valor post-POST es conocido), `PATCH_BAD` = `{1er campo:
+  tipo equivocado}`. Asserts: PUT (PATCH) → 200; GET ve **cada** `patch[k]` actualizado; el campo NO-pacheado
+  queda **INTACTO**; PATCH tipo equivocado → 400.
+
+**Probado POR BLOQUEO (con mis ojos):**
+1. **Eyeball barato (sin gradle)** — los 3 productos renderizan: `<E>Patch` + `update<E>` (Repository),
+   `parse<E>Patch` + `doPut(patch)` + `import <E>Patch` (AppServer), `PUT_BODY`/`PATCH_UNTOUCHED`/`PATCH_BAD` +
+   el loop (proof). snipeit: 11 campos updatables (incl. `mac_address` con `format` → `strFmt`, `warranty_months`
+   int, `requestable`/`byod` bool → el codec ganó `int32`/`bool` + sus imports kotlinx). **0 Kotlin >160** en los 3.
+2. **`product-run --product snipeit` PASS** (la línea REAL gradle s0→s11 compiló el `update<E>` dinámico + el
+   parser tolerante + el data class) · **RTM 25/26** (único UNSAT = REQ-F-007/s6 LLM keyless).
+3. **Diente VIVO de DOS lados** (vs la dist compilada + PG real, `FSK_NOW=2030-07-15`, puerto 18599 / PG 5446):
+   - **Cableado** → `access_control_check.py` EXIT 0: los 10 asserts `[patch]` verdes (cada campo round-trippea,
+     el NO-pacheado intacto, tipo equivocado → 400) + todos los hermanos s9.
+   - **Saboteado** (borrar `patch.purchaseCost?.let { sets[ASSETS.PURCHASE_COST] = it }` + `installDist`) → EXIT 1
+     con **UN SOLO assert rojo**: `GET /{id} ve patch[purchase_cost]: esperaba 73.25, obtuvo 42.5`; los 9 campos
+     restantes, el intacto, el 400 y todos los hermanos serve-all/ops/ownerless VERDES (server vivo) = teeth
+     PRECISOS. Revertido (`ci --rederive` regenera la dist) → verde.
+4. **`ci --rederive` == pin en clon limpio**: **snipeit 11/11** (yo) · **base 12/12 + assets 11/11** (segundo
+   verificador — el subagente Sonnet se cortó por límite de sesión; los corrí yo) — **byte-neutro → SIN re-pin**
+   (el proof_sha hashea el SET de checks/exits, no el artefacto; el diente vive dentro de `access_control_live`).
+   base/assets NO son byte-idénticos (su AppServer/Repository ganan la maquinaria del patch) pero re-derivan ==
+   su pin — el cambio GENERAL que la gate `generality` sanciona (memoria `anti-overfit-is-generality-gate`).
+5. **`meta check` 6/6** (compile · docs · projection · isolation · **generality** · suite) · **`git diff
+   src/metafactory + seed = 0`**.
+
+**Diferido honesto** (cada uno su eje hermano, con autoridad para reabrir en el handoff siguiente): PUT de campos
+**UNIQUE** (un valor chocado → 409, hay que decidir el código) · PUT de **refs** (validación de FK del PATCH /
+reasignar una relación) · PUT/update de entidades **ownerless** (hoy sólo la entidad-con-dueño se monta con PUT) ·
+auditar `restore` + ownerless (heredado de FSK-ACTIONLOG). **La EDICIÓN es ahora faithful** para los campos
+escalares de la entidad-con-dueño. **NÚCLEO + SUPERFICIE + VALORES-DERIVADOS + UX + DEPLOY + AUDITORÍA + EDICIÓN
+COMPLETOS.** Lo que RESTA es breadth de dominio (Kits, el tail no-dominio) + diferidos de red/arquitectura (push a
+registry, EAV dinámico). Siguiente handoff: `FSK-PUT-UNIQUE-REFS` (cerrar los flecos de PATCH: UNIQUE→409 + refs).

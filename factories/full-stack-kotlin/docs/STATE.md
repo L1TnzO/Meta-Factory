@@ -3,6 +3,28 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **LA EDICIÓN FIEL — el PUT pasó de mutar UNA columna a un PATCH del cuerpo (FSK-PUT-OPTIONAL, 2026-06-25)**: el
+  `PUT /<plural>/{id}` del AppServer vivo dejaba de ser fiel — actualizaba SÓLO la "columna mutable" (el 1er string
+  no-unique). Ahora aplica un **PATCH-like**: acepta CUALQUIER **campo updatable** provisto en el cuerpo (un
+  SUBCONJUNTO), type-coerced por el schema, y persiste sólo las claves presentes (**PATCH-semantics**: las ausentes
+  quedan intactas). GENERAL, cero nombres de dominio (ADR-012). **Updatable** = escalar/enum no-dueño, no-computed,
+  no-unique, no-ref, **no-workflow** (el estado se mueve por sus verbos/transiciones, no por un PUT directo — DES-3).
+  Maquinaria: `_patchable_fields`/`_workflow_field_names` (reemplazan `_mutable_field`) · Repository `data class
+  <E>Patch` (nullable) + `update<E>(ctx,id,patch)` con **set DINÁMICO** (`Map<Field,Any?>`, sólo los no-null; vacío →
+  0 filas) · AppServer `parse<E>Patch` TOLERANTE (clave ausente → null) reusando el MISMO codec (`_coerce_expr`
+  extraído) + `doPut` PATCH-like. **COMPONE FSK-ACTIONLOG** (el update sigue appendeando `"update"` en la misma
+  transacción). **Anti-overfit**: todo en `codegen/scaffold_product.py`; **`git diff src/metafactory + seed = 0`**.
+  **Probado por bloqueo**: eyeball (3 productos, 0 Kotlin >160; snipeit = 11 updatables incl. int/bool/format) ·
+  `product-run` snipeit PASS · RTM **25/26** · **diente VIVO dos-lados** (vs dist+PG: cableado → los 10 asserts
+  `[patch]` verdes; saboteado el set de `purchase_cost` → SÓLO ese rojo, 9 hermanos + el intacto + el 400 verdes;
+  revert→verde) · **byte-neutro → SIN re-pin** (`ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11**
+  == pin) · `meta check` 6/6 (`generality` verde). **La EDICIÓN es ahora faithful** para los escalares de la
+  entidad-con-dueño. Diferido honesto (cada uno su eje): PUT de **UNIQUE** (→409) · PUT de **refs** · update
+  **ownerless** · auditar `restore`/ownerless. Detalle: `docs/work/FSK-PUT-OPTIONAL-INCREMENT.md §Evidencia` ·
+  `docs/LOG.md`. **NÚCLEO + SUPERFICIE + VALORES-DERIVADOS + UX + DEPLOY + AUDITORÍA + EDICIÓN COMPLETOS.** Lo que
+  RESTA es breadth de dominio (Kits, el tail no-dominio) + diferidos de red/arquitectura (push a registry, EAV).
+  Siguiente: `FSK-PUT-UNIQUE-REFS` (cerrar los flecos de PATCH: UNIQUE→409 + refs). Alternativas con autoridad para
+  reabrir: `FSK-DEPLOY-PUSH-REGISTRY` (cierra el eje deploy; ⚠️ verificar `registry:2` cacheado antes) · `FSK-KITS`.
 - **LA BITÁCORA DE ACTIVIDAD POLIMÓRFICA — toda mutación deja rastro (FSK-ACTIONLOG, 2026-06-24)**: la feature
   ESTRELLA de Snipe-IT (el Actionlog), GENERAL y VIVA. Una entidad marcada `audited: true` appendea, en CADA mutación
   (create/update/delete + los verbos de DOMINIO checkout/checkin), una fila a la **tabla de SISTEMA `action_logs`**,

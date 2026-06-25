@@ -4466,6 +4466,38 @@ def _mount_ts(e: dict) -> str:
         f'}}\n\n')
 
 
+def _mount_dashboard_ts(served: list[dict]) -> str:
+    """FSK-FRONTEND-DASHBOARD — mountDashboard(doc, base): la HOME del frontend (landing por defecto, SCREENS[0] en
+    browser_entry.ts). CROSS-ENTITY (a diferencia de mount<E>, por-entidad): itera las entidades servidas y, por
+    cada una, trae el conteo VIVO (list<E>(base).length, el cliente vivo ya existente; sin pagination → .length ==
+    el count del server) y lo renderiza como <li data-count="<E>"> dentro de un <ul class="dashboard"> bajo #screen.
+    DATA-agnóstico (las entidades se fijan en codegen → cero nombres de dominio, ADR-012); COSTO FIJO por producto
+    (1 función cross-entity, no por-pantalla). Los conteos son GET público → ignora el token (firma de 2 params,
+    asignable a la Screen del nav). El host es #screen (el nav lo limpia entre pantallas) o <body> (fallback)."""
+    rows = "".join(
+        f'    ["{e["name"]}", (await list{e["name"]}(base)).length],\n'
+        for e in served)
+    return (
+        '// FSK-FRONTEND-DASHBOARD — la HOME: un conteo VIVO por entidad servida (cross-entity). Itera las entidades\n'
+        '// servidas, trae list<E>(base).length (el cliente vivo) y lo muestra como <li data-count="<E>"> en un\n'
+        '// <ul class="dashboard">. Es el landing por defecto del nav (browser_entry.ts). DATA-agnóstico (ADR-012).\n'
+        'export async function mountDashboard(doc: Document, base: string): Promise<void> {\n'
+        '  const host = doc.getElementById("screen") ?? doc.body;\n'
+        '  const list = doc.createElement("ul");\n'
+        '  list.className = "dashboard";\n'
+        '  const counts: ReadonlyArray<readonly [string, number]> = [\n'
+        f'{rows}'
+        '  ];\n'
+        '  for (const [label, n] of counts) {\n'
+        '    const li = doc.createElement("li");\n'
+        '    li.setAttribute("data-count", label);\n'
+        '    li.textContent = `${label}: ${n}`;\n'
+        '    list.appendChild(li);\n'
+        '  }\n'
+        '  host.appendChild(list);\n'
+        '}\n\n')
+
+
 def _app_ts(entities: list[dict]) -> str:
     """El entry de bundle del frontend (perf, s8): código de cliente REAL → esbuild bundlea el grafo real y mide
     su peso minificado vs el presupuesto (DES-7). Pasa tsc --strict + ESLint (s2) + currency (s3) como todo src/.
@@ -4499,6 +4531,7 @@ def _app_ts(entities: list[dict]) -> str:
             + "".join(_render_list_ts(e) for e in served)
             + "".join(_render_detail_ts(e) for e in served)
             + "".join(_mount_ts(e) for e in served)
+            + _mount_dashboard_ts(served)
             + 'export { summarize };\n')
 
 
@@ -7399,8 +7432,14 @@ def _browser_entry_ts(bp: dict) -> str:
         return nb[0]
 
     names = [e["name"] for e in served]
-    imports = ", ".join(f"mount{n}" for n in names)
-    screens = "".join(
+    imports = ", ".join(["mountDashboard"] + [f"mount{n}" for n in names])
+    # FSK-FRONTEND-DASHBOARD: la HOME (conteos por entidad) es el landing por defecto (SCREENS[0]). Su mount ignora
+    # el token (los conteos son GET público) → la firma de 2 params es ASIGNABLE a la Screen (TS permite menos
+    # params). El label "Dashboard" no colisiona con ninguna entidad (es un screen cross-entity, no por-entidad).
+    dashboard_screen = (
+        '  { label: "Dashboard", role: "", mount: (doc: Document, base: string): Promise<void> =>\n'
+        '      mountDashboard(doc, base) },\n')
+    screens = dashboard_screen + "".join(
         f'  {{ label: "{e["name"]}", role: "{role_of(e)}", mount: mount{e["name"]} }},\n'
         for e in served)
     return (
@@ -7578,7 +7617,9 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%FORM_BODY%", json.dumps(form_body))
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%VALUE_ASSERT%", value_assert)
-            .replace("%NAV_COUNT%", str(len(served)))
+            # FSK-FRONTEND-DASHBOARD: +1 botón en el nav (la HOME, SCREENS[0]) por encima de las N servidas.
+            .replace("%NAV_COUNT%", str(len(served) + 1))
+            .replace("%DASHBOARD_ASSERT%", _DASHBOARD_ASSERT_BLOCK)
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)
@@ -7626,9 +7667,10 @@ async function main(base) {
   const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   try {
     const page = await browser.newPage();
-    await page.goto(`${base}/`);
-    // mount<E> renderiza la lista viva en el DOM real (async) -> esperamos por el selector, no por sleep (determinista).
-    await page.waitForSelector("li", { timeout: 10000 });
+    await page.goto(`${base}/`);%DASHBOARD_ASSERT%
+    // tras navegar a la entidad con dueno (el landing por defecto es la HOME del dashboard), mount<E> renderiza su
+    // lista viva (async) -> esperamos por sus filas (li[data-id]; la HOME usa li[data-count], sin data-id) -> determinista.
+    await page.waitForSelector("li[data-id]", { timeout: 10000 });
     const domTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
     // (i) la lista viva no es trivial (>=1 fila sembrada).
     check(expected.length >= 1, true, "la lista viva (API) tiene >=1 fila");
@@ -7731,6 +7773,24 @@ _SECOND_SCREEN_BLOCK = '''
     const texts2 = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
     check(texts2.some((t) => t.includes(want2)), true,
           "2da entidad (%SECOND_ENTITY%): el FORM crea una fila que render<E>List muestra en el DOM REAL (Chromium)");'''
+
+
+# FSK-FRONTEND-DASHBOARD — el bloque del proof para la HOME (landing por defecto, SCREENS[0]): un <ul class="dashboard">
+# con un <li data-count="<E>"> por entidad servida, cada uno mostrando el conteo VIVO (list<E>().length). Asevera que el
+# conteo de la entidad con dueño == las filas que la API trajo (json.rows.length, == lo que list<E> trae), LUEGO navega a
+# su pantalla (los asserts de lista/form/detalle/edit/operations corren sobre ELLA). Saboteá mountDashboard (conteo
+# hardcodeado / dropear la entidad) -> el texto != el vivo -> rojo; el resto del proof queda VERDE (diente AISLADO).
+_DASHBOARD_ASSERT_BLOCK = '''
+    // FSK-FRONTEND-DASHBOARD - la HOME es el landing por defecto (SCREENS[0] del nav): un <ul class="dashboard"> con
+    // un <li data-count="<E>"> por entidad servida, mostrando el conteo VIVO (list<E>().length). Asevera que el
+    // conteo de la entidad con dueno == las filas que la API trajo (json.rows.length), LUEGO navega a su pantalla
+    // (los asserts de lista/form/detalle/edit/operations corren sobre ELLA). Sabotea mountDashboard (conteo
+    // hardcodeado / dropear la entidad) -> el texto != el vivo -> rojo; el resto del proof VERDE (diente AISLADO).
+    await page.waitForSelector("ul.dashboard li[data-count]", { timeout: 10000 });
+    const dashText = (await page.$eval(`[data-count="%OWNED_ENTITY%"]`, (el) => el.textContent ?? "")).trim();
+    check(dashText, `%OWNED_ENTITY%: ${json.rows.length}`,
+          "FSK-FRONTEND-DASHBOARD: la HOME muestra el conteo VIVO de %OWNED_ENTITY% (== las filas de la API)");
+    await page.click(`[data-entity="%OWNED_ENTITY%"]`);'''
 
 
 # FSK-FRONTEND-DETAIL — el bloque del proof para la SELECCIÓN-DE-FILA: navega a la entidad con dueño (sembrada,

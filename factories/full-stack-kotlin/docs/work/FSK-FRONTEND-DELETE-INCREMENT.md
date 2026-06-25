@@ -1,7 +1,8 @@
 # Incremento FSK-FRONTEND-DELETE — borrar una fila desde el browser (completa el CRUD)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T16:08Z). Cerralo flippeando este header a CERRADO.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **DIFERIDO (handoff)**
+> (creado 2026-06-25T16:08Z; diferido 2026-06-25T18:55Z). El ingeniero ELIGIÓ construir **FSK-FRONTEND-STYLES** primero
+> (el frontend no servía estilos). DELETE queda en cola: reabrilo flippeando este header a `**ABIERTO**` cuando toque.
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró FSK-DEV-RUN con

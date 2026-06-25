@@ -1,6 +1,29 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T19:21Z — FSK-FRONTEND-STYLES ✅: el frontend sirve+aplica una hoja de estilos real
+- **El ingeniero reportó que el frontend no compilaba/servía estilos**: el render emitía clases semánticas
+  (`.dashboard`/`.detail`/`.field`/`nav`/`form`) pero NINGÚN stylesheet — `index.html` no linkeaba CSS y el AppServer
+  sólo servía `index.html`+`app.js` → la app se veía SIN estilar. Resuelto. Commit feat `f139942`.
+- **5 piezas, todas en `codegen/scaffold_product.py` (sustrato `src/metafactory + seed = 0`)**: (1) `_app_css()` →
+  `frontend/src/app.css` (**ARCHIVO APARTE**, estrena la regla «multi-archivo»; estila las clases que el render YA emite;
+  DATA-agnóstico, el mismo CSS para cualquier producto); (2) `build_bundle.mjs` 2da pasada **esbuild COMPILA**
+  `src/app.css → dist/app.css` + `index.html` linkea `/app.css` (el CSS es entry propio → el presupuesto de bundle, que
+  mide `src/app.ts`, NO cambia); (3) `AppServer.serveApp` rama `"/app.css" → webFile (text/css)`; (4) `browser_check.ts`
+  `%STYLES_ASSERT%` = `getComputedStyle(body).maxWidth == "960px"` en Chromium REAL; (5) file-map opt-in a la rama browser.
+- **Diente de DOS lados VIVO** (dev_run + browser_check vs Chromium REAL + AppServer recompilado + PG): con el `<link>`
+  → `"960px"` (verde, 12/12 asserts) / sin él → `"none"` (rojo). En **PG FRESCA SÓLO el assert STYLES flipea** — el resto
+  (render/lista/form/detalle/edit/operations/dashboard/nav) verde → **AISLADO**; revert→verde. (PG reusada: el assert
+  FORM N→N+1 da false-red por colisión UNIQUE — artefacto conocido del browser manual, ajeno al CSS.)
+- **Verificación**: `product-run` snipeit PASS · esbuild compila `dist/app.css` (2002B) sin error · **byte-neutro →
+  SIN re-pin** (extiende `browser_check`, sin check nuevo; `git diff pinned_verdict.json + product.yml = 0`) · `ci
+  --rederive` snipeit **11/11** + assets **11/11** == pin (delegado a Sonnet, veredictos con mis ojos) · `meta check`
+  **6/6** (`generality ok`). Lección reusable: el presupuesto de bundle mide `src/app.ts` (entry de la app), NO el bundle
+  del browser ni `dist/app.css` → un CSS como entry esbuild aparte no toca el budget.
+- **Regla nueva «multi-archivo por mantenibilidad»** (pedido del ingeniero) en `CLAUDE.md` del meta + las 5 fábricas +
+  `template/factory/`: el código NUEVO va en archivos cohesivos, no monolitos; los monolitos existentes
+  (`scaffold_product.py`, ~8k líneas) son deuda conocida — no reescribir salvo pedido.
+
 ## 2026-06-25T16:08Z — FSK-DEV-RUN ✅: un launcher de 1 comando para correr la app (DX)
 - **El ingeniero pidió una forma fácil de iniciar la app** (correrla a mano = secuencia larga y frágil: PG docker +
   JAVA_HOME + bundle + `java -cp` con 4 env vars, sin matar otros `java`). Resuelto con `factories/full-stack-kotlin/

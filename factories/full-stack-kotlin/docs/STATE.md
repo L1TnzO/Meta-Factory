@@ -3,6 +3,35 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **EL FRONTEND SIRVE Y APLICA UNA HOJA DE ESTILOS REAL (FSK-FRONTEND-STYLES, 2026-06-25)** ✅: el ingeniero reportó
+  que **el frontend no compilaba/servía estilos** — el render emitía clases semánticas (`.dashboard`/`.detail`/
+  `.field`/`nav`/`form`) pero NINGÚN stylesheet (`index.html` sin `<link>`; el AppServer sólo servía `index.html`+
+  `app.js`) → la app se veía SIN estilar. Ahora se ve estilada en Chromium REAL. Todo en `codegen/scaffold_product.py`,
+  GENERAL (cero nombres de dominio, ADR-012):
+  - **`frontend/src/app.css`** (`_app_css`, NUEVO — **ARCHIVO APARTE**, estrena la regla «multi-archivo»): estila las
+    clases que el render YA emite (`body`/`header`/`nav button`/`form`/`ul.dashboard`/`li`/`dl.detail`/`.field`). El
+    MISMO CSS para cualquier producto FSK (DATA-agnóstico).
+  - **`build_bundle.mjs`**: 2da pasada **esbuild COMPILA** `src/app.css → dist/app.css` (el mismo bundler que el JS);
+    `index.html` gana `<link rel="stylesheet" href="/app.css">`. El CSS es entry propio → NO toca el grafo JS → el
+    **presupuesto de bundle (que mide `src/app.ts`) INTACTO**.
+  - **`AppServer.serveApp`**: rama `"/app.css" → webFile (text/css)`, MISMO-ORIGEN, junto a `/app.js`.
+  - **El proof** (`browser_check.ts`): `%STYLES_ASSERT%` → `getComputedStyle(body).maxWidth == "960px"` en Chromium REAL.
+  **Probado por bloqueo (con mis ojos; lo pesado a Sonnet)**: `product-run` snipeit PASS · **diente VIVO dos-lados**
+  (dev_run+browser_check vs Chromium REAL): con el `<link>` → `"960px"` (verde, 12/12 asserts) / saboteado → `"none"`
+  (rojo); en **PG fresca SÓLO el assert STYLES flipea**, el resto (render/lista/form/detalle/edit/operations/dashboard/
+  nav) verde → **AISLADO**; revert→verde · esbuild compila `dist/app.css` (la afirmación "compila estilos") ·
+  **byte-neutro → SIN re-pin** (cabalga `frontend_browser_live`) · `ci --rederive` snipeit **11/11** + assets **11/11**
+  == pin · `meta check` 6/6 (`generality ok`) · `git diff src/metafactory + seed = 0`. Commit feat `f139942`. Detalle:
+  `docs/work/FSK-FRONTEND-STYLES-INCREMENT.md §Evidencia`.
+  **Regla nueva «multi-archivo por mantenibilidad»** (pedido del ingeniero) en `CLAUDE.md` del meta + las 5 fábricas +
+  `template/factory/`: el código NUEVO se parte en archivos cohesivos, no monolitos; los monolitos existentes
+  (`scaffold_product.py`, ~8k líneas) son deuda conocida — no se reescriben salvo pedido.
+  **§Siguiente — `FSK-FRONTEND-DELETE` (recomendado)**: el ingeniero lo eligió el 2026-06-25 pero pidió STYLES primero,
+  así que quedó **DIFERIDO**. Un botón "borrar" en el detalle → completa el **CRUD desde el browser** (C/R/U + estilo
+  ya están; falta D). Backend DELETE ya vivo+enforzado; falta cliente `delete<E>` + botón + diente. Handoff EN FRÍO
+  (reabrir flippeando su header a `**ABIERTO**`): `docs/work/FSK-FRONTEND-DELETE-INCREMENT.md`. Alternativas (§6 del
+  handoff): pulido frontend (restore/PICKER) · backlog backend (PUT-ownerless, FSK-PUT-UNIQUE-REFS, KITS…) · fidelidad
+  de dominio (los 12 deferrals de Snipe-IT — más impacto para "clonar Snipe-IT fiel", incrementos más grandes).
 - **UN LAUNCHER DE 1 COMANDO PARA CORRER LA APP (FSK-DEV-RUN, 2026-06-25)** ✅: pedido del ingeniero — correr la app a
   mano requería una secuencia larga y frágil (PG docker + `JAVA_HOME` + bundle + `java -cp` con 4 env vars, cuidando no
   matar otros `java`). Ahora **`factories/full-stack-kotlin/tools/dev_run.sh [producto|stop|status]`** (+ skill

@@ -1412,7 +1412,7 @@ def _consume_entity_ts(e: dict) -> str:
         "}\n\n"
     )
     if not _editable(e):
-        return crud
+        return crud + _consume_verbs_ts(e)
     # FSK-FRONTEND-EDIT: update<E> (PUT PATCH-like, FSK-PUT-OPTIONAL) — sólo la entidad CON DUEÑO tiene PUT vivo
     # (route bajo `if e.get("owned_by")`), así que update<E> se emite SÓLO acá (un update<E> sobre una ownerless
     # apuntaría a una ruta inexistente). El cuerpo es un SUBCONJUNTO de campos patchable (PATCH-semantics: el
@@ -1432,7 +1432,33 @@ def _consume_entity_ts(e: dict) -> str:
         f'    throw new Error(`update{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         "}\n\n"
-    )
+    ) + _consume_verbs_ts(e)
+
+
+def _consume_verbs_ts(e: dict) -> str:
+    """<verbo><E>(base, token, id, body): POST /<plural>/{id}/<verbo> contra el server vivo (FSK-FRONTEND-OPERATIONS)
+    — MUEVE el estado de la fila por su verbo de DOMINIO (checkout/checkin), no por un PUT genérico (el estado es
+    un campo de WORKFLOW, EXCLUIDO del PATCH, DES-3). Sólo la entidad CON DUEÑO (la única con la ruta del verbo
+    registrada, bajo `if owned`); una función por cada `_workflow_ops`. El cuerpo lo arma mount<E> por verbo
+    (assigns/clears, _verb_body_expr). `Authorization: token` → pasa RBAC+ownership; un !res.ok (403/409/400) NO se
+    traga (throw). Opt-in: sin verbos de workflow → "" (default/assets byte-idéntico). DATA-agnóstico (ADR-012)."""
+    if not _operable(e):
+        return ""
+    name = e["name"]
+    plural = "/" + _table(e)
+    return "".join(
+        f"export async function {op['name']}{name}(base: string, token: string, id: number, "
+        "body: Record<string, string | number>): Promise<void> {\n"
+        f"  const res = await fetch(`${{base}}{plural}/${{id}}/{op['name']}`, {{\n"
+        '    method: "POST",\n'
+        '    headers: { "Authorization": token, "Content-Type": "application/json" },\n'
+        "    body: JSON.stringify(body),\n"
+        "  });\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`{op["name"]}{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        "}\n\n"
+        for op in _workflow_ops(e))
 
 
 def _client_consume_ts(entities: list[dict]) -> str:
@@ -1528,6 +1554,41 @@ def _editable(e: dict) -> bool:
     nada que editar → no se monta form). Predicado ÚNICO que cruzan _consume_entity_ts (emite update<E>), _app_ts
     (lo importa) y _mount_ts (monta el form) → opt-in coherente. DATA-agnóstico (ADR-012)."""
     return bool(e.get("owned_by")) and bool(_patchable_fields(e))
+
+
+def _workflow_ops(e: dict) -> list[dict]:
+    """Los verbos de DOMINIO de WORKFLOW de `e` (FSK-DOMAIN-OPS): las `operations` que MUEVEN el estado por su
+    máquina (checkout/checkin: una transición NOMBRADA `field` `from`→`to`, con `assigns`/`clears` opcional) — NO
+    los de STOCK (`decrements`, que viven en la entidad SIN dueño, eje hermano). El server registra el route POST
+    /<plural>/{id}/<verbo> de éstos SÓLO sobre la entidad CON DUEÑO (bajo `if owned`); el frontend monta un botón
+    por cada uno ahí (FSK-FRONTEND-OPERATIONS). DATA-agnóstico (heurística sobre el blueprint, ADR-012)."""
+    return [op for op in (e.get("operations") or []) if not op.get("decrements")]
+
+
+def _operable(e: dict) -> bool:
+    """La entidad MONTA botones de verbo de DOMINIO en el frontend (FSK-FRONTEND-OPERATIONS): tiene dueño (la ÚNICA
+    con las rutas POST /<plural>/{id}/<verbo> de workflow registradas — bajo `if owned`; los verbos de STOCK de una
+    ownerless son el eje hermano) Y ≥1 `operation` de WORKFLOW (no de `decrements`). El estado NO se mueve por el
+    PUT (EDIT lo EXCLUYE, DES-3: `_patchable_fields` saca los campos de workflow) — sólo por sus verbos. Predicado
+    ÚNICO que cruzan _consume_entity_ts (emite <verbo><E>), _app_ts (los importa) y _mount_ts (monta los botones) →
+    opt-in coherente. DATA-agnóstico (ADR-012)."""
+    return bool(e.get("owned_by")) and bool(_workflow_ops(e))
+
+
+def _verb_body_expr(e: dict, op: dict) -> str:
+    """La expresión TS del CUERPO del POST de un verbo (FSK-FRONTEND-OPERATIONS) — el MISMO cuerpo que el handler
+    del server espera (espeja `_operations_handlers`): un `assigns` a un ref POLIMÓRFICO → `{<campo>_type:
+    <targets[0]>, <campo>_id: target}` (discriminador ∈ la unión, fail-closed en el server + id; sin FK a la
+    unión → un id cualquiera vale, wrinkle #1); un `assigns` SIMPLE → `{<campo>: target}` (el id del ref); un
+    `clears`/sin assign → `{}`. `target` (el id del ref asignado) = el principal del token (= seed.owner, un id
+    sembrado VÁLIDO; un PICKER de target real es el eje hermano). DATA-agnóstico (ADR-012)."""
+    fld_by = {f["name"]: f for f in e["fields"]}
+    assigns = op.get("assigns")
+    if assigns and _is_poly(fld_by[assigns]):
+        return f'{{ "{assigns}_type": "{fld_by[assigns]["to"][0]}", "{assigns}_id": target }}'
+    if assigns:
+        return f'{{ "{assigns}": target }}'
+    return "{}"
 
 
 def _input_fields(e: dict) -> list[dict]:
@@ -4291,6 +4352,54 @@ def _mount_ts(e: dict) -> str:
     ) if editable else ''
     edit_call = f'\n        renderEdit(record, id);' if editable else ''
     edit_append = '  root.appendChild(editContainer);\n' if editable else ''
+    # FSK-FRONTEND-OPERATIONS: los botones de los VERBOS de dominio (checkout/checkin), SÓLO para la entidad OPERABLE
+    # (con dueño + ≥1 `operation` de workflow → la única con la ruta del verbo). Tres piezas opt-in (byte-vacías si
+    # no es operable → mount<E> queda IDÉNTICO a FSK-FRONTEND-EDIT): (a) verb_decl declara verbContainer + renderVerbs(id)
+    # — un <button data-verb> por verbo cuyo click llama <verbo><E> (POST del verbo, cuerpo por _verb_body_expr), re-trae
+    # get<E> y RE-RENDERIZA detalle + lista → el estado (campo de workflow) MUTÓ y se VE; (b) verb_call lo invoca al
+    # abrir el detalle (la fila YA seleccionada); (c) verb_append lo monta. `target` (el id del ref del assigns) = el
+    # principal del token (= seed.owner, un id sembrado VÁLIDO; un PICKER real es eje hermano), sólo si algún verbo asigna.
+    operable = _operable(e)
+    ops = _workflow_ops(e)
+    needs_target = any(op.get("assigns") for op in ops)
+    target_decl = ('    const target = Number(token.slice(token.lastIndexOf(":") + 1));\n'
+                   if needs_target else '')
+    verb_buttons = "".join(
+        f'    const {_camel(op["name"])}Btn = doc.createElement("button");\n'
+        f'    {_camel(op["name"])}Btn.type = "button";\n'
+        f'    {_camel(op["name"])}Btn.setAttribute("data-verb", "{op["name"]}");\n'
+        f'    {_camel(op["name"])}Btn.textContent = "{op["name"]}";\n'
+        f'    {_camel(op["name"])}Btn.addEventListener("click", () => {{\n'
+        f'      void (async (): Promise<void> => {{\n'
+        f'        try {{\n'
+        f'          await {op["name"]}{name}(base, token, id, {_verb_body_expr(e, op)});\n'
+        f'          const fresh = await get{name}(base, id);\n'
+        f'          detailContainer.innerHTML = render{name}Detail(fresh);\n'
+        f'          renderRows(await list{name}(base));\n'
+        f'          verbFeedback.textContent = "ok";\n'
+        f'        }} catch {{\n'
+        f'          verbFeedback.textContent = "error";\n'
+        f'        }}\n'
+        f'      }})();\n'
+        f'    }});\n'
+        f'    verbContainer.appendChild({_camel(op["name"])}Btn);\n'
+        for op in ops)
+    verb_decl = (
+        f'  // FSK-FRONTEND-OPERATIONS — los botones de los verbos de DOMINIO de {name} (la entidad con dueño: la\n'
+        f'  // única con las rutas POST /<plural>/{{id}}/<verbo>). MUEVEN el estado de la fila por su máquina (NO por\n'
+        f'  // PUT — el estado es un campo de workflow, EXCLUIDO del PATCH, DES-3). Se montan al abrir el detalle; un\n'
+        f'  // click llama el verbo (POST) → re-trae get{name} → RE-RENDERIZA detalle + lista → el estado MUTÓ y se VE.\n'
+        f'  const verbContainer = doc.createElement("div");\n'
+        f'  const renderVerbs = (id: number): void => {{\n'
+        f'    verbContainer.replaceChildren();\n'
+        f'    const verbFeedback = doc.createElement("p");\n'
+        f'{target_decl}'
+        f'{verb_buttons}'
+        f'    verbContainer.appendChild(verbFeedback);\n'
+        f'  }};\n'
+    ) if operable else ''
+    verb_call = '\n        renderVerbs(id);' if operable else ''
+    verb_append = '  root.appendChild(verbContainer);\n' if operable else ''
     return (
         f'// FSK-FRONTEND-ALL-ENTITIES — la PANTALLA de {name}: un FORM (un <input> por campo del cuerpo,\n'
         f'// _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la lista →\n'
@@ -4312,6 +4421,7 @@ def _mount_ts(e: dict) -> str:
         f'    listContainer.innerHTML = render{name}List(rows);\n'
         f'  }};\n'
         f'{edit_decl}'
+        f'{verb_decl}'
         f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
         f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
@@ -4325,7 +4435,7 @@ def _mount_ts(e: dict) -> str:
         f'    void (async (): Promise<void> => {{\n'
         f'      try {{\n'
         f'        const record = await get{name}(base, id);\n'
-        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}\n'
+        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}{verb_call}\n'
         f'      }} catch {{\n'
         f'        detailContainer.textContent = "error";\n'
         f'      }}\n'
@@ -4349,6 +4459,7 @@ def _mount_ts(e: dict) -> str:
         f'  root.appendChild(listContainer);\n'
         f'  root.appendChild(detailContainer);\n'
         f'{edit_append}'
+        f'{verb_append}'
         f'  root.appendChild(feedback);\n'
         f'  host.appendChild(root);\n'
         f'  renderRows(await list{name}(base));\n'
@@ -4376,9 +4487,12 @@ def _app_ts(entities: list[dict]) -> str:
                 + 'export { summarize };\n')
     # FSK-FRONTEND-DETAIL: cada pantalla consume get<E> (el registro completo por id) → se importa de client.ts.
     # FSK-FRONTEND-EDIT: la entidad EDITABLE (con dueño + patchable) además consume update<E> (PUT PATCH-like).
+    # FSK-FRONTEND-OPERATIONS: la entidad OPERABLE (con dueño + verbos de workflow) consume <verbo><E> (POST verbo).
     imports = "summarize, " + ", ".join(
         f"create{e['name']}, get{e['name']}, list{e['name']}" for e in served)
     imports += "".join(f", update{e['name']}" for e in served if _editable(e))
+    imports += "".join(f", {op['name']}{e['name']}"
+                       for e in served if _operable(e) for op in _workflow_ops(e))
     return (head
             + f'import {{ {imports} }} from "./client.ts";\n'
             + 'import type { components } from "../gen/api.ts";\n\n'
@@ -7442,6 +7556,22 @@ def _browser_check_ts(bp: dict) -> str:
         edit_block = (_EDIT_ASSERT_BLOCK
                       .replace("%EDIT_FIELD%", edit_field["name"])
                       .replace("%EDIT_VALUE%", f"edited-{edit_field['name']}"))
+    # FSK-FRONTEND-OPERATIONS: el bloque del proof clickea el botón del verbo FORWARD (el que transiciona DESDE el
+    # estado que el FORM posteó) sobre la fila CREADA por el FORM (principal-owned + misma compañía POR CONSTRUCCIÓN
+    # → el verbo pasa ownership/scope, robusto al owner POLY/company-scoped), localizada por su valor renderizado
+    # (RENDER_FIELD, que el bloque create ya garantizó visible). El verbo FORWARD = el `op` cuyo `from` == el estado
+    # (op_field) que el FORM posteó (el _proof_form_value del enum = values[1] = el `initial`/`from` por construcción).
+    # Asevera que el detalle re-renderizado muestra el estado DESTINO. Sin verbos / sin render_field en el FORM →
+    # bloque vacío (degrada limpio). DATA-agnóstico: FWD_VERB/OP_FIELD/TO_STATE derivan del blueprint (ADR-012).
+    wf_ops = _workflow_ops(owned)
+    op_field = wf_ops[0]["field"] if wf_ops else None
+    fwd_op = next((op for op in wf_ops if op_field is not None and op["from"] == form_body.get(op_field)), None)
+    operations_block = ""
+    if _operable(owned) and fwd_op is not None and render_field in form_body:
+        operations_block = (_OPERATIONS_ASSERT_BLOCK
+                            .replace("%FWD_VERB%", fwd_op["name"])
+                            .replace("%OP_FIELD%", op_field)
+                            .replace("%TO_STATE%", fwd_op["to"]))
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
@@ -7452,6 +7582,7 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)
+            .replace("%OPERATIONS_ASSERT%", operations_block)
             .replace("%OWNED_ENTITY%", owned["name"]))
 
 
@@ -7549,7 +7680,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%OPERATIONS_ASSERT%
   } finally {
     await browser.close();
   }
@@ -7680,6 +7811,50 @@ _EDIT_ASSERT_BLOCK = '''
       (els) => els.map((el) => el.textContent ?? ""));
     check(editedDd.some((t) => t.includes(EDIT_VALUE)), true,
           "FSK-FRONTEND-EDIT: editar un campo -> el valor NUEVO PERSISTE y se ve en el detalle (Chromium REAL)");'''
+
+
+# FSK-FRONTEND-OPERATIONS — el bloque del proof para MOVER el estado de una fila por su VERBO de dominio (en un
+# Chromium REAL, s9). Opera la fila que el FORM CREÓ arriba (principal-owned + misma compañía POR CONSTRUCCIÓN ->
+# el verbo pasa ownership/scope sin depender de que fila SEMBRADA quedo 1ra — robusto al owner POLY/company-scoped),
+# localizada por su valor renderizado (FORM_BODY[RENDER_FIELD], que el bloque create ya garantizo visible). Click ->
+# detalle + botones de verbo montados (renderVerbs); clickea el boton del verbo FORWARD (%FWD_VERB%, el que transiciona
+# DESDE el estado que el FORM posteo -> precondicion canTransition VIVA, 200) -> <verbo><E> (POST del verbo) -> re-get
+# -> re-render del detalle. Asevera que el detalle muestra el estado DESTINO (%TO_STATE%) en [data-field="%OP_FIELD%"]
+# -> el estado MUTO via el verbo (NO via PUT — EDIT lo excluye, DES-3). Sabotea <verbo><E>/el click -> el estado no
+# se mueve tras el re-render -> rojo. AISLADO: render/lista/nav/create/detalle/edit quedan verdes (solo la OPERACION rojea).
+_OPERATIONS_ASSERT_BLOCK = '''
+
+    const OP_ROW = String(FORM_BODY[RENDER_FIELD]);
+    const opRow = page.locator("li[data-id]", { hasText: OP_ROW }).first();
+    await opRow.click();
+    // el click re-renderiza ASYNC (get<E> -> renderDetail + renderVerbs) -> esperar a que el DETALLE refleje LA FILA
+    // CREADA ANTES de operar: garantiza que renderVerbs ya corrio para ESTA fila (el id del verbo es el SUYO, no el
+    // de una fila clickeada antes). (El estado destino aun NO esta presente -> el verbo lo movera.)
+    await page.waitForFunction(
+      (t) => {
+        const d = document.querySelector("dl.detail");
+        return d !== null && (d.textContent ?? "").includes(t);
+      },
+      OP_ROW, { timeout: 10000 });
+    // clickea el boton del verbo FORWARD (un <button> SUELTO, no dentro de un form -> click nativo sin carrera de
+    // navegacion); su handler async llama %FWD_VERB%<E> (POST del verbo por la red) + re-get + re-render, en Chromium REAL.
+    await page.click(`[data-verb="%FWD_VERB%"]`);
+    // el verbo es async -> esperamos por el DOM (determinista, no sleep) a que el detalle re-renderizado muestre el
+    // estado DESTINO en el campo de workflow; un <verbo><E>/click roto -> el estado no se mueve -> timeout -> flipea.
+    try {
+      await page.waitForFunction(
+        (args) => {
+          const dd = document.querySelector(`dl.detail [data-field="${args.k}"] dd`);
+          return dd !== null && (dd.textContent ?? "").includes(args.v);
+        },
+        { k: "%OP_FIELD%", v: "%TO_STATE%" }, { timeout: 10000 });
+    } catch {
+      // timeout: el detalle re-renderizado no muestra el estado DESTINO -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const opDd = await page.$$eval(`dl.detail [data-field="%OP_FIELD%"] dd`,
+      (els) => els.map((el) => el.textContent ?? ""));
+    check(opDd.some((t) => t.includes("%TO_STATE%")), true,
+          "FSK-FRONTEND-OPERATIONS: clic en el verbo -> el estado MUTA (workflow) y se ve en el detalle (Chromium REAL)");'''
 
 
 def _ci_sh() -> str:

@@ -1,7 +1,8 @@
 # Incremento FSK-FRONTEND-DETAIL — clic en una fila → vista de DETALLE del registro
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T04:05Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-25T12:55Z; creado 2026-06-25T04:05Z). Evidencia de cierre al pie (§Evidencia). El SIGUIENTE eje
+> abierto es **FSK-FRONTEND-EDIT** (`work/FSK-FRONTEND-EDIT-INCREMENT.md`).
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
@@ -168,3 +169,53 @@ adyacente a `modifyVerdict`), NO mezclar con DETAIL. Mi recomendación: **proced
 Backend pendiente (ORTOGONAL, para DESPUÉS del frontend, BACKLOG): `FSK-GETONE-SCOPED` (tenant-isolation en
 lectura-por-id, §3) · `FSK-PUT-UNIQUE-REFS` (flecos del PATCH: UNIQUE→409 + refs, handoff ya escrito) · PUT-ownerless
 · `FSK-KITS` · EAV · push-to-registry (⚠️ `registry:2` cacheado antes) · el tail de ~226 rutas no-dominio.
+
+---
+
+## ✅ Evidencia (CERRADO 2026-06-25T12:55Z, commit `38df967`)
+
+**Qué se construyó.** La UI ganó **selección-de-fila → vista de DETALLE**: clic en una fila de cualquier pantalla →
+el REGISTRO COMPLETO de ese record, todos sus campos read-only. GENERAL, cero nombres de dominio (ADR-012). CERO
+trabajo de backend (lo predijo la scoping-pass §3): `GET /<plural>/{id}` + `get<E>` ya estaban vivos por entidad
+servida (eran **dead code** — DETAIL es su 1er consumidor). En `codegen/scaffold_product.py`:
+- **`_render_list_ts`**: cada `<li>` lleva su `data-id="${r.id}"` (el `id` del schema, columna requerida → type-safe
+  bajo `tsc --strict`). El texto renderizado NO cambia → los asserts de la lista quedan intactos.
+- **`_render_detail_ts`** (NUEVA): `render<E>Detail(record)` camina `Object.entries(record)` → un `<dl class="detail">`
+  con `<div data-field="<k>">` clave:valor por campo. Muestra TODOS los campos (incl. `id` + los computados read-time),
+  no sólo el de la lista → **el detalle trae MÁS que la lista**. `String(v)` seguro (valores del schema = escalares).
+- **`_mount_ts`**: un `detailContainer` + un listener DELEGADO de click en `listContainer` (robusto al re-render) que
+  lee `data-id`, llama `get<E>(base, id)` (el registro completo, no un `Pick`) y renderiza el detalle. `get<E>` se
+  estrena: sin cobertura previa → testeado bien por el proof.
+- **`_app_ts`**: importa `get<E>` (de client.ts) + emite `render<E>Detail` por entidad servida.
+- **El proof** `browser_check.ts` (+`_DETAIL_ASSERT_BLOCK`): navega a la entidad con dueño (sembrada, ≥1 fila),
+  clickea la 1ra fila (`li[data-id]`) y asevera (i) el detalle muestra el VALOR de la fila clickeada (`get<E>` trajo
+  el registro) + (ii) el detalle tiene >1 campo (`dl.detail [data-field]` ≥2, incl. `id` que la lista NO renderiza
+  como texto). DESPUÉS de `%SECOND_BLOCK%`, al final de `main`.
+- **`budget.json`** `BUNDLE_BUDGET_PER_ENTITY_BYTES` **1536→1920**: cada pantalla ganó `render<E>Detail` + el handler
+  de click + `get<E>` (≈220 B/entidad minificados). MEDIDO: snipeit 18 srv → real **35 689 B** < budget **38 656 B**
+  (~8% de holgura) < probe bloated **60 045 B** → **el gate de perf (s8) sigue mordiendo**. base/assets escalan igual.
+
+**Probado por bloqueo (con mis ojos).**
+- `product-run --product snipeit` **PASS** · RTM **25/26** (sólo el deferral s6 `logica_dominio_generada`).
+- **Diente VIVO de dos lados en Chromium REAL** (s9 `frontend_browser_render`): cableado → los **8 asserts verdes**
+  (lista + submit + nav 18 + 2da entidad + **los 2 de DETALLE**). Saboteé `render<E>Detail` (`String(v)→"GARBLE"`,
+  18 renders) → **SÓLO el assert del VALOR del detalle rojo** (`esperaba true, obtuvo false`); lista, nav, form-submit
+  y la 2da pantalla **verdes** (el assert del conteo de campos quedó verde: garblear valores no cambia el markup →
+  diente PRECISO y AISLADO al detalle). Revertí (re-emit del codegen intacto) → verde. **Con PG FRESCA por corrida**
+  (re-correr el proof contra la MISMA PG colisiona el UNIQUE del FORM → falso rojo del submit; en el gate cada corrida
+  re-siembra). Lo corrí MANUALMENTE vs dist+PG en puerto aislado (18950/PG 5501), SIN tocar el stack del ingeniero
+  (su `java -jar app.jar` intacto), y desarmé mi infra (cero contenedores/JVMs colgados).
+- `ci --rederive --factory full-stack-kotlin --all-products`: base **12/12** · assets **11/11** · snipeit **11/11**
+  == pin. **Byte-neutro → SIN re-pin** (el diente vive dentro de `frontend_browser_render`, check ya existente; el
+  artefacto frontend cambia pero el `proof_sha` = `sha256(station+sorted(check,exit))` NO → no agregué check ni toqué
+  `stations/`; la gate `generality` lo sanciona, no un `==0` literal). ⚠️ La 1ra corrida de `--all-products` dio un
+  **falso rojo TRANSITORIO** en base (s10 hermetic_build flakeó por presión de recursos con 3 líneas gradle seguidas →
+  s11 deploy no corrió); re-derivado base **solo** → **12/12** limpio (el ledger confirma s0–s10 == pin). NO era mi cambio.
+- `meta check` **6/6** (`generality` verde; `projection` verde tras estabilizarse el `.proof/` de base) · `tsc --strict`
+  0 + `eslint src` 0 + bundle buildea · `git diff src/metafactory + seed = 0`.
+- Pre-validación SIN gradle (≈20s): `tsc --noEmit` + `eslint src` + `node build_bundle.mjs` + Chromium real vs dist+PG.
+
+**Decisión consciente shippeada (§3).** `getOne`/`getOne<E>` NO filtran por company-scope (lectura-por-id pública por
+diseño; el endpoint ya era público HOY). DETAIL lo hace user-facing pero NO es exposición nueva. **Aceptado** para
+mantener el frontend-first; si el ingeniero quiere tenant-isolation en lectura-por-id, queda el eje backend aparte
+`FSK-GETONE-SCOPED` (backlog).

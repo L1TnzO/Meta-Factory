@@ -3,24 +3,28 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- **LA APP SE VE — el frontend renderiza TODAS las entidades servidas (FSK-FRONTEND-ALL-ENTITIES, 2026-06-25)**: el
-  frontend generado renderizaba **1 pantalla** (la entidad con dueño) aunque el backend ya servía las 19. Ahora emite
-  `render<E>List` + `mount<E>` + `create/get/list<E>` por **CADA entidad de `_live_entities`** (la MISMA fuente que el
-  AppServer monta) + un **NAV** (un botón por entidad → `#screen` que se limpia entre pantallas; el token `Bearer
-  rol:principal` por entidad). GENERAL: generaliza la SELECCIÓN (de `owned` a `served`), cero nombres de dominio
-  (ADR-012). El Pick/FORM usan `_input_cols` (un poly ref → sus 2 sub-columnas del contrato; sin esto `tsc` rojo en las
-  ownerless con poly). El `budget.json` **escala** con las entidades servidas (DATA-agnóstico; el probe bloated de
-  60 KB sigue mordiendo — snipeit 18: real 25.9 KB < budget 31.7 KB < 60 KB). **Probado por bloqueo**: `product-run`
-  snipeit PASS · RTM **25/26** · **diente VIVO dos-lados en Chromium REAL** (nav de 18 + una 2da pantalla lista+form;
-  saboteé `renderCompanyList` → SÓLO esa pantalla roja, Asset+nav verdes; revert→verde, **con PG fresca por corrida**)
-  · **byte-neutro → SIN re-pin** (`ci --rederive` base **12/12** · assets **11/11** · snipeit **11/11** == pin; la gate
-  `generality` lo sanciona) · `meta check` 6/6 · `tsc`+`eslint` 0 · `git diff src/metafactory + seed = 0`. **La UI pasó
-  de 1 a ~18 pantallas navegables.** Detalle: `docs/work/FSK-FRONTEND-ALL-ENTITIES-INCREMENT.md §Evidencia` · `LOG.md`.
-  **Siguiente (FRONTEND-FIRST a pedido del ingeniero — VER la app montándose): `FSK-FRONTEND-DETAIL`** (clic en fila →
-  vista de DETALLE; `get<E>` ya emitido por entidad) → luego `FSK-FRONTEND-EDIT` (usa el PATCH de FSK-PUT-OPTIONAL) ·
-  `FSK-FRONTEND-OPERATIONS` (checkout/checkin/restore) · `FSK-FRONTEND-DASHBOARD`. Handoff EN FRÍO:
-  `docs/work/FSK-FRONTEND-DETAIL-INCREMENT.md`. Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-PUT-UNIQUE-REFS`
-  · PUT-ownerless · `FSK-KITS` · EAV · `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
+- **CLIC EN UNA FILA → VISTA DE DETALLE (FSK-FRONTEND-DETAIL, 2026-06-25)** ✅: la UI ganó **selección-de-fila**. Cada
+  `<li>` lleva su `data-id` (`render<E>List`); un listener DELEGADO de click en `mount<E>` lee el id, trae el REGISTRO
+  COMPLETO por `get<E>` (antes **dead code** — DETAIL es su 1er consumidor) y `render<E>Detail` (NUEVA) lo muestra como
+  un `<dl>` de TODOS los campos (`Object.entries` → DATA-agnóstico, cero nombres de dominio, ADR-012). El detalle trae
+  MÁS que la lista (incl. `id` + computados). `_app_ts` importa `get<E>` + emite `render<E>Detail` por entidad servida.
+  **CERO trabajo de backend** (`GET /<plural>/{id}` ya vivo). `budget.json` `per-entidad` **1536→1920** (render Detail
+  + handler + `get<E>` ≈220 B/entidad; snipeit 18: real **35.7 KB** < budget **38.7 KB** < probe **60 KB** → el gate
+  de perf sigue mordiendo). **Probado por bloqueo**: `product-run` snipeit PASS · RTM **25/26** · **diente VIVO
+  dos-lados en Chromium REAL** (8 asserts verdes incl. los 2 de DETALLE; saboteé `render<E>Detail` (`String(v)→GARBLE`)
+  → SÓLO el assert del valor del detalle rojo, lista+nav+form+2da pantalla verdes → diente PRECISO y AISLADO;
+  revert→verde, con PG fresca por corrida) · **byte-neutro → SIN re-pin** (`ci --rederive` base **12/12** · assets
+  **11/11** · snipeit **11/11** == pin; la gate `generality` lo sanciona) · `meta check` 6/6 · `tsc`+`eslint` 0 · `git
+  diff src/metafactory + seed = 0`. ⚠️ `ci --all-products` tuvo un falso rojo TRANSITORIO en base (flake de recursos
+  con 3 líneas gradle seguidas); base SOLO = 12/12 limpio. Detalle: `docs/work/FSK-FRONTEND-DETAIL-INCREMENT.md
+  §Evidencia` · `LOG.md`.
+  **Siguiente (FRONTEND-FIRST, VER un cambio PERSISTIR): `FSK-FRONTEND-EDIT`** — form de EDICIÓN sobre la fila
+  seleccionada usando el PATCH de FSK-PUT-OPTIONAL (`PUT` PATCH-like ya vivo). ⚠️ **scope = entidad CON DUEÑO**: el PUT
+  está registrado sólo para ella (editar ownerless = eje backend `PUT-ownerless`). Handoff EN FRÍO:
+  `docs/work/FSK-FRONTEND-EDIT-INCREMENT.md`. Luego `FSK-FRONTEND-OPERATIONS` (checkout/checkin/restore) ·
+  `FSK-FRONTEND-DASHBOARD`. Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-GETONE-SCOPED` (tenant-isolation en
+  lectura-por-id, decisión consciente diferida) · `FSK-PUT-UNIQUE-REFS` · `PUT-ownerless` · `FSK-KITS` · EAV ·
+  `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
 - **LA EDICIÓN FIEL — el PUT pasó de mutar UNA columna a un PATCH del cuerpo (FSK-PUT-OPTIONAL, 2026-06-25)** ✅: el
   `PUT /<plural>/{id}` aplica un **PATCH-like** — acepta CUALQUIER campo **updatable** (escalar/enum no-dueño,
   no-computed, no-unique, no-ref, **no-workflow**) presente, type-coerced, persistiendo sólo las claves dadas

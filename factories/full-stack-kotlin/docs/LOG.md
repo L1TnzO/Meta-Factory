@@ -1,6 +1,41 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T12:55Z — FSK-FRONTEND-DETAIL ✅: clic en una fila → vista de DETALLE del registro completo
+- **La UI ganó selección-de-fila.** Clic en una fila de cualquier pantalla → el REGISTRO COMPLETO de ese record,
+  todos sus campos read-only. GENERAL, cero nombres de dominio (ADR-012). **CERO trabajo de backend** (lo predijo una
+  scoping-pass Sonnet): `GET /<plural>/{id}` + `get<E>` ya estaban vivos por entidad servida — eran **dead code**;
+  DETAIL es su 1er consumidor. Prerequisito de FSK-FRONTEND-EDIT.
+- **Maquinaria** (toda en `codegen/scaffold_product.py`): `_render_list_ts` da a cada `<li>` su `data-id="${r.id}"`
+  (el `id` del schema, columna requerida → type-safe). **`_render_detail_ts` (NUEVA)**: `render<E>Detail(record)`
+  camina `Object.entries(record)` → un `<dl class="detail">` con `<div data-field="<k>">` clave:valor por campo →
+  TODOS los campos (incl. `id` + computados read-time) → el detalle trae MÁS que la lista. `_mount_ts` suma un
+  `detailContainer` + un listener DELEGADO de click en `listContainer` (robusto al re-render) que lee `data-id`,
+  llama `get<E>(base, id)` y renderiza el detalle. `_app_ts` importa `get<E>` + emite `render<E>Detail` por entidad.
+- **`budget.json` `BUNDLE_BUDGET_PER_ENTITY_BYTES` 1536→1920**: cada pantalla ganó `render<E>Detail` + el handler de
+  click + `get<E>` (≈220 B/entidad minificados). MEDIDO: snipeit 18 srv → real **35 689 B** < budget **38 656 B**
+  (~8% holgura) < probe bloated **60 045 B** → el gate de perf (s8) sigue mordiendo.
+- **Probado por bloqueo (con mis ojos)**: pre-validación sin gradle (`tsc --noEmit` 0 + `eslint src` 0 +
+  `build_bundle.mjs` + Chromium real) → `product-run` snipeit **PASS** · RTM **25/26** (sólo el deferral s6).
+  **Diente VIVO de dos lados en Chromium REAL** (s9 `frontend_browser_render`): cableado → los **8 asserts verdes**
+  (lista + submit + nav 18 + 2da entidad + los 2 de DETALLE). Saboteé `render<E>Detail` (`String(v)→"GARBLE"`, 18
+  renders) → **SÓLO el assert del VALOR del detalle rojo**; lista, nav, form-submit y la 2da pantalla **verdes** (el
+  assert del conteo de campos quedó verde: garblear valores no cambia el markup → diente PRECISO y AISLADO). Revertí
+  → verde. **Con PG FRESCA por corrida** (re-correr vs la MISMA PG colisiona el UNIQUE del FORM). Manual vs dist+PG en
+  puerto aislado (18950/PG 5501), SIN tocar el stack del ingeniero; infra desarmada (cero colgados).
+- **`ci --rederive --factory full-stack-kotlin --all-products`**: base **12/12** · assets **11/11** · snipeit
+  **11/11** == pin. **Byte-neutro → SIN re-pin** (`proof_sha = sha256(station+sorted(check,exit))` no mira el
+  artefacto; no agregué check ni toqué `stations/`; la gate `generality` lo sanciona). ⚠️ La 1ra corrida de
+  `--all-products` dio un **falso rojo TRANSITORIO** en base (s10 hermetic_build flakeó por presión de recursos con 3
+  líneas gradle seguidas → s11 no corrió); base SOLO re-derivado = **12/12** limpio (el `ledger.json` confirma s0–s10
+  == pin). NO era el cambio. `meta check` **6/6** (`projection` verde tras estabilizarse el `.proof/` de base) · `git
+  diff src/metafactory + seed = 0`.
+- **Decisión consciente shippeada**: `getOne`/`getOne<E>` NO filtran por company-scope (lectura-por-id pública por
+  diseño — el endpoint ya era público). DETAIL lo hace user-facing pero NO es exposición nueva. Aceptado (frontend-
+  first); el tenant-isolation en lectura-por-id queda como eje backend `FSK-GETONE-SCOPED` (backlog).
+- Commit `38df967` (feat). Detalle: `docs/work/FSK-FRONTEND-DETAIL-INCREMENT.md §Evidencia`. SIGUIENTE abierto:
+  **FSK-FRONTEND-EDIT** (`docs/work/FSK-FRONTEND-EDIT-INCREMENT.md`, handoff en frío escrito).
+
 ## 2026-06-25T04:05Z — FSK-FRONTEND-ALL-ENTITIES ✅: el frontend renderiza TODAS las entidades servidas (1 → N pantallas)
 - **La UI dejó de mostrar 1 pantalla.** El frontend generado renderizaba sólo la entidad CON DUEÑO (Asset: lista +
   form, en Chromium real); el backend ya servía las 19. Ahora emite `render<E>List` + `mount<E>` (en `_app_ts`) +

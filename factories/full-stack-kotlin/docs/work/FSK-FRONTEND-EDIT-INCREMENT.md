@@ -1,7 +1,7 @@
 # Incremento FSK-FRONTEND-EDIT — form de EDICIÓN sobre la fila seleccionada (VER un cambio persistir)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T12:55Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (cerrado 2026-06-25T13:47Z · creado 2026-06-25T12:55Z). Evidencia al final (§7).
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
@@ -176,3 +176,44 @@ Backend pendiente (ORTOGONAL, para DESPUÉS del frontend, BACKLOG): `FSK-GETONE-
 lectura-por-id) · `FSK-PUT-UNIQUE-REFS` (flecos del PATCH: UNIQUE→409 + refs, handoff ya escrito) · `PUT-ownerless`
 (PUT para entidades sin dueño → desbloquea EDIT en todas las pantallas) · `FSK-KITS` · EAV · push-to-registry
 (⚠️ `registry:2` cacheado antes) · el tail de ~226 rutas no-dominio.
+
+---
+
+## 7. Evidencia (CERRADO 2026-06-25T13:47Z — demostrable, no narrable)
+- **Build**: `product-run --factory full-stack-kotlin --product snipeit` **PASS** (s11) · RTM **25/26** (sólo el
+  deferral s6, REQ-F-007). REQ-F-020 `frontend_browser_render` **SATISFIED** (el diente EDIT vive ahí).
+- **Diseño (GENERAL, cero nombres de dominio, ADR-012)** — todo en `codegen/scaffold_product.py`:
+  - `_editable(e)` (NUEVO): predicado ÚNICO = con dueño + ≥1 patchable (la única entidad con PUT vivo). Lo cruzan
+    `_consume_entity_ts` (emite `update<E>`), `_app_ts` (lo importa) y `_mount_ts` (monta el form) → opt-in coherente.
+  - Cliente: `type <E>Patch = Partial<Pick<<E>, …patchable>>` + `update<E>(base,token,id,patch)` (PUT, body=patch
+    parcial) emitidos SÓLO para la entidad editable (un `update<E>` sobre una ownerless apuntaría a una ruta inexistente).
+  - `_mount_ts` (owned): `editContainer` + `renderEdit(record,id)` pre-llena un `<input>` por `_patchable_fields` del
+    record; su submit arma el PATCH **DINÁMICO** — omite los inputs de texto/fecha/número VACÍOS
+    (`...(v!=="" ? {f:v} : {})`) y envía siempre los booleanos → `update<E>` → re-trae `get<E>` → re-renderiza detalle
+    + lista. **Por qué dinámico**: un `""` enviado a una columna `date`/`int` rompe la coerción del server → **400**;
+    omitirlo es PATCH-semantics correcto Y evita el 400 al editar una fila con opcionales en null (lo CACÉ en la
+    verificación manual: el patch completo daba 400). El literal va DIRECTO a `update<E>` → tsc lo cruza contra
+    `<E>Patch` sin importar el tipo (el spread condicional infiere la clave como opcional).
+  - Opt-in: una ownerless queda lista+detalle (FSK-FRONTEND-DETAIL intacto, `_mount_ts` byte-vacío en las 3 piezas EDIT).
+- **Diente de DOS lados VIVO en Chromium REAL** (s9 `frontend_browser_render`): **GREEN = 9/9** asserts (los 8 previos
+  + FSK-FRONTEND-EDIT). Saboteé `update<E>` (early-return, sin PUT) → **SÓLO el assert EDIT rojo**; los 8 verdes
+  (render · create N→N+1 · nav 18 · 2da entidad · los 2 de DETALLE) → **PRECISO y AISLADO**. Revertí → verde. PG
+  FRESCA por corrida (UNIQUE del FORM). Manual vs dist+PG en puerto aislado (18950/PG 5501), SIN tocar el `java -jar
+  app.jar` del ingeniero; infra desarmada (cero colgados).
+- **Robustez del proof (clave)**: edita la fila que el FORM CREÓ (principal-owned + misma compañía POR CONSTRUCCIÓN →
+  el PUT pasa ownership/scope, **robusto al owner POLY + company_scoped de snipeit** — NO depende de qué fila sembrada
+  quedó 1ª), localizada por su valor renderizado, y **ESPERA a que el detalle la refleje antes de llenar** (el click
+  re-renderiza ASYNC; sin la espera, el form de edición de la fila de DETAIL recibiría el `fill` → **carrera**, que
+  CACÉ en la 1ra corrida manual roja → arreglé → re-verde).
+- **Presupuesto**: el form de edición es costo **FIJO POR PRODUCTO** (1 entidad con dueño), no por-pantalla → subí el
+  PISO `BUNDLE_BUDGET_BASE_BYTES` 4096→7936 (NO el per-entidad, que inflaría cada pantalla por código que sólo 1 tiene
+  y empujaría productos anchos al techo del probe). Medido: snipeit 18 srv real **39316 B** < budget **42496 B** (~8%)
+  < probe **60045 B** → el gate de perf (s8) sigue mordiendo; base 3 srv 7210 B, assets 2 srv 5580 B. Válido hasta ~27 srv.
+- **byte-neutro → SIN re-pin** (el diente vive en `frontend_browser_render` YA existente; `proof_sha = sha256(station +
+  sorted(check,exit))` ignora los bytes del artefacto): `ci --rederive` en árbol limpio **full-stack-kotlin 12/12** ·
+  **assets 11/11** · **snipeit 11/11** == pineado (delegado a un subagente Sonnet, veredictos leídos con mis ojos).
+  `meta check` **6/6** (`generality ok` — el cambio NO nombra dominio/producto/tech, sólo sube un piso de presupuesto y
+  agrega maquinaria GENERAL). `tsc --noEmit` 0 · `eslint src` 0 · **`git diff src/metafactory + seed = 0`**. Toques:
+  SÓLO `codegen/scaffold_product.py` (nivel FÁBRICA, ADR-016).
+- **Commits I-10**: feat `80aad01` + docs (este).
+- **Siguiente abierto**: `FSK-FRONTEND-OPERATIONS` (`docs/work/FSK-FRONTEND-OPERATIONS-INCREMENT.md`).

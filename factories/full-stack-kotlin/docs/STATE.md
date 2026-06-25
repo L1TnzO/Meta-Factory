@@ -3,6 +3,26 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **EDITAR LA FILA SELECCIONADA → VER EL CAMBIO PERSISTIR (FSK-FRONTEND-EDIT, 2026-06-25)** ✅: 1er momento en que la
+  app **MUTA estado real desde el browser**. Cliente `update<E>` (PUT PATCH-like) + `type <E>Patch` + un form de
+  edición pre-llenado en `mount<E>`, SÓLO la entidad EDITABLE (`_editable` NUEVO = con dueño + ≥1 patchable → la única
+  con PUT vivo; editar ownerless = eje backend `PUT-ownerless`). El submit arma un PATCH **DINÁMICO** (omite inputs de
+  texto/fecha/número VACÍOS → PATCH-semantics + evita el **400** de coercer `""` a una columna date/int; booleanos
+  siempre), `update<E>` → re-`get<E>` → re-renderiza detalle + lista. **CERO backend nuevo** (FSK-PUT-OPTIONAL ya vivo).
+  PISO `BUNDLE_BUDGET_BASE_BYTES` 4096→7936 (el form de edición es costo FIJO POR PRODUCTO, no por-pantalla; snipeit 18
+  srv real **39.3 KB** < budget **42.5 KB** < probe **60 KB**). **Probado por bloqueo (con mis ojos)**: `product-run`
+  snipeit PASS · RTM **25/26** (sólo el deferral s6; REQ-F-020 `frontend_browser_render` SATISFIED) · **diente VIVO
+  dos-lados en Chromium REAL** (GREEN 9/9; saboteé `update<E>` → SÓLO el assert EDIT rojo, 8 verdes → PRECISO y
+  AISLADO) · **byte-neutro → SIN re-pin** (`ci --rederive` 12/11/11 == pin; delegado a Sonnet, veredictos con mis ojos)
+  · `meta check` 6/6 (`generality ok`) · `tsc`+`eslint` 0 · `git diff src/metafactory + seed = 0`. Robustez del proof:
+  edita la fila que el FORM CREÓ (principal-owned + misma compañía POR CONSTRUCCIÓN → robusto al owner POLY +
+  company_scoped) y ESPERA a que el detalle la refleje antes de editar (evita la carrera con el form de DETAIL).
+  Detalle: `docs/work/FSK-FRONTEND-EDIT-INCREMENT.md §7`.
+  **Siguiente: `FSK-FRONTEND-OPERATIONS`** — botones para los verbos de DOMINIO (checkout/checkin/restore); el backend
+  ya tiene `POST /<plural>/{id}/<verbo>`, el cliente necesita `<verbo><E>(base,token,id,body?)`. Handoff EN FRÍO:
+  `docs/work/FSK-FRONTEND-OPERATIONS-INCREMENT.md`. Arco frontend: ✅ALL-ENTITIES→✅DETAIL→✅EDIT→**OPERATIONS**→DASHBOARD.
+  Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-GETONE-SCOPED` · `FSK-PUT-UNIQUE-REFS` · `PUT-ownerless`
+  (desbloquea EDIT en ownerless) · `FSK-KITS` · EAV · `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
 - **CLIC EN UNA FILA → VISTA DE DETALLE (FSK-FRONTEND-DETAIL, 2026-06-25)** ✅: la UI ganó **selección-de-fila**. Cada
   `<li>` lleva su `data-id` (`render<E>List`); un listener DELEGADO de click en `mount<E>` lee el id, trae el REGISTRO
   COMPLETO por `get<E>` (antes **dead code** — DETAIL es su 1er consumidor) y `render<E>Detail` (NUEVA) lo muestra como
@@ -17,14 +37,7 @@
   **11/11** · snipeit **11/11** == pin; la gate `generality` lo sanciona) · `meta check` 6/6 · `tsc`+`eslint` 0 · `git
   diff src/metafactory + seed = 0`. ⚠️ `ci --all-products` tuvo un falso rojo TRANSITORIO en base (flake de recursos
   con 3 líneas gradle seguidas); base SOLO = 12/12 limpio. Detalle: `docs/work/FSK-FRONTEND-DETAIL-INCREMENT.md
-  §Evidencia` · `LOG.md`.
-  **Siguiente (FRONTEND-FIRST, VER un cambio PERSISTIR): `FSK-FRONTEND-EDIT`** — form de EDICIÓN sobre la fila
-  seleccionada usando el PATCH de FSK-PUT-OPTIONAL (`PUT` PATCH-like ya vivo). ⚠️ **scope = entidad CON DUEÑO**: el PUT
-  está registrado sólo para ella (editar ownerless = eje backend `PUT-ownerless`). Handoff EN FRÍO:
-  `docs/work/FSK-FRONTEND-EDIT-INCREMENT.md`. Luego `FSK-FRONTEND-OPERATIONS` (checkout/checkin/restore) ·
-  `FSK-FRONTEND-DASHBOARD`. Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-GETONE-SCOPED` (tenant-isolation en
-  lectura-por-id, decisión consciente diferida) · `FSK-PUT-UNIQUE-REFS` · `PUT-ownerless` · `FSK-KITS` · EAV ·
-  `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
+  §Evidencia` · `LOG.md`. (Su «Siguiente» — FSK-FRONTEND-EDIT — ya está HECHO, ver la entrada de arriba.)
 - **LA EDICIÓN FIEL — el PUT pasó de mutar UNA columna a un PATCH del cuerpo (FSK-PUT-OPTIONAL, 2026-06-25)** ✅: el
   `PUT /<plural>/{id}` aplica un **PATCH-like** — acepta CUALQUIER campo **updatable** (escalar/enum no-dueño,
   no-computed, no-unique, no-ref, **no-workflow**) presente, type-coerced, persistiendo sólo las claves dadas

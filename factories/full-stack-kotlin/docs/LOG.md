@@ -1,6 +1,47 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T13:47Z — FSK-FRONTEND-EDIT ✅: editar la fila seleccionada → VER el cambio PERSISTIR
+- **La app MUTA estado real desde el browser por 1ra vez.** Clic en una fila (de la entidad con dueño) → un form de
+  edición pre-llenado → cambiás un campo, guardás, y el valor PERSISTE y se VE re-renderizado. **Frontend-only** (el
+  PATCH backend FSK-PUT-OPTIONAL ya estaba vivo, lo verificó la sesión que cerró DETAIL). GENERAL, cero nombres de
+  dominio (ADR-012). Todo en `codegen/scaffold_product.py`.
+- **Maquinaria**: `_editable(e)` (NUEVO) = con dueño + ≥1 patchable → la ÚNICA con `PUT /<plural>/{id}` vivo (el route
+  PUT se registra bajo `if e.get("owned_by")`; editar ownerless = eje backend `PUT-ownerless`). Predicado ÚNICO que
+  cruzan `_consume_entity_ts` (emite `update<E>` + `type <E>Patch`), `_app_ts` (lo importa) y `_mount_ts` (monta el
+  form). `mount<E>` (owned) suma `editContainer` + `renderEdit(record,id)`: pre-llena un `<input>` por
+  `_patchable_fields` del record y su submit arma el PATCH **DINÁMICO** → `update<E>` (PUT) → re-trae `get<E>` →
+  re-renderiza detalle + lista.
+- **El PATCH dinámico (clave)**: omite los inputs de texto/fecha/número VACÍOS (`...(v!=="" ? {f:v} : {})`) y envía
+  siempre los booleanos. Un `""` enviado a una columna `date`/`int` rompe la coerción del server → **400**; omitirlo es
+  PATCH-semantics correcto Y evita el 400 al editar una fila con opcionales en null. (Lo CACÉ con mis ojos: el patch
+  completo daba 400 en Chromium; el dinámico, 200.) El literal va DIRECTO a `update<E>` → tsc lo cruza contra
+  `<E>Patch` sin importar el tipo (el spread condicional infiere la clave como opcional).
+- **Presupuesto**: el form de edición es costo **FIJO POR PRODUCTO** (1 entidad con dueño), no por-pantalla → subí el
+  PISO `BUNDLE_BUDGET_BASE_BYTES` 4096→7936 (NO el per-entidad, que inflaría cada pantalla por código que sólo 1 tiene
+  y empujaría productos anchos al techo del probe). Medido: snipeit 18 srv real **39 316 B** < budget **42 496 B** (~8%)
+  < probe **60 045 B** → el gate de perf (s8) sigue mordiendo; base 3 srv 7 210 B, assets 2 srv 5 580 B. Válido hasta ~27 srv.
+- **Probado por bloqueo (con mis ojos)**: pre-validación sin gradle (`tsc --noEmit` 0 + `eslint src` 0 + `build_bundle`
+  + Chromium real) → `product-run` snipeit **PASS** · RTM **25/26** (sólo el deferral s6; REQ-F-020
+  `frontend_browser_render` SATISFIED). **Diente VIVO de dos lados en Chromium REAL** (s9): cableado → **9/9 asserts**
+  verdes (los 8 previos + FSK-FRONTEND-EDIT). Saboteé `update<E>` (early-return, sin PUT) → **SÓLO el assert EDIT
+  rojo**; render, create, nav-18, 2da entidad y los 2 de DETALLE **verdes** → diente PRECISO y AISLADO. Revertí →
+  verde. **PG FRESCA por corrida** (UNIQUE del FORM). Manual en puerto aislado (18950/PG 5501), SIN tocar el `java -jar
+  app.jar` del ingeniero; infra desarmada.
+- **Robustez del proof**: edita la fila que el FORM CREÓ (principal-owned + misma compañía POR CONSTRUCCIÓN → el PUT
+  pasa ownership/scope, **robusto al owner POLY + company_scoped de snipeit** — no depende de qué fila sembrada quedó
+  1ª), localizada por su valor renderizado, y **ESPERA a que el detalle la refleje antes de llenar** (el click
+  re-renderiza ASYNC; sin la espera, el form de edición de la fila de DETAIL recibiría el `fill` → **carrera**, que
+  cacé en la 1ra corrida manual roja → arreglé → re-verde).
+- **byte-neutro → SIN re-pin** (el diente vive en `frontend_browser_render` YA existente; `proof_sha` ignora los bytes
+  del artefacto): `ci --rederive` en árbol limpio **full-stack-kotlin 12/12** · **assets 11/11** · **snipeit 11/11**
+  == pineado (DELEGADO a un subagente Sonnet — corrió los 3 SOLOS + `meta check`; leí los veredictos con mis ojos).
+  `meta check` **6/6** (`generality ok`). `tsc`+`eslint` 0 · **`git diff src/metafactory + seed = 0`**. Toques: SÓLO
+  `codegen/scaffold_product.py` (nivel FÁBRICA, ADR-016).
+- **Siguiente**: `FSK-FRONTEND-OPERATIONS` (botones para los verbos de DOMINIO; el backend ya tiene los POST de verbo,
+  el cliente necesita `<verbo><E>`). Handoff EN FRÍO: `docs/work/FSK-FRONTEND-OPERATIONS-INCREMENT.md`.
+- Commits I-10: feat `80aad01` + docs (este).
+
 ## 2026-06-25T12:55Z — FSK-FRONTEND-DETAIL ✅: clic en una fila → vista de DETALLE del registro completo
 - **La UI ganó selección-de-fila.** Clic en una fila de cualquier pantalla → el REGISTRO COMPLETO de ese record,
   todos sus campos read-only. GENERAL, cero nombres de dominio (ADR-012). **CERO trabajo de backend** (lo predijo una

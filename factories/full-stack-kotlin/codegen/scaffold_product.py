@@ -76,11 +76,15 @@ DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del
 # presupuesto de bundle minificado (perf, DES-7). FSK-FRONTEND-ALL-ENTITIES: la UI emite render<E>List+mount<E>
 # por CADA entidad servida → el bundle crece LINEAL con la cuenta de entidades. El presupuesto la sigue: base +
 # per-entidad × served. DATA-agnóstico (escala por ESTRUCTURA, cero nombres). El probe bloated (60045B fijo) sigue
-# mordiendo mientras el budget < 60045 → válido hasta ~29 entidades servidas (snipeit: 18, bundle real ~34.8KB).
+# mordiendo mientras el budget < 60045 (ver el límite de srv concreto abajo).
 # FSK-FRONTEND-DETAIL subió el per-entidad de 1536→1920: cada pantalla ganó render<E>Detail + el handler de click
-# delegado en mount<E> + get<E> (≈220B/entidad minificados) — medido (snipeit 18 srv: real 35689B, budget 38656B,
-# ~8% de holgura; el probe bloated 60045B > 38656B → el gate sigue mordiendo).
-BUNDLE_BUDGET_BASE_BYTES = 4096       # piso (runtime del cliente: expectId/expectRows/summarize/nav/boot)
+# delegado en mount<E> + get<E> (≈220B/entidad minificados). FSK-FRONTEND-EDIT subió el PISO de 4096→7936: el form
+# de EDICIÓN (renderEdit + update<E>) es un costo FIJO POR PRODUCTO (vive SÓLO en la entidad CON DUEÑO — la única
+# con PUT vivo — no en cada pantalla) → va al PISO, no al margen por-pantalla (bumpear el per-entidad inflaría cada
+# pantalla por código que sólo 1 tiene, y empujaría el budget de productos anchos hacia el techo del probe). Medido
+# (snipeit 18 srv: real 39316B, budget 7936+1920×18=42496B, ~8% de holgura; base 3 srv real 7210B; assets 2 srv real
+# 5580B). El probe bloated (60045B fijo) sigue mordiendo mientras el budget < 60045 → válido hasta ~27 srv.
+BUNDLE_BUDGET_BASE_BYTES = 7936       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT)
 BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
 # ktlint `PropertyWrapping` (formatting, sin override en detekt.yml → su default) exige envolver una
@@ -1378,7 +1382,7 @@ def _consume_entity_ts(e: dict) -> str:
     name = e["name"]
     plural = "/" + _table(e)
     keys = " | ".join(f'"{f["name"]}"' for f in _input_cols(e))   # columnas físicas (poly ref → 2 sub-cols)
-    return (
+    crud = (
         f"type {name}Input = Pick<{name}, {keys}>;\n\n"
         f"export async function create{name}(base: string, token: string, "
         f"body: {name}Input): Promise<{{ id: number }}> {{\n"
@@ -1405,6 +1409,28 @@ def _consume_entity_ts(e: dict) -> str:
         f'    throw new Error(`list{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         f"  return expectRows(await res.json()) as {name}[];\n"
+        "}\n\n"
+    )
+    if not _editable(e):
+        return crud
+    # FSK-FRONTEND-EDIT: update<E> (PUT PATCH-like, FSK-PUT-OPTIONAL) — sólo la entidad CON DUEÑO tiene PUT vivo
+    # (route bajo `if e.get("owned_by")`), así que update<E> se emite SÓLO acá (un update<E> sobre una ownerless
+    # apuntaría a una ruta inexistente). El cuerpo es un SUBCONJUNTO de campos patchable (PATCH-semantics: el
+    # server setea SÓLO las claves presentes); <E>Patch = Partial<Pick<<E>, …>> (todas opcionales) type-bound al
+    # contrato (DES-6 — un drift del campo patchable rompe tsc --strict). Mismo set que el <E>Patch del backend.
+    patch_keys = " | ".join(f'"{f["name"]}"' for f in _patchable_fields(e))
+    return crud + (
+        f"type {name}Patch = Partial<Pick<{name}, {patch_keys}>>;\n\n"
+        f"export async function update{name}(base: string, token: string, id: number, "
+        f"patch: {name}Patch): Promise<void> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}/${{id}}`, {{\n"
+        '    method: "PUT",\n'
+        '    headers: { "Authorization": token, "Content-Type": "application/json" },\n'
+        "    body: JSON.stringify(patch),\n"
+        "  });\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`update{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
         "}\n\n"
     )
 
@@ -1493,6 +1519,15 @@ def _patchable_fields(e: dict) -> list[dict]:
     return [f for f in e["fields"]
             if f["name"] != owner and not _is_computed(f) and not f.get("unique")
             and f["type"] != "ref" and f["name"] not in wf]
+
+
+def _editable(e: dict) -> bool:
+    """La entidad ADMITE un form de EDICIÓN en el frontend (FSK-FRONTEND-EDIT): tiene dueño (la ÚNICA con `PUT
+    /<plural>/{id}` vivo — el route PUT se registra bajo `if e.get("owned_by")`; editar las ownerless es el eje
+    BACKEND hermano `PUT-ownerless`) Y ≥1 campo patchable (sin patchables el PUT degrada a sólo-veredicto → no hay
+    nada que editar → no se monta form). Predicado ÚNICO que cruzan _consume_entity_ts (emite update<E>), _app_ts
+    (lo importa) y _mount_ts (monta el form) → opt-in coherente. DATA-agnóstico (ADR-012)."""
+    return bool(e.get("owned_by")) and bool(_patchable_fields(e))
 
 
 def _input_fields(e: dict) -> list[dict]:
@@ -4188,6 +4223,74 @@ def _mount_ts(e: dict) -> str:
         for f in flds)
     body = "\n".join(
         f'          {f["name"]}: {_form_coerce(f, _camel(f["name"]) + "Input", name)},' for f in flds)
+    # FSK-FRONTEND-EDIT: el form de EDICIÓN, SÓLO para la entidad EDITABLE (con dueño + patchable → PUT vivo). Tres
+    # piezas opt-in (byte-vacías si no es editable → mount<E> de una ownerless queda IDÉNTICO a FSK-FRONTEND-DETAIL):
+    # (a) edit_decl declara editContainer + renderEdit(record, id) — un form pre-llenado del record (un <input> por
+    # _patchable_fields), cuyo submit arma un PATCH parcial, llama update<E> (PUT real), re-trae get<E> y RE-RENDERIZA
+    # detalle + lista → el cambio PERSISTE y se VE; (b) edit_call lo invoca al abrir el detalle (la fila YA seleccionada
+    # por FSK-FRONTEND-DETAIL); (c) edit_append lo monta en el DOM. data-edit marca el form para el proof.
+    editable = _editable(e)
+    pf = _patchable_fields(e)
+    edit_inputs = "".join(
+        f'    const {_camel(f["name"])}EditInput = doc.createElement("input");\n'
+        f'    {_camel(f["name"])}EditInput.name = "{f["name"]}";\n'
+        f'    {_camel(f["name"])}EditInput.type = "{_form_input_type(f)}";\n'
+        + (f'    {_camel(f["name"])}EditInput.checked = record["{f["name"]}"] ?? false;\n'
+           if f["type"] == "boolean"
+           else f'    {_camel(f["name"])}EditInput.value = String(record["{f["name"]}"] ?? "");\n')
+        + f'    editForm.appendChild({_camel(f["name"])}EditInput);\n'
+        for f in pf)
+    # El cuerpo del PATCH se arma DINÁMICAMENTE (PATCH-semantics, FSK-PUT-OPTIONAL): un input de texto/fecha/número
+    # VACÍO se OMITE (`...(v!=="" ? {f:v} : {})`) → el server deja ese campo INTACTO (un "" enviado a una columna
+    # date/int rompe la coerción → 400; omitirlo es lo correcto Y evita el 400 al editar una fila con opcionales en
+    # null). Los booleanos (checkbox: siempre un estado definido) se envían siempre. El literal va DIRECTO a update<E>
+    # → tsc lo cruza contra <E>Patch sin importar el tipo (el spread condicional infiere la clave como opcional).
+    def _edit_patch_entry(f: dict) -> str:
+        var = _camel(f["name"]) + "EditInput"
+        coerce = _form_coerce(f, var, name)
+        if f["type"] == "boolean":
+            return f'            {f["name"]}: {coerce},'
+        return f'            ...({var}.value !== "" ? {{ {f["name"]}: {coerce} }} : {{}}),'
+    edit_patch = "\n".join(_edit_patch_entry(f) for f in pf)
+    edit_decl = (
+        f'  // FSK-FRONTEND-EDIT — el form de EDICIÓN de {name} (la entidad con dueño: la ÚNICA con PUT vivo).\n'
+        f'  // Pre-llenado del record que get{name} trajo (un <input> por _patchable_fields: escalar/enum no-dueño,\n'
+        f'  // no computado/unique/ref/workflow — el estado se mueve por sus verbos, no por PUT, DES-3); su submit\n'
+        f'  // arma un PATCH parcial, llama update{name} (PUT real) y RE-TRAE get{name} → re-renderiza detalle +\n'
+        f'  // lista → el cambio PERSISTE y se VE. data-edit marca el form para el proof (vive junto al detalle).\n'
+        f'  const editContainer = doc.createElement("div");\n'
+        f'  const renderEdit = (record: {name}, id: number): void => {{\n'
+        f'    editContainer.replaceChildren();\n'
+        f'    const editForm = doc.createElement("form");\n'
+        f'    editForm.setAttribute("data-edit", "{name}");\n'
+        f'{edit_inputs}'
+        f'    const saveBtn = doc.createElement("button");\n'
+        f'    saveBtn.type = "submit";\n'
+        f'    saveBtn.textContent = "save";\n'
+        f'    editForm.appendChild(saveBtn);\n'
+        f'    const editFeedback = doc.createElement("p");\n'
+        f'    editForm.appendChild(editFeedback);\n'
+        f'    editForm.addEventListener("submit", (ev: Event): void => {{\n'
+        f'      ev.preventDefault();\n'
+        f'      void (async (): Promise<void> => {{\n'
+        f'        try {{\n'
+        f'          await update{name}(base, token, id, {{\n'
+        f'{edit_patch}\n'
+        f'          }});\n'
+        f'          const fresh = await get{name}(base, id);\n'
+        f'          detailContainer.innerHTML = render{name}Detail(fresh);\n'
+        f'          renderRows(await list{name}(base));\n'
+        f'          editFeedback.textContent = "ok";\n'
+        f'        }} catch {{\n'
+        f'          editFeedback.textContent = "error";\n'
+        f'        }}\n'
+        f'      }})();\n'
+        f'    }});\n'
+        f'    editContainer.appendChild(editForm);\n'
+        f'  }};\n'
+    ) if editable else ''
+    edit_call = f'\n        renderEdit(record, id);' if editable else ''
+    edit_append = '  root.appendChild(editContainer);\n' if editable else ''
     return (
         f'// FSK-FRONTEND-ALL-ENTITIES — la PANTALLA de {name}: un FORM (un <input> por campo del cuerpo,\n'
         f'// _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la lista →\n'
@@ -4208,6 +4311,7 @@ def _mount_ts(e: dict) -> str:
         f'  const renderRows = (rows: readonly {name}[]): void => {{\n'
         f'    listContainer.innerHTML = render{name}List(rows);\n'
         f'  }};\n'
+        f'{edit_decl}'
         f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
         f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
@@ -4221,7 +4325,7 @@ def _mount_ts(e: dict) -> str:
         f'    void (async (): Promise<void> => {{\n'
         f'      try {{\n'
         f'        const record = await get{name}(base, id);\n'
-        f'        detailContainer.innerHTML = render{name}Detail(record);\n'
+        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}\n'
         f'      }} catch {{\n'
         f'        detailContainer.textContent = "error";\n'
         f'      }}\n'
@@ -4244,6 +4348,7 @@ def _mount_ts(e: dict) -> str:
         f'  root.appendChild(form);\n'
         f'  root.appendChild(listContainer);\n'
         f'  root.appendChild(detailContainer);\n'
+        f'{edit_append}'
         f'  root.appendChild(feedback);\n'
         f'  host.appendChild(root);\n'
         f'  renderRows(await list{name}(base));\n'
@@ -4270,8 +4375,10 @@ def _app_ts(entities: list[dict]) -> str:
                 + _render_list_ts(entities[0])
                 + 'export { summarize };\n')
     # FSK-FRONTEND-DETAIL: cada pantalla consume get<E> (el registro completo por id) → se importa de client.ts.
+    # FSK-FRONTEND-EDIT: la entidad EDITABLE (con dueño + patchable) además consume update<E> (PUT PATCH-like).
     imports = "summarize, " + ", ".join(
         f"create{e['name']}, get{e['name']}, list{e['name']}" for e in served)
+    imports += "".join(f", update{e['name']}" for e in served if _editable(e))
     return (head
             + f'import {{ {imports} }} from "./client.ts";\n'
             + 'import type { components } from "../gen/api.ts";\n\n'
@@ -7322,6 +7429,19 @@ def _browser_check_ts(bp: dict) -> str:
                             .replace("%SECOND_RENDER_FIELD%", rf2)
                             .replace("%SECOND_FORM_BODY%", json.dumps(sbody)))
             break
+    # FSK-FRONTEND-EDIT: el bloque del proof EDITA una fila y asevera que el cambio PERSISTE en el detalle. Edita la
+    # fila que el FORM CREÓ arriba (principal-owned + misma compañía POR CONSTRUCCIÓN → el PUT pasa ownership/scope
+    # sin depender de qué fila sembrada quedó 1ª, robusto al owner POLY de snipeit), localizada por su valor
+    # renderizado (FORM_BODY[RENDER_FIELD], que value_assert ya garantizó visible). El campo a editar = el 1er
+    # patchable string plano (sin format → un valor NUEVO arbitrario es válido); el detalle (Object.entries) lo
+    # muestra en [data-field=<campo>]. Sin patchable-string o sin render_field en el FORM → bloque vacío (degrada).
+    edit_field = next((f for f in _patchable_fields(owned) if f["type"] == "string" and not f.get("format")),
+                      next((f for f in _patchable_fields(owned) if f["type"] == "string"), None))
+    edit_block = ""
+    if _editable(owned) and edit_field is not None and render_field in form_body:
+        edit_block = (_EDIT_ASSERT_BLOCK
+                      .replace("%EDIT_FIELD%", edit_field["name"])
+                      .replace("%EDIT_VALUE%", f"edited-{edit_field['name']}"))
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
@@ -7331,6 +7451,7 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%NAV_COUNT%", str(len(served)))
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
+            .replace("%EDIT_ASSERT%", edit_block)
             .replace("%OWNED_ENTITY%", owned["name"]))
 
 
@@ -7428,7 +7549,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%
   } finally {
     await browser.close();
   }
@@ -7509,6 +7630,56 @@ _DETAIL_ASSERT_BLOCK = '''
     const detailFields = await page.$$eval("dl.detail [data-field]", (els) => els.length);
     check(detailFields >= 2, true,
           "el detalle trae el REGISTRO COMPLETO (>1 campo, incl. id que la lista NO renderiza como texto)");'''
+
+
+# FSK-FRONTEND-EDIT — el bloque del proof para EDITAR una fila y VER el cambio PERSISTIR (en un Chromium REAL,
+# s9). Edita la fila que el FORM CREÓ arriba (principal-owned + misma compañía POR CONSTRUCCIÓN → el PUT pasa
+# ownership/scope sin depender de qué fila SEMBRADA quedó 1ª — robusto al owner POLY/company-scoped de snipeit),
+# localizada por su valor renderizado (FORM_BODY[RENDER_FIELD], que value_assert ya garantizó visible). Click ->
+# detalle + form de edicion montados; pone un valor NUEVO en el input de %EDIT_FIELD%, dispara el SUBMIT (evento,
+# no click nativo: un click sobre el <button submit> de un form sin action navega+recarga ANTES del handler async)
+# -> update<E> (PUT real) -> re-get -> re-render del detalle. Asevera que el detalle muestra el valor NUEVO en su
+# [data-field="%EDIT_FIELD%"] -> PERSISTIO. Saboteá update<E>/el submit/el re-fetch -> el valor NO aparece tras el
+# re-render -> rojo. AISLADO: render/lista/nav/create/2da-pantalla/detalle quedan verdes (sólo la EDICION rojea).
+_EDIT_ASSERT_BLOCK = '''
+
+    const CREATED = String(FORM_BODY[RENDER_FIELD]);
+    const EDIT_VALUE = "%EDIT_VALUE%";
+    const createdRow = page.locator("li[data-id]", { hasText: CREATED }).first();
+    await createdRow.click();
+    // el click re-renderiza ASYNC (getAsset -> renderDetail -> renderEdit) -> esperar a que el DETALLE refleje LA
+    // FILA CREADA (su valor renderizado) ANTES de llenar: garantiza que renderEdit ya corrio para ESTA fila y que
+    // el form de edicion vigente es el SUYO (no el de una fila clickeada antes — DETAIL deja uno montado -> carrera).
+    await page.waitForFunction(
+      (t) => {
+        const d = document.querySelector("dl.detail");
+        return d !== null && (d.textContent ?? "").includes(t);
+      },
+      CREATED, { timeout: 10000 });
+    await page.fill(`form[data-edit] [name="%EDIT_FIELD%"]`, EDIT_VALUE);
+    // dispara el SUBMIT del form de edicion (el MISMO evento que el handler ESCUCHA) -> update<E> (PUT real por la
+    // red) + re-get + re-render del detalle, EN EL NAVEGADOR REAL. (querySelector("form[data-edit]") aisla el form
+    // de edicion del form de CREATE -> no hay carrera entre los dos.)
+    await page.evaluate(() => {
+      const f = document.querySelector("form[data-edit]");
+      f.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    // el submit es async -> esperamos por el DOM (determinista, no sleep) a que el detalle re-renderizado muestre
+    // el valor NUEVO en el campo editado; un update/re-fetch roto -> timeout -> el check de abajo flipea (rojo).
+    try {
+      await page.waitForFunction(
+        (args) => {
+          const dd = document.querySelector(`dl.detail [data-field="${args.k}"] dd`);
+          return dd !== null && (dd.textContent ?? "").includes(args.v);
+        },
+        { k: "%EDIT_FIELD%", v: EDIT_VALUE }, { timeout: 10000 });
+    } catch {
+      // timeout: el detalle re-renderizado no muestra el valor NUEVO -> el check flipea (rojo). DIENTE.
+    }
+    const editedDd = await page.$$eval(`dl.detail [data-field="%EDIT_FIELD%"] dd`,
+      (els) => els.map((el) => el.textContent ?? ""));
+    check(editedDd.some((t) => t.includes(EDIT_VALUE)), true,
+          "FSK-FRONTEND-EDIT: editar un campo -> el valor NUEVO PERSISTE y se ve en el detalle (Chromium REAL)");'''
 
 
 def _ci_sh() -> str:

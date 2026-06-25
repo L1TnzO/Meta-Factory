@@ -388,9 +388,9 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     (same-entity + cross-entity depth-N + tiempo) queda COMPLETA.** Diente de DOS lados VIVO (s9, `MONTHS`→`YEARS` → sólo
     `[computed]` rojo) + bonus (dos `FSK_NOW` → distinto `current_value`). `git diff src/+seed=0`, sin re-pin. Ver
     `docs/work/FSK-TIME-COMPUTED-INCREMENT.md §Evidencia` + `…/TIME-COMPUTED-ADOPT-INCREMENT.md` (producto).
-20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): **Actionlog (auditoría
-    polimórfica)** (**el siguiente**, `docs/work/FSK-ACTIONLOG-INCREMENT.md`) · push de la imagen a un registry · EAV
-    dinámico a runtime (Avenue B) · Kits (bundles) · PUT de campos opcionales arbitrarios.
+20. **Diferidos DUROS restantes** (profundidad-de-detalle — los flecos, NO el corazón): push de la imagen a un
+    registry · EAV dinámico a runtime (Avenue B) · Kits (bundles) · PUT de campos opcionales arbitrarios. (Actionlog
+    ✅ HECHO — ver item 23; checkout/checkin ✅ desde FSK-POLY-ASSIGNS.)
 21. **El SUBMIT del FORM en un Chromium real ✅ (FSK-FORM-BROWSER-E2E, 2026-06-24)** — la UX del frontend COMPLETA
     end-to-end. `browser_check.ts` (s9, Playwright) gana una fase de SUBMIT: LLENA el FORM generado (`page.fill`/
     `page.check` por `[name]`), dispara el evento `submit` (el MISMO `dispatchEvent` que el bloque jsdom — un click
@@ -415,6 +415,17 @@ Driven por este producto, como contenido de fábrica GENERAL (P1 §4). Orden act
     inexistente → no connecta al boot → rojo; revert→verde) + diente NATIVO de infra_up (teardown → rojo). `git diff
     src/metafactory+seed=0`. **Check NUEVO → re-pin de los 3** (sólo la línea s11). `ci --rederive` 12·11·11 == pin ·
     `meta check` 6/6. **El DEPLOY queda COMPLETO.** Ver `docs/work/FSK-DEPLOY-APPSERVER-PG-INCREMENT.md §Evidencia`.
+23. **La BITÁCORA DE ACTIVIDAD ✅ (FSK-ACTIONLOG, 2026-06-24)** — la feature ESTRELLA de Snipe-IT (el Actionlog), VIVA.
+    Toda mutación de `Asset` (create/update/delete + checkout/checkin) appendea una fila a la **tabla de SISTEMA
+    `action_logs`** ATÓMICA con la mutación, con **SUJETO POLIMÓRFICO** (`subject_type`=nombre de la entidad +
+    `subject_id` Long, sin FK — **COMPONE FSK-POLYMORPHIC-REFS**) + `actor_id` (el principal del token) + `action` +
+    `created_at`. Lectura por **`GET /action_logs`** (`{count,rows[]}`). Eje GENERAL OPT-IN (`audited: true` por-entidad);
+    el append vive en el HANDLER (capa del request, donde el actor existe) dentro de `ctx.transaction{}`/`transactionResult{}`
+    → el Repository de mutación queda byte-idéntico. Diente de DOS lados VIVO (s9, dentro de `access_control_live`):
+    cableado → los 5 asserts `[actionlog]` verdes + `GET /action_logs` con las filas reales; saboteado el append del
+    create → SÓLO los `[actionlog]` rojos (update/delete verdes); revert→verde. `git diff src/metafactory+seed=0`,
+    **byte-neutro → SIN re-pin** (`ci --rederive` 12·11·11 == pin · `meta check` 6/6). `restore` audita-diferido (eje
+    hermano). Ver `docs/work/FSK-ACTIONLOG-INCREMENT.md §Evidencia` + `…/SNIPEIT-ACTIONLOG-ADOPT-INCREMENT.md` (producto).
 
 ## 5. Cómo regenerar / continuar (mecánica R1, próxima sesión)
 - Spec ya instanciado: `products/snipeit/product.yml` (la fuente). Re-derivar la instancia + correr la línea:

@@ -1,12 +1,47 @@
 # Incremento FSK-ACTIONLOG — la bitácora de actividad polimórfica (toda mutación deja rastro)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado 2026-06-24T21:20Z).
-> Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
-> Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto
-> — el `increment_guard` elige el lifecycle por la RUTA editada.
->
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (creado
+> 2026-06-24T21:20Z · cerrado 2026-06-24T23:53Z).
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
 > FSK-DEPLOY-APPSERVER-PG con MÁS contexto, para que NO re-aprendas lo que ya sabemos.
+
+---
+
+## ✅ Evidencia (cierre 2026-06-24T23:53Z)
+
+**Construido GENERAL en `codegen/scaffold_product.py` (eje OPT-IN `audited: true` por-entidad). `git diff
+src/metafactory + seed = 0`.** El sistema appendea una fila a la **tabla de SISTEMA `action_logs`** en CADA
+mutación de una entidad auditada (create/update/delete + los verbos de DOMINIO checkout/checkin), ATÓMICA con la
+mutación, con **SUJETO POLIMÓRFICO** (`subject_type` discriminador = el nombre de la entidad + `subject_id` Long,
+sin FK a una unión — wrinkle #1, **COMPONE FSK-POLYMORPHIC-REFS**) + `actor_id` (el principal del token) +
+`action` + `created_at`. Lectura por **`GET /action_logs`** (público, `{count,rows[]}`).
+
+- **DECISIÓN de diseño — el append vive en el HANDLER, no en el Repository** (Approach B): la atomicidad se logra
+  envolviendo `mutación + appendActionLog` en UNA transacción (`ctx.transaction{}` / `ctx.transactionResult{}` para
+  el create que devuelve el id) DENTRO del handler, donde el ACTOR existe (el `principal`/`RoleGuard.principalOf`).
+  Las funciones de mutación del Repository quedan **byte-idénticas** (cero cambio de firma) — sólo GANA
+  `appendActionLog`/`actionLogCount`/`allActionLogRowsJson` + la tabla. Más quirúrgico que threadear el actor por
+  cada firma. La capa del request es el lugar natural del actor.
+- **Maquinaria tocada** (toda gateada por `audited`, byte-neutra sin la flag): `_migration_sql` (la tabla
+  `action_logs`) · `_repository_kt` (append + lecturas + imports `ACTION_LOGS`/`LocalDateTime`) ·
+  `_app_server_handlers` (+param `audited`: doPost/doPut/doDelete envueltos) · `_operations_handlers` (+param
+  `audited`: helper `_op_ok` envuelve la rama de éxito de cada verbo, byte-idéntica sin la flag) · `_app_server_kt`
+  (handler `handleActionLogs` + contexto `/action_logs`) · `_access_control_check_py` (el diente `%ACTIONLOG_BLOCK%`).
+- **Probado por bloqueo, con MIS ojos**:
+  - **Eyeball barato** (sin gradle): render snipeit con `audited:true` → migration con `action_logs`, Repository
+    con `appendActionLog`, AppServer con los 5 appends (create/delete/update/checkout/checkin) + `/action_logs`,
+    proof con el bloque; **0 líneas Kotlin >160**; **base + assets byte-IDÉNTICOS** (sin artefacto actionlog).
+  - **`product-run --product snipeit` PASS**; RTM **25/26** (único UNSAT = REQ-F-007/s6 LLM keyless).
+  - **Diente VIVO de DOS lados** (vs la dist compilada + PG real, `FSK_NOW=2030-07-15` como s9):
+    **cableado** → los 5 asserts `[actionlog]` VERDES; `GET /action_logs` trae las filas reales (create/update/delete
+    de `Asset:new_id` por el actor=dueño, sujeto polimórfico correcto). **Saboteado** (borrar el append del create +
+    rebuild) → PROOF EXIT 1 con **0 fallas NO-actionlog** (sólo `[actionlog] create`/`>=3`/`actor` rojos; update y
+    delete siguen verdes = teeth precisos); **revertido** → verde.
+  - **Byte-neutro → NO re-pin**: el diente vive DENTRO de `access_control_live` (s9, check existente) → `proof_sha`
+    intacto. **`ci --rederive --product snipeit` PASS 11/11 == pineado**. base/assets cross-check (2º verificador
+    Sonnet) == pin. **`meta check` 6/6** (`generality`+`isolation` verdes).
+- **Adopción en snipeit** (incremento PRODUCTO `SNIPEIT-ACTIONLOG-ADOPT`): `Asset.audited: true` → la feature
+  ESTRELLA de Snipe-IT (Actionlog) viva. `restore` audita-diferido (eje hermano, residual honesto).
 
 ---
 

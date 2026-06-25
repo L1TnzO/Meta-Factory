@@ -1,6 +1,41 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-24T23:53Z — FSK-ACTIONLOG ✅: la bitácora de actividad polimórfica — toda mutación deja rastro
+- **La feature ESTRELLA de Snipe-IT (el Actionlog), como mecanismo de fábrica GENERAL.** Una entidad marcada
+  `audited: true` (eje OPT-IN por-entidad, hermano de `soft_delete`/`company_scoped`; fail-closed: exige `owned_by`)
+  appendea en CADA mutación de su CRUD (create/update/delete) Y de sus verbos de DOMINIO (checkout/checkin) una fila
+  a la **tabla de SISTEMA `action_logs`**, ATÓMICA con la mutación. El **SUJETO es POLIMÓRFICO** (`subject_type`
+  discriminador = el nombre de la entidad + `subject_id` Long, BIGINT sin FK a una unión — wrinkle #1 de poly; el
+  rastro de CUALQUIER entidad auditada cae en la MISMA tabla) → **COMPONE FSK-POLYMORPHIC-REFS** sin mecanismo nuevo.
+  Más `actor_id` (el principal del token), `action` (create/update/delete/`<verbo>`), `created_at` (TIMESTAMP).
+  Lectura por **`GET /action_logs`** (público, `{"count":N,"rows":[…]}`). Todo en `codegen/scaffold_product.py`;
+  **`git diff src/metafactory + seed = 0`**.
+- **DECISIÓN de diseño — el append vive en el HANDLER, no en el Repository (Approach B).** La atomicidad se logra
+  envolviendo `mutación + appendActionLog` en UNA transacción (`ctx.transaction{}`; `ctx.transactionResult{}` para el
+  create, que devuelve el id nuevo) DENTRO del handler, donde el ACTOR existe (el `principal` del POST /
+  `RoleGuard.principalOf(token) ?: 0L` del PUT/DELETE/verbo). Las funciones de mutación del Repository quedan
+  **byte-idénticas** (cero cambio de firma) — sólo GANAN `appendActionLog` + `actionLogCount`/`allActionLogRowsJson`
+  + la tabla. Más quirúrgico que threadear el actor por cada firma; el actor es de la capa del request, no de la
+  persistencia. El PUT degradado (sin columna mutable) y `restore` NO se auditan (residuales honestos, ejes hermanos).
+- **Maquinaria** (toda gateada por `audited`, byte-neutra sin la flag): `_migration_sql` (la tabla `action_logs`) ·
+  `_repository_kt` (append + lecturas + imports `ACTION_LOGS`/`LocalDateTime`) · `_app_server_handlers` (+param
+  `audited`: doPost/doPut/doDelete envueltos) · `_operations_handlers` (+param `audited`: helper `_op_ok` envuelve la
+  rama de éxito, byte-idéntica sin la flag) · `_app_server_kt` (handler `handleActionLogs` + contexto `/action_logs`)
+  · `_access_control_check_py` (el diente `%ACTIONLOG_BLOCK%`, dentro del check existente `access_control_live`).
+- **Probado por bloqueo, con MIS ojos**: eyeball barato (migration/Repository/AppServer/proof correctos, 0 líneas
+  Kotlin >160, base+assets byte-IDÉNTICOS) · `product-run --product snipeit` PASS · RTM **25/26** (único UNSAT =
+  REQ-F-007/s6 LLM keyless) · **diente VIVO de DOS lados** (vs la dist compilada + PG real, `FSK_NOW=2030-07-15`):
+  cableado → los 5 asserts `[actionlog]` VERDES + `GET /action_logs` con las filas reales (create/update/delete de
+  `Asset:new_id` por el actor=dueño, sujeto polimórfico correcto); **saboteado** (borrar el append del create +
+  rebuild) → PROOF EXIT 1 con **0 fallas NO-actionlog** (sólo `[actionlog] create`/`>=3`/`actor` rojos; update y
+  delete siguen verdes = teeth precisos); **revertido** → verde. **Byte-neutro → NO re-pin** (el diente vive DENTRO
+  de `access_control_live`, check existente → `proof_sha` intacto): **`ci --rederive` 12·11·11 == pineado** (snipeit
+  con MIS ojos + base/assets por un 2º verificador Sonnet) · `meta check` 6/6 (`generality`+`isolation` verdes).
+- **Adopción en snipeit**: incremento de PRODUCTO `SNIPEIT-ACTIONLOG-ADOPT` (`Asset.audited: true`). SNIPEIT-DOMAIN
+  item 23. **Lo que RESTA**: breadth de dominio (PUT-opcionales · Kits · tail no-dominio) + diferidos de
+  red/arquitectura (push a registry · EAV dinámico). Siguiente: `FSK-PUT-OPTIONAL` (el más bounded).
+
 ## 2026-06-24T21:20Z — FSK-DEPLOY-APPSERVER-PG ✅: el AppServer REAL en un contenedor con PG sobre una red docker — el DEPLOY de verdad
 - **Cierra la última media-verdad del DEPLOY.** Hasta hoy s11 `deploy_smoke` CONSTRUYE la imagen y levanta el
   contenedor, pero el ENTRYPOINT del dist = `bin/<pkg>` = **`ObsServerKt`** (el server de observabilidad **PG-free**);

@@ -3,6 +3,25 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **LA BITÁCORA DE ACTIVIDAD POLIMÓRFICA — toda mutación deja rastro (FSK-ACTIONLOG, 2026-06-24)**: la feature
+  ESTRELLA de Snipe-IT (el Actionlog), GENERAL y VIVA. Una entidad marcada `audited: true` appendea, en CADA mutación
+  (create/update/delete + los verbos de DOMINIO checkout/checkin), una fila a la **tabla de SISTEMA `action_logs`**,
+  ATÓMICA con la mutación, con **SUJETO POLIMÓRFICO** (`subject_type` discriminador = el nombre de la entidad +
+  `subject_id` Long, sin FK a una unión — wrinkle #1, **COMPONE FSK-POLYMORPHIC-REFS**) + `actor_id` (el principal del
+  token) + `action` + `created_at`. Lectura por **`GET /action_logs`** (`{count,rows[]}`). **DECISIÓN de diseño**: el
+  append vive en el HANDLER (la capa del request, donde el ACTOR existe), envolviendo `mutación + append` en UNA
+  transacción (`ctx.transaction{}` / `ctx.transactionResult{}` para el create) → las funciones de mutación del
+  Repository quedan **byte-idénticas** (sólo GANA `appendActionLog`/lecturas + la tabla). Eje OPT-IN (`audited` por
+  entidad, fail-closed: exige `owned_by`). **Anti-overfit**: todo en `codegen/scaffold_product.py`; **`git diff
+  src/metafactory + seed = 0`**; base/assets byte-IDÉNTICOS. **Probado por bloqueo**: eyeball (0 Kotlin >160) ·
+  `product-run` snipeit PASS · RTM **25/26** · **diente VIVO dos-lados** (vs dist+PG: cableado → los 5 `[actionlog]`
+  verdes + `GET /action_logs` con las filas reales; saboteado el append del create → SÓLO `[actionlog]` rojos,
+  hermanos verdes; revert→verde) · **byte-neutro → SIN re-pin** (`ci --rederive` 12·11·11 == pin) · `meta check` 6/6.
+  `restore` audita-diferido. **Lo que RESTA es breadth de dominio** (PUT-opcionales · Kits · el tail no-dominio) **+
+  diferidos de red/arquitectura** (push a registry · EAV dinámico). Detalle:
+  `docs/work/FSK-ACTIONLOG-INCREMENT.md §Evidencia` · `docs/LOG.md`. Siguiente: `FSK-PUT-OPTIONAL` (PUT de campos
+  opcionales arbitrarios — el más bounded; la edición FIEL de cualquier campo). Alternativas con autoridad para
+  reabrir: `FSK-DEPLOY-PUSH-REGISTRY` (cierra el eje deploy; ⚠️ verificar `registry:2` cacheado antes) · `FSK-KITS`.
 - Fábrica **full-stack-kotlin** recién nacida por la línea M0–M8 del Meta-Factory. Produce: una app web full-stack de grado-producción: contrato OpenAPI tipado como fuente única, backend Kotlin, frontend TypeScript/React, base de datos PostgreSQL con esquema versionado (Flyway) y queries chequeados en compilación (jOOQ), verificada ENTERA en su propio toolchain bajo criterios duros de ingeniería (dureza estática, frescura de API, seguridad de la cadena de suministro, calidad de experiencia, observabilidad), 100%-generada desde este spec..
 - Hereda el sustrato de toda fábrica confiable (columna anti-sello, bus de veredictos, RTM,
   dos verificadores) cableado por construcción — no re-derivado a mano.

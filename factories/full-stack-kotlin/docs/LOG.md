@@ -1,6 +1,29 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T15:51Z — FSK-FRONTEND-DASHBOARD ✅: la HOME con conteo VIVO por entidad → CIERRA el arco frontend
+- **La app ABRE en una HOME/dashboard con un conteo VIVO por entidad** (`Asset: 3`, …), el landing por defecto del nav.
+  Lo 1ro que ve el ingeniero. **Frontend-only, CERO backend** (el `count` ya viene en `{count,rows}` de `GET /<plural>`;
+  `list<E>().length == count` sin pagination). GENERAL, cero nombres de dominio (ADR-012). Todo en `scaffold_product.py`.
+- **Maquinaria**: `_mount_dashboard_ts(served)` → `mountDashboard(doc, base)`: UNA función **cross-entity** (no por
+  entidad — itera `_live_entities`) que por cada servida hace `(await list<E>(base)).length` y emite `<li
+  data-count="<E>">${label}: ${n}` en un `<ul class="dashboard">` bajo `#screen`. Cableada en `_app_ts` tras `mount<E>`.
+  En `_browser_entry_ts` la HOME es `SCREENS[0]` (landing por defecto, Opción A del handoff); su mount ignora el token
+  (conteos `GET` público) vía un wrapper `(doc, base) => mountDashboard(doc, base)` ASIGNABLE a la firma `Screen` (TS
+  permite menos params → sin `no-unused-vars`); label `"Dashboard"` (no colisiona con entidad). En `browser_check.ts`,
+  `%DASHBOARD_ASSERT%` tras `goto`: espera `ul.dashboard li[data-count]`, asevera `[data-count="<owned>"]` ==
+  `"<owned>: ${json.rows.length}"`, LUEGO `click('[data-entity="<owned>"]')` para que el resto del proof corra sobre la
+  entidad; `waitForSelector("li")` → `"li[data-id]"` (la HOME usa `li[data-count]` sin `data-id`); `%NAV_COUNT%` = N+1.
+- **Verificado (con mis ojos; lo pesado a Sonnet)**: `product-run` snipeit PASS · RTM **25/26** (sólo el deferral s6) ·
+  **diente dos-lados VIVO en Chromium REAL** (s9): GREEN **11/11** (nuevo assert `la HOME muestra el conteo VIVO de Asset
+  → "Asset: 3"`); saboteé `mountDashboard` (hardcode `["Asset", 0]`) → SÓLO el assert DASHBOARD rojo (`esperaba "Asset:
+  3", obtuvo "Asset: 0"`), **10 verdes** → PRECISO y AISLADO; revert → verde · **byte-neutro → SIN re-pin** (cabalga
+  `frontend_browser_render`) · `ci --rederive` snipeit **11/11** + assets **11/11** == pin · `meta check` 6/6
+  (`generality ok`) · `tsc`+`eslint` 0 · bundle **41 688 B** < budget **42 496 B** (sin bump, costo FIJO) · `git diff
+  src/metafactory + seed = 0`.
+- **El ARCO FRONTEND ESTÁ COMPLETO**: ✅ALL-ENTITIES → ✅DETAIL → ✅EDIT → ✅OPERATIONS → ✅DASHBOARD. Commit feat `f04bf43`.
+  Siguiente: `FSK-DEV-RUN` (pedido del ingeniero — una forma fácil de iniciar la app).
+
 ## 2026-06-25T14:55Z — FSK-FRONTEND-OPERATIONS ✅: botones de verbo de dominio → mover el ESTADO desde el browser
 - **La app MUEVE el ESTADO de una fila por su VERBO de dominio (checkout/checkin) desde el browser, por 1ra vez.**
   Clic en una fila (de la entidad con dueño) → su detalle muestra **botones de verbo**; un click MUEVE el `status`

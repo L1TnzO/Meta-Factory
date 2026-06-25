@@ -1,12 +1,44 @@
 # Incremento FSK-FRONTEND-DASHBOARD — la HOME con conteos por entidad (cierra el arco frontend)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T14:55Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**
+> (2026-06-25T15:51Z; ver §Evidencia). Abierto 2026-06-25T14:55Z.
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
 > FSK-FRONTEND-OPERATIONS con MÁS contexto. NO hace falta backend nuevo (todo lo que necesitás ya está vivo, §3).
 > Leé primero `docs/STATE.md` (la entrada OPERATIONS) y el §Evidencia del cierre de OPERATIONS.
+
+---
+
+## Evidencia (cierre 2026-06-25T15:51Z, commit feat `f04bf43`)
+**Construido** — todo en `codegen/scaffold_product.py`, GENERAL (cero nombres de dominio, ADR-012):
+1. **`_mount_dashboard_ts(served)`** (NUEVO) → `mountDashboard(doc, base)`: UNA función **cross-entity** (no por
+   entidad) que itera las entidades servidas y, por cada una, trae el conteo VIVO `(await list<E>(base)).length` (el
+   cliente ya existente; sin pagination → `.length == count`) y lo renderiza `<li data-count="<E>">${label}: ${n}</li>`
+   en un `<ul class="dashboard">` bajo `#screen`. Costo FIJO por producto. Cableado en `_app_ts` (tras `mount<E>`).
+2. **`_browser_entry_ts`**: la HOME es el **landing por defecto** (`SCREENS[0]`). `import { mountDashboard }`; su mount
+   ignora el token (los conteos son `GET` público) vía un wrapper de 2 params `(doc, base) => mountDashboard(doc, base)`
+   ASIGNABLE a la firma `Screen` (TS permite menos params → sin `no-unused-vars`). Label `"Dashboard"` (no colisiona).
+   Elegida la **Opción A** del handoff (dashboard = landing, más fiel) sobre la B (botón extra).
+3. **`browser_check.ts`**: `%DASHBOARD_ASSERT%` insertado tras `page.goto` — espera `ul.dashboard li[data-count]`,
+   asevera `[data-count="<owned>"]` == `"<owned>: ${json.rows.length}"` (el conteo VIVO de la API), LUEGO
+   `page.click('[data-entity="<owned>"]')` para que lista/form/detalle/edit/operations corran sobre la entidad
+   (cambié el `waitForSelector("li")` → `"li[data-id]"`: la HOME usa `li[data-count]` sin `data-id`). `%NAV_COUNT%`
+   = `len(served)+1` (el botón Dashboard).
+
+**Verificado (con mis ojos; lo pesado delegado a Sonnet, veredictos leídos por mí)**:
+- `product-run --product snipeit` **PASS** · RTM **25/26** (único UNSAT = REQ-F-007/s6 LLM keyless, deferral VISIBLE).
+- **Diente de dos lados VIVO en Chromium REAL** (s9 `frontend_browser_render`): GREEN **11/11** (incl. el nuevo
+  `FSK-FRONTEND-DASHBOARD: la HOME muestra el conteo VIVO de Asset → "Asset: 3"`); saboteé `mountDashboard` (hardcode
+  `["Asset", 0]`) → SÓLO el assert DASHBOARD rojea (`esperaba "Asset: 3", obtuvo "Asset: 0"`), los **otros 10 verdes**
+  → PRECISO y AISLADO; revert → verde. PG fresca por corrida manual (colisión UNIQUE del FORM-create).
+- **Byte-neutro → SIN re-pin** (cabalga `frontend_browser_render`; no hay check nuevo) · `ci --rederive` snipeit
+  **11/11** + assets **11/11** == pin (clones limpios) · `meta check` **6/6** (`generality ok`).
+- `tsc --noEmit` 0 · `eslint src` 0 · bundle **41 688 B** < budget **42 496 B** (holgura ~2%, **sin bump** — costo FIJO
+  por producto, 1 función cross-entity) · **`git diff src/metafactory + seed = 0`** (el sustrato no se tocó).
+
+**Resultado**: el **arco frontend está COMPLETO** — ✅ALL-ENTITIES → ✅DETAIL → ✅EDIT → ✅OPERATIONS → ✅DASHBOARD. El
+ingeniero VE la app: home con conteos → navega → lista → detalle → edita → opera. Siguiente decisión en STATE/§6.
 
 ---
 

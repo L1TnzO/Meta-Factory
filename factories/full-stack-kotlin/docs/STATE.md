@@ -3,6 +3,33 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **LA HOME CON CONTEO VIVO POR ENTIDAD → CIERRA EL ARCO FRONTEND (FSK-FRONTEND-DASHBOARD, 2026-06-25)** ✅: la app
+  ABRE en una **HOME / dashboard** con un **conteo VIVO por entidad** (`Asset: 3`, `User: …`, …) — lo 1ro que ve el
+  ingeniero al entrar. **Frontend-only, CERO backend** (el `count` ya viene en `{count,rows}` de `GET /<plural>`). Todo
+  en `codegen/scaffold_product.py`, GENERAL (cero nombres de dominio, ADR-012):
+  - **`mountDashboard(doc, base)`** (`_mount_dashboard_ts`, NUEVO): UNA función **cross-entity** (no por-entidad) que
+    itera las servidas (`_live_entities`) → `(await list<E>(base)).length` → `<li data-count="<E>">${label}: ${n}` en
+    un `<ul class="dashboard">`. Costo FIJO por producto. Cableada en `_app_ts` tras `mount<E>`.
+  - **El nav** (`_browser_entry_ts`): la HOME es el **landing por defecto** (`SCREENS[0]`); su mount ignora el token
+    (conteos `GET` público) vía un wrapper de 2 params asignable a la firma `Screen`. Label `"Dashboard"` (no colisiona).
+  - **El proof** (`browser_check.ts`): `%DASHBOARD_ASSERT%` tras `goto` asevera `[data-count="<owned>"]` == el conteo
+    VIVO de la API, LUEGO navega a la entidad-con-dueño (lista/form/detalle/edit/operations corren sobre ELLA;
+    `waitForSelector` movido a `li[data-id]` — la HOME usa `li[data-count]` sin `data-id`).
+  **Probado por bloqueo (con mis ojos)**: `product-run` snipeit PASS · RTM **25/26** (sólo el deferral s6) · **diente
+  VIVO dos-lados en Chromium REAL** (GREEN 11/11; saboteé `mountDashboard` (hardcode `0`) → SÓLO el assert DASHBOARD
+  rojo, **10 verdes** → PRECISO y AISLADO; revert→verde, PG fresca por corrida) · **byte-neutro → SIN re-pin** (cabalga
+  `frontend_browser_render`) · `ci --rederive` snipeit **11/11** + assets **11/11** == pin (delegado a Sonnet, veredictos
+  con mis ojos) · `meta check` 6/6 (`generality ok`) · `tsc`+`eslint` 0 · bundle **41 688 B** < budget **42 496 B**
+  (sin bump, costo FIJO) · `git diff src/metafactory + seed = 0`. Detalle: `docs/work/FSK-FRONTEND-DASHBOARD-INCREMENT.md
+  §Evidencia`. Commit feat `f04bf43`.
+  **El ARCO FRONTEND ESTÁ COMPLETO**: ✅ALL-ENTITIES → ✅DETAIL → ✅EDIT → ✅OPERATIONS → ✅DASHBOARD. El ingeniero VE la
+  app: home con conteos → navega → lista → detalle → edita → opera, en un Chromium real, contra PG viva.
+  **Siguiente — `FSK-DEV-RUN` (pedido del ingeniero, 2026-06-25)**: una **forma fácil de iniciar la app** (hoy requiere
+  comandos largos y frágiles: PG docker + JAVA_HOME + bundle + `java -cp` con 4 env vars). Un launcher robusto que el
+  ingeniero corre con un comando. Handoff EN FRÍO: `docs/work/FSK-DEV-RUN-INCREMENT.md`. Ejes hermanos del arco
+  frontend (pulido, opcional): **PICKER** de target para `assigns` poly · **`restore`**/**DELETE** desde el browser.
+  Backend ortogonal (BACKLOG): `FSK-GETONE-SCOPED` · `FSK-PUT-UNIQUE-REFS` · `PUT-ownerless` · `FSK-KITS` · EAV ·
+  `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
 - **BOTONES DE VERBO DE DOMINIO → MOVER EL ESTADO DESDE EL BROWSER (FSK-FRONTEND-OPERATIONS, 2026-06-25)** ✅: 1er
   momento en que la app **MUTA el ESTADO de una fila por su VERBO de dominio** (checkout/checkin), NO por un PUT (el
   estado es un campo de **workflow**, EXCLUIDO del PATCH — DES-3: sólo se mueve por sus transiciones nombradas).

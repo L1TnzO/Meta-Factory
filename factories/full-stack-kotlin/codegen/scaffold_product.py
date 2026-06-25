@@ -6149,14 +6149,16 @@ private fun webFile(name: String): String {
     return if (file.exists()) file.readText() else ""
 }
 
-// FSK-FRONTEND-BROWSER: sirve la pagina (GET /) + el bundle (GET /app.js) MISMO-ORIGEN -> el `fetch` del
-// bundle pega al MISMO server (sin CORS). El contexto "/" es el catch-all (las rutas mas especificas --
-// /health, /seed, /<plural> -- ganan por prefijo); lo demas -> 404. Inerte para los otros checks de s9 (no
-// pegan a / ni a /app.js); el proof Playwright (browser_check.ts) carga GET / en un Chromium REAL.
+// FSK-FRONTEND-BROWSER: sirve la pagina (GET /) + el bundle (GET /app.js) + la hoja de estilos (GET /app.css,
+// FSK-FRONTEND-STYLES) MISMO-ORIGEN -> el `fetch`/`<link>` pega al MISMO server (sin CORS). El contexto "/" es
+// el catch-all (las rutas mas especificas -- /health, /seed, /<plural> -- ganan por prefijo); lo demas -> 404.
+// Inerte para los otros checks de s9; el proof Playwright (browser_check.ts) carga GET / en un Chromium REAL.
 private fun serveApp(ex: HttpExchange) {
     when (ex.requestURI.path) {
         "/" -> respondWeb(ex, HTTP_OK, webFile("index.html"), "text/html; charset=utf-8")
         "/app.js" -> respondWeb(ex, HTTP_OK, webFile("app.js"), "application/javascript; charset=utf-8")
+        // FSK-FRONTEND-STYLES: sirve la hoja compilada (dist/app.css) que index.html linkea, MISMO-ORIGEN.
+        "/app.css" -> respondWeb(ex, HTTP_OK, webFile("app.css"), "text/css; charset=utf-8")
         else -> respondWeb(ex, HTTP_NOT_FOUND, "not found", "text/plain; charset=utf-8")
     }
 }
@@ -7488,6 +7490,90 @@ def _browser_entry_ts(bp: dict) -> str:
         "void boot();\n")
 
 
+def _app_css() -> str:
+    """frontend/src/app.css — la hoja de estilos del frontend (FSK-FRONTEND-STYLES). ARCHIVO APARTE (regla
+    multi-archivo, CLAUDE.md 2026-06-25): NO es un <style> inline ni una raw-string embebida en el markup, es su
+    propia unidad. DATA-agnóstica (ADR-012): estila las clases SEMÁNTICAS que el render generado YA emite
+    (body/header/nav button/ul.dashboard/li/form/input/button/dl.detail/.field), cero nombres de dominio →
+    el MISMO CSS estila cualquier producto FSK. esbuild la COMPILA (build_bundle.mjs, 2da pasada) a dist/app.css;
+    el AppServer la sirve en GET /app.css (text/css); dist/index.html la linkea. El proof browser_check.ts asevera
+    que APLICA en un Chromium real (getComputedStyle(body).maxWidth == 960px, != el default UA 'none')."""
+    return _APP_CSS
+
+
+# El DIENTE de FSK-FRONTEND-STYLES vive en `body { max-width: 960px }`: una propiedad inequívoca y NO-default (el
+# default UA es 'none') que el proof lee por getComputedStyle en Chromium real → prueba que la hoja se linkeó,
+# se sirvió Y la aplicó el browser. Sacar el <link>/la rama /app.css/degradar el valor → cae a 'none' → rojo.
+_APP_CSS = '''\
+/* app.css (FSK-FRONTEND-STYLES) — hoja de estilos del frontend, ARCHIVO APARTE (regla multi-archivo). esbuild la
+   compila (build_bundle.mjs) a dist/app.css; el AppServer la sirve en GET /app.css; index.html la linkea. Estila
+   SÓLO clases semánticas que el render emite (DATA-agnóstica, ADR-012). El diente: body max-width != default UA. */
+:root {
+  --fg: #1c2333;
+  --muted: #5b6577;
+  --accent: #2d6cdf;
+  --border: #d8dee9;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+}
+* { box-sizing: border-box; }
+body {
+  max-width: 960px;          /* DIENTE: != default UA 'none' -> el proof prueba que la hoja APLICA */
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.5;
+}
+header { margin-bottom: 1rem; }
+h1, h2 { margin: 0 0 0.5rem; }
+nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+nav button, button {
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+nav button { background: var(--card); color: var(--fg); }
+nav button:hover { border-color: var(--accent); color: var(--accent); }
+form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; margin-bottom: 1rem; }
+input, select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--fg);
+}
+button { border-color: var(--accent); background: var(--accent); color: #fff; }
+button:hover { filter: brightness(1.06); }
+ul { list-style: none; margin: 0; padding: 0; }
+li {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  background: var(--card);
+}
+li[data-id] { cursor: pointer; }
+li:hover { border-color: var(--accent); }
+ul.dashboard li { font-weight: 600; }
+dl.detail {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+dl.detail .field { display: contents; }
+dl.detail dt { color: var(--muted); font-weight: 600; }
+dl.detail dd { margin: 0; }
+p { color: var(--muted); }
+'''
+
+
 def _build_bundle_mjs() -> str:
     """frontend/build_bundle.mjs — bundlea el frontend para el BROWSER REAL (FSK-FRONTEND-BROWSER). esbuild (ya
     dep de s8) bundlea+transpila el entry (src/browser_entry.ts → mount<E>/app.ts → client.ts) a un IIFE
@@ -7506,7 +7592,9 @@ def _build_bundle_mjs() -> str:
         '  "<!DOCTYPE html>",\n'
         '  \'<html lang="en">\',\n'
         '  \'<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">\' +\n'
-        '    "<title>App</title></head>",\n'
+        '    "<title>App</title>" +\n'
+        '    \'<link rel="stylesheet" href="/app.css">\' +\n'   # FSK-FRONTEND-STYLES: linkea la hoja compilada
+        '    "</head>",\n'
         '  \'<body><main id="app"></main><script src="/app.js"></script></body>\',\n'
         '  "</html>",\n'
         '  "",\n'
@@ -7519,8 +7607,16 @@ def _build_bundle_mjs() -> str:
         '  outfile: "dist/app.js",\n'
         '  logLevel: "silent",\n'
         '});\n'
+        '// FSK-FRONTEND-STYLES: 2da pasada -> esbuild COMPILA la hoja de estilos (src/app.css -> dist/app.css). El\n'
+        '// CSS es su propio entry (no entra al grafo JS -> el presupuesto de bundle, que mide src/app.ts, NO cambia).\n'
+        'buildSync({\n'
+        '  entryPoints: ["src/app.css"],\n'
+        '  bundle: true,\n'
+        '  outfile: "dist/app.css",\n'
+        '  logLevel: "silent",\n'
+        '});\n'
         'writeFileSync("dist/index.html", INDEX_HTML);\n'
-        'console.log("bundle: src/browser_entry.ts -> dist/app.js + dist/index.html");\n')
+        'console.log("bundle: src/browser_entry.ts -> dist/app.js + dist/app.css + dist/index.html");\n')
 
 
 def _browser_check_ts(bp: dict) -> str:
@@ -7620,6 +7716,8 @@ def _browser_check_ts(bp: dict) -> str:
             # FSK-FRONTEND-DASHBOARD: +1 botón en el nav (la HOME, SCREENS[0]) por encima de las N servidas.
             .replace("%NAV_COUNT%", str(len(served) + 1))
             .replace("%DASHBOARD_ASSERT%", _DASHBOARD_ASSERT_BLOCK)
+            # FSK-FRONTEND-STYLES: la hoja de estilos se sirve+linkea+aplica (always: todo browser-frontend la trae).
+            .replace("%STYLES_ASSERT%", _STYLES_ASSERT_BLOCK)
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)
@@ -7667,7 +7765,7 @@ async function main(base) {
   const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   try {
     const page = await browser.newPage();
-    await page.goto(`${base}/`);%DASHBOARD_ASSERT%
+    await page.goto(`${base}/`);%DASHBOARD_ASSERT%%STYLES_ASSERT%
     // tras navegar a la entidad con dueno (el landing por defecto es la HOME del dashboard), mount<E> renderiza su
     // lista viva (async) -> esperamos por sus filas (li[data-id]; la HOME usa li[data-count], sin data-id) -> determinista.
     await page.waitForSelector("li[data-id]", { timeout: 10000 });
@@ -7780,6 +7878,20 @@ _SECOND_SCREEN_BLOCK = '''
 # conteo de la entidad con dueño == las filas que la API trajo (json.rows.length, == lo que list<E> trae), LUEGO navega a
 # su pantalla (los asserts de lista/form/detalle/edit/operations corren sobre ELLA). Saboteá mountDashboard (conteo
 # hardcodeado / dropear la entidad) -> el texto != el vivo -> rojo; el resto del proof queda VERDE (diente AISLADO).
+# FSK-FRONTEND-STYLES — el bloque del proof para la HOJA DE ESTILOS: tras cargar la página, lee una propiedad
+# NO-default por getComputedStyle en el DOM REAL (body max-width == 960px; el default UA es 'none') → prueba que
+# /app.css se LINKEÓ, se SIRVIÓ y la APLICÓ Chromium. Saboteá el <link> / la rama /app.css del AppServer / el valor
+# del CSS → cae a 'none' → rojo; el resto del proof queda VERDE (el DOM funciona sin CSS) → diente AISLADO.
+_STYLES_ASSERT_BLOCK = '''
+    // FSK-FRONTEND-STYLES - la hoja (/app.css) se sirve, se linkea (index.html) y la APLICA el browser. Lee una
+    // propiedad NO-default por getComputedStyle en el DOM REAL: body max-width == 960px (el default UA es 'none').
+    // Saboteá el <link> / la rama /app.css del AppServer / el valor del CSS -> cae a 'none' -> rojo; el resto del
+    // proof (render/lista/detalle/edit/operations/dashboard/nav) queda VERDE (el DOM funciona sin CSS) -> AISLADO.
+    const bodyMaxWidth = await page.evaluate(() => getComputedStyle(document.body).maxWidth);
+    check(bodyMaxWidth, "960px",
+          "FSK-FRONTEND-STYLES: la hoja /app.css se sirve y la APLICA Chromium (body max-width del stylesheet)");'''
+
+
 _DASHBOARD_ASSERT_BLOCK = '''
     // FSK-FRONTEND-DASHBOARD - la HOME es el landing por defecto (SCREENS[0] del nav): un <ul class="dashboard"> con
     // un <li data-count="<E>"> por entidad servida, mostrando el conteo VIVO (list<E>().length). Asevera que el
@@ -8356,6 +8468,10 @@ def build_files(bp: dict) -> dict[str, str]:
         # (browser_check.ts) abre GET / en Chromium y asevera que la lista VIVA se renderiza en el DOM real. El
         # check `frontend_browser_live` (s9, infra_up) lo corre. Opt-in: sólo con owned_by (la única con mount<E>).
         files["frontend/src/browser_entry.ts"] = _browser_entry_ts(bp)
+        # FSK-FRONTEND-STYLES: la hoja de estilos (ARCHIVO APARTE, regla multi-archivo). esbuild la compila a
+        # dist/app.css (build_bundle.mjs, 2da pasada); el AppServer la sirve en GET /app.css; index.html la linkea;
+        # el proof browser_check.ts asevera que APLICA en Chromium real. DATA-agnóstica (estila clases semánticas).
+        files["frontend/src/app.css"] = _app_css()
         files["frontend/build_bundle.mjs"] = _build_bundle_mjs()
         files["frontend/browser_check.ts"] = _browser_check_ts(bp)
     return files

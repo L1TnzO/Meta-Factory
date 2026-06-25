@@ -1449,16 +1449,32 @@ def _COL(name: str) -> str:
     return name.upper()
 
 
-def _mutable_field(e: dict) -> dict | None:
-    """El 1er campo `string` NO-unique, NO-ref, NO-dueño de la entidad: la columna escalar que el PUT del
-    server vivo MUTA (FSK-S16) y que GET /{id} observa. DATA-agnóstico (heurística sobre el blueprint, sin
-    nombres de dominio, ADR-012). None si la entidad no tiene ninguna → el server DEGRADA (PUT sólo da el
-    veredicto; sin tooth de valor): el insert/delete round-trip sigue, el update se difiere para ese producto."""
+def _workflow_field_names(e: dict) -> set[str]:
+    """Los nombres de campo de `e` GOBERNADOS por un workflow (FSK-S12/FSK-DOMAIN-OPS): un enum con
+    `initial`/`transitions` (guard canTransition, type-bound) Y todo campo que sea el `field` de una
+    `operation` (checkout/checkin lo mutan por la transición NOMBRADA, no por un PUT genérico). El PATCH
+    los EXCLUYE (un PUT directo bypasearía la máquina de estado, DES-3): el estado sólo se mueve por sus
+    verbos/transiciones declaradas. DATA-agnóstico (cero nombres de dominio, ADR-012)."""
+    names = {f["name"] for f in e["fields"]
+             if f["type"] == "enum" and (f.get("transitions") or f.get("initial"))}
+    names |= {op["field"] for op in (e.get("operations") or []) if op.get("field")}
+    return names
+
+
+def _patchable_fields(e: dict) -> list[dict]:
+    """Los campos EDITABLES por el PUT (PATCH-like) del server vivo (FSK-PUT-OPTIONAL): el PUT deja de mutar
+    UNA sola columna y acepta CUALQUIER campo updatable provisto en el cuerpo. Updatable = todo escalar/enum
+    que NO sea: el dueño (`owned_by`, fijado al crear, no se reasigna), un campo COMPUTADO (read-only derivado),
+    UNIQUE (un valor chocado → la DB lo rechaza → 409; lo difiere el eje hermano), un `ref` (la validación de
+    FK del PATCH = eje hermano) ni un campo de WORKFLOW (se mueve por sus verbos/transiciones, no por PUT). Es
+    PATCH-semantics: el cuerpo trae un SUBCONJUNTO; el server setea SÓLO esas claves, type-coerced por el schema.
+    DATA-agnóstico (heurística sobre el blueprint, ADR-012): una entidad con UN solo updatable → el PUT muta esa
+    sola columna (como FSK-S16); ninguno → el server DEGRADA (PUT sólo valida JSON + veredicto, sin UPDATE)."""
     owner = e.get("owned_by")
-    for f in e["fields"]:
-        if f["type"] == "string" and not f.get("unique") and f["name"] != owner:
-            return f
-    return None
+    wf = _workflow_field_names(e)
+    return [f for f in e["fields"]
+            if f["name"] != owner and not _is_computed(f) and not f.get("unique")
+            and f["type"] != "ref" and f["name"] not in wf]
 
 
 def _input_fields(e: dict) -> list[dict]:
@@ -1614,6 +1630,17 @@ def _input_data_class(e: dict) -> str:
     Repository.insert<E> lo persiste type-bound. Vive en Repository.kt (paquete raíz) → AppServer lo importa."""
     lines = [f"data class {e['name']}Input("]
     lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}," for f in _input_cols(e)]
+    lines.append(")")
+    return "\n".join(lines)
+
+
+def _patch_data_class(e: dict) -> str:
+    """data class <E>Patch: el cuerpo del PUT PATCH-like (FSK-PUT-OPTIONAL) — un campo NULLABLE (default null)
+    por columna updatable (_patchable_fields). null ⟺ la clave AUSENTE en el cuerpo (PATCH-semantics: no se
+    toca); Repository.update<E> setea SÓLO los no-null. Vive en Repository.kt (paquete raíz, junto a <E>Input)
+    → tanto Repository.update<E> como el parser parse<E>Patch del AppServer lo ven (mismo import que <E>Input)."""
+    lines = [f"data class {e['name']}Patch("]
+    lines += [f"    val {_camel(f['name'])}: {_KT_FIELD_TYPE[f['type']]}? = null," for f in _patchable_fields(e)]
     lines.append(")")
     return "\n".join(lines)
 
@@ -1886,9 +1913,9 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
     REQUERIDO no-dueño (FSK-REFS-IN-BODY) también viene del body (el id de la FK, Long): la DB valida la
     existencia (cuelga → DataAccessException → el server la atrapa → 4xx). DELETE por id; <e>RowJson lee la fila
     COMPLETA (lo que
-    GET /{id} y el round-trip e2e observan); y —si la entidad tiene dueño y columna mutable (_mutable_field)—
-    UPDATE de esa columna al valor del body (PATCH-like, PUT sólo bajo ownership por ahora). Todo type-bound al
-    schema: una columna inexistente NO compila (la DB grita en compilación, DES-12)."""
+    GET /{id} y el round-trip e2e observan); y —si la entidad tiene dueño y ≥1 campo updatable
+    (_patchable_fields)— UPDATE que aplica un PATCH del cuerpo (FSK-PUT-OPTIONAL: CUALQUIER campo updatable
+    provisto, sólo bajo ownership). Todo type-bound al schema: una columna inexistente NO compila (DES-12)."""
     name, owner = e["name"], e.get("owned_by")
     op = _owner_poly(e)   # FSK-OWNER-POLY: el dueño poly se materializa en 2 sub-columnas → el POST fija ambas
     if not _input_fields(e):   # el data class <E>Input quedaría vacío → Kotlin lo prohíbe (fail-closed, difiérelo)
@@ -1953,11 +1980,22 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
         restore_body = _jooq_chain("        ", "", f"ctx.update({tbl})",
                                    [f"setNull({tbl}.DELETED_AT)", f"where({tbl}.ID.eq(id))", "execute()"])
         out.append(f"    fun restore{name}(ctx: DSLContext, id: Long): Int =\n{restore_body}")
-    mf = _mutable_field(e)
-    if owner and mf:   # PATCH del body (sólo bajo ownership por ahora): el server actualiza esta columna escalar
-        mc, pas = f"{tbl}.{_COL(mf['name'])}", _pascal(mf["name"])   # al string del cuerpo (FSK-CRUD-BODY-PARSING)
-        out.append(f"    fun update{name}{pas}(ctx: DSLContext, id: Long, value: String): Int =\n"
-                   f"        ctx.update({tbl}).set({mc}, value).where({tbl}.ID.eq(id)).execute()")
+    # FSK-PUT-OPTIONAL: el UPDATE deja de mutar UNA columna y aplica un PATCH del cuerpo — setea CADA campo
+    # updatable PRESENTE (no-null en el <E>Patch, claves ausentes intactas), type-bound al schema (jOOQ resuelve
+    # el bind por el DataType de la columna). El set DINÁMICO se arma como Map<Field, valor> (el idiom jOOQ para un
+    # UPDATE de columnas variables); un patch sin claves updatables → 0 filas (no-op, sin SQL inválido). Compone
+    # FSK-CRUD-BODY-PARSING (mismo codec) + FSK-ACTIONLOG (el handler envuelve update+append en una transacción).
+    pf = _patchable_fields(e)
+    if owner and pf:   # sólo bajo ownership (la entidad con dueño es la única que el AppServer monta con PUT)
+        sets = "\n".join(f"        patch.{_camel(f['name'])}?.let {{ sets[{tbl}.{_COL(f['name'])}] = it }}"
+                         for f in pf)
+        out.append(
+            f"    fun update{name}(ctx: DSLContext, id: Long, patch: {name}Patch): Int {{\n"
+            "        val sets = mutableMapOf<org.jooq.Field<*>, Any?>()\n"
+            f"{sets}\n"
+            f"        return if (sets.isEmpty()) 0 else "
+            f"ctx.update({tbl}).set(sets).where({tbl}.ID.eq(id)).execute()\n"
+            "    }")
     return out
 
 
@@ -2053,8 +2091,14 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # campos de cuerpo) y sus tipos al cómputo de imports (p.ej. un `date` de cuerpo → java.time.LocalDate). Vacío
     # sin `creates` → byte-neutro (default/assets/snipeit-sin-creates sin re-derivar).
     creates_pivots = _creates_pivots(entities)
+    # FSK-PUT-OPTIONAL: la entidad CON DUEÑO (la única montada con PUT) gana un data class <E>Patch (campos
+    # updatables NULLABLE) → sus tipos entran al cómputo de imports (un updatable `date` OPCIONAL pide LocalDate
+    # aunque ningún campo requerido lo trajera). Opt-in: sin campos updatables (degrade) → [] → byte-idéntico.
+    owned = next((e for e in entities if e.get("owned_by")), None)
+    owned_patch = _patchable_fields(owned) if owned else []
     input_live = ([{"fields": _input_fields(e)} for e in live]
-                  + [{"fields": body} for _, _, body in creates_pivots])
+                  + [{"fields": body} for _, _, body in creates_pivots]
+                  + [{"fields": owned_patch}])
     table_imports = [f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities]
     # FSK-ACTIONLOG: si alguna entidad es auditada, el Repository gana la tabla de SISTEMA ACTION_LOGS (el append +
     # las lecturas de la bitácora la referencian). Opt-in: sin `audited` no se importa → byte-idéntico (default/assets).
@@ -2081,6 +2125,10 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
     # FSK-CREATES-PIVOT: el data class del cuerpo del verbo `creates`, por pivote (mismo paquete → AppServer lo
     # importa como {pkg}.<Pivot>CreateInput). Opt-in: "" sin `creates` → byte-idéntico.
     data_classes += "".join(_creates_input_data_class(pivot, body) + "\n\n" for _, pivot, body in creates_pivots)
+    # FSK-PUT-OPTIONAL: el data class <E>Patch del PUT PATCH-like (campos updatables NULLABLE). Mismo paquete →
+    # AppServer lo importa como {pkg}.<E>Patch (como <E>Input). Opt-in: "" sin campos updatables → byte-idéntico.
+    if owned_patch:
+        data_classes += _patch_data_class(owned) + "\n\n"
     by = {e["name"]: e for e in entities}   # FSK-XENTITY-COMPUTED: el grafo, para resolver un ref → su target en el JOIN
     fns = []
     for e in entities:
@@ -4584,22 +4632,41 @@ def _parse_fn(e: dict) -> str:
     return _parse_fields_fn(f"parse{e['name']}Input", f"{e['name']}Input", _input_cols(e))
 
 
+_COERCE = {"string": 'str(o, "%s")', "int": 'int32(o, "%s")', "number": 'dbl(o, "%s")',
+           "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
+
+
+def _coerce_expr(f: dict) -> str:
+    """La expresión Kotlin que COERCE la clave `f["name"]` del JsonObject `o` a su tipo (helper compartido del
+    codec). FSK-POLYMORPHIC-REFS: enum → enumOf (discriminador ∈ values); FSK-CUSTOM-FIELDS: string con `format`
+    → strFmt (valida el VALOR); el resto → el coercer por tipo (str/int32/dbl/bool/dateOf/longOf). Lo reusan el
+    parser del POST (parse<E>Input, todas las claves) y el del PATCH (parse<E>Patch, sólo las presentes)."""
+    if f["type"] == "enum":
+        return f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)'
+    if f["type"] == "string" and f.get("format"):
+        return f'strFmt(o, "{f["name"]}", FMT_{f["format"].upper()})'
+    return _COERCE[f["type"]] % f["name"]
+
+
 def _parse_fields_fn(parser: str, dc: str, fields: list[dict]) -> str:
     """El cuerpo de un parser JSON→data class type-coerced (la maquinaria de `_parse_fn`, generalizada a un nombre
     de parser + data class + lista de columnas explícitos). Lo reusa `parse<E>Input` (served) y, FSK-CREATES-PIVOT,
-    `parse<Pivot>CreateInput` (los campos de cuerpo del verbo `creates`, sin el FK-al-sujeto). Misma coerción
-    estricta fail-closed (un número entrecomillado → rechazado → null → 400)."""
-    coerce = {"string": 'str(o, "%s")', "int": 'int32(o, "%s")', "number": 'dbl(o, "%s")',
-              "boolean": 'bool(o, "%s")', "date": 'dateOf(o, "%s")', "ref": 'longOf(o, "%s")'}
-    args = []
-    for f in fields:   # FSK-POLYMORPHIC-REFS: `<campo>_type` (enum → enumOf, discriminador) + `<campo>_id` (longOf)
-        if f["type"] == "enum":
-            expr = f'enumOf(o, "{f["name"]}", {_COL(f["name"])}_VALUES)'
-        elif f["type"] == "string" and f.get("format"):   # FSK-CUSTOM-FIELDS: valida el VALOR (no sólo el tipo)
-            expr = f'strFmt(o, "{f["name"]}", FMT_{f["format"].upper()})'
-        else:
-            expr = coerce[f["type"]] % f["name"]
-        args.append(f"        {_camel(f['name'])} = {expr},")
+    `parse<Pivot>CreateInput` (los campos de cuerpo del verbo `creates`, sin el FK-al-sujeto). Exige TODAS las
+    claves; coerción estricta fail-closed (un número entrecomillado → rechazado → null → 400)."""
+    args = [f"        {_camel(f['name'])} = {_coerce_expr(f)}," for f in fields]
+    return (f"private fun {parser}(body: String): {dc}? = runCatching {{\n"
+            "    val o = Json.parseToJsonElement(body).jsonObject\n"
+            f"    {dc}(\n" + "\n".join(args) + "\n    )\n"
+            "}.getOrNull()")
+
+
+def _patch_parse_fn(parser: str, dc: str, fields: list[dict]) -> str:
+    """parse<E>Patch(body): <E>Patch? — el parser TOLERANTE del PUT PATCH-like (FSK-PUT-OPTIONAL): a diferencia de
+    parse<E>Input (exige TODAS las claves), setea cada campo SÓLO si su clave está PRESENTE (`if ("k" in o) <coerce>
+    else null`); una clave ausente → null → Repository.update<E> no la toca (PATCH-semantics). Una clave presente
+    con el tipo equivocado → la coerción tira → runCatching → null → 400 (fail-closed). Reusa los MISMOS helpers de
+    coerción del codec (`_coerce_expr`) → cero coerción nueva."""
+    args = [f'        {_camel(f["name"])} = if ("{f["name"]}" in o) {_coerce_expr(f)} else null,' for f in fields]
     return (f"private fun {parser}(body: String): {dc}? = runCatching {{\n"
             "    val o = Json.parseToJsonElement(body).jsonObject\n"
             f"    {dc}(\n" + "\n".join(args) + "\n    )\n"
@@ -4607,7 +4674,8 @@ def _parse_fields_fn(parser: str, dc: str, fields: list[dict]) -> str:
 
 
 def _codec_helpers(entities: list[dict],
-                   extra_parsers: list[tuple[str, str, list[dict]]] = ()) -> tuple[str, list[str]]:
+                   extra_parsers: list[tuple[str, str, list[dict]]] = (),
+                   patch: tuple[str, str, list[dict]] | None = None) -> tuple[str, list[str]]:
     """Helpers de coerción JSON→tipo COMPARTIDOS por las entidades VIVAS + el parser parse<E>Input de cada una
     (FSK-CRUD-BODY-PARSING/OWNERLESS, DES-12). Los helpers (prim/str/int32/…) se emiten UNA vez sobre la UNIÓN de
     tipos de todas las entidades servidas → sin colisión cuando el AppServer monta >1 entidad (con dueño +
@@ -4615,9 +4683,13 @@ def _codec_helpers(entities: list[dict],
     tipo equivocado / faltante / JSON inválido → excepción → runCatching → null → 400 (no 500, no traga). Usa
     kotlinx.serialization.json (dep INTENCIONAL de la fábrica, no viola ADR-012). Devuelve (kotlin, imports).
     FSK-CREATES-PIVOT: `extra_parsers` (parser, data_class, campos) suma parsers fuera de las servidas (el cuerpo del
-    verbo `creates`) — sus tipos entran a la UNIÓN (helpers/enum-VALUES) y su parser se emite. Vacío → byte-idéntico."""
+    verbo `creates`) — sus tipos entran a la UNIÓN (helpers/enum-VALUES) y su parser se emite. Vacío → byte-idéntico.
+    FSK-PUT-OPTIONAL: `patch` (parser, data_class, campos updatables del owned) suma el parser TOLERANTE del PUT
+    (parse<E>Patch) — sus tipos ENTRAN a la UNIÓN (un updatable `int`/`boolean` que no era de POST igual gana su
+    helper) y su parser TOLERANTE se emite al final. None → byte-idéntico (sin PUT-opcional)."""
     flds = ([f for e in entities for f in _input_cols(e)]   # FSK-POLYMORPHIC-REFS: las 2 sub-columnas del poly
-            + [f for _, _, fields in extra_parsers for f in fields])   # FSK-CREATES-PIVOT: los campos de cuerpo
+            + [f for _, _, fields in extra_parsers for f in fields]   # FSK-CREATES-PIVOT: los campos de cuerpo
+            + list(patch[2] if patch else []))   # FSK-PUT-OPTIONAL: los campos updatables (pueden traer un tipo nuevo)
     types = {f["type"] for f in flds}
     parts = ["private fun prim(o: JsonObject, k: String): JsonPrimitive = requireNotNull(o[k]) { k }.jsonPrimitive"]
     if {"string", "date", "enum"} & types:
@@ -4676,6 +4748,8 @@ def _codec_helpers(entities: list[dict],
             parts.append(f'private val FMT_{nm.upper()} = Regex("""{_FORMAT_REGEX[nm]}""")')
     parts += [_parse_fn(e) for e in entities]
     parts += [_parse_fields_fn(parser, dc, fields) for parser, dc, fields in extra_parsers]   # FSK-CREATES-PIVOT
+    if patch:   # FSK-PUT-OPTIONAL: el parser TOLERANTE del PUT (sólo las claves presentes); va al final
+        parts.append(_patch_parse_fn(*patch))
     imps = {"import kotlinx.serialization.json.Json", "import kotlinx.serialization.json.JsonObject",
             "import kotlinx.serialization.json.JsonPrimitive", "import kotlinx.serialization.json.jsonObject",
             "import kotlinx.serialization.json.jsonPrimitive"}
@@ -4690,15 +4764,15 @@ def _codec_helpers(entities: list[dict],
     return "\n\n".join(parts), sorted(imps)
 
 
-def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict | None,
+def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fields: list[dict],
                          need_conflict: bool = False, scoped: bool = False, audited: bool = False) -> str:
     """Las funciones de manejo del server vivo (FSK-CRUD-BODY-PARSING): doPost LEE el cuerpo del request, lo
     type-coerce por el schema (parse<E>Input) e INSERTA con ESOS valores (dueño = principal del token, no del
-    body); getOne devuelve la FILA COMPLETA type-correct; doPut LEE el body y actualiza la columna mutable
-    (PATCH-like); doDelete borra. La mutación va SIEMPRE detrás del veredicto (modifyVerdict: RBAC + ownership).
-    Body malformado / tipo equivocado / required ausente → 400 (badRequest), no 500, no traga. Si la entidad no
-    tiene columna mutable (_mutable_field None), el PUT degrada (sólo valida JSON + veredicto). DATA-agnóstico:
-    nombres de fn/columna derivados del blueprint, cero nombres de dominio (ADR-012)."""
+    body); getOne devuelve la FILA COMPLETA type-correct; doPut aplica un PATCH del body (FSK-PUT-OPTIONAL:
+    CUALQUIER campo updatable provisto); doDelete borra. La mutación va SIEMPRE detrás del veredicto
+    (modifyVerdict: RBAC + ownership). Body malformado / tipo equivocado / required ausente → 400 (badRequest),
+    no 500, no traga. Si la entidad no tiene campos updatables (_patchable_fields vacío), el PUT degrada (sólo
+    valida JSON + veredicto). DATA-agnóstico: nombres de fn/columna derivados del blueprint (ADR-012)."""
     name = owned["name"]
     row_json = f"{name.lower()}RowJson"
     # FSK-ACTIONLOG: con `audited`, cada mutación (create/update/delete) se ENVUELVE en una transacción que appendea
@@ -4822,14 +4896,14 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         "    }\n"
         "}\n"
     )
-    if mf:
-        mut_update = f"update{name}{_pascal(mf['name'])}"
+    if patch_fields:
+        upd = f"update{name}"
         if audited:   # FSK-ACTIONLOG: el UPDATE + el append a action_logs en la MISMA transacción (atómico)
             put_ok = (
                 "        else -> {\n"
                 "            ctx.transaction { cfg ->\n"
                 "                val tx = cfg.dsl()\n"
-                f"                Repository.{mut_update}(tx, id, value)\n"
+                f"                Repository.{upd}(tx, id, patch)\n"
                 f'                Repository.appendActionLog(tx, RoleGuard.principalOf(token) ?: 0L, "update", "{name}", id)\n'
                 "            }\n"
                 '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
@@ -4838,33 +4912,31 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, mf: dict |
         else:
             put_ok = (
                 "        else -> {\n"
-                f"            Repository.{mut_update}(ctx, id, value)\n"
+                f"            Repository.{upd}(ctx, id, patch)\n"
                 '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
                 "        }\n"
             )
         do_put = (
-            "private fun parsePut(body: String): String? = runCatching {\n"
-            f'    str(Json.parseToJsonElement(body).jsonObject, "{mf["name"]}")\n'
-            "}.getOrNull()\n\n"
-            "// PUT /<plural>/{id} (FSK-CRUD-BODY-PARSING): el guard decide; en 200, ACTUALIZA la columna mutable\n"
-            "// al string del CUERPO (PATCH-like). Body malo (JSON inválido / no-string / clave ausente) -> 400.\n"
+            "// PUT /<plural>/{id} (FSK-PUT-OPTIONAL): el guard decide; en 200, aplica el PATCH del CUERPO —\n"
+            "// CUALQUIER campo updatable provisto (PATCH-like: sólo las claves presentes), type-coerced por el\n"
+            "// schema. Body malo (JSON inválido / tipo equivocado en una clave presente) -> 400.\n"
             "private fun doPut(ctx: DSLContext, token: String?, id: Long, body: String): Pair<Int, String> {\n"
             "    val verdict = modifyVerdict(ctx, token, id)\n"
-            "    val value = parsePut(body)\n"
+            f"    val patch = parse{name}Patch(body)\n"
             "    return when {\n"
             '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
-            "        value == null -> badRequest()\n"
+            "        patch == null -> badRequest()\n"
             + put_ok +
             "    }\n"
             "}\n\n"
         )
-    else:   # degrade: sin columna mutable, el PUT valida JSON + veredicto (no hay UPDATE que observar)
+    else:   # degrade: sin campos updatables, el PUT valida JSON + veredicto (no hay UPDATE que observar)
         do_put = (
             "private fun parseObj(body: String): JsonObject? = runCatching {\n"
             "    Json.parseToJsonElement(body).jsonObject\n"
             "}.getOrNull()\n\n"
-            "// PUT /<plural>/{id} (degradado: la entidad no tiene columna mutable): el guard decide; el body sólo\n"
-            "// se valida como JSON (malo -> 400). Sin columna mutable no hay UPDATE que el round-trip observe.\n"
+            "// PUT /<plural>/{id} (degradado: la entidad no tiene campos updatables): el guard decide; el body\n"
+            "// sólo se valida como JSON (malo -> 400). Sin campos updatables no hay UPDATE que el round-trip vea.\n"
             "private fun doPut(ctx: DSLContext, token: String?, id: Long, body: String): Pair<Int, String> {\n"
             "    val verdict = modifyVerdict(ctx, token, id)\n"
             "    return when {\n"
@@ -5397,7 +5469,12 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     creates_pivots = _creates_pivots(ents)
     creates_parsers = [(f"parse{p['name']}CreateInput", f"{p['name']}CreateInput", body)
                        for _, p, body in creates_pivots]
-    codec_kt, codec_imports = _codec_helpers(served, creates_parsers)
+    # FSK-PUT-OPTIONAL: el parser TOLERANTE del PUT de la entidad CON DUEÑO (la única montada con PUT) — el codec
+    # lo emite y unona sus tipos (un updatable `int`/`boolean` que no era de POST gana su helper). Opt-in: sin
+    # campos updatables (degrade) → None → byte-idéntico (sin parser ni data class de patch).
+    owned_patch = _patchable_fields(owned)
+    patch_spec = (f"parse{owned['name']}Patch", f"{owned['name']}Patch", owned_patch) if owned_patch else None
+    codec_kt, codec_imports = _codec_helpers(served, creates_parsers, patch_spec)
     # Layout de imports de ktlint_official (ij_kotlin_imports_layout = `*,java.**,javax.**,kotlin.**`): el grupo
     # principal ascii (com < kotlinx < org < {pkg}) y los `java.*` AL FINAL, también ascii. `kotlinx.*` NO matchea
     # `kotlin.**` → cae en el grupo principal. Construyo cada grupo y lo ordeno con sorted() (mismo orden ascii).
@@ -5418,6 +5495,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         f"import {pkg}.routes.appRoutes",
     ] + ([f"import {pkg}.auth.CompanyScopeGuard"] if scope_field else [])   # FSK-COMPANY-SCOPING (opt-in)
       + [f"import {pkg}.{e['name']}Input" for e in served]   # un data class de cuerpo por entidad servida
+      + ([f"import {pkg}.{owned['name']}Patch"] if owned_patch else [])   # FSK-PUT-OPTIONAL: el data class del PATCH
       + [f"import {pkg}.{p['name']}CreateInput" for _, p, _ in creates_pivots]   # FSK-CREATES-PIVOT (opt-in)
       + [f"import {pkg}.jooq.tables.references.{t}" for t in tbls] + codec_imports + op_imports)
     # el seed (_seed_chain) sólo setea campos REQUERIDOS → los imports de tipo se derivan SÓLO de esos: un campo
@@ -5506,7 +5584,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # handlers/verbos quedan EXACTOS y no se monta la ruta (byte-idéntico → default/assets sin re-derivar).
     audited = _audited(owned)
     handlers = _app_server_handlers(owned, f"insert{owned['name']}", f"delete{owned['name']}",
-                                    _mutable_field(owned), need_conflict, bool(scope_field), audited)
+                                    owned_patch, need_conflict, bool(scope_field), audited)
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): los handlers de los verbos + las ramas del dispatch. Opt-in: "" sin
     # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
     ops_handlers = _operations_handlers(owned, operations, audited) if operations else ""
@@ -6323,7 +6401,6 @@ def _access_control_check_py(bp: dict) -> str:
     owner_role = non_bypass[0]
     forbidden = next((r for r in bp["roles"] if r not in write_roles), "nobody")
     bypass_role = bypass[0] if bypass else ""
-    mf = _mutable_field(owned)   # la columna string que el PUT del body actualiza (vacía → el server degrada)
     # FSK-OWNED-REQUIRED-REFS: el POST del owned manda los ESCALARES (≠ samples) acá, y los refs REQUERIDOS
     # no-dueño los inyecta en runtime desde /seed ownedRefs (FK VÁLIDA; como with_ref con /seed refs). Sin refs
     # requeridos no-dueño (default/assets) → scalars == flds, owned_ref_fields == [] → cuerpos byte-idénticos.
@@ -6333,8 +6410,17 @@ def _access_control_check_py(bp: dict) -> str:
     post_body = {f["name"]: _proof_post_value(f) for f in scalars}
     bad_type_body = dict(post_body)
     bad_type_body[scalars[0]["name"]] = _proof_wrong_value(scalars[0])   # corromper SÓLO el tipo del 1er escalar
-    put_value = f"patched-{mf['name']}" if mf else ""
-    put_body = {mf["name"]: put_value} if mf else {}
+    # FSK-PUT-OPTIONAL: el PUT pasa a ser un PATCH multi-campo. UNTOUCHED = el 1er campo updatable que TAMBIÉN está
+    # en el POST_BODY (su valor post-POST es conocido) — se deja FUERA del patch para probar PATCH-semantics (las
+    # claves ausentes quedan intactas). PUT_BODY = los demás updatables con valores NUEVOS (_proof_form_value, ≠ los
+    # del POST). PATCH_BAD = {1er campo del patch: valor del TIPO equivocado} → 400. Vacío (degrade) → bloque saltado.
+    patchable = _patchable_fields(owned)
+    post_names = {f["name"] for f in scalars}
+    untouched = next((f for f in patchable if f["name"] in post_names), None)
+    patch_flds = [f for f in patchable if not (untouched and f["name"] == untouched["name"])]
+    put_body = {f["name"]: _proof_form_value(f) for f in patch_flds}
+    patch_untouched = untouched["name"] if untouched else ""
+    patch_bad = {patch_flds[0]["name"]: _proof_wrong_value(patch_flds[0])} if patch_flds else {}
     # FSK-CRUD-OWNERLESS: la 1ra entidad servible SIN dueño (CRUD RBAC-only). allowed = un rol en write_roles;
     # forbidden = un rol fuera (vacío → sin lado prohibido). Cuerpos: valores ≠ samples, type-correct (el tipo
     # equivocado del 1er campo → 400). Sin entidad ownerless servible → todo vacío → el bloque del proof se saltea.
@@ -6529,10 +6615,10 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%FORBIDDEN%", forbidden)
             .replace("%OWNER%", owner_role)
             .replace("%BYPASS%", bypass_role)
-            .replace("%MUT_COL%", mf["name"] if mf else "")
-            .replace("%PUT_VALUE%", put_value)
+            .replace("%PATCH_UNTOUCHED%", patch_untouched)   # FSK-PUT-OPTIONAL: el campo NO-pacheado (queda intacto)
             .replace("%POST_BODY%", json.dumps(post_body))
             .replace("%BAD_TYPE_BODY%", json.dumps(bad_type_body))
+            .replace("%PATCH_BAD%", json.dumps(patch_bad))   # FSK-PUT-OPTIONAL: patch con un tipo equivocado → 400
             .replace("%PUT_BODY%", json.dumps(put_body))
             .replace("%OWNERLESS_PLURAL%", ol_plural)
             .replace("%OWNERLESS_ALLOWED%", ol_allowed)
@@ -6573,11 +6659,11 @@ ALLOWED_ROLE = "%ALLOWED%"
 FORBIDDEN_ROLE = "%FORBIDDEN%"
 OWNER_ROLE = "%OWNER%"
 BYPASS_ROLE = "%BYPASS%"
-MUT_COL = "%MUT_COL%"               # columna string que el PUT actualiza (vacia -> la entidad degrada)
-PUT_VALUE = "%PUT_VALUE%"           # valor que el PUT envia en el body para esa columna (FSK-CRUD-BODY-PARSING)
+PATCH_UNTOUCHED = "%PATCH_UNTOUCHED%"   # FSK-PUT-OPTIONAL: un campo updatable NO incluido en PUT_BODY (queda intacto); vacio -> sin check
 POST_BODY = json.loads('%POST_BODY%')          # cuerpo del POST: valores DISTINTOS de los samples, type-correct
 BAD_TYPE_BODY = json.loads('%BAD_TYPE_BODY%')  # mismo cuerpo con el 1er campo del TIPO equivocado (-> 400)
-PUT_BODY = json.loads('%PUT_BODY%')            # cuerpo del PUT: {columna mutable: PUT_VALUE}
+PUT_BODY = json.loads('%PUT_BODY%')            # cuerpo del PUT (PATCH-like): >=1 campo updatable con valores NUEVOS
+PATCH_BAD = json.loads('%PATCH_BAD%')          # patch con un campo del TIPO equivocado (-> 400); {} -> sin check
 BAD_JSON = "{ esto no es json valido"          # cuerpo sintacticamente roto (-> 400)
 # FSK-CRUD-OWNERLESS: la 1ra entidad SIN dueno con CRUD vivo gobernado por RBAC-only (sin ownership). Vacio ->
 # el producto no monta capa ownerless (sin entidad servible) -> el bloque ownerless se saltea.
@@ -6688,13 +6774,21 @@ def main(argv: list) -> int:
         ok &= _expect(_send(base, "PUT", f"{PLURAL}/{rid}", f"Bearer {OWNER_ROLE}:{owner + 1}", PUT_BODY)[0], 403,
                       f"PUT fila AJENA por no-dueno ({OWNER_ROLE}:{owner + 1})")
         if new_id is not None:
-            # PUT por el DUENO con CUERPO -> 200 y GET /{id} ve el valor del BODY (un 200 que no actualiza al
-            # valor del body deja el viejo -> rojo). El value-check solo si la entidad tiene columna mutable.
+            # FSK-PUT-OPTIONAL: PUT (PATCH-like) por el DUENO -> 200 y GET /{id} ve CADA campo del patch actualizado
+            # (un 200 que ignora un campo deja el viejo -> rojo SOLO en ese assert); el campo NO incluido en el patch
+            # queda INTACTO (PATCH-semantics: las claves ausentes no se tocan).
             ok &= _expect(_send(base, "PUT", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 200,
-                          f"PUT por el DUENO / UPDATE del body ({OWNER_ROLE}:{owner})")
-            if MUT_COL:
-                actual = json.loads(_body(base, f"{PLURAL}/{new_id}")).get(MUT_COL)
-                ok &= _expect_value(actual, PUT_VALUE, "GET /{id} ve el valor del PUT (body)")
+                          f"PUT (PATCH) por el DUENO ({OWNER_ROLE}:{owner})")
+            row2 = json.loads(_body(base, f"{PLURAL}/{new_id}"))
+            for key, want in PUT_BODY.items():
+                ok &= _expect_value(row2.get(key), want, f"GET /{{id}} ve patch[{key}] (PATCH-like, type-correct)")
+            if PATCH_UNTOUCHED:
+                ok &= _expect_value(row2.get(PATCH_UNTOUCHED), POST_BODY.get(PATCH_UNTOUCHED),
+                                    f"campo NO-pacheado [{PATCH_UNTOUCHED}] queda INTACTO (PATCH-semantics)")
+            # PATCH con un campo del TIPO equivocado -> 400 (no 200 que traga).
+            if PATCH_BAD:
+                ok &= _expect(_send(base, "PUT", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}", PATCH_BAD)[0],
+                              400, "PUT (PATCH) tipo equivocado -> 400")
             # PUT con body roto -> 400.
             ok &= _expect(_send(base, "PUT", f"{PLURAL}/{new_id}", f"Bearer {OWNER_ROLE}:{owner}", BAD_JSON)[0], 400,
                           "PUT JSON invalido -> 400")

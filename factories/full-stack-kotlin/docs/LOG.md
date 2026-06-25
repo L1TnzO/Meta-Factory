@@ -1,6 +1,44 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-25T14:55Z — FSK-FRONTEND-OPERATIONS ✅: botones de verbo de dominio → mover el ESTADO desde el browser
+- **La app MUEVE el ESTADO de una fila por su VERBO de dominio (checkout/checkin) desde el browser, por 1ra vez.**
+  Clic en una fila (de la entidad con dueño) → su detalle muestra **botones de verbo**; un click MUEVE el `status`
+  por su máquina de estado y se VE re-renderizado. El estado NO se mueve por el PUT (EDIT lo EXCLUYE — DES-3: los
+  campos de workflow salen de `_patchable_fields`); sólo por sus transiciones NOMBRADAS. **Frontend-only** (el backend
+  FSK-DOMAIN-OPS, `POST /<plural>/{id}/<verbo>`, ya estaba vivo y probado e2e por `_OPERATIONS_PROOF`). GENERAL, cero
+  nombres de dominio (ADR-012). Todo en `codegen/scaffold_product.py`.
+- **Maquinaria**: `_workflow_ops(e)` = las `operations` que mueven estado (NO las de STOCK `decrements`, que viven en
+  la ownerless — eje hermano). `_operable(e)` = con dueño + ≥1 workflow op → la ÚNICA con la ruta del verbo registrada
+  (bajo `if owned`). Predicado ÚNICO que cruzan `_consume_entity_ts` (emite `<verbo><E>`), `_app_ts` (los importa) y
+  `_mount_ts` (monta los botones). El cliente `<verbo><E>(base, token, id, body)` POSTea el verbo (`!res.ok` → throw,
+  no traga el 403/409/400). `_verb_body_expr` arma el cuerpo EXACTO que el handler espera (espeja
+  `_operations_handlers`): `assigns` POLI → `{<f>_type:<targets[0]>, <f>_id:target}`; `assigns` SIMPLE → `{<f>:target}`;
+  `clears`/nada → `{}`. `mount<E>` suma `verbContainer` + `renderVerbs(id)` (un `<button data-verb>` por verbo) llamado
+  al abrir el detalle (junto a `renderEdit`); el click → `<verbo><E>` → re-`get<E>` → re-renderiza detalle + lista.
+- **El cuerpo del verbo (clave)**: `target` (el id del ref del `assigns`) = el principal del token
+  (`token.slice(token.lastIndexOf(":")+1)` = `seed.owner`, un id sembrado VÁLIDO; checkout_target de snipeit es POLI
+  SIN FK → un id cualquiera vale, pero usar `seed.owner` es robusto y espeja el proof). Un **PICKER** real de target =
+  eje hermano (deferido conscientemente). snipeit Asset: checkout {status ready→deployed, assigns checkout_target POLI}
+  · checkin {deployed→ready, clears checkout_target}.
+- **Presupuesto**: SIN bump. Los verbos viven en 1 entidad (la con dueño) → costo FIJO POR PRODUCTO; el bundle pasó
+  de 39.3 KB a **40.8 KB**, todavía < budget **42.5 KB** (18 srv; ~4% holgura). El probe bloated (60 KB) sigue mordiendo.
+- **Probado por bloqueo (con mis ojos)**: `product-run` snipeit PASS · RTM **25/26** (sólo el deferral s6; REQ-F-020
+  `frontend_browser_render` SATISFIED — el diente cabalga ahí) · **diente VIVO dos-lados en Chromium REAL** (GREEN
+  10/10; saboteé `checkoutAsset` (early-return, no postea) → SÓLO el assert OPERATIONS rojo, **9 verdes incl. ambos
+  DETAIL y EDIT** → PRECISO y AISLADO; revert→verde) · **byte-neutro → SIN re-pin** (no agregué check nuevo, sólo
+  extendí el proof con `%OPERATIONS_ASSERT%`; `proof_sha` ignora bytes del artefacto) · `ci --rederive` base **12/12** ·
+  assets **11/11** · snipeit **11/11** == pin (delegado a un subagente Sonnet, veredictos leídos con mis ojos) · `meta
+  check` 6/6 (`generality ok`) · `tsc`+`eslint` 0 · `git diff src/metafactory + seed = 0`. base/assets SIN
+  `operations` → `_operable` falso → el código de verbos es byte-vacío → degradan byte-idéntico.
+- **Robustez del proof**: opera la fila que el FORM CREÓ (principal-owned + misma compañía POR CONSTRUCCIÓN → el verbo
+  pasa ownership/scope, robusto al owner POLY + company_scoped de snipeit), localizada por su valor renderizado, y
+  ESPERA a que el detalle la refleje antes de clickear el verbo (evita la carrera del re-render async — el mismo patrón
+  que cacé en EDIT). El verbo FORWARD lo deriva del blueprint: el `op` cuyo `from` == el `status` que el FORM postea
+  (`_proof_form_value` del enum = `values[1]` = `ready` = el `initial`/`from` por construcción) → checkout, to=deployed.
+- **Commits**: `a0d6899` (feat) + el de cierre (docs). Detalle/handoff EN FRÍO del siguiente:
+  `docs/work/FSK-FRONTEND-OPERATIONS-INCREMENT.md §Evidencia` + `docs/work/FSK-FRONTEND-DASHBOARD-INCREMENT.md`.
+
 ## 2026-06-25T13:47Z — FSK-FRONTEND-EDIT ✅: editar la fila seleccionada → VER el cambio PERSISTIR
 - **La app MUTA estado real desde el browser por 1ra vez.** Clic en una fila (de la entidad con dueño) → un form de
   edición pre-llenado → cambiás un campo, guardás, y el valor PERSISTE y se VE re-renderizado. **Frontend-only** (el

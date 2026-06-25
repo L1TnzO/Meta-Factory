@@ -3,6 +3,39 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **BOTONES DE VERBO DE DOMINIO → MOVER EL ESTADO DESDE EL BROWSER (FSK-FRONTEND-OPERATIONS, 2026-06-25)** ✅: 1er
+  momento en que la app **MUTA el ESTADO de una fila por su VERBO de dominio** (checkout/checkin), NO por un PUT (el
+  estado es un campo de **workflow**, EXCLUIDO del PATCH — DES-3: sólo se mueve por sus transiciones nombradas).
+  **Frontend-only** (el backend FSK-DOMAIN-OPS ya estaba VIVO: `POST /<plural>/{id}/<verbo>`, lo verificó la sesión
+  que cerró EDIT). Todo en `codegen/scaffold_product.py`, GENERAL (cero nombres de dominio, ADR-012):
+  - **`_workflow_ops(e)` / `_operable(e)`** (NUEVOS): predicado ÚNICO (con dueño + ≥1 `operation` de workflow — NO
+    `decrements`, que son los verbos de STOCK sobre la ownerless, eje hermano → la única con la ruta del verbo
+    registrada, bajo `if owned`) que cruzan `_consume_entity_ts` (emite `<verbo><E>`), `_app_ts` (los importa) y
+    `_mount_ts` (monta los botones) → opt-in coherente.
+  - **Cliente `<verbo><E>(base, token, id, body)`**: POST del verbo; un `!res.ok` (403/409/400) NO se traga (throw).
+  - **`_verb_body_expr`**: arma el MISMO cuerpo que el handler espera — un `assigns` POLIMÓRFICO → `{<f>_type:
+    <targets[0]>, <f>_id: target}` (discriminador ∈ la unión + id; sin FK → id cualquiera); `assigns` SIMPLE →
+    `{<f>: target}`; `clears`/sin assign → `{}`. `target` (el id del ref del assigns) = el principal del token
+    (= `seed.owner`, un id sembrado VÁLIDO; un **PICKER** real de target = eje hermano).
+  - **`mount<E>`**: `renderVerbs(id)` monta un `<button data-verb>` por verbo al abrir el detalle; click → `<verbo><E>`
+    → re-`get<E>` → re-renderiza detalle + lista → el estado (campo de workflow) **MUTÓ y se VE**.
+  **CERO backend nuevo.** **Probado por bloqueo (con mis ojos)**: `product-run` snipeit PASS · RTM **25/26** (sólo el
+  deferral s6; REQ-F-020 `frontend_browser_render` SATISFIED) · **diente VIVO dos-lados en Chromium REAL** (GREEN 10/10;
+  saboteé `checkoutAsset` (no postee) → SÓLO el assert OPERATIONS rojo, **9 verdes incl. ambos DETAIL y EDIT** →
+  PRECISO y AISLADO; revert→verde, PG fresca por corrida) · **byte-neutro → SIN re-pin** (cabalga
+  `frontend_browser_render`; el `proof_sha` ignora bytes del artefacto) · `ci --rederive` 12/11/11 == pin (delegado a
+  Sonnet, veredictos con mis ojos) · `meta check` 6/6 (`generality ok`) · `tsc`+`eslint` 0 · bundle **40.8 KB** <
+  budget **42.5 KB** (sin bump — los verbos viven en 1 entidad, costo FIJO; ~4% holgura) · `git diff src/metafactory +
+  seed = 0` · base/assets SIN `operations` → degradan byte-idéntico. Robustez del proof: opera la fila que el FORM CREÓ
+  (principal-owned + misma compañía POR CONSTRUCCIÓN → pasa ownership/scope, robusto al owner POLY + company_scoped) y
+  ESPERA a que el detalle la refleje antes de clickear el verbo (evita la carrera del re-render async). Detalle:
+  `docs/work/FSK-FRONTEND-OPERATIONS-INCREMENT.md §Evidencia`.
+  **Siguiente: `FSK-FRONTEND-DASHBOARD`** — la home con conteos/resumen por entidad (cierra el arco frontend; el
+  `count` ya viene en `{count,rows}` de `list<E>`). Handoff EN FRÍO: `docs/work/FSK-FRONTEND-DASHBOARD-INCREMENT.md`.
+  Arco frontend: ✅ALL-ENTITIES→✅DETAIL→✅EDIT→✅OPERATIONS→**DASHBOARD**. Ejes hermanos que OPERATIONS destapó: un
+  **PICKER** de target para el `assigns` poly (hoy usa `seed.owner`) · **`restore`** en el frontend (verbo implícito de
+  `soft_delete`, NO está en `operations`). Backend ortogonal (BACKLOG): `FSK-GETONE-SCOPED` · `FSK-PUT-UNIQUE-REFS` ·
+  `PUT-ownerless` · `FSK-KITS` · EAV · `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes).
 - **EDITAR LA FILA SELECCIONADA → VER EL CAMBIO PERSISTIR (FSK-FRONTEND-EDIT, 2026-06-25)** ✅: 1er momento en que la
   app **MUTA estado real desde el browser**. Cliente `update<E>` (PUT PATCH-like) + `type <E>Patch` + un form de
   edición pre-llenado en `mount<E>`, SÓLO la entidad EDITABLE (`_editable` NUEVO = con dueño + ≥1 patchable → la única

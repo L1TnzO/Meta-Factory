@@ -1,7 +1,7 @@
 # Incremento FSK-FRONTEND-OPERATIONS — botones para los VERBOS de DOMINIO (mover estado desde el browser)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO** (creado
-> 2026-06-25T13:47Z). Cerralo flippeando este header a CERRADO **o** con `meta increment close --factory full-stack-kotlin`.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (creado
+> 2026-06-25T13:47Z · cerrado 2026-06-25T14:55Z). Evidencia de cierre abajo (§Evidencia).
 > Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró
@@ -166,3 +166,28 @@ Posibles ejes hermanos que OPERATIONS puede destapar: un PICKER de target para e
 de /seed) · `restore` en el frontend (si una entidad es `soft_delete` → verbo implícito, NO está en `operations`).
 Backend ortogonal (BACKLOG, DESPUÉS del frontend): `FSK-GETONE-SCOPED` · `FSK-PUT-UNIQUE-REFS` · `PUT-ownerless` ·
 `FSK-KITS` · EAV · `FSK-DEPLOY-PUSH-REGISTRY` (⚠️ `registry:2` cacheado antes) · el tail de ~226 rutas no-dominio.
+
+---
+
+## §Evidencia (cierre 2026-06-25T14:55Z)
+HECHO exactamente como el diseño de este handoff. Todo en `codegen/scaffold_product.py` (factory codegen), GENERAL.
+- **Maquinaria**: `_workflow_ops(e)` (operations no-`decrements`) + `_operable(e)` (con dueño + ≥1 workflow op) — el
+  predicado ÚNICO que cruzan `_consume_entity_ts` (emite `<verbo><E>`), `_app_ts` (los importa), `_mount_ts` (monta
+  `renderVerbs(id)` = un `<button data-verb>` por verbo, llamado al abrir el detalle junto a `renderEdit`). El cliente
+  `<verbo><E>(base, token, id, body)` POSTea `/<plural>/{id}/<verbo>` (throw si `!res.ok`). `_verb_body_expr` arma el
+  cuerpo EXACTO del handler: `assigns` POLI → `{<f>_type:<targets[0]>, <f>_id:target}` · `assigns` simple → `{<f>:target}`
+  · `clears`/nada → `{}`. `target` = el principal del token (`token.slice(token.lastIndexOf(":")+1)` = `seed.owner`).
+  El proof gana `%OPERATIONS_ASSERT%` tras `%EDIT_ASSERT%`: opera la fila CREADA por el FORM, clic en el verbo FORWARD
+  (derivado del blueprint: el `op` cuyo `from` == el `status` que el FORM postea = `ready`), asevera `status=deployed`.
+- **Verificado POR BLOQUEO (con mis ojos)**: `product-run --product snipeit` **PASS** · RTM **25/26** (sólo el deferral
+  s6 LLM keyless; REQ-F-020 `frontend_browser_render` SATISFIED — el diente cabalga ahí) · **diente VIVO dos-lados en
+  Chromium REAL** (GREEN 10/10; saboteé `checkoutAsset` con un early-return [no postea] → SÓLO el assert OPERATIONS
+  rojo, **9 verdes incl. ambos DETAIL y EDIT** → PRECISO y AISLADO; revert→verde, PG fresca por corrida) · **byte-neutro
+  → SIN re-pin** (extendí el proof, no agregué check; `proof_sha` ignora bytes del artefacto) · `ci --rederive`
+  **default 12/12 · assets 11/11 · snipeit 11/11 == pin** (clones limpios; DELEGADO a un subagente Sonnet, veredictos
+  leídos con mis ojos) · `meta check` **6/6** (`generality ok`) · `tsc --noEmit`+`eslint` **0** · bundle **40 772 B** <
+  budget **42 496 B** (SIN bump — costo fijo por producto, ~4% holgura) · `git diff src/metafactory + seed = 0`.
+- **Commits**: `a0d6899` (feat) + este (`docs(fsk): cerrar FSK-FRONTEND-OPERATIONS (§Evidencia) + abrir FSK-FRONTEND-DASHBOARD`).
+- **Lección reusable nueva**: el cuerpo del verbo se lee mejor del token (`seed.owner`) que de un `/seed` fetch extra
+  (el token YA lo lleva como principal → cero bytes/fetch de más, byte-presupuesto holgado). Lo demás (PG fresca por
+  corrida manual del browser, cwd a la raíz, sabotaje de runtime que no rompe lo estático) ya estaba destilado.

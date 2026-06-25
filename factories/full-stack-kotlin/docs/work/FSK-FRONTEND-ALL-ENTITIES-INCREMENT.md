@@ -38,16 +38,21 @@ en la RAÍZ**. PASS, RTM snipeit **25/26**. ⚠️ Puertos vivos s9 18593-18595/
 **2) VELO con TUS OJOS en un browser** (el piso visible — verificá que la 1 pantalla actual funciona):
 ```
 cd factories/full-stack-kotlin/products/snipeit/build/product
-node frontend/build_bundle.mjs        # (re)construye frontend/dist (esbuild local; ya suele estar)
+# ⚠️ build_bundle.mjs resuelve entry/outfile RELATIVO AL CWD → corrélo DESDE frontend/ (no como `node frontend/...`):
+( cd frontend && node build_bundle.mjs )   # (re)construye frontend/dist (esbuild local; el dist ya suele estar)
 docker run -d --name fe_pg -e POSTGRES_PASSWORD=metafactory -p 5500:5432 \
   postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
-# esperá pg_isready; luego:
+until docker exec fe_pg pg_isready -U postgres; do sleep 1; done   # esperá la PG
 JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))))
 FSK_NOW=2030-07-15 FSK_AC_PORT=18900 FSK_PG_URL=jdbc:postgresql://localhost:5500/postgres \
   FSK_WEB_DIR=frontend/dist "$JAVA_HOME/bin/java" -cp 'build/install/snipeit/lib/*' snipeit.endpoints.AppServerKt
 # abrí http://localhost:18900/ — verás la lista de Assets + el form de creación.
 ```
 ⚠️ NO uses el puerto 8080 (lo toma otro stack docker del ingeniero). Usá un puerto alto (18900 anduvo).
+⚠️ **`build_bundle.mjs` es cwd-DEPENDIENTE** (`entryPoints: ["src/browser_entry.ts"]` + `outfile: "dist/app.js"`,
+ambos relativos al cwd) → SIEMPRE corrélo con `cd frontend && node build_bundle.mjs`, NUNCA `node frontend/build_bundle.mjs`
+(falla con `Could not resolve "src/browser_entry.ts"`). **Papercut a endurecer en este eje** (opcional, bien-gateado):
+resolver entry/outfile contra `import.meta.url` (`path.dirname(fileURLToPath(import.meta.url))`) → cwd-independiente.
 
 **3) ENTENDÉ la maquinaria EXISTENTE que vas a GENERALIZAR** (verificá anchors con grep). Todo en `codegen/scaffold_product.py`:
 - **`_app_ts(entities)`** (grep `def _app_ts`): hoy elige `owned = next(... owned_by)` o `entities[0]`, y emite UN

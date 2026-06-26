@@ -1,6 +1,6 @@
 # Incremento FSK-HELPDESK
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T03:31Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T03:37Z) (creado 2026-06-26T03:31Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

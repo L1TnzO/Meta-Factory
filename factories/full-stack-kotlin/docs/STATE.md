@@ -3,6 +3,14 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **PRODUCTO BENCHMARK SWEET-SPOT (FSK-HELPDESK, 2026-06-26)** ✅: `products/helpdesk/` = app de helpdesk/
+  ticketing de **5 entidades** (Agent·Customer·Category·Ticket·Comment), el caso del "80% día-1" de la Fase 4
+  del Meta-Factory (`REAIM-SWEET-SPOT`, ADR-017). Generado por la línea REAL e2e (gradle+PG+server+Chromium)
+  **a la primera, sin tocar el codegen** — `git diff codegen/+src/+seed/ = 0`. Topología propia (RBAC
+  admin/supervisor/agent · ownership Ticket→Agent · workflow con terminal `closed` + ciclo de reapertura). RTM
+  **25/26** (s6 LLM diferido keyless) · `ci --rederive --product helpdesk` **11/11 == pin**. Tres productos vivos:
+  `default`(tasks) · `assets` · `helpdesk`. La fábrica NO cambió (cero capacidades nuevas): el sweet-spot ya
+  estaba cubierto — ese es el punto. Detalle: `products/helpdesk/docs/work/FSK-HELPDESK-INCREMENT.md`.
 - **EL FRONTEND SIRVE Y APLICA UNA HOJA DE ESTILOS REAL (FSK-FRONTEND-STYLES, 2026-06-25)** ✅: el ingeniero reportó
   que **el frontend no compilaba/servía estilos** — el render emitía clases semánticas (`.dashboard`/`.detail`/
   `.field`/`nav`/`form`) pero NINGÚN stylesheet (`index.html` sin `<link>`; el AppServer sólo servía `index.html`+

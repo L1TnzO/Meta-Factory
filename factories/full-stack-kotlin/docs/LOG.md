@@ -1,6 +1,27 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-06-26T03:38Z — FSK-HELPDESK ✅: el producto benchmark sweet-spot (Fase 4), CERO codegen tocado
+- **Contexto (Meta-Factory Fase 4 `REAIM-SWEET-SPOT`, ADR-017)**: el re-apunte SOTA degrada Snipe-IT (19
+  entidades, 17 ADOPT) a techo de regresión y apunta al **sweet-spot del "80% día-1"** (CRUD 5–8 entidades).
+  Este incremento construye ese producto en FSK para PROBAR, por el diff, que la fábrica YA lo cubre.
+- **Producto = `products/helpdesk/` (DATA, único punto de variación)**: app de helpdesk/ticketing de **5
+  entidades** (Agent·Customer·Category·Ticket·Comment), topología de dominio PROPIA distinta de `tasks` (demo)
+  y `assets`: RBAC `admin/supervisor/agent`, ownership a nivel de fila (`Ticket owned_by assignee_id → Agent`,
+  bypass `admin/supervisor`), WORKFLOW de ticket con estado TERMINAL (`closed`) + CICLO de reapertura
+  (`resolved → reopened → in_progress`). Ejercita string/int/number/date/boolean/enum + opcionalidad + ref +
+  workflow + RBAC + ownership + endpoints vivos + CRUD/body/frontend-render/browser + deploy. s6 (LLM) diferido
+  keyless (`activation:off`, doctrina R1).
+- **Probado por bloqueo**: `product new full-stack-kotlin/helpdesk` PASS (11 estaciones e2e: s0–s5, s7–s11;
+  gradle+PG viva+server+Chromium real) · RTM **25/26** (único UNSATISFIED = REQ-F-007 s6, deferral keyless
+  VISIBLE como assets/snipeit) · `ci --rederive --product helpdesk` **11/11 proof_sha == pin** (clon limpio
+  re-corre gradle+PG) · **`git diff codegen/+src/+seed/ = 0`** — la TESIS del re-apunte: cero incrementos de
+  fábrica, el sweet-spot lo cubre el codegen existente byte-intacto; el único path nuevo es `products/helpdesk/`.
+- **Calibración**: a la PRIMERA pasada por gradle, sin tocar el codegen — contraste duro con Snipe-IT (17 ADOPT).
+  La formalización del benchmark como TARGET verificable (`meta benchmark` + gate dos-lados) vive en el incremento
+  META hermano `REAIM-SWEET-SPOT` (ADR-016: dos incrementos por nivel). Commit feat `22d81ad`. Detalle:
+  `products/helpdesk/docs/work/FSK-HELPDESK-INCREMENT.md §Evidencia`.
+
 ## 2026-06-25T19:21Z — FSK-FRONTEND-STYLES ✅: el frontend sirve+aplica una hoja de estilos real
 - **El ingeniero reportó que el frontend no compilaba/servía estilos**: el render emitía clases semánticas
   (`.dashboard`/`.detail`/`.field`/`nav`/`form`) pero NINGÚN stylesheet — `index.html` no linkeaba CSS y el AppServer

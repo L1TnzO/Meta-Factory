@@ -1,4 +1,4 @@
-<!-- meta:doc sha=44a889f45c517872845c2220d011437dfc0e24e4 updated=2026-06-13T20:27Z -->
+<!-- meta:doc sha=90c327a0d0b66ed009304a2847dc5b88634ec503 updated=2026-06-26T18:47Z -->
 # Arquitectura de memoria — el subsistema más crítico de una fábrica
 
 | Campo | Valor |
@@ -15,6 +15,21 @@
 > *adelante* del estado del arte en lo que más importa (confianza/determinismo) y *atrás* en
 > recuperación. La cura no es cambiar a una DB: es arreglar el disparador y agregar un índice
 > derivado y medido ENCIMA de los docs.
+
+> **⚠️ RECONCILIADO POR ADR-019 (2026-06-26, M2).** Este doc propuso «medir → recuperación dirigida →
+> índice semántico SÓLO si la medición lo justifica». **La medición ocurrió y dio su veredicto.** Hechos
+> que ACTUALIZAN lo de abajo (la prosa original se conserva como historia del razonamiento, no se reescribe):
+> 1. **`meta recall` (Tier 2 scoring) se RETIRÓ.** Se invocó 1×/0-hit en toda la vida del proyecto — camino
+>    muerto, **redundante con Grep/Read** (Letta: un filesystem empata/gana a memorias especializadas →
+>    Grep/Read ES retrieval SOTA-competitivo). Donde abajo se lee «`meta recall` hace recuperación dirigida»,
+>    leé «Grep/Read hace recuperación dirigida; `recall` se retiró por medición».
+> 2. **El índice semántico (embeddings) NO está «diferido-hasta-medición»: está DESCARTADO-por-medición** (hoy).
+>    Sólo se reabre si dispara el umbral explícito de ADR-019 §6 (corpus > ventana **Y** relevance-ratio bajo
+>    **Y** A/B con lift de task-success). La postura es **sustractiva** (podar > agregar), no aditiva.
+> 3. Lo que SIGUE vigente de este doc: el diagnóstico (§1), los tres tiers con Tier 0/1 (§2–3), el veredicto
+>    «docs = verdad, índice = caché» (§5), la doctrina anti-deriva (§7), el manifiesto content-addressed (§9,
+>    ADR-009). ADR-019 AGREGA «fidelidad sobre frescura» (un gate STATE-vs-`.proof/`, M3) sobre §9.
+> Autoridad viva de la dirección de memoria: **ADR-019** + `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
 
 ---
 
@@ -109,6 +124,10 @@ retrieval es el cuello de botella. Orden propuesto:
    el índice; el doc versionado es la evidencia y la autoridad.** Es el candidato Fase 6 que ASF ya
    tenía sketchado (índice episódico de transcripts con summaries Haiku). El store (SQLite/vector)
    es un caché regenerable desde los docs.
+
+> **[ACTUALIZADO · ADR-019 §2 / M2]** El paso 1 (medir) ocurrió: `recall` 1×/0-hit → **retirado**; el paso 2
+> (recuperación dirigida) lo cumple **Grep/Read**, no `recall`; el paso 3 (índice semántico) queda
+> **descartado-por-medición**, no «diferido» — sólo se reabre bajo el umbral de ADR-019 §6.
 
 ---
 
@@ -259,6 +278,11 @@ content-addressed, **APROBADO** — §9). Abiertas (necesitan input del ingenier
 sí/no y formato del store (§4–6) + las de `OBSERVABILITY-METRICS §7`. Este doc es la AUTORIDAD del
 diseño; los ADR son punteros.
 
+> **[CERRADO · ADR-019 / M2]** La decisión abierta «índice semántico sí/no» ya **NO está abierta**: se
+> **CERRÓ por medición** (no diferida indefinidamente). Veredicto = **no** (hoy), reabrible sólo bajo el
+> umbral de ADR-019 §6. Con eso, la autoridad VIVA de la dirección de memoria pasó a **ADR-019** (+ su
+> roadmap `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`); este doc queda como diseño-fundacional reconciliado.
+
 ## 11. Estado de implementación y lecciones de la PRÁCTICA (2026-06-13, incremento MEMORIA)
 
 El subsistema se **CONSTRUYÓ**, no solo se diseñó. ADR-007/008 pasaron a **Aprobado + Implementado**.
@@ -284,5 +308,9 @@ Mapa implementado → módulo (`src/metafactory/memory/`):
    tesis del proyecto sobre sí mismo.
 3. **Reiniciar pierde TODO el contexto residente** (vivido) → SessionStart rehydration es esencial, no opcional.
 4. **El sello content-addressed (ADR-009) ya es media recuperación** (frescura): integrado a recall/rehydrate.
-5. **Medir antes de invertir**: se construyó el retrieval MEDIDO; el índice semántico (embeddings) sigue
-   **diferido-hasta-que-la-serie-`recall`-lo-justifique** — es la postura SOTA, no un gap. Hoy no se justifica.
+5. **Medir antes de invertir**: se construyó el retrieval MEDIDO; el índice semántico (embeddings) seguía
+   **diferido-hasta-que-la-serie-`recall`-lo-justifique** — postura SOTA, no un gap.
+   > **[ACTUALIZADO · ADR-019 §2 / M2]** La serie habló: `recall` 1×/0-hit → el módulo de scoring se
+   > **retiró** (redundante con Grep/Read). El índice semántico ya no está «diferido» sino
+   > **descartado-por-medición** (reabrible sólo bajo el umbral de ADR-019 §6). La lección se cumplió
+   > en ambas direcciones: medimos, y la medición dijo **podar**, no **agregar**.

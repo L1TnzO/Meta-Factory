@@ -815,10 +815,14 @@ def cmd_metrics(args) -> int:
 
 
 def cmd_recall(args) -> int:
-    root = _meta_root()
-    from .memory import recall
-    query = " ".join(args.query)
-    print(recall.render(root, query, recall.recall(root, query, k=args.k)))
+    """Tombstone (ADR-019 §2, M2). `meta recall` se RETIRÓ: se midió 1×/0-hit en toda la vida del
+    proyecto — camino muerto, redundante con Grep/Read (retrieval SOTA-competitivo, Letta). No puntúa;
+    redirige. La serie histórica `recall` del journal se conserva (T0, la medición vive)."""
+    query = " ".join(getattr(args, "query", []) or []).strip()
+    topic = f" «{query}»" if query else ""
+    print(f"VEREDICTO  recall — RETIRADO (ADR-019 §2)   (exit 0)")
+    print(f"RESUMEN    `meta recall` se midió 1×/0-hit y se retiró: Grep/Read es la superficie de retrieval.")
+    print(f"PRÓXIMO    para encontrar{topic}: `grep -rn …` sobre docs/ · re-verificá el estado con `meta check`")
     return 0
 
 
@@ -908,7 +912,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
     sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
-    sp = sub.add_parser("recall"); sp.add_argument("query", nargs="+"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
+    sp = sub.add_parser("recall")  # RETIRADO (ADR-019 §2): tombstone que redirige a Grep/`meta check`
+    sp.add_argument("query", nargs="*"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
     sub.add_parser("rehydrate").set_defaults(func=cmd_rehydrate)
     gp = sub.add_parser("graph"); gp.set_defaults(func=cmd_graph)
     gsub = gp.add_subparsers(dest="graph_cmd", required=True)

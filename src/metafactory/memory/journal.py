@@ -7,7 +7,8 @@ Es la RED DE SEGURIDAD: si la generación se corta, los hechos quedan aunque la 
 Eventos (kind):
   station_run  {station, slug, passed, gate_open, proof_sha}   ← el engine, en cada gate
   delegation   {subagent_type, model, description}              ← captura de subagentes
-  recall       {query, n, refs}                                 ← medición del retrieval (Tier 2)
+  recall       {query, n, refs}                                 ← RETIRADO (ADR-019 §2): ya no se escribe;
+                                                                  la serie histórica se LEE (la medición vive, T0)
   session_start{session, injected}                              ← qué inyectó la rehidratación
   note         {text}                                           ← anotación manual ocasional
 """

@@ -3,7 +3,8 @@
 Cierra el problema VIVIDO esta sesión: reiniciar perdía TODO el contexto residente, y el próximo
 orquestador arrancaba a oscuras. Inyecta: incremento abierto + proyección de hechos + STATE «Ahora»
 + últimos eventos del journal + frescura de docs (sello ADR-009). Registra qué inyectó (medición).
-NO reemplaza leer: triaja y orienta hacia `meta recall`/`meta check` (re-verificar > recordar).
+NO reemplaza leer: triaja y orienta hacia `meta check` + Grep/Read (re-verificar > recordar). `recall`
+se retiró (ADR-019 §2, M2: redundante con Grep) — la orientación apunta a la superficie real de retrieval.
 """
 from __future__ import annotations
 
@@ -57,7 +58,8 @@ def build_payload(root: Path, session: str = "") -> str:
     if fresh:
         lines.append("Docs frescos (sello ADR-009): " + " · ".join(fresh))
     lines.append("Orientación: `meta check` (re-verificar > recordar) · "
-                 "`meta recall <tema>` (rebanada) · `meta checkpoint` (narrar hechos sin narrar)")
+                 "`grep -rn <tema> docs/` (la rebanada — retrieval directo) · "
+                 "`meta checkpoint` (narrar hechos sin narrar)")
     payload = "\n".join(lines)
     journal.append(root, "session_start", session=session, injected=len(lines))
     return payload

@@ -1,11 +1,17 @@
-"""Unit tests for the memory subsystem (Tier 0–2): journal, projection, recall, rehydrate."""
+"""Unit tests for the memory subsystem (Tier 0–2): journal, projection, rehydrate.
+
+`recall` (Tier 2 scoring) se RETIRÓ en M2 (ADR-019 §2): se midió 1×/0-hit, redundante con Grep/Read.
+Las pruebas de su retirada (tombstone del CLI + rehydrate sin `recall`) están abajo, en TestRecallRetired.
+"""
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
-from metafactory.memory import journal, projection, recall, rehydrate
+from metafactory.memory import journal, projection, rehydrate
 
 
 # ---------------------------------------------------------------------------
@@ -192,89 +198,44 @@ class TestProjection:
 
 
 # ---------------------------------------------------------------------------
-# 3. recall
+# 3. recall — RETIRADO (ADR-019 §2, M2). Estas pruebas son el DIENTE de la retirada:
+#    muerden si el módulo/scoring vuelve, o si el path de inyección vuelve a recomendarlo.
 # ---------------------------------------------------------------------------
 
-class TestRecall:
-    def test_recall_returns_matching_unit(self, tmp_path):
+class TestRecallRetired:
+    def test_recall_module_is_gone(self):
+        """La maquinaria de scoring se retiró (ADR-019 §Rechazado: «se retira, no se invierte»)."""
+        with pytest.raises(ImportError):
+            from metafactory.memory import recall  # noqa: F401
+
+    def test_recall_verb_prints_tombstone_not_scoring(self):
+        """`meta recall <tema>` redirige a Grep/`meta check` (no puntúa, no crashea)."""
+        root = Path(__file__).resolve().parents[1]
+        out = subprocess.run(
+            [sys.executable, "-m", "metafactory.cli", "recall", "reutilizacion"],
+            cwd=root, capture_output=True, text=True,
+            env={"PYTHONPATH": str(root / "src"), "PATH": __import__("os").environ.get("PATH", "")},
+        )
+        assert out.returncode == 0
+        assert "RETIRADO" in out.stdout
+        assert "ADR-019" in out.stdout
+        assert "grep" in out.stdout.lower() or "meta check" in out.stdout
+
+    def test_rehydrate_does_not_orient_to_recall(self, tmp_path):
+        """El path de inyección (SessionStart) ya NO recomienda `meta recall`; sí `meta check` + Grep."""
         _make_docs(tmp_path, with_increment=True)
-        hits = recall.recall(tmp_path, "bootstrap")
-        assert len(hits) >= 1
-        sources = [u.source for u, _ in hits]
-        assert any("LOG" in s for s in sources)
+        projection.refresh(tmp_path)
+        payload = rehydrate.build_payload(tmp_path)
+        assert "meta recall" not in payload
+        assert "meta check" in payload
+        assert "grep" in payload.lower()
 
-    def test_recall_no_match_returns_empty(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        hits = recall.recall(tmp_path, "xyzzy_nonexistent_word_42")
-        assert hits == []
-
-    def test_recall_appends_journal_event(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        # Journal should be empty before
-        assert journal.read(tmp_path, kinds={"recall"}) == []
-
-        recall.recall(tmp_path, "bootstrap")
-
+    def test_historical_recall_events_still_readable(self, tmp_path):
+        """La medición que fundó la decisión se conserva (T0): el journal sigue LEYENDO `recall`."""
+        journal.append(tmp_path, "recall", query="reutilizacion", n=0, refs=[])
         events = journal.read(tmp_path, kinds={"recall"})
         assert len(events) == 1
         assert events[0]["kind"] == "recall"
-        assert events[0]["query"] == "bootstrap"
-
-    def test_recall_appends_journal_even_on_no_match(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        recall.recall(tmp_path, "xyzzy_nonexistent_word_42")
-        events = journal.read(tmp_path, kinds={"recall"})
-        assert len(events) == 1
-        assert events[0]["n"] == 0
-
-    def test_recall_top_hit_ranked_above_others(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        # "engine" appears in LOG episode about engine design
-        hits = recall.recall(tmp_path, "engine")
-        assert len(hits) >= 1
-        # Scores should be descending
-        scores = [sc for _, sc in hits]
-        assert scores == sorted(scores, reverse=True)
-
-    def test_render_output_bounded_and_contains_source(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        hits = recall.recall(tmp_path, "bootstrap")
-        output = recall.render(tmp_path, "bootstrap", hits)
-        lines = output.splitlines()
-        # Should be a handful of lines (not the entire corpus)
-        assert len(lines) <= 30
-        # Should contain at least one source path
-        assert any("docs/" in ln for ln in lines)
-
-    def test_render_no_hits(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        hits = recall.recall(tmp_path, "xyzzy_nonexistent_42")
-        output = recall.render(tmp_path, "xyzzy_nonexistent_42", hits)
-        assert "SIN COINCIDENCIAS" in output
-
-    def test_gather_units_includes_all_kinds(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        units = recall.gather_units(tmp_path)
-        kinds = {u.kind for u in units}
-        assert "log" in kinds
-        assert "adr" in kinds
-        assert "ref" in kinds
-
-    def test_tok_excludes_stopwords(self):
-        tokens = recall._tok("the engine and the spec for que")
-        assert "the" not in tokens
-        assert "que" not in tokens
-        assert "engine" in tokens
-        assert "spec" in tokens
-
-    def test_score_zero_on_no_match(self, tmp_path):
-        _make_docs(tmp_path, with_increment=True)
-        from datetime import datetime, timezone
-        units = recall.gather_units(tmp_path)
-        q_terms = recall._tok("zzzyyy_nonexistent")
-        now = datetime.now(timezone.utc)
-        for u in units:
-            assert recall.score(u, q_terms, now) == 0.0
 
 
 # ---------------------------------------------------------------------------

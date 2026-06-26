@@ -177,14 +177,17 @@ def test_quality_two_sided_tooth(tmp_path):
     assert evaluate_file(tmp_path, "ok.py", th) == []       # empty -> GREEN
 
 
-def test_quality_substrate_clean_real_monolith_red():
+def test_quality_substrate_clean_synthetic_monolith_red():
     th = Thresholds()
     g, _ = build_code_graph(REPO)
     assert evaluate_graph(g, th).clean                       # the live substrate passes (no new monolith)
-    mono = REPO / "factories/full-stack-kotlin/codegen/scaffold_product.py"
-    if mono.exists():
-        viols = evaluate_file(REPO, "factories/full-stack-kotlin/codegen/scaffold_product.py", th)
-        assert {v.metric for v in viols} >= {"file_loc", "funcs", "func_loc"}
+    # The gate's permanent RED witness is a synthetic monolith-shaped fixture (the real 8.5k-line monolith
+    # scaffold_product.py was split into a package in Fase 3 MONOLITH-REFACTOR). It must violate the size
+    # metrics under the DEFAULT thresholds, else the gate would be decorative.
+    fixture = "tests/fixtures/quality/monolith_shaped.py"
+    assert (REPO / fixture).exists()
+    viols = evaluate_file(REPO, fixture, th)
+    assert {v.metric for v in viols} >= {"funcs", "func_loc"}
 
 
 def test_import_cycle_detection():

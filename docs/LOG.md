@@ -1,7 +1,28 @@
-<!-- meta:doc sha=832a893db49376ad6fc5edc8c7959daeef6cd5d9 updated=2026-06-26T04:07Z -->
+<!-- meta:doc sha=16fc07e2e74b870b76a2ea695bcee9a48e10bac4 updated=2026-06-26T13:02Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T13:01Z — Fase 4 §4 ✅: cosecha de la vocab WorkOrder/AgentSpec de PWF (con dientes) — CIERRA Fase 4
+- **Qué deja** (meta, arnés): el manifiesto de slot (Fase 2, verificar-no-revisar) ES un WorkOrder. Cosecha
+  la ontología de gobierno de PWF (trust_level · cost_class · side_effects · forbidden_tools ·
+  single_responsibility · model_policy) como campos OPCIONALES pero VALIDADOS contra enum cerrado en
+  `delegation.manifest_problems` → un WorkOrder mal formado se rechaza ANTES de spawnear. Documentado en el
+  skill `generate-slot`. Probado por bloqueo (`tests/test_delegation.py` 26, dos-lados). `meta check` 11/11.
+- **La lección PWF, cerrada**: PWF tenía la ontología RICA pero sin verificación (gates por construcción =
+  teatro). El valor no era el vocabulario — era atarle un diente. Vocabulario → contrato. (PWF: harvest the
+  ontology, discard the engine; ahora hecho con dientes.)
+- **✅ FASE 4 `REAIM-SWEET-SPOT` COMPLETA** en 4 §, todos por bloqueo: **§1 `FSK-HELPDESK`** (producto sweet-spot
+  de 5 entidades generado por la línea REAL a la primera, `git diff codegen/+src/+seed/ = 0` — FSK ya cubre el
+  80%) · **§2 `REAIM-SWEET-SPOT`** (benchmark como TARGET verificable: `meta benchmark` + gate dos-lados,
+  snipeit FALLA el target → degradación a techo de regresión como HECHO) · **§3 `DRAFT-HARDEN-DIAL`** (eje
+  velocidad/rigor: `--mode draft` salta la capa de rigor, byte-idéntico en harden) · **§4 `PWF-VOCAB-HARVEST`**
+  (esta). 5 incrementos (1 fábrica/producto + 4 meta), `meta check` 10/10→11/11, árbol limpio. Commit feat `<este>`.
+- **Calibración del re-apunte**: el costo de probar la tesis (FSK cubre el 80%) fue CERO incrementos de fábrica —
+  el sweet-spot se generó a la primera. El re-apunte no fue construir capacidad nueva sino MEDIR la existente
+  contra el target correcto (la auditoría 2026-06-25: "el motor funciona, faltaba la dirección").
+- **Siguiente norte (abierto, no decidido)**: adopción del dial (taggear la capa de rigor de FSK como
+  `tier: harden` — DATA por-fábrica, byte-neutral) · `LEAST-PRIV-DECOUPLE` (ADR-016 Fase 2, diferido).
 
 ## 2026-06-26T04:06Z — Fase 4 §3 ✅: el dial borrador→endurecer (eje velocidad/rigor de primera clase)
 - **Qué deja** (meta): `meta product-run --mode draft` corre SÓLO la columna núcleo (scaffold/datos/auth/

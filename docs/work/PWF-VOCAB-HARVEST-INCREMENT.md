@@ -1,7 +1,7 @@
-<!-- meta:doc sha=de9ee12ebe3b4288d733e05420760dc90f78f721 updated=2026-06-26T13:01Z -->
+<!-- meta:doc sha=7884e3ec80097fd537e79c82ec857db751739359 updated=2026-06-26T13:01Z -->
 # Incremento PWF-VOCAB-HARVEST
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T04:08Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T13:01Z) (creado 2026-06-26T04:08Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

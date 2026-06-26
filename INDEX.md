@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `44b851692346` | 2026-06-26T02:03Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `b204b600d478` | 2026-06-26T02:02Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `92fd45513941` | 2026-06-26T02:05Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -52,7 +52,7 @@
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
-| `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `fbe537a0a8dd` | 2026-06-26T02:01Z | Incremento DELEGATION-HARNESS |
+| `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |

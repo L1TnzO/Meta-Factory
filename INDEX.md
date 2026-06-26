@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `e9d5fec86102` | 2026-06-26T18:22Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `4586f127aeb5` | 2026-06-26T18:49Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `125362494204` | 2026-06-26T19:40Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `8b4952066dc5` | 2026-06-26T18:50Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -96,7 +96,7 @@
 | `docs/work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md` | `76204cd81424` | 2026-06-18T01:10Z | Incremento MAT-6B-MULTITOPO-GROUNDING |
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
-| `docs/work/MEM-RECALL-RETIRE-INCREMENT.md` | `1c142ce03662` | 2026-06-26T18:45Z | Incremento MEM-RECALL-RETIRE |
+| `docs/work/MEM-RECALL-RETIRE-INCREMENT.md` | `636ebad4292c` | 2026-06-26T18:50Z | Incremento MEM-RECALL-RETIRE |
 | `docs/work/MEM-STATE-SNAPSHOT-INCREMENT.md` | `09a18b0775ca` | 2026-06-26T18:24Z | Incremento MEM-STATE-SNAPSHOT |
 | `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `fd8312bbabbb` | 2026-06-26T17:35Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |

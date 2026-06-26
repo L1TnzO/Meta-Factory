@@ -1,7 +1,39 @@
-<!-- meta:doc sha=e9d5fec861025a242b2e489637b655ba41d7cf3f updated=2026-06-26T18:22Z -->
+<!-- meta:doc sha=12536249420416eb4f47e505278edbee70b90e36 updated=2026-06-26T19:40Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T19:40Z — M2 (MEM-RECALL-RETIRE) ✅: `meta recall` retirado por medición; doc-autoridad reconciliado
+- **Qué (ADR-019 §2):** ADR-007 construyó `meta recall` (Tier 2: retrieval léxico MEDIDO) y dejó abierta la
+  pregunta «¿índice semántico?», a decidir CON la medición. La medición ocurrió y dio su veredicto: **`recall`
+  se invocó 1 vez / 0 hits en TODA la vida del proyecto** — camino muerto, **redundante con Grep/Read** (que ES
+  retrieval SOTA-competitivo: Letta muestra que un filesystem empata/gana a memorias especializadas en LoCoMo).
+  El movimiento SOTA es **sustractivo** (podar > agregar), no aditivo. M2 retira la maquinaria.
+- **La retirada (una superficie de mantenimiento/drift menos):** BORRÉ `src/metafactory/memory/recall.py` (el motor
+  de scoring — la superficie real que ADR-019 §Rechazado dice «se retira, no se invierte»). En `cli.py`, `meta
+  recall` ya no puntúa → **tombstone** que redirige a Grep/`meta check` y cita ADR-019 (conocimiento-negativo: la
+  próxima sesión aprende POR QUÉ se fue, no choca con un «invalid choice»; acepta query/`--k` por gentileza, no
+  crashea). En `rehydrate.py`, la orientación de SessionStart deja de recomendar `meta recall` → `meta check` +
+  `grep -rn … docs/`. El event-kind `recall` del journal queda anotado retirado-histórico: ya no se ESCRIBE, pero
+  se sigue LEYENDO — **la medición que fundó la decisión se conserva** (es Tier 0, la verdad de «qué pasó»).
+- **El diente vive en la suite** (parte de `meta check`): borré `TestRecall` (el módulo ya no existe) y sumé
+  `TestRecallRetired` que MUERDE si la retirada regresiona — (a) importar el módulo → `ImportError`; (b) `meta
+  recall` imprime el tombstone (no el scoring viejo); (c) `rehydrate.build_payload` NO menciona `meta recall` y SÍ
+  orienta a `meta check`+Grep; (d) el journal sigue leyendo `recall` histórico. No es un check nuevo en la lista
+  de `meta check`: es la **suite** quien lo enforza (la retirada es deuda de esquema, no maquinaria nueva).
+- **Reconciliación del doc-autoridad** (`reference/MEMORY-ARCHITECTURE.md`, sin churnear la prosa-historia: la
+  cadena de razonamiento original se conserva, se ANOTA encima): banner arriba + notas en §4 (paso 3 «índice
+  semántico SÓLO si la medición lo justifica» → **medido, descartado**), §10 (la decisión abierta «índice
+  semántico sí/no» queda **CERRADA por medición**, no diferida) y §11 (lección 5). El índice semántico (embeddings)
+  ya no es «diferido-hasta-medición» sino **descartado-por-medición** — reabrible SÓLO bajo el umbral de ADR-019
+  §6 (corpus > ventana usable **Y** relevance-ratio bajo **Y** A/B con lift de task-success). La autoridad VIVA de
+  la dirección de memoria pasó a **ADR-019** + su roadmap; el doc queda como diseño-fundacional reconciliado.
+- **Descartado (y por qué NO):** (1) *«arreglar» recall* (mejorar scoring / agregar embeddings) — es redundante
+  con Grep, se retira no se invierte (ADR-019 §Rechazado). (2) *deprecar el verbo con un error* en vez del
+  tombstone — un «invalid choice» no enseña; el redirect+cita ES el conocimiento-negativo que evita re-litigar.
+  (3) *borrar la serie `recall` del journal* — sería tirar la evidencia que fundó la decisión; se conserva (T0).
+- **Resultado:** `meta check` **13/13** verde · STATE «Ahora» 26 líneas (M2 marcado hecho) · árbol limpio ·
+  2 commits (78c1018 código+reconciliación → cierre del incremento). Roadmap: hechos M1+M2; siguen M5/M3/M4/M6.
 
 ## 2026-06-26T18:22Z — M1 (MEM-STATE-SNAPSHOT) ✅: «Ahora» de STATE vuelve a ser un snapshot, con diente
 - **Qué (ADR-019 §3):** el «Ahora» de `docs/STATE.md` había degenerado a **757 líneas / ~20k tok / 11 días** —

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `4987b4a2221f` | 2026-06-26T20:02Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `9c21c2ea6f1d` | 2026-06-26T20:02Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `e09b269e9d6d` | 2026-06-26T20:08Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -96,6 +96,7 @@
 | `docs/work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md` | `76204cd81424` | 2026-06-18T01:10Z | Incremento MAT-6B-MULTITOPO-GROUNDING |
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MEM-FIDELITY-GATE-INCREMENT.md` | `0e00844781b4` | 2026-06-26T20:09Z | Incremento MEM-FIDELITY-GATE |
 | `docs/work/MEM-INSTRUMENT-INCREMENT.md` | `84d1a6815db9` | 2026-06-26T20:01Z | Incremento MEM-INSTRUMENT |
 | `docs/work/MEM-RECALL-RETIRE-INCREMENT.md` | `636ebad4292c` | 2026-06-26T18:50Z | Incremento MEM-RECALL-RETIRE |
 | `docs/work/MEM-STATE-SNAPSHOT-INCREMENT.md` | `09a18b0775ca` | 2026-06-26T18:24Z | Incremento MEM-STATE-SNAPSHOT |

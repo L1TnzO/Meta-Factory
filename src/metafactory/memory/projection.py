@@ -28,12 +28,15 @@ def open_increment(root: Path) -> str | None:
     return load_seed_lifecycle().open_increment(Path(root))
 
 
-def rtm_status(root: Path) -> list[str]:
-    """Re-deriva el RTM de cada fábrica producida desde artefactos (.proof) — cero narrativa."""
+def rtm_statuses(root: Path) -> dict[str, tuple[str, int, int]]:
+    """Re-deriva el RTM de cada fábrica producida desde artefactos (.proof) — cero narrativa. Fuente
+    ESTRUCTURADA `{slug: (status, satisfechos, total)}` (orden = fábricas ordenadas). `rtm_status` la
+    formatea; `state_fidelity` (M3) la lee como ORÁCULO determinista. Single-source: una sola lectura
+    del proof alimenta la proyección y el gate de fidelidad."""
     from ..engine.run_context import RunContext
     from ..spec import load_spec
 
-    out: list[str] = []
+    out: dict[str, tuple[str, int, int]] = {}
     facdir = Path(root) / "factories"
     if not facdir.exists():
         return out
@@ -53,8 +56,13 @@ def rtm_status(root: Path) -> list[str]:
             if not ok:
                 unsat += 1
         status = "COMPLETE" if (unsat == 0 and total > 0) else ("INCOMPLETE" if total > 0 else "—")
-        out.append(f"{spec.slug}: {status} ({total - unsat}/{total})")
+        out[spec.slug] = (status, total - unsat, total)
     return out
+
+
+def rtm_status(root: Path) -> list[str]:
+    """El RTM por fábrica como líneas formateadas (vista de la proyección). Deriva de `rtm_statuses`."""
+    return [f"{slug}: {st} ({sat}/{tot})" for slug, (st, sat, tot) in rtm_statuses(root).items()]
 
 
 def build_block(root: Path) -> str:

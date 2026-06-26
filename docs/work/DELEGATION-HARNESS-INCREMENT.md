@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fbe537a0a8dd417da7dcd1a31fb0322422107510 updated=2026-06-26T02:01Z -->
+<!-- meta:doc sha=5d643727882a758fec0019bdd3e3311642b2ddf7 updated=2026-06-26T02:05Z -->
 # Incremento DELEGATION-HARNESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-25T23:10Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T02:05Z) (creado 2026-06-25T23:10Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > Autoridad del PLAN: **ADR-017** (§2 verificar-no-revisar · §3 routing como dato · §4 gates de calidad).
 
@@ -39,7 +39,8 @@ por bloqueo): lo vuelve **maquinaria de la columna** con dientes deterministas.
 | 4 | **`declared-deferred` con dientes + outcome por-incremento**: schema/model/loader ganan `deferral {trigger, since}` + `governance.deferral_tracking: strict` (opt-in); el validator EXIGE `deferral` cuando strict. Check `declared_deferred` re-deriva la acumulación estructural por fábrica + dos-lados vía fixture. `meta outcome` = RTM/fábrica (ΔRTM vs baseline) + deuda + puntero al billing-ledger ⇒ "terminado" y "valió la pena" decidibles. | ✅ |
 
 ## Disciplina (no negociable)
-- **Trust-chain para la columna (CLAUDE.md/SELF-IMPROVEMENT §3)**: los HOOKS y la ley del slot (`seed/delegation.py`)
+- **Trust-chain para la columna (CLAUDE.md/SELF-IMPROVEMENT §3)**: los HOOKS y la ley del slot
+  (`src/metafactory/delegation.py` — meta-level por ahora; aún NO heredado a las fábricas generadas como `seed/`)
   son sombras deterministas de la columna (frontera de seguridad) → se escriben y revisan **con ojos propios, no se
   delegan**. Los AGENTS/SKILL (contratos/prompts) y la lógica de los KINDS de check (`verify/checks/`) sí son
   delegables — y la Fase 2 los usa para DOGFOODEAR el loop (el arnés construye parte de sí mismo).

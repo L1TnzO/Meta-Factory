@@ -1,7 +1,42 @@
-<!-- meta:doc sha=c8b6c2cc23dcbe009e4f38ebf6ebd19f61d419f9 updated=2026-06-26T21:25Z -->
+<!-- meta:doc sha=87d38e601121ae26b061c544fe57c1d71964b462 updated=2026-06-26T22:20Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T21:55Z — M6 (MEM-THREE-MEMORIES) ✅: la regla single-source sobre las tres memorias — MEMORIA v2 completa salvo §6
+- **Qué (ADR-019 §5/§Consec.):** el harness tiene TRES memorias que pueden sostener el MISMO hecho y driftear —
+  `docs/` (wiki) · `CLAUDE.md` (curado) · note-store de auto-memoria (`~/.claude/.../memory/*.md` + `MEMORY.md`,
+  ~3.5k tok FIJADOS por sesión). ADR-019 las nombró como un **solapamiento medible, no resuelto por intuición**.
+  M6 lo CIERRA con la medición que M5 habilitó — la última apuesta leída contra el observador, no a ciegas.
+- **El observador (cero modelo):** `src/metafactory/memory/overlap.py` mide **shingle-containment** (k=5 palabras)
+  de cada note contra el corpus `docs/` — `|note∩docs|/|note|`, NO Jaccard simétrico (preguntamos «cuánto del NOTE
+  ya está en docs», no «qué tan parecidos son los corpus»: `docs/` es ~100× más grande). Determinista, clasifica por
+  el `type` del frontmatter. Readout `meta metrics --overlap`; localiza la mem-dir best-effort y **degrada con gracia**
+  (una línea honesta) si ausente — la auto-memoria vive FUERA del árbol git, así un clon limpio/CI no rompe.
+- **El hallazgo que CAMBIÓ la acción** (por esto se mide antes de apostar, ADR-019 §5): de 17 notes — `feedback×6 ·
+  project×9 · reference×2`, containment literal vs `docs/`: **0 alto · 2 medio · 15 bajo** (máx 0.206; `fsk-s16`
+  79 KB = **0.004**). Los `project` **PARAFRASEAN** `docs/`, no lo COPIAN → el riesgo es **semántico, no copy-paste**
+  → la acción correcta es **governance hacia-adelante (la regla)**, NO una purga retroactiva (el dato la desaconseja;
+  y ADR-019 rechaza comparación-de-prosa por LLM). Sin medir, habría borrado de más.
+- **La decisión (regla single-source, ADR-007 regla 3 extendida a 3 memorias), declarada en
+  `reference/MEMORY-ARCHITECTURE.md §8.2`** (la **4ª costura**, junto a las 3 internas de `docs/`): `docs/`=HECHOS
+  del proyecto · `CLAUDE.md`=REGLAS de la fase viva · note-store=SÓLO la **relación cross-sesión** que `docs/` no
+  tiene ni debe (quién es el ingeniero + cómo quiere que trabaje `feedback`; refs externas `reference`). Un hecho de
+  proyecto en la auto-memoria (`type: project`) = el anti-patrón → degrada a **puntero**. Alinea con el PROPIO
+  protocolo del harness («no guardes lo que el repo ya registra»).
+- **OBSERVADOR, no gate** (a diferencia de M1/M3 que SÍ gatean el STATE in-tree): el note-store es por-usuario/máquina
+  y AUSENTE en clon limpio → un diente de `meta check` sobre él rompería la portabilidad clon-limpio-verde del proof.
+  Su gobierno es la REGLA + la medición on-demand. El tooth dos-lados vive en la **`suite`** (`tests/test_overlap.py`,
+  15 casos: copia de `docs/`→containment 1.0→HIGH muerde · note único→0.0→LOW no muerde · frontmatter excluido ·
+  mem-dir ausente→None degrada) → `meta check` sigue **14/14**, sin check nuevo.
+- **Aplicado — un puntero en vez de copia, RE-MEDIBLE:** `metrics-gaps-and-semantic-index-reframe.md` (120 líneas que
+  re-narraban toda MEMORIA v2, ya poseída por ADR-019+roadmap+STATE+LOG) degradado a puntero (`type project`→`reference`,
+  cuerpo = punteros); contrato single-source en el header de `MEMORY.md`; nueva memoria `feedback`
+  `three-memory-single-source`; puntero COLGANTE `r1-product-instance-done.md` (archivo inexistente) removido del índice.
+  Verificado en el dato: post-decisión `feedback×7 · project×8 · reference×3`, MEMORY.md **3458→3145 tok**.
+- **Resultado:** `meta check` 14/14 · árbol limpio · MEMORIA v2 (ADR-019): **M1·M2·M5·M3·M4·M6 TODOS hechos** — queda
+  sólo la **regla de escape §6** (umbral medido para, si alguna vez, agregar retrieval; no es un increment). Telemetría
+  + deep-research convergieron en prune-first; no re-litigar «¿memoria MCP/vectorDB?» — medido + decidido.
 
 ## 2026-06-26T21:24Z — M4 (MEM-PRECOMPACT-SNAPSHOT) ✅: writeback de fidelidad mínima en el límite de compactación
 - **Qué (ADR-019 §5):** el *post-compaction bootstrap fault* — el CLAUDE.md de raíz sobrevive la compactación

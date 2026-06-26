@@ -1,4 +1,4 @@
-<!-- meta:doc sha=032b1a532486ea8025d861769992cc5bb1ab6119 updated=2026-06-26T21:26Z -->
+<!-- meta:doc sha=adaa306ca1ab7c868492f2344bebc38a7dd8e8cf updated=2026-06-26T22:19Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: MEM-THREE-MEMORIES-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -21,15 +21,14 @@
   delegación "verificar-no-revisar" (Opus cerebro · Sonnet genera · Haiku lee) + gates de calidad dogfoodeados.
   Sus 4 fases ya están construidas (la última, `REAIM-SWEET-SPOT`, cerró el 2026-06-26). Roadmap vivo y
   autoritativo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. Norte abierto (no decidido): adopción del dial draft→harden.
-- **🧠 MEMORIA v2 (ADR-019) — EN CURSO.** Telemetría + literatura convergen: **podar antes de agregar** (NO
-  servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`. Hecho: **M1**
-  («Ahora»=snapshot + diente `state_snapshot`) · **M2** (`meta recall` retirado — 1×/0-hit, redundante con Grep) ·
-  **M5** (path de inyección instrumentado: 4 series footprint·thrashing·fidelidad·compactación en `instrument.py`,
-  observador puro, resumidas por `meta metrics`) · **M3** (`state_fidelity`: gate STATE-vs-`.proof/` con diente —
-  «Ahora» no CONTRADICE el RTM re-derivado; faithfulness≠frescura) · **M4** (hook `PreCompact`: writeback de
-  fidelidad mínima del incremento vivo ANTES de la compactación, re-inyectado en `SessionStart(source=compact)`
-  con guard de sesión; nivel meta, proyección a fábrica diferida — HONEST-STATE §7; VIVO tras reiniciar la sesión).
-  Sigue (uno, leíble contra el observador): **M6** dedup 3-memorias (medición→decisión).
+- **🧠 MEMORIA v2 (ADR-019) — COMPLETA (salvo la regla de escape §6).** Telemetría + literatura convergen: **podar
+  antes de agregar** (NO servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
+  **M1·M2·M5·M3·M4·M6 hechos** — el detalle de cada Move vive en `LOG.md` + su `work/<SLUG>-INCREMENT.md §Evidencia`.
+  El último, **M6** (`MEM-THREE-MEMORIES`): regla single-source sobre las 3 memorias del harness (`docs/`=hechos ·
+  CLAUDE.md=reglas-de-fase · note-store de auto-memoria=relación cross-sesión `feedback`/`reference` + punteros),
+  declarada en `reference/MEMORY-ARCHITECTURE.md §8.2`; medida por `meta metrics --overlap` (`memory/overlap.py`,
+  shingle-containment cero-modelo, **OBSERVADOR no gate** — el note-store vive fuera del árbol git). Único pendiente:
+  el **umbral §6** (cuándo, si alguna vez, agregar una capa de retrieval) — no es un increment, es una medición a vigilar.
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de

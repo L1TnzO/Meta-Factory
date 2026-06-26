@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `c8b6c2cc23dc` | 2026-06-26T21:25Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `032b1a532486` | 2026-06-26T21:26Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `87d38e601121` | 2026-06-26T22:20Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `adaa306ca1ab` | 2026-06-26T22:19Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -35,7 +35,7 @@
 | `docs/reference/GOVERNANCE-LAYERING.md` | `573d038dddc4` | 2026-06-21T02:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `2ca5246e17f3` | 2026-06-26T21:22Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
-| `docs/reference/MEMORY-ARCHITECTURE.md` | `90c327a0d0b6` | 2026-06-26T18:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
+| `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PRIMITIVES.md` | `4b0155c55cbd` | 2026-06-18T18:56Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
 | `docs/reference/REGEN-AUDIT.md` | `f5cf2363e3c0` | 2026-06-16T17:24Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
@@ -101,7 +101,8 @@
 | `docs/work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md` | `435e54aa99ba` | 2026-06-26T21:24Z | Incremento MEM-PRECOMPACT-SNAPSHOT |
 | `docs/work/MEM-RECALL-RETIRE-INCREMENT.md` | `636ebad4292c` | 2026-06-26T18:50Z | Incremento MEM-RECALL-RETIRE |
 | `docs/work/MEM-STATE-SNAPSHOT-INCREMENT.md` | `09a18b0775ca` | 2026-06-26T18:24Z | Incremento MEM-STATE-SNAPSHOT |
-| `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `fd8312bbabbb` | 2026-06-26T17:35Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
+| `docs/work/MEM-THREE-MEMORIES-INCREMENT.md` | `0907b5bbeb1e` | 2026-06-26T21:51Z | Incremento MEM-THREE-MEMORIES |
+| `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `e136a85263a5` | 2026-06-26T21:51Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |

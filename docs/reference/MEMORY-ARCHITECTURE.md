@@ -1,4 +1,4 @@
-<!-- meta:doc sha=90c327a0d0b66ed009304a2847dc5b88634ec503 updated=2026-06-26T18:47Z -->
+<!-- meta:doc sha=7a9b2a80a048d134e0b95a58a52c99dae7a258b5 updated=2026-06-26T21:47Z -->
 # Arquitectura de memoria — el subsistema más crítico de una fábrica
 
 | Campo | Valor |
@@ -221,6 +221,26 @@ de diseño antes de que exista código. Conclusión operativa: el índice debe s
 `meta check`** (gratis, file-IO): todo doc indexado, STATE no más viejo que el último cambio bajo
 `docs/`, cero punteros colgados. Es la sombra determinista de "mantener los docs consistentes".
 Implementación concreta: el manifiesto content-addressed con sello in-band (§9, ADR-009).
+
+> **[CERRADO · ADR-019 / M6] La CUARTA costura: `docs/` ↔ note-store de auto-memoria.** Las tres costuras
+> de arriba viven DENTRO de `docs/`; el harness agrega una TERCERA memoria —el note-store de auto-memoria
+> (`~/.claude/projects/<slug>/memory/*.md` + `MEMORY.md`, ~3.5k tok fijados/sesión)— que re-narra hechos del
+> proyecto y puede driftear de `docs/`. **Regla single-source sobre las tres memorias** (extiende §8.2 a la
+> tercera): **`docs/`** = autoridad de los HECHOS del proyecto · **CLAUDE.md** = autoridad de las REGLAS de la
+> fase viva · **note-store** = autoridad SÓLO de la relación cross-sesión que `docs/` no tiene ni debe (quién es
+> el ingeniero + cómo quiere que trabaje, `feedback`; referencias externas, `reference`). Un hecho de proyecto en
+> la auto-memoria (`type: project`) es el anti-patrón → degrada a un **PUNTERO** (la línea-índice de `MEMORY.md`
+> alcanza). Alinea con el PROPIO protocolo de memoria del harness («no guardes lo que el repo ya registra»).
+>
+> **Por qué es un OBSERVADOR, no un diente de `meta check`** (a diferencia de §8.2 —cerrada por el sello in-band—
+> y de M1/M3, que SÍ gatean el STATE in-tree): el note-store vive FUERA del árbol git, es por-usuario/máquina y
+> AUSENTE en clon limpio → cablearlo a `meta check` rompería la portabilidad clon-limpio-verde del proof. Su
+> gobierno es la REGLA + una medición re-derivable on-demand (`meta metrics --overlap`, `src/metafactory/memory/
+> overlap.py`: shingle-containment cero-modelo). **Hallazgo de la medición (2026-06-26):** el solapamiento
+> LITERAL es BAJO (máx 0.21; `fsk-s16` 0.004) → los notes `project` PARAFRASEAN `docs/`, no lo copian. El riesgo
+> es semántico (dos prosas del mismo hecho), no copy-paste → la acción es governance HACIA-ADELANTE (la regla) +
+> degradar el note ya superseded por este cierre, NO una purga retroactiva (el dato la desaconseja). Apuesta
+> leída contra M5 (instrumentación), no a ciegas — el error de `recall` no se repite.
 
 ### 8.3 ¿Falta un doc para algo relevante? — sí, dos cosas
 - **Métricas** (ya cubierto, §8.1).

@@ -818,6 +818,13 @@ def cmd_metrics(args) -> int:
     # Serie del path de INYECCIÓN (ADR-019 §5, M5): footprint·thrashing·fidelidad, acotado.
     for ln in instrument.summarize(root):
         print(ln)
+    # Solapamiento de la TERCERA memoria (ADR-019 §5/§Consec., M6): note-store de auto-memoria vs
+    # docs/. Observador on-demand (NO gate: la auto-memoria vive fuera del árbol git). --mem-dir
+    # sobreescribe la ubicación; ausente → una línea honesta (portable en clon limpio).
+    if getattr(args, "overlap", False):
+        from .memory import overlap
+        for ln in overlap.summarize(root, explicit=getattr(args, "mem_dir", None)):
+            print(ln)
     return 0
 
 
@@ -918,7 +925,10 @@ def build_parser() -> argparse.ArgumentParser:
         _sp.add_argument("--product", default=None)        # nivel producto (requiere --factory)
     sub.add_parser("checkpoint").set_defaults(func=cmd_checkpoint)
     sp = sub.add_parser("journal"); sp.add_argument("--tail", type=int, default=12); sp.set_defaults(func=cmd_journal)
-    sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None); sp.set_defaults(func=cmd_metrics)
+    sp = sub.add_parser("metrics"); sp.add_argument("--transcript", default=None)
+    sp.add_argument("--overlap", action="store_true")  # M6: solapamiento auto-memoria vs docs/ (observador)
+    sp.add_argument("--mem-dir", default=None)          # override de la ubicación del note-store
+    sp.set_defaults(func=cmd_metrics)
     sp = sub.add_parser("recall")  # RETIRADO (ADR-019 §2): tombstone que redirige a Grep/`meta check`
     sp.add_argument("query", nargs="*"); sp.add_argument("--k", type=int, default=5); sp.set_defaults(func=cmd_recall)
     sub.add_parser("rehydrate").set_defaults(func=cmd_rehydrate)

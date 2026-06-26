@@ -1,10 +1,15 @@
-<!-- meta:doc sha=fd8312bbabbbb7849aba07447d89ddebebdd177a updated=2026-06-26T17:35Z -->
+<!-- meta:doc sha=e136a85263a5b7072339e3f345e4ef3a38214e16 updated=2026-06-26T21:51Z -->
 # Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2
 
 > **Doc de dirección (roadmap), NO un incremento del lifecycle.** No lleva `Estado: ABIERTO`: cristaliza
 > **ADR-019** en una secuencia de increments FUTUROS. Cada Move (M1…M6) se ABRE con `meta increment open <slug>`
 > cuando se ejecute — de a uno (hoy `HARNESS-DECOUPLE` está abierto; la ley es **un abierto por nivel**).
 > **Autoridad de diseño: ADR-019.** Autoridad de diseño completo de memoria (a reconciliar): `reference/MEMORY-ARCHITECTURE.md`.
+>
+> **Estado de ejecución (2026-06-26):** ✅ **M1·M2·M5·M3·M4·M6 TODOS hechos** — MEMORIA v2 queda completa salvo la
+> **regla de escape (§6)**, que NO es un increment sino un umbral medido a vigilar. El detalle de cada Move vive
+> en su episodio de `LOG.md` + su `work/<SLUG>-INCREMENT.md §Evidencia`. M6 cerró el 2026-06-26
+> (`MEM-THREE-MEMORIES`).
 
 ## Objetivo
 Dejar un puntero **auto-contenido** de TODO el trabajo de evolución de memoria que queda, con el QUÉ, el CÓMO y
@@ -89,7 +94,18 @@ M3, M4 (apuestas, leídas contra M5) → M6 (decisión con datos). Cada uno se a
   (el error de recall).
 - **Prueba:** las tres series aparecen en `.metamem/`; un `meta`-verbo o `meta check` las resume.
 
-### M6 · MEM-THREE-MEMORIES  (medición → decisión — detrás de M5)
+### M6 · MEM-THREE-MEMORIES  ✅ HECHO (2026-06-26) — (medición → decisión, detrás de M5)
+> **Cerrado.** Medición re-derivable `meta metrics --overlap` (`src/metafactory/memory/overlap.py`, shingle-containment
+> cero-modelo) sobre los 17 notes: 6 `feedback` · 9 `project` · 2 `reference`. **Hallazgo que cambió la acción:** el
+> solapamiento LITERAL con `docs/` es BAJO (máx 0.21; `fsk-s16` 0.004) → los `project` PARAFRASEAN `docs/`, no lo
+> copian → riesgo SEMÁNTICO, no copy-paste → la acción es governance hacia-adelante (la regla), NO una purga. **Regla
+> single-source** declarada en `reference/MEMORY-ARCHITECTURE.md §8.2` (la 4ª costura: `docs/`↔note-store): `docs/`=hechos
+> · CLAUDE.md=reglas-de-fase · note-store=relación cross-sesión (`feedback`/`reference`) + punteros. **OBSERVADOR, no gate**
+> (el note-store vive fuera del árbol git → un gate rompería la portabilidad clon-limpio). **Aplicado:** `metrics-gaps…`
+> degradado a puntero (`project`→`reference`), contrato single-source en el header de MEMORY.md, memoria `feedback`
+> `three-memory-single-source`, puntero colgante `r1…` removido; MEMORY.md 3458→3145 tok. Tooth en la `suite`
+> (`tests/test_overlap.py`, dos-lados). Evidencia: `work/MEM-THREE-MEMORIES-INCREMENT.md §Evidencia`.
+
 - **Qué:** decidir la dedup entre las tres memorias del harness: CLAUDE.md (curado) · note-store de auto-memoria
   (`~/.claude/.../memory/*.md` + MEMORY.md, ~3k tok/sesión fijados) · wiki `docs/`.
 - **Cómo:** medir el solapamiento (los notes de auto-memoria narran lo mismo que STATE/LOG) y si el índice gana su

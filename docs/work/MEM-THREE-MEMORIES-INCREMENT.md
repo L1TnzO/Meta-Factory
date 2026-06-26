@@ -1,7 +1,7 @@
-<!-- meta:doc sha=0907b5bbeb1e6243d9c57b4447fa5f40990a90c0 updated=2026-06-26T21:51Z -->
+<!-- meta:doc sha=abb61c870515abd7efec96802c85dd37917e89e5 updated=2026-06-26T22:21Z -->
 # Incremento MEM-THREE-MEMORIES
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T21:43Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T22:21Z) (creado 2026-06-26T21:43Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

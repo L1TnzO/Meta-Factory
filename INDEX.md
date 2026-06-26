@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `08d77ec83070` | 2026-06-25T22:42Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `da5884388270` | 2026-06-25T22:40Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `44b851692346` | 2026-06-26T02:03Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `b204b600d478` | 2026-06-26T02:02Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -52,6 +52,7 @@
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
+| `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `fbe537a0a8dd` | 2026-06-26T02:01Z | Incremento DELEGATION-HARNESS |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
@@ -92,7 +93,7 @@
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
-| `docs/work/ROADMAP.md` | `fa6314357275` | 2026-06-25T22:39Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `61c76d5a280a` | 2026-06-26T02:02Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

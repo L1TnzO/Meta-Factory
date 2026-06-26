@@ -1,4 +1,4 @@
-<!-- meta:doc sha=da5884388270b8e7a26258f68c76b668dbb05697 updated=2026-06-25T22:40Z -->
+<!-- meta:doc sha=b204b600d47815e53e759096b1eed583ef87960c updated=2026-06-26T02:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: DELEGATION-HARNESS-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -28,8 +28,22 @@
   `meta billing`) que muestra el split **brain/opus 116k · generate/sonnet 52k (2 módulos) · read/haiku 13k** —
   ~36% de tokens delegados a modelos baratos (~$0.18) vs cerebro (~$2.82), **verificar-no-revisar** probado en
   el acto (2 self-checks Sonnet PASS + 16 tests Opus por bloqueo). `meta graph build|query|repomap` + `meta billing`.
-  Evidencia: `work/GRAPH-SPINE-KEYSTONE-INCREMENT.md §Evidencia`. **Siguiente = `DELEGATION-HARNESS`** (Fase 2:
-  agents/skills/hooks de `.claude/` + PBT + gate al `declared-deferred`).
+  Evidencia: `work/GRAPH-SPINE-KEYSTONE-INCREMENT.md §Evidencia`.
+- **DELEGATION-HARNESS ✅ (Fase 2, 2026-06-26)** — el **arnés "verificar-no-revisar"** con dientes de máquina +
+  3 tipos de gate nuevos (`meta check` ahora **10/10**). **El loop** (trust-chain, ojos propios): `delegation.py`
+  (ley del slot, DATA-agnóstica) + hooks finos `blast_radius`(PreToolUse)/`verdict_required`(Stop→SubagentStop)
+  que viven SÓLO en el frontmatter del `generator` (corren mientras el subagente está activo → cero efecto en la
+  sesión; mecánica Claude Code 2.1.193 verificada) + agents `generator`(sonnet)·`verifier`(haiku)·`reviewer`(opus)·
+  `orchestrator`(opus) + skill `generate-slot`. **Dogfood vivo**: el slot `graph/pbt_properties.py` lo escribió un
+  generator **Sonnet** (43.354 tok) vía contrato+manifiesto; devolvió SÓLO el veredicto; **Opus verificó por
+  BLOQUEO** (corrió `pbt_gate`), no leyó el código. **Gates dos-lados cableados**: `pbt` (propiedad del grafo
+  incremental≡full · sabotage muerde) · `security` (scan de secretos heredable, fixture plantado muerde) · `deferred`
+  (`declared-deferred` con `governance.deferral_tracking: strict` OPT-IN — medido: 49 deferrals legacy bare quedan
+  verdes, cero regresión; el strict muerde). **`meta outcome`** = RTM/fábrica + ΔRTM + deuda + costo ⇒ "valió la
+  pena" decidible. Billing del build: **22% delegado** (< Fase 1 36% PORQUE casi toda la Fase 2 es la columna =
+  trust-chain, correctamente no delegada). 30 tests nuevos. Evidencia: `work/DELEGATION-HARNESS-INCREMENT.md §Evidencia`.
+  **Siguiente = `MONOLITH-REFACTOR`** (Fase 3: el gate `quality` FUERZA partir `scaffold_product.py` por slots
+  acotados que este arnés ya puede delegar a Sonnet).
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

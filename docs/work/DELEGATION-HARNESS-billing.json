@@ -1,0 +1,86 @@
+{
+  "run_id": "DELEGATION-HARNESS",
+  "currency": "USD",
+  "pricing": "estimate-usd-per-mtok",
+  "entries": [
+    {
+      "item": "graph/pbt_properties.py (verify-not-review slot)",
+      "role": "generate",
+      "model": "sonnet",
+      "input_tokens": 42000,
+      "output_tokens": 1354,
+      "total_tokens": 43354,
+      "est_cost_usd": 0.14631,
+      "latency_ms": 231635,
+      "source": "harness",
+      "status": "complete"
+    },
+    {
+      "item": "design+column+gates+verification (this session)",
+      "role": "brain",
+      "model": "opus",
+      "input_tokens": 132000,
+      "output_tokens": 21000,
+      "total_tokens": 153000,
+      "est_cost_usd": 3.555,
+      "latency_ms": 0,
+      "source": "estimate",
+      "status": "complete"
+    }
+  ],
+  "totals": {
+    "input_tokens": 174000,
+    "output_tokens": 22354,
+    "total_tokens": 196354,
+    "est_cost_usd": 3.70131,
+    "latency_ms": 231635
+  },
+  "split_by_model": {
+    "opus": {
+      "input_tokens": 132000,
+      "output_tokens": 21000,
+      "total_tokens": 153000,
+      "est_cost_usd": 3.555,
+      "latency_ms": 0,
+      "items": 1,
+      "roles": [
+        "brain"
+      ]
+    },
+    "sonnet": {
+      "input_tokens": 42000,
+      "output_tokens": 1354,
+      "total_tokens": 43354,
+      "est_cost_usd": 0.14631,
+      "latency_ms": 231635,
+      "items": 1,
+      "roles": [
+        "generate"
+      ]
+    }
+  },
+  "split_by_role": {
+    "brain": {
+      "input_tokens": 132000,
+      "output_tokens": 21000,
+      "total_tokens": 153000,
+      "est_cost_usd": 3.555,
+      "latency_ms": 0,
+      "items": 1,
+      "models": [
+        "opus"
+      ]
+    },
+    "generate": {
+      "input_tokens": 42000,
+      "output_tokens": 1354,
+      "total_tokens": 43354,
+      "est_cost_usd": 0.14631,
+      "latency_ms": 231635,
+      "items": 1,
+      "models": [
+        "sonnet"
+      ]
+    }
+  }
+}

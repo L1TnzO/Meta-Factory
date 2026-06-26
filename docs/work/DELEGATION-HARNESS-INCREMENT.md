@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a04e6f37542e47dd277ecb0ae9b16a9b351cd918 updated=2026-06-25T23:11Z -->
+<!-- meta:doc sha=fbe537a0a8dd417da7dcd1a31fb0322422107510 updated=2026-06-26T02:01Z -->
 # Incremento DELEGATION-HARNESS
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-25T23:10Z). Cerralo con `meta increment close`
@@ -33,10 +33,10 @@ por bloqueo): lo vuelve **maquinaria de la columna** con dientes deterministas.
 ## Fases (orden por dependencia)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **El loop verificar-no-revisar** (núcleo del arnés): `seed/delegation.py` (ley del slot, single-source) + hooks finos `blast_radius` (PreToolUse) y `verdict_required` (Stop→SubagentStop) + agents `generator`(sonnet, Write-acotado)·`verifier`(haiku, ro)·`reviewer`(opus, escalación)·`orchestrator`(opus) + skill `generate-slot` (contrato→manifiesto→spawn→veredicto). Diente DOS lados por bloqueo (escribir fuera del slot→exit2 · terminar sin veredicto→exit2 · inerte sin manifiesto). | ⏳ |
-| 2 | **Tipo de gate `pbt`** (property-based): kind nuevo que orquesta un `pbt_cmd` DECLARADO (DATA, ADR-012) en el env del producto; dogfood sobre una propiedad REAL del grafo de Fase 1 (incremental ≡ full; serde round-trip) con un mini-PBT stdlib (0 deps). Diente dos lados: propiedad sana→verde · impl saboteada→la propiedad la atrapa→rojo. Cableado a `meta check`. **Construido USANDO el loop de Fase 1** (spawn del `generator`) = dogfood vivo. | ⏳ |
-| 3 | **Gate `security_scan` heredable**: generaliza lo que FSK ya gatea (supply-chain/secretos, s4) a un KIND de sustrato reusable; dogfood sobre el propio sustrato (scan de secretos + SBOM trivial, 0 deps). Diente dos lados: fixture con secreto plantado→rojo · limpio→verde. `general` por paridad (≥2 fábricas) o declared-deferred honesto. | ⏳ |
-| 4 | **`declared-deferred` con dientes + outcome por-incremento**: schema gana `deferral {trigger, since}`; el validator EXIGE `deferral` cuando `status: declared-deferred` (M0 bloquea el escape sin trigger). Check `declared_deferred` re-deriva todos los diferidos, BLOQUEA si falta trigger/fecha, REPORTA acumulación. `meta outcome` = ΔRTM (satisfechos/total antes↔después) + puntero al billing-ledger ⇒ "terminado" y "valió la pena" decidibles. | ⏳ |
+| 1 | **El loop verificar-no-revisar** (núcleo del arnés): `src/metafactory/delegation.py` (ley del slot, single-source DATA-agnóstica) + hooks finos `blast_radius` (PreToolUse) y `verdict_required` (Stop→SubagentStop), wired SÓLO en el frontmatter del `generator` + agents `generator`(sonnet, Write-acotado)·`verifier`(haiku, ro)·`reviewer`(opus, escalación)·`orchestrator`(opus) + skill `generate-slot` (contrato→manifiesto→spawn→veredicto). Diente DOS lados por bloqueo (escribir fuera del slot→exit2 · terminar sin veredicto→exit2 · inerte sin manifiesto). | ✅ |
+| 2 | **Tipo de gate `pbt`** (property-based): kind nuevo que orquesta un `pbt_cmd` DECLARADO (DATA, ADR-012); dogfood sobre una propiedad REAL del grafo de Fase 1 (incremental ≡ full; serde round-trip) con un mini-PBT stdlib (0 deps). Diente dos lados: propiedad sana→verde · impl saboteada→la propiedad la atrapa→rojo. Cableado a `meta check`. **Construido DOGFOODEANDO el loop de Fase 1** (spawn de un generator Sonnet vía el protocolo `generate-slot`) = dogfood vivo. | ✅ |
+| 3 | **Gate `security_scan` heredable**: generaliza lo que FSK ya gatea (supply-chain/secretos, s4) a un KIND de sustrato reusable; dogfood sobre el propio sustrato (scan de secretos stdlib, sin red, 0 deps). Diente dos lados: fixture con secreto plantado→rojo · sustrato limpio→verde. | ✅ |
+| 4 | **`declared-deferred` con dientes + outcome por-incremento**: schema/model/loader ganan `deferral {trigger, since}` + `governance.deferral_tracking: strict` (opt-in); el validator EXIGE `deferral` cuando strict. Check `declared_deferred` re-deriva la acumulación estructural por fábrica + dos-lados vía fixture. `meta outcome` = RTM/fábrica (ΔRTM vs baseline) + deuda + puntero al billing-ledger ⇒ "terminado" y "valió la pena" decidibles. | ✅ |
 
 ## Disciplina (no negociable)
 - **Trust-chain para la columna (CLAUDE.md/SELF-IMPROVEMENT §3)**: los HOOKS y la ley del slot (`seed/delegation.py`)
@@ -60,8 +60,14 @@ por bloqueo): lo vuelve **maquinaria de la columna** con dientes deterministas.
    billing-ledger registra el split del propio build.
 3. **Gate `pbt` dos lados, cableado a `meta check`**: propiedad sana del grafo→verde · impl saboteada→rojo.
 4. **Gate `security_scan` dos lados**: secreto plantado→rojo · sustrato limpio→verde (o declared-deferred honesto).
-5. **`declared-deferred` con dientes**: un capability `declared-deferred` SIN `deferral` → M0/validate ROJO; CON
-   `deferral {trigger, since}` → verde; el check reporta la acumulación. `meta outcome` emite ΔRTM + costo.
+5. **`declared-deferred` con dientes** — *REFINADO tras medición (no narrado): el tooth es OPT-IN, no
+   retroactivo.* Medición: **49 deferrals legacy bare** en las specs commiteadas (FSK 41 en PROSA dentro de
+   `tech:` + ASF 8 estructurales). Un tooth HARD ("declared-deferred sin deferral → M0 rojo") las pondría a
+   todas en falso-rojo (regresión + churn cross-fábrica, viola ADR-016). ⇒ el tooth es `governance.
+   deferral_tracking: strict` (opt-in): bajo strict, un `declared-deferred` sin `deferral{trigger,since}` →
+   M0 ROJO; con él → verde; un `deferral` malformado → rojo SIEMPRE (shape). Legacy bare → verde (forward
+   pressure, no breakage). El check `declared_deferred` reporta la acumulación ESTRUCTURAL. `meta outcome`
+   emite RTM/fábrica + ΔRTM + costo.
 6. **`meta check` verde** (incl. `generality` ⇒ anti-overfit: nada nombra fábrica/dominio/tech) · regla
    multi-archivo respetada (el gate `quality` la enforza sobre el propio sustrato nuevo).
 
@@ -72,4 +78,45 @@ por bloqueo): lo vuelve **maquinaria de la columna** con dientes deterministas.
 - **Memoria de sesión**: `sota-redesign-graph-spine` (recipe verificar-no-revisar) · `target-operating-model-sota`.
 
 ## Evidencia (cierre — re-derivable, no narrada)
-<se completa al cerrar: comandos + veredictos por bloqueo + el split del billing-ledger de ESTE build>
+**Código nuevo** (inglés, ADR-017; regla multi-archivo — ningún módulo monolito):
+- **Fase 1 (loop, trust-chain, ojos propios)**: `src/metafactory/delegation.py` (ley del slot) ·
+  `.claude/hooks/{blast_radius,verdict_required}.py` (transportes finos) · `.claude/agents/{generator,
+  verifier,reviewer,orchestrator}.md` · `.claude/skills/generate-slot/SKILL.md` · `tests/test_delegation.py` (16).
+- **Fase 2**: `src/metafactory/verify/checks/pbt_gate.py` (kind) + `src/metafactory/graph/pbt_properties.py`
+  (el slot DELEGADO) · cableado `pbt` en `cmd_check`.
+- **Fase 3**: `src/metafactory/verify/checks/security_scan.py` + `tests/fixtures/security/planted_secrets.txt`
+  · `tests/test_security_scan.py` (4) · cableado `security`.
+- **Fase 4**: `spec/{model,loader,validator,factory.schema.json}` (+`deferral`/`governance`) ·
+  `verify/checks/declared_deferred.py` + `tests/fixtures/governance/strict_untracked.factory.spec.yml` ·
+  `verify/outcome.py` + `meta outcome` · `tests/test_deferral_governance.py` (10) · cableado `deferred`.
+
+**Los 6 criterios, por bloqueo**:
+1. **Loop dos-lados** — `tests/test_delegation.py` 16 verdes: hooks REALES como subproceso —
+   blast_radius dentro→0 / fuera→2 / sin-manifiesto→0 · verdict_required con-veredicto→0 / sin→2 /
+   sin-manifiesto→0 · válvula anti-loop. Mecánica Claude Code 2.1.193 verificada (hooks por-agente en
+   frontmatter, `Stop→SubagentStop`, `agent_id/agent_type`) ⇒ los dientes viven en el `generator`, NUNCA globales.
+2. **Dogfood vivo** — el slot `graph/pbt_properties.py` lo escribió un **generator Sonnet** (subagent_tokens
+   **43.354**, 13 tool-uses) vía contrato+manifiesto (`.gen/active_slot.json`); devolvió SÓLO el veredicto
+   (`{status:green, check:pbt_gate, exit_code:0}`); **Opus verificó por BLOQUEO** (`meta` corrió `pbt_gate` →
+   exit 0), no leyó el código. Billing-ledger `docs/work/DELEGATION-HARNESS-billing.json` (`meta billing`):
+   **generate/sonnet 43.354 tok ($0.15) · brain/opus 153k (estimate) · 0 haiku** ⇒ **22% delegado**. *Lección
+   honesta*: < Fase 1 (36%) PORQUE casi toda la Fase 2 es la COLUMNA (hooks/ley-del-slot/kinds) = trust-chain,
+   correctamente NO delegada; lo único bulk-delegable fue la suite de propiedades.
+3. **Gate `pbt` dos-lados** — `meta check` `pbt` ok: propiedad sostenida (seed fijo, re-derivable) + bajo
+   `METAFACTORY_PBT_SABOTAGE=1` la propiedad MUERDE (contraejemplo `incremental != full`). Decorativo→rojo.
+4. **Gate `security` dos-lados** — `security` ok: sustrato limpio (97 archivos) + fixture plantado → 3 hits
+   (aws-key EXAMPLE · secret-assign · PEM). Decorativo→rojo.
+5. **`declared-deferred` con dientes** — `deferred` ok: 0 regresión en las 5 fábricas (49 bare legacy verdes) +
+   fixture strict-untracked MUERDE; tooth two-sided probado en `test_deferral_governance` (strict+bare→rojo ·
+   strict+tracked→verde · malformado→rojo). `meta outcome` → RTM **54/54** + deuda **0/2 tracked** + costo.
+6. **`meta check` 10/10 verde** — compile·docs·projection·isolation·generality·quality·**pbt·security·
+   deferred**·suite (suite incluye los 30 tests nuevos). `generality` verde ⇒ ningún check nombra fábrica/
+   dominio/tech (anti-overfit). `quality` verde ⇒ regla multi-archivo respetada sobre el sustrato nuevo.
+
+**Tech de PLAN ejercida** (ADR-012): stdlib pura (mini-PBT a mano, scanner regex, JSON) — 0 deps nuevas.
+**Diferido honesto**: el registro on-disk del `generator` como `subagent_type` necesita reinicio de sesión →
+el dogfood vivo usó `general-purpose` pineado a Sonnet con el MISMO protocolo `generate-slot` (los dientes de
+máquina ya están probados por bloqueo en `test_delegation.py`; el agent `generator` queda listo para la próxima
+sesión). PBT multi-propiedad + security feed-vivo OSV + `strict` adoptado por las fábricas = upgrades-hasta-medición.
+El split del monolito sigue siendo **Fase 3 `MONOLITH-REFACTOR`**, FORZADO por `quality` y ahora tomable por
+slots acotados vía este arnés.

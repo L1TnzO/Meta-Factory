@@ -1,7 +1,46 @@
-<!-- meta:doc sha=08d77ec83070bfeb4037c7bda42eb07e2229582e updated=2026-06-25T22:42Z -->
+<!-- meta:doc sha=44b851692346d13b955fe2287354542cb53e9c9d updated=2026-06-26T02:03Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T02:00Z — DELEGATION-HARNESS ✅ (SOTA Fase 2): el arnés verificar-no-revisar + 3 gates, con dogfood vivo
+- **El loop con dientes de MÁQUINA (ADR-017 §2), no por confianza.** `src/metafactory/delegation.py` es la ley
+  del slot (single-source, DATA-agnóstica): blast-radius (un generator escribe SÓLO dentro del slot declarado) +
+  verdict-required (no termina sin un veredicto bien-formado). Los hooks `blast_radius`(PreToolUse) y
+  `verdict_required`(Stop→SubagentStop) son transportes finos que viven SÓLO en el frontmatter del agent
+  `generator` → corren mientras ESE subagente está activo, **nunca globales**: cero efecto en esta sesión ni en
+  otros agentes. Agents generator(sonnet)/verifier(haiku)/reviewer(opus)/orchestrator(opus) + skill `generate-slot`.
+- **Mecánica de Claude Code 2.1.193 VERIFICADA contra docs oficiales** (no supuestos): hooks por-agente en
+  frontmatter (`Stop`→`SubagentStop`), `agent_id`/`agent_type` en el input, subagente con nombre devuelve SÓLO su
+  mensaje final → el código generado NO entra al contexto de Opus. Esto resolvió de raíz el riesgo "un hook
+  global rompería la sesión": el diseño correcto es per-agente.
+- **Dogfood VIVO del propio modelo de costos.** El slot `graph/pbt_properties.py` (la suite de propiedades del
+  grafo de Fase 1) lo escribió un **generator Sonnet** (subagent_tokens 43.354, 13 tool-uses) vía contrato (stub
+  tipado) + manifiesto (`.gen/active_slot.json`); devolvió SÓLO `{status:green, check:pbt_gate, exit_code:0}`;
+  **Opus verificó por BLOQUEO** corriendo `pbt_gate` (exit 0), sin leer una línea del código generado.
+- **3 tipos de gate nuevos, dos-lados como `quality`/`rtm_tree`, cableados a `meta check` (7/7 → 10/10):**
+  - **`pbt`** (Fase 2): orquesta un `pbt_cmd` DECLARADO (DATA); propiedad sostenida (seed fijo → re-derivable,
+    I-3) + bajo `METAFACTORY_PBT_SABOTAGE=1` la propiedad DEBE morder (contraejemplo `incremental != full`).
+  - **`security`** (Fase 3): scan de secretos heredable (generaliza FSK s4), stdlib sin red; sustrato limpio (97
+    archivos) + fixture plantado (clave EXAMPLE de AWS + PEM, nunca real) muerde.
+  - **`deferred`** (Fase 4): `declared-deferred` con dientes.
+- **Lección de honestidad: el tooth de deferrals es OPT-IN, no retroactivo — DECIDIDO TRAS MEDIR.** Medición:
+  **49 deferrals legacy bare** en las specs (FSK 41 en PROSA dentro de `tech:` + ASF 8 estructurales). Un tooth
+  HARD las pondría en falso-rojo (regresión + churn cross-fábrica, viola ADR-016). ⇒ `governance.deferral_tracking:
+  strict` (opt-in): bajo strict, `declared-deferred` sin `deferral{trigger,since}` → M0 rojo; legacy bare → verde
+  (forward pressure, no breakage). El check `declared_deferred` mide la acumulación ESTRUCTURAL (las de prosa son
+  invisibles a cualquier gate — exactamente el "escape sin gate" que diagnosticó ADR-017).
+- **`meta outcome`**: RTM/fábrica (**54/54**) + ΔRTM vs baseline + deuda (0/2 tracked) + puntero al billing-ledger
+  ⇒ "terminado" y "valió la pena" decidibles, no narrados.
+- **El split del build, honesto: 22% delegado** (`docs/work/DELEGATION-HARNESS-billing.json`: generate/sonnet
+  43.354 · brain/opus 153k estimate · 0 haiku). MENOR que Fase 1 (36%) **porque casi toda la Fase 2 es la COLUMNA**
+  (hooks, ley-del-slot, kinds de gate) = trust-chain que se escribe con ojos propios; lo único bulk-delegable fue
+  la suite de propiedades. La fracción delegable depende de cuánto del incremento es columna vs bulk — no se infla.
+- **Diferido honesto**: el registro on-disk del agent `generator` como `subagent_type` necesita reinicio de sesión
+  → el dogfood usó `general-purpose` pineado a Sonnet con el MISMO protocolo (los dientes ya probados por bloqueo).
+- 30 tests nuevos (test_delegation 16 · test_security_scan 4 · test_deferral_governance 10). Sustrato sin tech
+  (`generality` verde). **Siguiente = Fase 3 `MONOLITH-REFACTOR`** (el gate `quality` FUERZA partir el monolito,
+  ahora por slots acotados que el arnés delega a Sonnet). Evidencia: `work/DELEGATION-HARNESS-INCREMENT.md §Evidencia`.
 
 ## 2026-06-25T22:41Z — GRAPH-SPINE-KEYSTONE ✅ (SOTA Fase 1): el grafo-columna + gate de calidad + billing, delegado
 - **La piedra angular del rediseño (ADR-017).** UN solo grafo content-addressed (`src/metafactory/graph/`,

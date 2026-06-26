@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fa6314357275dc9c55c635248330944f90bb6765 updated=2026-06-25T22:39Z -->
+<!-- meta:doc sha=61c76d5a280a826cf5efb06d7e3d200437d7e402 updated=2026-06-26T02:02Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -16,11 +16,13 @@
 > de partida. Lo de abajo es el historial A–G (contexto), no el plan vigente.
 >
 > **Progreso SOTA:** **Fase 0 `SOTA-REDESIGN-DIRECTION` ✅** · **Fase 1 `GRAPH-SPINE-KEYSTONE` ✅ (2026-06-25)**
-> — grafo content-addressed (AST+RTM+ADR, 2-hop sin LLM, incremental) + gate de calidad `quality` cableado a
-> `meta check` (7/7, dogfood dos-lados) + billing-ledger con split brain/generate/read; construido delegando 2
-> módulos a Sonnet + 1 read a Haiku (verificar-no-revisar). **Siguiente = Fase 2 `DELEGATION-HARNESS`**
-> (agents/skills/hooks de `.claude/` + PBT + gate al `declared-deferred`) · Fase 3 `MONOLITH-REFACTOR` (el gate
-> `quality` ya marca `scaffold_product.py` ROJO y lo FUERZA) · Fase 4 `REAIM-SWEET-SPOT`.
+> — grafo content-addressed (AST+RTM+ADR, 2-hop sin LLM, incremental) + gate `quality` (dos-lados) + billing-ledger ·
+> **Fase 2 `DELEGATION-HARNESS` ✅ (2026-06-26)** — arnés verificar-no-revisar con dientes de máquina (`delegation.py`
+> + hooks `blast_radius`/`verdict_required` por-agente + agents generator/verifier/reviewer/orchestrator + skill
+> `generate-slot`) + 3 gates dos-lados cableados a `meta check` (**10/10**): `pbt` (dogfoodeado spawneando un
+> generator Sonnet) · `security` (scan de secretos heredable) · `deferred` (`declared-deferred` strict opt-in, cero
+> regresión) + `meta outcome` (RTM+ΔRTM+deuda+costo). **Siguiente = Fase 3 `MONOLITH-REFACTOR`** (el gate `quality`
+> ya marca `scaffold_product.py` ROJO y lo FUERZA; ahora tomable por slots acotados vía el arnés) · Fase 4 `REAIM-SWEET-SPOT`.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

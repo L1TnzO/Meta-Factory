@@ -1,4 +1,4 @@
-<!-- meta:doc sha=53e7965b6fc10d8364b2aeedbf7c72ff0747a9b6 updated=2026-06-26T04:06Z -->
+<!-- meta:doc sha=5a5352eb354176afb1f54f70ac864e4f022beda8 updated=2026-06-26T13:01Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: PWF-VOCAB-HARVEST-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -77,7 +77,18 @@
   rigor que falla / draft lo SALTA sin fingirlo). **Adopción** (qué estaciones son harden) = DATA por-fábrica,
   declared-deferred (hoy ninguna línea la declara → `--mode draft` es no-op honesto, el rótulo lo dice).
   Evidencia: `work/DRAFT-HARDEN-DIAL-INCREMENT.md`.
-  **Siguiente dentro de Fase 4 = la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF (+ taggear la capa de rigor de FSK como adopción del dial).**
+- **PWF-VOCAB-HARVEST ✅ (Fase 4 §4, meta, 2026-06-26) — la ontología WorkOrder/AgentSpec de PWF, CON DIENTES.**
+  El manifiesto de slot (Fase 2) ES un WorkOrder; cosecha los campos de gobierno de PWF (Professor Web Factory)
+  como **opcionales pero VALIDADOS contra enum cerrado** en `delegation.manifest_problems`: `single_responsibility`
+  · `trust_level` {low,medium,high} · `cost_class` {cheap,standard,premium} (routing-as-data + billing) ·
+  `side_effects` ⊆ {files,network,process} · `forbidden_tools` (least-priv) · `model_policy` {temperature,seed,
+  strict_json}. PWF tenía la ontología SIN dientes (gates por construcción); acá un WorkOrder mal formado se
+  rechaza ANTES de spawnear. Documentado en el skill `generate-slot`. Probado por bloqueo (`tests/test_delegation.py`,
+  26: bien formada pasa · backward-compatible · cada campo malo se marca). Evidencia: `work/PWF-VOCAB-HARVEST-INCREMENT.md`.
+- **✅ FASE 4 `REAIM-SWEET-SPOT` COMPLETA (2026-06-26)** — el re-apunte al sweet-spot CERRADO en 4 §: §1 producto
+  `FSK-HELPDESK` (5 ent, cero codegen) · §2 benchmark verificable (`meta benchmark`, snipeit→techo como hecho) ·
+  §3 dial borrador→endurecer · §4 vocab WorkOrder de PWF con dientes. `meta check` 11/11. **Siguiente norte abierto**
+  (no decidido): adopción del dial (taggear la capa de rigor de FSK) · `LEAST-PRIV-DECOUPLE` (ADR-016 Fase 2, diferido).
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

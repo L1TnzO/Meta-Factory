@@ -32,14 +32,29 @@ description: >-
    is denied by the `blast_radius` hook. Smaller is safer — change-scope == verification-scope.
 3. **Pick the gate.** `gate_cmd` is the deterministic command that exits 0 iff the slot is correct. Prefer a PBT
    gate (`pbt` kind) where a property holds — it finds ~30% more bugs than example tests.
-4. **Write the manifest** to `.gen/active_slot.json`:
+4. **Write the manifest** to `.gen/active_slot.json` — the manifest IS a WorkOrder (a bounded unit of
+   delegated work + its governance contract):
    ```json
    {"slot_id": "<name>", "contract": "<typed signature / pointer>",
     "allow_globs": ["src/.../target.py"], "gate_cmd": ["python3","-m","..."],
-    "verdict_path": ".gen/<slot>.verdict.json"}
+    "verdict_path": ".gen/<slot>.verdict.json",
+    "single_responsibility": "<the slot's ONE job, one line>",
+    "trust_level": "low|medium|high", "cost_class": "cheap|standard|premium",
+    "side_effects": ["files"], "forbidden_tools": ["WebFetch"],
+    "model_policy": {"temperature": 0, "seed": 7, "strict_json": true}}
    ```
    (`.gen/` is gitignored — manifest and verdict are re-derivable, never the root of trust.) The substrate
    helper `metafactory.delegation.manifest_problems(manifest)` shape-checks it before you spawn.
+   **The WorkOrder vocab** (harvested from PWF's AgentSpec/WorkOrder ontology, ADR-017 Fase 4 — optional but
+   VALIDATED against a closed set when present, so a malformed WorkOrder is rejected before any spawn):
+   - `single_responsibility` — the slot's ONE job; if you can't state it in a line, the slot is too big (split it).
+   - `trust_level` — how much autonomy: `low` (review the diff with your own eyes) · `medium` (read the verdict,
+     spot-check) · `high` (verdict only). Gates how deep YOUR review must be.
+   - `cost_class` — which model tier should take it (`cheap`=Sonnet/Haiku · `standard` · `premium`=Opus); the
+     routing-as-data + billing-ledger axis (VISION §4): don't spend Opus on cheap bulk.
+   - `side_effects` — the blast surface BEYOND file writes (`network`/`process`); declare it so it's not a surprise.
+   - `forbidden_tools` — least-privilege denials for the worker (e.g. no `WebFetch` for a pure-codegen slot).
+   - `model_policy` — determinism knobs for the worker (`temperature: 0`, a fixed `seed`, `strict_json`).
 5. **Spawn the generator** with the Agent tool (`subagent_type: generator`): a short task pointing at the slot.
    The generator implements, runs `gate_cmd`, writes the verdict, and returns only a one-line status. Its two
    frontmatter hooks make this safe: a write outside `allow_globs` → blocked; finishing without a well-formed

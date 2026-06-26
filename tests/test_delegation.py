@@ -85,6 +85,36 @@ def test_manifest_problems_shape(tmp_path):
     assert any("verdict_path" in p for p in probs) and any("allow_globs` must be a list" in p for p in probs)
 
 
+# ── WorkOrder vocab (PWF harvest): optional but validated against a closed set ──
+def test_workorder_vocab_well_formed_passes(tmp_path):
+    slot = _slot(tmp_path) | {
+        "trust_level": "medium", "cost_class": "cheap", "side_effects": ["files"],
+        "forbidden_tools": ["WebFetch"], "single_responsibility": "render the contract handler",
+        "model_policy": {"temperature": 0, "seed": 7, "strict_json": True},
+    }
+    assert delegation.manifest_problems(slot) == []
+
+
+def test_workorder_vocab_backward_compatible(tmp_path):
+    assert delegation.manifest_problems(_slot(tmp_path)) == []  # no vocab declared -> still valid
+
+
+@pytest.mark.parametrize("field,value,needle", [
+    ("trust_level", "ultimate", "trust_level` invalid"),
+    ("cost_class", "free", "cost_class` invalid"),
+    ("side_effects", ["files", "gpu"], "side_effects` has unknown"),
+    ("side_effects", "files", "side_effects` must be a list"),
+    ("forbidden_tools", "Write", "forbidden_tools` must be a list"),
+    ("single_responsibility", "  ", "single_responsibility` must be a non-empty"),
+    ("model_policy", {"top_p": 1}, "model_policy` has unknown keys"),
+    ("model_policy", "temp0", "model_policy` must be an object"),
+])
+def test_workorder_vocab_rejects_malformed(tmp_path, field, value, needle):
+    slot = _slot(tmp_path) | {field: value}
+    probs = delegation.manifest_problems(slot)
+    assert any(needle in p for p in probs), probs
+
+
 # ── the HOOKS (real subprocess, as the harness runs them) ──────────────────────
 @pytest.fixture
 def active_manifest():

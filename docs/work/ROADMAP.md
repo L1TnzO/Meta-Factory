@@ -1,4 +1,4 @@
-<!-- meta:doc sha=61c76d5a280a826cf5efb06d7e3d200437d7e402 updated=2026-06-26T02:02Z -->
+<!-- meta:doc sha=67757cd2cf001774b35db0164d73c9de9ab61dfa updated=2026-06-26T03:00Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -21,8 +21,13 @@
 > + hooks `blast_radius`/`verdict_required` por-agente + agents generator/verifier/reviewer/orchestrator + skill
 > `generate-slot`) + 3 gates dos-lados cableados a `meta check` (**10/10**): `pbt` (dogfoodeado spawneando un
 > generator Sonnet) · `security` (scan de secretos heredable) · `deferred` (`declared-deferred` strict opt-in, cero
-> regresión) + `meta outcome` (RTM+ΔRTM+deuda+costo). **Siguiente = Fase 3 `MONOLITH-REFACTOR`** (el gate `quality`
-> ya marca `scaffold_product.py` ROJO y lo FUERZA; ahora tomable por slots acotados vía el arnés) · Fase 4 `REAIM-SWEET-SPOT`.
+> regresión) + `meta outcome` (RTM+ΔRTM+deuda+costo) · **Fase 3 `MONOLITH-REFACTOR` ✅ (2026-06-26)** — el monolito
+> de 8552 LOC `scaffold_product.py` PARTIDO en el paquete `codegen/scaffold/` (16 módulos, DAG acíclico) byte-idéntico
+> (`ci --rederive --all-products == pin`), por un transform DETERMINISTA (no delegado — un refactor byte-idéntico es
+> mecánico); el gate `quality` re-asentó su lado-ROJO a un witness sintético + ganó un diente HACIA-ADELANTE sobre la
+> codegen de fábrica (`file_loc`+`funcs`, glob, generality-safe) → ninguna codegen puede re-monolitizarse. Dos
+> incrementos por nivel (ADR-016): `MONOLITH-REFACTOR` (meta) + `FSK-CODEGEN-SPLIT` (fábrica). **Siguiente = Fase 4
+> `REAIM-SWEET-SPOT`** (benchmark 80% CRUD 5-8 entidades; Snipe-IT → regresión; dial borrador→endurecer; vocab PWF).
 
 ## 0. Si llegás sin contexto, leé en este orden
 

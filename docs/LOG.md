@@ -1,7 +1,34 @@
-<!-- meta:doc sha=44b851692346d13b955fe2287354542cb53e9c9d updated=2026-06-26T02:03Z -->
+<!-- meta:doc sha=de6754b835a7a454e1cf8d0d222704600cd0d6e7 updated=2026-06-26T03:01Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T03:00Z — MONOLITH-REFACTOR ✅ (SOTA Fase 3): el monolito de 8552 LOC PARTIDO, byte-idéntico, + gate hacia-adelante
+- **El monolito dejó de existir.** `factories/full-stack-kotlin/codegen/scaffold_product.py` (8552 LOC, 174
+  funcs — el único ROJO del gate `quality` desde Fase 1) se partió en el paquete `codegen/scaffold/` (16 módulos
+  cohesivos): `constants` (81 pins) · `base` (42 helpers) · `blueprint` (loader+validador) · 11 emisores por
+  concern/estación (`contract`·`data_layer`·`auth`·`server`·`frontend`·`browser`·`buildcfg`·`quality_tooling`·
+  `pyramid`·`observability`·`deploy`) · `__init__` (`build_files`). **DAG de imports ACÍCLICO** (Tarjan en el
+  transform): cada concern → `base` → `constants`. Entry `scaffold_product.py` queda en **104 LOC** (glue:
+  main/_emit/_check_idempotent + import de `build_files`).
+- **Refactor de PRESERVACIÓN DE COMPORTAMIENTO, probado por bloqueo — NO narrado.** `build_files(bp)` es
+  **byte-idéntico** monolito-viejo (git HEAD) vs paquete-nuevo en los **3 blueprints** (hashes SHA-256 por
+  archivo: webapp 73 · snipeit 75 · assets 73, 0 diffs) · `--selftest`/`--check-idempotent` OK · `ci --rederive
+  --all-products == pin` (3/3 en clon limpio aislado) · product-run default e2e VERDE (s11 a través del nuevo entry).
+- **Calibración HONESTA: el split NO se delegó a Sonnet.** Un refactor byte-idéntico es un transform DETERMINISTA
+  (slices de fuente por span AST byte-preservados + headers de import computados del grafo de llamadas, I-3) — el
+  arnés `generate-slot` es para GENERAR código nuevo, no para preservar bytes; delegarlo a un LLM agregaría riesgo
+  sin valor. El árbitro fue `ci --rederive`, no la confianza en el transform. (Lección: "verificar-no-revisar" no
+  significa "delegá todo"; significa gastar el modelo correcto en cada trabajo.)
+- **El gate `quality` sobrevivió al split Y ganó dientes hacia-adelante (ADR-016, dos incrementos por nivel).**
+  Su lado-ROJO era el PATH del monolito (`evaluate_file` sobre `scaffold_product.py`) → partirlo lo habría vuelto
+  decorativo. Re-asentado a un **witness sintético permanente** (`tests/fixtures/quality/monolith_shaped.py`) +
+  un **diente HACIA-ADELANTE** que escana la codegen autorada de fábrica (`factories/*/codegen/**`, glob
+  generality-safe; `file_loc`+`funcs`, `func_loc` EXENTO porque la codegen emite templates largos legítimos) →
+  si CUALQUIER codegen vuelve a ser monolito, `meta check` ROJO. Más general que antes (cero nombres de
+  producción). Dos lados VIVO: post-split 22 archivos limpios → verde · monolito-shaped soltado → ROJO.
+- **Incrementos**: `FSK-CODEGEN-SPLIT` (fábrica, el split — `git diff src/+seed/`=0, DATA ADR-012) +
+  `MONOLITH-REFACTOR` (meta, el gate). `meta check` **10/10**. Evidencia en ambos `§Evidencia`. Sigue Fase 4 `REAIM-SWEET-SPOT`.
 
 ## 2026-06-26T02:00Z — DELEGATION-HARNESS ✅ (SOTA Fase 2): el arnés verificar-no-revisar + 3 gates, con dogfood vivo
 - **El loop con dientes de MÁQUINA (ADR-017 §2), no por confianza.** `src/metafactory/delegation.py` es la ley

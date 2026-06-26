@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c9830668c37aa5c77bf02ee293968fbf8e6b6184 updated=2026-06-26T02:30Z -->
+<!-- meta:doc sha=950ec368ed97d5461b493c86eebbf2f8396e2d16 updated=2026-06-26T03:03Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MONOLITH-REFACTOR-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -42,8 +42,22 @@
   verdes, cero regresión; el strict muerde). **`meta outcome`** = RTM/fábrica + ΔRTM + deuda + costo ⇒ "valió la
   pena" decidible. Billing del build: **22% delegado** (< Fase 1 36% PORQUE casi toda la Fase 2 es la columna =
   trust-chain, correctamente no delegada). 30 tests nuevos. Evidencia: `work/DELEGATION-HARNESS-INCREMENT.md §Evidencia`.
-  **Siguiente = `MONOLITH-REFACTOR`** (Fase 3: el gate `quality` FUERZA partir `scaffold_product.py` por slots
-  acotados que este arnés ya puede delegar a Sonnet).
+- **MONOLITH-REFACTOR ✅ (Fase 3, 2026-06-26)** — el monolito de **8552 LOC** (`scaffold_product.py`, el único
+  ROJO del gate `quality`) **dejó de existir**, partido en el paquete `factories/full-stack-kotlin/codegen/scaffold/`
+  (16 módulos cohesivos, DAG de imports ACÍCLICO: cada concern → `base` → `constants`; entry delgado 104 LOC) —
+  **byte-idéntico** (refactor de preservación de comportamiento). DOS incrementos por nivel (ADR-016): **(a) FÁBRICA
+  `FSK-CODEGEN-SPLIT`** — el split, transform DETERMINISTA (slices por span AST + headers de import del grafo de
+  llamadas), **NO delegado** (calibración honesta: el arnés es para GENERAR, no para refactors byte-idénticos; un
+  LLM agregaría riesgo sin valor); probado por bloqueo: `build_files` byte-idéntico en los 3 blueprints (webapp 73 ·
+  snipeit 75 · assets 73 archivos) + `ci --rederive --all-products == pin` (3/3 en clon limpio) + product-run e2e
+  VERDE; `git diff src/+seed/`=0. **(b) META `MONOLITH-REFACTOR`** (sustrato) — el gate `quality` dejó de apuntar al
+  PATH del monolito y ahora: su **lado-ROJO es un witness sintético** (`tests/fixtures/quality/monolith_shaped.py`,
+  permanente) + un **diente HACIA-ADELANTE** que escana la codegen autorada de fábrica (`factories/*/codegen/**`,
+  glob; `file_loc`+`funcs`, `func_loc` exento porque la codegen emite templates largos) → si una codegen vuelve a
+  ser monolito, `meta check` ROJO. MÁS general que antes (cero nombres de producción). `meta check` **10/10**.
+  Evidencia: `work/MONOLITH-REFACTOR-INCREMENT.md` + `factories/full-stack-kotlin/docs/work/FSK-CODEGEN-SPLIT-INCREMENT.md`.
+  **Siguiente = Fase 4 `REAIM-SWEET-SPOT`** (benchmark del 80% CRUD 5-8 entidades; Snipe-IT → regresión; dial
+  borrador→endurecer; cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF).
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

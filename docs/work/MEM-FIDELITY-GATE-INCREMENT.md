@@ -1,7 +1,7 @@
-<!-- meta:doc sha=0e00844781b4711966d5a317c47cbd3b76605188 updated=2026-06-26T20:09Z -->
+<!-- meta:doc sha=f46856283660d2eec929391f3905b66d38df97c2 updated=2026-06-26T20:13Z -->
 # Incremento MEM-FIDELITY-GATE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T20:08Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T20:13Z) (creado 2026-06-26T20:08Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

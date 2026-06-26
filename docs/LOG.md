@@ -1,7 +1,42 @@
-<!-- meta:doc sha=4987b4a2221f186a2d154732b555ca1301ad8b7e updated=2026-06-26T20:02Z -->
+<!-- meta:doc sha=5c5604e5fa3d409aa85531fa6dc83b040d82ff07 updated=2026-06-26T20:14Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T20:13Z — M3 (MEM-FIDELITY-GATE) ✅: el gate de fidelidad STATE-vs-`.proof/` (con diente)
+- **Qué (ADR-019 §4):** el sello (ADR-009) dice *si STATE cambió*; faltaba un gate que dijera *si es VERDAD*.
+  `state_fidelity` lo cierra: prueba que la PROSA de «Ahora» no **CONTRADICE** la verdad re-derivable del `.proof/`.
+  Es el hueco que la literatura declara abierto (Wallat: **faithfulness ≠ correctness**; ClawVM) y que NOSOTROS
+  podemos cerrar **con diente** porque el ground-truth es proof DETERMINISTA, no prosa ni un juez-LLM. Es la primera
+  de las apuestas M3/M4/M6 que se construye CONTRA el observador (M5) en vez de a ciegas — el error de `recall`.
+- **El contrato (dos-lados):** para cada fábrica con status R re-derivado de `.proof/`, en la prosa de «Ahora»:
+  (a) NO afirma `COMPLETE` lo que el proof marca `INCOMPLETE`; (b) NO afirma `INCOMPLETE` lo que el proof marca
+  `COMPLETE`. Cada token de status se atribuye a la fábrica MÁS CERCANA en la línea dentro de una ventana (60 ch,
+  corta el cross-talk entre dos slugs); el vocabulario son las MISMAS palabras del RTM (COMPLETE/INCOMPLETE +
+  flexiones es, UPPERCASE) → el ground-truth queda ACOPLADO al oráculo y la prosa española común («solución
+  completa») no muerde. NO auto-reescribe (auto-reescribir es lo que causa la deriva; ADR-019 §Rechazado): **falla
+  y señala**.
+- **Single-source:** `projection.rtm_statuses()` es la nueva fuente ESTRUCTURADA `{slug:(status,sat,total)}`
+  re-derivada del proof; `rtm_status` la formatea (salida **byte-idéntica** → proyección/`column_parity` intactos).
+  Una sola lectura del proof alimenta la proyección y el gate; el detector (`fidelity_problems`) es PURO (lista +
+  dict → lista), por eso el diente corre sin tocar el árbol.
+- **Cero-toque al observador:** el gate fluye a la serie `fidelity` (M5) por NOMBRE — `instrument.FIDELITY_CHECKS`
+  ya listaba `state_fidelity` → **0 cambios a `instrument.py`**. `meta metrics` ya lo resume (FIDELIDAD 4/4 OK ·
+  última `state_fidelity` OK). M5 prometió que la apuesta fluiría sola; cumplió.
+- **Diente DOS-LADOS** (`tests/test_state_fidelity.py`, 10 casos): ambas contradicciones MUERDEN; la prosa
+  VERDADERA y un token fuera de ventana NO; `full-stack-kotlin` no sangra sobre `full-stack` (token acotado,
+  longest-slug-wins); el status se atribuye a la fábrica más cercana; prosa minúscula no muerde; el «Ahora» REAL
+  del repo es fiel. Cero modelo (oráculo determinista, no juez-LLM).
+- **Descartado (y por qué NO):** (1) *detección de fidelidad por LLM* — tenemos el oráculo determinista (ADR-019
+  §Rechazado); un juez-LLM sería más caro y menos confiable que re-derivar el `.proof/`. (2) *auto-reescribir
+  «Ahora» a la verdad* — auto-reescribir ES lo que causa la deriva; el gate FALLA y SEÑALA, el humano corrige.
+  (3) *vocabulario amplio (✅, «roto», «regresión»)* — false-positives sobre la prosa real (que usa ✅ para hitos);
+  el vocabulario se ata a las palabras LITERALES del RTM. (4) *un nuevo `meta`-verbo* — es un check de `meta check`,
+  el hogar de los gates; podar > agregar.
+- **Resultado:** `meta check` **14/14** verde (suite incluida) · RED aislado al inyectar «fábrica X
+  COMPLETE/INCOMPLETE» falso vs el RTM real, VERDE al quitarlo · árbol limpio · 2 commits (36d8b36 código → cierre).
+  Roadmap MEMORIA v2: hechos M1+M2+M5+**M3**; siguen (uno por nivel) **M4 (hook PreCompact)** · **M6 (dedup
+  3-memorias)** — ambas ya leíbles contra el observador.
 
 ## 2026-06-26T20:01Z — M5 (MEM-INSTRUMENT) ✅: el path de inyección instrumentado (3 series, observador puro)
 - **Qué (ADR-019 §5):** el path de inyección de contexto (la rehidratación de SessionStart) era el ÚNICO path de

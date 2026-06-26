@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `16fc07e2e74b` | 2026-06-26T13:02Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `c5e17fe03c4a` | 2026-06-26T13:01Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `bbd77526bb83` | 2026-06-26T13:26Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `443b764e124c` | 2026-06-26T13:23Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -25,6 +25,7 @@
 | `docs/decisions/015-reutilizacion-factory-n-productos.md` | `80014a4827a5` | 2026-06-19T23:41Z | ADR-015 — Reutilización: la fábrica es un destino reutilizable (lifecycle 1:N producto) |
 | `docs/decisions/016-layering-gobierno-por-nivel.md` | `aaa4111890a6` | 2026-06-21T02:03Z | ADR-016 — Layering de gobierno por nivel (docs + lifecycle de incrementos: meta / fábrica / producto) |
 | `docs/decisions/017-espina-de-grafo-y-delegacion-verificada.md` | `8e4f68e3e161` | 2026-06-25T21:36Z | ADR-017 — Re-dirección SOTA: espina de grafo de proyecto + delegación verificada (no revisada) |
+| `docs/decisions/018-columna-como-proyeccion-least-privilege.md` | `359dba29db80` | 2026-06-26T13:25Z | ADR-018 — La columna como proyección de un único source (desacople least-privilege del cp-harness) |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -81,6 +82,7 @@
 | `docs/work/H1-FACTORY-SELFGOV-INCREMENT.md` | `3dc42e03fefe` | 2026-06-18T17:50Z | Incremento H1-FACTORY-SELFGOV |
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
+| `docs/work/HARNESS-DECOUPLE-INCREMENT.md` | `8169b872479c` | 2026-06-26T13:25Z | Incremento HARNESS-DECOUPLE |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |

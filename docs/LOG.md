@@ -1,7 +1,25 @@
-<!-- meta:doc sha=16fc07e2e74b870b76a2ea695bcee9a48e10bac4 updated=2026-06-26T13:02Z -->
+<!-- meta:doc sha=bbd77526bb8317aca7510856c240978664a0de23 updated=2026-06-26T13:26Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T13:24Z — Arranca ADR-016 Fase 2 (autogobierno por nivel): ADR-018 fija «columna = proyección, no copia»
+- **Decisión del ingeniero (2026-06-26):** el próximo norte es `LEAST-PRIV-DECOUPLE`, con alcance **ADR-016
+  Fase 2 COMPLETA** (las dos mitades del autogobierno por nivel: harness least-priv + lifecycle de fábrica
+  in-tree + sellado de docs + close por-nivel). Faseado en 4 §, en orden de dolor.
+- **Diagnóstico afilado (medido por `diff`):** la columna de enforcement vive en TRES copias — meta-vivo
+  (`.claude/hooks/`), template (`template/factory/harness/`), fábrica. (2)↔(3) = 2 líneas (render fiel), pero
+  (1)↔(2) = **40–63 líneas por cerrojo**: el template es un **fork a mano rancio** y nada lo detecta. Los hooks
+  de delegación de la Fase 2 (`blast_radius`/`verdict_required`/`gate_guard`) **no existen** en la fábrica →
+  I-12 (`agent_shadow`) es HUECO a nivel fábrica; el vocabulario de WorkOrder (PWF, Fase 4 §4) tiene diente
+  arriba y no abajo. Tres patologías de una raíz: drift · capacidad faltante · privilegio mal calibrado.
+- **ADR-018 (Aprobado):** la columna de cada nivel es una **PROYECCIÓN determinista de un único source**, no
+  una copia a mano — generaliza ADR-010 («la ley en `seed/`, el hook transporta») a TODA la columna. Diente:
+  gate `column_parity` (in-tree ≡ proyección; drift = rojo). Least-priv por nivel. La frontera de seguridad se
+  mantiene: la proyección NO es spec-driven (ADR-018 §4). Single-source intacto (H1).
+- **Abierto §1 `HARNESS-DECOUPLE`** (meta, `docs/work/HARNESS-DECOUPLE-INCREMENT.md`): gate-first → source +
+  transform → propagar delegación → I-12 con diente abajo. §2–§4 (lifecycle in-tree · doc-sealing · level-close)
+  quedan nombrados en el handoff. Este commit = checkpoint de diseño (ADR + handoff + LOG), aún sin tocar sustrato.
 
 ## 2026-06-26T13:01Z — Fase 4 §4 ✅: cosecha de la vocab WorkOrder/AgentSpec de PWF (con dientes) — CIERRA Fase 4
 - **Qué deja** (meta, arnés): el manifiesto de slot (Fase 2, verificar-no-revisar) ES un WorkOrder. Cosecha

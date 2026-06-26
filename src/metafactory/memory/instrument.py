@@ -15,6 +15,10 @@ Series:
   fidelity   {kind="fidelity", check, passed, exit}
              ← the result of the FIDELITY gates over time (today `state_snapshot`; tomorrow M3's
                `state_fidelity` flows in untouched). ADR-019 §5(3).
+  compact    {kind="compact", session, trigger, increment, written}
+             ← one sample per COMPACTION boundary (M4): how often we compact, with what trigger, and
+               whether the live-state snapshot was preserved. The PAYOFF (fewer post-compaction
+               re-reads) is read by correlating this with the `thrashing` series above. ADR-019 §5, M4.
 
 It does NOT model, decide, or gate: it records and summarizes (ADR-008, the shape `recall` had
 before it was retired). The summary is bounded (CONTEXT-ECONOMY §2): never dumps the raw series.
@@ -80,9 +84,21 @@ def record_fidelity_from_proof(root: Path, proof: dict) -> list[dict]:
     return out
 
 
+def record_compaction(root: Path, *, session: str, trigger: str, increment: str | None,
+                      written: bool) -> dict:
+    """Series (4): one sample per COMPACTION boundary (M4). The PreCompact hook calls this so the bet
+    is READ against the observer (correlate with `thrashing` to see if the snapshot reduced re-reads)."""
+    return metrics.capture(root, kind="compact", session=session, trigger=trigger,
+                           increment=increment, written=bool(written))
+
+
 # ── readers / rollups (re-derive the series; never dump raw) ──────────────────
 def footprint_series(root: Path) -> list[dict]:
     return [m for m in metrics.read(root) if m.get("kind") == "footprint"]
+
+
+def compact_series(root: Path) -> list[dict]:
+    return [m for m in metrics.read(root) if m.get("kind") == "compact"]
 
 
 def thrashing_rollup(root: Path) -> dict[str, Any]:
@@ -113,7 +129,7 @@ def fidelity_series(root: Path) -> list[dict]:
 
 
 def summarize(root: Path) -> list[str]:
-    """Bounded summary (≤3 lines) of the 3 series, for `meta metrics`. Never dumps the raw series."""
+    """Bounded summary (≤4 lines) of the 4 series, for `meta metrics`. Never dumps the raw series."""
     lines: list[str] = []
 
     fps = footprint_series(root)
@@ -145,5 +161,16 @@ def summarize(root: Path) -> list[str]:
         )
     else:
         lines.append("FIDELIDAD  sin muestras (corré `meta check`)")
+
+    cps = compact_series(root)
+    if cps:
+        last = cps[-1]
+        kept = sum(1 for c in cps if c.get("written"))
+        lines.append(
+            f"COMPACTACIÓN  {len(cps)} evento(s) · {kept} con snapshot preservado · "
+            f"último {last.get('trigger', '?')} → incremento {last.get('increment') or 'ninguno'}"
+        )
+    else:
+        lines.append("COMPACTACIÓN  sin eventos (aún no se compactó esta serie)")
 
     return lines

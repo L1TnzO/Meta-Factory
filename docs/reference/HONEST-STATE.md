@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f00f94ad19bd5a6cd883f43e46a5dfe1b2cc8a54 updated=2026-06-13T20:28Z -->
+<!-- meta:doc sha=d792a5bb53200bca16c4587edcc1b1fb039fe341 updated=2026-06-26T20:33Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -85,3 +85,21 @@ de commits estructurada por área/criterio con trailers `Satisfies:`/`Proof:` (v
 Reiniciá la sesión ANTES de seguir, para que los hooks estén vivos. Commiteá por estación/requisito
 (`commit_guard` lo va a exigir). Documentá en el gate, no al final. Si suena a sermón: es literal lo
 que yo no hice — por eso lo escribo acá, no en prosa optimista.
+
+## 7. Residuales declarados (memoria v2)
+- **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
+  como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
+  aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,
+  frontera de seguridad), la capa de memoria (`session_start`/`mem_capture`/`mem_rollup` + el observador
+  M5 en `src/metafactory/memory/` + `.metamem`) es **meta-only hoy**, y la RE-INYECCIÓN vive en
+  `SessionStart` —que tampoco existe en la columna de fábrica— así que proyectar la mitad-escritura sin la
+  mitad-lectura sería un **writeback muerto**. Trigger para des-diferir: cuando la fábrica adquiera un
+  subsistema de memoria (session_start/rehydrate proyectados) — adyacente a M6. Detalle:
+  `work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md §Decisión de alcance`.
+- **M4 — ACTIVACIÓN del hook (sello de honestidad).** La LÓGICA (`memory/precompact.py`), el script
+  (`.claude/hooks/pre_compact.py`), la re-inyección (`rehydrate`, backward-compatible) y la serie M5 están
+  COMPLETAS y probadas por bloqueo (`tests/test_precompact.py` + demo e2e). La ACTIVACIÓN en producción son
+  2 líneas en `.claude/` (registrar `PreCompact` en `settings.json` + pasar `source` en `session_start.py`):
+  requieren aprobación explícita del ingeniero (el clasificador auto-modo bloquea auto-editar el arranque
+  del agente, guardrail correcto). Como los hooks se cargan al INICIO de sesión, recién quedan VIVOS tras
+  reiniciar (mismo patrón que §2). Hasta entonces: lógica lista, gatillo pendiente de 1 aprobación + reinicio.

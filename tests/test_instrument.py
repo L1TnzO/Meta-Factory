@@ -157,13 +157,15 @@ class TestFidelity:
 # ---------------------------------------------------------------------------
 
 class TestSummarize:
-    def test_empty_root_three_lines(self, tmp_path):
+    def test_empty_root_four_lines(self, tmp_path):
         lines = instrument.summarize(tmp_path)
-        assert len(lines) == 3
+        assert len(lines) == 4
         assert lines[0].startswith("FOOTPRINT")
         assert lines[1].startswith("THRASHING")
         assert lines[2].startswith("FIDELIDAD")
+        assert lines[3].startswith("COMPACTACIÓN")
         assert "sin sesiones" in lines[0]
+        assert "sin eventos" in lines[3]
 
     def test_bounded(self, tmp_path):
         # mucha data no infla el resumen: sigue acotado (CONTEXT-ECONOMY §2)
@@ -171,8 +173,9 @@ class TestSummarize:
             instrument.record_session_footprint(tmp_path, f"s{i}", "x" * 80, lines=20, now_lines=11)
             metrics.capture(tmp_path, kind="tool", tool="Read", session=f"s{i}", target=f"/f{i}.py")
             metrics.capture(tmp_path, kind="tool", tool="Read", session=f"s{i}", target=f"/f{i}.py")
+            instrument.record_compaction(tmp_path, session=f"s{i}", trigger="auto", increment="X", written=True)
         lines = instrument.summarize(tmp_path)
-        assert len(lines) == 3
+        assert len(lines) == 4
 
     def test_reflects_footprint(self, tmp_path):
         instrument.record_session_footprint(tmp_path, "s", "x" * 400, lines=24, now_lines=11)

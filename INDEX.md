@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `5c5604e5fa3d` | 2026-06-26T20:14Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `360a2027588e` | 2026-06-26T20:14Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `ca4419abe51b` | 2026-06-26T20:23Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -33,7 +33,7 @@
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `573d038dddc4` | 2026-06-21T02:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
-| `docs/reference/HONEST-STATE.md` | `f00f94ad19bd` | 2026-06-13T20:28Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
+| `docs/reference/HONEST-STATE.md` | `d792a5bb5320` | 2026-06-26T20:33Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `90c327a0d0b6` | 2026-06-26T18:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
@@ -98,6 +98,7 @@
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEM-FIDELITY-GATE-INCREMENT.md` | `f46856283660` | 2026-06-26T20:13Z | Incremento MEM-FIDELITY-GATE |
 | `docs/work/MEM-INSTRUMENT-INCREMENT.md` | `84d1a6815db9` | 2026-06-26T20:01Z | Incremento MEM-INSTRUMENT |
+| `docs/work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md` | `b5452f378bf6` | 2026-06-26T20:24Z | Incremento MEM-PRECOMPACT-SNAPSHOT |
 | `docs/work/MEM-RECALL-RETIRE-INCREMENT.md` | `636ebad4292c` | 2026-06-26T18:50Z | Incremento MEM-RECALL-RETIRE |
 | `docs/work/MEM-STATE-SNAPSHOT-INCREMENT.md` | `09a18b0775ca` | 2026-06-26T18:24Z | Incremento MEM-STATE-SNAPSHOT |
 | `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `fd8312bbabbb` | 2026-06-26T17:35Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |

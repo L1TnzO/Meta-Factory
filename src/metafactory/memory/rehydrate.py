@@ -37,9 +37,16 @@ def _fresh_docs(root: Path, n: int = 4) -> list[str]:
     return [f"{rel} ({ts})" for ts, rel in items[:n]]
 
 
-def build_payload(root: Path, session: str = "") -> str:
+def build_payload(root: Path, session: str = "", source: str = "") -> str:
     root = Path(root)
     lines = ["=== Meta-Factory · rehidratación de memoria (SessionStart) ==="]
+    # M4 (ADR-019 §5): after a lossy compaction, re-inject the preserved live state FIRST (and only if
+    # the snapshot is THIS session's — the fidelity guard lives in `precompact.surface_for_rehydrate`).
+    from . import precompact
+    preserved = precompact.surface_for_rehydrate(root, session=session, source=source)
+    if preserved:
+        lines += preserved
+        lines.append("")
     lines.append(f"Incremento abierto: {open_increment(root) or 'ninguno'}")
     blk = current_block(root)
     if blk:

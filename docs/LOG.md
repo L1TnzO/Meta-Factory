@@ -1,7 +1,25 @@
-<!-- meta:doc sha=49731cab0bb2374712054d29228ba66963d2c888 updated=2026-06-26T17:36Z -->
+<!-- meta:doc sha=83f1412c754977b296a6dfda245e1999383984d2 updated=2026-06-26T18:07Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T18:06Z — Cerrar HARNESS-DECOUPLE en su núcleo (descope honesto) → libera el slot meta para M1
+- **Disparador:** el ingeniero pidió «construí M1» (`MEM-STATE-SNAPSHOT`). M1 es un incremento meta (toca
+  `src/metafactory/verify/checks/`), pero el slot meta lo tenía `HARNESS-DECOUPLE` abierto con sus Fases 3–4
+  genuinamente sin terminar (último commit `8afab5d` = sólo Fases 1–2). Ley: un-abierto-por-nivel.
+- **Decisión (con el ingeniero):** **descope honesto** — cerrar `HARNESS-DECOUPLE` en su núcleo ENTREGADO y verde
+  (Fases 1–2: el gate `column_parity`, la fundación de fidelidad-de-proyección que caza el drift) y ESCINDIR las
+  Fases 3–4 (propagar `blast_radius`/`verdict_required` + `agent_shadow` con diente a nivel FÁBRICA) a un follow-up
+  nombrado `FACTORY-DELEGATION-TEETH-INCREMENT.md` (Estado DIFERIDO). El criterio de cierre #3 NO se cumple → se
+  MUEVE explícitamente, no se declara hecho (verify-not-fake-green). El núcleo es coherente, valioso y verde por sí.
+- **Gotcha (cazado y corregido):** el primer doc DIFERIDO escribió el literal `Estado: **ABIERTO**` en su PROSA
+  («para ejecutar, poné el header en…»). `seed/lifecycle.py::_OPEN_RE` hace `.search()` del marcador en CUALQUIER
+  parte del archivo (no sólo el header) y `DIFERIDO` no matchea → la prosa se volvió un **falso open**, y como
+  `F` < `H` alfabéticamente, `meta increment close` cerró el doc EQUIVOCADO. Fix: un doc DIFERIDO NUNCA debe
+  contener el literal `Estado: **ABIERTO/CERRADO**` salvo en su header; se describe la reactivación sin el string
+  canónico. Lección reusable para todo doc deferred futuro.
+- **Estado:** `meta increment status` = ninguno abierto · `meta check` 12/12 · árbol limpio salvo M1 por venir.
+  Sigue: abrir M1 y construir el snapshot-de-«Ahora» + su diente de presupuesto.
 
 ## 2026-06-26T17:31Z — Memoria v2: dirección fijada (ADR-019 + roadmap M1–M6), fundada en medición + literatura
 - **Disparador:** el ingeniero pidió evolucionar la arquitectura de memoria (calidad + economía de tokens).

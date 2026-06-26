@@ -1,7 +1,33 @@
-<!-- meta:doc sha=de6754b835a7a454e1cf8d0d222704600cd0d6e7 updated=2026-06-26T03:01Z -->
+<!-- meta:doc sha=450dcedb54d9cff5bd45c594037da90a8a6a36d2 updated=2026-06-26T03:52Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T03:52Z — Fase 4 §1+§2 ✅: el re-apunte al sweet-spot (producto helpdesk + benchmark verificable)
+- **El re-apunte (ADR-017 §4).** El motor estaba probado sobre Snipe-IT (19 entidades, **17 ADOPT**) = un
+  benchmark demasiado duro ("Chrome para probar un compilador"). La Fase 4 re-apunta al **sweet-spot del "80%
+  día-1"** (CRUD 5–8 entidades) y degrada Snipe-IT a techo de regresión. Dos incrementos por nivel (ADR-016).
+- **§1 `FSK-HELPDESK` (fábrica/producto) ✅** — el producto benchmark: app de helpdesk/ticketing de **5
+  entidades** (Agent·Customer·Category·Ticket·Comment), topología propia (RBAC admin/supervisor/agent ·
+  ownership Ticket→Agent · workflow con terminal `closed` + ciclo de reapertura). Generado por la línea REAL
+  FSK e2e (gradle+PG+server+Chromium) **a la PRIMERA, sin tocar el codegen** → **`git diff codegen/+src/+seed/
+  = 0`**: la tesis del re-apunte probada por el diff. RTM 25/26 (s6 keyless) · `ci --rederive` 11/11 == pin.
+  Contraste DURO con Snipe-IT (17 ADOPT vs 0). Narrado en la fábrica (`factories/full-stack-kotlin/docs/LOG.md`).
+- **§2 `REAIM-SWEET-SPOT` (meta) ✅** — el benchmark como **TARGET verificable** (de prosa a hecho): DATA
+  `benchmarks/sweet-spot-crud.yml` (entity_count ∈ [5,8] + 6 caps núcleo; helpdesk=`sweet_spot`,
+  snipeit=`ceiling`) + `verify/benchmark.py` que re-deriva el perfil SÓLO de estado COMMITEADO —spec base
+  (capability→estación, la MISMA arista que `rtm.py`) + `product.yml` + `pinned_verdict.json`—, sin `.proof/`,
+  sin re-correr la línea (barato, clon-limpio-safe) + gate dos-lados `benchmark_gate` cableado a `meta check`
+  (**11/11**, era 10/10) + verbo `meta benchmark`.
+- **El diente que importa**: helpdesk PASA / **snipeit FALLA el target (19 > 8) → la degradación de Snipe-IT
+  es un HECHO re-derivable**, no una frase. Dos-lados real: un techo que pasara ⇒ bound decorativo → rojo; una
+  regresión del sweet-spot (crecer fuera de banda) → rojo; un benchmark de un solo lado → rojo.
+- **Probado por bloqueo**: `meta benchmark` PASS 2/2 · `tests/test_benchmark.py` 9 verdes (techo decorativo ·
+  regresión · un-solo-lado · cap sin pin s6 · cap desconocida · N/A) · `meta check` 11/11 · `generality` ok
+  (el sustrato no nombra producto/fábrica — viven en el DATA; ADR-012). Commits `22d81ad` (producto) + `8ba14af`
+  (mecanismo). **Lección de calibración**: el sweet-spot se generó a la primera porque el codegen YA era general
+  (la generalidad NO se narra, es un hecho del diff) — el costo del re-apunte es CERO incrementos de fábrica.
+- **Sigue en Fase 4**: el dial borrador→endurecer + la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF.
 
 ## 2026-06-26T03:00Z — MONOLITH-REFACTOR ✅ (SOTA Fase 3): el monolito de 8552 LOC PARTIDO, byte-idéntico, + gate hacia-adelante
 - **El monolito dejó de existir.** `factories/full-stack-kotlin/codegen/scaffold_product.py` (8552 LOC, 174

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=6456af0e79b55460d0463a1e90f82609327fd181 updated=2026-06-26T03:49Z -->
+<!-- meta:doc sha=0dfea32e5693685a83eb682c63ed691fe732ebe4 updated=2026-06-26T03:52Z -->
 # Incremento REAIM-SWEET-SPOT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T03:41Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T03:52Z) (creado 2026-06-26T03:41Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

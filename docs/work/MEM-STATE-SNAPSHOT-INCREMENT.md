@@ -1,7 +1,7 @@
-<!-- meta:doc sha=6581db775b5bd274158953664237d3d7a595db62 updated=2026-06-26T18:22Z -->
+<!-- meta:doc sha=09a18b0775ca1b9628389259f00f650df579acc7 updated=2026-06-26T18:24Z -->
 # Incremento MEM-STATE-SNAPSHOT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T18:07Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T18:24Z) (creado 2026-06-26T18:07Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

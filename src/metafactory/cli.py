@@ -164,6 +164,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.benchmark_gate", str(root)]},  # dos-lados (techo debe fallar)
         {"name": "column_parity", "kind": "command",      # ADR-018 (Fase 2 §1): la columna heredada de cada
          "cmd": [py, "-m", "metafactory.verify.checks.column_parity", str(root)]},   # fábrica ≡ proyección de M1 (drift = rojo)
+        {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
+         "cmd": [py, "-m", "metafactory.verify.checks.state_snapshot", str(root)]},  # no log (presupuesto + cierre rancio = rojo)
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]

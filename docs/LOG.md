@@ -1,7 +1,32 @@
-<!-- meta:doc sha=83f1412c754977b296a6dfda245e1999383984d2 updated=2026-06-26T18:07Z -->
+<!-- meta:doc sha=e9d5fec861025a242b2e489637b655ba41d7cf3f updated=2026-06-26T18:22Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T18:22Z — M1 (MEM-STATE-SNAPSHOT) ✅: «Ahora» de STATE vuelve a ser un snapshot, con diente
+- **Qué (ADR-019 §3):** el «Ahora» de `docs/STATE.md` había degenerado a **757 líneas / ~20k tok / 11 días** —
+  la única superficie OVERWRITE del esquema (ADR-007) y por eso la única que driftea. M1 lo devuelve a un
+  **snapshot** de verdad-de-HOY + punteros (≤45 líneas) y le pone DIENTE para que no vuelva a crecer.
+- **El diente (gate-first):** `src/metafactory/verify/checks/state_snapshot.py` — parsea la sección `## Ahora`
+  (no la proyección generada, que vive arriba y queda fuera) y FALLA si (a) excede el presupuesto de líneas
+  (`NOW_BUDGET_LINES=45`) o (b) contiene una marca de cierre (✅/CERRADO/COMPLETE/DONE) con fecha más vieja que
+  `STALE_CLOSURE_DAYS=14` (un cierre fechado y rancio ya debería haber bajado a LOG). NO auto-reescribe (eso es lo
+  que causa la deriva, ADR-019 §Rechazado) — **falla y señala**. Diente RED dos-lados embebido (`_tooth_bites`:
+  ambos modos muerden sobre testigos sintéticos). Cableado a `meta check` (12→**13/13**). **Verificado ROJO sobre
+  el «Ahora» real de 757 líneas ANTES de podar** (two-sided, gate-first), VERDE después (25 líneas medidas).
+- **El podado (nada se pierde):** reduje `## Ahora` a 5 bullets-puntero (norte SOTA · memoria v2 · fábricas ·
+  autogobierno · cómo orientarse) y **retiré las secciones de historia cerrada** (`Agujeros honestos` /
+  `Siguiente`: todo ✅/CERRADO). Verifiqué ANTES de borrar que cada hito meta ya tiene su episodio en LOG (56
+  episodios: GRAPH-SPINE, DELEGATION-HARNESS, MONOLITH, REAIM, draft→harden, PWF, MAT-0..7, E/D/F…) + su
+  `work/*-INCREMENT.md §Evidencia` + `reference/HONEST-STATE.md`. STATE pasó de **857 → 47 líneas**. `Siguiente`
+  además estaba DESACTUALIZADO (afirmaba el índice semántico «diferido hasta medir» que ADR-019 ya DESCARTÓ) —
+  otra razón para no preservar prosa rancia. Copiar las 757 líneas a LOG habría sido la duplicación de 3-memorias
+  que ADR-019 combate: la historia ya estaba en LOG, sólo se RETIRÓ la 3ª copia.
+- **Gotcha (reusable):** un doc escrito vía script/Bash (no por el tool Edit/Write) NO dispara el hook `doc_stamp`
+  → el sello in-band (ADR-009) queda rancio → `docs` rojo. Fix: `docs_manifest.sync(repo_root)` re-sella + regenera
+  INDEX. (El podado lo hice con un script determinista para no arrastrar 750 líneas por el editor.)
+- **Estado:** `meta check` 13/13 · 8 tests nuevos (`tests/test_state_snapshot.py`, incl. el «Ahora» real PASA) ·
+  proyección de hechos intacta. Sigue (uno por nivel, sin abrir): M5 instrumentar · M2 retirar `recall` · M3/M4/M6.
 
 ## 2026-06-26T18:06Z — Cerrar HARNESS-DECOUPLE en su núcleo (descope honesto) → libera el slot meta para M1
 - **Disparador:** el ingeniero pidió «construí M1» (`MEM-STATE-SNAPSHOT`). M1 es un incremento meta (toca

@@ -26,6 +26,7 @@ Argv: <factory_root> <meta_root> [spec_path-rel]."""
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -48,7 +49,7 @@ def _parse_frontmatter(text: str) -> dict:
 
 
 def _wired_hook_files(factory_root: Path) -> set[str]:
-    """Nombres de archivo de hook referenciados en .claude/settings.json (los cableados)."""
+    """Nombres de archivo de hook referenciados en .claude/settings.json (los cableados GLOBALES)."""
     settings = factory_root / ".claude" / "settings.json"
     if not settings.exists():
         return set()
@@ -61,6 +62,26 @@ def _wired_hook_files(factory_root: Path) -> set[str]:
     return {p.name for p in hooks_dir.glob("*.py") if p.name in blob} if hooks_dir.exists() else set()
 
 
+def _frontmatter_wired_hooks(hooks_block) -> set[str]:
+    """Hook filenames (e.g. `blast_radius.py`) referenced by `command` strings inside an agent's
+    frontmatter `hooks:` block. A delegation tooth (`blast_radius`/`verdict_required`) is wired PER-AGENT
+    (ADR-018 §3), never global, so it never appears in settings.json — this is how the gate sees it cabled."""
+    names: set[str] = set()
+
+    def _walk(node) -> None:
+        if isinstance(node, dict):
+            for v in node.values():
+                _walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                _walk(v)
+        elif isinstance(node, str):
+            names.update(Path(m).name for m in re.findall(r"[\w./-]+\.py", node))
+
+    _walk(hooks_block or {})
+    return names
+
+
 def _violations(factory_root: Path, claude_md_max: int) -> list[str]:
     """La ley del gate (única fuente): junta los problemas de sombras + presupuesto. Vacío == verde."""
     problems: list[str] = []
@@ -70,10 +91,15 @@ def _violations(factory_root: Path, claude_md_max: int) -> list[str]:
         problems.append("harness sin agents: no hay .claude/agents/*.md (M7 hornea los contratos)")
         return problems
 
+    # Parse every agent once; a hook counts as WIRED if it is in settings.json (global) OR in any agent's
+    # own frontmatter `hooks:` block (per-agent — the delegation teeth, ADR-018 §3).
+    parsed = [(agent, _parse_frontmatter(agent.read_text(encoding="utf-8"))) for agent in agents]
     wired = _wired_hook_files(factory_root)
+    for _, fm in parsed:
+        wired |= _frontmatter_wired_hooks(fm.get("hooks"))
+
     declared = 0
-    for agent in agents:
-        fm = _parse_frontmatter(agent.read_text(encoding="utf-8"))
+    for agent, fm in parsed:
         for entry in fm.get("shadows", []) or []:
             if not isinstance(entry, dict) or "shadow" not in entry:
                 problems.append(f"{agent.name}: entrada de shadow malformada (falta `shadow`)")
@@ -86,7 +112,7 @@ def _violations(factory_root: Path, claude_md_max: int) -> list[str]:
                 continue
             if shadow.replace("\\", "/").startswith(".claude/hooks/") and shadow.endswith(".py"):
                 if Path(shadow).name not in wired:
-                    problems.append(f"{agent.name}: la sombra {shadow} es un hook MUERTO (no está cableado en settings.json)")
+                    problems.append(f"{agent.name}: la sombra {shadow} es un hook MUERTO (no cableado ni en settings.json ni en el frontmatter `hooks:` de un agent)")
     if declared == 0:
         problems.append("ningún agent declara `shadows`: el contrato I-12 no se puede verificar (sería prosa)")
 

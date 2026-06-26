@@ -44,3 +44,20 @@ def load_seed_lifecycle(root: str | None = None) -> ModuleType:
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+@lru_cache(maxsize=8)
+def load_seed_delegation(root: str | None = None) -> ModuleType:
+    """Load <root>/seed/delegation.py — the verify-not-review slot LAW (ADR-017 §2 / ADR-018).
+    Defaults to the Meta-Factory repo. Single source for both the meta (`metafactory.delegation`
+    re-exports this) and a produced factory (its inherited `blast_radius`/`verdict_required` hooks
+    load their own byte-identical copy by path), so the factory delegates with the IDENTICAL teeth."""
+    base = Path(root) if root else repo_root()
+    path = base / "seed" / "delegation.py"
+    if not path.exists():
+        raise FileNotFoundError(f"seed delegation not found at {path}")
+    spec = importlib.util.spec_from_file_location("seed_delegation", path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod

@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from metafactory.verify.checks.agent_shadow import main
+from metafactory.verify.checks.agent_shadow import _frontmatter_wired_hooks, main
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _FACTORY_ROOT = _REPO_ROOT / "factories" / "dummy"
@@ -122,3 +122,75 @@ class TestAgentShadowHermetic:
         assert (factory / ".claude" / "hooks" / "proof_protect.py").exists()
         rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
         assert rc == 1, "hook muerto (no cableado en settings.json) debe devolver 1"
+
+
+# ── per-agent wiring + delegation teeth at the factory level (ADR-018 §3) ─────
+
+
+class TestFrontmatterWiredHooks:
+    """`_frontmatter_wired_hooks` extrae los nombres de hook referenciados en un bloque
+    `hooks:` de frontmatter (el cableado PER-AGENT, alternativa a settings.json)."""
+
+    def test_extracts_hook_basenames_from_commands(self):
+        block = {
+            "PreToolUse": [
+                {"matcher": "Write|Edit|MultiEdit",
+                 "hooks": [{"type": "command",
+                            "command": 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/blast_radius.py"'}]}
+            ],
+            "Stop": [
+                {"hooks": [{"type": "command",
+                            "command": 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/verdict_required.py"'}]}
+            ],
+        }
+        assert _frontmatter_wired_hooks(block) == {"blast_radius.py", "verdict_required.py"}
+
+    def test_empty_or_none_is_empty_set(self):
+        assert _frontmatter_wired_hooks(None) == set()
+        assert _frontmatter_wired_hooks({}) == set()
+
+
+class TestDelegationTeethFactoryLevel:
+    """Las sombras de delegación (`blast_radius`/`verdict_required`) están cableadas PER-AGENT en el
+    frontmatter del writer (NUNCA en settings.json, ADR-018 §3). El gate las reconoce como vivas y el
+    negativo muerde: borrar el hook tira el gate a rojo (sombra inexistente)."""
+
+    def _copy_dummy(self, tmp_path: Path) -> Path:
+        dest = tmp_path / "dummy"
+        shutil.copytree(_FACTORY_ROOT, dest,
+                        ignore=shutil.ignore_patterns(".proof", "build", "__pycache__"))
+        return dest
+
+    def test_blast_radius_no_esta_en_settings_sino_en_frontmatter(self):
+        """La sombra de delegación se cablea per-agent, no global: blast_radius.py NO aparece en
+        settings.json, sí en el frontmatter del writer. Aún así el gate verde la reconoce."""
+        settings = (_FACTORY_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
+        assert "blast_radius" not in settings, "la tooth de delegación NO debe estar en settings.json (per-agent)"
+        writer = (_FACTORY_ROOT / ".claude" / "agents" / "writer.md").read_text(encoding="utf-8")
+        assert "blast_radius.py" in writer, "el writer debe cablear blast_radius en su frontmatter"
+        assert main([str(_FACTORY_ROOT), str(_REPO_ROOT), _SPEC_PATH]) == 0
+
+    def test_borrar_blast_radius_cae_a_rojo(self, tmp_path):
+        """Negativo (no decorativo): borrar el target de la sombra de delegación → rojo (sombra
+        inexistente). Es el diente I-12 a nivel fábrica que ADR-018 §3 exige real, no hueco."""
+        factory = self._copy_dummy(tmp_path)
+        (factory / ".claude" / "hooks" / "blast_radius.py").unlink()
+        rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
+        assert rc == 1, "borrar blast_radius.py debe tirar agent_shadow a rojo"
+
+    def test_blast_radius_sin_cablear_es_hook_muerto(self, tmp_path):
+        """Si la sombra de delegación se declara pero NADIE la cablea (ni settings.json ni el
+        frontmatter de un agent), es hook MUERTO → rojo. Aísla que el cableado per-agent es lo que
+        la mantiene verde (sin él, prosa)."""
+        import yaml
+
+        factory = self._copy_dummy(tmp_path)
+        writer_path = factory / ".claude" / "agents" / "writer.md"
+        text = writer_path.read_text(encoding="utf-8")
+        end = text.find("\n---", 3)
+        fm = yaml.safe_load(text[3:end])
+        fm.pop("hooks", None)  # quitar el cableado per-agent, dejando la sombra declarada
+        new_fm = yaml.safe_dump(fm, sort_keys=False, allow_unicode=True).rstrip("\n")
+        writer_path.write_text(f"---\n{new_fm}\n---{text[end + 4:]}", encoding="utf-8")
+        rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
+        assert rc == 1, "blast_radius declarado como sombra pero sin cablear debe ser hook muerto (rojo)"

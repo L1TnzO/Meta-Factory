@@ -165,13 +165,63 @@ def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     return msgs
 
 
+# ── verify-not-review delegation teeth, auto-wired onto Write-capable agents (ADR-018 §3) ────────────
+# The two teeth (blast_radius / verdict_required) make CHEAP delegation SAFE. They are SUBSTRATE-projected,
+# NOT spec DATA (ADR-018 §4): a spec declares the ROLE (an agent's name/model/tools), but the substrate
+# decides the ENFORCEMENT — any emitted agent that can WRITE is slot-bounded (a per-agent `hooks:` block +
+# the matching I-12 shadows), so an autonomous generator cannot escape its slot and the contract is never
+# hollow. Read-only roles (reviewer/triage) get NOTHING — least-privilege. The hooks self-gate on an active
+# slot manifest, so they are INERT outside a generation. DATA-agnostic: names a CAPABILITY (Write), no tech.
+_WRITE_TOOLS = {"Write", "Edit", "MultiEdit"}
+_BLAST_RADIUS_HOOK = ".claude/hooks/blast_radius.py"
+_VERDICT_HOOK = ".claude/hooks/verdict_required.py"
+_DELEGATION_SHADOWS = [
+    {"prohibits": "writes outside the delegated slot (blast-radius)", "shadow": _BLAST_RADIUS_HOOK},
+    {"prohibits": "finishes a generation without a well-formed verdict", "shadow": _VERDICT_HOOK},
+]
+
+
+def _delegation_wiring(tools) -> dict | None:
+    """The per-agent `hooks:` block wiring the two teeth, for an agent that can WRITE (PreToolUse →
+    blast_radius, Stop → verdict_required). None for read-only agents (least-privilege)."""
+    if not any(t in _WRITE_TOOLS for t in (tools or [])):
+        return None
+    return {
+        "PreToolUse": [
+            {"matcher": "Write|Edit|MultiEdit",
+             "hooks": [{"type": "command",
+                        "command": f'python3 "$CLAUDE_PROJECT_DIR/{_BLAST_RADIUS_HOOK}"'}]}
+        ],
+        "Stop": [
+            {"hooks": [{"type": "command",
+                        "command": f'python3 "$CLAUDE_PROJECT_DIR/{_VERDICT_HOOK}"'}]}
+        ],
+    }
+
+
+def _agent_fields(a: dict) -> dict:
+    """Frontmatter for one delegation agent. The ROLE (name/description/model/tools/shadows) is free spec
+    DATA (ADR-012); the substrate AUTO-WIRES the delegation teeth onto any Write-capable agent (ADR-018 §3) —
+    its `hooks:` block + the two I-12 shadows that `agent_shadow` then proves are real and wired."""
+    fields = {"name": a.get("name"), "description": a.get("description"),
+              "model": a.get("model"), "tools": a.get("tools")}
+    shadows = list(a.get("shadows") or [])
+    hooks = _delegation_wiring(a.get("tools"))
+    if hooks is not None:
+        fields["hooks"] = hooks
+        shadows += _DELEGATION_SHADOWS
+    fields["shadows"] = shadows
+    return fields
+
+
 def _emit_harness(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     """D2 — emit the factory's L3 harness from the spec (`machinery.harness`): agents (delegation roles +
     their I-12 shadows), commands (operator slash-commands, each carrying a runnable `run` the command_runs
     gate executes) and skills. 100% derivable from the spec (ADR-011); the substrate enumerates NOTHING —
     names/models/tools/shadows/run are free DATA the plan chose (ADR-012). The COLUMN (hooks + settings,
-    L4) stays INHERITED (D1, the security boundary); only this L3 surface is spec-driven. Each target dir
-    is regenerated to match the spec EXACTLY (a role dropped from the spec disappears from the harness)."""
+    L4) stays INHERITED (D1, the security boundary); only this L3 surface is spec-driven. The delegation
+    teeth are auto-wired onto Write-capable agents (ADR-018 §3, `_agent_fields`). Each target dir is
+    regenerated to match the spec EXACTLY (a role dropped from the spec disappears from the harness)."""
     from ..spec.loader import load_spec
 
     spec = load_spec(ctx.root / "factory.spec.yml")
@@ -179,9 +229,7 @@ def _emit_harness(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     claude = ctx.root / ".claude"
     msgs: list[str] = []
     msgs += _emit_md_items(
-        claude / "agents", harness.get("agents", []) or [], subst, label="agent",
-        fields=lambda a: {"name": a.get("name"), "description": a.get("description"),
-                          "model": a.get("model"), "tools": a.get("tools"), "shadows": a.get("shadows")})
+        claude / "agents", harness.get("agents", []) or [], subst, label="agent", fields=_agent_fields)
     msgs += _emit_md_items(
         claude / "commands", harness.get("commands", []) or [], subst, label="command",
         fields=lambda c: {"description": c.get("description"), "run": c.get("run")})

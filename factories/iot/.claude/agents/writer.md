@@ -9,6 +9,16 @@ tools:
 - Bash
 - Grep
 - Glob
+hooks:
+  PreToolUse:
+  - matcher: Write|Edit|MultiEdit
+    hooks:
+    - type: command
+      command: python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/blast_radius.py"
+  Stop:
+  - hooks:
+    - type: command
+      command: python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/verdict_required.py"
 shadows:
 - prohibits: no escribe ni edita veredictos en .proof/
   shadow: .claude/hooks/proof_protect.py
@@ -18,6 +28,10 @@ shadows:
   shadow: .claude/hooks/commit_guard.py
 - prohibits: no cierra el turno con la activa tampereada o roja
   shadow: .claude/hooks/stop_proof.py
+- prohibits: writes outside the delegated slot (blast-radius)
+  shadow: .claude/hooks/blast_radius.py
+- prohibits: finishes a generation without a well-formed verdict
+  shadow: .claude/hooks/verdict_required.py
 ---
 
 # writer — el slot de implementación de la fábrica iot

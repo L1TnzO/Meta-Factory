@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d792a5bb53200bca16c4587edcc1b1fb039fe341 updated=2026-06-26T20:33Z -->
+<!-- meta:doc sha=2ca5246e17f3a3fc47320a714a0d249e88353af2 updated=2026-06-26T21:22Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -98,8 +98,10 @@ que yo no hice — por eso lo escribo acá, no en prosa optimista.
   `work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md §Decisión de alcance`.
 - **M4 — ACTIVACIÓN del hook (sello de honestidad).** La LÓGICA (`memory/precompact.py`), el script
   (`.claude/hooks/pre_compact.py`), la re-inyección (`rehydrate`, backward-compatible) y la serie M5 están
-  COMPLETAS y probadas por bloqueo (`tests/test_precompact.py` + demo e2e). La ACTIVACIÓN en producción son
-  2 líneas en `.claude/` (registrar `PreCompact` en `settings.json` + pasar `source` en `session_start.py`):
-  requieren aprobación explícita del ingeniero (el clasificador auto-modo bloquea auto-editar el arranque
-  del agente, guardrail correcto). Como los hooks se cargan al INICIO de sesión, recién quedan VIVOS tras
-  reiniciar (mismo patrón que §2). Hasta entonces: lógica lista, gatillo pendiente de 1 aprobación + reinicio.
+  COMPLETAS y probadas por bloqueo (`tests/test_precompact.py` + demo e2e). La ACTIVACIÓN —2 líneas en
+  `.claude/` (registrar `PreCompact` en `settings.json` + pasar `source` en `session_start.py`)— se aplicó
+  CON aprobación explícita del ingeniero (el clasificador auto-modo la había bloqueado como auto-modificación
+  del arranque, guardrail correcto; la aprobación lo levantó). **Cableada y commiteada.** Como los hooks se
+  cargan al INICIO de sesión, recién queda VIVA en producción **tras reiniciar la sesión** (mismo patrón que
+  §2: la maquinaria existe pero inactiva hasta el próximo arranque). Hasta el reinicio: cableado completo,
+  fuego pendiente sólo del próximo `SessionStart`.

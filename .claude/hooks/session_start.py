@@ -16,7 +16,8 @@ def main() -> int:
     try:
         from metafactory._seed import repo_root
         from metafactory.memory import rehydrate
-        print(rehydrate.build_payload(repo_root(), session=data.get("session_id", "")))
+        print(rehydrate.build_payload(repo_root(), session=data.get("session_id", ""),
+                                      source=data.get("source", "")))
     except Exception as exc:  # best-effort: nunca romper el arranque
         print(f"(rehydrate no disponible: {exc})")
     return 0

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9fdad563cc350637d82bd221febe12e64ab0b575 updated=2026-06-26T19:56Z -->
+<!-- meta:doc sha=9c21c2ea6f1d1ffec0404a7ed42a4d3fa0d1d032 updated=2026-06-26T20:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MEM-INSTRUMENT-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -23,9 +23,10 @@
   autoritativo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. Norte abierto (no decidido): adopción del dial draft→harden.
 - **🧠 MEMORIA v2 (ADR-019) — EN CURSO.** Telemetría + literatura convergen: **podar antes de agregar** (NO
   servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`. Hecho: **M1**
-  («Ahora»=snapshot + diente `state_snapshot`) · **M2** (`meta recall` retirado — 1×/0-hit, redundante con Grep;
-  índice semántico descartado-por-medición; `MEMORY-ARCHITECTURE.md` reconciliado). Sigue (uno por nivel):
-  M5 instrumentar · M3 gate de fidelidad STATE-vs-`.proof/` · M4 hook PreCompact · M6 dedup 3-memorias.
+  («Ahora»=snapshot + diente `state_snapshot`) · **M2** (`meta recall` retirado — 1×/0-hit, redundante con Grep) ·
+  **M5** (path de inyección instrumentado: 3 series footprint·thrashing·fidelidad en `instrument.py`, observador
+  puro, resumidas por `meta metrics`). Las apuestas ya tienen observador; siguen (uno por nivel): M3 gate de
+  fidelidad STATE-vs-`.proof/` (ya leíble contra la serie) · M4 hook PreCompact · M6 dedup 3-memorias.
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de

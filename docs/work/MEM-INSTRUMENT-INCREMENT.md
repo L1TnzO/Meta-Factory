@@ -1,7 +1,7 @@
-<!-- meta:doc sha=96fa9c25a97ab90251fa66bf2f67a3523a3cb7e5 updated=2026-06-26T19:57Z -->
+<!-- meta:doc sha=84d1a6815db98625d69bd6594f3cd2677b1c90f0 updated=2026-06-26T20:01Z -->
 # Incremento MEM-INSTRUMENT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T19:56Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T20:01Z) (creado 2026-06-26T19:56Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

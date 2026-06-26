@@ -1,7 +1,38 @@
-<!-- meta:doc sha=12536249420416eb4f47e505278edbee70b90e36 updated=2026-06-26T19:40Z -->
+<!-- meta:doc sha=4987b4a2221f186a2d154732b555ca1301ad8b7e updated=2026-06-26T20:02Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T20:01Z — M5 (MEM-INSTRUMENT) ✅: el path de inyección instrumentado (3 series, observador puro)
+- **Qué (ADR-019 §5):** el path de inyección de contexto (la rehidratación de SessionStart) era el ÚNICO path de
+  memoria sin instrumentar. `recall` se midió (ADR-008) y la medición lo RETIRÓ (M2); la simetría faltante: la
+  rehidratación no se observaba. Sin series, las apuestas M3 (gate de fidelidad), M4 (PreCompact) y M6 (dedup
+  3-memorias) se construyen **a ciegas** — exactamente el error que la medición de `recall` nos enseñó a no repetir.
+  M5 es el OBSERVADOR que esas apuestas leen. No gatea, no modela, no decide: registra y resume (la forma que tuvo
+  `recall` ANTES de retirarlo). file-IO + aritmética, CERO modelo, best-effort (la captura no puede romper la línea).
+- **Las tres series** (`src/metafactory/memory/instrument.py`, módulo nuevo, en inglés por la norma 2026-06-25):
+  (1) **footprint** — `rehydrate.build_payload` registra el costo FIJADO al arrancar (`payload_chars/tokens`
+  estimados ~4 ch/tok, `lines`, `now_lines`); medido vivo: **529 tok / «Ahora» 11 ln** por sesión. (2) **thrashing**
+  — `mem_capture` (hook PostToolUse) enriquece el tool-use `Read` con `target` (el archivo); `thrashing_rollup`
+  RE-DERIVA las re-lecturas del MISMO archivo DENTRO de una sesión (el síntoma del post-compaction bootstrap fault).
+  (3) **fidelidad** — `cmd_check` registra el pass/fail de los gates de fidelidad por proof; hoy `state_snapshot`
+  (M1) ya fluye, **mañana `state_fidelity` (M3) fluye solo por nombre** (`FIDELITY_CHECKS`), sin tocar el módulo.
+- **Superficie + diente:** `meta metrics` resume las 3 (FOOTPRINT/THRASHING/FIDELIDAD), ACOTADO — nunca vuelca la
+  serie cruda (CONTEXT-ECONOMY §2). **NO es un nuevo check de `meta check`**: un observador no puede fallar por
+  telemetría vacía (sería un diente decorativo/frágil en clone limpio); el diente vive en la **suite**.
+  `test_instrument.py` (25 casos) es el diente DOS-LADOS: el rollup de thrashing MUERDE sobre una re-lectura
+  sintética y NO sobre archivos distintos / sesiones distintas / re-ediciones (`Edit` no es thrashing: editar es
+  trabajo normal, re-LEER tras perder contexto es el síntoma); la fidelidad refleja exit 0 vs ≠0; el resumen queda
+  acotado con 50 sesiones sintéticas. La prueba de «cero modelo» es el propio test (file-IO puro).
+- **Descartado (y por qué NO):** (1) *un check `meta check` para la telemetría* — observador ≠ gate; iría rojo en
+  un `.metamem` vacío (clone limpio) = decorativo. (2) *un `meta`-verbo nuevo* — `meta metrics` ya es el hogar de
+  series (podar > agregar); reusarlo evita una superficie nueva. (3) *contar `Edit`/`Write` como thrashing* — re-
+  editar es trabajo; sólo `READ_TOOLS` cuenta. (4) *fabricar un número de fidelidad mientras M3 no existe* — se
+  instrumenta lo que EXISTE (`state_snapshot`) y se deja el slot abierto por nombre; nada de data falsa.
+- **Resultado:** las 3 series VIVAS en `.metamem/metrics.jsonl` (footprint al rehidratar · target en tool-use ·
+  fidelity 1/1 OK tras `meta check`) · `meta check` **13/13** verde (suite incluida) · árbol limpio · 2 commits
+  (031bfa9 código → cierre). Roadmap: hechos M1+M2+M5; **siguen M3 (gate de fidelidad, ya leíble contra esta serie)
+  · M4 (PreCompact) · M6 (dedup 3-memorias)** — las tres apuestas ahora tienen su observador.
 
 ## 2026-06-26T19:40Z — M2 (MEM-RECALL-RETIRE) ✅: `meta recall` retirado por medición; doc-autoridad reconciliado
 - **Qué (ADR-019 §2):** ADR-007 construyó `meta recall` (Tier 2: retrieval léxico MEDIDO) y dejó abierta la

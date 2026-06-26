@@ -34,6 +34,7 @@ class Capability:
     primitive: str = ""   # DES-x (the concept), e.g. "DES-2" — NOT a tech name
     tech: str = ""        # the technology the plan chose (free DATA; never whitelisted)
     status: str = ""      # "" = unspecified (legacy); else one of STATUS_VALUES
+    deferral: dict = field(default_factory=dict)  # {trigger, since} — deferred debt with teeth (ADR-017 §4)
 
 
 @dataclass
@@ -46,6 +47,7 @@ class ProofCheck:
     runs_in: str = ""     # "" = unspecified; else one of RUNS_IN_VALUES
     toolchain: str = ""   # free DATA the plan chose
     status: str = ""
+    deferral: dict = field(default_factory=dict)  # {trigger, since} (ADR-017 §4)
 
 
 @dataclass
@@ -65,6 +67,7 @@ class SpecStation:
     status: str = ""
     builds: list[dict] = field(default_factory=list)   # executable build actions (C2 realization)
     checks: list[dict] = field(default_factory=list)    # executable engine checks (C2 realization)
+    deferral: dict = field(default_factory=dict)        # {trigger, since} (ADR-017 §4)
 
     @property
     def active(self) -> bool:
@@ -108,8 +111,15 @@ class FactorySpec:
     capabilities: list[Capability] = field(default_factory=list)
     machinery: Machinery = field(default_factory=Machinery)
     required_primitives: list[str] = field(default_factory=list)  # L1 design input: DES-x the domain needs
+    governance: dict = field(default_factory=dict)  # opt-in policy, e.g. {deferral_tracking: strict} (ADR-017 §4)
     raw: dict = field(default_factory=dict)
     path: Path | None = None
+
+    @property
+    def deferral_strict(self) -> bool:
+        """Opt-in: when set, a `declared-deferred` without a `deferral{trigger,since}` is M0-red (ADR-017 §4).
+        Default OFF so the 49 legacy bare deferrals stay green — forward pressure, not retroactive breakage."""
+        return self.governance.get("deferral_tracking") == "strict"
 
     @property
     def active_station_ids(self) -> set[str]:

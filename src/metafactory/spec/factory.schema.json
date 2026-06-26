@@ -39,6 +39,7 @@
               "name": {"type": "string"},
               "activation": {"type": "string", "enum": ["always", "optional", "off"]},
               "status": {"$ref": "#/$defs/status"},
+              "deferral": {"$ref": "#/$defs/deferral"},
               "depends_on": {"type": "array", "items": {"type": "string"}},
               "proof_checks": {"type": "array", "items": {"$ref": "#/$defs/proof_check"}}
             }
@@ -76,6 +77,13 @@
         "functional": {"$ref": "#/$defs/reqlist"},
         "nonfunctional": {"$ref": "#/$defs/reqlist"}
       }
+    },
+    "governance": {
+      "type": "object",
+      "description": "ADR-017 §4: opt-in governance policy. `deferral_tracking: strict` makes a declared-deferred without a `deferral{trigger,since}` an M0 error (forward pressure; legacy specs default off).",
+      "properties": {
+        "deferral_tracking": {"type": "string", "enum": ["strict"]}
+      }
     }
   },
   "$defs": {
@@ -89,6 +97,14 @@
       "pattern": "^DES-[0-9]+$",
       "description": "the design primitive (CONCEPT) a tech provides — never a tech name (ADR-012)."
     },
+    "deferral": {
+      "type": "object",
+      "description": "ADR-017 §4: deferred debt with teeth. When present it must carry a `trigger` (what re-activates it) + a `since` date; under `governance.deferral_tracking: strict` a declared-deferred MUST carry one.",
+      "properties": {
+        "trigger": {"type": "string"},
+        "since": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+      }
+    },
     "capability": {
       "type": "object",
       "required": ["id"],
@@ -100,7 +116,8 @@
         "proof": {"type": "string"},
         "primitive": {"$ref": "#/$defs/primitive"},
         "tech": {"type": "string", "description": "the technology the plan chose (free DATA)"},
-        "status": {"$ref": "#/$defs/status"}
+        "status": {"$ref": "#/$defs/status"},
+        "deferral": {"$ref": "#/$defs/deferral"}
       }
     },
     "proof_check": {
@@ -111,7 +128,8 @@
         "cmd": {"type": ["string", "array"]},
         "runs_in": {"type": "string", "enum": ["factory_env", "product_env"]},
         "toolchain": {"type": "string", "description": "the toolchain the plan chose (free DATA)"},
-        "status": {"$ref": "#/$defs/status"}
+        "status": {"$ref": "#/$defs/status"},
+        "deferral": {"$ref": "#/$defs/deferral"}
       }
     },
     "machinery_section": {

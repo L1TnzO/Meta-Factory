@@ -90,6 +90,27 @@ def _status_problem(status: str, where: str) -> list[str]:
     return []
 
 
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}")
+
+
+def _deferral_problem(status: str, deferral: dict, strict: bool, where: str) -> list[str]:
+    """Deferred debt with teeth (ADR-017 §4). SHAPE-only (never a tech): a `deferral` block, when present,
+    must carry a non-empty `trigger` (what re-activates it) + a `since` date (YYYY-MM-DD). Under opt-in
+    `strict` governance, a `declared-deferred` MUST carry one — turning the no-gate escape into gated debt.
+    Default (no strict): legacy bare deferrals stay green (forward pressure, not retroactive breakage)."""
+    p: list[str] = []
+    if deferral:
+        if not str(deferral.get("trigger", "")).strip():
+            p.append(f"{where}.deferral: missing `trigger` (what re-activates this debt?)")
+        since = str(deferral.get("since", ""))
+        if not _ISO_DATE.match(since):
+            p.append(f"{where}.deferral.since: {since!r} not a date (YYYY-MM-DD)")
+    elif strict and status == "declared-deferred":
+        p.append(f"{where}: status 'declared-deferred' under strict governance needs a "
+                 f"`deferral{{trigger, since}}` (ADR-017 §4: deferred debt is gated, not a free escape)")
+    return p
+
+
 def _tech_primitive_problem(tech: str, primitive: str, where: str) -> list[str]:
     """A declared tech must name the design primitive it provides (ADR-012): a floating tech is a
     hardcoded-tool smell. SHAPE only — never the tech string. `primitive` (when present) must be DES-N."""
@@ -104,12 +125,14 @@ def _tech_primitive_problem(tech: str, primitive: str, where: str) -> list[str]:
 def _validate_capabilities(spec: FactorySpec) -> list[str]:
     p: list[str] = []
     seen: set[str] = set()
+    strict = spec.deferral_strict
     for c in spec.capabilities:
         where = f"capabilities[{c.id or '?'}]"
         if c.id and c.id in seen:
             p.append(f"{where}: duplicate capability id {c.id!r}")
         seen.add(c.id)
         p += _status_problem(c.status, where)
+        p += _deferral_problem(c.status, c.deferral, strict, where)
         p += _tech_primitive_problem(c.tech, c.primitive, where)
         if c.status == "built" and not c.proof:
             p.append(f"{where}: status 'built' but no proof (SAFE-4/7: a built capability cites its proof)")
@@ -121,8 +144,10 @@ def _validate_stations_v2(spec: FactorySpec) -> list[str]:
     p: list[str] = []
     active = spec.active_station_ids
     all_ids = {s.id for s in spec.stations}
+    strict = spec.deferral_strict
     for s in spec.stations:
         p += _status_problem(s.status, f"station[{s.id}]")
+        p += _deferral_problem(s.status, s.deferral, strict, f"station[{s.id}]")
         for dep in s.depends_on:
             if dep == s.id:
                 p.append(f"station[{s.id}].depends_on: a station cannot depend on itself")
@@ -133,6 +158,7 @@ def _validate_stations_v2(spec: FactorySpec) -> list[str]:
         for pc in s.proof_checks:
             where = f"station[{s.id}].proof_checks[{pc.name or '?'}]"
             p += _status_problem(pc.status, where)
+            p += _deferral_problem(pc.status, pc.deferral, strict, where)
             if pc.runs_in and pc.runs_in not in RUNS_IN_VALUES:
                 p.append(f"{where}.runs_in: {pc.runs_in!r} not in {RUNS_IN_VALUES}")
     p += _depends_on_cycles(spec)

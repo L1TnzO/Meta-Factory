@@ -1,0 +1,24 @@
+# FIXTURE — not a real factory. Exists ONLY to give `declared_deferred` a two-sided RED tooth: it opts into
+# strict deferral tracking yet leaves a declared-deferred capability untracked, so the validator MUST flag it.
+factory:
+  name: Strict Untracked Fixture
+  slug: strict-untracked-fixture
+  maturity: prototype
+governance:
+  deferral_tracking: strict
+domain:
+  produces: nothing
+  capabilities:
+    - id: CAP-TRACKED
+      invariant: a properly deferred capability carries its trigger + date
+      status: declared-deferred
+      deferral: { trigger: "2nd substrate language exists", since: "2026-06-26" }
+    - id: CAP-UNTRACKED
+      invariant: this declared-deferred has NO deferral block under strict governance -> must be flagged
+      status: declared-deferred
+  station_sequence:
+    - id: s00
+      name: noop
+requirements:
+  functional: []
+factory_substrate: {}

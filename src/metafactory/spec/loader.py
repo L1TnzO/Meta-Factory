@@ -24,6 +24,7 @@ def _proof_check(d: dict) -> ProofCheck:
         runs_in=_str(d.get("runs_in", "")),
         toolchain=_str(d.get("toolchain", "")),
         status=_str(d.get("status", "")),
+        deferral=dict(d.get("deferral", {}) or {}),
     )
 
 
@@ -37,6 +38,7 @@ def _station(d: dict) -> SpecStation:
         status=_str(d.get("status", "")),
         builds=list(d.get("builds", []) or []),   # C2: executable realization, consumed verbatim
         checks=list(d.get("checks", []) or []),
+        deferral=dict(d.get("deferral", {}) or {}),
     )
 
 
@@ -50,6 +52,7 @@ def _capability(d: dict) -> Capability:
         primitive=_str(d.get("primitive", "")),
         tech=_str(d.get("tech", "")),
         status=_str(d.get("status", "")),
+        deferral=dict(d.get("deferral", {}) or {}),
     )
 
 
@@ -97,6 +100,7 @@ def load_spec(path: str | Path) -> FactorySpec:
         capabilities=capabilities,
         machinery=machinery,
         required_primitives=[_str(x) for x in (domain.get("required_primitives", []) or [])],
+        governance=dict(data.get("governance", {}) or {}),
         raw=data,
         path=path,
     )

@@ -154,6 +154,12 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.generality_parity", str(root)]},  # `general` sin paridad de 2 dominios
         {"name": "quality", "kind": "command",           # ADR-017 (Fase 1): gate SWE determinista sobre el
          "cmd": [py, "-m", "metafactory.verify.checks.quality_gate", str(root)]},  # grafo (tamaño/acoplamiento), dogfood dos-lados
+        {"name": "pbt", "kind": "command",               # ADR-017 (Fase 2): property-based gate sobre el grafo,
+         "cmd": [py, "-m", "metafactory.verify.checks.pbt_gate", str(root)]},      # dos-lados (sabotage debe morder)
+        {"name": "security", "kind": "command",          # ADR-017 (Fase 3): scan de secretos heredable, dos-lados
+         "cmd": [py, "-m", "metafactory.verify.checks.security_scan", str(root)]},
+        {"name": "deferred", "kind": "command",          # ADR-017 (Fase 4): declared-deferred con dientes +
+         "cmd": [py, "-m", "metafactory.verify.checks.declared_deferred", str(root)]},  # acumulación medida
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]
@@ -817,6 +823,26 @@ def cmd_billing(args) -> int:
     return run_billing(args, _meta_root())
 
 
+def cmd_outcome(args) -> int:
+    """Per-increment OUTCOME (ADR-017 §4, Fase 4): re-derive RTM coverage + deferral debt per factory and
+    point at the billing-ledger, so "done" and "worth it" are decidable, not narrated. `--baseline` diffs
+    RTM (ΔRTM); `--save` writes a snapshot to diff a future close against; `--billing` attaches the cost."""
+    from .verify import outcome
+    root = _meta_root()
+    snap = outcome.snapshot(root)
+    baseline = outcome.load(Path(args.baseline)) if getattr(args, "baseline", None) else None
+    ledger_path = Path(args.billing) if getattr(args, "billing", None) else None
+    digest = None
+    if ledger_path and ledger_path.exists():
+        from .graph.billing import BillingLedger, render_split
+        digest = render_split(BillingLedger.load(ledger_path)).splitlines()[1].strip()  # the TOTAL line
+    print(outcome.render(snap, baseline=baseline, ledger_path=ledger_path, ledger_digest=digest))
+    if getattr(args, "save", None):
+        outcome.save(snap, Path(args.save))
+        print(f"\n(snapshot guardado en {args.save} — baseline para un próximo `meta outcome --baseline`)")
+    return 0
+
+
 def _unnarrated_count(root: Path) -> int:
     """Hechos (station_run/delegation/commit) posteriores al último episodio de LOG. Surface,
     no se fuerza: el modelo decide narrar (ADR-023). Lo determinista es DETECTAR, no coaccionar."""
@@ -871,6 +897,8 @@ def build_parser() -> argparse.ArgumentParser:
     gq = gsub.add_parser("query"); gq.add_argument("--symbol", required=True)
     gr = gsub.add_parser("repomap"); gr.add_argument("--budget", type=int, default=4000)
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
+    op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
+    op.add_argument("--billing", default=None); op.set_defaults(func=cmd_outcome)
     return p
 
 

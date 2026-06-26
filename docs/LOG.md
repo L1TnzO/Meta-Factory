@@ -1,7 +1,30 @@
-<!-- meta:doc sha=bbd77526bb8317aca7510856c240978664a0de23 updated=2026-06-26T13:26Z -->
+<!-- meta:doc sha=49731cab0bb2374712054d29228ba66963d2c888 updated=2026-06-26T17:36Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T17:31Z — Memoria v2: dirección fijada (ADR-019 + roadmap M1–M6), fundada en medición + literatura
+- **Disparador:** el ingeniero pidió evolucionar la arquitectura de memoria (calidad + economía de tokens).
+  Contrastó tres fuentes: una conversación con un modelo externo (Gemini, **no-autoritativo**; su tesis fue
+  «levantá un servidor MCP de memoria semántica»), un corpus de ~30 papers, y un deep-research con literatura
+  citada re-anclado al harness de Claude Code.
+- **Medición (esta sesión, re-derivable):** `meta recall` se usó **1 vez en toda la vida del proyecto**
+  (2026-06-19, query «reutilizacion», **0 hits**) → T2 muerto, redundante con Grep. `STATE.md` «Ahora» degeneró a
+  **752 líneas / ~20k tok / 11 días** (69 bullets, 87 marcas de cierre) → la única superficie **overwrite** del
+  esquema ADR-007, inflada; la truncación del hook a `[:11]` la escondía. Corpus `docs/` ~269k tok (no entra en la
+  ventana usable, pero ya se **fetchea**, no se inyecta). CLAUDE.md 49 líneas (ok).
+- **Convergencia (lo que vuelve la decisión NO-arbitraria):** telemetría nuestra + literatura del deep-research
+  (Chroma context-rot · Letta filesystem≈/>vectorDB · ETH AGENTS.md costo-sin-ganancia · ReasoningBank/Memento
+  utilidad-por-ablación · Wallat faithfulness≠correctness · ClawVM fidelidad/writeback · LongMemEval) → **ambas
+  dicen PODAR, no agregar**. El movimiento SOTA acá es **sustractivo**.
+- **ADR-019 (Aprobado):** podar antes de agregar (NO MCP/vectorDB/graph-RAG) · retirar `recall` · STATE=snapshot /
+  LOG=historia · **fidelidad sobre frescura** (gate STATE-vs-`.proof/`, con DIENTE — el oráculo `meta check` cierra
+  el hueco que la literatura declara abierto) · medir antes de apostar · umbral explícito para algún día agregar
+  retrieval. Cierra la decisión abierta de ADR-007 regla 5 **con** la medición que pedía.
+- **Roadmap `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` (M1–M6):** doc de **dirección** (no incremento del
+  lifecycle — `HARNESS-DECOUPLE` sigue abierto; uno por nivel). Cada Move se abre con `meta increment open` al
+  ejecutarse. Orden: M1 (acotar «Ahora») + M5 (instrumentar) primero; M2; luego M3/M4; M6 al final. Este commit =
+  **checkpoint de diseño** (ADR + roadmap + STATE/LOG), aún **sin tocar sustrato**.
 
 ## 2026-06-26T13:24Z — Arranca ADR-016 Fase 2 (autogobierno por nivel): ADR-018 fija «columna = proyección, no copia»
 - **Decisión del ingeniero (2026-06-26):** el próximo norte es `LEAST-PRIV-DECOUPLE`, con alcance **ADR-016

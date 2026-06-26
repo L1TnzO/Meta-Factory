@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `bbd77526bb83` | 2026-06-26T13:26Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `443b764e124c` | 2026-06-26T13:23Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `49731cab0bb2` | 2026-06-26T17:36Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `b64e19254daa` | 2026-06-26T17:36Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -26,6 +26,7 @@
 | `docs/decisions/016-layering-gobierno-por-nivel.md` | `aaa4111890a6` | 2026-06-21T02:03Z | ADR-016 — Layering de gobierno por nivel (docs + lifecycle de incrementos: meta / fábrica / producto) |
 | `docs/decisions/017-espina-de-grafo-y-delegacion-verificada.md` | `8e4f68e3e161` | 2026-06-25T21:36Z | ADR-017 — Re-dirección SOTA: espina de grafo de proyecto + delegación verificada (no revisada) |
 | `docs/decisions/018-columna-como-proyeccion-least-privilege.md` | `359dba29db80` | 2026-06-26T13:25Z | ADR-018 — La columna como proyección de un único source (desacople least-privilege del cp-harness) |
+| `docs/decisions/019-arquitectura-de-memoria-v2.md` | `b952b838ad64` | 2026-06-26T17:34Z | ADR-019 — Arquitectura de memoria v2: podar antes de agregar, fidelidad sobre frescura, retrieval contra umbral medido |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -94,6 +95,7 @@
 | `docs/work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md` | `76204cd81424` | 2026-06-18T01:10Z | Incremento MAT-6B-MULTITOPO-GROUNDING |
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
 | `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `fd8312bbabbb` | 2026-06-26T17:35Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |

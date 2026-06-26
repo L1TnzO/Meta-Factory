@@ -1,4 +1,4 @@
-<!-- meta:doc sha=443b764e124c530a001dad849177ad2ef6b17566 updated=2026-06-26T13:23Z -->
+<!-- meta:doc sha=b64e19254daa5e51d0a2ebf707357ddf2af49f8b updated=2026-06-26T17:36Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -11,6 +11,12 @@
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
+- **🧠 MEMORIA v2 (2026-06-26, ADR-019) — dirección fijada.** Medición: `recall` **1×/0-hit** (path de consulta
+  muerto, redundante con Grep) · «Ahora» inflado a **752 líneas/~20k tok** (única superficie overwrite = drift) ·
+  corpus `docs/` ~269k tok. Convergencia telemetría + literatura (deep-research citado): **podar antes de agregar**
+  — NO servidor MCP/vectorDB/graph-RAG. Roadmap M1–M6 en `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`: M1 acotar
+  «Ahora» (snapshot≠log) · M2 retirar recall · M3 gate de fidelidad (STATE vs `.proof/`, con diente) · M4 hook
+  PreCompact · M5 instrumentar · M6 dedup 3-memorias. Higiene (M1/M2) sin medición; apuestas detrás de M5.
 - **🧭 RE-DIRECCIÓN SOTA (2026-06-25, ADR-017) — el norte vigente.** Auditoría profunda (6+3 subagentes):
   el motor FUNCIONA (FSK genera apps reales verificadas por bloqueo), falta la capa de **DIRECCIÓN**
   (outer-loop). Norte = **grafo de proyecto content-addressed** (navegación + delegación + handoff +

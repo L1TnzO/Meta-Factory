@@ -1,7 +1,41 @@
-<!-- meta:doc sha=87d38e601121ae26b061c544fe57c1d71964b462 updated=2026-06-26T22:20Z -->
+<!-- meta:doc sha=54c630662492f967f04b950640623c594bedf264 updated=2026-06-26T23:45Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T23:44Z — FACTORY-DELEGATION-TEETH ✅: los teeth de verificar-no-revisar bajan a la fábrica (ADR-016 Fase 2 §1 · ADR-018 §3)
+- **Qué (la mitad-de-teeth de ADR-016 Fase 2 §1):** los dos dientes que vuelven SEGURA la delegación barata —
+  `blast_radius` (un generator Sonnet escribe SÓLO en su slot) y `verdict_required` (no termina sin veredicto
+  bien formado) — vivían SÓLO en el meta. Su ley estaba en `src/metafactory/delegation.py`; una fábrica producida
+  NO trae `src/metafactory` (sus hooks cargan la ley de `seed/` por path, como `increment_guard`→`seed/lifecycle.py`).
+  Proyectados as-is quedaban **INERTES** (best-effort `except: return 0`) → el contrato de delegación era HUECO abajo:
+  el vocabulario de WorkOrder tenía diente arriba y no abajo (el hueco exacto que nombra ADR-018 §3).
+- **Fase 1 — ley seed-canónica + columna proyectada.** `seed/delegation.py` NUEVO: la ley como Stage-0 seed (igual
+  que `verifier.py`/`lifecycle.py`), `copy_seed` la propaga byte-idéntica a cada fábrica. `_seed.load_seed_delegation`
+  (espejo de `load_seed_lifecycle`) + `metafactory.delegation` ahora **re-exporta** el seed → los callers del meta
+  intactos, single-source = el seed. Los 2 hooks cargan la ley de `seed/delegation.py` **por PATH** (idiom
+  clone-robust, cero `metafactory.*`) → REALES en ambos niveles. Probado en FSK con slot vivo: write in-slot=exit0 ·
+  out-of-slot=exit2 · sin verdict=exit2. Columna re-materializada (M1) en las 5 fábricas → `column_parity` VERDE.
+- **Fase 2 — diente I-12 a nivel fábrica.** `_emit_harness` AUTO-cablea los teeth en TODO agent que puede WRITE
+  (bloque `hooks:` per-agent + las 2 shadows I-12); es **substrate-projected, NO spec DATA** (ADR-018 §4): el spec
+  declara el ROL, el sustrato decide el ENFORCEMENT; los read-only (reviewer/triage) no reciben nada (least-priv) —
+  sólo el `writer` (sonnet) se cablea. `agent_shadow` se extendió para reconocer el cableado **per-agent** del
+  frontmatter (`_frontmatter_wired_hooks`), no sólo `settings.json`. Negativo (clon hermético): borrar `blast_radius.py`
+  → rojo «sombra inexistente», aislado.
+- **Desvío consciente del handoff:** decía «wirearlos en el `settings.json` proyectado»; se eligió **per-agent**
+  porque `blast_radius`/`verdict_required` NUNCA son globales (patrón del `generator` meta) — globalizarlos los
+  dispararía en la sesión principal y en todo subagente. Por eso `agent_shadow` aprendió el cableado per-agent.
+- **Lección (colateral revertido):** re-emitir la línea meta COMPLETA in-tree para regenerar `writer.md` (m07 gateado
+  tras m00–m06) **clobberea** artefactos de fábrica no relacionados — docs de FSK (`STATE.md` −630, `LOG.md` −1276),
+  `stations/s0.yml`·`s4.yml`, y BORRA el skill `correr-app` (no está en el spec FSK). Todo `git restore`-ado → el
+  changeset quedó SÓLO-delegación. La re-emisión de harness in-tree no es quirúrgica por estación; conviene un emit
+  acotado a agents. (Apunte de honestidad: `correr-app` vive in-tree pero NO en el spec FSK → no es re-derivable; es
+  una inconsistencia pre-existente, fuera de alcance acá.)
+- **Cierre por bloqueo:** `meta check` 14/14 · suite + tests nuevos verdes · las 5 fábricas
+  `ci --rederive --all-products` == pin (default 12/12 · assets/helpdesk/snipeit 11/11 c/u; los productos no dependen
+  de la columna/harness → intactos). Commit de build `bced7d0`. Evidencia completa:
+  `work/FACTORY-DELEGATION-TEETH-INCREMENT.md §Evidencia`. **ADR-016 Fase 2 §1 COMPLETA** (fundación `column_parity`
+  + teeth); restan los §2–4 (lifecycle de fábrica in-tree · sellado de docs · close por-nivel) + `LEAST-PRIV-DECOUPLE`.
 
 ## 2026-06-26T21:55Z — M6 (MEM-THREE-MEMORIES) ✅: la regla single-source sobre las tres memorias — MEMORIA v2 completa salvo §6
 - **Qué (ADR-019 §5/§Consec.):** el harness tiene TRES memorias que pueden sostener el MISMO hecho y driftear —

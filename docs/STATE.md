@@ -1,4 +1,4 @@
-<!-- meta:doc sha=afd636c4786c0409cd3481a3e4887b5e3811f5fb updated=2026-06-26T23:32Z -->
+<!-- meta:doc sha=5e31e87971d2e5db1cc17bbf78ed1695c80d06a0 updated=2026-06-26T23:45Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: FACTORY-DELEGATION-TEETH-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -33,10 +33,13 @@
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
   incrementos por fábrica/eje: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — en curso.** `HARNESS-DECOUPLE` entregó su núcleo (`column_parity`:
-  la columna de fábrica ≡ proyección de un único source, drift = rojo). Diferidos nombrados:
-  `work/FACTORY-DELEGATION-TEETH-INCREMENT.md` (I-12 con diente abajo) + Fase 2 §2–4 (lifecycle de fábrica
-  in-tree · sellado de docs · close por-nivel).
+- **Autogobierno por nivel (ADR-016 Fase 2) — §1 COMPLETA.** `HARNESS-DECOUPLE` entregó la fundación
+  (`column_parity`: la columna de fábrica ≡ proyección de un único source, drift = rojo) y
+  `FACTORY-DELEGATION-TEETH` (2026-06-26 ✅) la mitad-de-teeth: los hooks de delegación (`blast_radius`/
+  `verdict_required`) bajan a la columna proyectada con su ley **seed-canónica** (`seed/delegation.py`,
+  cargada por path · `metafactory.delegation` la re-exporta), y `agent_shadow` gana diente a nivel fábrica
+  (cableado **per-agent** del frontmatter reconocido; substrate-projected, NO spec-driven, ADR-018 §3–4).
+  Restan los **§2–4** (lifecycle de fábrica in-tree · sellado de docs · close por-nivel) + `LEAST-PRIV-DECOUPLE`.
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.

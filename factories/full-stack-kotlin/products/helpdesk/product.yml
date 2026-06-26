@@ -1,0 +1,82 @@
+# Blueprint de instancia R1 (lifecycle 1:N, ADR-015) para la fábrica full-stack-kotlin.
+# ── BENCHMARK SWEET-SPOT (Fase 4, REAIM-SWEET-SPOT) ──────────────────────────────────────────────
+# Una app CRUD de helpdesk/ticketing de 5 entidades: el caso del "80% día-1" que TODA fábrica debería
+# generar SIN incrementos nuevos. Es DELIBERADAMENTE el sweet-spot, no Snipe-IT (19 entidades, 17 ADOPT):
+# usa SÓLO el vocabulario que FSK ya tiene —campos string/int/number/date/boolean/enum + opcionalidad +
+# ref, WORKFLOW (FSK-S12), RBAC (FSK-S13), ownership a nivel de fila (FSK-S14) y endpoints vivos
+# enforzados (FSK-S15)— en una topología de dominio PROPIA, distinta de tasks (demo) y assets.
+# Es DATA: `meta product new` lo instala como products/helpdesk/product.yml; la fábrica re-deriva el
+# spec efectivo (base ⊕ product.yml). Prueba la tesis del re-apunte: FSK cubre el sweet-spot con
+# `git diff codegen/+src/+seed/ = 0`.
+
+# s6 (lógica de dominio generada por LLM vivo, `claude -p`) se DIFIERE keyless para esta instancia
+# (activation:off, la opción que el propio gate sanciona, doctrina R1): el benchmark mide que el
+# VOCABULARIO determinista (s0–s5, s7–s11) genera verde sin keys; el sweet-spot NO depende del LLM.
+station_activation:
+  s6: off
+
+package_name: webapp
+api_title: "Helpdesk API"
+# RBAC (FSK-S13, DES-3) con un vocabulario de roles PROPIO del helpdesk (admin/supervisor/agent), distinto
+# del demo (admin/editor/viewer) y de assets (admin/manager/auditor): un `agent` atiende tickets, un
+# `supervisor` supervisa y reasigna, `admin` administra todo el catálogo (agentes/categorías). Política
+# por-entidad distinta: sólo `admin` da de alta agentes y categorías; supervisor+admin gestionan clientes;
+# los tres escriben tickets y comentarios. El enum Role + RoleGuard se generan del product.yml (DATA).
+roles: [admin, supervisor, agent]
+# ownership / autorización a nivel de FILA (FSK-S14, DES-3): el dueño de un Ticket es el Agente asignado
+# (assignee_id → Agent). `admin` y `supervisor` bypassan (reasignan/editan cualquier ticket); un `agent`,
+# salvo bypass, sólo toca los SUYOS (su principal == el assignee de la fila). Topología de ownership propia
+# (entidad servida Ticket / principal Agent), co-validación ADR-014 contra demo (Project/User) y assets (Asset/Holder).
+owner_bypass_roles: [admin, supervisor]
+entities:
+  - name: Agent
+    write_roles: [admin]
+    fields:
+      - { name: email, type: string, unique: true }
+      - { name: full_name, type: string }
+      - { name: tier, type: enum, values: [l1, l2, l3] }
+      - { name: active, type: boolean }
+  - name: Customer
+    write_roles: [admin, supervisor]
+    fields:
+      - { name: email, type: string, unique: true }
+      - { name: company, type: string, required: false }   # opcionalidad R2 (FSK-S11) ejercida
+      - { name: plan, type: enum, values: [free, pro, enterprise] }
+  - name: Category
+    write_roles: [admin]
+    fields:
+      - { name: name, type: string, unique: true }
+      - { name: description, type: string, required: false }
+  - name: Ticket
+    write_roles: [admin, supervisor, agent]
+    owned_by: assignee_id          # el dueño de la fila es el Agent que assignee_id referencia (ownership)
+    fields:
+      - { name: subject, type: string }
+      - { name: customer_id, type: ref, to: Customer, required: true }
+      - { name: category_id, type: ref, to: Category, required: true }
+      - { name: assignee_id, type: ref, to: Agent, required: true }   # el dueño (no-opcional ⇒ toda fila tiene dueño)
+      - { name: priority, type: enum, values: [low, medium, high, urgent] }
+      - { name: reopen_count, type: int }
+      # WORKFLOW del ciclo de vida del ticket (FSK-S12, DES-3) — topología PROPIA: tiene un estado TERMINAL
+      # `closed` (un ticket cerrado no transiciona) Y un CICLO de reapertura (resolved→reopened→in_progress),
+      # distinto del stepwise simétrico del demo y del fan-out de archivado de assets. Guard canTransition
+      # determinista, type-bound al enum del contrato; una transición no-declarada se rechaza por construcción.
+      - name: status
+        type: enum
+        values: [open, in_progress, resolved, closed, reopened]
+        initial: open
+        transitions:
+          open: [in_progress, closed]
+          in_progress: [resolved, open]
+          resolved: [closed, reopened]
+          reopened: [in_progress, closed]
+          closed: []                 # terminal: un ticket cerrado no vuelve
+      - { name: opened_on, type: date }
+      - { name: notes, type: string, required: false }
+  - name: Comment
+    write_roles: [admin, supervisor, agent]
+    fields:
+      - { name: ticket_id, type: ref, to: Ticket, required: true }
+      - { name: author, type: string }
+      - { name: body, type: string }
+      - { name: internal, type: boolean }   # comentario interno (no visible al cliente)

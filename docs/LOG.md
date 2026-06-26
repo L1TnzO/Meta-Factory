@@ -1,7 +1,30 @@
-<!-- meta:doc sha=450dcedb54d9cff5bd45c594037da90a8a6a36d2 updated=2026-06-26T03:52Z -->
+<!-- meta:doc sha=832a893db49376ad6fc5edc8c7959daeef6cd5d9 updated=2026-06-26T04:07Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T04:06Z — Fase 4 §3 ✅: el dial borrador→endurecer (eje velocidad/rigor de primera clase)
+- **Qué deja** (meta): `meta product-run --mode draft` corre SÓLO la columna núcleo (scaffold/datos/auth/
+  runtime) y DIFIERE la capa de rigor (`tier: harden`) para iterar rápido; `--mode harden` (default) corre todo.
+  Operacionaliza el eje velocidad/rigor que el ingeniero nombró como decisión de diseño de primera clase
+  (honest-reassessment 2026-06-25) — "optimizamos sólo el extremo caro".
+- **General, DATA-driven** (el sustrato no nombra estación): `Station.tier` (core|harden, default core) +
+  `active_in(dial)` (regla en UN lugar) + fall-through transparente del fan-in en `predecessors()` (un
+  predecesor INACTIVO cae a través, como el lineal → diferir rigor nunca traba el spine) + `--mode` en
+  product-run + rótulo honesto del boceto.
+- **Honesto por construcción**: el draft NO finge los gates de rigor — los SALTA (la estación diferida no tiene
+  proof) y el veredicto se rotula «boceto, NO endurecido». **Anti-fake-green clave**: el `proof_sha` deriva
+  SÓLO de (station_id, nombres+exits) — NO del `tier` → harden (todas las estaciones) es byte-idéntico al pin
+  (cero re-pin) y un draft (subconjunto de proofs) NO pasa el `ci --rederive` harden. No se puede pasar un
+  boceto por endurecido.
+- **Probado por bloqueo en el motor REAL** (`tests/test_dial.py`, 7): harden ATRAPA un gate de rigor que falla /
+  draft lo SALTA (mismo line, rojo↔verde); core que `depends_on` una harden diferida cae a través al spine;
+  harden mantiene el fan-in completo (byte-idéntico). 35 verdes con multistation/rtm_tree (sin regresión).
+  `meta check` 11/11 (el dial es un MODO, no agrega gate). Commit feat `<este>`.
+- **Calibración honesta**: este incremento da el MECANISMO; la ADOPCIÓN (qué estaciones son harden) es DATA
+  por-fábrica, **declared-deferred** byte-neutral — hoy ninguna línea la declara, así que `--mode draft` es
+  no-op honesto (el rótulo dice «0 diferidas»). El siguiente paso barato es taggear la capa de rigor de FSK.
+- **Sigue en Fase 4**: la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF (el último §).
 
 ## 2026-06-26T03:52Z — Fase 4 §1+§2 ✅: el re-apunte al sweet-spot (producto helpdesk + benchmark verificable)
 - **El re-apunte (ADR-017 §4).** El motor estaba probado sobre Snipe-IT (19 entidades, **17 ADOPT**) = un

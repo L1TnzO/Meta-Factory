@@ -1,7 +1,7 @@
-<!-- meta:doc sha=caa2c80ccc3dce8531dc3a936d5843f85f912c28 updated=2026-06-26T04:06Z -->
+<!-- meta:doc sha=64f9ffe854c9d65a13c590ae0981e60656104ac7 updated=2026-06-26T04:06Z -->
 # Incremento DRAFT-HARDEN-DIAL
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T03:58Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T04:06Z) (creado 2026-06-26T03:58Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

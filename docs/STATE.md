@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ca4419abe51b022a7cbca77c77468666bc7ae34f updated=2026-06-26T20:23Z -->
+<!-- meta:doc sha=032b1a532486ea8025d861769992cc5bb1ab6119 updated=2026-06-26T21:26Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -24,10 +24,12 @@
 - **🧠 MEMORIA v2 (ADR-019) — EN CURSO.** Telemetría + literatura convergen: **podar antes de agregar** (NO
   servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`. Hecho: **M1**
   («Ahora»=snapshot + diente `state_snapshot`) · **M2** (`meta recall` retirado — 1×/0-hit, redundante con Grep) ·
-  **M5** (path de inyección instrumentado: 3 series footprint·thrashing·fidelidad en `instrument.py`, observador
-  puro, resumidas por `meta metrics`) · **M3** (`state_fidelity`: gate STATE-vs-`.proof/` con diente — «Ahora» no
-  CONTRADICE el RTM re-derivado; faithfulness≠frescura; fluye a la serie de fidelidad por nombre, cero-toque a M5).
-  Siguen (uno por nivel, ya leíbles contra el observador): M4 hook PreCompact · M6 dedup 3-memorias.
+  **M5** (path de inyección instrumentado: 4 series footprint·thrashing·fidelidad·compactación en `instrument.py`,
+  observador puro, resumidas por `meta metrics`) · **M3** (`state_fidelity`: gate STATE-vs-`.proof/` con diente —
+  «Ahora» no CONTRADICE el RTM re-derivado; faithfulness≠frescura) · **M4** (hook `PreCompact`: writeback de
+  fidelidad mínima del incremento vivo ANTES de la compactación, re-inyectado en `SessionStart(source=compact)`
+  con guard de sesión; nivel meta, proyección a fábrica diferida — HONEST-STATE §7; VIVO tras reiniciar la sesión).
+  Sigue (uno, leíble contra el observador): **M6** dedup 3-memorias (medición→decisión).
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de

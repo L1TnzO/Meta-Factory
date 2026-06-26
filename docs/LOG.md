@@ -1,7 +1,42 @@
-<!-- meta:doc sha=5c5604e5fa3d409aa85531fa6dc83b040d82ff07 updated=2026-06-26T20:14Z -->
+<!-- meta:doc sha=c8b6c2cc23dcbe009e4f38ebf6ebd19f61d419f9 updated=2026-06-26T21:25Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-26T21:24Z — M4 (MEM-PRECOMPACT-SNAPSHOT) ✅: writeback de fidelidad mínima en el límite de compactación
+- **Qué (ADR-019 §5):** el *post-compaction bootstrap fault* — el CLAUDE.md de raíz sobrevive la compactación
+  (se re-inyecta) pero el estado del incremento VIVO se PIERDE. M4 lo preserva: un hook `PreCompact` persiste, ANTES
+  de la compactación lossy, un snapshot mínimo-fidelidad del estado vivo, re-inyectado en el `SessionStart(source=
+  compact)`. Es la segunda apuesta (tras M3) construida CONTRA el observador M5, no a ciegas — **apuesta modesta**.
+- **El snapshot es RE-DERIVABLE, no una copia de la conversación** (fidelidad sobre frescura, §4): `build_snapshot`
+  re-deriva del DISCO el incremento abierto + un digest del plan (puntero al doc + objetivo + fases done/total) +
+  los gates (estación activa recompute-verde + RTM por fábrica del `.proof/`). No inventa prosa: ANCLA la sesión
+  post-compactación a la verdad durable. Patrón ClawVM (writeback de fidelidad mínima en el límite de ciclo).
+- **Writeback VALIDADO + NO-DESTRUCTIVO:** `write_snapshot` escribe atómico (tmp+os.replace) **sólo si valida**
+  (`is_valid`: schema+ts) → un snapshot malformado (hook sin payload) NUNCA pisa uno bueno. **Guard de FIDELIDAD**
+  en la re-inyección: `surface_for_rehydrate` re-inyecta SÓLO en `source==compact` Y si el snapshot es de ESTA
+  sesión — uno ajeno es rancio y re-introduciría el drift que el snapshot existe para evitar → se ignora.
+- **Leído contra M5 (la apuesta no es ciega):** nueva serie `compact` (`instrument.record_compaction` + línea
+  COMPACTACIÓN en `summarize`); el PAGO (menos re-reads post-compactación) se lee correlacionando con la serie
+  `thrashing` que M5 ya captura. Si las re-lecturas bajan, el snapshot ayudó — medible, no asumido.
+- **Alcance: nivel META; proyección a fábrica DIFERIDA y declarada** (HONEST-STATE §7). El roadmap lo clasificó
+  «(+col)» y pidió proyectarlo a la fábrica (ADR-018); tras leer la columna REAL, M4 **no es columna**: PreCompact
+  no es enforcement (la columna de fábrica son los 4 cerrojos, frontera de seguridad), la capa de memoria
+  (`session_start`/`mem_capture`/`mem_rollup` + el observador M5) es **meta-only hoy**, y la RE-INYECCIÓN vive en
+  `SessionStart` —que tampoco existe abajo— así que copiar la mitad-escritura sin la mitad-lectura sería un
+  **writeback muerto**. «least-priv por nivel» (el propio qualifier del roadmap) ARGUMENTA meta-only. Trigger para
+  des-diferir: cuando la fábrica adquiera subsistema de memoria (adyacente a M6). Reconcilia el roadmap con ADR-018.
+- **Activación con guardrail:** el clasificador auto-modo BLOQUEÓ auto-editar `.claude/settings.json` y
+  `session_start.py` (auto-modificación del arranque del agente — guardrail correcto). La LÓGICA se construyó y
+  probó igual; la activación (2 líneas) se aplicó **con aprobación explícita del ingeniero**. Queda VIVA tras el
+  próximo reinicio (los hooks se cargan al inicio — mismo patrón que HONEST-STATE §2).
+- **Diente DOS-LADOS** (`tests/test_precompact.py`, 6 casos): el snapshot re-deriva el incremento abierto (objetivo
+  + fases 2/3 ✅) · el writeback validado RECHAZA un malformado y NO pisa el bueno · el guard muerde dos-lados
+  (sesión ajena y startup no inyectan; compact+sesión-propia sí) · la serie `compact` se registra · `rehydrate`
+  inyecta SÓLO en compact. Más demo e2e (hook→snapshot→re-inyección→observador). Cero modelo.
+- **Resultado:** `meta check` **14/14** verde (suite incluida) · árbol limpio · 3 commits (5a7627a lógica → e83407b
+  activación → cierre). Roadmap MEMORIA v2: hechos M1+M2+M5+M3+**M4**; queda sólo **M6 (dedup 3-memorias —
+  medición→decisión)**, leíble contra el observador. Tras M6, ADR-019 estará completo salvo el umbral §6 de escape.
 
 ## 2026-06-26T20:13Z — M3 (MEM-FIDELITY-GATE) ✅: el gate de fidelidad STATE-vs-`.proof/` (con diente)
 - **Qué (ADR-019 §4):** el sello (ADR-009) dice *si STATE cambió*; faltaba un gate que dijera *si es VERDAD*.

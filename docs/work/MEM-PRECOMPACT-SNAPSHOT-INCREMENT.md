@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b5452f378bf6377af229507ad32332fae4130069 updated=2026-06-26T20:24Z -->
+<!-- meta:doc sha=435e54aa99ba7309ec87196088a02a91cd7bbe6b updated=2026-06-26T21:24Z -->
 # Incremento MEM-PRECOMPACT-SNAPSHOT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T20:23Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T21:24Z) (creado 2026-06-26T20:23Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -37,11 +37,11 @@ Trigger de la proyección (cuándo deja de estar diferida): cuando la fábrica a
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `memory/precompact.py` (single-source): `build_snapshot` (re-deriva incremento+gates+plan-pointer+proyección, puro-de-disco) · `write_snapshot` (writeback VALIDADO no-destructivo a `.metamem/precompact.json`) · `read_snapshot` · `render_for_rehydrate` (acotado) | ⏳ |
-| 2 | `.claude/hooks/pre_compact.py` (transporte fino, best-effort exit 0) + entrada `PreCompact` en `.claude/settings.json` | ⏳ |
-| 3 | `rehydrate.build_payload(root, session, source)` re-inyecta el snapshot SÓLO en `source=compact` y `snapshot.session==session` (guard de fidelidad); `session_start.py` pasa `source` | ⏳ |
-| 4 | M5: `instrument.record_compaction` (serie `compact`) + línea COMPACTACIÓN en `summarize` → la apuesta se LEE contra el observador (thrashing ya capta re-reads post-compactación) | ⏳ |
-| 5 | Diente en la suite: `tests/test_precompact.py` (snapshot re-deriva el incremento abierto · writeback validado RECHAZA malformado sin pisar el bueno · re-inyecta en compact+sesión-propia · NO en sesión ajena · serie `compact` registrada) | ⏳ |
+| 1 | `memory/precompact.py` (single-source): `build_snapshot` (re-deriva incremento+gates+plan-pointer+proyección, puro-de-disco) · `write_snapshot` (writeback VALIDADO no-destructivo a `.metamem/precompact.json`) · `read_snapshot` · `render_for_rehydrate` (acotado) | ✅ |
+| 2 | `.claude/hooks/pre_compact.py` (transporte fino, best-effort exit 0) + entrada `PreCompact` en `.claude/settings.json` | ✅ |
+| 3 | `rehydrate.build_payload(root, session, source)` re-inyecta el snapshot SÓLO en `source=compact` y `snapshot.session==session` (guard de fidelidad); `session_start.py` pasa `source` | ✅ |
+| 4 | M5: `instrument.record_compaction` (serie `compact`) + línea COMPACTACIÓN en `summarize` → la apuesta se LEE contra el observador (thrashing ya capta re-reads post-compactación) | ✅ |
+| 5 | Diente en la suite: `tests/test_precompact.py` (snapshot re-deriva el incremento abierto · writeback validado RECHAZA malformado sin pisar el bueno · re-inyecta en compact+sesión-propia · NO en sesión ajena · serie `compact` registrada) | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. Simular una compactación (invocar el hook con un payload sintético) → `.metamem/precompact.json` escrito con el

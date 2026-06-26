@@ -1,4 +1,4 @@
-<!-- meta:doc sha=67757cd2cf001774b35db0164d73c9de9ab61dfa updated=2026-06-26T03:00Z -->
+<!-- meta:doc sha=e2b9c1601d8ef43f32a7fad6aa29d10e961bc425 updated=2026-06-26T03:50Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -26,8 +26,13 @@
 > (`ci --rederive --all-products == pin`), por un transform DETERMINISTA (no delegado — un refactor byte-idéntico es
 > mecánico); el gate `quality` re-asentó su lado-ROJO a un witness sintético + ganó un diente HACIA-ADELANTE sobre la
 > codegen de fábrica (`file_loc`+`funcs`, glob, generality-safe) → ninguna codegen puede re-monolitizarse. Dos
-> incrementos por nivel (ADR-016): `MONOLITH-REFACTOR` (meta) + `FSK-CODEGEN-SPLIT` (fábrica). **Siguiente = Fase 4
-> `REAIM-SWEET-SPOT`** (benchmark 80% CRUD 5-8 entidades; Snipe-IT → regresión; dial borrador→endurecer; vocab PWF).
+> incrementos por nivel (ADR-016): `MONOLITH-REFACTOR` (meta) + `FSK-CODEGEN-SPLIT` (fábrica). · **Fase 4
+> `REAIM-SWEET-SPOT` 🟡 EN CURSO (2026-06-26)** — el re-apunte al sweet-spot. **§1 `FSK-HELPDESK` ✅** (producto
+> benchmark de 5 entidades generado por la línea REAL e2e a la PRIMERA, `git diff codegen/+src/+seed/ = 0` — FSK ya
+> cubre el 80%) **+ §2 `REAIM-SWEET-SPOT` ✅** (el benchmark como TARGET verificable: `benchmarks/sweet-spot-crud.yml`
+> DATA + `benchmark.py` re-derivado de estado commiteado + gate dos-lados + verbo `meta benchmark`; **`meta check`
+> 11/11**; helpdesk PASA / snipeit FALLA el target → Snipe-IT degradado a techo de regresión como HECHO). **Siguiente
+> dentro de Fase 4 = el dial borrador→endurecer + la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF.**
 
 ## 0. Si llegás sin contexto, leé en este orden
 

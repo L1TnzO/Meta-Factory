@@ -1,0 +1,36 @@
+# Sweet-spot benchmark — the "80% day-1 CRUD app" product-class (ADR-017 Fase 4, REAIM-SWEET-SPOT).
+#
+# This file is DATA (like docs/reference/parity.yml or scenarios/*.yml): it may name instances; the
+# substrate (src/metafactory/verify/benchmark.py + the gate) names none. It turns "done for a CRUD app"
+# from prose into a VERIFIABLE target, re-derived from committed state (factory spec + product.yml + pin):
+#
+#   a product is a SWEET-SPOT  iff  it is SMALL (entity_count in range)  AND  it exercises the core
+#   capability set (every required capability's station is pinned green).
+#
+# The SAME target, applied to the too-hard benchmark (Snipe-IT, 19 entities), MUST FAIL — that is what
+# demotes Snipe-IT to a regression CEILING as a HARD, two-sided fact, not a sentence (see benchmark_gate).
+id: sweet-spot-crud
+title: "80% day-1 CRUD app"
+
+target:
+  # The sweet spot is small enough to build in a day with ZERO new factory increments (helpdesk proved it),
+  # not the 19-entity, 17-ADOPT Snipe-IT. 5-8 entities is the "80%" band.
+  entity_count: { min: 5, max: 8 }
+  # Capability ids (from the factory's domain.capabilities) a real CRUD app must SATISFY — i.e. each one's
+  # station(s) pinned green. Keeps a candidate from being 5 toy entities: it must persist data, authorize,
+  # own rows, run a workflow, enforce access on a live server, and render a frontend. These are precisely
+  # what an "AI-codegen scaffold" usually fakes; here they are pinned + re-derivable.
+  required_capabilities:
+    - datos_durables_vivos       # persistent CRUD against a live DB (s1)
+    - rbac_enforced              # role-based authorization (s5)
+    - ownership_enforced         # row-level ownership (s5)
+    - workflow_enforced          # a domain state machine (s7)
+    - control_acceso_runtime     # access control enforced on a live server (s9)
+    - frontend_render_live       # a frontend that renders the data (s9)
+
+products:
+  # The candidate sweet-spot (Fase 4 §1, FSK-HELPDESK): MUST meet the target.
+  - { factory: full-stack-kotlin, product: helpdesk, expect: sweet_spot }
+  # The regression ceiling (the too-hard first benchmark): MUST exceed it → fail the target. This is the
+  # two-sided tooth: if Snipe-IT ever met the sweet-spot target the bound would be decorative → gate RED.
+  - { factory: full-stack-kotlin, product: snipeit,  expect: ceiling }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=950ec368ed97d5461b493c86eebbf2f8396e2d16 updated=2026-06-26T03:03Z -->
+<!-- meta:doc sha=103d2007abb6c6b6434b924321a0f9daf1466766 updated=2026-06-26T03:51Z -->
 # Estado — Meta-Factory
 > tipo: estado · actualizado: 2026-06-18T16:30Z · sesión: opus-4.8 (Fase A ✅ + B ✅ + C ✅ + D ✅ + E ✅ + **F1 ✅** + deepening **MAT-0..MAT-7 ✅** + **Fase G ✅ — el ROADMAP A–G COMPLETO**: **G1** el loop observar→proponer→verificar→promover→rollback con el **gate de blast-radius** (`meta promote` re-pinea SÓLO si ninguna fábrica downstream baja su veredicto; VERDE iot 5/5→6/6 + ROJO en py⟂ts⟂go) + **G2** el **corpus de scenario-specs diversos** que ejercita el MOTOR antes de promover (`SELF-IMPROVEMENT.md §4`, cierra G-8 de raíz): un scenario = forma de spec + veredicto M0 esperado; dos lados + diente de diversidad; bloqueo vivo de una regresión REAL del motor con pin/baseline byte-idénticos; anti-overfit: el sustrato no nombra fábrica ni tech) + **Fase H ✅ — residuales honestos cerrados**: **H2** sustrato hygiene (frontera I-5 como DATO opt-in · gate DAG multi-predecesor · `gate_guard` acotado) + **H1** autogobierno de fábrica (la ley del lifecycle de incrementos en `seed/lifecycle.py` single-source que el meta delega y la fábrica hereda; `increment_guard` heredado + `column_full` a 3 lados + 4 fábricas regeneradas) · presupuesto: ≤80 líneas
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: REAIM-SWEET-SPOT-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -56,8 +56,19 @@
   glob; `file_loc`+`funcs`, `func_loc` exento porque la codegen emite templates largos) → si una codegen vuelve a
   ser monolito, `meta check` ROJO. MÁS general que antes (cero nombres de producción). `meta check` **10/10**.
   Evidencia: `work/MONOLITH-REFACTOR-INCREMENT.md` + `factories/full-stack-kotlin/docs/work/FSK-CODEGEN-SPLIT-INCREMENT.md`.
-  **Siguiente = Fase 4 `REAIM-SWEET-SPOT`** (benchmark del 80% CRUD 5-8 entidades; Snipe-IT → regresión; dial
-  borrador→endurecer; cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF).
+- **REAIM-SWEET-SPOT 🟡 (Fase 4, EN CURSO 2026-06-26) — el re-apunte al sweet-spot.** El motor estaba probado sobre
+  Snipe-IT (19 entidades, 17 ADOPT) = benchmark demasiado duro; el norte de la Fase 4 es el **sweet-spot del "80%
+  día-1"** (CRUD 5–8 entidades). **§1 `FSK-HELPDESK` ✅ (fábrica/producto)** — producto benchmark de **5 entidades**
+  (helpdesk/ticketing) generado por la línea REAL FSK e2e (gradle+PG+server+Chromium) **a la PRIMERA, con `git diff
+  codegen/+src/+seed/ = 0`**: la tesis del re-apunte probada por el diff (FSK ya cubre el 80%; RTM 25/26, s6 keyless;
+  `ci --rederive` 11/11 == pin). **§2 `REAIM-SWEET-SPOT` ✅ (meta)** — el benchmark como **TARGET verificable**:
+  `benchmarks/sweet-spot-crud.yml` (DATA: entity_count ∈ [5,8] + 6 caps núcleo; helpdesk=`sweet_spot`,
+  snipeit=`ceiling`) + `verify/benchmark.py` (re-derivado de estado COMMITEADO —spec+product.yml+pin—, sin `.proof/`)
+  + gate dos-lados `benchmark_gate` cableado a `meta check` (**ahora 11/11**) + verbo `meta benchmark`. Diente:
+  helpdesk PASA / **snipeit FALLA el target (19 > 8) → Snipe-IT degradado a techo de regresión como HECHO**, no prosa
+  (un techo que pasara ⇒ bound decorativo → rojo). Anti-overfit: el sustrato no nombra producto/fábrica (en el DATA).
+  Evidencia: `work/REAIM-SWEET-SPOT-INCREMENT.md` + `factories/full-stack-kotlin/products/helpdesk/docs/work/FSK-HELPDESK-INCREMENT.md`.
+  **Siguiente dentro de Fase 4 = el dial borrador→endurecer + la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF.**
 - **Dirección FIJADA (2026-06-15)**: la Meta-Factory genera el **100%** desde specs, eligiendo tecnología por
   **primitivas** en la planificación SDD (ADR-011/012, `reference/PRIMITIVES.md`); determinismo en verificación,
   no en generación (I-3). Mapa completo y autocontenido de incrementos (fases A–G → ASF-mejorado+Full-Stack+Mobile+IoT): `work/ROADMAP.md`.

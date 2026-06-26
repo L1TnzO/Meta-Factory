@@ -160,6 +160,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.security_scan", str(root)]},
         {"name": "deferred", "kind": "command",          # ADR-017 (Fase 4): declared-deferred con dientes +
          "cmd": [py, "-m", "metafactory.verify.checks.declared_deferred", str(root)]},  # acumulación medida
+        {"name": "benchmark", "kind": "command",          # ADR-017 (Fase 4): sweet-spot como TARGET verificable,
+         "cmd": [py, "-m", "metafactory.verify.checks.benchmark_gate", str(root)]},  # dos-lados (techo debe fallar)
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]
@@ -899,7 +901,32 @@ def build_parser() -> argparse.ArgumentParser:
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
     op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
     op.add_argument("--billing", default=None); op.set_defaults(func=cmd_outcome)
+    bm = sub.add_parser("benchmark"); bm.add_argument("name", nargs="?", default=None); bm.set_defaults(func=cmd_benchmark)
     return p
+
+
+def cmd_benchmark(args) -> int:
+    """REAIM-SWEET-SPOT (ADR-017 §4): measure product(s) against a product-class TARGET, re-derived from
+    committed state (factory spec + product.yml + pin). `meta benchmark [name]` reports each declared
+    product's profile vs the sweet-spot target; a `ceiling` that meets the target (decorative bound) or a
+    `sweet_spot` that regressed is FAIL. With no benchmark file → N/A (honest). Same law as the gate."""
+    from .verify.benchmark import evaluate, load_benchmark, render
+    root = _meta_root()
+    glob = f"benchmarks/{args.name}.yml" if getattr(args, "name", None) else "benchmarks/*.yml"
+    files = sorted(root.glob(glob))
+    if not files:
+        print(f"VEREDICTO  benchmark — N/A   (exit 0)\nRESUMEN    no hay benchmarks ({glob})")
+        return 0
+    rc = 0
+    for i, path in enumerate(files):
+        bench = load_benchmark(path)
+        results = evaluate(root, bench)
+        if i:
+            print()
+        print(render(bench, results))
+        if not (results and all(r.ok for r in results)):
+            rc = 1
+    return rc
 
 
 def main(argv: list[str] | None = None) -> int:

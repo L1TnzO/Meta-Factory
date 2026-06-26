@@ -22,6 +22,7 @@ from metafactory.graph.model import Edge, EdgeKind, Graph, Node, NodeKind, conte
 from metafactory.graph.python_index import index_file
 from metafactory.graph.quality import (
     Thresholds,
+    discover_authored_codegen,
     evaluate_file,
     evaluate_graph,
     import_cycles,
@@ -188,6 +189,27 @@ def test_quality_substrate_clean_synthetic_monolith_red():
     assert (REPO / fixture).exists()
     viols = evaluate_file(REPO, fixture, th)
     assert {v.metric for v in viols} >= {"funcs", "func_loc"}
+
+
+def test_factory_codegen_forward_tooth_no_monolith():
+    # Fase 3 MONOLITH-REFACTOR forward frontier: authored factory codegen (a glob, no factory named) must
+    # not be a size/count monolith. func_loc is EXEMPT (codegen returns long template strings). Post-split,
+    # every authored scaffolder file passes — proving the FSK monolith was actually broken up.
+    th = replace(Thresholds(), max_func_loc=10 ** 9)
+    files = discover_authored_codegen(REPO)
+    assert files, "expected to discover authored factory codegen"
+    assert not any("/build/" in f or "__pycache__" in f for f in files)
+    offenders = {f: evaluate_file(REPO, f, th) for f in files}
+    assert all(not v for v in offenders.values()), \
+        f"factory codegen monolith(s): {{k: v for k, v in offenders.items() if v}}"
+
+
+def test_factory_codegen_forward_tooth_fires_on_monolith():
+    # RED side: the synthetic monolith-shaped fixture, if it lived in a factory codegen dir, MUST violate
+    # the size/count metrics (func_loc exempt) — the tooth is not decorative.
+    th = replace(Thresholds(), max_func_loc=10 ** 9)
+    viols = evaluate_file(REPO, "tests/fixtures/quality/monolith_shaped.py", th)
+    assert {v.metric for v in viols} >= {"funcs"}            # >80 functions trips it; func_loc is exempt
 
 
 def test_import_cycle_detection():

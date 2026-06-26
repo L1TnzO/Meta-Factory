@@ -151,3 +151,20 @@ def evaluate_file(repo_root: Path, relpath: str, th: Thresholds) -> list[Violati
     g = Graph()
     g.add_fragment(index_file(repo_root, relpath))
     return file_violations(g, th)
+
+
+def discover_authored_codegen(repo_root: Path) -> list[str]:
+    """Every AUTHORED factory-codegen .py (sorted POSIX relpaths), DATA-agnostic — a glob, no factory or
+    tech is named (anti-overfit; the `generality` gate sanctions this). Excludes derived/vendored trees:
+    `build/` (generated products) and `__pycache__`. The forward 'no monolith anywhere' frontier: a NEW
+    factory scaffolder that grows into a monolith must turn `meta check` RED (the 2026-06-25 rule)."""
+    repo_root = Path(repo_root)
+    base = repo_root / "factories"
+    if not base.exists():
+        return []
+    out: list[str] = []
+    for p in sorted(base.glob("*/codegen/**/*.py")):
+        if "__pycache__" in p.parts or "build" in p.parts:
+            continue
+        out.append(p.relative_to(repo_root).as_posix())
+    return sorted(out)

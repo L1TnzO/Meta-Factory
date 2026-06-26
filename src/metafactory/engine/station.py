@@ -18,6 +18,10 @@ class Station:
     checks: list[dict] = field(default_factory=list)    # [{name, kind, ...}]
     requires_prev: str | None = None    # explicit single predecessor id, or None => previous in order
     depends_on: list[str] = field(default_factory=list)  # explicit DAG predecessors (fan-in); ALL gate this one
+    tier: str = "core"                  # core | harden — the draft→harden DIAL (ADR-017 Fase 4). A `harden`
+    # station is the rigor layer (quality/security/currency/a11y/hermetic): RUN in harden mode (the default,
+    # byte-identical to before), SKIPPED in draft (the fast velocity loop). `core` = the spine a working app
+    # needs (scaffold/data/auth/runtime). DATA on the station; the substrate names no specific station.
     raw: dict = field(default_factory=dict)
 
     @classmethod
@@ -30,9 +34,16 @@ class Station:
             checks=list(d.get("checks", [])),
             requires_prev=d.get("requires_prev"),
             depends_on=list(d.get("depends_on", []) or []),
+            tier=str(d.get("tier", "core")),
             raw=d,
         )
 
     @property
     def active(self) -> bool:
         return self.activation != "off"
+
+    def active_in(self, dial: str) -> bool:
+        """Active under the draft→harden DIAL: a `harden`-tier station is deferred in `draft` mode (the
+        fast loop), like `activation: off` — the sequence's predecessor fall-through then skips it
+        transparently. In `harden` (default) every active station runs (byte-identical to no dial)."""
+        return self.active and not (dial == "draft" and self.tier == "harden")

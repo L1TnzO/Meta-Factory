@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `450dcedb54d9` | 2026-06-26T03:52Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `c3a290e8d416` | 2026-06-26T03:52Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `9aad3bf9d28c` | 2026-06-26T04:06Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -53,6 +53,7 @@
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
+| `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `caa2c80ccc3d` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |

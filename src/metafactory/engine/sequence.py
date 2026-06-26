@@ -45,7 +45,21 @@ class Sequence:
         predecessor (`requires_prev` or the previous ACTIVE station in order); else none for the first.
         Unknown/dropped ids are filtered (the validator already rejects depends_on -> unknown/inactive)."""
         if station.depends_on:
-            return [self._by_id[d] for d in station.depends_on if d in self._by_id]
+            out: list[Station] = []
+            seen: set[str] = set()
+            for d in station.depends_on:
+                dep = self._by_id.get(d)
+                if dep is None:
+                    continue
+                # A DEFERRED predecessor (activation: off — incl. a harden station deferred by the draft
+                # DIAL) is TRANSPARENT: fall through to ITS predecessors, like the linear case already does.
+                # Byte-neutral today (no live `depends_on` lists an inactive station); only the dial uses it.
+                reach = [dep] if dep.active else self.predecessors(dep)
+                for s in reach:
+                    if s.id not in seen:
+                        seen.add(s.id)
+                        out.append(s)
+            return out
         prev = self._linear_predecessor(station)
         return [prev] if prev is not None else []
 

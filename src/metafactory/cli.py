@@ -233,7 +233,7 @@ def cmd_station(args) -> int:
 
 
 def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: bool = True,
-                      chassis: Path | None = None):
+                      chassis: Path | None = None, dial: str = "harden"):
     """Run factory `slug`'s product line e2e on `fdir` (build a REAL product, compile+run it).
     Returns (rc, last_run). `record_active=False` keeps a hermetic re-derivation (the clean_runner
     gate) from leaking into the meta active-station pointer or the journal. Single source for both
@@ -251,6 +251,13 @@ def _run_product_line(fdir: Path, meta_root: Path, slug: str, *, record_active: 
     subst = _subst_for(spec, fdir)
     ctx = RunContext(root=fdir, meta_root=meta_root, slug=slug, chassis=chassis)
     pseq = load_sequence(fdir / "stations")
+    # draft→harden DIAL (ADR-017 Fase 4): in draft, defer the harden-tier (rigor) stations — exactly like
+    # `activation: off`, so the sequence's transparent predecessor fall-through skips them. Harden (default)
+    # is byte-identical to no dial. The substrate names no station; `tier` is DATA on the line.
+    if dial == "draft":
+        for st in pseq.stations:
+            if not st.active_in("draft"):
+                st.activation = "off"
     if not pseq.active:
         return 1, None
     last, ok = None, True
@@ -279,19 +286,23 @@ def cmd_product_run(args) -> int:
     runs a named INSTANCE's line (R1) instead of the default product."""
     slug = args.factory
     product = getattr(args, "product", None)
+    dial = getattr(args, "mode", None) or "harden"
     root, chassis = _resolve_target(slug, product)
     if product and not (root / "product.yml").is_file():
         print(f"VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    no existe el producto {product!r} en {slug} "
               f"(creálo con `meta product new`)")
         return 1
-    rc, last = _run_product_line(root, _meta_root(), slug, chassis=chassis)
+    rc, last = _run_product_line(root, _meta_root(), slug, chassis=chassis, dial=dial)
     if last is None:
         print("VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    la fábrica no tiene línea de producto")
         return 1
     label = f"product-run {slug}/{product}" if product else "product-run"
+    deferred = [s.id for s in load_sequence(root / "stations").stations if s.tier == "harden"] if dial == "draft" else []
+    draft_note = (f" · DIAL=draft (boceto, NO endurecido — {len(deferred)} estación(es) harden diferida(s): "
+                  f"{','.join(deferred)}; endurecé con --mode harden antes de pinear/shippear)" if dial == "draft" else "")
     v = report.from_proof(label, last.proof,
-                          next_pass=f"producto e2e OK · {last.gate.line()}",
-                          next_fail=f"producto roto · {last.gate.line()}")
+                          next_pass=f"producto e2e OK · {last.gate.line()}{draft_note}",
+                          next_fail=f"producto roto · {last.gate.line()}{draft_note}")
     _print_verdict(v)
     return 0 if rc == 0 else 1
 
@@ -866,7 +877,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("check").set_defaults(func=cmd_check)
     sp = sub.add_parser("new"); sp.add_argument("spec"); sp.set_defaults(func=cmd_new)
     sp = sub.add_parser("station"); sp.add_argument("id"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_station)
-    sp = sub.add_parser("product-run"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_product_run)
+    sp = sub.add_parser("product-run"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None)
+    sp.add_argument("--mode", choices=["draft", "harden"], default="harden")  # draft→harden DIAL (ADR-017 Fase 4)
+    sp.set_defaults(func=cmd_product_run)
     pp = sub.add_parser("product"); pp.set_defaults(func=cmd_product)
     psub = pp.add_subparsers(dest="prod_cmd", required=True)
     pn = psub.add_parser("new"); pn.add_argument("--factory", required=True); pn.add_argument("--name", required=True); pn.add_argument("blueprint")

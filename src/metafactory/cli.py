@@ -173,6 +173,8 @@ def cmd_check(args) -> int:
     from .verify.checks.registry import resolve_check
     cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, _Synthetic("metacheck"), {})} for c in checks]
     proof = ctx.verifier.verify_station("metacheck", cmds, root, pythonpath=ctx.pythonpath)
+    from .memory import instrument
+    instrument.record_fidelity_from_proof(root, proof)  # serie de fidelidad (ADR-019 §5, M5; observador)
     log = _copy_metacheck_log(proof)
     proof["log_path"] = log
     npass = "repo verde — listo para station/ci"
@@ -809,8 +811,11 @@ def cmd_journal(args) -> int:
 
 def cmd_metrics(args) -> int:
     root = _meta_root()
-    from .memory import metrics
+    from .memory import instrument, metrics
     print(metrics.render(root, transcript=getattr(args, "transcript", None)))
+    # Serie del path de INYECCIÓN (ADR-019 §5, M5): footprint·thrashing·fidelidad, acotado.
+    for ln in instrument.summarize(root):
+        print(ln)
     return 0
 
 

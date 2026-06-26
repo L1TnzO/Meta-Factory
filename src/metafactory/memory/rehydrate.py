@@ -62,4 +62,6 @@ def build_payload(root: Path, session: str = "") -> str:
                  "`meta checkpoint` (narrar hechos sin narrar)")
     payload = "\n".join(lines)
     journal.append(root, "session_start", session=session, injected=len(lines))
+    from . import instrument  # footprint del path de inyección (ADR-019 §5, M5; observador)
+    instrument.record_session_footprint(root, session, payload, lines=len(lines), now_lines=len(now))
     return payload

@@ -28,7 +28,7 @@ def main() -> int:
 
         from pathlib import Path
         from metafactory._seed import repo_root
-        from metafactory.memory import metrics, journal
+        from metafactory.memory import metrics, journal, instrument
 
         root = repo_root()
 
@@ -36,7 +36,9 @@ def main() -> int:
         session_id = data.get("session_id") or ""
         tool_input = data.get("tool_input") or {}
 
-        metrics.capture(root, kind="tool", tool=tool_name, session=session_id)
+        # target = el archivo/patrón del tool-use; alimenta la serie de THRASHING (ADR-019 §5, M5)
+        metrics.capture(root, kind="tool", tool=tool_name, session=session_id,
+                        target=instrument.target_of(tool_name, tool_input))
 
         # Si es el subagente (Task), también registrar delegación en el journal
         if tool_name == "Task":

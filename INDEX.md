@@ -82,7 +82,7 @@
 | `docs/work/H1-FACTORY-SELFGOV-INCREMENT.md` | `3dc42e03fefe` | 2026-06-18T17:50Z | Incremento H1-FACTORY-SELFGOV |
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
-| `docs/work/HARNESS-DECOUPLE-INCREMENT.md` | `8169b872479c` | 2026-06-26T13:25Z | Incremento HARNESS-DECOUPLE |
+| `docs/work/HARNESS-DECOUPLE-INCREMENT.md` | `15aa58e663b3` | 2026-06-26T13:48Z | Incremento HARNESS-DECOUPLE |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |

@@ -7,8 +7,12 @@ path, and the Meta-Factory's own `memory.cadence`/`memory.projection` DELEGATE h
 and the meta enforce the IDENTICAL law (no divergence, the trust-chain single-source principle).
 
 Two deterministic questions, re-derivable from the working tree + the open increment:
-  - is there a (non-`.md`) file open for edit with NO increment open?            → edit_allowed()
+  - is a (non-`.md`) file open for edit with NO increment open AT ITS LEVEL?     → edit_allowed()
   - is there un-committed (non-`.md`) code INSIDE an open increment?             → debt()
+
+The edit-gate is LEVEL-AWARE (ADR-016): the level of a file is the MOST SPECIFIC of meta / factory /
+product that contains it, and editing it needs the open increment of THAT level's `docs/work/`. The
+resolution is pure path arithmetic — DATA-agnostic, no factory/product slug is hardcoded.
 
 The TRUTH is git (the tree) + docs (the increment, `Estado: **ABIERTO**`); this only READS and
 projects it. It NEVER auto-commits: the debt is surfaced and blocked; the message (with I-10 trailers)
@@ -26,11 +30,11 @@ from pathlib import Path
 _OPEN_RE = re.compile(r"Estado:\s*\*\*(ABIERTO|CERRADO)\*\*")
 
 
-def open_increment(root: Path) -> str | None:
-    """The filename of the single open increment (`docs/work/*.md` with `Estado: **ABIERTO**`), or
-    None. A factory OPENS one by writing such a `.md` (an `.md` is always editable, so this
-    self-bootstraps); CLOSES it by flipping the header to `**CERRADO**`."""
-    workdir = Path(root) / "docs" / "work"
+def open_increment_in(workdir: Path) -> str | None:
+    """The filename of the single open increment (`*.md` with `Estado: **ABIERTO**`) inside a given
+    `docs/work/` directory, or None. A level OPENS one by writing such a `.md` (an `.md` is always
+    editable, so this self-bootstraps); CLOSES it by flipping the header to `**CERRADO**`."""
+    workdir = Path(workdir)
     if not workdir.exists():
         return None
     for p in sorted(workdir.glob("*.md")):
@@ -41,6 +45,13 @@ def open_increment(root: Path) -> str | None:
         if m and m.group(1) == "ABIERTO":
             return p.name
     return None
+
+
+def open_increment(root: Path) -> str | None:
+    """The META-level open increment (`docs/work/*.md` with `Estado: **ABIERTO**`), or None. The
+    projection/rehydrate banner and the cadence backstop read THIS (meta) level; the level-aware
+    edit-gate uses `open_increment_in(level_workdir(...))`."""
+    return open_increment_in(Path(root) / "docs" / "work")
 
 
 def dirty_code(root: Path) -> list[str]:
@@ -67,18 +78,54 @@ def dirty_code(root: Path) -> list[str]:
     return paths
 
 
-def edit_allowed(root: Path, file_path: str) -> bool:
-    """Layer 1 (ADR-010): editing a NON-`.md` file under the repo requires an open increment. `.md`
-    (it is how an increment is OPENED) and files outside the repo are always allowed. Pure function —
-    the decision lives HERE; the `increment_guard` hook is only transport (the placement law)."""
+def level_workdir(root: Path, file_path: str) -> Path:
+    """The `docs/work/` of the MOST SPECIFIC level that contains `file_path` (ADR-016, level-aware
+    edit-gate). Pure path arithmetic — DATA-agnostic, no factory/product slug is hardcoded:
+      - `factories/<f>/products/<p>/**`  → that product's `docs/work/`
+      - `factories/<f>/**` (not products) → that factory's `docs/work/`
+      - everything else (`src/`, `seed/`, `stations/`, root) → the meta `docs/work/`
+    `file_path` is assumed inside `root` (the caller checks); on any doubt, returns the meta dir."""
+    root = Path(root).resolve()
     try:
+        parts = Path(file_path).resolve().relative_to(root).parts
+    except (ValueError, OSError):
+        return root / "docs" / "work"
+    if len(parts) >= 5 and parts[0] == "factories" and parts[2] == "products":
+        return root / "factories" / parts[1] / "products" / parts[3] / "docs" / "work"
+    if len(parts) >= 3 and parts[0] == "factories":
+        return root / "factories" / parts[1] / "docs" / "work"
+    return root / "docs" / "work"
+
+
+def edit_allowed(root: Path, file_path: str) -> bool:
+    """Layer 1 (ADR-010 + ADR-016, level-aware): editing a NON-`.md` file requires an open increment
+    in the `docs/work/` of the file's LEVEL (meta / factory / product — the most specific that contains
+    it). `.md` (it is how an increment is OPENED) and files outside the repo are always allowed. Pure
+    function — the decision lives HERE; the `increment_guard` hook is only transport (placement law)."""
+    try:
+        rootp = Path(root).resolve()
         target = Path(file_path).resolve()
-        target.relative_to(Path(root).resolve())
+        target.relative_to(rootp)
     except (ValueError, OSError):
         return True   # outside the repo: not project code
     if target.suffix == ".md":
         return True
-    return open_increment(root) is not None
+    return open_increment_in(level_workdir(rootp, str(target))) is not None
+
+
+def required_workdir_rel(root: Path, file_path: str) -> str | None:
+    """The `docs/work/` (relative to `root`) whose open increment would AUTHORIZE editing `file_path`,
+    or None when no increment is needed (`.md` / outside the repo). For the guard's error message —
+    so it names the LEVEL the edit belongs to, not a generic 'open an increment'."""
+    try:
+        rootp = Path(root).resolve()
+        target = Path(file_path).resolve()
+        target.relative_to(rootp)
+    except (ValueError, OSError):
+        return None
+    if target.suffix == ".md":
+        return None
+    return str(level_workdir(rootp, str(target)).relative_to(rootp))
 
 
 def _fmt(paths: list[str]) -> str:

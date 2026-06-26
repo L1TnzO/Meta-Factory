@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8169b872479c6f7ef78db9463805d0cad2711539 updated=2026-06-26T13:25Z -->
+<!-- meta:doc sha=15aa58e663b3586b62378dccb0f89afb5b8f00b3 updated=2026-06-26T13:48Z -->
 # Incremento HARNESS-DECOUPLE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-26T13:23Z). Cerralo con `meta increment close`
@@ -21,8 +21,8 @@ hueco a nivel fábrica. Precedente que se generaliza: 3/4 cerrojos YA delegan al
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **Gate `column_parity` PRIMERO (gate-first).** Check determinista: columna in-tree de la fábrica ≡ proyección(source canónico). Lo escribo y verifico que da **ROJO** sobre el drift actual (40–63 líneas) — prueba que el problema es real antes de arreglarlo. | ⏳ |
-| 2 | **El source canónico + el transform de proyección.** Un único source de la columna (transporte fino + ley en `seed/`); `template/factory/harness/` deja de ser fork a mano → se deriva por transform determinista (parametrización `{{slug}}`/scope). Re-materializar las fábricas → `column_parity` VERDE. | ⏳ |
+| 1 | **Gate `column_parity` PRIMERO (gate-first).** `src/metafactory/verify/checks/column_parity.py`. Verificado **ROJO** sobre el drift actual antes de arreglar. Hallazgo: el drift NO eran los 40–63 líneas meta↔template (ese es polish de mensajes del transporte meta, legítimo) sino **`seed/lifecycle.py` rancio en las 5 fábricas** (ley de cadencia pre-ADR-016-Fase-1, sin level-aware). | ✅ |
+| 2 | **El source canónico + el transform.** Decisión clave (ADR-005 §4): el gate **NO re-implementa** la proyección — re-materializa la columna con el **renderer REAL de M1** (`apply_builds`: copy_seed + render_tree(harness) + render(external_ci por-fábrica)) en un scratch y compara byte a byte → no puede divergir, y maneja `external_ci.yml` (rendered, no verbatim) sin tocar lo de M7. Re-materializadas las 5 (`m00→m01 --factory`) → `column_parity` **VERDE**; blast radius quirúrgico (sólo `lifecycle.py`, ahora level-aware). | ✅ |
 | 3 | **Propagar el enforcement de delegación a la fábrica, least-priv.** `blast_radius`/`verdict_required` en la columna proyectada de fábrica, acotados a sus slots. Wirearlos en `settings.json`. | ⏳ |
 | 4 | **I-12 con diente abajo.** `agent_shadow` a nivel fábrica: una prohibición de un agent de fábrica tiene sombra REAL (instalada + cableada). Negativo no-decorativo: borrar el target → rojo. | ⏳ |
 

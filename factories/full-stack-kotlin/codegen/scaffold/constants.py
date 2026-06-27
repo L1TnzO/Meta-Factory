@@ -1294,7 +1294,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%OPERATIONS_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%
   } finally {
     await browser.close();
   }
@@ -1465,3 +1465,37 @@ _OPERATIONS_ASSERT_BLOCK = '''
       (els) => els.map((el) => el.textContent ?? ""));
     check(opDd.some((t) => t.includes("%TO_STATE%")), true,
           "FSK-FRONTEND-OPERATIONS: clic en el verbo -> el estado MUTA (workflow) y se ve en el detalle (Chromium REAL)");'''
+
+
+_DELETE_ASSERT_BLOCK = '''
+
+    // FSK-FRONTEND-DELETE - el ULTIMO bloque (completa el CRUD del browser): borra la fila que el FORM CREO
+    // (principal-owned + misma compania POR CONSTRUCCION -> el DELETE pasa ownership/scope) y asevera que
+    // DESAPARECE de la lista del DOM REAL. DEL_ROW = el valor renderizado VIGENTE de esa fila (el que el FORM
+    // posteo, o el editado si EDIT cambio el render-field) -> codegen lo computa (DATA-agnostico, ADR-012).
+    const DEL_ROW = "%DEL_ROW%";
+    const delRow = page.locator("li[data-id]", { hasText: DEL_ROW }).first();
+    await delRow.click();
+    // el click re-renderiza ASYNC (get<E> -> renderDetail + renderDelete) -> esperar a que el DETALLE refleje LA
+    // FILA ANTES de borrar: garantiza que renderDelete ya corrio para ESTA fila (el id del boton es el SUYO).
+    await page.waitForFunction(
+      (t) => {
+        const d = document.querySelector("dl.detail");
+        return d !== null && (d.textContent ?? "").includes(t);
+      },
+      DEL_ROW, { timeout: 10000 });
+    // clickea el boton BORRAR (un <button data-delete> SUELTO, no en un form -> click nativo sin carrera de
+    // navegacion); su handler async llama delete<E> (DELETE real por la red) + re-trae list<E> + re-render, en Chromium REAL.
+    await page.click(`[data-delete]`);
+    // el delete es async -> esperamos por el DOM (determinista, no sleep) a que NINGUN <li> contenga el valor de la
+    // fila borrada; un delete<E>/click roto -> la fila SIGUE -> timeout -> el check de abajo flipea (rojo). DIENTE.
+    try {
+      await page.waitForFunction(
+        (t) => ![...document.querySelectorAll("li")].some((li) => (li.textContent ?? "").includes(t)),
+        DEL_ROW, { timeout: 10000 });
+    } catch {
+      // timeout: la fila borrada SIGUE en la lista -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const afterDelTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    check(afterDelTexts.some((t) => t.includes(DEL_ROW)), false,
+          "FSK-FRONTEND-DELETE: clic en borrar -> la fila DESAPARECE de la lista del DOM REAL (Chromium)");'''

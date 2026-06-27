@@ -76,6 +76,10 @@ def _consume_entity_ts(e: dict) -> str:
     # server setea SÓLO las claves presentes); <E>Patch = Partial<Pick<<E>, …>> (todas opcionales) type-bound al
     # contrato (DES-6 — un drift del campo patchable rompe tsc --strict). Mismo set que el <E>Patch del backend.
     patch_keys = " | ".join(f'"{f["name"]}"' for f in _patchable_fields(e))
+    # FSK-FRONTEND-DELETE: delete<E> (DELETE /<plural>/{id}) se emite junto a update<E> — sólo la entidad CON DUEÑO
+    # (la única con el DELETE enforzado por ownership/RBAC; el route DELETE se registra bajo `if e.get("owned_by")`,
+    # como el PUT). El AppServer NO devuelve cuerpo (200 vacío) → Promise<void>, no parsea JSON. `Authorization: token`
+    # → pasa RBAC+ownership; un !res.ok (403 ajeno / 404 inexistente) NO se traga (throw). Mismo patrón fetch, sin body.
     return crud + (
         f"type {name}Patch = Partial<Pick<{name}, {patch_keys}>>;\n\n"
         f"export async function update{name}(base: string, token: string, id: number, "
@@ -87,6 +91,15 @@ def _consume_entity_ts(e: dict) -> str:
         "  });\n"
         "  if (!res.ok) {\n"
         f'    throw new Error(`update{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        "}\n\n"
+        f"export async function delete{name}(base: string, token: string, id: number): Promise<void> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}/${{id}}`, {{\n"
+        '    method: "DELETE",\n'
+        '    headers: { "Authorization": token },\n'
+        "  });\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`delete{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         "}\n\n"
     ) + _consume_verbs_ts(e)
@@ -488,6 +501,45 @@ def _mount_ts(e: dict) -> str:
     ) if operable else ''
     verb_call = '\n        renderVerbs(id);' if operable else ''
     verb_append = '  root.appendChild(verbContainer);\n' if operable else ''
+    # FSK-FRONTEND-DELETE: el botón BORRAR, SÓLO para la entidad EDITABLE (con dueño → la única con el DELETE
+    # enforzado por ownership/RBAC; mismo opt-in que el form de edición). Tres piezas opt-in (byte-vacías si no es
+    # editable → mount<E> queda IDÉNTICO a FSK-FRONTEND-OPERATIONS): (a) delete_decl declara deleteContainer +
+    # renderDelete(id) — un <button data-delete> cuyo click llama delete<E> (DELETE real, sin body), re-trae list<E>
+    # y RE-RENDERIZA la lista (la fila DESAPARECE) + limpia el detalle; (b) delete_call lo invoca al abrir el detalle
+    # (la fila YA seleccionada); (c) delete_append lo monta. <button type="button"> suelto (no en un form → click
+    # nativo sin carrera de navegación, como los verbos). Completa el CRUD desde el browser (C/R/U ya vivían).
+    delete_decl = (
+        f'  // FSK-FRONTEND-DELETE — el botón BORRAR de {name} (la entidad con dueño: la única con el DELETE\n'
+        f'  // enforzado por ownership/RBAC). Se monta al abrir el detalle (la fila YA seleccionada); un click llama\n'
+        f'  // delete{name} (DELETE real por la red, sin body) → re-trae list{name} y RE-RENDERIZA la lista (la fila\n'
+        f'  // DESAPARECE) + limpia el detalle. data-delete marca el botón para el proof. <button type="button">\n'
+        f'  // (suelto, no en un form → click nativo sin carrera de navegación, como los verbos de OPERATIONS).\n'
+        f'  const deleteContainer = doc.createElement("div");\n'
+        f'  const renderDelete = (id: number): void => {{\n'
+        f'    deleteContainer.replaceChildren();\n'
+        f'    const deleteBtn = doc.createElement("button");\n'
+        f'    deleteBtn.type = "button";\n'
+        f'    deleteBtn.setAttribute("data-delete", "{name}");\n'
+        f'    deleteBtn.textContent = "delete";\n'
+        f'    const deleteFeedback = doc.createElement("p");\n'
+        f'    deleteBtn.addEventListener("click", () => {{\n'
+        f'      void (async (): Promise<void> => {{\n'
+        f'        try {{\n'
+        f'          await delete{name}(base, token, id);\n'
+        f'          renderRows(await list{name}(base));\n'
+        f'          detailContainer.replaceChildren();\n'
+        f'          deleteFeedback.textContent = "deleted";\n'
+        f'        }} catch {{\n'
+        f'          deleteFeedback.textContent = "error";\n'
+        f'        }}\n'
+        f'      }})();\n'
+        f'    }});\n'
+        f'    deleteContainer.appendChild(deleteBtn);\n'
+        f'    deleteContainer.appendChild(deleteFeedback);\n'
+        f'  }};\n'
+    ) if editable else ''
+    delete_call = '\n        renderDelete(id);' if editable else ''
+    delete_append = '  root.appendChild(deleteContainer);\n' if editable else ''
     return (
         f'// FSK-FRONTEND-ALL-ENTITIES — la PANTALLA de {name}: un FORM (un <input> por campo del cuerpo,\n'
         f'// _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la lista →\n'
@@ -510,6 +562,7 @@ def _mount_ts(e: dict) -> str:
         f'  }};\n'
         f'{edit_decl}'
         f'{verb_decl}'
+        f'{delete_decl}'
         f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
         f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
@@ -523,7 +576,7 @@ def _mount_ts(e: dict) -> str:
         f'    void (async (): Promise<void> => {{\n'
         f'      try {{\n'
         f'        const record = await get{name}(base, id);\n'
-        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}{verb_call}\n'
+        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}{verb_call}{delete_call}\n'
         f'      }} catch {{\n'
         f'        detailContainer.textContent = "error";\n'
         f'      }}\n'
@@ -548,6 +601,7 @@ def _mount_ts(e: dict) -> str:
         f'  root.appendChild(detailContainer);\n'
         f'{edit_append}'
         f'{verb_append}'
+        f'{delete_append}'
         f'  root.appendChild(feedback);\n'
         f'  host.appendChild(root);\n'
         f'  renderRows(await list{name}(base));\n'
@@ -607,10 +661,11 @@ def _app_ts(entities: list[dict]) -> str:
                 + 'export { summarize };\n')
     # FSK-FRONTEND-DETAIL: cada pantalla consume get<E> (el registro completo por id) → se importa de client.ts.
     # FSK-FRONTEND-EDIT: la entidad EDITABLE (con dueño + patchable) además consume update<E> (PUT PATCH-like).
+    # FSK-FRONTEND-DELETE: la EDITABLE además consume delete<E> (DELETE /<plural>/{id}) → el botón borrar de mount<E>.
     # FSK-FRONTEND-OPERATIONS: la entidad OPERABLE (con dueño + verbos de workflow) consume <verbo><E> (POST verbo).
     imports = "summarize, " + ", ".join(
         f"create{e['name']}, get{e['name']}, list{e['name']}" for e in served)
-    imports += "".join(f", update{e['name']}" for e in served if _editable(e))
+    imports += "".join(f", update{e['name']}, delete{e['name']}" for e in served if _editable(e))
     imports += "".join(f", {op['name']}{e['name']}"
                        for e in served if _operable(e) for op in _workflow_ops(e))
     return (head

@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 
 from .base import _editable, _input_fields, _is_poly, _live_entities, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -304,6 +304,18 @@ def _browser_check_ts(bp: dict) -> str:
                             .replace("%FWD_VERB%", fwd_op["name"])
                             .replace("%OP_FIELD%", op_field)
                             .replace("%TO_STATE%", fwd_op["to"]))
+    # FSK-FRONTEND-DELETE: el bloque del proof BORRA la fila que el FORM creó (principal-owned + misma compañía POR
+    # CONSTRUCCIÓN → el DELETE pasa ownership/scope) y asevera que DESAPARECE de la lista del DOM real — el ÚLTIMO
+    # bloque (los asserts previos ya usaron esa fila). Opt-in: sólo la entidad EDITABLE (la única con el botón delete
+    # de mount<E> + el DELETE enforzado) y con render_field en el FORM (para localizar la fila). DEL_ROW = el valor
+    # renderizado VIGENTE de esa fila: el del FORM, o el editado si EDIT cambió el MISMO campo (edit_field ==
+    # render_field, p.ej. helpdesk.subject) → el locator no falla tras el edit. DATA-agnóstico (ADR-012).
+    delete_block = ""
+    if _editable(owned) and render_field in form_body:
+        del_row = str(form_body[render_field])
+        if edit_block and edit_field is not None and edit_field["name"] == render_field:
+            del_row = f"edited-{edit_field['name']}"
+        delete_block = _DELETE_ASSERT_BLOCK.replace("%DEL_ROW%", del_row)
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
@@ -319,4 +331,5 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)
             .replace("%OPERATIONS_ASSERT%", operations_block)
+            .replace("%DELETE_ASSERT%", delete_block)
             .replace("%OWNED_ENTITY%", owned["name"]))

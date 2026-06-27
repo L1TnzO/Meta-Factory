@@ -1,9 +1,17 @@
-<!-- meta:doc sha=c73546300763abe2e6b938ceaef75796343988d5 updated=2026-06-27T02:25Z -->
+<!-- meta:doc sha=c18d81ffd2de8df67b39bf7a646db1be3b4dd783 updated=2026-06-27T04:07Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **DIAL DRAFT→HARDEN ADOPTADO (FSK-DIAL-ADOPT, 2026-06-27, ADR-017 §4)** ✅: FSK es la 1ª fábrica que usa el dial
+  de velocidad/rigor. 7 estaciones taggeadas `tier: harden` (la capa de rigor + shipping: s2 dureza · s3 frescura ·
+  s4 cadena · s7 tests · s8 a11y/perf · s10 hermético · s11 deploy); el **spine core** (un app que CORRE) = s0·s1·s5·s6·s9.
+  `product-run --mode draft` corre el spine (server vivo + control de acceso + frontend en Chromium) y DIFIERE las 7
+  HONESTAMENTE (no finge: la estación diferida no tiene proof, el veredicto rotula boceto). **Delta medido: draft
+  41.7s vs harden 98.0s (~57% más rápido)**; `ci --rederive --all-products` **4/4 == pin** (el `tier` no toca el
+  `proof_sha` → cero re-pin). DATA por-fábrica (cero sustrato; el wire+gate `dial` vinieron del meta `DIAL-MEASURE`).
+  Detalle: `docs/work/FSK-DIAL-ADOPT-INCREMENT.md §Evidencia`.
 - **LOS 16 INCREMENTOS DE LÍNEA `FSK-S0..S15` AHORA VIVEN ACÁ (FACTORY-DOC-MIGRATE, 2026-06-27, ADR-016 Fase 2 §2)**:
   los docs de evidencia de la línea s0→s10 + la expresividad de dominio s11→s15 estaban mal alojados en `docs/work/`
   del **meta**; migraron a `docs/work/` de ESTA fábrica (su home de nivel correcto, junto a los 42 hermanos `FSK-*`).

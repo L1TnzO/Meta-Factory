@@ -1,4 +1,4 @@
-<!-- meta:doc sha=94bf64a0baef894fdc91795b72db6ca743458d6f updated=2026-06-27T02:24Z -->
+<!-- meta:doc sha=bcaaa3dec734a1b94a0eea04fd47695cb31b0958 updated=2026-06-27T03:22Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -31,8 +31,11 @@
 > benchmark de 5 entidades generado por la línea REAL e2e a la PRIMERA, `git diff codegen/+src/+seed/ = 0` — FSK ya
 > cubre el 80%) **+ §2 `REAIM-SWEET-SPOT` ✅** (el benchmark como TARGET verificable: `benchmarks/sweet-spot-crud.yml`
 > DATA + `benchmark.py` re-derivado de estado commiteado + gate dos-lados + verbo `meta benchmark`; **`meta check`
-> 11/11**; helpdesk PASA / snipeit FALLA el target → Snipe-IT degradado a techo de regresión como HECHO). **Siguiente
-> dentro de Fase 4 = el dial borrador→endurecer + la cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF.**
+> 11/11**; helpdesk PASA / snipeit FALLA el target → Snipe-IT degradado a techo de regresión como HECHO). **§3 dial
+> borrador→endurecer ✅** (mecanismo `DRAFT-HARDEN-DIAL` + **adoptado**: `DIAL-MEASURE` cableó `tier` al materializar
+> + gate `dial` medido, y `FSK-DIAL-ADOPT` taggeó la capa de rigor de FSK — draft 41.7s corre la app vs harden 98.0s
+> ==pin, ~57% más rápido; 2026-06-27) **+ §4 cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF ✅**
+> (`PWF-VOCAB-HARVEST`). **Fase 4 COMPLETA. Único residual SOTA: `LEAST-PRIV-DECOUPLE` (diferido, no bloquea).**
 
 ## 0. Si llegás sin contexto, leé en este orden
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e2b1491dbc9260be4da98a477d54b4d14bb59123 updated=2026-06-27T02:57Z -->
+<!-- meta:doc sha=bab78948d9286bf9d96ccea37237576c74d99881 updated=2026-06-27T03:21Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -19,8 +19,9 @@
 - **🧭 NORTE VIGENTE — RE-DIRECCIÓN SOTA (ADR-017).** El motor FUNCIONA (FSK genera apps reales verificadas por
   bloqueo); el trabajo vivo es la capa de **DIRECCIÓN** (outer-loop): grafo de proyecto content-addressed +
   delegación "verificar-no-revisar" (Opus cerebro · Sonnet genera · Haiku lee) + gates de calidad dogfoodeados.
-  Sus 4 fases ya están construidas (la última, `REAIM-SWEET-SPOT`, cerró el 2026-06-26). Roadmap vivo y
-  autoritativo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. Norte abierto (no decidido): adopción del dial draft→harden.
+  Sus 4 fases ya están construidas; el **dial draft→harden ya está ADOPTADO** (FSK, 2026-06-27,
+  `DIAL-MEASURE`+`FSK-DIAL-ADOPT`: 7 estaciones `tier:harden` · draft 41.7s vs harden 98.0s ==pin · gate `dial`).
+  Roadmap vivo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. Único residual SOTA: `LEAST-PRIV-DECOUPLE` (diferido, no bloquea).
 - **🧠 MEMORIA v2 (ADR-019) — COMPLETA (salvo la regla de escape §6).** Telemetría + literatura convergen: **podar
   antes de agregar** (NO servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
   **M1·M2·M5·M3·M4·M6 hechos** — el detalle de cada Move vive en `LOG.md` + su `work/<SLUG>-INCREMENT.md §Evidencia`.

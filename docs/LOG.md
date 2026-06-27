@@ -1,7 +1,38 @@
-<!-- meta:doc sha=681eef2d67d2b9e2bfd4c269b894d34c466d5c7b updated=2026-06-27T20:21Z -->
+<!-- meta:doc sha=0747a3557520a922be176d45546d2867fcba2b7b updated=2026-06-27T20:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T20:55Z — DELEG-ACT-FACTORY ✅: las fábricas HEREDAN el cerebro (Fase C de DELEGATION-ACTIVATION)
+- **Qué (cierra la Fase C):** la fábrica tenía los DIENTES de delegación (`blast_radius`/`verdict_required` en
+  `FACTORY_COLUMN`, FACTORY-DELEGATION-TEETH) pero NINGÚN cerebro ni procedimiento → construir un producto pasaba
+  100% por Opus. Ahora el emisor de harness (M7) INYECTA un `orchestrator` (Opus, delegador) + el skill
+  `generate-slot` en toda fábrica, y la residencia trae la regla de routing afilada.
+- **El mecanismo:** **C1** — `codegen/delegation_brain.py` NUEVO (el contenido: cuerpos del orchestrator +
+  generate-slot en inglés ADR-017; `with_brain_agents`/`with_brain_skills`); `_emit_harness` los inyecta en el
+  harness del spec ANTES de emitir. Disciplina operativa **HEREDADA, no DATO por-spec** — la misma frontera que
+  ADR-018 §4 ya aceptó para los teeth: el spec declara ROLES, el sustrato decide la DISCIPLINA verificar-no-revisar
+  que los conduce. DATA-agnostic (ADR-012): la spawn-list `Agent(...)` se DERIVA de los roles del spec; el variante-
+  fábrica del skill usa `seed/delegation.py` (no `metafactory.*` → sobrevive standalone). No-op si el spec ya
+  declara su propio orchestrator (gana el spec). **C2** — `_delegation_wiring` exime de los teeth a un agent
+  delegador (su `tools` nombra `Agent(...)`): los teeth acotan a un GENERATOR autónomo, no al cerebro que los
+  empuña (espeja al meta orchestrator, sin hooks); `_has_write` robusto a `tools` lista-o-string. **C3** —
+  `template/factory/CLAUDE.md`: el bullet «Delegá por default» afilado a la regla de routing (español, espeja al
+  meta de Fase A). **C4** — las 5 fábricas re-emitidas por el camino source-of-truth (los 2 builds de M7).
+- **Decisiones (juicios marcados):** (1) cerebro inyectado por el SUSTRATO, no agregado a 5 specs (verdadera
+  herencia: una fábrica NUEVA lo gana sola, sin duplicar boilerplate ni re-pinear 5 specs). (2) NO renombré
+  `writer`→`generator` — la convergencia de nombres es de la Fase **D** (la tabla §3 del DIRECTION); C usa los
+  nombres existentes y nombra la convención. (3) la observabilidad de delegación NO baja a `FACTORY_COLUMN`
+  (default §4 C1 ⚠️ — write-half sin read-half = dead writeback; se mide desde el meta operador). (4) NO creé
+  ADR-020 (mismo criterio que A — diferido al cierre del DIRECTION; la decisión (d) queda en el work-doc).
+- **Honesto:** la prueba "una fábrica delega sin pedirlo" es de próxima sesión (agents/skills cargan al restart)
+  → opera el ingeniero (`claude --agent orchestrator` EN la fábrica). Fase C es columna/codegen → ojos propios.
+  Drift pre-existente surfaced (no introducido): el camino completo de emit borraría `correr-app` de FSK (está en
+  la fábrica pero NO en el spec); restaurado — su fix es un incremento FSK aparte.
+- **Evidencia (por bloqueo):** `agent_shadow` 5/5 (4 agents c/u) · `tests/` 755 (incl. `TestDelegationBrain`) ·
+  `meta check` **16/16** (incl. `generality`, `quality`, `column_parity`, `least_priv`) · `ci --rederive` ==
+  pin las 5 (dummy 5/5 · full-stack 6/6 · iot 5/5 · asf 11/11 · FSK 12/12 — el cambio es de chassis, la línea de
+  producto no se mueve). Detalle: `work/DELEG-ACT-FACTORY-INCREMENT.md`.
 
 ## 2026-06-27T20:20Z — DELEG-ACT-META ✅: el meta delega NATURALMENTE (Fase A de DELEGATION-ACTIVATION)
 - **Qué (cierra la Fase A):** la topología verificar-no-revisar (Fase 2 SOTA) estaba construida pero dormida —

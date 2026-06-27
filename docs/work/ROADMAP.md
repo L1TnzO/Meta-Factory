@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2d98d58caef1eed0d1273703b0900fd952a04908 updated=2026-06-27T20:16Z -->
+<!-- meta:doc sha=b9b5899a111c5bf58c17a7387f7bce31c842b71f updated=2026-06-27T20:55Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -47,8 +47,12 @@
 > **B `DELEG-MEASURE` ✅** (la métrica dejó de mentir 0%: causa raíz = el emisor matcheaba el tool viejo `Task`,
 > renombrado a `Agent` en v2.1.63) → **A `DELEG-ACT-META` ✅ (2026-06-27)** (delegación natural del meta: regla
 > permanente en `CLAUDE.md` + `description` de `generator`/`verifier` afiladas a triggers proactivos + alias manual
-> `--agent orchestrator`, NO `agent` global) → **C `DELEG-ACT-FACTORY`** (propagar el cerebro a las fábricas) →
-> **D `DELEG-TOPOLOGY-HYGIENE`** (higiene de topología). Detalle: **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
+> `--agent orchestrator`, NO `agent` global) → **C `DELEG-ACT-FACTORY` ✅ (2026-06-27)** (las fábricas heredan el
+> cerebro: `_emit_harness` inyecta `orchestrator`+`generate-slot` [contenido en `codegen/delegation_brain.py`] +
+> regla de routing en `template/factory/CLAUDE.md`; disciplina substrate-inyectada como los teeth, DATA-agnostic;
+> el delegador no recibe teeth; 5 fábricas re-emitidas, `meta check` 16/16, `ci --rederive` == pin) →
+> **D `DELEG-TOPOLOGY-HYGIENE`** (higiene de topología: trim `verifier` vs `Explore` + convergencia de nombres de
+> rol meta↔fábrica + regla rol-no-dominio con dientes). Detalle: **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

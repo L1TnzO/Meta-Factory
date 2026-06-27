@@ -92,6 +92,52 @@ class TestEmit:
         assert "htest" in text and "{{slug}}" not in text
 
 
+# ── la BRAIN inyectada: orchestrator + generate-slot heredados por toda fábrica (DELEG-ACT-FACTORY) ────
+
+class TestDelegationBrain:
+    """El sustrato INYECTA el cerebro verificar-no-revisar (ADR-017 §2/§3) en el harness de toda fábrica —
+    disciplina operativa heredada, no DATO por-spec: un `orchestrator` (delegador, Opus, sin teeth) + el
+    skill `generate-slot`. DATA-agnostic: la lista `Agent(...)` se DERIVA de los roles del spec."""
+
+    def test_orchestrator_injected_when_spec_omits_it(self, tmp_path):
+        _write_spec(tmp_path, {"agents": [
+            {"name": "writer", "model": "sonnet", "tools": ["Read", "Write"], "body": "w"}]})
+        _emit(tmp_path)
+        orch = tmp_path / ".claude" / "agents" / "orchestrator.md"
+        assert orch.exists(), "el orchestrator se inyecta aunque el spec no lo declare"
+        fm = _frontmatter(orch)
+        assert fm["model"] == "opus"
+        assert "Agent(" in fm["tools"] and "writer" in fm["tools"], "su spawn-list se deriva de los roles del spec"
+
+    def test_orchestrator_is_teeth_free(self, tmp_path):
+        """El delegador (cerebro) NO recibe los teeth de delegación — esos acotan a un GENERATOR autónomo,
+        no al orquestador que los empuña."""
+        _write_spec(tmp_path, {"agents": [{"name": "writer", "tools": ["Write"], "body": "w"}]})
+        _emit(tmp_path)
+        fm = _frontmatter(tmp_path / ".claude" / "agents" / "orchestrator.md")
+        assert "hooks" not in fm or not fm.get("hooks"), "el orchestrator no lleva blast_radius/verdict_required"
+        # contraste: el writer (Write-capable, NO delegador) SÍ los lleva
+        wfm = _frontmatter(tmp_path / ".claude" / "agents" / "writer.md")
+        assert wfm.get("hooks"), "el writer Write-capable SÍ recibe los teeth (no-regresión)"
+
+    def test_generate_slot_skill_injected(self, tmp_path):
+        _write_spec(tmp_path, {"agents": [{"name": "writer", "tools": ["Write"], "body": "w"}]})
+        _emit(tmp_path)
+        skill = tmp_path / ".claude" / "skills" / "generate-slot" / "SKILL.md"
+        assert skill.exists()
+        body = skill.read_text(encoding="utf-8")
+        assert "seed/delegation.py" in body, "el variante-fábrica usa seed/delegation.py, no metafactory.*"
+        assert "metafactory." not in body, "una fábrica standalone no tiene metafactory.*"
+
+    def test_spec_declared_orchestrator_wins(self, tmp_path):
+        """Idempotencia: si el spec ya declara un orchestrator, no se duplica (gana el del spec)."""
+        _write_spec(tmp_path, {"agents": [
+            {"name": "orchestrator", "model": "opus", "tools": "Read, Agent(x)", "body": "MÍO"}]})
+        _emit(tmp_path)
+        body = (tmp_path / ".claude" / "agents" / "orchestrator.md").read_text(encoding="utf-8")
+        assert "MÍO" in body
+
+
 # ── stale-removal: el dir iguala el spec EXACTAMENTE ──────────────────────────
 
 class TestStaleRemoval:

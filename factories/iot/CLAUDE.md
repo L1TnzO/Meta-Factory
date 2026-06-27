@@ -15,9 +15,13 @@
   veredictos (≤N líneas), nunca el dump de tests.
 - **Dos verificadores**: la custodia local no es la raíz de confianza; la re-derivación en runner limpio
   lo es (`seed/external_ci.yml` + el veredicto pineado).
-- **Delegá por default**: el contrato de cada rol vive en `.claude/agents/` (cuesta ~0 líneas). Toda
-  prohibición de un agent tiene SOMBRA determinista (I-12) — el orquestador no se apoya en prosa.
-- **Lo que toca la cadena de confianza** (gate/verifier/hooks) lo lee el orquestador con sus propios ojos.
+- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Opus). Un
+  **slot de código acotado con gate** (compile·tests·static) se rutea vía el skill `generate-slot` al `writer`
+  (Sonnet) y se acepta/rechaza por el VEREDICTO, no por el diff; las **lecturas masivas** (logs, árboles, specs)
+  van al `triage` (Haiku). Mantené el contexto del orquestador CHICO. Para un build pesado: `claude --agent
+  orchestrator`. Toda prohibición de un agent tiene SOMBRA determinista (I-12) — no se apoya en prosa.
+- **Lo que toca la cadena de confianza** (gate/verifier/hooks/`seed/`) lo escribe y lee el orquestador con
+  sus propios ojos — es la columna, no se delega.
 - **Multi-archivo por mantenibilidad**: el código nuevo (codegen y artefactos generados) se parte en archivos
   cohesivos, no en un monolito; no agregues archivos NUEVOS de miles de líneas (si uno tiende a ~800+, partilo).
   Los monolitos existentes son deuda conocida — no reescribir salvo pedido.

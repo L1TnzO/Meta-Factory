@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2f31a59c70c90433b55cfe27649aeb2cf395bd50 updated=2026-06-27T20:20Z -->
+<!-- meta:doc sha=745b6bdedcd03a6613f9bb616ea865b652e0afc0 updated=2026-06-27T20:56Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: DELEG-ACT-FACTORY-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -17,13 +17,14 @@
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
 - **▶ EN CURSO — `DELEGATION-ACTIVATION` (2026-06-27).** Encender el harness verificar-no-revisar (Fase 2 SOTA),
-  construido pero arrancado dormido. **B `DELEG-MEASURE` ✅ + A `DELEG-ACT-META` ✅:** la métrica dejó de mentir
-  0% (el emisor matcheaba el tool viejo `Task`, renombrado a `Agent` en v2.1.63; ahora `meta metrics` LIDERA con
-  el conteo de delegaciones + SPLIT de costo por tier) y el meta delega NATURALMENTE (regla permanente en
-  `CLAUDE.md` + `description` de `generator`/`verifier` con triggers proactivos + alias `--agent orchestrator`,
-  NO `agent` global; la prueba "proactivo sin pedirlo" es de próxima sesión — descriptions cargan al restart).
-  Pendiente: **C** propagar el cerebro a las fábricas · **D** higiene de topología.
-  `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
+  construido pero arrancado dormido. **B `DELEG-MEASURE` ✅ + A `DELEG-ACT-META` ✅ + C `DELEG-ACT-FACTORY` ✅:** la
+  métrica dejó de mentir 0% (el emisor matcheaba el tool viejo `Task`→`Agent` en v2.1.63; `meta metrics` LIDERA con
+  el conteo + SPLIT por tier); el meta delega NATURALMENTE (regla en `CLAUDE.md` + `description` proactivas + alias
+  `--agent orchestrator`, NO `agent` global); y las fábricas HEREDAN el cerebro (`_emit_harness` inyecta
+  `orchestrator`+`generate-slot` [`codegen/delegation_brain.py`] + regla de routing en `template/factory/CLAUDE.md`;
+  substrate-inyectado como los teeth; el delegador no recibe teeth; 5 re-emitidas == pin). La prueba "delega sin
+  pedirlo" es de próxima sesión (agents/skills cargan al restart). Pendiente: **D** higiene de topología (`verifier`
+  vs `Explore` + convergencia de nombres + rol-no-dominio). `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
 - **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados (base de lo de arriba).** El motor FUNCIONA;
   la capa de DIRECCIÓN (grafo content-addressed + harness verificar-no-revisar + gates de calidad) está CONSTRUIDA;
   el dial draft→harden ADOPTADO (FSK). Detalle e historia: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.

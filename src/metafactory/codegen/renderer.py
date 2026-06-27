@@ -185,10 +185,27 @@ _DELEGATION_SHADOWS = [
 ]
 
 
+def _is_delegator(tools) -> bool:
+    """An agent that can spawn subagents (its `tools` name `Agent(...)`) is a brain/orchestrator, not a
+    slot-bounded worker — it NEVER gets the delegation teeth (those bound an autonomous GENERATOR to its
+    slot; the brain by design holds a free hand, ADR-017 §2). Robust to `tools` as a list or a string."""
+    text = tools if isinstance(tools, str) else " ".join(str(t) for t in (tools or []))
+    return "Agent(" in text
+
+
+def _has_write(tools) -> bool:
+    """Does `tools` grant a write capability? Handles `tools` as a list OR a string (the orchestrator uses a
+    string because of the `Agent(...)` syntax)."""
+    if isinstance(tools, str):
+        return any(w in tools for w in _WRITE_TOOLS)
+    return any(t in _WRITE_TOOLS for t in (tools or []))
+
+
 def _delegation_wiring(tools) -> dict | None:
     """The per-agent `hooks:` block wiring the two teeth, for an agent that can WRITE (PreToolUse →
-    blast_radius, Stop → verdict_required). None for read-only agents (least-privilege)."""
-    if not any(t in _WRITE_TOOLS for t in (tools or [])):
+    blast_radius, Stop → verdict_required). None for read-only agents AND for the delegator/brain
+    (least-privilege: teeth bound autonomous workers, not the orchestrator that wields them)."""
+    if _is_delegator(tools) or not _has_write(tools):
         return None
     return {
         "PreToolUse": [
@@ -227,17 +244,23 @@ def _emit_harness(ctx: RunContext, b: dict, subst: dict) -> list[str]:
     teeth are auto-wired onto Write-capable agents (ADR-018 §3, `_agent_fields`). Each target dir is
     regenerated to match the spec EXACTLY (a role dropped from the spec disappears from the harness)."""
     from ..spec.loader import load_spec
+    from . import delegation_brain
 
     spec = load_spec(ctx.root / "factory.spec.yml")
     harness = spec.machinery.harness or {}
     claude = ctx.root / ".claude"
+    # Inject the verify-not-review BRAIN (orchestrator agent + generate-slot skill) into the spec's harness:
+    # inherited operating discipline (ADR-017 §2/§3, DELEG-ACT-FACTORY), the complement of the teeth above —
+    # every factory delegates bulk to a cheap worker out of the box. DATA-agnostic (the orchestrator's spawn
+    # list is DERIVED from the spec's roles); no-op if the spec already declares its own (see delegation_brain).
+    agents = delegation_brain.with_brain_agents(harness.get("agents", []) or [])
+    skills = delegation_brain.with_brain_skills(harness.get("skills", []) or [])
     msgs: list[str] = []
-    msgs += _emit_md_items(
-        claude / "agents", harness.get("agents", []) or [], subst, label="agent", fields=_agent_fields)
+    msgs += _emit_md_items(claude / "agents", agents, subst, label="agent", fields=_agent_fields)
     msgs += _emit_md_items(
         claude / "commands", harness.get("commands", []) or [], subst, label="command",
         fields=lambda c: {"description": c.get("description"), "run": c.get("run")})
-    msgs += _emit_skills(claude / "skills", harness.get("skills", []) or [], subst)
+    msgs += _emit_skills(claude / "skills", skills, subst)
     return msgs
 
 

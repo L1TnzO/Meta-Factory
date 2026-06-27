@@ -8,6 +8,7 @@ depends_on:
 - s7
 - s8
 - s9
+tier: harden
 builds: []
 checks:
 - name: hermetic_build

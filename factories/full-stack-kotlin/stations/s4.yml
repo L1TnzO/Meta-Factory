@@ -3,6 +3,7 @@ name: 'seguridad de la cadena de suministro: SBOM + oráculo de advisories pinea
   + scanner determinista (sin red, sin LLM) — DES-13'
 activation: always
 requires_prev: s3
+tier: harden
 builds: []
 checks:
 - name: supply_chain_gate

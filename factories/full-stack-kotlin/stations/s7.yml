@@ -3,6 +3,7 @@ name: 'pirámide de tests GRADUADA en el toolchain del producto: unit + integrac
   (PG viva) + unit TS — DES-8'
 activation: always
 requires_prev: s6
+tier: harden
 builds: []
 checks:
 - name: pyramid_unit

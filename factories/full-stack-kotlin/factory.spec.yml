@@ -345,6 +345,9 @@ domain:
       name: "dureza estática: detekt (+ reglas ktlint) + `-Werror` (Kotlin) · ESLint strict + no-explicit-any + ts-reset (TS) — DES-10"
       activation: always
       depends_on: [s1]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): la capa de RIGOR. `--mode draft` la difiere para iterar
+      #                rápido (corre sólo el spine core s0·s1·s5·s6·s9); `--mode harden` (default, byte-idéntico
+      #                al pin) corre todo. `tier` NO entra al proof_sha → cero re-pin. core = un app que CORRE.
       # DES-10 — el producto falla FUERTE por CALIDAD (no sólo tipos). Kotlin: detekt corre el análisis de
       # calidad + las reglas ktlint (detekt-formatting, UN tool) sobre el código AUTORADO (src/main/kotlin;
       # los fuentes generados openapi/jOOQ quedan fuera por construcción) con maxIssues:0, y `-Werror`
@@ -372,6 +375,7 @@ domain:
       name: "frescura de API: oráculo de superficie pineado + linter determinista (sin LLM) — DES-11"
       activation: always
       depends_on: [s2]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor (frescura de API) — diferida en draft
       # DES-11 — el código generado usa SÓLO superficie no-deprecada y pineada; lo viejo se bloquea de forma
       # DETERMINISTA (I-3, sin LLM). El codegen (s0) emite el ORÁCULO config/api-surface.lock (versiones
       # pineadas + deny-list de símbolos deprecados/stale por versión) + el linter stdlib tools/currency_lint.py
@@ -395,6 +399,7 @@ domain:
       name: "seguridad de la cadena de suministro: SBOM + oráculo de advisories pineado + scanner determinista (sin red, sin LLM) — DES-13"
       activation: always
       depends_on: [s3]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor (cadena de suministro) — diferida en draft
       # DES-13 — el producto no shippea deps con vulnerabilidades conocidas ni secretos hardcodeados, gateado
       # de forma DETERMINISTA (I-3, sin red). El codegen (s0) emite el SBOM sbom.json (CycloneDX-lite de deps
       # directas), el ORÁCULO config/supply-chain.lock (advisories reales coordinate@rango→CVE + patrones de
@@ -606,6 +611,7 @@ domain:
       name: "pirámide de tests GRADUADA en el toolchain del producto: unit + integración (PG viva) + unit TS — DES-8"
       activation: always
       depends_on: [s6]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor (pirámide de tests) — diferida en draft
       # DES-8 — la verificación corre en el toolchain del producto como una pirámide GRADUADA que BLOQUEA por
       # nivel: tier UNIT (Kotest, src/test, SIN infra) testea el comportamiento de la lógica autorada del
       # producto (AuthGuard/RouteTable/Store — cobertura que s5 estático no da); tier INTEGRACIÓN (Kotest,
@@ -652,6 +658,7 @@ domain:
       name: "calidad de experiencia: a11y (axe-core en jsdom) + perf (presupuesto de bundle-size con esbuild) bajo eval_gate — DES-7"
       activation: always
       depends_on: [s7]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor (a11y + perf) — diferida en draft
       # DES-7 — el producto gana gates de calidad de EXPERIENCIA que BLOQUEAN bajo umbral, DETERMINISTAS y
       # HERMÉTICOS (sin browser, sin red post-npm-install). COMPONEN el mecanismo de sustrato eval_gate (MAT-4,
       # ya general): el sustrato ORQUESTA un scorer declarado (lee METAFACTORY_EVAL_OUTPUT, imprime
@@ -786,6 +793,7 @@ domain:
       name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
       activation: always
       depends_on: [s2, s3, s4, s7, s8, s9]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor/shipping (build hermético, fan-in) — diferida en draft
       # DES-1 — la ÚLTIMA estación de la línea FSK. Prueba que el build del producto es HERMÉTICO (offline) y
       # REPRODUCIBLE (el artefacto compilado webapp.jar sale byte-idéntico entre dos builds limpios offline —
       # la propiedad que s0 NO da: s0 prueba que el ÁRBOL FUENTE regenera idéntico, no que el OUTPUT COMPILADO
@@ -818,6 +826,7 @@ domain:
       name: "deploy vivo: la imagen del producto se CONSTRUYE y el contenedor RESPONDE /health (DES-1)"
       activation: always
       depends_on: [s10]
+      tier: harden   # draft→harden DIAL (ADR-017 §4): rigor/shipping (deploy docker vivo) — diferida en draft
       # DES-1 — FSK-DEPLOY: cierra la ÚLTIMA media-verdad de la línea FSK. Hasta s10 el Dockerfile se SHIPPEA y
       # el gate hermetic_build verifica el PIN de la base por grep, pero NADIE construye la imagen ni levanta el
       # contenedor (la misma media-verdad que browser-form cerró para la UI: la receta existe, nadie la ejecuta).

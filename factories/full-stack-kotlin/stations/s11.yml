@@ -3,6 +3,7 @@ name: 'deploy vivo: la imagen del producto se CONSTRUYE y el contenedor RESPONDE
   (DES-1)'
 activation: always
 requires_prev: s10
+tier: harden
 builds: []
 checks:
 - name: deploy_smoke

@@ -3,6 +3,7 @@ name: 'calidad de experiencia: a11y (axe-core en jsdom) + perf (presupuesto de b
   con esbuild) bajo eval_gate — DES-7'
 activation: always
 requires_prev: s7
+tier: harden
 builds: []
 checks:
 - name: a11y_gate

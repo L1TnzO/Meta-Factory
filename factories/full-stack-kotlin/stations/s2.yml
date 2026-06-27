@@ -3,6 +3,7 @@ name: 'dureza estática: detekt (+ reglas ktlint) + `-Werror` (Kotlin) · ESLint
   + no-explicit-any + ts-reset (TS) — DES-10'
 activation: always
 requires_prev: s1
+tier: harden
 builds: []
 checks:
 - name: static_hardness_kotlin

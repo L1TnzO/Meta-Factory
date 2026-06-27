@@ -1,7 +1,38 @@
-<!-- meta:doc sha=54c630662492f967f04b950640623c594bedf264 updated=2026-06-26T23:45Z -->
+<!-- meta:doc sha=88501358dc6b50492d81ec57d665546149f94efe updated=2026-06-27T02:00Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T02:00Z — FACTORY-DOC-SEAL ✅: el sello content-addressed baja a cada nivel (ADR-016 Fase 2 §3)
+- **Qué (el «sellado de docs» de ADR-016 Fase 2):** el sello content-addressed de docs (ADR-009 — sha del
+  cuerpo en la 1ª línea, triage barato) era **meta-only**: `docs_manifest.doc_set()` escaneaba `docs/**.md` +
+  START-HERE + CLAUDE del meta y nada más. `grep "meta:doc sha=" factories/*/docs/` → **CERO**: los 78 docs
+  AUTORADOS de las 5 fábricas (LOG/STATE/reference/work) + 2 productos no tenían sello → podían driftar en
+  silencio; `meta check` no los miraba. Era un diferido honesto explícito de ADR-016 («docs de producto SIN
+  sellar, `doc_set` sigue meta-only») — este incremento lo cierra. (§4 close por-nivel ya estaba de Fase 1
+  vía `cmd_increment --factory/--product`; §2 migración de los `FSK-S*` meta-residentes queda como carril aparte.)
+- **El mecanismo — `docs_manifest` parametrizado por doc-home (DATA-agnóstico, igual que el edit-gate level-aware
+  de Fase 1):** `doc_homes(repo)` enumera meta + cada `factories/<f>/` + cada `products/<p>/` con un `docs/`
+  (parte la RUTA, no hardcodea slugs); `doc_set(home, *, meta_extras)` sella `<home>/docs/**.md`; `check`/`sync`/
+  frescura corren POR-HOME y se agregan. Integridad (1) + frescura (4) en TODOS los niveles; INDEX (2) + links (3)
+  meta-only (cada fábrica navega por su STATE, no un INDEX generado). El hook `doc_stamp` + los sync-sites del CLI
+  cubren todos los homes SIN cambio (todos van por `sync()`).
+- **Fronteras deliberadas (anti-scope-creep, son las decisiones de diseño que importan):**
+  - **Sólo narrativas AUTORADAS** (`<home>/docs/**.md`). `factories/<f>/CLAUDE.md` NO se sella: es artefacto
+    PROYECTADO/generado por el harness → sellarlo in-tree pelearía con `column_parity`/re-derivación. El meta SÍ
+    sella su CLAUDE/START-HERE (son docs meta autorados) → la asimetría refleja una diferencia real (autorado vs generado).
+  - **Frescura PER-HOME**: editar un doc de fábrica NO fuerza re-tocar el STATE del meta. Cierra **P4** (el acople
+    de frescura que el propio GOVERNANCE-LAYERING señalaba), no sólo el sellado. Surfaceó un drift real antes
+    invisible (dummy STATE más viejo, por último commit, que su LOG) → resuelto al sellar todo junto.
+  - **INDEX meta-only**: evita proliferar `factories/<f>/INDEX.md` generados que colisionarían con `column_parity`.
+- **Probado por bloqueo:** corromper el cuerpo de un doc de fábrica sin re-sellar → `meta check` rojo apuntando a
+  ESE archivo, meta intacto (aislamiento). 5 tests nuevos (`test_docs_manifest.py`: `doc_homes` detecta fábrica+
+  producto · `sync` sella ambos · CLAUDE NO sellado · tamper aislado · sets meta/fábrica disjuntos). Sello en bloque
+  de los 78 docs = sólo +1 línea c/u (cero cambio de contenido).
+- **Evidencia:** `meta check` **14/14** · suite **724** verde · `column_parity` ok (el sello no perturba la columna)
+  · **5 fábricas `ci --rederive --all-products` == pin** en árbol limpio (full rebuild): dummy 5/5 · full-stack 6/6+
+  tasks 5/5 · iot 5/5+fleet 5/5 · ASF 11/11 · FSK default 12/12+assets/helpdesk/snipeit 11/11 — sin tocar
+  product.yml/codegen/stations. Detalle: `work/FACTORY-DOC-SEAL-INCREMENT.md §Evidencia`.
 
 ## 2026-06-26T23:44Z — FACTORY-DELEGATION-TEETH ✅: los teeth de verificar-no-revisar bajan a la fábrica (ADR-016 Fase 2 §1 · ADR-018 §3)
 - **Qué (la mitad-de-teeth de ADR-016 Fase 2 §1):** los dos dientes que vuelven SEGURA la delegación barata —

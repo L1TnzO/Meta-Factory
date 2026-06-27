@@ -1,4 +1,4 @@
-<!-- meta:doc sha=573d038dddc42b1f05a49c05fbd663bb4248f109 updated=2026-06-21T02:05Z -->
+<!-- meta:doc sha=e4a62324472bb4c9faf6ea3f535cdeff3512433a updated=2026-06-27T01:52Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
@@ -95,8 +95,21 @@ principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océ
 
 **DECISIÓN TOMADA (2026-06-20, el ingeniero): Opción A FASEADA, y la Fase 1 va ANTES de generar Snipe-IT.**
 **Fase 1 EJECUTADA ✅ (2026-06-21, ADR-016)** — casa de docs del producto + edit-gate level-aware, probado por
-bloqueo (`meta check` 6/6 · suite 578). Sigue: Fase 2 (lifecycle de fábrica in-tree + sellado de docs de
-fábrica/producto + gate de close por-nivel) — diferida, NO bloquea generar Snipe-IT (P1 Fase 2 desbloqueada).
+bloqueo (`meta check` 6/6 · suite 578).
+
+**Fase 2 — progreso (parcial):**
+- **§1 ✅ (2026-06-26)** — `HARNESS-DECOUPLE` (`column_parity`: la columna de fábrica ≡ proyección de un único
+  source) + `FACTORY-DELEGATION-TEETH` (los teeth de delegación bajan a la columna con ley seed-canónica). ADR-018.
+- **§4 ✅ (ya en Fase 1)** — el close por-nivel existe: `meta increment {open,close,status} --factory/--product`
+  direcciona el lifecycle del nivel correcto (`cli.py::cmd_increment`). No fue un pendiente real de Fase 2.
+- **§3 sellado de docs ✅ (2026-06-27, `FACTORY-DOC-SEAL`)** — el sello content-addressed (ADR-009) baja de
+  meta-only a **cada home por nivel**: `docs_manifest` parametrizado por doc-home (`doc_homes` parte la RUTA, no
+  slugs); integridad + frescura corren POR-HOME (editar un doc de fábrica NO fuerza re-tocar el STATE meta →
+  cierra P4); INDEX queda meta-only. Sólo narrativas AUTORADAS (`<home>/docs/**.md`); `factories/<f>/CLAUDE.md`
+  NO se sella (artefacto proyectado, pelearía con `column_parity`). Cierra el diferido honesto «docs de producto
+  SIN sellar» de ADR-016. Probado por bloqueo (tamper doc de fábrica → rojo aislado) · `meta check` 14/14.
+- **Resta:** §2 lifecycle de fábrica in-tree real (hoy el guard del meta cubre por-ruta; falta migrar los 16
+  `FSK-S*` meta-residentes a `factories/full-stack-kotlin/docs/work/`) + `LEAST-PRIV-DECOUPLE`. Ninguno bloquea.
 
 ## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
 > Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la

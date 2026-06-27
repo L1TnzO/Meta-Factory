@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1c9070b99c74fac8cc9ad647559ffddfcd649212 updated=2026-06-27T01:38Z -->
+<!-- meta:doc sha=923d1fce2261f76ea6e111e07ca1b0c00d91fead updated=2026-06-27T02:04Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: FACTORY-DOC-SEAL-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -33,13 +33,14 @@
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
   incrementos por fábrica/eje: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — §1 COMPLETA.** `HARNESS-DECOUPLE` entregó la fundación
-  (`column_parity`: la columna de fábrica ≡ proyección de un único source, drift = rojo) y
-  `FACTORY-DELEGATION-TEETH` (2026-06-26 ✅) la mitad-de-teeth: los hooks de delegación (`blast_radius`/
-  `verdict_required`) bajan a la columna proyectada con su ley **seed-canónica** (`seed/delegation.py`,
-  cargada por path · `metafactory.delegation` la re-exporta), y `agent_shadow` gana diente a nivel fábrica
-  (cableado **per-agent** del frontmatter reconocido; substrate-projected, NO spec-driven, ADR-018 §3–4).
-  Restan los **§2–4** (lifecycle de fábrica in-tree · sellado de docs · close por-nivel) + `LEAST-PRIV-DECOUPLE`.
+- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§3·§4 ✅, resta §2.** §1 (`HARNESS-DECOUPLE` +
+  `FACTORY-DELEGATION-TEETH`, 2026-06-26): `column_parity` (la columna de fábrica ≡ proyección de un único source)
+  + los teeth de delegación (`blast_radius`/`verdict_required`) bajan a la columna con ley **seed-canónica**
+  (`seed/delegation.py`, ADR-018). §3 (`FACTORY-DOC-SEAL`, 2026-06-27): el sello content-addressed (ADR-009) baja
+  de meta-only a **cada home por nivel** — `docs_manifest` parametrizado por doc-home; integridad+frescura
+  POR-HOME (editar un doc de fábrica NO toca el STATE meta → cierra P4); sólo narrativas autoradas (CLAUDE generado
+  NO se sella). §4 (close por-nivel) ya estaba en Fase 1. **Resta §2** (migrar los 16 `FSK-S*` meta-residentes al
+  home de fábrica) + `LEAST-PRIV-DECOUPLE`; ninguno bloquea.
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.

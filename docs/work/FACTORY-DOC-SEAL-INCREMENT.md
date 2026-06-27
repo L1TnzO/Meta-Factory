@@ -1,8 +1,7 @@
-<!-- meta:doc sha=e959481a9b8212e7714ecf5d428be651de60d701 updated=2026-06-27T01:39Z -->
-<!-- meta:doc sha=PENDING updated=PENDING -->
+<!-- meta:doc sha=709e723a4c9a98641cd9706f20e6a566350d8b8d updated=2026-06-27T02:04Z -->
 # Incremento FACTORY-DOC-SEAL
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T01:38Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T02:04Z) (creado 2026-06-27T01:38Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > Nivel: **META** (toca `src/metafactory/docs_manifest.py` + hook + check). Autoridad de diseño:
 > `docs/reference/GOVERNANCE-LAYERING.md §6` (Opción A faseada, Fase 2 "sellado de docs") + ADR-016.
@@ -47,9 +46,9 @@ Parametrizar `docs_manifest.py` por **doc-home** (un dir que contiene `docs/`):
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `docs_manifest.py` parametrizado por home (`doc_homes`, `doc_set(home, meta_extras)`, `check`/`sync`/freshness por-home agregados); INDEX meta-only | ⏳ |
-| 2 | Wiring: `doc_stamp.py` hook + `cli.py` sync-sites sellan TODOS los homes; sello en bloque de los 57+ docs de fábrica/producto | ⏳ |
-| 3 | Tests por bloqueo (tamper doc de fábrica → rojo aislado; meta intacto; frescura no cross-acopla) + `meta check` verde + `ci --rederive` 5 fábricas == pin | ⏳ |
+| 1 | `docs_manifest.py` parametrizado por home (`doc_homes`, `doc_set(home, meta_extras)`, `check`/`sync`/freshness por-home agregados); INDEX meta-only | ✅ |
+| 2 | Wiring: `doc_stamp.py` hook + `cli.py` sync-sites sellan TODOS los homes (sin cambio, van por `sync()`); sello en bloque de los **78** docs de fábrica/producto | ✅ |
+| 3 | Tests por bloqueo (tamper doc de fábrica → rojo aislado; meta intacto; frescura no cross-acopla) + `meta check` verde + `ci --rederive` 5 fábricas == pin | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. Todo doc autorado bajo `factories/*/docs/` y `factories/*/products/*/docs/` lleva un sello correcto;
@@ -63,3 +62,30 @@ Parametrizar `docs_manifest.py` por **doc-home** (un dir que contiene `docs/`):
 5. **Re-derivación intacta**: las 5 fábricas `meta ci --rederive --all-products` == pin (el sello toca sólo
    docs autorados, jamás la línea de producto/codegen).
 6. ADR-016 + STATE/LOG del meta narran el cierre; `git diff` sin residuo no-commiteado.
+
+## Evidencia (cierre 2026-06-27T02:00Z)
+1. **Sello por-nivel (criterio 1)** — `doc_homes` detecta 8 homes (meta + 5 fábricas + 2 productos snipeit/helpdesk);
+   `meta doc-sync` selló **78** docs autorados de fábrica/producto (antes: `grep "meta:doc sha=" factories/*/docs/`
+   → 0). `meta check` parte (1) los verifica por-home.
+2. **Diente por bloqueo (criterio 2)** — `test_tampered_factory_doc_is_red_and_isolated`: corromper el body de
+   `factories/demo/docs/LOG.md` sin re-sellar → `check` reporta `stale seal` SÓLO sobre ese archivo (todos los
+   problemas mencionan ESE path → aislado). El mismo patrón se observó vivo: `meta check` cayó a 13/14 cuando los
+   docs de fábrica estaban sin sellar, y volvió a 14/14 tras `sync`.
+3. **No cross-coupling P4 (criterio 3)** — frescura PER-HOME (`_state_fresh_problem(repo, home, *, meta_extras)`):
+   surfaceó un drift real (dummy STATE más viejo, por último commit, que su LOG — antes invisible), resuelto al
+   commitear los 78 sellos juntos. Editar un doc de fábrica no toca la frescura del STATE meta (sets disjuntos:
+   `test_meta_and_factory_doc_sets_do_not_overlap`).
+4. **Verde (criterio 4)** — `meta check` **14/14** (compile·docs·projection·isolation·generality·quality·pbt·
+   security·deferred·benchmark·column_parity·state_snapshot·state_fidelity·suite) · `pytest tests/` **724** ·
+   `test_docs_manifest.py` **26** (21 previos + 5 nuevos del sello por-home).
+5. **Re-derivación intacta (criterio 5)** — `ci --rederive --all-products` en árbol limpio (full rebuild),
+   **5/5 fábricas == pin**: dummy 5/5 · full-stack 6/6 + tasks 5/5 · iot 5/5 + fleet 5/5 · ASF 11/11 · FSK
+   default 12/12 + assets 11/11 + helpdesk 11/11 + snipeit 11/11. Changeset sin tocar `product.yml`/codegen/`.kt`/
+   `.ts`/stations (git-verificado).
+6. **Narración + árbol limpio (criterio 6)** — `GOVERNANCE-LAYERING.md §6` (autoridad de diseño) + STATE «Ahora»
+   + este LOG narran el cierre; ADR-016 (inmutable) NO se editó — su diferido honesto «docs SIN sellar» queda
+   cerrado por referencia. Commits: build `feat(docs): FACTORY-DOC-SEAL` + el close. `git diff` sin residuo.
+
+**Deliberadamente fuera de alcance (carriles aparte, honestos):** §2 lifecycle de fábrica in-tree REAL (hoy el
+guard del meta cubre por-ruta; falta migrar los 16 `FSK-S*` meta-residentes a `factories/full-stack-kotlin/docs/work/`)
++ `LEAST-PRIV-DECOUPLE`. Ninguno bloquea.

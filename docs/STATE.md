@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9c1b6deb969a6babbf0b4de32a2060ee39a30299 updated=2026-06-27T15:06Z -->
+<!-- meta:doc sha=fd7751143de79a852cd0fa94a6d0a6135c47d1cc updated=2026-06-27T16:58Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -16,12 +16,15 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
-- **🧭 NORTE VIGENTE — RE-DIRECCIÓN SOTA (ADR-017).** El motor FUNCIONA (FSK genera apps reales verificadas por
-  bloqueo); el trabajo vivo es la capa de **DIRECCIÓN** (outer-loop): grafo de proyecto content-addressed +
-  delegación "verificar-no-revisar" (Opus cerebro · Sonnet genera · Haiku lee) + gates de calidad dogfoodeados.
-  Sus 4 fases ya están construidas; el **dial draft→harden ya está ADOPTADO** (FSK, 2026-06-27,
-  `DIAL-MEASURE`+`FSK-DIAL-ADOPT`: 7 estaciones `tier:harden` · draft 41.7s vs harden 98.0s ==pin · gate `dial`).
-  Roadmap vivo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. **Todos los residuales SOTA cerrados** — `LEAST-PRIV-DECOUPLE` ✅ (2026-06-27): el último, el alcance least-privilege de la columna por nivel, con diente.
+- **▶ EN CURSO — `DELEGATION-ACTIVATION` (2026-06-27, dirección abierta).** El harness verificar-no-revisar
+  (Fase 2 SOTA) se CONSTRUYÓ pero nunca se ENCENDIÓ: `meta metrics` mide **delegación 0.0%** · ~$13.5k/~132
+  sesiones **~100% Opus** (el cache-read domina). Falta la **ignición**: delegación natural sin pedirla en cada
+  prompt (regla CLAUDE.md + descriptions afiladas, NO agent-global) + medición con dientes (hook `SubagentStop`→
+  evento `delegation` + split de tokens) + propagar el cerebro a las fábricas (emisor emite orquestador +
+  `generate-slot`). 4 sub-incrementos B→A→C→D: `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
+- **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados (base de lo de arriba).** El motor FUNCIONA;
+  la capa de DIRECCIÓN (grafo content-addressed + harness verificar-no-revisar + gates de calidad) está CONSTRUIDA;
+  el dial draft→harden ADOPTADO (FSK). Detalle e historia: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **🧠 MEMORIA v2 (ADR-019) — COMPLETA (salvo la regla de escape §6).** Telemetría + literatura convergen: **podar
   antes de agregar** (NO servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
   **M1·M2·M5·M3·M4·M6 hechos** — el detalle de cada Move vive en `LOG.md` + su `work/<SLUG>-INCREMENT.md §Evidencia`.

@@ -630,5 +630,5 @@ def _app_css() -> str:
     (body/header/nav button/ul.dashboard/li/form/input/button/dl.detail/.field), cero nombres de dominio →
     el MISMO CSS estila cualquier producto FSK. esbuild la COMPILA (build_bundle.mjs, 2da pasada) a dist/app.css;
     el AppServer la sirve en GET /app.css (text/css); dist/index.html la linkea. El proof browser_check.ts asevera
-    que APLICA en un Chromium real (getComputedStyle(body).maxWidth == 960px, != el default UA 'none')."""
+    que APLICA en un Chromium real (getComputedStyle(body).maxWidth == 1200px, != el default UA 'none')."""
     return _APP_CSS

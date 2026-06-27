@@ -1075,72 +1075,127 @@ main(base)
 
 
 _APP_CSS = '''\
-/* app.css (FSK-FRONTEND-STYLES) — hoja de estilos del frontend, ARCHIVO APARTE (regla multi-archivo). esbuild la
-   compila (build_bundle.mjs) a dist/app.css; el AppServer la sirve en GET /app.css; index.html la linkea. Estila
-   SÓLO clases semánticas que el render emite (DATA-agnóstica, ADR-012). El diente: body max-width != default UA. */
+/* app.css (FSK-FRONTEND-STYLES, re-skinned by FSK-FRONTEND-VERCEL) — frontend stylesheet, OWN FILE
+   (multi-file rule). esbuild compiles it (build_bundle.mjs) to dist/app.css; AppServer serves GET /app.css;
+   index.html links it. Styles ONLY the semantic classes the render emits (DATA-agnostic, ADR-012) → the SAME
+   sheet skins every FSK product. Design language: ink near-black on near-white canvas, hairline borders, subtle
+   stacked shadows, geometric sans + mono for technical labels, 6/8/12px radii (see docs/reference/DESIGN-VERCEL.md).
+   The tooth: body max-width != the UA default 'none'. */
 :root {
-  --fg: #1c2333;
-  --muted: #5b6577;
-  --accent: #2d6cdf;
-  --border: #d8dee9;
-  --bg: #f6f7f9;
-  --card: #ffffff;
+  --ink: #171717;            /* primary text + primary-button fill */
+  --body: #4d4d4d;           /* secondary text */
+  --mute: #888888;           /* lowest-priority text / placeholders / field labels */
+  --hairline: #ebebeb;       /* 1px dividers and borders */
+  --hairline-strong: #a1a1a1;
+  --canvas: #ffffff;         /* cards, inputs */
+  --canvas-soft: #fafafa;    /* page background (98% white) */
+  --link: #0070f3;
+  --on-ink: #ffffff;
+  --r-sm: 6px;               /* in-app buttons / inputs (the --geist-radius register) */
+  --r-md: 8px;               /* row cards */
+  --r-lg: 12px;              /* larger card chrome (detail) */
+  --ring: 0 0 0 1px rgba(0, 0, 0, 0.08);                                  /* Level 1 inset hairline ring */
+  --shadow: 0 1px 1px rgba(0, 0, 0, 0.02), 0 2px 2px rgba(0, 0, 0, 0.04); /* Level 2 stacked soft drop */
+  --sans: Inter, "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
 * { box-sizing: border-box; }
 body {
-  max-width: 960px;          /* DIENTE: != default UA 'none' -> el proof prueba que la hoja APLICA */
+  max-width: 1200px;         /* DIENTE: != UA default 'none' -> the proof checks the sheet APPLIES */
   margin: 0 auto;
-  padding: 1.5rem;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: var(--fg);
-  background: var(--bg);
+  padding: 2rem 1.5rem 4rem;
+  font-family: var(--sans);
+  font-size: 14px;
   line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: var(--canvas-soft);
+  -webkit-font-smoothing: antialiased;
 }
-header { margin-bottom: 1rem; }
-h1, h2 { margin: 0 0 0.5rem; }
-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
-nav button, button {
-  padding: 0.45rem 0.95rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+/* Headings — geometric sans, weight 600 ceiling, aggressive negative tracking (part of the voice). */
+header { margin-bottom: 1.5rem; }
+h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.03em; margin: 0 0 0.25rem; }
+h2 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+p { color: var(--body); margin: 0 0 0.75rem; }
+/* Nav — one ghost button per entity screen; 6px radius, hairline, fills to ink on hover. */
+nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+nav button {
+  padding: 0.4rem 0.75rem;
+  font: inherit; font-size: 14px; font-weight: 500;
+  color: var(--body);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
   cursor: pointer;
+  transition: color .15s, border-color .15s;
 }
-nav button { background: var(--card); color: var(--fg); }
-nav button:hover { border-color: var(--accent); color: var(--accent); }
-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; margin-bottom: 1rem; }
+nav button:hover { color: var(--ink); border-color: var(--hairline-strong); }
+/* Forms — 40px inputs, hairline border, focus ring; the submit button is the "ink" (filled #171717). */
+form { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin: 0 0 1.5rem; }
 input, select {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--card);
-  color: var(--fg);
+  height: 40px;
+  padding: 0 0.75rem;
+  font: inherit; font-size: 14px;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
 }
-button { border-color: var(--accent); background: var(--accent); color: #fff; }
-button:hover { filter: brightness(1.06); }
-ul { list-style: none; margin: 0; padding: 0; }
+input::placeholder { color: var(--mute); }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12);
+}
+button {
+  height: 40px;
+  padding: 0 1rem;
+  font: inherit; font-size: 14px; font-weight: 500;
+  color: var(--on-ink);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+button:hover { opacity: 0.85; }
+/* Lists — each row is a card: white canvas, hairline border + stacked shadow, 8px radius. */
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
 li {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  margin-bottom: 0.4rem;
-  background: var(--card);
+  padding: 0.75rem 1rem;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  transition: border-color .15s, box-shadow .15s;
 }
 li[data-id] { cursor: pointer; }
-li:hover { border-color: var(--accent); }
-ul.dashboard li { font-weight: 600; }
+li[data-id]:hover { border-color: var(--hairline-strong); box-shadow: var(--shadow), var(--ring); }
+/* Dashboard — the HOME: a live count per entity. Number in ink, laid out as a responsive card grid. */
+ul.dashboard { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+ul.dashboard li { font-weight: 600; font-size: 1rem; }
+/* Detail — dl grid; field LABELS in mono uppercase (the platform's technical voice), values in ink. */
 dl.detail {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 0.25rem 1rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card);
+  gap: 0.5rem 1.5rem;
+  padding: 1.25rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
 }
 dl.detail .field { display: contents; }
-dl.detail dt { color: var(--muted); font-weight: 600; }
-dl.detail dd { margin: 0; }
-p { color: var(--muted); }
+dl.detail dt {
+  align-self: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--mute);
+}
+dl.detail dd { margin: 0; color: var(--ink); font-size: 14px; }
 '''
 
 
@@ -1290,11 +1345,11 @@ _SECOND_SCREEN_BLOCK = '''
 
 _STYLES_ASSERT_BLOCK = '''
     // FSK-FRONTEND-STYLES - la hoja (/app.css) se sirve, se linkea (index.html) y la APLICA el browser. Lee una
-    // propiedad NO-default por getComputedStyle en el DOM REAL: body max-width == 960px (el default UA es 'none').
+    // propiedad NO-default por getComputedStyle en el DOM REAL: body max-width == 1200px (el default UA es 'none').
     // Saboteá el <link> / la rama /app.css del AppServer / el valor del CSS -> cae a 'none' -> rojo; el resto del
     // proof (render/lista/detalle/edit/operations/dashboard/nav) queda VERDE (el DOM funciona sin CSS) -> AISLADO.
     const bodyMaxWidth = await page.evaluate(() => getComputedStyle(document.body).maxWidth);
-    check(bodyMaxWidth, "960px",
+    check(bodyMaxWidth, "1200px",
           "FSK-FRONTEND-STYLES: la hoja /app.css se sirve y la APLICA Chromium (body max-width del stylesheet)");'''
 
 

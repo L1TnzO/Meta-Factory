@@ -1,3 +1,4 @@
+<!-- meta:doc sha=1f33a0789581724841e9bbc5ed1045965b29224e updated=2026-06-27T01:41Z -->
 # Incremento FSK-OWNERSHIP-OPTIONAL — dueño NULLABLE / estado RTD (Ready-To-Deploy) real → el push Snipe-IT
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

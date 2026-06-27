@@ -1,3 +1,4 @@
+<!-- meta:doc sha=097004473272b3dbe8c9dc0e0d60ac55fb501b42 updated=2026-06-27T01:41Z -->
 # Incremento FSK-OWNED-REQUIRED-REFS — refs REQUERIDOS no-dueño en la entidad-con-dueño / SEED TRANSITIVO
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

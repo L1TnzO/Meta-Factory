@@ -1,3 +1,4 @@
+<!-- meta:doc sha=dd65d53c419dfc1aff9d54eb8d743a382225522f updated=2026-06-27T01:41Z -->
 # Incremento FSK-CODEGEN-SPLIT
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T03:03Z) (creado 2026-06-26T02:30Z). Cerralo con `meta increment close`

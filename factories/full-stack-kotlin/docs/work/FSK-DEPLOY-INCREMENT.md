@@ -1,3 +1,4 @@
+<!-- meta:doc sha=598125985b5df557bf8c0b86743213b93e80dbfd updated=2026-06-27T01:41Z -->
 # Incremento FSK-DEPLOY — el Dockerfile generado se CONSTRUYE en una imagen y el contenedor responde VIVO
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

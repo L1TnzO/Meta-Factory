@@ -1,3 +1,4 @@
+<!-- meta:doc sha=5ce0bcc255946bfe6860d8a744553c2d49dfbf5a updated=2026-06-27T01:41Z -->
 # Incremento FSK-CRUD-MUTACION-REAL — el server vivo MUTA columnas (no sólo da el veredicto)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

@@ -33,16 +33,41 @@ def git_blob_sha(data: bytes) -> str:
     return hashlib.sha1(header + data).hexdigest()
 
 
-def doc_set(repo_root: Path) -> list[Path]:
-    """The sealed docs: everything under docs/**.md plus the two root entry docs.
+def doc_set(home: Path, *, meta_extras: bool = True) -> list[Path]:
+    """The sealed docs of ONE doc-home: everything under `<home>/docs/**.md`.
+    For the meta home (`meta_extras=True`, the default) the two root entry docs
+    (START-HERE.md, CLAUDE.md) are also sealed; a factory/product home seals only
+    its authored `docs/` narrative — its `CLAUDE.md` is a generated/projected
+    artifact (ADR-016 Fase 2), not authored, so it is NOT sealed in-tree.
     INDEX.md (generated) is excluded from the sealed set."""
-    repo_root = Path(repo_root)
-    docs = sorted((repo_root / "docs").rglob("*.md"))
-    for name in ("START-HERE.md", "CLAUDE.md"):
-        p = repo_root / name
-        if p.exists():
-            docs.append(p)
+    home = Path(home)
+    docs = sorted((home / "docs").rglob("*.md"))
+    if meta_extras:
+        for name in ("START-HERE.md", "CLAUDE.md"):
+            p = home / name
+            if p.exists():
+                docs.append(p)
     return [d for d in docs if d.name != "INDEX.md"]
+
+
+def doc_homes(repo_root: Path) -> list[Path]:
+    """Every doc-home, by level (ADR-016 Fase 2 §3): the meta (repo_root) + each
+    factory + each product that owns a `docs/` dir. DATA-agnostic — splits the path,
+    never hardcodes a factory/product slug. Order: meta, then per factory the factory
+    then its products."""
+    repo_root = Path(repo_root)
+    homes = [repo_root]
+    factories = repo_root / "factories"
+    if factories.is_dir():
+        for f in sorted(p for p in factories.iterdir() if p.is_dir()):
+            if (f / "docs").is_dir():
+                homes.append(f)
+            prods = f / "products"
+            if prods.is_dir():
+                for p in sorted(q for q in prods.iterdir() if q.is_dir()):
+                    if (p / "docs").is_dir():
+                        homes.append(p)
+    return homes
 
 
 def split_seal(text: str) -> tuple[str | None, str]:
@@ -102,16 +127,23 @@ def build_index(repo_root: Path) -> str:
 
 
 def sync(repo_root: Path) -> list[str]:
-    """Stamp every doc + regenerate INDEX.md. Returns the docs whose seal changed."""
+    """Stamp every doc of EVERY level's home (meta + factories + products) and
+    regenerate the meta INDEX.md. Returns the docs whose seal changed (repo-relative)."""
     repo_root = Path(repo_root)
-    changed = [str(d.relative_to(repo_root)) for d in doc_set(repo_root) if stamp(d)]
+    changed: list[str] = []
+    for home in doc_homes(repo_root):
+        for d in doc_set(home, meta_extras=(home == repo_root)):
+            if stamp(d):
+                changed.append(str(d.relative_to(repo_root)))
     (repo_root / "INDEX.md").write_text(build_index(repo_root), encoding="utf-8")
     return changed
 
 
-def _state_fresh_problem(repo_root: Path) -> str | None:
-    """Skip-safe freshness: STATE.md should not be older (by last commit) than the newest
-    doc under docs/. Returns a problem string, or None if OK or git data unavailable."""
+def _state_fresh_problem(repo_root: Path, home: Path, *, meta_extras: bool) -> str | None:
+    """Skip-safe freshness, PER HOME: this home's `docs/STATE.md` should not be older (by
+    last commit) than the newest doc in this home's set. Per-home so editing a factory doc
+    never forces re-touching the META STATE (ADR-016 Fase 2 — closes P4, no cross-coupling).
+    Returns a problem string, or None if OK or git data unavailable."""
     def last_commit(p: Path) -> int:
         try:
             out = subprocess.run(
@@ -122,62 +154,71 @@ def _state_fresh_problem(repo_root: Path) -> str | None:
         except (OSError, ValueError):
             return 0
 
-    state = repo_root / "docs" / "STATE.md"
+    state = home / "docs" / "STATE.md"
     if not state.exists():
         return None
     state_t = last_commit(state)
     if state_t == 0:
         return None  # not committed yet -> nothing to compare against
-    newest = max((last_commit(d) for d in doc_set(repo_root) if d != state), default=0)
+    newest = max((last_commit(d) for d in doc_set(home, meta_extras=meta_extras) if d != state), default=0)
     if newest > state_t:
-        return "docs/STATE.md is older (by last commit) than a newer doc — STATE may be stale"
+        rel = state.relative_to(repo_root)
+        return f"{rel} is older (by last commit) than a newer doc in its level — STATE may be stale"
     return None
 
 
 def check(repo_root: Path) -> list[str]:
-    """Return a list of consistency problems (empty == clean). All file-IO, zero model."""
+    """Return a list of consistency problems (empty == clean). All file-IO, zero model.
+    The seal-integrity tooth (1) + freshness (4) run for EVERY level's doc-home (meta +
+    factories + products, ADR-016 Fase 2 §3); the meta-navigation checks — INDEX coverage
+    (2) and entry-doc links (3) — run for the meta home only (each factory navigates via
+    its own STATE, not a generated INDEX)."""
     repo_root = Path(repo_root)
     problems: list[str] = []
-    docs = doc_set(repo_root)
 
-    # (1) every doc carries a correct, current seal
-    for d in docs:
-        text = d.read_text(encoding="utf-8")
-        seal, body = split_seal(text)
-        rel = d.relative_to(repo_root)
-        if seal is None:
-            problems.append(f"{rel}:1: missing content-addressed seal (run the doc_stamp hook)")
-            continue
-        if SEAL_RE.match(seal).group(1) != git_blob_sha(body.encode("utf-8")):
-            problems.append(f"{rel}:1: stale seal (sha != body) — doc edited without re-stamping")
+    for home in doc_homes(repo_root):
+        is_meta = home == repo_root
+        docs = doc_set(home, meta_extras=is_meta)
 
-    # (2) INDEX.md exists and covers exactly the doc set
-    index = repo_root / "INDEX.md"
-    if not index.exists():
-        problems.append("INDEX.md: missing (run docs_manifest sync)")
-    else:
-        listed = set(re.findall(r"\| `([^`]+\.md)` \|", index.read_text(encoding="utf-8")))
-        actual = {str(d.relative_to(repo_root)) for d in docs}
-        for missing in sorted(actual - listed):
-            problems.append(f"INDEX.md: does not list {missing} (drifted index)")
-        for extra in sorted(listed - actual):
-            problems.append(f"INDEX.md: lists nonexistent {extra} (dangling)")
-
-    # (3) no dangling relative .md links in the entry docs
-    for name in ("START-HERE.md", "docs/STATE.md"):
-        p = repo_root / name
-        if not p.exists():
-            continue
-        for target in re.findall(r"\]\(([^)]+\.md)[^)]*\)", p.read_text(encoding="utf-8")):
-            if target.startswith(("http://", "https://")):
+        # (1) every doc carries a correct, current seal  [all levels]
+        for d in docs:
+            text = d.read_text(encoding="utf-8")
+            seal, body = split_seal(text)
+            rel = d.relative_to(repo_root)
+            if seal is None:
+                problems.append(f"{rel}:1: missing content-addressed seal (run the doc_stamp hook)")
                 continue
-            if not (p.parent / target.split("#")[0]).resolve().exists():
-                problems.append(f"{name}: dangling link -> {target}")
+            if SEAL_RE.match(seal).group(1) != git_blob_sha(body.encode("utf-8")):
+                problems.append(f"{rel}:1: stale seal (sha != body) — doc edited without re-stamping")
 
-    # (4) freshness (skip-safe)
-    fresh = _state_fresh_problem(repo_root)
-    if fresh:
-        problems.append(fresh)
+        # (2) INDEX.md exists and covers exactly the doc set  [meta only]
+        if is_meta:
+            index = repo_root / "INDEX.md"
+            if not index.exists():
+                problems.append("INDEX.md: missing (run docs_manifest sync)")
+            else:
+                listed = set(re.findall(r"\| `([^`]+\.md)` \|", index.read_text(encoding="utf-8")))
+                actual = {str(d.relative_to(repo_root)) for d in docs}
+                for missing in sorted(actual - listed):
+                    problems.append(f"INDEX.md: does not list {missing} (drifted index)")
+                for extra in sorted(listed - actual):
+                    problems.append(f"INDEX.md: lists nonexistent {extra} (dangling)")
+
+            # (3) no dangling relative .md links in the entry docs  [meta only]
+            for name in ("START-HERE.md", "docs/STATE.md"):
+                p = repo_root / name
+                if not p.exists():
+                    continue
+                for target in re.findall(r"\]\(([^)]+\.md)[^)]*\)", p.read_text(encoding="utf-8")):
+                    if target.startswith(("http://", "https://")):
+                        continue
+                    if not (p.parent / target.split("#")[0]).resolve().exists():
+                        problems.append(f"{name}: dangling link -> {target}")
+
+        # (4) freshness (skip-safe), per home
+        fresh = _state_fresh_problem(repo_root, home, meta_extras=is_meta)
+        if fresh:
+            problems.append(fresh)
 
     return problems
 

@@ -1,3 +1,4 @@
+<!-- meta:doc sha=9adaa7de6cf169cfb74c6f7ec23d3de0661c22f0 updated=2026-06-27T01:41Z -->
 # Incremento SNIPEIT-ACTIONLOG-ADOPT
 
 > **Doc de gobierno.** Estado: **CERRADO** (creado 2026-06-24T22:53Z · cerrado 2026-06-24T23:53Z).

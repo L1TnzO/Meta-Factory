@@ -1,3 +1,4 @@
+<!-- meta:doc sha=d87130c273f3bb1f9a79fda4dee1b5cad4386b82 updated=2026-06-27T01:41Z -->
 # Incremento POLY-ASSIGNS-ADOPT
 
 > **Doc de gobierno.** Estado: **CERRADO** (creado 2026-06-23T14:08Z · cerrado 2026-06-23T16:41Z). Todo cambio de

@@ -1,3 +1,4 @@
+<!-- meta:doc sha=a325e2461336bbaeeb5a1a4ad30e77133b6d5d84 updated=2026-06-27T01:41Z -->
 # Incremento FSK-REFS-IN-BODY — el espinazo RELACIONAL: refs requeridos desde el cuerpo del request
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

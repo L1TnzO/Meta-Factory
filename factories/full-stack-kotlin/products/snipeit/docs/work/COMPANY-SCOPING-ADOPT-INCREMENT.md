@@ -1,3 +1,4 @@
+<!-- meta:doc sha=f83cd00caaf5c4dc9f95c03b57b74bbc94889f63 updated=2026-06-27T01:41Z -->
 # Incremento COMPANY-SCOPING-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO**

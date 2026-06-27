@@ -1,3 +1,4 @@
+<!-- meta:doc sha=827cf5c21114c0a8f4f7b5f328abefdd6e47bdb8 updated=2026-06-27T01:41Z -->
 # Incremento FSK-POLY-ASSIGNS — el verbo de workflow ASIGNA a un ref POLIMÓRFICO (checkout a User|Location|Asset)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

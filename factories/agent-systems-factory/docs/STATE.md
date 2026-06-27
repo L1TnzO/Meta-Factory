@@ -1,3 +1,4 @@
+<!-- meta:doc sha=6639c757c45f96614f616242ac30fd19a5a77b21 updated=2026-06-27T01:41Z -->
 # Estado — Agent Systems Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).

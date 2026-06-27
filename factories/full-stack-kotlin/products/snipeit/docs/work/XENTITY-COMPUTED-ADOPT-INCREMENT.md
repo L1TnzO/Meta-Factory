@@ -1,3 +1,4 @@
+<!-- meta:doc sha=8ec01086a755af7c8a0616a16f09ebf93469adc8 updated=2026-06-27T01:41Z -->
 # Incremento XENTITY-COMPUTED-ADOPT
 
 > **Doc de gobierno** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016). Estado: **CERRADO**

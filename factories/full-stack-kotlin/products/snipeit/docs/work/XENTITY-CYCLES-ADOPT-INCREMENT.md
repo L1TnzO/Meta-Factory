@@ -1,3 +1,4 @@
+<!-- meta:doc sha=c3db724b1cad7a62691a73486df671590bc922b3 updated=2026-06-27T01:41Z -->
 # Incremento XENTITY-CYCLES-ADOPT — adoptar los ciclos cross-entidad en el blueprint de Snipe-IT
 
 > **Doc de gobierno del PRODUCTO** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016).

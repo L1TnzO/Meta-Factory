@@ -1,3 +1,4 @@
+<!-- meta:doc sha=c5d6f96ee91c5eb1bc3c7f81dfcec0754c18678d updated=2026-06-27T01:41Z -->
 # Incremento FSK-DEPLOY-APPSERVER-PG — el AppServer REAL en un contenedor con PG (deploy de verdad)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-06-24T21:20Z)

@@ -1,3 +1,4 @@
+<!-- meta:doc sha=3dc61031f98c75216a6fa9321171a886ea2cae89 updated=2026-06-27T01:41Z -->
 # Incremento FSK-OWNER-POLY — el `owned_by` de una entidad es un ref POLIMÓRFICO (el owner cruza una UNIÓN, wrinkle #3)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

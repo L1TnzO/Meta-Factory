@@ -1,3 +1,4 @@
+<!-- meta:doc sha=bfd85a41a2af087688e8aa931be1100093a63b6b updated=2026-06-27T01:41Z -->
 # Incremento XENTITY-DEPTH2-ADOPT
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-24). Abierto 2026-06-24T00:48Z. Todo cambio de

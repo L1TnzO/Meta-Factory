@@ -13,6 +13,8 @@ from metafactory.docs_manifest import (
     body_of,
     build_index,
     check,
+    doc_homes,
+    doc_set,
     git_blob_sha,
     split_seal,
     stamp,
@@ -245,3 +247,66 @@ class TestCheck:
         sync(repo)
         problems = check(repo)
         assert any("NONEXISTENT.md" in p for p in problems)
+
+
+# ── per-level doc homes (ADR-016 Fase 2 §3: the seal goes down to each level) ────
+
+def _make_repo_with_factory(tmp_path: Path) -> Path:
+    """A meta repo PLUS one factory home and one product home, each with a docs/."""
+    repo = _make_tiny_repo(tmp_path)
+    fdocs = repo / "factories" / "demo" / "docs"
+    fdocs.mkdir(parents=True)
+    (fdocs / "STATE.md").write_text("# Factory State\nfactory content\n", encoding="utf-8")
+    (fdocs / "LOG.md").write_text("# Factory Log\nlog content\n", encoding="utf-8")
+    # a GENERATED/projected CLAUDE.md at the factory root — must NOT be sealed
+    (repo / "factories" / "demo" / "CLAUDE.md").write_text("# Factory CLAUDE\n", encoding="utf-8")
+    pdocs = repo / "factories" / "demo" / "products" / "inst" / "docs"
+    pdocs.mkdir(parents=True)
+    (pdocs / "STATE.md").write_text("# Product State\nproduct content\n", encoding="utf-8")
+    return repo
+
+
+class TestPerHomeSeal:
+    def test_doc_homes_detects_factory_and_product(self, tmp_path):
+        repo = _make_repo_with_factory(tmp_path)
+        rels = {"(meta)" if h == repo else str(h.relative_to(repo)) for h in doc_homes(repo)}
+        assert {"(meta)", "factories/demo", "factories/demo/products/inst"} <= rels
+
+    def test_sync_seals_factory_and_product_docs(self, tmp_path):
+        repo = _make_repo_with_factory(tmp_path)
+        sync(repo)
+        for rel in ("factories/demo/docs/STATE.md",
+                    "factories/demo/docs/LOG.md",
+                    "factories/demo/products/inst/docs/STATE.md"):
+            assert split_seal((repo / rel).read_text(encoding="utf-8"))[0] is not None
+        assert check(repo) == []
+
+    def test_factory_claude_md_is_not_sealed(self, tmp_path):
+        """A factory's CLAUDE.md is a generated/projected artifact, not authored — it is
+        outside the sealed set, so it stays unstamped and never raises a problem."""
+        repo = _make_repo_with_factory(tmp_path)
+        sync(repo)
+        claude = repo / "factories" / "demo" / "CLAUDE.md"
+        assert split_seal(claude.read_text(encoding="utf-8"))[0] is None
+        assert check(repo) == []
+
+    def test_tampered_factory_doc_is_red_and_isolated(self, tmp_path):
+        repo = _make_repo_with_factory(tmp_path)
+        sync(repo)
+        # corrupt a factory doc's body WITHOUT re-stamping (stale seal)
+        target = repo / "factories" / "demo" / "docs" / "LOG.md"
+        seal, body = split_seal(target.read_text(encoding="utf-8"))
+        target.write_text(f"{seal}\n{body}TAMPERED\n", encoding="utf-8")
+        problems = check(repo)
+        # the factory doc is flagged stale...
+        assert any("factories/demo/docs/LOG.md" in p and "stale" in p for p in problems)
+        # ...and it is the ONLY problem (meta + other docs stay green) — isolated
+        assert all("factories/demo/docs/LOG.md" in p for p in problems)
+
+    def test_meta_and_factory_doc_sets_do_not_overlap(self, tmp_path):
+        repo = _make_repo_with_factory(tmp_path)
+        meta = set(doc_set(repo, meta_extras=True))
+        fac = set(doc_set(repo / "factories" / "demo", meta_extras=False))
+        assert meta and fac
+        assert meta.isdisjoint(fac)
+        assert (repo / "factories" / "demo" / "CLAUDE.md") not in fac

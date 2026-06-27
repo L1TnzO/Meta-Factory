@@ -1,3 +1,4 @@
+<!-- meta:doc sha=37262039314e79e510a39c837da7b935256dbb5e updated=2026-06-27T01:41Z -->
 # Incremento FSK-SERVE-ALL-ENTITIES — el AppServer vivo monta CRUD para TODAS las entidades del blueprint
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

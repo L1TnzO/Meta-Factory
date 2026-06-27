@@ -1,3 +1,4 @@
+<!-- meta:doc sha=91db997dbbd3413389b827f0ccf0225a5b62c4e8 updated=2026-06-27T01:41Z -->
 # Incremento FSK-CODEGEN-ROBUSTO-MULTI-ENTIDAD
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-21T03:22Z) (creado 2026-06-21T02:38Z). Cerralo con `meta increment close`

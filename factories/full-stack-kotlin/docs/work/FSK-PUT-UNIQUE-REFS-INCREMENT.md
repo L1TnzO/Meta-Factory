@@ -1,3 +1,4 @@
+<!-- meta:doc sha=a7ff2b59c54ce13a056509513dfbe9f1d2a56094 updated=2026-06-27T01:41Z -->
 # Incremento FSK-PUT-UNIQUE-REFS — los flecos del PATCH: PUT de campos UNIQUE (→409) + de refs
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **BACKLOG (no abierto)**.

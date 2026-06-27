@@ -1,3 +1,4 @@
+<!-- meta:doc sha=0de79cab88aaa4ec3cba87359ad7c30d614332fd updated=2026-06-27T01:41Z -->
 # Memoria — Full-Stack Kotlin/TS/PG Factory
 > tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
 

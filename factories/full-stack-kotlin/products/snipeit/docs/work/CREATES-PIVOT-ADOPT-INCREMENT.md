@@ -1,3 +1,4 @@
+<!-- meta:doc sha=8dca90854caf966d25d26d0a5b16ad5777aebef4 updated=2026-06-27T01:41Z -->
 # Incremento CREATES-PIVOT-ADOPT
 
 > **Doc de gobierno del PRODUCTO** (nivel `products/snipeit/`, ADR-016). Estado: **CERRADO**

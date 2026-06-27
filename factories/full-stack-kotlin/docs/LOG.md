@@ -1,3 +1,4 @@
+<!-- meta:doc sha=9d9047de3bd2ed36bf6cc4ffb9550f442ca451db updated=2026-06-27T01:41Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 

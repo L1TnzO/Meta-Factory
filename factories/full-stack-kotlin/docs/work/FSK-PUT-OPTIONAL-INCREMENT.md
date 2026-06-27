@@ -1,3 +1,4 @@
+<!-- meta:doc sha=de69c9b4afc96a23cdb0f3f9425d2b5b5c193f77 updated=2026-06-27T01:41Z -->
 # Incremento FSK-PUT-OPTIONAL — editar CUALQUIER campo (no sólo la columna mutable única)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

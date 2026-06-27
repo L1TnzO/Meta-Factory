@@ -1,3 +1,4 @@
+<!-- meta:doc sha=bb81c30fd463a21a69f82ffe16155c0931dce117 updated=2026-06-27T01:41Z -->
 # Incremento FSK-CREATES-PIVOT — un verbo de workflow/stock INSERTA una fila PIVOTE (el checkout M:N real)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

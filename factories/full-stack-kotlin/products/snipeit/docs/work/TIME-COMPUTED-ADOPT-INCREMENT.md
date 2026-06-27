@@ -1,3 +1,4 @@
+<!-- meta:doc sha=e2bcb9990d2964cc6893e7783469b0b474f9c6b6 updated=2026-06-27T01:41Z -->
 # Incremento TIME-COMPUTED-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO** (2026-06-24T17:30Z).

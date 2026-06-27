@@ -1,3 +1,4 @@
+<!-- meta:doc sha=7c2c4f6e4d15f90b0a1a00a4f29e4074884ab7f8 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-EDIT — form de EDICIÓN sobre la fila seleccionada (VER un cambio persistir)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

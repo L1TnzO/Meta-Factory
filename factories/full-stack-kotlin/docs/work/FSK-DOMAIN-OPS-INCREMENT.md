@@ -1,3 +1,4 @@
+<!-- meta:doc sha=d94b9ba6bb2c0d61de7e1d784d4ed3ded6eb9349 updated=2026-06-27T01:41Z -->
 # Incremento FSK-DOMAIN-OPS — verbos de dominio (checkout/checkin) que MUTAN semántica bajo guard
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

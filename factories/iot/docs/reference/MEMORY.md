@@ -1,3 +1,4 @@
+<!-- meta:doc sha=dbf7b8004d915a123a226d2f61ca75e0a84c9357 updated=2026-06-27T01:41Z -->
 # Memoria — IoT Factory
 > tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
 

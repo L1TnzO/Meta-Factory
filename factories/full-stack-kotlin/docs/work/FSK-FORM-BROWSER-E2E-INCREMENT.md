@@ -1,3 +1,4 @@
+<!-- meta:doc sha=e9554e4509d3e181b113a96f9bff129ac22688b2 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FORM-BROWSER-E2E — el submit del FORM en un Chromium REAL (no jsdom)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

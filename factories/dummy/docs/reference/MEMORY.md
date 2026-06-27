@@ -1,3 +1,4 @@
+<!-- meta:doc sha=6f2062a7bffda8adcc3e100849b26b7e3f5c423b updated=2026-06-27T01:41Z -->
 # Memoria — Dummy Factory
 > tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
 

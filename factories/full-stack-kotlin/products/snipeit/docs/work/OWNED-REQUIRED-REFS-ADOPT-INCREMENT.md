@@ -1,3 +1,4 @@
+<!-- meta:doc sha=030b6bc618c98b1e19b3e6a7337827a129391c6d updated=2026-06-27T01:41Z -->
 # Incremento OWNED-REQUIRED-REFS-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO**

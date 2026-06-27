@@ -1,3 +1,4 @@
+<!-- meta:doc sha=1acdc33cef8ce74e0c9f390cebef3a0e962000c0 updated=2026-06-27T01:41Z -->
 # Incremento FSK-COMPUTED-FIELDS — campo COMPUTADO (un valor derivado por fórmula, no almacenado) · la dimensión de VALORES DERIVADOS
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

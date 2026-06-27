@@ -1,3 +1,4 @@
+<!-- meta:doc sha=3db19512fc4c1140cd4d4786a1b81bda57afab9f updated=2026-06-27T01:41Z -->
 # Incremento FSK-CRUD-BODY-PARSING — el server vivo acepta el CUERPO real del request (no samples fijos)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

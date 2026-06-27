@@ -1,3 +1,4 @@
+<!-- meta:doc sha=7ea15231a517103bc13dc5877e8ef8c46284611e updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-DASHBOARD — la HOME con conteos por entidad (cierra el arco frontend)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

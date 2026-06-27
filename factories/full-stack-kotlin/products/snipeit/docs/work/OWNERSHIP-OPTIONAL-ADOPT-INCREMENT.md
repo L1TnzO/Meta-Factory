@@ -1,3 +1,4 @@
+<!-- meta:doc sha=6a0a4fc87a64336facb79895d70f7dd5e068806c updated=2026-06-27T01:41Z -->
 # Incremento OWNERSHIP-OPTIONAL-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `factories/full-stack-kotlin/products/snipeit/`, ADR-016). Estado:

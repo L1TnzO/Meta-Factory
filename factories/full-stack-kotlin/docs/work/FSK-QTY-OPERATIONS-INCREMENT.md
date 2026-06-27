@@ -1,3 +1,4 @@
+<!-- meta:doc sha=30511e6f99e30a6ad7d14ed7819a17a0e8eff102 updated=2026-06-27T01:41Z -->
 # Incremento FSK-QTY-OPERATIONS — cantidades / stock (checkout que decrementa qty) + operaciones en entidades SIN dueño
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

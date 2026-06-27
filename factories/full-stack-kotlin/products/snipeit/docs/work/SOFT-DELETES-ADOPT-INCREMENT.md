@@ -1,3 +1,4 @@
+<!-- meta:doc sha=45c4c982b29c533f014665665c687284a44eb0a4 updated=2026-06-27T01:41Z -->
 # Incremento SOFT-DELETES-ADOPT
 
 > **Doc de gobierno** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016). Estado: **CERRADO**

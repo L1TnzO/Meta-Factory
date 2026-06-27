@@ -1,3 +1,4 @@
+<!-- meta:doc sha=38cf40c956a3f4948e21727c4e52a492e3dfdc77 updated=2026-06-27T01:41Z -->
 # Incremento FSK-XENTITY-CYCLES — ciclos cross-entidad (FK forward/cíclica, el 1er eje de CICLO)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

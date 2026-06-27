@@ -1,3 +1,4 @@
+<!-- meta:doc sha=1ded91bf8769934ee21996d06ff361efdd10a66f updated=2026-06-27T01:41Z -->
 # Incremento OWNER-POLY-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `factories/full-stack-kotlin/products/snipeit/`, ADR-016). Estado: **CERRADO**

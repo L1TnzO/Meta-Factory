@@ -1,3 +1,4 @@
+<!-- meta:doc sha=7f8d990ec6f39849f2d1be883567f40bc6881919 updated=2026-06-27T01:41Z -->
 # Incremento FSK-BROWSER-FORM — la UI se MONTA en un DOM real (jsdom) y un FORM postea vía el cliente vivo
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

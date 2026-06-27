@@ -1,3 +1,4 @@
+<!-- meta:doc sha=75596c213167fe4fb29e535a90bc3de13324a3cb updated=2026-06-27T01:41Z -->
 # Incremento FSK-ACTIONLOG — la bitácora de actividad polimórfica (toda mutación deja rastro)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (creado

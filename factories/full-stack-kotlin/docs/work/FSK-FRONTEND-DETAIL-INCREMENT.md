@@ -1,3 +1,4 @@
+<!-- meta:doc sha=9ca7335546c1851b182052ab27f927a4e578e335 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-DETAIL — clic en una fila → vista de DETALLE del registro
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

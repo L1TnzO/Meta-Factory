@@ -1,3 +1,4 @@
+<!-- meta:doc sha=904cc6136b7c61a0990a7fcc914e8e189d10e867 updated=2026-06-27T01:41Z -->
 # Incremento FSK-COMPANY-SCOPING — multi-tenancy / acceso por atributo (ABAC), con FILTRADO de lectura
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

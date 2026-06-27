@@ -1,3 +1,4 @@
+<!-- meta:doc sha=ceacb6d7aff89493a38afc6c87626c18a626bda3 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-DELETE — borrar una fila desde el browser (completa el CRUD)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **DIFERIDO (handoff)**

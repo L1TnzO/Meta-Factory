@@ -1,3 +1,4 @@
+<!-- meta:doc sha=95b1eb8a17fdbff9748c5e1df275eff9a63e5092 updated=2026-06-27T01:41Z -->
 # Incremento FSK-XENTITY-COMPUTED — el campo COMPUTADO referencia una entidad RELACIONADA (derivación CROSS-ENTITY)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

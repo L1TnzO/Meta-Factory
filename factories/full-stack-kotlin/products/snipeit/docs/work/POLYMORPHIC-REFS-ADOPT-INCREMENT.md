@@ -1,3 +1,4 @@
+<!-- meta:doc sha=ab98657fb94e265219fe5e34af7dab6c81e88d33 updated=2026-06-27T01:41Z -->
 # Incremento POLYMORPHIC-REFS-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO**

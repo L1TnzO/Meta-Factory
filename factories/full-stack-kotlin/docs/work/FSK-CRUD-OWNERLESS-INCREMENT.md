@@ -1,3 +1,4 @@
+<!-- meta:doc sha=633f7ccb459a4abbb689a71ab4b4b6072a587a83 updated=2026-06-27T01:41Z -->
 # Incremento FSK-CRUD-OWNERLESS — la capa VIVA deja de ser opt-in a `owned_by` (CRUD RBAC-only)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

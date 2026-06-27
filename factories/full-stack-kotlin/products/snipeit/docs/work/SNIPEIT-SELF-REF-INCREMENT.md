@@ -1,3 +1,4 @@
+<!-- meta:doc sha=63eb682fa182fb40bbb4b2658a965baebae97080 updated=2026-06-27T01:41Z -->
 # Incremento SNIPEIT-SELF-REF — adoptar las jerarquías self-ref en el blueprint de Snipe-IT
 
 > **Doc de gobierno del PRODUCTO** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016).

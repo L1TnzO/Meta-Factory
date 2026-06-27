@@ -1,3 +1,4 @@
+<!-- meta:doc sha=efd158c28d684e577426db809aa932d71cf02e8b updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-CONSUME — el cliente TS generado CONSUME el backend vivo (fetch e2e real)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

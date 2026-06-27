@@ -1,3 +1,4 @@
+<!-- meta:doc sha=0593efa0c4d47fb5c99bea50548c5cfe59916f8d updated=2026-06-27T01:41Z -->
 # Estado — Full-Stack Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).

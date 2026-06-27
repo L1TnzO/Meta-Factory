@@ -1,3 +1,4 @@
+<!-- meta:doc sha=65e231bb392c6eb762ae905819b81f9faecb17cf updated=2026-06-27T01:41Z -->
 # Memoria — Agent Systems Factory
 > tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
 

@@ -1,3 +1,4 @@
+<!-- meta:doc sha=15a717c7ab27f1cb6cd5e1ede9647a95a427dd3c updated=2026-06-27T01:41Z -->
 # Incremento COMPUTED-FIELDS-ADOPT
 
 > **Doc de gobierno.** Estado: **CERRADO** (creado 2026-06-23T00:59Z · cerrado 2026-06-23T01:50Z). Adopción

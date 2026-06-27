@@ -1,3 +1,4 @@
+<!-- meta:doc sha=c0bf5e28df6b75f98bf2904df16020f46cda4697 updated=2026-06-27T01:41Z -->
 # Incremento FSK-SELF-REF — jerarquías self-ref (Location.parent_id, User.manager_id) → el 1er paso del push Snipe-IT
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

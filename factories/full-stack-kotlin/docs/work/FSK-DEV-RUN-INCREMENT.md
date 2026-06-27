@@ -1,3 +1,4 @@
+<!-- meta:doc sha=fe75c0b2c08f35a4b1d5aacb79dffe5b57338046 updated=2026-06-27T01:41Z -->
 # Incremento FSK-DEV-RUN — una forma FÁCIL de iniciar la app (DX, no-fragil)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

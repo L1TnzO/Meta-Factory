@@ -1,3 +1,4 @@
+<!-- meta:doc sha=733abc27c14210bbb8785c711c24c621b2c95376 updated=2026-06-27T01:41Z -->
 # Estado — IoT Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).

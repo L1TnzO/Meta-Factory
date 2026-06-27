@@ -1,3 +1,4 @@
+<!-- meta:doc sha=b1cc39d088f4b6881b6b2c31ac00460a7be869c5 updated=2026-06-27T01:41Z -->
 # Memoria — Full-Stack Factory
 > tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
 

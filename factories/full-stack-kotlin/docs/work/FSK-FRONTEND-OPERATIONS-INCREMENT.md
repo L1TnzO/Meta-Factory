@@ -1,3 +1,4 @@
+<!-- meta:doc sha=bae95daf195a690135aee1fdc4b7fc32d6d07544 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-OPERATIONS — botones para los VERBOS de DOMINIO (mover estado desde el browser)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (creado

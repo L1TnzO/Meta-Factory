@@ -1,3 +1,4 @@
+<!-- meta:doc sha=3bce6d30369ecfa38056d804e5aecabfca422616 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-ALL-ENTITIES — el frontend RENDERIZA todas las entidades (de 1 pantalla a N)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

@@ -1,3 +1,4 @@
+<!-- meta:doc sha=64bc059b8fb14ab6d605355b9d27cb6a2141882c updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-RENDER-LIST — el frontend RENDERIZA la lista VIVA (lista del server → cliente → UI)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

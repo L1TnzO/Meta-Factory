@@ -1,3 +1,4 @@
+<!-- meta:doc sha=2118c289ed04855794775efef3f072f82dfb62b1 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-STYLES — el frontend SIRVE y APLICA una hoja de estilos real
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-06-25T19:21Z)

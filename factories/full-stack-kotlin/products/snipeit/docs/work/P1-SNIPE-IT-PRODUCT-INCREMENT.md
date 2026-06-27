@@ -1,3 +1,4 @@
+<!-- meta:doc sha=6b22865025cfcdc86156b55cc933c58a7cd5878b updated=2026-06-27T01:41Z -->
 # Incremento P1-SNIPE-IT-PRODUCT — construir el primer producto real (Snipe-IT)
 
 > **Doc de gobierno del PRODUCTO** (nivel `factories/full-stack-kotlin/products/snipeit/`, ADR-016).

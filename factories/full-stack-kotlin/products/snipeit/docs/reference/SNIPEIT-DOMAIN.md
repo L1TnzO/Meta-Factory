@@ -1,3 +1,4 @@
+<!-- meta:doc sha=4044f0a145897721ee5210bd4531249f7961550c updated=2026-06-27T01:41Z -->
 # Snipe-IT — dominio cosechado y mapeo a la gramática FSK
 
 > tipo: reference · estable · justifica el blueprint `products/snipeit/product.yml`.

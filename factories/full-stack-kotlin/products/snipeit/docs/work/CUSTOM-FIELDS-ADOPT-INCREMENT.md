@@ -1,3 +1,4 @@
+<!-- meta:doc sha=ef4180afb966301a6eaa14cc93e0d7501ce7e303 updated=2026-06-27T01:41Z -->
 # Incremento CUSTOM-FIELDS-ADOPT
 
 > **Doc de gobierno (nivel PRODUCTO `snipeit`, ADR-016).** Estado: **CERRADO** (2026-06-22T14:31Z).

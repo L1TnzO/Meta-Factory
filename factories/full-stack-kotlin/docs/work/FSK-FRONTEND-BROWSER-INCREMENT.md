@@ -1,3 +1,4 @@
+<!-- meta:doc sha=51dd6d88814787344a76deb62876f933ee8f2e69 updated=2026-06-27T01:41Z -->
 # Incremento FSK-FRONTEND-BROWSER — el frontend GENERADO montado en un BROWSER REAL (headless) + e2e que hace CLICK
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

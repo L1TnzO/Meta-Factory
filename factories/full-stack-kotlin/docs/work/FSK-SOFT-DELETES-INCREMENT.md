@@ -1,3 +1,4 @@
+<!-- meta:doc sha=60c4d77ca02a4352a4c081aa0d7f061bd261452d updated=2026-06-27T01:41Z -->
 # Incremento FSK-SOFT-DELETES — borrado LÓGICO (trash + restore): DELETE no es permanente, las lecturas filtran, un verbo recupera
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

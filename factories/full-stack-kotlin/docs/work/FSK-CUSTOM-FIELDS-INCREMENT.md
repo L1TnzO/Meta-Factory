@@ -1,3 +1,4 @@
+<!-- meta:doc sha=a4873cabb33ecc183c7541fedea6575b1a47df15 updated=2026-06-27T01:41Z -->
 # Incremento FSK-CUSTOM-FIELDS — campos personalizados por modelo (el EJE GRANDE)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

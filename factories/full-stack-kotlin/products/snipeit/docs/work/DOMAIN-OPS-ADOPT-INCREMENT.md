@@ -1,3 +1,4 @@
+<!-- meta:doc sha=d44e74cae7945977c3a9c07707255d16d2e0a10d updated=2026-06-27T01:41Z -->
 # Incremento DOMAIN-OPS-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO**

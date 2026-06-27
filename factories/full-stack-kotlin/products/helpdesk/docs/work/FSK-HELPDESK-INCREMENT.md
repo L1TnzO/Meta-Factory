@@ -1,3 +1,4 @@
+<!-- meta:doc sha=f849a74eda327cd4da45a4e9465d52bf9b623c9a updated=2026-06-27T01:41Z -->
 # Incremento FSK-HELPDESK
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-26T03:37Z) (creado 2026-06-26T03:31Z). Cerralo con `meta increment close`

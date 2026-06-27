@@ -1,3 +1,4 @@
+<!-- meta:doc sha=5f33aacf12bcf197e319d51ed5a25b7240cc0f50 updated=2026-06-27T01:41Z -->
 # Incremento FSK-TIME-COMPUTED — un campo computado depende del TIEMPO TRANSCURRIDO (meses entre una fecha y `now`)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

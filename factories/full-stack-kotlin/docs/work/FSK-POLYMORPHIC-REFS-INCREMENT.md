@@ -1,3 +1,4 @@
+<!-- meta:doc sha=ecb68b83a9505d4867999443eb7a7049390775c0 updated=2026-06-27T01:41Z -->
 # Incremento FSK-POLYMORPHIC-REFS — ref polimórfico (un ref a una UNIÓN de entidades) · el ÚLTIMO eje de modelo-de-datos
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

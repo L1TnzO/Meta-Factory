@@ -1,3 +1,4 @@
+<!-- meta:doc sha=df73f0419acc3701e343836968d91617fbcf99b1 updated=2026-06-27T01:41Z -->
 # Incremento QTY-OPERATIONS-ADOPT
 
 > **Doc de gobierno** (nivel PRODUCTO `products/snipeit/`, ADR-016). Estado: **CERRADO**

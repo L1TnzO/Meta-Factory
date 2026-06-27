@@ -1,3 +1,4 @@
+<!-- meta:doc sha=6e1ce00a27dbcce37be22c5d33f9a7277e67149e updated=2026-06-27T01:41Z -->
 # Incremento FSK-XENTITY-DEPTH2 — un campo computado CROSS-ENTITY a DEPTH-2 (una cadena de 2 refs `<r1>.<r2>.<campo>`)
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO**

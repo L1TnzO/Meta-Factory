@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ca44b3fa08de30f43eae71d2dc98ae55a050faee updated=2026-06-27T02:28Z -->
+<!-- meta:doc sha=e04114442b5f00f8f841b2b7970e16138da2be2e updated=2026-06-27T02:29Z -->
 # Incremento FACTORY-DOC-MIGRATE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T02:22Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T02:29Z) (creado 2026-06-27T02:22Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > Nivel: **META** (mueve docs entre homes + actualiza punteros vivos; NO toca `src/`/`seed/`).
 > Autoridad de diseño: `docs/reference/GOVERNANCE-LAYERING.md §6/§7` (Opción A faseada, Fase 2 §2) + ADR-016.

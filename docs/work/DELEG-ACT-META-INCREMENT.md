@@ -1,7 +1,7 @@
-<!-- meta:doc sha=330c308b7bd9ef02e40eea6f37e84bb062c296bc updated=2026-06-27T20:15Z -->
+<!-- meta:doc sha=868b38c9796149537a128f3e44b477c4b5203e70 updated=2026-06-27T20:20Z -->
 # Incremento DELEG-ACT-META
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T20:12Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T20:20Z) (creado 2026-06-27T20:12Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

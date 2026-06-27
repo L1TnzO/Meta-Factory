@@ -1,7 +1,37 @@
-<!-- meta:doc sha=eb9f9f51ade81b632d5fb0ee08de586e677cc849 updated=2026-06-27T15:05Z -->
+<!-- meta:doc sha=681eef2d67d2b9e2bfd4c269b894d34c466d5c7b updated=2026-06-27T20:21Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T20:20Z — DELEG-ACT-META ✅: el meta delega NATURALMENTE (Fase A de DELEGATION-ACTIVATION)
+- **Qué (cierra la Fase A):** la topología verificar-no-revisar (Fase 2 SOTA) estaba construida pero dormida —
+  `settings.json` con `agent: NONE`, `CLAUDE.md` sin regla de routing, y las 4 `description` describían el rol
+  pero no DISPARABAN auto-delegación. Faltaba la **activación**, no la maquinaria. Con la Fase B ya midiendo
+  (`DELEG-MEASURE`, el evento `delegation` dejó de mentir 0%), A es verificable.
+- **El mecanismo (3 piezas, todas COLUMNA → escritas con ojos propios):** **A1** — regla permanente "Delegación
+  por defecto" en `CLAUDE.md §Reglas` (español, gobierno de fase-viva): rutear slots acotados-con-gate al
+  `generator`, lecturas masivas al `verifier`/`Explore`, contexto de Opus CHICO (el cache-read DOMINA → aislar
+  el bulk es la palanca #1), + cuándo NO delegar (codegen secuencial fuerte; la COLUMNA trust-chain). Carga en
+  cada sesión SIN reemplazar el system-prompt (por eso CLAUDE.md y no un `agent` default global — §5.1 DIRECTION).
+  **A2** — `description` afiladas (inglés, ADR-017): `generator` → `MUST BE USED for any bounded code slot that
+  has a deterministic gate`; `verifier` → `Use PROACTIVELY whenever you would otherwise load a large artifact`.
+  **A3** — alias `claude --agent orchestrator` para builds pesados documentado en la misma regla + advertencia
+  anti-`agent`-global.
+- **Lección — afilar SÓLO `generator`+`verifier`, no los 4 (calibración, no copia-pega):** el `description` es
+  el TRIGGER del router implícito; hacerlo proactivo es correcto sólo donde el disparo por defecto debe ocurrir
+  (el bulk: escribir·leer). `reviewer` se deja NO-proactivo a propósito — su disparo ES la excepción (red
+  persistente / seguridad), un trigger proactivo lo volvería rutina sobre verde y rompería la calibración
+  (ADR-017 §2). `orchestrator` tampoco — es el session-agent (el cerebro), no un subagente a spawnear; proactivo
+  invitaría a un segundo cerebro (ambigüedad de ruteo). Proactivizar los 4 hubiera sido sobre-ingeniería.
+- **Honesto — la prueba "proactivo sin pedirlo" es de PRÓXIMA sesión:** las `description` se cargan al inicio de
+  sesión (una edición en disco no registra hasta restart — docs oficiales, ya visto en `sota-redesign`). Por eso
+  la prueba viva se observa en la siguiente sesión vía `meta metrics` (`DELEGACION` sube durante codegen real).
+  NO se manufacturó una delegación de adorno: Fase A es columna (gobierno+config) → ojos propios, que es la
+  excepción explícita de la propia regla. El loop delegación→medición ya quedó probado e2e en la Fase B.
+- **Probado:** `meta check` **16/16** (la staleness transitoria de STATE al abrir el incremento se resolvió al
+  commitear STATE junto a los docs — ADR-007); los 4 frontmatter parsean YAML válido. Sin código de sustrato
+  nuevo. Detalle: `docs/work/DELEG-ACT-META-INCREMENT.md`. **Pendiente del norte:** **C** propagar el cerebro a
+  las fábricas (emisor emite `orchestrator` + `generate-slot`) · **D** higiene de topología.
 
 ## 2026-06-27T15:05Z — LEAST-PRIV-DECOUPLE ✅: la columna por nivel = alcance least-privilege con diente (ADR-018 §3)
 - **Qué (cierra el ÚLTIMO residual SOTA + ADR-016 Fase 2):** el alcance de la columna heredada POR NIVEL era una

@@ -290,6 +290,26 @@ class TestAggregate:
         agg = aggregate(tmp_path)
         assert agg["delegation_rate"] == 0.0
 
+    def test_delegation_count_visible_despite_diluted_rate(self, tmp_path):
+        # The DELEG-MEASURE fix: a single delegation against many station_runs must remain VISIBLE as a
+        # count even though the rate rounds toward 0 (the bug was the metric "lying" 0.0%).
+        for i in range(100):
+            journal.append(tmp_path, "station_run", station=f"M{i}", slug="s", passed=True, gate_open=True, proof_sha="")
+        journal.append(tmp_path, "delegation", subagent_type="verifier", model="haiku", description="read")
+        agg = aggregate(tmp_path)
+        assert agg["n_delegations"] == 1
+        assert agg["n_station_runs"] == 100
+        assert agg["delegation_rate"] < 0.02  # diluted toward 0...
+        assert agg["delegation_by_tier"]["haiku"] == 1  # ...but the count is honest
+
+    def test_delegation_by_tier_groups_models(self, tmp_path):
+        journal.append(tmp_path, "delegation", subagent_type="verifier", model="claude-haiku-4-5", description="r")
+        journal.append(tmp_path, "delegation", subagent_type="generator", model="claude-sonnet-4-6", description="w")
+        journal.append(tmp_path, "delegation", subagent_type="generator", model="claude-sonnet-4-6", description="w2")
+        agg = aggregate(tmp_path)
+        assert agg["delegation_by_tier"]["haiku"] == 1
+        assert agg["delegation_by_tier"]["sonnet"] == 2
+
     def test_gate_streak(self, tmp_path):
         # 2 passes, 1 fail, 3 passes → streak = 3
         journal.append(tmp_path, "station_run", station="M0", slug="s", passed=True, gate_open=True, proof_sha="")
@@ -385,3 +405,63 @@ class TestRender:
     def test_contains_artefacto_line(self, tmp_path):
         result = render(tmp_path)
         assert "ARTEFACTO" in result
+
+
+# ---------------------------------------------------------------------------
+# model_split / render_model_split (B2 — el KPI de costo de DELEG-MEASURE)
+# ---------------------------------------------------------------------------
+
+class TestModelSplit:
+    from metafactory.memory.metrics import model_split, render_model_split
+
+    def _write_cache(self, path: Path, model_usage: dict) -> Path:
+        path.write_text(json.dumps({"modelUsage": model_usage}), encoding="utf-8")
+        return path
+
+    def test_normalizes_stats_cache_shape(self, tmp_path):
+        from metafactory.memory.metrics import model_split
+        c = self._write_cache(tmp_path / "stats.json", {
+            "claude-opus-4-8": {"inputTokens": 10, "outputTokens": 20,
+                                "cacheCreationInputTokens": 5, "cacheReadInputTokens": 100},
+        })
+        split = model_split(c)
+        assert split["claude-opus-4-8"] == {"input": 10, "output": 20, "cache_creation": 5, "cache_read": 100}
+
+    def test_missing_file_returns_empty(self, tmp_path):
+        from metafactory.memory.metrics import model_split
+        assert model_split(tmp_path / "nope.json") == {}
+
+    def test_malformed_file_returns_empty(self, tmp_path):
+        from metafactory.memory.metrics import model_split
+        p = tmp_path / "bad.json"
+        p.write_text("not json", encoding="utf-8")
+        assert model_split(p) == {}
+
+    def test_render_empty_is_honest_oneliner(self):
+        from metafactory.memory.metrics import render_model_split
+        out = render_model_split({})
+        assert out.startswith("SPLIT")
+        assert "ausente" in out
+
+    def test_render_aggregates_opus_models_into_one_tier(self):
+        from metafactory.memory.metrics import render_model_split
+        # two distinct opus model-ids must collapse to a single 'opus' tier share
+        split = {
+            "claude-opus-4-7": {"input": 0, "output": 1_000_000, "cache_creation": 0, "cache_read": 0},
+            "claude-opus-4-8": {"input": 0, "output": 1_000_000, "cache_creation": 0, "cache_read": 0},
+        }
+        out = render_model_split(split)
+        shares = out.split("(")[0]  # the tier-share list, before the explanatory parenthetical
+        assert "opus 100%" in shares
+        assert "sonnet" not in shares  # no sonnet usage → tier omitted from the shares
+
+    def test_render_shows_tier_split(self):
+        from metafactory.memory.metrics import render_model_split
+        # opus output cost dominates sonnet → opus share > sonnet share, both present
+        split = {
+            "claude-opus-4-8": {"input": 0, "output": 1_000_000, "cache_creation": 0, "cache_read": 0},
+            "claude-sonnet-4-6": {"input": 0, "output": 1_000_000, "cache_creation": 0, "cache_read": 0},
+        }
+        out = render_model_split(split)
+        assert "opus" in out and "sonnet" in out
+        assert out.startswith("SPLIT")

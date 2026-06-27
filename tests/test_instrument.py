@@ -43,6 +43,30 @@ class TestTargetOf:
 
 
 # ---------------------------------------------------------------------------
+# is_subagent_spawn — the numerator of delegation_rate (DELEG-MEASURE)
+# ---------------------------------------------------------------------------
+
+class TestIsSubagentSpawn:
+    """The DIENTE that locks the Task→Agent rename: a delegation event must fire for `Agent`
+    (the current name) — matching only the legacy `Task` zeroed the metric (52 real spawns → 0)."""
+
+    def test_agent_counts_as_spawn(self):
+        # The regression-lock: this is the name that was silently MISSED.
+        assert instrument.is_subagent_spawn("Agent") is True
+
+    def test_task_alias_still_counts(self):
+        assert instrument.is_subagent_spawn("Task") is True
+
+    def test_other_tools_do_not_count(self):
+        for tool in ("Bash", "Read", "Edit", "Write", "Grep", ""):
+            assert instrument.is_subagent_spawn(tool) is False
+
+    def test_agent_in_constant_set(self):
+        # Belt-and-suspenders: a future "cleanup" that drops "Agent" must break this test.
+        assert "Agent" in instrument.SUBAGENT_SPAWN_TOOLS
+
+
+# ---------------------------------------------------------------------------
 # Series (1): footprint
 # ---------------------------------------------------------------------------
 

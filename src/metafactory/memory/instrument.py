@@ -43,6 +43,17 @@ READ_TOOLS = {"Read"}
 # `state_fidelity` (M3) flows into the same series when it lands — without touching this module.
 FIDELITY_CHECKS = {"state_snapshot", "state_fidelity"}
 
+# The tool that spawns a subagent — its PostToolUse use emits a `delegation` journal event (the numerator
+# of `delegation_rate`). Claude Code renamed `Task`→`Agent` in v2.1.63 (`Task` kept as alias); we match
+# BOTH. Matching only the legacy name silently zeroed the delegation rate once the rename shipped — 52 real
+# `Agent` spawns counted as 0 delegations (the bug DELEG-MEASURE fixes, 2026-06-27).
+SUBAGENT_SPAWN_TOOLS = {"Agent", "Task"}
+
+
+def is_subagent_spawn(tool_name: str) -> bool:
+    """True iff `tool_name` is the subagent-spawn tool (`Agent`, or its legacy alias `Task`)."""
+    return tool_name in SUBAGENT_SPAWN_TOOLS
+
 
 def est_tokens(text: str) -> int:
     """Model-free token estimate (~4 chars/token). A footprint gauge, not billing."""

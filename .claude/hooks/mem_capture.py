@@ -40,8 +40,10 @@ def main() -> int:
         metrics.capture(root, kind="tool", tool=tool_name, session=session_id,
                         target=instrument.target_of(tool_name, tool_input))
 
-        # Si es el subagente (Task), también registrar delegación en el journal
-        if tool_name == "Task":
+        # Si es el subagente, también registrar delegación en el journal. La decisión de QUÉ tool cuenta
+        # como spawn vive en el sustrato (`instrument.is_subagent_spawn`): `Agent` desde Claude Code
+        # v2.1.63 (antes `Task`, alias). El hook sólo transporta (ley de colocación).
+        if instrument.is_subagent_spawn(tool_name):
             journal.append(
                 root,
                 "delegation",

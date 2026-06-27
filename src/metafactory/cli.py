@@ -819,6 +819,9 @@ def cmd_metrics(args) -> int:
     root = _meta_root()
     from .memory import instrument, metrics
     print(metrics.render(root, transcript=getattr(args, "transcript", None)))
+    # SPLIT de tokens por tier (DELEG-MEASURE): el KPI de costo de la activación de delegación — a dónde
+    # van los tokens. Máquina-global (stats-cache), best-effort: ausente → línea honesta.
+    print(metrics.render_model_split(metrics.model_split()))
     # Serie del path de INYECCIÓN (ADR-019 §5, M5): footprint·thrashing·fidelidad, acotado.
     for ln in instrument.summarize(root):
         print(ln)

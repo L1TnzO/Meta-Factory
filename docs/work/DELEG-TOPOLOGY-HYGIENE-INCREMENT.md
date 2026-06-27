@@ -1,7 +1,7 @@
-<!-- meta:doc sha=002c1feb62a7c74e0c6c8b862dec0d81b500d265 updated=2026-06-27T21:52Z -->
+<!-- meta:doc sha=fdf6d91a762f09d7845d528292fe3c34fc58b2f4 updated=2026-06-27T21:52Z -->
 # Incremento DELEG-TOPOLOGY-HYGIENE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T21:46Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T21:52Z) (creado 2026-06-27T21:46Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

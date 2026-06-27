@@ -1,7 +1,42 @@
-<!-- meta:doc sha=0747a3557520a922be176d45546d2867fcba2b7b updated=2026-06-27T20:56Z -->
+<!-- meta:doc sha=590fca92ebb21ce8c0199530104e4b1fa2e393d6 updated=2026-06-27T21:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T21:55Z — DELEG-TOPOLOGY-HYGIENE ✅: higiene de topología + rol-no-dominio CON DIENTE; cierra DELEGATION-ACTIVATION
+- **Qué (cierra la Fase D y el incremento-familia):** con A·B·C el meta delega NATURALMENTE, la métrica MIDE y las
+  5 fábricas heredan el cerebro. D hizo la **higiene** que faltaba — sin maquinaria nueva de peso: un gate
+  determinista + governance + un ADR inmutable. Todo D es **columna/trust-chain** (agents, gate, vocabulario,
+  governance) → ojos propios, la excepción explícita de la regla de delegación.
+- **El mecanismo:** **D1** — `verifier` vs el built-in `Explore`: **KEEP, con la razón registrada**. `Explore` es
+  búsqueda fan-out que LOCALIZA leyendo excerpts y «no revisa ni audita»; el `verifier` lee UN artefacto conocido
+  EN COMPLETO (log de gate / árbol / spec) y devuelve un digest estructurado → complementarios, no redundantes.
+  Registrado en `verifier.md` (§«Why you exist») + `orchestrator.md` (la regla de ruteo) + ADR-020 §D1. **D2** —
+  la regla «especializar por ROL, nunca por dominio» **con dientes**: `agent_roles.py` (single-source, espeja
+  `column_scope.py`) declara el vocabulario CERRADO `CANONICAL`={orchestrator·generator·verifier·reviewer} +
+  `LEGACY_SYNONYMS`={writer≡generator·triage≡verifier}; el gate **`roles`** (`role_hygiene.py`, dos-lados) escanea
+  los 24 agents (meta + 5 fábricas) y tira a rojo cualquier NOMBRE de rol fuera del vocab (p.ej. `kotlin-writer`);
+  el negativo sintético muerde. Cableado a `meta check` (#17). Regla en `CLAUDE.md §Reglas`. Agregar un rol = editar
+  el constante + un ADR (la deliberación ES el diente). **D3** — convergencia de nombres documentada + enforzada,
+  **sin churn** (ADR-017 forward-only): las 5 fábricas mantienen `writer`/`triage`, la equivalencia vive en
+  `LEGACY_SYNONYMS` y el gate la acepta. **D4** — `decisions/020` (inmutable).
+- **Decisiones (juicios marcados):** (1) `verifier` se MANTIENE — no es proliferación, agrega una restricción REAL
+  distinta de `Explore` (digest-en-completo de UN artefacto vs búsqueda fan-out). (2) el diente chequea el NOMBRE
+  de rol, no la descripción — el nombre ES la identidad de rol; una fábrica menciona su dominio en prosa
+  legítimamente; el vocab cerrado subsume «sin token de dominio» sin falsos positivos. (3) convergencia DOCUMENTADA,
+  no física — renombrar los 5 sería re-autorar agents españoles (contra ADR-017) + churn; el gate funciona con
+  ambos vocabularios, así que «un modelo mental» se logra con la equivalencia + el diente, sin churn (espeja mi
+  juicio #2 de la Fase C). (4) CREÉ el ADR-020 ahora — con D las decisiones (a)–(d) del §5.2 están TODAS resueltas
+  (a/b de A · d de C · c de D); crearlo antes habría sido un ADR parcial superseable. (5) `roles` es meta-only (es
+  un check de `meta check`, no un hook de columna de fábrica) — coherente con (d).
+- **Honesto:** la activación viva (ruteo proactivo `Explore`-vs-`verifier`) es de próxima sesión (cargan al
+  restart); D agrega el DIENTE verificable AHORA. Residuo declarado: la convergencia FÍSICA de nombres (las 5
+  siguen con `writer`/`triage`) — decisión D3 forward-only, no un olvido; si se quiere, es un incremento aparte.
+- **Evidencia (por bloqueo):** `meta check` **17/17** (suma `roles`; `generality`/`quality`/`column_parity`/
+  `least_priv` sin regresión) · `tests/` verde incl. `test_role_hygiene` (vocabulario · 24 agents reales · negativo
+  con dientes) · `ci --rederive` dummy 5/5 == pin (D no toca codegen/seed/products → el pin no se mueve). **ADR-020**
+  fija (a) routing por `CLAUDE.md` no `agent` global · (b) `delegation`+split de tokens como KPI · (c) rol-no-dominio
+  con diente · (d) la observabilidad de delegación NO baja a `FACTORY_COLUMN`. Detalle: `work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md`.
 
 ## 2026-06-27T20:55Z — DELEG-ACT-FACTORY ✅: las fábricas HEREDAN el cerebro (Fase C de DELEGATION-ACTIVATION)
 - **Qué (cierra la Fase C):** la fábrica tenía los DIENTES de delegación (`blast_radius`/`verdict_required` en

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6bf82fc5c3bbe0de91949ef6fe10e274f94b3bfe updated=2026-06-27T21:46Z -->
+<!-- meta:doc sha=9a3f4cd261adb3af87fd9c9b104d5d592177e469 updated=2026-06-27T21:55Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: DELEG-TOPOLOGY-HYGIENE-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -16,15 +16,15 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
-- **▶ EN CURSO — `DELEGATION-ACTIVATION` (2026-06-27).** Encender el harness verificar-no-revisar (Fase 2 SOTA),
-  construido pero arrancado dormido. **B `DELEG-MEASURE` ✅ + A `DELEG-ACT-META` ✅ + C `DELEG-ACT-FACTORY` ✅:** la
-  métrica dejó de mentir 0% (el emisor matcheaba el tool viejo `Task`→`Agent` en v2.1.63; `meta metrics` LIDERA con
-  el conteo + SPLIT por tier); el meta delega NATURALMENTE (regla en `CLAUDE.md` + `description` proactivas + alias
-  `--agent orchestrator`, NO `agent` global); y las fábricas HEREDAN el cerebro (`_emit_harness` inyecta
-  `orchestrator`+`generate-slot` [`codegen/delegation_brain.py`] + regla de routing en `template/factory/CLAUDE.md`;
-  substrate-inyectado como los teeth; el delegador no recibe teeth; 5 re-emitidas == pin). La prueba "delega sin
-  pedirlo" es de próxima sesión (agents/skills cargan al restart). Pendiente: **D** higiene de topología (`verifier`
-  vs `Explore` + convergencia de nombres + rol-no-dominio). `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
+- **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA),
+  construido pero dormido, quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO. **B `DELEG-MEASURE`** (la métrica dejó de
+  mentir 0%: el emisor matcheaba el tool viejo `Task`→`Agent`; `meta metrics` LIDERA con conteo + SPLIT por tier) ·
+  **A `DELEG-ACT-META`** (el meta delega NATURALMENTE: regla en `CLAUDE.md` + `description` proactivas + alias
+  `--agent orchestrator`, NO `agent` global) · **C `DELEG-ACT-FACTORY`** (las 5 fábricas HEREDAN el cerebro vía
+  `_emit_harness` [`codegen/delegation_brain.py`], substrate-inyectado; ==pin) · **D `DELEG-TOPOLOGY-HYGIENE`**
+  (`verifier` se MANTIENE — complementa al built-in `Explore`; regla **rol-no-dominio CON DIENTE** = gate `roles`
+  sobre 24 agents + vocab CERRADO `agent_roles.py`; nombres forward-only sin churn). **ADR-020** fija (a)–(d); prueba
+  "delega sin pedirlo" = próxima sesión (cargan al restart). `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
 - **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados (base de lo de arriba).** El motor FUNCIONA;
   la capa de DIRECCIÓN (grafo content-addressed + harness verificar-no-revisar + gates de calidad) está CONSTRUIDA;
   el dial draft→harden ADOPTADO (FSK). Detalle e historia: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.
@@ -58,7 +58,7 @@
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.
 
 ## Mapa
-- Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–019) · Plan de incrementos: `work/ROADMAP.md` +
+- Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–020) · Plan de incrementos: `work/ROADMAP.md` +
   docs de dirección (`work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md`) ·
   Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`.

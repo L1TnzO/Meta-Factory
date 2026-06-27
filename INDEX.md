@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `0747a3557520` | 2026-06-27T20:56Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `6bf82fc5c3bb` | 2026-06-27T21:46Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `590fca92ebb2` | 2026-06-27T21:56Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `9a3f4cd261ad` | 2026-06-27T21:55Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -58,7 +58,7 @@
 | `docs/work/DELEG-ACT-FACTORY-INCREMENT.md` | `1e7147d10708` | 2026-06-27T21:00Z | Incremento DELEG-ACT-FACTORY |
 | `docs/work/DELEG-ACT-META-INCREMENT.md` | `868b38c97961` | 2026-06-27T20:20Z | Incremento DELEG-ACT-META |
 | `docs/work/DELEG-MEASURE-INCREMENT.md` | `94b24e1bb91f` | 2026-06-27T17:22Z | Incremento DELEG-MEASURE |
-| `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `002c1feb62a7` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
+| `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `fdf6d91a762f` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `cd8184fba8de` | 2026-06-27T02:57Z | Incremento DIAL-MEASURE |
@@ -102,7 +102,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `b9b5899a111c` | 2026-06-27T20:55Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `b3d7d6c4808d` | 2026-06-27T21:56Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

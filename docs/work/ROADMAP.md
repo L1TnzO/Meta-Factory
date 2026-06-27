@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b9b5899a111c5bf58c17a7387f7bce31c842b71f updated=2026-06-27T20:55Z -->
+<!-- meta:doc sha=b3d7d6c4808d38ee261cbc3a5c52013cac565c47 updated=2026-06-27T21:56Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -40,19 +40,23 @@
 > `column_scope.py` (single-source) + gate `least_priv` dos-lados (`meta check` 16/16: fábrica = `FACTORY_COLUMN` (6)
 > ⊊ `META_COLUMN` (12); sobre-privilegio = rojo). **TODAS las fases SOTA + sus residuales están cerrados.**
 >
-> **▶ NORTE VIGENTE — `DELEGATION-ACTIVATION` (2026-06-27, dirección abierta).** El harness verificar-no-revisar
-> (Fase 2) se CONSTRUYÓ pero nunca se ENCENDIÓ: `meta metrics` mide **delegación 0.0%** y ~$13.5k en ~132 sesiones
-> **~100% Opus** (el cache-read domina el costo). Falta la **ignición**: que la delegación sea natural sin pedirla
-> en cada prompt + propagarla a las fábricas para abaratar la construcción de productos. Roadmap en 4 sub-incrementos:
+> **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2) se
+> CONSTRUYÓ pero nunca se ENCENDIÓ: `meta metrics` medía **delegación 0.0%** y ~$13.5k en ~132 sesiones **~100%
+> Opus** (el cache-read domina el costo). La **ignición** se completó en 4 sub-incrementos:
 > **B `DELEG-MEASURE` ✅** (la métrica dejó de mentir 0%: causa raíz = el emisor matcheaba el tool viejo `Task`,
-> renombrado a `Agent` en v2.1.63) → **A `DELEG-ACT-META` ✅ (2026-06-27)** (delegación natural del meta: regla
+> renombrado a `Agent` en v2.1.63) → **A `DELEG-ACT-META` ✅** (delegación natural del meta: regla
 > permanente en `CLAUDE.md` + `description` de `generator`/`verifier` afiladas a triggers proactivos + alias manual
-> `--agent orchestrator`, NO `agent` global) → **C `DELEG-ACT-FACTORY` ✅ (2026-06-27)** (las fábricas heredan el
+> `--agent orchestrator`, NO `agent` global) → **C `DELEG-ACT-FACTORY` ✅** (las fábricas heredan el
 > cerebro: `_emit_harness` inyecta `orchestrator`+`generate-slot` [contenido en `codegen/delegation_brain.py`] +
 > regla de routing en `template/factory/CLAUDE.md`; disciplina substrate-inyectada como los teeth, DATA-agnostic;
-> el delegador no recibe teeth; 5 fábricas re-emitidas, `meta check` 16/16, `ci --rederive` == pin) →
-> **D `DELEG-TOPOLOGY-HYGIENE`** (higiene de topología: trim `verifier` vs `Explore` + convergencia de nombres de
-> rol meta↔fábrica + regla rol-no-dominio con dientes). Detalle: **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
+> el delegador no recibe teeth; 5 fábricas re-emitidas, `ci --rederive` == pin) →
+> **D `DELEG-TOPOLOGY-HYGIENE` ✅** (higiene: `verifier` se MANTIENE — complementa al built-in `Explore`, no lo
+> duplica; regla **rol-no-dominio CON DIENTE** = gate `roles`/`role_hygiene` sobre 24 agents + vocab CERRADO
+> single-source `agent_roles.py`, `meta check` **17/17**; convergencia de nombres documentada forward-only sin
+> churn). **ADR-020** fija (a) routing por `CLAUDE.md` no `agent` global · (b) `delegation`+split de tokens como
+> KPI · (c) rol-no-dominio con diente · (d) la observabilidad NO baja a `FACTORY_COLUMN`. La prueba "delega sin
+> pedirlo" se opera en sesión nueva (agents/skills cargan al restart). Detalle:
+> **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

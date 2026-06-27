@@ -1,6 +1,41 @@
-<!-- meta:doc sha=c351a788f9b203253eb3ce6078a9ef211305c88a updated=2026-06-27T02:25Z -->
+<!-- meta:doc sha=d1f6df57f6de92d9f50826969bfd89fef3ef5d30 updated=2026-06-27T16:22Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-06-27T16:19Z — FSK-FRONTEND-DELETE ✅: la **D** del CRUD desde el browser (borrar una fila)
+- **Qué:** un botón "borrar" en el detalle elimina la fila y la hace DESAPARECER de la lista en un Chromium REAL —
+  completa el CRUD desde el navegador (C/R/U ya vivían). **Frontend-only, CERO backend**: el `DELETE /<plural>/{id}`
+  ya estaba vivo + enforzado (auth→RBAC→ownership; para Asset es borrado LÓGICO vía `soft_delete`, recuperable por
+  `restore`, eje hermano). Sólo faltaba el lado del navegador.
+- **3 piezas GENERALES en `codegen/scaffold/`** (DATA-agnóstico, ADR-012; opt-in `_editable(e)` → byte-vacío donde no
+  aplica, base/ownerless sin tocar): (1) `frontend.py/_consume_entity_ts` emite **`delete<E>(base, token, id):
+  Promise<void>`** junto a `update<E>` (sólo la entidad con dueño: la única con DELETE enforzado; `fetch DELETE` con
+  `Authorization`, sin cuerpo → 200 vacío, no parsea JSON, `if(!res.ok)throw`); `_app_ts` lo importa. (2)
+  `frontend.py/_mount_ts` monta `deleteContainer` + `renderDelete(id)` al abrir el detalle: un `<button type="button"
+  data-delete>` (suelto, no en form → click nativo sin carrera) cuyo click → `delete<E>` → `renderRows(list<E>)` (la
+  fila desaparece) + `detailContainer.replaceChildren()`. (3) `constants.py/_DELETE_ASSERT_BLOCK` + `browser.py`
+  agregan `%DELETE_ASSERT%` como ÚLTIMO bloque del `browser_check.ts`: borra la fila que el FORM creó (principal-owned
+  + misma compañía POR CONSTRUCCIÓN → pasa ownership/scope) y asevera (waitForFunction, no sleep) que NINGÚN `<li>` la
+  contiene.
+- **Lección reusable (locator robusto al edit):** los bloques edit/operations/delete operan sobre la MISMA fila del
+  FORM, localizada por su valor renderizado. Si `edit_field == render_field` (p.ej. `helpdesk.Ticket.subject`), el
+  bloque EDIT cambia ese texto a `edited-<campo>` → un locator fijo al valor del FORM fallaría tras el edit. Se
+  resuelve computando `DEL_ROW` en codegen (`browser.py`): el valor del FORM, o `edited-<edit_field>` si edit lo tocó.
+  Para snipeit (`asset_tag`≠`name`) y assets (`serial`≠`notes`) son distintos → default; helpdesk usa la rama editada.
+- **Probado por bloqueo (con mis ojos; nada de prosa-verde):** EYEBALL snipeit (toolchain real: `tsc --noEmit` 0 ·
+  `eslint src` 0 · `esbuild`/`build_bundle` 0 · perf minificado de `src/app.ts` **42 259 < 42 496**, ratio 1.0056 →
+  el delete sumó ~571 B, holgura ~0.6% → SIN bump de `BUNDLE_BUDGET_BASE_BYTES`) · `product-run` snipeit **PASS**
+  (exit 0; s9 `frontend_browser_render` ejerció el DELETE en Chromium real @1200px; s11 deploy ok) · **diente VIVO
+  dos-lados AISLADO** (vía `dev_run.sh` + `browser_check.ts`, PG fresca por corrida: GREEN 13/13 asserts, node exit 0;
+  saboteé `delete<E>` a no-op → la fila SIGUE → SÓLO el assert DELETE rojo ("esperaba false, obtuvo true"), los otros
+  12 verdes, node exit 1; revertí → verde) · **byte-neutro → SIN re-pin** (extendí el `browser_check` existente, sin
+  check/estación nuevo → `proof_sha` intacto): `ci --rederive` snipeit **11/11** + assets **11/11** == pin · `meta
+  check` **15/16** (`generality ok` — anti-overfit; el único rojo fue el sello `docs` de su propio handoff, stale al
+  editarlo, se re-sella al commitear) · **`git diff src/metafactory + seed = 0`** (sustrato intacto).
+- **Cierre:** el CRUD desde el browser está COMPLETO (✅C·R·U·D para la entidad con dueño). Siguiente a decidir (§6 del
+  handoff): pulido (`restore` en browser · PICKER del `assigns` poly) · backlog backend (`PUT-ownerless`,
+  `FSK-GETONE-SCOPED`, `FSK-PUT-UNIQUE-REFS`, `FSK-KITS`, EAV) · fidelidad de dominio Snipe-IT (12 deferrals).
+  Detalle: `docs/work/FSK-FRONTEND-DELETE-INCREMENT.md §Evidencia`.
 
 ## 2026-06-27T02:32Z — FACTORY-DOC-MIGRATE ✅: los 16 incrementos de línea `FSK-S0..S15` llegan a este home
 - **Qué:** los docs de los 16 incrementos que construyeron esta fábrica (la línea s0→s10 + la expresividad de

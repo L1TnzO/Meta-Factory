@@ -1,10 +1,10 @@
-<!-- meta:doc sha=ceacb6d7aff89493a38afc6c87626c18a626bda3 updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=c06c1457599ba3dfe10d09ebb0c47a271df38195 updated=2026-06-27T16:20Z -->
 # Incremento FSK-FRONTEND-DELETE — borrar una fila desde el browser (completa el CRUD)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **DIFERIDO (handoff)**
-> (creado 2026-06-25T16:08Z; diferido 2026-06-25T18:55Z). El ingeniero ELIGIÓ construir **FSK-FRONTEND-STYLES** primero
-> (el frontend no servía estilos). DELETE queda en cola: reabrilo flippeando este header a `**ABIERTO**` cuando toque.
-> Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO ✅**
+> (creado 2026-06-25T16:08Z; diferido 2026-06-25T18:55Z; reabierto 2026-06-27T16:00Z; **CERRADO 2026-06-27T16:19Z**).
+> El CRUD desde el browser está COMPLETO (C/R/U/D). Evidencia abajo. Editar `factories/full-stack-kotlin/**`
+> no-`.md` (codegen/spec/stations) exige un incremento ABIERTO — éste ya no lo está.
 >
 > **HANDOFF AUTOCONTENIDO para una sesión EN FRÍO (post-`/clear`).** Lo escribió la sesión que cerró FSK-DEV-RUN con
 > MÁS contexto, y el ingeniero ELIGIÓ esta dirección (2026-06-25). NO hace falta backend nuevo (el DELETE ya está
@@ -98,4 +98,41 @@ DELETE entre estas el 2026-06-25):
   SNIPEIT-DOMAIN.md` (custom-fields dinámicos, checkout polimórfico, depreciación calculada, company-scoping…) — más
   impacto para "clonar Snipe-IT fiel", incrementos más grandes.
 
-## Evidencia (cierre — se completa al terminar)
+## Evidencia (cierre 2026-06-27T16:19Z) ✅
+
+**Qué se construyó (frontend-only, CERO backend — el DELETE ya estaba vivo + enforzado, §3).** 3 piezas GENERALES
+en `codegen/scaffold/` (DATA-agnóstico, ADR-012 — cero nombres de dominio; opt-in `_editable(e)` → byte-vacío donde
+no aplica):
+1. **Cliente `delete<E>(base, token, id): Promise<void>`** (`frontend/_consume_entity_ts`, rama `_editable`): `fetch`
+   `DELETE /<plural>/{id}` con `Authorization: token`, sin cuerpo (el AppServer responde 200 vacío → no parsea JSON);
+   `if (!res.ok) throw`. Se importa en `_app_ts` junto a `update<E>`.
+2. **Botón en `mount<E>`** (`frontend/_mount_ts`, opt-in `_editable`): `deleteContainer` + `renderDelete(id)` montan un
+   `<button type="button" data-delete>` al abrir el detalle; su click → `await delete<E>` → `renderRows(await list<E>)`
+   (la fila DESAPARECE) + `detailContainer.replaceChildren()` ("deleted"). Suelto (no en un form → click nativo sin
+   carrera de navegación, como los verbos).
+3. **Proof `%DELETE_ASSERT%`** (`constants/_DELETE_ASSERT_BLOCK` + `browser/_browser_check_ts`): ÚLTIMO bloque (tras
+   operations). Borra la fila que el FORM creó (principal-owned + misma compañía POR CONSTRUCCIÓN → pasa
+   ownership/scope), localizada por su valor renderizado VIGENTE (`DEL_ROW` computado en codegen: el del FORM, o el
+   editado si `edit_field == render_field` p.ej. helpdesk.subject → el locator no falla tras el edit), y asevera
+   (waitForFunction, no sleep) que NINGÚN `<li>` la contiene.
+
+**Diente de DOS lados, VIVO en Chromium real (s9, snipeit @1200px) — AISLADO:**
+- **Verde**: `browser_check.ts` → 13/13 asserts OK, incluido `FSK-FRONTEND-DELETE: la fila DESAPARECE … -> false`
+  (node exit 0).
+- **Saboteá** (`delete<E>` no-op → la fila SIGUE): SÓLO el assert DELETE rojea ("esperaba false, obtuvo true");
+  dashboard/styles/render/form/nav/2da-entidad/detalle/edit/operations quedan VERDES (node exit 1). Revertí → verde.
+
+**Verificación:**
+- EYEBALL (snipeit, toolchain real): `tsc --noEmit` 0 · `eslint src` 0 · `esbuild`/`build_bundle` 0 · perf minificado
+  **42 259 < 42 496** (ratio 1.0056 ≥ 1.0 → NO se bumpeó `BUNDLE_BUDGET_BASE_BYTES`; el delete sumó ~571 B, holgura ~0.6%).
+- GATE: `product-run --factory full-stack-kotlin --product snipeit` → **PASS** (exit 0; s9 `frontend_browser_render`
+  ejerció el DELETE en Chromium real, s11 deploy ok).
+- **Byte-neutro → SIN re-pin** (extendí el `browser_check` existente; NO agregué check/estación nuevo): `ci --rederive`
+  **snipeit 11/11 == pin · assets 11/11 == pin**.
+- `meta check`: **15/16** — `generality ok` (anti-overfit), `column_parity`/`least_priv`/`quality`/`isolation`/`pbt`/
+  `security`/`dial`… ok; el único rojo era el sello `docs` de ESTE doc (stale al editarlo, se re-sella al commitear).
+- `git diff src/metafactory + seed = **0**` (sustrato intacto). Cambios: `codegen/scaffold/{frontend,constants,browser}.py`.
+
+**Cierre del arco frontend.** Con DELETE, el **CRUD completo desde el browser** (C·R·U·D) está cerrado para la
+entidad con dueño. Direcciones siguientes en §6 (a decidir con el ingeniero): pulido (`restore` en browser · picker
+del `assigns` poly), backlog backend núcleo (`PUT-ownerless`, `FSK-GETONE-SCOPED`, …), o fidelidad de dominio Snipe-IT.

@@ -1,9 +1,31 @@
-<!-- meta:doc sha=c18d81ffd2de8df67b39bf7a646db1be3b4dd783 updated=2026-06-27T04:07Z -->
+<!-- meta:doc sha=c2018d4f39e3a1137e0ba59543105e128f5c2340 updated=2026-06-27T16:21Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **CRUD COMPLETO DESDE EL BROWSER — borrar una fila (FSK-FRONTEND-DELETE, 2026-06-27)** ✅: el frontend ganó la **D**
+  del CRUD — un botón "borrar" en el detalle que elimina la fila y la hace DESAPARECER de la lista en un Chromium REAL.
+  **Frontend-only, CERO backend** (el `DELETE /<plural>/{id}` ya estaba vivo + enforzado por ownership/RBAC; para Asset
+  es borrado LÓGICO, `soft_delete`). 3 piezas GENERALES en `codegen/scaffold/` (DATA-agnóstico, ADR-012; opt-in
+  `_editable(e)` → byte-vacío donde no aplica): (1) cliente **`delete<E>(base, token, id): Promise<void>`**
+  (`frontend.py/_consume_entity_ts`, junto a `update<E>`; `DELETE` con `Authorization`, sin cuerpo → 200 vacío,
+  `if(!res.ok)throw`); (2) botón **`<button data-delete>`** en `mount<E>` (`deleteContainer` + `renderDelete(id)` al
+  abrir el detalle → click → `delete<E>` → `renderRows(list<E>)` + limpia el detalle); (3) proof **`%DELETE_ASSERT%`**
+  (`constants.py/_DELETE_ASSERT_BLOCK` + `browser.py`), ÚLTIMO bloque: borra la fila que el FORM creó y asevera
+  (waitForFunction) que NINGÚN `<li>` la contiene — `DEL_ROW` se computa en codegen (el valor del FORM, o el editado si
+  `edit_field == render_field`, p.ej. helpdesk.subject → el locator no falla tras el edit). **Probado por bloqueo (con
+  mis ojos)**: EYEBALL snipeit (`tsc`/`eslint`/`esbuild` 0 · perf minificado **42 259 < 42 496**, ratio 1.0056 → SIN
+  bump del budget) · `product-run` snipeit **PASS** (s9 `frontend_browser_render` ejerció el DELETE en Chromium real
+  @1200px) · **diente VIVO dos-lados AISLADO** (GREEN 13/13, node exit 0; saboteé `delete<E>` (no-op) → SÓLO el assert
+  DELETE rojo ("esperaba false, obtuvo true"), los otros 12 verdes, node exit 1; revert→verde) · **byte-neutro → SIN
+  re-pin** (extendí el `browser_check`, sin check nuevo): `ci --rederive` snipeit **11/11** + assets **11/11** == pin ·
+  `meta check` **15/16** (`generality ok`; el único rojo era el sello `docs` de su propio handoff, stale al editarlo →
+  se re-sella al commitear) · `git diff src/metafactory + seed = 0`. **El CRUD desde el browser está COMPLETO**
+  (✅C·R·U·D para la entidad con dueño). Detalle: `docs/work/FSK-FRONTEND-DELETE-INCREMENT.md §Evidencia`.
+  **Siguiente (a decidir con el ingeniero, §6 del handoff)**: pulido frontend (**`restore`** de una fila soft-deleted ·
+  **PICKER** del target del `assigns` poly) · backlog backend núcleo (`PUT-ownerless` · `FSK-GETONE-SCOPED` ·
+  `FSK-PUT-UNIQUE-REFS` · `FSK-KITS` · EAV) · fidelidad de dominio Snipe-IT (los 12 deferrals, incrementos más grandes).
 - **DIAL DRAFT→HARDEN ADOPTADO (FSK-DIAL-ADOPT, 2026-06-27, ADR-017 §4)** ✅: FSK es la 1ª fábrica que usa el dial
   de velocidad/rigor. 7 estaciones taggeadas `tier: harden` (la capa de rigor + shipping: s2 dureza · s3 frescura ·
   s4 cadena · s7 tests · s8 a11y/perf · s10 hermético · s11 deploy); el **spine core** (un app que CORRE) = s0·s1·s5·s6·s9.

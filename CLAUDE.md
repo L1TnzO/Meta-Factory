@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b38ce985df6f8f209c205ca441cf4e0d95614ec3 updated=2026-06-27T20:13Z -->
+<!-- meta:doc sha=8ebe388c824e3f09f0328523a55d8b7b6893b132 updated=2026-06-27T21:48Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -60,3 +60,12 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
   builds pesados de fábrica, lanzá la sesión con `claude --agent orchestrator` (toma la disciplina completa
   desde el turno 1); NO pongas un `agent` default global en `settings.json` — reemplazaría el system-prompt
   base de Claude Code en CADA sesión (incluso un fix casual bootearía en modo orquestador).
+- **Especializar por ROL, nunca por dominio — con dientes (2026-06-27, ADR-020)**: los agentes de delegación
+  se especializan por **modelo · tools · contrato-de-verificación**, NO por dominio. El dominio
+  (kotlin/frontend/sql) lo carga el **slot manifest** por invocación (`.gen/active_slot.json`), nunca un
+  agente nuevo — proliferar por dominio rompe ADR-012 (tech = plan) y crea ambigüedad de ruteo. El vocabulario
+  de roles es **CERRADO** (`agent_roles.CANONICAL` = orchestrator·generator·verifier·reviewer + sinónimos
+  legacy `writer`≡generator·`triage`≡verifier de las 5 fábricas, grandfathered ADR-017, no churneados);
+  agregar un rol es un acto DELIBERADO (editar el constante + ADR). Lo enforza el gate `roles` de `meta check`
+  (un agent nombrado por dominio cae a rojo). El `verifier` (digest de UN artefacto conocido) se distingue del
+  built-in `Explore` (búsqueda fan-out) — son complementarios, por eso se mantiene (ADR-020 §D1).

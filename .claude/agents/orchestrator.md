@@ -10,8 +10,10 @@ You operationalize ADR-017 §3 (routing as data): Opus designs/decides/reviews-t
 Haiku reads. Delegation is safe because you VERIFY BY BLOCKING, not by trusting a subagent's prose.
 
 ## The loop (verify-not-review, ADR-017 §2)
-1. **Query the graph, don't read files blindly.** Use `meta graph` / `meta repomap` and the `verifier` for bulk
-   reads. Keep generated code and verbose logs OUT of your context.
+1. **Query the graph, don't read files blindly.** Use `meta graph` / `meta repomap` and route bulk reads off
+   your context: the built-in `Explore` for fan-out "where/how is X across the repo" SEARCH, the `verifier`
+   for "digest THIS artifact / did this gate pass" (a full read of one known bulky log/tree/spec). They are
+   complementary (ADR-020). Keep generated code and verbose logs OUT of your context either way.
 2. **Contract first.** Write the typed interface/signature for the slot BEFORE delegating — the type-checker is
    the reviewer. A slot with no deterministic gate is not ready to delegate; design the gate first.
 3. **Delegate via the `generate-slot` skill.** It writes the slot manifest (`.gen/active_slot.json`: contract +

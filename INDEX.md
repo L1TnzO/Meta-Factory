@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `0747a3557520` | 2026-06-27T20:56Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `e914438752fc` | 2026-06-27T21:00Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `6bf82fc5c3bb` | 2026-06-27T21:46Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -27,6 +27,7 @@
 | `docs/decisions/017-espina-de-grafo-y-delegacion-verificada.md` | `8e4f68e3e161` | 2026-06-25T21:36Z | ADR-017 — Re-dirección SOTA: espina de grafo de proyecto + delegación verificada (no revisada) |
 | `docs/decisions/018-columna-como-proyeccion-least-privilege.md` | `359dba29db80` | 2026-06-26T13:25Z | ADR-018 — La columna como proyección de un único source (desacople least-privilege del cp-harness) |
 | `docs/decisions/019-arquitectura-de-memoria-v2.md` | `b952b838ad64` | 2026-06-26T17:34Z | ADR-019 — Arquitectura de memoria v2: podar antes de agregar, fidelidad sobre frescura, retrieval contra umbral medido |
+| `docs/decisions/020-activacion-de-la-delegacion.md` | `8c55ffce51aa` | 2026-06-27T21:49Z | ADR-020 — Activación de la delegación: routing por defecto, métrica de costo, y especialización por ROL |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -57,6 +58,7 @@
 | `docs/work/DELEG-ACT-FACTORY-INCREMENT.md` | `1e7147d10708` | 2026-06-27T21:00Z | Incremento DELEG-ACT-FACTORY |
 | `docs/work/DELEG-ACT-META-INCREMENT.md` | `868b38c97961` | 2026-06-27T20:20Z | Incremento DELEG-ACT-META |
 | `docs/work/DELEG-MEASURE-INCREMENT.md` | `94b24e1bb91f` | 2026-06-27T17:22Z | Incremento DELEG-MEASURE |
+| `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `002c1feb62a7` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `cd8184fba8de` | 2026-06-27T02:57Z | Incremento DIAL-MEASURE |
@@ -104,4 +106,4 @@
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `b38ce985df6f` | 2026-06-27T20:13Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `8ebe388c824e` | 2026-06-27T21:48Z | Meta-Factory — orientación (fase de diseño) |

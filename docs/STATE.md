@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bab78948d9286bf9d96ccea37237576c74d99881 updated=2026-06-27T03:21Z -->
+<!-- meta:doc sha=5cf5c4aa5a226286af4a0a25de974e847d54c554 updated=2026-06-27T15:04Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: LEAST-PRIV-DECOUPLE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -21,7 +21,7 @@
   delegación "verificar-no-revisar" (Opus cerebro · Sonnet genera · Haiku lee) + gates de calidad dogfoodeados.
   Sus 4 fases ya están construidas; el **dial draft→harden ya está ADOPTADO** (FSK, 2026-06-27,
   `DIAL-MEASURE`+`FSK-DIAL-ADOPT`: 7 estaciones `tier:harden` · draft 41.7s vs harden 98.0s ==pin · gate `dial`).
-  Roadmap vivo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. Único residual SOTA: `LEAST-PRIV-DECOUPLE` (diferido, no bloquea).
+  Roadmap vivo: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`. **Todos los residuales SOTA cerrados** — `LEAST-PRIV-DECOUPLE` ✅ (2026-06-27): el último, el alcance least-privilege de la columna por nivel, con diente.
 - **🧠 MEMORIA v2 (ADR-019) — COMPLETA (salvo la regla de escape §6).** Telemetría + literatura convergen: **podar
   antes de agregar** (NO servidor MCP/vectorDB/graph-RAG). Roadmap M1–M6: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
   **M1·M2·M5·M3·M4·M6 hechos** — el detalle de cada Move vive en `LOG.md` + su `work/<SLUG>-INCREMENT.md §Evidencia`.
@@ -34,7 +34,7 @@
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
   incrementos por fábrica/eje: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§2·§3·§4 ✅; sólo resta el diferido `LEAST-PRIV-DECOUPLE`.** §1
+- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§2·§3·§4 ✅ + `LEAST-PRIV-DECOUPLE` ✅ (COMPLETA).** §1
   (`HARNESS-DECOUPLE` + `FACTORY-DELEGATION-TEETH`, 2026-06-26): `column_parity` (la columna de fábrica ≡ proyección
   de un único source) + los teeth de delegación (`blast_radius`/`verdict_required`) bajan a la columna con ley
   **seed-canónica** (`seed/delegation.py`, ADR-018). §3 (`FACTORY-DOC-SEAL`, 2026-06-27): el sello content-addressed
@@ -44,7 +44,9 @@
   (meta) al home de fábrica `factories/full-stack-kotlin/docs/work/` como **MOVE byte-idéntico** (sello content-only
   → `sha` intactos) → salen del `doc_set`/INDEX meta, quedan sellados por el home de fábrica (§1 single-source
   consistente para FSK; historia inmutable `decisions/`/`LOG` sin churnear). §4 (close por-nivel) ya estaba en
-  Fase 1. Único pendiente: `LEAST-PRIV-DECOUPLE` (diferido SOTA, no bloquea).
+  Fase 1. **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27):** el alcance de la columna por nivel deja de ser una lista
+  de archivos curada a mano y pasa a `column_scope.py` (single-source) + gate `least_priv` dos-lados (`meta check`
+  16/16) — la fábrica hereda exactamente `FACTORY_COLUMN` (6) ⊊ `META_COLUMN` (12); sobre-privilegio = rojo.
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.

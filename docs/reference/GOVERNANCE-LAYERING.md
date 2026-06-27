@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f6785197c9252a74b2a3c64f94834462fa37f564 updated=2026-06-27T02:23Z -->
+<!-- meta:doc sha=f85974965ef36c7c82e2924e1e922d3b7a1d6d68 updated=2026-06-27T15:05Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
@@ -97,7 +97,7 @@ principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océ
 **Fase 1 EJECUTADA ✅ (2026-06-21, ADR-016)** — casa de docs del producto + edit-gate level-aware, probado por
 bloqueo (`meta check` 6/6 · suite 578).
 
-**Fase 2 — progreso (§1·§2·§3·§4 ✅; sólo resta el diferido `LEAST-PRIV-DECOUPLE`):**
+**Fase 2 — COMPLETA (§1·§2·§3·§4 ✅ + el diferido `LEAST-PRIV-DECOUPLE` ✅):**
 - **§1 ✅ (2026-06-26)** — `HARNESS-DECOUPLE` (`column_parity`: la columna de fábrica ≡ proyección de un único
   source) + `FACTORY-DELEGATION-TEETH` (los teeth de delegación bajan a la columna con ley seed-canónica). ADR-018.
 - **§4 ✅ (ya en Fase 1)** — el close por-nivel existe: `meta increment {open,close,status} --factory/--product`
@@ -118,8 +118,15 @@ bloqueo (`meta check` 6/6 · suite 578).
   + entradas viejas de `LOG` no se churnéan — el path `docs/work/` era cierto cuando se escribieron). Probado
   por bloqueo (tamper un doc migrado → sello del home de fábrica ROJO aislado) · `meta check` 14/14. Con esto
   el §1 (single-source: la casa de un doc = su nivel) queda consistente para el carril FSK.
-- **Resta (diferido, no bloquea):** `LEAST-PRIV-DECOUPLE` (desacople cp-harness least-privilege, ADR-016 Fase 2;
-  natural recién post-grafo + post-quality-gates, ya disponibles). No es un § de este doc — es el residuo SOTA.
+- **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27)** — el desacople cp-harness least-privilege (ADR-018 §3). El alcance de
+  la columna POR NIVEL deja de ser una lista de archivos curada a mano en `template/factory/harness/` (sin diente)
+  y pasa a ser **single-source en el sustrato** (`src/metafactory/column_scope.py`: `META_COLUMN` / `FACTORY_COLUMN`
+  ⊊ + `META_ONLY` derivado, con la calibración de por qué cada hook NO baja — `gate_guard` es META-operado, los 5
+  de memoria son meta-only HONEST-STATE §7). Gate `least_priv` (`verify/checks/least_priv.py`, cableado a `meta
+  check` → **16/16**): cada fábrica hereda EXACTAMENTE `FACTORY_COLUMN` (6) ⊊ `META_COLUMN` (12); sobre-privilegio
+  (un hook meta-only filtrado) = ROJO, incompletitud = ROJO, diente dos-lados vivo. El scope es CÓDIGO del sustrato,
+  no DATA de spec (ADR-018 §4) — un spec adversario no puede ensanchar su privilegio. **Cierra ADR-016 Fase 2 +
+  el último residual SOTA.** Evidencia: `work/LEAST-PRIV-DECOUPLE-INCREMENT.md`.
 
 ## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
 > Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la

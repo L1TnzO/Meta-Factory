@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bcaaa3dec734a1b94a0eea04fd47695cb31b0958 updated=2026-06-27T03:22Z -->
+<!-- meta:doc sha=3652a10caef70d942d4bb6efa754331b04a4c9a0 updated=2026-06-27T15:05Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -35,7 +35,10 @@
 > borrador→endurecer ✅** (mecanismo `DRAFT-HARDEN-DIAL` + **adoptado**: `DIAL-MEASURE` cableó `tier` al materializar
 > + gate `dial` medido, y `FSK-DIAL-ADOPT` taggeó la capa de rigor de FSK — draft 41.7s corre la app vs harden 98.0s
 > ==pin, ~57% más rápido; 2026-06-27) **+ §4 cosecha del vocabulario `AgentSpec`/`WorkOrder` de PWF ✅**
-> (`PWF-VOCAB-HARVEST`). **Fase 4 COMPLETA. Único residual SOTA: `LEAST-PRIV-DECOUPLE` (diferido, no bloquea).**
+> (`PWF-VOCAB-HARVEST`). **Fase 4 COMPLETA.** · **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27)** — el último residual SOTA
+> (diferido) cerrado: el alcance least-privilege de la columna por nivel pasó de lista de archivos curada a mano a
+> `column_scope.py` (single-source) + gate `least_priv` dos-lados (`meta check` 16/16: fábrica = `FACTORY_COLUMN` (6)
+> ⊊ `META_COLUMN` (12); sobre-privilegio = rojo). **TODAS las fases SOTA + sus residuales están cerrados.**
 
 ## 0. Si llegás sin contexto, leé en este orden
 

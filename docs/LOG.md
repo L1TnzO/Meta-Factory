@@ -1,7 +1,34 @@
-<!-- meta:doc sha=0e6f555b5b7335e81658fd835bb3562a3714a78e updated=2026-06-27T02:24Z -->
+<!-- meta:doc sha=eb9f9f51ade81b632d5fb0ee08de586e677cc849 updated=2026-06-27T15:05Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T15:05Z — LEAST-PRIV-DECOUPLE ✅: la columna por nivel = alcance least-privilege con diente (ADR-018 §3)
+- **Qué (cierra el ÚLTIMO residual SOTA + ADR-016 Fase 2):** el alcance de la columna heredada POR NIVEL era una
+  lista de archivos curada a mano en `template/factory/harness/.claude/hooks/` (6 archivos) **sin diente que
+  probara que ese subconjunto era el correcto**. `column_parity` sólo prueba fidelidad-al-template (in-tree ≡
+  render(template)); si alguien agregaba `session_start.py` al template, lo renderizaba a la fábrica y
+  `column_parity` pasaba feliz → **sobre-privilegio sin detección**. Este incremento vuelve el alcance una
+  **declaración single-source en el sustrato** + un **gate dos-lados**.
+- **El mecanismo:** `src/metafactory/column_scope.py` (AUTORIDAD, código del sustrato — NO DATA de spec, ADR-018
+  §4: un spec adversario no puede ensanchar su privilegio): `META_COLUMN` (12 hooks: enforcement + delegación +
+  memoria) y `FACTORY_COLUMN` (6: `proof_protect`·`increment_guard`·`commit_guard`·`stop_proof` + `blast_radius`·
+  `verdict_required`) con `META_ONLY = META−FACTORY` derivado + la **calibración auditada** de por qué cada hook
+  NO baja (`gate_guard` = correr estaciones es META-operado; los 5 de memoria son meta-only, HONEST-STATE §7 — el
+  write-half sin read-half es writeback muerto). Los hooks se referencian por ROL (basename), no por bytes: el
+  hook del meta y el heredado son implementaciones distintas del mismo rol (meta = `metafactory.*`-coupled · fábrica
+  = self-contained, carga `seed/` por path para sobrevivir regeneración standalone).
+- **El diente — `least_priv` (`verify/checks/least_priv.py`, cableado a `meta check`):** hermano de `column_parity`
+  (parity prueba BYTES; least_priv prueba el SET/scope). Asevera: (1) `FACTORY_COLUMN ⊊ META_COLUMN` (subconjunto
+  PROPIO — no la columna entera por inercia) + cada rol declarado tiene hook real en el meta (no fantasma); (2) el
+  template (fuente de la proyección) == `FACTORY_COLUMN`; (3) cada fábrica in-tree == `FACTORY_COLUMN` exacto.
+- **Probado por bloqueo (dos lados, aislado):** `meta check` **16/16** (era 15/15) · `pytest tests/test_least_priv.py`
+  **8/8** — sobre-privilegio (hook meta-only filtrado → ROJO `over-privilege`, sólo ese hook) · incompletitud (hook
+  gobernado ausente → ROJO `incomplete`, sólo ese) · sobre-privilegio del template · fantasma de declaración ·
+  comparador decorativo → ROJO. **Sin re-pin** (scope = roles, no bytes; `least_priv` no toca `proof_sha`). Las 5
+  fábricas ya cumplían → el valor es el DIENTE que lo MANTIENE, no un cambio de árbol. Detalle:
+  `docs/work/LEAST-PRIV-DECOUPLE-INCREMENT.md §Evidencia`. **Con esto TODAS las fases SOTA (ADR-017) y sus
+  residuales están cerrados** — sólo queda el umbral medido de memoria §6 (ADR-019, no es un increment).
 
 ## 2026-06-27T02:32Z — FACTORY-DOC-MIGRATE ✅: los 16 `FSK-S*` migran a su home de fábrica (ADR-016 Fase 2 §2)
 - **Qué (cierra la Fase 2 §2):** los **16 incrementos de la línea FSK `FSK-S0..S15`** vivían en `docs/work/` del

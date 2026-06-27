@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `0e6f555b5b73` | 2026-06-27T02:24Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `bab78948d928` | 2026-06-27T03:21Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `eb9f9f51ade8` | 2026-06-27T15:05Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `5cf5c4aa5a22` | 2026-06-27T15:04Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -32,7 +32,7 @@
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `f6785197c925` | 2026-06-27T02:23Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `f85974965ef3` | 2026-06-27T15:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `2ca5246e17f3` | 2026-06-26T21:22Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
@@ -72,6 +72,7 @@
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
 | `docs/work/HARNESS-DECOUPLE-INCREMENT.md` | `cc57027b3bdb` | 2026-06-26T18:05Z | Incremento HARNESS-DECOUPLE |
+| `docs/work/LEAST-PRIV-DECOUPLE-INCREMENT.md` | `6cbdf90e8b66` | 2026-06-27T15:04Z | Incremento LEAST-PRIV-DECOUPLE |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |
 | `docs/work/MAT-1-FULL-STACK-INCREMENT.md` | `6313239ce678` | 2026-06-16T23:18Z | Incremento MAT-1-FULL-STACK |
@@ -95,7 +96,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `bcaaa3dec734` | 2026-06-27T03:22Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `3652a10caef7` | 2026-06-27T15:05Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

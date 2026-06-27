@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b627fa47ad703175dbbad601acc732e0579e98ea updated=2026-06-27T15:48Z -->
+<!-- meta:doc sha=587065826e1be9fb68e9091eda7fbcdc955cc89c updated=2026-06-27T15:48Z -->
 # Incremento FSK-FRONTEND-VERCEL — re-skin del frontend al lenguaje "tinta + hairline" (estilo dev-platform)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-06-27T15:48Z)
 > (creado 2026-06-27T15:32Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Editar `factories/full-stack-kotlin/**` no-`.md` (codegen/spec/stations) exige ESTE incremento abierto.
 >

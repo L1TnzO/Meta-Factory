@@ -1,7 +1,29 @@
-<!-- meta:doc sha=88501358dc6b50492d81ec57d665546149f94efe updated=2026-06-27T02:00Z -->
+<!-- meta:doc sha=0e6f555b5b7335e81658fd835bb3562a3714a78e updated=2026-06-27T02:24Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-06-27T02:32Z — FACTORY-DOC-MIGRATE ✅: los 16 `FSK-S*` migran a su home de fábrica (ADR-016 Fase 2 §2)
+- **Qué (cierra la Fase 2 §2):** los **16 incrementos de la línea FSK `FSK-S0..S15`** vivían en `docs/work/` del
+  **meta** — trabajo de NIVEL-FÁBRICA en la casa del meta, violación directa del §1 single-source («la casa de un
+  doc = el nivel cuyo trabajo describe») que la tabla §2 de `GOVERNANCE-LAYERING` marcaba con ❌. Migrados a
+  `factories/full-stack-kotlin/docs/work/`, donde sus **42 hermanos `FSK-*`** (CRUD/frontend/deploy/…) ya viven.
+  Con esto el carril FSK queda consistente con la Opción A (autogobierno por nivel).
+- **Compone con §3 (`FACTORY-DOC-SEAL`):** §3 acababa de bajar el sello ADR-009 a cada home por nivel; §2 lo
+  PUEBLA. Como el sello es **content-only** (sha del cuerpo, excluyendo la línea-sello), el move es **byte-idéntico**:
+  los 16 conservan su `sha` intacto (probado: shas pre==post move) → MOVE puro, no re-escrito. Salen del `doc_set`
+  meta e INDEX (regenerado por `doc-sync`), entran al `doc_set` del home de fábrica que los sella+chequea.
+- **Disciplina (lo que NO se tocó, a propósito):** historia inmutable INTACTA — `decisions/015` (1 mención
+  `work/FSK-S10-…`) y las entradas viejas de este LOG se DEJAN: el path `docs/work/` era literalmente cierto al
+  escribirlas; churnearlas rompería sus sha-stamps y la semántica append. Punteros VIVOS sí actualizados
+  (`GOVERNANCE §2/§7`, `STATE` bullet ADR-016, `ROADMAP` nota-cabecera del bloque FSK histórico — single-source,
+  sin churn por-línea). Los 16 docs migrados NO se editan (move puro).
+- **Frescura por-home:** sumar 16 docs al home de fábrica obliga a committear su `STATE.md` en el MISMO commit
+  (mismo `%ct` ⇒ no «más viejo que») o el diente de frescura POR-HOME se pone rojo — se tocó factory STATE+LOG.
+- **Probado por bloqueo:** `meta check` 14/14 (integridad+frescura por-home verdes en meta y fábrica) · pytest
+  verde · **diente VIVO**: tamper un doc migrado → sello del home de fábrica ROJO **aislado** (no toca el meta) →
+  `doc-sync` → verde. Sin código de sustrato tocado (`src/`/`seed/` = 0). Detalle:
+  `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md §Criterio de cierre`.
 
 ## 2026-06-27T02:00Z — FACTORY-DOC-SEAL ✅: el sello content-addressed baja a cada nivel (ADR-016 Fase 2 §3)
 - **Qué (el «sellado de docs» de ADR-016 Fase 2):** el sello content-addressed de docs (ADR-009 — sha del

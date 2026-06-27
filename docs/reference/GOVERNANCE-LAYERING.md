@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e4a62324472bb4c9faf6ea3f535cdeff3512433a updated=2026-06-27T01:52Z -->
+<!-- meta:doc sha=f6785197c9252a74b2a3c64f94834462fa37f564 updated=2026-06-27T02:23Z -->
 <!-- meta:doc sha=PENDING updated=PENDING -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
@@ -97,7 +97,7 @@ principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océ
 **Fase 1 EJECUTADA ✅ (2026-06-21, ADR-016)** — casa de docs del producto + edit-gate level-aware, probado por
 bloqueo (`meta check` 6/6 · suite 578).
 
-**Fase 2 — progreso (parcial):**
+**Fase 2 — progreso (§1·§2·§3·§4 ✅; sólo resta el diferido `LEAST-PRIV-DECOUPLE`):**
 - **§1 ✅ (2026-06-26)** — `HARNESS-DECOUPLE` (`column_parity`: la columna de fábrica ≡ proyección de un único
   source) + `FACTORY-DELEGATION-TEETH` (los teeth de delegación bajan a la columna con ley seed-canónica). ADR-018.
 - **§4 ✅ (ya en Fase 1)** — el close por-nivel existe: `meta increment {open,close,status} --factory/--product`
@@ -108,8 +108,18 @@ bloqueo (`meta check` 6/6 · suite 578).
   cierra P4); INDEX queda meta-only. Sólo narrativas AUTORADAS (`<home>/docs/**.md`); `factories/<f>/CLAUDE.md`
   NO se sella (artefacto proyectado, pelearía con `column_parity`). Cierra el diferido honesto «docs de producto
   SIN sellar» de ADR-016. Probado por bloqueo (tamper doc de fábrica → rojo aislado) · `meta check` 14/14.
-- **Resta:** §2 lifecycle de fábrica in-tree real (hoy el guard del meta cubre por-ruta; falta migrar los 16
-  `FSK-S*` meta-residentes a `factories/full-stack-kotlin/docs/work/`) + `LEAST-PRIV-DECOUPLE`. Ninguno bloquea.
+- **§2 migración de docs ✅ (2026-06-27, `FACTORY-DOC-MIGRATE`)** — el lifecycle de fábrica in-tree ya operaba
+  por-ruta (el guard del meta resuelve el nivel por la ruta editada desde §1/Fase 1); el pendiente CONCRETO de
+  §2 era retirar los incrementos de FÁBRICA meta-residentes a su home. Migrados los **16 `FSK-S0..S15`** de
+  `docs/work/` (meta) → `factories/full-stack-kotlin/docs/work/` (donde sus 42 hermanos `FSK-*` ya viven) como
+  un **MOVE byte-idéntico** (el sello es content-only → los 16 conservan su `sha`; lo prueba el diff). Salen del
+  `doc_set`/INDEX meta y quedan sellados+chequeados por el home de fábrica que §3 acababa de habilitar (frescura
+  POR-HOME: se commitea el STATE de la fábrica en el mismo commit). Historia inmutable INTACTA (`decisions/015`
+  + entradas viejas de `LOG` no se churnéan — el path `docs/work/` era cierto cuando se escribieron). Probado
+  por bloqueo (tamper un doc migrado → sello del home de fábrica ROJO aislado) · `meta check` 14/14. Con esto
+  el §1 (single-source: la casa de un doc = su nivel) queda consistente para el carril FSK.
+- **Resta (diferido, no bloquea):** `LEAST-PRIV-DECOUPLE` (desacople cp-harness least-privilege, ADR-016 Fase 2;
+  natural recién post-grafo + post-quality-gates, ya disponibles). No es un § de este doc — es el residuo SOTA.
 
 ## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
 > Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la

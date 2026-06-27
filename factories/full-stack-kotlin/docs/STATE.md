@@ -1,9 +1,14 @@
-<!-- meta:doc sha=577b673cbb308854f64f135deb130a2b619f92ba updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=c73546300763abe2e6b938ceaef75796343988d5 updated=2026-06-27T02:25Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **LOS 16 INCREMENTOS DE LÍNEA `FSK-S0..S15` AHORA VIVEN ACÁ (FACTORY-DOC-MIGRATE, 2026-06-27, ADR-016 Fase 2 §2)**:
+  los docs de evidencia de la línea s0→s10 + la expresividad de dominio s11→s15 estaban mal alojados en `docs/work/`
+  del **meta**; migraron a `docs/work/` de ESTA fábrica (su home de nivel correcto, junto a los 42 hermanos `FSK-*`).
+  MOVE byte-idéntico (el sello ADR-009 es content-only → `sha` intactos); ahora los sella+chequea el home de fábrica
+  (diente §3). Es housekeeping de gobierno, **CERO capacidad de fábrica nueva** (`codegen/`/`stations/`/spec sin tocar).
 - **PRODUCTO BENCHMARK SWEET-SPOT (FSK-HELPDESK, 2026-06-26)** ✅: `products/helpdesk/` = app de helpdesk/
   ticketing de **5 entidades** (Agent·Customer·Category·Ticket·Comment), el caso del "80% día-1" de la Fase 4
   del Meta-Factory (`REAIM-SWEET-SPOT`, ADR-017). Generado por la línea REAL e2e (gradle+PG+server+Chromium)

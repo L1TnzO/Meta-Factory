@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `88501358dc6b` | 2026-06-27T02:00Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `923d1fce2261` | 2026-06-27T02:04Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `0e6f555b5b73` | 2026-06-27T02:24Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `36ff9c9f1f66` | 2026-06-27T02:24Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -32,7 +32,7 @@
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `e4a62324472b` | 2026-06-27T01:52Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `f6785197c925` | 2026-06-27T02:23Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `2ca5246e17f3` | 2026-06-26T21:22Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
@@ -60,23 +60,8 @@
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
 | `docs/work/FACTORY-DELEGATION-TEETH-INCREMENT.md` | `e6e66c077da4` | 2026-06-26T23:45Z | Incremento FACTORY-DELEGATION-TEETH (escindido de HARNESS-DECOUPLE Fases 3–4) |
+| `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md` | `ca44b3fa08de` | 2026-06-27T02:28Z | Incremento FACTORY-DOC-MIGRATE |
 | `docs/work/FACTORY-DOC-SEAL-INCREMENT.md` | `709e723a4c9a` | 2026-06-27T02:04Z | Incremento FACTORY-DOC-SEAL |
-| `docs/work/FSK-S0-SCAFFOLD-CONTRACT-INCREMENT.md` | `a3e3aacbb08e` | 2026-06-18T20:29Z | Incremento FSK-S0-SCAFFOLD-CONTRACT — Full-Stack Kotlin · fundación (s0) |
-| `docs/work/FSK-S1-SCHEMA-PG-INCREMENT.md` | `1add96f125cd` | 2026-06-18T22:13Z | Incremento FSK-S1-SCHEMA-PG — Full-Stack Kotlin · datos (s1) |
-| `docs/work/FSK-S10-HERMETIC-BUILD-INCREMENT.md` | `9be2e6e89f21` | 2026-06-19T16:00Z | Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10) |
-| `docs/work/FSK-S11-DOMAIN-EXPRESSIVENESS-INCREMENT.md` | `bcea3f10046f` | 2026-06-20T02:18Z | Incremento FSK-S11-DOMAIN-EXPRESSIVENESS |
-| `docs/work/FSK-S12-DOMAIN-WORKFLOWS-INCREMENT.md` | `1b93efd7956c` | 2026-06-20T14:04Z | Incremento FSK-S12-DOMAIN-WORKFLOWS |
-| `docs/work/FSK-S13-DOMAIN-RBAC-INCREMENT.md` | `531e589727c8` | 2026-06-20T15:51Z | Incremento FSK-S13-DOMAIN-RBAC |
-| `docs/work/FSK-S14-DOMAIN-OWNERSHIP-INCREMENT.md` | `ed877ac5d6f5` | 2026-06-20T16:58Z | Incremento FSK-S14-DOMAIN-OWNERSHIP |
-| `docs/work/FSK-S15-LIVE-ENDPOINTS-INCREMENT.md` | `335b99a801e6` | 2026-06-20T18:45Z | Incremento FSK-S15-LIVE-ENDPOINTS |
-| `docs/work/FSK-S2-HARDNESS-INCREMENT.md` | `def0ce23ec1a` | 2026-06-18T22:48Z | Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2) |
-| `docs/work/FSK-S3-CURRENCY-INCREMENT.md` | `aac1d98e1400` | 2026-06-19T01:46Z | Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3) |
-| `docs/work/FSK-S4-SUPPLYCHAIN-INCREMENT.md` | `be81b89bb8ff` | 2026-06-19T02:16Z | Incremento FSK-S4-SUPPLYCHAIN — Full-Stack Kotlin · seguridad de la cadena de suministro (s4) |
-| `docs/work/FSK-S5-AUTH-ROUTES-INCREMENT.md` | `51b242b82524` | 2026-06-19T02:45Z | Incremento FSK-S5-AUTH-ROUTES — Full-Stack Kotlin · auth no-salteable + topología de rutas (s5) |
-| `docs/work/FSK-S6-DOMAIN-LOGIC-INCREMENT.md` | `e07feebdd1da` | 2026-06-19T03:22Z | Incremento FSK-S6-DOMAIN-LOGIC — Full-Stack Kotlin · lógica de dominio generada por LLM vivo bajo gate (s6) |
-| `docs/work/FSK-S7-TEST-PYRAMID-INCREMENT.md` | `f75fafb4f548` | 2026-06-19T13:24Z | Incremento FSK-S7-TEST-PYRAMID — Full-Stack Kotlin · pirámide de tests graduada bajo gate (s7) |
-| `docs/work/FSK-S8-A11Y-PERF-INCREMENT.md` | `e251a2f463b2` | 2026-06-19T13:59Z | Incremento FSK-S8-A11Y-PERF — Full-Stack Kotlin · calidad de experiencia (a11y + perf) bajo gate (s8) |
-| `docs/work/FSK-S9-OBSERVABILITY-INCREMENT.md` | `c924311aa327` | 2026-06-19T14:51Z | Incremento FSK-S9-OBSERVABILITY — Full-Stack Kotlin · observabilidad del producto bajo gate (s9) |
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |
@@ -109,7 +94,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `e2b9c1601d8e` | 2026-06-26T03:50Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `94bf64a0baef` | 2026-06-27T02:24Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

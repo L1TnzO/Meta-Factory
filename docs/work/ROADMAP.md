@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e2b9c1601d8ef43f32a7fad6aa29d10e961bc425 updated=2026-06-26T03:50Z -->
+<!-- meta:doc sha=94bf64a0baef894fdc91795b72db6ca743458d6f updated=2026-06-27T02:24Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -60,6 +60,9 @@ nunca escribe un veredicto; (d) regenerar desde el spec re-deriva el sistema id�
 > **Post A–H (2026-06-18): nueva fábrica Full-Stack Kotlin/TS/PG** (apps web world-class bajo criterios DUROS;
 > supera a la `full-stack` TS mínima). DISEÑO ✅ (cantera DES-10..13 + blueprint `specs/full-stack-kotlin.factory.spec.yml`).
 > Se construye **por incrementos, capacidad por capacidad** (s0→s10, por bloqueo):
+> **NOTA (2026-06-27, `FACTORY-DOC-MIGRATE`, ADR-016 Fase 2 §2):** los docs de evidencia `FSK-S0..S15-INCREMENT.md`
+> citados abajo MIGRARON de `docs/work/` (meta) a su home de nivel-fábrica `factories/full-stack-kotlin/docs/work/`
+> (single-source §1). Las rutas `work/FSK-S…md` de abajo son históricas — el archivo vive ahora en el home de FSK.
 > - **s0 (`FSK-S0-SCAFFOLD-CONTRACT`) ✅** — la fundación: codegen determinista (Kotlin/TS/OpenAPI), **OpenAPI =
 >   fuente única** (DES-6: openapi-generator → Kotlin + openapi-typescript → TS; drift rompe AMBOS compiles),
 >   scaffold idempotente (DES-1), aislamiento (DES-9). M0–M8 verde · RTM 3/3 · `ci --rederive` 1/1 == pineado ·

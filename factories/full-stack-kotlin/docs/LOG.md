@@ -1,6 +1,17 @@
-<!-- meta:doc sha=9d9047de3bd2ed36bf6cc4ffb9550f442ca451db updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=c351a788f9b203253eb3ce6078a9ef211305c88a updated=2026-06-27T02:25Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-06-27T02:32Z — FACTORY-DOC-MIGRATE ✅: los 16 incrementos de línea `FSK-S0..S15` llegan a este home
+- **Qué:** los docs de los 16 incrementos que construyeron esta fábrica (la línea s0→s10 + la expresividad de
+  dominio s11→s15) vivían en `docs/work/` del **meta** (residuo histórico: se autoraron cuando el meta operaba
+  todo). Migrados a `docs/work/` de esta fábrica por el incremento META `FACTORY-DOC-MIGRATE` (ADR-016 Fase 2 §2),
+  cerrando la regla single-source §1 para el carril FSK. Ahora conviven con los 42 hermanos `FSK-*`.
+- **Propiedad:** MOVE byte-idéntico (el sello ADR-009 es content-only → cada doc conserva su `sha`). Quedan
+  sellados + chequeados de frescura por ESTE home (el diente que §3 `FACTORY-DOC-SEAL` habilitó). Por eso el STATE
+  de la fábrica se commitea junto con ellos (frescura por-home: mismo commit ⇒ no «más viejo que»).
+- **CERO capacidad nueva:** `codegen/`, `stations/`, `factory.spec.yml` sin tocar — es housekeeping de gobierno
+  del meta, no trabajo de fábrica. Detalle/criterio: `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md` (en el meta).
 
 ## 2026-06-26T03:38Z — FSK-HELPDESK ✅: el producto benchmark sweet-spot (Fase 4), CERO codegen tocado
 - **Contexto (Meta-Factory Fase 4 `REAIM-SWEET-SPOT`, ADR-017)**: el re-apunte SOTA degrada Snipe-IT (19

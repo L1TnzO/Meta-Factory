@@ -1,4 +1,4 @@
-<!-- meta:doc sha=923d1fce2261f76ea6e111e07ca1b0c00d91fead updated=2026-06-27T02:04Z -->
+<!-- meta:doc sha=36ff9c9f1f66e6990e49107929614373064cc22d updated=2026-06-27T02:24Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: FACTORY-DOC-MIGRATE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -33,14 +33,17 @@
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
   incrementos por fábrica/eje: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§3·§4 ✅, resta §2.** §1 (`HARNESS-DECOUPLE` +
-  `FACTORY-DELEGATION-TEETH`, 2026-06-26): `column_parity` (la columna de fábrica ≡ proyección de un único source)
-  + los teeth de delegación (`blast_radius`/`verdict_required`) bajan a la columna con ley **seed-canónica**
-  (`seed/delegation.py`, ADR-018). §3 (`FACTORY-DOC-SEAL`, 2026-06-27): el sello content-addressed (ADR-009) baja
-  de meta-only a **cada home por nivel** — `docs_manifest` parametrizado por doc-home; integridad+frescura
-  POR-HOME (editar un doc de fábrica NO toca el STATE meta → cierra P4); sólo narrativas autoradas (CLAUDE generado
-  NO se sella). §4 (close por-nivel) ya estaba en Fase 1. **Resta §2** (migrar los 16 `FSK-S*` meta-residentes al
-  home de fábrica) + `LEAST-PRIV-DECOUPLE`; ninguno bloquea.
+- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§2·§3·§4 ✅; sólo resta el diferido `LEAST-PRIV-DECOUPLE`.** §1
+  (`HARNESS-DECOUPLE` + `FACTORY-DELEGATION-TEETH`, 2026-06-26): `column_parity` (la columna de fábrica ≡ proyección
+  de un único source) + los teeth de delegación (`blast_radius`/`verdict_required`) bajan a la columna con ley
+  **seed-canónica** (`seed/delegation.py`, ADR-018). §3 (`FACTORY-DOC-SEAL`, 2026-06-27): el sello content-addressed
+  (ADR-009) baja de meta-only a **cada home por nivel** — `docs_manifest` parametrizado por doc-home; integridad+
+  frescura POR-HOME (editar un doc de fábrica NO toca el STATE meta → cierra P4); sólo narrativas autoradas (CLAUDE
+  generado NO se sella). §2 (`FACTORY-DOC-MIGRATE`, 2026-06-27): migrados los **16 `FSK-S0..S15`** de `docs/work/`
+  (meta) al home de fábrica `factories/full-stack-kotlin/docs/work/` como **MOVE byte-idéntico** (sello content-only
+  → `sha` intactos) → salen del `doc_set`/INDEX meta, quedan sellados por el home de fábrica (§1 single-source
+  consistente para FSK; historia inmutable `decisions/`/`LOG` sin churnear). §4 (close por-nivel) ya estaba en
+  Fase 1. Único pendiente: `LEAST-PRIV-DECOUPLE` (diferido SOTA, no bloquea).
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.

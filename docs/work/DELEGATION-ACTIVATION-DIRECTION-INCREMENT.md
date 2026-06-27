@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b00f222d95f13e2a1ed07d45dc930a015b3956f4 updated=2026-06-27T16:58Z -->
+<!-- meta:doc sha=3b8c9b235354d283ed216644ff4303af19ea3ab4 updated=2026-06-27T17:23Z -->
 # Incremento DELEGATION-ACTIVATION (dirección)
 
 > **Doc de gobierno · DIRECTION.** Estado: **CERRADO** (2026-06-27 — entregable = la especificación de A–D +
@@ -134,7 +134,7 @@ one specific task") + [best practices](https://rosmur.github.io/claudecode-best-
 | Fase | Slug del sub-incremento | Qué deja TERMINADO | Nivel (ADR-016) |
 | --- | --- | --- | --- |
 | **A** | `DELEG-ACT-META` | El agente principal del meta delega NATURALMENTE (regla CLAUDE.md + descriptions afiladas + alias manual) | meta |
-| **B** | `DELEG-MEASURE` | La métrica deja de mentir 0%: hook `SubagentStop` → evento `delegation` + split de tokens por modelo en `meta metrics` | meta |
+| **B** ✅ | `DELEG-MEASURE` | **HECHA (2026-06-27).** La métrica dejó de mentir 0%. Causa raíz corregida: NO faltaba un hook — el emisor existía pero matcheaba el tool viejo `Task` (Claude Code lo renombró a `Agent` en v2.1.63). Fix = predicado `instrument.is_subagent_spawn` + render que LIDERA con el conteo (la tasa vs station_runs-lifetime diluye) + línea SPLIT de costo por tier. Detalle: `work/DELEG-MEASURE-INCREMENT.md §Hallazgo`. | meta |
 | **C** | `DELEG-ACT-FACTORY` | Las fábricas heredan el cerebro: el emisor de harness emite `orchestrator` + `generate-slot` + regla CLAUDE.md + delegation-capture de fábrica | meta (codegen) → re-proyecta a las 5 |
 | **D** | `DELEG-TOPOLOGY-HYGIENE` | Trim de redundancia (`verifier` vs `Explore`) + convergencia de nombres de rol meta↔fábrica + la regla "no proliferar por dominio" escrita con dientes | meta + fábrica |
 

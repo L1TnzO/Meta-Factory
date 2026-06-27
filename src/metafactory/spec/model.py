@@ -68,6 +68,10 @@ class SpecStation:
     builds: list[dict] = field(default_factory=list)   # executable build actions (C2 realization)
     checks: list[dict] = field(default_factory=list)    # executable engine checks (C2 realization)
     deferral: dict = field(default_factory=dict)        # {trigger, since} (ADR-017 §4)
+    tier: str = "core"                                  # core | harden — the draft→harden DIAL (ADR-017 §4).
+    # DATA on the L2 line: a `harden` station is the rigor layer (deferred in `--mode draft`, run in harden);
+    # `core` is the spine a working app needs. The substrate names no specific station; m02 materializes this
+    # into `stations/<id>.yml` so the engine's `Station.active_in(dial)` can defer it (the wire to adoption).
 
     @property
     def active(self) -> bool:

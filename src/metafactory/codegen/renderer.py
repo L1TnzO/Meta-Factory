@@ -156,6 +156,10 @@ def _materialize_line(ctx: RunContext, b: dict, subst: dict) -> list[str]:
             node["requires_prev"] = s.depends_on[0]    # linear chain; engine gates the one predecessor
         elif len(s.depends_on) > 1:
             node["depends_on"] = list(s.depends_on)    # fan-in; engine gates the full DAG (all must be green)
+        if s.tier != "core":                           # draft→harden DIAL (ADR-017 §4): carry a non-default
+            node["tier"] = s.tier                      # tier so the engine can defer it in draft. Default
+            #                                            `core` emits NO line → non-adopting factories stay
+            #                                            byte-identical (their materialized YAML is unchanged).
         node["builds"] = s.builds
         node["checks"] = s.checks
         text = render_text(yaml.safe_dump(node, sort_keys=False, allow_unicode=True), subst)

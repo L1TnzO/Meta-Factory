@@ -162,6 +162,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.declared_deferred", str(root)]},  # acumulación medida
         {"name": "benchmark", "kind": "command",          # ADR-017 (Fase 4): sweet-spot como TARGET verificable,
          "cmd": [py, "-m", "metafactory.verify.checks.benchmark_gate", str(root)]},  # dos-lados (techo debe fallar)
+        {"name": "dial", "kind": "command",                # ADR-017 (Fase 4): el dial draft→harden adoptado con
+         "cmd": [py, "-m", "metafactory.verify.checks.dial_gate", str(root)]},  # dientes (all-harden = decorativo → rojo)
         {"name": "column_parity", "kind": "command",      # ADR-018 (Fase 2 §1): la columna heredada de cada
          "cmd": [py, "-m", "metafactory.verify.checks.column_parity", str(root)]},   # fábrica ≡ proyección de M1 (drift = rojo)
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
@@ -941,6 +943,7 @@ def build_parser() -> argparse.ArgumentParser:
     op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
     op.add_argument("--billing", default=None); op.set_defaults(func=cmd_outcome)
     bm = sub.add_parser("benchmark"); bm.add_argument("name", nargs="?", default=None); bm.set_defaults(func=cmd_benchmark)
+    sub.add_parser("dial").set_defaults(func=cmd_dial)
     return p
 
 
@@ -966,6 +969,16 @@ def cmd_benchmark(args) -> int:
         if not (results and all(r.ok for r in results)):
             rc = 1
     return rc
+
+
+def cmd_dial(args) -> int:
+    """DIAL-MEASURE (ADR-017 §4): measure the draft→harden DIAL adoption, re-derived from committed state
+    (each factory's station_sequence `tier`). Reports, per factory, the core/harden split — how many
+    stations `--mode draft` defers (the rigor layer) vs runs (the spine). An adopted dial must defer a
+    non-empty PROPER subset (≥1 core + ≥1 harden); all-harden is decorative → FAIL. Same law as the gate."""
+    from .verify import dial
+    print(dial.render(_meta_root()))
+    return 0 if not [pr for f in dial.factories(_meta_root()) for pr in dial.gate_problems(_meta_root(), f)] else 1
 
 
 def main(argv: list[str] | None = None) -> int:

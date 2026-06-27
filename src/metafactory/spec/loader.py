@@ -39,6 +39,7 @@ def _station(d: dict) -> SpecStation:
         builds=list(d.get("builds", []) or []),   # C2: executable realization, consumed verbatim
         checks=list(d.get("checks", []) or []),
         deferral=dict(d.get("deferral", {}) or {}),
+        tier=_str(d.get("tier", "core")) or "core",   # draft→harden DIAL (ADR-017 §4); DATA on the line
     )
 
 

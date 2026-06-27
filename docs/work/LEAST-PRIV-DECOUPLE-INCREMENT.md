@@ -1,7 +1,7 @@
-<!-- meta:doc sha=6cbdf90e8b66ee27080f079f4212817da7830c2e updated=2026-06-27T15:04Z -->
+<!-- meta:doc sha=40a2c2f0af497aa0615c4bcd988d21228fdb1b46 updated=2026-06-27T15:06Z -->
 # Incremento LEAST-PRIV-DECOUPLE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T14:59Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T15:06Z) (creado 2026-06-27T14:59Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

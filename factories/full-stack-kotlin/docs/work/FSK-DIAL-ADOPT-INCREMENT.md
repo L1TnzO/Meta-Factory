@@ -1,8 +1,8 @@
-<!-- meta:doc sha=8cf6d48a58017847db4e9bd825ef71f3988e8867 updated=2026-06-27T03:20Z -->
+<!-- meta:doc sha=db5c19a9d199b35a8cc730cea671167067a70a96 updated=2026-06-27T03:20Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-27T03:10Z -->
 # Incremento FSK-DIAL-ADOPT — Full-Stack Kotlin · adopción del dial draft→harden
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T03:00Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T03:20Z) (creado 2026-06-27T03:00Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > **AUTOCONTENIDO A PROPÓSITO.** Asumí que el contexto de la sesión que lo escribió murió. Si algo no está
 > acá (o en la spec), no existe. Orden de lectura: §0.

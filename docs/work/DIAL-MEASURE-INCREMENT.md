@@ -1,8 +1,8 @@
-<!-- meta:doc sha=8b035226fd69a937f0a4d48962c2690f2a8d776b updated=2026-06-27T02:56Z -->
+<!-- meta:doc sha=cd8184fba8de36bd085eade8991504c7f63c119d updated=2026-06-27T02:57Z -->
 <!-- meta:doc sha=PENDING updated=2026-06-27T02:55Z -->
 # Incremento DIAL-MEASURE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-06-27T02:50Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T02:57Z) (creado 2026-06-27T02:50Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

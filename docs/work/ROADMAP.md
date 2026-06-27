@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8b9620427a03488e40eaf33432a45dd5affc00b1 updated=2026-06-27T16:55Z -->
+<!-- meta:doc sha=2d98d58caef1eed0d1273703b0900fd952a04908 updated=2026-06-27T20:16Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -43,8 +43,12 @@
 > **▶ NORTE VIGENTE — `DELEGATION-ACTIVATION` (2026-06-27, dirección abierta).** El harness verificar-no-revisar
 > (Fase 2) se CONSTRUYÓ pero nunca se ENCENDIÓ: `meta metrics` mide **delegación 0.0%** y ~$13.5k en ~132 sesiones
 > **~100% Opus** (el cache-read domina el costo). Falta la **ignición**: que la delegación sea natural sin pedirla
-> en cada prompt + propagarla a las fábricas para abaratar la construcción de productos. Roadmap en 4 sub-incrementos
-> (B medir → A activar meta → C propagar a fábricas → D higiene de topología): **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
+> en cada prompt + propagarla a las fábricas para abaratar la construcción de productos. Roadmap en 4 sub-incrementos:
+> **B `DELEG-MEASURE` ✅** (la métrica dejó de mentir 0%: causa raíz = el emisor matcheaba el tool viejo `Task`,
+> renombrado a `Agent` en v2.1.63) → **A `DELEG-ACT-META` ✅ (2026-06-27)** (delegación natural del meta: regla
+> permanente en `CLAUDE.md` + `description` de `generator`/`verifier` afiladas a triggers proactivos + alias manual
+> `--agent orchestrator`, NO `agent` global) → **C `DELEG-ACT-FACTORY`** (propagar el cerebro a las fábricas) →
+> **D `DELEG-TOPOLOGY-HYGIENE`** (higiene de topología). Detalle: **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

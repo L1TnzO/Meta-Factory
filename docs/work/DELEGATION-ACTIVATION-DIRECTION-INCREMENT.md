@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3b8c9b235354d283ed216644ff4303af19ea3ab4 updated=2026-06-27T17:23Z -->
+<!-- meta:doc sha=353f8dae969d0a2895a94a37722e6c09eb013d65 updated=2026-06-27T20:16Z -->
 # Incremento DELEGATION-ACTIVATION (dirección)
 
 > **Doc de gobierno · DIRECTION.** Estado: **CERRADO** (2026-06-27 — entregable = la especificación de A–D +
@@ -133,7 +133,7 @@ one specific task") + [best practices](https://rosmur.github.io/claudecode-best-
 
 | Fase | Slug del sub-incremento | Qué deja TERMINADO | Nivel (ADR-016) |
 | --- | --- | --- | --- |
-| **A** | `DELEG-ACT-META` | El agente principal del meta delega NATURALMENTE (regla CLAUDE.md + descriptions afiladas + alias manual) | meta |
+| **A** ✅ | `DELEG-ACT-META` | **HECHA (2026-06-27).** El agente principal del meta delega NATURALMENTE: regla permanente en `CLAUDE.md §Reglas` (rutear slots acotados-con-gate al `generator`, lecturas masivas al `verifier`/`Explore`, contexto de Opus chico, excepción trust-chain) + `description` de `generator` (`MUST BE USED…`) y `verifier` (`Use PROACTIVELY…`) afiladas a triggers proactivos (`reviewer`/`orchestrator` se dejan NO-proactivos a propósito) + alias `--agent orchestrator` para builds pesados (NO `agent` global). La prueba "proactivo sin pedirlo" es de próxima sesión (descriptions cargan al restart); el loop ya está medido (Fase B). Detalle: `work/DELEG-ACT-META-INCREMENT.md`. | meta |
 | **B** ✅ | `DELEG-MEASURE` | **HECHA (2026-06-27).** La métrica dejó de mentir 0%. Causa raíz corregida: NO faltaba un hook — el emisor existía pero matcheaba el tool viejo `Task` (Claude Code lo renombró a `Agent` en v2.1.63). Fix = predicado `instrument.is_subagent_spawn` + render que LIDERA con el conteo (la tasa vs station_runs-lifetime diluye) + línea SPLIT de costo por tier. Detalle: `work/DELEG-MEASURE-INCREMENT.md §Hallazgo`. | meta |
 | **C** | `DELEG-ACT-FACTORY` | Las fábricas heredan el cerebro: el emisor de harness emite `orchestrator` + `generate-slot` + regla CLAUDE.md + delegation-capture de fábrica | meta (codegen) → re-proyecta a las 5 |
 | **D** | `DELEG-TOPOLOGY-HYGIENE` | Trim de redundancia (`verifier` vs `Explore`) + convergencia de nombres de rol meta↔fábrica + la regla "no proliferar por dominio" escrita con dientes | meta + fábrica |

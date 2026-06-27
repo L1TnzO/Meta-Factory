@@ -1,4 +1,4 @@
-<!-- meta:doc sha=61ff4c74cb1d52431a82927d72f09c0b2db53377 updated=2026-06-25T21:37Z -->
+<!-- meta:doc sha=b38ce985df6f8f209c205ca441cf4e0d95614ec3 updated=2026-06-27T20:13Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -47,3 +47,16 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
   capa de grafo/abstracts, definiciones de `.claude/agents` y skills) se autoran en INGLÉS (norma SWE + mejor
   desempeño del modelo). NO churnees la historia inmutable (`decisions/` previas, `LOG`) ni traduzcas en masa
   la prosa de gobierno española existente (rompería sha-stamps, ADR-009). La transición es hacia-adelante.
+- **Delegación por defecto — no se pide en cada prompt (2026-06-27, ADR-017)**: cuando enfrentes un **slot de
+  código acotado con gate determinista** (typecheck·compile·tests·PBT·static), ruteálo vía el skill
+  `generate-slot` al `generator` (Sonnet) y aceptá/rechazá por el **VEREDICTO**, no por el diff. Las **lecturas
+  masivas** (logs, árboles generados, specs largas, el monolito) van al `verifier`/`Explore` (Haiku) que
+  devuelve un digest. Mantené el contexto de Opus **CHICO**: no generes bulk ni cargues artefactos grandes en
+  el hilo principal (el cache-read de Opus DOMINA el costo — aislar el bulk es la palanca #1). El default es
+  delegar; el juicio caro (Opus) se gasta en diseñar el contrato, decidir el alcance y revisar el residuo
+  irreducible. **Cuándo NO delegar (honesto):** codegen secuencial con dependencias fuertes (el multi-agente
+  usa ~15× tokens — sin paralelismo real es más caro), y la **COLUMNA** (hooks, `seed/`, `delegation.py`,
+  settings, agents) que es trust-chain → se escribe y revisa con ojos propios (SELF-IMPROVEMENT §3). Para
+  builds pesados de fábrica, lanzá la sesión con `claude --agent orchestrator` (toma la disciplina completa
+  desde el turno 1); NO pongas un `agent` default global en `settings.json` — reemplazaría el system-prompt
+  base de Claude Code en CADA sesión (incluso un fix casual bootearía en modo orquestador).

@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Cheap read-only bulk reader. Use to read large artifacts (logs, generated trees, long specs, the 8.5k-line monolith) and return a bounded structured summary, so verbose output never floods the orchestrator's context. Reads and reports; it does not write code or judge architecture.
+description: Cheap read-only bulk reader. Use PROACTIVELY whenever you would otherwise load a large artifact (a gate log, a generated file tree, a long spec, the 8.5k-line monolith) into the main context — read it here and return a bounded structured summary instead, so verbose output never floods the orchestrator's context. Reads and reports; it does not write code or judge architecture.
 model: haiku
 tools: Read, Grep, Glob, Bash
 ---

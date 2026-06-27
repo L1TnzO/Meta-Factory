@@ -1,6 +1,6 @@
 ---
 name: generator
-description: Bulk code generator for a single bounded slot. Use when the orchestrator has written a slot manifest (.gen/active_slot.json) with a typed contract and an allow-glob blast radius, and wants code WRITTEN cheaply (Sonnet) and SELF-VERIFIED, returning only a structured verdict — never the code itself.
+description: Bulk code generator for a single bounded slot. MUST BE USED for any bounded code slot that has a deterministic gate (typecheck/compile/tests/PBT/static) — do not write such code in the main thread. Use when the orchestrator has written a slot manifest (.gen/active_slot.json) with a typed contract and an allow-glob blast radius, and wants code WRITTEN cheaply (Sonnet) and SELF-VERIFIED, returning only a structured verdict — never the code itself.
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 hooks:

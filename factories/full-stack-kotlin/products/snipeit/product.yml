@@ -162,6 +162,9 @@ entities:
     soft_delete: true                            # BORRADO LÓGICO (FSK-SOFT-DELETES, deferral 12): Snipe-IT NUNCA hard-deletea
     #                                              (Laravel SoftDeletes) — DELETE → papelera (deleted_at), las lecturas filtran,
     #                                              y `restore` recupera. Compone el read-filter de company-scope + IS NULL.
+    mutable_when:                               # FSK-MUTABLE-WHEN: PUT/DELETE bloqueados (409) cuando status == deployed.
+      field: status                             # El campo ENUM que controla la mutabilidad.
+      not_in: [deployed]                        # Estado "deployed" = FROZEN (un activo desplegado no se edita ni elimina).
     audited: true                                # BITÁCORA DE ACTIVIDAD (FSK-ACTIONLOG): toda mutación del Asset (create/update/
     #                                              delete + checkout/checkin) appendea una fila a la tabla de SISTEMA `action_logs`
     #                                              con (actor, action, SUJETO POLIMÓRFICO = subject_type+subject_id), ATÓMICA con la

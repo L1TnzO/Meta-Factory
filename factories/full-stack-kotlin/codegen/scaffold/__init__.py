@@ -5,7 +5,7 @@ the blueprint. The thin entry scaffold_product.py imports both. Deterministic co
 from __future__ import annotations
 
 
-from .auth import _auth_guard_kt, _company_scope_guard_kt, _ownership_guard_kt, _ownership_policy_kt, _probe_phantom_route, _probe_unguarded_route, _probe_wrong_owner, _probe_wrong_roles, _role_enum_kt, _role_guard_kt, _route_check_py, _routes_kt
+from .auth import _auth_guard_kt, _company_scope_guard_kt, _ownership_guard_kt, _ownership_policy_kt, _probe_phantom_route, _probe_unguarded_route, _probe_wrong_mutability, _probe_wrong_owner, _probe_wrong_roles, _role_enum_kt, _role_guard_kt, _route_check_py, _routes_kt
 from .base import _live_entities, _owner_poly, _workflow_obj
 from .browser import _browser_check_ts, _browser_entry_ts, _build_bundle_mjs, _consume_check_ts
 from .buildcfg import _build_gradle, _settings_gradle, _ts_package_json
@@ -172,4 +172,11 @@ def build_files(bp: dict) -> dict[str, str]:
         files["frontend/src/app.css"] = _app_css()
         files["frontend/build_bundle.mjs"] = _build_bundle_mjs()
         files["frontend/browser_check.ts"] = _browser_check_ts(bp)
+    # mutable_when / freeze by state (s5, DES-3, FSK-MUTABLE-WHEN): OPT-IN — sólo cuando ≥1 entidad
+    # declara `mutable_when`. El probe sucio (wrong_mutability.kt) tiene un setOf INCORRECTO (incluye
+    # estados FROZEN) → route_check.py (modo mutability) muerde (MUTABLE_MISMATCH); mutability_enforced
+    # lo exige por grep (fail-closed). Vive en probe/mutability/ (fuera de src/) → no se compila ni se
+    # shippea. Sin `mutable_when`, no se emite nada (byte-identical para todo lo previo).
+    if any(e.get("mutable_when") for e in ents):
+        files["probe/mutability/wrong_mutability.kt"] = _probe_wrong_mutability(bp)
     return files

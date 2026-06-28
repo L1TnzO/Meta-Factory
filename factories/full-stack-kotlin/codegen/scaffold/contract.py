@@ -5,7 +5,7 @@ Deterministic codegen (DATA, ADR-012); the substrate names no Kotlin/Gradle/Open
 from __future__ import annotations
 
 
-from .base import _cols_of, _is_computed, _soft_delete, _yaml_str
+from .base import _cols_of, _is_computed, _mutable_when, _soft_delete, _yaml_str
 from .constants import _OAPI_TYPE
 
 
@@ -150,6 +150,15 @@ def _openapi_yaml(bp: dict) -> str:
         # inspectable de "qué campo acota el scope" (DES-6); el AppServer vivo la enforza (read-filter + verdict).
         if e.get("company_scoped"):
             lines.append(f"      x-company-scoped: {e['company_scoped']}")
+        # Mutation freeze (FSK-MUTABLE-WHEN, DES-3): el schema documenta qué estados son MUTABLES como vendor
+        # extension x-mutable-when (openapi-generator/typescript la IGNORAN). Es la FUENTE inspectable de
+        # "en qué estados se permiten PUT/DELETE genérico" (DES-6); el AppServer vivo congela las filas fuera
+        # del set, y route_check.py (modo mutability) cruza el set del contrato contra el Kotlin → mismatch →
+        # MUTABILITY_MISMATCH (rojo). Opt-in: sin mutable_when no se emite (byte-identical para todo lo previo).
+        mw_entry = _mutable_when(e)
+        if mw_entry:
+            states_str = ", ".join(mw_entry["mutable_states"])
+            lines.append(f"      x-mutable-when: {{ field: {mw_entry['field']}, states: [{states_str}] }}")
         lines += [
             "      properties:",
             "        id: { type: integer, format: int64 }",

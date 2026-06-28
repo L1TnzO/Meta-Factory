@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _COL, _TBL, _ast_uses_time, _audited, _camel, _cols_of, _computed_srcs, _creates_body_fields, _creates_pivots, _creates_subject_fk, _enum_class, _enum_ref, _input_cols, _input_fields, _is_computed, _is_poly, _jooq_chain, _kt_call, _kt_type_imports, _live_entities, _owner_poly, _pascal, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _qty_ops, _sample, _servible_ownerless, _soft_delete, _table, _workflow_obj, _xref_resolve, _yaml_str
-from .constants import AC_PG_PORT, AC_PORT, MAX_LINE_LENGTH, _ACCESS_CONTROL_CHECK_SKELETON, _ACTIONLOG_PROOF, _APP_SERVER_SKELETON, _BAD_FORMAT_PROOF, _CEVAL_TIME, _COERCE, _COMPANY_SCOPE_PROOF, _COMPUTED_PROOF, _CREATES_ROUNDTRIP, _FORMAT_REGEX, _OPERATIONS_PROOF, _OPS_ASSIGN_CHECK_DEFAULT, _OPS_ASSIGN_CHECK_POLY, _OPS_BODY_FWD_DEFAULT, _OPS_BODY_REV_DEFAULT, _OPS_CLEAR_CHECK_DEFAULT, _OPS_CLEAR_CHECK_POLY, _OPS_POLY_FC, _OPS_POLY_SETUP, _POLY_PROOF, _QTY_BODY_SETUP, _QTY_PROOF, _SCOPE_BYPASS_PART, _SEED_NUM, _SERVE_ALL_PROOF, _SOFT_DELETE_PROOF, _TIME_SETUP, _WR_POLY_VALID, _XSRC_SETUP
+from .base import _COL, _TBL, _ast_uses_time, _audited, _camel, _cols_of, _computed_srcs, _creates_body_fields, _creates_pivots, _creates_subject_fk, _enum_class, _enum_ref, _input_cols, _input_fields, _is_computed, _is_poly, _jooq_chain, _kt_call, _kt_type_imports, _live_entities, _mutable_states, _mutable_when, _owner_poly, _pascal, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _qty_ops, _sample, _servible_ownerless, _soft_delete, _table, _workflow_obj, _xref_resolve, _yaml_str
+from .constants import AC_PG_PORT, AC_PORT, MAX_LINE_LENGTH, PROPERTY_WRAP, _ACCESS_CONTROL_CHECK_SKELETON, _ACTIONLOG_PROOF, _APP_SERVER_SKELETON, _BAD_FORMAT_PROOF, _CEVAL_TIME, _COERCE, _COMPANY_SCOPE_PROOF, _COMPUTED_PROOF, _CREATES_ROUNDTRIP, _FORMAT_REGEX, _MUTABLE_WHEN_PROOF, _OPERATIONS_PROOF, _OPS_ASSIGN_CHECK_DEFAULT, _OPS_ASSIGN_CHECK_POLY, _OPS_BODY_FWD_DEFAULT, _OPS_BODY_REV_DEFAULT, _OPS_CLEAR_CHECK_DEFAULT, _OPS_CLEAR_CHECK_POLY, _OPS_POLY_FC, _OPS_POLY_SETUP, _POLY_PROOF, _QTY_BODY_SETUP, _QTY_PROOF, _SCOPE_BYPASS_PART, _SEED_NUM, _SERVE_ALL_PROOF, _SOFT_DELETE_PROOF, _TIME_SETUP, _WR_POLY_VALID, _XSRC_SETUP
 
 
 def _live_ownerless(entities: list[dict]) -> dict | None:
@@ -304,16 +304,39 @@ def _codec_helpers(entities: list[dict],
 
 
 def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fields: list[dict],
-                         need_conflict: bool = False, scoped: bool = False, audited: bool = False) -> str:
+                         need_conflict: bool = False, scoped: bool = False, audited: bool = False,
+                         mutable_when: dict | None = None) -> str:
     """Las funciones de manejo del server vivo (FSK-CRUD-BODY-PARSING): doPost LEE el cuerpo del request, lo
     type-coerce por el schema (parse<E>Input) e INSERTA con ESOS valores (dueño = principal del token, no del
     body); getOne devuelve la FILA COMPLETA type-correct; doPut aplica un PATCH del body (FSK-PUT-OPTIONAL:
     CUALQUIER campo updatable provisto); doDelete borra. La mutación va SIEMPRE detrás del veredicto
     (modifyVerdict: RBAC + ownership). Body malformado / tipo equivocado / required ausente → 400 (badRequest),
     no 500, no traga. Si la entidad no tiene campos updatables (_patchable_fields vacío), el PUT degrada (sólo
-    valida JSON + veredicto). DATA-agnóstico: nombres de fn/columna derivados del blueprint (ADR-012)."""
+    valida JSON + veredicto). FSK-MUTABLE-WHEN (opt-in): cuando `mutable_when` es no-None, la fila se CONGELA si
+    su estado no es mutable (PUT/DELETE → 409); el check va DESPUÉS del veredicto RBAC+ownership (sólo si
+    el acceso es OK). DATA-agnóstico: nombres de fn/columna derivados del blueprint (ADR-012)."""
     name = owned["name"]
     row_json = f"{name.lower()}RowJson"
+    # FSK-MUTABLE-WHEN: pre-computa los símbolos Kotlin del freeze check (solo si mutable_when es no-None).
+    # El lector de estado (Repository.<lower><Pascal(field)>Of) ya existe cuando `field` es un campo de operación
+    # (como `status` en snipeit, cuyas ops checkout/checkin lo emiten en `_operation_repo_fns`). Opt-in: sin
+    # `mutable_when` los bloques son cadenas vacías → los cuerpos doPut/doDelete quedan byte-idénticos al previo.
+    if mutable_when:
+        mw_field = mutable_when["field"]
+        mw_field_obj = mutable_when["field_obj"]
+        mw_status_fn = f"{name.lower()}{_pascal(mw_field)}Of"
+        mw_enum_cls = _enum_class(owned, mw_field_obj)
+        mw_set_name = f"{name.lower()}MutableStates"
+        mw_enum_refs = [_enum_ref(owned, mw_field_obj, v) for v in mutable_when["mutable_states"]]
+        # budget=PROPERTY_WRAP (120) because detekt's PropertyWrapping rule triggers at 120, not MAX_LINE_LENGTH.
+        mw_set_decl = (_kt_call(f"private val {mw_set_name} = ", "setOf", mw_enum_refs, "",
+                                budget=PROPERTY_WRAP) + "\n\n")
+        mw_current_decl = (
+            f"    val current = if (verdict == HTTP_OK) Repository.{mw_status_fn}(ctx, id) else null\n")
+        mw_freeze_branch = (
+            f"        current != null && {mw_enum_cls}.valueOf(current) !in {mw_set_name} -> conflict()\n")
+    else:
+        mw_set_decl = mw_current_decl = mw_freeze_branch = ""
     # FSK-ACTIONLOG: con `audited`, cada mutación (create/update/delete) se ENVUELVE en una transacción que appendea
     # la fila de auditoría ATÓMICAMENTE (rollback ⇒ sin rastro) — el append vive en el HANDLER (la capa del request),
     # donde el ACTOR existe: el `principal` (creador/dueño) para create; el principal del token (?: 0L fail-safe) para
@@ -332,16 +355,17 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
             '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
             "        }\n"
         )
-        delete_ok = (
-            "        HTTP_OK -> {\n"
+        # FSK-MUTABLE-WHEN: delete_body = la acción de borrado sin el wrapper `HTTP_OK ->` (para poder
+        # reusar el mismo cuerpo en la forma predicativa del when cuando hay freeze check). Byte-idéntico sin mw.
+        delete_body = (
             "            ctx.transaction { cfg ->\n"
             "                val tx = cfg.dsl()\n"
             f"                Repository.{delete_fn}(tx, id)\n"
             f'                Repository.appendActionLog(tx, RoleGuard.principalOf(token) ?: 0L, "delete", "{name}", id)\n'
             "            }\n"
             '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
-            "        }\n"
         )
+        delete_ok = "        HTTP_OK -> {\n" + delete_body + "        }\n"
     else:
         post_ok = (
             "        else -> {\n"
@@ -349,12 +373,11 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
             '            HTTP_CREATED to """{"status":$HTTP_CREATED,"id":$newId}"""\n'
             "        }\n"
         )
-        delete_ok = (
-            "        HTTP_OK -> {\n"
+        delete_body = (
             f"            Repository.{delete_fn}(ctx, id)\n"
             '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
-            "        }\n"
         )
+        delete_ok = "        HTTP_OK -> {\n" + delete_body + "        }\n"
     # Helpers de respuesta COMPARTIDOS (los reusa también el bloque ownerless; el orden de las fun top-level no
     # importa en Kotlin). El codec (prim/str/parse<E>Input) sale aparte a %CODEC% (unión sobre entidades vivas).
     helpers = (
@@ -363,10 +386,13 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
         'private fun badRequest(): Pair<Int, String> = HTTP_BAD_REQUEST to """{"status":$HTTP_BAD_REQUEST}"""\n\n'
     )
     # conflict() COMPARTIDO (FSK-REFS-IN-BODY: FK colgante → 409; FSK-DOMAIN-OPS: precondición de workflow violada
-    # → 409). Se emite UNA vez acá (no en cada bloque) cuando el server lo necesita (with_ref O operations); el
-    # const HTTP_CONFLICT acompaña arriba (%CONFLICT_CONST%). Sin ninguno de los dos → no se emite (byte-neutro).
+    # → 409; FSK-MUTABLE-WHEN: fila en estado frozen → 409). Se emite UNA vez acá cuando el server lo necesita;
+    # el const HTTP_CONFLICT acompaña arriba (%CONFLICT_CONST%). Sin ninguno → no se emite (byte-neutro).
     if need_conflict:
         helpers += 'private fun conflict(): Pair<Int, String> = HTTP_CONFLICT to """{"status":$HTTP_CONFLICT}"""\n\n'
+    # FSK-MUTABLE-WHEN: el setOf type-bound de estados MUTABLES (Opt-in, emitido solo si mutable_when no-None).
+    # Va antes de los handlers para que doPut/doDelete lo referencien. Byte-neutro para todo lo previo.
+    helpers += mw_set_decl
     # POST: RBAC + body parseado; si ambos pasan, INSERTA una fila cuyo dueño = el principal del token (que /seed
     # garantiza como fila existente -> satisface el FK del dueño) con los ESCALARES del body, y devuelve el id.
     do_post = (
@@ -425,16 +451,36 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
         "        else -> HTTP_OK to row\n"
         "    }\n\n"
     )
-    do_delete = (
-        "// DELETE /<plural>/{id}: mismo guard que PUT (RBAC + ownership); solo en 200 BORRA la fila.\n"
-        "private fun doDelete(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
-        "    val verdict = modifyVerdict(ctx, token, id)\n"
-        "    return when (verdict) {\n"
-        + delete_ok +
-        '        else -> verdict to """{"status":$verdict}"""\n'
-        "    }\n"
-        "}\n"
-    )
+    # FSK-MUTABLE-WHEN: doDelete usa forma predicativa del when cuando hay freeze check (para insertar la rama
+    # de freeze entre `verdict != HTTP_OK` y el borrado efectivo). Sin mw → forma de valor (when(verdict)),
+    # byte-idéntico al previo. El lector de estado (current) se emite solo si el acceso ya pasó (verdict OK).
+    if mutable_when:
+        do_delete = (
+            "// DELETE /<plural>/{id}: mismo guard que PUT (RBAC + ownership); solo en 200 BORRA la fila.\n"
+            "// FSK-MUTABLE-WHEN: ademas congela la fila si su estado no es mutable (→ 409).\n"
+            "private fun doDelete(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
+            "    val verdict = modifyVerdict(ctx, token, id)\n"
+            + mw_current_decl
+            + "    return when {\n"
+            '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
+            + mw_freeze_branch
+            + "        else -> {\n"
+            + delete_body
+            + "        }\n"
+            "    }\n"
+            "}\n"
+        )
+    else:
+        do_delete = (
+            "// DELETE /<plural>/{id}: mismo guard que PUT (RBAC + ownership); solo en 200 BORRA la fila.\n"
+            "private fun doDelete(ctx: DSLContext, token: String?, id: Long): Pair<Int, String> {\n"
+            "    val verdict = modifyVerdict(ctx, token, id)\n"
+            "    return when (verdict) {\n"
+            + delete_ok
+            + '        else -> verdict to """{"status":$verdict}"""\n'
+            "    }\n"
+            "}\n"
+        )
     if patch_fields:
         upd = f"update{name}"
         if audited:   # FSK-ACTIONLOG: el UPDATE + el append a action_logs en la MISMA transacción (atómico)
@@ -455,6 +501,9 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
                 '            HTTP_OK to """{"status":$HTTP_OK}"""\n'
                 "        }\n"
             )
+        # FSK-MUTABLE-WHEN: inserta el lector de estado + la rama de freeze entre el veredicto y el parseo del body.
+        # El `current` se lee SOLO si el acceso ya pasó (verdict OK); el freeze va DESPUÉS del veredicto,
+        # ANTES del check de patch null (mutación siempre detrás del veredicto y del estado). Byte-idéntico sin mw.
         do_put = (
             "// PUT /<plural>/{id} (FSK-PUT-OPTIONAL): el guard decide; en 200, aplica el PATCH del CUERPO —\n"
             "// CUALQUIER campo updatable provisto (PATCH-like: sólo las claves presentes), type-coerced por el\n"
@@ -462,14 +511,17 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
             "private fun doPut(ctx: DSLContext, token: String?, id: Long, body: String): Pair<Int, String> {\n"
             "    val verdict = modifyVerdict(ctx, token, id)\n"
             f"    val patch = parse{name}Patch(body)\n"
-            "    return when {\n"
+            + mw_current_decl
+            + "    return when {\n"
             '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
-            "        patch == null -> badRequest()\n"
-            + put_ok +
-            "    }\n"
+            + mw_freeze_branch
+            + "        patch == null -> badRequest()\n"
+            + put_ok
+            + "    }\n"
             "}\n\n"
         )
     else:   # degrade: sin campos updatables, el PUT valida JSON + veredicto (no hay UPDATE que observar)
+        # FSK-MUTABLE-WHEN: el freeze check se inserta también en el PUT degradado (sin campos updatables).
         do_put = (
             "private fun parseObj(body: String): JsonObject? = runCatching {\n"
             "    Json.parseToJsonElement(body).jsonObject\n"
@@ -478,9 +530,11 @@ def _app_server_handlers(owned: dict, insert_fn: str, delete_fn: str, patch_fiel
             "// sólo se valida como JSON (malo -> 400). Sin campos updatables no hay UPDATE que el round-trip vea.\n"
             "private fun doPut(ctx: DSLContext, token: String?, id: Long, body: String): Pair<Int, String> {\n"
             "    val verdict = modifyVerdict(ctx, token, id)\n"
-            "    return when {\n"
+            + mw_current_decl
+            + "    return when {\n"
             '        verdict != HTTP_OK -> verdict to """{"status":$verdict}"""\n'
-            "        parseObj(body) == null -> badRequest()\n"
+            + mw_freeze_branch
+            + "        parseObj(body) == null -> badRequest()\n"
             '        else -> HTTP_OK to """{"status":$HTTP_OK}"""\n'
             "    }\n"
             "}\n\n"
@@ -980,7 +1034,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # REQUERIDO no-dueño (FK colgante → 409, vía catch_fk) — no sólo la with_ref PRIMARIA — O si el owned tiene
     # operations (precondición de workflow → 409). Generaliza `bool(with_ref)` a `any(_has_req_ref)` sobre las
     # servibles (with_ref ⊆ servibles → superconjunto del previo; con with_ref None pero un extra con-ref → True).
-    need_conflict = any(_has_req_ref(e) for e in _servible_ownerless(ents)) or bool(operations)
+    # FSK-MUTABLE-WHEN: también necesita conflict() si la entidad CON DUEÑO declara mutable_when (fila congelada → 409).
+    owned_mw = _mutable_when(owned)   # FSK-MUTABLE-WHEN (opt-in): None si la entidad no declara mutable_when
+    need_conflict = any(_has_req_ref(e) for e in _servible_ownerless(ents)) or bool(operations) or bool(owned_mw)
     # FSK-COMPANY-SCOPING: la entidad CON DUEÑO puede declarar `company_scoped` (el campo `ref` al TENANT/compañía).
     # El server vivo FILTRA la lectura por compañía (listAll) y COMPONE company-scope en el verdict de escritura, y
     # siembra ≥2 compañías + una fila scopeada a otra compañía para el diente. company_fn = el reader del tenant de
@@ -1123,7 +1179,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # handlers/verbos quedan EXACTOS y no se monta la ruta (byte-idéntico → default/assets sin re-derivar).
     audited = _audited(owned)
     handlers = _app_server_handlers(owned, f"insert{owned['name']}", f"delete{owned['name']}",
-                                    owned_patch, need_conflict, bool(scope_field), audited)
+                                    owned_patch, need_conflict, bool(scope_field), audited, owned_mw)
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): los handlers de los verbos + las ramas del dispatch. Opt-in: "" sin
     # `operations` → AppServer byte-idéntico (default/assets sin re-derivar).
     ops_handlers = _operations_handlers(owned, operations, audited) if operations else ""
@@ -1498,6 +1554,46 @@ def _access_control_check_py(bp: dict) -> str:
                                "forbidden": next((r for r in bp["roles"] if r not in se["write_roles"]), ""),
                                "post": se_post, "bad": se_bad})
     serve_all_block = _SERVE_ALL_PROOF.replace("%SERVE_ALL_DATA%", json.dumps(serve_all_data)) if serve_all_data else ""
+    # FSK-MUTABLE-WHEN: el bloque del proof de freeze VIVO — sólo si la entidad con dueño tiene mutable_when.
+    # Crea una fila fresca, hace el checkout (-> estado frozen) y verifica PUT/DELETE -> 409. Diente DOS lados:
+    # estado mutable (ready) -> PUT 200; estado frozen (deployed) -> PUT/DELETE 409; reversible. Opt-in: "" sin mw.
+    mw_ent = _mutable_when(owned)
+    if mw_ent:
+        mw_fld = mw_ent["field"]
+        mutable_set = set(mw_ent["mutable_states"])
+        mw_fld_obj = next(f for f in owned["fields"] if f["name"] == mw_fld)
+        frozen_set = set(mw_fld_obj["values"]) - mutable_set
+        # Encontrar la op que mueve un estado mutable -> estado frozen (la que hace checkout)
+        frozen_op = next((op for op in ops
+                          if op.get("field") == mw_fld and op.get("to") in frozen_set
+                          and op.get("from") in mutable_set), None)
+        # Encontrar la op inversa que restaura (estado frozen -> mutable, e.g. checkin)
+        unfreeze_op = next((op for op in ops
+                            if op.get("field") == mw_fld and op.get("from") in frozen_set
+                            and op.get("to") in mutable_set), None) if frozen_op else None
+        # Compute the body of each op as a Python dict literal expression (may reference `owner` variable)
+        def _mw_op_body_py(op: dict | None) -> str:
+            if op is None:
+                return "{}"
+            assigns_fld = op.get("assigns")
+            if not assigns_fld:
+                return "{}"
+            af = owned_fld_by.get(assigns_fld)
+            if af and _is_poly(af):
+                tgt_type = list(af["to"])[0]  # first target = the principal entity (User)
+                return '{"%s_type": "%s", "%s_id": 7}' % (assigns_fld, tgt_type, assigns_fld)
+            return '{"%s": owner}' % assigns_fld
+        frozen_op_name = frozen_op["name"] if frozen_op else ""
+        frozen_op_body_py = _mw_op_body_py(frozen_op)
+        unfreeze_op_name = unfreeze_op["name"] if unfreeze_op else ""
+        unfreeze_op_body_py = _mw_op_body_py(unfreeze_op)
+        mutable_when_block = (_MUTABLE_WHEN_PROOF
+                              .replace("%MW_FROZEN_OP_NAME%", frozen_op_name)
+                              .replace("%MW_FROZEN_OP_BODY_PY%", frozen_op_body_py)
+                              .replace("%MW_UNFREEZE_OP_NAME%", unfreeze_op_name)
+                              .replace("%MW_UNFREEZE_OP_BODY_PY%", unfreeze_op_body_py))
+    else:
+        mutable_when_block = ""
     return (_ACCESS_CONTROL_CHECK_SKELETON
             .replace("%SERVE_ALL_BLOCK%", serve_all_block)
             .replace("%ACTIONLOG_BLOCK%", actionlog_block)
@@ -1505,6 +1601,7 @@ def _access_control_check_py(bp: dict) -> str:
             .replace("%COMPUTED_BLOCK%", computed_block)
             .replace("%BAD_FORMAT_BLOCK%", bad_format_block)
             .replace("%OPERATIONS_BLOCK%", operations_block)
+            .replace("%MUTABLE_WHEN_BLOCK%", mutable_when_block)
             .replace("%COMPANY_SCOPE_BLOCK%", company_scope_block)
             .replace("%QTY_BLOCK%", qty_block)
             .replace("%QTY_BODY_SETUP%", qty_body_setup)   # FSK-CREATES-PIVOT (antes que %QTY_BODY%: es substring)

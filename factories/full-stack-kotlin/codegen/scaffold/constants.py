@@ -687,6 +687,44 @@ _ACTIONLOG_PROOF = '''
             ok &= _expect_value(_crow.get("actor_id") if _crow else None, owner, "[actionlog] actor del create = dueno")'''
 
 
+_MUTABLE_WHEN_PROOF = '''
+        # *** FSK-MUTABLE-WHEN: PUT/DELETE de una fila en estado FROZEN (mutable_when.not_in) -> 409. ***
+        # Diente de DOS lados: estado MUTABLE -> 200; estado FROZEN -> 409.
+        # Un server que ignora el freeze -> 200 donde hay 409 -> rojo SOLO en s9.
+        # Cleanup: si el bloque [ops] ya creo un activo con POST_BODY (_aid), eliminarlo antes de
+        # crear el activo del bloque mutable_when. El bloque ops NO elimina su _aid; sin cleanup, un
+        # campo ÚNICO de POST_BODY (e.g. asset_tag) viola el UNIQUE constraint parcial del siguiente POST.
+        try:
+            if _aid is not None:
+                _req(base, "DELETE", f"{PLURAL}/{_aid}", f"Bearer {OWNER_ROLE}:{owner}")
+        except NameError:
+            pass  # bloque ops no corrió para esta entidad (_aid no definido)
+        _mw_fz_op = "%MW_FROZEN_OP_NAME%"
+        _mw_uf_op = "%MW_UNFREEZE_OP_NAME%"
+        _mw_st, _mw_ob = _send(base, "POST", PLURAL, f"Bearer {OWNER_ROLE}:{owner}", POST_BODY)
+        ok &= _expect(_mw_st, 201, "[mutable_when] POST estado inicial (mutable) -> 201")
+        _mw_id = _mw_ob.get("id")
+        if _mw_id is not None:
+            ok &= _expect(_send(base, "PUT", f"{PLURAL}/{_mw_id}", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 200,
+                          "[mutable_when] estado MUTABLE -> PUT -> 200")
+            _mw_fz_body = %MW_FROZEN_OP_BODY_PY%
+            ok &= _expect(_send(base, "POST", f"{PLURAL}/{_mw_id}/{_mw_fz_op}",
+                                f"Bearer {OWNER_ROLE}:{owner}", _mw_fz_body)[0], 200,
+                          f"[mutable_when] {_mw_fz_op} (-> FROZEN) -> 200")
+            # *** EL DIENTE de dos lados: estado FROZEN -> PUT/DELETE -> 409 ***
+            ok &= _expect(_send(base, "PUT", f"{PLURAL}/{_mw_id}", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 409,
+                          "[mutable_when] estado FROZEN -> PUT -> 409")
+            ok &= _expect(_req(base, "DELETE", f"{PLURAL}/{_mw_id}", f"Bearer {OWNER_ROLE}:{owner}"), 409,
+                          "[mutable_when] estado FROZEN -> DELETE -> 409")
+            if _mw_uf_op:
+                _mw_uf_body = %MW_UNFREEZE_OP_BODY_PY%
+                ok &= _expect(_send(base, "POST", f"{PLURAL}/{_mw_id}/{_mw_uf_op}",
+                                    f"Bearer {OWNER_ROLE}:{owner}", _mw_uf_body)[0], 200,
+                              f"[mutable_when] {_mw_uf_op} (-> MUTABLE) -> 200")
+                ok &= _expect(_send(base, "PUT", f"{PLURAL}/{_mw_id}", f"Bearer {OWNER_ROLE}:{owner}", PUT_BODY)[0], 200,
+                              "[mutable_when] estado MUTABLE (restaurado) -> PUT -> 200")'''
+
+
 _SERVE_ALL_PROOF = '''
         # *** FSK-SERVE-ALL-ENTITIES: las entidades ANTES no montadas responden a runtime, gobernadas por RBAC. ***
         # El dominio ENTERO usable, no solo 3 representativas. Diente de DOS lados por entidad (POST fresco).
@@ -967,7 +1005,7 @@ def main(argv: list) -> int:
             if wid is not None:
                 ok &= _expect(_req(base, "DELETE", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1"), 200,
                               f"[with-ref] DELETE permitido ({WR_ALLOWED})")
-                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%%WR_POLY_BLOCK%%SERVE_ALL_BLOCK%
+                ok &= _expect(_count_at(base, WR_PLURAL), w0, "[with-ref] count tras DELETE (la fila se fue)")%OPERATIONS_BLOCK%%MUTABLE_WHEN_BLOCK%%COMPANY_SCOPE_BLOCK%%QTY_BLOCK%%WR_POLY_BLOCK%%SERVE_ALL_BLOCK%
     except (urllib.error.URLError, OSError) as exc:
         print(f"access-control: server inalcanzable: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
@@ -1499,3 +1537,33 @@ _DELETE_ASSERT_BLOCK = '''
     const afterDelTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
     check(afterDelTexts.some((t) => t.includes(DEL_ROW)), false,
           "FSK-FRONTEND-DELETE: clic en borrar -> la fila DESAPARECE de la lista del DOM REAL (Chromium)");'''
+
+
+# FSK-MUTABLE-WHEN unfreeze block: injected BEFORE _DELETE_ASSERT_BLOCK when the operations block
+# moved the asset to a FROZEN state (mutable_when.not_in). The reverse verb (%REV_VERB%) transitions
+# the row back to a MUTABLE state so the generic DELETE (next block) returns 200 instead of 409.
+# DATA-agnostic: all placeholders are derived from blueprint (ADR-012). Opt-in: only emitted when
+# _mutable_when(owned) is non-None AND fwd_op.to is a frozen state AND a reverse op exists.
+_MW_UNFREEZE_BLOCK = '''
+
+    // FSK-MUTABLE-WHEN unfreeze: el paso OPERATIONS dejo la fila en estado FROZEN (%FROZEN_STATE%).
+    // Ejecutar el verbo reverso (%REV_VERB%) para moverla a estado MUTABLE antes del DELETE generico.
+    // (El DELETE sobre un FROZEN retorna 409 Conflict; el bloque DELETE GENERICO sigue a continuacion.)
+    {
+      const mwUfRow = page.locator("li[data-id]", { hasText: "%DEL_ROW_MUT%" }).first();
+      await mwUfRow.click();
+      await page.waitForFunction(
+        (t) => { const d = document.querySelector("dl.detail"); return d !== null && (d.textContent ?? "").includes(t); },
+        "%DEL_ROW_MUT%", { timeout: 10000 });
+      await page.click(`[data-verb="%REV_VERB%"]`);
+      try {
+        await page.waitForFunction(
+          (args) => {
+            const dd = document.querySelector(`dl.detail [data-field="${args.k}"] dd`);
+            return dd !== null && (dd.textContent ?? "").includes(args.v);
+          },
+          { k: "%MW_FIELD%", v: "%MUTABLE_STATE%" }, { timeout: 10000 });
+      } catch {
+        // timeout: el estado mutable no aparecio -> el DELETE siguiente podria fallar (409).
+      }
+    }'''

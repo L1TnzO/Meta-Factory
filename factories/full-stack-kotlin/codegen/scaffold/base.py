@@ -471,3 +471,45 @@ def _proof_form_value(f: dict):
     if t == "date":
         return "2031-03-20"  # ≠ post 2030-06-15, ≠ sample 2026-01-15
     return f["values"][1] if len(f["values"]) > 1 else f["values"][0]   # enum: 2º valor si se puede
+
+
+def _mutable_when(e: dict) -> dict | None:
+    """Parse and validate the `mutable_when` blueprint key (FSK-MUTABLE-WHEN). Returns
+    {field: str, field_obj: dict, mutable_states: list[str]} or None if absent (opt-in: absent →
+    byte-identical output). FAIL-CLOSED: raises SystemExit on malformed —
+    field absent / not an enum / both `in`&`not_in` / a listed value not in the enum's `values`.
+    DATA-agnostic (ADR-012): heuristic over blueprint only, zero domain names."""
+    mw = e.get("mutable_when")
+    if mw is None:
+        return None
+    fname = mw.get("field")
+    if not fname:
+        raise SystemExit(f"scaffold: {e['name']}.mutable_when: 'field' is required")
+    fld = next((f for f in e["fields"] if f["name"] == fname), None)
+    if fld is None or fld.get("type") != "enum":
+        raise SystemExit(f"scaffold: {e['name']}.mutable_when: field '{fname}' does not exist or is not an enum")
+    has_in = "in" in mw
+    has_not_in = "not_in" in mw
+    if has_in and has_not_in:
+        raise SystemExit(f"scaffold: {e['name']}.mutable_when: use exactly one of 'in'/'not_in' (not both)")
+    if not has_in and not has_not_in:
+        raise SystemExit(f"scaffold: {e['name']}.mutable_when: missing 'in' or 'not_in'")
+    all_values = fld["values"]
+    listed = mw["in"] if has_in else mw["not_in"]
+    for v in listed:
+        if v not in all_values:
+            raise SystemExit(f"scaffold: {e['name']}.mutable_when: value '{v}' not in enum '{fname}' "
+                             f"(valid: {all_values})")
+    if has_in:
+        mutable_states = list(mw["in"])
+    else:
+        frozen = set(mw["not_in"])
+        mutable_states = [v for v in all_values if v not in frozen]
+    return {"field": fname, "field_obj": fld, "mutable_states": mutable_states}
+
+
+def _mutable_states(e: dict) -> list[str]:
+    """The MUTABLE state values for `e` (from `mutable_when`). Empty list if e has no mutable_when.
+    DATA-agnostic (ADR-012)."""
+    mw = _mutable_when(e)
+    return mw["mutable_states"] if mw else []

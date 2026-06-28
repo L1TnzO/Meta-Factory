@@ -274,6 +274,13 @@ domain:
       artifact: build/product/Dockerfile
       proof: "s11 deploy_smoke (infra_up): el bootstrap corre installDist + `docker build` de la imagen + `docker run -d` del contenedor; el proof client le pega /health y exige {\"status\":\"UP\"}; un ENTRYPOINT roto / COPY del dist equivocado / EXPOSE mal cableado → el contenedor no responde → rojo; diente nativo de infra_up: con el contenedor CAÍDO (teardown `docker rm -f`) el MISMO proof falla. depends_on s10 (la receta debe pasar el pin hermético antes de construirse)"
       status: built
+    - id: mutation_frozen
+      invariant: "un activo en estado FROZEN (e.g. deployed) no puede mutarse ni eliminarse via los verbos genéricos PUT/DELETE: el server responde 409 Conflict en tiempo de ejecución. El comportamiento es DATA-driven (opt-in por entidad via `mutable_when`) y se cruza contra el contrato OpenAPI (x-mutable-when) por route_check en compile-time (DES-6)"
+      primitive: DES-3
+      tech: "la clave `mutable_when` en el blueprint (field + not_in/in) emite: (a) `private val <lower>MutableStates = setOf(...)` en el server Kotlin + rama de freeze (`when { current != null && Enum.valueOf(current) !in mutableStates -> conflict() }`) dentro de doPut/doDelete DESPUES del veredicto de permisos; (b) `x-mutable-when: { field, states }` en el contrato OpenAPI; (c) la comprobación cruzada `route_check.py mutability` (DES-6: contract ↔ Kotlin setOf). Opt-in: entidades sin mutable_when no generan ninguna rama extra (zero byte-diff, ADR-012). Fail-closed: mutable_when malformado (campo ausente/no-enum/ambos in+not_in/valor fuera del enum) → scaffold exit 1"
+      artifact: build/product/src/main/kotlin/com/obs/server/AppServer.kt
+      proof: "s5 mutability_enforced (product_env): route_check.py mutability cruza x-mutable-when.states del contrato contra <lower>MutableStates del Kotlin — mismatch → MUTABLE_MISMATCH → rojo. s9 access_control_live (infra_up): un asset en estado ready → PUT 200 (estado MUTABLE); checkout (ready→deployed) → PUT 409 y DELETE 409 (estado FROZEN); checkin (deployed→ready) → PUT 200 restaurado. Diente de DOS lados: un server que ignora el freeze responde 200 donde hay 409 → SÓLO s9 rojo"
+      status: built
 
   # La LÍNEA DE PRODUCTO como DATO (C2/I-2). status: planned — los `builds`/`checks` ejecutables los
   # rellena el build (plantilla: specs/full-stack.factory.spec.yml). Acá se declara el CONTRATO SDD
@@ -444,6 +451,7 @@ domain:
         - { name: route_topology, cmd: "route_check.py (topology) exige set(rutas Kotlin) == set(contrato openapi.yaml); ruta sin contrato → EXTRA / contrato sin ruta → MISSING; sobre probe/routes/phantom.kt DEBE morder (EXTRA) o decorativo→rojo", runs_in: product_env, toolchain: "route-analyzer", status: built }
         - { name: rbac_enforced, cmd: "route_check.py (rbac, RBAC/FSK-S13) exige que cada op con x-required-roles esté registrada en el RouteTable con ESE set de roles; un set distinto → ROLE_MISMATCH; sobre probe/routes/wrong_roles.kt DEBE morder (ROLE_MISMATCH) o decorativo→rojo. Opt-in: un producto sin roles → 0 ops, verde (FSK-S5 intacto)", runs_in: product_env, toolchain: "route-analyzer", status: built }
         - { name: ownership_enforced, cmd: "route_check.py (ownership, FSK-S14) exige que cada entidad con x-owned-by esté registrada en OwnershipPolicy con ESE campo dueño; un campo distinto → OWNER_MISMATCH; sobre probe/routes/wrong_owner.kt DEBE morder (OWNER_MISMATCH) o decorativo→rojo. Opt-in: un producto sin owned_by → 0 entidades, verde (FSK-S13 intacto)", runs_in: product_env, toolchain: "route-analyzer", status: built }
+        - { name: mutability_enforced, cmd: "route_check.py (mutability, FSK-MUTABLE-WHEN) exige que cada entidad con x-mutable-when esté registrada con ESE set de estados en el Kotlin; un set distinto → MUTABLE_MISMATCH; sobre probe/mutability/wrong_mutability.kt DEBE morder (MUTABLE_MISMATCH) o decorativo→rojo. Opt-in: un producto sin mutable_when → 0 entidades, verde (FSK-S5 intacto)", runs_in: product_env, toolchain: "route-analyzer", status: built }
       builds: []
       checks:
         - name: auth_reachability
@@ -466,6 +474,11 @@ domain:
           workdir: build/product
           bootstrap: []
           cmd: ["sh", "-c", "python3 tools/route_check.py ownership openapi.yaml src/main/kotlin || exit 1; if [ -f probe/routes/wrong_owner.kt ]; then out=$(python3 tools/route_check.py ownership openapi.yaml probe/routes/wrong_owner.kt 2>&1); echo \"$out\" | grep -q OWNER_MISMATCH || { echo FSK_OWNERSHIP_DECORATIVE; exit 1; }; fi; echo FSK_OWNERSHIP_OK"]
+        - name: mutability_enforced
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          cmd: ["sh", "-c", "python3 tools/route_check.py mutability openapi.yaml src/main/kotlin || exit 1; if [ -f probe/mutability/wrong_mutability.kt ]; then out=$(python3 tools/route_check.py mutability openapi.yaml probe/mutability/wrong_mutability.kt 2>&1); echo \"$out\" | grep -q MUTABLE_MISMATCH || { echo FSK_MUTABILITY_DECORATIVE; exit 1; }; fi; echo FSK_MUTABILITY_OK"]
     - id: s6
       name: "lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test Kotlin — DES-8 (patrón MAT-2)"
       activation: always
@@ -1091,6 +1104,12 @@ requirements:
       satisfied_by: [s9]
       verified_by: [frontend_browser_live]
       capability: frontend_browser_render
+    - id: REQ-F-021
+      statement: "un activo en estado FROZEN (mutable_when.not_in) no puede editarse ni eliminarse via PUT/DELETE genérico: el server RECHAZA con 409 Conflict. La restricción es DATA-driven (opt-in por entidad), cruza contrato↔Kotlin en compile-time, y se prueba VIVO en dos lados (estado mutable → 200; estado frozen → 409) (FSK-MUTABLE-WHEN, DES-3/DES-6)"
+      acceptance: "mutability_enforced verde (s5 static: route_check.py mutability cruza x-mutable-when.states del contrato contra <lower>MutableStates del Kotlin; mismatch → MUTABLE_MISMATCH → rojo). access_control_live verde (s9 live: un asset ready → PUT 200; checkout → PUT 409 y DELETE 409; checkin → PUT 200 restaurado — dos lados: un server que no implementa el freeze responde 200 donde hay 409 → SÓLO s9 rojo). Opt-in: sin mutable_when la entidad no genera ningún código extra (vacuously green en s5)"
+      satisfied_by: [s5, s9]
+      verified_by: [mutability_enforced, access_control_live]
+      capability: mutation_frozen
   nonfunctional:
     - id: REQ-NF-001
       statement: "el producto corre aislado en su propio toolchain; importar la fábrica adentro falla (DES-9, SAFE-2)"

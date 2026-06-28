@@ -48,3 +48,15 @@ checks:
     if [ -f probe/routes/wrong_owner.kt ]; then out=$(python3 tools/route_check.py
     ownership openapi.yaml probe/routes/wrong_owner.kt 2>&1); echo "$out" | grep -q
     OWNER_MISMATCH || { echo FSK_OWNERSHIP_DECORATIVE; exit 1; }; fi; echo FSK_OWNERSHIP_OK
+- name: mutability_enforced
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  cmd:
+  - sh
+  - -c
+  - python3 tools/route_check.py mutability openapi.yaml src/main/kotlin || exit 1;
+    if [ -f probe/mutability/wrong_mutability.kt ]; then out=$(python3 tools/route_check.py
+    mutability openapi.yaml probe/mutability/wrong_mutability.kt 2>&1); echo "$out"
+    | grep -q MUTABLE_MISMATCH || { echo FSK_MUTABILITY_DECORATIVE; exit 1; }; fi;
+    echo FSK_MUTABILITY_OK

@@ -5,7 +5,7 @@ Deterministic codegen (DATA, ADR-012); the substrate names no Kotlin/Gradle/Open
 from __future__ import annotations
 
 
-from .base import _soft_delete, _table
+from .base import _pascal, _soft_delete, _table
 
 
 def _auth_guard_kt(pkg: str) -> str:
@@ -317,10 +317,11 @@ contra el contrato OpenAPI (openapi.yaml): topologia (el set de rutas == el cont
 contrato marca con `security` esta dentro de un bloque authenticated{}). Es el gate de rutas que el producto
 SHIPPEA (mini-columna, s10). Exit 1 si hay hallazgos, 0 si no.
 Uso:
-  route_check.py topology <openapi.yaml> <archivo|dir>...   # ruta sin contrato / contrato sin ruta -> rojo
-  route_check.py auth     <openapi.yaml> <archivo|dir>...   # ruta protegida fuera del guard -> rojo
-  route_check.py rbac      <openapi.yaml> <archivo|dir>...  # escritura con set de roles != x-required-roles -> rojo
-  route_check.py ownership <openapi.yaml> <archivo|dir>...  # registro de dueno != x-owned-by del contrato -> rojo
+  route_check.py topology   <openapi.yaml> <archivo|dir>...  # ruta sin contrato / contrato sin ruta -> rojo
+  route_check.py auth       <openapi.yaml> <archivo|dir>...  # ruta protegida fuera del guard -> rojo
+  route_check.py rbac       <openapi.yaml> <archivo|dir>...  # escritura con set de roles != x-required-roles -> rojo
+  route_check.py ownership  <openapi.yaml> <archivo|dir>...  # registro de dueno != x-owned-by del contrato -> rojo
+  route_check.py mutability <openapi.yaml> <archivo|dir>...  # <lower>MutableStates != x-mutable-when.states -> rojo
 """
 from __future__ import annotations
 
@@ -577,9 +578,88 @@ def _ownership(contract: Path, targets: list) -> int:
     return 0
 
 
+# mutable_when (FSK-MUTABLE-WHEN): captura el campo y el set de estados mutables de cada entidad
+# con `x-mutable-when` en el contrato (DES-6). Mismo patron que _OWNERSHIP_ENTRY pero para Kotlin.
+_MUTABLE_STATES_RE = re.compile(r'private\s+val\s+(\w+)MutableStates\s*=\s*setOf\(([^)]*)\)')
+
+
+def _contract_mutable(contract: Path) -> dict:
+    """Parsea openapi.yaml (sin PyYAML) -> {Entity: (field, set(states))} por cada schema con
+    `x-mutable-when` (FSK-MUTABLE-WHEN). Formato emitido por codegen:
+      `x-mutable-when: { field: <f>, states: [<v>,...] }` a indent 6 bajo la entidad (indent 4)
+    en la seccion schemas (indent 2). Opt-in: entidad sin x-mutable-when no aparece en el resultado."""
+    out = {}
+    in_schemas = False
+    cur_entity = None
+    for raw in contract.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        s = raw.strip()
+        if indent == 0:
+            in_schemas = False
+            cur_entity = None
+            continue
+        if indent == 2:
+            in_schemas = s == "schemas:"
+            cur_entity = None
+            continue
+        if not in_schemas:
+            continue
+        if indent == 4 and s.endswith(":"):
+            cur_entity = s[:-1]
+        elif indent == 6 and s.startswith("x-mutable-when:") and cur_entity:
+            # formato: x-mutable-when: { field: status, states: [pending, ready, ...] }
+            rest = s.split(":", 1)[1].strip()
+            field_m = re.search(r'field:\s*(\w+)', rest)
+            states_m = re.search(r'states:\s*\[([^\]]*)\]', rest)
+            if field_m and states_m:
+                field = field_m.group(1)
+                states = {v.strip() for v in states_m.group(1).split(",") if v.strip()}
+                out[cur_entity] = (field, states)
+    return out
+
+
+def _kt_mutable_states(targets) -> dict:
+    """{entity_lower: set(values)} por cada `private val <lower>MutableStates = setOf(...)` en Kotlin.
+    Los valores se extraen de la forma `Cls.Enum.value` -> ultimo segmento tras el ultimo '.'."""
+    out = {}
+    for f in _kt_files(targets):
+        for m in _MUTABLE_STATES_RE.finditer(f.read_text(encoding="utf-8", errors="replace")):
+            ent_lower = m.group(1)
+            blob = m.group(2)
+            values = {v.strip().rsplit(".", 1)[-1] for v in blob.split(",") if v.strip()}
+            out[ent_lower] = values
+    return out
+
+
+def _mutability(contract: Path, targets: list) -> int:
+    """Mutability (DES-3, FSK-MUTABLE-WHEN): cada entidad que el contrato marca con `x-mutable-when`
+    DEBE tener su `<lower>MutableStates = setOf(...)` en Kotlin con EXACTAMENTE el mismo set de estados
+    mutables. Un set distinto -> MUTABLE_MISMATCH; falta el registro -> MISSING_MUTABLE. Cruce
+    determinista (single-source DES-6), analogo a rbac/ownership. Opt-in: sin x-mutable-when -> verde."""
+    want = _contract_mutable(contract)
+    got = _kt_mutable_states(targets)
+    findings = 0
+    for entity, (field, states) in sorted(want.items()):
+        ent_lower = entity[0].lower() + entity[1:]
+        reg = got.get(ent_lower)
+        if reg is None:
+            findings += 1
+            print(f"MISSING_MUTABLE {entity}  (el contrato marca x-mutable-when.{field} pero no hay {ent_lower}MutableStates en Kotlin)")
+        elif reg != states:
+            findings += 1
+            print(f"MUTABLE_MISMATCH {entity}  (contrato {sorted(states)} != registrado {sorted(reg)})")
+    if findings:
+        print(f"route-check: {findings} desajuste(s) de mutabilidad vs el contrato", file=sys.stderr)
+        return 1
+    print(f"route-check: mutability ok ({len(want)} entidad(es) con mutable-when cruzadas == contrato)")
+    return 0
+
+
 def main(argv: list) -> int:
     if len(argv) < 3:
-        print("usage: route_check.py {topology|auth|rbac|ownership} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
+        print("usage: route_check.py {topology|auth|rbac|ownership|mutability} <openapi.yaml> <archivo|dir>...", file=sys.stderr)
         return 2
     mode, contract, targets = argv[0], Path(argv[1]), argv[2:]
     if not contract.is_file():
@@ -593,6 +673,8 @@ def main(argv: list) -> int:
         return _rbac(contract, targets)
     if mode == "ownership":
         return _ownership(contract, targets)
+    if mode == "mutability":
+        return _mutability(contract, targets)
     print(f"route-check: modo desconocido {mode!r}", file=sys.stderr)
     return 2
 
@@ -672,3 +754,29 @@ def _probe_wrong_owner(bp: dict) -> str:
             f'        "{ent["name"]}" to "{wrong}",\n'
             "    )\n"
             "}\n")
+
+
+def _probe_wrong_mutability(bp: dict) -> str:
+    """Fixture NEGATIVO (DES-3/FSK-MUTABLE-WHEN): un setOf de estados MUTABLES INCORRECTO — incluye
+    estados FROZEN del contrato. route_check.py (modo mutability) DEBE morder (MUTABLE_MISMATCH);
+    mutability_enforced lo exige por grep → un gate decorativo se delata (fail-closed). Vive en
+    probe/mutability/ (fuera de src/) → no se compila ni se shippea; el analizador lo lee por tokens.
+    Apunta a la 1ra entidad con mutable_when (la que el contrato marca con x-mutable-when). Opt-in:
+    gated on _mutable_when — sólo se emite cuando hay al menos una entidad con mutable_when."""
+    ent = next(e for e in bp["entities"] if e.get("mutable_when"))
+    mw_cfg = ent["mutable_when"]
+    fname = mw_cfg["field"]
+    fld = next(f for f in ent["fields"] if f["name"] == fname)
+    all_values = fld["values"]                              # all enum values: mutable + frozen
+    entity_name = ent["name"]
+    ent_lower = entity_name[0].lower() + entity_name[1:]
+    enum_cls = f"{entity_name}.{_pascal(fname)}"
+    # Wrong set: ALL enum values (includes frozen states) — guaranteed ≠ mutable_states → MUTABLE_MISMATCH
+    wrong_refs = [f"{enum_cls}.{v}" for v in all_values]
+    set_name = f"{ent_lower}MutableStates"
+    refs_str = ", ".join(wrong_refs)
+    return ("// FIXTURE NEGATIVO DES-3/FSK-MUTABLE-WHEN: un setOf de estados MUTABLES INCORRECTO —\n"
+            "// incluye estados FROZEN del contrato. route_check.py (modo mutability) DEBE morder\n"
+            "// (MUTABLE_MISMATCH); mutability_enforced lo exige por grep. No se compila ni se shippea\n"
+            "// (fuera de src/).\n"
+            f"private val {set_name} = setOf({refs_str})\n")

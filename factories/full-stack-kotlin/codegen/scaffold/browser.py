@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _editable, _input_fields, _is_poly, _live_entities, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK
+from .base import _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _workflow_ops
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -316,6 +316,24 @@ def _browser_check_ts(bp: dict) -> str:
         if edit_block and edit_field is not None and edit_field["name"] == render_field:
             del_row = f"edited-{edit_field['name']}"
         delete_block = _DELETE_ASSERT_BLOCK.replace("%DEL_ROW%", del_row)
+        # FSK-MUTABLE-WHEN: if the operations block moved the asset to a FROZEN state, prepend an
+        # unfreeze step (click the reverse verb) so the generic DELETE returns 200 instead of 409.
+        # Opt-in: only emitted when _mutable_when(owned) is set, fwd_op.to is frozen, and a reverse
+        # op exists. DATA-agnostic (ADR-012): all values derived from blueprint. Byte-identical for
+        # entities without mutable_when (e.g. assets, helpdesk).
+        mw = _mutable_when(owned)
+        if mw and fwd_op is not None and fwd_op["to"] not in mw["mutable_states"]:
+            rev_op = next((op for op in wf_ops
+                           if op.get("from") == fwd_op["to"] and op.get("to") in mw["mutable_states"]),
+                          None)
+            if rev_op:
+                delete_block = (_MW_UNFREEZE_BLOCK
+                                .replace("%FROZEN_STATE%", fwd_op["to"])
+                                .replace("%REV_VERB%", rev_op["name"])
+                                .replace("%DEL_ROW_MUT%", del_row)
+                                .replace("%MW_FIELD%", mw["field"])
+                                .replace("%MUTABLE_STATE%", rev_op["to"])
+                                ) + delete_block
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)

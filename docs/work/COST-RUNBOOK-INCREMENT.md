@@ -1,7 +1,7 @@
-<!-- meta:doc sha=c0f1326f0af3a20202f32d9e7a19f1c74f844f5d updated=2026-07-02T17:50Z -->
+<!-- meta:doc sha=ef2e4e4dd881546c349c9e1f48f52b492c999bd8 updated=2026-07-02T17:54Z -->
 # Incremento COST-RUNBOOK
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-02T17:48Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T17:54Z) (creado 2026-07-02T17:48Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -59,21 +59,25 @@ class TestTierFor:
 class TestCost:
     """Sample rollup with known token counts → assert exact USD amounts.
 
+    Recomputed from the single-source dated table (`graph.pricing.PRICING`, ADR-021 §1.2): opus
+    5/25/6.25(write_5m)/0.50(hit_refresh) · sonnet 2/10/2.50/0.20 (USD/MTok). `cache_write` in
+    `PRICES` derives from `write_5m` (the honest default — see `graph/pricing.py`).
+
     opus (claude-opus-4):
-      1000 input  × 15.00/1e6 = 0.01500
-       500 output × 75.00/1e6 = 0.03750
-       200 cache_creation × 18.75/1e6 = 0.00375
-       100 cache_read × 1.50/1e6 = 0.00015
-       subtotal = 0.05640 (float: 0.05639999999999999)
+      1000 input  × 5.00/1e6  = 0.00500
+       500 output × 25.00/1e6 = 0.01250
+       200 cache_creation × 6.25/1e6 = 0.00125
+       100 cache_read × 0.50/1e6 = 0.00005
+       subtotal = 0.01880
 
     sonnet (claude-sonnet-4-5):
-      2000 input  × 3.00/1e6 = 0.00600
-       300 output × 15.00/1e6 = 0.00450
+      2000 input  × 2.00/1e6  = 0.00400
+       300 output × 10.00/1e6 = 0.00300
          0 cache_creation = 0
-        50 cache_read × 0.30/1e6 = 0.000015
-       subtotal = 0.010515
+        50 cache_read × 0.20/1e6 = 0.00001
+       subtotal = 0.00701
 
-    total = 0.06691499999999999
+    total = 0.02581
     """
     ROLLUP = {
         "claude-opus-4": {
@@ -92,15 +96,15 @@ class TestCost:
 
     def test_opus_cost(self):
         c = cost(self.ROLLUP)
-        assert math.isclose(c["claude-opus-4"], 0.05639999999999999, rel_tol=1e-9)
+        assert math.isclose(c["claude-opus-4"], 0.0188, rel_tol=1e-9)
 
     def test_sonnet_cost(self):
         c = cost(self.ROLLUP)
-        assert math.isclose(c["claude-sonnet-4-5"], 0.010515, rel_tol=1e-9)
+        assert math.isclose(c["claude-sonnet-4-5"], 0.00701, rel_tol=1e-9)
 
     def test_total(self):
         c = cost(self.ROLLUP)
-        assert math.isclose(c["total"], 0.06691499999999999, rel_tol=1e-9)
+        assert math.isclose(c["total"], 0.02581, rel_tol=1e-9)
 
     def test_empty_rollup(self):
         c = cost({})

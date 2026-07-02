@@ -103,7 +103,7 @@
 | `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `e136a85263a5` | 2026-06-26T21:51Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
-| `docs/work/PRICING-LEDGER-INCREMENT.md` | `db7b97895c27` | 2026-07-02T19:45Z | Incremento PRICING-LEDGER |
+| `docs/work/PRICING-LEDGER-INCREMENT.md` | `53b1f5052818` | 2026-07-02T19:59Z | Incremento PRICING-LEDGER |
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |

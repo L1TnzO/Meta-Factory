@@ -6,16 +6,21 @@ FORM harvested from Professor-Web-Factory's `billing-ledger.json` (per-phase ent
 cost + latency, plus run totals). We add `role` (brain|generate|read) — the delegation axis this project
 cares about — and `source` (harness|estimate) so the ledger is HONEST about which numbers are measured.
 
-Pricing is DATA (ADR-012 spirit): a {model: (usd_per_mtok_in, usd_per_mtok_out)} table passed in. No table
-=> cost 0 and `pricing="TBD-no-pricing-config"` (exactly PWF's stance). The estimate is labeled, never faked.
+Pricing is DATA (ADR-012 spirit) but SINGLE-SOURCE (ADR-021, PRICING-LEDGER INC-1): `pricing.PRICING`, the
+dated 5-column table, not a 2-tuple passed in per-ledger. Every entry is cache-aware: `cache_creation` /
+`cache_read` / `cache_ttl` ride the same honest-modeling law as `pricing.price_tokens` (cache_creation
+defaults to the 5-minute write price; 1-hour only on an explicit `cache_ttl="1h"`).
 """
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from . import pricing
+
 ROLES = ("brain", "generate", "read")
+CACHE_TTLS = ("5m", "1h")
 
 
 @dataclass
@@ -25,7 +30,10 @@ class LedgerEntry:
     model: str                # opus | sonnet | haiku | <id>
     input_tokens: int = 0
     output_tokens: int = 0
-    total_tokens: int = 0     # harness-reported total when available (else input+output)
+    cache_creation: int = 0   # cache-write tokens (untagged TTL in the OTLP stream — see pricing.py)
+    cache_read: int = 0       # cache-hit tokens (also refreshes the TTL)
+    cache_ttl: str = "5m"     # "5m" | "1h" — which write price applies to `cache_creation`
+    total_tokens: int = 0     # harness-reported total when available (else input+output+cache tokens)
     est_cost_usd: float = 0.0
     latency_ms: int = 0
     source: str = "estimate"  # harness | estimate — provenance of the token numbers
@@ -34,26 +42,35 @@ class LedgerEntry:
     def __post_init__(self) -> None:
         if self.role not in ROLES:
             raise ValueError(f"role must be one of {ROLES}, got {self.role!r}")
+        if self.cache_ttl not in CACHE_TTLS:
+            raise ValueError(f"cache_ttl must be one of {CACHE_TTLS}, got {self.cache_ttl!r}")
+        if self.cache_creation < 0 or self.cache_read < 0:
+            raise ValueError("cache_creation and cache_read must be non-negative token counts")
         if not self.total_tokens:
-            self.total_tokens = self.input_tokens + self.output_tokens
+            self.total_tokens = self.input_tokens + self.output_tokens + self.cache_creation + self.cache_read
 
 
-def _cost(entry: LedgerEntry, pricing: dict | None) -> float:
-    if not pricing or entry.model not in pricing:
-        return 0.0
-    cin, cout = pricing[entry.model]
-    return round(entry.input_tokens / 1e6 * cin + entry.output_tokens / 1e6 * cout, 6)
+def _cost(entry: LedgerEntry) -> float:
+    """The entry's cost via the single-source `pricing.price_tokens` — always priced (no TBD state):
+    an unrecognized model id honestly defaults to the sonnet tier, never a silent 0."""
+    return pricing.price_tokens(
+        entry.model,
+        input_tokens=entry.input_tokens,
+        output_tokens=entry.output_tokens,
+        cache_creation=entry.cache_creation,
+        cache_read=entry.cache_read,
+        cache_ttl=entry.cache_ttl,
+    )
 
 
 class BillingLedger:
-    def __init__(self, run_id: str, currency: str = "USD", pricing: dict | None = None) -> None:
+    def __init__(self, run_id: str, currency: str = "USD") -> None:
         self.run_id = run_id
         self.currency = currency
-        self.pricing = pricing
         self.entries: list[LedgerEntry] = []
 
     def record(self, entry: LedgerEntry) -> "BillingLedger":
-        entry.est_cost_usd = _cost(entry, self.pricing)
+        entry.est_cost_usd = _cost(entry)
         self.entries.append(entry)
         return self
 
@@ -84,7 +101,7 @@ class BillingLedger:
         return {
             "run_id": self.run_id,
             "currency": self.currency,
-            "pricing": "TBD-no-pricing-config" if not self.pricing else "estimate-usd-per-mtok",
+            "pricing": f"single-source pricing.PRICING (AS_OF {pricing.AS_OF})",
             "entries": [asdict(e) for e in self.entries],
             "totals": self.totals(),
             "split_by_model": self.split_by_model(),
@@ -113,6 +130,8 @@ def _sum(entries: list[LedgerEntry]) -> dict:
     return {
         "input_tokens": sum(e.input_tokens for e in entries),
         "output_tokens": sum(e.output_tokens for e in entries),
+        "cache_creation": sum(e.cache_creation for e in entries),
+        "cache_read": sum(e.cache_read for e in entries),
         "total_tokens": sum(e.total_tokens for e in entries),
         "est_cost_usd": round(sum(e.est_cost_usd for e in entries), 6),
         "latency_ms": sum(e.latency_ms for e in entries),
@@ -122,9 +141,9 @@ def _sum(entries: list[LedgerEntry]) -> dict:
 def render_split(led: BillingLedger) -> str:
     """A bounded, human-readable digest of the delegation split (for `meta billing`)."""
     t = led.totals()
-    priced = bool(led.pricing) or t["est_cost_usd"] > 0
-    lines = [f"BILLING  run {led.run_id} ({led.currency}; pricing={'estimate' if priced else 'TBD'})"]
-    lines.append(f"TOTAL    {t['total_tokens']} tok ({t['input_tokens']} in / {t['output_tokens']} out) "
+    lines = [f"BILLING  run {led.run_id} ({led.currency}; pricing=single-source AS_OF {pricing.AS_OF})"]
+    lines.append(f"TOTAL    {t['total_tokens']} tok ({t['input_tokens']} in / {t['output_tokens']} out / "
+                 f"{t['cache_creation']} cache-write / {t['cache_read']} cache-read) "
                  f"· ${t['est_cost_usd']} · {len(led.entries)} item(s)")
     for model, agg in led.split_by_model().items():
         lines.append(f"  {model:<8} {agg['total_tokens']:>8} tok · {agg['items']} item(s) · "

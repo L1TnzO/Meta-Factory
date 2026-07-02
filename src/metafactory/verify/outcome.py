@@ -60,7 +60,12 @@ def _rtm_totals(snap: dict) -> tuple[int, int]:
 
 
 def render(snap: dict, baseline: dict | None = None, ledger_path: Path | None = None,
-           ledger_digest: str | None = None) -> str:
+           ledger_digest: str | None = None, root: Path | None = None,
+           transcript: Path | None = None) -> str:
+    """`root`/`transcript` are OPTIONAL (ADR-021, PRICING-LEDGER INC-1): when `root` is given, the E30
+    cost block (`cost_report.cost_block`) is appended after the existing lines — dollars, tier share,
+    cache-expirations, compactions/churn, delegation split. Omitting `root` keeps `render` byte-identical
+    to its pre-INC-1 output (existing callers are unaffected)."""
     sat, tot = _rtm_totals(snap)
     lines = ["OUTCOME  (re-derivado de .proof/ + specs; no narrado)"]
     if baseline is not None:
@@ -88,6 +93,11 @@ def render(snap: dict, baseline: dict | None = None, ledger_path: Path | None = 
         lines.append(f"COSTO    billing-ledger: {ledger_path} (corré `meta billing {ledger_path}`)")
     else:
         lines.append("COSTO    (sin billing-ledger para este incremento; `meta billing <ledger.json>`)")
+
+    if root is not None:
+        from . import cost_report
+        lines.extend(cost_report.cost_block(root, transcript=transcript, ledger=ledger_path))
+
     return "\n".join(lines)
 
 

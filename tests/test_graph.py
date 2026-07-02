@@ -8,6 +8,8 @@ from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
+
 from metafactory.graph.billing import BillingLedger, LedgerEntry
 from metafactory.graph.build import (
     build_code_graph,
@@ -232,17 +234,21 @@ def test_quality_gate_check_passes_and_self_guards():
 
 # ── Fase 5: billing-ledger split ────────────────────────────────────────────────
 def test_billing_split_and_roundtrip(tmp_path):
-    led = BillingLedger("run-x", pricing={"sonnet": (3.0, 15.0)})
+    # single-source pricing (ADR-021, PRICING-LEDGER INC-1): BillingLedger no longer takes a 2-tuple
+    # pricing dict — every model is ALWAYS priced via `graph.pricing.PRICING` (opus is now priced > 0,
+    # never the old honest-TBD 0.0). Dollars recomputed from the dated table: sonnet 2/10, opus 5/25.
+    led = BillingLedger("run-x")
     led.record(LedgerEntry("mod.py", "generate", "sonnet", input_tokens=1000, output_tokens=200, source="harness"))
     led.record(LedgerEntry("design", "brain", "opus", input_tokens=5000, output_tokens=1000, source="estimate"))
     led.record(LedgerEntry("read", "read", "haiku", input_tokens=800, output_tokens=50))
     split = led.split_by_role()
     assert set(split) == {"brain", "generate", "read"}
     assert split["generate"]["models"] == ["sonnet"]
-    # sonnet cost computed; opus has no rate -> 0 (honest TBD)
+    # sonnet: 1000*2/1e6 + 200*10/1e6 = 0.002 + 0.002 = 0.004
+    # opus:   5000*5/1e6 + 1000*25/1e6 = 0.025 + 0.025 = 0.05 (single-source -> priced, not TBD anymore)
     sm = led.split_by_model()
-    assert sm["sonnet"]["est_cost_usd"] > 0
-    assert sm["opus"]["est_cost_usd"] == 0.0
+    assert sm["sonnet"]["est_cost_usd"] == pytest.approx(0.004)
+    assert sm["opus"]["est_cost_usd"] == pytest.approx(0.05)
     p = led.save(tmp_path / "led.json")
     again = BillingLedger.load(p)
     assert again.totals()["total_tokens"] == led.totals()["total_tokens"]

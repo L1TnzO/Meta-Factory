@@ -880,7 +880,11 @@ def cmd_outcome(args) -> int:
     if ledger_path and ledger_path.exists():
         from .graph.billing import BillingLedger, render_split
         digest = render_split(BillingLedger.load(ledger_path)).splitlines()[1].strip()  # the TOTAL line
-    print(outcome.render(snap, baseline=baseline, ledger_path=ledger_path, ledger_digest=digest))
+    # E30 (ADR-021, PRICING-LEDGER): passing `root` appends the per-increment cost block; `--transcript`
+    # measures cache expirations + tools/turn (honest "sin medir" for whatever axis has no data).
+    transcript = Path(args.transcript) if getattr(args, "transcript", None) else None
+    print(outcome.render(snap, baseline=baseline, ledger_path=ledger_path, ledger_digest=digest,
+                         root=root, transcript=transcript))
     if getattr(args, "save", None):
         outcome.save(snap, Path(args.save))
         print(f"\n(snapshot guardado en {args.save} — baseline para un próximo `meta outcome --baseline`)")
@@ -948,7 +952,7 @@ def build_parser() -> argparse.ArgumentParser:
     gr = gsub.add_parser("repomap"); gr.add_argument("--budget", type=int, default=4000)
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
     op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
-    op.add_argument("--billing", default=None); op.set_defaults(func=cmd_outcome)
+    op.add_argument("--billing", default=None); op.add_argument("--transcript", default=None); op.set_defaults(func=cmd_outcome)
     bm = sub.add_parser("benchmark"); bm.add_argument("name", nargs="?", default=None); bm.set_defaults(func=cmd_benchmark)
     sub.add_parser("dial").set_defaults(func=cmd_dial)
     return p

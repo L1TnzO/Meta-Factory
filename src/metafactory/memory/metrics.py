@@ -10,32 +10,23 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from metafactory.graph import pricing
 from metafactory.memory import journal
 
 MEMDIR = ".metamem"
 
-# Precios por token (USD) derivados de precios por millón de tokens / 1e6.
-# Verificar contra pricing oficial; actualizable por diff (ADR-008 §5).
-# Fuente de valores base (por MTok): opus 15/75/18.75/1.50 · sonnet 3/15/3.75/0.30 · haiku 1/5/1.25/0.10
+# Precios por token (USD), DERIVADOS de `graph.pricing.PRICING` (ADR-021, PRICING-LEDGER INC-1) — ya NO es
+# una segunda tabla de mano: single-source, así se mata la deriva (esta tabla antes cotizaba Opus a
+# 15/75, un número de la era Opus-4.1, 3x sobre el precio real §1.2). `cache_write` toma `write_5m`
+# (default honesto: el stream OTLP reporta un conteo sin etiqueta de TTL — ver graph/pricing.py).
 PRICES: dict[str, dict[str, float]] = {
-    "opus": {
-        "input":       15.00 / 1_000_000,
-        "output":      75.00 / 1_000_000,
-        "cache_write": 18.75 / 1_000_000,
-        "cache_read":   1.50 / 1_000_000,
-    },
-    "sonnet": {
-        "input":        3.00 / 1_000_000,
-        "output":      15.00 / 1_000_000,
-        "cache_write":  3.75 / 1_000_000,
-        "cache_read":   0.30 / 1_000_000,
-    },
-    "haiku": {
-        "input":        1.00 / 1_000_000,
-        "output":       5.00 / 1_000_000,
-        "cache_write":  1.25 / 1_000_000,
-        "cache_read":   0.10 / 1_000_000,
-    },
+    tier: {
+        "input":       p.base_input / 1_000_000,
+        "output":      p.output / 1_000_000,
+        "cache_write": p.write_5m / 1_000_000,
+        "cache_read":  p.hit_refresh / 1_000_000,
+    }
+    for tier, p in pricing.PRICING.items()
 }
 
 
@@ -75,12 +66,9 @@ def read(root: Path, limit: int | None = None) -> list[dict]:
 
 
 def tier_for(model_id: str) -> str:
-    """Mapea un model-id a una clave de PRICES por substring. Devuelve 'sonnet' como default."""
-    model_lower = model_id.lower()
-    for tier in ("opus", "haiku", "sonnet"):
-        if tier in model_lower:
-            return tier
-    return "sonnet"
+    """Mapea un model-id a una clave de PRICES por substring. Devuelve 'sonnet' como default.
+    Delega a `graph.pricing.tier_for` (single-source): la misma lógica, un solo lugar (ADR-021)."""
+    return pricing.tier_for(model_id)
 
 
 def rollup_from_transcript(path: Path) -> dict[str, dict[str, int]]:
@@ -127,6 +115,54 @@ def rollup_from_transcript(path: Path) -> dict[str, dict[str, int]]:
         entry["cache_creation"] += int(usage.get("cache_creation_input_tokens", 0))
         entry["cache_read"]     += int(usage.get("cache_read_input_tokens", 0))
     return result
+
+
+def cache_series(transcript: Path) -> list[tuple[int, int]]:
+    """Serie ORDENADA por turno de `(cache_creation_input_tokens, cache_read_input_tokens)`, una tupla
+    por mensaje de asistente (mismo shape de extracción que `rollup_from_transcript`, sin el requisito de
+    `model_id` — acá el eje es el TURNO, no el modelo). Transcript ausente → serie vacía (re-derivable)."""
+    out: list[tuple[int, int]] = []
+    p = Path(transcript)
+    if not p.exists():
+        return out
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        usage = None
+        if isinstance(obj.get("usage"), dict):
+            usage = obj["usage"]
+        elif isinstance(obj.get("message"), dict) and isinstance(obj["message"].get("usage"), dict):
+            usage = obj["message"]["usage"]
+        if usage is None:
+            continue
+        out.append((
+            int(usage.get("cache_creation_input_tokens", 0)),
+            int(usage.get("cache_read_input_tokens", 0)),
+        ))
+    return out
+
+
+def detect_expirations(series: list[tuple[int, int]], fraction: float = 0.5) -> int:
+    """Detecta expiraciones de cache a mitad de sesión: un turno `i>=1` cuenta como expiración cuando su
+    `cache_creation` re-escribe una porción significativa (>= `fraction`) del cache-read PICO visto hasta
+    ese turno inclusive — la señal de que el cache anterior venció y se re-escribió. Dos lados: un turno
+    0 (warm-up) nunca cuenta (no hay pico previo); una serie ESTABLE (sin picos de cache_creation
+    relativos al read-peak) cuenta 0."""
+    count = 0
+    max_read_so_far = 0
+    for i, (cache_creation, cache_read) in enumerate(series):
+        if cache_read > max_read_so_far:
+            max_read_so_far = cache_read
+        if i == 0:
+            continue
+        if max_read_so_far > 0 and cache_creation >= fraction * max_read_so_far:
+            count += 1
+    return count
 
 
 def cost(rollup: dict[str, dict[str, int]], prices: dict[str, dict[str, float]] = PRICES) -> dict[str, Any]:

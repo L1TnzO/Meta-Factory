@@ -1,4 +1,4 @@
-<!-- meta:doc sha=db7b97895c27d85ea5d5c1cb966e0849706c16e8 updated=2026-07-02T19:45Z -->
+<!-- meta:doc sha=53b1f5052818876e1d80392aa10d98bd9d90c8df updated=2026-07-02T19:59Z -->
 # Incremento PRICING-LEDGER
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-02T19:42Z). Cerralo con `meta increment close`
@@ -31,12 +31,29 @@ todo con un **diente two-sided** (precio EXACTO / entrada de cache mal-tipada re
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Slot delegado al `generator` (Sonnet): pricing.py·billing.py·metrics.py·cost_report.py + tests, gate = pytest | ⏳ |
-| 2 | Seam CLI (`--transcript`) con ojos propios + `meta outcome` muestra el bloque real | ⏳ |
-| 3 | Re-preciar baseline DELEG-PAYOFF con las 5 columnas (el número a batir) | ⏳ |
+| 1 | Slot delegado al `generator` (Sonnet): pricing.py·billing.py·metrics.py·cost_report.py + tests, gate = pytest | ✅ |
+| 2 | Seam CLI (`--transcript`) con ojos propios + `meta outcome` muestra el bloque real | ✅ |
+| 3 | Re-preciar baseline DELEG-PAYOFF con las 5 columnas (el número a batir) | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
-1. `meta outcome --transcript <t>` imprime el bloque de costo (E30) con la tabla real de 5 columnas.
+1. `meta outcome [--transcript <t>]` imprime el bloque de costo (E30) con la tabla real de 5 columnas. ✅
 2. Suite verde (`tests/test_pricing_ledger.py` two-sided: precio EXACTO ✓ / cache mal-tipada rechazada ✓;
-   `test_graph`·`test_metrics` verdes con el pricing single-source) + `meta check` verde.
-3. Baseline DELEG-PAYOFF re-preciado con las 5 columnas, anotado en Evidencia (el número que las fases siguientes deben batir).
+   `test_graph`·`test_metrics` verdes con el pricing single-source) + `meta check` verde. ✅
+3. Baseline DELEG-PAYOFF re-preciado con las 5 columnas, anotado en Evidencia (el número a batir). ✅
+
+## Evidencia
+- **Diente (mío, ojos de Opus, fuera del blast-radius del generator):** `tests/test_pricing_ledger.py`
+  two-sided — precio EXACTO (opus $0.6625 / sonnet $0.26 a mano) · cache mal-tipada (`ttl` inválido / token
+  negativo) → `ValueError` · expiraciones spike→1/steady→0 · cost-block degrada a "sin medir" sin fingir 0.
+- **Slot delegado (generator/Sonnet, verificado por VEREDICTO):** `graph/pricing.py` (NUEVO, tabla fechada
+  §1.2 single-source), `billing.py` cache-aware, `memory/metrics.py` de-stale (`PRICES` DERIVA de
+  `pricing.PRICING` — opus 15/75→5/25) + `detect_expirations`/`cache_series`, `verify/cost_report.py` (NUEVO,
+  E30). Gate `pytest test_pricing_ledger+test_graph+test_metrics` exit 0 (78) — **re-corrido con ojos propios**;
+  suite completa **777 passed**; `meta check` **17/17**. Residuo revisado: los 2 tests existentes fueron
+  **re-preciados, no debilitados** (test_graph pasó de `>0` a `== approx` exacto).
+- **E30 en vivo (`meta outcome`):** `COSTO $X total (opus % · sonnet % · haiku %)` · `EXPIRACIONES sin medir
+  (sin transcript) · COMPACTACIONES 3 · CHURN 173` · `DELEGADO 0.1% · TOOLS/TURNO 2.57`. Con ledger real:
+  `$3.7013 total (opus 96.0% · sonnet 4.0%)`.
+- **Baseline DELEG-PAYOFF re-preciado (crit 3):** con la tabla stale (opus 15/75) el split era **opus 89%**;
+  con las 5 columnas corregidas es **opus 80.1%** (máquina-global; el 89% estaba inflado por el precio Opus
+  sobre-estimado 3×). **80.1% es el número honesto que INC-2..INC-4 deben batir hacia ≤35%.**

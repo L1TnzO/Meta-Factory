@@ -1,4 +1,4 @@
-<!-- meta:doc sha=24ad1402ef32b752dfd4e505df7b208e002d973c updated=2026-07-02T13:41Z -->
+<!-- meta:doc sha=9562a08b56c65d21e3343256b4e60f5f5de13569 updated=2026-07-02T14:34Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -67,6 +67,15 @@
 > retry) de `acceptance_gate` (lento, 1 vez) + `stop_proof` HERMÉTICO (confía en el pin del clon limpio cuando el
 > toolchain local driftea). Residual: cierre formal de `FSK-MUTABLE-WHEN` (re-pin no-adoptantes) necesita JDK 21.
 > Detalle + mediciones: **`docs/work/DELEG-PAYOFF-MEASURE-INCREMENT.md`**.
+>
+> **🧭 `COST-DOWN` — dirección VIGENTE (2026-07-02, ADR-021).** El modelo de costo de arriba se cristalizó en
+> una dirección con plan **FIJO (N=7, orden inmutable)**: economía **Opus-marginal** — la correctitud la dan
+> los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta · S3 Opus cierra) +
+> doctrina de cache (TTL/keep-warm/kill-don't-idle, la matemática cerrada) + KPIs decidibles (opus ≤35% ·
+> compactaciones 0 · $/incremento −60%). El candidato `HARNESS-FAST-GATE` de arriba quedó ABSORBIDO como
+> **INC-2** del plan. Orden: `COST-RUNBOOK` → `PRICING-LEDGER` → `HARNESS-FAST-GATE` → `CONTEXT-LEAN-TEETH` →
+> `PLAN-EXECUTE-SPLIT` → `CACHE-SHAPE`(cond.) → `HEADLESS-SLOTS`(cond.). **La biblia auto-contenida (leer §2 +
+> el §4.INC-n que toque, NO el doc entero): `docs/work/COST-DOWN-DIRECTION-INCREMENT.md`.**
 
 ## 0. Si llegás sin contexto, leé en este orden
 

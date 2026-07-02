@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `fb39c2b3013e` | 2026-07-02T13:40Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `7018fdfa3771` | 2026-07-02T13:46Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `e1d96e149d4a` | 2026-07-02T14:34Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -28,6 +28,7 @@
 | `docs/decisions/018-columna-como-proyeccion-least-privilege.md` | `359dba29db80` | 2026-06-26T13:25Z | ADR-018 — La columna como proyección de un único source (desacople least-privilege del cp-harness) |
 | `docs/decisions/019-arquitectura-de-memoria-v2.md` | `b952b838ad64` | 2026-06-26T17:34Z | ADR-019 — Arquitectura de memoria v2: podar antes de agregar, fidelidad sobre frescura, retrieval contra umbral medido |
 | `docs/decisions/020-activacion-de-la-delegacion.md` | `8c55ffce51aa` | 2026-06-27T21:49Z | ADR-020 — Activación de la delegación: routing por defecto, métrica de costo, y especialización por ROL |
+| `docs/decisions/021-economia-opus-marginal.md` | `a03c7390b479` | 2026-07-02T14:33Z | ADR-021 — Economía Opus-marginal: ruteo por SESIÓN, doctrina de cache, y el plan fijo COST-DOWN |
 | `docs/reference/ARCHITECTURE.md` | `e0f4bf38faad` | 2026-06-15T03:48Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -53,6 +54,7 @@
 | `docs/work/C3-PRODUCT-ENV-PROOF-INCREMENT.md` | `0bcc518ecc84` | 2026-06-15T20:01Z | Incremento C3-PRODUCT-ENV-PROOF |
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
+| `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `b7e388693b3b` | 2026-07-02T14:33Z | Incremento COST-DOWN-DIRECTION |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
 | `docs/work/DELEG-ACT-FACTORY-INCREMENT.md` | `1e7147d10708` | 2026-06-27T21:00Z | Incremento DELEG-ACT-FACTORY |
@@ -103,7 +105,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `24ad1402ef32` | 2026-07-02T13:41Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `9562a08b56c6` | 2026-07-02T14:34Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

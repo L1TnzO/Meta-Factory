@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7018fdfa3771be3881be08902da178413b2c455d updated=2026-07-02T13:46Z -->
+<!-- meta:doc sha=e1d96e149d4a1c223b0f0805fdae5c892949c98b updated=2026-07-02T14:34Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: COST-DOWN-DIRECTION-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -16,6 +16,12 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
+- **🧭 `COST-DOWN` — dirección VIGENTE (2026-07-02, ADR-021).** Norte = economía **Opus-marginal**: la
+  correctitud la dan los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta ·
+  S3 Opus cierra) + doctrina de cache + plan **FIJO N=7** (`COST-RUNBOOK`→`PRICING-LEDGER`→`HARNESS-FAST-GATE`→
+  `CONTEXT-LEAN-TEETH`→`PLAN-EXECUTE-SPLIT`→`CACHE-SHAPE` cond.→`HEADLESS-SLOTS` cond.; N/A pre-decididos).
+  KPIs: opus ≤35% (hoy 89%) · compactaciones 0 · $/incremento −60%. **Biblia auto-contenida (leer §2 + el
+  §4.INC-n que toque): `work/COST-DOWN-DIRECTION-INCREMENT.md`** + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
   el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +

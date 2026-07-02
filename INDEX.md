@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `ca19c4654db0` | 2026-07-02T14:36Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `d111015482a2` | 2026-07-02T14:36Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `b602deea7b24` | 2026-07-02T17:52Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `ae6acac16b54` | 2026-07-02T17:52Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -55,6 +55,7 @@
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
 | `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |
+| `docs/work/COST-RUNBOOK-INCREMENT.md` | `c0f1326f0af3` | 2026-07-02T17:50Z | Incremento COST-RUNBOOK |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
 | `docs/work/DELEG-ACT-FACTORY-INCREMENT.md` | `1e7147d10708` | 2026-06-27T21:00Z | Incremento DELEG-ACT-FACTORY |
@@ -105,8 +106,8 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `9562a08b56c6` | 2026-07-02T14:34Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `b880bc3e8eb2` | 2026-07-02T17:52Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `8ebe388c824e` | 2026-06-27T21:48Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `87308f0c428d` | 2026-07-02T17:49Z | Meta-Factory — orientación (fase de diseño) |

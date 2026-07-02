@@ -1,7 +1,24 @@
-<!-- meta:doc sha=ca19c4654db082807d10da52c01c81e63bd32cb1 updated=2026-07-02T14:36Z -->
+<!-- meta:doc sha=b602deea7b24e69f0a3cdd00c776be3e68a70e9d updated=2026-07-02T17:52Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-02T17:52Z — COST-RUNBOOK ✅ (INC-0 de COST-DOWN): las reglas de costo que ahorran desde mañana (0 código)
+- **Qué:** primer incremento del plan FIJO N=7 (ADR-021). Entregable = bloque «Runbook de costos (ADR-021)» en
+  `CLAUDE.md` como regla de fase viva: tabla de ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta · S3 Opus
+  cierra · día-a-día = shell/Sonnet NUNCA Opus) + 7 cartas sin knob (kill-don't-idle · keep-warm 12.5× ·
+  compactación=incidente · thinking dial · higiene de prefijo · draft default+harden al cierre · vehículo sweet-spot)
+  + punteros a biblia §2.3 (TTL) y al plan.
+- **Poda M6:** la nota de auto-memoria `delegation-economy-*` dejó de narrar la doctrina (solape con biblia +
+  ADR-021 + CLAUDE.md) → quedó como PUNTERO + solo las gotchas de env reusables (JDK 21 se evapora · pollution
+  `build/product` · cwd-leak · re-pin de estación compartida). `MEMORY.md` alineado — dogfooding del propio
+  runbook (prefijo lean, C19).
+- **Sin diente propio** (son reglas de ruteo/cache): las MIDE INC-1 `PRICING-LEDGER` vía `meta outcome`. Cierre por
+  `meta increment close` (gates verdes); STATE «Ahora» condensó el bullet ya-cerrado de DELEG-PAYOFF-MEASURE a
+  puntero para hacer lugar bajo el presupuesto ≤45.
+- **Próximo (fijo, no re-decidir):** INC-1 `PRICING-LEDGER` — que el costo sea un HECHO no una estimación ciega:
+  ingesta `cache_read`/`cache_creation` en `billing.py` + tabla de precios §1.2 como DATA + bloque de costo por
+  incremento en `meta outcome` ($ total · share por tier · expiraciones · compactaciones · churn · % delegado).
 
 ## 2026-07-02T14:36Z — COST-DOWN-DIRECTION ✅: la biblia de costos (ADR-021) — plan FIJO N=7 Opus-marginal
 - **Qué:** sesión enteramente de diseño (pedido del ingeniero: «la biblia para hacer las factories más

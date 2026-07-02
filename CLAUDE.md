@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8ebe388c824e3f09f0328523a55d8b7b6893b132 updated=2026-06-27T21:48Z -->
+<!-- meta:doc sha=87308f0c428d5445af1aa1bd34a1bd77b30e292f updated=2026-07-02T17:49Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -69,3 +69,28 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
   agregar un rol es un acto DELIBERADO (editar el constante + ADR). Lo enforza el gate `roles` de `meta check`
   (un agent nombrado por dominio cae a rojo). El `verifier` (digest de UN artefacto conocido) se distingue del
   built-in `Explore` (búsqueda fan-out) — son complementarios, por eso se mantiene (ADR-020 §D1).
+- **Runbook de costos — ruteo por SESIÓN, no se re-decide en cada prompt (2026-07-02, ADR-021)**: el modelo de
+  cada sesión/turno es un parámetro de **PRECIO**, no de seguridad — la correctitud la dan los GATES + la
+  COLUMNA revisada con ojos propios, NO el IQ del ejecutor. El juicio caro (Opus) se gasta SOLO donde no hay
+  gate: contratos, alcance, residuo irreducible, columna. Ruteá por clase de tarea:
+
+  | Clase | Modelo · sesión | Cuándo |
+  | --- | --- | --- |
+  | **S1 DISEÑO** | Opus, thinking alto, sesión CORTA (matá antes de ~100k ctx) | contratos, alcance, ADRs, la columna (trust-chain) |
+  | **S2 EJECUCIÓN** | **Sonnet** (`claude --model sonnet --agent orchestrator`) | ejecutar un INC ya diseñado → commits + veredictos; rojo-persistente/seguridad/ambigüedad → archivo de escalación, NUNCA «pensar más fuerte» |
+  | **S3 CIERRE** | Opus, sesión muy corta | leer `meta outcome`/veredictos/escalaciones, revisar residuo, cerrar, handoff |
+  | **DÍA-A-DÍA** | shell directo o Sonnet — **NUNCA Opus** | producto-desde-spec-existente (la línea de fábrica es 0-modelo; palanca #1 en $/mes, costo 0) |
+
+  Reglas sin knob, SIEMPRE activas (no requieren nada de la API): (a) **kill-don't-idle** — hueco al FINAL →
+  matá la sesión; rehidratar cuesta ~500 tok, nunca la dejes abierta «por las dudas». (b) **keep-warm** —
+  hueco DURANTE (gate/slot corriendo) → gate en `run_in_background` + turno de poll cada ≤4 min (0.1×P, 12.5×
+  más barato que expirar el cache). (c) **compactación = INCIDENTE, meta 0** — re-write total en frío;
+  matar-y-rehidratar la domina siempre. (d) **thinking dial** — alto SOLO en S1; medio/bajo en S2 y turnos
+  mecánicos (thinking se cobra como output, $25/M). (e) **higiene de prefijo** — no editar
+  CLAUDE.md/agents/settings a mitad de sesión (invalida el cache desde ahí hacia adelante); agrupá los cambios
+  de columna en un solo tramo. (f) **draft por defecto** en el loop interno (`product-run --mode draft`, 41.7s
+  vs 98s medido), **harden solo al cierre**. (g) **vehículo sweet-spot** para runs medidos: `helpdesk`
+  (5 entidades), NO `snipeit` (19 — techo de regresión). La matemática del cache y la respuesta cerrada a
+  «TTL 1h vs 5m» → biblia §2.3; la doctrina completa + el plan FIJO N=7 →
+  `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` (regla de rebanada: leé SOLO §2 + tu fila §4.INC-n). Estas
+  reglas no tienen diente propio; las MIDE INC-1 (`PRICING-LEDGER`) vía `meta outcome`.

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d111015482a2e428519edc7c02f74c1c220e8c07 updated=2026-07-02T14:36Z -->
+<!-- meta:doc sha=ae6acac16b54faf90b3f4d162eab39a8630526ba updated=2026-07-02T17:52Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: COST-RUNBOOK-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -18,21 +18,17 @@
 
 - **🧭 `COST-DOWN` — dirección VIGENTE (2026-07-02, ADR-021).** Norte = economía **Opus-marginal**: la
   correctitud la dan los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta ·
-  S3 Opus cierra) + doctrina de cache + plan **FIJO N=7** (`COST-RUNBOOK`→`PRICING-LEDGER`→`HARNESS-FAST-GATE`→
-  `CONTEXT-LEAN-TEETH`→`PLAN-EXECUTE-SPLIT`→`CACHE-SHAPE` cond.→`HEADLESS-SLOTS` cond.; N/A pre-decididos).
-  KPIs: opus ≤35% (hoy 89%) · compactaciones 0 · $/incremento −60%. **Biblia auto-contenida (leer §2 + el
-  §4.INC-n que toque): `work/COST-DOWN-DIRECTION-INCREMENT.md`** + ADR-021.
+  S3 Opus cierra) + doctrina de cache + plan **FIJO N=7**. **INC-0 `COST-RUNBOOK` ✅** (el runbook de ruteo/cache
+  vive en `CLAUDE.md`, regla de fase viva); próximo = **INC-1 `PRICING-LEDGER`** (que el ledger deje de ser ciego
+  al cache: `cache_read`/`cache_creation` + tabla de precios como DATA). KPIs: opus ≤35% (hoy 89%) ·
+  compactaciones 0 · $/incremento −60%. Biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
   el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +
   `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
-- **📉 `DELEG-PAYOFF-MEASURE` ✅ (2026-07-02) — el payoff MEDIDO.** Eje FSK real (`FSK-MUTABLE-WHEN`, guard de
-  mutación por estado) construido A TRAVÉS del arnés: 2 rondas `generator`/Sonnet = **159k tok delegados**; Opus
-  leyó VEREDICTOS, no código. **Hallazgo (entregable):** la delegación sólo es económica con **gates rápidos +
-  verificación hermética + slots cortos** — sin eso el re-cache EN FRÍO del contexto de Opus (3 compactaciones
-  medidas) DOMINA y el ~15× multi-agente no se repaga (delegación acum. 0.06%, split opus 89%). 2 errores de
-  harness con fix (iteration≠acceptance gate · `stop_proof` hermético). Residual: cierre formal FSK (re-pin)
-  necesita JDK 21. Detalle + mediciones: `work/DELEG-PAYOFF-MEASURE-INCREMENT.md`.
+- **📉 `DELEG-PAYOFF-MEASURE` ✅ (2026-07-02) — el payoff MEDIDO** (fundó `COST-DOWN`). Eje FSK real
+  (`FSK-MUTABLE-WHEN`) construido A TRAVÉS del arnés (159k tok a Sonnet; Opus leyó VEREDICTOS): la delegación
+  sólo paga con gates rápidos + verificación hermética + slots cortos. Detalle: `LOG.md` + su `work/…-INCREMENT.md`.
 - **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados (base de lo de arriba).** El motor FUNCIONA;
   la capa de DIRECCIÓN (grafo content-addressed + harness verificar-no-revisar + gates de calidad) está CONSTRUIDA;
   el dial draft→harden ADOPTADO (FSK). Detalle e historia: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.

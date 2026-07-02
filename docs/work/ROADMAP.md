@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9562a08b56c65d21e3343256b4e60f5f5de13569 updated=2026-07-02T14:34Z -->
+<!-- meta:doc sha=b880bc3e8eb2da09494e8ce870028e4b891b75e1 updated=2026-07-02T17:52Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -73,7 +73,8 @@
 > los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta · S3 Opus cierra) +
 > doctrina de cache (TTL/keep-warm/kill-don't-idle, la matemática cerrada) + KPIs decidibles (opus ≤35% ·
 > compactaciones 0 · $/incremento −60%). El candidato `HARNESS-FAST-GATE` de arriba quedó ABSORBIDO como
-> **INC-2** del plan. Orden: `COST-RUNBOOK` → `PRICING-LEDGER` → `HARNESS-FAST-GATE` → `CONTEXT-LEAN-TEETH` →
+> **INC-2** del plan. Orden (progreso): **`COST-RUNBOOK` ✅ (2026-07-02 — el runbook de ruteo/cache en
+> `CLAUDE.md`)** → **`PRICING-LEDGER` ← PRÓXIMO** → `HARNESS-FAST-GATE` → `CONTEXT-LEAN-TEETH` →
 > `PLAN-EXECUTE-SPLIT` → `CACHE-SHAPE`(cond.) → `HEADLESS-SLOTS`(cond.). **La biblia auto-contenida (leer §2 +
 > el §4.INC-n que toque, NO el doc entero): `docs/work/COST-DOWN-DIRECTION-INCREMENT.md`.**
 

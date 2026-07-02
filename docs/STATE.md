@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5167eb4a9f7b131a964f4f570f630a44a1fcdcd9 updated=2026-07-02T13:43Z -->
+<!-- meta:doc sha=7018fdfa3771be3881be08902da178413b2c455d updated=2026-07-02T13:46Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -42,19 +42,10 @@
   (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
   (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
   incrementos por fábrica/eje: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — §1·§2·§3·§4 ✅ + `LEAST-PRIV-DECOUPLE` ✅ (COMPLETA).** §1
-  (`HARNESS-DECOUPLE` + `FACTORY-DELEGATION-TEETH`, 2026-06-26): `column_parity` (la columna de fábrica ≡ proyección
-  de un único source) + los teeth de delegación (`blast_radius`/`verdict_required`) bajan a la columna con ley
-  **seed-canónica** (`seed/delegation.py`, ADR-018). §3 (`FACTORY-DOC-SEAL`, 2026-06-27): el sello content-addressed
-  (ADR-009) baja de meta-only a **cada home por nivel** — `docs_manifest` parametrizado por doc-home; integridad+
-  frescura POR-HOME (editar un doc de fábrica NO toca el STATE meta → cierra P4); sólo narrativas autoradas (CLAUDE
-  generado NO se sella). §2 (`FACTORY-DOC-MIGRATE`, 2026-06-27): migrados los **16 `FSK-S0..S15`** de `docs/work/`
-  (meta) al home de fábrica `factories/full-stack-kotlin/docs/work/` como **MOVE byte-idéntico** (sello content-only
-  → `sha` intactos) → salen del `doc_set`/INDEX meta, quedan sellados por el home de fábrica (§1 single-source
-  consistente para FSK; historia inmutable `decisions/`/`LOG` sin churnear). §4 (close por-nivel) ya estaba en
-  Fase 1. **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27):** el alcance de la columna por nivel deja de ser una lista
-  de archivos curada a mano y pasa a `column_scope.py` (single-source) + gate `least_priv` dos-lados (`meta check`
-  16/16) — la fábrica hereda exactamente `FACTORY_COLUMN` (6) ⊊ `META_COLUMN` (12); sobre-privilegio = rojo.
+- **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +
+  teeth de delegación bajan a la columna con ley seed-canónica (ADR-018) · sello content-addressed por-home ·
+  16 `FSK-S0..S15` migrados byte-idéntico a la fábrica · `column_scope.py` + gate `least_priv` (fábrica ⊊ meta).
+  Autoridad: `reference/GOVERNANCE-LAYERING.md §6/§7`; historia en `LOG.md`.
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
   `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.

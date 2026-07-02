@@ -4,8 +4,9 @@ description: >-
   Orchestrator-time procedure for delegating ONE bounded code slot under the verify-not-review loop
   (ADR-017 §2). Use when, as the brain (Opus), you want code WRITTEN cheaply by the generator (Sonnet)
   and proven by a deterministic gate, without ever reading the generated code yourself — only its verdict.
-  Writes the slot manifest (.gen/active_slot.json: contract + allow_globs blast-radius + gate_cmd +
-  verdict_path), spawns the generator (Write-bounded and verdict-required by hooks), then reads the verdict.
+  Writes the slot manifest (.gen/active_slot.json: contract + allow_globs blast-radius + split gate
+  [fast iteration_gate_cmd / heavy acceptance_gate_cmd] + verdict_path), spawns the generator (Write-bounded
+  and verdict-required by hooks), then reads the verdict.
 ---
 
 # Skill · generate-slot (delegate one bounded slot, verify-not-review)
@@ -30,13 +31,23 @@ description: >-
    schema, a failing test). This is what the type-checker/gate will hold the generator to.
 2. **Bound the blast radius.** Decide `allow_globs`: the exact path(s) the generator may write. Everything else
    is denied by the `blast_radius` hook. Smaller is safer — change-scope == verification-scope.
-3. **Pick the gate.** `gate_cmd` is the deterministic command that exits 0 iff the slot is correct. Prefer a PBT
-   gate (`pbt` kind) where a property holds — it finds ~30% more bugs than example tests.
+3. **Split the gate (HARNESS-FAST-GATE).** Declare TWO gates, not one — the measured worst case was a 79-min
+   slot whose only gate was a minutes-long integration run:
+   - `iteration_gate_cmd` — FAST (budget ≤15s), re-run EVERY retry: compile + static + the blast-radius-affected
+     tests. Use `metafactory.delegation.affected_tests(root, allow_globs)` to select the tests the slot touches.
+   - `acceptance_gate_cmd` — HEAVY, run ONCE at the end (full suite / PBT / integration). Prefer a PBT gate
+     (`pbt` kind) for the property — it finds ~30% more bugs than example tests. A green verdict requires this
+     gate to have exited 0 (`acceptance_exit_code: 0`), not just the fast one.
+   Also declare the slot-size budgets (D23): `iteration_budget_s` (≤15), `max_wall_s` (≤1800). A slot that
+   can't fit ~30 min is too big — split it.
 4. **Write the manifest** to `.gen/active_slot.json` — the manifest IS a WorkOrder (a bounded unit of
    delegated work + its governance contract):
    ```json
    {"slot_id": "<name>", "contract": "<typed signature / pointer>",
-    "allow_globs": ["src/.../target.py"], "gate_cmd": ["python3","-m","..."],
+    "allow_globs": ["src/.../target.py"],
+    "iteration_gate_cmd": ["python3","-m","pytest","-q","tests/test_target.py"],
+    "acceptance_gate_cmd": ["python3","-m","pytest","-q"],
+    "iteration_budget_s": 15, "max_wall_s": 1800, "token_budget": 40000,
     "verdict_path": ".gen/<slot>.verdict.json",
     "single_responsibility": "<the slot's ONE job, one line>",
     "trust_level": "low|medium|high", "cost_class": "cheap|standard|premium",

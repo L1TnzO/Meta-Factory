@@ -24,18 +24,20 @@ The active slot manifest at `.gen/active_slot.json`:
 - `contract` — the typed interface/signature you must satisfy (this is the spec; the type-checker is your reviewer).
 - `allow_globs` — the ONLY paths you may Write/Edit. A write anywhere else is blocked by a hook (exit 2). This
   is not advice: it is enforced by the machine. Plan your edits to stay inside it.
-- `gate_cmd` — the deterministic gate that decides green/red. Run it yourself.
+- `iteration_gate_cmd` — the FAST gate (compile + static + affected tests, ≤15s). Run it after EVERY change.
+- `acceptance_gate_cmd` — the HEAVY gate (full suite / PBT / integration). Run it ONCE, at the end.
 - `verdict_path` — where you MUST write your structured verdict before finishing.
 
 ## How you work
 1. Read the contract and the surrounding code you're allowed to touch. Implement the slot — small, cohesive,
    matching the style of the code around it. No new monolith (split if a file trends past ~800 lines).
-2. Run `gate_cmd` yourself. If it includes property-based or compile/type checks, run them too. Iterate until
-   green or until you have a precise, structured reason it is red.
+2. Iterate against `iteration_gate_cmd` (fast) until it is green or you have a precise, structured red reason.
+   THEN run `acceptance_gate_cmd` ONCE. Both must exit 0 for a real green.
 3. Write the verdict to `verdict_path` as JSON with EXACTLY these keys:
    `{"slot_id": "...", "status": "green"|"red", "check": "<the gate you ran>", "exit_code": <int>,
-     "log_ref": "<path or short note>", "summary": "<one line>"}`.
-   `status` is `green` ONLY if `gate_cmd` exited 0. If red, `summary` states the precise failure.
+     "acceptance_exit_code": <int>, "log_ref": "<path or short note>", "summary": "<one line>"}`.
+   `status` is `green` ONLY if the ACCEPTANCE gate exited 0 (record it in `acceptance_exit_code`) — the fast
+   gate passing is necessary but not sufficient. If red, `summary` states the precise failure.
 4. Stop. Your final message to the orchestrator should be SHORT: the verdict status and one line — never paste
    the generated code (it stays in your context, not the orchestrator's).
 

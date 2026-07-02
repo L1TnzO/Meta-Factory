@@ -29,7 +29,8 @@ def _slot(tmp: Path) -> dict:
         "slot_id": "demo",
         "contract": "def f(x: int) -> int",
         "allow_globs": ["src/pkg/target.py", "src/pkg/sub/*.py"],
-        "gate_cmd": ["python3", "-c", "pass"],
+        "iteration_gate_cmd": ["python3", "-c", "pass"],
+        "acceptance_gate_cmd": ["python3", "-m", "pytest", "-q"],
         "verdict_path": ".gen/demo.verdict.json",
     }
 
@@ -58,7 +59,8 @@ def test_verdict_ok_well_formed(tmp_path):
     slot = _slot(tmp_path)
     (tmp_path / ".gen").mkdir()
     (tmp_path / ".gen/demo.verdict.json").write_text(json.dumps({
-        "slot_id": "demo", "status": "green", "check": "pytest", "exit_code": 0}), encoding="utf-8")
+        "slot_id": "demo", "status": "green", "check": "pytest", "exit_code": 0,
+        "acceptance_exit_code": 0}), encoding="utf-8")
     ok, detail = delegation.verdict_ok(tmp_path, slot)
     assert ok and "green" in detail
 
@@ -83,6 +85,66 @@ def test_manifest_problems_shape(tmp_path):
     bad = {"slot_id": "x", "allow_globs": "not-a-list"}
     probs = delegation.manifest_problems(bad)
     assert any("verdict_path" in p for p in probs) and any("allow_globs` must be a list" in p for p in probs)
+
+
+# ── HARNESS-FAST-GATE: split gate (fast iteration / heavy acceptance) is REQUIRED ──
+def test_manifest_requires_both_gates(tmp_path):
+    # The measured worst case was a 79-min slot whose only gate was a minutes-long integration run. A manifest
+    # that declares the OLD single `gate_cmd` (or nothing) but not the split gates is rejected.
+    legacy = {"slot_id": "x", "allow_globs": ["src/a.py"], "verdict_path": ".gen/x.json",
+              "gate_cmd": ["pytest"]}
+    probs = delegation.manifest_problems(legacy)
+    assert any("iteration_gate_cmd" in p for p in probs) and any("acceptance_gate_cmd" in p for p in probs)
+    both = legacy | {"iteration_gate_cmd": ["python3", "-c", "pass"],
+                     "acceptance_gate_cmd": ["python3", "-m", "pytest", "-q"]}
+    assert delegation.manifest_problems(both) == []
+
+
+@pytest.mark.parametrize("field,value,ok", [
+    ("iteration_budget_s", 10, True),
+    ("iteration_budget_s", 15, True),
+    ("iteration_budget_s", 30, False),          # over the fast-gate ceiling
+    ("iteration_budget_s", 0, False),
+    ("iteration_budget_s", True, False),        # bool is not a budget
+    ("max_wall_s", 1200, True),
+    ("max_wall_s", 3600, False),                # a slot > 30 min must be split (D23)
+    ("token_budget", 40000, True),
+    ("token_budget", -5, False),
+    ("token_budget", 1.5, False),
+])
+def test_slot_size_law_budgets(tmp_path, field, value, ok):
+    slot = _slot(tmp_path) | {field: value}
+    probs = [p for p in delegation.manifest_problems(slot) if field in p]
+    assert (probs == []) == ok, probs
+
+
+def test_verdict_requires_acceptance_green(tmp_path):
+    slot = _slot(tmp_path)  # declares an acceptance_gate_cmd
+    (tmp_path / ".gen").mkdir()
+    vp = tmp_path / ".gen/demo.verdict.json"
+
+    def _write(payload):
+        vp.write_text(json.dumps(payload), encoding="utf-8")
+
+    base = {"slot_id": "demo", "status": "green", "check": "iteration", "exit_code": 0}
+    _write(base)                                          # green but no acceptance recorded
+    ok, why = delegation.verdict_ok(tmp_path, slot)
+    assert not ok and "acceptance" in why
+    _write(base | {"acceptance_exit_code": 1})            # acceptance ran but FAILED
+    ok, _ = delegation.verdict_ok(tmp_path, slot)
+    assert not ok
+    _write(base | {"acceptance_exit_code": 0})            # acceptance passed → real green
+    ok, detail = delegation.verdict_ok(tmp_path, slot)
+    assert ok and "green" in detail
+
+
+def test_affected_tests_selects_by_blast_radius():
+    # Against the real repo tests/: a slot writing graph/pricing.py must select the pricing tests (not the whole
+    # suite), and a non-matching path selects nothing → the caller falls back to the module's own gate.
+    hits = delegation.affected_tests(REPO, ["src/metafactory/graph/pricing.py"])
+    assert any("test_pricing" in h for h in hits)
+    assert all(h.startswith("tests/") and h.endswith(".py") for h in hits)
+    assert delegation.affected_tests(REPO, ["src/metafactory/zzz_nonexistent_module.py"]) == []
 
 
 # ── WorkOrder vocab (PWF harvest): optional but validated against a closed set ──

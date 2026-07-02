@@ -31,8 +31,19 @@ SLOT_MANIFEST = ".gen/active_slot.json"
 #: a verdict the generator leaves behind: status + which gate it ran + that gate's exit code, by slot.
 VERDICT_REQUIRED_KEYS = ("slot_id", "status", "check", "exit_code")
 VERDICT_STATUSES = ("green", "red")
-#: keys the orchestrator must declare in the manifest before spawning the generator.
-MANIFEST_REQUIRED_KEYS = ("slot_id", "allow_globs", "verdict_path", "gate_cmd")
+#: keys the orchestrator must declare in the manifest before spawning the generator. The gate is SPLIT
+#: (HARNESS-FAST-GATE / ADR-021): a FAST `iteration_gate_cmd` re-run EVERY retry (compile + static + the
+#: blast-radius-affected tests, budget ≤ ITERATION_BUDGET_MAX_S) and a HEAVY `acceptance_gate_cmd` run ONCE at
+#: the end. A manifest without BOTH is rejected here — the measured worst case was a 79-min slot whose only
+#: gate was a minutes-long integration run. The verdict's `status: green` requires the acceptance gate to have
+#: actually exited 0 (see `verdict_ok`).
+MANIFEST_REQUIRED_KEYS = ("slot_id", "allow_globs", "verdict_path", "iteration_gate_cmd", "acceptance_gate_cmd")
+
+#: Slot-size law (D23): DECLARED ceilings the manifest is validated against so the delegation loop stays SHORT.
+#: They bound the CONTRACT up front; telemetry compares the actual wall/tokens post-hoc (the full dep-graph
+#: test selection is INC-4). A slot that cannot fit these must be split — change-scope == verification-scope.
+ITERATION_BUDGET_MAX_S = 15     # the per-retry gate must be quick — re-run every iteration, never minutes.
+SLOT_WALL_MAX_S = 1800          # ~30 min wall: a slot that needs longer is too big.
 
 # ── WorkOrder vocab (PWF harvest, ADR-017 Fase 4 PWF-VOCAB-HARVEST) ───────────────────────────────────
 # The slot manifest IS a WorkOrder: a bounded unit of delegated work with a governance contract. Professor
@@ -85,6 +96,21 @@ def manifest_problems(manifest: dict) -> list[str]:
     globs = manifest.get("allow_globs")
     if globs is not None and not isinstance(globs, list):
         out.append("`allow_globs` must be a list of path globs")
+    # Split gate (HARNESS-FAST-GATE): each declared gate must be a non-empty argv list.
+    for gk in ("iteration_gate_cmd", "acceptance_gate_cmd"):
+        g = manifest.get(gk)
+        if g is not None and not (isinstance(g, list) and g and all(isinstance(t, str) for t in g)):
+            out.append(f"`{gk}` must be a non-empty list of command tokens")
+    # Slot-size law (D23): declared budgets, validated against the ceilings when present.
+    ib = manifest.get("iteration_budget_s")
+    if ib is not None and not (isinstance(ib, (int, float)) and not isinstance(ib, bool) and 0 < ib <= ITERATION_BUDGET_MAX_S):
+        out.append(f"`iteration_budget_s` must be a number in (0, {ITERATION_BUDGET_MAX_S}] — the iteration gate must stay fast")
+    mw = manifest.get("max_wall_s")
+    if mw is not None and not (isinstance(mw, (int, float)) and not isinstance(mw, bool) and 0 < mw <= SLOT_WALL_MAX_S):
+        out.append(f"`max_wall_s` must be a number in (0, {SLOT_WALL_MAX_S}] — a bigger slot must be split (D23)")
+    tb = manifest.get("token_budget")
+    if tb is not None and not (isinstance(tb, int) and not isinstance(tb, bool) and tb > 0):
+        out.append("`token_budget` must be a positive integer")
     # WorkOrder vocab — validated only when present (backward-compatible).
     tl = manifest.get("trust_level")
     if tl is not None and tl not in TRUST_LEVELS:
@@ -161,4 +187,41 @@ def verdict_ok(root: Path, slot: dict) -> tuple[bool, str]:
         return False, f"incomplete verdict at {vp}: missing {missing}"
     if v.get("status") not in VERDICT_STATUSES:
         return False, f"verdict.status invalid: {v.get('status')!r} (expected one of {VERDICT_STATUSES})"
+    # A green verdict on a split-gate slot is only real if the HEAVY acceptance gate actually exited 0 — the
+    # fast iteration gate passing every retry is necessary but not sufficient (HARNESS-FAST-GATE).
+    if v.get("status") == "green" and slot.get("acceptance_gate_cmd"):
+        ae = v.get("acceptance_exit_code")
+        if ae != 0:
+            return (False, f"green verdict but the acceptance gate did not pass (acceptance_exit_code={ae!r}); "
+                           f"run `acceptance_gate_cmd` ONCE at the end and record its exit 0")
     return True, f"verdict {v['status']} ({v.get('check', '?')} exit {v.get('exit_code')})"
+
+
+def affected_tests(root: Path, allow_globs: list[str], tests_dir: str = "tests") -> list[str]:
+    """Minimal blast-radius → tests selection (D25): the test files whose name relates to any path the slot may
+    write, so the FAST `iteration_gate_cmd` runs only the affected tests, not the whole suite. Deterministic and
+    dependency-free (the full dep-graph selection is INC-4). Returns existing `<tests_dir>/test_*.py` paths
+    (POSIX, sorted+deduped); an empty result means 'no name-matched test — fall back to the module's own gate'.
+    Over-selection is safe (a fast gate that runs one extra test); under-selection is the only real risk."""
+    root = Path(root)
+    # Generic package/dir names carry no signal — using them as a stem would select the whole suite.
+    _GENERIC = {"src", "metafactory", "tests", "test", "seed", "lib", "app", "codegen", "verify"}
+    stems: set[str] = set()
+    for g in allow_globs or []:
+        g = str(g)
+        base = Path(g).name.replace("*", "").replace("?", "")
+        base = base[:-3] if base.endswith(".py") else base
+        parent = Path(g.replace("*", "x").replace("?", "x")).parent.name  # coarse: the module's directory
+        for s in (base, parent):
+            s = s.strip("_")
+            if len(s) >= 3 and s not in _GENERIC:
+                stems.add(s)
+    tdir = root / tests_dir
+    if not stems or not tdir.is_dir():
+        return []
+    hits: set[str] = set()
+    for tf in tdir.glob("test_*.py"):
+        tname = tf.stem[len("test_"):]
+        if any(s in tname or tname in s for s in stems):
+            hits.add(tf.resolve().relative_to(root.resolve()).as_posix())
+    return sorted(hits)

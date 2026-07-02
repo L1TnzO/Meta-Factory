@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d58cdd8692989d1ef34d4d815fdb7286f401af90 updated=2026-07-02T13:41Z -->
+<!-- meta:doc sha=5167eb4a9f7b131a964f4f570f630a44a1fcdcd9 updated=2026-07-02T13:43Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -16,15 +16,10 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
-- **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA),
-  construido pero dormido, quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO. **B `DELEG-MEASURE`** (la métrica dejó de
-  mentir 0%: el emisor matcheaba el tool viejo `Task`→`Agent`; `meta metrics` LIDERA con conteo + SPLIT por tier) ·
-  **A `DELEG-ACT-META`** (el meta delega NATURALMENTE: regla en `CLAUDE.md` + `description` proactivas + alias
-  `--agent orchestrator`, NO `agent` global) · **C `DELEG-ACT-FACTORY`** (las 5 fábricas HEREDAN el cerebro vía
-  `_emit_harness` [`codegen/delegation_brain.py`], substrate-inyectado; ==pin) · **D `DELEG-TOPOLOGY-HYGIENE`**
-  (`verifier` se MANTIENE — complementa al built-in `Explore`; regla **rol-no-dominio CON DIENTE** = gate `roles`
-  sobre 24 agents + vocab CERRADO `agent_roles.py`; nombres forward-only sin churn). **ADR-020** fija (a)–(d); prueba
-  "delega sin pedirlo" = próxima sesión (cargan al restart). `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
+- **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
+  quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
+  el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +
+  `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
 - **📉 `DELEG-PAYOFF-MEASURE` ✅ (2026-07-02) — el payoff MEDIDO.** Eje FSK real (`FSK-MUTABLE-WHEN`, guard de
   mutación por estado) construido A TRAVÉS del arnés: 2 rondas `generator`/Sonnet = **159k tok delegados**; Opus
   leyó VEREDICTOS, no código. **Hallazgo (entregable):** la delegación sólo es económica con **gates rápidos +

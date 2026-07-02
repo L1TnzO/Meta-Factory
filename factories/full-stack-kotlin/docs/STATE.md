@@ -1,9 +1,17 @@
-<!-- meta:doc sha=c2018d4f39e3a1137e0ba59543105e128f5c2340 updated=2026-06-27T16:21Z -->
+<!-- meta:doc sha=2e6d49479d583c43bbf309007319d5210b3a3d6a updated=2026-07-02T13:44Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **GUARD DE MUTACIÓN POR ESTADO (FSK-MUTABLE-WHEN, 2026-07-02)** ✅ (feature commiteada `7e1be44`; cierre formal
+  del incremento DIFERIDO — necesita JDK 21 para re-pinear no-adoptantes): clave opt-in `mutable_when: {field, in|
+  not_in}` por entidad → un activo en estado FROZEN (p.ej. `deployed`) rechaza PUT/DELETE genéricos con **409**
+  (detrás del veredicto RBAC+ownership; las operations declaradas siguen moviendo el estado). Dos dientes de dos
+  lados: VIVO (s9: ready→PUT 200 · checkout→deployed→PUT/DELETE 409) + ESTÁTICO (s5 `route_check mutability`,
+  DES-6, con probe embebido fail-closed `wrong_mutability.kt`→`MUTABLE_MISMATCH`). Probada por el pin re-derivado
+  en clon limpio (snipeit 11/11); byte-neutro sin la flag (`git diff src+seed`=0). Construida por el `writer`
+  (Sonnet) bajo el arnés verificar-no-revisar (medición de payoff: meta `DELEG-PAYOFF-MEASURE`).
 - **CRUD COMPLETO DESDE EL BROWSER — borrar una fila (FSK-FRONTEND-DELETE, 2026-06-27)** ✅: el frontend ganó la **D**
   del CRUD — un botón "borrar" en el detalle que elimina la fila y la hace DESAPARECER de la lista en un Chromium REAL.
   **Frontend-only, CERO backend** (el `DELETE /<plural>/{id}` ya estaba vivo + enforzado por ownership/RBAC; para Asset

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=53b1f5052818876e1d80392aa10d98bd9d90c8df updated=2026-07-02T19:59Z -->
+<!-- meta:doc sha=6e65d1cbef7d8c25bda3c70cbc4c3d70be274283 updated=2026-07-02T20:00Z -->
 # Incremento PRICING-LEDGER
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-02T19:42Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T20:00Z) (creado 2026-07-02T19:42Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

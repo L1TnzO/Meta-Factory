@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b7e388693b3bb0ee070869b7e851d1f6a9a58309 updated=2026-07-02T14:33Z -->
+<!-- meta:doc sha=8d06523367314f59bbd46a81328731659349dd45 updated=2026-07-02T14:35Z -->
 # Incremento COST-DOWN-DIRECTION
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-02T14:30Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T14:35Z) (creado 2026-07-02T14:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 > **ESTE DOC ES LA BIBLIA DE COSTOS.** Documento FUNDACIONAL y AUTO-CONTENIDO de la dirección

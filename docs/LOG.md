@@ -1,7 +1,26 @@
-<!-- meta:doc sha=fb39c2b3013e76bec6dd5d56fa1dafb0d297be1b updated=2026-07-02T13:40Z -->
+<!-- meta:doc sha=ca19c4654db082807d10da52c01c81e63bd32cb1 updated=2026-07-02T14:36Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-02T14:36Z — COST-DOWN-DIRECTION ✅: la biblia de costos (ADR-021) — plan FIJO N=7 Opus-marginal
+- **Qué:** sesión enteramente de diseño (pedido del ingeniero: «la biblia para hacer las factories más
+  económicas — todo, autocontenido, incrementos fijos»). Se cristalizó el diseño re-preciado con la tabla
+  real (Opus 4.8 $5/$6.25/$10/$0.50/$25 · Sonnet 5 promo · Haiku 4.5) en **ADR-021** + la biblia
+  `work/COST-DOWN-DIRECTION-INCREMENT.md` (evidencia §1 · doctrina §2 · 30 palancas §3 · plan FIJO §4 · KPIs §5).
+- **El giro conceptual:** la delegación por slots atacaba el OUTPUT de Opus pero el costo es su RESIDENCIA
+  (turnos × contexto: ~45% cache-hits + ~40% output/thinking). Fix = subir el ruteo del slot a la SESIÓN
+  (S1 Opus diseña · S2 Sonnet ejecuta · S3 Opus cierra) — seguro porque la correctitud la dan los GATES.
+- **La pregunta TTL, cerrada con matemática:** 1h conviene ⟺ ≥1 hueco >5min por sesión (2 writes 5m 2.5× >
+  1 write 1h 2×); y las 3 cartas sin knob: matar-la-sesión (~500 tok) · keep-warm poll (12.5×) ·
+  compactación=incidente. El knob no existe hoy en Claude Code → INC-5 condicional por medición.
+- **Hechos verificados con ojos:** `billing.py` preciaba solo (in,out) — ciego al cache → INC-1; la línea FSK
+  no llama a NINGÚN modelo → el día-a-día caro es la sesión que la babysittea → INC-0 (regla, 0 código).
+- **Plan congelado (no re-decidir):** `COST-RUNBOOK`→`PRICING-LEDGER`→`HARNESS-FAST-GATE`→`CONTEXT-LEAN-TEETH`→
+  `PLAN-EXECUTE-SPLIT`→`CACHE-SHAPE`(cond.)→`HEADLESS-SLOTS`(cond.). KPIs: opus ≤35% (hoy 89%) ·
+  compactaciones 0 · $/incremento −60%. Piso honesto: 20–30% irreducible (S1+S3+columna-con-ojos).
+- Cierre por `meta increment close` (17/17 verde); punteros en STATE «Ahora» (≤45) + ROADMAP (el candidato
+  `HARNESS-FAST-GATE` absorbido como INC-2).
 
 ## 2026-07-02T13:40Z — DELEG-PAYOFF-MEASURE ✅: el payoff de la delegación, MEDIDO (y el modelo de costo)
 - **Qué:** primer eje FSK REAL (`FSK-MUTABLE-WHEN` — guard de mutación por estado, un activo `deployed` no se

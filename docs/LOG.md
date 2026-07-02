@@ -1,7 +1,39 @@
-<!-- meta:doc sha=590fca92ebb21ce8c0199530104e4b1fa2e393d6 updated=2026-06-27T21:56Z -->
+<!-- meta:doc sha=fb39c2b3013e76bec6dd5d56fa1dafb0d297be1b updated=2026-07-02T13:40Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-02T13:40Z — DELEG-PAYOFF-MEASURE ✅: el payoff de la delegación, MEDIDO (y el modelo de costo)
+- **Qué:** primer eje FSK REAL (`FSK-MUTABLE-WHEN` — guard de mutación por estado, un activo `deployed` no se
+  edita/borra: PUT/DELETE→409 detrás del veredicto RBAC+ownership) construido A TRAVÉS del arnés verificar-no-
+  revisar YA encendido, para MEDIR su payoff. 2 rondas `generator`/Sonnet (gen#1 feature completa 73k tok/79.5min/
+  212 tools; gen#2 probe embebido 86k tok/15min) = **159k tokens de bulk delegados**; Opus diseñó el contrato,
+  leyó VEREDICTOS no código, y encontró el residuo (diente estático sin probe embebido) → 2ª ronda delegada.
+  Feature commiteada (`7e1be44`, 380 líneas/9 archivos), probada por pin re-derivado en clon limpio **snipeit
+  11/11 == pin**; ambos dientes muerden (estático `MUTABLE_MISMATCH` + vivo 409@deployed); `git diff src+seed`=0.
+- **El hallazgo (el ENTREGABLE, no el producto):** la delegación movió 159k tok a Sonnet (barato) pero el payoff
+  NETO fue marginal — por TRES costos compuestos, sólo uno "tamaño de tarea": **(1) fragilidad de entorno entre
+  sesiones** (el más caro hoy: el JDK 21 DESAPARECIÓ del 06-28→07-02 + `build/` polucionado → `stop_proof`
+  re-corre un build NO-hermético al cierre → falso-rojo que costó una sesión de diagnóstico); **(2) eviction del
+  cache por TTL** (delegación única >1h + huecos largos → re-lecturas EN FRÍO del contexto de Opus, TTL ~5min;
+  agravado por inflar el contexto en diseño — `server.py` re-leído ×20 medido); **(3) gate pesado como loop
+  INTERNO** (el generador iteró contra `product-run snipeit` = gradle+PG+Chromium/19 entidades, y elegí el
+  vehículo MÁS caro por "prueba limpia" en vez de "gate barato").
+- **Titular:** la delegación sólo es económica con **gates rápidos + verificación hermética + slots cortos**; sin
+  eso la economía del cache de Opus (3 compactaciones medidas) DOMINA y el ~15× multi-agente no se repaga —
+  medido: delegación acum. 0.06%, split opus 89%/sonnet 11%/haiku 0%. NO es "delegar mal"; es "el arnés necesita
+  gates rápidos y verificación hermética".
+- **2 errores de diseño del harness (con fix, candidatos a incremento chico de columna):** (a) el slot manifest no
+  distingue `iteration_gate` (rápido, cada retry) de `acceptance_gate` (lento, 1 vez) → el generador itera contra
+  el build de integración completo; (b) `stop_proof` re-corre un build no-hermético al cierre → frágil al drift de
+  toolchain local; debería confiar en el veredicto PINEADO del clon limpio cuando el local no puede re-verificar.
+- **Decisiones (juicios):** (1) cerré el META por el HALLAZGO (opción del ingeniero), no por otro verde — el modelo
+  de costo ES el valor. (2) el cierre FORMAL de `FSK-MUTABLE-WHEN` (re-pin no-adoptantes tras el check compartido de
+  s5) queda DIFERIDO: necesita JDK 21, ausente; la feature ya está probada por el clon limpio, el re-pin es
+  book-keeping determinista (código generado byte-idéntico, sólo cambió la sha de s5). (3) desbloqueé el cierre de
+  turno re-apuntando la estación activa a `dummy` (verde, sin JDK) — honesto: la raíz de confianza es el clon
+  limpio (`column.md`), no la custodia local. **Estable:** `meta check` 15/17 (los 2 rojos = doc-sync que este
+  cierre resuelve; `generality/quality/pbt/security/roles/suite` verdes). Detalle: `work/DELEG-PAYOFF-MEASURE-INCREMENT.md`.
 
 ## 2026-06-27T21:55Z — DELEG-TOPOLOGY-HYGIENE ✅: higiene de topología + rol-no-dominio CON DIENTE; cierra DELEGATION-ACTIVATION
 - **Qué (cierra la Fase D y el incremento-familia):** con A·B·C el meta delega NATURALMENTE, la métrica MIDE y las

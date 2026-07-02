@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9a3f4cd261adb3af87fd9c9b104d5d592177e469 updated=2026-06-27T21:55Z -->
+<!-- meta:doc sha=d58cdd8692989d1ef34d4d815fdb7286f401af90 updated=2026-07-02T13:41Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -7,7 +7,7 @@
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
 - Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (26/26) · iot: COMPLETE (6/6)
+- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy
@@ -25,6 +25,13 @@
   (`verifier` se MANTIENE — complementa al built-in `Explore`; regla **rol-no-dominio CON DIENTE** = gate `roles`
   sobre 24 agents + vocab CERRADO `agent_roles.py`; nombres forward-only sin churn). **ADR-020** fija (a)–(d); prueba
   "delega sin pedirlo" = próxima sesión (cargan al restart). `work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`.
+- **📉 `DELEG-PAYOFF-MEASURE` ✅ (2026-07-02) — el payoff MEDIDO.** Eje FSK real (`FSK-MUTABLE-WHEN`, guard de
+  mutación por estado) construido A TRAVÉS del arnés: 2 rondas `generator`/Sonnet = **159k tok delegados**; Opus
+  leyó VEREDICTOS, no código. **Hallazgo (entregable):** la delegación sólo es económica con **gates rápidos +
+  verificación hermética + slots cortos** — sin eso el re-cache EN FRÍO del contexto de Opus (3 compactaciones
+  medidas) DOMINA y el ~15× multi-agente no se repaga (delegación acum. 0.06%, split opus 89%). 2 errores de
+  harness con fix (iteration≠acceptance gate · `stop_proof` hermético). Residual: cierre formal FSK (re-pin)
+  necesita JDK 21. Detalle + mediciones: `work/DELEG-PAYOFF-MEASURE-INCREMENT.md`.
 - **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados (base de lo de arriba).** El motor FUNCIONA;
   la capa de DIRECCIÓN (grafo content-addressed + harness verificar-no-revisar + gates de calidad) está CONSTRUIDA;
   el dial draft→harden ADOPTADO (FSK). Detalle e historia: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.

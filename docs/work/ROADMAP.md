@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b3d7d6c4808d38ee261cbc3a5c52013cac565c47 updated=2026-06-27T21:56Z -->
+<!-- meta:doc sha=24ad1402ef32b752dfd4e505df7b208e002d973c updated=2026-07-02T13:41Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -57,6 +57,16 @@
 > KPI · (c) rol-no-dominio con diente · (d) la observabilidad NO baja a `FACTORY_COLUMN`. La prueba "delega sin
 > pedirlo" se opera en sesión nueva (agents/skills cargan al restart). Detalle:
 > **`docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md`**.
+>
+> **✅ `DELEG-PAYOFF-MEASURE` (2026-07-02) — el payoff MEDIDO.** Primer eje FSK real (`FSK-MUTABLE-WHEN`)
+> construido A TRAVÉS del arnés: 2 rondas `generator`/Sonnet = **159k tok delegados**, Opus leyó veredictos no
+> código. **Modelo de costo destilado (el entregable):** la delegación sólo es económica con **gates rápidos +
+> verificación hermética + slots cortos**; sin eso el re-cache en frío del contexto de Opus (3 compactaciones
+> medidas) domina y el ~15× multi-agente no se repaga (delegación acum. 0.06%, split opus 89%). **NEXT candidato
+> (columna, barato, sin gradle):** `HARNESS-FAST-GATE` — el slot manifest distingue `iteration_gate` (rápido, cada
+> retry) de `acceptance_gate` (lento, 1 vez) + `stop_proof` HERMÉTICO (confía en el pin del clon limpio cuando el
+> toolchain local driftea). Residual: cierre formal de `FSK-MUTABLE-WHEN` (re-pin no-adoptantes) necesita JDK 21.
+> Detalle + mediciones: **`docs/work/DELEG-PAYOFF-MEASURE-INCREMENT.md`**.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

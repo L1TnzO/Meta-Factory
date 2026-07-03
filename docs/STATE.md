@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fa58e208b687497ffd72e90e4a502ae382c7896f updated=2026-07-03T18:15Z -->
+<!-- meta:doc sha=32b5834ad7a0e05eaf0d57328b3feda540a56ff7 updated=2026-07-03T18:16Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -20,11 +20,13 @@
   correctitud la dan los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta ·
   S3 Opus cierra) + doctrina de cache + plan **FIJO N=7**. **INC-0..INC-4 ✅** (runbook · ledger cache-aware ·
   slot con gate partido + `stop_proof` hermético · contexto-lean con dientes · plan-como-data + `meta plan`).
-  **INC-5 `CACHE-SHAPE` ✅ N/A-por-medición**: el churn-de-cache post-INC-3 = **2.9% < 10%** (vs 13.1% pre; INC-3
-  lo cortó 4.5×) → NO se construye maquinaria de cache; el observer `churn_cost_share` lo dejó re-derivable
-  (`meta outcome --transcript`). Queda **INC-6 `HEADLESS-SLOTS`** (condicional a INC-4). KPIs (desde INC-1):
-  opus ≤35% (baseline **80.1%**) · compactaciones 0 · $/incr −60%. Detalle por INC: LOG + su `work/…-INCREMENT.md`;
-  biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
+  **INC-5 `CACHE-SHAPE` ✅ + INC-6 `HEADLESS-SLOTS` ✅ — ambos N/A-por-medición** (la condición pre-decidida no
+  dispara): churn post-INC-3 = **2.9% < 10%** (vs 13.1% pre; INC-3 lo cortó 4.5×) · residencia-de-slots =
+  **0.00% < 10%** en INC-4/INC-5 (el Agent síncrono BLOQUEA + TTL-1h ya activo → el prefijo sobrevive el slot
+  corto). NO se construye maquinaria de cache ni headless; los observers `churn_cost_share`/`slot_residency_share`
+  los dejan re-derivables (`meta outcome --transcript`). **Plan FIJO N=7 COMPLETO (INC-0..INC-6 ✅).** KPIs (desde
+  INC-1): opus ≤35% (baseline **80.1%**) · compactaciones 0 · $/incr −60%. Detalle por INC: LOG + su
+  `work/…-INCREMENT.md`; biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
   el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +

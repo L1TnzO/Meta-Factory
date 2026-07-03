@@ -1,7 +1,41 @@
-<!-- meta:doc sha=911c709b8a4623088068e7be6cd39ec13a1647f5 updated=2026-07-03T17:06Z -->
+<!-- meta:doc sha=f1d083c7812c2e325e18ca1aa6ed35760b9ae77f updated=2026-07-03T18:16Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-03T18:15Z — HEADLESS-SLOTS ✅ N/A-por-medición (INC-6 de COST-DOWN): la residencia-de-slots YA es $0 — cierra el plan N=7
+- **Qué:** sexto y ÚLTIMO incremento del plan FIJO N=7 (ADR-021, §4.INC-6), CONDICIONAL-final: la decisión
+  estaba pre-tomada; acá SÓLO se midió el trigger y se decidió. Trigger: tras INC-4 medido, los slots
+  delegados siguen costando **residencia del orquestador ≥10% del incremento** → si NO, cerrar N/A.
+- **Fase 1 (observer, delegada):** nada MEDÍA esa residencia. Slot `slot-residency-observer` via
+  `generate-slot` (Sonnet, verify-not-review) → `metrics.slot_residency_share(transcript)`: un slot delegado
+  BLOQUEA al orquestador de forma síncrona y los turnos del subagente viven en un transcript **separado** → 0
+  turnos facturados durante el slot; el único costo atribuible es el turno de RESUME re-escribiendo un prefijo
+  vencido. Detecta el spawn por un `tool_use` Task/Agent en el content; el resume = el siguiente turno del
+  orquestador tras un gap `>=gap_min`; cuenta sólo si es EXPIRACIÓN (`cache_creation >= 0.5×pico cache_read`),
+  tasado al modelo de ESE turno; sidechain excluido de numerador Y denominador. Honest-degradation: sin
+  transcript → None/ceros. Surface en la línea DELEGADO de `cost_report` (eje de costo-de-delegación). Commit
+  `9ac0983`; veredicto trazable a gate exit 0 (`.gen/slot-residency.verdict.json`, 72 passed = 6 nuevos + 66);
+  `meta check` 18/18.
+- **Fase 2 (medición, re-derivable con `meta outcome --transcript`):** ventana post-INC-4 (los 2 incrementos
+  con slots reales) — INC-4 `PLAN-EXECUTE-SPLIT`: **3 slots** · residencia $0.00 · **0.00%** · INC-5
+  `CACHE-SHAPE`: **1 slot** · $0.00 · **0.00%**. Causa arquitectónica (no suerte): (a) el Agent tool síncrono
+  BLOQUEA → 0 turnos facturados; (b) **TTL-1h YA activo** (la creación de cache es 100% `ephemeral_1h`, 5m=0)
+  → el prefijo sobrevive un slot de 5–11 min; (c) el resume es un cache **HIT** (INC-5: `cache_creation` 1526
+  vs `cache_read` pico 130762 = 1.2% de refresh, no expiración).
+- **Decisión:** 0.00% << 10% → trigger NO dispara → **N/A-por-medición**. No se construye `meta slot run`
+  headless ni el batch API: eliminaría un costo que **ya es ~$0** para el perfil de slot actual (5–11 min «
+  TTL-1h). Como pre-decidió el plan, no se re-abre el debate.
+- **Residual honesto (I-13):** residencia CERO para slots CORTOS; la doctrina (§2.3) nota slots de **15–79
+  min** — un slot > 60 min excedería el TTL-1h y SÍ pagaría resume → el observer NO es decorativo: hace ese
+  futuro re-trigger barato (un `meta outcome`). Ventana medida: 2 incrementos post/con-INC-4, ambos 0.00%.
+- **Cierre del plan:** con INC-6 N/A, el **plan FIJO N=7 queda COMPLETO (INC-0..INC-6 ✅)**. Commits:
+  `9ac0983` (feat observer) · `1d9ce95` (abierto+evidencia) · `ba96d7e` (cerrar). Pendiente del §5: evaluar
+  "llegamos" (2 incrementos consecutivos post-INC-4 cumpliendo los KPIs no-condicionales) — juicio de S3.
+- **Dogfood (verify-not-review, otra vez limpio):** contrato-primero + gate determinista → el generador
+  Sonnet escribió el bulk (63k tok en su contexto, no el mío), self-verificó, devolvió veredicto verde
+  trazable; Opus sólo diseñó el contrato + midió + decidió. El observer detectó los 3 slots de INC-4 que mi
+  script-desechable (heurística de gap) NO vio — la implementación por `tool_use` es más robusta.
 
 ## 2026-07-03T17:05Z — CACHE-SHAPE ✅ N/A-por-medición (INC-5 de COST-DOWN): el churn de cache YA lo mató INC-3
 - **Qué:** quinto incremento del plan FIJO N=7 (ADR-021, §4.INC-5), CONDICIONAL: la decisión estaba tomada

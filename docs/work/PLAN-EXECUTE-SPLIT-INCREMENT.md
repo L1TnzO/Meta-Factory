@@ -1,7 +1,7 @@
-<!-- meta:doc sha=332cf06dbb495965a6bfb06afdec5e908fa73bcd updated=2026-07-03T13:39Z -->
+<!-- meta:doc sha=b34ed79edbe09e5a0414239adb0f776a483b5e6d updated=2026-07-03T14:33Z -->
 # Incremento PLAN-EXECUTE-SPLIT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T13:25Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T14:33Z) (creado 2026-07-03T13:25Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > INC-4 del plan FIJO `COST-DOWN` (ADR-021 §4). Deps: INC-1 (KPIs) + INC-2 (slot rápido) — ambos ✅.
 
@@ -26,7 +26,7 @@ residuo. Se DEMUESTRA dogfoodeando un incremento real con **opus-share medido < 
 | 2 | **Diente `plan`** — `verify/checks/plan_gate.py` dos-lados (plan bien formado / N/A sin plan → verde; plan sintético malformado —slot sin gate · ciclo · diferido sin razón— → rojo), wired en `cmd_check`. Tests `tests/test_plan_gate.py`. | S1 | ✅ |
 | 3 | **Verbo + escalación** — `cmd_plan` (`meta plan check\|next\|status`) en `cli.py`; protocolo `.gen/escalations/*.json` (slot · fallo · intentos · hipótesis) validado por shape; `meta plan status` surface las escalaciones abiertas. Tests `tests/test_plan_cli.py`. | S1 | ✅ |
 | 4 | **Runbook S2 + plan dogfood** — `docs/reference/PLAN-EXECUTE-RUNBOOK.md` (loop mecánico S2: `meta plan next` → `generate-slot` → veredicto → commit; rojo×2 → escalación) + authoring del `.gen/plan.json` del incremento dogfood (target §Dogfood). | S1 | ✅ |
-| 5 | **DOGFOOD + cierre** — S2 (Sonnet) ejecuta el plan real → commits + veredictos; S3 (Opus) lee `meta outcome`, verifica **opus-share < 50%**, cierra. | S2+S3 | ⏳ |
+| 5 | **DOGFOOD + cierre** — S2 (Sonnet) ejecuta el plan real → commits + veredictos; S3 (Opus) lee `meta outcome`, verifica **opus-share < 50%**, cierra. | S2+S3 | ✅ |
 
 ## Dogfood — qué incremento real ejecutamos vía plan (decisión de S1)
 El criterio de cierre exige un incremento REAL con bulk DELEGABLE (varios slots acotados con gate determinista,
@@ -78,3 +78,37 @@ Arrancá con `claude --model sonnet --agent orchestrator` en esta misma carpeta 
 Después, una sesión S3 (Opus, corta): `meta outcome` (verificar **opus-share < 50%**, baseline 89%) → cerrar.
 > Si preferís otro target de dogfood, la máquina es target-independiente: reescribí `.gen/plan.json` en una S1
 > corta. El plan actual es la recomendación de S1 (D25 ya estaba en scope de INC-4).
+
+## Evidencia — Fase 5 (DOGFOOD, ejecutado 2026-07-03)
+**Ejecución mecánica real, sin desviación del runbook.** La sesión S2 arrancó con `claude --model sonnet
+--agent orchestrator` (confirmado post-hoc: el transcript propio de la sesión resuelve a `claude-sonnet-5`,
+no opus) e hizo el loop 3 veces sin escalaciones (`.gen/escalations/` vacío):
+- `dep-affected-core` → `src/metafactory/graph/affected.py` + `tests/test_graph_affected.py` — veredicto
+  verde (`exit_code`0/`acceptance_exit_code`0, 24 passed) → commit `7c4073d`.
+- `dep-affected-pbt` → `tests/test_graph_affected_pbt.py` (PBT dos-lados: superset del name-match + subset
+  propio en cambio-hoja) — veredicto verde (46 passed) → commit `e83abed`.
+- `affected-report` → `src/metafactory/graph/affected_report.py` + `tests/test_affected_report.py` (ratio de
+  selección) — veredicto verde (12 passed) → commit `9e9e929`.
+Cada veredicto fue re-verificado con `delegation.verdict_ok(root, slot)` (no solo leído/confiado) antes de
+marcar `done` en `.gen/plan.json` y commitear; `meta plan status` terminó en `done 3 · pending 0 · blocked 0`
+y `meta plan next` → `DONE`.
+
+**opus-share medido (dos alcances, ledger real reconstruido de los transcripts .jsonl de la sesión propia +
+los 3 subagentes `generator`, `.gen/plan-execute-split-{fase5,whole}.ledger.json`):**
+| Alcance | $ opus-share | tok opus-share |
+| --- | --- | --- |
+| **Fase 5 sola** (S2-ejecuta + S3-cierra + 3 generators) — el alcance QUE DECLARA el criterio de cierre #4 | **0.0%** (100% sonnet, $5.54 total) | **0.0%** |
+| Incremento COMPLETO (Fases 1–4 columna/diseño + Fase 5) — dato lateral, fuera del alcance declarado | 65.3% ($18.21 total) | 38.4% |
+**Criterio #4 CUMPLIDO** en su alcance declarado (Fase 5: opus-share < 50%) — de hecho 0%, no solo <50%: la
+sesión S2 completa (orquestación + 3 slots generados+auto-verificados) corrió íntegramente en Sonnet, cero
+tokens Opus. Hallazgo honesto no-bloqueante: el share sobre el INCREMENTO COMPLETO (65.3% en $) sigue alto
+porque Fases 1–4 (la COLUMNA — ley del plan, diente, verbo, runbook) es Opus por diseño (trust-chain,
+SELF-IMPROVEMENT §3, no delegable) y el pricing de cache-read de Opus es ~10× el de Sonnet — un token-share
+menor (38.4%) igual domina el $-share (65.3%) por precio, no por volumen. Esto es una entrada legítima para
+el programa `COST-DOWN` (¿S1 más corto? ¿scope de la métrica es el ciclo completo o solo Fase 5?) pero NO
+bloquea el cierre de INC-4: el criterio, tal como está escrito («Fase 5 = S2+S3... es el criterio de cierre
+mismo»), es sobre Fase 5, y ahí el resultado es limpio y sobra margen.
+
+**Gates**: `meta check` 18/19 (1 rojo: `docs` — `docs/STATE.md` más vieja que un doc fresco del mismo nivel;
+se corrige en el cierre re-tocando STATE, no señala nada del incremento) · suite completa verde · árbol
+limpio tras cada commit.

@@ -6,7 +6,7 @@ the full combined stdout+stderr is preserved on disk, while the caller's stdout 
 one summary line.
 
 Public API:
-  run(cmd, root, *, label=None, log_dir=None) -> int
+  run(cmd, root, *, label=None, log_dir=None, env=None) -> int
 """
 from __future__ import annotations
 
@@ -21,8 +21,14 @@ def run(
     *,
     label: str | None = None,
     log_dir: Path | None = None,
+    env: dict[str, str] | None = None,
 ) -> int:
     """Run `cmd` (cwd=root), log its full combined output, print one VEREDICTO line.
+
+    `env` (optional): when given, the subprocess runs with EXACTLY that environment mapping
+    (caller's job to inherit-then-override, e.g. `dict(os.environ)` plus overrides). When `None`
+    (default), the subprocess inherits the current process environment, unchanged from before
+    this parameter existed.
 
     Returns the subprocess's real exit code, propagated unchanged.
     """
@@ -41,6 +47,7 @@ def run(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        env=env,
     )
     log_path.write_text(proc.stdout or "", encoding="utf-8")
 

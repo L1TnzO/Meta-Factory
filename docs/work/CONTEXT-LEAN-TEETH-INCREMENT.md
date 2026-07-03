@@ -1,4 +1,4 @@
-<!-- meta:doc sha=59c99aee3257c69caa16c50fefeb6b68401569e1 updated=2026-07-03T03:51Z -->
+<!-- meta:doc sha=66c03dff607d29fa4a56061d74aaca8e73dfac09 updated=2026-07-03T04:17Z -->
 # Incremento CONTEXT-LEAN-TEETH
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
@@ -55,7 +55,7 @@ del slot, y verbos/wrappers que colapsan secuencias verbosas en 1 línea + artef
 | 2 | (c) `file_budget` en `delegation.py` + diente two-sided + re-materializar 5 fábricas (COLUMNA) | ✅ 1c5d4a8 (column_parity 5/5) |
 | 3 | (b) `meta doc slice` (DELEGADO) | ✅ S2: slot `doc-slice` vía `generator`, VEREDICTO green (suite 814 passed, acceptance_exit_code=0); verbo cableado en `cli.py` por el orquestador post-green |
 | 4 | (d) wrappers de gate 1-línea (DELEGADO) | ✅ S2: slot `gate-wrap` vía `generator`, green al primer intento (821 passed, acceptance_exit_code=0); `metafactory.gate_wrap.run()` — librería, sin verbo CLI nuevo (el contrato no lo pide) |
-| 5 | (f) verbos compuestos del audit B11 (DELEGADO) | ⏳ S2 |
+| 5 | (f) verbos compuestos del audit B11 (DELEGADO) | ✅ S2: slot `toolchain-run` vía `generator`, VEREDICTO green al primer intento (suite 835/835); orquestador cableó 2 verbos compuestos: `meta jdk-run` + `meta pin --verify` |
 
 > **Handoff (2026-07-03):** las 2 fases COLUMNA (mis ojos, trust-chain) cerradas y commiteadas por la sesión
 > Opus S1/diseño. Fase 3 (b) ejecutada en S2 (Sonnet `--agent orchestrator`): slot manifest → `generator` →
@@ -67,16 +67,28 @@ del slot, y verbos/wrappers que colapsan secuencias verbosas en 1 línea + artef
 > green real (814 passed). Fase 4 (d) `gate_wrap` corrida con el manifest ya corregido → green al primer
 > intento (821 passed), sin verbo CLI nuevo (el contrato de (d) no lo pide, a diferencia de (b)).
 >
-> **Handoff #2 (2026-07-03, mismo día, nueva sesión S2 — mi propio nudge de ~120k disparó en vivo, kill-
-> don't-idle ADR-021):** queda SOLO la fase 5, (f) verbos compuestos (B11). Candidatos medidos en la biblia
-> (`work/COST-DOWN-DIRECTION-INCREMENT.md` §3 B11): colapsar `eval "$(bash tools/toolchain.sh ensure)" &&
-> gradle …` en un verbo, y `meta ci --rederive` + el chequeo de pin en otro. Mismo patrón: escribir el test
-> contract-first, manifest `.gen/active_slot.json` (recordá el gotcha: `acceptance_gate_cmd` DEBE ser
-> `["python3","-m","pytest","-q","tests"]`, NO bare `pytest -q`), spawnear `generator`, aceptar por VEREDICTO,
-> cablear el/los verbo(s) en `cli.py` (composición, no delegable), actualizar STATE.md en el MISMO commit que
-> cualquier doc de incremento (el gate `docs-consistency` compara last-commit por nivel — tocar el incremento
-> sin tocar STATE lo deja rojo hasta el próximo touch). Después: `meta increment close` (gateado: árbol limpio
-> + estación activa verde) — cierra INC-3 completo.
+> **Fase 5 (2026-07-03, mismo día, 3ª sesión S2 — el nudge de ~120k volvió a disparar en vivo, kill-don't-
+> idle ADR-021, y se decidió terminar en vez de cortar a mitad de fase):** slot `toolchain-run` delegado con
+> el mismo patrón (test-first en `tests/test_toolchain_run.py` + 2 tests nuevos en `tests/test_gate_wrap.py`,
+> manifest con `acceptance_gate_cmd: ["python3","-m","pytest","-q","tests"]` desde el arranque — gotcha ya
+> conocido) → `generator` implementó `src/metafactory/toolchain_run.py` (parse_env_exports + run) y un
+> parámetro `env=` opcional en `gate_wrap.run` (backward-compatible), VEREDICTO green al primer intento
+> (835/835). El orquestador cableó DOS verbos compuestos directamente en `cli.py` (composición, no delegable,
+> mismo precedente de fase 3): `meta jdk-run [--root D] [--label L] -- <cmd>` (colapsa
+> `eval "$(tools/toolchain.sh ensure)" && <cmd>` en 1 verbo) y `meta pin --factory S [--product P] --verify`
+> (colapsa `meta pin` + `meta ci --rederive` en 1 verbo, componiendo `_pin_from_proofs`/`_ci_one` ya
+> existentes). Residuo real que el veredicto verde NO detectó (el gate probaba EXACTAMENTE lo que el
+> contrato pedía, y el contrato tenía un bug de diseño mío): el default de `ensure_cmd` resolvía
+> `tools/toolchain.sh` contra el `root` del comando envuelto (p.ej. un directorio de producto de fábrica sin
+> `tools/` propio) en vez de contra la raíz del repo meta (donde el script real vive) — roto para el uso real
+> (`meta jdk-run --root factories/.../products/x -- ./gradlew …`). Corregido con ojos propios (3 líneas:
+> `repo_root()` en vez de `root` para el default de `ensure_cmd`) + test actualizado que separa ambos roots;
+> smoke-test real end-to-end (`meta jdk-run --root /tmp -- echo hello`, JDK 21 real resuelto desde caché, sin
+> red) confirmó el fix. Lección: un VEREDICTO verde certifica el contrato, no que el contrato sea correcto —
+> el contrato lo escribe/revisa el orquestador con ojos propios.
+>
+> **INC-3 CONTEXT-LEAN-TEETH completo** (5/5 fases, `meta check` 17/17, suite 846/846) — listo para
+> `meta increment close`.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta check` verde (todos los gates, incl. `column_parity` tras re-materializar) + suite verde.

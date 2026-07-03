@@ -7,11 +7,12 @@ Verbs:
   product-run --factory S    run factory S's own product line e2e (M8's honest e2e)
   rtm --factory S            re-derive the RTM from artifacts (SATISFIED/UNSATISFIED)
   ci --rederive              external re-derivation: rebuild on clean state, demand pinned
-  pin --factory S            write the pinned verdict (committed honest constant)
+  pin --factory S            write the pinned verdict (committed honest constant); --verify also re-derives (B11)
   promote --factory S        Fase G: promote iff the engine passes a diverse scenario corpus AND no downstream verdict drops
   verify --rerun             re-verify the active station (Lock #3, used by the Stop hook)
   doc-sync                   stamp docs + regenerate INDEX (used by the PostToolUse hook)
   doc slice <doc> [§|title]  print ONE section of a doc (or --abstract) instead of the whole file (C16)
+  jdk-run [--root D] -- CMD  ensure JDK 21 + run CMD, 1-line VEREDICTO + log (collapses toolchain+gate, B11)
 
 Every expensive verb returns a BOUNDED verdict (≤10 lines) + a pointer to the disk log.
 """
@@ -488,7 +489,12 @@ def _pin_from_proofs(fdir: Path, meta_root: Path, slug: str, *, chassis: Path | 
 
 def cmd_pin(args) -> int:
     """Write the pinned verdict from the current (honest) proofs of the product line.
-    `--product <p>` pins a named INSTANCE (R1), writing products/<p>/pinned_verdict.json."""
+    `--product <p>` pins a named INSTANCE (R1), writing products/<p>/pinned_verdict.json.
+
+    `--verify` (B11 / CONTEXT-LEAN-TEETH fase 5): collapse the measured 2-command sequence
+    `meta pin` + `meta ci --rederive` (pin, then separately confirm the pin re-derives on a
+    clean tree) into ONE verb/turn. Pure composition over `_pin_from_proofs`/`_ci_one` (both
+    already exercised elsewhere) — no new verification logic, just one fewer round trip."""
     slug = args.factory
     product = getattr(args, "product", None)
     root, chassis = _resolve_target(slug, product)
@@ -497,8 +503,14 @@ def cmd_pin(args) -> int:
         print(f"VEREDICTO  pin — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde; corré product-run primero")
         return 1
     label = f"pin {slug}/{product}" if product else f"pin {slug}"
-    print(f"VEREDICTO  {label} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
-    return 0
+    if not getattr(args, "verify", False):
+        print(f"VEREDICTO  {label} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
+        return 0
+    ci_ok, ci_note = _ci_one(slug, product)
+    status = "PASS" if ci_ok else "FAIL"
+    print(f"VEREDICTO  {label} --verify — {status}   (exit {0 if ci_ok else 1})")
+    print(f"RESUMEN    pineados {len(info)} proof_sha · re-derivación en árbol limpio: {ci_note}")
+    return 0 if ci_ok else 1
 
 
 def cmd_promote(args) -> int:
@@ -890,6 +902,24 @@ def cmd_doc_slice(args) -> int:
     return 0
 
 
+def cmd_jdk_run(args) -> int:
+    """`meta jdk-run [--root DIR] [--label L] -- <cmd...>` (B11 / CONTEXT-LEAN-TEETH fase 5): collapse the
+    measured 2-step sequence `eval "$(bash tools/toolchain.sh ensure)" && <verbose gradle/npm cmd>`
+    (HARNESS-FAST-GATE fase-5 bonus evidence — resolve the JDK-21 toolchain, THEN run a verbose build/test,
+    often across separate turns) into ONE verb: resolve JAVA_HOME/PATH and run `cmd` with a single
+    VEREDICTO line + full log artifact (reusing the C18 discipline). Thin CLI glue over
+    `metafactory.toolchain_run` (the gated module); composition only, no new logic here."""
+    from . import toolchain_run
+    cmd = list(args.cmd)
+    if cmd and cmd[0] == "--":
+        cmd = cmd[1:]
+    if not cmd:
+        print("error: falta el comando a correr (ej. `meta jdk-run -- ./gradlew test`)", file=sys.stderr)
+        return 1
+    root = Path(args.root) if args.root else Path.cwd()
+    return toolchain_run.run(cmd, root, label=args.label)
+
+
 def cmd_billing(args) -> int:
     """Show the delegation split (Opus·Sonnet·Haiku) of a billing-ledger (ADR-017, Fase 5)."""
     from .graph.cli import run_billing
@@ -951,7 +981,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("rtm"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_rtm)
     sp = sub.add_parser("ci"); sp.add_argument("--rederive", action="store_true"); sp.add_argument("--factory", default="dummy")
     sp.add_argument("--product", default=None); sp.add_argument("--all-products", action="store_true"); sp.set_defaults(func=cmd_ci)
-    sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None); sp.set_defaults(func=cmd_pin)
+    sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None)
+    sp.add_argument("--verify", action="store_true", help="tras pinear, re-derivar en árbol limpio y confirmar == pin (B11: colapsa `pin`+`ci --rederive` en 1 verbo)")
+    sp.set_defaults(func=cmd_pin)
     sp = sub.add_parser("promote"); sp.add_argument("--factory", required=True)
     sp.add_argument("--baseline", default="baseline_verdicts.json"); sp.add_argument("--allow-hold", action="store_true")
     sp.set_defaults(func=cmd_promote)
@@ -982,6 +1014,8 @@ def build_parser() -> argparse.ArgumentParser:
     dp = sub.add_parser("doc"); dsub = dp.add_subparsers(dest="doc_cmd", required=True)
     ds = dsub.add_parser("slice"); ds.add_argument("doc"); ds.add_argument("selector", nargs="?", default=None)
     ds.add_argument("--abstract", action="store_true"); ds.set_defaults(func=cmd_doc_slice)
+    jr = sub.add_parser("jdk-run"); jr.add_argument("--root", default=None); jr.add_argument("--label", default=None)
+    jr.add_argument("cmd", nargs=argparse.REMAINDER); jr.set_defaults(func=cmd_jdk_run)
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
     op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
     op.add_argument("--billing", default=None); op.add_argument("--transcript", default=None); op.set_defaults(func=cmd_outcome)

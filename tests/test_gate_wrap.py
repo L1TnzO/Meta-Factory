@@ -8,12 +8,17 @@ already used by `meta check`'s bounded verdict) to ad-hoc verbose gates (C18, bi
 `work/COST-DOWN-DIRECTION-INCREMENT.md` row C18: "stdout verboso infla todos los turnos").
 
 Public API under test:
-  run(cmd: list[str], root: Path, *, label: str | None = None, log_dir: Path | None = None) -> int
+  run(cmd: list[str], root: Path, *, label: str | None = None, log_dir: Path | None = None,
+      env: dict[str, str] | None = None) -> int
       Runs `cmd` (subprocess, cwd=root), capturing combined stdout+stderr FULLY into a log file under
       `log_dir` (default `<root>/.gen/gate_logs/`). Prints EXACTLY one line to stdout:
         `VEREDICTO <label or cmd[0]> — PASS (exit 0) · log: <path>`
         `VEREDICTO <label or cmd[0]> — FAIL (exit N) · log: <path>`
       and returns the subprocess's REAL exit code, propagated (never swallowed, never forced to 0/1).
+      `env` (added INC-3 fase 5 / B11, for `metafactory.toolchain_run`): when given, the subprocess runs
+      with EXACTLY that environment (a full mapping, e.g. `dict(os.environ)` plus overrides — the caller's
+      job, not this module's, to inherit-then-override). `env=None` (default) is UNCHANGED behavior: the
+      subprocess inherits the CURRENT process environment, same as before this parameter existed.
 """
 from __future__ import annotations
 
@@ -95,3 +100,32 @@ def test_custom_log_dir_is_respected(tmp_path, capsys):
     assert custom.is_dir()
     assert any(custom.iterdir())
     assert not (tmp_path / ".gen" / "gate_logs").exists()
+
+
+def test_env_param_is_passed_to_subprocess(tmp_path):
+    import os
+    marker = tmp_path / "seen.txt"
+    cmd = _py(f"import os; open({str(marker)!r}, 'w').write(os.environ.get('MY_CUSTOM_VAR',''))")
+    custom_env = dict(os.environ)
+    custom_env["MY_CUSTOM_VAR"] = "hello-env"
+    rc = gate_wrap.run(cmd, tmp_path, env=custom_env)
+    assert rc == 0
+    assert marker.read_text() == "hello-env"
+
+
+def test_env_none_still_inherits_parent_environment(tmp_path):
+    import os
+    key, val = "METAFACTORY_TEST_PARENT_ENV", "parent-value"
+    marker = tmp_path / "seen.txt"
+    cmd = _py(f"import os; open({str(marker)!r}, 'w').write(os.environ.get({key!r},''))")
+    old = os.environ.get(key)
+    os.environ[key] = val
+    try:
+        rc = gate_wrap.run(cmd, tmp_path)  # no env= -> unchanged behavior
+        assert rc == 0
+        assert marker.read_text() == val
+    finally:
+        if old is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = old

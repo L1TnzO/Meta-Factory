@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -231,6 +232,135 @@ def churn_cost_share(transcript: Path, fraction: float = 0.5) -> dict:
 
     share = churn_usd / session_usd if session_usd > 0 else 0.0
     return {"churn_usd": churn_usd, "session_usd": session_usd, "share": share}
+
+
+def _parse_ts(raw: str) -> datetime | None:
+    """Best-effort ISO-8601 parse (accepts a trailing `Z`). Returns None on missing/malformed input —
+    a turn with no parseable timestamp simply can't anchor a blocking-gap measurement."""
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _is_slot_spawn(content: Any) -> bool:
+    """True when an assistant `content` list carries a `tool_use` block spawning a delegated slot
+    (`Task` or `Agent` — the two tool names Claude Code has used for subagent spawns)."""
+    if not isinstance(content, list):
+        return False
+    for block in content:
+        if isinstance(block, dict) and block.get("type") == "tool_use" and block.get("name") in ("Task", "Agent"):
+            return True
+    return False
+
+
+def slot_residency_share(transcript: Path, gap_min: float = 2.0, fraction: float = 0.5) -> dict:
+    """USD share of the increment spent on orchestrator cache-RESIDENCY across delegated-slot boundaries
+    (the cost INC-6's headless `claude -p` would eliminate; the delegation twin of `churn_cost_share`).
+
+    A delegated slot blocks the orchestrator synchronously while the subagent's own turns live in a
+    SEPARATE (sidechain) transcript, so the orchestrator emits no billed turns while the slot runs — the
+    only slot-attributable orchestrator cost is the RESUME turn re-writing a prefix that expired while it
+    was blocked. Self-contained: walks ONE transcript once (same per-message usage+model extraction as
+    `rollup_from_transcript`/`cache_series`), skipping `isSidechain: true` turns entirely (the subagent's
+    own cost — excluded from both numerator and denominator).
+
+    A turn is a slot-spawn when its assistant `content` carries a `tool_use` block named `Task`/`Agent`.
+    For each slot-spawn S, the resume turn R is the first LATER orchestrator turn whose timestamp is
+    `>= gap_min` minutes after S's (a blocking gap); no such turn -> that slot contributes 0. R is an
+    EXPIRATION when its `cache_creation_input_tokens >= fraction * peak_read` (peak `cache_read_input_
+    tokens` seen so far, inclusive of R — the same expiration signal `detect_expirations` uses). Only
+    expirations add residency, priced at `write_5m` (same convention `churn_cost_share`'s numerator uses).
+
+    - `residency_usd` = sum over expiring resumes of `pricing.price_tokens(model, cache_creation=...)`.
+    - `session_usd` = full priced rollup of every (non-sidechain) orchestrator turn.
+    - `share` = residency_usd/session_usd, or 0.0 when session_usd == 0.
+    - `slots` = count of slot-spawn turns (regardless of whether their resume expired).
+    Missing / empty transcript -> {"residency_usd": 0.0, "session_usd": 0.0, "share": 0.0, "slots": 0}
+    (re-derivable, honest).
+
+    Returns {"residency_usd": float, "session_usd": float, "share": float, "slots": int}.
+    """
+    p = Path(transcript)
+    if not p.exists():
+        return {"residency_usd": 0.0, "session_usd": 0.0, "share": 0.0, "slots": 0}
+
+    turns: list[dict[str, Any]] = []
+    peak_so_far = 0
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("isSidechain") is True:
+            continue  # the subagent's own cost — excluded from both numerator and denominator
+
+        usage = None
+        model_id = ""
+        content: Any = None
+        if isinstance(obj.get("usage"), dict):
+            usage = obj["usage"]
+            model_id = str(obj.get("model", ""))
+            content = obj.get("content")
+        elif isinstance(obj.get("message"), dict):
+            msg = obj["message"]
+            if isinstance(msg.get("usage"), dict):
+                usage = msg["usage"]
+                model_id = str(msg.get("model", ""))
+                content = msg.get("content")
+        if usage is None:
+            continue
+
+        cache_read = int(usage.get("cache_read_input_tokens", 0))
+        if cache_read > peak_so_far:
+            peak_so_far = cache_read
+
+        turns.append({
+            "ts": _parse_ts(str(obj.get("timestamp", ""))),
+            "model": model_id,
+            "input": int(usage.get("input_tokens", 0)),
+            "output": int(usage.get("output_tokens", 0)),
+            "cache_creation": int(usage.get("cache_creation_input_tokens", 0)),
+            "cache_read": cache_read,
+            "is_spawn": _is_slot_spawn(content),
+            "peak": peak_so_far,  # cache_read peak seen so far, inclusive of this turn
+        })
+
+    session_usd = 0.0
+    for t in turns:
+        session_usd += pricing.price_tokens(
+            t["model"], input_tokens=t["input"], output_tokens=t["output"],
+            cache_creation=t["cache_creation"], cache_read=t["cache_read"],
+        )
+
+    residency_usd = 0.0
+    slots = 0
+    gap = timedelta(minutes=gap_min)
+    for i, t in enumerate(turns):
+        if not t["is_spawn"]:
+            continue
+        slots += 1
+        if t["ts"] is None:
+            continue
+        resume = None
+        for later in turns[i + 1:]:
+            if later["ts"] is None:
+                continue
+            if later["ts"] - t["ts"] >= gap:
+                resume = later
+                break
+        if resume is None:
+            continue
+        if resume["peak"] > 0 and resume["cache_creation"] >= fraction * resume["peak"]:
+            residency_usd += pricing.price_tokens(resume["model"], cache_creation=resume["cache_creation"])
+
+    share = residency_usd / session_usd if session_usd > 0 else 0.0
+    return {"residency_usd": residency_usd, "session_usd": session_usd, "share": share, "slots": slots}
 
 
 def cost(rollup: dict[str, dict[str, int]], prices: dict[str, dict[str, float]] = PRICES) -> dict[str, Any]:

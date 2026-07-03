@@ -47,6 +47,12 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
     if transcript is not None:
         churn_share = metrics.churn_cost_share(transcript)["share"]
 
+    # ── residency_share: the INC-6 trigger metric ($ spent on orchestrator cache-residency across
+    # delegated-slot boundaries — the delegation twin of churn_share above), same honest-degradation law.
+    residency_share: float | None = None
+    if transcript is not None:
+        residency_share = metrics.slot_residency_share(transcript)["share"]
+
     # ── compactions / churn, from the .metamem series (a real 0 with an empty series) ──────────────────
     compactions = len(instrument.compact_series(root))
     churn = instrument.thrashing_rollup(root)["extra_reads"]
@@ -66,6 +72,7 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
         "share_by_tier": share_by_tier,
         "expirations": expirations,
         "churn_share": churn_share,
+        "residency_share": residency_share,
         "compactions": compactions,
         "churn": churn,
         "delegated_pct": delegated_pct,
@@ -91,6 +98,9 @@ def cost_block(root: Path, transcript: Path | None = None, ledger: Path | None =
     lines.append(f"EXPIRACIONES  {exp_str} · COMPACTACIONES {s['compactions']} · CHURN {s['churn']} re-lectura(s) extra")
 
     tpt_str = "sin medir" if s["tools_per_turn"] is None else f"{s['tools_per_turn']:.2f}"
-    lines.append(f"DELEGADO   {s['delegated_pct']:.1f}% · TOOLS/TURNO {tpt_str}")
+    delegado_line = f"DELEGADO   {s['delegated_pct']:.1f}% · TOOLS/TURNO {tpt_str}"
+    if s["residency_share"] is not None:
+        delegado_line += f" · RESIDENCIA-SLOTS {s['residency_share'] * 100:.1f}% del gasto"
+    lines.append(delegado_line)
 
     return lines

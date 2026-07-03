@@ -1,7 +1,7 @@
-<!-- meta:doc sha=efc47dbae7b60903a1ef639b390738fc82583c36 updated=2026-07-03T18:14Z -->
+<!-- meta:doc sha=fa6318cc7372ef59873558ddb599c60ba252cb5d updated=2026-07-03T18:15Z -->
 # Incremento HEADLESS-SLOTS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T18:07Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T18:15Z) (creado 2026-07-03T18:07Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1023,6 +1023,10 @@ def build_parser() -> argparse.ArgumentParser:
     op.add_argument("--billing", default=None); op.add_argument("--transcript", default=None); op.set_defaults(func=cmd_outcome)
     bm = sub.add_parser("benchmark"); bm.add_argument("name", nargs="?", default=None); bm.set_defaults(func=cmd_benchmark)
     sub.add_parser("dial").set_defaults(func=cmd_dial)
+    plp = sub.add_parser("plan"); plp.set_defaults(func=cmd_plan)
+    plsub = plp.add_subparsers(dest="plan_cmd", required=True)
+    for _pc in ("check", "next", "status"):
+        plsub.add_parser(_pc)
     return p
 
 
@@ -1058,6 +1062,74 @@ def cmd_dial(args) -> int:
     from .verify import dial
     print(dial.render(_meta_root()))
     return 0 if not [pr for f in dial.factories(_meta_root()) for pr in dial.gate_problems(_meta_root(), f)] else 1
+
+
+def cmd_plan(args) -> int:
+    """`meta plan check|next|status` (ADR-021 INC-4, PLAN-EXECUTE-SPLIT): the console for plan-as-DATA
+    execution. `check` re-runs the `plan` gate's validator on `.gen/plan.json` standalone. `next` prints the
+    next actionable WorkOrder as a slot manifest an S2 (Sonnet) session drops into `generate-slot`. `status`
+    shows lifecycle counts + open escalations an S3 (Opus) close reads. Thin glue over `metafactory.plan`."""
+    from . import plan as planmod
+    root = _meta_root()
+    p = planmod.load_plan(root)
+    if p is None:
+        print("VEREDICTO  plan — N/A   (exit 0)")
+        print("RESUMEN    no hay `.gen/plan.json` — planificar es opt-in (S1 lo escribe; ver PLAN-EXECUTE-RUNBOOK)")
+        return 0
+
+    if args.plan_cmd == "check":
+        problems = planmod.plan_problems(p)
+        if problems:
+            print("VEREDICTO  plan check — FAIL   (exit 1)")
+            print(f"RESUMEN    {len(problems)} problema(s) en `.gen/plan.json`")
+            for x in problems[:10]:
+                print(f"           {x}")
+            return 1
+        s = planmod.status_summary(p)
+        print("VEREDICTO  plan check — PASS   (exit 0)")
+        print(f"RESUMEN    plan bien formado · {s['total']} WorkOrders · {len(s['done'])} done · next={s['next']}")
+        return 0
+
+    if args.plan_cmd == "next":
+        wo = planmod.next_slot(p)
+        if wo is None:
+            s = planmod.status_summary(p)
+            done = s["complete"]
+            print(f"VEREDICTO  plan next — {'DONE' if done else 'BLOCKED'}   (exit 0)")
+            if done:
+                print("RESUMEN    plan completo — todos los WorkOrders done/deferred; cerrá con S3")
+            else:
+                print(f"RESUMEN    frontera bloqueada: {s['blocked']} esperan una dep no-done "
+                      f"(¿un dep quedó `deferred`? revisá `meta plan status`)")
+            return 0
+        print("VEREDICTO  plan next — READY   (exit 0)")
+        print(f"RESUMEN    próximo slot: {wo['slot_id']} — {wo.get('single_responsibility', '')}")
+        print("PRÓXIMO    escribí este WorkOrder a `.gen/active_slot.json` (skill generate-slot) → veredicto → "
+              f"commit «{wo.get('commit', '<sin plan de commit>')}»")
+        print("--- WorkOrder (slot manifest) ---")
+        print(json.dumps(wo, indent=2, ensure_ascii=False))
+        return 0
+
+    # status
+    s = planmod.status_summary(p)
+    escs = planmod.load_escalations(root)
+    broken = [(n, e) for n, e in escs if "_error" in e or planmod.escalation_problems(e)]
+    print(f"VEREDICTO  plan status — {'ESCALADO' if escs else 'OK'}   (exit 0)")
+    print(f"RESUMEN    {s['total']} WorkOrders · done {len(s['done'])} · pending {len(s['pending'])} · "
+          f"deferred {len(s['deferred'])} · blocked {len(s['blocked'])} · next={s['next']}")
+    if s["blocked"]:
+        print(f"BLOQUEADOS {s['blocked']}")
+    if escs:
+        print(f"ESCALACIONES ({len(escs)}) — S3 (Opus) las revisa:")
+        for name, e in escs:
+            if "_error" in e:
+                print(f"           {name}: MALFORMADA ({e['_error']})")
+            else:
+                print(f"           {name}: {e.get('slot_id', '?')} — {e.get('failure', '')[:70]} "
+                      f"(intentos {e.get('attempts', '?')})")
+        if broken:
+            print("           ⚠ hay escalación(es) malformada(s) — el diente `plan` cae rojo hasta corregirlas")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

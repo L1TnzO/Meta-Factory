@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3ca846e37774d8ac33ce6753b936c91223116b47 updated=2026-07-03T03:40Z -->
+<!-- meta:doc sha=0a4f846fed8041a88411a29108a8b48e3c833830 updated=2026-07-03T03:47Z -->
 # Incremento CONTEXT-LEAN-TEETH
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
@@ -54,7 +54,7 @@ del slot, y verbos/wrappers que colapsan secuencias verbosas en 1 línea + artef
 | 1 | (a)+(e) `context_nudge.py` + wiring settings.json (COLUMNA) | ✅ b30bfab (dogfood: la (e) disparó en vivo @~126k) |
 | 2 | (c) `file_budget` en `delegation.py` + diente two-sided + re-materializar 5 fábricas (COLUMNA) | ✅ 1c5d4a8 (column_parity 5/5) |
 | 3 | (b) `meta doc slice` (DELEGADO) | ✅ S2: slot `doc-slice` vía `generator`, VEREDICTO green (suite 814 passed, acceptance_exit_code=0); verbo cableado en `cli.py` por el orquestador post-green |
-| 4 | (d) wrappers de gate 1-línea (DELEGADO) | ⏳ S2 |
+| 4 | (d) wrappers de gate 1-línea (DELEGADO) | ✅ S2: slot `gate-wrap` vía `generator`, green al primer intento (821 passed, acceptance_exit_code=0); `metafactory.gate_wrap.run()` — librería, sin verbo CLI nuevo (el contrato no lo pide) |
 | 5 | (f) verbos compuestos del audit B11 (DELEGADO) | ⏳ S2 |
 
 > **Handoff (2026-07-03):** las 2 fases COLUMNA (mis ojos, trust-chain) cerradas y commiteadas por la sesión

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fd1671588ddcb1ea8987babd83d3def380225d8e updated=2026-07-03T22:58Z -->
+<!-- meta:doc sha=05170ffce5dadc8bf4f32d662a7b52b69becbbdd updated=2026-07-03T22:59Z -->
 # Incremento IOT-S1-FIELD-VOCAB
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T22:19Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T22:59Z) (creado 2026-07-03T22:19Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 > **HANDOFF AUTOCONTENIDO para una sesión S2 en FRÍO (Sonnet, post-`/clear`).** Lo diseñó una sesión S1 (Opus)

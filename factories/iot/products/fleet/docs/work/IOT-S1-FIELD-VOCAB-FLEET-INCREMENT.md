@@ -1,7 +1,7 @@
-<!-- meta:doc sha=222b04547f8cc27d916dfb0936f4a73b9c5de77b updated=2026-07-03T22:58Z -->
+<!-- meta:doc sha=a0172f89654f31dd36e10d422c604211a9a00e8b updated=2026-07-03T22:58Z -->
 # Incremento IOT-S1-FIELD-VOCAB-FLEET
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T22:47Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T22:58Z) (creado 2026-07-03T22:47Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 > **Companion product-level increment** de `factories/iot/docs/work/IOT-S1-FIELD-VOCAB-INCREMENT.md` (nivel

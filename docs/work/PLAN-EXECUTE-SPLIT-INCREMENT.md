@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1d565b852add716ceb26f1de8604d73224a999ef updated=2026-07-03T13:27Z -->
+<!-- meta:doc sha=332cf06dbb495965a6bfb06afdec5e908fa73bcd updated=2026-07-03T13:39Z -->
 # Incremento PLAN-EXECUTE-SPLIT
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T13:25Z). Cerralo con `meta increment close`
@@ -22,10 +22,10 @@ residuo. Se DEMUESTRA dogfoodeando un incremento real con **opus-share medido < 
 ## Fases
 | Fase | Contenido | Sesión | Estado |
 | --- | --- | --- | --- |
-| 1 | **Ley del plan** — `src/metafactory/plan.py`: cargar `.gen/plan.json`; `plan_problems` (cada WorkOrder es slot-manifest válido vía `delegation.manifest_problems` → sin gate = rojo · slot_ids únicos · deps existen · DAG acíclico · diferidos con razón declarada); `topo_order`; `next_slot` (deps satisfechas, no hecho, no diferido); `plan_status`. Reusa la ley de slot (no la duplica). Tests `tests/test_plan.py`. | S1 | ⏳ |
-| 2 | **Diente `plan`** — `verify/checks/plan_gate.py` dos-lados (plan bien formado / N/A sin plan → verde; plan sintético malformado —slot sin gate · ciclo · diferido sin razón— → rojo), wired en `cmd_check`. Tests `tests/test_plan_gate.py`. | S1 | ⏳ |
-| 3 | **Verbo + escalación** — `cmd_plan` (`meta plan check\|next\|status`) en `cli.py`; protocolo `.gen/escalations/*.json` (slot · fallo · intentos · hipótesis) validado por shape; `meta plan status` surface las escalaciones abiertas. Tests `tests/test_plan_cli.py`. | S1 | ⏳ |
-| 4 | **Runbook S2 + plan dogfood** — `docs/reference/PLAN-EXECUTE-RUNBOOK.md` (loop mecánico S2: `meta plan next` → `generate-slot` → veredicto → commit; rojo×2 → escalación) + authoring del `.gen/plan.json` del incremento dogfood (target §Dogfood). | S1 | ⏳ |
+| 1 | **Ley del plan** — `src/metafactory/plan.py`: cargar `.gen/plan.json`; `plan_problems` (cada WorkOrder es slot-manifest válido vía `delegation.manifest_problems` → sin gate = rojo · slot_ids únicos · deps existen · DAG acíclico · diferidos con razón declarada); `topo_order`; `next_slot` (deps satisfechas, no hecho, no diferido); `plan_status`. Reusa la ley de slot (no la duplica). Tests `tests/test_plan.py`. | S1 | ✅ |
+| 2 | **Diente `plan`** — `verify/checks/plan_gate.py` dos-lados (plan bien formado / N/A sin plan → verde; plan sintético malformado —slot sin gate · ciclo · diferido sin razón— → rojo), wired en `cmd_check`. Tests `tests/test_plan_gate.py`. | S1 | ✅ |
+| 3 | **Verbo + escalación** — `cmd_plan` (`meta plan check\|next\|status`) en `cli.py`; protocolo `.gen/escalations/*.json` (slot · fallo · intentos · hipótesis) validado por shape; `meta plan status` surface las escalaciones abiertas. Tests `tests/test_plan_cli.py`. | S1 | ✅ |
+| 4 | **Runbook S2 + plan dogfood** — `docs/reference/PLAN-EXECUTE-RUNBOOK.md` (loop mecánico S2: `meta plan next` → `generate-slot` → veredicto → commit; rojo×2 → escalación) + authoring del `.gen/plan.json` del incremento dogfood (target §Dogfood). | S1 | ✅ |
 | 5 | **DOGFOOD + cierre** — S2 (Sonnet) ejecuta el plan real → commits + veredictos; S3 (Opus) lee `meta outcome`, verifica **opus-share < 50%**, cierra. | S2+S3 | ⏳ |
 
 ## Dogfood — qué incremento real ejecutamos vía plan (decisión de S1)
@@ -50,3 +50,31 @@ PBT: la selección dep-graph ⊇ el name-match actual). Slots candidatos (a fija
 4. **UN incremento real ejecutado vía el plan con S1/S2/S3 y `opus-share < 50%`** medido en su bloque
    `meta outcome` (baseline 89%). ⟵ el corazón del incremento; se cumple en Fase 5 (S2+S3).
 5. `meta check` verde (todos los dientes) + suite verde + árbol limpio.
+
+## Handoff — estado al cerrar la sesión S1 (2026-07-03)
+**Fases 1–4 ✅ (la MÁQUINA está construida y probada).** Commits: (1) `metafactory.plan` 28/28 · (2) diente
+`plan` dos-lados 7/7 (wired en `cmd_check`, 18→19) · (3) `meta plan check|next|status` + escalación 10/10 ·
+(4) runbook `docs/reference/PLAN-EXECUTE-RUNBOOK.md` + este plan dogfood. Demostrado end-to-end: `meta plan
+check` → PASS · `status` → next=`dep-affected-core`, blocked=[pbt, report] · `next` → emite el slot-manifest.
+
+**Falta SÓLO la Fase 5 (el criterio de cierre #4): el DOGFOOD.** El plan real ya está authored en
+`.gen/plan.json` (gitignored → persiste en disco para la próxima sesión; su DISEÑO queda acá abajo, versionado).
+
+### El plan dogfood — D25, 3 slots delegables (registro versionado; `.gen/plan.json` es la copia ejecutable)
+Target: selección de tests por dep-graph (el grafo ya tiene aristas `IMPORTS` File→File + adyacencia reversa;
+falta indexar `tests/` como root + reverse-reachability). Los 3 WorkOrders viven en `graph/` + `tests/`
+(motor, NO columna, NO tocan `cli.py` principal) → genuinamente delegables al `generator`:
+- **`dep-affected-core`** (deps: —) → `src/metafactory/graph/affected.py`: `affected_tests(root, changed)` por
+  reverse-reachability de `IMPORTS` + `-m` entry. Gate: `tests/test_graph_affected.py`.
+- **`dep-affected-pbt`** (deps: core) → `tests/test_graph_affected_pbt.py`: propiedad dos-lados (selección
+  dep-graph ⊇ name-match `delegation.affected_tests`; un cambio-hoja selecciona subconjunto PROPIO).
+- **`affected-report`** (deps: core) → `src/metafactory/graph/affected_report.py`: ratio de selección
+  (cuánto de la suite se saltó) + `-m` entry. Gate: `tests/test_affected_report.py`.
+
+### Próxima sesión = S2 (Sonnet), NO Opus
+Arrancá con `claude --model sonnet --agent orchestrator` en esta misma carpeta y seguí `PLAN-EXECUTE-RUNBOOK`:
+`meta plan next` → `generate-slot` → veredicto → marcar `done` en `.gen/plan.json` + commit → repetir (core →
+{pbt, report}). Rojo×2/seguridad/ambigüedad → `.gen/escalations/<slot>.json`, NUNCA pensar más fuerte.
+Después, una sesión S3 (Opus, corta): `meta outcome` (verificar **opus-share < 50%**, baseline 89%) → cerrar.
+> Si preferís otro target de dogfood, la máquina es target-independiente: reescribí `.gen/plan.json` en una S1
+> corta. El plan actual es la recomendación de S1 (D25 ya estaba en scope de INC-4).

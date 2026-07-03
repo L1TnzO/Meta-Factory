@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c45452644710c0edf3d323232f918834acecb860 updated=2026-07-02T21:10Z -->
+<!-- meta:doc sha=05d5229c12a86088e961f4a095eeb8459ecf899f updated=2026-07-03T02:45Z -->
 # Incremento HARNESS-FAST-GATE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-02T20:49Z). Cerralo con `meta increment close`
@@ -37,7 +37,16 @@ limpio si el toolchain local driftó), y cerrar la clase de incidente JDK-vanish
 | 2 | (b) `verify/hermetic.py` + `stop_proof` meta hermético + diente `tests/test_hermetic.py` | ✅ |
 | 3 | (c) `tools/toolchain.sh` (probe/ensure) | ✅ |
 | 4 | re-materializar columna 5 fábricas (`seed/delegation.py`) → `column_parity` verde; skill/brain a 2-gates | ✅ |
-| 5 | bonus: re-pin FSK `ci --rederive --all-products` == pin 4/4 (toolchain garantiza JDK 21) | ⏳ |
+| 5 | bonus: re-pin FSK `ci --rederive --all-products` == pin 4/4 (toolchain garantiza JDK 21) | ✅ |
+
+### Evidencia Fase 5 (bonus FSK-MUTABLE-WHEN des-diferido)
+`tools/toolchain.sh ensure` resolvió JDK 21 (javac 21.0.10) → gradle+docker corrieron. El único drift era
+`s5` (ganó el check `mutability_enforced`): re-derivé cada no-adoptante foreground (s5 verde, sha nuevo
+`bbb840dd`) → `meta pin` en `base`/`assets`/`helpdesk` (diff s5-only); `snipeit` ya correcto. Confirmación
+independiente: **`ci --rederive --all-products` == pin 4/4** (base 12/12·assets 11/11·helpdesk 11/11·
+snipeit 11/11). `FSK-MUTABLE-WHEN` cerrado formalmente. Nota de proceso: el 1er intento en background chocó
+con el turn-close (race en `.proof/active.json`) → los builds pesados de fábrica van FOREGROUND (s9/s11 usan
+puertos fijos + docker). El `stop_proof` hermético hizo su trabajo: NO enmascaró el `s5` rojo transitorio.
 
 ## Evidencia (Fases 1–4)
 - Suite `tests/` = **796 passed** (incl. +12 dientes nuevos: split-gate requerido · budgets D23 · acceptance-green · `affected_tests` · pin-trust two-sided).

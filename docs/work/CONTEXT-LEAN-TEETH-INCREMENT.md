@@ -1,7 +1,7 @@
-<!-- meta:doc sha=66c03dff607d29fa4a56061d74aaca8e73dfac09 updated=2026-07-03T04:17Z -->
+<!-- meta:doc sha=e6ea892dc3d6b13f758c6f1279cc2f52a187210c updated=2026-07-03T04:19Z -->
 # Incremento CONTEXT-LEAN-TEETH
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T04:19Z) (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > INC-3 del plan FIJO N=7 de `COST-DOWN` (biblia `work/COST-DOWN-DIRECTION-INCREMENT.md` §4.INC-3). MIXTO:
 > la COLUMNA (hooks + validador de `delegation.py`) → mis ojos, no delegada (SELF-IMPROVEMENT §3); los

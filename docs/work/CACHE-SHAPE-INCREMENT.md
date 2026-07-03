@@ -1,7 +1,7 @@
-<!-- meta:doc sha=635955d8c685cbf9b0bb383b9dacc97e912fa336 updated=2026-07-03T16:54Z -->
+<!-- meta:doc sha=c56cbea7b58ecd02c7b1dfe8bdfd83144ae4c9ba updated=2026-07-03T17:05Z -->
 # Incremento CACHE-SHAPE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T16:42Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-03T17:05Z) (creado 2026-07-03T16:42Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 > INC-5 del plan FIJO N=7 de `COST-DOWN` (biblia `work/COST-DOWN-DIRECTION-INCREMENT.md` §4.INC-5).
 > Incremento **CONDICIONAL**: la decisión ya está tomada (§2.3, tres cartas de cache); acá SÓLO se mide el

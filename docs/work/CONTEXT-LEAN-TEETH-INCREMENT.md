@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0a4f846fed8041a88411a29108a8b48e3c833830 updated=2026-07-03T03:47Z -->
+<!-- meta:doc sha=59c99aee3257c69caa16c50fefeb6b68401569e1 updated=2026-07-03T03:51Z -->
 # Incremento CONTEXT-LEAN-TEETH
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
@@ -64,7 +64,19 @@ del slot, y verbos/wrappers que colapsan secuencias verbosas en 1 línea + artef
 > `acceptance_gate_cmd: pytest -q` (bare) que barre `factories/dummy/generated/` (fixture rota preexistente,
 > no relacionada) → el generator reportó RED honesto en vez de forzar green; el orquestador corrigió el
 > manifest a `pytest -q tests` (igual al gate real de `cli.py`) y el generator re-corrió sólo la aceptación →
-> green real (814 passed). Quedan (d)+(f), mismo patrón S2.
+> green real (814 passed). Fase 4 (d) `gate_wrap` corrida con el manifest ya corregido → green al primer
+> intento (821 passed), sin verbo CLI nuevo (el contrato de (d) no lo pide, a diferencia de (b)).
+>
+> **Handoff #2 (2026-07-03, mismo día, nueva sesión S2 — mi propio nudge de ~120k disparó en vivo, kill-
+> don't-idle ADR-021):** queda SOLO la fase 5, (f) verbos compuestos (B11). Candidatos medidos en la biblia
+> (`work/COST-DOWN-DIRECTION-INCREMENT.md` §3 B11): colapsar `eval "$(bash tools/toolchain.sh ensure)" &&
+> gradle …` en un verbo, y `meta ci --rederive` + el chequeo de pin en otro. Mismo patrón: escribir el test
+> contract-first, manifest `.gen/active_slot.json` (recordá el gotcha: `acceptance_gate_cmd` DEBE ser
+> `["python3","-m","pytest","-q","tests"]`, NO bare `pytest -q`), spawnear `generator`, aceptar por VEREDICTO,
+> cablear el/los verbo(s) en `cli.py` (composición, no delegable), actualizar STATE.md en el MISMO commit que
+> cualquier doc de incremento (el gate `docs-consistency` compara last-commit por nivel — tocar el incremento
+> sin tocar STATE lo deja rojo hasta el próximo touch). Después: `meta increment close` (gateado: árbol limpio
+> + estación activa verde) — cierra INC-3 completo.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta check` verde (todos los gates, incl. `column_parity` tras re-materializar) + suite verde.

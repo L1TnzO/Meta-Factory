@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8544adb3407367b0eaa0a194ab65f5647024f1b5 updated=2026-07-03T03:03Z -->
+<!-- meta:doc sha=81f3b1a44f011afbd8e21e9d723c99ee88fa6ed7 updated=2026-07-03T03:15Z -->
 # Incremento CONTEXT-LEAN-TEETH
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T03:02Z). Cerralo con `meta increment close`
@@ -51,11 +51,18 @@ del slot, y verbos/wrappers que colapsan secuencias verbosas en 1 línea + artef
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | (a)+(e) `context_nudge.py` + wiring settings.json (COLUMNA) | ⏳ |
-| 2 | (c) `file_budget` en `delegation.py` + diente two-sided + re-materializar 5 fábricas (COLUMNA) | ⏳ |
-| 3 | (b) `meta doc slice` (DELEGADO) | ⏳ |
-| 4 | (d) wrappers de gate 1-línea (DELEGADO) | ⏳ |
-| 5 | (f) verbos compuestos del audit B11 (DELEGADO) | ⏳ |
+| 1 | (a)+(e) `context_nudge.py` + wiring settings.json (COLUMNA) | ✅ b30bfab (dogfood: la (e) disparó en vivo @~126k) |
+| 2 | (c) `file_budget` en `delegation.py` + diente two-sided + re-materializar 5 fábricas (COLUMNA) | ✅ 1c5d4a8 (column_parity 5/5) |
+| 3 | (b) `meta doc slice` (DELEGADO) | 🟡 contrato listo: `tests/test_doc_slice.py` (skip hasta impl); manifest+spawn en S2 |
+| 4 | (d) wrappers de gate 1-línea (DELEGADO) | ⏳ S2 |
+| 5 | (f) verbos compuestos del audit B11 (DELEGADO) | ⏳ S2 |
+
+> **Handoff (2026-07-03):** las 2 fases COLUMNA (mis ojos, trust-chain) cerradas y commiteadas por la sesión
+> Opus S1/diseño. Las 3 fases DELEGABLES (b/d/f) son ejecución S2 → abrir con
+> `claude --model sonnet --agent orchestrator`, spawnear `generator` vía `generate-slot` por slot, aceptar por
+> VEREDICTO. Primer uso REAL del gate partido de INC-2 (iteration=`tests/test_<x>.py` <15s · acceptance=suite).
+> El contrato de (b) ya está authoreado (test-first, blast radius = `src/metafactory/doc_slice.py` sólo); el
+> verbo `meta doc slice` en `cli.py` lo cablea el orquestador tras el green (composición, no delegable).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta check` verde (todos los gates, incl. `column_parity` tras re-materializar) + suite verde.

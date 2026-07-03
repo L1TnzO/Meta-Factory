@@ -54,7 +54,7 @@
 | `docs/work/C3-PRODUCT-ENV-PROOF-INCREMENT.md` | `0bcc518ecc84` | 2026-06-15T20:01Z | Incremento C3-PRODUCT-ENV-PROOF |
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
-| `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `8544adb34073` | 2026-07-03T03:03Z | Incremento CONTEXT-LEAN-TEETH |
+| `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `81f3b1a44f01` | 2026-07-03T03:15Z | Incremento CONTEXT-LEAN-TEETH |
 | `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |
 | `docs/work/COST-RUNBOOK-INCREMENT.md` | `ef2e4e4dd881` | 2026-07-02T17:54Z | Incremento COST-RUNBOOK |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |

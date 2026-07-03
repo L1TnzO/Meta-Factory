@@ -1,4 +1,4 @@
-<!-- meta:doc sha=25a980dea9aa03b6d585572b566a94d61ae14e29 updated=2026-07-03T17:05Z -->
+<!-- meta:doc sha=fa58e208b687497ffd72e90e4a502ae382c7896f updated=2026-07-03T17:08Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -18,14 +18,13 @@
 
 - **🧭 `COST-DOWN` — dirección VIGENTE (2026-07-02, ADR-021).** Norte = economía **Opus-marginal**: la
   correctitud la dan los GATES, no el IQ del ejecutor → ruteo por SESIÓN (S1 Opus diseña · S2 Sonnet ejecuta ·
-  S3 Opus cierra) + doctrina de cache + plan **FIJO N=7**. **INC-0 `COST-RUNBOOK` · INC-1 `PRICING-LEDGER` ·
-  INC-2 `HARNESS-FAST-GATE` ✅** (runbook en CLAUDE.md · ledger cache-aware + tabla de precios DATA · slot manifest
-  con gate partido iteración/aceptación + `stop_proof` hermético + `tools/toolchain.sh` que mata el JDK-vanish +
-  cierre FSK-MUTABLE-WHEN re-pin 4/4); **INC-3 `CONTEXT-LEAN-TEETH` ✅ 5/5 fases** (columna a+e+c S1 · b/d/f
-  delegadas S2: `doc slice`+verbo · `gate_wrap` · `jdk-run`+`pin --verify`; dogfood real: el nudge (e) disparó
-  3 veces — 2 sesiones cortaron limpio a ~120k, la 3ª terminó la fase en curso en vez de cortar a mitad).
-  KPIs (medibles desde INC-1): opus ≤35% (baseline honesto **80.1%**) · compactaciones 0 ·
-  $/incremento −60%. Biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
+  S3 Opus cierra) + doctrina de cache + plan **FIJO N=7**. **INC-0..INC-4 ✅** (runbook · ledger cache-aware ·
+  slot con gate partido + `stop_proof` hermético · contexto-lean con dientes · plan-como-data + `meta plan`).
+  **INC-5 `CACHE-SHAPE` ✅ N/A-por-medición**: el churn-de-cache post-INC-3 = **2.9% < 10%** (vs 13.1% pre; INC-3
+  lo cortó 4.5×) → NO se construye maquinaria de cache; el observer `churn_cost_share` lo dejó re-derivable
+  (`meta outcome --transcript`). Queda **INC-6 `HEADLESS-SLOTS`** (condicional a INC-4). KPIs (desde INC-1):
+  opus ≤35% (baseline **80.1%**) · compactaciones 0 · $/incr −60%. Detalle por INC: LOG + su `work/…-INCREMENT.md`;
+  biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
   el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +

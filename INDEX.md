@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `878eb9652413` | 2026-07-03T02:49Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `25a980dea9aa` | 2026-07-03T17:05Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `911c709b8a46` | 2026-07-03T17:06Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `fa58e208b687` | 2026-07-03T17:08Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |

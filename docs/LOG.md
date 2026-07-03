@@ -1,7 +1,35 @@
-<!-- meta:doc sha=878eb96524139c123d446370c572ad10bd8e7c26 updated=2026-07-03T02:49Z -->
+<!-- meta:doc sha=911c709b8a4623088068e7be6cd39ec13a1647f5 updated=2026-07-03T17:06Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-03T17:05Z — CACHE-SHAPE ✅ N/A-por-medición (INC-5 de COST-DOWN): el churn de cache YA lo mató INC-3
+- **Qué:** quinto incremento del plan FIJO N=7 (ADR-021, §4.INC-5), CONDICIONAL: la decisión estaba tomada
+  (§2.3, tres cartas de cache); acá SÓLO se midió el trigger pre-decidido y se decidió. Trigger: churn de
+  cache (expiraciones+compactaciones) >10% del gasto sobre los incrementos post-INC-3 → si NO, cerrar N/A.
+- **Fase 1 (observer, delegada):** el trigger se formula contra "el bloque de costo [que] **muestra** churn",
+  pero el bloque mostraba sólo CONTEOS, nunca el $ share. Slot `cache-churn-observer` via `generate-slot`
+  (Sonnet) → `metrics.churn_cost_share(transcript)` (self-contained: numerador = `cache_creation` en turnos
+  de churn `>=0.5×pico cache_read` tasado al `write_5m` del modelo de ESE mensaje; denominador = rollup
+  completo) + surface en la línea EXPIRACIONES de `cost_report` (camino sin-transcript byte-idéntico).
+  Commit `ac1b1ff`; `pytest -q tests` verde (911); `meta outcome --transcript` ya muestra `(cache-churn X%)`.
+- **Fase 2 (medición, re-derivable):** PRE-INC-3 (Jul-2, INC-1/2/3) = **13.1%** churn (patología real: una
+  sesión de 288 turnos / 19 expiraciones gastó $12.6 sola re-escribiendo cache) · POST-INC-3 (Jul-3, INC-4
+  ciclo S1/S2/S3, 5 sesiones) = **2.9%** churn. Caída **4.5×**: el nudge de umbral ~120k de INC-3
+  (`CONTEXT-LEAN-TEETH`) + las cartas kill-don't-idle/compactación=incidente MATARON la sesión-larga que
+  causaba el churn.
+- **Decisión:** 2.9% < 10% → trigger NO dispara → **N/A-por-medición**. No se construye maquinaria de cache
+  (sondeo TTL, camino proxy `cache_control:1h`, skill keep-warm); como pre-decidió el plan, no se re-abre el
+  debate. El observer deja la palanca MEDIBLE por si un incremento futuro mostrara churn >10% sostenido.
+- **Verificar-no-revisar (dogfood):** el generator devolvió ROJO honesto — no por el slot, sino porque el
+  `acceptance_gate_cmd` del manifest estaba mal-scopeado a `pytest -q` (raíz), que tropieza con un error de
+  colección PRE-EXISTENTE ajeno (`factories/dummy/generated/test_greeting.py`). Se confirmó con `git stash` +
+  re-corrida propia al scope canónico (`pytest -q tests` → 911, exit 0). Lección: el falso-rojo fue **defecto
+  de manifest, no de slot** — el gate hay que scopearlo al `tests` canónico (cli.py:182), no a la raíz.
+- **Residual honesto (I-13):** el trigger pedía "≥2 incrementos post-INC-3"; hay 1 completo (INC-4). La
+  comparación pre/post (13.1%→2.9%) respalda el N/A; el observer permite re-medir barato si aparece un 2º.
+- **Estado del plan:** COST-DOWN N=7 → INC-0..INC-4 ✅ + INC-5 ✅ (N/A). Queda INC-6 `HEADLESS-SLOTS`
+  (condicional a INC-4: residencia del orquestador durante slots ≥10% → si NO, N/A-por-medición).
 
 ## 2026-07-03T02:44Z — HARNESS-FAST-GATE ✅ (INC-2 de COST-DOWN): slots cortos + verificación hermética + JDK-vanish muerto
 - **Qué:** tercer incremento del plan FIJO N=7 (ADR-021, §4.INC-2). COLUMNA (trust-chain, ojos propios; NO delegado).

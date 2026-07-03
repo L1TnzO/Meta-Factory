@@ -111,6 +111,12 @@ def manifest_problems(manifest: dict) -> list[str]:
     tb = manifest.get("token_budget")
     if tb is not None and not (isinstance(tb, int) and not isinstance(tb, bool) and tb > 0):
         out.append("`token_budget` must be a positive integer")
+    # File-size budget (C17b / CONTEXT-LEAN-TEETH): a DECLARED max LOC per generated file. Distinct from
+    # `token_budget`/`max_wall_s` (which bound the PROCESS up front) — this bounds the ARTIFACT, validated at
+    # the verdict (`verdict_size_problems`). Small files pay twice: fewer tokens per read + useful abstracts.
+    fb = manifest.get("file_budget")
+    if fb is not None and not (isinstance(fb, int) and not isinstance(fb, bool) and fb > 0):
+        out.append("`file_budget` must be a positive integer (max LOC per generated file)")
     # WorkOrder vocab — validated only when present (backward-compatible).
     tl = manifest.get("trust_level")
     if tl is not None and tl not in TRUST_LEVELS:
@@ -168,6 +174,40 @@ def write_allowed(root: Path, slot: dict, file_path: str) -> bool:
     return any(fnmatch.fnmatch(rel, g) for g in globs)
 
 
+def verdict_size_problems(root: Path, slot: dict) -> list[str]:
+    """File-size budget tooth (C17b / CONTEXT-LEAN-TEETH, ADR-021): when the manifest declares `file_budget`
+    (max LOC per file), EVERY existing file inside the blast radius (`allow_globs`) must be within it — a green
+    verdict on an oversized generated file is not real (`verdict_ok` demotes it). This validates the ARTIFACT the
+    generator produced, complementing the up-front PROCESS budgets (`max_wall_s`/`token_budget`, INC-2). The
+    change-scope == verification-scope principle: a slot that would emit a too-big file must be split. Returns []
+    when no `file_budget` is declared (backward-compatible)."""
+    budget = slot.get("file_budget")
+    if not isinstance(budget, int) or isinstance(budget, bool) or budget <= 0:
+        return []
+    root = Path(root)
+    problems: list[str] = []
+    seen: set[str] = set()
+    for g in slot.get("allow_globs") or []:
+        try:
+            matches = root.glob(str(g))
+        except (ValueError, OSError):
+            continue
+        for p in matches:
+            if not p.is_file():
+                continue
+            rel = _rel(root, str(p))
+            if rel is None or rel in seen or rel.startswith(".gen/"):
+                continue
+            seen.add(rel)
+            try:
+                loc = len(p.read_text(encoding="utf-8", errors="replace").splitlines())
+            except OSError:
+                continue
+            if loc > budget:
+                problems.append(f"{rel}: {loc} LOC exceeds file_budget={budget} — split it (CONTEXT-LEAN-TEETH C17b)")
+    return sorted(problems)
+
+
 def verdict_ok(root: Path, slot: dict) -> tuple[bool, str]:
     """Did the generator leave a well-formed verdict at the declared path? (status + gate + exit code)."""
     vp = slot.get("verdict_path", "")
@@ -194,6 +234,11 @@ def verdict_ok(root: Path, slot: dict) -> tuple[bool, str]:
         if ae != 0:
             return (False, f"green verdict but the acceptance gate did not pass (acceptance_exit_code={ae!r}); "
                            f"run `acceptance_gate_cmd` ONCE at the end and record its exit 0")
+    # A green verdict on an oversized generated file is not real (CONTEXT-LEAN-TEETH C17b).
+    if v.get("status") == "green":
+        size_problems = verdict_size_problems(root, slot)
+        if size_problems:
+            return False, "green verdict but a generated file exceeds `file_budget`: " + "; ".join(size_problems)
     return True, f"verdict {v['status']} ({v.get('check', '?')} exit {v.get('exit_code')})"
 
 

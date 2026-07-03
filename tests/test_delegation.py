@@ -111,6 +111,10 @@ def test_manifest_requires_both_gates(tmp_path):
     ("token_budget", 40000, True),
     ("token_budget", -5, False),
     ("token_budget", 1.5, False),
+    ("file_budget", 800, True),
+    ("file_budget", 0, False),
+    ("file_budget", 1.5, False),                # LOC is an int, not a float
+    ("file_budget", True, False),               # bool is not a budget
 ])
 def test_slot_size_law_budgets(tmp_path, field, value, ok):
     slot = _slot(tmp_path) | {field: value}
@@ -136,6 +140,36 @@ def test_verdict_requires_acceptance_green(tmp_path):
     _write(base | {"acceptance_exit_code": 0})            # acceptance passed → real green
     ok, detail = delegation.verdict_ok(tmp_path, slot)
     assert ok and "green" in detail
+
+
+# ── CONTEXT-LEAN-TEETH: file-size budget validated at the verdict (C17b) ───────
+def test_verdict_size_budget_two_sided(tmp_path):
+    """A green verdict on an oversized generated file is not real: `file_budget` (max LOC per file inside the
+    blast radius) is validated against the ACTUAL produced artifact. Both sides: within budget → green;
+    a file over budget → demoted to red naming the file. No budget declared → size is not policed."""
+    (tmp_path / ".gen").mkdir()
+    (tmp_path / "src/pkg").mkdir(parents=True)
+    gen = tmp_path / "src/pkg/gen.py"
+    slot = _slot(tmp_path) | {"allow_globs": ["src/pkg/gen.py"], "file_budget": 5}
+    (tmp_path / ".gen/demo.verdict.json").write_text(json.dumps(
+        {"slot_id": "demo", "status": "green", "check": "iteration", "exit_code": 0,
+         "acceptance_exit_code": 0}), encoding="utf-8")
+
+    # within budget → real green
+    gen.write_text("a = 1\nb = 2\n", encoding="utf-8")
+    assert delegation.verdict_size_problems(tmp_path, slot) == []
+    ok, detail = delegation.verdict_ok(tmp_path, slot)
+    assert ok and "green" in detail
+
+    # over budget → green verdict demoted to red, naming the file
+    gen.write_text("\n".join(f"x{i} = {i}" for i in range(20)) + "\n", encoding="utf-8")
+    probs = delegation.verdict_size_problems(tmp_path, slot)
+    assert probs and "src/pkg/gen.py" in probs[0] and "file_budget" in probs[0]
+    ok, detail = delegation.verdict_ok(tmp_path, slot)
+    assert not ok and "file_budget" in detail
+
+    # no budget declared → size is not policed (backward-compatible)
+    assert delegation.verdict_size_problems(tmp_path, _slot(tmp_path)) == []
 
 
 def test_affected_tests_selects_by_blast_radius():

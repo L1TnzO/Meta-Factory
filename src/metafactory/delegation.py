@@ -31,4 +31,5 @@ clear_slot = _law.clear_slot
 manifest_problems = _law.manifest_problems
 write_allowed = _law.write_allowed
 verdict_ok = _law.verdict_ok
+verdict_size_problems = _law.verdict_size_problems
 affected_tests = _law.affected_tests

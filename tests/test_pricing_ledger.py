@@ -11,6 +11,7 @@ It pins, with EXACT hand-computed dollars, that:
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -125,3 +126,82 @@ def test_cost_block_renders_without_fabricating(tmp_path: Path):
     assert isinstance(block, list) and block
     joined = "\n".join(block).lower()
     assert "sin medir" in joined  # honest about the unmeasured axes
+
+
+# ── churn_cost_share (INC-5 CACHE-SHAPE): the cache-churn $-share, two-sided ────────────────────
+def _write_transcript(path: Path, turns: list[dict]) -> Path:
+    """One JSONL line per turn, shaped like the real stream: {"message": {"model", "usage": {...}}}."""
+    lines = []
+    for t in turns:
+        lines.append(json.dumps({"message": {
+            "model": t.get("model", "claude-sonnet-5"),
+            "usage": {
+                "input_tokens": t.get("input", 0),
+                "output_tokens": t.get("output", 0),
+                "cache_creation_input_tokens": t.get("cache_creation", 0),
+                "cache_read_input_tokens": t.get("cache_read", 0),
+            },
+        }}))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def test_churn_cost_share_spike_exact(tmp_path: Path):
+    from metafactory.memory.metrics import churn_cost_share
+    transcript = _write_transcript(tmp_path / "spike.jsonl", [
+        {"cache_read": 100_000},                                   # turn0: warm-up read, sets the peak
+        {"input": 500, "output": 100, "cache_creation": 60_000},   # turn1: spike >= 0.5*peak → churn turn
+    ])
+    result = churn_cost_share(transcript)
+    # hand-computed (sonnet §1.2: base_input 2.0, write_5m 2.50, hit_refresh 0.20, output 10.0 USD/MTok):
+    #   turn0 = 100_000 * 0.20 / 1e6                              = 0.02
+    #   turn1 = (500*2.0 + 100*10.0 + 60_000*2.50) / 1e6          = 0.152
+    #   session_usd = 0.172 ; churn_usd (turn1's cache_creation only) = 60_000*2.50/1e6 = 0.15
+    assert result["session_usd"] == pytest.approx(0.172)
+    assert result["churn_usd"] == pytest.approx(0.15)
+    assert result["share"] == pytest.approx(0.15 / 0.172)
+    assert result["share"] > 0
+
+
+def test_churn_cost_share_steady_is_zero(tmp_path: Path):
+    from metafactory.memory.metrics import churn_cost_share
+    transcript = _write_transcript(tmp_path / "steady.jsonl", [
+        {"cache_read": 100_000},
+        {"cache_creation": 2_000, "cache_read": 100_000},   # tiny creation vs the 100k peak → no churn
+        {"cache_creation": 2_000, "cache_read": 100_000},
+    ])
+    result = churn_cost_share(transcript)
+    assert result["churn_usd"] == 0.0
+    assert result["share"] == 0.0
+
+
+def test_churn_cost_share_missing_transcript_is_honest_zero(tmp_path: Path):
+    from metafactory.memory.metrics import churn_cost_share
+    result = churn_cost_share(tmp_path / "does-not-exist.jsonl")
+    assert result == {"churn_usd": 0.0, "session_usd": 0.0, "share": 0.0}
+
+
+def test_cost_summary_no_transcript_churn_share_is_none(tmp_path: Path):
+    from metafactory.verify.cost_report import cost_summary
+    s = cost_summary(tmp_path)  # no transcript
+    assert s["churn_share"] is None   # unmeasured, NOT a fake 0.0
+
+
+def test_cost_block_no_transcript_expirations_line_unchanged(tmp_path: Path):
+    from metafactory.verify.cost_report import cost_block
+    block = cost_block(tmp_path)  # no transcript, no ledger
+    exp_line = next(l for l in block if l.startswith("EXPIRACIONES"))
+    assert exp_line == "EXPIRACIONES  sin medir (sin transcript) · COMPACTACIONES 0 · CHURN 0 re-lectura(s) extra"
+
+
+def test_cost_block_with_transcript_appends_churn_share(tmp_path: Path):
+    from metafactory.verify.cost_report import cost_block, cost_summary
+    transcript = _write_transcript(tmp_path / "spike.jsonl", [
+        {"cache_read": 100_000},
+        {"input": 500, "output": 100, "cache_creation": 60_000},
+    ])
+    s = cost_summary(tmp_path, transcript=transcript)
+    block = cost_block(tmp_path, transcript=transcript)
+    exp_line = next(l for l in block if l.startswith("EXPIRACIONES"))
+    assert "cache-churn" in exp_line
+    assert f"{s['churn_share'] * 100:.1f}% del gasto" in exp_line

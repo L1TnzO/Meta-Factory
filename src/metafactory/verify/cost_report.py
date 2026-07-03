@@ -41,6 +41,12 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
     if transcript is not None:
         expirations = metrics.detect_expirations(metrics.cache_series(transcript))
 
+    # ── churn_share: the INC-5 trigger metric ($ spent re-writing expired/compacted cache), meaningless
+    # without a transcript → None, not a fake 0 (same honest-degradation law as `expirations` above).
+    churn_share: float | None = None
+    if transcript is not None:
+        churn_share = metrics.churn_cost_share(transcript)["share"]
+
     # ── compactions / churn, from the .metamem series (a real 0 with an empty series) ──────────────────
     compactions = len(instrument.compact_series(root))
     churn = instrument.thrashing_rollup(root)["extra_reads"]
@@ -59,6 +65,7 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
         "total_usd": total_usd,
         "share_by_tier": share_by_tier,
         "expirations": expirations,
+        "churn_share": churn_share,
         "compactions": compactions,
         "churn": churn,
         "delegated_pct": delegated_pct,
@@ -79,6 +86,8 @@ def cost_block(root: Path, transcript: Path | None = None, ledger: Path | None =
         lines.append(f"COSTO      ${s['total_usd']:.4f} total" + ("" if s["total_usd"] else " (sin ledger)"))
 
     exp_str = "sin medir (sin transcript)" if s["expirations"] is None else str(s["expirations"])
+    if s["churn_share"] is not None:
+        exp_str = f"{exp_str} (cache-churn {s['churn_share'] * 100:.1f}% del gasto)"
     lines.append(f"EXPIRACIONES  {exp_str} · COMPACTACIONES {s['compactions']} · CHURN {s['churn']} re-lectura(s) extra")
 
     tpt_str = "sin medir" if s["tools_per_turn"] is None else f"{s['tools_per_turn']:.2f}"

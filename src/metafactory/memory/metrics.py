@@ -165,6 +165,74 @@ def detect_expirations(series: list[tuple[int, int]], fraction: float = 0.5) -> 
     return count
 
 
+def churn_cost_share(transcript: Path, fraction: float = 0.5) -> dict:
+    """Fraction of session $ spent RE-WRITING expired/compacted cache (the INC-5 trigger metric).
+
+    Self-contained: walks ONE transcript once (same per-message usage+model extraction as
+    `rollup_from_transcript`/`cache_series`). A message i>=1 is a CHURN turn when its
+    `cache_creation_input_tokens` re-writes >= `fraction` of the PEAK `cache_read_input_tokens` seen up
+    to and including that message — the same expiration signal `detect_expirations` uses. Its
+    cache_creation tokens are money spent because the prior cache expired or was compacted away.
+
+    - Numerator `churn_usd` = sum over churn turns of `cache_creation / 1e6 * PRICING[tier_for(model)].write_5m`.
+    - Denominator `session_usd` = full priced rollup of EVERY message (input*base_input + output*output +
+      cache_creation*write_5m + cache_read*hit_refresh), same transcript.
+    - `share` = churn_usd/session_usd, or 0.0 when session_usd == 0.
+    Missing / empty transcript → {"churn_usd": 0.0, "session_usd": 0.0, "share": 0.0} (re-derivable, honest).
+
+    Returns {"churn_usd": float, "session_usd": float, "share": float}.
+    """
+    p = Path(transcript)
+    if not p.exists():
+        return {"churn_usd": 0.0, "session_usd": 0.0, "share": 0.0}
+
+    churn_usd = 0.0
+    session_usd = 0.0
+    max_read_so_far = 0
+    turn = 0
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        usage = None
+        model_id = ""
+        if isinstance(obj.get("usage"), dict):
+            usage = obj["usage"]
+            model_id = str(obj.get("model", ""))
+        elif isinstance(obj.get("message"), dict):
+            msg = obj["message"]
+            if isinstance(msg.get("usage"), dict):
+                usage = msg["usage"]
+                model_id = str(msg.get("model", ""))
+        if usage is None:
+            continue
+        # A message with usage but no model id is priced at the sonnet default (tier_for("") → "sonnet")
+        # — it is NOT skipped, its tokens are real spend even when the model field is absent/blank.
+
+        input_tok = int(usage.get("input_tokens", 0))
+        output_tok = int(usage.get("output_tokens", 0))
+        cache_creation = int(usage.get("cache_creation_input_tokens", 0))
+        cache_read = int(usage.get("cache_read_input_tokens", 0))
+
+        session_usd += pricing.price_tokens(
+            model_id, input_tokens=input_tok, output_tokens=output_tok,
+            cache_creation=cache_creation, cache_read=cache_read,
+        )
+
+        if cache_read > max_read_so_far:
+            max_read_so_far = cache_read
+        if turn >= 1 and max_read_so_far > 0 and cache_creation >= fraction * max_read_so_far:
+            churn_usd += pricing.price_tokens(model_id, cache_creation=cache_creation)
+        turn += 1
+
+    share = churn_usd / session_usd if session_usd > 0 else 0.0
+    return {"churn_usd": churn_usd, "session_usd": session_usd, "share": share}
+
+
 def cost(rollup: dict[str, dict[str, int]], prices: dict[str, dict[str, float]] = PRICES) -> dict[str, Any]:
     """Calcula costo en USD por model_id + total.
 

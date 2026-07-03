@@ -1,7 +1,42 @@
-<!-- meta:doc sha=f1d083c7812c2e325e18ca1aa6ed35760b9ae77f updated=2026-07-03T18:16Z -->
+<!-- meta:doc sha=b1a6776d0ccfd3ab6fc60202651d840654d7d851 updated=2026-07-03T18:45Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-03T18:43Z — §5 «llegamos» EVALUADO (COST-DOWN, cierre S3): 3/4 KPIs ✓ en INC-5/6, opus-share PENDIENTE de su vehículo
+- **Qué:** cierre-de-dirección S3 (juicio, no build) que RESUELVE el flag «Pendiente del §5» del episodio INC-6.
+  §5 define «llegamos» = 2 incrementos consecutivos post-INC-4 cumpliendo TODOS los KPIs no-condicionales;
+  candidatos = INC-5 `CACHE-SHAPE` + INC-6 `HEADLESS-SLOTS`. Se MIDE, no se narra.
+- **Método (re-derivable):** precié los transcripts crudos de sesión (`~/.claude/projects/…/*.jsonl`, `usage` por
+  turno: `input` + `cache_creation.ephemeral_1h` + `cache_read` + `output`) con la tabla single-source
+  `pricing.PRICING`, bucketeando por VENTANA temporal (así los turnos del generador Sonnet —en su transcript
+  separado— caen en la ventana por su `ts` → opus-share HONESTO). Compactaciones de `metrics.jsonl` (kind=compact,
+  con `ts`); extra-reads por sesión de los eventos `tool`. Ventanas ancladas a commits git + el `session_start` del
+  journal, no a vibes. Cross-check: el método reproduce el ledger hecho-a-mano de INC-4 (opus 70% vs 65% — el
+  ledger tasó cache-creation a 5m cuando el transcript es 1h, o sea SUBcontó opus). Baseline $/incr = la sesión
+  DELEG-PAYOFF `f3c08e5c` = **$73.89** (100% opus, 283 turnos, las 3 compactaciones acumuladas).
+- **Resultado por incremento** (target → INC-5 · INC-6): opus-share ≤35% → **100% ✗ · 100% ✗** · compactaciones 0 →
+  **0 ✓ · 0 ✓** · extra-reads <20 → **5 ✓ · 6 ✓** · $/incr −60% → **$13.32=−82% ✓ · $12.18=−84% ✓**. Las 3
+  compactaciones acumuladas son TODAS del 2026-06-28 (DELEG-PAYOFF, pre-doctrina) → 0 en INC-4/5/6. **3 de 4 KPIs
+  cumplidos en ambos; el único fallo es opus-share.**
+- **Lectura (CONFIRMA §1.1, no lo refuta):** el costo ABSOLUTO se desplomó (−82/−84%: el contexto-lean de INC-3 +
+  kill-don't-idle + sesión corta mataron la sesión-larga de $73.89), compactaciones a 0, churn/extra-reads mínimos.
+  opus-share = 100% por RAZÓN ESTRUCTURAL: INC-5/6 son incrementos de MEDICIÓN/juicio (medir un trigger, decidir
+  N/A) sin bulk delegable (un observer ~60k tok a Sonnet cuya $ ni figura vs ~$13 de residencia Opus). Es el
+  diagnóstico exacto de §1.1: la RESIDENCIA domina; delegar un slot desde una sesión Opus NO mueve el mix. La
+  palanca de opus-share es correr la EJECUCIÓN entera en Sonnet — probado el mismo día por la sub-sesión S2 de INC-4
+  (`3529e24e`: **0% opus, $4.52, 154 turnos**).
+- **Decisión (hold-PENDING, sin narrar green):** NO se declara «llegamos». Un opus-share medido de 100% contradice
+  un verde; declararlo violaría «done es decidible, no narrado» (el principio del propio doc). Tampoco se ENMIENDA
+  §5 para eximir a los incrementos de medición del KPI opus-share: relajar un plan CONGELADO en el instante de
+  evaluarlo es mover el arco —aunque la exención sea defendible, hacerlo AHORA para declarar victoria corrompe la
+  integridad del criterio (si la exención es correcta, es lección para el DISEÑO de KPIs de la próxima dirección, no
+  un parche retroactivo). Disposición: **plan BUILT-COMPLETE (N=7); reducción de costo EMPÍRICAMENTE probada (−82%);
+  §5 empírico PENDIENTE de UN incremento S2-ejecución representativo** (bulk delegable + orquestador Sonnet) — su
+  vehículo, un trigger FORWARD barato: el `meta outcome` del próximo build real lo decide.
+- **Residual honesto (I-13):** no hay telemetría OTLP de costo por-turno (los ledgers son hechos-a-mano); opus-share
+  y $/incr se reconstruyeron de transcripts con la atribución sesión→incremento anclada a evidencia (commits +
+  journal), no a prosa. Todo re-derivable con el método de arriba.
 
 ## 2026-07-03T18:15Z — HEADLESS-SLOTS ✅ N/A-por-medición (INC-6 de COST-DOWN): la residencia-de-slots YA es $0 — cierra el plan N=7
 - **Qué:** sexto y ÚLTIMO incremento del plan FIJO N=7 (ADR-021, §4.INC-6), CONDICIONAL-final: la decisión

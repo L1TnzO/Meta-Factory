@@ -172,6 +172,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.least_priv", str(root)]},  # fábrica = scope mínimo-privilegio ⊊ meta (sobre-priv = rojo)
         {"name": "roles", "kind": "command",               # ADR-020 (Fase D): los agentes se especializan por ROL,
          "cmd": [py, "-m", "metafactory.verify.checks.role_hygiene", str(root)]},  # no por dominio (nombre fuera del vocab cerrado = rojo)
+        {"name": "plan", "kind": "command",                 # ADR-021 (INC-4, PLAN-EXECUTE-SPLIT): plan-como-DATA
+         "cmd": [py, "-m", "metafactory.verify.checks.plan_gate", str(root)]},  # bien formado, dos-lados (slot sin gate/ciclo/diferido-sin-razón = rojo)
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
          "cmd": [py, "-m", "metafactory.verify.checks.state_snapshot", str(root)]},  # no log (presupuesto + cierre rancio = rojo)
         {"name": "state_fidelity", "kind": "command",      # ADR-019 (§4, M3): «Ahora» no CONTRADICE el RTM

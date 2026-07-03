@@ -22,13 +22,17 @@ Uso:
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
 # tipo del blueprint -> tipo Go + un valor de muestra para los tests generados (determinista).
+# `enum` NO está acá: no mapea a un tipo Go FIJO — su tipo Go es el propio nombre del campo
+# (`type <F> string`, emitido por `_enum_go`), así que se resuelve en `_go_type`/`_field_sample`.
 _GO_TYPE = {"string": "string", "float": "float64", "float64": "float64",
             "int": "int64", "int64": "int64", "bool": "bool"}
 _GO_SAMPLE = {"string": '"sample"', "float64": "1.5", "int64": "1", "bool": "false"}
+_ENUM_TYPE = "enum"
 
 
 def _load_blueprint(root: Path) -> dict:
@@ -42,8 +46,13 @@ def _load_blueprint(root: Path) -> dict:
     if not msg.get("name") or not msg.get("fields"):
         raise SystemExit("scaffold: blueprint domain.product.message sin 'name'/'fields' (spec incompleto)")
     for f in msg["fields"]:
-        if f.get("type") not in _GO_TYPE:
-            raise SystemExit(f"scaffold: campo {f.get('name')!r} con tipo no soportado {f.get('type')!r}")
+        t = f.get("type")
+        if t == _ENUM_TYPE:
+            if not f.get("values"):
+                raise SystemExit(
+                    f"scaffold: campo enum {f.get('name')!r} sin 'values' (o vacío) — spec incompleto")
+        elif t not in _GO_TYPE:
+            raise SystemExit(f"scaffold: campo {f.get('name')!r} con tipo no soportado {t!r}")
     topo = bp.get("topology") or {}
     if not topo.get("root") or not topo.get("topics"):
         raise SystemExit("scaffold: blueprint domain.product.topology sin 'root'/'topics' (spec incompleto)")
@@ -52,12 +61,92 @@ def _load_blueprint(root: Path) -> dict:
     return bp
 
 
-def _go_type(bp_type: str) -> str:
-    return _GO_TYPE[bp_type]
+def _go_type(f: dict) -> str:
+    """The Go type of a blueprint field: a builtin (string/float64/int64/bool), or — for `enum` — the
+    field's OWN named type (`type <F> string`, emitted by `_enum_go`; the struct member is `<F> <F>`,
+    never a raw string, so an enum can't be assigned an arbitrary literal without a conversion)."""
+    if f["type"] == _ENUM_TYPE:
+        return f["name"]
+    return _GO_TYPE[f["type"]]
 
 
 def _field_type_map(msg: dict) -> dict:
-    return {f["name"]: _go_type(f["type"]) for f in msg["fields"]}
+    return {f["name"]: _go_type(f) for f in msg["fields"]}
+
+
+def _enum_const_name(field_name: str, value: str) -> str:
+    """Sanitize an enum value into a valid, readable Go const identifier: `<F>` + title-cased
+    alnum runs of `value` (e.g. Health/"in-progress" -> HealthInProgress). Deterministic, no I/O."""
+    parts = re.split(r"[^0-9A-Za-z]+", str(value))
+    suffix = "".join(p[:1].upper() + p[1:] for p in parts if p)
+    if not suffix:
+        suffix = "Empty"
+    if suffix[0].isdigit():
+        suffix = "V" + suffix
+    return f"{field_name}{suffix}"
+
+
+def _enum_go(f: dict) -> str:
+    """A type-safe Go enum for one blueprint field (DES-3/DES-8, fail-closed edge): a NAMED string type
+    (not an alias — `type <F> string`, so an arbitrary string requires an explicit conversion), a const
+    per declared value, and `Valid<F>` — a REAL switch-over-members check, not a rubber stamp."""
+    name = f["name"]
+    consts: list[tuple[str, str]] = []
+    seen: dict[str, str] = {}
+    for v in f["values"]:
+        const_name = _enum_const_name(name, v)
+        if const_name in seen and seen[const_name] != v:
+            raise SystemExit(
+                f"scaffold: campo enum {name!r}: los values {seen[const_name]!r} y {v!r} sanean al mismo "
+                f"identificador Go {const_name!r} (colisión) — renombralos")
+        seen[const_name] = v
+        consts.append((const_name, v))
+    const_lines = "\n".join(f'\t{cn} {name} = "{v}"' for cn, v in consts)
+    cases = ", ".join(cn for cn, _ in consts)
+    return (
+        f"// {name} is a type-safe enum field (DES-3/DES-8): only its declared const members are valid —\n"
+        f"// NOT a bare string alias, so an arbitrary literal needs an explicit {name}(...) conversion.\n"
+        f"type {name} string\n\n"
+        f"const (\n{const_lines}\n)\n\n"
+        f"// Valid{name} is the fail-closed edge check: true iff v is a DECLARED {name} member, false for\n"
+        f"// any other value (an unsigned/unknown literal is rejected, never silently accepted).\n"
+        f"func Valid{name}(v {name}) bool {{\n"
+        f"\tswitch v {{\n"
+        f"\tcase {cases}:\n"
+        f"\t\treturn true\n"
+        f"\t}}\n"
+        f"\treturn false\n"
+        f"}}\n"
+    )
+
+
+def _field_sample(f: dict) -> str:
+    """Sample literal for a field's declared type — for `enum` this is its FIRST declared const (a valid
+    member), so generated fixtures never accidentally construct a malformed enum."""
+    if f["type"] == _ENUM_TYPE:
+        return _enum_const_name(f["name"], f["values"][0])
+    return _GO_SAMPLE[_go_type(f)]
+
+
+def _enum_test_go(f: dict) -> str:
+    """The two-sided tooth for one enum field: a DECLARED member passes Valid<F>, and an arbitrary
+    non-member literal is REJECTED — the assertion that catches a decorative alias/always-true Valid<F>."""
+    name = f["name"]
+    first_const = _enum_const_name(name, f["values"][0])
+    return (
+        f"func TestValid{name}AcceptsDeclaredMember(t *testing.T) {{\n"
+        f"\tif !Valid{name}({first_const}) {{\n"
+        f"\t\tt.Fatal(\"a declared {name} member was rejected by Valid{name}\")\n"
+        "\t}\n"
+        "}\n\n"
+        f"func TestValid{name}RejectsUnknownMember(t *testing.T) {{\n"
+        f"\t// An arbitrary non-member literal must be REJECTED — this is what catches a decorative\n"
+        f"\t// alias (`type {name} = string`) or an always-true Valid{name} (not a real check).\n"
+        f"\tif Valid{name}({name}(\"bogus\")) {{\n"
+        f"\t\tt.Fatal(\"an arbitrary non-member string was accepted by Valid{name} — not type-safe\")\n"
+        "\t}\n"
+        "}\n"
+    )
 
 
 # ── contract/ (DES-6) ────────────────────────────────────────────────────────
@@ -68,13 +157,16 @@ def _contract_go(msg: dict) -> str:
         if _field_type_map(msg).get(r) != "string":
             raise SystemExit(f"scaffold: campo requerido {r!r} no es string (la validación del borde "
                              f"genera un chequeo `== \"\"`; sólo soporta requeridos string)")
-    members = "\n".join(f"\t{f['name']} {_go_type(f['type'])}" for f in msg["fields"])
+    enum_fields = [f for f in msg["fields"] if f["type"] == _ENUM_TYPE]
+    enums = "\n".join(_enum_go(f) + "\n" for f in enum_fields)
+    members = "\n".join(f"\t{f['name']} {_go_type(f)}" for f in msg["fields"])
     cond = " || ".join(f'r.{r} == ""' for r in required)
     return (
         "// Package contract defines the typed device→gateway message contract (DES-6). A drift of any\n"
         "// field type breaks the build of every consumer — the `go vet ./...` gate of s0.\n"
         "package contract\n\n"
         "import \"errors\"\n\n"
+        f"{enums}"
         f"// {name} is the typed telemetry message that crosses the device→gateway boundary.\n"
         f"type {name} struct {{\n{members}\n}}\n\n"
         "// ErrMalformed is returned when a message violates the edge contract (a required field is empty).\n"
@@ -97,7 +189,7 @@ def _sample_lit(msg: dict, *, omit: str | None = None) -> str:
     for f in msg["fields"]:
         if f["name"] == omit:
             continue
-        parts.append(f"{f['name']}: {_GO_SAMPLE[_go_type(f['type'])]}")
+        parts.append(f"{f['name']}: {_field_sample(f)}")
     return ", ".join(parts)
 
 
@@ -105,6 +197,8 @@ def _contract_test_go(msg: dict) -> str:
     name = msg["name"]
     required = msg.get("required") or []
     omit = required[0]
+    enum_fields = [f for f in msg["fields"] if f["type"] == _ENUM_TYPE]
+    enum_tests = "".join("\n" + _enum_test_go(f) for f in enum_fields)
     return (
         "package contract\n\n"
         "import \"testing\"\n\n"
@@ -121,6 +215,7 @@ def _contract_test_go(msg: dict) -> str:
         f"\t\tt.Fatal(\"malformed reading (empty {omit}) was NOT rejected at the edge\")\n"
         "\t}\n"
         "}\n"
+        f"{enum_tests}"
     )
 
 

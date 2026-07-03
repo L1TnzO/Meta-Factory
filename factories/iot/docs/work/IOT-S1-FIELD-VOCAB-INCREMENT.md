@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c41e6eba5de696c0c3b917fa66801ac35915f832 updated=2026-07-03T22:21Z -->
+<!-- meta:doc sha=fd1671588ddcb1ea8987babd83d3def380225d8e updated=2026-07-03T22:58Z -->
 # Incremento IOT-S1-FIELD-VOCAB
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-03T22:19Z). Cerralo con `meta increment close`
@@ -85,10 +85,10 @@ Leé el VEREDICTO, no el diff.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Codegen: `_GO_TYPE`/`_GO_SAMPLE` + emisión enum type-safe (`type <F> string` + const-block + `Valid<F>`) en `scaffold_product.py`; fail-closed en enum-sin-values | ⏳ |
-| 2 | `fleet/product.yml`: adoptar el campo enum `Health` (no-requerido) + embeber el diente de DOS lados en el test generado `./contract` | ⏳ |
-| 3 | Verde: `product-run fleet` + demo ==pin + `ci --rederive --all-products`==pin + `meta check` 18/18; re-pin fleet | ⏳ |
-| 4 (STRETCH, opcional) | `type: timestamp`→`time.Time` y/o `required:false`→puntero — SÓLO si Fase 1-3 aterrizan limpio con presupuesto | ⏳ |
+| 1 | Codegen: `_GO_TYPE`/`_GO_SAMPLE` + emisión enum type-safe (`type <F> string` + const-block + `Valid<F>`) en `scaffold_product.py`; fail-closed en enum-sin-values | ✅ |
+| 2 | `fleet/product.yml`: adoptar el campo enum `Health` (no-requerido) + embeber el diente de DOS lados en el test generado `./contract` | ✅ |
+| 3 | Verde: `product-run fleet` + demo ==pin + `ci --rederive --all-products`==pin + `meta check` 18/18; re-pin fleet | ✅ |
+| 4 (STRETCH, opcional) | `type: timestamp`→`time.Time` y/o `required:false`→puntero | ⏭️ no ejecutado (Fases 1-3 ya cerraron el criterio; stretch queda para un incremento futuro si hace falta) |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. iot codegen soporta `type: enum` con Go type-safe (const members + `Valid<F>` + campo del struct tipado al enum);
@@ -102,4 +102,35 @@ Leé el VEREDICTO, no el diff.
    vehículo del KPI `opus-share` de `COST-DOWN` §5 (baseline $73.89; target opus-share ≤35%).
 
 ## Evidencia (la completa el S2 al cerrar)
-<product-run PASS · sabotaje→rojo · ci --rederive==pin · git diff src/ seed/ vacío · meta outcome opus-share/$>
+Ejecutado vía `generate-slot` → `generator` (Sonnet), 2 spawns (Fase 1 codegen + Fase 2 adopción; el 2º spawn
+fue una sesión fresca — este harness no soportó continuar el mismo agent-id por `to`, así que el hand-off fue
+un manifest actualizado + contexto autocontenido, no una sesión continuada). Verificado por bloqueo (no por
+prosa) en CADA paso:
+- `product-run --factory iot --product fleet` PASS (`go vet` + `go test ./contract`) · `product-run --factory iot`
+  (demo `iotgw`) PASS, sin cambios.
+- **Sabotaje→rojo probado**: el generator forzó `ValidHealth` siempre-true en un harness Go AISLADO (`/tmp`, vía
+  Bash, no Write — nunca tocó el repo) → `TestValidHealthRejectsUnknownMember` fue ROJO; revertido → verde. Yo
+  (orquestador) confirmé independientemente el diente REAL leyendo el test generado (no la prosa del verdict):
+  `factories/iot/products/fleet/build/product/contract/message_test.go` tiene `TestValidHealthAcceptsDeclaredMember`
+  (positivo, `HealthOk`) y `TestValidHealthRejectsUnknownMember` (negativo, `ValidHealth(Health("bogus"))==false`) —
+  AMBOS presentes.
+- `ci --rederive --all-products --factory iot` → **2/2 == pin** (re-corrido por mí independientemente, no solo
+  por el verdict). Nota honesta: `proof_sha` = hash de `(station_id, checks (nombre,exit) ordenados)` — NO
+  content-hash de los artefactos Go (`seed/verifier.py:compute_proof_sha`) — por diseño (PF-10, doble
+  verificador): el pin queda estable mientras el MISMO check nombrado siga saliendo exit 0, aunque el Go
+  generado cambie por dentro. `fleet/pinned_verdict.json` NO cambió (byte-idéntico) — esperado, no un bug.
+- **Anti-overfit**: `git diff --stat src/ seed/` VACÍO (confirmado por mí). `factories/iot/codegen/scaffold_product.py`
+  665→**760 líneas** (+95 netas), dentro del presupuesto multi-archivo (~800). `./meta check` → **18/18** (confirmado
+  por mí, post-clear-slot).
+- **Gap de diseño S1 encontrado y corregido en vivo (residuo, no re-diseño)**: el manifest original delegó
+  `products/fleet/product.yml` sin abrir el incremento de NIVEL PRODUCTO que `increment_guard` exige (ADR-016,
+  layering) → 1er spawn devolvió ROJO honesto (no fabricado). Se abrió
+  `factories/iot/products/fleet/docs/work/IOT-S1-FIELD-VOCAB-FLEET-INCREMENT.md` + se corrigió un bug real del
+  manifest (`acceptance_gate_cmd` sin `--factory iot`, validaba la fábrica default por error) → 2do spawn GREEN,
+  confirmado por mí.
+- **§5 (opus-share/$ de ESTA sesión S2)**: transcript
+  `~/.claude/projects/-home-enzo-University-Integraci-n-APP-Meta-Factory/d14b2cf6-035c-461b-96a8-3f6fdeb95a8d.jsonl`.
+  `meta outcome --transcript <ese path>` corre pero NO hay una función `opus_share` en `src/` (grep vacío) — el
+  cálculo real (INC-4/5/6) fue una re-derivación AD-HOC de S3 sobre el JSONL crudo con `pricing.PRICING`, no un
+  verbo del CLI. Dejo el puntero al transcript para que el S3 (Opus, cierre) haga esa medición — es juicio de
+  cierre, no ejecución mecánica; no la fabriqué a mano en esta sesión Sonnet.

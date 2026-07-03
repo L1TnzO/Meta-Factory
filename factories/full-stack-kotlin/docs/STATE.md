@@ -1,11 +1,12 @@
-<!-- meta:doc sha=2e6d49479d583c43bbf309007319d5210b3a3d6a updated=2026-07-02T13:44Z -->
+<!-- meta:doc sha=6b4867a34f6d6d8348cb67deaa1522465031aa3a updated=2026-07-03T02:47Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- **GUARD DE MUTACIÓN POR ESTADO (FSK-MUTABLE-WHEN, 2026-07-02)** ✅ (feature commiteada `7e1be44`; cierre formal
-  del incremento DIFERIDO — necesita JDK 21 para re-pinear no-adoptantes): clave opt-in `mutable_when: {field, in|
+- **GUARD DE MUTACIÓN POR ESTADO (FSK-MUTABLE-WHEN, 2026-07-02)** ✅ (feature `7e1be44`; **cierre formal HECHO
+  2026-07-03** — re-pin no-adoptantes + `ci --rederive --all-products` == pin 4/4, des-diferido por INC-2
+  `HARNESS-FAST-GATE` que garantizó JDK 21 vía `tools/toolchain.sh`): clave opt-in `mutable_when: {field, in|
   not_in}` por entidad → un activo en estado FROZEN (p.ej. `deployed`) rechaza PUT/DELETE genéricos con **409**
   (detrás del veredicto RBAC+ownership; las operations declaradas siguen moviendo el estado). Dos dientes de dos
   lados: VIVO (s9: ready→PUT 200 · checkout→deployed→PUT/DELETE 409) + ESTÁTICO (s5 `route_check mutability`,

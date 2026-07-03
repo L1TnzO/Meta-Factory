@@ -1,7 +1,34 @@
-<!-- meta:doc sha=b602deea7b24e69f0a3cdd00c776be3e68a70e9d updated=2026-07-02T17:52Z -->
+<!-- meta:doc sha=878eb96524139c123d446370c572ad10bd8e7c26 updated=2026-07-03T02:49Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-03T02:44Z — HARNESS-FAST-GATE ✅ (INC-2 de COST-DOWN): slots cortos + verificación hermética + JDK-vanish muerto
+- **Qué:** tercer incremento del plan FIJO N=7 (ADR-021, §4.INC-2). COLUMNA (trust-chain, ojos propios; NO delegado).
+  (a) `seed/delegation.py`: gate del slot PARTIDO — `iteration_gate_cmd` (rápido, ≤15s, cada retry) +
+  `acceptance_gate_cmd` (pesado, 1× al final); `verdict_ok` exige `acceptance_exit_code==0` para green.
+  (d) ley de tamaño de slot (D23): `iteration_budget_s`≤15 · `max_wall_s`≤1800 · `token_budget`, validados.
+  (e) `affected_tests(root, allow_globs)`: selección mínima de tests por blast-radius (D25 minimal; pleno=INC-4).
+  (b) `verify/hermetic.py` + `stop_proof` meta HERMÉTICO: re-run local rojo → confía en el pin del clon limpio
+  SOLO si recompone verde Y el toolchain local no puede re-verificar (mata el falso-rojo JDK-vanish); fallo
+  real o toolchain sano → bloquea. El `stop_proof` del template YA recomponía del pin (sin cambio).
+  (c) `tools/toolchain.sh` (probe/path/ensure): single-source de la política JDK-21; ensure resuelve local o
+  descarga Temurin 21 y exporta `JAVA_HOME`.
+- **Diente:** two-sided en la suite — `tests/test_delegation.py` (+split-gate requerido · budgets · acceptance-green
+  · `affected_tests`) + `tests/test_hermetic.py` (pin-trust: verde+toolchain-ausente confía · verde+sano bloquea ·
+  rojo bloquea). Columna re-materializada en las 5 fábricas → `column_parity` verde. **Suite 796 · `meta check` 17/17.**
+- **Bonus (des-diferido):** con JDK 21 garantizado, cerré FSK-MUTABLE-WHEN — el `s5` compartido ganó el check
+  `mutability_enforced` → pins rancios en base/assets/helpdesk; re-derivé foreground cada uno (s5 verde, sha nuevo
+  `bbb840dd`) → `meta pin` (diff s5-only). **`ci --rederive --all-products` == pin 4/4** (base 12/12·assets 11/11·
+  helpdesk 11/11·snipeit 11/11), stack real JDK 21 + gradle + docker PG/AppServer. FSK RTM COMPLETE 27/27.
+- **Lección (nueva):** un build pesado de fábrica en BACKGROUND corre carrera con el turn-close por
+  `.proof/active.json` (product-run graba la activa) → el `stop_proof` del turno re-ejecuta una activa
+  transitoriamente roja. Regla: los builds pesados de fábrica (s9/s11 = puertos fijos + docker) van FOREGROUND;
+  el background sólo para gates hermético-recomponibles. El `stop_proof` hermético hizo LO CORRECTO: no enmascaró
+  el `s5` rojo transitorio (sólo confía en pin verde + toolchain ausente).
+- **Ruteo:** sesión S1/S3 Opus (columna = trust-chain, no delegable). El bulk NO se delegó porque INC-2 ES la
+  maquinaria de delegación misma. Costo: leer el `meta outcome` de este incremento.
+- **Punteros:** `work/HARNESS-FAST-GATE-INCREMENT.md §Evidencia` · `work/COST-DOWN-DIRECTION-INCREMENT.md §4.INC-2`.
 
 ## 2026-07-02T17:52Z — COST-RUNBOOK ✅ (INC-0 de COST-DOWN): las reglas de costo que ahorran desde mañana (0 código)
 - **Qué:** primer incremento del plan FIJO N=7 (ADR-021). Entregable = bloque «Runbook de costos (ADR-021)» en

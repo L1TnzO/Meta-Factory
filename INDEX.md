@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `b602deea7b24` | 2026-07-02T17:52Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `8d8c3c5e240c` | 2026-07-02T20:49Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `878eb9652413` | 2026-07-03T02:49Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `b180a05b701c` | 2026-07-03T02:49Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -82,7 +82,7 @@
 | `docs/work/H2-SUBSTRATE-HYGIENE-INCREMENT.md` | `96dd34890856` | 2026-06-18T17:33Z | Incremento H2-SUBSTRATE-HYGIENE |
 | `docs/work/HARDEN-HOOKS-CWD-INCREMENT.md` | `4aa0f069206e` | 2026-06-18T20:54Z | Incremento HARDEN-HOOKS-CWD |
 | `docs/work/HARNESS-DECOUPLE-INCREMENT.md` | `cc57027b3bdb` | 2026-06-26T18:05Z | Incremento HARNESS-DECOUPLE |
-| `docs/work/HARNESS-FAST-GATE-INCREMENT.md` | `05d5229c12a8` | 2026-07-03T02:45Z | Incremento HARNESS-FAST-GATE |
+| `docs/work/HARNESS-FAST-GATE-INCREMENT.md` | `82487f25e449` | 2026-07-03T02:49Z | Incremento HARNESS-FAST-GATE |
 | `docs/work/LEAST-PRIV-DECOUPLE-INCREMENT.md` | `40a2c2f0af49` | 2026-06-27T15:06Z | Incremento LEAST-PRIV-DECOUPLE |
 | `docs/work/M4-M7-INCREMENT.md` | `3f05514d6983` | 2026-06-14T20:17Z | Incremento M4-M7 — completar el sustrato (template · memoria · CI externo · harness) |
 | `docs/work/MAT-0-GENERALITY-PARITY-INCREMENT.md` | `3dd08d943c38` | 2026-06-16T22:04Z | Incremento MAT-0-GENERALITY-PARITY |

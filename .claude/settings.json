@@ -33,7 +33,10 @@
       },
       {
         "matcher": "*",
-        "hooks": [{ "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/mem_capture.py\"" }]
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/mem_capture.py\"" },
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/context_nudge.py\"" }
+        ]
       }
     ],
     "Stop": [

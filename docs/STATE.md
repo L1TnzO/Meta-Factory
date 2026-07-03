@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dc928f487c61ee9a0efe0415c855c2572599a2d2 updated=2026-07-03T03:02Z -->
+<!-- meta:doc sha=77e04be29c8cace1d563cba16c88b0c10e0a1a89 updated=2026-07-03T03:39Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -21,9 +21,9 @@
   S3 Opus cierra) + doctrina de cache + plan **FIJO N=7**. **INC-0 `COST-RUNBOOK` · INC-1 `PRICING-LEDGER` ·
   INC-2 `HARNESS-FAST-GATE` ✅** (runbook en CLAUDE.md · ledger cache-aware + tabla de precios DATA · slot manifest
   con gate partido iteración/aceptación + `stop_proof` hermético + `tools/toolchain.sh` que mata el JDK-vanish +
-  cierre FSK-MUTABLE-WHEN re-pin 4/4); próximo = **INC-3 `CONTEXT-LEAN-TEETH`** (ataca el ~45%: nudge
-  anti-relectura + abstracts de docs + budget de tamaño en el slot + wrappers de gate 1-línea + hook de
-  compactación). KPIs (medibles desde INC-1): opus ≤35% (baseline honesto **80.1%**) · compactaciones 0 ·
+  cierre FSK-MUTABLE-WHEN re-pin 4/4); **INC-3 `CONTEXT-LEAN-TEETH` EN CURSO** (columna a+e+c ✅ S1 ·
+  fase 3 `doc slice`+verbo ✅ S2, primer uso real del gate partido; quedan (d) wrappers de gate + (f) verbos
+  compuestos, S2). KPIs (medibles desde INC-1): opus ≤35% (baseline honesto **80.1%**) · compactaciones 0 ·
   $/incremento −60%. Biblia (leer §2 + tu §4.INC-n): `work/COST-DOWN-DIRECTION-INCREMENT.md` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan

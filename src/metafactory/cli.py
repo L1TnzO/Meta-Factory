@@ -11,6 +11,7 @@ Verbs:
   promote --factory S        Fase G: promote iff the engine passes a diverse scenario corpus AND no downstream verdict drops
   verify --rerun             re-verify the active station (Lock #3, used by the Stop hook)
   doc-sync                   stamp docs + regenerate INDEX (used by the PostToolUse hook)
+  doc slice <doc> [§|title]  print ONE section of a doc (or --abstract) instead of the whole file (C16)
 
 Every expensive verb returns a BOUNDED verdict (≤10 lines) + a pointer to the disk log.
 """
@@ -861,6 +862,34 @@ def cmd_graph(args) -> int:
     return run_graph(args, _meta_root())
 
 
+def cmd_doc_slice(args) -> int:
+    """`meta doc slice <doc> [selector] [--abstract]` (C16 / CONTEXT-LEAN-TEETH): print ONE section of a
+    long `.md` (by number `§2.3` or by title substring), or `--abstract` for a 2-line summary + § map —
+    instead of loading the whole doc into context. Thin CLI glue over `metafactory.doc_slice` (the gated
+    module); composition only, no new logic here."""
+    from . import doc_slice
+    root = _meta_root()
+    path = Path(args.doc)
+    if not path.is_absolute():
+        path = root / path
+    if not path.is_file():
+        print(f"error: no existe el doc: {args.doc}", file=sys.stderr)
+        return 1
+    text = path.read_text(encoding="utf-8")
+    if args.abstract:
+        print(doc_slice.abstract(text))
+        return 0
+    if not args.selector:
+        print("error: falta <selector> (§N.N o substring de título) — o pasá --abstract", file=sys.stderr)
+        return 1
+    out = doc_slice.slice(text, args.selector)
+    if out is None:
+        print(f"error: sección no encontrada: {args.selector!r} en {args.doc}", file=sys.stderr)
+        return 1
+    print(out)
+    return 0
+
+
 def cmd_billing(args) -> int:
     """Show the delegation split (Opus·Sonnet·Haiku) of a billing-ledger (ADR-017, Fase 5)."""
     from .graph.cli import run_billing
@@ -950,6 +979,9 @@ def build_parser() -> argparse.ArgumentParser:
     gb = gsub.add_parser("build"); gb.add_argument("--factory", action="append", default=None)
     gq = gsub.add_parser("query"); gq.add_argument("--symbol", required=True)
     gr = gsub.add_parser("repomap"); gr.add_argument("--budget", type=int, default=4000)
+    dp = sub.add_parser("doc"); dsub = dp.add_subparsers(dest="doc_cmd", required=True)
+    ds = dsub.add_parser("slice"); ds.add_argument("doc"); ds.add_argument("selector", nargs="?", default=None)
+    ds.add_argument("--abstract", action="store_true"); ds.set_defaults(func=cmd_doc_slice)
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)
     op = sub.add_parser("outcome"); op.add_argument("--baseline", default=None); op.add_argument("--save", default=None)
     op.add_argument("--billing", default=None); op.add_argument("--transcript", default=None); op.set_defaults(func=cmd_outcome)

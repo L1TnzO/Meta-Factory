@@ -172,6 +172,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.least_priv", str(root)]},  # fábrica = scope mínimo-privilegio ⊊ meta (sobre-priv = rojo)
         {"name": "roles", "kind": "command",               # ADR-020 (Fase D): los agentes se especializan por ROL,
          "cmd": [py, "-m", "metafactory.verify.checks.role_hygiene", str(root)]},  # no por dominio (nombre fuera del vocab cerrado = rojo)
+        {"name": "kinds", "kind": "command",                # D-3 (VOCAB-FREEZE, COUNCIL-360): el vocabulario de check-
+         "cmd": [py, "-m", "metafactory.verify.checks.kind_hygiene", str(root)]},  # kinds está CONGELADO (kind fuera de registry.KINDS = rojo)
         {"name": "plan", "kind": "command",                 # ADR-021 (INC-4, PLAN-EXECUTE-SPLIT): plan-como-DATA
          "cmd": [py, "-m", "metafactory.verify.checks.plan_gate", str(root)]},  # bien formado, dos-lados (slot sin gate/ciclo/diferido-sin-razón = rojo)
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
@@ -885,7 +887,13 @@ def cmd_rehydrate(args) -> int:
 def cmd_graph(args) -> int:
     """Project-spine (ADR-017): build the content-addressed graph, query it 2-hop (no LLM), repo-map."""
     from .graph.cli import run_graph
-    return run_graph(args, _meta_root())
+    from .memory import journal
+    root = _meta_root()
+    # Observer for the 30-days-at-0 rule (COUNCIL-360 §2.6 / VOCAB-FREEZE): every NAVIGATION use of the
+    # graph surface leaves a fact. 30 days with zero `graph_query` facts ⇒ archive the navigation surface
+    # (the internals stay: they feed quality/pbt/billing). Best-effort like every journal write.
+    journal.append(root, "graph_query", verb=str(getattr(args, "graph_cmd", "") or ""))
+    return run_graph(args, root)
 
 
 def cmd_doc_slice(args) -> int:

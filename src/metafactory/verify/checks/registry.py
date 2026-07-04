@@ -13,6 +13,11 @@ from ...codegen.renderer import render_text
 from ..._seed import repo_root
 
 PY = sys.executable
+# ── FROZEN vocabulary (D-3, VOCAB-FREEZE 2026-07-04, mirror of agent_roles/ADR-020) ──────────────────
+# Measured inversion: `product_env` carries 72/~130 uses; most kinds appear ONCE. The one-shot kinds
+# SUSTAIN the meta line (not pruned), but the set is CLOSED: adding a kind is a DELIBERATE governance
+# act (edit this constant + an ADR), and the bar is «doesn't `product_env` + a script suffice?».
+# The `kinds` gate (verify/checks/kind_hygiene.py) blocks any kind used outside this set, repo-wide.
 KINDS = (
     "py_compile", "import_runs", "artifact_contains", "spec_validate",
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",

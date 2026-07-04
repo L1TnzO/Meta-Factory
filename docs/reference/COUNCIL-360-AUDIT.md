@@ -1,4 +1,4 @@
-<!-- meta:doc sha=793b65dae2079ab2d389714e989fedcc37d408b8 updated=2026-07-04T16:12Z -->
+<!-- meta:doc sha=866f1b5664c5ae0bacbfb665bd856bb9d2a07dbf updated=2026-07-04T16:45Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
 > tipo: reference (estable) · creado: 2026-07-04T03:45Z · sesión S1 (Fable 5, pedido explícito del
@@ -340,3 +340,26 @@ ninguna requiere investigación, solo adopción con dientes.
 4. **E1+D-8 fusionados** (~1 día): spec AJENA, CC-pelado vs fábrica, arbitrado por benchmark.
 5. **E4** mutation sobre helpdesk + `verify/checks/` (H-3) — el número de la Silla 7.
 6. **C solo con dominio real y fecha**; mientras tanto, B es la casa.
+
+### §6.5 · El repo resultante (proyección: qué queda al terminar §6.4, pedida por el ingeniero)
+Principio rector: acá NO se borra — se **congela con pin** (la re-derivación mantiene verificable lo
+congelado a costo ~0); borrar es solo para RUIDO. Por eso ~90% del repo queda byte-idéntico; lo que
+cambia es su ESTADO y su forma:
+
+| Zona | Estado resultante |
+| --- | --- |
+| `seed/` · `.claude/` · `template/` · `tests/` | **VIVOS sin cambios** (la columna; H-5 endurece `doc_stamp`) |
+| `src/metafactory/` | **VIVO**, 3 deltas: `verify/outcome.py` +horas-humano/split-modelo (§6.0/H-9) · vocabulario de checks CONGELADO (D-3, regla tipo-roles) · superficie de navegación del grafo bajo regla 30-días-en-0 → archivable (internals quedan: alimentan quality/pbt/billing) |
+| `.github/workflows/` | **NUEVO** (H-1): el transporte del seed por fin instalado; Actions re-deriva en cada push |
+| `stations/` (meta y fábricas) | **cambia de FORMA** (D-2): YAML = orquestación (secuencia+checks); el contenido embebido migra a archivos reales `stations/templates/*.kt/.kts/.ts` — salida byte-idéntica |
+| `factories/full-stack-kotlin/` · `factories/iot/` | **VIVAS** — el sistema operativo real; extensión SOLO por patrón iot (D-4) |
+| `factories/dummy/` | **VIVA como FIXTURE** — es el cuerpo de prueba de la línea meta (el pin que el CI re-deriva); no es deuda |
+| `factories/agent-systems-factory/` · `factories/full-stack/` | **REGRESSION-FROZEN declarado** (STATE de cada una lo dice): pin verde gratis en `ci --rederive`, cero incrementos nuevos; descongelar = acto deliberado |
+| `benchmarks/` · `scenarios/` · `specs/` | **VIVOS** + crece: la spec AJENA de E1+D-8 y su veredicto |
+| `docs/decisions/` (001–021) · `LOG` · `work/` cerrados | **INMUTABLES, quedan todos** — son la evidencia; jamás se podan |
+| `docs/reference/` | **VIVO y consolidado**: COUNCIL+MAP = casa de auditoría; los históricos (REGEN-AUDIT, MAT-6, F1) quedan como evidencia fechada; +THREAT-MODEL honesto (D-7, una sección) |
+| Evidencia nueva | tasa de escape (E4) + veredicto control-group (E1+D-8) + horas-humano en outcome — los tres JUECES por fin en el árbol |
+
+Día-a-día resultante: el ingeniero toca meta+FSK+iot; los productos salen por la línea 0-modelo; los
+ejes nuevos nacen como slots S2; la auditoría vive en UN doc; y todo lo demás sigue verificable sin
+costo de atención — que era el cuello real (Silla 8).

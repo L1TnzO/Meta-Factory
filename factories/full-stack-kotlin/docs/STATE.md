@@ -4,6 +4,12 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **CONTROL-GROUP E1+D-8 (2026-07-04, ADR-022)** ✅ MEDIDO: spec AJENA (RealWorld Conduit) por los
+  dos brazos. Fábrica: s0–s8 verdes pero **2 rojos GENERALES** (workflow_enforced sin workflows no
+  degrada a N/A · seeder crash con multi-ref-mismo-target). Pelado (Sonnet, 6.3 min): 19/19 endpoints,
+  tests verificados por el orquestador. **D-8 confirmada; el claim se AFILA**: valor = re-derivabilidad
+  + gates + escape-rate EN la clase CRUD+roles+workflow, no «cualquier spec». 2 gaps a la cola con
+  gatillo. Evidencia: `docs/work/CONTROL-GROUP-INCREMENT.md §Evidencia` + `specs/foreign-conduit/`.
 - **CONTENIDO-COMO-ARCHIVOS (D2-CONTENT-AS-FILES, 2026-07-04, ADR-022/D-2)** ✅ (cerrado 20:32Z): los 4 blobs
   Kotlin/Gradle embebidos como literales escapados en `s6.yml` (fábrica + 3 copias de producto) ahora
   viven como archivos REALES en `stations/templates/s6/` referenciados con `action: render` (fuente

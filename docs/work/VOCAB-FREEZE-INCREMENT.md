@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4a49b175afe37fb291e3edc1cac46e39574ace51 updated=2026-07-04T19:58Z -->
+<!-- meta:doc sha=20df4200155c64e819789aac735f09d63661243f updated=2026-07-04T20:05Z -->
 # Incremento VOCAB-FREEZE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T19:56Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T20:05Z) (creado 2026-07-04T19:56Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5e75cd16d968352b5efe1b5f9857c53781cf85cb updated=2026-07-04T04:00Z -->
+<!-- meta:doc sha=fd20a4a71bac7e029d2115ce647f2d7e7bf8b126 updated=2026-07-04T04:16Z -->
 <!-- meta:doc sha=PENDING updated=2026-07-04T03:45Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
@@ -108,6 +108,33 @@ instrumentos hacia afuera**.
 - **Menores**: doble residencia posible (meta + FSK CLAUDE.md adjunto) — nadie mide la SUMA (el gate
   `agent_shadow` mide solo el de fábrica); concurrencia de 2 sesiones choca en `.proof/active.json`
   (conocido); Playwright cache es máquina-local (documentado).
+
+## §2.5 · Por qué la fábrica no corre sola (aclaración, 2026-07-04)
+**Meta = la máquina-herramienta; una fábrica = la MATRIZ montada en ella; el producto = la pieza.**
+Nada está «siempre activo» (no hay daemon): toda sesión se para sobre el banco de meta porque ahí viven
+el MOTOR (`src/metafactory/` + CLI — quien ejecuta estaciones/gates/re-derivación/RTM) y la columna. La
+fábrica es data+codegen: no corre, ES corrida. UNA máquina y no 5 copias porque: (1) un fix del motor
+mejora las 5 fábricas al instante (pata b, medida); (2) el trust-chain se audita UNA vez con ojos — 5
+copias = 5 superficies de auditoría del punto más caro; (3) es el modelo estándar (Gradle/Bazel/Rails-
+engine) — lo único no estándar es «mismo repo» en vez de «versión declarada», elegido para evitar
+releases/matriz de versiones y verificar el TODO en un clon. Export = `meta export` (bundle con motor
+vendoreado+pineado, gate: el bundle re-deriva == pin) — no-construido, YAGNI hasta colega real.
+
+## §2.6 · Auditoría valor/complejidad (pedida por el ingeniero, 2026-07-04)
+Principio: cada pieza sirve a (i) SEGURIDAD de generación · (ii) ECONOMÍA medida · (iii) OPCIONALIDAD
+futura. La zona (iii) es donde se acumula peso muerto → regla: **congelar-o-medir, jamás extender sin uso**.
+- **Músculo (no tocar)**: seed/columna · pin clon-limpio · gramática+M0 · RTM · gates de dos lados ·
+  ledger/ruteo (−82% medido) · benchmark · disciplina docs núcleo · `roles`/`least_priv`.
+- **Grasa probable (veredicto c/u)**: capa de NAVEGACIÓN del grafo (0 usos; el módulo SÍ alimenta
+  `quality`+`pbt`+`cost_report` → instrumentar; 30 días en 0 → archivar solo la superficie de
+  navegación) · harness de delegación + plan-as-data (15 usos, ROI≈0 → EN JUICIO: la corrida S2 es su
+  prueba; si S2 rinde igual sin ceremonia, quedan los gates y muere la ceremonia) · harness por-fábrica
+  emitido (dormido → congelar y declarar «esqueleto de export, no operativo») · fábrica full-stack TS
+  (paridad ya cubierta por Kotlin+Go+Python → candidata a regression-frozen, no borrar) · dial (medido
+  pero solo builds pesados → mantener sin crecer) · observers marginales (costo ~0 → dejar).
+- **Lectura global**: nada de la zona (i) sobra — la tesis «generar seguro» está bien dimensionada. El
+  patrón de error histórico no fue sobre-asegurar sino construir OPCIONES antes de medir su demanda; el
+  corrector (N/A-por-medición) ya existe — apuntarlo a estas cuatro.
 
 ## §3 · Cola consolidada de experimentos/acciones (ordenada por valor/costo)
 1. **E1 — grupo de control**: CC pelado vs fábrica, mismo spec helpdesk, arbitrado por el benchmark

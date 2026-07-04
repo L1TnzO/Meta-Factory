@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b02403845109b0b415361d395a2a7104f61dc5ad updated=2026-07-04T22:27Z -->
+<!-- meta:doc sha=528cb7d3732c3d11d4589aa6d52f82c830106a6b updated=2026-07-04T22:35Z -->
 # Incremento CONTROL-GROUP
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T20:47Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T22:35Z) (creado 2026-07-04T20:47Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

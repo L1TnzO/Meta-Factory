@@ -67,6 +67,18 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
         total_tools = sum(agg["tool_freq"].values())
         tools_per_turn = total_tools / n_turns
 
+    # ── usd_by_model / opus_share / wall_clock_h: the per-SESSION transcript split (OUTCOME-JUDGES,
+    # COUNCIL-360 §6.0.2/H-9) — the opus-share KPI (ADR-021) and horas-humano observer, first-class.
+    # Same honest-degradation law: no transcript → {} / None / None, never a fabricated number.
+    usd_by_model: dict[str, float] = {}
+    opus_share: float | None = None
+    wall_clock_h: float | None = None
+    if transcript is not None:
+        split = metrics.transcript_model_split(transcript)  # called ONCE, reused for both keys
+        usd_by_model = split["usd_by_tier"]
+        opus_share = split["opus_share"]
+        wall_clock_h = metrics.wall_clock_hours(transcript)
+
     return {
         "total_usd": total_usd,
         "share_by_tier": share_by_tier,
@@ -77,6 +89,9 @@ def cost_summary(root: Path, transcript: Path | None = None, ledger: Path | None
         "churn": churn,
         "delegated_pct": delegated_pct,
         "tools_per_turn": tools_per_turn,
+        "usd_by_model": usd_by_model,
+        "opus_share": opus_share,
+        "wall_clock_h": wall_clock_h,
     }
 
 
@@ -85,12 +100,17 @@ def cost_block(root: Path, transcript: Path | None = None, ledger: Path | None =
     axes print "sin medir" — never a fabricated number (see module doc)."""
     s = cost_summary(root, transcript=transcript, ledger=ledger)
 
+    shadow_suffix = " · $=shadow (cupo relativo, no ahorro contante — D-6 suscripción)"
     lines: list[str] = []
     if s["share_by_tier"]:
         share_str = " · ".join(f"{tier} {pct:.1f}%" for tier, pct in sorted(s["share_by_tier"].items()))
-        lines.append(f"COSTO      ${s['total_usd']:.4f} total ({share_str})")
+        lines.append(f"COSTO      ${s['total_usd']:.4f} shadow-total ({share_str}){shadow_suffix}")
     else:
-        lines.append(f"COSTO      ${s['total_usd']:.4f} total" + ("" if s["total_usd"] else " (sin ledger)"))
+        lines.append(
+            f"COSTO      ${s['total_usd']:.4f} shadow-total"
+            + ("" if s["total_usd"] else " (sin ledger)")
+            + shadow_suffix
+        )
 
     exp_str = "sin medir (sin transcript)" if s["expirations"] is None else str(s["expirations"])
     if s["churn_share"] is not None:
@@ -102,5 +122,16 @@ def cost_block(root: Path, transcript: Path | None = None, ledger: Path | None =
     if s["residency_share"] is not None:
         delegado_line += f" · RESIDENCIA-SLOTS {s['residency_share'] * 100:.1f}% del gasto"
     lines.append(delegado_line)
+
+    if s["usd_by_model"]:
+        model_total = sum(s["usd_by_model"].values())
+        model_str = " · ".join(
+            f"{tier} {(usd / model_total * 100) if model_total > 0 else 0:.1f}%"
+            for tier, usd in sorted(s["usd_by_model"].items())
+        )
+        lines.append(f"MODELO     {model_str} ($shadow por modelo, dedup message.id · KPI norte: opus ≤35%)")
+
+    if s["wall_clock_h"] is not None:
+        lines.append(f"HORAS      {s['wall_clock_h']:.2f} h wall-clock (horas-humano — la restricción vinculante, §6.0.2)")
 
     return lines

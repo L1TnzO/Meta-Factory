@@ -420,6 +420,119 @@ def model_split(path: Path | None = None) -> dict[str, dict[str, int]]:
     return out
 
 
+def transcript_model_split(transcript: Path) -> dict:
+    """Per-TIER $shadow split of ONE session transcript, deduped by message id.
+
+    Contrast with `model_split` above: that one reads the MACHINE-GLOBAL `stats-cache.json` rollup
+    (every project, every session, lifetime totals). This one walks a SINGLE transcript file and prices
+    it — the per-session, per-increment view (the D-6 subscription reframe: $ here is a SHADOW-PRICE,
+    a relative quota signal, not a real dollar saving).
+
+    Claude Code transcripts repeat the SAME assistant message across streaming updates (same
+    `message.id`, cumulative usage) — summing every line double-counts. Walk the JSONL once (same
+    usage/model extraction as `rollup_from_transcript`: top-level `usage`+`model` OR nested
+    `message.usage`+`message.model`); key each priced line by its message id (`obj["message"]["id"]`
+    or top-level `obj["id"]`, whichever exists) keeping the LAST occurrence per id; lines with usage
+    but NO id count individually (honest fallback). Price each kept bundle with
+    `graph.pricing.price_tokens(model_id, input_tokens=…, output_tokens=…, cache_creation=…,
+    cache_read=…)` and aggregate by `graph.pricing.tier_for(model_id)`.
+
+    Returns {"usd_by_tier": {tier: usd}, "total_usd": float, "opus_share": float | None}
+    where opus_share = usd_by_tier.get("opus",0)/total_usd in 0..1, and None when total_usd == 0.
+    Missing/empty file -> {"usd_by_tier": {}, "total_usd": 0.0, "opus_share": None} (honest, no crash).
+    """
+    p = Path(transcript)
+    if not p.exists():
+        return {"usd_by_tier": {}, "total_usd": 0.0, "opus_share": None}
+
+    by_id: dict[str, dict[str, Any]] = {}
+    no_id: list[dict[str, Any]] = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        usage = None
+        model_id = ""
+        if isinstance(obj.get("usage"), dict):
+            usage = obj["usage"]
+            model_id = str(obj.get("model", ""))
+        elif isinstance(obj.get("message"), dict):
+            msg = obj["message"]
+            if isinstance(msg.get("usage"), dict):
+                usage = msg["usage"]
+                model_id = str(msg.get("model", ""))
+        if usage is None:
+            continue
+
+        bundle = {
+            "model_id": model_id,
+            "input_tokens": int(usage.get("input_tokens", 0)),
+            "output_tokens": int(usage.get("output_tokens", 0)),
+            "cache_creation": int(usage.get("cache_creation_input_tokens", 0)),
+            "cache_read": int(usage.get("cache_read_input_tokens", 0)),
+        }
+
+        msg_id = None
+        if isinstance(obj.get("message"), dict) and obj["message"].get("id"):
+            msg_id = obj["message"]["id"]
+        elif obj.get("id"):
+            msg_id = obj["id"]
+
+        if msg_id is not None:
+            by_id[msg_id] = bundle  # last occurrence per id wins (cumulative usage)
+        else:
+            no_id.append(bundle)
+
+    usd_by_tier: dict[str, float] = {}
+    for bundle in list(by_id.values()) + no_id:
+        usd = pricing.price_tokens(
+            bundle["model_id"],
+            input_tokens=bundle["input_tokens"],
+            output_tokens=bundle["output_tokens"],
+            cache_creation=bundle["cache_creation"],
+            cache_read=bundle["cache_read"],
+        )
+        tier = pricing.tier_for(bundle["model_id"])
+        usd_by_tier[tier] = usd_by_tier.get(tier, 0.0) + usd
+
+    total_usd = sum(usd_by_tier.values())
+    opus_share = (usd_by_tier.get("opus", 0.0) / total_usd) if total_usd > 0 else None
+    return {"usd_by_tier": usd_by_tier, "total_usd": total_usd, "opus_share": opus_share}
+
+
+def wall_clock_hours(transcript: Path) -> float | None:
+    """Session wall-clock in HOURS: max-min over every parseable line `timestamp` (reuse `_parse_ts`).
+    The horas-humano observer (COUNCIL-360 §6.0.2: human-hours are the binding constraint under
+    subscription). Returns None with <2 parseable timestamps — NEVER a fabricated 0 (the module's
+    honest-degradation law). Missing file -> None."""
+    p = Path(transcript)
+    if not p.exists():
+        return None
+
+    timestamps: list[datetime] = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        ts = _parse_ts(str(obj.get("timestamp", "")))
+        if ts is not None:
+            timestamps.append(ts)
+
+    if len(timestamps) < 2:
+        return None
+    delta = max(timestamps) - min(timestamps)
+    return delta.total_seconds() / 3600.0
+
+
 def render_model_split(split: dict[str, dict[str, int]]) -> str:
     """Una línea acotada: la cuota de COSTO por tier (opus/sonnet/haiku) — 'a dónde van los tokens'. El
     objetivo de DELEGATION-ACTIVATION es mover el bulk a tiers baratos → bajar la cuota de opus. Split

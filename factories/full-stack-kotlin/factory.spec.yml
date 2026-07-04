@@ -278,7 +278,7 @@ domain:
       invariant: "un activo en estado FROZEN (e.g. deployed) no puede mutarse ni eliminarse via los verbos genéricos PUT/DELETE: el server responde 409 Conflict en tiempo de ejecución. El comportamiento es DATA-driven (opt-in por entidad via `mutable_when`) y se cruza contra el contrato OpenAPI (x-mutable-when) por route_check en compile-time (DES-6)"
       primitive: DES-3
       tech: "la clave `mutable_when` en el blueprint (field + not_in/in) emite: (a) `private val <lower>MutableStates = setOf(...)` en el server Kotlin + rama de freeze (`when { current != null && Enum.valueOf(current) !in mutableStates -> conflict() }`) dentro de doPut/doDelete DESPUES del veredicto de permisos; (b) `x-mutable-when: { field, states }` en el contrato OpenAPI; (c) la comprobación cruzada `route_check.py mutability` (DES-6: contract ↔ Kotlin setOf). Opt-in: entidades sin mutable_when no generan ninguna rama extra (zero byte-diff, ADR-012). Fail-closed: mutable_when malformado (campo ausente/no-enum/ambos in+not_in/valor fuera del enum) → scaffold exit 1"
-      artifact: build/product/src/main/kotlin/com/obs/server/AppServer.kt
+      artifact: build/product/src/main/kotlin/{{package_name}}/endpoints/AppServer.kt
       proof: "s5 mutability_enforced (product_env): route_check.py mutability cruza x-mutable-when.states del contrato contra <lower>MutableStates del Kotlin — mismatch → MUTABLE_MISMATCH → rojo. s9 access_control_live (infra_up): un asset en estado ready → PUT 200 (estado MUTABLE); checkout (ready→deployed) → PUT 409 y DELETE 409 (estado FROZEN); checkin (deployed→ready) → PUT 200 restaurado. Diente de DOS lados: un server que ignora el freeze responde 200 donde hay 409 → SÓLO s9 rojo"
       status: built
 

@@ -1,9 +1,16 @@
-<!-- meta:doc sha=6b4867a34f6d6d8348cb67deaa1522465031aa3a updated=2026-07-03T02:47Z -->
+<!-- meta:doc sha=91923971ae8e127f8a72f945416d36712546fdfe updated=2026-07-04T20:29Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **CONTENIDO-COMO-ARCHIVOS (D2-CONTENT-AS-FILES, 2026-07-04, ADR-022/D-2)** ✅: los 4 blobs
+  Kotlin/Gradle embebidos como literales escapados en `s6.yml` (fábrica + 3 copias de producto) ahora
+  viven como archivos REALES en `stations/templates/s6/` referenciados con `action: render` (fuente
+  única; misma semántica que `write` → salida byte-idéntica). Transform determinista con aserción de
+  bytes, NO delegado. De paso, REQ-F-021 artifact path literal pre-rename → `{{package_name}}`
+  (rtm **27/27** restaurado). Probado: `ci --rederive --factory full-stack-kotlin --all-products`
+  **4/4 == pin** (12/12 + 11/11×3) — CERO re-pin. Detalle: `docs/work/D2-CONTENT-AS-FILES-INCREMENT.md`.
 - **GUARD DE MUTACIÓN POR ESTADO (FSK-MUTABLE-WHEN, 2026-07-02)** ✅ (feature `7e1be44`; **cierre formal HECHO
   2026-07-03** — re-pin no-adoptantes + `ci --rederive --all-products` == pin 4/4, des-diferido por INC-2
   `HARNESS-FAST-GATE` que garantizó JDK 21 vía `tools/toolchain.sh`): clave opt-in `mutable_when: {field, in|

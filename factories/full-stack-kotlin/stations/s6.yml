@@ -3,60 +3,23 @@ name: lógica de dominio GENERADA por claude -p (LLM vivo) bajo contract test Ko
   — DES-8 (patrón MAT-2)
 activation: always
 requires_prev: s5
+# D-2 (COUNCIL-360 §5 / ADR-022): el YAML orquesta (secuencia+checks); el CONTENIDO vive como
+# archivos reales en stations/templates/s6/ (highlighting, lint, diffs legibles — la regla
+# multi-archivo aplicada a estaciones). `render` == `write` en semántica (misma render_text);
+# migración byte-idéntica probada por extracción con aserción + ci --rederive == pin.
 builds:
-- action: write
+- action: render
+  src: factories/full-stack-kotlin/stations/templates/s6/settings.gradle.kts
   dest: domain_gen/settings.gradle.kts
-  content: 'rootProject.name = "domain_gen"
-
-    '
-- action: write
+- action: render
+  src: factories/full-stack-kotlin/stations/templates/s6/build.gradle.kts
   dest: domain_gen/build.gradle.kts
-  content: "// domain_gen — módulo Kotlin AUTOCONTENIDO (decoupleado de build/product)\
-    \ que ejercita la lógica\n// de dominio GENERADA por el LLM (Summary.kt) bajo\
-    \ un contract test. Mismas versiones que el\n// producto (Kotlin 2.4.0 / gradle\
-    \ 9.5.1 / JDK 21) → cache de ~/.gradle caliente → ci --rederive\n// sin red. application/run\
-    \ corre el main() del contract (idiom JavaExec, igual que `roundtrip` s1).\nplugins\
-    \ {\n    kotlin(\"jvm\") version \"2.4.0\"\n    application\n}\nrepositories {\
-    \ mavenCentral() }\n// -Werror (dureza, DES-10): la lógica LLM-generada compila\
-    \ bajo la MISMA barra que el producto.\nkotlin {\n    jvmToolchain(21)\n    compilerOptions\
-    \ { allWarningsAsErrors = true }\n}\napplication { mainClass.set(\"domain.SummaryContractKt\"\
-    ) }\n"
-- action: write
+- action: render
+  src: factories/full-stack-kotlin/stations/templates/s6/Model.kt
   dest: domain_gen/src/main/kotlin/domain/Model.kt
-  content: "package domain\n\n/** Una tarea de un proyecto (espejo del dominio Task\
-    \ del blueprint domain.product). */\ndata class Task(val title: String, val done:\
-    \ Boolean)\n\n/** Estado de avance de un proyecto. sealed ⇒ el `when` que lo consume\
-    \ es exhaustivo (dureza, DES-10). */\nsealed interface ProjectStatus {\n    data\
-    \ object NotStarted : ProjectStatus\n    data object InProgress : ProjectStatus\n\
-    \    data object Completed : ProjectStatus\n}\n\n/** Resumen de avance derivado\
-    \ de las tareas de un proyecto (lo que `summarize` produce). */\ndata class ProjectSummary(\n\
-    \    val total: Int,\n    val done: Int,\n    val pending: List<String>,\n   \
-    \ val status: ProjectStatus,\n)\n"
-- action: write
+- action: render
+  src: factories/full-stack-kotlin/stations/templates/s6/SummaryContract.kt
   dest: domain_gen/src/main/kotlin/domain/SummaryContract.kt
-  content: "package domain\n\nimport kotlin.system.exitProcess\n\n/** El contract\
-    \ test (DES-8): EJERCITA la lógica generada (summarize). Un stub o una implementación\n\
-    \ *  incorrecta hace exitProcess(1) → gradle `run` rojo. Es el tooth de MAT-2:\
-    \ domain vacío BLOQUEA. */\nprivate fun ensure(cond: Boolean, msg: String) {\n\
-    \    if (!cond) {\n        System.err.println(\"CONTRACT FAIL: $msg\")\n     \
-    \   exitProcess(1)\n    }\n}\n\nfun main() {\n    val mixed = listOf(\n      \
-    \  Task(\"disenar el schema\", true),\n        Task(\"implementar el handler\"\
-    , false),\n        Task(\"documentar la API\", false),\n    )\n    val s = summarize(mixed)\n\
-    \    ensure(s.total == 3, \"total esperado 3, fue ${s.total}\")\n    ensure(s.done\
-    \ == 1, \"done esperado 1, fue ${s.done}\")\n    ensure(\n        s.pending ==\
-    \ listOf(\"implementar el handler\", \"documentar la API\"),\n        \"pending\
-    \ order: ${s.pending}\",\n    )\n    ensure(s.status == ProjectStatus.InProgress,\
-    \ \"status esperado InProgress, fue ${s.status}\")\n\n    val empty = summarize(emptyList())\n\
-    \    ensure(empty.total == 0 && empty.done == 0 && empty.pending.isEmpty(), \"\
-    empty counts: $empty\")\n    ensure(empty.status == ProjectStatus.NotStarted,\
-    \ \"empty status: ${empty.status}\")\n\n    val allDone = summarize(listOf(Task(\"\
-    a\", true), Task(\"b\", true)))\n    ensure(allDone.status == ProjectStatus.Completed,\
-    \ \"allDone status: ${allDone.status}\")\n    ensure(allDone.pending.isEmpty(),\
-    \ \"allDone pending: ${allDone.pending}\")\n\n    val noneDone = summarize(listOf(Task(\"\
-    x\", false), Task(\"y\", false)))\n    ensure(noneDone.status == ProjectStatus.NotStarted,\
-    \ \"noneDone status: ${noneDone.status}\")\n    ensure(noneDone.pending == listOf(\"\
-    x\", \"y\"), \"noneDone pending: ${noneDone.pending}\")\n\n    println(\"FSK_DOMAIN_CONTRACT_OK\"\
-    )\n}\n"
 - action: generate
   dest: domain_gen/src/main/kotlin/domain/Summary.kt
   skip_if_exists: true

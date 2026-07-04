@@ -1,5 +1,4 @@
-<!-- meta:doc sha=f5cf2363e3c0d563732a17da4b9376bbdf0d88f6 updated=2026-06-16T17:24Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-15T02:48Z -->
+<!-- meta:doc sha=cfe7c70b287e2fc48ea4c97e3c3ee6a42a141c0e updated=2026-07-04T20:10Z -->
 # REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos)
 
 > tipo: reference (estable) · creado: 2026-06-15T02:48Z · pin: `reference/ASF-PROVENANCE.md`

@@ -1,5 +1,4 @@
-<!-- meta:doc sha=3e504374fc169a16f63ea3f65181f08e67e56cfb updated=2026-07-04T03:00Z -->
-<!-- meta:doc sha=PENDING updated=2026-07-04T02:58Z -->
+<!-- meta:doc sha=c732251674b285a4900f9578b1370b39985a9e07 updated=2026-07-04T20:10Z -->
 # Incremento SESSION-CLASS-AS-DATA
 
 > **Doc de gobierno.** Estado: **DIFERIDO** (diseñado 2026-07-04T02:58Z, sesión S1). Reabrir con

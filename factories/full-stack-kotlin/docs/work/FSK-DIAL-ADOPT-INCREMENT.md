@@ -1,5 +1,4 @@
-<!-- meta:doc sha=db5c19a9d199b35a8cc730cea671167067a70a96 updated=2026-06-27T03:20Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-27T03:10Z -->
+<!-- meta:doc sha=2c9a28b3e74ba8ada8394a6290928d0633faffda updated=2026-07-04T20:10Z -->
 # Incremento FSK-DIAL-ADOPT — Full-Stack Kotlin · adopción del dial draft→harden
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T03:20Z) (creado 2026-06-27T03:00Z). Cerralo con `meta increment close`

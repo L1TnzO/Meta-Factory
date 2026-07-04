@@ -1,5 +1,4 @@
-<!-- meta:doc sha=71ef5eb452c3f1cb2e394c2dcd5b8dfc721275a2 updated=2026-06-18T19:35Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-18T18:10Z -->
+<!-- meta:doc sha=db85f795d7fcac2b8b9f245dce69e492136c8c3c updated=2026-07-04T20:10Z -->
 # Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO)
 
 > tipo: work (por-incremento) · creado: 2026-06-18T18:10Z · sesión: opus-4.8

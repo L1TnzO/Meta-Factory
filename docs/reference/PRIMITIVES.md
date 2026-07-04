@@ -1,5 +1,4 @@
-<!-- meta:doc sha=4b0155c55cbd56fa3782fdf0f4c3b08edf251222 updated=2026-06-18T18:56Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-15T03:43Z -->
+<!-- meta:doc sha=72c9098c09ff79c0567e0c251f307b4b31ba59a9 updated=2026-07-04T20:10Z -->
 # PRIMITIVES — la filosofía: primitivas de diseño, no herramientas
 
 > tipo: reference (estable) · creado: 2026-06-15T03:43Z

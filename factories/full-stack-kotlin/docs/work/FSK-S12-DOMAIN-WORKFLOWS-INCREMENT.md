@@ -1,5 +1,4 @@
-<!-- meta:doc sha=1b93efd7956ca92f5e101e7cef6115e2096d04e4 updated=2026-06-20T14:04Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-20T02:23Z -->
+<!-- meta:doc sha=a0903b165f7206b1c05b6321953430594ff14dca updated=2026-07-04T20:10Z -->
 # Incremento FSK-S12-DOMAIN-WORKFLOWS
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T14:04Z) (creado 2026-06-20T02:23Z). Cerralo con `meta increment close`

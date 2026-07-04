@@ -1,5 +1,4 @@
-<!-- meta:doc sha=aac1d98e1400349efbe97da285509d5c6ecfb2ff updated=2026-06-19T01:46Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-19T01:32Z -->
+<!-- meta:doc sha=6aedf096891741ee53d85deaeb073357885018a4 updated=2026-07-04T20:10Z -->
 # Incremento FSK-S3-CURRENCY — Full-Stack Kotlin · frescura de API (s3)
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T01:46Z) (creado 2026-06-19T01:32Z). Cerralo con `meta increment close`

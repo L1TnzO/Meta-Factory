@@ -1,5 +1,4 @@
-<!-- meta:doc sha=d8ddac7c8eeb84f9dc3df9dbd3d046cec14a0689 updated=2026-06-15T02:49Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-15T02:48Z -->
+<!-- meta:doc sha=f33e14885e42b68ab2d5ab9a3707ab677663c346 updated=2026-07-04T20:10Z -->
 # ASF — pin de provenance de la referencia congelada
 
 > tipo: reference (estable) · creado: 2026-06-15T02:48Z

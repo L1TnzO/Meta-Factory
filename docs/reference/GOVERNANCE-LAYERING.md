@@ -1,5 +1,4 @@
-<!-- meta:doc sha=f85974965ef36c7c82e2924e1e922d3b7a1d6d68 updated=2026-06-27T15:05Z -->
-<!-- meta:doc sha=PENDING updated=PENDING -->
+<!-- meta:doc sha=cd6b54876f2d6565970112ecb817ee7085fef007 updated=2026-07-04T20:10Z -->
 # Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
 
 > tipo: reference · diseño AUTORIDAD (como `MEMORY-ARCHITECTURE.md` lo es para ADR-007). Registra el

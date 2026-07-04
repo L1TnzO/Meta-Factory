@@ -77,6 +77,30 @@ def split_seal(text: str) -> tuple[str | None, str]:
     return None, text
 
 
+# H-5 (COLUMN-MAINT, COUNCIL-360 §4.1): an author-left placeholder seal (`sha=PENDING`) does NOT match
+# SEAL_RE, so `stamp` used to PREPEND the fresh seal above it — hashing a pseudo-seal with a FALSE date
+# into the body forever (19 docs measured, incl. immutable decisions). Any full seal-shaped line (real
+# or placeholder) LEADING the body is residue of that bug — never legitimate content (prose that quotes
+# a seal indents or backticks it, and never at body start).
+_RESIDUAL_SEAL_RE = re.compile(r"^<!-- meta:doc sha=\S+ updated=\S+ -->\s*$")
+
+
+def strip_residual_seals(body: str) -> str:
+    """Drop LEADING pseudo-seal lines from a doc body (H-5). Only the leading run is touched —
+    mid-document prose is never rewritten."""
+    lines = body.splitlines(keepends=True)
+    i = 0
+    while i < len(lines) and _RESIDUAL_SEAL_RE.match(lines[i].rstrip("\n")):
+        i += 1
+    return "".join(lines[i:]) if i else body
+
+
+def _is_immutable(path: Path) -> bool:
+    """decisions/ is the declared-immutable doc class: existing residuals there stay (de-churn beats
+    purity — the explicit H-5 decision, COLUMN-MAINT); everything else self-heals on stamp."""
+    return "decisions" in path.parts
+
+
 def body_of(text: str) -> str:
     return split_seal(text)[1]
 
@@ -90,9 +114,13 @@ def title_of(text: str) -> str:
 
 
 def stamp(path: Path) -> bool:
-    """Re-stamp a doc; return True if the seal changed (body edited), False if idempotent."""
+    """Re-stamp a doc; return True if the seal changed (body edited), False if idempotent.
+    H-5 hardening: leading pseudo-seals in the body are STRIPPED before hashing (self-healing),
+    except under decisions/ (immutable class — existing residuals stay, de-churn by decision)."""
     text = path.read_text(encoding="utf-8")
     seal, body = split_seal(text)
+    if not _is_immutable(path):
+        body = strip_residual_seals(body)
     sha = git_blob_sha(body.encode("utf-8"))
     if seal:
         m = SEAL_RE.match(seal)
@@ -190,6 +218,10 @@ def check(repo_root: Path) -> list[str]:
                 continue
             if SEAL_RE.match(seal).group(1) != git_blob_sha(body.encode("utf-8")):
                 problems.append(f"{rel}:1: stale seal (sha != body) — doc edited without re-stamping")
+            # H-5 tooth: a leading pseudo-seal in the body is pipeline residue (false date poisoning
+            # INDEX triage). decisions/ exempt (immutable class, residuals grandfathered by decision).
+            if not _is_immutable(d) and strip_residual_seals(body) != body:
+                problems.append(f"{rel}:2: residual pseudo-seal in body (H-5) — re-run doc-sync to strip")
 
         # (2) INDEX.md exists and covers exactly the doc set  [meta only]
         if is_meta:

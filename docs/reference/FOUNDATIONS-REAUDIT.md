@@ -1,5 +1,4 @@
-<!-- meta:doc sha=a5757114e7325ed60704b45269d8d4a7ccc7c735 updated=2026-07-04T03:00Z -->
-<!-- meta:doc sha=PENDING updated=2026-07-04T02:58Z -->
+<!-- meta:doc sha=448ce868a11c72ec27ff7c452a4c81c12572db41 updated=2026-07-04T20:10Z -->
 # FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida
 
 > tipo: reference (estable) · creado: 2026-07-04T02:58Z

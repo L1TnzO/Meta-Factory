@@ -1,5 +1,4 @@
-<!-- meta:doc sha=531e589727c8d2ee70456bff15b3f54dea9e8cfb updated=2026-06-20T15:51Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-20T14:11Z -->
+<!-- meta:doc sha=9ff6681b43eae567decff67ce4cca01d2326bf7a updated=2026-07-04T20:10Z -->
 # Incremento FSK-S13-DOMAIN-RBAC
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-20T15:51Z, flip del header bajo la ley `seed/lifecycle.py`;

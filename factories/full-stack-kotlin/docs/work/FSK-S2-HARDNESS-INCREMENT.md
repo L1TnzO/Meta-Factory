@@ -1,5 +1,4 @@
-<!-- meta:doc sha=def0ce23ec1a7b06218e952f72a1637a29a45e2b updated=2026-06-18T22:48Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-18T22:45Z -->
+<!-- meta:doc sha=f9c37bd6c3c39c7803ce25ce017c2576ceea95bb updated=2026-07-04T20:10Z -->
 # Incremento FSK-S2-HARDNESS — Full-Stack Kotlin · dureza estática (s2)
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-18T22:48Z) (creado 2026-06-18T22:20Z). Cerralo con `meta increment close`

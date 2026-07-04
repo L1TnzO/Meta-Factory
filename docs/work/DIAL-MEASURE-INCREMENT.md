@@ -1,5 +1,4 @@
-<!-- meta:doc sha=cd8184fba8de36bd085eade8991504c7f63c119d updated=2026-06-27T02:57Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-27T02:55Z -->
+<!-- meta:doc sha=80c6b1a79bb60f4ec641031162b1d83217939fc0 updated=2026-07-04T20:10Z -->
 # Incremento DIAL-MEASURE
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-27T02:57Z) (creado 2026-06-27T02:50Z). Cerralo con `meta increment close`

@@ -310,3 +310,44 @@ class TestPerHomeSeal:
         assert meta and fac
         assert meta.isdisjoint(fac)
         assert (repo / "factories" / "demo" / "CLAUDE.md") not in fac
+
+
+# ── H-5 (COLUMN-MAINT, COUNCIL-360 §4.1): residual pseudo-seal hardening ──────
+
+from metafactory.docs_manifest import strip_residual_seals  # noqa: E402
+
+
+class TestResidualSealHardening:
+    def test_stamp_strips_leading_pending_pseudo_seal(self, tmp_path):
+        p = tmp_path / "docs" / "note.md"
+        p.parent.mkdir(parents=True)
+        p.write_text("<!-- meta:doc sha=PENDING updated=PENDING -->\n# T\nbody\n", encoding="utf-8")
+        stamp(p)
+        seal, body = split_seal(p.read_text(encoding="utf-8"))
+        assert seal is not None
+        assert "PENDING" not in body                      # residual stripped, not hashed in
+        assert SEAL_RE.match(seal).group(1) == git_blob_sha(body.encode("utf-8"))
+        assert stamp(p) is False                           # self-healed AND idempotent
+
+    def test_stamp_preserves_residual_under_decisions(self, tmp_path):
+        p = tmp_path / "docs" / "decisions" / "001-x.md"
+        p.parent.mkdir(parents=True)
+        p.write_text("<!-- meta:doc sha=PENDING updated=2026-01-01T00:00Z -->\n# ADR\ntext\n",
+                     encoding="utf-8")
+        stamp(p)
+        # immutable class: the residual is grandfathered (de-churn beats purity — H-5 decision)
+        assert "sha=PENDING" in body_of(p.read_text(encoding="utf-8"))
+
+    def test_mid_document_seal_shaped_line_is_untouched(self, tmp_path):
+        body = "# T\nprose\n<!-- meta:doc sha=PENDING updated=PENDING -->\nmore\n"
+        assert strip_residual_seals(body) == body          # only the LEADING run is residue
+
+    def test_check_flags_residual_in_non_immutable_doc(self, tmp_path):
+        repo = _make_tiny_repo(tmp_path)
+        d = repo / "docs" / "STATE.md"
+        # hand-craft: correct seal over a body that still carries a leading pseudo-seal
+        body = "<!-- meta:doc sha=PENDING updated=PENDING -->\n# State\nsome content\n"
+        d.write_text(f"<!-- meta:doc sha={git_blob_sha(body.encode('utf-8'))} "
+                     f"updated=2026-01-01T00:00Z -->\n{body}", encoding="utf-8")
+        problems = check(repo)
+        assert any("residual pseudo-seal" in p for p in problems)

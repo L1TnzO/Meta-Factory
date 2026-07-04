@@ -1,5 +1,4 @@
-<!-- meta:doc sha=42f08cff99566d3fe5e5ecde0484ae1560db1381 updated=2026-07-04T19:59Z -->
-<!-- meta:doc sha=PENDING updated=2026-07-04T20:05Z -->
+<!-- meta:doc sha=d2cd545724bb43756523296dd155460c70cfd923 updated=2026-07-04T20:10Z -->
 # ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos
 
 | Campo | Valor |

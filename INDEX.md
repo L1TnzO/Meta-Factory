@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `42172fb852b4` | 2026-07-04T20:06Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `cf694620e814` | 2026-07-04T20:08Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -29,23 +29,23 @@
 | `docs/decisions/019-arquitectura-de-memoria-v2.md` | `b952b838ad64` | 2026-06-26T17:34Z | ADR-019 — Arquitectura de memoria v2: podar antes de agregar, fidelidad sobre frescura, retrieval contra umbral medido |
 | `docs/decisions/020-activacion-de-la-delegacion.md` | `8c55ffce51aa` | 2026-06-27T21:49Z | ADR-020 — Activación de la delegación: routing por defecto, métrica de costo, y especialización por ROL |
 | `docs/decisions/021-economia-opus-marginal.md` | `a03c7390b479` | 2026-07-02T14:33Z | ADR-021 — Economía Opus-marginal: ruteo por SESIÓN, doctrina de cache, y el plan fijo COST-DOWN |
-| `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `42f08cff9956` | 2026-07-04T19:59Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
+| `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `d2cd545724bb` | 2026-07-04T20:10Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
 | `docs/reference/ARCHITECTURE-MAP.md` | `70b5f4217ccb` | 2026-07-04T19:54Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
-| `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
+| `docs/reference/ASF-PROVENANCE.md` | `f33e14885e42` | 2026-07-04T20:10Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
 | `docs/reference/COUNCIL-360-AUDIT.md` | `866f1b5664c5` | 2026-07-04T16:45Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/FOUNDATIONS-REAUDIT.md` | `a5757114e732` | 2026-07-04T03:00Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `f85974965ef3` | 2026-06-27T15:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
+| `docs/reference/FOUNDATIONS-REAUDIT.md` | `448ce868a11c` | 2026-07-04T20:10Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `cd6b54876f2d` | 2026-07-04T20:10Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `2ca5246e17f3` | 2026-06-26T21:22Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
-| `docs/reference/PRIMITIVES.md` | `4b0155c55cbd` | 2026-06-18T18:56Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
-| `docs/reference/REGEN-AUDIT.md` | `f5cf2363e3c0` | 2026-06-16T17:24Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
+| `docs/reference/PRIMITIVES.md` | `72c9098c09ff` | 2026-07-04T20:10Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
+| `docs/reference/REGEN-AUDIT.md` | `cfe7c70b287e` | 2026-07-04T20:10Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
 | `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
@@ -60,6 +60,7 @@
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CACHE-SHAPE-INCREMENT.md` | `c56cbea7b58e` | 2026-07-03T17:05Z | Incremento CACHE-SHAPE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
+| `docs/work/COLUMN-MAINT-INCREMENT.md` | `cb9f325dae5e` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
 | `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `e6ea892dc3d6` | 2026-07-03T04:19Z | Incremento CONTEXT-LEAN-TEETH |
 | `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |
 | `docs/work/COST-RUNBOOK-INCREMENT.md` | `ef2e4e4dd881` | 2026-07-02T17:54Z | Incremento COST-RUNBOOK |
@@ -72,7 +73,7 @@
 | `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `fdf6d91a762f` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
-| `docs/work/DIAL-MEASURE-INCREMENT.md` | `cd8184fba8de` | 2026-06-27T02:57Z | Incremento DIAL-MEASURE |
+| `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
@@ -81,7 +82,7 @@
 | `docs/work/FACTORY-DELEGATION-TEETH-INCREMENT.md` | `e6e66c077da4` | 2026-06-26T23:45Z | Incremento FACTORY-DELEGATION-TEETH (escindido de HARNESS-DECOUPLE Fases 3–4) |
 | `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md` | `e04114442b5f` | 2026-06-27T02:29Z | Incremento FACTORY-DOC-MIGRATE |
 | `docs/work/FACTORY-DOC-SEAL-INCREMENT.md` | `709e723a4c9a` | 2026-06-27T02:04Z | Incremento FACTORY-DOC-SEAL |
-| `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `71ef5eb452c3` | 2026-06-18T19:35Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
+| `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `db85f795d7fc` | 2026-07-04T20:10Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |
 | `docs/work/GOV-LAYERING-FASE1-INCREMENT.md` | `808f6dd08c9b` | 2026-06-21T02:07Z | Incremento GOV-LAYERING-FASE1 — casa de docs del producto + lifecycle de incrementos por nivel |
@@ -121,7 +122,7 @@
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
 | `docs/work/ROADMAP.md` | `b880bc3e8eb2` | 2026-07-02T17:52Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
-| `docs/work/SESSION-CLASS-AS-DATA-INCREMENT.md` | `3e504374fc16` | 2026-07-04T03:00Z | Incremento SESSION-CLASS-AS-DATA |
+| `docs/work/SESSION-CLASS-AS-DATA-INCREMENT.md` | `c732251674b2` | 2026-07-04T20:10Z | Incremento SESSION-CLASS-AS-DATA |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |

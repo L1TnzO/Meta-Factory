@@ -1,5 +1,4 @@
-<!-- meta:doc sha=9be2e6e89f21294e1c6db090e7b72fd8737975b1 updated=2026-06-19T16:00Z -->
-<!-- meta:doc sha=PENDING updated=2026-06-19T15:36Z -->
+<!-- meta:doc sha=5694110daf09c01d2d3ce2dbfe83dd3095cbac34 updated=2026-07-04T20:10Z -->
 # Incremento FSK-S10-HERMETIC-BUILD — Full-Stack Kotlin · build hermético reproducible + mini-columna del producto (s10)
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-06-19T16:00Z) (creado 2026-06-19T15:36Z). Cerralo con `meta increment close`

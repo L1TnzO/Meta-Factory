@@ -1,0 +1,31 @@
+# dep-allowlist — anti-slopsquatting DATA (H-4, COLUMN-MAINT, COUNCIL-360 §4.1/§4.2).
+#
+# Every EXTERNAL dependency a factory line may declare in an emitted build file. LLM-generated builds
+# hallucinate package names at meaningful rates (slopsquatting: an attacker registers the hallucinated
+# name); this list is the network-free tooth: `security_scan` REDs any declared dep outside it.
+#
+# Adding an entry is a DELIBERATE act (same rule as roles/kinds vocabularies, ADR-020/022): verify the
+# package exists in the real registry, is the canonical spelling, and has meaningful age/adoption —
+# THEN add it here in its own commit. Initial list re-derived 2026-07-04 from the emitted build files
+# of all green products (they already resolve against the real registries in `product_env` runs).
+#
+# Scope: `implementation(...)`/`api(...)` coordinates in build.gradle.kts (group:artifact, version
+# ignored) + dependencies/devDependencies keys in package.json, under factories/*/{build,products}.
+gradle:
+  - io.opentelemetry:opentelemetry-api
+  - io.opentelemetry:opentelemetry-sdk
+  - org.flywaydb:flyway-core
+  - org.flywaydb:flyway-database-postgresql
+  - org.jetbrains.kotlinx:kotlinx-serialization-json
+  - org.jooq:jooq
+  - org.postgresql:postgresql
+npm:
+  - "@total-typescript/ts-reset"
+  - axe-core
+  - esbuild
+  - eslint
+  - jsdom
+  - openapi-typescript
+  - playwright-core
+  - typescript
+  - typescript-eslint

@@ -14,6 +14,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 from metafactory._seed import load_seed_verifier, repo_root
 from metafactory.spec.loader import load_spec
 from metafactory.spec.model import Capability, FactorySpec, Requirement, SpecStation
@@ -167,6 +169,10 @@ def test_gate_usage_error(tmp_path):
 
 # ── happy path against the real dummy factory ───────────────────────────────────
 
+@pytest.mark.skipif(
+    not (_REPO / "factories" / "dummy" / ".proof").exists(),
+    reason="clean clone: the dummy is not BUILT here (.proof/ is gitignored evidence, not content); "
+           "on the external runner this property is covered by the pin step (`meta ci --rederive`)")
 def test_gate_against_real_dummy():
     """The dummy is the full-tree demonstrator (built in the repo): the gate passes against it."""
     fdir = _REPO / "factories" / "dummy"

@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 
 from metafactory._seed import load_seed_verifier, repo_root
@@ -130,5 +131,10 @@ def test_no_manifest_is_na_green(tmp_path):
 
 
 # ── el manifiesto REAL del repo está honesto (todo prototype) -> verde ────────────────────────────────
+@pytest.mark.skipif(
+    sum(1 for p in repo_root().glob("factories/*/.proof") if p.is_dir()) < 2,
+    reason="clean clone: `.proof/` (evidencia local, gitignored) no existe acá; el claim real se "
+           "verifica donde las fábricas están construidas — en el runner lo cubre el pin "
+           "(`meta ci --rederive`), EXTERNAL-CI-GREEN")
 def test_real_manifest_is_honest_green():
     assert gp.main([str(repo_root())]) == 0

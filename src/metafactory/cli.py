@@ -181,6 +181,18 @@ def cmd_check(args) -> int:
         {"name": "suite", "kind": "command",
          "cmd": [py, "-m", "pytest", "-q", "tests"]},
     ]
+    skip = [s.strip() for s in (getattr(args, "skip", "") or "").split(",") if s.strip()]
+    known = {c["name"] for c in checks}
+    unknown = sorted(set(skip) - known)
+    if unknown:
+        print(f"VEREDICTO  check — FAIL   (exit 1)\nRESUMEN    --skip desconocido: {', '.join(unknown)}"
+              f" (gates: {', '.join(sorted(known))})")
+        return 1
+    if skip:
+        checks = [c for c in checks if c["name"] not in skip]
+        # El salto es VISIBLE y no suma verdes: un gate salteado no aparece en CONTEOS como ok.
+        print(f"SKIPPED    {', '.join(skip)} — por invocación (--skip): evidencia no re-derivable en "
+              f"este entorno (clon limpio sin `.proof/`); NO cuentan como verdes")
     ctx = RunContext(root=root, meta_root=root, slug="meta")
     from .verify.checks.registry import resolve_check
     cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, _Synthetic("metacheck"), {})} for c in checks]
@@ -970,7 +982,12 @@ class _Synthetic:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="meta", description="Meta-Factory — la fábrica que fabrica fábricas")
     sub = p.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("check").set_defaults(func=cmd_check)
+    p_check = sub.add_parser("check")
+    p_check.add_argument("--skip", default="", help=(
+        "gates a saltear (coma-separado) cuando su evidencia NO es re-derivable en este entorno "
+        "(p.ej. clon limpio sin `.proof/` local: projection,generality). El salto se IMPRIME como "
+        "SKIPPED — nunca cuenta como verde (EXTERNAL-CI-GREEN, COUNCIL-360 H-1)."))
+    p_check.set_defaults(func=cmd_check)
     sp = sub.add_parser("new"); sp.add_argument("spec"); sp.set_defaults(func=cmd_new)
     sp = sub.add_parser("station"); sp.add_argument("id"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_station)
     sp = sub.add_parser("product-run"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None)

@@ -5,8 +5,9 @@
 # compara contra el veredicto pineado (committed). No audita artefactos guardados —los
 # reconstruye— porque la custodia local no es la raíz de confianza (la replicabilidad lo es).
 #
-# Es además la defensa trusting-trust del auto-mejoramiento (SELF-IMPROVEMENT §1): un
-# Meta-Factory local comprometido produce un proof_sha que el runner limpio NO reproduce -> rojo.
+# Es además la defensa trusting-trust del auto-mejoramiento (SELF-IMPROVEMENT §1), con su alcance
+# HONESTO (H-2, COUNCIL-360 §4.1): el pin ancla VEREDICTOS (station + [check, exit]), no bytes —
+# un Meta-Factory local comprometido cae a rojo acá sii el compromiso cambia algún exit re-derivado.
 #
 # TODA la lógica vive en `meta ci --rederive` (CLI testeable). Este yaml es transporte de una
 # línea (ADR-005 §4): cero lógica duplicable que pueda divergir.
@@ -25,11 +26,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - run: pip install pyyaml
+      - run: pip install pyyaml pytest hypothesis
       - name: Re-derivar el veredicto y comparar contra el pineado
         # Reconstruye la línea del dummy-fábrica desde su spec, recomputa cada proof_sha y
         # exige el pineado (factories/<slug>/pinned_verdict.json). Desvío en CUALQUIER
         # dirección = rojo (un PASS espontáneo sin prueba es fachada, no mejora).
         run: ./meta ci --rederive
       - name: Aislamiento PF-6 + consistencia de docs + suite
-        run: ./meta check
+        # --skip projection,generality: esos DOS gates auditan evidencia LOCAL (`.proof/` de las
+        # fábricas pesadas, gitignored) que este clon limpio no puede re-derivar sin JDK/PG/Chromium.
+        # El salto es EXPLÍCITO e impreso como SKIPPED (nunca verde silencioso); la re-derivación que
+        # SÍ le toca a este actor es el paso anterior (el pin). EXTERNAL-CI-GREEN, COUNCIL-360 H-1.
+        run: ./meta check --skip projection,generality

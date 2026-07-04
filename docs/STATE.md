@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c480abba0a1942fee86cd9a0685b17134b58dd07 updated=2026-07-04T14:34Z -->
+<!-- meta:doc sha=d48b347772680990374f8801b5198a0c0673b703 updated=2026-07-04T15:23Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -61,7 +61,8 @@
 - Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–021) · Plan de incrementos: `work/ROADMAP.md` +
   docs de dirección (`work/COST-DOWN-DIRECTION-INCREMENT.md` — la biblia de costos, VIGENTE ·
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
-- Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md`) ·
+- Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
+  auditoría viva: `COUNCIL-360-AUDIT.md` §1–§5 · mapa as-built: `ARCHITECTURE-MAP.md`) ·
   Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`.
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` + `delegation.py`) ·
   `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` · CLI: `../meta`.

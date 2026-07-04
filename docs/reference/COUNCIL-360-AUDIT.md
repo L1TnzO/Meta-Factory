@@ -1,4 +1,4 @@
-<!-- meta:doc sha=542f662e8ad7e49ca130c55c2aba604672575631 updated=2026-07-04T14:33Z -->
+<!-- meta:doc sha=0e3cd841c9b7ae13d11ed337764c8b9ad07b5fca updated=2026-07-04T15:23Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
 > tipo: reference (estable) · creado: 2026-07-04T03:45Z · sesión S1 (Fable 5, pedido explícito del
@@ -227,9 +227,64 @@ futura. La zona (iii) es donde se acumula peso muerto → regla: **congelar-o-me
 | Hermeticidad | Nix · devcontainers · Bazel | `tools/toolchain.sh` casero | suficiente a esta escala (YAGNI) |
 | Memoria de agente | prune-first vs RAG-stacks | ya alineado (ADR-019, medido) | vigilar umbral §6 |
 
-### §4.3 · Efecto sobre la cola §3
+### §4.3 · Efecto sobre la cola §3 (ver también §5.9)
 
 **H-1 entra PRIMERO** (arriba de E1: minutos de costo, cierra backup + segundo-actor + Silla 6 a la
 vez). **H-3 entra como E4** después de E1/E2 (mismo espíritu: girar los instrumentos hacia el defecto
 no visto). H-4/H-5 son mantenimiento barato de columna/pipeline; H-8 se anexa al diseño de E2. El
 ítem 8 de §3 quedó ✅ (`ARCHITECTURE-MAP.md`).
+
+## §5 · Fallas de DISEÑO (iteración 2 del loop, Fable 5, 2026-07-04)
+
+> Pedido del ingeniero: «sentarnos honestamente frente al sistema y ver si tiene sentido». Esto NO
+> re-audita ejecución (§4) ni fundamentos (FOUNDATIONS-REAUDIT): son tensiones del DISEÑO mismo —
+> cosas que podrían estar mal dibujadas aunque todo lo medido esté verde. Cada una con falsificador.
+
+- **D-1 · La recursión meta es una apuesta de AMPLITUD con N=2 dominios reales.** Todo el nivel meta
+  (M0–M8, gramática factory.spec, template, layering ADR-016/018) existe para «muchas fábricas»; hoy
+  hay FSK (real) + iot (real-delgada) + 3 congeladas/juguete. El costo fijo del nivel se justifica por
+  (a) columna única auditada UNA vez y (b) fábricas futuras baratas — (a) está cobrado, (b) es fe.
+  Falsificador: la 3ª fábrica REAL nacida end-to-end, midiendo $ y días. Si en N meses no nace, la
+  pregunta honesta no es «borrar» sino si meta+FSK deberían plegarse en una capa (menos superficie).
+- **D-2 · I-2 confunde «secuencia como dato» (bueno) con «contenido como strings YAML» (malo).**
+  `factories/full-stack-kotlin/stations/s6.yml` embebe archivos Kotlin/Gradle ENTEROS como literales
+  escapados: sin highlighting, sin lint, diffs ilegibles — los mismos costos que la regla multi-archivo
+  combate en código. Diseño correcto: el YAML orquesta (secuencia+checks) y los `builds` REFERENCIAN
+  archivos (`stations/templates/…`); migración mecánica byte-idéntica posible (lección
+  MONOLITH-REFACTOR). Barato y quirúrgico por estación.
+- **D-3 · El vocabulario de checks está INVERTIDO (medido hoy):** el kind genérico `product_env` hace
+  72 de ~130 usos (+`infra_up` 26); la mayoría de los ~32 kinds aparece UNA vez (línea meta/dummy) o
+  solo en `meta check`. No es podar (los one-shot sostienen la línea meta): es CONGELAR el vocabulario
+  con la misma regla que roles (ADR-020): kind nuevo = acto deliberado, y la vara es «¿no alcanza
+  `product_env` + un script?».
+- **D-4 · El loop de auto-mejora vía slots cerró UNA vez (n=1).** La promesa central «gap de spec →
+  slot escribe la extensión del codegen → gates verifican» ocurrió en IOT-S1 (2 spawns, verde, $5.65);
+  su contraejemplo previo son los 17 ADOPTs a mano de Snipe-IT. Si los próximos ejes NO siguen el
+  patrón iot, el harness de delegación es ceremonia (Silla 12); si lo siguen, es LA tesis operando.
+  Regla propuesta (barata, prosa): todo eje nuevo de fábrica nace como slot S2 salvo justificación
+  escrita en su work-doc.
+- **D-5 · El gobierno no tiene falsificador de su propio creep.** CLAUDE.md meta = 99 líneas (bajo
+  presupuesto) pero la DENSIDAD normativa por línea crece (el runbook entero vive inline) y las reglas
+  solo se acumulan — nunca se retiró una. Es la muerte #1 de MDA (spec-complexity) aplicada al
+  gobierno. Observer gratis: conteo de bullets normativos de CLAUDE.md por commit (git ya lo tiene).
+- **D-6 · ¿Los dólares del ledger son REALES? (pregunta, no hallazgo).** Toda la economía COST-DOWN
+  precia tokens a tarifa API. Si las sesiones corren sobre SUSCRIPCIÓN, «$5.65» y «−92%» son
+  shadow-prices: proxy válido de consumo, pero los KPIs-en-$ no son ahorro contante y el óptimo puede
+  diferir (la suscripción cobra por límites, no por token). Respuesta = 1 línea del ingeniero;
+  re-etiqueta (no invalida) el ledger.
+- **D-7 · El lenguaje de seguridad sobre-afirma el threat model.** «Intocable», trusting-trust,
+  SLSA-casero — pero pin, checks y estaciones son EDITABLES por el modelo dentro de un incremento (así
+  se trabaja, por diseño). La defensa real: columna anti-autoengaño + git-diff + ojos del ingeniero.
+  El threat model honesto es DERIVA/AUTOENGAÑO, no adversario activo. Falta una sección THREAT-MODEL
+  (qué se defiende, qué explícitamente NO) que desinfle el vocabulario prestado (Silla 7 aplicada al
+  diseño).
+- **D-8 · Endogeneidad del benchmark.** El target sweet-spot está escrito en la MISMA gramática que el
+  sistema genera: mide cobertura de la gramática propia, no capacidad. Falsificador barato: UNA spec
+  escrita por un tercero (o pública) traducida a `product.yml` en sesión S2 — si el costo explota, el
+  claim de generalidad se recorta otra vez (como pasó con Snipe-IT). Se puede fusionar con E1.
+
+### §5.9 · Qué se decide con esto (mínimo accionable)
+1. **D-6 se responde HOY** (1 línea del ingeniero: ¿API o suscripción?) — re-etiqueta todos los KPIs $.
+2. **D-4 se adopta como regla de prosa** en el próximo eje de fábrica (nace como slot o justifica).
+3. **D-2 es el incremento mecánico candidato** cuando haya vehículo S2 (byte-idéntico, riesgo ~0).
+4. D-1/D-8 no piden trabajo: piden FECHA/vara (3ª fábrica; spec ajena) para que la apuesta tenga juez.

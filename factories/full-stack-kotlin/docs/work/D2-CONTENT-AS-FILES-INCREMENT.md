@@ -1,7 +1,7 @@
-<!-- meta:doc sha=a88abed11309478f837c45778746e48cb5798dc9 updated=2026-07-04T20:28Z -->
+<!-- meta:doc sha=0d4dd6f165d162fd97ec1444a19f2c946c4b1061 updated=2026-07-04T20:32Z -->
 # Incremento D2-CONTENT-AS-FILES
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T20:15Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T20:32Z) (creado 2026-07-04T20:15Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

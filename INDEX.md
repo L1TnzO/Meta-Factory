@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `d48b34777268` | 2026-07-04T15:23Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `436322b2c863` | 2026-07-04T16:12Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -34,7 +34,7 @@
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
-| `docs/reference/COUNCIL-360-AUDIT.md` | `0e3cd841c9b7` | 2026-07-04T15:23Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
+| `docs/reference/COUNCIL-360-AUDIT.md` | `793b65dae207` | 2026-07-04T16:12Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
 | `docs/reference/FOUNDATIONS-REAUDIT.md` | `a5757114e732` | 2026-07-04T03:00Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `f85974965ef3` | 2026-06-27T15:05Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |

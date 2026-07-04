@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0e3cd841c9b7ae13d11ed337764c8b9ad07b5fca updated=2026-07-04T15:23Z -->
+<!-- meta:doc sha=793b65dae2079ab2d389714e989fedcc37d408b8 updated=2026-07-04T16:12Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
 > tipo: reference (estable) · creado: 2026-07-04T03:45Z · sesión S1 (Fable 5, pedido explícito del
@@ -267,11 +267,10 @@ no visto). H-4/H-5 son mantenimiento barato de columna/pipeline; H-8 se anexa al
   presupuesto) pero la DENSIDAD normativa por línea crece (el runbook entero vive inline) y las reglas
   solo se acumulan — nunca se retiró una. Es la muerte #1 de MDA (spec-complexity) aplicada al
   gobierno. Observer gratis: conteo de bullets normativos de CLAUDE.md por commit (git ya lo tiene).
-- **D-6 · ¿Los dólares del ledger son REALES? (pregunta, no hallazgo).** Toda la economía COST-DOWN
-  precia tokens a tarifa API. Si las sesiones corren sobre SUSCRIPCIÓN, «$5.65» y «−92%» son
-  shadow-prices: proxy válido de consumo, pero los KPIs-en-$ no son ahorro contante y el óptimo puede
-  diferir (la suscripción cobra por límites, no por token). Respuesta = 1 línea del ingeniero;
-  re-etiqueta (no invalida) el ledger.
+- **D-6 · ¿Los dólares del ledger son REALES? — RESPONDIDA (ingeniero, 2026-07-04): SUSCRIPCIÓN, no
+  API.** Consecuencias en §6.0: todos los KPIs-$ pasan a shadow-prices (proxy de cupo/consumo, no
+  ahorro contante); el ledger se conserva re-etiquetado; horas-humano y cupo se vuelven la
+  restricción vinculante.
 - **D-7 · El lenguaje de seguridad sobre-afirma el threat model.** «Intocable», trusting-trust,
   SLSA-casero — pero pin, checks y estaciones son EDITABLES por el modelo dentro de un incremento (así
   se trabaja, por diseño). La defensa real: columna anti-autoengaño + git-diff + ojos del ingeniero.
@@ -288,3 +287,56 @@ no visto). H-4/H-5 son mantenimiento barato de columna/pipeline; H-8 se anexa al
 2. **D-4 se adopta como regla de prosa** en el próximo eje de fábrica (nace como slot o justifica).
 3. **D-2 es el incremento mecánico candidato** cuando haya vehículo S2 (byte-idéntico, riesgo ~0).
 4. D-1/D-8 no piden trabajo: piden FECHA/vara (3ª fábrica; spec ajena) para que la apuesta tenga juez.
+
+## §6 · Síntesis final (iteración 3, Fable 5, 2026-07-04): los caminos simulados y la arquitectura recomendada
+
+### §6.0 · D-6 respondida: SUSCRIPCIÓN → re-etiquetado de toda la economía
+1. **Los KPIs-$ son SHADOW-PRICES**: «$5.65» y «−92%» miden consumo relativo, no ahorro contante. El
+   ledger NO se tira — la tabla de precios API es el peso correcto del CUPO relativo (Opus consume
+   cupo ~5× Sonnet por token): mismo contador, otra unidad. Disciplina de rotulado: «medido($shadow)».
+2. **La restricción vinculante real = CUPO (ventanas de uso) + HORAS-HUMANO.** La Silla 11 queda
+   PROMOVIDA: wall-clock por sesión en `meta outcome` pasa de «gratis, algún día» a observer #1
+   pendiente (los timestamps ya existen; es una resta).
+3. **Lo que NO cambia**: el ruteo S1/S2/S3, kill-don't-idle y el dial optimizan cupo exactamente igual
+   que $; la línea 0-modelo sigue siendo la palanca #1 (cupo 0). La doctrina de cache pierde urgencia
+   de dólar y conserva la de cupo/latencia.
+
+### §6.1 · El vigía de la muerte #1 de MDA — instalado CON DATOS (medido 2026-07-04)
+spec-LOC → generado-LOC: **helpdesk 82 → 37.8k (1:461) · assets 57 → 53.2k (1:932) · snipeit 411 →
+41.5k (1:100)**. Lectura honesta: hoy NO hay spec-complexity creep (el colapso MDA histórico es
+ratio→~1:1); el ratio degrada con la complejidad del producto pero Snipe-IT —el techo— sigue en 1:100.
+Juicio de la gramática `product.yml`: BUENA — declarativa, vocabulario cerrado, comentable, la
+activación de estaciones es data; no es el eslabón débil. Umbral de alarma propuesto: un producto
+futuro bajo ~1:50 = la muerte #1 tocando la puerta. Re-derivable con `wc` (observer formal: opcional).
+
+### §6.2 · Los tres caminos, simulados contra la evidencia §1–§5
+| Camino | Qué es | A favor | En contra | Veredicto |
+| --- | --- | --- | --- | --- |
+| **A · statu quo + cirugía** | mantener todo activo; ejecutar H/D | costo mínimo, opcionalidad | no responde D-1; la superficie sigue cobrando alquiler cognitivo (Silla 8 = el cuello MEDIDO) | insuficiente solo |
+| **B · consolidación** | declarar el sistema vivo = meta+FSK+iot; congelar dummy (fixture del pin) + full-stack-TS + ASF como regression-frozen; vocabularios CERRADOS (D-3 como roles); navegación-grafo bajo la regla 30-días-en-0 (§2.6) | ataca el cuello real (modelo mental); nada de lo congelado se borra (el pin lo mantiene verificable gratis); coherente con §0 (retorno = aprendizaje+doctrina, ya cobrado) | renuncia narrativa a «N fábricas» hasta que C tenga fecha | **BASE recomendada** |
+| **C · expansión** | 3ª fábrica REAL end-to-end bajo patrón iot (S1 diseña, S2 ejecuta), midiendo cupo y días | es EL juez de D-1; vindicaría el nivel meta | semanas de trabajo; sin dominio con uso propio real es teatro | **opción CON FECHA**, solo si aparece dominio real |
+
+### §6.3 · Veredicto: la arquitectura óptima
+**La topología actual ES la óptima conocida para el régimen declarado** (§0 personal · $/feature
+verificada sin humano leyendo el código): ninguna alternativa simulada la domina — plegar niveles (B
+extremo) destruiría la columna-única y el pin multi-fábrica que SÍ están cobrados; expandir sin
+demanda (C sin fecha) repite el patrón de error histórico (§2.6: construir opciones antes de medir
+demanda). El óptimo no es otra topología; es **la misma con la mitad de la superficie activa y jueces
+instalados**: (a) camino B; (b) contenido-como-archivos (D-2); (c) los TRES jueces — E1 control-group
+fusionado con D-8 (spec ajena), E4 mutation/escape-rate (H-3), horas-humano (§6.0.2); (d) patrón iot
+como única vía de extensión (D-4); (e) H-1 ya (el eslabón aspiracional más barato de volver real).
+
+**Sobre observabilidad (la pregunta directa): NO falta más telemetría para diseñar** — el diseño ya
+se decidió por medición varias veces (INC-5/6 N/A, índice semántico descartado, dial medido). Lo que
+falta son instrumentos de JUICIO EXTERNO, tres y baratos: tasa de escape (E4), grupo de control
+(E1+D-8) y horas-humano. La comunidad ya pagó las ideas necesarias (mutation testing, schema-diff→
+migración, actor-independiente de CI, plan-execute por sesión) — mapeadas con su estado en §4.2;
+ninguna requiere investigación, solo adopción con dientes.
+
+### §6.4 · Orden de ejecución recomendado (fusiona §3 + §4.3 + §5.9)
+1. **H-1** (minutos): instalar workflow + push — segundo actor + backup.
+2. **Horas-humano al outcome + rotulado shadow-price** (gratis, §6.0).
+3. **D-2** contenido-como-archivos (mecánico, byte-idéntico, vehículo S2).
+4. **E1+D-8 fusionados** (~1 día): spec AJENA, CC-pelado vs fábrica, arbitrado por benchmark.
+5. **E4** mutation sobre helpdesk + `verify/checks/` (H-3) — el número de la Silla 7.
+6. **C solo con dominio real y fecha**; mientras tanto, B es la casa.

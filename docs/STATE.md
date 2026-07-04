@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d48b347772680990374f8801b5198a0c0673b703 updated=2026-07-04T15:23Z -->
+<!-- meta:doc sha=436322b2c86345420d86fb447ad82b37940d676f updated=2026-07-04T16:12Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -24,7 +24,7 @@
   INC-3 lo cortó 4.5× · residencia-de-slots **0.00%**; Agent síncrono BLOQUEA + TTL-1h ya activo). Observers dejan
   ambas palancas re-derivables (`meta outcome --transcript`); NO se construye maquinaria de cache ni headless.
   **Plan FIJO N=7 COMPLETO (INC-0..INC-6 ✅); 3/4 KPIs verdes (S3 2026-07-03). Corrida S2 real EJECUTADA
-  (vehículo `IOT-S1-FIELD-VOCAB`, Go) y MEDIDA (S3 2026-07-04):** $5.65/incr (**−92%** vs $73.89) · opus-share
+  (vehículo `IOT-S1-FIELD-VOCAB`, Go) y MEDIDA (S3 2026-07-04):** $5.65/incr **shadow** (−92%; sub no API → COUNCIL §6.0) · opus-share
   **49.7%** (cota superior; sesión única mezcló S1+S2) → KPI ≤35% AÚN ROJO pero 100%→50%; falta una S2 PURA
   medida sola. Detalle: `factories/iot/docs/LOG.md` (2026-07-04). Biblia: `…§5` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
@@ -62,7 +62,7 @@
   docs de dirección (`work/COST-DOWN-DIRECTION-INCREMENT.md` — la biblia de costos, VIGENTE ·
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
-  auditoría viva: `COUNCIL-360-AUDIT.md` §1–§5 · mapa as-built: `ARCHITECTURE-MAP.md`) ·
+  auditoría viva: `COUNCIL-360-AUDIT.md` §1–§6 (síntesis+veredicto en §6) · mapa as-built: `ARCHITECTURE-MAP.md`) ·
   Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`.
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` + `delegation.py`) ·
   `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` · CLI: `../meta`.

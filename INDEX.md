@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `cf694620e814` | 2026-07-04T20:08Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `42172fb852b4` | 2026-07-04T20:14Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -60,7 +60,7 @@
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CACHE-SHAPE-INCREMENT.md` | `c56cbea7b58e` | 2026-07-03T17:05Z | Incremento CACHE-SHAPE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
-| `docs/work/COLUMN-MAINT-INCREMENT.md` | `cb9f325dae5e` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
+| `docs/work/COLUMN-MAINT-INCREMENT.md` | `e8dd5036074d` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
 | `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `e6ea892dc3d6` | 2026-07-03T04:19Z | Incremento CONTEXT-LEAN-TEETH |
 | `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |
 | `docs/work/COST-RUNBOOK-INCREMENT.md` | `ef2e4e4dd881` | 2026-07-02T17:54Z | Incremento COST-RUNBOOK |

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=1b8a45fc0bc8bd16adc48b691859f62743d98477 updated=2026-07-04T19:47Z -->
+<!-- meta:doc sha=45e7fa83d9e0c3a0bbfdfd96a0dd95e37b7cc22f updated=2026-07-04T19:56Z -->
 # Incremento OUTCOME-JUDGES
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T19:45Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T19:56Z) (creado 2026-07-04T19:45Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

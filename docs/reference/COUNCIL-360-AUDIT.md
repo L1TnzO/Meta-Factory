@@ -1,4 +1,4 @@
-<!-- meta:doc sha=87189a86a9ee2a5654c41a610b973813f71a09b1 updated=2026-07-04T03:48Z -->
+<!-- meta:doc sha=5e75cd16d968352b5efe1b5f9857c53781cf85cb updated=2026-07-04T04:00Z -->
 <!-- meta:doc sha=PENDING updated=2026-07-04T03:45Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
@@ -8,8 +8,28 @@
 > topología de ejecución. Los HECHOS citados se midieron en esta sesión (journal, filesystem, greps).
 
 ## §0 · Alcance declarado (resuelve la Silla 4)
-**Académico por ahora** — monetización/clientes FUERA de alcance (declaración del ingeniero,
-2026-07-04). La bandera elegida: **artefacto-tesis + doctrina publicable**, no producto comercial.
+**Proyecto PERSONAL** (no tesis, no comercial) — monetización/clientes FUERA de alcance (declaración
+del ingeniero, 2026-07-04). Consecuencias: la Silla 15 se fortalece (el retorno ya cobrado es
+aprendizaje + doctrina, sin deadline); la Silla 14 pierde su vehículo natural — la verificación
+EXTERNA (ojos ajenos) no llega sola: si se quiere, será un acto deliberado (publicación/colega).
+
+## §0.5 · Aclaración doctrinal: las TRES patas de la regeneración (2026-07-04, a raíz de la
+## incomodidad del ingeniero — «la ingeniería real refactoriza de a poco, no regenera toneladas»)
+La «regeneración» son tres patas de valor DISTINTO; la doctrina debe dejar de venderlas juntas:
+- **(a) Re-derivación como VERIFICACIÓN** — TESIS DEMOSTRADA, valor diario: `ci --rederive == pin` en
+  clon limpio ES el mecanismo de confianza («nadie leyó el código y aun así corresponde al spec»).
+  Paga el aparato aunque jamás se regenere por evolución.
+- **(b) N productos heredan mejoras de fábrica** — TESIS DEMOSTRADA, ejercitada decenas de veces
+  (re-skin Vercel: 1 cambio de codegen → 3 productos re-derivados; un check nuevo en estación
+  compartida → re-pin de todos). Es la regeneración que DE HECHO ocurre y paga.
+- **(c) Regenerar como MANTENIMIENTO de un producto en producción** — **HIPÓTESIS ABIERTA, no
+  tesis**: solo existe `V1__init.sql`; nunca sobrevivieron datos vivos a una regeneración. No
+  afirmarla hasta que `SPEC-EVOLUTION` (§3.2) exista y mida. El refactoring incremental clásico SÍ
+  existe acá, un nivel arriba: se refactoriza el CODEGEN (p. ej. MONOLITH-REFACTOR, byte-idéntico) y
+  el SPEC; el código generado es artefacto de build (modelo compilador — nadie refactoriza `.class`).
+  Anclaje SOTA: la industria migra artefactos de mascota a ganado (contenedores/IaC/lockfiles); apostar
+  que el código de app sigue es defendible CON falsificador, no dogma. Régimen concedido: fábrica de
+  UNA sola app que nunca mejora → el aparato es overkill; gana el vibe-coding.
 
 ## §1 · El consejo — 15 sillas (una línea por silla; el detalle vivió en la sesión)
 1. **Historiador**: el cementerio CASE/MDA/«Software Factories» murió de 3 muertes; el LLM mata la #3

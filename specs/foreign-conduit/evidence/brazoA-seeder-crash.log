@@ -1,0 +1,23 @@
+Jul 04, 2026 6:31:30 PM org.jooq.tools.JooqLogger lambda$warn$7
+WARNING: Version mismatch         : Database version is older than what dialect SQLDialect.POSTGRES supports: 16.14. Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+Exception in thread "main" org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into USERS (USERNAME, EMAIL) values (?, ?) returning USERS.ID]; ERROR: duplicate key value violates unique constraint "users_username_key"
+  Detail: Key (username)=(sample-username) already exists.
+	at org.jooq_3.21.6.POSTGRES.debug(Unknown Source)
+	at org.jooq.impl.Tools.translate(Tools.java:3725)
+	at org.jooq.impl.Tools.translate(Tools.java:3715)
+	at org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:934)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:371)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:268)
+	at org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:135)
+--
+	at webapp.endpoints.AppServerKt.main(AppServer.kt:767)
+	at webapp.endpoints.AppServerKt.main(AppServer.kt)
+Caused by: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "users_username_key"
+  Detail: Key (username)=(sample-username) already exists.
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2733)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2420)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:372)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:517)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:434)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:194)
+	at org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:137)

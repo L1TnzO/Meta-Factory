@@ -1,0 +1,79 @@
+# Blueprint de instancia (ADR-015) — E1+D-8: traducción FIEL de la spec AJENA RealWorld «Conduit»
+# (specs/foreign-conduit/, upstream @98f29fb3) a la gramática product.yml de FSK.
+# REGLA: lo que la gramática NO expresa NO se maquilla — se registra en TRANSLATION-NOTES.md.
+
+# s6 (LLM keyless) OFF — mismo precedente que helpdesk (el benchmark mide el vocabulario determinista).
+station_activation:
+  s6: off
+  # FRICCIÓN F5 confirmada AL CORRER (hallazgo E1/D-8, 2026-07-04): la spec ajena NO tiene máquina de
+  # estados y `workflow_enforced` (s7) NO degrada a N/A con cero workflows → primera corrida ROJA en s7.
+  # La única vía data es apagar la ESTACIÓN entera (doctrina R1) — al costo de perder también la
+  # pirámide de tests s7 para este producto. Costo de generalidad registrado, no maquillado.
+  s7: off
+
+package_name: webapp
+api_title: "Conduit API (RealWorld)"
+
+# FRICCIÓN F1 (registrada): Conduit NO tiene roles — cualquier usuario autenticado escribe; el dueño
+# edita lo suyo. FSK EXIGE vocabulario de roles → mapeo mínimo honesto: `author` (todo usuario) +
+# `admin` (artefacto del mapeo, bypass de ownership; Conduit no lo tiene).
+roles: [admin, author]
+owner_bypass_roles: [admin]
+
+entities:
+  - name: User
+    write_roles: [admin, author]
+    fields:
+      - { name: username, type: string, unique: true }
+      - { name: email, type: string, unique: true }
+      - { name: bio, type: string, required: false }
+      - { name: image, type: string, required: false }
+      # FRICCIÓN F2: password/JWT (register/login de la spec) NO expresable — FSK trae su propio
+      # esquema de tokens por rol. Gap declarado, no simulado.
+
+  - name: Article
+    write_roles: [admin, author]
+    owned_by: author_id            # «solo el autor edita su artículo» → ownership por fila (DES-3)
+    fields:
+      - { name: slug, type: string, unique: true }
+      - { name: title, type: string }
+      - { name: description, type: string }
+      - { name: body, type: string }
+      - { name: author_id, type: ref, to: User, required: true }
+      - { name: created_on, type: date }
+      # FRICCIÓN F3: favoritesCount (derivado sobre relación) no expresable → la relación vive en
+      # Favorite; el conteo queda como gap declarado.
+      # FRICCIÓN F4: tagList (campo LISTA) no expresable → entidades Tag + ArticleTag (join).
+      # FRICCIÓN F5 (sobre el BENCHMARK, no sobre conduit): la spec ajena NO tiene máquina de
+      # estados; no se inventa un workflow para complacer al benchmark (D-8 honesto).
+
+  - name: Comment
+    write_roles: [admin, author]
+    fields:
+      - { name: article_id, type: ref, to: Article, required: true }
+      - { name: author_id, type: ref, to: User, required: true }
+      - { name: body, type: string }
+      - { name: created_on, type: date }
+
+  - name: Tag
+    write_roles: [admin, author]
+    fields:
+      - { name: name, type: string, unique: true }
+
+  - name: ArticleTag
+    write_roles: [admin, author]
+    fields:
+      - { name: article_id, type: ref, to: Article, required: true }
+      - { name: tag_id, type: ref, to: Tag, required: true }
+
+  - name: Favorite
+    write_roles: [admin, author]
+    fields:
+      - { name: user_id, type: ref, to: User, required: true }
+      - { name: article_id, type: ref, to: Article, required: true }
+
+  - name: Follow
+    write_roles: [admin, author]
+    fields:
+      - { name: follower_id, type: ref, to: User, required: true }
+      - { name: followed_id, type: ref, to: User, required: true }

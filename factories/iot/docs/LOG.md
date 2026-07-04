@@ -1,6 +1,16 @@
-<!-- meta:doc sha=a0fe3e0c87d64475efa54d55431fcf8a0374a340 updated=2026-07-03T23:01Z -->
+<!-- meta:doc sha=f60cc3c739ee1771159cd61a21ddd0bf59c480cd updated=2026-07-04T14:33Z -->
 # Bitácora — IoT Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-04 — medición S3 del transcript de `IOT-S1-FIELD-VOCAB` (el pendiente del episodio de abajo)
+Transcript `d14b2cf6-…` medido (dedup por `message.id`, 113 mensajes; precios `graph/pricing.py`, TTL 5m
+por ley honesta): **$5.65 total** — opus-4-8 $2.81 (**49.7%**) · sonnet-5 $2.85 (50.3%). Contra el KPI
+`COST-DOWN §5`: **$/incr −92%** vs baseline $73.89 (VERDE) · **opus-share 49.7% > 35% (ROJO)** — pero de
+100% (INC-5/6) → 50%. Matices honestos: (a) la sesión ÚNICA mezcló diseño-S1 (Opus) + ejecución-S2
+(Sonnet) — una S2 pura sigue sin medirse sola; (b) el usage de los 2 spawns del `generator` NO está en el
+archivo → 49.7% es COTA SUPERIOR del share real. Gap de instrumento detectado: `meta outcome
+--transcript` no imprime split por modelo (el KPI no tiene medidor de primera clase) — anotado como H-9
+en `docs/reference/COUNCIL-360-AUDIT.md §4`.
 
 ## 2026-07-03 — `IOT-S1-FIELD-VOCAB` ✅ (eje R2 en Go, vehículo §5 de COST-DOWN)
 Diseñado por S1 (Opus, contrato+gate+blast-radius fijados), ejecutado por S2 (Sonnet, `--agent orchestrator`)

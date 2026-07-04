@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4b4e883e0f9a789055bf8d50304e8d622fcd9a40 updated=2026-07-03T23:00Z -->
+<!-- meta:doc sha=fd2fe1d838c2486d4f3f37c89922bffc97b6b5c2 updated=2026-07-04T14:32Z -->
 # Estado — IoT Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
@@ -11,7 +11,9 @@
   `Valid<F>` fail-closed + campo tipado), eje R2 mirror de `FSK-S11` en la 2ª cadena de herramientas; `fleet`
   adopta `Health` (no-requerido) con diente de dos lados probado por sabotaje→rojo. Demo byte-idéntico,
   `ci --rederive --all-products --factory iot` 2/2==pin. Ejecutado como vehículo del KPI opus-share de
-  `COST-DOWN` §5 (medición de opus-share/$ pendiente del cierre S3). Detalle: `docs/work/IOT-S1-FIELD-VOCAB-INCREMENT.md`.
+  `COST-DOWN` §5 — **medido (S3 2026-07-04): $5.65/incr (−92%) · opus-share 49.7% (cota superior; KPI ≤35%
+  aún rojo, de 100%→50%)**; detalle y matices en `LOG.md` (episodio 2026-07-04) +
+  `docs/work/IOT-S1-FIELD-VOCAB-INCREMENT.md`.
 
 ## Mapa
 - Línea de producto: `stations/` · Dominio (humano): `domain/` · Generado (chasis): `generated/` · Build re-derivable: `build/`

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=6fe7ab1f63002f10f85eeda6ac0d975d3679955e updated=2026-07-04T20:46Z -->
+<!-- meta:doc sha=d20b775d9aa1c915894228b56d98baff26771bf7 updated=2026-07-04T20:47Z -->
 # Incremento MUTATION-ESCAPE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T20:32Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T20:47Z) (creado 2026-07-04T20:32Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

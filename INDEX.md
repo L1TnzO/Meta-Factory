@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `886f071f27c8` | 2026-07-04T20:32Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `42172fb852b4` | 2026-07-04T20:47Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -114,7 +114,7 @@
 | `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `e136a85263a5` | 2026-06-26T21:51Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
-| `docs/work/MUTATION-ESCAPE-INCREMENT.md` | `6fe7ab1f6300` | 2026-07-04T20:46Z | Incremento MUTATION-ESCAPE |
+| `docs/work/MUTATION-ESCAPE-INCREMENT.md` | `d20b775d9aa1` | 2026-07-04T20:47Z | Incremento MUTATION-ESCAPE |
 | `docs/work/OUTCOME-JUDGES-INCREMENT.md` | `45e7fa83d9e0` | 2026-07-04T19:56Z | Incremento OUTCOME-JUDGES |
 | `docs/work/PLAN-EXECUTE-SPLIT-INCREMENT.md` | `b34ed79edbe0` | 2026-07-03T14:33Z | Incremento PLAN-EXECUTE-SPLIT |
 | `docs/work/PRICING-LEDGER-INCREMENT.md` | `6e65d1cbef7d` | 2026-07-02T20:00Z | Incremento PRICING-LEDGER |

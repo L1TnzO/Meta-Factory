@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `08feffb77451` | 2026-07-04T19:35Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `14520d496e9f` | 2026-07-04T19:45Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -75,7 +75,7 @@
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
-| `docs/work/EXTERNAL-CI-GREEN-INCREMENT.md` | `4e6651542703` | 2026-07-04T19:45Z | Incremento EXTERNAL-CI-GREEN |
+| `docs/work/EXTERNAL-CI-GREEN-INCREMENT.md` | `2de0cbba112d` | 2026-07-04T19:45Z | Incremento EXTERNAL-CI-GREEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
 | `docs/work/FACTORY-DELEGATION-TEETH-INCREMENT.md` | `e6e66c077da4` | 2026-06-26T23:45Z | Incremento FACTORY-DELEGATION-TEETH (escindido de HARNESS-DECOUPLE Fases 3–4) |
 | `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md` | `e04114442b5f` | 2026-06-27T02:29Z | Incremento FACTORY-DOC-MIGRATE |

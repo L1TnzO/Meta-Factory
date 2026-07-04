@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4e6651542703e79df4b0e26f21a5fbafa6dd63d6 updated=2026-07-04T19:45Z -->
+<!-- meta:doc sha=2de0cbba112db59776cccdd8397a76bb864a3707 updated=2026-07-04T19:45Z -->
 # Incremento EXTERNAL-CI-GREEN
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-04T19:35Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-04T19:45Z) (creado 2026-07-04T19:35Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -119,4 +119,4 @@
 | `docs/work/SESSION-CLASS-AS-DATA-INCREMENT.md` | `3e504374fc16` | 2026-07-04T03:00Z | Incremento SESSION-CLASS-AS-DATA |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `87308f0c428d` | 2026-07-02T17:49Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `714506de0e11` | 2026-07-04T03:09Z | Meta-Factory — orientación (fase de diseño) |

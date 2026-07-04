@@ -1,5 +1,4 @@
-<!-- meta:doc sha=fd20a4a71bac7e029d2115ce647f2d7e7bf8b126 updated=2026-07-04T04:16Z -->
-<!-- meta:doc sha=PENDING updated=2026-07-04T03:45Z -->
+<!-- meta:doc sha=542f662e8ad7e49ca130c55c2aba604672575631 updated=2026-07-04T14:33Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
 > tipo: reference (estable) · creado: 2026-07-04T03:45Z · sesión S1 (Fable 5, pedido explícito del
@@ -148,5 +147,89 @@ futura. La zona (iii) es donde se acumula peso muerto → regla: **congelar-o-me
    de CLAUDE.md anidados · ratio spec-LOC/generado-LOC (muerte #1 de MDA).
 7. **E3 — red-team de columna con instancia fresca** (Silla 6) · canario de plataforma (Silla 10).
 8. **Declarar el modo workspace** en un doc de referencia (una sección, no maquinaria).
+   ✅ 2026-07-04: `ARCHITECTURE-MAP.md §2`.
 9. **La destilación standalone de la doctrina** (paper/informe de tesis) — la primera verificación
    externa (Sillas 14/15).
+
+## §4 · Barrido de segunda pasada (Fable 5, 2026-07-04): hallazgos NUEVOS + anclas SOTA
+
+> Segunda vuelta con ojos frescos sobre filesystem/git/journal/código (no re-audita lo que §1–§2.6 ya
+> vio). Las anclas SOTA de §4.2 son conocimiento del modelo (sin web en esta sesión) — **no
+> verificadas online hoy**; tratarlas como hipótesis fuertes, no como «medido».
+
+### §4.1 · Hallazgos (H-1..H-8, orden por severidad/costo)
+
+- **H-1 (grave, fix ≈ minutos): el «segundo verificador» NUNCA corrió como segundo actor.** HECHOS:
+  no existe `.github/workflows/` (el `seed/external_ci.yml` es transporte jamás instalado); `origin`
+  (github.com/L1TnzO/Meta-Factory) existe pero su último push es **2026-06-26** — 8 días y decenas de
+  commits atrás. I-11 («otra máquina, otro actor, la ÚNICA capa intocable») opera de facto como
+  clean-clone LOCAL del MISMO actor (`meta ci`). Doble consecuencia: (a) el eslabón más alto de la
+  cadena de confianza es aspiracional — exactamente la clase de gap que I-13 obliga a declarar;
+  (b) riesgo de pérdida de datos: 3 semanas de trabajo denso con backup viejo. **Fix:** `mkdir -p
+  .github/workflows && cp seed/external_ci.yml .github/workflows/ && git push` — además le da a la
+  Silla 6 su actor independiente gratis en cada push.
+- **H-2 (matiz doctrinal): el pin ancla VEREDICTOS, no BYTES.** `proof_sha = sha256(station +
+  sorted[(check, exit)])` (`seed/verifier.py`): dos árboles generados DISTINTOS que pasen los mismos
+  checks producen el MISMO pin. Coherente con la filosofía (los gates SON el spec de correctitud),
+  pero la prosa de `external_ci.yml` («un Meta-Factory comprometido produce un proof_sha que el runner
+  no reproduce») sobre-afirma: solo si el compromiso cambia algún exit. Upgrade barato si algún día se
+  quiere provenance real: agregar al proof el digest del subárbol emitido por estaciones deterministas
+  (los productos ya están commiteados; s6-LLM rederiva sin red desde estado commiteado).
+- **H-3 (el instrumento que le falta a la Silla 7): mutation testing = medir la tasa de escape.**
+  «App verificada» = pasó gates declarados; la tasa de escape es DESCONOCIDA. El SOTA tiene el
+  instrumento exacto: sembrar defectos y medir qué % matan los gates. Dos blancos: (a) el producto
+  helpdesk (mutantes en dominio/handlers Kotlin → ¿los contract-tests + gates s0–s11 los matan?);
+  (b) el propio motor (mutantes en `verify/checks/` → ¿`tests/` los mata?) — este segundo mide la
+  fuerza del guardián mismo. Convierte el claim central en un NÚMERO y complementa E1.
+- **H-4: `security_scan` = 5 regexes sobre el sustrato.** Sin entropía, sin escaneo de dependencias a
+  nivel meta, sin defensa contra paquete-alucinado — el riesgo específico de deps generadas por LLM
+  (FSK emite `build.gradle.kts` + `package.json`). Fix alineado a la casa (data, no maquinaria):
+  ampliar `_PATTERNS` con el corpus estándar + un check en s4 «toda dep declarada existe en el
+  registry y tiene edad > N» (una vez, cacheable, sin red en rederive).
+- **H-5 (defecto del pipeline de docs): doble sello `sha=PENDING` en 19 docs** — incluidas decisions
+  INMUTABLES (011/012/015/018). `doc_stamp` PREPENDE el sello fresco sin remover el `sha=PENDING` que
+  el autor dejó → el cuerpo hasheado arrastra un pseudo-sello con fecha falsa (ruido para el triaje
+  INDEX). Fix: endurecer `doc_stamp`/`split_seal` para strip de sellos residuales en cuerpo (columna →
+  ojos propios); limpiar los docs NO-inmutables; decisions/ se deja o se decide explícitamente
+  (des-churn vs pureza). Esta pasada limpió los que tocó (este doc).
+- **H-6: `cli.py` = 1141 LOC y 24 verbos, creciendo.** El mayor archivo del motor; la regla
+  multi-archivo (~800) es para archivos nuevos, pero cada verbo lo agrava. Split por-verbo cuando
+  haya vehículo barato. Nota: para la **corrida S2 pendiente** el mejor vehículo sigue siendo uno de
+  CONTENIDO con gate existente (p. ej. `FSK-FRONTEND-DELETE`, handoff ya escrito) — un split
+  byte-idéntico es transformación determinista, no slot (lección MONOLITH-REFACTOR).
+- **H-7 (límite a DECLARAR, no a construir): el grafo indexa SOLO Python.** El LOC dominante del
+  sistema (Kotlin/TS generado + templates de codegen) es invisible para `quality`/`repomap`. Dado que
+  §2.6 ya puso la navegación del grafo EN JUICIO (0 usos), la acción correcta es declarar el límite
+  (hecho: `ARCHITECTURE-MAP.md §3`) y NO extender antes de que aparezca demanda medida.
+- **H-9 (gap de instrumento, descubierto al MEDIR): el KPI opus-share no tiene medidor de primera
+  clase.** `meta outcome --transcript` no imprime split por modelo; la medición S3 del vehículo iot
+  (2026-07-04, ver `factories/iot/docs/LOG.md`) se hizo ad-hoc (dedup `message.id` + `graph/pricing.py`):
+  $5.65/incr (−92%, VERDE) · opus-share 49.7% (ROJO vs ≤35%, de 100%→50%). Fix: ~20 líneas en
+  `verify/outcome.py` reutilizando `pricing.py` — el KPI del norte VIGENTE debe ser un número del CLI,
+  no un script de sesión. **Con esto, el ítem 3 de la cola §3 queda MEDIDO** (resta la variante «S2
+  pura» en sesión separada).
+- **H-8 (diseño para E2 ya existe afuera): `SPEC-EVOLUTION` no es investigación, es adopción.** El
+  patrón estándar: esquema declarativo → diff → migración generada (clase Atlas/Prisma Migrate) +
+  expand-contract para cambios breaking; el gate «los datos sobreviven» = PG efímero (infra s7 ya
+  existe) + datos sembrados + migrate + asserts. Baja E2 de hipótesis abierta a incremento diseñable.
+
+### §4.2 · Tabla de anclas SOTA por área (estado honesto)
+
+| Área | SOTA (conocimiento del modelo) | Estado acá | Acción |
+| --- | --- | --- | --- |
+| Spec-driven dev | Spec-Kit · Kiro · Tessl | convergente; el diente es la diferencia | ninguna |
+| Multi-agente / costo | «workflows > agents»; overhead multi-agente medido ~15× | ya alineado POR MEDICIÓN (ADR-020/021) | corrida S2 |
+| Provenance / supply-chain | SLSA (builder independiente) · in-toto (subject digests) · sigstore | pin fuerte en re-derivación, sin actor independiente ni subject | **H-1** ya; H-2 si paper/colega |
+| Fuerza de verificación | mutation testing (JVM: clase pitest; Python: clase mutmut) | tasa de escape desconocida | **H-3** (nuevo experimento E4) |
+| Secret/dep scanning | corpus ~170 patrones + entropía · OSV · anti-slopsquatting | 5 regexes, sustrato-only | H-4 (data, barato) |
+| Evolución de esquema | schema-diff→migración generada · expand-contract | solo `V1__init.sql` | **H-8 alimenta E2** |
+| Indexación de código | tree-sitter · SCIP/LSIF multi-lang | grafo Python-only, navegación en juicio | declarar límite (hecho), no construir |
+| Hermeticidad | Nix · devcontainers · Bazel | `tools/toolchain.sh` casero | suficiente a esta escala (YAGNI) |
+| Memoria de agente | prune-first vs RAG-stacks | ya alineado (ADR-019, medido) | vigilar umbral §6 |
+
+### §4.3 · Efecto sobre la cola §3
+
+**H-1 entra PRIMERO** (arriba de E1: minutos de costo, cierra backup + segundo-actor + Silla 6 a la
+vez). **H-3 entra como E4** después de E1/E2 (mismo espíritu: girar los instrumentos hacia el defecto
+no visto). H-4/H-5 son mantenimiento barato de columna/pipeline; H-8 se anexa al diseño de E2. El
+ítem 8 de §3 quedó ✅ (`ARCHITECTURE-MAP.md`).

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=076351e942ce1f1b75c0b56699a49519e8dee11a updated=2026-07-03T18:44Z -->
+<!-- meta:doc sha=c480abba0a1942fee86cd9a0685b17134b58dd07 updated=2026-07-04T14:34Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -23,10 +23,10 @@
   **INC-5 `CACHE-SHAPE` ✅ + INC-6 `HEADLESS-SLOTS` ✅ — N/A-por-medición** (churn post-INC-3 **2.9%** vs 13.1% pre,
   INC-3 lo cortó 4.5× · residencia-de-slots **0.00%**; Agent síncrono BLOQUEA + TTL-1h ya activo). Observers dejan
   ambas palancas re-derivables (`meta outcome --transcript`); NO se construye maquinaria de cache ni headless.
-  **Plan FIJO N=7 COMPLETO (INC-0..INC-6 ✅). §5 «llegamos» EVALUADO (S3 2026-07-03):** INC-5/6 cumplen **3/4 KPIs**
-  (compactaciones **0** · extra-reads **≤6** · $/incr **−82/−84%** vs baseline $73.89) pero **opus-share 100%** —
-  incrementos de MEDICIÓN, sin bulk delegable → «llegamos» **PENDIENTE** de UN incremento S2-ejecución representativo
-  (su vehículo; una sub-sesión Sonnet a 0% opus en INC-4 lo prueba alcanzable). Biblia: `…§5` + ADR-021.
+  **Plan FIJO N=7 COMPLETO (INC-0..INC-6 ✅); 3/4 KPIs verdes (S3 2026-07-03). Corrida S2 real EJECUTADA
+  (vehículo `IOT-S1-FIELD-VOCAB`, Go) y MEDIDA (S3 2026-07-04):** $5.65/incr (**−92%** vs $73.89) · opus-share
+  **49.7%** (cota superior; sesión única mezcló S1+S2) → KPI ≤35% AÚN ROJO pero 100%→50%; falta una S2 PURA
+  medida sola. Detalle: `factories/iot/docs/LOG.md` (2026-07-04). Biblia: `…§5` + ADR-021.
 - **✅ `DELEGATION-ACTIVATION` COMPLETA (2026-06-27, ADR-020).** El harness verificar-no-revisar (Fase 2 SOTA)
   quedó ENCENDIDO·MEDIDO·PROPAGADO·HIGIENIZADO (A el meta delega · B la métrica MIDE · C las 5 fábricas heredan
   el cerebro · D rol-no-dominio con diente `roles`). **ADR-020** fija (a)–(d). Detalle: `LOG.md` +

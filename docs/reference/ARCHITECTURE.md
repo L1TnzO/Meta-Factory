@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e0f4bf38faad84c86e7377ccf86a2de29e9cf05c updated=2026-06-15T03:48Z -->
+<!-- meta:doc sha=32fe43cbe5f9dcf150a522c352470f00b528c066 updated=2026-07-04T14:26Z -->
 # Arquitectura del Meta-Factory
 
 | Campo | Valor |
@@ -9,6 +9,9 @@
 | Depende de | `VISION.md` (el porqué), `ASF-LESSONS.md` (de dónde sale el sustrato) |
 
 > Autocontenido. Terminología propia en §1. Las decisiones se expanden en `docs/decisions/`.
+> **As-built:** este doc es la FUNDACIÓN (2026-06-15, pre-implementación) y se conserva como fue
+> escrita. El mapa de lo CONSTRUIDO (módulos reales, flujos, diagramas, modo workspace, semántica
+> exacta del pin) vive en `ARCHITECTURE-MAP.md` (2026-07-04).
 
 ---
 

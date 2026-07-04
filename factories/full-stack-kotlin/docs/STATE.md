@@ -1,10 +1,10 @@
-<!-- meta:doc sha=91923971ae8e127f8a72f945416d36712546fdfe updated=2026-07-04T20:29Z -->
+<!-- meta:doc sha=e5ae3fd908fd448ae59565f92ea7372d23be536d updated=2026-07-04T20:46Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- **CONTENIDO-COMO-ARCHIVOS (D2-CONTENT-AS-FILES, 2026-07-04, ADR-022/D-2)** ✅: los 4 blobs
+- **CONTENIDO-COMO-ARCHIVOS (D2-CONTENT-AS-FILES, 2026-07-04, ADR-022/D-2)** ✅ (cerrado 20:32Z): los 4 blobs
   Kotlin/Gradle embebidos como literales escapados en `s6.yml` (fábrica + 3 copias de producto) ahora
   viven como archivos REALES en `stations/templates/s6/` referenciados con `action: render` (fuente
   única; misma semántica que `write` → salida byte-idéntica). Transform determinista con aserción de

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `14520d496e9f` | 2026-07-04T19:45Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `787c23496101` | 2026-07-04T19:45Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -29,7 +29,7 @@
 | `docs/decisions/019-arquitectura-de-memoria-v2.md` | `b952b838ad64` | 2026-06-26T17:34Z | ADR-019 — Arquitectura de memoria v2: podar antes de agregar, fidelidad sobre frescura, retrieval contra umbral medido |
 | `docs/decisions/020-activacion-de-la-delegacion.md` | `8c55ffce51aa` | 2026-06-27T21:49Z | ADR-020 — Activación de la delegación: routing por defecto, métrica de costo, y especialización por ROL |
 | `docs/decisions/021-economia-opus-marginal.md` | `a03c7390b479` | 2026-07-02T14:33Z | ADR-021 — Economía Opus-marginal: ruteo por SESIÓN, doctrina de cache, y el plan fijo COST-DOWN |
-| `docs/reference/ARCHITECTURE-MAP.md` | `36c54e119fa0` | 2026-07-04T14:25Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
+| `docs/reference/ARCHITECTURE-MAP.md` | `70b5f4217ccb` | 2026-07-04T19:54Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `d8ddac7c8eeb` | 2026-06-15T02:49Z | ASF — pin de provenance de la referencia congelada |
@@ -112,6 +112,7 @@
 | `docs/work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` | `e136a85263a5` | 2026-06-26T21:51Z | Dirección MEMORY-ARCH-V2 — el roadmap de la memoria v2 |
 | `docs/work/MEMORY-INCREMENT.md` | `5ae528622436` | 2026-06-13T20:29Z | Incremento MEMORIA — dejar el subsistema de memoria terminado y SOTA |
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
+| `docs/work/OUTCOME-JUDGES-INCREMENT.md` | `1b8a45fc0bc8` | 2026-07-04T19:47Z | Incremento OUTCOME-JUDGES |
 | `docs/work/PLAN-EXECUTE-SPLIT-INCREMENT.md` | `b34ed79edbe0` | 2026-07-03T14:33Z | Incremento PLAN-EXECUTE-SPLIT |
 | `docs/work/PRICING-LEDGER-INCREMENT.md` | `6e65d1cbef7d` | 2026-07-02T20:00Z | Incremento PRICING-LEDGER |
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=36c54e119fa07b9f9c9e056ef4c6a50ddadbb6c3 updated=2026-07-04T14:25Z -->
+<!-- meta:doc sha=70b5f4217ccbd4287efbc8b81f885e4e3252ab4f updated=2026-07-04T19:54Z -->
 # ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04)
 
 > tipo: reference (estable) · creado: 2026-07-04 (sesión Fable 5, pedido del ingeniero: «mapear la
@@ -161,7 +161,36 @@ proyección son 0-modelo; `meta metrics --overlap` es observador.
 | `.metamem/` | no | journal.jsonl · metrics.jsonl · precompact.json |
 | `benchmarks/` · `scenarios/` · `specs/` | sí | target verificable sweet-spot · corpus · esqueletos |
 
-## §8 · Cómo re-derivar este mapa (no confíes en él)
+## §8 · THREAT-MODEL honesto (D-7, COUNCIL-360 §5 — qué se defiende y qué explícitamente NO)
+
+El vocabulario prestado («intocable», trusting-trust, SLSA-casero) SOBRE-AFIRMABA. La verdad operativa:
+
+**La amenaza REAL contra la que este sistema está diseñado: DERIVA + AUTOENGAÑO del modelo.**
+1. *Verde narrado sin prueba* → `seed/verifier.py` computa `passed` SOLO de exit codes; `.proof/` lo
+   protege un hook; el pin exige re-derivación. Defendido con dientes.
+2. *Deriva silenciosa del sustrato* → pin clon-limpio local + **segundo actor** (GitHub Actions, verde
+   desde 2026-07-04, run 28717567792) + gates de dos lados. Defendido.
+3. *Scope-creep / opciones sin demanda* → N/A-por-medición, benchmark techo, vocabularios CERRADOS
+   (roles ADR-020, kinds D-3). Defendido por gobierno con dientes.
+
+**Lo que este sistema NO defiende (declarado, no aspiracional):**
+1. *Adversario activo con acceso al working tree*: pin, checks y estaciones son EDITABLES por el modelo
+   dentro de un incremento (así se trabaja, por diseño). La defensa real es columna anti-autoengaño +
+   `git diff` + ojos del ingeniero en el residuo — NO es SLSA: el pin ancla VEREDICTOS (station +
+   [check,exit]), no bytes (H-2); dos árboles distintos que pasen los mismos checks dan el mismo pin.
+2. *Compromiso de la plataforma* (GitHub/Actions/Anthropic): fuera del modelo; el canario de plataforma
+   (Silla 10) queda en cola §3 sin fecha.
+3. *Supply-chain de deps generadas*: `security_scan` es un corpus de patrones + allowlist (H-4) — reduce
+   el riesgo de paquete-alucinado, no lo elimina; no hay SBOM/sigstore (YAGNI a esta escala, declarado).
+4. *Semántica no cubierta por gates*: la tasa de ESCAPE es el juez E4 (mutation testing) — un número
+   medido, no una promesa de cero.
+
+**Estado declarado de superficie dormida (§2.6, congelar-o-medir):** el harness de delegación EMITIDO
+por-fábrica es *esqueleto de export, no operativo* (0 usos medidos); la superficie de NAVEGACIÓN del
+grafo corre bajo la regla **30-días-en-0 → archivar** (observer `graph_query` en el journal la mide;
+los internals del grafo quedan: alimentan `quality`/`pbt`/`billing`).
+
+## §9 · Cómo re-derivar este mapa (no confíes en él)
 
 `meta check` (18/18) · `meta graph repomap` · `meta rtm --factory <slug>` · `ls src/metafactory/**` ·
 `sed -n /def cmd_check/,/return/p src/metafactory/cli.py`. Si este doc contradice al filesystem, gana

@@ -538,8 +538,11 @@ def _budget_json(n_served: int) -> str:
 
 def _probe_bloated_ts() -> str:
     """Fixture NEGATIVO de perf (s8): un entry deliberadamente pesado (embebe un literal grande) → el bundle
-    minificado supera el presupuesto → perf_budget_gate flipea. FUERA de src → no se shippea ni se type-checkea."""
-    blob = "x" * 60000
+    minificado supera el presupuesto → perf_budget_gate flipea. FUERA de src → no se shippea ni se type-checkea.
+    El blob debe quedar por ENCIMA de `BUNDLE_BUDGET_BASE_BYTES` + margen (si no, el gate queda DECORATIVO —
+    el degradado también pasaría el presupuesto). Bump 60000->100000 con FSK-FRONTEND-SEARCH-PAGE: el budget
+    subió a 39853 base (74413 total con snipeit) y 60052 B ya no superaba eso; 100000 deja runway."""
+    blob = "x" * 100000
     return ('// Entry bloated (probe de perf, s8): supera el presupuesto de bundle a propósito.\n'
             f'export const PAYLOAD = "{blob}";\n'
             'export const size = PAYLOAD.length;\n')

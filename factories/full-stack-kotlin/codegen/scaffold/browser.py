@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 
 from .base import _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _table_fields, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -342,6 +342,7 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%FORM_BODY%", json.dumps(form_body))
             .replace("%OWNED_REF_MERGE%", owned_ref_merge)
             .replace("%VALUE_ASSERT%", value_assert)
+            .replace("%SEARCH_ASSERT%", _SEARCH_ASSERT_BLOCK.replace("%SEARCH_PAGE_SIZE%", str(_SEARCH_PAGE_SIZE)))
             # FSK-FRONTEND-DASHBOARD: +1 botón en el nav (la HOME, SCREENS[0]) por encima de las N servidas.
             .replace("%NAV_COUNT%", str(len(served) + 1))
             .replace("%DASHBOARD_ASSERT%", _DASHBOARD_ASSERT_BLOCK)

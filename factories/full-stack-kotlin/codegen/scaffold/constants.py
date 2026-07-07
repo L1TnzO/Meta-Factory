@@ -80,10 +80,16 @@ DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> O
 DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
 
 
-BUNDLE_BUDGET_BASE_BYTES = 20288       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema, costo FIJO por producto vía _table_fields — bump 7936->20288 medido contra snipeit 54 533 B real, budget 54 848 B, ratio 1.0058)
+BUNDLE_BUDGET_BASE_BYTES = 39853       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows, costo FIJO por producto — bump 20288->39853 medido contra snipeit 74 063 B real, budget 74 413 B, ratio 1.0047; precedente FORM-EDIT 4096->7936, TABLE 7936->20288)
 
 
 BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
+
+
+_SEARCH_PAGE_SIZE = 10   # FSK-FRONTEND-SEARCH-PAGE: filas por página, client-side. Single-source (frontend.py
+# lo usa para el runtime; browser.py para el diente) — un solo número, sin drift. Ver work-doc §0.1: 10 es
+# generoso a propósito (seeds chicas, SCREENS §0) — la tabla actual NUNCA excede 1 página, así que los 16
+# dientes previos (before/after DOM-count, locators por texto, firstRow de TABLE_ASSERT) no se tocan.
 
 
 MAX_LINE_LENGTH = 160          # presupuesto declarado (jOOQ/fluent DSL son largos por diseño)
@@ -1242,6 +1248,14 @@ th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; lette
 td { color: var(--ink); font-size: 14px; }
 tr[data-id] { cursor: pointer; transition: background-color .15s; }
 tr[data-id]:hover { background: var(--canvas-soft); }
+/* Search + pagination (FSK-FRONTEND-SEARCH-PAGE): filtro arriba de la tabla, controles de página abajo.
+   Reusa los tokens de input/button existentes -- sin primitivas nuevas. */
+input[type="search"] { width: 100%; max-width: 320px; margin-bottom: 0.75rem; }
+div[data-pagination] { display: flex; align-items: center; gap: 0.75rem; margin: 0.75rem 0 1.5rem; }
+span[data-page-info] { font-family: var(--mono); font-size: 12px; color: var(--mute); }
+button[data-page-prev], button[data-page-next] { height: 32px; padding: 0 0.75rem; font-size: 13px; }
+button:disabled { opacity: 0.4; cursor: default; }
+p[data-empty] { font-style: italic; color: var(--mute); }
 '''
 
 
@@ -1334,7 +1348,7 @@ async function main(base) {
       // timeout: el count no subio -> el check de abajo flipea (rojo). DIENTE.
     }
     const after = await page.$$eval("tr[data-id]", (els) => els.length);
-    check(after, before + 1, "el submit del FORM en Chromium REAL crea un <li> NUEVO en el DOM (N -> N+1)");%VALUE_ASSERT%
+    check(after, before + 1, "el submit del FORM en Chromium REAL crea un <li> NUEVO en el DOM (N -> N+1)");%VALUE_ASSERT%%SEARCH_ASSERT%
 
     // FSK-FRONTEND-ALL-ENTITIES - el NAV lista una pantalla por CADA entidad servida; navegar a una SEGUNDA
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
@@ -1408,6 +1422,48 @@ _TABLE_ASSERT_BLOCK = '''
     const firstRow = json.rows[0];
     const idCellText = (await page.$eval(`tr[data-id="${firstRow.id}"] td[data-field="id"]`, (el) => el.textContent ?? "")).trim();
     check(idCellText, String(firstRow.id), "FSK-FRONTEND-TABLE: la celda id de la fila muestra el valor sembrado (DOM real)");'''
+
+
+_SEARCH_ASSERT_BLOCK = '''
+    // FSK-FRONTEND-SEARCH-PAGE - busqueda+paginacion CLIENT-SIDE sobre la lista YA TRAIDA (CERO backend; el
+    // corte honesto de LIMIT/OFFSET server-side queda diferido -- seeds chicas). Diente de TRES partes,
+    // AISLADO del resto (render/lista/form/detalle/edit/operations/dashboard/delete/estilos/tabla siguen
+    // verdes): (1) tipear el valor RENDERIZADO de la fila que el FORM creo -> exactamente 1 fila visible;
+    // (2) tipear basura sin match -> 0 filas + el estado vacio (data-empty) visible; (3) limpiar la busqueda
+    // -> el contador de pagina ("1 / N (total)") refleja PAGE_SIZE=%SEARCH_PAGE_SIZE% y el total VIVO
+    // (after), y next queda deshabilitado en la unica pagina (navegacion multi-pagina real diferida: hace
+    // falta sembrar >PAGE_SIZE filas, ver work-doc SEARCH-PAGE INCREMENT SS0.1).
+    const SEARCH_VALUE = String(FORM_BODY[RENDER_FIELD]);
+    await page.fill(`[data-search="%OWNED_ENTITY%"]`, SEARCH_VALUE);
+    await page.waitForFunction(
+      (v) => {
+        const rows = document.querySelectorAll("tr[data-id]");
+        return rows.length === 1 && (rows[0].textContent ?? "").includes(v);
+      },
+      SEARCH_VALUE, { timeout: 10000 });
+    const matchRows = await page.$$eval("tr[data-id]", (els) => els.length);
+    check(matchRows, 1, "FSK-FRONTEND-SEARCH-PAGE: buscar el valor sembrado -> exactamente 1 fila");
+
+    await page.fill(`[data-search="%OWNED_ENTITY%"]`, "zzz-no-such-value-zzz");
+    await page.waitForFunction(
+      (n) => document.querySelectorAll("tr[data-id]").length === n,
+      0, { timeout: 10000 });
+    const emptyText = await page.$eval(`[data-empty="%OWNED_ENTITY%"]`, (el) => el.textContent ?? "");
+    check(emptyText.length > 0, true, "FSK-FRONTEND-SEARCH-PAGE: buscar basura -> 0 filas + estado vacio visible");
+
+    await page.fill(`[data-search="%OWNED_ENTITY%"]`, "");
+    const wantPageInfo = `1 / ${Math.ceil(after / %SEARCH_PAGE_SIZE%)} (${after})`;
+    await page.waitForFunction(
+      (t) => {
+        const d = document.querySelector(`[data-page-info="%OWNED_ENTITY%"]`);
+        return d !== null && (d.textContent ?? "").trim() === t;
+      },
+      wantPageInfo, { timeout: 10000 });
+    const pageInfoText = (await page.$eval(`[data-page-info="%OWNED_ENTITY%"]`, (el) => el.textContent ?? "")).trim();
+    check(pageInfoText, wantPageInfo,
+          "FSK-FRONTEND-SEARCH-PAGE: paginar -> el contador refleja PAGE_SIZE=%SEARCH_PAGE_SIZE% y el total vivo");
+    const nextDisabled = await page.$eval(`[data-page-next="%OWNED_ENTITY%"]`, (el) => el.disabled);
+    check(nextDisabled, true, "FSK-FRONTEND-SEARCH-PAGE: una sola pagina -> el boton next queda deshabilitado");'''
 
 
 _DASHBOARD_ASSERT_BLOCK = '''

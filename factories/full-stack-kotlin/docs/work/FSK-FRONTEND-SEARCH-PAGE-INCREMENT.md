@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7ddf7447d5089b8ad22bd2df9ee32f92bf568f71 updated=2026-07-07T15:24Z -->
+<!-- meta:doc sha=03054da28a8b72225664a7998a1b262f75d03b4f updated=2026-07-07T15:55Z -->
 # Incremento FSK-FRONTEND-SEARCH-PAGE — búsqueda + paginación client-side sobre la tabla
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
@@ -311,5 +311,68 @@ commitear.
 INC-3 `FSK-FRONTEND-DETAIL-TABS` (tabs de detalle + historial audited) → INC-4 `TRASH` → INC-5 `LOGIN`
 (corte A). Ver `FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`.
 
-## Evidencia
-<a completar al cierre>
+## Evidencia (cierre 2026-07-07T15:56Z) ✅
+
+**Qué se construyó** (frontend-only, DATA-agnóstico, ADR-012 — universal, no opt-in, aplica a TODA entidad
+servida). 3 piezas en `codegen/scaffold/` (`base.py` intacto), delegadas al `generator` (Sonnet) bajo el
+arnés verificar-no-revisar (slot `fsk-frontend-search-page`, blast radius = los 3 archivos, verdict
+**green**, ambos gates — iteration + acceptance/EYEBALL — exit 0):
+1. **`constants.py`**: `_SEARCH_PAGE_SIZE = 10` (single-source, usado por `frontend.py` y `browser.py`);
+   CSS agregado a `_APP_CSS` (search input + pagination controls, reusa tokens Vercel existentes); nuevo
+   `_SEARCH_ASSERT_BLOCK` (3 checks: búsqueda-1-fila / búsqueda-basura-vacío / contador+next-deshabilitado)
+   wireado en `_BROWSER_CHECK_SKELETON` vía `%SEARCH_ASSERT%`, justo después de `%VALUE_ASSERT%` (corre
+   ANTES de navegar a la 2ª entidad).
+2. **`browser.py`**: import + 1 `.replace(...)` agregado al chain de `_browser_check_ts`. `_consume_check_ts`/
+   `_browser_form_block` (jsdom) intactos — con `PAGE_SIZE=10` el DOM sigue mostrando todo, su lógica de
+   conteo sigue válida.
+3. **`frontend.py`**: `_mount_ts` gana el bloque `search_decl` (input `data-search` + pagination
+   `data-page-prev`/`data-page-info`/`data-page-next` + estado `allRows`/`searchQuery`/`currentPage` +
+   `applyRows` que filtra+pagina+pinta); `renderRows` cambia de cuerpo (`allRows = rows; applyRows();`,
+   misma firma); appends de `searchInput`/`pagination` agregados. Todo lo demás de `_mount_ts` (edit/verb/
+   delete decl, listeners, appends previos) byte-idéntico.
+
+**Diente de TRES partes, VIVO en Chromium real (s9, snipeit) — verificado CON MIS OJOS (no sólo el verdict
+del generator), corriendo `browser_check.ts` a mano contra un server real (`tools/dev_run.sh`), con **PG
+FRESCA** antes de cada sabotaje (evita falsos rojos por filas huérfanas de una corrida previa abortada):**
+- **Verde** (cableado): 19/19 asserts OK, incluidos los 4 nuevos — `"buscar el valor sembrado -> exactamente
+  1 fila"` (1), `"buscar basura -> 0 filas + estado vacio visible"` (true), `"paginar -> el contador refleja
+  PAGE_SIZE=10 y el total vivo"` (`"1 / 1 (4)"`), `"una sola pagina -> el boton next queda deshabilitado"`
+  (true).
+- **Sabotaje A** (`searchQuery === ""` → `true`, el filtro nunca se aplica): el `waitForFunction` de
+  "exactamente 1 fila" nunca resuelve (timeout) → exit 1 vía el catch-all; TODOS los checks previos
+  (dashboard/estilos/lista/tabla-headers/tabla-celda/form-submit N→N+1/value-assert) quedan VERDES antes del
+  punto de falla — aislado al feature de búsqueda.
+- **Sabotaje B** (el ramal `data-empty` reemplazado por `false` → nunca se emite el estado vacío): SOLO
+  `page.$eval("[data-empty=...]")` falla ("Failed to find element"); "buscar el valor sembrado -> 1 fila"
+  (que corre ANTES) queda VERDE, y todos los checks previos también — aislado al estado vacío.
+- **Sabotaje C** (`nextBtn.disabled = false` hardcodeado): SOLO `"una sola pagina -> el boton next queda
+  deshabilitado": esperaba true, obtuvo false` rojea; los 18 restantes (incl. los 3 SEARCH-PAGE previos,
+  tabla, form-submit, 2da-entidad, detalle, edit, operations, delete) quedan VERDES — el sabotaje MÁS
+  preciso de los tres.
+- **Revert** ×3 (uno a la vez, confirmado por `git diff` sin residuo) → 19/19 verde de nuevo (confirmado con
+  una corrida final limpia).
+
+**Verificación (con mis ojos, no delegada):**
+- **Presupuesto de bundle**: `snipeit` real 74 063 B vs budget previo 54 848 B → `perf_budget_gate` FAIL
+  (ratio 0.741) tras el 1er `product-run`; bumpeado `BUNDLE_BUDGET_BASE_BYTES` 20288→39853 (costo FIJO por
+  producto, precedente FORM-EDIT 4096→7936, TABLE 7936→20288... 20288→39853) → budget 74 413 B, ratio
+  **1.0047**. Ese bump por sí solo hizo que `perf_budget_gate` cayera DECORATIVO (el fixture
+  `eval/probe/bloated.ts`, un blob fijo de 60 000 chars ≈60 052 B, ya no excedía el budget nuevo) →
+  bumpeado también `_probe_bloated_ts` (`quality_tooling.py`) 60000→100000 chars, fuera del blast radius del
+  slot (edición directa del orquestador, mismo patrón que el budget). Confirmado: `perf_budget_gate` volvió
+  a discriminar (real 1.0047 pasa, degradado NO).
+- **GATE real**: `product-run --factory full-stack-kotlin --product snipeit` → **PASS** (s0..s11, incl. s8
+  perf+a11y, s9 Chromium real, s11 deploy Docker) tras el bump de budget.
+- **Byte-neutro → SIN re-pin** (extendí `browser_check` EXISTENTE; CERO check/estación nuevo): `ci
+  --rederive --factory full-stack-kotlin --all-products` → **4/4 == pin** (fábrica 12/12, snipeit 11/11,
+  assets 11/11, helpdesk 11/11).
+- `meta check`: **19/19** (`generality`/`quality`/`security`/`pbt`/`deferred`/`column_parity`/`least_priv`/
+  `roles`/`kinds`/`dial`/`plan`/`state_snapshot`/`state_fidelity`/`suite` — todo verde tras refrescar
+  `docs/STATE.md` de la fábrica, el único check que había quedado stale).
+- `git diff src/metafactory + seed = 0` (sustrato meta intacto). Cambios: `codegen/scaffold/{constants,
+  browser,frontend}.py` + `codegen/scaffold/quality_tooling.py` (bump del fixture bloated) + `docs/STATE.md`
+  (fábrica) + este work-doc.
+
+**Arco**: INC-2 de 5 (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`) cerrado. Siguiente: INC-3
+`FSK-FRONTEND-DETAIL-TABS` (tabs de detalle + historial `audited`) — a abrir en una próxima sesión S2 (no
+en ésta, higiene de contexto/cache, ADR-021 kill-don't-idle).

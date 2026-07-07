@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 
 from .base import _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _table_fields, _workflow_ops
-from .constants import _APP_CSS, _UI_INPUT_TYPE
+from .constants import _APP_CSS, _SEARCH_PAGE_SIZE, _UI_INPUT_TYPE
 
 
 def _client_ts(entities: list[dict]) -> str:
@@ -542,6 +542,66 @@ def _mount_ts(e: dict) -> str:
     ) if editable else ''
     delete_call = '\n        renderDelete(id);' if editable else ''
     delete_append = '  root.appendChild(deleteContainer);\n' if editable else ''
+    # FSK-FRONTEND-SEARCH-PAGE: busqueda + paginacion CLIENT-SIDE sobre la lista YA traida por list<E> (CERO
+    # backend). Universal (no opt-in, como la tabla): TODA entidad servida gana un <input data-search> que
+    # filtra allRows por texto (substring case-insensitive, TODOS los campos via Object.values) y una
+    # paginacion de PAGE_SIZE fijo (data-page-prev/data-page-info/data-page-next). `allRows` guarda el
+    # ULTIMO list<E> traido (renderRows lo setea); `applyRows` recalcula filtro+pagina y pinta listContainer
+    # -- se re-corre en cada tecla, click de pagina, Y cada refresh (create/edit/verb/delete llaman
+    # renderRows -> preserva busqueda/pagina vigentes tras una mutacion).
+    search_decl = (
+        f'  const searchInput = doc.createElement("input");\n'
+        f'  searchInput.type = "search";\n'
+        f'  searchInput.setAttribute("data-search", "{name}");\n'
+        f'  searchInput.placeholder = "search";\n'
+        f'  const pagination = doc.createElement("div");\n'
+        f'  pagination.setAttribute("data-pagination", "{name}");\n'
+        f'  const prevBtn = doc.createElement("button");\n'
+        f'  prevBtn.type = "button";\n'
+        f'  prevBtn.setAttribute("data-page-prev", "{name}");\n'
+        f'  prevBtn.textContent = "prev";\n'
+        f'  const pageInfo = doc.createElement("span");\n'
+        f'  pageInfo.setAttribute("data-page-info", "{name}");\n'
+        f'  const nextBtn = doc.createElement("button");\n'
+        f'  nextBtn.type = "button";\n'
+        f'  nextBtn.setAttribute("data-page-next", "{name}");\n'
+        f'  nextBtn.textContent = "next";\n'
+        f'  pagination.appendChild(prevBtn);\n'
+        f'  pagination.appendChild(pageInfo);\n'
+        f'  pagination.appendChild(nextBtn);\n'
+        f'  let allRows: readonly {name}[] = [];\n'
+        f'  let searchQuery = "";\n'
+        f'  let currentPage = 0;\n'
+        f'  const applyRows = (): void => {{\n'
+        f'    const filtered = searchQuery === ""\n'
+        f'      ? allRows\n'
+        f'      : allRows.filter((r) => Object.values(r).some((v) => String(v).toLowerCase().includes(searchQuery)));\n'
+        f'    const totalPages = Math.max(1, Math.ceil(filtered.length / {_SEARCH_PAGE_SIZE}));\n'
+        f'    if (currentPage >= totalPages) {{ currentPage = totalPages - 1; }}\n'
+        f'    if (currentPage < 0) {{ currentPage = 0; }}\n'
+        f'    const start = currentPage * {_SEARCH_PAGE_SIZE};\n'
+        f'    const pageRows = filtered.slice(start, start + {_SEARCH_PAGE_SIZE});\n'
+        f'    listContainer.innerHTML = filtered.length === 0\n'
+        f'      ? \'<p data-empty="{name}">no results</p>\'\n'
+        f'      : render{name}List(pageRows);\n'
+        f'    pageInfo.textContent = `${{currentPage + 1}} / ${{totalPages}} (${{filtered.length}})`;\n'
+        f'    prevBtn.disabled = currentPage === 0;\n'
+        f'    nextBtn.disabled = currentPage >= totalPages - 1;\n'
+        f'  }};\n'
+        f'  searchInput.addEventListener("input", () => {{\n'
+        f'    searchQuery = searchInput.value.toLowerCase();\n'
+        f'    currentPage = 0;\n'
+        f'    applyRows();\n'
+        f'  }});\n'
+        f'  prevBtn.addEventListener("click", () => {{\n'
+        f'    currentPage -= 1;\n'
+        f'    applyRows();\n'
+        f'  }});\n'
+        f'  nextBtn.addEventListener("click", () => {{\n'
+        f'    currentPage += 1;\n'
+        f'    applyRows();\n'
+        f'  }});\n'
+    )
     return (
         f'// FSK-FRONTEND-ALL-ENTITIES — la PANTALLA de {name}: un FORM (un <input> por campo del cuerpo,\n'
         f'// _input_fields) postea vía create{name} (cliente vivo) → re-trae list{name} y RE-RENDERIZA la lista →\n'
@@ -559,8 +619,10 @@ def _mount_ts(e: dict) -> str:
         f'  const listContainer = doc.createElement("div");\n'
         f'  const detailContainer = doc.createElement("div");\n'
         f'  const feedback = doc.createElement("p");\n'
+        f'{search_decl}'
         f'  const renderRows = (rows: readonly {name}[]): void => {{\n'
-        f'    listContainer.innerHTML = render{name}List(rows);\n'
+        f'    allRows = rows;\n'
+        f'    applyRows();\n'
         f'  }};\n'
         f'{edit_decl}'
         f'{verb_decl}'
@@ -599,7 +661,9 @@ def _mount_ts(e: dict) -> str:
         f'    }})();\n'
         f'  }});\n'
         f'  root.appendChild(form);\n'
+        f'  root.appendChild(searchInput);\n'
         f'  root.appendChild(listContainer);\n'
+        f'  root.appendChild(pagination);\n'
         f'  root.appendChild(detailContainer);\n'
         f'{edit_append}'
         f'{verb_append}'

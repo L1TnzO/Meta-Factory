@@ -1,9 +1,33 @@
-<!-- meta:doc sha=c567e7f7704ca60df46576d051bd4c571c04d472 updated=2026-07-07T05:00Z -->
+<!-- meta:doc sha=ab156862fb0ebf313d897869c1e75737c52237ef updated=2026-07-07T15:55Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-SEARCH-PAGE (2026-07-07)** ✅ CERRADO — INC-2 del arco `FSK-FRONTEND-SCREENS-DIRECTION`:
+  la tabla (INC-1) gana **búsqueda client-side** (`<input type="search">` filtra `allRows` por substring
+  case-insensitive sobre TODOS los campos) + **paginación client-side** (contador `N / M (total)` +
+  prev/next, `PAGE_SIZE=10` fijo). **Frontend-only, CERO backend** (`list<E>` ya trae la colección completa
+  — sólo cambia qué SUBSET se pinta). Universal (no opt-in, como la tabla): TODA entidad servida. Corte
+  honesto DECLARADO: server-side LIMIT/OFFSET y navegación multi-página real quedan diferidos (seeds
+  chicas, `PAGE_SIZE=10` elegido deliberadamente para que la tabla actual NUNCA exceda 1 página → los 16
+  dientes previos del arco, que asumen el DOM completo, no se tocan — razonamiento completo en el work-doc
+  §0.1). Diente NUEVO de TRES partes VIVO en Chromium real y AISLADO (verificado a mano, PG fresca por
+  corrida): sabotaje del filtro (`searchQuery` ignorado) → SOLO los 2 asserts de búsqueda rojean/timeoutean
+  (el resto — dashboard/tabla/form-submit/2da-entidad/detalle/edit/operations/delete — sigue verde);
+  sabotaje del estado vacío (`data-empty` nunca se emite) → SOLO ese assert rojea, incl. el de "buscar 1
+  fila" verde; sabotaje del botón `next` (`disabled` hardcodeado a `false`) → SOLO ese assert rojea (18/19
+  restantes verdes); revert ×3 → 19/19 verde. Construido por el `generator` (Sonnet) bajo el arnés
+  verificar-no-revisar (slot acotado a `codegen/scaffold/{frontend,browser,constants}.py`, ambos gates —
+  iteration + acceptance/EYEBALL vía `tsc`+`eslint`+`esbuild` sobre el re-emit real de snipeit — verdes); el
+  diente de TRES partes + `product-run`/`ci --rederive`/`meta check` los corrió el orquestador con sus
+  propios ojos. `BUNDLE_BUDGET_BASE_BYTES` 20288→39853 (costo fijo por producto, medido: snipeit 74 063 B
+  real vs budget 74 413 B, ratio 1.0047); el fixture `_probe_bloated_ts` (perf_budget_gate de dos lados)
+  también subió 60000→100000 chars — si no, el gate quedaba decorativo (el degradado ya no excedía el
+  budget nuevo). Byte-neutro (extiende `browser_check` existente, ningún check/estación nuevo) → `ci
+  --rederive --all-products` **4/4 == pin**. `meta check` 19/19. Detalle: `docs/work/
+  FSK-FRONTEND-SEARCH-PAGE-INCREMENT.md §Evidencia`. **Siguiente del arco: INC-3 `FSK-FRONTEND-DETAIL-TABS`**
+  (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`).
 - **FSK-FRONTEND-TABLE (2026-07-07)** ✅ CERRADO — INC-1 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: `render<E>List`
   pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica — `<th>` por columna del schema (orden
   del contrato, nuevo helper `_table_fields`), `<tr data-id>`+`<td data-field>` por fila (el click-para-

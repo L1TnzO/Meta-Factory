@@ -1,7 +1,7 @@
-<!-- meta:doc sha=03054da28a8b72225664a7998a1b262f75d03b4f updated=2026-07-07T15:55Z -->
+<!-- meta:doc sha=c019bc7b4fc2b8f7149529d50580e088deedcf59 updated=2026-07-07T15:56Z -->
 # Incremento FSK-FRONTEND-SEARCH-PAGE — búsqueda + paginación client-side sobre la tabla
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-07-07T15:56Z)
 > (creado 2026-07-07T15:22Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Todo cambio de código vive acá (ADR-010).
 >

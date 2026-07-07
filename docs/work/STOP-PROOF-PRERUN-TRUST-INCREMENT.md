@@ -1,7 +1,7 @@
-<!-- meta:doc sha=98211399e0435b234de70241c5b033ea08f9fdd6 updated=2026-07-07T21:50Z -->
+<!-- meta:doc sha=a48460077e4c849a6350e9b4f99774289d5d1f90 updated=2026-07-07T21:52Z -->
 # Incremento STOP-PROOF-PRERUN-TRUST
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-07T21:35Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-07T21:52Z) (creado 2026-07-07T21:35Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

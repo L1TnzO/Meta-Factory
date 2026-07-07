@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `ce522bdb31e3` | 2026-07-07T21:29Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `4ac50d420ea3` | 2026-07-07T21:35Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `f974b3506003` | 2026-07-07T21:56Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `18dfc49d0e40` | 2026-07-07T21:52Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -130,7 +130,7 @@
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/SESSION-CLASS-AS-DATA-INCREMENT.md` | `c732251674b2` | 2026-07-04T20:10Z | Incremento SESSION-CLASS-AS-DATA |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
-| `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `98211399e043` | 2026-07-07T21:50Z | Incremento STOP-PROOF-PRERUN-TRUST |
+| `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
 | `CLAUDE.md` | `714506de0e11` | 2026-07-04T03:09Z | Meta-Factory — orientación (fase de diseño) |

@@ -1,7 +1,32 @@
-<!-- meta:doc sha=ce522bdb31e33aa1922efa39d07ca59e21698f16 updated=2026-07-07T21:29Z -->
+<!-- meta:doc sha=f974b35060036a9b4b3f05378ec7fa58dd382916 updated=2026-07-07T21:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T21:52Z — STOP-PROOF-PRERUN-TRUST ✅: la escotilla hermética no podía disparar — el hook decide ANTES del re-run destructivo
+Bug REAL de la columna, encontrado porque la sesión anterior quedó TRABADA post-cierre de LOGIN: `stop_proof`
+(Cerrojo 3) corría `verify --rerun` al cierre de cada turno y `seed/verifier.verify_station` SOBREESCRIBE el
+pin en toda invocación (no hay dry-run). Con el JDK 21 evaporado del PATH del hook (clase de incidente ya
+medida), el re-run daba falso-rojo y **clobbereaba el pin verde legítimo** (s11 `snipeit`: verde 21:24Z →
+pisado a rojo 21:30Z por el propio hook); recién DESPUÉS consultaba `hermetic.pin_trust()`… que leía el pin
+ya destrozado por el mismo re-run → "a real failure, block". La escotilla diseñada EXACTAMENTE para ese caso
+(ADR-021) no podía disparar nunca; toda sesión posterior heredaba el bloqueo.
+- **Fix (COLUMNA, ojos propios — el clasificador denegó al agente anterior el auto-modificar el hook que
+  gatea su propio cierre; el humano autorizó explícitamente)**: `hermetic.preflight()` decide
+  trust/block/rerun ANTES de todo re-run vivo, sin tocar el pin; `stop_proof.py` la consulta primero —
+  "trust" saltea el re-run destructivo, "block" corta en ~0s sin re-run redundante (antes: minutos de gradle
+  condenado), "rerun" conserva el comportamiento viejo exacto (equivalencia rama-por-rama, incluida la caída
+  `Exception → rerun`). Bonus de la misma clase: rutas del hook ancladas a `__file__` (el cwd-fugado ya no
+  produce falso-rojo de import al cierre — residual de `no-cd-subdirs`, ahora cerrado PARA ESTE hook).
+- **Prueba, no narración**: 4 tests nuevos de `preflight` con diente de NO-mutación (sha256 del pin
+  byte-idéntico en trust y block) → hermetic 10/10; el hook real medido en los DOS lados (pin rojo → block
+  0s pin intacto; pin verde re-derivado → rama trust impresa, pin intacto, rc 2 solo por cadencia ADR-010);
+  pin s11 re-verde por **re-run REAL** (toolchain ensure + gradle + docker, exit 0, 21:46Z), jamás editado.
+  Suite 959/959 · `meta check` 19/19. Detalle: `work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md §Evidencia`.
+- **Lección (candidata a ascender si reincide)**: una escotilla de escape que se consulta DESPUÉS de una
+  operación destructiva sobre su propia evidencia es decorativa — el orden decisión→mutación es parte del
+  diseño del gate, no un detalle de implementación. Y el par belt/suspenders quedó completo: `preflight`
+  (belt, no clobberear) + `toolchain.sh ensure` (suspenders, re-verificar de verdad cuando SÍ hay JDK).
 
 ## 2026-07-07T21:29Z — FSK-FRONTEND-LOGIN ✅: INC-5/5 (ÚLTIMO) del arco FSK-FRONTEND-SCREENS — session-picker dev de roles, el arco CIERRA
 Corte A (decidido por el plan, "recomendado contra-el-tiempo"): un `<select data-role-picker>`

@@ -1,8 +1,8 @@
-<!-- meta:doc sha=0e675e9b920c006a93253f7574ddd7d8ca7c140e updated=2026-07-07T20:12Z -->
+<!-- meta:doc sha=18dfc49d0e40bea60b7a4d544fd4f006ee299384 updated=2026-07-07T20:17Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
-> Esquema: heredado de ASF/decisions/021. Punto de entrada único: si tenés amnesia, empezá acá.
+> Esquema: heredado de ASF/decisions/021. Punto de entrada único — si tenés amnesia, empezá acá.
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.

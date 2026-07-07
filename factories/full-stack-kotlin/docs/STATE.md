@@ -1,6 +1,6 @@
-<!-- meta:doc sha=cf7d64576b66b5532e5fbcb0a1498c407d49449b updated=2026-07-07T20:09Z -->
+<!-- meta:doc sha=4e1df6a0fb93648acee376666d483b1f5279513e updated=2026-07-07T20:14Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
-> tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite).
+> tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora

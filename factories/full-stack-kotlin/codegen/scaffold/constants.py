@@ -80,7 +80,7 @@ DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> O
 DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
 
 
-BUNDLE_BUDGET_BASE_BYTES = 39853       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows, costo FIJO por producto — bump 20288->39853 medido contra snipeit 74 063 B real, budget 74 413 B, ratio 1.0047; precedente FORM-EDIT 4096->7936, TABLE 7936->20288)
+BUNDLE_BUDGET_BASE_BYTES = 41115       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows) + TABS Details/History de la entidad AUDITADA (FSK-FRONTEND-DETAIL-TABS: tabsContainer/historyContainer + renderHistory + listActionLogs, costo FIJO por producto aunque sólo 1 entidad sea audited — bump 39853->41115 medido contra snipeit 75 325 B real, budget 75 675 B, ratio 1.0046; precedente FORM-EDIT 4096->7936, TABLE 7936->20288, SEARCH-PAGE 20288->39853)
 
 
 BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
@@ -1256,6 +1256,14 @@ span[data-page-info] { font-family: var(--mono); font-size: 12px; color: var(--m
 button[data-page-prev], button[data-page-next] { height: 32px; padding: 0 0.75rem; font-size: 13px; }
 button:disabled { opacity: 0.4; cursor: default; }
 p[data-empty] { font-style: italic; color: var(--mute); }
+/* Detail tabs (FSK-FRONTEND-DETAIL-TABS): toggle Details/History sobre el detalle de la entidad auditada.
+   Reusa hairline/ink/mute/mono existentes -- sin primitivas nuevas. */
+div.detail-tabs { display: flex; gap: 0.5rem; margin: 1rem 0 0.5rem; border-bottom: 1px solid var(--hairline); }
+div.detail-tabs button { border: none; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; height: 32px; padding: 0 0.25rem; font-size: 13px; color: var(--mute); }
+div.detail-tabs button.active { color: var(--ink); border-bottom-color: var(--ink); }
+div[data-history] ul.actionlog { list-style: none; padding: 0; margin: 0.75rem 0; }
+div[data-history] li[data-actionlog] { padding: 0.5rem 0; border-bottom: 1px solid var(--hairline); font-family: var(--mono); font-size: 12px; }
+div[data-history] p[data-history-empty] { font-style: italic; color: var(--mute); }
 '''
 
 
@@ -1354,7 +1362,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%HISTORY_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%
   } finally {
     await browser.close();
   }
@@ -1543,6 +1551,40 @@ _EDIT_ASSERT_BLOCK = '''
       (els) => els.map((el) => el.textContent ?? ""));
     check(editedDd.some((t) => t.includes(EDIT_VALUE)), true,
           "FSK-FRONTEND-EDIT: editar un campo -> el valor NUEVO PERSISTE y se ve en el detalle (Chromium REAL)");'''
+
+
+_HISTORY_ASSERT_BLOCK = '''
+
+    // FSK-FRONTEND-DETAIL-TABS - la pestana Historial de %OWNED_ENTITY% (auditada, FSK-ACTIONLOG): abre la fila
+    // que el FORM creo (self-contained -- no depende de si EDIT corrio antes), clickea la pestana Historial y
+    // asevera que las filas REALES de /action_logs (accion "create", siempre presente) aparecen en el DOM real,
+    // CLIENT-SIDE, filtradas por sujeto (subject_type+subject_id; query-param server-side diferido, ver work-doc
+    // SS0.1). Diente de DOS partes AISLADO (detalle/edit/operations/delete/tabla/busqueda siguen verdes):
+    // (1) las filas [data-actionlog] reales aparecen; (2) volver a Details oculta el panel de Historial de nuevo.
+    const HIST_ROW_VALUE = String(FORM_BODY[RENDER_FIELD]);
+    const histRow = page.locator("tr[data-id]", { hasText: HIST_ROW_VALUE }).first();
+    await histRow.click();
+    await page.waitForFunction(
+      (t) => {
+        const d = document.querySelector("dl.detail");
+        return d !== null && (d.textContent ?? "").includes(t);
+      },
+      HIST_ROW_VALUE, { timeout: 10000 });
+    await page.click(`[data-tab="history"]`);
+    try {
+      await page.waitForFunction(
+        () => document.querySelectorAll("li[data-actionlog]").length >= 1,
+        { timeout: 10000 });
+    } catch {
+      // timeout: la pestana Historial no trajo filas -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const historyActions = await page.$$eval("li[data-actionlog]", (els) => els.map((el) => el.getAttribute("data-action")));
+    check(historyActions.includes("create"), true,
+          "FSK-FRONTEND-DETAIL-TABS: la pestana Historial muestra las filas REALES de /action_logs (create) en el DOM (Chromium REAL)");
+    await page.click(`[data-tab="details"]`);
+    const historyHiddenAgain = await page.$eval(`[data-history="%OWNED_ENTITY%"]`, (el) => el.style.display);
+    check(historyHiddenAgain, "none",
+          "FSK-FRONTEND-DETAIL-TABS: volver a la pestana Details oculta el panel de Historial de nuevo");'''
 
 
 _OPERATIONS_ASSERT_BLOCK = '''

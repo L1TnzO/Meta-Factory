@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _table_fields, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
+from .base import _audited, _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _table_fields, _workflow_ops
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _HISTORY_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -290,6 +290,10 @@ def _browser_check_ts(bp: dict) -> str:
         edit_block = (_EDIT_ASSERT_BLOCK
                       .replace("%EDIT_FIELD%", edit_field["name"])
                       .replace("%EDIT_VALUE%", f"edited-{edit_field['name']}"))
+    # FSK-FRONTEND-DETAIL-TABS: la pestaña Historial (opt-in, entidad AUDITADA + render_field visible en el FORM,
+    # como edit_block/operations_block/delete_block arriba). Sin _audited(owned) o sin render_field en el FORM →
+    # bloque vacío (byte-neutro para assets/helpdesk, ninguna entidad audited: true).
+    history_block = _HISTORY_ASSERT_BLOCK if (_audited(owned) and render_field in form_body) else ""
     # FSK-FRONTEND-OPERATIONS: el bloque del proof clickea el botón del verbo FORWARD (el que transiciona DESDE el
     # estado que el FORM posteó) sobre la fila CREADA por el FORM (principal-owned + misma compañía POR CONSTRUCCIÓN
     # → el verbo pasa ownership/scope, robusto al owner POLY/company-scoped), localizada por su valor renderizado
@@ -352,6 +356,7 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)
+            .replace("%HISTORY_ASSERT%", history_block)
             .replace("%OPERATIONS_ASSERT%", operations_block)
             .replace("%DELETE_ASSERT%", delete_block)
             .replace("%OWNED_ENTITY%", owned["name"]))

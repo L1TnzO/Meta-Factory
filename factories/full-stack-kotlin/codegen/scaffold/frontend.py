@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from .base import _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _table_fields, _workflow_ops
+from .base import _audited, _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _table_fields, _workflow_ops
 from .constants import _APP_CSS, _SEARCH_PAGE_SIZE, _UI_INPUT_TYPE
 
 
@@ -144,6 +144,19 @@ def _client_consume_ts(entities: list[dict]) -> str:
     if owned is None:
         return ""
     served = _live_entities(entities)
+    # FSK-FRONTEND-DETAIL-TABS: listActionLogs (GET /action_logs) — el cliente compartido que la pestaña Historial
+    # consume (mount<E> la llama sólo al clickear History). Opt-in: sólo si ALGUNA entidad servida es `audited: true`
+    # (FSK-ACTIONLOG); sin ninguna auditada (default/assets/helpdesk hoy) → "" (byte-vacío, ADR-012).
+    actionlog_client = (
+        "interface ActionLogRow { id: number; actor_id: number; action: string; subject_type: string; subject_id: number; }\n\n"
+        "export async function listActionLogs(base: string): Promise<ActionLogRow[]> {\n"
+        "  const res = await fetch(`${base}/action_logs`);\n"
+        "  if (!res.ok) {\n"
+        "    throw new Error(`listActionLogs: HTTP ${res.status}`);\n"
+        "  }\n"
+        "  return expectRows(await res.json()) as ActionLogRow[];\n"
+        "}\n\n"
+    ) if any(_audited(e) for e in served) else ""
     return (
         "\n\n"
         "// ── FSK-FRONTEND-CONSUME — la capa de cliente VIVA: create/get/list hacen fetch REAL contra el AppServer\n"
@@ -166,6 +179,7 @@ def _client_consume_ts(entities: list[dict]) -> str:
         "  }\n"
         '  throw new Error("list: el server no devolvió rows[]");\n'
         "}\n\n"
+        + actionlog_client
         + "".join(_consume_entity_ts(e) for e in served).rstrip("\n") + "\n"
     )
 
@@ -542,6 +556,61 @@ def _mount_ts(e: dict) -> str:
     ) if editable else ''
     delete_call = '\n        renderDelete(id);' if editable else ''
     delete_append = '  root.appendChild(deleteContainer);\n' if editable else ''
+    # FSK-FRONTEND-DETAIL-TABS: pestanas Details/History sobre el detalle de la entidad AUDITADA (opt-in,
+    # _audited(e), como soft_delete/editable/operable). render{name}Detail (dl.detail) NO CAMBIA -- el panel de
+    # Historial es un HERMANO (historyContainer) que se oculta/muestra con style.display; los 4 dientes previos
+    # que dependen de dl.detail (detalle/edit/operations) quedan intactos (ver work-doc SS0.1). Se monta al abrir
+    # el detalle (misma seleccion que edit/verb/delete); Details queda activo por defecto. El fetch de
+    # listActionLogs (GET /action_logs, la bitacora COMPLETA -- filtro server-side diferido) ocurre SOLO al
+    # clickear History (lazy), filtrado CLIENT-SIDE por sujeto (subject_type=name, subject_id=id).
+    history_decl = (
+        f'  const tabsContainer = doc.createElement("div");\n'
+        f'  tabsContainer.className = "detail-tabs";\n'
+        f'  const detailsTabBtn = doc.createElement("button");\n'
+        f'  detailsTabBtn.type = "button";\n'
+        f'  detailsTabBtn.setAttribute("data-tab", "details");\n'
+        f'  detailsTabBtn.textContent = "Details";\n'
+        f'  detailsTabBtn.classList.add("active");\n'
+        f'  const historyTabBtn = doc.createElement("button");\n'
+        f'  historyTabBtn.type = "button";\n'
+        f'  historyTabBtn.setAttribute("data-tab", "history");\n'
+        f'  historyTabBtn.textContent = "History";\n'
+        f'  tabsContainer.appendChild(detailsTabBtn);\n'
+        f'  tabsContainer.appendChild(historyTabBtn);\n'
+        f'  const historyContainer = doc.createElement("div");\n'
+        f'  historyContainer.setAttribute("data-history", "{name}");\n'
+        f'  historyContainer.style.display = "none";\n'
+        f'  const renderHistory = (id: number): void => {{\n'
+        f'    detailsTabBtn.classList.add("active");\n'
+        f'    historyTabBtn.classList.remove("active");\n'
+        f'    detailContainer.style.display = "";\n'
+        f'    historyContainer.style.display = "none";\n'
+        f'    historyContainer.replaceChildren();\n'
+        f'    detailsTabBtn.onclick = () => {{\n'
+        f'      detailsTabBtn.classList.add("active");\n'
+        f'      historyTabBtn.classList.remove("active");\n'
+        f'      detailContainer.style.display = "";\n'
+        f'      historyContainer.style.display = "none";\n'
+        f'    }};\n'
+        f'    historyTabBtn.onclick = () => {{\n'
+        f'      void (async (): Promise<void> => {{\n'
+        f'        historyTabBtn.classList.add("active");\n'
+        f'        detailsTabBtn.classList.remove("active");\n'
+        f'        detailContainer.style.display = "none";\n'
+        f'        historyContainer.style.display = "";\n'
+        f'        const rows = await listActionLogs(base);\n'
+        f'        const mine = rows.filter((r) => r.subject_type === "{name}" && r.subject_id === id);\n'
+        f'        historyContainer.innerHTML = mine.length === 0\n'
+        f'          ? "<p data-history-empty>no history</p>"\n'
+        f'          : \'<ul class="actionlog">\' + mine.map((r) => `<li data-actionlog data-action="${{r.action}}">'
+        f'${{r.action}} by ${{r.actor_id}}</li>`).join("") + "</ul>";\n'
+        f'      }})();\n'
+        f'    }};\n'
+        f'  }};\n'
+    ) if _audited(e) else ''
+    history_call = '\n        renderHistory(id);' if _audited(e) else ''
+    tabs_append = '  root.appendChild(tabsContainer);\n' if _audited(e) else ''
+    history_append = '  root.appendChild(historyContainer);\n' if _audited(e) else ''
     # FSK-FRONTEND-SEARCH-PAGE: busqueda + paginacion CLIENT-SIDE sobre la lista YA traida por list<E> (CERO
     # backend). Universal (no opt-in, como la tabla): TODA entidad servida gana un <input data-search> que
     # filtra allRows por texto (substring case-insensitive, TODOS los campos via Object.values) y una
@@ -627,6 +696,7 @@ def _mount_ts(e: dict) -> str:
         f'{edit_decl}'
         f'{verb_decl}'
         f'{delete_decl}'
+        f'{history_decl}'
         f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
         f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
@@ -640,7 +710,7 @@ def _mount_ts(e: dict) -> str:
         f'    void (async (): Promise<void> => {{\n'
         f'      try {{\n'
         f'        const record = await get{name}(base, id);\n'
-        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}{verb_call}{delete_call}\n'
+        f'        detailContainer.innerHTML = render{name}Detail(record);{edit_call}{verb_call}{delete_call}{history_call}\n'
         f'      }} catch {{\n'
         f'        detailContainer.textContent = "error";\n'
         f'      }}\n'
@@ -664,7 +734,9 @@ def _mount_ts(e: dict) -> str:
         f'  root.appendChild(searchInput);\n'
         f'  root.appendChild(listContainer);\n'
         f'  root.appendChild(pagination);\n'
+        f'{tabs_append}'
         f'  root.appendChild(detailContainer);\n'
+        f'{history_append}'
         f'{edit_append}'
         f'{verb_append}'
         f'{delete_append}'
@@ -734,6 +806,8 @@ def _app_ts(entities: list[dict]) -> str:
     imports += "".join(f", update{e['name']}, delete{e['name']}" for e in served if _editable(e))
     imports += "".join(f", {op['name']}{e['name']}"
                        for e in served if _operable(e) for op in _workflow_ops(e))
+    # FSK-FRONTEND-DETAIL-TABS: listActionLogs (client.ts), sólo si alguna entidad servida es `audited: true`.
+    imports += ", listActionLogs" if any(_audited(e) for e in served) else ""
     return (head
             + f'import {{ {imports} }} from "./client.ts";\n'
             + 'import type { components } from "../gen/api.ts";\n\n'

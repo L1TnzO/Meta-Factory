@@ -1,9 +1,33 @@
-<!-- meta:doc sha=569f5957c4b0f6788aaf90a7c25866916c6a02c9 updated=2026-07-07T15:59Z -->
+<!-- meta:doc sha=1d1b6dcea7730245dcd085cb91ee110d3ea3a69a updated=2026-07-07T17:01Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-DETAIL-TABS (2026-07-07)** ✅ CERRADO — INC-3 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: el
+  detalle gana pestañas **Details/History** — la pestaña «History», opt-in SOLO para la entidad `audited:
+  true` (hoy `snipeit` Asset; `assets`/`helpdesk` sin ninguna → byte-vacío), trae `GET /action_logs` y la
+  filtra CLIENT-SIDE por sujeto (`subject_type`+`subject_id`), pintando filas reales `[data-actionlog]` en
+  el DOM (bitácora FSK-ACTIONLOG, antes probada sólo a nivel HTTP, ahora también en el DOM real).
+  **Frontend-only + 1 bump de budget, CERO backend nuevo** (el dato ya vivía en `/action_logs`). Diseño
+  clave: `render{name}Detail`/`dl.detail` quedan BYTE-IDÉNTICOS (el panel de historial es un HERMANO que se
+  oculta/muestra con `style.display`, nunca envuelve/reemplaza el detalle) — así los 4 dientes previos que
+  dependen de `dl.detail` (detalle/edit/operations) no se tocan. Diente NUEVO de DOS partes VIVO en Chromium
+  real y AISLADO (verificado a mano, PG fresca por sabotaje): filtro de sujeto roto → SOLO el assert de
+  "filas reales del historial" rojea (20/21 restantes verdes); toggle Details no oculta el panel → SOLO ese
+  assert rojea (20/21 restantes verdes, incl. el check de filas reales); revert ×2 → 21/21 verde (reproducido
+  ×2 adicional). Construido por el `generator` (Sonnet) bajo el arnés verificar-no-revisar (slot acotado a
+  `codegen/scaffold/{constants,browser,frontend}.py`, ambos gates — iteration `tsc --noEmit` + acceptance
+  `+eslint+esbuild` sobre el re-emit real de snipeit — verdes; el generator corrigió una omisión menor del
+  work-doc original — faltaba listar la inserción de `history_decl` en el `return` de `_mount_ts`); el
+  diente de DOS partes + `product-run`/`ci --rederive`/`meta check` los corrió el orquestador con sus propios
+  ojos. `BUNDLE_BUDGET_BASE_BYTES` 39853→41115 (costo fijo por producto pese a auditar 1 sola entidad,
+  medido: snipeit 75 325 B real vs budget 75 675 B, ratio 1.0046; el fixture `_probe_bloated_ts` seguía muy
+  por encima del budget nuevo, no hizo falta bumpearlo). Byte-neutro (extiende `browser_check` existente,
+  ningún check/estación nuevo) → `ci --rederive --all-products` **4/4 == pin** (confirma `assets`/`helpdesk`
+  byte-idénticos, el opt-in es real). `meta check` 19/19. Detalle: `docs/work/
+  FSK-FRONTEND-DETAIL-TABS-INCREMENT.md §Evidencia`. **Siguiente del arco: INC-4 `FSK-FRONTEND-TRASH`**
+  (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`).
 - **FSK-FRONTEND-SEARCH-PAGE (2026-07-07)** ✅ CERRADO — INC-2 del arco `FSK-FRONTEND-SCREENS-DIRECTION`:
   la tabla (INC-1) gana **búsqueda client-side** (`<input type="search">` filtra `allRows` por substring
   case-insensitive sobre TODOS los campos) + **paginación client-side** (contador `N / M (total)` +

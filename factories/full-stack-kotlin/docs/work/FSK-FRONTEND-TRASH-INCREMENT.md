@@ -1,7 +1,7 @@
-<!-- meta:doc sha=cf208b30279b375d3ddab3f7754d9b8caf017592 updated=2026-07-07T20:08Z -->
+<!-- meta:doc sha=4489887e3331ae6e3f4c5408e04c610233d7d071 updated=2026-07-07T20:11Z -->
 # Incremento FSK-FRONTEND-TRASH — papelera (soft-delete) + restore, backend read-path mínimo
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-07-07T20:11Z)
 > (creado 2026-07-07T17:45Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Todo cambio de código vive acá (ADR-010).
 >

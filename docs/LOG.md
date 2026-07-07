@@ -1,7 +1,39 @@
-<!-- meta:doc sha=90e6be74289d85d09a941124a5eceb0b2a876ce9 updated=2026-07-07T16:01Z -->
+<!-- meta:doc sha=5273f1e1745f7f2c9945037054c66ac7151cf935 updated=2026-07-07T17:03Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T17:03Z — FSK-FRONTEND-DETAIL-TABS ✅: INC-3/5 del arco FSK-FRONTEND-SCREENS, tabs Details/History + bitácora en el DOM
+El detalle gana pestañas **Details/History**: la pestaña «History», opt-in SOLO para la entidad `audited:
+true` (hoy `snipeit` Asset — `assets`/`helpdesk` sin ninguna, byte-vacío), trae `GET /action_logs` y la
+filtra CLIENT-SIDE por sujeto (`subject_type`+`subject_id`), pintando filas reales `[data-actionlog]` en el
+DOM — la bitácora FSK-ACTIONLOG, antes probada sólo a nivel HTTP (`access_control_check.py`), ahora también
+en un Chromium real. Frontend-only + 1 bump de budget, CERO backend nuevo. **La decisión de diseño clave**:
+`render{name}Detail`/`dl.detail` quedan BYTE-IDÉNTICOS — el panel de historial es un HERMANO
+(`historyContainer`) que se oculta/muestra con `style.display`, nunca envuelve/reemplaza el detalle, así los
+4 dientes previos que dependen de `dl.detail` (detalle/edit/operations) no se tocan. El contrato exacto lo
+escribió esta sesión (Opus/orquestador) leyendo `codegen/scaffold/{frontend,browser,constants,base}.py` vía
+un digest del `verifier` + lecturas puntuales (higiene de contexto: evitó 3+ re-lecturas completas). El
+`generator` (Sonnet) implementó los 3 archivos (`constants/browser/frontend.py`, `base.py` intacto) contra
+un slot con AMBOS gates (iteration `tsc --noEmit`; acceptance `+eslint+esbuild` sobre el re-emit real de
+snipeit) y devolvió VERDICT verde — corrigiendo además una omisión menor del work-doc (faltaba listar la
+inserción de `history_decl` en el `return` de `_mount_ts`; sin ella `tsc` fallaba). El diente de DOS partes
+se verificó CON OJOS PROPIOS corriendo `browser_check.ts` a mano (`dev_run.sh`, PG fresca por sabotaje,
+sabotaje hecho en la FUENTE `frontend.py` y re-emitido — más riguroso que parchear el artefacto generado, y
+el único camino permitido: `increment_guard` es level-aware y bloquea editar `products/snipeit/build/...`
+sin un incremento abierto en ESE nivel): filtro de sujeto roto → SOLO el assert de "filas reales" rojea
+(20/21 verdes); toggle Details no oculta el panel → SOLO ese assert rojea (20/21 verdes, incl. el de filas
+reales); revert ×2 → 21/21 verde, reproducido 2 veces más.
+- **Gotcha operativo (JDK vanished, de nuevo)**: al abrir la sesión, `javac` no estaba en el PATH → `stop_proof`
+  bloqueó el cierre de turno con la estación `s11` heredada en rojo de un `product-run` previo sin JDK. Fix
+  conocido: `eval "$(bash tools/toolchain.sh ensure)"` en la MISMA invocación de shell que el gate (el PATH
+  exportado no persiste entre llamadas de Bash separadas) — ya documentado, quedó reconfirmado en vivo.
+- Byte-neutro (extiende `browser_check` existente, ningún check/estación nuevo) → `ci --rederive
+  --all-products` 4/4 == pin (confirma que `assets`/`helpdesk`, sin entidad auditada, quedan byte-idénticos
+  — el opt-in es real). `meta check` 19/19. `BUNDLE_BUDGET_BASE_BYTES` 39853→41115 (snipeit 75 325 B real vs
+  75 675 B budget, ratio 1.0046; el probe bloated seguía muy por encima, no hizo falta bumpearlo esta vez).
+  Detalle: `factories/full-stack-kotlin/docs/work/FSK-FRONTEND-DETAIL-TABS-INCREMENT.md §Evidencia` +
+  `docs/work/DELEGATE-FSK-FRONTEND-DETAIL-TABS-INCREMENT.md`. Siguiente del arco: INC-4 `FSK-FRONTEND-TRASH`.
 
 ## 2026-07-07T16:01Z — FSK-FRONTEND-SEARCH-PAGE ✅: INC-2/5 del arco FSK-FRONTEND-SCREENS, 2do eje delegado end-to-end
 La tabla semántica (INC-1) gana **búsqueda client-side** (`<input type="search">` filtra por substring

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b38e88ea1e215016cb69d4b81138f97e6b4be074 updated=2026-07-07T04:59Z -->
+<!-- meta:doc sha=d65b21c9c10d1221bed6b9eef8fcf854079cde10 updated=2026-07-07T05:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -44,8 +44,9 @@
   (observador, no gate). Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
   (backend núcleo + control-de-acceso + frontend CRUD Chromium); arco `FSK-FRONTEND-SCREENS` INC-1/5
-  (`FSK-FRONTEND-TABLE` ✅ tabla semántica) en curso. Sweet-spot (`benchmarks/sweet-spot-crud.yml`): **helpdesk**
-  PASA · **snipeit** techo de regresión. Plan por fábrica/eje: `work/ROADMAP.md`.
+  (`FSK-FRONTEND-TABLE` ✅ tabla semántica, 1er eje delegado end-to-end vía `generate-slot`) en curso.
+  Sweet-spot (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA · **snipeit** techo de regresión. Plan:
+  `work/ROADMAP.md`.
 - **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +
   teeth de delegación bajan a la columna con ley seed-canónica (ADR-018) · sello content-addressed por-home ·
   16 `FSK-S0..S15` migrados byte-idéntico a la fábrica · `column_scope.py` + gate `least_priv` (fábrica ⊊ meta).

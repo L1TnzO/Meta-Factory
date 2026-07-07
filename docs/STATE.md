@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dba9c7965d355ba7cb7e4566e2068a78c4f82c64 updated=2026-07-07T04:19Z -->
+<!-- meta:doc sha=b38e88ea1e215016cb69d4b81138f97e6b4be074 updated=2026-07-07T04:59Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: DELEGATE-FSK-FRONTEND-TABLE-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -43,9 +43,9 @@
   note-store=relación), regla en `reference/MEMORY-ARCHITECTURE.md §8.2`, medida por `meta metrics --overlap`
   (observador, no gate). Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
-  (backend núcleo + control-de-acceso + frontend CRUD en Chromium vivo). Benchmark sweet-spot
-  (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA (sweet-spot) · **snipeit** es techo de regresión. Plan de
-  incrementos por fábrica/eje: `work/ROADMAP.md`.
+  (backend núcleo + control-de-acceso + frontend CRUD Chromium); arco `FSK-FRONTEND-SCREENS` INC-1/5
+  (`FSK-FRONTEND-TABLE` ✅ tabla semántica) en curso. Sweet-spot (`benchmarks/sweet-spot-crud.yml`): **helpdesk**
+  PASA · **snipeit** techo de regresión. Plan por fábrica/eje: `work/ROADMAP.md`.
 - **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +
   teeth de delegación bajan a la columna con ley seed-canónica (ADR-018) · sello content-addressed por-home ·
   16 `FSK-S0..S15` migrados byte-idéntico a la fábrica · `column_scope.py` + gate `least_priv` (fábrica ⊊ meta).

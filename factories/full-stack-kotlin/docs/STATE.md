@@ -1,10 +1,10 @@
-<!-- meta:doc sha=07b9a8057d32e60688f20dfc670f6ac4abd1029b updated=2026-07-07T04:53Z -->
+<!-- meta:doc sha=c567e7f7704ca60df46576d051bd4c571c04d472 updated=2026-07-07T05:00Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
-- **FSK-FRONTEND-TABLE (2026-07-07)** ✅ INC-1 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: `render<E>List`
+- **FSK-FRONTEND-TABLE (2026-07-07)** ✅ CERRADO — INC-1 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: `render<E>List`
   pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica — `<th>` por columna del schema (orden
   del contrato, nuevo helper `_table_fields`), `<tr data-id>`+`<td data-field>` por fila (el click-para-
   detalle sigue vivo, generalizado a `[data-id]`). Diente NUEVO de dos lados VIVO en Chromium real y

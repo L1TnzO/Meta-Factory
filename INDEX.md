@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `5273f1e1745f` | 2026-07-07T17:03Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `804a91c81b90` | 2026-07-07T17:45Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `0e675e9b920c` | 2026-07-07T20:12Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -74,7 +74,7 @@
 | `docs/work/DELEGATE-FSK-FRONTEND-DETAIL-TABS-INCREMENT.md` | `677849bab88a` | 2026-07-07T17:03Z | Incremento DELEGATE-FSK-FRONTEND-DETAIL-TABS |
 | `docs/work/DELEGATE-FSK-FRONTEND-SEARCH-PAGE-INCREMENT.md` | `f6a662d75de9` | 2026-07-07T16:00Z | Incremento DELEGATE-FSK-FRONTEND-SEARCH-PAGE |
 | `docs/work/DELEGATE-FSK-FRONTEND-TABLE-INCREMENT.md` | `37d5b99d772e` | 2026-07-07T04:56Z | Incremento DELEGATE-FSK-FRONTEND-TABLE |
-| `docs/work/DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md` | `cec4b043b160` | 2026-07-07T20:09Z | Incremento DELEGATE-FSK-FRONTEND-TRASH |
+| `docs/work/DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md` | `691c8a0ccb3c` | 2026-07-07T20:12Z | Incremento DELEGATE-FSK-FRONTEND-TRASH |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |

@@ -1,9 +1,34 @@
-<!-- meta:doc sha=2bc50736d25b89d5e2576d5d02296eef325cb51d updated=2026-07-07T17:05Z -->
+<!-- meta:doc sha=cf7d64576b66b5532e5fbcb0a1498c407d49449b updated=2026-07-07T20:09Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite).
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-TRASH (2026-07-07)** ✅ CERRADO — INC-4 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: papelera
+  (soft-delete) + restore, con un **read-path backend MÍNIMO nuevo** `GET /<plural>/deleted` (RBAC-gated con
+  el MISMO `writeRoles()` que `restore`/`DELETE`, invierte el filtro `deleted_at IS NULL`→`IS NOT NULL`,
+  compone company-scope) para la entidad `soft_delete: true` (hoy `snipeit` Asset — también
+  `company_scoped`+`audited`; `assets`/`helpdesk` sin ninguna → byte-vacío en el opt-in TS/Kotlin lógico) +
+  una vista **«Trash»** opt-in en el frontend (toggle + lista lazy vía `listDeleted<E>` + botón Restore por
+  fila `data-restore`, `data-trash-id` NO `data-id` para no colisionar con el click-a-detalle global).
+  DOS slots delegados en secuencia al `generator` (Sonnet), backend primero: SLOT A (5 archivos —
+  `contract.py`/`auth.py`/`data_layer.py`/`server.py`/`constants.py`; `_row_json_fn` gana `deleted_only:
+  bool = False` kw-only, default byte-idéntico en TODOS los call sites previos, que invierte el filtro y
+  renombra la fn emitida a `<e>DeletedRowJson` — la pieza más fácil de romper por sabotaje sutil; gates:
+  fast `route_check` topología/auth/rbac/ownership/mutability + `compileKotlin` hermético, exit 0; heavy
+  `product-run --mode draft` con PG+Chromium reales, exit 0) → SLOT B (3 archivos — `frontend.py`/
+  `browser.py`/`constants.py`; gates: fast scratch tsc+eslint+esbuild, exit 0; heavy `product-run --mode
+  draft`, exit 0, `frontend_browser_live` 23/23 — el `generator` encontró y corrigió una race real del
+  `renderRows` post-restore no esperado antes de leer el DOM en el test). Diente NUEVO de DOS partes VIVO en
+  Chromium real y AISLADO (verificado a mano, PG fresca, sabotaje del atributo `data-restore` en la FUENTE +
+  revert): el 1er assert (la fila aparece en la papelera con botón) quedó VERDE, SOLO el 2do (restore la
+  saca y la devuelve) rojeó (timeout); los 21 dientes previos quedaron VERDES; revert → 23/23 verde de
+  nuevo. `BUNDLE_BUDGET_BASE_BYTES` 41115→42384 (costo fijo por producto, medido: snipeit 76 594 B real vs
+  budget 76 944 B, ratio 1.0046). Byte-neutro en la LÓGICA opt-in (el CSS universal, como `.detail-tabs`,
+  se emite siempre) → `ci --rederive --all-products` **4/4 == pin**. `meta check` 19/19. Detalle: `factories/
+  full-stack-kotlin/docs/work/FSK-FRONTEND-TRASH-INCREMENT.md §Evidencia` + `docs/work/
+  DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md`. **Siguiente del arco: INC-5 `FSK-FRONTEND-LOGIN`** (corte A,
+  session-picker dev — cierra el arco de 5; `FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`).
 - **FSK-FRONTEND-DETAIL-TABS (2026-07-07)** ✅ CERRADO — INC-3 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: el
   detalle gana pestañas **Details/History** — la pestaña «History», opt-in SOLO para la entidad `audited:
   true` (hoy `snipeit` Asset; `assets`/`helpdesk` sin ninguna → byte-vacío), trae `GET /action_logs` y la

@@ -123,6 +123,27 @@ def _openapi_yaml(bp: dict) -> str:
                 "        '200': { description: ok }",
                 "        '404': { description: not found }",
             ]
+            # FSK-FRONTEND-TRASH: GET /<plural>/deleted -- la papelera (coleccion de filas borradas
+            # logicamente). security + x-required-roles (= write_roles, MISMO criterio que restore) ->
+            # route_check (auth/rbac) la cruza contra el RouteTable (single-source DES-6). Mismo array-schema
+            # que la coleccion GET publica. Opt-in: sin soft_delete no se emite (FSK-S16 intacto).
+            lines += [
+                f"  /{plural}/deleted:",
+                "    get:",
+                f"      operationId: listDeleted{e['name']}s",
+                "      security:",
+                "        - bearerAuth: []",
+            ]
+            if e.get("write_roles"):
+                lines.append(f"      x-required-roles: [{', '.join(e['write_roles'])}]")
+            lines += [
+                "      responses:",
+                "        '200':",
+                "          description: ok",
+                "          content:",
+                "            application/json:",
+                f"              schema: {{ type: array, items: {{ $ref: {_yaml_str(ref)} }} }}",
+            ]
     # securitySchemes: el esquema bearer que las ops de escritura referencian (DES-3). Los `get` quedan públicos.
     lines += [
         "components:",

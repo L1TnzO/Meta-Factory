@@ -256,11 +256,14 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
         # rbac) la cruza GRATIS. Opt-in: sin `soft_delete` no se registra nada (FSK-S16 intacto).
         if _soft_delete(e):
             restore_path = f'"/{_table(e)}/{{id}}/restore"'
+            trash_path = f'"/{_table(e)}/deleted"'
             if wr:
                 roleset = "setOf(" + ", ".join(f"Role.{r.upper()}" for r in wr) + ")"
                 posts_lines.append(f'        route("POST", {restore_path}, {roleset})')
+                posts_lines.append(f'        route("GET", {trash_path}, {roleset})')
             else:
                 posts_lines.append(f'        route("POST", {restore_path})')
+                posts_lines.append(f'        route("GET", {trash_path})')
     posts = "\n".join(posts_lines)
     return (f"package {pkg}.routes\n\n"
             f"import {pkg}.auth.Role\n"

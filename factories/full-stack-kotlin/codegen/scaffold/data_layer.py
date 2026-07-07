@@ -289,7 +289,7 @@ def _migration_sql(bp: dict) -> str:
     return "\n".join(out) + "\n"
 
 
-def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
+def _row_json_fn(e: dict, tbl: str, by: dict | None = None, *, deleted_only: bool = False) -> str:
     """fun <e>RowJson(ctx, id): String? — lee la FILA COMPLETA (id + todas las columnas) de la PG viva y la
     serializa a JSON type-correct (FSK-CRUD-BODY-PARSING): un string/date/enum sale entrecomillado (jsonVal),
     un int/number/boolean/ref sale crudo (Kotlin renderiza Int/Double/Boolean/Long, y null→"null"). Es lo que
@@ -340,7 +340,10 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
     # FSK-SOFT-DELETES: una entidad soft FILTRA las filas borradas en CADA read-path. El get-one suma
     # `AND deleted_at IS NULL` → una fila soft-deleteada: GET /{id} → null → 404 (sigue EXISTIENDO; restore la trae).
     # Quitar este `.and(...)` (sabotaje del read-filter) → la fila borrada se ve → rojo SÓLO en s9. Byte-neutro sin la flag.
-    one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else f"{tbl}.ID.eq(id)"
+    if deleted_only:
+        one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNotNull)"
+    else:
+        one_where = f"{tbl}.ID.eq(id).and({tbl}.DELETED_AT.isNull)" if _soft_delete(e) else f"{tbl}.ID.eq(id)"
     # FSK-XENTITY-COMPUTED/DEPTH2: el chasis de la query como CADENA de calls (from → [leftJoin → on]* → where →
     # fetchOne). Sin joins es `.from(TBL).where(...).fetchOne()` (byte-idéntico al previo); cada hop suma su leftJoin/on,
     # ENCADENADO desde la tabla FROM del hop (la entidad para r1, el target del hop previo para r2…) → depth-2 = 2 JOINs.
@@ -427,7 +430,8 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
             # exige sin llaves (a diferencia de las columnas `${r[...]}`/`${jsonVal(...)}`, que SÍ las necesitan).
             elems.append(f'"\\"{cf["name"]}\\":${vname}"')
     body = "".join(f"            {x},\n" for x in elems)
-    fn = (f"    fun {e['name'].lower()}RowJson(ctx: DSLContext, id: Long): String? {{\n"
+    fn_name = f"{e['name'].lower()}DeletedRowJson" if deleted_only else f"{e['name'].lower()}RowJson"
+    fn = (f"    fun {fn_name}(ctx: DSLContext, id: Long): String? {{\n"
           f"{sel}\n"
           f"{prelude}"
           f"        return listOf(\n{body}        ).joinToString(\",\", \"{{\", \"}}\")\n"
@@ -441,6 +445,17 @@ def _row_json_fn(e: dict, tbl: str, by: dict | None = None) -> str:
         # `\n` → detekt SpacingBetweenDeclarationsWithAnnotations exige el blanco). Sólo cuando se anota (byte-neutro).
         fn = '\n    @Suppress("LongMethod")\n' + fn
     return fn
+
+
+def _deleted_list_query(tbl: str, cols: list[str]) -> str:
+    """SELECT de las filas borradas LOGICAMENTE (deleted_at IS NOT NULL) — el inverso de `all<E>s` (que filtra
+    IS NULL). Mismo wrap-por-ancho que el resto de las queries de coleccion (MAX_LINE_LENGTH)."""
+    tail = f".from({tbl}).where({tbl}.DELETED_AT.isNotNull).orderBy({tbl}.ID).fetch()"
+    single = f"        ctx.select({', '.join(cols)}){tail}"
+    if len(single) <= MAX_LINE_LENGTH:
+        return single
+    argblock = "".join(f"            {c},\n" for c in cols)
+    return f"        ctx.select(\n{argblock}        ){tail}"
 
 
 def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
@@ -519,6 +534,19 @@ def _mutation_fns(e: dict, tbl: str, by: dict | None = None) -> list[str]:
         restore_body = _jooq_chain("        ", "", f"ctx.update({tbl})",
                                    [f"setNull({tbl}.DELETED_AT)", f"where({tbl}.ID.eq(id))", "execute()"])
         out.append(f"    fun restore{name}(ctx: DSLContext, id: Long): Int =\n{restore_body}")
+        # FSK-FRONTEND-TRASH: la papelera -- 3 fns de Repository que espejan el trío listado/serializado/JSON
+        # existente (all<E>s/<e>RowJson/all<E>RowsJson) pero invirtiendo el filtro (DELETED_AT.isNotNull) y
+        # renombrando el emisor serializado (<e>DeletedRowJson via _row_json_fn(deleted_only=True)). Opt-in:
+        # gated por _soft_delete(e) (mismo guard que restore) -> byte-neutro sin la flag.
+        out.append(
+            f"    fun all{name}sDeleted(ctx: DSLContext) =\n"
+            + _deleted_list_query(tbl, [f"{tbl}.ID"] + [f"{tbl}.{_COL(f['name'])}" for f in _cols_of(e)]))
+        out.append(_row_json_fn(e, tbl, by, deleted_only=True))
+        out.append(
+            f"    fun all{name}DeletedRowsJson(ctx: DSLContext): String =\n"
+            + _jooq_chain("        ", "", f"all{name}sDeleted(ctx)",
+                          [f"mapNotNull {{ {name.lower()}DeletedRowJson(ctx, it[{tbl}.ID]!!) }}",
+                           'joinToString(",", "[", "]")'], budget=PROPERTY_WRAP))
     # FSK-PUT-OPTIONAL: el UPDATE deja de mutar UNA columna y aplica un PATCH del cuerpo — setea CADA campo
     # updatable PRESENTE (no-null en el <E>Patch, claves ausentes intactas), type-bound al schema (jOOQ resuelve
     # el bind por el DataType de la columna). El set DINÁMICO se arma como Map<Field, valor> (el idiom jOOQ para un
@@ -731,6 +759,24 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
                        + _jooq_chain("        ", "", f"{lc}sByCompany(ctx, company)",
                                      [f"mapNotNull {{ {lc}RowJson(ctx, it[{tbl}.ID]!!) }}",
                                       'joinToString(",", "[", "]")'], budget=PROPERTY_WRAP))   # lambda-chain
+            # FSK-FRONTEND-TRASH: la papelera compone company-scope (tenant==? OR tenant IS NULL) AND
+            # deleted_at IS NOT NULL -- para una entidad AMBAS soft+company-scoped. Opt-in: sin soft_delete no
+            # se emite (una entidad company-scoped-sin-soft queda intacta, byte-neutro).
+            if _soft_delete(e):
+                trash_and = f".and({tbl}.DELETED_AT.isNotNull)"
+                tailtd = f".from({tbl}).where({cc}.eq(company).or({cc}.isNull)){trash_and}.orderBy({tbl}.ID).fetch()"
+                singletd = f"        ctx.select({', '.join(cols)}){tailtd}"
+                if len(singletd) <= MAX_LINE_LENGTH:
+                    bodytd = singletd
+                else:
+                    argblocktd = "".join(f"            {c},\n" for c in cols)
+                    bodytd = f"        ctx.select(\n{argblocktd}        ){tailtd}"
+                fns.append(f"    fun {lc}sDeletedByCompany(ctx: DSLContext, company: Long) =\n{bodytd}")
+                fns.append(
+                    f"    fun all{e['name']}DeletedRowsJsonByCompany(ctx: DSLContext, company: Long): String =\n"
+                    + _jooq_chain("        ", "", f"{lc}sDeletedByCompany(ctx, company)",
+                                  [f"mapNotNull {{ {lc}DeletedRowJson(ctx, it[{tbl}.ID]!!) }}",
+                                   'joinToString(",", "[", "]")'], budget=PROPERTY_WRAP))
         # CRUD tipado para CADA entidad viva (con dueño y ownerless): insert(body)/delete/<e>RowJson/allRowsJson/
         # [update]. La ownerless inserta TODOS sus escalares del body (sin ownerId); la con dueño suma el ownerId.
         if e["name"] in live_names:

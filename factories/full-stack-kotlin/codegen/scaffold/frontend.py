@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from .base import _audited, _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _table_fields, _workflow_ops
+from .base import _audited, _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _soft_delete, _table, _table_fields, _workflow_ops
 from .constants import _APP_CSS, _SEARCH_PAGE_SIZE, _UI_INPUT_TYPE
 
 
@@ -102,7 +102,29 @@ def _consume_entity_ts(e: dict) -> str:
         f'    throw new Error(`delete{name}: HTTP ${{res.status}}`);\n'
         "  }\n"
         "}\n\n"
-    ) + _consume_verbs_ts(e)
+    ) + ((
+        # FSK-FRONTEND-TRASH: listDeleted<E>/restore<E> — SÓLO la entidad con `soft_delete: true` (la única con
+        # GET /<plural>/deleted + POST /<plural>/{id}/restore vivos, RBAC-gated, SLOT A ya mergeado). Mismo patrón
+        # fetch que list<E>/delete<E> (Authorization: token, !res.ok no se traga). expectRows ya está en scope
+        # (compartido por list<E>, emitido una vez por _client_consume_ts).
+        f"export async function listDeleted{name}(base: string, token: string): Promise<{name}[]> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}/deleted`, "
+        '{ headers: { "Authorization": token } });\n'
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`listDeleted{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        f"  return expectRows(await res.json()) as {name}[];\n"
+        "}\n\n"
+        f"export async function restore{name}(base: string, token: string, id: number): Promise<void> {{\n"
+        f"  const res = await fetch(`${{base}}{plural}/${{id}}/restore`, {{\n"
+        '    method: "POST",\n'
+        '    headers: { "Authorization": token },\n'
+        "  });\n"
+        "  if (!res.ok) {\n"
+        f'    throw new Error(`restore{name}: HTTP ${{res.status}}`);\n'
+        "  }\n"
+        "}\n\n"
+    ) if _soft_delete(e) else "") + _consume_verbs_ts(e)
 
 
 def _consume_verbs_ts(e: dict) -> str:
@@ -611,6 +633,64 @@ def _mount_ts(e: dict) -> str:
     history_call = '\n        renderHistory(id);' if _audited(e) else ''
     tabs_append = '  root.appendChild(tabsContainer);\n' if _audited(e) else ''
     history_append = '  root.appendChild(historyContainer);\n' if _audited(e) else ''
+    # FSK-FRONTEND-TRASH: la PAPELERA de la entidad con BORRADO LÓGICO (opt-in, _soft_delete(e), como
+    # editable/operable/audited). NO es un modo del detalle (como History) sino un modo ALTERNATIVO DE LA LISTA
+    # (mutuamente excluyente con listContainer+pagination) → se monta ENTRE pagination y tabsContainer/
+    # detailContainer, no junto al detalle. Tres piezas opt-in (byte-vacías si no aplica → mount<E> queda IDÉNTICO
+    # a FSK-FRONTEND-SEARCH-PAGE): (a) trash_decl declara trashToggleBtn + trashContainer + renderTrash() (trae
+    # listDeleted<E>, LAZY — sólo al abrir, como historyTabBtn) + UN listener DELEGADO en trashContainer (no
+    # por-fila) que restaura y refresca AMBAS vistas (renderTrash + renderRows/list<E>); (b) trash_append lo monta
+    # en el DOM. data-trash-id (NO data-id, evita colisión con el listener de click-a-detalle de la tabla viva) +
+    # data-restore + data-trash-toggle son los selectores que _TRASH_ASSERT_BLOCK asevera en Chromium real.
+    render_field_name = _render_field(e)
+    trash_decl = (
+        f'  const trashToggleBtn = doc.createElement("button");\n'
+        f'  trashToggleBtn.type = "button";\n'
+        f'  trashToggleBtn.setAttribute("data-trash-toggle", "{name}");\n'
+        f'  trashToggleBtn.textContent = "Trash";\n'
+        f'  const trashContainer = doc.createElement("div");\n'
+        f'  trashContainer.setAttribute("data-trash", "{name}");\n'
+        f'  trashContainer.style.display = "none";\n'
+        f'  const renderTrash = async (): Promise<void> => {{\n'
+        f'    const rows = await listDeleted{name}(base, token);\n'
+        f'    trashContainer.innerHTML = rows.length === 0\n'
+        f'      ? "<p data-trash-empty>trash empty</p>"\n'
+        f'      : "<table><tbody>" + rows.map((r) => `<tr data-trash-id="${{r.id}}"><td>'
+        f'${{String(r.{render_field_name})}}</td><td><button type="button" data-restore="${{r.id}}">'
+        f'Restore</button></td></tr>`).join("") + "</tbody></table>";\n'
+        f'  }};\n'
+        f'  trashContainer.addEventListener("click", (ev: Event): void => {{\n'
+        f'    const target = ev.target as HTMLElement;\n'
+        f'    const restoreId = target.getAttribute("data-restore");\n'
+        f'    if (restoreId === null) {{\n'
+        f'      return;\n'
+        f'    }}\n'
+        f'    void (async (): Promise<void> => {{\n'
+        f'      await restore{name}(base, token, Number(restoreId));\n'
+        f'      await renderTrash();\n'
+        f'      renderRows(await list{name}(base));\n'
+        f'    }})();\n'
+        f'  }});\n'
+        f'  trashToggleBtn.onclick = () => {{\n'
+        f'    const showingTrash = trashContainer.style.display !== "none";\n'
+        f'    if (showingTrash) {{\n'
+        f'      trashContainer.style.display = "none";\n'
+        f'      listContainer.style.display = "";\n'
+        f'      pagination.style.display = "";\n'
+        f'      trashToggleBtn.classList.remove("active");\n'
+        f'    }} else {{\n'
+        f'      listContainer.style.display = "none";\n'
+        f'      pagination.style.display = "none";\n'
+        f'      trashContainer.style.display = "";\n'
+        f'      trashToggleBtn.classList.add("active");\n'
+        f'      void renderTrash();\n'
+        f'    }}\n'
+        f'  }};\n'
+    ) if _soft_delete(e) else ''
+    trash_append = (
+        '  root.appendChild(trashToggleBtn);\n'
+        '  root.appendChild(trashContainer);\n'
+    ) if _soft_delete(e) else ''
     # FSK-FRONTEND-SEARCH-PAGE: busqueda + paginacion CLIENT-SIDE sobre la lista YA traida por list<E> (CERO
     # backend). Universal (no opt-in, como la tabla): TODA entidad servida gana un <input data-search> que
     # filtra allRows por texto (substring case-insensitive, TODOS los campos via Object.values) y una
@@ -697,6 +777,7 @@ def _mount_ts(e: dict) -> str:
         f'{verb_decl}'
         f'{delete_decl}'
         f'{history_decl}'
+        f'{trash_decl}'
         f'  // FSK-FRONTEND-DETAIL — clic DELEGADO en la lista (robusto al re-render): lee el data-id de la fila,\n'
         f'  // trae el registro COMPLETO por get{name} (hoy 1er consumidor; antes dead code) y lo muestra (todos\n'
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
@@ -734,6 +815,7 @@ def _mount_ts(e: dict) -> str:
         f'  root.appendChild(searchInput);\n'
         f'  root.appendChild(listContainer);\n'
         f'  root.appendChild(pagination);\n'
+        f'{trash_append}'
         f'{tabs_append}'
         f'  root.appendChild(detailContainer);\n'
         f'{history_append}'
@@ -806,6 +888,10 @@ def _app_ts(entities: list[dict]) -> str:
     imports += "".join(f", update{e['name']}, delete{e['name']}" for e in served if _editable(e))
     imports += "".join(f", {op['name']}{e['name']}"
                        for e in served if _operable(e) for op in _workflow_ops(e))
+    # FSK-FRONTEND-TRASH: listDeleted<E>/restore<E>, sólo por la entidad servida con `soft_delete: true` (mismo
+    # patrón por-entidad que editable/operable arriba, NO el `any(...)` de listActionLogs — cada entidad soft-
+    # delete importa SUS PROPIOS client fns, no un import compartido).
+    imports += "".join(f", listDeleted{e['name']}, restore{e['name']}" for e in served if _soft_delete(e))
     # FSK-FRONTEND-DETAIL-TABS: listActionLogs (client.ts), sólo si alguna entidad servida es `audited: true`.
     imports += ", listActionLogs" if any(_audited(e) for e in served) else ""
     return (head

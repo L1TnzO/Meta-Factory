@@ -80,7 +80,7 @@ DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> O
 DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
 
 
-BUNDLE_BUDGET_BASE_BYTES = 41115       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows) + TABS Details/History de la entidad AUDITADA (FSK-FRONTEND-DETAIL-TABS: tabsContainer/historyContainer + renderHistory + listActionLogs, costo FIJO por producto aunque sólo 1 entidad sea audited — bump 39853->41115 medido contra snipeit 75 325 B real, budget 75 675 B, ratio 1.0046; precedente FORM-EDIT 4096->7936, TABLE 7936->20288, SEARCH-PAGE 20288->39853)
+BUNDLE_BUDGET_BASE_BYTES = 42384       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows) + TABS Details/History de la entidad AUDITADA (FSK-FRONTEND-DETAIL-TABS: tabsContainer/historyContainer + renderHistory + listActionLogs) + PAPELERA de la entidad soft-delete (FSK-FRONTEND-TRASH: trashToggleBtn/trashContainer + renderTrash + listDeleted<E>/restore<E>, costo FIJO por producto aunque sólo 1 entidad sea soft — bump 41115->42384 medido contra snipeit 76 594 B real, budget 76 944 B, ratio 1.0046; precedente FORM-EDIT 4096->7936, TABLE 7936->20288, SEARCH-PAGE 20288->39853, DETAIL-TABS 39853->41115)
 
 
 BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
@@ -343,7 +343,7 @@ private fun writeRoles(): Set<Role> =
 // las entidades servidas, sin colision) + parse<E>Input por entidad. Cada coercion es fail-closed -> 400.
 %CODEC%
 
-%HANDLERS%%OPS_HANDLERS%%RESTORE_HANDLER%
+%HANDLERS%%OPS_HANDLERS%%RESTORE_HANDLER%%TRASH_HANDLER%
 // Dispatch del server vivo (FSK-S15/S16/CRUD-BODY-PARSING/RENDER-LIST): GET coleccion (count+rows[]) + GET /{id}
 // (fila completa) + POST (inserta del body) + PUT /{id} (actualiza del body) + DELETE /{id} (borra). Cada mutacion
 // pasa por su guard antes de tocar la PG viva; POST/PUT leen el CUERPO real del request (type-coerced, DES-12).
@@ -360,7 +360,7 @@ private fun writeRoles(): Set<Role> =
         method == "POST" && collection -> doPost(ctx, token, payload)
         method == "PUT" && id != null -> doPut(ctx, token, id, payload)
         method == "DELETE" && id != null -> doDelete(ctx, token, id)
-%OPS_DISPATCH%%RESTORE_DISPATCH%        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
+%OPS_DISPATCH%%RESTORE_DISPATCH%%TRASH_DISPATCH%        else -> HTTP_NOT_FOUND to """{"status":$HTTP_NOT_FOUND}"""
     }
     respond(ex, status, out)
 }
@@ -1264,6 +1264,14 @@ div.detail-tabs button.active { color: var(--ink); border-bottom-color: var(--in
 div[data-history] ul.actionlog { list-style: none; padding: 0; margin: 0.75rem 0; }
 div[data-history] li[data-actionlog] { padding: 0.5rem 0; border-bottom: 1px solid var(--hairline); font-family: var(--mono); font-size: 12px; }
 div[data-history] p[data-history-empty] { font-style: italic; color: var(--mute); }
+/* Trash view (FSK-FRONTEND-TRASH): toggle lista-viva/papelera + boton Restore por fila. Reusa
+   hairline/ink/mute existentes -- sin primitivas nuevas. */
+button[data-trash-toggle] { height: 32px; padding: 0 0.75rem; border: 1px solid var(--hairline); border-radius: 6px; background: transparent; color: var(--mute); font-size: 13px; }
+button[data-trash-toggle].active { color: var(--ink); border-color: var(--ink); }
+div[data-trash] table { width: 100%; border-collapse: collapse; }
+div[data-trash] td { padding: 0.5rem 0; border-bottom: 1px solid var(--hairline); font-size: 13px; }
+div[data-trash] button[data-restore] { height: 28px; padding: 0 0.5rem; border: 1px solid var(--hairline); border-radius: 6px; background: transparent; }
+div[data-trash] p[data-trash-empty] { font-style: italic; color: var(--mute); }
 '''
 
 
@@ -1362,7 +1370,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%HISTORY_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%HISTORY_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%%TRASH_ASSERT%
   } finally {
     await browser.close();
   }
@@ -1654,6 +1662,107 @@ _DELETE_ASSERT_BLOCK = '''
     const afterDelTexts = await page.$$eval("tr[data-id]", (els) => els.map((e) => e.textContent ?? ""));
     check(afterDelTexts.some((t) => t.includes(DEL_ROW)), false,
           "FSK-FRONTEND-DELETE: clic en borrar -> la fila DESAPARECE de la lista del DOM REAL (Chromium)");'''
+
+
+# FSK-FRONTEND-TRASH assert block: SELF-CONTAINED (no depende de si EDIT/OPERATIONS corrieron, ni reusa la fila
+# que _DELETE_ASSERT_BLOCK ya solt-borro unas lineas arriba -- un soft-delete la deja EXISTIENDO con deleted_at
+# seteado, asi que reusar el mismo valor UNIQUE chocaria contra el indice) -- RE-SUBMITEA el MISMO FORM (mismo
+# flujo probado por el bloque create del tope de este archivo) con TRASH_ROW_VALUE en el campo renderizado
+# (DISTINTO del ya insertado SOLO si es unique, ver browser.py), la borra (reusa [data-delete], el MISMO
+# boton/flujo de _DELETE_ASSERT_BLOCK), abre la papelera (toggle) y asevera que aparece con boton Restore;
+# clickea Restore y asevera que la fila deja la papelera Y reaparece en la lista viva. Diente de DOS partes
+# AISLADO (detalle/edit/historial/operations/delete/tabla/busqueda/dashboard/estilos siguen verdes): ningun
+# `page.click`/`getAttribute` corre sobre un locator que pueda estar vacio sin un guard -> un sabotaje
+# (backend: la papelera queda vacia; frontend: el toggle/listener delegado no hace su parte) flipea EL check
+# que corresponde via check(), nunca una excepcion no capturada que tumbe el resto del archivo.
+_TRASH_ASSERT_BLOCK = '''
+
+    // FSK-FRONTEND-TRASH - la papelera de %OWNED_ENTITY% (soft-delete): crea una fila PROPIA (self-contained),
+    // la borra (reusa el flujo/boton de DELETE, YA probado arriba), abre la papelera y asevera que aparece con
+    // boton Restore; clickea Restore y asevera que desaparece de la papelera Y reaparece en la lista viva.
+    const TRASH_ROW_VALUE = %TRASH_ROW_VALUE%;
+    const TRASH_BODY = { ...FORM_BODY, [RENDER_FIELD]: TRASH_ROW_VALUE };
+    const trashCreateBefore = await page.$$eval("tr[data-id]", (els) => els.length);
+    for (const [k, v] of Object.entries(TRASH_BODY)) {
+      const sel = `[name="${k}"]`;
+      if (typeof v === "boolean") {
+        if (v) { await page.check(sel); } else { await page.uncheck(sel); }
+      } else {
+        await page.fill(sel, String(v));
+      }
+    }
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    try {
+      await page.waitForFunction(
+        (n) => document.querySelectorAll("tr[data-id]").length > n,
+        trashCreateBefore, { timeout: 10000 });
+    } catch {
+      // timeout: la fila propia de TRASH no se creo -- los checks de abajo flipean (rojo) al no encontrarla.
+    }
+    const trashSourceRow = page.locator("tr[data-id]", { hasText: TRASH_ROW_VALUE }).first();
+    if (await trashSourceRow.count() > 0) {
+      await trashSourceRow.click();
+      try {
+        await page.waitForFunction(
+          (t) => {
+            const d = document.querySelector("dl.detail");
+            return d !== null && (d.textContent ?? "").includes(t);
+          },
+          TRASH_ROW_VALUE, { timeout: 10000 });
+      } catch {
+        // timeout: el detalle no reflejo la fila propia -- el delete de abajo podria apuntar a otra fila.
+      }
+      await page.click(`[data-delete]`);
+      try {
+        await page.waitForFunction(
+          (t) => ![...document.querySelectorAll("tr[data-id]")].some((el) => (el.textContent ?? "").includes(t)),
+          TRASH_ROW_VALUE, { timeout: 10000 });
+      } catch {
+        // timeout: la fila propia no desaparecio de la lista viva tras el delete.
+      }
+    }
+    await page.click(`[data-trash-toggle="%OWNED_ENTITY%"]`);
+    try {
+      await page.waitForFunction(
+        (t) => Array.from(document.querySelectorAll("tr[data-trash-id]")).some((el) => (el.textContent ?? "").includes(t)),
+        TRASH_ROW_VALUE, { timeout: 10000 });
+    } catch {
+      // timeout: la fila borrada no aparecio en la papelera -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const trashRowEl = page.locator("tr[data-trash-id]", { hasText: TRASH_ROW_VALUE }).first();
+    const trashRowVisible = await trashRowEl.count();
+    check(trashRowVisible >= 1, true,
+          "FSK-FRONTEND-TRASH: la fila borrada aparece en la papelera con boton Restore (Chromium REAL)");
+    const restoreId = trashRowVisible >= 1 ? await trashRowEl.getAttribute("data-trash-id") : null;
+    let goneFromTrash = -1;
+    let backInLive = -1;
+    if (restoreId !== null) {
+      await page.click(`button[data-restore="${restoreId}"]`);
+      try {
+        await page.waitForFunction(
+          (id) => !document.querySelector(`tr[data-trash-id="${id}"]`),
+          restoreId, { timeout: 10000 });
+      } catch {
+        // timeout: el listener de restore no la saco de la papelera -> el check de abajo flipea (rojo). DIENTE.
+      }
+      // el handler del restore es async (restore<E> -> renderTrash -> list<E> -> renderRows): la papelera se
+      // vacia ANTES de que la lista viva termine su PROPIO round-trip -> esperamos (determinista, no sleep) a
+      // que la fila REAPAREZCA ahi tambien antes de leer el conteo final (si no, backInLive queda en carrera).
+      try {
+        await page.waitForFunction(
+          (t) => Array.from(document.querySelectorAll("tr[data-id]")).some((el) => (el.textContent ?? "").includes(t)),
+          TRASH_ROW_VALUE, { timeout: 10000 });
+      } catch {
+        // timeout: la lista viva no re-trajo la fila restaurada -> el check de abajo flipea (rojo). DIENTE.
+      }
+      goneFromTrash = await page.locator(`tr[data-trash-id="${restoreId}"]`).count();
+      backInLive = await page.locator("tr[data-id]", { hasText: TRASH_ROW_VALUE }).count();
+    }
+    check(restoreId !== null && goneFromTrash === 0 && backInLive >= 1, true,
+          "FSK-FRONTEND-TRASH: restore la saca de la papelera Y la devuelve a la lista viva (Chromium REAL)");'''
 
 
 # FSK-MUTABLE-WHEN unfreeze block: injected BEFORE _DELETE_ASSERT_BLOCK when the operations block

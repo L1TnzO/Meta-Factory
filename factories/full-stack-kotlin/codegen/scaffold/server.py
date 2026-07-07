@@ -1209,8 +1209,40 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         )
         restore_dispatch = ('        method == "POST" && rest.split("/").getOrNull(1) == "restore" '
                             "-> doRestore(ctx, token, rest)\n")
+        # FSK-FRONTEND-TRASH: GET /<plural>/deleted -- la papelera (filas borradas LOGICAMENTE). Mismo criterio
+        # RBAC que restore/DELETE (writeRoles(), NO un rol de lectura nuevo -- ver papelera es privilegiado).
+        # Compone company-scope IGUAL que listAll cuando la entidad esta scopeada (reusa scope_field, en scope).
+        if scope_field:
+            trash_body = (
+                "    val role = RoleGuard.roleOf(token)\n"
+                "    val company = RoleGuard.companyOf(token)\n"
+                "    val (count, rows) = if (role != null && company != null && role !in companyScopeBypass()) {\n"
+                f"        Repository.{owned['name'].lower()}sDeletedByCompany(ctx, company).size to "
+                f"Repository.all{owned['name']}DeletedRowsJsonByCompany(ctx, company)\n"
+                "    } else {\n"
+                f"        Repository.all{owned['name']}sDeleted(ctx).size to "
+                f"Repository.all{owned['name']}DeletedRowsJson(ctx)\n"
+                "    }\n"
+            )
+        else:
+            trash_body = (
+                f"    val count = Repository.all{owned['name']}sDeleted(ctx).size\n"
+                f"    val rows = Repository.all{owned['name']}DeletedRowsJson(ctx)\n"
+            )
+        trash_handler = (
+            "\n// GET /<plural>/deleted (FSK-FRONTEND-TRASH): la papelera -- filas borradas LOGICAMENTE\n"
+            "// (invierte el filtro deleted_at IS NULL de listAll). RBAC-gated (writeRoles(), como\n"
+            "// restore/DELETE); compone company-scope igual que listAll si la entidad esta scopeada.\n"
+            "private fun listDeleted(ctx: DSLContext, token: String?): Pair<Int, String> {\n"
+            "    if (!RoleGuard.authorize(token, writeRoles())) return forbidden()\n"
+            + trash_body +
+            '    return HTTP_OK to """{"count":$count,"rows":$rows}"""\n'
+            "}\n"
+        )
+        trash_dispatch = '        method == "GET" && rest == "deleted" -> listDeleted(ctx, token)\n'
     else:
         restore_handler = restore_dispatch = ""
+        trash_handler = trash_dispatch = ""
     # Los verbos (operations + restore) suman ramas al `when` de `handle` (tabla de ruteo GENERADA): empuja la
     # complejidad ciclomática sobre el umbral de detekt (15). Es complejidad INHERENTE a un dispatcher generado (no
     # mantenible a mano), como el @file:Suppress("TooManyFunctions") de arriba o el %MAIN_SUPPRESS% de DbRoundTrip
@@ -1324,6 +1356,8 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%OPS_DISPATCH%", ops_dispatch)
             .replace("%RESTORE_HANDLER%", restore_handler)
             .replace("%RESTORE_DISPATCH%", restore_dispatch)
+            .replace("%TRASH_HANDLER%", trash_handler)
+            .replace("%TRASH_DISPATCH%", trash_dispatch)
             .replace("%HANDLE_SUPPRESS%", handle_suppress)
             .replace("%OWNERLESS_BLOCK%", ownerless_block)
             .replace("%WITH_REF_BLOCK%", with_ref_block)

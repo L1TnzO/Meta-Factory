@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _audited, _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _table_fields, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _HISTORY_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
+from .base import _audited, _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _soft_delete, _table, _table_fields, _workflow_ops
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _HISTORY_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK, _TRASH_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -340,6 +340,19 @@ def _browser_check_ts(bp: dict) -> str:
                                 .replace("%MW_FIELD%", mw["field"])
                                 .replace("%MUTABLE_STATE%", rev_op["to"])
                                 ) + delete_block
+    # FSK-FRONTEND-TRASH: el bloque del proof ejercita la PAPELERA de la entidad con BORRADO LÓGICO (opt-in,
+    # _soft_delete(owned), mismo guard/criterio que history_block/delete_block: render_field visible en el FORM,
+    # para poder crear+localizar SU PROPIA fila). SELF-CONTAINED (no reusa la fila que delete_block YA borró unas
+    # líneas arriba — un soft-delete la deja EXISTIENDO con deleted_at seteado, así que un valor UNIQUE repetido
+    # chocaría contra el índice): RE-SUBMITEA el MISMO FORM (el flujo YA probado por el bloque create del tope)
+    # con un valor DISTINTO en el campo renderizado SÓLO si es `unique` (los demás campos de FORM_BODY siguen
+    # siendo válidos tal cual, ya probados) y la borra reusando [data-delete] — el MISMO botón/flujo de
+    # _DELETE_ASSERT_BLOCK, no reinventado. TRASH_ROW_VALUE es DATA derivada del blueprint (ADR-012).
+    trash_block = ""
+    if _soft_delete(owned) and render_field in form_body:
+        rf_def = next(f for f in owned["fields"] if f["name"] == render_field)
+        trash_row_value = f"trash-{render_field}" if rf_def.get("unique") else str(form_body[render_field])
+        trash_block = _TRASH_ASSERT_BLOCK.replace("%TRASH_ROW_VALUE%", json.dumps(trash_row_value))
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
@@ -359,4 +372,5 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%HISTORY_ASSERT%", history_block)
             .replace("%OPERATIONS_ASSERT%", operations_block)
             .replace("%DELETE_ASSERT%", delete_block)
+            .replace("%TRASH_ASSERT%", trash_block)
             .replace("%OWNED_ENTITY%", owned["name"]))

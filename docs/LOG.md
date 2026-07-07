@@ -1,7 +1,56 @@
-<!-- meta:doc sha=312ef5b4c420d6602cceebb8dd9540a280722643 updated=2026-07-07T20:12Z -->
+<!-- meta:doc sha=ce522bdb31e33aa1922efa39d07ca59e21698f16 updated=2026-07-07T21:29Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T21:29Z — FSK-FRONTEND-LOGIN ✅: INC-5/5 (ÚLTIMO) del arco FSK-FRONTEND-SCREENS — session-picker dev de roles, el arco CIERRA
+Corte A (decidido por el plan, "recomendado contra-el-tiempo"): un `<select data-role-picker>`
+GLOBAL-por-sesión en `browser_entry.ts` (opt-in sobre `bp["roles"]`) lista `"(default)"` + TODOS los roles
+declarados del blueprint; elegir uno PISA el rol de la pantalla ACTIVA (`overrideRole ?? s.role`) hasta
+volver a `"(default)"` — el token está cerrado (closure) al `mount<E>`, así que cambiar de rol RE-MONTA la
+pantalla con el token nuevo. Deja ver RBAC real desde el browser (un `auditor` no puede escribir, un `admin`
+sí) sin ser autenticación real (corte B — credenciales/store de principals — diferido explícito como INC-6,
+eje de SEGURIDAD backend, trust-chain/Opus obligatorio). `feedback` (el `<p>` del CREATE) ganó
+`data-feedback="create"` (hook de testabilidad, mismo precedente que `data-trash-id`) para que el diente
+negativo sea determinista (poll de `textContent === "error"`, no un `waitForTimeout` a ciegas).
+- **UN SOLO slot delegado** (a diferencia de TRASH que fueron 2 — este eje es frontend-only, CERO backend):
+  4 archivos (`base.py`/`frontend.py`/`browser.py`/`constants.py`). El `generator` implementó el contrato
+  VERBATIM y auto-verificó el gate iteration (`product-run --mode draft`, exit 0 — el tooth del picker ya
+  vivo: opciones/rol-rechazado/rol-acepta) pero devolvió un veredicto **red** HONESTO en la única dimensión
+  que no controlaba: el gate acceptance (harden) falló en `perf_budget_gate` — diagnosticó la causa exacta
+  (la línea `data-feedback` vive en `_mount_ts`, que SÍ es parte de `src/app.ts`, contra lo que decía el
+  manifest) y, siguiendo la instrucción explícita, NO bumpeó el budget él mismo — lo dejó para el
+  orquestador.
+- **Residuo REAL tomado por el orquestador con ojos propios (dos hallazgos, no uno)**: (a) bump
+  `BUNDLE_BUDGET_PER_ENTITY_BYTES` 1920→1965 (+45 B/entidad EXACTOS, medido — a diferencia de TRASH/
+  DETAIL-TABS, cuyo costo era FIJO por producto porque sólo 1 entidad ganaba la feature, ACÁ la línea nueva
+  vive en `mount<E>`, emitida por CADA entidad servida → el costo escala con `n_served`, por eso el bump va
+  en PER_ENTITY y no en BASE); (b) un bug REAL en la reutilización de `_wrong_role_set` (auth.py) — ese
+  helper está pensado para el fixture ESTÁTICO de `route_check.py` (garantiza un set "distinto", no uno
+  "prohibido"; si `write_roles == roles` cae a un subconjunto que SIGUE pudiendo escribir) — `helpdesk`
+  (Ticket, `write_roles=[admin,supervisor,agent] == roles` exacto) elegía `"admin"` como "rol equivocado",
+  que en runtime SÍ escribe → el submit "rechazado" en realidad sucedía → `browser_check.ts` de helpdesk
+  quedaba en un loop de reintentos de `infra_up` (120s sin health) en vez de fallar rápido. Sólo
+  `ci --rederive --all-products` (NO el vehículo de medición snipeit-solo) expuso esto. Fix: cómputo directo
+  del rol prohibido (`[r for r in roles_list if r not in owned["write_roles"]]`); si viene vacío, el picker
+  se emite igual pero el diente negativo se omite (opt-in honesto, ya documentado en el diseño §0.1(d) —
+  la falla estaba en la REUTILIZACIÓN del helper equivocado, no en el diseño).
+- **Gotcha operativo reconfirmado**: el `generator` corre su PROPIO `product-run` (gate del manifest) que
+  escribe al MISMO `.proof/active.json` compartido — mientras corría en background, el `stop_proof` del
+  turno del orquestador vio la estación `s11` roja (un intento puntual del generator con el JDK aún no
+  resuelto en ESA invocación) y bloqueó el cierre de turno. Resuelto SIN correr `product-run` propio en
+  paralelo (evita la carrera de puertos/PG/docker fijos): un watcher `until [ -f verdict ]; do sleep 5; done`
+  en `run_in_background` (Bash) para esperar el veredicto del generator antes de tocar nada.
+- Diente NUEVO de TRES asserts VIVO en Chromium real y AISLADO (verificado a mano, PG fresca por sabotaje):
+  sabotaje de `const role = overrideRole ?? s.role` → `const role = s.role` en la FUENTE + re-emit: el
+  picker sigue renderizando OK pero actuar como `auditor` en realidad sigue escribiendo → los 3 asserts del
+  diente rojearon exactamente (`"error"` esperado→obtuvo `"ok"`; conteo esperado 4→obtuvo 5; conteo esperado
+  6→obtuvo 5), los 23 dientes previos quedaron VERDES; revert → **27/27** verde de nuevo.
+  `ci --rederive --all-products` **4/4 == pin**. `meta check` 19/19. `git diff src/metafactory+seed = 0`.
+  Detalle: `factories/full-stack-kotlin/docs/work/FSK-FRONTEND-LOGIN-INCREMENT.md §Evidencia` +
+  `docs/work/DELEGATE-FSK-FRONTEND-LOGIN-INCREMENT.md`. **ARCO FSK-FRONTEND-SCREENS COMPLETO (5/5)**:
+  TABLE→SEARCH-PAGE→DETAIL-TABS→TRASH→LOGIN. Corte B (`FSK-FRONTEND-LOGIN-REAL`, credenciales) queda
+  diferido explícito como INC-6, eje de seguridad backend — no está en el camino crítico de ningún demo.
 
 ## 2026-07-07T20:12Z — FSK-FRONTEND-TRASH ✅: INC-4/5 del arco FSK-FRONTEND-SCREENS, primer eje que toca BACKEND (read-path RBAC-gated)
 Papelera (soft-delete) + restore: hasta ahora `restore` era backend-only (verbo vivo desde FSK-SOFT-DELETES)

@@ -99,3 +99,33 @@ def pin_trust(root: Path, *, ready: bool | None = None) -> tuple[bool, str]:
     if is_ready:
         return False, "local toolchain can re-verify; the failing re-run is authoritative"
     return True, "local toolchain cannot re-verify this station; trusting the clean-clone pin"
+
+
+def preflight(root: Path, *, ready: bool | None = None) -> tuple[str, str]:
+    """Decide BEFORE any live re-run whether turn-close should (a) trust the CURRENT pin outright and
+    skip re-verifying, (b) block outright, or (c) go ahead and re-verify live. This exists because
+    `seed/verifier.py.verify_station` unconditionally OVERWRITES the pinned proof on every call
+    (`_write_atomic(proof_path(...), ...)`, no dry-run mode) — calling a live re-run FIRST and asking
+    `pin_trust` about it AFTER (the naive order) means `pin_trust` always reads back the just-written
+    result of the SAME toolchain-drifted attempt that triggered the question, so the escape hatch this
+    module exists to provide could never fire (a real, reproducible bug: a legitimately green pin, hit by
+    one drifted-toolchain turn-close, would self-corrupt on every subsequent attempt). `ready` overrides
+    the toolchain probe (for tests). Returns (decision, reason) where decision is one of:
+      "trust" — toolchain can't re-verify this station AND its CURRENT pin is clean-green: the caller
+                must skip the live re-run entirely (running it would clobber a valid pin with a
+                toolchain-drift false-red).
+      "block" — toolchain can't re-verify AND the current pin is NOT clean-green: a real failure was
+                already on record; block without a redundant (still-drifted) re-run.
+      "rerun" — toolchain CAN re-verify (or there's no pinned proof to reason about): the live re-run is
+                authoritative, proceed with it as before.
+    """
+    proof = _active_proof(Path(root))
+    if proof is None:
+        return "rerun", "no pinned proof for the active station"
+    is_ready = toolchain_ready(Path(root), proof) if ready is None else ready
+    if is_ready:
+        return "rerun", "local toolchain can re-verify; run it live"
+    ok, why = _seed_verifier().gate_recompute_ok(proof)
+    if ok:
+        return "trust", "local toolchain cannot re-verify this station; trusting the clean-clone pin"
+    return "block", f"pinned proof is not clean-green ({why}) and the local toolchain cannot re-verify"

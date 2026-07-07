@@ -1,9 +1,13 @@
-<!-- meta:doc sha=16639d07c7af54b3cba7748631b6baefaf723cce updated=2026-07-07T21:27Z -->
+<!-- meta:doc sha=45771d8e4324d95f8c781313ba01afa8d2765187 updated=2026-07-07T21:49Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **Pin `snipeit` s11 re-derivado verde (2026-07-07T21:46Z)** — un falso-rojo de toolchain (JDK 21 fuera del
+  PATH del hook meta `stop_proof`) clobbereó el pin verde de s11 post-LOGIN; la causa raíz (orden re-run→trust
+  en el hook) se arregló a nivel META (`STOP-PROOF-PRERUN-TRUST`); el pin actual es un re-run REAL exit 0
+  (gradle+docker, 2/2 checks). Nada de FSK cambió — sustrato/codegen/productos intactos.
 - **FSK-FRONTEND-LOGIN (2026-07-07)** ✅ CERRADO — INC-5/5 (ÚLTIMO) del arco `FSK-FRONTEND-SCREENS-DIRECTION`,
   corte A (session-picker dev, CERO backend): un `<select data-role-picker>` GLOBAL-por-sesión en
   `browser_entry.ts` (opt-in sobre `bp["roles"]`) lista `"(default)"` + TODOS los roles declarados; elegir

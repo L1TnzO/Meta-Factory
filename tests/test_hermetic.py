@@ -63,3 +63,35 @@ def test_python_station_is_always_reverifiable():
 def test_jvm_station_needs_javac(tmp_path):
     jvm_proof = {"station": "s6", "checks": [{"name": "gradle:compileKotlin", "exit": 0}]}
     assert hermetic.proof_needs_jvm(jvm_proof)
+
+
+# ── preflight (STOP-PROOF-PRERUN-TRUST): the decision comes BEFORE any live re-run ────────────────
+# The live re-run (`verify_station`) unconditionally OVERWRITES the pin, so asking pin_trust AFTER a
+# failed re-run reads back the clobbered pin and the escape hatch can never fire. preflight decides
+# first — and must never itself mutate the pin.
+
+def test_preflight_trusts_green_pin_when_toolchain_drifted(tmp_path):
+    _pin(tmp_path, "s11", exit_code=0, jvm=True)             # clean-clone green, JDK vanished
+    before = V.proof_path(tmp_path, "s11").read_bytes()
+    decision, why = hermetic.preflight(tmp_path, ready=False)
+    assert decision == "trust", why
+    assert V.proof_path(tmp_path, "s11").read_bytes() == before  # non-destructive: pin untouched
+
+
+def test_preflight_blocks_red_pin_when_toolchain_drifted(tmp_path):
+    _pin(tmp_path, "s11", exit_code=1, jvm=True)             # a genuinely RED pin on record
+    before = V.proof_path(tmp_path, "s11").read_bytes()
+    decision, why = hermetic.preflight(tmp_path, ready=False)
+    assert decision == "block" and "not clean-green" in why
+    assert V.proof_path(tmp_path, "s11").read_bytes() == before
+
+
+def test_preflight_reruns_when_toolchain_ready(tmp_path):
+    _pin(tmp_path, "s11", exit_code=0, jvm=True)             # toolchain healthy → live re-run is authoritative
+    decision, _ = hermetic.preflight(tmp_path, ready=True)
+    assert decision == "rerun"
+
+
+def test_preflight_reruns_when_no_pin(tmp_path):
+    decision, why = hermetic.preflight(tmp_path, ready=False)  # no active.json → nothing to trust
+    assert decision == "rerun" and "no pinned proof" in why

@@ -1,7 +1,35 @@
-<!-- meta:doc sha=b1a6776d0ccfd3ab6fc60202651d840654d7d851 updated=2026-07-03T18:45Z -->
+<!-- meta:doc sha=109b591c9d7c5fc04859625e5abecb38f7954e31 updated=2026-07-07T05:01Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T05:01Z — FSK-FRONTEND-TABLE ✅: INC-1/5 del arco FSK-FRONTEND-SCREENS, delegado end-to-end por el arnés
+`render<E>List` pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica: `<th>` por columna del
+schema en el orden del contrato (nuevo helper `_table_fields`, single-source con `_openapi_yaml`),
+`<tr data-id>`+`<td data-field>` por fila (click-para-detalle generalizado a `[data-id]`, agnóstico de tag).
+Primera vez que un eje REAL de fábrica se construye 100% vía `generate-slot` con el contrato YA escrito
+por S1 (Opus) en el work-doc: el `generator` (Sonnet) implementó los 4 archivos (`base/frontend/browser/
+constants.py`) contra un slot manifest con AMBOS gates (iteration: sanity python ~instantáneo; acceptance:
+re-emit real de snipeit → tsc/eslint/esbuild, sin gradle) y devolvió VERDICT verde — el orquestador nunca
+leyó el diff. El diente de dos lados (headers en orden del schema + celda `id`) se verificó CON OJOS
+PROPIOS corriendo `browser_check.ts` a mano contra un server real (`dev_run.sh`) tras 2 sabotajes
+dirigidos: orden de `<th>` invertido → SOLO ese assert rojeó; celda `id` hardcodeada → SOLO ese assert
+rojeó; los 14 asserts previos del arco (dashboard/estilos/render/form/detalle/edit/operations/2da-entidad/
+delete) quedaron VERDES en ambos casos — aislamiento real, no narrado.
+- **Fricción real de la columna** (level-aware, ADR-016): `.gen/active_slot.json` vive a nivel META
+  (fuera de `factories/`) → el `increment_guard` exige un incremento META abierto para escribirlo, aunque
+  el `allow_globs` apunte a la fábrica. Se abrió un incremento META chico (`DELEGATE-FSK-FRONTEND-TABLE`,
+  puro tooling — el código real cierra en la fábrica) para satisfacerlo. Reusable: cualquier delegación
+  desde una sesión meta hacia una fábrica necesita ESTE incremento-sombra si no hay uno meta ya abierto.
+- **`dev_run.sh` NO re-corre `scaffold_product.py`** (sólo `build_bundle.mjs`) → para ver un cambio de
+  CODEGEN en el browser hace falta re-emitir a mano (`METAFACTORY_ROOT=<product> python3
+  codegen/scaffold_product.py`) antes de `dev_run.sh stop && dev_run.sh <producto>`.
+- Presupuesto de bundle: `BUNDLE_BUDGET_BASE_BYTES` 7936→20288 (costo FIJO por producto — la tabla agrega
+  headers+celdas por columna, no por entidad; medido snipeit 54 533 B real vs budget 54 848 B, ratio
+  1.0058, precedente FORM-EDIT 4096→7936). Byte-neutro (extendió `browser_check`/`consume_check`
+  EXISTENTES, cero check/estación nuevo) → `ci --rederive --all-products` 4/4 == pin. `meta check` 19/19.
+  Detalle: `factories/full-stack-kotlin/docs/work/FSK-FRONTEND-TABLE-INCREMENT.md §Evidencia` +
+  `docs/work/DELEGATE-FSK-FRONTEND-TABLE-INCREMENT.md`. Siguiente del arco: INC-2 `FSK-FRONTEND-SEARCH-PAGE`.
 
 ## 2026-07-03T18:43Z — §5 «llegamos» EVALUADO (COST-DOWN, cierre S3): 3/4 KPIs ✓ en INC-5/6, opus-share PENDIENTE de su vehículo
 - **Qué:** cierre-de-dirección S3 (juicio, no build) que RESUELVE el flag «Pendiente del §5» del episodio INC-6.

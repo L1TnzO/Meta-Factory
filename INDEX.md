@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `312ef5b4c420` | 2026-07-07T20:12Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `18dfc49d0e40` | 2026-07-07T20:17Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `6ee9d10f466c` | 2026-07-07T20:34Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -72,6 +72,7 @@
 | `docs/work/DELEG-PAYOFF-MEASURE-INCREMENT.md` | `0c17c184e753` | 2026-07-02T13:41Z | Incremento DELEG-PAYOFF-MEASURE |
 | `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `fdf6d91a762f` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
 | `docs/work/DELEGATE-FSK-FRONTEND-DETAIL-TABS-INCREMENT.md` | `677849bab88a` | 2026-07-07T17:03Z | Incremento DELEGATE-FSK-FRONTEND-DETAIL-TABS |
+| `docs/work/DELEGATE-FSK-FRONTEND-LOGIN-INCREMENT.md` | `dc1641787f27` | 2026-07-07T21:27Z | Incremento DELEGATE-FSK-FRONTEND-LOGIN |
 | `docs/work/DELEGATE-FSK-FRONTEND-SEARCH-PAGE-INCREMENT.md` | `f6a662d75de9` | 2026-07-07T16:00Z | Incremento DELEGATE-FSK-FRONTEND-SEARCH-PAGE |
 | `docs/work/DELEGATE-FSK-FRONTEND-TABLE-INCREMENT.md` | `37d5b99d772e` | 2026-07-07T04:56Z | Incremento DELEGATE-FSK-FRONTEND-TABLE |
 | `docs/work/DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md` | `691c8a0ccb3c` | 2026-07-07T20:12Z | Incremento DELEGATE-FSK-FRONTEND-TRASH |

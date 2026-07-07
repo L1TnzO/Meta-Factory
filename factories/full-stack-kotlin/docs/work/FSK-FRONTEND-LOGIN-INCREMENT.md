@@ -1,7 +1,7 @@
-<!-- meta:doc sha=740b44b4c28a506fc8017716b0c8c4b14a625382 updated=2026-07-07T21:26Z -->
+<!-- meta:doc sha=2bc36d487fa1b1a27669c6c42596bac35d2f51d0 updated=2026-07-07T21:28Z -->
 # Incremento FSK-FRONTEND-LOGIN — session-picker dev (corte A), CERO backend
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-07-07T21:28Z)
 > (creado 2026-07-07T20:24Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Todo cambio de código vive acá (ADR-010).
 >

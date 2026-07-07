@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK
+from .base import _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _table, _table_fields, _workflow_ops
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -72,8 +72,8 @@ def _browser_form_block(name: str, render_field: str, render_in_form: bool) -> s
         "  //    render roto -> el nodo no aparece -> rojo).",
         '  const dom = new JSDOM("<!DOCTYPE html><body></body>");',
         f"  await mount{name}(dom.window.document, base, token);",
-        '  const liCount = () => dom.window.document.querySelectorAll("li").length;',
-        "  const before = liCount();",
+        '  const rowCount = () => dom.window.document.querySelectorAll("tr[data-id]").length;',
+        "  const before = rowCount();",
         '  const form = dom.window.document.querySelector("form");',
         "  for (const [k, v] of Object.entries(FORM_BODY)) {",
         '    const input = form.querySelector(`[name="${k}"]`);',
@@ -85,15 +85,16 @@ def _browser_form_block(name: str, render_field: str, render_in_form: bool) -> s
         "  let after = before;",
         "  for (let i = 0; i < 100 && after === before; i++) {",
         "    await new Promise((r) => setTimeout(r, 50));",
-        "    after = liCount();",
+        "    after = rowCount();",
         "  }",
         f'  check(after, before + 1, "mount{name}: el submit del FORM crea un <li> NUEVO en el DOM real (N -> N+1)");',
     ]
     if render_in_form:
         lines += [
-            '  const liTexts = [...dom.window.document.querySelectorAll("li")].map((li) => li.textContent);',
-            f'  check(liTexts.includes(String(FORM_BODY["{render_field}"])), true,',
-            f'        "el <li> nuevo muestra el valor que el FORM posteo ({render_field})");',
+            f'  const fieldTexts = [...dom.window.document.querySelectorAll(\'td[data-field="{render_field}"]\')]'
+            '.map((td) => td.textContent);',
+            f'  check(fieldTexts.includes(String(FORM_BODY["{render_field}"])), true,',
+            f'        "la celda {render_field} muestra el valor que el FORM posteo");',
         ]
     return "\n".join(lines)
 
@@ -251,9 +252,10 @@ def _browser_check_ts(bp: dict) -> str:
     value_assert = ""
     if render_field in form_body:
         value_assert = (
-            '\n    const newTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));\n'
+            '\n    const newTexts = await page.$$eval(`td[data-field="${RENDER_FIELD}"]`, '
+            '(els) => els.map((e) => e.textContent ?? ""));\n'
             f'    check(newTexts.includes(String(FORM_BODY["{render_field}"])), true,\n'
-            '          "el <li> nuevo muestra el valor que el FORM posteo en el browser REAL (Chromium)");')
+            '          "la celda RENDER_FIELD muestra el valor que el FORM posteo en el browser REAL (Chromium)");')
     # FSK-FRONTEND-ALL-ENTITIES: el nav lista una pantalla por entidad servida; la 2da entidad ejercita
     # render<E>List de OTRA pantalla (DIENTE de dos lados: saboteá el render de UNA → SÓLO esa pantalla falla). La
     # 2da = la 1ra ownerless servible SIN refs requeridos (form-submitteable con sólo escalares), NO company-scoped
@@ -345,6 +347,7 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%DASHBOARD_ASSERT%", _DASHBOARD_ASSERT_BLOCK)
             # FSK-FRONTEND-STYLES: la hoja de estilos se sirve+linkea+aplica (always: todo browser-frontend la trae).
             .replace("%STYLES_ASSERT%", _STYLES_ASSERT_BLOCK)
+            .replace("%TABLE_ASSERT%", _TABLE_ASSERT_BLOCK.replace("%TABLE_HEADERS%", json.dumps(_table_fields(owned))))
             .replace("%SECOND_BLOCK%", second_block)
             .replace("%DETAIL_ASSERT%", _DETAIL_ASSERT_BLOCK)
             .replace("%EDIT_ASSERT%", edit_block)

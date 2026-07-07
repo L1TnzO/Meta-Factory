@@ -80,7 +80,7 @@ DEPLOY_PORT = 18596            # smoke del CONTENEDOR deployado (s11): host -> O
 DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del smoke de deploy (s11). Fijo: las
 
 
-BUNDLE_BUDGET_BASE_BYTES = 7936       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT)
+BUNDLE_BUDGET_BASE_BYTES = 20288       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema, costo FIJO por producto vía _table_fields — bump 7936->20288 medido contra snipeit 54 533 B real, budget 54 848 B, ratio 1.0058)
 
 
 BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
@@ -1208,8 +1208,6 @@ li {
   box-shadow: var(--shadow);
   transition: border-color .15s, box-shadow .15s;
 }
-li[data-id] { cursor: pointer; }
-li[data-id]:hover { border-color: var(--hairline-strong); box-shadow: var(--shadow), var(--ring); }
 /* Dashboard — the HOME: a live count per entity. Number in ink, laid out as a responsive card grid. */
 ul.dashboard { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 ul.dashboard li { font-weight: 600; font-size: 1rem; }
@@ -1234,6 +1232,16 @@ dl.detail dt {
   color: var(--mute);
 }
 dl.detail dd { margin: 0; color: var(--ink); font-size: 14px; }
+/* Table — semantic list (FSK-FRONTEND-TABLE): headers in mono uppercase (mirrors dl.detail dt), one
+   hairline-bordered card surface, hairline row dividers. Replaces the per-entity <li> row (the dashboard's
+   <li data-count> is untouched). */
+table { width: 100%; border-collapse: collapse; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); box-shadow: var(--shadow); }
+th, td { padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--hairline); }
+tr:last-child td { border-bottom: none; }
+th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--mute); font-weight: 500; }
+td { color: var(--ink); font-size: 14px; }
+tr[data-id] { cursor: pointer; transition: background-color .15s; }
+tr[data-id]:hover { background: var(--canvas-soft); }
 '''
 
 
@@ -1280,8 +1288,8 @@ async function main(base) {
     await page.goto(`${base}/`);%DASHBOARD_ASSERT%%STYLES_ASSERT%
     // tras navegar a la entidad con dueno (el landing por defecto es la HOME del dashboard), mount<E> renderiza su
     // lista viva (async) -> esperamos por sus filas (li[data-id]; la HOME usa li[data-count], sin data-id) -> determinista.
-    await page.waitForSelector("li[data-id]", { timeout: 10000 });
-    const domTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    await page.waitForSelector("tr[data-id]", { timeout: 10000 });
+    const domTexts = await page.$$eval(`td[data-field="${RENDER_FIELD}"]`, (els) => els.map((e) => e.textContent ?? ""));
     // (i) la lista viva no es trivial (>=1 fila sembrada).
     check(expected.length >= 1, true, "la lista viva (API) tiene >=1 fila");
     // (ii) EL DIENTE: cada fila viva se renderiza como <li> en el DOM REAL del navegador (drop/garble -> rojo).
@@ -1291,7 +1299,7 @@ async function main(base) {
         allRendered = false;
       }
     }
-    check(allRendered, true, "cada fila viva se renderiza como <li> en el DOM REAL del navegador (Chromium)");
+    check(allRendered, true, "cada fila viva se renderiza como fila de tabla en el DOM REAL del navegador (Chromium)");%TABLE_ASSERT%
 
     // 3) FSK-FORM-BROWSER-E2E - el SUBMIT del FORM en el navegador REAL: llena los <input> del FORM generado,
     //    clickea submit y asevera que la fila NUEVA aparece en el DOM REAL (count <li> N -> N+1). El token de
@@ -1300,7 +1308,7 @@ async function main(base) {
     const seedRes = await fetch(`${base}/seed`);
     const seed = await seedRes.json();
     const FORM_BODY = %FORM_BODY%;%OWNED_REF_MERGE%
-    const before = await page.$$eval("li", (els) => els.length);
+    const before = await page.$$eval("tr[data-id]", (els) => els.length);
     for (const [k, v] of Object.entries(FORM_BODY)) {
       const sel = `[name="${k}"]`;
       if (typeof v === "boolean") {
@@ -1321,11 +1329,11 @@ async function main(base) {
     // el submit es async (postea via el cliente vivo, re-trae la lista, re-renderiza) -> esperamos por el DOM
     // (determinista, no sleep) a que el count suba; un submit/re-render roto -> timeout -> after queda == before.
     try {
-      await page.waitForFunction((n) => document.querySelectorAll("li").length > n, before, { timeout: 10000 });
+      await page.waitForFunction((n) => document.querySelectorAll("tr[data-id]").length > n, before, { timeout: 10000 });
     } catch {
       // timeout: el count no subio -> el check de abajo flipea (rojo). DIENTE.
     }
-    const after = await page.$$eval("li", (els) => els.length);
+    const after = await page.$$eval("tr[data-id]", (els) => els.length);
     check(after, before + 1, "el submit del FORM en Chromium REAL crea un <li> NUEVO en el DOM (N -> N+1)");%VALUE_ASSERT%
 
     // FSK-FRONTEND-ALL-ENTITIES - el NAV lista una pantalla por CADA entidad servida; navegar a una SEGUNDA
@@ -1371,12 +1379,12 @@ _SECOND_SCREEN_BLOCK = '''
     });
     try {
       await page.waitForFunction(
-        (t) => [...document.querySelectorAll("li")].some((li) => (li.textContent ?? "").includes(t)),
+        (t) => [...document.querySelectorAll("tr[data-id]")].some((li) => (li.textContent ?? "").includes(t)),
         want2, { timeout: 10000 });
     } catch {
       // timeout: la fila nueva de la 2da entidad no aparecio en el DOM -> el check de abajo flipea (rojo). DIENTE.
     }
-    const texts2 = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    const texts2 = await page.$$eval("tr[data-id]", (els) => els.map((e) => e.textContent ?? ""));
     check(texts2.some((t) => t.includes(want2)), true,
           "2da entidad (%SECOND_ENTITY%): el FORM crea una fila que render<E>List muestra en el DOM REAL (Chromium)");'''
 
@@ -1389,6 +1397,17 @@ _STYLES_ASSERT_BLOCK = '''
     const bodyMaxWidth = await page.evaluate(() => getComputedStyle(document.body).maxWidth);
     check(bodyMaxWidth, "1200px",
           "FSK-FRONTEND-STYLES: la hoja /app.css se sirve y la APLICA Chromium (body max-width del stylesheet)");'''
+
+
+_TABLE_ASSERT_BLOCK = '''
+    // FSK-FRONTEND-TABLE - los <th> siguen el ORDEN del schema (contrato, DES-6) y cada <td> lleva
+    // data-field (misma convencion que el detalle). Sabotaje del orden de headers o de una celda ->
+    // SOLO este assert rojea (aislado de render/lista/form/detalle/edit/operations/dashboard/delete).
+    const headerTexts = await page.$$eval("table thead th", (els) => els.map((e) => (e.textContent ?? "").trim()));
+    check(headerTexts, %TABLE_HEADERS%, "FSK-FRONTEND-TABLE: los <th> siguen el orden del schema (contrato)");
+    const firstRow = json.rows[0];
+    const idCellText = (await page.$eval(`tr[data-id="${firstRow.id}"] td[data-field="id"]`, (el) => el.textContent ?? "")).trim();
+    check(idCellText, String(firstRow.id), "FSK-FRONTEND-TABLE: la celda id de la fila muestra el valor sembrado (DOM real)");'''
 
 
 _DASHBOARD_ASSERT_BLOCK = '''
@@ -1407,9 +1426,9 @@ _DASHBOARD_ASSERT_BLOCK = '''
 _DETAIL_ASSERT_BLOCK = '''
 
     await page.click(`[data-entity="%OWNED_ENTITY%"]`);
-    await page.waitForSelector("li[data-id]", { timeout: 10000 });
-    const detailRow = await page.$("li[data-id]");
-    const detailRowText = (await detailRow.evaluate((el) => el.textContent ?? "")).trim();
+    await page.waitForSelector("tr[data-id]", { timeout: 10000 });
+    const detailRow = await page.$("tr[data-id]");
+    const detailRowText = (await detailRow.$eval(`[data-field="${RENDER_FIELD}"]`, (el) => el.textContent ?? "")).trim();
     await detailRow.click();
     try {
       await page.waitForFunction(
@@ -1433,7 +1452,7 @@ _EDIT_ASSERT_BLOCK = '''
 
     const CREATED = String(FORM_BODY[RENDER_FIELD]);
     const EDIT_VALUE = "%EDIT_VALUE%";
-    const createdRow = page.locator("li[data-id]", { hasText: CREATED }).first();
+    const createdRow = page.locator("tr[data-id]", { hasText: CREATED }).first();
     await createdRow.click();
     // el click re-renderiza ASYNC (getAsset -> renderDetail -> renderEdit) -> esperar a que el DETALLE refleje LA
     // FILA CREADA (su valor renderizado) ANTES de llenar: garantiza que renderEdit ya corrio para ESTA fila y que
@@ -1473,7 +1492,7 @@ _EDIT_ASSERT_BLOCK = '''
 _OPERATIONS_ASSERT_BLOCK = '''
 
     const OP_ROW = String(FORM_BODY[RENDER_FIELD]);
-    const opRow = page.locator("li[data-id]", { hasText: OP_ROW }).first();
+    const opRow = page.locator("tr[data-id]", { hasText: OP_ROW }).first();
     await opRow.click();
     // el click re-renderiza ASYNC (get<E> -> renderDetail + renderVerbs) -> esperar a que el DETALLE refleje LA FILA
     // CREADA ANTES de operar: garantiza que renderVerbs ya corrio para ESTA fila (el id del verbo es el SUYO, no el
@@ -1512,7 +1531,7 @@ _DELETE_ASSERT_BLOCK = '''
     // DESAPARECE de la lista del DOM REAL. DEL_ROW = el valor renderizado VIGENTE de esa fila (el que el FORM
     // posteo, o el editado si EDIT cambio el render-field) -> codegen lo computa (DATA-agnostico, ADR-012).
     const DEL_ROW = "%DEL_ROW%";
-    const delRow = page.locator("li[data-id]", { hasText: DEL_ROW }).first();
+    const delRow = page.locator("tr[data-id]", { hasText: DEL_ROW }).first();
     await delRow.click();
     // el click re-renderiza ASYNC (get<E> -> renderDetail + renderDelete) -> esperar a que el DETALLE refleje LA
     // FILA ANTES de borrar: garantiza que renderDelete ya corrio para ESTA fila (el id del boton es el SUYO).
@@ -1529,12 +1548,12 @@ _DELETE_ASSERT_BLOCK = '''
     // fila borrada; un delete<E>/click roto -> la fila SIGUE -> timeout -> el check de abajo flipea (rojo). DIENTE.
     try {
       await page.waitForFunction(
-        (t) => ![...document.querySelectorAll("li")].some((li) => (li.textContent ?? "").includes(t)),
+        (t) => ![...document.querySelectorAll("tr[data-id]")].some((li) => (li.textContent ?? "").includes(t)),
         DEL_ROW, { timeout: 10000 });
     } catch {
       // timeout: la fila borrada SIGUE en la lista -> el check de abajo flipea (rojo). DIENTE.
     }
-    const afterDelTexts = await page.$$eval("li", (els) => els.map((e) => e.textContent ?? ""));
+    const afterDelTexts = await page.$$eval("tr[data-id]", (els) => els.map((e) => e.textContent ?? ""));
     check(afterDelTexts.some((t) => t.includes(DEL_ROW)), false,
           "FSK-FRONTEND-DELETE: clic en borrar -> la fila DESAPARECE de la lista del DOM REAL (Chromium)");'''
 
@@ -1550,7 +1569,7 @@ _MW_UNFREEZE_BLOCK = '''
     // Ejecutar el verbo reverso (%REV_VERB%) para moverla a estado MUTABLE antes del DELETE generico.
     // (El DELETE sobre un FROZEN retorna 409 Conflict; el bloque DELETE GENERICO sigue a continuacion.)
     {
-      const mwUfRow = page.locator("li[data-id]", { hasText: "%DEL_ROW_MUT%" }).first();
+      const mwUfRow = page.locator("tr[data-id]", { hasText: "%DEL_ROW_MUT%" }).first();
       await mwUfRow.click();
       await page.waitForFunction(
         (t) => { const d = document.querySelector("dl.detail"); return d !== null && (d.textContent ?? "").includes(t); },

@@ -1,9 +1,24 @@
-<!-- meta:doc sha=6a0a2d35a9f652bff25cd9ddb36b12bad7c65221 updated=2026-07-04T22:35Z -->
+<!-- meta:doc sha=07b9a8057d32e60688f20dfc670f6ac4abd1029b updated=2026-07-07T04:53Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-TABLE (2026-07-07)** ✅ INC-1 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: `render<E>List`
+  pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica — `<th>` por columna del schema (orden
+  del contrato, nuevo helper `_table_fields`), `<tr data-id>`+`<td data-field>` por fila (el click-para-
+  detalle sigue vivo, generalizado a `[data-id]`). Diente NUEVO de dos lados VIVO en Chromium real y
+  AISLADO (verificado a mano, no sólo por el generator): sabotaje del orden de `<th>` → SOLO ese assert
+  rojea; sabotaje de la celda `id` → SOLO ese assert rojea; los 14 asserts previos (dashboard/estilos/
+  render/form/detalle/edit/operations/2da-entidad/delete) quedan verdes en AMBOS casos; revert → verde.
+  Construido por el `generator` (Sonnet) bajo el arnés verificar-no-revisar (slot acotado a
+  `codegen/scaffold/{frontend,base,browser,constants}.py`, verdict verde); el diente de dos lados +
+  `product-run`/`ci --rederive`/`meta check` los corrió el orquestador con sus propios ojos.
+  `BUNDLE_BUDGET_BASE_BYTES` 7936→20288 (costo fijo por producto, medido: snipeit 54 533 B real vs
+  budget 54 848 B, ratio 1.0058). Byte-neutro (extiende `browser_check`/`consume_check` existentes,
+  ningún check/estación nuevo) → `ci --rederive --all-products` **4/4 == pin**. `meta check` 19/19.
+  Detalle: `docs/work/FSK-FRONTEND-TABLE-INCREMENT.md §Evidencia`. **Siguiente del arco: INC-2
+  `FSK-FRONTEND-SEARCH-PAGE`** (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4/§7`).
 - **CONTROL-GROUP E1+D-8 (2026-07-04, ADR-022)** ✅ MEDIDO: spec AJENA (RealWorld Conduit) por los
   dos brazos. Fábrica: s0–s8 verdes pero **2 rojos GENERALES** (workflow_enforced sin workflows no
   degrada a N/A · seeder crash con multi-ref-mismo-target). Pelado (Sonnet, 6.3 min): 19/19 endpoints,

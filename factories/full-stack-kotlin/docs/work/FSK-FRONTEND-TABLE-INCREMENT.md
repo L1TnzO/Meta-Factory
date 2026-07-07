@@ -1,4 +1,4 @@
-<!-- meta:doc sha=684e45ff594da0ac9732248651a97efd1f3e9fe7 updated=2026-07-07T04:13Z -->
+<!-- meta:doc sha=4cf7bc90a130167bfe318467c10382c3c2b99c82 updated=2026-07-07T04:54Z -->
 # Incremento FSK-FRONTEND-TABLE — la lista `<ul><li>` se vuelve `<table>` semántica
 
 > **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
@@ -232,6 +232,52 @@ bloquea cerrar turno si el cwd leakeó a un subdir o hay gate verde sin commitea
 INC-2 `FSK-FRONTEND-SEARCH-PAGE` (búsqueda+paginación client-side sobre la tabla) → INC-3 `DETAIL-TABS` →
 INC-4 `TRASH` → INC-5 `LOGIN` (corte A). Ver `FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`.
 
-## Evidencia
-<a completar al cierre: qué se construyó · diente de dos lados (verde/sabotaje A/sabotaje B/revert) ·
-EYEBALL · GATE product-run · byte-neutro/re-pin · meta check · git diff>
+## Evidencia (cierre 2026-07-07T04:55Z) ✅
+
+**Qué se construyó** (frontend-only, DATA-agnóstico, ADR-012 — aplica a TODAS las entidades servidas, no
+opt-in). 4 piezas en `codegen/scaffold/`, delegadas al `generator` (Sonnet) bajo el arnés
+verificar-no-revisar (slot `fsk-frontend-table`, blast radius = los 4 archivos, verdict **green**, ambos
+gates — iteration + acceptance/EYEBALL — exit 0):
+1. **`base.py`**: nuevo helper `_table_fields(e)` — `["id"] + _cols_of(e) + computados`, el MISMO orden
+   que `_openapi_yaml` documenta las properties del contrato (single-source, DES-6).
+2. **`frontend.py`**: `_render_list_ts` reescrita — `<table><thead><tr>{<th> por columna}</tr></thead>
+   <tbody>{<tr data-id>+<td data-field> por fila}</tbody></table>`, tipada a `components["schemas"]["<E>"]`
+   (accesos `r.<col>` ESTÁTICOS, no loop runtime — DES-6 intacto). `_mount_ts` generalizado:
+   `target.closest("li[data-id]")` → `target.closest("[data-id]")` (agnóstico de tag).
+3. **`browser.py`**: 3 sitios — el jsdom `_browser_form_block` (consume_check.ts) re-apuntado a
+   `td[data-field="<render_field>"]` para el conteo+value-assert (antes asumía 1-campo-por-`<li>`); el
+   Chromium `value_assert` ídem; el `_TABLE_ASSERT_BLOCK` nuevo wireado vía `%TABLE_ASSERT%`.
+4. **`constants.py`**: la tabla de reemplazo de selector completa (`li[data-id]`→`tr[data-id]`, +2 sitios
+   EXACT re-apuntados a `td[data-field]`), CSS (`table`/`th`/`td`/`tr[data-id]` con los tokens Vercel
+   existentes; borradas las 2 líneas muertas `li[data-id]`), y `_TABLE_ASSERT_BLOCK` (headers + celda id).
+
+**Diente de DOS lados, VIVO en Chromium real (s9, snipeit @1200px) — verificado CON MIS OJOS (no sólo el
+verdict del generator), corriendo `browser_check.ts` a mano contra un server real (`tools/dev_run.sh`)
+tras cada cambio + re-scaffold + rebuild del bundle:**
+- **Verde** (cableado): 16/16 asserts OK, incluidos los 2 nuevos — `"FSK-FRONTEND-TABLE: los <th> siguen
+  el orden del schema"` (24 columnas en orden del contrato) y `"... la celda id ... "1"`.
+- **Sabotaje A** (headers en `reversed(cols)`, celdas intactas): SOLO el assert de headers rojea
+  (`esperaba [...] obtuvo [reverse]`); los 15 restantes (dashboard/estilos/render-fila/celda-id/form-
+  submit/render_field/nav/2da-entidad/detalle/campos/edit/operations/delete) quedan VERDES.
+- **Sabotaje B** (celda `id` hardcodeada a `"BROKEN"`, headers intactos): SOLO el assert de la celda id
+  rojea (`esperaba "1", obtuvo "BROKEN"`); los 15 restantes quedan VERDES (incluido el de headers).
+- **Revert** → 16/16 verde de nuevo.
+
+**Verificación (con mis ojos, no delegada):**
+- **Presupuesto de bundle**: `snipeit` real 54 533 B vs budget previo 42 496 B → `perf_budget_gate` FAIL
+  (ratio 0.779) tras el 1er `product-run`; bumpeado `BUNDLE_BUDGET_BASE_BYTES` 7936→20288 (costo FIJO por
+  producto, precedente FORM-EDIT 4096→7936) → budget 54 848 B, ratio **1.0058**.
+- **GATE real**: `product-run --factory full-stack-kotlin --product snipeit` → **PASS** (s0..s11, incl. s9
+  Chromium real + s11 deploy Docker) tras fijar el toolchain JDK-21 (gotcha conocido, `tools/toolchain.sh
+  ensure` — ambiental, no relacionado al código).
+- **Byte-neutro → SIN re-pin** (extendí `browser_check`/`consume_check` EXISTENTES; CERO check/estación
+  nuevo): `ci --rederive --factory full-stack-kotlin --all-products` → **4/4 == pin** (snipeit 11/11,
+  assets 11/11, helpdesk 11/11, la fábrica 12/12).
+- `meta check`: **19/19** (`generality`/`quality`/`security`/`pbt`/`deferred`/`column_parity`/`least_priv`/
+  `roles`/`kinds`/`dial`/`plan`/`state_snapshot`/`state_fidelity`/`suite` 955 tests — todo verde).
+- `git diff src/metafactory + seed = 0` (sustrato meta intacto). Cambios: `codegen/scaffold/{base,
+  frontend,browser,constants}.py` (fábrica) + `docs/STATE.md` (fábrica) + este work-doc.
+
+**Arco**: INC-1 de 5 (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`) cerrado. Siguiente: INC-2
+`FSK-FRONTEND-SEARCH-PAGE` (búsqueda+paginación client-side sobre la tabla) — a abrir en una próxima
+sesión S2 (no en ésta, por higiene de contexto/cache, ADR-021 kill-don't-idle).

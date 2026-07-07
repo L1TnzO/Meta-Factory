@@ -164,6 +164,13 @@ def _cols_of(e: dict) -> list[dict]:
     return out
 
 
+def _table_fields(e: dict) -> list[str]:
+    """Las columnas que la TABLA de render<E>List muestra, en el MISMO orden que `_openapi_yaml` documenta
+    las properties del contrato (DES-6, single-source): id + columnas físicas (_cols_of, poly-expandidas)
+    + computados. Cada <th> mapea 1:1 a una key REAL de la fila que `list<E>` trae (FSK-FRONTEND-TABLE)."""
+    return ["id"] + [f["name"] for f in _cols_of(e)] + [f["name"] for f in e["fields"] if _is_computed(f)]
+
+
 def _kt_type_imports(entities: list[dict]) -> list[str]:
     """imports extra que piden los samples por tipo (p.ej. date → java.time.LocalDate), ordenados."""
     want = {_KT_TYPE_IMPORT[f["type"]] for e in entities for f in e["fields"]

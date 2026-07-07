@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from .base import _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _workflow_ops
+from .base import _camel, _cols_of, _editable, _input_cols, _is_poly, _live_entities, _operable, _patchable_fields, _render_field, _table, _table_fields, _workflow_ops
 from .constants import _APP_CSS, _UI_INPUT_TYPE
 
 
@@ -333,19 +333,21 @@ def _form_coerce(f: dict, var: str, ename: str) -> str:
 
 
 def _render_list_ts(e: dict) -> str:
-    """render<E>List(rows): el markup `<ul>` de la lista viva de UNA entidad (su 1er campo string/enum por fila).
-    Tipado a `components["schemas"]["<E>"]` (DES-6: un drift del contrato rompe tsc --strict). FSK-FRONTEND-ALL-
-    ENTITIES: se emite por CADA entidad servida (no sólo la con dueño). FSK-FRONTEND-DETAIL: cada `<li>` lleva su
-    `data-id` (el `id` del schema, columna requerida) → la fila es SELECCIONABLE (un click delegado en mount<E> lee
-    el `data-id`, trae el registro por get<E> y lo muestra). El texto renderizado (el campo) NO cambia (los asserts
-    de la lista quedan intactos)."""
+    """render<E>List(rows): el markup `<table>` de la lista viva de UNA entidad — un <th> por columna del
+    schema (orden del contrato, _table_fields) y un <tr data-id> por fila con un <td data-field="<col>"> por
+    columna (FSK-FRONTEND-TABLE; reemplaza el <ul><li> de 1-campo). Tipado a components["schemas"]["<E>"]
+    (DES-6: un drift del contrato rompe tsc --strict — cada `r.<col>` es un acceso ESTÁTICO, no un loop
+    runtime sobre keys). data-field en cada <td> es la MISMA convención que render<E>Detail (data-field por
+    key) → un solo patrón de proof para tabla y detalle."""
     name = e["name"]
-    field = _render_field(e)
+    cols = _table_fields(e)
+    header = "".join(f"<th>{c}</th>" for c in cols)
+    cells = "".join(f'<td data-field="{c}">${{String(r.{c})}}</td>' for c in cols)
     return (
         f'type {name} = components["schemas"]["{name}"];\n\n'
         f'export function render{name}List(rows: readonly {name}[]): string {{\n'
-        f'  const items = rows.map((r) => `<li data-id="${{r.id}}">${{r.{field}}}</li>`).join("");\n'
-        '  return `<ul>${items}</ul>`;\n'
+        f'  const body = rows.map((r) => `<tr data-id="${{r.id}}">{cells}</tr>`).join("");\n'
+        f'  return `<table><thead><tr>{header}</tr></thead><tbody>${{body}}</tbody></table>`;\n'
         '}\n\n')
 
 
@@ -568,7 +570,7 @@ def _mount_ts(e: dict) -> str:
         f'  // los campos) en detailContainer. La seleccion-de-fila — prerequisito de FSK-FRONTEND-EDIT.\n'
         f'  listContainer.addEventListener("click", (ev: Event): void => {{\n'
         f'    const target = ev.target as HTMLElement;\n'
-        f'    const row = target.closest("li[data-id]");\n'
+        f'    const row = target.closest("[data-id]");\n'
         f'    if (row === null) {{\n'
         f'      return;\n'
         f'    }}\n'

@@ -1,7 +1,39 @@
-<!-- meta:doc sha=109b591c9d7c5fc04859625e5abecb38f7954e31 updated=2026-07-07T05:01Z -->
+<!-- meta:doc sha=90e6be74289d85d09a941124a5eceb0b2a876ce9 updated=2026-07-07T16:01Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T16:01Z — FSK-FRONTEND-SEARCH-PAGE ✅: INC-2/5 del arco FSK-FRONTEND-SCREENS, 2do eje delegado end-to-end
+La tabla semántica (INC-1) gana **búsqueda client-side** (`<input type="search">` filtra por substring
+case-insensitive sobre TODOS los campos) + **paginación client-side** (contador `N / M (total)` +
+prev/next, `PAGE_SIZE=10` fijo). Frontend-only, CERO backend (`list<E>` ya trae la colección completa).
+El contrato exacto lo escribió esta sesión (Opus/orquestador) leyendo `codegen/scaffold/{frontend,browser,
+constants}.py` completos ANTES de delegar — igual disciplina que TABLE. **La decisión de diseño no-obvia**:
+`PAGE_SIZE` chico (1-2) habría roto los 16 dientes previos que asumen el DOM completo (before/after por
+conteo, locators por texto, `firstRow` de TABLE_ASSERT) — se eligió `PAGE_SIZE=10` deliberadamente
+GENEROSO (seeds chicas, SCREENS §0) para que la tabla actual nunca exceda 1 página, dejando la navegación
+multi-página real DIFERIDA EXPLÍCITO (mismo espíritu que el corte server-side ya declarado). El `generator`
+(Sonnet) implementó los 3 archivos (`constants/browser/frontend.py`, `base.py` intacto) contra un slot con
+AMBOS gates (iteration: sanity de imports/markers; acceptance: re-emit real de snipeit → tsc/eslint/esbuild)
+y devolvió VERDICT verde. El diente de TRES partes se verificó CON OJOS PROPIOS corriendo `browser_check.ts`
+a mano (`dev_run.sh`, PG fresca por corrida) tras 3 sabotajes dirigidos: filtro ignorado → SOLO los 2
+asserts de búsqueda timeoutean; estado-vacío nunca emitido → SOLO ese assert falla (el de "1 fila" queda
+verde); `next` sin deshabilitar → SOLO ese assert falla (18/19 restantes verdes) — el más preciso de los
+tres; revert ×3 (uno a la vez) → 19/19 verde.
+- **Efecto colateral no anticipado del bump de budget**: subir `BUNDLE_BUDGET_BASE_BYTES` (20288→39853,
+  medido: snipeit 74 063 B real vs 74 413 B budget, ratio 1.0047) volvió DECORATIVO el `perf_budget_gate`
+  de dos lados — el fixture `eval/probe/bloated.ts` (`_probe_bloated_ts`, un blob fijo de 60 000 chars,
+  ≈60 052 B) dejó de EXCEDER el budget nuevo, así que el "degradado" ya no discriminaba. Se detectó porque
+  `product-run` lo reporta explícito ("GATE DECORATIVO — el output DEGRADADO pasó todos los umbrales"), no
+  por inspección. Fix: bumpear también el blob a 100000 chars (`quality_tooling.py`, fuera del blast radius
+  del slot — edición directa del orquestador, mismo patrón que el número del budget). **Lección reusable**:
+  cualquier bump futuro de `BUNDLE_BUDGET_BASE_BYTES` debe revisar si el probe bloated sigue por ENCIMA del
+  budget nuevo — si no, el gate de perf pierde el diente sin que ningún check lo declare "rojo" per se
+  (aparece como un FALLO propio con mensaje explícito, hay que leerlo, no asumir "ratio ok = todo bien").
+- Byte-neutro (extiende `browser_check` existente, ningún check/estación nuevo) → `ci --rederive
+  --all-products` 4/4 == pin. `meta check` 19/19. Detalle: `factories/full-stack-kotlin/docs/work/
+  FSK-FRONTEND-SEARCH-PAGE-INCREMENT.md §Evidencia` + `docs/work/DELEGATE-FSK-FRONTEND-SEARCH-PAGE-
+  INCREMENT.md`. Siguiente del arco: INC-3 `FSK-FRONTEND-DETAIL-TABS`.
 
 ## 2026-07-07T05:01Z — FSK-FRONTEND-TABLE ✅: INC-1/5 del arco FSK-FRONTEND-SCREENS, delegado end-to-end por el arnés
 `render<E>List` pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica: `<th>` por columna del

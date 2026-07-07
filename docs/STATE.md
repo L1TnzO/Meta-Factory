@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d65b21c9c10d1221bed6b9eef8fcf854079cde10 updated=2026-07-07T16:00Z -->
+<!-- meta:doc sha=0e675e9b920c006a93253f7574ddd7d8ca7c140e updated=2026-07-07T16:02Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -43,8 +43,9 @@
   note-store=relación), regla en `reference/MEMORY-ARCHITECTURE.md §8.2`, medida por `meta metrics --overlap`
   (observador, no gate). Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **Producto / fábricas:** las 5 fábricas re-derivan **== pin** (ver la proyección de arriba). FSK es la madura
-  (backend núcleo + control-de-acceso + frontend CRUD Chromium); arco `FSK-FRONTEND-SCREENS` INC-1/5
-  (`FSK-FRONTEND-TABLE` ✅ tabla semántica, 1er eje delegado end-to-end vía `generate-slot`) en curso.
+  (backend núcleo + control-de-acceso + frontend CRUD Chromium); arco `FSK-FRONTEND-SCREENS` INC-2/5 (✅
+  `FSK-FRONTEND-TABLE` tabla semántica · ✅ `FSK-FRONTEND-SEARCH-PAGE` búsqueda+paginación client-side,
+  ambos delegados end-to-end vía `generate-slot`) en curso.
   Sweet-spot (`benchmarks/sweet-spot-crud.yml`): **helpdesk** PASA · **snipeit** techo de regresión. Plan:
   `work/ROADMAP.md`.
 - **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +

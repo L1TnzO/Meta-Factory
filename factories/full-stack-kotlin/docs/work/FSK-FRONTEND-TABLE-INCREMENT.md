@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4cf7bc90a130167bfe318467c10382c3c2b99c82 updated=2026-07-07T04:54Z -->
+<!-- meta:doc sha=74b45c22c3c2578169c27f58f7f571f6e3dfbc06 updated=2026-07-07T04:55Z -->
 # Incremento FSK-FRONTEND-TABLE — la lista `<ul><li>` se vuelve `<table>` semántica
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-07-07T04:55Z)
 > (creado 2026-07-07T04:12Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Todo cambio de código vive acá (ADR-010).
 >

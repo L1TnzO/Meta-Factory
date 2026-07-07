@@ -1,7 +1,52 @@
-<!-- meta:doc sha=5273f1e1745f7f2c9945037054c66ac7151cf935 updated=2026-07-07T17:03Z -->
+<!-- meta:doc sha=312ef5b4c420d6602cceebb8dd9540a280722643 updated=2026-07-07T20:12Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-07T20:12Z — FSK-FRONTEND-TRASH ✅: INC-4/5 del arco FSK-FRONTEND-SCREENS, primer eje que toca BACKEND (read-path RBAC-gated)
+Papelera (soft-delete) + restore: hasta ahora `restore` era backend-only (verbo vivo desde FSK-SOFT-DELETES)
+y nada listaba las filas borradas. Este incremento agrega un **read-path backend MÍNIMO** `GET
+/<plural>/deleted` (RBAC-gated con el MISMO `writeRoles()` que `restore`/`DELETE` — ver la papelera es una
+acción privilegiada, no lectura pública como `listAll`; invierte `deleted_at IS NULL`→`IS NOT NULL`; compone
+company-scope) para la entidad `soft_delete: true` (hoy `snipeit` Asset, también `company_scoped`+`audited`
+— ejercita la composición completa) + una vista «Trash» opt-in en el frontend (toggle + lista lazy vía
+`listDeleted<E>` + botón Restore `data-restore` por fila; `data-trash-id` NO `data-id` para no colisionar
+con el click-a-detalle global de la tabla viva).
+- **A diferencia de los 3 incrementos previos del arco (frontend-only), ESTE tocó BACKEND real** —
+  requirió leer con ojos propios (Opus/orquestador, vía 2 digests del `verifier` + lecturas puntuales
+  precisas) `data_layer.py`/`server.py`/`auth.py`/`contract.py` para entender: (a) `<e>RowJson(ctx,id)`
+  filtra `deleted_at IS NULL` → devolvería `null` para CUALQUIER fila de la papelera (la trampa central);
+  (b) el router real matchea el PATH LITERAL (`rest == "deleted"`), no query-strings; (c) `route_check.py`
+  (s5, estación CORE que corre incluso en `--mode draft`) cruza topología/auth/rbac Kotlin-vs-OpenAPI — la
+  ruta nueva DEBÍA declararse en AMBOS lados o rojea. El contrato exacto (línea a línea, con los insertion
+  points reales) se escribió ANTES de delegar — igual disciplina que los incrementos frontend previos, pero
+  con precisión backend.
+- **Descubrimiento reusable**: las estaciones `s1`(schema+`compileKotlin`, hermético SIN PG) y
+  `s5`(`route_topology`/`rbac_enforced`/`auth_reachability`/`ownership_enforced`/`mutability_enforced`,
+  estático puro) son **CORE** (sin `tier: harden`) → `product-run --mode draft` (~42s) es un gate FIEL para
+  backend Kotlin (compila + valida RBAC/topología) sin pagar el harden completo (~98s) — se puede usar como
+  el ÚNICO gate (iteration Y acceptance) de un slot de `generator` backend, sin arriesgar un falso verde por
+  saltarse justo los checks que importan.
+- **`_row_json_fn` ganó un kwarg `deleted_only: bool = False`** (default byte-idéntico en TODOS los call
+  sites previos) en vez de duplicar su lógica de serialización (computed fields/cross-entity joins/polimórfico)
+  en una función gemela — la opción DRY correcta cuando la única diferencia real es el WHERE.
+- Dos slots delegados en SECUENCIA al `generator` (backend primero, frontend consume sus tipos/rutas): SLOT A
+  (5 archivos, gate fast route_check+`compileKotlin` + heavy `product-run --mode draft`, ambos green) → SLOT
+  B (3 archivos, gate fast scratch tsc/eslint/esbuild + heavy `product-run --mode draft`, green,
+  `frontend_browser_live` 23/23 — el `generator` encontró y corrigió una race real: `renderRows` post-restore
+  no esperado antes de leer el DOM en el propio test). El diente de DOS partes se verificó CON OJOS PROPIOS
+  (sabotaje del atributo `data-restore` en la FUENTE + revert, PG fresca vía `dev_run.sh`): el 1er assert
+  (la fila aparece en la papelera) quedó VERDE, SOLO el 2do (restore la saca y la devuelve) rojeó — 21/21
+  dientes previos intactos.
+- **Gotcha operativo (rate-limit de sesión, no del harness)**: el primer intento de SLOT B fue cortado por
+  un límite de sesión de la API a mitad de exploración (0 archivos escritos — sin residuo, el retry arrancó
+  limpio tras confirmar `git status`/`git diff --stat` vacíos para esos 3 archivos).
+- Byte-neutro en la LÓGICA opt-in (`assets`/`helpdesk` sin entidad soft → 0 bytes nuevos de TS/Kotlin; el CSS
+  universal se emite siempre, mismo precedente que `.detail-tabs`) → `ci --rederive --all-products` 4/4==pin.
+  `meta check` 19/19. `BUNDLE_BUDGET_BASE_BYTES` 41115→42384 (snipeit 76 594 B real vs 76 944 B budget, ratio
+  1.0046). Detalle: `factories/full-stack-kotlin/docs/work/FSK-FRONTEND-TRASH-INCREMENT.md §Evidencia` +
+  `docs/work/DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md`. Siguiente del arco: INC-5 `FSK-FRONTEND-LOGIN`
+  (corte A, session-picker dev) — cierra el arco de 5.
 
 ## 2026-07-07T17:03Z — FSK-FRONTEND-DETAIL-TABS ✅: INC-3/5 del arco FSK-FRONTEND-SCREENS, tabs Details/History + bitácora en el DOM
 El detalle gana pestañas **Details/History**: la pestaña «History», opt-in SOLO para la entidad `audited:

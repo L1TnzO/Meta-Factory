@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d65b21c9c10d1221bed6b9eef8fcf854079cde10 updated=2026-07-07T05:02Z -->
+<!-- meta:doc sha=d65b21c9c10d1221bed6b9eef8fcf854079cde10 updated=2026-07-07T16:00Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).

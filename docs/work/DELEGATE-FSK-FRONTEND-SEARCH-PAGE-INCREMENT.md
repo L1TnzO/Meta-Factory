@@ -1,7 +1,7 @@
-<!-- meta:doc sha=c1ffdee615e7c60cd7e134d5fa242b6f1e9a63aa updated=2026-07-07T15:56Z -->
+<!-- meta:doc sha=f6a662d75de96428075c079c40528ca58a9a9272 updated=2026-07-07T16:00Z -->
 # Incremento DELEGATE-FSK-FRONTEND-SEARCH-PAGE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-07T15:29Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-07T16:00Z) (creado 2026-07-07T15:29Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

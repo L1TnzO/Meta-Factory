@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ab156862fb0ebf313d897869c1e75737c52237ef updated=2026-07-07T15:55Z -->
+<!-- meta:doc sha=569f5957c4b0f6788aaf90a7c25866916c6a02c9 updated=2026-07-07T15:59Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
@@ -27,7 +27,8 @@
   budget nuevo). Byte-neutro (extiende `browser_check` existente, ningún check/estación nuevo) → `ci
   --rederive --all-products` **4/4 == pin**. `meta check` 19/19. Detalle: `docs/work/
   FSK-FRONTEND-SEARCH-PAGE-INCREMENT.md §Evidencia`. **Siguiente del arco: INC-3 `FSK-FRONTEND-DETAIL-TABS`**
-  (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`).
+  (`FSK-FRONTEND-SCREENS-DIRECTION-INCREMENT.md §4`). Cierre confirmado: `meta increment close --factory
+  full-stack-kotlin` ✅ (freshness de este STATE re-sellada post-cierre).
 - **FSK-FRONTEND-TABLE (2026-07-07)** ✅ CERRADO — INC-1 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: `render<E>List`
   pasa de `<ul><li>{1 campo}</li></ul>` a una `<table>` semántica — `<th>` por columna del schema (orden
   del contrato, nuevo helper `_table_fields`), `<tr data-id>`+`<td data-field>` por fila (el click-para-

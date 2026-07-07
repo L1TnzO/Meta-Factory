@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4018f95e109d6e6cc4125a78ae7d4c498a69c593 updated=2026-07-07T17:01Z -->
+<!-- meta:doc sha=923da2bd65d564a5ed66120c1a8c4adbd518924c updated=2026-07-07T17:02Z -->
 # Incremento FSK-FRONTEND-DETAIL-TABS — tabs Details/History sobre el detalle (historial audited)
 
-> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno de la FÁBRICA** (nivel `factories/full-stack-kotlin/`, ADR-016). Estado: **CERRADO** (2026-07-07T17:02Z)
 > (creado 2026-07-07T16:20Z). Cerralo con `meta increment close` (gateado: árbol limpio + estación activa
 > verde). Todo cambio de código vive acá (ADR-010).
 >

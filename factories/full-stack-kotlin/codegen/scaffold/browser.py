@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from .base import _audited, _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _render_field, _soft_delete, _table, _table_fields, _workflow_ops
-from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _HISTORY_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK, _TRASH_ASSERT_BLOCK
+from .base import _audited, _editable, _input_fields, _is_poly, _live_entities, _mutable_when, _operable, _patchable_fields, _proof_form_value, _proof_login_value, _proof_post_value, _proof_wrong_value, _render_field, _soft_delete, _table, _table_fields, _workflow_ops
+from .constants import _BROWSER_CHECK_SKELETON, _CONSUME_CHECK_SKELETON, _DASHBOARD_ASSERT_BLOCK, _DELETE_ASSERT_BLOCK, _DETAIL_ASSERT_BLOCK, _EDIT_ASSERT_BLOCK, _HISTORY_ASSERT_BLOCK, _LOGIN_ASSERT_BLOCK, _MW_UNFREEZE_BLOCK, _OPERATIONS_ASSERT_BLOCK, _SEARCH_ASSERT_BLOCK, _SEARCH_PAGE_SIZE, _SECOND_SCREEN_BLOCK, _STYLES_ASSERT_BLOCK, _TABLE_ASSERT_BLOCK, _TRASH_ASSERT_BLOCK
 
 
 def _consume_check_ts(bp: dict) -> str:
@@ -126,11 +126,55 @@ def _browser_entry_ts(bp: dict) -> str:
     screens = dashboard_screen + "".join(
         f'  {{ label: "{e["name"]}", role: "{role_of(e)}", mount: mount{e["name"]} }},\n'
         for e in served)
+    roles = bp.get("roles") or []
+    # FSK-FRONTEND-LOGIN (corte A, session-picker dev): un <select data-role-picker> con TODOS los roles del
+    # blueprint + "(default)". Elegir un rol PISA el rol de la pantalla ACTIVA (overrideRole) hasta que el dev
+    # vuelva a "(default)" (null -> cae a `s.role`, el comportamiento actual, sin tocar el picker). Opt-in TOTAL:
+    # sin `roles` (RBAC apagado) -> CERO líneas nuevas, byte-idéntico al browser_entry.ts previo.
+    role_picker_decl = (
+        '  const rolePicker = document.createElement("select");\n'
+        '  rolePicker.setAttribute("data-role-picker", "");\n'
+        '  const defaultOpt = document.createElement("option");\n'
+        '  defaultOpt.value = "";\n'
+        '  defaultOpt.textContent = "(default)";\n'
+        '  rolePicker.appendChild(defaultOpt);\n'
+        f'  const ROLES: readonly string[] = {json.dumps(roles)};\n'
+        '  for (const r of ROLES) {\n'
+        '    const opt = document.createElement("option");\n'
+        '    opt.value = r;\n'
+        '    opt.textContent = r;\n'
+        '    rolePicker.appendChild(opt);\n'
+        '  }\n'
+        '  let overrideRole: string | null = null;\n'
+        '  let activeScreen: Screen | undefined = undefined;\n'
+    ) if roles else ''
+    show_body = (
+        '    activeScreen = s;\n'
+        '    screen.replaceChildren();\n'
+        '    const role = overrideRole ?? s.role;\n'
+        '    const token = `Bearer ${role}:${seed.owner}`;\n'
+        '    await s.mount(document, base, token);\n'
+    ) if roles else (
+        '    screen.replaceChildren();\n'
+        '    const token = `Bearer ${s.role}:${seed.owner}`;\n'
+        '    await s.mount(document, base, token);\n'
+    )
+    role_picker_listener = (
+        '  rolePicker.addEventListener("change", () => {\n'
+        '    overrideRole = rolePicker.value === "" ? null : rolePicker.value;\n'
+        '    if (activeScreen !== undefined) {\n'
+        '      void show(activeScreen);\n'
+        '    }\n'
+        '  });\n'
+    ) if roles else ''
+    role_picker_append = '  app.appendChild(rolePicker);\n' if roles else ''
     return (
         "// FSK-FRONTEND-ALL-ENTITIES — el ENTRY del bundle del browser: importa mount<E> (app.ts) de CADA entidad\n"
         "// servida y arma un NAV (un boton por entidad) + un #screen; al elegir una entidad MONTA su pantalla\n"
         "// contra el AppServer MISMO-ORIGEN (location.origin) -> trae la lista VIVA y la renderiza en el DOM REAL.\n"
         "// esbuild (build_bundle.mjs) lo bundlea a un IIFE (dist/app.js); el AppServer lo sirve en GET /app.js.\n"
+        "// FSK-FRONTEND-LOGIN (corte A): un <select data-role-picker> deja actuar como CUALQUIER rol declarado\n"
+        "// para la sesion completa (session-picker DEV, no auth real -- ver work-doc).\n"
         f'import {{ {imports} }} from "./app.ts";\n\n'
         "interface Screen {\n"
         "  label: string;\n"
@@ -148,20 +192,21 @@ def _browser_entry_ts(bp: dict) -> str:
         '  const nav = document.createElement("nav");\n'
         '  const screen = document.createElement("div");\n'
         '  screen.id = "screen";\n'
+        f"{role_picker_decl}"
         "  const show = async (s: Screen): Promise<void> => {\n"
-        "    screen.replaceChildren();\n"
-        "    const token = `Bearer ${s.role}:${seed.owner}`;\n"
-        "    await s.mount(document, base, token);\n"
+        f"{show_body}"
         "  };\n"
+        f"{role_picker_listener}"
         "  for (const s of SCREENS) {\n"
         '    const btn = document.createElement("button");\n'
         "    btn.textContent = s.label;\n"
         '    btn.setAttribute("data-entity", s.label);\n'
-        "    btn.addEventListener(\"click\", () => {\n"
+        '    btn.addEventListener("click", () => {\n'
         "      void show(s);\n"
         "    });\n"
         "    nav.appendChild(btn);\n"
         "  }\n"
+        f"{role_picker_append}"
         "  app.appendChild(nav);\n"
         "  app.appendChild(screen);\n"
         "  const first = SCREENS[0];\n"
@@ -353,6 +398,29 @@ def _browser_check_ts(bp: dict) -> str:
         rf_def = next(f for f in owned["fields"] if f["name"] == render_field)
         trash_row_value = f"trash-{render_field}" if rf_def.get("unique") else str(form_body[render_field])
         trash_block = _TRASH_ASSERT_BLOCK.replace("%TRASH_ROW_VALUE%", json.dumps(trash_row_value))
+    # FSK-FRONTEND-LOGIN (corte A): el diente del session-picker -- opt-in DOBLE (roles declarados Y un rol
+    # "equivocado" real disponible para el lado negativo). Reusa `owned`/`scalars`/`owned_ref_fields` YA
+    # calculados arriba (la misma fuente que FORM_BODY) -- NO los recalcules. NO reusar `_wrong_role_set`
+    # (auth.py): su fallback (`write_roles[:-1]`, para el fixture ESTATICO de route_check) puede devolver un
+    # rol que SIGUE pudiendo escribir cuando write_roles == roles (p.ej. helpdesk: Ticket con
+    # write_roles=[admin,supervisor,agent] == roles completo) -- ahi "admin" NO es un rol equivocado real, y
+    # el diente (que espera un 403) fallaria en runtime. Acá el criterio es directo: un rol DECLARADO que NO
+    # está en write_roles; si no hay ninguno (todos pueden escribir), el picker se emite igual pero el diente
+    # NEGATIVO se omite (no hay verdad que probar).
+    roles_list = bp.get("roles") or []
+    wrong_roles = [r for r in roles_list if r not in owned["write_roles"]] if roles_list else []
+    login_block = ""
+    if roles_list and wrong_roles:
+        login_form_body = {f["name"]: _proof_login_value(f) for f in scalars}
+        owned_ref_merge_login = (
+            "\n    for (const [k, v] of Object.entries(seed.ownedRefs ?? {})) {\n"
+            "      LOGIN_BODY[k] = v;\n    }"
+        ) if owned_ref_fields else ""
+        login_block = (_LOGIN_ASSERT_BLOCK
+                       .replace("%ROLE_OPTIONS_JSON%", json.dumps([""] + roles_list))
+                       .replace("%WRONG_ROLE%", wrong_roles[0])
+                       .replace("%LOGIN_FORM_BODY%", json.dumps(login_form_body))
+                       .replace("%OWNED_REF_MERGE_LOGIN%", owned_ref_merge_login))
     return (_BROWSER_CHECK_SKELETON
             .replace("%PLURAL%", plural)
             .replace("%RENDER_FIELD%", render_field)
@@ -373,4 +441,5 @@ def _browser_check_ts(bp: dict) -> str:
             .replace("%OPERATIONS_ASSERT%", operations_block)
             .replace("%DELETE_ASSERT%", delete_block)
             .replace("%TRASH_ASSERT%", trash_block)
+            .replace("%LOGIN_ASSERT%", login_block)
             .replace("%OWNED_ENTITY%", owned["name"]))

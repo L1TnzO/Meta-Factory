@@ -1,9 +1,29 @@
-<!-- meta:doc sha=4e1df6a0fb93648acee376666d483b1f5279513e updated=2026-07-07T20:14Z -->
+<!-- meta:doc sha=16639d07c7af54b3cba7748631b6baefaf723cce updated=2026-07-07T21:27Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-LOGIN (2026-07-07)** ✅ CERRADO — INC-5/5 (ÚLTIMO) del arco `FSK-FRONTEND-SCREENS-DIRECTION`,
+  corte A (session-picker dev, CERO backend): un `<select data-role-picker>` GLOBAL-por-sesión en
+  `browser_entry.ts` (opt-in sobre `bp["roles"]`) lista `"(default)"` + TODOS los roles declarados; elegir
+  uno pisa el rol de la pantalla ACTIVA (`overrideRole ?? s.role`, RE-MONTA con el token nuevo) hasta volver
+  a `"(default)"` — permite ver RBAC real en acción desde el browser (un `auditor` no puede escribir, un
+  `admin` sí), sin ser autenticación real (corte B, diferido INC-6). `feedback` ganó `data-feedback="create"`
+  (hook de testabilidad, como `data-trash-id`) para un diente negativo determinista. **UN SOLO slot**
+  delegado al `generator` (4 archivos: `base.py`/`frontend.py`/`browser.py`/`constants.py`) — verdict del
+  slot en sí **red** (presupuesto de bundle, esperado y correctamente NO resuelto por el generator) +
+  residuo REAL tomado por el orquestador con ojos propios: (a) bump `BUNDLE_BUDGET_PER_ENTITY_BYTES`
+  1920→1965 (+45 B/entidad EXACTOS — el costo escala con `n_served`, a diferencia de TRASH/DETAIL-TABS que
+  eran costo fijo de 1 sola entidad); (b) un bug REAL en la reutilización de `_wrong_role_set` (pensado para
+  el fixture ESTÁTICO de `route_check.py`, no para "un rol genuinamente prohibido en runtime") que sólo
+  `ci --rederive --all-products` expuso — `helpdesk` (Ticket con `write_roles == roles` completo) colgaba
+  120s en `frontend_browser_live`; fix: cómputo directo del rol prohibido, byte-empty el diente negativo si
+  no hay ninguno. Diente NUEVO de TRES asserts VIVO en Chromium real y AISLADO (verificado a mano, PG
+  fresca): sabotaje de `overrideRole` (ignorarlo) → SOLO los 3 asserts LOGIN rojearon (23 previos verdes);
+  revert → **27/27** verde. `ci --rederive --all-products` **4/4 == pin**. `meta check` 19/19. Detalle:
+  `docs/work/FSK-FRONTEND-LOGIN-INCREMENT.md §Evidencia` + `docs/work/DELEGATE-FSK-FRONTEND-LOGIN-INCREMENT.md`
+  (meta). **ARCO `FSK-FRONTEND-SCREENS` COMPLETO (5/5)**: TABLE→SEARCH-PAGE→DETAIL-TABS→TRASH→LOGIN.
 - **FSK-FRONTEND-TRASH (2026-07-07)** ✅ CERRADO — INC-4 del arco `FSK-FRONTEND-SCREENS-DIRECTION`: papelera
   (soft-delete) + restore, con un **read-path backend MÍNIMO nuevo** `GET /<plural>/deleted` (RBAC-gated con
   el MISMO `writeRoles()` que `restore`/`DELETE`, invierte el filtro `deleted_at IS NULL`→`IS NOT NULL`,

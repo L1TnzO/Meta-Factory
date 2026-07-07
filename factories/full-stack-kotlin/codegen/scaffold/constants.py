@@ -83,7 +83,13 @@ DEPLOY_IMAGE = "fsk_s11_deploy"   # tag de la imagen + nombre del contenedor del
 BUNDLE_BUDGET_BASE_BYTES = 42384       # piso (runtime cliente: expectId/expectRows/summarize/nav/boot + el form de EDICIÓN de la entidad-con-dueño: renderEdit + update<E>, FSK-FRONTEND-EDIT) + la TABLA semántica (FSK-FRONTEND-TABLE: thead/th + tbody/tr/td por columna del schema) + BÚSQUEDA+PAGINACIÓN (FSK-FRONTEND-SEARCH-PAGE: search input + prev/pageInfo/next + allRows/searchQuery/currentPage state + applyRows) + TABS Details/History de la entidad AUDITADA (FSK-FRONTEND-DETAIL-TABS: tabsContainer/historyContainer + renderHistory + listActionLogs) + PAPELERA de la entidad soft-delete (FSK-FRONTEND-TRASH: trashToggleBtn/trashContainer + renderTrash + listDeleted<E>/restore<E>, costo FIJO por producto aunque sólo 1 entidad sea soft — bump 41115->42384 medido contra snipeit 76 594 B real, budget 76 944 B, ratio 1.0046; precedente FORM-EDIT 4096->7936, TABLE 7936->20288, SEARCH-PAGE 20288->39853, DETAIL-TABS 39853->41115)
 
 
-BUNDLE_BUDGET_PER_ENTITY_BYTES = 1920  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>)
+BUNDLE_BUDGET_PER_ENTITY_BYTES = 1965  # margen por pantalla servida (render<E>List/Detail + mount<E> + create/get/list<E>).
+# FSK-FRONTEND-LOGIN: mount<E> gana el atributo de testabilidad `feedback.setAttribute("data-feedback",
+# "create")` (el diente del session-picker lo necesita para esperar el estado "error"/"ok" determinista, sin
+# sleep) -- UNA línea EMITIDA POR CADA entidad servida (no opt-in a una sola entidad, a diferencia de
+# TRASH/DETAIL-TABS) -> el costo escala con `n_served`, por eso el bump va acá (PER_ENTITY) y no en BASE.
+# Bump 1920->1965 (+45 B/entidad) medido contra snipeit (18 entidades servidas): real 77 404 B, budget previo
+# 76 944 B (ratio 0.9941, FAIL) -> budget nuevo 77 754 B, ratio 1.0045 (mismo margen que el precedente TRASH).
 
 
 _SEARCH_PAGE_SIZE = 10   # FSK-FRONTEND-SEARCH-PAGE: filas por página, client-side. Single-source (frontend.py
@@ -1370,7 +1376,7 @@ async function main(base) {
     // entidad monta su pantalla y su FORM crea una fila que render<E>List muestra en el DOM REAL -> el render se
     // ejercita para 2+ entidades (DIENTE de dos lados: saboteá el render de UNA -> SÓLO esa pantalla falla).
     const navButtons = await page.$$eval("nav button", (els) => els.length);
-    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%HISTORY_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%%TRASH_ASSERT%
+    check(navButtons, %NAV_COUNT%, "el nav lista una pantalla por entidad servida (N botones)");%SECOND_BLOCK%%DETAIL_ASSERT%%EDIT_ASSERT%%HISTORY_ASSERT%%OPERATIONS_ASSERT%%DELETE_ASSERT%%TRASH_ASSERT%%LOGIN_ASSERT%
   } finally {
     await browser.close();
   }
@@ -1763,6 +1769,73 @@ _TRASH_ASSERT_BLOCK = '''
     }
     check(restoreId !== null && goneFromTrash === 0 && backInLive >= 1, true,
           "FSK-FRONTEND-TRASH: restore la saca de la papelera Y la devuelve a la lista viva (Chromium REAL)");'''
+
+
+# FSK-FRONTEND-LOGIN (corte A, session-picker dev): diente de DOS partes, AISLADO y AUTOCONTENIDO (crea su
+# propia fila, no depende del estado de bloques previos). Opt-in DOBLE: `bp["roles"]` declarado Y un rol
+# "equivocado" real disponible (_wrong_role_set no vacío) -- ver browser.py:_browser_check_ts.
+_LOGIN_ASSERT_BLOCK = '''
+
+    // FSK-FRONTEND-LOGIN (corte A, session-picker dev): un <select data-role-picker> deja elegir CUALQUIER rol
+    // declarado del blueprint y reemplaza el rol default de la pantalla ACTIVA para TODA la sesion (Bearer
+    // <rol-elegido>:<owner de /seed>); real-login (corte B, credenciales) queda diferido. Diente de DOS partes,
+    // AISLADO y AUTOCONTENIDO (crea su propia fila, no depende del estado de bloques previos): actuar con un rol
+    // SIN permiso de escritura -> el submit del CREATE es rechazado (RBAC real); volver al rol correcto
+    // ("(default)") -> el MISMO submit SI crea la fila. Sabotaje candidato: ignorar la seleccion del picker (el
+    // rol rechazado terminaria creando la fila igual) -> SOLO estos asserts rojean, el resto sigue verde.
+    await page.waitForSelector("select[data-role-picker]", { timeout: 10000 });
+    const rolePickerValues = await page.$$eval("select[data-role-picker] option", (els) => els.map((o) => o.value));
+    check(rolePickerValues, %ROLE_OPTIONS_JSON%,
+          "FSK-FRONTEND-LOGIN: el picker lista un option por rol declarado (+ \\"(default)\\")");
+
+    const LOGIN_BODY = %LOGIN_FORM_BODY%;%OWNED_REF_MERGE_LOGIN%
+    const fillLoginForm = async () => {
+      for (const [k, v] of Object.entries(LOGIN_BODY)) {
+        const sel = `[name="${k}"]`;
+        if (typeof v === "boolean") {
+          if (v) { await page.check(sel); } else { await page.uncheck(sel); }
+        } else {
+          await page.fill(sel, String(v));
+        }
+      }
+    };
+
+    // 1) actuar con un rol SIN permiso de escritura -> re-monta la pantalla (Bearer nuevo) -> el submit se rechaza.
+    await page.selectOption("select[data-role-picker]", "%WRONG_ROLE%");
+    await page.waitForSelector("tr[data-id]", { timeout: 10000 });
+    const beforeWrong = await page.$$eval("tr[data-id]", (els) => els.length);
+    await fillLoginForm();
+    await page.evaluate(() => {
+      document.querySelector("form").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    try {
+      await page.waitForFunction(
+        () => document.querySelector('p[data-feedback="create"]')?.textContent === "error",
+        { timeout: 10000 });
+    } catch {
+      // timeout: el submit con el rol SIN permiso no marco error -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const feedbackWrong = await page.$eval('p[data-feedback="create"]', (el) => el.textContent ?? "");
+    check(feedbackWrong, "error",
+          "FSK-FRONTEND-LOGIN: actuar con un rol SIN permiso de escritura -> el submit es RECHAZADO (RBAC real, Chromium)");
+    const afterWrong = await page.$$eval("tr[data-id]", (els) => els.length);
+    check(afterWrong, beforeWrong, "FSK-FRONTEND-LOGIN: el intento rechazado NO crea la fila");
+
+    // 2) volver al rol correcto ("(default)" restaura el rol propio de la pantalla activa) -> el MISMO submit crea la fila.
+    await page.selectOption("select[data-role-picker]", "");
+    await page.waitForSelector("tr[data-id]", { timeout: 10000 });
+    await fillLoginForm();
+    await page.evaluate(() => {
+      document.querySelector("form").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+    try {
+      await page.waitForFunction((n) => document.querySelectorAll("tr[data-id]").length > n, afterWrong, { timeout: 10000 });
+    } catch {
+      // timeout: el MISMO submit con el rol correcto tambien fallo -> el check de abajo flipea (rojo). DIENTE.
+    }
+    const afterRight = await page.$$eval("tr[data-id]", (els) => els.length);
+    check(afterRight, afterWrong + 1,
+          "FSK-FRONTEND-LOGIN: volver al rol correcto -> el MISMO submit SI crea la fila (Chromium REAL)");'''
 
 
 # FSK-MUTABLE-WHEN unfreeze block: injected BEFORE _DELETE_ASSERT_BLOCK when the operations block

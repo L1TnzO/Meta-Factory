@@ -768,6 +768,7 @@ def _mount_ts(e: dict) -> str:
         f'  const listContainer = doc.createElement("div");\n'
         f'  const detailContainer = doc.createElement("div");\n'
         f'  const feedback = doc.createElement("p");\n'
+        f'  feedback.setAttribute("data-feedback", "create");\n'
         f'{search_decl}'
         f'  const renderRows = (rows: readonly {name}[]): void => {{\n'
         f'    allRows = rows;\n'

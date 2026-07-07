@@ -480,6 +480,20 @@ def _proof_form_value(f: dict):
     return f["values"][1] if len(f["values"]) > 1 else f["values"][0]   # enum: 2º valor si se puede
 
 
+def _proof_login_value(f: dict):
+    """Valor que el diente FSK-FRONTEND-LOGIN postea al probar el CREATE bajo el picker de roles — type-correct
+    y DISTINTO de `_proof_post_value`/`_proof_form_value` (evita choque UNIQUE con las filas que esos 2 ya
+    crearon en la MISMA corrida de browser_check.ts). `unique` sólo aplica a `string` en este dominio (verificado:
+    los 3 blueprints reales sólo marcan `unique: true` en campos string) → los demás tipos reusan el MISMO literal
+    de `_proof_form_value` sin riesgo de colisión."""
+    t = f["type"]
+    if t == "string":
+        if f.get("format"):
+            return _format_sample(f["format"], alt=True)
+        return f"login-{f['name']}" + ("-uniq" if f.get("unique") else "")
+    return _proof_form_value(f)
+
+
 def _mutable_when(e: dict) -> dict | None:
     """Parse and validate the `mutable_when` blueprint key (FSK-MUTABLE-WHEN). Returns
     {field: str, field_obj: dict, mutable_states: list[str]} or None if absent (opt-in: absent →

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b1a6776d0ccf` | 2026-07-03T18:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `42172fb852b4` | 2026-07-04T20:47Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `dba9c7965d35` | 2026-07-07T04:19Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -71,6 +71,7 @@
 | `docs/work/DELEG-MEASURE-INCREMENT.md` | `94b24e1bb91f` | 2026-06-27T17:22Z | Incremento DELEG-MEASURE |
 | `docs/work/DELEG-PAYOFF-MEASURE-INCREMENT.md` | `0c17c184e753` | 2026-07-02T13:41Z | Incremento DELEG-PAYOFF-MEASURE |
 | `docs/work/DELEG-TOPOLOGY-HYGIENE-INCREMENT.md` | `fdf6d91a762f` | 2026-06-27T21:52Z | Incremento DELEG-TOPOLOGY-HYGIENE |
+| `docs/work/DELEGATE-FSK-FRONTEND-TABLE-INCREMENT.md` | `420165750336` | 2026-07-07T04:56Z | Incremento DELEGATE-FSK-FRONTEND-TABLE |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |

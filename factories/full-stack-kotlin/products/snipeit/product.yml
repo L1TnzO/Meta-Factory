@@ -27,6 +27,12 @@
 
 package_name: snipeit
 api_title: "Snipe-IT Asset Management API"
+# Superficie humana MODEL-NATIVA DURABLE (ADR-024, FSK-SNIPEIT-MODELGEN): products/snipeit/frontend/app.{ts,css}
+# (generados por un slot LLM, verify-not-review, verdict green re-derivado por el orquestador) se COPIAN
+# (no se emiten desde template) en s0 y quedan pineados; s9 corre el 6º check opt-in `frontend_design_floor`
+# (6 ejes: shell/labels/nullcell/overflow/contrast/fields) sobre esta superficie. Primera adopción durable real
+# de cualquier producto FSK (helpdesk sólo tiene el experimento A/B capturado, sin adoptar).
+frontend_surface: model-native
 
 # s6 (lógica de dominio generada por LLM vivo, `claude -p`) se DIFIERE keyless para esta
 # instancia (activation:off, la opción que el propio gate sanciona — doctrina R1, igual que

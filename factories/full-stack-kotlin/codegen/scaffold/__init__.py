@@ -27,6 +27,10 @@ def build_files(bp: dict) -> dict[str, str]:
     pkg = bp["package_name"]
     ents = bp["entities"]
     pkgdir = f"src/main/kotlin/{pkg}"
+    # FSK-MODELGEN-DURABLE (ADR-024): superficie humana pineada (frontend/app.ts + app.css). `surface` es {}
+    # salvo que el producto opte in con `frontend_surface: model-native` (el loader carga el override en bp).
+    # Cuando está, se COPIA verbatim el override en vez de emitir el template. Byte-neutral: {} -> template.
+    surface = bp.get("_frontend_surface") or {}
     files = {
         "openapi.yaml": _openapi_yaml(bp),
         "settings.gradle.kts": _settings_gradle(pkg),
@@ -74,7 +78,7 @@ def build_files(bp: dict) -> dict[str, str]:
         "frontend/probe-test/fail.test.ts": _ts_probe_fail_test(),
         # calidad de experiencia (s8, DES-7): UI accesible generada + drivers a11y/perf + scorers + probes
         "frontend/ui/index.html": _ui_index_html(bp),
-        "frontend/src/app.ts": _app_ts(ents),
+        "frontend/src/app.ts": surface["app_ts"] if surface else _app_ts(ents),   # FSK-MODELGEN-DURABLE: pinned override or template
         "frontend/eval/budget.json": _budget_json(len(_live_entities(ents))),
         "frontend/eval/a11y_audit.mjs": _a11y_audit_mjs(),
         "frontend/eval/a11y_scorer.mjs": _a11y_scorer_mjs(),
@@ -169,7 +173,7 @@ def build_files(bp: dict) -> dict[str, str]:
         # FSK-FRONTEND-STYLES: la hoja de estilos (ARCHIVO APARTE, regla multi-archivo). esbuild la compila a
         # dist/app.css (build_bundle.mjs, 2da pasada); el AppServer la sirve en GET /app.css; index.html la linkea;
         # el proof browser_check.ts asevera que APLICA en Chromium real. DATA-agnóstica (estila clases semánticas).
-        files["frontend/src/app.css"] = _app_css()
+        files["frontend/src/app.css"] = surface["app_css"] if surface else _app_css()   # FSK-MODELGEN-DURABLE: pinned override or template
         files["frontend/build_bundle.mjs"] = _build_bundle_mjs()
         files["frontend/browser_check.ts"] = _browser_check_ts(bp)
     # mutable_when / freeze by state (s5, DES-3, FSK-MUTABLE-WHEN): OPT-IN — sólo cuando ≥1 entidad

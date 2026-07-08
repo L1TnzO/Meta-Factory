@@ -343,4 +343,22 @@ def _load_blueprint(root: Path) -> dict:
                 ref = op.get(key)
                 if ref is not None and (fld_by.get(ref) is None or fld_by[ref].get("type") != "ref"):
                     raise SystemExit(f"scaffold: operation {nm!r}: '{key}' {ref!r} no es un campo 'ref' de {e['name']!r}")
+    # FSK-MODELGEN-DURABLE (ADR-024): `frontend_surface: model-native` = OPT-IN a una superficie humana
+    # DURABLE. La superficie (frontend/app.ts + app.css) es un OVERRIDE pineado —model-generado UNA vez,
+    # commiteado bajo el root del producto— que el codegen COPIA verbatim en el build en vez de emitir el
+    # template mecánico (build_files lee bp["_frontend_surface"]). Fail-closed: el opt-in EXIGE ambos
+    # archivos (una superficie faltante/renombrada es un error de config, NO un fallback silencioso al
+    # template → lado ROJO #2 del diente). Byte-neutral: un producto sin la flag no agrega clave alguna →
+    # codegen IDÉNTICO (los no-adoptantes como `assets` no re-pinean). Valor del set CERRADO (fail-closed).
+    surface = bp.get("frontend_surface")
+    if surface is not None:
+        if surface != "model-native":
+            raise SystemExit(f"scaffold: frontend_surface {surface!r} fuera del set cerrado {{model-native}} (fail-closed)")
+        fe = root / "frontend"
+        missing = [n for n in ("app.ts", "app.css") if not (fe / n).is_file()]
+        if missing:
+            raise SystemExit(f"scaffold: frontend_surface: model-native pero falta la superficie pineada {missing} "
+                             f"en {fe} (el override es obligatorio — fail-closed)")
+        bp["_frontend_surface"] = {"app_ts": (fe / "app.ts").read_text(encoding="utf-8"),
+                                   "app_css": (fe / "app.css").read_text(encoding="utf-8")}
     return bp

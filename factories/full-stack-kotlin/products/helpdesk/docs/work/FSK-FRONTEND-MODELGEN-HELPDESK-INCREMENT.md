@@ -1,7 +1,7 @@
-<!-- meta:doc sha=0a1e4255ff425b602ffccbc710bc713c379d1e29 updated=2026-07-08T15:16Z -->
+<!-- meta:doc sha=fdb97fd85030c1dcf8255daa93471696425a6d6e updated=2026-07-08T15:24Z -->
 # Incremento FSK-FRONTEND-MODELGEN-HELPDESK
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-08T14:46Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-08T15:24Z) (creado 2026-07-08T14:46Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `f974b3506003` | 2026-07-07T21:56Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `18dfc49d0e40` | 2026-07-07T21:52Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `cf7cb2a0d0fe` | 2026-07-08T02:05Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -30,6 +30,7 @@
 | `docs/decisions/020-activacion-de-la-delegacion.md` | `8c55ffce51aa` | 2026-06-27T21:49Z | ADR-020 — Activación de la delegación: routing por defecto, métrica de costo, y especialización por ROL |
 | `docs/decisions/021-economia-opus-marginal.md` | `a03c7390b479` | 2026-07-02T14:33Z | ADR-021 — Economía Opus-marginal: ruteo por SESIÓN, doctrina de cache, y el plan fijo COST-DOWN |
 | `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `d2cd545724bb` | 2026-07-04T20:10Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
+| `docs/decisions/023-generacion-model-nativa-y-piezas-de-comunidad.md` | `5072cdeb8989` | 2026-07-08T02:05Z | ADR-023 — Generación model-nativa + piezas de comunidad: la fábrica es la spec y el perfil de verificación; el codegen de templates se congela |
 | `docs/reference/ARCHITECTURE-MAP.md` | `70b5f4217ccb` | 2026-07-04T19:54Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |

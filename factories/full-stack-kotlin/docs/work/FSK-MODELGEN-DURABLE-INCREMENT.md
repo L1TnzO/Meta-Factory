@@ -1,4 +1,4 @@
-<!-- meta:doc sha=fe9264b99f021dc6595382d73b90a4e98724e0bc updated=2026-07-08T15:54Z -->
+<!-- meta:doc sha=43821703b70c80da7b9cce61ba03a9b0f7d88fd4 updated=2026-07-08T17:44Z -->
 # Incremento FSK-MODELGEN-DURABLE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (2026-07-08T15:53Z). Cerralo con `meta increment close`
@@ -42,6 +42,26 @@ el cliente tipado ni los checks browser/consume (se preservan template).
 2. Mecanismo override (copiar en vez de emitir) + flag `frontend_surface` (byte-neutral para no-adoptantes).
 3. Wiring s9 → design_floor opt-in.
 4. Verificar: `meta check` verde · `ci --rederive assets`==pin · el diente rojo/verde probado a mano.
+
+## Handoff — hechos descubiertos (para no re-leer el motor)
+**Mitad META LISTA: `CHECK-WHEN-GUARD` ✅ (meta commits 0f1085e·d2e9c07).** El motor YA tiene el opt-in
+por-check: un check con `when: {frontend_surface: model-native}` corre SÓLO para productos model-nativos y se
+saltea byte-neutral (no toca el pin de `assets`). Lo que resta es SÓLO adopción FSK. Seams verificados:
+- **Flag**: `frontend_surface: model-native` top-level en `products/<p>/product.yml`. Fluye solo a
+  `subst[frontend_surface]` (`spec.subst` aplana `domain.product`) — cero cambios en loader/`_subst_for`.
+- **Ley del pin** (`seed/verifier.compute_proof_sha`): sha sobre `{station_id, sorted[(name,exit)]}` → SÓLO
+  los checks que corrieron. Un check `when`-salteado ⇒ `proof_sha` idéntico. `pinned_verdict.json` = `{sid: sha}`.
+- **s9 opt-in**: agregar a `stations/s9.yml` un check `frontend_design_floor` (kind `infra_up`, patrón de los
+  otros 4: boot app + PG fresca + `proof:` corre `tools/design_floor_check.ts`) con `when: {frontend_surface:
+  model-native}`. ⚠️ DECISIÓN ABIERTA (S1, arrancar acá): `design_floor_check.ts` toma `URL SHOT PROBE CONTRACT`
+  y PROBE+CONTRACT se DERIVAN del spec en Python (ver `tools/modelgen_ab_gate.sh` §2/§2b). Como check s9 hay que
+  derivarlos — o un wrapper `.py`, o que el `.ts` los lea de `factory.spec.yml`. Elegir antes de cablear.
+- **Copy-vs-emit**: en s0 la superficie se COPIA de `products/<p>/frontend/app.{ts,css}` en vez de emitir el
+  template. Puntos: `codegen/scaffold/frontend.py` (app.ts) + `constants._APP_CSS` (app.css). Mismo flag.
+- **Primer producto durable**: la superficie model-nativa que ganó el A/B es de `helpdesk` (sweet-spot 5 ent.),
+  vive en `build/` gitignored → COMMITEARLA a `products/helpdesk/frontend/app.{ts,css}` (o regenerarla) para
+  probar el lado VERDE del diente. snipe-it (19 ent., split en slots Sonnet) es INC-B, NO este increment.
+- **Cierre**: FSK STATE está stale (pre-existente) → actualizar su «Ahora» al cerrar (limpia el residual docs).
 
 ## Evidencia
 _(pendiente)_

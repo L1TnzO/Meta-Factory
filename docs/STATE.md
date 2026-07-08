@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1b6422f9dfdf8dd49f4172a9146867ce17edab86 updated=2026-07-08T15:27Z -->
+<!-- meta:doc sha=8cbe1447272ea7cd0e92c4e27e616554efeb0b72 updated=2026-07-08T17:40Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: CHECK-WHEN-GUARD-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -16,13 +16,13 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
-- **✅ `ADR-023` model-nativo VALIDADO por el experimento A/B (2026-07-08).** Fábrica = spec + PERFIL DE
-  VERIFICACIÓN; la superficie humana se GENERA por el harness (slots LLM, gates deciden); codegen de
-  templates **CONGELADO**. Experimento EJECUTADO — **gana B (model-nativo)** en los 3 jueces: frontend
-  `helpdesk` por slot Sonnet bajo los MISMOS gates → app-shell real vs template sin-shell/30-inputs-sin-label;
-  barato (~370k tok Sonnet). Verificar-no-revisar cerró su residuo: ojos hallaron pérdida-de-datos → diente
-  `fields` (6º eje design-floor) → Sonnet lo satisface. Follow-on: enum→`<select>` (re-pin), FK-SELECT,
-  adoptar `fields` en s9. → `decisions/023` · `work/FSK-FRONTEND-MODELGEN-AB-INCREMENT.md §Evidencia` · LOG.
+- **✅ model-nativo VALIDADO (A/B, `ADR-023`) → durable EN CURSO (`ADR-024`).** Fábrica = spec + PERFIL DE
+  VERIFICACIÓN; superficie humana GENERADA (slots LLM, gates deciden); codegen de templates **CONGELADO**.
+  A/B gana B (~370k tok Sonnet); el residuo lo cerró el diente `fields` (6º eje design-floor). `ADR-024`:
+  superficie = **override pineado** (`products/<p>/frontend/app.{ts,css}`, copiada-no-emitida vía
+  `frontend_surface: model-native`) verificada por `design_floor` opt-in, SIN re-pinear los productos-template.
+  META lista: **`CHECK-WHEN-GUARD` ✅** (guard por-check `when:` byte-neutral, `runner._check_active`). Sigue:
+  `FSK-MODELGEN-DURABLE` (s9+copy) → snipe-it. → `decisions/023`·`024` · `work/CHECK-WHEN-GUARD` · LOG.
 - **⚖️ `COUNCIL-EXEC` — EJECUTANDO el diseño COUNCIL-360 §6.4 (2026-07-04, ADR-022).** Camino B en vigor:
   sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** (declarado en su STATE) · dummy =
   fixture del pin. HECHO hoy: **H-1 REAL** (segundo actor VERDE: Actions run 28717567792; `--skip` explícito

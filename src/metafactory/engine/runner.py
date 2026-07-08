@@ -53,6 +53,19 @@ def write_active(ctx: RunContext, station: Station, stations_dir: Path, spec_pat
         os.replace(tmp, dest)
 
 
+def _check_active(check: dict, subst: dict) -> bool:
+    """A check may carry a DATA-only `when:` guard — a flat map of substitution-key -> required value
+    (e.g. `when: {frontend_surface: model-native}`). The check runs only when EVERY entry matches the
+    effective substitution. A guarded check that does NOT match is SKIPPED: it never enters `cmds`, so it
+    contributes no `(name, exit)` pair to the proof — a product that does not opt in re-derives a
+    BYTE-IDENTICAL proof_sha and its pin is untouched. This is the per-CHECK analogue of `station_activation`
+    (which gates at the station level in the loader). The guard names no domain/tech — it is DATA (ADR-012)."""
+    when = check.get("when")
+    if not when:
+        return True
+    return all(str(subst.get(k, "")) == str(v) for k, v in when.items())
+
+
 def run_station(
     ctx: RunContext,
     station: Station,
@@ -77,7 +90,8 @@ def run_station(
     if record_active:
         write_active(ctx, station, stations_dir, spec_path)
 
-    cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, station, subst)} for c in station.checks]
+    active_checks = [c for c in station.checks if _check_active(c, subst)]
+    cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, station, subst)} for c in active_checks]
     proof = ctx.verifier.verify_station(station.id, cmds, ctx.root, pythonpath=ctx.pythonpath)
     gate = open_gate(ctx, station, seq)
 

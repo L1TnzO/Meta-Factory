@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `b6bb838ed39e` | 2026-07-08T15:25Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `1b6422f9dfdf` | 2026-07-08T15:27Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `8cbe1447272e` | 2026-07-08T17:40Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -31,6 +31,7 @@
 | `docs/decisions/021-economia-opus-marginal.md` | `a03c7390b479` | 2026-07-02T14:33Z | ADR-021 — Economía Opus-marginal: ruteo por SESIÓN, doctrina de cache, y el plan fijo COST-DOWN |
 | `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `d2cd545724bb` | 2026-07-04T20:10Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
 | `docs/decisions/023-generacion-model-nativa-y-piezas-de-comunidad.md` | `5072cdeb8989` | 2026-07-08T02:05Z | ADR-023 — Generación model-nativa + piezas de comunidad: la fábrica es la spec y el perfil de verificación; el codegen de templates se congela |
+| `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
 | `docs/reference/ARCHITECTURE-MAP.md` | `70b5f4217ccb` | 2026-07-04T19:54Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
@@ -61,6 +62,7 @@
 | `docs/work/C4-EVIDENCE-TREE-INCREMENT.md` | `5248bee82233` | 2026-06-15T20:31Z | Incremento C4-EVIDENCE-TREE |
 | `docs/work/CACHE-SHAPE-INCREMENT.md` | `c56cbea7b58e` | 2026-07-03T17:05Z | Incremento CACHE-SHAPE |
 | `docs/work/CADENCE-INCREMENT.md` | `6e1cbb9fa169` | 2026-06-14T01:29Z | Incremento CADENCE — disciplina de commit: todo código vive en un incremento; cadencia por fase |
+| `docs/work/CHECK-WHEN-GUARD-INCREMENT.md` | `04a3f4208486` | 2026-07-08T17:33Z | Incremento CHECK-WHEN-GUARD |
 | `docs/work/COLUMN-MAINT-INCREMENT.md` | `e8dd5036074d` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
 | `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `e6ea892dc3d6` | 2026-07-03T04:19Z | Incremento CONTEXT-LEAN-TEETH |
 | `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |

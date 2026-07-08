@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7ccd4bfa4fd61443427de4880cd7b730ce926225 updated=2026-07-08T15:23Z -->
+<!-- meta:doc sha=1b6422f9dfdf8dd49f4172a9146867ce17edab86 updated=2026-07-08T15:27Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -16,17 +16,13 @@
 > arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
 > un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
 
-- **✅ `ADR-023` — RE-DIRECCIÓN: generación MODEL-NATIVA validada por el experimento A/B (2026-07-08).**
-  Fábrica = spec + PERFIL DE VERIFICACIÓN (estaciones-checks·RTM·CI·design-floor); la generación de la
-  superficie humana va por el harness (slots LLM, gates deciden); el codegen de templates **CONGELADO**
-  (pins verdes gratis). **Experimento EJECUTADO — gana el brazo B (model-nativo):** frontend `helpdesk`
-  regenerado por slot Sonnet bajo los MISMOS gates s8+s9 + design-floor → app-shell real, forms completos,
-  Vercel ink+hairline (vs template = sin shell, 30 inputs sin label). El ciclo verificar-no-revisar
-  cerró su residuo: mis ojos hallaron pérdida-de-datos (opcionales inseteables) → nuevo diente `fields`
-  (create-form completeness, 6º eje del design-floor) → Sonnet lo satisface. Barato (~370k tok Sonnet, 2
-  ciclos) y mejor. Evidencia + 3 jueces: `factories/full-stack-kotlin/docs/work/FSK-FRONTEND-MODELGEN-AB-INCREMENT.md
-  §Evidencia`. Follow-on abierto: enum→`<select>` (revisa `browser_check` congelado + re-pin), FK-SELECT,
-  adoptar `fields` en el perfil s9 estándar. → `decisions/023`.
+- **✅ `ADR-023` model-nativo VALIDADO por el experimento A/B (2026-07-08).** Fábrica = spec + PERFIL DE
+  VERIFICACIÓN; la superficie humana se GENERA por el harness (slots LLM, gates deciden); codegen de
+  templates **CONGELADO**. Experimento EJECUTADO — **gana B (model-nativo)** en los 3 jueces: frontend
+  `helpdesk` por slot Sonnet bajo los MISMOS gates → app-shell real vs template sin-shell/30-inputs-sin-label;
+  barato (~370k tok Sonnet). Verificar-no-revisar cerró su residuo: ojos hallaron pérdida-de-datos → diente
+  `fields` (6º eje design-floor) → Sonnet lo satisface. Follow-on: enum→`<select>` (re-pin), FK-SELECT,
+  adoptar `fields` en s9. → `decisions/023` · `work/FSK-FRONTEND-MODELGEN-AB-INCREMENT.md §Evidencia` · LOG.
 - **⚖️ `COUNCIL-EXEC` — EJECUTANDO el diseño COUNCIL-360 §6.4 (2026-07-04, ADR-022).** Camino B en vigor:
   sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** (declarado en su STATE) · dummy =
   fixture del pin. HECHO hoy: **H-1 REAL** (segundo actor VERDE: Actions run 28717567792; `--skip` explícito

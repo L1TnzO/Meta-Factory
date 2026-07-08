@@ -1,6 +1,48 @@
-<!-- meta:doc sha=390109a8b4ca07714d49560daaef9dda0fb2e843 updated=2026-07-08T20:07Z -->
+<!-- meta:doc sha=aefceadddaad06425cd764ca13398ef1578eb28b updated=2026-07-08T21:17Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-08T21:20Z — FSK-SNIPEIT-MODELGEN ✅: primera adopción durable real del modo model-nativo (ADR-024)
+- **Qué:** `products/snipeit/frontend/app.{ts,css}` (19 entidades) queda TRACKED + `frontend_surface:
+  model-native` activo en `product.yml` — el mecanismo construido en `FSK-MODELGEN-DURABLE` (copy-vs-emit
+  + check opt-in `frontend_design_floor`) consumido por PRIMERA VEZ de verdad por un producto (helpdesk
+  sólo tiene el experimento A/B capturado, sin adoptar). Sesión de EJECUCIÓN (S2, ADR-021) sobre el plan
+  diseñado en S1 (`docs/work/FSK-SNIPEIT-MODELGEN-INCREMENT.md`, cerrado con este episodio).
+- **Fase 0 (de-risk gratis):** confirmó, sobre la superficie ya capturada de helpdesk (temporal, revertida),
+  que el check opt-in de s9 dispara y pasa verde en una re-derivación real de árbol limpio — ver episodio
+  previo `FSK-DESIGNFLOOR-DERISK`.
+- **Fase 1-2 (generación):** baseline arm-A (frontend template) ROJO medido (`shell` 1, `labels` 83,
+  `contrast` 1, `fields` 97 violaciones sobre 19 entidades) → slot LLM (`generator`, Sonnet, vía
+  `generate-slot`) generó `app.ts`(894 LOC)+`app.css`(197 LOC): tabla `EntityDef` data-driven genérica para
+  17 entidades + `Asset` a mano sobre la misma máquina (trash/history/checkout). Deltas de snipe-it
+  aplicados: enums/refs SIEMPRE `<input>` (nunca `<select>`, `browser_check.ts` usa `page.fill`), eje
+  `fields` cubriendo TODOS los campos seteables incl. opcionales en las 19 entidades, tabla con scroll
+  horizontal para `Asset` (eje `overflow`). Gen-1 verde a la primera por los 6 ejes + s8+s9.
+- **Los ojos SÍ importan:** el orquestador revisó los screenshots (residuo que ningún gate atrapa) y
+  encontró un bug real — `mountEntity`/`mountAsset`/`mountDashboard` hacían `host.appendChild(...)` sobre
+  el `#screen` persistente SIN limpiar el contenido previo → las pantallas se APILABAN al navegar (el
+  dashboard completo quedaba visible debajo de la pantalla de Asset). Ningún gate lo atrapó: `fields` sólo
+  mira presencia de `[name]` en `form:not([data-edit])` (un form STALE podía enmascarar una entidad
+  incompleta), `overflow` sólo mide desborde horizontal. Fallo estructurado de vuelta al generator (fix
+  cycle 1/2): corregido con `host.replaceChildren()` antes de cada `appendChild`. Re-verificado
+  INDEPENDIENTEMENTE por el orquestador (dos verificadores: gates de cero + script Playwright propio
+  confirmando `.screen` count==1 en toda una secuencia de navegación + eyeball del screenshot final).
+- **Fase 3-4 (durable + flag):** copia sha-idéntica a `products/snipeit/frontend/`; `frontend_surface:
+  model-native` en `product.yml` → `ci --rederive snipeit` **11/11==nuevo pin** (re-pin esperado, es
+  adoptante) · `ci --rederive assets` **11/11==pin existente** (byte-neutral, no-adoptante) · `git diff
+  codegen/+src/metafactory/+seed/ == 0`.
+- **Costo medido:** 407 507 tok Sonnet totales (gen-1 320 441 + fix-cycle 87 066), bajo el presupuesto
+  proyectado ~500-700k; 1/2 ciclos de fix usados.
+- **Gotcha de harness (anotado, NO arreglado acá):** `increment_guard` es global y puramente path-based —
+  no conoce la excepción que `seed/delegation.py: write_allowed` ya le da al `verdict_path` del generator
+  (siempre permitido). El generator no pudo persistir su propio veredicto (bloqueado 2 veces, correctamente
+  NO intentó rutear por otro mecanismo); el orquestador lo persistió vía un incremento META de vida corta.
+  Lección reusable: un incremento META debe cerrarse INMEDIATAMENTE tras su única escritura — dejarlo
+  abierto durante una espera larga bloquea `stop_proof`/`cadence.debt()` en CUALQUIER archivo no-`.md` sucio
+  del repo entero (sin scope por nivel), incluido contenido de OTRO alcance (resuelto con `git stash`
+  selectivo). Candidato a increment META futuro: enseñarle a `increment_guard` la misma excepción de
+  `verdict_path`.
+- **Detalle completo + evidencia:** `products/snipeit/docs/work/FSK-SNIPEIT-MODELGEN-INCREMENT.md §Evidencia`.
 
 ## 2026-07-08T20:07Z — FSK-DESIGNFLOOR-DERISK ✅: el wiring VERDE del check opt-in `frontend_design_floor` corre live
 - **Qué:** Fase 0 (gratis, opcional) de `FSK-SNIPEIT-MODELGEN` — de-riskear el lado VERDE del check opt-in de s9

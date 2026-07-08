@@ -1,9 +1,23 @@
-<!-- meta:doc sha=77b20c4f2810903cc2780d9aee528ec499bb5b1b updated=2026-07-08T18:46Z -->
+<!-- meta:doc sha=1fc48ea064070867958add854dfb4a2f8136dcac updated=2026-07-08T21:17Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-SNIPEIT-MODELGEN (2026-07-08)** ✅ CERRADO — **primera adopción durable real** de un producto FSK
+  del modo model-nativo (ADR-024): `products/snipeit/frontend/app.{ts,css}` (19 entidades) TRACKED +
+  `frontend_surface: model-native` activo. Slot LLM (`generator`, Sonnet) vía `generate-slot`: gen-1 verde
+  por los 6 ejes `design_floor` + s8+s9 (407 507 tok totales, bajo el presupuesto ~500-700k, 1/2 ciclos de
+  fix), pero los OJOS del orquestador sobre screenshots (residuo que ningún gate atrapa) encontraron un bug
+  real — pantallas apiladas (`#screen` sin limpiar entre `mountEntity`/`mountAsset`/`mountDashboard`);
+  devuelto como fallo estructurado, corregido con `host.replaceChildren()`, re-verificado independientemente
+  (dos verificadores). `ci --rederive snipeit` **11/11==nuevo pin** (re-pin esperado, es adoptante) ·
+  `ci --rederive assets` **11/11==pin existente** (byte-neutral, no-adoptante) · `git diff codegen/+src/
+  metafactory/+seed/ == 0`. helpdesk SIGUE sin adoptar (su superficie A/B capturada permanece untracked,
+  fuera de alcance). Gotcha de harness anotado (no arreglado): `increment_guard` no conoce la excepción de
+  `verdict_path` que `write_allowed` ya le da al generator → forzó 2 incrementos META de vida corta para que
+  el orquestador persistiera el manifest+veredicto en su lugar. Detalle: `products/snipeit/docs/work/
+  FSK-SNIPEIT-MODELGEN-INCREMENT.md §Evidencia`.
 - **FSK-MODELGEN-DURABLE (2026-07-08)** ✅ mecanismo COMPLETO — la COEXISTENCIA de ADR-024: un producto puede
   tener superficie humana model-nativa DURABLE sin re-pinear a los productos-template. (a) copy-vs-emit
   (`_load_blueprint` copia `products/<p>/frontend/app.{ts,css}` bajo el flag `frontend_surface: model-native`,

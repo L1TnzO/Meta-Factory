@@ -1,4 +1,4 @@
-<!-- meta:doc sha=509d7daf1a8203b9833bf28b7c7ac6638affdad0 updated=2026-07-08T20:01Z -->
+<!-- meta:doc sha=4f3860cdc6cb06769862ff2135694952f4705aa7 updated=2026-07-08T21:16Z -->
 # Incremento FSK-SNIPEIT-MODELGEN
 
 > **Doc de gobierno.** Nivel **product-instance** (`products/snipeit`, ADR-016). Estado: **ABIERTO**
@@ -159,5 +159,57 @@ eso (19 ent, ~600k tok, gate lento). De-riskealo GRATIS primero con la superfici
 interno; harden sólo al cierre. Vehículo caro por diseño (19 ent = techo de regresión) — es una adopción de
 PRODUCTO deliberada, no un run medido.
 
-## §Evidencia
-_(la completa la sesión ejecutora al cerrar — gate + ojos)_
+## §Evidencia (verificada por gate + ojos, 2026-07-08, sesión S2)
+
+**Resultado: VERDE.** Primera adopción durable real de un producto FSK. `products/snipeit/frontend/app.{ts,css}`
+(19 entidades) tracked, `frontend_surface: model-native` activo, snipeit RE-PINEADO (esperado), assets
+byte-neutral (no-adoptante).
+
+### Criterio de cierre — verificación punto por punto
+1. **Tracked + flag** ✅: `products/snipeit/frontend/app.{ts,css}` (commit `2056e4b`) + `frontend_surface:
+   model-native` en `product.yml`. sha-idénticos al build aceptado (verificado con `sha256sum` antes y
+   después del `ci --rederive` que reconstruye `build/` desde cero — s0 COPIA, no emite).
+2. **Veredicto green re-derivado** ✅: `.gen/fsk-frontend-modelgen-snipeit.verdict.json` (`status: green`,
+   `acceptance_exit_code: 0`). Re-derivado DOS VECES de forma independiente por el orquestador (no aceptado
+   por prosa del generator): antes del fix (`modelgen_ab_gate.sh snipeit` exit 0, 6/6 ejes) y después del
+   fix (ídem). `.proof/s9.json` real: `passed: true`, 5 checks vivos + `frontend_design_floor` exit 0.
+3. **Re-derivación limpia** ✅: `ci --rederive full-stack-kotlin/snipeit` **11/11 == nuevo pin** (re-pineado,
+   esperado — es adoptante) · `ci --rederive full-stack-kotlin/assets` **11/11 == pin existente**
+   (byte-neutral, no-adoptante), ambos en árbol limpio.
+4. **Cero drift de fábrica/sustrato** ✅: `git diff codegen/ src/metafactory/ seed/ factory.spec.yml
+   stations/ == 0`.
+5. **Screenshots** ✅ (`docs/work/evidence/FSK-SNIPEIT-MODELGEN/`, commits `4c236e5`+`0107972`):
+   `arm-A-template-{home,entity}.png` (ROJO baseline: `shell` 1, `labels` 83, `contrast` 1, `fields` 97
+   violaciones sobre el template desnudo) · `arm-B-final-{home,entity}.png` (VERDE post-fix, 19 entidades
+   navegables, Vercel ink+hairline) · `arm-B-modelnative-home-settled.png` (nota honesta: el screenshot
+   automático del judge captura el dashboard ANTES de que resuelva el fetch async de conteos — timing
+   benigno del script `design_floor_check.ts`, NO un bug del producto; ver punto 7).
+6. **Costo medido** ✅ (de los `task-notification` reales, no estimado): generator gen-1 **320 441 tok**
+   Sonnet / 27.6min wall + fix-cycle **87 066 tok** Sonnet / 7.3min wall = **407 507 tok totales**, **1/2
+   ciclos de fix usados** — bajo el presupuesto proyectado (~500-700k). Columna Opus: este diseño (S1) +
+   ejecución/verificación S2 (no midió tokens de sesión propia, pero cero generación bulk propia — sólo
+   gates + ojos, consistente con el modelo de costo ADR-017 §3).
+7. **Ojos del orquestador sobre los screenshots** ✅ — encontró un defecto REAL que los 6 ejes automáticos
+   + s8+s9 NO atraparon: `mountEntity`/`mountAsset`/`mountDashboard` hacían `host.appendChild(...)` sobre el
+   `#screen` persistente SIN limpiar el contenido previo → las pantallas se APILABAN al navegar (el
+   dashboard completo quedaba visible debajo de la pantalla de Asset). Por qué ningún gate lo atrapó: el eje
+   `fields` sólo busca presencia de `[name]` en `form:not([data-edit])`, así que un form STALE de una
+   entidad previa podía enmascarar una entidad realmente incompleta; `overflow` sólo mide desborde
+   HORIZONTAL, la acumulación era vertical. Devuelto como fallo estructurado (fix cycle 1/2, ver arriba);
+   el generator corrigió con `host.replaceChildren()` antes de cada `appendChild` en las 3 funciones. Fix
+   RE-VERIFICADO por el orquestador con un script Playwright propio: navegación
+   Asset→Company→Manufacturer→Dashboard→Asset con `document.querySelectorAll(".screen").length === 1` en
+   CADA paso (confirmado, sin acumulación) + eyeball del screenshot final (sin contenido fantasma). Sin
+   pérdida-de-datos ni no-op semántico en las 19 entidades revisadas (Company, Asset en detalle).
+
+### Gotcha operativo nuevo (harness, anotado para increment futuro — no arreglado acá)
+`increment_guard` es GLOBAL y puramente path-based (`level_workdir`): cualquier `Write`/`Edit` a una ruta
+meta (`.gen/*.json` cuelga de la raíz) exige un incremento META abierto, SIN conocer la excepción que
+`seed/delegation.py: write_allowed` ya le da al `verdict_path` del generator (siempre permitido,
+incondicional al blast radius). Esto forzó DOS incrementos META de vida corta
+(`DELEGATION-SLOT-SNIPEIT-FRONTEND` + `DELEGATION-SLOT-SNIPEIT-VERDICT`) en vez de que el generator
+persistiera su propio veredicto. Lección reusable adicional: un incremento META **debe** cerrarse
+INMEDIATAMENTE tras su única escritura — dejarlo abierto durante una espera larga (background) bloquea
+`stop_proof`/`cadence.debt()` en CUALQUIER archivo no-`.md` sucio del repo entero (no scopeado por nivel),
+incluidos archivos de OTRO alcance (la superficie de helpdesk, untracked desde antes de esta sesión) —
+resuelto con `git stash` selectivo del contenido ajeno + commit de lo propio + `pop` post-cierre.

@@ -1,7 +1,35 @@
-<!-- meta:doc sha=f974b35060036a9b4b3f05378ec7fa58dd382916 updated=2026-07-07T21:56Z -->
+<!-- meta:doc sha=b6bb838ed39ef7a45a521c7bfadc8bc7d9199e9d updated=2026-07-08T15:25Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-08T15:26Z — FSK-FRONTEND-MODELGEN-AB ✅: el experimento A/B de ADR-023 — gana el brazo B (model-nativo), y el ciclo verificar-no-revisar cerró su propio residuo
+Primer increment de ejecución de ADR-023 (§5): frontend `helpdesk` por templates (brazo A, control) vs por
+UN slot LLM bajo el harness (brazo B), MISMOS gates. Ejecutado por delegación real (Opus = cerebro/contrato/
+columna; Sonnet = genera; veredicto, no diff). **Gana B, decisivo:** app-shell real (topbar+sidebar), Vercel
+ink+hairline sobre LAYOUT, forms completos+labelados, valores formateados — vs template = sin shell, 30 inputs
+sin label (ambos brazos por el MISMO `modelgen_ab_gate.sh`: s8+s9 verdes en los dos, design-floor ROJO en A /
+VERDE en B). Los 3 jueces (ADR-023 §5): calidad (gate two-sided + ojos), costo (~370k tok Sonnet, 2 ciclos, vs
+~5× sesiones Opus del control), mantenibilidad (cambio-siguiente MEDIDO: 94960 tok/7min para cerrar un defecto
+re-abriendo el slot).
+- **El ciclo completo, no sólo "verde":** el gate dio verde en 5 ejes a la primera, pero MIS OJOS + un grep
+  acotado (no leer el bulk) hallaron un defecto REAL que ningún gate atrapaba — `Customer.company` y
+  `Category.description` quedaron inseteables (sin control en create, sin edit-form: sólo hay `TicketPatch`) =
+  pérdida de datos. Encodé el residuo como DIENTE determinista (columna, ojos propios): `design_floor_check.ts`
+  pasó de 5 a 6 ejes (`fields` = create-form completeness, spec-derived, excluye el owner-ref server-set),
+  two-sided PROBADO (rojo pre-fix / verde post-fix). Gen-2 (Sonnet, prompt acotado al fallo) lo satisfizo.
+  Re-derivado por dos verificadores: corrí el gate yo mismo (no el veredicto Bash del generador) → 6/6 verde.
+- **Honestidad medida:** una de las dos "regresiones" que reporté al humano se DISOLVIÓ al leer el código —
+  «enums como texto en vez de `<select>`» es LEY congelada (`browser_check.ts` los llena con `page.fill`, que
+  revienta sobre `<select>`), no un bug. Leer el código ANTES de escribir el diente evitó un tooth overfit (el
+  ingenuo "todos los campos en create" habría castigado el lean-create legítimo del modelo sobre `notes`, que
+  SÍ es editable). Verificar-por-bloqueo > impresión de screenshot.
+- **Lección (candidata a ascender):** model-nativo es tan seguro como los gates que lo fijan — la generación
+  EXPUSO un hueco que el template tapaba por construcción, y el arreglo correcto fue *crecer el diente*, no
+  volver al template. El moat de ADR-023 (spec + perfil de verificación) se templó, no se debilitó. Fricción de
+  columna re-observada: los generadores abrieron increments product+meta reactivamente por el `increment_guard`
+  (escribir bajo `build/`+`.gen/`, ambos gitignoreados) — el meta era espurio (removido+re-sync); candidato a
+  afinar el guard para paths gitignoreados. Detalle+3 jueces: `work/FSK-FRONTEND-MODELGEN-AB-INCREMENT.md §Evidencia`.
 
 ## 2026-07-07T21:52Z — STOP-PROOF-PRERUN-TRUST ✅: la escotilla hermética no podía disparar — el hook decide ANTES del re-run destructivo
 Bug REAL de la columna, encontrado porque la sesión anterior quedó TRABADA post-cierre de LOGIN: `stop_proof`

@@ -1,6 +1,22 @@
-<!-- meta:doc sha=66ed83926a09fab383c39b3c85cb80d5e5a3fa2d updated=2026-07-08T18:46Z -->
+<!-- meta:doc sha=390109a8b4ca07714d49560daaef9dda0fb2e843 updated=2026-07-08T20:07Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-08T20:07Z — FSK-DESIGNFLOOR-DERISK ✅: el wiring VERDE del check opt-in `frontend_design_floor` corre live
+- **Qué:** Fase 0 (gratis, opcional) de `FSK-SNIPEIT-MODELGEN` — de-riskear el lado VERDE del check opt-in de s9
+  ANTES de gastar el presupuesto de snipe-it (19 ent, ~500-700k tok). El mecanismo (`FSK-MODELGEN-DURABLE`) sólo
+  se había probado ROJO (assets) y vía el gate standalone; nunca corrió live disparado por `when:` en una
+  re-derivación real de árbol limpio.
+- **Cómo:** seteo LOCAL y TEMPORAL de `frontend_surface: model-native` en `products/helpdesk/product.yml` sobre la
+  superficie ya capturada `products/helpdesk/frontend/app.{ts,css}` (untracked, build A/B verde del experimento
+  `FSK-FRONTEND-MODELGEN-AB-INCREMENT`) → `meta ci --rederive full-stack-kotlin/helpdesk` en árbol limpio → revert
+  inmediato (`git checkout --`). Increment propio (`FSK-DESIGNFLOOR-DERISK`, nivel `products/helpdesk`, CERRADO)
+  porque toca un nivel distinto del increment consumidor (`products/snipeit`).
+- **Resultado:** `.proof/s9.json` de la corrida mostró `"passed": true`, 5 checks, el 5º `frontend_design_floor`
+  en `"exit": 0` — el `when:` disparó y pasó verde sobre una superficie model-nativa real. helpdesk queda SIN
+  adoptar (revert confirmado, `git diff product.yml == 0`); su adopción durable sigue siendo un increment aparte.
+- **Habilita:** seguir con `FSK-SNIPEIT-MODELGEN` (Fase 1 en adelante) con confianza — si esto hubiera dado rojo,
+  habría sido una escalación a increment de fábrica ANTES de gastar el presupuesto de snipe-it.
 
 ## 2026-07-08T18:46Z — FSK-MODELGEN-DURABLE ✅ (mecanismo): design_floor OPT-IN en s9 + wrapper single-source (ADR-024)
 - **Qué:** la COEXISTENCIA de ADR-024 — un producto puede tener superficie humana model-nativa DURABLE sin re-pinear a

@@ -1,9 +1,10 @@
-<!-- meta:doc sha=4581e84d7c0aa7b7f8e8860c3449afd46c4b8ddb updated=2026-07-08T19:56Z -->
+<!-- meta:doc sha=509d7daf1a8203b9833bf28b7c7ac6638affdad0 updated=2026-07-08T20:01Z -->
 # Incremento FSK-SNIPEIT-MODELGEN
 
-> **Doc de gobierno.** Nivel **product-instance** (`products/snipeit`, ADR-016). Estado: **DIFERIDO**
-> (planeado por sesión Opus S1 el 2026-07-08; **reabrí a ABIERTO** para ejecutar). Cerralo con
-> `meta increment close` (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+> **Doc de gobierno.** Nivel **product-instance** (`products/snipeit`, ADR-016). Estado: **ABIERTO**
+> (reabierto para ejecución por sesión S2 Sonnet el 2026-07-08; diseñado por sesión Opus S1 el 2026-07-08).
+> Cerralo con `meta increment close` (gateado: árbol limpio + estación activa verde). Todo cambio de código
+> vive acá (ADR-010).
 
 ## Objetivo
 Adoptar el **modo model-nativo DURABLE (ADR-024)** en `snipeit`: darle una superficie humana

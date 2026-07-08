@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4f3860cdc6cb06769862ff2135694952f4705aa7 updated=2026-07-08T21:16Z -->
+<!-- meta:doc sha=a001d4a44f5f3e116b69ea34a14659da0046ca69 updated=2026-07-08T21:19Z -->
 # Incremento FSK-SNIPEIT-MODELGEN
 
-> **Doc de gobierno.** Nivel **product-instance** (`products/snipeit`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno.** Nivel **product-instance** (`products/snipeit`, ADR-016). Estado: **CERRADO** (2026-07-08T21:19Z)
 > (reabierto para ejecución por sesión S2 Sonnet el 2026-07-08; diseñado por sesión Opus S1 el 2026-07-08).
 > Cerralo con `meta increment close` (gateado: árbol limpio + estación activa verde). Todo cambio de código
 > vive acá (ADR-010).

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `11d1e4d2cdbe` | 2026-07-08T17:43Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `bf732ffc1c17` | 2026-07-08T17:42Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `8f6182d99f7c` | 2026-07-08T20:14Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -81,6 +81,7 @@
 | `docs/work/DELEGATE-FSK-FRONTEND-TRASH-INCREMENT.md` | `691c8a0ccb3c` | 2026-07-07T20:12Z | Incremento DELEGATE-FSK-FRONTEND-TRASH |
 | `docs/work/DELEGATION-ACTIVATION-DIRECTION-INCREMENT.md` | `5ecca57aa04b` | 2026-06-27T20:54Z | Incremento DELEGATION-ACTIVATION (dirección) |
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-FRONTEND-INCREMENT.md` | `ea021154bb8a` | 2026-07-08T20:19Z | Incremento DELEGATION-SLOT-SNIPEIT-FRONTEND |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |

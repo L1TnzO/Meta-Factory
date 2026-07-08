@@ -1,7 +1,24 @@
-<!-- meta:doc sha=b6bb838ed39ef7a45a521c7bfadc8bc7d9199e9d updated=2026-07-08T15:25Z -->
+<!-- meta:doc sha=11d1e4d2cdbe3cc6a68238732c8ba2c2d40de9e6 updated=2026-07-08T17:43Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-08T17:42Z — CHECK-WHEN-GUARD ✅: guard por-check `when:` en el motor — la mitad META de ADR-024, un opt-in byte-neutral que NO re-pinea al no-adoptante
+Prerrequisito META de `FSK-MODELGEN-DURABLE` (ADR-024): para que un producto tenga superficie humana
+model-nativa DURABLE verificada por `design_floor` SIN romper el pin de los productos-template (`assets`), el
+motor necesitaba un opt-in por-check. Diseño con ojos propios (columna = engine + ley de pin, no se delega).
+- **La ley del pin lo hizo trivial Y seguro.** `seed/verifier.compute_proof_sha` = sha256 sobre
+  `{station_id, sorted[(name,exit)]}` → cuenta SÓLO los checks que CORRIERON. Consecuencia: un check salteado
+  no agrega par → `proof_sha` idéntico. El opt-in es byte-neutral por CONSTRUCCIÓN, no por suerte.
+- **`runner._check_active(check, subst)`** (~10 líneas): un check con `when: {k: v}` corre sólo si matchea la
+  substitución efectiva; se filtra en `run_station` antes de armar `cmds`. Análogo por-CHECK de
+  `station_activation` (que gatea a nivel estación). El flag YA fluye solo: `spec.subst` aplana
+  `domain.product`, así que `frontend_surface` en product.yml → `subst[frontend_surface]` sin tocar el loader.
+- **Diente two-sided dogfoodeado** (`tests/test_check_when.py`, 5/5): skip ⇒ `proof_sha` byte-idéntico a la
+  corrida sin el check (invariancia del pin, no sólo ausencia); match ⇒ el check corre. No-op sin `when` →
+  cero regresión (meta check 18/19; el 1 rojo docs = STATE-staleness PRE-EXISTENTE de FSK, no de este cambio).
+- **Dos increments por nivel** (patrón MONOLITH/DIAL): esto es META (motor reusable por toda fábrica); la
+  adopción FSK (s9 opt-in + copy-vs-emit + superficie commiteada) es `FSK-MODELGEN-DURABLE`, aún ABIERTO.
 
 ## 2026-07-08T15:26Z — FSK-FRONTEND-MODELGEN-AB ✅: el experimento A/B de ADR-023 — gana el brazo B (model-nativo), y el ciclo verificar-no-revisar cerró su propio residuo
 Primer increment de ejecución de ADR-023 (§5): frontend `helpdesk` por templates (brazo A, control) vs por

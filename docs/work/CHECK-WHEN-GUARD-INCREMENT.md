@@ -1,7 +1,7 @@
-<!-- meta:doc sha=04a3f4208486ce11b905df6afab079809e39557f updated=2026-07-08T17:33Z -->
+<!-- meta:doc sha=fe7d090df34adb7b2070f9fdfd1676a1a7818bc2 updated=2026-07-08T17:42Z -->
 # Incremento CHECK-WHEN-GUARD
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-08T17:33Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-08T17:42Z) (creado 2026-07-08T17:33Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

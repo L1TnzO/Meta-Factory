@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b73fc95d5db62e291a193001ef4c5e3331b21ceb updated=2026-07-08T18:06Z -->
+<!-- meta:doc sha=fd527f393c768cf1722090016f161b8c33e079e2 updated=2026-07-08T18:44Z -->
 # Incremento FSK-MODELGEN-DURABLE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (2026-07-08T15:53Z). Cerralo con `meta increment close`
@@ -42,10 +42,11 @@ el cliente tipado ni los checks browser/consume (se preservan template).
    `_load_blueprint` carga el override (fail-closed: opt-in exige app.ts+app.css) en `bp["_frontend_surface"]`;
    `build_files` copia verbatim en los 2 puntos de emisión (`__init__.py` líneas app.ts/app.css). Verificado
    byte-neutral: `--check-idempotent` de un no-adoptante = 77 archivos idénticos (path template intacto).
-2. **⏳ Wrapper `tools/design_floor_probe.py` + wiring s9** → `frontend_design_floor` con `when:` (este INC/factory).
-3. **⏳ Refactor `modelgen_ab_gate.sh §2/§2b/§3`** para llamar al wrapper (single-source de la derivación).
-4. **⏳ Verificar factory:** `meta check` verde · `ci --rederive assets`==pin (byte-neutral) · lado ROJO del diente
-   (design_floor sobre un frontend TEMPLATE falla = baseline arm-A).
+2. **✅ Wrapper `tools/design_floor_probe.py` + wiring s9** → `frontend_design_floor` con `when:` (este INC/factory).
+3. **✅ Refactor `modelgen_ab_gate.sh §2/§2b/§3`** para llamar al wrapper (single-source de la derivación).
+4. **✅ Verificar factory:** `meta check` 18/19 (único rojo = FSK STATE stale pre-existente, tarea de cierre) ·
+   `ci --rederive assets`==pin (11/11, byte-neutral en la línea real) · lado ROJO del diente (design_floor sobre el
+   frontend TEMPLATE de `assets` → exit 1, baseline arm-A).
 5. **⏳ Adopción helpdesk = INCREMENTO SEPARADO (product-instance).** ⚠️ DESCUBRIMIENTO: `product.yml` es de nivel
    `products/helpdesk` (ADR-016, el edit-gate por-nivel lo BLOQUEA desde el increment factory). El flag +
    commitear la superficie + probar el lado VERDE (design_floor pasa en la app model-nativa VIVA) son un
@@ -109,3 +110,28 @@ saltea byte-neutral (no toca el pin de `assets`). Lo que resta es SÓLO adopció
   ref requerido, body = requeridos rellenos (§2). CONTRACT = por-entidad, todos los campos MENOS el `owned_by`
   (server-set, §2b). El wrapper corre `node --experimental-strip-types … design_floor_check.ts <url> <shot|-> <probe|-> <contract|->`
   con cwd=frontend y propaga el exit.
+
+**Pasos 2-4 (wrapper + wiring s9 + refactor modelgen + verificación) — HECHO + verificado (2026-07-08):**
+- **Wrapper `tools/design_floor_probe.py` (columna, ojos-propios):** `<base_url> <spec_path> [shot]`. Se auto-localiza
+  el `.ts` por `Path(__file__).parent`; deriva `frontend = spec_file.parent/build/product/frontend`; lee el spec
+  efectivo → `probe()`/`contract()` (derivación DATA copiada verbatim de modelgen §2/§2b, ADR-012) → corre el `.ts`
+  con `cwd=frontend` y propaga el exit. Derivación verificada idéntica a modelgen sobre helpdesk/assets/snipeit.
+- **s9 `frontend_design_floor` (fuente de verdad = `factory.spec.yml`, NO `stations/s9.yml`):** el check ejecutable
+  (kind `infra_up`, puerto/PG propios 18598/5439/`fsk_s9_df_pg`, sirve el bundle MISMO-ORIGEN) se agregó al `checks:`
+  de s9 en `factory.spec.yml` con `when: {frontend_surface: model-native}` + su prosa SDD en `proof_checks:`. El
+  `proof:` es `python3 ../../../../tools/design_floor_probe.py http://127.0.0.1:18598 ../../factory.spec.yml`. El
+  `stations/s9.yml` committeado se re-materializó (diff = PURE APPEND del check con `{{package_name}}`→`webapp`; s0/s6
+  tenían drift pre-existente → NO se tocaron, fuera de alcance).
+- **Refactor `modelgen_ab_gate.sh`:** §2/§2b (heredocs PROBE/CONTRACT) + el `node` de §3 → una sola llamada
+  `python3 "$HERE/design_floor_probe.py" "$URL" "$FACTORY_DIR/products/$PRODUCT/factory.spec.yml" "${SHOT:--}"`. El
+  gate y el check s9 comparten UNA fuente de la derivación (no más drift de heredocs).
+- **Byte-neutralidad (determinista, ejecutable):** el check materializa en los 3 productos (assets/helpdesk/snipeit)
+  pero `_check_active` lo SALTEA en los 3 (ninguno declara `frontend_surface`) → set de checks activos idéntico (4) →
+  `proof_sha` s9 invariante.
+- **Byte-neutralidad (línea real, el diente):** `ci --rederive full-stack-kotlin/assets` == pin, **11/11 proof_sha**
+  en árbol limpio.
+- **Lado ROJO del diente:** `dev_run.sh assets` (frontend TEMPLATE recién re-derivado) + el wrapper → **exit 1**:
+  `shell` (falta `<header>`), `labels` (13), `fields` (el form de create de Asset no ofrece control para `notes`).
+  El wrapper derivó el CONTRACT del spec y el `.ts` mordió = baseline arm-A. (El lado VERDE = design_floor pasa en la
+  superficie model-nativa VIVA → increment product-instance helpdesk, paso 5.)
+- **`meta check` 18/19:** único rojo = `docs-consistency` (FSK STATE stale, pre-existente) → se limpia al cerrar.

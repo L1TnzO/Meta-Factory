@@ -109,3 +109,34 @@ checks:
   - -f
   - fsk_s9_br_pg
   timeout: 120
+- name: frontend_design_floor
+  kind: infra_up
+  workdir: build/product
+  when:
+    frontend_surface: model-native
+  bootstrap:
+  - sh
+  - -c
+  - set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac))));
+    ./gradlew installDist -q --console=plain; (cd frontend && npm install --no-audit
+    --no-fund --loglevel=error && node build_bundle.mjs); docker rm -f fsk_s9_df_pg
+    >/dev/null 2>&1 || true; docker run -d --name fsk_s9_df_pg -e POSTGRES_PASSWORD=metafactory
+    -p 5439:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    >/dev/null
+  up:
+  - sh
+  - -c
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18598
+    FSK_PG_URL=jdbc:postgresql://localhost:5439/postgres FSK_WEB_DIR=frontend/dist;
+    exec "$JAVA_HOME/bin/java" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+  proof:
+  - python3
+  - ../../../../tools/design_floor_probe.py
+  - http://127.0.0.1:18598
+  - ../../factory.spec.yml
+  down:
+  - docker
+  - rm
+  - -f
+  - fsk_s9_df_pg
+  timeout: 120

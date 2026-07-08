@@ -4,6 +4,16 @@
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-MODELGEN-DURABLE (2026-07-08)** ✅ mecanismo COMPLETO — la COEXISTENCIA de ADR-024: un producto puede
+  tener superficie humana model-nativa DURABLE sin re-pinear a los productos-template. (a) copy-vs-emit
+  (`_load_blueprint` copia `products/<p>/frontend/app.{ts,css}` bajo el flag `frontend_surface: model-native`,
+  fail-closed); (b) diente `design_floor` promovido a s9 OPT-IN — nuevo check `frontend_design_floor` con
+  `when: {frontend_surface: model-native}` (byte-neutral: materializa pero se SALTEA en no-adoptantes); (c)
+  wrapper `tools/design_floor_probe.py` single-sourcea la derivación PROBE/CONTRACT (DATA, ADR-012) entre el
+  check s9 y `modelgen_ab_gate.sh`. Verificado: `ci --rederive assets` 11/11==pin (byte-neutral en línea real) ·
+  lado ROJO (wrapper sobre frontend TEMPLATE → exit 1, arm-A). Falta el paso 5 = **adopción helpdesk** (flag +
+  commitear la superficie + lado VERDE), un increment product-instance (`product.yml` es nivel ADR-016). Detalle:
+  `docs/work/FSK-MODELGEN-DURABLE-INCREMENT.md §Evidencia`.
 - **FSK-FRONTEND-MODELGEN-AB (2026-07-08)** ✅ CERRADO — experimento A/B de ADR-023 §5: frontend `helpdesk`
   por templates (A) vs por UN slot LLM bajo el harness (B), MISMOS gates. **Gana B (model-nativo):** app-shell
   real (topbar+sidebar), Vercel ink+hairline sobre LAYOUT, forms completos+labelados — vs template sin shell +

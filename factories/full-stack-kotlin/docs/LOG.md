@@ -1,6 +1,32 @@
-<!-- meta:doc sha=aefceadddaad06425cd764ca13398ef1578eb28b updated=2026-07-08T21:17Z -->
+<!-- meta:doc sha=9f4c286cb4114bcf8a7877805fa36606dd93544d updated=2026-07-08T22:08Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-08T22:08Z — SNIPEIT-COMPLETENESS-SPEC ✅ + FSK-EVIDENCE-CAPTURE ✅: auditoría honesta de `snipeit` contra un piso mínimo de completitud, y una herramienta nueva de captura de pantallas
+Pedido externo: verificar si `snipeit` alcanza un piso (10 casos de uso · 30 funcionalidades · 40 tablas · 40
+endpoints · 30 pantallas con evidencia · 60 reglas de negocio · 100 validaciones CHECK · checklist ·
+cobertura 100%) y redactar la especificación humana. Dos incrementos (fábrica + producto, patrón
+MONOLITH/DIAL): la herramienta reusable en `full-stack-kotlin`, la auditoría en `products/snipeit`.
+- **`tools/screenshot_evidence.mjs`** (nuevo, DATA-agnóstico: lee `nav button[data-entity]` +
+  `select[data-role-picker]` del DOM real, cero nombres de dominio *hardcodeados* — reutilizable para
+  cualquier producto FSK). Levantado `snipeit` real (`dev_run.sh`), 11 de las 19 entidades arrancaban
+  VACÍAS (el `/seed` determinista sólo puebla la cadena topológica mínima de `Asset` — un hallazgo de esta
+  auditoría: un conteo previo por longitud de dict `{"count","rows"}` había reportado falsamente 2 filas por
+  entidad) → se poblaron con altas `POST` reales antes de capturar. 39 capturas `fullPage` reales.
+- **Veredicto honesto (`docs/reference/SNIPEIT-SPEC.md`), 6/9 PASA:** casos de uso 15/10 · funcionalidades
+  36/30 · endpoints 44/40 · pantallas 39/30 (evidencia real) · reglas de negocio 100/60 (51 integridad
+  referencial + 49 políticas, parseo PyYAML no regex) · validaciones 201/100. **3/9 con brecha real,
+  declarada:** tablas 20/40 (decisión de alcance del producto, no descuido: 19 entidades del núcleo vs los
+  ~41 modelos/53 tablas del Snipe-IT real) · checklist RTM 26/27 (1 deferral declarado, `s6: off`) · sin
+  métrica de cobertura de línea (Jacoco/Kover no configurado — el proyecto verifica por
+  contrato/artefacto re-derivable, un paradigma distinto del pedido, no inflado con un número sintético).
+- **Hallazgo nuevo no documentado antes:** una violación de restricción `UNIQUE` (probada en
+  `Manufacturer.name`/`Company.name`) no devuelve `409` — el handler HTTP muere sin respuesta ("empty
+  reply") y sin traza en `obs/access.jsonl`; el constraint SQL sí protege el dato, el gap es la traducción a
+  HTTP + observabilidad. Evidencia de auditoría real contra el sistema vivo, no copiada.
+- **Lección reusable**: un endpoint que devuelve `{"count","rows":[...]}` en vez de un array plano rompe un
+  conteo por `len()` del payload completo (cuenta 2 claves, no filas) — verificar SIEMPRE la forma real del
+  JSON antes de derivar una métrica de él.
 
 ## 2026-07-08T21:20Z — FSK-SNIPEIT-MODELGEN ✅: primera adopción durable real del modo model-nativo (ADR-024)
 - **Qué:** `products/snipeit/frontend/app.{ts,css}` (19 entidades) queda TRACKED + `frontend_surface:

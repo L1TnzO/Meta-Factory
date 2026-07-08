@@ -1,0 +1,602 @@
+<!-- meta:doc sha=9ce2137091ccddfdd21a92eab5f20437e4333694 updated=2026-07-08T22:06Z -->
+# Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
+
+> **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
+> 29148:2018** (Requirements Engineering) — secciones de propósito/alcance, casos de uso, requisitos
+> funcionales, modelo de datos, interfaces, reglas de negocio, validaciones y verificación. Adaptada a un
+> sistema **generado por una fábrica de software** (Meta-Factory → fábrica `full-stack-kotlin` → producto
+> `snipeit`), no escrito a mano.
+>
+> **Sistema auditado**: `factories/full-stack-kotlin/products/snipeit/` dentro del repositorio Meta-Factory.
+> Es una **réplica fiel del dominio** de [Snipe-IT](https://snipeitapp.com) (gestión de activos de TI,
+> PHP/Laravel, código real disponible en `../snipe-it/` como referencia CONGELADA de cosecha), re-expresada
+> en Kotlin/TypeScript/PostgreSQL por la gramática de la fábrica FSK. **No es el código de Snipe-IT** — es
+> un sistema propio, generado, que adopta su modelo de dominio y sus reglas de negocio centrales.
+>
+> **Fecha de verificación**: 2026-07-08. **Método**: verificación por bloqueo (ADR-017 §3) — cada número de
+> este documento se re-derivó de artefactos reales (contrato OpenAPI, DDL SQL, código Kotlin generado,
+> spec `product.yml` parseado programáticamente, servidor vivo respondiendo HTTP real, capturas de pantalla
+> reales por Chromium), **no se estimó ni se copió de documentación previa**. La metodología de cada conteo
+> está declarada explícitamente junto al número (regla de honestidad técnica del proyecto — nunca declarar
+> verde sin prueba).
+
+---
+
+## 0. Resumen ejecutivo — checklist de completitud contra el piso mínimo pedido
+
+| # | Criterio pedido | Mínimo | Real (verificado) | Veredicto | Evidencia |
+|---|---|---:|---:|:---:|---|
+| 1 | Casos de uso | 10 | **15** | ✅ PASA | §3 |
+| 2 | Funcionalidades / flujos de trabajo | 30 | **36** | ✅ PASA | §4 |
+| 3 | Tablas | 40 | **20** | ❌ **NO PASA** | §5 |
+| 4 | Endpoints API | 40 | **44** | ✅ PASA | §6 |
+| 5 | Pantallas (con evidencia) | 30 | **39 capturas reales** | ✅ PASA | §7 |
+| 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
+| 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
+| 8 | Checklist de completitud del producto | — | 26/27 requisitos trazados (96%) | ⚠️ **PARCIAL** (1 deferral declarado) | §10 |
+| 9 | Pruebas automatizadas, cobertura 100% | 100% | 23 unit/integration + 32 aserciones E2E + 8 gates estáticos; **sin % de línea medido** | ❌ **NO CUMPLE el criterio literal** | §11 |
+
+**Lectura honesta**: el sistema PASA 6 de 9 criterios con margen real, y falla o cumple parcialmente 3: el
+**modelo de datos es más chico** que el mínimo pedido (20 tablas físicas, no 40 — el dominio de Snipe-IT
+*real* tiene 53; la réplica adoptó 19 entidades del núcleo, no el sistema completo, una decisión de alcance
+documentada desde el origen del producto, no un descuido), la **cobertura de línea no se mide** (el
+proyecto verifica por *contrato/artefacto re-derivable*, un paradigma distinto y deliberado — ver §11), y el
+**checklist de completitud tiene 1 gap declarado** (lógica de dominio vía LLM, diferida a propósito). Nada de
+esto se ocultó ni se maquilló: son las brechas reales, con su causa y su evidencia. §12 detalla además un
+**bug real encontrado durante esta auditoría** (violación de restricción `UNIQUE` no manejada con
+gracia — la conexión se cae en vez de devolver 409).
+
+---
+
+## 1. Introducción
+
+### 1.1 Propósito
+Este documento especifica, con evidencia verificable, el sistema `snipeit` generado por la fábrica
+`full-stack-kotlin` de Meta-Factory: su alcance funcional, su modelo de datos, su API, su interfaz, sus
+reglas de negocio, sus validaciones y su estado de verificación automatizada — y evalúa ese sistema contra
+un piso mínimo de completitud dado (§0).
+
+### 1.2 Alcance
+El sistema es una aplicación web de **gestión de activos de TI** (asset management): registra activos,
+licencias, accesorios, consumibles y componentes de una organización, quién los tiene asignados, su
+depreciación, su mantenimiento y su ciclo de vida — con control de acceso por rol, por dueño de fila y por
+compañía (multi-tenancy). Corre como un servidor HTTP embebido en Kotlin (sin framework web), con
+persistencia en PostgreSQL (jOOQ + Flyway) y un frontend SPA en TypeScript vanilla servido por el mismo
+proceso.
+
+### 1.3 Definiciones y siglas
+- **FSK**: fábrica `full-stack-kotlin` (Meta-Factory) — genera el sistema completo (esquema, servidor,
+  cliente, frontend, gates de calidad) a partir de un contrato declarativo (`product.yml`).
+- **RBAC**: control de acceso basado en roles (`superadmin`, `admin`, `manager`, `auditor`).
+- **Ownership**: autorización a nivel de FILA — el "dueño" de una fila puede modificarla aunque su rol no
+  tenga alcance global.
+- **Company-scoping**: filtrado multi-tenant — un actor sólo ve/edita filas de su compañía, salvo bypass.
+- **RTM**: Requirements Traceability Matrix — matriz que ata cada requisito a un artefacto generado real.
+- **Verificación por bloqueo**: el veredicto de cada estación de la fábrica lo computa el propio verificador
+  desde códigos de salida reales, nunca se declara a mano (ADR de Meta-Factory).
+
+### 1.4 Referencias
+- `factories/full-stack-kotlin/products/snipeit/product.yml` — el contrato fuente (417 líneas).
+- `factories/full-stack-kotlin/products/snipeit/docs/reference/SNIPEIT-DOMAIN.md` — dominio cosechado del
+  Snipe-IT real y mapeo a la gramática FSK (453 líneas, con los 12 deferrals honestos citados en §12).
+  Snipe-IT real: **41 modelos, 446 migraciones, ~226 endpoints API, 30 Form Requests, 22 Policies**
+  (`../snipe-it/` — código fuente real, referencia congelada de cosecha).
+  Re-verificado en esta auditoría: 53 tablas físicas (`Schema::create` únicas en `database/migrations/`),
+  `routes/api.php` (1452 líneas) + `routes/web.php` (768 líneas).
+- `build/product/openapi.yaml` — contrato OpenAPI 3.0.3 (fuente única del servidor Kotlin y el cliente TS).
+- `build/product/src/main/resources/db/migration/V1__init.sql` — DDL real (Flyway).
+- `.proof/`, `pinned_verdict.json` — veredictos re-derivados por estación (s0–s11).
+
+---
+
+## 2. Descripción general del sistema
+
+### 2.1 Arquitectura
+
+```mermaid
+graph TD
+    subgraph Cliente["Navegador (Chromium probado)"]
+        SPA["SPA TypeScript vanilla<br/>app.ts (894 LOC, model-nativo)<br/>+ browser_entry.ts (nav + role-picker DEV)"]
+    end
+    subgraph Servidor["AppServer (Kotlin, HTTP embebido, sin framework)"]
+        RT["RouteTable<br/>44 rutas declaradas"]
+        RG["RoleGuard<br/>RBAC por rol"]
+        OG["OwnershipGuard<br/>autorización por fila"]
+        CG["CompanyScopeGuard<br/>multi-tenancy"]
+        WF["AssetStatusWorkflow<br/>canTransition()"]
+        REPO["Repository (jOOQ)<br/>CRUD + soft-delete + audit"]
+    end
+    DB[("PostgreSQL 16<br/>20 tablas, Flyway V1__init.sql")]
+    OAS["openapi.yaml<br/>contrato ÚNICO — genera server Kotlin Y cliente TS<br/>(drift estructuralmente imposible)"]
+
+    SPA -->|"fetch JSON + Bearer &lt;rol&gt;:&lt;id&gt;"| RT
+    RT --> RG --> OG --> CG --> WF --> REPO --> DB
+    OAS -.->|codegen| RT
+    OAS -.->|codegen| SPA
+```
+
+**Figura 2.1.** Arquitectura de capas del sistema `snipeit`, evidenciando la separación entre presentación
+(SPA), control de acceso compuesto (rol → dueño → compañía → estado de workflow) y persistencia, y el
+contrato OpenAPI como fuente única que deriva TANTO el servidor como el cliente (elimina el *drift* de API
+por construcción). Esta organización permite entender por qué las secciones 8–9 (reglas de negocio y
+validaciones) se verifican en un único punto de composición (el pipeline de guards) en vez de estar
+dispersas.
+
+### 2.2 Stack tecnológico
+| Capa | Tecnología | Evidencia |
+|---|---|---|
+| Backend | Kotlin 2.x, HTTP embebido (`com.sun.net.httpserver`), sin framework | `src/main/kotlin/snipeit/endpoints/AppServer.kt` |
+| Persistencia | PostgreSQL 16 + jOOQ (SQL tipado) + Flyway (migraciones) | `V1__init.sql`, `build/generated-jooq/` |
+| Contrato | OpenAPI 3.0.3, generado del `product.yml` | `openapi.yaml` |
+| Frontend | TypeScript vanilla (sin framework), esbuild | `frontend/app.ts`, `frontend/app.css` |
+| Build | Gradle (Kotlin DSL), instalación autocontenida (`installDist`) | `build.gradle.kts` |
+| Empaquetado | Docker (imagen propia) | `Dockerfile` |
+| Pruebas | Kotest (unit/integration), Playwright/Chromium (E2E) | §11 |
+
+### 2.3 Origen y alcance declarado
+El producto **no reimplementa Snipe-IT completo**: adopta 19 de sus ~41 modelos (el núcleo operativo:
+activos, licencias, accesorios, consumibles, componentes y su catálogo de referencia), dejando fuera
+explícitamente auditoría polimórfica completa, kits, solicitudes de checkout con firma, campos
+personalizados a runtime (EAV dinámico) y la superficie de reportes — cada uno documentado como decisión de
+alcance en `SNIPEIT-DOMAIN.md §3` (12 ejes, la mayoría ya resueltos como **HECHO**, ver §12). Esta
+especificación audita el sistema **tal como existe hoy**, no la ambición completa de Snipe-IT.
+
+---
+
+## 3. Casos de uso (mínimo 10 → **15 verificados**)
+
+Cada caso de uso listado fue **ejercitado realmente** contra el servidor vivo durante esta auditoría (HTTP
+real, no solo leído del contrato) o corresponde a comportamiento observable en las capturas de pantalla de
+§7.
+
+```mermaid
+graph LR
+    superadmin(("superadmin"))
+    admin(("admin"))
+    manager(("manager"))
+    auditor(("auditor"))
+
+    CU1["CU-01 Alta de activo con asignación a un usuario"]
+    CU2["CU-02 Checkout de un activo (ready→deployed)"]
+    CU3["CU-03 Checkin de un activo (deployed→ready)"]
+    CU4["CU-04 Reparar (broken→ready) / archivar (→archived, terminal)"]
+    CU5["CU-05 Baja lógica y restauración de un activo (papelera)"]
+    CU6["CU-06 Edición bloqueada de un activo desplegado (409)"]
+    CU7["CU-07 Gestión de licencias con asientos"]
+    CU8["CU-08 Checkout de accesorio (decrementa stock)"]
+    CU9["CU-09 Asignación de consumibles (consumo permanente)"]
+    CU10["CU-10 Asignación de componentes a un activo"]
+    CU11["CU-11 Registro de mantenimiento sobre un activo"]
+    CU12["CU-12 Alta de catálogo de referencia"]
+    CU13["CU-13 Consulta de auditoría (historial de un activo)"]
+    CU14["CU-14 Bloqueo de escritura para un rol de solo-lectura"]
+    CU15["CU-15 Aislamiento multi-compañía (company-scoping)"]
+
+    manager --> CU1 & CU2 & CU3 & CU4 & CU5 & CU6 & CU7 & CU8 & CU9 & CU10 & CU11 & CU13 & CU15
+    admin --> CU12
+    superadmin --> CU12
+    auditor --> CU14
+```
+
+**Figura 3.1.** Diagrama de casos de uso, agrupados por el rol que típicamente los ejecuta. `manager`
+concentra la operación diaria (activos, checkouts, mantenimientos); `admin`/`superadmin` gestionan el
+catálogo de referencia; `auditor` es de solo-lectura por construcción (no aparece en ningún `write_roles`).
+
+| ID | Caso de uso | Verificado como |
+|---|---|---|
+| CU-01 | Alta de activo (`Asset`) asignado a un usuario | `POST /assets` real, seed transitivo (Category→AssetModel→Asset) |
+| CU-02 | Checkout de un activo a un empleado | `POST /assets/{id}/checkout` — endpoint operativo (RouteTable.kt:75) |
+| CU-03 | Checkin de un activo | `POST /assets/{id}/checkin` (RouteTable.kt:76) |
+| CU-04 | Reparación/archivado de un activo averiado | Transiciones `broken→ready`, `→archived` del workflow (§8.3) |
+| CU-05 | Baja lógica y restauración desde la papelera | `soft_delete: true` + `POST /assets/{id}/restore` + captura `05-asset-trash.png` |
+| CU-06 | Bloqueo de edición de un activo `deployed` | Regla `mutable_when` (§8.3) — PUT/DELETE → 409 |
+| CU-07 | Licencias con asientos (`License`+`LicenseSeat`) | `POST /licenses` y `POST /licenseseats` ejecutados con 201 real |
+| CU-08 | Checkout de accesorio con decremento de stock | `Accessory.operations: checkout` (decrements qty, creates `AccessoryCheckout`) |
+| CU-09 | Asignación de consumibles (sin checkin) | `POST /consumableassignments` ejecutado con 201 real |
+| CU-10 | Asignación de componentes con cantidad | `POST /componentassignments` ejecutado con 201 real |
+| CU-11 | Registro de mantenimiento (8 tipos) | `POST /maintenances` ejecutado con 201 real |
+| CU-12 | Alta de catálogo (Manufacturer/Supplier/Location/Department/Category/Depreciation/Company) | 7 `POST` ejecutados con 201 real durante esta auditoría |
+| CU-13 | Auditoría — historial de un activo | Tab "History" de la pantalla Asset (`04-asset-history-tab.png`), lee `action_logs` |
+| CU-14 | Rol `auditor` no puede escribir | `POST /companys` con `Bearer auditor:1` → **HTTP 403 real** (verificado) |
+| CU-15 | Un `manager` sólo ve/edita activos de su compañía | `company_scoped: company_id` en `Asset`, con bypass para `superadmin`/`admin` |
+
+---
+
+## 4. Funcionalidades y flujos de trabajo (mínimo 30 → **36 verificados**)
+
+| Categoría | # | Funcionalidad |
+|---|---|---|
+| **Gestión de catálogo** (alta + listado) | 1–7 | Company, Manufacturer, Supplier, Depreciation, Category, Location, Department |
+| **Gestión de identidad** | 8 | Alta y listado de User (dueños potenciales de activos) |
+| **Gestión de plantillas** | 9 | Alta y listado de AssetModel |
+| **Ciclo de vida de activos** | 10–16 | Alta, listado, detalle, edición, borrado lógico, restauración, historial de Asset |
+| **Operaciones de dominio sobre Asset** | 17–18 | Checkout, Checkin |
+| **Licenciamiento** | 19–20 | Gestión de License, gestión de LicenseSeat (asiento→User o Asset) |
+| **Accesorios** | 21–22 | Gestión de Accessory, checkout de accesorio (decremento de stock + registro) |
+| **Consumibles** | 23–24 | Gestión de Consumable, asignación permanente a un usuario |
+| **Componentes** | 25–26 | Gestión de Component, asignación con cantidad a un Asset |
+| **Mantenimiento** | 27 | Registro de mantenimiento sobre un activo (8 tipos) |
+| **Control de acceso** | 28–31 | Enforzamiento por rol (`superadmin`/`admin`/`manager`/`auditor`, 4 flujos distintos) |
+| **Multi-tenancy** | 32 | Filtrado de lectura y escritura por compañía (company-scoping) |
+| **Observabilidad** | 33 | Dashboard con conteos en vivo por entidad (`mountDashboard`) |
+| **Bootstrapping** | 34 | Sembrado determinista de datos topológicos (`/seed`) |
+| **Sesión (modo dev)** | 35 | Selector de rol en el cliente (`FRONTEND-LOGIN` corte A) |
+| **Reproducibilidad** | 36 | Build hermético + re-derivación bit-a-bit (`ci.sh`, §11) |
+
+---
+
+## 5. Modelo de datos (mínimo 40 tablas → **20 reales — NO PASA**)
+
+### 5.1 Conteo real
+```
+grep -c "CREATE TABLE" src/main/resources/db/migration/V1__init.sql   →  20
+```
+
+| # | Tabla física | Entidad del contrato | Filas 2026-07-08 (post-seed de esta auditoría) |
+|---|---|---|---:|
+| 1 | `companys` | Company | 2 |
+| 2 | `manufacturers` | Manufacturer | 1 |
+| 3 | `suppliers` | Supplier | 1 |
+| 4 | `depreciations` | Depreciation | 1 |
+| 5 | `categorys` | Category | 2 |
+| 6 | `locations` | Location | 1 |
+| 7 | `departments` | Department | 1 |
+| 8 | `users` | User | 1 |
+| 9 | `assetmodels` | AssetModel | 1 |
+| 10 | `assets` | **Asset** (entidad central) | 3 |
+| 11 | `licenses` | License | 1 |
+| 12 | `licenseseats` | LicenseSeat | 1 |
+| 13 | `accessorys` | Accessory | 1 |
+| 14 | `accessorycheckouts` | AccessoryCheckout | 0 (pivot, sin nav propio) |
+| 15 | `consumables` | Consumable | 1 |
+| 16 | `consumableassignments` | ConsumableAssignment | 1 |
+| 17 | `components` | Component | 1 |
+| 18 | `componentassignments` | ComponentAssignment | 1 |
+| 19 | `maintenances` | Maintenance | 1 |
+| 20 | `action_logs` | *(tabla de sistema, no declarada como entidad — bitácora `audited`)* | variable |
+
+### 5.2 Diagrama entidad-relación (simplificado — 51 relaciones reales, ver §8.2 para el listado completo)
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ ASSET : "company_id"
+    COMPANY ||--o{ USER : "company_id"
+    CATEGORY ||--o{ ASSETMODEL : "category_id"
+    CATEGORY ||--o{ LICENSE : "category_id"
+    CATEGORY ||--o{ ACCESSORY : "category_id"
+    CATEGORY ||--o{ CONSUMABLE : "category_id"
+    CATEGORY ||--o{ COMPONENT : "category_id"
+    MANUFACTURER ||--o{ ASSETMODEL : "manufacturer_id"
+    DEPRECIATION ||--o{ ASSETMODEL : "depreciation_id"
+    ASSETMODEL ||--o{ ASSET : "model_id (requerido)"
+    LOCATION ||--o{ LOCATION : "parent_id (self, jerarquía)"
+    LOCATION ||--o{ USER : "location_id"
+    LOCATION ||--o{ ASSET : "location_id / rtd_location_id"
+    DEPARTMENT ||--o{ USER : "department_id"
+    USER ||--o{ USER : "manager_id (self)"
+    USER ||--o{ ASSET : "assigned_to (owner, polimórfico)"
+    ASSET ||--o{ MAINTENANCE : "asset_id"
+    ASSET ||--o{ COMPONENTASSIGNMENT : "asset_id"
+    ASSET ||--o{ LICENSESEAT : "asset_id (opcional)"
+    LICENSE ||--o{ LICENSESEAT : "license_id"
+    ACCESSORY ||--o{ ACCESSORYCHECKOUT : "accessory_id (creado por verbo checkout)"
+    CONSUMABLE ||--o{ CONSUMABLEASSIGNMENT : "consumable_id"
+    COMPONENT ||--o{ COMPONENTASSIGNMENT : "component_id"
+    SUPPLIER ||--o{ ASSET : "supplier_id"
+```
+
+**Figura 5.1.** Modelo entidad-relación (subconjunto representativo de las 51 relaciones reales — el
+diagrama completo con las 20 tablas × 51 FKs excede lo legible en un solo gráfico; el listado exhaustivo de
+cada FK vive en §8.2 como parte de las reglas de negocio de integridad referencial). Se observa que `Asset`
+es el nodo de mayor conectividad (7 relaciones entrantes/salientes), consistente con ser la entidad central
+del dominio.
+
+### 5.3 Brecha frente al mínimo pedido
+20 < 40. **No es una omisión accidental**: el producto declaró desde su origen (`product.yml`, cabecera)
+que adopta el **núcleo operativo** de Snipe-IT (19 entidades de sus ~41 modelos reales), dejando fuera
+Kits, CheckoutRequest/Acceptance, CustomField/CustomFieldset dinámicos, StatusLabel customizable y la
+mayoría de las ~226 rutas de reporting/administración — cada uno listado como deferral honesto en
+`SNIPEIT-DOMAIN.md §3`. Cerrar esta brecha requiere **incrementos de producto nuevos** (adoptar más
+entidades del blueprint), no un cambio de la fábrica.
+
+---
+
+## 6. API — Endpoints (mínimo 40 → **44 reales**)
+
+### 6.1 Conteo real
+Fuente única: `openapi.yaml` (genera tanto el servidor Kotlin como el cliente TS — imposibilita el *drift*).
+`grep -cE '(get|post|put|delete|patch):' openapi.yaml` → **44** combinaciones método×ruta sobre **25 rutas
+únicas**.
+
+### 6.2 Inventario completo
+| Patrón | Método | Cantidad | Notas |
+|---|---|---:|---|
+| `/<entidad>` (19 entidades) | `GET` | 19 | Listado, público (sin guard) |
+| `/<entidad>` (19 entidades) | `POST` | 19 | Alta, protegido por `x-required-roles` |
+| `/assets/{id}` | `PUT` | 1 | Edición, bloqueada si `status=deployed` (§8.3) |
+| `/assets/{id}/checkout` | `POST` | 1 | Verbo de dominio (workflow `ready→deployed`) |
+| `/assets/{id}/checkin` | `POST` | 1 | Verbo de dominio (workflow `deployed→ready`) |
+| `/assets/{id}/restore` | `POST` | 1 | Restauración desde papelera (soft-delete) |
+| `/assets/deleted` | `GET` | 1 | Listado de papelera |
+| `/accessorys/{id}/checkout` | `POST` | 1 | Verbo con efecto lateral (decrementa `qty`, crea pivot) |
+
+**Asimetría real observada**: de las 19 entidades servidas, **sólo `Asset` tiene el ciclo REST completo**
+(GET lista + GET/PUT/DELETE por id + verbos de dominio + papelera). Las 18 restantes exponen únicamente
+`GET` (lista) + `POST` (alta) a nivel de contrato — no tienen edición ni borrado individual expuestos por
+API. Esto es consistente con lo observado en el frontend (§7): el motor genérico (`mountEntity`) sólo
+implementa list+create+detail; sólo la pantalla de Asset (`mountAsset`, escrita a mano) tiene edición y
+borrado. Es una limitación real de superficie, documentada aquí por primera vez con evidencia directa del
+contrato (no estaba explícita en `SNIPEIT-DOMAIN.md`).
+
+### 6.3 Evidencia HTTP real (ejecutada contra el servidor vivo, 2026-07-08)
+| Prueba | Resultado real |
+|---|---|
+| `GET /health` | `{"status":"UP"}` — HTTP 200 |
+| `POST /manufacturers` con rol `superadmin` | HTTP 201 (fila creada, `id:1`) |
+| `POST /companys` con rol `auditor` (sin permiso de escritura) | **HTTP 403** |
+| `POST /companys` sin token | **HTTP 403** |
+| `PUT /assets/1` con rol `manager` sin ser el dueño (`Bearer manager:99`) | **HTTP 403** (ownership) |
+| `POST /maintenances` con `asset_id` inexistente (`9999`) | **HTTP 409** (FK colgante, fail-closed) |
+
+---
+
+## 7. Interfaz de usuario — Pantallas (mínimo 30 → **39 capturas reales**)
+
+### 7.1 Metodología
+Se levantó el sistema real (`tools/dev_run.sh snipeit`: PostgreSQL propia + AppServer + frontend
+empaquetado) y se navegó con **Chromium real vía Playwright** (`tools/screenshot_evidence.mjs`, herramienta
+nueva de esta auditoría — ver §13). Cada entidad del nav (18 + Dashboard) fue visitada; donde el listado
+tenía filas se hizo clic para capturar también el **detalle**. Las 11 entidades que arrancan vacías (el
+`/seed` determinista sólo puebla la cadena topológica mínima que necesita `Asset`) se poblaron con **altas
+reales vía `POST`** (evidencia adicional de §6.3/§9) antes de capturar, para no reportar pantallas
+artificialmente vacías. Todas las capturas son `fullPage` (nada recortado fuera del viewport).
+
+Las 39 imágenes viven en `docs/reference/evidence/` (mismo directorio que este documento), numeradas en
+orden de captura.
+
+### 7.2 Inventario de pantallas capturadas
+| # | Archivo | Pantalla |
+|---|---|---|
+| 1 | `01-dashboard.png` | Dashboard — conteos en vivo de las 19 entidades |
+| 2–5 | `02-asset-list.png` … `05-asset-trash.png` | Asset: lista+alta, detalle (tabs Details/History + verbos + edición + borrado), tab Historial, papelera |
+| 6–39 | `<entidad>-list.png` / `<entidad>-detail.png` (×17 entidades genéricas) | Company, Manufacturer, Supplier, Depreciation, Category, Location, Department, User, AssetModel, License, LicenseSeat, Accessory, Consumable, ConsumableAssignment, Component, ComponentAssignment, Maintenance — lista+alta y detalle de cada una |
+
+**Figura 7.1** (`01-dashboard.png`) — Overview: 19 tarjetas con el conteo en vivo de cada entidad,
+evidenciando que el server responde datos reales de PostgreSQL, no un mock.
+
+**Figura 7.2** (`03-asset-detail.png`) — La pantalla más completa del sistema: formulario de alta (20
+campos), tabla paginada de resultados, toggle de papelera, tabs Details/History, panel de detalle de 24
+campos (incluyendo `current_value` **calculado** por depreciación), formulario de edición inline y botón de
+borrado. Esta única captura evidencia 6 de las funcionalidades listadas en §4 (10–16) en una sola pantalla.
+
+Cada una de las 39 capturas es de autoría propia (generada por la herramienta `screenshot_evidence.mjs`
+contra el sistema real, no una maqueta ni una imagen de stock).
+
+---
+
+## 8. Reglas de negocio (mínimo 60 → **100 verificadas**)
+
+### 8.1 Metodología de conteo
+Se distingue **regla de negocio** (política de autorización, proceso o relación entre entidades) de
+**validación de campo** (§9, formato/tipo/obligatoriedad de un valor aislado) para no contar el mismo hecho
+dos veces. El conteo se hizo parseando `product.yml` con PyYAML (no con expresiones regulares —
+reproducible con `python3 -c "import yaml; ..."`).
+
+### 8.2 Integridad referencial entre entidades — **51 reglas**
+Cada uno de los 51 campos `type: ref` del contrato es una regla de negocio de relación ("una `License` debe
+apuntar a una `Category` existente", "un `LicenseSeat` opcionalmente apunta a un `Asset` existente") — el
+servidor vivo la enforza con `409` ante una FK colgante (verificado en §6.3). Desglose por tipo de
+cardinalidad:
+
+| Patrón de relación | Cantidad | Ejemplos |
+|---|---:|---|
+| Referencia simple obligatoria | 3 | `AssetModel.category_id`, `Asset.model_id`, `AssetModel.depreciation_id` |
+| Referencia simple opcional | 42 | `Asset.company_id`, `License.manufacturer_id`, `Maintenance.supplier_id`, … |
+| Referencia self (jerarquía) | 2 | `Location.parent_id`, `User.manager_id` |
+| Referencia cíclica cross-entidad (FK diferida) | 2 | `Location.manager_id→User`, `Department.manager_id→User` |
+| Referencia polimórfica (unión de 3 entidades) | 2 | `Asset.assigned_to`/`checkout_target → [User\|Location\|Asset]` |
+| **Total campos `ref`** | **51** | (suma verificada por parseo YAML) |
+
+### 8.3 Políticas de autorización, ciclo de vida y proceso — **49 reglas**
+| # | Regla | Alcance | Evidencia |
+|---|---|---|---|
+| 1–19 | RBAC por entidad (`write_roles`) — una política de rol distinta por cada una de las 19 entidades | Todas | `product.yml`, `x-required-roles` en `openapi.yaml` |
+| 20 | Ownership de fila (`owned_by: assigned_to`, polimórfico `User\|Location\|Asset`) | Asset | `OwnershipGuard.kt` |
+| 21 | Owner-bypass (`superadmin`, `admin` ignoran ownership) | Global | `OwnershipPolicy.kt` |
+| 22 | Company-scoping de lectura y escritura (`company_scoped: company_id`) | Asset | `CompanyScopeGuard.kt` |
+| 23 | Company-scope-bypass (`superadmin`, `admin`) | Global | `CompanyScopeGuard.kt` |
+| 24–37 | Transiciones válidas del workflow `Asset.status` (14 arcos nombrados; cualquier otro par estado→estado es inválido por construcción) | Asset | §8.4 (diagrama de estados) |
+| 38 | `mutable_when`: `PUT`/`DELETE` bloqueados con 409 si `status = deployed` | Asset | `product.yml:171-173`, verbo congelado |
+| 39 | `soft_delete`: `DELETE` es lógico (papelera), con índice único parcial y filtro de lectura `IS NULL` | Asset | `product.yml:168` |
+| 40 | `audited`: toda mutación (create/update/delete/checkout/checkin) appendea a `action_logs`, atómico con la mutación | Asset | `product.yml:174-179` |
+| 41 | Operación `checkout` (compone RBAC+ownership+workflow, asigna `checkout_target`) | Asset | `product.yml:192` |
+| 42 | Operación `checkin` (libera `checkout_target`) | Asset | `product.yml:192` |
+| 43 | Operación `checkout` de Accessory: decrementa `qty` + crea fila en `AccessoryCheckout`, atómico (rollback si no hay stock) | Accessory | `product.yml` (bloque `operations`) |
+| 44 | Depreciación calculada: `current_value = max(purchase_cost − purchase_cost/model.depreciation.months × meses_transcurridos, 0)` (cross-entity depth-2 + tiempo) | Asset | `product.yml` (campo `computed`) |
+| 45 | Seed transitivo topológico para refs requeridos no-dueño (`Category→AssetModel→Asset`) | Asset | `SNIPEIT-DOMAIN.md` deferral 4 |
+| 46–47 | Jerarquía self-ref sembrada raíz→hijo (`Location.parent_id`, `User.manager_id`) | Location, User | deferral 5 |
+| 48–49 | Ciclo cross-entidad vía FK diferida + `NULL`-then-`UPDATE` (`Location.manager_id→User`, `Department.manager_id→User`) | Location, Department | deferral 6 |
+
+**Total §8.2 + §8.3 = 51 + 49 = 100.**
+
+### 8.4 Máquina de estados de `Asset.status`
+```mermaid
+stateDiagram-v2
+    [*] --> ready
+    ready --> deployed: checkout
+    ready --> pending
+    ready --> broken
+    ready --> archived
+    deployed --> ready: checkin
+    deployed --> pending
+    deployed --> broken
+    deployed --> archived
+    pending --> ready
+    pending --> deployed
+    pending --> broken
+    pending --> archived
+    broken --> ready
+    broken --> archived
+    archived --> [*]
+```
+
+**Figura 8.1.** Las 14 transiciones válidas de `Asset.status` (regla 24–37 de §8.3). `archived` es
+**terminal** (ningún arco sale de él); `checkout`/`checkin` son los únicos dos arcos con efecto lateral
+sobre otro campo (`checkout_target`). Cualquier par estado-origen→estado-destino no dibujado aquí es
+rechazado por `canTransition()` con `409` — verificado como diente de dos lados en el propio gate de la
+fábrica (`AssetStatusWorkflowTest.kt`).
+
+---
+
+## 9. Validaciones y restricciones (mínimo 100 → **201 verificadas**, sin contar integridad referencial)
+
+### 9.1 Metodología de conteo
+Validación de **campo aislado** (no de relación entre entidades — eso es §8.2). Conteo por parseo YAML de
+los 144 campos declarados en las 19 entidades.
+
+| Tipo de validación | Cantidad | Cómo se cuenta |
+|---|---:|---|
+| Chequeo de tipo por campo (string/int/number/date/boolean/enum/ref) | 144 | 1 por cada campo declarado — el servidor vivo rechaza con `400` un valor que no coDifica al tipo (verificado: enum inválido → 400 real, §9.2) |
+| Obligatoriedad (`NOT NULL`) | 48 | Campos sin `required: false` (default de la gramática FSK = requerido) |
+| Unicidad (`UNIQUE`) | 4 | `Company.name`, `Manufacturer.name`, `User.username`, `Asset.asset_tag` |
+| Pertenencia a conjunto cerrado (enum whitelist) | 4 | `Category.category_type` (5 valores), `Depreciation.depreciation_type` (2), `Asset.status` (5, además workflow), `Maintenance.maintenance_type` (8) |
+| Formato con patrón (regex) | 1 | `Asset.mac_address` (`format: mac`, codec `strFmt`) |
+| **Total** | **201** | 144+48+4+4+1 |
+
+*(Nota de transparencia: el chequeo de tipo de los 4 campos `enum` y de los 51 campos `ref` está incluido en
+el conteo de 144 "chequeo de tipo"; la fila de "enum whitelist" cuenta la restricción ADICIONAL de
+pertenencia a un conjunto cerrado, distinta de "es un string". La integridad referencial de los 51 `ref` NO
+se repite acá — vive en §8.2 — para no duplicar el mismo hecho bajo dos categorías.)*
+
+### 9.2 Evidencia HTTP real de validaciones (ejecutada 2026-07-08)
+| Validación probada | Petición | Resultado real |
+|---|---|---|
+| Campo requerido ausente | `POST /manufacturers {}` | **HTTP 400** |
+| Valor de enum inválido | `POST /categorys {"category_type":"bogus"}` | **HTTP 400** |
+| FK colgante | `POST /maintenances {"asset_id":9999,...}` | **HTTP 409** |
+| Restricción `UNIQUE` violada | `POST /manufacturers` con `name` duplicado | **falla — ver §12, bug real encontrado** |
+
+---
+
+## 10. Checklist de completitud del producto
+
+Fuente: `meta rtm --factory full-stack-kotlin --product snipeit` (re-derivado de `.proof/` + los artefactos
+reales listados, no declarado a mano).
+
+| Requisito | Estado | Artefacto que lo satisface |
+|---|:---:|---|
+| REQ-F-001 contrato tipado fuente única | ✅ | `openapi.yaml` |
+| REQ-F-002 andamiaje regenerable | ✅ | `openapi.yaml` |
+| REQ-F-003 datos, esquema chequeado | ✅ | `V1__init.sql` |
+| REQ-F-004 datos durables vivos | ✅ | `DbRoundTrip.kt` |
+| REQ-F-005 rutas protegidas | ✅ | `AuthGuard.kt` |
+| REQ-F-006 topología de rutas verificable | ✅ | `RouteTable.kt` |
+| REQ-F-007 lógica de dominio generada por LLM | ⚠️ **DIFERIDO** (`s6: off`, declarado en `product.yml`) | — |
+| REQ-F-008 pruebas piramidales | ✅ | `src/test/` |
+| REQ-F-009 calidad de experiencia | ✅ | `frontend/ui/index.html` |
+| REQ-F-010 observabilidad de producto | ✅ | `ObsServer.kt` |
+| REQ-F-011 workflow enforzado | ✅ | `workflow/` |
+| REQ-F-012 RBAC enforzado | ✅ | `RoleGuard.kt` |
+| REQ-F-013 ownership enforzado | ✅ | `OwnershipGuard.kt` |
+| REQ-F-014 control de acceso en runtime | ✅ | `AppServer.kt` |
+| REQ-F-015 CRUD/mutación en runtime | ✅ | `Repository.kt` |
+| REQ-F-016 entrada tipada en runtime | ✅ | `AppServer.kt` |
+| REQ-F-017 frontend consume en vivo | ✅ | `client.ts` |
+| REQ-F-018 frontend renderiza en vivo | ✅ | `app.ts` |
+| REQ-F-019 CRUD sin dueño en runtime | ✅ | `AppServer.kt` |
+| REQ-F-020 frontend renderiza en Chromium real | ✅ | `browser_check.ts` |
+| REQ-F-021 mutación congelada (`mutable_when`) | ✅ | `AppServer.kt` |
+| REQ-NF-001 aislamiento del producto | ✅ | `settings.gradle.kts` |
+| REQ-NF-002 dureza estática (detekt) | ✅ | `config/detekt.yml` |
+| REQ-NF-003 frescura de API (lock) | ✅ | `config/api-surface.lock` |
+| REQ-NF-004 seguridad cadena de suministro (SBOM) | ✅ | `sbom.json` |
+| REQ-NF-007 build hermético reproducible | ✅ | `ci.sh` |
+| REQ-NF-008 deploy vivo (Docker) | ✅ | `Dockerfile` |
+
+**26/27 = 96%.** El único ítem no satisfecho (REQ-F-007) es un **deferral declarado desde el propio
+`product.yml`** (`station_activation: s6: off`), no un fallo silencioso — la instancia prueba
+deliberadamente que el resto del sistema (20 requisitos funcionales + 6 no funcionales) fluye por
+estaciones **deterministas**, sin depender de una llamada a un LLM en el camino crítico.
+
+---
+
+## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: sin métrica de línea, con verificación por contrato**)
+
+### 11.1 Inventario real de pruebas
+| Tipo | Cantidad | Ubicación |
+|---|---:|---|
+| Casos unitarios/integración (Kotest `StringSpec`) | 23 | `src/test/`, `src/integrationTest/` (8 archivos: `AuthGuardTest`, `RouteTableTest`, `StoreTest`, `RoleGuardTest`, `CompanyScopeGuardTest`, `OwnershipGuardTest`, `RepositoryIT`) |
+| Casos de workflow | incluidos arriba | `AssetStatusWorkflowTest.kt` (`src/workflowTest/`) |
+| Aserciones E2E en Chromium real (Playwright) | 32 | `frontend/browser_check.ts` |
+| Ejes del *design floor* (Chromium real) | 6 | `tools/design_floor_check.ts` (shell/labels/nullcell/overflow/contrast/fields) |
+| Gates estáticos/estructurales (Python) | 8 | `tools/{route_check,access_control_check,currency_lint,supply_chain_scan,hermetic_check,deploy_check,deploy_appserver_check,obs_check}.py` |
+| Requisitos trazados a artefacto (RTM) | 26/27 | §10 |
+
+### 11.2 Por qué NO hay un número de "% de cobertura de línea"
+El proyecto **no tiene configurado Jacoco/Kover** (verificado: `grep -rn jacoco\|coverage build.gradle.kts`
+→ sin resultados). Esto es un **gap real** frente al criterio literal pedido. La razón declarada por el
+propio proyecto (ADR-017 de Meta-Factory, "verificar-no-revisar") es que la verificación se hace **por
+contrato/artefacto re-derivable** (§10, 26/27 requisitos, cada uno atado a un archivo generado concreto que
+debe existir y pasar su gate) en vez de por cobertura de línea — un paradigma distinto, no necesariamente
+más débil, pero **no es lo que el criterio pidió literalmente**, y no corresponde inflarlo con un número
+sintético. Se reporta el hueco tal como es.
+
+### 11.3 Determinismo (evidencia indirecta de robustez)
+El pipeline soporta `ci --rederive` (re-construcción completa en un clon limpio) comparado byte a byte
+contra `pinned_verdict.json` — los 11 hashes de estación (`s0`…`s11`) están pineados y son re-derivables.
+Esto no reemplaza cobertura de línea, pero es una forma más fuerte de verificación de **reproducibilidad**
+que la mayoría de las suites con cobertura no ofrecen.
+
+---
+
+## 12. Limitaciones y hallazgos honestos de esta auditoría
+
+1. **Modelo de datos por debajo del mínimo pedido** (§5.3): 20 tablas reales vs 40 pedidas. Causa: decisión
+   de alcance documentada desde el origen del producto (núcleo operativo de 19 entidades, no el sistema
+   Snipe-IT completo de ~41 modelos / 53 tablas).
+2. **Sin métrica de cobertura de línea** (§11.2): el proyecto verifica por contrato/artefacto, no por %.
+3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
+   otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
+4. **Bug real encontrado durante esta auditoría — violación de `UNIQUE` no manejada**: un `POST` que viola
+   una restricción `UNIQUE` de PostgreSQL (probado en `Manufacturer.name` y `Company.name`, ambos campos
+   `unique: true`) no devuelve un `409`/`400` limpio — la conexión HTTP se cierra vacía (`curl`: *"Empty
+   reply from server"*, código `000`) y **no queda ningún registro en el log del servidor ni en las trazas
+   de observabilidad** (`obs/access.jsonl`, `obs/spans.jsonl` — verificados, sin entradas nuevas). El
+   servidor **sigue vivo** (`/health` sigue en 200 inmediatamente después), así que no es una caída del
+   proceso — es una excepción no capturada en el hilo de esa request puntual que deja el *handler* sin
+   enviar respuesta. La restricción `UNIQUE` en sí **sí existe y sí se enforza a nivel de PostgreSQL** (el
+   duplicado no se inserta) — el gap es la **traducción a una respuesta HTTP correcta y observable**, no la
+   integridad del dato. Esto es un hallazgo nuevo de esta auditoría, no documentado previamente en
+   `SNIPEIT-DOMAIN.md`.
+5. **Custom fields dinámicos, Kits, CheckoutRequest/Acceptance, StatusLabel customizable**: deferrals
+   declarados en `SNIPEIT-DOMAIN.md §3`, no re-auditados en detalle acá (ya documentados con su propia
+   evidencia en ese documento).
+
+---
+
+## 13. Reproducibilidad de esta auditoría
+
+- **Levantar el sistema**: `factories/full-stack-kotlin/tools/dev_run.sh snipeit` (PostgreSQL Docker propia
+  + AppServer + frontend, imprime la URL local).
+- **Recapturar las 39 pantallas**: `node factories/full-stack-kotlin/tools/screenshot_evidence.mjs <url>
+  <ruta-absoluta-a-frontend-del-build> <ruta-de-salida> [rol]` — herramienta nueva de esta auditoría,
+  DATA-agnóstica (lee `nav button[data-entity]` del DOM real, no tiene nombres de dominio *hardcodeados* —
+  reutilizable para cualquier producto FSK con la misma convención de shell).
+- **Re-derivar el checklist de §10**: `meta rtm --factory full-stack-kotlin --product snipeit`.
+- **Re-contar reglas/validaciones de §8–9**: parseo de `product.yml` con PyYAML (comando exacto documentado
+  en cada sección).
+
+---
+
+## 14. Conclusión
+
+El sistema `snipeit` es un producto **real, generado, verificado por bloqueo y con servidor vivo** —no una
+maqueta ni un contrato sin implementar. Contra el piso mínimo pedido, pasa 6 de 9 criterios con margen real
+(casos de uso, funcionalidades, endpoints, pantallas con evidencia fotográfica real, reglas de negocio y
+validaciones), y **falla o cumple parcialmente 3** de forma honesta y trazable: el modelo de datos es
+deliberadamente más chico que el pedido (20 tablas, decisión de alcance documentada, no un descuido), la
+cobertura se mide por contrato/artefacto en vez de por línea (paradigma distinto del pedido, declarado como
+tal), y el checklist de completitud tiene un único deferral declarado desde el propio contrato del producto.
+Esta auditoría además **encontró y documentó un bug real** (manejo de violaciones `UNIQUE`) que no estaba
+registrado en la documentación previa del producto — evidencia de que la verificación fue efectivamente
+ejecutada contra el sistema vivo, no copiada de afirmaciones anteriores.

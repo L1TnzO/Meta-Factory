@@ -1,9 +1,17 @@
-<!-- meta:doc sha=45771d8e4324d95f8c781313ba01afa8d2765187 updated=2026-07-07T21:49Z -->
+<!-- meta:doc sha=792a3b674cf3bbae9397800f6fe16efd62e3d9db updated=2026-07-08T15:29Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-FRONTEND-MODELGEN-AB (2026-07-08)** ✅ CERRADO — experimento A/B de ADR-023 §5: frontend `helpdesk`
+  por templates (A) vs por UN slot LLM bajo el harness (B), MISMOS gates. **Gana B (model-nativo):** app-shell
+  real (topbar+sidebar), Vercel ink+hairline sobre LAYOUT, forms completos+labelados — vs template sin shell +
+  30 inputs sin label; verde por `modelgen_ab_gate.sh` (s8+s9 REALES vía engine sin re-derivar s0 + design-floor
+  vivo). Nuevo diente durable `tools/design_floor_check.ts` (6º eje `fields` = create-form completeness,
+  spec-derived) — el ciclo verificar-no-revisar cerró un residuo de pérdida-de-datos que los ojos hallaron.
+  Codegen de templates de frontend CONGELADO (ADR-023); el artefacto model-nativo NO re-deriva bit-a-bit (moat
+  = verificar-el-artefacto). Detalle+3 jueces: `docs/work/FSK-FRONTEND-MODELGEN-AB-INCREMENT.md §Evidencia`.
 - **Pin `snipeit` s11 re-derivado verde (2026-07-07T21:46Z)** — un falso-rojo de toolchain (JDK 21 fuera del
   PATH del hook meta `stop_proof`) clobbereó el pin verde de s11 post-LOGIN; la causa raíz (orden re-run→trust
   en el hook) se arregló a nivel META (`STOP-PROOF-PRERUN-TRUST`); el pin actual es un re-run REAL exit 0

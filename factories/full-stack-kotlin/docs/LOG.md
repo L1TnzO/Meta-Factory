@@ -1,6 +1,35 @@
-<!-- meta:doc sha=d1f6df57f6de92d9f50826969bfd89fef3ef5d30 updated=2026-06-27T16:22Z -->
+<!-- meta:doc sha=66ed83926a09fab383c39b3c85cb80d5e5a3fa2d updated=2026-07-08T18:46Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-08T18:46Z — FSK-MODELGEN-DURABLE ✅ (mecanismo): design_floor OPT-IN en s9 + wrapper single-source (ADR-024)
+- **Qué:** la COEXISTENCIA de ADR-024 — un producto puede tener superficie humana model-nativa DURABLE sin re-pinear a
+  los productos-template. Cierra el mecanismo (mitad FACTORY); el paso 1 (copy-vs-emit, `_load_blueprint`) ya venía de
+  b87cbdf. Esta sesión hizo los pasos 2-4.
+- **s9 `frontend_design_floor` (nuevo check, kind `infra_up`):** guardado por `when: {frontend_surface: model-native}`.
+  Puerto/PG propios (18598/5439/`fsk_s9_df_pg`), sirve el bundle MISMO-ORIGEN (FSK_WEB_DIR) como `frontend_browser_live`.
+  Fuente de verdad = `factory.spec.yml` s9 `checks:` (+ prosa en `proof_checks:`); `stations/s9.yml` re-materializado
+  (diff = **append puro** `{{package_name}}`→webapp; s0/s6 tenían drift pre-existente → NO tocados, fuera de alcance).
+- **Wrapper `tools/design_floor_probe.py` (columna, ojos-propios):** `<url> <spec_path> [shot]`. Se auto-localiza el
+  `.ts` por `__file__`, deriva `frontend = spec_file.parent/build/product/frontend`, lee el spec efectivo → deriva PROBE
+  (1ª entidad con opcional y sin ref requerido → optionals OMITIDOS, fuerza el null vivo) + CONTRACT (campos seteables =
+  todos menos el owner server-set) → corre `design_floor_check.ts` con `cwd=frontend`, propaga el exit. **Single-sourcea**
+  la derivación con `modelgen_ab_gate.sh` (§2/§2b heredocs borrados) → gate y check s9 comparten UNA derivación, sin drift.
+- **Decisión de arquitectura (por qué wrapper, no el `.ts` leyendo el spec):** el `.ts` corre con cwd=frontend y su
+  contrato documentado es product-AGNÓSTICO (erasable-types, names-no-domain, autocontenido); meterle parseo YAML + el
+  path del árbol fuente lo acoplaría. Leer el plan es tarea Python (ADR-012); el `.ts` sólo chequea.
+- **Verificación (prove-by-blocking):** `ci --rederive full-stack-kotlin/assets` **11/11==pin** (byte-neutral en la línea
+  REAL — el check materializa pero `_check_active` lo saltea en los 3 productos, ninguno declara el flag → active-set
+  idéntico → proof_sha invariante) · **lado ROJO:** el wrapper sobre el frontend TEMPLATE de `assets` (recién re-derivado)
+  → **exit 1** (ejes `shell`/`labels`/`fields`; el `fields` incluso cazó que el form de create de Asset no ofrece control
+  para `notes`) = baseline arm-A · `meta check` 18/19 (único rojo = FSK STATE stale pre-existente, limpiado al cerrar).
+- **Lección reusable:** la fuente de verdad de los checks ejecutables de una estación es `factory.spec.yml` `checks:`
+  (con `{{package_name}}`), NO el `stations/<id>.yml` committeado — que es un artefacto materializado (`_materialize_line`).
+  Un edit sólo a `stations/s9.yml` lo clobberearía la próxima materialización. Se re-materializa a un temp y se DIFEA
+  antes de aplicar (confirmar append puro + no arrastrar drift ajeno de otras estaciones).
+- **Sigue (paso 5, increment SEPARADO product-instance):** adopción `helpdesk` = flag en `product.yml` + commitear la
+  superficie model-nativa (ya capturada UNTRACKED en `products/helpdesk/frontend/app.{ts,css}`) + probar el lado VERDE
+  (design_floor pasa en la app model-nativa VIVA). `product.yml` es nivel ADR-016 → el edit-gate por-nivel lo fuerza.
 
 ## 2026-06-27T16:19Z — FSK-FRONTEND-DELETE ✅: la **D** del CRUD desde el browser (borrar una fila)
 - **Qué:** un botón "borrar" en el detalle elimina la fila y la hace DESAPARECER de la lista en un Chromium REAL —

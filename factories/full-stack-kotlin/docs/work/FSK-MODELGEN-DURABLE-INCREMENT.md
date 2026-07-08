@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fd527f393c768cf1722090016f161b8c33e079e2 updated=2026-07-08T18:44Z -->
+<!-- meta:doc sha=322f6140287325ad1bdfd5be4abb947602cea3ed updated=2026-07-08T18:46Z -->
 # Incremento FSK-MODELGEN-DURABLE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (2026-07-08T15:53Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-08T18:46Z) (2026-07-08T15:53Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

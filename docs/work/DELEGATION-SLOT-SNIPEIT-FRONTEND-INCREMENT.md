@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ea021154bb8aee9c80e59e5351d35509ad0d9251 updated=2026-07-08T20:19Z -->
+<!-- meta:doc sha=608ebb005d3587c512cdfbe7744823cc1398194c updated=2026-07-08T20:20Z -->
 # Incremento DELEGATION-SLOT-SNIPEIT-FRONTEND
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-08T20:14Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-08T20:20Z) (creado 2026-07-08T20:14Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

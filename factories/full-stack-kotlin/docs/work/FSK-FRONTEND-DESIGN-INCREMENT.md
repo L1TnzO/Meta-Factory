@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6a6f10b6cc788d82f81873ea5d4d3f802695100f updated=2026-07-08T01:36Z -->
+<!-- meta:doc sha=fa8becf9fbaa95681328d591851151d7c7effa88 updated=2026-07-08T02:06Z -->
 # FSK-FRONTEND-DESIGN — diagnóstico + plan (arco de diseño visual)
 
 > **Estado: DIFERIDO** (diagnóstico CERRADO con ojos reales 2026-07-08; los INCs del plan quedan
@@ -106,3 +106,12 @@ playwright-core del node_modules del producto (`--no-sandbox`). Evidencia de hoy
 Diagnóstico = HECHO (esta sesión). Diseño de contratos+gates de INC-1..5 = S1 Opus CORTA.
 Ejecución = S2 (`claude --model sonnet --agent orchestrator`), slots via `generate-slot`, aceptar
 por VEREDICTO; vehículo de validación `helpdesk`, regresión final contra `snipeit`.
+
+## §Re-dirección (2026-07-08, ADR-023) — este plan pasa a ser el BRAZO-CONTROL
+El diagnóstico de arriba disparó una decisión de dirección mayor (`decisions/023`): la generación pasa
+a ser MODEL-NATIVA bajo el harness y el codegen de templates queda CONGELADO. En consecuencia, los 5
+INCs del §Plan NO se ejecutan como evolución de templates: quedan como **brazo A (control)** del
+experimento A/B de ADR-023 §5 — brazo B = UN slot LLM que genera el frontend de `helpdesk` desde la
+spec bajo los MISMOS gates s9 + design-floor + screenshot. La §Prevención (gate design-floor,
+screenshot-en-§Evidencia, vehículo doble) SOBREVIVE al pivote: verifica cualquier implementación,
+venga de template o de modelo. Header sigue DIFERIDO; el experimento decide qué rama se ejecuta.

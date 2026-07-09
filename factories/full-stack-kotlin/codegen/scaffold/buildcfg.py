@@ -5,7 +5,7 @@ Deterministic codegen (DATA, ADR-012); the substrate names no Kotlin/Gradle/Open
 from __future__ import annotations
 
 
-from .constants import AXE_VERSION, DETEKT_VERSION, ESBUILD_VERSION, ESLINT_VERSION, FLYWAY_VERSION, JDK_TOOLCHAIN, JOOQ_VERSION, JSDOM_VERSION, KOTEST_VERSION, KOTLINX_SER_VERSION, KOTLIN_VERSION, OPENAPI_GEN_VERSION, OPENAPI_TS_VERSION, OTEL_VERSION, PLAYWRIGHT_VERSION, POSTGRES_JDBC_VERSION, TS_ESLINT_VERSION, TS_RESET_VERSION, TS_VERSION
+from .constants import AXE_VERSION, DETEKT_VERSION, ESBUILD_VERSION, ESLINT_VERSION, FLYWAY_VERSION, JACOCO_VERSION, JDK_TOOLCHAIN, JOOQ_VERSION, JSDOM_VERSION, KOTEST_VERSION, KOTLINX_SER_VERSION, KOTLIN_VERSION, OPENAPI_GEN_VERSION, OPENAPI_TS_VERSION, OTEL_VERSION, PLAYWRIGHT_VERSION, POSTGRES_JDBC_VERSION, TS_ESLINT_VERSION, TS_RESET_VERSION, TS_VERSION
 
 
 def _settings_gradle(pkg: str) -> str:
@@ -28,6 +28,9 @@ plugins {{
     // Observabilidad (s9, DES-5): `application` produce un launcher (installDist) → infra_up levanta el
     // server HTTP vivo del producto como un proceso java plano (no el daemon de gradle), kill-eable por grupo.
     application
+    // Cobertura de línea real (SNIPEIT-MIN-COMPLIANCE fase 3, s9/DES-5): jacoco es un plugin INCORPORADO de
+    // Gradle (sin repo extra) — instrumenta la pirámide de tests + el proceso vivo que s9 levanta como agente.
+    id("jacoco")
 }}
 repositories {{ mavenCentral() }}
 // `-Werror` (DES-10): TODO warning de kotlinc es error → el código falla FUERTE, no silencioso.
@@ -61,6 +64,29 @@ detekt {{
     config.setFrom(files("config/detekt.yml"))
     source.setFrom(files("src/main/kotlin"))
 }}
+jacoco {{ toolVersion = "{JACOCO_VERSION}" }}
+// Cobertura E2E (SNIPEIT-MIN-COMPLIANCE fase 3): un agente Jacoco standalone (clasificador `runtime`,
+// fat-jar, usable como -javaagent en un JVM lanzado FUERA de gradle) para instrumentar el proceso que
+// `s9` levanta con `java -cp ... webapp.endpoints.AppServerKt`. installDist lo materializa siempre
+// (dependsOn) para que la ruta sea estable sin tocar cada bootstrap de s9.yml.
+// nombre PROPIO (no "jacocoAgent": esa config ya existe, creada por el plugin `jacoco` mismo, para SU
+// uso interno con los Test tasks auto-instrumentados — reusar el nombre choca con "ya existe").
+val jacocoAgentCfg = configurations.create("jacocoStandaloneAgent")
+dependencies {{ add("jacocoStandaloneAgent", "org.jacoco:org.jacoco.agent:{JACOCO_VERSION}:runtime") }}
+// `doLast` con `copy {{}}` imperativo (NO un `Copy` tipado con `into(layout.buildDirectory)`): declarar el
+// output como TODO `build/` colisiona con los outputs de otras tasks anidadas ahí (generated-jooq,
+// generated/src/main/kotlin) → Gradle lo marca "implicit dependency" (validación estricta) y rompe
+// compileKotlin. Un `doLast` ad-hoc no declara outputs estáticos → sin ambigüedad, misma ruta final.
+val copyJacocoAgent = tasks.register("copyJacocoAgent") {{
+    doLast {{
+        copy {{
+            from(jacocoAgentCfg)
+            into(layout.buildDirectory)
+            rename {{ "jacocoagent.jar" }}
+        }}
+    }}
+}}
+tasks.named("installDist") {{ dependsOn(copyJacocoAgent) }}
 // Diente NEGATIVO embebido (DES-10): detekt sobre un fixture deliberadamente sucio (probe/kotlin) DEBE
 // fallar. El check static_hardness exige que muerda (grep de la regla) → un gate decorativo se delata.
 tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektProbe") {{
@@ -182,6 +208,34 @@ tasks.register<Test>("workflowTest") {{
     useJUnitPlatform()
     testLogging {{ events("failed") }}
     outputs.upToDateWhen {{ false }}   // corre SIEMPRE (idiom roundtrip): el diente se re-evalúa cada corrida del gate
+}}
+
+// jacocoLiveReport (SNIPEIT-MIN-COMPLIANCE fase 3): fusiona el .exec de TODA la pirámide Gradle
+// (test/integrationTest/workflowTest/roundtrip, auto-instrumentados por el plugin jacoco) CON el .exec
+// externo que el javaagent (arriba) escribe cuando s9 levanta AppServerKt (accumulate vía append=true en
+// el `up` de cada check infra_up) — cobertura real de TODA la batería de verificación, no sólo unit
+// tests. Excluye boilerplate GENERADO (DTOs OpenAPI + acceso a datos jOOQ) del universo medido —
+// declarado explícitamente (no maquillado), nunca el código de negocio autorado.
+tasks.register<org.gradle.testing.jacoco.tasks.JacocoReport>("jacocoLiveReport") {{
+    group = "verification"
+    // SIN esta dependencia explícita, gradle puede programar jacocoLiveReport ANTES que test/workflowTest (no
+    // hay relación implícita entre ellos) -> el fileTree de .exec lo ve VACÍO -> SKIPPED. El orden en el CLI
+    // del check `coverage_live` NO alcanza (gradle no lo garantiza sin dependsOn/mustRunAfter). `integrationTest`
+    // NO se lista acá a propósito: exige una PostgreSQL VIVA (la que `s7`/`pyramid_integration` ya levanta
+    // ANTES en la MISMA corrida de product-run) — `coverage_live` (en `s9`, sin infra propia) sólo LEE el
+    // `integrationTest.exec` que ya quedó en disco de esa corrida previa; forzar un re-run acá rompería sin PG.
+    dependsOn("test", "workflowTest")
+    executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {{ include("*.exec") }})
+    sourceDirectories.setFrom(files("src/main/kotlin"))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {{
+        exclude("org/openapitools/**", "**/jooq/**")
+    }})
+    reports {{
+        xml.required.set(true)
+        html.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/live/live.xml"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/live/html"))
+    }}
 }}
 
 // ── Build hermético reproducible (s10, DES-1). La REPRODUCIBILIDAD es una propiedad DECLARADA del producto

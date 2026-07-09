@@ -776,7 +776,7 @@ domain:
           # FSK-TIME-COMPUTED: FSK_NOW mockea el reloj del server (un campo computado sobre meses-transcurridos seria
           # NO-determinista con el reloj real). Fecha fija (DATA, sin nombres de dominio): el server la lee y la expone
           # por /seed (single source); el oraculo del proof la lee de /seed. Un producto sin op de tiempo la IGNORA.
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15; exec \"$JAVA_HOME/bin/java\" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["python3", "tools/access_control_check.py", "http://127.0.0.1:18594"]
           down: ["docker", "rm", "-f", "fsk_s9_ac_pg"]
           # 120s -> 240s (2026-07-09, FSK-ACCESS-CONTROL-LIVE-BUDGET): access_control_check.py issues ~O(entities)
@@ -794,7 +794,7 @@ domain:
           # FSK_PG_URL). El proof corre `node --experimental-strip-types` sobre el consumer (sin npm install:
           # client.ts sólo usa fetch global + imports type-only stripped → sin node_modules).
           bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; docker rm -f fsk_s9_fe_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_fe_pg -e POSTGRES_PASSWORD=metafactory -p 5437:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18595 FSK_PG_URL=jdbc:postgresql://localhost:5437/postgres; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18595 FSK_PG_URL=jdbc:postgresql://localhost:5437/postgres; exec \"$JAVA_HOME/bin/java\" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["sh", "-c", "cd frontend && exec node --experimental-strip-types --disable-warning=ExperimentalWarning consume_check.ts http://127.0.0.1:18595"]
           down: ["docker", "rm", "-f", "fsk_s9_fe_pg"]
           timeout: 120
@@ -808,7 +808,7 @@ domain:
           # package.json). El binario de Chromium vive en ~/.cache/ms-playwright (HOME → sobrevive el clon limpio de
           # ci --rederive, precondición de entorno como docker). El proof corre `node` sobre browser_check.ts.
           bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; (cd frontend && npm install --no-audit --no-fund --loglevel=error && node build_bundle.mjs); docker rm -f fsk_s9_br_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_br_pg -e POSTGRES_PASSWORD=metafactory -p 5438:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18597 FSK_PG_URL=jdbc:postgresql://localhost:5438/postgres FSK_WEB_DIR=frontend/dist; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18597 FSK_PG_URL=jdbc:postgresql://localhost:5438/postgres FSK_WEB_DIR=frontend/dist; exec \"$JAVA_HOME/bin/java\" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["sh", "-c", "cd frontend && exec node --experimental-strip-types --disable-warning=ExperimentalWarning browser_check.ts http://127.0.0.1:18597"]
           down: ["docker", "rm", "-f", "fsk_s9_br_pg"]
           timeout: 120
@@ -830,10 +830,21 @@ domain:
           when:
             frontend_surface: model-native
           bootstrap: ["sh", "-c", "set -e; export JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew installDist -q --console=plain; (cd frontend && npm install --no-audit --no-fund --loglevel=error && node build_bundle.mjs); docker rm -f fsk_s9_df_pg >/dev/null 2>&1 || true; docker run -d --name fsk_s9_df_pg -e POSTGRES_PASSWORD=metafactory -p 5439:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb >/dev/null"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18598 FSK_PG_URL=jdbc:postgresql://localhost:5439/postgres FSK_WEB_DIR=frontend/dist; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18598 FSK_PG_URL=jdbc:postgresql://localhost:5439/postgres FSK_WEB_DIR=frontend/dist; exec \"$JAVA_HOME/bin/java\" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["python3", "../../../../tools/design_floor_probe.py", "http://127.0.0.1:18598", "../../factory.spec.yml"]
           down: ["docker", "rm", "-f", "fsk_s9_df_pg"]
           timeout: 120
+        - name: coverage_live
+          kind: product_env
+          workdir: build/product
+          bootstrap: []
+          # SNIPEIT-MIN-COMPLIANCE fase 3 / FSK-COVERAGE-INSTRUMENT: fusiona la pirámide Gradle
+          # (test/integrationTest/workflowTest, ya auto-instrumentada por el plugin jacoco) con el `live.exec`
+          # que los 4 checks -javaagent de ARRIBA escribieron (accumulate) al levantar AppServerKt -- por eso
+          # `coverage_live` debe ser el ULTIMO check de esta estacion. Reporta un NUMERO real, honesto; no
+          # juzga el negocio (otros productos pueden medir menos): solo falla si el plumbing (gradle/reporte)
+          # se rompe, nunca por el %.
+          cmd: ["sh", "-c", "set -e\nJH=$(dirname $(dirname $(readlink -f $(command -v javac))))\nJAVA_HOME=$JH ./gradlew jacocoLiveReport -q --console=plain\npython3 -c '\nimport sys\nimport xml.etree.ElementTree as ET\n\ntry:\n    root = ET.parse(\"build/reports/jacoco/live/live.xml\").getroot()\n    line_ctr = next(c for c in root.findall(\"counter\") if c.get(\"type\") == \"LINE\")\n    covered = int(line_ctr.get(\"covered\"))\n    missed = int(line_ctr.get(\"missed\"))\n    total = covered + missed\n    pct = (covered / total * 100.0) if total else 100.0\n    print(f\"FSK_COVERAGE_LINE_PCT={pct:.1f}\")\n    if pct < 100.0:\n        gaps = []\n        for pkg in root.findall(\"package\"):\n            for sf in pkg.findall(\"sourcefile\"):\n                miss = [ln.get(\"nr\") for ln in sf.findall(\"line\") if int(ln.get(\"mi\", \"0\")) > 0]\n                if miss:\n                    gaps.append((len(miss), pkg.get(\"name\") + \"/\" + sf.get(\"name\"), miss))\n        gaps.sort(key=lambda g: g[0], reverse=True)\n        for count, name, lines in gaps[:10]:\n            sample = \",\".join(lines[:8])\n            print(f\"FSK_COVERAGE_GAP {name}:{count} missed (e.g. {sample})\")\nexcept Exception as exc:\n    print(f\"FSK_COVERAGE_PARSE_FAIL: {type(exc).__name__}: {exc}\", file=sys.stderr)\n    sys.exit(1)\n'\n"]
     - id: s10
       name: "build hermético reproducible + mini-columna del producto (fan-in DAG) — DES-1"
       activation: always

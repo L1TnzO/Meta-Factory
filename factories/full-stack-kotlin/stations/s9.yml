@@ -41,7 +41,8 @@ checks:
   - sh
   - -c
   - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15;
-    exec "$JAVA_HOME/bin/java" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+    exec "$JAVA_HOME/bin/java" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true
+    -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
   proof:
   - python3
   - tools/access_control_check.py
@@ -75,6 +76,7 @@ checks:
   - -c
   - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18595
     FSK_PG_URL=jdbc:postgresql://localhost:5437/postgres; exec "$JAVA_HOME/bin/java"
+    -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true
     -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
   proof:
   - sh
@@ -104,7 +106,8 @@ checks:
   - -c
   - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18597
     FSK_PG_URL=jdbc:postgresql://localhost:5438/postgres FSK_WEB_DIR=frontend/dist;
-    exec "$JAVA_HOME/bin/java" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+    exec "$JAVA_HOME/bin/java" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true
+    -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
   proof:
   - sh
   - -c
@@ -135,7 +138,8 @@ checks:
   - -c
   - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_AC_PORT=18598
     FSK_PG_URL=jdbc:postgresql://localhost:5439/postgres FSK_WEB_DIR=frontend/dist;
-    exec "$JAVA_HOME/bin/java" -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
+    exec "$JAVA_HOME/bin/java" -javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true
+    -cp 'build/install/webapp/lib/*' webapp.endpoints.AppServerKt
   proof:
   - python3
   - ../../../../tools/design_floor_probe.py
@@ -147,3 +151,46 @@ checks:
   - -f
   - fsk_s9_df_pg
   timeout: 120
+- name: coverage_live
+  kind: product_env
+  workdir: build/product
+  bootstrap: []
+  # SNIPEIT-MIN-COMPLIANCE fase 3: fusiona la pirámide Gradle (test/integrationTest/workflowTest, ya
+  # auto-instrumentada por el plugin jacoco) con el `live.exec` que los 4 checks -javaagent de ARRIBA
+  # escribieron (accumulate) al levantar AppServerKt — por eso `coverage_live` debe ser el ÚLTIMO check
+  # de esta estación. Reporta un NÚMERO real, honesto; no juzga el negocio (otros productos pueden medir
+  # menos): sólo falla si el plumbing (gradle/reporte) se rompe, nunca por el %.
+  cmd:
+  - sh
+  - -c
+  - |
+    set -e
+    JH=$(dirname $(dirname $(readlink -f $(command -v javac))))
+    JAVA_HOME=$JH ./gradlew jacocoLiveReport -q --console=plain
+    python3 -c '
+    import sys
+    import xml.etree.ElementTree as ET
+
+    try:
+        root = ET.parse("build/reports/jacoco/live/live.xml").getroot()
+        line_ctr = next(c for c in root.findall("counter") if c.get("type") == "LINE")
+        covered = int(line_ctr.get("covered"))
+        missed = int(line_ctr.get("missed"))
+        total = covered + missed
+        pct = (covered / total * 100.0) if total else 100.0
+        print(f"FSK_COVERAGE_LINE_PCT={pct:.1f}")
+        if pct < 100.0:
+            gaps = []
+            for pkg in root.findall("package"):
+                for sf in pkg.findall("sourcefile"):
+                    miss = [ln.get("nr") for ln in sf.findall("line") if int(ln.get("mi", "0")) > 0]
+                    if miss:
+                        gaps.append((len(miss), pkg.get("name") + "/" + sf.get("name"), miss))
+            gaps.sort(key=lambda g: g[0], reverse=True)
+            for count, name, lines in gaps[:10]:
+                sample = ",".join(lines[:8])
+                print(f"FSK_COVERAGE_GAP {name}:{count} missed (e.g. {sample})")
+    except Exception as exc:
+        print(f"FSK_COVERAGE_PARSE_FAIL: {type(exc).__name__}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    '

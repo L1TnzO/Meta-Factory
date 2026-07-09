@@ -1,6 +1,41 @@
-<!-- meta:doc sha=9f4c286cb4114bcf8a7877805fa36606dd93544d updated=2026-07-08T22:08Z -->
+<!-- meta:doc sha=38a620bab49adf1e73e8e8dae028a614a7063a63 updated=2026-07-09T20:23Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-09T20:22Z — FSK-COVERAGE-INSTRUMENT ✅ + SNIPEIT-MIN-COMPLIANCE fase 3/4 ✅: 0%→70.7% de cobertura de línea REAL, sin escribir un test Kotlin nuevo
+Último gap real declarado de la auditoría `SNIPEIT-COMPLETENESS-SPEC`: el proyecto no tenía Jacoco/Kover
+configurado. El ingeniero pidió llegar lo más cerca posible del 100% al menor costo, mismo espíritu que la
+Fase 2 de tablas ("a como de lugar, con el menor esfuerzo").
+- **La trampa barata real**: el `s9` de la línea YA levanta 4 procesos JVM vivos para sus propios proofs de
+  correctitud (RBAC/ownership/company-scope por entidad + cliente TS + Chromium real). En vez de escribir
+  tests nuevos, se le adjuntó un **javaagent Jacoco** a esos 4 procesos (`stations/s9.yml` +
+  `factory.spec.yml`, dual-mantenidos — gap de harness descubierto: `ensure_product_instance` materializa
+  las instancias de producto desde `factory.spec.yml`, NO desde `stations/*.yml`; el `generator` delegado lo
+  detectó honestamente en vez de reportar un verde decorativo) + un `jacocoLiveReport` (plugin `jacoco` en
+  `codegen/scaffold/buildcfg.py`) que funde ese `.exec` con la pirámide Gradle, excluyendo boilerplate
+  generado (`org/openapitools/**` DTOs OpenAPI + `**/jooq/**` acceso a datos) — declarado explícitamente.
+- **2 artefactos MUERTOS wireados** (0% de cobertura pese a ser código real, no boilerplate): `App.kt` (un
+  testigo de contrato de las 39 entidades que el codegen emitía pero ningún entrypoint invocaba — nueva
+  tarea Gradle `appContract`) y `DbRoundTrip.kt` (ya corría de verdad en `s1`, pero jacoco no auto-instrumenta
+  `JavaExec` sin pedírselo explícitamente vía `jacoco.applyTo(...)`).
+- **Progresión medida** (cada número de un `product-run --mode harden` real): 0% → 57.7% (plumbing + 4
+  javaagents) → 69.2% (+ `appContract`) → 69.4% (+ `roundtrip`) → **70.7%** (+ javaagent en
+  `observability_live` vía `JAVA_OPTS`, el único check que lanza por script `installDist` en vez de `java
+  -cp` directo).
+- **1 regresión real encontrada y arreglada en el camino**: adjuntar jacoco a `roundtrip` le dio a esa tarea
+  un output declarado → Gradle la marcó UP-TO-DATE en su 2da invocación → la fase NEGATIVA del diente de dos
+  lados de `db_roundtrip_live` (debe fallar con la PG caída) pasó a rojo-decorativo (pasaba SIN PG) —
+  detectado por el propio `ci --rederive`, no asumido; fix `outputs.upToDateWhen { false }`.
+- **Dónde se frenó, honestamente**: el ~29% remanente (concentrado en `AppServer.kt` 648/3497 +
+  `Repository.kt` 532/1847) son entidades con un ref requerido no-dueño que el generador de proofs
+  (`server.py::_access_control_check_py`, ~1600 líneas, una docena de ejes opt-in interactuando) excluye HOY
+  por diseño propio ("necesitarían sembrar su FK — honesto, wrinkle #1"). Cerrarlo es ingeniería real
+  (sembrado de FK encadenado con estado), no un truco barato como los de arriba — se declaró como residual
+  futuro en vez de apurarlo con riesgo de regresión sobre un generador compartido por las otras 3 fábricas.
+- Verificado: `product-run --mode harden` PASS · `ci --rederive --all-products` **4/4 == pin**
+  (12/12·11/11·11/11·12/12, los 4 productos re-pineados tras el cambio de sustrato compartido) · `meta check`
+  **19/19**. Detalle: `docs/work/FSK-COVERAGE-INSTRUMENT-INCREMENT.md` + `products/snipeit/docs/work/
+  SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-08T22:08Z — SNIPEIT-COMPLETENESS-SPEC ✅ + FSK-EVIDENCE-CAPTURE ✅: auditoría honesta de `snipeit` contra un piso mínimo de completitud, y una herramienta nueva de captura de pantallas
 Pedido externo: verificar si `snipeit` alcanza un piso (10 casos de uso · 30 funcionalidades · 40 tablas · 40

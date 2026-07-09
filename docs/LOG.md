@@ -1,7 +1,19 @@
-<!-- meta:doc sha=18b8f51ad55bd87cf9d40a61a25ac9445df49650 updated=2026-07-09T03:22Z -->
+<!-- meta:doc sha=da3bf1da281e72ca16cac1a388851a6045f6fd3e updated=2026-07-09T20:23Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-09T20:22Z — FSK-COVERAGE-INSTRUMENT ✅: cobertura de línea REAL (Jacoco) 0%→70.7%, sin un test Kotlin nuevo
+Último gap declarado de `SNIPEIT-MIN-COMPLIANCE` (fase 3/4): el proyecto no medía cobertura de línea. Se
+instrumentó Jacoco como capacidad de SUSTRATO en la fábrica `full-stack-kotlin` (no un parche de producto):
+un javaagent adjuntado a los procesos JVM que la línea YA levanta para sus propios proofs de correctitud
+(cero tráfico nuevo) + 2 artefactos que el codegen ya emitía pero ningún entrypoint invocaba, wireados a
+tareas Gradle reales. Progresión medida: 0% → 57.7% → 69.2% → 69.4% → **70.7%**, cada número de un
+`product-run` real. El ~29% remanente (2 archivos concentrados) se declaró línea por línea con su razón —
+cerrarlo requiere reestructurar con estado un generador maduro de 1600 líneas compartido por 3 fábricas más;
+se prefirió declarar el residual a arriesgar una regresión apurada. `ci --rederive --all-products` 4/4==pin
+(los 4 productos re-pineados) · `meta check` 19/19. Detalle completo: `factories/full-stack-kotlin/docs/
+LOG.md` + `FSK-COVERAGE-INSTRUMENT-INCREMENT.md` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-09T03:21Z — SNIPEIT-MIN-COMPLIANCE fase 2 ✅: 20→40 tablas — ancho barato por diseño, 3 gaps reales encontrados en el camino
 - **gatillo**: el ingeniero fue explícito: «logra las 40 tablas a como de lugar, con el menor esfuerzo…

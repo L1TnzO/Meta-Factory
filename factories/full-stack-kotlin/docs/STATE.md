@@ -1,9 +1,18 @@
-<!-- meta:doc sha=1fc48ea064070867958add854dfb4a2f8136dcac updated=2026-07-08T21:17Z -->
+<!-- meta:doc sha=25549f0591fdfcdba531a5bf8dc250cbbe881563 updated=2026-07-09T01:30Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-S6-DOMAIN-GEN-VENDOR (2026-07-09)** ✅ CERRADO — activar `s6` (lógica de dominio por `claude -p`
+  vivo) por 1ra vez para un PRODUCTO REAL (`snipeit`, ver `SNIPEIT-MIN-COMPLIANCE`) reveló un gap real:
+  `domain_gen/` nunca vendorizaba el wrapper Gradle pineado (sólo `build/product/` lo hacía). Fix GENERAL:
+  loop de vendorización extraído a `codegen/gradle_vendor.py` (single source, sin duplicar) + nuevo
+  `codegen/vendor_domain_gen.py` (determinista) + build step en `factory.spec.yml` s6 (sentinel
+  `domain_gen/gradlew`, `skip_if_exists: true`). Verificado: `product-run snipeit` PASS end-to-end
+  (s0..s11) con s6 activado — `claude -p` generó `summarize()` REAL (no stub), contract test verde
+  (`FSK_DOMAIN_CONTRACT_OK`). `scaffold_product.py --check-idempotent` sigue OK (refactor byte-neutro).
+  Detalle: `docs/work/FSK-S6-DOMAIN-GEN-VENDOR-INCREMENT.md`.
 - **FSK-SNIPEIT-MODELGEN (2026-07-08)** ✅ CERRADO — **primera adopción durable real** de un producto FSK
   del modo model-nativo (ADR-024): `products/snipeit/frontend/app.{ts,css}` (19 entidades) TRACKED +
   `frontend_surface: model-native` activo. Slot LLM (`generator`, Sonnet) vía `generate-slot`: gen-1 verde

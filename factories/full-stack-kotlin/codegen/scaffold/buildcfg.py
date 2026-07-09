@@ -151,7 +151,7 @@ tasks.register<JavaExec>("appContract") {{
 // El plugin jacoco NO adjunta JacocoTaskExtension a un JavaExec por defecto (sólo a Test) -- hay que
 // pedírselo explícitamente vía `jacoco.applyTo(...)` (la API pública de JacocoPluginExtension) ANTES de
 // poder configurar el destinationFile.
-jacoco.applyTo(tasks.named("appContract").get())
+jacoco.applyTo(tasks.named<JavaExec>("appContract").get())
 tasks.named<JavaExec>("appContract") {{
     extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
         destinationFile = layout.buildDirectory.file("jacoco/appContract.exec").get().asFile
@@ -245,7 +245,7 @@ tasks.register<org.gradle.testing.jacoco.tasks.JacocoReport>("jacocoLiveReport")
     // NO se lista acá a propósito: exige una PostgreSQL VIVA (la que `s7`/`pyramid_integration` ya levanta
     // ANTES en la MISMA corrida de product-run) — `coverage_live` (en `s9`, sin infra propia) sólo LEE el
     // `integrationTest.exec` que ya quedó en disco de esa corrida previa; forzar un re-run acá rompería sin PG.
-    dependsOn("test", "workflowTest")
+    dependsOn("test", "workflowTest", "appContract")
     executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {{ include("*.exec") }})
     sourceDirectories.setFrom(files("src/main/kotlin"))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {{

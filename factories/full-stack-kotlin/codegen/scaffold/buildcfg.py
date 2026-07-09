@@ -136,6 +136,17 @@ tasks.register<JavaExec>("roundtrip") {{
     mainClass.set("{pkg}.DbRoundTripKt")
     classpath = sourceSets["main"].runtimeClasspath
 }}
+// Cobertura (SNIPEIT-MIN-COMPLIANCE fase 3): `roundtrip` YA corre en s1 (db_roundtrip_live, PG viva propia)
+// -- sin adjuntarle jacoco explícitamente (el plugin NO lo hace por defecto sobre un JavaExec) esa corrida
+// no dejaba ningún .exec, así que DbRoundTrip.kt quedaba fuera del universo medido pese a ejecutarse de
+// verdad. El .exec queda en build/jacoco/roundtrip.exec (mismo build/product durante TODO el product-run)
+// y `jacocoLiveReport` (s9) lo funde vía su fileTree -- sin forzar un re-run acá (la PG de s1 ya no está viva).
+jacoco.applyTo(tasks.named<JavaExec>("roundtrip").get())
+tasks.named<JavaExec>("roundtrip") {{
+    extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
+        destinationFile = layout.buildDirectory.file("jacoco/roundtrip.exec").get().asFile
+    }}
+}}
 
 // appContract (cobertura, SNIPEIT-MIN-COMPLIANCE fase 3): App.kt es un TESTIGO DE CONTRATO que el codegen
 // emite (construye + lee cada entidad del schema; un drift -- campo borrado -- no compila) pero que NINGÚN

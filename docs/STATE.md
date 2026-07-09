@@ -1,4 +1,4 @@
-<!-- meta:doc sha=313d14c54974411b910a1e25fffa5631b1f2f51f updated=2026-07-09T20:24Z -->
+<!-- meta:doc sha=629e9a2c62636f51ac35c23e7971f2a4d7a46f8b updated=2026-07-09T22:53Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -45,9 +45,9 @@
   tres memorias single-source (`docs/`=hechos · CLAUDE.md=reglas · note-store=relación),
   `reference/MEMORY-ARCHITECTURE.md §8.2`. Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **Producto / fábricas:** las 5 re-derivan **== pin** (proyección arriba). FSK madura (backend núcleo +
-  control-de-acceso + frontend CRUD Chromium + **cobertura de línea REAL 70.7%**, `FSK-COVERAGE-INSTRUMENT`,
-  2026-07-09); arco `FSK-FRONTEND-SCREENS` COMPLETO (5/5) — y AUN ASÍ la UI es fea: techo de los templates,
-  no falta de increments → ADR-023. Sweet-spot: **helpdesk** PASA ·
+  control-de-acceso + frontend CRUD Chromium + **cobertura de línea REAL 93.1%** en snipeit,
+  `FSK-REQREF-COVERAGE`, 2026-07-09); arco `FSK-FRONTEND-SCREENS` COMPLETO (5/5) — y AUN ASÍ la UI es fea:
+  techo de los templates, no falta de increments → ADR-023. Sweet-spot: **helpdesk** PASA ·
   **snipeit** techo de regresión. Plan: `work/ROADMAP.md`.
 - **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +
   teeth de delegación bajan a la columna con ley seed-canónica (ADR-018) · sello content-addressed por-home ·

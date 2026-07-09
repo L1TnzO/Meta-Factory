@@ -1,4 +1,4 @@
-<!-- meta:doc sha=82dc1ae334027572c58d25de84d559c06cafd919 updated=2026-07-09T20:17Z -->
+<!-- meta:doc sha=876035cbec8460429482d2e11c73dd2e48f81ef0 updated=2026-07-09T22:47Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -34,14 +34,16 @@
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
 | 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
 | 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
-| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3): **70.7% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ, 100% boilerplate generado) + 23 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta** | §11 |
+| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3+4, `FSK-REQREF-COVERAGE`): **93.1% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ, 100% boilerplate generado) + 23 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta y muy reducida** | §11 |
 
-**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 3)**: el sistema PASA 8 de 9
-criterios con margen real, y cumple parcialmente 1: la **cobertura de línea AHORA SE MIDE de verdad**
-(Jacoco real, no un número sintético) en **70.7%** de un universo honestamente filtrado — subió desde 0%
-instrumentado wireando artefactos YA EXISTENTES (una batería de proofs E2E que ya corría + dos utilidades de
-diagnóstico que el codegen ya emitía pero ningún entrypoint invocaba) SIN escribir ni un test Kotlin nuevo;
-la brecha remanente (~29%, concentrada en 2 archivos) queda declarada línea por línea con su razón, no
+**Lectura honesta (actualizada 2026-07-09, `FSK-REQREF-COVERAGE`)**: el sistema PASA 8 de 9
+criterios con margen real, y cumple parcialmente 1: la **cobertura de línea** subió de **70.7% a 93.1%**
+extendiendo el generador (`server.py`) para que TAMBIÉN sembrara FKs encadenadas de las 19 entidades
+ownerless-con-ref-requerido que antes quedaban excluidas del proof e2e ("wrinkle #1") — capacidad de
+SUSTRATO (afecta a los 3 productos con el eje, no un parche de snipeit), byte-neutral para `assets` (0
+candidatas, verificado `ci --rederive`). El **83% del gap original** (AppServer.kt+Repository.kt) quedó
+cerrado; la brecha remanente (~6.9%, concentrada en `DbRoundTrip.kt` — una herramienta de diagnóstico manual,
+no lógica de negocio) queda declarada línea por línea con su razón, no
 maquillada — ver §11.4. El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
 (19 entidades del núcleo operativo original + 20 entidades MÍNIMAS agregadas en la Fase 2, decisión
 explícita de diseño de priorizar ALCANZAR el número sobre profundidad de dominio — ver §5.3 y
@@ -561,7 +563,7 @@ re-verifica sin volver a invocar al LLM.
 
 ---
 
-## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 70.7% de línea, Jacoco REAL, brecha honesta**)
+## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 93.1% de línea, Jacoco REAL, brecha honesta**)
 
 ### 11.1 Inventario real de pruebas
 | Tipo | Cantidad | Ubicación |
@@ -572,7 +574,7 @@ re-verifica sin volver a invocar al LLM.
 | Ejes del *design floor* (Chromium real) | 6 | `tools/design_floor_check.ts` (shell/labels/nullcell/overflow/contrast/fields) |
 | Gates estáticos/estructurales (Python) | 8 | `tools/{route_check,access_control_check,currency_lint,supply_chain_scan,hermetic_check,deploy_check,deploy_appserver_check,obs_check}.py` |
 | Requisitos trazados a artefacto (RTM) | 27/27 | §10 |
-| **Cobertura de línea (Jacoco REAL)** | **70.7%** | `build/reports/jacoco/live/live.xml` (§11.2) |
+| **Cobertura de línea (Jacoco REAL)** | **93.1%** | `build/reports/jacoco/live/live.xml` (§11.2) |
 
 ### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`)
 El proyecto antes **no tenía Jacoco/Kover configurado** — ahora sí, como capacidad de SUSTRATO (el
@@ -595,29 +597,40 @@ datos generado por jOOQ desde el schema — mecánico, sin ramas). Ambas son pr�
 para medir cobertura de *lógica de negocio*, no de *boilerplate herramental*.
 
 ### 11.3 La brecha honesta — línea por línea, con razón (no un hueco silencioso)
-| Archivo | Líneas sin cubrir | Razón |
-|---|---:|---|
-| `endpoints/AppServer.kt` | 648 (de 3497) | El proof `access_control_check.py` hace el round-trip HTTP completo (POST→GET, 403/200, company-scope) para la entidad CON DUEÑO (`Asset`) y para TODA entidad escalar-sola sin refs requeridos (`serve_all_block`); las entidades con un ref REQUERIDO no-dueño (varias de las 20 pivots de la Fase 2: `KitModel`, `KitAccessory`, `GroupUser`, `ComponentAssignment`, etc.) quedan **excluidas por diseño** de ese bloque (comentario propio del generador: "necesitarían sembrar su FK — honesto, wrinkle #1") — sus handlers HTTP (creación/lectura/serialización) nunca reciben tráfico real. |
-| `Repository.kt` | 532 (de 1847) | Mismo origen: las funciones `rowJson()`/`all*RowsJson()` de esas mismas entidades-con-ref-requerido nunca se invocan desde un HTTP real (sólo se siembran filas por necesidad de FK de OTRAS entidades, no se GETean/LISTean ellas mismas). |
-| `DbRoundTrip.kt` | 227 (de 297) | Es una herramienta de diagnóstico manual (roundtrip contra PG viva) — corre de punta a punta en `s1`, pero su propio código interno tiene ramas (por-tipo-de-entidad) que ese único recorrido no visita todas. |
-| `routes/RouteTable.kt`, guards de `auth/`, `workflow/AssetStatusWorkflow.kt` | 1–3 c/u | Ramas de borde puntuales (p.ej. un `else` de guard que ningún escenario probado dispara) — no un patrón, casos aislados. |
+**Cerrado 2026-07-09 (`FSK-REQREF-COVERAGE`)**: el generador (`server.py`) ahora prima un registry de seed
+compartido (lo que `Asset`/el owner/el tenant/los ref-targets/la fila de stock YA sembraron) y reusa el
+seeder transitivo genérico (`_seed_deps`/`_ensure_seeded`, FSK-OWNED-REQUIRED-REFS) para sembrar FKs
+encadenadas de las 19 entidades ownerless-con-ref-requerido que antes quedaban excluidas ("wrinkle #1") —
+expuestas por `/seed.withRefs` (keyeado por entidad) y consumidas por `access_control_check.py`'s
+`serve_all_block`, que ahora las incluye (antes las filtraba explícitamente). Esto cerró el **83% del gap
+original** de `AppServer.kt`+`Repository.kt` (1180 líneas → 217 líneas). La brecha remanente:
 
-**Por qué esto queda declarado-diferido y no cerrado ahora**: cerrar el 83% de la brecha remanente (los 1180
-líneas de `AppServer.kt`+`Repository.kt`) requiere que el generador Python de `access_control_check.py`
-(`codegen/scaffold/server.py`, la función `_access_control_check_py`, ~1600 líneas con una docena de ejes
-opt-in interactuando: workflow, qty-operations, refs polimórficos, company-scoping, campos computados,
-soft-delete, actionlog) empiece a **sembrar FKs y encadenar ids entre entidades en un solo pase con estado**
-para las entidades con ref requerido — no es un truco barato (a diferencia de la Fase 2 de tablas o de
-wirear los 2 artefactos muertos de arriba): es ingeniería real y no trivial sobre un generador maduro y
-cargado de dientes existentes, con riesgo genuino de regresión si se apura. Se prefiere declarar el hueco
-honesto — exactamente como anticipa el criterio de cierre de este incremento — a arriesgar una rotura en un
-generador del que dependen las OTRAS 4 fábricas/productos. Queda planteado como una fase futura acotada
-(`SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`, fase 4/residual).
+| Archivo | Líneas sin cubrir (missed) | Razón |
+|---|---:|---|
+| `DbRoundTrip.kt` | 227 | Sin cambios — es una herramienta de diagnóstico MANUAL (roundtrip contra PG viva), no lógica de negocio; corre de punta a punta en `s1`, pero su propio código interno tiene ramas (por-tipo-de-entidad) que ese único recorrido no visita todas. Cerrar esto requeriría instrumentar la herramienta misma, no el proof de negocio. |
+| `endpoints/AppServer.kt` | 154 (de 648 originales) | Residual tras `FSK-REQREF-COVERAGE`: el diente NEGATIVO (FK colgante → 409) para las 19 entidades nuevas se dejó explícitamente FUERA del alcance v1 (el `wr` primaria ya lo prueba una vez; agregarlo a las 19 es ingeniería adicional sin ganancia proporcional — decisión declarada en el diseño del incremento) + ramas de borde de otros ejes opt-in no combinados con estas 19 entidades en `snipeit`. |
+| `Repository.kt` | 63 (de 532 originales) | Mismo origen que arriba (el camino negativo/FK-colgante de esas funciones). |
+| `routes/RouteTable.kt` | 3 | Ramas de borde puntuales, sin cambios. |
+| `observability/FileSpanExporter.kt`, `observability/ObsServer.kt` | 3 c/u | Ramas de borde puntuales, sin cambios. |
+| guards de `auth/` (`OwnershipPolicy`, `CompanyScopeGuard`, `RoleGuard`), `workflow/AssetStatusWorkflow.kt` | 1 c/u | Ramas de borde puntuales (p.ej. un `else` de guard que ningún escenario probado dispara) — no un patrón, casos aislados. |
+
+**Por qué el residual (~6.9%) queda declarado-diferido y no perseguido ahora**: `DbRoundTrip.kt` (227 líneas,
+el 50% del gap remanente) es una herramienta de diagnóstico manual — instrumentarla no ejercita más lógica
+de PRODUCTO, sólo más ramas de la herramienta misma. El resto (`AppServer.kt`+`Repository.kt`, 217 líneas) es
+el camino NEGATIVO (FK colgante → 409) de las 19 entidades — deliberadamente diferido en el diseño de
+`FSK-REQREF-COVERAGE` (ingeniería real sin ganancia proporcional: el `wr` primaria ya prueba ese camino una
+vez; replicarlo 19 veces más es mecánico pero no gratis sobre un generador cargado de ejes opt-in
+interactuantes). Un 100% literal exigiría cerrar ambos — factible como incremento futuro acotado, no
+alcanzado bajo la ventana de tiempo de esta sesión.
 
 ### 11.4 Determinismo (evidencia adicional de robustez)
 El pipeline soporta `ci --rederive` (re-construcción completa en un clon limpio) comparado byte a byte
 contra `pinned_verdict.json` — los 12 hashes de estación (`s0`…`s11`) están pineados y son re-derivables (los
 4 productos de la fábrica, 12/12·11/11·11/11·12/12, sin regresión de la instrumentación de cobertura).
+Re-verificado tras `FSK-REQREF-COVERAGE` (2026-07-09): los mismos 4/4 productos re-derivan == su pin en árbol
+limpio (`proof_sha` deriva de exit-codes de checks, no de contenido — el mismo conjunto de checks en verde
+no fuerza re-pin aunque el generador cambió); `assets` es byte-neutral por construcción (0 entidades
+candidatas al eje nuevo).
 
 ---
 
@@ -625,9 +638,11 @@ contra `pinned_verdict.json` — los 12 hashes de estación (`s0`…`s11`) está
 
 1. **Modelo de datos — CERRADO Fase 2 (§5.3)**: 40/40 tablas (era 20/40). Las 20 nuevas son ANCHO barato
    por diseño (2-4 campos, sin profundidad de dominio) — no una adopción completa de Snipe-IT real.
-2. **Cobertura de línea real: 70.7%, no 100%** (§11.3): la brecha remanente (~29%, concentrada en
-   `AppServer.kt`+`Repository.kt`) está en entidades con ref requerido cuyo generador Python de proofs
-   necesitaría sembrado de FK encadenado — declarado como trabajo futuro acotado, no maquillado.
+2. **Cobertura de línea real: 93.1%, no 100%** (§11.3, `FSK-REQREF-COVERAGE` cerró el 83% del gap original de
+   `AppServer.kt`+`Repository.kt` sembrando FKs encadenadas de las 19 entidades antes excluidas). La brecha
+   remanente (~6.9%) es mitad `DbRoundTrip.kt` (herramienta de diagnóstico manual, no lógica de negocio) y
+   mitad el camino NEGATIVO (FK colgante → 409) de esas mismas 19 entidades — deliberadamente fuera de
+   alcance v1 — declarado como trabajo futuro acotado, no maquillado.
 3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
    otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
 4. **Bug real encontrado durante esta auditoría — violación de `UNIQUE` no manejada**: un `POST` que viola
@@ -676,11 +691,14 @@ El sistema `snipeit` es un producto **real, generado, verificado por bloqueo y c
 maqueta ni un contrato sin implementar. Contra el piso mínimo pedido, pasa 8 de 9 criterios con margen real
 (casos de uso, funcionalidades, tablas, endpoints, pantallas con evidencia fotográfica real, reglas de
 negocio, validaciones, y el checklist de completitud 27/27), y **cumple parcialmente 1** de forma honesta y
-trazable: la cobertura de línea, ahora medida de verdad con Jacoco (antes 0% instrumentado, hoy 70.7% real,
-subido sin escribir un solo test nuevo — reusando tráfico E2E y artefactos ya existentes), no llega al 100%
-pedido — el ~29% remanente está concentrado y declarado línea por línea (§11.3), con la razón exacta de por
-qué cerrarlo requeriría ingeniería real (no un truco barato) sobre un generador maduro compartido por toda
-la fábrica, y por qué se prefirió declarar el hueco a arriesgar una regresión apurada. Esta auditoría además
+trazable: la cobertura de línea, ahora medida de verdad con Jacoco (antes 0% instrumentado, luego 70.7%
+reusando tráfico E2E existente, hoy **93.1%** tras `FSK-REQREF-COVERAGE` — extender el generador para sembrar
+FKs encadenadas de las 19 entidades ownerless-con-ref-requerido que antes quedaban excluidas del proof, capacidad
+de sustrato compartida por toda la fábrica, byte-neutral para `assets`), no llega al 100% pedido — el ~6.9%
+remanente está concentrado y declarado línea por línea (§11.3): mitad una herramienta de diagnóstico manual
+(no lógica de negocio) y mitad el camino negativo (FK colgante → 409) de esas 19 entidades, deliberadamente
+diferido para no arriesgar una regresión apurada sobre un generador maduro compartido por toda la fábrica.
+Esta auditoría además
 **encontró y documentó un bug real** (manejo de violaciones `UNIQUE`) que no estaba registrado en la
 documentación previa del producto — evidencia de que la verificación fue efectivamente ejecutada contra el
 sistema vivo, no copiada de afirmaciones anteriores.

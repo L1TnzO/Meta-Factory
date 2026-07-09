@@ -1,6 +1,50 @@
-<!-- meta:doc sha=38a620bab49adf1e73e8e8dae028a614a7063a63 updated=2026-07-09T20:23Z -->
+<!-- meta:doc sha=ff7e564c9712c19c82695f3223a93db4faa9b572 updated=2026-07-09T22:51Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-09T22:50Z — FSK-REQREF-COVERAGE ✅: cobertura de línea REAL de snipeit 70.7%→93.1%, cierra 83% del gap declarado por FSK-COVERAGE-INSTRUMENT
+El gatillo: el ingeniero pidió llegar al 100% de cobertura en snipeit "a como de lugar", bajo restricciones
+de tiempo. El gap declarado por `FSK-COVERAGE-INSTRUMENT` (abajo) tenía causa raíz única: `serve_all_ents`
+(`tools/access_control_check.py`) excluía por diseño toda entidad ownerless con un ref REQUERIDO no-dueño
+("wrinkle #1", comentario propio del generador) — 19 de 39 entidades en snipeit — cuyos handlers HTTP en
+`AppServer.kt`/`Repository.kt` nunca recibían tráfico real pese a estar montados y servibles.
+- **Diseño S1 (Opus, un solo doc, `FSK-REQREF-COVERAGE-INCREMENT.md`) + ejecución S2 con ojos propios**: es
+  codegen con dependencias fuertes entre ~12 ejes opt-in interactuantes (workflow/qty-ops/refs
+  polimórficos/company-scoping/campos computados/soft-delete/actionlog) → ADR-017 "cuándo NO delegar a un
+  generator ciego"; el diseño redujo el trabajo a pasos mecánicos, la ejecución los siguió.
+- **Mecanismo (reusa infraestructura existente, no inventa una nueva)**: `server.py` ya tenía un seeder
+  transitivo genérico con memoización+detección de ciclos (`_seed_deps`/`_ensure_seeded`, FSK-OWNED-REQUIRED-
+  REFS). Se primea un registry COMPARTIDO — lo que la entidad con dueño YA sembró + el propio owner + el
+  tenant company-scoped + los ref-targets del with_ref primario + la fila de stock (si `qty_ops`) — y se
+  reusa el seeder una vez por cada entidad excluida; dedup/ciclos gratis. Expuesto por `/seed.withRefs`
+  (Map<String, Map<String, Long>>, keyeado por nombre de entidad) y consumido por `serve_all_block`
+  generalizado (ya no filtra `_has_req_ref`; sólo excluye las 2 primarias `ol`/`wr`, ya cubiertas por sus
+  propios bloques).
+- **2 bugs reales encontrados y arreglados — ninguno simulado, ambos vía correr el server a mano contra PG**:
+  (1) el primer intento sólo primaba `dep_registry`+owned+owner — sin primar TAMBIÉN `company_ent`/
+  `ref_targets`/el `with_ref` con fila de stock (sembrados por OTROS ejes opt-in, fuera de `dep_registry`),
+  una entidad excluida los re-sembraba con la MISMA muestra determinista → violación de `UNIQUE` REAL
+  (medida: `Company` duplicado — `org.jooq.exception.IntegrityConstraintViolationException`, el servidor no
+  arrancaba, `infra_up` nunca alcanzaba la infra viva); root-caused lanzando `AppServerKt` a mano contra una
+  PG docker efímera y leyendo el stacktrace real, no adivinado. (2) el literal Kotlin del mapa `withRefs` con
+  las 19 entidades de snipeit en una sola línea excedía `MaximumLineLength` (160, detekt) — se separó en un
+  `val seedWithRefsArg` propio con una entidad por línea, dentro de `seedRows()`.
+- **Resultado medido, dos veces, determinista**: 93.1% de línea (progresión 0%→70.7%→**93.1%**), confirmado
+  IDÉNTICO en `product-run --mode draft` Y en `ci --rederive` (clon limpio, verificador independiente). Cierra
+  el **83% del gap original** (`AppServer.kt`+`Repository.kt`: 1180→217 líneas sin cubrir, `154+63`). El
+  ~6.9% remanente: `DbRoundTrip.kt` (227 líneas, herramienta de diagnóstico MANUAL, no lógica de negocio, sin
+  cambios) + el camino NEGATIVO (FK colgante→409) de las 19 entidades, diferido deliberadamente en el diseño
+  (el `wr` primaria ya prueba ese camino una vez; replicarlo 19 veces más es ingeniería real sin ganancia
+  proporcional) + un puñado de ramas de borde aisladas (guards/observability/workflow, 1-3 líneas c/u). NO
+  llega al 100% literal — declarado honesto, no maquillado.
+- **Verificación**: `assets` byte-neutral GARANTIZADO (0 entidades candidatas al eje) y VERIFICADO (`ci
+  --rederive` 11/11==pin, cero diff). `ci --rederive --all-products` **4/4==pin**
+  (12/12·11/11·11/11·12/12) — SIN re-pin en ninguno: `proof_sha` deriva de exit-codes de checks (`seed/
+  verifier.py::compute_proof_sha`), no de contenido generado — el mismo conjunto de checks en verde no
+  fuerza re-pin aunque el generador cambió (lección reusable: no asumir que "más cobertura" implica re-pin).
+  `meta check` 19/19. `product-run --mode harden` PASS en assets/helpdesk/snipeit. Detalle: `docs/work/
+  FSK-REQREF-COVERAGE-INCREMENT.md §Evidencia` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`
+  (números re-derivados).
 
 ## 2026-07-09T20:22Z — FSK-COVERAGE-INSTRUMENT ✅ + SNIPEIT-MIN-COMPLIANCE fase 3/4 ✅: 0%→70.7% de cobertura de línea REAL, sin escribir un test Kotlin nuevo
 Último gap real declarado de la auditoría `SNIPEIT-COMPLETENESS-SPEC`: el proyecto no tenía Jacoco/Kover

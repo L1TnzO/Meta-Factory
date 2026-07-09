@@ -1,4 +1,4 @@
-<!-- meta:doc sha=471506934b8f44bf9fc6e4535eb7876e9605e18e updated=2026-07-09T21:00Z -->
+<!-- meta:doc sha=83395a8abe8ce99c886541547ab08b13b88bfc3a updated=2026-07-09T22:52Z -->
 # Incremento FSK-REQREF-COVERAGE
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-09T20:59Z). Cerralo con `meta increment close`
@@ -104,12 +104,12 @@ entidades excluidas es **reusarlo con un registry "primado"**, no reescribirlo:
 ## Plan (fases)
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 0 | Confirmar que `extras` (línea 1019) ya monta CRUD HTTP para las 19 excluidas (lectura, sin código) — si no, este incremento crece (montar las rutas) | ⏳ |
-| 1 | Priming del registry + `/seed.withRefs` en `_app_server_kt` (Kotlin), byte-neutral para `assets` | ⏳ |
-| 2 | Generalizar `serve_all_ents`/`_SERVE_ALL_PROOF` para leer `withRefs` y postear+verificar cada excluida | ⏳ |
-| 3 | Verificar: `product-run --mode harden` (los 4 productos) + `ci --rederive --all-products` == pin en `assets` (byte-neutral) / re-pin esperado en demo+helpdesk+snipeit | ⏳ |
-| 4 | Medir cobertura Jacoco de snipeit post-cambio (`./gradlew jacocoLiveReport`), comparar contra 70.7% baseline, actualizar `SNIPEIT-SPEC.md §11` con el número nuevo + la brecha remanente (si queda alguna) | ⏳ |
-| 5 | Cierre: `meta check` verde, `docs/STATE.md` (meta+factory) actualizados, LOG episodio | ⏳ |
+| 0 | Confirmar que `extras` (línea 1019) ya monta CRUD HTTP para las 19 excluidas (lectura, sin código) — si no, este incremento crece (montar las rutas) | ✅ confirmado: ya montaba (`catch_fk=_has_req_ref(e)`), cero cambios de rutas |
+| 1 | Priming del registry + `/seed.withRefs` en `_app_server_kt` (Kotlin), byte-neutral para `assets` | ✅ (+ fix real: primar también `company_ent`/`ref_targets`/`with_ref`-qty, no anticipado en el diseño) |
+| 2 | Generalizar `serve_all_ents`/`_SERVE_ALL_PROOF` para leer `withRefs` y postear+verificar cada excluida | ✅ (+ fix: separar ref_flds/scalar_flds en `_proof_post_value`, evitar KeyError en campo ref) |
+| 3 | Verificar: `product-run --mode harden` (los 4 productos) + `ci --rederive --all-products` == pin en `assets` (byte-neutral) / re-pin esperado en demo+helpdesk+snipeit | ✅ 4/4==pin, SIN re-pin en ninguno (`proof_sha` es exit-code, no contenido) |
+| 4 | Medir cobertura Jacoco de snipeit post-cambio (`./gradlew jacocoLiveReport`), comparar contra 70.7% baseline, actualizar `SNIPEIT-SPEC.md §11` con el número nuevo + la brecha remanente (si queda alguna) | ✅ 93.1%, medido 2× (draft + ci --rederive), idéntico |
+| 5 | Cierre: `meta check` verde, `docs/STATE.md` (meta+factory) actualizados, LOG episodio | ✅ |
 
 ## Riesgos / por qué esto NO es un truco barato
 - **Interacción con otros ejes opt-in**: `_app_server_kt` ya combina ~12 ejes (workflow, qty-ops, refs
@@ -151,3 +151,40 @@ entidades excluidas es **reusarlo con un registry "primado"**, no reescribirlo:
 4. `product-run --mode harden` PASS en los 4 productos.
 5. `meta check` verde.
 6. `docs/STATE.md` (meta) + `factories/full-stack-kotlin/docs/STATE.md` actualizados con el resultado real.
+
+## Evidencia (cierre, 2026-07-09T22:5xZ)
+1. `ci --rederive --factory full-stack-kotlin --product assets` → `assets: 11/11 proof_sha == pineado`, exit 0.
+   Byte-neutral confirmado (0 entidades candidatas al eje, matemáticamente garantizado por la tabla del
+   hallazgo + verificado en clon limpio).
+2. `ci --rederive --factory full-stack-kotlin --all-products` → **4/4**: demo `12/12`, assets `11/11`,
+   helpdesk `11/11`, snipeit `12/12`, todos `== pineado`. **Ningún producto re-pineó** (a diferencia de lo
+   anticipado en el diseño S1): `proof_sha` deriva de exit-codes de checks (`seed/verifier.py::
+   compute_proof_sha`), no de contenido generado — el mismo conjunto de checks en verde no fuerza re-pin
+   aunque el generador cambió. Lección para el próximo incremento de sustrato: no asumir re-pin por defecto.
+3. Cobertura Jacoco de snipeit: **93.1%** (antes 70.7%), medida DOS veces de forma independiente
+   (`product-run --mode draft` Y `ci --rederive` en clon limpio) — idéntica en ambas. Brecha remanente
+   declarada línea por línea en `SNIPEIT-SPEC.md §11.3` (actualizado): `DbRoundTrip.kt` 227 (sin cambios,
+   diagnóstico manual) + `AppServer.kt` 154 (antes 648) + `Repository.kt` 63 (antes 532) + 11 líneas
+   dispersas en guards/observability/workflow. NO se declaró "100%" — el ~6.9% remanente queda honesto.
+4. `product-run --mode harden` PASS en assets, helpdesk, snipeit (demo cubierto por su propio `ci --rederive`
+   full-line, que corre el conjunto completo de estaciones).
+5. `meta check` → 19/19 (1 rojo transitorio de `docs` por sello ADR-009 stale tras editar `SNIPEIT-SPEC.md`,
+   resuelto con `meta doc-sync`).
+6. `docs/STATE.md` (meta, línea "Producto/fábricas") + `factories/full-stack-kotlin/docs/STATE.md` (bullet
+   `FSK-REQREF-COVERAGE` nuevo, precede al `FSK-COVERAGE-INSTRUMENT` que cierra) actualizados. Episodios en
+   `docs/LOG.md` (meta) + `factories/full-stack-kotlin/docs/LOG.md`.
+
+**2 bugs reales encontrados en la ejecución** (no anticipados por el diseño S1, ambos root-caused corriendo
+el server a mano contra PG — no simulados): (a) el registry primado inicial (sólo `dep_registry`+owned+owner)
+no alcanzaba — una entidad excluida que necesitaba `Company` (el tenant company-scoped, sembrado por OTRO eje
+fuera de `dep_registry`) la re-sembraba con la misma muestra → `IntegrityConstraintViolationException`
+(`companys_name_key` duplicado), el servidor no arrancaba; fix: primar también `company_ent`/`ref_targets`/
+`with_ref`-con-qty (moviendo `wr_qty_ops` más arriba en la función para que estuviera disponible a tiempo).
+(b) el literal del mapa `withRefs` con 19 entidades en una línea excedía `MaximumLineLength` (160, detekt);
+fix: `val seedWithRefsArg` propio, una entidad por línea.
+
+**Tiempo real de la sesión** (bajo la restricción de tiempo pedida por el ingeniero): diseño S1 ya estaba
+hecho al abrir este incremento; la ejecución S2 fue ~1 sesión (lectura de anclas + 2 fases de código +
+2 ciclos de debug real + verificación de los 4 productos + medición + docs). El 100% literal NO se alcanzó
+(93.1%) — el residual restante (`DbRoundTrip.kt` + camino negativo de las 19) queda como incremento futuro
+acotado si se decide perseguirlo.

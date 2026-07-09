@@ -1,10 +1,31 @@
-<!-- meta:doc sha=9f888f6624b87a91f7547a09ef096c2da3b57814 updated=2026-07-09T20:25Z -->
+<!-- meta:doc sha=e8c51e88ec89d3d1aef28ed1c514137bb1bf866f updated=2026-07-09T22:50Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 > Freshness (2026-07-09T20:26Z): re-sellado tras el episodio de LOG.md (FSK-COVERAGE-INSTRUMENT).
 
 ## Ahora
+- **FSK-REQREF-COVERAGE (2026-07-09)** ✅ CERRADO — cierra el residual declarado por `FSK-COVERAGE-INSTRUMENT`
+  (abajo): la cobertura de línea REAL de `snipeit` sube **70.7% → 93.1%**. Causa raíz del gap: `serve_all_ents`
+  (el proof `access_control_check.py`) EXCLUÍA por diseño toda entidad ownerless con un ref REQUERIDO no-dueño
+  ("wrinkle #1") — 19/39 entidades en `snipeit` — cuyos handlers HTTP en `AppServer.kt`/`Repository.kt` nunca
+  recibían tráfico. Mecanismo (capacidad de SUSTRATO, `codegen/scaffold/server.py`, no un parche de producto):
+  se PRIMA un registry de seed compartido (lo que `owned`/el owner/el tenant company-scoped/los ref-targets/la
+  fila de stock YA sembraron) y se REUSA el seeder transitivo genérico (`_seed_deps`/`_ensure_seeded`,
+  FSK-OWNED-REQUIRED-REFS) por cada entidad excluida — dedup/ciclos gratis por memoización compartida; expuesto
+  por `/seed.withRefs` (keyeado por entidad) y consumido por `serve_all_block` generalizado (ya no filtra
+  `_has_req_ref`). Bug real encontrado y arreglado en el camino: sin primar TAMBIÉN `company_ent`/`ref_targets`/
+  el `with_ref` con fila de stock (sembrados por OTROS ejes opt-in, fuera de `dep_registry`), una entidad
+  excluida los re-sembraba con la MISMA muestra → violación de `UNIQUE` real (medida: `Company` duplicado en
+  runtime, servidor no arrancaba) — root-caused corriendo el server a mano contra PG, no simulado. Cierra el
+  **83% del gap original** (1180 líneas de `AppServer.kt`+`Repository.kt` → 217 residuales); el ~6.9% remanente
+  es mitad `DbRoundTrip.kt` (herramienta de diagnóstico manual, no lógica de negocio, sin cambios) y mitad el
+  camino NEGATIVO (FK colgante → 409) de esas 19 entidades, diferido deliberadamente (v1 no lo cubre — ingeniería
+  real sin ganancia proporcional). Byte-neutral para `assets` (0 entidades candidatas, garantizado y verificado);
+  `ci --rederive --all-products` **4/4 == pin** (12/12·11/11·11/11·12/12 — SIN re-pin: `proof_sha` deriva de
+  exit-codes de checks, no de contenido, y el mismo conjunto de checks sigue en verde). Detalle: `docs/work/
+  FSK-REQREF-COVERAGE-INCREMENT.md §Evidencia` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`
+  (números re-derivados).
 - **FSK-COVERAGE-INSTRUMENT (2026-07-09)** ✅ CERRADO — cobertura de línea REAL (Jacoco) como capacidad de
   SUSTRATO (`codegen/scaffold/buildcfg.py::_build_gradle`, disponible para cualquier producto de la línea):
   plugin `jacoco` + `jacocoLiveReport` funde la pirámide Gradle (`test`/`integrationTest`/`workflowTest`) con
@@ -18,13 +39,11 @@
   `s1` pero jacoco no auto-instrumenta `JavaExec` → `jacoco.applyTo(...)` explícito). 1 regresión real
   encontrada+arreglada en el camino: adjuntar jacoco a `roundtrip` lo volvió cacheable → Gradle lo saltaba en
   la 2da invocación → el diente NEGATIVO de `db_roundtrip_live` (debe fallar con la PG caída) se volvió
-  decorativo; fix `outputs.upToDateWhen { false }`. Brecha honesta declarada (no maquillada): ~29% remanente
-  concentrado en `AppServer.kt`+`Repository.kt` (entidades con ref requerido que el generador de proofs
-  excluye hoy por diseño — cerrar eso es ingeniería real sobre un generador maduro compartido, declarado
-  como residual futuro, no apurado bajo riesgo de regresión). `ci --rederive --all-products` **4/4 == pin**
+  decorativo; fix `outputs.upToDateWhen { false }`. Brecha honesta declarada entonces (~29%, cerrada 83% por
+  `FSK-REQREF-COVERAGE` arriba). `ci --rederive --all-products` **4/4 == pin**
   (12/12·11/11·11/11·12/12, re-pineados los 4 tras el cambio de sustrato compartido). Detalle: `docs/work/
   FSK-COVERAGE-INSTRUMENT-INCREMENT.md` + `products/snipeit/docs/work/SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`
-  §Evidencia fase 3/4 + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11` (números re-derivados).
+  §Evidencia fase 3/4.
 - **FSK-ACCESS-CONTROL-LIVE-BUDGET (2026-07-09)** ✅ CERRADO — 3 fixes GENERALES surgidos al ensanchar
   `snipeit` a 39 entidades (`SNIPEIT-MIN-COMPLIANCE` fase 2, 20→40 tablas): (1) `access_control_live`
   ready-timeout 120s→240s (el proof hace ~O(entidades) round-trips HTTP secuenciales); (2) `detekt

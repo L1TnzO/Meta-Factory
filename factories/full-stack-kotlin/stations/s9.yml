@@ -166,7 +166,7 @@ checks:
   - |
     set -e
     JH=$(dirname $(dirname $(readlink -f $(command -v javac))))
-    JAVA_HOME=$JH ./gradlew jacocoLiveReport -q --console=plain
+    JAVA_HOME=$JH ./gradlew appContract jacocoLiveReport -q --console=plain
     python3 -c '
     import sys
     import xml.etree.ElementTree as ET

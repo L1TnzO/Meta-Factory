@@ -137,6 +137,21 @@ tasks.register<JavaExec>("roundtrip") {{
     classpath = sourceSets["main"].runtimeClasspath
 }}
 
+// appContract (cobertura, SNIPEIT-MIN-COMPLIANCE fase 3): App.kt es un TESTIGO DE CONTRATO que el codegen
+// emite (construye + lee cada entidad del schema; un drift -- campo borrado -- no compila) pero que NINGÚN
+// entrypoint shippeado invoca (el `application.mainClass` real es observability.ObsServerKt) -- quedaba
+// 100% sin ejercitar en el universo medido. Correrlo (in-process, sin DB/red -- no es un test nuevo, es
+// EJERCITAR el artefacto que el propio codegen ya emite para este fin) lo suma HONESTAMENTE. Se fija el
+// destinationFile explícito (no asumir auto-config del plugin jacoco sobre JavaExec) para asegurar el .exec.
+tasks.register<JavaExec>("appContract") {{
+    dependsOn("classes")
+    mainClass.set("{pkg}.AppKt")
+    classpath = sourceSets["main"].runtimeClasspath
+    extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
+        destinationFile = layout.buildDirectory.file("jacoco/appContract.exec").get().asFile
+    }}
+}}
+
 // ── Pirámide de tests (s7, DES-8). Framework: Kotest sobre JUnit Platform (cacheado en ~/.gradle igual
 //    que jOOQ/Flyway/detekt → ci --rederive sin red). La forma de la pirámide es EJECUTABLE: el tier unit
 //    (`test`, src/test) corre SIN infra; el tier integración (`integrationTest`, src/integrationTest) corre

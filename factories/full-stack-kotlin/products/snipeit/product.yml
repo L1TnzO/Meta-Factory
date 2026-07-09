@@ -34,12 +34,13 @@ api_title: "Snipe-IT Asset Management API"
 # de cualquier producto FSK (helpdesk sólo tiene el experimento A/B capturado, sin adoptar).
 frontend_surface: model-native
 
-# s6 (lógica de dominio generada por LLM vivo, `claude -p`) se DIFIERE keyless para esta
-# instancia (activation:off, la opción que el propio gate sanciona — doctrina R1, igual que
-# `assets`): la instancia prueba que el dominio fluye por las estaciones DETERMINISTAS
-# (s0–s5, s7–s10). Deferral VISIBLE, no over-claim. Ver SNIPEIT-DOMAIN.md.
+# s6 (lógica de dominio generada por LLM vivo, `claude -p`) ACTIVADA (SNIPEIT-MIN-COMPLIANCE,
+# 2026-07-08): cierra REQ-F-007 del checklist de completitud (`SNIPEIT-SPEC.md §10`, 26/27→27/27).
+# El artefacto generado (`domain_gen/src/main/kotlin/domain/Summary.kt`) queda PINEADO
+# (`skip_if_exists: true` en el slot) — `ci --rederive` lo re-verifica SIN re-invocar al LLM
+# (determinismo en la verificación, no en la generación, I-3). Ver SNIPEIT-DOMAIN.md + MIN-COMPLIANCE.
 station_activation:
-  s6: off
+  s6: on
 
 # ── RBAC (FSK-S13) ──────────────────────────────────────────────────────────
 # Snipe-IT NO tiene roles fijos: usa GRUPOS con un blob JSON de permisos granulares tri-state

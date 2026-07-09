@@ -500,6 +500,10 @@ domain:
       proof_checks:
         - { name: domain_logic_contract, cmd: "gradle run en domain_gen: compila Model.kt + el Summary.kt GENERADO por claude -p + SummaryContract.kt y corre el contract main(); un stub o lógica incorrecta → rojo; el pin (skip_if_exists) se re-verifica sin LLM (§7)", runs_in: product_env, toolchain: "kotlin-gradle", status: built }
       builds:
+        - action: generate
+          dest: domain_gen/gradlew
+          skip_if_exists: true
+          via: [python3, codegen/vendor_domain_gen.py]
         - action: write
           dest: domain_gen/settings.gradle.kts
           content: |

@@ -27,11 +27,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from gradle_vendor import vendor_gradle_wrapper
 from scaffold import _load_blueprint, build_files
-
-
-def _assets_dir() -> Path:
-    return Path(__file__).resolve().parent / "assets" / "gradle"
 
 
 def _emit(out: Path, bp: dict) -> list[str]:
@@ -45,17 +42,9 @@ def _emit(out: Path, bp: dict) -> list[str]:
         if rel == "ci.sh":      # la mini-columna del producto (s10) es ejecutable (`./ci.sh`)
             dest.chmod(0o755)
         written.append(rel)
-    # vendorizar el wrapper Gradle pineado (binario + scripts), copia VERBATIM (DES-1)
-    assets = _assets_dir()
-    for src in sorted(assets.rglob("*")):
-        if src.is_file():
-            rel = "/".join(src.relative_to(assets).parts)
-            dest = out / rel
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dest)
-            if dest.name == "gradlew":
-                dest.chmod(0o755)
-            written.append(rel)
+    # vendorizar el wrapper Gradle pineado (binario + scripts), copia VERBATIM (DES-1) — single
+    # source `gradle_vendor.py` (FSK-S6-DOMAIN-GEN-VENDOR): domain_gen/ (s6) vendoriza el MISMO wrapper.
+    written += vendor_gradle_wrapper(out)
     written = sorted(written)
     (out / "MANIFEST.txt").write_text(  # keystone del slot generate (dest): existe == el scaffolder terminó
         "# producto Full-Stack Kotlin generado por scaffold_product.py (FSK s0)\n"

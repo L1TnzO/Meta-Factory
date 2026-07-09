@@ -147,6 +147,12 @@ tasks.register<JavaExec>("appContract") {{
     dependsOn("classes")
     mainClass.set("{pkg}.AppKt")
     classpath = sourceSets["main"].runtimeClasspath
+}}
+// El plugin jacoco NO adjunta JacocoTaskExtension a un JavaExec por defecto (sólo a Test) -- hay que
+// pedírselo explícitamente vía `jacoco.applyTo(...)` (la API pública de JacocoPluginExtension) ANTES de
+// poder configurar el destinationFile.
+jacoco.applyTo(tasks.named("appContract").get())
+tasks.named<JavaExec>("appContract") {{
     extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
         destinationFile = layout.buildDirectory.file("jacoco/appContract.exec").get().asFile
     }}

@@ -1,9 +1,18 @@
-<!-- meta:doc sha=25549f0591fdfcdba531a5bf8dc250cbbe881563 updated=2026-07-09T01:30Z -->
+<!-- meta:doc sha=1cf5303634d0f2d9729d4c8cd34802d2d11633e4 updated=2026-07-09T03:26Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **FSK-ACCESS-CONTROL-LIVE-BUDGET (2026-07-09)** ✅ CERRADO — 3 fixes GENERALES surgidos al ensanchar
+  `snipeit` a 39 entidades (`SNIPEIT-MIN-COMPLIANCE` fase 2, 20→40 tablas): (1) `access_control_live`
+  ready-timeout 120s→240s (el proof hace ~O(entidades) round-trips HTTP secuenciales); (2) `detekt
+  LongMethod` en `appRoutes()` (`codegen/scaffold/auth.py`) — `@Suppress` condicional a la cuenta real de
+  líneas, mismo idioma que `data_layer.py`; (3) `perf_budget_gate` decorativo (`codegen/scaffold/
+  quality_tooling.py`) — el fixture negativo (`bloated.ts`) ahora escala con `n_served` igual que el
+  presupuesto real, cerrando la clase de bug para cualquier producto futuro más ancho (no sólo otro bump
+  manual). Los 3 son DATA/umbral, byte-neutral para productos angostos. Detalle: `docs/work/
+  FSK-ACCESS-CONTROL-LIVE-BUDGET-INCREMENT.md` + `docs/LOG.md` (meta).
 - **FSK-S6-DOMAIN-GEN-VENDOR (2026-07-09)** ✅ CERRADO — activar `s6` (lógica de dominio por `claude -p`
   vivo) por 1ra vez para un PRODUCTO REAL (`snipeit`, ver `SNIPEIT-MIN-COMPLIANCE`) reveló un gap real:
   `domain_gen/` nunca vendorizaba el wrapper Gradle pineado (sólo `build/product/` lo hacía). Fix GENERAL:

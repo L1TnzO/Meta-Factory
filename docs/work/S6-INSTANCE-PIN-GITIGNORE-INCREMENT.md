@@ -1,7 +1,7 @@
-<!-- meta:doc sha=8e578e79b942e1d48ba52b3a8e7a5fa46d6fd1af updated=2026-07-09T01:24Z -->
+<!-- meta:doc sha=bb00e5b846c0e3ff6f9123cb2776f7f296920500 updated=2026-07-09T01:27Z -->
 # Incremento S6-INSTANCE-PIN-GITIGNORE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-09T01:23Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-09T01:27Z) (creado 2026-07-09T01:23Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

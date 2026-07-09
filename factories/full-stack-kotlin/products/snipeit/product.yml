@@ -416,3 +416,145 @@ entities:
       - { name: completion_date, type: date, required: false }
       - { name: cost, type: number, required: false }
       - { name: supplier_id, type: ref, to: Supplier, required: false }
+
+  # ══ SCHEMA EXPANSION (Fase 2, SNIPEIT-MIN-COMPLIANCE-INCREMENT.md) ═════════════════════════════════════
+  # 20 entidades MÍNIMAS para cerrar el eje de completitud "≥40 tablas físicas" (SNIPEIT-SPEC.md §5.1,
+  # gate = grep -c "CREATE TABLE" en la migración). Decisión de diseño EXPLÍCITA del dueño del producto
+  # (2026-07-09): priorizar ALCANZAR el número sobre profundidad de dominio — cada entidad de acá abajo es
+  # DELIBERADAMENTE fina (2-4 campos, sin computed/workflow/polimorfismo/soft-delete/audited), tomando
+  # nombres+forma de los deferrals YA cosechados en SNIPEIT-DOMAIN.md §3 (StatusLabel, Group, CustomField*,
+  # Kit*, Checkout*, Import, Setting, CompanyUser) más lookups genuinos partidos de campos string existentes
+  # (Country/State de Location.country/state, JobTitle de User.jobtitle). NO es un port profundo del dominio
+  # real — es ancho barato y HONESTO (declarado acá, no maquillado en el checklist). Todos los refs son
+  # BACKWARD (el target ya está declarado arriba) para evitar la complejidad de FK diferida/ciclo (regla
+  # topológica del comment de cabecera del archivo).
+  - name: PermissionGroup    # "Group" a secas choca con la palabra reservada H2/SQL GROUP(S) (jOOQ simula la
+    write_roles: [superadmin, admin]   # migración contra H2 para el codegen) — se evita renombrando, no tocando el sustrato.
+    fields:
+      - { name: name, type: string, unique: true }
+      - { name: notes, type: string, required: false }
+
+  - name: CustomFieldset
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+
+  - name: CustomField
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - { name: element, type: string }                    # tipo de control (text/checkbox/radio/select/textarea);
+      - { name: fieldset_id, type: ref, to: CustomFieldset }  # declarado como string simple (EAV dinámico sigue diferido, Avenue B)
+
+  - name: Kit
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+
+  - name: CheckoutRequest
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: asset_id, type: ref, to: Asset }
+      - { name: requested_by, type: ref, to: User }
+      - { name: note, type: string, required: false }
+
+  - name: Setting
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: setting_key, type: string, unique: true }    # "key"/"value" son palabras reservadas H2 (jOOQ simula
+      - { name: setting_value, type: string, required: false } # la migración contra H2) — se evita renombrando.
+
+  - name: ImportJob          # "Import" choca con la palabra reservada JS `import` (el codegen del cliente TS
+    write_roles: [superadmin, admin]   # lowercasea el nombre de entidad para el parámetro de `summarize` — genuine gap,
+    fields:                            # se evita renombrando en vez de tocar el sustrato)
+      - { name: filename, type: string }
+      - name: import_status   # NO "status": el codegen nombra la constante de valores-de-enum por FIELD NAME
+        type: enum            # (STATUS_VALUES), sin qualificar por entidad -- choca con Asset.status (genuine
+        values: [pending, success, failed]   # codegen gap, ver SNIPEIT-DOMAIN.md); se evita renombrando el campo.
+      - { name: imported_by, type: ref, to: User, required: false }
+
+  - name: StatusLabel
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - name: status_type
+        type: enum
+        values: [deployable, pending, archived, undeployable]
+
+  - name: Country
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string, unique: true }
+      - { name: code, type: string, required: false }
+
+  - name: GroupUser          # pivot group_users (M:N modelado como entidad, FSK no tiene M:N nativo)
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: group_id, type: ref, to: PermissionGroup }
+      - { name: user_id, type: ref, to: User }
+
+  - name: CustomFieldsetField   # pivot fieldset↔field
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: fieldset_id, type: ref, to: CustomFieldset }
+      - { name: field_id, type: ref, to: CustomField }
+      - { name: field_order, type: int, required: false }
+
+  - name: KitModel            # pivot kit↔asset_model (bundle)
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: kit_id, type: ref, to: Kit }
+      - { name: asset_model_id, type: ref, to: AssetModel }
+
+  - name: KitAccessory        # pivot kit↔accessory
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: kit_id, type: ref, to: Kit }
+      - { name: accessory_id, type: ref, to: Accessory }
+      - { name: qty, type: int, required: false }
+
+  - name: KitConsumable       # pivot kit↔consumable
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: kit_id, type: ref, to: Kit }
+      - { name: consumable_id, type: ref, to: Consumable }
+      - { name: qty, type: int, required: false }
+
+  - name: KitComponent        # pivot kit↔component
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: kit_id, type: ref, to: Kit }
+      - { name: component_id, type: ref, to: Component }
+      - { name: qty, type: int, required: false }
+
+  - name: CheckoutAcceptance   # firma/EULA de una CheckoutRequest
+    write_roles: [superadmin, admin, manager]
+    fields:
+      - { name: checkout_request_id, type: ref, to: CheckoutRequest }
+      - { name: accepted, type: boolean, required: false }
+      - { name: signature, type: string, required: false }
+
+  - name: CompanyUser         # pivot FMCS company↔user
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: company_id, type: ref, to: Company }
+      - { name: user_id, type: ref, to: User }
+
+  - name: State                # partido de Location.state (lookup genuino, no sólo relleno)
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - { name: country_id, type: ref, to: Country, required: false }
+
+  - name: JobTitle             # partido de User.jobtitle (lookup genuino)
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: title, type: string, unique: true }
+      - { name: department_id, type: ref, to: Department, required: false }
+
+  - name: EmailTemplate        # plantillas de notificación (soporte, no-dominio core)
+    write_roles: [superadmin, admin]
+    fields:
+      - { name: name, type: string }
+      - { name: subject, type: string, required: false }
+      - { name: body, type: string, required: false }

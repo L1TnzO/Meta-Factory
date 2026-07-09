@@ -38,6 +38,26 @@ import {
   createComponent, getComponent, listComponent,
   createComponentAssignment, getComponentAssignment, listComponentAssignment,
   createMaintenance, getMaintenance, listMaintenance,
+  createPermissionGroup, getPermissionGroup, listPermissionGroup,
+  createCustomFieldset, getCustomFieldset, listCustomFieldset,
+  createCustomField, getCustomField, listCustomField,
+  createKit, getKit, listKit,
+  createCheckoutRequest, getCheckoutRequest, listCheckoutRequest,
+  createSetting, getSetting, listSetting,
+  createImportJob, getImportJob, listImportJob,
+  createStatusLabel, getStatusLabel, listStatusLabel,
+  createCountry, getCountry, listCountry,
+  createGroupUser, getGroupUser, listGroupUser,
+  createCustomFieldsetField, getCustomFieldsetField, listCustomFieldsetField,
+  createKitModel, getKitModel, listKitModel,
+  createKitAccessory, getKitAccessory, listKitAccessory,
+  createKitConsumable, getKitConsumable, listKitConsumable,
+  createKitComponent, getKitComponent, listKitComponent,
+  createCheckoutAcceptance, getCheckoutAcceptance, listCheckoutAcceptance,
+  createCompanyUser, getCompanyUser, listCompanyUser,
+  createState, getState, listState,
+  createJobTitle, getJobTitle, listJobTitle,
+  createEmailTemplate, getEmailTemplate, listEmailTemplate,
 } from "./client.ts";
 import type { components } from "../gen/api.ts";
 
@@ -493,10 +513,94 @@ const DEF_MAINTENANCE = mkDef("Maintenance",
     fd("start_date", true), fd("completion_date", false), fn("cost", false), fn("supplier_id", false)],
   listMaintenance, getMaintenance, createMaintenance);
 
+const DEF_PERMISSIONGROUP = mkDef("PermissionGroup", ["id", "name", "notes"],
+  [f("name", true), f("notes", false)],
+  listPermissionGroup, getPermissionGroup, createPermissionGroup);
+
+const DEF_CUSTOMFIELDSET = mkDef("CustomFieldset", ["id", "name"],
+  [f("name", true)],
+  listCustomFieldset, getCustomFieldset, createCustomFieldset);
+
+const DEF_CUSTOMFIELD = mkDef("CustomField", ["id", "name", "element", "fieldset_id"],
+  [f("name", true), f("element", true), fn("fieldset_id", true)],
+  listCustomField, getCustomField, createCustomField);
+
+const DEF_KIT = mkDef("Kit", ["id", "name"],
+  [f("name", true)],
+  listKit, getKit, createKit);
+
+const DEF_CHECKOUTREQUEST = mkDef("CheckoutRequest", ["id", "asset_id", "requested_by", "note"],
+  [fn("asset_id", true), fn("requested_by", true), f("note", false)],
+  listCheckoutRequest, getCheckoutRequest, createCheckoutRequest);
+
+const DEF_SETTING = mkDef("Setting", ["id", "setting_key", "setting_value"],
+  [f("setting_key", true), f("setting_value", false)],
+  listSetting, getSetting, createSetting);
+
+const DEF_IMPORTJOB = mkDef("ImportJob", ["id", "filename", "import_status", "imported_by"],
+  [f("filename", true), f("import_status", true), fn("imported_by", false)],
+  listImportJob, getImportJob, createImportJob);
+
+const DEF_STATUSLABEL = mkDef("StatusLabel", ["id", "name", "status_type"],
+  [f("name", true), f("status_type", true)],
+  listStatusLabel, getStatusLabel, createStatusLabel);
+
+const DEF_COUNTRY = mkDef("Country", ["id", "name", "code"],
+  [f("name", true), f("code", false)],
+  listCountry, getCountry, createCountry);
+
+const DEF_GROUPUSER = mkDef("GroupUser", ["id", "group_id", "user_id"],
+  [fn("group_id", true), fn("user_id", true)],
+  listGroupUser, getGroupUser, createGroupUser);
+
+const DEF_CUSTOMFIELDSETFIELD = mkDef("CustomFieldsetField", ["id", "fieldset_id", "field_id", "field_order"],
+  [fn("fieldset_id", true), fn("field_id", true), fn("field_order", false)],
+  listCustomFieldsetField, getCustomFieldsetField, createCustomFieldsetField);
+
+const DEF_KITMODEL = mkDef("KitModel", ["id", "kit_id", "asset_model_id"],
+  [fn("kit_id", true), fn("asset_model_id", true)],
+  listKitModel, getKitModel, createKitModel);
+
+const DEF_KITACCESSORY = mkDef("KitAccessory", ["id", "kit_id", "accessory_id", "qty"],
+  [fn("kit_id", true), fn("accessory_id", true), fn("qty", false)],
+  listKitAccessory, getKitAccessory, createKitAccessory);
+
+const DEF_KITCONSUMABLE = mkDef("KitConsumable", ["id", "kit_id", "consumable_id", "qty"],
+  [fn("kit_id", true), fn("consumable_id", true), fn("qty", false)],
+  listKitConsumable, getKitConsumable, createKitConsumable);
+
+const DEF_KITCOMPONENT = mkDef("KitComponent", ["id", "kit_id", "component_id", "qty"],
+  [fn("kit_id", true), fn("component_id", true), fn("qty", false)],
+  listKitComponent, getKitComponent, createKitComponent);
+
+const DEF_CHECKOUTACCEPTANCE = mkDef("CheckoutAcceptance", ["id", "checkout_request_id", "accepted", "signature"],
+  [fn("checkout_request_id", true), fc("accepted", false), f("signature", false)],
+  listCheckoutAcceptance, getCheckoutAcceptance, createCheckoutAcceptance);
+
+const DEF_COMPANYUSER = mkDef("CompanyUser", ["id", "company_id", "user_id"],
+  [fn("company_id", true), fn("user_id", true)],
+  listCompanyUser, getCompanyUser, createCompanyUser);
+
+const DEF_STATE = mkDef("State", ["id", "name", "country_id"],
+  [f("name", true), fn("country_id", false)],
+  listState, getState, createState);
+
+const DEF_JOBTITLE = mkDef("JobTitle", ["id", "title", "department_id"],
+  [f("title", true), fn("department_id", false)],
+  listJobTitle, getJobTitle, createJobTitle);
+
+const DEF_EMAILTEMPLATE = mkDef("EmailTemplate", ["id", "name", "subject", "body"],
+  [f("name", true), f("subject", false), f("body", false)],
+  listEmailTemplate, getEmailTemplate, createEmailTemplate);
+
 const ALL_DEFS: readonly EntityDef[] = [
   DEF_COMPANY, DEF_MANUFACTURER, DEF_SUPPLIER, DEF_DEPRECIATION, DEF_CATEGORY, DEF_LOCATION, DEF_DEPARTMENT,
   DEF_USER, DEF_ASSETMODEL, DEF_ASSET, DEF_LICENSE, DEF_LICENSESEAT, DEF_ACCESSORY, DEF_CONSUMABLE,
   DEF_CONSUMABLEASSIGNMENT, DEF_COMPONENT, DEF_COMPONENTASSIGNMENT, DEF_MAINTENANCE,
+  DEF_PERMISSIONGROUP, DEF_CUSTOMFIELDSET, DEF_CUSTOMFIELD, DEF_KIT, DEF_CHECKOUTREQUEST, DEF_SETTING,
+  DEF_IMPORTJOB, DEF_STATUSLABEL, DEF_COUNTRY, DEF_GROUPUSER, DEF_CUSTOMFIELDSETFIELD, DEF_KITMODEL,
+  DEF_KITACCESSORY, DEF_KITCONSUMABLE, DEF_KITCOMPONENT, DEF_CHECKOUTACCEPTANCE, DEF_COMPANYUSER, DEF_STATE,
+  DEF_JOBTITLE, DEF_EMAILTEMPLATE,
 ];
 
 // ── Generic screen builder: create form (from def.fields) + search/paginated list. Returns the pieces so
@@ -598,6 +702,46 @@ export const mountComponentAssignment = (doc: Document, base: string, token: str
   mountEntity(doc, base, token, DEF_COMPONENTASSIGNMENT);
 export const mountMaintenance = (doc: Document, base: string, token: string): Promise<void> =>
   mountEntity(doc, base, token, DEF_MAINTENANCE);
+export const mountPermissionGroup = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_PERMISSIONGROUP);
+export const mountCustomFieldset = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_CUSTOMFIELDSET);
+export const mountCustomField = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_CUSTOMFIELD);
+export const mountKit = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_KIT);
+export const mountCheckoutRequest = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_CHECKOUTREQUEST);
+export const mountSetting = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_SETTING);
+export const mountImportJob = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_IMPORTJOB);
+export const mountStatusLabel = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_STATUSLABEL);
+export const mountCountry = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_COUNTRY);
+export const mountGroupUser = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_GROUPUSER);
+export const mountCustomFieldsetField = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_CUSTOMFIELDSETFIELD);
+export const mountKitModel = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_KITMODEL);
+export const mountKitAccessory = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_KITACCESSORY);
+export const mountKitConsumable = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_KITCONSUMABLE);
+export const mountKitComponent = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_KITCOMPONENT);
+export const mountCheckoutAcceptance = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_CHECKOUTACCEPTANCE);
+export const mountCompanyUser = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_COMPANYUSER);
+export const mountState = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_STATE);
+export const mountJobTitle = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_JOBTITLE);
+export const mountEmailTemplate = (doc: Document, base: string, token: string): Promise<void> =>
+  mountEntity(doc, base, token, DEF_EMAILTEMPLATE);
 
 // consume_check.ts imports this directly (FSK-FRONTEND-RENDER-LIST).
 export function renderAssetList(rows: readonly Asset[]): string {

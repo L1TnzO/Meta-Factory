@@ -85,7 +85,7 @@ def build_files(bp: dict) -> dict[str, str]:
         "frontend/eval/perf_measure.mjs": _perf_measure_mjs(),
         "frontend/eval/perf_scorer.mjs": _perf_scorer_mjs(),
         "frontend/eval/probe/bad_ui.html": _probe_bad_ui_html(),
-        "frontend/eval/probe/bloated.ts": _probe_bloated_ts(),
+        "frontend/eval/probe/bloated.ts": _probe_bloated_ts(len(_live_entities(ents))),
         # observabilidad (s9, DES-5): server HTTP vivo + tracing OTel + logs estructurados + proof client (DATA)
         f"{pkgdir}/observability/FileSpanExporter.kt": _file_span_exporter_kt(pkg),
         f"{pkgdir}/observability/Observability.kt": _observability_kt(pkg),

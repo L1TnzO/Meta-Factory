@@ -1,6 +1,7 @@
 """test_benchmark — the sweet-spot benchmark mechanism (ADR-017 §4, REAIM-SWEET-SPOT).
 
-By blocking, against the REAL products (helpdesk 5 ent / snipeit 19 ent), re-derived from committed state:
+By blocking, against the REAL products (helpdesk 5 ent / snipeit 39 ent, SNIPEIT-MIN-COMPLIANCE
+schema-expansion 2026-07-09), re-derived from committed state:
   - the candidate sweet-spot MEETS the target; the ceiling does NOT (that demotion is a fact);
   - the gate is TWO-SIDED: a ceiling that meets the target (decorative bound) is caught, a sweet-spot that
     regressed past the bound is caught, a one-sided benchmark (no ceiling) is caught;
@@ -35,7 +36,7 @@ def test_live_benchmark_passes_two_sided():
     bench = load_benchmark(REPO / "benchmarks" / "sweet-spot-crud.yml")
     by = {r.ref.product: r for r in evaluate(REPO, bench)}
     assert by["helpdesk"].meets and by["helpdesk"].ok          # 5 entities + core caps → sweet-spot
-    assert not by["snipeit"].meets and by["snipeit"].ok        # 19 entities → over the bound → ceiling ok
+    assert not by["snipeit"].meets and by["snipeit"].ok        # 39 entities → over the bound → ceiling ok
     assert gate_problems(REPO, bench) == []                    # the gate is green
 
 
@@ -45,8 +46,8 @@ def test_helpdesk_satisfies_core_capabilities():
 
 
 def test_decorative_ceiling_is_caught():
-    # widen the bound so the 19-entity ceiling MEETS the sweet-spot target → decorative → red.
-    bench = _bench(5, 25, [HELPDESK, SNIPEIT])
+    # widen the bound so the 39-entity ceiling MEETS the sweet-spot target → decorative → red.
+    bench = _bench(5, 45, [HELPDESK, SNIPEIT])
     by = {r.ref.product: r for r in evaluate(REPO, bench)}
     assert by["snipeit"].meets and not by["snipeit"].ok        # meets but expected ceiling → mismatch
     probs = gate_problems(REPO, bench)

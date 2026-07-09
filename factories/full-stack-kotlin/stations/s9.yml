@@ -51,7 +51,14 @@ checks:
   - rm
   - -f
   - fsk_s9_ac_pg
-  timeout: 120
+  # 120s -> 240s (2026-07-09, FSK-ACCESS-CONTROL-LIVE-BUDGET): access_control_check.py issues ~O(entities)
+  # HTTP round-trips (create/get/role-403/company-scope per served entity) sequentially against a cold JVM +
+  # fresh Postgres — a wide product (e.g. 39 entities) can legitimately exceed a 120s ready-budget even though
+  # the logic is correct (measured: snipeit 19->39 entities pushed this specific check over 120s twice,
+  # reproducibly, while every OTHER s9 check -- which don't scale per-entity the same way -- stayed green).
+  # GENERAL fix (not overfit to one product): any product with a large entity count gets more patience here;
+  # the check's PASS/FAIL semantics (E1, the embedded down-then-fail negative) are untouched.
+  timeout: 240
 - name: frontend_consume_live
   kind: infra_up
   workdir: build/product

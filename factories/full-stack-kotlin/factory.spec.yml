@@ -779,7 +779,12 @@ domain:
           up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export FSK_NOW=2030-07-15; exec \"$JAVA_HOME/bin/java\" -cp 'build/install/{{package_name}}/lib/*' {{package_name}}.endpoints.AppServerKt"]
           proof: ["python3", "tools/access_control_check.py", "http://127.0.0.1:18594"]
           down: ["docker", "rm", "-f", "fsk_s9_ac_pg"]
-          timeout: 120
+          # 120s -> 240s (2026-07-09, FSK-ACCESS-CONTROL-LIVE-BUDGET): access_control_check.py issues ~O(entities)
+          # HTTP round-trips sequentially against a cold JVM + fresh Postgres -- a wide product (e.g. 39 entities)
+          # can legitimately exceed a 120s ready-budget even though the logic is correct (measured on snipeit
+          # 19->39 entities, reproducibly, while every OTHER s9 check stayed green). GENERAL: more entities ->
+          # more patience for any product, not overfit to one; PASS/FAIL semantics untouched.
+          timeout: 240
         - name: frontend_consume_live
           kind: infra_up
           workdir: build/product

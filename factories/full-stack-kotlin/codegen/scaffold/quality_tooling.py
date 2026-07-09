@@ -536,13 +536,17 @@ def _budget_json(n_served: int) -> str:
     }, indent=2) + "\n"
 
 
-def _probe_bloated_ts() -> str:
+def _probe_bloated_ts(n_served: int) -> str:
     """Fixture NEGATIVO de perf (s8): un entry deliberadamente pesado (embebe un literal grande) → el bundle
     minificado supera el presupuesto → perf_budget_gate flipea. FUERA de src → no se shippea ni se type-checkea.
-    El blob debe quedar por ENCIMA de `BUNDLE_BUDGET_BASE_BYTES` + margen (si no, el gate queda DECORATIVO —
-    el degradado también pasaría el presupuesto). Bump 60000->100000 con FSK-FRONTEND-SEARCH-PAGE: el budget
-    subió a 39853 base (74413 total con snipeit) y 60052 B ya no superaba eso; 100000 deja runway."""
-    blob = "x" * 100000
+    El blob debe quedar por ENCIMA del presupuesto (`_budget_json`, MISMO `n_served`) + margen (si no, el gate
+    queda DECORATIVO — el degradado también pasaría el presupuesto). Bump 60000->100000 con
+    FSK-FRONTEND-SEARCH-PAGE (fijo, no escalaba con entidades) hizo falta un 2do bump manual apenas snipeit
+    llegó a 38 entidades servidas (budget 117054 > 100052 del blob fijo — gate decorativo, medido). FIX
+    GENERAL (2026-07-09, FSK-ACCESS-CONTROL-LIVE-BUDGET): el blob ahora ESCALA con el MISMO `n_served` que el
+    presupuesto (budget + margen fijo de runway), así un producto ancho futuro no vuelve a decorar el gate."""
+    budget = BUNDLE_BUDGET_BASE_BYTES + BUNDLE_BUDGET_PER_ENTITY_BYTES * n_served
+    blob = "x" * (budget + 30000)
     return ('// Entry bloated (probe de perf, s8): supera el presupuesto de bundle a propósito.\n'
             f'export const PAYLOAD = "{blob}";\n'
             'export const size = PAYLOAD.length;\n')

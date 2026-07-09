@@ -188,6 +188,11 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
     gets = "\n".join(f'    route("GET", "/{_table(e)}")' for e in entities)
     if not rbac:
         posts = "\n".join(f'        route("POST", "/{_table(e)}")' for e in entities)
+        # appRoutes() es 1 línea (route(...)) por GET + por POST: con muchas entidades supera LongMethod(60);
+        # es un REGISTRO GENERADO 1:1 con el blueprint, no lógica mantenible. @Suppress sólo cuando de hecho lo
+        # excede (cuenta de líneas del cuerpo) — mismo idioma que data_layer.py (main()/insertAll/rowJson).
+        body_lines = gets.count("\n") + posts.count("\n") + 4
+        suppress = '@Suppress("LongMethod")\n' if body_lines > 58 else ""
         return (f"package {pkg}.routes\n\n"
                 f"import {pkg}.auth.AuthGuard\n\n"
                 "/**\n"
@@ -217,7 +222,7 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
                 "        return !match.guarded || AuthGuard.authorize(token)\n"
                 "    }\n"
                 "}\n\n"
-                "fun appRoutes(): RouteTable = RouteTable().apply {\n"
+                f"{suppress}fun appRoutes(): RouteTable = RouteTable().apply {{\n"
                 f"{gets}\n"
                 "    authenticated {\n"
                 f"{posts}\n"
@@ -265,6 +270,11 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
                 posts_lines.append(f'        route("POST", {restore_path})')
                 posts_lines.append(f'        route("GET", {trash_path})')
     posts = "\n".join(posts_lines)
+    # appRoutes() es 1+ línea (route(...)) por GET + por (POST/PUT/verbo/restore/trash) por entidad: con muchas
+    # entidades (RBAC agrega roleset por ruta) supera LongMethod(60); es un REGISTRO GENERADO 1:1 con el
+    # blueprint, no lógica mantenible. @Suppress sólo cuando de hecho lo excede — mismo idioma que data_layer.py.
+    body_lines = gets.count("\n") + posts.count("\n") + 4
+    suppress = '@Suppress("LongMethod")\n' if body_lines > 58 else ""
     return (f"package {pkg}.routes\n\n"
             f"import {pkg}.auth.Role\n"
             f"import {pkg}.auth.RoleGuard\n\n"
@@ -300,7 +310,7 @@ def _routes_kt(pkg: str, entities: list[dict], rbac: bool) -> str:
             "        return !match.guarded || RoleGuard.authorize(token, match.roles)\n"
             "    }\n"
             "}\n\n"
-            "fun appRoutes(): RouteTable = RouteTable().apply {\n"
+            f"{suppress}fun appRoutes(): RouteTable = RouteTable().apply {{\n"
             f"{gets}\n"
             "    authenticated {\n"
             f"{posts}\n"

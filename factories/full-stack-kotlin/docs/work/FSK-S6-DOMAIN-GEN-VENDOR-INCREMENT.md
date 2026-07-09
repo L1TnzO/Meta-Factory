@@ -1,7 +1,7 @@
-<!-- meta:doc sha=de33e5c0d701fa6061b7e61ee091ab3a2c7901b0 updated=2026-07-09T01:14Z -->
+<!-- meta:doc sha=ae6c822bacb5a19d7b330850276462b56ea2b2d3 updated=2026-07-09T01:28Z -->
 # Incremento FSK-S6-DOMAIN-GEN-VENDOR
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-09T01:14Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-09T01:28Z) (creado 2026-07-09T01:14Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

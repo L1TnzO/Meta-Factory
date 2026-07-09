@@ -1,7 +1,7 @@
-<!-- meta:doc sha=d0f8910fe1fce9309a2e89d3bebb448c96492694 updated=2026-07-09T03:17Z -->
+<!-- meta:doc sha=2175772eee959e1297c3e19ae84ff1ac2c69637d updated=2026-07-09T03:24Z -->
 # Incremento FSK-ACCESS-CONTROL-LIVE-BUDGET
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-09T02:29Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-09T03:24Z) (creado 2026-07-09T02:29Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

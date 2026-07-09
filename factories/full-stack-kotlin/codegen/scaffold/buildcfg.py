@@ -146,6 +146,13 @@ tasks.named<JavaExec>("roundtrip") {{
     extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
         destinationFile = layout.buildDirectory.file("jacoco/roundtrip.exec").get().asFile
     }}
+    // CRÍTICO (regresión real encontrada): jacoco.applyTo() le da a esta tarea un OUTPUT declarado
+    // (el .exec) -> con inputs sin cambios (mismo classpath/mainClass) gradle la marca UP-TO-DATE en la
+    // 2da invocación y la SALTEA -- exactamente la fase NEGATIVA de `db_roundtrip_live` (s1: con la PG
+    // caída el MISMO proof debe fallar) dejó de ejecutar de verdad -> "GATE DECORATIVO" (pasaba sin PG).
+    // `outputs.upToDateWhen {{ false }}` (mismo idiom que integrationTest/workflowTest/testProbe) restaura
+    // "corre SIEMPRE" -- el diente de dos lados vuelve a mostrar 2 ejecuciones reales.
+    outputs.upToDateWhen {{ false }}
 }}
 
 // appContract (cobertura, SNIPEIT-MIN-COMPLIANCE fase 3): App.kt es un TESTIGO DE CONTRATO que el codegen
@@ -167,6 +174,7 @@ tasks.named<JavaExec>("appContract") {{
     extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {{
         destinationFile = layout.buildDirectory.file("jacoco/appContract.exec").get().asFile
     }}
+    outputs.upToDateWhen {{ false }}   // mismo idiom (ver `roundtrip`): corre SIEMPRE, exec siempre fresco
 }}
 
 // ── Pirámide de tests (s7, DES-8). Framework: Kotest sobre JUnit Platform (cacheado en ~/.gradle igual

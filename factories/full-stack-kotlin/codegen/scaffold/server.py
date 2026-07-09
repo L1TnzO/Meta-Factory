@@ -1018,6 +1018,12 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     primary_names = {e["name"] for e in (ownerless, with_ref) if e}
     extras = [e for e in _servible_ownerless(ents) if e["name"] not in primary_names]
     ref_targets = _ref_targets(with_ref, ents)
+    # FSK-QTY-OPERATIONS: si la entidad with_ref declara verbos de STOCK (KIND qty), seedRows siembra una fila
+    # de stock (qtyId) — MOVIDO acá (antes computado más abajo, junto a seed_qty) porque FSK-REQREF-COVERAGE
+    # necesita saberlo ANTES para primar el registry (si with_ref YA tiene una fila sembrada, reusarla en vez
+    # de sembrar una 2ª — colisión de UNIQUE, mismo bug que motivó primar company_ent/ref_targets abajo). Pure
+    # function de with_ref → moverla no cambia ningún output (mismo valor, sólo se calcula antes).
+    wr_qty_ops = _qty_ops(with_ref) if with_ref else []
     # Verbos de DOMINIO (FSK-DOMAIN-OPS): la entidad CON DUEÑO puede declarar `operations` de WORKFLOW
     # (checkout/checkin). El handler del verbo invoca la máquina de estado del workflow (canTransition) a RUNTIME →
     # necesita el enum class del contrato (model {owned}) + el guard {owned}{Field}Workflow. Opt-in: sin
@@ -1052,10 +1058,41 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     dep_lines: list = []
     owned_wiring = _seed_deps(owned, by, dep_registry, set(), dep_lines)
     dep_entities = [by[n] for n in dep_registry]
+    # FSK-REQREF-COVERAGE: las entidades ownerless-con-ref-requerido servibles MÁS ALLÁ de la with_ref PRIMARIA
+    # (`extras` con `_has_req_ref`) quedaban excluidas del proof e2e (0% cobertura de sus handlers HTTP/Repository
+    # — "wrinkle #1"). Se primea un registry compartido (lo que `owned` YA sembró + el propio owned/owner, ambos
+    # sembrados por %SEED_OWNER%/%SEED_OWNED% más abajo) y se REUSA el seeder transitivo GENÉRICO
+    # (_seed_deps/_ensure_seeded, FSK-OWNED-REQUIRED-REFS) una vez por excluida — dedup/ciclos gratis (memoización
+    # compartida, cualquier orden de iteración funciona). with_refs_wiring = {nombre de entidad -> {campo ref ->
+    # val}}, expuesto por /seed (FSK-REQREF-COVERAGE) para que el proof serve-all postee una FK VÁLIDA por
+    # entidad. Vacío (assets: 0 candidatas) → byte-idéntico (eje OPT-IN, DATA-agnóstico, ADR-012).
+    extras_with_ref = [e for e in _servible_ownerless(ents) if e["name"] not in primary_names and _has_req_ref(e)]
+    with_refs_lines: list = []
+    with_refs_wiring: dict = {}
+    with_refs_dep_entities: list = []
+    if extras_with_ref:
+        primed_registry = dict(dep_registry)
+        primed_registry[owned["name"]] = "ownedId"
+        primed_registry[owner_ent["name"]] = "ownerId"
+        # Primar TAMBIÉN las entidades sembradas por los OTROS ejes opt-in (company-scoping/refs-in-body/qty) —
+        # de lo contrario una excluida que las necesita como target las vuelve a sembrar con la MISMA muestra →
+        # choque de UNIQUE (medido: `Company` duplicado, "companys_name_key"). Todas están YA en `tbls`/imports
+        # por su propio eje (condiciones idénticas) → primarlas acá no agrega ninguna tabla/import nueva.
+        if company_ent:
+            primed_registry[company_ent["name"]] = "companyAId"
+        for i, t in enumerate(ref_targets):
+            primed_registry.setdefault(t["name"], f"refTarget{i}")
+        if with_ref and wr_qty_ops:
+            primed_registry[with_ref["name"]] = "qtyId"
+        primed_before = set(primed_registry)
+        for e in extras_with_ref:
+            with_refs_wiring[e["name"]] = _seed_deps(e, by, primed_registry, set(), with_refs_lines)
+        with_refs_dep_entities = [by[n] for n in primed_registry if n not in primed_before]
     plural = "/" + _table(owned)
     all_fn = f"all{owned['name']}s"
     owner_fn = f"{owned['name'].lower()}OwnerId"
-    tbls = sorted({_TBL(owned), _TBL(owner_ent)} | {_TBL(t) for t in ref_targets + dep_entities}
+    tbls = sorted({_TBL(owned), _TBL(owner_ent)}
+                  | {_TBL(t) for t in ref_targets + dep_entities + with_refs_dep_entities}
                   | ({_TBL(company_ent)} if company_ent else set())   # FSK-COMPANY-SCOPING: la tabla del tenant
                   # FSK-QTY-OPERATIONS: la tabla de la entidad with_ref, que seedRows inserta inline (fila de stock)
                   | ({_TBL(with_ref)} if with_ref and _qty_ops(with_ref) else set()))
@@ -1101,7 +1138,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # sembrados (campos requeridos de owner/owned + targets de refs) y los parseados (input de cada servida, incl.
     # with_ref que aporta su propio `date` requerido si lo tuviera). Un import no usado → NoUnusedImports (rojo).
     type_src = ([{"fields": [f for f in e["fields"] if f.get("required", True)]}
-                 for e in [owned, owner_ent] + ref_targets + dep_entities]
+                 for e in [owned, owner_ent] + ref_targets + dep_entities + with_refs_dep_entities]
                 + [{"fields": _input_fields(e)} for e in served])
     java_imports = sorted([
         "import java.io.File",   # FSK-FRONTEND-BROWSER: serve el bundle del browser (GET /app.js) desde disco
@@ -1138,6 +1175,18 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                                       owner_poly_type=non_principal)
     else:
         seed_rtd = ""
+    # FSK-REQREF-COVERAGE: los INSERT de los targets NUEVOS que las entidades excluidas necesitaron (no ya
+    # sembrados por owned/rtd) — apendeados por _seed_deps/_ensure_seeded arriba, en orden de dependencia.
+    # Vacío (assets/sin excluidas) → "" (byte-idéntico).
+    seed_with_refs = ("\n" + "\n".join(with_refs_lines)) if with_refs_lines else ""
+    # FSK-REQREF-COVERAGE: el literal del arg withRefs de Seed(...) en su PROPIA val (una entidad excluida por
+    # línea) — con >1 excluida no entra en 1 línea de Seed(...) (detekt MaximumLineLength=160; medido en
+    # snipeit con 19). Vacío (sin excluidas) → "" (byte-idéntico, seed_args no la referencia).
+    if with_refs_wiring:
+        with_refs_entries = ",\n".join(
+            "        \"" + name + "\" to mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in wiring.items()) + ")"
+            for name, wiring in with_refs_wiring.items())
+        seed_with_refs += f"\n    val seedWithRefsArg = mapOf(\n{with_refs_entries}\n    )"
     # FSK-OWNED-REQUIRED-REFS: /seed expone los ids de los refs REQUERIDOS no-dueño del owned (campo → id sembrado)
     # para que el proof POSTee una FK VÁLIDA (como `refs` para with_ref, pero de la entidad-con-dueño). Opt-in:
     # sin refs requeridos no-dueño (default/assets) → todo "" → Seed/seedJson byte-idénticos (sin re-derivar).
@@ -1150,6 +1199,21 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
                                '.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }\n')
     else:
         owned_refs_doc = owned_refs_json_val = ""
+    # FSK-REQREF-COVERAGE: /seed expone, por entidad EXCLUIDA (ownerless-con-ref-requerido más allá de la
+    # with_ref PRIMARIA), el id sembrado de cada uno de sus refs REQUERIDOS no-dueño (campo -> id) — como
+    # ownedRefs, pero keyeado un nivel más por nombre de entidad. Opt-in: sin excluidas (assets) → "" → Seed/
+    # seedJson byte-idénticos (sin re-derivar).
+    if with_refs_wiring:
+        with_refs_doc = (
+            "// withRefs (FSK-REQREF-COVERAGE): id sembrado de cada ref REQUERIDO no-dueno de las entidades\n"
+            "// ownerless-con-ref-requerido EXCLUIDAS de la with_ref PRIMARIA (campo -> id), keyeado por nombre\n"
+            "// de entidad; /seed lo expone para que el proof serve-all postee una FK VALIDA por entidad.\n")
+        with_refs_json_val = (
+            '    val withRefs = seed.withRefs.entries.joinToString(",", "{", "}") { (n, r) ->\n'
+            '        "\\"$n\\":" + r.entries.joinToString(",", "{", "}") { (k, v) -> "\\"$k\\":$v" }\n'
+            '    }\n')
+    else:
+        with_refs_doc = with_refs_json_val = ""
     # FSK-REFS-IN-BODY: siembra una fila de cada target de ref requerido (FK del POST) y mapea el campo ref → su
     # id sembrado (lo que /seed expone para que el proof POSTee una FK VÁLIDA). Sin with_ref → emptyMap().
     tvar = {t["name"]: f"refTarget{i}" for i, t in enumerate(ref_targets)}
@@ -1162,7 +1226,7 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     # ownerless (RBAC-only, _ownerless_handlers ops=) y siembra una fila de stock (qtyId) con su(s) FK requerida(s)
     # —reusando los ref targets ya sembrados (tvar)— para que el proof ejercite el decremento + out-of-stock a
     # runtime. Opt-in: sin verbos qty todo queda "" → AppServer byte-idéntico (default/assets ni tienen with_ref).
-    wr_qty_ops = _qty_ops(with_ref) if with_ref else []
+    # (wr_qty_ops se calcula más arriba, junto a ref_targets — FSK-REQREF-COVERAGE lo necesita antes.)
     if wr_qty_ops:
         wr_wiring = {f["name"]: tvar[f["to"]] for f in with_ref["fields"]
                      if f["type"] == "ref" and not _is_poly(f) and f.get("required", True)}
@@ -1309,6 +1373,9 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
     if owned_wiring:
         seed_params.append("val ownedRefs: Map<String, Long>")
         json_parts.append('"ownedRefs":$ownedRefs')
+    if with_refs_wiring:
+        seed_params.append("val withRefs: Map<String, Map<String, Long>>")
+        json_parts.append('"withRefs":$withRefs')
     if scope_field:
         seed_params += ["val companyA: Long", "val companyB: Long", "val scopedId: Long"]
         json_parts += ['"companyA":${seed.companyA}', '"companyB":${seed.companyB}', '"scopedId":${seed.scopedId}']
@@ -1334,6 +1401,10 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
         seed_args.append("rtdId")
     if owned_wiring:
         seed_args.append("mapOf(" + ", ".join(f'"{k}" to {v}' for k, v in owned_wiring.items()) + ")")
+    if with_refs_wiring:
+        seed_args.append("seedWithRefsArg")   # FSK-REQREF-COVERAGE: val propia (abajo) — el literal wrapeado
+        # NO cabe en 1 línea de Seed(...) con >1 excluida (detekt MaximumLineLength=160, medido en snipeit: 19
+        # entidades en un mapOf-de-mapOf pasa de 160 en una sola línea).
     if scope_field:
         seed_args += ["companyAId", "companyBId", "scopedId"]
     if wr_qty_ops:
@@ -1374,8 +1445,11 @@ def _app_server_kt(pkg: str, bp: dict) -> str:
             .replace("%SEED_RTD%", seed_rtd)
             .replace("%OWNED_REFS_DOC%", owned_refs_doc)
             .replace("%OWNED_REFS_JSON_VAL%", owned_refs_json_val)
+            .replace("%WITH_REFS_DOC%", with_refs_doc)
+            .replace("%WITH_REFS_JSON_VAL%", with_refs_json_val)
             .replace("%SEED_COMPANY_SCOPE%", seed_company_scope)
             .replace("%SEED_QTY%", seed_qty)
+            .replace("%SEED_WITH_REFS%", seed_with_refs)
             .replace("%SEED_RETURN%", seed_return)   # FSK-TIME-COMPUTED: Seed(...) armado+envuelto (single source)
             .replace("%SEEDROWS_SUPPRESS%", seedrows_suppress)
             .replace("%SEED_DECL%", seed_decl)
@@ -1576,17 +1650,32 @@ def _access_control_check_py(bp: dict) -> str:
     # requerido (mounted, no e2e-probadas acá: necesitarían sembrar su FK — honesto, wrinkle #1) y la primaria (ya
     # cubierta por el bloque ownerless). Opt-in: lista vacía → "" → el proof queda byte-idéntico (default/assets
     # sin una 2ª escalar-solo no cambian este bloque).
+    # FSK-REQREF-COVERAGE: ya NO se excluyen las servibles con ref requerido — el seed (withRefs, FSK-REQREF-
+    # COVERAGE arriba en _app_server_kt) les da una FK sembrada VÁLIDA para postear. Sólo quedan afuera `ol`
+    # (cubierta por su propio bloque ownerless) y `wr` (cubierta por su propio bloque with-ref primario) — antes
+    # `wr` quedaba excluida IMPLÍCITAMENTE por `_has_req_ref` (siempre lo tiene); ahora hace falta EXPLÍCITO.
     serve_all_ents = [e for e in _servible_ownerless(bp["entities"])
-                      if not _has_req_ref(e) and (ol is None or e["name"] != ol["name"])]
+                      if (ol is None or e["name"] != ol["name"]) and (wr is None or e["name"] != wr["name"])]
     serve_all_data = []
     for se in serve_all_ents:
         se_flds = _input_fields(se)
-        se_post = {f["name"]: _proof_post_value(f) for f in se_flds}
+        # FSK-REQREF-COVERAGE: un ref requerido no tiene un "valor de muestra" en codegen (el id se sabe recién a
+        # runtime, sembrado por seedRows) — _proof_post_value no lo maneja (sólo escalares/enum). Separar: los
+        # escalares llevan valor de codegen (como antes); los refs se completan a RUNTIME desde /seed withRefs
+        # (%SERVE_ALL_DATA% sólo declara `refs_from`, el template hace el merge). Si `se` no tiene escalares (sólo
+        # refs), el diente NEGATIVO corrompe el 1er ref (un string donde va Long → longOf lo rechaza → 400 igual).
+        ref_flds = [f for f in se_flds if f["type"] == "ref"]
+        scalar_flds = [f for f in se_flds if f["type"] != "ref"]
+        se_post = {f["name"]: _proof_post_value(f) for f in scalar_flds}
         se_bad = dict(se_post)
-        se_bad[se_flds[0]["name"]] = _proof_wrong_value(se_flds[0])
-        serve_all_data.append({"plural": "/" + _table(se), "allowed": se["write_roles"][0],
-                               "forbidden": next((r for r in bp["roles"] if r not in se["write_roles"]), ""),
-                               "post": se_post, "bad": se_bad})
+        corrupt = scalar_flds[0] if scalar_flds else ref_flds[0]
+        se_bad[corrupt["name"]] = _proof_wrong_value(corrupt)
+        entry = {"plural": "/" + _table(se), "allowed": se["write_roles"][0],
+                 "forbidden": next((r for r in bp["roles"] if r not in se["write_roles"]), ""),
+                 "post": se_post, "bad": se_bad}
+        if ref_flds:
+            entry["refs_from"] = se["name"]   # FSK-REQREF-COVERAGE: la key en /seed withRefs para esta entidad
+        serve_all_data.append(entry)
     serve_all_block = _SERVE_ALL_PROOF.replace("%SERVE_ALL_DATA%", json.dumps(serve_all_data)) if serve_all_data else ""
     # FSK-MUTABLE-WHEN: el bloque del proof de freeze VIVO — sólo si la entidad con dueño tiene mutable_when.
     # Crea una fila fresca, hace el checkout (-> estado frozen) y verifica PUT/DELETE -> 409. Diente DOS lados:

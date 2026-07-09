@@ -264,7 +264,7 @@ private const val PLURAL = "%PLURAL%"
 // expone para que el proof POSTee una FK VALIDA. Vacio si ninguna entidad servida tiene un ref requerido.
 // rtdId (FSK-OWNERSHIP-OPTIONAL): id de una fila Ready-To-Deploy (dueno NULL) -- solo cuando el dueno es
 // nullable. /seed lo expone para que el proof ejercite el veredicto RTD (no-bypass -> 403 / bypass -> 200).
-%OWNED_REFS_DOC%%SEED_DECL%
+%OWNED_REFS_DOC%%WITH_REFS_DOC%%SEED_DECL%
 
 private fun respond(ex: HttpExchange, status: Int, body: String) {
     val bytes = body.toByteArray(StandardCharsets.UTF_8)
@@ -327,13 +327,13 @@ private fun connect(url: String, user: String, pass: String): Connection {
 // proof ejercita ownership con el dueno REAL de la fila Y POSTea la entidad con-ref con una FK VALIDA.
 %SEEDROWS_SUPPRESS%private fun seedRows(ctx: DSLContext): Seed {
 %SEED_OWNER%
-%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%%SEED_QTY%
+%SEED_OWNED_DEPS%%SEED_OWNED%%SEED_REF_TARGETS%%SEED_RTD%%SEED_COMPANY_SCOPE%%SEED_QTY%%SEED_WITH_REFS%
 %SEED_RETURN%
 }
 
 private fun seedJson(seed: Seed): String {
     val refs = seed.refs.entries.joinToString(",", "{", "}") { "\\"${it.key}\\":${it.value}" }
-%OWNED_REFS_JSON_VAL%%SEED_JSON%
+%OWNED_REFS_JSON_VAL%%WITH_REFS_JSON_VAL%%SEED_JSON%
 }
 
 // El set de roles que el contrato exige para escribir esta entidad, LEIDO del RouteTable generado (la MISMA
@@ -745,12 +745,19 @@ _SERVE_ALL_PROOF = '''
         # El dominio ENTERO usable, no solo 3 representativas. Diente de DOS lados por entidad (POST fresco).
         for _ent in json.loads('%SERVE_ALL_DATA%'):
             _ep, _ea, _ef = _ent["plural"], _ent["allowed"], _ent["forbidden"]
+            # FSK-REQREF-COVERAGE: `_wr` = las FKs sembradas de ESTA entidad (vacío sin "refs_from"). Se mergea
+            # como BASE (no encima) de post/bad: post no trae keys de ref (las completa `_wr`) y bad, si corrompió
+            # un campo ref, YA lo trae en su dict -> update() lo pisa correctamente (los OTROS refs, si hay >1,
+            # siguen válidos desde `_wr`).
+            _wr = seed.get("withRefs", {}).get(_ent.get("refs_from"), {})
+            _post_body = {**_wr, **_ent["post"]}
+            _bad_body = {**_wr, **_ent["bad"]}
             _e0 = _count_at(base, _ep)
             if _ef:
-                ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ef}:1", _ent["post"])[0], 403,
+                ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ef}:1", _post_body)[0], 403,
                               f"[serve-all] {_ep} POST rol PROHIBIDO ({_ef}) -> 403")
                 ok &= _expect(_count_at(base, _ep), _e0, f"[serve-all] {_ep} count tras POST prohibido (sin INSERT)")
-            _es, _eb = _send(base, "POST", _ep, f"Bearer {_ea}:1", _ent["post"])
+            _es, _eb = _send(base, "POST", _ep, f"Bearer {_ea}:1", _post_body)
             ok &= _expect(_es, 201, f"[serve-all] {_ep} POST permitido / INSERT del body ({_ea}) -> 201")
             _eid = _eb.get("id")
             ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras POST permitido (INSERT real)")
@@ -758,7 +765,7 @@ _SERVE_ALL_PROOF = '''
                 _erow = json.loads(_body(base, f"{_ep}/{_eid}"))
                 for _ek, _ev in _ent["post"].items():
                     ok &= _expect_value(_erow.get(_ek), _ev, f"[serve-all] {_ep} GET /{{id}} ve body[{_ek}] (type-correct)")
-            ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _ent["bad"])[0], 400,
+            ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _bad_body)[0], 400,
                           f"[serve-all] {_ep} POST tipo equivocado -> 400")
             ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras 400 (no inserto)")
             if _eid is not None:

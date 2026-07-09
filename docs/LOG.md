@@ -1,7 +1,38 @@
-<!-- meta:doc sha=11d1e4d2cdbe3cc6a68238732c8ba2c2d40de9e6 updated=2026-07-08T17:43Z -->
+<!-- meta:doc sha=cb4b9dcc726560c6566ea888d14ac2d3a800dcd4 updated=2026-07-09T01:45Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-09T01:44Z — SNIPEIT-MIN-COMPLIANCE fase 1 ✅: `s6` activado por 1ra vez para un producto real — expone y cierra un gap real de fábrica
+- **gatillo**: el ingeniero pidió cerrar, «como sea», las 3 brechas reales declaradas por la auditoría
+  `SNIPEIT-COMPLETENESS-SPEC` (6/9 pasa: tablas 20/40, checklist 26/27, sin % de cobertura de línea).
+  Se abrió `SNIPEIT-MIN-COMPLIANCE` (producto) con 4 fases; ésta cierra la fase 1 (la más acotada).
+- **lo hecho**: `station_activation.s6: off→on` en `product.yml` de `snipeit` — la PRIMERA vez que se activa
+  `s6` (lógica de dominio por `claude -p` vivo, patrón MAT-2/ADR-013) para un producto REAL (todos los
+  productos FSK previos lo dejaban diferido "keyless"). Esto expuso un gap real de fábrica nunca antes
+  ejercido: `domain_gen/` (módulo Gradle autocontenido) no vendorizaba el wrapper Gradle pineado — sólo
+  `build/product/` lo hacía vía `scaffold_product.py`. Fix GENERAL (incremento de fábrica separado
+  `FSK-S6-DOMAIN-GEN-VENDOR`): loop de vendorización extraído a `codegen/gradle_vendor.py` (single source)
+  + `codegen/vendor_domain_gen.py` + build step nuevo en `factory.spec.yml`. `claude -p` generó
+  `summarize()` REAL (no stub); contract test verde. Un 3er incremento META puntual
+  (`S6-INSTANCE-PIN-GITIGNORE`) ajustó el `.gitignore` raíz: asumía que TODA instancia deja `s6` diferido
+  y por eso ignoraba `domain_gen/` entero — snipeit lo adopta durablemente, así que su `Summary.kt`
+  ACEPTADO ahora se PINEA (committeado, excepción puntual no genérica) para que `ci --rederive` lo
+  re-verifique sin re-invocar al LLM.
+- **verificado por bloqueo**: `product-run snipeit` PASS end-to-end (s0..s11) · RTM **27/27 COMPLETE** ·
+  `meta pin --verify` → **12/12 proof_sha == pineado** en árbol limpio (antes 11/11, s6 no tenía pin) ·
+  `ci --rederive --all-products` **4/4 == pin** (sin regresión) · `meta check` **19/19**.
+  `SNIPEIT-SPEC.md` actualizado con los números re-derivados (26/27→27/27).
+- **3 incrementos, 3 niveles de gobierno en la MISMA sesión** (meta/gitignore · factory/gradle-vendor ·
+  producto/s6-activate) — lección operativa: `increment close` exige árbol limpio REPO-WIDE, no sólo del
+  scope del incremento; con 3 abiertos a la vez hubo que commitear TODO (incl. WIP huérfano de una sesión
+  previa, `FSK-HELPDESK-MODELGEN`, preservado como checkpoint sin cerrar) antes de poder cerrar ninguno.
+- **queda pendiente** (mismo incremento, fases 2-4, MUCHO más grandes): expandir 19→~39 entidades para
+  llegar a 40 tablas (adoptar el resto del blueprint cosechado en `SNIPEIT-DOMAIN.md §3` — Kit, Group,
+  CustomField/Fieldset, CheckoutRequest/Acceptance, StatusLabel, Import, Setting, ~20 entidades más) e
+  instrumentar cobertura de línea real (Jacoco/Kover, hoy 0 — el proyecto verifica por contrato/artefacto,
+  no por %). Cada fase es un esfuerzo propio, candidato a sesión aparte (kill-and-rehydrate, ADR-021).
+  Detalle: `factories/full-stack-kotlin/products/snipeit/docs/work/SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`.
 
 ## 2026-07-08T17:42Z — CHECK-WHEN-GUARD ✅: guard por-check `when:` en el motor — la mitad META de ADR-024, un opt-in byte-neutral que NO re-pinea al no-adoptante
 Prerrequisito META de `FSK-MODELGEN-DURABLE` (ADR-024): para que un producto tenga superficie humana

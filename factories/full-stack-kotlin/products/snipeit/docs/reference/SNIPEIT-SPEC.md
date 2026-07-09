@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9ce2137091ccddfdd21a92eab5f20437e4333694 updated=2026-07-08T22:06Z -->
+<!-- meta:doc sha=5355b94b147e1fc0ec2328a9dab9fd70b7d92c25 updated=2026-07-09T01:43Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -33,18 +33,20 @@
 | 5 | Pantallas (con evidencia) | 30 | **39 capturas reales** | ✅ PASA | §7 |
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
 | 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
-| 8 | Checklist de completitud del producto | — | 26/27 requisitos trazados (96%) | ⚠️ **PARCIAL** (1 deferral declarado) | §10 |
+| 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
 | 9 | Pruebas automatizadas, cobertura 100% | 100% | 23 unit/integration + 32 aserciones E2E + 8 gates estáticos; **sin % de línea medido** | ❌ **NO CUMPLE el criterio literal** | §11 |
 
-**Lectura honesta**: el sistema PASA 6 de 9 criterios con margen real, y falla o cumple parcialmente 3: el
-**modelo de datos es más chico** que el mínimo pedido (20 tablas físicas, no 40 — el dominio de Snipe-IT
-*real* tiene 53; la réplica adoptó 19 entidades del núcleo, no el sistema completo, una decisión de alcance
-documentada desde el origen del producto, no un descuido), la **cobertura de línea no se mide** (el
-proyecto verifica por *contrato/artefacto re-derivable*, un paradigma distinto y deliberado — ver §11), y el
-**checklist de completitud tiene 1 gap declarado** (lógica de dominio vía LLM, diferida a propósito). Nada de
-esto se ocultó ni se maquilló: son las brechas reales, con su causa y su evidencia. §12 detalla además un
-**bug real encontrado durante esta auditoría** (violación de restricción `UNIQUE` no manejada con
-gracia — la conexión se cae en vez de devolver 409).
+**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 1)**: el sistema PASA 7 de 9
+criterios con margen real, y falla o cumple parcialmente 2: el **modelo de datos es más chico** que el
+mínimo pedido (20 tablas físicas, no 40 — el dominio de Snipe-IT *real* tiene 53; la réplica adoptó 19
+entidades del núcleo, no el sistema completo, una decisión de alcance documentada desde el origen del
+producto, no un descuido — ver `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2 para el plan de cierre), y la
+**cobertura de línea no se mide** (el proyecto verifica por *contrato/artefacto re-derivable*, un paradigma
+distinto y deliberado — ver §11, fase 3 del mismo incremento la instrumenta). El **checklist de
+completitud** ya NO tiene gaps (REQ-F-007 se activó de verdad: `s6` genera lógica de dominio con `claude -p`
+vivo bajo contract test, RTM 27/27 re-derivado). Nada de esto se ocultó ni se maquilló: son las brechas
+reales, con su causa y su evidencia. §12 detalla además un **bug real encontrado durante esta auditoría**
+(violación de restricción `UNIQUE` no manejada con gracia — la conexión se cae en vez de devolver 409).
 
 ---
 
@@ -491,7 +493,7 @@ reales listados, no declarado a mano).
 | REQ-F-004 datos durables vivos | ✅ | `DbRoundTrip.kt` |
 | REQ-F-005 rutas protegidas | ✅ | `AuthGuard.kt` |
 | REQ-F-006 topología de rutas verificable | ✅ | `RouteTable.kt` |
-| REQ-F-007 lógica de dominio generada por LLM | ⚠️ **DIFERIDO** (`s6: off`, declarado en `product.yml`) | — |
+| REQ-F-007 lógica de dominio generada por LLM | ✅ (activado 2026-07-09, `SNIPEIT-MIN-COMPLIANCE`) | `domain_gen/src/main/kotlin/domain/Summary.kt` |
 | REQ-F-008 pruebas piramidales | ✅ | `src/test/` |
 | REQ-F-009 calidad de experiencia | ✅ | `frontend/ui/index.html` |
 | REQ-F-010 observabilidad de producto | ✅ | `ObsServer.kt` |
@@ -513,10 +515,12 @@ reales listados, no declarado a mano).
 | REQ-NF-007 build hermético reproducible | ✅ | `ci.sh` |
 | REQ-NF-008 deploy vivo (Docker) | ✅ | `Dockerfile` |
 
-**26/27 = 96%.** El único ítem no satisfecho (REQ-F-007) es un **deferral declarado desde el propio
-`product.yml`** (`station_activation: s6: off`), no un fallo silencioso — la instancia prueba
-deliberadamente que el resto del sistema (20 requisitos funcionales + 6 no funcionales) fluye por
-estaciones **deterministas**, sin depender de una llamada a un LLM en el camino crítico.
+**27/27 = 100%** (actualizado 2026-07-09). REQ-F-007 estaba diferido (`station_activation: s6: off`,
+deferral declarado, no fallo silencioso); `SNIPEIT-MIN-COMPLIANCE` fase 1 lo activó de verdad: `claude -p`
+vivo generó `summarize()` (Kotlin, no un stub) bajo el contract test de `domain_gen/`, verificado por
+bloqueo (`product-run` PASS end-to-end s0..s11, `ci --rederive` 12/12 == pin, RTM re-derivado 27/27). El
+artefacto ACEPTADO queda PINEADO (committeado como fuente, patrón MAT-2/ADR-013) — `ci --rederive` lo
+re-verifica sin volver a invocar al LLM.
 
 ---
 

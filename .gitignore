@@ -25,12 +25,23 @@ factories/*/products/*/stations/
 # LLM diferida (activation:off) NO hay artefacto pineado que persistir → re-derivable como stations/ (el
 # `ci --rederive` en clon limpio lo confirma). En la FÁBRICA (default) sí se commitea (pin de Summary.kt).
 factories/*/products/*/domain_gen/
+# EXCEPCIÓN puntual — adopción DURABLE de s6 en una instancia (SNIPEIT-MIN-COMPLIANCE, 2026-07-09):
+# snipeit mantiene s6 ACTIVADO (no diferido) → su domain_gen/ se commitea como fuente (Summary.kt
+# ACEPTADO por el LLM se PINEA, igual que el domain_gen/ de la fábrica-raíz, ya trackeado; `ci
+# --rederive` en clon limpio lo verifica SIN re-invocar `claude -p`, la CI es keyless). El cache
+# transitorio (.gradle/build/.kotlin, reglas de abajo) SIGUE ignorado dentro de esta excepción.
+!factories/full-stack-kotlin/products/snipeit/domain_gen/
+!factories/full-stack-kotlin/products/snipeit/domain_gen/**
+# ...pero el build/ transitorio de ESE módulo sigue ignorado (`**/build/` de arriba precede a la
+# negación → se re-afirma acá para que gane por orden, igual que .gradle/.kotlin de abajo).
+factories/full-stack-kotlin/products/snipeit/domain_gen/build/
 
 # Gradle's transient local cache (daemon/incremental state). Tracked source = wrapper + *.kts + sources;
 # .gradle/ is regenerable runtime state (a product line's lives under build/, but a factory-root module
 # like domain_gen would leak it without this). Never the root of trust.
 .gradle/
 **/.gradle/
+**/.kotlin/
 
 # Generation briefs (C1): the blueprint slice handed to a `generate` slot's generator.
 # Re-derivable from spec data; INPUT to the generator, never the root of trust.

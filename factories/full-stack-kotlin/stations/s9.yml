@@ -16,7 +16,7 @@ checks:
   up:
   - sh
   - -c
-  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/webapp/bin/webapp
+  - JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export JAVA_OPTS="-javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true"; exec ./build/install/webapp/bin/webapp
   proof:
   - python3
   - tools/obs_check.py

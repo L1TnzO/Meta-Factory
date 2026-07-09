@@ -1,10 +1,30 @@
-<!-- meta:doc sha=193ee948f0bf5782c77afb24f5fa4d558d5cf677 updated=2026-07-09T03:28Z -->
+<!-- meta:doc sha=7bb62224cd10b625afe1fa04c73c7405d0a019b0 updated=2026-07-09T20:17Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-09T03:29Z): re-sellado tras el cierre de FSK-ACCESS-CONTROL-LIVE-BUDGET.
+> Freshness (2026-07-09T20:20Z): re-sellado tras el cierre de FSK-COVERAGE-INSTRUMENT.
 
 ## Ahora
+- **FSK-COVERAGE-INSTRUMENT (2026-07-09)** ✅ CERRADO — cobertura de línea REAL (Jacoco) como capacidad de
+  SUSTRATO (`codegen/scaffold/buildcfg.py::_build_gradle`, disponible para cualquier producto de la línea):
+  plugin `jacoco` + `jacocoLiveReport` funde la pirámide Gradle (`test`/`integrationTest`/`workflowTest`) con
+  un `.exec` externo escrito por un **javaagent** adjuntado a los 4 procesos JVM que `s9` YA levanta para sus
+  propios proofs (`access_control_live`/`frontend_consume_live`/`frontend_browser_live`/
+  `frontend_design_floor`) + `observability_live` (vía `JAVA_OPTS`, ese lanza por script `installDist` en vez
+  de `java -cp`) — cero tráfico nuevo. Excluye del universo medido `org/openapitools/**` (DTOs OpenAPI) +
+  `**/jooq/**` (acceso a datos jOOQ), declarado explícitamente. Medido en `snipeit` (39 entidades): **0% →
+  70.7%** SIN escribir un test Kotlin nuevo — wireando 2 artefactos que el codegen YA emitía pero ningún
+  entrypoint invocaba (`App.kt` testigo-de-contrato → tarea `appContract`; `DbRoundTrip.kt`, ya corría en
+  `s1` pero jacoco no auto-instrumenta `JavaExec` → `jacoco.applyTo(...)` explícito). 1 regresión real
+  encontrada+arreglada en el camino: adjuntar jacoco a `roundtrip` lo volvió cacheable → Gradle lo saltaba en
+  la 2da invocación → el diente NEGATIVO de `db_roundtrip_live` (debe fallar con la PG caída) se volvió
+  decorativo; fix `outputs.upToDateWhen { false }`. Brecha honesta declarada (no maquillada): ~29% remanente
+  concentrado en `AppServer.kt`+`Repository.kt` (entidades con ref requerido que el generador de proofs
+  excluye hoy por diseño — cerrar eso es ingeniería real sobre un generador maduro compartido, declarado
+  como residual futuro, no apurado bajo riesgo de regresión). `ci --rederive --all-products` **4/4 == pin**
+  (12/12·11/11·11/11·12/12, re-pineados los 4 tras el cambio de sustrato compartido). Detalle: `docs/work/
+  FSK-COVERAGE-INSTRUMENT-INCREMENT.md` + `products/snipeit/docs/work/SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`
+  §Evidencia fase 3/4 + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11` (números re-derivados).
 - **FSK-ACCESS-CONTROL-LIVE-BUDGET (2026-07-09)** ✅ CERRADO — 3 fixes GENERALES surgidos al ensanchar
   `snipeit` a 39 entidades (`SNIPEIT-MIN-COMPLIANCE` fase 2, 20→40 tablas): (1) `access_control_live`
   ready-timeout 120s→240s (el proof hace ~O(entidades) round-trips HTTP secuenciales); (2) `detekt

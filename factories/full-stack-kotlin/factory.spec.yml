@@ -765,7 +765,7 @@ domain:
           kind: infra_up
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew installDist -q --console=plain"]
-          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./build/install/{{package_name}}/bin/{{package_name}}"]
+          up: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); export JAVA_OPTS=\"-javaagent:$(pwd)/build/jacocoagent.jar=destfile=$(pwd)/build/jacoco/live.exec,append=true\"; exec ./build/install/{{package_name}}/bin/{{package_name}}"]
           proof: ["python3", "tools/obs_check.py", "http://127.0.0.1:18593", "obs/spans.jsonl", "obs/access.jsonl", "fsk-trace-001"]
           down: []
           timeout: 120

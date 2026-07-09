@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ed2032cc58fb01cecfd28f47dc13191b9527f963 updated=2026-07-09T03:20Z -->
+<!-- meta:doc sha=82dc1ae334027572c58d25de84d559c06cafd919 updated=2026-07-09T20:17Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -34,12 +34,15 @@
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
 | 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
 | 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
-| 9 | Pruebas automatizadas, cobertura 100% | 100% | 23 unit/integration + 32 aserciones E2E + 8 gates estáticos; **sin % de línea medido** | ❌ **NO CUMPLE el criterio literal** | §11 |
+| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3): **70.7% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ, 100% boilerplate generado) + 23 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta** | §11 |
 
-**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 2)**: el sistema PASA 8 de 9
-criterios con margen real, y cumple parcialmente 1: la **cobertura de línea no se mide** (el proyecto
-verifica por *contrato/artefacto re-derivable*, un paradigma distinto y deliberado — ver §11, fase 3 del
-mismo incremento la instrumenta). El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
+**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 3)**: el sistema PASA 8 de 9
+criterios con margen real, y cumple parcialmente 1: la **cobertura de línea AHORA SE MIDE de verdad**
+(Jacoco real, no un número sintético) en **70.7%** de un universo honestamente filtrado — subió desde 0%
+instrumentado wireando artefactos YA EXISTENTES (una batería de proofs E2E que ya corría + dos utilidades de
+diagnóstico que el codegen ya emitía pero ningún entrypoint invocaba) SIN escribir ni un test Kotlin nuevo;
+la brecha remanente (~29%, concentrada en 2 archivos) queda declarada línea por línea con su razón, no
+maquillada — ver §11.4. El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
 (19 entidades del núcleo operativo original + 20 entidades MÍNIMAS agregadas en la Fase 2, decisión
 explícita de diseño de priorizar ALCANZAR el número sobre profundidad de dominio — ver §5.3 y
 `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2). El **checklist de completitud** ya NO tiene gaps (REQ-F-007
@@ -558,7 +561,7 @@ re-verifica sin volver a invocar al LLM.
 
 ---
 
-## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: sin métrica de línea, con verificación por contrato**)
+## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 70.7% de línea, Jacoco REAL, brecha honesta**)
 
 ### 11.1 Inventario real de pruebas
 | Tipo | Cantidad | Ubicación |
@@ -568,22 +571,53 @@ re-verifica sin volver a invocar al LLM.
 | Aserciones E2E en Chromium real (Playwright) | 32 | `frontend/browser_check.ts` |
 | Ejes del *design floor* (Chromium real) | 6 | `tools/design_floor_check.ts` (shell/labels/nullcell/overflow/contrast/fields) |
 | Gates estáticos/estructurales (Python) | 8 | `tools/{route_check,access_control_check,currency_lint,supply_chain_scan,hermetic_check,deploy_check,deploy_appserver_check,obs_check}.py` |
-| Requisitos trazados a artefacto (RTM) | 26/27 | §10 |
+| Requisitos trazados a artefacto (RTM) | 27/27 | §10 |
+| **Cobertura de línea (Jacoco REAL)** | **70.7%** | `build/reports/jacoco/live/live.xml` (§11.2) |
 
-### 11.2 Por qué NO hay un número de "% de cobertura de línea"
-El proyecto **no tiene configurado Jacoco/Kover** (verificado: `grep -rn jacoco\|coverage build.gradle.kts`
-→ sin resultados). Esto es un **gap real** frente al criterio literal pedido. La razón declarada por el
-propio proyecto (ADR-017 de Meta-Factory, "verificar-no-revisar") es que la verificación se hace **por
-contrato/artefacto re-derivable** (§10, 26/27 requisitos, cada uno atado a un archivo generado concreto que
-debe existir y pasar su gate) en vez de por cobertura de línea — un paradigma distinto, no necesariamente
-más débil, pero **no es lo que el criterio pidió literalmente**, y no corresponde inflarlo con un número
-sintético. Se reporta el hueco tal como es.
+### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`)
+El proyecto antes **no tenía Jacoco/Kover configurado** — ahora sí, como capacidad de SUSTRATO (el
+`_build_gradle` de la fábrica, disponible para cualquier producto FSK, no un parche de este producto). El
+mecanismo funde TRES fuentes de ejecución real en un solo reporte (`./gradlew jacocoLiveReport`):
+1. La pirámide Gradle (`test`/`integrationTest`/`workflowTest`, auto-instrumentada por el plugin `jacoco`).
+2. Un **javaagent** adjuntado a los 4 procesos JVM que la estación `s9` YA levanta para sus propios proofs de
+   correctitud (`access_control_live`/`frontend_consume_live`/`frontend_browser_live`/`frontend_design_floor`
+   — RBAC/ownership/company-scope por entidad + cliente TS + Chromium real) — la MISMA batería de
+   verificación existente, sin tráfico nuevo, acumulada vía `append=true`.
+3. Dos artefactos que el codegen YA emitía pero que **ningún entrypoint invocaba** (0% de cobertura pese a
+   ser código real): `App.kt` (un testigo de contrato que construye+lee las 39 entidades — ahora corrido por
+   una tarea Gradle `appContract`) y `DbRoundTrip.kt` (ya se ejecutaba de verdad en `s1` pero jacoco no lo
+   auto-instrumenta sobre `JavaExec` sin pedírselo explícitamente — `jacoco.applyTo(...)`).
 
-### 11.3 Determinismo (evidencia indirecta de robustez)
+Ningún test Kotlin nuevo se escribió para llegar a 70.7% — es 100% reuso de tráfico/artefactos ya
+existentes. **Exclusiones declaradas explícitamente** (no maquilladas): `org/openapitools/**` (los DTOs
+generados por OpenAPI Generator — clases de datos puras, cero lógica autorada) y `**/jooq/**` (el acceso a
+datos generado por jOOQ desde el schema — mecánico, sin ramas). Ambas son prácticas estándar de la industria
+para medir cobertura de *lógica de negocio*, no de *boilerplate herramental*.
+
+### 11.3 La brecha honesta — línea por línea, con razón (no un hueco silencioso)
+| Archivo | Líneas sin cubrir | Razón |
+|---|---:|---|
+| `endpoints/AppServer.kt` | 648 (de 3497) | El proof `access_control_check.py` hace el round-trip HTTP completo (POST→GET, 403/200, company-scope) para la entidad CON DUEÑO (`Asset`) y para TODA entidad escalar-sola sin refs requeridos (`serve_all_block`); las entidades con un ref REQUERIDO no-dueño (varias de las 20 pivots de la Fase 2: `KitModel`, `KitAccessory`, `GroupUser`, `ComponentAssignment`, etc.) quedan **excluidas por diseño** de ese bloque (comentario propio del generador: "necesitarían sembrar su FK — honesto, wrinkle #1") — sus handlers HTTP (creación/lectura/serialización) nunca reciben tráfico real. |
+| `Repository.kt` | 532 (de 1847) | Mismo origen: las funciones `rowJson()`/`all*RowsJson()` de esas mismas entidades-con-ref-requerido nunca se invocan desde un HTTP real (sólo se siembran filas por necesidad de FK de OTRAS entidades, no se GETean/LISTean ellas mismas). |
+| `DbRoundTrip.kt` | 227 (de 297) | Es una herramienta de diagnóstico manual (roundtrip contra PG viva) — corre de punta a punta en `s1`, pero su propio código interno tiene ramas (por-tipo-de-entidad) que ese único recorrido no visita todas. |
+| `routes/RouteTable.kt`, guards de `auth/`, `workflow/AssetStatusWorkflow.kt` | 1–3 c/u | Ramas de borde puntuales (p.ej. un `else` de guard que ningún escenario probado dispara) — no un patrón, casos aislados. |
+
+**Por qué esto queda declarado-diferido y no cerrado ahora**: cerrar el 83% de la brecha remanente (los 1180
+líneas de `AppServer.kt`+`Repository.kt`) requiere que el generador Python de `access_control_check.py`
+(`codegen/scaffold/server.py`, la función `_access_control_check_py`, ~1600 líneas con una docena de ejes
+opt-in interactuando: workflow, qty-operations, refs polimórficos, company-scoping, campos computados,
+soft-delete, actionlog) empiece a **sembrar FKs y encadenar ids entre entidades en un solo pase con estado**
+para las entidades con ref requerido — no es un truco barato (a diferencia de la Fase 2 de tablas o de
+wirear los 2 artefactos muertos de arriba): es ingeniería real y no trivial sobre un generador maduro y
+cargado de dientes existentes, con riesgo genuino de regresión si se apura. Se prefiere declarar el hueco
+honesto — exactamente como anticipa el criterio de cierre de este incremento — a arriesgar una rotura en un
+generador del que dependen las OTRAS 4 fábricas/productos. Queda planteado como una fase futura acotada
+(`SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`, fase 4/residual).
+
+### 11.4 Determinismo (evidencia adicional de robustez)
 El pipeline soporta `ci --rederive` (re-construcción completa en un clon limpio) comparado byte a byte
-contra `pinned_verdict.json` — los 11 hashes de estación (`s0`…`s11`) están pineados y son re-derivables.
-Esto no reemplaza cobertura de línea, pero es una forma más fuerte de verificación de **reproducibilidad**
-que la mayoría de las suites con cobertura no ofrecen.
+contra `pinned_verdict.json` — los 12 hashes de estación (`s0`…`s11`) están pineados y son re-derivables (los
+4 productos de la fábrica, 12/12·11/11·11/11·12/12, sin regresión de la instrumentación de cobertura).
 
 ---
 
@@ -591,7 +625,9 @@ que la mayoría de las suites con cobertura no ofrecen.
 
 1. **Modelo de datos — CERRADO Fase 2 (§5.3)**: 40/40 tablas (era 20/40). Las 20 nuevas son ANCHO barato
    por diseño (2-4 campos, sin profundidad de dominio) — no una adopción completa de Snipe-IT real.
-2. **Sin métrica de cobertura de línea** (§11.2): el proyecto verifica por contrato/artefacto, no por %.
+2. **Cobertura de línea real: 70.7%, no 100%** (§11.3): la brecha remanente (~29%, concentrada en
+   `AppServer.kt`+`Repository.kt`) está en entidades con ref requerido cuyo generador Python de proofs
+   necesitaría sembrado de FK encadenado — declarado como trabajo futuro acotado, no maquillado.
 3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
    otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
 4. **Bug real encontrado durante esta auditoría — violación de `UNIQUE` no manejada**: un `POST` que viola
@@ -637,12 +673,14 @@ que la mayoría de las suites con cobertura no ofrecen.
 ## 14. Conclusión
 
 El sistema `snipeit` es un producto **real, generado, verificado por bloqueo y con servidor vivo** —no una
-maqueta ni un contrato sin implementar. Contra el piso mínimo pedido, pasa 6 de 9 criterios con margen real
-(casos de uso, funcionalidades, endpoints, pantallas con evidencia fotográfica real, reglas de negocio y
-validaciones), y **falla o cumple parcialmente 3** de forma honesta y trazable: el modelo de datos es
-deliberadamente más chico que el pedido (20 tablas, decisión de alcance documentada, no un descuido), la
-cobertura se mide por contrato/artefacto en vez de por línea (paradigma distinto del pedido, declarado como
-tal), y el checklist de completitud tiene un único deferral declarado desde el propio contrato del producto.
-Esta auditoría además **encontró y documentó un bug real** (manejo de violaciones `UNIQUE`) que no estaba
-registrado en la documentación previa del producto — evidencia de que la verificación fue efectivamente
-ejecutada contra el sistema vivo, no copiada de afirmaciones anteriores.
+maqueta ni un contrato sin implementar. Contra el piso mínimo pedido, pasa 8 de 9 criterios con margen real
+(casos de uso, funcionalidades, tablas, endpoints, pantallas con evidencia fotográfica real, reglas de
+negocio, validaciones, y el checklist de completitud 27/27), y **cumple parcialmente 1** de forma honesta y
+trazable: la cobertura de línea, ahora medida de verdad con Jacoco (antes 0% instrumentado, hoy 70.7% real,
+subido sin escribir un solo test nuevo — reusando tráfico E2E y artefactos ya existentes), no llega al 100%
+pedido — el ~29% remanente está concentrado y declarado línea por línea (§11.3), con la razón exacta de por
+qué cerrarlo requeriría ingeniería real (no un truco barato) sobre un generador maduro compartido por toda
+la fábrica, y por qué se prefirió declarar el hueco a arriesgar una regresión apurada. Esta auditoría además
+**encontró y documentó un bug real** (manejo de violaciones `UNIQUE`) que no estaba registrado en la
+documentación previa del producto — evidencia de que la verificación fue efectivamente ejecutada contra el
+sistema vivo, no copiada de afirmaciones anteriores.

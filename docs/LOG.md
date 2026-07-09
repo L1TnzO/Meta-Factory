@@ -1,7 +1,55 @@
-<!-- meta:doc sha=cb4b9dcc726560c6566ea888d14ac2d3a800dcd4 updated=2026-07-09T01:45Z -->
+<!-- meta:doc sha=18b8f51ad55bd87cf9d40a61a25ac9445df49650 updated=2026-07-09T03:22Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-09T03:21Z — SNIPEIT-MIN-COMPLIANCE fase 2 ✅: 20→40 tablas — ancho barato por diseño, 3 gaps reales encontrados en el camino
+- **gatillo**: el ingeniero fue explícito: «logra las 40 tablas a como de lugar, con el menor esfuerzo…
+  si puedes separar tablas que tenemos ya, para trucar, hazlo». Decisión de diseño del dueño del producto,
+  no del orquestador: priorizar ALCANZAR el número sobre profundidad de dominio.
+- **lo hecho**: 20 entidades MÍNIMAS agregadas a `product.yml` de `snipeit` (2-4 campos c/u, CERO
+  computed/workflow/polimorfismo/soft-delete/audited, todos los refs BACKWARD para evitar la complejidad de
+  FK diferida) — 17 tomadas de deferrals ya cosechados en `SNIPEIT-DOMAIN.md §3` (StatusLabel,
+  PermissionGroup+GroupUser, CustomFieldset+CustomField+pivot, Kit+4 pivots, CheckoutRequest+Acceptance,
+  ImportJob, Setting, CompanyUser) + 3 lookups genuinos partidos de campos string existentes
+  (Country/State/JobTitle, de Location.country/state y User.jobtitle) — la técnica de "trucar" que pidió
+  el ingeniero, aplicada honestamente (documentada, no maquillada). El diseño del contrato (Opus) + la
+  generación mecánica de los 20 bloques `mount<E>` del frontend model-native se delegó al `generator` vía
+  `generate-slot`; volvió RED en el 1er intento — correctamente, porque el residuo (`access_control_live`)
+  estaba fuera de su `allow_globs`, escalado de vuelta al orquestador en vez de intentar arreglarlo fuera
+  de su slot.
+- **3 gaps REALES encontrados y arreglados** (ninguno cosmético): (1) la entidad `Import` chocaba con la
+  palabra reservada JS `import` (el codegen del cliente TS lowercasea el nombre de entidad para un
+  parámetro) → renombrada `ImportJob`; (2) `Group` (tabla `groups`) y `Setting.key`/`value` chocaban con
+  palabras reservadas H2/SQL que usa jOOQ al simular la migración para el codegen → renombrados
+  `PermissionGroup`/`setting_key`/`setting_value`; (3) **gap de fábrica nuevo**: `codegen/scaffold/
+  server.py` nombra la constante Kotlin de valores-de-enum por NOMBRE DE CAMPO (`STATUS_VALUES`) sin
+  qualificar por entidad — `ImportJob.status` colisionaba con `Asset.status`, un `POST` legítimo devolvía
+  `400`. Costó una sesión real de diagnóstico: `product-run` fallaba con `access_control_live: no alcanzó
+  la infra en 120s`, que llevó por el camino equivocado (bump de timeout a 240s, que NO alcanzó); el repro
+  manual definitivo fue correr el proof `python3 -u` (sin buffer de stdout) contra un server recién
+  levantado — reveló que el fallo real era un `400` inesperado en `/importjobs`, no un timeout. Fix a nivel
+  PRODUCTO (renombrar el campo), no sustrato.
+- **2 fixes GENERALES de fábrica** (afectan cualquier producto ancho, DATA/umbral no semántica, byte-neutral
+  para productos angostos): `access_control_live` timeout 120s→240s (el check hace ~O(entidades) round-trips
+  HTTP secuenciales); `detekt LongMethod` en `appRoutes()` (la tabla de rutas generada, 1 línea por
+  GET/POST/PUT/verbo/restore/trash por entidad, superaba 60 líneas con 39 entidades — `@Suppress`
+  condicional, mismo idioma ya usado en `data_layer.py`); `perf_budget_gate` decorativo (el presupuesto de
+  bundle YA escalaba con `n_served`, pero el fixture NEGATIVO — blob de tamaño FIJO — no, así que dejó de
+  superar el presupuesto ensanchado; ahora escala igual). Incremento factory-level:
+  `FSK-ACCESS-CONTROL-LIVE-BUDGET`.
+- **verificado por bloqueo**: `grep -c "CREATE TABLE"` → **40/40** · `product-run --mode harden` PASS
+  end-to-end (s0..s11, 39 entidades) · `ci --rederive --all-products` **4/4 == pin** (sin regresión en
+  assets/helpdesk/default) · `meta pin --verify` → **12/12 proof_sha == pineado** · `meta check` verde
+  (tras actualizar `tests/test_benchmark.py` — el bound sintético de un test que ejercita la detección de
+  techo decorativo asumía snipeit ≤25 entidades; 39 lo rompió, test STALE no bug, snipeit sigue siendo el
+  techo de regresión REAL del benchmark sweet-spot, `entity_count: {min:5,max:8}`, sin tocar).
+- **queda pendiente** (mismo incremento, fases 3-4): instrumentar cobertura de línea real (Jacoco/Kover,
+  hoy 0%) + re-auditoría final actualizando `SNIPEIT-SPEC.md` con los 9 criterios re-verificados. Las 20
+  entidades nuevas son ANCHO barato por diseño — NO adoptan la profundidad real de Snipe-IT (custom fields
+  dinámicos, lógica de bundle de Kits, firma/EULA de CheckoutRequest, StatusLabel customizable a runtime
+  siguen todos diferidos, documentado en `SNIPEIT-DOMAIN.md §3`).
+  Detalle: `factories/full-stack-kotlin/products/snipeit/docs/work/SNIPEIT-MIN-COMPLIANCE-INCREMENT.md`.
 
 ## 2026-07-09T01:44Z — SNIPEIT-MIN-COMPLIANCE fase 1 ✅: `s6` activado por 1ra vez para un producto real — expone y cierra un gap real de fábrica
 - **gatillo**: el ingeniero pidió cerrar, «como sea», las 3 brechas reales declaradas por la auditoría

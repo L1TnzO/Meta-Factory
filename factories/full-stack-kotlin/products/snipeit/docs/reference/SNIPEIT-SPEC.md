@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5355b94b147e1fc0ec2328a9dab9fd70b7d92c25 updated=2026-07-09T01:43Z -->
+<!-- meta:doc sha=ed2032cc58fb01cecfd28f47dc13191b9527f963 updated=2026-07-09T03:20Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -28,7 +28,7 @@
 |---|---|---:|---:|:---:|---|
 | 1 | Casos de uso | 10 | **15** | ✅ PASA | §3 |
 | 2 | Funcionalidades / flujos de trabajo | 30 | **36** | ✅ PASA | §4 |
-| 3 | Tablas | 40 | **20** | ❌ **NO PASA** | §5 |
+| 3 | Tablas | 40 | **40** | ✅ PASA | §5 |
 | 4 | Endpoints API | 40 | **44** | ✅ PASA | §6 |
 | 5 | Pantallas (con evidencia) | 30 | **39 capturas reales** | ✅ PASA | §7 |
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
@@ -36,17 +36,19 @@
 | 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
 | 9 | Pruebas automatizadas, cobertura 100% | 100% | 23 unit/integration + 32 aserciones E2E + 8 gates estáticos; **sin % de línea medido** | ❌ **NO CUMPLE el criterio literal** | §11 |
 
-**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 1)**: el sistema PASA 7 de 9
-criterios con margen real, y falla o cumple parcialmente 2: el **modelo de datos es más chico** que el
-mínimo pedido (20 tablas físicas, no 40 — el dominio de Snipe-IT *real* tiene 53; la réplica adoptó 19
-entidades del núcleo, no el sistema completo, una decisión de alcance documentada desde el origen del
-producto, no un descuido — ver `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2 para el plan de cierre), y la
-**cobertura de línea no se mide** (el proyecto verifica por *contrato/artefacto re-derivable*, un paradigma
-distinto y deliberado — ver §11, fase 3 del mismo incremento la instrumenta). El **checklist de
-completitud** ya NO tiene gaps (REQ-F-007 se activó de verdad: `s6` genera lógica de dominio con `claude -p`
-vivo bajo contract test, RTM 27/27 re-derivado). Nada de esto se ocultó ni se maquilló: son las brechas
-reales, con su causa y su evidencia. §12 detalla además un **bug real encontrado durante esta auditoría**
-(violación de restricción `UNIQUE` no manejada con gracia — la conexión se cae en vez de devolver 409).
+**Lectura honesta (actualizada 2026-07-09, `SNIPEIT-MIN-COMPLIANCE` fase 2)**: el sistema PASA 8 de 9
+criterios con margen real, y cumple parcialmente 1: la **cobertura de línea no se mide** (el proyecto
+verifica por *contrato/artefacto re-derivable*, un paradigma distinto y deliberado — ver §11, fase 3 del
+mismo incremento la instrumenta). El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
+(19 entidades del núcleo operativo original + 20 entidades MÍNIMAS agregadas en la Fase 2, decisión
+explícita de diseño de priorizar ALCANZAR el número sobre profundidad de dominio — ver §5.3 y
+`SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2). El **checklist de completitud** ya NO tiene gaps (REQ-F-007
+se activó de verdad: `s6` genera lógica de dominio con `claude -p` vivo bajo contract test, RTM 27/27
+re-derivado). Nada de esto se ocultó ni se maquilló: son las brechas reales, con su causa y su evidencia.
+§12 detalla además 2 **bugs reales encontrados durante esta auditoría/expansión**: (a) violación de
+restricción `UNIQUE` no manejada con gracia — la conexión se cae en vez de devolver 409; (b) el codegen
+nombra la constante de valores-de-enum por NOMBRE DE CAMPO sin qualificar por entidad — dos entidades con
+un campo enum homónimo colisionan (fix aplicado a nivel producto, renombrando el campo).
 
 ---
 
@@ -227,11 +229,11 @@ catálogo de referencia; `auditor` es de solo-lectura por construcción (no apar
 
 ---
 
-## 5. Modelo de datos (mínimo 40 tablas → **20 reales — NO PASA**)
+## 5. Modelo de datos (mínimo 40 tablas → **40 reales — PASA**)
 
 ### 5.1 Conteo real
 ```
-grep -c "CREATE TABLE" src/main/resources/db/migration/V1__init.sql   →  20
+grep -c "CREATE TABLE" src/main/resources/db/migration/V1__init.sql   →  40
 ```
 
 | # | Tabla física | Entidad del contrato | Filas 2026-07-08 (post-seed de esta auditoría) |
@@ -256,6 +258,34 @@ grep -c "CREATE TABLE" src/main/resources/db/migration/V1__init.sql   →  20
 | 18 | `componentassignments` | ComponentAssignment | 1 |
 | 19 | `maintenances` | Maintenance | 1 |
 | 20 | `action_logs` | *(tabla de sistema, no declarada como entidad — bitácora `audited`)* | variable |
+| 21 | `permissiongroups` | PermissionGroup | — |
+| 22 | `customfieldsets` | CustomFieldset | — |
+| 23 | `customfields` | CustomField | — |
+| 24 | `kits` | Kit | — |
+| 25 | `checkoutrequests` | CheckoutRequest | — |
+| 26 | `settings` | Setting | — |
+| 27 | `importjobs` | ImportJob | — |
+| 28 | `statuslabels` | StatusLabel | — |
+| 29 | `countrys` | Country | — |
+| 30 | `groupusers` | GroupUser | 0 (pivot, sin nav propio) |
+| 31 | `customfieldsetfields` | CustomFieldsetField | 0 (pivot, sin nav propio) |
+| 32 | `kitmodels` | KitModel | 0 (pivot, sin nav propio) |
+| 33 | `kitaccessorys` | KitAccessory | 0 (pivot, sin nav propio) |
+| 34 | `kitconsumables` | KitConsumable | 0 (pivot, sin nav propio) |
+| 35 | `kitcomponents` | KitComponent | 0 (pivot, sin nav propio) |
+| 36 | `checkoutacceptances` | CheckoutAcceptance | 0 (pivot, sin nav propio) |
+| 37 | `companyusers` | CompanyUser | 0 (pivot, sin nav propio) |
+| 38 | `states` | State | — |
+| 39 | `jobtitles` | JobTitle | — |
+| 40 | `emailtemplates` | EmailTemplate | — |
+
+**Filas 21–40 (Fase 2, 2026-07-09)**: 20 entidades MÍNIMAS (2–4 campos, sin computed/workflow/polimorfismo/
+soft-delete/audited) agregadas para cerrar el eje de completitud de tablas — decisión EXPLÍCITA del dueño
+del producto de priorizar ALCANZAR el número sobre profundidad de dominio (ancho barato y honesto, no
+maquillado). Todas tienen CRUD vivo real (verificado por `access_control_live`, s9) pero el snapshot de
+filas «post-seed de esta auditoría» no se re-corrió para ellas (no hay una fila fija sembrada por el server
+vivo, a diferencia de las 19 originales) — «—» = no medido en este snapshot, no «no existe». Detalle
+completo (campos/refs) en `product.yml` y `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2.
 
 ### 5.2 Diagrama entidad-relación (simplificado — 51 relaciones reales, ver §8.2 para el listado completo)
 
@@ -293,13 +323,17 @@ cada FK vive en §8.2 como parte de las reglas de negocio de integridad referenc
 es el nodo de mayor conectividad (7 relaciones entrantes/salientes), consistente con ser la entidad central
 del dominio.
 
-### 5.3 Brecha frente al mínimo pedido
-20 < 40. **No es una omisión accidental**: el producto declaró desde su origen (`product.yml`, cabecera)
-que adopta el **núcleo operativo** de Snipe-IT (19 entidades de sus ~41 modelos reales), dejando fuera
-Kits, CheckoutRequest/Acceptance, CustomField/CustomFieldset dinámicos, StatusLabel customizable y la
-mayoría de las ~226 rutas de reporting/administración — cada uno listado como deferral honesto en
-`SNIPEIT-DOMAIN.md §3`. Cerrar esta brecha requiere **incrementos de producto nuevos** (adoptar más
-entidades del blueprint), no un cambio de la fábrica.
+### 5.3 Brecha frente al mínimo pedido — CERRADA (Fase 2, 2026-07-09)
+40 == 40. El producto originalmente declaraba (`product.yml`, cabecera) el **núcleo operativo** de
+Snipe-IT (19 entidades de sus ~41 modelos reales, 20 tablas con `action_logs`). La Fase 2 de
+`SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` agregó 20 entidades MÍNIMAS (filas 21-40 de §5.1) tomando nombres+forma
+de los deferrals ya cosechados en `SNIPEIT-DOMAIN.md §3` (PermissionGroup/Group, CustomField/CustomFieldset+
+pivot, Kit+4 pivots, CheckoutRequest/Acceptance, ImportJob, Setting, CompanyUser) más 3 lookups genuinos
+partidos de campos string existentes (Country/State/JobTitle). Es **ancho deliberadamente barato**, no una
+adopción profunda del dominio real de Snipe-IT (que sigue siendo ~53 tablas / 41 modelos / ~226 rutas —
+custom fields dinámicos, Kits con lógica de bundle, CheckoutRequest con firma/EULA real, StatusLabel
+customizable a runtime, y la mayoría de reporting/administración siguen sin la PROFUNDIDAD real, sólo el
+CRUD base). Esa profundidad, si se quiere, sigue siendo un incremento de producto aparte.
 
 ---
 
@@ -555,9 +589,8 @@ que la mayoría de las suites con cobertura no ofrecen.
 
 ## 12. Limitaciones y hallazgos honestos de esta auditoría
 
-1. **Modelo de datos por debajo del mínimo pedido** (§5.3): 20 tablas reales vs 40 pedidas. Causa: decisión
-   de alcance documentada desde el origen del producto (núcleo operativo de 19 entidades, no el sistema
-   Snipe-IT completo de ~41 modelos / 53 tablas).
+1. **Modelo de datos — CERRADO Fase 2 (§5.3)**: 40/40 tablas (era 20/40). Las 20 nuevas son ANCHO barato
+   por diseño (2-4 campos, sin profundidad de dominio) — no una adopción completa de Snipe-IT real.
 2. **Sin métrica de cobertura de línea** (§11.2): el proyecto verifica por contrato/artefacto, no por %.
 3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
    otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
@@ -575,6 +608,15 @@ que la mayoría de las suites con cobertura no ofrecen.
 5. **Custom fields dinámicos, Kits, CheckoutRequest/Acceptance, StatusLabel customizable**: deferrals
    declarados en `SNIPEIT-DOMAIN.md §3`, no re-auditados en detalle acá (ya documentados con su propia
    evidencia en ese documento).
+6. **Bug de fábrica encontrado durante la Fase 2 — constante de enum sin qualificar por entidad**: el
+   codegen nombra la constante Kotlin de valores válidos de un campo `enum` por su NOMBRE DE CAMPO
+   (`STATUS_VALUES`), no por `<Entidad>_<Campo>`. Dos entidades con un campo enum HOMÓNIMO (se probó con
+   `Asset.status` y un campo que se había nombrado `status` en `ImportJob`) colisionan: la 2ª declaración
+   pisa/coincide con la 1ª y la 2ª entidad queda validada contra el set de valores AJENO → un valor legítimo
+   se rechaza con `400`. Reproducido y diagnosticado en vivo (`access_control_check.py` en bucle sin buffer,
+   `python3 -u`). Fix aplicado a nivel PRODUCTO (renombrar el campo a `import_status`, sin tocar el
+   sustrato) — cerrar esto a nivel FÁBRICA (qualificar la constante por entidad) queda como mejora futura,
+   no bloqueante mientras no se repita.
 
 ---
 

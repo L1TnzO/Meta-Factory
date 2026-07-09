@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4044f0a145897721ee5210bd4531249f7961550c updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=6fce892872007708ccd25fd95bb8f4a881bc9a35 updated=2026-07-09T03:21Z -->
 # Snipe-IT — dominio cosechado y mapeo a la gramática FSK
 
 > tipo: reference · estable · justifica el blueprint `products/snipeit/product.yml`.
@@ -255,9 +255,11 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
    superflags × self.*) se aproxima con 4 roles fijos. Se pierde granularidad (p.ej. checkout sin edit) y el
    auto-servicio. Aceptado: una política tratable, co-validada (ADR-014), distinta de la del demo.
 
-10. **StatusLabel como entidad customizable** [SIMPLIF]. Snipe-IT externaliza las etiquetas (admin define
-    labels custom mapeadas a 4 tipos). Se modeló el CICLO como enum-workflow sobre Asset (la primitiva FSK más
-    fuerte aquí). La customización de etiquetas se difiere.
+10. **StatusLabel como entidad customizable** [SIMPLIF]. **Tabla ✓ ADOPTADA-FINA (Fase 2, 2026-07-09,
+    SNIPEIT-MIN-COMPLIANCE)**: `StatusLabel` existe como entidad CRUD real (`name` + `status_type` enum), pero
+    es ANCHO barato — no reemplaza el ciclo enum-workflow de `Asset.status` (que sigue siendo la primitiva
+    VIVA que gobierna transiciones); no hay vínculo StatusLabel↔Asset ni customización a runtime. Snipe-IT
+    externaliza las etiquetas de verdad (admin define labels custom mapeadas a 4 tipos) — eso SIGUE diferido.
 
 11. **Verbos de operación** (checkout/checkin/audit/request/clone/bulk/import). **checkout/checkin ✓ HECHO
     (FSK-DOMAIN-OPS, 2026-06-22)**: `Asset` declara `operations: [checkout, checkin]` y el server vivo expone
@@ -271,9 +273,19 @@ especulados. Los marcados **[SIMPLIF]** son simplificaciones de dominio aceptada
 12. ~~**soft-deletes** (`deleted_at`)~~ **✓ HECHO** (FSK-SOFT-DELETES, 2026-06-23): `Asset.soft_delete: true` →
     DELETE lógico (papelera) + `restore` + read-filter `IS NULL` + índice único PARCIAL (reusar `asset_tag` tras
     borrar). Faithful: Snipe-IT NUNCA hard-deletea (Laravel SoftDeletes). **Diferidos menores restantes** [SIMPLIF]:
-    Actionlog (auditoría polimórfica), Kits (bundles), CheckoutRequest/Acceptance (solicitudes/firma), campos
-    operativos (counters, image, timestamps, ldap, 2FA, password — no-dominio), y la mayoría de las ~226 rutas (el
-    blueprint genera el contrato CRUD + el server de control de acceso; el resto de la superficie es breadth posterior).
+    Kits (**tablas ✓ ADOPTADAS-FINAS Fase 2**: `Kit`+`KitModel`/`KitAccessory`/`KitConsumable`/`KitComponent`
+    existen como CRUD real, pero SIN la lógica de bundle — checkout de un Kit no propaga a sus ítems),
+    CheckoutRequest/Acceptance (**tablas ✓ ADOPTADAS-FINAS Fase 2**: existen como CRUD real, pero SIN firma/EULA
+    real ni verbo de aprobación que las conecte a un Asset), campos operativos (counters, image, timestamps,
+    ldap, 2FA, password — no-dominio), y la mayoría de las ~226 rutas (el blueprint genera el contrato CRUD + el
+    server de control de acceso; el resto de la superficie es breadth posterior). Custom fields dinámicos
+    (**tabla ✓ ADOPTADA-FINA Fase 2**: `CustomField`+`CustomFieldset`+pivot existen como CRUD real, pero el EAV
+    dinámico-a-runtime sigue diferido, Avenue B) y Setting/CompanyUser/ImportJob/Group→PermissionGroup/
+    Country/State/JobTitle/EmailTemplate ídem (tablas ✓, sin la lógica de negocio real detrás — ver
+    `SNIPEIT-SPEC.md §5.3` + `docs/work/SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2 para el detalle completo +
+    el gap NUEVO de fábrica que salió a la luz al ensanchar: `codegen/scaffold/server.py` nombra la constante de
+    valores-de-enum por NOMBRE DE CAMPO sin qualificar por entidad → dos entidades con un enum homónimo
+    colisionan (fix a nivel producto: renombrar el campo; el fix de fábrica queda pendiente, no bloqueante).
 
 ---
 

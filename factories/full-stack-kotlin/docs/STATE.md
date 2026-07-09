@@ -1,8 +1,8 @@
-<!-- meta:doc sha=7bb62224cd10b625afe1fa04c73c7405d0a019b0 updated=2026-07-09T20:17Z -->
+<!-- meta:doc sha=b81bd8fa2397c9661ec40dc492f8a7d3efdab0d0 updated=2026-07-09T20:21Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-09T20:20Z): re-sellado tras el cierre de FSK-COVERAGE-INSTRUMENT.
+> Freshness (2026-07-09T20:21Z): re-sellado post-cierre de FSK-COVERAGE-INSTRUMENT (increment CERRADO).
 
 ## Ahora
 - **FSK-COVERAGE-INSTRUMENT (2026-07-09)** ✅ CERRADO — cobertura de línea REAL (Jacoco) como capacidad de

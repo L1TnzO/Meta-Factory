@@ -1,7 +1,8 @@
-<!-- meta:doc sha=1cf5303634d0f2d9729d4c8cd34802d2d11633e4 updated=2026-07-09T03:26Z -->
+<!-- meta:doc sha=193ee948f0bf5782c77afb24f5fa4d558d5cf677 updated=2026-07-09T03:28Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
+> Freshness (2026-07-09T03:29Z): re-sellado tras el cierre de FSK-ACCESS-CONTROL-LIVE-BUDGET.
 
 ## Ahora
 - **FSK-ACCESS-CONTROL-LIVE-BUDGET (2026-07-09)** ✅ CERRADO — 3 fixes GENERALES surgidos al ensanchar

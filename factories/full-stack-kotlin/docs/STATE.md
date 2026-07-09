@@ -1,8 +1,8 @@
-<!-- meta:doc sha=e8c51e88ec89d3d1aef28ed1c514137bb1bf866f updated=2026-07-09T22:50Z -->
+<!-- meta:doc sha=437d8922949d8424201d360e08b5ba857ea72fad updated=2026-07-09T22:57Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-09T20:26Z): re-sellado tras el episodio de LOG.md (FSK-COVERAGE-INSTRUMENT).
+> Freshness (2026-07-09T22:57Z): re-sellado tras el cierre de FSK-REQREF-COVERAGE.
 
 ## Ahora
 - **FSK-REQREF-COVERAGE (2026-07-09)** ✅ CERRADO — cierra el residual declarado por `FSK-COVERAGE-INSTRUMENT`

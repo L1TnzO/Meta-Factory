@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `18b8f51ad55b` | 2026-07-09T03:22Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `e766bb1d013d` | 2026-07-09T04:36Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `bf732ffc1c17` | 2026-07-09T20:20Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -93,7 +93,7 @@
 | `docs/work/FACTORY-DELEGATION-TEETH-INCREMENT.md` | `e6e66c077da4` | 2026-06-26T23:45Z | Incremento FACTORY-DELEGATION-TEETH (escindido de HARNESS-DECOUPLE Fases 3–4) |
 | `docs/work/FACTORY-DOC-MIGRATE-INCREMENT.md` | `e04114442b5f` | 2026-06-27T02:29Z | Incremento FACTORY-DOC-MIGRATE |
 | `docs/work/FACTORY-DOC-SEAL-INCREMENT.md` | `709e723a4c9a` | 2026-06-27T02:04Z | Incremento FACTORY-DOC-SEAL |
-| `docs/work/FSK-COVERAGE-INSTRUMENT-INCREMENT.md` | `3fe6e3c41f38` | 2026-07-09T13:38Z | Incremento FSK-COVERAGE-INSTRUMENT |
+| `docs/work/FSK-COVERAGE-INSTRUMENT-INCREMENT.md` | `8c843891d20e` | 2026-07-09T20:20Z | Incremento FSK-COVERAGE-INSTRUMENT |
 | `docs/work/FULLSTACK-KOTLIN-INCREMENT.md` | `db85f795d7fc` | 2026-07-04T20:10Z | Incremento — Full-Stack Kotlin/TS/PG Factory (DISEÑO) |
 | `docs/work/G1-IMPROVE-LOOP-INCREMENT.md` | `e6e52dd5cf43` | 2026-06-18T02:42Z | Incremento G1-IMPROVE-LOOP |
 | `docs/work/G2-SCENARIO-CORPUS-INCREMENT.md` | `86e82c0eddce` | 2026-06-18T16:33Z | Incremento G2-SCENARIO-CORPUS |

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=35885656291c2ad980f020550af4706abd537684 updated=2026-07-09T20:17Z -->
+<!-- meta:doc sha=43597732596a719cbceea4df7117e745850c980e updated=2026-07-09T20:19Z -->
 # Incremento SNIPEIT-MIN-COMPLIANCE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-08T22:27Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-09T20:19Z) (creado 2026-07-08T22:27Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

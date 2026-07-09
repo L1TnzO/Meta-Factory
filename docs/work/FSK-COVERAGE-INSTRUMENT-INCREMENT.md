@@ -1,7 +1,7 @@
-<!-- meta:doc sha=3fe6e3c41f38e34a3c52696aa1b0d0544449e60a updated=2026-07-09T13:38Z -->
+<!-- meta:doc sha=8c843891d20e81a6ccc1c6e5c62e4ed1a9051fc3 updated=2026-07-09T20:20Z -->
 # Incremento FSK-COVERAGE-INSTRUMENT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-09T04:36Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-09T20:20Z) (creado 2026-07-09T04:36Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

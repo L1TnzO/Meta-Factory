@@ -1,4 +1,4 @@
-<!-- meta:doc sha=866f1b5664c5ae0bacbfb665bd856bb9d2a07dbf updated=2026-07-04T16:45Z -->
+<!-- meta:doc sha=6b5a9d545ddd94907a7cf7be41b3b1581105025e updated=2026-07-10T14:44Z -->
 # COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución
 
 > tipo: reference (estable) · creado: 2026-07-04T03:45Z · sesión S1 (Fable 5, pedido explícito del
@@ -298,7 +298,7 @@ no visto). H-4/H-5 son mantenimiento barato de columna/pipeline; H-8 se anexa al
    PROMOVIDA: wall-clock por sesión en `meta outcome` pasa de «gratis, algún día» a observer #1
    pendiente (los timestamps ya existen; es una resta).
 3. **Lo que NO cambia**: el ruteo S1/S2/S3, kill-don't-idle y el dial optimizan cupo exactamente igual
-   que $; la línea 0-modelo sigue siendo la palanca #1 (cupo 0). La doctrina de cache pierde urgencia
+   que $; la línea 0-modelo (re-verificación de pins, ADR-023) sigue siendo la palanca #1 (cupo 0). La doctrina de cache pierde urgencia
    de dólar y conserva la de cupo/latencia.
 
 ### §6.1 · El vigía de la muerte #1 de MDA — instalado CON DATOS (medido 2026-07-04)
@@ -360,6 +360,7 @@ cambia es su ESTADO y su forma:
 | `docs/reference/` | **VIVO y consolidado**: COUNCIL+MAP = casa de auditoría; los históricos (REGEN-AUDIT, MAT-6, F1) quedan como evidencia fechada; +THREAT-MODEL honesto (D-7, una sección) |
 | Evidencia nueva | tasa de escape (E4) + veredicto control-group (E1+D-8) + horas-humano en outcome — los tres JUECES por fin en el árbol |
 
-Día-a-día resultante: el ingeniero toca meta+FSK+iot; los productos salen por la línea 0-modelo; los
-ejes nuevos nacen como slots S2; la auditoría vive en UN doc; y todo lo demás sigue verificable sin
+Día-a-día resultante: el ingeniero toca meta+FSK+iot; los productos-template pineados se RE-verifican por
+la línea 0-modelo; la generación nueva (superficies, ejes) nace como slots S2 model-nativos (ADR-023); la
+auditoría vive en UN doc; y todo lo demás sigue verificable sin
 costo de atención — que era el cuello real (Silla 8).

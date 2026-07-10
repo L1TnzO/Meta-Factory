@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e7a2a2a9b1cd8a641a4d4ee20467b3cc3f379e55 updated=2026-07-10T02:18Z -->
+<!-- meta:doc sha=441894de2ac3ba7c272807eb5eae71742b6252b2 updated=2026-07-10T14:47Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -21,8 +21,11 @@
   A/B gana B (~370k tok Sonnet); el residuo lo cerró el diente `fields` (6º eje design-floor). `ADR-024`:
   superficie = **override pineado** (`products/<p>/frontend/app.{ts,css}`, copiada-no-emitida vía
   `frontend_surface: model-native`) verificada por `design_floor` opt-in, SIN re-pinear los productos-template.
-  META lista: **`CHECK-WHEN-GUARD` ✅** (guard por-check `when:` byte-neutral, `runner._check_active`). Sigue:
-  `FSK-MODELGEN-DURABLE` (s9+copy) → snipe-it. → `decisions/023`·`024` · `work/CHECK-WHEN-GUARD` · LOG.
+  META lista: **`CHECK-WHEN-GUARD` ✅**; **`FSK-MODELGEN-DURABLE` ✅ + `FSK-SNIPEIT-MODELGEN` ✅** (2026-07-08,
+  1ª adopción durable). Barrido de vestigios 2026-07-10 (reglas vivas + refs + skill al paradigma; cerebro =
+  **Fable 5**, reemplaza a Opus en todo ruteo). Sigue: `CODEGEN-FREEZE-TOOTH` (el freeze es prosa sin sombra,
+  I-12 — y ya se tocó codegen/ sin waiver, zona gris legislable) · adopción `helpdesk` · F1/ASF model-nativo.
+  → `decisions/023`·`024` · LOG.
 - **⚖️ `COUNCIL-EXEC` — EJECUTANDO el diseño COUNCIL-360 §6.4 (2026-07-04, ADR-022).** Camino B en vigor:
   sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** (declarado en su STATE) · dummy =
   fixture del pin. HECHO hoy: **H-1 REAL** (segundo actor VERDE: Actions run 28717567792; `--skip` explícito
@@ -35,12 +38,8 @@
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-por-medición. Corrida S2 medida: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% aún rojo; ahora ES un número del CLI — `OUTCOME-JUDGES`). Biblia:
   `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
-- **✅ `DELEGATION-ACTIVATION` (2026-06-27, ADR-020)** — harness verificar-no-revisar ENCENDIDO·MEDIDO·
-  PROPAGADO·HIGIENIZADO (rol-no-dominio, diente `roles`). Detalle: `LOG.md` + su work-doc.
-- **📉 `DELEG-PAYOFF-MEASURE` ✅ (2026-07-02)** — payoff MEDIDO (fundó `COST-DOWN`): la delegación sólo paga
-  con gates rápidos + verificación hermética + slots cortos. Detalle: `LOG.md` + su work-doc.
-- **🧭 RE-DIRECCIÓN SOTA (ADR-017) — fases + residuales TODOS cerrados.** Grafo + harness + gates CONSTRUIDOS;
-  dial draft→harden ADOPTADO (FSK). Detalle: `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` + `LOG.md`.
+- **🧭 RE-DIRECCIÓN SOTA (ADR-017→020) — TODO cerrado.** Grafo + gates + harness verificar-no-revisar
+  ENCENDIDO (ADR-020) + payoff MEDIDO (`DELEG-PAYOFF`); dial ADOPTADO (FSK). Detalle: work-docs + `LOG.md`.
 - **🧠 MEMORIA v2 (ADR-019) — COMPLETA (M1–M6 ✅; pendiente: medición del umbral §6).** Podar antes de agregar;
   tres memorias single-source (`docs/`=hechos · CLAUDE.md=reglas · note-store=relación),
   `reference/MEMORY-ARCHITECTURE.md §8.2`. Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.

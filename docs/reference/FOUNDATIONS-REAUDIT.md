@@ -1,4 +1,4 @@
-<!-- meta:doc sha=448ce868a11c72ec27ff7c452a4c81c12572db41 updated=2026-07-04T20:10Z -->
+<!-- meta:doc sha=43c8bdd444f1fac042eefc2339fd617ee5a3f21f updated=2026-07-10T14:44Z -->
 # FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida
 
 > tipo: reference (estable) · creado: 2026-07-04T02:58Z
@@ -37,7 +37,7 @@
 | --- | --- | --- |
 | SAFE-1..8 (prueba-por-bloqueo, re-derivación, slots acotados, sombra determinista, honestidad) | **SOSTENIDO** | 5 fábricas re-derivan `== pin`; falso-verde imposible por construcción; los N/A-por-medición SON SAFE-7 operando |
 | Punto fijo (VISION §3) + ADR-006 (ASF como producto) | **COBRADO, con matiz** | F1 (2026-06-16, `F1-AUDIT-REGEN-VS-LEGACY.md`): la regenerada gana en GOBIERNO y prueba-por-unidad; la legacy gana en AMPLITUD hoy. El gap restante es CONTENIDO (backlog incremental), no fundación |
-| ADR-011 (100% generado) + ADR-012 (primitivas-no-herramientas) | **SOSTENIDO, portante** | helpdesk first-try con 0 incrementos nuevos; línea día-a-día 0-modelo (palanca #1 del runbook ADR-021) |
+| ADR-011 (100% generado) + ADR-012 (primitivas-no-herramientas) | **SOSTENIDO, portante — con matiz ADR-023** | helpdesk first-try con 0 incrementos nuevos; línea día-a-día 0-modelo (palanca #1 del runbook ADR-021) — «generado» ahora INCLUYE model-nativo-pineado; 0-modelo = re-verificación, no generación nueva (ADR-023 §4) |
 | ADR-004 / CONTEXT-ECONOMY (bus de veredictos, ley de colocación) | **Necesario pero INSUFICIENTE → completado** | evitó dumps, pero la RESIDENCIA domina el costo (89% Opus delegando 159k tok) → ADR-021 (ruteo por sesión) lo completa por medición, no lo refuta |
 | VISION §4 «Opus rara vez deriva a Sonnet» | **Cerrado por OTRO mecanismo** | tardó ADR-020+021; el mecanismo real (sesiones S1/S2/S3) ≠ el imaginado (derivación intra-sesión) — la física del cache decidió |
 | Generalidad (ADR-012/014, espina SDD ADR-003) | **Sostenido con RECORTE medido** | Snipe-IT costó 17 ADOPTs → re-aim al sweet-spot 5-entidades (`benchmarks/sweet-spot-crud.yml`); el fundamento sobrevivió achicando su claim |
@@ -50,7 +50,8 @@ simplificar» se ejecutó PARCIALMENTE varias veces — la única forma creíble
 ## 3. La apuesta del ingeniero (humano en el spec; construcción máximamente automatizada)
 
 No es dirección nueva: ES VISION §4 + ADR-011, y ya es VERDAD en el régimen cubierto (línea de producto
-0-modelo; helpdesk first-try). El residuo real, y dónde se empuja:
+0-modelo para RE-verificar — la generación nueva es model-nativa gateada, ADR-023; helpdesk first-try).
+El residuo real, y dónde se empuja:
 - **Extender fábricas** (ejes nuevos) = juicio S1 — COST-DOWN lo abarata (S2 Sonnet ejecuta lo
   diseñado), no lo elimina.
 - **Corrección semántica** (§5.2) no se elimina — **se muda al SPEC**: vocabulario más expresivo +

@@ -41,6 +41,11 @@ full-stack-kotlin (criterios duros). **Leé el YAML antes de mapear** — es la 
    IoT → DES-3 vía secure-boot). Declarala en una `capability` con `{primitive, tech, invariant, proof,
    status}`. La elección es revisable (queda en el spec), no determinista. Mirá `example_techs` del catálogo
    como disparador, no como lista cerrada.
+   **Pregunta OBLIGADA antes de construir NADA bespoke (ADR-023 §2):** ¿qué pieza ya validó la COMUNIDAD con
+   miles de horas-ingeniero (framework, design-system, librería)? Si existe, la spec la FIJA como DATO
+   (`tech:`) y los slots model-nativos la CONSUMEN; re-hacer determinista lo que debió ser modelo-fundacional
+   + piezas-de-otros-ingenieros es el anti-patrón que ADR-023 entierra (el pseudo-framework). La respuesta
+   queda ESCRITA en la capability (`tech` + `invariant`), no en tu cabeza.
 4. **Cerrar el diseño con stations + requisitos.** Convertí las capacidades en una línea `station_sequence`
    (con `depends_on` y `proof_checks` que declaran `runs_in: product_env` + `toolchain`), y atá los
    requisitos con `satisfied_by` (estaciones) y `verified_by` (proof_checks reales).

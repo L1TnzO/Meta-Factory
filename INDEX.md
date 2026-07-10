@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `3f6bb03950d8` | 2026-07-10T02:18Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `e7a2a2a9b1cd` | 2026-07-10T02:18Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `1457bef36da5` | 2026-07-10T14:45Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `441894de2ac3` | 2026-07-10T14:47Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -32,16 +32,16 @@
 | `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `d2cd545724bb` | 2026-07-04T20:10Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
 | `docs/decisions/023-generacion-model-nativa-y-piezas-de-comunidad.md` | `5072cdeb8989` | 2026-07-08T02:05Z | ADR-023 — Generación model-nativa + piezas de comunidad: la fábrica es la spec y el perfil de verificación; el codegen de templates se congela |
 | `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
-| `docs/reference/ARCHITECTURE-MAP.md` | `70b5f4217ccb` | 2026-07-04T19:54Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
+| `docs/reference/ARCHITECTURE-MAP.md` | `bf14e934cced` | 2026-07-10T14:44Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `f33e14885e42` | 2026-07-04T20:10Z | ASF — pin de provenance de la referencia congelada |
 | `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
-| `docs/reference/COUNCIL-360-AUDIT.md` | `866f1b5664c5` | 2026-07-04T16:45Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
+| `docs/reference/COUNCIL-360-AUDIT.md` | `6b5a9d545ddd` | 2026-07-10T14:44Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/FOUNDATIONS-REAUDIT.md` | `448ce868a11c` | 2026-07-04T20:10Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
+| `docs/reference/FOUNDATIONS-REAUDIT.md` | `43c8bdd444f1` | 2026-07-10T14:44Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `cd6b54876f2d` | 2026-07-04T20:10Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
-| `docs/reference/HONEST-STATE.md` | `2ca5246e17f3` | 2026-06-26T21:22Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
+| `docs/reference/HONEST-STATE.md` | `a07096702e22` | 2026-07-10T14:44Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
@@ -133,7 +133,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
-| `docs/work/ROADMAP.md` | `b880bc3e8eb2` | 2026-07-02T17:52Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
+| `docs/work/ROADMAP.md` | `ebeaf19fb0d9` | 2026-07-10T14:43Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/S6-INSTANCE-PIN-GITIGNORE-INCREMENT.md` | `bb00e5b846c0` | 2026-07-09T01:27Z | Incremento S6-INSTANCE-PIN-GITIGNORE |
 | `docs/work/SESSION-CLASS-AS-DATA-INCREMENT.md` | `c732251674b2` | 2026-07-04T20:10Z | Incremento SESSION-CLASS-AS-DATA |
@@ -141,4 +141,4 @@
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `714506de0e11` | 2026-07-04T03:09Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `27bf97e0330f` | 2026-07-10T14:42Z | Meta-Factory — orientación (fase de diseño) |

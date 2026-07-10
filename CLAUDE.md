@@ -1,4 +1,4 @@
-<!-- meta:doc sha=714506de0e112c087db64e8bcf99f700bd168854 updated=2026-07-04T03:09Z -->
+<!-- meta:doc sha=27bf97e0330f1afe4d625f5d108ee22f6103b477 updated=2026-07-10T14:42Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -21,8 +21,19 @@ dummy-fábrica producido en `factories/dummy/`. Los 8 criterios de cierre pasan 
 
 **RE-DIRECCIÓN SOTA (2026-06-25, ADR-017).** Tras auditoría profunda: el motor FUNCIONA; falta la capa de
 DIRECCIÓN. Próximo norte = un **grafo de proyecto content-addressed** (navegación + delegación + handoff +
-alcance-de-verificación en UNA pieza) + **delegación "verificar-no-revisar"** (Opus cerebro · Sonnet genera ·
+alcance-de-verificación en UNA pieza) + **delegación "verificar-no-revisar"** (Fable 5 cerebro · Sonnet genera ·
 Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
+
+**MODEL-FIRST + COMUNIDAD (2026-07-08, ADR-023/024) — paradigma de GENERACIÓN vigente.** El codegen determinista
+de templates (el pseudo-framework) tocó su techo medido y quedó **CONGELADO-con-pin** (ADR-023 §3): alimentarlo de
+nuevo = acto deliberado con waiver ESCRITO en el work-doc (motivo + cita; diente pendiente `CODEGEN-FREEZE-TOOTH`).
+Fábrica = gramática de spec + **perfil de verificación** + memoria documental; lo NUEVO nace **model-nativo bajo el
+harness** — probabilismo CONTROLADO: slot acotado (`generate-slot`) + gates deciden + veredicto + artefacto
+**PINEADO** que se re-VERIFICA, no se re-deriva (ADR-024: override `products/<p>/frontend/app.{ts,css}` +
+`frontend_surface: model-native` + `design_floor`; `snipeit` = 1ª adopción durable). En fase de spec, pregunta
+OBLIGADA antes de construir: **«¿qué pieza ya validó la comunidad?»** (frameworks/design-systems/librerías se
+fijan como DATO en la spec — ADR-023 §2, skill `design-primitives` paso 3). «0-modelo» = SOLO re-verificación
+(pins/checks/ci), NUNCA la generación nueva.
 
 ## Reglas de esta fase
 - **NO tocar `../Agent_Systems_Factory/` (ASF)**: es referencia CONGELADA de cosecha y paridad
@@ -54,9 +65,9 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
   código acotado con gate determinista** (typecheck·compile·tests·PBT·static), ruteálo vía el skill
   `generate-slot` al `generator` (Sonnet) y aceptá/rechazá por el **VEREDICTO**, no por el diff. Las **lecturas
   masivas** (logs, árboles generados, specs largas, el monolito) van al `verifier`/`Explore` (Haiku) que
-  devuelve un digest. Mantené el contexto de Opus **CHICO**: no generes bulk ni cargues artefactos grandes en
-  el hilo principal (el cache-read de Opus DOMINA el costo — aislar el bulk es la palanca #1). El default es
-  delegar; el juicio caro (Opus) se gasta en diseñar el contrato, decidir el alcance y revisar el residuo
+  devuelve un digest. Mantené el contexto del cerebro (Fable 5) **CHICO**: no generes bulk ni cargues artefactos
+  grandes en el hilo principal (el cache-read del cerebro DOMINA el costo — aislar el bulk es la palanca #1). El
+  default es delegar; el juicio caro (Fable 5) se gasta en diseñar el contrato, decidir el alcance y revisar el residuo
   irreducible. **Cuándo NO delegar (honesto):** codegen secuencial con dependencias fuertes (el multi-agente
   usa ~15× tokens — sin paralelismo real es más caro), y la **COLUMNA** (hooks, `seed/`, `delegation.py`,
   settings, agents) que es trust-chain → se escribe y revisa con ojos propios (SELF-IMPROVEMENT §3). Para
@@ -74,15 +85,16 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
   built-in `Explore` (búsqueda fan-out) — son complementarios, por eso se mantiene (ADR-020 §D1).
 - **Runbook de costos — ruteo por SESIÓN, no se re-decide en cada prompt (2026-07-02, ADR-021)**: el modelo de
   cada sesión/turno es un parámetro de **PRECIO**, no de seguridad — la correctitud la dan los GATES + la
-  COLUMNA revisada con ojos propios, NO el IQ del ejecutor. El juicio caro (Opus) se gasta SOLO donde no hay
-  gate: contratos, alcance, residuo irreducible, columna. Ruteá por clase de tarea:
+  COLUMNA revisada con ojos propios, NO el IQ del ejecutor. El juicio caro (**Fable 5** — reemplaza a Opus en
+  TODO ruteo desde 2026-07-10, pedido del ingeniero) se gasta SOLO donde no hay gate: contratos, alcance,
+  residuo irreducible, columna. Ruteá por clase de tarea:
 
   | Clase | Modelo · sesión | Cuándo |
   | --- | --- | --- |
-  | **S1 DISEÑO** | Opus, thinking alto, sesión CORTA (matá antes de ~100k ctx) | contratos, alcance, ADRs, la columna (trust-chain) |
+  | **S1 DISEÑO** | Fable 5, thinking alto, sesión CORTA (matá antes de ~100k ctx) | contratos, alcance, ADRs, la columna (trust-chain) |
   | **S2 EJECUCIÓN** | **Sonnet** (`claude --model sonnet --agent orchestrator`) | ejecutar un INC ya diseñado → commits + veredictos; rojo-persistente/seguridad/ambigüedad → archivo de escalación, NUNCA «pensar más fuerte» |
-  | **S3 CIERRE** | Opus, sesión muy corta | leer `meta outcome`/veredictos/escalaciones, revisar residuo, cerrar, handoff |
-  | **DÍA-A-DÍA** | shell directo o Sonnet — **NUNCA Opus** | producto-desde-spec-existente (la línea de fábrica es 0-modelo; palanca #1 en $/mes, costo 0) |
+  | **S3 CIERRE** | Fable 5, sesión muy corta | leer `meta outcome`/veredictos/escalaciones, revisar residuo, cerrar, handoff |
+  | **DÍA-A-DÍA** | shell directo o Sonnet — **NUNCA el cerebro** | re-verificar pins/checks/ci y productos-template congelados (0-modelo, costo 0 — palanca #1 en $/mes); la generación NUEVA no es 0-modelo: va por slots gateados (ADR-023) |
 
   Reglas sin knob, SIEMPRE activas (no requieren nada de la API): (a) **kill-don't-idle** — hueco al FINAL →
   matá la sesión; rehidratar cuesta ~500 tok, nunca la dejes abierta «por las dudas». (b) **keep-warm** —

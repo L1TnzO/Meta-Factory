@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2ca5246e17f3a3fc47320a714a0d249e88353af2 updated=2026-06-26T21:22Z -->
+<!-- meta:doc sha=a07096702e22400cdf3465d77cfd71d41a58f32a updated=2026-07-10T14:44Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -87,6 +87,19 @@ Reiniciá la sesión ANTES de seguir, para que los hooks estén vivos. Commiteá
 que yo no hice — por eso lo escribo acá, no en prosa optimista.
 
 ## 7. Residuales declarados (memoria v2)
+- **Freeze del codegen SIN diente + alcance sin legislar (2026-07-10, auditoría de vestigios).** ADR-023 §3
+  congela `codegen/scaffold/` («alimentarlo = acto deliberado con waiver escrito») pero la prohibición NO
+  tiene sombra determinista (viola I-12) y YA fue perforada sin waiver: `FSK-COVERAGE-FULL[-100]` (commits
+  5b96696·43f295d) tocó 6 módulos de `codegen/scaffold/` sin mencionar el freeze. Zona gris honesta: fue
+  tráfico de VERIFICACIÓN emitido (proofs/tests — perfil de verificación, parte VIVA por ADR-023 §1), no
+  superficie humana — pero ese alcance nadie lo legisló. Trigger de cierre: increment `CODEGEN-FREEZE-TOOTH`
+  (check two-sided: diff en `factories/*/codegen/**` sin waiver declarado → ROJO; waiver sin diff → ROJO;
+  el diente ESCRIBE la frontera verificación-vs-superficie). Mientras tanto la regla vive en CLAUDE.md
+  (meta + template + FSK + iot) — prosa, sin diente.
+- **Agents de fábrica aún `model: opus` (2026-07-10).** El swap a Fable 5 (pedido del ingeniero) aterrizó en
+  runbook + agents META (`orchestrator`/`reviewer` → `model: fable`); los de fábrica son EMITIDOS
+  (`delegation_brain.py` + m07) — editarlos a mano = drift clobbereable. Trigger: increment del swap en el
+  emisor + re-emit de las fábricas vivas.
 - **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
   como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
   aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,

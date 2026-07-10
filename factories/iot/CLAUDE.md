@@ -15,7 +15,7 @@
   veredictos (≤N líneas), nunca el dump de tests.
 - **Dos verificadores**: la custodia local no es la raíz de confianza; la re-derivación en runner limpio
   lo es (`seed/external_ci.yml` + el veredicto pineado).
-- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Opus). Un
+- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Fable 5). Un
   **slot de código acotado con gate** (compile·tests·static) se rutea vía el skill `generate-slot` al `writer`
   (Sonnet) y se acepta/rechaza por el VEREDICTO, no por el diff; las **lecturas masivas** (logs, árboles, specs)
   van al `triage` (Haiku). Mantené el contexto del orquestador CHICO. Para un build pesado: `claude --agent
@@ -25,6 +25,11 @@
 - **Multi-archivo por mantenibilidad**: el código nuevo (codegen y artefactos generados) se parte en archivos
   cohesivos, no en un monolito; no agregues archivos NUEVOS de miles de líneas (si uno tiende a ~800+, partilo).
   Los monolitos existentes son deuda conocida — no reescribir salvo pedido.
+- **Generación model-nativa (ADR-023/024)**: el codegen de templates está CONGELADO-con-pin — NO lo alimentes
+  (tocar `codegen/` exige waiver escrito en el work-doc, ADR-023 §3); superficies/ejes nuevos nacen como slots
+  gateados (`generate-slot`) con piezas de COMUNIDAD fijadas como DATO en la spec (ADR-023 §2); una superficie
+  humana adoptada es un override PINEADO (`products/<p>/frontend/`, `frontend_surface: model-native`) que se
+  re-VERIFICA (`design_floor`), no se re-deriva.
 
 ## Colocación (dónde va cada pieza)
 CLI si debe ser garantizado · hook si debe impedirse aunque el modelo se porte mal · acá si influye cada

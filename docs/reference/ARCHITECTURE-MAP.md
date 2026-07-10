@@ -1,4 +1,4 @@
-<!-- meta:doc sha=70b5f4217ccbd4287efbc8b81f885e4e3252ab4f updated=2026-07-04T19:54Z -->
+<!-- meta:doc sha=bf14e934ccedb3a29246c683085e2fd15d52a60b updated=2026-07-10T14:44Z -->
 # ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04)
 
 > tipo: reference (estable) · creado: 2026-07-04 (sesión Fable 5, pedido del ingeniero: «mapear la
@@ -46,9 +46,9 @@ flowchart TD
 - Los CLAUDE.md de fábrica son **medio-vivos**: la plataforma los adjunta al leer archivos del
   subárbol. El harness `.claude/` POR-fábrica emitido está **dormido** (esqueleto de export, no
   operativo) — nadie lanza `claude` dentro de una fábrica.
-- **Ruteo por SESIÓN (ADR-021, precio no seguridad):** S1 diseño = Opus/Fable corto · S2 ejecución =
-  `claude --model sonnet --agent orchestrator` · S3 cierre = Opus muy corto · día-a-día
-  producto-desde-spec = shell directo (la línea es 0-modelo).
+- **Ruteo por SESIÓN (ADR-021, precio no seguridad):** S1 diseño = Fable 5 corto · S2 ejecución =
+  `claude --model sonnet --agent orchestrator` · S3 cierre = Fable 5 muy corto · día-a-día
+  re-verificación/pins = shell directo (0-modelo; la generación NUEVA va por slots model-nativos, ADR-023).
 
 ## §3 · El motor (Stage 1, `src/metafactory/`)
 
@@ -142,8 +142,9 @@ flowchart LR
 ```
 
 Uso REAL medido (journal al 2026-07-04): 5482 station_run · 263 session_start · **15 delegation ·
-0 graph_query** — la línea 0-modelo es el músculo; el harness de delegación está EN JUICIO (COUNCIL
-§2.6) hasta la corrida S2 pendiente.
+0 graph_query** — la línea 0-modelo es el músculo de RE-VERIFICACIÓN (pins/checks); la GENERACIÓN nueva
+es model-nativa por slots (ADR-023); el harness de delegación está EN JUICIO (COUNCIL §2.6) hasta la
+corrida S2 pendiente.
 
 ## §7 · Memoria (ADR-007 → ADR-019) y datos en disco
 

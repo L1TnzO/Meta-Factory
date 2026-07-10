@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b880bc3e8eb2da09494e8ce870028e4b891b75e1 updated=2026-07-02T17:52Z -->
+<!-- meta:doc sha=ebeaf19fb0d97ac169b64ebba044f4654effaacf updated=2026-07-10T14:43Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -77,6 +77,22 @@
 > `CLAUDE.md`)** → **`PRICING-LEDGER` ← PRÓXIMO** → `HARNESS-FAST-GATE` → `CONTEXT-LEAN-TEETH` →
 > `PLAN-EXECUTE-SPLIT` → `CACHE-SHAPE`(cond.) → `HEADLESS-SLOTS`(cond.). **La biblia auto-contenida (leer §2 +
 > el §4.INC-n que toque, NO el doc entero): `docs/work/COST-DOWN-DIRECTION-INCREMENT.md`.**
+>
+> **🧠 MODEL-FIRST + COMUNIDAD — paradigma de GENERACIÓN vigente (2026-07-08, ADR-023 · ADR-024).** El codegen
+> determinista de templates tocó su TECHO medido (12 INCs de frontend < un Django admin gratis; el RBAC real de
+> Snipe-IT inexpresable en la gramática; las horas-cerebro se iban al pseudo-framework, no al producto) y quedó
+> **CONGELADO-con-pin** (ADR-023 §3 — alimentarlo exige waiver escrito en el work-doc). Fábrica = spec + perfil
+> de verificación + memoria; lo NUEVO nace model-nativo bajo el harness (slots gateados) y las piezas de
+> comunidad se fijan como DATO en la spec (ADR-023 §2). **Revisa el criterio (d) del north-star de abajo**: el
+> moat ya NO es re-derivar idéntico sino re-VERIFICAR el artefacto PINEADO (ADR-023 §4). Ejecutado: A/B helpdesk
+> (ganó B, ~370k tok Sonnet) → `CHECK-WHEN-GUARD` ✅ (meta) → `FSK-MODELGEN-DURABLE` ✅ (override pineado +
+> `design_floor` opt-in) → `FSK-SNIPEIT-MODELGEN` ✅ (2026-07-08, 1ª adopción durable). **Pendiente (auditoría
+> de vestigios 2026-07-10):** `CODEGEN-FREEZE-TOOTH` — el freeze HOY es prosa sin sombra (viola I-12) y YA se
+> alimentó `codegen/scaffold/` sin waiver en `FSK-COVERAGE-FULL[-100]` (zona gris: fue tráfico de VERIFICACIÓN
+> emitido —proofs/tests—, no superficie humana; el diente debe LEGISLAR ese alcance): check two-sided =
+> diff-en-`factories/*/codegen/**`-sin-waiver-declarado → ROJO · waiver-sin-diff → ROJO · adopción model-nativa
+> de `helpdesk` (su superficie ganadora del A/B sigue untracked) · swap Fable 5 en `delegation_brain.py` +
+> re-emit (los agents de fábrica aún declaran `model: opus`; los del meta ya son `fable`) · F1/ASF model-nativo.
 
 ## 0. Si llegás sin contexto, leé en este orden
 

@@ -1,7 +1,28 @@
-<!-- meta:doc sha=3f6bb03950d86218413cf753a4f0ea9f5c467a3b updated=2026-07-10T02:18Z -->
+<!-- meta:doc sha=1457bef36da57a9ec995a0871850beb680a1da17 updated=2026-07-10T14:45Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T14:4xZ — Auditoría de vestigios del pseudo-framework + refuerzo model-first/comunidad (barrido de reglas vivas)
+Pedido del ingeniero: auditar los VESTIGIOS del paradigma viejo (codegen de templates como camino vivo) y
+reforzar model-first + comunidad (ADR-023/024) con probabilismo CONTROLADO. Hallazgos (evidencia por grep +
+digest verifier): (V1) `CLAUDE.md` meta NO conocía ADR-023/024 — la fila DÍA-A-DÍA vendía «la línea es
+0-modelo» como camino de GENERACIÓN; ADR-023 §Consecuencias había declarado que ese ajuste «viaja con el
+increment del experimento» y nunca aterrizó. (V2) el freeze del codegen NO tiene diente (viola I-12) y YA fue
+perforado sin waiver: `FSK-COVERAGE-FULL[-100]` alimentó 6 módulos de `codegen/scaffold/` sin mencionar
+ADR-023 §3 — zona gris honesta (fue tráfico de VERIFICACIÓN emitido, no superficie humana; el alcance queda a
+LEGISLAR en `CODEGEN-FREEZE-TOOTH`). (V3) ROADMAP sin el pivote. (V4) CLAUDE.md de template/FSK/iot sin la
+regla. (V5) `ARCHITECTURE-MAP` §2/§6, `FOUNDATIONS-REAUDIT` §2/§3 y `COUNCIL-360` §6 con 0-modelo como
+doctrina de generación. (V6) STATE stale (durable+snipeit ya CERRADOS). (V7) `helpdesk` sin adoptar (superficie
+ganadora del A/B untracked). (V8) iot sin declarar el freeze en su nivel. (V9) ADR-023 §2 (comunidad) era
+prosa SIN mecanismo — cero apariciones en skills/spec. Barrido aplicado (docs+skill+columna-con-ojos-propios):
+regla MODEL-FIRST+COMUNIDAD en CLAUDE.md meta («Estado» + fila DÍA-A-DÍA corregida) y en template/FSK/iot;
+bloque de dirección en ROADMAP (revisa el criterio (d) del north-star per ADR-023 §4); pregunta comunitaria
+OBLIGADA en el skill `design-primitives` paso 3; caveats en los 3 reference-docs; freeze declarado en iot
+STATE; residual nuevo en HONEST-STATE §7. Además, pedido del ingeniero (2026-07-10): **Fable 5 reemplaza a
+Opus en TODO ruteo** — runbook + agents meta `orchestrator`/`reviewer` → `model: fable` (los de fábrica quedan
+`opus` hasta el swap en `delegation_brain.py` + re-emit, pendiente en ROADMAP). Dientes NUEVOS: ninguno en
+este barrido (docs/skill/columna) — el diente `CODEGEN-FREEZE-TOOTH` queda DISEÑADO como próximo increment.
 
 ## 2026-07-10T02:1xZ — FSK-COVERAGE-FULL-100 ✅: cobertura de línea REAL de snipeit 99.8%→100.0% — la mayor parte del residual final era un bug del HARNESS, no del código
 El ingeniero pidió explícitamente cerrar el residual final ("haz esas 8 líneas de todos modos"). El

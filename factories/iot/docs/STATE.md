@@ -1,9 +1,13 @@
-<!-- meta:doc sha=fd2fe1d838c2486d4f3f37c89922bffc97b6b5c2 updated=2026-07-04T14:32Z -->
+<!-- meta:doc sha=189ca0486b36e38280fb8114fde5a48bf9619b3d updated=2026-07-10T14:43Z -->
 # Estado — IoT Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- **Freeze del codegen de templates (ADR-023, declarado en este nivel el 2026-07-10):** `codegen/
+  scaffold_product.py` está **CONGELADO-con-pin** como todo codegen de templates; los productos pineados
+  siguen verdes gratis (`ci --rederive`); alimentarlo = waiver escrito en el work-doc (ADR-023 §3). Lo
+  NUEVO nace model-nativo bajo el harness (slots gateados + piezas de comunidad como DATO en la spec).
 - Fábrica **iot** recién nacida por la línea M0–M8 del Meta-Factory. Produce: un gateway IoT en Go: contrato de mensajes tipado, topología pub/sub verificable, gate de firma OTA no-salteable, procedencia de lecturas y telemetría durable contra un broker vivo — verificado en su propio toolchain (go vet / go test).
 - Hereda el sustrato de toda fábrica confiable (columna anti-sello, bus de veredictos, RTM,
   dos verificadores) cableado por construcción — no re-derivado a mano.

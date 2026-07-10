@@ -32,6 +32,7 @@
 | `docs/decisions/022-consolidacion-b-y-jueces-externos.md` | `d2cd545724bb` | 2026-07-04T20:10Z | ADR-022 — Consolidación B: superficie activa a la mitad, vocabularios congelados, jueces externos |
 | `docs/decisions/023-generacion-model-nativa-y-piezas-de-comunidad.md` | `5072cdeb8989` | 2026-07-08T02:05Z | ADR-023 — Generación model-nativa + piezas de comunidad: la fábrica es la spec y el perfil de verificación; el codegen de templates se congela |
 | `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
+| `docs/decisions/025-adopcion-producto-evaluable-y-eval-floor.md` | `bdc4f7e42634` | 2026-07-10T22:27Z | ADR-025 — Adopción de un producto evaluable externo como producto de fábrica: `eval_floor` (generaliza ADR-024) + thaw de ASF para ReqCouncil |
 | `docs/reference/ARCHITECTURE-MAP.md` | `24f3b53dee5f` | 2026-07-10T15:23Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |

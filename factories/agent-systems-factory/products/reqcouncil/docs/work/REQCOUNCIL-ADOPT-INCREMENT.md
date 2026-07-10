@@ -1,7 +1,7 @@
-<!-- meta:doc sha=e820fff5edfb8acbac8e6788c11330d45499cd17 updated=2026-07-10T23:30Z -->
+<!-- meta:doc sha=31fb625ad3a9b0bd4a606f446f0b72d4c4c2a2f5 updated=2026-07-10T23:40Z -->
 # Incremento REQCOUNCIL-ADOPT
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T23:30Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-10T23:40Z) (creado 2026-07-10T23:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

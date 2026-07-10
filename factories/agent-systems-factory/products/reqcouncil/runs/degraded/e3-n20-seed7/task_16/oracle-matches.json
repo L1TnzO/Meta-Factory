@@ -1,0 +1,531 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want the website to be a one-page site, so that I can access all Fundraiser Day information without navigating between multiple pages.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.7985,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7417,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6798,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6202,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6127,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want an introduction section to the Fundraiser Day event, so that I can understand what the event is about.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a website visitor, I want to view a single webpage about Fundraiser Day so that I can learn about the event's existence.",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.7894,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7564,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7233,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5741,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5524,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to see fundraiser testimonials, so that I can learn from the experiences and opinions of other fundraisers.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6792,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.602,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5816,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5642,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4377,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to see offer information, so that I can understand what offers are available for Fundraiser Day.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.7457,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6538,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6374,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5647,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.486,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to see company information, so that I can learn more about the organization behind Fundraiser Day.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.8112,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7214,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6913,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5806,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4886,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want an automatically moving carousel that displays offers, so that I can view different offers without manually changing them.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6017,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4905,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4791,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4753,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4399,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the main background of the website to use the cornsilk color, so that the visual appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.4564,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4441,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4272,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4083,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4073,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the controls on the website to use the peru color, so that the controls visually stand out according to the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.4178,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.416,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.406,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3936,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3846,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer promotional offers to be presented in an automatically moving carousel so that I can passively view multiple offers without manual interaction.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6339,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5571,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4789,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4772,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4374,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I expect to see testimonials from other fundraisers to help me evaluate the credibility and impact of the event.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.614,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5522,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5068,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4595,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.38,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the website to present detailed offer information related to Fundraiser Day.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.8105,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7329,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6711,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5885,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5143,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect the website to include background information about the company organizing Fundraiser Day.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.8005,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7171,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.669,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5307,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4552,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the main background of the website to use a cornsilk color",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.5092,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5051,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4783,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4521,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4439,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer interactive controls on the website to use a peru color",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.569,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5392,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.513,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5062,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4897,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I expect the website to clearly explain the purpose and meaning of Fundraiser Day through an introductory section.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a website visitor, I want to view a single webpage about Fundraiser Day so that I can learn about the event's existence.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.799,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7884,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6825,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5868,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5315,
+          "verdict": null
+        }
+      ]
+    }
+  ]
+}

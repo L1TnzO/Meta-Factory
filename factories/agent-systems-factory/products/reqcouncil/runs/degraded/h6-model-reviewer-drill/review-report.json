@@ -1,0 +1,39 @@
+{
+  "source": "int1",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "seed": 11,
+  "decoys_requested": 3,
+  "decoys_present": 3,
+  "decoys": [
+    {
+      "id": "integration-1",
+      "donor": "data-9"
+    },
+    {
+      "id": "integration-5",
+      "donor": "gap_hunter-r4-1"
+    },
+    {
+      "id": "integration-4",
+      "donor": "integration-12"
+    }
+  ],
+  "caught": [],
+  "catch_rate": 0.0,
+  "false_alarms": [],
+  "engineer": "fable-5 (model reviewer, clean-room subagent — H6 §9 amendment)",
+  "mode": "file",
+  "decision_counts": {
+    "accept": 40,
+    "edit": 1
+  },
+  "packet_stats": {
+    "total": 41,
+    "mandatory": 4,
+    "by_bucket": {
+      "2": 1,
+      "4": 3,
+      "5": 37
+    }
+  }
+}

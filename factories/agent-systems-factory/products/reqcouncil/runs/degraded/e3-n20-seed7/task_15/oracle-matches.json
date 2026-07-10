@@ -1,0 +1,636 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to access a website for a solar company, so that I can view company information and products.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a potential customer, I want to view general company information so that I can learn about the solar company's background, mission, and values.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.83,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.8283,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7306,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6609,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5953,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want the website to provide a company introduction section, so that I can understand what the company is about.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a potential customer, I want to view general company information so that I can learn about the solar company's background, mission, and values.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7389,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7287,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.689,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6734,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6732,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to browse the company’s history, so that I can learn about the company’s background.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a potential customer, I want to view general company information so that I can learn about the solar company's background, mission, and values.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7789,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7613,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6818,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6816,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6438,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to browse the company’s mission, so that I can understand the company’s purpose.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a potential customer, I want to view general company information so that I can learn about the solar company's background, mission, and values.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7707,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7345,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7293,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6953,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6243,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to browse the company’s values, so that I can understand what principles the company stands for.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a potential customer, I want to view general company information so that I can learn about the solar company's background, mission, and values.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.765,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7379,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7211,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6839,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6379,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to view a product showcase, so that I can see what solar products the company offers.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a potential customer, I want to browse a clear display of the company's products so that I can see what solar solutions are available.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8989,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7235,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6823,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6573,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6015,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to view detailed product information, so that I can understand the specifics of each product.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7078,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6898,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6518,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6485,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6093,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want to access a news updates section, so that I can learn about the company’s latest news and events.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a potential customer, I want to view the company's latest news and updates so that I can stay informed about its activities and industry developments.",
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.8715,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.651,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6422,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6333,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6117,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want to use a contact us page, so that I can get in touch with the company.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 11,
+      "matched_text": "As a potential customer, I want to access contact information or a contact form so that I can get in touch with the company for inquiries or support.",
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.8459,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7243,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6059,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5655,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5603,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want to submit my name, email, and message through the contact page, so that I can communicate specific inquiries or feedback to the company.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.8469,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7624,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6389,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6332,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6056,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S10",
+      "gold_text": "As a user, I want the website’s background layer to use a lemon chiffon color, so that the visual appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.4319,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4165,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4008,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3982,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3833,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S11",
+      "gold_text": "As a user, I want the website’s component layer to use a chocolate color, so that the visual appearance of components matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.4184,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3673,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3658,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.358,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3561,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to contact the company through a structured online form",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 11,
+      "matched_text": "As a potential customer, I want to access contact information or a contact form so that I can get in touch with the company for inquiries or support.",
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.7922,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6776,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5972,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5898,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5721,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I expect product information to include detailed descriptions rather than only high-level product listings.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.6075,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5724,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5577,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5314,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5242,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the company information to be broken down into specific aspects such as history, mission, and values.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 2,
+      "matched_text": "As a system, I want to store company information (background, mission, values) so that customers can learn about the company.",
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7738,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7546,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6315,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5859,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5504,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect the contact function to collect my name, email address, and message so that communication is clear and actionable.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.7058,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7039,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5627,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5152,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4855,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website’s background layer to use a lemon chiffon color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.4068,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4015,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3878,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3823,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3734,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the website’s component layer to use a chocolate color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.4398,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4281,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3985,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.391,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3893,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

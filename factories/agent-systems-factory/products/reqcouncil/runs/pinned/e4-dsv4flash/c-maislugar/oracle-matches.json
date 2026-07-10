@@ -1,0 +1,1199 @@
+{
+  "oracle_recall": 0.5294,
+  "oracle_precision": 0.2571,
+  "critical_nfr_recall": 0.2,
+  "n_gold": 34,
+  "n_produced": 70,
+  "matches": [
+    {
+      "gold_id": "FUNC01",
+      "gold_text": "O sistema deve permitir que o usuário crie uma conta fornecendo informações básicas (nome, e-mail, senha, etc...).",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 34,
+      "matched_text": "As a user, I want to register with email, username, and password, so that I can access the platform.",
+      "candidates": [
+        {
+          "produced": 34,
+          "cosine": 0.6547,
+          "verdict": 1
+        },
+        {
+          "produced": 59,
+          "cosine": 0.6455,
+          "verdict": null
+        },
+        {
+          "produced": 47,
+          "cosine": 0.6299,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5978,
+          "verdict": null
+        },
+        {
+          "produced": 52,
+          "cosine": 0.5481,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC02",
+      "gold_text": "O sistema deve permitir que o usuário faça login usando seu e-mail e senha.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 52,
+      "matched_text": "As a user, I want the system to perform user authentication via secure login (email/username and password), so that only registered users can access the platfor",
+      "candidates": [
+        {
+          "produced": 52,
+          "cosine": 0.6748,
+          "verdict": 1
+        },
+        {
+          "produced": 59,
+          "cosine": 0.6119,
+          "verdict": null
+        },
+        {
+          "produced": 34,
+          "cosine": 0.6047,
+          "verdict": null
+        },
+        {
+          "produced": 47,
+          "cosine": 0.5865,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5634,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC03",
+      "gold_text": "O sistema deve fornecer uma opção de recuperação de senha.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.53,
+          "verdict": 0
+        },
+        {
+          "produced": 34,
+          "cosine": 0.5223,
+          "verdict": 0
+        },
+        {
+          "produced": 52,
+          "cosine": 0.495,
+          "verdict": 0
+        },
+        {
+          "produced": 47,
+          "cosine": 0.4645,
+          "verdict": 0
+        },
+        {
+          "produced": 59,
+          "cosine": 0.4609,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC04",
+      "gold_text": "O sistema deve permitir a criação de questionários com diversos tipos de variáveis para coleta de dados.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 21,
+      "matched_text": "As a user, I want to create customizable questionnaires/forms with various variable types, so that data collection can be tailored to each project.",
+      "candidates": [
+        {
+          "produced": 21,
+          "cosine": 0.6822,
+          "verdict": 1
+        },
+        {
+          "produced": 24,
+          "cosine": 0.4217,
+          "verdict": null
+        },
+        {
+          "produced": 56,
+          "cosine": 0.4011,
+          "verdict": null
+        },
+        {
+          "produced": 36,
+          "cosine": 0.3832,
+          "verdict": null
+        },
+        {
+          "produced": 68,
+          "cosine": 0.3793,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC05",
+      "gold_text": "O sistema deve permitir que os gestores de projetos convidem outros usuários para participar de um projeto específico, definindo seu papel (perfil) no momento d",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 19,
+      "matched_text": "As a project manager, I want to invite users and assign roles within a project, so that role assignment is managed at project level.",
+      "candidates": [
+        {
+          "produced": 19,
+          "cosine": 0.6967,
+          "verdict": 1
+        },
+        {
+          "produced": 35,
+          "cosine": 0.6702,
+          "verdict": null
+        },
+        {
+          "produced": 50,
+          "cosine": 0.5741,
+          "verdict": null
+        },
+        {
+          "produced": 38,
+          "cosine": 0.5597,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5532,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC06",
+      "gold_text": "O sistema deve permitir que os usuários preencham formulários offline e sincronizem posteriormente quando conectados à internet.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 22,
+      "matched_text": "As a user, I want to collect data offline (fill forms, mark points) and synchronize automatically when connected, so that I can work in the field without intern",
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.7529,
+          "verdict": 1
+        },
+        {
+          "produced": 58,
+          "cosine": 0.6544,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.647,
+          "verdict": null
+        },
+        {
+          "produced": 41,
+          "cosine": 0.627,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6024,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC07",
+      "gold_text": "O sistema deve permitir que o usuário envie dados de localização georreferenciados.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 68,
+          "cosine": 0.6707,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6326,
+          "verdict": 0
+        },
+        {
+          "produced": 51,
+          "cosine": 0.6293,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6237,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5901,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC08",
+      "gold_text": "O sistema deve permitir a utilização de primitivas das gráficas ponto, linha e polígono para georreferenciamento.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 68,
+      "matched_text": "As a user, I want the system to support creating points, lines, and polygons on the map, so that I can represent geographic features accurately.",
+      "candidates": [
+        {
+          "produced": 68,
+          "cosine": 0.714,
+          "verdict": 1
+        },
+        {
+          "produced": 20,
+          "cosine": 0.647,
+          "verdict": null
+        },
+        {
+          "produced": 51,
+          "cosine": 0.6199,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5981,
+          "verdict": null
+        },
+        {
+          "produced": 33,
+          "cosine": 0.564,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC09",
+      "gold_text": "O sistema deve permitir o upload de fotos, áudios e vídeos em anexo a formulários.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 24,
+      "matched_text": "As a user, I want to allow attachment of media files (photos, videos, audio) to collected data, so that rich contextual information can be stored.",
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.6307,
+          "verdict": 1
+        },
+        {
+          "produced": 66,
+          "cosine": 0.6032,
+          "verdict": null
+        },
+        {
+          "produced": 36,
+          "cosine": 0.6031,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5877,
+          "verdict": null
+        },
+        {
+          "produced": 29,
+          "cosine": 0.4604,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC10",
+      "gold_text": "O sistema deve permitir a marcação de trilhas (trekking).",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a user, I want the system to support a trail/route tracking feature, so that I can record paths taken during field work.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.6687,
+          "verdict": 1
+        },
+        {
+          "produced": 30,
+          "cosine": 0.5493,
+          "verdict": null
+        },
+        {
+          "produced": 68,
+          "cosine": 0.5147,
+          "verdict": null
+        },
+        {
+          "produced": 50,
+          "cosine": 0.4228,
+          "verdict": null
+        },
+        {
+          "produced": 39,
+          "cosine": 0.4084,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC11",
+      "gold_text": "O sistema deve registrar automaticamente metadados, como o horário do cadastro e o usuário responsável pela entrada de dados.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 49,
+      "matched_text": "The platform shall automatically record metadata for each data entry, including timestamp and the user who made the record.",
+      "candidates": [
+        {
+          "produced": 49,
+          "cosine": 0.7968,
+          "verdict": 1
+        },
+        {
+          "produced": 45,
+          "cosine": 0.7757,
+          "verdict": null
+        },
+        {
+          "produced": 23,
+          "cosine": 0.7722,
+          "verdict": null
+        },
+        {
+          "produced": 55,
+          "cosine": 0.5918,
+          "verdict": null
+        },
+        {
+          "produced": 58,
+          "cosine": 0.4847,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC12",
+      "gold_text": "O sistema deve permitir a inserção de comentários ou notas sobre um formulário registrado (feedback).",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 21,
+          "cosine": 0.5158,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.475,
+          "verdict": 0
+        },
+        {
+          "produced": 49,
+          "cosine": 0.4734,
+          "verdict": 0
+        },
+        {
+          "produced": 34,
+          "cosine": 0.4696,
+          "verdict": 0
+        },
+        {
+          "produced": 36,
+          "cosine": 0.4606,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC13",
+      "gold_text": "O sistema deve fornecer mapas interativos para visualização dos dados coletados.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.6287,
+          "verdict": 0
+        },
+        {
+          "produced": 54,
+          "cosine": 0.5877,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.5874,
+          "verdict": 0
+        },
+        {
+          "produced": 68,
+          "cosine": 0.5866,
+          "verdict": 0
+        },
+        {
+          "produced": 31,
+          "cosine": 0.5785,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC14",
+      "gold_text": "O sistema deve permitir a visualização dos dados coletados por meio de filtros personalizados, como período de tempo ou variáveis específicas.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 53,
+          "cosine": 0.4853,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.4833,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.4573,
+          "verdict": 0
+        },
+        {
+          "produced": 25,
+          "cosine": 0.4503,
+          "verdict": 0
+        },
+        {
+          "produced": 55,
+          "cosine": 0.4423,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC15",
+      "gold_text": "O sistema deve permitir a visualização de dados em dashboards com filtros personalizáveis.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 53,
+          "cosine": 0.5683,
+          "verdict": 0
+        },
+        {
+          "produced": 28,
+          "cosine": 0.5465,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.5306,
+          "verdict": 0
+        },
+        {
+          "produced": 25,
+          "cosine": 0.518,
+          "verdict": 0
+        },
+        {
+          "produced": 54,
+          "cosine": 0.4893,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC16",
+      "gold_text": "O sistema deve permitir a exportação dos dados em diferentes formatos (CSV, XLS, etc.).",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 25,
+      "matched_text": "As a user, I want to support export of data in CSV, XLS, and HTML formats, so that data can be used in external analysis tools.",
+      "candidates": [
+        {
+          "produced": 25,
+          "cosine": 0.7813,
+          "verdict": 1
+        },
+        {
+          "produced": 43,
+          "cosine": 0.6993,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6069,
+          "verdict": null
+        },
+        {
+          "produced": 37,
+          "cosine": 0.6007,
+          "verdict": null
+        },
+        {
+          "produced": 51,
+          "cosine": 0.5353,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC17",
+      "gold_text": "O sistema deve permitir a exportação de dados filtrados por camadas, datas ou variáveis específicas.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 26,
+      "matched_text": "As a user, I want to allow export of selected layers rather than all data, so that I can control what is exported.",
+      "candidates": [
+        {
+          "produced": 26,
+          "cosine": 0.6682,
+          "verdict": 1
+        },
+        {
+          "produced": 44,
+          "cosine": 0.6681,
+          "verdict": null
+        },
+        {
+          "produced": 53,
+          "cosine": 0.6174,
+          "verdict": null
+        },
+        {
+          "produced": 25,
+          "cosine": 0.5945,
+          "verdict": null
+        },
+        {
+          "produced": 28,
+          "cosine": 0.5596,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC18",
+      "gold_text": "O sistema deve fornecer gráficos e relatórios baseados nos dados coletados.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 25,
+          "cosine": 0.4706,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.4624,
+          "verdict": 0
+        },
+        {
+          "produced": 49,
+          "cosine": 0.4179,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4165,
+          "verdict": 0
+        },
+        {
+          "produced": 55,
+          "cosine": 0.4109,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC19",
+      "gold_text": "O sistema deve permitir que os gestores de projetos decidam quaism camadas de dados serão disponibilizadas para visualização pública ou restrita.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 28,
+      "matched_text": "As a project manager, I want to configure which layers are visible to the general public and which are restricted to specific roles, so that I can protect confi",
+      "candidates": [
+        {
+          "produced": 28,
+          "cosine": 0.7427,
+          "verdict": 1
+        },
+        {
+          "produced": 53,
+          "cosine": 0.7059,
+          "verdict": null
+        },
+        {
+          "produced": 54,
+          "cosine": 0.6371,
+          "verdict": null
+        },
+        {
+          "produced": 46,
+          "cosine": 0.6281,
+          "verdict": null
+        },
+        {
+          "produced": 35,
+          "cosine": 0.6196,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC20",
+      "gold_text": "O sistema deve integrar-se diretamente com plataformas como o sistema ViconSaga, permitindo a troca de camadas de dados entre os sistemas via API.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 12,
+      "matched_text": "As a project manager, I want the platform to integrate with Vicom Saga via a plugin, so that users can seamlessly transfer geospatial layers between the two sys",
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.6367,
+          "verdict": 1
+        },
+        {
+          "produced": 39,
+          "cosine": 0.6303,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6115,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6048,
+          "verdict": null
+        },
+        {
+          "produced": 65,
+          "cosine": 0.6004,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC21",
+      "gold_text": "O sistema deve implementar mecânicas de gameficação para incentivar a colaboração contínua dos usuários, como medalhas, pontos de experiência (XP) e avatares pe",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 38,
+      "matched_text": "As a user, I want a gamification system where I earn medals and level up (e.g., from beginner to master) by contributing to projects, so that I am motivated to ",
+      "candidates": [
+        {
+          "produced": 38,
+          "cosine": 0.6612,
+          "verdict": 1
+        },
+        {
+          "produced": 61,
+          "cosine": 0.6584,
+          "verdict": null
+        },
+        {
+          "produced": 50,
+          "cosine": 0.6524,
+          "verdict": null
+        },
+        {
+          "produced": 27,
+          "cosine": 0.6278,
+          "verdict": null
+        },
+        {
+          "produced": 62,
+          "cosine": 0.5937,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC22",
+      "gold_text": "O sistema deve atribuir pontos e recompensas aos usuários por sua participação.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 61,
+      "matched_text": "The platform shall provide a gamification system that rewards collective contributions with medals and avatar progression, so that I feel motivated to participa",
+      "candidates": [
+        {
+          "produced": 61,
+          "cosine": 0.6414,
+          "verdict": 1
+        },
+        {
+          "produced": 50,
+          "cosine": 0.6244,
+          "verdict": null
+        },
+        {
+          "produced": 38,
+          "cosine": 0.6032,
+          "verdict": null
+        },
+        {
+          "produced": 62,
+          "cosine": 0.5602,
+          "verdict": null
+        },
+        {
+          "produced": 27,
+          "cosine": 0.5591,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC23",
+      "gold_text": "O sistema deve manter um ranking de usuários baseado nos pontos acumulados.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 50,
+          "cosine": 0.5878,
+          "verdict": 0
+        },
+        {
+          "produced": 62,
+          "cosine": 0.5436,
+          "verdict": 0
+        },
+        {
+          "produced": 27,
+          "cosine": 0.531,
+          "verdict": 0
+        },
+        {
+          "produced": 38,
+          "cosine": 0.5168,
+          "verdict": 0
+        },
+        {
+          "produced": 61,
+          "cosine": 0.509,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC24",
+      "gold_text": "O sistema deve permitir que os usuários visualizem suas conquistas e recompensas.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 62,
+      "matched_text": "As a user, I want to see my gamification progress (medals, avatar, XP) across all projects I participate in, so that my overall contribution to the platform is ",
+      "candidates": [
+        {
+          "produced": 62,
+          "cosine": 0.6338,
+          "verdict": 1
+        },
+        {
+          "produced": 50,
+          "cosine": 0.6087,
+          "verdict": null
+        },
+        {
+          "produced": 61,
+          "cosine": 0.5944,
+          "verdict": null
+        },
+        {
+          "produced": 38,
+          "cosine": 0.5518,
+          "verdict": null
+        },
+        {
+          "produced": 27,
+          "cosine": 0.5324,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF01",
+      "gold_text": "Os dados de usuário (incluindo senhas) devem ser armazenados de forma segura utilizando hashing",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.6241,
+          "verdict": 0
+        },
+        {
+          "produced": 52,
+          "cosine": 0.5538,
+          "verdict": 0
+        },
+        {
+          "produced": 34,
+          "cosine": 0.5133,
+          "verdict": 0
+        },
+        {
+          "produced": 27,
+          "cosine": 0.4786,
+          "verdict": 0
+        },
+        {
+          "produced": 55,
+          "cosine": 0.4653,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF02",
+      "gold_text": "O sistema deve usar criptografia SSL/TLS para todas as comunicações entre o cliente e o servidor.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.3736,
+          "verdict": 0
+        },
+        {
+          "produced": 52,
+          "cosine": 0.3381,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.2908,
+          "verdict": 0
+        },
+        {
+          "produced": 32,
+          "cosine": 0.2851,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.2791,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF03",
+      "gold_text": "O tempo de resposta do sistema para qualquer solicitação do usuário não deve exceder 2 segundos.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5058,
+          "verdict": 0
+        },
+        {
+          "produced": 47,
+          "cosine": 0.4841,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4525,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4275,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.424,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF04",
+      "gold_text": "O sistema deve estar disponível 99.9% do tempo, excluindo janelas programadas de manutenção.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.4633,
+          "verdict": 0
+        },
+        {
+          "produced": 69,
+          "cosine": 0.4228,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4117,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4023,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4007,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF05",
+      "gold_text": "O sistema deve ser escalável horizontalmente para suportar um aumento no número de usuários e no volume de dados sem necessidade de reestruturação significativa",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.4863,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.4469,
+          "verdict": 0
+        },
+        {
+          "produced": 32,
+          "cosine": 0.4234,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.3898,
+          "verdict": 0
+        },
+        {
+          "produced": 41,
+          "cosine": 0.383,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF06",
+      "gold_text": "O sistema deve ser projetado para adicionar novos módulos e funcionalidades sem impactos negativos na performance.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.5013,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.3998,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3924,
+          "verdict": 0
+        },
+        {
+          "produced": 64,
+          "cosine": 0.3893,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3849,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF07",
+      "gold_text": "O sistema deve ser responsivo e funcionar em dispositivos móveis e na Web.",
+      "is_nfr": true,
+      "matched": true,
+      "matched_produced": 56,
+      "matched_text": "The platform shall be accessible via web and mobile devices, so that users can participate in data collection and visualization from anywhere.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.5809,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.5773,
+          "verdict": 1
+        },
+        {
+          "produced": 41,
+          "cosine": 0.5668,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4068,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.3976,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF08",
+      "gold_text": "O sistema deve estar em conformidade com as leis e regulamentos de proteção de dados relevantes, como a LGPD (Lei Geral de Proteção de Dados) no Brasil.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.3553,
+          "verdict": 0
+        },
+        {
+          "produced": 49,
+          "cosine": 0.3403,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.3356,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.3272,
+          "verdict": 0
+        },
+        {
+          "produced": 55,
+          "cosine": 0.3147,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF09",
+      "gold_text": "O sistema deve cumprir as normas de acessibilidade para garantir que usuários com deficiências possam utilizá-lo.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.4189,
+          "verdict": 0
+        },
+        {
+          "produced": 41,
+          "cosine": 0.41,
+          "verdict": 0
+        },
+        {
+          "produced": 56,
+          "cosine": 0.4079,
+          "verdict": 0
+        },
+        {
+          "produced": 52,
+          "cosine": 0.3928,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3858,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF10",
+      "gold_text": "O sistema deve estar disponível nas plataformas Web e Mobile",
+      "is_nfr": true,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "The platform shall be available as a web application accessible via standard web browsers (Chrome, Firefox, Safari, Edge) and as a mobile application supporting",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7081,
+          "verdict": 1
+        },
+        {
+          "produced": 41,
+          "cosine": 0.6946,
+          "verdict": null
+        },
+        {
+          "produced": 56,
+          "cosine": 0.6691,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5456,
+          "verdict": null
+        },
+        {
+          "produced": 39,
+          "cosine": 0.5347,
+          "verdict": null
+        }
+      ]
+    }
+  ]
+}

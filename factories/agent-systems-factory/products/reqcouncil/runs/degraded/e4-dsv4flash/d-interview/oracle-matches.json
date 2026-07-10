@@ -1,0 +1,1304 @@
+{
+  "oracle_recall": 0.3243,
+  "oracle_precision": 0.2439,
+  "critical_nfr_recall": null,
+  "n_gold": 37,
+  "n_produced": 41,
+  "matches": [
+    {
+      "gold_id": "US0",
+      "gold_text": "As the IFA, I want to bring different existing systems together, so that I can avoid having to save redundant data.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 25,
+          "cosine": 0.5827,
+          "verdict": 0
+        },
+        {
+          "produced": 37,
+          "cosine": 0.5601,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5248,
+          "verdict": 0
+        },
+        {
+          "produced": 28,
+          "cosine": 0.5008,
+          "verdict": 0
+        },
+        {
+          "produced": 26,
+          "cosine": 0.4982,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US1",
+      "gold_text": "As the IFA, I want the system to be able to handle multiple languages, so that I can service leagues in different countries.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.6848,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5738,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.5687,
+          "verdict": 0
+        },
+        {
+          "produced": 26,
+          "cosine": 0.567,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5512,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US2",
+      "gold_text": "As the IFA, I want the system to be reliable while being used by at least 50.000 people at the same time, so that the user experience will be satisfactory.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6355,
+          "verdict": 0
+        },
+        {
+          "produced": 27,
+          "cosine": 0.5601,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5374,
+          "verdict": 0
+        },
+        {
+          "produced": 26,
+          "cosine": 0.5118,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.5071,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US3",
+      "gold_text": "As a fan, I want to access the system on my phone, so that I can access it wherever I am.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 21,
+          "cosine": 0.6165,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6022,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5501,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.5414,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.5318,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US4",
+      "gold_text": "As a match official, I want to access the system on my phone, so that I can access it on the field or while I am traveling to the game.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.7379,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6936,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6675,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.6627,
+          "verdict": 0
+        },
+        {
+          "produced": 35,
+          "cosine": 0.6525,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US5",
+      "gold_text": "As an IFA employee, I want to be able to access the system from a desktop, so that I can more easily enter new data into the system.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.6023,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5877,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5864,
+          "verdict": 0
+        },
+        {
+          "produced": 28,
+          "cosine": 0.5741,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5593,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US6",
+      "gold_text": "As a team manager, I want to be able to access the system from a desktop, so that I make fewer mistakes when managing my assets.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7333,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6287,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.59,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5675,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5641,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US7",
+      "gold_text": "As a team staff member, I want to be able to access the system from a desktop, so that I more easily work together with other staff members.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.6316,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5527,
+          "verdict": 0
+        },
+        {
+          "produced": 29,
+          "cosine": 0.5389,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.5348,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5211,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US8",
+      "gold_text": "As the IFA, I want system users to only gain access to tools that are relevant for them, so that the system is less confusing.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 29,
+          "cosine": 0.5726,
+          "verdict": 0
+        },
+        {
+          "produced": 33,
+          "cosine": 0.5538,
+          "verdict": 0
+        },
+        {
+          "produced": 34,
+          "cosine": 0.5485,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4945,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4895,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US9",
+      "gold_text": "As the IFA, I want to manage leagues within the system, so that I have one place to access all necessary data.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.8432,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.691,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.6891,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6529,
+          "verdict": 0
+        },
+        {
+          "produced": 37,
+          "cosine": 0.6315,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US10",
+      "gold_text": "As the IFA, I want to be able to input different rulesets for different competitions, so that no mistakes will be made in updating leaderboards, scheduling matc",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.7159,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6816,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6375,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6317,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.6275,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US11",
+      "gold_text": "As the IFA administrator, I want to be able to add new leagues to the system, so that I can keep the system up to date.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 24,
+      "matched_text": "As an IFA administrator, I want to define leagues and seasons in the system, so that the structure of competitions is established.",
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.8303,
+          "verdict": 1
+        },
+        {
+          "produced": 22,
+          "cosine": 0.6915,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6523,
+          "verdict": null
+        },
+        {
+          "produced": 23,
+          "cosine": 0.6472,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5785,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US12",
+      "gold_text": "As the IFA administrator, I want to be able to register new teams for the system, so that I can keep the system up to date.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.8851,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7143,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.7111,
+          "verdict": 0
+        },
+        {
+          "produced": 24,
+          "cosine": 0.7027,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6468,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US13",
+      "gold_text": "As the IFA manager, I want to be able to approve new teams that are registered in the IFA system, so that I can maintain integrity.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.8738,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.779,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7011,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7006,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6875,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US14",
+      "gold_text": "As the IFA manager, I want to be able to approve new leagues that are added to the system, so that I can maintain integrity.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 24,
+          "cosine": 0.7464,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.7396,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.7348,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.658,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6503,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US15",
+      "gold_text": "As an IFA employee, I want the scheduling of games to be automated, so that I can relieve some of my workload.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 36,
+          "cosine": 0.761,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7565,
+          "verdict": 0
+        },
+        {
+          "produced": 28,
+          "cosine": 0.7468,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.663,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6623,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US16",
+      "gold_text": "As the IFA, I want to avoid bias like giving teams a lighter schedule, so that I can avoid any claims of unfair advantages.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.6838,
+          "verdict": 0
+        },
+        {
+          "produced": 34,
+          "cosine": 0.6056,
+          "verdict": 0
+        },
+        {
+          "produced": 36,
+          "cosine": 0.6032,
+          "verdict": 0
+        },
+        {
+          "produced": 28,
+          "cosine": 0.6008,
+          "verdict": 0
+        },
+        {
+          "produced": 24,
+          "cosine": 0.5579,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US17",
+      "gold_text": "As an IFA employee, I want to automate the allocating of match officials to games, so that I can relieve some of my workload.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 17,
+      "matched_text": "As an IFA administrator, I want to define referee allocation policies, so that the system can automatically assign referees to games.",
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.7895,
+          "verdict": 1
+        },
+        {
+          "produced": 23,
+          "cosine": 0.7785,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7191,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.6664,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6602,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US18",
+      "gold_text": "As the IFA, I want to automatically apply league rules like not allowing the same match officials to officiate the same team multiple times, so that I can avoid",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 23,
+          "cosine": 0.7149,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.693,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6884,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6693,
+          "verdict": 0
+        },
+        {
+          "produced": 24,
+          "cosine": 0.6692,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US19",
+      "gold_text": "As the IFA, I want to avoid conflicts between the game schedules and the match officials’ personal schedules, so that I will not have to reschedule games as a r",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 18,
+      "matched_text": "As a referee, I want to input my availability preferences into the system, so that the scheduling algorithm can take those constraints into account when assigni",
+      "candidates": [
+        {
+          "produced": 36,
+          "cosine": 0.7199,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7113,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.655,
+          "verdict": 1
+        },
+        {
+          "produced": 23,
+          "cosine": 0.6352,
+          "verdict": null
+        },
+        {
+          "produced": 34,
+          "cosine": 0.628,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US20",
+      "gold_text": "As a match official, I want to have my preferred time slots, dates and locations for officiating games taken into consideration when making my schedule, so that",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 18,
+      "matched_text": "As a referee, I want to input my availability preferences into the system, so that the scheduling algorithm can take those constraints into account when assigni",
+      "candidates": [
+        {
+          "produced": 18,
+          "cosine": 0.7793,
+          "verdict": 1
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6431,
+          "verdict": null
+        },
+        {
+          "produced": 36,
+          "cosine": 0.6281,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.596,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5894,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US21",
+      "gold_text": "As the IFA, I want the overriding of a generated schedule to need at least two certified IFA employees, so that I can avoid mistakes.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 19,
+      "matched_text": "As an IFA administrator, I want any manual schedule override to require a second IFA representative's confirmation, so that changes are transparent and unbiased",
+      "candidates": [
+        {
+          "produced": 19,
+          "cosine": 0.7957,
+          "verdict": 1
+        },
+        {
+          "produced": 28,
+          "cosine": 0.7855,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7721,
+          "verdict": null
+        },
+        {
+          "produced": 34,
+          "cosine": 0.761,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7449,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US22",
+      "gold_text": "As an IFA budget auditor, I want to be able to control and audit a team’s budget management within the system, so that I can reduce my workload.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7959,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6962,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6508,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5985,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5925,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US23",
+      "gold_text": "As the IFA, I want the teams to input every transaction they make into the system so that I can make sure the team is following their league’s rules.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As an IFA administrator, I want to view all teams' monetary information for monitoring and compliance checking, so that I can ensure adherence to policies.",
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.7383,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7124,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6838,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6566,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6522,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US24",
+      "gold_text": "As an IFA budget auditor, I want to be able to quickly obtain a system-generated report about a team's budget management, so that I can easily read up on their ",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.78,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.778,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6692,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6609,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6356,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US25",
+      "gold_text": "As a team manager, I want to manage my team’s finances directly within the system, so that I will not have to do unnecessary work.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a team, I want to insert my own budget transactions and items into the system, so that my team's financial data is recorded.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7416,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7272,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5981,
+          "verdict": null
+        },
+        {
+          "produced": 22,
+          "cosine": 0.5499,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5213,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US26",
+      "gold_text": "As a team manager, I want to be able to assign roles and system privileges to different members on my team, so that I can delegate tasks and save time.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.6874,
+          "verdict": 0
+        },
+        {
+          "produced": 29,
+          "cosine": 0.6096,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5893,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.5568,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.5507,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US27",
+      "gold_text": "As a fan, I want to be notified as soon as possible about important schedule changes like a delayed kick-off, so that I can plan accordingly.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 31,
+      "matched_text": "The system should provide push notifications to fans who have subscribed to specific games, teams, or players, with a delivery latency within seconds of event o",
+      "candidates": [
+        {
+          "produced": 35,
+          "cosine": 0.6808,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6802,
+          "verdict": 0
+        },
+        {
+          "produced": 31,
+          "cosine": 0.6699,
+          "verdict": 1
+        },
+        {
+          "produced": 36,
+          "cosine": 0.6602,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6094,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US28",
+      "gold_text": "As a match official, I want to be notified as soon as possible about important schedule changes like a delayed kick-off, so that I can plan accordingly.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 35,
+          "cosine": 0.7079,
+          "verdict": 0
+        },
+        {
+          "produced": 36,
+          "cosine": 0.6538,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6509,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6312,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.6271,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US29",
+      "gold_text": "As the IFA, I want all different stakeholders of a game event to be notified in the same way and at the same time, so that I can be more efficient.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 31,
+          "cosine": 0.6888,
+          "verdict": 0
+        },
+        {
+          "produced": 35,
+          "cosine": 0.6445,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6264,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6178,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5864,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US30",
+      "gold_text": "As a fan, I want to be able to choose which game events I will be notified of, so that I do not get too many notifications for my liking.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 20,
+      "matched_text": "As a fan, I want to subscribe to notifications about specific games, teams, or players, so that I receive push updates on schedule changes, game events, and pla",
+      "candidates": [
+        {
+          "produced": 20,
+          "cosine": 0.844,
+          "verdict": 1
+        },
+        {
+          "produced": 39,
+          "cosine": 0.7398,
+          "verdict": null
+        },
+        {
+          "produced": 35,
+          "cosine": 0.7219,
+          "verdict": null
+        },
+        {
+          "produced": 31,
+          "cosine": 0.6999,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6244,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US31",
+      "gold_text": "As a fan, I want to check statistics of different matches and statistics of different players, so that I can be more engaged in their respective league.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 39,
+          "cosine": 0.7089,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6954,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6643,
+          "verdict": 0
+        },
+        {
+          "produced": 35,
+          "cosine": 0.6435,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6352,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US32",
+      "gold_text": "As a team staff member, I want to access statistics about different matches and different players, so that I can strategize better.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.755,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.6745,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.6695,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6461,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6337,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "US33",
+      "gold_text": "As a match official, I want to report on match events live during the match, so that I do not have to register events twice.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 11,
+      "matched_text": "As a referee, I want to input game events into the system via a mobile application in real time, so that official game data is coherent and reliable.",
+      "candidates": [
+        {
+          "produced": 35,
+          "cosine": 0.7555,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7017,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6898,
+          "verdict": null
+        },
+        {
+          "produced": 39,
+          "cosine": 0.6784,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6503,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US34",
+      "gold_text": "As a fan, I want game events to be reported live so that I can keep track of what is happening as closely as possible.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 35,
+      "matched_text": "As a fan, I want to receive notifications about live game events as reported by the referee, so that I can follow the match in real time.",
+      "candidates": [
+        {
+          "produced": 35,
+          "cosine": 0.8492,
+          "verdict": 1
+        },
+        {
+          "produced": 39,
+          "cosine": 0.7796,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6995,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6824,
+          "verdict": null
+        },
+        {
+          "produced": 30,
+          "cosine": 0.6533,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US35",
+      "gold_text": "As the IFA, I want the match officials to directly report on game events, so that I can prevent unauthorized data sources being relevant.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 11,
+      "matched_text": "As a referee, I want to input game events into the system via a mobile application in real time, so that official game data is coherent and reliable.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.7732,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7223,
+          "verdict": 1
+        },
+        {
+          "produced": 35,
+          "cosine": 0.7132,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7061,
+          "verdict": null
+        },
+        {
+          "produced": 23,
+          "cosine": 0.6892,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "US36",
+      "gold_text": "As the IFA, I want player and match statistics to be derived directly from the reported match events, so that no extra work needs to be done.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6168,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5773,
+          "verdict": 0
+        },
+        {
+          "produced": 35,
+          "cosine": 0.5676,
+          "verdict": 0
+        },
+        {
+          "produced": 39,
+          "cosine": 0.5431,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5364,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

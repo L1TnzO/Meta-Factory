@@ -1,0 +1,15 @@
+%% Figura 3.1 — Arquitectura general de ReqCouncil (elaboración propia)
+flowchart TD
+    T[Transcripción<br/>speaker-tagged] --> I[Transcript Ingestor<br/>parser + chunking 3 turnos/stride 1]
+    I --> C[(Anchored Chunks<br/>chunk_id content-addressed)]
+    C --> B[Blackboard<br/>estado tipado LangGraph]
+    B --> CO[Council<br/>Moderator + 6 Analysts + 3 Critics]
+    CO --> S[Synthesizer<br/>SRS borrador + confianza + flags]
+    S --> TS[(Traceability Store<br/>PostgreSQL: req ↔ anclas ↔ decisiones)]
+    S --> H{HITL Checkpoint<br/>interrupt no-salteable}
+    H -->|accept/edit/reject| F[SRS final versionado]
+    H -.-> TS
+    subgraph OFFLINE[Eval Harness offline]
+      G[Golden sets:<br/>Inter2US · WEPGCOMP/+Lugar · ReqElicitBench · RECOVER] --> M[Métricas: fidelity · coverage ·<br/>NFR-recall · CCI] --> GA[Gates bloqueantes]
+    end
+    GA -.->|regula iteración del diseño| CO

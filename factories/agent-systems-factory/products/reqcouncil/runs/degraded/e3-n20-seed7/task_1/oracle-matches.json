@@ -1,0 +1,461 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to use a web-based neighborhood mapping application for comparing data across different areas, so that I can analyze and understand difference",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.8654,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.8572,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7949,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7704,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7491,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to compare demographic data across different areas, so that I can understand how population characteristics vary between neighborhoods.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.6941,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.694,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6804,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6677,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6566,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to compare economic data across different areas, so that I can understand how economic conditions vary between neighborhoods.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "As a user, I want to view housing price and local amenities data in side-by-side tables so that I can compare neighborhoods numerically.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7294,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7065,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7022,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7019,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6888,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to compare crime data across different areas, so that I can understand how crime levels and patterns vary between neighborhoods.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a user, I want to select neighborhoods from the interactive map to view or add them to my comparison table so that I can easily initiate comparisons based on",
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.6608,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6493,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6396,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6365,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6278,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want access to data dashboards with interactive charts, so that I can explore and visualize neighborhood data in a dynamic way.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.84,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.8287,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8181,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7948,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7909,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want data dashboards with customizable layouts, so that I can arrange and view the information in a way that suits my needs.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.707,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6766,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6485,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6432,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6376,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the application to use an ivory background, so that the visual appearance matches the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4643,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4304,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4208,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4157,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4093,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the application’s components to use forest green, so that the interface elements match the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4706,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.463,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4479,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4365,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4208,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer the application to provide built-in tools in the form of data dashboards with interactive charts",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7675,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6225,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5879,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5846,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5738,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer the data dashboards to support customizable layouts",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6403,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6055,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5431,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5228,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5153,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the application to support comparisons of neighborhood-level demographic, economic, and crime data across different areas.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7308,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.711,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6879,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6823,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6763,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the application to use an ivory background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.5038,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4451,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4323,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4174,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3937,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the application’s components to use a forest green color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4785,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4612,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4594,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4496,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4211,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

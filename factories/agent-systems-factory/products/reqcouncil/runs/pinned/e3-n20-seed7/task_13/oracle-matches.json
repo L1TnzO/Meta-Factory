@@ -1,0 +1,286 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want the website to include an introduction to credit repair services, so that I can learn about the credit repair services offered.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 11,
+      "matched_text": "As a website visitor, I want to learn about the available credit repair services (e.g., dispute assistance, credit monitoring, debt validation) on the website, ",
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.8703,
+          "verdict": 1
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7791,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6182,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6072,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6044,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to fill out and submit the form on the website, so that my personal information and credit status can be collected.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a potential client, I want to submit my contact details (including mandatory phone number and optional email) and select my specific credit issues and servic",
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7433,
+          "verdict": 1
+        },
+        {
+          "produced": 0,
+          "cosine": 0.698,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6893,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6793,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6687,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want the website to provide a credit score inquiry function, so that I can inquire about my credit score.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 0,
+      "matched_text": "As a website visitor, I want to check my credit score via an integrated tool or estimator on the website, so that I can engage with the site and consider taking",
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.8619,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7106,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6916,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.627,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5895,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want the website’s body background to be set to old lace, so that the visual appearance matches that specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.467,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4472,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.4025,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4017,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4003,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want the website’s UI elements to use rosy brown, so that the user interface follows the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.4532,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4313,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3789,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3787,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3633,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to provide my personal information and credit status",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a potential client, I want to submit my contact details (including mandatory phone number and optional email) and select my specific credit issues and servic",
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.6572,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6297,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5957,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.589,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5802,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer the website’s body background to use an old lace color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.4525,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.425,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3856,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3803,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3775,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer the website’s user interface elements to use a rosy brown color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.5034,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4609,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4288,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.4235,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4191,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

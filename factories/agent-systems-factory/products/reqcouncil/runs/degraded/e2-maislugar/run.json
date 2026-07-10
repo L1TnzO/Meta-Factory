@@ -1,0 +1,121 @@
+{
+  "experiment": "E2",
+  "corpus": "maislugar",
+  "timestamp": "2026-07-06T17:00Z",
+  "transcript": "transcript_maislugar.txt",
+  "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "gap_hunter": "3b7fa9b09b5f",
+    "conflict_detector": "9e6642850de9",
+    "evidence_skeptic": "86204e0ec6e6",
+    "functional:rebuttal": "5577f5543d9a",
+    "data:rebuttal": "25ff3edbd5bf",
+    "nfr:rebuttal": "7664edd99442",
+    "security:rebuttal": "e708b623b036",
+    "ux:rebuttal": "be9d37b9edf5",
+    "integration:rebuttal": "3516298546d6",
+    "gap_hunter:rebuttal": "87ec3bb5e821",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  },
+  "n_chunks": 113,
+  "n_requirements": 24,
+  "grounded": 19,
+  "fidelity": 0.7917,
+  "oracle_recall": 0.3235,
+  "oracle_precision": 0.4583,
+  "critical_nfr_recall": 0.0,
+  "cci": 0.7059,
+  "oracle_size": 34,
+  "green": false,
+  "cardinality": {
+    "produced": 24,
+    "expected": 31.7,
+    "band": [
+      19.0,
+      50.7
+    ],
+    "in_band": true,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.6549,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 3,
+        "dropped": 0,
+        "merged": 7,
+        "revised": 4,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 10,
+        "merged": 2,
+        "revised": 3,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 13,
+        "merged": 5,
+        "revised": 7,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 4,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5752,
+      0.7168,
+      0.6726,
+      0.6991,
+      0.6549
+    ]
+  },
+  "review": {
+    "engineer": "auto-eval",
+    "mode": "auto",
+    "stats": {
+      "decided": 24,
+      "counts": {
+        "accept": 24
+      },
+      "mandatory": 5
+    },
+    "revised": []
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 24
+  },
+  "usage": {
+    "prompt_tokens": 1180828,
+    "completion_tokens": 31436
+  },
+  "oracle_judge_usage": {
+    "prompt_tokens": 30285,
+    "completion_tokens": 126
+  },
+  "elapsed_s": 991.8
+}

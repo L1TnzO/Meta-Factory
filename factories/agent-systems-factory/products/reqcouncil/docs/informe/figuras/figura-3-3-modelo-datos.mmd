@@ -1,0 +1,10 @@
+%% Figura 3.3 — Modelo de datos del Traceability Store (elaboración propia)
+erDiagram
+    TRANSCRIPT ||--o{ CHUNK : contiene
+    TRANSCRIPT ||--o{ RUN : procesada_en
+    RUN ||--o{ REQUIREMENT : produce
+    RUN ||--o{ COUNCIL_EVENT : registra
+    REQUIREMENT ||--o{ EVIDENCE_LINK : sustentado_por
+    CHUNK ||--o{ EVIDENCE_LINK : evidencia_de
+    REQUIREMENT ||--o{ REVIEW_DECISION : revisado_en
+    REQUIREMENT ||--o| REQUIREMENT : supersedes

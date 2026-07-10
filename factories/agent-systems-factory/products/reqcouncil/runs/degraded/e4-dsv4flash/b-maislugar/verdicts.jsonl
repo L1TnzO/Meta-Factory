@@ -1,0 +1,51 @@
+{"key": "2db5bb5614e06edc", "pred": 1, "story": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios personalizados pelo usu\u00e1rio g", "raw": "1"}
+{"key": "1b290939904e9506", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina n\u00edveis de acesso para cad", "raw": "1"}
+{"key": "617637b140bbff43", "pred": 1, "story": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios personalizados pelo usu\u00e1rio g", "raw": "1"}
+{"key": "ee4e8e477663eaa3", "pred": 0, "story": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios personalizados pelo usu\u00e1rio g", "raw": "0"}
+{"key": "ae57ba11b714c1f7", "pred": 1, "story": "O sistema deve permitir a alimenta\u00e7\u00e3o de dados geogr\u00e1ficos (pontos, linhas, pol\u00ed", "raw": "1"}
+{"key": "16a182ffc822a393", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina n\u00edveis de acesso para cad", "raw": "1"}
+{"key": "4fd25525356b77fc", "pred": 1, "story": "O sistema deve permitir a alimenta\u00e7\u00e3o de dados geogr\u00e1ficos (pontos, linhas, pol\u00ed", "raw": "1"}
+{"key": "e216dfbadf5f587e", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina n\u00edveis de acesso para cad", "raw": "1"}
+{"key": "51059982d9f60971", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina permiss\u00f5es de visualiza\u00e7\u00e3", "raw": "1"}
+{"key": "fd1ef6f62335142b", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina permiss\u00f5es de visualiza\u00e7\u00e3", "raw": "1"}
+{"key": "f9e5834d7bf9994b", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto convide outros usu\u00e1rios e atribu", "raw": "1"}
+{"key": "a156a577bd7d84d5", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto convide outros usu\u00e1rios e atribu", "raw": "1"}
+{"key": "bb6107360508067d", "pred": 1, "story": "O sistema deve permitir a coleta de dados em campo de forma offline, com sincron", "raw": "1"}
+{"key": "ab370e70968067e8", "pred": 1, "story": "O sistema deve permitir a coleta de dados em campo de forma offline, com sincron", "raw": "1"}
+{"key": "c259d10eb837bad6", "pred": 1, "story": "O sistema deve registrar automaticamente metadados como hor\u00e1rio e usu\u00e1rio respon", "raw": "1"}
+{"key": "217b10e06b2cbbce", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto defina permiss\u00f5es de visualiza\u00e7\u00e3", "raw": "1"}
+{"key": "2adef514ac959204", "pred": 1, "story": "O sistema deve permitir a coleta de dados em campo de forma offline, com sincron", "raw": "1"}
+{"key": "895c14fcdd68c3aa", "pred": 1, "story": "O sistema deve permitir o anexo de arquivos de m\u00eddia (foto, filmagem, \u00e1udio) aos", "raw": "1"}
+{"key": "cc9126bd4d2799c9", "pred": 0, "story": "O sistema deve permitir a exporta\u00e7\u00e3o de dados nos formatos CSV, XLS e HTML.", "raw": "0"}
+{"key": "a95f9c1e17bea677", "pred": 1, "story": "O sistema deve permitir o anexo de arquivos de m\u00eddia (foto, filmagem, \u00e1udio) aos", "raw": "1"}
+{"key": "4c047e5783261086", "pred": 1, "story": "O sistema deve permitir a exporta\u00e7\u00e3o de dados nos formatos CSV, XLS e HTML.", "raw": "1"}
+{"key": "c535a9ff40d1695f", "pred": 1, "story": "O sistema deve permitir a exporta\u00e7\u00e3o de dados nos formatos CSV, XLS e HTML.", "raw": "1"}
+{"key": "9ce50509eb995867", "pred": 0, "story": "O sistema deve permitir a importa\u00e7\u00e3o de dados geogr\u00e1ficos no formato shapefile (", "raw": "0"}
+{"key": "39cda95f081a326b", "pred": 1, "story": "O sistema deve permitir a sele\u00e7\u00e3o de camadas a serem exportadas durante o proces", "raw": "1"}
+{"key": "2fb898a64eea1e6f", "pred": 1, "story": "O sistema deve fornecer um sistema de gamifica\u00e7\u00e3o que recompense a colabora\u00e7\u00e3o d", "raw": "1"}
+{"key": "eaa27916c0db258f", "pred": 0, "story": "O sistema deve permitir a marca\u00e7\u00e3o de trilhas (tracking) como funcionalidade adi", "raw": "0"}
+{"key": "3c278b8f33bcfe6e", "pred": 1, "story": "O sistema deve fornecer um sistema de gamifica\u00e7\u00e3o que recompense a colabora\u00e7\u00e3o d", "raw": "1"}
+{"key": "92e019e6389ca853", "pred": 0, "story": "O sistema deve permitir a marca\u00e7\u00e3o de trilhas (tracking) como funcionalidade adi", "raw": "0"}
+{"key": "29cd648032ab4241", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto decida a estrat\u00e9gia de visualiza", "raw": "1"}
+{"key": "bf6aa5671d51ec30", "pred": 1, "story": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados geoespaciais em forma de web map", "raw": "1"}
+{"key": "9f97896bd86f2885", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto decida a estrat\u00e9gia de visualiza", "raw": "1"}
+{"key": "6ca8cc824daaedc5", "pred": 1, "story": "O sistema deve fornecer um sistema de gamifica\u00e7\u00e3o que recompense a colabora\u00e7\u00e3o d", "raw": "1"}
+{"key": "141a79126d7725b1", "pred": 1, "story": "O sistema deve permitir a integra\u00e7\u00e3o com a plataforma VicomSaga por meio de um p", "raw": "1"}
+{"key": "a71ce30b4daf6811", "pred": 0, "story": "O sistema deve permitir a integra\u00e7\u00e3o com a plataforma VicomSaga por meio de um p", "raw": "0"}
+{"key": "bf189592b41e021c", "pred": 1, "story": "O sistema deve permitir a integra\u00e7\u00e3o com a plataforma VicomSaga por meio de um p", "raw": "1"}
+{"key": "745e3f9c19435eb8", "pred": 1, "story": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login com e-mail, username e senha.", "raw": "1"}
+{"key": "9f9cf88d40acb266", "pred": 1, "story": "O sistema deve estar dispon\u00edvel em plataforma web e mobile para coleta de dados.", "raw": "1"}
+{"key": "945d860d47a772ef", "pred": 1, "story": "O sistema deve suportar a edi\u00e7\u00e3o de vetores geogr\u00e1ficos (pontos, linhas, pol\u00edgon", "raw": "1"}
+{"key": "633467e353bc8e30", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto decida quais camadas s\u00e3o p\u00fablica", "raw": "1"}
+{"key": "a6d173992794d437", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto decida quais camadas s\u00e3o p\u00fablica", "raw": "1"}
+{"key": "0cdd5119e29b5aa7", "pred": 1, "story": "O sistema deve permitir que o gestor do projeto decida quais camadas s\u00e3o p\u00fablica", "raw": "1"}
+{"key": "c9e69dc63b1c1660", "pred": 1, "story": "O sistema deve ser modular e permitir que institui\u00e7\u00f5es instalem o software em se", "raw": "1"}
+{"key": "a2f1b6e38cd127ad", "pred": 1, "story": "O sistema deve ter c\u00f3digo aberto (open source) para que institui\u00e7\u00f5es possam pers", "raw": "1"}
+{"key": "90ac7aadbf8a0c99", "pred": 0, "story": "O sistema deve ser escal\u00e1vel para suportar crescimento exponencial de usu\u00e1rios, ", "raw": "0"}
+{"key": "9f016dc6b476ecc2", "pred": 0, "story": "O sistema deve ser est\u00e1vel e livre de bugs antes de ser liberado para uso massiv", "raw": "0"}
+{"key": "31ffd6459ea88417", "pred": 1, "story": "O sistema deve ser escal\u00e1vel para suportar crescimento exponencial de usu\u00e1rios, ", "raw": "1"}
+{"key": "dd7926291a6790d7", "pred": 0, "story": "O sistema deve ser implantado em at\u00e9 4 a 6 meses para um estudo de caso real na ", "raw": "0"}
+{"key": "c69455b11b618e64", "pred": 0, "story": "O sistema deve permitir que o usu\u00e1rio acesse e gerencie projetos de forma aut\u00f4no", "raw": "0"}
+{"key": "c67a3c6d7d898cd0", "pred": 1, "story": "O sistema deve ser desenvolvido de forma colaborativa, integrando-se a outras pl", "raw": "1"}
+{"key": "1fe3842983c6d101", "pred": 1, "story": "O sistema deve ser desenvolvido de forma colaborativa, integrando-se a outras pl", "raw": "1"}
+{"key": "6a30863ac0e7a77f", "pred": 1, "story": "O sistema deve permitir que o usu\u00e1rio acesse e gerencie projetos de forma aut\u00f4no", "raw": "1"}

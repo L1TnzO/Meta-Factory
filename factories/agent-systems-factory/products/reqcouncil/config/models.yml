@@ -1,0 +1,55 @@
+# Foundation model for every ReqCouncil persona (docs/design/00 S2, docs/design/04 §1).
+# Single model for all roles (analysts, critics, synthesizer, judge). Pinned so
+# runs are comparable across design iterations (docs/design/03 §2 — runs carry model id).
+# Switched zai-glm-4.7 @ Cerebras -> deepseek-ai/DeepSeek-V4-Flash @ SiliconFlow:
+# docs/decisions/004 (author's constraint: CHEAPEST per token — the money must last;
+# plus Cerebras free tier is 5 req/min = request-bound death for judge workloads,
+# measured; SiliconFlow gives 500 RPM / 2M TPM). The E0-dsv4flash arm validates it —
+# if it measures judge_agreement < 0.8 the decision is REVISITED.
+# History: deepseek-v4-pro -> qwen (002) -> glm (003, never validated) -> this (004).
+foundation_model:
+  provider: siliconflow
+  model: deepseek-ai/DeepSeek-V4-Flash
+  api_base: https://api.siliconflow.com/v1   # OpenAI-compatible endpoint (verified 2026-07-05)
+  api_key_env: SILICONFLOW_API_KEY           # value read from .env, never committed
+  arm: dsv4flash                             # runs-dir slug: bare `eval e0` -> runs/e0-dsv4flash
+  temperature: 0.2
+  extra_body:                                # provider-specific request params (llm.py)
+    enable_thinking: false                   # the paper's EXACT knob (enable_thinking=False);
+                                             # spiked 2026-07-05: 1 completion tok, no
+                                             # reasoning_content, 1.8s vs ~4.5s thinking.
+                                             # H3 revisits per-persona (analysts may want it).
+
+# Alignment judge (H2, experiment E0) — decoding pinned to the Inter2US protocol
+# (LLM_qwen_supervised_evaluate.py): greedy, thinking disabled, short output.
+judge:
+  temperature: 0.0            # mirrors do_sample=False
+  max_completion_tokens: 256  # mirrors max_new_tokens=256
+  reasoning_effort: none      # belt-and-suspenders next to enable_thinking (groq/qwen needs
+                              # it; siliconflow accepts and ignores it — spiked 2026-07-05)
+
+# Embeddings (H3, docs/decisions/005) — Moderator semantic dedup + future blocking top-K.
+# Cheapest embedder at the ALREADY-contracted provider (zero new vendors); measured spike
+# 2026-07-05: dim 1024, near-dup cos 0.9305 vs distinct 0.4513/0.4617 (wide separation).
+# bge-m3 (design/04 §1 suggested default) is NOT in SiliconFlow's live catalog — we pin
+# what exists where we already pay. τ_dup lives in config/council.yml (thresholds are DATA).
+embeddings:
+  provider: siliconflow
+  model: Qwen/Qwen3-Embedding-0.6B
+  api_base: https://api.siliconflow.com/v1
+  api_key_env: SILICONFLOW_API_KEY
+
+# Named alternates (measured comparisons only — selecting one never changes the default):
+#   qwen32b — the ONLY same-model anchor to the paper's published judge reports
+#             (0.8222 / 0.9138): its E0 CLOSED GREEN 2026-07-05 (pooled 0.8882, n=760,
+#             runs/e0/ legacy dir — pinned as the comparability anchor).
+#             Re-run for drift checks: eval e0 --model qwen32b --runs-dir runs/e0
+#             (SiliconFlow also hosts Qwen/Qwen3-32B at 500 RPM if Groq's TPD crawls again.)
+# Removed 2026-07-05 (decisions/004): glm47/gemma431 @ Cerebras — arms killed at ~90/760,
+# request-bound (5 req/min); partial caches discarded, nothing was claimed from them.
+alternates:
+  qwen32b:
+    provider: groq
+    model: qwen/qwen3-32b
+    api_base: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY

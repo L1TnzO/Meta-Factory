@@ -1,0 +1,61 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "FUNC29",
+      "cosine": 0.6097,
+      "gold_text": "O sistema deve calcular a nota de cada apresentação considerando as avaliações e a quantidade de avaliações.",
+      "matched_text": "O sistema deve suportar votação com cálculo de média baseada em critérios e quantidade de votantes."
+    },
+    {
+      "gold_id": "NOTF05",
+      "cosine": 0.6653,
+      "gold_text": "O sistema deve garantir o armazenamento de dados para reaproveitá-los em edições futuras.",
+      "matched_text": "O sistema deve manter o histórico de edições do evento."
+    },
+    {
+      "gold_id": "FUNC40",
+      "cosine": 0.7157,
+      "gold_text": "O sistema deve permitir que administradores reordenem as apresentações em caso de falta de algum doutorando para evitar atrasos no evento.",
+      "matched_text": "O sistema deve permitir que o administrador realize alterações na programação, como mover apresentações para slots vazios."
+    },
+    {
+      "gold_id": "FUNC20",
+      "cosine": 0.7353,
+      "gold_text": "O sistema deve permitir que administradores alterem data, horário e demais informações das apresentações.",
+      "matched_text": "O sistema deve permitir que o administrador realize alterações na programação, como mover apresentações para slots vazios."
+    },
+    {
+      "gold_id": "FUNC18",
+      "cosine": 0.7438,
+      "gold_text": "O sistema deve permitir que doutorandos apresentadores cadastrem suas apresentações e sugiram data e horário disponíveis.",
+      "matched_text": "O sistema deve permitir o cadastro de apresentações por alunos apresentadores."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "FUNC28",
+      "cosine": 0.7387,
+      "gold_text": "O sistema deve permitir que administradores alterem as informações de apresentações para organização do evento."
+    },
+    {
+      "gold_id": "FUNC23",
+      "cosine": 0.7341,
+      "gold_text": "O sistema deve permitir que professores avaliadores e ouvintes votem nas apresentações."
+    },
+    {
+      "gold_id": "NOTF04",
+      "cosine": 0.7277,
+      "gold_text": "O sistema deve suportar a hospedagem de múltiplas edições do evento."
+    },
+    {
+      "gold_id": "FUNC36",
+      "cosine": 0.7233,
+      "gold_text": "O sistema deve permitir que administradores criem novas edições do evento utilizando os mesmos cadastro de usuários de edições anteriores."
+    },
+    {
+      "gold_id": "FUNC34",
+      "cosine": 0.719,
+      "gold_text": "O sistema deve permitir que usuários visualizem na página inicial os detalhes de uma apresentação para decidirem se devem assisti-la."
+    }
+  ]
+}

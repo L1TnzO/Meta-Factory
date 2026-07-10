@@ -1,0 +1,34 @@
+# --- secrets (never commit) ---
+.env
+
+# --- raw downloaded corpora (provenance kept locally, out of git) ---
+# curated/extracted copies live tracked under datasets/<corpus>/ UPSTREAM — but the Meta-Factory
+# ADOPTION (ADR-025 §5) does NOT commit the datasets/ bulk (803M) at all, curated or raw: it lives
+# on local disk only, re-verifiable via the tracked datasets/MANIFEST.md (checksums+source+license).
+# `eval_floor` (the meta check gating this product) never reads datasets/ — see PROVENANCE.md.
+datasets/_originals/
+datasets/*
+!datasets/MANIFEST.md
+
+# --- run outputs (regenerable) ---
+runs/*
+!runs/.gitkeep
+
+# --- python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# --- os ---
+.DS_Store
+
+# --- pinned run evidence (tracked EXCEPTION to runs/*): the `no_regression` gate
+# (config/thresholds.yml) compares against a pinned previous green run ---
+!runs/pinned/
+
+# --- degraded evidence fixture (tracked EXCEPTION to runs/*, Meta-Factory ADR-025 §7): the
+# DELIBERATELY-WRONG evidence the `eval_floor` two-sided tooth swaps in for the negative run
+# (METAFACTORY_EVAL_EVIDENCE) — factory DATA, same status as the gold set, reviewed the same way. ---
+!runs/degraded/

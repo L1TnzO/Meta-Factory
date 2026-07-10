@@ -1,0 +1,25 @@
+{"key": "ba9e0967a4f700df", "pred": 0, "story": "As a user, I want the system to retain sent email data for at least 30 days, so ", "raw": "0"}
+{"key": "ec4b5e94d52f3a90", "pred": 0, "story": "As a user, I want the system to store a record of each sent email including subj", "raw": "0"}
+{"key": "56ad53c56ba23de6", "pred": 1, "story": "As a user, I want to compose a new email with a subject line and body text, so t", "raw": "1"}
+{"key": "d945d60df75693bb", "pred": 1, "story": "As a user, I want to specify one or more recipient email addresses, so that I ca", "raw": "1"}
+{"key": "f0980315864ad55d", "pred": 0, "story": "As a user, I want the system to store a record of each sent email including subj", "raw": "0"}
+{"key": "8b8214b25adf31b0", "pred": 1, "story": "As a user, I want to compose a new email with a subject line and body text, so t", "raw": "1"}
+{"key": "f3db028c5efa1c4a", "pred": 0, "story": "As a user, I want the system to retain sent email data for at least 30 days, so ", "raw": "0"}
+{"key": "efcb3ef8f86e816c", "pred": 1, "story": "As a user, I want to compose a new email with a subject line and body text, so t", "raw": "1"}
+{"key": "28ff457143cb1785", "pred": 1, "story": "As a user, I want to specify one or more recipient email addresses, so that I ca", "raw": "1"}
+{"key": "1d26e2fe9b5a4829", "pred": 1, "story": "As a user, I want to send the composed email, so that my message is delivered to", "raw": "1"}
+{"key": "8079998de5171640", "pred": 1, "story": "As a user, I want to specify one or more recipient email addresses, so that I ca", "raw": "1"}
+{"key": "a817511379dbc9c3", "pred": 0, "story": "As a user, I want the system to connect to an external SMTP server, so that comp", "raw": "0"}
+{"key": "366a636d7c67f27f", "pred": 1, "story": "As a user, I want to send the composed email, so that my message is delivered to", "raw": "1"}
+{"key": "75ccd2347494ca82", "pred": 0, "story": "As a user, I want the system to connect to an external SMTP server, so that comp", "raw": "0"}
+{"key": "7a8cbaa1c2c6b869", "pred": 1, "story": "As a user, I want to send the composed email, so that my message is delivered to", "raw": "1"}
+{"key": "8ff0d08219df6b2a", "pred": 0, "story": "As a user, I want the system to validate recipient email addresses against a dom", "raw": "0"}
+{"key": "c3c1d64c73de4e11", "pred": 0, "story": "As a user, I want the system to ensure that emails are only sent to recipients I", "raw": "0"}
+{"key": "88682f205dfc3a05", "pred": 1, "story": "As a user, I want the email platform to work on my mobile device, so that I can ", "raw": "1"}
+{"key": "d1a6cf50d4959dec", "pred": 0, "story": "The system shall encrypt email content and attachments in transit and at rest, s", "raw": "0"}
+{"key": "cdfcf6f49ef5575e", "pred": 0, "story": "As a user, I want the system to authenticate me before allowing access to compos", "raw": "0"}
+{"key": "74334f3022607478", "pred": 0, "story": "As a user, I want the email platform to work on my mobile device, so that I can ", "raw": "0"}
+{"key": "b4ba857fab3e0c45", "pred": 1, "story": "As a user, I want the email platform to work on my mobile device, so that I can ", "raw": "1"}
+{"key": "645e596ff8a29fa7", "pred": 1, "story": "As a user, I want the email composition interface to be simple and minimal, so t", "raw": "1"}
+{"key": "e4e6c5f7d1553568", "pred": 1, "story": "As a user, I want the email composition interface to be simple and minimal, so t", "raw": "1"}
+{"key": "0d10a1cd36869055", "pred": 1, "story": "As a user, I want the email composition interface to be simple and minimal, so t", "raw": "1"}

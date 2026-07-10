@@ -1,0 +1,496 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to access a website for a clinical office, so that I can view the office’s information and services.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a potential patient, I want to view a straightforward homepage so that I can quickly understand the purpose of the clinical office and navigate to key inform",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.8075,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7598,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7187,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5844,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4963,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want the website to have a homepage, so that I can get an overview of the clinical office.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a potential patient, I want to view a straightforward homepage so that I can quickly understand the purpose of the clinical office and navigate to key inform",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.8924,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.763,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6865,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6548,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5059,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want the website to have an “About Us” page, so that I can learn about the office’s information.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7261,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.723,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6753,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5846,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4829,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want the website to have a “Services” page, so that I can view the services provided by the office.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6793,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6725,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6388,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5093,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5063,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want the website to have a “Contact Us” page, so that I can contact the office.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "As a potential patient, I want to access a 'Contact' page so that I can find simple, straightforward methods to get in touch with the office.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7942,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7697,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6429,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5331,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4537,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to be able to browse the website, so that I can access the office’s information, services, and contact options.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a potential patient, I want to view a straightforward homepage so that I can quickly understand the purpose of the clinical office and navigate to key inform",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.7325,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7306,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7214,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6215,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5455,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to contact the office through the contact page, so that I can reach out to them directly from the website.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "As a potential patient, I want to access a 'Contact' page so that I can find simple, straightforward methods to get in touch with the office.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.8521,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.752,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6271,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5033,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4174,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want a simple navigation menu on the website, so that I can quickly find the information I need.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 3,
+      "matched_text": "As a potential patient, I want to view a straightforward homepage so that I can quickly understand the purpose of the clinical office and navigate to key inform",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6636,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6518,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5748,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5583,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5207,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want all website pages to use a light cyan background, so that the site has a consistent and clean visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4932,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4875,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4353,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.396,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3916,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want the website components to be styled in cadet blue, so that the site maintains a consistent and coherent visual design.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4235,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4003,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.397,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3909,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3472,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to navigate the website using a simple and clearly structured navigation menu",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "The site shall be simple and intuitive to use, so that potential patients can quickly find information without confusion.",
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6573,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6474,
+          "verdict": 1
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5145,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5039,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4953,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I expect the website’s information to be organized into distinct pages, including an overview, office background, services offered, and contact details.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6881,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6672,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6645,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5436,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3516,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer all website pages to use a light cyan background to create a clean and consistent visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4968,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4528,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4526,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3787,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.374,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the website’s components to be styled in cadet blue to maintain a coherent and unified visual design across the site.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4657,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4525,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4204,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3878,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3519,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

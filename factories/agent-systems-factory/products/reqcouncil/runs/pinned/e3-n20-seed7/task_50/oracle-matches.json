@@ -1,0 +1,881 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to register on the website and create a profile, so that I can use the recruitment services for drivers and job listings.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 13,
+      "matched_text": "As a driver, I want to register for an account on the platform so that I can be connected with job opportunities.",
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.87,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8097,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7831,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.758,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7358,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to be able to apply for jobs, so that I can seek driver positions available on the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.8606,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8443,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.8212,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.8041,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7955,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to manage my contact information, so that my details are up to date for communication regarding job opportunities.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6931,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6838,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.629,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6265,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6187,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a client, I want to post job listings, so that I can advertise driver positions that need to be filled.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As an employer, I want to post job listings so that I can advertise available driving positions to potential candidates.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.9086,
+          "verdict": 1
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7908,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.766,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7615,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7346,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a client, I want to view my active job postings, so that I can see which positions are currently advertised.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.6779,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6656,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6565,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6505,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6408,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to fill out and submit a contact form, so that I can get in touch with the website operators.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.5714,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5356,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.514,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5103,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5029,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to access a home page, so that I can see the main entry point and overview of the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4956,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4605,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4284,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4122,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4104,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want to access an about us page, so that I can learn more about the organization behind the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5395,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5192,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.516,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4949,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4937,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want to access a clients page, so that I can view information relevant to clients using the recruitment services.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.5912,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5905,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5855,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5842,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5759,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want to access a drivers page, so that I can view information relevant to drivers using the recruitment services.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.7767,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7585,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7562,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7134,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6788,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S10",
+      "gold_text": "As a user, I want to access a jobs page, so that I can view available job listings.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.6973,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6873,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6735,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6394,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6232,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S11",
+      "gold_text": "As a user, I want to access a contact page, so that I can find ways to contact the organization.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.529,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5231,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5186,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5172,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4939,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S12",
+      "gold_text": "As a user, I want the website design to use white as the background color, so that the interface matches the specified visual style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4442,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3758,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3313,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3269,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3074,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S13",
+      "gold_text": "As a user, I want the website design to use navy for content blocks, so that the interface matches the specified visual style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4618,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3852,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3482,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.3458,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3433,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to use the recruitment website by registering and creating a personal profile before accessing job-related services.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 13,
+      "matched_text": "As a driver, I want to register for an account on the platform so that I can be connected with job opportunities.",
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6702,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6351,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6283,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.611,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5711,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to apply for driver job opportunities directly through the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7478,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7151,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7115,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7042,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6324,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to manage and update my contact information myself to ensure accurate communication.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.477,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4451,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4343,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4167,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4107,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer employers to interact with the system by posting and managing job listings online.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employer, I want the platform to have a responsive web interface so that I can post job listings from a desktop or tablet.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7028,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6855,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6796,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6751,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.623,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer to communicate with the website operators through a dedicated contact form.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4687,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4434,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4418,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4348,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.417,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer to navigate the website through clearly separated pages such as home, jobs, drivers, clients, and contact pages.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.5547,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5287,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5256,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5215,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5038,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I expect the website to display available driver job listings in a dedicated jobs section.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7369,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7201,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7153,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6988,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6951,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR7",
+      "gold_text": "I expect the website to present information about the organization through an about us page.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.4956,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4801,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4509,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4405,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4387,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR8",
+      "gold_text": "I expect the website to include contact-related information and communication channels on a contact page.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.509,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5024,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4674,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4532,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4437,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR9",
+      "gold_text": "I prefer the website to use a white background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4913,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4272,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4152,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4129,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3937,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR10",
+      "gold_text": "I prefer the website’s content blocks to use a navy color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4468,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.374,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3698,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3649,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3645,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

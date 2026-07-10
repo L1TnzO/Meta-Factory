@@ -1,0 +1,75 @@
+{"key": "44443e8d58300c07", "pred": 1, "story": "As an administrator, I want to manually create, edit, and deactivate user accoun", "raw": "1"}
+{"key": "55bf2f0df5c4c033", "pred": 1, "story": "As an administrator, I want to block specific recipient phone numbers so that I ", "raw": "1"}
+{"key": "6807789a8393a04b", "pred": 1, "story": "As an administrator, I want to set a daily message limit per user so that I can ", "raw": "1"}
+{"key": "0410dd07bdcf18a1", "pred": 1, "story": "As an administrator, I want to block specific recipient phone numbers so that I ", "raw": "1"}
+{"key": "5c772491628ed13c", "pred": 1, "story": "As an administrator, I want to manually create, edit, and deactivate user accoun", "raw": "1"}
+{"key": "2c697fb0ce083881", "pred": 1, "story": "As an administrator, I want to manually create, edit, and deactivate user accoun", "raw": "1"}
+{"key": "048106940db71f7c", "pred": 1, "story": "As an administrator, I want to set a daily message limit per user so that I can ", "raw": "1"}
+{"key": "611e24a4b2649530", "pred": 1, "story": "As an administrator, I want to set a daily message limit per user so that I can ", "raw": "1"}
+{"key": "bcd4bd5f922890e6", "pred": 1, "story": "As a user, I want to send a message to a recipient so that I can communicate wit", "raw": "1"}
+{"key": "16159655f2bbf6d4", "pred": 1, "story": "As an administrator, I want to block specific recipient phone numbers so that I ", "raw": "1"}
+{"key": "cdcbad01011030f2", "pred": 1, "story": "As a user or administrator, I want to see the status (sent, delivered, or failed", "raw": "1"}
+{"key": "6ff5225a9ecc318e", "pred": 1, "story": "As a user or administrator, I want to see the status (sent, delivered, or failed", "raw": "1"}
+{"key": "b542058947b0772c", "pred": 0, "story": "As a user, I want to send a message to a recipient so that I can communicate wit", "raw": "0"}
+{"key": "a7b92024352fcfa8", "pred": 1, "story": "As a user or administrator, I want to see the status (sent, delivered, or failed", "raw": "1"}
+{"key": "d86d41b020e3ce75", "pred": 1, "story": "As an administrator, I want to view a history log of all sent messages so that I", "raw": "1"}
+{"key": "471ca34da92f4880", "pred": 1, "story": "As an administrator, I want to view a history log of all sent messages so that I", "raw": "1"}
+{"key": "7ff3cd18e46b44ee", "pred": 1, "story": "As a user, I want to send a message to a recipient so that I can communicate wit", "raw": "1"}
+{"key": "41da601513eb6db5", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and/or sta", "raw": "1"}
+{"key": "28b5c75269dd103f", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and/or sta", "raw": "1"}
+{"key": "9ff4563dbb08d2ce", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and/or sta", "raw": "1"}
+{"key": "85d133a8530b2602", "pred": 1, "story": "As an administrator, I want to view a history log of all sent messages so that I", "raw": "1"}
+{"key": "99b5c38f61bcd6e4", "pred": 0, "story": "The system must store user accounts with attributes including account status (ac", "raw": "0"}
+{"key": "cb4f1ce979213521", "pred": 0, "story": "The system must store user accounts with attributes including account status (ac", "raw": "0"}
+{"key": "4fe9abc4a6b01213", "pred": 0, "story": "The system must store user accounts with attributes including account status (ac", "raw": "0"}
+{"key": "3694fc5ae8996517", "pred": 0, "story": "The system must store a blocked phone numbers list for each administrator or glo", "raw": "0"}
+{"key": "d1c824713b7f4e4e", "pred": 0, "story": "The system must store a message history log with attributes including sender, re", "raw": "0"}
+{"key": "aa6b87256d893ac9", "pred": 1, "story": "The system must store a message history log with attributes including sender, re", "raw": "1"}
+{"key": "ce79ad0316c37d1d", "pred": 0, "story": "The system must store a blocked phone numbers list for each administrator or glo", "raw": "0"}
+{"key": "72204397af089eb3", "pred": 1, "story": "As a system, I want to integrate with an external SMS gateway or telecommunicati", "raw": "1"}
+{"key": "53af0e9eae4fc51b", "pred": 0, "story": "As a system, I want to integrate with an external SMS gateway or telecommunicati", "raw": "0"}
+{"key": "0ec693ed269b2db7", "pred": 0, "story": "As a system, I want to integrate with an external SMS gateway or telecommunicati", "raw": "0"}
+{"key": "6ffedc037e9126e1", "pred": 0, "story": "As a system, I want to consume delivery receipt callbacks from the SMS gateway, ", "raw": "0"}
+{"key": "3f598c933500dc9e", "pred": 0, "story": "As a system, I want to consume delivery receipt callbacks from the SMS gateway, ", "raw": "0"}
+{"key": "3ea6aff96ccca202", "pred": 0, "story": "The system shall log all administrator actions related to user account creation,", "raw": "0"}
+{"key": "c937b2032601cafd", "pred": 0, "story": "The system shall log all administrator actions related to user account creation,", "raw": "0"}
+{"key": "df98cc5947a7a605", "pred": 0, "story": "The system shall ensure that only authenticated administrators can access user m", "raw": "0"}
+{"key": "6c0b46e5a806d22e", "pred": 0, "story": "The system shall ensure that only authenticated administrators can access user m", "raw": "0"}
+{"key": "5d080e7278874faa", "pred": 1, "story": "As a system administrator, I want the system to implement error handling and log", "raw": "1"}
+{"key": "6ac48346b8a2caf2", "pred": 0, "story": "As a system administrator, I want the system to validate or moderate message con", "raw": "0"}
+{"key": "ed1b4dc69bdbf1cb", "pred": 0, "story": "As a system administrator, I want the system to integrate with an external SMS g", "raw": "0"}
+{"key": "0e36e193880cddcc", "pred": 0, "story": "As a system administrator, I want the system to implement error handling and log", "raw": "0"}
+{"key": "5166ca0bc6f49d54", "pred": 0, "story": "As a system administrator, I want the system to handle API call retries and deli", "raw": "0"}
+{"key": "afb7d4d97bf5045d", "pred": 0, "story": "As a system administrator, I want the system to validate or moderate message con", "raw": "0"}
+{"key": "fff3824cd898dbea", "pred": 0, "story": "As a system administrator, I want the system to validate or moderate message con", "raw": "0"}
+{"key": "6735b0c6196e9be1", "pred": 0, "story": "As a user, I want to see message statuses (sent, delivered, failed) updated base", "raw": "0"}
+{"key": "6c0970dab577b955", "pred": 0, "story": "As a system, I want to handle API calls, retries, and delivery receipts from the", "raw": "0"}
+{"key": "edd9d2287fe0d1eb", "pred": 0, "story": "As a user, I want to see message statuses (sent, delivered, failed) updated base", "raw": "0"}
+{"key": "f03c5d640280d082", "pred": 1, "story": "As a system, I want to integrate with an external SMS gateway or telecommunicati", "raw": "1"}
+{"key": "01050c7139730fa9", "pred": 0, "story": "As a system, I want to handle API calls, retries, and delivery receipts from the", "raw": "0"}
+{"key": "0f5e008c46397f43", "pred": 1, "story": "As a system, I want to handle API calls, retries, and delivery receipts from the", "raw": "1"}
+{"key": "5348242f2b67d3d8", "pred": 0, "story": "As a system, I want to integrate with an external SMS gateway or telecommunicati", "raw": "0"}
+{"key": "bc83dd604af1f530", "pred": 0, "story": "As a system administrator, I want the system to handle errors and log system eve", "raw": "0"}
+{"key": "5ec097dfc1ee5e81", "pred": 0, "story": "As a system administrator, I want the system to support integration with an exte", "raw": "0"}
+{"key": "b48e10f2b714b069", "pred": 0, "story": "As a system administrator, I want the system to validate message content for spa", "raw": "0"}
+{"key": "8479a7587f6c0084", "pred": 0, "story": "As a system administrator, I want the system to log all message transmission eve", "raw": "0"}
+{"key": "c802aecc68c5ad8b", "pred": 0, "story": "As a system administrator, I want the system to validate message content for spa", "raw": "0"}
+{"key": "f529d44fb2d25fc2", "pred": 1, "story": "As a system administrator, I want the system to integrate with an external SMS g", "raw": "1"}
+{"key": "726f915aee69e936", "pred": 0, "story": "As a system administrator, I want the system to support delivery status tracking", "raw": "0"}
+{"key": "99940aab8dd9c146", "pred": 0, "story": "As a system administrator, I want the system to integrate with an external SMS g", "raw": "0"}
+{"key": "9826904e2aa45363", "pred": 0, "story": "As a system administrator, I want the system to support delivery status tracking", "raw": "0"}
+{"key": "0853d405ca3e2bf2", "pred": 0, "story": "The system must store user accounts with attributes including account status and", "raw": "0"}
+{"key": "3827051cbb46ddfd", "pred": 0, "story": "The system must store a message history log with attributes including sender, re", "raw": "0"}
+{"key": "5afdfe1b3f1d6a26", "pred": 0, "story": "The system must store user accounts with attributes including account status and", "raw": "0"}
+{"key": "2a50e7a0a2dcc590", "pred": 0, "story": "As a system administrator, I want the system to support delivery status tracking", "raw": "0"}
+{"key": "0808fbeb0ebad10b", "pred": 0, "story": "The system must store a message history log with attributes including sender, re", "raw": "0"}
+{"key": "c58990988c96d7ea", "pred": 1, "story": "As a system administrator, I want the system to integrate with an external SMS g", "raw": "1"}
+{"key": "c8b45f6db9cd2400", "pred": 1, "story": "As a user, I want to see the status of each message I send so that I can confirm", "raw": "1"}
+{"key": "e22c0fe025ba8d4f", "pred": 0, "story": "As a system administrator, I want the system to integrate with an external SMS g", "raw": "0"}
+{"key": "c785cfcf21449ac8", "pred": 0, "story": "The system must store user accounts with attributes including account status and", "raw": "0"}
+{"key": "35655c1c4b9b2040", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and status", "raw": "1"}
+{"key": "44273e00d8d9d297", "pred": 1, "story": "As a user, I want to see the status of each message I send so that I can confirm", "raw": "1"}
+{"key": "12b2e9d3d3c84703", "pred": 1, "story": "As a user, I want to see the status of each message I send so that I can confirm", "raw": "1"}
+{"key": "5ba76e961e3bf3dc", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and status", "raw": "1"}
+{"key": "86c29876dc165adf", "pred": 1, "story": "As an administrator, I want to filter the message history log by date and status", "raw": "1"}
+{"key": "129f1a710273b196", "pred": 0, "story": "As a system administrator, I want the system to support delivery status tracking", "raw": "0"}

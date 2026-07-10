@@ -1,0 +1,171 @@
+{
+  "engineer": "fable-5 (model reviewer, clean-room subagent — H6 §9 amendment)",
+  "mode": "file",
+  "decisions": {
+    "nfr-6": {
+      "decision": "accept",
+      "reason": "Judge wrong (0/3): transcript explicitly states outsourcing the entire development and maintenance (0:27:42) and data localization/residency incl. the Germany example (0:29:00)."
+    },
+    "ux-13": {
+      "decision": "accept",
+      "reason": "Directly stated at 0:20:56: teams and IFA administrative work on a web-based application; referees and fans get mobile apps."
+    },
+    "integration-12": {
+      "decision": "accept",
+      "reason": "Stated at 0:25:20-0:25:37: 50,000 simultaneous users, response of a second or two for fans/IFA/team admins, and referees prioritized in real time during games."
+    },
+    "nfr-9": {
+      "decision": "accept",
+      "reason": "Auto reminders (annual team report), budget policy alerts, and fan-configurable alerts (remind me 5 min before the game) all stated at 0:24:21-0:24:49."
+    },
+    "gap_hunter-r4-0": {
+      "decision": "accept",
+      "reason": "Real-time referee event updates are 'the main contract' (0:26:53); one-way referee-to-system flow matches the transcript."
+    },
+    "integration-6": {
+      "decision": "accept",
+      "reason": "Override requires explicated rationale plus confirmation by another IFA representative (0:14:07, 0:15:41)."
+    },
+    "ux-2": {
+      "decision": "accept",
+      "reason": "Even a guest can see final game data without registering, to increase transparency (0:06:35)."
+    },
+    "data-1": {
+      "decision": "accept",
+      "reason": "Insertion of budget transactions and items is done only by the teams, each accessing only its own data (0:08:44)."
+    },
+    "data-18": {
+      "decision": "accept",
+      "reason": "Team manager/owner approaches IFA with valid documents and IFA approves the registration (0:36:30)."
+    },
+    "data-20": {
+      "decision": "accept",
+      "reason": "Referees are appointed by the IFA; the representative invites the referee into the system (0:38:32-0:38:46)."
+    },
+    "data-22": {
+      "decision": "accept",
+      "reason": "IFA should be able to define the league and define the season (0:37:20)."
+    },
+    "data-23": {
+      "decision": "accept",
+      "reason": "All past archives should be kept to allow reasoning/analysis about the future (0:37:20)."
+    },
+    "data-27": {
+      "decision": "accept",
+      "reason": "Response time of 'a second or two' for fans, IFA administrative and team administration stated at 0:25:37."
+    },
+    "data-7": {
+      "decision": "accept",
+      "reason": "Each event has its timestamp, the event itself, and maybe additional information required for the specific event (0:05:04)."
+    },
+    "data-9": {
+      "decision": "accept",
+      "reason": "Export of game data to journalists/press is wanted and confirmed as not available today (0:07:12-0:07:20)."
+    },
+    "functional-10": {
+      "decision": "accept",
+      "reason": "Scheduling policy definition, algorithmic schedule generation, and override with rationale plus second-representative approval are all stated (0:09:39, 0:14:07)."
+    },
+    "functional-14": {
+      "decision": "accept",
+      "reason": "Another IFA representative (same role, initiator/approver split) must confirm any override (0:14:07, 0:15:41-0:15:50)."
+    },
+    "functional-22": {
+      "decision": "accept",
+      "reason": "Users should register for identification (otherwise guest), user profile for everyone, with per-stakeholder access/interfaces (0:36:09, 0:21:34)."
+    },
+    "gap_hunter-r2-0": {
+      "decision": "accept",
+      "reason": "Manual schedule adjustment allowed when a game is canceled due to weather or city events (0:13:27)."
+    },
+    "gap_hunter-r2-1": {
+      "decision": "accept",
+      "reason": "All past season scheduling archives should be kept (0:37:03-0:37:20)."
+    },
+    "gap_hunter-r2-3": {
+      "decision": "accept",
+      "reason": "Stakeholder himself proposed that budget data (the only non-open data) be encrypted to avoid leakage (0:30:14)."
+    },
+    "gap_hunter-r3-3": {
+      "decision": "accept",
+      "reason": "Fan portal has live-update and tournament standings sections and fans should not need external news portals (0:19:29, 0:22:50-0:23:00)."
+    },
+    "gap_hunter-r4-1": {
+      "decision": "accept",
+      "reason": "Phase 1 explicitly = teams, league, season setup, referee registration and fan registration (0:32:51)."
+    },
+    "integration-0": {
+      "decision": "accept",
+      "reason": "Referee inserts game events in real time via mobile phone; only referees may insert, for reliability (0:05:04)."
+    },
+    "integration-1": {
+      "decision": "accept",
+      "reason": "Cited anchors (20/21, data aggregation) are WRONG, but the need is fully stated in the fan-portal section: subscribe to games/players/teams, push on schedule changes, events, player posts (0:17:25-0:20:08)."
+    },
+    "integration-10": {
+      "decision": "accept",
+      "reason": "Player can update their social network page and manage communication with fans (0:31:26)."
+    },
+    "integration-11": {
+      "decision": "accept",
+      "reason": "Localization plus country data restrictions (Germany example) stated at 0:29:00."
+    },
+    "integration-4": {
+      "decision": "accept",
+      "reason": "Cited anchors (77/78, reminders) are WRONG, but referee allocation policies with system assigning referees per policy is stated at 0:11:24-0:12:29."
+    },
+    "integration-5": {
+      "decision": "accept",
+      "reason": "Cited anchors (100/101, phasing) are WRONG, but referees installing preferences (e.g. vacation) as scheduling constraints is stated at 0:12:29."
+    },
+    "nfr-1": {
+      "decision": "accept",
+      "reason": "Referees connected during a game should get high priority so events are reported as quickly as possible (0:25:37)."
+    },
+    "nfr-2": {
+      "decision": "edit",
+      "reason": "Push notifications to subscribed fans are real (0:17:25-0:20:08), but no delivery-latency-within-seconds SLA was ever stated - the latency spec is invented.",
+      "edited_text": "The system should provide push notifications to fans who have subscribed to specific games, teams, or players when relevant events occur (e.g., schedule changes, referee-reported game events, player posts)."
+    },
+    "security-5": {
+      "decision": "accept",
+      "reason": "Data localization and local-regulation compliance stated at 0:29:00 (duplicate of integration-11/ux-15, but grounded)."
+    },
+    "security-8": {
+      "decision": "accept",
+      "reason": "Users register for identification, otherwise they are guests (0:36:09)."
+    },
+    "security-9": {
+      "decision": "accept",
+      "reason": "Override requires explicated rationale plus confirmation by another IFA representative, for transparency/bias (0:14:07)."
+    },
+    "ux-15": {
+      "decision": "accept",
+      "reason": "Data residency restrictions (e.g. German data may not leave the country) stated at 0:29:00."
+    },
+    "ux-3": {
+      "decision": "accept",
+      "reason": "When the referee reports an event (e.g. player replacement), subscribed fans get a notification (0:20:08)."
+    },
+    "ux-4": {
+      "decision": "accept",
+      "reason": "Teams can look into their own data and perform analysis offline; each team accesses only its own data (0:07:55, 0:08:44)."
+    },
+    "ux-5": {
+      "decision": "accept",
+      "reason": "IFA views the entire monetary information and monitors/alerts to ensure proper management (0:02:25, 0:08:44)."
+    },
+    "ux-6": {
+      "decision": "accept",
+      "reason": "IFA should specify budget policy in the system so it can alert on violations (0:02:44)."
+    },
+    "ux-7": {
+      "decision": "accept",
+      "reason": "Only the referee can insert/update game events so data is coherent and reliable (0:05:04, 0:22:16)."
+    },
+    "ux-9": {
+      "decision": "accept",
+      "reason": "Scheduling policies drive the automatic scheduler; manual override only in exceptional circumstances (0:09:39, 0:13:27, 0:14:07)."
+    }
+  }
+}

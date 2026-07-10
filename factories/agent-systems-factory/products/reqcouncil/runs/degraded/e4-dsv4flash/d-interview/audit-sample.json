@@ -1,0 +1,50 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "US19",
+      "cosine": 0.655,
+      "gold_text": "As the IFA, I want to avoid conflicts between the game schedules and the match officials’ personal schedules, so that I will not have to reschedule games as a r",
+      "matched_text": "As a referee, I want to input my availability preferences into the system, so that the scheduling algorithm can take those constraints into account when assigni"
+    },
+    {
+      "gold_id": "US27",
+      "cosine": 0.6699,
+      "gold_text": "As a fan, I want to be notified as soon as possible about important schedule changes like a delayed kick-off, so that I can plan accordingly.",
+      "matched_text": "The system should provide push notifications to fans who have subscribed to specific games, teams, or players, with a delivery latency within seconds of event o"
+    },
+    {
+      "gold_id": "US33",
+      "cosine": 0.7017,
+      "gold_text": "As a match official, I want to report on match events live during the match, so that I do not have to register events twice.",
+      "matched_text": "As a referee, I want to input game events into the system via a mobile application in real time, so that official game data is coherent and reliable."
+    },
+    {
+      "gold_id": "US23",
+      "cosine": 0.7124,
+      "gold_text": "As the IFA, I want the teams to input every transaction they make into the system so that I can make sure the team is following their league’s rules.",
+      "matched_text": "As an IFA administrator, I want to view all teams' monetary information for monitoring and compliance checking, so that I can ensure adherence to policies."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "US12",
+      "cosine": 0.8851,
+      "gold_text": "As the IFA administrator, I want to be able to register new teams for the system, so that I can keep the system up to date."
+    },
+    {
+      "gold_id": "US13",
+      "cosine": 0.8738,
+      "gold_text": "As the IFA manager, I want to be able to approve new teams that are registered in the IFA system, so that I can maintain integrity."
+    },
+    {
+      "gold_id": "US9",
+      "cosine": 0.8432,
+      "gold_text": "As the IFA, I want to manage leagues within the system, so that I have one place to access all necessary data."
+    },
+    {
+      "gold_id": "US22",
+      "cosine": 0.7959,
+      "gold_text": "As an IFA budget auditor, I want to be able to control and audit a team’s budget management within the system, so that I can reduce my workload."
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to send short messages, so that I can communicate using the short message service platform.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "As a user, I want to send a message to a recipient so that I can communicate with them.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7794,
+          "verdict": 1
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6883,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6588,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5677,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5621,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to manage user information, so that user-related data can be maintained on the platform.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.6332,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5894,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.541,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5326,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5275,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to configure sending policies, so that I can control how short messages are sent.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6494,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6257,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6203,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6155,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5929,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to view short message sending records, so that I can see the history of sent short messages.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an administrator, I want to view a history log of all sent messages so that I can review past activity.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7777,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7235,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6228,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6165,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5981,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to monitor short message sending situations, so that I can observe and track the status of short message sending.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "As a user, I want to see the status of each message I send so that I can confirm its transmission and delivery.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.8012,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7236,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6766,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6645,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6261,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want the platform to apply azure mist as the background, so that the visual background appearance matches this style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.4083,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4017,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.389,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3884,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3794,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want all components to be styled with dark slate blue, so that the component appearance is consistent with this color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.3817,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3388,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3354,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3295,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3161,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I expect the platform to maintain and present user-related information as part of message operations.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 2,
+      "matched_text": "The system must store a message history log with attributes including sender, recipient, message content, status, and timestamp.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.6267,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6234,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.594,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5675,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5586,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer the platform interface to use an azure mist background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.463,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4563,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4355,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4186,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4072,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer all interface components to be styled with dark slate blue for visual consistency.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.3922,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3776,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3703,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3547,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3294,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_16",
+  "task_name": "Fundraiser Day Promotional Website",
+  "application_type": "Showcase Websites",
+  "timestamp": "2026-07-06T18:21Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "25a36d84dcc9fdee52cc335bf3484d52ab9cd7adbe8c12a47ded82343c9350cc",
+  "n_chunks": 6,
+  "n_requirements": 8,
+  "grounded": 5,
+  "fidelity": 0.625,
+  "n_golden": 8,
+  "oracle_recall": 0.125,
+  "oracle_precision": 0.125,
+  "n_implicit": 7,
+  "implicit_yield": 0.1429,
+  "cci": 1.0,
+  "citation_coverage": 0.5,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 6,
+    "requirements": 8
+  },
+  "usage": {
+    "prompt_tokens": 64332,
+    "completion_tokens": 2458
+  }
+}

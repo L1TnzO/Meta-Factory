@@ -1,0 +1,566 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to be able to compose emails, so that I can create the content of the messages I want to send.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "As a user, I want to compose a new email with a subject line and body text, so that I can write a message to a recipient.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.8813,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.8074,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7337,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7272,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7242,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to be able to select recipients for my emails, so that I can choose who will receive my messages.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a user, I want to specify one or more recipient email addresses, so that I can send my message to the correct people.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8472,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.8201,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6863,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6771,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6439,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to be able to send emails, so that my composed messages are delivered to the selected recipients.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a user, I want to send the composed email, so that my message is delivered to the specified recipients.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.9219,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8069,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.8037,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7695,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.7509,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to be able to manage my sent emails, so that I can view, organize, or handle messages I have already sent.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7794,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7466,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6991,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6939,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6879,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to have access to email templates, so that I can use predefined structures or content when composing emails.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7944,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7311,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7135,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7005,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6914,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to be able to upload attachments to my emails, so that I can include additional files with my messages.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7209,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6984,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6874,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.682,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6599,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to manage recipients, so that I can organize and maintain the list of people or addresses I send emails to.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8372,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.778,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6408,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6351,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6192,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the platform’s background to use the cornsilk color, so that the visual appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.3846,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3517,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3507,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3486,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3247,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the platform’s components to use the peru color, so that the visual elements match the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.417,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3853,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3847,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3785,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3646,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to explicitly select recipients before sending emails",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 2,
+      "matched_text": "As a user, I want the system to ensure that emails are only sent to recipients I explicitly specify, so that messages are not accidentally delivered to unintend",
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.8165,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7791,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6576,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6293,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6122,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to use predefined email templates to assist with email composition instead of always writing emails from scratch.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.6259,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5867,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.564,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5566,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5306,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to upload and include attachments directly during the email composition process.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6472,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.638,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6236,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.612,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.608,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect the platform to keep records of sent emails so that I can review and organize past communications.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7043,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6452,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.64,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6399,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6101,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I expect the platform to maintain structured information about recipients as part of my email management workflow.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7464,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7377,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6359,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6307,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6082,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the platform interface to use a cornsilk-colored background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.3717,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3561,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3491,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3487,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.2806,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I prefer the platform’s interface components to use a peru color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.4195,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3951,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.393,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3868,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3334,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

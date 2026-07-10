@@ -1,0 +1,39 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "FUNC08",
+      "cosine": 0.5756,
+      "gold_text": "O sistema deve permitir a utilização de primitivas das gráficas ponto, linha e polígono para georreferenciamento.",
+      "matched_text": "As a user, I want to create and edit vector data (points, lines, polygons) within a project, so that I can contribute georeferenced information to the platform."
+    },
+    {
+      "gold_id": "FUNC06",
+      "cosine": 0.5999,
+      "gold_text": "O sistema deve permitir que os usuários preencham formulários offline e sincronizem posteriormente quando conectados à internet.",
+      "matched_text": "As a field data collector, I want to use a mobile application to capture georeferenced data (points, lines, polygons) and fill forms offline, so that I can work"
+    },
+    {
+      "gold_id": "FUNC09",
+      "cosine": 0.6073,
+      "gold_text": "O sistema deve permitir o upload de fotos, áudios e vídeos em anexo a formulários.",
+      "matched_text": "As a user, I want to attach media files (photos, videos, audio) to collected data, so that I can enrich georeferenced records with multimedia evidence."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "FUNC07",
+      "cosine": 0.6409,
+      "gold_text": "O sistema deve permitir que o usuário envie dados de localização georreferenciados."
+    },
+    {
+      "gold_id": "FUNC05",
+      "cosine": 0.6208,
+      "gold_text": "O sistema deve permitir que os gestores de projetos convidem outros usuários para participar de um projeto específico, definindo seu papel (perfil) no momento d"
+    },
+    {
+      "gold_id": "FUNC22",
+      "cosine": 0.6041,
+      "gold_text": "O sistema deve atribuir pontos e recompensas aos usuários por sua participação."
+    }
+  ]
+}

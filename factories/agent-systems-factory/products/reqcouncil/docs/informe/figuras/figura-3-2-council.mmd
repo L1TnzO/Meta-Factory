@@ -1,0 +1,10 @@
+%% Figura 3.2 — Topología del council (loop de deliberación) (elaboración propia)
+flowchart TD
+    R0[Ronda 0 DIVERGE:<br/>6 Analysts en paralelo proponen candidatos con anclas] --> MG[Moderator:<br/>merge + dedup semántico]
+    MG --> RK[Ronda k CONVERGE:<br/>Gap Hunter · Conflict Detector · Evidence Skeptic objetan]
+    RK --> V[Analistas responden:<br/>SUPPORT / REVISE / DROP<br/>Consensus Protocol]
+    V --> CC{Convergence Controller:<br/>¿punto fijo ∨ plateau cobertura ∨ K=4?}
+    CC -->|no| RK
+    CC -->|sí| SY[Synthesizer COLLAPSE:<br/>normaliza, rankea worst-first]
+    SY --> HP[Review Packet → checkpoint humano]
+    V -.->|conflictos irresueltos = CONFLICT-STANDING| HP

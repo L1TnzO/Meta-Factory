@@ -1,0 +1,106 @@
+{"key": "1051d1f23b986153", "pred": 1, "story": "As a system, I want to store the specific services selected by a visitor (e.g., ", "raw": "1"}
+{"key": "990d6ad83f9709c0", "pred": 1, "story": "As a system, I want to store the specific services selected by a visitor (e.g., ", "raw": "1"}
+{"key": "f055b6d0ea07ceba", "pred": 1, "story": "As a system, I want to store the specific credit issues selected by a visitor (e", "raw": "1"}
+{"key": "13c8d54e82abcf52", "pred": 1, "story": "As a system, I want to store lead information including contact details (phone n", "raw": "1"}
+{"key": "c8971a27fcf87d1a", "pred": 1, "story": "As a system, I want to store the visitor's phone number as a mandatory field in ", "raw": "1"}
+{"key": "3e5ca7e536362590", "pred": 1, "story": "As a system, I want to store lead information including contact details (phone n", "raw": "1"}
+{"key": "13956c1e824b4f0d", "pred": 1, "story": "As a system, I want to store the specific credit issues selected by a visitor (e", "raw": "1"}
+{"key": "da6fbabddf5ff314", "pred": 1, "story": "As a system, I want to store lead information including contact details (phone n", "raw": "1"}
+{"key": "5c44457bf50d66b8", "pred": 0, "story": "As a system, I want to store the visitor's email address as an optional field in", "raw": "0"}
+{"key": "60f6704e9fb61492", "pred": 0, "story": "As a potential client, I want to submit my contact details (name, email, phone) ", "raw": "0"}
+{"key": "fcdf024ea65c108b", "pred": 0, "story": "As a system, I want to store the visitor's name as part of the lead record, so t", "raw": "0"}
+{"key": "d91abc48f929d3c1", "pred": 1, "story": "As a potential client, I want to select from a predefined list of credit issues ", "raw": "1"}
+{"key": "fc183031a28194b1", "pred": 1, "story": "As a potential client, I want to submit my contact details (name, email, phone) ", "raw": "1"}
+{"key": "69403373473c539e", "pred": 1, "story": "As a potential client, I want to select from a predefined list of credit issues ", "raw": "1"}
+{"key": "57f41ee181ce1c0b", "pred": 1, "story": "As a potential client, I want to submit my contact details (name, email, phone) ", "raw": "1"}
+{"key": "e93f8c334338530d", "pred": 1, "story": "As a potential client, I want to select from a predefined list of services (incl", "raw": "1"}
+{"key": "c6fd545881446bc2", "pred": 1, "story": "As a potential client, I am required to provide my phone number in the form, so ", "raw": "1"}
+{"key": "87cfbd73a33e39f2", "pred": 1, "story": "As a potential client, I want to select from a predefined list of services (incl", "raw": "1"}
+{"key": "922ab5746d5b3ea9", "pred": 1, "story": "As a website visitor, I want to check my credit score via an integrated tool or ", "raw": "1"}
+{"key": "78eeb8708919f0c5", "pred": 1, "story": "As a website visitor, I want to learn about the available credit repair services", "raw": "1"}
+{"key": "9eb788b713bb21f1", "pred": 1, "story": "As a company representative, I want to receive the submitted lead data (includin", "raw": "1"}
+{"key": "022e13d69f727ca1", "pred": 1, "story": "As a company representative, I want to receive the submitted lead data (includin", "raw": "1"}
+{"key": "f42efc320eb40a39", "pred": 0, "story": "As a system, I want to integrate with a third-party credit bureau service for th", "raw": "0"}
+{"key": "18f8c68f7c0d636c", "pred": 0, "story": "As a system, I want to export lead data (including contact details, selected cre", "raw": "0"}
+{"key": "f0d2b372bfdaff17", "pred": 1, "story": "As a system, I want to send an automated email notification to the stakeholder w", "raw": "1"}
+{"key": "1f21e821e860acc0", "pred": 1, "story": "As a system, I want to export lead data (including contact details, selected cre", "raw": "1"}
+{"key": "94ea09f280a82726", "pred": 0, "story": "As a website visitor, I want to check my credit score via an integrated tool or ", "raw": "0"}
+{"key": "6236bcc26812d9c5", "pred": 0, "story": "As a system, I want to send an automated email notification to the stakeholder w", "raw": "0"}
+{"key": "ec44a439a99b5bce", "pred": 0, "story": "As a potential client, I have the option to provide my email address in the form", "raw": "0"}
+{"key": "e806f76b7628584a", "pred": 0, "story": "As a website visitor, I want to check my credit score via an integrated tool or ", "raw": "0"}
+{"key": "a9b2ffeea92f886b", "pred": 0, "story": "As a system, I want to export lead data (including contact details, selected cre", "raw": "0"}
+{"key": "1e315e28fb7aa6e1", "pred": 0, "story": "As a system, I want to display a confirmation message or redirect to a thank-you", "raw": "0"}
+{"key": "5fa20575e2700dc9", "pred": 1, "story": "As a company representative, I want to receive the submitted lead data (includin", "raw": "1"}
+{"key": "1931f65beb8f339d", "pred": 0, "story": "The credit score check feature must load and display results within 3 seconds un", "raw": "0"}
+{"key": "6126d530f225ac5a", "pred": 0, "story": "The lead capture form must submit data and confirm receipt to the visitor within", "raw": "0"}
+{"key": "5700c8a12ba73973", "pred": 0, "story": "The lead capture form must submit data and confirm receipt to the visitor within", "raw": "0"}
+{"key": "b0acc278093992ac", "pred": 0, "story": "The credit score check feature must load and display results within 3 seconds un", "raw": "0"}
+{"key": "1284f2be8c8b3901", "pred": 1, "story": "As a system, I want to display a confirmation message or redirect to a thank-you", "raw": "1"}
+{"key": "83cc6a4c0a520f2b", "pred": 0, "story": "The credit score check feature must load and display results within 3 seconds un", "raw": "0"}
+{"key": "bb394a90a52db613", "pred": 0, "story": "The lead capture form must submit data and confirm receipt to the visitor within", "raw": "0"}
+{"key": "de0afe2dd61fa47b", "pred": 0, "story": "The system must handle at least 100 concurrent visitors without degradation of r", "raw": "0"}
+{"key": "aec5ce73ea4c3933", "pred": 0, "story": "The website must achieve 99.9% uptime during business hours (9 AM to 6 PM, local", "raw": "0"}
+{"key": "9707a096bc6420c6", "pred": 0, "story": "The lead capture form must be usable on mobile devices with a touch-friendly int", "raw": "0"}
+{"key": "234920555335eb3e", "pred": 0, "story": "The website must achieve 99.9% uptime during business hours (9 AM to 6 PM, local", "raw": "0"}
+{"key": "98ea043a0da818e4", "pred": 0, "story": "The system must handle at least 100 concurrent visitors without degradation of r", "raw": "0"}
+{"key": "84ede793e0cd8660", "pred": 0, "story": "The credit score estimator must provide a response within 1 second for 90% of re", "raw": "0"}
+{"key": "3cf24244e45d475c", "pred": 0, "story": "As a website visitor, I want to provide explicit consent before my personal data", "raw": "0"}
+{"key": "68c507dab472be84", "pred": 0, "story": "The credit score estimator must provide a response within 1 second for 90% of re", "raw": "0"}
+{"key": "7ba8c2c9503ec457", "pred": 0, "story": "The lead capture form must be usable on mobile devices with a touch-friendly int", "raw": "0"}
+{"key": "58b8a916081cd48c", "pred": 0, "story": "The website must achieve 99.9% uptime during business hours (9 AM to 6 PM, local", "raw": "0"}
+{"key": "5c664c4026345341", "pred": 0, "story": "As a system administrator, I want the lead capture form to include a privacy not", "raw": "0"}
+{"key": "2cfd3c6c09f03d8c", "pred": 0, "story": "As a website visitor, I want to provide explicit consent before my personal data", "raw": "0"}
+{"key": "930b0f60cce47810", "pred": 0, "story": "As a website visitor, I want to provide explicit consent before my personal data", "raw": "0"}
+{"key": "e50e0a8fadb3507e", "pred": 0, "story": "As a system administrator, I want the lead capture form to include a privacy not", "raw": "0"}
+{"key": "f55bc10036ce3a1a", "pred": 0, "story": "As a system administrator, I want the lead data (name, phone, credit issues, ser", "raw": "0"}
+{"key": "71a198792407e2a6", "pred": 0, "story": "As a system administrator, I want the lead capture form to include a privacy not", "raw": "0"}
+{"key": "9b74f33f21fdccbc", "pred": 0, "story": "As a system administrator, I want the lead data (name, phone, credit issues, ser", "raw": "0"}
+{"key": "beeda5b799a08d9b", "pred": 0, "story": "As a system administrator, I want the lead data (name, phone, credit issues, ser", "raw": "0"}
+{"key": "9ddb0e2ce60f668a", "pred": 0, "story": "As a system administrator, I want access to lead data (including credit issues a", "raw": "0"}
+{"key": "b4f6cc3d96ae46bf", "pred": 0, "story": "As a system administrator, I want the system to maintain an audit log of all acc", "raw": "0"}
+{"key": "8af71235b98329a4", "pred": 0, "story": "As a system administrator, I want access to lead data (including credit issues a", "raw": "0"}
+{"key": "932ddca120d7f07f", "pred": 0, "story": "As a system administrator, I want the system to maintain an audit log of all acc", "raw": "0"}
+{"key": "d1230bfb60e9e181", "pred": 0, "story": "As a system administrator, I want the system to maintain an audit log of all acc", "raw": "0"}
+{"key": "0600454e2eafada7", "pred": 0, "story": "As a website visitor, I want to have the ability to request deletion of my submi", "raw": "0"}
+{"key": "bf496a9f6fe5f7c4", "pred": 0, "story": "As a website visitor, I want to have the ability to request deletion of my submi", "raw": "0"}
+{"key": "5c1fe9096cd69d12", "pred": 0, "story": "As a system administrator, I want access to lead data (including credit issues a", "raw": "0"}
+{"key": "41e86a8d8e407620", "pred": 0, "story": "As a website visitor, I want to be able to access the system on my mobile phone,", "raw": "0"}
+{"key": "7c72849568d1cd7c", "pred": 0, "story": "The credit score estimator should be presented as a simple, engaging tool (e.g.,", "raw": "0"}
+{"key": "7724617e1d5c90c6", "pred": 0, "story": "As a website visitor, I want to be able to access the system on my mobile phone,", "raw": "0"}
+{"key": "05ac501c7e3b0d26", "pred": 1, "story": "The credit score estimator should be presented as a simple, engaging tool (e.g.,", "raw": "1"}
+{"key": "b16e7e3ad6277c4c", "pred": 0, "story": "As a website visitor, I want to have the ability to request deletion of my submi", "raw": "0"}
+{"key": "0cc4fd9a98de3bbf", "pred": 0, "story": "As a potential client, I want the lead form to be straightforward and quick to c", "raw": "0"}
+{"key": "5fca1f64d35414e9", "pred": 0, "story": "As a potential client, I want the lead form to be straightforward and quick to c", "raw": "0"}
+{"key": "79b69c3e7f84105c", "pred": 0, "story": "As a system administrator, I want the system to maintain an audit log of all acc", "raw": "0"}
+{"key": "b6100c78cf4abdc4", "pred": 0, "story": "As a website visitor, I want to provide explicit consent before my personal data", "raw": "0"}
+{"key": "d38d2acefa6dcf03", "pred": 0, "story": "As a system administrator, I want the lead capture form to include a privacy not", "raw": "0"}
+{"key": "6f0d69e5ef6b4464", "pred": 0, "story": "As a website visitor, I want to have the ability to request deletion of my submi", "raw": "0"}
+{"key": "59fa49ef0c5e5ba3", "pred": 0, "story": "As a website visitor, I want to check my credit score via an integrated tool or ", "raw": "0"}
+{"key": "0e93cbc99a2f25a1", "pred": 0, "story": "As a system administrator, I want access to lead data (including credit issues a", "raw": "0"}
+{"key": "bc25709040b583a2", "pred": 0, "story": "As a system administrator, I want the lead data (name, phone, credit issues, ser", "raw": "0"}
+{"key": "53d06cf7ef9d4ce4", "pred": 1, "story": "As a system, I want to store the specific credit issues selected by a visitor (e", "raw": "1"}
+{"key": "1d516b65d3b4c0ae", "pred": 1, "story": "As a potential client, I want to receive an immediate confirmation message after", "raw": "1"}
+{"key": "cb6cdf29fdc53d14", "pred": 1, "story": "As a system, I want to store the specific services selected by a visitor (e.g., ", "raw": "1"}
+{"key": "f707adf9bead5882", "pred": 1, "story": "As a potential client, I want to submit my contact details (including mandatory ", "raw": "1"}
+{"key": "a5807827fbb33282", "pred": 1, "story": "As a potential client, I want to submit my contact details (including mandatory ", "raw": "1"}
+{"key": "53ce6927ef4bf8f9", "pred": 1, "story": "As a potential client, I want to receive an immediate confirmation message after", "raw": "1"}
+{"key": "d43b88444018195c", "pred": 1, "story": "As a potential client, I want to receive an immediate confirmation message after", "raw": "1"}
+{"key": "a22f71ad9cbe77f0", "pred": 1, "story": "As a potential client, I want to submit my contact details (including mandatory ", "raw": "1"}
+{"key": "8d83d8375d8c6d73", "pred": 0, "story": "As a system, I want to deliver lead data (including contact details, selected cr", "raw": "0"}
+{"key": "ebf55fad19f4366c", "pred": 1, "story": "As a system, I want to deliver lead data (including contact details, selected cr", "raw": "1"}
+{"key": "a649bc2d7c0e7a65", "pred": 1, "story": "As a potential client, I want to be redirected to a thank-you page with next ste", "raw": "1"}
+{"key": "093b5faf4ea8e5ff", "pred": 1, "story": "As a company representative, I want submitted lead information to be sent to me ", "raw": "1"}
+{"key": "9cf0ccc3e20b7244", "pred": 1, "story": "As a potential client, I want to submit my contact details (including mandatory ", "raw": "1"}
+{"key": "6a3320fa901fb012", "pred": 1, "story": "As a potential client, I want to receive an automated email after submitting my ", "raw": "1"}
+{"key": "4cf12f582b97fb90", "pred": 0, "story": "As a company representative, I want to receive the submitted lead data (includin", "raw": "0"}
+{"key": "a3ce48bc916d54f0", "pred": 0, "story": "Lead data (name, phone, credit issues, service interests) must be stored and tra", "raw": "0"}
+{"key": "61226ef5434b5532", "pred": 0, "story": "The lead capture form must include a privacy notice explaining how collected dat", "raw": "0"}
+{"key": "e2d87cc0b37e78bd", "pred": 0, "story": "The lead capture form must include a privacy notice explaining how collected dat", "raw": "0"}
+{"key": "6e6e5f886a7a0af3", "pred": 0, "story": "Lead data (name, phone, credit issues, service interests) must be stored and tra", "raw": "0"}
+{"key": "8fda833e16f8f09a", "pred": 0, "story": "The system must maintain an audit log of all access and modifications to lead da", "raw": "0"}
+{"key": "ada0c277dfded1a7", "pred": 0, "story": "Lead data (name, phone, credit issues, service interests) must be stored and tra", "raw": "0"}
+{"key": "b7214663c49bdb40", "pred": 0, "story": "The system must maintain an audit log of all access and modifications to lead da", "raw": "0"}
+{"key": "716a787215c01542", "pred": 0, "story": "The lead capture form must include a privacy notice explaining how collected dat", "raw": "0"}
+{"key": "baf6cb095a84e5ae", "pred": 0, "story": "The credit score estimator should be presented as a simple, engaging tool (e.g.,", "raw": "0"}
+{"key": "84aba0c2cc32cbf9", "pred": 1, "story": "The credit score estimator should be presented as a simple, engaging tool (e.g.,", "raw": "1"}
+{"key": "9d86204e64a27d9f", "pred": 0, "story": "The system must maintain an audit log of all access and modifications to lead da", "raw": "0"}

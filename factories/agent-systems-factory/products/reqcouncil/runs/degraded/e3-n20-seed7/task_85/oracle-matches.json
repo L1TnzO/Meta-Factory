@@ -1,0 +1,531 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to use a medical journal website for publishing medical articles and information, so that I can access medical content online.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As a reader, I want to browse and search a catalog of medical research articles, so that I can find papers relevant to my interests.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7077,
+          "verdict": 1
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6997,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6304,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6122,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5944,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want the website to have a responsive design, so that I can use it easily on different devices and screen sizes.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.5164,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5136,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4907,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4851,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.477,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to be able to search on the website, so that I can quickly find relevant articles and information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As a reader, I want to browse and search a catalog of medical research articles, so that I can find papers relevant to my interests.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7508,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7167,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6994,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6445,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6154,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to be able to open articles, so that I can read the full content.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 16,
+      "matched_text": "As a reader, I want to view the full text and details of a medical research article, so that I can read and learn from it.",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.7723,
+          "verdict": 1
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6989,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6819,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6815,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6766,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to be able to download article PDFs, so that I can access and keep copies of the articles offline.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.7275,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7158,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6912,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6665,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6568,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As an author user, I want to manage my account by updating my profile information, so that my author account details remain accurate and current.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 18,
+          "cosine": 0.6444,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6354,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5947,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5634,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5419,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the website background color to be seashell, so that the site appearance matches the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.4465,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.41,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4091,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4035,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4028,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the website components to use crimson, so that the site appearance matches the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.4344,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4094,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.399,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3973,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3865,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to locate articles using a built-in search function",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As a reader, I want to browse and search a catalog of medical research articles, so that I can find papers relevant to my interests.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7107,
+          "verdict": 1
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6512,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6364,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5722,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5652,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to read articles by opening their full content directly on the website.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 16,
+      "matched_text": "As a reader, I want to view the full text and details of a medical research article, so that I can read and learn from it.",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.7322,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6405,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5875,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5792,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5693,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to download articles as PDF files so that I can access them offline.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7156,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6943,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.664,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6514,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6102,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer to manage my involvement with the journal through a personal account where I can update my profile information.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.5821,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5812,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5488,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5471,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5462,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website to use a responsive design that adapts well to different devices and screen sizes.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.4844,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4653,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4602,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.4285,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4224,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the website to use a seashell background color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.4872,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.467,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4649,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4574,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4459,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I prefer the website components to use a crimson color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.4736,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4491,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4484,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4424,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4324,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

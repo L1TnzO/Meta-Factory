@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_55",
+  "task_name": "Data Science Learning Platform",
+  "application_type": "Learning Platforms",
+  "timestamp": "2026-07-06T19:45Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "8295bc6c62aab7eafdfd126e4422c2691d17acc577585bef14ab5209d454dcbd",
+  "n_chunks": 12,
+  "n_requirements": 11,
+  "grounded": 6,
+  "fidelity": 0.5455,
+  "n_golden": 7,
+  "oracle_recall": 0.0,
+  "oracle_precision": 0.0,
+  "n_implicit": 9,
+  "implicit_yield": 0.0,
+  "cci": 1.5714,
+  "citation_coverage": 0.6667,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 1,
+        "dropped": 11,
+        "merged": 0,
+        "revised": 3,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 1,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5833,
+      0.5,
+      0.5833,
+      0.4167,
+      0.6667
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 13,
+    "requirements": 11
+  },
+  "usage": {
+    "prompt_tokens": 189543,
+    "completion_tokens": 10522
+  }
+}

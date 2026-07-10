@@ -1,0 +1,50 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "US19",
+      "cosine": 0.5345,
+      "gold_text": "As the IFA, I want to avoid conflicts between the game schedules and the match officials’ personal schedules, so that I will not have to reschedule games as a r",
+      "matched_text": "Referees can submit their preferences (e.g., vacation days) which the scheduling algorithm must consider."
+    },
+    {
+      "gold_id": "US15",
+      "cosine": 0.6074,
+      "gold_text": "As an IFA employee, I want the scheduling of games to be automated, so that I can relieve some of my workload.",
+      "matched_text": "The system must automatically schedule matches based on configurable policies (e.g., home/away, minimum gap)."
+    },
+    {
+      "gold_id": "US20",
+      "cosine": 0.6412,
+      "gold_text": "As a match official, I want to have my preferred time slots, dates and locations for officiating games taken into consideration when making my schedule, so that",
+      "matched_text": "Referees can submit their preferences (e.g., vacation days) which the scheduling algorithm must consider."
+    },
+    {
+      "gold_id": "US33",
+      "cosine": 0.6432,
+      "gold_text": "As a match official, I want to report on match events live during the match, so that I do not have to register events twice.",
+      "matched_text": "Referees must be able to insert game events in real time using a mobile device."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "US32",
+      "cosine": 0.8035,
+      "gold_text": "As a team staff member, I want to access statistics about different matches and different players, so that I can strategize better."
+    },
+    {
+      "gold_id": "US23",
+      "cosine": 0.7864,
+      "gold_text": "As the IFA, I want the teams to input every transaction they make into the system so that I can make sure the team is following their league’s rules."
+    },
+    {
+      "gold_id": "US14",
+      "cosine": 0.7776,
+      "gold_text": "As the IFA manager, I want to be able to approve new leagues that are added to the system, so that I can maintain integrity."
+    },
+    {
+      "gold_id": "US11",
+      "cosine": 0.7608,
+      "gold_text": "As the IFA administrator, I want to be able to add new leagues to the system, so that I can keep the system up to date."
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "experiment": "E1",
+  "timestamp": "2026-07-05T20:26Z",
+  "transcript": "int1.txt",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "gap_hunter": "eb61f4bf8062",
+    "conflict_detector": "9e6642850de9",
+    "evidence_skeptic": "86204e0ec6e6",
+    "functional:rebuttal": "5577f5543d9a",
+    "data:rebuttal": "25ff3edbd5bf",
+    "nfr:rebuttal": "7664edd99442",
+    "security:rebuttal": "e708b623b036",
+    "ux:rebuttal": "be9d37b9edf5",
+    "integration:rebuttal": "3516298546d6",
+    "gap_hunter:rebuttal": "f523e0468fb2",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 132,
+  "n_requirements": 79,
+  "grounded": 76,
+  "fidelity": 0.962,
+  "gate_fidelity_min": 0.7,
+  "green": false,
+  "cci_vs_37_golden": 2.1351,
+  "cardinality": {
+    "produced": 79,
+    "expected": 37.0,
+    "band": [
+      22.2,
+      59.2
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.7424,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 7,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 48,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 8,
+        "dropped": 2,
+        "merged": 0,
+        "revised": 11,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 7,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 6,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.4242,
+      0.5379,
+      0.5909,
+      0.6439,
+      0.7424
+    ]
+  },
+  "baseline": {
+    "path": "runs/pinned/e1-dsv4flash/run.json",
+    "fidelity": 0.9825,
+    "citation_coverage": 0.5455,
+    "cci": 1.5405,
+    "coverage_up": true,
+    "cci_toward_1": false
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 79
+  },
+  "usage": {
+    "prompt_tokens": 1375480,
+    "completion_tokens": 62931
+  },
+  "elapsed_s": 2056.3
+}

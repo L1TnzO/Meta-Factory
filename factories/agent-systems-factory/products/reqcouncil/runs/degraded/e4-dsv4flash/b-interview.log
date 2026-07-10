@@ -1,0 +1,6 @@
+=== E4 ablation (Tabla 4.5) ===
+  (b) single-pass + study prompt
+
+arm corpus     st          n   fidel   cover  recall  precis     nfr     cci  tokens(in/out)
+--------------------------------------------------------------------------------------------
+b   interview  measured   28  1.0000  0.4394  0.3514  0.3929       -  0.7568  119657/2202

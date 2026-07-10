@@ -1,0 +1,106 @@
+{"key": "59c69319579711ec", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "da1e1c84a990aed2", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "c5c4a0b7511e9a5b", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "6396fff1f98ca1fb", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "c44e392b40983478", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "37395fe444c6d0e3", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "4dc2bf5ef65d9be4", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "eaabaa74696938a8", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "3378cef1f58a34e5", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "141edd67c1862cb6", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "da7f538ea6abbe16", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "6540ff201fdd01d0", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "a27af8d2b485c142", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "48692ca1b5c4f04e", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "6afcbfd75adfca8e", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "619919a0383f50e8", "pred": 0, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "5c758e0e41c63e39", "pred": 0, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "ea9971801dd16963", "pred": 0, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "d0afc972ce4237f8", "pred": 0, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "7583cd35e91ceb12", "pred": 0, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "3b38982d23e284c7", "pred": 1, "gold": "O sistema deve permitir que os gestores de projetos convidem"}
+{"key": "3e4a162f349cada6", "pred": 1, "gold": "O sistema deve permitir que os usu\u00e1rios preencham formul\u00e1rio"}
+{"key": "35c87fd0d0b30e2e", "pred": 1, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "c3093e79dd855e36", "pred": 1, "gold": "O sistema deve permitir a utiliza\u00e7\u00e3o de primitivas das gr\u00e1fi"}
+{"key": "c79c5e0e63da0f79", "pred": 1, "gold": "O sistema deve permitir o upload de fotos, \u00e1udios e v\u00eddeos e"}
+{"key": "65af7db22e6139f9", "pred": 1, "gold": "O sistema deve permitir a marca\u00e7\u00e3o de trilhas (trekking)."}
+{"key": "0bbadb683721aab4", "pred": 1, "gold": "O sistema deve registrar automaticamente metadados, como o h"}
+{"key": "52453df0828b0082", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "017249b525352c42", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "61624e3cf8fdda76", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "38dd5d34baa75d72", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "359f00f446ba7d4d", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "cda50eb1c0a74028", "pred": 1, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "8d18a1f093c0ba73", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "8738da7e767276b1", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "a84d74cfacee18de", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "5cd8dd5249aaebbb", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "d4e296cddbd7575e", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "6b496611b24b4904", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "0bd1c4df9fa60957", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "9804b082ce5ae6ea", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "7691b8c8bc099549", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "6b2bdaec6a590918", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "645da7c9c419a797", "pred": 1, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o dos dados em diferentes"}
+{"key": "2b331a2b0634774b", "pred": 0, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "d49986cd442c65b8", "pred": 0, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "bf786d2487516069", "pred": 0, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "6ea0e5ff006ed557", "pred": 0, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "4404b8680a1c0395", "pred": 0, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "6646c1d9156c344f", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "6455d7cfadf72014", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "f96e17f6b619ecca", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "350e04e2618ea7d9", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "afe2570460a7d8ad", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "5a4aba7b22b23e64", "pred": 1, "gold": "O sistema deve permitir que os gestores de projetos decidam "}
+{"key": "aa8aac465eb68550", "pred": 1, "gold": "O sistema deve integrar-se diretamente com plataformas como "}
+{"key": "b958456222bbde50", "pred": 1, "gold": "O sistema deve implementar mec\u00e2nicas de gamefica\u00e7\u00e3o para inc"}
+{"key": "f5b3dc99e05baaa4", "pred": 1, "gold": "O sistema deve atribuir pontos e recompensas aos usu\u00e1rios po"}
+{"key": "a20c1a4e8480453d", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "db6dc2357bf2fa9b", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "115e1a2ed87f981d", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "21dae469332ef438", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "01031e14d9a5398e", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "f7359238f8991d11", "pred": 0, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "ae00a3045758c07e", "pred": 0, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "c4e5d1c796994f10", "pred": 0, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "be90332e23261079", "pred": 0, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "403dde682d910974", "pred": 0, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "7be4c4a103902b6e", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "e83df444e1fe824a", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "876b25731d1b4779", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "a1b38ac1362bff01", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "5f4fe91dd9a42e31", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "e5e8a6e739fcbfd2", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "a9096e137e4d9383", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "9c657d7b0b4652eb", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "f1407d27811b4d40", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "8f69972f5f47ab60", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "29236e76ca757d0b", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "b6ff11bcb0edf113", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "2da6f35a16fb4cad", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "dee8f77e5063a816", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "c5f177b551585191", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "8c0f4437669e1a7d", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "68c757311c05f017", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "3872cc4fee34b6e8", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "7dd8f2a6d6f1e6cc", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "4f7b20710b1c8993", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "a3ce95961e914887", "pred": 1, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "ca2917a81d844996", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "42500660a05b499a", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "5f0af203dab09d79", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "7a15be73e38d56aa", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "5e04e6d8810e3504", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "4d35bc7aeec6f208", "pred": 1, "gold": "O sistema deve ser responsivo e funcionar em dispositivos m\u00f3"}
+{"key": "798915f3a29055b6", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "916dffcd3780dbd6", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "8f40e82661f86116", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "d8d21a23be32d8d1", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "e8eb193a382b5c14", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "30e6ab2e61a435d7", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "aee50dee212a169c", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "a1f6c9e7b1d78cb4", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "48f08abc0037c509", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "d64db5a34472e016", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "d57cbeccd284b223", "pred": 1, "gold": "O sistema deve estar dispon\u00edvel nas plataformas Web e Mobile"}

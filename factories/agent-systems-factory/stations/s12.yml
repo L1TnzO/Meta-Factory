@@ -1,0 +1,14 @@
+id: s12
+name: "producto adoptado: ReqCouncil — eval_floor re-verifica el piso pineado (ADR-025)"
+activation: always
+requires_prev: s11
+builds: []
+checks:
+  - name: reqcouncil_eval_floor
+    kind: eval_floor
+    workdir: products/reqcouncil
+    bootstrap: []
+    command: [python3, -m, reqcouncil, eval, gates]
+    evidence: runs/pinned
+    degraded: runs/degraded
+    thresholds: config/thresholds.yml

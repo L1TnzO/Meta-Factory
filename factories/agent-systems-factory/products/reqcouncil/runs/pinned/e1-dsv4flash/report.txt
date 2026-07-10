@@ -1,0 +1,9 @@
+=== E1 Primary (int1.txt) === model: deepseek-ai/DeepSeek-V4-Flash
+chunks: 132   requirements: 57   grounded: 56   statuses: {'unsupported': 1, 'accepted': 56}
+cardinality: produced 57 vs expected 37.0 band [22.2, 59.2] -> IN band
+CCI vs 37 golden stories: 1.5405
+citation coverage (chunks cited by >=1 req): 0.5455
+store: ephemeral (run_id=1, 57 reqs persisted)
+tokens: {'prompt_tokens': 309592, 'completion_tokens': 14644}
+
+fidelity = 0.9825  gate >= 0.7  ->  GREEN

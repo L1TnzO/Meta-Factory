@@ -1,0 +1,587 @@
+{
+  "candidates": [
+    {
+      "id": "single_pass_b-0",
+      "text": "The system must allow each team to manage its own budget, including income (e.g., ticket sales, player sales, property sales) and expenses (e.g., salaries, maintenance).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:0",
+        "da449949655b:1",
+        "da449949655b:2"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly describes income and expense categories and clarifies that each team manages its own budget.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-1",
+      "text": "The system must enable the IFA to define budget policies and alert when a violation occurs.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:3",
+        "da449949655b:4"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder states the IFA should set budget policies and that the system can alert of violations.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-2",
+      "text": "The system must allow the IFA administrative to view all transactions across teams for monitoring and auditing.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:5",
+        "da449949655b:6",
+        "da449949655b:27"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says the IFA can see diverse transactions and view entire monetary information.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-3",
+      "text": "The system must allow referees to insert game events (e.g., goals, offsides, red cards, player replacements) in real time using a mobile device.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:15",
+        "da449949655b:16"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly requests referees to record events in real time via mobile phone.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-4",
+      "text": "The system must ensure that only referees can update game events to guarantee data reliability.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:15",
+        "da449949655b:69",
+        "da449949655b:70"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder emphasizes that only the referee can update events to avoid unauthorized data.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-5",
+      "text": "The system must allow unregistered guests to view final game data (e.g., results, statistics) to promote transparency.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:19",
+        "da449949655b:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says even guests can see final game data to increase transparency.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-6",
+      "text": "The system must support automatic scheduling of matches based on configurable policies (e.g., home-and-away, minimum gap between matches, day of week).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:29",
+        "da449949655b:30",
+        "da449949655b:49"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes desired scheduling policies and constraints that the system should enforce.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-7",
+      "text": "The system must allow the IFA to manually override the automatic schedule with a rationale, requiring approval from another IFA representative.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:41",
+        "da449949655b:42",
+        "da449949655b:46"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explains manual override with justification and dual approval for transparency.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-8",
+      "text": "The system must allow the IFA to define policies for assigning referees to games (e.g., avoid same referee for same team, equal distribution of games).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:31",
+        "da449949655b:32",
+        "da449949655b:33"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder wants policy-based referee allocation to ensure fairness.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-9",
+      "text": "The system must allow referees to input their availability preferences (e.g., vacation days) to be considered in scheduling.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:33",
+        "da449949655b:34"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly mentions referees setting preferences like vacation.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-10",
+      "text": "The system must allow fans to subscribe to notifications about specific games, teams, or players and receive push notifications (e.g., schedule changes, player posts, live events).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:54",
+        "da449949655b:55",
+        "da449949655b:56",
+        "da449949655b:57"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes fan subscription to specific interests and push notifications.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-11",
+      "text": "The system must provide a fan portal with sections for following players/teams, live updates (including referee reports and scores), and overall tournament rankings.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:61",
+        "da449949655b:62"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder agrees with the proposed fan portal structure.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-12",
+      "text": "The system must allow players to update their own social network pages within the fan portal.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:93",
+        "da449949655b:94"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says players can update their social network page in the system.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-13",
+      "text": "The system must support user registration for all stakeholders (teams, referees, fans) with unique identification, while guests can access public game data.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:114",
+        "da449949655b:115",
+        "da449949655b:116"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions registration for identification and guest access.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-14",
+      "text": "The system must allow team managers to register their team with the IFA by submitting valid documents, after which the IFA approves and the team can manage its resources.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:116",
+        "da449949655b:117"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes the team registration process.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-15",
+      "text": "The system must allow teams to enter and manage player details, with the IFA only auditing the process.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:120",
+        "da449949655b:121",
+        "da449949655b:122"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says teams enter player details and IFA audits.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-16",
+      "text": "The system must allow the IFA to define leagues and seasons, and to register referees.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118",
+        "da449949655b:119"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder lists these as core IFA functions.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-17",
+      "text": "The system must keep all past archives of schedules and game data to support future analysis (e.g., for gambling insights).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:117",
+        "da449949655b:118"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly requests keeping past archives.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-18",
+      "text": "The system must send automatic reminder notifications to team managers for submitting annual reports to the IFA.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:75",
+        "da449949655b:76"
+      ],
+      "stance": "inferred",
+      "rationale": "The stakeholder agrees to auto reminders for annual report submission.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-19",
+      "text": "The system must allow fans to configure custom alerts, such as a reminder five minutes before a game starts.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:76",
+        "da449949655b:77"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder suggests fans can set alerts like pre-game reminders.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-20",
+      "text": "The system must support simultaneous access by up to 50,000 users with a response time of 1–2 seconds for fans, IFA admin, and team admin.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:77",
+        "da449949655b:78"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly states 50,000 concurrent users and reasonable response time.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-21",
+      "text": "The system must provide real-time, high-priority responsiveness for referees during games, with immediate event updates.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:78",
+        "da449949655b:79",
+        "da449949655b:80"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder emphasizes referee real-time updates with priority.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-22",
+      "text": "The system must be developed as a unified system with different interfaces for various stakeholders (web for IFA/teams, mobile app for referees/fans).",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:64",
+        "da449949655b:65",
+        "da449949655b:66"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder prefers a single system with tailored interfaces.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-23",
+      "text": "The system must support localization features including language, currency, and time zone adjustments to serve a global audience.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89",
+        "da449949655b:90"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder raises localization as a key requirement.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-24",
+      "text": "The system must comply with data residency regulations, e.g., German data must not leave Germany, requiring flexible data center allocation.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89",
+        "da449949655b:90",
+        "da449949655b:91"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly mentions legal data restrictions.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-25",
+      "text": "The system must encrypt budget data to prevent leakage, as it is confidential.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:91",
+        "da449949655b:92"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says budget data should be encrypted.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-26",
+      "text": "The system must be fully outsourced for development and maintenance, with the IFA IT department acting as the communication interface.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:85",
+        "da449949655b:86"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder states outsourcing of entire development and maintenance.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-27",
+      "text": "The system must be deployed in phases: first phase (basic setup: teams, leagues, seasons, referee/fan registration), second phase (budget and scheduling), third phase (real-time referee updates).",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:100",
+        "da449949655b:101"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder outlines a phased implementation sequence.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    }
+  ],
+  "parse_log": [],
+  "usage": {
+    "prompt_tokens": 21285,
+    "completion_tokens": 2134
+  },
+  "prompt_shas": {
+    "single_pass": "07a7de88a3c4",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  }
+}

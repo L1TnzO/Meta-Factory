@@ -1,0 +1,36 @@
+{"key": "1283e4c469851d3e", "pred": 0, "story": "As a website visitor, I want to view a list of available courses so that I can s", "raw": "0"}
+{"key": "43ce5f646cd30503", "pred": 1, "story": "As a website visitor, I want to submit a general inquiry via a contact form so t", "raw": "1"}
+{"key": "db582f93db6c6855", "pred": 1, "story": "As a website visitor, I want to submit a general inquiry via a contact form so t", "raw": "1"}
+{"key": "a16fce7196bc6025", "pred": 1, "story": "As a website visitor, I want to view a list of available courses so that I can s", "raw": "1"}
+{"key": "bb56a9d59837c0fe", "pred": 1, "story": "As a website visitor, I want to submit a general inquiry via a contact form so t", "raw": "1"}
+{"key": "82c601b783dcb099", "pred": 1, "story": "As a website visitor, I want to view a list of available courses so that I can s", "raw": "1"}
+{"key": "beb6260bb70726fb", "pred": 1, "story": "As a website visitor, I want to see direct email addresses for specific departme", "raw": "1"}
+{"key": "84171b50960026d6", "pred": 0, "story": "As a website visitor, I want to see direct email addresses for specific departme", "raw": "0"}
+{"key": "8b5f12cad17b9206", "pred": 0, "story": "The website must load course list pages within 2 seconds under normal conditions", "raw": "0"}
+{"key": "2622f812b8ee2c40", "pred": 0, "story": "The contact form must submit and confirm receipt within 3 seconds.", "raw": "0"}
+{"key": "468541b7ecb5fe19", "pred": 0, "story": "The website must be available 99.9% of the time during business hours.", "raw": "0"}
+{"key": "f2eaeafac972b240", "pred": 1, "story": "As a website visitor, I want to submit a general inquiry via a contact form so t", "raw": "1"}
+{"key": "6fc919c22a824a4a", "pred": 0, "story": "The website must support at least 50 concurrent visitors without degradation.", "raw": "0"}
+{"key": "6a61f6aed5f440bc", "pred": 0, "story": "The website must support at least 50 concurrent visitors without degradation.", "raw": "0"}
+{"key": "4a73db1b13852320", "pred": 0, "story": "The website must be available 99.9% of the time during business hours.", "raw": "0"}
+{"key": "a42fe3ab144705e2", "pred": 0, "story": "The course list must display clearly on mobile devices with viewport width 320px", "raw": "0"}
+{"key": "8fd251a250c95cd0", "pred": 0, "story": "The contact form must be accessible via keyboard navigation and screen readers.", "raw": "0"}
+{"key": "2df7c3ebf29fb40a", "pred": 0, "story": "As a website visitor, I want to submit personal data through the contact form on", "raw": "0"}
+{"key": "9c3bc5b936a457f6", "pred": 0, "story": "As a website visitor, I want to submit personal data through the contact form on", "raw": "0"}
+{"key": "fb494cb6d4f21ebb", "pred": 0, "story": "The website must include a privacy notice explaining how personal data submitted", "raw": "0"}
+{"key": "c8ff97cc100b3d85", "pred": 0, "story": "The contact form must implement measures to prevent unauthorized access to submi", "raw": "0"}
+{"key": "e41b8ba4908dcb22", "pred": 0, "story": "The website must include a privacy notice explaining how personal data submitted", "raw": "0"}
+{"key": "08f8790553a1a3bf", "pred": 0, "story": "As a website visitor, I want my submitted inquiry data to be retained only for a", "raw": "0"}
+{"key": "b5f0c42b67b93f30", "pred": 0, "story": "The contact form must implement measures to prevent unauthorized access to submi", "raw": "0"}
+{"key": "1e0651dd88ebe937", "pred": 0, "story": "As a website visitor, I want my submitted inquiry data to be retained only for a", "raw": "0"}
+{"key": "0416e0b8335e9096", "pred": 0, "story": "The display of departmental email addresses must not expose any personal data be", "raw": "0"}
+{"key": "0e231aa1409fd994", "pred": 0, "story": "The display of departmental email addresses must not expose any personal data be", "raw": "0"}
+{"key": "4e13a0165c3ecb3a", "pred": 0, "story": "The system must log all submissions of the contact form for audit purposes, reco", "raw": "0"}
+{"key": "269d0691342ecac2", "pred": 0, "story": "The system must log all submissions of the contact form for audit purposes, reco", "raw": "0"}
+{"key": "f1f71991221b17d4", "pred": 1, "story": "As a website visitor, I want to use a simple, intuitive general contact form so ", "raw": "1"}
+{"key": "5a1a740648fee740", "pred": 1, "story": "As a website visitor, I want the course listing to be simple and easy to scan so", "raw": "1"}
+{"key": "c80a4b06efa32fce", "pred": 1, "story": "As a website visitor, I want the course listing to be simple and easy to scan so", "raw": "1"}
+{"key": "276ecc6d8ff17b87", "pred": 1, "story": "As a website visitor, I want to see course descriptions, prerequisites, schedule", "raw": "1"}
+{"key": "10b635250c09de42", "pred": 0, "story": "As a website visitor, I want to see course descriptions, prerequisites, schedule", "raw": "0"}
+{"key": "b109bef01d69e577", "pred": 1, "story": "As a website visitor, I want to use a general contact form for general inquiries", "raw": "1"}
+{"key": "c464f723406f4bf2", "pred": 1, "story": "As a website visitor, I want to view a list of available courses so that I can s", "raw": "1"}

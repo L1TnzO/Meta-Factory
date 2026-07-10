@@ -1,0 +1,15 @@
+{"key": "f1023049a0acd156", "pred": 1, "story": "As a voter, I want to see the live results of a poll immediately after I vote so", "raw": "1"}
+{"key": "0482f6b440d210b6", "pred": 1, "story": "Poll results must be displayed immediately after a vote is cast, with a target r", "raw": "1"}
+{"key": "b0b043163c8a4c74", "pred": 1, "story": "As a voter, I want to see the live results of a poll immediately after I vote so", "raw": "1"}
+{"key": "3625aae385e2d93d", "pred": 1, "story": "Poll results must be displayed immediately after a vote is cast, with a target r", "raw": "1"}
+{"key": "8d50b7b13b5ae173", "pred": 1, "story": "As a voter, I want to cast my vote on a poll so that I can participate and expre", "raw": "1"}
+{"key": "ebdc360a36b32a60", "pred": 1, "story": "As a voter, I want to cast my vote on a poll so that I can participate and expre", "raw": "1"}
+{"key": "bc0217bd8ba1f608", "pred": 1, "story": "As a voter, I want to see the live results of a poll immediately after I vote so", "raw": "1"}
+{"key": "bc364a748e05bd25", "pred": 1, "story": "As a voter, I want to vote only once per poll, so that the poll results are accu", "raw": "1"}
+{"key": "e5938a70b595da5d", "pred": 0, "story": "As a poll creator, I want to authenticate before creating a poll, so that only a", "raw": "0"}
+{"key": "6a8b5257da62cd54", "pred": 0, "story": "The system shall enforce that poll results are displayed immediately after a vot", "raw": "0"}
+{"key": "fbfdcb816ad223a1", "pred": 1, "story": "The system shall enforce that poll results are displayed immediately after a vot", "raw": "1"}
+{"key": "89884e5c22edec01", "pred": 1, "story": "Poll results must be displayed immediately after a vote is cast, with a target r", "raw": "1"}
+{"key": "eb81f277701c227f", "pred": 0, "story": "As a voter, I want to vote only once per poll, so that the poll results are accu", "raw": "0"}
+{"key": "5019c3b7f85b6ad6", "pred": 1, "story": "As a voter, I want to cast my vote on a poll so that I can participate and expre", "raw": "1"}
+{"key": "32ca97e9a41505ba", "pred": 0, "story": "The system shall log each vote cast, including timestamp and voter identity (if ", "raw": "0"}

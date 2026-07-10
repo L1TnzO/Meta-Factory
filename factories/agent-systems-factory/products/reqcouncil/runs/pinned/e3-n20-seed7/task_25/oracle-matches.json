@@ -1,0 +1,256 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to browse different voting options on the website, so that I can choose which option to vote for.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.7735,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7016,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6077,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to vote for a selected option, so that my choice is recorded in the poll.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 0,
+      "matched_text": "As a voter, I want to cast my vote on a poll so that I can participate and express my choice.",
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.8084,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6995,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6617,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to view the voting results, so that I can see the outcome of the poll.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a voter, I want to see the live results of a poll immediately after I vote so that I can see how others voted and make the experience more engaging.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.851,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7834,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7586,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want the website background to be colored white, so that the visual appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.3475,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3275,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.2774,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want the component styles to be navy, so that the visual appearance of components matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.3193,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.2829,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.257,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to browse available voting options before making a voting decision.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.7317,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.683,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5822,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I expect the website to present clear and distinct voting options for each poll.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.7192,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6943,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.66,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the website to display voting results that show the outcome of the poll.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a voter, I want to see the live results of a poll immediately after I vote so that I can see how others voted and make the experience more engaging.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.808,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7708,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6994,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the website to use a white background for the overall visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.3706,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3618,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3429,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website’s components to be styled using a navy color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.3462,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3426,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3401,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

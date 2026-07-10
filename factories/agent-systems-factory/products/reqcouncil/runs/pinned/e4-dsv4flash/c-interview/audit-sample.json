@@ -1,0 +1,50 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "US19",
+      "cosine": 0.6347,
+      "gold_text": "As the IFA, I want to avoid conflicts between the game schedules and the match officials’ personal schedules, so that I will not have to reschedule games as a r",
+      "matched_text": "As a referee, I want to input my availability preferences (e.g., vacation days), so that the scheduling algorithm considers my constraints."
+    },
+    {
+      "gold_id": "US1",
+      "cosine": 0.6793,
+      "gold_text": "As the IFA, I want the system to be able to handle multiple languages, so that I can service leagues in different countries.",
+      "matched_text": "The system shall support localization including multiple languages, currencies, and time zones to serve users around the world."
+    },
+    {
+      "gold_id": "US33",
+      "cosine": 0.6897,
+      "gold_text": "As a match official, I want to report on match events live during the match, so that I do not have to register events twice.",
+      "matched_text": "As a referee, I want to use a mobile application to record game events in real time, so that the data is reliable and immediately available to fans and other st"
+    },
+    {
+      "gold_id": "US27",
+      "cosine": 0.7164,
+      "gold_text": "As a fan, I want to be notified as soon as possible about important schedule changes like a delayed kick-off, so that I can plan accordingly.",
+      "matched_text": "As a fan, I want to receive push notifications for subscribed content (e.g., schedule changes, player posts, game events) in near real-time, so that I stay info"
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "US12",
+      "cosine": 0.8684,
+      "gold_text": "As the IFA administrator, I want to be able to register new teams for the system, so that I can keep the system up to date."
+    },
+    {
+      "gold_id": "US22",
+      "cosine": 0.8415,
+      "gold_text": "As an IFA budget auditor, I want to be able to control and audit a team’s budget management within the system, so that I can reduce my workload."
+    },
+    {
+      "gold_id": "US24",
+      "cosine": 0.8414,
+      "gold_text": "As an IFA budget auditor, I want to be able to quickly obtain a system-generated report about a team's budget management, so that I can easily read up on their "
+    },
+    {
+      "gold_id": "US9",
+      "cosine": 0.8204,
+      "gold_text": "As the IFA, I want to manage leagues within the system, so that I have one place to access all necessary data."
+    }
+  ]
+}

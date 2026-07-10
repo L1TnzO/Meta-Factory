@@ -1,0 +1,68 @@
+{
+  "experiment": "E2",
+  "corpus": "wepgcomp",
+  "timestamp": "2026-07-06T17:19Z",
+  "transcript": "transcript_wepgcomp.txt",
+  "transcript_sha": "839e335d02ffb22e872c1855d0494c2431ac5a89132bd2a2be0044d5cdc59ae2",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 28,
+  "n_requirements": 45,
+  "grounded": 41,
+  "fidelity": 0.9111,
+  "oracle_recall": 0.1739,
+  "oracle_precision": 0.1556,
+  "critical_nfr_recall": 0.5,
+  "cci": 0.9783,
+  "oracle_size": 46,
+  "green": false,
+  "cardinality": {
+    "produced": 45,
+    "expected": 7.8,
+    "band": [
+      4.7,
+      12.6
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.8929,
+  "rounds": {
+    "rounds_run": 0,
+    "stop_reason": null,
+    "deltas": [],
+    "coverage_history": []
+  },
+  "review": {
+    "engineer": "auto-eval",
+    "mode": "auto",
+    "stats": {
+      "decided": 45,
+      "counts": {
+        "accept": 45
+      },
+      "mandatory": 7
+    },
+    "revised": []
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 45
+  },
+  "usage": {
+    "prompt_tokens": 285197,
+    "completion_tokens": 7971
+  },
+  "oracle_judge_usage": null,
+  "elapsed_s": 729.8
+}

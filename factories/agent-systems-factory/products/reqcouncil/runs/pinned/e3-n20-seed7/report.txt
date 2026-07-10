@@ -1,0 +1,8 @@
+=== E3 ReqElicitBench (n=20, seed=7) ===
+oracle_recall    mean 0.3871  stdev 0.2071
+oracle_precision mean 0.2457  stdev 0.1645
+implicit_yield   mean 0.2515  stdev 0.1675  (over 20 dialogues with implicit gold)
+fidelity         mean 0.5934  stdev 0.1792
+CCI distribution mean 1.4063  stdev 0.6889  (reported, not gated)
+tokens: {'prompt_tokens': 2965996, 'completion_tokens': 137507}   elapsed: 3708.9s
+task_ids: task_1, task_6, task_13, task_14, task_15, task_16, task_21, task_22, task_25, task_26, task_33, task_34, task_35, task_41, task_42, task_47, task_50, task_54, task_55, task_85

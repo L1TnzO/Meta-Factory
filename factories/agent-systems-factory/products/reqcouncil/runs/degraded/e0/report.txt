@@ -1,0 +1,48 @@
+=== E0 Judge Calibration === model: qwen/qwen3-32b
+
+--- interview (n=180)  (paper Qwen3-32B ref: 0.8222)
+Accuracy: 0.8500
+
+Confusion Matrix:
+[[ 92  14]
+ [ 13  61]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.876     0.868     0.872       106
+             1     0.813     0.824     0.819        74
+
+      accuracy                         0.850       180
+
+--- system_desc (n=580)  (paper Qwen3-32B ref: 0.9138)
+Accuracy: 0.9000
+
+Confusion Matrix:
+[[257  21]
+ [ 37 265]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.874     0.924     0.899       278
+             1     0.927     0.877     0.901       302
+
+      accuracy                         0.900       580
+
+--- POOLED (n=760)
+Accuracy: 0.8882
+
+Confusion Matrix:
+[[349  35]
+ [ 50 326]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.875     0.909     0.891       384
+             1     0.903     0.867     0.885       376
+
+      accuracy                         0.888       760
+
+judge_agreement = 0.8882  gate >= 0.8  ->  GREEN

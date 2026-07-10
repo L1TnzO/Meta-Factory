@@ -1,0 +1,531 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want a customer relationship management (CRM) website for managing sales leads and reporting, so that I can handle my sales lead workflow in one pl",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 14,
+      "matched_text": "As a sales user, I want to create and capture new sales leads so that I can build a pipeline of potential customers.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.7778,
+          "verdict": 1
+        },
+        {
+          "produced": 15,
+          "cosine": 0.75,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.7105,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7087,
+          "verdict": null
+        },
+        {
+          "produced": 19,
+          "cosine": 0.7025,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want automated message sending functionality, so that messages related to leads can be sent without manual effort.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.8125,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7588,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7055,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7035,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7002,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to browse and manage sales leads, so that I can review, edit, and control my lead records.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.8287,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.8033,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7921,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.79,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.788,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to update settings and dropdown menus, so that I can configure the CRM options and selectable values as needed.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.5749,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5354,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5247,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.4964,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.491,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want reporting functionality, so that I can generate and view reports about my sales leads.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.847,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.8015,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.794,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.7385,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7364,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to view reports, so that I can understand performance and outcomes related to my leads.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.7861,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7737,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.6975,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6914,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6743,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to receive best practice and integration advice, so that I can use the system effectively and connect it with other tools.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6972,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6208,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6004,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5577,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.5496,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the website background defined as papaya whip, so that the overall page background has that specific color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.4247,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4055,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3753,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.3737,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.363,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the components defined with dark orange, so that the interface elements use that specific color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.3842,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3518,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3517,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.3456,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3314,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to manage sales leads through direct browsing and editing of individual lead records rather than relying solely on automated updates.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 17,
+      "matched_text": "As a sales user, I want to edit and update the information for an existing lead so that I can keep their details accurate and current.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.6081,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6035,
+          "verdict": 1
+        },
+        {
+          "produced": 19,
+          "cosine": 0.5954,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5947,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5943,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer automated messages to be triggered by lead-related contexts so that communication can occur without manual intervention.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6478,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.62,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.616,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5702,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5683,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to configure the system by directly modifying settings and dropdown options",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4373,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4139,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3971,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3889,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3655,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect reports to present information that helps me understand lead performance and overall sales outcomes.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.6086,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5923,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5873,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.5843,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5691,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website to use a papaya whip color as the overall page background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.4089,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3484,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3399,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3365,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.3298,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the interface components to be styled using a dark orange color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.4136,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3707,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.3562,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3531,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3496,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

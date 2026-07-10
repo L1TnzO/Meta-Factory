@@ -1,0 +1,22 @@
+# Blocking evaluation gates (docs/design/03 §3). Thresholds are DATA — revisable with a
+# written reason, never silently. Red blocks release. Wired to the eval harness at H6.
+gates:
+  judge_agreement:      { min: 0.8 }          # E0: metrics must be trustworthy first
+  fidelity:             { min: 0.7 }           # grounding not broken
+  critical_nfr_recall:  { min: 0.9 }           # the known LLM blind spot, strictest gate
+  cci_band:             { min: 0.6, max: 1.6 } # cardinality calibration index
+  no_regression:        { max_drop_pts: 2 }    # vs pinned previous green run
+
+# Waivers are DATA (H6 §7): a RED gate with a written reason is FIRST-CLASS, never
+# silent. Each entry needs all four keys; `eval gates` reports the red as WAIVED and
+# surfaces stale waivers that match nothing.
+waivers:
+  - { gate: critical_nfr_recall, corpus: E2-wepgcomp,
+      reason: "measured 3/6 (0.50). E4 ablation: NO measured arm reaches 0.9 on this corpus (a=b=0.17, c=d=0.50) — the 0.9 bar is unreachable by every configuration tried on real pt-BR industry transcripts. Kept red-with-reason as evidence for informe 4.4/4.5.6; raising NFR recall is future work, not a config knob.",
+      date: 2026-07-06 }
+  - { gate: critical_nfr_recall, corpus: E2-maislugar,
+      reason: "measured 0/10 (0.00), the worst NFR cell. E4 ablation: best arm on this corpus is (b)=0.30; the full council loses ALL oracle NFRs while (b)/(c) keep 2-3 — a consolidation loss, first-class input to the informe 4.4 honesty commitment (council does not dominate).",
+      date: 2026-07-06 }
+  - { gate: cci_band, corpus: E2-wepgcomp,
+      reason: "measured 0.5435 (25 produced vs 46 oracle), just under band min 0.6. The k0 arm (c) sits in-band at 0.98 with 45 items: the critics' consolidation (45 -> 25) is what pushes cardinality under the band. Documented consolidation cost, informe 4.4.",
+      date: 2026-07-06 }

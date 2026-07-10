@@ -1,0 +1,80 @@
+{
+  "experiment": "E3",
+  "timestamp": "2026-07-06T19:50Z",
+  "n": 20,
+  "seed": 7,
+  "task_ids": [
+    "task_1",
+    "task_6",
+    "task_13",
+    "task_14",
+    "task_15",
+    "task_16",
+    "task_21",
+    "task_22",
+    "task_25",
+    "task_26",
+    "task_33",
+    "task_34",
+    "task_35",
+    "task_41",
+    "task_42",
+    "task_47",
+    "task_50",
+    "task_54",
+    "task_55",
+    "task_85"
+  ],
+  "oracle_recall": {
+    "mean": 0.3871,
+    "stdev": 0.2071,
+    "n": 20
+  },
+  "oracle_precision": {
+    "mean": 0.2457,
+    "stdev": 0.1645,
+    "n": 20
+  },
+  "implicit_yield": {
+    "mean": 0.2515,
+    "stdev": 0.1675,
+    "n": 20
+  },
+  "fidelity": {
+    "mean": 0.5934,
+    "stdev": 0.1792,
+    "n": 20
+  },
+  "cci": {
+    "mean": 1.4063,
+    "stdev": 0.6889,
+    "n": 20,
+    "values": [
+      1.375,
+      1.0,
+      3.2,
+      0.5,
+      1.1667,
+      1.0,
+      0.7692,
+      2.2222,
+      0.6,
+      1.125,
+      2.2857,
+      1.4615,
+      0.9,
+      0.7778,
+      1.5714,
+      1.9,
+      1.2143,
+      1.1111,
+      1.5714,
+      2.375
+    ]
+  },
+  "usage_total": {
+    "prompt_tokens": 2965996,
+    "completion_tokens": 137507
+  },
+  "elapsed_s": 3708.9
+}

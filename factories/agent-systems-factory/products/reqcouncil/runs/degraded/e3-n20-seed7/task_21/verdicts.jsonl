@@ -1,0 +1,196 @@
+{"key": "51da17a7c426cc31", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "e0de62dfc2124ac0", "pred": 0, "story": "As a Customer Service Agent, I want to create and store new customer records so ", "raw": "0"}
+{"key": "81ea93b020064432", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "54be323daf210b4a", "pred": 1, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "1"}
+{"key": "5089bd4a9622d44d", "pred": 1, "story": "As a Customer Service Agent, I want to create and store new customer records so ", "raw": "1"}
+{"key": "748246cdbd408219", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "314b8f691304b759", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "ac255c843ace8de8", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "87e96ee382c4f228", "pred": 0, "story": "The system must store call log entities with fields such as date/time, issue typ", "raw": "0"}
+{"key": "8d9c6abd9cddcae2", "pred": 0, "story": "The system must store customer data entities with fields such as name, contact d", "raw": "0"}
+{"key": "7f26b79853ae281b", "pred": 0, "story": "The system must store call log entities with fields such as date/time, issue typ", "raw": "0"}
+{"key": "ffa24a2b0a8f55ec", "pred": 1, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "1"}
+{"key": "34676f01a6b1815a", "pred": 1, "story": "The system must support role-based permission controls that allow administrators", "raw": "1"}
+{"key": "b52a203a8d75914a", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "9c91e96ae567f2ff", "pred": 1, "story": "The system must support role-based permission controls that allow administrators", "raw": "1"}
+{"key": "99cdd653877032a5", "pred": 1, "story": "The system must support role-based permission controls that allow administrators", "raw": "1"}
+{"key": "ccbeadf0ce49728f", "pred": 1, "story": "The system must retain call log history and provide the ability to look back at ", "raw": "1"}
+{"key": "3e535edbc7d7c11d", "pred": 1, "story": "The system shall be usable by internal staff (customer service agents) to manage", "raw": "1"}
+{"key": "3f5ecfe80ee24ae3", "pred": 1, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "6e12efc9c72fee1a", "pred": 1, "story": "The system shall be usable by internal staff (customer service agents) to manage", "raw": "1"}
+{"key": "ec1d33bc0d4693af", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "3a6dc8f747d7e8d2", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "5aa5367a358775d4", "pred": 1, "story": "As a Customer Service Agent, I want the system to be used exclusively by interna", "raw": "1"}
+{"key": "c9c2675d29e4a2f8", "pred": 1, "story": "As a Customer Service Agent, I want the system to be used exclusively by interna", "raw": "1"}
+{"key": "d60ed541d18e55c3", "pred": 1, "story": "As a System Administrator, I want to restrict access to customer information and", "raw": "1"}
+{"key": "e9e6a644a41a8dc9", "pred": 1, "story": "As a System Administrator, I want to restrict access to customer information and", "raw": "1"}
+{"key": "ee2895b6808f26a5", "pred": 1, "story": "The system must restrict access to sensitive customer data and call logs based o", "raw": "1"}
+{"key": "08dc6b2698a0810d", "pred": 1, "story": "The system must restrict access to sensitive customer data and call logs based o", "raw": "1"}
+{"key": "79d87f10ddb38009", "pred": 0, "story": "The system shall enforce authentication for all internal staff users before gran", "raw": "0"}
+{"key": "d23107618c5a5f72", "pred": 1, "story": "The system must restrict access to sensitive customer data and call logs based o", "raw": "1"}
+{"key": "2e11f574dd3683f1", "pred": 1, "story": "As a System Administrator, I want to restrict access to customer information and", "raw": "1"}
+{"key": "d52bf54b288405a1", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "2dbc118898979fa6", "pred": 0, "story": "The system shall comply with applicable data protection regulations (e.g., GDPR,", "raw": "0"}
+{"key": "9fc22ebdac9e40b5", "pred": 0, "story": "The system shall comply with applicable data protection regulations (e.g., GDPR,", "raw": "0"}
+{"key": "085cae8808526e3b", "pred": 0, "story": "The system shall comply with applicable data protection regulations (e.g., GDPR,", "raw": "0"}
+{"key": "c5e5303584f11867", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "0a8082cc1f889d8c", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "c8aa0b1460888817", "pred": 0, "story": "The system must store customer data entities as a general capability, with speci", "raw": "0"}
+{"key": "5d5bc6b00108f5e3", "pred": 0, "story": "The system must store call log entities as a general capability, with specific f", "raw": "0"}
+{"key": "7eae2431671f1013", "pred": 1, "story": "The system must store customer data entities as a general capability, with speci", "raw": "1"}
+{"key": "38a46df85ee23be9", "pred": 0, "story": "The system must store call log entities as a general capability, with specific f", "raw": "0"}
+{"key": "20752db53d32a652", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "c9950704da6a4ba9", "pred": 1, "story": "As an administrator, I want to restrict who can view or edit customer info and c", "raw": "1"}
+{"key": "85a5e06fb5b50ce6", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "f174eca1b5d67dc8", "pred": 0, "story": "The system shall maintain an audit trail of all access and modifications to cust", "raw": "0"}
+{"key": "1ebabb1401735cc6", "pred": 1, "story": "As a user, I want to log calls and view call history, so that I can track past i", "raw": "1"}
+{"key": "3852045625b4357b", "pred": 0, "story": "As a user, I want to create new customer records within the system, so that I ca", "raw": "0"}
+{"key": "cdf59e87843ada20", "pred": 1, "story": "As an administrator, I want to define user roles with granular permissions for v", "raw": "1"}
+{"key": "dd9e6da94026da05", "pred": 0, "story": "As a user, I want call logs to be linked to specific customer records, so that I", "raw": "0"}
+{"key": "ce21378b96d544b2", "pred": 0, "story": "As a user, I want call logs to be linked to specific customer records, so that I", "raw": "0"}
+{"key": "4964404b9c146912", "pred": 1, "story": "As a user, I want call logs to be linked to specific customer records, so that I", "raw": "1"}
+{"key": "5ef07d44646bb1ad", "pred": 1, "story": "As a user, I want to create new customer records within the system, so that I ca", "raw": "1"}
+{"key": "f36eb04acddb1edd", "pred": 0, "story": "As a user, I want call logs to be linked to specific customer records so that I ", "raw": "0"}
+{"key": "76d8edce5c874ca9", "pred": 0, "story": "As a user, I want to create new customer records within the system so that I can", "raw": "0"}
+{"key": "0ffeb98877f7035e", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "acb7604b2e3d4704", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "5c6db5a0b719b82f", "pred": 0, "story": "As a user, I want call logs to be linked to specific customer records so that I ", "raw": "0"}
+{"key": "6f0ea298a2ea9e01", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "db06ea1230215501", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "7383021cf63aa376", "pred": 0, "story": "As a user, I want call logs to be linked to specific customer records so that I ", "raw": "0"}
+{"key": "4a4100f9b32e9014", "pred": 1, "story": "As a user, I want to create new customer records within the system so that I can", "raw": "1"}
+{"key": "71c44477fa6405f4", "pred": 1, "story": "As a user, I want to log calls and view call history so that I can track past in", "raw": "1"}
+{"key": "95752ce8140c1057", "pred": 1, "story": "As an administrator, I want to restrict who can view or edit customer info and c", "raw": "1"}
+{"key": "ccaabca3a77c134e", "pred": 1, "story": "As an administrator, I want to define user roles with granular permissions for v", "raw": "1"}
+{"key": "a9e3c25a9ee749b3", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "66151562633e1464", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "fff4cbd8c594989c", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "86c11899a3e40570", "pred": 0, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "0"}
+{"key": "0a60d785bc9b981e", "pred": 1, "story": "The system must store customer records and call logs for internal staff to manag", "raw": "1"}
+{"key": "2f437ae91c97e68a", "pred": 0, "story": "As a Customer Service Agent, I want to create and store new customer records so ", "raw": "0"}
+{"key": "08209fa9de9fbf53", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external ident", "raw": "0"}
+{"key": "44d634daa4a77f97", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external ident", "raw": "0"}
+{"key": "4e13b59b58bf15b5", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external ident", "raw": "0"}
+{"key": "92c2025cd9cf6f63", "pred": 0, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "0"}
+{"key": "18fb34b255a5334a", "pred": 1, "story": "The system must store customer records and call logs for internal staff to manag", "raw": "1"}
+{"key": "65a47da7fc4b70ac", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for user permissio", "raw": "0"}
+{"key": "9b1690d7282a1a61", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for user permissio", "raw": "0"}
+{"key": "c639fd0cf1bf9990", "pred": 0, "story": "As a Customer Service Agent, I want the system to export call log data in a stan", "raw": "0"}
+{"key": "2cefc4f93503e4cf", "pred": 0, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "0"}
+{"key": "0920c89031297bd6", "pred": 0, "story": "As a Customer Service Agent, I want to use the system on my phone, so that I can", "raw": "0"}
+{"key": "f1c466f8f47a5775", "pred": 0, "story": "As a Customer Service Agent, I want the system to be accessible on web browsers,", "raw": "0"}
+{"key": "d39b6556624af31e", "pred": 0, "story": "The system shall support integration with an email notification service to alert", "raw": "0"}
+{"key": "a71f4046e550ca1f", "pred": 1, "story": "The system shall restrict access to customer information and call logs based on ", "raw": "1"}
+{"key": "095dacfb7ed2fd59", "pred": 0, "story": "The system shall support integration with an email notification service to alert", "raw": "0"}
+{"key": "75fe9f6beebd40b6", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for user permissio", "raw": "0"}
+{"key": "177cea086e330f50", "pred": 1, "story": "As an administrator, I want to restrict user permissions for viewing and editing", "raw": "1"}
+{"key": "8ee234c0feecb83d", "pred": 1, "story": "As a user, I want to log calls and view the history of those calls, so that I ca", "raw": "1"}
+{"key": "070d88728418b0ac", "pred": 0, "story": "The system shall require user authentication (e.g., username and password) befor", "raw": "0"}
+{"key": "7231ffbd2810d916", "pred": 1, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "4ea4d14c068955d4", "pred": 0, "story": "The system shall require user authentication (e.g., username and password) befor", "raw": "0"}
+{"key": "b87439ea398c9d3b", "pred": 1, "story": "As a Customer Service Agent, I want to create and store new customer records so ", "raw": "1"}
+{"key": "56e0abef012c30e3", "pred": 1, "story": "The system is intended for use by internal staff (customer service agents) to ma", "raw": "1"}
+{"key": "0feedfeeaf7d2a37", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "bd6f5c4e9e9823c2", "pred": 0, "story": "The system shall log all access and modification actions on customer information", "raw": "0"}
+{"key": "04ae37aef4d2f570", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "65fd169cb583a1c0", "pred": 1, "story": "The system shall restrict access to customer information and call logs based on ", "raw": "1"}
+{"key": "8f59ddb907606fc7", "pred": 0, "story": "The system shall require user authentication (e.g., username and password) befor", "raw": "0"}
+{"key": "2da706e5b2863dc9", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external ident", "raw": "0"}
+{"key": "d889f475fa4534d7", "pred": 0, "story": "The system shall log all access and modification actions on customer information", "raw": "0"}
+{"key": "fc527722a2c4a681", "pred": 0, "story": "The system shall log all access and modification actions on customer information", "raw": "0"}
+{"key": "c16c6ffd9b2e428c", "pred": 0, "story": "As an internal staff member, I want the system to be accessible on my mobile dev", "raw": "0"}
+{"key": "52032bd7b025e1cb", "pred": 0, "story": "As an internal staff member, I want the user interface to be simple and intuitiv", "raw": "0"}
+{"key": "7067e138ef64e2f2", "pred": 0, "story": "As an internal staff member, I want the user interface to be simple and intuitiv", "raw": "0"}
+{"key": "a4cdebf393550e93", "pred": 1, "story": "As a System Administrator, I want the permission system to support role-based ac", "raw": "1"}
+{"key": "296f94b4a29b013f", "pred": 0, "story": "As an internal staff member, I want the user interface to be simple and intuitiv", "raw": "0"}
+{"key": "55303022a63f7f61", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "026b2570cddb1203", "pred": 1, "story": "As a System Administrator, I want the permission system to support role-based ac", "raw": "1"}
+{"key": "17ada68880294ad6", "pred": 0, "story": "As an internal staff member, I want the system to be available in English so tha", "raw": "0"}
+{"key": "6db1ba413827fd25", "pred": 0, "story": "As a Customer Service Agent, I want the system to be accessible via a web browse", "raw": "0"}
+{"key": "16879944e6a5bb00", "pred": 0, "story": "As an internal staff member, I want the system to be available in English so tha", "raw": "0"}
+{"key": "9da7bc1b44bac758", "pred": 0, "story": "As an internal staff member, I want the system to be available in English so tha", "raw": "0"}
+{"key": "4fbed1c2c9ae2912", "pred": 1, "story": "As a System Administrator, I want the permission system to support role-based ac", "raw": "1"}
+{"key": "52021b1f3cf9bf1a", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "e30b9484f73a27b6", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external ident", "raw": "0"}
+{"key": "60139138394fbe77", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "fc9699ccd52a75a9", "pred": 0, "story": "The system shall protect customer information and call logs in transit and at re", "raw": "0"}
+{"key": "77ae27af0c6ad5ce", "pred": 1, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "1"}
+{"key": "f705821ab29adc1f", "pred": 1, "story": "As a Customer Service Agent, I want to create and store new customer records, so", "raw": "1"}
+{"key": "2802472535576f1e", "pred": 1, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "950c1de5749a6c1e", "pred": 1, "story": "As a Customer Service Agent, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "720e6ec76f925e5d", "pred": 1, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "1"}
+{"key": "2054839bb5dab20b", "pred": 0, "story": "As a Customer Service Agent, I want to create and store new customer records, so", "raw": "0"}
+{"key": "c688645061270fe1", "pred": 1, "story": "As a Customer Service Agent, I want to create and store new customer records, so", "raw": "1"}
+{"key": "d8fcef057256b825", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "f7f100d5775d7fa5", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "8011c2c216a20055", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "4a443fe5502f9ed6", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "259ccc927ba0e20c", "pred": 1, "story": "As a Customer Service Agent, I want to log details for a new customer service ca", "raw": "1"}
+{"key": "819adb20cc5c7409", "pred": 1, "story": "As a Customer Service Agent, I want to view a history of past customer service c", "raw": "1"}
+{"key": "5f78389d057e0b4c", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external direc", "raw": "0"}
+{"key": "f70cbec415324187", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external direc", "raw": "0"}
+{"key": "4e0d88c21d937a8c", "pred": 0, "story": "As a Customer Service Agent, I want the system to send email notifications for e", "raw": "0"}
+{"key": "6993f548321b0fea", "pred": 0, "story": "As a Customer Service Agent, I want the system to send email notifications for e", "raw": "0"}
+{"key": "26b1392e751170b5", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for importing cust", "raw": "0"}
+{"key": "eac65f3c063f43cd", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for importing cust", "raw": "0"}
+{"key": "78b11058d1626dcd", "pred": 0, "story": "As a Customer Service Agent, I want the system to send email notifications for e", "raw": "0"}
+{"key": "13d31f5bb61addf1", "pred": 0, "story": "As a System Administrator, I want the system to expose an API for importing cust", "raw": "0"}
+{"key": "5794b325593dad09", "pred": 0, "story": "As a System Administrator, I want the system to export call logs to an external ", "raw": "0"}
+{"key": "faa24da733febe28", "pred": 0, "story": "As a System Administrator, I want the system to export call logs to an external ", "raw": "0"}
+{"key": "a7182fba977ff929", "pred": 0, "story": "As a System Administrator, I want the system to export call logs to an external ", "raw": "0"}
+{"key": "d3d9e166173f2260", "pred": 1, "story": "The system shall enforce role-based access control to restrict viewing and editi", "raw": "1"}
+{"key": "e7d4ebf9a1319840", "pred": 1, "story": "The system shall enforce role-based access control to restrict viewing and editi", "raw": "1"}
+{"key": "554c09c226d09c31", "pred": 1, "story": "The system shall enforce role-based access control to restrict viewing and editi", "raw": "1"}
+{"key": "fdc7a1774edfe3c3", "pred": 0, "story": "The system shall maintain an audit log of all access and modifications to custom", "raw": "0"}
+{"key": "119217ac28d2ed26", "pred": 0, "story": "The system shall only be accessible to authenticated internal staff members.", "raw": "0"}
+{"key": "c8d96d2b215dbe87", "pred": 0, "story": "The system shall encrypt customer personal data at rest and in transit.", "raw": "0"}
+{"key": "393014715e6c8c18", "pred": 0, "story": "As a Customer Service Agent, I want to use the system on a mobile device, so tha", "raw": "0"}
+{"key": "d1e54ac9d29d9e8a", "pred": 0, "story": "As a System Administrator, I want the interface to be simple and intuitive, so t", "raw": "0"}
+{"key": "cf08eba7e14c5deb", "pred": 0, "story": "As a System Administrator, I want the system to integrate with an external direc", "raw": "0"}
+{"key": "6526cdfd120e7e64", "pred": 0, "story": "As a System Administrator, I want the interface to be simple and intuitive, so t", "raw": "0"}
+{"key": "a13fd746feb2c50a", "pred": 0, "story": "As a System Administrator, I want the interface to be simple and intuitive, so t", "raw": "0"}
+{"key": "f609064b524b14db", "pred": 0, "story": "As a Customer Service Agent, I want the system to be accessible to older employe", "raw": "0"}
+{"key": "480a000dd5c4ca92", "pred": 0, "story": "As a Customer Service Agent, I want the system to have a consistent and clean vi", "raw": "0"}
+{"key": "e4a04275c07d3d74", "pred": 0, "story": "As a Customer Service Agent, I want the system to be a web-based application, so", "raw": "0"}
+{"key": "dbc98008446a3343", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "3bd76a2170b7ccd3", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "97182df1e02ba8bb", "pred": 1, "story": "The system shall enforce access control to restrict viewing and editing of custo", "raw": "1"}
+{"key": "fb1dc27a44b208f9", "pred": 1, "story": "The system shall enforce access control to restrict viewing and editing of custo", "raw": "1"}
+{"key": "05ee107d7aab6b67", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "8524d89c58275206", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "4b686cfb8db29d5f", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "1e0014716de4fd8b", "pred": 1, "story": "As a System Administrator, I want to assign permissions to control which users c", "raw": "1"}
+{"key": "81065a4c90b6cec8", "pred": 1, "story": "The system shall enforce access control to restrict viewing and editing of custo", "raw": "1"}
+{"key": "60ed781b2126e5fb", "pred": 0, "story": "The system shall only be accessible to authenticated internal staff members.", "raw": "0"}
+{"key": "54da45e41a54271b", "pred": 0, "story": "The system shall encrypt customer personal data at rest and in transit.", "raw": "0"}
+{"key": "4aa8ba18768967ba", "pred": 0, "story": "The system shall maintain an audit log of all access and modifications to custom", "raw": "0"}
+{"key": "ebfce447b7fd68d3", "pred": 0, "story": "As a Customer Service Agent, I want to search and filter call history by custome", "raw": "0"}
+{"key": "3924c75e06497dae", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be linked to specific customer ", "raw": "0"}
+{"key": "0d4727cb6436466d", "pred": 1, "story": "As a Customer Service Agent, I want to create new customer records within the sy", "raw": "1"}
+{"key": "ceacf8a11145e5ae", "pred": 0, "story": "As a Customer Service Agent, I want to create new customer records within the sy", "raw": "0"}
+{"key": "ff6a0e28f7e23848", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be linked to specific customer ", "raw": "0"}
+{"key": "985f4176f418c023", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be linked to specific customer ", "raw": "0"}
+{"key": "9dc9417976f1573b", "pred": 0, "story": "The system shall be accessible only to authenticated internal staff members.", "raw": "0"}
+{"key": "143412bdc4a4a2c8", "pred": 0, "story": "As a Customer Service Agent, I want to search through call history by specific c", "raw": "0"}
+{"key": "e8d0840f5398ac06", "pred": 0, "story": "The system shall be accessible only to authenticated internal staff members.", "raw": "0"}
+{"key": "9c43581e2a359a20", "pred": 0, "story": "As a Customer Service Agent, I want to search through call history by specific c", "raw": "0"}
+{"key": "2671dedb659392e4", "pred": 1, "story": "The system shall allow internal staff to create and store new customer records.", "raw": "1"}
+{"key": "855223dd5842ccc9", "pred": 1, "story": "The system shall allow authorized users to restrict who can view or edit custome", "raw": "1"}
+{"key": "6c79544d73fe3175", "pred": 1, "story": "The system shall allow authorized users to restrict who can view or edit call lo", "raw": "1"}
+{"key": "5ce187604f758918", "pred": 0, "story": "The system shall allow internal staff to create and store new customer records.", "raw": "0"}
+{"key": "f9870de6dba7d14f", "pred": 1, "story": "The system shall allow internal staff to view and edit existing customer informa", "raw": "1"}
+{"key": "b343c5e300bb5a76", "pred": 1, "story": "The system shall allow internal staff to create and store new customer records.", "raw": "1"}
+{"key": "2c383a73ecb1030c", "pred": 1, "story": "The system shall allow internal staff to view and edit existing customer informa", "raw": "1"}
+{"key": "377ce7fe74a901c1", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be directly linked to specific ", "raw": "0"}
+{"key": "73f2a020089915ab", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be directly linked to specific ", "raw": "0"}
+{"key": "f3878664baf17b7a", "pred": 1, "story": "The system shall allow internal staff to view and edit existing customer informa", "raw": "1"}
+{"key": "c461cf6011cb61f1", "pred": 0, "story": "As a Customer Service Agent, I want call logs to be directly linked to specific ", "raw": "0"}
+{"key": "dae6d6d49f078c85", "pred": 0, "story": "As a Customer Service Agent, I want to search and filter call history by custome", "raw": "0"}
+{"key": "4ca9aecb0b282ad4", "pred": 1, "story": "As an internal staff member, I want to create and store new customer records, so", "raw": "1"}
+{"key": "4159a1152e5d8c42", "pred": 1, "story": "As an internal staff member, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "8d17ce6fbc9c427e", "pred": 1, "story": "As an internal staff member, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "8c4e6934cbec05ed", "pred": 1, "story": "As an authorized user, I want to restrict who can view or edit call logs, so tha", "raw": "1"}
+{"key": "9127cb938b319888", "pred": 1, "story": "As an internal staff member, I want to view and edit existing customer informati", "raw": "1"}
+{"key": "6133abfd44ba02f4", "pred": 1, "story": "As an internal staff member, I want to create and store new customer records, so", "raw": "1"}
+{"key": "f8f9a00626f16dbd", "pred": 1, "story": "As an internal staff member, I want to create and store new customer records, so", "raw": "1"}
+{"key": "412c61d0dc5e6680", "pred": 1, "story": "As an authorized user, I want to restrict who can view or edit customer informat", "raw": "1"}

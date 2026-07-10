@@ -1,0 +1,72 @@
+{"key": "5e6562b7f9f27b4f", "pred": 0, "story": "As a driver, I want to register for an account on the platform so that I can be ", "raw": "0"}
+{"key": "730cd9856e9f10f8", "pred": 1, "story": "As an employer, I want to post job listings so that I can advertise available dr", "raw": "1"}
+{"key": "a6d0850d426ec240", "pred": 0, "story": "As an employer, I want to post job listings so that I can advertise available dr", "raw": "0"}
+{"key": "03b52827910acbd0", "pred": 0, "story": "As a driver, I want to create and manage a profile so that employers can view my", "raw": "0"}
+{"key": "d8201aa952faa6a3", "pred": 1, "story": "As a driver, I want to create and manage a profile so that employers can view my", "raw": "1"}
+{"key": "f3a00047a0ef9cfc", "pred": 1, "story": "As a driver, I want to register for an account on the platform so that I can be ", "raw": "1"}
+{"key": "f204c2c0b0fc9d05", "pred": 1, "story": "As a driver, I want to create and manage a profile so that employers can view my", "raw": "1"}
+{"key": "2c8e4aa94e258325", "pred": 1, "story": "As a driver, I want to register for an account on the platform so that I can be ", "raw": "1"}
+{"key": "f968de5d45740f9e", "pred": 0, "story": "As a driver, I want to be matched with relevant job opportunities so that I can ", "raw": "0"}
+{"key": "a6bccb8c8b8ba7a9", "pred": 0, "story": "As a system, I want to integrate with an external notification service (e.g., em", "raw": "0"}
+{"key": "63744894d97eff25", "pred": 1, "story": "As an employer, I want to post job listings so that I can advertise available dr", "raw": "1"}
+{"key": "6f475da37f782696", "pred": 1, "story": "As a driver, I want to be matched with relevant job opportunities so that I can ", "raw": "1"}
+{"key": "54c180b49c74ce7f", "pred": 0, "story": "As a system, I want to consume a third-party identity verification service for d", "raw": "0"}
+{"key": "69196c259b9543c9", "pred": 0, "story": "As a system, I want to expose an API for external job boards or HR systems to co", "raw": "0"}
+{"key": "a88484561502c287", "pred": 1, "story": "The platform shall match drivers with job opportunities based on configurable cr", "raw": "1"}
+{"key": "b6c77c3eec2eb91e", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential (e.g., password or ", "raw": "0"}
+{"key": "f998580b682d848f", "pred": 0, "story": "The platform shall match drivers with job opportunities based on configurable cr", "raw": "0"}
+{"key": "8de13cb08383640f", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential (e.g., password or ", "raw": "0"}
+{"key": "c0bbd5552f1c2cf4", "pred": 0, "story": "As a system, I want to consume a third-party identity verification service for d", "raw": "0"}
+{"key": "44bb56be54fa2933", "pred": 1, "story": "As a driver, I want to be matched with relevant job opportunities so that I can ", "raw": "1"}
+{"key": "e5be154aa5a7d10e", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential (e.g., password or ", "raw": "0"}
+{"key": "90e9106f9d0be507", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "e93a5369da1bb6c5", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "4eaed8a948c6ea03", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "9c3d41b8ae4ce6ad", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "b68ab7f5574f3341", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "7f876e0df94b533b", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "8dd84c3293661e0c", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}
+{"key": "0f80b95590da272f", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}
+{"key": "759a04664ab77e4c", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}
+{"key": "a7c38986308a7fc2", "pred": 0, "story": "The system shall ensure that all personal data (e.g., driver license details, wo", "raw": "0"}
+{"key": "d471c5b0973e411c", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device, so that I can se", "raw": "0"}
+{"key": "8aca6d42d47e0afe", "pred": 0, "story": "The system shall ensure that all personal data (e.g., driver license details, wo", "raw": "0"}
+{"key": "c7746718d27bfb6d", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device, so that I can se", "raw": "0"}
+{"key": "43f77a5f51fe4a26", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device, so that I can se", "raw": "0"}
+{"key": "2ab8071fbfafb90a", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface, so that ", "raw": "0"}
+{"key": "8ed0106d627e2f73", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface, so that ", "raw": "0"}
+{"key": "29f9def237f1bb78", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface, so that ", "raw": "0"}
+{"key": "c2f108ca0e01e78c", "pred": 0, "story": "As a driver, I want the registration and profile creation process to be simple a", "raw": "0"}
+{"key": "c714483e0e7de458", "pred": 0, "story": "As a driver, I want the registration and profile creation process to be simple a", "raw": "0"}
+{"key": "cb5a01cc452c330c", "pred": 0, "story": "As an employer, I want the job posting interface to be intuitive and require min", "raw": "0"}
+{"key": "ab5419af87d20778", "pred": 0, "story": "As an employer, I want the job posting interface to be intuitive and require min", "raw": "0"}
+{"key": "98b362a26dc58170", "pred": 0, "story": "The system shall ensure that all personal data (e.g., driver license details, wo", "raw": "0"}
+{"key": "03fb961b524eb947", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential when logging into m", "raw": "0"}
+{"key": "90270376b9ddaf59", "pred": 0, "story": "As a system, I want to consume a third-party identity verification service for d", "raw": "0"}
+{"key": "a2164ecca98db860", "pred": 0, "story": "As a system, I want to expose an API for external job boards or HR systems to co", "raw": "0"}
+{"key": "3c8f8c1102bdb1f5", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential when logging into m", "raw": "0"}
+{"key": "d926229b2e0387e6", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "59dd956211494d1f", "pred": 0, "story": "As a system, I want to consume a third-party identity verification service for d", "raw": "0"}
+{"key": "a848e0d37886e03e", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "c85de0bc187cc5ff", "pred": 0, "story": "As an employer, I want to authenticate with a secure credential when logging int", "raw": "0"}
+{"key": "6fea33b36a85cacf", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "311fc89b3bb2f575", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "0054c485ca90b0ec", "pred": 0, "story": "As a driver, I want the system to require explicit consent before sharing my per", "raw": "0"}
+{"key": "6ffc519676acd2b6", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}
+{"key": "e13cf5f0da704998", "pred": 0, "story": "As a driver, I want to authenticate with a secure credential when logging into m", "raw": "0"}
+{"key": "869777d4fb3d4abe", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}
+{"key": "cb04edd865a5125f", "pred": 0, "story": "The system shall ensure that all personal data is encrypted at rest and in trans", "raw": "0"}
+{"key": "6f1d0a594930985c", "pred": 0, "story": "The system shall ensure that all personal data is encrypted at rest and in trans", "raw": "0"}
+{"key": "2bd70da451db9421", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device so that I can sea", "raw": "0"}
+{"key": "97b3646968a66481", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device so that I can sea", "raw": "0"}
+{"key": "ed10cf56eca90dcf", "pred": 0, "story": "As a driver, I want to access the platform via a mobile device so that I can sea", "raw": "0"}
+{"key": "affeaa90f4ddf4c0", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface so that I", "raw": "0"}
+{"key": "d663f119800ffbf5", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface so that I", "raw": "0"}
+{"key": "4531744aec8cd396", "pred": 0, "story": "As a system, I want to integrate with an external notification service so that m", "raw": "0"}
+{"key": "7d3015d3c6264f1b", "pred": 0, "story": "As a driver, I want the registration and profile creation process to be simple a", "raw": "0"}
+{"key": "f8cf8ac823db9f60", "pred": 0, "story": "As an employer, I want the platform to have a responsive web interface so that I", "raw": "0"}
+{"key": "fdb63658d60cc420", "pred": 0, "story": "The system shall ensure that all personal data is encrypted at rest and in trans", "raw": "0"}
+{"key": "a0ba9c379d476b0d", "pred": 0, "story": "As an employer, I want the job posting interface to be intuitive and require min", "raw": "0"}
+{"key": "9bb3c42b18ae31c3", "pred": 0, "story": "As a driver, I want the registration and profile creation process to be simple a", "raw": "0"}
+{"key": "4d460a48525bcf67", "pred": 0, "story": "As an employer, I want the job posting interface to be intuitive and require min", "raw": "0"}
+{"key": "ad715f3ee7a4edb3", "pred": 0, "story": "As a system administrator, I want to maintain an audit log of all access to driv", "raw": "0"}

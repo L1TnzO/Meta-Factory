@@ -1,0 +1,50 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "US15",
+      "cosine": 0.6452,
+      "gold_text": "As an IFA employee, I want the scheduling of games to be automated, so that I can relieve some of my workload.",
+      "matched_text": "The system must support automatic scheduling of matches based on configurable policies (e.g., home-and-away, minimum gap between matches, day of week)."
+    },
+    {
+      "gold_id": "US19",
+      "cosine": 0.6453,
+      "gold_text": "As the IFA, I want to avoid conflicts between the game schedules and the match officials’ personal schedules, so that I will not have to reschedule games as a r",
+      "matched_text": "The system must allow referees to input their availability preferences (e.g., vacation days) to be considered in scheduling."
+    },
+    {
+      "gold_id": "US34",
+      "cosine": 0.6475,
+      "gold_text": "As a fan, I want game events to be reported live so that I can keep track of what is happening as closely as possible.",
+      "matched_text": "The system must provide a fan portal with sections for following players/teams, live updates (including referee reports and scores), and overall tournament rank"
+    },
+    {
+      "gold_id": "US1",
+      "cosine": 0.6486,
+      "gold_text": "As the IFA, I want the system to be able to handle multiple languages, so that I can service leagues in different countries.",
+      "matched_text": "The system must support localization features including language, currency, and time zone adjustments to serve a global audience."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "US13",
+      "cosine": 0.8697,
+      "gold_text": "As the IFA manager, I want to be able to approve new teams that are registered in the IFA system, so that I can maintain integrity."
+    },
+    {
+      "gold_id": "US12",
+      "cosine": 0.8548,
+      "gold_text": "As the IFA administrator, I want to be able to register new teams for the system, so that I can keep the system up to date."
+    },
+    {
+      "gold_id": "US23",
+      "cosine": 0.7928,
+      "gold_text": "As the IFA, I want the teams to input every transaction they make into the system so that I can make sure the team is following their league’s rules."
+    },
+    {
+      "gold_id": "US21",
+      "cosine": 0.7863,
+      "gold_text": "As the IFA, I want the overriding of a generated schedule to need at least two certified IFA employees, so that I can avoid mistakes."
+    }
+  ]
+}

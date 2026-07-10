@@ -1,0 +1,1619 @@
+{
+  "oracle_recall": 0.1087,
+  "oracle_precision": 0.16,
+  "critical_nfr_recall": 0.1667,
+  "n_gold": 46,
+  "n_produced": 25,
+  "matches": [
+    {
+      "gold_id": "FUNC01",
+      "gold_text": "O sistema deve permitir que professores e doutorandos do PGCOMP se cadastrem usando e-mail UFBA, matrícula e senha forte para acessar o sistema de forma segura.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5852,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5733,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5275,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5275,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5226,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC02",
+      "gold_text": "O sistema deve validar o e-mail e matrícula UFBA para garantir autenticidade.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.5264,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4876,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.45,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4341,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4279,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC03",
+      "gold_text": "O sistema deve enviar um e-mail de confirmação com um link válido para completar o cadastro.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5056,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.4799,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4658,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4447,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4381,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC04",
+      "gold_text": "O sistema deve liberar o login do professor apenas após aprovação dos administradores.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5434,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5355,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5351,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.523,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5207,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC05",
+      "gold_text": "O sistema deve permitir que ouvintes se cadastrem utilizando um e-mail válido.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.6164,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6045,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5949,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5859,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5598,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC06",
+      "gold_text": "O sistema deve exigir uma senha forte para criação da conta.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5253,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.4335,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4202,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4163,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.4114,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC07",
+      "gold_text": "O sistema deve enviar um e-mail de confirmação com um link válido para completar o cadastro.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.5056,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.4799,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4658,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4447,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4381,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC08",
+      "gold_text": "O sistema deve permitir que administradores concedam privilégios de administrador a qualquer usuário escolhido para organização do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6945,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6634,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6218,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5751,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5436,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC09",
+      "gold_text": "O sistema deve atribuir automaticamente o primeiro professor cadastrado como Super Administrador.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.559,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5546,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.4678,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4441,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4419,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC10",
+      "gold_text": "O sistema deve permitir que apenas Super Administradores adicionem novos Super Administradores.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6261,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4984,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4376,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.42,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4161,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC11",
+      "gold_text": "O sistema deve permitir que Super Administradores concedam privilégios administrativos a professores de forma duradoura.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6155,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5546,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.5473,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4886,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4702,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC12",
+      "gold_text": "O sistema deve tornar automaticamente um coordenador de edição de evento um Super Administrador.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6095,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6085,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5681,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.5561,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5427,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC13",
+      "gold_text": "O sistema deve permitir que um Super Administrador atribua o cargo de Coordenador a um professor.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.5762,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5634,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5375,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5042,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4856,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC14",
+      "gold_text": "O sistema deve garantir que apenas um coordenador exista por edição do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6133,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.586,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5634,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5308,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.526,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC15",
+      "gold_text": "O sistema deve garantir que o coordenador também seja administrador até o fim do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6227,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5737,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.568,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.527,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5119,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC16",
+      "gold_text": "O sistema deve permitir que administradores avaliem pedidos de cadastro de professores e os aprovem ou rejeitem.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.6338,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6149,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5867,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5816,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5455,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC17",
+      "gold_text": "O sistema deve bloquear o login de um professor até que sua solicitação seja aprovada.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.5056,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5054,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.4996,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4993,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4924,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC18",
+      "gold_text": "O sistema deve permitir que doutorandos apresentadores cadastrem suas apresentações e sugiram data e horário disponíveis.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "O sistema deve permitir o cadastro de apresentações por alunos apresentadores.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7438,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7299,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6385,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6268,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5767,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC19",
+      "gold_text": "O sistema deve armazenar as informações do doutorando e associá-las ao evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5983,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5678,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5493,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5485,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5461,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC20",
+      "gold_text": "O sistema deve permitir que administradores alterem data, horário e demais informações das apresentações.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "O sistema deve permitir que o administrador realize alterações na programação, como mover apresentações para slots vazios.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7353,
+          "verdict": 1
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6668,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6442,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6243,
+          "verdict": null
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5965,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC21",
+      "gold_text": "O sistema deve permitir que doutorandos façam upload do conteúdo da apresentação em formato PDF, limitado a 10MB.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6799,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5282,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5101,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4995,
+          "verdict": 0
+        },
+        {
+          "produced": 23,
+          "cosine": 0.489,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC22",
+      "gold_text": "O sistema deve disponibilizar o conteúdo na página da apresentação.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.6608,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6572,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6166,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.5475,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5386,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC23",
+      "gold_text": "O sistema deve permitir que professores avaliadores e ouvintes votem nas apresentações.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7341,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.7301,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7145,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6378,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5704,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC24",
+      "gold_text": "O sistema deve registrar as notas associadas ao doutorando da apresentação.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7083,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6902,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.655,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5687,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5518,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC25",
+      "gold_text": "O sistema deve permitir que administradores criem e excluam sessões do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 18,
+          "cosine": 0.6647,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6523,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5998,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5744,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5462,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC26",
+      "gold_text": "O sistema deve bloquear todas as salas no período de uma sessão sem sala específica.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.5965,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4487,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.4055,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4008,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3927,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC27",
+      "gold_text": "O sistema deve validar a sessão antes de incluí-la no cronograma.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5091,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4805,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4793,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4715,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.4683,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC28",
+      "gold_text": "O sistema deve permitir que administradores alterem as informações de apresentações para organização do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7387,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6847,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6749,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6534,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6383,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC29",
+      "gold_text": "O sistema deve calcular a nota de cada apresentação considerando as avaliações e a quantidade de avaliações.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 19,
+      "matched_text": "O sistema deve suportar votação com cálculo de média baseada em critérios e quantidade de votantes.",
+      "candidates": [
+        {
+          "produced": 19,
+          "cosine": 0.6097,
+          "verdict": 1
+        },
+        {
+          "produced": 20,
+          "cosine": 0.5397,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5223,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5181,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.4983,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC30",
+      "gold_text": "O sistema deve permitir que administradores listem os doutorandos com base nas notas das apresentações.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 11,
+          "cosine": 0.6698,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6672,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.6059,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.5644,
+          "verdict": 0
+        },
+        {
+          "produced": 20,
+          "cosine": 0.5593,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC31",
+      "gold_text": "O sistema deve permitir que administradores selecionem subjetivamente 3 avaliadores para premiá-los.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 20,
+          "cosine": 0.663,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.4969,
+          "verdict": 0
+        },
+        {
+          "produced": 19,
+          "cosine": 0.4532,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.4528,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4363,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC32",
+      "gold_text": "O sistema deve enviar certificados de participação em PDF para professores e doutorandos que participaram do evento.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 22,
+          "cosine": 0.611,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.588,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5682,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5535,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.525,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC33",
+      "gold_text": "O sistema deve dispor de uma página inicial contendo os painel principal, programação do evento, orientações, contato, local do evento e realização e apoio.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5929,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5683,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5636,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5281,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4915,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC34",
+      "gold_text": "O sistema deve permitir que usuários visualizem na página inicial os detalhes de uma apresentação para decidirem se devem assisti-la.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.719,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6867,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6176,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6175,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5238,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC35",
+      "gold_text": "O sistema deve permitir que administradores removam usuários com cadastros incorretos para impedir inconsistências no sistema.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.5391,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5067,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.488,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.451,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4504,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC36",
+      "gold_text": "O sistema deve permitir que administradores criem novas edições do evento utilizando os mesmos cadastro de usuários de edições anteriores.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7233,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6378,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6131,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5659,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.562,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC37",
+      "gold_text": "O sistema deve permitir que administradores editem parâmetros da edição ativa do evento para adaptar as mudanças de última hora.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.6405,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.625,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.618,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6056,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5585,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC38",
+      "gold_text": "O sistema deve avisar ao administrador que as apresentações ficarão sem horário atribuído em caso de alteração de tempo alocado ou quantidade de apresentações.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7102,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7021,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.522,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5144,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5039,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC39",
+      "gold_text": "O sistema deve impedir que a data de limite da submissão seja posterior ao início do evento em caso de edição dos parâmetros da edição ativa.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 18,
+          "cosine": 0.5927,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5472,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4747,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4691,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4418,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "FUNC40",
+      "gold_text": "O sistema deve permitir que administradores reordenem as apresentações em caso de falta de algum doutorando para evitar atrasos no evento.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "O sistema deve permitir que o administrador realize alterações na programação, como mover apresentações para slots vazios.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7157,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6285,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5455,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.5445,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.5353,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF01",
+      "gold_text": "O sistema deve possuir autenticação segura para garantir a integridade dos cadastros.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.4917,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4786,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.4682,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.4681,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4651,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF02",
+      "gold_text": "O sistema deve fornecer uma interface intuitiva para facilitar o uso por diferentes perfis de usuários.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6255,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6002,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5949,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5626,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.5559,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF03",
+      "gold_text": "O sistema deve estar disponível durante todo o período do evento.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.6407,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6181,
+          "verdict": 0
+        },
+        {
+          "produced": 21,
+          "cosine": 0.5654,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5405,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5403,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF04",
+      "gold_text": "O sistema deve suportar a hospedagem de múltiplas edições do evento.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7277,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.5847,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5403,
+          "verdict": 0
+        },
+        {
+          "produced": 22,
+          "cosine": 0.5378,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5288,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF05",
+      "gold_text": "O sistema deve garantir o armazenamento de dados para reaproveitá-los em edições futuras.",
+      "is_nfr": true,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "O sistema deve manter o histórico de edições do evento.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6653,
+          "verdict": 1
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6124,
+          "verdict": null
+        },
+        {
+          "produced": 23,
+          "cosine": 0.5214,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4827,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4577,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "NOTF06",
+      "gold_text": "O sistema deve suportar os acessos simultâneos durante o período do evento.",
+      "is_nfr": true,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.6461,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5878,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5809,
+          "verdict": 0
+        },
+        {
+          "produced": 24,
+          "cosine": 0.5805,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.53,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

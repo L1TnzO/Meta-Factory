@@ -1,0 +1,44 @@
+{
+  "experiment": "E4",
+  "arm": "b",
+  "arm_label": "single-pass + study prompt",
+  "corpus": "maislugar",
+  "status": "measured",
+  "timestamp": "2026-07-06T17:52Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+  "prompt_shas": {
+    "single_pass": "07a7de88a3c4",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  },
+  "temperature": 0.7,
+  "n_chunks": 113,
+  "n_requirements": 27,
+  "grounded": 23,
+  "fidelity": 0.8519,
+  "coverage": 0.3186,
+  "oracle_recall": 0.4706,
+  "oracle_precision": 0.5185,
+  "critical_nfr_recall": 0.3,
+  "cci": 0.7941,
+  "oracle_size": 34,
+  "usage": {
+    "prompt_tokens": 99049,
+    "completion_tokens": 2306
+  },
+  "generation_usage": {
+    "prompt_tokens": 22641,
+    "completion_tokens": 2255
+  },
+  "ground_judge_usage": {
+    "prompt_tokens": 76408,
+    "completion_tokens": 51
+  },
+  "oracle_judge_usage": {
+    "prompt_tokens": 24862,
+    "completion_tokens": 106
+  },
+  "parse_log": [],
+  "elapsed_s": 229.5
+}

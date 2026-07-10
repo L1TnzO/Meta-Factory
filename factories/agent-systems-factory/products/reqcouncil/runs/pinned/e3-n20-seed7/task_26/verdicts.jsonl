@@ -1,0 +1,46 @@
+{"key": "888ce7a2edcbed83", "pred": 0, "story": "As an administrator, I want to manage (create, edit, delete) promotions and disc", "raw": "0"}
+{"key": "a28a511b39fd7ac8", "pred": 0, "story": "As a visitor, I want to view available promotions and discounts so that I can fi", "raw": "0"}
+{"key": "759fae6a96c6673f", "pred": 1, "story": "As a visitor, I want to view available promotions and discounts so that I can fi", "raw": "1"}
+{"key": "718a2583f8163a00", "pred": 0, "story": "As an administrator, I want to manage user accounts and access so that I can con", "raw": "0"}
+{"key": "e045ae450f40563e", "pred": 1, "story": "As an administrator, I want to manage user accounts and access so that I can con", "raw": "1"}
+{"key": "54c951505e9e1cce", "pred": 1, "story": "As a visitor, I want to view available promotions and discounts so that I can fi", "raw": "1"}
+{"key": "80b1062228c65df4", "pred": 1, "story": "As an administrator, I want to manage (create, edit, delete) promotions and disc", "raw": "1"}
+{"key": "785a557e6ab8f9b7", "pred": 1, "story": "As an administrator, I want to manage (create, edit, delete) promotions and disc", "raw": "1"}
+{"key": "28f901889f604d0e", "pred": 0, "story": "The community website must support at least 100 concurrent visitors viewing prom", "raw": "0"}
+{"key": "9df84cfb44f21679", "pred": 1, "story": "As an administrator, I want to manage user accounts and access so that I can con", "raw": "1"}
+{"key": "46bcabf0d7bfab85", "pred": 0, "story": "The website must load the promotions listing page within 2 seconds under normal ", "raw": "0"}
+{"key": "6650c9bda72045d6", "pred": 0, "story": "The system must achieve 99.5% uptime during peak hours (8 AM to 10 PM local time", "raw": "0"}
+{"key": "728d33e15374b858", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism, so th", "raw": "0"}
+{"key": "59617eefcd3cc9b5", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism, so th", "raw": "0"}
+{"key": "8a9b49da710a7c23", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism, so th", "raw": "0"}
+{"key": "c5a3e8260efb3bb4", "pred": 0, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "0"}
+{"key": "3a7e51d8fe44e22c", "pred": 0, "story": "As a visitor, I want to view promotions without being required to log in, so tha", "raw": "0"}
+{"key": "e6991685336a10c5", "pred": 1, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "1"}
+{"key": "ff9598514a90a83b", "pred": 1, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "1"}
+{"key": "555d8ee6795a59f7", "pred": 0, "story": "As a visitor, I want to view promotions without being required to log in, so tha", "raw": "0"}
+{"key": "6815c14e57c8e6a4", "pred": 0, "story": "Administrator actions (create, edit, delete promotions) must complete within 1 s", "raw": "0"}
+{"key": "847b17fd19f404c7", "pred": 0, "story": "The system shall maintain an audit log of all administrator actions on promotion", "raw": "0"}
+{"key": "b61c85b0ff224021", "pred": 1, "story": "As a visitor, I want to view promotions without being required to log in, so tha", "raw": "1"}
+{"key": "009f6faa1f32ce76", "pred": 0, "story": "As an administrator, I want to be able to deactivate or delete user accounts, so", "raw": "0"}
+{"key": "7e95d0fba2d3f37a", "pred": 0, "story": "The system shall maintain an audit log of all administrator actions on promotion", "raw": "0"}
+{"key": "1ddf0593397f3f5e", "pred": 0, "story": "The system shall maintain an audit log of all administrator actions on promotion", "raw": "0"}
+{"key": "9e22f37af21e1d4c", "pred": 0, "story": "As an administrator, I want to be able to deactivate or delete user accounts, so", "raw": "0"}
+{"key": "7f4c6674d8105098", "pred": 1, "story": "As an administrator, I want to be able to deactivate or delete user accounts, so", "raw": "1"}
+{"key": "5efd8013c22a0d61", "pred": 0, "story": "The website shall be accessible to older members, ensuring that all interactive ", "raw": "0"}
+{"key": "1937c14b7926e914", "pred": 0, "story": "The system shall support responsive design to function effectively on mobile dev", "raw": "0"}
+{"key": "7d4991e5829294aa", "pred": 0, "story": "The website must be usable by visitors on mobile devices with a screen width of ", "raw": "0"}
+{"key": "1c8f6b5d40a870f9", "pred": 0, "story": "The interface shall use a consistent, simple style and branding that aligns with", "raw": "0"}
+{"key": "7253eb1ddd673152", "pred": 0, "story": "The interface shall use a consistent, simple style and branding that aligns with", "raw": "0"}
+{"key": "601b20f8de1bc834", "pred": 0, "story": "The website shall be accessible to older members, ensuring that all interactive ", "raw": "0"}
+{"key": "100c464580ec18ab", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism so tha", "raw": "0"}
+{"key": "2d70c469cf8d3a3a", "pred": 0, "story": "As a visitor, I want to view promotions without being required to log in so that", "raw": "0"}
+{"key": "cbca459feaeffcc9", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism so tha", "raw": "0"}
+{"key": "c366a085111e6a21", "pred": 0, "story": "As an administrator, I want to authenticate with a secure login mechanism so tha", "raw": "0"}
+{"key": "2e821665bf3adca0", "pred": 0, "story": "As an administrator, I want to be able to deactivate or delete user accounts so ", "raw": "0"}
+{"key": "7710a1291f5bc655", "pred": 0, "story": "As an administrator, I want to be able to deactivate or delete user accounts so ", "raw": "0"}
+{"key": "5717729339aaa406", "pred": 1, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "1"}
+{"key": "78a284c11c3aa9aa", "pred": 1, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "1"}
+{"key": "6d2f4fa63a38d584", "pred": 1, "story": "As a visitor, I want to view promotions without being required to log in so that", "raw": "1"}
+{"key": "90e9f38927f01f43", "pred": 0, "story": "As a visitor, I want to view promotions without being required to log in so that", "raw": "0"}
+{"key": "a08220ebacf3358f", "pred": 0, "story": "As an administrator, I want to be assigned a role that grants permissions to cre", "raw": "0"}
+{"key": "3205b52d5aa707bb", "pred": 1, "story": "As an administrator, I want to be able to deactivate or delete user accounts so ", "raw": "1"}

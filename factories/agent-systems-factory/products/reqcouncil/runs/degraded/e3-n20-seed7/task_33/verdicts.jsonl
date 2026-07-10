@@ -1,0 +1,74 @@
+{"key": "584b2196674d09a3", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property so that I c", "raw": "1"}
+{"key": "9fce675f4303ce43", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "26336de9ae789f3a", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property so that I c", "raw": "1"}
+{"key": "b400f8f9e233a6cc", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}
+{"key": "d9659e8f70d72b73", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}
+{"key": "a6a1da748968bf15", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "18d4fe1fc95460b9", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "70102cfac8890665", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}
+{"key": "4fea818e826d41a7", "pred": 1, "story": "As a property seeker, I want to search for properties by location so that I can ", "raw": "1"}
+{"key": "ab5b30ea9072cc5c", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property so that I c", "raw": "1"}
+{"key": "b0382fdb471541a0", "pred": 1, "story": "As a property seeker, I want to search for properties by location so that I can ", "raw": "1"}
+{"key": "cb943cd874f7f481", "pred": 0, "story": "As a property seeker, I want to search for properties by location so that I can ", "raw": "0"}
+{"key": "25b26f949fa5d811", "pred": 1, "story": "As a property seeker, I want to filter search results by price range so that I c", "raw": "1"}
+{"key": "7c90ad229b136631", "pred": 1, "story": "As a property seeker, I want to filter search results by price range so that I c", "raw": "1"}
+{"key": "30081d1c46a26afc", "pred": 0, "story": "As a property seeker, I want to filter search results by price range so that I c", "raw": "0"}
+{"key": "5ed0dff2ebc322bd", "pred": 1, "story": "As a property seeker, I want to filter search results by the number of bedrooms ", "raw": "1"}
+{"key": "9eebe4c8efb315f0", "pred": 1, "story": "The system must store for each property: price, location, number of bedrooms, ph", "raw": "1"}
+{"key": "2171b62f3f9983a6", "pred": 1, "story": "As a property seeker, I want to filter search results by the number of bedrooms ", "raw": "1"}
+{"key": "e882934dd3794152", "pred": 0, "story": "The system must store for each property: price, location, number of bedrooms, ph", "raw": "0"}
+{"key": "ca8622369733f043", "pred": 0, "story": "As a property seeker, I want to filter search results by the number of bedrooms ", "raw": "0"}
+{"key": "9d1c47f46cbac9ba", "pred": 0, "story": "The system must store for each property: price, location, number of bedrooms, ph", "raw": "0"}
+{"key": "e5c3108ed1b506d4", "pred": 1, "story": "The system must support searching and filtering residential properties by locati", "raw": "1"}
+{"key": "fba57e1c1636a688", "pred": 0, "story": "Search queries and filter operations shall return results within 2 seconds under", "raw": "0"}
+{"key": "776cf6e1919ae11b", "pred": 0, "story": "The system shall support at least 1,000 concurrent users without degradation of ", "raw": "0"}
+{"key": "9bcd49775b01e965", "pred": 1, "story": "The system must support searching and filtering residential properties by locati", "raw": "1"}
+{"key": "27912f1df347f422", "pred": 0, "story": "Search queries and filter operations shall return results within 2 seconds under", "raw": "0"}
+{"key": "b46ad496917c402a", "pred": 0, "story": "The system shall support at least 1,000 concurrent users without degradation of ", "raw": "0"}
+{"key": "fc59994d88f52523", "pred": 0, "story": "The system shall achieve 99.5% uptime, measured monthly, for the search and filt", "raw": "0"}
+{"key": "41ca4b8e4d482102", "pred": 0, "story": "The system shall achieve 99.5% uptime, measured monthly, for the search and filt", "raw": "0"}
+{"key": "325c499b4a253e46", "pred": 0, "story": "As a property seeker, I want to create an account so that I can save properties ", "raw": "0"}
+{"key": "9d7dfc894e427180", "pred": 1, "story": "As a property seeker, I want to create an account so that I can save properties ", "raw": "1"}
+{"key": "85f86526cf5b7b99", "pred": 0, "story": "The system shall achieve 99.5% uptime, measured monthly, for the search and filt", "raw": "0"}
+{"key": "7645a59a896f6fd6", "pred": 1, "story": "The system must support searching and filtering residential properties by locati", "raw": "1"}
+{"key": "3807d4e423182b6e", "pred": 0, "story": "Search queries and filter operations shall return results within 2 seconds under", "raw": "0"}
+{"key": "ecaffdf1481d144e", "pred": 0, "story": "As a property seeker, I want to create an account so that I can save properties ", "raw": "0"}
+{"key": "e05f510c1ebbb8b1", "pred": 0, "story": "The system shall provide an audit trail of all account creation, login, and acce", "raw": "0"}
+{"key": "4e4829472d57f1f7", "pred": 0, "story": "The system shall provide an audit trail of all account creation, login, and acce", "raw": "0"}
+{"key": "fc466ced4a4e8148", "pred": 0, "story": "The system shall provide an audit trail of all account creation, login, and acce", "raw": "0"}
+{"key": "70af09d4233032f0", "pred": 0, "story": "The system shall encrypt all personal data (e.g., account credentials, saved sea", "raw": "0"}
+{"key": "06d30a7246cc02ce", "pred": 0, "story": "The system shall encrypt all personal data (e.g., account credentials, saved sea", "raw": "0"}
+{"key": "6b6b27283e840861", "pred": 0, "story": "The system shall encrypt all personal data (e.g., account credentials, saved sea", "raw": "0"}
+{"key": "01ea85fa8498b48b", "pred": 1, "story": "The system shall allow property seekers to browse and search properties without ", "raw": "1"}
+{"key": "0051db67f28324f0", "pred": 0, "story": "The system shall allow property seekers to browse and search properties without ", "raw": "0"}
+{"key": "1c4cc6654e2b5280", "pred": 0, "story": "The system shall provide a consent mechanism for users to opt-in or opt-out of d", "raw": "0"}
+{"key": "8872c0d67950d4ed", "pred": 0, "story": "The system shall allow property seekers to browse and search properties without ", "raw": "0"}
+{"key": "b3c3c5e5d89de6f9", "pred": 0, "story": "The system shall provide a consent mechanism for users to opt-in or opt-out of d", "raw": "0"}
+{"key": "f00f2dea5ec20bf1", "pred": 0, "story": "The system shall provide a consent mechanism for users to opt-in or opt-out of d", "raw": "0"}
+{"key": "0a5f0360b8f45221", "pred": 0, "story": "As a property seeker, I want to create an account, so that I can save properties", "raw": "0"}
+{"key": "cd8c3b4efee16a2e", "pred": 0, "story": "As a property seeker, I want to opt-in or opt-out of data collection (e.g., savi", "raw": "0"}
+{"key": "bd8ee9c4e1e3e784", "pred": 0, "story": "As a property seeker, I want to opt-in or opt-out of data collection (e.g., savi", "raw": "0"}
+{"key": "657c0cd4a13f967c", "pred": 0, "story": "As a property seeker, I want to create an account, so that I can save properties", "raw": "0"}
+{"key": "026264fb1678baff", "pred": 0, "story": "As a property seeker, I want to opt-in or opt-out of data collection (e.g., savi", "raw": "0"}
+{"key": "97fdc87a7ba00802", "pred": 1, "story": "As a property seeker, I want to browse and search properties without requiring a", "raw": "1"}
+{"key": "45c45975b7b07e1a", "pred": 1, "story": "As a property seeker, I want to create an account, so that I can save properties", "raw": "1"}
+{"key": "8ad80af7d7f2caa9", "pred": 0, "story": "As a property seeker, I want to browse and search properties without requiring a", "raw": "0"}
+{"key": "12a1485903bbf9b0", "pred": 1, "story": "As a property seeker, I want to search for properties by location, so that I can", "raw": "1"}
+{"key": "3b7c997f2131ed58", "pred": 0, "story": "As a property seeker, I want to search for properties by location, so that I can", "raw": "0"}
+{"key": "55119d9924c99713", "pred": 0, "story": "As a property seeker, I want to browse and search properties without requiring a", "raw": "0"}
+{"key": "d15068b316e0d356", "pred": 1, "story": "As a property seeker, I want to search for properties by location, so that I can", "raw": "1"}
+{"key": "b9bfa5394df439ea", "pred": 0, "story": "As a property seeker, I want to filter search results by price range, so that I ", "raw": "0"}
+{"key": "8d6e251d7862a28c", "pred": 1, "story": "As a property seeker, I want to filter search results by price range, so that I ", "raw": "1"}
+{"key": "5ac65eee34a13c06", "pred": 1, "story": "As a property seeker, I want to filter search results by the number of bedrooms,", "raw": "1"}
+{"key": "ca142e35d11f72ba", "pred": 1, "story": "As a property seeker, I want to filter search results by price range, so that I ", "raw": "1"}
+{"key": "399e54b2af51239b", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "782f7c3ce171480b", "pred": 1, "story": "As a property seeker, I want to filter search results by the number of bedrooms,", "raw": "1"}
+{"key": "34c5c757c1006802", "pred": 0, "story": "As a property seeker, I want to filter search results by the number of bedrooms,", "raw": "0"}
+{"key": "77ff224d91a90526", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "1670002385027df3", "pred": 1, "story": "As a property seeker, I want to see the price, location, number of bedrooms, and", "raw": "1"}
+{"key": "b1008e1d360c6fc0", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property, so that I ", "raw": "1"}
+{"key": "50cbe08f6e8c9246", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property, so that I ", "raw": "1"}
+{"key": "55bb0f4b174036d1", "pred": 1, "story": "As a property seeker, I want to view a dedicated page for a property, so that I ", "raw": "1"}
+{"key": "ea7b4bcbda010550", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}
+{"key": "3eb3211470794e49", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}
+{"key": "c8f95ebd75a09cf2", "pred": 1, "story": "As a property seeker, I want to see the square footage and a full description on", "raw": "1"}

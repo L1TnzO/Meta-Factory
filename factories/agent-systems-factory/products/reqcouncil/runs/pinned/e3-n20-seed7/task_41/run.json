@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_41",
+  "task_name": "Email Composition and Delivery Platform",
+  "application_type": "Productivity Tool",
+  "timestamp": "2026-07-06T19:20Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "4f4b626523ecdced2a47691cd31dea36ac917256447c4536c211553e58199e32",
+  "n_chunks": 12,
+  "n_requirements": 7,
+  "grounded": 3,
+  "fidelity": 0.4286,
+  "n_golden": 9,
+  "oracle_recall": 0.3333,
+  "oracle_precision": 0.4286,
+  "n_implicit": 7,
+  "implicit_yield": 0.1429,
+  "cci": 0.7778,
+  "citation_coverage": 0.3333,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 5,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.3333,
+      0.3333,
+      0.3333
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 8,
+    "requirements": 7
+  },
+  "usage": {
+    "prompt_tokens": 69311,
+    "completion_tokens": 3687
+  }
+}

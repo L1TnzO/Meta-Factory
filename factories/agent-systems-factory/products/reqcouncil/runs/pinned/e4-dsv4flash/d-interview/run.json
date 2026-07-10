@@ -1,0 +1,72 @@
+{
+  "experiment": "E4",
+  "arm": "d",
+  "arm_label": "full ReqCouncil",
+  "corpus": "interview",
+  "status": "reused",
+  "timestamp": "2026-07-06T20:01Z",
+  "source": "/home/enzo/University/Integraci\u00f3n/APP/dataset_agent_re/runs/pinned/e1-h4-dsv4flash",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "n_chunks": 132,
+  "n_requirements": 41,
+  "fidelity": 0.9756,
+  "coverage": 0.5985,
+  "oracle_recall": 0.3243,
+  "oracle_precision": 0.2439,
+  "critical_nfr_recall": null,
+  "cci": 1.1081,
+  "oracle_size": 37,
+  "usage": {
+    "prompt_tokens": 1218307,
+    "completion_tokens": 36121
+  },
+  "oracle_judge_usage": {
+    "prompt_tokens": 35794,
+    "completion_tokens": 145
+  },
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 1,
+        "dropped": 3,
+        "merged": 8,
+        "revised": 5,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 3,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 5,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 1,
+        "dropped": 2,
+        "merged": 2,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 20,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.4242,
+      0.4621,
+      0.4924,
+      0.5455,
+      0.5985
+    ]
+  }
+}

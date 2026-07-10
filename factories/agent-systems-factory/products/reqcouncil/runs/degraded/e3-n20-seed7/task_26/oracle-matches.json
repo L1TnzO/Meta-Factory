@@ -1,0 +1,496 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to browse promotions, so that I can see the available promotions and discounts.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a visitor, I want to view available promotions and discounts so that I can find deals and save money.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.9198,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7699,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7382,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5834,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5486,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to share promotions, so that I can contribute promotions and discounts to the community.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8033,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7731,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7272,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6331,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5988,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to search for promotions, so that I can find promotions of interest.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a visitor, I want to view available promotions and discounts so that I can find deals and save money.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8708,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7225,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6877,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5925,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.534,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As an administrator, I want a management backend for managing users, so that I can administer user-related aspects of the website.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As an administrator, I want to manage user accounts and access so that I can control who can view or interact with the system.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7612,
+          "verdict": 1
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6634,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6066,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5814,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5356,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As an administrator, I want a management backend for managing promotions, so that I can administer promotion-related content on the website.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As an administrator, I want to manage (create, edit, delete) promotions and discounts so that the website's content is accurate and up-to-date.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.8396,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7188,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.674,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6594,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6402,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As an administrator, I want a management backend for managing website settings, so that I can configure the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6367,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6168,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.521,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.4982,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4979,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the website’s outer layout to use an ivory color, so that the overall layout follows the specified appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.4062,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4011,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3874,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3728,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3457,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the UI blocks to use a forest green color, so that the interface elements follow the specified appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.3416,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.335,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3326,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3269,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3096,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to contribute to the community by actively sharing promotions",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6875,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6315,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.576,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5071,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.465,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to locate relevant promotions using a search function",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a visitor, I want to view available promotions and discounts so that I can find deals and save money.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.813,
+          "verdict": 1
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6768,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6251,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5463,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4806,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the website to present promotion and discount information as the primary content available to regular users.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a visitor, I want to view available promotions and discounts so that I can find deals and save money.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7186,
+          "verdict": 1
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6792,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6743,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4701,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.436,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect the administrative backend to include information related to users, promotions, and website settings.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.6697,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.633,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6185,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.596,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5835,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website’s outer layout to use an ivory color for the overall visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4431,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4246,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.368,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3359,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3174,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the UI blocks to use a forest green color to style interface elements.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.341,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3403,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3214,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3179,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.2948,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

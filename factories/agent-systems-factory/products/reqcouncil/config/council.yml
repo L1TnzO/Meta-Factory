@@ -1,0 +1,51 @@
+# Council protocol knobs (docs/design/01) — DATA, revisable with a written reason only.
+# H4 turns the deliberation loop ON (critics + consensus + convergence controller);
+# k_max: 0 reproduces the H3 "council w/o critics" arm (design/04 §3, E4 arm c).
+
+rounds:
+  k_max: 4             # design/01 §4 round budget (hard cost cap)
+  epsilon: 0.01        # coverage-plateau threshold (ΔInterviewCoverage < ε ...)
+  plateau_rounds: 2    # ... for this many consecutive rounds -> stop
+  gap_budget: 4        # max gap-hunter candidates KEPT per round (work/H4 red1: unbounded
+                       # ran 7/8/4/7 adds -> CCI 2.14 out of band while coverage overshot
+                       # the gate; 4 halves the inflow; emission order = model priority;
+                       # absent = unlimited, H3-era compat)
+
+temperatures:          # design/01 §5: same model, per-role decoding
+  analyst: 0.7         # diverge
+  synthesizer: 0.2     # stable wording
+  critic: 0.3          # precise (H4)
+  rebuttal: 0.3        # owners answering objections stay evidence-bound (H4)
+
+critics:               # the 3 Round-k challengers (design/01 §1.2); prompt files under
+  - gap_hunter         # reqcouncil/council/personas/<name>.md, referenced by sha in run.json
+  - conflict_detector
+  - evidence_skeptic
+
+dedup:
+  tau_dup: 0.88        # cosine threshold for candidate merge (decisions/005: measured
+                       # near-dup 0.9305 vs distinct ~0.45 with the pinned embedder;
+                       # 0.88 splits the measured gap with margin on the dup side)
+
+analysts:              # the 6 Round-0 charters (design/01 §1.1); prompt files under
+  - functional         # reqcouncil/council/personas/<name>.md, referenced by sha in run.json
+  - data
+  - nfr
+  - security
+  - ux
+  - integration
+
+verify:
+  max_anchors_judged: 3  # Layer-2 grounding: judge at most N cited anchors per candidate
+                         # (cost cap; grounded = >=1 supported among those judged)
+
+cardinality_band:      # runtime self-check (design/01 §4): warning, never a cut.
+  source: inter2us     # 37 golden stories / 132 chunks on int1 -> density ~0.28 req/chunk
+  golden_stories: 37
+  golden_chunks: 132
+
+review:                # H5 HITL checkpoint (design/02 §4)
+  low_confidence: 0.6  # MEASURED on the pinned H4 board (41 reqs): grounded confidences
+                       # 0.5 / 0.5 / 0.33 fall under it -> bucket 4 = 3 items, plus
+                       # 1 unsupported (bucket 2) => 4 mandatory / 41 — the packet forces
+                       # attention without flooding the reviewer

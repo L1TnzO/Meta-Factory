@@ -1,0 +1,1990 @@
+{
+  "source": "int1",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "timestamp": "2026-07-05T20:26Z",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "gap_hunter": "eb61f4bf8062",
+    "conflict_detector": "9e6642850de9",
+    "evidence_skeptic": "86204e0ec6e6",
+    "functional:rebuttal": "5577f5543d9a",
+    "data:rebuttal": "25ff3edbd5bf",
+    "nfr:rebuttal": "7664edd99442",
+    "security:rebuttal": "e708b623b036",
+    "ux:rebuttal": "be9d37b9edf5",
+    "integration:rebuttal": "3516298546d6",
+    "gap_hunter:rebuttal": "f523e0468fb2",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 132,
+  "cardinality": {
+    "produced": 79,
+    "expected": 37.0,
+    "band": [
+      22.2,
+      59.2
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.7424,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 7,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 48,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 8,
+        "dropped": 2,
+        "merged": 0,
+        "revised": 11,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 7,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 6,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.4242,
+      0.5379,
+      0.5909,
+      0.6439,
+      0.7424
+    ]
+  },
+  "usage": {
+    "prompt_tokens": 1375480,
+    "completion_tokens": 62931
+  },
+  "requirements": [
+    {
+      "id": "nfr-0",
+      "text": "The system shall support up to 50,000 concurrent users.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:77"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 2 explicitly mentioned that the system should be accessed by 50,000 people simultaneously.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "da449949655b:77": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-3",
+      "text": "The system shall be available as a web-based application for teams and IFA administrators.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:64"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated that teams and IFA administrators will work with computers using a web-based application.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "da449949655b:64": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-7",
+      "text": "The system shall support a migration process from the existing manual system to the new system, so that the transition is smooth and sequenced.",
+      "category": "gap_hunter",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:97",
+        "da449949655b:99"
+      ],
+      "stance": "inferred",
+      "rationale": "Spk 2 asks about the timeline and migration sequence, indicating a need for a planned migration process.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "flagged_inferred",
+      "verdicts": {
+        "da449949655b:97": "unsupported",
+        "da449949655b:99": "unsupported"
+      },
+      "flags": [
+        "normalization_drift"
+      ]
+    },
+    {
+      "id": "data-18",
+      "text": "The system shall support a reasonable response time (about one to two seconds) for fans, IFA administrators, and team administrators, so that the system is usable during peak loads.",
+      "category": "data",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:77",
+        "da449949655b:78"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 2 mentions 50,000 simultaneous users and Spk 1 says reasonable response time of a second or two.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:77": "unsupported",
+        "da449949655b:78": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-4",
+      "text": "As an IFA administrator, I want the system to provide aggregated statistics (e.g., total red cards, goals per team) after the season, so that teams and journalists can access this data.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:18",
+        "da449949655b:22"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 2 asks about aggregating data like red cards and goals, and Spk 1 confirms this is desired; Spk 2 also asks about exporting to journalists, which Spk 1 confirms is needed.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:18": "supported",
+        "da449949655b:22": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-4",
+      "text": "As an IFA administrator, I want the system to allow teams to have input on the scheduling algorithm, so that their preferences (e.g., weekend games) can be considered.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:37",
+        "da449949655b:38"
+      ],
+      "stance": "inferred",
+      "rationale": "Spk 2 asks if teams should have a say in the scheduling algorithm, implying this is a desired feature not yet implemented.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:37": "unsupported",
+        "da449949655b:38": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-5",
+      "text": "As an IFA administrator, I want the system to enable fans to view team and player pages, follow them, and comment or post pictures, so that fan engagement is increased.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:59",
+        "da449949655b:73"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 0 describes a fan portal with team/player pages, following, and commenting, and Spk 1 confirms fans are exposed to it.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:59": "supported",
+        "da449949655b:73": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-5",
+      "text": "The system shall support 50,000 simultaneous users with a reasonable response time, so that the system can handle peak loads during popular events.",
+      "category": "integration",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:77",
+        "da449949655b:78"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions 50,000 concurrent users and a response time of one to two seconds for most users.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:77": "unsupported",
+        "da449949655b:78": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-10",
+      "text": "As an IFA administrator, I want to manually override the generated schedule with a documented rationale, so that changes are transparent and accountable.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:39",
+        "da449949655b:41",
+        "da449949655b:42",
+        "da449949655b:43"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says overrides must include an explanation, and another IFA representative must confirm the change.",
+      "proposers": [
+        "data",
+        "functional",
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:39": "unsupported",
+        "da449949655b:41": "supported",
+        "da449949655b:42": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-0",
+      "text": "As an IFA administrator, I want the system to enforce a policy-based minimum gap between matches for a team, so that teams have adequate rest between games.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:48",
+        "da449949655b:50",
+        "da449949655b:51",
+        "da449949655b:53"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that the scheduling policy includes a minimum gap (number of teams multiplied by two days) between matches for a team.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:48": "unsupported",
+        "da449949655b:50": "supported",
+        "da449949655b:51": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-0",
+      "text": "As an IFA administrator, I want to define budget policies in the system, so that the system can alert of certain violations.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:27",
+        "da449949655b:3",
+        "da449949655b:4"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states the IFA should have the ability to specify budget policy so the system can alert of violations.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration",
+        "nfr",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:27": "supported",
+        "da449949655b:3": "supported",
+        "da449949655b:4": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-1",
+      "text": "As a team, I want to insert my own budget transactions and items, so that I can manage my own budget.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:27"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says insertion of budget transaction and items is done only by the teams.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:27": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-2",
+      "text": "As a team, I want to access only my own budget data, so that other teams cannot view my financial information.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:27"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says teams can only access their own data.",
+      "proposers": [
+        "data",
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:27": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-1",
+      "text": "As an IFA administrator, I want to view financial data from all teams, so that I can monitor overall compliance and balance.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:1",
+        "da449949655b:2",
+        "da449949655b:27",
+        "da449949655b:5"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states the IFA only views and monitors all monetary information, while teams manage their own data.",
+      "proposers": [
+        "data",
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:1": "supported",
+        "da449949655b:2": "supported",
+        "da449949655b:27": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-4",
+      "text": "As a referee, I want to input game events in real time via a mobile device, so that official game data is reliable and immediately available.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:15",
+        "da449949655b:16",
+        "da449949655b:17",
+        "da449949655b:64",
+        "da449949655b:69",
+        "da449949655b:78"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly requires referees to insert events in real time using mobile devices to ensure reliability.",
+      "proposers": [
+        "data",
+        "functional",
+        "gap_hunter",
+        "integration",
+        "nfr",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:15": "supported",
+        "da449949655b:16": "supported",
+        "da449949655b:17": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-5",
+      "text": "As a system, I want to record each game event with a timestamp, so that the event history is accurate.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:15"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states each event will have its timestamp, the event itself, and maybe additional information.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:15": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-6",
+      "text": "As a guest, I want to view game-related data (e.g., results, events) without registration, so that transparency is increased.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:19",
+        "da449949655b:20",
+        "da449949655b:21",
+        "da449949655b:71"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says even a guest can see final game data to increase transparency.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:19": "supported",
+        "da449949655b:20": "supported",
+        "da449949655b:21": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-15",
+      "text": "The system shall allow IFA administrators to define scheduling policies (e.g., home-and-away matches, minimum gap between games).",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:29",
+        "da449949655b:30",
+        "da449949655b:49",
+        "da449949655b:52"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 described the need to define policies for scheduling, including constraints like match gaps and days.",
+      "proposers": [
+        "data",
+        "functional",
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:29": "supported",
+        "da449949655b:30": "supported",
+        "da449949655b:49": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-14",
+      "text": "As an IFA administrator, I want to define policies for referee assignment (e.g., avoid same referee for same team's games, equal number of games per referee), so that the system can guide the allocation of referees to games.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:31",
+        "da449949655b:32",
+        "da449949655b:33"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 described policies for referee allocation and wanted the system to assign referees based on them.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration",
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:31": "supported",
+        "da449949655b:32": "supported",
+        "da449949655b:33": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-9",
+      "text": "As a referee, I want to submit my availability preferences (e.g., vacation days), so that the scheduling system considers them.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:33",
+        "da449949655b:34"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says the system should enable referees to install their preferences, like planned vacations.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration",
+        "nfr",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:33": "supported",
+        "da449949655b:34": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-11",
+      "text": "As a fan, I want to subscribe to a specific game and receive push notifications about schedule changes and live events, so that I stay informed.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:54",
+        "da449949655b:55",
+        "da449949655b:56",
+        "da449949655b:62",
+        "da449949655b:74"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 wants fans to register to a game and get notifications about schedule changes and events.",
+      "proposers": [
+        "data",
+        "functional",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:54": "supported",
+        "da449949655b:55": "supported",
+        "da449949655b:56": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-4",
+      "text": "As a fan, I want to subscribe to notifications for a specific player, so that I receive updates when that player posts a message.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:56",
+        "da449949655b:57",
+        "da449949655b:58",
+        "da449949655b:60",
+        "da449949655b:61"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that fans can register to a favorite player's page and get notifications when the player posts a message.",
+      "proposers": [
+        "data",
+        "functional",
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:56": "supported",
+        "da449949655b:57": "supported",
+        "da449949655b:58": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-13",
+      "text": "As a player, I want to update my social network page within the system, so that I can communicate with fans.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:93",
+        "da449949655b:94"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says the player can update their social network page and manage communication with fans.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration",
+        "nfr",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:93": "supported",
+        "da449949655b:94": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-14",
+      "text": "As a team manager, I want to register a new team with valid documents via the IFA, so that the team can be officially part of the league.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:116",
+        "da449949655b:117"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 describes the process of team registration through IFA approval.",
+      "proposers": [
+        "data",
+        "functional",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:116": "supported",
+        "da449949655b:117": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-18",
+      "text": "As an IFA administrator, I want to define leagues and seasons, so that the scheduling and reporting can be organized by season.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118",
+        "da449949655b:29"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 mentioned defining leagues and seasons as part of the system's basic functionality.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported",
+        "da449949655b:29": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-16",
+      "text": "As a system, I want to keep all past archives of schedules and game events, so that historical analysis is possible.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118",
+        "da449949655b:119"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says all past archives should be kept for reasoning about the future.",
+      "proposers": [
+        "data",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported",
+        "da449949655b:119": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-17",
+      "text": "The system shall have higher priority and very responsive real-time performance for the referee application during a game, so that events are reported in real time.",
+      "category": "data",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:78",
+        "da449949655b:79"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says referees need very fast, real-time responsiveness with priority over other activities.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:78": "supported",
+        "da449949655b:79": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-19",
+      "text": "The system shall support localization (language, currency, time zone), so that the system can serve users worldwide.",
+      "category": "data",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says the system needs to adjust to local regulation, language, currency, and time zone.",
+      "proposers": [
+        "data",
+        "integration",
+        "nfr",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:89": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-8",
+      "text": "The system shall ensure that budget and financial data is encrypted and access-controlled, so that unauthorized leakage is prevented.",
+      "category": "security",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:91",
+        "da449949655b:92"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states budget data should be encrypted to avoid leakage, implying a security requirement.",
+      "proposers": [
+        "data",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:91": "supported",
+        "da449949655b:92": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-5",
+      "text": "As a referee, I want to be the only one who can update game events, so that the information is coherent and reliable.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:15",
+        "da449949655b:69",
+        "da449949655b:70",
+        "da449949655b:71"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated only the referee can update events, and that this makes data official and reliable.",
+      "proposers": [
+        "functional",
+        "nfr",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:15": "supported",
+        "da449949655b:69": "supported",
+        "da449949655b:70": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-13",
+      "text": "As an IFA administrator, I want a manual schedule override to be confirmed by another IFA representative, so that bias and errors are avoided.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:41",
+        "da449949655b:46"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said another IFA representative should confirm the change.",
+      "proposers": [
+        "functional",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:41": "supported",
+        "da449949655b:46": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-17",
+      "text": "As an IFA administrator, I want to approve a team registration, so that only legitimate teams are added to the system.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:116",
+        "da449949655b:117"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said the IFA approves the registration before the team can manage resources.",
+      "proposers": [
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:116": "supported",
+        "da449949655b:117": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-19",
+      "text": "As an IFA administrator, I want to register referees in the system, so that they can be assigned to games.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118",
+        "da449949655b:120"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said the IFA appoints referees and invites them to be part of the system.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported",
+        "da449949655b:120": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-20",
+      "text": "As a team, I want to enter player details into the system, so that my team's roster is managed.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:120",
+        "da449949655b:121"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said the team enters the details of its players into the system.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:120": "supported",
+        "da449949655b:121": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-21",
+      "text": "As a user, I want to register in the system so that I can be identified (otherwise I am a guest).",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:114",
+        "da449949655b:115"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said users should register for identification, otherwise they are guests.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:114": "supported",
+        "da449949655b:115": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-22",
+      "text": "As an IFA administrator, I want the system to keep all past season archives, so that historical data is available for analysis.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said all past archives should be kept for reasoning about the future.",
+      "proposers": [
+        "functional",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-4",
+      "text": "The system shall prioritize network and processing resources for referee mobile application sessions during active games, ensuring event reporting latency is sub-second and not degraded by other system load.",
+      "category": "integration",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:78",
+        "da449949655b:80"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specifies referees need very fast, real-time response and priority over other activities during a game.",
+      "proposers": [
+        "functional",
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:78": "supported",
+        "da449949655b:80": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-25",
+      "text": "Budget data shall be encrypted to prevent leakage, as it is confidential unlike game data which is public.",
+      "category": "functional",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:91"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said budget data should be encrypted to avoid leakage.",
+      "proposers": [
+        "functional",
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:91": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-26",
+      "text": "The system shall support localization including multiple languages, currencies, and time zones, and comply with local data residency regulations (e.g., German data must stay in Germany).",
+      "category": "functional",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89",
+        "da449949655b:91"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 mentioned localization needs and data restrictions such as German data not leaving the country.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:89": "supported",
+        "da449949655b:91": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-27",
+      "text": "The system shall have different interfaces for different stakeholders (web-based for IFA and teams, mobile apps for referees and fans) as part of a unified system.",
+      "category": "functional",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:64",
+        "da449949655b:65",
+        "da449949655b:66"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 said the same system but with different interfaces and access for various stakeholders.",
+      "proposers": [
+        "functional",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:64": "supported",
+        "da449949655b:65": "supported",
+        "da449949655b:66": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-1",
+      "text": "As the IFA, I want the system to push notifications to fans based on their subscriptions, so that fans receive timely updates about games, players, and teams they follow.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:54",
+        "da449949655b:55",
+        "da449949655b:56",
+        "da449949655b:62"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes a push notification mechanism for fans who register to follow specific games, players, or teams.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:54": "supported",
+        "da449949655b:55": "supported",
+        "da449949655b:56": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-3",
+      "text": "As the IFA, I want the system to allow data export of game-related data, so that journalists and the press can access and use the data externally.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:20",
+        "da449949655b:21"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirms the need to export data for journalists and press.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:20": "supported",
+        "da449949655b:21": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-7",
+      "text": "As a team manager or team administration, I want to view my team's own data (players, coaches, budget transactions, etc.), so that I can perform offline analysis and manage team resources.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:23",
+        "da449949655b:24"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says the system will allow the team manager to look into their own data and perform offline analysis.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:23": "supported",
+        "da449949655b:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-8",
+      "text": "As the IFA, I want the system to allow IFA representatives to view the financial data of all teams, so that they can monitor budgets and detect violations.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:1",
+        "da449949655b:27",
+        "da449949655b:3"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explains IFA can view all monetary information and monitor, but not modify team budgets.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:1": "supported",
+        "da449949655b:27": "supported",
+        "da449949655b:3": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-10",
+      "text": "As the IFA, I want the system to support defining scheduling policies (e.g., home/away, minimum time between matches, day of week) and referee assignment policies, so that the scheduling algorithm respects league constraints.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:29",
+        "da449949655b:30",
+        "da449949655b:31"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes the need to define policies for scheduling games.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:29": "supported",
+        "da449949655b:30": "supported",
+        "da449949655b:31": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-11",
+      "text": "The system shall allow IFA administrators to override the auto-generated schedule, but require a rationale and a second IFA representative's approval for any change.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:41",
+        "da449949655b:42",
+        "da449949655b:43",
+        "da449949655b:45",
+        "da449949655b:46",
+        "da449949655b:47"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 specified that schedule overrides need an explanation and confirmation by another IFA representative to ensure transparency.",
+      "proposers": [
+        "gap_hunter",
+        "integration",
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:41": "supported",
+        "da449949655b:42": "supported",
+        "da449949655b:43": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-17",
+      "text": "The system shall support data residency requirements, so that data for certain countries (e.g., Germany) can be stored within that country's borders.",
+      "category": "integration",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89",
+        "da449949655b:91"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions restrictions on storing German data outside Germany and the need to discuss data center allocation.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:89": "supported",
+        "da449949655b:91": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-18",
+      "text": "The budget data shall be encrypted, so that financial information is protected from leakage.",
+      "category": "integration",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:91"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder suggests budget data should be encrypted to avoid leakage.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:91": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-21",
+      "text": "As the IFA, I want the system to allow IFA representatives to define leagues and seasons and register referees, and allow teams to enter player details, so that the basic structure of competitions is set up.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118",
+        "da449949655b:120"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder lists defining league, season, and appointing referees as IFA tasks.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported",
+        "da449949655b:120": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-1",
+      "text": "The system shall provide a very responsive, real-time experience for referees during a game, with priority over other activities, and a response time of approximately 1-2 seconds for fans, IFA administrators, and team administrators under normal load.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:78",
+        "da449949655b:80"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated that a reasonable response time of 'a second or two' is expected for these user groups.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:78": "supported",
+        "da449949655b:80": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-4",
+      "text": "The system shall be available as a mobile application for referees and fans.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:64"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated that referees and fans will use mobile applications for easier access.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:64": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-6",
+      "text": "The system shall support data residency restrictions, e.g., ensuring German data is not stored outside Germany.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 mentioned that in Germany, data cannot be stored outside the country and this must be considered.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:89": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-8",
+      "text": "The system shall store all historical data (archives) for past seasons.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:118"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 confirmed that all past archives should be kept for future analysis.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-9",
+      "text": "The system shall support push notifications (e.g., via app) to fans for subscribed events such as schedule changes, player posts, and game events.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:54",
+        "da449949655b:56",
+        "da449949655b:62",
+        "da449949655b:64"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 described a push-based notification system where fans receive updates for subscribed games, players, and events.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:54": "supported",
+        "da449949655b:56": "supported",
+        "da449949655b:62": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-10",
+      "text": "The system shall allow unregistered guests to view final game-related data (e.g., scores, results) without logging in.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:19",
+        "da449949655b:20"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated that even a guest should be able to see final game data to increase transparency.",
+      "proposers": [
+        "nfr",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:19": "supported",
+        "da449949655b:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-18",
+      "text": "The system shall allow teams to view their own data and perform offline analysis.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:23"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 stated that teams should be able to look into their data and perform analysis offline.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:23": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-9",
+      "text": "The system shall support data localization to comply with regional regulations (e.g., German data not leaving Germany), so that legal constraints are satisfied.",
+      "category": "security",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:89",
+        "da449949655b:90"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly mentions restrictions on data leaving certain countries and the need to adjust to local regulations.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:89": "supported",
+        "da449949655b:90": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-10",
+      "text": "As a system, I must require all users who wish to perform write operations or access non-public data (e.g., budget data) to register, so that identity is verified and actions are attributable; guests may view public game-related data without registration.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:19",
+        "da449949655b:114",
+        "da449949655b:115"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states users should register for identification, otherwise they are guests, implying authentication.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:19": "supported",
+        "da449949655b:114": "supported",
+        "da449949655b:115": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-12",
+      "text": "As a system, I must retain all archives of past seasons, so that analysis and historical reference are possible.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:118"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states all past archives should be kept for reasoning and future analysis.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:118": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-3",
+      "text": "As a team manager, I want to look into my team's data and perform offline analysis, so that I can manage my team independently.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:23",
+        "da449949655b:24",
+        "da449949655b:25",
+        "da449949655b:27"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirmed each team manages its own budget and can query its data for analysis.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:23": "supported",
+        "da449949655b:24": "supported",
+        "da449949655b:25": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-6",
+      "text": "The system shall be accessible via a web application for IFA and team staff, and via a mobile app for referees and fans, so that each group has an appropriate interface.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:64",
+        "da449949655b:66"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder differentiated between web-based access for administrative users and mobile apps for referees and fans.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:64": "supported",
+        "da449949655b:66": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-9",
+      "text": "The system shall have a response time of about one to two seconds for fans and administrators, and near-real-time responsiveness for referees during games, so that the experience is smooth.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:78"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specified a response time of one or two seconds for most users.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:78": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-11",
+      "text": "As a fan, I want to receive notifications for specific game events (e.g., player replacement) in real time, so that I stay informed during the match.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:62",
+        "da449949655b:63"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described subscribing to game events and receiving notifications as the referee reports them.",
+      "proposers": [
+        "gap_hunter",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:62": "supported",
+        "da449949655b:63": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-3",
+      "text": "As a team manager, I want the system to send automatic reminders for submitting annual reports to the IFA, so that I do not miss the submission deadline.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:75",
+        "da449949655b:76"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 0 proposes auto-reminders for annual report submission, and Spk 1 agrees, indicating a need for policy-based alerts.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:75": "supported",
+        "da449949655b:76": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-5",
+      "text": "As an IFA administrator, I want the system to enable referees to input their availability preferences (e.g., vacation days) for scheduling, so that the automatic scheduling algorithm respects those constraints.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:35"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that the system should enable referees to install their preferences (e.g., vacation days) and use them as constraints in scheduling.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:35": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-6",
+      "text": "The system shall be developed and maintained by an external company, with the IFA's IT department acting as the communication liaison, so that the IFA does not need in-house software development capabilities.",
+      "category": "gap_hunter",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:85",
+        "da449949655b:86",
+        "da449949655b:87"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that the IFA is not a software company and wants to outsource the entire development and maintenance, with the IT department as the interface.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:85": "supported",
+        "da449949655b:86": "supported",
+        "da449949655b:87": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r1-7",
+      "text": "As a fan, I want the system to provide a unified source of game event data (e.g., goals, red cards) from referees, so that I do not need to rely on external news portals for accurate information.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:72"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that fans should be exposed to the official game data from the system, eliminating the need to look at news portals.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:72": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-0",
+      "text": "As an IFA administrator, I want the system to automatically generate alerts for unusual or suspicious financial transactions in team budgets, so that I can request adjustments or further details.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:28"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states the IFA can 'alert' and 'request for details for adjustment' on team financial data, indicating a need for automated monitoring and alerting.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:28": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-1",
+      "text": "As an IFA scheduler, I want the system to allow manual rescheduling of a game when it is canceled due to weather or other exceptional circumstances, so that the season can be adjusted.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:40"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly says 'we need to allow manual adjustment of the schedule' for canceled games, which is a requirement not covered by automatic scheduling alone.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:40": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-5",
+      "text": "As a team manager, I want to submit reports about new player arrivals and player departures to the IFA, so that the IFA can track team roster changes.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:22"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 0 asks if the IFA wants reports from team managers about new or leaving players, which is a reporting need not covered by other requirements.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:22": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-6",
+      "text": "The system shall be a unified system with different interfaces for different stakeholders (e.g., budgeting, fan portal), so that all functionality is integrated.",
+      "category": "gap_hunter",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:67"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly says the system should be the same system with different interfaces, not separate systems, indicating an architectural requirement for integration.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:67": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-8",
+      "text": "The system's storage and computing shall be handled by an external cloud service, so that the IFA does not manage its own infrastructure.",
+      "category": "gap_hunter",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:87"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 2 asks if storage and computing should be handled by an external company via cloud service, and Spk 1 does not object, implying agreement.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:87": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r2-9",
+      "text": "The system shall be implemented in phases: first basic setup (teams, league, season, referees, fans), then budgeting and scheduling, then real-time referee updates, so that the system can be delivered incrementally.",
+      "category": "gap_hunter",
+      "kind": "NFR",
+      "anchors": [
+        "da449949655b:100",
+        "da449949655b:101",
+        "da449949655b:102"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly describes the phased implementation priorities, which is a project-level requirement for the delivery sequence.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:100": "supported",
+        "da449949655b:101": "supported",
+        "da449949655b:102": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-2",
+      "text": "As an IFA administrator, I want the system to provide real-time updates from referees during games, so that game information is immediately available.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:102",
+        "da449949655b:81",
+        "da449949655b:82"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 mentions the main contract is real-time updates from the referee, and it is listed as a third-phase feature.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:102": "supported",
+        "da449949655b:81": "supported",
+        "da449949655b:82": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r3-5",
+      "text": "As an IFA administrator, I want the system to allow teams to manage their own player details, with IFA only auditing the process, so that teams have autonomy over their data.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:122"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states that the team manages its players and IFA only audits, defining a clear data ownership boundary.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:122": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r3-6",
+      "text": "As an IFA administrator, I want the system to support a unified system with different interfaces for different stakeholders, so that each stakeholder sees relevant information while maintaining a single system core.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:68"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly says the same system may have different interfaces for different stakeholders, indicating a multi-interface requirement.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:68": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-1",
+      "text": "As an IFA administrator, I want the system to allow a single IFA representative role to perform budgeting, scheduling, and all other administrative activities, so that the current organizational structure with no separate departments is supported.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:107",
+        "da449949655b:108",
+        "da449949655b:109"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states there is only one IFA administration role that handles all activities, and Spk 2 confirms no separate departments exist.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:107": "supported",
+        "da449949655b:108": "supported",
+        "da449949655b:109": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-3",
+      "text": "As an IFA administrator, I want the system to support a future live recording feature from the referee's side, so that game events can be captured for later review.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:83"
+      ],
+      "stance": "inferred",
+      "rationale": "Spk 1 agrees that a live recording feature is a good idea for a future version, indicating a potential requirement.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:83": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "gap_hunter-r4-6",
+      "text": "As an IFA administrator, I want the system to allow players to update their social network page and manage communication with fans within the portal, so that players can engage directly with the community.",
+      "category": "gap_hunter",
+      "kind": "FR",
+      "anchors": [
+        "da449949655b:95"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 states players can update their social network page and manage communication with fans within the system portal.",
+      "proposers": [
+        "gap_hunter"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "da449949655b:95": "supported"
+      },
+      "flags": []
+    }
+  ],
+  "store": {
+    "run_id": 1,
+    "requirements": 79
+  }
+}

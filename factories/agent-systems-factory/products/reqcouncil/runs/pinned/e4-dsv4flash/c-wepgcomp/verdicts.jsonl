@@ -1,0 +1,147 @@
+{"key": "2bdf8be86e9bb6e1", "pred": 1, "story": "As a system administrator, I want to import legacy data from spreadsheets used i", "raw": "1"}
+{"key": "241ff1b58b0a9b77", "pred": 1, "story": "As a student presenter, I want to register my presentation with title, abstract,", "raw": "1"}
+{"key": "89e773a9077ad596", "pred": 1, "story": "As a student presenter, I want to register my presentation with title, abstract,", "raw": "1"}
+{"key": "e8c374e2c7643919", "pred": 1, "story": "As a system administrator, I want to store each edition of the WEPGCOMP event wi", "raw": "1"}
+{"key": "c9443ec4a3915a84", "pred": 1, "story": "As a student presenter, I want to register my presentation with title, abstract,", "raw": "1"}
+{"key": "18e31d0418c78364", "pred": 1, "story": "As a system administrator, I want to define the start and end dates of the event", "raw": "1"}
+{"key": "29782c6c4f9c2861", "pred": 1, "story": "As a system administrator, I want to store each edition of the WEPGCOMP event wi", "raw": "1"}
+{"key": "773e44eaf4e77dc9", "pred": 1, "story": "As a regular user, I want to download uploaded presentation PDFs, so that I can ", "raw": "1"}
+{"key": "8f0945554bbcb1d8", "pred": 1, "story": "As a system administrator, I want to create and manage the event schedule (progr", "raw": "1"}
+{"key": "6af57cc6981ede83", "pred": 1, "story": "As a system administrator, I want to rearrange presentations and sessions when a", "raw": "1"}
+{"key": "bcfa942613494e77", "pred": 1, "story": "As a system administrator, I want to store each edition of the WEPGCOMP event wi", "raw": "1"}
+{"key": "25e753814094b253", "pred": 1, "story": "As a system administrator, I want to create and manage the event schedule (progr", "raw": "1"}
+{"key": "88bc0aadce204f86", "pred": 1, "story": "As a system administrator, I want to review and edit presentations registered by", "raw": "1"}
+{"key": "4611ae89e39bf9ca", "pred": 1, "story": "As a system administrator, I want to rearrange presentations and sessions when a", "raw": "1"}
+{"key": "58c0b62edf58663c", "pred": 1, "story": "As a system administrator, I want to review and edit presentations registered by", "raw": "1"}
+{"key": "133504b0ee99857f", "pred": 1, "story": "As a system user, I want to have a dashboard area with analytics (e.g., particip", "raw": "1"}
+{"key": "d253757be141d336", "pred": 1, "story": "As a system user, I want the system to store user profiles with at least usernam", "raw": "1"}
+{"key": "ef5fd9243ed68742", "pred": 1, "story": "As a system user, I want the system to store user profiles with at least usernam", "raw": "1"}
+{"key": "0201203090f2255e", "pred": 1, "story": "As a regular user, I want to download uploaded presentation PDFs, so that I can ", "raw": "1"}
+{"key": "fe66790f47350f17", "pred": 1, "story": "As a system administrator, I want to prevent scheduling conflicts where two pres", "raw": "1"}
+{"key": "8512131dd4cc810c", "pred": 1, "story": "As a super administrator, I want to manage all user accounts (include and remove", "raw": "1"}
+{"key": "a6232d021322409a", "pred": 1, "story": "As a system administrator, I want to prevent scheduling conflicts where two pres", "raw": "1"}
+{"key": "9a6c0395221b1948", "pred": 1, "story": "As a system administrator, I want the system to generate separate certificates f", "raw": "1"}
+{"key": "9287b97e42a7858b", "pred": 1, "story": "As a super administrator, I want to manage all user accounts (include and remove", "raw": "1"}
+{"key": "7e9fbeb72867cdfd", "pred": 1, "story": "As a system administrator, I want PDF files to be stored in an external file sys", "raw": "1"}
+{"key": "78387d7f5d679d93", "pred": 1, "story": "As a system administrator, I want the system to support only PDF format for uplo", "raw": "1"}
+{"key": "34c5cf9616db465f", "pred": 1, "story": "As a common user (conferencista), I want to view and download the presentation f", "raw": "1"}
+{"key": "f59b6e65450dcc36", "pred": 1, "story": "As a common user (conferencista), I want to view and download the presentation f", "raw": "1"}
+{"key": "acd141878504fcaa", "pred": 1, "story": "As a common user (conferencista), I want to view and download the presentation f", "raw": "1"}
+{"key": "39a6c780a134b0fb", "pred": 1, "story": "As an administrator (commission member), I want to create and configure the even", "raw": "1"}
+{"key": "724ef89550851046", "pred": 1, "story": "As a system administrator, I want the system to support only PDF format for uplo", "raw": "1"}
+{"key": "a2b270e773359127", "pred": 1, "story": "As a system administrator, I want PDF files to be stored in an external file sys", "raw": "1"}
+{"key": "4ff71093e0aa2df0", "pred": 1, "story": "As a system administrator, I want the system to generate separate certificates f", "raw": "1"}
+{"key": "2d7a732e2cd6f9a1", "pred": 1, "story": "As a common user, I want to register with only a username and password, so that ", "raw": "1"}
+{"key": "6de4b82ba704e135", "pred": 1, "story": "As an administrator (commission member), I want to create and configure the even", "raw": "1"}
+{"key": "c2e4736bdd674edd", "pred": 1, "story": "As any registered user, I want to view and follow presentations, and also vote o", "raw": "1"}
+{"key": "6ad1eec4ac26cd8a", "pred": 1, "story": "As any registered user, I want to view and follow presentations, and also vote o", "raw": "1"}
+{"key": "ba5e3bf103a80d80", "pred": 1, "story": "The system should support up to approximately 70 concurrent users during the eve", "raw": "1"}
+{"key": "ac15e3f9ba4a34c0", "pred": 1, "story": "As a student presenter, I want to provide my advisor, enrollment number, and CPF", "raw": "1"}
+{"key": "197c89eca23da4e3", "pred": 1, "story": "The system should support up to approximately 70 concurrent users during the eve", "raw": "1"}
+{"key": "faf662d1c6d203dd", "pred": 1, "story": "The system should support up to approximately 70 concurrent users during the eve", "raw": "1"}
+{"key": "45bc50aef64becb3", "pred": 1, "story": "The system should store uploaded PDF files in an external file storage system (e", "raw": "1"}
+{"key": "3cb3b576a8a128f3", "pred": 0, "story": "O sistema deve suportar at\u00e9 90 usu\u00e1rios simult\u00e2neos durante o evento (60 apresen", "raw": "0"}
+{"key": "57699c2adfb4037f", "pred": 1, "story": "As a super admin, I want the system to optionally validate student enrollment nu", "raw": "1"}
+{"key": "e7791fb110e319d8", "pred": 1, "story": "As a super admin, I want the system to optionally validate student enrollment nu", "raw": "1"}
+{"key": "c8c1019386c1c060", "pred": 1, "story": "O sistema deve armazenar arquivos PDF em um sistema de arquivos separado (n\u00e3o no", "raw": "1"}
+{"key": "79f68a419dc1aea8", "pred": 1, "story": "The system should store uploaded PDF files in an external file storage system (e", "raw": "1"}
+{"key": "301b39296de05beb", "pred": 1, "story": "O sistema deve armazenar arquivos PDF em um sistema de arquivos separado (n\u00e3o no", "raw": "1"}
+{"key": "8b226ce0d1d3be07", "pred": 0, "story": "O sistema deve suportar at\u00e9 90 usu\u00e1rios simult\u00e2neos durante o evento (60 apresen", "raw": "0"}
+{"key": "e7862cc8fe299c6e", "pred": 0, "story": "O sistema deve apresentar tempo de resposta aceit\u00e1vel mesmo com at\u00e9 2 milh\u00f5es de", "raw": "0"}
+{"key": "fb09a7f6482a5a5d", "pred": 0, "story": "O sistema deve apresentar tempo de resposta aceit\u00e1vel mesmo com at\u00e9 2 milh\u00f5es de", "raw": "0"}
+{"key": "47ad77fdfd477eb6", "pred": 1, "story": "O sistema deve garantir que n\u00e3o haja sobreposi\u00e7\u00e3o de hor\u00e1rios e salas para apres", "raw": "1"}
+{"key": "18f3c70019aeb99b", "pred": 1, "story": "O sistema deve permitir que o administrador altere a programa\u00e7\u00e3o do evento dentr", "raw": "1"}
+{"key": "c02d2e3d365acce7", "pred": 1, "story": "O sistema deve garantir que n\u00e3o haja sobreposi\u00e7\u00e3o de hor\u00e1rios e salas para apres", "raw": "1"}
+{"key": "c7b9daaf60b59606", "pred": 1, "story": "O sistema deve permitir que o administrador altere a programa\u00e7\u00e3o do evento dentr", "raw": "1"}
+{"key": "587654e3f498c323", "pred": 0, "story": "O sistema deve ser gratuito, substituindo plataformas pagas como evento.com.", "raw": "0"}
+{"key": "f91fec91edb13ddd", "pred": 1, "story": "O sistema deve armazenar e permitir consulta ao hist\u00f3rico de edi\u00e7\u00f5es do evento W", "raw": "1"}
+{"key": "76babe9293845b3c", "pred": 1, "story": "O sistema deve ser gratuito, substituindo plataformas pagas como evento.com.", "raw": "1"}
+{"key": "c4aa2d73cf9124db", "pred": 1, "story": "O sistema deve armazenar e permitir consulta ao hist\u00f3rico de edi\u00e7\u00f5es do evento W", "raw": "1"}
+{"key": "c3c862f5ab60c969", "pred": 1, "story": "O sistema deve armazenar e permitir consulta ao hist\u00f3rico de edi\u00e7\u00f5es do evento W", "raw": "1"}
+{"key": "56bd3b23b52d4666", "pred": 1, "story": "O sistema deve fornecer dashboards anal\u00edticos para comparar evolu\u00e7\u00e3o de particip", "raw": "1"}
+{"key": "eb03deec52e2cfd6", "pred": 1, "story": "O sistema deve fornecer dashboards anal\u00edticos para comparar evolu\u00e7\u00e3o de particip", "raw": "1"}
+{"key": "8609eb39778e2696", "pred": 1, "story": "O sistema deve suportar upload e download de arquivos no formato PDF.", "raw": "1"}
+{"key": "accf27ce96a070da", "pred": 1, "story": "O sistema deve suportar upload e download de arquivos no formato PDF.", "raw": "1"}
+{"key": "077c54fcbecae316", "pred": 1, "story": "O sistema deve permitir que qualquer pessoa cadastrada visualize e baixe os trab", "raw": "1"}
+{"key": "9e9b145658bac73f", "pred": 1, "story": "As a system administrator, I want only authenticated users to access the platfor", "raw": "1"}
+{"key": "65ab77ea45e009dc", "pred": 1, "story": "As a student presenter, I want to provide my CPF (Brazilian taxpayer ID) during ", "raw": "1"}
+{"key": "f3d4e2677232204e", "pred": 1, "story": "O sistema deve permitir que qualquer pessoa cadastrada visualize e baixe os trab", "raw": "1"}
+{"key": "2617b4bbf5da0fe1", "pred": 0, "story": "As a system administrator, I want only authenticated users to access the platfor", "raw": "0"}
+{"key": "de2c312a2d6c546f", "pred": 1, "story": "As a user, I want the system to store uploaded presentation files (PDFs) in a se", "raw": "1"}
+{"key": "cd58c1bf49ef17af", "pred": 1, "story": "As a super user, I want the ability to include and remove users from the system,", "raw": "1"}
+{"key": "9d0856140aad7c7c", "pred": 1, "story": "As a user, I want the system to handle personal data (such as CPF, enrollment nu", "raw": "1"}
+{"key": "ab2ccc7a8779bbf0", "pred": 1, "story": "As a user, I want the system to require a username and password to log in, so th", "raw": "1"}
+{"key": "6ae90f4c38af97bf", "pred": 1, "story": "As a student presenter, I want to provide my CPF (Brazilian taxpayer ID) during ", "raw": "1"}
+{"key": "8e6ad7a190ae3ca4", "pred": 1, "story": "As a super user, I want the ability to include and remove users from the system,", "raw": "1"}
+{"key": "491cb9158fe245b0", "pred": 1, "story": "As a usu\u00e1rio comum (conferencista), I want to log in with only username and pass", "raw": "1"}
+{"key": "49424ceb26c629ee", "pred": 1, "story": "The system must support PDF file format for upload and download of presentation ", "raw": "1"}
+{"key": "e87ca99d7dcff286", "pred": 1, "story": "As an administrador, I want to configure event dates so that submission and voti", "raw": "1"}
+{"key": "7c58b4e58fade243", "pred": 1, "story": "As a user, I want the system to handle personal data (such as CPF, enrollment nu", "raw": "1"}
+{"key": "90072980df250d97", "pred": 1, "story": "The system must support PDF file format for upload and download of presentation ", "raw": "1"}
+{"key": "1815ade5ec03b4bc", "pred": 1, "story": "As a super usu\u00e1rio, I want to perform all functions of all user profiles, includ", "raw": "1"}
+{"key": "56f06dc4ec387d2e", "pred": 1, "story": "As a super usu\u00e1rio, I want to perform all functions of all user profiles, includ", "raw": "1"}
+{"key": "1efb18dbcd76ee74", "pred": 1, "story": "As a usu\u00e1rio comum, I want to download and read presentation abstracts and docum", "raw": "1"}
+{"key": "a978c9be1a5c7f95", "pred": 1, "story": "As an administrador, I want to configure event dates so that submission and voti", "raw": "1"}
+{"key": "5ee1c7097b339cd4", "pred": 0, "story": "The system should be a web-based platform, as stated by the stakeholder, to prov", "raw": "0"}
+{"key": "9fef5a95334dff85", "pred": 1, "story": "The system should be a web-based platform, as stated by the stakeholder, to prov", "raw": "1"}
+{"key": "44016a9fc5d17296", "pred": 1, "story": "As a user, I want the system to store uploaded presentation files (PDFs) in a se", "raw": "1"}
+{"key": "ff6d369261ea091e", "pred": 1, "story": "As a usu\u00e1rio comum, I want to download and read presentation abstracts and docum", "raw": "1"}
+{"key": "90a5eedfc0cb9d37", "pred": 0, "story": "The system shall be free of charge, replacing paid platforms like evento.com.", "raw": "0"}
+{"key": "9ea2fc3b5805a8f2", "pred": 1, "story": "The system shall be a web-based platform to provide centralized and accessible e", "raw": "1"}
+{"key": "ede00b6c8316e3a1", "pred": 0, "story": "The system shall maintain acceptable response time even with up to 2 million rec", "raw": "0"}
+{"key": "f29d219ef3529476", "pred": 0, "story": "The system shall be a web-based platform to provide centralized and accessible e", "raw": "0"}
+{"key": "e9c367c50eac226f", "pred": 0, "story": "The system shall support up to 90 concurrent users during the event.", "raw": "0"}
+{"key": "7f45da118730ea17", "pred": 1, "story": "As a system administrator, I want to rearrange presentations and sessions when a", "raw": "1"}
+{"key": "d7a9c674c4e4ec1c", "pred": 1, "story": "As a system administrator, I want to create and manage the event schedule includ", "raw": "1"}
+{"key": "ba719e209daa47ac", "pred": 1, "story": "As a system user, I want to have a dashboard area with analytics such as partici", "raw": "1"}
+{"key": "f8e26765f810ccba", "pred": 1, "story": "As a super administrator, I want to manage all user accounts including adding an", "raw": "1"}
+{"key": "ce8bde49f78ef864", "pred": 1, "story": "As a super administrator, I want to manage all user accounts including adding an", "raw": "1"}
+{"key": "8ac06ec41e47e0f1", "pred": 0, "story": "The system shall maintain acceptable response time even with up to 2 million rec", "raw": "0"}
+{"key": "57574b71403a29e5", "pred": 0, "story": "The system shall be free of charge, replacing paid platforms like evento.com.", "raw": "0"}
+{"key": "40a5e96b8af7dcc6", "pred": 1, "story": "As a system administrator, I want to create and manage the event schedule includ", "raw": "1"}
+{"key": "6e47f919655466a4", "pred": 1, "story": "PDF files shall be stored in an external file system rather than in the database", "raw": "1"}
+{"key": "9a13de8eb0dc5fa8", "pred": 0, "story": "The system shall support up to 90 concurrent users during the event.", "raw": "0"}
+{"key": "5ea3ede4f19d9d38", "pred": 1, "story": "PDF files shall be stored in an external file system rather than in the database", "raw": "1"}
+{"key": "4be0020e7770d2f6", "pred": 1, "story": "As a common user, I want to view and download the presentation files uploaded by", "raw": "1"}
+{"key": "2606ea9c697490fb", "pred": 1, "story": "As a common user, I want to view and download the presentation files uploaded by", "raw": "1"}
+{"key": "2cd52d761540b080", "pred": 1, "story": "As a system administrator, I want to rearrange presentations and sessions when a", "raw": "1"}
+{"key": "8f03a4dedded83d9", "pred": 1, "story": "As any registered user, I want to view and follow presentations and also vote on", "raw": "1"}
+{"key": "fd721e58784a8042", "pred": 1, "story": "As an administrator, I want to create and configure the event program including ", "raw": "1"}
+{"key": "6dad8030977e325b", "pred": 1, "story": "As an administrator, I want to create and configure the event program including ", "raw": "1"}
+{"key": "95114461f3f7e6d0", "pred": 1, "story": "As any registered user, I want to view and follow presentations and also vote on", "raw": "1"}
+{"key": "32d1796782a9c560", "pred": 1, "story": "The system shall support up to approximately 70 concurrent users during the even", "raw": "1"}
+{"key": "ba547526949acfef", "pred": 1, "story": "PDF files shall be stored in a separate file system rather than in the database ", "raw": "1"}
+{"key": "db14bdf2aa989400", "pred": 1, "story": "As a common user, I want to view and download the presentation files uploaded by", "raw": "1"}
+{"key": "59732e76f0756420", "pred": 1, "story": "Uploaded PDF files shall be stored in an external file storage system rather tha", "raw": "1"}
+{"key": "b079aaa44713eed8", "pred": 0, "story": "The system shall support up to approximately 70 concurrent users during the even", "raw": "0"}
+{"key": "6dac4bcf788e8d57", "pred": 0, "story": "Uploaded PDF files shall be stored in an external file storage system rather tha", "raw": "0"}
+{"key": "3eec9b66cfc6b76a", "pred": 1, "story": "PDF files shall be stored in a separate file system rather than in the database ", "raw": "1"}
+{"key": "833d3da2dfeb974a", "pred": 1, "story": "The system shall support up to approximately 70 concurrent users during the even", "raw": "1"}
+{"key": "270ddd67c6d29012", "pred": 1, "story": "The system shall guarantee no overlap of times and rooms for presentations.", "raw": "1"}
+{"key": "df546bb68f5bc6a0", "pred": 1, "story": "The system shall allow the administrator to change the event schedule within the", "raw": "1"}
+{"key": "269266a7dfe232a6", "pred": 1, "story": "The system shall allow the administrator to change the event schedule within the", "raw": "1"}
+{"key": "a91fea7382538c96", "pred": 1, "story": "The system shall store and allow querying the history of WEPGCOMP event editions", "raw": "1"}
+{"key": "5e70263945136ada", "pred": 1, "story": "The system shall guarantee no overlap of times and rooms for presentations.", "raw": "1"}
+{"key": "f5d646f02e80a1fd", "pred": 1, "story": "The system shall provide analytical dashboards to compare participation evolutio", "raw": "1"}
+{"key": "b512129700978b3f", "pred": 1, "story": "The system shall store and allow querying the history of WEPGCOMP event editions", "raw": "1"}
+{"key": "a572d0b89de92503", "pred": 1, "story": "The system shall provide analytical dashboards to compare participation evolutio", "raw": "1"}
+{"key": "a9f835a53568595c", "pred": 1, "story": "The system shall store and allow querying the history of WEPGCOMP event editions", "raw": "1"}
+{"key": "b8dec4e2e5d6d9f6", "pred": 1, "story": "The system shall allow any registered person to view and download the works subm", "raw": "1"}
+{"key": "ad3ccf2e6fa24a47", "pred": 1, "story": "As a student presenter, I want to provide my CPF during registration, so that my", "raw": "1"}
+{"key": "5c9a1f6b68ff078c", "pred": 1, "story": "The system shall support upload and download of files in PDF format.", "raw": "1"}
+{"key": "4d0de0c5d5a12be7", "pred": 1, "story": "The system shall allow any registered person to view and download the works subm", "raw": "1"}
+{"key": "5a401ba2678f5b88", "pred": 1, "story": "The system shall support upload and download of files in PDF format.", "raw": "1"}
+{"key": "20760758d6d8e21f", "pred": 1, "story": "Uploaded presentation files shall be stored in a separate file storage system ra", "raw": "1"}
+{"key": "d9d2df94b867feab", "pred": 1, "story": "As a student presenter, I want to provide my CPF during registration, so that my", "raw": "1"}
+{"key": "0501751e5048a602", "pred": 1, "story": "Uploaded presentation files shall be stored in a separate file storage system ra", "raw": "1"}
+{"key": "a2f6b3cfd5973d60", "pred": 0, "story": "The system shall handle personal data such as CPF, enrollment number, and adviso", "raw": "0"}
+{"key": "2f28f01fb59eb69c", "pred": 0, "story": "The system shall handle personal data such as CPF, enrollment number, and adviso", "raw": "0"}
+{"key": "250404e095c6eb98", "pred": 1, "story": "The system shall support PDF file format for upload and download of presentation", "raw": "1"}
+{"key": "27abfa9f585158d5", "pred": 1, "story": "The system shall support PDF file format for upload and download of presentation", "raw": "1"}
+{"key": "d940f066513429ee", "pred": 1, "story": "As a common user, I want to log in with only username and password, so that I ca", "raw": "1"}
+{"key": "a99c36a89726be97", "pred": 1, "story": "As an administrator, I want to configure event dates so that submission and voti", "raw": "1"}
+{"key": "1e46f7490a78a855", "pred": 1, "story": "As a super user, I want to perform all functions of all user profiles including ", "raw": "1"}
+{"key": "b658305fea1e7f7d", "pred": 1, "story": "As an administrator, I want to configure event dates so that submission and voti", "raw": "1"}
+{"key": "7cbb823135ef80aa", "pred": 1, "story": "As a super user, I want to perform all functions of all user profiles including ", "raw": "1"}
+{"key": "839a10265c774665", "pred": 1, "story": "As a common user, I want to download and read presentation abstracts and documen", "raw": "1"}
+{"key": "f9e849d833d1573a", "pred": 1, "story": "As a common user, I want to download and read presentation abstracts and documen", "raw": "1"}

@@ -1,0 +1,223 @@
+{"key": "e9e279c7f38aa286", "pred": 1, "story": "As a system, I want to store geographic data as points, lines, and polygons, so ", "raw": "1"}
+{"key": "f5b789b6bb86c84f", "pred": 1, "story": "As a system, I want to store user registration data including email, username, a", "raw": "1"}
+{"key": "cf0939a6a2478bce", "pred": 1, "story": "As a system, I want to allow project managers to invite users and assign roles w", "raw": "1"}
+{"key": "ba61326fe0382cad", "pred": 1, "story": "As a project manager, I want to define access permissions for different user rol", "raw": "1"}
+{"key": "74395d9ab8c37ce0", "pred": 1, "story": "As a project manager, I want to define access permissions for different user rol", "raw": "1"}
+{"key": "98e35fd29a00fede", "pred": 1, "story": "As a system, I want to allow project managers to invite users and assign roles w", "raw": "1"}
+{"key": "63691db0d1e9e61d", "pred": 1, "story": "As a system, I want to store user registration data including email, username, a", "raw": "1"}
+{"key": "947f0081e4ee6c61", "pred": 1, "story": "As a project manager, I want to define access permissions for different user rol", "raw": "1"}
+{"key": "881a5e1500f3b02b", "pred": 1, "story": "As a system, I want to support import and export of vector data (points, lines, ", "raw": "1"}
+{"key": "f060e0a6f7ce03a4", "pred": 1, "story": "As a system, I want to allow users to create customizable questionnaires/forms w", "raw": "1"}
+{"key": "672cb291663fe5eb", "pred": 0, "story": "As a system, I want to support import and export of vector data (points, lines, ", "raw": "0"}
+{"key": "ff56ec727a05e381", "pred": 1, "story": "As a system, I want to support import and export of vector data (points, lines, ", "raw": "1"}
+{"key": "f3ad0f335bd2cff9", "pred": 1, "story": "As a user, I want to collect data offline (fill forms, mark points) and synchron", "raw": "1"}
+{"key": "ae117e561d49d5ba", "pred": 1, "story": "As a system, I want to allow users to create customizable questionnaires/forms w", "raw": "1"}
+{"key": "4c948234231ae3f3", "pred": 1, "story": "As a user, I want to collect data offline (fill forms, mark points) and synchron", "raw": "1"}
+{"key": "6ea6e9a7eae7d4cf", "pred": 1, "story": "As a system, I want to allow users to create customizable questionnaires/forms w", "raw": "1"}
+{"key": "0699311ce7a3274e", "pred": 1, "story": "As a user, I want the system to automatically record metadata (timestamp, user w", "raw": "1"}
+{"key": "3887ca36006ba130", "pred": 1, "story": "As a user, I want to collect data offline (fill forms, mark points) and synchron", "raw": "1"}
+{"key": "8303ec38e1e8edf8", "pred": 1, "story": "As a system, I want to allow attachment of media files (photos, videos, audio) t", "raw": "1"}
+{"key": "9b3ea8da4c7ba49c", "pred": 1, "story": "As a user, I want the system to automatically record metadata (timestamp, user w", "raw": "1"}
+{"key": "06db2c8c420497b7", "pred": 1, "story": "As a system, I want to allow attachment of media files (photos, videos, audio) t", "raw": "1"}
+{"key": "41f487b98abcedc4", "pred": 1, "story": "As a system, I want to support export of data in CSV, XLS, and HTML formats, so ", "raw": "1"}
+{"key": "c5370ff3b8b6a6bf", "pred": 1, "story": "As a system, I want to allow export of selected layers (camadas) rather than all", "raw": "1"}
+{"key": "c21a381a812ff0ce", "pred": 1, "story": "As a system, I want to support export of data in CSV, XLS, and HTML formats, so ", "raw": "1"}
+{"key": "c16b82a644bc38ee", "pred": 1, "story": "As a system, I want to allow export of selected layers (camadas) rather than all", "raw": "1"}
+{"key": "4760cb3277d31001", "pred": 1, "story": "As a system, I want to store user gamification data (medals, avatar progression,", "raw": "1"}
+{"key": "f009f2cc04e07028", "pred": 1, "story": "As a system, I want to store user gamification data (medals, avatar progression,", "raw": "1"}
+{"key": "58107fd64c356971", "pred": 1, "story": "As a system, I want to store user gamification data (medals, avatar progression,", "raw": "1"}
+{"key": "c6f9468f6456946b", "pred": 1, "story": "As a project manager, I want to configure which layers are visible to the genera", "raw": "1"}
+{"key": "affc022a0d57f8ef", "pred": 0, "story": "As a project manager, I want the platform to integrate with Vicom Saga via a plu", "raw": "0"}
+{"key": "1f1dd6d853800f06", "pred": 1, "story": "As a project manager, I want to configure which layers are visible to the genera", "raw": "1"}
+{"key": "c8986e8eb050a52f", "pred": 1, "story": "As a project manager, I want to configure which layers are visible to the genera", "raw": "1"}
+{"key": "abf3e7d454541149", "pred": 1, "story": "As a project manager, I want the platform to integrate with Vicom Saga via a plu", "raw": "1"}
+{"key": "7d081c5278ae0a33", "pred": 1, "story": "As a system, I want to allow import of shapefiles (SHP) from QGIS, so that pre-p", "raw": "1"}
+{"key": "99d1d86458f18c3d", "pred": 1, "story": "As a project manager, I want the platform to integrate with Vicom Saga via a plu", "raw": "1"}
+{"key": "f219d3fe28f65677", "pred": 1, "story": "As a system, I want to support trail/route tracking as a secondary feature, so t", "raw": "1"}
+{"key": "925d65990af92ad1", "pred": 1, "story": "As a system, I must support the option for institutions to install the platform ", "raw": "1"}
+{"key": "f2bd559b1deffe0c", "pred": 1, "story": "As a system, I want to support trail/route tracking as a secondary feature, so t", "raw": "1"}
+{"key": "430f0459e9d08ac2", "pred": 1, "story": "As a system, I must support the option for institutions to install the platform ", "raw": "1"}
+{"key": "1d58a14a426bcde2", "pred": 1, "story": "As a system, I want to allow external embedding of project maps as images or web", "raw": "1"}
+{"key": "b46f9318af88cd28", "pred": 1, "story": "As a user, I want to register with email, username, and password, so that I can ", "raw": "1"}
+{"key": "5225884bf652c3c0", "pred": 1, "story": "As a user, I want to create, edit, import, and export geographic vector data (po", "raw": "1"}
+{"key": "00e314acb2c43c9b", "pred": 1, "story": "As a user, I want to create, edit, import, and export geographic vector data (po", "raw": "1"}
+{"key": "a51185c856f9c9f6", "pred": 1, "story": "As a user, I want to register with email, username, and password, so that I can ", "raw": "1"}
+{"key": "afa93df8299fcdb3", "pred": 1, "story": "As a project manager, I want to invite users to a project with specific roles (v", "raw": "1"}
+{"key": "b5376561d309f74f", "pred": 1, "story": "As a project manager, I want to invite users to a project with specific roles (v", "raw": "1"}
+{"key": "057151ea174bb2b6", "pred": 1, "story": "As a user, I want to attach media files (photos, videos, audio) to collected dat", "raw": "1"}
+{"key": "d530461c73556b25", "pred": 1, "story": "As a user, I want to attach media files (photos, videos, audio) to collected dat", "raw": "1"}
+{"key": "1737045c0121bf30", "pred": 1, "story": "As a user, I want to export project data in CSV, XLS, and HTML formats, selectin", "raw": "1"}
+{"key": "a2d627747b2dfedb", "pred": 1, "story": "As a user, I want to export project data in CSV, XLS, and HTML formats, selectin", "raw": "1"}
+{"key": "d8310ae1c3644672", "pred": 1, "story": "As a project manager, I want to invite users to a project with specific roles (v", "raw": "1"}
+{"key": "5f21c1e6ca786060", "pred": 1, "story": "As a user, I want a gamification system where I earn medals and level up (e.g., ", "raw": "1"}
+{"key": "c8f8ab9cd1aaac0e", "pred": 1, "story": "As a user, I want a gamification system where I earn medals and level up (e.g., ", "raw": "1"}
+{"key": "b7eed4728c828f28", "pred": 1, "story": "As a user, I want a gamification system where I earn medals and level up (e.g., ", "raw": "1"}
+{"key": "eb477dbf2918a7d8", "pred": 1, "story": "As a user, I want to view geographic layers on a web map, with access controlled", "raw": "1"}
+{"key": "89b5fcb7d4915494", "pred": 0, "story": "As a user, I want to view geographic layers on a web map, with access controlled", "raw": "0"}
+{"key": "0e6621a31829aa0e", "pred": 1, "story": "As a user, I want to integrate the platform with existing systems (e.g., VicomSa", "raw": "1"}
+{"key": "bad409af3fcff983", "pred": 1, "story": "As a user, I want to export project data in CSV, XLS, and HTML formats, selectin", "raw": "1"}
+{"key": "c235fe9602aab691", "pred": 1, "story": "As a user, I want to view geographic layers on a web map, with access controlled", "raw": "1"}
+{"key": "5fada2a2802dd9f2", "pred": 1, "story": "As a project manager, I want to import pre-filtered layers from VicomSaga or QGI", "raw": "1"}
+{"key": "f5bbeab5e4487740", "pred": 1, "story": "As a user, I want to integrate the platform with existing systems (e.g., VicomSa", "raw": "1"}
+{"key": "cc7a90f083b275bb", "pred": 1, "story": "As a user, I want to integrate the platform with existing systems (e.g., VicomSa", "raw": "1"}
+{"key": "c282d7d216c07b8e", "pred": 1, "story": "As a project manager, I want to import pre-filtered layers from VicomSaga or QGI", "raw": "1"}
+{"key": "ae0d874a01e0095a", "pred": 1, "story": "As a project manager, I want to import pre-filtered layers from VicomSaga or QGI", "raw": "1"}
+{"key": "de1d24cb10c464af", "pred": 1, "story": "As a project manager, I want the platform to import shapefile (SHP) layers from ", "raw": "1"}
+{"key": "9565104675d5d40e", "pred": 1, "story": "As a user, I want to access the platform via web and mobile (with offline capabi", "raw": "1"}
+{"key": "4e97d86fdd953379", "pred": 1, "story": "As a project manager, I want the platform to support offline data collection on ", "raw": "1"}
+{"key": "00d1801ca0f838e8", "pred": 1, "story": "As a project manager, I want the platform to support offline data collection on ", "raw": "1"}
+{"key": "30b1d3636f0f872e", "pred": 1, "story": "As a user, I want to access the platform via web and mobile (with offline capabi", "raw": "1"}
+{"key": "e04c88ab71e68ee7", "pred": 0, "story": "As a project manager, I want the platform to support offline data collection on ", "raw": "0"}
+{"key": "dbfd4a4fb630c407", "pred": 1, "story": "As a project manager, I want to export project data in CSV, XLS, and HTML format", "raw": "1"}
+{"key": "8afe302fd002eb5b", "pred": 1, "story": "As a project manager, I want to export project data in CSV, XLS, and HTML format", "raw": "1"}
+{"key": "f06e5fe837f9a321", "pred": 1, "story": "As a project manager, I want to select specific layers before exporting, so that", "raw": "1"}
+{"key": "39fb56b1ee9f3a20", "pred": 1, "story": "As a project manager, I want to export project data in CSV, XLS, and HTML format", "raw": "1"}
+{"key": "4c54c31d673de392", "pred": 1, "story": "As a project manager, I want to select specific layers before exporting, so that", "raw": "1"}
+{"key": "5f5eb61895df35dc", "pred": 1, "story": "As a project manager, I want the system to automatically capture metadata such a", "raw": "1"}
+{"key": "2ef36816e2cc50dc", "pred": 1, "story": "As a project manager, I want to select specific layers before exporting, so that", "raw": "1"}
+{"key": "bfb7a8fc3f5345b0", "pred": 0, "story": "As a project manager, I want the platform to provide a plugin architecture for i", "raw": "0"}
+{"key": "b6bcb7ddb110407c", "pred": 1, "story": "As a project manager, I want the platform to provide a plugin architecture for i", "raw": "1"}
+{"key": "29b2464bb8c2307c", "pred": 1, "story": "As a system, I must support single sign-on (SSO) integration with the VicomSaga ", "raw": "1"}
+{"key": "2b814a385f1ce5e5", "pred": 0, "story": "As a system, I must support single sign-on (SSO) integration with the VicomSaga ", "raw": "0"}
+{"key": "17ac228c366cd2bc", "pred": 1, "story": "As a project manager, I want the system to automatically capture metadata such a", "raw": "1"}
+{"key": "7f887462201c09a2", "pred": 1, "story": "As a project manager, I want the platform to offer public API endpoints for embe", "raw": "1"}
+{"key": "43f6415c80f296ea", "pred": 1, "story": "As a project manager, I want the platform to provide a plugin architecture for i", "raw": "1"}
+{"key": "59ef7085dbf638c1", "pred": 0, "story": "The platform shall load and display geographic map layers within 3 seconds for 9", "raw": "0"}
+{"key": "0f8bfaa10bd5d78e", "pred": 0, "story": "The platform shall support at least 100 concurrent users during initial pilot de", "raw": "0"}
+{"key": "2a57ac9b93d05b08", "pred": 0, "story": "The platform shall load and display geographic map layers within 3 seconds for 9", "raw": "0"}
+{"key": "1eceffdca38e9956", "pred": 0, "story": "The platform shall support at least 100 concurrent users during initial pilot de", "raw": "0"}
+{"key": "6e03bda5222028f7", "pred": 0, "story": "The platform shall be available as a web application accessible via standard web", "raw": "0"}
+{"key": "1dd136468aaa47a9", "pred": 0, "story": "The platform shall be available as a web application accessible via standard web", "raw": "0"}
+{"key": "ae0a86b85deeb30b", "pred": 0, "story": "The platform shall load and display geographic map layers within 3 seconds for 9", "raw": "0"}
+{"key": "640039664b400213", "pred": 0, "story": "The mobile application shall support offline data collection with automatic sync", "raw": "0"}
+{"key": "bc76462ae6c9f0a1", "pred": 0, "story": "The mobile application shall support offline data collection with automatic sync", "raw": "0"}
+{"key": "44d79169a603f582", "pred": 1, "story": "The platform shall be available as a web application accessible via standard web", "raw": "1"}
+{"key": "a14e21e74bc1c158", "pred": 0, "story": "The platform shall support at least 100 concurrent users during initial pilot de", "raw": "0"}
+{"key": "261302b66e632651", "pred": 0, "story": "The platform shall allow institutions to install the software on their own serve", "raw": "0"}
+{"key": "f91ab270ed1cf08e", "pred": 1, "story": "The mobile application shall support offline data collection with automatic sync", "raw": "1"}
+{"key": "57e57e2b85f07621", "pred": 0, "story": "The platform shall allow institutions to install the software on their own serve", "raw": "0"}
+{"key": "61b42b7e80799ef1", "pred": 0, "story": "The platform shall allow institutions to install the software on their own serve", "raw": "0"}
+{"key": "e3fb302c9e98e147", "pred": 1, "story": "The platform shall allow a user to register with only an email, username, and pa", "raw": "1"}
+{"key": "6b03cf3fdc8be961", "pred": 1, "story": "The platform shall allow a user to register with only an email, username, and pa", "raw": "1"}
+{"key": "9771b1611bfce8d9", "pred": 1, "story": "The platform shall provide an open-source license for at least the core codebase", "raw": "1"}
+{"key": "52b14196e19cd5ba", "pred": 1, "story": "The platform shall enforce role-based access control with at least three roles p", "raw": "1"}
+{"key": "948e4f36548b5b95", "pred": 0, "story": "The platform shall provide an open-source license for at least the core codebase", "raw": "0"}
+{"key": "3626bdba4d891aab", "pred": 1, "story": "The platform shall enforce role-based access control with at least three roles p", "raw": "1"}
+{"key": "a9f3bd7bc996d379", "pred": 1, "story": "The platform shall enforce role-based access control with at least three roles p", "raw": "1"}
+{"key": "74c39cd9e6974525", "pred": 1, "story": "The platform shall provide an open-source license for at least the core codebase", "raw": "1"}
+{"key": "1f871192aefb7d3c", "pred": 0, "story": "The platform shall support the attachment of media files (photos, videos, audio)", "raw": "0"}
+{"key": "116cf72ff52c4d8f", "pred": 1, "story": "The platform shall automatically record metadata for each data entry, including ", "raw": "1"}
+{"key": "1d53b23a09f433f2", "pred": 0, "story": "The platform shall support the attachment of media files (photos, videos, audio)", "raw": "0"}
+{"key": "446100e134434474", "pred": 1, "story": "The platform shall automatically record metadata for each data entry, including ", "raw": "1"}
+{"key": "772ee9b496138182", "pred": 1, "story": "The platform shall support a gamification system that tracks user contributions ", "raw": "1"}
+{"key": "6adae019a9c5bff1", "pred": 1, "story": "The platform shall support a gamification system that tracks user contributions ", "raw": "1"}
+{"key": "6f7ed2d764434da5", "pred": 0, "story": "The platform shall support the attachment of media files (photos, videos, audio)", "raw": "0"}
+{"key": "89977045f9f75bfb", "pred": 1, "story": "The platform shall support a gamification system that tracks user contributions ", "raw": "1"}
+{"key": "06545d0c020bcf1c", "pred": 1, "story": "As a system, I must ensure that user authentication is performed via secure logi", "raw": "1"}
+{"key": "27981405fbe92dbc", "pred": 0, "story": "The platform shall be stable and free of critical bugs before mass release, with", "raw": "0"}
+{"key": "487a25f3aab57cf3", "pred": 1, "story": "The platform shall support the creation of geographic features (points, lines, p", "raw": "1"}
+{"key": "0c58a0e30d246a30", "pred": 1, "story": "The platform shall support the creation of geographic features (points, lines, p", "raw": "1"}
+{"key": "a7004245b1c88ff8", "pred": 1, "story": "The platform shall support the creation of geographic features (points, lines, p", "raw": "1"}
+{"key": "083263f1041b5e1d", "pred": 0, "story": "The platform shall be stable and free of critical bugs before mass release, with", "raw": "0"}
+{"key": "0421777d125920bc", "pred": 0, "story": "The platform shall be stable and free of critical bugs before mass release, with", "raw": "0"}
+{"key": "1c1e5539b8c947f2", "pred": 1, "story": "As a system, I must provide a public-facing web map and embeddable links for pro", "raw": "1"}
+{"key": "1a447d28534e6021", "pred": 1, "story": "As a system, I must provide a public-facing web map and embeddable links for pro", "raw": "1"}
+{"key": "352abe45129b77a4", "pred": 1, "story": "As a system, I must allow project managers to define which imported data layers ", "raw": "1"}
+{"key": "93706b0d266344a7", "pred": 1, "story": "As a system, I must ensure that user authentication is performed via secure logi", "raw": "1"}
+{"key": "f7a811c5756b2694", "pred": 1, "story": "As a system, I must log all user actions (e.g., data entry, edits, exports) with", "raw": "1"}
+{"key": "9c458af59926acee", "pred": 1, "story": "As a general user, I want to access the platform via web and mobile devices, so ", "raw": "1"}
+{"key": "1b16a4dbc296687f", "pred": 1, "story": "As a general user, I want to access the platform via web and mobile devices, so ", "raw": "1"}
+{"key": "c5820b103ad48042", "pred": 1, "story": "As a system, I must allow project managers to define which imported data layers ", "raw": "1"}
+{"key": "b8cd071ad49eeb02", "pred": 1, "story": "As a field worker, I want to collect data offline on a mobile device, so that I ", "raw": "1"}
+{"key": "eb540d5a5af66546", "pred": 1, "story": "As a field worker, I want to collect data offline on a mobile device, so that I ", "raw": "1"}
+{"key": "924d9ed521bf5cc7", "pred": 1, "story": "As a field worker, I want to automatically synchronize collected data when the d", "raw": "1"}
+{"key": "d9e8ed869b34f6c3", "pred": 1, "story": "As a general user, I want a quick registration process with only email, username", "raw": "1"}
+{"key": "b778da35b35143aa", "pred": 1, "story": "As a general user, I want a quick registration process with only email, username", "raw": "1"}
+{"key": "7ba9b4823263e2a3", "pred": 1, "story": "As a field worker, I want to collect data offline on a mobile device, so that I ", "raw": "1"}
+{"key": "f16c84dfd008b12a", "pred": 1, "story": "As a general user, I want to view public map layers, so that I can access non-co", "raw": "1"}
+{"key": "cd97331dc894476e", "pred": 1, "story": "As a field worker, I want to automatically synchronize collected data when the d", "raw": "1"}
+{"key": "ce4d62367b620430", "pred": 1, "story": "As a general user, I want to view public map layers, so that I can access non-co", "raw": "1"}
+{"key": "2dfed43012bb29eb", "pred": 1, "story": "As a general user, I want to have a gamification system that rewards collective ", "raw": "1"}
+{"key": "67f01dba8b7049b1", "pred": 1, "story": "As a general user, I want to have a gamification system that rewards collective ", "raw": "1"}
+{"key": "8cdc8139ca8f85a0", "pred": 1, "story": "As a general user, I want to view public map layers, so that I can access non-co", "raw": "1"}
+{"key": "7997d260d2d23674", "pred": 1, "story": "As a general user, I want to have a gamification system that rewards collective ", "raw": "1"}
+{"key": "b18aaae38bce44cf", "pred": 1, "story": "As a user, I want to see my gamification progress (medals, avatar, XP) across al", "raw": "1"}
+{"key": "fa547ac276f61cf4", "pred": 1, "story": "As a user, I want to see my gamification progress (medals, avatar, XP) across al", "raw": "1"}
+{"key": "acf2d3a8ff8547bc", "pred": 1, "story": "As a developer or institution, I want access to the source code (free/libre), so", "raw": "1"}
+{"key": "03c90cb320d518d2", "pred": 1, "story": "As a project manager, I want to embed the platform's web map into my institution", "raw": "1"}
+{"key": "e914625b9142f32e", "pred": 1, "story": "As a project manager, I want to embed the platform's web map into my institution", "raw": "1"}
+{"key": "fc4c23acf6a6035a", "pred": 1, "story": "As a developer or institution, I want access to the source code (free/libre), so", "raw": "1"}
+{"key": "1da4910dee906751", "pred": 1, "story": "As a developer or institution, I want access to the source code (free/libre), so", "raw": "1"}
+{"key": "1c6c9b00c3844fcb", "pred": 1, "story": "As a user, I want to see my gamification progress (medals, avatar, XP) across al", "raw": "1"}
+{"key": "98a6875c37e6afef", "pred": 0, "story": "As a user, I want the interface to be available in Portuguese (Brazilian) and po", "raw": "0"}
+{"key": "2e20003b8a4f682a", "pred": 0, "story": "As a user, I want the interface to be available in Portuguese (Brazilian) and po", "raw": "0"}
+{"key": "e41f6f541bcfb9f3", "pred": 1, "story": "As a project manager, I want to integrate Mais Lugar with VicomSaga via a plugin", "raw": "1"}
+{"key": "fbacb822d3c1eba7", "pred": 0, "story": "As a general user, I want the platform to have a user-friendly and accessible in", "raw": "0"}
+{"key": "d725b2d02be00343", "pred": 1, "story": "As a project manager, I want to integrate Mais Lugar with VicomSaga via a plugin", "raw": "1"}
+{"key": "55695b594db63ea4", "pred": 1, "story": "As a field worker, I want to attach photos, videos, and audio files to my collec", "raw": "1"}
+{"key": "217cbdb9b540091e", "pred": 1, "story": "As a field worker, I want to attach photos, videos, and audio files to my collec", "raw": "1"}
+{"key": "75a5538e3607d008", "pred": 0, "story": "As a general user, I want the platform to have a user-friendly and accessible in", "raw": "0"}
+{"key": "60702e8df654869f", "pred": 1, "story": "As a project manager, I want to be able to delete a project entirely, so that I ", "raw": "1"}
+{"key": "57e053e773c3b680", "pred": 1, "story": "As a project manager, I want to integrate Mais Lugar with VicomSaga via a plugin", "raw": "1"}
+{"key": "3ce9f191d92fbd28", "pred": 1, "story": "As a project manager, I want to be able to delete a project entirely, so that I ", "raw": "1"}
+{"key": "040528e547d5c75f", "pred": 1, "story": "As a user, I want the system to support creating points, lines, and polygons on ", "raw": "1"}
+{"key": "37cce36bd8ea4173", "pred": 1, "story": "As a user, I want the system to support creating points, lines, and polygons on ", "raw": "1"}
+{"key": "e8046a7bf5f9ffa9", "pred": 0, "story": "As a user, I want the system to support a trail/route tracking feature, so that ", "raw": "0"}
+{"key": "1d51fd95374624a7", "pred": 0, "story": "As a user, I want the system to support a trail/route tracking feature, so that ", "raw": "0"}
+{"key": "7a49316c2f9467fd", "pred": 1, "story": "As a user, I want the system to support a trail/route tracking feature, so that ", "raw": "1"}
+{"key": "f6b4b2f9053b73f7", "pred": 1, "story": "As a general user, I want the platform to be available within 4 to 6 months for ", "raw": "1"}
+{"key": "ad562854d1153af1", "pred": 1, "story": "As a general user, I want the platform to be available within 4 to 6 months for ", "raw": "1"}
+{"key": "cf3ffa59e265a722", "pred": 1, "story": "As a user, I want to support import and export of vector data (points, lines, po", "raw": "1"}
+{"key": "2d3966195b16ec16", "pred": 0, "story": "The platform shall be available in Portuguese (Brazilian) and potentially other ", "raw": "0"}
+{"key": "eee532b789d6e627", "pred": 0, "story": "As a user, I want the platform to support single sign-on (SSO) integration with ", "raw": "0"}
+{"key": "383c53e63df4f41e", "pred": 0, "story": "The platform shall be available in Portuguese (Brazilian) and potentially other ", "raw": "0"}
+{"key": "a4fa95c06baa0d97", "pred": 0, "story": "The platform shall have a user-friendly and accessible interface for non-technic", "raw": "0"}
+{"key": "28b236f5c05884fa", "pred": 1, "story": "As a user, I want to support import and export of vector data (points, lines, po", "raw": "1"}
+{"key": "a5003326950a8387", "pred": 1, "story": "As a user, I want the platform to support single sign-on (SSO) integration with ", "raw": "1"}
+{"key": "564b5b3736a53d03", "pred": 0, "story": "As a user, I want to support import and export of vector data (points, lines, po", "raw": "0"}
+{"key": "e3a88b215160de49", "pred": 1, "story": "As a user, I want to store user registration data including email, username, and", "raw": "1"}
+{"key": "7b13e6e5aa23e236", "pred": 1, "story": "As a project manager, I want to invite users and assign roles within a project, ", "raw": "1"}
+{"key": "31b94ce59341ad13", "pred": 1, "story": "As a project manager, I want to invite users and assign roles within a project, ", "raw": "1"}
+{"key": "42c2ce30b10deb0c", "pred": 1, "story": "As a user, I want to create customizable questionnaires/forms with various varia", "raw": "1"}
+{"key": "be2284c397c844b9", "pred": 1, "story": "As a user, I want to store user registration data including email, username, and", "raw": "1"}
+{"key": "0543c4ccdbd41f8e", "pred": 0, "story": "The platform shall have a user-friendly and accessible interface for non-technic", "raw": "0"}
+{"key": "85e7c88e1a33c723", "pred": 1, "story": "As a user, I want to create customizable questionnaires/forms with various varia", "raw": "1"}
+{"key": "a815b11acebaf758", "pred": 1, "story": "As a user, I want to allow attachment of media files (photos, videos, audio) to ", "raw": "1"}
+{"key": "7b8f125a745422fd", "pred": 1, "story": "As a user, I want to support export of data in CSV, XLS, and HTML formats, so th", "raw": "1"}
+{"key": "18dd186c54201e28", "pred": 1, "story": "As a user, I want to support export of data in CSV, XLS, and HTML formats, so th", "raw": "1"}
+{"key": "7da59197c7819e64", "pred": 1, "story": "As a user, I want to store geographic data as points, lines, and polygons, so th", "raw": "1"}
+{"key": "e89db130e9a289c0", "pred": 1, "story": "As a user, I want to store user gamification data (medals, avatar progression, l", "raw": "1"}
+{"key": "06341ae66fdd41e3", "pred": 1, "story": "As a user, I want to allow export of selected layers rather than all data, so th", "raw": "1"}
+{"key": "d4e99372b9f1423c", "pred": 1, "story": "As a user, I want to create customizable questionnaires/forms with various varia", "raw": "1"}
+{"key": "ba613dc03d3b267e", "pred": 1, "story": "As a user, I want to store user gamification data (medals, avatar progression, l", "raw": "1"}
+{"key": "b88c4b295e5ead4f", "pred": 1, "story": "As a user, I want to store user gamification data (medals, avatar progression, l", "raw": "1"}
+{"key": "f20929bd539b21c6", "pred": 1, "story": "As a user, I want to support trail/route tracking as a secondary feature, so tha", "raw": "1"}
+{"key": "4b38d63c9e061eb8", "pred": 1, "story": "As a user, I want to support trail/route tracking as a secondary feature, so tha", "raw": "1"}
+{"key": "c65a45de4f4d4ce6", "pred": 1, "story": "As a user, I want to allow external embedding of project maps as images or web m", "raw": "1"}
+{"key": "7fe7274d275ac137", "pred": 1, "story": "As a user, I want to allow export of selected layers rather than all data, so th", "raw": "1"}
+{"key": "6829e3f650145ef9", "pred": 1, "story": "As a user, I want to allow attachment of media files (photos, videos, audio) to ", "raw": "1"}
+{"key": "141520e3055c9d97", "pred": 1, "story": "As a user, I want to allow import of shapefiles (SHP) from QGIS, so that pre-pro", "raw": "1"}
+{"key": "7d556e22fe3bd833", "pred": 1, "story": "The platform must support the option for institutions to install the platform on", "raw": "1"}
+{"key": "3b5f6e89852c8f78", "pred": 1, "story": "The platform must support the option for institutions to install the platform on", "raw": "1"}
+{"key": "ab3e69ff722a4585", "pred": 1, "story": "As a user, I want to create geographic features (points, lines, polygons) and im", "raw": "1"}
+{"key": "0d084b9aa56361b6", "pred": 1, "story": "As a user, I want to create geographic features (points, lines, polygons) and im", "raw": "1"}
+{"key": "e06e4afcf86dd17f", "pred": 1, "story": "As a user, I want to create geographic features (points, lines, polygons) and im", "raw": "1"}
+{"key": "694827ed7a29720e", "pred": 1, "story": "As a project manager, I want to define which imported data layers are visible to", "raw": "1"}
+{"key": "0426d8ea3fd597dd", "pred": 1, "story": "As a user, I want the system to perform user authentication via secure login (em", "raw": "1"}
+{"key": "084456dc2917a988", "pred": 1, "story": "As a user, I want the system to perform user authentication via secure login (em", "raw": "1"}
+{"key": "cc55ac6a828c10ba", "pred": 1, "story": "As a user, I want the system to provide a public-facing web map and embeddable l", "raw": "1"}
+{"key": "e3e8bb2105bbd66e", "pred": 1, "story": "As a user, I want the system to provide a public-facing web map and embeddable l", "raw": "1"}
+{"key": "b7c1f393ee51d4d9", "pred": 1, "story": "As a project manager, I want to define which imported data layers are visible to", "raw": "1"}
+{"key": "6cc37994a5862b71", "pred": 1, "story": "The platform shall be accessible via web and mobile devices, so that users can p", "raw": "1"}
+{"key": "aeb01974a039a0f2", "pred": 1, "story": "The platform shall allow a user to register with only email, username, and passw", "raw": "1"}
+{"key": "2cbffb39594bd9d3", "pred": 1, "story": "The platform shall be accessible via web and mobile devices, so that users can p", "raw": "1"}
+{"key": "d9566e1a9cadece0", "pred": 1, "story": "The platform shall provide a gamification system that rewards collective contrib", "raw": "1"}
+{"key": "b217da99fa5c3e61", "pred": 1, "story": "The platform shall allow a user to register with only email, username, and passw", "raw": "1"}
+{"key": "9031f446878a2390", "pred": 1, "story": "The platform shall provide a gamification system that rewards collective contrib", "raw": "1"}
+{"key": "26cfcb40e04ae553", "pred": 1, "story": "The platform shall provide a gamification system that rewards collective contrib", "raw": "1"}
+{"key": "6337e996ad1fe175", "pred": 1, "story": "The platform shall provide access to the source code (free/libre), so that devel", "raw": "1"}
+{"key": "babd7b004649a181", "pred": 1, "story": "The platform shall provide access to the source code (free/libre), so that devel", "raw": "1"}
+{"key": "5492a903ebd50af8", "pred": 1, "story": "The platform shall be available within 4 to 6 months for a pilot in Barra munici", "raw": "1"}
+{"key": "fa5e62af526b6be0", "pred": 1, "story": "The platform shall provide access to the source code (free/libre), so that devel", "raw": "1"}
+{"key": "d1994cfc3940c78e", "pred": 1, "story": "As a user, I want the system to log all user actions (e.g., data entry, edits, e", "raw": "1"}
+{"key": "a490264d0504abc6", "pred": 1, "story": "The platform shall be available within 4 to 6 months for a pilot in Barra munici", "raw": "1"}

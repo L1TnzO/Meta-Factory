@@ -1,0 +1,7 @@
+# Transcript chunking scheme (docs/design/02 §1.2). Adopted verbatim from Inter2US:
+# the unit of evidence under which the 180-pair human annotation was produced.
+# Changing these values breaks chunk-parity with the golden set — do so only with
+# a written reason and a re-annotation plan.
+turns_per_chunk: 3
+turn_stride: 1
+merge_consecutive_same_speaker: true   # golden chunks_turns_3s1.csv merges them

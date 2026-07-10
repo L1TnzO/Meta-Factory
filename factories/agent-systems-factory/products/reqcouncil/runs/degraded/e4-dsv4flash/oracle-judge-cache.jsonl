@@ -1,0 +1,574 @@
+{"key": "185530fb765913bd", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "7a660b36943265f3", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "3d840281dfe6809c", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "101b5f9efd2e02d7", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "95e0aecdea526066", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "00b5b5f171506555", "pred": 1, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "b6d3f709522b603f", "pred": 1, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "98a43e31a09f9061", "pred": 1, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "92ea5fcaa14fe400", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "ef29b998b8f9b5a8", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "7e00db4e6342b256", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "9346e5953187ef47", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "6db9e447bcc6c792", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "c7e12190749a13c3", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "c7eed43a39f870d6", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "188147aae1f3c027", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "1cfa3117b628ed65", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "12c30b8e2992e512", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "82b1fde0a99d9d74", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "786d3a97515347e4", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "4b32818f882628d0", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "795651174e4ff210", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "fda57476ed3b15fb", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "553837a4e3ea95a2", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "6aa26c96f2f19e74", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "7c46705d0c4d4643", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "3e1e46ddd85cc7f9", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "93b0662f8fae70c1", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "d007e32f19056086", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "e03f85fbc7df31e2", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "8f7df270201a2c34", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "ace49175574e7dfd", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "474404f2ec79a75d", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "e0edb7a1a43fae29", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "e8ab22fccadeefd0", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "cca7b73343d9f8bd", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "b52c9be4b7b7c3d1", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "6f54d18d03f67a24", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "4919e58b095e8123", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "665e42de24df8d4f", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "fd45c50de9aed602", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "6c0268f0b4012b7b", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "03e75ed4649a5a62", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "f9b9dfbf3f0a97dd", "pred": 0, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "7d6014de525e5ad1", "pred": 0, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "393f57eb8e97c27d", "pred": 0, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "306c3b5a7b3623fa", "pred": 0, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "337a79f24610c37b", "pred": 0, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "6f95c88ab46f3dc5", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "93d222aefb7e08a1", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "362531df2c3a63de", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "59fc2ebf185042b4", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "e0f1a1e16ef0a08d", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "adfeea363ef64912", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "3e159ab1cf203259", "pred": 1, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "999da64ff22d490f", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "2a90de52d3d7df28", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "3630f3834abbbbca", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "d8013a42fa685032", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "3b9095d2db98eb0f", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "877f863fb8d4833d", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "6f4b08a12f9968f8", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "4c7251ca13103631", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "1e074b0ad4152f5a", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "a32b27a755d05859", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "38883652414d2787", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "22675869c04c6ae4", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "356e99eb15a47554", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "360e4289ea7453b6", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "c604220610494054", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "d8bfde0153a7a071", "pred": 0, "gold": "As an IFA employee, I want to automate the allocating of mat"}
+{"key": "a0fdf37180582bfb", "pred": 1, "gold": "As an IFA employee, I want to automate the allocating of mat"}
+{"key": "cfe4c113a1c3a3b4", "pred": 1, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "13dc93c5eb1e29c1", "pred": 0, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "37fae0289c68635c", "pred": 0, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "8a4050db327b7c6e", "pred": 0, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "4cde9408f79d93c7", "pred": 1, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "fd65320251db5815", "pred": 1, "gold": "As a match official, I want to have my preferred time slots,"}
+{"key": "6d2da02e140ed6ed", "pred": 0, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "9dc7e83935339aaf", "pred": 0, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "b2c184f6015c9e81", "pred": 0, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "34153a1bf3f8771a", "pred": 0, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "a6c2361fb91f414e", "pred": 0, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "bb2afc83ce5df437", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "334492dc83379441", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "f7d7e3e983dbb201", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "65200aa7ec8d937c", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "0635ba58dccd7d41", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "72832e8fae732f6b", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "aff032096d0d97f9", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "b9871cb86d418d36", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "e62f5c51e2bfa1af", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "ff071561bb16102b", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "f3beee79d4b02948", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "d5a15b9c000569b0", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "1c0d8d9664f32e18", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "21c41404ab940f25", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "e811e687257a7198", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "b27f01aad8c8db0b", "pred": 1, "gold": "As a team manager, I want to manage my team\u2019s finances direc"}
+{"key": "40c79b9b8df5ee3e", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "a4309dec8455af80", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "ff2b7b8209ed22be", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "e85b0027979f2ea0", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "e31b781137e480fb", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "9accc126c7a90c6d", "pred": 1, "gold": "As a fan, I want to be notified as soon as possible about im"}
+{"key": "baf84226fdd218b4", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "aa1dc7436bf6dcf5", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "4e3c2281fedc23fb", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "4cf8f722f756de94", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "94014880a74df44e", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "4d14c08c1f83fa93", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "5206dd1fa6b6936c", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "af738544150334e5", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "71a9ffed4e9c21e5", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "85626a5084c475cf", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "4994a899150028fd", "pred": 1, "gold": "As a fan, I want to be able to choose which game events I wi"}
+{"key": "55269dbbd96e7362", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "1c67de8d61c00404", "pred": 1, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "5d7de7b254eaea61", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "b827057f2f482da9", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "39b8cbd5f023d7ab", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "5b3f7fdb077a6446", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "a88ad592eed63bb0", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "2eb39629a5218ae6", "pred": 0, "gold": "As a match official, I want to report on match events live d"}
+{"key": "50c5771b876f30a1", "pred": 1, "gold": "As a match official, I want to report on match events live d"}
+{"key": "2b0548239900c7e6", "pred": 1, "gold": "As a fan, I want game events to be reported live so that I c"}
+{"key": "7ab3fb50336e1fdd", "pred": 1, "gold": "As the IFA, I want the match officials to directly report on"}
+{"key": "2d7c17453639ec91", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "f96a5df5e493e772", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "b1d78aa6aad277e5", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "80565e15784f91ab", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "cacee8b2724e83d0", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "09e13b77902c15f3", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "8ea5f7c27596c151", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "8c89e470a39c1098", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "8d490fe4f7a7d44e", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "79adb1c3860400a4", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "03d69382ac1a1bef", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "9f96b0a483d1357b", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "3d24fffa2412040c", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "165d09b88010be80", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "db71d12584500c1e", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "bd99b47f6e1d8ba2", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "8db0e959a00b0cce", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "36cc9d565fd55e37", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "6fcf85a803ee41e2", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "dca73ca9646f7d48", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "69792e5adbf8b952", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "feb99ca2bd7d6f4a", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "34fe4c3efcdfb424", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "17e53e9877c9de7d", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "826a5a3fa7087c85", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "4d3df506a84778a9", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "23449015acdae9c6", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "3960be473ab71908", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "2557a4524a38b1fe", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "93d544c7c1b34ec4", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "55a1085ab062a24a", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "7081eada72a66d68", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "3139e7bedf84cbc1", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "61811c7d11f36f91", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "5897b937421d1a19", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "7f08035e5233a2b0", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "4cd8315e21631a22", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "8bd977d890de2b7e", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "0a08048ee43c9220", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "7d6d0e99a5f220bb", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "b6ecdb063720fa0b", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "403ed04da6d0c402", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "fc50a050f178c8dd", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "4fb5aff337f15399", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "7ea1498681a3b991", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "8cae6af6ed9c49d2", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "c2e313b99e88b80c", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "36d4b4ce69583416", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "58acd8e2b23fd18a", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "6a2600e2c0dcff50", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "4fb7adcb13a3fc48", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "2d37b114a0ba566f", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "475deab534a3d7a8", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "0ed9fc23628945b7", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "abb3dfc5a7bfa1ac", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "0f941ed6537cdf46", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "c75515143417984c", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "5e47214f7ab01a62", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "6773079b24b62ea5", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "bf87c0feab45a881", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "640194d52aacba19", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "eeae438581208b2b", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "4e461f3d26034d24", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "a1c85539a1576663", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "93bc233789c3ed13", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "4839d97c99953ab1", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "6817553e22c3bfa2", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "485adb30c597a10d", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "887469faf2893518", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "1a0b0d9b1f04b31b", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "f56f2081840d7eea", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "a9214f8a17688981", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "e5a6b4ee88b5675f", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "c7b59edf26829ef9", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "415a69cbf271a343", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "80401a291ac26774", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "9800149049567681", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "87f42889ab001fb8", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "35dfac1c2514c01f", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "a12bb8bea20b1946", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "c4ddb19e992a2596", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "2dabcb549576edf6", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "012e6d58a4a003fa", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "b1ca1c5a7f9e06af", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "7d2b92844b1128c8", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "b4d395267009d16f", "pred": 0, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "c446b1c8a6391996", "pred": 0, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "f53f6bb11cdcacec", "pred": 0, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "e2643568fa323f27", "pred": 0, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "18160030d54b6fce", "pred": 0, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "af5c9475b6f06f9c", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "c7d048d2afc1c691", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "bb14e2c41b6d5ce6", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "5584733f53612058", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "41f83b62fe0f3827", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "6feba4f7b292f83d", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "59431a0693c3de20", "pred": 1, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "d524d069366c1ef9", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "3b336218c053c11a", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "a812bba2a3714b1b", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "04e642cff8368e87", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "a36afb3df4977b96", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "87ba2f426d9378f1", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "29fafcaac6381600", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "ebdc6ae5f41df454", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "17700538858e3db8", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "b40782cf0f7ddb1b", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "774c89030e0fd5e9", "pred": 1, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "f2f6863b540f3c91", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "2ce45694a6e1dd85", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "258211d9aa90760c", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "4f178a581f1ea856", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "f0a23611d95479a1", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "4a715450189d9fde", "pred": 1, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "d32e0926d8c5a38b", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "27aefc828566e962", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "2eebc4a1e744c9f9", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "4e41a27c4a7f6215", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "7decae0494137480", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "565516240199b8cd", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "9bba5d60a6ca2c55", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "a05263040852e999", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "6fdb4fc112d24dee", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "f7fe7dc3617ad429", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "c26c611612ba10c1", "pred": 1, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "b5c0150c98e5aa31", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "f8d0eb3282646540", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "f87dc8ec2fc8f849", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "855df1b2d944490e", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "8b8ed9cb7c1ebd1d", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "79170addb1c6e091", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "2d067299858a68db", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "ee0813db2d757f69", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "1b6e99677ecb337a", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "13eeb9c53f031c4d", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "23d542a37a4e40ad", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "02cbe827f40110f0", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "298492c52149c620", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "a74a2405af2a55cf", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "b9447bc49cb76b92", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "688582268ef3fce3", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "2543bf6aba3e36a6", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "40a0a1009e750723", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "ce1a2f9aeef08eea", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "b0a013f601bdc17e", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "e02d48db2cd61a97", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "465e6041e4570d89", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "97c5ea0137cb34fd", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "3cb980183c5e4efa", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "e91721a8ea8fc7f0", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "b17e03549d4cef45", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "6d3bbfcee52f20a6", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "3db9862ed7faa5b9", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "0b08f7e7bfea0354", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "68c04717080a0ba4", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "5663ccdccafc74d5", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "1bf078e7e86c44d0", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "e9045c3198c91488", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "59157b752520452e", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "de64b1b6327fed22", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "44aa9e331e5e3f04", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "4da1611be3f29ce5", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "b237fbc0d66afc14", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "bf1718174b161f3e", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "5c468a2791b3b871", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "21e92abdc5a854a0", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "e385e16438dea503", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "2b66b7dd2931b7e8", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "43377eaaa3cc878c", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "89fb579c2bdea83b", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "099a4834e8b71e9d", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "0639013f48ce047f", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "1582fa16ae8bd86c", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "222206d7f6bd2e27", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "0a25db53b225f890", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "a508cf86a59b2186", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "54e165d376f677b0", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "41f7b2840e430aae", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "4a2496a506812d12", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "c838a6facc193ef1", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "28b97dced05e240a", "pred": 1, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "b4a763d7d3c125bd", "pred": 1, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "42b672aa28197ef3", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "f41f9738d8bb048c", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "56fcc9d773b1c4a7", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "ac569c1e3ecd3cd8", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "7581a803a1054f4d", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "d087097a2ef30de5", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "5695512d9f08e8b9", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "0cca2cf127b2adca", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "13a9402aa0ef00a0", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "6ef47a55bfbbf019", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "4af7786c571e80e0", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "052968e86c042b35", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "7b05c419e52faaf4", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "779c273ebffeb174", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "cbe182757018fd06", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "f9feb9c6b7a1fe28", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "812dc9b6901f5ac1", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "cb44f6b4f6d7d398", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "161d4f697307b0b0", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "07b75d4d8fde7432", "pred": 1, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "8bfe9604585c3aae", "pred": 1, "gold": "O sistema deve suportar os acessos simult\u00e2neos durante o per"}
+{"key": "d7a283a6cb793933", "pred": 1, "gold": "O sistema deve permitir que o usu\u00e1rio crie uma conta fornece"}
+{"key": "a04f0ba45c99f3b7", "pred": 1, "gold": "O sistema deve permitir que o usu\u00e1rio fa\u00e7a login usando seu "}
+{"key": "1ff63139f71621de", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "05a996e451b58561", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "fa8264259cc15d39", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "f947d1c7dd8469ce", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "4ee5f28d0f28002f", "pred": 0, "gold": "O sistema deve fornecer uma op\u00e7\u00e3o de recupera\u00e7\u00e3o de senha."}
+{"key": "6668964830b45f80", "pred": 1, "gold": "O sistema deve permitir a cria\u00e7\u00e3o de question\u00e1rios com diver"}
+{"key": "2941a7797d196126", "pred": 1, "gold": "O sistema deve permitir que os gestores de projetos convidem"}
+{"key": "b27e0f109cebf447", "pred": 1, "gold": "O sistema deve permitir que os usu\u00e1rios preencham formul\u00e1rio"}
+{"key": "4f84ecaeca2adfec", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "50fee87b9aa33060", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "d9d26ce4b473827e", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "62b64af8004f0d08", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "298d51b952b095cd", "pred": 0, "gold": "O sistema deve permitir que o usu\u00e1rio envie dados de localiz"}
+{"key": "a6466ed24a70da27", "pred": 1, "gold": "O sistema deve permitir a utiliza\u00e7\u00e3o de primitivas das gr\u00e1fi"}
+{"key": "48dbbdea812146a9", "pred": 1, "gold": "O sistema deve permitir o upload de fotos, \u00e1udios e v\u00eddeos e"}
+{"key": "33bda4ecd6543ae8", "pred": 1, "gold": "O sistema deve permitir a marca\u00e7\u00e3o de trilhas (trekking)."}
+{"key": "6b34f01e402a84fc", "pred": 1, "gold": "O sistema deve registrar automaticamente metadados, como o h"}
+{"key": "9c53c3a28689f07f", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "5ca02e8b336550c9", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "9e84cf66e63beb1d", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "77585ae0e8880f5f", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "d8d13cf71f535dc2", "pred": 0, "gold": "O sistema deve permitir a inser\u00e7\u00e3o de coment\u00e1rios ou notas s"}
+{"key": "3444f6c38bd32a5c", "pred": 0, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "6bb101719efd9f94", "pred": 0, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "1655c24bc693993d", "pred": 0, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "8f88e1eed4237232", "pred": 0, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "93618c5922a9bf10", "pred": 0, "gold": "O sistema deve fornecer mapas interativos para visualiza\u00e7\u00e3o "}
+{"key": "70db37840ec1a913", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "68bd5484d93d7b6b", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "ccad4e94a4e9aae0", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "80b3e158905cf8d4", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "1afc5f074d198aaf", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o dos dados coletados p"}
+{"key": "d96a2234ed84c8c0", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "0e0b00870c442585", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "cfea7f5e8a80912b", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "7724cba0d2646706", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "e798165918d71acc", "pred": 0, "gold": "O sistema deve permitir a visualiza\u00e7\u00e3o de dados em dashboard"}
+{"key": "076f9668e1f97260", "pred": 1, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o dos dados em diferentes"}
+{"key": "c386953cc9822fe5", "pred": 1, "gold": "O sistema deve permitir a exporta\u00e7\u00e3o de dados filtrados por "}
+{"key": "950a637615ea8b1d", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "3a8048ce94f097f6", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "b4ba46ab41f429d0", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "f62a0df2c3e9f675", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "0e1168f6cbf547b9", "pred": 0, "gold": "O sistema deve fornecer gr\u00e1ficos e relat\u00f3rios baseados nos d"}
+{"key": "065cb6210f4c7dee", "pred": 1, "gold": "O sistema deve permitir que os gestores de projetos decidam "}
+{"key": "ccbeae08d9b87365", "pred": 1, "gold": "O sistema deve integrar-se diretamente com plataformas como "}
+{"key": "0b901a2a77cacc5a", "pred": 1, "gold": "O sistema deve implementar mec\u00e2nicas de gamefica\u00e7\u00e3o para inc"}
+{"key": "721f1b862498d942", "pred": 1, "gold": "O sistema deve atribuir pontos e recompensas aos usu\u00e1rios po"}
+{"key": "b40cef44b1696573", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "eb1f4ea3b9599bd9", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "acdd300e3ddc2aea", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "1e91492415d8aa96", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "a16d1020e88a2f52", "pred": 0, "gold": "O sistema deve manter um ranking de usu\u00e1rios baseado nos pon"}
+{"key": "a73137fe2d060c1b", "pred": 1, "gold": "O sistema deve permitir que os usu\u00e1rios visualizem suas conq"}
+{"key": "1bb14c1a4285acec", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "4e7d1feedc08357b", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "19004358d1c3313a", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "a435d6350a32b70f", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "7f67d0cec2d48386", "pred": 0, "gold": "Os dados de usu\u00e1rio (incluindo senhas) devem ser armazenados"}
+{"key": "24b225aaf75f2d1d", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "f1608803971bfb94", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "ee248a7ef1c15c94", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "e8028829ad171e6a", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "e7ac7ee7cef4fa83", "pred": 0, "gold": "O sistema deve usar criptografia SSL/TLS para todas as comun"}
+{"key": "21cacc82768f9f08", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "c84c7b380c8b3e68", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "fac08be9a265d064", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "191240cdd40e6322", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "5f124b681c5f8912", "pred": 0, "gold": "O tempo de resposta do sistema para qualquer solicita\u00e7\u00e3o do "}
+{"key": "083f19f057b35585", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "599126193943572a", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "90cb74aa304648b3", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "da349e32f6673a64", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "725e1f493096b960", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel 99.9% do tempo, excluindo ja"}
+{"key": "cb531c7778f5a635", "pred": 0, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "6438764386b11a80", "pred": 0, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "e479a192971db61d", "pred": 0, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "e7483492d2bd01b1", "pred": 0, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "e6ecb525ec1a6260", "pred": 0, "gold": "O sistema deve ser escal\u00e1vel horizontalmente para suportar u"}
+{"key": "d8f9a5499a887982", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "b1fb1aa9d9bce776", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "8470b370c430d59a", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "6a19f72171aba6c6", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "1c43534f7acd92ee", "pred": 0, "gold": "O sistema deve ser projetado para adicionar novos m\u00f3dulos e "}
+{"key": "f20ed2245f248394", "pred": 0, "gold": "O sistema deve ser responsivo e funcionar em dispositivos m\u00f3"}
+{"key": "941cbbae753fa351", "pred": 1, "gold": "O sistema deve ser responsivo e funcionar em dispositivos m\u00f3"}
+{"key": "bedd1c1674e64721", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "8f3555077a186b7a", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "ac1905edf03c25c4", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "8cc318f8d49eba95", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "908c3a54a8b750c3", "pred": 0, "gold": "O sistema deve estar em conformidade com as leis e regulamen"}
+{"key": "21d7eb4c64352113", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "2769d31c6f5606b5", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "af55a5e192def59f", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "53f7a0613f625fcd", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "dee2f76c3d10ce30", "pred": 0, "gold": "O sistema deve cumprir as normas de acessibilidade para gara"}
+{"key": "9f17b82ab0082456", "pred": 1, "gold": "O sistema deve estar dispon\u00edvel nas plataformas Web e Mobile"}
+{"key": "0b31936a51858ce5", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "596d16bcc5502e43", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "2b42206a94e1fd5b", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "e51b051310b59f41", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "839b7ef1983905ce", "pred": 0, "gold": "As the IFA, I want to bring different existing systems toget"}
+{"key": "a77a8af01f805f8b", "pred": 0, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "099aa3dc74c6be9e", "pred": 0, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "055f1b161d569d28", "pred": 0, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "2714ed9150746f4a", "pred": 0, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "d335a91145667fae", "pred": 0, "gold": "As the IFA, I want the system to be able to handle multiple "}
+{"key": "9ce9f80d62bc546b", "pred": 0, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "06e513df3ca7e53b", "pred": 0, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "a728e5c40a5daab2", "pred": 0, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "2c45e16b83cad825", "pred": 0, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "9363e95b343a1bef", "pred": 0, "gold": "As the IFA, I want the system to be reliable while being use"}
+{"key": "8f01dece9224456f", "pred": 0, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "f9f432311b379334", "pred": 0, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "da530ecbcb25d5d9", "pred": 0, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "6fdfc04913aa6339", "pred": 0, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "84676b09323eda73", "pred": 0, "gold": "As a fan, I want to access the system on my phone, so that I"}
+{"key": "50fd83e371cccdbb", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "7dfdc085d3ec4bf1", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "0c291360523ed71c", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "b6ee85aa74e80cf0", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "d6c138b82fabe0f2", "pred": 0, "gold": "As a match official, I want to access the system on my phone"}
+{"key": "22d52b5e947d4c41", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "ca7b3a3f265204f3", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "0de3df87fc16c076", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "fbe2c1c948a4f10f", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "20f41d74a2682d54", "pred": 0, "gold": "As an IFA employee, I want to be able to access the system f"}
+{"key": "77f2051742af5975", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "1e024e9a4d179922", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "76a8746d0b9aeadc", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "fca00fdc49621646", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "1517227fe74e6bb2", "pred": 0, "gold": "As a team manager, I want to be able to access the system fr"}
+{"key": "d607ed41cc65dfd8", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "68da7db1e2e77cc3", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "4e1d4d688a6ad229", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "c9616a5e9e21fd9e", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "383e613aaa5782d8", "pred": 0, "gold": "As a team staff member, I want to be able to access the syst"}
+{"key": "922dea300a395a7d", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "657283bdc9d9fd5d", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "843bce2eb7641b0d", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "6a17c08d2cbc5d5e", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "c21f3f053ad9b179", "pred": 0, "gold": "As the IFA, I want system users to only gain access to tools"}
+{"key": "56bc187434a57f9d", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "87da42e73eefa944", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "ec8c92c9d2890849", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "344da16820276ef0", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "e417f9aeb838e723", "pred": 0, "gold": "As the IFA, I want to manage leagues within the system, so t"}
+{"key": "1fab202a5fa8fa4b", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "2036c0a7609cac67", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "e7697794dbb6432b", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "62c57622469ed36e", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "e72908d070a3cdc7", "pred": 0, "gold": "As the IFA, I want to be able to input different rulesets fo"}
+{"key": "eeff9e2468a890f2", "pred": 1, "gold": "As the IFA administrator, I want to be able to add new leagu"}
+{"key": "85d59988ed9b5014", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "c73147b81e7c62c1", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "ab3987939f9dffd5", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "77624e67ba3c05f0", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "95de0a2cccccd19d", "pred": 0, "gold": "As the IFA administrator, I want to be able to register new "}
+{"key": "883c7399ba2a320e", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "6e1e42b5578ea1e0", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "407f00a18ec263e4", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "88ba30f39296fd98", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "4a604096b5952b99", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new teams t"}
+{"key": "08b6d37e1d2a1ad9", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "92657986e4734364", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "01af47b0d4d4223f", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "dccceb5eea57bc9c", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "b038c33ce49cb372", "pred": 0, "gold": "As the IFA manager, I want to be able to approve new leagues"}
+{"key": "65e64753b4e254b2", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "5d20aee4d08c1f1f", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "d6165660399433aa", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "853eb0d7bff7512c", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "017e06bb63c1735b", "pred": 0, "gold": "As an IFA employee, I want the scheduling of games to be aut"}
+{"key": "650cc8e54f8e64f0", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "db56c1fd0c3c2095", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "6e2b544f5746a5d9", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "b3ecbbf43d4a0da0", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "b7ca0260b7ef4831", "pred": 0, "gold": "As the IFA, I want to avoid bias like giving teams a lighter"}
+{"key": "c3ca01a8c424d3ec", "pred": 1, "gold": "As an IFA employee, I want to automate the allocating of mat"}
+{"key": "2be564f9d30e4f3e", "pred": 0, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "fa12d8b1ab6c870d", "pred": 0, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "504667285f0e9ff6", "pred": 0, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "522c37f54b5861c2", "pred": 0, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "96a5b71278570a05", "pred": 0, "gold": "As the IFA, I want to automatically apply league rules like "}
+{"key": "972ad199d7d88a05", "pred": 0, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "2061ce504f0b2e7d", "pred": 0, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "96fc3576fed86632", "pred": 1, "gold": "As the IFA, I want to avoid conflicts between the game sched"}
+{"key": "085835eaa9c5da90", "pred": 1, "gold": "As a match official, I want to have my preferred time slots,"}
+{"key": "a25dfdea8fc7b101", "pred": 1, "gold": "As the IFA, I want the overriding of a generated schedule to"}
+{"key": "de7db936495b5b3e", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "3e24ef6f9c1b9da2", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "2941a00b566c5e35", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "1c5bbdeda89d47f2", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "d597723f2a7eb6a4", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to control and a"}
+{"key": "704ad78840506667", "pred": 0, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "da48394256539c0e", "pred": 1, "gold": "As the IFA, I want the teams to input every transaction they"}
+{"key": "3c5b8634b163ef71", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "97ac34b0f5606cce", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "70b222afb383e347", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "545241f4006631a9", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "223e91bc7b9f62e2", "pred": 0, "gold": "As an IFA budget auditor, I want to be able to quickly obtai"}
+{"key": "30cd2977436c901f", "pred": 0, "gold": "As a team manager, I want to manage my team\u2019s finances direc"}
+{"key": "c65a7e707a49e4a3", "pred": 1, "gold": "As a team manager, I want to manage my team\u2019s finances direc"}
+{"key": "5af49a3fa6fa47a0", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "d614ffbc8f78a31a", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "892c5d2f2023b7d3", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "aff77321311f1a86", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "f6e368224de719c9", "pred": 0, "gold": "As a team manager, I want to be able to assign roles and sys"}
+{"key": "ded9ad37555f2b4b", "pred": 0, "gold": "As a fan, I want to be notified as soon as possible about im"}
+{"key": "e086a18a6e9c7190", "pred": 0, "gold": "As a fan, I want to be notified as soon as possible about im"}
+{"key": "a2d27a051cc4593a", "pred": 1, "gold": "As a fan, I want to be notified as soon as possible about im"}
+{"key": "23b20b3de3221901", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "689512a429a0e310", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "8b6fa81ae6ac2928", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "c198c220ce4bcf9e", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "e7118341a89da441", "pred": 0, "gold": "As a match official, I want to be notified as soon as possib"}
+{"key": "940a7981b74dabfb", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "5adb2ac3b9525164", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "8743edb1bcfccaad", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "a0d6b481a3e1f3b3", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "8475853712c313ef", "pred": 0, "gold": "As the IFA, I want all different stakeholders of a game even"}
+{"key": "6bd50cde5035161e", "pred": 1, "gold": "As a fan, I want to be able to choose which game events I wi"}
+{"key": "e353af9862a600c6", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "1db01a7295708f3c", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "3376afe7fc658be8", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "0cdaa2588a9f3c4f", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "bc915aca2a5c5aac", "pred": 0, "gold": "As a fan, I want to check statistics of different matches an"}
+{"key": "693c6bef746ce892", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "bcb0ee99dd2fb0ee", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "450f8da272195f2c", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "9267755c16ce926b", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "b55ed5d019191dcc", "pred": 0, "gold": "As a team staff member, I want to access statistics about di"}
+{"key": "ece6ca9dd353cab7", "pred": 0, "gold": "As a match official, I want to report on match events live d"}
+{"key": "b93c63bf412a5453", "pred": 1, "gold": "As a match official, I want to report on match events live d"}
+{"key": "3e3828b967c3f7bd", "pred": 1, "gold": "As a fan, I want game events to be reported live so that I c"}
+{"key": "757e6bb22f17e69a", "pred": 0, "gold": "As the IFA, I want the match officials to directly report on"}
+{"key": "d3e3c4e42b2c53aa", "pred": 1, "gold": "As the IFA, I want the match officials to directly report on"}
+{"key": "7444a3828abe95c8", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "38f36245068ba15b", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "b8f659a48dab7b83", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "e2064c0143e6339e", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}
+{"key": "cb3fb99c1ca44ef3", "pred": 0, "gold": "As the IFA, I want player and match statistics to be derived"}

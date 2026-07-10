@@ -1,0 +1,45 @@
+{
+  "source": "int1",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "seed": 7,
+  "decoys_requested": 3,
+  "decoys_present": 3,
+  "decoys": [
+    {
+      "id": "data-27",
+      "donor": "ux-4"
+    },
+    {
+      "id": "gap_hunter-r2-1",
+      "donor": "integration-10"
+    },
+    {
+      "id": "gap_hunter-r4-0",
+      "donor": "functional-22"
+    }
+  ],
+  "caught": [
+    "data-27",
+    "gap_hunter-r2-1",
+    "gap_hunter-r4-0"
+  ],
+  "catch_rate": 1.0,
+  "false_alarms": [
+    "nfr-6"
+  ],
+  "engineer": "claude-code session agent (blind file review; formal human number deferred to H6)",
+  "mode": "file",
+  "decision_counts": {
+    "reject": 4,
+    "accept": 37
+  },
+  "packet_stats": {
+    "total": 41,
+    "mandatory": 4,
+    "by_bucket": {
+      "2": 1,
+      "4": 3,
+      "5": 37
+    }
+  }
+}

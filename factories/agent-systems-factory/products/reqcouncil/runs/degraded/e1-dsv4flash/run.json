@@ -1,0 +1,45 @@
+{
+  "experiment": "E1",
+  "timestamp": "2026-07-05T18:28Z",
+  "transcript": "int1.txt",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 132,
+  "n_requirements": 57,
+  "grounded": 56,
+  "fidelity": 0.9825,
+  "gate_fidelity_min": 0.7,
+  "green": true,
+  "cci_vs_37_golden": 1.5405,
+  "cardinality": {
+    "produced": 57,
+    "expected": 37.0,
+    "band": [
+      22.2,
+      59.2
+    ],
+    "in_band": true,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.5455,
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 57
+  },
+  "usage": {
+    "prompt_tokens": 309592,
+    "completion_tokens": 14644
+  },
+  "elapsed_s": 211.9
+}

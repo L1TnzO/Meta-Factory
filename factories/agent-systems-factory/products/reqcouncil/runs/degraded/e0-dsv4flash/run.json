@@ -1,0 +1,16 @@
+{
+  "experiment": "E0",
+  "timestamp": "2026-07-05T17:52Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "api_base": "https://api.siliconflow.com/v1",
+  "system_prompt_sha": {
+    "interview": "bb7ad8f9ebaa",
+    "system_desc": "a2c996fbbece"
+  },
+  "limit": null,
+  "pairs_judged": 760,
+  "agreement": 0.9026,
+  "gate_judge_agreement_min": 0.8,
+  "green": true,
+  "elapsed_s": 96.4
+}

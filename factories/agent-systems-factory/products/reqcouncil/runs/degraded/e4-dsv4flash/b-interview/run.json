@@ -1,0 +1,44 @@
+{
+  "experiment": "E4",
+  "arm": "b",
+  "arm_label": "single-pass + study prompt",
+  "corpus": "interview",
+  "status": "measured",
+  "timestamp": "2026-07-06T16:22Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+  "prompt_shas": {
+    "single_pass": "07a7de88a3c4",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  },
+  "temperature": 0.7,
+  "n_chunks": 132,
+  "n_requirements": 28,
+  "grounded": 28,
+  "fidelity": 1.0,
+  "coverage": 0.4394,
+  "oracle_recall": 0.3514,
+  "oracle_precision": 0.3929,
+  "critical_nfr_recall": null,
+  "cci": 0.7568,
+  "oracle_size": 37,
+  "usage": {
+    "prompt_tokens": 119657,
+    "completion_tokens": 2202
+  },
+  "generation_usage": {
+    "prompt_tokens": 21285,
+    "completion_tokens": 2134
+  },
+  "ground_judge_usage": {
+    "prompt_tokens": 98372,
+    "completion_tokens": 68
+  },
+  "oracle_judge_usage": {
+    "prompt_tokens": 34149,
+    "completion_tokens": 141
+  },
+  "parse_log": [],
+  "elapsed_s": 361.4
+}

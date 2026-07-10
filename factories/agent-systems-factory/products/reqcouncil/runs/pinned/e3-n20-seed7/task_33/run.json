@@ -1,0 +1,47 @@
+{
+  "experiment": "E3",
+  "task_id": "task_33",
+  "task_name": "Real Estate Property Search and Listings System",
+  "application_type": "E-commerce Web",
+  "timestamp": "2026-07-06T19:09Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "b4a62bc9f7fb96e6d0b50cfcfecdea45e8e3a63379134ff2186b21c6fd97c0fc",
+  "n_chunks": 10,
+  "n_requirements": 16,
+  "grounded": 10,
+  "fidelity": 0.625,
+  "n_golden": 7,
+  "oracle_recall": 0.7143,
+  "oracle_precision": 0.25,
+  "n_implicit": 5,
+  "implicit_yield": 0.6,
+  "cci": 2.2857,
+  "citation_coverage": 0.8,
+  "rounds": {
+    "rounds_run": 1,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.8,
+      0.8
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 5,
+    "requirements": 16
+  },
+  "usage": {
+    "prompt_tokens": 123433,
+    "completion_tokens": 3024
+  }
+}

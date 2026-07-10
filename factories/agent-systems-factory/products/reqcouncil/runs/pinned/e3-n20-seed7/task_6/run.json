@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_6",
+  "task_name": "Texas Hold'em Online Poker Platform",
+  "application_type": "Entertainment App",
+  "timestamp": "2026-07-06T18:04Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "325b0e985d25042176a82e77cd9d3cd8365a2ec9f276c28518d997819a503773",
+  "n_chunks": 22,
+  "n_requirements": 17,
+  "grounded": 9,
+  "fidelity": 0.5294,
+  "n_golden": 17,
+  "oracle_recall": 0.6471,
+  "oracle_precision": 0.5294,
+  "n_implicit": 5,
+  "implicit_yield": 0.4,
+  "cci": 1.0,
+  "citation_coverage": 0.7727,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 3,
+        "dropped": 8,
+        "merged": 3,
+        "revised": 3,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 3,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 4,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 3,
+        "merged": 2,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.9091,
+      0.9545,
+      0.7727,
+      0.9545,
+      0.7727
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 2,
+    "requirements": 17
+  },
+  "usage": {
+    "prompt_tokens": 311751,
+    "completion_tokens": 14217
+  }
+}

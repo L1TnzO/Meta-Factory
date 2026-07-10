@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_21",
+  "task_name": "customer service call logging system",
+  "application_type": "Enterprise Management",
+  "timestamp": "2026-07-06T18:55Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "f650c42a77c4ad45008e486a7664cb9a637010be9bd598252da4ae501059aa65",
+  "n_chunks": 20,
+  "n_requirements": 10,
+  "grounded": 7,
+  "fidelity": 0.7,
+  "n_golden": 13,
+  "oracle_recall": 0.3846,
+  "oracle_precision": 0.3,
+  "n_implicit": 10,
+  "implicit_yield": 0.1,
+  "cci": 0.7692,
+  "citation_coverage": 0.55,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 9,
+        "merged": 0,
+        "revised": 4,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 3,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 1,
+        "dropped": 5,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 4,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.85,
+      0.4,
+      0.7,
+      0.5,
+      0.55
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 10
+  },
+  "usage": {
+    "prompt_tokens": 219499,
+    "completion_tokens": 11756
+  }
+}

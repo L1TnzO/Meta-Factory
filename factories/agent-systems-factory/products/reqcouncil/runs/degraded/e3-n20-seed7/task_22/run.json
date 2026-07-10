@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_22",
+  "task_name": "Sales Lead CRM Portal",
+  "application_type": "Enterprise Management",
+  "timestamp": "2026-07-06T19:02Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "d472ce84770453b7105ad289108739bf968adb6d87c9e52bf8793cdd21330b77",
+  "n_chunks": 18,
+  "n_requirements": 20,
+  "grounded": 8,
+  "fidelity": 0.4,
+  "n_golden": 9,
+  "oracle_recall": 0.1111,
+  "oracle_precision": 0.05,
+  "n_implicit": 6,
+  "implicit_yield": 0.1667,
+  "cci": 2.2222,
+  "citation_coverage": 0.7222,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 2,
+        "dropped": 9,
+        "merged": 0,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 3,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 1,
+        "dropped": 5,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5556,
+      0.7222,
+      0.5556,
+      0.8889,
+      0.7222
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 2,
+    "requirements": 20
+  },
+  "usage": {
+    "prompt_tokens": 217183,
+    "completion_tokens": 12103
+  }
+}

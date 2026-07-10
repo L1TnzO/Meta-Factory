@@ -1,0 +1,48 @@
+=== E0 Judge Calibration === model: deepseek-ai/DeepSeek-V4-Flash
+
+--- interview (n=180)  (paper Qwen3-32B ref: 0.8222)
+Accuracy: 0.8833
+
+Confusion Matrix:
+[[103   3]
+ [ 18  56]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.851     0.972     0.907       106
+             1     0.949     0.757     0.842        74
+
+      accuracy                         0.883       180
+
+--- system_desc (n=580)  (paper Qwen3-32B ref: 0.9138)
+Accuracy: 0.9086
+
+Confusion Matrix:
+[[267  11]
+ [ 42 260]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.864     0.960     0.910       278
+             1     0.959     0.861     0.908       302
+
+      accuracy                         0.909       580
+
+--- POOLED (n=760)
+Accuracy: 0.9026
+
+Confusion Matrix:
+[[370  14]
+ [ 60 316]]
+
+Classification Report:
+               precision    recall  f1-score   support
+
+             0     0.860     0.964     0.909       384
+             1     0.958     0.840     0.895       376
+
+      accuracy                         0.903       760
+
+judge_agreement = 0.9026  gate >= 0.8  ->  GREEN

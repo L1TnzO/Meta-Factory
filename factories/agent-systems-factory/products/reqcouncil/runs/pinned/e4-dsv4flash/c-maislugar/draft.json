@@ -1,0 +1,1804 @@
+{
+  "source": "maislugar",
+  "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "timestamp": "2026-07-06T17:22Z",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 113,
+  "cardinality": {
+    "produced": 70,
+    "expected": 31.7,
+    "band": [
+      19.0,
+      50.7
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.5929,
+  "rounds": {
+    "rounds_run": 0,
+    "stop_reason": null,
+    "deltas": [],
+    "coverage_history": []
+  },
+  "review": {
+    "engineer": "auto-eval",
+    "mode": "auto",
+    "stats": {
+      "decided": 70,
+      "counts": {
+        "accept": 70
+      },
+      "mandatory": 11
+    },
+    "revised": []
+  },
+  "usage": {
+    "prompt_tokens": 473291,
+    "completion_tokens": 13980
+  },
+  "requirements": [
+    {
+      "id": "nfr-1",
+      "text": "The platform shall support at least 100 concurrent users during initial pilot deployments, with a target of 1,000 concurrent users after 2 years of consolidation.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:85",
+        "7b80fdda74b4:87",
+        "7b80fdda74b4:88"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder expects growth from a few pilot municipalities to many, referencing VicomSaga's many users and exponential growth after consolidation.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "7b80fdda74b4:85": "unsupported",
+        "7b80fdda74b4:87": "unsupported",
+        "7b80fdda74b4:88": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-4",
+      "text": "The platform shall allow institutions to install the software on their own servers, with a documented installation process requiring no more than 4 hours for a system administrator.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:5",
+        "7b80fdda74b4:87"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder emphasized autonomy and the ability to install on own servers, which implies a reasonable setup time for adopters.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "7b80fdda74b4:3": "unsupported",
+        "7b80fdda74b4:5": "unsupported",
+        "7b80fdda74b4:87": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-9",
+      "text": "The platform shall support the attachment of media files (photos, videos, audio) to geographic data records, with a maximum file size of 20 MB per attachment.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:40",
+        "7b80fdda74b4:41",
+        "7b80fdda74b4:42"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly confirmed support for photo, film, and audio attachments; file size limit is inferred from common mobile data collection constraints.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "7b80fdda74b4:40": "unsupported",
+        "7b80fdda74b4:41": "unsupported",
+        "7b80fdda74b4:42": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-13",
+      "text": "The platform shall be stable and free of critical bugs before mass release, with a beta testing phase involving at least two pilot municipalities (e.g., Barra and Moçambique) for 4-6 months.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:89",
+        "7b80fdda74b4:91",
+        "7b80fdda74b4:92"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated the ideal is to release only after pilot consolidation and bug-free stability, with a 4-6 month timeline for Barra.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "7b80fdda74b4:89": "unsupported",
+        "7b80fdda74b4:91": "unsupported",
+        "7b80fdda74b4:92": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-15",
+      "text": "The platform shall have a user-friendly and accessible interface for non-technical users, so that the general population can easily capture and view geographic data.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:63",
+        "7b80fdda74b4:64"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated that Mais Lugar should focus on 'capturing in a more friendly way' for the population, contrasting with more technical tools.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "7b80fdda74b4:63": "unsupported",
+        "7b80fdda74b4:64": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-0",
+      "text": "The platform shall load and display geographic map layers within 3 seconds for 95% of requests under normal load.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:64"
+      ],
+      "stance": "inferred",
+      "rationale": "The platform is centered on geographic data visualization; users expect responsive map interactions, and comparable platforms (e.g., VicomSaga) imply a performance baseline.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "flagged_inferred",
+      "verdicts": {
+        "7b80fdda74b4:0": "unsupported",
+        "7b80fdda74b4:33": "unsupported",
+        "7b80fdda74b4:64": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-14",
+      "text": "The platform shall be available in Portuguese (Brazilian) and potentially other languages, so that users can use the platform in their native language.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:85",
+        "7b80fdda74b4:86"
+      ],
+      "stance": "inferred",
+      "rationale": "The stakeholder mentioned expansion to Mozambique (Portuguese-speaking) and other countries, implying the need for localization beyond Brazilian Portuguese.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "flagged_inferred",
+      "verdicts": {
+        "7b80fdda74b4:85": "unsupported",
+        "7b80fdda74b4:86": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-2",
+      "text": "The platform shall be available as a web application accessible via standard web browsers (Chrome, Firefox, Safari, Edge) and as a mobile application supporting offline data collection.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:32",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated access via web and mobile, with offline capability for field data collection, modeled after ODK.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 0.333,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "unsupported",
+        "7b80fdda74b4:32": "supported",
+        "7b80fdda74b4:59": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-3",
+      "text": "The mobile application shall support offline data collection with automatic synchronization when connectivity is restored, with a maximum synchronization delay of 30 seconds after reconnection.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:60",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly described offline data capture and automatic upload upon reconnection, referencing ODK's performance.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 0.333,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "unsupported",
+        "7b80fdda74b4:59": "unsupported",
+        "7b80fdda74b4:60": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-25",
+      "text": "As a user, I want the system to support a trail/route tracking feature, so that I can record paths taken during field work.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:93",
+        "7b80fdda74b4:94",
+        "7b80fdda74b4:95",
+        "7b80fdda74b4:96"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned 'marcação de trilha' as a secondary but useful functionality.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 0.333,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:93": "unsupported",
+        "7b80fdda74b4:94": "supported",
+        "7b80fdda74b4:95": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-7",
+      "text": "As a user, I want the platform to support single sign-on (SSO) integration with the VicomSaga platform, so that I can seamlessly access both systems without re-entering credentials.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:83",
+        "7b80fdda74b4:84"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned that users should use the same password and login to move between MaisLugar and VicomSaga.",
+      "proposers": [
+        "integration",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:83": "supported",
+        "7b80fdda74b4:84": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-4",
+      "text": "As a user, I want to support import and export of vector data (points, lines, polygons), so that I can exchange geographic data with other systems.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:34",
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:49",
+        "7b80fdda74b4:53"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned import/export of vectors and later export formats like CSV, XLS, HTML.",
+      "proposers": [
+        "data",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:33": "supported",
+        "7b80fdda74b4:34": "supported",
+        "7b80fdda74b4:47": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-0",
+      "text": "As a project manager, I want the platform to integrate with Vicom Saga via a plugin, so that users can seamlessly transfer geospatial layers between the two systems without manual export/import.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:101",
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:78",
+        "7b80fdda74b4:79",
+        "7b80fdda74b4:81",
+        "7b80fdda74b4:83",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder repeatedly expresses the desire for a direct plugin integration with Vicom Saga to avoid reinventing the wheel and to maintain collaboration with that existing system.",
+      "proposers": [
+        "data",
+        "integration",
+        "nfr",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:101": "unsupported",
+        "7b80fdda74b4:77": "supported",
+        "7b80fdda74b4:78": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-9",
+      "text": "As a user, I want to view geographic layers on a web map, with access controlled by user role (public vs. restricted), so that I can see relevant territorial data.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:1",
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:14"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described web map visualization with layer access control per user role.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:0": "supported",
+        "7b80fdda74b4:1": "supported",
+        "7b80fdda74b4:3": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-3",
+      "text": "As a project manager, I want the platform to support offline data collection on mobile devices, so that users can capture georeferenced data in the field without internet access and sync later.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirms the need for offline data collection on mobile, referencing ODK as an example, and describes automatic upload upon connection.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "unsupported",
+        "7b80fdda74b4:59": "supported",
+        "7b80fdda74b4:61": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-10",
+      "text": "As a project manager, I want the platform to provide a plugin architecture for integration with external systems like Vicom Saga and QGIS, so that the system can be extended without modifying core code.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:75",
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly uses the term 'plugin' to describe the desired integration mechanism for Vicom Saga and QGIS.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:75": "unsupported",
+        "7b80fdda74b4:77": "supported",
+        "7b80fdda74b4:81": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-5",
+      "text": "The platform shall provide an open-source license for at least the core codebase, allowing institutions to modify and customize the software.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:5",
+        "7b80fdda74b4:7",
+        "7b80fdda74b4:9"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly stated the code should be free and open for institutions to program and adapt.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported",
+        "7b80fdda74b4:5": "supported",
+        "7b80fdda74b4:7": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-0",
+      "text": "As a user, I want to store user registration data including email, username, and password, so that I can authenticate and access the platform.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:19",
+        "7b80fdda74b4:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly stated that for user registration, only email, username, and password are needed.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:19": "supported",
+        "7b80fdda74b4:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-2",
+      "text": "As a project manager, I want to define access permissions for different user roles (viewer, editor, manager) per project, so that I can control who can view, edit, or delete project data.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:14",
+        "7b80fdda74b4:15",
+        "7b80fdda74b4:27",
+        "7b80fdda74b4:28",
+        "7b80fdda74b4:29"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described roles (viewer, editor, manager) and permissions per project, similar to existing systems.",
+      "proposers": [
+        "data",
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:13": "supported",
+        "7b80fdda74b4:14": "supported",
+        "7b80fdda74b4:15": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-2",
+      "text": "As a project manager, I want to invite users and assign roles within a project, so that role assignment is managed at project level.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:29",
+        "7b80fdda74b4:30"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder said 'the invitation' when asked how roles are assigned, implying invitation-based role assignment.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:29": "supported",
+        "7b80fdda74b4:30": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-3",
+      "text": "As a user, I want to store geographic data as points, lines, and polygons, so that I can represent territorial features.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder listed 'creation of point, line, polygon' as essential functionalities.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:33": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-5",
+      "text": "As a user, I want to create customizable questionnaires/forms with various variable types, so that data collection can be tailored to each project.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:100",
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:34",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder repeatedly emphasized creating questionnaires/forms as a core feature, similar to VicomSaga.",
+      "proposers": [
+        "data",
+        "functional",
+        "nfr",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:0": "supported",
+        "7b80fdda74b4:100": "supported",
+        "7b80fdda74b4:33": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-5",
+      "text": "As a user, I want to collect data offline (fill forms, mark points) and synchronize automatically when connected, so that I can work in the field without internet.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:32",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:60",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly mentioned offline data collection and automatic sync, citing ODK as a reference.",
+      "proposers": [
+        "data",
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "supported",
+        "7b80fdda74b4:32": "supported",
+        "7b80fdda74b4:59": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-11",
+      "text": "As a user, I want the system to automatically record metadata (timestamp, user who made the record) for each data entry, so that data provenance is tracked.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:39",
+        "7b80fdda74b4:40"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned automatic recording of time and user metadata.",
+      "proposers": [
+        "data",
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:39": "supported",
+        "7b80fdda74b4:40": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-8",
+      "text": "As a user, I want to allow attachment of media files (photos, videos, audio) to collected data, so that rich contextual information can be stored.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:40",
+        "7b80fdda74b4:41"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirmed support for photo, filming, and audio data.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:40": "supported",
+        "7b80fdda74b4:41": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-9",
+      "text": "As a user, I want to support export of data in CSV, XLS, and HTML formats, so that data can be used in external analysis tools.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:49"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder listed CSV, XLS, HTML as export formats.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:47": "supported",
+        "7b80fdda74b4:49": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-10",
+      "text": "As a user, I want to allow export of selected layers rather than all data, so that I can control what is exported.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:53",
+        "7b80fdda74b4:55"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder said 'decide the layers that will be exported' when asked about export organization.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:53": "supported",
+        "7b80fdda74b4:55": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-11",
+      "text": "As a user, I want to store user gamification data (medals, avatar progression, levels like 'Master' and 'Pleno') at platform level across projects, so that user participation is incentivized collaboratively.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:70",
+        "7b80fdda74b4:73"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described a gamification system with medals, avatar, and user levels that accumulate across projects.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:67": "supported",
+        "7b80fdda74b4:69": "supported",
+        "7b80fdda74b4:70": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-10",
+      "text": "As a project manager, I want to configure which layers are visible to the general public and which are restricted to specific roles, so that I can protect confidential data.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:1",
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:14",
+        "7b80fdda74b4:15",
+        "7b80fdda74b4:63",
+        "7b80fdda74b4:97",
+        "7b80fdda74b4:98"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly mentioned setting layer visibility for public vs. managers/researchers.",
+      "proposers": [
+        "data",
+        "functional",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:0": "supported",
+        "7b80fdda74b4:1": "supported",
+        "7b80fdda74b4:13": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-14",
+      "text": "As a user, I want to allow import of shapefiles (SHP) from QGIS, so that pre-processed geographic data can be brought into the platform.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned importing SHP layers from QGIS.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:81": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-15",
+      "text": "As a user, I want to support trail/route tracking as a secondary feature, so that I can record field paths.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:93",
+        "7b80fdda74b4:94"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned 'trail marking' as a non-priority but useful functionality.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:93": "supported",
+        "7b80fdda74b4:94": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-16",
+      "text": "As a user, I want to allow external embedding of project maps as images or web maps via a shareable link, so that institutions can display results on their own websites.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described institutions wanting to show work via image or web map and copying a link to embed, implying this feature.",
+      "proposers": [
+        "data",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-10",
+      "text": "The platform must support the option for institutions to install the platform on their own servers, so that they have full autonomy and control over their data and projects.",
+      "category": "security",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:4"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder expressed a desire for institutions to be able to install the program on their own servers, ensuring autonomy.",
+      "proposers": [
+        "data",
+        "integration",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported",
+        "7b80fdda74b4:4": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-0",
+      "text": "As a user, I want to create, edit, import, and export geographic vector data (points, lines, polygons) within a project, so that I can represent territorial features for health planning.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:34"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly listed creation, import, export, and editing of vectors as essential functionalities.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:33": "supported",
+        "7b80fdda74b4:34": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-3",
+      "text": "As a user, I want to register with email, username, and password, so that I can access the platform.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:19",
+        "7b80fdda74b4:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specified the minimal registration data: email, username, and password.",
+      "proposers": [
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:19": "supported",
+        "7b80fdda74b4:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-5",
+      "text": "As a project manager, I want to invite users to a project with specific roles (viewer, editor, manager), so that I can control who can view, edit, or delete project data.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:27",
+        "7b80fdda74b4:28",
+        "7b80fdda74b4:29",
+        "7b80fdda74b4:30",
+        "7b80fdda74b4:31"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder compared this to the VicomSaga system, where roles like viewer, editor, and manager are assigned via invitation.",
+      "proposers": [
+        "functional",
+        "nfr",
+        "security",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:27": "supported",
+        "7b80fdda74b4:28": "supported",
+        "7b80fdda74b4:29": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-6",
+      "text": "As a user, I want to attach media files (photos, videos, audio) to collected data, so that I can enrich field observations.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:40",
+        "7b80fdda74b4:41"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirmed support for photo, video, and audio attachments.",
+      "proposers": [
+        "functional",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:40": "supported",
+        "7b80fdda74b4:41": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-7",
+      "text": "As a user, I want to export project data in CSV, XLS, and HTML formats, selecting specific layers, so that I can use the data in other tools.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:48",
+        "7b80fdda74b4:49",
+        "7b80fdda74b4:53",
+        "7b80fdda74b4:54",
+        "7b80fdda74b4:55"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specified export formats (CSV, XLS, HTML) and the ability to choose layers.",
+      "proposers": [
+        "functional",
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:47": "supported",
+        "7b80fdda74b4:48": "supported",
+        "7b80fdda74b4:49": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-8",
+      "text": "As a user, I want a gamification system where I earn medals and level up (e.g., from beginner to master) by contributing to projects, so that I am motivated to participate collaboratively.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:68",
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:70",
+        "7b80fdda74b4:71"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described a non-competitive gamification with medals, avatars, and user levels based on contributions.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:67": "supported",
+        "7b80fdda74b4:68": "supported",
+        "7b80fdda74b4:69": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-12",
+      "text": "As a user, I want to integrate the platform with existing systems (e.g., VicomSaga, QGIS) via plugins or direct export/import, so that I can reuse existing tools and avoid reinventing functionality.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:78",
+        "7b80fdda74b4:79",
+        "7b80fdda74b4:80",
+        "7b80fdda74b4:81",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder strongly emphasized integration with VicomSaga and QGIS via plugins or direct data exchange.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:77": "supported",
+        "7b80fdda74b4:78": "supported",
+        "7b80fdda74b4:79": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-13",
+      "text": "As a project manager, I want to import pre-filtered layers from VicomSaga or QGIS into the platform, so that I can visualize and share processed geospatial data.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:81",
+        "7b80fdda74b4:82",
+        "7b80fdda74b4:83",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described importing filtered layers from VicomSaga as a priority feature.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:81": "supported",
+        "7b80fdda74b4:82": "supported",
+        "7b80fdda74b4:83": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-14",
+      "text": "As a user, I want to access the platform via web and mobile (with offline capability), so that I can use it in diverse field conditions.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:32"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated access via web and mobile, with mobile mainly for offline data collection.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "supported",
+        "7b80fdda74b4:32": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-1",
+      "text": "As a project manager, I want the platform to import shapefile (SHP) layers from QGIS, so that data processed in QGIS can be used within Mais Lugar.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions the need for Mais Lugar to import SHP layers from QGIS, indicating a data exchange requirement with that tool.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:81": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-7",
+      "text": "As a project manager, I want to export project data in CSV, XLS, and HTML formats, so that I can analyze the data in other tools or share it with external stakeholders.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:48",
+        "7b80fdda74b4:49",
+        "7b80fdda74b4:50"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly listed CSV, XLS, and HTML as desired export formats.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:47": "supported",
+        "7b80fdda74b4:48": "supported",
+        "7b80fdda74b4:49": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-8",
+      "text": "As a project manager, I want to select specific layers before exporting, so that I can control which data is included in the exported file.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:53",
+        "7b80fdda74b4:54",
+        "7b80fdda74b4:55"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated that the export should allow choosing which layers to include, with further data cleaning done externally.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:53": "supported",
+        "7b80fdda74b4:54": "supported",
+        "7b80fdda74b4:55": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-18",
+      "text": "As a project manager, I want the system to automatically capture metadata such as timestamp and user ID when data is recorded, so that the data origin and timing are traceable.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:39",
+        "7b80fdda74b4:40"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly mentioned that the system should automatically record the time and the user who made the registration.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:39": "supported",
+        "7b80fdda74b4:40": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-9",
+      "text": "As a project manager, I want the platform to offer public API endpoints for embedding project data (e.g., web maps) into external websites, so that project results can be shared transparently with the public.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "inferred",
+      "rationale": "The need to copy a link and embed it in a website implies the platform must expose a public API or embeddable widget for that purpose.",
+      "proposers": [
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-6",
+      "text": "The platform shall allow a user to register with only an email, username, and password, completing the process in under 2 minutes.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:19",
+        "7b80fdda74b4:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder said 'as fast as possible' and specified only email, username, and password for registration, implying a quick, minimal process.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:19": "supported",
+        "7b80fdda74b4:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-7",
+      "text": "The platform shall enforce role-based access control with at least three roles per project: manager (can delete project), editor (can edit data), and viewer (can only view data).",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:27",
+        "7b80fdda74b4:28",
+        "7b80fdda74b4:29"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly described these three roles and their permissions, modeled after VicomSaga.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:27": "supported",
+        "7b80fdda74b4:28": "supported",
+        "7b80fdda74b4:29": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-10",
+      "text": "The platform shall automatically record metadata for each data entry, including timestamp and the user who made the record.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:39",
+        "7b80fdda74b4:40"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated automatic recording of time and user metadata for each record.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:39": "supported",
+        "7b80fdda74b4:40": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-12",
+      "text": "The platform shall support a gamification system that tracks user contributions across projects, awarding badges and leveling up (e.g., from 'Popular' to 'Master' user) without competition.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:68",
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:71",
+        "7b80fdda74b4:73"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly described a cooperative gamification system with badges, avatars, and user levels based on contributions.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:67": "supported",
+        "7b80fdda74b4:68": "supported",
+        "7b80fdda74b4:69": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-14",
+      "text": "As a user, I want to create geographic features (points, lines, polygons) and import/export them in standard GIS formats (e.g., Shapefile), so that I can work with geographic data.",
+      "category": "nfr",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:34",
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder listed creation of point, line, polygon, import/export, and editing of these vectors, plus Shapefile import from QGIS.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:33": "supported",
+        "7b80fdda74b4:34": "supported",
+        "7b80fdda74b4:81": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-6",
+      "text": "As a user, I want the system to perform user authentication via secure login (email/username and password), so that only registered users can access the platform.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:19",
+        "7b80fdda74b4:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specified that users register with email, username, and password, implying authentication is required.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:19": "supported",
+        "7b80fdda74b4:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-9",
+      "text": "As a project manager, I want to define which imported data layers are visible to which user groups (e.g., general public, technical users, scientists), so that data access is controlled per layer.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:97",
+        "7b80fdda74b4:98"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated that within MaisLugar, the manager should decide which layers are for the general public, for technical users, or for scientists.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:97": "supported",
+        "7b80fdda74b4:98": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-11",
+      "text": "As a user, I want the system to provide a public-facing web map and embeddable links for projects, so that the general public can view non-confidential data without requiring a login.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:4"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned that prefectures should be able to copy a link to embed a project's web map on their own site, implying public access without authentication.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported",
+        "7b80fdda74b4:4": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-12",
+      "text": "As a user, I want the system to log all user actions (e.g., data entry, edits, exports) with timestamp and user ID, so that an audit trail is maintained for security and compliance.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:39"
+      ],
+      "stance": "inferred",
+      "rationale": "The explicit requirement for metadata (timestamp and user) for each record implies the need for a broader audit trail of user actions.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:39": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-0",
+      "text": "The platform shall be accessible via web and mobile devices, so that users can participate in data collection and visualization from anywhere.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:32"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly stated the platform should be accessible on web and mobile, including offline data collection.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "supported",
+        "7b80fdda74b4:32": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-1",
+      "text": "As a field worker, I want to collect data offline on a mobile device, so that I can record geographic information and questionnaires even without internet connectivity.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:32",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:60",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentioned the need for offline data collection on mobile, similar to the ODK tool.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:31": "supported",
+        "7b80fdda74b4:32": "supported",
+        "7b80fdda74b4:59": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-2",
+      "text": "As a field worker, I want to automatically synchronize collected data when the device reconnects to the internet, so that my contributions are uploaded without manual intervention.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:60",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirmed that data saved offline should be automatically uploaded when connectivity is restored.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:60": "supported",
+        "7b80fdda74b4:61": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-3",
+      "text": "The platform shall allow a user to register with only email, username, and password, completing the process quickly, so that I can start using the platform with minimal friction.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:19",
+        "7b80fdda74b4:20"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly stated that registration should be as fast as possible, requiring only email, username, and password.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:19": "supported",
+        "7b80fdda74b4:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-4",
+      "text": "As a general user, I want to view public map layers, so that I can access non-confidential geographic information shared by institutions.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:14",
+        "7b80fdda74b4:15"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described that general users can view certain public layers, while confidential data remains restricted.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:13": "supported",
+        "7b80fdda74b4:14": "supported",
+        "7b80fdda74b4:15": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-9",
+      "text": "The platform shall provide a gamification system that rewards collective contributions with medals and avatar progression, so that I feel motivated to participate in data collection and community engagement.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:68",
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:70",
+        "7b80fdda74b4:71",
+        "7b80fdda74b4:73"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described a non-competitive gamification system where users earn medals and grow their avatar by contributing, fostering collective growth.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:67": "supported",
+        "7b80fdda74b4:68": "supported",
+        "7b80fdda74b4:69": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-10",
+      "text": "As a user, I want to see my gamification progress (medals, avatar, XP) across all projects I participate in, so that my overall contribution to the platform is recognized.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:70",
+        "7b80fdda74b4:71"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder indicated that user progression (e.g., becoming a 'Master' or 'pleno' user) should be cross-project and platform-wide.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:69": "supported",
+        "7b80fdda74b4:70": "supported",
+        "7b80fdda74b4:71": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-11",
+      "text": "As a project manager, I want to embed the platform's web map into my institution's website via a link, so that the public can view project results directly on our site.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:4"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder expressed the desire for institutions to copy a link and embed the web map into their own websites, providing autonomy.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported",
+        "7b80fdda74b4:4": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-13",
+      "text": "The platform shall provide access to the source code (free/libre), so that developers or institutions can customize the platform to meet their specific needs.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:4",
+        "7b80fdda74b4:7"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder emphasized the importance of free/libre access to the code, allowing institutions to program and tailor the platform.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:3": "supported",
+        "7b80fdda74b4:4": "supported",
+        "7b80fdda74b4:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-16",
+      "text": "As a project manager, I want to integrate Mais Lugar with VicomSaga via a plugin, so that I can seamlessly transfer layers between the two systems without reinventing existing functionality.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:78",
+        "7b80fdda74b4:79",
+        "7b80fdda74b4:80",
+        "7b80fdda74b4:81",
+        "7b80fdda74b4:82",
+        "7b80fdda74b4:83",
+        "7b80fdda74b4:97",
+        "7b80fdda74b4:98"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder repeatedly expressed a strong desire for a plugin that allows automatic import/export of layers between VicomSaga and Mais Lugar.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:77": "supported",
+        "7b80fdda74b4:78": "supported",
+        "7b80fdda74b4:79": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-19",
+      "text": "As a field worker, I want to attach photos, videos, and audio files to my collected geographic data, so that I can provide richer context for the observations.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:41",
+        "7b80fdda74b4:42"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder confirmed that the system should support attaching photo, video, and audio files to collected data.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:41": "supported",
+        "7b80fdda74b4:42": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-20",
+      "text": "As a project manager, I want to be able to delete a project entirely, so that I can remove outdated or incorrect initiatives from the platform.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:27",
+        "7b80fdda74b4:28"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described the manager role as having the ability to delete a project, similar to VicomSaga.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:27": "supported",
+        "7b80fdda74b4:28": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-21",
+      "text": "As a user, I want the system to support creating points, lines, and polygons on the map, so that I can represent geographic features accurately.",
+      "category": "ux",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:34"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder listed creation of points, lines, and polygons as essential functionalities.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:33": "supported",
+        "7b80fdda74b4:34": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-26",
+      "text": "The platform shall be available within 4 to 6 months for a pilot in Barra municipality, so that the project can be demonstrated with real data.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:89",
+        "7b80fdda74b4:90"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder expressed a concrete timeline expectation for a pilot deployment in Barra.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "7b80fdda74b4:89": "supported",
+        "7b80fdda74b4:90": "supported"
+      },
+      "flags": []
+    }
+  ],
+  "store": {
+    "run_id": 1,
+    "requirements": 70
+  }
+}

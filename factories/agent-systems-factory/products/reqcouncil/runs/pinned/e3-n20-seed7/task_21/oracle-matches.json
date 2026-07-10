@@ -1,0 +1,811 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to use a customer service call logging system to record and manage customer service calls, so that I can track interactions with customers.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a Customer Service Agent, I want to log details for a new customer service call, so that I have a record of the interaction.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8418,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.8107,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7768,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.721,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6641,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to identify clients within the system, so that I can associate each call with the correct client.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a Customer Service Agent, I want call logs to be directly linked to specific customer records, so that I can navigate between a customer's profile and their ",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7085,
+          "verdict": 1
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6588,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6541,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6402,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6165,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to select the call type, so that I can categorize each customer service call appropriately.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7371,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7247,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7032,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6662,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6415,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to record information about the call, so that the details of the interaction are stored.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a Customer Service Agent, I want to log details for a new customer service call, so that I have a record of the interaction.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8187,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7834,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7165,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6854,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.685,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to record action steps taken during or after the call, so that the activities performed are documented.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7777,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7582,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7118,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6665,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6438,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to record follow-up steps, so that planned future actions related to the call are tracked.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7758,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7487,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7226,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.661,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6219,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to record additional information about the call, so that any extra relevant details are captured.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7723,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7558,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6971,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6774,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6627,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want to create new call logs, so that I can register new customer service calls in the system.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 5,
+      "matched_text": "As a Customer Service Agent, I want to log details for a new customer service call, so that I have a record of the interaction.",
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.8135,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.8043,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7507,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7482,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7118,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want to view open calls, so that I can see calls that are not yet closed.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.748,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6963,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6931,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6392,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5107,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want to generate call log reports, so that I can review and analyze call data.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7934,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7731,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7626,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7466,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6972,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S10",
+      "gold_text": "As a user, I want to modify client information, so that client records can be kept up to date.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 4,
+      "matched_text": "As an internal staff member, I want to view and edit existing customer information, so that customer data remains up to date.",
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.7241,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6051,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5948,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5621,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5577,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S11",
+      "gold_text": "As a user, I want the page background to be set to light pink, so that the system appears with that specific background color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.3718,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3595,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3564,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3533,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3306,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S12",
+      "gold_text": "As a user, I want all components to be colored medium violet red, so that the system’s components appear with that specific color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4139,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3819,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3618,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3606,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3581,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to view open calls",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.606,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.572,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5696,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5041,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4559,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer the system to support report generation for call logs",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6994,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6663,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6617,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6439,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6429,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect each call record to include the associated client identity.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a Customer Service Agent, I want call logs to be directly linked to specific customer records, so that I can navigate between a customer's profile and their ",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6881,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.641,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.592,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5848,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5811,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect each call record to include the call type.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6806,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6288,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6207,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5776,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.57,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I expect each call record to include a description of the call.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7088,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.707,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6463,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6423,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.588,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I expect each call record to include the actions taken during or after the call.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7441,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7228,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6704,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6546,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6032,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I expect each call record to include follow-up steps related to the call.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7276,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6781,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6358,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5916,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5322,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR7",
+      "gold_text": "I expect each call record to include additional notes for extra relevant information.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7102,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7066,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6246,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6074,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5672,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR8",
+      "gold_text": "I prefer the system interface to use a light pink background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.3816,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3688,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3627,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3485,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3396,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR9",
+      "gold_text": "I prefer all interface components to be displayed using a medium violet red color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.386,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3662,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.355,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3543,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3393,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

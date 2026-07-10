@@ -1,0 +1,636 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want the system to record employee attendance, so that employee attendance information is tracked.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employee, I want to record my clock-in and clock-out times, so that my attendance is accurately tracked.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8454,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8439,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.808,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.8064,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8048,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want the system to provide functionality for employees to clock in, so that their start time is recorded.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employee, I want to record my clock-in and clock-out times, so that my attendance is accurately tracked.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8224,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7553,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6565,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6545,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6538,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want the system to provide functionality for employees to clock out, so that their end time is recorded.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a system, I want to store employee attendance records that include employee identifier, clock-in timestamp, and clock-out timestamp, so that attendance data ",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8276,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7509,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.681,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6806,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6586,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want the system to provide functionality for employees to view attendance records, so that they can review their attendance information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 14,
+      "matched_text": "As an employee, I want to view my own personal attendance history and summaries, so that I can verify my records and plan my time.",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.8574,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8235,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7691,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7578,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7569,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want the attendance records to include attendance time, so that they can see when they were present.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employee, I want to record my clock-in and clock-out times, so that my attendance is accurately tracked.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.7931,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7608,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7564,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7488,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7411,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want the attendance records to include absence time, so that they can see when they were absent.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.7956,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7691,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7569,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7394,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.73,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As an administrator, I want to view all employees’ attendance records, so that I can see attendance information for the entire organization.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.8142,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8055,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7411,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7348,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7317,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As an administrator, I want to perform statistics on employees’ attendance records, so that I can obtain quantitative attendance information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a manager or HR personnel, I want to view team-based attendance trends and reports, so that I can identify broader patterns and make staffing decisions.",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.8179,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.814,
+          "verdict": 1
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7916,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.7735,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7711,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the system’s base color to be papaya whip, so that the overall interface uses this specified base color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.3697,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3624,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3597,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3559,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.3559,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want all components to use dark orange, so that the interface components follow the specified color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.3863,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3658,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.352,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3459,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.3365,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer employee attendance to be captured through explicit clock-in and clock-out actions rather than being automatically inferred.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employee, I want to record my clock-in and clock-out times, so that my attendance is accurately tracked.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8096,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7339,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7298,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7104,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6963,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer employees to have direct access to view their own attendance records instead of relying on administrators to provide this information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 14,
+      "matched_text": "As an employee, I want to view my own personal attendance history and summaries, so that I can verify my records and plan my time.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.7355,
+          "verdict": 1
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7311,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7055,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6854,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6765,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer administrators to interact with attendance data through dedicated functions for organization-wide viewing, statistical summaries, and analytical operat",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 12,
+      "matched_text": "As an HR personnel or executive, I want to view high-level attendance dashboards and analytics, so that I can understand organizational trends and inform policy",
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.7804,
+          "verdict": 1
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7659,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7374,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7232,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6927,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect attendance records to explicitly distinguish between attendance time and absence time.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As an employee, I want to record my clock-in and clock-out times, so that my attendance is accurately tracked.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7476,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7055,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.705,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7019,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6891,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I expect the system to support both individual-level attendance information (for employees) and aggregated attendance information (for administrators).",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7476,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7345,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7198,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7163,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7107,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I expect the system to provide quantitative statistics and analytical insights derived from attendance records, not just raw data.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a manager or HR personnel, I want to view team-based attendance trends and reports, so that I can identify broader patterns and make staffing decisions.",
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7114,
+          "verdict": 1
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7049,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.644,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6417,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.627,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I prefer the system’s interface to use papaya whip as the base color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.4016,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3996,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3898,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.3869,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3855,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR7",
+      "gold_text": "I prefer all interface components to consistently use dark orange as their primary component color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 12,
+          "cosine": 0.4367,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.4081,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3917,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.383,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.3652,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

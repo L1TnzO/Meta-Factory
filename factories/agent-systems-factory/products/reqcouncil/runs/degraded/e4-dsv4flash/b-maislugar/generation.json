@@ -1,0 +1,552 @@
+{
+  "candidates": [
+    {
+      "id": "single_pass_b-0",
+      "text": "O sistema deve permitir a criação de questionários personalizados pelo usuário gestor do projeto.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:33",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou a necessidade de criar questionários, similar ao que existe no Saga.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-1",
+      "text": "O sistema deve permitir a alimentação de dados geográficos (pontos, linhas, polígonos) pelos usuários.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder explicitamente citou a criação de pontos, linhas e polígonos como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-2",
+      "text": "O sistema deve permitir que o gestor do projeto defina níveis de acesso para cada camada de dados (público, gestores, pesquisadores).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreveu a necessidade de controlar quem visualiza cada camada de dados.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-3",
+      "text": "O sistema deve permitir que o gestor do projeto defina permissões de visualização e manipulação para diferentes perfis de usuário.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:27",
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou perfis como gerente (pode apagar), editor e visualizador, com permissões distintas.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-4",
+      "text": "O sistema deve permitir que o gestor do projeto convide outros usuários e atribua seus perfis dentro do projeto.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:29",
+        "7b80fdda74b4:30"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder indicou que a atribuição de perfis deve ser feita por convite dentro do projeto.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-5",
+      "text": "O sistema deve permitir a coleta de dados em campo de forma offline, com sincronização automática quando houver conexão com a internet.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31",
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:60"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder explicitamente pediu suporte a coleta offline e sincronização automática.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-6",
+      "text": "O sistema deve registrar automaticamente metadados como horário e usuário responsável por cada registro de dados.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:39"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou a necessidade de registrar automaticamente horário e usuário nos cadastros.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-7",
+      "text": "O sistema deve permitir o anexo de arquivos de mídia (foto, filmagem, áudio) aos dados coletados.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:40",
+        "7b80fdda74b4:41"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder confirmou a necessidade de anexar foto, filmagem e áudio.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-8",
+      "text": "O sistema deve permitir a exportação de dados nos formatos CSV, XLS e HTML.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:49",
+        "7b80fdda74b4:50"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder citou explicitamente os formatos CSV, XLS e HTML para exportação.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-9",
+      "text": "O sistema deve permitir a importação de dados geográficos no formato shapefile (shp).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:81"
+      ],
+      "stance": "inferred",
+      "rationale": "O stakeholder mencionou a importação de camadas shp do QGIS como funcionalidade desejada.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-10",
+      "text": "O sistema deve permitir a seleção de camadas a serem exportadas durante o processo de exportação.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:53"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder disse que no momento da exportação é preciso decidir as camadas a exportar.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-11",
+      "text": "O sistema deve fornecer um sistema de gamificação que recompense a colaboração dos usuários com medalhas e progressão de nível (ex: usuário pleno, Master).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:71"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreveu a gamificação como crescimento em medalhas e níveis baseados na contribuição.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-12",
+      "text": "O sistema deve permitir a marcação de trilhas (tracking) como funcionalidade adicional.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:93",
+        "7b80fdda74b4:95"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou a marcação de trilha como funcionalidade secundária.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-13",
+      "text": "O sistema deve permitir a visualização de dados geoespaciais em forma de web mapa ou imagem de mapa pronta.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou a possibilidade de visualizar dados como web mapa ou imagem de mapa.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-14",
+      "text": "O sistema deve permitir que o gestor do projeto decida a estratégia de visualização e compartilhamento dos dados do projeto.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:44",
+        "7b80fdda74b4:45"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirmou que a estratégia de divulgação deve ficar a cargo do gestor do projeto.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-15",
+      "text": "O sistema deve permitir a integração com a plataforma VicomSaga por meio de um plugin para troca automática de dados.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:75",
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:79",
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder expressou o desejo de um plugin para integração automática com VicomSaga, priorizando essa funcionalidade.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-16",
+      "text": "O sistema deve permitir que o usuário faça login com e-mail, username e senha.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:19"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder especificou os dados necessários para cadastro: e-mail, username e senha.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-17",
+      "text": "O sistema deve estar disponível em plataforma web e mobile para coleta de dados.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirmou que o sistema deve ser acessível via web e mobile.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-18",
+      "text": "O sistema deve suportar a edição de vetores geográficos (pontos, linhas, polígonos).",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder listou edição de vetores como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-19",
+      "text": "O sistema deve permitir que o gestor do projeto decida quais camadas são públicas e quais são restritas a perfis específicos.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:97"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder explicitamente mencionou a possibilidade de escolher camadas para visualização pública ou restrita.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-20",
+      "text": "O sistema deve ser modular e permitir que instituições instalem o software em seus próprios servidores.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder expressou o desejo de que instituições possam instalar o programa em seus servidores para autonomia.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-21",
+      "text": "O sistema deve ter código aberto (open source) para que instituições possam personalizá-lo.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou que o código deve ser livre e gratuito para permitir personalizações.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-22",
+      "text": "O sistema deve ser estável e livre de bugs antes de ser liberado para uso massivo.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:91"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder enfatizou a importância de estabilidade e ajustes finos para não desanimar usuários.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-23",
+      "text": "O sistema deve ser escalável para suportar crescimento exponencial de usuários, como ocorre com o VicomSaga.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:85",
+        "7b80fdda74b4:87"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder espera que o sistema atinja muitas prefeituras e países, com crescimento exponencial.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-24",
+      "text": "O sistema deve ser desenvolvido de forma colaborativa, integrando-se a outras plataformas existentes (VicomSaga, QGIS) em vez de reinventar funcionalidades.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:101",
+        "7b80fdda74b4:103"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder prefere integração a desenvolver funcionalidades já existentes em outras plataformas.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-25",
+      "text": "O sistema deve ser implantado em até 4 a 6 meses para um estudo de caso real na Prefeitura de Barra.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:89"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder estabeleceu um prazo de 4 a 6 meses para implementação inicial.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-26",
+      "text": "O sistema deve permitir que o usuário acesse e gerencie projetos de forma autônoma, similar ao VicomSaga.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:87"
+      ],
+      "stance": "inferred",
+      "rationale": "O stakeholder deseja que o sistema ofereça autonomia aos usuários, como no VicomSaga.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    }
+  ],
+  "parse_log": [],
+  "usage": {
+    "prompt_tokens": 22641,
+    "completion_tokens": 2255
+  },
+  "prompt_shas": {
+    "single_pass": "07a7de88a3c4",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  }
+}

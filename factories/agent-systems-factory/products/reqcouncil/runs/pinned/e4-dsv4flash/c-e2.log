@@ -1,0 +1,9 @@
+WARNING:langgraph.checkpoint.serde.jsonplus:Deserializing unregistered type reqcouncil.council.schema.Candidate from checkpoint. This will be blocked in a future version. Set LANGGRAPH_STRICT_MSGPACK=true to block now, or add to allowed_msgpack_modules to allow explicitly: [('reqcouncil.council.schema', 'Candidate')]
+=== E4 ablation (Tabla 4.5) ===
+  (c) council w/o critics (k_max=0)
+
+arm corpus     st          n   fidel   cover  recall  precis     nfr     cci  tokens(in/out)
+--------------------------------------------------------------------------------------------
+c   interview  reused     57  0.9825  0.5455  0.4054  0.2456       -  1.5405  309592/14644
+c   wepgcomp   measured   45  0.9111  0.8929  0.1739  0.1556  0.5000  0.9783  285197/7971
+c   maislugar  measured   70  0.9000  0.5929  0.5294  0.2571  0.2000  2.0588  473291/13980

@@ -1,0 +1,102 @@
+{"key": "27e70f620c84e279", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "dd0ca6efcd3366c9", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "40ad140f2c648b19", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "515a28c0bac333aa", "pred": 1, "story": "As a user, I want to add personal notes or highlights to an article I am reading", "raw": "1"}
+{"key": "b3012397146ae457", "pred": 1, "story": "As a user, I want to add personal notes or highlights to an article I am reading", "raw": "1"}
+{"key": "001df1dfb805717a", "pred": 1, "story": "As a user, I want to add personal notes or highlights to an article I am reading", "raw": "1"}
+{"key": "ceefe400f45d60f7", "pred": 1, "story": "As a potential author, I want to submit a new research article to the journal so", "raw": "1"}
+{"key": "595fd3fe28333633", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "ab59907765c305c4", "pred": 0, "story": "As a potential author, I want to submit a new research article to the journal so", "raw": "0"}
+{"key": "e7435816eaf26e32", "pred": 0, "story": "The system shall retain saved articles, personal notes, and submission records i", "raw": "0"}
+{"key": "3a3a19d92598991a", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles ", "raw": "1"}
+{"key": "a82b8483e3f034a0", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "f141f210ac5ddc51", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "225e78b56b41bb5e", "pred": 1, "story": "As a potential author, I want to submit a new research article to the journal so", "raw": "1"}
+{"key": "c6eda8fc1b5c9e7e", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles ", "raw": "1"}
+{"key": "31a8ffa22726162b", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles ", "raw": "1"}
+{"key": "618cdb112489c2c0", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "3c97c9894739dd27", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "1cc7be30898ae96b", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "1c6b0f55b7876675", "pred": 0, "story": "As a user, I want the system to send email notifications when the status of my s", "raw": "0"}
+{"key": "3a9f2f11ef5c43c7", "pred": 0, "story": "As a user, I want the system to export my saved articles, notes, and highlights ", "raw": "0"}
+{"key": "385d6fdfc3ea1c47", "pred": 0, "story": "As a user, I want the system to send email notifications when the status of my s", "raw": "0"}
+{"key": "54f030a4bf836a73", "pred": 1, "story": "As a user, I want to view and manage my collection of saved articles and persona", "raw": "1"}
+{"key": "6c59c991ef8094e9", "pred": 1, "story": "As a user, I want to view and manage my collection of saved articles and persona", "raw": "1"}
+{"key": "3a2bbaff1b33f0f9", "pred": 1, "story": "As a user, I want to view and manage my collection of saved articles and persona", "raw": "1"}
+{"key": "a7e8ac25b5223d9a", "pred": 0, "story": "As a user, I want the system to send email notifications when the status of my s", "raw": "0"}
+{"key": "6b0c39290ba5fd5b", "pred": 0, "story": "As a user, I want the system to accept article submissions via a web form or fil", "raw": "0"}
+{"key": "2ae7e25527adebe3", "pred": 0, "story": "As a user, I want the system to accept article submissions via a web form or fil", "raw": "0"}
+{"key": "4645d89eaad0d66c", "pred": 0, "story": "The website shall have a page load time of less than 3 seconds under normal load", "raw": "0"}
+{"key": "95102c13d7b6984c", "pred": 0, "story": "The website shall achieve 99.9% uptime during business hours (8 AM to 8 PM) to e", "raw": "0"}
+{"key": "279e44624b522f9f", "pred": 0, "story": "As a user, I want the system to accept article submissions via a web form or fil", "raw": "0"}
+{"key": "cd0366f814d8443d", "pred": 0, "story": "The website shall support at least 100 concurrent users without degradation in r", "raw": "0"}
+{"key": "5717ea11c96829d8", "pred": 0, "story": "The website shall be accessible via modern web browsers (Chrome, Firefox, Safari", "raw": "0"}
+{"key": "d0b21041d54887bf", "pred": 0, "story": "As a user, I want to authenticate before accessing my personal library, saved ar", "raw": "0"}
+{"key": "db9944698ad8a072", "pred": 0, "story": "As a user, I want to authenticate before accessing my personal library, saved ar", "raw": "0"}
+{"key": "bb851dccc192077e", "pred": 0, "story": "As a user, I want to authenticate before accessing my personal library, saved ar", "raw": "0"}
+{"key": "52371b7af2499ecd", "pred": 0, "story": "The website shall support secure user authentication (e.g., via HTTPS and passwo", "raw": "0"}
+{"key": "9478a55b1e29e07e", "pred": 0, "story": "As a user, I want my personal notes and highlights on articles to be visible onl", "raw": "0"}
+{"key": "8370cb5eab40bc89", "pred": 0, "story": "As a system administrator, I want an audit log of all access to personal user da", "raw": "0"}
+{"key": "d1e70af1dccccdfb", "pred": 0, "story": "As a system administrator, I want an audit log of all access to personal user da", "raw": "0"}
+{"key": "3c5d28bf0ccaea92", "pred": 0, "story": "As a user, I want my personal notes and highlights on articles to be visible onl", "raw": "0"}
+{"key": "020e74f0a5600894", "pred": 0, "story": "As a system administrator, I want an audit log of all access to personal user da", "raw": "0"}
+{"key": "bdae057d54efd7f0", "pred": 0, "story": "As a user, I want my personal notes and highlights on articles to be visible onl", "raw": "0"}
+{"key": "fa9ae384cce6be1d", "pred": 0, "story": "The system shall encrypt all personal user data (saved articles, notes, submissi", "raw": "0"}
+{"key": "5fb31432c1c21870", "pred": 0, "story": "The system shall encrypt all personal user data (saved articles, notes, submissi", "raw": "0"}
+{"key": "5d56384b05be76da", "pred": 0, "story": "The system shall encrypt all personal user data (saved articles, notes, submissi", "raw": "0"}
+{"key": "724760c7bc193c6b", "pred": 0, "story": "As a user, I want to be able to delete my account and all associated personal da", "raw": "0"}
+{"key": "82db23d4aa07ea29", "pred": 0, "story": "As a user, I want to be able to delete my account and all associated personal da", "raw": "0"}
+{"key": "454ce31a2bd60195", "pred": 0, "story": "As a user, I want to give explicit consent for the system to store and process m", "raw": "0"}
+{"key": "e01121bb4f34bca7", "pred": 0, "story": "As a user, I want to interact with the website on my mobile device, so that I ca", "raw": "0"}
+{"key": "ce7b5f11902d4408", "pred": 0, "story": "As a user, I want to give explicit consent for the system to store and process m", "raw": "0"}
+{"key": "e04dc70fc9a97768", "pred": 0, "story": "As a user, I want to give explicit consent for the system to store and process m", "raw": "0"}
+{"key": "b8b5f6d0af0e4ec2", "pred": 0, "story": "As a user, I want the interface to be simple and intuitive for all user groups, ", "raw": "0"}
+{"key": "7d6faa672f6ced38", "pred": 0, "story": "As a user, I want to be able to delete my account and all associated personal da", "raw": "0"}
+{"key": "09c38e0b4d70358c", "pred": 0, "story": "As a user, I want the interface to be simple and intuitive for all user groups, ", "raw": "0"}
+{"key": "e51cc927eff9b8fc", "pred": 0, "story": "As a user, I want to interact with the website on my mobile device, so that I ca", "raw": "0"}
+{"key": "460043c69726eba2", "pred": 1, "story": "As an author, I want to track articles I have submitted for publication, so that", "raw": "1"}
+{"key": "84f114b72a9ca537", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "b12f204ae7fcf2b7", "pred": 1, "story": "As a reader or author, I want to interact with other users through comments or d", "raw": "1"}
+{"key": "17da9f2b7b5ca76d", "pred": 1, "story": "As an author, I want to track articles I have submitted for publication, so that", "raw": "1"}
+{"key": "7e340043d7987494", "pred": 1, "story": "As a reader or author, I want to interact with other users through comments or d", "raw": "1"}
+{"key": "67768ed3fc43ebd9", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "a954c615cc118769", "pred": 1, "story": "As a user, I want to add personal notes or highlights to an article I am reading", "raw": "1"}
+{"key": "7cbf691ad7fa5a3e", "pred": 1, "story": "As a user, I want to add personal notes or highlights to an article I am reading", "raw": "1"}
+{"key": "956a92aa663e1a67", "pred": 1, "story": "As a user, I want the system to accept article submissions, so that authors can ", "raw": "1"}
+{"key": "3e65f1b87596c8d3", "pred": 1, "story": "As a user, I want the system to accept article submissions, so that authors can ", "raw": "1"}
+{"key": "d05a3c9048848d28", "pred": 0, "story": "The system shall retain saved articles, personal notes, and submission records u", "raw": "0"}
+{"key": "92ccda6647c7488f", "pred": 0, "story": "As a user, I want the system to provide clear error messages when an operation f", "raw": "0"}
+{"key": "5780ca49c80cdf70", "pred": 1, "story": "As a user, I want the system to accept article submissions, so that authors can ", "raw": "1"}
+{"key": "480913456336a658", "pred": 1, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "1"}
+{"key": "af90c3c4295766b4", "pred": 0, "story": "As a user, I want to save or bookmark articles of interest to a personal library", "raw": "0"}
+{"key": "e6ac6ce748a6b5f7", "pred": 1, "story": "As a user, I want to take notes on articles, so that I can record my thoughts an", "raw": "1"}
+{"key": "d969af3e0ae17aa0", "pred": 0, "story": "As a user, I want to take notes on articles, so that I can record my thoughts an", "raw": "0"}
+{"key": "ca0e354ba7613ac9", "pred": 1, "story": "As a reader, I want to save or bookmark articles of interest to a personal libra", "raw": "1"}
+{"key": "da335733277b7dd4", "pred": 0, "story": "As an author, I want the system to send email notifications when the status of m", "raw": "0"}
+{"key": "35233548b70adedf", "pred": 0, "story": "As an author, I want the system to send email notifications when the status of m", "raw": "0"}
+{"key": "ce36baf0e5476392", "pred": 0, "story": "As an author, I want the system to send email notifications when the status of m", "raw": "0"}
+{"key": "afd98b7ccf1a478f", "pred": 0, "story": "As a reader, I want to save or bookmark articles of interest to a personal libra", "raw": "0"}
+{"key": "a26f4351e0970b26", "pred": 1, "story": "As a reader, I want to save or bookmark articles of interest to a personal libra", "raw": "1"}
+{"key": "f43be579f3ff62b2", "pred": 1, "story": "As a reader, I want to take notes on articles, so that I can record my thoughts ", "raw": "1"}
+{"key": "551875ce0fc27d7f", "pred": 1, "story": "As a potential author, I want to submit a new research article to the journal, s", "raw": "1"}
+{"key": "31b03b275ecfb43b", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "668a0fd403ead246", "pred": 1, "story": "As a reader, I want to add personal notes or highlights to an article I am readi", "raw": "1"}
+{"key": "48c2cbbc04714da9", "pred": 1, "story": "As a potential author, I want to submit a new research article to the journal, s", "raw": "1"}
+{"key": "01d90ae580a8490c", "pred": 1, "story": "As a reader, I want to add personal notes or highlights to an article I am readi", "raw": "1"}
+{"key": "3ae239b652ff1333", "pred": 1, "story": "As a reader, I want to add personal notes or highlights to an article I am readi", "raw": "1"}
+{"key": "c18350fbc4a9a8ca", "pred": 1, "story": "As a potential author, I want to submit a new research article to the journal, s", "raw": "1"}
+{"key": "76179c49ef4a9b0f", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "86a0b8570e7f6243", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "5de0d321e30ed739", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles,", "raw": "1"}
+{"key": "3076c723b95ff373", "pred": 0, "story": "As a reader, I want to take notes on articles, so that I can record my thoughts ", "raw": "0"}
+{"key": "6693977907376b7c", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "f382aafb04fbcbfb", "pred": 1, "story": "As a reader, I want to view the full text and details of a medical research arti", "raw": "1"}
+{"key": "b66d16d63ccbf3a8", "pred": 1, "story": "As a reader, I want to view and manage my collection of saved articles and perso", "raw": "1"}
+{"key": "5f05d03b7959a812", "pred": 0, "story": "As a potential author, I want the system to accept article submissions, so that ", "raw": "0"}
+{"key": "379ab1d92dbcc4e4", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles,", "raw": "1"}
+{"key": "5e015fcf9cff0599", "pred": 1, "story": "As an author, I want to track the status of my submitted articles (e.g., under r", "raw": "1"}
+{"key": "1298d7a6c1e62ff0", "pred": 1, "story": "As a reader, I want to browse and search a catalog of medical research articles,", "raw": "1"}
+{"key": "222a3813caec6482", "pred": 1, "story": "As a reader, I want to view and manage my collection of saved articles and perso", "raw": "1"}
+{"key": "c88477a6cf0567a0", "pred": 1, "story": "As a reader, I want to view and manage my collection of saved articles and perso", "raw": "1"}
+{"key": "8b84f87dcca9d8c1", "pred": 1, "story": "As a potential author, I want the system to accept article submissions, so that ", "raw": "1"}
+{"key": "41ed18f2dba30f39", "pred": 1, "story": "As a potential author, I want the system to accept article submissions, so that ", "raw": "1"}

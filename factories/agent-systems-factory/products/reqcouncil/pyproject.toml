@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reqcouncil"
+version = "0.1.0"
+description = "Requirements elicitation from meeting transcripts via a deliberating LLM council"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pyyaml>=6.0"]  # config-as-data (H2+); ingest itself is still stdlib-only
+
+[project.optional-dependencies]
+# Landed milestone by milestone (docs/design/04). Kept out of the base install so the
+# early gates run with near-zero third-party deps. LLM calls use stdlib urllib
+# (reqcouncil/llm.py) against Groq's OpenAI-compatible endpoint (docs/decisions/002).
+council = [
+  "langgraph>=0.2",
+  "langgraph-checkpoint-postgres>=2.0",
+  "psycopg[binary]>=3.2",
+  "pgvector>=0.3",
+]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+reqcouncil = "reqcouncil.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["reqcouncil*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

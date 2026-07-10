@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_1",
+  "task_name": "Neighborhood Data Comparison Dashboard",
+  "application_type": "Dashboards",
+  "timestamp": "2026-07-06T17:56Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "9534bb7d084a82a4b30ae65a612104da1363f33541f61e8abbda071f2171e587",
+  "n_chunks": 10,
+  "n_requirements": 11,
+  "grounded": 9,
+  "fidelity": 0.8182,
+  "n_golden": 8,
+  "oracle_recall": 0.25,
+  "oracle_precision": 0.1818,
+  "n_implicit": 5,
+  "implicit_yield": 0.0,
+  "cci": 1.375,
+  "citation_coverage": 0.9,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "coverage_plateau",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 6,
+        "merged": 1,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.9,
+      0.9,
+      0.9
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 11
+  },
+  "usage": {
+    "prompt_tokens": 104686,
+    "completion_tokens": 6211
+  }
+}

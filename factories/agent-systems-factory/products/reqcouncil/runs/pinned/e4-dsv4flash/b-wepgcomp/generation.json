@@ -1,0 +1,417 @@
+{
+  "candidates": [
+    {
+      "id": "single_pass_b-0",
+      "text": "O sistema deve permitir o cadastro de usuários com perfis de usuário comum, aluno apresentador, administrador e super usuário.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:6",
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder lista explicitamente os quatro perfis de usuário que o sistema deve suportar.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-1",
+      "text": "O sistema deve permitir que o aluno apresentador cadastre sua apresentação, incluindo título, abstract, slot de horário e upload de documento em PDF.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:11",
+        "839e335d02ff:12",
+        "839e335d02ff:13"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreve as informações que o aluno deve fornecer ao cadastrar a apresentação.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-2",
+      "text": "O sistema deve permitir que o administrador cadastre a programação do evento, incluindo datas, instruções e slots de apresentação.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirma que o administrador deve cadastrar a programação e as instruções do evento.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-3",
+      "text": "O sistema deve permitir que o administrador revise e edite os trabalhos cadastrados pelos alunos.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder menciona que o administrador pode editar os trabalhos cadastrados pelos alunos.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-4",
+      "text": "O sistema deve impedir a sobreposição de apresentações na mesma sala e no mesmo horário.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:15",
+        "839e335d02ff:16"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirma que não pode haver sobreposição de apresentações no mesmo horário e sala.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-5",
+      "text": "O sistema deve permitir que o administrador mova apresentações entre slots vazios, desde que dentro dos dias do evento.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:17",
+        "839e335d02ff:18"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreve a funcionalidade de arrastar apresentações para slots vazios, com restrição de dias.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-6",
+      "text": "O sistema deve permitir que o administrador mova sessões inteiras, desde que haja slots vazios.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:17",
+        "839e335d02ff:18"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder menciona que o administrador pode mover sessões, desde que estejam vazias.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-7",
+      "text": "O sistema deve permitir que qualquer usuário cadastrado visualize e baixe os documentos das apresentações.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirma que qualquer pessoa cadastrada pode baixar e ler o documento da apresentação.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-8",
+      "text": "O sistema deve fornecer uma área de dashboards para análise e comparação de dados históricos do evento, como participação e trabalhos submetidos.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:1",
+        "839e335d02ff:2"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder menciona a necessidade de uma área de Dashboards para comparar evolução de participação e trabalhos.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-9",
+      "text": "O sistema deve permitir a votação de apresentações com base em critérios e na quantidade de votantes, utilizando uma média ponderada.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:3",
+        "839e335d02ff:4"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreve o esquema de votação específico que considera notas por critérios e quantidade de votantes.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-10",
+      "text": "O sistema deve permitir a premiação de apresentadores e melhores avaliadores.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:3",
+        "839e335d02ff:4"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder menciona que o sistema deve ter aparato de premiação para apresentadores e melhores avaliadores.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-11",
+      "text": "O sistema deve gerar certificados distintos para participação e premiação.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder critica a certificação atual e afirma que certificados de participação e premiação devem ser separados.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-12",
+      "text": "O sistema deve permitir que o super usuário gerencie todos os perfis, incluindo inclusão e remoção de usuários.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:6"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreve o super usuário como capaz de realizar todas as funcionalidades e gerenciar usuários.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-13",
+      "text": "O sistema deve associar cada edição do evento a um ano específico para manter o histórico.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:10"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirma que tudo deve ser associado a um ano específico para ter memória.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-14",
+      "text": "O sistema deve armazenar documentos de apresentação em um sistema de arquivos externo, em vez de no banco de dados.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder expressa que salvar PDF no banco de dados não é ideal e sugere um sistema de arquivos separado.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-15",
+      "text": "O sistema deve suportar até 70 usuários simultâneos durante o evento, com potencial para expansão futura.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:25",
+        "839e335d02ff:26"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder estima cerca de 70 usuários por ano usando o sistema durante o evento.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-16",
+      "text": "O sistema deve ser de uso gratuito, sem necessidade de plataformas pagas.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:3",
+        "839e335d02ff:4"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirma que o sistema é gratuito e não requer outras plataformas pagas.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-17",
+      "text": "O sistema deve permitir a configuração do evento por qualquer pessoa, sem necessidade de conhecimento técnico avançado.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1"
+      ],
+      "stance": "inferred",
+      "rationale": "O stakeholder menciona que qualquer pessoa pode facilmente configurar o ambiente, indicando usabilidade.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-18",
+      "text": "O sistema deve ser modular e flexível para permitir futuras customizações para outros tipos de eventos.",
+      "category": "single_pass_b",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:21",
+        "839e335d02ff:22"
+      ],
+      "stance": "inferred",
+      "rationale": "O stakeholder sugere que o sistema poderia ser remodelado para outros eventos, indicando necessidade de flexibilidade.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_b-19",
+      "text": "O sistema deve garantir que o cadastro de alunos apresentadores inclua campos para orientador, número de matrícula e CPF.",
+      "category": "single_pass_b",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7",
+        "839e335d02ff:8"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder lista os dados específicos que o aluno apresentador deve fornecer no cadastro.",
+      "proposers": [
+        "single_pass_b"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    }
+  ],
+  "parse_log": [],
+  "usage": {
+    "prompt_tokens": 9303,
+    "completion_tokens": 1679
+  },
+  "prompt_shas": {
+    "single_pass": "07a7de88a3c4",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  }
+}

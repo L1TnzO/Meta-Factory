@@ -1,0 +1,28 @@
+{
+  "experiment": "E4",
+  "arm": "c",
+  "arm_label": "council w/o critics (k_max=0)",
+  "corpus": "interview",
+  "status": "reused",
+  "timestamp": "2026-07-06T17:07Z",
+  "source": "/home/enzo/University/Integraci\u00f3n/APP/dataset_agent_re/runs/pinned/e1-dsv4flash",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "n_chunks": 132,
+  "n_requirements": 57,
+  "fidelity": 0.9825,
+  "coverage": 0.5455,
+  "oracle_recall": 0.4054,
+  "oracle_precision": 0.2456,
+  "critical_nfr_recall": null,
+  "cci": 1.5405,
+  "oracle_size": 37,
+  "usage": {
+    "prompt_tokens": 309592,
+    "completion_tokens": 14644
+  },
+  "oracle_judge_usage": {
+    "prompt_tokens": 33301,
+    "completion_tokens": 132
+  },
+  "rounds": null
+}

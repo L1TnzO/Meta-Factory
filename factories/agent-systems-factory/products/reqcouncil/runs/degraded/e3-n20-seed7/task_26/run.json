@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_26",
+  "task_name": "Promotion Sharing and Management System",
+  "application_type": "Community Platforms",
+  "timestamp": "2026-07-06T19:07Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "63703caf446f74f8a3b76dc9aa7361be6d9c12310e00045cac20d4b0feda32c1",
+  "n_chunks": 8,
+  "n_requirements": 9,
+  "grounded": 6,
+  "fidelity": 0.6667,
+  "n_golden": 8,
+  "oracle_recall": 0.5,
+  "oracle_precision": 0.3333,
+  "n_implicit": 6,
+  "implicit_yield": 0.3333,
+  "cci": 1.125,
+  "citation_coverage": 0.375,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 7,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5,
+      0.375,
+      0.375
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 4,
+    "requirements": 9
+  },
+  "usage": {
+    "prompt_tokens": 89453,
+    "completion_tokens": 4337
+  }
+}

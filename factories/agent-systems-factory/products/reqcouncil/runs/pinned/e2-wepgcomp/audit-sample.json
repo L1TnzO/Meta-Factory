@@ -1,0 +1,61 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "NOTF05",
+      "cosine": 0.5256,
+      "gold_text": "O sistema deve garantir o armazenamento de dados para reaproveitá-los em edições futuras.",
+      "matched_text": "As a system administrator, I want to store all event data (presentations, schedules, users) associated with a specific year/edition, so that the system maintain"
+    },
+    {
+      "gold_id": "NOTF04",
+      "cosine": 0.5474,
+      "gold_text": "O sistema deve suportar a hospedagem de múltiplas edições do evento.",
+      "matched_text": "As an administrator, I want the system to be configurable for different events beyond WEPGCOMP, so that it can be reused as a customizable platform for any acad"
+    },
+    {
+      "gold_id": "FUNC20",
+      "cosine": 0.6039,
+      "gold_text": "O sistema deve permitir que administradores alterem data, horário e demais informações das apresentações.",
+      "matched_text": "As an administrator (comissão), I want to create and edit the event schedule, including sessions and presentation slots, so that I can organize the event progra"
+    },
+    {
+      "gold_id": "FUNC28",
+      "cosine": 0.6123,
+      "gold_text": "O sistema deve permitir que administradores alterem as informações de apresentações para organização do evento.",
+      "matched_text": "As an administrator (comissão), I want to create and edit the event schedule, including sessions and presentation slots, so that I can organize the event progra"
+    },
+    {
+      "gold_id": "FUNC40",
+      "cosine": 0.6346,
+      "gold_text": "O sistema deve permitir que administradores reordenem as apresentações em caso de falta de algum doutorando para evitar atrasos no evento.",
+      "matched_text": "As an administrator, I want to reschedule presentations by dragging them to empty slots within the same session or moving entire sessions, so that I can handle "
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "FUNC32",
+      "cosine": 0.6723,
+      "gold_text": "O sistema deve enviar certificados de participação em PDF para professores e doutorandos que participaram do evento."
+    },
+    {
+      "gold_id": "FUNC30",
+      "cosine": 0.6589,
+      "gold_text": "O sistema deve permitir que administradores listem os doutorandos com base nas notas das apresentações."
+    },
+    {
+      "gold_id": "FUNC21",
+      "cosine": 0.6519,
+      "gold_text": "O sistema deve permitir que doutorandos façam upload do conteúdo da apresentação em formato PDF, limitado a 10MB."
+    },
+    {
+      "gold_id": "FUNC02",
+      "cosine": 0.6369,
+      "gold_text": "O sistema deve validar o e-mail e matrícula UFBA para garantir autenticidade."
+    },
+    {
+      "gold_id": "FUNC34",
+      "cosine": 0.6238,
+      "gold_text": "O sistema deve permitir que usuários visualizem na página inicial os detalhes de uma apresentação para decidirem se devem assisti-la."
+    }
+  ]
+}

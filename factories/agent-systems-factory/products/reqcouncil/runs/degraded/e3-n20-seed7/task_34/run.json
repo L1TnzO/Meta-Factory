@@ -1,0 +1,47 @@
+{
+  "experiment": "E3",
+  "task_id": "task_34",
+  "task_name": "Cryptocurrency Escrow Transaction Management System",
+  "application_type": "E-commerce Web",
+  "timestamp": "2026-07-06T19:13Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "7820183406954998b8f60d85683dbc3d06a3d65ff0888d053ceca38955061aeb",
+  "n_chunks": 12,
+  "n_requirements": 19,
+  "grounded": 6,
+  "fidelity": 0.3158,
+  "n_golden": 13,
+  "oracle_recall": 0.2308,
+  "oracle_precision": 0.1579,
+  "n_implicit": 8,
+  "implicit_yield": 0.125,
+  "cci": 1.4615,
+  "citation_coverage": 0.8333,
+  "rounds": {
+    "rounds_run": 1,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.8333,
+      0.8333
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 6,
+    "requirements": 19
+  },
+  "usage": {
+    "prompt_tokens": 100784,
+    "completion_tokens": 3628
+  }
+}

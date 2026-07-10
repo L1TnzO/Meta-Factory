@@ -1,4 +1,4 @@
-<!-- meta:doc sha=76657b777ba75264303734e0f7242484f034485c updated=2026-07-10T23:12Z -->
+<!-- meta:doc sha=045331d2acc0eab16ae51028eaf951bba0720323 updated=2026-07-10T23:38Z -->
 # Incremento REQCOUNCIL-ADOPT
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T23:01Z). Cerralo con `meta increment close`
@@ -110,23 +110,55 @@ ya no está vacío).
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Copiar el árbol de ReqCouncil @89ad45b (código+config+tests+runs+docs) a `products/reqcouncil/`; `datasets/` a disco + gitignore + `MANIFEST.md` + NOTICE | ⏳ |
-| 2 | `PROVENANCE.md` | ⏳ |
-| 3 | Parche de 2 líneas en `cli.py` (honra `METAFACTORY_EVAL_EVIDENCE`) + fixture `runs/degraded/` | ⏳ |
-| 4 | Verificación manual del arnés (positivo real→0, negativo degradado→≠0) ANTES de cablear la estación | ⏳ |
-| 5 | `stations/s12.yml` (nuevo, aditivo) | ⏳ |
-| 6 | `meta station s12 --factory agent-systems-factory` verde; `meta pin --factory agent-systems-factory` (agrega s12, no toca s1..s11); `meta ci --rederive --factory agent-systems-factory` == pin | ⏳ |
-| 7 | `docs/STATE.md` de ASF + `meta check` verde (generality: no nombra dominio en sustrato — ya cerrado; acá sólo DATA de fábrica) | ⏳ |
+| 1 | Copiar el árbol de ReqCouncil @89ad45b (código+config+tests+runs+docs) a `products/reqcouncil/`; `datasets/` a disco + gitignore + `MANIFEST.md` | ✅ |
+| 2 | `PROVENANCE.md` | ✅ |
+| 3 | Parche de 2 líneas en `cli.py` (honra `METAFACTORY_EVAL_EVIDENCE`) + fixture `runs/degraded/` | ✅ |
+| 4 | Verificación manual del arnés (positivo real→0, negativo degradado→≠0) ANTES de cablear la estación | ✅ |
+| 5 | `stations/s12.yml` (nuevo, aditivo) | ✅ |
+| 6 | `meta product-run --factory agent-systems-factory` verde; `meta pin --factory agent-systems-factory` (agrega s12, no toca s1..s11); `meta ci --rederive --factory agent-systems-factory` == pin | ✅ |
+| 7 | `docs/STATE.md` de ASF + `meta check` verde (generality: no nombra dominio en sustrato — ya cerrado; acá sólo DATA de fábrica) | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
-1. `factories/agent-systems-factory/products/reqcouncil/` existe con el árbol completo (código+config+tests+
-   runs/pinned+runs/degraded+docs) + `PROVENANCE.md` + `datasets/MANIFEST.md` (datasets/ en disco, gitignorado).
-2. `meta station s12 --factory agent-systems-factory` → PASS (positivo real 0 + negativo degradado flipea,
-   ambos corridos por el `eval_floor` ya construido).
-3. `meta pin --factory agent-systems-factory --verify` (o `ci --rederive`) → s1..s11 == pin previo (SIN
-   cambios) + s12 nuevo verde.
-4. `meta check` verde en el META (no se tocó sustrato en este incremento — sólo DATA/fábrica).
-5. `docs/STATE.md` de ASF actualizado; `git diff` acotado a `factories/agent-systems-factory/` (más este doc).
+1. ✅ `factories/agent-systems-factory/products/reqcouncil/` existe con el árbol completo (código+config+tests+
+   runs/pinned+runs/degraded+docs) + `PROVENANCE.md` + `datasets/MANIFEST.md` (datasets/ 803M en disco, gitignorado).
+2. ✅ El arnés `eval_floor` (vía `s12`) → PASS: positivo real exit 0 + negativo degradado exit 1 (ambos
+   verificados a mano en Fase 4 y de nuevo dentro de `meta product-run`).
+3. ✅ `meta pin --factory agent-systems-factory` → s1..s11 BYTE-IDÉNTICOS al pin previo (diff sólo agrega
+   `s12`) + `meta ci --rederive --factory agent-systems-factory` → 12/12 proof_sha == pineado.
+4. ✅ `meta check` verde en el META (19/20 antes de commitear — el 1 rojo era `docs-consistency`
+   señalando STATE.md desactualizado vs. un doc YA COMMITTEADO más nuevo del mismo nivel, artefacto
+   normal de un incremento sin commitear todavía, no sustrato tocado; se re-verifica tras commitear).
+5. ✅ `docs/STATE.md` de ASF actualizado; `git diff` acotado a `factories/agent-systems-factory/` (más este doc).
 
 ## Evidencia
-(pendiente — se completa al cerrar)
+
+**Corrección honesta a la ratificación S1**: la Fase 6 del diseño original decía `meta station s12
+--factory agent-systems-factory` — ese verbo sólo existe para META-estaciones (m00..m08,
+`cmd_station` carga `_meta_stations_dir()`, nunca `fdir/stations`). El verbo real para correr/probar
+una estación NUEVA de la línea de PRODUCTO propia de una fábrica es `meta product-run --factory
+<slug>` (mismo patrón que `FSK-S8-A11Y-PERF-INCREMENT`). No cambia ninguna conclusión del diseño —
+sólo el comando de invocación.
+
+**Copia (Fase 1)**: `git -C ~/University/Integración/APP/dataset_agent_re archive 89ad45b -- reqcouncil
+config tests runs docs pyproject.toml README.md .env.example .gitignore | tar -x -C
+factories/agent-systems-factory/products/reqcouncil` (código+config+tests+runs/pinned+docs, ~5-19M,
+sólo lo TRACKEADO al pin) + `cp -a` directo del `datasets/` COMPLETO del working-tree upstream (803M,
+incluye `_originals/` 789M — NO trackeado upstream, decisión del ingeniero 2026-07-10: "es pesado y
+sólo me interesa que esté en local"). Verificado: sin `.venv/__pycache__/.egg-info/.pytest_cache/.git`,
+sin `.env` real. `.gitignore` del producto extendido con `datasets/* + !datasets/MANIFEST.md` y
+`!runs/degraded/` (además del `!runs/pinned/` upstream) — `git add --dry-run` confirmó 509 archivos a
+trackear, de los cuales `datasets/` aporta SÓLO `MANIFEST.md`.
+
+**Arnés (Fase 3/4)**: `python3 -m reqcouncil eval gates` (cwd=`products/reqcouncil`, sin bootstrap —
+pyyaml del sistema ya alcanza) → positivo (runs/pinned) `GATES: GREEN — 8 green · 0 red · 3 waived ·
+2 n/a` exit 0; negativo (`METAFACTORY_EVAL_EVIDENCE=runs/degraded`, `fidelity` de `e1-h4-dsv4flash`
+bajada de 0.9756 a 0.55) → `GATES: RED — 6 green · 2 red (fidelity + no_regression) · 3 waived · 2 n/a`
+exit 1. El diente discrimina (no decorativo).
+
+**Estación + línea (Fase 5/6)**: `meta product-run --factory agent-systems-factory` → PASS, s1..s12
+re-corridos, logs s1-s9 byte-IDÉNTICOS a la corrida previa (2026-06-27). `meta pin --factory
+agent-systems-factory` → diff de `pinned_verdict.json` puramente ADITIVO (s1..s11 sin cambios, +`s12`).
+`meta ci --rederive --factory agent-systems-factory` → `12/12 proof_sha == pineado`.
+
+**Global**: `meta check` → 19/20 (el 1 rojo, `docs-consistency` sobre STATE.md desactualizado, es
+artefacto de trabajo sin commitear — ver criterio 4).

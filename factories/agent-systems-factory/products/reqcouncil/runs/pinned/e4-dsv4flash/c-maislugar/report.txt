@@ -1,0 +1,7 @@
+=== E2 industry (maislugar) === model: deepseek-ai/DeepSeek-V4-Flash
+chunks: 113   requirements: 70   grounded: 63
+oracle: 18/34 gold matched  recall 0.5294   precision 0.2571   critical_nfr_recall 0.2
+CCI vs 34 oracle items: 2.0588   (runtime band [19.0, 50.7] -> OUT, recorded only)
+citation coverage: 0.5929   rounds: 0 (stop: n/a)
+store: ephemeral   tokens: {'prompt_tokens': 473291, 'completion_tokens': 13980}
+fidelity = 0.9000   ->  RED  (gates: fidelity + critical_nfr_recall + cci_band)

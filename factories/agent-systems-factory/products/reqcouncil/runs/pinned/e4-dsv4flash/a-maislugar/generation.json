@@ -1,0 +1,734 @@
+{
+  "candidates": [
+    {
+      "id": "single_pass_a-0",
+      "text": "A plataforma deve permitir o planejamento e intervenções em saúde de forma colaborativa.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:1"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado afirma que o objetivo geral é o planejamento e intervenções em saúde de forma colaborativa.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-1",
+      "text": "A plataforma deve suportar diferentes níveis de visualização dos dados.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:1"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona 'diferentes níveis de visualização' como parte do objetivo.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-2",
+      "text": "O usuário deve poder criar questionários na plataforma.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado cita a criação de questionários como funcionalidade, similar ao sistema Saga.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-3",
+      "text": "O usuário deve poder alimentar dados geográficos na plataforma.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona a alimentação de dados geográficos como funcionalidade desejada.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-4",
+      "text": "A plataforma deve permitir que o criador do projeto escolha quais camadas são visíveis para a população geral e quais para grupos específicos, como gestores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0",
+        "7b80fdda74b4:13"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado fala sobre escolher camadas para diferentes tipos de usuários.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-5",
+      "text": "A plataforma deve ter uma base geográfica como pré-requisito para análise territorial.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:0"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado afirma que a base geográfica é pré-requisito.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-6",
+      "text": "A plataforma deve resolver a lacuna de conhecimento do território para as diversas dimensões de saúde.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:1"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado declara que o problema a ser resolvido é essa lacuna.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-7",
+      "text": "A plataforma deve ser colaborativa tanto para alimentar o sistema quanto para divulgar resultados.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:1",
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado enfatiza o caráter colaborativo em ambas as direções.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-8",
+      "text": "A plataforma deve permitir o compartilhamento de dados na forma de web mapa ou imagem de projeto.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona essas formas de compartilhamento como desejáveis.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-9",
+      "text": "A plataforma deve permitir que o usuário copie um link do projeto e o insira em seu próprio site.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado expressa o desejo de que o link do projeto possa ser embutido em sites externos.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-10",
+      "text": "A plataforma deve permitir que instituições instalem o programa em seus próprios servidores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona a possibilidade de instalação local para autonomia.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-11",
+      "text": "A plataforma deve ter código aberto (livre) para que instituições possam personalizá-lo.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:3",
+        "7b80fdda74b4:7"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado defende que o código seja livre e gratuito para permitir personalizações.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-12",
+      "text": "A plataforma deve suportar usuários com diferentes perfis: população geral (consulta), gestores/pesquisadores (visualização de dados confidenciais) e usuários com permissão de manipulação.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:13",
+        "7b80fdda74b4:27"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado descreve perfis de usuário com diferentes níveis de acesso e permissões.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-13",
+      "text": "A plataforma deve permitir que o gerente do projeto possa apagar o projeto.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:27"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado compara com o sistema Saga, onde o gerente pode apagar o projeto.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-14",
+      "text": "A plataforma deve ter um perfil de usuário de edição.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:27"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona 'usuário de edição' como um perfil.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-15",
+      "text": "A plataforma deve ter um perfil de usuário de visualização.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:27"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona 'usuário de visualização' como um perfil.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-16",
+      "text": "O cadastro de usuário deve ser rápido, exigindo apenas e-mail, username e senha.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:19"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado afirma que o cadastro deve ser o mais rápido possível com esses dados.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-17",
+      "text": "A plataforma deve ser acessível via web e mobile, com capacidade de cadastro offline.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:31"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona acesso web e mobile, com foco em cadastro offline.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-18",
+      "text": "A plataforma deve permitir a criação de pontos, linhas e polígonos (vetores).",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado lista a criação de geometrias como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-19",
+      "text": "A plataforma deve permitir importação e exportação de vetores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona importação e exportação como funcionalidades essenciais.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-20",
+      "text": "A plataforma deve permitir a edição de vetores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado inclui edição de vetores como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-21",
+      "text": "A plataforma deve permitir a criação de fichas/questionários com diversos tipos de variáveis.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado cita criação de fichas como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-22",
+      "text": "A plataforma deve ter um sistema de permissões para usuários e para tipos de visualização para pessoas externas.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:33"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona sistema de permissões como funcionalidade essencial.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-23",
+      "text": "A plataforma deve registrar automaticamente metadados como horário e usuário que fez o registro.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:39"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado afirma que metadados como horário e usuário devem ser registrados automaticamente.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-24",
+      "text": "A plataforma deve permitir o anexo de arquivos de mídia como foto, filmagem e áudio.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:40",
+        "7b80fdda74b4:41"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado confirma que dados de foto, filmagem e áudio devem ser anexados.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-25",
+      "text": "A plataforma deve permitir a exportação de dados nos formatos CSV, XLS e HTML.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:47",
+        "7b80fdda74b4:49"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona esses formatos clássicos para exportação.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-26",
+      "text": "A plataforma deve permitir a exportação por camadas, permitindo selecionar quais camadas exportar.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:53"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado afirma que na exportação deve ser possível decidir as camadas.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-27",
+      "text": "A plataforma deve permitir coleta de dados offline com sincronização posterior.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:59",
+        "7b80fdda74b4:61"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona a capacidade de gravar fichas offline e sincronizar, similar ao ODK.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-28",
+      "text": "A plataforma deve ter um sistema de gamificação que incentive o crescimento coletivo sem competição.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:67"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado descreve a gamificação como forma de fortalecer o trabalho coletivo.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-29",
+      "text": "A gamificação deve incluir medalhas e avatares que evoluem conforme o usuário contribui.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:67",
+        "7b80fdda74b4:69"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona medalhas e avatar como parte do sistema de gamificação.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-30",
+      "text": "A gamificação deve ser geral da plataforma, acumulando contribuições de diferentes projetos para evoluir o perfil do usuário (ex: usuário Master).",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:69",
+        "7b80fdda74b4:71"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado explica que a gamificação é global, recompensando a colaboração em múltiplos projetos.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-31",
+      "text": "A plataforma deve integrar-se com o sistema vicom Saga através de um plugin para exportação automática de camadas.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:77",
+        "7b80fdda74b4:79",
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado expressa o desejo de integração automática com o vicom Saga.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-32",
+      "text": "A plataforma deve permitir a importação de camadas shapefile (shp) do QGIS.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:81"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona a importação de camadas shp do QGIS como funcionalidade desejada.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-33",
+      "text": "A plataforma deve ter uma funcionalidade de marcação de trilha (tracking).",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "7b80fdda74b4:93",
+        "7b80fdda74b4:95"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado cita a marcação de trilha como funcionalidade secundária.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-34",
+      "text": "A plataforma deve ser estável e livre de bugs antes de um lançamento massivo.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:91"
+      ],
+      "stance": "inferred",
+      "rationale": "O entrevistado enfatiza a importância de ajustes finos e estabilidade para não desanimar usuários.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-35",
+      "text": "A plataforma deve ser capaz de escalar para atender muitas prefeituras e potencialmente outros países.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:85",
+        "7b80fdda74b4:87"
+      ],
+      "stance": "inferred",
+      "rationale": "O entrevistado projeta crescimento exponencial após consolidação, indicando necessidade de escalabilidade.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-36",
+      "text": "A plataforma deve estar disponível para implementação em 4 a 6 meses.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "7b80fdda74b4:89"
+      ],
+      "stance": "explicit",
+      "rationale": "O entrevistado menciona um prazo de 4 a 6 meses para implementação em uma prefeitura piloto.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    }
+  ],
+  "parse_log": [],
+  "usage": {
+    "prompt_tokens": 21702,
+    "completion_tokens": 2806
+  },
+  "prompt_shas": {
+    "single_pass": "7ecd4e0efc42",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  }
+}

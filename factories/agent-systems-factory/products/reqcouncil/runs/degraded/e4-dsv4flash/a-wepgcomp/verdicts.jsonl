@@ -1,0 +1,30 @@
+{"key": "67d75eae317b9dbe", "pred": 1, "story": "O sistema deve permitir que qualquer pessoa configure o ambiente facilmente.", "raw": "1"}
+{"key": "54cd0160b474b3df", "pred": 1, "story": "O sistema deve permitir o cadastro de apresenta\u00e7\u00f5es por alunos apresentadores.", "raw": "1"}
+{"key": "c8c76e2dcd4443d0", "pred": 1, "story": "O sistema deve manter o hist\u00f3rico de edi\u00e7\u00f5es do evento.", "raw": "1"}
+{"key": "06f70d5f7b7dd658", "pred": 1, "story": "O sistema deve fornecer uma \u00e1rea de Dashboards para an\u00e1lise de dados.", "raw": "1"}
+{"key": "ba3705032a08ab87", "pred": 1, "story": "O sistema deve manter o hist\u00f3rico de edi\u00e7\u00f5es do evento.", "raw": "1"}
+{"key": "4bd98becb2cb423d", "pred": 1, "story": "O sistema deve ser uma plataforma centralizada para cadastro e registro do event", "raw": "1"}
+{"key": "258694274c1866aa", "pred": 1, "story": "O sistema deve permitir o cadastro de apresenta\u00e7\u00f5es por alunos apresentadores.", "raw": "1"}
+{"key": "5dd42276676aaa13", "pred": 1, "story": "O sistema deve permitir o cadastro da programa\u00e7\u00e3o do evento pelo administrador.", "raw": "1"}
+{"key": "cdcb2dd37dc37ec8", "pred": 1, "story": "O sistema deve ser uma plataforma centralizada para cadastro e registro do event", "raw": "1"}
+{"key": "dad0f64559f748c0", "pred": 1, "story": "O sistema deve permitir o cadastro da programa\u00e7\u00e3o do evento pelo administrador.", "raw": "1"}
+{"key": "e8174672f015761f", "pred": 1, "story": "O sistema deve permitir o cadastro de apresenta\u00e7\u00f5es por alunos apresentadores.", "raw": "1"}
+{"key": "b7d827d9e2ce446f", "pred": 1, "story": "O sistema deve ter quatro perfis de usu\u00e1rio: usu\u00e1rio comum, aluno apresentador, ", "raw": "1"}
+{"key": "c5b5124929b8a15a", "pred": 1, "story": "O sistema deve permitir que o aluno apresentador cadastre, visualize e siga apre", "raw": "1"}
+{"key": "88c0130ae5deea81", "pred": 1, "story": "O sistema deve suportar upload de documentos em formato PDF.", "raw": "1"}
+{"key": "b6710ae0ab4a8183", "pred": 1, "story": "O sistema deve cadastrar usu\u00e1rio comum apenas com usu\u00e1rio e senha.", "raw": "1"}
+{"key": "eb152049e11e9b39", "pred": 1, "story": "O sistema deve permitir que o administrador realize altera\u00e7\u00f5es na programa\u00e7\u00e3o, c", "raw": "1"}
+{"key": "7dfb16e583b6d016", "pred": 1, "story": "O sistema deve permitir que o super usu\u00e1rio realize todas as funcionalidades e g", "raw": "1"}
+{"key": "5ed3c27115e670c8", "pred": 1, "story": "O sistema deve cadastrar aluno apresentador com orientador, n\u00famero de matr\u00edcula ", "raw": "1"}
+{"key": "810487594cc89510", "pred": 1, "story": "O sistema deve permitir que o administrador edite trabalhos cadastrados pelos al", "raw": "1"}
+{"key": "30fc1f5e16f3f8bd", "pred": 1, "story": "O sistema deve associar cada edi\u00e7\u00e3o a um ano espec\u00edfico para manter mem\u00f3ria.", "raw": "1"}
+{"key": "e2bd9cebffedaf7e", "pred": 1, "story": "O sistema deve permitir que qualquer pessoa cadastrada baixe e leia as apresenta", "raw": "1"}
+{"key": "5ea118feb5c900f9", "pred": 1, "story": "O sistema deve permitir premia\u00e7\u00e3o de apresentadores e melhores avaliadores.", "raw": "1"}
+{"key": "272cfd89ea6fb393", "pred": 1, "story": "O sistema deve permitir a gera\u00e7\u00e3o de certificados distintos para participa\u00e7\u00e3o e ", "raw": "1"}
+{"key": "8697ce785c7e4d6a", "pred": 1, "story": "O sistema deve permitir que o administrador defina datas de in\u00edcio e fim do even", "raw": "1"}
+{"key": "60e4cd2f12608170", "pred": 1, "story": "O sistema deve suportar vota\u00e7\u00e3o com c\u00e1lculo de m\u00e9dia baseada em crit\u00e9rios e quan", "raw": "1"}
+{"key": "782963403d2f77cb", "pred": 1, "story": "O sistema deve evitar conflitos de hor\u00e1rio e sala para apresenta\u00e7\u00f5es.", "raw": "1"}
+{"key": "dc37673f1298a054", "pred": 1, "story": "O sistema deve permitir que o usu\u00e1rio comum acompanhe o evento.", "raw": "1"}
+{"key": "dab1b14b809b5049", "pred": 0, "story": "O sistema deve armazenar PDFs em um sistema de arquivos separado, n\u00e3o no banco d", "raw": "0"}
+{"key": "9d9f1f759f36207b", "pred": 0, "story": "O sistema deve ser capaz de suportar cerca de 70 usu\u00e1rios por ano.", "raw": "0"}
+{"key": "e364567da9281402", "pred": 0, "story": "O sistema deve ser gratuito.", "raw": "0"}

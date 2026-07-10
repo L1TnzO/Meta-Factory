@@ -1,0 +1,13 @@
+=== E1 Primary (int1.txt) === model: deepseek-ai/DeepSeek-V4-Flash
+chunks: 132   requirements: 79   grounded: 76   statuses: {'unsupported': 2, 'flagged_inferred': 1, 'accepted': 76}
+cardinality: produced 79 vs expected 37.0 band [22.2, 59.2] -> OUT of band
+CCI vs 37 golden stories: 2.1351
+citation coverage (chunks cited by >=1 req): 0.7424
+rounds: 4 (stop: round_budget)   coverage history: [0.4242, 0.5379, 0.5909, 0.6439, 0.7424]
+store: ephemeral (run_id=1, 79 reqs persisted)
+tokens: {'prompt_tokens': 1375480, 'completion_tokens': 62931}
+
+baseline: runs/pinned/e1-dsv4flash/run.json
+  coverage  0.5455 -> 0.7424  (must be UP)   OK
+  |CCI - 1| 0.5405 -> 1.1351  (must be DOWN)   FAIL
+fidelity = 0.9620  gate >= 0.7  ->  RED

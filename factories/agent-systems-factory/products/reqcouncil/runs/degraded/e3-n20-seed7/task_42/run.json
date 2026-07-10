@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_42",
+  "task_name": "Short Message Service Management Platform",
+  "application_type": "Productivity Tool",
+  "timestamp": "2026-07-06T19:24Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "8dc9dd7ea8ed172aa3f52bdcd3ff66e44595757a588073e119cdb2b4b8385be1",
+  "n_chunks": 20,
+  "n_requirements": 11,
+  "grounded": 8,
+  "fidelity": 0.7273,
+  "n_golden": 7,
+  "oracle_recall": 0.4286,
+  "oracle_precision": 0.2727,
+  "n_implicit": 3,
+  "implicit_yield": 0.3333,
+  "cci": 1.5714,
+  "citation_coverage": 0.65,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "coverage_plateau",
+    "deltas": [
+      {
+        "added": 4,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 3,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 4,
+        "dropped": 3,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 2,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.65,
+      0.7,
+      0.65,
+      0.65,
+      0.65
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 9,
+    "requirements": 11
+  },
+  "usage": {
+    "prompt_tokens": 202919,
+    "completion_tokens": 9222
+  }
+}

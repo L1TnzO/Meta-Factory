@@ -1,0 +1,74 @@
+{
+  "experiment": "E3",
+  "task_id": "task_54",
+  "task_name": "Global Institute of Information Security Course Enrollment Portal",
+  "application_type": "Learning Platforms",
+  "timestamp": "2026-07-06T19:37Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "fb45783314934a007cb768198f904a0aff884c8ba8c91aaf7889584a27a6907f",
+  "n_chunks": 12,
+  "n_requirements": 10,
+  "grounded": 4,
+  "fidelity": 0.4,
+  "n_golden": 9,
+  "oracle_recall": 0.3333,
+  "oracle_precision": 0.2,
+  "n_implicit": 7,
+  "implicit_yield": 0.1429,
+  "cci": 1.1111,
+  "citation_coverage": 0.4167,
+  "rounds": {
+    "rounds_run": 4,
+    "stop_reason": "round_budget",
+    "deltas": [
+      {
+        "added": 1,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 7,
+        "merged": 0,
+        "revised": 8,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 2,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.5,
+      0.6667,
+      0.5,
+      0.5,
+      0.4167
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 12,
+    "requirements": 10
+  },
+  "usage": {
+    "prompt_tokens": 116571,
+    "completion_tokens": 7770
+  }
+}

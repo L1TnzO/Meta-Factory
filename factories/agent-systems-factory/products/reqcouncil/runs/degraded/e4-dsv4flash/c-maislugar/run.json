@@ -1,0 +1,68 @@
+{
+  "experiment": "E2",
+  "corpus": "maislugar",
+  "timestamp": "2026-07-06T17:25Z",
+  "transcript": "transcript_maislugar.txt",
+  "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 113,
+  "n_requirements": 70,
+  "grounded": 63,
+  "fidelity": 0.9,
+  "oracle_recall": 0.5294,
+  "oracle_precision": 0.2571,
+  "critical_nfr_recall": 0.2,
+  "cci": 2.0588,
+  "oracle_size": 34,
+  "green": false,
+  "cardinality": {
+    "produced": 70,
+    "expected": 31.7,
+    "band": [
+      19.0,
+      50.7
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.5929,
+  "rounds": {
+    "rounds_run": 0,
+    "stop_reason": null,
+    "deltas": [],
+    "coverage_history": []
+  },
+  "review": {
+    "engineer": "auto-eval",
+    "mode": "auto",
+    "stats": {
+      "decided": 70,
+      "counts": {
+        "accept": 70
+      },
+      "mandatory": 11
+    },
+    "revised": []
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 1,
+    "requirements": 70
+  },
+  "usage": {
+    "prompt_tokens": 473291,
+    "completion_tokens": 13980
+  },
+  "oracle_judge_usage": null,
+  "elapsed_s": 327.5
+}

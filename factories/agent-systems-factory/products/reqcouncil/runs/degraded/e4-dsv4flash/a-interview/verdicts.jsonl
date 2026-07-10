@@ -1,0 +1,157 @@
+{"key": "4b60cb1bc93c21d9", "pred": 1, "story": "The system must allow the IFA to monitor budget data but not perform operations ", "raw": "1"}
+{"key": "a0b4b2c56bd1f29f", "pred": 1, "story": "The system must allow IFA to specify budget policies that can trigger alerts whe", "raw": "1"}
+{"key": "295abfaf928ff7b5", "pred": 1, "story": "The system must allow the IFA to monitor budget data but not perform operations ", "raw": "1"}
+{"key": "e67da8b29e63dc03", "pred": 1, "story": "The system must allow the IFA administrative to view all transactions from teams", "raw": "1"}
+{"key": "61d83bc688bf1755", "pred": 1, "story": "The system must allow IFA to specify budget policies that can trigger alerts whe", "raw": "1"}
+{"key": "e3cc2efd99197b98", "pred": 1, "story": "The system must allow the IFA administrative to view all transactions from teams", "raw": "1"}
+{"key": "32dfd496ee2ecc6e", "pred": 1, "story": "The system must enable referees to insert game events in real time using a mobil", "raw": "1"}
+{"key": "23df18eedaf6189a", "pred": 1, "story": "Only the referee can update events that occurred during the game to ensure data ", "raw": "1"}
+{"key": "2e6660ebca332068", "pred": 1, "story": "The system must allow teams to insert their own budget transactions and items, a", "raw": "1"}
+{"key": "50c298a3f3d157c1", "pred": 1, "story": "Each game event must have a timestamp, the event type, and possibly additional i", "raw": "1"}
+{"key": "5c8daf0858d31071", "pred": 1, "story": "Each game event must have a timestamp, the event type, and possibly additional i", "raw": "1"}
+{"key": "59981e108e224712", "pred": 1, "story": "The system must allow guests (unregistered users) to view final game data (e.g.,", "raw": "1"}
+{"key": "50241dcdc6b92eb8", "pred": 1, "story": "The system must allow fans to subscribe to specific games and get push notificat", "raw": "1"}
+{"key": "cdaa80bad05b6548", "pred": 1, "story": "The system must allow guests (unregistered users) to view final game data (e.g.,", "raw": "1"}
+{"key": "1b151938d67f4e8b", "pred": 1, "story": "The system must allow fans to subscribe to specific games and get push notificat", "raw": "1"}
+{"key": "7206cff134608857", "pred": 1, "story": "The system must provide a push notification mechanism for fans instead of requir", "raw": "1"}
+{"key": "b60575f6e684e48c", "pred": 1, "story": "The system must allow fans to subscribe to their favorite players and get notifi", "raw": "1"}
+{"key": "fb8e4cdb0252a4b6", "pred": 1, "story": "The system must provide a push notification mechanism for fans instead of requir", "raw": "1"}
+{"key": "5c6fde964b35c6bf", "pred": 1, "story": "The system must allow IFA to define scheduling policies (e.g., home-and-away mat", "raw": "1"}
+{"key": "8e228de663f9c2c1", "pred": 1, "story": "The system must allow IFA to define scheduling policies (e.g., home-and-away mat", "raw": "1"}
+{"key": "4b009d756095222d", "pred": 1, "story": "The system must automatically schedule matches based on defined scheduling polic", "raw": "1"}
+{"key": "44993de1cec4da8c", "pred": 1, "story": "The system must allow IFA to define scheduling policies (e.g., home-and-away mat", "raw": "1"}
+{"key": "ce514852d473fee8", "pred": 1, "story": "The system must automatically schedule matches based on defined scheduling polic", "raw": "1"}
+{"key": "a91c38d1235056f1", "pred": 1, "story": "The system must allow teams to insert their own budget transactions and items, a", "raw": "1"}
+{"key": "67992b1fa2287666", "pred": 1, "story": "The system must allow IFA to define referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "513dcb9555fcb7e9", "pred": 1, "story": "The system must allow IFA to define referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "de6d12942a6962d9", "pred": 1, "story": "The system must allow IFA to define referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "11ba17fb6e258bad", "pred": 1, "story": "The system must automatically assign referees to games based on defined allocati", "raw": "1"}
+{"key": "45f6dbb84ec750c3", "pred": 1, "story": "The system must automatically assign referees to games based on defined allocati", "raw": "1"}
+{"key": "7686e7452e030457", "pred": 1, "story": "The system must allow referees to input their availability preferences (e.g., va", "raw": "1"}
+{"key": "b7d9ee0b4513b12d", "pred": 1, "story": "The system must automatically assign referees to games based on defined allocati", "raw": "1"}
+{"key": "fe0e27cbd7ae70cd", "pred": 1, "story": "The system must allow referees to input their availability preferences (e.g., va", "raw": "1"}
+{"key": "4f574ad6e5578a83", "pred": 1, "story": "The system must enable referees to insert game events in real time using a mobil", "raw": "1"}
+{"key": "61f696877f33281d", "pred": 1, "story": "The system must allow fans to subscribe to specific games and get push notificat", "raw": "1"}
+{"key": "b2ef3777f0beb7dd", "pred": 1, "story": "The system must support manual override of the schedule by an IFA representative", "raw": "1"}
+{"key": "656831dfefa48b52", "pred": 1, "story": "Only the referee can update events that occurred during the game to ensure data ", "raw": "1"}
+{"key": "37ee7100e0c14f96", "pred": 1, "story": "The system must support manual override of the schedule by an IFA representative", "raw": "1"}
+{"key": "c826cc366fa53ff0", "pred": 1, "story": "The system must support manual override of the schedule by an IFA representative", "raw": "1"}
+{"key": "7e9b294955967470", "pred": 1, "story": "The system must allow referees to input their availability preferences (e.g., va", "raw": "1"}
+{"key": "bed6986d5f530fcc", "pred": 1, "story": "Any manual override of the schedule must require an explanation of the rationale", "raw": "1"}
+{"key": "56d6149f13fc02d2", "pred": 1, "story": "The system must allow teams to register with the IFA by providing valid document", "raw": "1"}
+{"key": "6ee5eb1b7750c23b", "pred": 1, "story": "Any manual override of the schedule must require an explanation of the rationale", "raw": "1"}
+{"key": "44c771cee568e2d6", "pred": 1, "story": "Any manual override of the schedule must require an explanation of the rationale", "raw": "1"}
+{"key": "e9bbb73a3c35fdfb", "pred": 1, "story": "The system must allow the IFA to define leagues and seasons.", "raw": "1"}
+{"key": "0fa40c482f66917b", "pred": 1, "story": "The system must allow teams to manage their players, coaches, stadium, and other", "raw": "1"}
+{"key": "ff53786dfd789cc8", "pred": 1, "story": "The system must allow teams to manage their players, coaches, stadium, and other", "raw": "1"}
+{"key": "813b32fbe071092e", "pred": 1, "story": "The system must allow the IFA to register referees.", "raw": "1"}
+{"key": "9e4542cb886eee03", "pred": 1, "story": "The system must allow the IFA to register referees.", "raw": "1"}
+{"key": "71888326fc4fcb50", "pred": 1, "story": "The system must allow the IFA to define leagues and seasons.", "raw": "1"}
+{"key": "3e527d012131a563", "pred": 1, "story": "The system must allow teams to register with the IFA by providing valid document", "raw": "1"}
+{"key": "0c34f68698a08c11", "pred": 1, "story": "The system must allow players to update their social network page (post messages", "raw": "1"}
+{"key": "a89c14f28cbf0ccc", "pred": 1, "story": "The system must allow players to update their social network page (post messages", "raw": "1"}
+{"key": "2a1d271d3e9fdc3a", "pred": 1, "story": "The system must allow players to update their social network page (post messages", "raw": "1"}
+{"key": "21898971f3b611ed", "pred": 1, "story": "The system must keep all past archives (scheduling, game data) for historical an", "raw": "1"}
+{"key": "f5d94ed148cde590", "pred": 1, "story": "The system must keep all past archives (scheduling, game data) for historical an", "raw": "1"}
+{"key": "efcf156bd2cc98fc", "pred": 0, "story": "The system must support a web-based interface for IFA administrators and team ad", "raw": "0"}
+{"key": "3051dc099c5110e5", "pred": 1, "story": "The system must support a mobile application for referees and fans.", "raw": "1"}
+{"key": "c2314b8d3129b030", "pred": 1, "story": "The system must support a mobile application for referees and fans.", "raw": "1"}
+{"key": "47bbfe176e86e53a", "pred": 1, "story": "The system should have a unified system with different interfaces for different ", "raw": "1"}
+{"key": "d8bae05d0309f6ef", "pred": 1, "story": "The system should have a unified system with different interfaces for different ", "raw": "1"}
+{"key": "2f77b38c1c6f4c76", "pred": 1, "story": "The system should support 50,000 simultaneous users with a response time of one ", "raw": "1"}
+{"key": "27459d198e24cc39", "pred": 1, "story": "The system should support 50,000 simultaneous users with a response time of one ", "raw": "1"}
+{"key": "6c8bc1cdb1d4151e", "pred": 0, "story": "The system should support 50,000 simultaneous users with a response time of one ", "raw": "0"}
+{"key": "be125ef35bea0d60", "pred": 1, "story": "The system must provide high-priority, real-time responsiveness for referees dur", "raw": "1"}
+{"key": "8547bbe41aa9650b", "pred": 1, "story": "The system must provide high-priority, real-time responsiveness for referees dur", "raw": "1"}
+{"key": "c4e54676fbf7fbcb", "pred": 1, "story": "The system must provide high-priority, real-time responsiveness for referees dur", "raw": "1"}
+{"key": "3f38f48c7ba95111", "pred": 1, "story": "The system must automatically schedule matches based on defined scheduling polic", "raw": "1"}
+{"key": "da64081df105e767", "pred": 1, "story": "The system should be developed and maintained by an external company; IFA acts a", "raw": "1"}
+{"key": "d52fd35d72a2c0a7", "pred": 0, "story": "The system should be developed and maintained by an external company; IFA acts a", "raw": "0"}
+{"key": "a41b5172c377f882", "pred": 1, "story": "The system must keep all past archives (scheduling, game data) for historical an", "raw": "1"}
+{"key": "1d15dbbf737e2e56", "pred": 1, "story": "The system must support localization: multiple languages, currencies, and time z", "raw": "1"}
+{"key": "cc5af87c68257a3b", "pred": 1, "story": "The system must allow the IFA to register referees.", "raw": "1"}
+{"key": "b02fa92faab185ac", "pred": 1, "story": "The system must support a web-based interface for IFA administrators and team ad", "raw": "1"}
+{"key": "ffbca25036db1fe9", "pred": 1, "story": "The system must support localization: multiple languages, currencies, and time z", "raw": "1"}
+{"key": "9ef2e4c8603e52c3", "pred": 1, "story": "The system must comply with data localization regulations (e.g., German data not", "raw": "1"}
+{"key": "d68a02c0d8435ed9", "pred": 1, "story": "The system must comply with data localization regulations (e.g., German data not", "raw": "1"}
+{"key": "4ca08b76b340f711", "pred": 1, "story": "The system must support localization: multiple languages, currencies, and time z", "raw": "1"}
+{"key": "21dbc1c2127be21a", "pred": 0, "story": "The system should be developed and maintained by an external company; IFA acts a", "raw": "0"}
+{"key": "ad9b7062f9a4e5ec", "pred": 1, "story": "The system must comply with data localization regulations (e.g., German data not", "raw": "1"}
+{"key": "70e11141d50c8262", "pred": 1, "story": "Budget data should be encrypted to avoid leakage.", "raw": "1"}
+{"key": "6754b91a122a9a07", "pred": 1, "story": "Budget data should be encrypted to avoid leakage.", "raw": "1"}
+{"key": "b8827099391336d7", "pred": 1, "story": "The system must allow automatic reminders/notifications, e.g., to team managers ", "raw": "1"}
+{"key": "50758e0116431549", "pred": 1, "story": "The system must allow automatic reminders/notifications, e.g., to team managers ", "raw": "1"}
+{"key": "49b6145d750e7981", "pred": 1, "story": "The system must require user registration for identification; otherwise the user", "raw": "1"}
+{"key": "6c81699fc566fd4c", "pred": 1, "story": "The system should have a unified system with different interfaces for different ", "raw": "1"}
+{"key": "2c9c1ab15b747e24", "pred": 1, "story": "The system must require user registration for identification; otherwise the user", "raw": "1"}
+{"key": "87dd4c4927846781", "pred": 1, "story": "The system must allow IFA to activate policies for leagues.", "raw": "1"}
+{"key": "c336f948cb9b9aa6", "pred": 1, "story": "The system must allow IFA to activate policies for leagues.", "raw": "1"}
+{"key": "519ecdfb9a1f77ed", "pred": 0, "story": "The system must allow the IFA to audit the player registration process performed", "raw": "0"}
+{"key": "31a028053d890351", "pred": 1, "story": "The system must require user registration for identification; otherwise the user", "raw": "1"}
+{"key": "b56462d94b3fafd7", "pred": 1, "story": "The system must allow the IFA to audit the player registration process performed", "raw": "1"}
+{"key": "60d6e056d74c2dc3", "pred": 1, "story": "Budget data should be encrypted to avoid leakage.", "raw": "1"}
+{"key": "bdab889c79414094", "pred": 1, "story": "The system must allow automatic reminders/notifications, e.g., to team managers ", "raw": "1"}
+{"key": "3d7539861f67806d", "pred": 1, "story": "The system must allow the IFA to audit the player registration process performed", "raw": "1"}
+{"key": "cd7c87945130e623", "pred": 1, "story": "The system must allow fans to subscribe to their favorite players and get notifi", "raw": "1"}
+{"key": "c5a52341ea1c4369", "pred": 1, "story": "The system must provide a push notification mechanism for fans instead of requir", "raw": "1"}
+{"key": "a24d0275d6a32bf4", "pred": 1, "story": "Each team manages its own budget and inserts its own budget transactions.", "raw": "1"}
+{"key": "c560b34249a9be14", "pred": 1, "story": "Referees must be able to insert game events in real time using a mobile device.", "raw": "1"}
+{"key": "435b2af44ccfd035", "pred": 1, "story": "The IFA can specify budget policies and the system must alert when violations oc", "raw": "1"}
+{"key": "49904c1c47e218ef", "pred": 1, "story": "The IFA administrative can view all transactions across teams.", "raw": "1"}
+{"key": "8151714846922318", "pred": 1, "story": "Referees must be able to insert game events in real time using a mobile device.", "raw": "1"}
+{"key": "735f81fc696f1cad", "pred": 1, "story": "Only the referee can update game events to ensure data reliability.", "raw": "1"}
+{"key": "b2ec540f0e8bb0f0", "pred": 1, "story": "Only the referee can update game events to ensure data reliability.", "raw": "1"}
+{"key": "f087f37f866a0a61", "pred": 1, "story": "Each game event must include a timestamp, event type, and additional information", "raw": "1"}
+{"key": "ae775f479adb6bfd", "pred": 1, "story": "Game-related data (not budget) must be publicly accessible even to unregistered ", "raw": "1"}
+{"key": "bd0cbd19ea351648", "pred": 1, "story": "The system must allow exporting of game data for journalists and press.", "raw": "1"}
+{"key": "4602c762e4d8eb74", "pred": 1, "story": "Only the referee can update game events to ensure data reliability.", "raw": "1"}
+{"key": "35e3787ac896d3b3", "pred": 1, "story": "Game-related data (not budget) must be publicly accessible even to unregistered ", "raw": "1"}
+{"key": "9bf17b930b77d5f0", "pred": 1, "story": "The system must allow exporting of game data for journalists and press.", "raw": "1"}
+{"key": "48aa66cee96a5f6c", "pred": 1, "story": "Team managers and administration can view and query their own team data for offl", "raw": "1"}
+{"key": "be7c0a38cbc9a19d", "pred": 1, "story": "Each team can only access its own financial data; IFA can only view but not modi", "raw": "1"}
+{"key": "337d599c08247c1b", "pred": 1, "story": "Team managers and administration can view and query their own team data for offl", "raw": "1"}
+{"key": "da8914e6fce1f63c", "pred": 1, "story": "Each team can only access its own financial data; IFA can only view but not modi", "raw": "1"}
+{"key": "f987257158052d15", "pred": 1, "story": "The system must automatically schedule matches based on configurable policies (e", "raw": "1"}
+{"key": "e35ae561a2064ae5", "pred": 1, "story": "Each team manages its own budget and inserts its own budget transactions.", "raw": "1"}
+{"key": "5d694eed84b76065", "pred": 1, "story": "The system must automatically schedule matches based on configurable policies (e", "raw": "1"}
+{"key": "4011efe5cd427996", "pred": 1, "story": "The system must allow definition of referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "d9904a9fb6a2d888", "pred": 1, "story": "The system must allow definition of referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "e87bd1f39a28ef7f", "pred": 1, "story": "Referees can submit their preferences (e.g., vacation days) which the scheduling", "raw": "1"}
+{"key": "adf00097b5276d64", "pred": 1, "story": "Referees can submit their preferences (e.g., vacation days) which the scheduling", "raw": "1"}
+{"key": "f98ce6f5e382d5bf", "pred": 1, "story": "Schedules can be manually overridden by an IFA representative with a documented ", "raw": "1"}
+{"key": "5d897cea7f5ecb31", "pred": 1, "story": "Schedules can be manually overridden by an IFA representative with a documented ", "raw": "1"}
+{"key": "614916404daf1b6b", "pred": 1, "story": "Fans can subscribe to specific games, teams, or players to receive push notifica", "raw": "1"}
+{"key": "25f90beb0a594515", "pred": 1, "story": "Schedules can be manually overridden by an IFA representative with a documented ", "raw": "1"}
+{"key": "953ec86f55944272", "pred": 1, "story": "Fans can subscribe to specific games, teams, or players to receive push notifica", "raw": "1"}
+{"key": "7dcd7610977556db", "pred": 1, "story": "The system must support a fan portal with live updates from referees and live sc", "raw": "1"}
+{"key": "a7e54a1151978291", "pred": 1, "story": "Fans can subscribe to specific games, teams, or players to receive push notifica", "raw": "1"}
+{"key": "e6168ce75999954e", "pred": 1, "story": "Players can update their social network page within the system to communicate wi", "raw": "1"}
+{"key": "11ecd0e85dabc5ba", "pred": 1, "story": "Players can update their social network page within the system to communicate wi", "raw": "1"}
+{"key": "96c3db590a14efe9", "pred": 1, "story": "Each team manages its own budget and inserts its own budget transactions.", "raw": "1"}
+{"key": "4792dc9e22a1389d", "pred": 1, "story": "The IFA administrative can view all transactions across teams.", "raw": "1"}
+{"key": "819bc79208126ca9", "pred": 0, "story": "The system must support user registration and profiles for all stakeholders (IFA", "raw": "0"}
+{"key": "bd24362cc65f613e", "pred": 1, "story": "The system must include a process for team registration where IFA approves new t", "raw": "1"}
+{"key": "fa89461d1a68085c", "pred": 1, "story": "The system must include a process for team registration where IFA approves new t", "raw": "1"}
+{"key": "2558a41358bc261e", "pred": 1, "story": "The system must allow the IFA to define leagues, seasons, and register referees.", "raw": "1"}
+{"key": "7cdaaa3e87353a75", "pred": 1, "story": "The system must allow the IFA to define leagues, seasons, and register referees.", "raw": "1"}
+{"key": "b27b50720eb6f430", "pred": 1, "story": "The system must allow the IFA to define leagues, seasons, and register referees.", "raw": "1"}
+{"key": "bc4d853215f76c6d", "pred": 1, "story": "All historical data (schedules, events) must be archived for future analysis.", "raw": "1"}
+{"key": "146e76d6f3dc9b76", "pred": 1, "story": "All historical data (schedules, events) must be archived for future analysis.", "raw": "1"}
+{"key": "8bf395a048296c79", "pred": 0, "story": "The system must handle up to 50,000 concurrent users with reasonable response ti", "raw": "0"}
+{"key": "4f3602696788e5d6", "pred": 1, "story": "The system must handle up to 50,000 concurrent users with reasonable response ti", "raw": "1"}
+{"key": "df50a0fc33c8b816", "pred": 1, "story": "The IFA can specify budget policies and the system must alert when violations oc", "raw": "1"}
+{"key": "df2f5fd53333d3e3", "pred": 1, "story": "Referee mobile application must have real-time responsiveness with priority over", "raw": "1"}
+{"key": "4f1bd6c9b32cc467", "pred": 1, "story": "Referee mobile application must have real-time responsiveness with priority over", "raw": "1"}
+{"key": "b6c19d9b3625ef65", "pred": 1, "story": "The system must support localization (language, currency, timezone) and comply w", "raw": "1"}
+{"key": "2a0853dd60e0dfce", "pred": 1, "story": "The system must be a unified system with different interfaces for different stak", "raw": "1"}
+{"key": "992215bf4a722804", "pred": 1, "story": "The system must be a unified system with different interfaces for different stak", "raw": "1"}
+{"key": "21bb5484fa6e28e1", "pred": 1, "story": "The system must support localization (language, currency, timezone) and comply w", "raw": "1"}
+{"key": "17a94c02d45e1acb", "pred": 1, "story": "The system must support localization (language, currency, timezone) and comply w", "raw": "1"}
+{"key": "bcee8290040c1bd3", "pred": 1, "story": "The system must automatically schedule matches based on configurable policies (e", "raw": "1"}
+{"key": "f5b455032c17d10b", "pred": 1, "story": "The system should be developed and maintained by an external company, with IFA I", "raw": "1"}
+{"key": "1759bebd951c2601", "pred": 1, "story": "The system must allow definition of referee allocation policies (e.g., avoid sam", "raw": "1"}
+{"key": "2ce79c82bffab5eb", "pred": 1, "story": "The system should be developed and maintained by an external company, with IFA I", "raw": "1"}
+{"key": "d42d81da86f62116", "pred": 1, "story": "The system must support a fan portal with live updates from referees and live sc", "raw": "1"}
+{"key": "1dbe6d484bfb7214", "pred": 1, "story": "The system must be a unified system with different interfaces for different stak", "raw": "1"}
+{"key": "23d27853c03bf802", "pred": 1, "story": "The system must support user registration and profiles for all stakeholders (IFA", "raw": "1"}
+{"key": "e56396bb33d24d78", "pred": 1, "story": "Budget data must be encrypted to prevent leakage.", "raw": "1"}

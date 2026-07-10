@@ -1,0 +1,47 @@
+{
+  "experiment": "E3",
+  "task_id": "task_47",
+  "task_name": "Employee Time and Attendance Management System",
+  "application_type": "Productivity Tool",
+  "timestamp": "2026-07-06T19:27Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "01fca946906d1e35b9413eea71ddd5ecba85821fa5d862d2d0424fcb2210c98a",
+  "n_chunks": 14,
+  "n_requirements": 19,
+  "grounded": 14,
+  "fidelity": 0.7368,
+  "n_golden": 10,
+  "oracle_recall": 0.6,
+  "oracle_precision": 0.2105,
+  "n_implicit": 8,
+  "implicit_yield": 0.625,
+  "cci": 1.9,
+  "citation_coverage": 0.6429,
+  "rounds": {
+    "rounds_run": 1,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.6429,
+      0.6429
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 10,
+    "requirements": 19
+  },
+  "usage": {
+    "prompt_tokens": 171871,
+    "completion_tokens": 4955
+  }
+}

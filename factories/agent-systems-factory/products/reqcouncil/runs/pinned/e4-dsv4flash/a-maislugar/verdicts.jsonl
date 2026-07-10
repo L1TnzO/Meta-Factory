@@ -1,0 +1,54 @@
+{"key": "0ab8ac1bbf0ab5ac", "pred": 1, "story": "O usu\u00e1rio deve poder alimentar dados geogr\u00e1ficos na plataforma.", "raw": "1"}
+{"key": "481be1441c454cda", "pred": 1, "story": "A plataforma deve suportar diferentes n\u00edveis de visualiza\u00e7\u00e3o dos dados.", "raw": "1"}
+{"key": "6ae9db8fc0f60fed", "pred": 1, "story": "A plataforma deve permitir o planejamento e interven\u00e7\u00f5es em sa\u00fade de forma colab", "raw": "1"}
+{"key": "2199f63716795039", "pred": 1, "story": "O usu\u00e1rio deve poder criar question\u00e1rios na plataforma.", "raw": "1"}
+{"key": "8e6e25a3d30c3804", "pred": 1, "story": "A plataforma deve suportar diferentes n\u00edveis de visualiza\u00e7\u00e3o dos dados.", "raw": "1"}
+{"key": "effd9314303ad607", "pred": 1, "story": "O usu\u00e1rio deve poder alimentar dados geogr\u00e1ficos na plataforma.", "raw": "1"}
+{"key": "3d133a4f4f2033e6", "pred": 1, "story": "O usu\u00e1rio deve poder criar question\u00e1rios na plataforma.", "raw": "1"}
+{"key": "92f936f5522e6bd5", "pred": 1, "story": "A plataforma deve ter uma base geogr\u00e1fica como pr\u00e9-requisito para an\u00e1lise territ", "raw": "1"}
+{"key": "1030f971f9b226bd", "pred": 1, "story": "A plataforma deve permitir que o criador do projeto escolha quais camadas s\u00e3o vi", "raw": "1"}
+{"key": "d4b148c98f6784cd", "pred": 1, "story": "A plataforma deve ser colaborativa tanto para alimentar o sistema quanto para di", "raw": "1"}
+{"key": "019fbf91d8e44a81", "pred": 1, "story": "A plataforma deve permitir que o criador do projeto escolha quais camadas s\u00e3o vi", "raw": "1"}
+{"key": "33d4847dce918d79", "pred": 1, "story": "A plataforma deve permitir o compartilhamento de dados na forma de web mapa ou i", "raw": "1"}
+{"key": "0c421284be84c024", "pred": 1, "story": "A plataforma deve ser colaborativa tanto para alimentar o sistema quanto para di", "raw": "1"}
+{"key": "f1a6730428ebf81b", "pred": 0, "story": "A plataforma deve ter c\u00f3digo aberto (livre) para que institui\u00e7\u00f5es possam persona", "raw": "0"}
+{"key": "170654ba2342c502", "pred": 1, "story": "A plataforma deve permitir que o usu\u00e1rio copie um link do projeto e o insira em ", "raw": "1"}
+{"key": "2a4b67cff5f3ee9c", "pred": 1, "story": "A plataforma deve ter c\u00f3digo aberto (livre) para que institui\u00e7\u00f5es possam persona", "raw": "1"}
+{"key": "44b6686edd980fef", "pred": 1, "story": "A plataforma deve permitir que institui\u00e7\u00f5es instalem o programa em seus pr\u00f3prios", "raw": "1"}
+{"key": "137a1d6e3ab9312d", "pred": 1, "story": "A plataforma deve resolver a lacuna de conhecimento do territ\u00f3rio para as divers", "raw": "1"}
+{"key": "a783ac4094766f16", "pred": 1, "story": "A plataforma deve suportar usu\u00e1rios com diferentes perfis: popula\u00e7\u00e3o geral (cons", "raw": "1"}
+{"key": "83faa0e33bbe6abb", "pred": 1, "story": "A plataforma deve permitir que o gerente do projeto possa apagar o projeto.", "raw": "1"}
+{"key": "a7e31f9f8f55a786", "pred": 1, "story": "A plataforma deve ter um perfil de usu\u00e1rio de edi\u00e7\u00e3o.", "raw": "1"}
+{"key": "f2bde5677346c908", "pred": 1, "story": "O cadastro de usu\u00e1rio deve ser r\u00e1pido, exigindo apenas e-mail, username e senha.", "raw": "1"}
+{"key": "40435c10216418bd", "pred": 1, "story": "A plataforma deve ter um perfil de usu\u00e1rio de visualiza\u00e7\u00e3o.", "raw": "1"}
+{"key": "f2968b460821d153", "pred": 1, "story": "A plataforma deve permitir a cria\u00e7\u00e3o de pontos, linhas e pol\u00edgonos (vetores).", "raw": "1"}
+{"key": "3bf46c5a894d9682", "pred": 1, "story": "A plataforma deve permitir o planejamento e interven\u00e7\u00f5es em sa\u00fade de forma colab", "raw": "1"}
+{"key": "fc5d7b3618800223", "pred": 1, "story": "A plataforma deve ser acess\u00edvel via web e mobile, com capacidade de cadastro off", "raw": "1"}
+{"key": "2854a39bc769cbd7", "pred": 1, "story": "A plataforma deve permitir importa\u00e7\u00e3o e exporta\u00e7\u00e3o de vetores.", "raw": "1"}
+{"key": "643b3b402d5dd7e8", "pred": 1, "story": "A plataforma deve ter um sistema de permiss\u00f5es para usu\u00e1rios e para tipos de vis", "raw": "1"}
+{"key": "5d40145ccb43d382", "pred": 1, "story": "A plataforma deve permitir a cria\u00e7\u00e3o de fichas/question\u00e1rios com diversos tipos ", "raw": "1"}
+{"key": "bdd129f817ec4321", "pred": 1, "story": "A plataforma deve suportar usu\u00e1rios com diferentes perfis: popula\u00e7\u00e3o geral (cons", "raw": "1"}
+{"key": "2e4179b8d24e032c", "pred": 1, "story": "A plataforma deve registrar automaticamente metadados como hor\u00e1rio e usu\u00e1rio que", "raw": "1"}
+{"key": "ae132cf46fdfbf57", "pred": 1, "story": "A plataforma deve permitir o anexo de arquivos de m\u00eddia como foto, filmagem e \u00e1u", "raw": "1"}
+{"key": "ddc52f288b196759", "pred": 1, "story": "A plataforma deve permitir a edi\u00e7\u00e3o de vetores.", "raw": "1"}
+{"key": "8f4dd74d9536e675", "pred": 1, "story": "A plataforma deve permitir o anexo de arquivos de m\u00eddia como foto, filmagem e \u00e1u", "raw": "1"}
+{"key": "76aa24fca396e694", "pred": 0, "story": "A plataforma deve permitir a exporta\u00e7\u00e3o de dados nos formatos CSV, XLS e HTML.", "raw": "0"}
+{"key": "2939e325df517d91", "pred": 1, "story": "A plataforma deve permitir coleta de dados offline com sincroniza\u00e7\u00e3o posterior.", "raw": "1"}
+{"key": "6803b195548a37b6", "pred": 1, "story": "A plataforma deve permitir a exporta\u00e7\u00e3o de dados nos formatos CSV, XLS e HTML.", "raw": "1"}
+{"key": "51554d2ead1d8e89", "pred": 1, "story": "A plataforma deve permitir a exporta\u00e7\u00e3o por camadas, permitindo selecionar quais", "raw": "1"}
+{"key": "b1b7e900dd4a3298", "pred": 1, "story": "A plataforma deve ter um sistema de gamifica\u00e7\u00e3o que incentive o crescimento cole", "raw": "1"}
+{"key": "cee831f9cc16649e", "pred": 1, "story": "A plataforma deve permitir coleta de dados offline com sincroniza\u00e7\u00e3o posterior.", "raw": "1"}
+{"key": "ae4567970484de36", "pred": 1, "story": "A gamifica\u00e7\u00e3o deve incluir medalhas e avatares que evoluem conforme o usu\u00e1rio co", "raw": "1"}
+{"key": "9003f3219126bf91", "pred": 1, "story": "A gamifica\u00e7\u00e3o deve incluir medalhas e avatares que evoluem conforme o usu\u00e1rio co", "raw": "1"}
+{"key": "78cb109481cd4d6e", "pred": 1, "story": "A gamifica\u00e7\u00e3o deve ser geral da plataforma, acumulando contribui\u00e7\u00f5es de diferent", "raw": "1"}
+{"key": "82a3f080a65d23d9", "pred": 1, "story": "A plataforma deve integrar-se com o sistema vicom Saga atrav\u00e9s de um plugin para", "raw": "1"}
+{"key": "dad01a577a8ed218", "pred": 0, "story": "A plataforma deve ter uma funcionalidade de marca\u00e7\u00e3o de trilha (tracking).", "raw": "0"}
+{"key": "8b2a57110cd344db", "pred": 0, "story": "A plataforma deve ter uma funcionalidade de marca\u00e7\u00e3o de trilha (tracking).", "raw": "0"}
+{"key": "7c6f5af2756ef4f0", "pred": 1, "story": "A plataforma deve integrar-se com o sistema vicom Saga atrav\u00e9s de um plugin para", "raw": "1"}
+{"key": "197379d46a4f1d82", "pred": 1, "story": "A gamifica\u00e7\u00e3o deve ser geral da plataforma, acumulando contribui\u00e7\u00f5es de diferent", "raw": "1"}
+{"key": "c5a8b32fa926691f", "pred": 1, "story": "A plataforma deve permitir a importa\u00e7\u00e3o de camadas shapefile (shp) do QGIS.", "raw": "1"}
+{"key": "1ec385a6a1a54cdf", "pred": 1, "story": "A plataforma deve ser capaz de escalar para atender muitas prefeituras e potenci", "raw": "1"}
+{"key": "7ba90cac08472ca0", "pred": 0, "story": "A plataforma deve ser est\u00e1vel e livre de bugs antes de um lan\u00e7amento massivo.", "raw": "0"}
+{"key": "c93da092713d41a9", "pred": 0, "story": "A plataforma deve estar dispon\u00edvel para implementa\u00e7\u00e3o em 4 a 6 meses.", "raw": "0"}
+{"key": "66d80570ff66997b", "pred": 1, "story": "A plataforma deve ser capaz de escalar para atender muitas prefeituras e potenci", "raw": "1"}
+{"key": "b7018fc1462140e5", "pred": 1, "story": "A plataforma deve integrar-se com o sistema vicom Saga atrav\u00e9s de um plugin para", "raw": "1"}

@@ -1,0 +1,566 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to browse Python data science courses, so that I can see what courses are available on the online learning platform.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7431,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.708,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6471,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6255,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6161,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to select Python data science courses of interest, so that I can choose which courses to learn.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7779,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7338,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6307,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6259,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6027,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to learn course content for the Python data science courses I select, so that I can study data science online.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.7467,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7019,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6625,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6408,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6097,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to submit assignments for the Python data science courses I am taking, so that my work can be evaluated.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.6543,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6426,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.637,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6301,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5978,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to query my own learning grades, so that I can see my performance in the Python data science courses.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6646,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6641,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6593,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6483,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6318,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want the platform’s background layer to use a honeydew color, so that the interface follows the specified background styling.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.3748,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3733,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3567,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3514,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3497,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the platform’s component layer to use a dark olive green color, so that the interface follows the specified component styling.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.3637,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3595,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3532,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.347,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.338,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to browse available Python data science courses",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.76,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6941,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6131,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6014,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5978,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to select courses I am interested in explicitly.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.692,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6556,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6003,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4898,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4849,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to interact with the platform by submitting assignments online.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.5054,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5013,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4928,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4824,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4734,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer to actively query and check my own grades.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5553,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5516,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5115,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.506,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4908,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I expect the platform to focus on Python-oriented data science courses.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.6678,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6441,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5851,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.5614,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.5103,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I expect the platform to provide structured course content associated with each selected course.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7305,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7222,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7039,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6682,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6613,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I expect the platform to store and present my evaluated learning outcomes in the form of grades.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.6573,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6312,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6165,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6055,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6027,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR7",
+      "gold_text": "I prefer the platform’s background layer to use a honeydew color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.4056,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3989,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3955,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3783,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.3743,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR8",
+      "gold_text": "I prefer the platform’s component layer to use a dark olive green color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.4286,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4164,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.402,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4004,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.3954,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

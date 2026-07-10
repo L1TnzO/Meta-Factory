@@ -1,0 +1,61 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "NOTF05",
+      "cosine": 0.4548,
+      "gold_text": "O sistema deve garantir o armazenamento de dados para reaproveitá-los em edições futuras.",
+      "matched_text": "The system shall store and allow querying the history of WEPGCOMP event editions."
+    },
+    {
+      "gold_id": "NOTF01",
+      "cosine": 0.548,
+      "gold_text": "O sistema deve possuir autenticação segura para garantir a integridade dos cadastros.",
+      "matched_text": "As a user, I want the system to require a username and password to log in, so that my identity is verified before accessing the platform."
+    },
+    {
+      "gold_id": "FUNC23",
+      "cosine": 0.5771,
+      "gold_text": "O sistema deve permitir que professores avaliadores e ouvintes votem nas apresentações.",
+      "matched_text": "As any registered user, I want to view and follow presentations and also vote on them, so that I can participate in the evaluation process."
+    },
+    {
+      "gold_id": "FUNC20",
+      "cosine": 0.5782,
+      "gold_text": "O sistema deve permitir que administradores alterem data, horário e demais informações das apresentações.",
+      "matched_text": "As a system administrator, I want to review and edit presentations registered by students, so that the data quality is ensured."
+    },
+    {
+      "gold_id": "FUNC28",
+      "cosine": 0.5935,
+      "gold_text": "O sistema deve permitir que administradores alterem as informações de apresentações para organização do evento.",
+      "matched_text": "As a system administrator, I want to review and edit presentations registered by students, so that the data quality is ensured."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "FUNC21",
+      "cosine": 0.6958,
+      "gold_text": "O sistema deve permitir que doutorandos façam upload do conteúdo da apresentação em formato PDF, limitado a 10MB."
+    },
+    {
+      "gold_id": "FUNC38",
+      "cosine": 0.6645,
+      "gold_text": "O sistema deve avisar ao administrador que as apresentações ficarão sem horário atribuído em caso de alteração de tempo alocado ou quantidade de apresentações."
+    },
+    {
+      "gold_id": "FUNC30",
+      "cosine": 0.6568,
+      "gold_text": "O sistema deve permitir que administradores listem os doutorandos com base nas notas das apresentações."
+    },
+    {
+      "gold_id": "FUNC39",
+      "cosine": 0.6492,
+      "gold_text": "O sistema deve impedir que a data de limite da submissão seja posterior ao início do evento em caso de edição dos parâmetros da edição ativa."
+    },
+    {
+      "gold_id": "FUNC24",
+      "cosine": 0.6222,
+      "gold_text": "O sistema deve registrar as notas associadas ao doutorando da apresentação."
+    }
+  ]
+}

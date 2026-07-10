@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_15",
+  "task_name": "Solar Company Information and Product Website",
+  "application_type": "Showcase Websites",
+  "timestamp": "2026-07-06T18:18Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "d9ed337ebe664884a7d8f6691ffbd67a2ee5b4c8e928b54107421c0662396671",
+  "n_chunks": 6,
+  "n_requirements": 14,
+  "grounded": 7,
+  "fidelity": 0.5,
+  "n_golden": 12,
+  "oracle_recall": 0.6667,
+  "oracle_precision": 0.2857,
+  "n_implicit": 6,
+  "implicit_yield": 0.3333,
+  "cci": 1.1667,
+  "citation_coverage": 0.8333,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 2,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.8333,
+      0.8333,
+      0.8333
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 5,
+    "requirements": 14
+  },
+  "usage": {
+    "prompt_tokens": 105363,
+    "completion_tokens": 3447
+  }
+}

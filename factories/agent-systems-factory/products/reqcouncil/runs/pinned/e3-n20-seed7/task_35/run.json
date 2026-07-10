@@ -1,0 +1,65 @@
+{
+  "experiment": "E3",
+  "task_id": "task_35",
+  "task_name": "Multi-State Product Price Comparison System",
+  "application_type": "E-commerce Web",
+  "timestamp": "2026-07-06T19:15Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "add77fa2f7cf93c86371e5bbe8d693ee035146dc21fe2cefb0968dcccd06d705",
+  "n_chunks": 6,
+  "n_requirements": 9,
+  "grounded": 6,
+  "fidelity": 0.6667,
+  "n_golden": 10,
+  "oracle_recall": 0.3,
+  "oracle_precision": 0.1111,
+  "n_implicit": 6,
+  "implicit_yield": 0.3333,
+  "cci": 0.9,
+  "citation_coverage": 1.0,
+  "rounds": {
+    "rounds_run": 3,
+    "stop_reason": "coverage_plateau",
+    "deltas": [
+      {
+        "added": 1,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.8333,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 7,
+    "requirements": 9
+  },
+  "usage": {
+    "prompt_tokens": 83305,
+    "completion_tokens": 2778
+  }
+}

@@ -1,0 +1,84 @@
+{"key": "56ca4f42a6a89f46", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries ", "raw": "1"}
+{"key": "4a792ec3097248c3", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "8090fa355c346183", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "05678fcc1bd13d8c", "pred": 0, "story": "As a system, I want to store employee attendance records that include at least e", "raw": "0"}
+{"key": "065a7bd9c55881d1", "pred": 1, "story": "As a system, I want to store employee attendance records that include at least e", "raw": "1"}
+{"key": "c29eb02fac3baf8a", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries ", "raw": "1"}
+{"key": "ce311da1765a527d", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "11ad6875b87cd575", "pred": 1, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "1"}
+{"key": "36559fbbde7840d0", "pred": 1, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "1"}
+{"key": "f4fd2842c10128a1", "pred": 0, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "0"}
+{"key": "97fa696cd044d52f", "pred": 1, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "1"}
+{"key": "a993d65db53f6082", "pred": 1, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "1"}
+{"key": "c0f4e4bdfc3f2e28", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries ", "raw": "1"}
+{"key": "985b489476b98c6c", "pred": 1, "story": "As a manager or HR personnel, I want to generate reports that include daily summ", "raw": "1"}
+{"key": "346173f1ab716a41", "pred": 0, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "0"}
+{"key": "00a0939fefaa7009", "pred": 1, "story": "As an employee, I want to record my clock-in and clock-out times so that my atte", "raw": "1"}
+{"key": "23fc0a791161d76a", "pred": 0, "story": "As an employee, I want to record my clock-in and clock-out times so that my atte", "raw": "0"}
+{"key": "f91beae4100f45b7", "pred": 1, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "1"}
+{"key": "8f4d5b3d881cfd89", "pred": 1, "story": "As an employee, I want to record my clock-in and clock-out times so that my atte", "raw": "1"}
+{"key": "be8759b1dea9727f", "pred": 1, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "1"}
+{"key": "3794c5d7f5e9ac9e", "pred": 1, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "1"}
+{"key": "5b06e42c88d4ec50", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "24a1d9783d39806c", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "13d582d1af4e820e", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "1559b23113077d96", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "86f87ebae82da98f", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "e5be6442d0f4cfe8", "pred": 1, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "1"}
+{"key": "251543efd8a243ef", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "9c15e2e95c5d823f", "pred": 1, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "1"}
+{"key": "c23221f1847a4162", "pred": 0, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "0"}
+{"key": "7866df7fc6725532", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}
+{"key": "2146bcd50788e4d2", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}
+{"key": "2e24c1884a596e10", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}
+{"key": "00a65c1b0f5a6389", "pred": 0, "story": "As a system administrator, I want the system to integrate with external HR softw", "raw": "0"}
+{"key": "057d36e8c1b0ed0d", "pred": 1, "story": "As a system, I want to accept attendance data from multiple input sources (e.g.,", "raw": "1"}
+{"key": "048194509f68b4df", "pred": 0, "story": "The system shall capture attendance data with 100% accuracy for every clock-in a", "raw": "0"}
+{"key": "01027b6db93417a0", "pred": 0, "story": "As a system, I want to accept attendance data from multiple input sources (e.g.,", "raw": "0"}
+{"key": "de8bcf279a6a153e", "pred": 0, "story": "As a system, I want to accept attendance data from multiple input sources (e.g.,", "raw": "0"}
+{"key": "e2ef0e63b5a552ea", "pred": 0, "story": "The system shall reliably capture and store attendance data from multiple source", "raw": "0"}
+{"key": "da8da59b51f59710", "pred": 0, "story": "The system shall reliably capture and store attendance data from multiple source", "raw": "0"}
+{"key": "7740c27547b39dd5", "pred": 0, "story": "The system shall capture attendance data with 100% accuracy for every clock-in a", "raw": "0"}
+{"key": "33d1a83c65f7f771", "pred": 1, "story": "The system shall reliably capture and store attendance data from multiple source", "raw": "1"}
+{"key": "8be70ebfe76d8360", "pred": 0, "story": "As a system, I want to log all access to attendance records with user identity a", "raw": "0"}
+{"key": "e6da4bcaaf0ba30f", "pred": 0, "story": "As a system, I want to encrypt attendance data at rest and in transit, so that p", "raw": "0"}
+{"key": "7eabbc82306cbcd4", "pred": 0, "story": "As a system, I want to encrypt attendance data at rest and in transit, so that p", "raw": "0"}
+{"key": "9cc2a849c342a58a", "pred": 0, "story": "As a system, I want to log all access to attendance records with user identity a", "raw": "0"}
+{"key": "29e2a132b6c55a48", "pred": 0, "story": "As a system administrator, I want to configure data retention policies for atten", "raw": "0"}
+{"key": "577a39c780e43d62", "pred": 0, "story": "As a system administrator, I want to configure data retention policies for atten", "raw": "0"}
+{"key": "2309f06437555527", "pred": 0, "story": "The system shall log all access to attendance records with user identity and tim", "raw": "0"}
+{"key": "e4766676dac24332", "pred": 0, "story": "The system shall log all access to attendance records with user identity and tim", "raw": "0"}
+{"key": "bd3c2b55e00e9a8b", "pred": 0, "story": "As a system, I want to store employee attendance records that include employee i", "raw": "0"}
+{"key": "15016d65a4f0daa2", "pred": 0, "story": "The system shall encrypt attendance data at rest and in transit, so that persona", "raw": "0"}
+{"key": "15da770f5265dc47", "pred": 1, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "1"}
+{"key": "2d75d1afc6858af4", "pred": 1, "story": "As a system, I want to store employee attendance records that include employee i", "raw": "1"}
+{"key": "9e24e4a5196b294d", "pred": 1, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "1"}
+{"key": "05f92dded3ec314d", "pred": 0, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "0"}
+{"key": "24eda1b3ddea13b1", "pred": 0, "story": "The system shall encrypt attendance data at rest and in transit, so that persona", "raw": "0"}
+{"key": "06e9048e31104338", "pred": 1, "story": "As an HR personnel or executive, I want to view high-level attendance dashboards", "raw": "1"}
+{"key": "302f7242ee1cbfee", "pred": 1, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "1"}
+{"key": "7ffcd25fed6dfd1c", "pred": 1, "story": "As a system, I want to reliably capture and store employee attendance data from ", "raw": "1"}
+{"key": "9b42dc518274cb79", "pred": 1, "story": "As an employee, I want to record my clock-in and clock-out times, so that my att", "raw": "1"}
+{"key": "65e67d796a5c7429", "pred": 0, "story": "As an employee, I want to record my clock-in and clock-out times, so that my att", "raw": "0"}
+{"key": "e91e36dfa4078fae", "pred": 1, "story": "As an employee, I want to record my clock-in and clock-out times, so that my att", "raw": "1"}
+{"key": "3500690ff6a92695", "pred": 0, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "0"}
+{"key": "ec1d16758e650908", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries,", "raw": "1"}
+{"key": "2cd0e86419daedb1", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries,", "raw": "1"}
+{"key": "c611626d8812aa81", "pred": 1, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "1"}
+{"key": "20c325650d9c0061", "pred": 1, "story": "As a manager or HR personnel, I want to view team-based attendance trends and re", "raw": "1"}
+{"key": "78846ad8e7841d19", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "7767a259a71b8b01", "pred": 1, "story": "As an employee, I want to view my own personal attendance history and summaries,", "raw": "1"}
+{"key": "3a363ec523d8ea93", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "99230237ce5ab23f", "pred": 1, "story": "As a system administrator, I want to define and manage access controls for atten", "raw": "1"}
+{"key": "1b156075cf815391", "pred": 0, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "0"}
+{"key": "7cfda71db622df14", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "aa69bef18dc0c3c6", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "c89c5fc18cb64b61", "pred": 1, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "1"}
+{"key": "b1bda8a6903b68ea", "pred": 1, "story": "As a manager, I want to view an individual employee's attendance record over a s", "raw": "1"}
+{"key": "a7686ad5c6c8548b", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "60d4d20837238eaf", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "f65f76e6495c7294", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}
+{"key": "7331bb430523c717", "pred": 1, "story": "As an HR personnel, I want to generate monthly attendance summaries per employee", "raw": "1"}
+{"key": "d7631fe037b6d634", "pred": 1, "story": "As a manager, I want to view a daily summary of my team's attendance (e.g., who ", "raw": "1"}
+{"key": "bab24c493dadf5ed", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}
+{"key": "c4d623caad262bb0", "pred": 1, "story": "As a manager, I want to receive or view exception reports (e.g., for late arriva", "raw": "1"}

@@ -1,0 +1,217 @@
+{"key": "ea295db80d21f1e8", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "f97aa84c07146b61", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "de6a60c4471b79f7", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "08f8890cc68eaa2d", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "9c35e16c59dcff47", "pred": 0, "gold": "O sistema deve permitir que professores e doutorandos do PGC"}
+{"key": "51269108cdafe0ca", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "248a252dfcaab53c", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "aa3911e45a42e584", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "4632751806cb001c", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "66aab73a5d35abf9", "pred": 0, "gold": "O sistema deve validar o e-mail e matr\u00edcula UFBA para garant"}
+{"key": "12a215c4145d81cb", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "94e150997a745e1c", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "a2cc43c9360a7bc0", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "1073efa0a7a5838f", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "d04ff8ae4447f220", "pred": 0, "gold": "O sistema deve enviar um e-mail de confirma\u00e7\u00e3o com um link v"}
+{"key": "980ff43353354b42", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "de3ade4e9950c45b", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "00117b0da97cfca5", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "db4ebc4c0b21f9ca", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "6b6326950918cd2b", "pred": 0, "gold": "O sistema deve liberar o login do professor apenas ap\u00f3s apro"}
+{"key": "3c78f603831d342b", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "49b2e1c25564a0ad", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "81a05f873a86d442", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "451128b6705fd1aa", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "81c350c0e76d9269", "pred": 0, "gold": "O sistema deve permitir que ouvintes se cadastrem utilizando"}
+{"key": "044933d412f9c488", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "6560d91e3e8de662", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "ab267b4abad83a46", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "30e05fb52c01df97", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "87cf61192b368533", "pred": 0, "gold": "O sistema deve exigir uma senha forte para cria\u00e7\u00e3o da conta."}
+{"key": "e492e8c1e001a5f9", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "725875011b5c3b0f", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "768e99dfa231c3f7", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "8f9f3c969cc7591f", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "8af2a126768a5506", "pred": 0, "gold": "O sistema deve permitir que administradores concedam privil\u00e9"}
+{"key": "7684a374c7a012f7", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "cda791f4acadc2d7", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "8560993437538ee3", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "d9ecaec45806c37a", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "05ce71eecb59d063", "pred": 0, "gold": "O sistema deve atribuir automaticamente o primeiro professor"}
+{"key": "007cee423324e13a", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "d1edf61015143187", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "a24092ae2c9147fd", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "08e39da482a671b0", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "8a939c253530139f", "pred": 0, "gold": "O sistema deve permitir que apenas Super Administradores adi"}
+{"key": "9efd81d11b88d361", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "3ea388e170ea9f8c", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "d4eecbb872d42e8d", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "746d314fd203bcf3", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "3fe6f5011dbc5cf9", "pred": 0, "gold": "O sistema deve permitir que Super Administradores concedam p"}
+{"key": "d761c2b700ea8a34", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "fd10c79e28e253ee", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "fe6511434e5ccc34", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "bbbc2f8fbd81da7b", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "c85f56be1a531cea", "pred": 0, "gold": "O sistema deve tornar automaticamente um coordenador de edi\u00e7"}
+{"key": "2b74191d21e6107d", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "680ca7045449f891", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "31ac87a7ff19e538", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "d9866842756290b2", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "f3747a36c858a698", "pred": 0, "gold": "O sistema deve permitir que um Super Administrador atribua o"}
+{"key": "16d4c5b99bfd90bf", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "a982ac5941226010", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "412315aa19ef6bd8", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "ff4305f1004f0836", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "d9db866b0860aa4a", "pred": 0, "gold": "O sistema deve garantir que apenas um coordenador exista por"}
+{"key": "f1880252ea75639a", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "2e466fc0c621e0ef", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "56256d7e16c3a678", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "c8b739efac37de7c", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "5290a9c963dace61", "pred": 0, "gold": "O sistema deve garantir que o coordenador tamb\u00e9m seja admini"}
+{"key": "57945f43d6ac058d", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "9bfbe6e4a61d5d92", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "8e67730fe5eaf05a", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "b7af0ac5e22e5f7a", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "50fbf19d2e624fb0", "pred": 0, "gold": "O sistema deve permitir que administradores avaliem pedidos "}
+{"key": "fdcd8a5352ea726d", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "45177a21325a772b", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "cd184edc3289c4ff", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "6cd6ce0f6b207c5a", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "01cc35811d19f581", "pred": 0, "gold": "O sistema deve bloquear o login de um professor at\u00e9 que sua "}
+{"key": "9dfa814cf41255ef", "pred": 1, "gold": "O sistema deve permitir que doutorandos apresentadores cadas"}
+{"key": "7cf4aebdaeca7729", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "dd37465647863f40", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "ef13a4787d105440", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "a0583102f46b0416", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "dc1d998fe5f713e0", "pred": 0, "gold": "O sistema deve armazenar as informa\u00e7\u00f5es do doutorando e asso"}
+{"key": "be185758bab45750", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "575e236982c6363e", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "b6507a3c4c948590", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "9c1ffdb4281cb9ad", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "c36c1d32d29dd590", "pred": 0, "gold": "O sistema deve permitir que administradores alterem data, ho"}
+{"key": "2b58b91c00116d18", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "d822646ce461a1a0", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "efce014eaaf06310", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "263eadca41f10469", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "b0009d9a3b5d68d4", "pred": 0, "gold": "O sistema deve permitir que doutorandos fa\u00e7am upload do cont"}
+{"key": "56ea53fc8cd48485", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "2b277d78631ae954", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "842571149a6ba668", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "a2dd82c40fc257d3", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "bac865dfa348daaa", "pred": 0, "gold": "O sistema deve disponibilizar o conte\u00fado na p\u00e1gina da aprese"}
+{"key": "5334418c704918f8", "pred": 0, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "10c37a8f052a4e96", "pred": 0, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "0be37693b434fcd3", "pred": 0, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "efb761abb0d1b278", "pred": 0, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "c8d4e4784808d6b7", "pred": 0, "gold": "O sistema deve permitir que professores avaliadores e ouvint"}
+{"key": "2d25f14b028d4662", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "1da41c67b998829f", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "8c9af75473c58530", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "04a73c50f10c7319", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "0f7faef484837027", "pred": 0, "gold": "O sistema deve registrar as notas associadas ao doutorando d"}
+{"key": "883ae03ae27eee72", "pred": 0, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "f76770e296fbfe57", "pred": 0, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "d202dd4d16b98af1", "pred": 0, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "04ce66c38a33987c", "pred": 0, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "75da5da1f9317aad", "pred": 0, "gold": "O sistema deve permitir que administradores criem e excluam "}
+{"key": "e9e3623a6ef391a3", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "33d57295d4d6510d", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "a8a6253f5d252bf4", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "ac2981f4dbb2a81a", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "4f01bc4aeb62f286", "pred": 0, "gold": "O sistema deve bloquear todas as salas no per\u00edodo de uma ses"}
+{"key": "6c29ad305b5a8397", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "886e1c409ce14c58", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "37f342f3c878ec1e", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "1590cab8d6e45b98", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "1ba930467d173e89", "pred": 0, "gold": "O sistema deve validar a sess\u00e3o antes de inclu\u00ed-la no cronog"}
+{"key": "83bc106543652002", "pred": 0, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "f8dfa074e4ce9cfd", "pred": 0, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "bc15b311d80c67ae", "pred": 0, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "c3333310442c4b34", "pred": 0, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "0128ec6cad875723", "pred": 0, "gold": "O sistema deve permitir que administradores alterem as infor"}
+{"key": "c9c952f201e2ad99", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "55cd1ebc472be7a8", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "67624472e5c665ff", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "57015b85edf4e9e9", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "cbb354fa119ed980", "pred": 0, "gold": "O sistema deve calcular a nota de cada apresenta\u00e7\u00e3o consider"}
+{"key": "35b0784c7a5ea7c0", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "c155dfc1a26dec0f", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "18df783deb37cb74", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "c28ab523f6e8fe78", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "88badbf44de6b7a9", "pred": 0, "gold": "O sistema deve permitir que administradores listem os doutor"}
+{"key": "cf03052bdbf0fce7", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "8c7b86e3238a3019", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "18c106973a543d69", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "9ab4aac0b1f6c6c3", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "d703489d8a412701", "pred": 0, "gold": "O sistema deve permitir que administradores selecionem subje"}
+{"key": "d2ed65ddf35d6931", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "a9c22182de50615b", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "1c27d9eb6b7cceda", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "1dc30697e8398c45", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "f7842cb69de7af56", "pred": 0, "gold": "O sistema deve enviar certificados de participa\u00e7\u00e3o em PDF pa"}
+{"key": "a1aacaf4dfffff7e", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "f129bb023046b392", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "2bbc4b21a44a1479", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "024876fae7271030", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "04cfac9436bbffb9", "pred": 0, "gold": "O sistema deve dispor de uma p\u00e1gina inicial contendo os pain"}
+{"key": "de938682a4285db7", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "2f1e80642b988aa8", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "52e85199e9d2cf29", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "a895923c01a67569", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "2e37ba422e9be18f", "pred": 0, "gold": "O sistema deve permitir que usu\u00e1rios visualizem na p\u00e1gina in"}
+{"key": "01f756b08293671e", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "aa91843bf1e66c1d", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "5ec34093c273127c", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "8cc212a39dae5b70", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "789a0dad26e211d8", "pred": 0, "gold": "O sistema deve permitir que administradores removam usu\u00e1rios"}
+{"key": "14c3fb7a781042ea", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "d802edf5afadcb8a", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "4d5edced6c42cf0c", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "f70fbf3a0d0414a0", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "eac2167d690c0e55", "pred": 0, "gold": "O sistema deve permitir que administradores criem novas edi\u00e7"}
+{"key": "50e507145e4bf8b9", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "eb3caf9909afbd8b", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "031d74d84a8a3478", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "07f2f33a6ab10cfc", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "48498a25479913d5", "pred": 0, "gold": "O sistema deve permitir que administradores editem par\u00e2metro"}
+{"key": "862aa9c78d72ceca", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "341401feef4b5cfb", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "70f728dc24faba90", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "452cf52dd61f422e", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "1de8dc7437fb3572", "pred": 0, "gold": "O sistema deve avisar ao administrador que as apresenta\u00e7\u00f5es "}
+{"key": "740f03053edb1780", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "ad5b3fdc56850701", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "f923ff2ec1b0d0f0", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "b54122e6798ce632", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "1f569cae115a4c48", "pred": 0, "gold": "O sistema deve impedir que a data de limite da submiss\u00e3o sej"}
+{"key": "259b15d780a8c078", "pred": 0, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "75edd042c2ae656a", "pred": 0, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "ca358c71b48ab3f7", "pred": 0, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "b39a990e5623b021", "pred": 0, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "d4bea4dc74e7edde", "pred": 0, "gold": "O sistema deve permitir que administradores reordenem as apr"}
+{"key": "f7d83ab7f7ac2e7b", "pred": 0, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "bb6ffc10aed2f60a", "pred": 0, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "a3de76e19a298e66", "pred": 0, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "a89492bb2e10cc92", "pred": 0, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "970e5d0d8a7d7c5b", "pred": 0, "gold": "O sistema deve possuir autentica\u00e7\u00e3o segura para garantir a i"}
+{"key": "2bc0ba13541fb1fd", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "9b6f82285987ff3a", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "6d6fc2061917cecc", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "24969edf9ca0b777", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "e8a58c01c1ab4c26", "pred": 0, "gold": "O sistema deve fornecer uma interface intuitiva para facilit"}
+{"key": "364c09548155a826", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "bc3c36acc1d64175", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "daf3d15210250583", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "9afe5c828ae66aa8", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "9c6c848b42f32d3f", "pred": 0, "gold": "O sistema deve estar dispon\u00edvel durante todo o per\u00edodo do ev"}
+{"key": "9729ab0e53edb31d", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "eadc6692805e3137", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "0b282bda90fe871e", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "58f3179b3d564e79", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "4ba0584fd7b8c65a", "pred": 0, "gold": "O sistema deve suportar a hospedagem de m\u00faltiplas edi\u00e7\u00f5es do"}
+{"key": "2349c591cb858504", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "e4fe9f61f7417f65", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "84c9aa56af42e058", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "5ea494990175d544", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "16f087499003be28", "pred": 0, "gold": "O sistema deve garantir o armazenamento de dados para reapro"}
+{"key": "0eeefc38b4946f8f", "pred": 1, "gold": "O sistema deve suportar os acessos simult\u00e2neos durante o per"}

@@ -1,0 +1,566 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to access a website for the Global Institute of Information Security, so that I can interact with its courses and enrollment services online.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7226,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5984,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5775,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5198,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4648,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to view a course catalog on the website, so that I can see all available courses from the institute.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a website visitor, I want to view a list of available courses so that I can see what the institute offers.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.9081,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7486,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4641,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4533,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.424,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to browse courses on the website, so that I can explore the different learning options offered.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a website visitor, I want to view a list of available courses so that I can see what the institute offers.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7974,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.743,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5038,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.449,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4377,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to view detailed information for each course, so that I can understand what each course covers before deciding to enroll.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.8373,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7583,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4909,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4813,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4696,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to enroll in courses online through the website, so that I can register for courses without needing to visit the institute physically.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7013,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6136,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4617,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4543,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4259,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to use a contact form on the website, so that I can contact the institute directly through the site.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "As a website visitor, I want to use a general contact form for general inquiries so that I can submit inquiries.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7823,
+          "verdict": 1
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7067,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6783,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6721,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5679,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to view certification pathways on the website, so that I can understand how different courses lead to specific certifications.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.6877,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6503,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4539,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.403,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3855,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want all pages of the website to use a lavender background, so that the visual style is consistent across the site.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.4167,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3973,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3923,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.384,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3674,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want all UI components to be styled in indigo, so that the website maintains a unified and coherent visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.4114,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.3908,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3891,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.366,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3491,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to explore available courses through a structured course catalog",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a website visitor, I want to view a list of available courses so that I can see what the institute offers.",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.771,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7122,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4255,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4069,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4015,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to browse courses interactively before making enrollment decisions.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.6889,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6526,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4468,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4399,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4267,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to enroll in courses directly through the website.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.6799,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6184,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4762,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4332,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.4039,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I expect the website to provide detailed descriptions for each course, including what the course covers.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.7316,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6946,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4694,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4175,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4101,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I expect the website to clearly present certification pathways that show how courses relate to certifications.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.6223,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6097,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4165,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3889,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3843,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer the website to use a lavender background across all pages.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.441,
+          "verdict": 0
+        },
+        {
+          "produced": 1,
+          "cosine": 0.4217,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4205,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4146,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4144,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I prefer the website’s interface components to use an indigo color scheme for a consistent visual appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.4477,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.4441,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4365,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4208,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.4123,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

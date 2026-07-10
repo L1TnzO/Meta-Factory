@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_14",
+  "task_name": "Clinical Office Information and Services Website",
+  "application_type": "Showcase Websites",
+  "timestamp": "2026-07-06T18:14Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "1aceee2f1be7ae6e7818f2a3b3b79ab1e6141d812a3edf7bc95597e9e574b9d8",
+  "n_chunks": 6,
+  "n_requirements": 5,
+  "grounded": 4,
+  "fidelity": 0.8,
+  "n_golden": 10,
+  "oracle_recall": 0.6,
+  "oracle_precision": 0.4,
+  "n_implicit": 4,
+  "implicit_yield": 0.25,
+  "cci": 0.5,
+  "citation_coverage": 0.8333,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "coverage_plateau",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 10,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 4,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.8333,
+      0.8333,
+      0.8333
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 4,
+    "requirements": 5
+  },
+  "usage": {
+    "prompt_tokens": 113008,
+    "completion_tokens": 6321
+  }
+}

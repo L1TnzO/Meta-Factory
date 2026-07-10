@@ -1,0 +1,37 @@
+{"key": "91a56cb1d7793b50", "pred": 1, "story": "As a user, I want the system to ensure that housing price and amenities data are", "raw": "1"}
+{"key": "70d8b4f41c6d611d", "pred": 1, "story": "As a user, I want the system to store housing price data for each neighborhood, ", "raw": "1"}
+{"key": "8730e6add089020e", "pred": 1, "story": "As a user, I want the system to store local amenities data for each neighborhood", "raw": "1"}
+{"key": "5a1fdc4939d7573a", "pred": 0, "story": "As a user, I want the system to store geographical boundary and location data fo", "raw": "0"}
+{"key": "6d6abd49497229ee", "pred": 1, "story": "As a user, I want the system to store housing price data for each neighborhood, ", "raw": "1"}
+{"key": "c505707b98d9855c", "pred": 0, "story": "As a user, I want the system to store geographical boundary and location data fo", "raw": "0"}
+{"key": "7801316b3efa2ae7", "pred": 1, "story": "As a user, I want to view a list of different neighborhoods so that I can select", "raw": "1"}
+{"key": "4c04c22f629d474b", "pred": 1, "story": "As a user, I want the system to store local amenities data for each neighborhood", "raw": "1"}
+{"key": "6ad288121b839054", "pred": 1, "story": "As a user, I want to view detailed housing price data for a selected neighborhoo", "raw": "1"}
+{"key": "962282b9325c834b", "pred": 1, "story": "As a user, I want to view detailed housing price data for a selected neighborhoo", "raw": "1"}
+{"key": "e945a31bbf06da9c", "pred": 1, "story": "As a user, I want to view housing price and local amenities data in side-by-side", "raw": "1"}
+{"key": "b25c4883b1580919", "pred": 1, "story": "As a user, I want to use an interactive map to see the geographical locations an", "raw": "1"}
+{"key": "5069d89775f6a4a4", "pred": 1, "story": "As a user, I want to view housing price and local amenities data in side-by-side", "raw": "1"}
+{"key": "e468b526fbc74ae2", "pred": 1, "story": "As a user, I want to view a detailed list of local amenities for a selected neig", "raw": "1"}
+{"key": "b6784eed886fcf4b", "pred": 1, "story": "As a user, I want to view housing price and local amenities data in side-by-side", "raw": "1"}
+{"key": "7f384e9432756d0c", "pred": 1, "story": "As a user, I want to view a detailed list of local amenities for a selected neig", "raw": "1"}
+{"key": "60ae884cd6d076cb", "pred": 1, "story": "As a user, I want to use an interactive map to see the geographical locations an", "raw": "1"}
+{"key": "4d4d2c4cc3b34141", "pred": 1, "story": "As a user, I want to select neighborhoods from the interactive map to view or ad", "raw": "1"}
+{"key": "fab563f6f78e7ca6", "pred": 0, "story": "As a system, I want to consume housing price data from an external API or datase", "raw": "0"}
+{"key": "42e4c29782ebb4b4", "pred": 0, "story": "As a system, I want to consume housing price data from an external API or datase", "raw": "0"}
+{"key": "05ca12c6a3ecae87", "pred": 1, "story": "As a system, I want to consume local amenities data from an external API or data", "raw": "1"}
+{"key": "19d4568886f42514", "pred": 1, "story": "As a user, I want to use an interactive map to see the geographical locations an", "raw": "1"}
+{"key": "4ea4f9a5de21f66f", "pred": 0, "story": "The data (housing prices and local amenities) shall be accurate.", "raw": "0"}
+{"key": "19f2437463b698d5", "pred": 0, "story": "As a system, I want to consume local amenities data from an external API or data", "raw": "0"}
+{"key": "7ffbc8b2951546d7", "pred": 0, "story": "As a user, I want the system to authenticate me before granting access, so that ", "raw": "0"}
+{"key": "76c5e819f0851e90", "pred": 0, "story": "As a user, I want the system to authenticate me before granting access, so that ", "raw": "0"}
+{"key": "fcfa9b69efcd6be1", "pred": 0, "story": "As a user, I want the system to authenticate me before granting access, so that ", "raw": "0"}
+{"key": "537af951e2836f7d", "pred": 0, "story": "As a user, I want the system to maintain an audit log of data updates and user i", "raw": "0"}
+{"key": "c6450d3089678f09", "pred": 0, "story": "As a user, I want the system to protect my personal data (e.g., if registration ", "raw": "0"}
+{"key": "5d7f5673f3d17167", "pred": 0, "story": "As a user, I want the system to display a privacy policy and obtain my consent b", "raw": "0"}
+{"key": "388aa4b5e6e9e343", "pred": 0, "story": "As a user, I want the system to enforce role-based access control, so that diffe", "raw": "0"}
+{"key": "65e4348e87a55a40", "pred": 0, "story": "As a user, I want the system to display a privacy policy and obtain my consent b", "raw": "0"}
+{"key": "b66f573b7a0bf810", "pred": 1, "story": "The application shall provide side-by-side tables and an interactive map without", "raw": "1"}
+{"key": "608ce649f20dacd7", "pred": 0, "story": "The application shall provide side-by-side tables and an interactive map without", "raw": "0"}
+{"key": "acd5b348b3189da2", "pred": 0, "story": "As a user, I want the system to protect my personal data (e.g., if registration ", "raw": "0"}
+{"key": "41a61d2ef7ea0d7f", "pred": 0, "story": "As a user, I want the system to display a privacy policy and obtain my consent b", "raw": "0"}
+{"key": "9ca1d09b46675a10", "pred": 0, "story": "As a user, I want the system to protect my personal data (e.g., if registration ", "raw": "0"}

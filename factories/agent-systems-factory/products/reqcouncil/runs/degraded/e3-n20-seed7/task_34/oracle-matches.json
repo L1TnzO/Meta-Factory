@@ -1,0 +1,741 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to use a cryptocurrency escrow system for secure cryptocurrency transactions, so that my cryptocurrency trades are protected.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 17,
+      "matched_text": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty, so that my funds are protected from scams.",
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.8661,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.8539,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.844,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.7811,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7427,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a buyer, I want to browse sellers’ cryptocurrency products, so that I can see what is available for purchase.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.7186,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5876,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5782,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5758,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5735,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a buyer, I want to conduct transactions for selected cryptocurrency products, so that I can purchase them through the system.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.742,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.655,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6489,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6479,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6338,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a buyer, I want to deposit cryptocurrencies into an escrow account, so that the funds are held securely during the transaction.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As a user, I want the system to automatically and safely hold the cryptocurrency or funds in escrow once a trade is agreed upon, so that neither party can acces",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.8377,
+          "verdict": 1
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7989,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.7595,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.742,
+          "verdict": null
+        },
+        {
+          "produced": 1,
+          "cosine": 0.7107,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a seller, I want to view my cryptocurrency products, so that I can see what I am offering for sale.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.6891,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5909,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5855,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5781,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.5768,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a seller, I want to manage my cryptocurrency products, so that I can maintain and update my offerings.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.6682,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.5857,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.559,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5541,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.551,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a seller, I want to view my transaction records, so that I can track my past and current transactions.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6822,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6379,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6216,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6049,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5994,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a seller, I want to manage my transaction records, so that I can organize and handle my transaction history.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6557,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6178,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5999,
+          "verdict": 0
+        },
+        {
+          "produced": 18,
+          "cosine": 0.5768,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5737,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the system to provide transaction confirmation functionality, so that I can know the status of my transactions.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7517,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6594,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6555,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6149,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6094,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want the system to provide cryptocurrency release functionality, so that cryptocurrencies can be released from escrow when appropriate.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 7,
+      "matched_text": "As a user, I want the escrow system to interface with a cryptocurrency blockchain network to hold and release funds according to agreed conditions, so that the ",
+      "candidates": [
+        {
+          "produced": 7,
+          "cosine": 0.826,
+          "verdict": 1
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7893,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.7823,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7687,
+          "verdict": null
+        },
+        {
+          "produced": 17,
+          "cosine": 0.7119,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S10",
+      "gold_text": "As a user, I want the system to provide dispute resolution functionality, so that any issues with transactions can be addressed.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.684,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.645,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6395,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6273,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6168,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S11",
+      "gold_text": "As a user, I want the system’s background color to be initialized with light gray, so that the interface follows the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.389,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3634,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3444,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.3371,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3257,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S12",
+      "gold_text": "As a user, I want the system’s component color to be initialized with dark red, so that the interface components follow the specified color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4069,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3949,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.3786,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3643,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.363,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to browse and select cryptocurrency products before initiating a transaction.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.7329,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.646,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6131,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.6038,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6002,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer transactions to be conducted through an escrow workflow where funds are deposited first and released later.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 16,
+      "matched_text": "As a user, I want the escrowed funds to be released to me automatically and only after the agreed-upon conditions of the trade are verifiably met, so that I rec",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.7651,
+          "verdict": 1
+        },
+        {
+          "produced": 15,
+          "cosine": 0.763,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7338,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.69,
+          "verdict": null
+        },
+        {
+          "produced": 13,
+          "cosine": 0.682,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I prefer to receive explicit transaction confirmations to track transaction status.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6895,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6153,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.571,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5674,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5451,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the system to support dispute resolution as part of the transaction process.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.6297,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6182,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.604,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5962,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.59,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer sellers to be able to view and manage both their product listings and transaction records within the system.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.6018,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.5816,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5754,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.5653,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.5559,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I expect the system to present detailed cryptocurrency product listings from sellers.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 17,
+          "cosine": 0.6631,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6121,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.606,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5954,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5927,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR6",
+      "gold_text": "I prefer the system interface to use a light gray background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4722,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4076,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.3991,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.3989,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.392,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR7",
+      "gold_text": "I prefer the system components to use a dark red color scheme.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4715,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4375,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.4269,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4102,
+          "verdict": 0
+        },
+        {
+          "produced": 17,
+          "cosine": 0.3988,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

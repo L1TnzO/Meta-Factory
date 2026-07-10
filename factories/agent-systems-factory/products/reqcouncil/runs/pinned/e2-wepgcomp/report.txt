@@ -1,0 +1,7 @@
+=== E2 industry (wepgcomp) === model: deepseek-ai/DeepSeek-V4-Flash
+chunks: 28   requirements: 25   grounded: 22
+oracle: 6/46 gold matched  recall 0.1304   precision 0.2   critical_nfr_recall 0.5
+CCI vs 46 oracle items: 0.5435   (runtime band [4.7, 12.6] -> OUT, recorded only)
+citation coverage: 0.9286   rounds: 4 (stop: round_budget)
+store: ephemeral   tokens: {'prompt_tokens': 648070, 'completion_tokens': 30064}
+fidelity = 0.8800   ->  RED  (gates: fidelity + critical_nfr_recall + cci_band)

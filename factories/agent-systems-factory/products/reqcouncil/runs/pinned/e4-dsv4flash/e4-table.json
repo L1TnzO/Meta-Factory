@@ -1,0 +1,617 @@
+{
+  "experiment": "E4",
+  "timestamp": "2026-07-06T20:01Z",
+  "arms": {
+    "a": "single-pass zero-shot",
+    "b": "single-pass + study prompt",
+    "c": "council w/o critics (k_max=0)",
+    "d": "full ReqCouncil"
+  },
+  "corpora": [
+    "interview",
+    "wepgcomp",
+    "maislugar"
+  ],
+  "sources": {
+    "c-interview": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/pinned/e1-dsv4flash",
+    "d-interview": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/pinned/e1-h4-dsv4flash",
+    "d-maislugar": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/e2-maislugar",
+    "d-wepgcomp": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/e2-wepgcomp"
+  },
+  "rows": [
+    {
+      "experiment": "E4",
+      "arm": "a",
+      "arm_label": "single-pass zero-shot",
+      "corpus": "interview",
+      "status": "measured",
+      "timestamp": "2026-07-06T15:44Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+      "prompt_shas": {
+        "single_pass": "7ecd4e0efc42",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 132,
+      "n_requirements": 27,
+      "grounded": 27,
+      "fidelity": 1.0,
+      "coverage": 0.3788,
+      "oracle_recall": 0.3243,
+      "oracle_precision": 0.3704,
+      "critical_nfr_recall": null,
+      "cci": 0.7297,
+      "oracle_size": 37,
+      "usage": {
+        "prompt_tokens": 107906,
+        "completion_tokens": 1940
+      },
+      "generation_usage": {
+        "prompt_tokens": 20346,
+        "completion_tokens": 1879
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 87560,
+        "completion_tokens": 61
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 34155,
+        "completion_tokens": 146
+      },
+      "parse_log": [],
+      "elapsed_s": 1396.3
+    },
+    {
+      "experiment": "E4",
+      "arm": "a",
+      "arm_label": "single-pass zero-shot",
+      "corpus": "wepgcomp",
+      "status": "measured",
+      "timestamp": "2026-07-06T17:33Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "839e335d02ffb22e872c1855d0494c2431ac5a89132bd2a2be0044d5cdc59ae2",
+      "prompt_shas": {
+        "single_pass": "7ecd4e0efc42",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 28,
+      "n_requirements": 25,
+      "grounded": 22,
+      "fidelity": 0.88,
+      "coverage": 0.4286,
+      "oracle_recall": 0.1087,
+      "oracle_precision": 0.16,
+      "critical_nfr_recall": 0.1667,
+      "cci": 0.5435,
+      "oracle_size": 46,
+      "usage": {
+        "prompt_tokens": 56653,
+        "completion_tokens": 1739
+      },
+      "generation_usage": {
+        "prompt_tokens": 8364,
+        "completion_tokens": 1709
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 48289,
+        "completion_tokens": 30
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 46669,
+        "completion_tokens": 205
+      },
+      "parse_log": [],
+      "elapsed_s": 431.4
+    },
+    {
+      "experiment": "E4",
+      "arm": "a",
+      "arm_label": "single-pass zero-shot",
+      "corpus": "maislugar",
+      "status": "measured",
+      "timestamp": "2026-07-06T17:38Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+      "prompt_shas": {
+        "single_pass": "7ecd4e0efc42",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 113,
+      "n_requirements": 37,
+      "grounded": 34,
+      "fidelity": 0.9189,
+      "coverage": 0.2566,
+      "oracle_recall": 0.3824,
+      "oracle_precision": 0.3514,
+      "critical_nfr_recall": 0.0,
+      "cci": 1.0882,
+      "oracle_size": 34,
+      "usage": {
+        "prompt_tokens": 102506,
+        "completion_tokens": 2860
+      },
+      "generation_usage": {
+        "prompt_tokens": 21702,
+        "completion_tokens": 2806
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 80804,
+        "completion_tokens": 54
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 27199,
+        "completion_tokens": 118
+      },
+      "parse_log": [],
+      "elapsed_s": 309.0
+    },
+    {
+      "experiment": "E4",
+      "arm": "b",
+      "arm_label": "single-pass + study prompt",
+      "corpus": "interview",
+      "status": "measured",
+      "timestamp": "2026-07-06T16:22Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "da449949655b205a52ba25c94154d029a973a129825a57f71dc154761c82b7d4",
+      "prompt_shas": {
+        "single_pass": "07a7de88a3c4",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 132,
+      "n_requirements": 28,
+      "grounded": 28,
+      "fidelity": 1.0,
+      "coverage": 0.4394,
+      "oracle_recall": 0.3514,
+      "oracle_precision": 0.3929,
+      "critical_nfr_recall": null,
+      "cci": 0.7568,
+      "oracle_size": 37,
+      "usage": {
+        "prompt_tokens": 119657,
+        "completion_tokens": 2202
+      },
+      "generation_usage": {
+        "prompt_tokens": 21285,
+        "completion_tokens": 2134
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 98372,
+        "completion_tokens": 68
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 34149,
+        "completion_tokens": 141
+      },
+      "parse_log": [],
+      "elapsed_s": 361.4
+    },
+    {
+      "experiment": "E4",
+      "arm": "b",
+      "arm_label": "single-pass + study prompt",
+      "corpus": "wepgcomp",
+      "status": "measured",
+      "timestamp": "2026-07-06T17:48Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "839e335d02ffb22e872c1855d0494c2431ac5a89132bd2a2be0044d5cdc59ae2",
+      "prompt_shas": {
+        "single_pass": "07a7de88a3c4",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 28,
+      "n_requirements": 20,
+      "grounded": 20,
+      "fidelity": 1.0,
+      "coverage": 0.8571,
+      "oracle_recall": 0.0435,
+      "oracle_precision": 0.1,
+      "critical_nfr_recall": 0.1667,
+      "cci": 0.4348,
+      "oracle_size": 46,
+      "usage": {
+        "prompt_tokens": 75414,
+        "completion_tokens": 1721
+      },
+      "generation_usage": {
+        "prompt_tokens": 9303,
+        "completion_tokens": 1679
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 66111,
+        "completion_tokens": 42
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 50843,
+        "completion_tokens": 217
+      },
+      "parse_log": [],
+      "elapsed_s": 586.8
+    },
+    {
+      "experiment": "E4",
+      "arm": "b",
+      "arm_label": "single-pass + study prompt",
+      "corpus": "maislugar",
+      "status": "measured",
+      "timestamp": "2026-07-06T17:52Z",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "transcript_sha": "7b80fdda74b4252dca6391d58f0896cb5327037ef7bbe15393c65d8a1fb3fdfc",
+      "prompt_shas": {
+        "single_pass": "07a7de88a3c4",
+        "judge": "bb7ad8f9ebaa",
+        "oracle_match": "1cdabaab6696"
+      },
+      "temperature": 0.7,
+      "n_chunks": 113,
+      "n_requirements": 27,
+      "grounded": 23,
+      "fidelity": 0.8519,
+      "coverage": 0.3186,
+      "oracle_recall": 0.4706,
+      "oracle_precision": 0.5185,
+      "critical_nfr_recall": 0.3,
+      "cci": 0.7941,
+      "oracle_size": 34,
+      "usage": {
+        "prompt_tokens": 99049,
+        "completion_tokens": 2306
+      },
+      "generation_usage": {
+        "prompt_tokens": 22641,
+        "completion_tokens": 2255
+      },
+      "ground_judge_usage": {
+        "prompt_tokens": 76408,
+        "completion_tokens": 51
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 24862,
+        "completion_tokens": 106
+      },
+      "parse_log": [],
+      "elapsed_s": 229.5
+    },
+    {
+      "experiment": "E4",
+      "arm": "c",
+      "arm_label": "council w/o critics (k_max=0)",
+      "corpus": "interview",
+      "status": "reused",
+      "timestamp": "2026-07-06T17:07Z",
+      "source": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/pinned/e1-dsv4flash",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 132,
+      "n_requirements": 57,
+      "fidelity": 0.9825,
+      "coverage": 0.5455,
+      "oracle_recall": 0.4054,
+      "oracle_precision": 0.2456,
+      "critical_nfr_recall": null,
+      "cci": 1.5405,
+      "oracle_size": 37,
+      "usage": {
+        "prompt_tokens": 309592,
+        "completion_tokens": 14644
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 33301,
+        "completion_tokens": 132
+      },
+      "rounds": null
+    },
+    {
+      "experiment": "E4",
+      "arm": "c",
+      "arm_label": "council w/o critics (k_max=0)",
+      "corpus": "wepgcomp",
+      "status": "measured",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 28,
+      "n_requirements": 45,
+      "fidelity": 0.9111,
+      "coverage": 0.8929,
+      "oracle_recall": 0.1739,
+      "oracle_precision": 0.1556,
+      "critical_nfr_recall": 0.5,
+      "cci": 0.9783,
+      "oracle_size": 46,
+      "usage": {
+        "prompt_tokens": 285197,
+        "completion_tokens": 7971
+      },
+      "rounds": {
+        "rounds_run": 0,
+        "stop_reason": null,
+        "deltas": [],
+        "coverage_history": []
+      }
+    },
+    {
+      "experiment": "E4",
+      "arm": "c",
+      "arm_label": "council w/o critics (k_max=0)",
+      "corpus": "maislugar",
+      "status": "measured",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 113,
+      "n_requirements": 70,
+      "fidelity": 0.9,
+      "coverage": 0.5929,
+      "oracle_recall": 0.5294,
+      "oracle_precision": 0.2571,
+      "critical_nfr_recall": 0.2,
+      "cci": 2.0588,
+      "oracle_size": 34,
+      "usage": {
+        "prompt_tokens": 473291,
+        "completion_tokens": 13980
+      },
+      "rounds": {
+        "rounds_run": 0,
+        "stop_reason": null,
+        "deltas": [],
+        "coverage_history": []
+      }
+    },
+    {
+      "experiment": "E4",
+      "arm": "d",
+      "arm_label": "full ReqCouncil",
+      "corpus": "interview",
+      "status": "reused",
+      "timestamp": "2026-07-06T20:01Z",
+      "source": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/pinned/e1-h4-dsv4flash",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 132,
+      "n_requirements": 41,
+      "fidelity": 0.9756,
+      "coverage": 0.5985,
+      "oracle_recall": 0.3243,
+      "oracle_precision": 0.2439,
+      "critical_nfr_recall": null,
+      "cci": 1.1081,
+      "oracle_size": 37,
+      "usage": {
+        "prompt_tokens": 1218307,
+        "completion_tokens": 36121
+      },
+      "oracle_judge_usage": {
+        "prompt_tokens": 35794,
+        "completion_tokens": 145
+      },
+      "rounds": {
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "deltas": [
+          {
+            "added": 1,
+            "dropped": 3,
+            "merged": 8,
+            "revised": 5,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 3,
+            "dropped": 0,
+            "merged": 0,
+            "revised": 5,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 1,
+            "dropped": 2,
+            "merged": 2,
+            "revised": 2,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 2,
+            "dropped": 0,
+            "merged": 0,
+            "revised": 20,
+            "demoted": 0,
+            "conflicts": 0
+          }
+        ],
+        "coverage_history": [
+          0.4242,
+          0.4621,
+          0.4924,
+          0.5455,
+          0.5985
+        ]
+      }
+    },
+    {
+      "experiment": "E4",
+      "arm": "d",
+      "arm_label": "full ReqCouncil",
+      "corpus": "wepgcomp",
+      "status": "reused",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 28,
+      "n_requirements": 25,
+      "fidelity": 0.88,
+      "coverage": 0.9286,
+      "oracle_recall": 0.1304,
+      "oracle_precision": 0.2,
+      "critical_nfr_recall": 0.5,
+      "cci": 0.5435,
+      "oracle_size": 46,
+      "usage": {
+        "prompt_tokens": 648070,
+        "completion_tokens": 30064
+      },
+      "rounds": {
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "deltas": [
+          {
+            "added": 2,
+            "dropped": 4,
+            "merged": 12,
+            "revised": 6,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 1,
+            "dropped": 4,
+            "merged": 2,
+            "revised": 11,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 2,
+            "dropped": 3,
+            "merged": 0,
+            "revised": 8,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 3,
+            "dropped": 2,
+            "merged": 3,
+            "revised": 4,
+            "demoted": 0,
+            "conflicts": 0
+          }
+        ],
+        "coverage_history": [
+          0.9286,
+          0.9643,
+          0.9643,
+          0.8571,
+          0.9286
+        ]
+      },
+      "source": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/e2-wepgcomp"
+    },
+    {
+      "experiment": "E4",
+      "arm": "d",
+      "arm_label": "full ReqCouncil",
+      "corpus": "maislugar",
+      "status": "reused",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "n_chunks": 113,
+      "n_requirements": 24,
+      "fidelity": 0.7917,
+      "coverage": 0.6549,
+      "oracle_recall": 0.3235,
+      "oracle_precision": 0.4583,
+      "critical_nfr_recall": 0.0,
+      "cci": 0.7059,
+      "oracle_size": 34,
+      "usage": {
+        "prompt_tokens": 1180828,
+        "completion_tokens": 31436
+      },
+      "rounds": {
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "deltas": [
+          {
+            "added": 3,
+            "dropped": 0,
+            "merged": 7,
+            "revised": 4,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 4,
+            "dropped": 10,
+            "merged": 2,
+            "revised": 3,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 4,
+            "dropped": 13,
+            "merged": 5,
+            "revised": 7,
+            "demoted": 0,
+            "conflicts": 0
+          },
+          {
+            "added": 2,
+            "dropped": 4,
+            "merged": 0,
+            "revised": 4,
+            "demoted": 0,
+            "conflicts": 0
+          }
+        ],
+        "coverage_history": [
+          0.5752,
+          0.7168,
+          0.6726,
+          0.6991,
+          0.6549
+        ]
+      },
+      "source": "/home/enzo/University/Integración/APP/dataset_agent_re/runs/e2-maislugar"
+    }
+  ],
+  "kmax_sensitivity": {
+    "cells": [
+      {
+        "cell": "d-interview",
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "coverage_history": [
+          0.4242,
+          0.4621,
+          0.4924,
+          0.5455,
+          0.5985
+        ]
+      },
+      {
+        "cell": "d-wepgcomp",
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "coverage_history": [
+          0.9286,
+          0.9643,
+          0.9643,
+          0.8571,
+          0.9286
+        ]
+      },
+      {
+        "cell": "d-maislugar",
+        "rounds_run": 4,
+        "stop_reason": "round_budget",
+        "coverage_history": [
+          0.5752,
+          0.7168,
+          0.6726,
+          0.6991,
+          0.6549
+        ]
+      }
+    ],
+    "early_stop_cells": [],
+    "early_stop_observed": false
+  }
+}

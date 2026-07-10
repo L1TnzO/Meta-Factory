@@ -1,0 +1,56 @@
+{
+  "experiment": "E3",
+  "task_id": "task_25",
+  "task_name": "Online Polling System",
+  "application_type": "Community Platforms",
+  "timestamp": "2026-07-06T19:04Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "086d6d962d10c07cfa7a0576f58b707f42eca5bc79f6b4f8781d7f899a17941e",
+  "n_chunks": 14,
+  "n_requirements": 3,
+  "grounded": 3,
+  "fidelity": 1.0,
+  "n_golden": 5,
+  "oracle_recall": 0.4,
+  "oracle_precision": 0.6667,
+  "n_implicit": 5,
+  "implicit_yield": 0.2,
+  "cci": 0.6,
+  "citation_coverage": 0.9286,
+  "rounds": {
+    "rounds_run": 2,
+    "stop_reason": "coverage_plateau",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 3,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      },
+      {
+        "added": 0,
+        "dropped": 1,
+        "merged": 0,
+        "revised": 1,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.9286,
+      0.9286,
+      0.9286
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 3,
+    "requirements": 3
+  },
+  "usage": {
+    "prompt_tokens": 56405,
+    "completion_tokens": 2680
+  }
+}

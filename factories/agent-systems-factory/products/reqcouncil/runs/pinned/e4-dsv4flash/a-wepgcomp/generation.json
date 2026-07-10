@@ -1,0 +1,494 @@
+{
+  "candidates": [
+    {
+      "id": "single_pass_a-0",
+      "text": "O sistema deve ser uma plataforma centralizada para cadastro e registro do evento WEPGCOMP.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1"
+      ],
+      "stance": "explicit",
+      "rationale": "O objetivo principal do sistema é fornecer um espaço único e centralizado para o evento.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-1",
+      "text": "O sistema deve manter o histórico de edições do evento.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1"
+      ],
+      "stance": "explicit",
+      "rationale": "O sistema visa resolver a perda de memória das informações do evento, mantendo um histórico.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-2",
+      "text": "O sistema deve permitir que qualquer pessoa configure o ambiente facilmente.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:0"
+      ],
+      "stance": "explicit",
+      "rationale": "O sistema deve ser de fácil configuração para qualquer usuário.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-3",
+      "text": "O sistema deve fornecer uma área de Dashboards para análise de dados.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:1"
+      ],
+      "stance": "inferred",
+      "rationale": "O sistema deve ter uma área analítica para comparar evolução, participação, trabalhos submetidos, etc.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-4",
+      "text": "O sistema deve permitir o cadastro de apresentações por alunos apresentadores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:9",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "O aluno apresentador pode cadastrar sua apresentação com título, abstract e slot.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-5",
+      "text": "O sistema deve permitir o cadastro da programação do evento pelo administrador.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "O administrador cadastra a programação, instruções e datas do evento.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-6",
+      "text": "O sistema deve suportar upload de documentos em formato PDF.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:13"
+      ],
+      "stance": "explicit",
+      "rationale": "O sistema deve aceitar apenas PDF para upload de documentos.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-7",
+      "text": "O sistema deve evitar conflitos de horário e sala para apresentações.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:15"
+      ],
+      "stance": "explicit",
+      "rationale": "Não pode haver sobreposição de apresentações na mesma sala e horário.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-8",
+      "text": "O sistema deve permitir que o administrador realize alterações na programação, como mover apresentações para slots vazios.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:17"
+      ],
+      "stance": "explicit",
+      "rationale": "O administrador pode arrastar apresentações para antecipar ou ajustar a programação.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-9",
+      "text": "O sistema deve ter quatro perfis de usuário: usuário comum, aluno apresentador, administrador e super usuário.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "São definidos quatro perfis com diferentes permissões.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-10",
+      "text": "O sistema deve permitir que o usuário comum acompanhe o evento.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "Usuário comum pode logar para acompanhamento.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-11",
+      "text": "O sistema deve permitir que o aluno apresentador cadastre, visualize e siga apresentações.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "O aluno apresentador tem permissão para gerenciar suas apresentações.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-12",
+      "text": "O sistema deve permitir que o administrador edite trabalhos cadastrados pelos alunos e altere a programação.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "O administrador pode fazer todas as alterações na programação e editar trabalhos.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-13",
+      "text": "O sistema deve permitir que o super usuário realize todas as funcionalidades e gerencie usuários.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "O super usuário pode incluir e remover usuários, além de executar todas as funções.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-14",
+      "text": "O sistema deve cadastrar usuário comum apenas com usuário e senha.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "Usuário comum não precisa de dados extras.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-15",
+      "text": "O sistema deve cadastrar aluno apresentador com orientador, número de matrícula e CPF.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "O aluno apresentador precisa informar orientador, matrícula e CPF.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-16",
+      "text": "O sistema deve associar cada edição a um ano específico para manter memória.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9"
+      ],
+      "stance": "explicit",
+      "rationale": "O cadastro de apresentações e programação deve ser associado a um ano.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-17",
+      "text": "O sistema deve permitir que qualquer pessoa cadastrada baixe e leia as apresentações.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "Usuários cadastrados podem baixar e ler os trabalhos.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-18",
+      "text": "O sistema deve permitir que o administrador defina datas de início e fim do evento, controlando cadastro e votação.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "O administrador define datas que limitam as ações dos usuários.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-19",
+      "text": "O sistema deve suportar votação com cálculo de média baseada em critérios e quantidade de votantes.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:3"
+      ],
+      "stance": "explicit",
+      "rationale": "A votação deve considerar nota por critérios e quantidade de pessoas.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-20",
+      "text": "O sistema deve permitir premiação de apresentadores e melhores avaliadores.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O sistema deve ter aparato de premiação para apresentadores e avaliadores.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-21",
+      "text": "O sistema deve ser gratuito.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:3"
+      ],
+      "stance": "explicit",
+      "rationale": "O sistema é gratuito em contraste com plataformas pagas.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-22",
+      "text": "O sistema deve permitir a geração de certificados distintos para participação e premiação.",
+      "category": "single_pass_a",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:23"
+      ],
+      "stance": "inferred",
+      "rationale": "Certificados de participação e de melhor apresentação devem ser separados.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-23",
+      "text": "O sistema deve armazenar PDFs em um sistema de arquivos separado, não no banco de dados.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23"
+      ],
+      "stance": "inferred",
+      "rationale": "Salvar PDFs localmente no banco não é ideal; deve-se usar um sistema de arquivos remoto.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    },
+    {
+      "id": "single_pass_a-24",
+      "text": "O sistema deve ser capaz de suportar cerca de 70 usuários por ano.",
+      "category": "single_pass_a",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:25"
+      ],
+      "stance": "inferred",
+      "rationale": "A quantidade esperada de usuários é de aproximadamente 70 por evento.",
+      "proposers": [
+        "single_pass_a"
+      ],
+      "grounded": false,
+      "confidence": null,
+      "status": "proposed",
+      "verdicts": {},
+      "flags": []
+    }
+  ],
+  "parse_log": [],
+  "usage": {
+    "prompt_tokens": 8364,
+    "completion_tokens": 1709
+  },
+  "prompt_shas": {
+    "single_pass": "7ecd4e0efc42",
+    "judge": "bb7ad8f9ebaa",
+    "oracle_match": "1cdabaab6696"
+  }
+}

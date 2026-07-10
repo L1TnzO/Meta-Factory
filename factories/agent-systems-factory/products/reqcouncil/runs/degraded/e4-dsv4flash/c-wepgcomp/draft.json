@@ -1,0 +1,1108 @@
+{
+  "source": "wepgcomp",
+  "transcript_sha": "839e335d02ffb22e872c1855d0494c2431ac5a89132bd2a2be0044d5cdc59ae2",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "timestamp": "2026-07-06T17:09Z",
+  "prompt_shas": {
+    "functional": "0f8b3240e1ca",
+    "data": "4329f474e672",
+    "nfr": "6902009f4b97",
+    "security": "4a9926b95ff5",
+    "ux": "6589d007143d",
+    "integration": "c5ef8bed5d87",
+    "synthesizer": "2ceb7c4d1f7f",
+    "judge": "bb7ad8f9ebaa"
+  },
+  "n_chunks": 28,
+  "cardinality": {
+    "produced": 45,
+    "expected": 7.8,
+    "band": [
+      4.7,
+      12.6
+    ],
+    "in_band": false,
+    "source": "inter2us"
+  },
+  "citation_coverage": 0.8929,
+  "rounds": {
+    "rounds_run": 0,
+    "stop_reason": null,
+    "deltas": [],
+    "coverage_history": []
+  },
+  "review": {
+    "engineer": "auto-eval",
+    "mode": "auto",
+    "stats": {
+      "decided": 45,
+      "counts": {
+        "accept": 45
+      },
+      "mandatory": 7
+    },
+    "revised": []
+  },
+  "usage": {
+    "prompt_tokens": 285197,
+    "completion_tokens": 7971
+  },
+  "requirements": [
+    {
+      "id": "nfr-0",
+      "text": "The system shall support up to 90 concurrent users during the event.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:26",
+        "839e335d02ff:27"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder explicitou a quantidade esperada de usuários por ano: 60 apresentadores, 10 comissão e 20 extras, totalizando até 90 usuários.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "839e335d02ff:26": "unsupported",
+        "839e335d02ff:27": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-5",
+      "text": "The system shall be free of charge, replacing paid platforms like evento.com.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:3",
+        "839e335d02ff:4"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirmou que o sistema é gratuito e não há mais necessidade de recorrer a plataformas pagas.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "unsupported",
+      "verdicts": {
+        "839e335d02ff:3": "unsupported",
+        "839e335d02ff:4": "unsupported"
+      },
+      "flags": [
+        "normalization_drift"
+      ]
+    },
+    {
+      "id": "nfr-2",
+      "text": "The system shall maintain acceptable response time even with up to 2 million records in the database.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "inferred",
+      "rationale": "O stakeholder mencionou que bancos com 2 milhões de registros podem começar a apresentar sintomas de performance, indicando que o sistema deve ser projetado para manter desempenho nessa escala.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "flagged_inferred",
+      "verdicts": {
+        "839e335d02ff:23": "unsupported",
+        "839e335d02ff:24": "unsupported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-7",
+      "text": "The system shall handle personal data such as CPF, enrollment number, and advisor in compliance with Brazilian data protection regulations to ensure privacy.",
+      "category": "security",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:7",
+        "839e335d02ff:8"
+      ],
+      "stance": "inferred",
+      "rationale": "The system collects CPF and other personal data, implying a need for compliance with data protection laws like LGPD.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": false,
+      "confidence": 0.0,
+      "status": "flagged_inferred",
+      "verdicts": {
+        "839e335d02ff:7": "unsupported",
+        "839e335d02ff:8": "unsupported"
+      },
+      "flags": [
+        "normalization_drift"
+      ]
+    },
+    {
+      "id": "security-0",
+      "text": "As a system administrator, I want only authenticated users to access the platform, so that unauthorized access is prevented.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "The transcript specifies four user profiles (common, student presenter, admin, super user) and each logs in, implying authentication is required for all roles.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:5": "unsupported",
+        "839e335d02ff:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-7",
+      "text": "The system shall be a web-based platform to provide centralized and accessible event management.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described the system as a web environment containing all functionalities to support the event.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:0": "unsupported",
+        "839e335d02ff:1": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-1",
+      "text": "Uploaded PDF files shall be stored in an external file storage system rather than in the database to improve performance and scalability.",
+      "category": "integration",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that saving PDFs locally in the database is not ideal and suggests a separate file system on the web.",
+      "proposers": [
+        "integration",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 0.5,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:23": "unsupported",
+        "839e335d02ff:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-5",
+      "text": "The system shall support up to approximately 70 concurrent users during the event week.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:25",
+        "839e335d02ff:26",
+        "839e335d02ff:27"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder estimated around 70 users per year (60 presenters, 10 committee, 20 extras) using the system during the event.",
+      "proposers": [
+        "functional",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 0.667,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:25": "unsupported",
+        "839e335d02ff:26": "supported",
+        "839e335d02ff:27": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-0",
+      "text": "As a system administrator, I want to store each edition of the WEPGCOMP event with a specific year identifier, so that historical data can be retrieved and compared across editions.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1",
+        "839e335d02ff:9"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly states the need to maintain a history of editions associated with a specific year.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:0": "supported",
+        "839e335d02ff:1": "supported",
+        "839e335d02ff:9": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-1",
+      "text": "As a system administrator, I want to import legacy data from spreadsheets used in previous editions, so that historical information is not lost.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:1"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions importing legacy data from spreadsheets to preserve historical information.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:1": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-2",
+      "text": "As a system administrator, I want to define the start and end dates of the event, so that submission and voting periods are controlled outside those dates.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says the administrator defines start and end dates, and outside those dates no submission or voting is allowed.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-3",
+      "text": "As a student presenter, I want to register my presentation with title, abstract, and an uploaded PDF file, so that the work is documented for the event.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12",
+        "839e335d02ff:13",
+        "839e335d02ff:9"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes the student presenter registering a presentation with title, abstract, and PDF upload.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported",
+        "839e335d02ff:13": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-2",
+      "text": "As a regular user, I want to download uploaded presentation PDFs, so that I can read the submitted work.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 says any registered person can download and read the uploaded PDF, indicating a file download integration.",
+      "proposers": [
+        "data",
+        "integration"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-5",
+      "text": "As a system administrator, I want to create and manage the event schedule including sessions and slots, so that the event timeline is organized.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says the administrator must create the programming and instructions for the event.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:9": "supported",
+        "839e335d02ff:11": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-6",
+      "text": "As a system administrator, I want to prevent scheduling conflicts where two presentations occupy the same room at the same time, so that attendees can follow all presentations.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:15",
+        "839e335d02ff:16"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly says no overlap of same room and same time is allowed, and the system already resolves this.",
+      "proposers": [
+        "data",
+        "functional",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:15": "supported",
+        "839e335d02ff:16": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-7",
+      "text": "As a system administrator, I want to rearrange presentations and sessions when a slot becomes empty due to absence, so that the schedule can be updated dynamically.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:17",
+        "839e335d02ff:18"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes the administrator dragging presentations to fill empty slots, with the constraint that it stays within the event days.",
+      "proposers": [
+        "data",
+        "functional",
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:17": "supported",
+        "839e335d02ff:18": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-8",
+      "text": "As a system administrator, I want to review and edit presentations registered by students, so that the data quality is ensured.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:5"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says the administrator can edit works registered by students and review everything they registered.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:5": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-9",
+      "text": "As a system user, I want to have a dashboard area with analytics such as participation evolution, submitted works, defended works, and tracking of doctoral students, so that historical data can be compared across editions.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:1"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder mentions dashboards as a natural evolution to compare participation, works submitted, and track doctoral students.",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:1": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-10",
+      "text": "As a system user, I want the system to store user profiles with at least username and password for common users, and additionally CPF, advisor, and registration number for student presenters, so that user identity is captured appropriately.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7",
+        "839e335d02ff:8"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder specifies the data fields for each user profile: common user (username, password), student presenter (advisor, registration number, CPF).",
+      "proposers": [
+        "data"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported",
+        "839e335d02ff:8": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-11",
+      "text": "As a super administrator, I want to manage all user accounts including adding and removing users and have full system permissions, so that the system can be centrally governed.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:6"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder describes the super user as having all functionalities, including adding and removing users.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:5": "supported",
+        "839e335d02ff:6": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-12",
+      "text": "As a system administrator, I want the system to generate separate certificates for participation and for best presentation awards, so that each achievement is properly recognized.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder criticizes combining participation and award in one certificate and states they must be distinct.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:23": "supported",
+        "839e335d02ff:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-13",
+      "text": "PDF files shall be stored in an external file system rather than in the database to avoid degrading database performance.",
+      "category": "data",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly states that saving PDFs locally in the database is not ideal and should be moved to a separate file system.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:23": "supported",
+        "839e335d02ff:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "data-14",
+      "text": "As a system administrator, I want the system to support only PDF format for uploaded documents, so that file format is standardized.",
+      "category": "data",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:13",
+        "839e335d02ff:14"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly says the system should support only PDF.",
+      "proposers": [
+        "data",
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:13": "supported",
+        "839e335d02ff:14": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-0",
+      "text": "As a common user, I want to view and download the presentation files uploaded by student presenters, so that I can read about the presentations.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12",
+        "839e335d02ff:13"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that any registered person can download and read the uploaded presentation.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported",
+        "839e335d02ff:13": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-2",
+      "text": "As an administrator, I want to create and configure the event program including defining dates, instructions, and the voting system, so that the event is properly organized.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:9",
+        "839e335d02ff:11"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states that the administrator must register the program and instructions, and configure the event.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:9": "supported",
+        "839e335d02ff:11": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-8",
+      "text": "As a common user, I want to register with only a username and password, so that external users can easily access the event.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly says the common user needs only username and password.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-9",
+      "text": "As a student presenter, I want to provide my advisor, enrollment number, and CPF when registering, so that my identity and academic affiliation are recorded.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly states the student presenter must inform advisor, enrollment number, and CPF.",
+      "proposers": [
+        "functional",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "functional-10",
+      "text": "As any registered user, I want to view and follow presentations and also vote on them, so that I can participate in the evaluation process.",
+      "category": "functional",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:11"
+      ],
+      "stance": "inferred",
+      "rationale": "Spk 1 mentions that any registered person can view/download and that voting is a secondary feature; the ability to vote is implied for registered users.",
+      "proposers": [
+        "functional"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:5": "supported",
+        "839e335d02ff:11": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "integration-0",
+      "text": "As a super admin, I want the system to optionally validate student enrollment numbers against a public API from UFBA, so that only legitimate UFBA doctoral students can register as presenting students.",
+      "category": "integration",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:19",
+        "839e335d02ff:20"
+      ],
+      "stance": "explicit",
+      "rationale": "Spk 1 explicitly mentions the need for UFBA API validation to verify student enrollment, though it is described as a weak need.",
+      "proposers": [
+        "integration",
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:19": "supported",
+        "839e335d02ff:20": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-1",
+      "text": "PDF files shall be stored in a separate file system rather than in the database to avoid performance degradation.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder explicitamente afirmou que salvar PDFs no banco de dados não é ideal e que a performance pode ser afetada com 2 milhões de registros, sugerindo um sistema de arquivos separado.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:23": "supported",
+        "839e335d02ff:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-3",
+      "text": "The system shall guarantee no overlap of times and rooms for presentations.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:15",
+        "839e335d02ff:16"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirmou que não pode haver mesma apresentação na mesma sala no mesmo horário, e que o sistema já resolve isso via controle de conflitos.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:15": "supported",
+        "839e335d02ff:16": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-4",
+      "text": "The system shall allow the administrator to change the event schedule within the 3 days of duration, provided there are empty slots.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:17",
+        "839e335d02ff:18"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder descreveu que o administrador pode arrastar apresentações para slots vazios, desde que não ultrapasse os 3 dias do evento.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:17": "supported",
+        "839e335d02ff:18": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-6",
+      "text": "The system shall store and allow querying the history of WEPGCOMP event editions.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:0",
+        "839e335d02ff:1",
+        "839e335d02ff:2"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder destacou que o objetivo principal é manter o histórico de edições, permitindo recuperar e ter memória do que aconteceu.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:0": "supported",
+        "839e335d02ff:1": "supported",
+        "839e335d02ff:2": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-7",
+      "text": "The system shall provide analytical dashboards to compare participation evolution, submitted and defended works, and track doctoral students.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:1",
+        "839e335d02ff:2"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder mencionou que uma evolução natural do sistema é ter uma área de dashboards para análise comparativa e rastreamento.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:1": "supported",
+        "839e335d02ff:2": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-8",
+      "text": "The system shall support upload and download of files in PDF format.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:13",
+        "839e335d02ff:14"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder especificou que os documentos devem ser apenas PDF.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:13": "supported",
+        "839e335d02ff:14": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "nfr-9",
+      "text": "The system shall allow any registered person to view and download the works submitted by students.",
+      "category": "nfr",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12"
+      ],
+      "stance": "explicit",
+      "rationale": "O stakeholder afirmou que qualquer pessoa cadastrada pode baixar e ler os trabalhos submetidos.",
+      "proposers": [
+        "nfr"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-1",
+      "text": "As a user, I want the system to require a username and password to log in, so that my identity is verified before accessing the platform.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly states that a common user has only username and password for login.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-2",
+      "text": "As a student presenter, I want to provide my CPF during registration, so that my identity can be uniquely tracked.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:7",
+        "839e335d02ff:8"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder says CPF is requested for all user profiles, indicating personal data collection.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported",
+        "839e335d02ff:8": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-5",
+      "text": "As a super user, I want the ability to include and remove users from the system, so that user access can be managed and revoked when necessary.",
+      "category": "security",
+      "kind": "FR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:6"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly states the super user can include and remove users.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:5": "supported",
+        "839e335d02ff:6": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "security-6",
+      "text": "Uploaded presentation files shall be stored in a separate file storage system rather than the database to manage data efficiently and maintain performance.",
+      "category": "security",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:23",
+        "839e335d02ff:24"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly says saving PDFs locally in the database is not ideal and suggests a separate file system.",
+      "proposers": [
+        "security"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:23": "supported",
+        "839e335d02ff:24": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-0",
+      "text": "As a common user, I want to log in with only username and password, so that I can access the system without needing to provide extensive personal data.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:7"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated that a common user only needs username and password, indicating a low-friction login preference for external attendees.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:7": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-1",
+      "text": "The system shall support PDF file format for upload and download of presentation documents.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:13",
+        "839e335d02ff:14"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder explicitly stated that only PDF format is supported for documents.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:13": "supported",
+        "839e335d02ff:14": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-3",
+      "text": "As an administrator, I want to configure event dates so that submission and voting activities are only allowed within those dates, ensuring temporal control of event phases.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described that the administrator defines event start and end dates, and outside those dates no submission or voting is possible.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-6",
+      "text": "As a super user, I want to perform all functions of all user profiles including user management, so that I can have complete system administration.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:5",
+        "839e335d02ff:6"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder described the super user as having full capabilities across all profiles, implying a need for a unified administrative interface.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:5": "supported",
+        "839e335d02ff:6": "supported"
+      },
+      "flags": []
+    },
+    {
+      "id": "ux-8",
+      "text": "As a common user, I want to download and read presentation abstracts and documents uploaded by student presenters, so that I can access event content.",
+      "category": "ux",
+      "kind": "NFR",
+      "anchors": [
+        "839e335d02ff:11",
+        "839e335d02ff:12"
+      ],
+      "stance": "explicit",
+      "rationale": "The stakeholder stated that any registered person can download and read presentation materials.",
+      "proposers": [
+        "ux"
+      ],
+      "grounded": true,
+      "confidence": 1.0,
+      "status": "accepted",
+      "verdicts": {
+        "839e335d02ff:11": "supported",
+        "839e335d02ff:12": "supported"
+      },
+      "flags": []
+    }
+  ],
+  "store": {
+    "run_id": 1,
+    "requirements": 45
+  }
+}

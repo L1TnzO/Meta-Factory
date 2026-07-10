@@ -1,0 +1,426 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to browse property listings, so that I can view available properties on the real estate website.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 12,
+      "matched_text": "As a property seeker, I want to see the price, location, number of bedrooms, and photos for each property in the search results, so that I can quickly evaluate ",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.8423,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.8115,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.8066,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7714,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7602,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to view property details, so that I can see more information about a specific property.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 13,
+      "matched_text": "As a property seeker, I want to view a dedicated page for a property, so that I can see more detailed information.",
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.933,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8753,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.807,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8031,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7804,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to use a search function to find specific properties, so that I can quickly locate properties that match my criteria.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a property seeker, I want to search for properties by location, so that I can find properties in my desired area.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8981,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8381,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.8243,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.8116,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7897,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to filter properties based on certain conditions, so that I can narrow down the listings to those that meet my needs.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "The system must support searching and filtering residential properties by location, price range, and number of bedrooms.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.7886,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7832,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7695,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7576,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7478,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want the website to display property information, so that I can see relevant details about each property.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 13,
+      "matched_text": "As a property seeker, I want to view a dedicated page for a property, so that I can see more detailed information.",
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.8807,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.835,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8064,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.8025,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7848,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want the website’s background color to be alice blue, so that the site’s background has that specific appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.4696,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4639,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4627,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4455,
+          "verdict": 0
+        },
+        {
+          "produced": 12,
+          "cosine": 0.435,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want all elements on the website to have steel blue applied to them, so that the site’s elements have that specific appearance.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.4523,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4491,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4472,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.4403,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.4403,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to narrow down property listings by applying filters based on specific conditions",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a property seeker, I want to filter search results by price range, so that I can find properties within my budget.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.7922,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.7694,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7491,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7464,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7101,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to select an individual property from a list to access its detailed information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 13,
+      "matched_text": "As a property seeker, I want to view a dedicated page for a property, so that I can see more detailed information.",
+      "candidates": [
+        {
+          "produced": 13,
+          "cosine": 0.7432,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6793,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6438,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6397,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6176,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect detailed views of properties to provide more comprehensive information than what is shown in the listing overview.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 14,
+      "matched_text": "As a property seeker, I want to see the square footage and a full description on a property's detail page, so that I can make a more informed decision.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.8427,
+          "verdict": 1
+        },
+        {
+          "produced": 13,
+          "cosine": 0.8245,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.7381,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6899,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6656,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the website to use an alice blue background.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.528,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4939,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4726,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4663,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.463,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer all website elements to be styled using steel blue.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.4737,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.4437,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.4395,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.4368,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.426,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

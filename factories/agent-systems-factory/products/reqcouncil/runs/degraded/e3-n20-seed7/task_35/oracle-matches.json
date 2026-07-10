@@ -1,0 +1,566 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want the website to automatically search product prices across different states, so that I can view price information from multiple regions in one ",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a shopper, I want to view a table or list comparing the price of a searched product across multiple states so that I can identify the best deal.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.8925,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8815,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8621,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7886,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7607,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want the website to compare product prices across different states, so that I can understand how prices differ between locations.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a shopper, I want to view a table or list comparing the price of a searched product across multiple states so that I can identify the best deal.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.9138,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8492,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8359,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7862,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7698,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want the website to find the lowest-priced products across different states, so that I can identify the cheapest options available.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a shopper, I want to view a table or list comparing the price of a searched product across multiple states so that I can identify the best deal.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.877,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8252,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7611,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7374,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7088,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to select specific product categories on the website, so that I can narrow down the products I am searching and comparing.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6473,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6362,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6361,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6297,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5299,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to select specific product parameters on the website, so that I can refine the search results according to my needs.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6652,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6436,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.631,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6184,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5457,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want the website to provide detailed product information including price, so that I can understand how much each product costs.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.7436,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.7324,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.719,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7048,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6766,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want the website to provide detailed product information including quantity, so that I can know how much product is being offered at the given pric",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.7487,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.7486,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7391,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.7294,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.684,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want the website to provide detailed product information including supplier information, so that I can know who is offering the product.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.6476,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6236,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.613,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5736,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5678,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the website’s canvas background to use a seashell color, so that the background appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4192,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3798,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3706,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3683,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3614,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want all visible components on the website to use a crimson color, so that the components’ appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4053,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.396,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.3959,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3901,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3843,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer the website to search product prices for states",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a shopper, I want to view a table or list comparing the price of a searched product across multiple states so that I can identify the best deal.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.8961,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.8909,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.8085,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7611,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.7452,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I prefer to narrow and refine comparisons by actively selecting product categories and specific product parameters",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.6362,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6328,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6186,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.5701,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.536,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the website to present detailed product information that goes beyond price, including quantity and supplier details.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 5,
+          "cosine": 0.5829,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5709,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.5599,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5421,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5337,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the system to highlight the lowest-priced options across states as part of the comparison process.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 6,
+      "matched_text": "As a shopper, I want to view a table or list comparing the price of a searched product across multiple states so that I can identify the best deal.",
+      "candidates": [
+        {
+          "produced": 6,
+          "cosine": 0.7893,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6999,
+          "verdict": null
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6834,
+          "verdict": null
+        },
+        {
+          "produced": 2,
+          "cosine": 0.6813,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6793,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the website’s canvas background to use a seashell color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.4135,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.389,
+          "verdict": 0
+        },
+        {
+          "produced": 4,
+          "cosine": 0.3649,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.36,
+          "verdict": 0
+        },
+        {
+          "produced": 5,
+          "cosine": 0.3451,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR5",
+      "gold_text": "I prefer all visible interface components to use a crimson color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 4,
+          "cosine": 0.4806,
+          "verdict": 0
+        },
+        {
+          "produced": 7,
+          "cosine": 0.4063,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3985,
+          "verdict": 0
+        },
+        {
+          "produced": 3,
+          "cosine": 0.3948,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3481,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

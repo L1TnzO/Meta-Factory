@@ -1,0 +1,39 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "NOTF07",
+      "cosine": 0.5773,
+      "gold_text": "O sistema deve ser responsivo e funcionar em dispositivos móveis e na Web.",
+      "matched_text": "The platform shall be accessible via web and mobile devices, so that users can participate in data collection and visualization from anywhere."
+    },
+    {
+      "gold_id": "FUNC09",
+      "cosine": 0.6307,
+      "gold_text": "O sistema deve permitir o upload de fotos, áudios e vídeos em anexo a formulários.",
+      "matched_text": "As a user, I want to allow attachment of media files (photos, videos, audio) to collected data, so that rich contextual information can be stored."
+    },
+    {
+      "gold_id": "FUNC24",
+      "cosine": 0.6338,
+      "gold_text": "O sistema deve permitir que os usuários visualizem suas conquistas e recompensas.",
+      "matched_text": "As a user, I want to see my gamification progress (medals, avatar, XP) across all projects I participate in, so that my overall contribution to the platform is "
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "FUNC07",
+      "cosine": 0.6707,
+      "gold_text": "O sistema deve permitir que o usuário envie dados de localização georreferenciados."
+    },
+    {
+      "gold_id": "FUNC13",
+      "cosine": 0.6287,
+      "gold_text": "O sistema deve fornecer mapas interativos para visualização dos dados coletados."
+    },
+    {
+      "gold_id": "NOTF01",
+      "cosine": 0.6241,
+      "gold_text": "Os dados de usuário (incluindo senhas) devem ser armazenados de forma segura utilizando hashing"
+    }
+  ]
+}

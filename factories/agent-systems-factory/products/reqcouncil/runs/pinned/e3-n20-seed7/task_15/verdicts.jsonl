@@ -1,0 +1,57 @@
+{"key": "bf28053c0954e6c4", "pred": 0, "story": "As a system, I want to store product records with attributes such as name, image", "raw": "0"}
+{"key": "4da801024f2eac6f", "pred": 1, "story": "As a potential customer, I want to browse a clear display of the company's produ", "raw": "1"}
+{"key": "4b303fdae6b10a89", "pred": 0, "story": "As a system, I want to store contact information or contact form submissions, so", "raw": "0"}
+{"key": "275c5ce863012d47", "pred": 1, "story": "As a system, I want to store product records with attributes such as name, image", "raw": "1"}
+{"key": "7ec61aff5e2e6864", "pred": 1, "story": "As a potential customer, I want to browse a clear display of the company's produ", "raw": "1"}
+{"key": "eb2e09f209309518", "pred": 0, "story": "As a system, I want to store product records with attributes such as name, image", "raw": "0"}
+{"key": "11cb2dd456cb6e39", "pred": 1, "story": "As a system, I want to store company information (background, mission, values), ", "raw": "1"}
+{"key": "55a4db3481ebb0da", "pred": 1, "story": "As a potential customer, I want to view the company's latest news and updates so", "raw": "1"}
+{"key": "e0c3ba801490ea17", "pred": 0, "story": "As a system, I want to store news and updates records with content and timestamp", "raw": "0"}
+{"key": "62b93f7ef71e71cb", "pred": 1, "story": "As a potential customer, I want to view the company's latest news and updates so", "raw": "1"}
+{"key": "e9d04fec37065d6c", "pred": 1, "story": "As a potential customer, I want to view general company information so that I ca", "raw": "1"}
+{"key": "67979af97e38dd04", "pred": 0, "story": "As a potential customer, I want to view general company information so that I ca", "raw": "0"}
+{"key": "614c2cabc0236c84", "pred": 0, "story": "As a potential customer, I want to view general company information so that I ca", "raw": "0"}
+{"key": "918116c84ebbb7d6", "pred": 1, "story": "As a potential customer, I want to view the company's latest news and updates so", "raw": "1"}
+{"key": "cc166a47c6c3c322", "pred": 1, "story": "As a potential customer, I want to access contact information or a contact form ", "raw": "1"}
+{"key": "70d8f5077aea33e6", "pred": 1, "story": "As a potential customer, I want to browse a clear display of the company's produ", "raw": "1"}
+{"key": "8eb8c492d67cc387", "pred": 1, "story": "As a potential customer, I want to access contact information or a contact form ", "raw": "1"}
+{"key": "51237ea61b402e0c", "pred": 1, "story": "Product images, names, and prices must be displayed clearly to customers.", "raw": "1"}
+{"key": "b05048bfea258f6a", "pred": 1, "story": "Product images, names, and prices must be displayed clearly to customers.", "raw": "1"}
+{"key": "d08a09f5ffdc28fb", "pred": 1, "story": "As a potential customer, I want to access contact information or a contact form ", "raw": "1"}
+{"key": "9146f4a94d57ad0c", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "c02fbc3c48f21bdf", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "4b54ebf48f9fba8a", "pred": 1, "story": "Product images, names, and prices must be displayed clearly to customers.", "raw": "1"}
+{"key": "4f9406f7ca8cd81f", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "bcd5d79892f0364b", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "fe889cd81e3ee2be", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}
+{"key": "8f50b5e9e001851d", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "1595c140faa0da69", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "c6ff654cc848b98f", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}
+{"key": "86c266ac736a816b", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "eb0248e5d56eba2a", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}
+{"key": "d107acdb9a9098cd", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "1007c7f7cf4a0a3b", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "88a575ed17496b02", "pred": 1, "story": "The product display must ensure that customers can see the products clearly, wit", "raw": "1"}
+{"key": "7d7b9cc18c398655", "pred": 1, "story": "The product display must ensure that customers can see the products clearly, wit", "raw": "1"}
+{"key": "cddbea884dbb587d", "pred": 1, "story": "The product display must ensure that customers can see the products clearly, wit", "raw": "1"}
+{"key": "45d6b8fd01e837e1", "pred": 1, "story": "Products must be displayed clearly to customers.", "raw": "1"}
+{"key": "e186cb718e550956", "pred": 1, "story": "As a system, I want to store product records so that products can be displayed t", "raw": "1"}
+{"key": "cdca6c1968d13126", "pred": 0, "story": "As a system, I want to store product records so that products can be displayed t", "raw": "0"}
+{"key": "64ecf11223c0b598", "pred": 1, "story": "Products must be displayed clearly to customers.", "raw": "1"}
+{"key": "445af59042e09c64", "pred": 1, "story": "As a system, I want to store product records so that products can be displayed t", "raw": "1"}
+{"key": "ce3c17e606022c88", "pred": 1, "story": "Products must be displayed clearly to customers.", "raw": "1"}
+{"key": "134ab89d4e43d5d6", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "85f86385c7e0646e", "pred": 0, "story": "As a system, I want to store news and updates records with content and timestamp", "raw": "0"}
+{"key": "6212c598cc7c0577", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "27955875ddf46425", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "4546bb51c5a176df", "pred": 0, "story": "As the system administrator, I want to enforce authentication for any user acces", "raw": "0"}
+{"key": "35986ff2309a853e", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "443a945e810442ad", "pred": 0, "story": "As a system, I want to store contact information or contact form submissions so ", "raw": "0"}
+{"key": "a0ad0aecaea64e15", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}
+{"key": "1829e02846f453d6", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "730b219f5be6050a", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}
+{"key": "a6631c4264c45d1d", "pred": 0, "story": "As a system, I want to store company information (background, mission, values) s", "raw": "0"}
+{"key": "d506931d36e9248e", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "e36751d85797da58", "pred": 0, "story": "As a potential customer, I want to be informed about the company's data handling", "raw": "0"}
+{"key": "6c186c0b507c7c54", "pred": 0, "story": "As a potential customer, I want to submit contact inquiries only after consentin", "raw": "0"}
+{"key": "2a6cbdf31cc8d8d4", "pred": 0, "story": "As the system owner, I want all customer-submitted personal data (e.g., from con", "raw": "0"}

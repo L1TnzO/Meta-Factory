@@ -1,0 +1,47 @@
+{
+  "experiment": "E3",
+  "task_id": "task_50",
+  "task_name": "Driver Recruitment and Job Posting System",
+  "application_type": "Job Search Platforms",
+  "timestamp": "2026-07-06T19:32Z",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_sha": "abea9cf3f3abb4c76b958147de1d89f692cbb514272ee5d4f8cc58d42db8b8ca",
+  "n_chunks": 10,
+  "n_requirements": 17,
+  "grounded": 5,
+  "fidelity": 0.2941,
+  "n_golden": 14,
+  "oracle_recall": 0.1429,
+  "oracle_precision": 0.1176,
+  "n_implicit": 11,
+  "implicit_yield": 0.1818,
+  "cci": 1.2143,
+  "citation_coverage": 0.9,
+  "rounds": {
+    "rounds_run": 1,
+    "stop_reason": "fixed_point",
+    "deltas": [
+      {
+        "added": 0,
+        "dropped": 0,
+        "merged": 0,
+        "revised": 0,
+        "demoted": 0,
+        "conflicts": 0
+      }
+    ],
+    "coverage_history": [
+      0.9,
+      0.9
+    ]
+  },
+  "store": {
+    "mode": "ephemeral",
+    "run_id": 11,
+    "requirements": 17
+  },
+  "usage": {
+    "prompt_tokens": 123647,
+    "completion_tokens": 3856
+  }
+}

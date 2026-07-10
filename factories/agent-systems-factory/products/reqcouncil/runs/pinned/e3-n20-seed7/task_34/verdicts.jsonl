@@ -1,0 +1,55 @@
+{"key": "75eba35cd5996be9", "pred": 0, "story": "As a user, I want the system to record and store trade transaction data includin", "raw": "0"}
+{"key": "7a3a6809e3557335", "pred": 0, "story": "The system shall retain trade and escrow records for a minimum period of 3 years", "raw": "0"}
+{"key": "83bbafa8eac9463e", "pred": 0, "story": "As a user, I want the system to store the agreed-upon release conditions for eac", "raw": "0"}
+{"key": "efd538bd27bea4ae", "pred": 0, "story": "As a user, I want the system to log the state of each escrow (e.g., pending, rel", "raw": "0"}
+{"key": "5e32ef109e24f852", "pred": 0, "story": "As a user, I want the system to maintain a record of user identity or wallet add", "raw": "0"}
+{"key": "1a611d3e7bd97f4f", "pred": 0, "story": "As a user, I want the system to maintain a record of user identity or wallet add", "raw": "0"}
+{"key": "01be7930bbed5c54", "pred": 0, "story": "As a user, I want the system to record and store trade transaction data includin", "raw": "0"}
+{"key": "587fb7144fc1e40e", "pred": 1, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty ", "raw": "1"}
+{"key": "3b91a0ead02963c3", "pred": 1, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty ", "raw": "1"}
+{"key": "cbb33b225536c270", "pred": 0, "story": "As a user, I want the system to automatically and safely hold the cryptocurrency", "raw": "0"}
+{"key": "813bef03b968d2d9", "pred": 0, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty ", "raw": "0"}
+{"key": "e94e0bcde92616e0", "pred": 1, "story": "As a user, I want the escrowed funds to be released to me automatically and only", "raw": "1"}
+{"key": "7445d2281d5d07be", "pred": 0, "story": "As a user, I want the escrowed funds to be released to me automatically and only", "raw": "0"}
+{"key": "3a6227d0082e1c4b", "pred": 1, "story": "As a user, I want the system to automatically and safely hold the cryptocurrency", "raw": "1"}
+{"key": "d52b3fb49541a523", "pred": 1, "story": "As a user, I want a simple and straightforward process to complete a trade, so t", "raw": "1"}
+{"key": "6057f412db29e199", "pred": 1, "story": "As a user, I want a simple and straightforward process to complete a trade, so t", "raw": "1"}
+{"key": "adca3be7220f8eaf", "pred": 0, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "0"}
+{"key": "aeb619f312fba7ae", "pred": 0, "story": "As a user, I want a simple and straightforward process to complete a trade, so t", "raw": "0"}
+{"key": "020922c177d2d120", "pred": 1, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "1"}
+{"key": "60aaf56a8585a6bb", "pred": 0, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "0"}
+{"key": "261320806e5cb007", "pred": 0, "story": "As a user, I want the escrow system to interface with a cryptocurrency blockchai", "raw": "0"}
+{"key": "4a84de69cd807762", "pred": 0, "story": "As a user, I want the escrow system to interface with a cryptocurrency blockchai", "raw": "0"}
+{"key": "91243d7fa486ac83", "pred": 0, "story": "As a user, I want the escrow system to interface with a cryptocurrency blockchai", "raw": "0"}
+{"key": "9e03801581dad3be", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams, with no me", "raw": "0"}
+{"key": "672e5925542a7492", "pred": 0, "story": "The escrow system must provide a simple and straightforward process so that the ", "raw": "0"}
+{"key": "a4324188f500207a", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams, with no me", "raw": "0"}
+{"key": "5e0a54c009728fe7", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams, with no me", "raw": "0"}
+{"key": "8e2fc75ae2447929", "pred": 0, "story": "As a user, I want the system to authenticate my identity before I can initiate o", "raw": "0"}
+{"key": "90806151dd301ccb", "pred": 1, "story": "The escrow system must provide a simple and straightforward process so that the ", "raw": "1"}
+{"key": "aa3842a58645448b", "pred": 0, "story": "As a user, I want the system to authenticate my identity before I can initiate o", "raw": "0"}
+{"key": "9313fb013526e639", "pred": 0, "story": "As a user, I want the system to authenticate my identity before I can initiate o", "raw": "0"}
+{"key": "3959f4eafb3f4aaf", "pred": 0, "story": "As a user, I want the system to enforce role-based access control so that only a", "raw": "0"}
+{"key": "e3d998751836b6ae", "pred": 0, "story": "The escrow system must provide a simple and straightforward process so that the ", "raw": "0"}
+{"key": "c19d38753313a717", "pred": 0, "story": "As a user, I want the system to enforce role-based access control so that only a", "raw": "0"}
+{"key": "f72c2c726dfe52ed", "pred": 0, "story": "As a user, I want the system to log all trade-related actions (e.g., initiation,", "raw": "0"}
+{"key": "eb2af1530d54ba2c", "pred": 0, "story": "As a user, I want the system to log all trade-related actions (e.g., initiation,", "raw": "0"}
+{"key": "b825dfd214a023c6", "pred": 0, "story": "The system shall ensure that all personally identifiable information (PII) of us", "raw": "0"}
+{"key": "fabeeb80863404d8", "pred": 0, "story": "As a user, I want the system to require multi-factor authentication (MFA) for hi", "raw": "0"}
+{"key": "6e74244d65340997", "pred": 0, "story": "As a user, I want the system to provide visible confidence that it is trustworth", "raw": "0"}
+{"key": "cbcb03918d0160fb", "pred": 0, "story": "As a user, I want the system to require multi-factor authentication (MFA) for hi", "raw": "0"}
+{"key": "d62a8ec2fe7ec348", "pred": 0, "story": "As a user, I want the system to provide visible confidence that it is trustworth", "raw": "0"}
+{"key": "ab8e7af263c39fb4", "pred": 0, "story": "As a user, I want the system to provide visible confidence that it is trustworth", "raw": "0"}
+{"key": "d567534f0598a294", "pred": 1, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "1"}
+{"key": "c58e2c32db6c9a50", "pred": 0, "story": "As a user, I want the system to automatically and safely hold the cryptocurrency", "raw": "0"}
+{"key": "731d301474109ca7", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams.", "raw": "0"}
+{"key": "f852fe68ec9c7757", "pred": 0, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "0"}
+{"key": "06f2785efd2513ab", "pred": 1, "story": "As a user, I want the system to automatically and safely hold the cryptocurrency", "raw": "1"}
+{"key": "2f4509a21ab61142", "pred": 0, "story": "As a user, I want confidence that the escrow system itself is trustworthy and se", "raw": "0"}
+{"key": "920dea70635067a0", "pred": 1, "story": "As a user, I want the escrowed funds to be released to me automatically and only", "raw": "1"}
+{"key": "9a83d5638ffcc379", "pred": 0, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty,", "raw": "0"}
+{"key": "2de61ec70fe80fad", "pred": 1, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty,", "raw": "1"}
+{"key": "fb94c2141bc5ca35", "pred": 0, "story": "As a user, I want the escrowed funds to be released to me automatically and only", "raw": "0"}
+{"key": "1055fe29f28f8e88", "pred": 1, "story": "As a user, I want to initiate a secure cryptocurrency trade with a counterparty,", "raw": "1"}
+{"key": "d630a5158e0734c8", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams.", "raw": "0"}
+{"key": "eaf6e007d7561674", "pred": 0, "story": "The escrow system must guarantee that funds are protected from scams.", "raw": "0"}

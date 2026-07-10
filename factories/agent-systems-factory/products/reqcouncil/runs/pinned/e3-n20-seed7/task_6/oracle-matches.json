@@ -1,0 +1,776 @@
+{
+  "golden": [
+    {
+      "gold_id": "S0",
+      "gold_text": "As a user, I want to access a web-based Texas Hold’em poker game, so that I can play poker through my web browser.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 15,
+      "matched_text": "As a player, I want to play a standard, web-based game of Texas Hold'em at a virtual table so that I can enjoy the core poker experience.",
+      "candidates": [
+        {
+          "produced": 15,
+          "cosine": 0.8692,
+          "verdict": 1
+        },
+        {
+          "produced": 11,
+          "cosine": 0.791,
+          "verdict": null
+        },
+        {
+          "produced": 7,
+          "cosine": 0.7447,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7284,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7284,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S1",
+      "gold_text": "As a user, I want to have a game lobby, so that I can navigate and see the available game rooms and related information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a player, I want to view a lobby showing available Texas Hold'em game rooms so that I can find a table to join.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.821,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7423,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7285,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6894,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6649,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S2",
+      "gold_text": "As a user, I want to use chat functionality, so that I can communicate with other players while using the game.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 16,
+      "matched_text": "As a player, I want a chat feature available at the table so that I can engage in casual conversation and banter during the game.",
+      "candidates": [
+        {
+          "produced": 16,
+          "cosine": 0.8811,
+          "verdict": 1
+        },
+        {
+          "produced": 13,
+          "cosine": 0.8079,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6865,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6859,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6573,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S3",
+      "gold_text": "As a user, I want to create game rooms, so that I can start new Texas Hold’em games for others and myself to join.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 0,
+      "matched_text": "As a player, I want to create a new Texas Hold'em game room with standard, default settings so that I can start a game for others to join.",
+      "candidates": [
+        {
+          "produced": 0,
+          "cosine": 0.8804,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.8594,
+          "verdict": null
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8552,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7673,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7492,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S4",
+      "gold_text": "As a user, I want to join existing game rooms, so that I can participate in ongoing or newly created Texas Hold’em games.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a player, I want to view a lobby showing available Texas Hold'em game rooms so that I can find a table to join.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8964,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.8899,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.834,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.745,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7408,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S5",
+      "gold_text": "As a user, I want to play Texas Hold’em poker in the game rooms, so that I can participate in poker rounds according to Texas Hold’em rules.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 14,
+      "matched_text": "As a player, I want to join an existing Texas Hold'em game room from the lobby so that I can play with other players.",
+      "candidates": [
+        {
+          "produced": 14,
+          "cosine": 0.8303,
+          "verdict": 1
+        },
+        {
+          "produced": 15,
+          "cosine": 0.8281,
+          "verdict": null
+        },
+        {
+          "produced": 9,
+          "cosine": 0.7955,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.7902,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.7788,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S6",
+      "gold_text": "As a user, I want to view game records, so that I can review past games and outcomes.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 8,
+      "matched_text": "As a player, I want to view a basic list of my past games (game records) so that I can see a history of my activity.",
+      "candidates": [
+        {
+          "produced": 8,
+          "cosine": 0.86,
+          "verdict": 1
+        },
+        {
+          "produced": 5,
+          "cosine": 0.6648,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.6585,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.6401,
+          "verdict": null
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6385,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S7",
+      "gold_text": "As a user, I want to manage my account information, so that I can maintain and update my personal account details.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 2,
+      "matched_text": "As a player, I want to access and manage my basic account information (e.g., display name and email) so that I can maintain my access to the platform.",
+      "candidates": [
+        {
+          "produced": 2,
+          "cosine": 0.7692,
+          "verdict": 1
+        },
+        {
+          "produced": 12,
+          "cosine": 0.6567,
+          "verdict": null
+        },
+        {
+          "produced": 6,
+          "cosine": 0.5508,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5109,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4621,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S8",
+      "gold_text": "As a user, I want the game lobby to display available game rooms, so that I can choose which room to join or observe.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 9,
+      "matched_text": "As a player, I want to view a lobby showing available Texas Hold'em game rooms so that I can find a table to join.",
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.8321,
+          "verdict": 1
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7196,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6937,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6747,
+          "verdict": null
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6568,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S9",
+      "gold_text": "As a user, I want the game lobby to display the current game status for each room, so that I can understand what stage each game is in.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7564,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6679,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6619,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6596,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6142,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S10",
+      "gold_text": "As a user, I want the game lobby to display player information for each room, so that I can see who is participating in the games.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7655,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.7052,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.7019,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6922,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.6459,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S11",
+      "gold_text": "As a user, I want the table game view to display player hand cards, so that I can see my cards during play.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7939,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6559,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6421,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6311,
+          "verdict": 0
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6268,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S12",
+      "gold_text": "As a user, I want the table game view to display the community cards, so that I can see the shared cards on the table.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a player, I want to see a clear visual representation of the poker table, my cards, community cards, and the pot so that I can follow the state of the game.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7633,
+          "verdict": 1
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6669,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6214,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.607,
+          "verdict": null
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6062,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S13",
+      "gold_text": "As a user, I want the table game view to display betting information, so that I can understand the current bets and pot during the game.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.7466,
+          "verdict": 0
+        },
+        {
+          "produced": 9,
+          "cosine": 0.6815,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6479,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.643,
+          "verdict": 0
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6039,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S14",
+      "gold_text": "As a user, I want the table game view to provide action buttons (e.g., for player actions), so that I can perform my moves during the game.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a player, I want to perform standard poker actions (check, bet, call, raise, fold) during my turn so that I can participate in the hand.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.6933,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6506,
+          "verdict": 0
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6056,
+          "verdict": 1
+        },
+        {
+          "produced": 8,
+          "cosine": 0.5911,
+          "verdict": null
+        },
+        {
+          "produced": 3,
+          "cosine": 0.5903,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "S15",
+      "gold_text": "As a user, I want the page background to use an azure color, so that the overall background appearance matches the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4225,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3975,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3733,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.3701,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.3615,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "S16",
+      "gold_text": "As a user, I want the elements in the interface to use a midnight blue color, so that the interface elements match the specified style.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.3906,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3717,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3695,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3585,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3583,
+          "verdict": 0
+        }
+      ]
+    }
+  ],
+  "implicit": [
+    {
+      "gold_id": "IR0",
+      "gold_text": "I prefer to perform all poker actions through clearly provided action buttons during gameplay.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 10,
+      "matched_text": "As a player, I want to perform standard poker actions (check, bet, call, raise, fold) during my turn so that I can participate in the hand.",
+      "candidates": [
+        {
+          "produced": 10,
+          "cosine": 0.803,
+          "verdict": 1
+        },
+        {
+          "produced": 1,
+          "cosine": 0.6997,
+          "verdict": null
+        },
+        {
+          "produced": 15,
+          "cosine": 0.6652,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6491,
+          "verdict": null
+        },
+        {
+          "produced": 16,
+          "cosine": 0.5949,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR1",
+      "gold_text": "I expect the game lobby to show detailed information about each game room, including availability, current game status, and participating players.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 9,
+          "cosine": 0.7181,
+          "verdict": 0
+        },
+        {
+          "produced": 14,
+          "cosine": 0.6977,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.6635,
+          "verdict": 0
+        },
+        {
+          "produced": 8,
+          "cosine": 0.6357,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.6088,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR2",
+      "gold_text": "I expect the table game view to clearly present essential poker information, including my hand cards, community cards, and current betting information.",
+      "is_nfr": false,
+      "matched": true,
+      "matched_produced": 1,
+      "matched_text": "As a player, I want to see a clear visual representation of the poker table, my cards, community cards, and the pot so that I can follow the state of the game.",
+      "candidates": [
+        {
+          "produced": 1,
+          "cosine": 0.8681,
+          "verdict": 1
+        },
+        {
+          "produced": 15,
+          "cosine": 0.7017,
+          "verdict": null
+        },
+        {
+          "produced": 10,
+          "cosine": 0.6699,
+          "verdict": null
+        },
+        {
+          "produced": 4,
+          "cosine": 0.6605,
+          "verdict": null
+        },
+        {
+          "produced": 11,
+          "cosine": 0.6423,
+          "verdict": null
+        }
+      ]
+    },
+    {
+      "gold_id": "IR3",
+      "gold_text": "I prefer the overall page background to use an azure color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4258,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.3879,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.373,
+          "verdict": 0
+        },
+        {
+          "produced": 6,
+          "cosine": 0.364,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.3572,
+          "verdict": 0
+        }
+      ]
+    },
+    {
+      "gold_id": "IR4",
+      "gold_text": "I prefer the interface elements to use a midnight blue color.",
+      "is_nfr": false,
+      "matched": false,
+      "matched_produced": null,
+      "matched_text": null,
+      "candidates": [
+        {
+          "produced": 3,
+          "cosine": 0.4213,
+          "verdict": 0
+        },
+        {
+          "produced": 16,
+          "cosine": 0.4092,
+          "verdict": 0
+        },
+        {
+          "produced": 2,
+          "cosine": 0.4082,
+          "verdict": 0
+        },
+        {
+          "produced": 13,
+          "cosine": 0.3963,
+          "verdict": 0
+        },
+        {
+          "produced": 0,
+          "cosine": 0.3879,
+          "verdict": 0
+        }
+      ]
+    }
+  ]
+}

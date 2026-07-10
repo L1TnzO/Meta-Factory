@@ -1,0 +1,39 @@
+{
+  "borderline_yes": [
+    {
+      "gold_id": "FUNC23",
+      "cosine": 0.5412,
+      "gold_text": "O sistema deve manter um ranking de usuários baseado nos pontos acumulados.",
+      "matched_text": "A gamificação deve ser geral da plataforma, acumulando contribuições de diferentes projetos para evoluir o perfil do usuário (ex: usuário Master)."
+    },
+    {
+      "gold_id": "FUNC08",
+      "cosine": 0.6423,
+      "gold_text": "O sistema deve permitir a utilização de primitivas das gráficas ponto, linha e polígono para georreferenciamento.",
+      "matched_text": "A plataforma deve permitir a criação de pontos, linhas e polígonos (vetores)."
+    },
+    {
+      "gold_id": "FUNC01",
+      "cosine": 0.6666,
+      "gold_text": "O sistema deve permitir que o usuário crie uma conta fornecendo informações básicas (nome, e-mail, senha, etc...).",
+      "matched_text": "O cadastro de usuário deve ser rápido, exigindo apenas e-mail, username e senha."
+    }
+  ],
+  "borderline_no": [
+    {
+      "gold_id": "NOTF10",
+      "cosine": 0.7245,
+      "gold_text": "O sistema deve estar disponível nas plataformas Web e Mobile"
+    },
+    {
+      "gold_id": "FUNC17",
+      "cosine": 0.6971,
+      "gold_text": "O sistema deve permitir a exportação de dados filtrados por camadas, datas ou variáveis específicas."
+    },
+    {
+      "gold_id": "FUNC13",
+      "cosine": 0.6678,
+      "gold_text": "O sistema deve fornecer mapas interativos para visualização dos dados coletados."
+    }
+  ]
+}

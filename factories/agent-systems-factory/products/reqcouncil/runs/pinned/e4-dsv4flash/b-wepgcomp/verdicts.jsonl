@@ -1,0 +1,42 @@
+{"key": "ed4449a6c6c962f1", "pred": 1, "story": "O sistema deve permitir que o aluno apresentador cadastre sua apresenta\u00e7\u00e3o, incl", "raw": "1"}
+{"key": "1169631c37f2ed9d", "pred": 1, "story": "O sistema deve permitir o cadastro de usu\u00e1rios com perfis de usu\u00e1rio comum, alun", "raw": "1"}
+{"key": "ee108585735707ed", "pred": 1, "story": "O sistema deve permitir que o administrador cadastre a programa\u00e7\u00e3o do evento, in", "raw": "1"}
+{"key": "f9e8e0e16687f423", "pred": 1, "story": "O sistema deve permitir o cadastro de usu\u00e1rios com perfis de usu\u00e1rio comum, alun", "raw": "1"}
+{"key": "ec39f9e1feb84c62", "pred": 1, "story": "O sistema deve permitir que o aluno apresentador cadastre sua apresenta\u00e7\u00e3o, incl", "raw": "1"}
+{"key": "7e251ae2ffcc22f2", "pred": 1, "story": "O sistema deve permitir que o aluno apresentador cadastre sua apresenta\u00e7\u00e3o, incl", "raw": "1"}
+{"key": "6e74dce9bf1889c4", "pred": 1, "story": "O sistema deve permitir o cadastro de usu\u00e1rios com perfis de usu\u00e1rio comum, alun", "raw": "1"}
+{"key": "b2cfc3b6226b88cf", "pred": 1, "story": "O sistema deve impedir a sobreposi\u00e7\u00e3o de apresenta\u00e7\u00f5es na mesma sala e no mesmo ", "raw": "1"}
+{"key": "25b21ff7874dd1e7", "pred": 1, "story": "O sistema deve permitir que o administrador revise e edite os trabalhos cadastra", "raw": "1"}
+{"key": "639b8ad0932d4a81", "pred": 1, "story": "O sistema deve permitir que o administrador cadastre a programa\u00e7\u00e3o do evento, in", "raw": "1"}
+{"key": "c885996f741b8ef4", "pred": 1, "story": "O sistema deve impedir a sobreposi\u00e7\u00e3o de apresenta\u00e7\u00f5es na mesma sala e no mesmo ", "raw": "1"}
+{"key": "8b0436f0375700bd", "pred": 1, "story": "O sistema deve permitir que o administrador mova apresenta\u00e7\u00f5es entre slots vazio", "raw": "1"}
+{"key": "d48d31e744003622", "pred": 1, "story": "O sistema deve permitir que o administrador mova apresenta\u00e7\u00f5es entre slots vazio", "raw": "1"}
+{"key": "3ea760ce1f859bc9", "pred": 1, "story": "O sistema deve permitir que o administrador mova sess\u00f5es inteiras, desde que haj", "raw": "1"}
+{"key": "74d42a168d32cad3", "pred": 1, "story": "O sistema deve permitir que qualquer usu\u00e1rio cadastrado visualize e baixe os doc", "raw": "1"}
+{"key": "1070a524675cb3eb", "pred": 1, "story": "O sistema deve fornecer uma \u00e1rea de dashboards para an\u00e1lise e compara\u00e7\u00e3o de dado", "raw": "1"}
+{"key": "8ea7f31b2795a2ee", "pred": 1, "story": "O sistema deve permitir que qualquer usu\u00e1rio cadastrado visualize e baixe os doc", "raw": "1"}
+{"key": "45c101b562ed5939", "pred": 1, "story": "O sistema deve fornecer uma \u00e1rea de dashboards para an\u00e1lise e compara\u00e7\u00e3o de dado", "raw": "1"}
+{"key": "af2ef3ff37872269", "pred": 1, "story": "O sistema deve permitir a vota\u00e7\u00e3o de apresenta\u00e7\u00f5es com base em crit\u00e9rios e na qu", "raw": "1"}
+{"key": "1312e97784111c49", "pred": 1, "story": "O sistema deve permitir a vota\u00e7\u00e3o de apresenta\u00e7\u00f5es com base em crit\u00e9rios e na qu", "raw": "1"}
+{"key": "aa23b0b16efd4a6b", "pred": 1, "story": "O sistema deve permitir a premia\u00e7\u00e3o de apresentadores e melhores avaliadores.", "raw": "1"}
+{"key": "566ef4e26ecc3a1f", "pred": 1, "story": "O sistema deve gerar certificados distintos para participa\u00e7\u00e3o e premia\u00e7\u00e3o.", "raw": "1"}
+{"key": "dd4aa5aaddc67da8", "pred": 1, "story": "O sistema deve permitir que o administrador revise e edite os trabalhos cadastra", "raw": "1"}
+{"key": "810e722ba392c11c", "pred": 1, "story": "O sistema deve permitir que o super usu\u00e1rio gerencie todos os perfis, incluindo ", "raw": "1"}
+{"key": "678abb8a8e181891", "pred": 1, "story": "O sistema deve gerar certificados distintos para participa\u00e7\u00e3o e premia\u00e7\u00e3o.", "raw": "1"}
+{"key": "45cb11663dd4b2bb", "pred": 1, "story": "O sistema deve permitir que o administrador mova sess\u00f5es inteiras, desde que haj", "raw": "1"}
+{"key": "c16edb2e8b225999", "pred": 1, "story": "O sistema deve permitir que o super usu\u00e1rio gerencie todos os perfis, incluindo ", "raw": "1"}
+{"key": "1fb299efcedf4c06", "pred": 1, "story": "O sistema deve associar cada edi\u00e7\u00e3o do evento a um ano espec\u00edfico para manter o ", "raw": "1"}
+{"key": "cab420578e7bf574", "pred": 1, "story": "O sistema deve permitir a premia\u00e7\u00e3o de apresentadores e melhores avaliadores.", "raw": "1"}
+{"key": "9370817d36e120fa", "pred": 1, "story": "O sistema deve armazenar documentos de apresenta\u00e7\u00e3o em um sistema de arquivos ex", "raw": "1"}
+{"key": "7e4b0f9c31d894b5", "pred": 1, "story": "O sistema deve associar cada edi\u00e7\u00e3o do evento a um ano espec\u00edfico para manter o ", "raw": "1"}
+{"key": "05361fc2c37d5ce2", "pred": 1, "story": "O sistema deve suportar at\u00e9 70 usu\u00e1rios simult\u00e2neos durante o evento, com potenc", "raw": "1"}
+{"key": "d24ea8b37fe9adcc", "pred": 1, "story": "O sistema deve suportar at\u00e9 70 usu\u00e1rios simult\u00e2neos durante o evento, com potenc", "raw": "1"}
+{"key": "fe276d8938e8aeea", "pred": 1, "story": "O sistema deve ser de uso gratuito, sem necessidade de plataformas pagas.", "raw": "1"}
+{"key": "36b97dc69cb2a2c9", "pred": 1, "story": "O sistema deve permitir a configura\u00e7\u00e3o do evento por qualquer pessoa, sem necess", "raw": "1"}
+{"key": "a95ed5f497abe017", "pred": 1, "story": "O sistema deve permitir a configura\u00e7\u00e3o do evento por qualquer pessoa, sem necess", "raw": "1"}
+{"key": "e6cbe9a3760c353a", "pred": 1, "story": "O sistema deve ser modular e flex\u00edvel para permitir futuras customiza\u00e7\u00f5es para o", "raw": "1"}
+{"key": "ca20c5a969200eb2", "pred": 0, "story": "O sistema deve ser modular e flex\u00edvel para permitir futuras customiza\u00e7\u00f5es para o", "raw": "0"}
+{"key": "b1fc91808596f895", "pred": 1, "story": "O sistema deve garantir que o cadastro de alunos apresentadores inclua campos pa", "raw": "1"}
+{"key": "eb939d53578c285d", "pred": 1, "story": "O sistema deve garantir que o cadastro de alunos apresentadores inclua campos pa", "raw": "1"}
+{"key": "9ddd964127629f90", "pred": 0, "story": "O sistema deve ser de uso gratuito, sem necessidade de plataformas pagas.", "raw": "0"}
+{"key": "cb654934010d6cb8", "pred": 1, "story": "O sistema deve armazenar documentos de apresenta\u00e7\u00e3o em um sistema de arquivos ex", "raw": "1"}

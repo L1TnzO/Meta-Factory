@@ -1,7 +1,7 @@
-<!-- meta:doc sha=4068628e903b53cf5c45a93072c11db42c0e02b5 updated=2026-07-10T16:13Z -->
+<!-- meta:doc sha=303eddc57a4e02b2c7666d7bf95f4a9dfaeb3862 updated=2026-07-10T16:16Z -->
 # Incremento FSK-HELPDESK-MODELGEN
 
-> **Doc de gobierno.** Nivel **product-instance** (`products/helpdesk`, ADR-016). Estado: **ABIERTO**
+> **Doc de gobierno.** Nivel **product-instance** (`products/helpdesk`, ADR-016). Estado: **CERRADO** (2026-07-10T16:16Z)
 > (creado 2026-07-08T21:28Z, retomado 2026-07-10 sesión S2 Sonnet). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 

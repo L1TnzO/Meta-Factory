@@ -23,7 +23,7 @@ KINDS = (
     "rtm_closure", "design_review", "pytest", "isolation", "docs_check", "command",
     "column_selftest", "column_full", "bus_bounded", "product_run", "boundary_survives",
     "rtm_rederive", "rtm_tree", "clean_runner", "agent_shadow", "product_env", "command_runs",
-    "infra_up", "mcp_tools", "eval_gate", "live_run", "blast_radius", "scenario_corpus",
+    "infra_up", "mcp_tools", "eval_gate", "eval_floor", "live_run", "blast_radius", "scenario_corpus",
     "products_rederive",
 )
 
@@ -138,6 +138,21 @@ def resolve_check(check: dict, ctx, station, subst: dict) -> list[str]:
                 _s(check["output"], subst),
                 _s(check["degraded"], subst),
                 json.dumps(_s(check["thresholds"], subst)),
+                json.dumps(_s(check.get("bootstrap", []), subst))]
+    if kind == "eval_floor":
+        # ADR-025 §3 — re-verifica la evidencia PINEADA de un producto adoptado contra su PROPIO piso, opt-in,
+        # 0-modelo (la generalización de `design_floor`). `workdir`/`command`/`bootstrap` son DATA (argv);
+        # `evidence` (runs/pinned real), `degraded` (evidencia MAL, DATO de fábrica) y `thresholds` (el archivo
+        # de piso, asserted-present pero NO leído) son paths relativos al workdir. El sustrato NO re-implementa
+        # la métrica: el exit del comando auto-gateante ES el veredicto; el sustrato corre el POSITIVO (evidencia
+        # real) y el NEGATIVO (swap METAFACTORY_EVAL_EVIDENCE->degradada, debe flipear). El sustrato no nombra
+        # tech (ADR-012): ReqCouncil `eval gates` o cualquier arnés hermético son la misma máquina, otra data.
+        return [PY, "-m", "metafactory.verify.checks.eval_floor",
+                _s(check.get("workdir", "."), subst),
+                json.dumps(_s(check["command"], subst)),
+                _s(check["evidence"], subst),
+                _s(check["degraded"], subst),
+                _s(check["thresholds"], subst),
                 json.dumps(_s(check.get("bootstrap", []), subst))]
     if kind == "live_run":
         # MAT-5 — corre el PRODUCTO contra un provider REAL y GATEA por propiedades + umbrales (DES-7/8).

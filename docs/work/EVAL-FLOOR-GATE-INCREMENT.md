@@ -1,7 +1,7 @@
-<!-- meta:doc sha=0a2db01b2be2b3571ed9b3110405b208c0bb5376 updated=2026-07-10T22:48Z -->
+<!-- meta:doc sha=eed675ed45155b1422285ddbc1540d94a1fb6bb1 updated=2026-07-10T22:48Z -->
 # Incremento EVAL-FLOOR-GATE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T22:38Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-10T22:48Z) (creado 2026-07-10T22:38Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

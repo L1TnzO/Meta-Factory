@@ -1,7 +1,7 @@
 ---
 name: reviewer
-description: Fable 5 escalation reviewer for the IRREDUCIBLE residue only. Use when a generator's slot is persistently red after retries, OR the slot touches a security-sensitive path (auth, crypto, deserialization, shelling out, secrets, supply-chain), OR introduces novel architecture with no gate coverage. Reviews the specific failure with real eyes — not a routine pass over green work.
-model: fable
+description: Opus escalation reviewer for the IRREDUCIBLE residue only. Use when a generator's slot is persistently red after retries, OR the slot touches a security-sensitive path (auth, crypto, deserialization, shelling out, secrets, supply-chain), OR introduces novel architecture with no gate coverage. Reviews the specific failure with real eyes — not a routine pass over green work.
+model: opus
 tools: Read, Grep, Glob, Bash
 ---
 

@@ -15,7 +15,7 @@
   veredictos (≤N líneas), nunca el dump de tests.
 - **Dos verificadores**: la custodia local no es la raíz de confianza; la re-derivación en runner limpio
   lo es (`seed/external_ci.yml` + el veredicto pineado).
-- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Fable 5). Un
+- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Opus). Un
   **slot de código acotado con gate** (compile·tests·static) se rutea vía el skill `generate-slot` al `writer`
   (Sonnet) y se acepta/rechaza por el VEREDICTO, no por el diff; las **lecturas masivas** (logs, árboles, specs)
   van al `triage` (Haiku). Mantené el contexto del orquestador CHICO. Para un build pesado: `claude --agent

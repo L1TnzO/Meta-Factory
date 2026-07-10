@@ -1,7 +1,20 @@
-<!-- meta:doc sha=a23f29050896b1a321008c50a349742059da35e8 updated=2026-07-10T15:08Z -->
+<!-- meta:doc sha=9952810c0da9fd7fce774920b906b45e72411553 updated=2026-07-10T15:24Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T15:24Z — Ruteo Opus RESTAURADO: el swap Fable 5 se revierte el mismo día (pedido del ingeniero)
+El ingeniero aclaró el alcance real del pedido de la mañana: Fable 5 NO es la nueva norma de ruteo — se usa
+SOLO en sesiones especiales de infraestructura fundamental del meta que él lanza explícitamente; la norma
+diaria sigue siendo **Opus** (S1/S3 + cerebro orchestrator/reviewer). Revertido en un solo tramo (higiene de
+prefijo): CLAUDE.md meta (regla de delegación + runbook S1/S3), agents meta `orchestrator`/`reviewer` →
+`model: opus`, espejo en template/factory + FSK + iot CLAUDE.md, ARCHITECTURE-MAP §2, STATE, ROADMAP,
+HONEST-STATE (el residual «swap en `delegation_brain.py` + re-emit» MUERE — los agents de fábrica emitidos
+nunca dejaron de ser `model: opus`, ya son correctos), auto-memoria des-envenenada. La historia inmutable
+(LOG previo, work-docs cerrados, notas fechadas de COUNCIL/ARCHITECTURE-MAP §creado) NO se churnea — el
+episodio del swap queda como historia; esta entrada es la reversión. Lección: un pedido de ruteo es un knob
+de PRECIO (ADR-021) — aterrizarlo como «norma» en reglas vivas requiere confirmar el alcance temporal
+(¿sesión o régimen?) antes de propagarlo a N archivos.
 
 ## 2026-07-10T15:1xZ — CODEGEN-FREEZE-TOOTH ✅: el freeze del codegen deja de ser prosa — gate `codegen_freeze` (meta check 20 gates) + frontera verificación-vs-superficie LEGISLADA
 El freeze de ADR-023 §3 violaba I-12 (prohibición sin sombra determinista) y ya había sido perforado 2

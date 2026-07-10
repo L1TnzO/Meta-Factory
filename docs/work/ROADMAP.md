@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b2e58914132ce56f97c6e46913dde60ccf5ea665 updated=2026-07-10T15:06Z -->
+<!-- meta:doc sha=a7753b66b921209f6ede66798d6d87e1f2ffff72 updated=2026-07-10T15:23Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -92,8 +92,10 @@
 > frontera de la zona gris quedó LEGISLADA: `alcance=verificacion` —proofs/tests emitidos, parte VIVA por
 > ADR-023 §1, cita ADR-023 basta— vs `alcance=superficie` —templates/superficie humana, exige ADR dedicado—;
 > detalle en `work/CODEGEN-FREEZE-TOOTH-INCREMENT.md`). **Pendiente:** adopción model-nativa de `helpdesk` (su
-> superficie ganadora del A/B sigue untracked) · swap Fable 5 en `delegation_brain.py` + re-emit (los agents de
-> fábrica aún declaran `model: opus`; los del meta ya son `fable`) · F1/ASF model-nativo.
+> superficie ganadora del A/B sigue untracked) · F1/ASF model-nativo. (El swap Fable 5 fue REVERTIDO
+> 2026-07-10 por el ingeniero: Opus es la norma de ruteo en meta Y fábricas; Fable 5 sólo en sesiones
+> especiales de infraestructura meta — el item «swap en `delegation_brain.py`» MUERE, los agents emitidos ya
+> están correctos en `model: opus`.)
 
 ## 0. Si llegás sin contexto, leé en este orden
 

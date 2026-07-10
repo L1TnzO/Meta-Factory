@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bf14e934ccedb3a29246c683085e2fd15d52a60b updated=2026-07-10T14:44Z -->
+<!-- meta:doc sha=24f3b53dee5fcd84be33dac8ffec106393ae5e94 updated=2026-07-10T15:23Z -->
 # ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04)
 
 > tipo: reference (estable) · creado: 2026-07-04 (sesión Fable 5, pedido del ingeniero: «mapear la
@@ -46,8 +46,8 @@ flowchart TD
 - Los CLAUDE.md de fábrica son **medio-vivos**: la plataforma los adjunta al leer archivos del
   subárbol. El harness `.claude/` POR-fábrica emitido está **dormido** (esqueleto de export, no
   operativo) — nadie lanza `claude` dentro de una fábrica.
-- **Ruteo por SESIÓN (ADR-021, precio no seguridad):** S1 diseño = Fable 5 corto · S2 ejecución =
-  `claude --model sonnet --agent orchestrator` · S3 cierre = Fable 5 muy corto · día-a-día
+- **Ruteo por SESIÓN (ADR-021, precio no seguridad):** S1 diseño = Opus corto · S2 ejecución =
+  `claude --model sonnet --agent orchestrator` · S3 cierre = Opus muy corto · día-a-día
   re-verificación/pins = shell directo (0-modelo; la generación NUEVA va por slots model-nativos, ADR-023).
 
 ## §3 · El motor (Stage 1, `src/metafactory/`)

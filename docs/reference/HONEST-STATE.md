@@ -1,4 +1,4 @@
-<!-- meta:doc sha=14fc750f109fbaba734e7d0cce83031d6467d0e9 updated=2026-07-10T15:07Z -->
+<!-- meta:doc sha=d3bdc3747b789b17e2ecb855156f0669b91c4922 updated=2026-07-10T15:23Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -97,10 +97,11 @@ que yo no hice — por eso lo escribo acá, no en prosa optimista.
   dedicado). Las 2 perforaciones previas (5b96696·43f295d) quedan grandfathered pre-epoch. **Residuo
   irreducible que queda:** la honestidad del `alcance` declarado la juzgan ojos en revisión — el check
   verifica la FORMA (alcance+motivo+cita), no la semántica.
-- **Agents de fábrica aún `model: opus` (2026-07-10).** El swap a Fable 5 (pedido del ingeniero) aterrizó en
-  runbook + agents META (`orchestrator`/`reviewer` → `model: fable`); los de fábrica son EMITIDOS
-  (`delegation_brain.py` + m07) — editarlos a mano = drift clobbereable. Trigger: increment del swap en el
-  emisor + re-emit de las fábricas vivas.
+- **Swap Fable 5 — REVERTIDO el mismo día (2026-07-10, pedido del ingeniero).** Opus vuelve a ser la norma
+  en TODO el ruteo (runbook S1/S3 + agents meta `orchestrator`/`reviewer` → `model: opus`); Fable 5 queda
+  RESERVADO a sesiones especiales de infraestructura meta que el ingeniero lanza explícitamente. Los agents
+  de fábrica nunca cambiaron (`model: opus`, emitidos por `delegation_brain.py`) — el residual del swap en
+  el emisor MUERE: ya no hay drift que cerrar.
 - **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
   como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
   aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,

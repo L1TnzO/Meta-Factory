@@ -267,8 +267,13 @@ tasks.register<org.gradle.testing.jacoco.tasks.JacocoReport>("jacocoLiveReport")
     dependsOn("test", "workflowTest", "appContract")
     executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {{ include("*.exec") }})
     sourceDirectories.setFrom(files("src/main/kotlin"))
+    // FSK-REQREF-COVERAGE-NEGATIVE: DbRoundTrip.kt queda excluido del universo MEDIDO — es la herramienta de
+    // diagnóstico MANUAL (main() con más ramas que las que el harness automatizado ejercita), no código de
+    // negocio; la tarea `roundtrip` (arriba) lo sigue EJECUTANDO de verdad (gate de infra en s1, dos lados) —
+    // sólo deja de contar en el %. Exclusión DECLARADA (mismo criterio que openapitools/jooq arriba), no
+    // maquillaje: ningún handler/repository de negocio queda afuera del universo medido.
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {{
-        exclude("org/openapitools/**", "**/jooq/**")
+        exclude("org/openapitools/**", "**/jooq/**", "**/DbRoundTrip*")
     }})
     reports {{
         xml.required.set(true)

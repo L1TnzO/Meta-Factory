@@ -768,6 +768,16 @@ _SERVE_ALL_PROOF = '''
             ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _bad_body)[0], 400,
                           f"[serve-all] {_ep} POST tipo equivocado -> 400")
             ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras 400 (no inserto)")
+            # FSK-REQREF-COVERAGE-NEGATIVE: generaliza el diente del ref COLGANTE (ya probado sobre la entidad
+            # with-ref PRIMARIA, ver WR_REF_FIELDS mas abajo) a TODAS las excluidas con ref requerido -- el
+            # server YA responde 409 (need_conflict cubre cualquier servible con _has_req_ref); acá se manda el
+            # POST que faltaba. _wr vacio (entidad sin ref) -> el bloque se saltea, sin cambio de comportamiento.
+            if _wr:
+                _dfk = next(iter(_wr))
+                _dangling = {**_post_body, _dfk: _wr[_dfk] + 9999}
+                ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _dangling)[0], 409,
+                              f"[serve-all] {_ep} POST ref COLGANTE -> 409 (FK fail-closed)")
+                ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras ref colgante (no inserto)")
             if _eid is not None:
                 if _ef:
                     ok &= _expect(_req(base, "DELETE", f"{_ep}/{_eid}", f"Bearer {_ef}:1"), 403,

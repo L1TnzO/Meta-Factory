@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bdd2b41702e02ce89d40cdcaa2dc7c133cb4da63 updated=2026-07-10T23:01Z -->
+<!-- meta:doc sha=76657b777ba75264303734e0f7242484f034485c updated=2026-07-10T23:12Z -->
 # Incremento REQCOUNCIL-ADOPT
 
 > **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T23:01Z). Cerralo con `meta increment close`
@@ -90,6 +90,14 @@ del PROPIO contenido/ejecución de esa estación, no del spec entero). El `workd
 `workdir: products/reqcouncil` resuelve correcto SIN chassis/instancia R1 (ReqCouncil NO es un producto R1 —
 no tiene `product.yml` de blueprint FSK-style; es un producto adoptado copiado-no-emitido, fuera del
 mecanismo `_list_products`/`ensure_product_instance`, que asume el MISMO chassis codegen — no aplica acá).
+
+**⚠️ TRAMPA LATENTE (verificado en `cli.py:52` — el residuo que ratifica el diseño): `_list_products` enumera
+SÓLO los subdirs de `products/` que llevan un `product.yml`. El árbol de ReqCouncil deliberadamente NO trae
+uno → la línea sigue corriendo un solo producto (default, `ctx.root == factory root`). Si un incremento FUTURO
+dejara caer un `product.yml` en `products/reqcouncil/`, ASF flipearía a modo R1 y la línea correría s0..s12
+POR-INSTANCIA con `ctx.root == products/reqcouncil` — lo que rompería el `workdir: products/reqcouncil` de s12
+(doble anidado) Y s0..s11 (esperan `build/product` en la raíz de fábrica) Y perturbaría el pin. Regla dura:
+`products/reqcouncil` NUNCA lleva `product.yml`. Anotarlo en `PROVENANCE.md` para que nadie lo pise.**
 
 **Costo de re-derivar**: `ci --rederive`/`meta pin` para ASF ahora ejecuta e2e s0..s12 (incluye Neo4j/Postgres
 efímeros de s2/s3, igual que HOY sin s12) — no es regresión nueva, ya era el costo de re-derivar la línea

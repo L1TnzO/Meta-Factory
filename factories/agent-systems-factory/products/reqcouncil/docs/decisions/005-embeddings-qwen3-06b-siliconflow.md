@@ -1,4 +1,3 @@
-<!-- meta:doc sha=ab76928945915e8e16034670f876f3a989090e37 updated=2026-07-10T23:29Z -->
 # 005 — Embeddings de dedup: Qwen3-Embedding-0.6B servido por SiliconFlow (2026-07-05)
 
 **Decisión.** El embedder pluggable del diseño (design/04 §1: «bge/qwen-class sentence

@@ -1,4 +1,3 @@
-<!-- meta:doc sha=56ea8f21923ec080d98c6be939ae0d33540c7c46 updated=2026-07-10T23:29Z -->
 # LOG — historia cerrada (append-only, más nuevo arriba)
 
 ## 2026-07-05 — H5 HITL cerrado: checkpoint no-salteable por alcanzabilidad + catch-rate 3/3 sobre el pin H4

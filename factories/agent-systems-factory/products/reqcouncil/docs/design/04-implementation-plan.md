@@ -1,4 +1,3 @@
-<!-- meta:doc sha=5558c5b4bc0fb1178478d8c73b02bbd43de096f5 updated=2026-07-10T23:29Z -->
 # Implementation Plan — stack, layout, milestones, risks, cost
 
 ## 1. Stack (each choice ties to a requirement — informe §4.3 source of truth)

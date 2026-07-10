@@ -1,4 +1,3 @@
-<!-- meta:doc sha=bc170c6dbbd92d4010acdf4c21df59962e0a2136 updated=2026-07-10T23:29Z -->
 # 08 · Caveats and Limits
 
 The honest boundaries of the system. These are not footnotes — they are load-bearing constraints that justify the autonomy ceiling (`00` §3) and shape the design throughout. Read this before promising anyone what the system can do.

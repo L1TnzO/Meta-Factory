@@ -1,4 +1,3 @@
-<!-- meta:doc sha=378846ff844fddd1e12872740901120c2c5111e2 updated=2026-07-10T23:29Z -->
 # 01 · Ingestion and Anchoring
 
 The front of the pipeline, and the foundation of everything downstream. The timestamp and the fragment are the root of the entire trace: if a claim cannot be tied back to a `(speaker, start_ms, end_ms)` tuple or an image region, it cannot be grounded, attributed, or audited. Get this layer right and freeze it before building anything else.

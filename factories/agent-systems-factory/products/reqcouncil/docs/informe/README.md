@@ -1,4 +1,3 @@
-<!-- meta:doc sha=9609e7533d4866755fbd5c08a3e3e5ff9735ec5a updated=2026-07-10T23:29Z -->
 # Informe Final — estado de generación y guía de ensamblado
 
 > Generado según `../../../Guia_Generacion_IA_Informe_Final.md` (formato UFRO + rúbrica 100 pts),

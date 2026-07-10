@@ -1,4 +1,3 @@
-<!-- meta:doc sha=fa34f1ea0ee14f21d22a614f9a31c00630e1c3be updated=2026-07-10T23:29Z -->
 # 05 · Traceability Substrate
 
 The dual data model that turns the system into something close to an interpretability tool. This is the other core document alongside `03`. It covers the OpenTelemetry span tree and its exact attributes, the self-hosted trace backends, the W3C PROV graph in Neo4j, the join key that links the two substrates, and the backward/forward walk the engineer performs.

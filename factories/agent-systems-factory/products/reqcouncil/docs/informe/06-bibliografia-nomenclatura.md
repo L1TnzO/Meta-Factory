@@ -1,4 +1,3 @@
-<!-- meta:doc sha=9b87c5841c2f6b99a7ed909765bfb12677652b26 updated=2026-07-10T23:29Z -->
 # Nomenclatura y Bibliografía
 
 ## Nomenclatura

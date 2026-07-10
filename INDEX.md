@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `fbd27c72ed2a` | 2026-07-10T15:30Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `74496c1990ac` | 2026-07-10T22:48Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `03b0689ff1ab` | 2026-07-10T23:44Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -137,6 +137,7 @@
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |
 | `docs/work/R1-PRODUCT-INSTANCE-INCREMENT.md` | `37b0538d58cc` | 2026-06-20T00:28Z | Incremento R1-PRODUCT-INSTANCE |
 | `docs/work/REAIM-SWEET-SPOT-INCREMENT.md` | `0dfea32e5693` | 2026-06-26T03:52Z | Incremento REAIM-SWEET-SPOT |
+| `docs/work/REQCOUNCIL-DOCS-HOME-FIX-INCREMENT.md` | `89f1575e3de1` | 2026-07-10T23:49Z | Incremento REQCOUNCIL-DOCS-HOME-FIX |
 | `docs/work/ROADMAP.md` | `9cbad00fe136` | 2026-07-10T16:47Z | ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas |
 | `docs/work/RTM-ARTIFACT-PATHS-PACKAGE-AWARE-INCREMENT.md` | `0843675ff623` | 2026-06-21T03:22Z | Incremento RTM-ARTIFACT-PATHS-PACKAGE-AWARE |
 | `docs/work/S6-INSTANCE-PIN-GITIGNORE-INCREMENT.md` | `bb00e5b846c0` | 2026-07-09T01:27Z | Incremento S6-INSTANCE-PIN-GITIGNORE |

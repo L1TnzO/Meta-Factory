@@ -52,9 +52,19 @@ def doc_set(home: Path, *, meta_extras: bool = True) -> list[Path]:
 
 def doc_homes(repo_root: Path) -> list[Path]:
     """Every doc-home, by level (ADR-016 Fase 2 §3): the meta (repo_root) + each
-    factory + each product that owns a `docs/` dir. DATA-agnostic — splits the path,
-    never hardcodes a factory/product slug. Order: meta, then per factory the factory
-    then its products."""
+    factory + each R1 product instance that owns a `docs/` dir. DATA-agnostic — splits
+    the path, never hardcodes a factory/product slug. Order: meta, then per factory the
+    factory then its products.
+
+    A `products/<p>/` only qualifies when it carries `product.yml` — the SAME signal
+    `_list_products`/R1 already use to mean "a Meta-Factory-governed product instance"
+    (ADR-015). An ADOPTED product (copied-not-emitted, e.g. ADR-025's ReqCouncil)
+    deliberately has NO `product.yml`: its `docs/` is FOREIGN content (the upstream
+    project's own docs, copied byte-for-byte from a pin) — sealing it with an ADR-009
+    Meta-Factory stamp would mutate a claimed byte-identical copy, and its own STATE.md
+    would spuriously flag "stale" every time the Meta-Factory touches ITS OWN nested
+    increment doc inside that foreign tree (docs_manifest §check discovered this,
+    REQCOUNCIL-DOCS-HOME-FIX)."""
     repo_root = Path(repo_root)
     homes = [repo_root]
     factories = repo_root / "factories"
@@ -65,7 +75,7 @@ def doc_homes(repo_root: Path) -> list[Path]:
             prods = f / "products"
             if prods.is_dir():
                 for p in sorted(q for q in prods.iterdir() if q.is_dir()):
-                    if (p / "docs").is_dir():
+                    if (p / "docs").is_dir() and (p / "product.yml").is_file():
                         homes.append(p)
     return homes
 

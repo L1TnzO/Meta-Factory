@@ -1,4 +1,3 @@
-<!-- meta:doc sha=efd467e5d0bae1c21741f9fda0a7502aebf4831d updated=2026-07-10T23:29Z -->
 # H4 — Deliberación: críticos + consenso + convergencia · **CERRADO** (2026-07-05)
 
 > Hito 4 de `../design/04-implementation-plan.md §3`. Entregable: los 3 críticos de Round-k

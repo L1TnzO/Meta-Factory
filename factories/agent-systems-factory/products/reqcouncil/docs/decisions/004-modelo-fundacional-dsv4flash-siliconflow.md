@@ -1,4 +1,3 @@
-<!-- meta:doc sha=8a06345b03e86fc7b83a6a9d22723793a4ee7677 updated=2026-07-10T23:29Z -->
 # 004 — Modelo fundacional: DeepSeek-V4-Flash servido por SiliconFlow (2026-07-05)
 
 **Decisión.** El modelo fundacional de TODAS las personas de ReqCouncil pasa de

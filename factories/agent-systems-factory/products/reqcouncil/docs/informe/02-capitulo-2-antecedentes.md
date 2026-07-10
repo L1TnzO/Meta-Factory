@@ -1,4 +1,3 @@
-<!-- meta:doc sha=1c9ed6a92b73256e90b94021c29097b95a024e18 updated=2026-07-10T23:29Z -->
 # CAPÍTULO 2 — ANTECEDENTES GENERALES
 
 ## 2.1 Fundamentos teóricos y técnicos

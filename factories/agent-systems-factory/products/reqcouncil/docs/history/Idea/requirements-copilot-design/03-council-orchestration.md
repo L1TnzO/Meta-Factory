@@ -1,4 +1,3 @@
-<!-- meta:doc sha=8c9ac695ae5fdee9768a98e497a421b12bb767c2 updated=2026-07-10T23:29Z -->
 # 03 · Council Orchestration
 
 The runtime heart of the system. This document covers the LangGraph orchestration internals, every agent in the council, the blackboard state, the adversarial trio, the synthesizer, and the persistence/interrupt/time-travel machinery that makes a run recoverable and reviewable. This is the largest document because the council is where the system's behavior lives.

@@ -1,4 +1,3 @@
-<!-- meta:doc sha=23392ff52bdbf5c1208e08ddb742d09a58ee6f1f updated=2026-07-10T23:29Z -->
 # CAPÍTULO 4 — RESULTADOS Y DISCUSIÓN
 
 ## 4.1 Entregable funcional y alcance logrado

@@ -1,4 +1,3 @@
-<!-- meta:doc sha=18a5ffe78b65041e45ce9301896ad3c8eaef22f9 updated=2026-07-10T23:29Z -->
 # 002 — Modelo fundacional: qwen/qwen3-32b servido por Groq (2026-07-05)
 
 **Decisión.** El modelo fundacional de TODAS las personas de ReqCouncil (analistas, críticos,

@@ -1,4 +1,3 @@
-<!-- meta:doc sha=cf0da0912e8dffa7a92a4339bbabb430652d1b2c updated=2026-07-10T23:29Z -->
 # Changelog
 
 All notable changes to this design specification are recorded here. This document is meant to be version-controlled; bump the version and add an entry whenever a design decision changes.

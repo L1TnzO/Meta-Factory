@@ -1,4 +1,3 @@
-<!-- meta:doc sha=e11c103ccca093ff0b6e2f99d85fe3e02cbbb4cd updated=2026-07-10T23:29Z -->
 # H6 — Full eval: E2/E3/E4 + gates en CI · **CERRADO** (2026-07-06)
 
 > Hito 6 (final) de `../design/04-implementation-plan.md §3`. Entregable: runners **E2**

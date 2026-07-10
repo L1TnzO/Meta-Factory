@@ -1,4 +1,3 @@
-<!-- meta:doc sha=4e1866b3099c5e316e3b96e52af54769bb873fad updated=2026-07-10T23:29Z -->
 # CAPÍTULO 1 — INTRODUCCIÓN
 
 ## 1.1 Planteamiento del problema

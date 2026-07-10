@@ -1,4 +1,3 @@
-<!-- meta:doc sha=e4465695c1b23058e813d270dde375ef14c9185d updated=2026-07-10T23:29Z -->
 # 06 · Human Checkpoint
 
 The plane where autonomy stops. The human engineer is the only interlocutor with the client and approves every output before it is used; the system recommends, the human decides (`00` §3). This document covers the interrupt payload, the directed review experience, the one cognitive forcing function, how an edit re-enters the graph state, and the automation-bias evidence that shapes all of it.

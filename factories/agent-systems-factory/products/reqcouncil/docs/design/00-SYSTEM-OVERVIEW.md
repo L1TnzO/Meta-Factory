@@ -1,4 +1,3 @@
-<!-- meta:doc sha=587d0df9d9efa4a0571b7626adb84df41deccb8b updated=2026-07-10T23:29Z -->
 # ReqCouncil — System Overview (unified design v2)
 
 > Supersedes `../history/Idea/requirements-copilot-design/` (v1, kept as historical record).

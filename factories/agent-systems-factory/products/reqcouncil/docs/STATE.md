@@ -1,4 +1,3 @@
-<!-- meta:doc sha=eada3b17cc48d9e6c1d6b5ca22a6fe52f7d7c455 updated=2026-07-10T23:29Z -->
 # ReqCouncil — STATE (punto de entrada único)
 
 > Overwrite-only: refleja la verdad de HOY. La historia cerrada vive en `LOG.md` (append).

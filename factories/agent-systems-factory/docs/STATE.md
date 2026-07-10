@@ -1,4 +1,4 @@
-<!-- meta:doc sha=aa0716c0e4bd36c7dd844a4fabc2b4319d61ebe5 updated=2026-07-10T23:36Z -->
+<!-- meta:doc sha=9c332a9b6679c0c7861f763b70a7035d69513b48 updated=2026-07-10T23:49Z -->
 # Estado — Agent Systems Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
@@ -16,6 +16,7 @@
   métrica. Esto NO descongela s0..s11 (siguen intocados, mismo pin) — es una estación NUEVA, aditiva:
   **`s12`** (`stations/s12.yml`, `kind: eval_floor`, `requires_prev: s11`). `meta pin` confirma s1..s11
   byte-idénticos (pin sólo AGREGA `s12`); `meta ci --rederive` → 12/12 proof_sha == pineado.
+  Incremento `REQCOUNCIL-ADOPT` CERRADO (ambos niveles: fábrica + `products/reqcouncil`).
 - Fábrica **agent-systems-factory** nacida por la línea M0–M8 del Meta-Factory. Produce: una fábrica de sistemas de agentes LangGraph de grado-producción (línea S0–S8): topología tipada verificable que compila vía get_graph(), HITL no-salteable por alcanzabilidad, estado durable resumible, observabilidad con provenance y evaluación con compuertas que bloquean.
 - Hereda el sustrato de toda fábrica confiable (columna anti-sello, bus de veredictos, RTM,
   dos verificadores) cableado por construcción — no re-derivado a mano.

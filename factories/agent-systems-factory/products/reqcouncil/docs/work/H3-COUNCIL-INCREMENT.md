@@ -1,4 +1,3 @@
-<!-- meta:doc sha=89db7d609720896226d5d1198e85d178a93e2557 updated=2026-07-10T23:29Z -->
 # H3 — Council v1: store+DAO + esqueleto del council (Round 0) · **CERRADO** (2026-07-05)
 
 > Hito 3 de `../design/04-implementation-plan.md §3`. Entregable: analistas Round-0 en

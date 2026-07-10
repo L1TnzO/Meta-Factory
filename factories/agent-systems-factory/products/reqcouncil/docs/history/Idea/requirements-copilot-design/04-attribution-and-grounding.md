@@ -1,4 +1,3 @@
-<!-- meta:doc sha=66f23e605c3875c23f060dfe063fbe0091beecb0 updated=2026-07-10T23:29Z -->
 # 04 · Attribution and Grounding
 
 The heart of the system's value: determining *where each requirement came from* and disentangling **source-grounded** contributions from **parametric / internal-knowledge** contributions. Everything a model produces is ultimately a black-box combination of the two; this layer pries them apart as far as the current state of the art allows — which is "imperfectly, as a graded signal." No single technique solves it, so they are layered, cheapest-and-most-certain first.

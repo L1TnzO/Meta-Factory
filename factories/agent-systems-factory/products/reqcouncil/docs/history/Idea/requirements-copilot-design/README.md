@@ -1,4 +1,3 @@
-<!-- meta:doc sha=f29a2dfa1fdb06e0bdbb8403eec9bbc1b359765a updated=2026-07-10T23:29Z -->
 # Requirements Copilot — Engineering Design
 
 A complete, version-controlled implementation reference for an autonomy-level-1–2, post-meeting, council-style agentic copilot for software requirements elicitation and analysis.

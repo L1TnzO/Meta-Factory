@@ -1,4 +1,3 @@
-<!-- meta:doc sha=8b56b1d4a4fe779e2bc70b9215fcad2490ed2ddd updated=2026-07-10T23:29Z -->
 # H2 — Juez de alineación (E0) · **CERRADO** (2026-07-05)
 
 > Hito 2 de `../design/04-implementation-plan.md §3`. Entregable: juez calibrado contra los

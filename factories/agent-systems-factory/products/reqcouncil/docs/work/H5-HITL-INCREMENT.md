@@ -1,4 +1,3 @@
-<!-- meta:doc sha=adf6bfcf7aae7b1bbc919f734dbdc83d31016dd9 updated=2026-07-10T23:29Z -->
 # H5 — HITL: checkpoint no-salteable + paquete peor-primero + CLI de revisión · **CERRADO** (2026-07-05)
 
 > Hito 5 de `../design/04-implementation-plan.md §3`. Entregable: `interrupt()` en la ÚNICA

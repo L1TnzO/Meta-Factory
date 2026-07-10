@@ -1,4 +1,3 @@
-<!-- meta:doc sha=ffba86feea613deb7fbc53745b98fb1a9e8b173e updated=2026-07-10T23:29Z -->
 # 001 — Estructura del repositorio (2026-07-05)
 
 **Estado:** aceptada · **Inmutable** (correcciones → nueva decisión que la supersede).

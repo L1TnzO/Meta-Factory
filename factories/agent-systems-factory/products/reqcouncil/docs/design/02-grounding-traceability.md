@@ -1,4 +1,3 @@
-<!-- meta:doc sha=931591a72ffbf205ff10e036ac692c5a4ac6daab updated=2026-07-10T23:29Z -->
 # Grounding & Traceability — ingestion, anchors, attribution, HITL
 
 ## 1. Transcript Ingestor (the new Plane 1 — text in, anchors out)

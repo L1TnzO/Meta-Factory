@@ -1,4 +1,3 @@
-<!-- meta:doc sha=4c52a4d32cc13bca2e88e7f6f7ebe04ebf331a3b updated=2026-07-10T23:29Z -->
 # CAPÍTULO 5 — CONCLUSIONES
 
 ## 5.1 Síntesis de logros

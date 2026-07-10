@@ -1,4 +1,3 @@
-<!-- meta:doc sha=762f9c64f4f7d07d1a61e530d4558e112f053e61 updated=2026-07-10T23:29Z -->
 # 00 · Architecture and Roadmap
 
 This document is the whole-system view: the planes, the two cross-cutting substrates, the staged build order, and the standing design decisions. Every other document zooms into one box of this map.

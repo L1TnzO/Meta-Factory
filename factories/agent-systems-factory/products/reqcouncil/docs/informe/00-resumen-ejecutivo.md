@@ -1,4 +1,3 @@
-<!-- meta:doc sha=8790ac54c4a8b6bebc360e06218caa7d95e456fc updated=2026-07-10T23:29Z -->
 # Resumen Ejecutivo
 
 La ingeniería de requisitos depende mayoritariamente de reuniones y entrevistas de elicitación,

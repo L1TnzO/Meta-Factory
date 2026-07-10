@@ -1,4 +1,3 @@
-<!-- meta:doc sha=09a9194abda462a611d7ba0674b2f6b061f8ff1c updated=2026-07-10T23:29Z -->
 # 07 · Evaluation and Quality
 
 How the system is measured, and how prompts are optimized against those measurements. Two questions dominate: *is the output grounded* (faithfulness/attribution) and *did we miss anything* (recall on critical requirements). The second is the higher-stakes and more neglected one.

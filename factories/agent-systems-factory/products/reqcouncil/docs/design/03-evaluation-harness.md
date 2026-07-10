@@ -1,4 +1,3 @@
-<!-- meta:doc sha=5e8b42a08261a66902677227c55181ba068fa756 updated=2026-07-10T23:29Z -->
 # Evaluation Harness — golden sets, metrics, protocol, gates
 
 > The reason this project is buildable without flying blind: four public corpora provide ground

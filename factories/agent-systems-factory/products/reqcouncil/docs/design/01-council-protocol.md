@@ -1,4 +1,3 @@
-<!-- meta:doc sha=c5bdb28dc3dd099020935d9e8682f710e7cd61e4 updated=2026-07-10T23:29Z -->
 # Council Protocol — personas, deliberation loop, consensus & convergence
 
 > The heart of ReqCouncil. Design driver: the RECOVER evidence — 3 human experts reading the SAME

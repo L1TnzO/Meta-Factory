@@ -1,4 +1,3 @@
-<!-- meta:doc sha=07202c825c55524878a1c9b6d6fe79a672f72f7a updated=2026-07-10T23:29Z -->
 # 003 — Modelo fundacional: zai-glm-4.7 servido por Cerebras (2026-07-05)
 
 **Decisión.** El modelo fundacional de TODAS las personas de ReqCouncil pasa de

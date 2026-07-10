@@ -1,4 +1,3 @@
-<!-- meta:doc sha=39b024c8613dd6cda69293edd631c9892b3c1916 updated=2026-07-10T23:29Z -->
 # CAPÍTULO 3 — DESCRIPCIÓN DE ACTIVIDADES REALIZADAS
 
 ## 3.1 Enfoque metodológico

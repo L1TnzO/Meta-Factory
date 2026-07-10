@@ -263,6 +263,10 @@ def _make_repo_with_factory(tmp_path: Path) -> Path:
     pdocs = repo / "factories" / "demo" / "products" / "inst" / "docs"
     pdocs.mkdir(parents=True)
     (pdocs / "STATE.md").write_text("# Product State\nproduct content\n", encoding="utf-8")
+    # `product.yml` is what makes this a GOVERNED R1 product instance (ADR-015) rather than an
+    # ADOPTED/copied one (ADR-025) — the same signal `_list_products` uses; doc_homes() requires it.
+    (repo / "factories" / "demo" / "products" / "inst" / "product.yml").write_text(
+        "name: inst\n", encoding="utf-8")
     return repo
 
 
@@ -310,6 +314,22 @@ class TestPerHomeSeal:
         assert meta and fac
         assert meta.isdisjoint(fac)
         assert (repo / "factories" / "demo" / "CLAUDE.md") not in fac
+
+    def test_adopted_product_without_product_yml_is_not_a_doc_home(self, tmp_path):
+        """ADR-025: an ADOPTED product (copied-not-emitted, e.g. ReqCouncil) deliberately carries NO
+        `product.yml` — its `docs/` is foreign content and must NOT be swept into the ADR-009 sealed
+        set (would mutate a claimed byte-identical copy + spuriously flag its frozen STATE.md stale)."""
+        repo = _make_repo_with_factory(tmp_path)
+        adopted = repo / "factories" / "demo" / "products" / "adopted" / "docs"
+        adopted.mkdir(parents=True)
+        (adopted / "STATE.md").write_text("# Foreign upstream state\n", encoding="utf-8")
+        rels = {"(meta)" if h == repo else str(h.relative_to(repo)) for h in doc_homes(repo)}
+        assert "factories/demo/products/adopted" not in rels
+        assert "factories/demo/products/inst" in rels  # the REAL R1 instance is unaffected
+        before = (adopted / "STATE.md").read_text(encoding="utf-8")
+        sync(repo)
+        assert (adopted / "STATE.md").read_text(encoding="utf-8") == before  # untouched, not sealed
+        assert check(repo) == []  # no spurious staleness problem either
 
 
 # ── H-5 (COLUMN-MAINT, COUNCIL-360 §4.1): residual pseudo-seal hardening ──────

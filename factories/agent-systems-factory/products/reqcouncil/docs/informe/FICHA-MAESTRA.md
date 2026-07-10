@@ -1,4 +1,3 @@
-<!-- meta:doc sha=4bd3da741a94e531b96b7c5a02e08e472d264d52 updated=2026-07-10T23:29Z -->
 # Ficha maestra del proyecto (guía §1) — completada por inferencia desde el repositorio
 
 > Origen de cada dato entre ⟨⟩. Los campos que un repositorio no puede contener quedan `[FALTA DATO]`

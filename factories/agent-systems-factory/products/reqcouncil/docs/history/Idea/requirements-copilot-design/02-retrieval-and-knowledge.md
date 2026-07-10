@@ -1,4 +1,3 @@
-<!-- meta:doc sha=3754d5f60b49e71780c3791d5f23d9f012577e06 updated=2026-07-10T23:29Z -->
 # 02 · Retrieval and Knowledge
 
 The plane that turns the immutable evidence (`01`) into searchable, grounding material for the council — without ever losing the link back to source. The governing principle: **retrieval must be traceable by construction.** Every chunk carries its provenance, and the act of retrieval emits a trace span and a PROV edge at the same moment it feeds the model.

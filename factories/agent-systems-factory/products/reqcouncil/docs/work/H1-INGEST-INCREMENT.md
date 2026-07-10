@@ -1,4 +1,3 @@
-<!-- meta:doc sha=0541732927d4303c86f6b668905cec30d46ad75d updated=2026-07-10T23:29Z -->
 # H1 — Ingesta + Almacén · **CERRADO** (2026-07-05)
 
 > Hito 1 de `../design/04-implementation-plan.md §3`. Entregable: parser, chunker 3s1, anclas,

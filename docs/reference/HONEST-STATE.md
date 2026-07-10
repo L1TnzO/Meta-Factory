@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d3bdc3747b789b17e2ecb855156f0669b91c4922 updated=2026-07-10T15:23Z -->
+<!-- meta:doc sha=9b96aab90407fc002e9b2103043e119ef7796cd5 updated=2026-07-10T15:29Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -102,6 +102,24 @@ que yo no hice — por eso lo escribo acá, no en prosa optimista.
   RESERVADO a sesiones especiales de infraestructura meta que el ingeniero lanza explícitamente. Los agents
   de fábrica nunca cambiaron (`model: opus`, emitidos por `delegation_brain.py`) — el residual del swap en
   el emisor MUERE: ya no hay drift que cerrar.
+- **Frescura comunitaria SIN herramienta (2026-07-10, auditoría model-first).** La pregunta OBLIGADA de
+  ADR-023 §2 («¿qué pieza ya validó la comunidad?») tiene procedimiento (skill `design-primitives` paso 3)
+  y diente indirecto (M0 `design-review`: capability sin `tech` → rojo), pero la RESPUESTA sale del
+  training-data del modelo: no hay `.mcp.json`, ni context7, ni paso de web-lookup en S1 — riesgo de fijar
+  como DATO versiones viejas/deprecadas. Propuesta: increment `COMMUNITY-FRESHNESS` — MCP context7 (o
+  WebSearch) habilitado SÓLO para sesiones S1 de diseño (NUNCA dentro de slots del generator — least-priv;
+  `forbidden_tools` ya modela la denegación) + la versión exacta queda PINEADA en la spec, así la frescura
+  es input de diseño y el determinismo lo sostiene el pin. Es superficie de supply-chain del cerebro
+  (output de MCP entra al contexto que decide) → exige ADR propio, no un `claude mcp add` casual.
+  Trigger: próxima spec nueva (F1/ASF) o el primer pin comunitario que resulte deprecado al verificarlo.
+- **La pregunta comunitaria no baja al nivel PRODUCTO (2026-07-10, auditoría model-first).**
+  `design-primitives` es meta-only y su alcance declarado es el diseño de FÁBRICAS (`factory.spec.yml`);
+  `product.yml` no tiene campo estructurado para piezas de comunidad, y la superficie model-nativa ya
+  adoptada (snipeit `app.ts` = TS vanilla data-driven, sin framework) no re-preguntó — sus deltas quedaron
+  congelados por ley de increment, decisión legítima pero NO pasó por el paso 3. Mitigado: toda sesión corre
+  desde la raíz meta (workspace-model, ARCHITECTURE-MAP §2), así que el skill ESTÁ disponible; lo que falta
+  es que el procedimiento de spec-de-producto lo OBLIGUE. Trigger: la adopción model-nativa de `helpdesk`
+  (la próxima superficie que se diseñe debe dejar la respuesta comunitaria ESCRITA).
 - **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
   como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
   aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,

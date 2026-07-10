@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a7753b66b921209f6ede66798d6d87e1f2ffff72 updated=2026-07-10T15:23Z -->
+<!-- meta:doc sha=b24167db07abe3be37542eb777383eefd8e1f84b updated=2026-07-10T15:29Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -91,8 +91,10 @@
 > work-doc ABIERTO del nivel dueño → ROJO · waiver sin diff → ROJO · auditoría histórica auto-referencial; la
 > frontera de la zona gris quedó LEGISLADA: `alcance=verificacion` —proofs/tests emitidos, parte VIVA por
 > ADR-023 §1, cita ADR-023 basta— vs `alcance=superficie` —templates/superficie humana, exige ADR dedicado—;
-> detalle en `work/CODEGEN-FREEZE-TOOTH-INCREMENT.md`). **Pendiente:** adopción model-nativa de `helpdesk` (su
-> superficie ganadora del A/B sigue untracked) · F1/ASF model-nativo. (El swap Fable 5 fue REVERTIDO
+> detalle en `work/CODEGEN-FREEZE-TOOTH-INCREMENT.md`). **Pendiente:** adopción model-nativa de `helpdesk` (su superficie ganadora
+> del A/B ya está COMMITTEADA en `products/helpdesk/frontend/` — auditado 2026-07-10 — pero SIN cablear:
+> falta `frontend_surface: model-native` en su `product.yml`, así que `design_floor` nunca la corre) ·
+> F1/ASF model-nativo. (El swap Fable 5 fue REVERTIDO
 > 2026-07-10 por el ingeniero: Opus es la norma de ruteo en meta Y fábricas; Fable 5 sólo en sesiones
 > especiales de infraestructura meta — el item «swap en `delegation_brain.py`» MUERE, los agents emitidos ya
 > están correctos en `model: opus`.)

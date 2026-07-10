@@ -1,7 +1,25 @@
-<!-- meta:doc sha=9952810c0da9fd7fce774920b906b45e72411553 updated=2026-07-10T15:24Z -->
+<!-- meta:doc sha=fbd27c72ed2abd5fd5d016e60f7efc70968b9851 updated=2026-07-10T15:30Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T15:4xZ — Auditoría #2 model-first + comunidad: el paradigma AGUANTA con dientes; 2 gaps nuevos (frescura comunitaria sin herramienta · la pregunta no baja a producto)
+Segunda pasada (pedido del ingeniero) contra las OBLIGACIONES de ADR-023/024 (digest verifier) + evidencia
+por grep/gates con ojos propios. VERDE probado: (1) freeze con diente (`codegen_freeze`, meta check 20/20);
+(2) camino durable completo en snipeit — flag `frontend_surface: model-native` + override pineado TRACKED +
+`design_floor` opt-in en s9 (6 ejes, Chromium real, derivado del spec ADR-012, two-sided) + ci re-VERIFICA
+no re-deriva; (3) harness de slots heredado (generate-slot en meta/FSK/iot, blast-radius + veredicto por
+hooks, gate split fast/heavy, WorkOrder validado, PBT, security_scan two-sided con fixture plantada);
+(4) pregunta comunitaria operacionalizada en diseño de fábrica (`design-primitives` paso 3 → `capability.
+tech` como DATO, diente indirecto M0 design-review); (5) reglas vivas alineadas en meta+template+FSK+iot.
+STALE corregido: la superficie A/B de helpdesk YA está committeada (no «untracked» como decían STATE/
+ROADMAP) — lo pendiente es el CABLEADO (flag ausente en su product.yml → design_floor nunca la corre).
+GAPS nuevos → HONEST-STATE §7 con trigger: (G1) la respuesta comunitaria sale del training-data — no hay
+context7/MCP/web-lookup en S1; propuesta `COMMUNITY-FRESHNESS` (MCP sólo-S1 + versión pineada en spec;
+supply-chain del cerebro → exige ADR, no un add casual); (G2) `design-primitives` es meta-only y
+`product.yml` no tiene campo para piezas de comunidad — snipeit (TS vanilla) no re-preguntó. Calibración
+honesta: la libertad generativa hoy es UNA superficie acotada por producto (frontend app.ts/css) —
+probabilismo controlado por diseño; la expansión (backend, F1/ASF) es acto deliberado del ROADMAP, no drift.
 
 ## 2026-07-10T15:24Z — Ruteo Opus RESTAURADO: el swap Fable 5 se revierte el mismo día (pedido del ingeniero)
 El ingeniero aclaró el alcance real del pedido de la mañana: Fable 5 NO es la nueva norma de ruteo — se usa

@@ -89,6 +89,7 @@ def _test_routetable_kt(pkg: str, entities: list[dict]) -> str:
     return (f"package {pkg}\n\n"
             "import io.kotest.core.spec.style.StringSpec\n"
             "import io.kotest.matchers.shouldBe\n"
+            f"import {pkg}.routes.RouteTable\n"
             f"import {pkg}.routes.appRoutes\n\n"
             "// Tier UNIT (s7): el despacho de rutas pasa por el guard SÓLO en las protegidas (runtime).\n"
             "class RouteTableTest : StringSpec({\n"
@@ -101,6 +102,11 @@ def _test_routetable_kt(pkg: str, entities: list[dict]) -> str:
             "    }\n"
             '    "una ruta inexistente no despacha" {\n'
             f'        appRoutes().dispatch("DELETE", "/nope", {token}) shouldBe false\n'
+            "    }\n"
+            # FSK-COVERAGE-FULL: `Route.roles` tiene default `emptySet()` -- construida sin el 4to argumento
+            # ejercita ese default real (no un mock), no solo el uso interno de `route()` (que SIEMPRE lo pasa).
+            '    "Route sin roles explicitos usa el default (emptySet)" {\n'
+            '        RouteTable.Route("GET", "/x", false).roles shouldBe emptySet()\n'
             "    }\n"
             "})\n")
 

@@ -14,7 +14,7 @@ from .contract import _openapi_yaml
 from .data_layer import _app_kt, _it_repository_kt, _migration_sql, _repository_kt, _roundtrip_kt, _store_kt, _workflow_fields, _workflow_kt
 from .deploy import _ci_sh, _deploy_appserver_check_py, _deploy_check_py, _dockerfile, _hermetic_check_py
 from .frontend import _app_css, _app_ts, _client_ts, _ts_client_test, _ui_index_html
-from .observability import _file_span_exporter_kt, _obs_check_py, _obs_server_kt, _observability_kt
+from .observability import _file_span_exporter_kt, _obs_check_py, _obs_server_kt, _observability_kt, _test_file_span_exporter_kt
 from .pyramid import _probe_fail_test_kt, _test_authguard_kt, _test_company_scope_guard_kt, _test_ownership_guard_kt, _test_role_guard_kt, _test_routetable_kt, _test_store_kt, _test_workflow_kt, _ts_probe_fail_test
 from .quality_tooling import _a11y_audit_mjs, _a11y_scorer_mjs, _api_surface_lock, _budget_json, _currency_lint_py, _detekt_yml, _editorconfig, _eslint_config, _perf_measure_mjs, _perf_scorer_mjs, _probe_bad_kt, _probe_bad_ts, _probe_bad_ui_html, _probe_bloated_ts, _probe_leak_secret, _probe_stale_kt, _probe_stale_ts, _probe_vuln_sbom, _reset_dts, _sbom_json, _supply_chain_lock, _supply_chain_scan_py
 from .server import _access_control_check_py, _app_server_kt
@@ -72,6 +72,7 @@ def build_files(bp: dict) -> dict[str, str]:
         f"src/test/kotlin/{pkg}/AuthGuardTest.kt": _test_authguard_kt(pkg),
         f"src/test/kotlin/{pkg}/RouteTableTest.kt": _test_routetable_kt(pkg, ents),
         f"src/test/kotlin/{pkg}/StoreTest.kt": _test_store_kt(pkg, ents),
+        f"src/test/kotlin/{pkg}/FileSpanExporterTest.kt": _test_file_span_exporter_kt(pkg),
         f"src/integrationTest/kotlin/{pkg}/RepositoryIT.kt": _it_repository_kt(pkg, ents),
         f"src/testProbe/kotlin/{pkg}/ProbeShouldFailTest.kt": _probe_fail_test_kt(pkg),
         "frontend/test/client.test.ts": _ts_client_test(ents),

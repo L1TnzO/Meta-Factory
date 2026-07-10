@@ -669,6 +669,15 @@ _SCOPE_BYPASS_PART = '''
                       200, "[scope] PUT por rol de BYPASS (scope ignorado) -> 200")'''
 
 
+_LIST_DELETED_SCOPE_PROOF = '''
+        # FSK-COVERAGE-FULL: GET {plural}/deleted con un actor company-scoped NO-bypass ejercita la rama SCOPED
+        # de listDeleted (Repository.<e>sDeletedByCompany) -- antes solo alcanzada por un rol de bypass (browser
+        # check de la papelera, FSK-FRONTEND-TRASH). Solo el veredicto de ROL importa aca (200); el contenido
+        # ya lo asevera FSK-SOFT-DELETES arriba.
+        ok &= _expect(_req(base, "GET", f"{PLURAL}/deleted", f"Bearer %SCOPE_ACTOR%:{owner}:{company_a}"), 200,
+                      "[scope] GET .../deleted por actor company-scoped -> 200 (rama scoped ejercitada)")'''
+
+
 _SOFT_DELETE_PROOF = '''
             # *** FSK-SOFT-DELETES: el DELETE de arriba fue LOGICO (la fila AUN EXISTE, invisible a las lecturas); ***
             # `restore` la recupera. Gateado como la entidad (modifyVerdict: rol/dueno equivocado -> 403/404).
@@ -765,6 +774,11 @@ _SERVE_ALL_PROOF = '''
                 _erow = json.loads(_body(base, f"{_ep}/{_eid}"))
                 for _ek, _ev in _ent["post"].items():
                     ok &= _expect_value(_erow.get(_ek), _ev, f"[serve-all] {_ep} GET /{{id}} ve body[{_ek}] (type-correct)")
+                # FSK-COVERAGE-FULL: PUT no esta cableado para entidades serve-all (deferido, eje hermano) --
+                # cae en el `else -> HTTP_NOT_FOUND` del dispatch (server.py _ownerless_handlers). Trafico
+                # HTTP real que ningun cliente manda hoy; cierra el catch-all por entidad.
+                ok &= _expect(_send(base, "PUT", f"{_ep}/{_eid}", f"Bearer {_ea}:1", _post_body)[0], 404,
+                              f"[serve-all] {_ep} PUT (no cableado) -> 404")
             ok &= _expect(_send(base, "POST", _ep, f"Bearer {_ea}:1", _bad_body)[0], 400,
                           f"[serve-all] {_ep} POST tipo equivocado -> 400")
             ok &= _expect(_count_at(base, _ep), _e0 + 1, f"[serve-all] {_ep} count tras 400 (no inserto)")
@@ -903,6 +917,10 @@ def main(argv: list) -> int:
     try:
         ok = _expect(_req(base, "GET", "/health", None), 200, "health")
         ok &= _expect(_req(base, "GET", PLURAL, None), 200, "list (publica)")
+        # FSK-COVERAGE-FULL: GET a un path que no matchea "/", "/app.js", "/app.css" ni ningun context mas
+        # especifico (/health, /seed, PLURAL...) -> cae en el catch-all de serveApp() -> 404. Trafico real
+        # (un cliente con un link roto, un bot escaneando) que ningun proof mandaba hasta ahora.
+        ok &= _expect(_req(base, "GET", "/__fsk_coverage_404_probe__", None), 404, "GET path desconocido -> 404 (catch-all serveApp)")
         seed = json.loads(_body(base, "/seed"))
         rid, owner = seed["id"], seed["owner"]%OWNED_REF_MERGE%
         n0 = _count(base)
@@ -920,6 +938,11 @@ def main(argv: list) -> int:
             row = json.loads(_body(base, f"{PLURAL}/{new_id}"))
             for key, want in POST_BODY.items():
                 ok &= _expect_value(row.get(key), want, f"GET /{{id}} ve body[{key}] (type-correct)")%COMPUTED_BLOCK%
+            # FSK-COVERAGE-FULL: un sub-path que no matchea ninguna accion declarada (checkout/checkin/restore/
+            # deleted) cae en el else -> 404 del dispatch de la entidad primaria (server.py handle()). Trafico
+            # real (un link de accion vencida/removida), nunca ejercitado hasta ahora en este dispatch mas rico.
+            ok &= _expect(_req(base, "POST", f"{PLURAL}/{new_id}/no-existe", f"Bearer {OWNER_ROLE}:{owner}"), 404,
+                          "POST sub-accion desconocida -> 404 (catch-all del dispatch)")
         # *** EL DIENTE NEGATIVO: body malformado / tipo equivocado -> 400, sin insertar. ***
         ok &= _expect(_send(base, "POST", PLURAL, f"Bearer {ALLOWED_ROLE}:{owner}", BAD_JSON)[0], 400,
                       "POST JSON invalido -> 400")

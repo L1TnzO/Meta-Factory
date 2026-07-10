@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 
 from .base import _COL, _TBL, _ast_uses_time, _audited, _camel, _cols_of, _computed_srcs, _creates_body_fields, _creates_pivots, _creates_subject_fk, _enum_class, _enum_ref, _input_cols, _input_fields, _is_computed, _is_poly, _jooq_chain, _kt_call, _kt_type_imports, _live_entities, _mutable_states, _mutable_when, _owner_poly, _pascal, _patchable_fields, _proof_form_value, _proof_post_value, _proof_wrong_value, _qty_ops, _sample, _servible_ownerless, _soft_delete, _table, _workflow_obj, _xref_resolve, _yaml_str
-from .constants import AC_PG_PORT, AC_PORT, MAX_LINE_LENGTH, PROPERTY_WRAP, _ACCESS_CONTROL_CHECK_SKELETON, _ACTIONLOG_PROOF, _APP_SERVER_SKELETON, _BAD_FORMAT_PROOF, _CEVAL_TIME, _COERCE, _COMPANY_SCOPE_PROOF, _COMPUTED_PROOF, _CREATES_ROUNDTRIP, _FORMAT_REGEX, _MUTABLE_WHEN_PROOF, _OPERATIONS_PROOF, _OPS_ASSIGN_CHECK_DEFAULT, _OPS_ASSIGN_CHECK_POLY, _OPS_BODY_FWD_DEFAULT, _OPS_BODY_REV_DEFAULT, _OPS_CLEAR_CHECK_DEFAULT, _OPS_CLEAR_CHECK_POLY, _OPS_POLY_FC, _OPS_POLY_SETUP, _POLY_PROOF, _QTY_BODY_SETUP, _QTY_PROOF, _SCOPE_BYPASS_PART, _SEED_NUM, _SERVE_ALL_PROOF, _SOFT_DELETE_PROOF, _TIME_SETUP, _WR_POLY_VALID, _XSRC_SETUP
+from .constants import AC_PG_PORT, AC_PORT, MAX_LINE_LENGTH, PROPERTY_WRAP, _ACCESS_CONTROL_CHECK_SKELETON, _ACTIONLOG_PROOF, _APP_SERVER_SKELETON, _BAD_FORMAT_PROOF, _CEVAL_TIME, _COERCE, _COMPANY_SCOPE_PROOF, _COMPUTED_PROOF, _CREATES_ROUNDTRIP, _FORMAT_REGEX, _LIST_DELETED_SCOPE_PROOF, _MUTABLE_WHEN_PROOF, _OPERATIONS_PROOF, _OPS_ASSIGN_CHECK_DEFAULT, _OPS_ASSIGN_CHECK_POLY, _OPS_BODY_FWD_DEFAULT, _OPS_BODY_REV_DEFAULT, _OPS_CLEAR_CHECK_DEFAULT, _OPS_CLEAR_CHECK_POLY, _OPS_POLY_FC, _OPS_POLY_SETUP, _POLY_PROOF, _QTY_BODY_SETUP, _QTY_PROOF, _SCOPE_BYPASS_PART, _SEED_NUM, _SERVE_ALL_PROOF, _SOFT_DELETE_PROOF, _TIME_SETUP, _WR_POLY_VALID, _XSRC_SETUP
 
 
 def _live_ownerless(entities: list[dict]) -> dict | None:
@@ -1604,6 +1604,11 @@ def _access_control_check_py(bp: dict) -> str:
         company_scope_block = (_COMPANY_SCOPE_PROOF
                                .replace("%SCOPE_BYPASS_PART%", bypass_part)
                                .replace("%SCOPE_ACTOR%", cs_actor))
+        # FSK-COVERAGE-FULL: si la entidad TAMBIEN es soft-delete, agregar el check de la rama SCOPED de
+        # listDeleted (ver _LIST_DELETED_SCOPE_PROOF) -- reusa company_a/owner/cs_actor ya en scope acá.
+        # Opt-in doble (company_scoped AND soft_delete); sin ambos -> "" -> byte-idéntico.
+        if _soft_delete(owned):
+            company_scope_block += _LIST_DELETED_SCOPE_PROOF.replace("%SCOPE_ACTOR%", cs_actor)
     else:
         company_scope_block = ""
     # FSK-COMPUTED-FIELDS: el bloque del diente del campo COMPUTADO — sólo si la entidad servida con dueño declara

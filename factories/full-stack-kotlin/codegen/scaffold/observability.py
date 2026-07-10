@@ -39,6 +39,26 @@ def _file_span_exporter_kt(pkg: str) -> str:
             "}\n")
 
 
+def _test_file_span_exporter_kt(pkg: str) -> str:
+    """FileSpanExporterTest.kt (tier UNIT, s7, FSK-COVERAGE-FULL): flush()/shutdown() son overrides SIN
+    dependencias del lifecycle del SDK OTel real (no mutan `path`, no exigen un span exportado antes) --
+    llamarlos directo los ejercita de verdad, sin mockear nada. export() ya lo cubre el proof de
+    observabilidad vivo (s9, un span real escrito a disco); acá sólo el lifecycle que ese proof no toca."""
+    return (f"package {pkg}\n\n"
+            "import io.kotest.core.spec.style.StringSpec\n"
+            "import io.kotest.matchers.shouldBe\n"
+            f"import {pkg}.observability.FileSpanExporter\n\n"
+            "// Tier UNIT (s7): flush()/shutdown() son no-ops de lifecycle sin dependencias -- un test\n"
+            "// directo los ejercita (no un mock del SDK).\n"
+            "class FileSpanExporterTest : StringSpec({\n"
+            '    "flush() y shutdown() devuelven exito (no-ops de lifecycle)" {\n'
+            '        val exporter = FileSpanExporter("unused")\n'
+            "        exporter.flush().isSuccess shouldBe true\n"
+            "        exporter.shutdown().isSuccess shouldBe true\n"
+            "    }\n"
+            "})\n")
+
+
 def _observability_kt(pkg: str) -> str:
     """Observability.kt (DES-5): arma el SDK OTel real con el FileSpanExporter (SimpleSpanProcessor, export
     síncrono) y emite logs estructurados JSON con correlation-id. reset() trunca los archivos al arrancar el

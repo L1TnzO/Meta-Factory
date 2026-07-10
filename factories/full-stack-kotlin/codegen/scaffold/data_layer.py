@@ -990,6 +990,23 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
         f"            Repository.all{e['name']}s(ctx).size shouldBe "
         f"{2 if e['name'] in selfref_ents else 1}" for e in entities)
     body = "\n".join(inserts)
+    # FSK-COVERAGE-FULL: <Owned>Patch (FSK-PUT-OPTIONAL) tiene un `= null` default por campo, invocado sólo
+    # cuando el parser del PUT omite esa clave (PATCH-semantics). Un test que construye la clase SIN pasar
+    # ningún argumento ejercita el bytecode `$default` real de CADA campo -- no un mock, la misma data class
+    # que Repository.update<E> consume. Opt-in: sin entidad owned (no debería pasar en un blueprint válido) →
+    # "" → byte-idéntico. No toca la PG (fuera del bloque flyway/connect de arriba).
+    owned = next((e for e in entities if e.get("owned_by")), None)
+    patch_fields = _patchable_fields(owned) if owned else []
+    patch_block = ""
+    if owned and patch_fields:
+        last = _camel(patch_fields[-1]["name"])
+        patch_block = (
+            f'\n    "{owned["name"]}Patch sin argumentos usa los defaults '
+            'de CADA campo (PATCH-semantics: clave ausente = no tocar)" {\n'
+            f"        val patch = {owned['name']}Patch()\n"
+            f"        patch.{last} shouldBe null\n"
+            "    }\n"
+        )
     imports = "\n".join(sorted(f"import {pkg}.jooq.tables.references.{_TBL(e)}" for e in entities))
     time_imp = "import java.time.LocalDate\n" if any(
         f["type"] == "date" for e in entities for f in e["fields"]) else ""
@@ -1027,4 +1044,5 @@ def _it_repository_kt(pkg: str, entities: list[dict]) -> str:
             f"{asserts}\n"
             "        }\n"
             "    }\n"
+            f"{patch_block}"
             "})\n")

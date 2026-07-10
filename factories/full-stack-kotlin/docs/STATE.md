@@ -1,10 +1,25 @@
-<!-- meta:doc sha=437d8922949d8424201d360e08b5ba857ea72fad updated=2026-07-09T22:57Z -->
+<!-- meta:doc sha=9d14b978ec6738120e5d3f98123cc5d485663229 updated=2026-07-10T00:16Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-09T22:57Z): re-sellado tras el cierre de FSK-REQREF-COVERAGE.
+> Freshness (2026-07-09T23:5xZ): re-sellado tras el cierre de FSK-REQREF-COVERAGE-NEGATIVE.
 
 ## Ahora
+- **FSK-REQREF-COVERAGE-NEGATIVE (2026-07-09)** ✅ CERRADO — cierra el residual declarado al cierre de
+  `FSK-REQREF-COVERAGE` (abajo): cobertura de línea REAL de `snipeit` sube **93.1% → 98.1%** con 2 cambios
+  quirúrgicos, sin Kotlin nuevo. (1) Generaliza el diente NEGATIVO (ref colgante → 409) — antes probado UNA
+  vez sobre la entidad `with_ref` primaria — a las 19 entidades que `FSK-REQREF-COVERAGE` conectó vía
+  `/seed.withRefs`: el server YA respondía 409 para todas (`need_conflict` ya las cubría, `FSK-SERVE-ALL-
+  ENTITIES`) — el gap era 100% del proof, no del server; cambio en el template Python `_SERVE_ALL_PROOF`
+  (`constants.py`), reusa el dict `_wr` ya expuesto por entidad. (2) Excluye `DbRoundTrip.kt` de
+  `classDirectories` de `jacocoLiveReport` (`buildcfg.py`) — herramienta de diagnóstico MANUAL, sigue
+  EJECUTÁNDOSE de verdad como gate de infra en `s1`, sólo deja de contar en el %; exclusión DECLARADA, mismo
+  criterio que `org/openapitools/**`+`**/jooq/**` ya excluidos. Medido y clasificado línea por línea (no
+  estimado): 78 líneas remanentes (~1.9%) — 40 en `AppServer.kt` (ramas `else -> HTTP_NOT_FOUND`
+  estructuralmente inalcanzables), 35 en `Repository.kt` (boilerplate jOOQ sin rama propia), 2+1 en
+  observabilidad/routing. Byte-neutral para `assets` (0 candidatas, verificado); `ci --rederive
+  --all-products` **4/4 == pin** (12/12·11/11·11/11·12/12, SIN re-pin). Detalle: `docs/work/
+  FSK-REQREF-COVERAGE-NEGATIVE-INCREMENT.md §Evidencia` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 - **FSK-REQREF-COVERAGE (2026-07-09)** ✅ CERRADO — cierra el residual declarado por `FSK-COVERAGE-INSTRUMENT`
   (abajo): la cobertura de línea REAL de `snipeit` sube **70.7% → 93.1%**. Causa raíz del gap: `serve_all_ents`
   (el proof `access_control_check.py`) EXCLUÍA por diseño toda entidad ownerless con un ref REQUERIDO no-dueño

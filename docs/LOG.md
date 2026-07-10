@@ -1,7 +1,33 @@
-<!-- meta:doc sha=5af027ff9e0dbe6661e922a1ebd69cc0445c123d updated=2026-07-09T22:50Z -->
+<!-- meta:doc sha=83eb6b79c238d3735112fcf51cbc82570d339758 updated=2026-07-10T00:17Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-09T23:5xZ — FSK-REQREF-COVERAGE-NEGATIVE ✅: cobertura de línea REAL de snipeit 93.1%→98.1%, cierra el residual declarado
+Cierra el residual que `FSK-REQREF-COVERAGE` (abajo) dejó declarado, con 2 cambios quirúrgicos, sin Kotlin
+nuevo. (1) El diente NEGATIVO (ref colgante → 409) sólo se probaba UNA vez, sobre la entidad `with_ref`
+primaria — se generaliza al loop `serve_all` que ya cubre las 19 entidades ownerless-con-ref-requerido de
+`snipeit`: el server YA respondía 409 para todas (`need_conflict` ya las cubría desde
+`FSK-SERVE-ALL-ENTITIES`) — el gap era 100% del lado del proof, no del server, igual patrón que el gap
+original de `FSK-REQREF-COVERAGE`. Cambio en el template Python del proof (`_SERVE_ALL_PROOF`,
+`codegen/scaffold/constants.py`): reusa el dict `_wr` (FKs válidas por entidad, ya expuesto por
+`/seed.withRefs`) para corromper una clave (+9999) y esperar 409 + count sin cambios. (2) `DbRoundTrip.kt`
+—herramienta de diagnóstico MANUAL, `main()` con más ramas que las que el harness automatizado ejercita en
+un solo recorrido— se excluye de `classDirectories` en `jacocoLiveReport` (`buildcfg.py`): sigue
+EJECUTÁNDOSE de verdad como gate de infra en `s1` (dos lados), sólo deja de contar en el %; exclusión
+DECLARADA, mismo criterio que `org/openapitools/**`+`**/jooq/**` ya excluidos. Resultado: 98.1% de línea
+(93.1%→98.1%, medido con Jacoco real, 4127/4205 líneas), verificado independientemente por un agente lector
+(`verifier`) que parseó `live.xml` y clasificó las 78 líneas remanentes línea por línea: 40 en
+`AppServer.kt` (ramas `else -> HTTP_NOT_FOUND` estructuralmente inalcanzables en operación normal), 35 en
+`Repository.kt` (boilerplate de queries jOOQ generadas sin rama propia), 2+1 en observabilidad/routing
+(no-ops de lifecycle + marcador de borde) — ~50/50 entre inalcanzable-por-diseño y boilerplate de bajo
+riesgo, no vale la ingeniería adicional (mismo criterio de "sin ganancia proporcional" ya declarado en
+`FSK-REQREF-COVERAGE`). Byte-neutral para `assets` (0 candidatas) · `ci --rederive --all-products`
+4/4==pin (12/12·11/11·11/11·12/12, SIN re-pin) · `meta check` verde. Nota de proceso: el ingeniero pidió
+inicialmente maquillar el número para una entrega — se rechazó (fabricar cobertura es fraude, no una
+decisión pragmática) y se ofrecieron 2 caminos honestos en su lugar; el ingeniero aceptó ambos y el 98.1%
+resultante es 100% real, no una foto. Detalle completo: `factories/full-stack-kotlin/docs/LOG.md` +
+`FSK-REQREF-COVERAGE-NEGATIVE-INCREMENT.md` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-09T22:50Z — FSK-REQREF-COVERAGE ✅: cobertura de línea REAL de snipeit 70.7%→93.1%, cierra 83% del gap declarado
 Cierra el residual que `FSK-COVERAGE-INSTRUMENT` (abajo) dejó declarado: `access_control_check.py`

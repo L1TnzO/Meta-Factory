@@ -1,6 +1,40 @@
-<!-- meta:doc sha=ff7e564c9712c19c82695f3223a93db4faa9b572 updated=2026-07-09T22:51Z -->
+<!-- meta:doc sha=c3d54c5d27e0cd0f24db8f2316676425f57dd74a updated=2026-07-10T00:17Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-09T23:5xZ — FSK-REQREF-COVERAGE-NEGATIVE ✅: cobertura de línea REAL de snipeit 93.1%→98.1%, cierra el residual declarado por FSK-REQREF-COVERAGE
+El gatillo: el ingeniero pidió llegar al 100% literal "maquillado, sólo para la foto" bajo presión de una
+entrega. Se rechazó fabricar el número (fraude, no una decisión pragmática) y se ofrecieron 2 caminos
+honestos, ambos aceptados por el ingeniero: (a) excluir `DbRoundTrip.kt` del universo medido (misma
+exclusión-declarada ya usada para OpenAPI/jOOQ); (b) generalizar el diente NEGATIVO (ref colgante → 409),
+diferido en el diseño de `FSK-REQREF-COVERAGE` (abajo) por "ingeniería sin ganancia proporcional en v1".
+- **Hallazgo (reconfirma, no re-descubre)**: `need_conflict` en `server.py` (~L1045) YA generaliza a
+  `any(_has_req_ref(e) for e in _servible_ownerless(ents))` — el server rechazaba con 409 la FK colgante para
+  las 19 entidades desde que `FSK-REQREF-COVERAGE` las montó; el gap era 100% del lado del proof (nadie
+  mandaba el POST), idéntico patrón al gap original.
+- **Cambio 1 (`constants.py::_SERVE_ALL_PROOF`)**: entre el check "400 tipo equivocado" y el bloque DELETE,
+  `if _wr: _dfk = next(iter(_wr)); _dangling = {**_post_body, _dfk: _wr[_dfk] + 9999}` → POST espera 409 +
+  count sin cambios. `_wr` (dict `{campo_ref: id_válido}`) ya lo exponía `FSK-REQREF-COVERAGE`; entidades sin
+  ref (`_wr` vacío) saltean el bloque, sin cambio de comportamiento. Cero Kotlin nuevo.
+- **Cambio 2 (`buildcfg.py::jacocoLiveReport`)**: `exclude("org/openapitools/**", "**/jooq/**", "**/DbRoundTrip*")`
+  — la tarea `roundtrip` (gate de infra en `s1`, dos lados) lo sigue ejecutando de verdad; sólo deja de contar
+  en el %.
+- **Verificación**: `ci --rederive --factory full-stack-kotlin --product assets` byte-neutral (11/11==pin)
+  confirmado ANTES del sweep completo (mismo patrón que `FSK-REQREF-COVERAGE`: aislar la garantía
+  matemáticamente más fuerte primero); `ci --rederive --all-products` 4/4==pin en foreground
+  (12/12·11/11·11/11·12/12, SIN re-pin — mismo motivo ya documentado: `proof_sha` deriva de exit-codes).
+  **Gotcha real de esta sesión**: un primer intento lanzó el sweep completo en BACKGROUND (contra la propia
+  guía de "HEAVY factory builds van FOREGROUND") — el hook `stop_proof` corrió su propia verify sobre la
+  estación activa MIENTRAS el gradle de fondo seguía escribiendo el mismo `build/product`, produciendo un
+  falso rojo transitorio (3 checks) por la carrera, no por el código; se resolvió esperando a que el proceso
+  de fondo terminara de verdad (confirmado con `ps`/`.proof/active.json`) antes de reintentar. Medición
+  delegada a un `verifier` (Haiku) para no cargar logs/XML de Gradle en el contexto del orquestador: parseó
+  `live.xml` y clasificó las 78 líneas remanentes (~1.9%) línea por línea — 40 en `AppServer.kt` (ramas
+  `else -> HTTP_NOT_FOUND` catch-all, estructuralmente inalcanzables), 35 en `Repository.kt` (boilerplate
+  jOOQ generado sin rama propia), 3 dispersas en observabilidad/routing — ~50/50 inalcanzable-por-diseño /
+  boilerplate de bajo riesgo, confirmando que NO vale la ingeniería adicional para cerrar el resto.
+  `meta check` verde. Detalle: `FSK-REQREF-COVERAGE-NEGATIVE-INCREMENT.md §Evidencia` +
+  `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-09T22:50Z — FSK-REQREF-COVERAGE ✅: cobertura de línea REAL de snipeit 70.7%→93.1%, cierra 83% del gap declarado por FSK-COVERAGE-INSTRUMENT
 El gatillo: el ingeniero pidió llegar al 100% de cobertura en snipeit "a como de lugar", bajo restricciones

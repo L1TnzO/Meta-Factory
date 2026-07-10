@@ -1,4 +1,4 @@
-<!-- meta:doc sha=58b493ced4aaff4b5bc75a6b01547fbafaa3983b updated=2026-07-10T01:09Z -->
+<!-- meta:doc sha=e9e4e46024f4a4e9b18451c416c1b8499eeec8e9 updated=2026-07-10T02:17Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -34,11 +34,11 @@
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
 | 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
 | 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
-| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3+4+5+6, `FSK-COVERAGE-FULL`): **99.8% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ + `DbRoundTrip.kt` diagnóstico manual, todo boilerplate/herramental no-negocio, declarado explícitamente) + 26 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta y mínima (~8 líneas, ~0.2%, boilerplate jOOQ)** | §11 |
+| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3+4+5+6+7, `FSK-COVERAGE-FULL-100`): **100.0% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ + `DbRoundTrip.kt` diagnóstico manual, todo boilerplate/herramental no-negocio, declarado explícitamente) + 26 unit/integration + 32 aserciones E2E + 8 gates estáticos | ✅ **PASA — 100% real, medido por el pipeline oficial `--mode harden`** | §11 |
 
-**Lectura honesta (actualizada 2026-07-10, `FSK-COVERAGE-FULL`)**: el sistema PASA 8 de 9
-criterios con margen real, y cumple casi-total 1: la **cobertura de línea** subió de **70.7% a 93.1% a
-98.1% a 99.8%**. Los primeros dos saltos (`FSK-REQREF-COVERAGE`/`-NEGATIVE`) ya están documentados abajo.
+**Lectura honesta (actualizada 2026-07-10, `FSK-COVERAGE-FULL-100`)**: el sistema PASA los **9 de 9**
+criterios: la **cobertura de línea** subió de **70.7% a 93.1% a 98.1% a 99.8% a 100.0%**. Los primeros dos
+saltos (`FSK-REQREF-COVERAGE`/`-NEGATIVE`) ya están documentados abajo.
 El tercero (`FSK-COVERAGE-FULL`) leyó el código generado real (no re-derivó la clasificación previa a
 ciegas) y encontró que la mayoría de las "78 líneas estructuralmente inalcanzables" declaradas por
 `FSK-REQREF-COVERAGE-NEGATIVE` en realidad SÍ eran tráfico HTTP real nunca ejercitado: (a) 38 ramas
@@ -53,10 +53,18 @@ anterior usó `--mode draft`, que DIFIERE la estación `s7` (`tier: harden`) don
 en `--mode harden` lo cierra sin código nuevo; (e) los defaults de `RouteTable.Route.roles` y
 `AssetPatch.macAddress` y los overrides `FileSpanExporter.flush()/shutdown()` nunca se invocaban sin
 argumento/directo — 3 unit tests puntuales, sin mocks, los ejercitan. Nada de esto es "dummy": cada
-assertion manda tráfico HTTP real o llama la función real y comprueba comportamiento real. La brecha
-remanente (~8 líneas, ~0.2%, `FSK_COVERAGE_LINE_PCT=99.8`) es boilerplate de acceso a datos jOOQ en
-`Repository.kt` — mismo criterio "técnicamente posible, sin ganancia proporcional" ya declarado por
-`FSK-REQREF-COVERAGE`, ahora genuinamente residual (no una elección de no investigar). El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
+assertion manda tráfico HTTP real o llama la función real y comprueba comportamiento real. Un 4to incremento
+(`FSK-COVERAGE-FULL-100`, mismo día) cerró el resto: (f) 2 líneas más — las entidades PRIMARIAS `ol`
+(Company) y `wr` (Accessory) tienen su propio bloque de proof, separado del loop `_SERVE_ALL_PROOF`, con el
+MISMO gap de PUT-no-cableado que el fix (a) no había cubierto; (g) las ~6 líneas restantes de
+`Repository.allAccessoryCheckouts` NO eran un gap de código — eran un BUG DEL HARNESS: el diente de dos
+lados de `infra_up` (s7, `pyramid_integration`) re-corre `./gradlew integrationTest` con la PG caída
+(DEBE fallar, prueba la dependencia real de la infra) y esa 2da corrida SOBREESCRIBÍA el `.exec` rico de la
+1ra (Gradle no acumula ahí) — diagnosticado por eliminación empírica (reproducción manual de UNA sola
+corrida → 100.0000% exacto; simulación del 2do lado → el `.exec` se achica y el % cae). Fix de una línea en
+`factory.spec.yml` (backup del `.exec` bueno antes del 2do lado, diente de dos lados intacto). Resultado:
+**100.0% real**, confirmado por el pipeline OFICIAL (`product-run --mode harden`, no una reproducción
+manual). El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
 (19 entidades del núcleo operativo original + 20 entidades MÍNIMAS agregadas en la Fase 2, decisión
 explícita de diseño de priorizar ALCANZAR el número sobre profundidad de dominio — ver §5.3 y
 `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2). El **checklist de completitud** ya NO tiene gaps (REQ-F-007
@@ -575,7 +583,7 @@ re-verifica sin volver a invocar al LLM.
 
 ---
 
-## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 99.8% de línea, Jacoco REAL, brecha honesta**)
+## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 100.0% de línea, Jacoco REAL, sin fabricar**)
 
 ### 11.1 Inventario real de pruebas
 | Tipo | Cantidad | Ubicación |
@@ -586,9 +594,9 @@ re-verifica sin volver a invocar al LLM.
 | Ejes del *design floor* (Chromium real) | 6 | `tools/design_floor_check.ts` (shell/labels/nullcell/overflow/contrast/fields) |
 | Gates estáticos/estructurales (Python) | 8 | `tools/{route_check,access_control_check,currency_lint,supply_chain_scan,hermetic_check,deploy_check,deploy_appserver_check,obs_check}.py` |
 | Requisitos trazados a artefacto (RTM) | 27/27 | §10 |
-| **Cobertura de línea (Jacoco REAL)** | **99.8%** (~4197/4205 líneas) | `build/reports/jacoco/live/live.xml` (§11.2), medido en `--mode harden` |
+| **Cobertura de línea (Jacoco REAL)** | **100.0%** (4205/4205 líneas) | `build/reports/jacoco/live/live.xml` (§11.2), `FSK_COVERAGE_LINE_PCT=100.0` en `.proof/logs/s9-*.log`, medido en `--mode harden` (el pipeline oficial) |
 
-### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`, `FSK-REQREF-COVERAGE-NEGATIVE`, `FSK-COVERAGE-FULL`)
+### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`, `FSK-REQREF-COVERAGE-NEGATIVE`, `FSK-COVERAGE-FULL`, `FSK-COVERAGE-FULL-100`)
 El proyecto antes **no tenía Jacoco/Kover configurado** — ahora sí, como capacidad de SUSTRATO (el
 `_build_gradle` de la fábrica, disponible para cualquier producto FSK, no un parche de este producto). El
 mecanismo funde TRES fuentes de ejecución real en un solo reporte (`./gradlew jacocoLiveReport`):
@@ -648,21 +656,33 @@ HTTP real nunca ejercitado, no código muerto. Cierre por causa, con el mecanism
 | `AssetPatch` default del último campo (`macAddress`, nunca omitido) | 1 | Unit test en `RepositoryIT.kt`: `AssetPatch()` sin argumentos, assert `.macAddress shouldBe null`. |
 | `FileSpanExporter.flush()`/`.shutdown()` (no-ops sin dependencias — NO hace falta mockear el SDK, contra lo que declaraba la medición previa) | 2 | Unit test que instancia `FileSpanExporter("unused")` y llama ambos métodos directo. |
 
-Resultado: 78 → ~8 líneas sin cubrir (98.1% → 99.8%, medido con `FSK_COVERAGE_LINE_PCT` real en
-`--mode harden`, `.proof/logs/s9-*.log`). El residual final (~0.2%) es boilerplate de acceso a datos jOOQ en
-`Repository.kt` (variantes de SELECT por entidad sin rama propia) — técnicamente cerrable con ~15-20
-aserciones GET más, mismo criterio "ingeniería real sin ganancia proporcional" ya declarado por
-`FSK-REQREF-COVERAGE`, ahora genuinamente el fondo del pozo (no una clasificación sin re-derivar). Un 100%
-literal exigiría esa ingeniería puntual sin valor de detección de defectos adicional.
+Resultado intermedio: 78 → ~8 líneas sin cubrir (98.1% → 99.8%).
+
+**Cerrado 2026-07-10 (`FSK-COVERAGE-FULL-100`)**: pedido explícito del ingeniero de cerrar el residual final.
+2 causas más, de naturaleza MUY distinta:
+
+| Causa | Líneas cerradas | Mecanismo real |
+|---|---:|---|
+| `PUT` no cableado en las entidades PRIMARIAS `ol` (Company, ownerless) y `wr` (Accessory, with-ref) — mismo gap que la fila de arriba, pero estas viven en su PROPIO bloque de proof (`OWNERLESS_PLURAL`/`WR_PLURAL`), separado del loop `_SERVE_ALL_PROOF`, y el fix anterior no las cubrió | 2 | `PUT {OWNERLESS_PLURAL}/{oid}` y `PUT {WR_PLURAL}/{wid}` → 404, mismo idiom que el fix de arriba. |
+| **NO era un gap de código — era un BUG DEL HARNESS**: `pyramid_integration` (s7, `kind: infra_up`) exige un diente de DOS LADOS (DES-9): `integrationTest` debe pasar con la PG viva Y fallar con la PG caída. Gradle's jacoco no acumula entre corridas de una `Test` task (la propiedad `append` ni existe ya en Gradle 9.5.1, confirmado con `javap`) — la 2da corrida (PG muerta, falla rápido) SOBREESCRIBÍA `build/jacoco/integrationTest.exec` de la 1ra (rica), perdiendo la ÚNICA fuente de cobertura de `allAccessoryCheckouts` (pivot sin ruta HTTP) cada vez que corría el pipeline automatizado | ~6 | `factory.spec.yml` (station s7, check `pyramid_integration`, campo `proof`): tras `integrationTest` exitoso, `cp -f build/jacoco/integrationTest.exec build/jacoco/integrationTest_pass.exec` — backupea el `.exec` bueno ANTES del 2do lado; `jacocoLiveReport` globea `*.exec` y fusiona. El diente de dos lados de `infra_up` sigue intacto (la 2da corrida sigue debiendo fallar). |
+
+Diagnosticado por eliminación empírica: reproducir `integrationTest` manualmente UNA sola vez (sin el 2do
+lado) dio **100.0000% exacto** (4205/4205, XML directo, gotchas de `--mode harden` wipeando `build/jacoco/`
+en s10 sorteados corriendo `--mode draft` + `integrationTest` manual); simular el 2do lado (PG caída) hizo
+que el `.exec` se achicara (232869→193631 bytes) y el % cayera — confirmando la causa antes de tocar código.
+**Resultado final: 100.0% real**, confirmado por el pipeline OFICIAL (`product-run --mode harden`,
+`FSK_COVERAGE_LINE_PCT=100.0`, `.proof/logs/s9-2026-07-10T0202Z.log`) — no una reproducción manual aislada.
+Ningún test es "dummy": el fix del harness no agregó cobertura fabricada, sólo dejó de PERDER la cobertura
+real que ya existía. Detalle completo: `docs/work/FSK-COVERAGE-FULL-100-INCREMENT.md §Evidencia`.
 
 ### 11.4 Determinismo (evidencia adicional de robustez)
 El pipeline soporta `ci --rederive` (re-construcción completa en un clon limpio) comparado byte a byte
 contra `pinned_verdict.json` — los 12 hashes de estación (`s0`…`s11`) están pineados y son re-derivables (los
 4 productos de la fábrica, 12/12·11/11·11/11·12/12, sin regresión de la instrumentación de cobertura).
-Re-verificado tras `FSK-COVERAGE-FULL` (2026-07-10): los mismos 4/4 productos re-derivan == su pin
+Re-verificado tras `FSK-COVERAGE-FULL-100` (2026-07-10): los mismos 4/4 productos re-derivan == su pin
 en árbol limpio (`proof_sha` deriva de exit-codes de checks, no de contenido — el mismo conjunto de checks
-en verde no fuerza re-pin aunque el generador cambió); `assets` es byte-neutral por construcción (0
-entidades candidatas a ninguno de los ejes que este incremento toca).
+en verde no fuerza re-pin aunque el generador y la definición de la estación s7 cambiaron); `assets` es
+byte-neutral por construcción (0 entidades candidatas a ninguno de los ejes que este incremento toca).
 
 ---
 
@@ -670,13 +690,16 @@ entidades candidatas a ninguno de los ejes que este incremento toca).
 
 1. **Modelo de datos — CERRADO Fase 2 (§5.3)**: 40/40 tablas (era 20/40). Las 20 nuevas son ANCHO barato
    por diseño (2-4 campos, sin profundidad de dominio) — no una adopción completa de Snipe-IT real.
-2. **Cobertura de línea real: 99.8%, no 100%** (§11.3: `FSK-REQREF-COVERAGE`/`-NEGATIVE` llevaron 70.7%→98.1%;
+2. **Cobertura de línea real: 100.0%** (§11.3: `FSK-REQREF-COVERAGE`/`-NEGATIVE` llevaron 70.7%→98.1%;
    `FSK-COVERAGE-FULL` releyó el código generado real, encontró que la mayoría del residual declarado ERA
-   tráfico HTTP real nunca ejercitado -- no código muerto -- y lo cerró con 6 mecanismos reales (sin mocks,
-   sin código muerto): loop PUT-no-cableado, GET a path desconocido, sub-acción desconocida, `listDeleted`
-   company-scoped, medición en `--mode harden` en vez de `draft` (`RepositoryIT` ya tenía el test real), y 3
-   unit tests de valores default/lifecycle). La brecha remanente (~8 líneas, ~0.2%) es boilerplate jOOQ en
-   `Repository.kt` -- declarada línea por línea, no maquillada, y ahora genuinamente el fondo del pozo.
+   tráfico HTTP real nunca ejercitado -- no código muerto -- y lo llevó a 99.8% con 6 mecanismos reales (sin
+   mocks): loop PUT-no-cableado, GET a path desconocido, sub-acción desconocida, `listDeleted` company-scoped,
+   medición en `--mode harden` en vez de `draft`, y 3 unit tests de valores default/lifecycle;
+   `FSK-COVERAGE-FULL-100` cerró el resto: 2 líneas más del mismo patrón PUT-no-cableado en las entidades
+   primarias (`ol`/`wr`) + un BUG DEL HARNESS real (el diente de dos lados de `infra_up` pisaba su propio
+   `.exec` bueno de `integrationTest` con el de la corrida-que-debe-fallar) -- fix de una línea (`cp`) en
+   `factory.spec.yml`, sin agregar cobertura fabricada, sólo dejando de perder la que ya existía).
+   `FSK_COVERAGE_LINE_PCT=100.0`, medido por el pipeline OFICIAL, no por una reproducción manual.
 3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
    otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
 4. **Bug real encontrado durante esta auditoría — violación de `UNIQUE` no manejada**: un `POST` que viola

@@ -1,7 +1,29 @@
-<!-- meta:doc sha=dbf8e798795ca89c218bf88eda22e2f50fe3298f updated=2026-07-10T01:20Z -->
+<!-- meta:doc sha=3f6bb03950d86218413cf753a4f0ea9f5c467a3b updated=2026-07-10T02:18Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T02:1xZ — FSK-COVERAGE-FULL-100 ✅: cobertura de línea REAL de snipeit 99.8%→100.0% — la mayor parte del residual final era un bug del HARNESS, no del código
+El ingeniero pidió explícitamente cerrar el residual final ("haz esas 8 líneas de todos modos"). El
+resultado no fue "escribir tests hasta llegar al número": 2 líneas eran un gap de código real (el mismo
+patrón PUT-no-cableado de `FSK-COVERAGE-FULL`, pero en las entidades PRIMARIAS `ol`/`wr`, que viven en su
+propio bloque de proof separado del loop que el incremento anterior había generalizado). Las ~6 restantes
+NO eran un gap de código: eran un **bug real del harness de medición**. El check `pyramid_integration` (s7,
+`kind: infra_up`, DES-9) exige un diente de dos lados — `integrationTest` debe pasar con la PG viva y fallar
+con la PG caída — y Gradle no acumula el `.exec` de una `Test` task entre corridas (la propiedad `append` de
+`JacocoTaskExtension` ya no existe en Gradle 9.5.1, confirmado con `javap`): la 2da corrida (PG muerta)
+sobreescribía el `.exec` rico de la 1ra, perdiendo la única fuente de cobertura de
+`Repository.allAccessoryCheckouts` en cada corrida del pipeline automatizado. Diagnosticado por eliminación
+empírica ANTES de tocar código (reproducción manual de una sola corrida → 100.0000% exacto; simulación del
+2do lado → el `.exec` se achica y el % cae, aislando la causa exacta). Fix de una línea (`cp` del `.exec`
+bueno a otro nombre tras el éxito) en `factory.spec.yml` — el diente de dos lados de `infra_up` queda
+intacto. **Gotcha re-confirmado**: las estaciones VIVEN en `factory.spec.yml`, NO en `stations/*.yml` (output
+materializado que se pisa solo); el primer intento editó el archivo equivocado y no tuvo efecto. Resultado:
+**100.0% real**, confirmado por el pipeline OFICIAL (`product-run --mode harden`,
+`FSK_COVERAGE_LINE_PCT=100.0`), no una reproducción manual aislada. `ci --rederive --all-products` **4/4 ==
+pin** (sin re-pin) · `meta check` **19/19**. Detalle completo: `factories/full-stack-kotlin/docs/LOG.md` +
+`factories/full-stack-kotlin/docs/work/FSK-COVERAGE-FULL-100-INCREMENT.md` + `factories/full-stack-kotlin/
+products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-10T01:2xZ — FSK-COVERAGE-FULL ✅: cobertura de línea REAL de snipeit 98.1%→99.8% — la clasificación previa de "inalcanzable" era demasiado pesimista
 El ingeniero pidió "hacer dummies para ver si es posible llegar al 100%". Dado el precedente directo (esta

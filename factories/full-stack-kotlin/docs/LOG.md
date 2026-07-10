@@ -1,6 +1,52 @@
-<!-- meta:doc sha=70b5dbe0a818c40d5df87e48768646f346c385c9 updated=2026-07-10T01:19Z -->
+<!-- meta:doc sha=8ee86fea5836706f1b42d861a6e2cd54a267b770 updated=2026-07-10T02:18Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-10T02:1xZ — FSK-COVERAGE-FULL-100 ✅: cobertura de línea REAL de snipeit 99.8%→100.0%, la mayor parte del residual era un bug del HARNESS, no del código
+El gatillo: el ingeniero pidió explícitamente cerrar el residual final tras `FSK-COVERAGE-FULL` ("haz esas 8
+líneas de todos modos"). El resultado no fue "escribir más tests hasta llegar al número" — fue encontrar que
+2 de las ~8 líneas eran un gap de código real y que las otras ~6 NO eran un gap de código en absoluto.
+- **2 líneas de código real**: las entidades PRIMARIAS `ol` (Company, ownerless) y `wr` (Accessory,
+  with-ref) tienen su PROPIO bloque de proof (`OWNERLESS_PLURAL`/`WR_PLURAL` en `constants.py`), separado
+  del loop `_SERVE_ALL_PROOF` que `FSK-COVERAGE-FULL` había generalizado — mismo gap (PUT no cableado → 404
+  del `else` en `handle<Entity>()`), pero el fix anterior sólo cubrió el loop, no estos 2 bloques dedicados.
+  Cerrado con el mismo idiom: `PUT {OWNERLESS_PLURAL}/{oid}` y `PUT {WR_PLURAL}/{wid}` → 404.
+- **~6 líneas: un BUG REAL del harness de medición, no del producto**. El check `pyramid_integration`
+  (s7, `kind: infra_up`, DES-9) exige un diente de DOS LADOS: el proof (`./gradlew integrationTest`) debe
+  PASAR con la PG viva y debe FALLAR con la PG caída (prueba que el test depende de verdad de la infra, no
+  que pasa decorativamente). Gradle's plugin `jacoco` NO acumula el `.exec` de una `Test` task entre
+  corridas por defecto (la propiedad `append` de `JacocoTaskExtension` ni siquiera existe ya en Gradle
+  9.5.1 — confirmado con `javap` sobre el jar real del plugin, `org.gradle.testing.jacoco.plugins.
+  JacocoTaskExtension` no tiene ese método) — la 2da corrida (PG muerta, falla rápido, cobertura chica)
+  SOBREESCRIBÍA `build/jacoco/integrationTest.exec` de la 1ra (PG viva, cobertura rica) ANTES de que
+  `jacocoLiveReport` (s9) lo leyera. Esto perdía la ÚNICA fuente de cobertura de
+  `Repository.allAccessoryCheckouts` (un pivot sin ruta HTTP propia, cubierto sólo por `RepositoryIT`) en
+  CADA corrida del pipeline automatizado (`product-run --mode harden`).
+- **Diagnóstico por eliminación empírica, ANTES de tocar código**: reproducir `./gradlew integrationTest`
+  manualmente UNA sola vez (sin el 2do lado del diente) dio **100.0000% exacto** (4205/4205 líneas, XML
+  directo). Agregar `s2` (detekt+compileKotlin) al medio no cambió el resultado (descartó recompilación como
+  causa — confirmado comparando mtimes de `.class` antes/después). Simular el 2do lado manualmente (PG
+  caída, re-correr `integrationTest`) hizo que el `.exec` se achicara de 232869 a 193631 bytes y el % cayera
+  a 99.86% con exactamente `Repository.kt` 1092-1097 (`allAccessoryCheckouts`) como único gap — confirmando
+  la causa exacta antes de escribir el fix.
+- **Fix de UNA línea, no de tests nuevos**: `factory.spec.yml` (`domain.station_sequence`, station s7, check
+  `pyramid_integration`, campo `proof`): tras `./gradlew integrationTest` exitoso, `cp -f build/jacoco/
+  integrationTest.exec build/jacoco/integrationTest_pass.exec` — backupea el `.exec` bueno a otro nombre
+  ANTES de que el 2do lado del diente lo pise; `jacocoLiveReport` globea `*.exec` y JaCoCo fusiona múltiples
+  archivos nativamente (no hace falta "append", sólo no perder el archivo). El diente de dos lados de
+  `infra_up` queda INTACTO — la 2da corrida (PG caída) sigue debiendo fallar, el `cp` sólo corre si la 1ra
+  ya tuvo éxito (semántica `&&`).
+- **Gotcha de nivel (re-confirmado, no nuevo)**: el primer intento editó `factories/full-stack-kotlin/
+  stations/s7.yml` directamente — no tuvo efecto (`diff` contra el materializado del producto lo confirmó).
+  Las estaciones VIVEN en `factory.spec.yml` (`domain.station_sequence`); `stations/*.yml` (tanto a nivel
+  fábrica como producto) es OUTPUT materializado por `ensure_product_instance`/`_materialize_line`, se
+  re-genera en cada `product-run` y pisa cualquier edición directa.
+- **Verificado por bloqueo**: `product-run --mode harden` snipeit → PASS, `.proof/logs/s9-2026-07-10T0202Z.
+  log` `check=coverage_live exit=0` con stdout terminando en `FSK_COVERAGE_LINE_PCT=100.0` (sin líneas
+  `FSK_COVERAGE_GAP` — el script sólo las imprime si `pct < 100.0`) — el pipeline OFICIAL, no una
+  reproducción manual aislada. `ci --rederive --factory full-stack-kotlin --all-products` **4/4 == pin**
+  (12/12·11/11·11/11·12/12, SIN re-pin). `meta check` **19/19**. Detalle completo: `docs/work/
+  FSK-COVERAGE-FULL-100-INCREMENT.md §Evidencia` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-10T01:2xZ — FSK-COVERAGE-FULL ✅: cobertura de línea REAL de snipeit 98.1%→99.8%, la clasificación previa de "inalcanzable" era demasiado pesimista
 El gatillo: el ingeniero pidió "hacer dummies para ver si es posible llegar al 100%". Dado el precedente

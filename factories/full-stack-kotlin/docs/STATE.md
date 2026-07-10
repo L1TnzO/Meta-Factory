@@ -1,10 +1,28 @@
-<!-- meta:doc sha=46f323fe134166c785e89cfcc707ec2ff1473998 updated=2026-07-10T01:22Z -->
+<!-- meta:doc sha=da9141eacbedbf293204bc22e15f6a77883c33aa updated=2026-07-10T02:17Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-10T01:2xZ): re-sellado tras el cierre de FSK-COVERAGE-FULL.
+> Freshness (2026-07-10T02:1xZ): re-sellado tras el cierre de FSK-COVERAGE-FULL-100.
 
 ## Ahora
+- **FSK-COVERAGE-FULL-100 (2026-07-10)** ✅ CERRADO — cierra el residual final que `FSK-COVERAGE-FULL`
+  (abajo) dejó declarado: cobertura de línea REAL de `snipeit` **99.8% → 100.0%**, pedido explícito del
+  ingeniero. 2 líneas eran un gap de código real (mismo patrón PUT-no-cableado, en las entidades PRIMARIAS
+  `ol`/`wr`, que viven en su propio bloque de proof separado del loop `_SERVE_ALL_PROOF` — el fix anterior no
+  las cubrió). El resto (~6 líneas) NO era un gap de código — era un **BUG DEL HARNESS**: el diente de dos
+  lados de `infra_up` (s7 `pyramid_integration`, DES-9) exige que `integrationTest` pase con la PG viva Y
+  falle con la PG caída; Gradle no acumula el `.exec` de una `Test` task entre corridas (la propiedad
+  `append` ni existe ya en Gradle 9.5.1) — la 2da corrida (PG muerta) SOBREESCRIBÍA el `.exec` rico de la
+  1ra, perdiendo la única fuente de cobertura de `Repository.allAccessoryCheckouts` (pivot sin ruta HTTP)
+  en cada corrida del pipeline automatizado. Diagnosticado por eliminación empírica (reproducción manual de
+  UNA corrida → 100.0000% exacto; simulación del 2do lado → el `.exec` se achica y el % cae) ANTES de tocar
+  código. Fix de una línea (`cp -f .../integrationTest.exec .../integrationTest_pass.exec` tras el éxito) en
+  `factory.spec.yml` — el diente de dos lados de `infra_up` sigue intacto. Resultado: **100.0% real**,
+  confirmado por el pipeline OFICIAL (`product-run --mode harden`, `FSK_COVERAGE_LINE_PCT=100.0`), no una
+  reproducción manual. `ci --rederive --all-products` **4/4 == pin** (SIN re-pin). Gotcha de nivel
+  (re-confirmado): las estaciones VIVEN en `factory.spec.yml`, editar `stations/*.yml` directo no propaga
+  (es output materializado). Detalle: `docs/work/FSK-COVERAGE-FULL-100-INCREMENT.md §Evidencia` +
+  `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 - **FSK-COVERAGE-FULL (2026-07-10)** ✅ CERRADO — cierra la mayoría del residual declarado por
   `FSK-REQREF-COVERAGE-NEGATIVE` (abajo): cobertura de línea REAL de `snipeit` sube **98.1% → 99.8%**,
   releyendo el código generado real en vez de re-derivar la clasificación previa a ciegas. Encontró que 68

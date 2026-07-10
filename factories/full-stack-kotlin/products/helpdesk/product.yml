@@ -17,6 +17,16 @@ station_activation:
 
 package_name: webapp
 api_title: "Helpdesk API"
+# Superficie humana MODEL-NATIVA DURABLE (ADR-024, FSK-HELPDESK-MODELGEN): products/helpdesk/frontend/app.{ts,css}
+# (ganador del experimento A/B `FSK-FRONTEND-MODELGEN-AB-INCREMENT`, slot LLM verify-not-review, byte-idéntico
+# sha `46c53c7…`/`b3328a6…`) se COPIA (no se emite desde template) en s0 y queda pineado; s9 corre el 5º check
+# opt-in `frontend_design_floor` (6 ejes) sobre esta superficie. Pieza comunitaria (ADR-023 §2 pregunta
+# obligada, respondida acá retroactivamente — ver docs/work/FSK-HELPDESK-MODELGEN-INCREMENT.md §Diseño):
+# TypeScript vanilla SIN framework (mismo juicio que snipeit, `Contrato-B` de la AB): un renderer data-driven
+# genérico de ~700 LOC no justifica el costo de adopción de un framework (React/Vue/Svelte) para un CRUD de
+# 5 entidades — la "pieza validada por la comunidad" acá es el LENGUAJE (TS) + el patrón (vanilla DOM,
+# sin build-step de componentes), no una librería de UI.
+frontend_surface: model-native
 # RBAC (FSK-S13, DES-3) con un vocabulario de roles PROPIO del helpdesk (admin/supervisor/agent), distinto
 # del demo (admin/editor/viewer) y de assets (admin/manager/auditor): un `agent` atiende tickets, un
 # `supervisor` supervisa y reasigna, `admin` administra todo el catálogo (agentes/categorías). Política

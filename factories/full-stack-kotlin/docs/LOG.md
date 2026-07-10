@@ -1,6 +1,22 @@
-<!-- meta:doc sha=8ee86fea5836706f1b42d861a6e2cd54a267b770 updated=2026-07-10T02:18Z -->
+<!-- meta:doc sha=024d395a63c20ae3890716a99aa194a6a877d629 updated=2026-07-10T16:16Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-10T16:1xZ — FSK-HELPDESK-MODELGEN ✅: segunda adopción durable model-nativa (ADR-024), sin slot LLM nuevo — y la respuesta comunitaria de ADR-023 §2 queda escrita retroactivamente
+`products/helpdesk/frontend/app.{ts,css}` (el ganador del experimento A/B, ya tracked desde un checkpoint de
+una sesión previa, sha `46c53c7…`/`b3328a6…`) se activa con `frontend_surface: model-native` en
+`product.yml`. Es la adopción más barata posible del mecanismo `FSK-MODELGEN-DURABLE`: cero slot LLM nuevo,
+porque la superficie ya había pasado `design_floor` en verde vía `FSK-DESIGNFLOOR-DERISK` (que probó el
+mismo flag transitoriamente y lo revirtió). `ci --rederive helpdesk` corre s9 con 5 checks,
+`frontend_design_floor exit 0`; `meta pin --verify` confirma 11/11 == nuevo pin. `ci --rederive assets`
+sigue 11/11 == pin existente (no-regresión del no-adoptante). Zero drift de fábrica/sustrato.
+De paso cierra el gatillo del **gap G2** de la auditoría model-first (2026-07-10, `HONEST-STATE.md` meta):
+la pregunta obligada de ADR-023 §2 («¿qué pieza ya validó la comunidad?») nunca se había respondido
+explícitamente para esta superficie — queda escrita ahora en `product.yml` + el work-doc del producto:
+TypeScript vanilla sin framework de UI, juicio deliberado (un CRUD de 5 entidades no justifica el costo de
+adopción de un framework). El campo estructurado para piezas comunitarias en `product.yml` sigue sin
+existir (decisión de columna, fuera de alcance de este increment). Detalle: `products/helpdesk/docs/work/
+FSK-HELPDESK-MODELGEN-INCREMENT.md §Evidencia`.
 
 ## 2026-07-10T02:1xZ — FSK-COVERAGE-FULL-100 ✅: cobertura de línea REAL de snipeit 99.8%→100.0%, la mayor parte del residual era un bug del HARNESS, no del código
 El gatillo: el ingeniero pidió explícitamente cerrar el residual final tras `FSK-COVERAGE-FULL` ("haz esas 8

@@ -1,10 +1,26 @@
-<!-- meta:doc sha=da9141eacbedbf293204bc22e15f6a77883c33aa updated=2026-07-10T02:17Z -->
+<!-- meta:doc sha=7bad9faa8dbeb607d3561f3157c0044c8cc93f4b updated=2026-07-10T16:12Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-10T02:1xZ): re-sellado tras el cierre de FSK-COVERAGE-FULL-100.
+> Freshness (2026-07-10T16:xxZ): re-sellado tras el cierre de FSK-HELPDESK-MODELGEN.
 
 ## Ahora
+- **FSK-HELPDESK-MODELGEN (2026-07-10)** ✅ CERRADO — **segunda adopción durable** del modo model-nativo
+  (ADR-024) en `helpdesk`: `products/helpdesk/frontend/app.{ts,css}` (ganador del experimento A/B, ya
+  tracked desde el checkpoint previo, sha `46c53c7…`/`b3328a6…` byte-idéntica al build aceptado) +
+  `frontend_surface: model-native` activado. La adopción MÁS BARATA posible — CERO slot LLM nuevo (la
+  superficie ya existía y ya había pasado `design_floor` en verde vía `FSK-DESIGNFLOOR-DERISK`, que la
+  probó transitoriamente y revirtió). `ci --rederive helpdesk` **re-pineado** (esperado, adoptante):
+  s9 corre 5 checks, `frontend_design_floor exit 0`; `pin --verify` **11/11 == nuevo pin**.
+  `ci --rederive assets` **11/11 == pin existente** (no-regresión del no-adoptante). Zero drift de
+  fábrica/sustrato (`git diff codegen/+src/metafactory/+seed/+factory.spec.yml+stations/ == 0`). De
+  paso cierra el **gap G2** de la auditoría model-first 2026-07-10 (`HONEST-STATE.md`): la pregunta
+  comunitaria obligada de ADR-023 §2, nunca respondida explícitamente para esta superficie, queda
+  ESCRITA (retroactivamente) en `product.yml` + el work-doc — TypeScript vanilla sin framework de UI,
+  juicio deliberado (no gap de infraestructura: un CRUD de 5 entidades no justifica el costo de un
+  framework). El campo estructurado de comunidad en `product.yml` sigue sin existir (decisión de
+  columna, S1, fuera de alcance acá). `meta check` 20/20. Detalle: `products/helpdesk/docs/work/
+  FSK-HELPDESK-MODELGEN-INCREMENT.md §Evidencia`.
 - **FSK-COVERAGE-FULL-100 (2026-07-10)** ✅ CERRADO — cierra el residual final que `FSK-COVERAGE-FULL`
   (abajo) dejó declarado: cobertura de línea REAL de `snipeit` **99.8% → 100.0%**, pedido explícito del
   ingeniero. 2 líneas eran un gap de código real (mismo patrón PUT-no-cableado, en las entidades PRIMARIAS

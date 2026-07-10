@@ -174,6 +174,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.role_hygiene", str(root)]},  # no por dominio (nombre fuera del vocab cerrado = rojo)
         {"name": "kinds", "kind": "command",                # D-3 (VOCAB-FREEZE, COUNCIL-360): el vocabulario de check-
          "cmd": [py, "-m", "metafactory.verify.checks.kind_hygiene", str(root)]},  # kinds está CONGELADO (kind fuera de registry.KINDS = rojo)
+        {"name": "codegen_freeze", "kind": "command",       # ADR-023 §3 (CODEGEN-FREEZE-TOOTH): el codegen de templates
+         "cmd": [py, "-m", "metafactory.verify.checks.codegen_freeze", str(root)]},  # está CONGELADO (diff sin waiver = rojo; waiver sin diff = rojo)
         {"name": "plan", "kind": "command",                 # ADR-021 (INC-4, PLAN-EXECUTE-SPLIT): plan-como-DATA
          "cmd": [py, "-m", "metafactory.verify.checks.plan_gate", str(root)]},  # bien formado, dos-lados (slot sin gate/ciclo/diferido-sin-razón = rojo)
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a07096702e22400cdf3465d77cfd71d41a58f32a updated=2026-07-10T14:44Z -->
+<!-- meta:doc sha=14fc750f109fbaba734e7d0cce83031d6467d0e9 updated=2026-07-10T15:07Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -87,15 +87,16 @@ Reiniciá la sesión ANTES de seguir, para que los hooks estén vivos. Commiteá
 que yo no hice — por eso lo escribo acá, no en prosa optimista.
 
 ## 7. Residuales declarados (memoria v2)
-- **Freeze del codegen SIN diente + alcance sin legislar (2026-07-10, auditoría de vestigios).** ADR-023 §3
-  congela `codegen/scaffold/` («alimentarlo = acto deliberado con waiver escrito») pero la prohibición NO
-  tiene sombra determinista (viola I-12) y YA fue perforada sin waiver: `FSK-COVERAGE-FULL[-100]` (commits
-  5b96696·43f295d) tocó 6 módulos de `codegen/scaffold/` sin mencionar el freeze. Zona gris honesta: fue
-  tráfico de VERIFICACIÓN emitido (proofs/tests — perfil de verificación, parte VIVA por ADR-023 §1), no
-  superficie humana — pero ese alcance nadie lo legisló. Trigger de cierre: increment `CODEGEN-FREEZE-TOOTH`
-  (check two-sided: diff en `factories/*/codegen/**` sin waiver declarado → ROJO; waiver sin diff → ROJO;
-  el diente ESCRIBE la frontera verificación-vs-superficie). Mientras tanto la regla vive en CLAUDE.md
-  (meta + template + FSK + iot) — prosa, sin diente.
+- **Freeze del codegen SIN diente + alcance sin legislar — CERRADO (2026-07-10, `CODEGEN-FREEZE-TOOTH`).**
+  El gate `codegen_freeze` (`meta check`, 20 gates) es la sombra determinista de ADR-023 §3: diff en
+  `factories/*/codegen/**` sin waiver en el work-doc ABIERTO del nivel dueño → ROJO · waiver sin diff
+  (decorativo) → ROJO · auditoría histórica auto-referencial (epoch = commit 4bd9835 que agrega el check;
+  escape deliberado `WAIVED_COMMITS` estilo `registry.KINDS`). La frontera de la zona gris quedó LEGISLADA
+  en el docstring del check + el work-doc: `alcance=verificacion` (proofs/tests/cobertura emitidos — parte
+  VIVA por ADR-023 §1; cita ADR-023 basta) vs `alcance=superficie` (templates/superficie humana — exige ADR
+  dedicado). Las 2 perforaciones previas (5b96696·43f295d) quedan grandfathered pre-epoch. **Residuo
+  irreducible que queda:** la honestidad del `alcance` declarado la juzgan ojos en revisión — el check
+  verifica la FORMA (alcance+motivo+cita), no la semántica.
 - **Agents de fábrica aún `model: opus` (2026-07-10).** El swap a Fable 5 (pedido del ingeniero) aterrizó en
   runbook + agents META (`orchestrator`/`reviewer` → `model: fable`); los de fábrica son EMITIDOS
   (`delegation_brain.py` + m07) — editarlos a mano = drift clobbereable. Trigger: increment del swap en el

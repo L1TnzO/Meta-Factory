@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7913f8e5363d910f3491b2ed81ab28559f802d02 updated=2026-07-10T15:00Z -->
+<!-- meta:doc sha=eca9f7206e2aedb2c32466e727c291e5ab1c9ca5 updated=2026-07-10T15:10Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,7 +6,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: CODEGEN-FREEZE-TOOTH-INCREMENT.md
+- Incremento abierto: ninguno
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -18,13 +18,14 @@
 
 - **✅ model-nativo VALIDADO (A/B, `ADR-023`) → durable EN CURSO (`ADR-024`).** Fábrica = spec + PERFIL DE
   VERIFICACIÓN; superficie humana GENERADA (slots LLM, gates deciden); codegen de templates **CONGELADO**.
-  A/B gana B (~370k tok Sonnet); el residuo lo cerró el diente `fields` (6º eje design-floor). `ADR-024`:
-  superficie = **override pineado** (`products/<p>/frontend/app.{ts,css}`, copiada-no-emitida vía
+  `ADR-024`: superficie = **override pineado** (`products/<p>/frontend/app.{ts,css}`, copiada-no-emitida vía
   `frontend_surface: model-native`) verificada por `design_floor` opt-in, SIN re-pinear los productos-template.
   META lista: **`CHECK-WHEN-GUARD` ✅**; **`FSK-MODELGEN-DURABLE` ✅ + `FSK-SNIPEIT-MODELGEN` ✅** (2026-07-08,
-  1ª adopción durable). Barrido de vestigios 2026-07-10 (reglas vivas + refs + skill al paradigma; cerebro =
-  **Fable 5**, reemplaza a Opus en todo ruteo). Sigue: `CODEGEN-FREEZE-TOOTH` (el freeze es prosa sin sombra,
-  I-12 — y ya se tocó codegen/ sin waiver, zona gris legislable) · adopción `helpdesk` · F1/ASF model-nativo.
+  1ª adopción durable). Barrido de vestigios 2026-07-10 (reglas vivas al paradigma; cerebro = **Fable 5**).
+  **`CODEGEN-FREEZE-TOOTH` ✅** (2026-07-10): gate `codegen_freeze` (`meta check` 20 gates) — el freeze de
+  ADR-023 §3 con sombra: diff en `factories/*/codegen/**` sin waiver ABIERTO → rojo · waiver sin diff → rojo ·
+  frontera legislada `verificacion` (viva, §1) vs `superficie` (exige ADR). Sigue: adopción `helpdesk` ·
+  swap Fable 5 en el emisor (`delegation_brain.py`) · F1/ASF model-nativo.
   → `decisions/023`·`024` · LOG.
 - **⚖️ `COUNCIL-EXEC` — EJECUTANDO el diseño COUNCIL-360 §6.4 (2026-07-04, ADR-022).** Camino B en vigor:
   sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** (declarado en su STATE) · dummy =

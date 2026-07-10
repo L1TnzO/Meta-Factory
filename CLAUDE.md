@@ -1,4 +1,4 @@
-<!-- meta:doc sha=27bf97e0330f1afe4d625f5d108ee22f6103b477 updated=2026-07-10T14:42Z -->
+<!-- meta:doc sha=daa072f25945ebc8b02beac40bbc22104c772171 updated=2026-07-10T15:08Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -26,7 +26,9 @@ Haiku lee) + gates de calidad dogfoodeados. Roadmap faseado: `docs/work/SOTA-RED
 
 **MODEL-FIRST + COMUNIDAD (2026-07-08, ADR-023/024) — paradigma de GENERACIÓN vigente.** El codegen determinista
 de templates (el pseudo-framework) tocó su techo medido y quedó **CONGELADO-con-pin** (ADR-023 §3): alimentarlo de
-nuevo = acto deliberado con waiver ESCRITO en el work-doc (motivo + cita; diente pendiente `CODEGEN-FREEZE-TOOTH`).
+nuevo = acto deliberado con UNA línea de waiver en el work-doc ABIERTO del nivel dueño —
+`Codegen-freeze-waiver: alcance=<verificacion|superficie> · motivo: … · cita: ADR-NNN` — enforzado por el gate
+`codegen_freeze` de `meta check` (diff sin waiver = rojo · waiver sin diff = rojo · `superficie` exige ADR dedicado).
 Fábrica = gramática de spec + **perfil de verificación** + memoria documental; lo NUEVO nace **model-nativo bajo el
 harness** — probabilismo CONTROLADO: slot acotado (`generate-slot`) + gates deciden + veredicto + artefacto
 **PINEADO** que se re-VERIFICA, no se re-deriva (ADR-024: override `products/<p>/frontend/app.{ts,css}` +

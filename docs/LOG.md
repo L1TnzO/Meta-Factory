@@ -1,7 +1,26 @@
-<!-- meta:doc sha=1457bef36da57a9ec995a0871850beb680a1da17 updated=2026-07-10T14:45Z -->
+<!-- meta:doc sha=a23f29050896b1a321008c50a349742059da35e8 updated=2026-07-10T15:08Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T15:1xZ — CODEGEN-FREEZE-TOOTH ✅: el freeze del codegen deja de ser prosa — gate `codegen_freeze` (meta check 20 gates) + frontera verificación-vs-superficie LEGISLADA
+El freeze de ADR-023 §3 violaba I-12 (prohibición sin sombra determinista) y ya había sido perforado 2
+veces sin waiver (`FSK-COVERAGE-FULL[-100]`, 5b96696·43f295d — zona gris: tráfico de VERIFICACIÓN emitido,
+no superficie). Nuevo check de columna `verify/checks/codegen_freeze.py` (escrito con ojos propios, no
+delegado): (a) **ventana viva** — diff en `factories/<f>/codegen/**` (árbol vs commit-que-agregó-el-work-doc
++ untracked) exige UNA línea `Codegen-freeze-waiver: alcance=<verificacion|superficie> · motivo: … · cita:
+ADR-NNN` en el work-doc ABIERTO del nivel dueño; waiver sin diff = decorativo → también ROJO; (b) **frontera
+legislada** (cierra la zona gris de HONEST-STATE §7): `alcance=verificacion` = proofs/tests/cobertura
+emitidos — la parte que ADR-023 §1 mantiene VIVA, cita ADR-023 basta; `alcance=superficie` = templates/
+superficie humana — lo congelado, exige ADR dedicado; el check verifica la FORMA, la honestidad del alcance
+la juzgan ojos (residuo irreducible); (c) **auditoría histórica auto-referencial** — epoch = commit que
+agrega el check (4bd9835); todo commit `epoch..HEAD` que toque codegen debe llevar el waiver ABIERTO en su
+PROPIO árbol (cierra el escape «el incremento cerró sin que `meta check` corriera»); escape deliberado
+`WAIVED_COMMITS` estilo `registry.KINDS`; las 2 perforaciones previas quedan grandfathered pre-epoch.
+Probado two-sided por TRES vías: escenarios sintéticos in-process (detector flojo → exit 1), sabotaje REAL
+en 4 escenarios (diff-sin-incremento ROJO · waiver-sin-diff ROJO · waiver+diff VERDE · restaurado VERDE) y
+9 tests puros en suite. `meta check` 20/20. Lección: el diente nace VERDE sobre el repo limpio y muerde
+hacia adelante — grandfathering explícito pre-epoch > escanear historia inmutable que nadie puede reparar.
 
 ## 2026-07-10T14:4xZ — Auditoría de vestigios del pseudo-framework + refuerzo model-first/comunidad (barrido de reglas vivas)
 Pedido del ingeniero: auditar los VESTIGIOS del paradigma viejo (codegen de templates como camino vivo) y

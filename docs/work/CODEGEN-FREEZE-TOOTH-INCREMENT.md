@@ -1,7 +1,7 @@
-<!-- meta:doc sha=aac1b2da97114dab627ef6bf9881e56c3abd3320 updated=2026-07-10T15:05Z -->
+<!-- meta:doc sha=c3d1d6d820cc554470ee0262033bd025f07fdc85 updated=2026-07-10T15:09Z -->
 # Incremento CODEGEN-FREEZE-TOOTH
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T15:00Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-10T15:09Z) (creado 2026-07-10T15:00Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -48,7 +48,7 @@ legislado. Este incremento cierra ambas cosas: el diente Y la legislación del a
 | --- | --- | --- |
 | 1 | `src/metafactory/verify/checks/codegen_freeze.py` (ley + ventana viva + auditoría histórica + two-sided) — columna, ojos propios | ✅ |
 | 2 | cablear gate `codegen_freeze` en `cmd_check` (meta check 19→20) + `tests/test_codegen_freeze.py` (lógica pura) | ✅ |
-| 3 | docs: HONEST-STATE §7 (residual → cerrado) · ROADMAP · STATE · CLAUDE.md (diente ya no pendiente) · LOG | ⏳ |
+| 3 | docs: HONEST-STATE §7 (residual → cerrado) · ROADMAP · STATE · CLAUDE.md (diente ya no pendiente) · LOG | ✅ |
 
 ## Evidencia (2026-07-10)
 - **Gate en repo limpio:** `OK codegen_freeze: 4 fábrica(s) con codegen/ congelado … diente RED vivo

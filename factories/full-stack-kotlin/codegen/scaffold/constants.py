@@ -1014,6 +1014,10 @@ def main(argv: list) -> int:
                 row = json.loads(_body(base, f"{OWNERLESS_PLURAL}/{oid}"))
                 for key, want in OWNERLESS_POST_BODY.items():
                     ok &= _expect_value(row.get(key), want, f"[ownerless] GET /{{id}} ve body[{key}] (type-correct)")
+                # FSK-COVERAGE-FULL: PUT no esta cableado en handle<Entity>() de la ownerless PRIMARIA (mismo
+                # gap que las entidades serve-all, pero esta vive en su propio bloque dedicado) -> 404 del else.
+                ok &= _expect(_send(base, "PUT", f"{OWNERLESS_PLURAL}/{oid}", f"Bearer {OWNERLESS_ALLOWED}:1",
+                                    OWNERLESS_POST_BODY)[0], 404, "[ownerless] PUT (no cableado) -> 404")
             ok &= _expect(_send(base, "POST", OWNERLESS_PLURAL, f"Bearer {OWNERLESS_ALLOWED}:1", OWNERLESS_BAD_BODY)[0],
                           400, "[ownerless] POST tipo equivocado -> 400")
             ok &= _expect(_count_at(base, OWNERLESS_PLURAL), m0 + 1, "[ownerless] count tras 400 (no inserto)")
@@ -1048,6 +1052,10 @@ def main(argv: list) -> int:
                 row = json.loads(_body(base, f"{WR_PLURAL}/{wid}"))
                 for key, want in valid.items():
                     ok &= _expect_value(row.get(key), want, f"[with-ref] GET /{{id}} ve body[{key}] (incl. la FK)")
+                # FSK-COVERAGE-FULL: PUT no esta cableado en handle<Entity>() de la with-ref PRIMARIA (mismo
+                # gap que las entidades serve-all, pero esta vive en su propio bloque dedicado) -> 404 del else.
+                ok &= _expect(_send(base, "PUT", f"{WR_PLURAL}/{wid}", f"Bearer {WR_ALLOWED}:1", valid)[0], 404,
+                              "[with-ref] PUT (no cableado) -> 404")
             # *** EL DIENTE NUEVO: ref COLGANTE (id sembrado + 9999, inexistente) -> 409 fail-closed (no 500). ***
             dangling = dict(valid)
             dangling[WR_REF_FIELDS[0]] = seed_refs[WR_REF_FIELDS[0]] + 9999

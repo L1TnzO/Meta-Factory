@@ -658,7 +658,11 @@ domain:
           workdir: build/product
           bootstrap: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTestClasses -q --console=plain"]
           up: ["sh", "-c", "docker rm -f fsk_s7_pg >/dev/null 2>&1; exec docker run --rm --name fsk_s7_pg -e POSTGRES_PASSWORD=metafactory -p 5435:5432 postgres@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb"]
-          proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))) exec ./gradlew integrationTest -q --console=plain"]
+          # FSK-COVERAGE-FULL: infra_up re-corre ESTE MISMO proof con la PG caida (el diente de dos lados
+          # exige que falle) -- esa 2da corrida sobreescribe build/jacoco/integrationTest.exec (gradle no
+          # acumula ahi) con cobertura chica, perdiendo la de la 1ra corrida (PG viva). El cp backupea el
+          # .exec RICO a otro nombre en el exito; jacocoLiveReport (s9) globea *.exec y fusiona ambos.
+          proof: ["sh", "-c", "JAVA_HOME=$(dirname $(dirname $(readlink -f $(command -v javac)))); ./gradlew integrationTest -q --console=plain && cp -f build/jacoco/integrationTest.exec build/jacoco/integrationTest_pass.exec"]
           down: ["docker", "rm", "-f", "fsk_s7_pg"]
           timeout: 120
         - name: pyramid_unit_ts

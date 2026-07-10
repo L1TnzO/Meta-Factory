@@ -1,4 +1,4 @@
-<!-- meta:doc sha=803c464faba25f5efcc3c195a0deaecb30ce2261 updated=2026-07-10T16:19Z -->
+<!-- meta:doc sha=69193e7a1825653cc7606efefe2ea3b7932145a9 updated=2026-07-10T16:46Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -29,14 +29,14 @@
   frontera legislada `verificacion` (viva, §1) vs `superficie` (exige ADR). Sigue: adopción `helpdesk` ·
   F1/ASF model-nativo.
   → `decisions/023`·`024` · LOG.
-- **⚖️ `COUNCIL-EXEC` — EJECUTANDO el diseño COUNCIL-360 §6.4 (2026-07-04, ADR-022).** Camino B en vigor:
-  sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** (declarado en su STATE) · dummy =
-  fixture del pin. HECHO hoy: **H-1 REAL** (segundo actor VERDE: Actions run 28717567792; `--skip` explícito
-  + suite hermética en clon limpio) · **jueces económicos** (`OUTCOME-JUDGES`: opus-share por transcript
-  dedup `message.id` + horas-humano wall-clock + rotulado $shadow en `meta outcome`) · **D-3** vocabulario
-  de kinds CONGELADO (gate `kinds`, `meta check` 19 gates) · **D-7** THREAT-MODEL honesto (`ARCHITECTURE-MAP
-  §8`) · spec AJENA E1+D-8 pineada (`specs/foreign-conduit/`, RealWorld@98f29fb3). En curso: D-2
-  contenido-como-archivos · E4 mutation/escape · E1 control-group · H-4/H-5 mantenimiento de columna.
+- **⚖️ `COUNCIL-EXEC` — diseño COUNCIL-360 §6.4 COMPLETO (2026-07-04, re-sellado 2026-07-10).** Camino B:
+  sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. Los TRES jueces
+  externos ESTÁN en el árbol: **H-1** ✅ (segundo actor VERDE) · **jueces económicos** ✅ (`OUTCOME-JUDGES`) ·
+  **E4** ✅ (escape: motor 0% · producto 75% vs estáticos, `work/MUTATION-ESCAPE`) · **E1+D-8** ✅ EJECUTADO
+  y arbitrado (commit `8790169`: en spec AJENA el pelado gana la historia día-1 — 19/19 endpoints, 6.3min;
+  la fábrica retiene re-derivabilidad+gates+escape-rate EN SU CLASE; el benchmark mide la gramática propia,
+  D-8 confirmada) · **D-3/D-7/H-4/H-5** ✅. Residuo único: **D-2** contenido-como-archivos, DEMOTADO
+  post-freeze (ADR-023 congeló ese contenido; trigger: primer waiver que re-edite contenido embebido).
 - **🧭 `COST-DOWN` (2026-07-02, ADR-021) — plan FIJO N=7 COMPLETO (INC-0..6 ✅).** Ruteo por SESIÓN
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-por-medición. Corrida S2 medida: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% aún rojo; ahora ES un número del CLI — `OUTCOME-JUDGES`). Biblia:

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e01808aeec47a6fdc709a5e0dce354096a4bcee2 updated=2026-07-10T16:35Z -->
+<!-- meta:doc sha=9cbad00fe1361ac1898ddc08488ae3449d6447b2 updated=2026-07-10T16:47Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -96,9 +96,14 @@
 > la superficie ya había pasado `design_floor` en verde vía el de-risk previo); cierra de paso el trigger del
 > gap G2 para helpdesk (la pregunta comunitaria ADR-023 §2 queda escrita retroactivamente: TS vanilla sin
 > framework, juicio deliberado — ver `reference/HONEST-STATE.md §7`). **Pendiente (ambos exigen diseño S1/Opus
-> — no son repetición de patrón, son contrato nuevo):** **F1/ASF model-nativo** (ASF no tiene un `frontend`
-> equivalente; hay que DECIDIR qué superficie/eje de ASF pasa a model-nativo y su gate, arquitectura sin
-> cobertura hoy) · **G2-infra** (campo estructurado de comunidad en `product.yml` — tocaría `codegen/scaffold/
+> — no son repetición de patrón, son contrato nuevo):** **F1/ASF model-nativo** — DOBLEMENTE gateado
+> (auditado 2026-07-10): (a) ASF está **REGRESSION-FROZEN** (COUNCIL-360 camino B, su STATE lo declara) →
+> descongelar = acto DELIBERADO con motivo escrito + demanda real (decisión del INGENIERO — candidato natural
+> de demanda: regenerar `Proyect_RE_Agent`, F1-AUDIT §12/B-5); (b) recién después, diseño S1: ASF no tiene un
+> `frontend` equivalente — hay que DECIDIR qué superficie/eje pasa a model-nativo y su gate (candidato:
+> `domain/nodes.py`/`reducers.py` que hoy se emiten vacíos, bajo contract-tests, patrón FSK-s6); el trigger de
+> G1 `COMMUNITY-FRESHNESS` dispara CON esa spec (pins comunitarios nuevos exigen frescura → su ADR entra antes
+> o junto) · **G2-infra** (campo estructurado de comunidad en `product.yml` — tocaría `codegen/scaffold/
 > blueprint.py`, que está CONGELADO — exige decidir `alcance` del waiver y cita de ADR, `reference/HONEST-STATE.md
 > §7`) · **G1** `COMMUNITY-FRESHNESS` (MCP/context7 sólo-S1, supply-chain del cerebro, exige ADR propio). (El
 > swap Fable 5 fue REVERTIDO

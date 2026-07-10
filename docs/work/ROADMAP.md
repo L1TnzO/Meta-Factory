@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b24167db07abe3be37542eb777383eefd8e1f84b updated=2026-07-10T15:29Z -->
+<!-- meta:doc sha=e01808aeec47a6fdc709a5e0dce354096a4bcee2 updated=2026-07-10T16:35Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -91,10 +91,17 @@
 > work-doc ABIERTO del nivel dueño → ROJO · waiver sin diff → ROJO · auditoría histórica auto-referencial; la
 > frontera de la zona gris quedó LEGISLADA: `alcance=verificacion` —proofs/tests emitidos, parte VIVA por
 > ADR-023 §1, cita ADR-023 basta— vs `alcance=superficie` —templates/superficie humana, exige ADR dedicado—;
-> detalle en `work/CODEGEN-FREEZE-TOOTH-INCREMENT.md`). **Pendiente:** adopción model-nativa de `helpdesk` (su superficie ganadora
-> del A/B ya está COMMITTEADA en `products/helpdesk/frontend/` — auditado 2026-07-10 — pero SIN cablear:
-> falta `frontend_surface: model-native` en su `product.yml`, así que `design_floor` nunca la corre) ·
-> F1/ASF model-nativo. (El swap Fable 5 fue REVERTIDO
+> detalle en `work/CODEGEN-FREEZE-TOOTH-INCREMENT.md`) → **`FSK-HELPDESK-MODELGEN` ✅ (2026-07-10, 2ª adopción
+> durable)** — `frontend_surface: model-native` cableado en `products/helpdesk/product.yml` (cero slot LLM nuevo,
+> la superficie ya había pasado `design_floor` en verde vía el de-risk previo); cierra de paso el trigger del
+> gap G2 para helpdesk (la pregunta comunitaria ADR-023 §2 queda escrita retroactivamente: TS vanilla sin
+> framework, juicio deliberado — ver `reference/HONEST-STATE.md §7`). **Pendiente (ambos exigen diseño S1/Opus
+> — no son repetición de patrón, son contrato nuevo):** **F1/ASF model-nativo** (ASF no tiene un `frontend`
+> equivalente; hay que DECIDIR qué superficie/eje de ASF pasa a model-nativo y su gate, arquitectura sin
+> cobertura hoy) · **G2-infra** (campo estructurado de comunidad en `product.yml` — tocaría `codegen/scaffold/
+> blueprint.py`, que está CONGELADO — exige decidir `alcance` del waiver y cita de ADR, `reference/HONEST-STATE.md
+> §7`) · **G1** `COMMUNITY-FRESHNESS` (MCP/context7 sólo-S1, supply-chain del cerebro, exige ADR propio). (El
+> swap Fable 5 fue REVERTIDO
 > 2026-07-10 por el ingeniero: Opus es la norma de ruteo en meta Y fábricas; Fable 5 sólo en sesiones
 > especiales de infraestructura meta — el item «swap en `delegation_brain.py`» MUERE, los agents emitidos ya
 > están correctos en `model: opus`.)

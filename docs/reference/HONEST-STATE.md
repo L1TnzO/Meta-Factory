@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9b96aab90407fc002e9b2103043e119ef7796cd5 updated=2026-07-10T15:29Z -->
+<!-- meta:doc sha=cb5a18b7d775ae4275922784fc25753773aafb9c updated=2026-07-10T16:35Z -->
 # HONEST-STATE — implementado vs definido (sin maquillaje)
 
 > tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
@@ -112,14 +112,17 @@ que yo no hice — por eso lo escribo acá, no en prosa optimista.
   es input de diseño y el determinismo lo sostiene el pin. Es superficie de supply-chain del cerebro
   (output de MCP entra al contexto que decide) → exige ADR propio, no un `claude mcp add` casual.
   Trigger: próxima spec nueva (F1/ASF) o el primer pin comunitario que resulte deprecado al verificarlo.
-- **La pregunta comunitaria no baja al nivel PRODUCTO (2026-07-10, auditoría model-first).**
-  `design-primitives` es meta-only y su alcance declarado es el diseño de FÁBRICAS (`factory.spec.yml`);
-  `product.yml` no tiene campo estructurado para piezas de comunidad, y la superficie model-nativa ya
-  adoptada (snipeit `app.ts` = TS vanilla data-driven, sin framework) no re-preguntó — sus deltas quedaron
-  congelados por ley de increment, decisión legítima pero NO pasó por el paso 3. Mitigado: toda sesión corre
-  desde la raíz meta (workspace-model, ARCHITECTURE-MAP §2), así que el skill ESTÁ disponible; lo que falta
-  es que el procedimiento de spec-de-producto lo OBLIGUE. Trigger: la adopción model-nativa de `helpdesk`
-  (la próxima superficie que se diseñe debe dejar la respuesta comunitaria ESCRITA).
+- **La pregunta comunitaria no baja al nivel PRODUCTO (2026-07-10, auditoría model-first) — TRIGGER disparado
+  y respondido para `helpdesk`, la INFRAESTRUCTURA sigue faltando.** `design-primitives` es meta-only y su
+  alcance declarado es el diseño de FÁBRICAS (`factory.spec.yml`); `product.yml` sigue SIN campo estructurado
+  para piezas de comunidad. El trigger (`FSK-HELPDESK-MODELGEN`, 2026-07-10, commit `47cce4f`) disparó: la
+  pregunta quedó escrita RETROACTIVAMENTE en el commit (TS vanilla sin framework, juicio deliberado, no gap
+  de infra) — pero sólo en prosa de commit, NO en un campo del `product.yml`. La infraestructura (el campo
+  estructurado + el `design-review` que lo exija a nivel producto) sigue sin existir; agregarlo tocaría
+  `codegen/scaffold/blueprint.py` (FSK), que está **CONGELADO** (ADR-023 §3) — exige un waiver
+  (`Codegen-freeze-waiver:`) y decidir su `alcance` (¿`verificacion` o `superficie`? ¿cita qué ADR?), lo cual
+  es una decisión de diseño (S1/Opus), no un slot Sonnet. Trigger para des-diferir: la PRÓXIMA superficie
+  model-nativa nueva (no snipeit/helpdesk, ya retro-respondidas) que se diseñe sin este campo.
 - **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
   como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
   aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,

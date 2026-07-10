@@ -1,6 +1,62 @@
-<!-- meta:doc sha=c3d54c5d27e0cd0f24db8f2316676425f57dd74a updated=2026-07-10T00:17Z -->
+<!-- meta:doc sha=70b5dbe0a818c40d5df87e48768646f346c385c9 updated=2026-07-10T01:19Z -->
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
+
+## 2026-07-10T01:2xZ — FSK-COVERAGE-FULL ✅: cobertura de línea REAL de snipeit 98.1%→99.8%, la clasificación previa de "inalcanzable" era demasiado pesimista
+El gatillo: el ingeniero pidió "hacer dummies para ver si es posible llegar al 100%". Dado el precedente
+directo de esta misma sesión de trabajo (`FSK-REQREF-COVERAGE-NEGATIVE`, donde un pedido de "maquillar" el
+número fue rechazado por fraude), se aclaró el encuadre ANTES de tocar código — el ingeniero confirmó que
+quería ver, honestamente, si activando ciertas cosas se podía cerrar más brecha, no relleno.
+- **El hallazgo**: leyendo el código Kotlin generado real (`AppServer.kt`/`Repository.kt`/`RouteTable.kt`/
+  `FileSpanExporter.kt`) y el codegen que los emite, la clasificación de `FSK-REQREF-COVERAGE-NEGATIVE`
+  ("78 líneas, ramas catch-all estructuralmente inalcanzables + boilerplate + requiere mockear el SDK") era
+  imprecisa para la mayoría: 37 de las 40 líneas de `AppServer.kt` eran el `else -> HTTP_NOT_FOUND` de
+  `handle<Entity>()` en las entidades serve-all, que sólo cablean GET/POST/DELETE (comentario explícito en
+  `server.py`: "PUT se difiere -> cae en el 404 del else") — un `PUT` real, nunca mandado por el proof. El
+  catch-all de `serveApp()` (línea 172) tampoco era inalcanzable — un GET a un path desconocido lo dispara,
+  nunca probado. La rama company-scoped de `listDeleted` (+29 líneas de `Repository.
+  assetsDeletedByCompany`) nunca se ejercitaba porque el ÚNICO caller (el browser check) siempre usa un rol
+  de bypass. Y `Repository.allAccessoryCheckouts` YA tenía un test real y pasante (`RepositoryIT.kt`,
+  pre-existente) — el gap era 100% de MEDICIÓN: la corrida anterior usó `--mode draft`, que difiere `s7`
+  (`tier: harden`, donde vive `integrationTest`) por diseño del dial. Sólo `FileSpanExporter.flush()/
+  shutdown()` (no requieren mockear el SDK, contra lo declarado) y los defaults de `RouteTable.Route.roles`/
+  `AssetPatch.macAddress` eran genuinamente "nunca invocados sin el argumento", cerrables con 3 unit tests
+  puntuales.
+- **6 cambios, todo en `codegen/scaffold/` (sin Kotlin escrito a mano)**: (1) `constants.py
+  _SERVE_ALL_PROOF` manda `PUT {ep}/{id}` mientras la fila insertada sigue viva, espera 404 — cierra 37
+  líneas; (2) `constants.py` (skeleton del proof) manda `GET` a un path inventado — cierra la línea 172; (3)
+  nuevo template `_LIST_DELETED_SCOPE_PROOF` (`constants.py`), enganchado en `server.py` justo después del
+  bloque `_COMPANY_SCOPE_PROOF` (opt-in doble `company_scoped AND soft_delete`, reusa `company_a`/`owner`/
+  `cs_actor` ya en scope ahí) — manda `GET {plural}/deleted` con un rol company-scoped, cierra 30 líneas de
+  una; (4) SIN código nuevo — el fix fue medir con `--mode harden`, confirmado corriendo `product-run` y
+  leyendo `pyramid_integration exit=0` en el log de `s7`; (5) `pyramid.py` (`RouteTableTest.kt`) suma un
+  caso que construye `RouteTable.Route("GET", "/x", false)` sin `roles`; `data_layer.py` (`RepositoryIT.kt`)
+  suma un test que construye `AssetPatch()` sin argumentos; (6) nuevo generador `_test_file_span_exporter_kt`
+  (`observability.py`), wireado en `__init__.py` como `src/test/kotlin/{pkg}/FileSpanExporterTest.kt` — llama
+  `.flush()`/`.shutdown()` directo. Un 7mo fix menor (encontrado en la verificación final, no en el diseño
+  original): la entidad primaria (con PUT ya cableado) tiene un catch-all PROPIO para sub-acciones
+  desconocidas (ni checkout/checkin/restore/deleted) — un `POST {plural}/{id}/no-existe` lo cierra.
+- **Verificado por bloqueo, 2 corridas completas de `product-run --mode harden` snipeit** (PASS end-to-end
+  s0..s11 ambas veces, la 2da con el fix 7 agregado): `.proof/logs/s9-2026-07-10T0056Z.log`
+  `check=coverage_live exit=0` → `FSK_COVERAGE_LINE_PCT=99.8` (subiendo de 98.1%). Confirmado que ninguna
+  assertion nueva es "dummy": grep de las 3 marcas `FSK-COVERAGE-FULL` en el `tools/access_control_check.py`
+  GENERADO + `exit=0` en `pyramid_unit`+`pyramid_integration`+`access_control_live`+`coverage_live` en la
+  MISMA corrida. `AppServer.kt` bajó de 80→79 líneas con instrucciones sin cubrir tras cerrar SOLO la línea
+  extra del fix 7 — confirma que las demás 78 entradas de ese archivo ya eran cobertura PARCIAL de rama
+  (no líneas totalmente sin cubrir), no una regresión introducida. `ci --rederive --factory
+  full-stack-kotlin --all-products` **4/4 == pin** (12/12·11/11·11/11·12/12, SIN re-pin: `proof_sha` deriva
+  de exit-codes de checks, no de contenido). `meta check` **19/19**. Residual final ~8 líneas (~0.2%):
+  boilerplate de acceso a datos jOOQ en `Repository.kt`, mismo criterio "ingeniería real sin ganancia
+  proporcional" ya declarado por `FSK-REQREF-COVERAGE` — ahora genuinamente el fondo del pozo, no una
+  clasificación sin re-derivar. Detalle completo: `docs/work/FSK-COVERAGE-FULL-INCREMENT.md §Evidencia` +
+  `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
+
+**Gotcha real de esta sesión (ya documentado antes, se repitió)**: lanzar `ci --rederive --all-products` en
+BACKGROUND mientras seguía trabajando disparó la MISMA carrera ya conocida — el hook `stop_proof` de
+turn-close corrió su propio `verify s7` sobre la estación activa mientras el gradle de fondo escribía el
+mismo `build/product` compartido, 3 checks (`pyramid_unit`/`pyramid_integration`/`workflow_enforced`)
+reportaron rojo transitorio que NO eran fallas de código. Se resolvió esperando a que el proceso de fondo
+terminara de verdad (notificación del harness) antes de reintentar — 4/4==pin limpio, sin rojo.
 
 ## 2026-07-09T23:5xZ — FSK-REQREF-COVERAGE-NEGATIVE ✅: cobertura de línea REAL de snipeit 93.1%→98.1%, cierra el residual declarado por FSK-REQREF-COVERAGE
 El gatillo: el ingeniero pidió llegar al 100% literal "maquillado, sólo para la foto" bajo presión de una

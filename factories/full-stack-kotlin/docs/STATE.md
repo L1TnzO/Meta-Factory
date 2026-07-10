@@ -1,10 +1,32 @@
-<!-- meta:doc sha=9d14b978ec6738120e5d3f98123cc5d485663229 updated=2026-07-10T00:16Z -->
+<!-- meta:doc sha=46f323fe134166c785e89cfcc707ec2ff1473998 updated=2026-07-10T01:22Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
-> Freshness (2026-07-09T23:5xZ): re-sellado tras el cierre de FSK-REQREF-COVERAGE-NEGATIVE.
+> Freshness (2026-07-10T01:2xZ): re-sellado tras el cierre de FSK-COVERAGE-FULL.
 
 ## Ahora
+- **FSK-COVERAGE-FULL (2026-07-10)** ✅ CERRADO — cierra la mayoría del residual declarado por
+  `FSK-REQREF-COVERAGE-NEGATIVE` (abajo): cobertura de línea REAL de `snipeit` sube **98.1% → 99.8%**,
+  releyendo el código generado real en vez de re-derivar la clasificación previa a ciegas. Encontró que 68
+  de las 78 líneas declaradas "estructuralmente inalcanzables/sin ganancia proporcional" en realidad ERAN
+  tráfico HTTP real nunca ejercitado, no código muerto. 6 mecanismos reales, cero mocks, cero tests
+  fabricados: (1) `_SERVE_ALL_PROOF` manda `PUT {ep}/{id}` (verbo genuinamente no cableado en 37 entidades
+  serve-all, `server.py _ownerless_handlers`) → 404, cierra 37 líneas de `AppServer.kt`; (2) `GET` a un path
+  desconocido cierra el catch-all de `serveApp()`; (3) `POST {plural}/{id}/no-existe` cierra la sub-acción
+  desconocida del dispatch primario; (4) `GET {plural}/deleted` con un rol company-scoped no-bypass (antes
+  sólo se probaba con bypass) cierra la rama scoped de `listDeleted` + 29 líneas de
+  `Repository.assetsDeletedByCompany` de una sola vez (misma causa raíz); (5) `Repository.
+  allAccessoryCheckouts` YA tenía un test real (`RepositoryIT.kt`) — el gap era que la medición anterior
+  usó `--mode draft`, que DIFIERE `s7` (`tier: harden`, donde vive `integrationTest`) — medir en
+  `--mode harden` lo cierra sin código nuevo; (6) 3 unit tests puntuales (sin mocks) ejercitan los defaults
+  de `RouteTable.Route.roles`/`AssetPatch.macAddress` y los overrides `FileSpanExporter.flush()/shutdown()`.
+  Residual final ~8 líneas (~0.2%): boilerplate jOOQ en `Repository.kt`, mismo criterio "ingeniería real sin
+  ganancia proporcional" ya declarado, ahora genuinamente el fondo del pozo. Byte-neutral para `assets`
+  (0 candidatas); `ci --rederive --all-products` **4/4 == pin** (12/12·11/11·11/11·12/12, SIN re-pin).
+  Nota de proceso: el pedido inicial ("hacer dummies para ver si es posible llegar al 100%") se aclaró
+  primero — el ingeniero confirmó que quería investigación honesta, no relleno; el resultado NO llega a
+  100% literal (el residual jOOQ queda declarado, no maquillado). Detalle: `docs/work/
+  FSK-COVERAGE-FULL-INCREMENT.md §Evidencia` + `products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 - **FSK-REQREF-COVERAGE-NEGATIVE (2026-07-09)** ✅ CERRADO — cierra el residual declarado al cierre de
   `FSK-REQREF-COVERAGE` (abajo): cobertura de línea REAL de `snipeit` sube **93.1% → 98.1%** con 2 cambios
   quirúrgicos, sin Kotlin nuevo. (1) Generaliza el diente NEGATIVO (ref colgante → 409) — antes probado UNA

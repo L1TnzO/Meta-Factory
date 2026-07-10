@@ -1,7 +1,7 @@
-<!-- meta:doc sha=1704b2cd058fa987460baca3e4c733b46ddcc565 updated=2026-07-10T01:10Z -->
+<!-- meta:doc sha=29ab57628a280d4fb5f10512c006c2bfb64d471e updated=2026-07-10T01:21Z -->
 # Incremento FSK-COVERAGE-FULL
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-10T00:36Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-10T01:21Z) (creado 2026-07-10T00:36Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -91,8 +91,8 @@ emite (`codegen/scaffold/{constants,server,base,auth,data_layer,observability,py
    consecutivas, la 2da con el fix 6b agregado): `VEREDICTO product-run full-stack-kotlin/snipeit — PASS
    (exit 0)`, s0..s11 verdes, incluyendo `s7`/`pyramid_integration` (RepositoryIT con el test de
    `AssetPatch()` default) y `s9`/`coverage_live`.
-2. `ci --rederive --factory full-stack-kotlin --all-products` — corrida en background (build pesado de 4
-   productos en clon limpio), resultado abajo.
+2. `ci --rederive --factory full-stack-kotlin --all-products` → **PASS**, 4/4 productos == pin:
+   `full-stack-kotlin: 12/12` · `assets: 11/11` · `helpdesk: 11/11` · `snipeit: 12/12`, SIN re-pin.
 3. Cobertura Jacoco de snipeit: **99.8%** (`FSK_COVERAGE_LINE_PCT=99.8`, `.proof/logs/s9-2026-07-10T0056Z.log`,
    `check=coverage_live exit=0`), subiendo de 98.1%. Verificado con las 6 (+1 extra) fixes activas: cada
    assertion nueva manda tráfico HTTP real o llama la función real (ninguna es "dummy"/fabricada) — confirmado
@@ -103,9 +103,10 @@ emite (`codegen/scaffold/{constants,server,base,auth,data_layer,observability,py
    ese archivo ya eran cobertura PARCIAL de rama, no líneas totalmente sin cubrir — no una regresión).
    Desglose completo por causa: `SNIPEIT-SPEC.md §11.3`.
 4. Cubierto por (1).
-5. `meta check` — pendiente de correr tras (2).
+5. `meta check` → **PASS**, 19/19 checks verdes.
 6. `SNIPEIT-SPEC.md §11` (criterio 9, §11.1-§11.4, §12.2) actualizado con 99.8% + el desglose por causa.
-   STATE/LOG (meta+factory) — a completar tras (2)+(5).
+   `docs/STATE.md`+`docs/LOG.md` (meta) y `factories/full-stack-kotlin/docs/STATE.md`+`docs/LOG.md`
+   (factory) actualizados con el episodio completo.
 
 **Nota de proceso (honestidad del pedido original)**: el ingeniero pidió "hacer dummies para ver si es
 posible llegar al 100%". Se aclaró primero qué significaba (dado el precedente de `FSK-REQREF-COVERAGE-

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=273f2cc3f2d0389feb5633f2777cde25017ed093 updated=2026-07-10T00:16Z -->
+<!-- meta:doc sha=58b493ced4aaff4b5bc75a6b01547fbafaa3983b updated=2026-07-10T01:09Z -->
 # Especificación del Sistema — Snipe-IT (réplica model-nativa, fábrica Full-Stack Kotlin)
 
 > **Tipo de documento**: Especificación de Software (SRS), estructurada en el espíritu de **ISO/IEC/IEEE
@@ -34,22 +34,29 @@
 | 6 | Reglas de negocio | 60 | **100** | ✅ PASA | §8 |
 | 7 | Validaciones y restricciones CHECK | 100 | **201** (+ 51 de integridad referencial en §8) | ✅ PASA | §9 |
 | 8 | Checklist de completitud del producto | — | **27/27 requisitos trazados (100%)** | ✅ PASA | §10 |
-| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3+4+5, `FSK-REQREF-COVERAGE-NEGATIVE`): **98.1% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ + `DbRoundTrip.kt` diagnóstico manual, todo boilerplate/herramental no-negocio, declarado explícitamente) + 23 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta y mínima (78 líneas, estructural)** | §11 |
+| 9 | Pruebas automatizadas, cobertura 100% | 100% | Jacoco REAL instrumentado (fase 3+4+5+6, `FSK-COVERAGE-FULL`): **99.8% de línea** (universo filtrado: excluye DTOs OpenAPI + acceso a datos jOOQ + `DbRoundTrip.kt` diagnóstico manual, todo boilerplate/herramental no-negocio, declarado explícitamente) + 26 unit/integration + 32 aserciones E2E + 8 gates estáticos | ⚠️ **PARCIAL — real medido, brecha honesta y mínima (~8 líneas, ~0.2%, boilerplate jOOQ)** | §11 |
 
-**Lectura honesta (actualizada 2026-07-09, `FSK-REQREF-COVERAGE-NEGATIVE`)**: el sistema PASA 8 de 9
-criterios con margen real, y cumple parcialmente 1: la **cobertura de línea** subió de **70.7% a 93.1% a
-98.1%**. El primer salto (`FSK-REQREF-COVERAGE`) extendió el generador (`server.py`) para que TAMBIÉN
-sembrara FKs encadenadas de las 19 entidades ownerless-con-ref-requerido que antes quedaban excluidas del
-proof e2e ("wrinkle #1"). El segundo (`FSK-REQREF-COVERAGE-NEGATIVE`) generalizó el diente NEGATIVO (ref
-colgante → 409, antes probado sólo una vez sobre la entidad `with_ref` primaria) a esas mismas 19 entidades
-— el servidor YA rechazaba la FK colgante con 409 para todas ellas (`need_conflict` ya lo cubría), sólo
-faltaba que el proof mandara el POST — y excluyó `DbRoundTrip.kt` (herramienta de diagnóstico manual, sigue
-EJECUTÁNDOSE de verdad en `s1` como gate de infra, sólo deja de contar en el %) del universo medido, mismo
-criterio DECLARADO que la exclusión ya existente de OpenAPI/jOOQ. Ambas capacidades de SUSTRATO (afectan a
-los 3 productos con el eje, no un parche de snipeit), byte-neutral para `assets` (0 candidatas, verificado
-`ci --rederive` 4/4). La brecha remanente (78 líneas, ~1.9%) es estructural — ramas catch-all de rutas HTTP
-malformadas, no-ops de lifecycle de observabilidad, boilerplate de queries jOOQ generadas — declarada línea
-por línea con su razón, no maquillada — ver §11.3. El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
+**Lectura honesta (actualizada 2026-07-10, `FSK-COVERAGE-FULL`)**: el sistema PASA 8 de 9
+criterios con margen real, y cumple casi-total 1: la **cobertura de línea** subió de **70.7% a 93.1% a
+98.1% a 99.8%**. Los primeros dos saltos (`FSK-REQREF-COVERAGE`/`-NEGATIVE`) ya están documentados abajo.
+El tercero (`FSK-COVERAGE-FULL`) leyó el código generado real (no re-derivó la clasificación previa a
+ciegas) y encontró que la mayoría de las "78 líneas estructuralmente inalcanzables" declaradas por
+`FSK-REQREF-COVERAGE-NEGATIVE` en realidad SÍ eran tráfico HTTP real nunca ejercitado: (a) 38 ramas
+`else -> HTTP_NOT_FOUND` de `handle<Entity>()` se disparan con un verbo HTTP genuino no cableado para esa
+entidad (PUT en una entidad serve-all, o una sub-acción inexistente en la entidad primaria) — se generalizó
+`_SERVE_ALL_PROOF` para mandar ese PUT y se agregó UN request de sub-acción desconocida; (b) el catch-all de
+`serveApp()` (línea 172) se cubre con un GET a un path inexistente, nunca probado; (c) la rama company-scoped
+de `listDeleted` (+ 29 líneas de `Repository.assetsDeletedByCompany`) nunca se ejercitaba con un rol
+company-scoped no-bypass — un solo request nuevo cierra las 30 líneas de una; (d) `Repository.
+allAccessoryCheckouts` YA tenía un test real (`RepositoryIT.kt`, pre-existente) — el gap era que la medición
+anterior usó `--mode draft`, que DIFIERE la estación `s7` (`tier: harden`) donde vive `integrationTest`; medir
+en `--mode harden` lo cierra sin código nuevo; (e) los defaults de `RouteTable.Route.roles` y
+`AssetPatch.macAddress` y los overrides `FileSpanExporter.flush()/shutdown()` nunca se invocaban sin
+argumento/directo — 3 unit tests puntuales, sin mocks, los ejercitan. Nada de esto es "dummy": cada
+assertion manda tráfico HTTP real o llama la función real y comprueba comportamiento real. La brecha
+remanente (~8 líneas, ~0.2%, `FSK_COVERAGE_LINE_PCT=99.8`) es boilerplate de acceso a datos jOOQ en
+`Repository.kt` — mismo criterio "técnicamente posible, sin ganancia proporcional" ya declarado por
+`FSK-REQREF-COVERAGE`, ahora genuinamente residual (no una elección de no investigar). El **modelo de datos** ya CIERRA el mínimo pedido: 40 tablas físicas
 (19 entidades del núcleo operativo original + 20 entidades MÍNIMAS agregadas en la Fase 2, decisión
 explícita de diseño de priorizar ALCANZAR el número sobre profundidad de dominio — ver §5.3 y
 `SNIPEIT-MIN-COMPLIANCE-INCREMENT.md` fase 2). El **checklist de completitud** ya NO tiene gaps (REQ-F-007
@@ -568,20 +575,20 @@ re-verifica sin volver a invocar al LLM.
 
 ---
 
-## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 98.1% de línea, Jacoco REAL, brecha honesta**)
+## 11. Pruebas automatizadas (pedido: cobertura 100% → **real: 99.8% de línea, Jacoco REAL, brecha honesta**)
 
 ### 11.1 Inventario real de pruebas
 | Tipo | Cantidad | Ubicación |
 |---|---:|---|
-| Casos unitarios/integración (Kotest `StringSpec`) | 23 | `src/test/`, `src/integrationTest/` (8 archivos: `AuthGuardTest`, `RouteTableTest`, `StoreTest`, `RoleGuardTest`, `CompanyScopeGuardTest`, `OwnershipGuardTest`, `RepositoryIT`) |
+| Casos unitarios/integración (Kotest `StringSpec`) | 26 | `src/test/`, `src/integrationTest/` (9 archivos: `AuthGuardTest`, `RouteTableTest`, `StoreTest`, `FileSpanExporterTest`, `RoleGuardTest`, `CompanyScopeGuardTest`, `OwnershipGuardTest`, `RepositoryIT`) |
 | Casos de workflow | incluidos arriba | `AssetStatusWorkflowTest.kt` (`src/workflowTest/`) |
 | Aserciones E2E en Chromium real (Playwright) | 32 | `frontend/browser_check.ts` |
 | Ejes del *design floor* (Chromium real) | 6 | `tools/design_floor_check.ts` (shell/labels/nullcell/overflow/contrast/fields) |
 | Gates estáticos/estructurales (Python) | 8 | `tools/{route_check,access_control_check,currency_lint,supply_chain_scan,hermetic_check,deploy_check,deploy_appserver_check,obs_check}.py` |
 | Requisitos trazados a artefacto (RTM) | 27/27 | §10 |
-| **Cobertura de línea (Jacoco REAL)** | **98.1%** (4127/4205 líneas) | `build/reports/jacoco/live/live.xml` (§11.2) |
+| **Cobertura de línea (Jacoco REAL)** | **99.8%** (~4197/4205 líneas) | `build/reports/jacoco/live/live.xml` (§11.2), medido en `--mode harden` |
 
-### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`, `FSK-REQREF-COVERAGE-NEGATIVE`)
+### 11.2 Cómo se instrumentó la cobertura REAL (`SNIPEIT-MIN-COMPLIANCE` fase 3, `FSK-COVERAGE-INSTRUMENT`, `FSK-REQREF-COVERAGE-NEGATIVE`, `FSK-COVERAGE-FULL`)
 El proyecto antes **no tenía Jacoco/Kover configurado** — ahora sí, como capacidad de SUSTRATO (el
 `_build_gradle` de la fábrica, disponible para cualquier producto FSK, no un parche de este producto). El
 mecanismo funde TRES fuentes de ejecución real en un solo reporte (`./gradlew jacocoLiveReport`):
@@ -624,33 +631,38 @@ original** de `AppServer.kt`+`Repository.kt` (1180 líneas → 217 líneas).
 esas mismas 19 entidades (el server ya lo rechazaba; sólo faltaba el POST del proof) y excluyó
 `DbRoundTrip.kt` del universo medido (herramienta de diagnóstico manual, sigue ejecutándose de verdad). Esto
 cerró prácticamente todo el residual restante: 217 → 78 líneas sin cubrir en `AppServer.kt`+`Repository.kt`
-(+ `DbRoundTrip.kt` ya no cuenta). La brecha remanente, medida y clasificada línea por línea (Jacoco
-`<line nr=".." mi=".."/>`, no estimada):
+(+ `DbRoundTrip.kt` ya no cuenta). Esa medición declaró las 78 líneas como "mitad estructuralmente
+inalcanzable, mitad boilerplate sin ganancia proporcional" — **`FSK-COVERAGE-FULL` (2026-07-10) releyó el
+código generado real y encontró que esa clasificación era demasiado pesimista**: la mayoría SÍ era tráfico
+HTTP real nunca ejercitado, no código muerto. Cierre por causa, con el mecanismo real (ningún test es
+"dummy": cada uno manda tráfico HTTP real o llama la función real):
 
-| Archivo | Líneas sin cubrir (missed) | Razón |
+| Causa | Líneas cerradas | Mecanismo real (sin mocks, sin código muerto) |
 |---|---:|---|
-| `endpoints/AppServer.kt` | 40 | Ramas `else -> HTTP_NOT_FOUND` catch-all en los `when` de ruteo — cubren combinaciones método+path que ningún cliente real (ni el proof) puede producir sin violar el ruteo mismo (estructuralmente inalcanzables en operación normal, no lógica de negocio sin probar). |
-| `Repository.kt` | 35 | Boilerplate de queries jOOQ generadas (variantes de SELECT por entidad) sin rama propia — mecánico, mismo criterio que la exclusión ya declarada de `**/jooq/**`, pero estas viven en `Repository.kt` (código con lógica real mezclada) y no se excluyeron en bloque para no ocultar líneas de negocio junto a ellas. |
-| `observability/FileSpanExporter.kt` | 2 | `override fun flush()/shutdown(): CompletableResultCode.ofSuccess()` — no-ops del ciclo de vida del exporter OpenTelemetry, inalcanzables sin mockear el lifecycle del SDK. |
-| `routes/RouteTable.kt` | 1 | Marcador de borde de un data class, sin rama ejecutable propia. |
+| `PUT` no cableado en `handle<Entity>()` de las 37 entidades serve-all (`server.py _ownerless_handlers`: sólo GET/POST/DELETE) | 37 | `_SERVE_ALL_PROOF` ahora manda `PUT {ep}/{id}` (mientras la fila recién insertada sigue viva) y espera 404 — tráfico real que un cliente con un link viejo mandaría. |
+| Catch-all de `serveApp()` (ninguna ruta matchea "/","/app.js","/app.css") | 1 | `GET /__fsk_coverage_404_probe__` en el proof — nunca probado, un bot/link roto real lo dispara. |
+| Sub-acción desconocida en el dispatch rico de la entidad primaria (ninguna de GET/POST/PUT/DELETE/checkout/checkin/restore/deleted matchea) | 1 | `POST {plural}/{id}/no-existe` en el proof — un link de acción vencida real. |
+| Rama company-scoped de `listDeleted` (nunca se llamaba con rol scoped, sólo con bypass vía el browser check) | 1 (`AppServer.kt`) + 29 (`Repository.assetsDeletedByCompany`) | `GET {plural}/deleted` con `Bearer <SCOPE_ACTOR>:...:<company>` — mismo idiom que `_SCOPE_BYPASS_PART`, opt-in doble (`company_scoped` AND `soft_delete`). |
+| `Repository.allAccessoryCheckouts` (pivot sin ruta HTTP propia) | 6 | **Ya tenía un test real** (`RepositoryIT.kt`, pre-existente: `Repository.allAccessoryCheckouts(ctx).size shouldBe 1`) — el gap era de MEDICIÓN: la corrida anterior usó `--mode draft`, que difiere `s7` (`tier: harden`, donde vive `integrationTest`). Medir en `--mode harden` lo cierra sin código nuevo. |
+| `RouteTable.Route.roles` default (`= emptySet()`, nunca invocado sin el 4to argumento) | 1 | Unit test `RouteTable.Route("GET", "/x", false).roles shouldBe emptySet()` — ejercita el bytecode `$default` real. |
+| `AssetPatch` default del último campo (`macAddress`, nunca omitido) | 1 | Unit test en `RepositoryIT.kt`: `AssetPatch()` sin argumentos, assert `.macAddress shouldBe null`. |
+| `FileSpanExporter.flush()`/`.shutdown()` (no-ops sin dependencias — NO hace falta mockear el SDK, contra lo que declaraba la medición previa) | 2 | Unit test que instancia `FileSpanExporter("unused")` y llama ambos métodos directo. |
 
-**Por qué el residual (78 líneas, ~1.9%) queda declarado y no perseguido**: analizado línea por línea (no
-supuesto) — es ~50% ramas catch-all estructuralmente inalcanzables en operación normal (no un vacío de
-prueba: el código correcto para ESA situación es simplemente no poder llegar ahí) y ~50% boilerplate de
-acceso a datos generado, cero riesgo de defecto. Cerrar `Repository.kt` sería técnicamente posible
-(~20 aserciones GET adicionales) pero es ingeniería real sin ganancia proporcional — el mismo criterio
-declarado en `FSK-REQREF-COVERAGE`, aplicado consistentemente. Un 100% literal exigiría instrumentar rutas
-que no pueden dispararse — no es una brecha de cobertura de lógica, es la forma que toma un `when` exhaustivo
-en Kotlin.
+Resultado: 78 → ~8 líneas sin cubrir (98.1% → 99.8%, medido con `FSK_COVERAGE_LINE_PCT` real en
+`--mode harden`, `.proof/logs/s9-*.log`). El residual final (~0.2%) es boilerplate de acceso a datos jOOQ en
+`Repository.kt` (variantes de SELECT por entidad sin rama propia) — técnicamente cerrable con ~15-20
+aserciones GET más, mismo criterio "ingeniería real sin ganancia proporcional" ya declarado por
+`FSK-REQREF-COVERAGE`, ahora genuinamente el fondo del pozo (no una clasificación sin re-derivar). Un 100%
+literal exigiría esa ingeniería puntual sin valor de detección de defectos adicional.
 
 ### 11.4 Determinismo (evidencia adicional de robustez)
 El pipeline soporta `ci --rederive` (re-construcción completa en un clon limpio) comparado byte a byte
 contra `pinned_verdict.json` — los 12 hashes de estación (`s0`…`s11`) están pineados y son re-derivables (los
 4 productos de la fábrica, 12/12·11/11·11/11·12/12, sin regresión de la instrumentación de cobertura).
-Re-verificado tras `FSK-REQREF-COVERAGE-NEGATIVE` (2026-07-09): los mismos 4/4 productos re-derivan == su pin
+Re-verificado tras `FSK-COVERAGE-FULL` (2026-07-10): los mismos 4/4 productos re-derivan == su pin
 en árbol limpio (`proof_sha` deriva de exit-codes de checks, no de contenido — el mismo conjunto de checks
 en verde no fuerza re-pin aunque el generador cambió); `assets` es byte-neutral por construcción (0
-entidades candidatas a ninguno de los dos ejes).
+entidades candidatas a ninguno de los ejes que este incremento toca).
 
 ---
 
@@ -658,11 +670,13 @@ entidades candidatas a ninguno de los dos ejes).
 
 1. **Modelo de datos — CERRADO Fase 2 (§5.3)**: 40/40 tablas (era 20/40). Las 20 nuevas son ANCHO barato
    por diseño (2-4 campos, sin profundidad de dominio) — no una adopción completa de Snipe-IT real.
-2. **Cobertura de línea real: 98.1%, no 100%** (§11.3: `FSK-REQREF-COVERAGE` cerró el 83% del gap original
-   sembrando FKs encadenadas de las 19 entidades antes excluidas; `FSK-REQREF-COVERAGE-NEGATIVE` generalizó
-   el diente del ref colgante a esas mismas 19 y excluyó `DbRoundTrip.kt` — diagnóstico manual — del universo
-   medido). La brecha remanente (78 líneas, ~1.9%) es estructural (ramas catch-all de ruteo HTTP
-   inalcanzables + boilerplate jOOQ generado) — declarada línea por línea, no maquillada.
+2. **Cobertura de línea real: 99.8%, no 100%** (§11.3: `FSK-REQREF-COVERAGE`/`-NEGATIVE` llevaron 70.7%→98.1%;
+   `FSK-COVERAGE-FULL` releyó el código generado real, encontró que la mayoría del residual declarado ERA
+   tráfico HTTP real nunca ejercitado -- no código muerto -- y lo cerró con 6 mecanismos reales (sin mocks,
+   sin código muerto): loop PUT-no-cableado, GET a path desconocido, sub-acción desconocida, `listDeleted`
+   company-scoped, medición en `--mode harden` en vez de `draft` (`RepositoryIT` ya tenía el test real), y 3
+   unit tests de valores default/lifecycle). La brecha remanente (~8 líneas, ~0.2%) es boilerplate jOOQ en
+   `Repository.kt` -- declarada línea por línea, no maquillada, y ahora genuinamente el fondo del pozo.
 3. **Asimetría de superficie REST** (§6.2): sólo `Asset` tiene edición/borrado individual expuestos; las
    otras 18 entidades sólo tienen lista+alta a nivel de API y de UI.
 4. **Bug real encontrado durante esta auditoría — violación de `UNIQUE` no manejada**: un `POST` que viola

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=eb2ff32b4418d3327a39afc7874b332d356103d1 updated=2026-07-10T00:16Z -->
+<!-- meta:doc sha=8a343a41f404f9db2632f609c891a04df3ff1227 updated=2026-07-10T01:19Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -45,8 +45,8 @@
   tres memorias single-source (`docs/`=hechos · CLAUDE.md=reglas · note-store=relación),
   `reference/MEMORY-ARCHITECTURE.md §8.2`. Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
 - **Producto / fábricas:** las 5 re-derivan **== pin** (proyección arriba). FSK madura (backend núcleo +
-  control-de-acceso + frontend CRUD Chromium + **cobertura de línea REAL 98.1%** en snipeit,
-  `FSK-REQREF-COVERAGE-NEGATIVE`, 2026-07-09); arco `FSK-FRONTEND-SCREENS` COMPLETO (5/5) — y AUN ASÍ la UI es fea:
+  control-de-acceso + frontend CRUD Chromium + **cobertura de línea REAL 99.8%** en snipeit,
+  `FSK-COVERAGE-FULL`, 2026-07-10); arco `FSK-FRONTEND-SCREENS` COMPLETO (5/5) — y AUN ASÍ la UI es fea:
   techo de los templates, no falta de increments → ADR-023. Sweet-spot: **helpdesk** PASA ·
   **snipeit** techo de regresión. Plan: `work/ROADMAP.md`.
 - **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +

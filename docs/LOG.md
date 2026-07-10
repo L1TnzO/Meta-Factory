@@ -1,7 +1,32 @@
-<!-- meta:doc sha=83eb6b79c238d3735112fcf51cbc82570d339758 updated=2026-07-10T00:17Z -->
+<!-- meta:doc sha=dbf8e798795ca89c218bf88eda22e2f50fe3298f updated=2026-07-10T01:20Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-10T01:2xZ — FSK-COVERAGE-FULL ✅: cobertura de línea REAL de snipeit 98.1%→99.8% — la clasificación previa de "inalcanzable" era demasiado pesimista
+El ingeniero pidió "hacer dummies para ver si es posible llegar al 100%". Dado el precedente directo (esta
+misma línea de trabajo ya rechazó un pedido de "maquillar" el número por fraude, sesión anterior), se aclaró
+el encuadre antes de tocar código: el ingeniero confirmó que quería una investigación honesta, no relleno.
+Releyendo el código Kotlin generado real (no re-derivando la clasificación previa a ciegas), se encontró que
+68 de las 78 líneas que `FSK-REQREF-COVERAGE-NEGATIVE` había declarado "estructuralmente inalcanzables/sin
+ganancia proporcional" en realidad eran tráfico HTTP real nunca ejercitado por el proof — no código muerto:
+un verbo PUT genuinamente no cableado en 37 entidades serve-all, un catch-all de rutas nunca probado con un
+path desconocido, una sub-acción inexistente en el dispatch primario, una rama company-scoped de
+`listDeleted` que sólo se llamaba con rol bypass, y un test de integración (`RepositoryIT.kt`) que YA existía
+pero cuya estación (`s7`, `tier: harden`) la medición anterior había diferido midiendo en `--mode draft` en
+vez de `--mode harden`. 6 mecanismos reales (cero mocks, cero tests fabricados) + 3 unit tests puntuales para
+los defaults/overrides genuinamente nunca invocados (`RouteTable.Route.roles`, `AssetPatch.macAddress`,
+`FileSpanExporter.flush()/shutdown()`) llevaron la cobertura de 98.1% a **99.8%** (`FSK_COVERAGE_LINE_PCT`
+real, `product-run --mode harden` 2 corridas verdes end-to-end). `ci --rederive --all-products` **4/4 ==
+pin** (sin re-pin) · `meta check` **19/19**. El residual final (~8 líneas, ~0.2%) es boilerplate jOOQ en
+`Repository.kt` — mismo criterio "ingeniería real sin ganancia proporcional" ya declarado antes, ahora
+genuinamente el fondo del pozo. NO llega a 100% literal — el residuo queda declarado, no maquillado.
+Gotcha repetido de esta sesión: lanzar `ci --rederive --all-products` en background mientras se seguía
+trabajando disparó la misma carrera ya conocida con `stop_proof` (turn-close leyendo `build/product` a
+mitad de escritura) — resuelto esperando la notificación real de fin del proceso de fondo, no reintentando
+a ciegas. Detalle completo: `factories/full-stack-kotlin/docs/LOG.md` +
+`factories/full-stack-kotlin/docs/work/FSK-COVERAGE-FULL-INCREMENT.md` + `factories/full-stack-kotlin/
+products/snipeit/docs/reference/SNIPEIT-SPEC.md §11`.
 
 ## 2026-07-09T23:5xZ — FSK-REQREF-COVERAGE-NEGATIVE ✅: cobertura de línea REAL de snipeit 93.1%→98.1%, cierra el residual declarado
 Cierra el residual que `FSK-REQREF-COVERAGE` (abajo) dejó declarado, con 2 cambios quirúrgicos, sin Kotlin

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `8c12a24c9f71` | 2026-07-11T00:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `65770089d506` | 2026-07-11T00:44Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `c2cb64281cfe` | 2026-07-11T00:56Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -45,8 +45,8 @@
 | `docs/reference/GOVERNANCE-LAYERING.md` | `cd6b54876f2d` | 2026-07-04T20:10Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `cb5a18b7d775` | 2026-07-10T16:35Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
-| `docs/reference/MEMORY-ARCHITECTURE.md` | `e4710a7ed424` | 2026-07-11T00:30Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
-| `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
+| `docs/reference/MEMORY-ARCHITECTURE.md` | `68df5d2e1287` | 2026-07-11T00:56Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
+| `docs/reference/OBSERVABILITY-METRICS.md` | `73c1b7c2fe48` | 2026-07-11T03:20Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
 | `docs/reference/PRIMITIVES.md` | `72c9098c09ff` | 2026-07-04T20:10Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
 | `docs/reference/REGEN-AUDIT.md` | `cfe7c70b287e` | 2026-07-04T20:10Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
@@ -89,6 +89,7 @@
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
 | `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `24b02cf89620` | 2026-07-11T00:44Z | Incremento DOC-CLEANUP-DIRECTION |
+| `docs/work/DOC-GRAPH-LIVENESS-INCREMENT.md` | `29ab1ca997ad` | 2026-07-11T03:20Z | Incremento DOC-GRAPH-LIVENESS |
 | `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `a0bbdd27a346` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
@@ -123,7 +124,7 @@
 | `docs/work/MAT-6-RE-AUDIT-INCREMENT.md` | `9e207fdf0b0d` | 2026-06-18T00:03Z | Incremento MAT-6-RE-AUDIT |
 | `docs/work/MAT-6B-MULTITOPO-GROUNDING-INCREMENT.md` | `76204cd81424` | 2026-06-18T01:10Z | Incremento MAT-6B-MULTITOPO-GROUNDING |
 | `docs/work/MAT-7-IOT-GO-INCREMENT.md` | `8168435739cb` | 2026-06-18T01:47Z | Incremento MAT-7-IOT-GO |
-| `docs/work/MATURITY-PLAN.md` | `f7c5464aca64` | 2026-06-18T01:46Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
+| `docs/work/MATURITY-PLAN.md` | `9859ec06aa27` | 2026-07-11T00:56Z | MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting |
 | `docs/work/MEM-FIDELITY-GATE-INCREMENT.md` | `f46856283660` | 2026-06-26T20:13Z | Incremento MEM-FIDELITY-GATE |
 | `docs/work/MEM-INSTRUMENT-INCREMENT.md` | `84d1a6815db9` | 2026-06-26T20:01Z | Incremento MEM-INSTRUMENT |
 | `docs/work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md` | `435e54aa99ba` | 2026-06-26T21:24Z | Incremento MEM-PRECOMPACT-SNAPSHOT |

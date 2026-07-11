@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e4710a7ed42428b533d07ebd5bbaf921e9c9d7a4 updated=2026-07-11T00:30Z -->
+<!-- meta:doc sha=68df5d2e128723d893e428adbca5622f31b8955a updated=2026-07-11T00:56Z -->
 # Arquitectura de memoria — el subsistema más crítico de una fábrica
 
 | Campo | Valor |
@@ -213,14 +213,15 @@ mantenida a mano.* Es la extensión de la frase de ASF "STATE APUNTA; la verdad 
 Corolario: un resumen de ADRs en un doc de reference debe ser **generado** desde `decisions/`, o no
 existir — un resumen a mano es deuda de drift.
 
-**Ejemplo vivo (2026-06-13, ver LOG)**: durante el propio diseño, `START-HERE.md` —cuya tabla de
-docs es un resumen a mano— quedó sin listar dos docs recién creados, y solo se cazó cuando el
-ingeniero preguntó "¿está todo documentado?". G-M1 y esta costura, observados EN VIVO por el agente
-de diseño antes de que exista código. Conclusión operativa: el índice debe ser una **vista generada**
-(del filesystem / frontmatter) **o** estar cubierto por un **check de consistencia determinista en
-`meta check`** (gratis, file-IO): todo doc indexado, STATE no más viejo que el último cambio bajo
-`docs/`, cero punteros colgados. Es la sombra determinista de "mantener los docs consistentes".
-(Cierre del ejemplo: `START-HERE.md` se eliminó el 2026-07-11 —incremento `DOC-PRUNE-STARTHERE`—
+**Ejemplo vivo (2026-06-13, ver LOG)**: durante el propio diseño, el entry-doc manual de entonces
+(*START-HERE.md*, ya eliminado — ver cierre del ejemplo) —cuya tabla de docs es un resumen a mano—
+quedó sin listar dos docs recién creados, y solo se cazó cuando el ingeniero preguntó "¿está todo
+documentado?". G-M1 y esta costura, observados EN VIVO por el agente de diseño antes de que exista
+código. Conclusión operativa: el índice debe ser una **vista generada** (del filesystem / frontmatter)
+**o** estar cubierto por un **check de consistencia determinista en `meta check`** (gratis, file-IO):
+todo doc indexado, STATE no más viejo que el último cambio bajo `docs/`, cero punteros colgados. Es la
+sombra determinista de "mantener los docs consistentes".
+(Cierre del ejemplo: *START-HERE.md* se eliminó el 2026-07-11 —incremento `DOC-PRUNE-STARTHERE`—
 precisamente por este drift, ya materializado: afirmaba 9 ADRs cuando había 25. Su rol lo tomó el
 `INDEX.md` generado.)
 Implementación concreta: el manifiesto content-addressed con sello in-band (§9, ADR-009).

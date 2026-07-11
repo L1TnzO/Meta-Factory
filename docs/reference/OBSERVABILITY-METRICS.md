@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5d1f87048737546706e5a93a309d47c0a52b6dd7 updated=2026-06-13T14:57Z -->
+<!-- meta:doc sha=73c1b7c2fe48ac6977a57c58ae801142ee1e3d3e updated=2026-07-11T03:20Z -->
 # Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo)
 
 | Campo | Valor |
@@ -113,7 +113,8 @@ Así "costos" deja de ser una incógnita: es una columna del veredicto.
 
 - **¿Versionar rollups o todo gitignored?** Propuesta: `metrics.jsonl` efímero (gitignored); un
   rollup curado por incremento (p.ej. costo total del incremento) puede ir a `work/` o a un
-  `metrics/SUMMARY.md` versionado — así el costo histórico sobrevive sin churn del stream crudo.
+  `metrics/SUMMARY` versionado (doc propuesto, no creado — decisión abierta) — así el costo
+  histórico sobrevive sin churn del stream crudo.
 - **¿Umbrales que alerten (WARN/BLOCK) o puro display?** Propuesta inicial: **puro display**
   (observador, como el contador de delegaciones). Forzar con BLOCK repite el error del teatro
   (ADR-023). Si una métrica merece gate (p.ej. costo por estación > X), se decide explícito, después

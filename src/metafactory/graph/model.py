@@ -27,6 +27,7 @@ class NodeKind(str, Enum):
     PROOF = "Proof"
     ARTIFACT = "Artifact"
     DECISION = "Decision"   # an ADR
+    DOC = "Doc"              # a docs/**.md (or CLAUDE.md) node (ADR-026 F1, DOC-GRAPH-LIVENESS)
 
 
 class EdgeKind(str, Enum):
@@ -39,6 +40,8 @@ class EdgeKind(str, Enum):
     GOVERNS = "GOVERNS"         # Decision(ADR) -> File
     SUPERSEDES = "SUPERSEDES"   # Decision -> Decision (reserved; ingested when declared)
     GENERATES = "GENERATES"     # Station -> Artifact (reserved; the generate slot)
+    CITES = "CITES"             # Doc -> Doc (a doc references another doc; robust ID matching)
+    EVIDENCES = "EVIDENCES"     # Doc -> File/Artifact (a doc references a concrete non-doc artifact; best-effort)
 
 
 def content_hash(payload: object) -> str:

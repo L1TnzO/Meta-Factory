@@ -158,6 +158,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.quality_gate", str(root)]},  # grafo (tamaño/acoplamiento), dogfood dos-lados
         {"name": "pbt", "kind": "command",               # ADR-017 (Fase 2): property-based gate sobre el grafo,
          "cmd": [py, "-m", "metafactory.verify.checks.pbt_gate", str(root)]},      # dos-lados (sabotage debe morder)
+        {"name": "evidence_liveness", "kind": "command",  # ADR-026 (F1, DOC-GRAPH-LIVENESS): las referencias
+         "cmd": [py, "-m", "metafactory.verify.checks.evidence_liveness", str(root)]},  # de un doc VIVO resuelven, dos-lados
         {"name": "security", "kind": "command",          # ADR-017 (Fase 3): scan de secretos heredable, dos-lados
          "cmd": [py, "-m", "metafactory.verify.checks.security_scan", str(root)]},
         {"name": "deferred", "kind": "command",          # ADR-017 (Fase 4): declared-deferred con dientes +
@@ -926,6 +928,24 @@ def cmd_doc_slice(args) -> int:
     return 0
 
 
+def cmd_doc_orphans(args) -> int:
+    """Non-gating observer (ADR-026 F1): prints Doc nodes unreachable from live roots, oldest-first, as
+    archive CANDIDATES for the human-owned F3 DRIFT-AUDIT — never a red exit."""
+    root = _meta_root()
+    from .graph.model import Graph
+    from .graph.doc_graph import ingest_docs, ingest_doc_edges, orphan_docs
+    graph = Graph()
+    ingest_docs(graph, root)
+    ingest_doc_edges(graph, root)
+    orphans = orphan_docs(graph, root)
+    print(f"VEREDICTO  doc orphans — {len(orphans)} candidato(s)   (exit 0)")
+    for o in orphans:
+        print(f"  {o['relpath']}  (last_edit={o['last_edit'] or '?'})")
+    print("RESUMEN    no reachable desde live roots (STATE/CLAUDE.md/incrementos ABIERTOS) vía CITES —"
+          " candidatos a archive (F4), no rojos")
+    return 0
+
+
 def cmd_jdk_run(args) -> int:
     """`meta jdk-run [--root DIR] [--label L] -- <cmd...>` (B11 / CONTEXT-LEAN-TEETH fase 5): collapse the
     measured 2-step sequence `eval "$(bash tools/toolchain.sh ensure)" && <verbose gradle/npm cmd>`
@@ -1043,6 +1063,7 @@ def build_parser() -> argparse.ArgumentParser:
     dp = sub.add_parser("doc"); dsub = dp.add_subparsers(dest="doc_cmd", required=True)
     ds = dsub.add_parser("slice"); ds.add_argument("doc"); ds.add_argument("selector", nargs="?", default=None)
     ds.add_argument("--abstract", action="store_true"); ds.set_defaults(func=cmd_doc_slice)
+    do = dsub.add_parser("orphans"); do.set_defaults(func=cmd_doc_orphans)  # ADR-026 F1: non-gating observer
     jr = sub.add_parser("jdk-run"); jr.add_argument("--root", default=None); jr.add_argument("--label", default=None)
     jr.add_argument("cmd", nargs=argparse.REMAINDER); jr.set_defaults(func=cmd_jdk_run)
     bp = sub.add_parser("billing"); bp.add_argument("ledger", nargs="?", default=None); bp.set_defaults(func=cmd_billing)

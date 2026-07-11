@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f7c5464aca64cfe0b93b6463f5c39e2f3f97f8d7 updated=2026-06-18T01:46Z -->
+<!-- meta:doc sha=9859ec06aa27b337ba554a546aaed5192919adeb updated=2026-07-11T00:56Z -->
 # MATURITY-PLAN — de fábricas que emiten un PROXY a fábricas que emiten BUENOS productos, sin overfitting
 
 > tipo: work (plan vivo, OVERWRITE como ROADMAP) · creado: 2026-06-16 · **AUTOCONTENIDO A PROPÓSITO.**
@@ -101,7 +101,7 @@ De `F1-AUDIT §8` (debilidades de la regenerada) y §12 (qué pide Agent_RE), se
 > `product_env` general[dummy, ASF] → rojo (ambos Python). Hoy el manifiesto real está todo en `prototype`
 > (verde): ningún mecanismo califica como general hasta el 2º toolchain (MAT-1) — eso ES la presión del
 > lockstep. Evidencia: `work/MAT-0-GENERALITY-PARITY-INCREMENT.md`.
-- **Build**: `decisions/014-two-domain-parity.md` — "todo mecanismo nuevo en `src/metafactory/` es compuerta
+- **Build**: `ADR-014` (`decisions/014-paridad-de-dos-dominios.md`) — "todo mecanismo nuevo en `src/metafactory/` es compuerta
   dura: no se promueve sin proof en ≥2 fábricas de dominios radicalmente distintos". Un check
   `generality_parity` (`verify/checks/`) que, dado un mecanismo marcado como sustrato-nuevo, FALLA si sus
   proofs existen para <2 fábricas. Extiende el guard de imports de ADR-012.

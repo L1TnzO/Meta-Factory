@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e30242b36869aa396f9f7c4678c9fd596c866a72 updated=2026-07-11T21:15Z -->
+<!-- meta:doc sha=edcd76a8b52ad5942cca5c553e889a2ab70459f3 updated=2026-07-11T21:51Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -28,8 +28,13 @@
   **`CODEGEN-FREEZE-TOOTH` ✅** (gate `codegen_freeze`: codegen diff without waiver → red; the living
   `verificacion` boundary vs `superficie` requires an ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`):
   substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
-  its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. Next: ASF physical adoption (S2) ·
-  `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025` · LOG.
+  its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. **`EVALUATOR-ROLE` ✅
+  (2026-07-11, `ADR-027`):** 5th canonical role `evaluator` (separate skeptical criteria-driven grader for
+  model-native surfaces; sonnet, read-only tools) inherited ×5 factories (`roles` 30 agents) + gate
+  `design_eval` (23rd: criteria-as-DATA + PINNED critiques, template-witness must FAIL ≥1 axis; 0-model —
+  evaluator cost stays at generation time; real two-sided proof deferred to `FSK-EVALUATOR-ADOPT`, next).
+  Next: `FSK-EVALUATOR-ADOPT` · ASF physical adoption (S2) ·
+  `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025`·`027` · LOG.
 - **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** LIVE = meta+FSK+iot · ASF+full-stack-TS
   REGRESSION-FROZEN · dummy = fixture; all external judges in-tree ✅; sole residual D-2 demoted (trigger:
   first waiver re-editing embedded content). Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.

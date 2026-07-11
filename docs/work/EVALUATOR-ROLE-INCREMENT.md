@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4d97e862fe8d93e22710c051f03289b254e26637 updated=2026-07-11T21:16Z -->
+<!-- meta:doc sha=448ea45ad2394409054655f3916c3338e8925a98 updated=2026-07-11T21:50Z -->
 # Incremento EVALUATOR-ROLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T21:15Z). Cerralo con `meta increment close`
@@ -70,11 +70,32 @@ slot cost, never a CI cost; `design_floor` stays the deterministic post-adoption
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | **ADR-027** (`docs/decisions/027-*.md`, English): role semantics, closed-vocab edit, evaluator-vs-verifier/reviewer, criteria-as-DATA schema, generation-time-vs-CI cost split, Bash-write residual | ⏳ |
-| 2 | **Column stretch (own eyes, one batch):** `agent_roles.py` += `EVALUATOR`; `.claude/agents/evaluator.md`; `delegation_brain.py` injects evaluator; `cli.py` `design_eval` row; `tests/test_role_hygiene.py` updated (vocab + count 24→30) | ⏳ |
-| 3 | **Gate via slot:** brain writes `tests/test_design_eval.py` (the contract/gate) → generator implements `src/metafactory/verify/checks/design_eval.py` (allow_globs = that file; iteration gate = pytest test file; acceptance = full suite) → verdict + footprint re-check | ⏳ |
-| 4 | **Propagation:** m07 ×5 (bounded emit) → factories carry `evaluator.md`; `roles`/`column_parity`/`agent_shadow` green; git diff bounded to `.claude/agents/` (+CLAUDE.md byte-identical) | ⏳ |
-| 5 | **Proof + close:** `meta check` green including `design_eval` (synthetic self-test) — 23 gates; commit I-10; close | ⏳ |
+| 1 | **ADR-027** (`docs/decisions/027-*.md`, English): role semantics, closed-vocab edit, evaluator-vs-verifier/reviewer, criteria-as-DATA schema, generation-time-vs-CI cost split, Bash-write residual | ✅ 3e21929 |
+| 2 | **Column stretch (own eyes, one batch):** `agent_roles.py` += `EVALUATOR`; `.claude/agents/evaluator.md`; `delegation_brain.py` injects evaluator; `cli.py` `design_eval` row; `tests/test_role_hygiene.py` updated (vocab + count 24→30) | ✅ 89aa941 (cli row rode F3 14c17f5 — see Evidencia) |
+| 3 | **Gate via slot:** brain writes `tests/test_design_eval.py` (the contract/gate) → generator implements `src/metafactory/verify/checks/design_eval.py` (allow_globs = that file; iteration gate = pytest test file; acceptance = full suite) → verdict + footprint re-check | ✅ 14c17f5 |
+| 4 | **Propagation:** m07 ×5 (bounded emit) → factories carry `evaluator.md`; `roles`/`column_parity`/`agent_shadow` green; git diff bounded to `.claude/agents/` (+CLAUDE.md byte-identical) | ✅ 89aa941 (3 CLAUDE.md ride-along — see Evidencia) |
+| 5 | **Proof + close:** `meta check` green including `design_eval` (synthetic self-test) — 23 gates; commit I-10; close | ✅ 23/23 |
+
+## Evidencia (S2 execution, 2026-07-11)
+- **F1** ADR-027 `decisions/027-evaluator-role-subjective-quality.md` (commit 3e21929).
+- **F2+F4** (commit 89aa941): `agent_roles.CANONICAL += evaluator`; meta `evaluator.md` (sonnet, read-only
+  tools); `delegation_brain` injects evaluator (no-op if spec declares own; teeth-free, no Write; injected
+  BEFORE the brain so orchestrator `Agent(...)` gains it ×5). Bounded m07 re-emit ×5 PASS
+  (agent_shadow+command_runs). `roles` gate: **30 agents green**; `column_parity` 5/5; suite 1026 passed.
+  Two declared deviations from plan: (a) 3 stale factory CLAUDE.md (asf/dummy/full-stack) caught up to the
+  current template's ADR-023/024 block — template catch-up ride-along, NOT caused by this change (FSK/iot
+  already carried it); (b) the `cli.py` `design_eval` row moved from F2 to the F3 commit so every
+  intermediate commit stays meta-check-green (the row would have pointed at a not-yet-existing module).
+- **F3** (commit 14c17f5): contract `tests/test_design_eval.py` (18 tests) written by the brain FIRST; slot
+  `design-eval-gate` → generator verdict **green** (`.gen/design-eval-gate.verdict.json`: iteration 18/18,
+  acceptance full suite 1044/1044, acceptance_exit_code 0); footprint clean (git-observed = slot target +
+  declared `baseline_dirty` only; ~52.5k subagent tokens). Brain re-ran the gate itself: exit 0, honest
+  «0 factory/ies opted in» + embedded synthetic negative alive.
+- **F5** `meta check` **23/23 green** including `design_eval` (log `.meta_check/metacheck-2026-07-11T2150Z.log`
+  was 22/23 with only STATE-staleness; fixed by this doc close batch).
+- **Deferred (honest, per Objetivo):** the REAL two-sided proof (frozen template witness scored red /
+  helpdesk v2 critique green) lives in `FSK-EVALUATOR-ADOPT` (factory home, ADR-016), opened next. Until
+  then `design_eval` is green-with-honesty: shape law + embedded synthetic self-test only.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta check` green INCLUDING the new `design_eval` gate (its embedded synthetic negative proves the law

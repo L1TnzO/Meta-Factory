@@ -1,36 +1,36 @@
 #!/usr/bin/env python3
-"""proof_protect (PreToolUse: Write|Edit|MultiEdit|Bash) — Cerrojo 1 de la columna.
-Niega toda escritura del MODELO a `.proof/` (los artefactos de veredicto). Solo el verifier
-(file-IO dentro de `meta station`/`verify`, no una tool call) puede escribir ahí. exit 2 = deny."""
+"""proof_protect (PreToolUse: Write|Edit|MultiEdit|Bash) — Lock 1 of the column.
+Denies every MODEL write to `.proof/` (the verdict artifacts). Only the verifier
+(file-IO inside `meta station`/`verify`, not a tool call) may write there. exit 2 = deny."""
 import json
 import re
 import sys
 
-# Vectores de ESCRITURA a `.proof/`. Denylist inherentemente incompleta (la raíz real es la
-# RE-DERIVACIÓN en clon limpio, donde .proof/ no existe); cubre los conocidos. Cada patrón liga un
-# operador de escritura con un TARGET dentro de `.proof/`, NO con `.proof/` en cualquier parte del
-# comando: así no se dispara con redirecciones de SOLO LECTURA (`2>&1`, `2>/dev/null`) ni con
-# `.proof/` mencionado como argumento de lectura (`ls .proof/`, `cat .proof/x`) o como texto
-# (un mensaje de commit con `.proof/` y flechas `->`). Antes el OR laxo lo volvía sobre-celoso.
-# Operando acotado con `[ \t]`/`[^ \t\n…]` (NO `\s`/`[^|;&]`): el target debe ser un token de la
-# MISMA línea, separado por espacios. Así un verbo de escritura mencionado en PROSA (p.ej. un mensaje
-# de commit multilínea que nombra `cp`/`tee` y, en otra línea, `.proof/`) no "alcanza" ese `.proof/`.
+# WRITE vectors to `.proof/`. Inherently incomplete denylist (the real root of trust is the
+# RE-DERIVATION on a clean clone, where .proof/ does not exist); it covers the known ones. Each pattern
+# binds a write operator to a TARGET inside `.proof/`, NOT to `.proof/` anywhere in the command: so it
+# does not fire on READ-ONLY redirections (`2>&1`, `2>/dev/null`) nor on `.proof/` mentioned as a read
+# argument (`ls .proof/`, `cat .proof/x`) or as text (a commit message with `.proof/` and arrows `->`).
+# Before, the loose OR made it over-zealous.
+# Operand bounded with `[ \t]`/`[^ \t\n…]` (NOT `\s`/`[^|;&]`): the target must be a token on the
+# SAME line, separated by spaces. So a write verb mentioned in PROSE (e.g. a multi-line commit message
+# that names `cp`/`tee` and, on another line, `.proof/`) does not "reach" that `.proof/`.
 _PROOF_WRITE = re.compile(
     r"""(?x)
-    (?: >>? [ \t]* ['"]? [^\s'"|&;<>]* \.proof/ )                       # redirección: > .proof/x , >> dir/.proof/x
-  | (?: \b(?:tee|cp|mv|install|truncate|dd)\b                           # verbos que escriben un arg-archivo...
-        (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )   # ...un arg-target en .proof/
+    (?: >>? [ \t]* ['"]? [^\s'"|&;<>]* \.proof/ )                       # redirection: > .proof/x , >> dir/.proof/x
+  | (?: \b(?:tee|cp|mv|install|truncate|dd)\b                           # verbs that write a file-arg...
+        (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )   # ...a target-arg in .proof/
   | (?: \bsed [ \t]+ -i\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # sed -i ... .proof/x
   | (?: \bln  [ \t]+ -s\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # ln -s ... .proof/x
-  | (?: \bopen \s* \( \s* ['"] [^'"]* \.proof/ )                        # open('.proof/..', …)  (intérprete)
+  | (?: \bopen \s* \( \s* ['"] [^'"]* \.proof/ )                        # open('.proof/..', …)  (interpreter)
     """
 )
 
 
 def bash_writes_to_proof(cmd: str) -> bool:
-    """True si el comando intenta ESCRIBIR en `.proof/` por shell o por intérprete. Las lecturas
-    (incluidas las redirecciones `2>&1`/`2>/dev/null`) y las menciones como argumento o texto no
-    cuentan: la raíz de confianza es la re-derivación, no atrapar toda mención de `.proof/`."""
+    """True if the command tries to WRITE to `.proof/` via shell or interpreter. Reads
+    (including the redirections `2>&1`/`2>/dev/null`) and mentions as argument or text do not
+    count: the root of trust is re-derivation, not catching every mention of `.proof/`."""
     return bool(_PROOF_WRITE.search(cmd))
 
 
@@ -49,10 +49,10 @@ def main() -> int:
     if tool in ("Write", "Edit", "MultiEdit"):
         path = (ti.get("file_path") or ti.get("path") or "").replace("\\", "/")
         if "/.proof/" in path or path.endswith("/.proof") or path.startswith(".proof/"):
-            return deny(f"denegado: {path} es un artefacto de veredicto; solo el verifier escribe ahí (Cerrojo 1)")
+            return deny(f"denied: {path} is a verdict artifact; only the verifier writes there (Lock 1)")
     if tool == "Bash":
         if bash_writes_to_proof(ti.get("command", "")):
-            return deny("denegado: el comando ESCRIBE en .proof/ (Cerrojo 1; la raíz real es la re-derivación)")
+            return deny("denied: the command WRITES to .proof/ (Lock 1; the real root is re-derivation)")
     return 0
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""doc_stamp (PostToolUse: Write|Edit|MultiEdit) — ADR-009. Tras editar un `.md`, re-estampa
-el sello content-addressed (sha del cuerpo) y regenera INDEX.md. Determinista, baratísimo,
-cero modelo. Mantiene el índice como vista GENERADA que no puede driftear. Nunca bloquea."""
+"""doc_stamp (PostToolUse: Write|Edit|MultiEdit) — ADR-009. After editing a `.md`, re-stamps
+the content-addressed seal (sha of the body) and regenerates INDEX.md. Deterministic, dirt-cheap,
+zero model. Keeps the index as a GENERATED view that cannot drift. Never blocks."""
 import json
 import os
 import subprocess

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""mem_rollup (Stop/SessionEnd) — rollup de tokens y costo del transcript a métricas (Tier 0,
-cero modelo, file-IO). Parsea el transcript_path que trae el payload. Best-effort: nunca bloquea
-(exit 0). Es la mitad de 'series' de la memoria de hechos; complementa el journal de eventos."""
+"""mem_rollup (Stop/SessionEnd) — rollup of tokens and cost from the transcript into metrics (Tier 0,
+zero model, file-IO). Parses the transcript_path carried by the payload. Best-effort: never blocks
+(exit 0). It is the 'series' half of the facts memory; complements the events journal."""
 import json
 import sys
 

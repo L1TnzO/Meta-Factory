@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""commit_guard (heredado, PreToolUse: Bash) — Cerrojo 2 de la columna de la fábrica full-stack-kotlin, en el
-borde del commit. Bloquea `git commit` si la estación activa (registrada en `.proof/active.json` por el
-runner) no recompone verde-limpio: recomputa `passed` y `proof_sha` desde el propio proof con
-`gate_recompute_ok` del SEED HEREDADO. Un `passed=true` pegado a mano o un `proof_sha` editado se cae acá.
+"""commit_guard (inherited, PreToolUse: Bash) — Lock 2 of the full-stack-kotlin factory's column, at the
+commit boundary. Blocks `git commit` if the active station (recorded in `.proof/active.json` by the
+runner) does not recompose clean-green: it recomputes `passed` and `proof_sha` from the proof itself
+with `gate_recompute_ok` of the INHERITED SEED. A hand-pasted `passed=true` or an edited `proof_sha`
+falls here.
 
-Self-contained: carga `seed/verifier.py` por path (cero `metafactory.*`), así la fábrica se defiende SOLA
-con su propio trust root. La raíz de la fábrica se deriva de la ubicación del hook (clon-robusto, no del
-cwd ni del path absoluto guardado). Best-effort: ante cualquier duda PERMITE (no brickea el commit; la
-custodia local no es la raíz — el `external_ci` por-fábrica re-deriva en limpio). exit 2 = deny."""
+Self-contained: loads `seed/verifier.py` by path (zero `metafactory.*`), so the factory defends itself
+ALONE with its own trust root. The factory root is derived from the hook's location (clone-robust, not
+from the cwd nor a stored absolute path). Best-effort: on any doubt it PERMITS (does not brick the commit;
+local custody is not the root — the per-factory `external_ci` re-derives on a clean clone). exit 2 = deny."""
 import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/commit_guard.py -> raíz de la fábrica
+_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/commit_guard.py -> factory root
 
 
 def _seed_verifier():
@@ -41,16 +42,16 @@ def main() -> int:
     try:
         v = _seed_verifier()
         station = json.loads(active.read_text(encoding="utf-8"))["station"]
-        proof = v.load_proof(_ROOT, station)          # el proof vive en LA fábrica de este hook
+        proof = v.load_proof(_ROOT, station)          # the proof lives in THIS hook's factory
     except Exception:
-        return 0  # best-effort: no brickear el commit si no podemos decidir
+        return 0  # best-effort: do not brick the commit if we cannot decide
     if proof is None:
         return 0
     ok, why = v.gate_recompute_ok(proof)
     if ok:
         return 0
-    print(f"commit_guard: la estación activa {station} no recompone verde ({why}); "
-          f"no commitees un veredicto corrupto/no probado (Cerrojo 2).", file=sys.stderr)
+    print(f"commit_guard: the active station {station} does not recompose green ({why}); "
+          f"do not commit a corrupt/unproven verdict (Lock 2).", file=sys.stderr)
     return 2
 
 

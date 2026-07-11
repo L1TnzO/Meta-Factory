@@ -1,5 +1,5 @@
-"""Tests de la COLUMNA COMPLETA heredada (D1): los hooks `commit_guard` (Cerrojo 2) y `stop_proof`
-(Cerrojo 3) que una fábrica generada hereda en su `.claude/hooks/`, ejercitados A NIVEL DE PROCESO
+"""Tests de la COLUMNA COMPLETA heredada (D1): los hooks `commit_guard` (Lock 2) y `stop_proof`
+(Lock 3) que una fábrica generada hereda en su `.claude/hooks/`, ejercitados A NIVEL DE PROCESO
 —como los invoca el harness— contra una fábrica armada desde el seed + el template.
 
 La invariante: la fábrica se defiende SOLA con su propio trust root (seed heredado). Un veredicto
@@ -133,14 +133,14 @@ class TestTamperedPassedBlocked:
         self._tamper_passed_true(tmp_path)
         r = _run_hook(tmp_path, "commit_guard.py", _COMMIT_EVENT)
         assert r.returncode == 2, "commit_guard debe bloquear el commit de un passed=true tampereado"
-        assert "Cerrojo 2" in r.stderr
+        assert "Lock 2" in r.stderr
 
     def test_stop_proof_blocks(self, tmp_path):
         _build_factory(tmp_path)
         self._tamper_passed_true(tmp_path)
         r = _run_hook(tmp_path, "stop_proof.py", _STOP_EVENT)
         assert r.returncode == 2, "stop_proof debe bloquear el cierre con la activa tampereada"
-        assert "Cerrojo 3" in r.stderr
+        assert "Lock 3" in r.stderr
 
 
 # ── tamper: proof_sha editado a mano (artefacto manipulado) ───────────────────

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-"""stop_proof (heredado, Stop) — Cerrojo 3 de la columna de la fábrica full-stack. Al CIERRE del turno
-recomputa la estación activa (`.proof/active.json`) con `gate_recompute_ok` del SEED HEREDADO y, si no
-recompone verde-limpio, bloquea el turno (exit 2). Es el C2 forzado en el cierre: la razón del C3 en
-`column.md` ("nada obliga a recomputar al cierre; el turno cierra con un proof rojo intacto" — acá sí se
-fuerza). No se puede "declarar listo" un turno cuya activa quedó tampereada o roja.
+"""stop_proof (inherited, Stop) — Lock 3 of the full-stack factory's column. At turn CLOSE it recomputes
+the active station (`.proof/active.json`) with `gate_recompute_ok` of the INHERITED SEED and, if it does
+not recompose clean-green, blocks the turn (exit 2). It is C2 forced at close: the reason for C3 in
+`column.md` ("nothing forces a recompute at close; the turn closes with an intact red proof" — here it IS
+forced). A turn whose active station was left tampered or red cannot be "declared done".
 
-Por qué recompute y NO re-ejecución: re-correr los argv guardados re-invocaría el toolchain que produjo el
-proof (algunos checks llaman al sustrato), brickeando una sesión interactiva. La re-ejecución que atrapa el
-*artefacto rancio*/producto roto sube al `external_ci` por-fábrica (clon limpio que instala el toolchain),
-como `column.md` coloca el CI externo POR ENCIMA de los tres locks locales. Self-contained (cero
-`metafactory.*`). `stop_hook_active` es la válvula anti-loop. exit 2 = block."""
+Why recompute and NOT re-execution: re-running the stored argv would re-invoke the toolchain that produced
+the proof (some checks call the substrate), bricking an interactive session. The re-execution that catches
+the *stale artifact*/broken product rises to the per-factory `external_ci` (a clean clone that installs the
+toolchain), as `column.md` places the external CI ABOVE the three local locks. Self-contained (zero
+`metafactory.*`). `stop_hook_active` is the anti-loop valve. exit 2 = block."""
 import importlib.util
 import json
 import sys
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/stop_proof.py -> raíz de la fábrica
+_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/stop_proof.py -> factory root
 
 
 def _seed_verifier():
@@ -32,7 +32,7 @@ def main() -> int:
     except Exception:
         data = {}
     if data.get("stop_hook_active"):
-        return 0  # válvula anti-loop
+        return 0  # anti-loop valve
     active = _ROOT / ".proof" / "active.json"
     if not active.exists():
         return 0
@@ -41,14 +41,14 @@ def main() -> int:
         station = json.loads(active.read_text(encoding="utf-8"))["station"]
         proof = v.load_proof(_ROOT, station)
     except Exception:
-        return 0  # best-effort: no atrapar la sesión si no podemos decidir
+        return 0  # best-effort: do not trap the session if we cannot decide
     if proof is None:
         return 0
     ok, why = v.gate_recompute_ok(proof)
     if ok:
         return 0
-    print(f"stop_proof: la estación activa {station} no recompone verde ({why}); "
-          f"el turno no cierra (Cerrojo 3).", file=sys.stderr)
+    print(f"stop_proof: the active station {station} does not recompose green ({why}); "
+          f"the turn does not close (Lock 3).", file=sys.stderr)
     return 2
 
 

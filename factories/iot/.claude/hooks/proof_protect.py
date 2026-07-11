@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
-"""proof_protect (heredado) — Cerrojo 1 de la columna de la fábrica iot. Niega toda
-escritura del modelo a `.proof/` (los veredictos). Self-contained (cero deps). exit 2 = deny."""
+"""proof_protect (inherited) — Lock 1 of the iot factory's column. Denies every
+model write to `.proof/` (the verdicts). Self-contained (zero deps). exit 2 = deny."""
 import json
 import re
 import sys
 
-# Vectores de ESCRITURA a `.proof/` (denylist incompleta; la raíz real es la re-derivación en
-# clon limpio). Cada patrón liga un operador de escritura con un TARGET dentro de `.proof/`, así
-# NO se dispara con redirecciones de solo lectura (`2>&1`, `2>/dev/null`) ni con `.proof/` como
-# argumento de lectura o texto (un mensaje con `.proof/` y flechas `->`).
-# Operando acotado a un token de la MISMA línea ([ \t]/[^ \t\n…], no \s/[^|;&]): un verbo de escritura
-# mencionado en prosa multilínea no "alcanza" un `.proof/` de otra línea (over-block del 1er intento).
+# WRITE vectors to `.proof/` (incomplete denylist; the real root is re-derivation on a clean
+# clone). Each pattern binds a write operator to a TARGET inside `.proof/`, so it does NOT fire on
+# read-only redirections (`2>&1`, `2>/dev/null`) nor on `.proof/` as a read argument or text (a
+# message with `.proof/` and arrows `->`).
+# Operand bounded to a token on the SAME line ([ \t]/[^ \t\n…], not \s/[^|;&]): a write verb mentioned
+# in multi-line prose does not "reach" a `.proof/` on another line (over-block of the 1st attempt).
 _PROOF_WRITE = re.compile(
     r"""(?x)
-    (?: >>? [ \t]* ['"]? [^\s'"|&;<>]* \.proof/ )                       # redirección: > .proof/x , >> dir/.proof/x
-  | (?: \b(?:tee|cp|mv|install|truncate|dd)\b                           # verbos que escriben un arg-archivo...
-        (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )   # ...un arg-target en .proof/
+    (?: >>? [ \t]* ['"]? [^\s'"|&;<>]* \.proof/ )                       # redirection: > .proof/x , >> dir/.proof/x
+  | (?: \b(?:tee|cp|mv|install|truncate|dd)\b                           # verbs that write a file-arg...
+        (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )   # ...a target-arg in .proof/
   | (?: \bsed [ \t]+ -i\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # sed -i ... .proof/x
   | (?: \bln  [ \t]+ -s\S* (?: [ \t]+ [^ \t\n|;&]+ )*? [ \t]+ ['"]? [^ \t\n'"|;&]* \.proof/ )  # ln -s ... .proof/x
-  | (?: \bopen \s* \( \s* ['"] [^'"]* \.proof/ )                        # open('.proof/..', …)  (intérprete)
+  | (?: \bopen \s* \( \s* ['"] [^'"]* \.proof/ )                        # open('.proof/..', …)  (interpreter)
     """
 )
 
 
 def bash_writes_to_proof(cmd: str) -> bool:
-    """True si el comando intenta ESCRIBIR en `.proof/` (no las lecturas ni las menciones)."""
+    """True if the command tries to WRITE to `.proof/` (not reads nor mentions)."""
     return bool(_PROOF_WRITE.search(cmd))
 
 
@@ -43,10 +43,10 @@ def main() -> int:
     if tool in ("Write", "Edit", "MultiEdit"):
         path = (ti.get("file_path") or ti.get("path") or "").replace("\\", "/")
         if "/.proof/" in path or path.endswith("/.proof") or path.startswith(".proof/"):
-            return deny(f"denegado: {path} es un veredicto; solo el verifier escribe ahí (Cerrojo 1)")
+            return deny(f"denied: {path} is a verdict; only the verifier writes there (Lock 1)")
     if tool == "Bash":
         if bash_writes_to_proof(ti.get("command", "")):
-            return deny("denegado: el comando ESCRIBE en .proof/ (Cerrojo 1; la raíz real es la re-derivación)")
+            return deny("denied: the command WRITES to .proof/ (Lock 1; the real root is re-derivation)")
     return 0
 
 

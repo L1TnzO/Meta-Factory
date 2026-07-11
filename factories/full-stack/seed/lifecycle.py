@@ -14,7 +14,8 @@ The edit-gate is LEVEL-AWARE (ADR-016): the level of a file is the MOST SPECIFIC
 product that contains it, and editing it needs the open increment of THAT level's `docs/work/`. The
 resolution is pure path arithmetic — DATA-agnostic, no factory/product slug is hardcoded.
 
-The TRUTH is git (the tree) + docs (the increment, `Estado: **ABIERTO**`); this only READS and
+The TRUTH is git (the tree) + docs (the increment, `Status: **OPEN**` — legacy Spanish grammar
+`Estado: **ABIERTO**` is accepted forever: closed history is immutable, ADR-026); this only READS and
 projects it. It NEVER auto-commits: the debt is surfaced and blocked; the message (with I-10 trailers)
 is written by the model. Outside an increment there is no debt — that frontier is the edit-gate.
 
@@ -27,13 +28,17 @@ import re
 import subprocess
 from pathlib import Path
 
-_OPEN_RE = re.compile(r"Estado:\s*\*\*(ABIERTO|CERRADO)\*\*")
+# Dual-accept grammar (ADR-026): English forward (`Status: **OPEN/CLOSED**`), Spanish accepted
+# forever (`Estado: **ABIERTO/CERRADO**`) — closed work docs are immutable history.
+_OPEN_RE = re.compile(r"(?:Estado|Status):\s*\*\*(ABIERTO|CERRADO|OPEN|CLOSED)\*\*")
+_OPEN_MARKS = {"ABIERTO", "OPEN"}
 
 
 def open_increment_in(workdir: Path) -> str | None:
-    """The filename of the single open increment (`*.md` with `Estado: **ABIERTO**`) inside a given
-    `docs/work/` directory, or None. A level OPENS one by writing such a `.md` (an `.md` is always
-    editable, so this self-bootstraps); CLOSES it by flipping the header to `**CERRADO**`."""
+    """The filename of the single open increment (`*.md` with `Status: **OPEN**`, or the legacy
+    `Estado: **ABIERTO**`) inside a given `docs/work/` directory, or None. A level OPENS one by
+    writing such a `.md` (an `.md` is always editable, so this self-bootstraps); CLOSES it by
+    flipping the header to `**CLOSED**`."""
     workdir = Path(workdir)
     if not workdir.exists():
         return None
@@ -42,13 +47,13 @@ def open_increment_in(workdir: Path) -> str | None:
             m = _OPEN_RE.search(p.read_text(encoding="utf-8"))
         except OSError:
             continue
-        if m and m.group(1) == "ABIERTO":
+        if m and m.group(1) in _OPEN_MARKS:
             return p.name
     return None
 
 
 def open_increment(root: Path) -> str | None:
-    """The META-level open increment (`docs/work/*.md` with `Estado: **ABIERTO**`), or None. The
+    """The META-level open increment (`docs/work/*.md` with an open header), or None. The
     projection/rehydrate banner and the cadence backstop read THIS (meta) level; the level-aware
     edit-gate uses `open_increment_in(level_workdir(...))`."""
     return open_increment_in(Path(root) / "docs" / "work")
@@ -130,7 +135,7 @@ def required_workdir_rel(root: Path, file_path: str) -> str | None:
 
 def _fmt(paths: list[str]) -> str:
     head = ", ".join(paths[:3])
-    return head + (f" (+{len(paths) - 3} más)" if len(paths) > 3 else "")
+    return head + (f" (+{len(paths) - 3} more)" if len(paths) > 3 else "")
 
 
 def debt(root: Path) -> tuple[bool, str]:
@@ -138,8 +143,8 @@ def debt(root: Path) -> tuple[bool, str]:
     increment-close signal and the `meta check` surface."""
     inc = open_increment(root)
     if inc is None:
-        return False, "sin incremento abierto"
+        return False, "no open increment"
     dirty = dirty_code(root)
     if not dirty:
-        return False, f"incremento {inc}: árbol limpio"
-    return True, f"incremento {inc}: código sin commitear — {_fmt(dirty)}"
+        return False, f"increment {inc}: clean tree"
+    return True, f"increment {inc}: un-committed code — {_fmt(dirty)}"

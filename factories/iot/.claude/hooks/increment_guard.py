@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""increment_guard (heredado, PreToolUse: Write|Edit|MultiEdit) — Capa 1 de la disciplina de commit
-(ADR-010) de la fábrica iot: no se codifica fuera de un incremento. Bloquea editar cualquier
-archivo NO-`.md` bajo la fábrica si no hay un incremento abierto (`docs/work/*.md` con `Estado:
-**ABIERTO**`). Un `.md` siempre se permite — es como se ABRE un incremento (auto-bootstrap).
+"""increment_guard (inherited, PreToolUse: Write|Edit|MultiEdit) — Layer 1 of the iot factory's
+commit discipline (ADR-010): no code is written outside an increment. Blocks editing any NON-`.md`
+file under the factory when no increment is open (`docs/work/*.md` with `Status: **OPEN**`). An `.md`
+is always allowed — it is how an increment is OPENED (auto-bootstrap).
 
-Self-contained: la DECISIÓN vive en `seed/lifecycle.py` (la LEY, cargada por path; cero `metafactory.*`),
-la MISMA ley que enforza el Meta-Factory — la fábrica se gobierna SOLA con su propio trust root. La raíz
-se deriva de la ubicación del hook (clon-robusto). Best-effort: ante cualquier duda PERMITE — la cadencia
-es un AID, no una frontera de seguridad (esa es la columna anti-sello). exit 2 = deny."""
+Self-contained: the DECISION lives in `seed/lifecycle.py` (the LAW, loaded by path; zero `metafactory.*`),
+the SAME law the Meta-Factory enforces — the factory governs itself ALONE with its own trust root. The root
+is derived from the hook's location (clone-robust). Best-effort: on any doubt it PERMITS — the cadence
+is an AID, not a security boundary (that is the anti-rubber-stamp column). exit 2 = deny."""
 import importlib.util
 import json
 import sys
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/increment_guard.py -> raíz de la fábrica
+_ROOT = Path(__file__).resolve().parents[2]  # .claude/hooks/increment_guard.py -> factory root
 
 
 def _seed_lifecycle():
@@ -38,9 +38,9 @@ def main() -> int:
         if _seed_lifecycle().edit_allowed(_ROOT, fp):
             return 0
     except Exception:
-        return 0  # best-effort: no bloquear si no podemos decidir
-    print("increment_guard: no se codifica fuera de un incremento (ADR-010). Abrí uno escribiendo "
-          "`docs/work/<SLUG>-INCREMENT.md` con `Estado: **ABIERTO**` (o editá un `.md`).", file=sys.stderr)
+        return 0  # best-effort: do not block if we cannot decide
+    print("increment_guard: no code is written outside an increment (ADR-010). Open one by writing "
+          "`docs/work/<SLUG>-INCREMENT.md` with `Status: **OPEN**` (or edit an `.md`).", file=sys.stderr)
     return 2
 
 

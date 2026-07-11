@@ -182,6 +182,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.plan_gate", str(root)]},  # bien formado, dos-lados (slot sin gate/ciclo/diferido-sin-razón = rojo)
         {"name": "slot_footprint", "kind": "command",       # SOTA-PARITY INC-1 (SLOT-FOOTPRINT-TOOTH): slot acceptance
          "cmd": [py, "-m", "metafactory.verify.checks.slot_footprint", str(root)]},  # deterministic on the git-observed footprint — two-sided + hooks fail-closed witness
+        {"name": "design_eval", "kind": "command",          # ADR-027 (EVALUATOR-ROLE): criteria-as-DATA + PINNED
+         "cmd": [py, "-m", "metafactory.verify.checks.design_eval", str(root)]},  # critiques, 0-model; passing template-witness = decorative evaluator → red
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
          "cmd": [py, "-m", "metafactory.verify.checks.state_snapshot", str(root)]},  # no log (presupuesto + cierre rancio = rojo)
         {"name": "state_fidelity", "kind": "command",      # ADR-019 (§4, M3): «Ahora» no CONTRADICE el RTM

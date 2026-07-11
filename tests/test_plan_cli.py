@@ -59,7 +59,7 @@ def test_next_ready_emits_slot_manifest(monkeypatch, tmp_path, capsys):
     plan.write_plan(tmp_path, {"work_orders": [_wo("a"), _wo("b", deps=["a"])]})
     assert cli.cmd_plan(_args("next")) == 0
     out = capsys.readouterr().out
-    assert "plan next — READY" in out and "próximo slot: a" in out
+    assert "plan next — READY" in out and "next slot: a" in out
     # the emitted JSON block is a loadable slot manifest with both gates
     manifest = json.loads(out.split("--- WorkOrder (slot manifest) ---", 1)[1])
     assert manifest["slot_id"] == "a"

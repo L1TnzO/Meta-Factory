@@ -89,8 +89,8 @@ def load_benchmark(path: Path) -> Benchmark:
     for p in data.get("products") or []:
         exp = p.get("expect")
         if exp not in _EXPECT:
-            raise ValueError(f"benchmark {path}: product {p!r} con expect inválido {exp!r} "
-                             f"(esperado {sorted(_EXPECT)})")
+            raise ValueError(f"benchmark {path}: product {p!r} with invalid expect {exp!r} "
+                             f"(expected {sorted(_EXPECT)})")
         prods.append(ProductRef(factory=p["factory"], product=p["product"], expect=exp))
     return Benchmark(id=str(data.get("id", path.stem)), title=str(data.get("title", "")),
                      target=target, products=prods)
@@ -113,7 +113,7 @@ def measure(meta_root: Path, ref: ProductRef) -> Profile:
     pdir = Path(meta_root) / "factories" / ref.factory / "products" / ref.product
     bp_path, pin_path = pdir / "product.yml", pdir / "pinned_verdict.json"
     if not bp_path.is_file() or not pin_path.is_file():
-        return Profile(found=False, note=f"falta product.yml o pin en products/{ref.product}/")
+        return Profile(found=False, note=f"missing product.yml or pin under products/{ref.product}/")
     bp = yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {}
     pinned = set(json.loads(pin_path.read_text(encoding="utf-8")).keys())
     return Profile(found=True, entity_count=len(bp.get("entities") or []), pinned_stations=pinned)
@@ -124,17 +124,17 @@ def _assess(profile: Profile, target: Target, cap2st: dict[str, set[str]]) -> tu
     (meets, reasons-it-does-not). A cap is satisfied iff EVERY station that satisfies it is pinned green."""
     reasons: list[str] = []
     if not (target.entity_min <= profile.entity_count <= target.entity_max):
-        reasons.append(f"entity_count {profile.entity_count} fuera de [{target.entity_min},{target.entity_max}]")
+        reasons.append(f"entity_count {profile.entity_count} outside [{target.entity_min},{target.entity_max}]")
     for cap in target.required_capabilities:
         stations = cap2st.get(cap)
         if not stations:                                   # the cap isn't declared by the factory at all
             profile.missing_caps.append(cap)
-            reasons.append(f"capability desconocida en la fábrica: {cap}")
+            reasons.append(f"capability unknown to the factory: {cap}")
         elif stations <= profile.pinned_stations:          # every station of the cap is pinned green
             profile.satisfied_caps.add(cap)
         else:
             profile.missing_caps.append(cap)
-            reasons.append(f"capability {cap} sin pin verde (estaciones {sorted(stations - profile.pinned_stations)})")
+            reasons.append(f"capability {cap} has no green pin (stations {sorted(stations - profile.pinned_stations)})")
     return (not reasons), reasons
 
 
@@ -162,17 +162,17 @@ def gate_problems(meta_root: Path, bench: Benchmark) -> list[str]:
     expects = {r.ref.expect for r in results}
     problems: list[str] = []
     if not ({SWEET_SPOT, CEILING} <= expects):
-        problems.append(f"{bench.id}: sin diente de dos lados (falta {sorted({SWEET_SPOT, CEILING} - expects)}); "
-                        f"un target sin techo es decorativo")
+        problems.append(f"{bench.id}: not two-sided (missing {sorted({SWEET_SPOT, CEILING} - expects)}); "
+                        f"a target with no ceiling is decorative")
     for r in results:
         if r.ok:
             continue
         if r.ref.expect == SWEET_SPOT:
-            problems.append(f"{bench.id}: el producto sweet-spot {r.ref.factory}/{r.ref.product} no cumple el "
-                            f"target: {'; '.join(r.reasons) or 'no encontrado'}")
+            problems.append(f"{bench.id}: the sweet-spot product {r.ref.factory}/{r.ref.product} does not meet "
+                            f"the target: {'; '.join(r.reasons) or 'not found'}")
         else:
-            problems.append(f"{bench.id}: el techo {r.ref.factory}/{r.ref.product} PASA el target sweet-spot "
-                            f"({r.profile.entity_count} entidades) → el bound es decorativo")
+            problems.append(f"{bench.id}: the ceiling {r.ref.factory}/{r.ref.product} MEETS the sweet-spot target "
+                            f"({r.profile.entity_count} entities) → the bound is decorative")
     return problems
 
 
@@ -181,9 +181,9 @@ def render(bench: Benchmark, results: list[Result]) -> str:
     nok = sum(1 for r in results if r.ok)
     all_ok = bool(results) and all(r.ok for r in results)
     t = bench.target
-    out = [f"VEREDICTO  benchmark {bench.id} — {'PASS' if all_ok else 'FAIL'}   (exit {0 if all_ok else 1})",
-           f"RESUMEN    {nok}/{len(results)} productos en su clase esperada · target: {t.entity_min}-{t.entity_max} "
-           f"entidades + {len(t.required_capabilities)} capacidades núcleo"]
+    out = [f"VERDICT    benchmark {bench.id} — {'PASS' if all_ok else 'FAIL'}   (exit {0 if all_ok else 1})",
+           f"SUMMARY    {nok}/{len(results)} products in their expected class · target: {t.entity_min}-{t.entity_max} "
+           f"entities + {len(t.required_capabilities)} core capabilities"]
     for r in results:
         verdict = "ok" if r.ok else "MISMATCH"
         cls = "MEETS" if r.meets else "below/over"
@@ -191,7 +191,7 @@ def render(bench: Benchmark, results: list[Result]) -> str:
         if not r.profile.found:
             out.append(head + r.profile.note)
             continue
-        out.append(head + f"{r.profile.entity_count} entidades, {cls} sweet-spot "
+        out.append(head + f"{r.profile.entity_count} entities, {cls} sweet-spot "
                           f"(caps {len(r.profile.satisfied_caps)}/{len(bench.target.required_capabilities)})"
                    + (f" — {'; '.join(r.reasons)}" if r.reasons else ""))
     return "\n".join(out)

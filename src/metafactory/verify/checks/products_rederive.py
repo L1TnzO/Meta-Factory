@@ -40,7 +40,7 @@ def main(argv: list[str]) -> int:
     instances = (sorted(p.name for p in products_dir.iterdir() if (p / "product.yml").is_file())
                  if products_dir.is_dir() else [])
     if not instances:
-        print("N/A: la fábrica no declara instancias de producto (products/<p>/) — products_rederive no aplica")
+        print("N/A: the factory declares no product instances (products/<p>/) — products_rederive does not apply")
         return 0
 
     slug = load_spec(factory_root / "factory.spec.yml").slug
@@ -59,13 +59,13 @@ def main(argv: list[str]) -> int:
             ok, mismatches, rc, has_pinned = rederive_pinned(proot, meta_root, slug,
                                                              record_active=False, chassis=clone)
             if not has_pinned:
-                print(f"SIN PINEAR: {name} no trae pinned_verdict.json (corré `meta pin --product {name}`)")
+                print(f"NOT PINNED: {name} has no pinned_verdict.json (run `meta pin --product {name}`)")
                 return 1
             if not ok:
                 if rc != 0:
-                    print(f"RUNNER LIMPIO ROJO: la instancia {name} NO reconstruye en árbol limpio (rc={rc})")
+                    print(f"CLEAN RUNNER RED: instance {name} does NOT rebuild on a clean tree (rc={rc})")
                 else:
-                    print(f"VEREDICTO DESVIADO ({name}): re-derivado != pineado: " + "; ".join(mismatches[:3]))
+                    print(f"VERDICT DEVIATED ({name}): re-derived != pinned: " + "; ".join(mismatches[:3]))
                 return 1
             # 2. NEGATIVO (no decorativo): contra los proofs RECIÉN re-derivados, un pin TAMPEREADO debe
             #    producir un mismatch. Si no, la comparación no tiene dientes (prosa).
@@ -75,15 +75,15 @@ def main(argv: list[str]) -> int:
             tampered = dict(pinned)
             tampered[sid0] = str(pinned[sid0]) + "-tampered"
             if not _compare_to_pinned(v, proot, tampered):
-                print(f"GATE DECORATIVO ({name}): un pin tampereado NO produjo mismatch (sin dientes)")
+                print(f"DECORATIVE GATE ({name}): a tampered pin did NOT produce a mismatch (no teeth)")
                 return 1
             proven.append((name, len(pinned)))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
     detail = " · ".join(f"{n}:{k}/{k}" for n, k in proven)
-    print(f"OK products_rederive: {len(proven)} instancia(s) re-derivan == su pin en árbol limpio, "
-          f"aisladas (raíz propia) y con diente (pin tampereado → rojo) — {detail}")
+    print(f"OK products_rederive: {len(proven)} instance(s) re-derive == their pin on a clean tree, "
+          f"isolated (own root) and with teeth (tampered pin → red) — {detail}")
     return 0
 
 

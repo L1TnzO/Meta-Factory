@@ -51,7 +51,7 @@ def test_decorative_ceiling_is_caught():
     by = {r.ref.product: r for r in evaluate(REPO, bench)}
     assert by["snipeit"].meets and not by["snipeit"].ok        # meets but expected ceiling → mismatch
     probs = gate_problems(REPO, bench)
-    assert any("decorativo" in p for p in probs)
+    assert any("decorative" in p for p in probs)
 
 
 def test_sweet_spot_regression_is_caught():
@@ -59,7 +59,7 @@ def test_sweet_spot_regression_is_caught():
     bench = _bench(6, 8, [HELPDESK, SNIPEIT])
     by = {r.ref.product: r for r in evaluate(REPO, bench)}
     assert not by["helpdesk"].meets and not by["helpdesk"].ok
-    assert any("sweet-spot" in p and "no cumple" in p for p in gate_problems(REPO, bench))
+    assert any("sweet-spot" in p and "does not meet" in p for p in gate_problems(REPO, bench))
 
 
 def test_required_capability_must_be_pinned():
@@ -71,7 +71,7 @@ def test_required_capability_must_be_pinned():
 
 def test_one_sided_benchmark_has_no_teeth():
     bench = _bench(5, 8, [HELPDESK])                            # no ceiling witness
-    assert any("dos lados" in p for p in gate_problems(REPO, bench))
+    assert any("two-sided" in p for p in gate_problems(REPO, bench))
 
 
 def test_unknown_capability_is_caught():

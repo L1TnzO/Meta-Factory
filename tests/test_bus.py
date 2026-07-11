@@ -140,27 +140,27 @@ class TestFormatVerdict:
     def test_contains_veredicto_line(self):
         v = from_proof("run", _passing_proof())
         text = format_verdict(v)
-        assert text.startswith("VEREDICTO")
+        assert text.startswith("VERDICT")
 
     def test_contains_resumen_line(self):
         v = from_proof("run", _passing_proof())
         text = format_verdict(v)
-        assert "RESUMEN" in text
+        assert "SUMMARY" in text
 
     def test_contains_conteos_line(self):
         v = from_proof("run", _passing_proof())
         text = format_verdict(v)
-        assert "CONTEOS" in text
+        assert "COUNTS" in text
 
     def test_fallos_absent_on_pass(self):
         v = from_proof("run", _passing_proof())
         text = format_verdict(v)
-        assert "FALLOS" not in text
+        assert "FAILURES" not in text
 
     def test_fallos_present_on_fail(self):
         v = from_proof("run", _failing_proof(1, 0))
         text = format_verdict(v)
-        assert "FALLOS" in text
+        assert "FAILURES" in text
 
     def test_artifact_line_present_when_set(self):
         v = Verdict(
@@ -168,7 +168,7 @@ class TestFormatVerdict:
             summary="ok", artifact="/tmp/log.txt", next_action=""
         )
         text = format_verdict(v)
-        assert "ARTEFACTO" in text and "/tmp/log.txt" in text
+        assert "ARTIFACT" in text and "/tmp/log.txt" in text
 
     def test_proximo_line_present_when_set(self):
         v = Verdict(
@@ -176,12 +176,12 @@ class TestFormatVerdict:
             summary="ok", next_action="do X"
         )
         text = format_verdict(v)
-        assert "PRÓXIMO" in text and "do X" in text
+        assert "NEXT" in text and "do X" in text
 
     def test_proximo_line_absent_when_empty(self):
         v = Verdict(verb="v", status="PASS", exit_code=0, summary="ok")
         text = format_verdict(v)
-        assert "PRÓXIMO" not in text
+        assert "NEXT" not in text
 
     def test_pass_shows_exit_0(self):
         v = from_proof("run", _passing_proof())

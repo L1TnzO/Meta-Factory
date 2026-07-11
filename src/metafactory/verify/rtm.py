@@ -54,15 +54,15 @@ class ReqNode:
     def broken_edge(self) -> str:
         """A short reason for the FIRST broken edge (for the bounded bus line). '' if satisfied."""
         if not self.stations:
-            return "sin estación (satisfied_by vacío)"
+            return "no station (satisfied_by empty)"
         if not self.capability_ok:
-            return f"capability fantasma {self.capability!r}"
+            return f"phantom capability {self.capability!r}"
         shut = [s.sid for s in self.stations if not s.proof_open]
         if shut:
             return "proof SHUT: " + ",".join(shut)
         missing = [a.path for a in self.artifacts if not a.exists]
         if missing:
-            return "artefacto ausente: " + ",".join(missing)
+            return "missing artifact: " + ",".join(missing)
         return ""
 
 
@@ -103,12 +103,12 @@ def render(slug: str, nodes: list[ReqNode]) -> str:
     annotated only when UNSATISFIED. req → capability → station(proof) → artifact, all on one line."""
     nsat = sum(1 for n in nodes if n.satisfied)
     complete = is_complete(nodes)
-    out = [f"VEREDICTO  rtm {slug} — {'COMPLETE' if complete else 'INCOMPLETE'}   (exit {0 if complete else 1})",
-           f"RESUMEN    {nsat}/{len(nodes)} requisitos SATISFIED (árbol re-derivado de .proof/ + artefactos)"]
+    out = [f"VERDICT    rtm {slug} — {'COMPLETE' if complete else 'INCOMPLETE'}   (exit {0 if complete else 1})",
+           f"SUMMARY    {nsat}/{len(nodes)} requirements SATISFIED (tree re-derived from .proof/ + artifacts)"]
     for n in nodes:
         status = "SATISFIED" if n.satisfied else "UNSATISFIED"
         cap = n.capability or "-"
-        chain = " ".join(f"{s.sid}{'' if s.proof_open else '(SHUT)'}" for s in n.stations) or "(sin estación)"
+        chain = " ".join(f"{s.sid}{'' if s.proof_open else '(SHUT)'}" for s in n.stations) or "(no station)"
         arts = " ".join(f"{a.path}{'✓' if a.exists else '✗'}" for a in n.artifacts)
         line = f"           {n.rid} {status} <- {cap}: {chain}"
         if arts:

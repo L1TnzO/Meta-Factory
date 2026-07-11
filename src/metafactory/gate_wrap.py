@@ -1,6 +1,6 @@
 """gate_wrap — wrap a VERBOSE subprocess so a caller sees exactly ONE line of output.
 
-Extends the `VEREDICTO` discipline (CONTEXT-ECONOMY §2, already used by `meta check`'s bounded
+Extends the `VERDICT` discipline (CONTEXT-ECONOMY §2, already used by `meta check`'s bounded
 verdict) to ad-hoc verbose gates (gradle/npm/pytest invocations that print hundreds of lines):
 the full combined stdout+stderr is preserved on disk, while the caller's stdout only ever sees
 one summary line.
@@ -23,7 +23,7 @@ def run(
     log_dir: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> int:
-    """Run `cmd` (cwd=root), log its full combined output, print one VEREDICTO line.
+    """Run `cmd` (cwd=root), log its full combined output, print one VERDICT line.
 
     `env` (optional): when given, the subprocess runs with EXACTLY that environment mapping
     (caller's job to inherit-then-override, e.g. `dict(os.environ)` plus overrides). When `None`
@@ -57,6 +57,6 @@ def run(
         shown_path = log_path
 
     status = "PASS" if proc.returncode == 0 else "FAIL"
-    print(f"VEREDICTO {name} — {status} (exit {proc.returncode}) · log: {shown_path}")
+    print(f"VERDICT {name} — {status} (exit {proc.returncode}) · log: {shown_path}")
 
     return proc.returncode

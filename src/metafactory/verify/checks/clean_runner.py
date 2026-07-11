@@ -39,11 +39,11 @@ def main(argv: list[str]) -> int:
 
     pinned_path = factory_root / "pinned_verdict.json"
     if not pinned_path.exists():
-        print(f"SIN PINEAR: no hay pinned_verdict.json en {factory_root.name} (corré `meta pin`)")
+        print(f"NOT PINNED: no pinned_verdict.json in {factory_root.name} (run `meta pin`)")
         return 1
     pinned = json.loads(pinned_path.read_text(encoding="utf-8"))
     if not pinned:
-        print("PINEADO VACÍO: pinned_verdict.json no pinea ninguna estación (nada que re-derivar)")
+        print("EMPTY PIN: pinned_verdict.json pins no station (nothing to re-derive)")
         return 1
 
     slug = load_spec(factory_root / spec_rel).slug
@@ -59,16 +59,16 @@ def main(argv: list[str]) -> int:
         # 2. RE-DERIVACIÓN: reconstruí la línea de producto desde la fuente y exigí el pineado.
         #    record_active=False: la re-derivación hermética no contamina el active.json/journal meta.
         ok, mismatches, rc, has_pinned = rederive_pinned(clone, meta_root, slug, record_active=False)
-        if not has_pinned:                      # defensivo: el clon SÍ trae el pinned (copytree)
-            print("SIN PINEAR: el clon no preservó pinned_verdict.json")
+        if not has_pinned:                      # defensive: the clone DOES bring the pinned (copytree)
+            print("NOT PINNED: the clone did not preserve pinned_verdict.json")
             return 1
         if not ok:
             if rc != 0:
-                print(f"RUNNER LIMPIO ROJO: la línea de producto NO reconstruye en árbol limpio (rc={rc}) "
-                      f"— producto roto en la fuente")
+                print(f"CLEAN RUNNER RED: the product line does NOT rebuild on a clean tree (rc={rc}) "
+                      f"— product broken at the source")
             else:
-                print("VEREDICTO DESVIADO: el re-derivado limpio NO coincide con el pineado: "
-                      + "; ".join(mismatches[:3]) + " (desvío -> rojo)")
+                print("VERDICT DEVIATED: the clean re-derivation does NOT match the pinned verdict: "
+                      + "; ".join(mismatches[:3]) + " (deviation -> red)")
             return 1
 
         # 3. NEGATIVO (no decorativo): contra los proofs RECIÉN re-derivados del clon, un pinned
@@ -78,14 +78,14 @@ def main(argv: list[str]) -> int:
         tampered = dict(pinned)
         tampered[sid0] = str(pinned[sid0]) + "-tampered"
         if not _compare_to_pinned(v, clone, tampered):
-            print("GATE DECORATIVO: un pinned tampereado NO produjo mismatch "
-                  "(la comparación no tiene dientes; el veredicto sería prosa)")
+            print("DECORATIVE GATE: a tampered pinned did NOT produce a mismatch "
+                  "(the comparison has no teeth; the verdict would be prose)")
             return 1
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
-    print(f"OK dos verificadores: runner limpio re-deriva {len(pinned)} proof_sha == pineado; "
-          f"un pin tampereado cae a rojo (desvío en cualquier dirección detectado)")
+    print(f"OK two verifiers: clean runner re-derives {len(pinned)} proof_sha == pinned; "
+          f"a tampered pin falls to red (deviation in either direction detected)")
     return 0
 
 

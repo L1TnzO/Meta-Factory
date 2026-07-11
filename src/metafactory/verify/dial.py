@@ -77,16 +77,16 @@ def gate_problems(meta_root: Path, factory: str) -> list[str]:
     if not p.adopted:
         return []
     if not p.proper_subset:
-        return [f"{factory}: el dial taggea las {len(p.active)} estaciones activas como harden → el draft no "
-                f"construye nada (decorativo); dejá ≥1 estación core (el spine que una app que corre necesita)"]
+        return [f"{factory}: the dial tags all {len(p.active)} active stations as harden → draft "
+                f"builds nothing (decorative); leave ≥1 core station (the spine a running app needs)"]
     return []
 
 
 def _line(p: DialProfile) -> str:
     if not p.adopted:
-        return f"           {p.factory} — no adoptado (dial opt-in; {len(p.active)} estaciones, todas core)"
-    return (f"           {p.factory} — ADOPTADO: {len(p.core)} core + {len(p.harden)} harden "
-            f"(draft corre {len(p.core)}/{len(p.active)}, difiere {len(p.harden)}: {','.join(p.harden)})")
+        return f"           {p.factory} — not adopted (dial opt-in; {len(p.active)} stations, all core)"
+    return (f"           {p.factory} — ADOPTED: {len(p.core)} core + {len(p.harden)} harden "
+            f"(draft runs {len(p.core)}/{len(p.active)}, defers {len(p.harden)}: {','.join(p.harden)})")
 
 
 def render(meta_root: Path) -> str:
@@ -95,9 +95,9 @@ def render(meta_root: Path) -> str:
     problems = [pr for f in factories(meta_root) for pr in gate_problems(meta_root, f)]
     nadopt = sum(1 for p in profiles if p.adopted)
     ok = not problems
-    out = [f"VEREDICTO  dial — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})",
-           f"RESUMEN    {nadopt}/{len(profiles)} fábrica(s) adoptaron el dial draft→harden "
-           f"(draft difiere la capa de rigor; harden = default, byte-idéntico al pin)"]
+    out = [f"VERDICT    dial — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})",
+           f"SUMMARY    {nadopt}/{len(profiles)} factory(ies) adopted the draft→harden dial "
+           f"(draft defers the rigor layer; harden = default, byte-identical to the pin)"]
     out += [_line(p) for p in profiles]
-    out += [f"           ROJO — {pr}" for pr in problems]
+    out += [f"           RED — {pr}" for pr in problems]
     return "\n".join(out)

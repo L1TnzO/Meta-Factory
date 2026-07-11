@@ -390,13 +390,13 @@ class TestRender:
         for i in range(20):
             capture(tmp_path, kind="tool", tool="Bash", session="s")
         result = render(tmp_path)
-        # Raw ts like "2026-" should not appear multiple times (only in ARTEFACTO line maybe 0)
+        # Raw ts like "2026-" should not appear multiple times (only in ARTIFACT line maybe 0)
         # The key invariant: output stays bounded, not raw series
         assert len(result.splitlines()) <= 12
 
     def test_contains_veredicto_header(self, tmp_path):
         result = render(tmp_path)
-        assert result.startswith("VEREDICTO")
+        assert result.startswith("VERDICT")
 
     def test_contains_gates_line(self, tmp_path):
         result = render(tmp_path)
@@ -404,11 +404,11 @@ class TestRender:
 
     def test_contains_delegacion_line(self, tmp_path):
         result = render(tmp_path)
-        assert "DELEGACION" in result
+        assert "DELEGATION" in result
 
     def test_contains_artefacto_line(self, tmp_path):
         result = render(tmp_path)
-        assert "ARTEFACTO" in result
+        assert "ARTIFACT" in result
 
 
 # ---------------------------------------------------------------------------
@@ -445,7 +445,7 @@ class TestModelSplit:
         from metafactory.memory.metrics import render_model_split
         out = render_model_split({})
         assert out.startswith("SPLIT")
-        assert "ausente" in out
+        assert "absent" in out
 
     def test_render_aggregates_opus_models_into_one_tier(self):
         from metafactory.memory.metrics import render_model_split

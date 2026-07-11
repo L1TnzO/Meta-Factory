@@ -4,7 +4,7 @@
 `eval "$(bash tools/toolchain.sh ensure)" && <verbose gradle/npm cmd>` is TWO shell steps run by
 hand: resolve the JDK-21 toolchain, then run a verbose build/test command — often across separate
 turns. `toolchain_run.run` collapses them into ONE call: resolve JAVA_HOME/PATH, merge into the
-subprocess env, and hand off to `gate_wrap.run` (C18) for the single VEREDICTO line + full log
+subprocess env, and hand off to `gate_wrap.run` (C18) for the single VERDICT line + full log
 artifact — so a JVM-toolchain-dependent gate ALSO gets the 1-line discipline.
 
 Public API:
@@ -84,7 +84,7 @@ def run(
         text=True,
     )
     if ensure_proc.returncode != 0:
-        print(f"VEREDICTO toolchain-ensure — FAIL (exit {ensure_proc.returncode})")
+        print(f"VERDICT toolchain-ensure — FAIL (exit {ensure_proc.returncode})")
         return ensure_proc.returncode
 
     exports = parse_env_exports(ensure_proc.stdout)

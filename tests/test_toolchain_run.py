@@ -10,7 +10,7 @@ B11 audit finding (the measured real sequence, `docs/work/HARNESS-FAST-GATE-INCR
 evidence): `eval "$(bash tools/toolchain.sh ensure)" && <verbose gradle/npm cmd>` is TWO shell steps run
 by hand — resolve the JDK-21 toolchain, THEN run a verbose build/test command — often across separate
 turns. `toolchain_run.run` collapses them into ONE call: resolve JAVA_HOME/PATH, merge into the
-subprocess env, and hand off to the existing `gate_wrap.run` (C18) for the single VEREDICTO line + full
+subprocess env, and hand off to the existing `gate_wrap.run` (C18) for the single VERDICT line + full
 log artifact — so a JVM-toolchain-dependent gate ALSO gets the 1-line discipline.
 
 Hermetic (ADR-021 doctrine): these tests never shell out to the REAL `tools/toolchain.sh` (no network,
@@ -26,7 +26,7 @@ Public API under test:
       merges the resolved vars into a COPY of the current environment (expanding any `$PATH` reference
       against the real PATH), then delegates to `gate_wrap.run(cmd, root, env=<merged>, label=label,
       log_dir=log_dir)`. If `ensure_cmd` itself fails (non-zero exit), `cmd` is NEVER run — the ensure
-      failure's exit code is returned and a one-line `VEREDICTO toolchain-ensure — FAIL` is printed.
+      failure's exit code is returned and a one-line `VERDICT toolchain-ensure — FAIL` is printed.
 """
 from __future__ import annotations
 
@@ -121,7 +121,7 @@ def test_run_prints_one_veredicto_line_and_writes_full_log(tmp_path, capsys):
     assert rc == 0
     out = [l for l in capsys.readouterr().out.splitlines() if l.strip()]
     assert len(out) == 1
-    assert out[0].startswith("VEREDICTO mygate — PASS")
+    assert out[0].startswith("VERDICT mygate — PASS")
     logs = list((tmp_path / ".gen" / "gate_logs").glob("mygate-*.log"))
     assert len(logs) == 1
     assert many in logs[0].read_text(encoding="utf-8")

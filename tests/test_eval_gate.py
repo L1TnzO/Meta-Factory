@@ -4,7 +4,7 @@ Dos niveles, sin mocks:
   - el HELPER (`eval_gate.run`) corre el scorer con el output REAL (debe pasar los umbrales) y con el
     DEGRADADO (debe flipear el gate): pasa con un scorer que LEE su input y discrimina; bloquea un scorer
     DECORATIVO (ignora el output -> el degradado pasa igual, la falla de la legacy); bloquea bajo umbral;
-    bloquea si el scorer omite una métrica gateada. El VEREDICTO (la comparación contra el umbral) vive en el
+    bloquea si el scorer omite una métrica gateada. El VERDICT (la comparación contra el umbral) vive en el
     sustrato, no en el scorer: el scorer mide, el sustrato juzga.
   - e2e por el MOTOR real (`run_station` + seed verifier + gate): una estación `eval_gate` GATEA — verde abre,
     un scorer decorativo SHUT, y el veredicto lo escribe `seed/verifier.py` (la raíz de confianza).

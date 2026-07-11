@@ -33,7 +33,7 @@ def main(argv: list[str]) -> int:
 
     files = sorted(repo_root.glob(glob))
     if not files:
-        print(f"N/A: no hay benchmarks ({glob}) en este árbol — benchmark_gate no aplica (honesto, SAFE-7)")
+        print(f"N/A: no benchmarks ({glob}) in this tree — benchmark_gate does not apply (honest, SAFE-7)")
         return 0
 
     problems: list[str] = []
@@ -46,14 +46,14 @@ def main(argv: list[str]) -> int:
             results = evaluate(repo_root, bench)
             nspot = sum(1 for r in results if r.ref.expect == SWEET_SPOT)
             nceil = sum(1 for r in results if r.ref.expect == CEILING)
-            summaries.append(f"{bench.id}: {nspot} sweet-spot ✓ / {nceil} techo ✗ "
+            summaries.append(f"{bench.id}: {nspot} sweet-spot ✓ / {nceil} ceiling ✗ "
                              f"(target {bench.target.entity_min}-{bench.target.entity_max} ent + "
                              f"{len(bench.target.required_capabilities)} caps)")
 
     if problems:
         for p in problems:
-            print(f"BENCHMARK ROJO — {p}")
-        print("  -> ajustá el blueprint del producto (sweet-spot fuera de banda) o el benchmark DATA.")
+            print(f"BENCHMARK RED — {p}")
+        print("  -> adjust the product's blueprint (sweet-spot out of band) or the benchmark DATA.")
         return 1
     print("OK benchmark_gate: " + " · ".join(summaries))
     return 0

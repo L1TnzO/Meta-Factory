@@ -3,12 +3,12 @@ a pointer to the full log on disk. The raw log NEVER enters the orchestrator's c
 on failure we mine the on-disk log for `file:line` so red is actionable without a dump.
 
 Format (CONTEXT-ECONOMY §2):
-    VEREDICTO  <verb> — <PASS|FAIL>   (exit <code>)
-    RESUMEN    <one line>
-    CONTEOS    <per check>
-    FALLOS     <≤N as file:line — msg>     (omitted if PASS)
-    ARTEFACTO  <log path on disk>
-    PRÓXIMO    <actionable next step>
+    VERDICT    <verb> — <PASS|FAIL>   (exit <code>)
+    SUMMARY    <one line>
+    COUNTS     <per check>
+    FAILURES   <≤N as file:line — msg>     (omitted if PASS)
+    ARTIFACT   <log path on disk>
+    NEXT       <actionable next step>
 """
 from __future__ import annotations
 
@@ -86,16 +86,16 @@ def from_proof(verb: str, proof: dict, *, next_pass: str = "", next_fail: str = 
 
 def format_verdict(v: Verdict) -> str:
     lines = [
-        f"VEREDICTO  {v.verb} — {v.status}   (exit {v.exit_code})",
-        f"RESUMEN    {v.summary}",
-        f"CONTEOS    {' · '.join(v.counts) if v.counts else '—'}",
+        f"VERDICT    {v.verb} — {v.status}   (exit {v.exit_code})",
+        f"SUMMARY    {v.summary}",
+        f"COUNTS     {' · '.join(v.counts) if v.counts else '—'}",
     ]
     if v.status != "PASS" and v.failures:
-        lines.append(f"FALLOS     {v.failures[0]}")
+        lines.append(f"FAILURES   {v.failures[0]}")
         for f in v.failures[1:]:
             lines.append(f"           {f}")
     if v.artifact:
-        lines.append(f"ARTEFACTO  {v.artifact}")
+        lines.append(f"ARTIFACT   {v.artifact}")
     if v.next_action:
-        lines.append(f"PRÓXIMO    {v.next_action}")
+        lines.append(f"NEXT       {v.next_action}")
     return "\n".join(lines)

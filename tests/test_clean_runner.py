@@ -74,24 +74,24 @@ class TestCleanRunnerHermetic:
         return dest
 
     def test_sin_pinear_when_no_pinned_verdict(self, tmp_path):
-        """La fábrica no tiene pinned_verdict.json → "SIN PINEAR" → exit 1."""
+        """La fábrica no tiene pinned_verdict.json → "NOT PINNED" → exit 1."""
         factory = self._copy_dummy(tmp_path)
         (factory / "pinned_verdict.json").unlink()
         rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
-        assert rc == 1, "sin pinned_verdict.json el gate debe devolver 1 (SIN PINEAR)"
+        assert rc == 1, "sin pinned_verdict.json el gate debe devolver 1 (NOT PINNED)"
 
     def test_pineado_vacio_when_pinned_verdict_empty_dict(self, tmp_path):
-        """pinned_verdict.json es un dict vacío {} → "PINEADO VACÍO" → exit 1."""
+        """pinned_verdict.json es un dict vacío {} → "EMPTY PIN" → exit 1."""
         factory = self._copy_dummy(tmp_path)
         (factory / "pinned_verdict.json").write_text(
             json.dumps({}) + "\n", encoding="utf-8"
         )
         rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
-        assert rc == 1, "pinned_verdict.json vacío debe devolver 1 (PINEADO VACÍO)"
+        assert rc == 1, "pinned_verdict.json vacío debe devolver 1 (EMPTY PIN)"
 
     def test_veredicto_desviado_when_pinned_sha_mismatch(self, tmp_path):
         """pinned_verdict.json tiene un proof_sha que NO coincide con el re-derivado
-        (p.ej. 'deadbeef' * 8 para s00) → "VEREDICTO DESVIADO" → exit 1.
+        (p.ej. 'deadbeef' * 8 para s00) → "VERDICT DEVIATED" → exit 1.
 
         RESTRICCIÓN: no tocamos el código fuente del dominio en la copia — el gate lo
         lee de meta_root, así que corromper la fuente de la copia pasaría por la razón
@@ -103,5 +103,5 @@ class TestCleanRunnerHermetic:
         )
         rc = main([str(factory), str(_REPO_ROOT), _SPEC_PATH])
         assert rc == 1, (
-            "pinned_verdict.json con proof_sha incorrecto debe devolver 1 (VEREDICTO DESVIADO)"
+            "pinned_verdict.json con proof_sha incorrecto debe devolver 1 (VERDICT DEVIATED)"
         )

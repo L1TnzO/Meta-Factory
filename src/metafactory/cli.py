@@ -12,7 +12,7 @@ Verbs:
   verify --rerun             re-verify the active station (Lock #3, used by the Stop hook)
   doc-sync                   stamp docs + regenerate INDEX (used by the PostToolUse hook)
   doc slice <doc> [§|title]  print ONE section of a doc (or --abstract) instead of the whole file (C16)
-  jdk-run [--root D] -- CMD  ensure JDK 21 + run CMD, 1-line VEREDICTO + log (collapses toolchain+gate, B11)
+  jdk-run [--root D] -- CMD  ensure JDK 21 + run CMD, 1-line VERDICT + log (collapses toolchain+gate, B11)
 
 Every expensive verb returns a BOUNDED verdict (≤10 lines) + a pointer to the disk log.
 """
@@ -191,14 +191,14 @@ def cmd_check(args) -> int:
     known = {c["name"] for c in checks}
     unknown = sorted(set(skip) - known)
     if unknown:
-        print(f"VEREDICTO  check — FAIL   (exit 1)\nRESUMEN    --skip desconocido: {', '.join(unknown)}"
+        print(f"VERDICT    check — FAIL   (exit 1)\nSUMMARY    unknown --skip: {', '.join(unknown)}"
               f" (gates: {', '.join(sorted(known))})")
         return 1
     if skip:
         checks = [c for c in checks if c["name"] not in skip]
-        # El salto es VISIBLE y no suma verdes: un gate salteado no aparece en CONTEOS como ok.
-        print(f"SKIPPED    {', '.join(skip)} — por invocación (--skip): evidencia no re-derivable en "
-              f"este entorno (clon limpio sin `.proof/`); NO cuentan como verdes")
+        # The skip is VISIBLE and adds no greens: a skipped gate never shows up in COUNTS as ok.
+        print(f"SKIPPED    {', '.join(skip)} — by invocation (--skip): evidence not re-derivable in "
+              f"this environment (clean clone with no `.proof/`); they do NOT count as green")
     ctx = RunContext(root=root, meta_root=root, slug="meta")
     from .verify.checks.registry import resolve_check
     cmds = [{"name": c["name"], "cmd": resolve_check(c, ctx, _Synthetic("metacheck"), {})} for c in checks]
@@ -207,15 +207,15 @@ def cmd_check(args) -> int:
     instrument.record_fidelity_from_proof(root, proof)  # serie de fidelidad (ADR-019 §5, M5; observador)
     log = _copy_metacheck_log(proof)
     proof["log_path"] = log
-    npass = "repo verde — listo para station/ci"
+    npass = "green repo — ready for station/ci"
     nfacts = _unnarrated_count(root)
     if nfacts:
-        npass += f" · {nfacts} hecho(s) sin narrar: `meta checkpoint`"
+        npass += f" · {nfacts} unnarrated fact(s): `meta checkpoint`"
     from .memory import cadence
     if cadence.debt(root)[0]:
-        npass += " · cadencia: código sin commitear (`meta increment status`)"
+        npass += " · cadence: uncommitted code (`meta increment status`)"
     v = report.from_proof("check", proof, next_pass=npass,
-                          next_fail="abrí el ARTEFACTO o corré `triage` sobre él; no lo pegues al contexto")
+                          next_fail="open the ARTIFACT or run `triage` over it; do not paste it into context")
     _print_verdict(v)
     return v.exit_code
 
@@ -224,7 +224,7 @@ def cmd_new(args) -> int:
     spec = load_spec(args.spec)
     problems = validate(spec)
     if not spec.slug:
-        print("VEREDICTO  new — FAIL   (exit 1)\nRESUMEN    spec sin slug; no se puede registrar")
+        print("VERDICT    new — FAIL   (exit 1)\nSUMMARY    spec has no slug; cannot register")
         return 1
     fdir = _factory_dir(spec.slug)
     fdir.mkdir(parents=True, exist_ok=True)
@@ -233,14 +233,14 @@ def cmd_new(args) -> int:
         json.dumps({"slug": spec.slug, "spec": "factory.spec.yml", "produces": spec.produces}, indent=2) + "\n",
         encoding="utf-8")
     status = "PASS" if not problems else "PROVISIONAL"
-    print(f"VEREDICTO  new {spec.slug} — {status}   (exit 0)")
-    print(f"RESUMEN    registrado en factories/{spec.slug}/ · M0 validate: {len(problems)} problema(s)")
+    print(f"VERDICT    new {spec.slug} — {status}   (exit 0)")
+    print(f"SUMMARY    registered under factories/{spec.slug}/ · M0 validate: {len(problems)} problem(s)")
     if problems:
         for p in problems[:5]:
             print(f"           {p}")
-        print("PRÓXIMO    corregí el spec; `meta station m00` es la gate autoritativa")
+        print("NEXT       fix the spec; `meta station m00` is the authoritative gate")
     else:
-        print("PRÓXIMO    meta station m00 --factory " + spec.slug)
+        print("NEXT       meta station m00 --factory " + spec.slug)
     return 0
 
 
@@ -248,7 +248,7 @@ def _run_one(ctx, station, seq, subst, stations_dir, spec_path, *, verb, build=T
     run = run_station(ctx, station, seq, subst, stations_dir=stations_dir, spec_path=spec_path, build=build)
     v = report.from_proof(f"{verb} {station.id}", run.proof,
                           next_pass=run.gate.line(),
-                          next_fail=run.gate.line() + " — corregí y re-verificá")
+                          next_fail=run.gate.line() + " — fix it and re-verify")
     _print_verdict(v)
     print(run.gate.line())
     return 0 if (run.passed and run.gate.opened) else 1
@@ -263,7 +263,7 @@ def cmd_station(args) -> int:
     seq = load_sequence(_meta_stations_dir())
     station = seq.get(args.id)
     if station is None:
-        print(f"VEREDICTO  station {args.id} — FAIL   (exit 1)\nRESUMEN    meta-estación {args.id} no existe")
+        print(f"VERDICT    station {args.id} — FAIL   (exit 1)\nSUMMARY    meta-station {args.id} does not exist")
         return 1
     return _run_one(ctx, station, seq, subst, _meta_stations_dir(), fdir / "factory.spec.yml", verb="station")
 
@@ -325,20 +325,20 @@ def cmd_product_run(args) -> int:
     dial = getattr(args, "mode", None) or "harden"
     root, chassis = _resolve_target(slug, product)
     if product and not (root / "product.yml").is_file():
-        print(f"VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    no existe el producto {product!r} en {slug} "
-              f"(creálo con `meta product new`)")
+        print(f"VERDICT    product-run — FAIL   (exit 1)\nSUMMARY    no such product {product!r} in {slug} "
+              f"(create it with `meta product new`)")
         return 1
     rc, last = _run_product_line(root, _meta_root(), slug, chassis=chassis, dial=dial)
     if last is None:
-        print("VEREDICTO  product-run — FAIL   (exit 1)\nRESUMEN    la fábrica no tiene línea de producto")
+        print("VERDICT    product-run — FAIL   (exit 1)\nSUMMARY    the factory has no product line")
         return 1
     label = f"product-run {slug}/{product}" if product else "product-run"
     deferred = [s.id for s in load_sequence(root / "stations").stations if s.tier == "harden"] if dial == "draft" else []
-    draft_note = (f" · DIAL=draft (boceto, NO endurecido — {len(deferred)} estación(es) harden diferida(s): "
-                  f"{','.join(deferred)}; endurecé con --mode harden antes de pinear/shippear)" if dial == "draft" else "")
+    draft_note = (f" · DIAL=draft (draft, NOT hardened — {len(deferred)} harden station(s) deferred: "
+                  f"{','.join(deferred)}; harden with --mode harden before pinning/shipping)" if dial == "draft" else "")
     v = report.from_proof(label, last.proof,
-                          next_pass=f"producto e2e OK · {last.gate.line()}{draft_note}",
-                          next_fail=f"producto roto · {last.gate.line()}{draft_note}")
+                          next_pass=f"product e2e OK · {last.gate.line()}{draft_note}",
+                          next_fail=f"broken product · {last.gate.line()}{draft_note}")
     _print_verdict(v)
     return 0 if rc == 0 else 1
 
@@ -355,44 +355,44 @@ def cmd_product(args) -> int:
     meta_root = _meta_root()
     fdir = _factory_dir(slug)
     if not (fdir / "factory.spec.yml").is_file():
-        print(f"VEREDICTO  product — FAIL   (exit 1)\nRESUMEN    no existe la fábrica {slug!r}")
+        print(f"VERDICT    product — FAIL   (exit 1)\nSUMMARY    no such factory {slug!r}")
         return 1
     if args.prod_cmd == "list":
         products = _list_products(slug)
-        print(f"VEREDICTO  product list {slug} — {len(products) + 1} producto(s)   (exit 0)")
-        print(f"RESUMEN    default + {len(products)} instancia(s) (cada una con pin propio)")
-        dpin = "pin ✓" if (fdir / "pinned_verdict.json").is_file() else "sin pin"
-        print(f"           default (raíz de la fábrica) · {dpin}")
+        print(f"VERDICT    product list {slug} — {len(products) + 1} product(s)   (exit 0)")
+        print(f"SUMMARY    default + {len(products)} instance(s) (each with its own pin)")
+        dpin = "pin ✓" if (fdir / "pinned_verdict.json").is_file() else "no pin"
+        print(f"           default (factory root) · {dpin}")
         for p in products:
-            ppin = "pin ✓" if (_product_dir(slug, p) / "pinned_verdict.json").is_file() else "sin pin"
+            ppin = "pin ✓" if (_product_dir(slug, p) / "pinned_verdict.json").is_file() else "no pin"
             print(f"           {p} (products/{p}/) · {ppin}")
         return 0
     # new
     name = args.name
     product_root = _product_dir(slug, name)
     if (product_root / "product.yml").is_file():
-        print(f"VEREDICTO  product new — FAIL   (exit 1)\nRESUMEN    el producto {name!r} ya existe en {slug} "
-              f"(no lo piso)")
+        print(f"VERDICT    product new — FAIL   (exit 1)\nSUMMARY    product {name!r} already exists in {slug} "
+              f"(not overwriting it)")
         return 1
     blueprint_path = Path(args.blueprint)
     if not blueprint_path.is_file():
-        print(f"VEREDICTO  product new — FAIL   (exit 1)\nRESUMEN    no existe el blueprint {args.blueprint}")
+        print(f"VERDICT    product new — FAIL   (exit 1)\nSUMMARY    no such blueprint {args.blueprint}")
         return 1
     product_root.mkdir(parents=True, exist_ok=True)
     shutil.copy2(blueprint_path, product_root / "product.yml")
     rc, last = _run_product_line(product_root, meta_root, slug, chassis=fdir)
     if last is None or rc != 0:
-        line = last.gate.line() if last is not None else "la fábrica no tiene línea de producto"
-        print(f"VEREDICTO  product new {slug}/{name} — FAIL   (exit 1)\nRESUMEN    el producto no construye verde · {line}")
-        print("PRÓXIMO    corregí el blueprint products/{0}/product.yml y reintentá".format(name))
+        line = last.gate.line() if last is not None else "the factory has no product line"
+        print(f"VERDICT    product new {slug}/{name} — FAIL   (exit 1)\nSUMMARY    the product does not build green · {line}")
+        print("NEXT       fix the blueprint products/{0}/product.yml and retry".format(name))
         return 1
     pin_ok, info = _pin_from_proofs(product_root, meta_root, slug, chassis=fdir)
     if not pin_ok:
-        print(f"VEREDICTO  product new {slug}/{name} — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde al pinear")
+        print(f"VERDICT    product new {slug}/{name} — FAIL   (exit 1)\nSUMMARY    {info} has no green proof to pin")
         return 1
-    print(f"VEREDICTO  product new {slug}/{name} — PASS   (exit 0)")
-    print(f"RESUMEN    instancia products/{name}/ construida e2e + pineada ({len(info)} estaciones)")
-    print(f"PRÓXIMO    re-derivá su pin con `meta ci --rederive --factory {slug} --product {name}`")
+    print(f"VERDICT    product new {slug}/{name} — PASS   (exit 0)")
+    print(f"SUMMARY    instance products/{name}/ built e2e + pinned ({len(info)} stations)")
+    print(f"NEXT       re-derive its pin with `meta ci --rederive --factory {slug} --product {name}`")
     return 0
 
 
@@ -457,11 +457,11 @@ def _ci_one(slug: str, product: str | None) -> tuple[bool, str]:
     label = f"{slug}/{product}" if product else slug
     ok, mismatches, rc, has_pinned = rederive_pinned(root, _meta_root(), slug, chassis=chassis)
     if not has_pinned:
-        return False, f"{label}: SIN PINEAR (no hay pinned_verdict.json; corré `meta pin`)"
+        return False, f"{label}: NOT PINNED (no pinned_verdict.json; run `meta pin`)"
     pinned = json.loads((root / "pinned_verdict.json").read_text(encoding="utf-8"))
-    note = f"{label}: {len(pinned) - len(mismatches)}/{len(pinned)} proof_sha == pineado"
+    note = f"{label}: {len(pinned) - len(mismatches)}/{len(pinned)} proof_sha == pinned"
     if not ok:
-        note += " · " + ("; ".join(mismatches[:3]) if mismatches else f"product-run rc={rc} (producto roto)")
+        note += " · " + ("; ".join(mismatches[:3]) if mismatches else f"product-run rc={rc} (broken product)")
     return ok, note
 
 
@@ -478,16 +478,16 @@ def cmd_ci(args) -> int:
         targets: list[str | None] = [None, *_list_products(slug)]
         results = [_ci_one(slug, p) for p in targets]
         ok = all(r[0] for r in results)
-        print(f"VEREDICTO  ci --rederive {slug} --all-products — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
-        print(f"RESUMEN    {sum(r[0] for r in results)}/{len(results)} productos re-derivados == su pin")
+        print(f"VERDICT    ci --rederive {slug} --all-products — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
+        print(f"SUMMARY    {sum(r[0] for r in results)}/{len(results)} products re-derived == their pin")
         for _, note in results:
             print(f"           {note}")
         return 0 if ok else 1
     product = getattr(args, "product", None)
     ok, note = _ci_one(slug, product)
     label = f"{slug}/{product}" if product else slug
-    print(f"VEREDICTO  ci --rederive {label} — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
-    print(f"RESUMEN    re-derivado en árbol limpio · {note}")
+    print(f"VERDICT    ci --rederive {label} — {'PASS' if ok else 'FAIL'}   (exit {0 if ok else 1})")
+    print(f"SUMMARY    re-derived on a clean tree · {note}")
     return 0 if ok else 1
 
 
@@ -520,16 +520,16 @@ def cmd_pin(args) -> int:
     root, chassis = _resolve_target(slug, product)
     ok, info = _pin_from_proofs(root, _meta_root(), slug, chassis=chassis)
     if not ok:
-        print(f"VEREDICTO  pin — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde; corré product-run primero")
+        print(f"VERDICT    pin — FAIL   (exit 1)\nSUMMARY    {info} has no green proof; run product-run first")
         return 1
     label = f"pin {slug}/{product}" if product else f"pin {slug}"
     if not getattr(args, "verify", False):
-        print(f"VEREDICTO  {label} — PASS   (exit 0)\nRESUMEN    pineados {len(info)} proof_sha en pinned_verdict.json")
+        print(f"VERDICT    {label} — PASS   (exit 0)\nSUMMARY    pinned {len(info)} proof_sha in pinned_verdict.json")
         return 0
     ci_ok, ci_note = _ci_one(slug, product)
     status = "PASS" if ci_ok else "FAIL"
-    print(f"VEREDICTO  {label} --verify — {status}   (exit {0 if ci_ok else 1})")
-    print(f"RESUMEN    pineados {len(info)} proof_sha · re-derivación en árbol limpio: {ci_note}")
+    print(f"VERDICT    {label} --verify — {status}   (exit {0 if ci_ok else 1})")
+    print(f"SUMMARY    pinned {len(info)} proof_sha · clean-tree re-derivation: {ci_note}")
     return 0 if ci_ok else 1
 
 
@@ -552,9 +552,9 @@ def cmd_promote(args) -> int:
     baseline_path = meta_root / args.baseline
     baseline = V.load_baseline(baseline_path)
     if slug not in baseline:
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\n"
-              f"RESUMEN    {slug} no está en el baseline ({args.baseline}); "
-              f"agregalo con `meta pin`+baseline antes de promover una mejora")
+        print(f"VERDICT    promote {slug} — FAIL   (exit 1)\n"
+              f"SUMMARY    {slug} is not in the baseline ({args.baseline}); "
+              f"add it with `meta pin`+baseline before promoting an improvement")
         return 1
 
     # 0. G2 gate — the engine must still behave across the DIVERSE scenario corpus before ANY promotion
@@ -563,16 +563,16 @@ def cmd_promote(args) -> int:
     #    makes every promotion unsafe, so it precedes the downstream sweep.
     corpus_path = meta_root / "scenarios" / "corpus.yml"
     if not corpus_path.exists():
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
-              f"RESUMEN    no hay corpus de scenarios ({corpus_path}); G2 exige ejercitar el motor "
-              f"en N formas diversas antes de promover")
+        print(f"VERDICT    promote {slug} — FAIL   (exit 2)\n"
+              f"SUMMARY    no scenario corpus ({corpus_path}); G2 demands exercising the engine "
+              f"in N diverse ways before promoting")
         return 2
     corpus_dir, scenarios = SC.load_corpus(corpus_path)
     c_action, c_detail = SC.decide(corpus_dir, scenarios)
     if c_action != "ok":
-        print(f"VEREDICTO  promote {slug} — BLOQUEADA   (exit 2)\n"
-              f"RESUMEN    el motor no pasa el corpus de scenarios diversos "
-              f"(pin y baseline INTACTOS):")
+        print(f"VERDICT    promote {slug} — BLOCKED   (exit 2)\n"
+              f"SUMMARY    the engine does not pass the diverse scenario corpus "
+              f"(pin and baseline INTACT):")
         for r in (c_detail if isinstance(c_detail, list) else [c_detail])[:6]:
             print(f"           {r}")
         return 2
@@ -583,21 +583,21 @@ def cmd_promote(args) -> int:
     cand_x = candidates[slug]
     action, detail = BR.decide(candidates, baseline, slug, allow_hold=args.allow_hold)
     if action == "facade":   # §4: a hold/regression of the target itself is nothing to promote.
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
-              f"RESUMEN    nada que promover: {detail} "
-              f"[{slug} candidato {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')} "
+        print(f"VERDICT    promote {slug} — FAIL   (exit 2)\n"
+              f"SUMMARY    nothing to promote: {detail} "
+              f"[{slug} candidate {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')} "
               f"vs baseline {baseline[slug].get('rtm_satisfied')}/{baseline[slug].get('rtm_total')}]")
         return 2
-    if action == "blast":    # a downstream factory would lower its verdict — pin/baseline INTACTOS.
-        print(f"VEREDICTO  promote {slug} — BLOQUEADA   (exit 2)\n"
-              f"RESUMEN    blast-radius: la promoción bajaría el veredicto de una fábrica downstream "
-              f"(pin y baseline INTACTOS):")
+    if action == "blast":    # a downstream factory would lower its verdict — pin/baseline INTACT.
+        print(f"VERDICT    promote {slug} — BLOCKED   (exit 2)\n"
+              f"SUMMARY    blast-radius: the promotion would lower a downstream factory's verdict "
+              f"(pin and baseline INTACT):")
         for r in detail[:6]:
             print(f"           {r}")
         return 2
     if action == "decorative":
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 2)\n"
-              f"RESUMEN    gate decorativo: la ley de dominación no tiene dientes (no se promueve a ciegas)")
+        print(f"VERDICT    promote {slug} — FAIL   (exit 2)\n"
+              f"SUMMARY    decorative gate: the domination law has no teeth (never promote blindly)")
         return 2
 
     # 2. PROMOTE: refresh the candidate's REAL proofs, re-pin, and bump the baseline. No commit —
@@ -606,21 +606,21 @@ def cmd_promote(args) -> int:
     fdir = _factory_dir(slug)
     rc, _ = _run_product_line(fdir, meta_root, slug)
     if rc != 0:
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\n"
-              f"RESUMEN    la línea real de {slug} no reconstruye al re-pinear (no debería tras el barrido)")
+        print(f"VERDICT    promote {slug} — FAIL   (exit 1)\n"
+              f"SUMMARY    {slug}'s real line does not rebuild while re-pinning (should not happen after the sweep)")
         return 1
     pin_ok, info = _pin_from_proofs(fdir, meta_root, slug)
     if not pin_ok:
-        print(f"VEREDICTO  promote {slug} — FAIL   (exit 1)\nRESUMEN    {info} sin proof verde al re-pinear")
+        print(f"VERDICT    promote {slug} — FAIL   (exit 1)\nSUMMARY    {info} has no green proof to re-pin")
         return 1
     baseline[slug] = cand_x
     V.save_baseline(baseline_path, baseline)
-    verb = "mejoró" if improved else "mantuvo (--allow-hold)"
-    print(f"VEREDICTO  promote {slug} — PASS   (exit 0)\n"
-          f"RESUMEN    {slug} {verb} a {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')}; "
-          f"re-pineado ({len(info)} estaciones) + baseline subido; corpus verde "
-          f"({len(scenarios)} scenarios diversos) + blast-radius verde "
-          f"({len(baseline)} fábricas, ninguna bajó). Promoción NO committeada (subí por diff revisado, §4).")
+    verb = "improved" if improved else "held (--allow-hold)"
+    print(f"VERDICT    promote {slug} — PASS   (exit 0)\n"
+          f"SUMMARY    {slug} {verb} to {cand_x.get('rtm_satisfied')}/{cand_x.get('rtm_total')}; "
+          f"re-pinned ({len(info)} stations) + baseline bumped; corpus green "
+          f"({len(scenarios)} diverse scenarios) + blast-radius green "
+          f"({len(baseline)} factories, none dropped). Promotion NOT committed (ascend via a reviewed diff, §4).")
     return 0
 
 
@@ -628,7 +628,7 @@ def cmd_verify(args) -> int:
     """Re-verify the active station (Lock #3). Used by the Stop hook: exit≠0 => block turn."""
     active_path = _meta_root() / ".proof" / "active.json"
     if not active_path.exists():
-        print("VEREDICTO  verify --rerun — PASS   (exit 0)\nRESUMEN    no hay estación activa que re-verificar")
+        print("VERDICT    verify --rerun — PASS   (exit 0)\nSUMMARY    no active station to re-verify")
         return 0
     active = json.loads(active_path.read_text(encoding="utf-8"))
     root = Path(active["root"])
@@ -640,7 +640,7 @@ def cmd_verify(args) -> int:
     seq = load_sequence(stations_dir)
     station = seq.get(active["station"])
     if station is None:
-        print("VEREDICTO  verify --rerun — PASS   (exit 0)\nRESUMEN    estación activa desconocida; nada que bloquear")
+        print("VERDICT    verify --rerun — PASS   (exit 0)\nSUMMARY    unknown active station; nothing to block")
         return 0
     return _run_one(ctx, station, seq, subst, stations_dir, spec_path, verb="verify", build=False)
 
@@ -714,53 +714,53 @@ def cmd_increment(args) -> int:
     factory = getattr(args, "factory", None)
     product = getattr(args, "product", None)
     if product and not factory:
-        print("VEREDICTO  increment — FAIL   (exit 1)\nRESUMEN    --product requiere --factory")
+        print("VERDICT    increment — FAIL   (exit 1)\nSUMMARY    --product requires --factory")
         return 1
     workdir = _work_dir(root, factory, product)
     label = _level_label(factory, product)
     wd_rel = workdir.relative_to(root)
     if args.inc_cmd == "status":
-        inc = cadence.open_increment_in(workdir) or "ninguno"
+        inc = cadence.open_increment_in(workdir) or "none"
         has_debt, reason = cadence.debt(root)
-        print(f"VEREDICTO  increment status [{label}] — {'DEUDA' if has_debt else 'OK'}   (exit 0)")
-        print(f"RESUMEN    incremento abierto ({wd_rel}/): {inc}")
-        print(f"CADENCIA   {reason}")
+        print(f"VERDICT    increment status [{label}] — {'DEBT' if has_debt else 'OK'}   (exit 0)")
+        print(f"SUMMARY    open increment ({wd_rel}/): {inc}")
+        print(f"CADENCE    {reason}")
         return 0
     if args.inc_cmd == "open":
         cur = cadence.open_increment_in(workdir)
         if cur is not None:
-            print("VEREDICTO  increment open — FAIL   (exit 1)")
-            print(f"RESUMEN    ya hay un incremento abierto en [{label}]: {cur} (cerralo primero)")
+            print("VERDICT    increment open — FAIL   (exit 1)")
+            print(f"SUMMARY    an increment is already open in [{label}]: {cur} (close it first)")
             return 1
         name = f"{args.slug.upper()}-INCREMENT.md"
         path = workdir / name
         if path.exists():
-            print("VEREDICTO  increment open — FAIL   (exit 1)")
-            print(f"RESUMEN    {wd_rel}/{name} ya existe; no lo piso")
+            print("VERDICT    increment open — FAIL   (exit 1)")
+            print(f"SUMMARY    {wd_rel}/{name} already exists; not overwriting it")
             return 1
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_INCREMENT_SCAFFOLD.format(slug=args.slug.upper(), ts=_now_min()), encoding="utf-8")
         docs_manifest.sync(root)        # sella el doc nuevo (si es meta) + regenera INDEX
         projection.refresh(root)        # la proyección de STATE refleja el incremento meta abierto
         docs_manifest.sync(root)        # re-sella STATE
-        print(f"VEREDICTO  increment open {args.slug} [{label}] — PASS   (exit 0)")
-        print(f"RESUMEN    abierto {wd_rel}/{name} (Estado ABIERTO); editá Objetivo/Fases")
-        print("PRÓXIMO    ya podés tocar código del nivel; cerralo con `meta increment close` (gateado)")
+        print(f"VERDICT    increment open {args.slug} [{label}] — PASS   (exit 0)")
+        print(f"SUMMARY    opened {wd_rel}/{name} (Estado ABIERTO); edit Objetivo/Fases")
+        print("NEXT       you can now touch this level's code; close it with `meta increment close` (gated)")
         return 0
     # close
     cur = cadence.open_increment_in(workdir)
     if cur is None:
-        print(f"VEREDICTO  increment close — FAIL   (exit 1)\nRESUMEN    no hay incremento abierto en [{label}]")
+        print(f"VERDICT    increment close — FAIL   (exit 1)\nSUMMARY    no open increment in [{label}]")
         return 1
     has_debt, reason = cadence.debt(root)
     if has_debt:
-        print("VEREDICTO  increment close — FAIL   (exit 1)")
-        print(f"RESUMEN    no podés cerrar con deuda: {reason}")
-        print("PRÓXIMO    commiteá el trabajo probado (mensaje con trailers I-10) y reintentá")
+        print("VERDICT    increment close — FAIL   (exit 1)")
+        print(f"SUMMARY    cannot close with debt: {reason}")
+        print("NEXT       commit the proven work (message with I-10 trailers) and retry")
         return 1
     if not _active_station_green(root):
-        print("VEREDICTO  increment close — FAIL   (exit 1)")
-        print("RESUMEN    la estación activa no recompone verde; no se cierra trabajo roto")
+        print("VERDICT    increment close — FAIL   (exit 1)")
+        print("SUMMARY    the active station does not recompute green; broken work is not closed")
         return 1
     path = workdir / cur
     text = path.read_text(encoding="utf-8")
@@ -769,9 +769,9 @@ def cmd_increment(args) -> int:
     docs_manifest.sync(root)
     projection.refresh(root)
     docs_manifest.sync(root)
-    print(f"VEREDICTO  increment close {cur} — PASS   (exit 0)")
-    print(f"RESUMEN    {cur} → CERRADO; proyección de STATE refrescada")
-    print("PRÓXIMO    narrá el episodio en LOG (`meta checkpoint` te ofrece los hechos sin narrar)")
+    print(f"VERDICT    increment close {cur} — PASS   (exit 0)")
+    print(f"SUMMARY    {cur} → CERRADO; STATE projection refreshed")
+    print("NEXT       narrate the episode in LOG (`meta checkpoint` offers you the unnarrated facts)")
     return 0
 
 
@@ -816,12 +816,12 @@ def cmd_checkpoint(args) -> int:
     runs = [e for e in journal.read(root, kinds={"station_run"}) if _parse_ts(e["ts"]) > _parse_ts(last)]
     delegs = [e for e in journal.read(root, kinds={"delegation"}) if _parse_ts(e["ts"]) > _parse_ts(last)]
     commits = _git_commits_since(root, last)
-    print(f"VEREDICTO  checkpoint — {'proyección refrescada' if changed else 'proyección al día'}   (exit 0)")
-    print(f"RESUMEN    STATE proyectado de hechos · desde el último LOG ({last}): "
+    print(f"VERDICT    checkpoint — {'projection refreshed' if changed else 'projection up to date'}   (exit 0)")
+    print(f"SUMMARY    STATE projected from facts · since the last LOG ({last}): "
           f"{len(runs)} station_run · {len(delegs)} delegation · {len(commits)} commit")
     if runs or commits or delegs:
-        print("PRÓXIMO    el juicio NO se fuerza, se OFRECE — agregá el SIGNIFICADO al LOG. Hechos sin narrar:")
-        print(f"           ## {journal.now()[:16]}Z — <título: qué cambió y por qué>")
+        print("NEXT       judgment is NOT forced, it's OFFERED — add the MEANING to LOG. Unnarrated facts:")
+        print(f"           ## {journal.now()[:16]}Z — <title: what changed and why>")
         for c in commits[:6]:
             print(f"           - commit: {c}")
         seen = set()
@@ -833,9 +833,9 @@ def cmd_checkpoint(args) -> int:
             print(f"           - station {r.get('station')} ({r.get('slug')}) passed={r.get('passed')} "
                   f"gate={'OPEN' if r.get('gate_open') else 'SHUT'}")
         for d in delegs:
-            print(f"           - delegación: {d.get('subagent_type')}/{d.get('model')} — {d.get('description', '')}")
+            print(f"           - delegation: {d.get('subagent_type')}/{d.get('model')} — {d.get('description', '')}")
     else:
-        print("PRÓXIMO    nada nuevo que narrar desde el último episodio de LOG")
+        print("NEXT       nothing new to narrate since the last LOG episode")
     return 0
 
 
@@ -843,7 +843,7 @@ def cmd_journal(args) -> int:
     root = _meta_root()
     from .memory import journal
     evs = journal.read(root, limit=args.tail)
-    print(f"VEREDICTO  journal — {len(evs)} evento(s) (tail {args.tail})   (exit 0)")
+    print(f"VERDICT    journal — {len(evs)} event(s) (tail {args.tail})   (exit 0)")
     for e in evs:
         extra = {k: v for k, v in e.items() if k not in ("ts", "kind")}
         print(f"  {e['ts']} {e['kind']}  {extra}")
@@ -876,9 +876,9 @@ def cmd_recall(args) -> int:
     redirige. La serie histórica `recall` del journal se conserva (T0, la medición vive)."""
     query = " ".join(getattr(args, "query", []) or []).strip()
     topic = f" «{query}»" if query else ""
-    print(f"VEREDICTO  recall — RETIRADO (ADR-019 §2)   (exit 0)")
-    print(f"RESUMEN    `meta recall` se midió 1×/0-hit y se retiró: Grep/Read es la superficie de retrieval.")
-    print(f"PRÓXIMO    para encontrar{topic}: `grep -rn …` sobre docs/ · re-verificá el estado con `meta check`")
+    print(f"VERDICT    recall — RETIRED (ADR-019 §2)   (exit 0)")
+    print(f"SUMMARY    `meta recall` measured 1×/0-hit and was retired: Grep/Read is the retrieval surface.")
+    print(f"NEXT       to find{topic}: `grep -rn …` over docs/ · re-verify state with `meta check`")
     return 0
 
 
@@ -911,18 +911,18 @@ def cmd_doc_slice(args) -> int:
     if not path.is_absolute():
         path = root / path
     if not path.is_file():
-        print(f"error: no existe el doc: {args.doc}", file=sys.stderr)
+        print(f"error: no such doc: {args.doc}", file=sys.stderr)
         return 1
     text = path.read_text(encoding="utf-8")
     if args.abstract:
         print(doc_slice.abstract(text))
         return 0
     if not args.selector:
-        print("error: falta <selector> (§N.N o substring de título) — o pasá --abstract", file=sys.stderr)
+        print("error: missing <selector> (§N.N or a title substring) — or pass --abstract", file=sys.stderr)
         return 1
     out = doc_slice.slice(text, args.selector)
     if out is None:
-        print(f"error: sección no encontrada: {args.selector!r} en {args.doc}", file=sys.stderr)
+        print(f"error: section not found: {args.selector!r} in {args.doc}", file=sys.stderr)
         return 1
     print(out)
     return 0
@@ -938,11 +938,11 @@ def cmd_doc_orphans(args) -> int:
     ingest_docs(graph, root)
     ingest_doc_edges(graph, root)
     orphans = orphan_docs(graph, root)
-    print(f"VEREDICTO  doc orphans — {len(orphans)} candidato(s)   (exit 0)")
+    print(f"VERDICT    doc orphans — {len(orphans)} candidate(s)   (exit 0)")
     for o in orphans:
         print(f"  {o['relpath']}  (last_edit={o['last_edit'] or '?'})")
-    print("RESUMEN    no reachable desde live roots (STATE/CLAUDE.md/incrementos ABIERTOS) vía CITES —"
-          " candidatos a archive (F4), no rojos")
+    print("SUMMARY    not reachable from live roots (STATE/CLAUDE.md/open increments) via CITES —"
+          " archive candidates (F4), not red")
     return 0
 
 
@@ -951,14 +951,14 @@ def cmd_jdk_run(args) -> int:
     measured 2-step sequence `eval "$(bash tools/toolchain.sh ensure)" && <verbose gradle/npm cmd>`
     (HARNESS-FAST-GATE fase-5 bonus evidence — resolve the JDK-21 toolchain, THEN run a verbose build/test,
     often across separate turns) into ONE verb: resolve JAVA_HOME/PATH and run `cmd` with a single
-    VEREDICTO line + full log artifact (reusing the C18 discipline). Thin CLI glue over
+    VERDICT line + full log artifact (reusing the C18 discipline). Thin CLI glue over
     `metafactory.toolchain_run` (the gated module); composition only, no new logic here."""
     from . import toolchain_run
     cmd = list(args.cmd)
     if cmd and cmd[0] == "--":
         cmd = cmd[1:]
     if not cmd:
-        print("error: falta el comando a correr (ej. `meta jdk-run -- ./gradlew test`)", file=sys.stderr)
+        print("error: missing the command to run (e.g. `meta jdk-run -- ./gradlew test`)", file=sys.stderr)
         return 1
     root = Path(args.root) if args.root else Path.cwd()
     return toolchain_run.run(cmd, root, label=args.label)
@@ -990,7 +990,7 @@ def cmd_outcome(args) -> int:
                          root=root, transcript=transcript))
     if getattr(args, "save", None):
         outcome.save(snap, Path(args.save))
-        print(f"\n(snapshot guardado en {args.save} — baseline para un próximo `meta outcome --baseline`)")
+        print(f"\n(snapshot saved to {args.save} — baseline for a future `meta outcome --baseline`)")
     return 0
 
 
@@ -1010,13 +1010,13 @@ class _Synthetic:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="meta", description="Meta-Factory — la fábrica que fabrica fábricas")
+    p = argparse.ArgumentParser(prog="meta", description="Meta-Factory — the factory that manufactures factories")
     sub = p.add_subparsers(dest="cmd", required=True)
     p_check = sub.add_parser("check")
     p_check.add_argument("--skip", default="", help=(
-        "gates a saltear (coma-separado) cuando su evidencia NO es re-derivable en este entorno "
-        "(p.ej. clon limpio sin `.proof/` local: projection,generality). El salto se IMPRIME como "
-        "SKIPPED — nunca cuenta como verde (EXTERNAL-CI-GREEN, COUNCIL-360 H-1)."))
+        "gates to skip (comma-separated) when their evidence is NOT re-derivable in this environment "
+        "(e.g. a clean clone with no local `.proof/`: projection,generality). The skip is PRINTED as "
+        "SKIPPED — it never counts as green (EXTERNAL-CI-GREEN, COUNCIL-360 H-1)."))
     p_check.set_defaults(func=cmd_check)
     sp = sub.add_parser("new"); sp.add_argument("spec"); sp.set_defaults(func=cmd_new)
     sp = sub.add_parser("station"); sp.add_argument("id"); sp.add_argument("--factory", required=True); sp.set_defaults(func=cmd_station)
@@ -1031,7 +1031,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("ci"); sp.add_argument("--rederive", action="store_true"); sp.add_argument("--factory", default="dummy")
     sp.add_argument("--product", default=None); sp.add_argument("--all-products", action="store_true"); sp.set_defaults(func=cmd_ci)
     sp = sub.add_parser("pin"); sp.add_argument("--factory", required=True); sp.add_argument("--product", default=None)
-    sp.add_argument("--verify", action="store_true", help="tras pinear, re-derivar en árbol limpio y confirmar == pin (B11: colapsa `pin`+`ci --rederive` en 1 verbo)")
+    sp.add_argument("--verify", action="store_true", help="after pinning, re-derive on a clean tree and confirm == pin (B11: collapses `pin`+`ci --rederive` into 1 verb)")
     sp.set_defaults(func=cmd_pin)
     sp = sub.add_parser("promote"); sp.add_argument("--factory", required=True)
     sp.add_argument("--baseline", default="baseline_verdicts.json"); sp.add_argument("--allow-hold", action="store_true")
@@ -1088,7 +1088,7 @@ def cmd_benchmark(args) -> int:
     glob = f"benchmarks/{args.name}.yml" if getattr(args, "name", None) else "benchmarks/*.yml"
     files = sorted(root.glob(glob))
     if not files:
-        print(f"VEREDICTO  benchmark — N/A   (exit 0)\nRESUMEN    no hay benchmarks ({glob})")
+        print(f"VERDICT    benchmark — N/A   (exit 0)\nSUMMARY    no benchmarks ({glob})")
         return 0
     rc = 0
     for i, path in enumerate(files):
@@ -1121,21 +1121,21 @@ def cmd_plan(args) -> int:
     root = _meta_root()
     p = planmod.load_plan(root)
     if p is None:
-        print("VEREDICTO  plan — N/A   (exit 0)")
-        print("RESUMEN    no hay `.gen/plan.json` — planificar es opt-in (S1 lo escribe; ver PLAN-EXECUTE-RUNBOOK)")
+        print("VERDICT    plan — N/A   (exit 0)")
+        print("SUMMARY    no `.gen/plan.json` — planning is opt-in (S1 writes it; see PLAN-EXECUTE-RUNBOOK)")
         return 0
 
     if args.plan_cmd == "check":
         problems = planmod.plan_problems(p)
         if problems:
-            print("VEREDICTO  plan check — FAIL   (exit 1)")
-            print(f"RESUMEN    {len(problems)} problema(s) en `.gen/plan.json`")
+            print("VERDICT    plan check — FAIL   (exit 1)")
+            print(f"SUMMARY    {len(problems)} problem(s) in `.gen/plan.json`")
             for x in problems[:10]:
                 print(f"           {x}")
             return 1
         s = planmod.status_summary(p)
-        print("VEREDICTO  plan check — PASS   (exit 0)")
-        print(f"RESUMEN    plan bien formado · {s['total']} WorkOrders · {len(s['done'])} done · next={s['next']}")
+        print("VERDICT    plan check — PASS   (exit 0)")
+        print(f"SUMMARY    well-formed plan · {s['total']} WorkOrders · {len(s['done'])} done · next={s['next']}")
         return 0
 
     if args.plan_cmd == "next":
@@ -1143,17 +1143,17 @@ def cmd_plan(args) -> int:
         if wo is None:
             s = planmod.status_summary(p)
             done = s["complete"]
-            print(f"VEREDICTO  plan next — {'DONE' if done else 'BLOCKED'}   (exit 0)")
+            print(f"VERDICT    plan next — {'DONE' if done else 'BLOCKED'}   (exit 0)")
             if done:
-                print("RESUMEN    plan completo — todos los WorkOrders done/deferred; cerrá con S3")
+                print("SUMMARY    plan complete — every WorkOrder is done/deferred; close it with S3")
             else:
-                print(f"RESUMEN    frontera bloqueada: {s['blocked']} esperan una dep no-done "
-                      f"(¿un dep quedó `deferred`? revisá `meta plan status`)")
+                print(f"SUMMARY    blocked frontier: {s['blocked']} waiting on a not-done dep "
+                      f"(did a dep end up `deferred`? check `meta plan status`)")
             return 0
-        print("VEREDICTO  plan next — READY   (exit 0)")
-        print(f"RESUMEN    próximo slot: {wo['slot_id']} — {wo.get('single_responsibility', '')}")
-        print("PRÓXIMO    escribí este WorkOrder a `.gen/active_slot.json` (skill generate-slot) → veredicto → "
-              f"commit «{wo.get('commit', '<sin plan de commit>')}»")
+        print("VERDICT    plan next — READY   (exit 0)")
+        print(f"SUMMARY    next slot: {wo['slot_id']} — {wo.get('single_responsibility', '')}")
+        print("NEXT       write this WorkOrder to `.gen/active_slot.json` (skill generate-slot) → verdict → "
+              f"commit «{wo.get('commit', '<no commit planned>')}»")
         print("--- WorkOrder (slot manifest) ---")
         print(json.dumps(wo, indent=2, ensure_ascii=False))
         return 0
@@ -1162,8 +1162,8 @@ def cmd_plan(args) -> int:
     s = planmod.status_summary(p)
     escs = planmod.load_escalations(root)
     broken = [(n, e) for n, e in escs if "_error" in e or planmod.escalation_problems(e)]
-    print(f"VEREDICTO  plan status — {'ESCALADO' if escs else 'OK'}   (exit 0)")
-    print(f"RESUMEN    {s['total']} WorkOrders · done {len(s['done'])} · pending {len(s['pending'])} · "
+    print(f"VERDICT    plan status — {'ESCALADO' if escs else 'OK'}   (exit 0)")
+    print(f"SUMMARY    {s['total']} WorkOrders · done {len(s['done'])} · pending {len(s['pending'])} · "
           f"deferred {len(s['deferred'])} · blocked {len(s['blocked'])} · next={s['next']}")
     if s["blocked"]:
         print(f"BLOQUEADOS {s['blocked']}")

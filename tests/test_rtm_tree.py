@@ -74,7 +74,7 @@ def test_unsatisfied_when_artifact_missing(tmp_path):
                  [Capability(id="cap", artifact="vanished.txt")])
     nodes = rtm.build_tree(spec, _V, tmp_path)
     assert not nodes[0].satisfied
-    assert "artefacto ausente" in nodes[0].broken_edge()
+    assert "missing artifact" in nodes[0].broken_edge()
 
 
 def test_no_artifact_declared_is_not_faked(tmp_path):

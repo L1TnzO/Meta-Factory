@@ -94,7 +94,7 @@ def main(argv: list[str]) -> int:
 
         missing = [h for h in _HOOKS if not (clone / ".claude" / "hooks" / h).exists()]
         if missing:
-            print(f"COLUMN HOLLOW: faltan hooks heredados: {', '.join(missing)}")
+            print(f"COLUMN HOLLOW: missing inherited hooks: {', '.join(missing)}")
             return 1
 
         v = _load_inherited_verifier(clone)
@@ -104,10 +104,10 @@ def main(argv: list[str]) -> int:
         rc_c = _run_hook(clone, "commit_guard.py", _COMMIT_EVENT)
         rc_s = _run_hook(clone, "stop_proof.py", _STOP_EVENT)
         if rc_c != 2:
-            print(f"COLUMN HOLLOW: commit_guard NO bloqueó un veredicto tampereado (exit {rc_c})")
+            print(f"COLUMN HOLLOW: commit_guard did NOT block a tampered verdict (exit {rc_c})")
             return 1
         if rc_s != 2:
-            print(f"COLUMN HOLLOW: stop_proof NO bloqueó un veredicto tampereado (exit {rc_s})")
+            print(f"COLUMN HOLLOW: stop_proof did NOT block a tampered verdict (exit {rc_s})")
             return 1
 
         # 2. VERDE-LIMPIO: ambos hooks deben PERMITIR (exit 0) — una columna que siempre bloquea
@@ -117,31 +117,31 @@ def main(argv: list[str]) -> int:
         gc = _run_hook(clone, "commit_guard.py", _COMMIT_EVENT)
         gs = _run_hook(clone, "stop_proof.py", _STOP_EVENT)
         if gc != 0 or gs != 0:
-            print(f"COLUMN SOBRE-BLOQUEA: verde-limpio rechazado (commit_guard {gc}, stop_proof {gs})")
+            print(f"COLUMN OVER-BLOCKS: clean-green rejected (commit_guard {gc}, stop_proof {gs})")
             return 1
 
-        # 3. CADENCIA (H1): el increment_guard heredado gobierna el lifecycle de la fábrica, dos lados.
+        # 3. CADENCE (H1): the inherited increment_guard governs the factory's own lifecycle, two-sided.
         code_target = clone / "src" / "selfgov_probe.py"
         # 3a. SIN incremento abierto (el clon no trae docs/work/*ABIERTO): un edit no-`.md` se DENIEGA.
         rc_deny = _run_hook(clone, "increment_guard.py", _edit_event(code_target))
         if rc_deny != 2:
-            print(f"CADENCIA HUECA: increment_guard NO bloqueó editar código sin incremento (exit {rc_deny})")
+            print(f"CADENCE HOLLOW: increment_guard did NOT block editing code without an increment (exit {rc_deny})")
             return 1
         # 3b. un `.md` SIEMPRE se permite (es como se abre un incremento — auto-bootstrap).
         rc_md = _run_hook(clone, "increment_guard.py", _edit_event(clone / "docs" / "work" / "NEW-INCREMENT.md"))
         if rc_md != 0:
-            print(f"CADENCIA SOBRE-BLOQUEA: increment_guard rechazó un `.md` (exit {rc_md})")
+            print(f"CADENCE OVER-BLOCKS: increment_guard rejected a `.md` (exit {rc_md})")
             return 1
         # 3c. CON un incremento abierto: el MISMO edit no-`.md` se PERMITE (el otro lado, no decorativo).
         _open_increment_doc(clone)
         rc_allow = _run_hook(clone, "increment_guard.py", _edit_event(code_target))
         if rc_allow != 0:
-            print(f"CADENCIA SOBRE-BLOQUEA: increment_guard rechazó código con incremento abierto (exit {rc_allow})")
+            print(f"CADENCE OVER-BLOCKS: increment_guard rejected code with an increment open (exit {rc_allow})")
             return 1
 
-        print("OK columna heredada COMPLETA: commit_guard (C2) + stop_proof (C3) bloquean el veredicto "
-              "tampereado y pasan el verde-limpio; increment_guard (cadencia, H1) deniega código sin "
-              "incremento y lo permite con uno — autocontenidos en el seed, la fábrica se gobierna sola")
+        print("OK inherited column COMPLETE: commit_guard (C2) + stop_proof (C3) block the tampered "
+              "verdict and pass the clean-green; increment_guard (cadence, H1) denies code without an "
+              "open increment and allows it with one — self-contained in the seed, the factory governs itself")
         return 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

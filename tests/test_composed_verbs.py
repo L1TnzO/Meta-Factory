@@ -46,26 +46,26 @@ def test_pin_without_verify_is_unchanged(monkeypatch, capsys):
     rc = cli.cmd_pin(_pin_args(verify=False))
     assert rc == 0
     out = capsys.readouterr().out
-    assert "VEREDICTO  pin t — PASS" in out
+    assert "VERDICT    pin t — PASS" in out
     assert "--verify" not in out
 
 
 def test_pin_verify_pass_runs_ci_and_reports_combined_pass(monkeypatch, capsys):
     monkeypatch.setattr(cli, "_resolve_target", lambda slug, product: (Path("/tmp/whatever"), None))
     monkeypatch.setattr(cli, "_pin_from_proofs", lambda root, meta_root, slug, chassis=None: (True, {"s1": "sha1"}))
-    monkeypatch.setattr(cli, "_ci_one", lambda slug, product: (True, "t: 1/1 proof_sha == pineado"))
+    monkeypatch.setattr(cli, "_ci_one", lambda slug, product: (True, "t: 1/1 proof_sha == pinned"))
 
     rc = cli.cmd_pin(_pin_args(verify=True))
     assert rc == 0
     out = capsys.readouterr().out
     assert "pin t --verify — PASS" in out
-    assert "1/1 proof_sha == pineado" in out
+    assert "1/1 proof_sha == pinned" in out
 
 
 def test_pin_verify_ci_failure_is_red(monkeypatch, capsys):
     monkeypatch.setattr(cli, "_resolve_target", lambda slug, product: (Path("/tmp/whatever"), None))
     monkeypatch.setattr(cli, "_pin_from_proofs", lambda root, meta_root, slug, chassis=None: (True, {"s1": "sha1"}))
-    monkeypatch.setattr(cli, "_ci_one", lambda slug, product: (False, "t: 0/1 proof_sha == pineado · drift"))
+    monkeypatch.setattr(cli, "_ci_one", lambda slug, product: (False, "t: 0/1 proof_sha == pinned · drift"))
 
     rc = cli.cmd_pin(_pin_args(verify=True))
     assert rc == 1
@@ -84,7 +84,7 @@ def test_pin_verify_short_circuits_when_pin_itself_fails(monkeypatch, capsys):
     rc = cli.cmd_pin(_pin_args(verify=True))
     assert rc == 1
     out = capsys.readouterr().out
-    assert "VEREDICTO  pin — FAIL" in out
+    assert "VERDICT    pin — FAIL" in out
 
 
 # ── meta jdk-run — composition over metafactory.toolchain_run ───────────────

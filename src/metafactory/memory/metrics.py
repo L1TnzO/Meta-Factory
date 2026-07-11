@@ -538,7 +538,7 @@ def render_model_split(split: dict[str, dict[str, int]]) -> str:
     objetivo de DELEGATION-ACTIVATION es mover el bulk a tiers baratos → bajar la cuota de opus. Split
     vacío → línea honesta (sin stats-cache)."""
     if not split:
-        return "SPLIT      sin stats-cache (~/.claude/stats-cache.json ausente)"
+        return "SPLIT      no stats-cache (~/.claude/stats-cache.json absent)"
     c = cost(split)
     total = c.pop("total", 0.0)
     by_tier: dict[str, float] = {}
@@ -546,8 +546,8 @@ def render_model_split(split: dict[str, dict[str, int]]) -> str:
         by_tier[tier_for(model_id)] = by_tier.get(tier_for(model_id), 0.0) + usd
     parts = [f"{t} {(by_tier[t] / total * 100) if total > 0 else 0:.0f}%"
              for t in ("opus", "sonnet", "haiku") if t in by_tier]
-    return (f"SPLIT      costo/máquina-global por tier: {' · '.join(parts)} "
-            f"(total ${total:.2f}; meta = bajar opus moviendo el bulk a sonnet/haiku)")
+    return (f"SPLIT      machine-global cost by tier: {' · '.join(parts)} "
+            f"(total ${total:.2f}; goal = lower opus by moving the bulk to sonnet/haiku)")
 
 
 def aggregate(root: Path) -> dict[str, Any]:
@@ -610,10 +610,10 @@ def render(root: Path, transcript: Path | None = None) -> str:
     agg = aggregate(root)
     lines: list[str] = []
 
-    # Línea 1: encabezado
-    lines.append("VEREDICTO  metrics — resumen de hechos")
+    # Line 1: header
+    lines.append("VERDICT    metrics — summary of facts")
 
-    # Costo (solo si se pasa transcript)
+    # Cost (only if a transcript is passed)
     if transcript is not None:
         rollup = rollup_from_transcript(transcript)
         if rollup:
@@ -623,9 +623,9 @@ def render(root: Path, transcript: Path | None = None) -> str:
             for model_id, usd in c.items():
                 pct = (usd / total_usd * 100) if total_usd > 0 else 0
                 parts.append(f"{model_id} ${usd:.4f} ({pct:.0f}%)")
-            lines.append(f"COSTO      {' · '.join(parts)} · total ${total_usd:.4f}")
+            lines.append(f"COST       {' · '.join(parts)} · total ${total_usd:.4f}")
         else:
-            lines.append("COSTO      sin datos de transcript")
+            lines.append("COST       no transcript data")
 
     # Delegación — el CONTEO lidera (lo que prueba la activación); la tasa vs station_runs se diluye en
     # la historia (lifetime) y redondearía a 0.0% con pocas delegaciones, así que va con 2 decimales y de
@@ -635,7 +635,7 @@ def render(root: Path, transcript: Path | None = None) -> str:
                 + "]") if by_tier else ""
     pct_d = agg["delegation_rate"] * 100
     lines.append(
-        f"DELEGACION {agg.get('n_delegations', 0)} evento(s){tier_str}"
+        f"DELEGATION {agg.get('n_delegations', 0)} event(s){tier_str}"
         f" · {pct_d:.2f}% vs {agg.get('n_station_runs', 0)} station_run"
     )
 
@@ -653,8 +653,8 @@ def render(root: Path, transcript: Path | None = None) -> str:
         f" · racha {agg['gate_streak']}"
     )
 
-    # Artefacto
-    lines.append(f"ARTEFACTO  {MEMDIR}/metrics.jsonl")
+    # Artifact
+    lines.append(f"ARTIFACT   {MEMDIR}/metrics.jsonl")
 
     # Garantía de cota (<=12 líneas)
     return "\n".join(lines[:12])

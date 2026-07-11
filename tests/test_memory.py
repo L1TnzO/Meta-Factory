@@ -217,7 +217,7 @@ class TestRecallRetired:
             env={"PYTHONPATH": str(root / "src"), "PATH": __import__("os").environ.get("PATH", "")},
         )
         assert out.returncode == 0
-        assert "RETIRADO" in out.stdout
+        assert "RETIRED" in out.stdout
         assert "ADR-019" in out.stdout
         assert "grep" in out.stdout.lower() or "meta check" in out.stdout
 

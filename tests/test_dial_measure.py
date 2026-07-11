@@ -81,7 +81,7 @@ def test_gate_red_on_all_harden(tmp_path):
     _factory(tmp_path, "f", [{"id": "s0", "name": "a", "tier": "harden"},
                              {"id": "s1", "name": "b", "tier": "harden"}])
     probs = dial.gate_problems(tmp_path, "f")
-    assert probs and "decorativo" in probs[0]
+    assert probs and "decorative" in probs[0]
     assert dial_gate.main([str(tmp_path)]) == 1
 
 

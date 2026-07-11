@@ -1,7 +1,7 @@
-<!-- meta:doc sha=c28b323880e03de166ce6a749db9fce6f497e6ac updated=2026-07-11T17:43Z -->
+<!-- meta:doc sha=e4ff08e4d5aee3699304fe0a8d0e1cd1c253eb40 updated=2026-07-11T17:43Z -->
 # Incremento SLOT-FOOTPRINT-TOOTH
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T17:26Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-11T17:43Z) (creado 2026-07-11T17:26Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

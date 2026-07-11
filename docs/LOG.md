@@ -1,7 +1,30 @@
-<!-- meta:doc sha=9fe06909a48817ba6750601a64b24af0ad4c5c39 updated=2026-07-11T17:16Z -->
+<!-- meta:doc sha=3b2f00096cd1ae32bd9942591fc17b19fb6d9431 updated=2026-07-11T17:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T17:43Z — SLOT-FOOTPRINT-TOOTH (SOTA-PARITY INC-1) CLOSED: delegation boundary made honest
+GAP-1 of the 2026-07-11 audit closed the same day, column work by the brain's own eyes (never delegated).
+The two leaks: (a) a generator's Bash could write outside its slot (PreToolUse only matches Write|Edit|
+MultiEdit) and (b) both hooks' `except: return 0` went fail-OPEN while a slot was active. The fix follows
+our idiom — verify-not-trust, deterministic, no OS sandbox: slot acceptance is now decided on the
+git-OBSERVED change footprint (changes ⊆ `allow_globs ∪ {verdict_path} ∪ .gen/** ∪ baseline_dirty`), as a
+PURE law function (`seed/delegation.footprint_problems`; subprocess only in the transports) enforced three
+times: SubagentStop (`verdict_required`, now also fail-closed with `git status -uall` repo-prefix re-based
+for factory-inside-repo roots), acceptance (`slot_footprint --live` in the generate-slot skill, catches a
+generator killed mid-flight), and a standing two-sided `meta check` gate `slot_footprint` (22 gates now)
+whose fail-closed witness runs the REAL hooks against a synthetic broken-law root (exit 2 required) and a
+manifest-absent root (inert 0 required). `write_slot` records `baseline_dirty` at slot-open so a pre-dirty
+tree can't false-red. Propagated byte-identically (m00→m01 ×5, `column_parity` green); INC-6's
+repomap-first orchestrator line batched into the same column stretch (prefix-hygiene (e)). Live proof by
+blocking, not narration: a scratch Sonnet generator created an out-of-slot file via Bash (succeeded —
+Write-hook blind, as diagnosed), wrote a green verdict, tried to stop → SubagentStop exit 2 traced with
+the SLOT-FOOTPRINT-TOOTH message naming the escape → deleted it → stopped clean. Honest residual DECLARED
+(HONEST-STATE §7): the tooth only sees what PERSISTS; transient Bash side-effects (network egress, env
+mutation, secret reads) stay app-layer-uncontained — trigger for OS-sandbox (INC-7 hard version) = first
+security-sensitive slot or first observed escape. This tooth is also the safety prerequisite for INC-2
+(`PARALLEL-SLOTS-PILOT`): unattended parallel workers are only acceptable when acceptance is deterministic
+on their footprint. Evidence: `work/SLOT-FOOTPRINT-TOOTH-INCREMENT.md §Criterio de cierre`.
 
 ## 2026-07-11T17:14Z — ENGLISH-META-DOCS (F2c) CLOSED: 19 authored meta docs → English, 5 sequential slots
 ADR-026's F2(c): `docs/STATE.md`, the COST-DOWN direction doc, and all 17 `docs/reference/*.md` translated

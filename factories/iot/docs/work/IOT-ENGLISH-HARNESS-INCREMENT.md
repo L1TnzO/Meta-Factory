@@ -1,7 +1,7 @@
-<!-- meta:doc sha=48541f8e950e5ba69119ac6d1f66eb9105779eeb updated=2026-07-11T04:58Z -->
+<!-- meta:doc sha=ed4406f25b4dc63db7f657904c2d59e49f6665d5 updated=2026-07-11T04:59Z -->
 # Incremento IOT-ENGLISH-HARNESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T04:58Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T04:59Z) (creado 2026-07-11T04:58Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

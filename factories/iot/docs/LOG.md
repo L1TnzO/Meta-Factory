@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f60cc3c739ee1771159cd61a21ddd0bf59c480cd updated=2026-07-04T14:33Z -->
+<!-- meta:doc sha=2c7b3097d9f401c7a4de9ea55d39e065e6708f7f updated=2026-07-11T04:59Z -->
 # Bitácora — IoT Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 

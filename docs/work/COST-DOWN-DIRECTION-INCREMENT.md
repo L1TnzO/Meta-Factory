@@ -1,295 +1,297 @@
-<!-- meta:doc sha=8d06523367314f59bbd46a81328731659349dd45 updated=2026-07-02T14:35Z -->
-# Incremento COST-DOWN-DIRECTION
+<!-- meta:doc sha=050be0d56eb0acbf7570ea231becec657a534dae updated=2026-07-11T15:28Z -->
+# COST-DOWN-DIRECTION Increment
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T14:35Z) (creado 2026-07-02T14:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
-> **ESTE DOC ES LA BIBLIA DE COSTOS.** Documento FUNDACIONAL y AUTO-CONTENIDO de la dirección
-> `COST-DOWN` (ADR-021): cómo hacer que la Meta-Factory y las fábricas cuesten 3–5× menos por incremento
-> (~10× en el día-a-día) SIN perder potencia — mismas garantías (pin de clon limpio, gates, RTM), otro precio.
-> El plan es **FIJO: N=7 incrementos (INC-0…INC-6), orden inmutable, condiciones de N/A pre-decididas** —
-> las sesiones futuras EJECUTAN, no re-deciden. Una sesión que llega sin contexto necesita SOLO este doc.
+> **THIS DOC IS THE COST BIBLE.** FOUNDATIONAL and SELF-CONTAINED document of the `COST-DOWN`
+> direction (ADR-021): how to make the Meta-Factory and the factories cost 3–5× less per increment
+> (~10× in day-to-day work) WITHOUT losing power — same guarantees (clean-clone pin, gates, RTM), a different price.
+> The plan is **FIXED: N=7 increments (INC-0…INC-6), immutable order, pre-decided N/A conditions** —
+> future sessions EXECUTE, they do not re-decide. A session arriving with no context needs ONLY this doc.
 
-## Cómo leer este doc (regla de rebanada — el doc practica lo que predica)
-- **Siempre:** §2 (la doctrina, ~60 líneas) + §4.INC-n (la spec del incremento que te toca).
-- **Referencia, NO lectura obligatoria:** §1 (evidencia medida) · §3 (catálogo de palancas) · §5–§6.
-- No leas el doc entero en una sesión de ejecución: `grep -n "INC-<n>"` y andá a tu rebanada.
+## How to read this doc (slice rule — the doc practices what it preaches)
+- **Always:** §2 (the doctrine, ~60 lines) + §4.INC-n (the spec of the increment assigned to you).
+- **Reference, NOT mandatory reading:** §1 (measured evidence) · §3 (lever catalog) · §5–§6.
+- Don't read the whole doc in an execution session: `grep -n "INC-<n>"` and go to your slice.
 
 ## Objetivo (de ESTE incremento de dirección)
-Cristalizar la dirección de economía en un **ADR-021** + esta biblia auto-contenida con el plan fijo de
-7 incrementos, para que las próximas sesiones sepan QUÉ construir, EN QUÉ ORDEN y CUÁNDO PARAR — sin re-diseñar.
+Crystallize the economy direction into an **ADR-021** + this self-contained bible with the fixed plan of
+7 increments, so the next sessions know WHAT to build, IN WHAT ORDER, and WHEN TO STOP — without re-designing.
 
 ---
 
-## §1 · POR QUÉ — la evidencia medida (2026-07-02; no re-derivar, está citada)
+## §1 · WHY — the measured evidence (2026-07-02; do not re-derive, it is cited)
 
-### 1.1 La factura y el fracaso instructivo
-- **$2,761.18 en 32 sesiones (~$86/sesión) · split opus 89% · sonnet 11% · haiku 0%** (`meta metrics`).
-- La delegación por slots (Fase 2 SOTA, encendida en ADR-020) **no movió la aguja**: se delegaron **159k tok**
-  a Sonnet (`DELEG-PAYOFF-MEASURE`) y la delegación acumulada quedó en **0.06%** (3 eventos vs 5,225
-  station_run). Causa raíz: la delegación ataca el OUTPUT de Opus, pero el costo real es su **RESIDENCIA**
-  (turnos × contexto re-leído del cache) — el orquestador Opus siguió pagando alquiler en cada turno mecánico.
-- Turnos mecánicos medidos: **Bash 6,170 · Read 3,496 · Edit 2,430 · Write 427** (acumulado 32 sesiones).
-- Churn de contexto: **66 archivos re-leídos, 156 re-lecturas EXTRA** (`server.py`×20 · `base.py`×13 ·
-  `constants.py`×13) · **3 compactaciones** en un solo incremento.
-- Slot peor-caso: gen#1 = 73k tok / **79.5 min** (huecos > TTL de cache garantizados); el gate de iteración
-  era `product-run snipeit` (integración de minutos, 19 entidades) — el oráculo "barato" que no lo era.
-- Rehidratación de sesión (SessionStart): **~500 tok** (prom 539). Matar-y-renacer una sesión cuesta CENTAVOS.
+### 1.1 The bill and the instructive failure
+- **$2,761.18 over 32 sessions (~$86/session) · split opus 89% · sonnet 11% · haiku 0%** (`meta metrics`).
+- Slot-based delegation (SOTA Phase 2, ignited in ADR-020) **did NOT move the needle**: **159k tok** were
+  delegated to Sonnet (`DELEG-PAYOFF-MEASURE`) and cumulative delegation stayed at **0.06%** (3 events vs 5,225
+  station_run). Root cause: delegation attacks Opus's OUTPUT, but the real cost is its **RESIDENCY**
+  (turns × cache-re-read context) — the Opus orchestrator kept paying rent on every mechanical turn.
+- Measured mechanical turns: **Bash 6,170 · Read 3,496 · Edit 2,430 · Write 427** (accumulated over 32 sessions).
+- Context churn: **66 re-read files, 156 EXTRA re-reads** (`server.py`×20 · `base.py`×13 ·
+  `constants.py`×13) · **3 compactions** in a single increment.
+- Worst-case slot: gen#1 = 73k tok / **79.5 min** (gaps > cache TTL guaranteed); the iteration gate
+  was `product-run snipeit` (minutes-long integration, 19 entities) — the "cheap" oracle that wasn't.
+- Session rehydration (SessionStart): **~500 tok** (avg 539). Killing-and-rebirthing a session costs CENTS.
 
-### 1.2 La tabla de precios (DATA, 2026-07-02, USD/MTok — actualizar acá si cambia)
-| Modelo | Base input | Write 5m | Write 1h | **Hit & refresh** | Output |
+### 1.2 The pricing table (DATA, 2026-07-02, USD/MTok — update here if it changes)
+
+| Model | Base input | Write 5m | Write 1h | **Hit & refresh** | Output |
 | --- | --- | --- | --- | --- | --- |
 | Opus 4.8 | $5 | $6.25 | $10 | **$0.50** | $25 |
-| Sonnet 5 (promo hasta **2026-08-31**) | $2 | $2.50 | $4 | $0.20 | $10 |
+| Sonnet 5 (promo until **2026-08-31**) | $2 | $2.50 | $4 | $0.20 | $10 |
 | Haiku 4.5 | $1 | $1.25 | $2 | $0.10 | $5 |
 
-Ratios estructurales: **opus:sonnet:haiku = 5:2:1 uniforme** · hit = 10% del base · write 5m = 1.25× ·
-write 1h = 2×. **El thinking factura como OUTPUT** ($25/M en Opus): un turno mecánico con thinking alto es
-plata quemada. ⚠️ Re-evaluar el ruteo cuando venza la promo de Sonnet 5 (2026-09-01).
+Structural ratios: **opus:sonnet:haiku = 5:2:1 uniform** · hit = 10% of base · write 5m = 1.25× ·
+write 1h = 2×. **Thinking bills as OUTPUT** ($25/M on Opus): a mechanical turn with high thinking is
+burned money. ⚠️ Re-evaluate routing when the Sonnet 5 promo expires (2026-09-01).
 
-### 1.3 Descomposición de una sesión tipo (reconstrucción; INC-1 la hace EXACTA)
-Sesión representativa (~400 turnos, ctx medio 140k, output+thinking ~2.5k/turno, 3 expiraciones, 1 compactación):
-| Término | Cálculo | ~$ | ~% |
+### 1.3 Breakdown of a typical session (reconstruction; INC-1 makes it EXACT)
+Representative session (~400 turns, avg ctx 140k, output+thinking ~2.5k/turn, 3 expirations, 1 compaction):
+| Term | Calculation | ~$ | ~% |
 | --- | --- | --- | --- |
-| Cache-hits (turnos × ctx) | 400 × 140k × $0.50/M | $28 | **~45%** |
+| Cache-hits (turns × ctx) | 400 × 140k × $0.50/M | $28 | **~45%** |
 | Output + thinking Opus | 400 × 2.5k × $25/M | $25 | **~40%** |
-| Expiraciones + compactación | 3×140k×$6.25/M + ~$1.5 | $4 | ~7% |
-| Writes incrementales | 180k × $6.25/M | $1 | ~2% |
-**Lectura:** la factura es `turnos × contexto` + `turnos × verbosidad`, mitad y mitad. El churn de cache (la
-pregunta del TTL) es REAL pero tercer orden (~5–15%). Las palancas del 85% son: ruteo de modelo por sesión,
-contexto chico, menos turnos.
+| Expirations + compaction | 3×140k×$6.25/M + ~$1.5 | $4 | ~7% |
+| Incremental writes | 180k × $6.25/M | $1 | ~2% |
+**Reading:** the bill is `turns × context` + `turns × verbosity`, half and half. Cache churn (the
+TTL question) is REAL but third-order (~5–15%). The 85% levers are: per-session model routing,
+lean context, fewer turns.
 
-### 1.4 Tres hechos verificados en el repo (2026-07-02, con ojos)
-1. **`src/metafactory/graph/billing.py` precia solo con `(input, output)`** — el ledger es CIEGO a las 3
-   columnas de cache que queremos optimizar. Sin INC-1, ninguna decisión de cache es decidible.
-2. **La línea FSK no llama a NINGÚN modelo** (grep en `stations/` y `codegen/`): `product-run` es 100%
-   determinista. El costo del día-a-día es la SESIÓN Opus que lo babysittea, nunca la línea. → El día-a-día
-   se arregla con una REGLA (INC-0), no con código.
-3. El arnés verificar-no-revisar (radios por hook · veredicto obligatorio · retry ≤2 · pin de clon limpio ·
-   `increment_guard`/`stop_proof`) YA hace que la correctitud NO dependa del modelo del ejecutor.
+### 1.4 Three facts verified in the repo (2026-07-02, by eyes)
+1. **`src/metafactory/graph/billing.py` prices only with `(input, output)`** — the ledger is BLIND to the 3
+   cache columns we want to optimize. Without INC-1, no cache decision is decidable.
+2. **The FSK line calls NO model** (grep in `stations/` and `codegen/`): `product-run` is 100%
+   deterministic. The day-to-day cost is the Opus SESSION babysitting it, never the line. → Day-to-day
+   is fixed with a RULE (INC-0), not code.
+3. The verify-not-review harness (radius by hook · mandatory verdict · retry ≤2 · clean-clone pin ·
+   `increment_guard`/`stop_proof`) ALREADY makes correctness NOT depend on the executor's model.
 
 ---
 
-## §2 · QUÉ — la doctrina (economía Opus-marginal, ADR-021)
+## §2 · WHAT — the doctrine (Opus-marginal economy, ADR-021)
 
-### 2.1 Principio rector
-> **La correctitud la dan los GATES, no el IQ del ejecutor.** El modelo de cada sesión/turno es un parámetro
-> de PRECIO, no de seguridad. El juicio caro (Opus) se gasta SOLO donde no hay gate: diseñar contratos,
-> decidir alcance, revisar el residuo irreducible, y la COLUMNA (trust-chain, con ojos propios).
+### 2.1 Guiding principle
+> **Correctness comes from the GATES, not the executor's IQ.** Each session/turn's model is a PRICE
+> parameter, not a safety one. Expensive judgment (Opus) is spent ONLY where there is no gate: designing
+> contracts, deciding scope, reviewing the irreducible residue, and the COLUMN (trust-chain, with your own eyes).
 
-### 2.2 Ruteo por SESIÓN (la extensión de ADR-017 §3 un nivel arriba)
-| Clase | Modelo | Forma | Entrega |
+### 2.2 Routing by SESSION (the extension of ADR-017 §3 one level up)
+| Class | Model | Shape | Delivers |
 | --- | --- | --- | --- |
-| **S1 · DISEÑO** | Opus, thinking alto | corta (≤~30 turnos; matar antes de 100k ctx) | el plan como DATA (`.gen/plan.json`, INC-4) — contratos, gates, radios, criterios |
-| **S2 · EJECUCIÓN** | **Sonnet** (`claude --model sonnet --agent orchestrator`) | la que haga falta (turnos 2.5× más baratos) | commits + veredictos; en rojo-persistente/seguridad/ambigüedad → archivo de escalación, NUNCA "pensar más fuerte" |
-| **S3 · REVISIÓN/CIERRE** | Opus, corta | muy corta | lee outcome+veredictos+escalaciones, revisa residuo, cierra, handoff |
-- **Día-a-día** (producto desde spec existente): shell directo o Sonnet — **NUNCA Opus** (§1.4-2).
-- Sin rol nuevo: `orchestrator` con el modelo como parámetro de invocación (vocabulario ADR-020 intacto).
-- Peor caso de un ejecutor Sonnet = tokens 2.5× más baratos desperdiciados; jamás código malo aceptado
-  (gates) ni fuera de radio (hooks) ni cierre sin prueba (`stop_proof`). Riesgo acotado por retry ≤2 +
-  escalación barata.
+| **S1 · DESIGN** | Opus, high thinking | short (≤~30 turns; kill before 100k ctx) | the plan as DATA (`.gen/plan.json`, INC-4) — contracts, gates, radii, criteria |
+| **S2 · EXECUTION** | **Sonnet** (`claude --model sonnet --agent orchestrator`) | whatever it takes (turns 2.5× cheaper) | commits + verdicts; on persistent-red/security/ambiguity → escalation file, NEVER "think harder" |
+| **S3 · REVIEW/CLOSE** | Opus, short | very short | reads outcome+verdicts+escalations, reviews residue, closes, handoff |
+- **Day-to-day** (product from existing spec): direct shell or Sonnet — **NEVER Opus** (§1.4-2).
+- No new role: `orchestrator` with the model as an invocation parameter (ADR-020 vocabulary intact).
+- Worst case of a Sonnet executor = 2.5× cheaper tokens wasted; never bad code accepted
+  (gates) nor out-of-radius (hooks) nor closing without proof (`stop_proof`). Risk bounded by retry ≤2 +
+  cheap escalation.
 
-### 2.3 Doctrina de cache (la respuesta cerrada a "¿5m o 1h?")
-**Mecánica:** cada hit REFRESCA el TTL al precio del hit ("Hits & Refreshes"). El cache NO muere por duración
-de la tarea; muere por un **HUECO > TTL sin requests**. La variable es la distribución de huecos.
-**Matemática** (P = prefijo cacheado, C = contexto total escrito en la sesión, b = precio base):
-- Penalidad de UNA expiración (política 5m): re-write `1.25b·P` en vez de hit `0.1b·P` → **≈ 1.15b·P extra**.
-- Sobrecosto de la política 1h: 2× en vez de 1.25× por CADA token escrito → **≈ 0.75b·C total**.
-- **Regla:** 1h conviene ⟺ `E[huecos>5min] × 1.15·P > 0.75·C`; con P≈C ⟺ **esperás ≥1 hueco >5min**.
-- Verificación de intuición: 2 writes 5m = 2.5b·P > 1 write 1h = 2b·P — una sola expiración ya paga el 1h.
-- En números (P=120k, Opus): hit $0.06 · expiración $0.75 · premium 1h/sesión (C=160k) ≈ $0.60.
-**Decisión (DATA, no opinión):** sesiones de trabajo real (gradle en minutos, slots 15–79 min medidos) tienen
-huecos >5min con certeza → **TTL 1h SI el knob existe**; 5m alcanza solo para sesiones cortas que MORÍS al
-terminar. ⚠️ Claude Code hoy NO expone el knob (la API sí: `cache_control {ttl:"1h"}` + beta
-`extended-cache-ttl-2025-04-11`) — el sondeo y el camino proxy son INC-5, condicional por medición.
-**Las 3 cartas que le ganan al TTL (usarlas SIEMPRE, no requieren knob):**
-1. **Hueco al FINAL → matar la sesión.** Rehidratar cuesta ~500 tok (~$0.003). Nunca "dejarla abierta por las dudas".
-2. **Hueco DURANTE (gate/slot corriendo) → keep-warm**: gate en `run_in_background` + turno de poll cada
-   ≤4 min = 0.1×P por poll — **12.5× más barato que expirar**. (Mejor aún: slot headless, INC-6 → residencia $0.)
-3. **Compactación = INCIDENTE, meta 0**: re-write total + re-lecturas frías; matar-y-rehidratar la domina siempre.
+### 2.3 Cache doctrine (the closed answer to "5m or 1h?")
+**Mechanics:** each hit REFRESHES the TTL at the hit price ("Hits & Refreshes"). The cache does NOT die from
+task duration; it dies from a **GAP > TTL with no requests**. The variable is the gap distribution.
+**Math** (P = cached prefix, C = total context written in the session, b = base price):
+- Penalty of ONE expiration (5m policy): re-write `1.25b·P` instead of hit `0.1b·P` → **≈ 1.15b·P extra**.
+- Overcost of the 1h policy: 2× instead of 1.25× for EVERY token written → **≈ 0.75b·C total**.
+- **Rule:** 1h pays off ⟺ `E[gaps>5min] × 1.15·P > 0.75·C`; with P≈C ⟺ **you expect ≥1 gap >5min**.
+- Intuition check: 2 writes 5m = 2.5b·P > 1 write 1h = 2b·P — a single expiration already pays for the 1h.
+- In numbers (P=120k, Opus): hit $0.06 · expiration $0.75 · 1h premium/session (C=160k) ≈ $0.60.
+**Decision (DATA, not opinion):** real work sessions (gradle in minutes, measured 15–79 min slots) have
+gaps >5min with certainty → **TTL 1h IF the knob exists**; 5m suffices only for short sessions where you DIE
+at the end. ⚠️ Claude Code today does NOT expose the knob (the API does: `cache_control {ttl:"1h"}` + beta
+`extended-cache-ttl-2025-04-11`) — probing it and the proxy path are INC-5, conditional on measurement.
+**The 3 cards that beat the TTL (use them ALWAYS, no knob required):**
+1. **Gap at the END → kill the session.** Rehydrating costs ~500 tok (~$0.003). Never "leave it open just in case".
+2. **Gap DURING (gate/slot running) → keep-warm**: gate in `run_in_background` + poll turn every
+   ≤4 min = 0.1×P per poll — **12.5× cheaper than expiring**. (Even better: headless slot, INC-6 → $0 residency.)
+3. **Compaction = INCIDENT, target 0**: total re-write + cold re-reads; kill-and-rehydrate always dominates it.
 
-### 2.4 Doctrina de contexto y verbosidad
-- **Thinking dial:** alto SOLO en S1; medio/bajo en S2 y turnos mecánicos (thinking = output $25/M).
-- **Abstract-first:** la respuesta default a "¿qué hace X?" es el abstract del grafo (firma+docstring+deps),
-  no el archivo. Lecturas masivas → `verifier` (Haiku, 5:1) / `Explore`. Docs → por rebanada (`grep`/§), jamás enteros.
-- **Prefijo estable:** no editar CLAUDE.md/agents/settings a mitad de sesión (invalida el cache desde ahí).
-- **Salida de gates = 1 línea + artefacto** (patrón `VEREDICTO`): stdout verboso infla TODOS los turnos siguientes.
+### 2.4 Context and verbosity doctrine
+- **Thinking dial:** high ONLY in S1; medium/low in S2 and mechanical turns (thinking = output $25/M).
+- **Abstract-first:** the default answer to "what does X do?" is the graph abstract (signature+docstring+deps),
+  not the file. Bulk reads → `verifier` (Haiku, 5:1) / `Explore`. Docs → by slice (`grep`/§), never whole.
+- **Stable prefix:** don't edit CLAUDE.md/agents/settings mid-session (it invalidates the cache from there on).
+- **Gate output = 1 line + artifact** (`VEREDICTO` pattern): verbose stdout inflates ALL subsequent turns.
 
-### 2.5 Calibración honesta (lo que NO prometo)
-- **Piso irreducible ≈ 20–30% del gasto actual** a igual throughput: S1 + S3 + escalaciones + columna-con-ojos.
-  La promesa es 3–5× por incremento y ~10× SOLO en la clase día-a-día determinista. No 10× global.
-- Con la tabla nueva, el ruteo Opus→Sonnet da **≤2.5×** (no 5×). La ganancia grande es MULTIPLICATIVA:
-  ruteo (≤2.5×) × contexto-lean (1.5–2.5×) × menos-turnos (1.3–2×) × higiene-de-cache (1.1–1.2×).
+### 2.5 Honest calibration (what I do NOT promise)
+- **Irreducible floor ≈ 20–30% of current spend** at equal throughput: S1 + S3 + escalations + column-with-eyes.
+  The promise is 3–5× per increment and ~10× ONLY in the deterministic day-to-day class. Not a global 10×.
+- With the new table, Opus→Sonnet routing gives **≤2.5×** (not 5×). The big gain is MULTIPLICATIVE:
+  routing (≤2.5×) × lean-context (1.5–2.5×) × fewer-turns (1.3–2×) × cache-hygiene (1.1–1.2×).
 
 ---
 
-## §3 · CÓMO — el catálogo completo de palancas (referencia; cada una mapeada a su INC)
+## §3 · HOW — the full lever catalog (reference; each one mapped to its INC)
 
-Marcas: ✅ existe · 🔧 se construye en el INC indicado · 📏 sondeo/medición. Ahorro sobre el término que ataca (§1.3).
+Marks: ✅ exists · 🔧 built in the indicated INC · 📏 probe/measurement. Savings over the term it attacks (§1.3).
 
-**A · Precio** — elegir el precio por token
-| # | Palanca | Mecanismo → efecto | Estado |
+**A · Price** — choosing the price per token
+| # | Lever | Mechanism → effect | Status |
 | --- | --- | --- | --- |
-| A1 | TTL 1h en sesiones de trabajo | regla §2.3; knob hoy inexistente en Claude Code | 📏 INC-5 |
-| A2 | Keep-warm poll en huecos internos | background + poll ≤4min = 0.1× vs 1.25× (12.5×) | 🔧 INC-0 (regla) |
-| A3 | Kill-don't-idle | hueco final → morir; rehidratar ~500 tok | ✅ máquina · 🔧 INC-0 (regla) + INC-3 (aviso) |
-| A4 | Ruteo por clase de sesión S1/S2/S3 | 2.5× sobre residencia Y output del loop | 🔧 INC-0 (regla) + INC-4 (máquina) |
-| A5 | Haiku para TODO bulk-read | hoy 0% medido; `verifier` existe | ✅ agente · 🔧 INC-3 (diente de uso) |
-| A6 | Thinking effort como dial | alto solo S1; thinking=output $25/M | 🔧 INC-0 (regla) |
-| A7 | Batch API (−50%) slots no-interactivos | runner fuera de Claude Code | 🔧 INC-6 (diferido-declarado) |
-| A8 | Ventana promo Sonnet 5 | explotar YA; re-evaluar 2026-09-01 | 🔧 INC-0 (nota) + INC-1 (tabla como data) |
+| A1 | TTL 1h on work sessions | rule §2.3; knob doesn't exist in Claude Code today | 📏 INC-5 |
+| A2 | Keep-warm poll on internal gaps | background + poll ≤4min = 0.1× vs 1.25× (12.5×) | 🔧 INC-0 (rule) |
+| A3 | Kill-don't-idle | final gap → die; rehydrate ~500 tok | ✅ machine · 🔧 INC-0 (rule) + INC-3 (nudge) |
+| A4 | Routing by session class S1/S2/S3 | 2.5× on residency AND loop output | 🔧 INC-0 (rule) + INC-4 (machine) |
+| A5 | Haiku for ALL bulk-read | today 0% measured; `verifier` exists | ✅ agent · 🔧 INC-3 (usage tooth) |
+| A6 | Thinking effort as a dial | high only S1; thinking=output $25/M | 🔧 INC-0 (rule) |
+| A7 | Batch API (−50%) non-interactive slots | runner outside Claude Code | 🔧 INC-6 (declared-deferred) |
+| A8 | Sonnet 5 promo window | exploit it NOW; re-evaluate 2026-09-01 | 🔧 INC-0 (note) + INC-1 (table as data) |
 
-**B · Residencia** — turnos × contexto de Opus (~45% de la factura)
-| B9 | Runbook día-a-día: producto-desde-spec = shell/Sonnet, NUNCA Opus (línea 0-modelo, §1.4-2) | **palanca #1 en $/mes, costo 0** | 🔧 INC-0 |
-| B10 | Compactación=incidente: hook umbral ~120k → checkpoint + /clear | 3 medidas/incremento → 0 | 🔧 INC-3 |
-| B11 | Verbos compuestos: colapsar secuencias Bash repetidas en verbos `meta` de 1 turno | cada turno ahorrado = ctx×0.1× + output | 🔧 INC-3 (audit) |
-| B12 | Batching de tool-calls por turno (independientes en paralelo) | menos turnos = menos hits | ✅ disciplina · 📏 KPI INC-1 |
-| B13 | Slots headless (`claude -p`): residencia del orquestador durante el slot = $0 | | 🔧 INC-6 |
+**B · Residency** — Opus turns × context (~45% of the bill)
+| B9 | Day-to-day runbook: product-from-spec = shell/Sonnet, NEVER Opus (0-model line, §1.4-2) | **lever #1 in $/month, cost 0** | 🔧 INC-0 |
+| B10 | Compaction=incident: ~120k threshold hook → checkpoint + /clear | 3 measured/increment → 0 | 🔧 INC-3 |
+| B11 | Compound verbs: collapse repeated Bash sequences into 1-turn `meta` verbs | every turn saved = ctx×0.1× + output | 🔧 INC-3 (audit) |
+| B12 | Batching tool-calls per turn (independent ones in parallel) | fewer turns = fewer hits | ✅ discipline · 📏 KPI INC-1 |
+| B13 | Headless slots (`claude -p`): orchestrator residency during the slot = $0 | | 🔧 INC-6 |
 
-**C · Contexto** — solo lo necesario, y chico
-| C14 | Abstract-first vía grafo (AST, Fase 1 SOTA) como respuesta DEFAULT | mata el churn `server.py`×20 | ✅ grafo · 🔧 INC-3 (default+nudge) |
-| C15 | Diente anti-relectura: 3ª lectura del mismo archivo → nudge "grafo/verifier" + KPI churn | 156 re-lecturas extra medidas | 🔧 INC-3 |
-| C16 | Abstracts de DOCS + `meta doc slice <doc> <§>` (docs_manifest: abstract 2 líneas + mapa §) | mata "leí el ROADMAP entero ≈30k tok" | 🔧 INC-3 |
-| C17 | Archivos chicos con dientes: (a) ✅ gate `quality` (nuevos ~800+); (b) budget de tamaño en slot manifest (`delegation.py` rechaza veredicto que lo viole); (c) opcional hook PreToolUse Write (solo si a+b no alcanzan) | pagan doble: menos tokens por lectura + abstracts útiles | 🔧 INC-3 (b; c diferido) |
-| C18 | Salida de gates = 1 línea + artefacto (extender `VEREDICTO` a wrappers gradle/npm) | stdout verboso infla todos los turnos | 🔧 INC-3 |
-| C19 | Presupuesto del prefijo fijo: STATE ≤45 ✅ · podar MEMORY.md a punteros (M6) · candidato budget CLAUDE.md | viaja en CADA turno de CADA sesión | 🔧 INC-3 |
-| C20 | Higiene de prefijo (no editar CLAUDE.md/agents mid-sesión) | evita invalidación de cache | 🔧 INC-0 (regla) |
+**C · Context** — only what's needed, and small
+| C14 | Abstract-first via graph (AST, SOTA Phase 1) as the DEFAULT answer | kills the `server.py`×20 churn | ✅ graph · 🔧 INC-3 (default+nudge) |
+| C15 | Anti-reread tooth: 3rd read of the same file → "graph/verifier" nudge + churn KPI | 156 extra re-reads measured | 🔧 INC-3 |
+| C16 | DOC abstracts + `meta doc slice <doc> <§>` (docs_manifest: 2-line abstract + § map) | kills "I read the whole ROADMAP ≈30k tok" | 🔧 INC-3 |
+| C17 | Small files with teeth: (a) ✅ `quality` gate (new ~800+); (b) size budget in slot manifest (`delegation.py` rejects a verdict that violates it); (c) optional PreToolUse Write hook (only if a+b are insufficient) | double payoff: fewer tokens per read + useful abstracts | 🔧 INC-3 (b; c deferred) |
+| C18 | Gate output = 1 line + artifact (extend `VEREDICTO` to gradle/npm wrappers) | verbose stdout inflates every turn | 🔧 INC-3 |
+| C19 | Fixed-prefix budget: STATE ≤45 ✅ · prune MEMORY.md to pointers (M6) · CLAUDE.md budget candidate | travels on EVERY turn of EVERY session | 🔧 INC-3 |
+| C20 | Prefix hygiene (don't edit CLAUDE.md/agents mid-session) | avoids cache invalidation | 🔧 INC-0 (rule) |
 
-**D · Delegación segura** — sin perder potencia
-| D21 | `iteration_gate` (<15s: compile+static+tests afectados) vs `acceptance_gate` (1× al final) en el slot manifest; `delegation.py` valida ambos | mata el slot de 79 min | 🔧 INC-2 |
-| D22 | `stop_proof` hermético (confía en pin de clon limpio si el toolchain local driftea) + `tools/toolchain.sh` (asegura JDK 21, exporta JAVA_HOME desde el gate) | mata la clase de incidente más cara medida (sesión entera perdida) | 🔧 INC-2 |
-| D23 | Ley de tamaño de slot: ≤~30 min wall + budget de tokens declarado (`cost_class` PWF ✅); telemetría compara post-hoc | | 🔧 INC-2 |
-| D24 | Plan-como-data + ejecutor Sonnet (S2) + escalación estructurada | el 2.5× sobre el grueso de los turnos | 🔧 INC-4 |
-| D25 | Selección de tests por dep-graph (blast-radius → tests afectados) | iteration_gate más rápido | 🔧 INC-2 (mínimo) / INC-4 (pleno) |
-| D26 | Dial draft default en loop interno (41.7s vs 98s ✅); harden solo al cierre | | 🔧 INC-0 (regla) |
-| D27 | Vehículo sweet-spot para runs medidos (helpdesk 5 ent., no snipeit 19) | | 🔧 INC-0 (regla) |
+**D · Safe delegation** — without losing power
+| D21 | `iteration_gate` (<15s: compile+static+affected tests) vs `acceptance_gate` (1× at the end) in the slot manifest; `delegation.py` validates both | kills the 79-min slot | 🔧 INC-2 |
+| D22 | Hermetic `stop_proof` (trusts the clean-clone pin if the local toolchain drifts) + `tools/toolchain.sh` (secures JDK 21, exports JAVA_HOME from the gate) | kills the most expensive measured incident class (whole session lost) | 🔧 INC-2 |
+| D23 | Slot-size law: ≤~30 min wall + declared token budget (`cost_class` PWF ✅); telemetry compares post-hoc | | 🔧 INC-2 |
+| D24 | Plan-as-data + Sonnet executor (S2) + structured escalation | the 2.5× over the bulk of turns | 🔧 INC-4 |
+| D25 | Test selection by dep-graph (blast-radius → affected tests) | faster iteration_gate | 🔧 INC-2 (minimum) / INC-4 (full) |
+| D26 | Draft dial default in the inner loop (41.7s vs 98s ✅); harden only at close | | 🔧 INC-0 (rule) |
+| D27 | Sweet-spot vehicle for measured runs (helpdesk 5 ent., not snipeit 19) | | 🔧 INC-0 (rule) |
 
-**E · Medición** — sin esto, todo lo demás es fe
-| E28 | Tabla de precios REAL (5 columnas × modelo, §1.2 como DATA fechada) en `billing.py` + ingesta de tipos de token de cache (OTLP: `cache_read`/`cache_creation`) | el ledger deja de ser ciego | 🔧 INC-1 |
-| E29 | Detector de expiraciones (spike de `cache_creation` mid-sesión) y compactaciones (✅ ya se cuentan) | decidibilidad de §2.3 e INC-5 | 🔧 INC-1 |
-| E30 | Bloque de costo por incremento en `meta outcome`: $ total · share por tier · expiraciones · compactaciones · churn · % delegado · tools/turno | "worth it" decidible, no narrado | 🔧 INC-1 |
+**E · Measurement** — without this, everything else is faith
+| E28 | REAL pricing table (5 columns × model, §1.2 as dated DATA) in `billing.py` + ingestion of cache token types (OTLP: `cache_read`/`cache_creation`) | the ledger stops being blind | 🔧 INC-1 |
+| E29 | Expiration detector (`cache_creation` mid-session spike) and compactions (✅ already counted) | decidability of §2.3 and INC-5 | 🔧 INC-1 |
+| E30 | Cost block per increment in `meta outcome`: total $ · share by tier · expirations · compactions · churn · % delegated · tools/turn | "worth it" decidable, not narrated | 🔧 INC-1 |
 
 ---
 
-## §4 · EL PLAN FIJO — N=7 incrementos, orden INMUTABLE (no re-decidir)
+## §4 · THE FIXED PLAN — N=7 increments, IMMUTABLE order (do not re-decide)
 
-> **Reglas de ejecución (fijas):** un incremento por ciclo, en este orden. Cada uno abre su work-doc con el
-> slug EXACTO de abajo (`meta increment open <SLUG>`). La sesión que lo ejecute lee SOLO §2 + su fila de acá.
-> Los slugs, alcances, dientes y criterios de cierre están CONGELADOS en este doc; si la realidad obliga a
-> desviarse, el desvío se declara en el work-doc del INC (residual honesto, I-13) — no se re-planifica acá.
-> INC-5 e INC-6 tienen condición de N/A PRE-DECIDIDA: si no disparan, se cierran como N/A-por-medición sin culpa.
+> **Execution rules (fixed):** one increment per cycle, in this order. Each one opens its work-doc with the
+> EXACT slug below (`meta increment open <SLUG>`). The session executing it reads ONLY §2 + its row here.
+> The slugs, scopes, teeth, and closure criteria are FROZEN in this doc; if reality forces a
+> deviation, the deviation is declared in the INC's work-doc (honest residual, I-13) — it is not re-planned here.
+> INC-5 and INC-6 have a PRE-DECIDED N/A condition: if they don't trigger, they close as N/A-by-measurement, no fault.
 
-| # | Slug | Nivel | Tamaño | Depende de |
+| # | Slug | Level | Size | Depends on |
 | --- | --- | --- | --- | --- |
-| 0 | `COST-RUNBOOK` | meta (docs+CLAUDE.md, 0 código) | XS | — |
-| 1 | `PRICING-LEDGER` | meta (columna) | S | — |
-| 2 | `HARNESS-FAST-GATE` | meta (columna) + cierre FSK diferido | S | — |
-| 3 | `CONTEXT-LEAN-TEETH` | meta (columna) | S–M | INC-1 (KPIs) |
-| 4 | `PLAN-EXECUTE-SPLIT` | meta (columna) | M | INC-1 + INC-2 |
-| 5 | `CACHE-SHAPE` | meta (sondeo+hooks) | XS–S | **condicional a INC-1** |
-| 6 | `HEADLESS-SLOTS` | meta (columna) | S | **condicional a INC-4** |
+| 0 | `COST-RUNBOOK` | meta (docs+CLAUDE.md, 0 code) | XS | — |
+| 1 | `PRICING-LEDGER` | meta (column) | S | — |
+| 2 | `HARNESS-FAST-GATE` | meta (column) + deferred FSK closure | S | — |
+| 3 | `CONTEXT-LEAN-TEETH` | meta (column) | S–M | INC-1 (KPIs) |
+| 4 | `PLAN-EXECUTE-SPLIT` | meta (column) | M | INC-1 + INC-2 |
+| 5 | `CACHE-SHAPE` | meta (probe+hooks) | XS–S | **conditional on INC-1** |
+| 6 | `HEADLESS-SLOTS` | meta (column) | S | **conditional on INC-4** |
 
-### INC-0 · `COST-RUNBOOK` — las reglas que ahorran desde mañana (0 código)
-- **Entregable:** bloque "Runbook de costos (ADR-021)" en `CLAUDE.md` (regla de fase viva) con: (1) tabla de
-  ruteo por clase de tarea → sesión/modelo (§2.2, incluye día-a-día = shell/Sonnet NUNCA Opus); (2) kill-don't-idle
-  + compactación=incidente; (3) keep-warm en huecos internos; (4) thinking dial; (5) higiene de prefijo;
-  (6) draft default + harden al cierre; (7) vehículo sweet-spot para runs medidos; (8) puntero a §2.3 (TTL) y
-  a esta biblia. Además: poda de MEMORY.md a punteros si hay solape (regla M6).
-- **Diente:** ninguno propio (reglas); las mide INC-1. **Cierre:** CLAUDE.md actualizado + `meta check` verde.
+### INC-0 · `COST-RUNBOOK` — the rules that save money starting tomorrow (0 code)
+- **Deliverable:** "Cost runbook (ADR-021)" block in `CLAUDE.md` (living-phase rule) with: (1) routing table
+  by task class → session/model (§2.2, includes day-to-day = shell/Sonnet NEVER Opus); (2) kill-don't-idle
+  + compaction=incident; (3) keep-warm on internal gaps; (4) thinking dial; (5) prefix hygiene;
+  (6) draft default + harden at close; (7) sweet-spot vehicle for measured runs; (8) pointer to §2.3 (TTL) and
+  to this bible. Also: prune MEMORY.md to pointers if there's overlap (rule M6).
+- **Tooth:** none of its own (rules); INC-1 measures them. **Close:** CLAUDE.md updated + `meta check` green.
 
-### INC-1 · `PRICING-LEDGER` — que el costo sea un HECHO, no una estimación ciega
-- **Entregable:** (a) `billing.py`: modelo de pricing de 2 números → **5 columnas por modelo** (§1.2 como DATA
-  fechada, con vencimiento de la promo Sonnet anotado); (b) ingesta de tipos de token de cache
-  (`cache_read`/`cache_creation`, telemetría OTLP de Claude Code) al ledger; (c) detector de **expiraciones**
-  (spike de `cache_creation` a mitad de sesión) sumado al de compactaciones existente; (d) bloque de costo
-  por incremento en `meta outcome` (E30). Multi-archivo (regla 2026-06-25), inglés (ADR-017).
-- **Diente:** tests two-sided en la suite (ledger sintético con tokens conocidos → precio EXACTO; entrada de
-  cache mal tipada → rechazo). Observador, no gate duro (como `--overlap`).
-- **Cierre:** `meta outcome` muestra el bloque de costo con la tabla real; suite verde; baseline del
-  incremento DELEG-PAYOFF re-preciado con las 5 columnas (el número que las demás fases deben batir).
+### INC-1 · `PRICING-LEDGER` — making cost a FACT, not a blind estimate
+- **Deliverable:** (a) `billing.py`: 2-number pricing model → **5 columns per model** (§1.2 as dated
+  DATA, with the Sonnet promo expiration noted); (b) ingestion of cache token types
+  (`cache_read`/`cache_creation`, Claude Code OTLP telemetry) into the ledger; (c) **expiration** detector
+  (mid-session `cache_creation` spike) added to the existing compaction detector; (d) cost block
+  per increment in `meta outcome` (E30). Multi-file (2026-06-25 rule), English (ADR-017).
+- **Tooth:** two-sided tests in the suite (synthetic ledger with known tokens → EXACT price; mistyped
+  cache entry → rejection). Observer, not a hard gate (like `--overlap`).
+- **Close:** `meta outcome` shows the cost block with the real table; suite green; the DELEG-PAYOFF
+  increment's baseline re-priced with the 5 columns (the number the other phases must beat).
 
-### INC-2 · `HARNESS-FAST-GATE` — slots cortos y verificación hermética (los 2 fixes ya destilados)
-- **Entregable:** (a) slot manifest schema += `iteration_gate_cmd` (rápido, cada retry; presupuesto declarado
-  ≤15s) y `acceptance_gate_cmd` (pesado, 1× al final) — `delegation.py` RECHAZA manifests sin ambos; el
-  veredicto exige acceptance verde; (b) `stop_proof` HERMÉTICO: confía en el veredicto pineado del clon limpio
-  cuando el toolchain local no puede re-verificar; no re-corre infra pesada al cierre de turno; (c)
-  `tools/toolchain.sh`: asegura JDK 21 cacheado y exporta `JAVA_HOME` desde el gate (mata la clase JDK-vanish);
-  (d) ley de tamaño de slot (D23); (e) selección mínima de tests por blast-radius (D25).
-- **Bonus obligatorio:** des-diferir el cierre formal de `FSK-MUTABLE-WHEN` (re-pin no-adoptantes,
-  `ci --rederive --all-products` == pin 4/4) — (c) garantiza el JDK.
-- **Diente:** two-sided — manifest sin `iteration_gate_cmd` → rojo; sabotaje del toolchain local con pin
-  limpio válido → `stop_proof` NO falso-rojo. **Cierre:** un slot real corrido con iteración <15s + re-pin 4/4.
+### INC-2 · `HARNESS-FAST-GATE` — short slots and hermetic verification (the 2 already-distilled fixes)
+- **Deliverable:** (a) slot manifest schema += `iteration_gate_cmd` (fast, every retry; declared budget
+  ≤15s) and `acceptance_gate_cmd` (heavy, 1× at the end) — `delegation.py` REJECTS manifests without both; the
+  verdict requires acceptance green; (b) HERMETIC `stop_proof`: trusts the pinned clean-clone verdict
+  when the local toolchain cannot re-verify; does not re-run heavy infra at turn close; (c)
+  `tools/toolchain.sh`: secures a cached JDK 21 and exports `JAVA_HOME` from the gate (kills the JDK-vanish class);
+  (d) slot-size law (D23); (e) minimal test selection by blast-radius (D25).
+- **Mandatory bonus:** un-defer the formal closure of `FSK-MUTABLE-WHEN` (re-pin non-adopters,
+  `ci --rederive --all-products` == pin 4/4) — (c) guarantees the JDK.
+- **Tooth:** two-sided — manifest without `iteration_gate_cmd` → red; local toolchain sabotage with a valid
+  clean pin → `stop_proof` NOT false-red. **Close:** a real slot run with iteration <15s + re-pin 4/4.
 
-### INC-3 · `CONTEXT-LEAN-TEETH` — contexto chico con dientes (ataca el ~45%)
-- **Entregable:** (a) nudge anti-relectura (PostToolUse: 3ª lectura del mismo archivo en la sesión → aviso
-  "grafo/verifier"; C15); (b) abstracts de docs + `meta doc slice` (C16); (c) budget de tamaño de archivo en el
-  slot manifest, validado por `delegation.py` al veredicto (C17b); (d) wrappers de gate con salida 1-línea +
-  artefacto (C18); (e) hook de umbral de contexto (~120k) → aviso `meta checkpoint` + /clear (B10);
-  (f) auditoría de secuencias Bash repetidas → 1–3 verbos compuestos nuevos (B11).
-- **Diente:** two-sided en suite para (c); los demás son nudges medidos por los KPIs de INC-1 (churn,
-  compactaciones). **Cierre:** un incremento posterior medido con churn <20 y compactaciones 0.
+### INC-3 · `CONTEXT-LEAN-TEETH` — lean context with teeth (attacks the ~45%)
+- **Deliverable:** (a) anti-reread nudge (PostToolUse: 3rd read of the same file in the session → "graph/
+  verifier" notice; C15); (b) doc abstracts + `meta doc slice` (C16); (c) file-size budget in the
+  slot manifest, validated by `delegation.py` at verdict time (C17b); (d) gate wrappers with 1-line +
+  artifact output (C18); (e) context-threshold hook (~120k) → `meta checkpoint` + /clear notice (B10);
+  (f) audit of repeated Bash sequences → 1–3 new compound verbs (B11).
+- **Tooth:** two-sided in the suite for (c); the rest are nudges measured by INC-1's KPIs (churn,
+  compactions). **Close:** a later increment measured with churn <20 and compactions 0.
 
-### INC-4 · `PLAN-EXECUTE-SPLIT` — el 2.5× sobre el grueso de los turnos
-- **Entregable:** (a) `.gen/plan.json`: WorkOrders ordenados (contrato tipado + ambos gates + radio + deps +
-  plan de commits; reusa el vocabulario PWF ya validado); (b) `meta plan check|next|status` — validador
-  two-sided (slot sin gate → rojo; DAG acíclico; diferidos declarados); (c) protocolo de escalación
-  `.gen/escalations/*.json` (slot, fallo, intentos, hipótesis) que S3 lee; (d) runbook S2 operativo
-  (`claude --model sonnet --agent orchestrator` ejecuta el plan mecánicamente).
-- **Diente:** `meta plan check` como gate nuevo de `meta check`. **Cierre:** UN incremento real ejecutado vía
-  plan con S1/S2/S3 y **opus-share medido < 50%** (baseline 89%) en su bloque `meta outcome`.
+### INC-4 · `PLAN-EXECUTE-SPLIT` — the 2.5× over the bulk of turns
+- **Deliverable:** (a) `.gen/plan.json`: ordered WorkOrders (typed contract + both gates + radius + deps +
+  commit plan; reuses the already-validated PWF vocabulary); (b) `meta plan check|next|status` — two-sided
+  validator (slot without a gate → red; acyclic DAG; declared deferrals); (c) escalation protocol
+  `.gen/escalations/*.json` (slot, failure, attempts, hypothesis) that S3 reads; (d) operational S2 runbook
+  (`claude --model sonnet --agent orchestrator` executes the plan mechanically).
+- **Tooth:** `meta plan check` as a new `meta check` gate. **Close:** ONE real increment executed via the
+  plan with S1/S2/S3 and **measured opus-share < 50%** (baseline 89%) in its `meta outcome` block.
 
-### INC-5 · `CACHE-SHAPE` — condicional (la decisión YA está tomada; solo se mide el trigger)
-- **Trigger (pre-decidido):** el bloque de costo de INC-1, medido sobre ≥2 incrementos post-INC-3, muestra
-  churn de cache (expiraciones+compactaciones) **>10% del gasto**. Si NO → cerrar como **N/A-por-medición**
-  (las 3 cartas de §2.3 bastaron); NO re-abrir el debate.
-- **Entregable si dispara:** (a) sondeo del knob TTL en Claude Code (docs/changelog/env); (b) si no existe,
-  evaluación del camino proxy (rewrite de `cache_control` a `ttl:"1h"` + beta header) con criterio GO/NO-GO
-  fijo: GO solo si churn >10% SOSTENIDO y keep-warm insuficiente; (c) formalizar keep-warm como skill/patrón.
+### INC-5 · `CACHE-SHAPE` — conditional (the decision is ALREADY made; only the trigger is measured)
+- **Trigger (pre-decided):** INC-1's cost block, measured over ≥2 post-INC-3 increments, shows
+  cache churn (expirations+compactions) **>10% of spend**. If NOT → close as **N/A-by-measurement**
+  (§2.3's 3 cards sufficed); do NOT re-open the debate.
+- **Deliverable if triggered:** (a) probe the TTL knob in Claude Code (docs/changelog/env); (b) if it
+  doesn't exist, evaluate the proxy path (rewriting `cache_control` to `ttl:"1h"` + beta header) with a
+  fixed GO/NO-GO criterion: GO only if churn >10% SUSTAINED and keep-warm is insufficient; (c) formalize
+  keep-warm as a skill/pattern.
 
-### INC-6 · `HEADLESS-SLOTS` — condicional-final (residencia $0 durante slots)
-- **Trigger (pre-decidido):** tras INC-4 medido, los slots delegados siguen costando residencia del
-  orquestador ≥10% del incremento. Si NO → **N/A-por-medición**.
-- **Entregable si dispara:** `meta slot run` (headless `claude -p --model sonnet` con el manifest; veredicto a
-  archivo; la sesión solo sondea) + batch API (−50%) como diferido-declarado hasta medir volumen.
+### INC-6 · `HEADLESS-SLOTS` — final-conditional ($0 residency during slots)
+- **Trigger (pre-decided):** after INC-4 is measured, delegated slots still cost orchestrator
+  residency ≥10% of the increment. If NOT → **N/A-by-measurement**.
+- **Deliverable if triggered:** `meta slot run` (headless `claude -p --model sonnet` with the manifest; verdict to
+  file; the session only polls) + batch API (−50%) as declared-deferred until volume is measured.
 
 ---
 
-## §5 · PARA QUÉ — KPIs: cuándo "llegamos" (decidable en `meta outcome`, no narrado)
+## §5 · WHAT FOR — KPIs: when we've "arrived" (decidable in `meta outcome`, not narrated)
 | KPI | Baseline (2026-07-02) | Target |
 | --- | --- | --- |
-| Share de Opus por incremento | **89%** | **≤35%** |
-| Compactaciones por incremento | 3 | **0** |
-| Re-lecturas extra por incremento | 156 | <20 |
-| Expiraciones de cache | sin medir (INC-1) | <2/hora de sesión |
-| $ por incremento (misma clase) | lo fija INC-1 re-preciando DELEG-PAYOFF | **−60%** |
-| Día-a-día (producto desde spec) | sesión Opus ~$86 | **sin sesión Opus** (~10×) |
-**"Llegamos"** = 2 incrementos consecutivos post-INC-4 cumpliendo TODOS los KPIs no-condicionales.
-La dirección se declara COMPLETA en ese momento (aunque INC-5/6 cierren N/A).
+| Opus share per increment | **89%** | **≤35%** |
+| Compactions per increment | 3 | **0** |
+| Extra re-reads per increment | 156 | <20 |
+| Cache expirations | unmeasured (INC-1) | <2/session-hour |
+| $ per increment (same class) | fixed by INC-1 re-pricing DELEG-PAYOFF | **−60%** |
+| Day-to-day (product from spec) | Opus session ~$86 | **no Opus session** (~10×) |
+**"We've arrived"** = 2 consecutive post-INC-4 increments meeting ALL non-conditional KPIs.
+The direction is declared COMPLETE at that point (even if INC-5/6 close N/A).
 
-## §6 · Qué NO hacer (anti-palancas, con evidencia — tan fijas como el plan)
-1. **No multi-agente paralelo para codegen secuencial** (~15× tokens medido; sin paralelismo real pierde).
-2. **No bajar S1/diseño ni la COLUMNA a Sonnet**: construir-lo-equivocado es el fallo más caro (lección
-   Snipe-IT: 17 incrementos ADOPT); el trust-chain se escribe con ojos (SELF-IMPROVEMENT §3).
-3. **No `agent` global en settings** (ADR-020 (a)) · **no roles por dominio** (ADR-020 (c)).
-4. **No acortar la verificación para ahorrar**: el pin del clon limpio ES lo que hace seguro delegar barato.
-5. **No obsesionarse con el TTL** más allá de su 5–15%: las palancas del 85% son ruteo+contexto+turnos.
-6. **No sobre-hookear** (C17c queda diferido salvo que a+b midan insuficiente): la fricción también es costo.
+## §6 · What NOT to do (anti-levers, with evidence — as fixed as the plan)
+1. **No parallel multi-agent for sequential codegen** (~15× tokens measured; without real parallelism it loses).
+2. **Don't drop S1/design or the COLUMN to Sonnet**: building-the-wrong-thing is the most expensive failure
+   (Snipe-IT lesson: 17 ADOPT increments); the trust-chain is written with your own eyes (SELF-IMPROVEMENT §3).
+3. **No global `agent` in settings** (ADR-020 (a)) · **no roles by domain** (ADR-020 (c)).
+4. **Don't shorten verification to save money**: the clean-clone pin IS what makes cheap delegation safe.
+5. **Don't obsess over the TTL** beyond its 5–15%: the 85% levers are routing+context+turns.
+6. **Don't over-hook** (C17c stays deferred unless a+b measure as insufficient): friction is also a cost.
 
-## §7 · Punteros (para profundidad, NO para re-decidir)
-- **ADR-021** (`decisions/021-economia-opus-marginal.md`) — la decisión inmutable que este doc detalla.
-- `work/DELEG-PAYOFF-MEASURE-INCREMENT.md` — las mediciones crudas + el modelo de costo destilado.
-- ADR-017 (routing como dato) · ADR-020 (roles cerrados, delegación activada) · ADR-019 (memoria: podar antes
-  de agregar) · `reference/OBSERVABILITY-METRICS.md` (el split) · `reference/PRIMITIVES.md` (filosofía).
+## §7 · Pointers (for depth, NOT for re-deciding)
+- **ADR-021** (`decisions/021-economia-opus-marginal.md`) — the immutable decision this doc details.
+- `work/DELEG-PAYOFF-MEASURE-INCREMENT.md` — the raw measurements + the distilled cost model.
+- ADR-017 (routing as data) · ADR-020 (closed roles, delegation activated) · ADR-019 (memory: prune before
+  adding) · `reference/OBSERVABILITY-METRICS.md` (the split) · `reference/PRIMITIVES.md` (philosophy).
 
 ## Fases (de ESTE incremento de dirección)
-| Fase | Contenido | Estado |
+| Fase | Content | Status |
 | --- | --- | --- |
-| 1 | Biblia auto-contenida (este doc): evidencia + doctrina + catálogo + plan FIJO N=7 + KPIs | ✅ |
-| 2 | ADR-021 (decisión inmutable y citable) | ✅ |
-| 3 | Punteros: STATE «Ahora» + ROADMAP → esta biblia | ✅ |
+| 1 | Self-contained bible (this doc): evidence + doctrine + catalog + FIXED N=7 plan + KPIs | ✅ |
+| 2 | ADR-021 (immutable, citable decision) | ✅ |
+| 3 | Pointers: STATE «Ahora» + ROADMAP → this bible | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
-1. Este doc existe, auto-contenido (una sesión sin contexto puede ejecutar INC-0..INC-6 sin re-diseñar). ✅
-2. `decisions/021-economia-opus-marginal.md` aprobado, con la decisión (a)–(d). ✅
-3. STATE «Ahora» (≤45) y ROADMAP apuntan acá; `meta check` verde. ✅
-4. El plan es FIJO: slugs, orden, triggers de N/A y KPIs congelados en §4–§5. ✅
+1. This doc exists, self-contained (a session with no context can execute INC-0..INC-6 without re-designing). ✅
+2. `decisions/021-economia-opus-marginal.md` approved, with the decision (a)–(d). ✅
+3. STATE «Ahora» (≤45) and ROADMAP point here; `meta check` green. ✅
+4. The plan is FIXED: slugs, order, N/A triggers, and KPIs frozen in §4–§5. ✅

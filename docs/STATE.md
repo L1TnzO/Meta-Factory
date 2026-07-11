@@ -1,10 +1,10 @@
-<!-- meta:doc sha=a66b02f3ed141cd0c274764c368828b5e31caa9c updated=2026-07-11T15:13Z -->
-# Estado — Meta-Factory
-> tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
-> Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
-> Esquema: heredado de ASF/decisions/021. Punto de entrada único — si tenés amnesia, empezá acá.
-> Re-sellado 2026-07-10T16:1xZ (`DOCS-STALE-RESEAL`): housekeeping puro, sin cambio de contenido —
-> el commit previo había quedado más viejo que `LOG.md`/`ROADMAP.md`/`HONEST-STATE.md` de la misma sesión.
+<!-- meta:doc sha=fc93ec174d8797be0cf3ce334454528061388a30 updated=2026-07-11T15:21Z -->
+# State — Meta-Factory
+> type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
+> This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
+> Schema: inherited from ASF/decisions/021. Single entry point — if you have amnesia, start here.
+> Re-sealed 2026-07-10T16:1xZ (`DOCS-STALE-RESEAL`): pure housekeeping, no content change —
+> the previous commit had gone stale relative to `LOG.md`/`ROADMAP.md`/`HONEST-STATE.md` from the same session.
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
@@ -12,61 +12,63 @@
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
-## Ahora — qué es verdad hoy
-> Snapshot acotado (ADR-019 §3 · diente `state_snapshot`, ≤45 líneas): verdad-de-HOY + punteros. La historia
-> cerrada vive en `docs/LOG.md` (append, inmutable); la verdad re-derivable, en `.proof/` + la proyección de
-> arriba; los residuales honestos, en `reference/HONEST-STATE.md`. Esto NO es un log — si querés el detalle de
-> un hito, abrí su episodio en LOG o su `work/<NOMBRE>-INCREMENT.md §Evidencia`.
+## Ahora — what is true today
+> Bounded snapshot (ADR-019 §3 · `state_snapshot` tooth, ≤45 lines): truth-as-of-TODAY + pointers. Closed
+> history lives in `docs/LOG.md` (append, immutable); re-derivable truth, in `.proof/` + the projection
+> above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
+> a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **✅ model-nativo VALIDADO (A/B, `ADR-023`) → durable EN CURSO (`ADR-024`).** Fábrica = spec + PERFIL DE
-  VERIFICACIÓN; superficie humana GENERADA (slots LLM, gates deciden); codegen de templates **CONGELADO**.
-  `ADR-024`: superficie = **override pineado** (`products/<p>/frontend/app.{ts,css}`, copiada-no-emitida vía
-  `frontend_surface: model-native`) verificada por `design_floor` opt-in, SIN re-pinear los productos-template.
-  META lista: **`CHECK-WHEN-GUARD`·`FSK-MODELGEN-DURABLE`·`FSK-SNIPEIT-MODELGEN` ✅** (1ª adopción durable) ·
-  **`CODEGEN-FREEZE-TOOTH` ✅** (gate `codegen_freeze`: diff en codegen sin waiver → rojo; frontera
-  `verificacion` viva vs `superficie` exige ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`): kind de
-  sustrato `eval_floor` generaliza `design_floor` (re-verifica evidencia PINEADA de un producto adoptado vs su
-  piso, opt-in, 0-modelo, two-sided) → habilita adoptar ReqCouncil en ASF. Sigue: adopción física ASF (S2) ·
-  `COMMUNITY-FRESHNESS` (ADR futuro) · `helpdesk` · F1/ASF model-nativo. → `decisions/023`·`024`·`025` · LOG.
-- **⚖️ `COUNCIL-EXEC` — diseño COUNCIL-360 §6.4 COMPLETO (2026-07-04, re-sellado 2026-07-10).** Camino B:
-  sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. Los TRES jueces
-  externos ESTÁN en el árbol: **H-1** ✅ (segundo actor VERDE) · **jueces económicos** ✅ (`OUTCOME-JUDGES`) ·
-  **E4** ✅ (escape: motor 0% · producto 75% vs estáticos, `work/MUTATION-ESCAPE`) · **E1+D-8** ✅ EJECUTADO
-  y arbitrado (commit `8790169`: en spec AJENA el pelado gana la historia día-1 — 19/19 endpoints, 6.3min;
-  la fábrica retiene re-derivabilidad+gates+escape-rate EN SU CLASE; el benchmark mide la gramática propia,
-  D-8 confirmada) · **D-3/D-7/H-4/H-5** ✅. Residuo único: **D-2** contenido-como-archivos, DEMOTADO
-  post-freeze (ADR-023 congeló ese contenido; trigger: primer waiver que re-edite contenido embebido).
-- **🧭 `COST-DOWN` (2026-07-02, ADR-021) — plan FIJO N=7 COMPLETO (INC-0..6 ✅).** Ruteo por SESIÓN
-  (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-por-medición. Corrida S2 medida: $5.65/incr **shadow**
-  (−92%) · opus-share 49.7% (KPI ≤35% aún rojo; ahora ES un número del CLI — `OUTCOME-JUDGES`). Biblia:
+- **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
+  VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
+  `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via
+  `frontend_surface: model-native`) verified by `design_floor` opt-in, WITHOUT re-pinning the template products.
+  META ready: **`CHECK-WHEN-GUARD`·`FSK-MODELGEN-DURABLE`·`FSK-SNIPEIT-MODELGEN` ✅** (1st durable adoption) ·
+  **`CODEGEN-FREEZE-TOOTH` ✅** (gate `codegen_freeze`: codegen diff without waiver → red; the living
+  `verificacion` boundary vs `superficie` requires an ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`):
+  substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
+  its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. Next: ASF physical adoption (S2) ·
+  `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025` · LOG.
+- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 design COMPLETE (2026-07-04, re-sealed 2026-07-10).** Path B:
+  LIVE system = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. All THREE
+  external judges ARE in the tree: **H-1** ✅ (second actor GREEN) · **economic judges** ✅ (`OUTCOME-JUDGES`) ·
+  **E4** ✅ (escape: engine 0% · product 75% vs static, `work/MUTATION-ESCAPE`) · **E1+D-8** ✅ EXECUTED
+  and adjudicated (commit `8790169`: on a FOREIGN spec the bare-metal approach wins the day-1 story — 19/19
+  endpoints, 6.3min; the factory retains re-derivability+gates+escape-rate IN ITS CLASS; the benchmark measures
+  its own grammar, D-8 confirmed) · **D-3/D-7/H-4/H-5** ✅. Sole residual: **D-2** content-as-files, DEMOTED
+  post-freeze (ADR-023 froze that content; trigger: first waiver that re-edits embedded content).
+- **🧭 `COST-DOWN` (2026-07-02, ADR-021) — FIXED N=7 plan COMPLETE (INC-0..6 ✅).** Routing by SESSION
+  (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
+  (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
   `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
-- **🧭 RE-DIRECCIÓN SOTA (ADR-017→020) — TODO cerrado.** Grafo + gates + harness verificar-no-revisar
-  ENCENDIDO (ADR-020) + payoff MEDIDO (`DELEG-PAYOFF`); dial ADOPTADO (FSK). Detalle: work-docs + `LOG.md`.
-- **🧠 MEMORIA v2 (ADR-019) — COMPLETA (M1–M6 ✅; pendiente: medición del umbral §6).** Podar antes de agregar;
-  tres memorias single-source (`docs/`=hechos · CLAUDE.md=reglas · note-store=relación),
-  `reference/MEMORY-ARCHITECTURE.md §8.2`. Detalle: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
-- **Producto / fábricas:** las 5 re-derivan **== pin** (proyección arriba). FSK madura (backend núcleo +
-  control-de-acceso + frontend CRUD Chromium + **cobertura de línea REAL 100.0%** en snipeit,
-  `FSK-COVERAGE-FULL-100`, 2026-07-10); arco `FSK-FRONTEND-SCREENS` COMPLETO (5/5) — y AUN ASÍ la UI es fea:
-  techo de los templates, no falta de increments → ADR-023. Sweet-spot: **helpdesk** PASA ·
-  **snipeit** techo de regresión. Plan: `work/ROADMAP.md`.
-- **Autogobierno por nivel (ADR-016 Fase 2) — COMPLETA (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).** `column_parity` +
-  teeth de delegación bajan a la columna con ley seed-canónica (ADR-018) · sello content-addressed por-home ·
-  16 `FSK-S0..S15` migrados byte-idéntico a la fábrica · `column_scope.py` + gate `least_priv` (fábrica ⊊ meta).
-  Autoridad: `reference/GOVERNANCE-LAYERING.md §6/§7`; historia en `LOG.md`.
-- **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
-  (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
-  `CLAUDE.md`. Inventario de TODOS los docs: `../INDEX.md` (vista GENERADA, ADR-009).
+- **🧭 SOTA RE-DIRECTION (ADR-017→020) — ALL closed.** Graph + gates + verify-not-review harness
+  IGNITED (ADR-020) + MEASURED payoff (`DELEG-PAYOFF`); dial ADOPTED (FSK). Detail: work-docs + `LOG.md`.
+- **🧠 MEMORY v2 (ADR-019) — COMPLETE (M1–M6 ✅; pending: §6 threshold measurement).** Prune before adding;
+  three single-source memories (`docs/`=facts · CLAUDE.md=rules · note-store=relationship),
+  `reference/MEMORY-ARCHITECTURE.md §8.2`. Detail: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
+- **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature (core backend +
+  access-control + Chromium CRUD frontend + **REAL 100.0% line coverage** in snipeit,
+  `FSK-COVERAGE-FULL-100`, 2026-07-10); `FSK-FRONTEND-SCREENS` arc COMPLETE (5/5) — and STILL the UI is ugly:
+  the templates' ceiling, not a lack of increments → ADR-023. Sweet-spot: **helpdesk** PASSES ·
+  **snipeit** regression ceiling. Plan: `work/ROADMAP.md`.
+- **Per-level self-governance (ADR-016 Phase 2) — COMPLETE (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).**
+  `column_parity` + delegation teeth descend to the column with seed-canonical law (ADR-018) ·
+  content-addressed per-home seal · 16 `FSK-S0..S15` migrated byte-identical to the factory ·
+  `column_scope.py` + `least_priv` gate (factory ⊊ meta).
+  Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`; history in `LOG.md`.
+- **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
+  (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
+  phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).
 
-## Mapa
-- Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–026) · Plan de incrementos: `work/ROADMAP.md` +
-  docs de dirección (`work/COST-DOWN-DIRECTION-INCREMENT.md` — la biblia de costos, VIGENTE ·
-  `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — limpieza+inglés-capa-viva, ADR-026, VIGENTE ·
-  `work/SOTA-PARITY-DIRECTION-INCREMENT.md` — auditoría 2026-07-11 vs SOTA externo + plan INC-1..7, VIGENTE ·
+## Map
+- Log (history): `LOG.md` · Decisions: `decisions/` (001–026) · Increment plan: `work/ROADMAP.md` +
+  direction docs (`work/COST-DOWN-DIRECTION-INCREMENT.md` — the cost bible, current ·
+  `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — cleanup+English-living-layer, ADR-026, current ·
+  `work/SOTA-PARITY-DIRECTION-INCREMENT.md` — 2026-07-11 audit vs external SOTA + plan INC-1..7, current ·
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
-- Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
-  auditoría viva: `COUNCIL-360-AUDIT.md` §1–§6 (veredicto §6.3 · repo-resultante §6.5) · mapa as-built: `ARCHITECTURE-MAP.md`) ·
-  Índice GENERADO: `../INDEX.md`.
-- Código: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` + `delegation.py`) ·
-  `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` · CLI: `../meta`.
-- Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (`reference/ASF-PROVENANCE.md`).
+- Reference: `reference/` (philosophy: `PRIMITIVES.md` · honest state/residuals: `HONEST-STATE.md` ·
+  living audit: `COUNCIL-360-AUDIT.md` §1–§6 (verdict §6.3 · resulting-repo §6.5) · as-built map:
+  `ARCHITECTURE-MAP.md`) · GENERATED index: `../INDEX.md`.
+- Code: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` +
+  `delegation.py`) · `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` ·
+  CLI: `../meta`.
+- Harvested source (frozen): `../../Agent_Systems_Factory/` @ `b1fcb1f` (`reference/ASF-PROVENANCE.md`).

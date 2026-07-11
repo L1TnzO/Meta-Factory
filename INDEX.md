@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `a9d30594f27e` | 2026-07-11T14:49Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `a66b02f3ed14` | 2026-07-11T15:13Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `fc93ec174d87` | 2026-07-11T15:21Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -68,7 +68,7 @@
 | `docs/work/CODEGEN-FREEZE-TOOTH-INCREMENT.md` | `c3d1d6d820cc` | 2026-07-10T15:09Z | Incremento CODEGEN-FREEZE-TOOTH |
 | `docs/work/COLUMN-MAINT-INCREMENT.md` | `e8dd5036074d` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
 | `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `e6ea892dc3d6` | 2026-07-03T04:19Z | Incremento CONTEXT-LEAN-TEETH |
-| `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `8d0652336731` | 2026-07-02T14:35Z | Incremento COST-DOWN-DIRECTION |
+| `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `050be0d56eb0` | 2026-07-11T15:28Z | COST-DOWN-DIRECTION Increment |
 | `docs/work/COST-RUNBOOK-INCREMENT.md` | `ef2e4e4dd881` | 2026-07-02T17:54Z | Incremento COST-RUNBOOK |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
@@ -97,7 +97,7 @@
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/ENGLISH-CLI-STRINGS-INCREMENT.md` | `0053fd853724` | 2026-07-11T14:38Z | Incremento ENGLISH-CLI-STRINGS |
 | `docs/work/ENGLISH-LIVING-COLUMN-INCREMENT.md` | `706e56fc2912` | 2026-07-11T05:10Z | Incremento ENGLISH-LIVING-COLUMN |
-| `docs/work/ENGLISH-META-DOCS-INCREMENT.md` | `e96c2c22ff7c` | 2026-07-11T15:15Z | Incremento ENGLISH-META-DOCS |
+| `docs/work/ENGLISH-META-DOCS-INCREMENT.md` | `efc93513a025` | 2026-07-11T15:31Z | Incremento ENGLISH-META-DOCS |
 | `docs/work/EVAL-FLOOR-GATE-INCREMENT.md` | `eed675ed4515` | 2026-07-10T22:48Z | Incremento EVAL-FLOOR-GATE |
 | `docs/work/EXTERNAL-CI-GREEN-INCREMENT.md` | `2de0cbba112d` | 2026-07-04T19:45Z | Incremento EXTERNAL-CI-GREEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |

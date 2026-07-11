@@ -1,10 +1,10 @@
-<!-- meta:doc sha=b2c0acda16d5c455e084d5b2d99f8991da3822be updated=2026-07-11T17:14Z -->
+<!-- meta:doc sha=9d6233cad69f2a30421c8cfd0e55a7caeffdbe82 updated=2026-07-11T17:18Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
 > Schema: inherited from ASF/decisions/021. Single entry point — if you have amnesia, start here.
-> Re-sealed 2026-07-11T16:1xZ (`ENGLISH-META-DOCS`, final touch of the arc): pure housekeeping, no
-> content change — the per-home freshness tooth flags STATE stale once a sibling `reference/`/`work/` doc
+> Re-sealed 2026-07-11T17:1xZ (`ENGLISH-META-DOCS` close + LOG episode): pure housekeeping, no content
+> change — the per-home freshness tooth flags STATE stale once a sibling `reference/`/`work/`/`LOG.md` doc
 > gets a later commit; this sequential multi-slot increment re-touched STATE after each batch landed
 > (same fix as `DOCS-STALE-RESEAL`).
 

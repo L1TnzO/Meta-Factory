@@ -1,7 +1,7 @@
-<!-- meta:doc sha=5ad6e4f9702ba2cc907c2d0f1207a63d7fe23e56 updated=2026-07-11T20:53Z -->
+<!-- meta:doc sha=716ff779d99b9d974e15746b1ea9036ac551900b updated=2026-07-11T20:58Z -->
 # Incremento DRIFT-AUDIT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T20:45Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-11T20:58Z) (creado 2026-07-11T20:45Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

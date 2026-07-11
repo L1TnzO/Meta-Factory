@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `d8d567762b82` | 2026-07-11T20:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `89a2a72db0c5` | 2026-07-11T20:55Z | State — Meta-Factory |
+| `docs/STATE.md` | `5c7623fa528b` | 2026-07-11T20:58Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -93,7 +93,7 @@
 | `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `a0bbdd27a346` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
-| `docs/work/DRIFT-AUDIT-INCREMENT.md` | `5ad6e4f9702b` | 2026-07-11T20:53Z | Incremento DRIFT-AUDIT |
+| `docs/work/DRIFT-AUDIT-INCREMENT.md` | `716ff779d99b` | 2026-07-11T20:58Z | Incremento DRIFT-AUDIT |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/ENGLISH-CLI-STRINGS-INCREMENT.md` | `0053fd853724` | 2026-07-11T14:38Z | Incremento ENGLISH-CLI-STRINGS |

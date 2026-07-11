@@ -1,7 +1,35 @@
-<!-- meta:doc sha=a9d30594f27ecc444b4793e083c84e5264eed261 updated=2026-07-11T14:49Z -->
+<!-- meta:doc sha=9fe06909a48817ba6750601a64b24af0ad4c5c39 updated=2026-07-11T17:16Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T17:14Z — ENGLISH-META-DOCS (F2c) CLOSED: 19 authored meta docs → English, 5 sequential slots
+ADR-026's F2(c): `docs/STATE.md`, the COST-DOWN direction doc, and all 17 `docs/reference/*.md` translated
+Spanish→English, structure-preserving, via 5 sequential `generator` spawns (this run also serves as the
+`PARALLEL-SLOTS-PILOT` (INC-2) sequential control baseline: 624,100 subagent tokens / 154 tool-uses /
+~56.2min wall-clock over 4 fully-reported spawns, never run concurrently). First: a small by-eyes column
+fix (`memory/projection.py`'s emitted strings — the literal source of STATE's `meta:projection` block,
+regenerated on every checkpoint/increment open-close; left untranslated it would have silently reverted
+any doc-level translation). Each slot's gate: `docs_check` + `evidence_liveness` + a new structural-
+preservation checker (`.gen/doc_translate_check.py`, written this increment: heading-count parity,
+fenced-code byte-identity, path-citation preservation) — real teeth for the deterministic half; brain
+spot-check for the meaning half (ADR-026 §1 names translation as ungateable-for-meaning). Two real bugs
+surfaced and fixed live, not by design: (1) translating `projection.py`'s `START` marker broke `refresh()`'s
+ability to find the old-Spanish-marker block in STATE.md, producing a stray duplicate — fixed with a
+dual-accept legacy pattern (same precedent as the `Estado`/`Status` header grammar) + made `refresh()`
+self-healing; (2) this increment's own doc used brace-expansion path citations
+(`` `docs/reference/{A,B,...}.md` ``) the doc-graph's single-path citation parser can't resolve — caught by
+slot 1's own generator, fixed, and documented in every later slot's contract so it wasn't reintroduced.
+One generator spawn (slot 4, the 5-file audit cluster) hit an external API session-limit mid-run after
+fully translating 3 of 5 files; the 3 done files were kept (independently re-verified green) and the
+remaining 2 resumed as a follow-up slot (4b) — the increment stayed open across the interruption, no work
+lost. `meta check` 21/21 green throughout; full pytest 1016/1016 green after every batch. Deliberately
+NOT touched: the `_INCREMENT_SCAFFOLD` template's section names (`## Objetivo`/`## Fases`/`## Criterio de
+cierre`, couples to `memory/precompact.py`'s literal parse — same deferral as `ENGLISH-CLI-STRINGS` Slot B),
+2 direction docs already effectively English (`SOTA-PARITY`, `DOC-CLEANUP`), 2 direction docs not tagged
+VIGENTE (`SOTA-REDESIGN`, `MEMORY-ARCH-V2`), and a captured residual (~85 Spanish-accented lines across 8
+other `memory/**` modules that don't render inside a translated doc — a genuine F2(b)-scope gap, triggered
+for `F3 DRIFT-AUDIT`). Self-contained in `work/ENGLISH-META-DOCS-INCREMENT.md §Evidencia`.
 
 ## 2026-07-11T14:48Z — SOTA-PARITY-DIRECTION CLOSED: deep audit vs external SOTA, engineer-mandated web verification
 Fable 5 special session (the engineer's reserved case), run READ-ONLY in parallel while

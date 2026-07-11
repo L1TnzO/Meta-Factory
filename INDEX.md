@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `8eb77bae0853` | 2026-07-11T00:32Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `209071ee715a` | 2026-07-11T00:32Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `e6f6a0f236e6` | 2026-07-11T00:43Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -33,6 +33,7 @@
 | `docs/decisions/023-generacion-model-nativa-y-piezas-de-comunidad.md` | `5072cdeb8989` | 2026-07-08T02:05Z | ADR-023 — Generación model-nativa + piezas de comunidad: la fábrica es la spec y el perfil de verificación; el codegen de templates se congela |
 | `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
 | `docs/decisions/025-adopcion-producto-evaluable-y-eval-floor.md` | `bdc4f7e42634` | 2026-07-10T22:27Z | ADR-025 — Adopción de un producto evaluable externo como producto de fábrica: `eval_floor` (generaliza ADR-024) + thaw de ASF para ReqCouncil |
+| `docs/decisions/026-doc-lifecycle-living-english.md` | `cdc7c7c86f08` | 2026-07-11T00:42Z | ADR-026 — Doc lifecycle by measurement: living-layer English, doc-graph liveness, archive-by-trigger |
 | `docs/reference/ARCHITECTURE-MAP.md` | `24f3b53dee5f` | 2026-07-10T15:23Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
@@ -87,6 +88,7 @@
 | `docs/work/DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND-INCREMENT.md` | `66a87e6c648d` | 2026-07-09T03:24Z | Incremento DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
+| `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `25f09b373a7f` | 2026-07-11T00:43Z | Incremento DOC-CLEANUP-DIRECTION |
 | `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `a0bbdd27a346` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |

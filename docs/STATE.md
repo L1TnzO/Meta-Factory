@@ -1,4 +1,4 @@
-<!-- meta:doc sha=209071ee715ac8f65f9f2fe9e2d1efdaa10d0dc8 updated=2026-07-11T00:32Z -->
+<!-- meta:doc sha=e6f6a0f236e6f4377db2fbb12698d6bb76494697 updated=2026-07-11T00:43Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -8,7 +8,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: DOC-CLEANUP-DIRECTION-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -27,7 +27,7 @@
   `verificacion` viva vs `superficie` exige ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`): kind de
   sustrato `eval_floor` generaliza `design_floor` (re-verifica evidencia PINEADA de un producto adoptado vs su
   piso, opt-in, 0-modelo, two-sided) → habilita adoptar ReqCouncil en ASF. Sigue: adopción física ASF (S2) ·
-  ADR-026 freshness · `helpdesk` · F1/ASF model-nativo. → `decisions/023`·`024`·`025` · LOG.
+  `COMMUNITY-FRESHNESS` (ADR futuro) · `helpdesk` · F1/ASF model-nativo. → `decisions/023`·`024`·`025` · LOG.
 - **⚖️ `COUNCIL-EXEC` — diseño COUNCIL-360 §6.4 COMPLETO (2026-07-04, re-sellado 2026-07-10).** Camino B:
   sistema VIVO = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. Los TRES jueces
   externos ESTÁN en el árbol: **H-1** ✅ (segundo actor VERDE) · **jueces económicos** ✅ (`OUTCOME-JUDGES`) ·
@@ -59,8 +59,9 @@
   `CLAUDE.md`. Inventario de TODOS los docs: `../INDEX.md` (vista GENERADA, ADR-009).
 
 ## Mapa
-- Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–023) · Plan de incrementos: `work/ROADMAP.md` +
+- Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–026) · Plan de incrementos: `work/ROADMAP.md` +
   docs de dirección (`work/COST-DOWN-DIRECTION-INCREMENT.md` — la biblia de costos, VIGENTE ·
+  `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — limpieza+inglés-capa-viva, ADR-026, VIGENTE ·
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
   auditoría viva: `COUNCIL-360-AUDIT.md` §1–§6 (veredicto §6.3 · repo-resultante §6.5) · mapa as-built: `ARCHITECTURE-MAP.md`) ·

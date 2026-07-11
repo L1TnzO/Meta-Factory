@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f64c2009d85f36cb4d5f57e97e6f415e4d1ffc5b updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=b30e55ee103b546cb88fd1c52eef0e6ea191299c updated=2026-07-11T04:58Z -->
 # Bitácora — Full-Stack Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 

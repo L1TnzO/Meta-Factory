@@ -1,7 +1,25 @@
-<!-- meta:doc sha=d8d567762b82b0d938748fe9ba21967e799d97d5 updated=2026-07-11T20:55Z -->
+<!-- meta:doc sha=7c0d22860459a23b2d5e9e8a876975a632c7cd6e updated=2026-07-11T21:55Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T21:55Z — EVALUATOR-ROLE (SOTA-PARITY INC-3, meta half) CLOSED: 5th role + design_eval, the 23rd gate
+ADR-027 (3e21929) adds `evaluator` to the CLOSED role vocabulary — the deliberate act ADR-020 prescribes:
+a separate, skeptical, criteria-driven grader for model-native surfaces (self-evaluation praises itself;
+skepticism = calibration DATA, not IQ → sonnet, read-only tools, Bash-write residual declared, caught by
+slot_footprint). Column stretch + propagation (89aa941): `agent_roles.CANONICAL += evaluator`, meta
+`evaluator.md`, `delegation_brain` injects it ×5 (teeth-free, injected before the brain so every
+orchestrator's `Agent(...)` gains it), bounded m07 re-emit 5/5 PASS — `roles` gate 30 agents; ride-along:
+3 stale factory CLAUDE.md caught up to the template's ADR-023/024 block. Gate via slot (14c17f5): the
+brain wrote `tests/test_design_eval.py` (18 tests) FIRST; the generator delivered
+`verify/checks/design_eval.py` green (iteration 18/18 · acceptance 1044/1044 · clean footprint, ~52.5k
+subagent tok); law = criteria-as-DATA shape + standing template-witness must FAIL ≥1 axis (all-pass =
+decorative → red) + covered products' PINNED critiques ≥ thresholds + embedded synthetic self-test.
+`meta check` 23/23. Cost invariant holds: the evaluator runs at GENERATION time (slot cost); `design_eval`
+is 0-model; `design_floor` stays the post-adoption pin. Honest deferral: the REAL two-sided proof (frozen
+template scored red / helpdesk v2 green) belongs to `FSK-EVALUATOR-ADOPT` (factory home, ADR-016) — next.
+Lesson (commit hygiene): a gate's cli row rides the commit that brings its module — the F2 plan had the
+row, moving it to F3 kept every intermediate commit meta-check-green.
 
 ## 2026-07-11T20:55Z — DRIFT-AUDIT (ADR-026 F3, widened +SOTA-PARITY INC-5/6) CLOSED: corpus clean, economy red, doctrines get vigency
 The F3 audit ran from GRAPH output, not hand-grep (the DOC-CLEANUP lesson: a hand-grep once produced a

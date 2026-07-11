@@ -1,7 +1,7 @@
-<!-- meta:doc sha=448ea45ad2394409054655f3916c3338e8925a98 updated=2026-07-11T21:50Z -->
+<!-- meta:doc sha=08a42ee44b8b784e6410de951fda5850b8d4f8ef updated=2026-07-11T21:54Z -->
 # Incremento EVALUATOR-ROLE
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T21:15Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-11T21:54Z) (creado 2026-07-11T21:15Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

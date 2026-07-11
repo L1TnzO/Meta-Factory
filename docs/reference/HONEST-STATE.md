@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c1b50130e596947370ec90cb0fa307b9f81aa8d2 updated=2026-07-11T15:45Z -->
+<!-- meta:doc sha=e4a0c9a379c6ed52f3b187686f23f85b83f5bfed updated=2026-07-11T17:38Z -->
 # HONEST-STATE — implemented vs defined (no makeup)
 
 > type: reference (I-13, honesty of limits). First-class artifact: aspiration is NEVER
@@ -87,6 +87,17 @@ Restart the session BEFORE continuing, so the hooks are alive. Commit per statio
 what I didn't do — that's why I'm writing it here, not in optimistic prose.
 
 ## 7. Declared residuals (memory v2)
+- **Slot containment is app-layer: PERSISTED escapes caught, TRANSIENT side-effects not (2026-07-11,
+  `SLOT-FOOTPRINT-TOOTH`, SOTA-PARITY INC-1).** GAP-1's two leaks are CLOSED: (a) the Bash bypass of the
+  Write-hook — acceptance is now deterministic on the git-OBSERVED footprint (changes ⊆ allow_globs ∪
+  {verdict_path} ∪ .gen/** ∪ baseline_dirty; law `delegation.footprint_problems`, enforced at SubagentStop +
+  re-checked at acceptance + gate `slot_footprint` two-sided); (b) the fail-open — manifest PRESENT but
+  law/manifest/git undecidable now blocks (exit 2) in both hooks. **Irreducible residue that remains:**
+  the tooth only sees what PERSISTS in the tree. TRANSIENT Bash side-effects — network egress, env mutation,
+  reading secrets, process spawning — remain app-layer-uncontained ("the weakest layer is the one you built
+  yourself"). Declared trigger for OS-sandbox adoption (SOTA-PARITY INC-7 hard version, bubblewrap
+  `sandbox-runtime` + egress allowlist): the first slot on a security-sensitive path, or the first observed
+  escape.
 - **Codegen freeze WITHOUT teeth + scope not legislated — CLOSED (2026-07-10, `CODEGEN-FREEZE-TOOTH`).**
   The `codegen_freeze` gate (`meta check`, 20 gates) is ADR-023 §3's deterministic shadow: a diff in
   `factories/*/codegen/**` without a waiver in the owning level's OPEN work-doc → RED · waiver without diff

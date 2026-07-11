@@ -211,11 +211,60 @@ def test_workorder_vocab_rejects_malformed(tmp_path, field, value, needle):
     assert any(needle in p for p in probs), probs
 
 
+# ── SLOT-FOOTPRINT-TOOTH (SOTA-PARITY INC-1): acceptance on the OBSERVED footprint ──
+def test_footprint_clean_inside_slot(tmp_path):
+    slot = _slot(tmp_path) | {"baseline_dirty": ["docs/notes.md"]}
+    changed = ["src/pkg/target.py", "src/pkg/sub/new.py", ".gen/demo.verdict.json",
+               ".gen/scratch/x.txt", "docs/notes.md"]
+    assert delegation.footprint_problems(slot, changed) == []
+
+
+def test_footprint_flags_out_of_slot(tmp_path):
+    probs = delegation.footprint_problems(_slot(tmp_path), ["seed/verifier.py", "src/pkg/target.py"])
+    assert len(probs) == 1 and "seed/verifier.py" in probs[0]
+
+
+def test_footprint_baseline_exempts_only_recorded(tmp_path):
+    slot = _slot(tmp_path) | {"baseline_dirty": ["docs/notes.md"]}
+    probs = delegation.footprint_problems(slot, ["docs/notes.md", "docs/other.md"])
+    assert len(probs) == 1 and "docs/other.md" in probs[0]
+
+
+def test_write_slot_records_baseline_dirty(tmp_path):
+    p = delegation.write_slot(tmp_path, {"slot_id": "x"}, baseline_dirty=["b.md", "a.md", "a.md"])
+    data = json.loads(p.read_text(encoding="utf-8"))
+    assert data["baseline_dirty"] == ["a.md", "b.md"]      # sorted + deduped
+    p2 = delegation.write_slot(tmp_path, {"slot_id": "x"})  # backward-compatible: no baseline recorded
+    assert "baseline_dirty" not in json.loads(p2.read_text(encoding="utf-8"))
+
+
+def test_manifest_problems_baseline_dirty_shape(tmp_path):
+    bad = _slot(tmp_path) | {"baseline_dirty": "a.md"}
+    assert any("baseline_dirty" in p for p in delegation.manifest_problems(bad))
+    good = _slot(tmp_path) | {"baseline_dirty": ["a.md"]}
+    assert delegation.manifest_problems(good) == []
+
+
 # ── the HOOKS (real subprocess, as the harness runs them) ──────────────────────
+def _git_dirty_now() -> list[str]:
+    """The repo's CURRENT dirty paths (test-time baseline, so a dirty working tree can't false-red)."""
+    r = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"],
+                       cwd=REPO, capture_output=True, text=True)
+    out = []
+    for line in r.stdout.splitlines():
+        for part in line[3:].split(" -> "):
+            p = part.strip().strip('"')
+            if p:
+                out.append(p)
+    return out
+
+
 @pytest.fixture
 def active_manifest():
     """Install a real slot manifest under the repo's .gen/, torn down after. Harmless to the session:
-    the global hooks never read it (blast_radius/verdict_required live only in the generator frontmatter)."""
+    the global hooks never read it (blast_radius/verdict_required live only in the generator frontmatter).
+    `baseline_dirty` records the CURRENT dirty tree (SLOT-FOOTPRINT-TOOTH) so in-progress work never
+    false-reds the footprint check."""
     p = delegation.manifest_path(REPO)
     p.parent.mkdir(parents=True, exist_ok=True)
     manifest = {
@@ -223,6 +272,7 @@ def active_manifest():
         "allow_globs": ["src/pkg/target.py"],
         "gate_cmd": ["true"],
         "verdict_path": ".gen/test-slot.verdict.json",
+        "baseline_dirty": sorted(set(_git_dirty_now())),
     }
     p.write_text(json.dumps(manifest), encoding="utf-8")
     try:
@@ -273,3 +323,67 @@ def test_verdict_required_inert_without_manifest():
 def test_verdict_required_anti_loop_valve(active_manifest):
     # Even with no verdict, the stop_hook_active valve prevents an infinite re-block.
     assert _run_hook("verdict_required.py", {"stop_hook_active": True}) == 0
+
+
+def test_verdict_required_blocks_out_of_slot_footprint(active_manifest):
+    """SLOT-FOOTPRINT-TOOTH: a well-formed green verdict is NOT enough — a persisted change outside
+    allow_globs ∪ verdict ∪ .gen/ ∪ baseline_dirty (e.g. a Bash write that bypassed the PreToolUse hook)
+    blocks the stop (exit 2); removing it unblocks (exit 0)."""
+    (REPO / ".gen/test-slot.verdict.json").write_text(json.dumps({
+        "slot_id": "test-slot", "status": "green", "check": "true", "exit_code": 0}), encoding="utf-8")
+    escape = REPO / "zz_footprint_escape.tmp"
+    try:
+        escape.write_text("out-of-slot persisted change\n", encoding="utf-8")
+        assert _run_hook("verdict_required.py", {}) == 2   # footprint violation → cannot stop
+    finally:
+        escape.unlink(missing_ok=True)
+    assert _run_hook("verdict_required.py", {}) == 0        # clean footprint → may stop
+
+
+def _synthetic_root(tmp_path: Path, law: str | None, manifest: str | None) -> Path:
+    """A fake factory root for the FAIL-CLOSED witness: real hooks copied in (they resolve their root by
+    script location, parents[2]), a seed law and a manifest as given."""
+    hooks = tmp_path / ".claude" / "hooks"
+    hooks.mkdir(parents=True)
+    for name in ("blast_radius.py", "verdict_required.py"):
+        (hooks / name).write_text((HOOKS / name).read_text(encoding="utf-8"), encoding="utf-8")
+    (tmp_path / "seed").mkdir()
+    if law is not None:
+        (tmp_path / "seed" / "delegation.py").write_text(law, encoding="utf-8")
+    if manifest is not None:
+        (tmp_path / ".gen").mkdir()
+        (tmp_path / ".gen" / "active_slot.json").write_text(manifest, encoding="utf-8")
+    return tmp_path
+
+
+def _run_hook_at(root: Path, name: str, payload: dict) -> int:
+    r = subprocess.run([sys.executable, str(root / ".claude" / "hooks" / name)],
+                       input=json.dumps(payload), text=True, capture_output=True)
+    return r.returncode
+
+
+_WRITE_PAYLOAD = {"tool_name": "Write", "tool_input": {"file_path": "anything.py"}}
+
+
+def test_hooks_fail_closed_when_law_broken(tmp_path):
+    """GAP-1 fix: manifest PRESENT + unloadable law → both hooks exit 2 (the old `except: return 0`
+    was fail-OPEN while a slot was active)."""
+    root = _synthetic_root(tmp_path, law="def broken(:\n", manifest='{"slot_id": "w", "allow_globs": ["x"]}')
+    assert _run_hook_at(root, "blast_radius.py", _WRITE_PAYLOAD) == 2
+    assert _run_hook_at(root, "verdict_required.py", {}) == 2
+
+
+def test_hooks_fail_closed_on_malformed_manifest(tmp_path):
+    """Manifest file PRESENT but not a valid JSON object → undecidable slot → fail closed (exit 2)."""
+    root = _synthetic_root(tmp_path, law=(REPO / "seed" / "delegation.py").read_text(encoding="utf-8"),
+                           manifest="{not json")
+    assert _run_hook_at(root, "blast_radius.py", _WRITE_PAYLOAD) == 2
+    assert _run_hook_at(root, "verdict_required.py", {}) == 2
+
+
+def test_hooks_inert_without_manifest_even_if_law_broken(tmp_path):
+    """No manifest on disk → inert (exit 0) regardless of the law's state: the main session and other
+    subagents stay untouched."""
+    root = _synthetic_root(tmp_path, law="def broken(:\n", manifest=None)
+    assert _run_hook_at(root, "blast_radius.py", _WRITE_PAYLOAD) == 0
+    assert _run_hook_at(root, "verdict_required.py", {}) == 0

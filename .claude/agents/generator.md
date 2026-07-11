@@ -42,7 +42,11 @@ The active slot manifest at `.gen/active_slot.json`:
    the generated code (it stays in your context, not the orchestrator's).
 
 ## Hard rules
-- Stay inside `allow_globs`. Do not try to edit configuration, hooks, or files outside the slot.
+- Stay inside `allow_globs`. Do not try to edit configuration, hooks, or files outside the slot. This is
+  enforced TWICE: Write/Edit outside the slot is blocked live (PreToolUse), and you cannot finish while `git
+  status` shows ANY change outside allow_globs ∪ verdict ∪ .gen/ ∪ the manifest's `baseline_dirty`
+  (SLOT-FOOTPRINT-TOOTH at SubagentStop — Bash writes are caught here). If you created scratch files, put
+  them under `.gen/`; if you strayed, revert the stray paths before stopping.
 - Never fake green: `status: green` requires the gate to actually exit 0. A decorative pass is a worse failure
   than an honest red — the orchestrator trusts your verdict, so it must be true.
 - If the contract is ambiguous or you'd need to touch code outside the slot, write a `red` verdict whose

@@ -56,6 +56,11 @@ description: >-
    ```
    (`.gen/` is gitignored — manifest and verdict are re-derivable, never the root of trust.) The substrate
    helper `metafactory.delegation.manifest_problems(manifest)` shape-checks it before you spawn.
+   **Record the dirty baseline (SLOT-FOOTPRINT-TOOTH).** If the tree is not clean at slot-open, add
+   `"baseline_dirty": [...]` — the paths `git status --porcelain --untracked-files=all` reports NOW (or write
+   the manifest via `metafactory.delegation.write_slot(root, manifest, baseline_dirty=paths)`, which records
+   it for you). Pre-existing dirt is exempted from the footprint check; everything else the slot leaves
+   behind must be inside the contract.
    **The WorkOrder vocab** (harvested from PWF's AgentSpec/WorkOrder ontology, ADR-017 Fase 4 — optional but
    VALIDATED against a closed set when present, so a malformed WorkOrder is rejected before any spawn):
    - `single_responsibility` — the slot's ONE job; if you can't state it in a line, the slot is too big (split it).
@@ -71,7 +76,11 @@ description: >-
    frontmatter hooks make this safe: a write outside `allow_globs` → blocked; finishing without a well-formed
    verdict → blocked.
 6. **Read the verdict**, not the code. Load `.gen/<slot>.verdict.json`:
-   - **green** (gate exit 0) → accept; the slot is done.
+   - **green** (gate exit 0) → run the footprint re-check BEFORE accepting (belt over suspenders — it
+     catches a generator killed mid-flight whose SubagentStop never fired):
+     `python3 -m metafactory.verify.checks.slot_footprint . --live`
+     Exit 0 → accept; exit 1 names the out-of-slot paths → treat as a red (revert the strays or fix the
+     contract). Acceptance = green verdict AND clean footprint, never the verdict alone.
    - **red** → structured failure back to the generator (≤2 retries). If it persists, OR the slot touched a
      security/supply-chain path, spawn the `reviewer` (Opus) on the SPECIFIC failure.
 7. **Clear the slot** (`metafactory.delegation.clear_slot(root)`) so the teeth go inert again, and record the
@@ -79,6 +88,10 @@ description: >-
 
 ## Why this is safe (not "trust the subagent")
 The generator could ignore its prompt — so the prompt is not the control. The control is deterministic and
-machine-enforced: it can only Write inside the slot (PreToolUse exit 2), and it cannot stop without a verdict
-whose `status: green` requires the gate to have actually exited 0 (SubagentStop exit 2). You verify by
-BLOCKING. Opus eyes are spent only on the irreducible residue (security, novel architecture, persistent red).
+machine-enforced: it can only Write inside the slot (PreToolUse exit 2); it cannot stop without a verdict
+whose `status: green` requires the gate to have actually exited 0 (SubagentStop exit 2); and it cannot stop
+— nor be accepted — while the git-OBSERVED change footprint escapes allow_globs ∪ verdict ∪ .gen/ ∪
+baseline_dirty (SLOT-FOOTPRINT-TOOTH: a Bash write bypasses the Write hook, but the persisted change is
+caught at stop and at acceptance). You verify by BLOCKING. Honest residual: TRANSIENT Bash side-effects
+(network egress, env mutation, reading secrets) remain app-layer-uncontained (HONEST-STATE §7). Opus eyes
+are spent only on the irreducible residue (security, novel architecture, persistent red).

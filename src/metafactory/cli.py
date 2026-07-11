@@ -180,6 +180,8 @@ def cmd_check(args) -> int:
          "cmd": [py, "-m", "metafactory.verify.checks.codegen_freeze", str(root)]},  # está CONGELADO (diff sin waiver = rojo; waiver sin diff = rojo)
         {"name": "plan", "kind": "command",                 # ADR-021 (INC-4, PLAN-EXECUTE-SPLIT): plan-como-DATA
          "cmd": [py, "-m", "metafactory.verify.checks.plan_gate", str(root)]},  # bien formado, dos-lados (slot sin gate/ciclo/diferido-sin-razón = rojo)
+        {"name": "slot_footprint", "kind": "command",       # SOTA-PARITY INC-1 (SLOT-FOOTPRINT-TOOTH): slot acceptance
+         "cmd": [py, "-m", "metafactory.verify.checks.slot_footprint", str(root)]},  # deterministic on the git-observed footprint — two-sided + hooks fail-closed witness
         {"name": "state_snapshot", "kind": "command",      # ADR-019 (§3, M1): «Ahora» de STATE es snapshot,
          "cmd": [py, "-m", "metafactory.verify.checks.state_snapshot", str(root)]},  # no log (presupuesto + cierre rancio = rojo)
         {"name": "state_fidelity", "kind": "command",      # ADR-019 (§4, M3): «Ahora» no CONTRADICE el RTM

@@ -13,14 +13,19 @@ Haiku reads. Delegation is safe because you VERIFY BY BLOCKING, not by trusting 
 1. **Query the graph, don't read files blindly.** Use `meta graph` / `meta repomap` and route bulk reads off
    your context: the built-in `Explore` for fan-out "where/how is X across the repo" SEARCH, the `verifier`
    for "digest THIS artifact / did this gate pass" (a full read of one known bulky log/tree/spec). They are
-   complementary (ADR-020). Keep generated code and verbose logs OUT of your context either way.
+   complementary (ADR-020). Keep generated code and verbose logs OUT of your context either way. Before
+   re-reading a file this session, check the repomap/graph first (measured waste: 708 extra re-reads).
 2. **Contract first.** Write the typed interface/signature for the slot BEFORE delegating — the type-checker is
    the reviewer. A slot with no deterministic gate is not ready to delegate; design the gate first.
 3. **Delegate via the `generate-slot` skill.** It writes the slot manifest (`.gen/active_slot.json`: contract +
-   allow_globs blast-radius + gate_cmd + verdict_path) and spawns the `generator`. The generator can only Write
-   inside the blast radius (hook-enforced) and cannot finish without a verdict (hook-enforced).
-4. **Read the verdict, not the code.** Green → accept. Red → structured failure back to the generator, ≤2
-   retries. Persistent red OR a security/supply-chain path → escalate to the `reviewer` on the specific failure.
+   allow_globs blast-radius + split gate + verdict_path + baseline_dirty) and spawns the `generator`. The
+   generator's Write/Edit stay inside the blast radius (hook-enforced), it cannot finish without a verdict
+   (hook-enforced), and it cannot finish with a git-observed change footprint outside the slot
+   (SLOT-FOOTPRINT-TOOTH — this is what catches a Bash write the Write-hook never saw).
+4. **Read the verdict, not the code.** Green → re-check the footprint
+   (`python3 -m metafactory.verify.checks.slot_footprint . --live`), THEN accept. Red → structured failure
+   back to the generator, ≤2 retries. Persistent red OR a security/supply-chain path → escalate to the
+   `reviewer` on the specific failure.
 5. **Account for it.** The slot's tokens land in the billing-ledger (`meta billing`); per-increment outcome
    (ΔRTM + cost) is `meta outcome`. "Done" and "worth it" are decidable, not narrated.
 

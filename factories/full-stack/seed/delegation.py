@@ -1,9 +1,11 @@
 """delegation — the slot LAW for the verify-not-review delegation loop (ADR-017 §2), part of the
 frozen Stage-0 seed.
 
-Single source of the two machine teeth that make cheap delegation SAFE:
+Single source of the machine teeth that make cheap delegation SAFE:
   - blast-radius:     a generator subagent may Write ONLY inside its declared slot (PreToolUse exit 2).
   - verdict-required: the generator may not finish without a well-formed verdict file (SubagentStop exit 2).
+  - slot-footprint:   acceptance requires the git-OBSERVED change footprint ⊆ allow_globs ∪ {verdict_path} ∪
+                      .gen/** ∪ baseline_dirty (SOTA-PARITY INC-1) — closes the Bash bypass of the Write hook.
 
 Zero model, zero `metafactory.*`: pure path/JSON arithmetic — DATA-agnostic (ADR-012), it names no tech,
 domain or factory. COPIED VERBATIM into every produced factory (like `verifier.py`/`lifecycle.py`, ADR-018)
@@ -77,7 +79,12 @@ def load_slot(root: Path) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def write_slot(root: Path, manifest: dict) -> Path:
+def write_slot(root: Path, manifest: dict, baseline_dirty: list[str] | None = None) -> Path:
+    """Write the slot manifest. `baseline_dirty` (SLOT-FOOTPRINT-TOOTH): root-relative paths ALREADY dirty
+    at slot-open — the caller collects them (`git status --porcelain --untracked-files=all`; subprocess in
+    the transport, never here) and records them so a pre-dirty tree can't false-red the footprint check."""
+    if baseline_dirty is not None:
+        manifest = {**manifest, "baseline_dirty": sorted({str(p) for p in baseline_dirty})}
     p = manifest_path(root)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -138,6 +145,10 @@ def manifest_problems(manifest: dict) -> list[str]:
     sr = manifest.get("single_responsibility")
     if sr is not None and not (isinstance(sr, str) and sr.strip()):
         out.append("`single_responsibility` must be a non-empty string")
+    # Footprint law (SLOT-FOOTPRINT-TOOTH): paths already dirty at slot-open, recorded by `write_slot`.
+    bd = manifest.get("baseline_dirty")
+    if bd is not None and not (isinstance(bd, list) and all(isinstance(p, str) for p in bd)):
+        out.append("`baseline_dirty` must be a list of root-relative paths (recorded at slot-open)")
     mp = manifest.get("model_policy")
     if mp is not None:
         if not isinstance(mp, dict):
@@ -172,6 +183,34 @@ def write_allowed(root: Path, slot: dict, file_path: str) -> bool:
         return True
     globs = slot.get("allow_globs") or []
     return any(fnmatch.fnmatch(rel, g) for g in globs)
+
+
+def footprint_problems(slot: dict, changed_paths: list[str]) -> list[str]:
+    """SLOT-FOOTPRINT-TOOTH (SOTA-PARITY INC-1): slot ACCEPTANCE is deterministic on the OBSERVED change
+    footprint, not on trusting the Write-path hook — a Bash write bypasses PreToolUse, but it still PERSISTS
+    as a git-visible change and is caught here. `changed_paths` = root-relative POSIX paths observed changed
+    since slot open (the caller collects them from `git status --porcelain --untracked-files=all` — staged +
+    unstaged + untracked, both rename sides; the subprocess lives in the TRANSPORT, never in the law, which
+    stays pure/unit-testable). Returns [] iff every path is matched by allow_globs ∪ {verdict_path} ∪ .gen/**
+    ∪ slot['baseline_dirty'] (paths already dirty at slot-open, recorded by `write_slot`, so a pre-dirty tree
+    can't false-red the slot). Enforced at SubagentStop (`verdict_required` hook) and re-checked at
+    acceptance (`generate-slot` skill / `slot_footprint --live`) — same law, two transports."""
+    globs = [str(g) for g in (slot.get("allow_globs") or [])]
+    verdict = str(slot.get("verdict_path") or "")
+    baseline = {str(b) for b in (slot.get("baseline_dirty") or [])}
+    problems: set[str] = set()
+    for raw in changed_paths:
+        rel = str(raw).strip().replace("\\", "/")
+        if not rel or rel in baseline:
+            continue
+        if rel == ".gen" or rel.startswith(".gen/"):
+            continue  # the worker's own gitignored scratch + verdict area (same exemption as write_allowed)
+        if verdict and rel == verdict:
+            continue
+        if any(fnmatch.fnmatch(rel, g) for g in globs):
+            continue
+        problems.add(f"{rel}: changed outside the slot footprint (allow_globs ∪ verdict ∪ .gen/ ∪ baseline_dirty)")
+    return sorted(problems)
 
 
 def verdict_size_problems(root: Path, slot: dict) -> list[str]:

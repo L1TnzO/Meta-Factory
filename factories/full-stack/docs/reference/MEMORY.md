@@ -1,15 +1,15 @@
-<!-- meta:doc sha=b1cc39d088f4b6881b6b2c31ac00460a7be869c5 updated=2026-06-27T01:41Z -->
-# Memoria — Full-Stack Factory
-> tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
+<!-- meta:doc sha=9c856a5c059c698ecfcb1adee5c26f608177b692 updated=2026-07-11T20:00Z -->
+# Memory — Full-Stack Factory
+> type: reference · schema inherited ADR-021 (stable) · re-derivable, not narrated.
 
-Esta fábrica NO confía en lo que narra: RE-DERIVA su estado de artefactos. Si esta página contradice
-los artefactos, GANAN los artefactos (re-derivá; no la edites a mano).
+This factory does NOT trust what it narrates: it RE-DERIVES its state from artifacts. If this page
+contradicts the artifacts, the artifacts WIN (re-derive; do not hand-edit it).
 
-- **RTM** — `meta rtm --factory full-stack` re-deriva, por requisito, SATISFIED/UNSATISFIED desde los
-  proofs de `.proof/`: un requisito está SATISFIED iff toda estación que lo satisface tiene una gate
-  recomputable-OK. Corromper un proof CAMBIA el RTM — la gate `rtm_rederive` (M5) lo exige por bloqueo.
-- **Evidencia / journal** — los hechos derivan del ledger (`.proof/ledger.json`, una entrada por gate
-  abierta con su `proof_sha`) y de git, no de prosa. El ledger es re-derivable; la custodia no es la
-  raíz de confianza, la re-derivación en un clon limpio sí (PF-10).
-- **Métricas (ADR-008)** — captura gratis (file-IO + tabla de precios × tokens, cero llamadas al
-  modelo), vista con `meta metrics`. Display puro: se mide antes de forzar umbrales.
+- **RTM** — `meta rtm --factory full-stack` re-derives, per requirement, SATISFIED/UNSATISFIED from the
+  proofs in `.proof/`: a requirement is SATISFIED iff every station that satisfies it has a
+  recomputable-OK gate. Corrupting a proof CHANGES the RTM — the `rtm_rederive` gate (M5) enforces it by blocking.
+- **Evidence / journal** — the facts derive from the ledger (`.proof/ledger.json`, one entry per open
+  gate with its `proof_sha`) and from git, not from prose. The ledger is re-derivable; custody is not the
+  root of trust, re-derivation on a clean clone is (PF-10).
+- **Metrics (ADR-008)** — free capture (file-IO + price table × tokens, zero calls to the model), viewed
+  with `meta metrics`. Pure display: it is measured before forcing thresholds.

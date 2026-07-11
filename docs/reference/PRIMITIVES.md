@@ -1,103 +1,112 @@
-<!-- meta:doc sha=72c9098c09ff79c0567e0c251f307b4b31ba59a9 updated=2026-07-04T20:10Z -->
-# PRIMITIVES — la filosofía: primitivas de diseño, no herramientas
+<!-- meta:doc sha=c9228ad0393c94d08634ddd35374e91030f2f184 updated=2026-07-11T15:38Z -->
+# PRIMITIVES — the philosophy: design primitives, not tools
 
-> tipo: reference (estable) · creado: 2026-06-15T03:43Z
-> Autocontenido. Si llegás sin contexto: este doc es la FILOSOFÍA del Meta-Factory. La Meta-Factory NO
-> sabe usar Copier, ni LangGraph, ni Next.js. Sabe los CONCEPTOS que esas herramientas resuelven —las
-> *primitivas*— y en tiempo de DISEÑO planifica (Claude Code) qué tecnología provee cada primitiva para
-> el dominio que toca. La herramienta se decide en el plan SDD o se declara en el spec; **nunca se
-> hardcodea en el sustrato** (es herramienta, no filosofía). Decisiones que lo fijan: `ADR-011`, `ADR-012`.
+> type: reference (stable) · created: 2026-06-15T03:43Z
+> Self-contained. If you arrive without context: this doc is the PHILOSOPHY of the Meta-Factory. The
+> Meta-Factory does NOT know how to use Copier, or LangGraph, or Next.js. It knows the CONCEPTS that
+> those tools solve — the *primitives* — and at DESIGN time (Claude Code) it plans which technology
+> provides each primitive for the domain at hand. The tool is decided in the SDD plan or declared in
+> the spec; **it is never hardcoded into the substrate** (it is a tool, not philosophy). Decisions
+> that fix this: `ADR-011`, `ADR-012`.
 
-## 0. La frase que ordena esto
+## 0. The sentence that orders this
 
 > La Meta-Factory es la más generalista de todas: describe cómo debe ser una Factory "perfecta" y se
 > replica bajo dominios variados (ASF, Full-Stack, Mobile, IoT…). No es Copier ni lo que envuelve a ASF:
 > es el **concepto** de **construir productos de manera segura**. No le enseñás a usar Copier; le enseñás
 > la primitiva, y ella decide "ok, necesito esta tecnología". (Mandato del ingeniero, 2026-06-15.)
 
-## 1. La frontera del determinismo (I-3, la regla madre)
+## 1. The frontier of determinism (I-3, the mother rule)
 
-El determinismo vive en **proceso + verificación + contratos**, **NUNCA en el contenido generado**.
-De ahí salen DOS familias de primitivas con dueños distintos:
+Determinism lives in **process + verification + contracts**, **NEVER in the generated content**.
+From this come TWO families of primitives with different owners:
 
-| Familia | Quién la posee | Determinista? | Se elige por dominio? |
+| Family | Who owns it | Deterministic? | Chosen per domain? |
 | --- | --- | --- | --- |
-| **Primitivas de SEGURIDAD** (§2) | el Meta-Factory, invariante | **Sí** — código, gates, re-derivación | **No** — son la filosofía, idénticas para toda fábrica |
-| **Primitivas de DISEÑO** (§3) | declaradas en el spec / elegidas en el plan SDD | **No** — el modelo genera el contenido | **Sí** — la tecnología que las provee la decide la planificación |
+| **SECURITY primitives** (§2) | the Meta-Factory, invariant | **Yes** — code, gates, re-derivation | **No** — they are the philosophy, identical for every factory |
+| **DESIGN primitives** (§3) | declared in the spec / chosen in the SDD plan | **No** — the model generates the content | **Yes** — the technology that provides them is decided by planning |
 
-Corolario operativo: Claude Code **genera el 100%** (ADR-011); el determinismo no le ata las manos al
-generar — le verifica las manos después. "Envolver a Claude Code en garantías, no reemplazarlo" (VISION §6).
+Operative corollary: Claude Code **generates 100%** (ADR-011); determinism does not tie its hands
+while generating — it verifies its hands afterward. "Wrap Claude Code in guarantees, don't replace
+it" (VISION §6).
 
-## 2. Primitivas de SEGURIDAD (el sustrato las HORNEA; invariantes a todo dominio)
+## 2. SECURITY primitives (the substrate BAKES them; invariant across every domain)
 
-Estas NO se eligen ni se negocian: toda fábrica las hereda. Son los 13 invariantes vistos como primitivas.
+These are NOT chosen or negotiated: every factory inherits them. They are the 13 invariants seen as
+primitives.
 
-| id | Primitiva | Qué garantiza | Invariante |
+| id | Primitive | What it guarantees | Invariant |
 | --- | --- | --- | --- |
-| **SAFE-1** | Veredicto sólo por prueba | `passed` lo computa SÓLO un verificador determinista desde exit codes reales; el modelo no puede escribir veredictos | I-1 (columna, 3 cerrojos) |
-| **SAFE-2** | Verificar construyendo, no renderizando | una fábrica/producto se prueba scaffoldeando+compilando+corriendo en su PROPIO toolchain; render verde no basta | M8 (façade-trap) |
-| **SAFE-3** | Re-derivación sobre custodia | confianza = un runner limpio re-deriva el veredicto honesto idéntico; replicable > archivado | I-11 / PF-10 (dos verificadores) |
-| **SAFE-4** | Requisitos por artefacto, no por narrativa | RTM re-derivado de `.proof/`: SATISFIED/PROVISIONAL/UNSATISFIED corta el CI | I-10 |
-| **SAFE-5** | Slots creativos acotados | el modelo escribe sólo en slots cuyo output se verifica; lo invariante es contrato, no contenido | I-3 |
-| **SAFE-6** | Sombra determinista universal | toda regla que no deba saltearse tiene detector/impedimento en hook/CLI; la narrativa declara, el código garantiza | I-12 / PF-11 |
-| **SAFE-7** | Honestidad de límites | aspiración nunca confundida con realidad; M0/S0 rehúsan en vez de fabricar defaults; `status` honesto | I-13 |
-| **SAFE-8** | Jerarquía de confianza | cada capa la verifica una al menos tan confiable; el seed es la raíz auditada a mano; auto-mod de la cadena = gate más fuerte | SELF-IMPROVEMENT |
+| **SAFE-1** | Verdict only by proof | `passed` is computed ONLY by a deterministic verifier from real exit codes; the model cannot write verdicts | I-1 (column, 3 locks) |
+| **SAFE-2** | Verify by building, not rendering | a factory/product is tested by scaffolding+compiling+running on its OWN toolchain; a green render is not enough | M8 (façade-trap) |
+| **SAFE-3** | Re-derivation over custody | trust = a clean runner re-derives the identical honest verdict; replicable > archived | I-11 / PF-10 (two verifiers) |
+| **SAFE-4** | Requirements by artifact, not by narrative | RTM re-derived from `.proof/`: SATISFIED/PROVISIONAL/UNSATISFIED cuts the CI | I-10 |
+| **SAFE-5** | Bounded creative slots | the model only writes in slots whose output is verified; what's invariant is the contract, not the content | I-3 |
+| **SAFE-6** | Universal deterministic shadow | every rule that must not be skippable has a detector/blocker in a hook/CLI; the narrative declares, the code guarantees | I-12 / PF-11 |
+| **SAFE-7** | Honesty of limits | aspiration is never confused with reality; M0/S0 refuse rather than fabricate defaults; honest `status` | I-13 |
+| **SAFE-8** | Trust hierarchy | each layer is verified by one at least as trustworthy; the seed is the hand-audited root; self-modification of the chain = the strongest gate | SELF-IMPROVEMENT |
 
-## 3. Primitivas de DISEÑO (CONCEPTO; la tecnología la elige el plan SDD / el spec)
+## 3. DESIGN primitives (CONCEPT; the technology is chosen by the SDD plan / the spec)
 
-Cada fila es **lo que una herramienta RESUELVE**, abstraído de la herramienta. La columna "ejemplos de
-tecnología" es ilustrativa — el plan elige según el dominio; el sustrato no la conoce.
+Each row is **what a tool SOLVES**, abstracted from the tool. The "technology examples" column is
+illustrative — the plan chooses per domain; the substrate doesn't know it.
 
-| id | Primitiva (el concepto) | Qué resuelve | Ejemplos de tecnología (NO hardcodeados) |
+| id | Primitive (the concept) | What it solves | Technology examples (NOT hardcoded) |
 | --- | --- | --- | --- |
-| **DES-1** | Andamiaje regenerable | el producto es derivable del spec+diseño; regenerar es idempotente. Con 100%-generado (ADR-011) **no hay código humano que proteger**: la fuente es el spec, el código es derivable | Copier (Py) · Plop/Hygen (TS) · plantillas · el propio Claude Code |
-| **DES-2** | Topología verificable | la estructura del producto es chequeable estáticamente contra un invariante (sin correr el modelo) | grafo compilado LangGraph (`get_graph()`) · AST de rutas · schema de IaC |
-| **DES-3** | Puntos de control no-salteables | ciertas rutas no se pueden evitar; verificado por alcanzabilidad sobre la estructura compilada | `interrupt()` de LangGraph · middleware de auth · guards |
-| **DES-4** | Estado durable / resumible | un fallo no reejecuta lo completado | PostgresSaver · event store · cola con checkpoints |
-| **DES-5** | Procedencia / trazabilidad | toda salida rastrea a su evidencia; join key por nodo | OTel + Neo4j W3C PROV · logs estructurados · audit trail |
-| **DES-6** | Contratos tipados en fronteras | interfaces tipadas y chequeadas (`consumes`/`produces`) | Pydantic · TypeScript types · OpenAPI · protobuf |
-| **DES-7** | Evaluabilidad con compuertas | calidad medida por gates que BLOQUEAN (umbral → CI rojo) | RAGAS/DeepEval · tests de contrato · lighthouse CI |
-| **DES-8** | Proof en el toolchain DEL producto | la verificación corre en el entorno del producto, no de la fábrica | pytest/mypy (Py) · tsc/vitest/eslint (TS) · detox (mobile) |
-| **DES-9** | Frontera de aislamiento | el producto no contamina a la fábrica ni viceversa | venv/sys.path · workspace · container |
-| **DES-10** | Análisis estático con dientes | el código falla FUERTE por calidad, no sólo por tipos (sin `any`/warnings, exhaustividad, complejidad, errores no tragados): la dureza hecha gate | detekt+ktlint+`-Werror` · ESLint strict+`no-explicit-any` · `clippy -D warnings` |
-| **DES-11** | Currency / frescura de API | el código generado usa sólo superficie de API no-deprecada y pineada; lo viejo se bloquea DETERMINÍSTICAMENTE (I-3) | allow-list de símbolos por versión (vía Context7/MCP) · linters de deprecación |
-| **DES-12** | Esquema versionado + queries chequeados | el dato es contrato verificable en compilación: migraciones versionadas/reversibles + un query a una columna inexistente = error de compilación (la DB grita) | Flyway+jOOQ · sqlx · sqlc · type-providers |
-| **DES-13** | Cadena de suministro / seguridad del producto | el producto no shippea vulns conocidas, secretos ni código inseguro (≠ SAFE-*, que protege la confianza de la FÁBRICA) | dep-check/`npm audit` · Semgrep/CodeQL · gitleaks · SBOM |
+| **DES-1** | Regenerable scaffolding | the product is derivable from spec+design; regenerating is idempotent. With 100%-generated (ADR-011) **there is no human code to protect**: the source is the spec, the code is derivable | Copier (Py) · Plop/Hygen (TS) · templates · Claude Code itself |
+| **DES-2** | Verifiable topology | the product's structure is statically checkable against an invariant (without running the model) | compiled LangGraph graph (`get_graph()`) · route AST · IaC schema |
+| **DES-3** | Non-skippable checkpoints | certain routes cannot be avoided; verified by reachability over the compiled structure | LangGraph's `interrupt()` · auth middleware · guards |
+| **DES-4** | Durable / resumable state | a failure does not re-execute what's already done | PostgresSaver · event store · checkpointed queue |
+| **DES-5** | Provenance / traceability | every output traces back to its evidence; join key per node | OTel + Neo4j W3C PROV · structured logs · audit trail |
+| **DES-6** | Typed contracts at boundaries | typed, checked interfaces (`consumes`/`produces`) | Pydantic · TypeScript types · OpenAPI · protobuf |
+| **DES-7** | Evaluability with gates | quality measured by gates that BLOCK (threshold → red CI) | RAGAS/DeepEval · contract tests · lighthouse CI |
+| **DES-8** | Proof in the product's OWN toolchain | verification runs in the product's environment, not the factory's | pytest/mypy (Py) · tsc/vitest/eslint (TS) · detox (mobile) |
+| **DES-9** | Isolation boundary | the product does not contaminate the factory, nor vice versa | venv/sys.path · workspace · container |
+| **DES-10** | Static analysis with teeth | code fails HARD for quality, not just types (no `any`/warnings, exhaustiveness, complexity, unswallowed errors): rigor made into a gate | detekt+ktlint+`-Werror` · ESLint strict+`no-explicit-any` · `clippy -D warnings` |
+| **DES-11** | API currency / freshness | generated code uses ONLY non-deprecated, pinned API surface; the old is blocked DETERMINISTICALLY (I-3) | version-pinned symbol allow-list (via Context7/MCP) · deprecation linters |
+| **DES-12** | Versioned schema + checked queries | data is a contract verifiable at compile time: versioned/reversible migrations + a query to a non-existent column = a compile error (the DB screams) | Flyway+jOOQ · sqlx · sqlc · type-providers |
+| **DES-13** | Supply chain / product security | the product does not ship known vulns, secrets, or insecure code (≠ SAFE-*, which protects the trust of the FACTORY) | dep-check/`npm audit` · Semgrep/CodeQL · gitleaks · SBOM |
 
-> Esta tabla ES el contenido del **skill de diseño** (§4). Crece: cuando un dominio nuevo (Mobile, IoT)
-> destapa una primitiva no listada, se agrega acá — es la cantera viva. Cada primitiva nombra el
-> CONCEPTO y deja la tecnología abierta.
+> This table IS the content of the **design skill** (§4). It grows: when a new domain (Mobile, IoT)
+> uncovers a primitive not yet listed, it gets added here — it's the living quarry. Each primitive
+> names the CONCEPT and leaves the technology open.
 >
-> **Espejo legible-por-máquina (B1)**: el catálogo vive como DATO en `reference/primitives.yml` (single
-> source que el skill y el check `design_coverage` consumen); esta tabla es el espejo humano. Un test ata
-> ambos (`tests/test_design.py`): agregar una primitiva = editar el YAML + esta tabla, nunca el validator.
+> **Machine-readable mirror (B1)**: the catalog lives as DATA in `reference/primitives.yml` (single
+> source that the skill and the `design_coverage` check consume); this table is the human mirror. A
+> test ties both together (`tests/test_design.py`): adding a primitive = editing the YAML + this
+> table, never the validator.
 
-## 4. Dónde viven las primitivas: el skill de diseño (tiempo de DISEÑO)
+## 4. Where the primitives live: the design skill (DESIGN time)
 
-Las primitivas de DISEÑO se invocan **en el momento que la fábrica se diseña**, no en runtime. Viven en
-un **skill** de Claude Code (la primitiva nativa para procedimiento a-demanda; ARCHITECTURE §8, ASF/ADR-001).
-El flujo (detallado en `ROADMAP.md §Operación`):
+DESIGN primitives are invoked **at the moment the factory is designed**, not at runtime. They live
+in a **skill** of Claude Code (the native primitive for on-demand procedure; ARCHITECTURE §8,
+ASF/ADR-001). The flow (detailed in `ROADMAP.md §Operation`):
 
-1. **Spec inicial** → qué fábrica, qué dominio, qué debe producir, requisitos (SDD, fuente única de verdad).
-2. **Planificación SDD** (el skill + la potencia de planificación de Claude Code): por cada primitiva de
-   diseño que el dominio requiere, el modelo **elige la tecnología** que la provee y la **declara en el
-   diseño/spec** (ej.: dominio agente → DES-2/3 vía LangGraph; dominio web → DES-2 vía router + DES-6 vía
-   TS types). La elección es JUICIO (no determinista) bajo la filosofía; queda como artefacto revisable.
-3. **Build determinista** (M0–M8): el modelo genera el 100%; la columna verifica; M8 construye de verdad.
+1. **Initial spec** → which factory, which domain, what it must produce, requirements (SDD, single
+   source of truth).
+2. **SDD planning** (the skill + Claude Code's planning power): for each design primitive that the
+   domain requires, the model **chooses the technology** that provides it and **declares it in the
+   design/spec** (e.g.: agent domain → DES-2/3 via LangGraph; web domain → DES-2 via router + DES-6
+   via TS types). The choice is JUDGMENT (non-deterministic) under the philosophy; it stays as a
+   reviewable artifact.
+3. **Deterministic build** (M0–M8): the model generates 100%; the column verifies; M8 builds for
+   real.
 
-La regla dura (ADR-012): **ninguna tecnología se hardcodea en `src/metafactory/`**. Si aparece `import copier`
-o `langgraph` en el sustrato, es un bug de filosofía: esa decisión pertenece al plan o al spec.
+The hard rule (ADR-012): **no technology is hardcoded into `src/metafactory/`**. If `import copier`
+or `langgraph` appears in the substrate, it's a philosophy bug: that decision belongs to the plan or
+the spec.
 
-## 5. El SDD formal SOTA que se adopta
+## 5. The SOTA formal SDD being adopted
 
-Estado del arte (~2026): **GitHub Spec Kit · Kiro (AWS) · Tessl** formalizan el ciclo
-`spec → plan → tareas → verificación` con fuente única de verdad, **pero lo enforced con prompts**
-(ADR-003). El Meta-Factory adopta **ese mismo ciclo con DIENTES**: M0 rehúsa specs incompletas (corta
-una compuerta), el RTM re-derivado corta el CI ante UNSATISFIED. No inventamos un SDD: tomamos el SOTA
-y lo volvemos determinista. Ése es el precedente que dejan estos specs.
+State of the art (~2026): **GitHub Spec Kit · Kiro (AWS) · Tessl** formalize the cycle
+`spec → plan → tasks → verification` with a single source of truth, **but enforce it with prompts**
+(ADR-003). The Meta-Factory adopts **that same cycle WITH TEETH**: M0 refuses incomplete specs (cuts
+a gate), the re-derived RTM cuts the CI on UNSATISFIED. We are not inventing an SDD: we take the SOTA
+and make it deterministic. That's the precedent these specs set.
 
-## 6. Cómo leer esto junto al resto
+## 6. How to read this alongside the rest
 
-- La SEGURIDAD (§2) es fija → `ARCHITECTURE.md §3` (los 13 invariantes), `SELF-IMPROVEMENT.md`.
-- El DISEÑO (§3) es abierto → este doc es la cantera; el `ROADMAP.md` lista los incrementos que lo construyen.
-- Las DECISIONES irreversibles → `ADR-011` (100% generado, muere I-5), `ADR-012` (primitivas no herramientas).
+- SECURITY (§2) is fixed → `ARCHITECTURE.md §3` (the 13 invariants), `SELF-IMPROVEMENT.md`.
+- DESIGN (§3) is open → this doc is the quarry; `ROADMAP.md` lists the increments that build it.
+- The irreversible DECISIONS → `ADR-011` (100% generated, kills I-5), `ADR-012` (primitives not
+  tools).

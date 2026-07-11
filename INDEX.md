@@ -34,24 +34,24 @@
 | `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
 | `docs/decisions/025-adopcion-producto-evaluable-y-eval-floor.md` | `bdc4f7e42634` | 2026-07-10T22:27Z | ADR-025 — Adopción de un producto evaluable externo como producto de fábrica: `eval_floor` (generaliza ADR-024) + thaw de ASF para ReqCouncil |
 | `docs/decisions/026-doc-lifecycle-living-english.md` | `cdc7c7c86f08` | 2026-07-11T00:42Z | ADR-026 — Doc lifecycle by measurement: living-layer English, doc-graph liveness, archive-by-trigger |
-| `docs/reference/ARCHITECTURE-MAP.md` | `24f3b53dee5f` | 2026-07-10T15:23Z | ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04) |
-| `docs/reference/ARCHITECTURE.md` | `32fe43cbe5f9` | 2026-07-04T14:26Z | Arquitectura del Meta-Factory |
+| `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
+| `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
 | `docs/reference/ASF-PROVENANCE.md` | `f33e14885e42` | 2026-07-04T20:10Z | ASF — pin de provenance de la referencia congelada |
-| `docs/reference/CONTEXT-ECONOMY.md` | `94f68b00f935` | 2026-06-13T14:57Z | Economía de contexto — mantener el orquestador limpio |
+| `docs/reference/CONTEXT-ECONOMY.md` | `72a0a2df2f8e` | 2026-07-11T15:43Z | Context economy — keeping the orchestrator clean |
 | `docs/reference/COUNCIL-360-AUDIT.md` | `6b5a9d545ddd` | 2026-07-10T14:44Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
 | `docs/reference/FOUNDATIONS-REAUDIT.md` | `43c8bdd444f1` | 2026-07-10T14:44Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
-| `docs/reference/GOVERNANCE-LAYERING.md` | `cd6b54876f2d` | 2026-07-04T20:10Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
-| `docs/reference/HONEST-STATE.md` | `cb5a18b7d775` | 2026-07-10T16:35Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
+| `docs/reference/GOVERNANCE-LAYERING.md` | `5405aafe1e82` | 2026-07-11T15:44Z | Governance layering — where docs and the increment lifecycle live across the 3 levels |
+| `docs/reference/HONEST-STATE.md` | `c1b50130e596` | 2026-07-11T15:45Z | HONEST-STATE — implemented vs defined (no makeup) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `68df5d2e1287` | 2026-07-11T00:56Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `73c1b7c2fe48` | 2026-07-11T03:20Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
-| `docs/reference/PRIMITIVES.md` | `72c9098c09ff` | 2026-07-04T20:10Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
+| `docs/reference/PRIMITIVES.md` | `c9228ad0393c` | 2026-07-11T15:38Z | PRIMITIVES — the philosophy: design primitives, not tools |
 | `docs/reference/REGEN-AUDIT.md` | `cfe7c70b287e` | 2026-07-04T20:10Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
-| `docs/reference/SELF-IMPROVEMENT.md` | `c2df695e6717` | 2026-06-13T14:57Z | Auto-mejoramiento seguro — la jerarquía de confianza y el loop |
-| `docs/reference/VISION.md` | `e6d2c1ca06aa` | 2026-06-13T14:57Z | Visión — Meta-Factory: la fábrica que fabrica fábricas |
+| `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
+| `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

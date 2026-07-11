@@ -1,41 +1,41 @@
-<!-- meta:doc sha=94f68b00f935684c1e08d45b7b5590d98f62eba7 updated=2026-06-13T14:57Z -->
-# Economía de contexto — mantener el orquestador limpio
+<!-- meta:doc sha=72a0a2df2f8e92c5b84dcf50db073c363417b013 updated=2026-07-11T15:43Z -->
+# Context economy — keeping the orchestrator clean
 
-| Campo | Valor |
+| Field | Value |
 | --- | --- |
-| Documento | Doctrina de economía de contexto y delegación del Meta-Factory |
-| Hereda | ASF/ADR-020 (ley de colocación), ASF/CONTEXT-INCREMENT (bus de veredictos, agents meta) |
-| Extiende | delegación como DEFAULT ergonómico (cierra G-3); enrutamiento de modelo como dato (cierra G-4/W4); el bus como contrato universal de observación |
-| Estado del arte | `agent-harness-construction` (ECC): action/observation/recovery/context budget quality |
+| Document | Meta-Factory context-economy and delegation doctrine |
+| Inherits | ASF/ADR-020 (placement law), ASF/CONTEXT-INCREMENT (verdict bus, meta agents) |
+| Extends | delegation as an ergonomic DEFAULT (closes G-3); model routing as data (closes G-4/W4); the bus as a universal observation contract |
+| State of the art | `agent-harness-construction` (ECC): action/observation/recovery/context budget quality |
 
 > El dolor explícito del ingeniero: *"que no tenga que revisar cosas que le consumen el contexto
 > como loco… ejecutar comandos y leer outputs de un test… cada llamada posterior se hace más cara
-> y se deteriora. Mantener el orquestador siempre lo más limpio."* Este doc es la respuesta.
+> y se deteriora. Mantener el orquestador siempre lo más limpio."* This doc is the answer.
 
 ---
 
-## 1. La unidad de economía: tokens RESIDENTES, no tokens totales
+## 1. The unit of economy: RESIDENT tokens, not total tokens
 
-De ASF/ADR-020, la observación que ordena todo:
+From ASF/ADR-020, the observation that orders everything:
 
-> La economía correcta NO son tokens totales: son **tokens residentes en el contexto largo-vivo
-> del orquestador**. Un log de pytest en un subagente muere con el subagente; en el orquestador
-> se paga N veces (re-leído cada turno hasta compactación) y **degrada sus decisiones**.
+> The right economy is NOT total tokens: it's **tokens resident in the orchestrator's
+> long-lived context**. A pytest log in a subagent dies with the subagent; in the orchestrator
+> it's paid N times (re-read every turn until compaction) and **degrades its decisions**.
 
-Corolario (PF-12): **el orquestador opera sobre interfaces** (specs, veredictos, reportes,
-decisiones); los subagentes sobre implementación (código, logs verbosos). El objetivo no es que
-el modelo lea poco: es que lea **lo que se amortiza** (specs, interfaces, gobierno) y nunca lo
-que es one-shot voluminoso (un dump de test, un log de build).
+Corollary (PF-12): **the orchestrator operates on interfaces** (specs, verdicts, reports,
+decisions); subagents operate on implementation (code, verbose logs). The goal is not for
+the model to read little: it's for it to read **what amortizes** (specs, interfaces, governance) and never
+what is voluminous one-shot (a test dump, a build log).
 
 ---
 
-## 2. El bus de veredictos (I-7): el contrato universal de observación
+## 2. The verdict bus (I-7): the universal observation contract
 
-Toda operación cara del Meta-Factory y de cada fábrica producida —`check`, `verify`, `gate`,
-`trace`, `rtm`, `ci`, build, lint, type-check— devuelve un **veredicto acotado**, nunca un dump.
-El formato unifica la "observation design" del estado del arte (`agent-harness-construction`:
-todo output de herramienta lleva `status / summary / next_actions / artifacts`) con el `factory
-check` de ASF:
+Every expensive operation of the Meta-Factory and of every produced factory —`check`, `verify`, `gate`,
+`trace`, `rtm`, `ci`, build, lint, type-check— returns a **bounded verdict**, never a dump.
+The format unifies the state of the art's "observation design" (`agent-harness-construction`:
+every tool output carries `status / summary / next_actions / artifacts`) with ASF's `factory
+check`:
 
 ```
 VEREDICTO  <verb> — <status: PASS|FAIL|PROVISIONAL>   (exit <code>)
@@ -46,130 +46,131 @@ ARTEFACTO  <path del log COMPLETO en disco>  ← el dump vive acá, no en el con
 PRÓXIMO    <acción accionable, si aplica>
 ```
 
-Reglas del bus (de ASF/CONTEXT D1, generalizadas):
+Bus rules (from ASF/CONTEXT D1, generalized):
 
-- **Veredicto al contexto, log al disco.** El log entero (`.meta_check/<UTC>.log`, gitignored)
-  nunca entra a ningún contexto por defecto.
-- **El camino barato es el ergonómico, no el policíaco.** Brief es el DEFAULT sin flags; verbose
-  es opt-in. NO se agrega un hook que bloquee `pytest` a pelo — castigaría también a los writers,
-  y los hooks no distinguen llamador. La economía se logra haciendo que lo barato sea lo fácil.
-- **Exit ≠ 0 si algo falla** → CI-able y verificable por el orquestador **sin leer nada**.
-- **Revelación progresiva ante rojo** (reemplaza el truncado ciego, que esconde señal):
-  1. el **veredicto** del bus — muchas veces alcanza;
-  2. `triage` (haiku) sobre el path del log — centavos; el log crudo jamás toca al orquestador;
-  3. **slice quirúrgico** del log SOLO si el orquestador decide que es load-bearing.
-  El triage es TESTIGO, no autoridad: la autoridad sigue siendo el exit code + el log en disco.
-
----
-
-## 3. La ley de colocación (I-6): dónde vive cada pieza
-
-La cadena de preguntas de ASF/ADR-020, adoptada literal. Cada pieza vive en el **sustrato más
-determinista que pueda sostenerla**; solo escala al modelo cuando requiere juicio genuino:
-
-1. ¿Debe ser **GARANTIZADO verdadero**? → CLI (`src/metafactory/`): testeable, tipado, sin fe.
-2. ¿Debe ser **IMPEDIDO/CAPTURADO** aunque el modelo se porte mal? → hook (defensa de frontera).
-3. ¿Debe influir en **CADA turno**? → `CLAUDE.md` (el ÚNICO siempre-residente; se paga alquiler
-   por línea: presupuesto mínimo, medible en diff).
-4. ¿Es un **procedimiento a demanda**? → skill (paginado, carga al invocarse).
-5. ¿Es un **rol con contexto/herramientas propias**? → agent (paginado, carga EN el subagente).
-6. ¿Es **conocimiento/historia**? → docs/ADRs (residencia cero).
-
-Corolarios vinculantes (heredados):
-
-- **Lo determinista no se agentifica** (el verifier no es un agente) y **el juicio no se hookea**
-  (los hooks no juzgan).
-- **Los hooks casi no crecen**: corren en cada evento de cada sesión — el sustrato más caro de
-  expandir. Pregunta previa obligatoria: *"¿esto no es un check del CLI?"*.
-- **Cada prohibición declarada en un agent tiene sombra determinista** en hook/CLI (I-12).
-- **El reporte del subagente es la API**: formato fijo en la definición del agent — lo único que
-  entra al contexto del orquestador.
+- **Verdict to the context, log to disk.** The entire log (`.meta_check/<UTC>.log`, gitignored)
+  never enters any context by default.
+- **The cheap path is the ergonomic one, not the policing one.** Brief is the DEFAULT without flags; verbose
+  is opt-in. NO hook is added that blocks bare `pytest` — it would also punish writers,
+  and hooks don't distinguish the caller. Economy is achieved by making the cheap path the easy one.
+- **Exit ≠ 0 if anything fails** → CI-able and verifiable by the orchestrator **without reading anything**.
+- **Progressive disclosure on red** (replaces blind truncation, which hides signal):
+  1. the bus's **verdict** — often enough on its own;
+  2. `triage` (haiku) over the log's path — cents; the raw log never touches the orchestrator;
+  3. **surgical slice** of the log ONLY if the orchestrator decides it's load-bearing.
+  Triage is a WITNESS, not an authority: the authority remains the exit code + the log on disk.
 
 ---
 
-## 4. Delegación como DEFAULT, no como disciplina (cierra G-3)
+## 3. The placement law (I-6): where each piece lives
 
-ASF midió la sub-delegación pero el default seguía favoreciendo el inline. El Meta-Factory invierte
-la ergonomía para que **delegar sea más barato que no delegar**:
+ASF/ADR-020's chain of questions, adopted verbatim. Each piece lives in the **most
+deterministic substrate that can hold it**; it only escalates to the model when genuine judgment is required:
 
-### 4.1 El contrato de delegación cuesta ~0 líneas
-Vive en la definición del agent (`.claude/agents/<rol>.md`), no se re-tipea por delegación. ASF
-ya tenía esto (`factory-writer.md`); el Meta-Factory lo hornea en el `template/factory/` para que
-toda fábrica nazca con su familia de agents. El reporte del agent es la API (formato fijo:
-ARCHIVOS · COMANDOS+exit · EVIDENCIA · AFIRMO-vs-VERIFICADO · ISSUES).
+1. Must it be **GUARANTEED true**? → CLI (`src/metafactory/`): testable, typed, no faith required.
+2. Must it be **PREVENTED/CAUGHT** even if the model misbehaves? → hook (boundary defense).
+3. Must it influence **EVERY turn**? → `CLAUDE.md` (the ONLY always-resident one; rent is
+   paid per line: minimal budget, measurable in diff).
+4. Is it an **on-demand procedure**? → skill (paged, loads on invocation).
+5. Is it a **role with its own context/tools**? → agent (paged, loads INSIDE the subagent).
+6. Is it **knowledge/history**? → docs/ADRs (zero residency).
 
-### 4.2 El procedimiento que reemplaza al "vibe" (de ASF/CONTEXT D3, en CLAUDE.md ≤ presupuesto)
-Orden de preguntas, no reglas duras:
-1. ¿La salida es una **DECISIÓN** o un **DIFF**? Decisión → orquestador (jamás se delega).
+Binding corollaries (inherited):
+
+- **The deterministic doesn't get agentified** (the verifier is not an agent) and **judgment doesn't get hooked**
+  (hooks don't judge).
+- **Hooks barely grow**: they run on every event of every session — the most expensive substrate to
+  expand. Mandatory prior question: *"isn't this a CLI check?"*.
+- **Every prohibition declared in an agent has a deterministic shadow** in a hook/CLI (I-12).
+- **The subagent's report is the API**: fixed format in the agent's definition — the only thing
+  that enters the orchestrator's context.
+
+---
+
+## 4. Delegation as a DEFAULT, not a discipline (closes G-3)
+
+ASF measured sub-delegation but the default still favored inline work. The Meta-Factory reverses
+the ergonomics so that **delegating is cheaper than not delegating**:
+
+### 4.1 The delegation contract costs ~0 lines
+It lives in the agent definition (`.claude/agents/<role>.md`), not re-typed per delegation. ASF
+already had this (`factory-writer.md`); the Meta-Factory bakes it into `template/factory/` so that
+every factory is born with its family of agents. The agent's report is the API (fixed format:
+FILES · COMMANDS+exit · EVIDENCE · CLAIMED-vs-VERIFIED · ISSUES).
+
+### 4.2 The procedure that replaces "vibes" (from ASF/CONTEXT D3, in CLAUDE.md ≤ budget)
+Order of questions, not hard rules:
+1. Is the output a **DECISION** or a **DIFF**? Decision → orchestrator (never delegated).
    Diff → writer.
-2. ¿Lo que voy a leer se **amortiza** (spec, interfaces, gobierno) o es one-shot (detalle de
-   implementación)? One-shot voluminoso → delegar o pedir mapa a `Explore`.
-3. **Prueba del prompt**: si el contrato de delegación cuesta más líneas que el cambio, lo hago yo.
-4. ¿La **verificación** del resultado es determinista (`meta check`, gates)? Sí → delegar es
-   barato (el riesgo de un subagente que se equivoca lo atrapa la gate). No (requiere juicio) →
-   hacerlo directo.
-5. ¿Toca la **cadena de confianza** (gate/verifier/hooks/commit_guard)? El orquestador lee ese
-   diff con sus propios ojos, lo haya escrito quien sea.
+2. Does what I'm about to read **amortize** (spec, interfaces, governance) or is it one-shot (implementation
+   detail)? Voluminous one-shot → delegate or ask `Explore` for a map.
+3. **The prompt test**: if the delegation contract costs more lines than the change itself, I do it
+   myself.
+4. Is the result's **verification** deterministic (`meta check`, gates)? Yes → delegating is
+   cheap (the risk of a mistaken subagent is caught by the gate). No (requires judgment) →
+   do it directly.
+5. Does it touch the **trust chain** (gate/verifier/hooks/commit_guard)? The orchestrator reads that
+   diff with its own eyes, no matter who wrote it.
 
-### 4.3 Por qué esto sí mueve la aguja donde ASF no la movió
-ASF dejó la delegación a juicio con un contador que la medía. El Meta-Factory agrega tres
-palancas ergonómicas: (a) el bus de veredictos hace que el resultado de un subagente se verifique
-en ≤N líneas —el orquestador no "paga" por confiar en el subagente—; (b) el contrato de ~0 líneas
-elimina la fricción de armar el prompt; (c) el enrutamiento de modelo (§5) hace que elegir el
-agente barato sea un lookup, no una decisión. **Medir sigue vigente** (el contador del journal),
-pero ahora el default empuja en la dirección correcta.
+### 4.3 Why this actually moves the needle where ASF didn't
+ASF left delegation to judgment with a counter that measured it. The Meta-Factory adds three
+ergonomic levers: (a) the verdict bus makes a subagent's result verifiable
+in ≤N lines —the orchestrator doesn't "pay" to trust the subagent—; (b) the ~0-line contract
+removes the friction of building the prompt; (c) model routing (§5) makes choosing the
+cheap agent a lookup, not a decision. **Measuring is still in effect** (the journal counter),
+but now the default pushes in the right direction.
 
 ---
 
-## 5. Enrutamiento de modelo como DATO (cierra G-4 / el residual W4 de ASF)
+## 5. Model routing as DATA (closes G-4 / ASF's residual W4)
 
-ASF dejó "reviewer en opus para trust-chain" como regla narrativa sin sombra, porque *"el
-mecanismo de agents no soporta selección condicional de modelo."* El Meta-Factory cierra esto
-moviendo la decisión al **orquestador, guiado por una tabla de enrutamiento versionada** (dato,
-no prosa). El orquestador clasifica el trabajo y lanza `Agent(subagent_type=…, model=…)` según:
+ASF left "reviewer on opus for trust-chain" as a narrative rule without a shadow, because *"the
+agent mechanism doesn't support conditional model selection."* The Meta-Factory closes this by
+moving the decision to the **orchestrator, guided by a versioned routing table** (data,
+not prose). The orchestrator classifies the work and launches `Agent(subagent_type=…, model=…)` according to:
 
-| Clase de trabajo | Agent | Modelo | Por qué |
+| Work class | Agent | Model | Why |
 | --- | --- | --- | --- |
-| Diff que toca la **cadena de confianza** | `reviewer` | **opus** | máximo riesgo; el reviewer fresco caza fachada/trust-holes |
-| Diff voluminoso **no** trust-chain | `writer` | **sonnet** | implementación acotada, verificada por gate |
-| Triage de un **log** rojo | `triage` | **haiku** | ≤5 líneas: causa probable, tests afectados, punteros |
-| **Decisión** de arquitectura | (ninguno) | orquestador | jamás se delega (regla 1 de §4.2) |
+| Diff that touches the **trust chain** | `reviewer` | **opus** | maximum risk; the fresh reviewer hunts for façades/trust-holes |
+| Voluminous diff, **not** trust-chain | `writer` | **sonnet** | bounded implementation, gate-verified |
+| Triage of a red **log** | `triage` | **haiku** | ≤5 lines: likely cause, affected tests, pointers |
+| Architecture **decision** | (none) | orchestrator | never delegated (rule 1 of §4.2) |
 
-La tabla vive como dato (`.claude/` o un YAML del repo) y un comando/skill la lee para elegir. La
-**sombra determinista** del enrutamiento es doble: (a) el contador de delegaciones registra
-`subagent_type` + `model` por evento (ASF/ADR-023 ya lo captura), así el journal mide si el
-enrutamiento realmente ocurre; (b) la regla trust-chain ("el orquestador lee el diff con sus ojos")
-sigue activa como red de seguridad si el enrutamiento fallara. Cierra W4 sin pedirle al mecanismo
-de agents algo que no da.
-
----
-
-## 6. Política de `/clear` y ritual de checkpoint (de ASF/CONTEXT D4)
-
-El contexto es **caché**; el repo es la **base de datos**. Clear es gratis si todo está
-externalizado, carísimo si no. Heredamos la disciplina de ASF (`/incremento`):
-
-- **Frontera de INCREMENTO** → clear siempre (el cierre ya externaliza; rehidratar = handoff
-  estándar desde docs versionados).
-- **Frontera de FASE** → clear si la fase siguiente no necesita lo residente.
-- **Cambio de TIPO de trabajo** (diseño / ejecución / operación de línea) → clear: los residuos de
-  un modo anclan al otro.
-- **Regla de oro**: NUNCA clear con estado no externalizado → checkpoint primero (enmienda/estado
-  al doc de gobierno + LOG + STATE), clear después.
-- La **auto-compactación** es un resumen escrito por el modelo —la narrativa en la que este repo no
-  confía—. Si se acerca a mitad de fase: cerrar fase o checkpoint + clear deliberado. **Rehidratar
-  desde docs versionados > rehidratar desde un summary de compactación.**
-- Con orquestador flaco (post-checkpoint), el riesgo deja de ser bloat y pasa a ser **STALENESS**
-  (creencias residentes sobre archivos que los subagentes ya cambiaron). La cura no es recordar:
-  es **re-verificar** (`meta check`, gates) — determinista y barato.
+The table lives as data (`.claude/` or a repo YAML) and a command/skill reads it to choose. The
+**deterministic shadow** of the routing is double: (a) the delegation counter records
+`subagent_type` + `model` per event (ASF/ADR-023 already captures it), so the journal measures whether
+the routing actually happens; (b) the trust-chain rule ("the orchestrator reads the diff with its own eyes")
+stays active as a safety net if routing were to fail. Closes W4 without asking the
+agent mechanism for something it doesn't provide.
 
 ---
 
-## 7. El presupuesto, medible en el diff
+## 6. `/clear` policy and checkpoint ritual (from ASF/CONTEXT D4)
 
-Lo único siempre-residente que un humano paga cada turno es `CLAUDE.md`. Por eso tiene
-**presupuesto explícito** (factory-spec `factory_substrate.context_budget.claude_md_max_lines`) y
-todo diff que lo agrande debe justificarlo contra la cadena de la ley de colocación (§3). Un PR
-que agrega contexto siempre-residente sin pasar esa cadena es un hallazgo del reviewer, no un
-detalle de estilo. La economía de contexto deja de ser una buena intención y se vuelve un número
-en el diff — exactamente como ASF volvió número la trazabilidad (RTM) y la frescura (devcheck).
+Context is **cache**; the repo is the **database**. Clear is free if everything is
+externalized, very expensive if not. We inherit ASF's discipline (`/incremento`):
+
+- **INCREMENT boundary** → always clear (the close already externalizes; rehydrating = standard
+  handoff from versioned docs).
+- **PHASE boundary** → clear if the next phase doesn't need what's resident.
+- **Change of work TYPE** (design / execution / line operation) → clear: the residue of
+  one mode anchors the other.
+- **Golden rule**: NEVER clear with non-externalized state → checkpoint first (amendment/state
+  to the governance doc + LOG + STATE), clear afterward.
+- **Auto-compaction** is a summary written by the model —the narrative this repo does not
+  trust. If approaching mid-phase: close the phase or checkpoint + deliberate clear. **Rehydrating
+  from versioned docs > rehydrating from a compaction summary.**
+- With a lean orchestrator (post-checkpoint), the risk shifts from bloat to being **STALENESS**
+  (resident beliefs about files subagents already changed). The cure is not remembering:
+  it's **re-verifying** (`meta check`, gates) — deterministic and cheap.
+
+---
+
+## 7. The budget, measurable in the diff
+
+The only thing a human always pays for every turn is `CLAUDE.md`. That's why it has an
+**explicit budget** (factory-spec `factory_substrate.context_budget.claude_md_max_lines`) and
+every diff that enlarges it must justify it against the placement-law chain (§3). A PR
+that adds always-resident context without going through that chain is a reviewer finding, not a
+style detail. Context economy stops being a good intention and becomes a number
+in the diff — exactly how ASF turned traceability (RTM) and freshness (devcheck) into numbers.

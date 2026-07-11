@@ -1,19 +1,19 @@
-<!-- meta:doc sha=24f3b53dee5fcd84be33dac8ffec106393ae5e94 updated=2026-07-10T15:23Z -->
-# ARCHITECTURE-MAP — mapa as-built del sistema (2026-07-04)
+<!-- meta:doc sha=3e214094f3e519e2b69f69249258eeaf8a63238f updated=2026-07-11T15:41Z -->
+# ARCHITECTURE-MAP — as-built map of the system (2026-07-04)
 
-> tipo: reference (estable) · creado: 2026-07-04 (sesión Fable 5, pedido del ingeniero: «mapear la
-> arquitectura a detalle para conocimiento total»). Complementa `ARCHITECTURE.md` (la FUNDACIÓN,
-> 2026-06-15, pre-implementación — se conserva como fue escrita); esto es lo CONSTRUIDO, relevado del
-> filesystem/CLI/journal en esa fecha. Diagramas en Mermaid (texto-primero, diffeable, renderiza en
-> GitHub). Los números citados son re-derivables (`meta check`, `wc -l`, `ls`), no narrativa.
-> Declara además el **modo de operación workspace** (cola COUNCIL-360 §3.8).
+> type: reference (stable) · created: 2026-07-04 (sesión Fable 5, pedido del ingeniero: «mapear la
+> arquitectura a detalle para conocimiento total»). Complements `ARCHITECTURE.md` (the FOUNDATION,
+> 2026-06-15, pre-implementation — preserved as it was written); this is what was BUILT, surveyed from
+> the filesystem/CLI/journal on that date. Diagrams in Mermaid (text-first, diffable, renders on
+> GitHub). The cited numbers are re-derivable (`meta check`, `wc -l`, `ls`), not narrative.
+> Also declares the **workspace operating mode** (COUNCIL-360 §3.8 queue).
 
-## §1 · El modelo: máquina-herramienta · matriz · pieza
+## §1 · The model: machine-tool · die · workpiece
 
-**Meta = la máquina-herramienta; una fábrica = la MATRIZ montada en ella; el producto = la pieza**
-(doctrina en `COUNCIL-360-AUDIT.md §2.5`). Nada corre como daemon: una fábrica es data+codegen —
-no corre, ES corrida por el motor de meta. Hay UNA máquina (no 5 copias) para que un fix del motor
-mejore las 5 fábricas al instante y el trust-chain se audite UNA vez.
+**Meta = the machine-tool; a factory = the DIE mounted on it; the product = the workpiece**
+(doctrine in `COUNCIL-360-AUDIT.md §2.5`). Nothing runs as a daemon: a factory is data+codegen —
+it doesn't run, it IS run by the meta engine. There is ONE machine (not 5 copies) so that an engine
+fix improves all 5 factories instantly and the trust-chain is audited ONCE.
 
 ```mermaid
 flowchart TD
@@ -38,59 +38,59 @@ flowchart TD
     TPL -.->|"emit (M2/M7)"| N1
 ```
 
-## §2 · Modo de operación (declarado): WORKSPACE desde la raíz
+## §2 · Operating mode (declared): WORKSPACE from the root
 
-- **Toda sesión se para sobre la raíz meta** (modelo Nx/Bazel/Rails-engine): ahí viven el motor, los
-  verbos `meta`, la columna máxima (fábrica ⊊ meta, gate `least_priv`) y los hooks de cierre de turno
-  (cwd-relativos — cwd persistente SIEMPRE en la raíz; subdirs solo en subshells `( cd … )`).
-- Los CLAUDE.md de fábrica son **medio-vivos**: la plataforma los adjunta al leer archivos del
-  subárbol. El harness `.claude/` POR-fábrica emitido está **dormido** (esqueleto de export, no
-  operativo) — nadie lanza `claude` dentro de una fábrica.
-- **Ruteo por SESIÓN (ADR-021, precio no seguridad):** S1 diseño = Opus corto · S2 ejecución =
-  `claude --model sonnet --agent orchestrator` · S3 cierre = Opus muy corto · día-a-día
-  re-verificación/pins = shell directo (0-modelo; la generación NUEVA va por slots model-nativos, ADR-023).
+- **Every session sits on the meta root** (Nx/Bazel/Rails-engine model): that's where the engine, the
+  `meta` verbs, the maximum column (factory ⊊ meta, `least_priv` gate), and the turn-close hooks live
+  (cwd-relative — the persistent cwd is ALWAYS at the root; subdirs only in `( cd … )` subshells).
+- Factory CLAUDE.md files are **half-alive**: the platform attaches them when reading files in the
+  subtree. The PER-factory `.claude/` harness that's emitted is **asleep** (export skeleton, not
+  operational) — nobody launches `claude` inside a factory.
+- **Routing per SESSION (ADR-021, price not security):** S1 design = short Opus · S2 execution =
+  `claude --model sonnet --agent orchestrator` · S3 close = very short Opus · day-to-day
+  re-verification/pins = direct shell (0-model; NEW generation goes through model-native slots, ADR-023).
 
-## §3 · El motor (Stage 1, `src/metafactory/`)
+## §3 · The engine (Stage 1, `src/metafactory/`)
 
-~60 módulos Python chicos (regla multi-archivo); el mayor es `cli.py` (1141 LOC, 24 verbos —
-ver hallazgo H-6). Paquetes por responsabilidad:
+~60 small Python modules (multi-file rule); the largest is `cli.py` (1141 LOC, 24 verbs —
+see finding H-6). Packages by responsibility:
 
-| Paquete | Módulos clave | Responsabilidad |
+| Package | Key modules | Responsibility |
 | --- | --- | --- |
-| `engine/` | station · sequence · runner · gate · run_context | runner GENÉRICO de líneas (dominio-agnóstico, I-2): carga estaciones-como-dato, corre en orden, respeta `requires_prev` |
-| `spec/` | model · loader · validator (+design · primitives) | la espina SDD (ADR-003): `factory.spec.yml` Mitad A/B, cierre RTM (`rtm_closure`); M0 REHÚSA specs incompletas |
-| `codegen/` | renderer · delegation_brain | materializa `builds` de estación (write / generate `via` script / slot LLM); inyecta el cerebro orchestrator+generate-slot en fábricas emitidas (ADR-020 C) |
-| `verify/` | report · rtm · hermetic · dial · benchmark · outcome · cost_report · verdict + `checks/` (32 kinds) | el bus de veredictos (I-7) + los kinds de check REUTILIZABLES de dos lados (verde real + rojo-de-sabotaje) |
-| `graph/` | model · build · python_index · ingest · affected · repomap · quality · pbt_properties · billing · pricing | grafo de proyecto content-addressed (stdlib `ast`, **solo Python** — H-7) + ledger de costos cache-aware |
-| `memory/` | journal · metrics · projection · rehydrate · cadence · overlap · precompact · instrument | memoria v2 (ADR-019): journal de hechos 0-modelo, proyección a STATE, telemetría T2, observer de solapamiento |
-| raíz | cli · plan · delegation · agent_roles · column_scope · docs_manifest · doc_slice · gate_wrap · toolchain_run · _seed | verbos · plan-como-data · ley de slots (re-export del seed) · vocabulario CERRADO de roles · proyección least-priv de columna · INDEX generado (ADR-009) |
+| `engine/` | station · sequence · runner · gate · run_context | GENERIC line runner (domain-agnostic, I-2): loads stations-as-data, runs in order, respects `requires_prev` |
+| `spec/` | model · loader · validator (+design · primitives) | the SDD spine (ADR-003): `factory.spec.yml` Half A/B, RTM closure (`rtm_closure`); M0 REFUSES incomplete specs |
+| `codegen/` | renderer · delegation_brain | materializes station `builds` (write / generate `via` script / LLM slot); injects the orchestrator+generate-slot brain into emitted factories (ADR-020 C) |
+| `verify/` | report · rtm · hermetic · dial · benchmark · outcome · cost_report · verdict + `checks/` (32 kinds) | the verdict bus (I-7) + the REUSABLE check kinds used on both sides (real green + sabotage-red) |
+| `graph/` | model · build · python_index · ingest · affected · repomap · quality · pbt_properties · billing · pricing | content-addressed project graph (stdlib `ast`, **Python only** — H-7) + cache-aware cost ledger |
+| `memory/` | journal · metrics · projection · rehydrate · cadence · overlap · precompact · instrument | memory v2 (ADR-019): 0-model fact journal, projection to STATE, T2 telemetry, overlap observer |
+| root | cli · plan · delegation · agent_roles · column_scope · docs_manifest · doc_slice · gate_wrap · toolchain_run · _seed | verbs · plan-as-data · slot law (re-export from the seed) · CLOSED role vocabulary · least-priv column projection · generated INDEX (ADR-009) |
 
-**Verbos del CLI (24):** check · new · station · product-run · product · rtm · ci · pin · promote ·
+**CLI verbs (24):** check · new · station · product-run · product · rtm · ci · pin · promote ·
 verify · doc-sync · increment · checkpoint · journal · metrics · recall · rehydrate · graph · doc ·
 jdk-run · billing · outcome · benchmark · dial · plan.
 
-**`meta check` (la verdad del sustrato) = 18 gates:** compile · docs · projection · isolation ·
+**`meta check` (the substrate's ground truth) = 18 gates:** compile · docs · projection · isolation ·
 generality · quality · pbt · security · deferred · benchmark · dial · column_parity · least_priv ·
 roles · plan · state_snapshot · state_fidelity · suite.
 
-## §4 · La columna (Stage 0 + harness) y la cadena de confianza
+## §4 · The column (Stage 0 + harness) and the trust chain
 
-Los **3 cerrojos** anti-sello-de-goma: (1) `seed/verifier.py` es el ÚNICO escritor de veredictos y
-computa `passed` SOLO de exit codes reales de subprocesos; (2) `gate_recompute_ok` recomputa
-`passed`+`proof_sha` desde los propios checks del proof — un `passed=true` editado a mano se detecta;
-(3) el hook `Stop` (`stop_proof`) re-corre verify y bloquea el cierre de turno en rojo.
+The **3 anti-rubber-stamp locks**: (1) `seed/verifier.py` is the ONLY writer of verdicts and
+computes `passed` ONLY from real subprocess exit codes; (2) `gate_recompute_ok` recomputes
+`passed`+`proof_sha` from the proof's own checks — a hand-edited `passed=true` is detected;
+(3) the `Stop` hook (`stop_proof`) re-runs verify and blocks turn-close on red.
 
-| Hook (`.claude/hooks/`) | Evento | Sombra determinista de |
+| Hook (`.claude/hooks/`) | Event | Deterministic shadow of |
 | --- | --- | --- |
-| proof_protect | PreToolUse | `.proof/`/ledger/rtm intocables por el modelo (cerrojo 1) |
-| gate_guard | PreToolUse | no avanzar estación k sin k−1 verde (cerrojo 2) |
-| stop_proof | Stop | cerrojo 3 (hoy HERMÉTICO: confía en pin verde de clean-clone si el toolchain local no re-verifica) |
-| commit_guard · increment_guard | PreToolUse | trailers I-10 + todo código vive en un incremento (ADR-010) |
-| blast_radius · verdict_required | PreToolUse/SubagentStop **por-agent** | el generator solo escribe en `allow_globs`; no termina sin veredicto |
-| doc_stamp · session_start · mem_capture · mem_rollup · pre_compact · context_nudge | PostToolUse/SessionStart/… | sello ADR-009 · rehidratación · journal · snapshot pre-compactación |
+| proof_protect | PreToolUse | `.proof/`/ledger/rtm untouchable by the model (lock 1) |
+| gate_guard | PreToolUse | not advancing to station k without k−1 green (lock 2) |
+| stop_proof | Stop | lock 3 (today HERMETIC: trusts the clean-clone green pin if the local toolchain can't re-verify) |
+| commit_guard · increment_guard | PreToolUse | I-10 trailers + all code lives inside an increment (ADR-010) |
+| blast_radius · verdict_required | PreToolUse/SubagentStop **per-agent** | the generator writes ONLY inside `allow_globs`; doesn't finish without a verdict |
+| doc_stamp · session_start · mem_capture · mem_rollup · pre_compact · context_nudge | PostToolUse/SessionStart/… | ADR-009 seal · rehydration · journal · pre-compaction snapshot |
 
-**Agents (por ROL, vocabulario cerrado ADR-020):** orchestrator (cerebro) · generator (Sonnet,
-bulk-code acotado) · verifier (Haiku, digest de UN artefacto) · reviewer (Opus, residuo irreducible).
+**Agents (by ROLE, ADR-020 closed vocabulary):** orchestrator (brain) · generator (Sonnet,
+bounded bulk-code) · verifier (Haiku, digest of ONE artifact) · reviewer (Opus, irreducible residue).
 
 ```mermaid
 flowchart LR
@@ -101,7 +101,7 @@ flowchart LR
     E --> F["gates de producto<br/>ej. FSK s0–s11"]
 ```
 
-## §5 · Flujo de producción de un producto (la línea, 0-modelo salvo slots)
+## §5 · Production flow of a product (the line, 0-model except slots)
 
 ```mermaid
 sequenceDiagram
@@ -121,15 +121,15 @@ sequenceDiagram
     CLI->>CLI: comparar contra pinned_verdict.json (ci --rederive == pin, clon limpio)
 ```
 
-**Semántica exacta del pin (importante):** `proof_sha = sha256(station + sorted[(check, exit)])` —
-EXCLUYE timestamps, output y **bytes de artefactos**. «Re-deriva == pin» prueba que *desde el estado
-commiteado, los mismos checks re-corren y salen igual en un clon limpio*; NO ata «estos bytes» (eso,
-cuando se afirma byte-identidad, lo prueba `git diff` aparte). La fuerza del pin ES la fuerza de los
-checks — coherente con la filosofía (gates = spec de correctitud), débil como provenance (H-2). El
-slot LLM convive con el pin porque su salida está COMMITEADA y el rederive corre sin red desde estado
-commiteado, gateado por contract-test.
+**Exact pin semantics (important):** `proof_sha = sha256(station + sorted[(check, exit)])` —
+EXCLUDES timestamps, output, and **artifact bytes**. «Re-derive == pin» proves that *from the
+committed state, the same checks re-run and come out the same on a clean clone*; it does NOT
+tie down «these bytes» (that, when byte-identity is claimed, is proven separately by `git diff`).
+The pin's strength IS the strength of the checks — consistent with the philosophy (gates =
+correctness spec), weak as provenance (H-2). The LLM slot coexists with the pin because its
+output is COMMITTED and the rederive runs offline from the committed state, gated by contract-test.
 
-## §6 · Delegación verificar-no-revisar (ADR-017/020)
+## §6 · Verify-not-review delegation (ADR-017/020)
 
 ```mermaid
 flowchart LR
@@ -141,58 +141,60 @@ flowchart LR
     O -->|"verde → aceptar · rojo → ≤2 retries<br/>rojo persistente / seguridad → reviewer (Opus)"| M["merge + meta billing/outcome"]
 ```
 
-Uso REAL medido (journal al 2026-07-04): 5482 station_run · 263 session_start · **15 delegation ·
-0 graph_query** — la línea 0-modelo es el músculo de RE-VERIFICACIÓN (pins/checks); la GENERACIÓN nueva
-es model-nativa por slots (ADR-023); el harness de delegación está EN JUICIO (COUNCIL §2.6) hasta la
-corrida S2 pendiente.
+REAL measured usage (journal as of 2026-07-04): 5482 station_run · 263 session_start · **15 delegation ·
+0 graph_query** — the 0-model line is the RE-VERIFICATION muscle (pins/checks); NEW generation
+is model-native via slots (ADR-023); the delegation harness is UNDER TRIAL (COUNCIL §2.6) pending
+the S2 run.
 
-## §7 · Memoria (ADR-007 → ADR-019) y datos en disco
+## §7 · Memory (ADR-007 → ADR-019) and data on disk
 
-Tres memorias single-source (M6): `docs/` = hechos del proyecto (STATE overwrite · LOG append ·
-decisions inmutable · work por-incremento · reference estable, sellos ADR-009 + `INDEX.md` generado) ·
-`CLAUDE.md` = reglas de la fase viva · note-store de auto-memoria = relación cross-sesión. Journal y
-proyección son 0-modelo; `meta metrics --overlap` es observador.
+Three single-source memories (M6): `docs/` = project facts (STATE overwrite · LOG append ·
+decisions immutable · work per-increment · reference stable, ADR-009 seals + generated `INDEX.md`) ·
+`CLAUDE.md` = rules of the living phase · auto-memory note-store = cross-session relationship.
+Journal and projection are 0-model; `meta metrics --overlap` is an observer.
 
-| Store | Committed | Contenido |
+| Store | Committed | Content |
 | --- | --- | --- |
-| `.proof/` | no (re-derivable) | proofs por estación + ledger + logs + active.json |
-| `pinned_verdict.json` (por fábrica) | **sí** | el pin honesto que el rederive debe igualar |
-| `.graph/` | no | grafo content-addressed incremental |
-| `.gen/` | no | slot manifest activo + nudges |
+| `.proof/` | no (re-derivable) | proofs per station + ledger + logs + active.json |
+| `pinned_verdict.json` (per factory) | **yes** | the honest pin that the rederive must match |
+| `.graph/` | no | incremental content-addressed graph |
+| `.gen/` | no | active slot manifest + nudges |
 | `.metamem/` | no | journal.jsonl · metrics.jsonl · precompact.json |
-| `benchmarks/` · `scenarios/` · `specs/` | sí | target verificable sweet-spot · corpus · esqueletos |
+| `benchmarks/` · `scenarios/` · `specs/` | yes | verifiable sweet-spot target · corpus · skeletons |
 
-## §8 · THREAT-MODEL honesto (D-7, COUNCIL-360 §5 — qué se defiende y qué explícitamente NO)
+## §8 · Honest THREAT-MODEL (D-7, COUNCIL-360 §5 — what is defended and what explicitly is NOT)
 
-El vocabulario prestado («intocable», trusting-trust, SLSA-casero) SOBRE-AFIRMABA. La verdad operativa:
+The borrowed vocabulary («untouchable», trusting-trust, homemade-SLSA) OVER-ASSERTED. The operative truth:
 
-**La amenaza REAL contra la que este sistema está diseñado: DERIVA + AUTOENGAÑO del modelo.**
-1. *Verde narrado sin prueba* → `seed/verifier.py` computa `passed` SOLO de exit codes; `.proof/` lo
-   protege un hook; el pin exige re-derivación. Defendido con dientes.
-2. *Deriva silenciosa del sustrato* → pin clon-limpio local + **segundo actor** (GitHub Actions, verde
-   desde 2026-07-04, run 28717567792) + gates de dos lados. Defendido.
-3. *Scope-creep / opciones sin demanda* → N/A-por-medición, benchmark techo, vocabularios CERRADOS
-   (roles ADR-020, kinds D-3). Defendido por gobierno con dientes.
+**The REAL threat this system is designed against: DRIFT + SELF-DECEPTION of the model.**
+1. *Narrated green without proof* → `seed/verifier.py` computes `passed` ONLY from exit codes; a hook
+   protects `.proof/`; the pin demands re-derivation. Defended with teeth.
+2. *Silent substrate drift* → local clean-clone pin + **second actor** (GitHub Actions, green
+   since 2026-07-04, run 28717567792) + gates from both sides. Defended.
+3. *Scope-creep / options without demand* → N/A-by-measurement, benchmark ceiling, CLOSED
+   vocabularies (roles ADR-020, kinds D-3). Defended by governance with teeth.
 
-**Lo que este sistema NO defiende (declarado, no aspiracional):**
-1. *Adversario activo con acceso al working tree*: pin, checks y estaciones son EDITABLES por el modelo
-   dentro de un incremento (así se trabaja, por diseño). La defensa real es columna anti-autoengaño +
-   `git diff` + ojos del ingeniero en el residuo — NO es SLSA: el pin ancla VEREDICTOS (station +
-   [check,exit]), no bytes (H-2); dos árboles distintos que pasen los mismos checks dan el mismo pin.
-2. *Compromiso de la plataforma* (GitHub/Actions/Anthropic): fuera del modelo; el canario de plataforma
-   (Silla 10) queda en cola §3 sin fecha.
-3. *Supply-chain de deps generadas*: `security_scan` es un corpus de patrones + allowlist (H-4) — reduce
-   el riesgo de paquete-alucinado, no lo elimina; no hay SBOM/sigstore (YAGNI a esta escala, declarado).
-4. *Semántica no cubierta por gates*: la tasa de ESCAPE es el juez E4 (mutation testing) — un número
-   medido, no una promesa de cero.
+**What this system does NOT defend against (declared, not aspirational):**
+1. *Active adversary with access to the working tree*: pin, checks, and stations are EDITABLE by the
+   model within an increment (that's how work happens, by design). The real defense is the
+   anti-self-deception column + `git diff` + the engineer's eyes on the residue — this is NOT SLSA:
+   the pin anchors VERDICTS (station + [check,exit]), not bytes (H-2); two different trees that pass
+   the same checks yield the same pin.
+2. *Platform compromise* (GitHub/Actions/Anthropic): out of the model's scope; the platform canary
+   (Chair 10) stays queued §3 with no date.
+3. *Supply chain of generated deps*: `security_scan` is a pattern corpus + allowlist (H-4) — it
+   reduces the risk of a hallucinated package, doesn't eliminate it; there is no SBOM/sigstore
+   (YAGNI at this scale, declared).
+4. *Semantics not covered by gates*: the ESCAPE rate is judge E4 (mutation testing) — a measured
+   number, not a promise of zero.
 
-**Estado declarado de superficie dormida (§2.6, congelar-o-medir):** el harness de delegación EMITIDO
-por-fábrica es *esqueleto de export, no operativo* (0 usos medidos); la superficie de NAVEGACIÓN del
-grafo corre bajo la regla **30-días-en-0 → archivar** (observer `graph_query` en el journal la mide;
-los internals del grafo quedan: alimentan `quality`/`pbt`/`billing`).
+**Declared state of dormant surface (§2.6, freeze-or-measure):** the delegation harness EMITTED
+per-factory is *export skeleton, not operational* (0 measured uses); the graph's NAVIGATION
+surface runs under the **30-days-at-0 → archive** rule (the journal's `graph_query` observer
+measures it; the graph's internals stay: they feed `quality`/`pbt`/`billing`).
 
-## §9 · Cómo re-derivar este mapa (no confíes en él)
+## §9 · How to re-derive this map (don't trust it)
 
 `meta check` (18/18) · `meta graph repomap` · `meta rtm --factory <slug>` · `ls src/metafactory/**` ·
-`sed -n /def cmd_check/,/return/p src/metafactory/cli.py`. Si este doc contradice al filesystem, gana
-el filesystem — actualizá el doc (reference estable, no inmutable).
+`sed -n /def cmd_check/,/return/p src/metafactory/cli.py`. If this doc contradicts the filesystem,
+the filesystem wins — update the doc (stable reference, not immutable).

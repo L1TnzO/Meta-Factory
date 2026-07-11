@@ -1,192 +1,192 @@
-<!-- meta:doc sha=cd6b54876f2d6565970112ecb817ee7085fef007 updated=2026-07-04T20:10Z -->
-# Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles
+<!-- meta:doc sha=5405aafe1e82ef36e38e2f971b1065df5f703ec4 updated=2026-07-11T15:44Z -->
+# Governance layering — where docs and the increment lifecycle live across the 3 levels
 
-> tipo: reference · diseño AUTORIDAD (como `MEMORY-ARCHITECTURE.md` lo es para ADR-007). Registra el
-> análisis del acople de docs/gobierno entre **meta / fábrica / producto** y el plan para arreglarlo.
-> **Origen:** el ingeniero (2026-06-20) notó que la colocación de docs es poco intuitiva al construir
-> Meta-Factory vs construir Factories vs construir Productos, y pidió arreglar la maquinaria ANTES de
-> generar Snipe-IT. **Decisión de dirección: ABIERTA** (§6 — la elige el ingeniero; ver AskUserQuestion).
+> type: reference · AUTHORITY design (as `MEMORY-ARCHITECTURE.md` is for ADR-007). Records the
+> analysis of docs/governance coupling between **meta / factory / product** and the plan to fix it.
+> **Origin:** the engineer (2026-06-20) noticed that doc placement is unintuitive when building
+> the Meta-Factory vs building Factories vs building Products, and asked to fix the machinery BEFORE
+> generating Snipe-IT. **Direction decision: OPEN** (§6 — the engineer decides it; see AskUserQuestion).
 
-## 1. La pregunta
-Hay TRES niveles de construcción, cada uno con "estado" propio:
-- **Meta-Factory** — el sustrato (`src/metafactory/`, `seed/`, CLI, engine, stations meta).
-- **Factory** — una fábrica (`factories/<f>/`: `codegen/`, `factory.spec.yml`, `stations/`, su `seed/`).
-- **Producto** — una instancia de una fábrica (`factories/<f>/products/<p>/`: `product.yml` + lo generado).
+## 1. The question
+There are THREE construction levels, each with its own "state":
+- **Meta-Factory** — the substrate (`src/metafactory/`, `seed/`, CLI, engine, meta stations).
+- **Factory** — a factory (`factories/<f>/`: `codegen/`, `factory.spec.yml`, `stations/`, its `seed/`).
+- **Product** — an instance of a factory (`factories/<f>/products/<p>/`: `product.yml` + what's generated).
 
-El principio del ingeniero (que es, palabra por palabra, **ADR-007 §single-source**: "cada hecho tiene UNA
+The engineer's principle (which is, word for word, **ADR-007 §single-source**: "cada hecho tiene UNA
 casa por su lifetime"):
-- Los docs del **meta** NO deberían depender de la creación de fábricas específicas — salvo como FIXTURE
-  para probar un supuesto del meta ("crear para probar", no "crear porque la fábrica es un producto").
-- Los docs de una **fábrica** NO deberían depender de productos específicos — salvo productos-fixture que
-  prueban supuestos de la fábrica (la paridad de dos dominios, ADR-014).
-- ⇒ corolario implícito: los docs de un **producto** real viven CON el producto.
+- The **meta** docs should NOT depend on creating specific factories — except as a FIXTURE
+  to test a meta assumption ("create to test", not "create because the factory is a product").
+- A **factory**'s docs should NOT depend on specific products — except fixture-products that
+  test factory assumptions (parity between two domains, ADR-014).
+- ⇒ implicit corollary: a real **product**'s docs live WITH the product.
 
-## 2. La realidad actual (fundada en el código, no a ojo)
-| Pieza | Cómo es hoy | Archivo/evidencia |
+## 2. The current reality (grounded in the code, not eyeballed)
+| Piece | How it is today | File/evidence |
 | --- | --- | --- |
-| Check de consistencia de docs | **meta-only**: escanea `docs/**.md` + START-HERE + CLAUDE; NO mira `factories/*/docs/`. | `docs_manifest.py::doc_set` |
-| Frescura de STATE | meta STATE debe ser el doc-meta más nuevo (por último commit) → **todo** cambio de un doc del meta fuerza tocar STATE. | `docs_manifest.py::_state_fresh_problem` |
-| Lifecycle de incrementos | **GLOBAL, uno-a-la-vez, a nivel meta.** El `increment_guard` ACTIVO es el del meta (`$CLAUDE_PROJECT_DIR/.claude/hooks/`); gobierna editar CUALQUIER código del árbol (incl. `codegen/` de la fábrica y `product.yml`). | `.claude/settings.json`, `.claude/hooks/increment_guard.py`, `seed/lifecycle.py::open_increment` (lee `docs/work/*.md`) |
-| Auto-gobierno de la fábrica | **EXISTE pero está DORMIDO.** Cada fábrica heredó su propio `seed/lifecycle.py` + `.claude/hooks/increment_guard.py` que leen `factories/<f>/docs/work/` — pero esas hooks NO se cargan operando desde la raíz meta (Claude Code usa el `.claude/` de la raíz). FSK nunca tuvo `docs/work/`. | `factories/full-stack-kotlin/.claude/hooks/` (DATA), H1 (STATE «Fase H») |
-| Casa de docs del producto | **NO existe.** Una instancia commitea SÓLO `product.yml` + `pinned_verdict.json`. No hay `products/<p>/docs/`. | `cli.py::cmd_product` (new copia sólo el blueprint), `.gitignore` |
+| Doc consistency check | **meta-only**: scans `docs/**.md` + START-HERE + CLAUDE; does NOT look at `factories/*/docs/`. | `docs_manifest.py::doc_set` |
+| STATE freshness | meta STATE must be the newest meta-doc (by last commit) → **every** change to a meta doc forces touching STATE. | `docs_manifest.py::_state_fresh_problem` |
+| Increment lifecycle | **GLOBAL, one-at-a-time, at the meta level.** The ACTIVE `increment_guard` is the meta one (`$CLAUDE_PROJECT_DIR/.claude/hooks/`); it governs editing ANY code in the tree (incl. the factory's `codegen/` and `product.yml`). | `.claude/settings.json`, `.claude/hooks/increment_guard.py`, `seed/lifecycle.py::open_increment` (reads `docs/work/*.md`) |
+| Factory self-governance | **EXISTS but is DORMANT.** Every factory inherited its own `seed/lifecycle.py` + `.claude/hooks/increment_guard.py` that read `factories/<f>/docs/work/` — but those hooks do NOT load when operating from the meta root (Claude Code uses the root's `.claude/`). FSK never had `docs/work/`. | `factories/full-stack-kotlin/.claude/hooks/` (DATA), H1 (STATE «Fase H») |
+| Product doc home | **Does NOT exist.** An instance commits ONLY `product.yml` + `pinned_verdict.json`. There is no `products/<p>/docs/`. | `cli.py::cmd_product` (new copies only the blueprint), `.gitignore` |
 
-**Dónde derramó todo, por falta de casa de producto (esta sesión, P1·Snipe-IT):**
-- El dominio del producto (`SNIPEIT-DOMAIN.md`) → terminó en `factories/full-stack-kotlin/docs/reference/`
-  (doc de FÁBRICA contaminado con un producto específico). ❌ viola §1.
-- El gobierno del incremento del producto (P1) → terminó en `docs/work/` del **meta** (doc de META
-  dependiendo de construir un producto). ❌ viola §1.
-- Y los incrementos de la FÁBRICA (FSK-S11..S15) también viven en `docs/work/` del meta. ❌ viola §1.
+**Where everything spilled, for lack of a product home (this session, P1·Snipe-IT):**
+- The product domain (`SNIPEIT-DOMAIN.md`) → ended up in `factories/full-stack-kotlin/docs/reference/`
+  (a FACTORY doc contaminated with a specific product). ❌ violates §1.
+- The product's increment governance (P1) → ended up in the **meta**'s `docs/work/` (a META doc
+  depending on building a product). ❌ violates §1.
+- And the FACTORY's increments (FSK-S11..S15) also live in the meta's `docs/work/`. ❌ violates §1.
 
-## 3. El diagnóstico honesto: dos filosofías mezcladas
-El "se siente raro" tiene causa precisa: **conviven dos filosofías coherentes y no se eligió una.**
+## 3. The honest diagnosis: two philosophies mixed together
+The "it feels off" has a precise cause: **two coherent philosophies coexist and neither was chosen.**
 
-- **(I) Meta-como-único-operador durante la construcción** (sabor ADR-006: una fábrica es un PRODUCTO del
-  meta, regenerable). En esta visión, durante la construcción el meta gobierna TODO; el auto-gobierno de la
-  fábrica sólo se activa cuando la fábrica se EXTRAE como producto standalone (regenerada). Entonces que los
-  incrementos de fábrica/producto vivan en el meta NO es bug — es "el meta construyendo sus artefactos". El
-  único hueco real sería: el producto no tiene casa de docs.
-- **(II) Auto-gobierno por nivel** (el principio del ingeniero = ADR-007 single-source + H1). Cada nivel
-  gobierna lo suyo: meta↔`docs/`, fábrica↔`factories/<f>/docs/`, producto↔`products/<p>/docs/`. El guard
-  elige el lifecycle por la RUTA editada. Los tres niveles avanzan en paralelo (slots independientes).
+- **(I) Meta-as-sole-operator during construction** (ADR-006 flavor: a factory is a PRODUCT of the
+  meta, regenerable). In this view, during construction the meta governs EVERYTHING; a factory's
+  self-governance only activates once the factory is EXTRACTED as a standalone product (regenerated). So
+  factory/product increments living in the meta is NOT a bug — it's "the meta building its artifacts." The
+  only real hole would be: the product has no doc home.
+- **(II) Self-governance per level** (the engineer's principle = ADR-007 single-source + H1). Each level
+  governs its own: meta↔`docs/`, factory↔`factories/<f>/docs/`, product↔`products/<p>/docs/`. The guard
+  picks the lifecycle by the edited PATH. The three levels advance in parallel (independent slots).
 
-Hoy hay piezas de AMBAS (meta opera todo **Y** la fábrica tiene lifecycle propio dormido), y el **producto
-cayó en el hueco entre las dos** (ninguna le dio casa). Esa es la incoherencia. **Hay que elegir una y
-hacerla consistente.**
+Today there are pieces of BOTH (the meta operates everything **AND** the factory has its own dormant lifecycle), and the
+**product fell into the gap between the two** (neither gave it a home). That's the inconsistency. **One must be chosen and
+made consistent.**
 
-## 4. Catálogo de problemas a fixear (antes de generar Snipe-IT)
-Severidad: 🔴 bloquea/confunde el gobierno · 🟡 fricción · 🟢 cosmético. Columna "nivel" = dónde se arregla.
-| # | Problema | Sev | Nivel | Nota |
+## 4. Catalog of problems to fix (before generating Snipe-IT)
+Severity: 🔴 blocks/confuses governance · 🟡 friction · 🟢 cosmetic. Column "level" = where it's fixed.
+| # | Problem | Sev | Level | Note |
 | --- | --- | --- | --- | --- |
-| P1 | El producto no tiene casa de docs → dominio derrama a fábrica, gobierno derrama a meta. | 🔴 | meta (mecanismo) | la raíz; lo que disparó esta discusión |
-| P2 | Lifecycle de incremento GLOBAL uno-a-la-vez → no podés abrir "fix de maquinaria" sin cerrar P1 (slot único); fábrica+producto+meta compiten por un slot. | 🔴 | meta | acople de slots; impide trabajo paralelo por nivel |
-| P3 | Auto-gobierno de fábrica DORMIDO (H1 diseñado, no usado in-tree) → ambigüedad de "quién opera". | 🟡 | meta/fábrica | decidir filosofía (§3) lo resuelve |
-| P4 | Frescura de STATE acopla: cada doc-meta tocado fuerza re-tocar meta STATE (churn). Empeora con incrementos de fábrica/producto en `docs/work` del meta. | 🟡 | meta | síntoma de P1/P2 |
-| P5 | `meta product new` corre la LÍNEA COMPLETA (gradle+pin), no un "registrar liviano" → sorpresa; no hay path para sólo instanciar el spec. | 🟡 | meta | falta `--no-run`/scaffold liviano |
-| P6 | Un `cd` filtra el cwd de Bash → rompe cierre de turno (4 hooks cwd-relativos) y `PYTHONPATH=src` relativo. | 🟡 | meta | conocido (memoria `no-cd-subdirs-hook-deadlock`); paths absolutos lo evitan |
-| P7 | (Fábrica, aparte) las 4 restricciones duras del codegen FSK (orden topológico/owner-required/seed server vivo/no self-ref). | 🟡 | fábrica | NO es de gobierno; ya está en `SNIPEIT-DOMAIN.md` §3 + P1 §3; se arregla como contenido de fábrica |
+| P1 | The product has no doc home → domain spills to the factory, governance spills to the meta. | 🔴 | meta (mechanism) | the root cause; what triggered this discussion |
+| P2 | GLOBAL one-at-a-time increment lifecycle → can't open a "machinery fix" without closing P1 (single slot); factory+product+meta compete for one slot. | 🔴 | meta | slot coupling; blocks parallel work per level |
+| P3 | Factory self-governance DORMANT (H1 designed, not used in-tree) → ambiguity of "who operates." | 🟡 | meta/factory | deciding the philosophy (§3) resolves it |
+| P4 | STATE freshness couples: every meta-doc touched forces re-touching meta STATE (churn). Worsens with factory/product increments in the meta's `docs/work`. | 🟡 | meta | symptom of P1/P2 |
+| P5 | `meta product new` runs the FULL LINE (gradle+pin), not a "light register" → surprise; no path to just instantiate the spec. | 🟡 | meta | missing `--no-run`/light scaffold |
+| P6 | A `cd` leaks Bash's cwd → breaks turn close (4 cwd-relative hooks) and relative `PYTHONPATH=src`. | 🟡 | meta | known (memory `no-cd-subdirs-hook-deadlock`); absolute paths avoid it |
+| P7 | (Factory, aside) the FSK codegen's 4 hard constraints (topological order/owner-required/live seed server/no self-ref). | 🟡 | factory | NOT a governance issue; already in `SNIPEIT-DOMAIN.md` §3 + P1 §3; fixed as factory content |
 
-P1–P5 son de MAQUINARIA/gobierno (el foco de este doc). P6 es conocido. P7 es de la fábrica (otro carril).
+P1–P5 are MACHINERY/governance issues (this doc's focus). P6 is known. P7 is the factory's (a separate track).
 
-## 5. Opciones de arreglo (con tradeoffs)
-- **Opción A — separación completa por nivel (filosofía II).** Cada nivel con su `docs/work` + incremento +
-  STATE/LOG; el `increment_guard` elige el lifecycle por la ruta editada; se activa el lifecycle de fábrica
-  (H1) y se le da uno al producto. Migrar/retirar los incrementos meta-residentes de fábrica/producto.
-  *Pro:* cumple el principio del ingeniero + ADR-007; trabajo paralelo por nivel; arregla P1–P4.
-  *Con:* es el más grande; toca `increment_guard`/`lifecycle.py`/`docs_manifest`/CLI; hay que migrar docs.
-- **Opción B — mínimo: casa de docs para el producto (filosofía I + parche).** Agregar `products/<p>/docs/`
-  (dominio + gobierno del producto) y mover ahí lo de Snipe-IT; mantener un solo incremento global.
-  *Pro:* arregla P1 (la raíz) barato; no toca el lifecycle. *Con:* P2/P3/P4 quedan; meta sigue acoplado a
-  fábrica/producto.
-- **Opción C — sólo convenciones.** Documentar la colocación (este doc), sin cambiar la máquina.
-  *Pro:* cero código. *Con:* el acople (P1–P4) permanece; "se siente raro" sigue.
+## 5. Fix options (with tradeoffs)
+- **Option A — full separation by level (philosophy II).** Each level with its own `docs/work` + increment +
+  STATE/LOG; `increment_guard` picks the lifecycle by the edited path; the factory lifecycle
+  (H1) is activated and the product gets one too. Migrate/retire the meta-resident factory/product increments.
+  *Pro:* satisfies the engineer's principle + ADR-007; parallel work per level; fixes P1–P4.
+  *Con:* it's the biggest one; touches `increment_guard`/`lifecycle.py`/`docs_manifest`/CLI; docs must be migrated.
+- **Option B — minimum: a doc home for the product (philosophy I + patch).** Add `products/<p>/docs/`
+  (product domain + governance) and move Snipe-IT's stuff there; keep a single global increment.
+  *Pro:* fixes P1 (the root cause) cheaply; doesn't touch the lifecycle. *Con:* P2/P3/P4 remain; meta stays coupled to
+  factory/product.
+- **Option C — conventions only.** Document the placement (this doc), without changing the machine.
+  *Pro:* zero code. *Con:* the coupling (P1–P4) remains; "it feels off" persists.
 
-## 6. Recomendación (mía) + decisión ABIERTA
-**Recomiendo la Opción A, FASEADA**, porque es la única que hace consistente la filosofía y cumple el
-principio del ingeniero — pero ejecutada en orden de dolor, sin hervir el océano:
-- **Fase 0 (este doc):** capturar el análisis + elegir filosofía. ← acá estamos.
-- **Fase 1 (antes de generar Snipe-IT):** darle al PRODUCTO su casa: `products/<p>/docs/` (mover
-  `SNIPEIT-DOMAIN.md` ahí; mover el gobierno P1 ahí) + generalizar `increment_guard`/`lifecycle.py` para
-  ELEGIR el lifecycle por la ruta editada (editar `products/<p>/**` exige incremento abierto en
-  `products/<p>/docs/work/`). Esto arregla P1+P2 para el carril del producto. Un incremento de fábrica/meta.
-- **Fase 2:** activar el lifecycle de la FÁBRICA in-tree (filosofía II completa) + retirar a archivo los
-  incrementos meta-residentes de fábrica. Arregla P3.
-- **Fase 3:** `meta product new --no-run` (P5) + cualquier residuo de P4.
+## 6. Recommendation (mine) + OPEN decision
+**I recommend Option A, PHASED**, because it's the only one that makes the philosophy consistent and satisfies the
+engineer's principle — but executed in order of pain, without boiling the ocean:
+- **Phase 0 (this doc):** capture the analysis + choose the philosophy. ← we are here.
+- **Phase 1 (before generating Snipe-IT):** give the PRODUCT its home: `products/<p>/docs/` (move
+  `SNIPEIT-DOMAIN.md` there; move governance P1 there) + generalize `increment_guard`/`lifecycle.py` to
+  CHOOSE the lifecycle by the edited path (editing `products/<p>/**` requires an increment open in
+  `products/<p>/docs/work/`). This fixes P1+P2 for the product track. One factory/meta increment.
+- **Phase 2:** activate the FACTORY's lifecycle in-tree (full philosophy II) + archive the
+  meta-resident factory increments. Fixes P3.
+- **Phase 3:** `meta product new --no-run` (P5) + any P4 residue.
 
-**DECISIÓN TOMADA (2026-06-20, el ingeniero): Opción A FASEADA, y la Fase 1 va ANTES de generar Snipe-IT.**
-**Fase 1 EJECUTADA ✅ (2026-06-21, ADR-016)** — casa de docs del producto + edit-gate level-aware, probado por
-bloqueo (`meta check` 6/6 · suite 578).
+**DECISION MADE (2026-06-20, the engineer): PHASED Option A, and Phase 1 goes BEFORE generating Snipe-IT.**
+**Phase 1 EXECUTED ✅ (2026-06-21, ADR-016)** — product doc home + level-aware edit-gate, proven by
+blocking (`meta check` 6/6 · suite 578).
 
-**Fase 2 — COMPLETA (§1·§2·§3·§4 ✅ + el diferido `LEAST-PRIV-DECOUPLE` ✅):**
-- **§1 ✅ (2026-06-26)** — `HARNESS-DECOUPLE` (`column_parity`: la columna de fábrica ≡ proyección de un único
-  source) + `FACTORY-DELEGATION-TEETH` (los teeth de delegación bajan a la columna con ley seed-canónica). ADR-018.
-- **§4 ✅ (ya en Fase 1)** — el close por-nivel existe: `meta increment {open,close,status} --factory/--product`
-  direcciona el lifecycle del nivel correcto (`cli.py::cmd_increment`). No fue un pendiente real de Fase 2.
-- **§3 sellado de docs ✅ (2026-06-27, `FACTORY-DOC-SEAL`)** — el sello content-addressed (ADR-009) baja de
-  meta-only a **cada home por nivel**: `docs_manifest` parametrizado por doc-home (`doc_homes` parte la RUTA, no
-  slugs); integridad + frescura corren POR-HOME (editar un doc de fábrica NO fuerza re-tocar el STATE meta →
-  cierra P4); INDEX queda meta-only. Sólo narrativas AUTORADAS (`<home>/docs/**.md`); `factories/<f>/CLAUDE.md`
-  NO se sella (artefacto proyectado, pelearía con `column_parity`). Cierra el diferido honesto «docs de producto
-  SIN sellar» de ADR-016. Probado por bloqueo (tamper doc de fábrica → rojo aislado) · `meta check` 14/14.
-- **§2 migración de docs ✅ (2026-06-27, `FACTORY-DOC-MIGRATE`)** — el lifecycle de fábrica in-tree ya operaba
-  por-ruta (el guard del meta resuelve el nivel por la ruta editada desde §1/Fase 1); el pendiente CONCRETO de
-  §2 era retirar los incrementos de FÁBRICA meta-residentes a su home. Migrados los **16 `FSK-S0..S15`** de
-  `docs/work/` (meta) → `factories/full-stack-kotlin/docs/work/` (donde sus 42 hermanos `FSK-*` ya viven) como
-  un **MOVE byte-idéntico** (el sello es content-only → los 16 conservan su `sha`; lo prueba el diff). Salen del
-  `doc_set`/INDEX meta y quedan sellados+chequeados por el home de fábrica que §3 acababa de habilitar (frescura
-  POR-HOME: se commitea el STATE de la fábrica en el mismo commit). Historia inmutable INTACTA (`decisions/015`
-  + entradas viejas de `LOG` no se churnéan — el path `docs/work/` era cierto cuando se escribieron). Probado
-  por bloqueo (tamper un doc migrado → sello del home de fábrica ROJO aislado) · `meta check` 14/14. Con esto
-  el §1 (single-source: la casa de un doc = su nivel) queda consistente para el carril FSK.
-- **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27)** — el desacople cp-harness least-privilege (ADR-018 §3). El alcance de
-  la columna POR NIVEL deja de ser una lista de archivos curada a mano en `template/factory/harness/` (sin diente)
-  y pasa a ser **single-source en el sustrato** (`src/metafactory/column_scope.py`: `META_COLUMN` / `FACTORY_COLUMN`
-  ⊊ + `META_ONLY` derivado, con la calibración de por qué cada hook NO baja — `gate_guard` es META-operado, los 5
-  de memoria son meta-only HONEST-STATE §7). Gate `least_priv` (`verify/checks/least_priv.py`, cableado a `meta
-  check` → **16/16**): cada fábrica hereda EXACTAMENTE `FACTORY_COLUMN` (6) ⊊ `META_COLUMN` (12); sobre-privilegio
-  (un hook meta-only filtrado) = ROJO, incompletitud = ROJO, diente dos-lados vivo. El scope es CÓDIGO del sustrato,
-  no DATA de spec (ADR-018 §4) — un spec adversario no puede ensanchar su privilegio. **Cierra ADR-016 Fase 2 +
-  el último residual SOTA.** Evidencia: `work/LEAST-PRIV-DECOUPLE-INCREMENT.md`.
+**Phase 2 — COMPLETE (§1·§2·§3·§4 ✅ + the deferred `LEAST-PRIV-DECOUPLE` ✅):**
+- **§1 ✅ (2026-06-26)** — `HARNESS-DECOUPLE` (`column_parity`: the factory column ≡ projection of a single
+  source) + `FACTORY-DELEGATION-TEETH` (delegation teeth go down to the column with seed-canonical law). ADR-018.
+- **§4 ✅ (already in Phase 1)** — the per-level close exists: `meta increment {open,close,status} --factory/--product`
+  routes the correct level's lifecycle (`cli.py::cmd_increment`). Not a real Phase 2 pending item.
+- **§3 doc sealing ✅ (2026-06-27, `FACTORY-DOC-SEAL`)** — the content-addressed seal (ADR-009) goes down from
+  meta-only to **each per-level home**: `docs_manifest` parametrized by doc-home (`doc_homes` splits the PATH, not
+  slugs); integrity + freshness run PER-HOME (editing a factory doc does NOT force re-touching meta STATE →
+  closes P4); INDEX stays meta-only. Only AUTHORED narratives (`<home>/docs/**.md`); `factories/<f>/CLAUDE.md`
+  is NOT sealed (a projected artifact, it would fight `column_parity`). Closes the honest deferral «docs de producto
+  SIN sellar» from ADR-016. Proven by blocking (tamper a factory doc → isolated red) · `meta check` 14/14.
+- **§2 doc migration ✅ (2026-06-27, `FACTORY-DOC-MIGRATE`)** — the factory's in-tree lifecycle already operated
+  per-path (the meta's guard resolves the level by the edited path since §1/Phase 1); §2's CONCRETE pending item
+  was retiring the meta-resident FACTORY increments to their home. Migrated the **16 `FSK-S0..S15`** from
+  `docs/work/` (meta) → `factories/full-stack-kotlin/docs/work/` (where their 42 `FSK-*` siblings already live) as
+  a byte-identical **MOVE** (the seal is content-only → the 16 keep their `sha`; proven by the diff). They leave the
+  meta `doc_set`/INDEX and stay sealed+checked by the factory home §3 had just enabled (PER-HOME
+  freshness: the factory's STATE is committed in the same commit). Immutable history INTACT (`decisions/015`
+  + old `LOG` entries are not churned — the `docs/work/` path was true when they were written). Proven
+  by blocking (tamper a migrated doc → the factory home's seal goes RED, isolated) · `meta check` 14/14. With this,
+  §1 (single-source: a doc's home = its level) becomes consistent for the FSK track.
+- **`LEAST-PRIV-DECOUPLE` ✅ (2026-06-27)** — the cp-harness least-privilege decoupling (ADR-018 §3). The column's
+  scope PER LEVEL stops being a hand-curated file list in `template/factory/harness/` (toothless)
+  and becomes **single-source in the substrate** (`src/metafactory/column_scope.py`: `META_COLUMN` / `FACTORY_COLUMN`
+  ⊊ + derived `META_ONLY`, with the calibration of why each hook does NOT go down — `gate_guard` is META-operated, the 5
+  memory ones are meta-only HONEST-STATE §7). Gate `least_priv` (`verify/checks/least_priv.py`, wired into `meta
+  check` → **16/16**): every factory inherits EXACTLY `FACTORY_COLUMN` (6) ⊊ `META_COLUMN` (12); over-privilege
+  (a meta-only hook leaking through) = RED, incompleteness = RED, two-sided tooth alive. The scope is substrate CODE,
+  not spec DATA (ADR-018 §4) — an adversarial spec cannot widen its privilege. **Closes ADR-016 Phase 2 +
+  the last SOTA residual.** Evidence: `work/LEAST-PRIV-DECOUPLE-INCREMENT.md`.
 
-## 8. Fase 1 — playbook de ejecución (AUTOCONTENIDO, para una sesión post-clear)
-> Objetivo de la Fase 1: **darle casa de docs al PRODUCTO + que el `increment_guard` elija el lifecycle por la
-> RUTA editada.** Arregla P1 (derrame) y P2 (slot único) para el carril del producto. Es trabajo de
-> SUSTRATO/trust-chain (hooks + `seed/lifecycle.py`) → escribilo con ojos propios, probá POR BLOQUEO, nunca
-> fakees verde (working-style). Empezá leyendo §2–§3 de este doc + `docs/decisions/010-disciplina-commit.md`.
+## 8. Phase 1 — execution playbook (SELF-CONTAINED, for a post-clear session)
+> Phase 1 objective: **give the PRODUCT a doc home + have `increment_guard` pick the lifecycle by the
+> edited PATH.** Fixes P1 (spillage) and P2 (single slot) for the product track. It's
+> SUBSTRATE/trust-chain work (hooks + `seed/lifecycle.py`) → write it with your own eyes, prove it BY BLOCKING, never
+> fake green (working-style). Start by reading §2–§3 of this doc + `docs/decisions/010-disciplina-commit.md`.
 
-### 8.1 El modelo objetivo del lifecycle (lo que `lifecycle.py` debe computar)
-Hoy `open_increment(root)` busca UN `docs/work/*.md` con `Estado: **ABIERTO**` y `edit_allowed(root, fp)`
-exige que exista ESE único incremento global. **Nuevo:** `edit_allowed` resuelve el NIVEL por la ruta del
-archivo editado y exige el incremento abierto de ESE nivel (el más específico que contenga la ruta):
-- ruta bajo `factories/<f>/products/<p>/**` → exige abierto en `factories/<f>/products/<p>/docs/work/`.
-- ruta bajo `factories/<f>/**` (no `products/`) → exige abierto en `factories/<f>/docs/work/`.
-- resto del árbol (`src/metafactory/`, `seed/`, `stations/`, raíz) → exige abierto en `docs/work/` (meta).
-- un `.md` siempre permitido (así se ABRE un incremento — auto-bootstrap, igual que hoy).
-Esto es DATA-agnóstico (no nombra fábrica/producto concretos): el guard parte la ruta, no hardcodea slugs.
+### 8.1 The lifecycle's target model (what `lifecycle.py` must compute)
+Today `open_increment(root)` looks for ONE `docs/work/*.md` with `Estado: **ABIERTO**` and `edit_allowed(root, fp)`
+requires that THAT single global increment exist. **New:** `edit_allowed` resolves the LEVEL by the edited
+file's path and requires that level's open increment (the most specific one containing the path):
+- path under `factories/<f>/products/<p>/**` → requires one open in `factories/<f>/products/<p>/docs/work/`.
+- path under `factories/<f>/**` (not `products/`) → requires one open in `factories/<f>/docs/work/`.
+- rest of the tree (`src/metafactory/`, `seed/`, `stations/`, root) → requires one open in `docs/work/` (meta).
+- a `.md` is always allowed (that's how an increment gets OPENED — auto-bootstrap, same as today).
+This is DATA-agnostic (does not name concrete factories/products): the guard splits the path, doesn't hardcode slugs.
 
-### 8.2 Pasos concretos (cada uno probado por bloqueo)
-1. **Casa de docs del producto.** Crear `factories/full-stack-kotlin/products/snipeit/docs/` y MOVER ahí
-   `SNIPEIT-DOMAIN.md` (hoy en `factories/full-stack-kotlin/docs/reference/` — sacarlo de la fábrica). Mover el
-   gobierno **P1** de `docs/work/P1-...md` (meta) a `…/products/snipeit/docs/work/P1-...md`. Actualizar los
-   punteros (STATE/LOG/INDEX, y el propio P1 §6 "dónde van los docs"). Decidir si `products/<p>/docs/` se
-   commitea (sí: es la narrativa del producto, junto a `product.yml`) → quitar del `.gitignore` si aplica.
-2. **`seed/lifecycle.py` level-aware.** Implementar §8.1 en `open_increment`/`edit_allowed` (single-source:
-   recordá que `lifecycle.py` está COPIADO en cada fábrica por H1 — el cambio es del seed meta y se propaga al
-   regenerar; mientras tanto el que CUENTA in-tree es el del meta). Mantené la firma + el fail-closed.
-3. **`increment_guard.py` (hook activo del meta)** ya delega en `lifecycle.edit_allowed` → con (2) hecho,
-   debería “just work”. Verificá el mensaje de error (que nombre el nivel correcto).
-4. **CLI `meta increment {open,close,status}` level-aware.** Hoy asume meta `docs/work/`. Agregá un
-   `--factory`/`--product` (o inferí por ruta) para abrir/cerrar/consultar el incremento del nivel correcto.
-   `meta increment status` debería listar el abierto POR NIVEL.
-5. **`docs_manifest`/consistencia.** Hoy `doc_set` es meta-only. Decidir: ¿sellar + chequear consistencia de
-   los docs de fábrica/producto también? Mínimo Fase 1: que mover P1/SNIPEIT-DOMAIN NO rompa el check meta
-   (sacarlos de `docs/` del meta los saca de `doc_set` — ok) y que el nuevo home tenga su propio sellado si se
-   decide (puede diferirse a Fase 2). NO dejar el check meta-only “mintiendo” sobre docs que ya no están.
-6. **Tests.** Correr `meta check` (6/6) + `pytest tests/` (hay suite + `test_isolation`). Si hay tests que
-   asumen el slot global, actualizarlos. Agregar un test del nuevo `edit_allowed` por-ruta (los 3 niveles +
-   el caso `.md`-siempre-permitido) — diente por bloqueo.
-7. **El slot durante la transición (bootstrap honesto).** P1 está abierto en `docs/work/` del meta y hoy eso
-   HABILITA editar código meta (el guard global ve P1 abierto) → la sesión PUEDE empezar a tocar
-   `seed/`/hooks/`src/` de una. La Fase 1 RE-UBICA P1 al producto como uno de sus pasos (paso 1). El trabajo de
-   ESTA refactor es META → documentalo como tal en LOG + ADR-016, no como parte de “construir Snipe-IT”.
-   Tras la Fase 1: meta `docs/work/` queda para incrementos META; P1 vive en el producto y gobierna sólo
-   ediciones del producto. (Si querés un incremento meta formal para la refactor, abrilo DESPUÉS de mover P1,
-   cuando el slot meta quede libre.)
+### 8.2 Concrete steps (each one proven by blocking)
+1. **Product doc home.** Create `factories/full-stack-kotlin/products/snipeit/docs/` and MOVE there
+   `SNIPEIT-DOMAIN.md` (today in `factories/full-stack-kotlin/docs/reference/` — take it out of the factory). Move the
+   **P1** governance from `docs/work/P1-...md` (meta) to `…/products/snipeit/docs/work/P1-...md`. Update the
+   pointers (STATE/LOG/INDEX, and P1 §6 itself "where the docs go"). Decide whether `products/<p>/docs/` is
+   committed (yes: it's the product's narrative, alongside `product.yml`) → remove from `.gitignore` if needed.
+2. **`seed/lifecycle.py` level-aware.** Implement §8.1 in `open_increment`/`edit_allowed` (single-source:
+   remember `lifecycle.py` is COPIED into every factory by H1 — the change is the meta's seed and propagates on
+   regeneration; meanwhile the one that COUNTS in-tree is the meta's). Keep the signature + the fail-closed behavior.
+3. **`increment_guard.py` (meta's active hook)** already delegates to `lifecycle.edit_allowed` → with (2) done,
+   it should “just work”. Verify the error message (that it names the correct level).
+4. **`meta increment {open,close,status}` CLI, level-aware.** Today it assumes meta `docs/work/`. Add a
+   `--factory`/`--product` (or infer by path) to open/close/query the correct level's increment.
+   `meta increment status` should list the one open PER LEVEL.
+5. **`docs_manifest`/consistency.** Today `doc_set` is meta-only. Decide: should factory/product docs also be
+   sealed + checked for consistency? Phase 1 minimum: moving P1/SNIPEIT-DOMAIN must NOT break the meta check
+   (removing them from the meta's `docs/` removes them from `doc_set` — ok) and the new home should have its own sealing if
+   decided (can be deferred to Phase 2). Do NOT leave the meta-only check "lying" about docs that no longer live there.
+6. **Tests.** Run `meta check` (6/6) + `pytest tests/` (there's a suite + `test_isolation`). If any tests
+   assume the global slot, update them. Add a test for the new per-path `edit_allowed` (the 3 levels +
+   the always-allowed `.md` case) — a tooth by blocking.
+7. **The slot during the transition (honest bootstrap).** P1 is open in the meta's `docs/work/` and today that
+   ENABLES editing meta code (the global guard sees P1 open) → the session CAN start touching
+   `seed/`/hooks/`src/` right away. Phase 1 RELOCATES P1 to the product as one of its steps (step 1). This
+   refactor's work is META → document it as such in LOG + ADR-016, not as part of "building Snipe-IT".
+   After Phase 1: meta `docs/work/` is reserved for META increments; P1 lives in the product and governs only
+   product edits. (If you want a formal meta increment for the refactor, open it AFTER moving P1,
+   once the meta slot is free.)
 
-### 8.3 Criterio de cierre de la Fase 1 (demostrable)
-- `SNIPEIT-DOMAIN.md` vive en `products/snipeit/docs/`; P1 en `products/snipeit/docs/work/`; cero docs de
-  Snipe-IT bajo `factories/full-stack-kotlin/docs/` ni bajo `docs/` del meta.
-- Editar `products/snipeit/product.yml` SIN un incremento abierto en `products/snipeit/docs/work/` → BLOQUEADO
-  (diente); con él → permitido. Idem un cambio bajo `src/metafactory/` exige el incremento META. Probado.
-- `meta check` 6/6 + `pytest tests/` verde + test nuevo del `edit_allowed` por-ruta.
-- ADR-016 escrito; STATE/LOG del meta narran la refactor; `git diff` no deja residuo no-commiteado.
-- Recién ENTONCES: P1 Fase 2 (generar Snipe-IT) procede bajo el modelo nuevo.
+### 8.3 Phase 1 closing criterion (demonstrable)
+- `SNIPEIT-DOMAIN.md` lives in `products/snipeit/docs/`; P1 in `products/snipeit/docs/work/`; zero Snipe-IT
+  docs under `factories/full-stack-kotlin/docs/` or under the meta's `docs/`.
+- Editing `products/snipeit/product.yml` WITHOUT an increment open in `products/snipeit/docs/work/` → BLOCKED
+  (tooth); with one → allowed. Same for a change under `src/metafactory/` requiring the META increment. Proven.
+- `meta check` 6/6 + `pytest tests/` green + new test for the per-path `edit_allowed`.
+- ADR-016 written; the meta's STATE/LOG narrate the refactor; `git diff` leaves no uncommitted residue.
+- ONLY THEN: P1 Phase 2 (generate Snipe-IT) proceeds under the new model.
 
-## 9. El target limpio (Opción A elegida) — referencia rápida
-| Nivel | Construye | Casa de docs | Lifecycle (incremento) | Opera |
+## 9. The clean target (Option A chosen) — quick reference
+| Level | Builds | Doc home | Lifecycle (increment) | Operates |
 | --- | --- | --- | --- | --- |
-| Meta | el sustrato | `docs/` | `docs/work/` | el ingeniero en el repo meta |
-| Fábrica | capability de la fábrica (codegen/spec/stations) | `factories/<f>/docs/` | `factories/<f>/docs/work/` | el meta sobre la fábrica |
-| Producto | una instancia (product.yml + app generada) | `factories/<f>/products/<p>/docs/` | `…/products/<p>/docs/work/` | la fábrica sobre el producto |
+| Meta | the substrate | `docs/` | `docs/work/` | the engineer in the meta repo |
+| Factory | the factory's capability (codegen/spec/stations) | `factories/<f>/docs/` | `factories/<f>/docs/work/` | the meta over the factory |
+| Product | an instance (product.yml + generated app) | `factories/<f>/products/<p>/docs/` | `…/products/<p>/docs/work/` | the factory over the product |
 
-Regla única (= §1): la casa de un doc = el nivel cuyo trabajo describe. Un nivel sólo REFERENCIA al de abajo
-como FIXTURE de prueba de un supuesto propio, nunca carga su narrativa de construcción.
+Single rule (= §1): a doc's home = the level whose work it describes. A level only REFERENCES the one below
+as a test FIXTURE for its own assumption, never carries the other's construction narrative.

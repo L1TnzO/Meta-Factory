@@ -1,38 +1,38 @@
-<!-- meta:doc sha=c2df695e6717c9c4969f46175ee757c7a04a04b5 updated=2026-06-13T14:57Z -->
-# Auto-mejoramiento seguro — la jerarquía de confianza y el loop
+<!-- meta:doc sha=37b3fae304f11a1e1b77d92e4b09a3c743d41e9e updated=2026-07-11T15:42Z -->
+# Safe self-improvement — the trust hierarchy and the loop
 
-| Campo | Valor |
+| Field | Value |
 | --- | --- |
-| Documento | Modelo de seguridad del sistema que se mejora a sí mismo |
-| Depende de | `VISION.md §3` (el punto fijo), `ARCHITECTURE.md §7` (la jerarquía de stages) |
-| Tesis | El auto-mejoramiento es legítimo (PF-9) pero es la operación de MÁS riesgo del ecosistema; recibe la garantía más fuerte, no la más débil |
+| Document | Security model for the system that improves itself |
+| Depends on | `VISION.md §3` (the fixed point), `ARCHITECTURE.md §7` (the stage hierarchy) |
+| Thesis | Self-improvement is legitimate (PF-9) but it is the HIGHEST-risk operation in the ecosystem; it receives the strongest guarantee, not the weakest |
 
-> El peligro de un sistema que se modifica a sí mismo no es que cambie: es que **cambie sus
-> propias compuertas** y, a partir de ahí, mienta sobre todo lo demás. Este doc define cómo el
-> Meta-Factory se mejora (y mejora a sus fábricas) sin poder corromper su raíz de confianza.
-
----
-
-## 1. El problema "trusting trust" aplicado a fábricas
-
-Ken Thompson mostró que un compilador comprometido puede insertar una puerta trasera en lo que
-compila —incluido un compilador nuevo— y borrar la evidencia de sí mismo. La analogía exacta
-aquí: **un Meta-Factory comprometido podría emitir fábricas con compuertas falsas y, peor,
-re-emitirse a sí mismo conservando el compromiso**, de modo que ninguna inspección *local*
-lo detecte.
-
-La defensa conocida (David A. Wheeler, *Diverse Double-Compiling*) es no confiar en el binario
-sino en la **re-derivación desde una fuente auditada por un verificador independiente**. ASF ya
-tenía la pieza correcta —ADR-022, re-derivación sobre custodia— sin nombrar que también es la
-defensa contra trusting-trust. El Meta-Factory lo hace explícito y central:
-
-> **No se confía en ninguna fábrica (ni en el Meta-Factory) por lo que dice de sí misma. Se
-> confía en que un runner limpio e independiente puede re-derivar su veredicto honesto, idéntico,
-> desde la fuente.** Replicable > archivado (PF-10).
+> The danger of a system that modifies itself is not that it changes: it is that it **changes its
+> own gates** and, from there, lies about everything else. This doc defines how the
+> Meta-Factory improves itself (and improves its factories) without being able to corrupt its trust root.
 
 ---
 
-## 2. La jerarquía de confianza (de más confiable a menos)
+## 1. The "trusting trust" problem applied to factories
+
+Ken Thompson showed that a compromised compiler can insert a backdoor into whatever it
+compiles —including a new compiler— and erase the evidence of itself. The exact analogy
+here: **a compromised Meta-Factory could emit factories with fake gates and, worse,
+re-emit itself while preserving the compromise**, so that no *local* inspection
+detects it.
+
+The known defense (David A. Wheeler, *Diverse Double-Compiling*) is to not trust the binary
+but the **re-derivation from an audited source by an independent verifier**. ASF already
+had the right piece —ADR-022, re-derivation over custody— without naming that it is also the
+defense against trusting-trust. The Meta-Factory makes it explicit and central:
+
+> **No factory (not even the Meta-Factory) is trusted for what it says about itself. What is
+> trusted is that a clean, independent runner can re-derive its honest verdict, identical,
+> from the source.** Replicable > archived (PF-10).
+
+---
+
+## 2. The trust hierarchy (from most trustworthy to least)
 
 ```
 Stage 0 — SEED CONGELADO            ← raíz de confianza; auditado a mano; pequeño y legible
@@ -47,91 +47,91 @@ COLUMNA del Meta-Factory            ← hooks/CLI locales (mismo actor); defensa
 CI EXTERNO de cada fábrica producida  → COLUMNA de la fábrica → GATES de cada producto
 ```
 
-Reglas de la jerarquía (generalizan ASF/ADR-022 §3):
+Hierarchy rules (generalize ASF/ADR-022 §3):
 
-1. **Una capa solo puede ser verificada por una capa al menos tan confiable como ella.** Un
-   producto no se auto-verifica; lo verifica la columna de su fábrica. La columna de una fábrica
-   no se auto-valida como raíz; la re-deriva su CI externo. Y así hacia arriba hasta el seed.
-2. **El seed es la única raíz que NO se deriva de nada.** Por eso es: (a) pequeño —auditarlo por
-   ojo humano debe ser factible—; (b) congelado —cambiarlo es Nivel C siempre—; (c) hecho a mano,
-   no generado por el Meta-Factory (un sistema no puede ser su propia raíz de confianza).
-3. **La única capa que ni el ingeniero, ni el modelo, ni los hooks locales pueden tocar es el CI
-   externo.** Es la autoridad del perímetro. Si el Meta-Factory local mintiera, el runner limpio
-   computaría un veredicto distinto → rojo.
-
----
-
-## 3. La regla de oro de la auto-modificación de la cadena de confianza
-
-Modificar `seed/` o la columna (gate/verifier/hooks/commit_guard) es la operación de máximo
-riesgo. Recibe el gate más fuerte:
-
-> **Un cambio a la cadena de confianza solo se promueve si el seed VIEJO valida el sistema NUEVO,
-> el CI externo re-deriva el veredicto desde un clon limpio, y un revisor de contexto fresco
-> (opus) no encuentra fachada ni agujero — y el ingeniero da consentimiento (Nivel C).**
-
-- "El seed viejo valida el nuevo" = la versión confiable actual debe poder probar que la versión
-  candidata sigue rechazando un veredicto corrompido (la *prueba de bloqueo*, ASF §21). Si el
-  cambio rompe esa prueba, no se promueve. Es el equivalente a re-compilar el compilador nuevo con
-  el viejo y comparar.
-- El orquestador **lee ese diff con sus propios ojos**, lo haya escrito quien sea (regla
-  trust-chain de ASF/ADR-020, generalizada y ahora con sombra: el reviewer va a opus por dato,
-  cerrando W4 — ver `CONTEXT-ECONOMY.md §enrutamiento`).
-- Cambios que NO tocan la cadena de confianza (una estación nueva, un template de dominio, una
-  capacidad de producto) siguen el loop normal (§4) sin el gate reforzado.
+1. **A layer can only be verified by a layer at least as trustworthy as itself.** A
+   product does not self-verify; its factory's column verifies it. A factory's column
+   does not self-validate as the root; its external CI re-derives it. And so on upward to the seed.
+2. **The seed is the only root that is NOT derived from anything.** That's why it is: (a) small
+   —auditing it by human eye must be feasible—; (b) frozen —changing it is always Level C—; (c) hand-made,
+   not generated by the Meta-Factory (a system cannot be its own trust root).
+3. **The only layer that neither the engineer, nor the model, nor the local hooks can touch is the
+   external CI.** It is the perimeter authority. If the local Meta-Factory were to lie, the clean
+   runner would compute a different verdict → red.
 
 ---
 
-## 4. El loop: observar → proponer → verificar → promover → rollback
+## 3. The golden rule for self-modifying the trust chain
 
-Hereda el `generar→verificar→promover` de ASF (V2.3) y lo completa con las dos piezas que el
-estado del arte (ECC 2.0: `stanford-iris-lab/meta-harness`, `greyhaven-ai/autocontext`) aporta:
-**guardar la traza+artefacto, no solo el archivo final**, y **el rollback con control de
-blast-radius**.
+Modifying `seed/` or the column (gate/verifier/hooks/commit_guard) is the highest-risk
+operation. It receives the strongest gate:
 
-| Fase | Qué pasa | Determinista o juicio | Artefacto que deja |
+> **A change to the trust chain is only promoted if the OLD seed validates the NEW system,
+> the external CI re-derives the verdict from a clean clone, and a fresh-context reviewer
+> (opus) finds no façade or hole — and the engineer gives consent (Level C).**
+
+- "The old seed validates the new one" = the current trusted version must be able to prove that the
+  candidate version still rejects a corrupted verdict (the *blocking proof*, ASF §21). If the
+  change breaks that proof, it is not promoted. It's the equivalent of re-compiling the new compiler
+  with the old one and comparing.
+- The orchestrator **reads that diff with its own eyes**, no matter who wrote it (ASF/ADR-020's
+  trust-chain rule, generalized and now with a shadow: the reviewer goes to opus by data,
+  closing W4 — see `CONTEXT-ECONOMY.md §routing`).
+- Changes that do NOT touch the trust chain (a new station, a domain template, a
+  product capability) follow the normal loop (§4) without the reinforced gate.
+
+---
+
+## 4. The loop: observe → propose → verify → promote → rollback
+
+Inherits ASF's `generate→verify→promote` (V2.3) and completes it with the two pieces that the
+state of the art (ECC 2.0: `stanford-iris-lab/meta-harness`, `greyhaven-ai/autocontext`) contributes:
+**saving the trace+artifact, not just the final file**, and **rollback with
+blast-radius control**.
+
+| Phase | What happens | Deterministic or judgment | Artifact it leaves |
 | --- | --- | --- | --- |
-| **Observar** | un gap o oportunidad: RTM UNSATISFIED, un scenario rojo, una entrada del journal, un pedido del ingeniero | determinista (detección de hechos) | `improvement_request.json` (firma del scenario, invariantes a preservar) |
-| **Proponer** | la capa inteligente (orquestador/writer) drafta el cambio **como diff + scenario-spec + traza**, no solo el archivo | juicio (modelo), revisable en diff | la traza y el candidato guardados ANTES de mutar nada instalado |
-| **Verificar** | corren las gates deterministas; para trust-chain corre la re-derivación externa; un reviewer fresco caza fachada; el **gate de blast-radius** exige que ninguna fábrica downstream baje su veredicto pineado | determinista (gates) + juicio (reviewer) | `proof.json`, reporte del reviewer, diff de veredictos pineados |
-| **Promover** | solo si TODO pasa, el patrón/cambio asciende al repertorio (o al seed, con la regla de oro §3); el veredicto pineado se actualiza **por diff revisado**, nunca espontáneamente | determinista (promoción gateada) | el patrón en el repertorio + el commit con trailers |
-| **Rollback** | toda promoción es un checkpoint; una regresión en el CI externo de cualquier fábrica downstream dispara reversión | determinista | el revert + entrada en LOG |
+| **Observe** | a gap or opportunity: RTM UNSATISFIED, a red scenario, a journal entry, a request from the engineer | deterministic (fact detection) | `improvement_request.json` (scenario signature, invariants to preserve) |
+| **Propose** | the intelligent layer (orchestrator/writer) drafts the change **as diff + scenario-spec + trace**, not just the file | judgment (model), reviewable in diff | trace and candidate saved BEFORE mutating anything installed |
+| **Verify** | deterministic gates run; for trust-chain, external re-derivation runs; a fresh reviewer hunts for façades; the **blast-radius gate** requires that no downstream factory lower its pinned verdict | deterministic (gates) + judgment (reviewer) | `proof.json`, reviewer report, pinned-verdict diff |
+| **Promote** | only if EVERYTHING passes, the pattern/change ascends to the repertoire (or to the seed, with the golden rule §3); the pinned verdict is updated **by reviewed diff**, never spontaneously | deterministic (gated promotion) | the pattern in the repertoire + the commit with trailers |
+| **Rollback** | every promotion is a checkpoint; a regression in any downstream factory's external CI triggers reversion | deterministic | the revert + LOG entry |
 
-**El gate de blast-radius** (de autocontext, *"promote only after a verifier proves improvement
-without widening blast radius"*): una mejora al Meta-Factory que pretende ayudar a una fábrica no
-debe degradar a otra. Se materializa así — el CI externo del Meta-Factory re-deriva el
-dummy-fábrica Y corre los CI externos de las fábricas producidas (o sus veredictos pineados); si
-alguno baja, la promoción es roja aunque el cambio "mejore" su objetivo. Una "mejora espontánea"
-sin diff revisado es una fachada, no una mejora (ASF/ADR-022).
+**The blast-radius gate** (from autocontext, *"promote only after a verifier proves improvement
+without widening blast radius"*): an improvement to the Meta-Factory that intends to help one
+factory must not degrade another. It is materialized like this — the Meta-Factory's external CI
+re-derives the dummy-factory AND runs the produced factories' external CIs (or their
+pinned verdicts); if any of them drop, the promotion is red even if the change "improves" its
+target. A "spontaneous improvement" without a reviewed diff is a façade, not an improvement (ASF/ADR-022).
 
 ---
 
-## 5. Niveles de riesgo de la auto-modificación (qué gate recibe cada cambio)
+## 5. Self-modification risk levels (which gate each change receives)
 
-| Riesgo | Qué se modifica | Gate aplicado |
+| Risk | What is modified | Gate applied |
 | --- | --- | --- |
-| **R0 — Bajo** | un template de dominio, una capacidad de producto, una estación nueva en una fábrica | loop normal §4 (gates + reviewer sonnet) |
-| **R1 — Medio** | la maquinaria del Meta-Factory (engine, codegen, spec) sin tocar la columna | loop §4 + reviewer; CI externo re-deriva |
-| **R2 — Alto** | la columna de una fábrica producida (sus hooks/gates) | regla de oro §3 aplicada a esa fábrica; su CI externo re-deriva; consentimiento |
-| **R3 — Máximo** | el `seed/` o la columna del **Meta-Factory mismo** | regla de oro §3 completa: seed-viejo-valida-nuevo + re-derivación externa + reviewer opus fresco + consentimiento humano; congelado por defecto |
+| **R0 — Low** | a domain template, a product capability, a new station in a factory | normal loop §4 (gates + sonnet reviewer) |
+| **R1 — Medium** | the Meta-Factory's machinery (engine, codegen, spec) without touching the column | loop §4 + reviewer; external CI re-derives |
+| **R2 — High** | a produced factory's column (its hooks/gates) | golden rule §3 applied to that factory; its external CI re-derives; consent |
+| **R3 — Maximum** | the `seed/` or the column of the **Meta-Factory itself** | full golden rule §3: old-seed-validates-new + external re-derivation + fresh opus reviewer + human consent; frozen by default |
 
-El diseño no impide equivocarse; hace que equivocarse **cueste poco hacia abajo y muchísimo
-hacia la raíz** — exactamente donde debe estar la fricción. Sub-delegar o sobre-delegar un R0 se
-recupera barato (ASF/ADR-020); tocar el seed sin la ceremonia R3 simplemente no se promueve.
+The design doesn't prevent mistakes; it makes mistakes **cheap downward and extremely
+costly toward the root** — exactly where the friction should be. Sub-delegating or over-delegating an
+R0 recovers cheaply (ASF/ADR-020); touching the seed without the R3 ceremony simply doesn't get promoted.
 
 ---
 
-## 6. Por qué esto NO es teatro (la lección de ADR-023)
+## 6. Why this is NOT theater (ADR-023's lesson)
 
-ASF aprendió que **forzar juicio con un hard-block produce el ritual, no el contenido**
-(ADR-023: "forzar sería teatro"). El modelo de §1–§5 respeta eso:
+ASF learned that **forcing judgment with a hard-block produces the ritual, not the content**
+(ADR-023: "forcing it would be theater"). The model in §1–§5 respects that:
 
-- Lo que se **hard-blocka** es siempre un HECHO determinista: un veredicto corrompido, un hash que
-  no coincide, una re-derivación que difiere, un veredicto pineado que baja. Nunca un juicio.
-- Lo que requiere **juicio** (¿es esta mejora buena? ¿el reviewer ve una fachada?) se gobierna por
-  modelo + revisable-en-diff + consentimiento, y se *mide* (el contador de delegaciones, el
-  journal), no se fuerza.
-- La sombra determinista (PF-11) está del lado de la *detección*, no de la *coerción del juicio*.
-  Detectar que el STATE quedó viejo: determinista. Decidir qué escribir en él: modelo.
+- What gets **hard-blocked** is always a deterministic FACT: a corrupted verdict, a hash that
+  doesn't match, a re-derivation that differs, a pinned verdict that drops. Never a judgment.
+- What requires **judgment** (is this improvement good? does the reviewer see a façade?) is governed
+  by model + reviewable-in-diff + consent, and is *measured* (the delegation counter, the
+  journal), not forced.
+- The deterministic shadow (PF-11) sits on the side of *detection*, not of *coercing judgment*.
+  Detecting that STATE went stale: deterministic. Deciding what to write in it: model.
 
-Ésa es la frontera que hace que el auto-mejoramiento sea seguro sin ser ritualista.
+That is the frontier that makes self-improvement safe without being ritualistic.

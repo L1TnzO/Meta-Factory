@@ -1,143 +1,143 @@
-<!-- meta:doc sha=cb5a18b7d775ae4275922784fc25753773aafb9c updated=2026-07-10T16:35Z -->
-# HONEST-STATE — implementado vs definido (sin maquillaje)
+<!-- meta:doc sha=c1b50130e596947370ec90cb0fa307b9f81aa8d2 updated=2026-07-11T15:45Z -->
+# HONEST-STATE — implemented vs defined (no makeup)
 
-> tipo: reference (I-13, honestidad de límites). Artefacto de primera clase: la aspiración NUNCA se
-> confunde con la realidad. Si este doc y STATE.md discrepan, gana el artefacto verificable.
-> Escrito 2026-06-13T15:30Z tras una pregunta directa del ingeniero sobre disciplina de proceso.
+> type: reference (I-13, honesty of limits). First-class artifact: aspiration is NEVER
+> confused with reality. If this doc and STATE.md disagree, the verifiable artifact wins.
+> Written 2026-06-13T15:30Z after a direct question from the engineer about process discipline.
 
-## 0. La pregunta honesta que originó este doc
-¿Documenté a medida o solo al final? ¿Los hooks de memoria están vivos? ¿Hay commits de evidencia por
-requisito? Respuesta sin maquillaje: **documenté AL FINAL, los hooks NO estuvieron activos, y hubo
-CERO commits durante la construcción.** Es G-M1/G-3 en vivo —el mismo trap de ASF— y es la prueba
-empírica de por qué el diseño exige sombra determinista.
+## 0. The honest question that originated this doc
+Did I document as I went or only at the end? Are the memory hooks alive? Are there evidence commits per
+requirement? Answer without makeup: **I documented AT THE END, the hooks were NOT active, and there were
+ZERO commits during construction.** It's G-M1/G-3 live —the same ASF trap— and it is the
+empirical proof of why the design demands a deterministic shadow.
 
-## 1. La disciplina que el factory predica vs la que seguí
-| Premisa del diseño | ¿La seguí construyendo? | Evidencia |
+## 1. The discipline the factory preaches vs the one I followed
+| Design premise | Did I follow it while building? | Evidence |
 | --- | --- | --- |
-| Documentar es FASE del flujo (DOCUMENT del gate), no tarea final | ❌ NO — batch al cierre (F5) | STATE/LOG/BOOTSTRAP se tocaron recién en el cierre |
-| Captura incremental por hook (doc_stamp PostToolUse) | ❌ NO disparó | empírico: un `.md` escrito quedó SIN sello hasta correr `doc-sync` a mano |
-| Commit por requisito/estación con trailers (I-10) | ❌ NO — 0 commits en toda la construcción | `git rev-list --count HEAD` = 0 |
-| RTM re-derivado de artefactos | ✅ SÍ | de `.proof/`, no de narrativa |
-| Probar por BLOQUEO, no por prosa | ✅ SÍ | los 8 criterios con exit codes reales |
+| Documenting is a flow PHASE (the gate's DOCUMENT), not a final task | ❌ NO — batched at close (F5) | STATE/LOG/BOOTSTRAP were only touched at close |
+| Incremental capture via hook (doc_stamp PostToolUse) | ❌ Did NOT fire | empirical: a written `.md` was left WITHOUT a seal until `doc-sync` was run by hand |
+| Commit per requirement/station with trailers (I-10) | ❌ NO — 0 commits through the whole build | `git rev-list --count HEAD` = 0 |
+| RTM re-derived from artifacts | ✅ YES | from `.proof/`, not from narrative |
+| Prove by BLOCKING, not by prose | ✅ YES | the 8 criteria with real exit codes |
 
-**Por qué pasó (causa, no excusa):** escribí los hooks de la columna y de memoria DENTRO de la sesión
-(a mitad). Claude Code carga los hooks al INICIO de sesión → **nunca estuvieron vivos para mi propio
-trabajo**. Sin la sombra determinista activa, el orquestador (yo) volvió a la escritura discrecional —
-exactamente lo que el diseño predice. Es la validación más fuerte de la tesis: la maquinaria existe,
-pero inactiva no me salvó. El factory tenía razón sobre sí mismo.
+**Why it happened (cause, not excuse):** I wrote the column and memory hooks DURING the session
+(midway through). Claude Code loads hooks at session START → **they were never alive for my own
+work**. Without the deterministic shadow active, the orchestrator (me) fell back to discretionary writing —
+exactly what the design predicts. It's the strongest validation of the thesis: the machinery exists,
+but being inactive didn't save me. The factory was right about itself.
 
-**Riesgo concreto que esto creó:** si la generación se cortaba tras F2, el próximo orquestador habría
-encontrado código real con STATE.md diciendo "DISEÑO, cero código" y un LOG vacío — documentación
-MENTIROSA, peor que ausente. No ocurrió solo porque llegué al cierre.
+**Concrete risk this created:** if generation had been cut off after F2, the next orchestrator would have
+found real code with STATE.md saying "DESIGN, zero code" and an empty LOG — LYING
+documentation, worse than absent. It didn't happen only because I made it to the close.
 
-## 2. Hooks / harness: estado de ACTIVACIÓN
-- Escritos y cableados en `.claude/settings.json`: proof_protect · gate_guard · stop_proof ·
+## 2. Hooks / harness: ACTIVATION status
+- Written and wired in `.claude/settings.json`: proof_protect · gate_guard · stop_proof ·
   commit_guard · doc_stamp.
-- **Sesión 1 (construcción): NINGUNO activo** — se cargan al inicio de sesión y `settings.json` se
-  escribió a mitad. Por eso documenté discrecional (§1). Esa es la causa raíz, no una excusa.
-- **Sesión 2 (tras reiniciar, 2026-06-13T19:54Z): LOS 5 VERIFICADOS EN VIVO por el harness real:**
-  - `doc_stamp` (PostToolUse) auto-selló un `.md` nuevo y regeneró `INDEX.md` (lo reportó el propio harness).
-  - `proof_protect` + `permissions.deny` denegaron un `Write` a `.proof/` y un `open()`/`rm` por shell.
-  - `gate_guard` bloqueó `meta station m02` salteando m01 — ANTES de ejecutar el comando.
-  - `commit_guard` denegó `git commit` con la estación activa roja.
-  - `stop_proof` bloqueó el cierre del turno (exit 2) con la estación roja y re-invocó al modelo.
-- **Finding (a afinar, no urgente):** `proof_protect` es sobre-celoso — bloquea cualquier comando que
-  mencione `.proof/` y contenga un `>` (incluso `2>/dev/null` de solo-lectura). Es safe-side (jamás deja
-  ESCRIBIR un veredicto; solo molesta lecturas con redirección); achicar el regex es trabajo futuro.
+- **Session 1 (build): NONE active** — they load at session start and `settings.json` was
+  written midway. That's why I documented discretionarily (§1). That's the root cause, not an excuse.
+- **Session 2 (after restart, 2026-06-13T19:54Z): ALL 5 VERIFIED LIVE by the real harness:**
+  - `doc_stamp` (PostToolUse) auto-sealed a new `.md` and regenerated `INDEX.md` (reported by the harness itself).
+  - `proof_protect` + `permissions.deny` denied a `Write` to `.proof/` and an `open()`/`rm` via shell.
+  - `gate_guard` blocked `meta station m02` skipping m01 — BEFORE running the command.
+  - `commit_guard` denied `git commit` with the active station red.
+  - `stop_proof` blocked turn close (exit 2) with the station red and re-invoked the model.
+- **Finding (to refine, not urgent):** `proof_protect` is over-zealous — it blocks any command that
+  mentions `.proof/` and contains a `>` (even `2>/dev/null` on a read-only command). It's safe-side (it never lets
+  a verdict be WRITTEN; it only annoys reads with redirection); shrinking the regex is future work.
 
-## 3. Técnicas de memoria: implementado vs definido
-> ACTUALIZADO 2026-06-13 sesión 2 (incremento MEMORIA): el subsistema se CONSTRUYÓ. ADR-007/008 → Aprobado+Implementado.
+## 3. Memory techniques: implemented vs defined
+> UPDATED 2026-06-13 session 2 (MEMORY increment): the subsystem was BUILT. ADR-007/008 → Approved+Implemented.
 
-| Técnica (MEMORY-ARCHITECTURE / ADR-007/008/009) | Estado |
+| Technique (MEMORY-ARCHITECTURE / ADR-007/008/009) | Status |
 | --- | --- |
-| Tier 1 narrativa (docs tipados, mutación por tipo) | ✅ existe |
-| ADR-009: sello in-band + `INDEX.md` generado + check en `meta check` | ✅ implementado + **activo en vivo** (`doc_stamp` verificado, §2) |
-| Tier 0 hechos: journal at-source (engine) + `meta journal` | ✅ `memory/journal.py` — captura CONTINUA, no checkpoint discrecional |
-| Tier 0 series: `metrics.jsonl` + `meta metrics` + costo (ADR-008) | ✅ `memory/metrics.py` + hooks `mem_capture`/`mem_rollup`, cero modelo |
-| Disparador NO-discrecional (el FIX de G-M1) | ✅ `memory/projection.py` + `meta checkpoint`; `meta check` verifica la proyección (hard) y SURFACE-ea los hechos sin narrar (ADR-023) |
-| Tier 2 retrieval MEDIDO: `meta recall` | ✅ `memory/recall.py` (lexical+recencia+importancia); cada recall se MIDE |
-| Rehidratación SessionStart | ✅ `memory/rehydrate.py` + hook (activa al reinicio) |
-| Índice semántico (embeddings) | ⏳ **diferido-hasta-medición** (postura SOTA, NO un gap): se decide cuando la serie `recall` muestre que el lexical no alcanza |
+| Tier 1 narrative (typed docs, mutation by type) | ✅ exists |
+| ADR-009: in-band seal + generated `INDEX.md` + check in `meta check` | ✅ implemented + **live active** (`doc_stamp` verified, §2) |
+| Tier 0 facts: at-source journal (engine) + `meta journal` | ✅ `memory/journal.py` — CONTINUOUS capture, not discretionary checkpoint |
+| Tier 0 series: `metrics.jsonl` + `meta metrics` + cost (ADR-008) | ✅ `memory/metrics.py` + `mem_capture`/`mem_rollup` hooks, zero model |
+| NON-discretionary trigger (G-M1's FIX) | ✅ `memory/projection.py` + `meta checkpoint`; `meta check` verifies the projection (hard) and SURFACEs the un-narrated facts (ADR-023) |
+| MEASURED Tier 2 retrieval: `meta recall` | ✅ `memory/recall.py` (lexical+recency+importance); every recall is MEASURED |
+| SessionStart rehydration | ✅ `memory/rehydrate.py` + hook (active on restart) |
+| Semantic index (embeddings) | ⏳ **deferred-until-measured** (SOTA stance, NOT a gap): decided when the `recall` series shows lexical isn't enough |
 
-El gap más honesto del bootstrap (el FIX de G-M1) está **CERRADO en código**: los hechos se capturan
-solos (engine at-source), la proyección es determinista y verificada por `meta check`, y los hechos sin
-narrar se SURFACE-ean (no se fuerza el juicio, ADR-023). Lo único pendiente es A PROPÓSITO: el índice
-semántico, hasta que la medición lo justifique. 30 tests del módulo memory (206 en total).
+The bootstrap's most honest gap (G-M1's FIX) is **CLOSED in code**: facts capture themselves
+(engine at-source), the projection is deterministic and verified by `meta check`, and un-narrated
+facts get SURFACEd (judgment is not forced, ADR-023). The only thing pending is DELIBERATE: the
+semantic index, until measurement justifies it. 30 tests in the memory module (206 total).
 
-## 4. Implementado vs definido (panorama)
-- **En alcance y HECHO:** seed (Stage 0), engine+spec+bus+cli (Stage 1), M0–M3+M8, template, columna
-  (hooks escritos Y verificados en vivo), dummy-fábrica, índice ADR-009, **subsistema de MEMORIA completo
-  (Tier 0/1/2 + disparador no-discrecional + rehidratación; ADR-007/008 Implementados)**, 206 tests, 8 criterios.
-- **Definido pero DIFERIDO (fuera de alcance, explícito):** M4–M7, regeneración de ASF (ADR-006),
-  loop de auto-mejora, índice semántico de memoria (diferido-hasta-medición, §3).
-- **Disciplina de proceso:** en el BOOTSTRAP falló (doc al cierre, 0 commits, hooks inactivos — §1).
-  En el incremento de MEMORIA se siguió de verdad: commit por fase, hooks vivos, captura continua,
-  `meta checkpoint` para narrar. La maquinaria, ahora viva, hizo cumplir lo que antes era discrecional.
+## 4. Implemented vs defined (overview)
+- **In scope and DONE:** seed (Stage 0), engine+spec+bus+cli (Stage 1), M0–M3+M8, template, column
+  (hooks written AND verified live), dummy-factory, ADR-009 index, **complete MEMORY subsystem
+  (Tier 0/1/2 + non-discretionary trigger + rehydration; ADR-007/008 Implemented)**, 206 tests, 8 criteria.
+- **Defined but DEFERRED (out of scope, explicit):** M4–M7, ASF regeneration (ADR-006),
+  self-improvement loop, memory semantic index (deferred-until-measured, §3).
+- **Process discipline:** it FAILED in the BOOTSTRAP (doc at close, 0 commits, inactive hooks — §1).
+  In the MEMORY increment it was truly followed: commit per phase, live hooks, continuous capture,
+  `meta checkpoint` to narrate. The machinery, now alive, enforced what used to be discretionary.
 
-## 5. Evidencia por requisito (commits): el estado honesto
-La premisa I-10 es "cada requisito ↔ uno o varios commits con trailers (station/spec-refs/proof-sha)".
-Durante la construcción: **0 commits** → la premisa NO se cumplió en vivo. Al cierre se hizo una serie
-de commits estructurada por área/criterio con trailers `Satisfies:`/`Proof:` (ver `git log`).
-**Honesto: es reconstrucción al cierre, NO captura viva por paso.** El RTM sí se re-deriva de `.proof/`
-(artefactos), que es la mitad fuerte de I-10; la mitad de commits llegó tarde, como en ASF.
+## 5. Evidence per requirement (commits): the honest state
+Premise I-10 is "every requirement ↔ one or more commits with trailers (station/spec-refs/proof-sha)".
+During the build: **0 commits** → the premise was NOT met live. At close, a structured series
+of commits by area/criterion with `Satisfies:`/`Proof:` trailers was made (see `git log`).
+**Honest: it's reconstruction at close, NOT live per-step capture.** The RTM IS re-derived from `.proof/`
+(artifacts), which is the strong half of I-10; the commit half arrived late, same as in ASF.
 
-## 6. Para el próximo orquestador
-Reiniciá la sesión ANTES de seguir, para que los hooks estén vivos. Commiteá por estación/requisito
-(`commit_guard` lo va a exigir). Documentá en el gate, no al final. Si suena a sermón: es literal lo
-que yo no hice — por eso lo escribo acá, no en prosa optimista.
+## 6. For the next orchestrator
+Restart the session BEFORE continuing, so the hooks are alive. Commit per station/requirement
+(`commit_guard` will require it). Document at the gate, not at the end. If this sounds like a sermon: it's literally
+what I didn't do — that's why I'm writing it here, not in optimistic prose.
 
-## 7. Residuales declarados (memoria v2)
-- **Freeze del codegen SIN diente + alcance sin legislar — CERRADO (2026-07-10, `CODEGEN-FREEZE-TOOTH`).**
-  El gate `codegen_freeze` (`meta check`, 20 gates) es la sombra determinista de ADR-023 §3: diff en
-  `factories/*/codegen/**` sin waiver en el work-doc ABIERTO del nivel dueño → ROJO · waiver sin diff
-  (decorativo) → ROJO · auditoría histórica auto-referencial (epoch = commit 4bd9835 que agrega el check;
-  escape deliberado `WAIVED_COMMITS` estilo `registry.KINDS`). La frontera de la zona gris quedó LEGISLADA
-  en el docstring del check + el work-doc: `alcance=verificacion` (proofs/tests/cobertura emitidos — parte
-  VIVA por ADR-023 §1; cita ADR-023 basta) vs `alcance=superficie` (templates/superficie humana — exige ADR
-  dedicado). Las 2 perforaciones previas (5b96696·43f295d) quedan grandfathered pre-epoch. **Residuo
-  irreducible que queda:** la honestidad del `alcance` declarado la juzgan ojos en revisión — el check
-  verifica la FORMA (alcance+motivo+cita), no la semántica.
-- **Swap Fable 5 — REVERTIDO el mismo día (2026-07-10, pedido del ingeniero).** Opus vuelve a ser la norma
-  en TODO el ruteo (runbook S1/S3 + agents meta `orchestrator`/`reviewer` → `model: opus`); Fable 5 queda
-  RESERVADO a sesiones especiales de infraestructura meta que el ingeniero lanza explícitamente. Los agents
-  de fábrica nunca cambiaron (`model: opus`, emitidos por `delegation_brain.py`) — el residual del swap en
-  el emisor MUERE: ya no hay drift que cerrar.
-- **Frescura comunitaria SIN herramienta (2026-07-10, auditoría model-first).** La pregunta OBLIGADA de
-  ADR-023 §2 («¿qué pieza ya validó la comunidad?») tiene procedimiento (skill `design-primitives` paso 3)
-  y diente indirecto (M0 `design-review`: capability sin `tech` → rojo), pero la RESPUESTA sale del
-  training-data del modelo: no hay `.mcp.json`, ni context7, ni paso de web-lookup en S1 — riesgo de fijar
-  como DATO versiones viejas/deprecadas. Propuesta: increment `COMMUNITY-FRESHNESS` — MCP context7 (o
-  WebSearch) habilitado SÓLO para sesiones S1 de diseño (NUNCA dentro de slots del generator — least-priv;
-  `forbidden_tools` ya modela la denegación) + la versión exacta queda PINEADA en la spec, así la frescura
-  es input de diseño y el determinismo lo sostiene el pin. Es superficie de supply-chain del cerebro
-  (output de MCP entra al contexto que decide) → exige ADR propio, no un `claude mcp add` casual.
-  Trigger: próxima spec nueva (F1/ASF) o el primer pin comunitario que resulte deprecado al verificarlo.
-- **La pregunta comunitaria no baja al nivel PRODUCTO (2026-07-10, auditoría model-first) — TRIGGER disparado
-  y respondido para `helpdesk`, la INFRAESTRUCTURA sigue faltando.** `design-primitives` es meta-only y su
-  alcance declarado es el diseño de FÁBRICAS (`factory.spec.yml`); `product.yml` sigue SIN campo estructurado
-  para piezas de comunidad. El trigger (`FSK-HELPDESK-MODELGEN`, 2026-07-10, commit `47cce4f`) disparó: la
-  pregunta quedó escrita RETROACTIVAMENTE en el commit (TS vanilla sin framework, juicio deliberado, no gap
-  de infra) — pero sólo en prosa de commit, NO en un campo del `product.yml`. La infraestructura (el campo
-  estructurado + el `design-review` que lo exija a nivel producto) sigue sin existir; agregarlo tocaría
-  `codegen/scaffold/blueprint.py` (FSK), que está **CONGELADO** (ADR-023 §3) — exige un waiver
-  (`Codegen-freeze-waiver:`) y decidir su `alcance` (¿`verificacion` o `superficie`? ¿cita qué ADR?), lo cual
-  es una decisión de diseño (S1/Opus), no un slot Sonnet. Trigger para des-diferir: la PRÓXIMA superficie
-  model-nativa nueva (no snipeit/helpdesk, ya retro-respondidas) que se diseñe sin este campo.
-- **M4 (MEM-PRECOMPACT-SNAPSHOT) — proyección a fábrica DIFERIDA (2026-06-26).** El roadmap clasificó M4
-  como `meta(+col)` y pidió proyectarlo al template/fábrica (ADR-018). Tras leer la columna real, M4
-  aterrizó **sólo a nivel meta**: PreCompact NO es enforcement (la columna de fábrica son los 4 cerrojos,
-  frontera de seguridad), la capa de memoria (`session_start`/`mem_capture`/`mem_rollup` + el observador
-  M5 en `src/metafactory/memory/` + `.metamem`) es **meta-only hoy**, y la RE-INYECCIÓN vive en
-  `SessionStart` —que tampoco existe en la columna de fábrica— así que proyectar la mitad-escritura sin la
-  mitad-lectura sería un **writeback muerto**. Trigger para des-diferir: cuando la fábrica adquiera un
-  subsistema de memoria (session_start/rehydrate proyectados) — adyacente a M6. Detalle:
+## 7. Declared residuals (memory v2)
+- **Codegen freeze WITHOUT teeth + scope not legislated — CLOSED (2026-07-10, `CODEGEN-FREEZE-TOOTH`).**
+  The `codegen_freeze` gate (`meta check`, 20 gates) is ADR-023 §3's deterministic shadow: a diff in
+  `factories/*/codegen/**` without a waiver in the owning level's OPEN work-doc → RED · waiver without diff
+  (decorative) → RED · self-referential historical audit (epoch = commit 4bd9835 that adds the check;
+  deliberate escape hatch `WAIVED_COMMITS`, `registry.KINDS`-style). The gray zone's boundary was LEGISLATED
+  in the check's docstring + the work-doc: `alcance=verificacion` (emitted proofs/tests/coverage — a LIVE
+  part per ADR-023 §1; citing ADR-023 is enough) vs `alcance=superficie` (templates/human surface — requires a
+  dedicated ADR). The 2 prior perforations (5b96696·43f295d) are grandfathered pre-epoch. **Irreducible
+  residue that remains:** the honesty of the declared `alcance` is judged by eyes in review — the check
+  verifies the FORM (scope+reason+citation), not the semantics.
+- **Fable 5 swap — REVERTED the same day (2026-07-10, requested by the engineer).** Opus goes back to being the norm
+  across ALL routing (runbook S1/S3 + meta agents `orchestrator`/`reviewer` → `model: opus`); Fable 5 stays
+  RESERVED for special meta-infrastructure sessions the engineer explicitly launches. The factory
+  agents never changed (`model: opus`, emitted by `delegation_brain.py`) — the swap's residual in
+  the emitter DIES: there's no more drift to close.
+- **Community freshness WITHOUT a tool (2026-07-10, model-first audit).** ADR-023 §2's MANDATORY question
+  («which piece has the community already validated?») has a procedure (skill `design-primitives` step 3)
+  and an indirect tooth (M0 `design-review`: a capability with no `tech` → red), but the ANSWER comes from
+  the model's training data: there's no `.mcp.json`, no context7, no web-lookup step in S1 — risk of pinning
+  old/deprecated versions as DATA. Proposal: `COMMUNITY-FRESHNESS` increment — MCP context7 (or
+  WebSearch) enabled ONLY for design S1 sessions (NEVER inside generator slots — least-priv;
+  `forbidden_tools` already models the denial) + the exact version stays PINNED in the spec, so freshness
+  is a design input and determinism sustains the pin. It's brain supply-chain surface
+  (MCP output enters the context that decides) → requires its own ADR, not a casual `claude mcp add`.
+  Trigger: next new spec (F1/ASF) or the first community pin that turns out deprecated when checked.
+- **The community question doesn't reach the PRODUCT level (2026-07-10, model-first audit) — TRIGGER fired
+  and answered for `helpdesk`, the INFRASTRUCTURE is still missing.** `design-primitives` is meta-only and its
+  declared scope is FACTORY design (`factory.spec.yml`); `product.yml` still has NO structured field
+  for community pieces. The trigger (`FSK-HELPDESK-MODELGEN`, 2026-07-10, commit `47cce4f`) fired: the
+  question was written RETROACTIVELY in the commit (vanilla TS with no framework, a deliberate judgment call, not an
+  infra gap) — but only in commit prose, NOT in a `product.yml` field. The infrastructure (the structured
+  field + the `design-review` that requires it at the product level) still doesn't exist; adding it would touch
+  `codegen/scaffold/blueprint.py` (FSK), which is **FROZEN** (ADR-023 §3) — it requires a waiver
+  (`Codegen-freeze-waiver:`) and deciding its `alcance` (`verificacion` or `superficie`? citing which ADR?), which
+  is a design decision (S1/Opus), not a Sonnet slot. Trigger to un-defer: the NEXT new model-native
+  surface (not snipeit/helpdesk, already retro-answered) designed without this field.
+- **M4 (MEM-PRECOMPACT-SNAPSHOT) — projection to factory DEFERRED (2026-06-26).** The roadmap classified M4
+  as `meta(+col)` and asked to project it to the template/factory (ADR-018). After reading the real column, M4
+  landed **only at the meta level**: PreCompact is NOT enforcement (a factory's column is the 4 locks,
+  the security boundary), the memory layer (`session_start`/`mem_capture`/`mem_rollup` + the
+  M5 observer in `src/metafactory/memory/` + `.metamem`) is **meta-only today**, and the RE-INJECTION lives in
+  `SessionStart` —which also doesn't exist in the factory column— so projecting the write half without the
+  read half would be a **dead writeback**. Trigger to un-defer: when the factory acquires a
+  memory subsystem (projected session_start/rehydrate) — adjacent to M6. Detail:
   `work/MEM-PRECOMPACT-SNAPSHOT-INCREMENT.md §Decisión de alcance`.
-- **M4 — ACTIVACIÓN del hook (sello de honestidad).** La LÓGICA (`memory/precompact.py`), el script
-  (`.claude/hooks/pre_compact.py`), la re-inyección (`rehydrate`, backward-compatible) y la serie M5 están
-  COMPLETAS y probadas por bloqueo (`tests/test_precompact.py` + demo e2e). La ACTIVACIÓN —2 líneas en
-  `.claude/` (registrar `PreCompact` en `settings.json` + pasar `source` en `session_start.py`)— se aplicó
-  CON aprobación explícita del ingeniero (el clasificador auto-modo la había bloqueado como auto-modificación
-  del arranque, guardrail correcto; la aprobación lo levantó). **Cableada y commiteada.** Como los hooks se
-  cargan al INICIO de sesión, recién queda VIVA en producción **tras reiniciar la sesión** (mismo patrón que
-  §2: la maquinaria existe pero inactiva hasta el próximo arranque). Hasta el reinicio: cableado completo,
-  fuego pendiente sólo del próximo `SessionStart`.
+- **M4 — hook ACTIVATION (honesty seal).** The LOGIC (`memory/precompact.py`), the script
+  (`.claude/hooks/pre_compact.py`), the re-injection (`rehydrate`, backward-compatible), and the M5 series are
+  COMPLETE and proven by blocking (`tests/test_precompact.py` + e2e demo). The ACTIVATION —2 lines in
+  `.claude/` (register `PreCompact` in `settings.json` + pass `source` in `session_start.py`)— was applied
+  WITH the engineer's explicit approval (the auto-mode classifier had blocked it as self-modification
+  of startup, correct guardrail; the approval lifted it). **Wired and committed.** Since hooks
+  load at session START, it only goes LIVE in production **after restarting the session** (same pattern as
+  §2: the machinery exists but is inactive until the next start). Until the restart: fully wired,
+  just pending fire on the next `SessionStart`.

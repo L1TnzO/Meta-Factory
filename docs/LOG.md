@@ -1,7 +1,22 @@
-<!-- meta:doc sha=8eb77bae0853923173a05a01117c198abe10a35c updated=2026-07-11T00:32Z -->
+<!-- meta:doc sha=8c12a24c9f7140c917ba99e7876b0b31b7a14130 updated=2026-07-11T00:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T00:44Z — DOC-CLEANUP-DIRECTION: ADR-026 approved — the cleanup becomes law (first English episode under its own rule)
+The engineer ratified all three scope questions («Sí a todas»): (1) **English for the LIVING layer only**
+(CLAUDE.md all levels · STATE · living reference/ · open work · agents/skills), immutable history never
+translated; (2) **CLI verdict strings included** (`VEREDICTO/RESUMEN/PRÓXIMO → VERDICT/SUMMARY/NEXT`) — the
+highest context-per-dollar text; (3) **archive class deferred** with trigger (INDEX >250 lines or triage
+fails 2×). ADR-026 also fixes the numbering dispute: ADRs number by CREATION — the informal «ADR-026
+freshness» reservation in immutable ADR-025 §Deferred holds no number (STATE repointed; COMMUNITY-FRESHNESS
+takes the next free number when written). Explicitly NOT decided: no new search DB — `meta recall` stays
+dead (ADR-019 §2, measured 1×/0-hit); the relational need rides the EXISTING graph as Doc nodes +
+CITES/EVIDENCES edges + the two-sided `evidence_liveness` check + the `meta doc orphans` observer (F1
+`DOC-GRAPH-LIVENESS`, next increment, bounded slot → generator). Roadmap single-source:
+`work/DOC-CLEANUP-DIRECTION-INCREMENT.md` (F0 ✅ prune · F1 graph · F2 English batches · F3 drift-audit ·
+F4 deferred). Session note: closed at ~128k ctx per kill-don't-idle — F1 starts in a fresh session; the
+direction doc IS the handoff.
 
 ## 2026-07-11T00:32Z — DOC-PRUNE-STARTHERE: muere el primer doc podado por medición de uso (y un falso huérfano enseña el método)
 Sesión de diseño (Fable 5, pedido del ingeniero: «limpieza profunda — hay docs viejos que SE SUPONE se usan»).

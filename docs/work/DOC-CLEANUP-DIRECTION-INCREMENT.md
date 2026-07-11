@@ -1,7 +1,7 @@
-<!-- meta:doc sha=25f09b373a7f8c45c5cd39cecca02bdd543a6d1c updated=2026-07-11T00:43Z -->
+<!-- meta:doc sha=24b02cf8962038f03c12b96ad85a261668ad4a48 updated=2026-07-11T00:44Z -->
 # Incremento DOC-CLEANUP-DIRECTION
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T00:41Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T00:44Z) (creado 2026-07-11T00:41Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

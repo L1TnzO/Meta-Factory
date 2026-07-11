@@ -1,12 +1,12 @@
 ---
-description: Corre el selftest del codegen del producto (parsea el blueprint, lista
-  los archivos; no escribe).
+description: Runs the product codegen selftest (parses the blueprint, lists the files;
+  writes nothing).
 run:
 - python3
 - codegen/scaffold_product.py
 - --selftest
 ---
 
-# /gen-check — verificá el codegen de la fábrica full-stack-kotlin
-Corré el selftest del scaffolder: parsea el blueprint (domain.product) y lista los archivos del
-producto que emitiría. Exit 0 = el generador es invocable y el blueprint está completo.
+# /gen-check — verify the full-stack-kotlin factory's codegen
+Run the scaffolder selftest: it parses the blueprint (domain.product) and lists the product
+files it would emit. Exit 0 = the generator is invocable and the blueprint is complete.

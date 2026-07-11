@@ -2,6 +2,13 @@
 # Bitácora — Full-Stack Kotlin/TS/PG Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-07-11 — FSK-ENGLISH-HARNESS: spec-emitted harness translated to English (ADR-026 F2a stage 3)
+- machinery.harness strings translated by eyes in `factory.spec.yml`; emitted `.claude/` re-derived by
+  bounded in-memory render, proven IN SYNC byte-to-byte. Identifiers untouched (ADR-020). LATENT BUG
+  closed: `correr-app` (hand-authored by FSK-DEV-RUN, undeclared) is now spec DATA — `_emit_skills`
+  prunes undeclared skill dirs, so a legitimate m07 re-emit would have deleted it. Found-drift healed:
+  `generate-slot/SKILL.md` caught up to post-INC-2 `delegation_brain`.
+
 ## 2026-07-10T16:1xZ — FSK-HELPDESK-MODELGEN ✅: segunda adopción durable model-nativa (ADR-024), sin slot LLM nuevo — y la respuesta comunitaria de ADR-023 §2 queda escrita retroactivamente
 `products/helpdesk/frontend/app.{ts,css}` (el ganador del experimento A/B, ya tracked desde un checkpoint de
 una sesión previa, sha `46c53c7…`/`b3328a6…`) se activa con `frontend_surface: model-native` en

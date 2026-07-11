@@ -1,16 +1,19 @@
 ---
 name: correr-app
-description: Iniciar/parar localmente la app de un producto Full-Stack Kotlin (AppServer CRUD + frontend + PG) con un comando.
+description: Start/stop a Full-Stack Kotlin product's app locally (CRUD AppServer
+  + frontend + PG) with one command.
 ---
 
-# correr-app — levantá la app de un producto con UN comando
-Para VER/usar la app (no para verificar la fábrica — eso es `verificar-fabrica`).
+# correr-app — launch a product's app with ONE command
+For SEEING/using the app (not for verifying the factory — that is `verificar-fabrica`).
 
-- **Arrancar**: `factories/full-stack-kotlin/tools/dev_run.sh [PRODUCTO]` (default `snipeit`). Levanta PG docker
-  propia + bundlea el frontend + corre el `AppServerKt`, espera `/health` e **imprime la URL** (abrila en el browser:
-  la HOME del dashboard con conteos vivos). Puerto y PG son AUTO/propios → no choca ni mata otros `java`/contenedores.
-- **Parar**: `… tools/dev_run.sh stop [PRODUCTO]`  ·  **Estado**: `… tools/dev_run.sh status [PRODUCTO]`.
+- **Start**: `factories/full-stack-kotlin/tools/dev_run.sh [PRODUCT]` (default `snipeit`). Brings up its own
+  docker PG + bundles the frontend + runs `AppServerKt`, waits for `/health` and **prints the URL**
+  (open it in the browser: the dashboard HOME with live counts). Port and PG are AUTO/own → it never
+  clashes with or kills other `java` processes/containers.
+- **Stop**: `… tools/dev_run.sh stop [PRODUCT]`  ·  **Status**: `… tools/dev_run.sh status [PRODUCT]`.
 
-Notas: corré desde la raíz del repo (cwd en la raíz; el script resuelve sus rutas). Si el producto nunca se generó,
-el script lo construye solo (`./gradlew installDist` / `npm install`, la 1ra vez tarda). Es una conveniencia de
-DESARROLLO (sin diente); la prueba de que "la app corre" la tiene el gate `frontend_browser_render` (s9).
+Notes: run from the repo root (cwd at root; the script resolves its paths). If the product was never
+generated, the script builds it itself (`./gradlew installDist` / `npm install`, slow the 1st time).
+It is a DEVELOPMENT convenience (no tooth); the proof that "the app runs" belongs to the
+`frontend_browser_render` gate (s9).

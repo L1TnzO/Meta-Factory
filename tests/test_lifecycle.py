@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import types
 from pathlib import Path
 
 import pytest
+
+from metafactory import cli
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _LIFECYCLE = _REPO_ROOT / "seed" / "lifecycle.py"
@@ -193,3 +196,45 @@ def test_debt_false_when_clean(repo):
     _git(repo, "add", "-A")
     _git(repo, "commit", "-m", "all in")
     assert lc.debt(repo)[0] is False                       # árbol limpio dentro del incremento
+
+
+# ── cli.py `increment close` — dual-accept close-flip (ADR-026), two grammars ──
+
+@pytest.fixture
+def cli_repo(tmp_path: Path, monkeypatch) -> Path:
+    """A hermetic repo wired so `cli.cmd_increment` operates on tmp_path (not the real Meta-Factory
+    root): git-init + `docs/work/` + a minimal `docs/STATE.md` (required by `projection.refresh`)."""
+    _git(tmp_path, "init")
+    _git(tmp_path, "config", "user.email", "t@t")
+    _git(tmp_path, "config", "user.name", "t")
+    (tmp_path / "docs" / "work").mkdir(parents=True)
+    (tmp_path / "docs" / "STATE.md").write_text("# STATE\n\n## Ahora\n- x\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "_meta_root", lambda: tmp_path)
+    return tmp_path
+
+
+def test_cli_close_flips_english_open_header_to_closed(cli_repo):
+    """The CLI now EMITS `Status: **OPEN**` forward (English), and its close-flip recognizes it."""
+    rc = cli.cmd_increment(types.SimpleNamespace(inc_cmd="open", slug="foo"))
+    assert rc == 0
+    path = cli_repo / "docs" / "work" / "FOO-INCREMENT.md"
+    assert "Status: **OPEN**" in path.read_text(encoding="utf-8")
+
+    rc = cli.cmd_increment(types.SimpleNamespace(inc_cmd="close"))
+    assert rc == 0
+    text = path.read_text(encoding="utf-8")
+    assert "Status: **CLOSED**" in text
+    assert "Status: **OPEN**" not in text
+
+
+def test_cli_close_flips_legacy_spanish_open_header_to_closed(cli_repo):
+    """A pre-existing legacy `Estado: **ABIERTO**` work-doc (immutable history's grammar) ALSO flips to
+    the English `Status: **CLOSED**` marker — dual-accept on read, English-forward on write."""
+    path = cli_repo / "docs" / "work" / "X-INCREMENT.md"
+    path.write_text("# Incremento X\n\n> Estado: **ABIERTO** (creado 2026-01-01T00:00Z)\n", encoding="utf-8")
+
+    rc = cli.cmd_increment(types.SimpleNamespace(inc_cmd="close"))
+    assert rc == 0
+    text = path.read_text(encoding="utf-8")
+    assert "Status: **CLOSED**" in text
+    assert "Estado: **ABIERTO**" not in text

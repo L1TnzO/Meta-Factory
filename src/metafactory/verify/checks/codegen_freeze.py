@@ -46,7 +46,7 @@ WAIVED_COMMITS: dict[str, str] = {}
 
 _SELF_REL = "src/metafactory/verify/checks/codegen_freeze.py"
 _WAIVER_TOKEN = "codegen-freeze-waiver"
-_OPEN_RE = re.compile(r"Estado:\s*\*\*ABIERTO\*\*")          # mirror of seed/lifecycle.py's law
+_OPEN_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*")  # mirror of seed/lifecycle.py's law
 _ALCANCE_RE = re.compile(r"alcance\s*=\s*(verificacion|superficie)\b", re.IGNORECASE)
 _MOTIVO_RE = re.compile(r"motivo\s*:\s*\S", re.IGNORECASE)
 _CITA_RE = re.compile(r"cita\s*:.*?ADR-\d{3}", re.IGNORECASE)

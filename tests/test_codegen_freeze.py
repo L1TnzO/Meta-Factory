@@ -35,6 +35,29 @@ class TestLaw:
         assert len(probs) == 1 and "decorativo" in probs[0]
 
 
+class TestDualAcceptOpenGrammar:
+    """ADR-026: `_OPEN_RE` (the mirror of `seed/lifecycle.py`'s law, used by `_tree_has_waiver` to find
+    an open work-doc carrying a valid waiver) must recognize BOTH the English-forward `Status: **OPEN**`
+    header and the legacy Spanish `Estado: **ABIERTO**` header — parallel cases, neither weakened."""
+
+    def test_open_re_matches_english_status_open(self):
+        assert CF._OPEN_RE.search("# I\n\n> Status: **OPEN** (created 2026-01-01T00:00Z)\n")
+
+    def test_open_re_matches_legacy_spanish_abierto(self):
+        assert CF._OPEN_RE.search("# I\n\n> Estado: **ABIERTO** (creado 2026-01-01T00:00Z)\n")
+
+    def test_tree_waiver_detection_recognizes_english_open_doc(self):
+        """A waiver placed in a `Status: **OPEN**` work-doc is recognized by the same predicate
+        `_tree_has_waiver` uses (`_OPEN_RE.search(text) and parse_waivers(text)[0]`)."""
+        text = f"# Increment X\n\n> Status: **OPEN** (created 2026-01-01T00:00Z)\n\n{_WAIVER_VERIF}\n"
+        assert CF._OPEN_RE.search(text) and CF.parse_waivers(text)[0]
+
+    def test_tree_waiver_detection_recognizes_spanish_open_doc(self):
+        """Parallel case: legacy `Estado: **ABIERTO**` also recognized (dual-accept, not a replacement)."""
+        text = f"# Incremento X\n\n> Estado: **ABIERTO** (creado 2026-01-01T00:00Z)\n\n{_WAIVER_VERIF}\n"
+        assert CF._OPEN_RE.search(text) and CF.parse_waivers(text)[0]
+
+
 class TestWaiverForm:
     def test_malformed_missing_cita_flags(self):
         probs = CF.evaluate(_DIFF, "X.md", "Codegen-freeze-waiver: alcance=verificacion · motivo: x")

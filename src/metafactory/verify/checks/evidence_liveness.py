@@ -39,7 +39,7 @@ def main(argv: list[str]) -> int:
         for rel, tok in violations:
             print(f"  ✗ {rel}: {tok!r}")
         print("  -> corregí la referencia, o si el doc es inmutable/CERRADO marcalo exento "
-              "(decisions/, LOG.md, Estado: **CERRADO** en work/).")
+              "(decisions/, LOG.md, Status: **CLOSED** / Estado: **CERRADO** en work/).")
         return 1
 
     # RED side (two-sided tooth) — the gate MUST fire on the synthetic dangling-reference fixture.

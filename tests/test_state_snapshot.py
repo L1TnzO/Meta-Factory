@@ -47,6 +47,13 @@ def test_undated_closure_not_flagged(tmp_path):
     assert probs == [], probs
 
 
+def test_stale_english_closed_mark_is_red(tmp_path):
+    """ADR-026 dual-accept: an English `CLOSED` closure mark (not just `CERRADO`/✅), fechado más viejo
+    que el umbral, también debe morder — parallel al caso `CERRADO` legacy."""
+    probs = SS.snapshot_problems(_write(tmp_path, "- something CLOSED (2026-05-01)"), TODAY)
+    assert any("rancio" in p for p in probs), probs
+
+
 def test_missing_now_section_is_red(tmp_path):
     sp = tmp_path / "STATE.md"
     sp.write_text("# S\n## Otra cosa\n- x\n", encoding="utf-8")

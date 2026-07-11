@@ -34,8 +34,8 @@ _MD_LINK_RE = re.compile(r"\]\(([^)\s#]+\.md)(?:#[^)]*)?\)")
 _MD_BACKTICK_RE = re.compile(r"`([^`\s]+\.md)`")
 _ADR_CITE_RE = re.compile(r"(?<!ASF/)\bADR-0*(\d{1,4})\b")
 
-_CERRADO_RE = re.compile(r"Estado:\s*\*\*CERRADO\*\*")
-_ABIERTO_RE = re.compile(r"Estado:\s*\*\*ABIERTO\*\*")
+_CERRADO_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:CERRADO|CLOSED)\*\*")
+_ABIERTO_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*")
 
 _BAD_CHARS = "*<>~…"
 _BAD_DOTDOT_RE = re.compile(r"\.\.(?!/)")
@@ -81,7 +81,8 @@ def _last_edit(repo_root: Path, rel: str) -> str:
 def is_exempt(relpath: str, body: str) -> bool:
     """A doc is exempt from `evidence_liveness` (LIVING docs must resolve; these three classes don't):
     (a) `"decisions"` is a path part (immutable ADRs), (b) basename == "LOG.md" (append-only), (c) a
-    `"work"` path part AND `body` matches `r"Estado:\\s*\\*\\*CERRADO\\*\\*"` (closed increment, frozen)."""
+    `"work"` path part AND `body` matches the dual-accept closed grammar (English-forward
+    `Status: **CLOSED**` OR legacy Spanish `Estado: **CERRADO**`, ADR-026 — closed increment, frozen)."""
     p = PurePosixPath(relpath)
     if "decisions" in p.parts:
         return True
@@ -262,8 +263,8 @@ def ingest_doc_edges(graph: Graph, repo_root: Path) -> tuple[int, int, list[tupl
 # ── liveness (reachability) ────────────────────────────────────────────────────
 def live_roots(graph: Graph, repo_root: Path) -> set[str]:
     """Doc node ids considered inherently live: `docs/STATE.md` of every `doc_homes()` home + `CLAUDE.md`
-    of every home that has one + any Doc whose body matches `r"Estado:\\s*\\*\\*ABIERTO\\*\\*"` (an open
-    increment)."""
+    of every home that has one + any Doc whose body matches the dual-accept open grammar (English-forward
+    `Status: **OPEN**` OR legacy Spanish `Estado: **ABIERTO**`, ADR-026 — an open increment)."""
     repo_root = Path(repo_root)
     roots: set[str] = set()
     for home in docs_manifest.doc_homes(repo_root):

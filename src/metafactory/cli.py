@@ -654,7 +654,7 @@ def cmd_doc_sync(args) -> int:
 # ── incremento (disciplina de commit, ADR-010) ───────────────────────────────
 _INCREMENT_SCAFFOLD = """# Incremento {slug}
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado {ts}). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **OPEN** (creado {ts}). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -744,7 +744,7 @@ def cmd_increment(args) -> int:
         projection.refresh(root)        # la proyección de STATE refleja el incremento meta abierto
         docs_manifest.sync(root)        # re-sella STATE
         print(f"VERDICT    increment open {args.slug} [{label}] — PASS   (exit 0)")
-        print(f"SUMMARY    opened {wd_rel}/{name} (Estado ABIERTO); edit Objetivo/Fases")
+        print(f"SUMMARY    opened {wd_rel}/{name} (Status OPEN); edit Objetivo/Fases")
         print("NEXT       you can now touch this level's code; close it with `meta increment close` (gated)")
         return 0
     # close
@@ -764,13 +764,14 @@ def cmd_increment(args) -> int:
         return 1
     path = workdir / cur
     text = path.read_text(encoding="utf-8")
-    path.write_text(re.sub(r"Estado:\s*\*\*ABIERTO\*\*", f"Estado: **CERRADO** ({_now_min()})", text, count=1),
+    path.write_text(re.sub(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*",
+                           f"Status: **CLOSED** ({_now_min()})", text, count=1),
                     encoding="utf-8")
     docs_manifest.sync(root)
     projection.refresh(root)
     docs_manifest.sync(root)
     print(f"VERDICT    increment close {cur} — PASS   (exit 0)")
-    print(f"SUMMARY    {cur} → CERRADO; STATE projection refreshed")
+    print(f"SUMMARY    {cur} → CLOSED; STATE projection refreshed")
     print("NEXT       narrate the episode in LOG (`meta checkpoint` offers you the unnarrated facts)")
     return 0
 

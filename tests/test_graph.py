@@ -18,6 +18,7 @@ from metafactory.graph.build import (
     requirements_for_proof,
     requirements_satisfied_by,
 )
+from metafactory.graph.doc_graph import ingest_docs, is_exempt, live_roots
 from metafactory.graph.incremental import incremental_rebuild
 from metafactory.graph.ingest import ingest_adrs, ingest_rtm
 from metafactory.graph.model import Edge, EdgeKind, Graph, Node, NodeKind, content_hash
@@ -261,6 +262,32 @@ def test_emitted_ledger_shows_three_model_split():
     assert {"opus", "sonnet", "haiku"} <= models
     roles = set(led.split_by_role())
     assert {"brain", "generate", "read"} <= roles
+
+
+# ── ADR-026: doc_graph dual-accept header grammar (Estado/ABIERTO/CERRADO + Status/OPEN/CLOSED) ────────
+def test_doc_graph_is_exempt_english_closed_header():
+    """An English `Status: **CLOSED**` work-doc classifies as exempt/frozen, same as the legacy Spanish
+    `Estado: **CERRADO**` case — dual-accept, not a replacement."""
+    body_en = "# Incremento\n\n> Status: **CLOSED** (closed 2026-01-01T00:00Z)\n"
+    assert is_exempt("docs/work/SOME-INCREMENT.md", body_en) is True
+    body_es = "# Incremento\n\n> Estado: **CERRADO** (cerrado 2026-01-01T00:00Z)\n"
+    assert is_exempt("docs/work/SOME-INCREMENT.md", body_es) is True
+
+
+def test_doc_graph_live_roots_english_open_header(tmp_path):
+    """An English `Status: **OPEN**` work-doc is picked up as a live root (open increment), same as the
+    legacy Spanish `Estado: **ABIERTO**` case."""
+    (tmp_path / "docs" / "work").mkdir(parents=True)
+    (tmp_path / "docs" / "STATE.md").write_text("# STATE\n", encoding="utf-8")
+    en_path = tmp_path / "docs" / "work" / "ENGLISH-INCREMENT.md"
+    en_path.write_text("# Incremento\n\n> Status: **OPEN** (creado 2026-01-01T00:00Z)\n", encoding="utf-8")
+    es_path = tmp_path / "docs" / "work" / "SPANISH-INCREMENT.md"
+    es_path.write_text("# Incremento\n\n> Estado: **ABIERTO** (creado 2026-01-01T00:00Z)\n", encoding="utf-8")
+    graph = Graph()
+    ingest_docs(graph, tmp_path)
+    roots = live_roots(graph, tmp_path)
+    assert f"{NodeKind.DOC.value}:docs/work/ENGLISH-INCREMENT.md" in roots
+    assert f"{NodeKind.DOC.value}:docs/work/SPANISH-INCREMENT.md" in roots
 
 
 # ── Fase 6: repo-map (PageRank) ─────────────────────────────────────────────────

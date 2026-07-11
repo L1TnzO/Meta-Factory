@@ -25,8 +25,9 @@ NOW_BUDGET_LINES = 45
 STALE_CLOSURE_DAYS = 14
 
 # Marcas de cierre: el emoji ✅ o las palabras en MAYÚSCULA tal como el proyecto las escribe (evita
-# falsos positivos de prosa minúscula como "complete" o "done" dentro de otra palabra).
-_CLOSURE_RE = re.compile(r"✅|\b(?:CERRAD[OA]|COMPLET[OAE]|DONE)\b")
+# falsos positivos de prosa minúscula como "complete" o "done" dentro de otra palabra). `CLOSED` cubre
+# el header English-forward `Status: **CLOSED**` (ADR-026, dual-accept con el legacy `CERRADO`).
+_CLOSURE_RE = re.compile(r"✅|\b(?:CERRAD[OA]|CLOSED|COMPLET[OAE]|DONE)\b")
 _DATE_RE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _NOW_HEADING_RE = re.compile(r"^##\s+Ahora\b")
 

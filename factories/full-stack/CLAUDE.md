@@ -1,31 +1,31 @@
-# Fábrica full-stack — residencia (lo de-cada-turno)
+# Factory full-stack — residency (the every-turn layer)
 
-> Presupuesto: este archivo es el ÚNICO siempre-residente (I-6). Se paga alquiler por línea — mínimo y
-> medible en el diff. Lo determinista vive en el CLI/gates; lo histórico, en `docs/`. Acá solo lo que
-> debe influir en CADA turno. La gate `agent_shadow` (M7) mide este presupuesto.
+> Budget: this file is the ONLY always-resident one (I-6). Rent is paid per line — minimal and
+> measurable in the diff. The deterministic lives in the CLI/gates; the historical, in `docs/`. Here,
+> only what must influence EVERY turn. The `agent_shadow` gate (M7) measures this budget.
 
-## Empezá acá
-1. `docs/STATE.md` — estado actual de la fábrica (punto de entrada único).
-2. La línea de producto vive en `stations/` (estaciones como dato); el contrato SDD, en `factory.spec.yml`.
+## Start here
+1. `docs/STATE.md` — the factory's current state (single entry point).
+2. The product line lives in `stations/` (stations as data); the SDD contract, in `factory.spec.yml`.
 
-## Reglas de cada turno (lo que el harness ya enforza, no repetir en prosa)
-- **El veredicto no se escribe a mano**: `passed` lo computa SOLO `seed/verifier.py` desde exit codes
-  reales (Cerrojo 1). No toques `.proof/` — el hook `proof_protect` lo deniega.
-- **No declares verde sin prueba**: corré la gate (`meta station`/`meta product-run`) y leé el bus de
-  veredictos (≤N líneas), nunca el dump de tests.
-- **Dos verificadores**: la custodia local no es la raíz de confianza; la re-derivación en runner limpio
-  lo es (`seed/external_ci.yml` + el veredicto pineado).
-- **Delegá por default (no se pide en cada prompt, ADR-017)**: el cerebro es el `orchestrator` (Opus). Un
-  **slot de código acotado con gate** (compile·tests·static) se rutea vía el skill `generate-slot` al `writer`
-  (Sonnet) y se acepta/rechaza por el VEREDICTO, no por el diff; las **lecturas masivas** (logs, árboles, specs)
-  van al `triage` (Haiku). Mantené el contexto del orquestador CHICO. Para un build pesado: `claude --agent
-  orchestrator`. Toda prohibición de un agent tiene SOMBRA determinista (I-12) — no se apoya en prosa.
-- **Lo que toca la cadena de confianza** (gate/verifier/hooks/`seed/`) lo escribe y lee el orquestador con
-  sus propios ojos — es la columna, no se delega.
-- **Multi-archivo por mantenibilidad**: el código nuevo (codegen y artefactos generados) se parte en archivos
-  cohesivos, no en un monolito; no agregues archivos NUEVOS de miles de líneas (si uno tiende a ~800+, partilo).
-  Los monolitos existentes son deuda conocida — no reescribir salvo pedido.
+## Every-turn rules (what the harness already enforces — don't repeat it in prose)
+- **The verdict is never written by hand**: `passed` is computed ONLY by `seed/verifier.py` from real
+  exit codes (Lock 1). Do not touch `.proof/` — the `proof_protect` hook denies it.
+- **Never declare green without proof**: run the gate (`meta station`/`meta product-run`) and read the
+  verdict bus (≤N lines), never the test dump.
+- **Two verifiers**: local custody is not the root of trust; re-derivation on a clean runner is
+  (`seed/external_ci.yml` + the pinned verdict).
+- **Delegate by default (not asked per prompt, ADR-017)**: the brain is the `orchestrator` (Opus). A
+  **bounded code slot with a gate** (compile·tests·static) is routed via the `generate-slot` skill to the
+  `writer` (Sonnet) and accepted/rejected on the VERDICT, not the diff; **bulk reads** (logs, trees, specs)
+  go to the `triage` (Haiku). Keep the orchestrator's context SMALL. For a heavy build: `claude --agent
+  orchestrator`. Every agent prohibition has a deterministic SHADOW (I-12) — it never rests on prose.
+- **Whatever touches the trust chain** (gate/verifier/hooks/`seed/`) is written and read by the orchestrator
+  with its own eyes — it is the column, never delegated.
+- **Multi-file for maintainability**: new code (codegen and generated artifacts) is split into cohesive
+  files, not a monolith; do not add NEW files of thousands of lines (if one trends to ~800+, split it).
+  Existing monoliths are known debt — do not rewrite unless asked.
 
-## Colocación (dónde va cada pieza)
-CLI si debe ser garantizado · hook si debe impedirse aunque el modelo se porte mal · acá si influye cada
-turno · skill si es a-demanda · agent si es un rol · `docs/` si es historia (residencia cero).
+## Placement (where each piece goes)
+CLI if it must be guaranteed · hook if it must be prevented even when the model misbehaves · here if it
+influences every turn · skill if on-demand · agent if it is a role · `docs/` if it is history (zero residency).

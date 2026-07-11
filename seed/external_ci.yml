@@ -1,16 +1,16 @@
-# seed/external_ci.yml — la doctrina de los dos verificadores (M6, I-11, PF-10).
+# seed/external_ci.yml — the two-verifier doctrine (M6, I-11, PF-10).
 #
-# STAGE 0 · trust-chain · R3. Es la ÚNICA capa intocable por el modelo, los hooks o el
-# ingeniero local: otra máquina, otro actor. Re-DERIVA el veredicto en un clon limpio y lo
-# compara contra el veredicto pineado (committed). No audita artefactos guardados —los
-# reconstruye— porque la custodia local no es la raíz de confianza (la replicabilidad lo es).
+# STAGE 0 · trust-chain · R3. The ONLY layer untouchable by the model, the hooks or the local
+# engineer: another machine, another actor. It re-DERIVES the verdict on a clean clone and
+# compares it against the pinned (committed) verdict. It does not audit stored artifacts — it
+# rebuilds them — because local custody is not the root of trust (replicability is).
 #
-# Es además la defensa trusting-trust del auto-mejoramiento (SELF-IMPROVEMENT §1), con su alcance
-# HONESTO (H-2, COUNCIL-360 §4.1): el pin ancla VEREDICTOS (station + [check, exit]), no bytes —
-# un Meta-Factory local comprometido cae a rojo acá sii el compromiso cambia algún exit re-derivado.
+# It is also the trusting-trust defense of self-improvement (SELF-IMPROVEMENT §1), with its HONEST
+# scope (H-2, COUNCIL-360 §4.1): the pin anchors VERDICTS (station + [check, exit]), not bytes —
+# a compromised local Meta-Factory goes red here iff the compromise changes some re-derived exit.
 #
-# TODA la lógica vive en `meta ci --rederive` (CLI testeable). Este yaml es transporte de una
-# línea (ADR-005 §4): cero lógica duplicable que pueda divergir.
+# ALL the logic lives in `meta ci --rederive` (testable CLI). This yaml is one-line transport
+# (ADR-005 §4): zero duplicable logic that could diverge.
 
 name: meta-factory-external-ci
 on:
@@ -22,19 +22,19 @@ jobs:
   rederive:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4         # clon limpio: .proof/ no existe (gitignored)
+      - uses: actions/checkout@v4         # clean clone: .proof/ does not exist (gitignored)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - run: pip install pyyaml pytest hypothesis
-      - name: Re-derivar el veredicto y comparar contra el pineado
-        # Reconstruye la línea del dummy-fábrica desde su spec, recomputa cada proof_sha y
-        # exige el pineado (factories/<slug>/pinned_verdict.json). Desvío en CUALQUIER
-        # dirección = rojo (un PASS espontáneo sin prueba es fachada, no mejora).
+      - name: Re-derive the verdict and compare against the pinned one
+        # Rebuilds the dummy factory's line from its spec, recomputes every proof_sha and
+        # requires the pinned one (factories/<slug>/pinned_verdict.json). Deviation in ANY
+        # direction = red (a spontaneous PASS without proof is façade, not improvement).
         run: ./meta ci --rederive
-      - name: Aislamiento PF-6 + consistencia de docs + suite
-        # --skip projection,generality: esos DOS gates auditan evidencia LOCAL (`.proof/` de las
-        # fábricas pesadas, gitignored) que este clon limpio no puede re-derivar sin JDK/PG/Chromium.
-        # El salto es EXPLÍCITO e impreso como SKIPPED (nunca verde silencioso); la re-derivación que
-        # SÍ le toca a este actor es el paso anterior (el pin). EXTERNAL-CI-GREEN, COUNCIL-360 H-1.
+      - name: PF-6 isolation + docs consistency + suite
+        # --skip projection,generality: those TWO gates audit LOCAL evidence (the heavy factories'
+        # `.proof/`, gitignored) that this clean clone cannot re-derive without JDK/PG/Chromium.
+        # The skip is EXPLICIT and printed as SKIPPED (never silently green); the re-derivation that
+        # DOES belong to this actor is the previous step (the pin). EXTERNAL-CI-GREEN, COUNCIL-360 H-1.
         run: ./meta check --skip projection,generality

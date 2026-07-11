@@ -9,67 +9,69 @@ description: >-
   per required primitive (plan) AND a verifier per requirement (criterios). M0 refuses an incomplete design.
 ---
 
-# Skill · Primitivas de diseño (mapear dominio → primitivas → tecnología)
+# Skill · Design primitives (map domain → primitives → technology)
 
-> Sos el diseñador de una fábrica nueva. Tu trabajo NO es generar código: es producir el **diseño**
-> (un `factory.spec.yml` v2) que el build (M0–M8) consumirá. La tecnología la elegís **vos, acá, por
-> juicio** bajo la filosofía — y la **declarás en el spec como DATO**. El sustrato (`src/metafactory/`)
-> no conoce ninguna tecnología (ADR-012); si te dan ganas de "agregar un backend", es un bug de filosofía.
+> You are the designer of a new factory. Your job is NOT to generate code: it is to produce the **design**
+> (a `factory.spec.yml` v2) that the build (M0–M8) will consume. The technology is chosen by **you, here,
+> by judgment** under the philosophy — and you **declare it in the spec as DATA**. The substrate
+> (`src/metafactory/`) knows no technology (ADR-012); if you feel like "adding a backend", that is a
+> philosophy bug.
 
-## Cuándo me usás
-- Llega un dominio nuevo (web, mobile, IoT, data-pipeline, lo que sea) y hay que diseñar su fábrica.
-- Hay un spec-stub con `domain.produces` + (opcional) `domain.required_primitives` y faltan las tech.
+## When you use me
+- A new domain arrives (web, mobile, IoT, data-pipeline, whatever) and its factory must be designed.
+- There is a spec-stub with `domain.produces` + (optional) `domain.required_primitives` and the techs are missing.
 
-## El catálogo (single source)
-Las primitivas de DISEÑO viven como DATO en `docs/reference/primitives.yml` (espejo humano:
-`PRIMITIVES.md §3`). Son CONCEPTOS (qué resuelve una herramienta), no herramientas. Hoy: DES-1..DES-13
-(andamiaje regenerable · topología verificable · puntos de control no-salteables · estado durable ·
-procedencia · contratos tipados · evaluabilidad con compuertas · proof en el toolchain del producto ·
-frontera de aislamiento · análisis estático con dientes · currency/frescura de API · esquema versionado
-+ queries chequeados · cadena de suministro/seguridad del producto). DES-10..13 las destapó el dominio
-full-stack-kotlin (criterios duros). **Leé el YAML antes de mapear** — es la cantera viva y puede crecer.
+## The catalog (single source)
+The DESIGN primitives live as DATA in `docs/reference/primitives.yml` (human mirror:
+`PRIMITIVES.md §3`). They are CONCEPTS (what a tool solves), not tools. Today: DES-1..DES-13
+(regenerable scaffolding · verifiable topology · unskippable control points · durable state ·
+provenance · typed contracts · gated evaluability · proof in the product's toolchain ·
+isolation boundary · static analysis with teeth · API currency/freshness · versioned schema
++ checked queries · product supply-chain/security). DES-10..13 were uncovered by the
+full-stack-kotlin domain (hard criteria). **Read the YAML before mapping** — it is the living
+quarry and may grow.
 
-## Procedimiento (4 pasos)
-1. **Entender el dominio.** Leé `domain.produces` y lo que la fábrica debe garantizar. Preguntá: ¿qué
-   invariantes de producto hay que poder VERIFICAR? Cada invariante verificable apunta a una primitiva.
-2. **Mapear primitivas requeridas.** Por cada invariante, elegí la primitiva DES que lo captura. Anotalas
-   en `domain.required_primitives: [DES-x, …]`. Regla: una primitiva entra sólo si el dominio la NECESITA
-   (honestidad, SAFE-7) — no infles la lista. Si un invariante no encaja en ninguna DES, es una **primitiva
-   nueva**: agregala a `primitives.yml` + a `PRIMITIVES.md §3` (la cantera crece), no al sustrato.
-3. **Elegir la tecnología por primitiva (JUICIO).** Para cada primitiva requerida, elegí la tech que la
-   provee en ESTE dominio (dominio agente → DES-3 vía `interrupt()`; web → DES-3 vía middleware de auth;
-   IoT → DES-3 vía secure-boot). Declarala en una `capability` con `{primitive, tech, invariant, proof,
-   status}`. La elección es revisable (queda en el spec), no determinista. Mirá `example_techs` del catálogo
-   como disparador, no como lista cerrada.
-   **Pregunta OBLIGADA antes de construir NADA bespoke (ADR-023 §2):** ¿qué pieza ya validó la COMUNIDAD con
-   miles de horas-ingeniero (framework, design-system, librería)? Si existe, la spec la FIJA como DATO
-   (`tech:`) y los slots model-nativos la CONSUMEN; re-hacer determinista lo que debió ser modelo-fundacional
-   + piezas-de-otros-ingenieros es el anti-patrón que ADR-023 entierra (el pseudo-framework). La respuesta
-   queda ESCRITA en la capability (`tech` + `invariant`), no en tu cabeza.
-4. **Cerrar el diseño con stations + requisitos.** Convertí las capacidades en una línea `station_sequence`
-   (con `depends_on` y `proof_checks` que declaran `runs_in: product_env` + `toolchain`), y atá los
-   requisitos con `satisfied_by` (estaciones) y `verified_by` (proof_checks reales).
+## Procedure (4 steps)
+1. **Understand the domain.** Read `domain.produces` and what the factory must guarantee. Ask: which
+   product invariants must be VERIFIABLE? Every verifiable invariant points at a primitive.
+2. **Map required primitives.** For each invariant, pick the DES primitive that captures it. Record them
+   in `domain.required_primitives: [DES-x, …]`. Rule: a primitive enters only if the domain NEEDS it
+   (honesty, SAFE-7) — do not inflate the list. If an invariant fits no DES, it is a **new
+   primitive**: add it to `primitives.yml` + to `PRIMITIVES.md §3` (the quarry grows), not to the substrate.
+3. **Choose the technology per primitive (JUDGMENT).** For each required primitive, pick the tech that
+   provides it in THIS domain (agent domain → DES-3 via `interrupt()`; web → DES-3 via auth middleware;
+   IoT → DES-3 via secure-boot). Declare it in a `capability` with `{primitive, tech, invariant, proof,
+   status}`. The choice is reviewable (it stays in the spec), not deterministic. Treat the catalog's
+   `example_techs` as a trigger, not a closed list.
+   **MANDATORY question before building ANYTHING bespoke (ADR-023 §2):** which piece has the COMMUNITY
+   already validated with thousands of engineer-hours (framework, design-system, library)? If it exists, the
+   spec FIXES it as DATA (`tech:`) and the model-native slots CONSUME it; re-doing deterministically what
+   should have been model-foundational + other-engineers' pieces is the anti-pattern ADR-023 buries (the
+   pseudo-framework). The answer is WRITTEN into the capability (`tech` + `invariant`), not kept in your head.
+4. **Close the design with stations + requirements.** Turn the capabilities into a `station_sequence`
+   line (with `depends_on` and `proof_checks` declaring `runs_in: product_env` + `toolchain`), and tie the
+   requirements with `satisfied_by` (stations) and `verified_by` (real proof_checks).
 
-## Verificá tu propio output (los dientes — ahora en M0)
+## Verify your own output (the teeth — now in M0)
 ```
-PYTHONPATH=src python3 -m metafactory.spec.cli validate       <spec>   # gramática v2 bien formada (A1)
-PYTHONPATH=src python3 -m metafactory.spec.cli design-review   <spec>   # blueprint COMPLETO: plan + criterios (B2)
+PYTHONPATH=src python3 -m metafactory.spec.cli validate       <spec>   # well-formed v2 grammar (A1)
+PYTHONPATH=src python3 -m metafactory.spec.cli design-review   <spec>   # COMPLETE blueprint: plan + criteria (B2)
 ```
-- `design-review` es **la compuerta M0** (B2): corre dentro de la meta-estación m00. Es el flujo SDD de
-  diseño con dientes, en dos fases:
-  - **plan** — cada `required_primitive` tiene una capability con tech, y toda `primitive` referenciada
-    existe en el catálogo (esto era `design-coverage`, B1; sigue disponible como sub-check).
-  - **criterios** — **cada requisito cita un `verified_by`** (un proof_check real). Un requisito sin
-    verifier es un diseño SIN terminar (la fase de criterios de verificación del SDD).
-- Sólo se activa si la spec declara `domain.required_primitives` (aseverás "pasé el flujo de diseño"):
-  ahí M0 te exige completitud TOTAL. Un stub sin primitivas no es un blueprint — pero tampoco se construye.
-- Exit 0 ⇒ blueprint listo para el build. Exit 1 ⇒ el diseño NO está listo (`plan:` te falta una tech ·
-  `criterios:` un requisito sin verifier). Si `validate` o `design-review` dan rojo, no narres "está
-  completo": probalo. M0 lo rehúsa igual.
+- `design-review` is **the M0 gate** (B2): it runs inside meta-station m00. It is the SDD design
+  flow with teeth, in two phases:
+  - **plan** — every `required_primitive` has a capability with a tech, and every referenced
+    `primitive` exists in the catalog (this was `design-coverage`, B1; still available as a sub-check).
+  - **criteria** — **every requirement cites a `verified_by`** (a real proof_check). A requirement without
+    a verifier is an UNfinished design (the SDD verification-criteria phase).
+- It only activates if the spec declares `domain.required_primitives` (you assert "I ran the design flow"):
+  there M0 demands TOTAL completeness. A stub without primitives is not a blueprint — but it doesn't build either.
+- Exit 0 ⇒ blueprint ready for the build. Exit 1 ⇒ the design is NOT ready (`plan:` a tech is missing ·
+  `criterios:` a requirement without a verifier). If `validate` or `design-review` go red, do not narrate
+  "it is complete": prove it. M0 refuses it anyway.
 
-## Las reglas duras (no negociables)
-- **Tech en el spec, NUNCA en el sustrato** (ADR-012). `src/metafactory/` no importa ni nombra tecnología.
-- **Honestidad de status** (SAFE-7): `planned` mientras es diseño; `declared-deferred` si está especificado
-  pero su codegen se difiere; `built` SÓLO con `proof`. No marques `built` lo que no construiste.
-- **La seguridad no se diseña**: las primitivas SAFE-* (la columna) las hereda toda fábrica; vos sólo
-  diseñás las primitivas de DISEÑO (DES-*).
+## The hard rules (non-negotiable)
+- **Tech in the spec, NEVER in the substrate** (ADR-012). `src/metafactory/` neither imports nor names technology.
+- **Status honesty** (SAFE-7): `planned` while it is design; `declared-deferred` if specified
+  but its codegen is deferred; `built` ONLY with `proof`. Do not mark `built` what you did not build.
+- **Security is not designed**: the SAFE-* primitives (the column) are inherited by every factory; you only
+  design the DESIGN primitives (DES-*).

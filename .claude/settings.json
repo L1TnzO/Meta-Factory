@@ -1,5 +1,5 @@
 {
-  "$comment": "El harness de construcción del Meta-Factory. Los hooks son las SOMBRAS deterministas de la columna (ley de colocación: lo impedido -> hook). permissions.deny es defensa en profundidad del Cerrojo 1. La lógica vive en src/metafactory + seed/; los hooks son transportes de una línea. Las rutas de los scripts son ABSOLUTAS via $CLAUDE_PROJECT_DIR: un `cd` que filtre el cwd NO puede dejar al harness sin encontrar sus hooks (era el deadlock de cd — el script no resolvía, exit 2, bloqueaba toda mutación, incluido el `cd` de vuelta).",
+  "$comment": "The Meta-Factory's build harness. Hooks are the column's deterministic SHADOWS (placement law: the forbidden -> hook). permissions.deny is defense-in-depth for Lock 1. The logic lives in src/metafactory + seed/; hooks are one-line transports. Script paths are ABSOLUTE via $CLAUDE_PROJECT_DIR: a `cd` that leaks the cwd canNOT leave the harness unable to find its hooks (that was the cd deadlock — the script would not resolve, exit 2, blocking every mutation, including the `cd` back).",
   "permissions": {
     "deny": [
       "Write(.proof/**)",

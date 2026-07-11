@@ -1,16 +1,16 @@
-# seed/external_ci.yml — la doctrina de los dos verificadores PARA LA FÁBRICA {{slug}} (M6, I-11, PF-10).
+# seed/external_ci.yml — the two-verifier doctrine FOR THE {{slug}} FACTORY (M6, I-11, PF-10).
 #
-# STAGE 0 · trust-chain · R3. La ÚNICA capa intocable por el modelo, los hooks o el ingeniero local:
-# otra máquina, otro actor. Re-DERIVA el veredicto de la fábrica {{slug}} en un clon limpio y lo compara
-# contra su veredicto pineado (`factories/{{slug}}/pinned_verdict.json`, committeado). No audita los
-# artefactos guardados —los reconstruye— porque la custodia local no es la raíz de confianza (la
-# replicabilidad lo es). Es el CI que `column.md` coloca POR ENCIMA de los tres locks locales de la
-# columna: un local comprometido produce un proof_sha que el runner limpio NO reproduce → rojo.
+# STAGE 0 · trust-chain · R3. The ONLY layer untouchable by the model, the hooks or the local
+# engineer: another machine, another actor. It re-DERIVES the {{slug}} factory's verdict on a clean
+# clone and compares it against its pinned verdict (`factories/{{slug}}/pinned_verdict.json`,
+# committed). It does not audit stored artifacts — it rebuilds them — because local custody is not
+# the root of trust (replicability is). It is the CI that `column.md` places ABOVE the column's
+# three local locks: a compromised local produces a proof_sha the clean runner does NOT reproduce → red.
 #
-# Parametrizado por fábrica (D1): re-deriva ESTA fábrica (`--factory {{slug}}`), no otra. TODA la lógica
-# vive en `meta ci --rederive` (CLI testeable); este yaml es transporte de una línea (ADR-005 §4) con el
-# slug como DATO — cero lógica duplicable que pueda divergir. El checkout es el repo del Meta-Factory
-# (la fábrica {{slug}} vive en `factories/{{slug}}/` y se re-deriva con su engine).
+# Parametrized per factory (D1): it re-derives THIS factory (`--factory {{slug}}`), no other. ALL the
+# logic lives in `meta ci --rederive` (testable CLI); this yaml is one-line transport (ADR-005 §4) with
+# the slug as DATA — zero duplicable logic that could diverge. The checkout is the Meta-Factory repo
+# (the {{slug}} factory lives in `factories/{{slug}}/` and is re-derived with its engine).
 
 name: {{slug}}-external-ci
 on:
@@ -22,13 +22,13 @@ jobs:
   rederive:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4         # clon limpio: factories/{{slug}}/.proof/ no existe (gitignored)
+      - uses: actions/checkout@v4         # clean clone: factories/{{slug}}/.proof/ does not exist (gitignored)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - run: pip install pyyaml
-      - name: Re-derivar el veredicto de {{slug}} y comparar contra el pineado
-        # Reconstruye la línea de producto de {{slug}} desde su spec, recomputa cada proof_sha y exige
-        # el pineado (factories/{{slug}}/pinned_verdict.json). Desvío en CUALQUIER dirección = rojo (un
-        # PASS espontáneo sin prueba es fachada, no mejora).
+      - name: Re-derive {{slug}}'s verdict and compare against the pinned one
+        # Rebuilds {{slug}}'s product line from its spec, recomputes every proof_sha and requires
+        # the pinned one (factories/{{slug}}/pinned_verdict.json). Deviation in ANY direction = red
+        # (a spontaneous PASS without proof is façade, not improvement).
         run: ./meta ci --rederive --factory {{slug}}

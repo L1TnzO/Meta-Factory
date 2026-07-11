@@ -58,3 +58,6 @@ metrics.jsonl
 .env
 .env.*
 !.env.example
+
+# Platform-managed ephemeral agent worktrees (Agent tool isolation: "worktree") — never repo content
+.claude/worktrees/

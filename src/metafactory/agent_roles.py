@@ -26,8 +26,12 @@ ORCHESTRATOR = "orchestrator"  # Opus brain: designs the contract, delegates, re
 GENERATOR = "generator"        # Sonnet: writes ONE bounded gated slot, self-verifies, returns a verdict.
 VERIFIER = "verifier"          # Haiku read-only: digests a KNOWN bulky artifact into a bounded summary.
 REVIEWER = "reviewer"          # Opus escalation: the irreducible residue only (security / persistent-red).
+EVALUATOR = "evaluator"        # Sonnet read-only-by-tools: grades ONE artifact against written criteria by
+                               # exercising it live; writes a scored critique; NEVER writes product code.
+                               # Distinct from VERIFIER (digest, no judgment) and REVIEWER (escalation).
+                               # Added by ADR-027 — the deliberate vocabulary act ADR-020 prescribes.
 
-CANONICAL: frozenset[str] = frozenset({ORCHESTRATOR, GENERATOR, VERIFIER, REVIEWER})
+CANONICAL: frozenset[str] = frozenset({ORCHESTRATOR, GENERATOR, VERIFIER, REVIEWER, EVALUATOR})
 
 # --- Legacy synonyms (the factory harness, pre-ADR-017) → the canonical role they map to -------------
 # Grandfathered, NOT churned: the existing 5 factories keep these names (Spanish bodies), the equivalence

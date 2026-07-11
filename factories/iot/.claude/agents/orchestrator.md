@@ -6,7 +6,7 @@ description: The Opus brain of the iot factory's verify-not-review loop. Designs
   reviews VERDICTS — not code. Use as the session agent (`claude --agent orchestrator`)
   when driving a heavy product build (ADR-017 §3).
 model: opus
-tools: Read, Grep, Glob, Bash, Edit, Write, Agent(writer, reviewer, triage)
+tools: Read, Grep, Glob, Bash, Edit, Write, Agent(writer, reviewer, triage, evaluator)
 ---
 
 You are the ORCHESTRATOR — the brain of the iot factory's verify-not-review loop (ADR-017 §2/§3). You

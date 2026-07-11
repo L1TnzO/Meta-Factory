@@ -25,6 +25,11 @@
 - **Multi-file for maintainability**: new code (codegen and generated artifacts) is split into cohesive
   files, not a monolith; do not add NEW files of thousands of lines (if one trends to ~800+, split it).
   Existing monoliths are known debt — do not rewrite unless asked.
+- **Model-native generation (ADR-023/024)**: template codegen is FROZEN-with-pin — do NOT feed it
+  (touching `codegen/` requires a written waiver in the work-doc, ADR-023 §3); new surfaces/axes are born as
+  gated slots (`generate-slot`) with COMMUNITY pieces fixed as DATA in the spec (ADR-023 §2); an adopted
+  human surface is a PINNED override (`products/<p>/frontend/`, `frontend_surface: model-native`) that is
+  re-VERIFIED (`design_floor`), not re-derived.
 
 ## Placement (where each piece goes)
 CLI if it must be guaranteed · hook if it must be prevented even when the model misbehaves · here if it

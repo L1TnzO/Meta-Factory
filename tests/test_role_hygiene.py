@@ -3,7 +3,7 @@
 Proves the `roles` gate BY BLOCKING:
   - the closed vocabulary (`agent_roles`) maps the canonical names and the grandfathered legacy synonyms,
     and ONLY those;
-  - `_violations` is green over the real repo's 24 agents (meta + 5 factories);
+  - `_violations` is green over the real repo's 30 agents (meta + 5 factories, ADR-027 evaluator included);
   - a synthetic root carrying a domain-named agent (`kotlin-writer`) is RED — the negative has teeth;
   - the full check `main` exits 0 on the real repo (positive AND its own internal negative pass).
 """
@@ -29,6 +29,15 @@ def test_legacy_synonyms_map_to_canonical():
     assert agent_roles.role_of("triage") == agent_roles.VERIFIER
 
 
+def test_evaluator_is_canonical_and_distinct():
+    # ADR-027: `evaluator` entered CANONICAL via the deliberate act (constant edit + ADR); it is its own
+    # role, not a synonym of verifier/reviewer.
+    assert agent_roles.role_of("evaluator") == agent_roles.EVALUATOR
+    assert agent_roles.EVALUATOR in agent_roles.CANONICAL
+    assert agent_roles.EVALUATOR not in agent_roles.LEGACY_SYNONYMS
+    assert agent_roles.EVALUATOR != agent_roles.VERIFIER != agent_roles.REVIEWER
+
+
 def test_domain_name_is_not_a_role():
     for name in ("kotlin-writer", "frontend-generator", "sql-verifier", "snipeit-orchestrator"):
         assert agent_roles.role_of(name) is None
@@ -44,8 +53,9 @@ def test_real_repo_has_no_domain_named_agents():
 
 
 def test_real_repo_scans_meta_plus_five_factories():
-    # 4 meta agents + 4 each across 5 factories = 24; a regression in the glob would change this.
-    assert len(role_hygiene._agent_files(REPO)) == 24
+    # 5 meta agents + 5 each across 5 factories = 30 (ADR-027 added `evaluator` meta + inherited ×5);
+    # a regression in the glob — or a factory missing the inherited evaluator — would change this.
+    assert len(role_hygiene._agent_files(REPO)) == 30
 
 
 # ── the negative has teeth ─────────────────────────────────────────────────────

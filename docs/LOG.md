@@ -1,7 +1,22 @@
-<!-- meta:doc sha=fbd27c72ed2abd5fd5d016e60f7efc70968b9851 updated=2026-07-10T15:30Z -->
+<!-- meta:doc sha=8eb77bae0853923173a05a01117c198abe10a35c updated=2026-07-11T00:32Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T00:32Z — DOC-PRUNE-STARTHERE: muere el primer doc podado por medición de uso (y un falso huérfano enseña el método)
+Sesión de diseño (Fable 5, pedido del ingeniero: «limpieza profunda — hay docs viejos que SE SUPONE se usan»).
+Se midió el corpus autorado (~35k líneas, 90% español) con dos proxies deterministas: última edición REAL por
+git (excluyendo el mass re-stamp H-5 del 07-04) + referencias entrantes por superficie VIVA (CLAUDE.md/STATE/
+código/hooks) vs archivo muerto (work cerrados/LOG). Veredictos: `START-HERE.md` congelado desde el bootstrap
+(2026-06-13), contenido falsificado por el tiempo («ADR 001–006 y 009» con 25 existentes) y 100% duplicado por
+CLAUDE.md+INDEX+STATE → ELIMINADO este incremento (repunteo CLAUDE.md/STATE → INDEX; `doc_set()` sella solo
+CLAUDE.md en raíz; entry-link-check = docs/STATE.md; tests 31/31; meta check 20/20). El «ejemplo vivo» de
+MEMORY-ARCHITECTURE §8 predijo EXACTAMENTE este drift — quedó anotado su cierre. Lección de método: el grep
+artesanal dio un FALSO huérfano (`PLAN-EXECUTE-RUNBOOK.md` parecía 0-refs pero `cli.py:1104` lo cita sin
+`.md`) → la detección de docs muertos debe computarla el GRAFO (reachability desde raíces vivas, matching
+robusto de IDs), no una heurística de sesión. Cluster candidato detectado y NO tocado a mano (F1-AUDIT ·
+MAT-6-REAUDIT · REGEN-AUDIT · OBSERVABILITY-METRICS): lo decide el observer `doc orphans` del plan de limpieza
+(doc-graph + evidence_liveness + ADR-026 inglés-capa-viva), pendiente de ratificación de alcance.
 
 ## 2026-07-10T15:4xZ — Auditoría #2 model-first + comunidad: el paradigma AGUANTA con dientes; 2 gaps nuevos (frescura comunitaria sin herramienta · la pregunta no baja a producto)
 Segunda pasada (pedido del ingeniero) contra las OBLIGACIONES de ADR-023/024 (digest verifier) + evidencia

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=dafabc592729ab01606a0ced7c13a422abd2f6e2 updated=2026-07-11T00:32Z -->
+<!-- meta:doc sha=a0bbdd27a346e5c4dbf5e8f604ca2bac024c08f4 updated=2026-07-11T00:32Z -->
 # Incremento DOC-PRUNE-STARTHERE
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T00:28Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T00:32Z) (creado 2026-07-11T00:28Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

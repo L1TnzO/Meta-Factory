@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `fbd27c72ed2a` | 2026-07-10T15:30Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `74496c1990ac` | 2026-07-10T23:51Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `ea7424efcf2a` | 2026-07-11T00:30Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -44,7 +44,7 @@
 | `docs/reference/GOVERNANCE-LAYERING.md` | `cd6b54876f2d` | 2026-07-04T20:10Z | Layering de gobierno — dónde viven los docs y el lifecycle de incrementos en los 3 niveles |
 | `docs/reference/HONEST-STATE.md` | `cb5a18b7d775` | 2026-07-10T16:35Z | HONEST-STATE — implementado vs definido (sin maquillaje) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
-| `docs/reference/MEMORY-ARCHITECTURE.md` | `7a9b2a80a048` | 2026-06-26T21:47Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
+| `docs/reference/MEMORY-ARCHITECTURE.md` | `e4710a7ed424` | 2026-07-11T00:30Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `5d1f87048737` | 2026-06-13T14:57Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
 | `docs/reference/PRIMITIVES.md` | `72c9098c09ff` | 2026-07-04T20:10Z | PRIMITIVES — la filosofía: primitivas de diseño, no herramientas |
@@ -87,6 +87,7 @@
 | `docs/work/DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND-INCREMENT.md` | `66a87e6c648d` | 2026-07-09T03:24Z | Incremento DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
+| `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `dafabc592729` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
@@ -145,5 +146,4 @@
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
-| `START-HERE.md` | `65e3945c6848` | 2026-06-13T15:33Z | Meta-Factory — la fábrica que fabrica (y mejora) fábricas |
-| `CLAUDE.md` | `e0d495bc63c8` | 2026-07-10T15:23Z | Meta-Factory — orientación (fase de diseño) |
+| `CLAUDE.md` | `a50d2cf07954` | 2026-07-11T00:30Z | Meta-Factory — orientación (fase de diseño) |

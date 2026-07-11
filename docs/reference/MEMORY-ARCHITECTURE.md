@@ -1,4 +1,4 @@
-<!-- meta:doc sha=7a9b2a80a048d134e0b95a58a52c99dae7a258b5 updated=2026-06-26T21:47Z -->
+<!-- meta:doc sha=e4710a7ed42428b533d07ebd5bbaf921e9c9d7a4 updated=2026-07-11T00:30Z -->
 # Arquitectura de memoria — el subsistema más crítico de una fábrica
 
 | Campo | Valor |
@@ -220,6 +220,9 @@ de diseño antes de que exista código. Conclusión operativa: el índice debe s
 (del filesystem / frontmatter) **o** estar cubierto por un **check de consistencia determinista en
 `meta check`** (gratis, file-IO): todo doc indexado, STATE no más viejo que el último cambio bajo
 `docs/`, cero punteros colgados. Es la sombra determinista de "mantener los docs consistentes".
+(Cierre del ejemplo: `START-HERE.md` se eliminó el 2026-07-11 —incremento `DOC-PRUNE-STARTHERE`—
+precisamente por este drift, ya materializado: afirmaba 9 ADRs cuando había 25. Su rol lo tomó el
+`INDEX.md` generado.)
 Implementación concreta: el manifiesto content-addressed con sello in-band (§9, ADR-009).
 
 > **[CERRADO · ADR-019 / M6] La CUARTA costura: `docs/` ↔ note-store de auto-memoria.** Las tres costuras

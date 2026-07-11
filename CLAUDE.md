@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e0d495bc63c8477e1b2be68c693597cb0a5fb703 updated=2026-07-10T15:23Z -->
+<!-- meta:doc sha=a50d2cf0795495929144815ff7eab10686963212 updated=2026-07-11T00:30Z -->
 # Meta-Factory — orientación (fase de diseño)
 
 > PROVISIONAL: orientación de arranque para la fase de diseño/bootstrap. Las reglas operativas
@@ -8,8 +8,7 @@
 ## Empezá acá
 1. Leé `docs/STATE.md` — punto de entrada único y estado actual (si tenés amnesia, empezá ahí).
 2. Para construir: `docs/work/BOOTSTRAP-INCREMENT.md` — la línea M0–M3+M8 + el seed congelado.
-3. Mapa completo de la documentación: `START-HERE.md`.
-4. **Triaje de docs**: `INDEX.md` (raíz, vista GENERADA por `doc_stamp`, ADR-009) — inventario de TODOS
+3. **Triaje de docs**: `INDEX.md` (raíz, vista GENERADA por `doc_stamp`, ADR-009) — inventario de TODOS
    los docs con fecha+sha. Consultalo ANTES de afirmar qué existe/cuándo pasó algo o de re-leer un doc
    («¿cambió desde que lo vi?»): una lectura de ~120 líneas evita re-lecturas y errores de datación.
 

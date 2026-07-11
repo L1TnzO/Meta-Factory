@@ -51,10 +51,10 @@ def _make_tiny_repo(tmp_path: Path) -> Path:
     d = repo / "docs" / "STATE.md"
     d.write_text("# State\nsome content\n", encoding="utf-8")
     stamp(d)
-    # START-HERE.md at repo root
-    sh = repo / "START-HERE.md"
-    sh.write_text("# Start Here\n", encoding="utf-8")
-    stamp(sh)
+    # CLAUDE.md at repo root (the sealed root entry doc)
+    ch = repo / "CLAUDE.md"
+    ch.write_text("# Claude\n", encoding="utf-8")
+    stamp(ch)
     return repo
 
 
@@ -167,7 +167,7 @@ class TestBuildIndex:
         repo = _make_tiny_repo(tmp_path)
         index_text = build_index(repo)
         assert "docs/STATE.md" in index_text
-        assert "START-HERE.md" in index_text
+        assert "CLAUDE.md" in index_text
 
     def test_build_index_excludes_INDEX_md(self, tmp_path):
         repo = _make_tiny_repo(tmp_path)
@@ -236,14 +236,14 @@ class TestCheck:
         problems = check(repo)
         assert any("EXTRA.md" in p for p in problems)
 
-    def test_dangling_link_in_start_here_is_a_problem(self, tmp_path):
+    def test_dangling_link_in_state_is_a_problem(self, tmp_path):
         repo = _make_tiny_repo(tmp_path)
         sync(repo)
-        # write a dangling link into START-HERE.md
-        sh = repo / "START-HERE.md"
-        _, body = split_seal(sh.read_text(encoding="utf-8"))
-        sh.write_text(body + "\nSee [nonexistent](docs/NONEXISTENT.md).\n", encoding="utf-8")
-        stamp(sh)
+        # write a dangling link into docs/STATE.md (the entry doc of the link check)
+        st = repo / "docs" / "STATE.md"
+        _, body = split_seal(st.read_text(encoding="utf-8"))
+        st.write_text(body + "\nSee [nonexistent](NONEXISTENT.md).\n", encoding="utf-8")
+        stamp(st)
         sync(repo)
         problems = check(repo)
         assert any("NONEXISTENT.md" in p for p in problems)

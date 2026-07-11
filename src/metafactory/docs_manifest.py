@@ -35,15 +35,15 @@ def git_blob_sha(data: bytes) -> str:
 
 def doc_set(home: Path, *, meta_extras: bool = True) -> list[Path]:
     """The sealed docs of ONE doc-home: everything under `<home>/docs/**.md`.
-    For the meta home (`meta_extras=True`, the default) the two root entry docs
-    (START-HERE.md, CLAUDE.md) are also sealed; a factory/product home seals only
+    For the meta home (`meta_extras=True`, the default) the root entry doc
+    (CLAUDE.md) is also sealed; a factory/product home seals only
     its authored `docs/` narrative — its `CLAUDE.md` is a generated/projected
     artifact (ADR-016 Fase 2), not authored, so it is NOT sealed in-tree.
     INDEX.md (generated) is excluded from the sealed set."""
     home = Path(home)
     docs = sorted((home / "docs").rglob("*.md"))
     if meta_extras:
-        for name in ("START-HERE.md", "CLAUDE.md"):
+        for name in ("CLAUDE.md",):
             p = home / name
             if p.exists():
                 docs.append(p)
@@ -247,7 +247,7 @@ def check(repo_root: Path) -> list[str]:
                     problems.append(f"INDEX.md: lists nonexistent {extra} (dangling)")
 
             # (3) no dangling relative .md links in the entry docs  [meta only]
-            for name in ("START-HERE.md", "docs/STATE.md"):
+            for name in ("docs/STATE.md",):
                 p = repo_root / name
                 if not p.exists():
                     continue

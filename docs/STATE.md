@@ -1,4 +1,4 @@
-<!-- meta:doc sha=74496c1990ac4b20971cc3705492f70a3f873488 updated=2026-07-10T23:51Z -->
+<!-- meta:doc sha=ea7424efcf2a9ec891c30ac5dbf7895cad8ba578 updated=2026-07-11T00:30Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -8,7 +8,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: DOC-PRUNE-STARTHERE-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -56,7 +56,7 @@
   Autoridad: `reference/GOVERNANCE-LAYERING.md §6/§7`; historia en `LOG.md`.
 - **Cómo orientarse (re-verificar > recordar):** `meta check` (verdad del sustrato) · `meta graph query|repomap`
   (navegación sin LLM) · `meta rtm` / `meta outcome` (evidencia por fábrica). Reglas vivas de la fase de diseño:
-  `CLAUDE.md`. Mapa completo de la documentación: `START-HERE.md`.
+  `CLAUDE.md`. Inventario de TODOS los docs: `../INDEX.md` (vista GENERADA, ADR-009).
 
 ## Mapa
 - Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–023) · Plan de incrementos: `work/ROADMAP.md` +
@@ -64,7 +64,7 @@
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
   auditoría viva: `COUNCIL-360-AUDIT.md` §1–§6 (veredicto §6.3 · repo-resultante §6.5) · mapa as-built: `ARCHITECTURE-MAP.md`) ·
-  Índice GENERADO: `../INDEX.md` · Arranque: `../START-HERE.md`.
+  Índice GENERADO: `../INDEX.md`.
 - Código: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` + `delegation.py`) ·
   `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` · CLI: `../meta`.
 - Fuente cosechada (congelada): `../../Agent_Systems_Factory/` @ `b1fcb1f` (`reference/ASF-PROVENANCE.md`).

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=2b3d08f1f9cbd1f70acef8b095f4bf7a8bd59a01 updated=2026-07-11T20:27Z -->
+<!-- meta:doc sha=33dc198bf8178a7bbbaeaa3e66d398f5a7ad7126 updated=2026-07-11T20:34Z -->
 # Incremento PARALLEL-SLOTS-PILOT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T17:55Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-11T20:34Z) (creado 2026-07-11T17:55Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo
@@ -69,7 +69,7 @@ re-pin risk (docs-only; `proof_sha` sees no docs).
 | 1 | Work doc with pre-registered decision rule + baselines; 5 slot contracts written under `.gen/` (slot ids `docs-en-asf` · `docs-en-dummy` · `docs-en-fullstack` · `docs-en-fsk` · `docs-en-iot`) | ✅ |
 | 2 | 5 generator slots spawned in the SAME instant, each `isolation: "worktree"`; timing + tokens captured (one external outage mid-run, resumed in the same instant — see Evidencia 4) | ✅ |
 | 3 | Merge: per-worktree law footprint check + independent acceptance-gate re-run + copy → `meta doc-sync` → `meta check` green → feat commits (`fc4fb12` 4/5 + `ce32b97` fsk) | ✅ |
-| 4 | Decision row (REJECTED + numbers) → `COST-DOWN-DIRECTION-INCREMENT.md` §2.6 (feeds the INC-5 assumption ledger); STATE/LOG; `meta outcome`; close | ⏳ |
+| 4 | Decision row (REJECTED + numbers) → `COST-DOWN-DIRECTION-INCREMENT.md` §2.6 (feeds the INC-5 assumption ledger); STATE/LOG; `meta outcome`; close | ✅ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. The 10 scoped docs are English: `.gen/doc_translate_check.py` exits 0 over all 10 (re-run by the

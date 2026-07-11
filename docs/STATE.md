@@ -1,4 +1,4 @@
-<!-- meta:doc sha=65770089d506c248a8592ec4217d3d7faf6c96b6 updated=2026-07-11T14:38Z -->
+<!-- meta:doc sha=684d6e4aa26067bdcef49fc5a5b6c0a38324a8c8 updated=2026-07-11T14:47Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -8,7 +8,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: SOTA-PARITY-DIRECTION-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -62,6 +62,7 @@
 - Bitácora (historia): `LOG.md` · Decisiones: `decisions/` (001–026) · Plan de incrementos: `work/ROADMAP.md` +
   docs de dirección (`work/COST-DOWN-DIRECTION-INCREMENT.md` — la biblia de costos, VIGENTE ·
   `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — limpieza+inglés-capa-viva, ADR-026, VIGENTE ·
+  `work/SOTA-PARITY-DIRECTION-INCREMENT.md` — auditoría 2026-07-11 vs SOTA externo + plan INC-1..7, VIGENTE ·
   `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` · `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`).
 - Referencia: `reference/` (filosofía: `PRIMITIVES.md` · estado honesto/residuales: `HONEST-STATE.md` ·
   auditoría viva: `COUNCIL-360-AUDIT.md` §1–§6 (veredicto §6.3 · repo-resultante §6.5) · mapa as-built: `ARCHITECTURE-MAP.md`) ·

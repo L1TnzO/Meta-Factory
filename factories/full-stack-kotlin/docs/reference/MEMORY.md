@@ -1,15 +1,16 @@
-<!-- meta:doc sha=0de79cab88aaa4ec3cba87359ad7c30d614332fd updated=2026-06-27T01:41Z -->
-# Memoria — Full-Stack Kotlin/TS/PG Factory
-> tipo: reference · esquema heredado ADR-021 (estable) · re-derivable, no narrado.
+<!-- meta:doc sha=b338d5e85cdcc426a52752961c98a99bb1bb36d7 updated=2026-07-11T18:04Z -->
+# Memory — Full-Stack Kotlin/TS/PG Factory
+> type: reference · schema inherited from ADR-021 (stable) · re-derivable, not narrated.
 
-Esta fábrica NO confía en lo que narra: RE-DERIVA su estado de artefactos. Si esta página contradice
-los artefactos, GANAN los artefactos (re-derivá; no la edites a mano).
+This factory does NOT trust what it narrates: it RE-DERIVES its state from artifacts. If this page
+contradicts the artifacts, the artifacts WIN (re-derive; do not hand-edit it).
 
-- **RTM** — `meta rtm --factory full-stack-kotlin` re-deriva, por requisito, SATISFIED/UNSATISFIED desde los
-  proofs de `.proof/`: un requisito está SATISFIED iff toda estación que lo satisface tiene una gate
-  recomputable-OK. Corromper un proof CAMBIA el RTM — la gate `rtm_rederive` (M5) lo exige por bloqueo.
-- **Evidencia / journal** — los hechos derivan del ledger (`.proof/ledger.json`, una entrada por gate
-  abierta con su `proof_sha`) y de git, no de prosa. El ledger es re-derivable; la custodia no es la
-  raíz de confianza, la re-derivación en un clon limpio sí (PF-10).
-- **Métricas (ADR-008)** — captura gratis (file-IO + tabla de precios × tokens, cero llamadas al
-  modelo), vista con `meta metrics`. Display puro: se mide antes de forzar umbrales.
+- **RTM** — `meta rtm --factory full-stack-kotlin` re-derives, per requirement, SATISFIED/UNSATISFIED from
+  the proofs in `.proof/`: a requirement is SATISFIED iff every station that satisfies it has a
+  recomputable-OK gate. Corrupting a proof CHANGES the RTM — the `rtm_rederive` gate (M5) enforces it by
+  blocking.
+- **Evidence / journal** — facts are derived from the ledger (`.proof/ledger.json`, one entry per gate
+  opened with its `proof_sha`) and from git, not from prose. The ledger is re-derivable; custody is not
+  the root of trust, re-derivation on a clean clone is (PF-10).
+- **Metrics (ADR-008)** — captured for free (file-IO + price table × tokens, zero model calls),
+  viewed with `meta metrics`. Pure display: it is measured before forcing thresholds.

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=436c1487a5bc4f242b7f38abd6e55511885f38eb updated=2026-07-11T20:34Z -->
+<!-- meta:doc sha=89a2a72db0c5679ba28032b2c97204a8cb89347d updated=2026-07-11T20:55Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -10,7 +10,7 @@
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
-- Open increment: none
+- Open increment: DRIFT-AUDIT-INCREMENT.md
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -30,11 +30,9 @@
   substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
   its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. Next: ASF physical adoption (S2) ·
   `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025` · LOG.
-- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** Path B: LIVE = meta+FSK+iot ·
-  ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. All external judges in-tree ✅ (H-1 ·
-  economic `OUTCOME-JUDGES` · E4 escape · E1+D-8 adjudicated `8790169` · D-3/D-7/H-4/H-5). Sole residual:
-  **D-2** content-as-files, DEMOTED post-freeze (trigger: first waiver that re-edits embedded content).
-  Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
+- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** LIVE = meta+FSK+iot · ASF+full-stack-TS
+  REGRESSION-FROZEN · dummy = fixture; all external judges in-tree ✅; sole residual D-2 demoted (trigger:
+  first waiver re-editing embedded content). Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
 - **🧭 `COST-DOWN` (2026-07-02, ADR-021) — FIXED N=7 plan COMPLETE (INC-0..6 ✅).** Routing by SESSION
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
@@ -52,10 +50,12 @@
   content-addressed per-home seal · 16 `FSK-S0..S15` migrated byte-identical to the factory ·
   `column_scope.py` + `least_priv` gate (factory ⊊ meta).
   Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`; history in `LOG.md`.
-- **🌐 ADR-026 English living layer — F2 COMPLETE (a·b·c·d ✅).** F2(d) ran as `PARALLEL-SLOTS-PILOT`
-  (SOTA-PARITY INC-2): 10 factory living docs English via 5 worktree slots; **parallel-by-default REJECTED
-  by measurement** ((W) 81.6%>60% · (T) 174%>150%; mechanics proven, imbalance+~40k/spawn overhead are the
-  binding constraints) → decision row + re-measure trigger: `work/COST-DOWN-DIRECTION-INCREMENT.md §2.6`.
+- **🌐 ADR-026 arc — F2 COMPLETE (a·b·c·d ✅) · F3 `DRIFT-AUDIT` CLOSED (2026-07-11, widened +INC-5/6).**
+  F2(d)=`PARALLEL-SLOTS-PILOT`: parallel-by-default **REJECTED by measurement** ((W) 81.6%>60 · (T) 174%>150)
+  → bible §2.6. F3 verdict (graph output, not grep): corpus CLEAN (evidence_liveness green · 100 orphans =
+  expected dormancy · the 4 named clusters reachable → KEEP · F4 trigger unfired); economy targets still red
+  (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first calendar trigger 2026-09-01, Sonnet-5
+  cliff) + CLAUDE.md trim 114→108 ln MEASURED. Verdict: `reference/HONEST-STATE.md §7bis`.
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).

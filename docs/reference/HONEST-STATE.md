@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e4a0c9a379c6ed52f3b187686f23f85b83f5bfed updated=2026-07-11T17:38Z -->
+<!-- meta:doc sha=16360b97ea8c32179b703149b57ff6611be0f140 updated=2026-07-11T20:51Z -->
 # HONEST-STATE — implemented vs defined (no makeup)
 
 > type: reference (I-13, honesty of limits). First-class artifact: aspiration is NEVER
@@ -85,6 +85,41 @@ of commits by area/criterion with `Satisfies:`/`Proof:` trailers was made (see `
 Restart the session BEFORE continuing, so the hooks are alive. Commit per station/requirement
 (`commit_guard` will require it). Document at the gate, not at the end. If this sounds like a sermon: it's literally
 what I didn't do — that's why I'm writing it here, not in optimistic prose.
+
+## 7bis. Drift-audit verdict — F3 `DRIFT-AUDIT` (2026-07-11, ADR-026 arc; graph output, not hand-grep)
+> One short S1 pass over `meta doc orphans` + `evidence_liveness` + `meta outcome`/`meta benchmark` vs the
+> VISION/ADR-021 targets, widened with SOTA-PARITY INC-5 (assumption ledger → COST-DOWN §2.7) and INC-6
+> (prefix trim). Everything below is re-derivable from the named commands; nothing is narrated from memory.
+
+**Doc corpus: NO rot found.**
+- `evidence_liveness` GREEN: 283 docs · 2,373 citations · 106 evidence refs all resolve in LIVING docs;
+  the red-side witness (`tests/fixtures/docs/dangling_reference.md`) is alive. Path rot: zero.
+- `meta doc orphans` = 100 candidates (91 at F1 measurement). Composition verdict:
+  (i) ~86 are CLOSED work/-increment docs (meta + factory + product homes) — EXPECTED dormancy by the doc
+  schema (per-increment evidence is immutable, not supposed to be cited from live roots). Archive class
+  (F4) stays DEFERRED: trigger NOT fired (INDEX.md 159 lines < 250; doc triage failed 0× this session).
+  (ii) The four clusters named by DOC-CLEANUP F3 — `F1-AUDIT-REGEN-VS-LEGACY` · `MAT-6-REAUDIT` ·
+  `REGEN-AUDIT` · `OBSERVABILITY-METRICS` — are **NOT orphans anymore**: the graph reaches them via the
+  living reference chain (FOUNDATIONS-REAUDIT → F1-AUDIT · ASF-PROVENANCE → REGEN-AUDIT ·
+  MEMORY-ARCHITECTURE → OBSERVABILITY-METRICS · COUNCIL-360 names all as "dated evidence"). Verdict:
+  **KEEP as dated evidence** — the COUNCIL-360 judgment is now confirmed by graph reachability. No prune.
+  (iii) 7 candidates are living/GENERATED-class false positives (3 factory `docs/LOG.md` + 4 generated
+  factory `reference/MEMORY.md`, re-emitted by m01 the same day they were listed): observer noise, not rot.
+  The observer is candidates-not-reds BY DESIGN; refining its exemptions is a noted candidate, not queued.
+
+**Outcome vs ADR-021 targets (opus ≤35% · compactions 0 · churn <20 · $/increment −60%):**
+| Target | Measured 2026-07-11 | Verdict |
+| --- | --- | --- |
+| opus ≤35% of spend | 86% machine-global ($6,543.84; best S2 run 49.7%) | 🔴 red as OUTCOME; response is routing discipline (S2 sessions), already doctrine |
+| churn <20 | 776 cumulative extra re-reads (Δ+68 since the 2026-07-11 SOTA-PARITY snapshot) | 🔴 feeds INC-6: prefix trimmed + repomap-first line live in orchestrator; re-measure next comparable window |
+| compactions 0 | 3 cumulative, all with snapshot, none since the doctrine landed | 🟡→🟢 discipline holds |
+| delegation share | 1.01% (73 events; footprint law proven live in the 5-worktree pilot) | 🔴 as share — HONEST caveat: recent work was column/audit (trust-chain, correctly NOT delegated) |
+| engine (VISION: provable re-derivation) | RTM 55/55 SATISFIED · benchmark 2/2 in expected class (helpdesk MEETS sweet-spot, snipeit = declared ceiling) | 🟢 the engine is real |
+
+**Verdict in one line:** the documentary corpus is CLEAN (zero rot, orphans are expected dormancy), the
+engine is GREEN, and the ECONOMY targets remain red as outcome — the responses are already institutional
+(assumption ledger COST-DOWN §2.7 with re-measure triggers · CLAUDE.md trimmed · parallel-by-default
+REJECTED by measurement). This audit expires with the next model generation or 2027-01 (ledger row).
 
 ## 7. Declared residuals (memory v2)
 - **Slot containment is app-layer: PERSISTED escapes caught, TRANSIENT side-effects not (2026-07-11,

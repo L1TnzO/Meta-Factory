@@ -1,4 +1,4 @@
-<!-- meta:doc sha=89a4d440246f9f2d2f7647122f390cd8b58d18a2 updated=2026-07-11T20:27Z -->
+<!-- meta:doc sha=c4fe0e4b9885403d3150cd49d54b86d7e4879c19 updated=2026-07-11T20:51Z -->
 # COST-DOWN-DIRECTION Increment
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T14:35Z) (creado 2026-07-02T14:30Z). Cerralo con `meta increment close`
@@ -147,6 +147,23 @@ What the numbers actually say (the refinement that replaces the old "≈15×" fo
 SOTA-PARITY §6.3). **Re-measure trigger:** a genuinely disjoint workload of ≥3 size-BALANCED slots each big
 enough to amortize ~40k spawn overhead (≥~500 lines / ≥~100k tok of expected work each) — then re-run this
 rule; the 4-small-slot sub-measurement (30%) predicts (W) would pass there.
+
+### 2.7 Assumption ledger — every doctrine carries its vigency (SOTA-PARITY INC-5, landed in F3 DRIFT-AUDIT 2026-07-11)
+The Managed-Agents lesson institutionalized: harness/cost doctrines were measured on SPECIFIC models and
+prices; when the terrain moves, the trigger fires a RE-MEASUREMENT — the doctrine is never silently trusted
+past its vigency, and never discarded without a number (SOTA-PARITY §6.7). This table is the SINGLE SOURCE
+for triggers; CLAUDE.md carries only compact `(measured …)` tags pointing here.
+
+| Assumption | Measured-with | Re-measure trigger | Status |
+| --- | --- | --- | --- |
+| multi-agent parallel loses (was "≈15×") | own `PARALLEL-SLOTS-PILOT` 2026-07-11 (§2.6): (W) 81.6%>60% · (T) 174%>150% → REJECTED | ≥3 size-BALANCED disjoint slots, each ≥~500 lines/≥~100k tok (the 4-small-slot sub-measurement, 30%, predicts (W) passes there) | ✅ re-measured, doctrine STANDS refined |
+| draft 41.7s / harden 98.0s | FSK line, JDK 21, 2026-06 | toolchain or line change | vigent |
+| slot `token_budget` 40k default | OLD tokenizer; spawn floor re-measured ≈40k fixed/spawn on `sonnet` alias 2026-07-11 (§2.6.3) | FIRED 2026-07-11 (slots ran on the +30%-tokenizer Sonnet 5) → response is BATCHING (never parallelize the small), not a budget raise | ✅ recalibrated |
+| cache/TTL math (§2.3) + pricing table (§1.2) | prices AS_OF 2026-07-02, verified EXACT vs live page 2026-07-11 | **calendar 2026-09-01**: Sonnet 5 intro $2/$10 → $3/$15 (+50%); re-pin `graph/pricing.py` + re-run §2.3 | vigent, trigger SET |
+| thinking billed as output ($25/M) | Opus 4.8 pricing table | any routing-table model change | vigent |
+| "sandbox kills gradle" → `dangerouslyDisableSandbox` | 2026-06 env | SOTA-PARITY INC-7 trigger (next gradle-sandbox failure OR first security-sensitive slot) | vigent, deferred |
+| SOTA-PARITY audit numbers (§1–§3 there) | Fable 5 session 2026-07-11 | next model generation or 2027-01 | vigent |
+| F3 drift-audit verdict (HONEST-STATE §7bis) | Opus session 2026-07-11 | next model generation or 2027-01 | vigent |
 
 ---
 

@@ -1,7 +1,26 @@
-<!-- meta:doc sha=47bf5ec2b525c7d4ee73f293940891010af3738d updated=2026-07-11T20:29Z -->
+<!-- meta:doc sha=d8d567762b82b0d938748fe9ba21967e799d97d5 updated=2026-07-11T20:55Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T20:55Z — DRIFT-AUDIT (ADR-026 F3, widened +SOTA-PARITY INC-5/6) CLOSED: corpus clean, economy red, doctrines get vigency
+The F3 audit ran from GRAPH output, not hand-grep (the DOC-CLEANUP lesson: a hand-grep once produced a
+false orphan). Findings, all re-derivable: `evidence_liveness` GREEN (283 docs · 2,373 citations · 106
+evidence refs resolve; red witness alive) — zero path rot in living docs. `meta doc orphans` = 100
+candidates: ~86 closed work docs = EXPECTED dormancy (F4 archive class stays deferred — INDEX 159<250,
+triage failed 0×); the 4 clusters DOC-CLEANUP named for verdict (F1-AUDIT · MAT-6-REAUDIT · REGEN-AUDIT ·
+OBSERVABILITY-METRICS) are NO LONGER orphans — reachable via the living reference chain → KEEP as dated
+evidence, no prune; 7 living/generated false positives (3 factory LOGs + 4 generated MEMORY.md) = observer
+noise, noted. Targets (ADR-021): opus 86% vs ≤35% 🔴 · churn 776 (Δ+68) 🔴 · compactions 0 new 🟢 · RTM
+55/55 + benchmark 2/2 🟢 — full verdict table in `reference/HONEST-STATE.md §7bis`. Widening: (INC-5) the
+ASSUMPTION LEDGER is now COST-DOWN §2.7 — every numeric doctrine carries measured-with + re-measure
+trigger; the "≈15×" folklore row is replaced by the INC-2 measured REJECT, the token_budget row is marked
+FIRED/recalibrated (≈40k spawn floor on Sonnet 5), first live calendar trigger = 2026-09-01 (Sonnet-5
+price cliff → re-pin `graph/pricing.py` + re-run bible §2.3). (INC-6) CLAUDE.md trimmed in ONE prefix
+stretch (historical «State» ¶s → pointers; roles ¶ → `agent_roles.py` single-source; waiver format →
+`codegen_freeze` docstring): 114→108 ln · 10,449→10,028 B MEASURED, vigency tags included; the
+repomap-first orchestrator line was already live (batched with INC-1's column stretch as designed). Churn
+re-measure baseline: 776, next comparable window. Evidence: `work/DRIFT-AUDIT-INCREMENT.md`.
 
 ## 2026-07-11T20:35Z — PARALLEL-SLOTS-PILOT (F2(d) + SOTA-PARITY INC-2) CLOSED: parallel-by-default REJECTED by measurement
 Two deliverables in one increment. (a) ADR-026 F2 arc COMPLETE: the 10 factory living docs (5× STATE.md +

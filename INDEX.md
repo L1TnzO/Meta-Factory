@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `47bf5ec2b525` | 2026-07-11T20:29Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `436c1487a5bc` | 2026-07-11T20:34Z | State — Meta-Factory |
+| `docs/LOG.md` | `d8d567762b82` | 2026-07-11T20:55Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `89a2a72db0c5` | 2026-07-11T20:55Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -43,7 +43,7 @@
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `bea8bc7eb7ad` | 2026-07-11T16:57Z | F1-AUDIT — regenerated ASF (Meta-Factory) vs legacy ASF, head-to-head |
 | `docs/reference/FOUNDATIONS-REAUDIT.md` | `2822f2726f3a` | 2026-07-11T16:11Z | FOUNDATIONS-REAUDIT — the foundations vs. measured behavior |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `5405aafe1e82` | 2026-07-11T15:44Z | Governance layering — where docs and the increment lifecycle live across the 3 levels |
-| `docs/reference/HONEST-STATE.md` | `e4a0c9a379c6` | 2026-07-11T17:38Z | HONEST-STATE — implemented vs defined (no makeup) |
+| `docs/reference/HONEST-STATE.md` | `16360b97ea8c` | 2026-07-11T20:51Z | HONEST-STATE — implemented vs defined (no makeup) |
 | `docs/reference/MAT-6-REAUDIT.md` | `7b0366d03447` | 2026-07-11T16:13Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (the §12 table, turned around with honesty) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `cb874cb90d67` | 2026-07-11T16:01Z | Memory architecture — the most critical subsystem of a factory |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `af68e85597ba` | 2026-07-11T16:01Z | Observability and metrics — absolutely free capture (zero model calls) |
@@ -68,7 +68,7 @@
 | `docs/work/CODEGEN-FREEZE-TOOTH-INCREMENT.md` | `c3d1d6d820cc` | 2026-07-10T15:09Z | Incremento CODEGEN-FREEZE-TOOTH |
 | `docs/work/COLUMN-MAINT-INCREMENT.md` | `e8dd5036074d` | 2026-07-04T20:14Z | Incremento COLUMN-MAINT |
 | `docs/work/CONTEXT-LEAN-TEETH-INCREMENT.md` | `e6ea892dc3d6` | 2026-07-03T04:19Z | Incremento CONTEXT-LEAN-TEETH |
-| `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `89a4d440246f` | 2026-07-11T20:27Z | COST-DOWN-DIRECTION Increment |
+| `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | `c4fe0e4b9885` | 2026-07-11T20:51Z | COST-DOWN-DIRECTION Increment |
 | `docs/work/COST-RUNBOOK-INCREMENT.md` | `ef2e4e4dd881` | 2026-07-02T17:54Z | Incremento COST-RUNBOOK |
 | `docs/work/D1-FULL-COLUMN-INCREMENT.md` | `6766ee312164` | 2026-06-16T00:25Z | Incremento D1-FULL-COLUMN |
 | `docs/work/D2-HARNESS-GEN-INCREMENT.md` | `d0178cc02b9a` | 2026-06-16T01:12Z | Incremento D2-HARNESS-GEN |
@@ -88,11 +88,12 @@
 | `docs/work/DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND-INCREMENT.md` | `66a87e6c648d` | 2026-07-09T03:24Z | Incremento DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
-| `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `bf6c90767bf9` | 2026-07-11T03:25Z | Incremento DOC-CLEANUP-DIRECTION |
+| `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `ca62dfe3fc19` | 2026-07-11T20:56Z | Incremento DOC-CLEANUP-DIRECTION |
 | `docs/work/DOC-GRAPH-LIVENESS-INCREMENT.md` | `157ceb05a4a9` | 2026-07-11T03:24Z | Incremento DOC-GRAPH-LIVENESS |
 | `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `a0bbdd27a346` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |
+| `docs/work/DRIFT-AUDIT-INCREMENT.md` | `5ad6e4f9702b` | 2026-07-11T20:53Z | Incremento DRIFT-AUDIT |
 | `docs/work/E1-INFRA-SANDBOX-INCREMENT.md` | `dc9243d2fc15` | 2026-06-16T13:16Z | Incremento E1-INFRA-SANDBOX |
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/ENGLISH-CLI-STRINGS-INCREMENT.md` | `0053fd853724` | 2026-07-11T14:38Z | Incremento ENGLISH-CLI-STRINGS |
@@ -155,4 +156,4 @@
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
-| `CLAUDE.md` | `f0242baa5f55` | 2026-07-11T03:51Z | Meta-Factory — orientation (design phase) |
+| `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

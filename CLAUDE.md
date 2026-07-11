@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f0242baa5f55a72deb0bbfa3d926a59e74666252 updated=2026-07-11T03:51Z -->
+<!-- meta:doc sha=c299c9357272707eb0ae91e5cd8592a5cbf254ee updated=2026-07-11T20:53Z -->
 # Meta-Factory — orientation (design phase)
 
 > PROVISIONAL: boot orientation for the design/bootstrap phase. The REAL operating rules
@@ -13,21 +13,15 @@
    doc («did it change since I saw it?»): one ~120-line read avoids re-reads and dating errors.
 
 ## State
-**BOOTSTRAP EXECUTED (2026-06-13).** There is code verified by blocking: `seed/` (the column),
-`src/metafactory/` (engine·spec·bus·cli), `stations/` (M0–M3+M8), `template/factory/`, and a
-dummy factory produced in `factories/dummy/`. All 8 closure criteria pass (see
-`docs/work/BOOTSTRAP-INCREMENT.md §Evidencia`). Deferred: M4–M7, ASF regeneration, metrics/T2-memory.
-
-**SOTA RE-DIRECTION (2026-06-25, ADR-017).** After a deep audit: the engine WORKS; the missing layer is
-DIRECTION. Next north = a **content-addressed project graph** (navigation + delegation + handoff +
-verification-scope in ONE piece) + **"verify-not-review" delegation** (Opus brain · Sonnet generates ·
-Haiku reads) + dogfooded quality gates. Phased roadmap: `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`.
+**History lives in `docs/STATE.md` + `docs/LOG.md`, not here** (placement law: historical → docs; F3
+DRIFT-AUDIT trim 2026-07-11). One line: bootstrap EXECUTED 2026-06-13 (seed·engine·stations·template +
+dummy factory, 8/8 criteria — `work/BOOTSTRAP-INCREMENT.md`); verify-not-review delegation + the project
+graph IGNITED 2026-06-25→27 (ADR-017/020, roadmap `work/SOTA-REDESIGN-DIRECTION-INCREMENT.md`).
 
 **MODEL-FIRST + COMMUNITY (2026-07-08, ADR-023/024) — the CURRENT generation paradigm.** Deterministic
 template codegen (the pseudo-framework) hit its measured ceiling and is **FROZEN-with-pin** (ADR-023 §3): feeding
-it again = a deliberate act with ONE waiver line in the OPEN work-doc of the owning level —
-`Codegen-freeze-waiver: alcance=<verificacion|superficie> · motivo: … · cita: ADR-NNN` — enforced by the
-`codegen_freeze` gate of `meta check` (diff without waiver = red · waiver without diff = red · `superficie` requires
+it again = a deliberate act with ONE `Codegen-freeze-waiver:` line in the owning level's OPEN work-doc,
+enforced two-sided by the `codegen_freeze` gate (exact format in its docstring; `superficie` scope requires
 a dedicated ADR). Factory = spec grammar + **verification profile** + documentary memory; what is NEW is born
 **model-native under the harness** — CONTROLLED probabilism: bounded slot (`generate-slot`) + gates decide + verdict +
 **PINNED** artifact that is re-VERIFIED, not re-derived (ADR-024: override `products/<p>/frontend/app.{ts,css}` +
@@ -70,21 +64,19 @@ question before building anything: **«which piece has the community already val
   in the main thread (the brain's cache-read DOMINATES cost — isolating the bulk is lever #1). The
   default is to delegate; expensive judgment (Opus) is spent designing the contract, deciding scope and reviewing
   the irreducible residue. **When NOT to delegate (honest):** sequential codegen with strong dependencies
-  (multi-agent uses ~15× tokens — without real parallelism it is more expensive), and the **COLUMN** (hooks,
+  (parallel-by-default REJECTED by measurement 2026-07-11 — COST-DOWN §2.6; batch small units into ONE
+  slot, ≈40k tok fixed cost per spawn; triggers live in the ledger §2.7), and the **COLUMN** (hooks,
   `seed/`, `delegation.py`, settings, agents) which is trust-chain → written and reviewed with your own eyes
   (SELF-IMPROVEMENT §3). For heavy factory builds, launch the session with `claude --agent orchestrator`
   (it takes the full discipline from turn 1); do NOT set a global default `agent` in `settings.json` — it
   would replace Claude Code's base system-prompt in EVERY session (even a casual fix would boot in
   orchestrator mode).
-- **Specialize by ROLE, never by domain — with teeth (2026-06-27, ADR-020)**: delegation agents
-  specialize by **model · tools · verification-contract**, NOT by domain. The domain
-  (kotlin/frontend/sql) is carried by the **slot manifest** per invocation (`.gen/active_slot.json`), never by a
-  new agent — proliferating by domain breaks ADR-012 (tech = plan) and creates routing ambiguity. The role
-  vocabulary is **CLOSED** (`agent_roles.CANONICAL` = orchestrator·generator·verifier·reviewer + legacy
-  synonyms `writer`≡generator·`triage`≡verifier from the 5 factories, grandfathered ADR-017, not churned);
-  adding a role is a DELIBERATE act (edit the constant + ADR). Enforced by the `roles` gate of `meta check`
-  (a domain-named agent goes red). The `verifier` (digest of ONE known artifact) is distinct from the
-  built-in `Explore` (fan-out search) — they are complementary, which is why it stays (ADR-020 §D1).
+- **Specialize by ROLE, never by domain — with teeth (2026-06-27, ADR-020)**: agents specialize by
+  **model · tools · verification-contract**; the DOMAIN travels in the slot manifest per invocation
+  (`.gen/active_slot.json`), never in a new agent (proliferating by domain breaks ADR-012). Role vocabulary
+  is CLOSED — single source `agent_roles.py` (canonical 4 + grandfathered legacy synonyms); adding a role =
+  edit the constant + ADR. Enforced by the `roles` gate (domain-named agent → red). `verifier` (digest ONE
+  known artifact) complements the built-in `Explore` (fan-out search) — both stay (ADR-020 §D1).
 - **Cost runbook — routing per SESSION, not re-decided per prompt (2026-07-02, ADR-021)**: each
   session/turn's model is a **PRICE** parameter, not a safety one — correctness comes from the GATES + the
   COLUMN reviewed with your own eyes, NOT the executor's IQ. Expensive judgment (**Opus** — the routing norm;
@@ -104,11 +96,13 @@ question before building anything: **«which piece has the community already val
   gap DURING (gate/slot running) → gate in `run_in_background` + poll turn every ≤4 min (0.1×P, 12.5×
   cheaper than letting the cache expire). (c) **compaction = INCIDENT, target 0** — a full cold re-write;
   kill-and-rehydrate always dominates it. (d) **thinking dial** — high ONLY in S1; medium/low in S2 and
-  mechanical turns (thinking is billed as output, $25/M). (e) **prefix hygiene** — do not edit
+  mechanical turns (thinking is billed as output, $25/M — Opus 4.8 table). (e) **prefix hygiene** — do not edit
   CLAUDE.md/agents/settings mid-session (it invalidates the cache from there forward); group column changes
   into a single stretch. (f) **draft by default** in the inner loop (`product-run --mode draft`, 41.7s
-  vs 98s measured), **harden only at close**. (g) **sweet-spot vehicle** for measured runs: `helpdesk`
-  (5 entities), NOT `snipeit` (19 — the regression ceiling). The cache math and the closed answer to
-  «TTL 1h vs 5m» → bible §2.3; the full doctrine + the FIXED N=7 plan →
-  `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` (slice rule: read ONLY §2 + your §4.INC-n row). These
-  rules have no tooth of their own; INC-1 (`PRICING-LEDGER`) MEASURES them via `meta outcome`.
+  vs 98s — measured 2026-06, FSK line/JDK21), **harden only at close**. (g) **sweet-spot vehicle** for
+  measured runs: `helpdesk` (5 entities), NOT `snipeit` (the regression ceiling). The cache math and the
+  closed answer to «TTL 1h vs 5m» → bible §2.3 (prices AS_OF 2026-07-02; re-pin due 2026-09-01, Sonnet-5
+  cliff); the full doctrine + the FIXED N=7 plan → `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` (slice
+  rule: read ONLY §2 + your §4.INC-n row). Every NUMERIC doctrine above carries its vigency + re-measure
+  trigger in the **assumption ledger, bible §2.7** (single source — do not trust a number past its trigger).
+  These rules have no tooth of their own; INC-1 (`PRICING-LEDGER`) MEASURES them via `meta outcome`.

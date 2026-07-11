@@ -1,7 +1,23 @@
-<!-- meta:doc sha=613365f546b0cb5ae464cb22c73eda0fe39df6e3 updated=2026-07-11T03:25Z -->
+<!-- meta:doc sha=ba140b518657df6ad860657eec9043a43cdba47a updated=2026-07-11T05:09Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T05:10Z — ENGLISH-LIVING-COLUMN (F2a) CLOSED: the whole trust-chain column is English, factory harness included
+Stage 3 (this session) finished the batch: the spec-emitted factory harness ×5 (writer/reviewer/triage
+agents, commands, verificar-fabrica/correr-app skills — SOURCE strings in `factory.spec.yml
+machinery.harness`) translated by the brain's own eyes (trust-chain, no delegation), landed as 5
+per-factory increments (ADR-016), all CERRADOS. The planned "hand-sync spec↔emitted" was upgraded to a
+DETERMINISTIC tooth: a bounded in-memory render with the very `emit_harness` functions
+(`.gen/render_harness_diff.py`) proves render(spec) == disk byte-to-byte — because a lone m07 is
+gate-blocked by line order and running m02/m03 clobbers factory stations/docs (gotcha confirmed in the
+station YAMLs, not re-suffered). Two REAL findings the tooth surfaced: (1) `generate-slot/SKILL.md` ×5
+carried pre-INC-2 emits (missing the fast/acceptance-gate split) — healed to current `delegation_brain`;
+(2) FSK `correr-app` was hand-authored and never declared in the spec — `_emit_skills` PRUNES undeclared
+skill dirs, so any legitimate m07 re-emit would have silently deleted it → declared as spec DATA
+(ADR-011 "100% spec-derivable" restored). Identifiers untouched (`writer`/`triage`, skill dir names —
+ADR-020 closed vocab). meta check 21/21 · suite green · zero re-pin (content-blind proof_sha).
+Deferred to batch (b), unchanged: CLI verdict grammar, `Estado ABIERTO/CERRADO`, hook deny-messages.
 
 ## 2026-07-11T03:24Z — DOC-GRAPH-LIVENESS (F1): doc liveness is now a graph query with teeth — and the tooth bit before it landed
 S2 execution session (Sonnet orchestrator) over the self-contained F1 contract. Design was fixed in the

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=65770089d506c248a8592ec4217d3d7faf6c96b6 updated=2026-07-11T05:10Z -->
+<!-- meta:doc sha=a8d54fb2d01398f589c5a94021c7c6526729a9e8 updated=2026-07-11T05:24Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -8,7 +8,7 @@
 
 <!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
 > Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
+- Incremento abierto: ENGLISH-CLI-STRINGS-INCREMENT.md
 - RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 

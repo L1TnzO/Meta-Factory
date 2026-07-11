@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-"""gate_guard (PreToolUse: Bash) — sombra del orden de la línea. Bloquea `meta station mK`
-si la gate de su predecesora no está abierta (su proof no recompone limpio). Reusa el engine
-(cero lógica duplicada). exit 2 = deny. Defensa en profundidad: el engine ya lo garantiza."""
+"""gate_guard (PreToolUse: Bash) — shadow of the line order. Blocks `meta station mK`
+when its predecessor's gate is not open (its proof does not recompose clean). Reuses the engine
+(zero duplicated logic). exit 2 = deny. Defense in depth: the engine already guarantees this."""
 import json
 import re
 import sys
 from pathlib import Path
 
-# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
-# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+# Root by script location (<root>/.claude/hooks/x.py -> parents[2] == <root>), NOT by cwd:
+# a leaked `cd` must NOT be able to silently disable the guard (it used to fail open).
 _SRC = str(Path(__file__).resolve().parents[2] / "src")
 
-# Liga el match a una INVOCACIÓN real de `meta station … --factory …` en un borde de comando (inicio
-# o tras `;`/`&`/`|`, con prefijo opcional de env VAR=val y `./`). El `\bstation … --factory …` previo
-# matcheaba la FRASE en cualquier parte — incluido un `echo "…"` o un mensaje de commit que la nombra
-# como TEXTO (el over-match que la nota de STATE pedía acotar). El engine sigue siendo la gate real.
+# Binds the match to a real INVOCATION of `meta station … --factory …` at a command boundary (start
+# or after `;`/`&`/`|`, with optional env VAR=val prefix and `./`). The previous `\bstation … --factory …`
+# matched the PHRASE anywhere — including an `echo "…"` or a commit message naming it as TEXT
+# (the over-match the STATE note asked to bound). The engine remains the real gate.
 _STATION_CMD = re.compile(
     r"(?:^\s*|[\n;&|]+\s*)(?:\w+=\S+\s+)*(?:\./)?meta\s+station\s+(\w+)\b[^\n]*?--factory\s+(\S+)"
 )
 
 
 def match_station_cmd(cmd: str) -> tuple[str, str] | None:
-    """(station_id, slug) sii `cmd` INVOCA `meta station … --factory …` (borde de comando), si no None."""
+    """(station_id, slug) iff `cmd` INVOKES `meta station … --factory …` (command boundary), else None."""
     m = _STATION_CMD.search(cmd)
     return (m.group(1), m.group(2)) if m else None
 
@@ -55,18 +55,18 @@ def main() -> int:
     v = load_seed_verifier()
     proof = v.load_proof(root / "factories" / slug, prev.id)
     if proof is not None and v.gate_recompute_ok(proof)[0]:
-        # predecesora VERDE: la cadencia (ADR-010) exige commitearla antes de avanzar de fase.
+        # predecessor GREEN: the cadence (ADR-010) requires committing it before advancing phase.
         try:
             from metafactory.memory import cadence
             has_debt, reason = cadence.debt(root)
         except Exception:
             has_debt, reason = False, ""
         if has_debt:
-            print(f"gate_guard: no avances a {station_id} con la fase anterior sin commitear "
-                  f"({reason}); commiteá (trailers I-10) y reintentá (ADR-010)", file=sys.stderr)
+            print(f"gate_guard: do not advance to {station_id} with the previous phase un-committed "
+                  f"({reason}); commit it (I-10 trailers) and retry (ADR-010)", file=sys.stderr)
             return 2
         return 0
-    print(f"gate_guard: no podés correr {station_id}: la gate de {prev.id} no está abierta (orden de la línea)", file=sys.stderr)
+    print(f"gate_guard: cannot run {station_id}: the gate of {prev.id} is not open (line order)", file=sys.stderr)
     return 2
 
 

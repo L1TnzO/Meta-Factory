@@ -65,6 +65,28 @@ def test_open_increment_ignores_cerrado(repo):
     assert lc.open_increment(repo) is None
 
 
+# ── dual-accept grammar (ADR-026): English forward, Spanish history forever ──
+
+def test_open_increment_detects_english_open(repo):
+    (repo / "docs" / "work" / "X-INCREMENT.md").write_text(
+        "# Increment X\n> Status: **OPEN**\n", encoding="utf-8")
+    assert lc.open_increment(repo) == "X-INCREMENT.md"
+
+
+def test_open_increment_ignores_english_closed(repo):
+    (repo / "docs" / "work" / "X-INCREMENT.md").write_text(
+        "# Increment X\n> Status: **CLOSED** (2026-01-01T00:00Z)\n", encoding="utf-8")
+    assert lc.open_increment(repo) is None
+
+
+def test_mixed_grammars_coexist(repo):
+    """A repo mid-transition: Spanish CLOSED history + one English OPEN doc."""
+    _open_inc(repo, name="OLD-INCREMENT.md", status="CERRADO")
+    (repo / "docs" / "work" / "NEW-INCREMENT.md").write_text(
+        "# Increment NEW\n> Status: **OPEN**\n", encoding="utf-8")
+    assert lc.open_increment(repo) == "NEW-INCREMENT.md"
+
+
 # ── edit_allowed: la Capa 1 de ADR-010, dos lados ─────────────────────────────
 
 def test_edit_md_always_allowed(repo):

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""increment_guard (PreToolUse: Write|Edit|MultiEdit) — Capa 1 de la disciplina de commit (ADR-010):
-no se codifica fuera de un incremento. Bloquea editar cualquier archivo NO-`.md` bajo el repo si no hay
-un incremento abierto. `.md` siempre permitido (es como se ABRE un incremento). La decisión vive en
-`cadence.edit_allowed` (ley de colocación); este hook sólo transporta. exit 2 = deny. Best-effort:
-ante cualquier duda, PERMITE (no brickea la edición — la cadencia es un aid, no una frontera de seguridad)."""
+"""increment_guard (PreToolUse: Write|Edit|MultiEdit) — Layer 1 of the commit discipline (ADR-010):
+no code is written outside an increment. Blocks editing any NON-`.md` file under the repo when no
+increment is open. `.md` is always allowed (it is how an increment is OPENED). The decision lives in
+`cadence.edit_allowed` (placement law); this hook is transport only. exit 2 = deny. Best-effort:
+on any doubt, PERMIT (never brick an edit — the cadence is an aid, not a security boundary)."""
 import json
 import sys
 from pathlib import Path
 
-# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
-# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+# Root by script location (<root>/.claude/hooks/x.py -> parents[2] == <root>), NOT by cwd:
+# a leaked `cd` must NOT be able to silently disable the guard (it used to fail open).
 _SRC = str(Path(__file__).resolve().parents[2] / "src")
 
 
@@ -33,9 +33,9 @@ def main() -> int:
         wd = cadence.required_workdir_rel(root, fp) or "docs/work"
         level = wd[:-len("/docs/work")] if wd.endswith("/docs/work") else "meta"
     except Exception:
-        return 0  # best-effort: no bloquear si no podemos decidir
-    print(f"increment_guard: no se codifica fuera de un incremento (ADR-010 + ADR-016, level-aware). "
-          f"Este archivo es del nivel `{level}`: abrí un incremento en `{wd}/` (o editá un `.md`).",
+        return 0  # best-effort: never block when we cannot decide
+    print(f"increment_guard: no code outside an increment (ADR-010 + ADR-016, level-aware). "
+          f"This file belongs to level `{level}`: open an increment in `{wd}/` (or edit an `.md`).",
           file=sys.stderr)
     return 2
 

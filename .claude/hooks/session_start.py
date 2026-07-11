@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""session_start (SessionStart) — rehidrata la memoria al arrancar la sesión. Su stdout se
-inyecta al contexto: incremento abierto + proyección de hechos + STATE «Ahora» + últimos hechos
-+ frescura. Cierra el problema vivido (reiniciar perdía todo el contexto). Nunca bloquea."""
+"""session_start (SessionStart) — rehydrates memory when the session starts. Its stdout is
+injected into context: open increment + projection of facts + STATE «Ahora» + latest facts
++ freshness. Closes the lived problem (restarting used to lose all context). Never blocks."""
 import json
 import sys
 
@@ -18,8 +18,8 @@ def main() -> int:
         from metafactory.memory import rehydrate
         print(rehydrate.build_payload(repo_root(), session=data.get("session_id", ""),
                                       source=data.get("source", "")))
-    except Exception as exc:  # best-effort: nunca romper el arranque
-        print(f"(rehydrate no disponible: {exc})")
+    except Exception as exc:  # best-effort: never break session start
+        print(f"(rehydrate unavailable: {exc})")
     return 0
 
 

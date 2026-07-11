@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""commit_guard (PreToolUse: Bash) — el commit no atribuye trabajo no probado. Bloquea
-`git commit` si la estación activa no tiene un veredicto verde (recompone limpio). exit 2 = deny."""
+"""commit_guard (PreToolUse: Bash) — a commit does not attribute unproven work. Blocks
+`git commit` when the active station has no green verdict (recomposes clean). exit 2 = deny."""
 import json
 import re
 import sys
 from pathlib import Path
 
-# Raíz por ubicación del script (<root>/.claude/hooks/x.py -> parents[2] == <root>), NO por cwd:
-# un `cd` que filtre el cwd NO debe poder desactivar silenciosamente el guard (fallaba open).
+# Root by script location (<root>/.claude/hooks/x.py -> parents[2] == <root>), NOT by cwd:
+# a leaked `cd` must NOT be able to silently disable the guard (it used to fail open).
 _SRC = str(Path(__file__).resolve().parents[2] / "src")
 
 
@@ -37,7 +37,7 @@ def main() -> int:
         return 0
     if proof is None or v.gate_recompute_ok(proof)[0]:
         return 0  # nothing active, or it's green
-    print(f"commit_guard: la estación activa {a['station']} no está verde; no commitees trabajo no probado.", file=sys.stderr)
+    print(f"commit_guard: active station {a['station']} is not green; do not commit unproven work.", file=sys.stderr)
     return 2
 
 

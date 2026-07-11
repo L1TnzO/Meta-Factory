@@ -101,7 +101,7 @@ class TestDebt:
         (repo / "foo.py").write_text("x = 1\n", encoding="utf-8")
         has, reason = cadence.debt(repo)
         assert has is False
-        assert "sin incremento abierto" in reason
+        assert "no open increment" in reason
 
     def test_md_only_changes_are_not_debt(self, repo: Path):
         _open_increment(repo)

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3411ef73e29884bec886b71e3a31c16ad0a61f0e updated=2026-07-11T18:02Z -->
+<!-- meta:doc sha=2b3d08f1f9cbd1f70acef8b095f4bf7a8bd59a01 updated=2026-07-11T20:27Z -->
 # Incremento PARALLEL-SLOTS-PILOT
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T17:55Z). Cerralo con `meta increment close`
@@ -67,9 +67,9 @@ re-pin risk (docs-only; `proof_sha` sees no docs).
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | Work doc with pre-registered decision rule + baselines; 5 slot contracts written under `.gen/` (slot ids `docs-en-asf` · `docs-en-dummy` · `docs-en-fullstack` · `docs-en-fsk` · `docs-en-iot`) | ✅ |
-| 2 | 5 generator slots spawned in the SAME instant, each `isolation: "worktree"`; timing + tokens captured | ⏳ |
-| 3 | Merge: per-worktree law footprint check + independent acceptance-gate re-run + copy → `meta doc-sync` → `meta check` green → feat commit | ⏳ |
-| 4 | Decision row (adopt/reject + numbers) → `COST-DOWN-DIRECTION-INCREMENT.md §2` (feeds the INC-5 assumption ledger); STATE/LOG; `meta outcome`; close | ⏳ |
+| 2 | 5 generator slots spawned in the SAME instant, each `isolation: "worktree"`; timing + tokens captured (one external outage mid-run, resumed in the same instant — see Evidencia 4) | ✅ |
+| 3 | Merge: per-worktree law footprint check + independent acceptance-gate re-run + copy → `meta doc-sync` → `meta check` green → feat commits (`fc4fb12` 4/5 + `ce32b97` fsk) | ✅ |
+| 4 | Decision row (REJECTED + numbers) → `COST-DOWN-DIRECTION-INCREMENT.md` §2.6 (feeds the INC-5 assumption ledger); STATE/LOG; `meta outcome`; close | ⏳ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. The 10 scoped docs are English: `.gen/doc_translate_check.py` exits 0 over all 10 (re-run by the
@@ -82,3 +82,35 @@ re-pin risk (docs-only; `proof_sha` sees no docs).
    the pre-registered thresholds — decision row landed in COST-DOWN §2 with numbers, whatever they say
    (an honest "rejected: imbalance dominates" is a valid outcome; the FSK slot is 87% of the corpus).
 4. `meta outcome` captured for this increment.
+
+## Evidencia
+1. **Deliverable (a) — the 10 docs are English.** 5/5 slots green: every slot's acceptance gate
+   (`.gen/doc_translate_check.py` over its 2 files) exit 0 INSIDE the worktree AND re-run independently by
+   the orchestrator at merge; `git diff` confined to the scoped files; zero `.proof/` diff (docs-only, no
+   re-pin). Residual Spanish post-merge: 0 accented lines in all 10 files (fsk STATE 976→1,004 lines, within
+   the drift bound). Brain spot-check (meaning half, ADR-026 §1) sampled iot STATE, asf MEMORY, fsk STATE
+   head/middle: faithful, technical tokens and `## Ahora`/`## Mapa` grammar intact, evidence figures
+   unchanged. Commits: `073e0c9` (fase 1) · `ef1de09` (worktrees gitignore) · `fc4fb12` (4/5) · `ce32b97` (fsk).
+2. **Deliverable (b) — the measured decision: parallel-by-default REJECTED** by the pre-registered rule.
+   (W) makespan 1,554s / Σ per-slot 1,905s = **81.6%** (bar ≤60%) → FAIL. (T) Σ tokens 410,075 vs control
+   model 235.6k = **174%** (bar ≤150%) → FAIL. Full row + refinements in `COST-DOWN-DIRECTION-INCREMENT.md`
+   §2.6: mechanics PROVEN (5/5 worktree slots merged clean under the footprint law, zero interference);
+   binding constraint = load imbalance (fsk = 87% of corpus → Amdahl: the 4 balanced small slots alone made
+   makespan 30% of sequential); fixed per-spawn cost ≈40k tok (small slots paid 1,052 tok/line vs control
+   206 → batch the small, never parallelize it); re-measure trigger = ≥3 size-balanced slots ≥~100k tok each.
+3. **Per-slot numbers (window-2, agent-reported):** asf 40,066 tok · 84.1s · dummy 40,431 · 84.0s ·
+   fullstack 36,952 · 77.8s · iot 42,399 · 91.9s · fsk 250,227 · 1,567.7s (108 tool-uses). Timing artifacts
+   `.gen/docs-en-<slug>.timing.json` (start/resumed/end) + verdicts `.gen/docs-en-<slug>.verdict.json` +
+   `.gen/parallel-pilot-outage.txt` on file.
+4. **Honest contamination note:** an external API session limit killed all 5 workers ~90s after T0
+   (18:03:25Z); all 5 were resumed in the SAME instant (T1 19:57:38Z) as cold re-spawns. (W) is computed
+   on window-2 only (outage-clean: both makespan and Σ come from the same resumed window); (T) is an UPPER
+   bound (window-1 usage unreported; window-2 re-paid all setup). Same failure class as F2(c)'s slot4 —
+   now seen twice: long unattended multi-slot runs must expect session-limit cuts (resume-in-worktree
+   worked; the worktree state survived the kill).
+5. **Merge-boundary findings (reusable):** (i) worktrees branch from a platform-chosen base commit — verify
+   `git merge-base --is-ancestor <base> master` + byte-equality of slot files base-vs-master BEFORE
+   copy-merging; (ii) resumed agents are FRESH spawns in the MAIN project dir → their in-worktree manifest
+   never arms the per-worktree hooks — the merge-time law check (`footprint_problems` over the worktree's
+   `git status`) is the boundary that actually decides, exactly as pre-registered; (iii) platform worktrees
+   land under `.claude/worktrees/` and trip `stop_proof` as untracked dirt → gitignored (`ef1de09`).

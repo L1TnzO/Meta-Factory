@@ -1,7 +1,28 @@
-<!-- meta:doc sha=3b2f00096cd1ae32bd9942591fc17b19fb6d9431 updated=2026-07-11T17:44Z -->
+<!-- meta:doc sha=47bf5ec2b525c7d4ee73f293940891010af3738d updated=2026-07-11T20:29Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T20:35Z — PARALLEL-SLOTS-PILOT (F2(d) + SOTA-PARITY INC-2) CLOSED: parallel-by-default REJECTED by measurement
+Two deliverables in one increment. (a) ADR-026 F2 arc COMPLETE: the 10 factory living docs (5× STATE.md +
+5× reference/MEMORY.md, 1,143 lines / 599 es-accented — fsk's 976-line STATE was 87% of the corpus) are
+English, translated by 5 generator slots each in its own git worktree (Agent `isolation: "worktree"`),
+merged one-by-one under the footprint law (`delegation.footprint_problems` over each worktree's
+`git status`) + independent gate re-run (`doc_translate_check` exit 0 ×5) + brain spot-check. Zero re-pin
+(docs-only). (b) The measurement SOTA-PARITY §4 INC-2 pre-registered: against the F2(c) sequential control
+(206 tok/line · 1.11 s/line), the parallel run FAILED both pre-registered bars — (W) makespan 1,554s /
+Σ per-slot 1,905s = 81.6% (bar ≤60%); (T) 410,075 tok = 174% of the control model (bar ≤150%, upper bound:
+an external API session-limit outage killed all 5 workers ~90s in and forced cold re-spawns; (W) is
+computed outage-clean on the resumed window). The refinement that replaces the "≈15×" folklore: the
+MECHANICS work (5/5 worktree slots merged clean, zero interference — the INC-1 footprint tooth is what
+made unattended acceptance safe); the binding constraints are LOAD IMBALANCE (Amdahl: the 4 balanced small
+slots alone hit makespan 30% of sequential — a wall-clock win is real between size-balanced slots) and a
+FIXED ≈40k-token per-spawn cost (small slots paid 1,052 tok/line vs control 206 → batch the small, never
+parallelize it). Doctrine: ADR-021 "don't parallelize by default" STANDS, now as a measured row with a
+re-measure trigger (≥3 size-balanced slots ≥~100k tok each) in `work/COST-DOWN-DIRECTION-INCREMENT.md
+§2.6` (feeds the INC-5 assumption ledger). Reusable merge-boundary lessons (worktree base-commit check,
+resumed-agents-don't-arm-worktree-hooks → merge-time law is the real boundary, `.claude/worktrees/`
+gitignored) in `work/PARALLEL-SLOTS-PILOT-INCREMENT.md §Evidencia`. Detail: same doc.
 
 ## 2026-07-11T17:43Z — SLOT-FOOTPRINT-TOOTH (SOTA-PARITY INC-1) CLOSED: delegation boundary made honest
 GAP-1 of the 2026-07-11 audit closed the same day, column work by the brain's own eyes (never delegated).

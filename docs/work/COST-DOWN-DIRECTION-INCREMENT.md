@@ -1,4 +1,4 @@
-<!-- meta:doc sha=050be0d56eb0acbf7570ea231becec657a534dae updated=2026-07-11T15:28Z -->
+<!-- meta:doc sha=89a4d440246f9f2d2f7647122f390cd8b58d18a2 updated=2026-07-11T20:27Z -->
 # COST-DOWN-DIRECTION Increment
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-07-02T14:35Z) (creado 2026-07-02T14:30Z). Cerralo con `meta increment close`
@@ -121,6 +121,32 @@ at the end. ⚠️ Claude Code today does NOT expose the knob (the API does: `ca
   The promise is 3–5× per increment and ~10× ONLY in the deterministic day-to-day class. Not a global 10×.
 - With the new table, Opus→Sonnet routing gives **≤2.5×** (not 5×). The big gain is MULTIPLICATIVE:
   routing (≤2.5×) × lean-context (1.5–2.5×) × fewer-turns (1.3–2×) × cache-hygiene (1.1–1.2×).
+
+### 2.6 Parallel slots — MEASURED decision (PARALLEL-SLOTS-PILOT, 2026-07-11; feeds the SOTA-PARITY INC-5 assumption ledger)
+**Decision: parallel-by-default REJECTED** by the pre-registered rule (SOTA-PARITY §4 INC-2.4). Vehicle:
+F2(d) ENGLISH factory living docs, 5 disjoint slots (per-factory `allow_globs`), each generator in its own
+git worktree (Agent `isolation: "worktree"`), merged under the footprint law. Control: F2(c) sequential
+(624.1k tok · 3,371s over 3,027 lines → 206 tok/line · 1.11 s/line).
+| Axis | Threshold | Measured | Verdict |
+| --- | --- | --- | --- |
+| (W) makespan / Σ per-slot wall | ≤60% | **1,554s / 1,905s = 81.6%** | 🔴 FAIL |
+| (T) Σ tokens / control model | ≤150% (353.4k) | **410,075 = 174%** | 🔴 FAIL |
+What the numbers actually say (the refinement that replaces the old "≈15×" folklore):
+1. **The mechanics WORK.** 5/5 worktree slots merged clean: footprint law (`delegation.footprint_problems`)
+   green at merge for every slot, zero cross-slot interference, independent gate re-runs all exit 0.
+2. **Load imbalance is the binding constraint (Amdahl).** The `fsk` slot was 87% of the corpus (991/1,143
+   lines) → the makespan ≈ the max slot. The 4 BALANCED small slots alone: makespan ≈100s vs Σ 338s = **30%**
+   — well under the 60% bar. Parallel wall-clock wins are real ONLY between size-balanced slots.
+3. **Fixed per-spawn cost ≈40k tokens** (4 small slots: 159.8k over 152 lines = 1,052 tok/line vs control
+   206). A tiny slot pays ~5× its translation cost in spawn overhead → **batch small units into one slot;
+   never parallelize the small**. The big slot amortized fine (fsk 252 tok/line, 1.22× control).
+4. **Contamination (upper bound, honest):** an external API session-limit outage killed all 5 workers
+   ~90s in; window-2 = 5 COLD re-spawns (re-paid setup), window-1 usage unreported. The measured 174% is an
+   UPPER bound on token overhead; the wall-clock (W) verdict is outage-clean (window-2 only).
+**Standing doctrine:** ADR-021 "don't parallelize by default" STANDS. Multi-slot law NOT written (anti-churn,
+SOTA-PARITY §6.3). **Re-measure trigger:** a genuinely disjoint workload of ≥3 size-BALANCED slots each big
+enough to amortize ~40k spawn overhead (≥~500 lines / ≥~100k tok of expected work each) — then re-run this
+rule; the 4-small-slot sub-measurement (30%) predicts (W) would pass there.
 
 ---
 

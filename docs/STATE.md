@@ -1,4 +1,4 @@
-<!-- meta:doc sha=110b3158bd291589d4a25ea4f315550a8bb9fce4 updated=2026-07-11T17:55Z -->
+<!-- meta:doc sha=1e73211f2bdb91e380f89998e1cb048c29c3a88d updated=2026-07-11T20:32Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -30,23 +30,18 @@
   substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
   its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. Next: ASF physical adoption (S2) ·
   `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025` · LOG.
-- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 design COMPLETE (2026-07-04, re-sealed 2026-07-10).** Path B:
-  LIVE system = meta+FSK+iot · ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. All THREE
-  external judges ARE in the tree: **H-1** ✅ (second actor GREEN) · **economic judges** ✅ (`OUTCOME-JUDGES`) ·
-  **E4** ✅ (escape: engine 0% · product 75% vs static, `work/MUTATION-ESCAPE`) · **E1+D-8** ✅ EXECUTED
-  and adjudicated (commit `8790169`: on a FOREIGN spec the bare-metal approach wins the day-1 story — 19/19
-  endpoints, 6.3min; the factory retains re-derivability+gates+escape-rate IN ITS CLASS; the benchmark measures
-  its own grammar, D-8 confirmed) · **D-3/D-7/H-4/H-5** ✅. Sole residual: **D-2** content-as-files, DEMOTED
-  post-freeze (ADR-023 froze that content; trigger: first waiver that re-edits embedded content).
+- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** Path B: LIVE = meta+FSK+iot ·
+  ASF+full-stack-TS **REGRESSION-FROZEN** · dummy = fixture. All external judges in-tree ✅ (H-1 ·
+  economic `OUTCOME-JUDGES` · E4 escape · E1+D-8 adjudicated `8790169` · D-3/D-7/H-4/H-5). Sole residual:
+  **D-2** content-as-files, DEMOTED post-freeze (trigger: first waiver that re-edits embedded content).
+  Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
 - **🧭 `COST-DOWN` (2026-07-02, ADR-021) — FIXED N=7 plan COMPLETE (INC-0..6 ✅).** Routing by SESSION
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
   `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
-- **🧭 SOTA RE-DIRECTION (ADR-017→020) — ALL closed.** Graph + gates + verify-not-review harness
-  IGNITED (ADR-020) + MEASURED payoff (`DELEG-PAYOFF`); dial ADOPTED (FSK). Detail: work-docs + `LOG.md`.
-- **🧠 MEMORY v2 (ADR-019) — COMPLETE (M1–M6 ✅; pending: §6 threshold measurement).** Prune before adding;
-  three single-source memories (`docs/`=facts · CLAUDE.md=rules · note-store=relationship),
-  `reference/MEMORY-ARCHITECTURE.md §8.2`. Detail: `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md` + `LOG.md`.
+- **🧭 SOTA RE-DIRECTION (ADR-017→020) ALL closed** (harness IGNITED, payoff MEASURED, dial ADOPTED) ·
+  **🧠 MEMORY v2 (ADR-019) COMPLETE** (M1–M6 ✅; pending §6 threshold; three single-source memories,
+  `reference/MEMORY-ARCHITECTURE.md §8.2`). Detail: work-docs + `LOG.md`.
 - **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature (core backend +
   access-control + Chromium CRUD frontend + **REAL 100.0% line coverage** in snipeit,
   `FSK-COVERAGE-FULL-100`, 2026-07-10); `FSK-FRONTEND-SCREENS` arc COMPLETE (5/5) — and STILL the UI is ugly:
@@ -57,6 +52,10 @@
   content-addressed per-home seal · 16 `FSK-S0..S15` migrated byte-identical to the factory ·
   `column_scope.py` + `least_priv` gate (factory ⊊ meta).
   Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`; history in `LOG.md`.
+- **🌐 ADR-026 English living layer — F2 COMPLETE (a·b·c·d ✅).** F2(d) ran as `PARALLEL-SLOTS-PILOT`
+  (SOTA-PARITY INC-2): 10 factory living docs English via 5 worktree slots; **parallel-by-default REJECTED
+  by measurement** ((W) 81.6%>60% · (T) 174%>150%; mechanics proven, imbalance+~40k/spawn overhead are the
+  binding constraints) → decision row + re-measure trigger: `work/COST-DOWN-DIRECTION-INCREMENT.md §2.6`.
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).

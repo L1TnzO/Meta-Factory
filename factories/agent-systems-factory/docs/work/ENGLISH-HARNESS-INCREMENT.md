@@ -1,7 +1,7 @@
-<!-- meta:doc sha=36a7963f42b29aa29dd66e3c7d3c7d1575ef844f updated=2026-07-11T04:59Z -->
+<!-- meta:doc sha=0ea30da4423240b9df0c25434f8d5374135c59f2 updated=2026-07-11T05:00Z -->
 # Incremento ENGLISH-HARNESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T04:59Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T05:00Z) (creado 2026-07-11T04:59Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=95f08d5a6072784181637bb2a9b443ab48a33668 updated=2026-06-27T01:41Z -->
+<!-- meta:doc sha=db85ebad56b4fc024c2fd0625a735686db5bcd2c updated=2026-07-11T05:00Z -->
 # Bitácora — Agent Systems Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 

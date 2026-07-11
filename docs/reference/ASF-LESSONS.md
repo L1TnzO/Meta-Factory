@@ -1,135 +1,135 @@
-<!-- meta:doc sha=6091e426930ca8f38d951a487ce087edb8cdf13e updated=2026-06-13T14:57Z -->
-# Lecciones de ASF — lo bueno a conservar, lo malo a corregir
+<!-- meta:doc sha=07909b81d5fc9569c48295a74712f7e93865ab9c updated=2026-07-11T16:02Z -->
+# ASF lessons — the good to keep, the bad to fix
 
-| Campo | Valor |
+| Field | Value |
 | --- | --- |
-| Documento | Extracción de aprendizajes de Agent_Systems_Factory (ASF) |
-| Método | Lectura completa del árbol de ASF: ARCHITECTURE, AUDIT, HONEST-STATE, V2, STATE, LOG, los 23 ADR, el incremento CONTEXT, hooks, agents, commands |
-| Fecha de lectura | 2026-06-13T02:17Z |
-| Para qué | Todo lo bueno asciende al sustrato del Meta-Factory (`ARCHITECTURE.md §3`); todo lo malo se vuelve un gap cerrado por diseño |
+| Document | Extraction of learnings from Agent_Systems_Factory (ASF) |
+| Method | Full read of the ASF tree: ARCHITECTURE, AUDIT, HONEST-STATE, V2, STATE, LOG, the 23 ADRs, the CONTEXT increment, hooks, agents, commands |
+| Reading date | 2026-06-13T02:17Z |
+| Purpose | Everything good ascends to the Meta-Factory's substrate (`ARCHITECTURE.md §3`); everything bad becomes a gap closed by design |
 
-> Citas con ruta relativa a `../../Agent_Systems_Factory/`. ASF es un sistema MUY bien pensado;
-> este doc no lo desmerece — lo cosecha. Su mayor virtud es su honestidad (AUDIT/HONEST-STATE),
-> que es justo lo que permite esta extracción.
+> Citations use a path relative to `../../Agent_Systems_Factory/`. ASF is a VERY well thought-out
+> system; this doc doesn't diminish it — it harvests it. Its greatest virtue is its honesty
+> (AUDIT/HONEST-STATE), which is exactly what makes this extraction possible.
 
 ---
 
-## 1. Lo bueno (asciende al sustrato del Meta-Factory)
+## 1. The good (ascends to the Meta-Factory's substrate)
 
-| Patrón de ASF | Dónde vive en ASF | Cómo lo hereda el Meta-Factory |
+| ASF pattern | Where it lives in ASF | How the Meta-Factory inherits it |
 | --- | --- | --- |
-| **La columna anti-sello-de-goma** (3 cerrojos): veredicto no escribible por el modelo, hash recomputado, Stop re-corre verify | ASF/ADR-006, `.claude/hooks/{proof_protect,gate_guard,stop_station_proof}.py`, `settings.json` permissions.deny | I-1, M1 — la primera meta-estación instala la columna en cada fábrica nueva |
-| **Estaciones como dato**, no ramas de código; cero identidad de proyecto hardcodeada | ARCHITECTURE §9.1, anti-patrón #4 | I-2, M2 |
-| **Frontera del determinismo** clara y honesta: modelo para slots acotados, código para invariantes; el determinismo en proceso/verificación/contratos | §6, PF-1/PF-2, ASF/ADR-009 | I-3, PF-1/PF-2 |
-| **Escalera de automatización A/B/C** (auto / consentimiento / provisional honesto) — evita el binario "bloquear o fabricar" | §7, ADR-010 | I-4 |
-| **Frontera generado/dominio**: Copier dueño de `generated/`, ingeniero de `domain/`, conexión por herencia; un update no pisa código humano | §11.5, ADR-014, `template/` `_skip_if_exists` | I-5, M4 |
-| **Ley de colocación / economía de contexto**: cada pieza en el sustrato más determinista; veredictos al contexto, logs al disco | ADR-020, `docs/work/CONTEXT-INCREMENT.md`, `factory check` | I-6, I-7, `CONTEXT-ECONOMY.md` |
-| **Memoria como artefacto del repo** + esquema narrativo (tipos de doc = semántica de mutación) | ADR-019, ADR-021, `.claude/hooks/session_journal.py`, `docs/{STATE,LOG,decisions,work,reference}` | I-8, I-9, M5 — y el esquema de ESTE repo |
-| **RTM + árbol de evidencia**: requisitos con id + `satisfied_by`; commits con trailers; matriz re-derivada de artefactos | ADR-017/018, HONEST-STATE §"Trazabilidad de requisitos", `factory rtm`/`factory trace` | I-10, M5 |
-| **Doctrina de los dos verificadores**: re-derivación sobre custodia en CI externo | ADR-022, `.githooks/pre-push`, `.github/workflows/factory-ci.yml` | I-11, M6 |
-| **Sombra determinista de la capa meta**: toda regla narrativa que no deba saltearse tiene detector determinista; el juicio nunca se hard-blocka | ADR-023, `engine/narrative.py`, contador de delegaciones | I-12, PF-11 |
-| **Honestidad de límites** como artefacto de primera clase | HONEST-STATE.md, AUDIT.md, PF-8 | I-13, este mismo doc |
-| **Loop generar→verificar→promover** (la mitad cara —verificación— es el activo durable) | V2.md, V2.3, `pattern_request.json`, `/factory-promote` | base del loop de auto-mejora (`SELF-IMPROVEMENT.md`) |
-| **Aislamiento fábrica/producto** verificado por test | PF-6, `test_factory_does_not_import_products` | PF-6, `test_metafactory_does_not_import_factories` |
-| **Contratos de subagente como API** (formato de reporte fijo = lo único que entra al orquestador) | `.claude/agents/factory-writer.md`, CONTEXT D2 | `CONTEXT-ECONOMY.md §delegación` |
-| **Disciplina de incrementos gobernados** (`/incremento`: abrir/checkpoint/cerrar; el doc ES el estado) | `.claude/commands/incremento.md`, los 4 docs de `docs/work/` | heredado tal cual; ver `docs/work/BOOTSTRAP-INCREMENT.md` |
+| **The anti-rubber-stamp column** (3 locks): a verdict the model can't write, recomputed hash, Stop re-runs verify | ASF/ADR-006, `.claude/hooks/{proof_protect,gate_guard,stop_station_proof}.py`, `settings.json` permissions.deny | I-1, M1 — the first meta-station installs the column in every new factory |
+| **Stations as data**, not code branches; zero hardcoded project identity | ARCHITECTURE §9.1, anti-pattern #4 | I-2, M2 |
+| **Determinism boundary** clear and honest: model for bounded slots, code for invariants; determinism in process/verification/contracts | §6, PF-1/PF-2, ASF/ADR-009 | I-3, PF-1/PF-2 |
+| **A/B/C automation ladder** (automatic / consent / honest-provisional) — avoids the "block or fabricate" binary | §7, ADR-010 | I-4 |
+| **Generated/domain boundary**: Copier owns `generated/`, the engineer owns `domain/`, connected by inheritance; an update never overwrites human code | §11.5, ADR-014, `template/` `_skip_if_exists` | I-5, M4 |
+| **Placement law / context economy**: every piece in the most deterministic substrate; verdicts to context, logs to disk | ADR-020, `docs/work/CONTEXT-INCREMENT.md`, `factory check` | I-6, I-7, `CONTEXT-ECONOMY.md` |
+| **Memory as a repo artifact** + narrative schema (doc types = mutation semantics) | ADR-019, ADR-021, `.claude/hooks/session_journal.py`, `docs/{STATE,LOG,decisions,work,reference}` | I-8, I-9, M5 — and this repo's own schema |
+| **RTM + evidence tree**: requirements with an id + `satisfied_by`; commits with trailers; matrix re-derived from artifacts | ADR-017/018, HONEST-STATE §"Trazabilidad de requisitos", `factory rtm`/`factory trace` | I-10, M5 |
+| **Two-verifier doctrine**: re-derivation over custody in external CI | ADR-022, `.githooks/pre-push`, `.github/workflows/factory-ci.yml` | I-11, M6 |
+| **Deterministic shadow of the meta layer**: every narrative rule that shouldn't be skipped has a deterministic detector; judgment is never hard-blocked | ADR-023, `engine/narrative.py`, delegation counter | I-12, PF-11 |
+| **Honesty about limits** as a first-class artifact | HONEST-STATE.md, AUDIT.md, PF-8 | I-13, this very doc |
+| **Generate→verify→promote loop** (the expensive half —verification— is the durable asset) | V2.md, V2.3, `pattern_request.json`, `/factory-promote` | base for the self-improvement loop (`SELF-IMPROVEMENT.md`) |
+| **Factory/product isolation** verified by test | PF-6, `test_factory_does_not_import_products` | PF-6, `test_metafactory_does_not_import_factories` |
+| **Subagent contracts as an API** (fixed report format = the only thing that enters the orchestrator) | `.claude/agents/factory-writer.md`, CONTEXT D2 | `CONTEXT-ECONOMY.md §delegation` |
+| **Governed-increment discipline** (`/incremento`: open/checkpoint/close; the doc IS the state) | `.claude/commands/incremento.md`, the 4 docs in `docs/work/` | inherited as-is; see `docs/work/BOOTSTRAP-INCREMENT.md` |
 
-**La lección meta más valiosa de ASF** (AUDIT, cierre): *"render+ast en verde NO prueba un
+**ASF's most valuable meta-lesson** (AUDIT, closing): *"render+ast en verde NO prueba un
 producto que funcione. SEIS bugs invisibles a ese nivel aparecieron al scaffoldear+compilar de
-verdad."* → en el Meta-Factory esto es **M8, insalteable** (`ARCHITECTURE.md §6`).
+verdad."* → in the Meta-Factory this is **M8, unskippable** (`ARCHITECTURE.md §6`).
 
 ---
 
-## 2. Lo malo (gaps que el Meta-Factory cierra por diseño)
+## 2. The bad (gaps the Meta-Factory closes by design)
 
-Ordenados por severidad. Cada gap cita la evidencia en ASF y nombra el mecanismo del
-Meta-Factory que lo cierra.
+Ordered by severity. Each gap cites the evidence in ASF and names the Meta-Factory mechanism that
+closes it.
 
-### G-1 · ASF se fabricó a sí mismo (el gap raíz)
-- **Evidencia**: ASF vive en su propia carpeta, sujeto a su propio harness. ADR-023 confiesa:
-  *"la fábrica aplicó ADR-020 a fabricar productos, pero nunca a sí misma."* La capa meta quedó
-  como prosa que se saltea bajo presión (STATE quedó viejo una sesión entera; la "partida de
-  nacimiento" nunca escribió nada; ~1 delegación real en toda la historia del repo).
-- **Causa raíz**: error de categoría — ASF no pertenece a su clase de producto (agentes
-  LangGraph), así que tuvo que fingir ser su propio producto (`VISION.md §2`).
-- **Cierre**: PF-9 + ADR-006 — el Meta-Factory ES el punto fijo legítimo; ASF se regenera como
-  producto, gobernado por una capa más confiable que él.
+### G-1 · ASF manufactured itself (the root gap)
+- **Evidence**: ASF lives in its own folder, subject to its own harness. ADR-023 confesses:
+  *"la fábrica aplicó ADR-020 a fabricar productos, pero nunca a sí misma."* The meta layer ended
+  up as prose that gets skipped under pressure (STATE stayed stale for a whole session; the
+  "birth certificate" never wrote anything; ~1 real delegation in the repo's entire history).
+- **Root cause**: a category error — ASF doesn't belong to its own product class (LangGraph
+  agents), so it had to pretend to be its own product (`VISION.md §2`).
+- **Closure**: PF-9 + ADR-006 — the Meta-Factory IS the legitimate fixed point; ASF is regenerated
+  as a product, governed by a layer more trustworthy than itself.
 
-### G-2 · Sobre-acoplamiento a UNA clase de sistema
-- **Evidencia**: HONEST-STATE §"Acoplamiento de opiniones": *"la fábrica es opinionada al stack
+### G-2 · Over-coupling to ONE class of system
+- **Evidence**: HONEST-STATE §"Acoplamiento de opiniones": *"la fábrica es opinionada al stack
   del RE Agent (Neo4j/W3C PROV, escalera de atribución, interrupt análisis→decisión, RAGAS).
   Es una fábrica para una CLASE, no universal. Generalizar = parametrizar esas opiniones."*
-- **Cierre**: la factory-spec Mitad A (`ARCHITECTURE.md §5`) — las opiniones de ASF se vuelven
-  parámetros del dominio. El Meta-Factory no las hereda; las recibe como spec.
+- **Closure**: factory-spec Half A (`ARCHITECTURE.md §5`) — ASF's opinions become domain
+  parameters. The Meta-Factory doesn't inherit them; it receives them as spec.
 
-### G-3 · Sub-delegación: el orquestador caro rara vez deriva al barato
-- **Evidencia**: el ingeniero lo observó directamente ("Opus 4.8 MUY rara vez deriva a Sonnet
-  4.6"). ASF lo midió (ADR-023, contador de delegaciones) pero *"la serie está vacía"*; *"5
-  agentes definidos, ~1 delegación real en toda la historia del repo."* ASF eligió **medir antes
-  de forzar** (correcto), pero el default ergonómico seguía favoreciendo mantener todo en el
-  orquestador.
-- **Cierre**: `CONTEXT-ECONOMY.md` — delegación como **default ergonómico** (no disciplina):
-  contrato de delegación de ~0 líneas (vive en el agent), bus de veredictos que hace que NO
-  delegar sea lo caro, y enrutamiento de modelo como dato.
+### G-3 · Sub-delegation: the expensive orchestrator rarely routes to the cheap one
+- **Evidence**: the engineer observed it directly ("Opus 4.8 MUY rara vez deriva a Sonnet
+  4.6"). ASF measured it (ADR-023, delegation counter) but *"la serie está vacía"*; *"5
+  agentes definidos, ~1 delegación real en toda la historia del repo."* ASF chose to **measure
+  before forcing** (correct), but the ergonomic default kept favoring keeping everything in the
+  orchestrator.
+- **Closure**: `CONTEXT-ECONOMY.md` — delegation as an **ergonomic default** (not discipline):
+  a ~0-line delegation contract (lives in the agent), a verdict bus that makes NOT delegating the
+  expensive choice, and model routing as data.
 
-### G-4 · El enrutamiento de modelo no tenía sombra determinista (residual W4)
-- **Evidencia**: STATE §"Agujeros honestos" y CONTEXT §review de cierre: *"'reviewer en opus para
+### G-4 · Model routing had no deterministic shadow (residual W4)
+- **Evidence**: STATE §"Agujeros honestos" and CONTEXT §review de cierre: *"'reviewer en opus para
   trust-chain' es regla narrativa sin sombra determinista — el mecanismo de agents no soporta
-  selección condicional de modelo."* Quedó como W4 RESIDUAL ACEPTADO.
-- **Cierre**: el Meta-Factory mueve la decisión de modelo al **orquestador, guiada por dato**: un
-  comando/skill lee la clasificación del diff (trust-chain / bulk / log) y elige
-  subagente+modelo según una tabla de enrutamiento versionada. La selección condicional la hace
-  el orquestador con `Agent(..., model=...)`, no el mecanismo de definición de agents. Cierra W4.
+  selección condicional de modelo."* It remained W4 ACCEPTED RESIDUAL.
+- **Closure**: the Meta-Factory moves the model decision to the **orchestrator, guided by data**:
+  a command/skill reads the diff's classification (trust-chain / bulk / log) and picks
+  subagent+model according to a versioned routing table. The orchestrator makes the conditional
+  selection with `Agent(..., model=...)`, not the agent-definition mechanism. Closes W4.
 
-### G-5 · Falta una espina SDD formal
-- **Evidencia**: el ingeniero lo señaló ("podría faltar SDD o similares"). ASF tiene S0 +
-  spec.yml + RTM —que es *casi* SDD— pero no está enmarcado como un ciclo SDD disciplinado
-  (spec→plan→tareas→verificación) ni como la fuente única de verdad explícita.
-- **Cierre**: ADR-003 — espina SDD de primera clase, **enforced deterministamente** (M0 rehúsa
-  specs incompletas; el RTM bloquea ante UNSATISFIED). Más fuerte que las herramientas SDD
-  basadas en prompt del estado del arte, porque el incumplimiento corta una compuerta.
+### G-5 · Missing a formal SDD spine
+- **Evidence**: the engineer pointed it out ("podría faltar SDD o similares"). ASF has S0 +
+  spec.yml + RTM —which is *almost* SDD— but it isn't framed as a disciplined SDD cycle
+  (spec→plan→tasks→verification) nor as the explicit single source of truth.
+- **Closure**: ADR-003 — first-class SDD spine, **enforced deterministically** (M0 refuses
+  incomplete specs; RTM blocks on UNSATISFIED). Stronger than state-of-the-art prompt-based SDD
+  tools, because non-compliance cuts a gate.
 
-### G-6 · El façade-trap: plomería stubbeada + verificación contra el render
-- **Evidencia**: AUDIT §"el problema de fondo: los dos errores se COMPONEN" — templates con TODOs
-  en los puntos más difíciles (S1/S4 fachadas) + proof_checks apuntando a tests inexistentes +
-  verifier corriendo desde el venv equivocado = *"el sello de goma reencarnado a nivel de
-  plantilla."* Seis bugs aparecieron solo al scaffoldear+compilar de verdad.
-- **Cierre**: M8 insalteable (e2e real: scaffold+compile+run en el venv del producto). Y la regla
-  generalizada: **una fábrica se verifica construyendo, no renderizando.**
+### G-6 · The façade-trap: stubbed plumbing + verification against the render
+- **Evidence**: AUDIT §"el problema de fondo: los dos errores se COMPONEN" — templates with TODOs
+  at the hardest points (S1/S4 façades) + proof_checks pointing at nonexistent tests +
+  verifier running from the wrong venv = *"el sello de goma reencarnado a nivel de
+  plantilla."* Six bugs appeared only when actually scaffolding+compiling for real.
+- **Closure**: unskippable M8 (real e2e: scaffold+compile+run in the product's venv). And the
+  generalized rule: **a factory is verified by building, not by rendering.**
 
-### G-7 · El residual de custodia del verifier (parcialmente cerrado en ASF)
-- **Evidencia**: HONEST-STATE §"Lock 2 endurecido": *"`gates.ledger.json` y los registros de
+### G-7 · The verifier's custody residual (partially closed in ASF)
+- **Evidence**: HONEST-STATE §"Lock 2 endurecido": *"`gates.ledger.json` y los registros de
   predecesores siguen siendo artefactos en disco protegidos por hooks + deny-list + SHA — no se
   re-derivan desde un proceso verificador; esa protección depende de que la cadena de hooks esté
-  activa."* ASF lo mitigó con ADR-022 (CI externo) pero lo agregó **tarde** en su vida.
-- **Cierre**: I-11/M6 — la doctrina de los dos verificadores se hornea **desde el nacimiento** de
-  cada fábrica, no como un retrofit. El CI externo re-deriva; la custodia local deja de ser la
-  raíz de confianza.
+  activa."* ASF mitigated it with ADR-022 (external CI) but added it **late** in its life.
+- **Closure**: I-11/M6 — the two-verifier doctrine is baked in **from the birth** of every
+  factory, not as a retrofit. The external CI re-derives; local custody stops being the root of
+  trust.
 
-### G-8 · El patrón cascada: probada en pocas formas de spec
-- **Evidencia**: STATE y HONEST-STATE repetidamente: *"Probada en 3 formas de spec; formas nuevas
+### G-8 · The cascade pattern: proven on few spec shapes
+- **Evidence**: STATE and HONEST-STATE repeatedly: *"Probada en 3 formas de spec; formas nuevas
   casi seguro destapan cascada (patrón visto 2×)."*
-- **Cierre**: el loop generar→verificar→promover (heredado) + un corpus de **scenario-specs** de
-  fábrica (del estado del arte: meta-harness/autocontext) que ejercitan formas diversas antes de
-  promover. Ver `SELF-IMPROVEMENT.md §loop`.
+- **Closure**: the generate→verify→promote loop (inherited) + a corpus of factory
+  **scenario-specs** (from the state of the art: meta-harness/autocontext) that exercise diverse
+  shapes before promoting. See `SELF-IMPROVEMENT.md §loop`.
 
-### G-9 · Bootstrapping del entorno frágil / ecosistemas previos retirados
-- **Evidencia**: ASF/ADR-004 SUPERSEDED (agentmemory descartado tras verificar npm+daemon+53 tools);
-  gentleai/engram retirados (2026-06-10, con backup); el bug de `PROJECTS_ROOT` apuntando fuera
-  del repo (AUDIT §bug confirmado) que sobrevivió *"porque ningún test ejercita factory new →
-  station de punta a punta."*
-- **Cierre**: M8 (e2e desde el primer incremento, no como Fase 4 tardía) + dependencias mínimas
-  declaradas en el seed; cero daemons externos (memoria como artefacto del repo, I-8).
+### G-9 · Fragile environment bootstrapping / previously retired ecosystems
+- **Evidence**: ASF/ADR-004 SUPERSEDED (agentmemory discarded after verifying npm+daemon+53
+  tools); gentleai/engram retired (2026-06-10, with backup); the `PROJECTS_ROOT` bug pointing
+  outside the repo (AUDIT §bug confirmado) that survived *"porque ningún test ejercita factory
+  new → station de punta a punta."*
+- **Closure**: M8 (e2e from the first increment, not as a late Phase 4) + minimal dependencies
+  declared in the seed; zero external daemons (memory as a repo artifact, I-8).
 
 ---
 
-## 3. Síntesis: la fórmula del Meta-Factory
+## 3. Synthesis: the Meta-Factory's formula
 
-> **Meta-Factory = (todo el sustrato determinista que ASF descubrió, ascendido a template) +
-> (las opiniones de ASF, descendidas a factory-spec) + (los 9 gaps de §2, cerrados por diseño) +
-> (el punto fijo que vuelve legítimo el auto-mejoramiento).**
+> **Meta-Factory = (all the deterministic substrate ASF discovered, ascended to template) +
+> (ASF's opinions, descended to factory-spec) + (the 9 gaps in §2, closed by design) +
+> (the fixed point that makes self-improvement legitimate).**
 
-ASF nos costó iterar mucho porque descubrió el sustrato a los golpes (5 fases de remediación,
-2 patrones cascada, 6 bugs de façade). El Meta-Factory existe para que **eso no se repita**: el
-sustrato ya está cosechado y verificado, así que la próxima fábrica nace con todo cableado —
-el one-shot que el ingeniero pidió.
+ASF cost us a lot of iteration because it discovered the substrate the hard way (5 remediation
+phases, 2 cascade patterns, 6 façade bugs). The Meta-Factory exists so **that doesn't repeat**:
+the substrate is already harvested and verified, so the next factory is born with everything
+wired in — the one-shot the engineer asked for.

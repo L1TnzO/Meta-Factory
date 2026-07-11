@@ -1,340 +1,362 @@
-<!-- meta:doc sha=68df5d2e128723d893e428adbca5622f31b8955a updated=2026-07-11T00:56Z -->
-# Arquitectura de memoria — el subsistema más crítico de una fábrica
+<!-- meta:doc sha=cb874cb90d6712636d15e1d3bac5fa7edde9d8e8 updated=2026-07-11T16:01Z -->
+# Memory architecture — the most critical subsystem of a factory
 
-| Campo | Valor |
+| Field | Value |
 | --- | --- |
-| Documento | Diseño del subsistema de memoria del Meta-Factory y de las fábricas que produce |
-| Estado | **Borrador vivo / propuesta** (no ratificado — pendiente de decisión del ingeniero) |
-| Origen | Conversación 2026-06-13: el ingeniero reporta que la memoria "a veces no se actualiza", el agente "pregunta en vez de hacerlo", falta retrieval y medición, y pregunta si conviene un formato tipo DB |
-| Hereda | ASF/ADR-019 (memoria como artefacto), ADR-021 (esquema narrativo), ADR-023 (sombra determinista), ADR-004→superseded (agentmemory) |
-| Por qué importa | La memoria es una de las razones por las que una fábrica es buena o repite errores, deriva y diverge. Es transversal a TODA fábrica → es parte del sustrato (I-8/I-9), no del dominio |
+| Document | Design of the Meta-Factory's memory subsystem and of the factories it produces |
+| Status | **Living draft / proposal** (not ratified — pending the engineer's decision) |
+| Origin | Conversation 2026-06-13: the engineer reports that memory "a veces no se actualiza", the agent "pregunta en vez de hacerlo", retrieval and measurement are missing, and asks whether a DB-like format would help |
+| Inherits | ASF/ADR-019 (memory as artifact), ADR-021 (narrative schema), ADR-023 (deterministic shadow), ADR-004→superseded (agentmemory) |
+| Why it matters | Memory is one of the reasons a factory is good or repeats mistakes, drifts and diverges. It cuts across EVERY factory → it is part of the substrate (I-8/I-9), not the domain |
 
-> Tesis del doc: **el problema no es el formato de almacenamiento. Es (a) el disparador de
-> escritura de la memoria narrativa, que hoy es discrecional del modelo, y (b) la ausencia de una
-> capa de recuperación medida.** La forma de ASF (docs versionados + journal determinista) está
-> *adelante* del estado del arte en lo que más importa (confianza/determinismo) y *atrás* en
-> recuperación. La cura no es cambiar a una DB: es arreglar el disparador y agregar un índice
-> derivado y medido ENCIMA de los docs.
+> Doc thesis: **the problem is not the storage format. It is (a) the write trigger for narrative
+> memory, which today is discretionary to the model, and (b) the absence of a measured retrieval
+> layer.** ASF's form (versioned docs + deterministic journal) is *ahead* of the state of the art
+> in what matters most (trust/determinism) and *behind* in retrieval. The cure is not switching to
+> a DB: it is fixing the trigger and adding a derived, measured index ON TOP OF the docs.
 
-> **⚠️ RECONCILIADO POR ADR-019 (2026-06-26, M2).** Este doc propuso «medir → recuperación dirigida →
-> índice semántico SÓLO si la medición lo justifica». **La medición ocurrió y dio su veredicto.** Hechos
-> que ACTUALIZAN lo de abajo (la prosa original se conserva como historia del razonamiento, no se reescribe):
-> 1. **`meta recall` (Tier 2 scoring) se RETIRÓ.** Se invocó 1×/0-hit en toda la vida del proyecto — camino
->    muerto, **redundante con Grep/Read** (Letta: un filesystem empata/gana a memorias especializadas →
->    Grep/Read ES retrieval SOTA-competitivo). Donde abajo se lee «`meta recall` hace recuperación dirigida»,
->    leé «Grep/Read hace recuperación dirigida; `recall` se retiró por medición».
-> 2. **El índice semántico (embeddings) NO está «diferido-hasta-medición»: está DESCARTADO-por-medición** (hoy).
->    Sólo se reabre si dispara el umbral explícito de ADR-019 §6 (corpus > ventana **Y** relevance-ratio bajo
->    **Y** A/B con lift de task-success). La postura es **sustractiva** (podar > agregar), no aditiva.
-> 3. Lo que SIGUE vigente de este doc: el diagnóstico (§1), los tres tiers con Tier 0/1 (§2–3), el veredicto
->    «docs = verdad, índice = caché» (§5), la doctrina anti-deriva (§7), el manifiesto content-addressed (§9,
->    ADR-009). ADR-019 AGREGA «fidelidad sobre frescura» (un gate STATE-vs-`.proof/`, M3) sobre §9.
-> Autoridad viva de la dirección de memoria: **ADR-019** + `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
-
----
-
-## 1. Diagnóstico: qué tiene ASF hoy y dónde están los dos gaps reales
-
-ASF ya partió la memoria en dos —y esa partición es correcta y se conserva:
-
-- **Memoria de hechos (determinista)**: `journal.jsonl` lo escriben hooks desde git + ledger (cero
-  narrativa del modelo) + los artefactos mismos (proofs, RTM, evidence, gates, trailers). Es
-  **automática, incremental, gratis y confiable**. Esta capa NO tiene el problema que reportás.
-- **Memoria narrativa (significado)**: docs tipados con semántica de mutación (STATE overwrite ·
-  LOG append · decisions/ inmutable · work/ por-incremento · reference/ estable). La escribe el
-  modelo, revisable en diff.
-
-El síntoma que reportás —"el agente pregunta ¿actualizo los docs o hago otra cosa?"— es
-**exclusivamente de la capa narrativa**. ASF la dejó a discreción del modelo a propósito (el
-juicio no se hookea; forzarlo con hard-block es teatro, ADR-023). Pero "a discreción" degeneró en
-"a veces se saltea / pregunta". ASF ya había empezado a cerrar esto (ADR-023: el gate refresca
-deterministamente el header del STATE), pero no terminó el trabajo. Los dos gaps reales:
-
-- **G-M1 · El disparador de escritura narrativa es discrecional.** Actualizar memoria se trata como
-  una *tarea opcional post-trabajo* ("¿querés que actualice los docs?"), no como una *fase del
-  flujo*. Por eso se saltea o se pregunta.
-- **G-M2 · No hay capa de recuperación medida.** El retrieval es "STATE.md siempre-residente +
-  `factory trace`/grep a demanda". No hay ranking de relevancia, ni recuperación semántica, ni
-  **medición de qué se lee de verdad**. Tu propia frase —"no he medido cuánto se lee la
-  memoria"— es el diagnóstico: no se puede mejorar lo que no se mide.
+> **⚠️ RECONCILED BY ADR-019 (2026-06-26, M2).** This doc proposed «measure → directed retrieval →
+> semantic index ONLY if the measurement justifies it». **The measurement happened and delivered its
+> verdict.** Facts that UPDATE what follows (the original prose is kept as a record of the
+> reasoning, not rewritten):
+> 1. **`meta recall` (Tier 2 scoring) was RETIRED.** It was invoked 1×/0-hit across the project's
+>    entire lifetime — dead end, **redundant with Grep/Read** (Letta: a filesystem ties/beats
+>    specialized memories → Grep/Read IS SOTA-competitive retrieval). Where below it reads
+>    «`meta recall` does directed retrieval», read «Grep/Read does directed retrieval; `recall` was
+>    retired by measurement».
+> 2. **The semantic index (embeddings) is NOT «deferred-until-measured»: it is
+>    DISCARDED-by-measurement** (as of today). It reopens only if it trips the explicit threshold
+>    of ADR-019 §6 (corpus > window **AND** low relevance-ratio **AND** an A/B with task-success
+>    lift). The stance is **subtractive** (prune > add), not additive.
+> 3. What REMAINS in force from this doc: the diagnosis (§1), the three tiers with Tier 0/1 (§2–3),
+>    the verdict «docs = truth, index = cache» (§5), the anti-drift doctrine (§7), the
+>    content-addressed manifest (§9, ADR-009). ADR-019 ADDS «fidelity over freshness» (a
+>    STATE-vs-`.proof/` gate, M3) on top of §9.
+> Live authority for the memory direction: **ADR-019** + `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`.
 
 ---
 
-## 2. La propuesta: tres tiers (conserva los dos de ASF, agrega el que falta)
+## 1. Diagnosis: what ASF has today and where the two real gaps are
 
-### Tier 0 — Memoria de hechos (determinista) · CONSERVAR Y FORTALECER
-Dos mitades, ambas gratis y escritas por hooks: **eventos** (`journal.jsonl`: gate abierto, check
-rojo→verde, decisión, delegación) y **series** (métricas: contadores, duraciones, tokens, costos,
-tasas — ver `OBSERVABILITY-METRICS.md`, que es la autoridad del mecanismo; este doc solo apunta).
-Auto, incremental, gratis, regenerable. Fuente de verdad de "qué pasó", nunca de "qué significa".
+ASF already split memory into two —and that split is correct and is kept:
 
-### Tier 1 — Memoria narrativa (significado) · CONSERVAR, ARREGLAR EL DISPARADOR
-Docs tipados (igual que ASF). Lo que cambia es **cuándo y cómo se escriben** (§3): captura
-incremental por evento + consolidación curada en checkpoints, NO un batch opcional al final.
+- **Facts memory (deterministic)**: `journal.jsonl` is written by hooks from git + ledger (zero
+  model narrative) + the artifacts themselves (proofs, RTM, evidence, gates, trailers). It is
+  **automatic, incremental, free, and reliable**. This layer does NOT have the problem you report.
+- **Narrative memory (meaning)**: typed docs with mutation semantics (STATE overwrite ·
+  LOG append · decisions/ immutable · work/ per-increment · reference/ stable). Written by the
+  model, reviewable in diff.
 
-### Tier 2 — Índice de recuperación (medido) · NUEVO
-Un índice **derivado y regenerable** sobre Tier 0+1 que: (a) **mide** cada lectura; (b) hace
-**recuperación dirigida** (devuelve la rebanada relevante, no el corpus); (c) opcionalmente agrega
-**recuperación semántica** donde el *resumen/embedding es el índice* y el *doc versionado es la
-evidencia*. Crucial: el índice es un **caché derivado** (regenerable desde los docs), nunca la
-autoridad. Se puede borrar y reconstruir; no es un daemon del que dependés; no rompe "clonar el
-repo = clonar la memoria".
+The symptom you report —"el agente pregunta ¿actualizo los docs o hago otra cosa?"— is
+**exclusively in the narrative layer**. ASF deliberately left it to the model's discretion
+(judgment isn't hooked; forcing it with a hard-block is theater, ADR-023). But "at discretion"
+degenerated into "sometimes it's skipped / it asks". ASF had already started closing this
+(ADR-023: the gate deterministically refreshes the STATE header), but didn't finish the work. The
+two real gaps:
 
----
-
-## 3. Arreglar G-M1: la escritura deja de ser discrecional
-
-La regla que mata el síntoma: **actualizar memoria no es una tarea aparte, es una fase del flujo
-(DOCUMENT del gate) y una obligación de checkpoint.** El modelo no debería preguntar "¿actualizo
-los docs?" igual que no pregunta "¿corro el gate?".
-
-- **Captura continua (barata, determinista)**: un hook `PostToolUse`/`Stop` anexa *eventos
-  candidatos estructurados* a un staging (extensión del journal) en cada frontera con significado:
-  gate abierto, check rojo→verde, decisión (commit trailer / ADR nuevo), fix de un agujero. Donde
-  el hecho es derivable (git/ledger), es determinista y cuesta cero. **Esto es "incremental a
-  medida que se genera el código" sin depender de que el modelo se acuerde.**
-- **Consolidación curada (en checkpoints, parte del trabajo)**: en las fronteras de
-  incremento/fase (`/incremento checkpoint`, ya obligatorio antes de `/clear`), los candidatos
-  staged se pliegan a episodios de LOG + update de STATE + ADR si cristalizó. Acá el modelo agrega
-  *significado* a los *hechos*. No es un "¿querés que…?": es el checkpoint, que ya es obligatorio.
-- **Proyección determinista extendida (ADR-023 generalizado)**: cuanto más del STATE sea
-  *proyección* de hechos (timestamp, progreso de línea, veredicto RTM, run activo, incremento
-  abierto) auto-refrescada por hooks/gate, **menos prosa tiene que escribir el modelo** y menos
-  puede quedar vieja. El modelo escribe solo lo no-derivable (el porqué, lo descartado).
-
-Resultado: lo bueno y lo malo que pasa se capturan **automáticamente como hechos** (Tier 0) y se
-**curan en significado** en el checkpoint (Tier 1), sin un paso opcional que se saltee.
+- **G-M1 · The narrative-write trigger is discretionary.** Updating memory is treated as an
+  *optional post-work task* ("do you want me to update the docs?"), not as a *phase of the
+  flow*. That's why it gets skipped or asked about.
+- **G-M2 · There is no measured retrieval layer.** Retrieval is "STATE.md always-resident +
+  `factory trace`/grep on demand". There is no relevance ranking, no semantic retrieval, and no
+  **measurement of what actually gets read**. Your own phrase —"no he medido cuánto se lee la
+  memoria"— is the diagnosis: you can't improve what you don't measure.
 
 ---
 
-## 4. Arreglar G-M2: medir primero, recuperar dirigido, indexar después
+## 2. The proposal: three tiers (keeps ASF's two, adds the missing one)
 
-**Instrumentar antes de invertir.** Es irresponsable construir un vector store sin saber si el
-retrieval es el cuello de botella. Orden propuesto:
+### Tier 0 — Facts memory (deterministic) · KEEP AND STRENGTHEN
+Two halves, both free and written by hooks: **events** (`journal.jsonl`: gate opened, check
+red→green, decision, delegation) and **series** (metrics: counters, durations, tokens, costs,
+rates — see `OBSERVABILITY-METRICS.md`, which is the authority on the mechanism; this doc only
+points there). Automatic, incremental, free, regenerable. Source of truth for "what happened",
+never for "what it means".
 
-1. **Medir (barato, ya)**: `meta recall <query>` registra `{query, refs_devueltos, ts}` en el
-   journal como evento `recall` — observador puro, igual que el contador de delegaciones de
-   ADR-023. La inyección de SessionStart (que ASF ya hace: últimas N entradas + STATE) registra
-   *qué inyectó*. Con eso, en una semana, **sabés cuánto se lee la memoria** — el dato que hoy falta.
-2. **Recuperación dirigida (generaliza `factory trace`)**: `meta recall <topic|file|req>` devuelve
-   solo la rebanada pertinente (un episodio de LOG, un ADR, un gotcha), no el corpus. Es
-   "recuperación al presupuesto de contexto" — encaja con la economía de contexto (CONTEXT-ECONOMY).
-3. **Índice semántico (SOLO si la medición lo justifica)**: embeddings sobre episodios de
-   LOG / ADRs, construidos incrementalmente por un modelo barato (Haiku). **El resumen/embedding es
-   el índice; el doc versionado es la evidencia y la autoridad.** Es el candidato Fase 6 que ASF ya
-   tenía sketchado (índice episódico de transcripts con summaries Haiku). El store (SQLite/vector)
-   es un caché regenerable desde los docs.
+### Tier 1 — Narrative memory (meaning) · KEEP, FIX THE TRIGGER
+Typed docs (same as ASF). What changes is **when and how they are written** (§3): incremental
+capture per event + curated consolidation at checkpoints, NOT an optional batch at the end.
 
-> **[ACTUALIZADO · ADR-019 §2 / M2]** El paso 1 (medir) ocurrió: `recall` 1×/0-hit → **retirado**; el paso 2
-> (recuperación dirigida) lo cumple **Grep/Read**, no `recall`; el paso 3 (índice semántico) queda
-> **descartado-por-medición**, no «diferido» — sólo se reabre bajo el umbral de ADR-019 §6.
-
----
-
-## 5. El veredicto sobre "¿DB o docs? ¿perdemos el overwrite?"
-
-**Fuente de verdad = docs tipados versionados** (mutación por tipo: overwrite/append/inmutable).
-**Índice de recuperación = caché derivado**, regenerable desde los docs, puede ser vector/SQLite,
-**nunca autoritativo**. Con eso:
-
-- **No perdés el overwrite** — la semántica de mutación por tipo se conserva (STATE pisa, LOG
-  anexa, decisions/ inmutable). Hasta mem0 tiene add/update/delete y Letta tiene bloques editables:
-  "DB" no implica "append-only". El overwrite se preserva por diseño.
-- **No perdés confianza ni determinismo** — la autoridad sigue en los docs diffables y en los
-  artefactos re-derivables. El índice puede equivocarse sin contaminar la verdad.
-- **No perdés "clonar = memoria"** — el índice se reconstruye desde los docs; no es un servicio del
-  que dependas.
-- **Ganás el retrieval** del estado del arte (semántico, ranqueado) como una capa opcional y medida.
-
-Es el mejor de los dos mundos: recuperación grado-DB **sin** ceder overwrite, confianza, diff, ni
-portabilidad.
+### Tier 2 — Retrieval index (measured) · NEW
+A **derived and regenerable** index over Tier 0+1 that: (a) **measures** every read; (b) does
+**directed retrieval** (returns the relevant slice, not the corpus); (c) optionally adds
+**semantic retrieval** where the *summary/embedding is the index* and the *versioned doc is the
+evidence*. Crucially: the index is a **derived cache** (regenerable from the docs), never the
+authority. It can be deleted and rebuilt; it is not a daemon you depend on; it doesn't break
+"clone the repo = clone the memory".
 
 ---
 
-## 6. Mapa al estado del arte (qué robar, qué rechazar, y por qué)
+## 3. Fixing G-M1: writing stops being discretionary
 
-| Sistema | Idea valiosa a robar | Qué NO adoptar (y por qué) |
+The rule that kills the symptom: **updating memory is not a separate task, it is a phase of the
+flow (the gate's DOCUMENT) and a checkpoint obligation.** The model shouldn't ask "should I update
+the docs?" any more than it asks "should I run the gate?".
+
+- **Continuous capture (cheap, deterministic)**: a `PostToolUse`/`Stop` hook appends *structured
+  candidate events* to a staging area (an extension of the journal) at every meaningful boundary:
+  gate opened, check red→green, decision (commit trailer / new ADR), a hole fixed. Where the fact
+  is derivable (git/ledger), it is deterministic and costs zero. **This is "incremental as the
+  code is generated" without depending on the model remembering.**
+- **Curated consolidation (at checkpoints, part of the work)**: at increment/phase boundaries
+  (`/incremento checkpoint`, already mandatory before `/clear`), the staged candidates fold into
+  LOG episodes + STATE update + a new ADR if it crystallized. Here the model adds *meaning* to the
+  *facts*. It is not a "do you want me to…?": it is the checkpoint, which is already mandatory.
+- **Extended deterministic projection (ADR-023 generalized)**: the more of STATE that is a
+  *projection* of facts (timestamp, line progress, RTM verdict, active run, open increment)
+  auto-refreshed by hooks/gate, **the less prose the model has to write** and the less can go
+  stale. The model writes only what is non-derivable (the why, what was discarded).
+
+Result: the good and the bad that happens is captured **automatically as facts** (Tier 0) and
+**curated into meaning** at the checkpoint (Tier 1), without an optional step that gets skipped.
+
+---
+
+## 4. Fixing G-M2: measure first, retrieve directed, index later
+
+**Instrument before investing.** It is irresponsible to build a vector store without knowing
+whether retrieval is the bottleneck. Proposed order:
+
+1. **Measure (cheap, now)**: `meta recall <query>` logs `{query, refs_returned, ts}` to the
+   journal as a `recall` event — a pure observer, just like ADR-023's delegation counter. The
+   SessionStart injection (which ASF already does: last N entries + STATE) logs *what it
+   injected*. With that, in a week, **you know how much memory actually gets read** — the data
+   that's missing today.
+2. **Directed retrieval (generalizes `factory trace`)**: `meta recall <topic|file|req>` returns
+   only the pertinent slice (a LOG episode, an ADR, a gotcha), not the corpus. It is "retrieval at
+   the context budget" — fits with context economy (CONTEXT-ECONOMY).
+3. **Semantic index (ONLY if the measurement justifies it)**: embeddings over LOG episodes / ADRs,
+   built incrementally by a cheap model (Haiku). **The summary/embedding is the index; the
+   versioned doc is the evidence and the authority.** It is the Phase 6 candidate ASF had already
+   sketched (episodic transcript index with Haiku summaries). The store (SQLite/vector) is a cache
+   regenerable from the docs.
+
+> **[UPDATED · ADR-019 §2 / M2]** Step 1 (measure) happened: `recall` 1×/0-hit → **retired**; step 2
+> (directed retrieval) is now fulfilled by **Grep/Read**, not `recall`; step 3 (semantic index) is
+> **discarded-by-measurement**, not «deferred» — it reopens only under the ADR-019 §6 threshold.
+
+---
+
+## 5. The verdict on "DB or docs? Do we lose the overwrite?"
+
+**Source of truth = versioned typed docs** (mutation by type: overwrite/append/immutable).
+**Retrieval index = derived cache**, regenerable from the docs, can be vector/SQLite,
+**never authoritative**. With that:
+
+- **You don't lose the overwrite** — mutation-by-type semantics is preserved (STATE overwrites,
+  LOG appends, decisions/ is immutable). Even mem0 has add/update/delete and Letta has editable
+  blocks: "DB" doesn't imply "append-only". The overwrite is preserved by design.
+- **You don't lose trust or determinism** — authority stays in the diffable docs and in the
+  re-derivable artifacts. The index can be wrong without contaminating the truth.
+- **You don't lose "clone = memory"** — the index rebuilds from the docs; it is not a service you
+  depend on.
+- **You gain state-of-the-art retrieval** (semantic, ranked) as an optional, measured layer.
+
+It is the best of both worlds: DB-grade retrieval **without** giving up overwrite, trust, diff,
+or portability.
+
+---
+
+## 6. Map to the state of the art (what to steal, what to reject, and why)
+
+| System | Valuable idea to steal | What NOT to adopt (and why) |
 | --- | --- | --- |
-| **claude-mem** | auto-inyección en SessionStart de la rebanada relevante (ASF ya inyecta últimas N del journal — extender a recuperación dirigida) | que el resumen LLM sea la AUTORIDAD; summary = índice, doc/transcript = evidencia |
-| **agentmemory** | la *motivación* (captura determinista de memoria) — ya sobrevive en Tier 0 | el vehículo: daemon + 53 tools MCP + dep externa + "el modelo decide guardar". ASF lo evaluó y descartó (ADR-004→019); el descarte SIGUE VIGENTE — no reabrir sin evidencia nueva |
-| **mem0** | extracción de hechos + add/update/delete tipado; índice vector+grafo | la actualización de memoria decidida por un LLM como autoridad (no-determinista); acá es caché derivado |
-| **Letta / MemGPT** | jerarquía OS: "core memory" en-contexto chica + "archival" paginada por búsqueda | self-editing libre del agente sobre los HECHOS; nuestra "core memory" es la proyección determinista del STATE (auto-refrescada), no editable a mano por el modelo |
-| **Generative Agents** | retrieval scoreado por recencia·importancia·relevancia | el stream de memoria como única estructura (perdés la semántica de mutación por tipo) |
+| **claude-mem** | auto-injection at SessionStart of the relevant slice (ASF already injects the last N journal entries — extend to directed retrieval) | letting the LLM summary be the AUTHORITY; summary = index, doc/transcript = evidence |
+| **agentmemory** | the *motivation* (deterministic memory capture) — already survives in Tier 0 | the vehicle: daemon + 53 MCP tools + external dep + "the model decides what to save". ASF evaluated and rejected it (ADR-004→019); the rejection STILL STANDS — don't reopen without new evidence |
+| **mem0** | typed fact extraction + add/update/delete; vector+graph index | memory updates decided by an LLM as authority (non-deterministic); here it is a derived cache |
+| **Letta / MemGPT** | OS hierarchy: small in-context "core memory" + search-paginated "archival" | the agent's free self-editing over the FACTS; our "core memory" is the deterministic projection of STATE (auto-refreshed), not hand-editable by the model |
+| **Generative Agents** | retrieval scored by recency·importance·relevance | the memory stream as the sole structure (you lose mutation-by-type semantics) |
 
-Conclusión honesta: **la forma de ASF YA está inspirada en el estado del arte y lo supera en
-confianza/determinismo** (es lo que casi nadie tiene). Le falta exactamente la capa de retrieval
-medido — que se agrega sin tocar lo que la hace confiable.
-
----
-
-## 7. La doctrina anti-deriva (por qué esto evita repetir errores y divergir)
-
-Tu intuición es exacta: la memoria decide si la fábrica repite errores o deriva. Tres mecanismos,
-en orden de potencia:
-
-1. **Re-derivación sobre recuerdo.** El insight más profundo de ASF: *la cura de la staleness no es
-   recordar mejor, es re-verificar* (`meta check`, gates) — determinista y barato. Por eso la
-   memoria NO es la autoridad del estado actual: los **artefactos re-derivables** lo son. La memoria
-   carga *significado* (por qué decidimos X, qué rechazamos), no *hechos* que se pueden recomputar.
-2. **ADRs inmutables.** Una decisión no cambia en silencio; una reversión es un ADR nuevo que
-   supersede. La deriva se vuelve **visible como diff/supersesión**, no una edición silenciosa.
-3. **Conocimiento negativo** ("descartado: qué y POR QUÉ NO" en cada episodio de LOG). Es la memoria
-   de mayor valor y la que más se evapora: evita re-litigar lo resuelto y re-cometer lo rechazado.
-   Es lo que impide que la próxima sesión "redescubra" agentmemory o el sello de goma.
+Honest conclusion: **ASF's form is ALREADY inspired by the state of the art and surpasses it in
+trust/determinism** (which almost nobody has). It is missing exactly the measured retrieval
+layer — which gets added without touching what makes it trustworthy.
 
 ---
 
-## 8. Auditoría del esquema: ¿captura todo? ¿bien repartido? ¿duplicamos? ¿falta un doc?
+## 7. The anti-drift doctrine (why this prevents repeating mistakes and diverging)
 
-Veredicto: el esquema (mutación por tipo de doc) está **bien diseñado** —está en/sobre el estado
-del arte— pero tiene **tres refinamientos reales**, no cosméticos.
+Your intuition is exact: memory decides whether the factory repeats mistakes or drifts. Three
+mechanisms, in order of power:
 
-### 8.1 Cobertura (¿capturamos todo lo relevante?) — casi
-Cada clase de información tiene casa: estado-actual→STATE · episodios→LOG · porqués→decisions/ ·
-plan-en-vuelo→work/ · conocimiento-estable→reference/ · recetas/gotchas durables→reference/OPERATIONS ·
-honestidad→reference/HONEST-STATE · reglas-de-cada-turno→CLAUDE.md · hechos→journal+artefactos. El
-**único gap de contenido real** es **métricas**: el esquema no tenía dónde guardar *series* medidas
-→ cerrado nombrando el artefacto de métricas en Tier 0 (§2) con su doc `OBSERVABILITY-METRICS.md`.
+1. **Re-derivation over recall.** ASF's deepest insight: *the cure for staleness is not
+   remembering better, it is re-verifying* (`meta check`, gates) — deterministic and cheap. That's
+   why memory is NOT the authority for the current state: the **re-derivable artifacts** are.
+   Memory carries *meaning* (why we decided X, what we rejected), not *facts* that can be
+   recomputed.
+2. **Immutable ADRs.** A decision doesn't change silently; a reversal is a new ADR that
+   supersedes. Drift becomes **visible as a diff/supersession**, not a silent edit.
+3. **Negative knowledge** ("discarded: what and WHY NOT" in every LOG episode). It is the
+   highest-value memory and the one that evaporates the most: it avoids re-litigating what's
+   resolved and re-committing what was rejected. It's what stops the next session from
+   "rediscovering" agentmemory or the rubber stamp.
 
-### 8.2 Duplicación (¿sobrescribimos lo mismo en distintas partes?) — tres costuras conocidas
-El diseño por-tipo *casi* lo evita, pero hay tres lugares donde un MISMO hecho transita dos docs y
-puede divergir (evidencia: ASF ya tuvo que des-conflictuar la primera):
-- **STATE ↔ HONEST-STATE**: ASF anotó "las secciones de ESTADO de HONEST-STATE están superseded por
-  STATE.md". Era duplicación; se resolvió a mano dejando HONEST-STATE solo con sus tablas.
-- **decisions/ ↔ el resumen de ADRs en ARCHITECTURE §18** (de ASF): el resumen puede quedar viejo
-  respecto del ADR real. Duplicación que deriva.
-- **STATE "Ahora" ↔ última entrada de LOG**: ambos describen "lo que acaba de pasar"; el riesgo es
-  que STATE se vuelva una segunda narrativa que drifte del LOG.
+---
 
-**La regla que lo cierra (single source of truth por hecho)**: *cada hecho tiene UNA casa
-autoritativa según su lifetime (overwrite→STATE · episodio→LOG · porqué→decisions · estable→
-reference); toda otra mención es un PUNTERO o una vista DERIVADA (auto-generada), nunca una copia
-mantenida a mano.* Es la extensión de la frase de ASF "STATE APUNTA; la verdad vive en artefactos".
-Corolario: un resumen de ADRs en un doc de reference debe ser **generado** desde `decisions/`, o no
-existir — un resumen a mano es deuda de drift.
+## 8. Schema audit: does it capture everything? is it well distributed? do we duplicate? is a doc missing?
 
-**Ejemplo vivo (2026-06-13, ver LOG)**: durante el propio diseño, el entry-doc manual de entonces
-(*START-HERE.md*, ya eliminado — ver cierre del ejemplo) —cuya tabla de docs es un resumen a mano—
-quedó sin listar dos docs recién creados, y solo se cazó cuando el ingeniero preguntó "¿está todo
-documentado?". G-M1 y esta costura, observados EN VIVO por el agente de diseño antes de que exista
-código. Conclusión operativa: el índice debe ser una **vista generada** (del filesystem / frontmatter)
-**o** estar cubierto por un **check de consistencia determinista en `meta check`** (gratis, file-IO):
-todo doc indexado, STATE no más viejo que el último cambio bajo `docs/`, cero punteros colgados. Es la
-sombra determinista de "mantener los docs consistentes".
-(Cierre del ejemplo: *START-HERE.md* se eliminó el 2026-07-11 —incremento `DOC-PRUNE-STARTHERE`—
-precisamente por este drift, ya materializado: afirmaba 9 ADRs cuando había 25. Su rol lo tomó el
-`INDEX.md` generado.)
-Implementación concreta: el manifiesto content-addressed con sello in-band (§9, ADR-009).
+Verdict: the schema (mutation by doc type) is **well designed** —it is at/above the state of the
+art— but it has **three real refinements**, not cosmetic ones.
 
-> **[CERRADO · ADR-019 / M6] La CUARTA costura: `docs/` ↔ note-store de auto-memoria.** Las tres costuras
-> de arriba viven DENTRO de `docs/`; el harness agrega una TERCERA memoria —el note-store de auto-memoria
-> (`~/.claude/projects/<slug>/memory/*.md` + `MEMORY.md`, ~3.5k tok fijados/sesión)— que re-narra hechos del
-> proyecto y puede driftear de `docs/`. **Regla single-source sobre las tres memorias** (extiende §8.2 a la
-> tercera): **`docs/`** = autoridad de los HECHOS del proyecto · **CLAUDE.md** = autoridad de las REGLAS de la
-> fase viva · **note-store** = autoridad SÓLO de la relación cross-sesión que `docs/` no tiene ni debe (quién es
-> el ingeniero + cómo quiere que trabaje, `feedback`; referencias externas, `reference`). Un hecho de proyecto en
-> la auto-memoria (`type: project`) es el anti-patrón → degrada a un **PUNTERO** (la línea-índice de `MEMORY.md`
-> alcanza). Alinea con el PROPIO protocolo de memoria del harness («no guardes lo que el repo ya registra»).
+### 8.1 Coverage (do we capture everything relevant?) — almost
+Every class of information has a home: current-state→STATE · episodes→LOG · whys→decisions/ ·
+plan-in-flight→work/ · stable-knowledge→reference/ · durable recipes/gotchas→reference/OPERATIONS ·
+honesty→reference/HONEST-STATE · every-turn rules→CLAUDE.md · facts→journal+artifacts. The
+**only real content gap** is **metrics**: the schema had nowhere to store measured *series*
+→ closed by naming the metrics artifact in Tier 0 (§2) with its doc `OBSERVABILITY-METRICS.md`.
+
+### 8.2 Duplication (do we overwrite the same thing in different places?) — three known seams
+The by-type design *almost* avoids it, but there are three places where the SAME fact travels
+through two docs and can diverge (evidence: ASF already had to de-conflict the first one):
+- **STATE ↔ HONEST-STATE**: ASF noted "las secciones de ESTADO de HONEST-STATE están superseded
+  por STATE.md". It was duplication; it was resolved by hand, leaving HONEST-STATE with only its
+  tables.
+- **decisions/ ↔ the ADR summary in ARCHITECTURE §18** (of ASF): the summary can go stale relative
+  to the real ADR. Duplication that drifts.
+- **STATE "Ahora" ↔ the last LOG entry**: both describe "what just happened"; the risk is that
+  STATE becomes a second narrative that drifts from LOG.
+
+**The rule that closes it (single source of truth per fact)**: *every fact has ONE authoritative
+home according to its lifetime (overwrite→STATE · episode→LOG · why→decisions · stable→
+reference); every other mention is a POINTER or a DERIVED view (auto-generated), never a
+hand-maintained copy.* It is the extension of ASF's phrase "STATE APUNTA; la verdad vive en
+artefactos". Corollary: an ADR summary in a reference doc must be **generated** from `decisions/`,
+or not exist — a hand-written summary is drift debt.
+
+**Live example (2026-06-13, see LOG)**: during the design itself, the manual entry-doc of the time
+(*START-HERE.md*, since removed — see the example's closure) —whose doc table is a hand-written
+summary— ended up not listing two recently created docs, and it was only caught when the engineer
+asked "¿está todo documentado?". G-M1 and this seam, observed LIVE by the design agent before any
+code existed. Operational conclusion: the index must be a **generated view** (from the filesystem /
+frontmatter) **or** be covered by a **deterministic consistency check in `meta check`** (free,
+file-IO): every doc indexed, STATE no older than the last change under `docs/`, zero dangling
+pointers. It is the deterministic shadow of "keeping the docs consistent".
+(Closing the example: *START-HERE.md* was removed on 2026-07-11 —increment `DOC-PRUNE-STARTHERE`—
+precisely because of this drift, already materialized: it claimed 9 ADRs when there were 25. Its
+role was taken over by the generated `INDEX.md`.)
+Concrete implementation: the content-addressed manifest with the in-band seal (§9, ADR-009).
+
+> **[CLOSED · ADR-019 / M6] The FOURTH seam: `docs/` ↔ the auto-memory note-store.** The three
+> seams above live INSIDE `docs/`; the harness adds a THIRD memory —the auto-memory note-store
+> (`~/.claude/projects/<slug>/memory/*.md` + `MEMORY.md`, ~3.5k tok pinned/session)— that
+> re-narrates project facts and can drift from `docs/`. **Single-source rule over the three
+> memories** (extends §8.2 to the third): **`docs/`** = authority for the project's FACTS ·
+> **CLAUDE.md** = authority for the RULES of the live phase · **note-store** = authority ONLY for
+> the cross-session relationship that `docs/` doesn't have and shouldn't (who the engineer is + how
+> they want to work, `feedback`; external references, `reference`). A project fact in auto-memory
+> (`type: project`) is the anti-pattern → it degrades to a **POINTER** (the index-line in
+> `MEMORY.md` is enough). It aligns with the harness's OWN memory protocol («don't save what the
+> repo already records»).
 >
-> **Por qué es un OBSERVADOR, no un diente de `meta check`** (a diferencia de §8.2 —cerrada por el sello in-band—
-> y de M1/M3, que SÍ gatean el STATE in-tree): el note-store vive FUERA del árbol git, es por-usuario/máquina y
-> AUSENTE en clon limpio → cablearlo a `meta check` rompería la portabilidad clon-limpio-verde del proof. Su
-> gobierno es la REGLA + una medición re-derivable on-demand (`meta metrics --overlap`, `src/metafactory/memory/
-> overlap.py`: shingle-containment cero-modelo). **Hallazgo de la medición (2026-06-26):** el solapamiento
-> LITERAL es BAJO (máx 0.21; `fsk-s16` 0.004) → los notes `project` PARAFRASEAN `docs/`, no lo copian. El riesgo
-> es semántico (dos prosas del mismo hecho), no copy-paste → la acción es governance HACIA-ADELANTE (la regla) +
-> degradar el note ya superseded por este cierre, NO una purga retroactiva (el dato la desaconseja). Apuesta
-> leída contra M5 (instrumentación), no a ciegas — el error de `recall` no se repite.
+> **Why it is an OBSERVER, not a `meta check` tooth** (unlike §8.2 —closed by the in-band seal—
+> and M1/M3, which DO gate the in-tree STATE): the note-store lives OUTSIDE the git tree, is
+> per-user/machine and ABSENT on a clean clone → wiring it to `meta check` would break the proof's
+> clean-clone-green portability. Its governance is the RULE + an on-demand re-derivable
+> measurement (`meta metrics --overlap`, `src/metafactory/memory/overlap.py`: zero-model
+> shingle-containment). **Measurement finding (2026-06-26):** LITERAL overlap is LOW (max 0.21;
+> `fsk-s16` 0.004) → `project` notes PARAPHRASE `docs/`, they don't copy it. The risk is semantic
+> (two proses of the same fact), not copy-paste → the action is FORWARD-LOOKING governance (the
+> rule) + downgrading the note already superseded by this closure, NOT a retroactive purge (the
+> data argues against it). A bet read against M5 (instrumentation), not made blindly — `recall`'s
+> mistake is not repeated.
 
-### 8.3 ¿Falta un doc para algo relevante? — sí, dos cosas
-- **Métricas** (ya cubierto, §8.1).
-- **Camino de promoción de gotchas**: hoy los gotchas transitorios viven en `work/<incremento>.md`
-  y **mueren al cerrar el incremento**; algunos eran durables y debían ascender a
-  reference/OPERATIONS o a un ADR. Es la misma evaporación que el "conocimiento negativo" (§7). Fix:
-  el ritual `/incremento cerrar` ya pregunta "¿qué lección de LOG asciende a ADR?" → extender con
-  "¿qué gotcha asciende a receta durable (OPERATIONS) o ADR?". Sin doc nuevo; un paso de consolidación.
+### 8.3 Is a doc missing for something relevant? — yes, two things
+- **Metrics** (already covered, §8.1).
+- **Gotcha promotion path**: today transient gotchas live in `work/<increment>.md` and **die when
+  the increment closes**; some were durable and should have been promoted to reference/OPERATIONS
+  or an ADR. It's the same evaporation as "negative knowledge" (§7). Fix: the `/incremento cerrar`
+  ritual already asks "which LOG lesson ascends to an ADR?" → extend it with "which gotcha ascends
+  to a durable recipe (OPERATIONS) or an ADR?". No new doc; a consolidation step.
 
-## 9. El manifiesto content-addressed: hash de git + sello in-band (implementa §8.2)
+## 9. The content-addressed manifest: git hash + in-band seal (implements §8.2)
 
-La regla §8.2 ("el índice debe generarse, no copiarse a mano") se materializa reusando git —que YA
-es un almacén content-addressed (árbol de Merkle)— en vez de inventar una capa de hashing. Separa
-**"¿cambió?"** (comparar un hash, baratísimo) de **"¿qué dice?"** (cargar el doc al contexto, caro).
+Rule §8.2 ("the index must be generated, not hand-copied") is materialized by reusing git —which
+is ALREADY a content-addressed store (a Merkle tree)— instead of inventing a hashing layer. It
+separates **"did it change?"** (comparing a hash, dirt cheap) from **"what does it say?"** (loading
+the doc into context, expensive).
 
-- **Sello in-band en cada `.md`.** Cada doc lleva como primera línea un marcador:
-  `<!-- meta:doc sha=<git-hash-object del cuerpo> updated=2026-06-13T03:29Z -->`. Así, cuando el
-  orquestador hace `Read`, la identidad (hash + frescura) **ya viene cargada en el contexto** junto
-  al contenido — no hace falta una tool call aparte para saber "¿qué versión es esta?". (El sello
-  vive DENTRO del archivo justamente porque el contenido no se puede envolver durante la llamada al
-  tool — idea del ingeniero, 2026-06-13.)
-- **Idempotencia (resuelve el chicken-and-egg).** Hashear el archivo completo incluiría su propio
-  sello → cada corrida cambiaría el hash → churn infinito. Por eso el sha se computa sobre el
-  **cuerpo EXCLUYENDO la línea del sello** (`git hash-object` del body sin el marcador). Re-estampar
-  es idempotente: mismo cuerpo → mismo sha → mismo sello.
-- **El manifiesto generado.** Un `INDEX.md` (o `.meta/manifest.json`) agrega todos los sellos +
-  `git log -1 --format=%cI` (hora del último commit) + el resumen de 1 línea de cada doc. ES la
-  vista generada que no puede driftear — el fix concreto del problema de START-HERE.
-- **Lo mantiene un hook, no el modelo.** Un `PostToolUse(Write|Edit)` re-estampa el doc tocado y
-  regenera el manifiesto. Determinista, **frecuente y baratísimo** (file-IO + git, cero modelo,
-  ADR-008): puede correr en cada edit sin costo. `meta check` además verifica consistencia.
+- **In-band seal in every `.md`.** Every doc carries a marker as its first line:
+  `<!-- meta:doc sha=<git-hash-object of the body> updated=2026-06-13T03:29Z -->`. That way, when
+  the orchestrator does a `Read`, the identity (hash + freshness) **is already loaded into
+  context** along with the content — no separate tool call is needed to know "which version is
+  this?". (The seal lives INSIDE the file precisely because the content can't be wrapped during
+  the tool call — the engineer's idea, 2026-06-13.)
+- **Idempotence (solves the chicken-and-egg).** Hashing the whole file would include its own seal
+  → every run would change the hash → infinite churn. That's why the sha is computed over the
+  **body EXCLUDING the seal line** (`git hash-object` of the body without the marker). Re-stamping
+  is idempotent: same body → same sha → same seal.
+- **The generated manifest.** An `INDEX.md` (or `.meta/manifest.json`) aggregates every seal +
+  `git log -1 --format=%cI` (time of the last commit) + the 1-line summary of each doc. It IS the
+  generated view that cannot drift — the concrete fix for the START-HERE problem.
+- **A hook maintains it, not the model.** A `PostToolUse(Write|Edit)` re-stamps the touched doc
+  and regenerates the manifest. Deterministic, **frequent and dirt cheap** (file-IO + git, zero
+  model, ADR-008): it can run on every edit at no cost. `meta check` additionally verifies
+  consistency.
 
-**Para qué sirve (tres trabajos)**:
-1. **Triaje/navegación** — mirar UN manifiesto chico en vez de recargar N docs (economía de
-   residencia): "¿BOOTSTRAP cambió desde que lo cargué? comparo el sha; si es igual, no recargo".
-2. **Índice no-drifteable** — implementa §8.2; START-HERE pasa a generarse del manifiesto.
-3. **Frescura + aid de retrieval (G-M2)** — "doc X sin cambios hace 4 h y llevo 30 min trabajando =
-   raro"; "X cambió tras el inicio de mi sesión → puedo estar sobre una copia vieja". Es un aid de
-   recuperación determinista y gratis que **complementa y posiblemente posterga** el índice semántico
-   de Tier 2 (medir antes de invertir): saber QUÉ está fresco y QUÉ cambió ya es media recuperación.
+**What it's for (three jobs)**:
+1. **Triage/navigation** — look at ONE small manifest instead of reloading N docs (residency
+   economy): "did BOOTSTRAP change since I loaded it? I compare the sha; if it's the same, I don't
+   reload".
+2. **Non-driftable index** — implements §8.2; START-HERE becomes generated from the manifest.
+3. **Freshness + retrieval aid (G-M2)** — "doc X unchanged for 4h while I've been working 30min =
+   odd"; "X changed after my session started → I might be on a stale copy". It is a free,
+   deterministic retrieval aid that **complements and possibly postpones** the Tier 2 semantic
+   index (measure before investing): knowing WHAT is fresh and WHAT changed is already half of
+   retrieval.
 
-**Boundary (no negociable, igual que §1)**: el sello/manifiesto sirve para **TRIAR** (qué no abro,
-qué cambió, qué está raro-viejo), **NUNCA para reemplazar leer el doc sobre el que voy a DECIDIR**.
-El hash dice "cambió", no "importa el cambio" — ante un sha distinto, igual hay que ver el diff. Un
-error de diseño es caro; leer es barato.
+**Boundary (non-negotiable, same as §1)**: the seal/manifest is for **TRIAGE** (what not to open,
+what changed, what looks stale), **NEVER a replacement for reading the doc you're about to DECIDE
+on**. The hash says "it changed", not "the change matters" — given a different sha, you still have
+to look at the diff. A design mistake is expensive; reading is cheap.
 
-**Escala**: con 20 docs rinde poco; su valor crece con el corpus y con muchas sesiones/runs, por eso
-se hornea en el sustrato (M5), no es solo para este repo. Es casi gratis porque git hace el trabajo.
+**Scale**: with 20 docs it pays off little; its value grows with the corpus and with many
+sessions/runs, which is why it is baked into the substrate (M5), not just for this repo. It is
+almost free because git does the work.
 
-## 10. Decisiones cristalizadas y abiertas
+## 10. Crystallized and open decisions
 
-Ya cristalizadas en ADR: **ADR-007** (tres tiers + single-source-of-truth + disparador
-no-discrecional, Propuesto) · **ADR-008** (métricas gratis, Propuesto) · **ADR-009** (manifiesto
-content-addressed, **APROBADO** — §9). Abiertas (necesitan input del ingeniero): índice semántico
-sí/no y formato del store (§4–6) + las de `OBSERVABILITY-METRICS §7`. Este doc es la AUTORIDAD del
-diseño; los ADR son punteros.
+Already crystallized in an ADR: **ADR-007** (three tiers + single-source-of-truth +
+non-discretionary trigger, Proposed) · **ADR-008** (free metrics, Proposed) · **ADR-009**
+(content-addressed manifest, **APPROVED** — §9). Open (need the engineer's input): semantic index
+yes/no and store format (§4–6) + the ones in `OBSERVABILITY-METRICS §7`. This doc is the design
+AUTHORITY; the ADRs are pointers.
 
-> **[CERRADO · ADR-019 / M2]** La decisión abierta «índice semántico sí/no» ya **NO está abierta**: se
-> **CERRÓ por medición** (no diferida indefinidamente). Veredicto = **no** (hoy), reabrible sólo bajo el
-> umbral de ADR-019 §6. Con eso, la autoridad VIVA de la dirección de memoria pasó a **ADR-019** (+ su
-> roadmap `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`); este doc queda como diseño-fundacional reconciliado.
+> **[CLOSED · ADR-019 / M2]** The open decision «semantic index yes/no» is **no longer open**: it
+> **CLOSED by measurement** (not indefinitely deferred). Verdict = **no** (today), reopenable only
+> under the ADR-019 §6 threshold. With that, the LIVE authority for the memory direction moved to
+> **ADR-019** (+ its roadmap `work/MEMORY-ARCH-V2-DIRECTION-INCREMENT.md`); this doc remains as the
+> reconciled foundational design.
 
-## 11. Estado de implementación y lecciones de la PRÁCTICA (2026-06-13, incremento MEMORIA)
+## 11. Implementation status and lessons from PRACTICE (2026-06-13, MEMORIA increment)
 
-El subsistema se **CONSTRUYÓ**, no solo se diseñó. ADR-007/008 pasaron a **Aprobado + Implementado**.
-Mapa implementado → módulo (`src/metafactory/memory/`):
-- **Tier 0 hechos**: `journal.py` (eventos station_run/delegation/recall/session_start) escrito
-  AT-SOURCE por el engine en cada gate (captura continua). `metrics.py` (series: tool-calls por hook
-  `mem_capture`, rollup de tokens/costo por `mem_rollup`, costo = tabla × tokens). Vista `meta metrics`.
-- **Tier 1 + disparador no-discrecional (el FIX de G-M1)**: `projection.py` proyecta hechos lentos
-  (incremento abierto, RTM por fábrica) a un bloque managed de STATE; `meta check` lo verifica (hard,
-  determinista); `meta checkpoint` lo refresca y OFRECE los hechos sin narrar (juicio surface, no
-  forzado, ADR-023); `meta check` SURFACE-ea en PRÓXIMO cuántos hechos faltan narrar.
-- **Tier 2 medido**: `recall.py` (`meta recall`) devuelve la rebanada relevante (lexical+recencia+
-  importancia, zero-dep, sin embeddings); cada recall registra un evento = MEDICIÓN.
-- **Rehidratación**: `rehydrate.py` + hook `SessionStart` inyecta contexto al arrancar. Todo
-  gitignored (`.metamem/`), caché derivado, regenerable; la verdad sigue en docs+git.
+The subsystem was **BUILT**, not just designed. ADR-007/008 moved to **Approved + Implemented**.
+Implemented map → module (`src/metafactory/memory/`):
+- **Tier 0 facts**: `journal.py` (station_run/delegation/recall/session_start events) written
+  AT-SOURCE by the engine at every gate (continuous capture). `metrics.py` (series: tool-calls via
+  the `mem_capture` hook, token/cost rollup via `mem_rollup`, cost = table × tokens). View: `meta metrics`.
+- **Tier 1 + the non-discretionary trigger (the FIX for G-M1)**: `projection.py` projects
+  slow-moving facts (open increment, per-factory RTM) into a managed STATE block; `meta check`
+  verifies it (hard, deterministic); `meta checkpoint` refreshes it and OFFERS the un-narrated
+  facts (surfaced judgment, not forced, ADR-023); `meta check` SURFACES in NEXT how many facts
+  still need narrating.
+- **Tier 2 measured**: `recall.py` (`meta recall`) returns the relevant slice (lexical+recency+
+  importance, zero-dep, no embeddings); every recall logs an event = MEASUREMENT.
+- **Rehydration**: `rehydrate.py` + the `SessionStart` hook injects context on startup. All
+  gitignored (`.metamem/`), derived cache, regenerable; the truth still lives in docs+git.
 
-**Lecciones VIVIDAS que moldearon el diseño** (no teoría — pasaron en estas sesiones):
-1. **El disparador discrecional se saltea**: documenté al cierre, no incremental (HONEST-STATE §1) →
-   la captura debe ser CONTINUA y AUTOMÁTICA (el engine escribe); el checkpoint cura SIGNIFICADO sobre
-   hechos ya capturados, no los recolecta.
-2. **Los hooks inactivos no salvan**: en la sesión de construcción estaban escritos pero no cargados →
-   el orquestador volvió a la escritura discrecional. La maquinaria sólo ayuda VIVA — validación de la
-   tesis del proyecto sobre sí mismo.
-3. **Reiniciar pierde TODO el contexto residente** (vivido) → SessionStart rehydration es esencial, no opcional.
-4. **El sello content-addressed (ADR-009) ya es media recuperación** (frescura): integrado a recall/rehydrate.
-5. **Medir antes de invertir**: se construyó el retrieval MEDIDO; el índice semántico (embeddings) seguía
-   **diferido-hasta-que-la-serie-`recall`-lo-justifique** — postura SOTA, no un gap.
-   > **[ACTUALIZADO · ADR-019 §2 / M2]** La serie habló: `recall` 1×/0-hit → el módulo de scoring se
-   > **retiró** (redundante con Grep/Read). El índice semántico ya no está «diferido» sino
-   > **descartado-por-medición** (reabrible sólo bajo el umbral de ADR-019 §6). La lección se cumplió
-   > en ambas direcciones: medimos, y la medición dijo **podar**, no **agregar**.
+**LIVED lessons that shaped the design** (not theory — they happened in these sessions):
+1. **The discretionary trigger gets skipped**: I documented at close, not incrementally
+   (HONEST-STATE §1) → capture must be CONTINUOUS and AUTOMATIC (the engine writes it); the
+   checkpoint curates MEANING over already-captured facts, it doesn't collect them.
+2. **Inactive hooks don't save you**: during the build session they were written but not loaded →
+   the orchestrator reverted to discretionary writing. The machinery only helps when LIVE —
+   validation of the project's own thesis on itself.
+3. **Restarting loses ALL resident context** (lived) → SessionStart rehydration is essential, not
+   optional.
+4. **The content-addressed seal (ADR-009) is already half of retrieval** (freshness): integrated
+   into recall/rehydrate.
+5. **Measure before investing**: MEASURED retrieval was built; the semantic index (embeddings)
+   remained **deferred-until-the-`recall`-series-justifies-it** — a SOTA stance, not a gap.
+   > **[UPDATED · ADR-019 §2 / M2]** The series spoke: `recall` 1×/0-hit → the scoring module was
+   > **retired** (redundant with Grep/Read). The semantic index is no longer «deferred» but
+   > **discarded-by-measurement** (reopenable only under the ADR-019 §6 threshold). The lesson held
+   > in both directions: we measured, and the measurement said **prune**, not **add**.

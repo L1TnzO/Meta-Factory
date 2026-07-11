@@ -1,72 +1,72 @@
-<!-- meta:doc sha=73c1b7c2fe48ac6977a57c58ae801142ee1e3d3e updated=2026-07-11T03:20Z -->
-# Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo)
+<!-- meta:doc sha=af68e85597ba79d1d618ee5f3a82e6e797fce907 updated=2026-07-11T16:01Z -->
+# Observability and metrics — absolutely free capture (zero model calls)
 
-| Campo | Valor |
+| Field | Value |
 | --- | --- |
-| Documento | Diseño del subsistema de métricas del Meta-Factory y de las fábricas que produce |
-| Estado | **Borrador vivo / propuesta** (no ratificado) |
-| Origen | Conversación 2026-06-13: "empezar a medir muchas cosas… QUE SEA ABSOLUTAMENTE GRATIS, no se debe llamar a un modelo. Lo que no se mide, no se mejora." |
-| Hereda | la memoria de hechos Tier 0 (`MEMORY-ARCHITECTURE.md §2`), el bus de veredictos (`CONTEXT-ECONOMY.md`), ASF/ADR-019 (journal determinista), ADR-023 (contador de delegaciones) |
-| MUST inviolable | **Ninguna métrica cuesta una llamada al modelo. Todo es file-IO + aritmética determinista.** |
+| Document | Design of the Meta-Factory's metrics subsystem and of the factories it produces |
+| Status | **Living draft / proposal** (not ratified) |
+| Origin | Conversation 2026-06-13: "empezar a medir muchas cosas… QUE SEA ABSOLUTAMENTE GRATIS, no se debe llamar a un modelo. Lo que no se mide, no se mejora." |
+| Inherits | the Tier 0 facts memory (`MEMORY-ARCHITECTURE.md §2`), the verdict bus (`CONTEXT-ECONOMY.md`), ASF/ADR-019 (deterministic journal), ADR-023 (delegation counter) |
+| Inviolable MUST | **No metric costs a model call. Everything is file-IO + deterministic arithmetic.** |
 
-> Esto es el instrumento que reemplaza "veo que algo no está funcionando por vibes". Es la mitad
-> de hechos de la memoria (Tier 0): donde el journal captura *eventos*, este subsistema captura
-> *series* (contadores, duraciones, costos, tasas). Ambos son gratis, deterministas, escritos por
-> hooks. Este doc es la autoridad del mecanismo; `MEMORY-ARCHITECTURE.md` solo apunta acá.
-
----
-
-## 1. El principio y su frontera
-
-**Medimos solo lo mecánicamente derivable**: contadores, duraciones, tokens, costos, pass/fail,
-frecuencias, tasas. Eso se obtiene de archivos que el harness ya escribe + aritmética. Cero modelo.
-
-**NO medimos lo que requiere juicio** (¿fue productivo este turno? ¿es buena esta decisión?). Eso
-sería gastar un modelo para interpretar — viola el MUST. Si algún día se quiere, va como capa
-separada, opt-in, fuera de este subsistema. La frontera es exactamente la de la sombra
-determinista (ADR-023): detección de hechos → gratis; significado → otra cosa.
+> This is the instrument that replaces "I can tell something isn't working by vibes". It is the
+> facts half of memory (Tier 0): where the journal captures *events*, this subsystem captures
+> *series* (counters, durations, costs, rates). Both are free, deterministic, written by hooks.
+> This doc is the authority on the mechanism; `MEMORY-ARCHITECTURE.md` only points here.
 
 ---
 
-## 2. Las fuentes gratuitas (verificadas en el entorno, 2026-06-13)
+## 1. The principle and its boundary
 
-Todo lo siguiente existe HOY y es legible sin un modelo:
+**We measure only what is mechanically derivable**: counters, durations, tokens, costs, pass/fail,
+frequencies, rates. That comes from files the harness already writes + arithmetic. Zero model.
 
-| Fuente (ya en disco) | Métricas que da | Cómo (gratis) |
+**We do NOT measure what requires judgment** (was this turn productive? is this a good decision?).
+That would mean spending a model to interpret — it violates the MUST. If ever wanted, it goes as a
+separate, opt-in layer, outside this subsystem. The boundary is exactly the deterministic shadow's
+boundary (ADR-023): fact detection → free; meaning → something else.
+
+---
+
+## 2. The free sources (verified in the environment, 2026-06-13)
+
+Everything below exists TODAY and is readable without a model:
+
+| Source (already on disk) | Metrics it gives | How (free) |
 | --- | --- | --- |
-| **`~/.claude/<proj>/<session>.jsonl`** (transcript) | tokens por turno (`input`, `output`, `cache_creation`, `cache_read`), **costo**, **cache-hit-rate**, modelo por mensaje, conteo de tool calls, `server_tool_use` (web search/fetch) | parsear el JSONL; cada assistant msg trae `"usage":{...}`. VERIFICADO presente |
-| **`~/.claude/stats-cache.json`** (lo computa Claude Code) | por día: `messageCount`, `sessionCount`, `toolCallCount`, **`tokensByModel`** | leer el JSON. VERIFICADO: ya muestra el split Opus/Sonnet/Haiku |
-| **hooks** (PreToolUse, PostToolUse, Stop, SessionStart, PreCompact, SessionEnd) | **cuántas veces se ejecuta cada hook y tras qué tool**, duración de tool (bracketing Pre/Post), eventos de compactación, sesiones | el hook anexa una línea a `metrics.jsonl` al dispararse. Cero modelo (ASF ya prueba que un hook escribe gratis: `session_journal.py`) |
-| **`gates.ledger.json` / `journal.jsonl`** | gate pass/fail por estación, duración de estación, **tasa de delegación** (evento `delegation`, ADR-023), check rojo→verde | derivar de los artefactos de línea (ya deterministas) |
-| **`.meta_check/<ts>.log` + veredictos** | duración de `meta check`, conteos ruff/mypy/pytest, racha verde/roja | parsear el veredicto (ya acotado) o el log |
-| **`~/.claude/telemetry/*.json`** | eventos internos del harness (versión, env, nombres de evento) — PARCIAL: son `1p_failed_events` (telemetría que falló al enviarse) | fuente secundaria; útil para entorno/versión, no confiable como serie primaria |
+| **`~/.claude/<proj>/<session>.jsonl`** (transcript) | tokens per turn (`input`, `output`, `cache_creation`, `cache_read`), **cost**, **cache-hit-rate**, model per message, tool-call count, `server_tool_use` (web search/fetch) | parse the JSONL; every assistant msg carries `"usage":{...}`. VERIFIED present |
+| **`~/.claude/stats-cache.json`** (computed by Claude Code) | per day: `messageCount`, `sessionCount`, `toolCallCount`, **`tokensByModel`** | read the JSON. VERIFIED: already shows the Opus/Sonnet/Haiku split |
+| **hooks** (PreToolUse, PostToolUse, Stop, SessionStart, PreCompact, SessionEnd) | **how many times each hook fires and after which tool**, tool duration (Pre/Post bracketing), compaction events, sessions | the hook appends a line to `metrics.jsonl` when it fires. Zero model (ASF already proves a hook writes for free: `session_journal.py`) |
+| **`gates.ledger.json` / `journal.jsonl`** | gate pass/fail per station, station duration, **delegation rate** (`delegation` event, ADR-023), check red→green | derive from the line's artifacts (already deterministic) |
+| **`.meta_check/<ts>.log` + verdicts** | `meta check` duration, ruff/mypy/pytest counts, green/red streak | parse the verdict (already bounded) or the log |
+| **`~/.claude/telemetry/*.json`** | internal harness events (version, env, event names) — PARTIAL: they are `1p_failed_events` (telemetry that failed to send) | secondary source; useful for env/version, not reliable as a primary series |
 
-**Hallazgo inmediato (de `stats-cache.json`, gratis, ya disponible)**: en los días pesados de
-construcción de ASF, Opus dominó el gasto — 2026-05-31: 79% · 2026-06-05: 87% · 2026-06-07: 98%
-de los tokens fueron Opus, con Sonnet/Haiku marginales. La sub-delegación (G-3) estaba medida; solo
-no se miraba. Éste es el caso de uso #1 del subsistema.
-
----
-
-## 3. Captura: `metrics.jsonl` (append-only, escrito por hooks, gratis)
-
-- Cada hook, al dispararse, anexa UNA línea estructurada a `.claude/metrics/metrics.jsonl`
-  (o extiende el journal con `kind: metric`). Campos mínimos:
-  `{ts, hook, tool, session, run, station?, dur_ms?, exit?}`. Determinista, sin modelo, ~microsegundos.
-- Un hook `Stop`/`SessionEnd` parsea el `transcript_path` (que el payload ya trae) y anexa el
-  rollup de tokens/costo/cache-hit de la sesión. Parsear un JSONL es file-IO: gratis.
-- `metrics.jsonl` es **gitignored** (evidencia efímera de desarrollo, como `.meta_check/`), salvo
-  que se decida versionar rollups (decisión abierta §7).
-- Es Tier 0 (hechos): regenerable en parte desde transcripts + stats-cache; no es autoridad de
-  significado, es serie de hechos.
+**Immediate finding (from `stats-cache.json`, free, already available)**: on the heavy days of
+building ASF, Opus dominated spend — 2026-05-31: 79% · 2026-06-05: 87% · 2026-06-07: 98% of tokens
+were Opus, with Sonnet/Haiku marginal. Sub-delegation (G-3) was measured; it just wasn't looked at.
+This is use case #1 of the subsystem.
 
 ---
 
-## 4. Agregación y vista: `meta metrics` (bus de veredictos, sin modelo)
+## 3. Capture: `metrics.jsonl` (append-only, written by hooks, free)
 
-Un comando del CLI lee `metrics.jsonl` (+ stats-cache + transcripts) y emite un **veredicto
-acotado** — la misma doctrina del bus: resumen al contexto, serie cruda al disco. Ejemplos de
-salida (todo aritmética):
+- Every hook, when it fires, appends ONE structured line to `.claude/metrics/metrics.jsonl`
+  (or extends the journal with `kind: metric`). Minimum fields:
+  `{ts, hook, tool, session, run, station?, dur_ms?, exit?}`. Deterministic, no model,
+  ~microseconds.
+- A `Stop`/`SessionEnd` hook parses the `transcript_path` (already provided in the payload) and
+  appends the session's token/cost/cache-hit rollup. Parsing a JSONL is file-IO: free.
+- `metrics.jsonl` is **gitignored** (ephemeral development evidence, like `.meta_check/`), unless
+  it is decided to version rollups (open decision §7).
+- It is Tier 0 (facts): partially regenerable from transcripts + stats-cache; it is not the
+  authority for meaning, it is a series of facts.
+
+---
+
+## 4. Aggregation and view: `meta metrics` (verdict bus, no model)
+
+A CLI command reads `metrics.jsonl` (+ stats-cache + transcripts) and emits a **bounded verdict**
+— the same bus doctrine: summary to context, raw series to disk. Sample output (all arithmetic):
 
 ```
 VEREDICTO  metrics — sesión actual + últimos 7 días
@@ -79,55 +79,57 @@ GATES      pass 47 · fail 6 · racha verde actual: 12
 ARTEFACTO  .claude/metrics/metrics.jsonl
 ```
 
-- **Sin modelo**: agrega con stdlib (`json`, `sqlite3` opcional para rollups, aritmética).
-- Para queries pesadas, un rollup **SQLite** opcional (todo stdlib, gratis) mantenido por el CLI:
-  "p95 de duración de estación", "costo por estación", "tasa de delegación por incremento".
-- El mismo comando alimenta tu visibilidad y la mía: cuando yo (o cualquier orquestador) necesito
-  saber si algo anda mal, corro `meta metrics`, NO adivino.
+- **No model**: aggregates with stdlib (`json`, optional `sqlite3` for rollups, arithmetic).
+- For heavy queries, an optional **SQLite** rollup (all stdlib, free) maintained by the CLI:
+  "station duration p95", "cost per station", "delegation rate per increment".
+- The same command feeds your visibility and mine: when I (or any orchestrator) need to know if
+  something is wrong, I run `meta metrics`, I do NOT guess.
 
 ---
 
-## 5. Modelo de costo (gratis): tabla de precios × tokens
+## 5. Cost model (free): price table × tokens
 
-El costo se computa con una **tabla de precios estática** (config, no un modelo) por
-modelo×tipo-de-token (input/output/cache-write/cache-read) multiplicada por los tokens capturados
-del transcript. Es aritmética. La tabla se actualiza por diff revisado cuando cambian los precios.
-Así "costos" deja de ser una incógnita: es una columna del veredicto.
-
----
-
-## 6. Métricas de arranque (las primeras que importan, todas gratis)
-
-1. **Split de tokens/costo por modelo** (Opus/Sonnet/Haiku) — mide G-3 (sub-delegación) directo.
-2. **Tasa de delegación** (turnos con evento `delegation` / turnos totales) — la sombra de ADR-023,
-   ahora con denominador.
-3. **Frecuencia y duración de hooks** — "cuántas veces se ejecutan y tras qué" (tu pedido literal).
-4. **Cache-hit-rate** — proxy barato de salud de costo; cae cuando el contexto se desordena.
-5. **Costo por estación / por incremento** — "¿esta fábrica salió barata?" medible.
-6. **Racha verde/roja de gates + tiempo a verde** — salud de la línea.
-7. **Eventos de compactación por sesión** (PreCompact) — presión de contexto, anti-economía.
+Cost is computed with a **static price table** (config, not a model) per model×token-type
+(input/output/cache-write/cache-read) multiplied by the tokens captured from the transcript. It is
+arithmetic. The table is updated by a reviewed diff when prices change. That way "cost" stops
+being an unknown: it is a column of the verdict.
 
 ---
 
-## 7. Decisiones abiertas (necesitan tu input → cristalizan en ADR-008)
+## 6. Bootstrap metrics (the first ones that matter, all free)
 
-- **¿Versionar rollups o todo gitignored?** Propuesta: `metrics.jsonl` efímero (gitignored); un
-  rollup curado por incremento (p.ej. costo total del incremento) puede ir a `work/` o a un
-  `metrics/SUMMARY` versionado (doc propuesto, no creado — decisión abierta) — así el costo
-  histórico sobrevive sin churn del stream crudo.
-- **¿Umbrales que alerten (WARN/BLOCK) o puro display?** Propuesta inicial: **puro display**
-  (observador, como el contador de delegaciones). Forzar con BLOCK repite el error del teatro
-  (ADR-023). Si una métrica merece gate (p.ej. costo por estación > X), se decide explícito, después
-  de tener la serie — medir antes de forzar.
-- **¿SQLite desde el día 1 o JSONL hasta que duela?** Propuesta: JSONL primero (zero-dep); SQLite
-  cuando una query lo justifique. Medir antes de invertir (misma regla que el retrieval).
+1. **Token/cost split by model** (Opus/Sonnet/Haiku) — measures G-3 (sub-delegation) directly.
+2. **Delegation rate** (turns with a `delegation` event / total turns) — ADR-023's shadow, now
+   with a denominator.
+3. **Hook frequency and duration** — "cuántas veces se ejecutan y tras qué" (your literal
+   request).
+4. **Cache-hit-rate** — a cheap proxy for cost health; it drops when context gets messy.
+5. **Cost per station / per increment** — "was this factory cheap?" made measurable.
+6. **Green/red gate streak + time-to-green** — line health.
+7. **Compaction events per session** (PreCompact) — context pressure, anti-economy.
 
 ---
 
-## 8. Nace en M5; relación con la memoria
+## 7. Open decisions (need your input → crystallize into ADR-008)
 
-El subsistema de métricas es parte de la meta-estación **M5 (memoria & RTM)**: toda fábrica nace
-instrumentada (hooks de captura + `meta metrics`), no se retrofitea. Es la mitad de *series* de la
-memoria de hechos (Tier 0); `MEMORY-ARCHITECTURE.md §2` lo nombra y apunta acá. Caveat honesto: los
-campos exactos del payload de cada hook deben verificarse contra el harness vivo (ASF/session_journal
-ya lo hace — prueba de que funciona); el transcript y stats-cache ya están verificados (§2).
+- **Version rollups or leave everything gitignored?** Proposal: `metrics.jsonl` ephemeral
+  (gitignored); a rollup curated per increment (e.g. total increment cost) can go to `work/` or to
+  a versioned `metrics/SUMMARY` (proposed doc, not created — open decision) — that way historical
+  cost survives without the raw stream's churn.
+- **Alerting thresholds (WARN/BLOCK) or pure display?** Initial proposal: **pure display**
+  (an observer, like the delegation counter). Forcing with BLOCK repeats the theater mistake
+  (ADR-023). If a metric deserves a gate (e.g. cost per station > X), it is decided explicitly,
+  after having the series — measure before forcing.
+- **SQLite from day 1 or JSONL until it hurts?** Proposal: JSONL first (zero-dep); SQLite when a
+  query justifies it. Measure before investing (same rule as retrieval).
+
+---
+
+## 8. Born in M5; relationship to memory
+
+The metrics subsystem is part of the meta-station **M5 (memory & RTM)**: every factory is born
+instrumented (capture hooks + `meta metrics`), it is never retrofitted. It is the *series* half of
+the facts memory (Tier 0); `MEMORY-ARCHITECTURE.md §2` names it and points here. Honest caveat:
+the exact payload fields of each hook must be verified against the live harness
+(ASF/session_journal already does it — proof that it works); the transcript and stats-cache are
+already verified (§2).

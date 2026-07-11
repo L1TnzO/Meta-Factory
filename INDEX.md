@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `a9d30594f27e` | 2026-07-11T14:49Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `fc93ec174d87` | 2026-07-11T15:21Z | State — Meta-Factory |
+| `docs/STATE.md` | `4d4d9424cae1` | 2026-07-11T16:06Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -36,8 +36,8 @@
 | `docs/decisions/026-doc-lifecycle-living-english.md` | `cdc7c7c86f08` | 2026-07-11T00:42Z | ADR-026 — Doc lifecycle by measurement: living-layer English, doc-graph liveness, archive-by-trigger |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
-| `docs/reference/ASF-LESSONS.md` | `6091e426930c` | 2026-06-13T14:57Z | Lecciones de ASF — lo bueno a conservar, lo malo a corregir |
-| `docs/reference/ASF-PROVENANCE.md` | `f33e14885e42` | 2026-07-04T20:10Z | ASF — pin de provenance de la referencia congelada |
+| `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |
+| `docs/reference/ASF-PROVENANCE.md` | `ecb890708027` | 2026-07-11T16:01Z | ASF — provenance pin of the frozen reference |
 | `docs/reference/CONTEXT-ECONOMY.md` | `72a0a2df2f8e` | 2026-07-11T15:43Z | Context economy — keeping the orchestrator clean |
 | `docs/reference/COUNCIL-360-AUDIT.md` | `6b5a9d545ddd` | 2026-07-10T14:44Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
@@ -45,8 +45,8 @@
 | `docs/reference/GOVERNANCE-LAYERING.md` | `5405aafe1e82` | 2026-07-11T15:44Z | Governance layering — where docs and the increment lifecycle live across the 3 levels |
 | `docs/reference/HONEST-STATE.md` | `c1b50130e596` | 2026-07-11T15:45Z | HONEST-STATE — implemented vs defined (no makeup) |
 | `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
-| `docs/reference/MEMORY-ARCHITECTURE.md` | `68df5d2e1287` | 2026-07-11T00:56Z | Arquitectura de memoria — el subsistema más crítico de una fábrica |
-| `docs/reference/OBSERVABILITY-METRICS.md` | `73c1b7c2fe48` | 2026-07-11T03:20Z | Observabilidad y métricas — captura absolutamente gratis (cero llamadas al modelo) |
+| `docs/reference/MEMORY-ARCHITECTURE.md` | `cb874cb90d67` | 2026-07-11T16:01Z | Memory architecture — the most critical subsystem of a factory |
+| `docs/reference/OBSERVABILITY-METRICS.md` | `af68e85597ba` | 2026-07-11T16:01Z | Observability and metrics — absolutely free capture (zero model calls) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
 | `docs/reference/PRIMITIVES.md` | `c9228ad0393c` | 2026-07-11T15:38Z | PRIMITIVES — the philosophy: design primitives, not tools |
 | `docs/reference/REGEN-AUDIT.md` | `cfe7c70b287e` | 2026-07-04T20:10Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |

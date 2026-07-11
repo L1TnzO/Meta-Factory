@@ -1,4 +1,4 @@
-<!-- meta:doc sha=edcd76a8b52ad5942cca5c553e889a2ab70459f3 updated=2026-07-11T21:51Z -->
+<!-- meta:doc sha=a4b7659b7ae85e45d570d704a6e9bb3204c903c8 updated=2026-07-11T21:53Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -29,12 +29,11 @@
   `verificacion` boundary vs `superficie` requires an ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`):
   substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
   its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. **`EVALUATOR-ROLE` ✅
-  (2026-07-11, `ADR-027`):** 5th canonical role `evaluator` (separate skeptical criteria-driven grader for
-  model-native surfaces; sonnet, read-only tools) inherited ×5 factories (`roles` 30 agents) + gate
-  `design_eval` (23rd: criteria-as-DATA + PINNED critiques, template-witness must FAIL ≥1 axis; 0-model —
-  evaluator cost stays at generation time; real two-sided proof deferred to `FSK-EVALUATOR-ADOPT`, next).
-  Next: `FSK-EVALUATOR-ADOPT` · ASF physical adoption (S2) ·
-  `COMMUNITY-FRESHNESS` (future ADR) · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025`·`027` · LOG.
+  (2026-07-11, `ADR-027`):** 5th role `evaluator` (skeptical criteria-driven grader; sonnet, read-only)
+  inherited ×5 (`roles` 30 agents) + gate `design_eval` (23rd, 0-model: pinned critiques vs criteria-as-DATA,
+  template-witness must FAIL ≥1 axis; real two-sided proof → `FSK-EVALUATOR-ADOPT`, next). Next:
+  `FSK-EVALUATOR-ADOPT` · ASF adoption (S2) · `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native.
+  → `decisions/023`·`024`·`025`·`027` · LOG.
 - **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** LIVE = meta+FSK+iot · ASF+full-stack-TS
   REGRESSION-FROZEN · dummy = fixture; all external judges in-tree ✅; sole residual D-2 demoted (trigger:
   first waiver re-editing embedded content). Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
@@ -42,9 +41,8 @@
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
   `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
-- **🧭 SOTA RE-DIRECTION (ADR-017→020) ALL closed** (harness IGNITED, payoff MEASURED, dial ADOPTED) ·
-  **🧠 MEMORY v2 (ADR-019) COMPLETE** (M1–M6 ✅; pending §6 threshold; three single-source memories,
-  `reference/MEMORY-ARCHITECTURE.md §8.2`). Detail: work-docs + `LOG.md`.
+- **🧭 SOTA RE-DIRECTION (ADR-017→020) ALL closed · 🧠 MEMORY v2 (ADR-019) COMPLETE** (M1–M6 ✅; pending §6
+  threshold; `reference/MEMORY-ARCHITECTURE.md §8.2`). Detail: work-docs + `LOG.md`.
 - **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature (core backend +
   access-control + Chromium CRUD frontend + **REAL 100.0% line coverage** in snipeit,
   `FSK-COVERAGE-FULL-100`, 2026-07-10); `FSK-FRONTEND-SCREENS` arc COMPLETE (5/5) — and STILL the UI is ugly:
@@ -56,11 +54,9 @@
   `column_scope.py` + `least_priv` gate (factory ⊊ meta).
   Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`; history in `LOG.md`.
 - **🌐 ADR-026 arc — F2 COMPLETE (a·b·c·d ✅) · F3 `DRIFT-AUDIT` CLOSED (2026-07-11, widened +INC-5/6).**
-  F2(d)=`PARALLEL-SLOTS-PILOT`: parallel-by-default **REJECTED by measurement** ((W) 81.6%>60 · (T) 174%>150)
-  → bible §2.6. F3 verdict (graph output, not grep): corpus CLEAN (evidence_liveness green · 100 orphans =
-  expected dormancy · the 4 named clusters reachable → KEEP · F4 trigger unfired); economy targets still red
-  (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first calendar trigger 2026-09-01, Sonnet-5
-  cliff) + CLAUDE.md trim 114→108 ln MEASURED. Verdict: `reference/HONEST-STATE.md §7bis`.
+  Parallel-by-default REJECTED by measurement (bible §2.6); corpus CLEAN (liveness green, orphans = expected
+  dormancy); economy targets still red (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first
+  calendar trigger 2026-09-01). Verdict: `reference/HONEST-STATE.md §7bis`.
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).

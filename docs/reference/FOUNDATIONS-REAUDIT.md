@@ -1,71 +1,71 @@
-<!-- meta:doc sha=43c8bdd444f1fac042eefc2339fd617ee5a3f21f updated=2026-07-10T14:44Z -->
-# FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida
+<!-- meta:doc sha=2822f2726f3a9b790b24d5cec68bc2ed4d66cd61 updated=2026-07-11T16:11Z -->
+# FOUNDATIONS-REAUDIT — the foundations vs. measured behavior
 
-> tipo: reference (estable) · creado: 2026-07-04T02:58Z
-> Re-auditoría S1 pedida por el ingeniero (2026-07-03): «si esto es bueno, ¿por qué no es el estándar
-> de facto de Claude Code?» + veredicto por fundamento tras ~3 semanas de conducta MEDIDA (los
-> fundamentos son del 2026-06-13/15 — git es la autoridad, no la sensación de meses). Autocontenido.
-> Fundamentos auditados: `VISION.md` · `PRIMITIVES.md` · ADR-003/004/011/012/014 · `CONTEXT-ECONOMY.md`.
+> type: reference (stable) · created: 2026-07-04T02:58Z
+> S1 re-audit requested by the engineer (2026-07-03): «si esto es bueno, ¿por qué no es el estándar
+> de facto de Claude Code?» + verdict per foundation after ~3 weeks of MEASURED behavior (the
+> foundations date from 2026-06-13/15 — git is the authority, not the feeling of months). Self-contained.
+> Foundations audited: `VISION.md` · `PRIMITIVES.md` · ADR-003/004/011/012/014 · `CONTEXT-ECONOMY.md`.
 
-## 1. La pregunta incómoda, en cuatro partes
+## 1. The uncomfortable question, in four parts
 
-1. **Convergencia externa (validación).** PRIMITIVES §5 ya citaba (junio) que Spec Kit/Kiro/Tessl
-   formalizan `spec→plan→tareas→verificación`; el SDD es dirección mainstream. Claude Code shippeó
-   `opusplan` (Opus planifica · Sonnet ejecuta) — **ADR-021 es evolución convergente con el vendor**,
-   alcanzada por medición propia. La diferencia que queda: ellos enforcean con prompts; acá con dientes
-   (M0 rehúsa specs incompletas; RTM corta CI). Esa diferencia ES la tesis.
-2. **Segmentación de régimen (por qué NO es el default).** El estándar optimiza el uso mediano
-   interactivo, donde la revisión humana ES el gate y el costo fijo debe ser ~0. Este sistema optimiza
-   **$/feature-VERIFICADA sin humano leyendo el código** — y la medición (DELEG-PAYOFF) mostró que ese
-   régimen exige la columna ENTERA antes de pagar (gates rápidos + verificación hermética + slots
-   cortos). Costo fijo alto, marginal bajísimo → nunca será default de mercado; es el diseño correcto
-   para sistemas long-lived regenerables. Inversión honesta: para apps one-shot, vibe-coding + revisión
-   humana es MÁS barato; ahí no competimos.
-3. **Erosión por plataforma (el riesgo real).** La plataforma se come capas construidas acá (memoria,
-   subagents, routing). Respuesta ya practicada: **podar cuando la plataforma absorbe** (ADR-019: índice
-   semántico descartado por medición; MCP/vectorDB rechazado). Lo NO comoditizado — el moat: pin de
-   re-derivación en clon limpio · RTM-desde-artefactos · contabilidad $/incremento (`meta outcome`).
-4. **La evidencia más fuerte de sanidad: el sistema se poda a sí mismo.** Índice semántico descartado ·
-   MCP rechazado · INC-5/6 N/A-por-medición · Snipe-IT degradado a techo de regresión · ADR-021 revisó
-   el supuesto implícito «Opus siempre orquesta». El contrafáctico de un fundamento podrido existe y fue
-   auditado: Professor Web Factory (gates que pasan por construcción, generación teatral) — lo opuesto
-   medible de esto.
+1. **External convergence (validation).** PRIMITIVES §5 already cited (June) that Spec Kit/Kiro/Tessl
+   formalize `spec→plan→tasks→verification`; SDD is the mainstream direction. Claude Code shipped
+   `opusplan` (Opus plans · Sonnet executes) — **ADR-021 is convergent evolution with the vendor**,
+   reached by our own measurement. The remaining difference: they enforce with prompts; here with teeth
+   (M0 refuses incomplete specs; RTM cuts CI). That difference IS the thesis.
+2. **Regime segmentation (why it is NOT the default).** The standard optimizes for median interactive
+   use, where human review IS the gate and the fixed cost must be ~0. This system optimizes
+   **$/VERIFIED-feature without a human reading the code** — and the measurement (DELEG-PAYOFF) showed
+   that regime demands the WHOLE column before it pays off (fast gates + hermetic verification + short
+   slots). High fixed cost, very low marginal cost → it will never be the market default; it is the
+   correct design for long-lived, regenerable systems. Honest admission: for one-shot apps, vibe-coding
+   + human review is CHEAPER; that's not where we compete.
+3. **Platform erosion (the real risk).** The platform eats layers built here (memory, subagents,
+   routing). Response already practiced: **prune when the platform absorbs** (ADR-019: semantic index
+   discarded by measurement; MCP/vectorDB rejected). What is NOT commoditized — the moat: re-derivation
+   pin on a clean clone · RTM-from-artifacts · $/increment accounting (`meta outcome`).
+4. **The strongest evidence of sanity: the system prunes itself.** Semantic index discarded ·
+   MCP rejected · INC-5/6 N/A-by-measurement · Snipe-IT demoted to a regression ceiling · ADR-021
+   revised the implicit assumption «Opus always orchestrates». The counterfactual of a rotten
+   foundation exists and was audited: Professor Web Factory (gates that pass by construction, theatrical
+   generation) — the measurable opposite of this.
 
-## 2. Veredicto por fundamento
+## 2. Verdict per foundation
 
-| Fundamento | Veredicto | Evidencia dura |
+| Foundation | Verdict | Hard evidence |
 | --- | --- | --- |
-| SAFE-1..8 (prueba-por-bloqueo, re-derivación, slots acotados, sombra determinista, honestidad) | **SOSTENIDO** | 5 fábricas re-derivan `== pin`; falso-verde imposible por construcción; los N/A-por-medición SON SAFE-7 operando |
-| Punto fijo (VISION §3) + ADR-006 (ASF como producto) | **COBRADO, con matiz** | F1 (2026-06-16, `F1-AUDIT-REGEN-VS-LEGACY.md`): la regenerada gana en GOBIERNO y prueba-por-unidad; la legacy gana en AMPLITUD hoy. El gap restante es CONTENIDO (backlog incremental), no fundación |
-| ADR-011 (100% generado) + ADR-012 (primitivas-no-herramientas) | **SOSTENIDO, portante — con matiz ADR-023** | helpdesk first-try con 0 incrementos nuevos; línea día-a-día 0-modelo (palanca #1 del runbook ADR-021) — «generado» ahora INCLUYE model-nativo-pineado; 0-modelo = re-verificación, no generación nueva (ADR-023 §4) |
-| ADR-004 / CONTEXT-ECONOMY (bus de veredictos, ley de colocación) | **Necesario pero INSUFICIENTE → completado** | evitó dumps, pero la RESIDENCIA domina el costo (89% Opus delegando 159k tok) → ADR-021 (ruteo por sesión) lo completa por medición, no lo refuta |
-| VISION §4 «Opus rara vez deriva a Sonnet» | **Cerrado por OTRO mecanismo** | tardó ADR-020+021; el mecanismo real (sesiones S1/S2/S3) ≠ el imaginado (derivación intra-sesión) — la física del cache decidió |
-| Generalidad (ADR-012/014, espina SDD ADR-003) | **Sostenido con RECORTE medido** | Snipe-IT costó 17 ADOPTs → re-aim al sweet-spot 5-entidades (`benchmarks/sweet-spot-crud.yml`); el fundamento sobrevivió achicando su claim |
-| VISION §5.2 (residuo semántico irreducible; el ingeniero no se sustituye) | **SOSTENIDO** | los gates no atrapan lógica bien-tipada-pero-equivocada ni no-ops semánticos; es lo que impide que «automatización total» sea fraude |
+| SAFE-1..8 (proof-by-blocking, re-derivation, bounded slots, deterministic shadow, honesty) | **SUSTAINED** | 5 factories re-derive `== pin`; false-green impossible by construction; the N/A-by-measurement ARE SAFE-7 operating |
+| Fixed point (VISION §3) + ADR-006 (ASF as product) | **PAID OFF, with a caveat** | F1 (2026-06-16, `F1-AUDIT-REGEN-VS-LEGACY.md`): the regenerated one wins on GOVERNANCE and proof-per-unit; the legacy wins on BREADTH today. The remaining gap is CONTENT (incremental backlog), not foundation |
+| ADR-011 (100% generated) + ADR-012 (primitives-not-tools) | **SUSTAINED, load-bearing — with an ADR-023 caveat** | helpdesk first-try with 0 new increments; the day-to-day 0-model line (lever #1 of the ADR-021 runbook) — «generated» now INCLUDES model-native-pinned; 0-model = re-verification, not new generation (ADR-023 §4) |
+| ADR-004 / CONTEXT-ECONOMY (verdict bus, placement law) | **Necessary but INSUFFICIENT → completed** | avoided dumps, but RESIDENCY dominates cost (89% Opus delegating 159k tok) → ADR-021 (per-session routing) completes it by measurement, doesn't refute it |
+| VISION §4 «Opus rarely hands off to Sonnet» | **Closed by ANOTHER mechanism** | took ADR-020+021; the real mechanism (S1/S2/S3 sessions) ≠ the imagined one (intra-session handoff) — cache physics decided |
+| Generality (ADR-012/014, SDD spine ADR-003) | **Sustained with a MEASURED cutback** | Snipe-IT cost 17 ADOPTs → re-aimed at the 5-entity sweet spot (`benchmarks/sweet-spot-crud.yml`); the foundation survived by shrinking its claim |
+| VISION §5.2 (irreducible semantic residue; the engineer is not replaced) | **SUSTAINED** | gates don't catch well-typed-but-wrong logic nor semantic no-ops; that's what keeps «total automation» from being a fraud |
 
-**Síntesis:** ningún fundamento resultó podrido; dos resultaron incompletos y se **completaron por
-medición** (economía de contexto → ADR-021 · generalidad → sweet-spot). La opción honesta «botar y
-simplificar» se ejecutó PARCIALMENTE varias veces — la única forma creíble de esa humildad.
+**Synthesis:** no foundation turned out rotten; two turned out incomplete and were **completed by
+measurement** (context economy → ADR-021 · generality → sweet spot). The honest option «throw out and
+simplify» was executed PARTIALLY several times — the only credible form of that humility.
 
-## 3. La apuesta del ingeniero (humano en el spec; construcción máximamente automatizada)
+## 3. The engineer's bet (human in the spec; maximally automated construction)
 
-No es dirección nueva: ES VISION §4 + ADR-011, y ya es VERDAD en el régimen cubierto (línea de producto
-0-modelo para RE-verificar — la generación nueva es model-nativa gateada, ADR-023; helpdesk first-try).
-El residuo real, y dónde se empuja:
-- **Extender fábricas** (ejes nuevos) = juicio S1 — COST-DOWN lo abarata (S2 Sonnet ejecuta lo
-  diseñado), no lo elimina.
-- **Corrección semántica** (§5.2) no se elimina — **se muda al SPEC**: vocabulario más expresivo +
-  eval-gates (DES-7) hacen que el RTM cubra más semántica → el residuo se achica asintóticamente,
-  nunca a 0 (quien reclama 0 hace teatro).
+Not a new direction: it IS VISION §4 + ADR-011, and it is already TRUE in the covered regime (0-model
+product line for RE-verification — new generation is model-native and gated, ADR-023; helpdesk
+first-try). The real residue, and where it is pushed:
+- **Extending factories** (new axes) = S1 judgment — COST-DOWN makes it cheaper (S2 Sonnet executes
+  what was designed), not eliminates it.
+- **Semantic correction** (§5.2) is not eliminated — **it moves to the SPEC**: more expressive
+  vocabulary + eval-gates (DES-7) make the RTM cover more semantics → the residue shrinks
+  asymptotically, never to 0 (whoever claims 0 is putting on theater).
 
-## 4. Qué queda (cola ordenada al 2026-07-04, handoff de esta S1)
+## 4. What's left (queue ordered as of 2026-07-04, handoff from this S1)
 
-1. **Corrida S2 real** (Sonnet orquestador, `claude --model sonnet --agent orchestrator`) sobre un
-   incremento con código → último KPI COST-DOWN §5 (opus-share ≤35%; hoy 3/4 KPIs verdes). La corre el
-   ingeniero; S3 la lee con `meta outcome`.
-2. **`SESSION-CLASS-AS-DATA`** — diseño DIFERIDO en `work/SESSION-CLASS-AS-DATA-INCREMENT.md`: clase de
-   sesión como dato + `meta session` + diente de mismatch en SessionStart + cierre prescriptivo literal +
-   schema-tooth del work-doc + 2 observers de medición (apertura fría-vs-caliente · pre-diseñado-vs-ad-hoc).
-3. **Mediano plazo (el norte que F1 dejó):** cerrar el gap de CONTENIDO de la ASF regenerada vs la
-   legacy con incrementos S2 baratos — la prueba definitiva de «regenerar > mantener», ahora viable
-   por la economía ADR-021.
+1. **Real S2 run** (Sonnet orchestrator, `claude --model sonnet --agent orchestrator`) on an increment
+   with code → the last COST-DOWN §5 KPI (opus-share ≤35%; today 3/4 KPIs green). The engineer runs it;
+   S3 reads it with `meta outcome`.
+2. **`SESSION-CLASS-AS-DATA`** — design DEFERRED in `work/SESSION-CLASS-AS-DATA-INCREMENT.md`: session
+   class as data + `meta session` + mismatch tooth in SessionStart + literal prescriptive closing +
+   work-doc schema-tooth + 2 measurement observers (cold-vs-warm opening · pre-designed-vs-ad-hoc).
+3. **Medium term (the north F1 left behind):** close the CONTENT gap of the regenerated ASF vs the
+   legacy with cheap S2 increments — the definitive proof of «regenerate > maintain», now viable
+   thanks to the ADR-021 economy.

@@ -41,15 +41,15 @@
 | `docs/reference/CONTEXT-ECONOMY.md` | `72a0a2df2f8e` | 2026-07-11T15:43Z | Context economy — keeping the orchestrator clean |
 | `docs/reference/COUNCIL-360-AUDIT.md` | `6b5a9d545ddd` | 2026-07-10T14:44Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
-| `docs/reference/FOUNDATIONS-REAUDIT.md` | `43c8bdd444f1` | 2026-07-10T14:44Z | FOUNDATIONS-REAUDIT — los fundamentos vs. la conducta medida |
+| `docs/reference/FOUNDATIONS-REAUDIT.md` | `2822f2726f3a` | 2026-07-11T16:11Z | FOUNDATIONS-REAUDIT — the foundations vs. measured behavior |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `5405aafe1e82` | 2026-07-11T15:44Z | Governance layering — where docs and the increment lifecycle live across the 3 levels |
 | `docs/reference/HONEST-STATE.md` | `c1b50130e596` | 2026-07-11T15:45Z | HONEST-STATE — implemented vs defined (no makeup) |
-| `docs/reference/MAT-6-REAUDIT.md` | `a508d47f96b9` | 2026-06-18T01:03Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (la tabla §12, dada vuelta con honestidad) |
+| `docs/reference/MAT-6-REAUDIT.md` | `7b0366d03447` | 2026-07-11T16:13Z | MAT-6 RE-AUDIT — New ASF vs legacy, head-to-head (the §12 table, turned around with honesty) |
 | `docs/reference/MEMORY-ARCHITECTURE.md` | `cb874cb90d67` | 2026-07-11T16:01Z | Memory architecture — the most critical subsystem of a factory |
 | `docs/reference/OBSERVABILITY-METRICS.md` | `af68e85597ba` | 2026-07-11T16:01Z | Observability and metrics — absolutely free capture (zero model calls) |
 | `docs/reference/PLAN-EXECUTE-RUNBOOK.md` | `1686a0767a6b` | 2026-07-03T13:35Z | Plan-execute runbook — the S2 (Sonnet) mechanical loop |
 | `docs/reference/PRIMITIVES.md` | `c9228ad0393c` | 2026-07-11T15:38Z | PRIMITIVES — the philosophy: design primitives, not tools |
-| `docs/reference/REGEN-AUDIT.md` | `cfe7c70b287e` | 2026-07-04T20:10Z | REGEN-AUDIT — qué genera el Meta-Factory vs el ASF original (mina de incrementos) |
+| `docs/reference/REGEN-AUDIT.md` | `a7b554af2685` | 2026-07-11T16:16Z | REGEN-AUDIT — what the Meta-Factory generates vs the original ASF (mine of increments) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |

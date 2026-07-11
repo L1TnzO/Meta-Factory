@@ -1,7 +1,7 @@
-<!-- meta:doc sha=7cd4d3802546e364e168af99cd1611856578410f updated=2026-07-11T05:00Z -->
+<!-- meta:doc sha=61682de2c45eb614d04251a9724b1d35aa382926 updated=2026-07-11T05:01Z -->
 # Incremento FSK-ENGLISH-HARNESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T05:00Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T05:01Z) (creado 2026-07-11T05:00Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

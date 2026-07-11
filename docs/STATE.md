@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5c7623fa528b6b8adfaa2686168fe50f6f2e452b updated=2026-07-11T20:58Z -->
+<!-- meta:doc sha=e30242b36869aa396f9f7c4678c9fd596c866a72 updated=2026-07-11T21:15Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -10,7 +10,7 @@
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
-- Open increment: none
+- Open increment: EVALUATOR-ROLE-INCREMENT.md
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 

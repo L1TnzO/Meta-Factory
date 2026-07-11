@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `d8d567762b82` | 2026-07-11T20:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `5c7623fa528b` | 2026-07-11T20:58Z | State — Meta-Factory |
+| `docs/STATE.md` | `e30242b36869` | 2026-07-11T21:15Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -100,6 +100,7 @@
 | `docs/work/ENGLISH-LIVING-COLUMN-INCREMENT.md` | `706e56fc2912` | 2026-07-11T05:10Z | Incremento ENGLISH-LIVING-COLUMN |
 | `docs/work/ENGLISH-META-DOCS-INCREMENT.md` | `8fac61100597` | 2026-07-11T17:14Z | Incremento ENGLISH-META-DOCS |
 | `docs/work/EVAL-FLOOR-GATE-INCREMENT.md` | `eed675ed4515` | 2026-07-10T22:48Z | Incremento EVAL-FLOOR-GATE |
+| `docs/work/EVALUATOR-ROLE-INCREMENT.md` | `4d97e862fe8d` | 2026-07-11T21:16Z | Incremento EVALUATOR-ROLE |
 | `docs/work/EXTERNAL-CI-GREEN-INCREMENT.md` | `2de0cbba112d` | 2026-07-04T19:45Z | Incremento EXTERNAL-CI-GREEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |
 | `docs/work/FACTORY-DELEGATION-TEETH-INCREMENT.md` | `e6e66c077da4` | 2026-06-26T23:45Z | Incremento FACTORY-DELEGATION-TEETH (escindido de HARNESS-DECOUPLE Fases 3–4) |

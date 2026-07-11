@@ -1,12 +1,12 @@
 ---
-description: Verifica que el generador del producto puede ensamblar la línea desde
-  el blueprint (selftest, no escribe).
+description: Verifies the product generator can assemble the line from the blueprint
+  (selftest, writes nothing).
 run:
 - python
 - codegen/scaffold_product.py
 - --selftest
 ---
 
-# /assemble — verificá que el producto de agent-systems-factory se puede ensamblar
-Corré el scaffolder en modo selftest: parsea el blueprint del spec y confirma que la línea
-LangGraph está lista para generarse. El producto e2e se construye con `meta product-run`.
+# /assemble — verify the agent-systems-factory product can be assembled
+Run the scaffolder in selftest mode: it parses the spec's blueprint and confirms the LangGraph
+line is ready to generate. The e2e product is built with `meta product-run`.

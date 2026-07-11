@@ -452,53 +452,53 @@ machinery:
     status: built
     agents:
       - name: writer
-        description: "Escribe DIFFs acotados de la fábrica agent-systems-factory (implementación)."
+        description: "Writes bounded DIFFs for the agent-systems-factory (implementation)."
         model: sonnet
         tools: [Read, Edit, Write, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
-          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
-          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
-          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+          - { prohibits: "does not write or edit verdicts in .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "does not declare green: passed is computed ONLY by the verifier from exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "does not commit a corrupt/unproven verdict (the active station recomposes green)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "does not close the turn with the active station tampered or red", shadow: ".claude/hooks/stop_proof.py" }
         body: |
-          # writer — el slot de implementación de la fábrica {{slug}}
-          Recibís un DIFF a producir (no una decisión). Dejás que la gate sea la autoridad: nunca afirmás
-          verde, lo demostrás. No tocás `.proof/` ni la cadena de confianza (sombras deterministas, no prosa).
+          # writer — the implementation slot of the {{slug}} factory
+          You receive a DIFF to produce (not a decision). You let the gate be the authority: you never claim
+          green, you prove it. You don't touch `.proof/` or the trust chain (deterministic shadows, not prose).
       - name: reviewer
-        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        description: "Reviews DIFFs that touch the trust chain; never approves without re-derivation."
         model: opus
         tools: [Read, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
-          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+          - { prohibits: "does not approve unless the external CI re-derives the line (two verifiers)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "does not declare green: the verifier is the sole authority over proof_sha", shadow: "seed/verifier.py" }
         body: |
-          # reviewer — revisión de la cadena de confianza de {{slug}}
-          Revisás con ojos propios (la cadena de confianza no se delega); nunca emitís un veredicto —
-          reportás evidencia re-derivada y delegás el juicio al orquestador.
+          # reviewer — trust-chain review for {{slug}}
+          You review with your own eyes (the trust chain is never delegated); you never emit a verdict —
+          you report re-derived evidence and defer the judgment to the orchestrator.
       - name: triage
-        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        description: "Triage of a red log: root cause in ≤5 lines. Read-only."
         model: haiku
         tools: [Read, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "does not write or edit proof artifacts in .proof/", shadow: ".claude/hooks/proof_protect.py" }
         body: |
-          # triage — diagnóstico rápido de log rojo en {{slug}}
-          Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no aprobás, no escribís.
+          # triage — fast diagnosis of a red log in {{slug}}
+          Your only product is a root cause in ≤5 lines. You don't fix, you don't approve, you don't write.
     commands:
       - name: assemble
-        description: "Verifica que el generador del producto puede ensamblar la línea desde el blueprint (selftest, no escribe)."
+        description: "Verifies the product generator can assemble the line from the blueprint (selftest, writes nothing)."
         run: ["python", "codegen/scaffold_product.py", "--selftest"]
         body: |
-          # /assemble — verificá que el producto de {{slug}} se puede ensamblar
-          Corré el scaffolder en modo selftest: parsea el blueprint del spec y confirma que la línea
-          LangGraph está lista para generarse. El producto e2e se construye con `meta product-run`.
+          # /assemble — verify the {{slug}} product can be assembled
+          Run the scaffolder in selftest mode: it parses the spec's blueprint and confirms the LangGraph
+          line is ready to generate. The e2e product is built with `meta product-run`.
     skills:
       - name: verificar-fabrica
-        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        description: "How to re-verify the factory by blocking (not by prose)."
         body: |
-          # verificar — re-verificá {{slug}} por bloqueo
-          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos, nunca el dump de tests.
-          Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+          # verify — re-verify {{slug}} by blocking
+          Run `meta product-run --factory {{slug}}` and read the verdict bus, never the test dump.
+          The two verifiers: `meta ci --rederive --factory {{slug}}`.
   mcp:
     tech: "MCP de la fábrica: tools tipadas (validate/station/rtm) que el orquestador invoca"
     primitive: DES-6

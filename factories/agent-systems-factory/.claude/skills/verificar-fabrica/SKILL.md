@@ -1,8 +1,8 @@
 ---
 name: verificar-fabrica
-description: Cómo re-verificar la fábrica por bloqueo (no por prosa).
+description: How to re-verify the factory by blocking (not by prose).
 ---
 
-# verificar — re-verificá agent-systems-factory por bloqueo
-Corré `meta product-run --factory agent-systems-factory` y leé el bus de veredictos, nunca el dump de tests.
-Los dos verificadores: `meta ci --rederive --factory agent-systems-factory`.
+# verify — re-verify agent-systems-factory by blocking
+Run `meta product-run --factory agent-systems-factory` and read the verdict bus, never the test dump.
+The two verifiers: `meta ci --rederive --factory agent-systems-factory`.

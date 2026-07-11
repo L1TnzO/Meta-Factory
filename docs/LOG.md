@@ -1,7 +1,27 @@
-<!-- meta:doc sha=ba140b518657df6ad860657eec9043a43cdba47a updated=2026-07-11T05:09Z -->
+<!-- meta:doc sha=a9d30594f27ecc444b4793e083c84e5264eed261 updated=2026-07-11T14:49Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T14:48Z — SOTA-PARITY-DIRECTION CLOSED: deep audit vs external SOTA, engineer-mandated web verification
+Fable 5 special session (the engineer's reserved case), run READ-ONLY in parallel while
+`ENGLISH-CLI-STRINGS` executed elsewhere; landed only after that close (`bc6ba04`). Mandate: *don't
+trust the docs — they were AI-written; verify against the web.* Internal state came from the CLI
+observers (`meta metrics/outcome/billing`) and the column read with own eyes; external state fetched
+live (Anthropic engineering through Apr-2026, Claude Code CHANGELOG v2.1.207, current pricing page).
+Verdict: the CONCEPTUAL design is at-or-ahead of SOTA (two-sided gates, verdict files, fast-gate/dial,
+the ADR-023 freeze — all independently validated outside; §2 is now a do-not-churn list), but three
+real misalignments: (1) the delegation boundary over-promises — `blast_radius` guards only Write/Edit
+while the generator has Bash, plus a fail-open `except` in the hook (undeclared residual); (2) the
+delegation economy is designed but not operated (0.8% delegated · opus 86% of $6,543 · haiku 0%) just
+as the terrain shifted (Sonnet-5 intro pricing until 2026-08-31, +30% tokenizer on new models, native
+worktree/team parallelism); (3) the subjective-quality ceiling ("the UI is still ugly") has a proven
+external answer — a separate skeptical evaluator agent with graded criteria navigating the live app.
+Plan INC-1..7 (footprint tooth · parallel pilot riding F2(d) · evaluator ADR-027 · LSP-not-handbuilt ·
+assumption ledger · prefix trim in F3 · sandbox-egress deferred) merged with the ADR-026 arc without
+reordering it; pricing-cliff trigger set for 2026-09-01. Everything self-contained in
+`work/SOTA-PARITY-DIRECTION-INCREMENT.md` (pricing.py verified EXACT against the live page — a rare
+green worth recording).
 
 ## 2026-07-11T05:10Z — ENGLISH-LIVING-COLUMN (F2a) CLOSED: the whole trust-chain column is English, factory harness included
 Stage 3 (this session) finished the batch: the spec-emitted factory harness ×5 (writer/reviewer/triage

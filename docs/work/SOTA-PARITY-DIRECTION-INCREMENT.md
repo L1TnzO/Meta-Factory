@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fcb26e87eac9b8b0fceec0688c9a0a73f90dcf85 updated=2026-07-11T14:47Z -->
+<!-- meta:doc sha=f7fa25efe194a7ec1255ce457f317d925af707f4 updated=2026-07-11T14:48Z -->
 # Incremento SOTA-PARITY-DIRECTION
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T14:43Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-11T14:48Z) (creado 2026-07-11T14:43Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

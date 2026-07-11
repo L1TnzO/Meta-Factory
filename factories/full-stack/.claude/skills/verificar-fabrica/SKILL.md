@@ -1,8 +1,8 @@
 ---
 name: verificar-fabrica
-description: Cómo re-verificar la fábrica por bloqueo (no por prosa).
+description: How to re-verify the factory by blocking (not by prose).
 ---
 
-# verificar — re-verificá full-stack por bloqueo
-Corré `meta product-run --factory full-stack` y leé el bus de veredictos (≤ max_lines), nunca el
-dump de tests. Los dos verificadores: `meta ci --rederive --factory full-stack`.
+# verify — re-verify full-stack by blocking
+Run `meta product-run --factory full-stack` and read the verdict bus (≤ max_lines), never the
+test dump. The two verifiers: `meta ci --rederive --factory full-stack`.

@@ -27,11 +27,16 @@ description: 'Orchestrator-time procedure for delegating ONE bounded code slot u
    holds the writer to.
 2. **Bound the blast radius** — `allow_globs`: the exact path(s) the writer may touch. Everything else is denied
    by `blast_radius`. Smaller is safer — change-scope == verification-scope.
-3. **Pick the gate** — `gate_cmd`: the deterministic command that exits 0 iff the slot is correct.
+3. **Split the gate** — declare a FAST `iteration_gate_cmd` (compile + static + affected tests, ≤15s, re-run
+   every retry) and a HEAVY `acceptance_gate_cmd` (full suite / PBT, run once at the end). A green verdict
+   requires the acceptance gate to exit 0. Also declare the size budgets (`iteration_budget_s` ≤15,
+   `max_wall_s` ≤1800) — a slot bigger than ~30 min must be split.
 4. **Write the manifest** to `.gen/active_slot.json` (gitignored — re-derivable INPUT, never trust):
    ```json
    {"slot_id": "<name>", "contract": "<typed signature / pointer>",
-    "allow_globs": ["src/.../target"], "gate_cmd": ["..."],
+    "allow_globs": ["src/.../target"],
+    "iteration_gate_cmd": ["...fast..."], "acceptance_gate_cmd": ["...heavy..."],
+    "iteration_budget_s": 15, "max_wall_s": 1800,
     "verdict_path": ".gen/<slot>.verdict.json",
     "single_responsibility": "<the slot's ONE job, one line>",
     "trust_level": "low|medium|high", "cost_class": "cheap|standard|premium"}
@@ -42,7 +47,8 @@ description: 'Orchestrator-time procedure for delegating ONE bounded code slot u
    but, when present, validated against a closed set by `seed/delegation.py` — a malformed WorkOrder is rejected
    before any spawn.
 5. **Spawn the `writer`** with the Agent tool (`subagent_type: writer`): a short task pointing at the slot. It
-   implements, runs `gate_cmd`, writes the verdict, and returns a one-line status. Its two hooks make this safe:
+   iterates on the fast gate, runs the acceptance gate once, writes the verdict, and returns a one-line status.
+   Its two hooks make this safe:
    a write outside `allow_globs` → blocked; finishing without a well-formed verdict → blocked.
 6. **Read the verdict**, not the code (`.gen/<slot>.verdict.json`):
    - **green** (gate exit 0) → accept; the slot is done.

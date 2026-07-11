@@ -1,9 +1,10 @@
-<!-- meta:doc sha=189ca0486b36e38280fb8114fde5a48bf9619b3d updated=2026-07-10T14:43Z -->
+<!-- meta:doc sha=26e5885389a3e561d01816ec033c7af5cef1269b updated=2026-07-11T05:04Z -->
 # Estado — IoT Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- Harness `.claude/` in English (IOT-ENGLISH-HARNESS, 2026-07-11, ADR-026 F2a stage 3): spec↔emitted proven byte-in-sync by in-memory render.
 - **Freeze del codegen de templates (ADR-023, declarado en este nivel el 2026-07-10):** `codegen/
   scaffold_product.py` está **CONGELADO-con-pin** como todo codegen de templates; los productos pineados
   siguen verdes gratis (`ci --rederive`); alimentarlo = waiver escrito en el work-doc (ADR-023 §3). Lo

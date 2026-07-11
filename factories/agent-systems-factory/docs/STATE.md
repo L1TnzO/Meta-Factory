@@ -1,9 +1,10 @@
-<!-- meta:doc sha=9c332a9b6679c0c7861f763b70a7035d69513b48 updated=2026-07-10T23:49Z -->
+<!-- meta:doc sha=a8cb04750ee85b50ed2da68fb0584773590a5765 updated=2026-07-11T05:04Z -->
 # Estado — Agent Systems Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- Harness `.claude/` in English (ENGLISH-HARNESS, 2026-07-11, ADR-026 F2a stage 3): spec↔emitted proven byte-in-sync by in-memory render.
 - **🧊 REGRESSION-FROZEN para el CHASIS s0–s11 (2026-07-04, COUNCIL-360 §6.2 camino B · §6.5) — sigue
   cierto: cero incrementos nuevos sobre s0..s11; su pin las mantiene verdes gratis en `meta ci
   --rederive` (custodia ~0 costo de atención). NO se borra — es evidencia de paridad (ADR-014: dominio

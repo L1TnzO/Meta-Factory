@@ -1,10 +1,11 @@
-<!-- meta:doc sha=7bad9faa8dbeb607d3561f3157c0044c8cc93f4b updated=2026-07-10T16:12Z -->
+<!-- meta:doc sha=23c78dceeb955035f7f4d39e7920b7dfc4210e93 updated=2026-07-11T05:04Z -->
 # Estado — Full-Stack Kotlin/TS/PG Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 > Freshness (2026-07-10T16:xxZ): re-sellado tras el cierre de FSK-HELPDESK-MODELGEN.
 
 ## Ahora
+- Harness `.claude/` in English + `correr-app` spec-declared (FSK-ENGLISH-HARNESS, 2026-07-11, ADR-026 F2a stage 3): spec↔emitted proven byte-in-sync by in-memory render; latent m07-prune bug closed.
 - **FSK-HELPDESK-MODELGEN (2026-07-10)** ✅ CERRADO — **segunda adopción durable** del modo model-nativo
   (ADR-024) en `helpdesk`: `products/helpdesk/frontend/app.{ts,css}` (ganador del experimento A/B, ya
   tracked desde el checkpoint previo, sha `46c53c7…`/`b3328a6…` byte-idéntica al build aceptado) +

@@ -1,9 +1,10 @@
-<!-- meta:doc sha=b7729ffa38b64804ad4964318d5181e570486eee updated=2026-07-04T19:53Z -->
+<!-- meta:doc sha=8e64028ec8b914f324ccdd9c6bc9ef63631bcbf5 updated=2026-07-11T05:04Z -->
 # Estado — Full-Stack Factory
 > tipo: estado · fábrica generada por el Meta-Factory · esquema heredado ADR-021 (overwrite)
 > Este doc APUNTA; la verdad verificable vive en artefactos (.proof/, ledger, RTM re-derivado).
 
 ## Ahora
+- Harness `.claude/` in English (ENGLISH-HARNESS, 2026-07-11, ADR-026 F2a stage 3): spec↔emitted proven byte-in-sync by in-memory render.
 - **🧊 REGRESSION-FROZEN (2026-07-04, COUNCIL-360 §6.2 camino B · §6.5 · §2.6).** Esta fábrica queda
   CONGELADA-CON-PIN: cero incrementos nuevos; su pin la mantiene verde gratis en `meta ci --rederive`.
   Su paridad (dominio TS) ya está cubierta por Kotlin+Go+Python en el claim de generalidad — candidata

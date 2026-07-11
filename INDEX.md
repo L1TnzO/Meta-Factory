@@ -34,6 +34,7 @@
 | `docs/decisions/024-modo-model-nativo-durable-superficie-humana-pineada.md` | `0f68fc4045f1` | 2026-07-08T15:53Z | ADR-024 — Modo model-nativo durable: la superficie humana como override pineado (concreta ADR-023 §4) |
 | `docs/decisions/025-adopcion-producto-evaluable-y-eval-floor.md` | `bdc4f7e42634` | 2026-07-10T22:27Z | ADR-025 — Adopción de un producto evaluable externo como producto de fábrica: `eval_floor` (generaliza ADR-024) + thaw de ASF para ReqCouncil |
 | `docs/decisions/026-doc-lifecycle-living-english.md` | `cdc7c7c86f08` | 2026-07-11T00:42Z | ADR-026 — Doc lifecycle by measurement: living-layer English, doc-graph liveness, archive-by-trigger |
+| `docs/decisions/027-evaluator-role-subjective-quality.md` | `c48725499a41` | 2026-07-11T21:29Z | ADR-027 — Evaluator role: a separate, skeptical, criteria-driven grader for model-native surfaces |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |

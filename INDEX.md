@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `3b2f00096cd1` | 2026-07-11T17:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `9d6233cad69f` | 2026-07-11T17:43Z | State — Meta-Factory |
+| `docs/STATE.md` | `110b3158bd29` | 2026-07-11T17:55Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -139,6 +139,7 @@
 | `docs/work/MONOLITH-REFACTOR-INCREMENT.md` | `575d60ea9826` | 2026-06-26T03:03Z | Incremento MONOLITH-REFACTOR |
 | `docs/work/MUTATION-ESCAPE-INCREMENT.md` | `d20b775d9aa1` | 2026-07-04T20:47Z | Incremento MUTATION-ESCAPE |
 | `docs/work/OUTCOME-JUDGES-INCREMENT.md` | `45e7fa83d9e0` | 2026-07-04T19:56Z | Incremento OUTCOME-JUDGES |
+| `docs/work/PARALLEL-SLOTS-PILOT-INCREMENT.md` | `3411ef73e298` | 2026-07-11T18:02Z | Incremento PARALLEL-SLOTS-PILOT |
 | `docs/work/PLAN-EXECUTE-SPLIT-INCREMENT.md` | `b34ed79edbe0` | 2026-07-03T14:33Z | Incremento PLAN-EXECUTE-SPLIT |
 | `docs/work/PRICING-LEDGER-INCREMENT.md` | `6e65d1cbef7d` | 2026-07-02T20:00Z | Incremento PRICING-LEDGER |
 | `docs/work/PWF-VOCAB-HARVEST-INCREMENT.md` | `7884e3ec8009` | 2026-06-26T13:01Z | Incremento PWF-VOCAB-HARVEST |

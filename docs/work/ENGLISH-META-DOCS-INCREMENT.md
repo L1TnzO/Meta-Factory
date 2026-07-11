@@ -1,4 +1,4 @@
-<!-- meta:doc sha=efc93513a02550e085ae87efcd658104864ec24b updated=2026-07-11T15:31Z -->
+<!-- meta:doc sha=0d008373426a45a44bd441e1851bf1df42b88507 updated=2026-07-11T17:12Z -->
 # Incremento ENGLISH-META-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T15:10Z). Cerralo con `meta increment close`
@@ -51,11 +51,11 @@ tagged VIGENTE) is never touched.
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | `projection.py` by-eyes fix (6 strings + START marker, dual-accept `BLOCK_RE` migration + self-healing `refresh()` against a stray duplicate block) + `tests/test_memory.py` sync (1 assertion) | ✅ DONE |
-| 2 | Slot 1 → `generator`: `docs/STATE.md` + `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | ⏳ |
-| 3 | Slot 2 → `generator`: reference/ design cluster (8 files) | ⏳ |
-| 4 | Slot 3 → `generator`: reference/ memory+obs+ASF cluster (4 files) | ⏳ |
-| 5 | Slot 4 → `generator`: reference/ audit cluster (5 files) | ⏳ |
-| 6 | Close: `meta check` green, full suite green, `meta outcome` captured as the INC-2 sequential baseline | ⏳ |
+| 2 | Slot 1 → `generator`: `docs/STATE.md` + `docs/work/COST-DOWN-DIRECTION-INCREMENT.md` | ✅ DONE |
+| 3 | Slot 2 → `generator`: reference/ design cluster (8 files) | ✅ DONE |
+| 4 | Slot 3 → `generator`: reference/ memory+obs+ASF cluster (4 files) | ✅ DONE |
+| 5 | Slot 4 (+4b) → `generator`: reference/ audit cluster (5 files; hit an unrelated API session-limit mid-run once, resumed as slot 4b for the 2 remaining files) | ✅ DONE |
+| 6 | Close: `meta check` green, full suite green, `meta outcome` captured as the INC-2 sequential baseline | ✅ DONE |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `meta check` green (incl. `docs`, `evidence_liveness`, `state_snapshot`, `state_fidelity`) · full pytest
@@ -66,3 +66,40 @@ tagged VIGENTE) is never touched.
 3. Slot verdicts on file for all 4 generator slots (`.gen/*.verdict.json`), accepted on gate exit 0.
 4. `meta outcome` captured for this increment (tokens/$/wall-clock) as the `PARALLEL-SLOTS-PILOT` (INC-2)
    sequential control baseline.
+
+## Evidencia
+1. `meta check` — 21/21 green (`.meta_check/metacheck-2026-07-11T1711Z.log`); full pytest 1016/1016 green
+   after every batch. `meta outcome` — RTM 55/55 SATISFIED (all 5 factories, unaffected by doc-only work).
+2. 19 authored docs translated Spanish→English, structure-preserving, sequentially (`docs/STATE.md`,
+   `docs/work/COST-DOWN-DIRECTION-INCREMENT.md`, 17 `docs/reference/*.md`): 5 generator spawns
+   (`docs-en-slot1` fg, `docs-en-slot2`/`docs-en-slot3`/`docs-en-slot4b` bg, `docs-en-slot4` partial —
+   hit an external API session-limit mid-run after fully translating 3 of its 5 files; the 3 done files
+   were kept and independently re-verified green, the remaining 2 resumed as `docs-en-slot4b`). Every
+   slot's acceptance gate = `docs_check` + `evidence_liveness` + `.gen/doc_translate_check.py` (a
+   structural-preservation checker the orchestrator wrote this increment: heading-count parity, fenced-code
+   byte-identity, path-citation preservation, residual-Spanish-isn't-the-bulk) — real teeth for the
+   deterministic half; the meaning half is the brain's spot-check (ADR-026 §1), sampled across all 5 slots'
+   output (STATE.md, PRIMITIVES.md's engineer-quote handling, ASF-LESSONS.md's frozen-citation handling,
+   ARCHITECTURE.md's fenced-diagram preservation, COUNCIL-360-AUDIT.md's 48 guillemet spans byte-identical).
+3. **INC-2 `PARALLEL-SLOTS-PILOT` sequential baseline** (`meta outcome` has no billing-ledger artifact for
+   this increment — the numbers below are the raw generator-usage figures from each spawn's own report):
+   624,100 subagent tokens over 4 fully-reported spawns (slot1 144,855 · slot2 161,292 · slot3 164,607 ·
+   slot4b 153,346; slot4's partial run's usage was not reported before it terminated) · 154 tool-uses over
+   those 4 · ≈3,371s (~56.2 min) generator wall-clock over those 4, run ONE AFTER ANOTHER (never
+   concurrently) — the control this doc exists to be, for `INC-2`'s upcoming F2(d) parallel-worktree
+   comparison (5 factories × 1 slot each, disjoint `allow_globs`).
+4. **Two real bugs found and fixed live, not by design**: (a) `projection.py`'s `BLOCK_RE` was built from
+   the (now-English) `START` constant only — translating it broke `refresh()`'s ability to find an
+   old-Spanish-marker block, producing a stray duplicate; fixed with a dual-accept legacy pattern (same
+   precedent as the `Estado`/`Status` header grammar) + made `refresh()` self-healing against leftover
+   duplicates. (b) this increment doc's own scope table used brace-expansion path citations
+   (`` `docs/reference/{A,B,...}.md` ``) which `doc_graph`'s single-path citation parser can't resolve —
+   caught by slot 1's own generator, fixed by expanding to individually-backticked real paths, documented
+   in every later slot's contract so it wasn't reintroduced.
+5. Verdicts on file for all 5 spawns (`.gen/docs-en-slot{1,2,3,4,4b}.verdict.json`); slot1/slot3/slot4b
+   were promoted red→green by the orchestrator after independently re-running their EXACT
+   `acceptance_gate_cmd` post-fix (the blocker in each case was outside that slot's own `allow_globs`:
+   slot1 → the increment doc's citation bug, slot3/slot4b → `docs/STATE.md`'s per-home freshness tooth,
+   resolved by re-sealing STATE alongside each landing commit, same fix as the `DOCS-STALE-RESEAL`
+   precedent). Commits: `dd542c0` (fase 1) · `a552bf9` (fase 2/slot1) · `ec60114` (fase 3/slot2) ·
+   `6f2116a` (fase 4/slot3) · `6b871d1` (fase 5a/slot4 partial) · `93feb13` (fase 5b/slot4b) · this close.

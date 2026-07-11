@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `8c12a24c9f71` | 2026-07-11T00:44Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `c2cb64281cfe` | 2026-07-11T00:56Z | Estado — Meta-Factory |
+| `docs/LOG.md` | `613365f546b0` | 2026-07-11T03:25Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `65770089d506` | 2026-07-11T03:24Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -88,8 +88,8 @@
 | `docs/work/DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND-INCREMENT.md` | `66a87e6c648d` | 2026-07-09T03:24Z | Incremento DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
-| `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `24b02cf89620` | 2026-07-11T00:44Z | Incremento DOC-CLEANUP-DIRECTION |
-| `docs/work/DOC-GRAPH-LIVENESS-INCREMENT.md` | `29ab1ca997ad` | 2026-07-11T03:20Z | Incremento DOC-GRAPH-LIVENESS |
+| `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `bf6c90767bf9` | 2026-07-11T03:25Z | Incremento DOC-CLEANUP-DIRECTION |
+| `docs/work/DOC-GRAPH-LIVENESS-INCREMENT.md` | `157ceb05a4a9` | 2026-07-11T03:24Z | Incremento DOC-GRAPH-LIVENESS |
 | `docs/work/DOC-PRUNE-STARTHERE-INCREMENT.md` | `a0bbdd27a346` | 2026-07-11T00:32Z | Incremento DOC-PRUNE-STARTHERE |
 | `docs/work/DOCS-STALE-RESEAL-INCREMENT.md` | `9e4fa1ce1131` | 2026-07-10T16:19Z | Incremento DOCS-STALE-RESEAL |
 | `docs/work/DRAFT-HARDEN-DIAL-INCREMENT.md` | `64f9ffe854c9` | 2026-06-26T04:06Z | Incremento DRAFT-HARDEN-DIAL |

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=29ab1ca997ad36573e59e8b8fa54e51499cd4eca updated=2026-07-11T03:20Z -->
+<!-- meta:doc sha=157ceb05a4a97ee45f74a20aa49b97306d7d3428 updated=2026-07-11T03:24Z -->
 # Incremento DOC-GRAPH-LIVENESS
 
-> **Doc de gobierno.** Estado: **ABIERTO** (creado 2026-07-11T00:56Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T03:24Z) (creado 2026-07-11T00:56Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

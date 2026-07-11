@@ -1,4 +1,4 @@
-<!-- meta:doc sha=24b02cf8962038f03c12b96ad85a261668ad4a48 updated=2026-07-11T00:44Z -->
+<!-- meta:doc sha=bf6c90767bf93dfe605993d25d1a33d567e62150 updated=2026-07-11T03:25Z -->
 # Incremento DOC-CLEANUP-DIRECTION
 
 > **Doc de gobierno.** Estado: **CERRADO** (2026-07-11T00:44Z) (creado 2026-07-11T00:41Z). Cerralo con `meta increment close`
@@ -22,7 +22,7 @@ without `.md` by `cli.py:1104`): liveness MUST be computed by the graph with rob
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | F0 | `DOC-PRUNE-STARTHERE` — first doc pruned by usage measurement (commits d0a9fcb+d4cc0aa, meta check 20/20) | ✅ |
-| F1 | **`DOC-GRAPH-LIVENESS`** (meta): `graph/doc_graph.py` — Doc nodes + `CITES`/`EVIDENCES` edges (robust ID matching: ±`.md`, path or basename) + reachability from live roots · two-sided check **`evidence_liveness`** (LIVING docs' path refs must resolve; decisions//LOG/closed-work EXEMPT) · observer **`meta doc orphans`** (unreachable + real last-edit date → candidates, not reds) · tests. Bounded slot → `generator`, gates: pytest fast / full suite + `meta check` heavy | ⏳ |
+| F1 | **`DOC-GRAPH-LIVENESS`** (meta): `graph/doc_graph.py` — Doc nodes + `CITES`/`EVIDENCES` edges (robust ID matching: ±`.md`, path or basename) + reachability from live roots · two-sided check **`evidence_liveness`** (LIVING docs' path refs must resolve; decisions//LOG/closed-work EXEMPT) · observer **`meta doc orphans`** (unreachable + real last-edit date → candidates, not reds) · tests. Bounded slot → `generator`, gates: pytest fast / full suite + `meta check` heavy (2026-07-11, commit fa1b0db: meta check 21/21 · 91 orphan candidates → F3 feed) | ✅ |
 | F2 | **`ENGLISH-LIVING-LAYER`** batches, each its own increment, `meta check` green after each: (a) column BY EYES — CLAUDE.md all levels, agents, skills, seed column (trust-chain, no delegation) · (b) CLI strings — `VEREDICTO/RESUMEN/PRÓXIMO → VERDICT/SUMMARY/NEXT` + every test/gate matching them, one slot · (c) meta living docs — STATE, living `reference/`, VIGENTE direction docs · (d) factory living docs. Immutable history (decisions/ ≤025 · LOG past · closed work) NEVER translated | ⏳ |
 | F3 | **`DRIFT-AUDIT`** — one short S1 session over `doc orphans` + `evidence_liveness` findings + `meta outcome`/benchmark vs VISION & ADR-021 targets; verdict → `reference/HONEST-STATE.md`. The orphan-cluster candidates measured in-session (F1-AUDIT · MAT-6-REAUDIT · REGEN-AUDIT · OBSERVABILITY-METRICS) get their verdict HERE, from graph output, not hand-grep | ⏳ |
 | F4 | **`ARCHIVE` class** — DEFERRED with trigger: `INDEX.md` > 250 lines OR triage demonstrably fails 2× in a session (trigger captured per the honest-deferral rule) | ⏸ deferred |

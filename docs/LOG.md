@@ -1,7 +1,24 @@
-<!-- meta:doc sha=8c12a24c9f7140c917ba99e7876b0b31b7a14130 updated=2026-07-11T00:44Z -->
+<!-- meta:doc sha=613365f546b0cb5ae464cb22c73eda0fe39df6e3 updated=2026-07-11T03:25Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-11T03:24Z — DOC-GRAPH-LIVENESS (F1): doc liveness is now a graph query with teeth — and the tooth bit before it landed
+S2 execution session (Sonnet orchestrator) over the self-contained F1 contract. Design was fixed in the
+main thread FIRST (validated against the real 270-doc corpus until it converged to exactly 4 real rot
+instances, zero false positives), then delegated as one bounded slot to the `generator`: Doc nodes +
+CITES/EVIDENCES edges (`graph/doc_graph.py`, robust ID matching incl. ASF-sibling fallback + repo-wide
+basename search), two-sided gate `evidence_liveness` in `meta check` (21/21; RED witness =
+`tests/fixtures/docs/dangling_reference.md`), observer `meta doc orphans` (91 candidates, oldest-first —
+the F3 feed). The slot survived an API-limit interruption (resumed with context intact) and returned an
+HONEST RED with two out-of-blast-radius findings, both real: (a) the gate flagged the residue of the main
+thread's own first fix attempt (backticks kept inside italics still extract) plus the increment doc's
+narration tokens — the tooth proven on its authors before landing; (b) the planned test filename
+*test_doc_graph* broke `test_graph_affected_pbt`'s heuristic-⊆-precise property ("graph" stem over-selects
+for `graph/build.py` which it doesn't import) → renamed `tests/test_doc_liveness.py`. Verify-not-review
+worked as designed: the generator implemented and refused to patch docs outside its slot; the orchestrator
+fixed the residue with its own hands. pytest 24/24 · meta check 21/21 · commit fa1b0db. Next: F2
+(ENGLISH-LIVING-LAYER batches) per `work/DOC-CLEANUP-DIRECTION-INCREMENT.md`.
 
 ## 2026-07-11T00:44Z — DOC-CLEANUP-DIRECTION: ADR-026 approved — the cleanup becomes law (first English episode under its own rule)
 The engineer ratified all three scope questions («Sí a todas»): (1) **English for the LIVING layer only**

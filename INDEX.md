@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `a9d30594f27e` | 2026-07-11T14:49Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `4d4d9424cae1` | 2026-07-11T16:06Z | State — Meta-Factory |
+| `docs/STATE.md` | `2c56a156f835` | 2026-07-11T17:07Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -39,8 +39,8 @@
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |
 | `docs/reference/ASF-PROVENANCE.md` | `ecb890708027` | 2026-07-11T16:01Z | ASF — provenance pin of the frozen reference |
 | `docs/reference/CONTEXT-ECONOMY.md` | `72a0a2df2f8e` | 2026-07-11T15:43Z | Context economy — keeping the orchestrator clean |
-| `docs/reference/COUNCIL-360-AUDIT.md` | `6b5a9d545ddd` | 2026-07-10T14:44Z | COUNCIL-360-AUDIT — vista total: 15 sillas + topología de ejecución |
-| `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `434caa491a08` | 2026-06-18T01:03Z | F1-AUDIT — ASF regenerada (Meta-Factory) vs ASF legacy, head-to-head |
+| `docs/reference/COUNCIL-360-AUDIT.md` | `e3280282296d` | 2026-07-11T17:05Z | COUNCIL-360-AUDIT — full view: 15 seats + execution topology |
+| `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `bea8bc7eb7ad` | 2026-07-11T16:57Z | F1-AUDIT — regenerated ASF (Meta-Factory) vs legacy ASF, head-to-head |
 | `docs/reference/FOUNDATIONS-REAUDIT.md` | `2822f2726f3a` | 2026-07-11T16:11Z | FOUNDATIONS-REAUDIT — the foundations vs. measured behavior |
 | `docs/reference/GOVERNANCE-LAYERING.md` | `5405aafe1e82` | 2026-07-11T15:44Z | Governance layering — where docs and the increment lifecycle live across the 3 levels |
 | `docs/reference/HONEST-STATE.md` | `c1b50130e596` | 2026-07-11T15:45Z | HONEST-STATE — implemented vs defined (no makeup) |

@@ -162,7 +162,7 @@ class TestProjection:
         stale, reason = projection.is_stale(tmp_path)
         assert stale is True
         # No block in STATE.md yet
-        assert "falta" in reason or "vieja" in reason or "proyección" in reason
+        assert "missing" in reason or "stale" in reason or "projection" in reason
 
     def test_refresh_inserts_block(self, tmp_path):
         _make_docs(tmp_path, with_increment=True)

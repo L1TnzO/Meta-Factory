@@ -1,4 +1,4 @@
-<!-- meta:doc sha=28d6d4ea292396370efb8b176784d07fcb636a43 updated=2026-07-11T14:48Z -->
+<!-- meta:doc sha=a66b02f3ed141cd0c274764c368828b5e31caa9c updated=2026-07-11T15:13Z -->
 # Estado — Meta-Factory
 > tipo: estado · snapshot acotado (ADR-019 §3 · diente `state_snapshot`) · la historia cerrada vive en `LOG.md`.
 > Este doc APUNTA; la verdad verificable VIVE en artefactos (`.proof/`, ledger, RTM re-derivado, INDEX, logs).
@@ -6,10 +6,10 @@
 > Re-sellado 2026-07-10T16:1xZ (`DOCS-STALE-RESEAL`): housekeeping puro, sin cambio de contenido —
 > el commit previo había quedado más viejo que `LOG.md`/`ROADMAP.md`/`HONEST-STATE.md` de la misma sesión.
 
-<!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->
-> Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.
-- Incremento abierto: ninguno
-- RTM por fábrica (re-derivado de `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
+<!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
+> Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
+- Open increment: ENGLISH-META-DOCS-INCREMENT.md
+- RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
 ## Ahora — qué es verdad hoy

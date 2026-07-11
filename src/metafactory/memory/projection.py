@@ -16,9 +16,15 @@ import re
 import sys
 from pathlib import Path
 
-START = "<!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->"
+START = "<!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->"
+_LEGACY_START = "<!-- meta:projection (generado de hechos; NO editar a mano, se refresca con `meta checkpoint`) -->"
 END = "<!-- /meta:projection -->"
-BLOCK_RE = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
+# Dual-accept the START marker (ADR-026 migration): a STATE.md written before this constant's English
+# translation still has the legacy Spanish marker on disk. `refresh()` must FIND that old block to replace
+# it in place, not leave it stranded and insert a second one — same lesson as the Estado/Status header
+# grammar (ENGLISH-CLI-STRINGS Slot B). `END` never had Spanish words, so it needs no legacy variant.
+BLOCK_RE = re.compile(r"(?:" + re.escape(START) + "|" + re.escape(_LEGACY_START) + r")" + r".*?" + re.escape(END),
+                      re.DOTALL)
 
 
 def open_increment(root: Path) -> str | None:
@@ -66,13 +72,13 @@ def rtm_status(root: Path) -> list[str]:
 
 
 def build_block(root: Path) -> str:
-    inc = open_increment(root) or "ninguno"
+    inc = open_increment(root) or "none"
     rtm = rtm_status(root)
     return "\n".join([
         START,
-        "> Proyección de hechos (Tier 0 → STATE). Fuente: artefactos re-derivables; no es narrativa.",
-        f"- Incremento abierto: {inc}",
-        f"- RTM por fábrica (re-derivado de `.proof/`): {' · '.join(rtm) if rtm else 'sin fábricas'}",
+        "> Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.",
+        f"- Open increment: {inc}",
+        f"- RTM by factory (re-derived from `.proof/`): {' · '.join(rtm) if rtm else 'no factories'}",
         END,
     ])
 
@@ -89,9 +95,9 @@ def is_stale(root: Path) -> tuple[bool, str]:
     cur = current_block(root)
     fresh = build_block(root)
     if cur is None:
-        return True, "docs/STATE.md:1: falta el bloque de proyección (corré `meta checkpoint`)"
+        return True, "docs/STATE.md:1: missing the projection block (run `meta checkpoint`)"
     if cur.strip() != fresh.strip():
-        return True, "docs/STATE.md:1: la proyección está vieja respecto de los hechos (corré `meta checkpoint`)"
+        return True, "docs/STATE.md:1: the projection is stale vs. the facts (run `meta checkpoint`)"
     return False, "ok"
 
 
@@ -101,8 +107,18 @@ def refresh(root: Path) -> bool:
     state = Path(root) / "docs" / "STATE.md"
     text = state.read_text(encoding="utf-8")
     fresh = build_block(root)
-    if BLOCK_RE.search(text):
-        new = BLOCK_RE.sub(lambda _m: fresh, text)
+    matches = list(BLOCK_RE.finditer(text))
+    if matches:
+        # Replace the FIRST block in place; drop any further block(s) entirely. Handles the common
+        # case (exactly one match) unchanged, and self-heals a stray duplicate — e.g. the legacy
+        # Spanish marker and a fresh English one briefly coexisting across the START-text migration.
+        pieces = [text[: matches[0].start()], fresh]
+        prev_end = matches[0].end()
+        for m in matches[1:]:
+            pieces.append(text[prev_end: m.start()].rstrip("\n"))
+            prev_end = m.end()
+        pieces.append(text[prev_end:])
+        new = re.sub(r"\n{3,}", "\n\n", "".join(pieces))
     else:
         m = re.search(r"^## ", text, re.MULTILINE)
         if m:

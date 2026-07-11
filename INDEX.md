@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `a9d30594f27e` | 2026-07-11T14:49Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `28d6d4ea2923` | 2026-07-11T14:48Z | Estado — Meta-Factory |
+| `docs/STATE.md` | `a66b02f3ed14` | 2026-07-11T15:13Z | Estado — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -97,6 +97,7 @@
 | `docs/work/E2-MCP-GEN-INCREMENT.md` | `5c92dbbd67f5` | 2026-06-16T13:45Z | Incremento E2-MCP-GEN |
 | `docs/work/ENGLISH-CLI-STRINGS-INCREMENT.md` | `0053fd853724` | 2026-07-11T14:38Z | Incremento ENGLISH-CLI-STRINGS |
 | `docs/work/ENGLISH-LIVING-COLUMN-INCREMENT.md` | `706e56fc2912` | 2026-07-11T05:10Z | Incremento ENGLISH-LIVING-COLUMN |
+| `docs/work/ENGLISH-META-DOCS-INCREMENT.md` | `e96c2c22ff7c` | 2026-07-11T15:15Z | Incremento ENGLISH-META-DOCS |
 | `docs/work/EVAL-FLOOR-GATE-INCREMENT.md` | `eed675ed4515` | 2026-07-10T22:48Z | Incremento EVAL-FLOOR-GATE |
 | `docs/work/EXTERNAL-CI-GREEN-INCREMENT.md` | `2de0cbba112d` | 2026-07-04T19:45Z | Incremento EXTERNAL-CI-GREEN |
 | `docs/work/F1-INCREMENT.md` | `34346093b284` | 2026-06-16T16:58Z | Incremento F1 |

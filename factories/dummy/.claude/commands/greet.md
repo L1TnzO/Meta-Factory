@@ -1,5 +1,5 @@
 ---
-description: Corre el saludo del producto y verifica el marcador invariante.
+description: Runs the product's greeting and verifies the invariant marker.
 run:
 - python
 - -c
@@ -7,5 +7,5 @@ run:
   == 'DUMMY_OK'; print(greeting.greet())
 ---
 
-# /greet — corré el producto de la fábrica dummy
-Corré el saludo del producto y confirmá que devuelve el marcador invariante DUMMY_OK.
+# /greet — run the dummy factory's product
+Run the product's greeting and confirm it returns the invariant marker DUMMY_OK.

@@ -1,8 +1,8 @@
 ---
 name: verificar-fabrica
-description: Cómo re-verificar la fábrica por bloqueo (no por prosa).
+description: How to re-verify the factory by blocking (not by prose).
 ---
 
-# verificar — re-verificá iot por bloqueo
-Corré `meta product-run --factory iot` y leé el bus de veredictos (≤ max_lines), nunca el
-dump de tests. Los dos verificadores: `meta ci --rederive --factory iot`.
+# verify — re-verify iot by blocking
+Run `meta product-run --factory iot` and read the verdict bus (≤ max_lines), never the
+test dump. The two verifiers: `meta ci --rederive --factory iot`.

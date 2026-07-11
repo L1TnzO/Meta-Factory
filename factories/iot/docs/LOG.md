@@ -2,6 +2,11 @@
 # Bitácora — IoT Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito (esquema ADR-021).
 
+## 2026-07-11 — IOT-ENGLISH-HARNESS: spec-emitted harness translated to English (ADR-026 F2a stage 3)
+- machinery.harness strings translated by eyes in `factory.spec.yml`; emitted `.claude/` re-derived by
+  bounded in-memory render, proven IN SYNC byte-to-byte. Identifiers untouched (ADR-020). Found-drift
+  healed: `generate-slot/SKILL.md` caught up to post-INC-2 `delegation_brain`.
+
 ## 2026-07-04 — medición S3 del transcript de `IOT-S1-FIELD-VOCAB` (el pendiente del episodio de abajo)
 Transcript `d14b2cf6-…` medido (dedup por `message.id`, 113 mensajes; precios `graph/pricing.py`, TTL 5m
 por ley honesta): **$5.65 total** — opus-4-8 $2.81 (**49.7%**) · sonnet-5 $2.85 (50.3%). Contra el KPI

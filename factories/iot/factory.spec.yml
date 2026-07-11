@@ -208,57 +208,57 @@ machinery:
     status: built
     agents:
       - name: writer
-        description: "Escribe DIFFs acotados de la fábrica iot (implementación Go, no decisiones)."
+        description: "Writes bounded DIFFs for the iot factory (Go implementation, not decisions)."
         model: sonnet
         tools: [Read, Edit, Write, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no escribe ni edita veredictos en .proof/", shadow: ".claude/hooks/proof_protect.py" }
-          - { prohibits: "no declara verde: passed lo computa SOLO el verifier desde exit codes", shadow: "seed/verifier.py" }
-          - { prohibits: "no commitea un veredicto corrupto/no probado (la activa recompone verde)", shadow: ".claude/hooks/commit_guard.py" }
-          - { prohibits: "no cierra el turno con la activa tampereada o roja", shadow: ".claude/hooks/stop_proof.py" }
+          - { prohibits: "does not write or edit verdicts in .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "does not declare green: passed is computed ONLY by the verifier from exit codes", shadow: "seed/verifier.py" }
+          - { prohibits: "does not commit a corrupt/unproven verdict (the active station recomposes green)", shadow: ".claude/hooks/commit_guard.py" }
+          - { prohibits: "does not close the turn with the active station tampered or red", shadow: ".claude/hooks/stop_proof.py" }
         body: |
-          # writer — el slot de implementación de la fábrica {{slug}}
-          Recibís un DIFF a producir (no una decisión). Trabajás contra la línea y dejás que la gate sea la
-          autoridad: nunca afirmás verde, lo demostrás (`go test` es el árbitro del producto).
-          ## Qué NO hacés (con sombra determinista, no prosa)
-          - No tocás `.proof/` (sombra: proof_protect). No declarás "pasa" (sombra: verifier.py).
-          - No commitees trabajo no probado ni cerrás con la activa rota (sombras: commit_guard, stop_proof).
+          # writer — the implementation slot of the {{slug}} factory
+          You receive a DIFF to produce (not a decision). You work against the line and let the gate be the
+          authority: you never claim green, you prove it (`go test` is the product's arbiter).
+          ## What you do NOT do (deterministic shadow, not prose)
+          - You don't touch `.proof/` (shadow: proof_protect). You don't declare "passes" (shadow: verifier.py).
+          - You don't commit unproven work or close with the active station broken (shadows: commit_guard, stop_proof).
       - name: reviewer
-        description: "Revisa DIFFs que tocan la cadena de confianza; no aprueba sin re-derivar."
+        description: "Reviews DIFFs that touch the trust chain; never approves without re-derivation."
         model: opus
         tools: [Read, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no aprueba sin que el CI externo re-derive la línea (dos verificadores)", shadow: "seed/external_ci.yml" }
-          - { prohibits: "no declara verde: el verifier es la única autoridad del proof_sha", shadow: "seed/verifier.py" }
+          - { prohibits: "does not approve unless the external CI re-derives the line (two verifiers)", shadow: "seed/external_ci.yml" }
+          - { prohibits: "does not declare green: the verifier is the sole authority over proof_sha", shadow: "seed/verifier.py" }
         body: |
-          # reviewer — revisión de la cadena de confianza de {{slug}}
-          Recibís un DIFF que toca verifier/hooks/seed/gates. Revisás con ojos propios; nunca emitís un
-          veredicto — reportás evidencia re-derivada y delegás el juicio al orquestador.
+          # reviewer — trust-chain review for {{slug}}
+          You receive a DIFF that touches verifier/hooks/seed/gates. You review with your own eyes; you never
+          emit a verdict — you report re-derived evidence and defer the judgment to the orchestrator.
       - name: triage
-        description: "Triage de un log rojo: causa raíz en ≤5 líneas. Solo lectura."
+        description: "Triage of a red log: root cause in ≤5 lines. Read-only."
         model: haiku
         tools: [Read, Bash, Grep, Glob]
         shadows:
-          - { prohibits: "no escribe ni edita artefactos de prueba en .proof/", shadow: ".claude/hooks/proof_protect.py" }
+          - { prohibits: "does not write or edit proof artifacts in .proof/", shadow: ".claude/hooks/proof_protect.py" }
         body: |
-          # triage — diagnóstico rápido de log rojo en {{slug}}
-          Recibís un log de gate rojo. Tu único producto es una causa raíz en ≤5 líneas. No arreglás, no
-          aprobás, no escribís.
+          # triage — fast diagnosis of a red log in {{slug}}
+          You receive a red gate log. Your only product is a root cause in ≤5 lines. You don't fix, you
+          don't approve, you don't write.
     commands:
       - name: gen-check
-        description: "Corre el selftest del codegen del producto (parsea el blueprint, lista los archivos; no escribe)."
+        description: "Runs the product codegen selftest (parses the blueprint, lists the files; writes nothing)."
         run: ["python", "codegen/scaffold_product.py", "--selftest"]
         body: |
-          # /gen-check — verificá el codegen de la fábrica {{slug}}
-          Corré el selftest del scaffolder: parsea el blueprint (domain.product) y lista los archivos del
-          producto Go que emitiría. Exit 0 = el generador es invocable y el blueprint está completo.
+          # /gen-check — verify the {{slug}} factory's codegen
+          Run the scaffolder selftest: it parses the blueprint (domain.product) and lists the Go product
+          files it would emit. Exit 0 = the generator is invocable and the blueprint is complete.
     skills:
       - name: verificar-fabrica
-        description: "Cómo re-verificar la fábrica por bloqueo (no por prosa)."
+        description: "How to re-verify the factory by blocking (not by prose)."
         body: |
-          # verificar — re-verificá {{slug}} por bloqueo
-          Corré `meta product-run --factory {{slug}}` y leé el bus de veredictos (≤ max_lines), nunca el
-          dump de tests. Los dos verificadores: `meta ci --rederive --factory {{slug}}`.
+          # verify — re-verify {{slug}} by blocking
+          Run `meta product-run --factory {{slug}}` and read the verdict bus (≤ max_lines), never the
+          test dump. The two verifiers: `meta ci --rederive --factory {{slug}}`.
   # ── L3 · INFRA: el broker declarado. El plan ELIGIÓ un broker Go stdlib sobre socket-Unix (sin servidor
   # externo, sin puertos: re-derivable, el análogo Go EXACTO del node:sqlite de full-stack y el socket de
   # dummy). El glue (cmd/broker/main.go) lo emite el scaffolder del producto (s0 generate); el ciclo de vida

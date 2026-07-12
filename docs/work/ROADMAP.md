@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9cbad00fe1361ac1898ddc08488ae3449d6447b2 updated=2026-07-10T16:47Z -->
+<!-- meta:doc sha=8c25e05f8d381e853ee19baed42f24da918807a0 updated=2026-07-12T22:55Z -->
 # ROADMAP — de la Meta-Factory actual a la generación COMPLETA, GENERALISTA y SEGURA de fábricas
 
 > tipo: work (mapa vivo, semántica OVERWRITE como STATE) · actualizado: 2026-06-15T03:43Z
@@ -625,6 +625,44 @@ factory.spec.yml (inicial: qué fábrica, qué dominio, requisitos)
     caso "clonar Snipe-IT" ya tiene PISO + CICLO-DE-VIDA + APP-QUE-CORRE (R1 coexistencia + R2 campos arbitrarios +
     workflows + control de acceso por rol + ownership a nivel de fila + endpoints vivos enforzados a runtime).
     **Bifurcación abierta (relevo `FSK-S16`)**: ¿seguir con R2·FSK/otras fábricas, o construir el PRIMER PRODUCTO real?
+
+### Fase L · Doc governance — work-doc lineage · types · placement (ADR-028/029/030) — 🔲 QUEUED
+
+> Authored in English (ADR-017 forward-only). DESIGN IS COMPLETE AND SEALED in three self-contained ADRs
+> (`decisions/028`, `029`, `030`, 2026-07-12) — this row is the PLAN (level · session · deps · mechanisms ·
+> close), not a re-statement of the design. Read the ADRs, not this, to implement.
+
+- **`DOC-LINEAGE`** — meta · **COLUMN** (CLI + hooks + gate = trust-chain → written and reviewed by the
+  brain's own eyes, NEVER delegated; SELF-IMPROVEMENT §3) · S1 design ✅ done + **one S2 execution stretch**
+  (batch the column edits into a SINGLE stretch — prefix-hygiene, ADR-021 rule (e)).
+  **Depends on:** `FSK-EVALUATOR-ADOPT` closing first (avoid a column edit mid-loop). No other blocker.
+  **Problem (measured, ADR-028 §Context 1):** fresh sessions build from instructions without the inherited
+  WHY (×3 incidents); children diverge from parent decisions; ~230 work-docs in flat homes where arc and
+  order are invisible.
+  **The four mechanisms — one per row of the placement law (CLAUDE.md), not one big thing:**
+
+  | Piece | Mechanism | Why THAT home (placement law) |
+  | --- | --- | --- |
+  | Compute path + prefix; write `Parent:`/`Type:`/`Decisions:` header at open | **CLI** (`meta increment open --parent --type`; `close` reads type) | must be GUARANTEED + deterministic; captured when it is cheapest to know |
+  | Inject the OPEN increment's ancestor chain (one line per ancestor → root direction doc + its ADRs) | **hook** (SessionStart, extends ADR-019 rehydration) | the behavioral fix is PUSH not pull — every incident happened WITH the docs available |
+  | Refuse a hand-written work-doc in the wrong place / a mutated `Type:` after open | **hook** (PreToolUse Write/Edit on `**/docs/work/**`) | must be PREVENTED even when the model misbehaves (a skill can be ignored; ADR-029 §4 immutability needs a tooth) |
+  | Verify: parseable header · parent exists · acyclic + rooted · per-type schema · path↔header agree | **gate** (`meta check` kind `lineage`, two-sided; synthetic dangling-parent + path-mismatch fixtures MUST go red) | verification is never prose (verify-not-review) |
+  | Reverse views: children/siblings per parent, arc tree | **DERIVED** (INDEX work-tree section via `doc_stamp` / `meta doc tree`) | ADR-028 §2: store ONE direction, generate the other — hand-maintained back-links are the known rot mode |
+  | JUDGMENT: is this new work a `direction` or an `increment`? which parent? when does drift become a SPLIT (ADR-029 §4) vs a phase? | **skill** (`open-work-doc`) | on-demand procedure + doctrine, invoked when opening/splitting work — the human/agent-facing face of the law. Has NO teeth of its own: the CLI writes, the hooks prevent, the gate verifies |
+
+  **Forward-only:** the ~230 legacy flat docs are EXEMPT (no rename, no retrofit — sealed cross-refs pin
+  their paths); INDEX stays the only complete inventory. A per-arc byte-identical migration is allowed
+  LATER only as its own increment with reference-integrity proof (the `FACTORY-DOC-MIGRATE` shape).
+  **Estimated:** ~260 LOC total (header parse in the doc law · `lineage` check · SessionStart injection ·
+  Write/Edit guard · CLI flags + path derivation · glob widening `work/*.md` → `work/**/*.md` in
+  `doc_stamp`/INDEX/freshness/orphans/`increment open|close`).
+  **Close criteria (demostrable, no narrable):** (1) `meta check` green including `lineage`, BOTH sides
+  (dangling parent → red; path/header mismatch → red; sabotage traced). (2) A NEW work-doc opened by the
+  CLI lands at its derived path with a valid header — and hand-writing one in the wrong place is BLOCKED
+  (exit 2 traced). (3) SessionStart on an open increment prints its ancestor chain (shown in the evidence).
+  (4) `Type:` mutation after open → red. (5) The legacy corpus stays untouched (`git diff` on the flat docs
+  = 0) and INDEX still lists 100% of them. (6) Dogfood: this increment's OWN work-doc is the first typed,
+  parented, arc-placed doc in the tree.
 
 ## 5. Trazabilidad a la auditoría (cada hueco medido → su incremento)
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ac37d607d731b150a3fd18003686c2384bf6c71f updated=2026-07-12T21:53Z -->
+<!-- meta:doc sha=0c393fee25d81b431fbd8a92265961efff8baa94 updated=2026-07-12T22:29Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -55,15 +55,15 @@
   Parallel-by-default REJECTED by measurement (bible §2.6); corpus CLEAN (liveness green, orphans = expected
   dormancy); economy targets still red (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first
   calendar trigger 2026-09-01). Verdict: `reference/HONEST-STATE.md §7bis`.
-- **🧬 `ADR-028` (2026-07-12) — work-doc LINEAGE as DATA:** child→parent edges + DERIVED reverse views +
-  SessionStart ancestry injection + `lineage` gate (fresh-session divergence, measured ×3); increment
-  `DOC-LINEAGE` queued after `FSK-EVALUATOR-ADOPT` (whose functionality-axis ruling → its §Decisión).
+- **🧬 `ADR-028`+`ADR-029` (2026-07-12) — work-doc LINEAGE + TYPES as DATA:** child→parent edges + DERIVED
+  reverse views + SessionStart ancestry injection + closed type vocab (`direction`|`increment`, immutable at
+  open, per-type schema/close) via one widened `lineage` gate; `DOC-LINEAGE` queued after `FSK-EVALUATOR-ADOPT`.
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).
 
 ## Map
-- Log (history): `LOG.md` · Decisions: `decisions/` (001–028) · Increment plan: `work/ROADMAP.md` +
+- Log (history): `LOG.md` · Decisions: `decisions/` (001–029) · Increment plan: `work/ROADMAP.md` +
   direction docs (`work/COST-DOWN-DIRECTION-INCREMENT.md` — the cost bible, current ·
   `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — cleanup+English-living-layer, ADR-026, current ·
   `work/SOTA-PARITY-DIRECTION-INCREMENT.md` — 2026-07-11 audit vs external SOTA + plan INC-1..7, current ·

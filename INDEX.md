@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `ac37d607d731` | 2026-07-12T21:53Z | State — Meta-Factory |
+| `docs/STATE.md` | `0c393fee25d8` | 2026-07-12T22:29Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -36,6 +36,7 @@
 | `docs/decisions/026-doc-lifecycle-living-english.md` | `cdc7c7c86f08` | 2026-07-11T00:42Z | ADR-026 — Doc lifecycle by measurement: living-layer English, doc-graph liveness, archive-by-trigger |
 | `docs/decisions/027-evaluator-role-subjective-quality.md` | `c48725499a41` | 2026-07-11T21:29Z | ADR-027 — Evaluator role: a separate, skeptical, criteria-driven grader for model-native surfaces |
 | `docs/decisions/028-work-doc-lineage-as-data.md` | `22d3f393f6a3` | 2026-07-12T21:52Z | ADR-028 — Work-doc lineage as data: parent edges, derived reverse views, ancestry injection |
+| `docs/decisions/029-typed-work-docs-closed-vocabulary.md` | `41d21e1e69e2` | 2026-07-12T22:29Z | ADR-029 — Typed work-docs: plan vs implementation is a closed vocabulary, not a filename vibe |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |

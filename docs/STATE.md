@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ce5b15697af549bb15ffa17bfe0fd73fbbe6069a updated=2026-07-11T21:54Z -->
+<!-- meta:doc sha=ac37d607d731b150a3fd18003686c2384bf6c71f updated=2026-07-12T21:53Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -35,14 +35,12 @@
   `FSK-EVALUATOR-ADOPT` · ASF adoption (S2) · `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native.
   → `decisions/023`·`024`·`025`·`027` · LOG.
 - **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** LIVE = meta+FSK+iot · ASF+full-stack-TS
-  REGRESSION-FROZEN · dummy = fixture; all external judges in-tree ✅; sole residual D-2 demoted (trigger:
-  first waiver re-editing embedded content). Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
+  REGRESSION-FROZEN · dummy = fixture; residual D-2 demoted. Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
 - **🧭 `COST-DOWN` (2026-07-02, ADR-021) — FIXED N=7 plan COMPLETE (INC-0..6 ✅).** Routing by SESSION
   (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
   (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
   `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
-- **🧭 SOTA RE-DIRECTION (ADR-017→020) ALL closed · 🧠 MEMORY v2 (ADR-019) COMPLETE** (M1–M6 ✅; pending §6
-  threshold; `reference/MEMORY-ARCHITECTURE.md §8.2`). Detail: work-docs + `LOG.md`.
+- **🧭 SOTA RE-DIRECTION (ADR-017→020) + 🧠 MEMORY v2 (ADR-019) — CLOSED** (pending §6 threshold; `reference/MEMORY-ARCHITECTURE.md §8.2`).
 - **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature (core backend +
   access-control + Chromium CRUD frontend + **REAL 100.0% line coverage** in snipeit,
   `FSK-COVERAGE-FULL-100`, 2026-07-10); `FSK-FRONTEND-SCREENS` arc COMPLETE (5/5) — and STILL the UI is ugly:
@@ -57,12 +55,15 @@
   Parallel-by-default REJECTED by measurement (bible §2.6); corpus CLEAN (liveness green, orphans = expected
   dormancy); economy targets still red (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first
   calendar trigger 2026-09-01). Verdict: `reference/HONEST-STATE.md §7bis`.
+- **🧬 `ADR-028` (2026-07-12) — work-doc LINEAGE as DATA:** child→parent edges + DERIVED reverse views +
+  SessionStart ancestry injection + `lineage` gate (fresh-session divergence, measured ×3); increment
+  `DOC-LINEAGE` queued after `FSK-EVALUATOR-ADOPT` (whose functionality-axis ruling → its §Decisión).
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).
 
 ## Map
-- Log (history): `LOG.md` · Decisions: `decisions/` (001–026) · Increment plan: `work/ROADMAP.md` +
+- Log (history): `LOG.md` · Decisions: `decisions/` (001–028) · Increment plan: `work/ROADMAP.md` +
   direction docs (`work/COST-DOWN-DIRECTION-INCREMENT.md` — the cost bible, current ·
   `work/DOC-CLEANUP-DIRECTION-INCREMENT.md` — cleanup+English-living-layer, ADR-026, current ·
   `work/SOTA-PARITY-DIRECTION-INCREMENT.md` — 2026-07-11 audit vs external SOTA + plan INC-1..7, current ·

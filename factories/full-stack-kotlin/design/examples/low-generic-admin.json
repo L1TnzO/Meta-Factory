@@ -1,0 +1,25 @@
+{
+  "label": "few-shot calibration — LOW anchor",
+  "artifact": "illustrative, not an FSK product — a generic scaffolded admin CRUD",
+  "description": "Unstyled/minimally-styled table-and-form admin: default browser form controls, a bare <table> with no visual hierarchy, no empty states, raw field names as labels, identical look to every other scaffolded CRUD you have ever seen.",
+  "axes": {
+    "design_quality": {
+      "score": 2,
+      "evidence": "No spacing rhythm (form fields touch each other), no typographic scale (every text node is the same 13px), default blue hyperlink color used for buttons, table has no header emphasis."
+    },
+    "originality": {
+      "score": 1,
+      "evidence": "This is the unmodified default look of a scaffolding tool — indistinguishable from a thousand other generated admin panels. No color/type/layout decision was made."
+    },
+    "craft": {
+      "score": 2,
+      "evidence": "Raw camelCase field names as labels ('createdAt', 'isActive'), booleans rendered as literal 'true'/'false' text, empty list renders as a bare table with a header row and nothing below it."
+    },
+    "functionality": {
+      "score": 6,
+      "evidence": "CRUD technically works — you can create/edit/delete — but pagination is missing and search silently does nothing on empty query."
+    }
+  },
+  "slop_penalties_applied": ["default-framework-look", "decorative-empty-state"],
+  "verdict_note": "Below threshold on design_quality and originality — the two axes this criteria file exists to enforce. This is the shape of a FAILING witness."
+}

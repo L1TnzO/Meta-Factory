@@ -1,0 +1,90 @@
+# design/criteria.yml — subjective-quality criteria for FSK model-native human surfaces (ADR-027,
+# FSK-EVALUATOR-ADOPT). Read by the `evaluator` role at GENERATION time (the generate→evaluate→feedback
+# loop) and re-verified by the 0-model `design_eval` gate (`meta check`) over PINNED critiques. This file
+# is DATA, not code — the schema itself is fixed in ADR-027/`design_eval.py`; only the values are FSK's.
+#
+# Weighting judgment: design_quality + originality are weighted HIGH because blandness (a generic,
+# indistinguishable-from-every-other-product surface) is the MEASURED failure mode of model-native
+# generation once it already clears `design_floor` (ADR-024's floor: loads, styled, accessible — it says
+# nothing about whether the result looks bespoke). craft + functionality come nearly free from a generator
+# that already passes `design_floor` + the frozen functional contract (`browser_check.ts`), so they carry
+# less weight here — they are a gate, not the differentiator.
+scale: "0-10"
+
+axes:
+  design_quality:
+    threshold: 7
+    weight: 3
+    description: >
+      Visual hierarchy, spacing rhythm, typographic scale, color use, and overall polish of the LIVE
+      rendered screens (home/dashboard, list, detail, create/edit forms). Judge what is actually painted
+      in the browser, not the intent — a crafted layout with real hierarchy and breathing room scores
+      high; a flat, default-looking form dump scores low regardless of how "correct" the markup is.
+  originality:
+    threshold: 6
+    weight: 3
+    description: >
+      Does this surface have a VISUAL IDENTITY distinct from other products on this factory (or from an
+      unmodified framework/template default)? A product that is byte-for-token-identical in palette,
+      radii, shadow scale and layout rhythm to every sibling product scores low here even if each screen
+      individually looks clean — originality measures DIFFERENTIATION, not correctness.
+  craft:
+    threshold: 7
+    weight: 1
+    description: >
+      Attention to detail: formatted values (null → "—", booleans → ✓/—, dates humanized), empty states
+      with real copy (not a blank table), consistent iconography/labels, no visible rough edges (misaligned
+      controls, inconsistent casing, orphaned whitespace).
+  # REVISED 2026-07-12 (FSK-EVALUATOR-ADOPT loop, rounds 2–3 — see the work-doc §Decisión): the original
+  # wording ("every field of the domain is reachable (create AND edit)") graded against an implicit
+  # full-CRUD ideal the product's spec never declared — structurally unsatisfiable for any read-mostly
+  # product: helpdesk's frozen contract exposes update/delete ONLY for Ticket (`client.ts`; the generated
+  # `RouteTable.kt` has exactly one PUT route), `product.yml` requires no more, and the deterministic
+  # profile (RTM · sweet-spot benchmark · product-run) is green. The evaluator independently confirmed 3×
+  # that this out-of-contract gap was the ONLY functionality blocker (v2 rounds 2–3: 7 vs threshold 8).
+  # Fix = re-anchor the DEFINITION contract-relative; the THRESHOLD stays 8 — the bar is not lowered, the
+  # instrument is aimed at what this axis actually governs. Functional SCOPE is governed by the spec + RTM
+  # + benchmark (deterministic, 0-model), never by a subjective axis. Extending reference-entity CRUD is a
+  # spec-grammar decision (ADR-023-frozen codegen: waiver + its own increment); trigger captured in
+  # `FSK-EVALUATOR-ADOPT-INCREMENT.md §Decisión`.
+  functionality:
+    threshold: 8
+    weight: 1
+    description: >
+      The surface works end-to-end, live, AGAINST THE PRODUCT'S EXPOSED CONTRACT: every capability the
+      product actually ships (spec `product.yml` + generated `client.ts`) is reachable, correct, and
+      dead-end-free — navigation discoverable, forms validate and report errors, search/pagination behave,
+      no dead controls, no crashes on bad input. Operations the product's contract does NOT expose are OUT
+      of this axis's scope: a surface must not be scored down for honoring its frozen functional contract
+      (keeping `browser_check.ts` intact is a slot requirement, not a deficiency). This axis overlaps with
+      (but is not replaced by) the `design_floor`/`browser_check.ts` gates — score what you observed
+      exercising the app, not what the gates report.
+
+slop_penalties:
+  - id: purple-gradient-over-white-cards
+    description: >
+      The generic "AI SaaS" default — a purple/violet gradient hero or accent slapped over otherwise
+      untouched white cards, with no relationship to the product's domain.
+  - id: default-framework-look
+    description: >
+      Unmodified defaults of a common UI toolkit (default Bootstrap/Material spacing+components, or a
+      bare browser form with zero styling intent) presented as if it were a finished product.
+  - id: identical-reskin-across-products
+    description: >
+      The SAME token set (palette, radii, shadow scale, spacing rhythm) applied verbatim across multiple
+      products on this factory with zero product-specific identity — a reskin is not the same thing as a
+      design. (Observed, real: `helpdesk`'s v1 `app.css` is the same Vercel ink+hairline tokens, unchanged,
+      as `snipeit`'s and the template's own reskin — this is the concrete slop this criteria file exists to
+      catch, not a hypothetical.)
+  - id: decorative-empty-state
+    description: >
+      An empty list/table rendered as a bare blank area with no copy, no call-to-action, no illustration —
+      a missed opportunity treated as an afterthought.
+  - id: unlabeled-icon-only-controls
+    description: >
+      Icon-only buttons/controls with no accessible name and no visible label, forcing the user to guess
+      (overlaps `design_floor`'s `labels` axis but is scored here as a CRAFT judgment on top of the floor).
+
+# Products that have gone through the full loop and carry a PINNED `frontend/critique.json`. Empty until
+# the loop in `FSK-EVALUATOR-ADOPT-INCREMENT.md` lands a winning critique — explicit and honest (ADR-027).
+covered: []

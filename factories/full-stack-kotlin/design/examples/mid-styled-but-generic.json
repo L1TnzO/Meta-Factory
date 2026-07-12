@@ -1,0 +1,25 @@
+{
+  "label": "few-shot calibration — MID anchor",
+  "artifact": "illustrative, not an FSK product — a competently styled but generic SaaS dashboard",
+  "description": "A real design system was applied (consistent spacing, a real type scale, a coherent palette) but it is the SAME token set copy-pasted from a popular design language with zero product-specific identity: any B2B tool could wear this exact skin unchanged.",
+  "axes": {
+    "design_quality": {
+      "score": 7,
+      "evidence": "Consistent 8px spacing grid, clear type hierarchy (headline/body/caption distinguishable at a glance), cards have real elevation, forms are grouped in labeled fieldsets."
+    },
+    "originality": {
+      "score": 4,
+      "evidence": "This is a well-known design language's default palette and component shapes applied verbatim, with no accent color, iconography, or layout choice tied to the product's own domain. Feels like a template preview, not a specific product."
+    },
+    "craft": {
+      "score": 8,
+      "evidence": "Null values render as an em dash, dates are humanized, empty states have real copy and a call-to-action button."
+    },
+    "functionality": {
+      "score": 9,
+      "evidence": "Every field is reachable in create and edit, search/pagination work as expected, navigation is discoverable from any screen."
+    }
+  },
+  "slop_penalties_applied": ["identical-reskin-across-products"],
+  "verdict_note": "Passes design_quality/craft/functionality but fails originality — competent execution of someone else's design decisions is not the same as a decision made FOR this product. This is the exact failure mode `identical-reskin-across-products` names."
+}

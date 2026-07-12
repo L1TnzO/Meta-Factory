@@ -1,0 +1,25 @@
+{
+  "label": "few-shot calibration — HIGH anchor",
+  "artifact": "illustrative, not an FSK product — a support-ticket tool with a deliberate, domain-tied identity",
+  "description": "The same functional shape as any ticket tool (list/detail/edit/status) but with visible, deliberate choices tied to the domain: a priority/status color language used consistently as the ONE accent system, a distinct type/spacing rhythm from sibling products, and small crafted touches (avatar initials, relative timestamps, status pills) that make the screen feel considered rather than assembled from a shared kit.",
+  "axes": {
+    "design_quality": {
+      "score": 9,
+      "evidence": "Clear 3-zone layout (nav / list / detail), a real type scale used with intent (bold for actionable items, muted for metadata), generous but not wasteful whitespace, consistent 8px rhythm throughout."
+    },
+    "originality": {
+      "score": 8,
+      "evidence": "A status/priority color language (not a copy of a generic brand palette) is the product's own accent system, used consistently for badges, the sidebar active-state indicator, and chart accents nowhere else on the factory — a viewer could identify this product from a screenshot alone."
+    },
+    "craft": {
+      "score": 9,
+      "evidence": "Relative timestamps ('3h ago'), avatar-initial chips for assignees, status pills with both color AND text (never color-only), empty state has an illustration-free but specific message plus a primary action."
+    },
+    "functionality": {
+      "score": 9,
+      "evidence": "Every domain field reachable in create/edit, keyboard-navigable list, search debounced and functional, pagination state visible."
+    }
+  },
+  "slop_penalties_applied": [],
+  "verdict_note": "Clears every threshold — the bar the loop's terminal (winning) critique must reach. Note originality is earned by a DOMAIN-TIED decision (status/priority as the accent system), not by novelty for its own sake."
+}

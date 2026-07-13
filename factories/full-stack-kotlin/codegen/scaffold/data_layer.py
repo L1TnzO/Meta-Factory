@@ -823,7 +823,7 @@ def _repository_kt(pkg: str, entities: list[dict]) -> str:
             '                """"action":$act,"subject_type":$sub,"subject_id":${r[ACTION_LOGS.SUBJECT_ID]}}"""\n'
             "        }")
     if data_classes:   # helper de serialización JSON usado por <e>RowJson (sólo si hay entidad viva)
-        fns.insert(0, "    private fun jsonVal(v: Any?): String = if (v == null) \"null\" else \"\\\"$v\\\"\"")
+        fns.insert(0, '    private fun jsonVal(v: Any?): String = if (v == null) "null" else\n        "\\"" + v.toString().replace("\\\\", "\\\\\\\\").replace("\\"", "\\\\\\"")\n            .replace("\\n", "\\\\n").replace("\\r", "\\\\r").replace("\\t", "\\\\t") + "\\""')
     # FSK-COMPUTED-FIELDS: el helper de división con guard de div-por-cero (la fórmula de un campo computado lo
     # usa) — sólo si alguna entidad VIVA tiene un campo computado cuyo AST usa `/` (sin `/` no se emite → byte-
     # neutro y sin UnusedPrivateMember de detekt). Compartido por los rowJson (miembros del mismo object Repository).

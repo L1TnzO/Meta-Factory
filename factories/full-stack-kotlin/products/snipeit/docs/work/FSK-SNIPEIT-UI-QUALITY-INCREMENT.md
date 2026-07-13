@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e4eff81f685effc8cf4750428a91136a8cb1cb35 updated=2026-07-13T13:34Z -->
+<!-- meta:doc sha=d3d7c49fe0f9e2129da8704687f96d0d3434c7e6 updated=2026-07-13T13:40Z -->
 # Incremento FSK-SNIPEIT-UI-QUALITY
 
 > **Doc de gobierno.** Status: **CLOSED** (2026-07-13T13:34Z) (creado 2026-07-13T02:34Z). Cerralo con `meta increment close`
@@ -77,8 +77,13 @@ with evaluator-loop budget, or the engineer revisiting this specific gap.
 2. Real, live-evaluator-measured improvement: `design_quality` 5→7, `originality` 2→7, `craft` 4→8 (all
    clear threshold); `functionality` 6→7 (round 3's further fix applied but not re-scored, honestly
    declared above, not pinned as gate-enforced).
-3. `ci --rederive full-stack-kotlin snipeit` re-pins on the new committed bytes; other FSK products' pins
-   unaffected (non-regression) — `git diff codegen/ src/metafactory/ seed/ stations/ == 0` (no substrate
-   drift, ADR-023 codegen freeze untouched).
+3. `ci --rederive full-stack-kotlin snipeit`: **12/12 proof_sha == pinned, unchanged** — corrected
+   expectation from §Diseño above (that section assumed a byte re-pin; wrong). `proof_sha` does not hash
+   the model-native override's source bytes (ADR-024: the override is a PINNED artifact that is
+   RE-VERIFIED via the opt-in `frontend_design_floor`/`modelgen_ab_gate.sh` live check, not re-derived via
+   content hash) — a pure content edit to an ALREADY-`frontend_surface: model-native` product legitimately
+   produces no pin diff; re-pinning only happens when the SPEC/config changes (e.g. the original
+   FSK-SNIPEIT-MODELGEN adoption flipping `frontend_surface` itself). No substrate drift regardless —
+   `git diff codegen/ src/metafactory/ seed/ stations/ == 0`.
 4. The stashed helpdesk WIP is restored byte-identical (`git stash pop`, diff-verified) before this
    increment closes — confirmed, untouched by this work.

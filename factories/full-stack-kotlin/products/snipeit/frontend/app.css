@@ -1,30 +1,44 @@
-/* app.css (FSK-SNIPEIT-MODELGEN, model-native stylesheet) — own file (multi-file rule); esbuild compiles
-   it (build_bundle.mjs) to dist/app.css; AppServer serves GET /app.css; index.html links it. Styles ONLY
-   the semantic classes app.ts emits (DATA-agnostic within this product). Design language: Vercel
-   ink+hairline (docs/reference/DESIGN-VERCEL.md) — ink #171717 on canvas-soft #fafafa, hairline borders,
-   subtle stacked shadows, geometric sans + mono uppercase micro-labels, 6/8/12px radii. Palette reused
-   verbatim from the helpdesk arm-B surface (already contrast-verified in a real Chromium run) plus new
-   component rules for snipe-it's wider surface (scrollable tables, detail tabs, history, trash).
+/* app.css (FSK-SNIPEIT-MODELGEN, quality pass FSK-SNIPEIT-UI-QUALITY-V2) — own file (multi-file rule);
+   esbuild compiles it (build_bundle.mjs) to dist/app.css; AppServer serves GET /app.css; index.html links
+   it. Styles ONLY the semantic classes app.ts emits (DATA-agnostic within this product).
+
+   v2 identity: a live evaluator critique (.gen/critique-snipeit-v1-baseline.json, originality 2/6) found
+   this sheet's CSS tokens byte-identical to helpdesk's — the exact `identical-reskin-across-products` slop
+   design/criteria.yml names by example. This is a DELIBERATE, DIFFERENT token set: a cooler slate-graphite
+   ink (vs helpdesk's neutral gray), a single deep-teal `--accent` that does NOT exist anywhere in
+   helpdesk's palette, sharper/denser radii+spacing fit for tabular inventory browsing, and a status/
+   condition PILL system (`.pill`) driven by Asset.status (pending/ready/deployed/archived/broken — the
+   product's one hand-designed guarded lifecycle) reused as the app's ONE domain-tied accent language: the
+   sidebar's active-state indicator, the nav section headers, and the primary buttons all share `--accent`;
+   the pills carry the full 5-tone vocabulary. Quality bar kept intentionally close to the sibling products
+   (hairline borders, restrained shadows, mono uppercase micro-labels) per the brief — only the actual
+   tokens/composition/density differ enough that a side-by-side does not read as a recolor.
    Teeth this sheet carries: body max-width != the UA default 'none' (FSK-FRONTEND-STYLES); every text
    color used on a scanned element (h1-h3/th/td/dt/dd/label/button/a/p/legend) keeps WCAG contrast >= 4.5
    against its background — `--mute` is reserved for placeholder-only decoration, never a scanned text
-   color; `.table-scroll` keeps wide entities (Asset, 24 columns) from overflowing the 1280px viewport. */
+   color; `.table-scroll` keeps wide entities (Asset, 24 columns) from overflowing the 1280px viewport;
+   below 720px the sidebar becomes a horizontal scroll strip instead of crushing the content column
+   (a real defect a live 390px pass found — .gen/critique-snipeit-v1-baseline.json). */
 :root {
-  --ink: #171717;            /* primary text + primary-button fill */
-  --body: #4d4d4d;           /* secondary text — the ONLY "quiet" color used on scanned elements (>=4.5:1) */
-  --mute: #888888;           /* decorative only (placeholders) — never a scanned element's text color */
-  --hairline: #ebebeb;       /* 1px dividers and borders */
-  --hairline-strong: #a1a1a1;
+  --ink: #12181f;            /* primary text + primary-button fill — a cool slate-graphite, not helpdesk's neutral gray */
+  --body: #4b5563;           /* secondary text — the ONLY "quiet" color used on scanned elements (>=4.5:1) */
+  --mute: #8a94a3;           /* decorative only (placeholders) — never a scanned element's text color */
+  --hairline: #e2e6ea;       /* 1px dividers and borders */
+  --hairline-strong: #9aa5b1;
   --canvas: #ffffff;         /* cards, inputs */
-  --canvas-soft: #fafafa;    /* page background (98% white) */
-  --canvas-soft-2: #f5f5f5;  /* inset surfaces (sidebar hover, empty states, headers) */
+  --canvas-soft: #f5f7f9;    /* page background — cool-tinted, not helpdesk's neutral #fafafa */
+  --canvas-soft-2: #eef1f3;  /* inset surfaces (sidebar hover, empty states, headers) */
   --on-ink: #ffffff;
-  --r-sm: 6px;               /* in-app buttons / inputs (the --geist-radius register) */
-  --r-md: 8px;               /* row cards */
-  --r-lg: 12px;              /* larger card chrome (fieldsets, detail) */
-  --shadow: 0 1px 1px rgba(0, 0, 0, .02), 0 2px 2px rgba(0, 0, 0, .04); /* Level 2 stacked soft drop */
-  --sans: Inter, "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --accent: #0b6b52;         /* deep teal — the app's ONE domain-tied accent (absent from helpdesk's palette):
+                                 brand mark, sidebar active state, nav section rhythm, primary buttons, focus ring */
+  --accent-soft: #e6f4ef;    /* light accent tint (featured dashboard card) */
+  --on-accent: #ffffff;
+  --r-sm: 4px;                /* denser/sharper radius register than the sibling products (inventory-table feel) */
+  --r-md: 6px;
+  --r-lg: 10px;
+  --shadow: 0 1px 2px rgba(10, 20, 20, .06), 0 1px 1px rgba(10, 20, 20, .04);
+  --sans: "IBM Plex Sans", Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
 * { box-sizing: border-box; }
 body {
@@ -41,7 +55,7 @@ body {
 }
 h1, h2, h3 { color: var(--ink); font-weight: 600; margin: 0; }
 h1 { font-size: 1.05rem; letter-spacing: -0.02em; }
-h2 { font-size: 1.4rem; letter-spacing: -0.03em; }
+h2 { font-size: 1.35rem; letter-spacing: -0.03em; }
 p { color: var(--body); margin: 0; }
 
 /* ── App shell: topbar + sidebar + content ────────────────────────────────────────────────────────── */
@@ -49,43 +63,50 @@ p { color: var(--body); margin: 0; }
 .app-topbar {
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem; flex-wrap: wrap;
-  padding-bottom: 0.9rem; margin-bottom: 1.75rem;
+  padding-bottom: 0.85rem; margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--hairline);
 }
 .topbar-brand { display: flex; align-items: center; gap: 0.6rem; }
 .topbar-mark {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: var(--r-sm);
-  background: var(--ink); color: var(--on-ink);
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  background: var(--accent); color: var(--on-accent);
   font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
 }
 .topbar-role { display: flex; align-items: center; gap: 0.5rem; }
 .topbar-role .field-label { white-space: nowrap; }
-.topbar-role select { height: 36px; width: auto; min-width: 150px; }
+.topbar-role select { height: 34px; width: auto; min-width: 150px; }
 
-.app-body { display: flex; align-items: flex-start; gap: 2rem; min-width: 0; }
+.app-body { display: flex; align-items: flex-start; gap: 1.75rem; min-width: 0; }
 .app-sidebar {
-  flex: 0 0 176px; display: flex; flex-direction: column; gap: 0.15rem;
+  flex: 0 0 178px; display: flex; flex-direction: column; gap: 0.1rem;
   position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); overflow-y: auto;
 }
+.nav-group-label {
+  padding: 0.85rem 0.7rem 0.3rem;
+  font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--body);
+}
+.nav-group-label:first-child { padding-top: 0.1rem; }
 .app-sidebar button {
-  height: auto; padding: 0.5rem 0.75rem; text-align: left; justify-content: flex-start;
+  height: auto; padding: 0.45rem 0.7rem; text-align: left; justify-content: flex-start;
   background: transparent; color: var(--body); border: 1px solid transparent;
   font-weight: 500; font-size: 13px; border-radius: var(--r-sm); box-shadow: none;
 }
 .app-sidebar button:hover { color: var(--ink); background: var(--canvas-soft-2); }
-.app-sidebar button.active { color: var(--ink); background: var(--canvas-soft-2); box-shadow: inset 3px 0 0 var(--ink); }
-.app-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2rem; }
+.app-sidebar button.active { color: var(--accent); background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.app-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1.75rem; }
 
 /* ── Screen scaffold ───────────────────────────────────────────────────────────────────────────────── */
-.screen { display: flex; flex-direction: column; gap: 1.75rem; min-width: 0; }
+.screen { display: flex; flex-direction: column; gap: 1.6rem; min-width: 0; }
 .screen-head { display: flex; flex-direction: column; gap: 0.25rem; }
 .screen-sub { font-size: 13px; }
 
 /* ── Forms: fieldset-grouped grid ─────────────────────────────────────────────────────────────────── */
+.create-form { min-width: 0; }
 fieldset {
   border: 1px solid var(--hairline); border-radius: var(--r-lg);
-  padding: 1.25rem 1.5rem 1.5rem; margin: 0; background: var(--canvas); box-shadow: var(--shadow);
+  padding: 1.1rem 1.35rem 1.35rem; margin: 0; background: var(--canvas); box-shadow: var(--shadow);
   min-width: 0;
 }
 legend {
@@ -94,8 +115,8 @@ legend {
   color: var(--body); font-weight: 500;
 }
 .fields-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 1rem; margin-bottom: 1.25rem;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.9rem; margin-bottom: 1.1rem;
 }
 .field { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
 .field-check { flex-direction: row; align-items: center; gap: 0.5rem; }
@@ -105,23 +126,28 @@ legend {
   letter-spacing: 0.04em; color: var(--body);
 }
 input, select {
-  height: 40px; width: 100%; padding: 0 0.75rem; font: inherit; font-size: 14px;
+  height: 36px; width: 100%; padding: 0 0.7rem; font: inherit; font-size: 14px;
   color: var(--ink); background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-sm);
 }
 input::placeholder { color: var(--mute); }
-input:focus, select:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0, 112, 243, .12); }
+input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11, 107, 82, .16); }
 button {
-  height: 40px; padding: 0 1.1rem; font: inherit; font-size: 14px; font-weight: 500;
-  color: var(--on-ink); background: var(--ink); border: 1px solid var(--ink); border-radius: var(--r-sm);
+  height: 36px; padding: 0 1.05rem; font: inherit; font-size: 14px; font-weight: 500;
+  color: var(--on-accent); background: var(--accent); border: 1px solid var(--accent); border-radius: var(--r-sm);
   cursor: pointer; transition: opacity .15s; display: inline-flex; align-items: center; justify-content: center;
 }
 button:hover { opacity: .85; }
 button:disabled { opacity: .4; cursor: default; }
-.feedback { min-height: 1.1em; font-size: 13px; margin-top: 0.75rem; }
+.feedback { min-height: 1.1em; font-size: 13px; margin-top: 0.7rem; }
 
 /* ── Search + list panel (FSK-FRONTEND-SEARCH-PAGE / FSK-FRONTEND-TABLE) ─────────────────────────── */
-.list-panel { display: flex; flex-direction: column; gap: 0.85rem; min-width: 0; }
-.search-field { max-width: 320px; }
+.list-panel { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+/* both are plain flex-column children of .list-panel carrying the wide, non-wrapping Asset table (24
+   columns) inside .table-scroll — without min-width:0 their default automatic-minimum-size floor is the
+   table's un-wrapped content width, which (combined with the narrow-viewport `.app-body` fix below)
+   otherwise re-inflates the whole page past the viewport instead of scrolling inside .table-scroll. */
+.list-container, .trash-container { min-width: 0; }
+.search-field { max-width: 300px; }
 /* the overflow-axis defense: a wide entity (Asset, 24 columns) scrolls INSIDE this box instead of
    pushing document.documentElement.scrollWidth past the 1280px viewport. */
 .table-scroll { width: 100%; overflow-x: auto; border-radius: var(--r-md); }
@@ -129,41 +155,77 @@ table {
   width: max-content; min-width: 100%; border-collapse: collapse;
   background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); box-shadow: var(--shadow);
 }
-th, td { padding: 0.6rem 0.85rem; text-align: left; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
-th { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--body); font-weight: 500; background: var(--canvas-soft); }
-td { color: var(--ink); font-size: 13.5px; }
+th { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--body); font-weight: 500; background: var(--canvas-soft); }
+/* craft: app.ts wraps the raw schema field-name in `.th-raw` (kept for the frozen browser_check.ts
+   textContent contract — see the comment on renderTableHead) and renders the humanized `data-label` as
+   generated content instead; `::before` inherits th's mono/uppercase/color, so the visible label keeps the
+   exact same look the raw text used to have, minus the underscore. */
+.th-raw { display: none; }
+th::before { content: attr(data-label); }
+td { color: var(--ink); font-size: 13px; }
 tr[data-id] { cursor: pointer; transition: background-color .15s; }
 tr[data-id]:hover td { background: var(--canvas-soft); }
 .pagination { display: flex; align-items: center; gap: 0.75rem; }
 .page-info { font-family: var(--mono); font-size: 12px; color: var(--body); }
-.page-btn { height: 32px; padding: 0 0.75rem; font-size: 13px; }
+.page-btn {
+  height: 30px; padding: 0 0.7rem; font-size: 13px;
+  background: var(--canvas); color: var(--ink); border-color: var(--hairline-strong);
+}
 .empty-state {
-  padding: 2rem; text-align: center; font-size: 13px; color: var(--body);
+  padding: 1.85rem; text-align: center; font-size: 13px; color: var(--body);
   border: 1px dashed var(--hairline-strong); border-radius: var(--r-md); background: var(--canvas-soft-2);
 }
+
+/* ── Status/condition pills (originality: Asset.status as the app's ONE domain-tied accent language,
+   reused for the sidebar active-state and nav rhythm above) ─────────────────────────────────────────── */
+.pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.15rem 0.55rem; border-radius: 999px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  line-height: 1.7; white-space: nowrap;
+}
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.pill-ready    { background: #ecfdf5; color: #047857; } /* available for checkout */
+.pill-deployed { background: #eff6ff; color: #1d4ed8; } /* checked out, in use */
+.pill-pending  { background: #fffbeb; color: #b45309; } /* awaiting processing */
+.pill-archived { background: #f3f4f6; color: #4b5563; } /* retired */
+.pill-broken   { background: #fef2f2; color: #b91c1c; } /* needs repair */
+.pill-default  { background: var(--canvas-soft-2); color: var(--body); }
 
 /* ── Trash (FSK-FRONTEND-TRASH) ──────────────────────────────────────────────────────────────────── */
 .trash-container { margin-top: 0.25rem; }
 .trash-container table button {
-  height: 30px; padding: 0 0.65rem; font-size: 12px;
+  height: 28px; padding: 0 0.6rem; font-size: 12px;
   background: var(--canvas); color: var(--ink); border-color: var(--hairline-strong);
 }
 
-/* ── Dashboard (FSK-FRONTEND-DASHBOARD) ──────────────────────────────────────────────────────────── */
-ul.dashboard { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.75rem; }
+/* ── Dashboard (FSK-FRONTEND-DASHBOARD) — grouped into the SAME sections as the sidebar nav, instead of
+   one flat wall of identical cards; the "Fleet" group (Asset alone) gets an accent-featured card. ───── */
+.dashboard-group { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.5rem; }
+.dashboard-group:last-child { margin-bottom: 0; }
+.dashboard-group-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--body);
+}
+ul.dashboard { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.65rem; }
 ul.dashboard li {
-  display: flex; flex-direction: column; gap: 0.35rem; padding: 1rem 1.15rem;
+  display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1.05rem;
   background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); box-shadow: var(--shadow);
 }
-.count-label { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--body); }
-.count-value { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); }
+ul.dashboard li.count-featured {
+  border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft), var(--shadow);
+}
+.count-featured .count-value { color: var(--accent); }
+.count-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--body); }
+.count-value { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); }
 
 /* ── Detail panel (FSK-FRONTEND-DETAIL / -EDIT / -DELETE / -DETAIL-TABS / -OPERATIONS) ────────────── */
-.detail-panel { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.detail-panel { display: flex; flex-direction: column; gap: 1.15rem; min-width: 0; }
 dl.detail {
-  display: grid; grid-template-columns: max-content 1fr; gap: 0.55rem 1.5rem;
-  padding: 1.25rem 1.5rem; background: var(--canvas); border: 1px solid var(--hairline);
+  display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1.4rem;
+  padding: 1.1rem 1.35rem; background: var(--canvas); border: 1px solid var(--hairline);
   border-radius: var(--r-lg); box-shadow: var(--shadow); margin: 0;
 }
 dl.detail .field { display: contents; }
@@ -175,19 +237,19 @@ dl.detail dd { margin: 0; color: var(--ink); font-size: 14px; overflow-wrap: bre
 /* Details / History tabs */
 .detail-tabs { display: flex; gap: 0.5rem; }
 .tab-btn {
-  height: 34px; padding: 0 0.9rem; font-size: 13px;
+  height: 32px; padding: 0 0.85rem; font-size: 13px;
   background: var(--canvas); color: var(--body); border: 1px solid var(--hairline);
 }
-.tab-btn.active { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.tab-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 
 /* History panel (FSK-ACTIONLOG) */
 .history-panel {
-  padding: 1rem 1.25rem; background: var(--canvas); border: 1px solid var(--hairline);
+  padding: 0.9rem 1.15rem; background: var(--canvas); border: 1px solid var(--hairline);
   border-radius: var(--r-lg); box-shadow: var(--shadow);
 }
 .actionlog-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
 .actionlog-list li {
-  font-size: 13px; color: var(--body); padding: 0.5rem 0.75rem;
+  font-size: 13px; color: var(--body); padding: 0.5rem 0.7rem;
   border: 1px solid var(--hairline); border-radius: var(--r-sm); background: var(--canvas-soft);
 }
 
@@ -195,3 +257,36 @@ dl.detail dd { margin: 0; color: var(--ink); font-size: 14px; overflow-wrap: bre
 .verbs-slot { display: flex; gap: 0.5rem; }
 .verb-btn { background: var(--canvas); color: var(--ink); border-color: var(--hairline-strong); }
 .verb-btn:hover { background: var(--canvas-soft-2); }
+
+/* ── Narrow-viewport nav + wide-fieldset reflow (craft/design_quality: a live 390px pass found (a) the
+   38-button sidebar never adapts, crushing every list/form/table into a truncated strip, and (b) the Asset
+   create-form (20 fields, the flagship hand-wired entity) never reflows at all — document.scrollWidth
+   measured 2462px inside a 390px viewport — .gen/critique-snipeit-v1-baseline.json + round-2 critique.
+   Root cause of (b), traced with a live headless-Chromium probe rather than guessed: `.app-body`'s base
+   rule sets `align-items: flex-start` (desktop-correct — the row-direction cross axis is vertical, so this
+   keeps the sidebar from stretching to the content's height); but below 720px `.app-body` flips to
+   `flex-direction: column`, which flips the CROSS axis to horizontal (width) — `flex-start` there means
+   `.app-content` sizes to its own content instead of stretching to the viewport, and content sizing for a
+   box holding the wide, `white-space:nowrap` Asset table (`.table-scroll`) resolves to the TABLE's full
+   unwrapped width regardless of `min-width:0` anywhere downstream, since shrink-to-fit's floor is the
+   content's own min-content — `.table-scroll`'s overflow-x:auto never gets a chance to clip/scroll because
+   its containing chain was never given a definite (viewport-bound) width to clip against in the first
+   place. `align-items: stretch` below restores a definite width down the whole chain, at which point the
+   existing `.list-container`/`.trash-container` min-width:0 (above) lets `.table-scroll` correctly scroll
+   internally instead of forcing the page wider, and `.fields-grid` (both create- and edit-form) explicitly
+   stacks to one column instead of relying on `auto-fill` to guess a column count from a now-correctly-bound
+   but still narrow width. Below 720px the sidebar becomes a horizontal scroll strip above the content
+   instead of a fixed-width left column; the design-floor/browser proofs run at a fixed 1280px desktop
+   viewport and are unaffected (this whole block is gated by the media query). ───────────────────────────── */
+@media (max-width: 720px) {
+  .app-body { flex-direction: column; align-items: stretch; gap: 1.1rem; }
+  .app-sidebar {
+    flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: visible;
+    position: static; max-height: none; width: 100%; gap: 0.3rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--hairline);
+  }
+  .app-sidebar button { white-space: nowrap; flex: 0 0 auto; }
+  .nav-group-label { flex: 0 0 auto; padding: 0.5rem 0.5rem 0.5rem 0; align-self: center; }
+  .app-content { min-width: 0; }
+  .fields-grid { grid-template-columns: 1fr; }
+}

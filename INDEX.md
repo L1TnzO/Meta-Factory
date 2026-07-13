@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `1ab642b736ef` | 2026-07-12T22:48Z | State — Meta-Factory |
+| `docs/STATE.md` | `1ab642b736ef` | 2026-07-13T13:27Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -90,6 +90,12 @@
 | `docs/work/DELEGATION-HARNESS-INCREMENT.md` | `5d643727882a` | 2026-06-26T02:05Z | Incremento DELEGATION-HARNESS |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-FRONTEND-INCREMENT.md` | `608ebb005d35` | 2026-07-08T20:20Z | Incremento DELEGATION-SLOT-SNIPEIT-FRONTEND |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND-INCREMENT.md` | `66a87e6c648d` | 2026-07-09T03:24Z | Incremento DELEGATION-SLOT-SNIPEIT-TABLES-FRONTEND |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-INCREMENT.md` | `9f3bde880bb1` | 2026-07-13T02:35Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2 |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-R2-INCREMENT.md` | `b10364924e0e` | 2026-07-13T03:27Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2-R2 |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-R2-VERDICT-INCREMENT.md` | `dee1e200b36d` | 2026-07-13T04:23Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2-R2-VERDICT |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-R3-INCREMENT.md` | `6483d56e47e3` | 2026-07-13T13:05Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2-R3 |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-R3-VERDICT-INCREMENT.md` | `fad99413c1c2` | 2026-07-13T13:27Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2-R3-VERDICT |
+| `docs/work/DELEGATION-SLOT-SNIPEIT-UI-V2-VERDICT-INCREMENT.md` | `80be77bc75cd` | 2026-07-13T03:16Z | Incremento DELEGATION-SLOT-SNIPEIT-UI-V2-VERDICT |
 | `docs/work/DELEGATION-SLOT-SNIPEIT-VERDICT-INCREMENT.md` | `0954857894ae` | 2026-07-08T21:05Z | Incremento DELEGATION-SLOT-SNIPEIT-VERDICT |
 | `docs/work/DIAL-MEASURE-INCREMENT.md` | `80c6b1a79bb6` | 2026-07-04T20:10Z | Incremento DIAL-MEASURE |
 | `docs/work/DOC-CLEANUP-DIRECTION-INCREMENT.md` | `ca62dfe3fc19` | 2026-07-11T20:56Z | Incremento DOC-CLEANUP-DIRECTION |

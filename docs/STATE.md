@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1ab642b736efa70c517af0ad695769ed1b2c4ee9 updated=2026-07-12T22:48Z -->
+<!-- meta:doc sha=1ab642b736efa70c517af0ad695769ed1b2c4ee9 updated=2026-07-13T13:27Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).

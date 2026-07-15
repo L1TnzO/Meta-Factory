@@ -122,9 +122,10 @@ def main() -> int:
     query = read_query(args.query_file)
     retrieved_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = args.out.with_suffix(args.out.suffix + ".tmp")  # atomic write, see openalex_harvest
 
     start, written, total = 0, 0, None
-    with args.out.open("w", encoding="utf-8") as fh:
+    with tmp.open("w", encoding="utf-8") as fh:
         while True:
             root = fetch(query, start, args.page_size)
             if total is None:
@@ -143,6 +144,7 @@ def main() -> int:
             start += args.page_size
             print(f"[arxiv] written={written}/{total}", end="\r", flush=True)
             time.sleep(3)  # arXiv API ToS
+    tmp.replace(args.out)
     print(f"\n[arxiv] done: {written} records -> {args.out}")
     return 0
 

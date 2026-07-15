@@ -139,8 +139,12 @@ def main() -> int:
         return 2
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    # Atomic write: work on a .tmp and rename at the end, so a mid-harvest
+    # crash can never truncate the previous good harvest (incident 2026-07-15:
+    # a 429 during pagination left openalex_general.jsonl empty).
+    tmp = args.out.with_suffix(args.out.suffix + ".tmp")
     cursor, written = "*", 0
-    with args.out.open("w", encoding="utf-8") as fh:
+    with tmp.open("w", encoding="utf-8") as fh:
         while cursor:
             page = fetch(build_url(query, args.from_date, args.mailto, cursor, args.per_page, raw=args.raw))
             for work in page.get("results", []):
@@ -149,6 +153,7 @@ def main() -> int:
             cursor = page.get("meta", {}).get("next_cursor")
             print(f"[openalex] written={written}", end="\r", flush=True)
             time.sleep(0.3)
+    tmp.replace(args.out)
     print(f"\n[openalex] done: {written} records -> {args.out}")
     return 0
 

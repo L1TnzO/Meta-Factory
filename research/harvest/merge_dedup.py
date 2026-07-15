@@ -119,6 +119,8 @@ def main() -> int:
 
     for path in args.inputs:
         records = load(path)
+        if not records:
+            print(f"[merge] WARNING: {path} contributed 0 records — stale or truncated harvest?")
         for rec in records:
             for src in rec.get("sources", ["?"]):
                 per_source[src] = per_source.get(src, 0) + 1

@@ -14,13 +14,14 @@ import argparse
 import json
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-API = "http://export.arxiv.org/api/query"
+API = "https://export.arxiv.org/api/query"
 NS = {
     "atom": "http://www.w3.org/2005/Atom",
     "opensearch": "http://a9.com/-/spec/opensearch/1.1/",
@@ -37,7 +38,7 @@ def read_query(path: Path) -> str:
     return " ".join(lines)
 
 
-def fetch(query: str, start: int, page_size: int) -> ET.Element:
+def build_url(query: str, start: int, page_size: int) -> str:
     params = {
         "search_query": query,
         "start": str(start),
@@ -45,10 +46,28 @@ def fetch(query: str, start: int, page_size: int) -> ET.Element:
         "sortBy": "submittedDate",
         "sortOrder": "descending",
     }
-    url = API + "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+    # quote_plus: spaces as '+' — the %20 form pushed the v2.1 core query past
+    # the API's ~2k URL limit and produced HTTP 500 (observed 2026-07-15).
+    return API + "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote_plus)
+
+
+def fetch(query: str, start: int, page_size: int) -> ET.Element:
+    url = build_url(query, start, page_size)
+    if len(url) > 2000:
+        print(f"[arxiv] warning: url length {len(url)} — consider splitting block A "
+              "into two runs (dedup absorbs the overlap)", file=sys.stderr)
     req = urllib.request.Request(url, headers={"User-Agent": "sms-v2-harvest"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return ET.fromstring(resp.read())
+    last: Exception | None = None
+    for attempt in range(3):  # arXiv API throws transient 5xx
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return ET.fromstring(resp.read())
+        except urllib.error.HTTPError as exc:
+            if exc.code < 500:
+                raise
+            last = exc
+            time.sleep(5 * (attempt + 1))
+    raise last  # type: ignore[misc]
 
 
 def text(el: ET.Element | None) -> str:

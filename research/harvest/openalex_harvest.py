@@ -16,6 +16,7 @@ import argparse
 import json
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -35,8 +36,20 @@ def read_query(path: Path) -> str:
 
 def fetch(url: str) -> dict:
     req = urllib.request.Request(url, headers={"User-Agent": "sms-v2-harvest"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.load(resp)
+    last: Exception | None = None
+    for attempt in range(4):  # OpenAlex rate limit (429) and transient 5xx
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.load(resp)
+        except urllib.error.HTTPError as exc:
+            if exc.code != 429 and exc.code < 500:
+                raise
+            last = exc
+            retry_after = exc.headers.get("Retry-After") if exc.headers else None
+            wait = int(retry_after) if retry_after and str(retry_after).isdigit() else 10 * (attempt + 1)
+            print(f"\n[openalex] HTTP {exc.code} — retrying in {wait}s", file=sys.stderr)
+            time.sleep(wait)
+    raise last  # type: ignore[misc]
 
 
 def build_url(query: str, from_date: str, mailto: str, cursor: str, per_page: int,
@@ -135,7 +148,7 @@ def main() -> int:
                 written += 1
             cursor = page.get("meta", {}).get("next_cursor")
             print(f"[openalex] written={written}", end="\r", flush=True)
-            time.sleep(0.15)
+            time.sleep(0.3)
     print(f"\n[openalex] done: {written} records -> {args.out}")
     return 0
 

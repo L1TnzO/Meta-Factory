@@ -8,6 +8,12 @@ set -euo pipefail
 MAILTO="${1:?usage: bash harvest_all.sh <your-email> (OpenAlex polite pool)}"
 cd "$(dirname "$0")"
 
+# SKIP_HARVEST=1 reuses the raw harvests already on disk (e.g. when you only
+# added Lens exports): jumps straight to merge + PDFs + sanity. Saves ~40 min
+# and OpenAlex/arXiv quota.
+if [ "${SKIP_HARVEST:-0}" = "1" ]; then
+    echo "[harvest_all] SKIP_HARVEST=1 — reusing existing raw harvests"
+else
 python3 openalex_harvest.py --query-file queries/openalex_core.txt \
     --mailto "$MAILTO" --out ../corpus/raw/openalex/openalex_core.jsonl
 
@@ -21,6 +27,7 @@ python3 openalex_harvest.py --query-file queries/openalex_general.txt --raw \
 
 python3 arxiv_harvest.py --query-file queries/arxiv_general.txt \
     --out ../corpus/raw/arxiv/arxiv_general.jsonl
+fi
 
 # Lens exports are optional drop-ins: place UI exports in ../corpus/raw/lens/
 LENS_FILES=$(ls ../corpus/raw/lens/*.csv ../corpus/raw/lens/*.json 2>/dev/null || true)

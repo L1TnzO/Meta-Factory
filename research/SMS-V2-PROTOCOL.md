@@ -199,7 +199,17 @@ queries/*.txt ──► openalex_harvest.py ─► corpus/raw/openalex/*.jsonl �
                   Lens UI (export)    ─► corpus/raw/lens/*.{csv,json}─┘                       + reporte solapamiento por fuente
 semillas v1 (27) ─► corpus/seeds/v1-corpus.csv ──────────────────────┘
 gris (manual)    ─► corpus/grey/ + manifest.csv   (no entra al dedup académico)
+corpus/merged/corpus.jsonl ─► download_pdfs.py ─► corpus/pdf/*.pdf (gitignored) + corpus/pdf_manifest.csv (committeado, con sha256)
+                            ─► sanity_check_v1.py (¿reaparecen los sistemas del corpus v1?)
 ```
+
+**Ejecución local en un comando** (la red del sandbox de la sesión no alcanza OpenAlex/arXiv):
+
+```bash
+bash research/harvest/harvest_all.sh tu@correo
+```
+
+Resumible (re-ejecutar salta lo ya descargado); los exports de Lens se dejan caer en `corpus/raw/lens/` y el mismo comando los integra. Los PDF descargados son solo los open-access; lo cerrado queda `status=no_url` en el manifest — coherente con CE3 del v1 (solo literatura disponible gratis).
 
 ### 7.2 Esquema normalizado (una fila por trabajo)
 
@@ -223,6 +233,8 @@ Cada paper incluido produce un **digest tipado** (md o jsonl): `problema · meca
 Criterios CI/CE definitivos, formulario de extracción, esquema de clasificación (partirá de la matriz v1: tipos × operaciones × representación × evaluación + dimensiones nuevas de RQ3/RQ4/RQ6), calibración de precisión (muestra aleatoria de 100 títulos antes de congelar la cadena), fecha de corte de búsqueda.
 
 ## 8. Residuales honestos
+
+- **La red del sandbox de Cowork no alcanza OpenAlex/arXiv** (proxy 403, allowlist): la cosecha de metadatos y la descarga de PDFs corren en la máquina local — `bash research/harvest/harvest_all.sh <correo>` (§7.1). Los binarios quedan fuera de git (`research/.gitignore`); `corpus/pdf_manifest.csv` (key·doi·status·sha256) es el índice committeado.
 
 - **Conteos OpenAlex ejecutados 2026-07-15** (URLs §5.1, reportados por Catalina): réplica v1 = **143** · core v2 = **429** (scope 2022+, título+abstract). El ×3 es la apertura esperada del vocabulario nuevo y queda muy por debajo del umbral de la palanca de precisión (>1.500) → la cadena core se mantiene tal cual, pendiente solo el control de sanidad de los 27. Pendientes de conteo: Lens y arXiv (requieren UI/login) y la variante extendida (`--count-only` del script o URL a pedido).
 - **Sintaxis Lens verificada contra su documentación, no contra la UI** (requiere login). Validar al primer uso; fallback del rango de años documentado en §5.2.

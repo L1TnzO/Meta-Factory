@@ -1,0 +1,4 @@
+# Binary corpus stays out of git — pdf_manifest.csv (committed) is the index.
+corpus/pdf/
+__pycache__/
+*.pyc

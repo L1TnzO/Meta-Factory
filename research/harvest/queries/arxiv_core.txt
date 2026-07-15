@@ -1,0 +1,9 @@
+# arXiv API — SMS v2 CORE for export.arxiv.org/api/query (search_query value).
+# Every term needs its field prefix (all:). The 5-category clause approximates the
+# UI's "classification: Computer Science" (the API has no cs.* wildcard).
+# Lines starting with '#' are ignored; remaining lines are joined with a space.
+(all:"semantic memory" OR all:"episodic memory" OR all:"working memory" OR all:"procedural memory" OR all:"memory-augmented" OR all:"persistent memory" OR all:"long-term memory" OR all:"external memory" OR all:"memory mechanism" OR all:"memory module" OR all:"cross-session" OR all:"context retention" OR all:"agent memory" OR all:"agentic memory" OR all:"memory architecture" OR all:"memory system" OR all:"memory management" OR all:"memory bank" OR all:"memory consolidation" OR all:"context engineering" OR all:"context management" OR all:"skill library" OR all:"experience reuse")
+AND (all:"LLM agent" OR all:"AI agent" OR all:"language model agent" OR all:"coding agent" OR all:"software engineering agent" OR all:agentic OR all:"autonomous agent" OR all:"code agent" OR all:"software agent" OR all:"multi-agent")
+AND (all:debugging OR all:"bug fixing" OR all:"program repair" OR all:"software development" OR all:"code generation" OR all:"issue resolution" OR all:"software engineering" OR all:"software maintenance" OR all:"code review" OR all:"software testing" OR all:refactoring OR all:"repository-level")
+AND (cat:cs.SE OR cat:cs.AI OR cat:cs.CL OR cat:cs.LG OR cat:cs.MA)
+AND submittedDate:[202201010000 TO 209912312359]

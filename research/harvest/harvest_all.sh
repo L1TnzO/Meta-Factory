@@ -14,12 +14,22 @@ python3 openalex_harvest.py --query-file queries/openalex_core.txt \
 python3 arxiv_harvest.py --query-file queries/arxiv_core.txt \
     --out ../corpus/raw/arxiv/arxiv_core.jsonl
 
+# Q2 general branch (SMS-V2-PROTOCOL.md §4.4): memory systems without an SE
+# anchor in the abstract — screening decides transferability (CI2).
+python3 openalex_harvest.py --query-file queries/openalex_general.txt --raw \
+    --mailto "$MAILTO" --out ../corpus/raw/openalex/openalex_general.jsonl
+
+python3 arxiv_harvest.py --query-file queries/arxiv_general.txt \
+    --out ../corpus/raw/arxiv/arxiv_general.jsonl
+
 # Lens exports are optional drop-ins: place UI exports in ../corpus/raw/lens/
 LENS_FILES=$(ls ../corpus/raw/lens/*.csv ../corpus/raw/lens/*.json 2>/dev/null || true)
 # shellcheck disable=SC2086
 python3 merge_dedup.py --out-dir ../corpus/merged \
     ../corpus/raw/openalex/openalex_core.jsonl \
-    ../corpus/raw/arxiv/arxiv_core.jsonl $LENS_FILES
+    ../corpus/raw/arxiv/arxiv_core.jsonl \
+    ../corpus/raw/openalex/openalex_general.jsonl \
+    ../corpus/raw/arxiv/arxiv_general.jsonl $LENS_FILES
 
 python3 download_pdfs.py --corpus ../corpus/merged/corpus.jsonl \
     --out-dir ../corpus/pdf --manifest ../corpus/pdf_manifest.csv

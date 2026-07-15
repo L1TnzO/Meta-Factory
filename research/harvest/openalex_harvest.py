@@ -39,8 +39,15 @@ def fetch(url: str) -> dict:
         return json.load(resp)
 
 
-def build_url(query: str, from_date: str, mailto: str, cursor: str, per_page: int) -> str:
-    filt = f"title_and_abstract.search:{query},from_publication_date:{from_date}"
+def build_url(query: str, from_date: str, mailto: str, cursor: str, per_page: int,
+              raw: bool = False) -> str:
+    """raw=True: the query file already contains a complete OpenAlex filter
+    expression (e.g. the Q2 general branch combining title.search and
+    title_and_abstract.search); only the date scope is appended."""
+    if raw:
+        filt = f"{query},from_publication_date:{from_date}"
+    else:
+        filt = f"title_and_abstract.search:{query},from_publication_date:{from_date}"
     params = {
         "filter": filt,
         "per-page": str(per_page),
@@ -102,12 +109,14 @@ def main() -> int:
     ap.add_argument("--mailto", required=True, help="contact email (OpenAlex polite pool)")
     ap.add_argument("--count-only", action="store_true")
     ap.add_argument("--per-page", type=int, default=200)
+    ap.add_argument("--raw", action="store_true",
+                    help="query file holds a complete filter expression (Q2 general branch)")
     args = ap.parse_args()
 
     query = read_query(args.query_file)
     retrieved_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 
-    first = fetch(build_url(query, args.from_date, args.mailto, "*", 1))
+    first = fetch(build_url(query, args.from_date, args.mailto, "*", 1, raw=args.raw))
     count = first.get("meta", {}).get("count")
     print(f"[openalex] count={count} from_date={args.from_date} query_file={args.query_file}")
     if args.count_only:
@@ -120,7 +129,7 @@ def main() -> int:
     cursor, written = "*", 0
     with args.out.open("w", encoding="utf-8") as fh:
         while cursor:
-            page = fetch(build_url(query, args.from_date, args.mailto, cursor, args.per_page))
+            page = fetch(build_url(query, args.from_date, args.mailto, cursor, args.per_page, raw=args.raw))
             for work in page.get("results", []):
                 fh.write(json.dumps(normalize(work, retrieved_at), ensure_ascii=False) + "\n")
                 written += 1

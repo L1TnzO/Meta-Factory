@@ -1,0 +1,6 @@
+# arXiv API — SMS v2.1 GENERAL branch (Q2): strong memory term in TITLE (ti:),
+# agent term anywhere (all:). See SMS-V2-PROTOCOL.md §4.4.
+(ti:"agent memory" OR ti:"agentic memory" OR ti:"memory system" OR ti:"memory architecture" OR ti:"memory-augmented" OR ti:"long-term memory" OR ti:"episodic memory" OR ti:"semantic memory" OR ti:"procedural memory" OR ti:"memory bank" OR ti:"memory consolidation" OR ti:"memory management" OR ti:"memory operating system")
+AND (all:"LLM agent" OR all:"AI agent" OR all:"language model agent" OR all:"coding agent" OR all:"software engineering agent" OR all:agentic OR all:"autonomous agent" OR all:"code agent" OR all:"software agent" OR all:"multi-agent" OR all:"LLM-based")
+AND (cat:cs.SE OR cat:cs.AI OR cat:cs.CL OR cat:cs.LG OR cat:cs.MA)
+AND submittedDate:[202201010000 TO 209912312359]

@@ -105,6 +105,16 @@ Correr una vez, comparar conteos y muestrear 50 títulos del diferencial; NO es 
 
 Si algún término aporta ≥3 candidatos plausibles no cubiertos por la core, se promueve a la core y se re-corre (documentar la promoción aquí).
 
+**Promociones v2.1 (2026-07-15, tras el control de sanidad §8):** A += `"experience bank"`, `"experience-driven"` (SWE-Exp fallaba el bloque A: vocabulario experiencial sin frases canónicas de memoria); B += `"LLM-based"` (ExpeRepair falla B: framework "LLM-based", nunca dice "agent"; sigue triple-restringido por A∧C). Aplicadas a los tres archivos de consultas core.
+
+### 4.4 Rama Q2 — sistemas de memoria generales (v2.1, 2026-07-15)
+
+El control de sanidad demostró que A∧B∧C excluye **por diseño** los sistemas de memoria de propósito general que no mencionan ninguna tarea SE en título/abstract (caso MIRIX: evalúa en ScreenshotVQA/LoCoMo). En el corpus v1 esa categoría era ~1/3 de los papers y el CI2 la admitía explícitamente («transferible a ingeniería de software»). La rama Q2 los recupera con precisión: **término fuerte de memoria EN EL TÍTULO ∧ término de agente en cualquier campo, sin bloque C**; la transferibilidad a SE se decide en el cribado, no en la cadena.
+
+- A-fuerte (13): "agent memory", "agentic memory", "memory system", "memory architecture", "memory-augmented", "long-term memory", "episodic memory", "semantic memory", "procedural memory", "memory bank", "memory consolidation", "memory management", "memory operating system".
+- B: el mismo bloque B core (v2.1).
+- Consultas listas: `harvest/queries/{openalex,arxiv,lens}_general.txt` (OpenAlex vía `--raw`: combina `title.search` + `title_and_abstract.search`); integradas en `harvest_all.sh` y en el dedup.
+
 ## 5. Fuentes v2 y consultas adaptadas
 
 | Fuente | Rol | Reemplaza a | Por qué |
@@ -240,4 +250,6 @@ Criterios CI/CE definitivos, formulario de extracción, esquema de clasificació
 - **Sintaxis Lens verificada contra su documentación, no contra la UI** (requiere login). Validar al primer uso; fallback del rango de años documentado en §5.2.
 - **La cadena core es hipótesis hasta la calibración** (§7.5): si la apertura del bloque C dispara el volumen (>1.500 tras dedup), la palanca de precisión preferida es exigir A en título-o-abstract vía Lens/arXiv y en OpenAlex mantener `title_and_abstract` (nunca recortar B).
 - Los 27 papers del v1 deben aparecer en la cosecha v2 (control de sanidad de la cadena); los que no aparezcan, investigar por qué (¿término perdido? ¿fuente?) antes de congelar.
+- **Run 1 ejecutado 2026-07-15 (cadena v2.0, máquina local):** OpenAlex 430 + arXiv 179 → **330 únicos** (110 en ≥2 fuentes; el resto del colapso son duplicados intra-fuente por título, p. ej. preprint+publicada). PDFs: **189 ok** (579 MB locales) · 83 `not_pdf` (70 = landings doi.org; los de identidad arXiv se recuperan con el fix v2.1 del descargador) · 34 HTTP error (SSRN/MDPI/transitorios; re-run reintenta) · 21 sin URL OA (coherente CE3) · 3 errores misceláneos (uno de URL no-ASCII, corregido).
+- **Sanidad run 1: 9/20** → diagnóstico con evidencia (abstracts verificados): (a) MIRIX-clase sin término C → **rama Q2** (§4.4); (b) ExpeRepair sin término B → `"LLM-based"`; (c) SWE-Exp sin término A → `"experience bank"/"experience-driven"`. Corregido en v2.1; re-correr `harvest_all.sh` y re-medir. Los que sigan faltando tras v2.1 (candidatos: Memanto, Springdrift, LMEB — preprints 2026 muy frescos) probablemente son lag de indexación u origen S2-only del v1; **entran igual como semillas de snowballing (§7.3)**, así que la completitud del corpus final no depende de la cadena para ellos.
 

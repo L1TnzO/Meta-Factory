@@ -20,6 +20,7 @@ import json
 import re
 import sys
 import time
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,9 +40,26 @@ def record_key(rec: dict) -> str:
     return "unknown"
 
 
+ARXIV_DOI = re.compile(r"10\.48550/arxiv\.([^\s]+)", re.IGNORECASE)
+ARXIV_URL = re.compile(r"arxiv\.org/(?:abs|pdf)/([^\s?#]+?)(?:\.pdf)?$", re.IGNORECASE)
+
+
 def pick_url(rec: dict) -> tuple[str, bool]:
-    """Return (url, is_arxiv). Empty url means no candidate."""
+    """Return (url, is_arxiv). Empty url means no candidate.
+
+    Any arXiv identity (native id, 10.48550 DOI, abs/pdf URL) is normalized to
+    the export mirror — landing pages are HTML and were the main not_pdf cause.
+    """
     arxiv_id = (rec.get("arxiv_id") or "").strip()
+    if not arxiv_id:
+        m = ARXIV_DOI.search(rec.get("doi") or "")
+        arxiv_id = m.group(1) if m else ""
+    if not arxiv_id:
+        for field in ("pdf_url", "oa_url"):
+            m = ARXIV_URL.search((rec.get(field) or "").strip())
+            if m:
+                arxiv_id = m.group(1)
+                break
     if arxiv_id:
         return f"https://export.arxiv.org/pdf/{arxiv_id}", True
     for field in ("pdf_url", "oa_url"):
@@ -52,6 +70,7 @@ def pick_url(rec: dict) -> tuple[str, bool]:
 
 
 def download(url: str, dest: Path) -> tuple[str, int, str]:
+    url = urllib.parse.quote(url, safe="%:/?#[]@!$&'()*+,;=")  # non-ASCII URLs
     req = urllib.request.Request(url, headers={"User-Agent": "sms-v2-harvest (academic mapping study)"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         data = resp.read()

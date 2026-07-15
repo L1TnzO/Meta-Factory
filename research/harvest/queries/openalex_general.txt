@@ -1,0 +1,8 @@
+# OpenAlex — SMS v2.1 GENERAL branch (Q2): general-purpose memory systems.
+# Rationale (SMS-V2-PROTOCOL.md §4.4): A AND B AND C excludes by design memory
+# systems that never mention an SE task (MIRIX case) — but CI2 admits works
+# "transferable to SE". Q2 = strong memory term IN TITLE and agent term anywhere;
+# screening decides transferability.
+# RAW filter mode: run with --raw (the whole line is the OpenAlex filter
+# expression; the script appends from_publication_date).
+title.search:("agent memory" OR "agentic memory" OR "memory system" OR "memory architecture" OR "memory-augmented" OR "long-term memory" OR "episodic memory" OR "semantic memory" OR "procedural memory" OR "memory bank" OR "memory consolidation" OR "memory management" OR "memory operating system"),title_and_abstract.search:("LLM agent" OR "AI agent" OR "language model agent" OR "coding agent" OR "software engineering agent" OR agentic OR "autonomous agent" OR "code agent" OR "software agent" OR "multi-agent" OR "LLM-based")

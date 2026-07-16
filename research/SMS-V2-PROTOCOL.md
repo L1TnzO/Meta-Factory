@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | Documento | Protocolo de búsqueda y preparación de corpus para la 2ª iteración del mapeo sistemático (SMS v2) |
-| Estado | **Borrador pre-corpus** — cadena y fuentes listas para ejecutar; cribado/extracción se definen DESPUÉS de tener el corpus |
+| Estado | **v2.2 — búsqueda completa, corpus cerrado; cadena auditada término-a-término; autoridad del v1 removida** (cribado/extracción = siguiente fase) |
 | Relación | Sucede al SMS v1 (`sms.tex`, ICC760, corpus 27 papers, búsqueda 2026-05-12) |
 | Ancla | **Núcleo Meta-Factory** (memoria de proyecto en agentes SE de larga vida) + debugging/APR como subcaso |
 | Fecha | 2026-07-15T17:47Z |
@@ -41,6 +41,9 @@ Necesidades de Meta-Factory que el mapeo debe cubrir (de `docs/reference/MEMORY-
 - **Tres tiers** — hechos deterministas / narrativa tipada / índice derivado: ¿aparece esa separación (docs=verdad, índice=caché) en la literatura y en la práctica de los labs?
 - **Fidelidad y anti-drift** — staleness, procedencia, verificación de memoria (gates), memoria envenenada/contaminada.
 - **Economía de contexto** — costo de memoria en tokens/caché/latencia; compaction; qué se mide y cómo.
+- **Fuente única por hecho / costuras multi-almacén** (§8.2 MEMORY-ARCH): el mismo hecho viajando por dos docs/almacenes diverge; ¿cómo gobierna la literatura la duplicación entre memorias (docs ↔ note-store ↔ resumen)?
+- **Conocimiento negativo y re-derivación sobre recuerdo** (§7 MEMORY-ARCH): «descartado: qué y POR QUÉ NO» como la memoria de mayor valor; staleness curado re-verificando, no recordando mejor.
+- **Consolidación/promoción** (§8.3 MEMORY-ARCH): gotchas transitorios que deberían ascender a recetas durables — el ciclo de vida de la lección aprendida.
 
 ## 3. Preguntas de investigación v2
 
@@ -114,6 +117,22 @@ El control de sanidad demostró que A∧B∧C excluye **por diseño** los sistem
 - A-fuerte (13): "agent memory", "agentic memory", "memory system", "memory architecture", "memory-augmented", "long-term memory", "episodic memory", "semantic memory", "procedural memory", "memory bank", "memory consolidation", "memory management", "memory operating system".
 - B: el mismo bloque B core (v2.1).
 - Consultas listas: `harvest/queries/{openalex,arxiv,lens}_general.txt` (OpenAlex vía `--raw`: combina `title.search` + `title_and_abstract.search`); integradas en `harvest_all.sh` y en el dedup.
+
+### 4.5 Auditoría v2.2 — cada término se gana su lugar con datos (2026-07-15)
+
+Mandato: el v1 no tiene autoridad; todo término heredado debe demostrar contribución. Método: sobre los 1.069 títulos+abstracts del corpus final se midió, por término, hits y **contribución única** (registros que ningún otro término de su bloque alcanza). Aproximación por subcadena (el stemming de OpenAlex difiere en el margen); los buckets sin término se explican por Q2-título, keywords de Lens y stemming (A:49 · B:331 · C:810 ≈ rama Q2, consistente).
+
+- **Retenidos por medición** (top contribución única): A: "memory management" 56 · "agent memory" 55 · "memory system" 54 · "memory-augmented" 52 · "episodic memory" 50 — nótese que los términos v2-nuevos dominan, validando la crítica §4.1; TODOS los términos v1 de A retienen contribución ≥3 salvo los experienciales de cola. B: agentic 103 · "ai agent" 102 · "llm agent" 90 · "multi-agent" 90 · "LLM-based" 71 (v2.1). C: "software engineering" 61 · "code generation" 56 · "software development" 37 · debugging 28.
+- **Drops demostrados (v2.2)**: `"software testing"` (0 hits en corpus — recall nulo) y `"bug fixing"` (0 contribución única; cubierto por debugging/"program repair"). **Prueba de equivalencia**: como su contribución única es 0, el corpus v2.2 ≡ corpus v2.1 — el drop no requiere re-cosecha.
+- Cola de baja contribución retenida a costo cero (documentada): "experience bank" (0 única, 3 hits — solapa con "experience-driven"), "experience reuse" (1), "external memory"/"memory bank" (3). Se retienen porque no añaden ruido medible y protegen recall futuro; re-auditar en la próxima iteración.
+
+### 4.6 Gold set — el estándar de sanidad sin la autoridad del v1 (v2.2)
+
+El chequeo «¿reaparecen los 27 del v1?» heredaba la autoridad del v1. Se reemplaza por un **gold set de 12 obras validadas por la comunidad** (criterio: adopción/citación masiva + mapeo directo a una necesidad MF; ver lista con arXiv id y necesidad en `harvest/sanity_check_gold.py`): MemGPT, Voyager, Reflexion, ExpeL, Generative Agents, MemoryBank, HippoRAG, A-Mem, Mem0, Agent Workflow Memory, Titans, Sleep-time compute.
+
+**Medición sobre el corpus final:** 3/12 presentes como papers (MemoryBank, A-Mem, Mem0) · **7/12 citados en abstracts del corpus** (MemGPT 14 menciones · Reflexion 5 · HippoRAG 3 · AWM/Titans 2…) → snowball directo · 2/12 sin mención (Voyager, Generative Agents) → entran solo como semillas manuales, que es su rol por §7.3; si ese bucket crece entre runs, la cadena está derivando del campo. Lectura estructural: la capa fundacional 2023–24 no es alcanzable por la cadena **por diseño** (no son SE → sin bloque C; no titulan "memory" → sin rama Q2; p. ej. «MemGPT: Towards LLMs as Operating Systems»), pero el **snowballing hacia atrás desde los incluidos v2 la alcanza garantizado por citación** — demostrado por las menciones. Decisión: los fundacionales entran por snowballing (§7.3), NO inflando la cadena con términos no-memoria (ruido). El gold set queda como chequeo permanente del runner (`sanity_check_gold.py`; el solape v1 se reporta solo como dato informativo).
+
+**Cobertura por necesidad MF (medida en corpus):** retrieval medido ✓ ("memory retrieval" 32, "retrieval accuracy" 9, scoring — Generative Agents vía snowball), olvido/consolidación ✓ (forgetting 56, decay 4, compaction 7, checkpoint 13), seguridad ✓ ("memory poisoning" 11, "prompt injection" 6), staleness ✓ (8). **Economía de contexto: presente pero delgada** ("context compression" 5, "context rot" 2, "kv cache" 10, "prompt caching" 1) — decisión de alcance: la literatura de serving/compresión de contexto es un mapeo DISTINTO; RQ5 se responde con los costos que reportan los papers de memoria, y el hueco queda declarado como limitación, no parchado con términos.
 
 ## 5. Fuentes v2 y consultas adaptadas
 
@@ -227,11 +246,12 @@ Resumible (re-ejecutar salta lo ya descargado); los exports de Lens se dejan cae
 
 Dedup (en `merge_dedup.py`): prioridad **DOI normalizado → arXiv id → título normalizado** (minúsculas, solo alfanumérico); ante duplicado se conserva el registro con más metadatos y se acumula `sources`.
 
-### 7.3 Snowballing (tras el cribado, no antes)
+### 7.3 Snowballing (tras el cribado, no antes) — v2.2: sin autoridad del v1
 
-- Semillas: el corpus final v1 (27 papers — exportar de `references.bib` del v1 a `corpus/seeds/v1-corpus.csv`) + los incluidos del cribado v2.
-- Backward: `referenced_works` ya viene en la cosecha OpenAlex.
-- Forward: `https://api.openalex.org/works?filter=cites:W<id>` por semilla.
+- **Semillas = el conjunto INCLUIDO del cribado v2** (única fuente de autoridad) + el gold set §4.6 (autoridad = validación de la comunidad, citable e independiente del v1).
+- **El corpus v1 queda degradado a CANDIDATOS**: exportar `references.bib` del v1 a `corpus/seeds/v1-candidates.csv`; sus 27 papers pasan por los MISMOS CI/CE que cualquier registro — si fallan el cribado, fuera. Los 6 no indexados en ningún agregador (ContextWeaver, Springdrift, SMITH, Mem2Evolve, LMEB, Dual-Cluster) entran solo como candidatos manuales por esta vía.
+- Backward: `referenced_works` ya viene en la cosecha OpenAlex — garantiza alcanzar la capa fundacional 2023–24 (evidencia §4.6: 12/12 del gold set citados en abstracts del corpus).
+- Forward: `https://api.openalex.org/works?filter=cites:W<id>` por semilla incluida.
 - Una sola ronda, documentando cuántos entran por esta vía (estándar en mapeos).
 
 ### 7.4 Alimentar el prototipo (el destino real del corpus)
@@ -256,5 +276,6 @@ Criterios CI/CE definitivos, formulario de extracción, esquema de clasificació
 - **Sanidad run 2: 14/20 → decisión: cadena v2.1 CONGELADA.** Los 6 restantes (ContextWeaver, Springdrift, SMITH, Mem2Evolve, LMEB, Dual-Cluster) tienen cero rastro incluso con búsqueda laxa por subcadena en título+abstract del corpus → hueco de FUENTE (origen S2/IEEE del v1 o preprints 2026 sin indexar), no de vocabulario; ningún término adicional los alcanzaría en OpenAlex/arXiv. Cobertura garantizada vía semillas §7.3. Volumen 1.063 < 1.500 ✓ (sin palanca de precisión).
 - **Run 3 (2026-07-15) — BÚSQUEDA COMPLETA, CORPUS CERRADO.** Seis entradas: OpenAlex 453+1.291 · arXiv 191+337 · Lens 321+948 (=3.541 filas) → **1.069 únicos**, **917 en ≥2 fuentes (86%)** — validación cruzada fuerte de la cadena entre tres agregadores independientes. PDFs sobre el corpus final: **598 en disco (55%, 2,9 GB)**; el resto: 271 landings no-PDF, 98 HTTP bloqueados (editoriales), 91 sin OA (CE3), 11 transitorios — recuperación manual solo para los que pasen el cribado. (`corpus/pdf/` guarda además ~330 PDFs huérfanos de claves de runs previos; re-derivables e inocuos.) Incidente del run intermedio (429 truncó `openalex_general.jsonl`) corregido con escritura atómica en los cosechadores.
 - **Sanidad final: 14/20, estable en las tres fuentes → hueco de FUENTE confirmado** (ContextWeaver, Springdrift, SMITH, Mem2Evolve, LMEB, Dual-Cluster no existen en OpenAlex/arXiv/Lens: origen S2/IEEE del v1 o preprints sin indexar). Entran vía semillas §7.3. **Cadena v2.1 CONGELADA.**
-- **Siguiente fase:** cribado título/abstract sobre los 1.069 (§7.5, CI/CE definitivos contra corpus real) · snowballing con semillas v1 (§7.3) · digestión tipada al prototipo (§7.4) · cosecha gris (§6).
+- **v2.2 (2026-07-15) — auditoría anti-autoridad-v1 (mandato de la ingeniera):** (1) cadena auditada término-a-término con datos del corpus (§4.5): 2 drops demostrados con prueba de equivalencia (sin re-cosecha), el resto retenido por contribución única medida — la herencia v1 ya no es supuesta sino demostrada; (2) el chequeo de sanidad v1 reemplazado por **gold set** de 12 obras comunidad-validadas mapeadas a necesidades MF (§4.6): 4/12 en corpus + 12/12 alcanzables por snowballing (citación demostrada); (3) snowballing re-anclado en los incluidos v2, v1 degradado a candidatos (§7.3); (4) necesidades MF re-derivadas del repo completo (§2: + costuras/fuente-única, conocimiento negativo, promoción de gotchas); (5) alcance de economía-de-contexto declarado como limitación medida, no parchado. Runner ahora corre `sanity_check_gold.py` (v1 = línea informativa).
+- **Siguiente fase:** cribado título/abstract sobre los 1.069 (§7.5, CI/CE definitivos contra corpus real) · snowballing desde incluidos + gold set (§7.3) · digestión tipada al prototipo (§7.4) · cosecha gris (§6).
 

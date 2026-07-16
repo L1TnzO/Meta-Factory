@@ -41,6 +41,6 @@ python3 merge_dedup.py --out-dir ../corpus/merged \
 python3 download_pdfs.py --corpus ../corpus/merged/corpus.jsonl \
     --out-dir ../corpus/pdf --manifest ../corpus/pdf_manifest.csv
 
-python3 sanity_check_v1.py --corpus ../corpus/merged/corpus.jsonl
+python3 sanity_check_gold.py --corpus ../corpus/merged/corpus.jsonl --also-v1
 
 echo "[harvest_all] done. Corpus in research/corpus/ (PDFs are gitignored; metadata + manifest are committed)."

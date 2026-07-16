@@ -155,3 +155,32 @@ Con P1+P3 aplicadas retroactivamente a esta muestra: **18 INCLUIR · 0 GRIS · 1
 | 50 | W7154116279 | Survey memory+self-iteration | — | — | CE3-SECUNDARIO |
 
 (FID=FIDELIDAD · RETR=RETRIEVAL-MEDIDO · CONS=CONSOLIDACION · PROC=PROCEDIMENTAL · MULTI=MULTIAGENTE · NEG=NEGATIVO · DOCS=DOCS-VERSIONADO · SEG=SEGURIDAD · ★=prioridad de digestión)
+
+## 9. Trazabilidad: las preguntas núcleo de la ingeniera ↔ el aparato del SMS (añadido 2026-07-16T15:20Z)
+
+Mandato del turno (vinculante): el SMS debe responder desde la LITERATURA los problemas reales del
+sistema — lo medianamente implementado en MF son hipótesis de diseño («por vibras») que la evidencia
+externa debe confirmar, corregir o falsear. Verificación de que el aparato las captura ANTES de
+congelar rúbrica y formulario:
+
+| Pregunta de la ingeniera | Dónde la responde el SMS | Estado | Señal ya vista en la muestra (n=50, 4.7% del corpus) |
+| --- | --- | --- | --- |
+| Q1 · Memoria masiva en repos de larga vida: acceder a TODO lo necesario y SOLO lo necesario; organización + estrategia de retrieval (el trilema leer-y-gastar / no-leer-y-perder / leer-todo-inútil) | RQ1 (representación/tiers) + RQ3 (retrieval dirigido) + RQ5 (costo); necesidades §2: tiers, G-M2, economía de contexto | **CUBIERTA** | [21] docs-fuente-de-verdad + índices derivados deterministas · [15] −90% tokens con memoria · [46] memoria como palanca de costo (8B+mem ≈ 235B) · [03] advertencia: memoria ingenua DEGRADA (el campo ya falseó una «vibra») |
+| Q2 · ¿Cómo se MIDE retrieval/recall en el harness (Claude Code) para evaluarlo y mejorarlo en el tiempo? | RQ3 («quién mide qué se lee y con qué utilidad»), G-M2; gris tier-1 (context management ablations) | **CUBIERTA** | [35] usabilidad de la evidencia bajo crecimiento de material irrelevante + presupuesto de llamadas (budget-compliant reliability) · [48] M-Fail (calidad del lado write) · [12] retrieval medido por componente |
+| Q3 · Handoff: ¿pasar archivos/lecturas exactas al siguiente agente? ¿punteros vs contenido? ¿sesgo del panorama pequeño de la sesión saliente? | RQ4 (persistencia cross-sesión, fidelidad/procedencia); gris tier-1 «effective harnesses» (sesión inicializadora, progress log, recuperación vía git) | **PARCIAL** → P11 | el formulario §7.6 hoy NO pregunta explícito por traspaso/rehidratación: sin P11 esa evidencia se perdería en la extracción |
+| Q4 · Columna vertebral del plan: descomposiciones dinámicas (fase→paso→subpaso) cuyo cierre debe verificarse antes de avanzar; el subpaso que un handoff se salta se pierde para siempre | HOY EN NINGUNA PARTE: §2 no tiene esta necesidad (se derivó de MEMORY-ARCH/ADR-019, que no la nombran); las facetas no la ven; roza RQ2 (trigger=checkpoint), RQ4 (alcance tarea/sesión/proyecto) y RQ6 (fallos) sin nombrarla | **HUECO DE ANCLA** → P12/P13 | ninguna directa en los 50; [40] LSS (Evolution Engineering) roza la gobernanza de artefactos dinámicos y quedó fuera por E=0 — indicio de que el campo aquí es DELGADO |
+
+Propuestas adicionales (misma mecánica que P1–P10; **cero re-cosecha** — corpus cerrado y cadena
+congelada no se tocan, esto es lente de cribado/extracción/ancla):
+
+| # | Propuesta | Efecto |
+| --- | --- | --- |
+| P11 | Formulario §7.6 += dos campos: `handoff/rehidratación` (¿el mecanismo define traspaso entre sesiones/agentes? ¿qué viaja: punteros/contenido/contrato?) y `estado-de-plan como contenido de memoria` (sí/no) | la extracción captura Q3/Q4 donde el corpus tenga algo; el contraste académico↔gris (RQ7) queda medible |
+| P12 | Pasada completa: anotar en `notes` todo paper que toque plan/progress-state o traspaso; si la frecuencia lo justifica (~≥5 confirmados), promover faceta `PLAN-ESTADO` (patrón vocabulario cerrado: constante + anotación en §7.5) | el hueco se mide en vez de suponerse |
+| P13 | **(decisión de ancla — solo la ingeniera)** §2 += necesidad: «estado del plan de trabajo como memoria de primera clase: descomposiciones dinámicas con cierre VERIFICABLE (ningún nodo avanza con hijos abiertos); traspaso entre sesiones sin pérdida» — mapeada a RQ2 (trigger determinista al descomponer), RQ4 (persistencia) y RQ6 (modo de fallo: omisión post-handoff) | Q4 entra al mapeo con nombre propio; si la pasada completa confirma silencio del campo, el vacío se DECLARA como hallazgo (mismo tratamiento que economía-de-contexto §4.6) y la evolución ahí será medición propia, no literatura |
+
+Lectura honesta de Q4: es la más valiosa y la más probablemente VACÍA en la literatura académica —
+la gris tier-1 (Anthropic, effective harnesses: progress log + initializer session) es hoy la única
+fuente que la trata de frente, lo que la convierte en candidata a divergencia práctica↔academia
+para RQ7. Un mapa de vacíos que muestre «el problema que más duele en operación no tiene literatura»
+es un resultado central del SMS, no un fracaso de la búsqueda.

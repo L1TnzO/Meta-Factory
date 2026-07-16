@@ -46,8 +46,9 @@ FACETS = {
     "COSTO", "MULTIAGENTE", "SEGURIDAD", "NEGATIVO", "PROCEDIMENTAL",
 }
 VERDICT_FIELDS = ["key", "M", "T", "E", "F", "se", "selfpub", "artefacto", "decision", "notes"]
-FEWSHOT_KEYS = [  # handoff §2 — suggested calibration examples
+FEWSHOT_KEYS = [  # handoff §2 suggestions + the measured preflight miss (M=1 trap, 2026-07-16)
     "W4416611586", "W7129523991", "W7156942111", "W7117411283", "W4415524435",
+    "2606.26721v1",
 ]
 
 
@@ -173,6 +174,41 @@ def cmd_slice(stratum: str) -> None:
         print(f"{path.relative_to(ROOT)}: {len(pending)} records")
 
 
+def cmd_rescue(stratum: str) -> None:
+    """Slice EXCLUIR-CE1 rows of a stratum for the adversarial second pass (M=1 trap).
+
+    Rationale (preflight 2026-07-16): the one dangerous miss was a frozen-INCLUIR scored
+    M=0 because the mechanism never calls itself 'memory'. A silent false-exclude is the
+    only failure the human lanes cannot see; this lane makes it require TWO independent
+    same-direction errors. Only CE1 rows outside PRE-OUT (triage-vs-model disagreement).
+    """
+    rows, _ = read_sheet()
+    corpus = read_corpus()
+    members = sorted(
+        (r for r in rows if r["decision"] == "EXCLUIR-CE1" and r["triage"] == stratum),
+        key=lambda r: r["key"],
+    )
+    outdir = BATCHES / f"RESCUE-{stratum}"
+    outdir.mkdir(parents=True, exist_ok=True)
+    for i in range(0, len(members), CHUNK_SIZE):
+        chunk = members[i:i + CHUNK_SIZE]
+        path = outdir / f"c{i // CHUNK_SIZE:02d}.input.jsonl"
+        with path.open("w") as fh:
+            for r in chunk:
+                rec = corpus.get(r["key"], {})
+                fh.write(json.dumps({
+                    "key": r["key"], "title": r["title"],
+                    "abstract": rec.get("abstract") or "",
+                    "year": r["year"], "venue": r["venue"], "sources": r["sources"],
+                    "has_pdf": r["has_pdf"],
+                    "pdf": f"corpus/pdf/{r['key']}.pdf" if r["has_pdf"] == "1" else "",
+                    "first_pass_note": r["notes"],
+                }, ensure_ascii=False) + "\n")
+        print(f"{path.relative_to(ROOT)}: {len(chunk)} records")
+    if not members:
+        print(f"RESCUE-{stratum}: no EXCLUIR-CE1 rows — lane empty")
+
+
 def load_verdicts(paths: list[str]) -> list[dict]:
     out = []
     for p in paths:
@@ -183,7 +219,7 @@ def load_verdicts(paths: list[str]) -> list[dict]:
     return out
 
 
-def cmd_merge(paths: list[str]) -> int:
+def cmd_merge(paths: list[str], rescue: bool = False) -> int:
     rows, fieldnames = read_sheet()
     by_key = {r["key"]: r for r in rows}
     verdicts = load_verdicts(paths)
@@ -196,6 +232,28 @@ def cmd_merge(paths: list[str]) -> int:
         if target is None:
             errors.append(f"{key}: unknown key (not in sheet)")
             rejected += 1
+            continue
+        if rescue:
+            # Sole allowed transition: EXCLUIR-CE1 → GRIS (the border is ALWAYS human).
+            if target["decision"] != "EXCLUIR-CE1":
+                skipped += 1
+                continue
+            if v.get("decision") == "EXCLUIR-CE1":
+                skipped += 1  # confirmed exclude — first pass stands untouched
+                continue
+            if v.get("decision") != "GRIS":
+                errors.append(f"{key}: rescue may only flip CE1→GRIS (got {v.get('decision')})")
+                rejected += 1
+                continue
+            if not validate_row(v, errors):
+                rejected += 1
+                continue
+            for col in ("M", "T", "E", "F"):
+                target[col] = (v.get(col) or "").strip()
+            target["decision"] = "GRIS"
+            target["notes"] = f"[rescate-CE1] {v.get('notes', '').strip()} | 1ª pasada: {target['notes']}"
+            dist["CE1→GRIS"] += 1
+            applied += 1
             continue
         if target["decision"]:
             skipped += 1  # idempotent re-merge
@@ -305,10 +363,8 @@ def cmd_status() -> None:
     pending = Counter(r["triage"] for r in rows if not r["decision"])
     print(f"pending: {sum(pending.values())}/1069  by stratum: {dict(pending)}")
     print(f"decided distribution: {dict(Counter(r['decision'] for r in rows if r['decision']))}")
-    for stratum in STRATA + ("PREFLIGHT",):
-        d = BATCHES / stratum
-        if not d.is_dir():
-            continue
+    for d in sorted(p for p in BATCHES.iterdir() if p.is_dir()):
+        stratum = d.name
         inputs = sorted(d.glob("c*.input.jsonl"))
         verdicts = sorted(d.glob("c*.verdict.csv"))
         print(f"{stratum}: {len(inputs)} input chunk(s) pending, {len(verdicts)} verdict file(s) on disk")
@@ -379,6 +435,11 @@ Escribe `c<NN>.verdict.csv` JUNTO al input (mismo directorio), con el módulo cs
    compresión de ventana intra-tarea de un solo agente → M=0 (P1).
 7. Demos, tests de humo o «validación» por ejemplos NO puntúan E.
 8. DUDA que el abstract (y ≤3 págs de PDF si existe) no resuelve → GRIS con la duda en notes.
+9. **Trampa MEDIDA en el pre-flight (no la repitas)**: M=1 SÍ aplica cuando el sistema
+   admite/gobierna/destila conocimiento PERSISTENTE del proyecto (admisión con gate, PRs de
+   conocimiento, destilación a artefactos del repo) aunque el paper jamás use la palabra
+   «memoria» (ancla 2606.26721v1). Antes de puntuar M=0 pregúntate: ¿algo persiste
+   cross-tarea/sesión o cross-agente en artefactos del proyecto?
 
 ## Rúbrica congelada (§7.5 — autoridad única)
 
@@ -409,7 +470,11 @@ def main() -> int:
         cmd_prompt()
     elif cmd == "slice":
         cmd_slice(args[0])
+    elif cmd == "rescue":
+        cmd_rescue(args[0])
     elif cmd == "merge":
+        if args and args[0] == "--rescue":
+            return cmd_merge(args[1:], rescue=True)
         return cmd_merge(args)
     elif cmd == "compare":
         return cmd_compare(args)

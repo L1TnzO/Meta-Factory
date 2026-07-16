@@ -40,6 +40,11 @@ Escribe `c<NN>.verdict.csv` JUNTO al input (mismo directorio), con el módulo cs
    compresión de ventana intra-tarea de un solo agente → M=0 (P1).
 7. Demos, tests de humo o «validación» por ejemplos NO puntúan E.
 8. DUDA que el abstract (y ≤3 págs de PDF si existe) no resuelve → GRIS con la duda en notes.
+9. **Trampa MEDIDA en el pre-flight (no la repitas)**: M=1 SÍ aplica cuando el sistema
+   admite/gobierna/destila conocimiento PERSISTENTE del proyecto (admisión con gate, PRs de
+   conocimiento, destilación a artefactos del repo) aunque el paper jamás use la palabra
+   «memoria» (ancla 2606.26721v1). Antes de puntuar M=0 pregúntate: ¿algo persiste
+   cross-tarea/sesión o cross-agente en artefactos del proyecto?
 
 ## Rúbrica congelada (§7.5 — autoridad única)
 
@@ -102,6 +107,13 @@ Escribe `c<NN>.verdict.csv` JUNTO al input (mismo directorio), con el módulo cs
 - abstract: The ability to communicate past experiences is fundamental for intelligent and natural interaction. Humanoid robots continuously accumulate rich, multi-modal experiential data and must be able to articulate their episodic experiences in natural language to support effective human-robot communication. Existing approaches either rely on the generalization capabilities of large language models (LLMs), sometimes combined with episodic memory, or the precision of rule-based verbalization systems, each presenting limitations when used in isolation. In this work, we present a novel hybrid framework that integrates the adaptability of LLMs with the robustness of rule-based methods and the generalizable structure of memory-based approaches. Our system implements strategies to retrieve and transform memory representations of past perceptions and actions into natural language responses. This enables humanoid robots to respond to natural language queries about their experience. Experimental evaluation based on a set of distinct query types demonstrates that our approach successfully answers 89.4 % of episodic memory questions with human-in-the-loop refinement, while reducing token consumption by 97 % compared to pure LLM-based methods. Furthermore, we demonstrate the system's extensibility by leveraging LLMs, such as GPT-4.1, to expand the range of permissible queries through example-based interaction. The evaluation on our humanoid robot Armar-7 performing household tasks validates that our hybrid approach balances response quality with computational efficiency to address the crucial 
 - **VEREDICTO CONGELADO** → M=3 T=0 E=1 F=— decision=EXCLUIR-CE2
 - nota: Verbalizacion de memoria episodica en humanoide (ARMAR-7): mecanismo descrito y medido (89.4%, -97% tokens) pero acoplado a robotica encarnada (T=0). Muestra que CE-2==T=0 funciona.
+
+### Ejemplo resuelto: 2606.26721v1
+- title: Knowledge-Based Pull Requests: A Trusted Workflow for Agent-Mediated Knowledge Collaboration
+- venue: arXiv · sources: arxiv · year: 2026
+- abstract: AI coding agents are changing the bottleneck in software collaboration: code is increasingly cheap, while understanding intent, negotiating scope, and governing long-term project responsibility remain costly. This paper proposes \emph{Knowledge-Based Pull Requests} (KPR), a trusted workflow for agent-mediated software collaboration across trust boundaries, including open source, enterprise, vendor, contractor, and customer-driven settings. In KPR, an external collaborator's local code, tests, and cleaned agent interaction trace are treated as knowledge sources rather than as the default merge candidate. Agents distill these sources into a human-confirmed knowledge package and render it into reviewer-facing forms such as design memos, risk checklists, test plans, or implementation briefs. A project-owned inner trusted coding agent then regenerates candidate code inside the receiving project's environment under repository context, engineering conventions, tests, and security policy. KPR therefore separates two decisions that traditional pull requests often collapse: whether the knowledge should enter the project, and whether a particular implementation should be merged. We contribute the KPR workflow, a candidate artifact schema, a cost-accounting view, a collaboration gateway architecture, a minimal controlled simulation pilot over seven merged public pull requests, and an evaluation agenda. The pilot shows that KPR packages can be instantiated from real PR material and stress-tested under description ablation, diff ablation, and synthetic poisoned-patch conditions. We posit
+- **VEREDICTO CONGELADO** → M=1 T=2 E=1 F=WRITE;FIDELIDAD;SEGURIDAD;MULTIAGENTE decision=INCLUIR
+- nota: Admision de conocimiento al proyecto con gate humano + regeneracion confiable; stress con parches envenenados. E debil (piloto n=7). Caso-tipo del borde M1+T2+E1=4 (legitimo).
 
 ## Disciplina de proceso
 - Procesa los chunks EN ORDEN; escribe cada verdict ANTES de abrir el siguiente input

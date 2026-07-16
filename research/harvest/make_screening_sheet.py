@@ -58,7 +58,13 @@ DIVERGENT_TERMS = [  # domain-application flags; conservative on purpose
     "eeg", "fmri", "neuroimaging", "recommendation system", "recommender",
     "e-commerce", "advertising", "wireless", "smart grid", "battery",
     "protein", "molecule", "stock market", "trading strategy",
+    # P7 (calibration 2026-07-16): reached GRIS/PRE-IN while being clear PRE-OUTs
+    "embodied", "humanoid", "egocentric",
 ]
+# WARNING (calibration 2026-07-16): re-running this script REGENERATES both
+# sheets with EMPTY decision columns. Once screening decisions exist in
+# corpus/screening/*.csv, do NOT re-run over them — the P7 terms above only
+# apply to future regenerations/reproducibility.
 
 # MF facets (protocol §7.5): multi-label HINTS mapped to Meta-Factory needs.
 # They do not gate inclusion — they drive digestion PRIORITY (§7.4). The

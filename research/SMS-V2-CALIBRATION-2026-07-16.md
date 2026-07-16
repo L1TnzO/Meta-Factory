@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | Documento | Resultado de la calibración §7.5.2 del protocolo: los 50 de `calibration_sample_50_seed42.csv` cribados con la rúbrica v2.2 **tal como está escrita** |
-| Estado | **EJECUTADA 2026-07-16 (delegada por la ingeniera al agente)** — rúbrica NO congelada: las propuestas P1–P10 esperan decisión |
+| Estado | **CERRADA: P1–P13 ACEPTADAS por la ingeniera y rúbrica CONGELADA 2026-07-16 (protocolo v2.3 §7.5)** — ver §10 para la resolución final |
 | Insumo | Título + **abstract completo** de `corpus/merged/corpus.jsonl` (la hoja trae solo 400 chars); PDF consultado para 4 casos que el abstract no decidía (W7129523991, W7126001705, W7139147090, W7162218979); 1 intento de rescate SSRN (falló, bot-wall) |
 | Salidas | Hoja rellenada (M/T/E/F/decision/notes) · `corpus/artifacts.csv` creado (CE-5) · este informe |
 | Fecha | 2026-07-16T14:42Z |
@@ -184,3 +184,21 @@ la gris tier-1 (Anthropic, effective harnesses: progress log + initializer sessi
 fuente que la trata de frente, lo que la convierte en candidata a divergencia práctica↔academia
 para RQ7. Un mapa de vacíos que muestre «el problema que más duele en operación no tiene literatura»
 es un resultado central del SMS, no un fracaso de la búsqueda.
+
+## 10. Resolución (2026-07-16 — cierre del documento)
+
+La ingeniera ACEPTÓ P1–P13 («Sí, está ok», tras pasada final adversarial que corrigió los DOIs de
+`artifacts.csv` y verificó hoja+tablas celda a celda). Ejecutado en consecuencia:
+
+- **Protocolo → v2.3**: rúbrica §7.5 y formulario §7.6 CONGELADOS con P1–P13 aplicadas; §2 ganó la
+  necesidad de estado-de-plan (P13); `DIVERGENT_TERMS` += embodied/humanoid/egocentric (P7, solo
+  regeneraciones futuras); bitácora §8 actualizada.
+- **GRIS resueltos bajo la rúbrica congelada**: [23] HEEL → EXCLUIR-CE5 (registro no-estudio, P4) ·
+  [25] CogniGent → EXCLUIR-CE1 (M=0 por P1) · [13] SimpleMem → GRIS (P3: E=0 ∧ solo-Zenodo; segunda
+  opinión de la ingeniera pendiente — único GRIS vivo).
+- **Las 50 decisiones TRANSFERIDAS a `screening_full.csv`** → estado final de la calibración:
+  **18 INCLUIR · 10 CE-2 · 6 CE-1 · 6 CE-5 · 4 RUBRICA · 3 CE3 · 2 CE-4 · 1 GRIS**; quedan
+  **1.019 por decidir** en la pasada completa.
+- Siguiente sesión: `HANDOFF-2026-07-16-SMS-V2-CRIBADO.md` (la pasada completa). Las secciones
+  §1–§9 de este doc quedan como registro histórico pre-congelamiento; ante conflicto, la autoridad
+  es el protocolo v2.3.

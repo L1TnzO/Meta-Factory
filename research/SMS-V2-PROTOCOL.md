@@ -8,6 +8,7 @@
 | Ancla | **Núcleo Meta-Factory** (memoria de proyecto en agentes SE de larga vida) + debugging/APR como subcaso |
 | Fecha | 2026-07-15T17:47Z |
 | Decisiones de sesión | Fuentes: OpenAlex + Lens.org + arXiv nativo + literatura gris de labs · entregable en `research/` · tubería de cosecha incluida (`research/harvest/`) |
+| Handoff | `HANDOFF-2026-07-15-SMS-V2.md` — estado al detalle + camino adelante (si retomas con amnesia: ese doc primero) |
 
 > Qué es: el terreno preparado para cuando exista el corpus — cadena revisada, consultas adaptadas
 > por fuente, RQs precisas mapeadas a necesidades de Meta-Factory, estrategia de literatura gris y

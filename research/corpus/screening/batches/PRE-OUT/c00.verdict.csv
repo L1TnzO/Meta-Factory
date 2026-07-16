@@ -1,0 +1,24 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+2502.01521v4,0,0,1,,0,0,0,EXCLUIR-CE2,"RL para locomoción de robots cuadrúpedos/humanoides; memoria de política intra-episodio no persistente cross-tarea (P1); dominio robótica, no agentes SE."
+2505.07842v1,3,0,0,,0,0,0,EXCLUIR-CE2,"Arquitectura de memoria (RAN Cortex) para redes de acceso radio AI-native; solo casos de uso ilustrativos, sin evaluación empírica; dominio telecom no transferible a agentes SE."
+W4223477537,3,0,1,,0,0,0,EXCLUIR-CE2,"Modelo computacional de codificación/recuperación de memoria episódica humana (neurociencia cognitiva, eLife); dominio ajeno a agentes LLM/SE."
+W4225890119,0,0,1,,0,0,0,EXCLUIR-CE2,Estudio fMRI humano sobre agencia/perspectiva en reactivación de memoria episódica; no involucra sistema computacional ni agentes.
+W4280645261,0,0,1,,0,0,0,EXCLUIR-CE2,Estudio EEG humano sobre recuperación de memoria episódica en decisiones de valor (neuroeconomía); no relacionado con agentes.
+W4285731870,0,0,1,,0,0,0,EXCLUIR-CE2,"Farmacología del sueño (ML297) y consolidación de memoria en ratones; biomédico, sin relación a agentes."
+W4289546281,3,0,1,,0,0,0,EXCLUIR-CE2,"Red neuronal con memoria espaciotemporal (Cubic Map) para MADRL dron-humano en crowdsourcing espacial; dominio robótica/RL, no agentes SE."
+W4294294707,3,0,1,,0,0,0,EXCLUIR-CE2,"BioSLAM: memoria dual bio-inspirada para reconocimiento de lugares en SLAM robótico de larga duración; dominio robótica, no SE."
+W4309486522,,,,,0,0,0,EXCLUIR-CE4,Abstract vacío y sin PDF disponible (has_pdf=0); título (arquitectura cognitiva robótica de simulación) no referencia memoria/LLM/agentes SE — no pertinente.
+W4311282554,0,0,1,,0,0,0,EXCLUIR-CE2,"Duplicado temático de consolidación de memoria por sueño en ratones (ML297); biomédico, no agentes."
+W4318902600,3,0,1,,0,0,0,EXCLUIR-CE2,"Sistema de memoria para arquitectura cognitiva robótica (ArmarX/ARMAR); evaluado en velocidad/compresión/predicción; dominio robótica, no SE."
+W4365131747,3,0,0,,0,0,0,EXCLUIR-CE2,"Espacio de trabajo global + memoria episódica en robot cognitivo; solo demostración interactiva, no benchmark riguroso (regla 7, no puntúa E); dominio robótica/consciencia, no SE."
+W4386991181,3,1,0,,0,0,0,GRIS,"Mecanismo de memoria bionica corto/largo plazo (PEFT) para personalización de asistente médico LLM; DUDA real: ¿aporte central es memoria (M3) o personalización (M1)?, transferibilidad del mecanismo fuera del dominio médico incierta (T), sin evidencia empírica descrita en el abstract (E0) — no resuelto, regla 8."
+W4387362484,0,0,1,,0,0,0,EXCLUIR-CE2,"Disfunción mitocondrial y consolidación de memoria por alprazolam en ratones; biomédico, no agentes."
+W4387929788,3,0,1,,0,0,0,EXCLUIR-CE2,"HELPER: agente robótico embebido con memoria externa de pares lenguaje-programa vía LLM, expandida durante el despliegue; evaluado en TEACh; dominio robótica encarnada, no SE (cf. ancla ARMAR-7)."
+W4390201357,0,0,1,,0,0,0,EXCLUIR-CE2,Litio y neuroinflamación/memoria a largo plazo en modelo animal de síndrome de Down; biomédico.
+W4390790895,0,0,1,,0,0,0,EXCLUIR-CE2,Melatonina/AMK y consolidación de memoria vía CaMKII/CREB en hipocampo de ratón; biomédico.
+W4394306538,0,0,1,,0,1,0,EXCLUIR-CE2,"Valeriana en periodo postparto y memoria a largo plazo en crías de rata; biomédico, depósito Figshare."
+W4396682566,0,0,1,,0,0,0,EXCLUIR-CE2,Modelo murino de memoria de largo plazo altamente estable (TEPT); biomédico.
+W4398191899,3,0,1,,0,0,0,EXCLUIR-CE2,"Exploración robótica guiada por memoria episódica visual (autoencoder intra-tarea), no persistente cross-tarea (P1); dominio robótica, no SE."
+W4399656987,,,,,0,0,0,CE3-SECUNDARIO,"Revisión de literatura sobre exposición prenatal a nicotina y memoria; secundario (regla 4), no se puntúa."
+W4403796099,3,0,1,,0,0,0,EXCLUIR-CE2,"Verbalización jerárquica de memoria episódica de robot con agente LLM de búsqueda, escalable a meses de experiencia; dominio robótica encarnada, no SE (cf. ancla ARMAR-7)."
+W4403796455,3,0,1,,0,0,0,EXCLUIR-CE2,"KARMA: memoria largo/corto plazo (grafos de escena 3D) para planificación de agentes robóticos domésticos embebidos vía LLM; dominio robótica encarnada, no SE."

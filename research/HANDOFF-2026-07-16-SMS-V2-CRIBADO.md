@@ -45,6 +45,26 @@ están transferidas a `corpus/screening/screening_full.csv` → LA TAREA DE ESTA
 - Registrar por lote en la bitácora: nº decididos, distribución, GRIS acumulados (da denominadores
   y hace auditable la delegación).
 
+## 2b. Arnés de la pasada + receta de reanudación (2026-07-16, sesión de ejecución)
+
+La pasada corre con `harvest/screening_pass.py` (gate determinista: re-computa la aritmética
+congelada, vocabularios cerrados, merge idempotente) + `corpus/screening/batches/PROMPT.md`
+(contrato de delegación CONGELADO: rúbrica §7.5 verbatim + 5 few-shot + arXiv≠selfpub).
+**La hoja committeada ES el estado** — si la sesión se corta (límite 5 h), NADA se pierde:
+
+1. `python3 harvest/screening_pass.py status` → cuántos pendientes y qué chunks tienen
+   input sin verdict (un spawn cortado deja verdicts parciales en disco: se fusionan igual).
+2. `merge` sobre cualquier `*.verdict.csv` suelto (idempotente: filas ya decididas se saltan;
+   filas inválidas se rechazan con razón → lista de retry estructurada).
+3. Re-lanzar UN spawn `evaluator` (Sonnet) por tanda de ~4–5 chunks del estrato en curso, con
+   el prompt-plantilla de 5 líneas: «lee batches/PROMPT.md; procesa EN ORDEN c<NN>..c<MM> de
+   <ESTRATO>; escribe cada verdict antes del siguiente input; no leas nada más; reporta solo
+   conteos». Orden de estratos: PRE-OUT → PRE-IN → GRIS.
+4. Tras cada merge: commit de hoja+verdicts+colas (`cribado(SMS-V2): lote <estrato>-<rango>`)
+   + línea en bitácora §8. Las colas humanas (`corpus/screening/queues/`) se regeneran solas.
+5. GATE previo (ya en marcha la 1ª vez): `compare` sobre PREFLIGHT (los 50 congelados, a
+   ciegas) — acuerdo colapsado IN/OUT/HUMANO ≥90% o se escala modelo antes de tocar los 1.019.
+
 ## 3. El árbol de trabajo (columna vertebral — estado de TODOS los nodos)
 
 - [CERRADO] Búsqueda: cadena v2.1 congelada · corpus 1.069 · sanidad gold-set (runs 1–3).

@@ -60,10 +60,27 @@ DIVERGENT_TERMS = [  # domain-application flags; conservative on purpose
     "protein", "molecule", "stock market", "trading strategy",
 ]
 
+# MF facets (protocol §7.5): multi-label HINTS mapped to Meta-Factory needs.
+# They do not gate inclusion — they drive digestion PRIORITY (§7.4). The
+# reviewer confirms/corrects them in the F column.
+MF_FACETS = {
+    "WRITE": r"when to (write|store)|write polic|admission|what to (store|remember)",
+    "RETRIEVAL-MEDIDO": r"retrieval (accuracy|quality|utility)|abstention|hit rate",
+    "DOCS-VERSIONADO": r"\bgit\b|version control|versioned|markdown|file-based|filesystem|file system",
+    "FIDELIDAD": r"provenance|trust|verif|staleness|stale\b|outdated|audit",
+    "CONSOLIDACION": r"consolidat|forgett|decay|garbage collect|compaction|prun",
+    "COSTO": r"token (budget|cost|usage)|context budget|cost-aware|budget-aware|kv cache|prompt cach",
+    "MULTIAGENTE": r"shared memory|cross-agent|memory (sharing|exchange)|collaborative memor|multi-agent memor",
+    "SEGURIDAD": r"poison|inject|adversarial|secure|privacy",
+    "NEGATIVO": r"negative knowledge|failed (trajector|attempt|experience)|rejected approach|learn from failure",
+    "PROCEDIMENTAL": r"skill librar|procedural memor|workflow (memor|induction)|reusable (skill|workflow)",
+}
+MF_RX = {k: re.compile(v) for k, v in MF_FACETS.items()}
+
 FIELDS = [
     "key", "id", "doi", "arxiv_id", "year", "venue", "sources", "has_pdf",
-    "sig_mem_title", "sig_se", "sig_agent", "sig_divergent", "triage",
-    "M", "T", "E", "decision", "notes", "title", "abstract_400",
+    "sig_mem_title", "sig_se", "sig_agent", "sig_divergent", "sig_mf_facets", "triage",
+    "M", "T", "E", "F", "decision", "notes", "title", "abstract_400",
 ]
 
 
@@ -95,6 +112,7 @@ def main() -> int:
         sig_se = any_term(al, SE_TERMS)
         sig_agent = any_term(al, AGENT_TERMS)
         sig_div = any_term(al, DIVERGENT_TERMS)
+        sig_facets = ";".join(name for name, rx in MF_RX.items() if rx.search(al))
         if sig_div and not sig_se:
             triage = "PRE-OUT"
         elif sig_mem_t and (sig_se or sig_agent):
@@ -108,8 +126,8 @@ def main() -> int:
             "venue": rec.get("venue") or "", "sources": "|".join(rec.get("sources") or []),
             "has_pdf": "1" if key in pdf_ok else "0",
             "sig_mem_title": sig_mem_t, "sig_se": sig_se, "sig_agent": sig_agent,
-            "sig_divergent": sig_div, "triage": triage,
-            "M": "", "T": "", "E": "", "decision": "", "notes": "",
+            "sig_divergent": sig_div, "sig_mf_facets": sig_facets, "triage": triage,
+            "M": "", "T": "", "E": "", "F": "", "decision": "", "notes": "",
             "title": title, "abstract_400": re.sub(r"\s+", " ", abstract)[:400],
         })
 
@@ -136,8 +154,10 @@ def main() -> int:
     stats = {}
     for r in rows:
         stats[r["triage"]] = stats.get(r["triage"], 0) + 1
+    fstats = {name: sum(1 for r in rows if name in r["sig_mf_facets"]) for name in MF_FACETS}
     print(f"[screening] {len(rows)} registros -> {full}")
     print(f"[screening] triage: {stats}")
+    print(f"[screening] facetas MF (hints): {dict(sorted(fstats.items(), key=lambda x: x[1]))}")
     print(f"[screening] calibración: {len(sample)} -> {cal} "
           f"({min(half, len(with_se))} con señal SE, resto rama general)")
     return 0

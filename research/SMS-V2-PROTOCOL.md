@@ -258,9 +258,40 @@ Dedup (en `merge_dedup.py`): prioridad **DOI normalizado → arXiv id → títul
 
 Cada paper incluido produce un **digest tipado** (md o jsonl): `problema · mecanismo de memoria · operaciones (write/consolidate/retrieve/forget) · representación · evaluación y métricas · números clave · aplicabilidad a Meta-Factory (G-M1/G-M2/tiers/costo/riesgos) · cita`. Ese formato es directamente ingerible por la memoria del prototipo y es trabajo delegable por diseño: lectura masiva → `verifier`/Explore (Haiku) devuelve digest; el juicio caro solo revisa el residuo (patrón ADR-017 — nunca cargar los PDFs al hilo principal).
 
-### 7.5 Explícitamente pendiente (se define contra el corpus real)
+### 7.5 Cribado título/abstract (v2.2 — diseñado contra el corpus real)
 
-Criterios CI/CE definitivos, formulario de extracción, esquema de clasificación (partirá de la matriz v1: tipos × operaciones × representación × evaluación + dimensiones nuevas de RQ3/RQ4/RQ6), calibración de precisión (muestra aleatoria de 100 títulos antes de congelar la cadena), fecha de corte de búsqueda.
+**Criterios.** Cada herencia del v1 justificada o botada:
+
+| Criterio | Contenido | Relación con v1 |
+| --- | --- | --- |
+| CI-1 | Estudio primario (sistema, política, benchmark, dataset, medición) cuyo aporte incluye un **mecanismo** de memoria o gestión de contexto persistente para sistemas agénticos LLM | fusiona CI1+CI3 v1; «mecanismo» explícito excluye cajas negras |
+| CI-2 | **Aplicable a agentes de desarrollo de software de larga vida**: señal SE directa, O mecanismo general transferible (rama Q2) | reemplaza CI2 v1: la transferibilidad deja de ser juicio libre y se operacionaliza en T |
+| CI-3 | 2022+ · inglés | CE1 v1 conservado; 2022+ ya es alcance de cadena |
+| CE-1 | No describe mecanismo (aplicación que usa memoria como caja negra) | nuevo — consecuencia de CI-1 |
+| CE-2 | Dominio divergente sin mecanismo transferible (T=0) | hereda CE2 v1, ahora medible por rúbrica |
+| CE-3 | Secundarios (surveys) → NO se clasifican; se etiquetan aparte (vocabulario + snowball + related work) | CI3 v1 refinado |
+| CE-4 | Sin texto suficiente (ni abstract útil ni PDF/preprint accesible) | hereda CE3 v1, coherente con corpus OA |
+| — | **CE4 v1 (short papers) BOTADO**: era control de volumen del curso; el volumen v2 se maneja con rúbrica; un short paper de mecanismo puede ser valioso. Se registra `pages` si consta | drop justificado |
+
+**Rúbrica anclada (ejecutable por humano o por modelo):**
+- **M — mecanismo de memoria** · 3 = aporte central (describe write/retrieve/consolidate/forget o representación) · 1 = memoria no trivial pero aporte central es otro · 0 = ausente/solo ventana de contexto.
+- **T — transferibilidad a agentes SE de larga vida** · 2 = evaluado en tareas SE o en operación multi-sesión de proyecto · 1 = mecanismo general claramente transferible (agnóstico de dominio) · 0 = acoplado a dominio divergente.
+- **E — evidencia** · 1 = medición empírica/benchmark/ablation · 0 = solo propuesta.
+- **Decisión inicial (a calibrar):** INCLUIR si M+T+E ≥ 4 con M ≥ 1; para registros SIN señal SE (rama Q2) exigir M = 3. DUDA → zona gris, segunda opinión.
+
+**Proceso:**
+1. **Triage determinista** (`harvest/make_screening_sheet.py`, reglas como DATOS en el archivo, ejecutado 2026-07-15): PRE-IN 468 · GRIS 524 · PRE-OUT 77. El triage NO decide — ordena la revisión y da denominadores; todo PRE-OUT excluido se registra con su señal.
+2. **Calibración (bloqueante):** muestra estratificada n=50 (`corpus/screening/calibration_sample_50_seed42.csv`, 25 con señal SE + 25 rama general) se criba a mano con la rúbrica → medir ambigüedad y % de acuerdo si hay 2+ revisores → ajustar anclas/umbral → congelar rúbrica aquí.
+3. **Pasada completa:** humana, o **delegada estilo `evaluator`** (ADR-017/027 del propio repo: rúbrica-como-DATA, veredicto por lote, modelo barato) con verificación humana obligatoria de: muestra del 10%, TODA la zona gris del modelo, y todo PRE-OUT que el modelo quiera incluir. La decisión de borde siempre es humana.
+4. **Registro:** decisiones y notas viven en `screening_full.csv` committeado — la procedencia de cada exclusión es parte del corpus.
+
+### 7.6 Formulario de extracción (borrador — congelar tras la calibración)
+
+Para cada INCLUIDO, una fila (alimenta la digestión §7.4 y responde RQ1–RQ7): `tipos de memoria` (trabajo/episódica/semántica/procedimental/paramétrica/multimodal) · `representación` (docs-archivos/vector/grafo/parámetros/híbrida) [RQ1] · `operaciones` (write/admisión/consolidación/olvido/actualización) + `trigger` (discrecional-LLM/evento-determinista/checkpoint/presupuesto) [RQ2] · `retrieval` (grep-archivos/ranking/embeddings/grafo) + `¿mide lectura/utilidad?` [RQ3] · `alcance` (tarea/sesión/proyecto/organización) + `multi-agente` + `fidelidad/procedencia` [RQ4] · `benchmarks` + `métricas` (éxito/iteración/costo-tokens/latencia) [RQ5] · `fallos y mitigaciones` (staleness/poisoning/sobre-retención) [RQ6] · `aplicabilidad MF` (G-M1/G-M2/tiers/costuras/conocimiento-negativo/costo — etiqueta libre corta) · `cita + pdf`.
+
+### 7.5b Pendiente que sigue pendiente
+
+Umbral definitivo de la rúbrica (sale de la calibración §7.5.2) · fecha de corte formal de la búsqueda · `references.bib` del v1 exportado a `corpus/seeds/v1-candidates.csv` (candidatos sin autoridad) · cosecha gris §6 (snapshots manuales).
 
 ## 8. Residuales honestos
 

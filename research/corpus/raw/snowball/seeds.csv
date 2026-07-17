@@ -1,0 +1,435 @@
+seed_key,origin,openalex_id,arxiv_id,doi,title
+W4413434847,included,W4413434847,,10.1080/13658816.2025.2549460,GeoCogent: an LLM-based agent for geospatial code generation
+W4414920525,included,W4414920525,2507.23361,10.48550/arxiv.2507.23361,SWE-Exp: Experience-Driven Software Issue Resolution
+W4417326960,included,W4417326960,2510.21413,10.48550/arxiv.2510.21413,Context Engineering for AI Agents in Open-Source Software
+W7106861322,included,W7106861322,2511.20639,,Latent Collaboration in Multi-Agent Systems
+W4414942676,included,W4414942676,2507.10562,10.48550/arxiv.2507.10562,SAMEP: A Secure Protocol for Persistent Context Sharing Across AI Agents
+W4387356199,included,W4387356199,2310.02003,10.48550/arxiv.2310.02003,L2MAC: Large Language Model Automatic Computer for Extensive Code Generation
+W4416611586,included,W4416611586,2505.23422,10.48550/arxiv.2505.23422,From Knowledge to Noise: CTIM-Rover and the Pitfalls of Episodic Memory in Software Engineering Agents
+W7163595965,included,W7163595965,2606.00619,,MemPro: Agentic Memory Systems as Evolvable Programs
+W7123371227,included,W7123371227,2601.05777,,EET: Experience-Driven Early Termination for Cost-Efficient Software Engineering Agents
+W7162818693,included,W7162818693,2605.27955,,Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents
+W7166901533,included,W7166901533,2606.28434,,SWE-MeM: Learning Adaptive Memory Management for Long-Horizon Coding Agents
+2510.23010v2,included,,2510.23010v2,,TALM: Dynamic Tree-Structured Multi-Agent Framework with Long-Term Memory for Scalable Code Generation
+W7143316772,included,W7143316772,,10.5281/zenodo.19324351,DevMemory: A Structured Memory Management Architecture for Persistent Knowledge in AI Coding Agents
+2506.10484v2,included,,2506.10484v2,,EXPEREPAIR: Dual-Memory Enhanced LLM-based Repository-Level Program Repair
+W7131731534,included,W7131731534,2602.21611,,Structurally Aligned Subtask-Level Memory for Software Engineering Agents
+W4416843709,included,W4416843709,2507.00014,10.48550/arxiv.2507.00014,SWE-Bench-CL: Continual Learning for Coding Agents
+W4417295762,included,W4417295762,2512.10398,10.48550/arxiv.2512.10398,Confucius Code Agent: Scalable Agent Scaffolding for Real-World Codebases
+W7159891359,included,W7159891359,2604.27283,,Learning When to Remember: Risk-Sensitive Contextual Bandits for Abstention-Aware Memory Retrieval in LLM-Based Coding Agents
+W7140953617,included,W7140953617,2603.23234,,MemCollab: Cross-Agent Memory Collaboration via Contrastive Trajectory Distillation
+W7149873326,included,W7149873326,2604.01007,,Omni-SimpleMem: Autoresearch-Guided Discovery of Lifelong Multimodal Agent Memory
+W7136962850,included,W7136962850,,10.5281/zenodo.19056667,DocAware: Documentation-Augmented AI Agents for Reliable Code Review and API Migration
+W7126001705,included,W7126001705,2601.19138,,AgenticSCR: An Autonomous Agentic Secure Code Review for Immature Vulnerabilities Detection
+W7138824491,included,W7138824491,2603.13017,,Structured Distillation for Personalized Agent Memory: 11x Token Reduction with Retrieval Preservation
+W4414988413,included,W4414988413,,10.1007/s44248-025-00074-y,Debugmate: an AI agent for efficient on-call debugging in complex production systems
+W7161090935,included,W7161090935,2605.08468,,"PYTHALAB-MERA: Validation-Grounded Memory, Retrieval, and Acceptance Control for Frozen-LLM Coding Agents"
+W7133364084,included,W7133364084,2603.01327,,SWE-Adept: An LLM-Based Agentic Framework for Deep Codebase Analysis and Structured Issue Resolution
+W7160456681,included,W7160456681,2605.01567,,Feedback-Normalized Developer Memory for Reinforcement-Learning Coding Agents: A Safety-Gated MCP Architecture
+W7167380810,included,W7167380810,2607.01916,,ContextSniper: AntTrail's Token-Efficient Code Memory for Repository-Level Program Repair
+W7167981619,included,W7167981619,2607.07666,,A hierarchical memory architecture overcomes context limits in long-horizon multi-agent computational modeling
+W7163545146,included,W7163545146,,10.5281/zenodo.20546372,SemaGC: Semantic Garbage Collection for Efficient Context Management in Multi-Agent LLM Pipelines
+W4416073194,included,W4416073194,2506.03585,10.48550/arxiv.2506.03585,Improving LLM-Based Fault Localization with External Memory and Project Context
+W7166517979,included,W7166517979,,10.5281/zenodo.21025601,When Disagreement Means Learning (or Bias): Human-Governed Memory Consolidation and Counterfactual Diagnosis in Multi-Agent LLM Scoring
+W7139143819,included,W7139143819,2603.17613,,VeriAgent: A Tool-Integrated Multi-Agent System with Evolving Memory for PPA-Aware RTL Code Generation
+W4414815971,included,W4414815971,2510.01353,10.48550/arxiv.2510.01353,MEMTRACK: Evaluating Long-Term Memory and State Tracking in Multi-Platform Dynamic Agent Environments
+W7161916763,included,W7161916763,2605.17444,,MemRepair: Hierarchical Memory for Agentic Repository-Level Vulnerability Repair
+W4390961916,included,W4390961916,2401.07128,10.48550/arxiv.2401.07128,EHRAgent: Code Empowers Large Language Models for Few-shot Complex Tabular Reasoning on Electronic Health Records
+W7165013794,included,W7165013794,,10.5281/zenodo.20736302,Context Engineering at Enterprise Scale: Multi-Signal Scope Resolution for AI-Assisted Software Development
+W7119605037,included,W7119605037,,10.52783/jisem.v11i1s.14079,Enhancing SWE Bench with Context Engineering: A Comparative Study Against Prompt Engineering in LLM-Based Software Tasks
+W7131638461,included,W7131638461,,10.36227/techrxiv.177211798.85464735/v1,Society Agent: A Hierarchical Multi-Agent Architecture with Autonomous Persistent and Ephemeral Agents and Persistent Evolving Knowledge
+W7163287246,included,W7163287246,2605.30712,,ExpGraph: Model-Agnostic Experience Learning with Graph-Structured Memory for LLM Agents
+W4416548137,included,W4416548137,2508.00031,10.48550/arxiv.2508.00031,Git Context Controller: Manage the Context of LLM-based Agents like Git
+W7151673314,included,W7151673314,2604.02688,,MatClaw: An Autonomous Code-First LLM Agent for End-to-End Materials Exploration
+W7165042005,included,W7165042005,,10.5281/zenodo.20738591,Context Engineering for Agentic Systems: A Five-Phase Pipeline for Enterprise Repository Knowledge Extraction
+W4415020787,included,W4415020787,2505.13941,10.48550/arxiv.2505.13941,MLZero: A Multi-Agent System for End-to-end Machine Learning Automation
+W7142181696,included,W7142181696,,10.5281/zenodo.19282924,Hybrid Governance Architecture: A Self-Improving Memory Substrate for LLM Agents with Progressive Cost Reduction and Deterministic Replay
+W7163596150,included,W7163596150,2606.01385,,Bridging Requirements and Architecture: Multi-Agent Orchestration with External Knowledge and Hierarchical Memory
+W7148175972,included,W7148175972,2603.29093,,APEX-EM: Non-Parametric Online Learning for Autonomous Agents via Structured Procedural-Episodic Experience Replay
+W7147384967,included,W7147384967,,10.5281/zenodo.19354872,SOMA: Sovereign Operating Memory Architecture
+W7148954109,included,W7148954109,,10.63363/aijfr.2026.v07i02.4100,Orchestrating Intelligence: A Framework for Dynamic Task Decomposition and Role Specialization in Multi-Agent Generative AI Systems
+W7165218186,included,W7165218186,2606.17203,,Trust-Aware Multi-Agent Traceability: Confidence-Calibrated Knowledge Graphs for Consistent Software Artifact Management
+W7115608064,included,W7115608064,2512.11303,,Unifying Dynamic Tool Creation and Cross-Task Experience Sharing through Cognitive Memory Architecture
+W7155081509,included,W7155081509,,10.1109/access.2026.3686019,EvoGraphCoder: An Evolutionary Graph-Reasoning Framework for Self-Adaptive Software Engineering
+W4415156280,included,W4415156280,2504.09283,10.48550/arxiv.2504.09283,Semantic Commit: Helping Users Update Intent Specifications for AI Memory at Scale
+W4407092716,included,W4407092716,2501.18653,10.48550/arxiv.2501.18653,"Cogito, ergo sum: A Neurobiologically-Inspired Cognition-Memory-Growth System for Code Generation"
+W4414816475,included,W4414816475,2510.01379,10.48550/arxiv.2510.01379,Multi-LLM Orchestration for High-Quality Code Generation: Exploiting Complementary Model Strengths
+W7154789824,included,W7154789824,2604.11641,,CodeTracer: Towards Traceable Agent States
+W7165895722,included,W7165895722,,10.5281/zenodo.20843653,AutoDevOS: AI-Driven Autonomous Software Development Orchestrator using Model Context Protocol
+W4416184895,included,W4416184895,2511.08301,10.48550/arxiv.2511.08301,Smarter Together: Creating Agentic Communities of Practice through Shared Experiential Learning
+W7161915108,included,W7161915108,2605.17721,,EXG: Self-Evolving Agents with Experience Graphs
+W7166902556,included,W7166902556,2606.28781,,HyphaeDB: A Living Knowledge Topology for Agent-First Memory
+W7166900776,included,W7166900776,2606.30296,,ManimAgent: Self-Evolving Multimodal Agents for Visual Education
+W4414789145,included,W4414789145,2509.20729,10.48550/arxiv.2509.20729,"Robust, Observable, and Evolvable Agentic Systems Engineering: A Principled Framework Validated via the Fairy GUI Agent"
+W4415337833,included,W4415337833,2509.25140,10.48550/arxiv.2509.25140,ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory
+W7130762377,included,W7130762377,2602.16891,,OpenSage: Self-programming Agent Generation Engine
+W7166900359,included,W7166900359,2606.29823,,Experience Graphs: The Data Foundation for Self-Improving Agents
+W7164703964,included,W7164703964,,,Assessing Continuity in Agentic Development Across Multiple Development Cycles
+W7131909821,included,W7131909821,2602.23320,,ParamMem: Augmenting Language Agents with Parametric Reflective Memory
+W7161204117,included,W7161204117,2605.08374,,MemQ: Integrating Q-Learning into Self-Evolving Memory Agents over Provenance DAGs
+W7152933784,included,W7152933784,2604.05854,,Deep Researcher Agent: An Autonomous Framework for 24/7 Deep Learning Experimentation with Zero-Cost Monitoring
+W7167747242,included,W7167747242,2607.02579,,When Not to Write Memory: Governing False Promotion from Correlated Agent Traces
+W7125601958,included,W7125601958,,10.5281/zenodo.18356733,Cognitive Supply Chain Compromise: An Exhaustive Forensic Analysis of the claude-flow and agentic-flow Behavioral Injection Vulnerabilities
+W7167155069,included,W7167155069,2606.31650,,"ECHO: Prune To Act, Trace To Learn With Selective Turn Memory In Agentic RL"
+W7128555594,included,W7128555594,2602.08316,,SWE Context Bench: A Benchmark for Context Learning in Coding
+W7160968793,included,W7160968793,2605.06702,,CASCADE: Case-Based Continual Adaptation for Large Language Models During Deployment
+W7139146973,included,W7139146973,2603.17826,,FailureMem: A Failure-Aware Multimodal Framework for Autonomous Software Repair
+W7161916960,included,W7161916960,2605.18284,,CommitDistill: A Lightweight Knowledge-Centric Memory Layer for Software Repositories
+W7151672834,included,W7151672834,2604.02648,,GBQA: A Game Benchmark for Evaluating LLMs as Quality Assurance Engineers
+W4414790478,included,W4414790478,2509.21074,10.48550/arxiv.2509.21074,RepLLM: Toward Automatically Reproducing Network Research Results
+W7163777763,included,W7163777763,2606.05661,,Continual Learning Bench: Evaluating Frontier AI Systems in Real-World Stateful Environments
+W7143504131,included,W7143504131,,10.6084/m9.figshare.31891468.v1,MemRepair
+W7127541037,included,W7127541037,2602.00059,,TextBFGS: A Case-Based Reasoning Approach to Code Optimization via Error-Operator Retrieval
+W7166901969,included,W7166901969,2606.30015,,Parametric Skills
+2607.11357v1,included,W7168234992,2607.11357v1,,OpsMem: Dual-Memory Reasoning with Cross-Memory Resonance for Failure Diagnosis
+2607.09493v1,included,W7168185695,2607.09493v1,,Shared Selective Persistent Memory for Agentic LLM Systems
+2607.01788v1,included,W7167257360,2607.01788v1,,KRCA: An Efficient Root Cause Analysis System in Hyper-Scale Microservice Systems via Agentic AI
+2606.29538v2,included,W7166736808,2606.29538v2,,RESOURCE2SKILL: Distilling Executable Agent Skills from Human-Created Multimodal Resources
+2606.26721v1,included,W7166194743,2606.26721v1,,Knowledge-Based Pull Requests: A Trusted Workflow for Agent-Mediated Knowledge Collaboration
+2606.23127v1,included,W7165652918,2606.23127v1,,"Managing Procedural Memory in LLM Agents: Control, Adaptation, and Evaluation"
+2606.05646v1,included,W7163650265,2606.05646v1,,Enhancing Software Engineering Through Closed-Loop Memory Optimization
+2606.05250v1,included,W7163642499,2606.05250v1,,Towards Persistent Case-Based Memory for Autonomous Data Science: A CBR-Augmented R&D-Agent with a Locally Deployable Small Language Model
+2605.30105v1,included,W7162781697,2605.30105v1,,EvoRepair: Enhancing Vulnerability Repair Agents Through Experience-Based Self-Evolution
+2605.24050v2,included,W7162439632,2605.24050v2,,"More Skills, Worse Agents? Skill Shadowing Degrades Performance When Expanding Skill Libraries"
+2605.19576v2,included,W7161850881,2605.19576v2,,Library Drift: Diagnosing and Fixing a Silent Failure Mode in Self-Evolving LLM Skill Libraries
+2605.13716v1,included,W7161151375,2605.13716v1,,SkillOps: Managing LLM Agent Skill Libraries as Self-Maintaining Software Ecosystems
+2605.10990v1,included,W7161066531,2605.10990v1,,Skill Drift Is Contract Violation: Proactive Maintenance for LLM Agent Skill Libraries
+2604.27906v2,included,W7159608405,2604.27906v2,,"From Unstructured Recall to Schema-Grounded Memory: Reliable AI Memory via Iterative, Schema-Aware Extraction"
+2604.25850v4,included,W7158100772,2604.25850v4,,Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses
+2604.19820v1,included,W7155354540,2604.19820v1,,KnowPilot: Your Knowledge-Driven Copilot for Domain Tasks
+2604.16941v1,included,W7155100202,2604.16941v1,10.1145/3803437.3808242,MEMRES: A Memory-Augmented Resolver with Confidence Cascade for Agentic Python Dependency Resolution
+2604.14228v2,included,W7154745240,2604.14228v2,,Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems
+2604.10352v1,included,W7154380067,2604.10352v1,10.1145/3805621.3807648,ClawVM: Harness-Managed Virtual Memory for Stateful Tool-Using LLM Agents
+2604.09388v2,included,W7153969303,2604.09388v2,,The AI Codebase Maturity Model: From Assisted Coding to Fully Autonomous Systems
+2603.27850v1,included,W7147335603,2603.27850v1,,EffiSkill: Agent Skill Based Automated Code Efficiency Optimization
+2603.20667v1,included,W7140230117,2603.20667v1,,REVERE: Reflective Evolving Research Engineer for Scientific Workflows
+2603.02617v4,included,W7133487356,2603.02617v4,,His2Trans: A Knowledge-Guided Agentic Framework for Project-Level C-to-Rust Migration
+2602.20478v1,included,W7131401982,2602.20478v1,,Codified Context: Infrastructure for AI Agents in a Complex Codebase
+2602.17902v1,included,W7131078049,2602.17902v1,,El Agente Gráfico: Structured Execution Graphs for Scientific Agents
+2601.11595v2,included,W7125120454,2601.11595v2,,Enhancing Model Context Protocol (MCP) with Context-Aware Server Collaboration
+W4417531516,included,W4417531516,2512.15813,10.48550/arxiv.2512.15813,CodeMem: Architecting Reproducible Agents via Dynamic MCP and Procedural Memory
+2512.05470v1,included,W4417142920,2512.05470v1,,Everything is Context: Agentic File System Abstraction for Context Engineering
+2510.21903v2,included,,2510.21903v2,,TOM-SWE: User Mental Modeling For Software Engineering Agents
+2509.25250v1,included,,2509.25250v1,,Memory Management and Contextual Consistency for Long-Running Low-Code Agents
+W4393147158,included,W4393147158,,10.1609/aaai.v38i17.29946,MemoryBank: Enhancing Large Language Models with Long-Term Memory
+W4407764012,included,W4407764012,2502.13172,10.48550/arxiv.2502.13172,Unveiling Privacy Risks in LLM Agent Memory
+W4407759090,included,W4407759090,2502.12110,10.48550/arxiv.2502.12110,A-MEM: Agentic Memory for LLM Agents
+W4416895257,included,W4416895257,2504.19413,10.48550/arxiv.2504.19413,Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory
+W4416106017,included,W4416106017,2507.07957,10.48550/arxiv.2507.07957,MIRIX: Multi-Agent Memory System for LLM-Based Agents
+W7133519884,included,W7133519884,,10.5281/zenodo.18856658,Agent Memory Infrastructure: Byzantine-Resilient Institutional Memory for Multi-Agent Systems
+W4410629910,included,W4410629910,,10.1016/j.neucom.2025.130470,SAGE: Self-evolving Agents with Reflective and Memory-augmented Abilities
+W4400434708,included,W4400434708,2407.04363,10.48550/arxiv.2407.04363,AriGraph: Learning Knowledge Graph World Models with Episodic Memory for LLM Agents
+W4385970259,included,W4385970259,2308.01542,10.48550/arxiv.2308.01542,Memory Sandbox: Transparent and Interactive Memory Management for Conversational Agents
+W7119235481,included,W7119235481,2601.03236,,MAGMA: A Multi-Graph based Agentic Memory Architecture for AI Agents
+W4406840428,included,W4406840428,2501.13956,10.48550/arxiv.2501.13956,Zep: A Temporal Knowledge Graph Architecture for Agent Memory
+W4406772492,included,W4406772492,2501.12485,10.48550/arxiv.2501.12485,"R2D2: Remembering, Replaying and Dynamic Decision Making with a Reflective Agentic Memory"
+W4416088936,included,W4416088936,,10.1145/3774946,MemIndex: Agentic Event-based Distributed Memory Management for Multi-agent Systems
+2503.08026v2,included,,2503.08026v2,,In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents
+W7125877379,included,W7125877379,2601.18642,,FadeMem: Biologically-Inspired Forgetting for Efficient Agent Memory
+W4388748032,included,W4388748032,2311.08719,10.48550/arxiv.2311.08719,Think-in-Memory: Recalling and Post-thinking Enable LLMs with Long-Term Memory
+W4416010507,included,W4416010507,,10.1109/access.2025.3630495,Toward Interpretable and Persistent Personalization: A Memory-Augmented Agent Framework for LLM-Based Travel Planning
+W4404344231,included,W4404344231,2410.15665,10.48550/arxiv.2410.15665,Long Term Memory: The Foundation of AI Self-Evolution
+W7117967956,included,W7117967956,,10.1145/3765766.3765803,Human-Like Remembering and Forgetting in LLM Agents: An ACT-R-Inspired Memory Architecture
+2512.10696v2,included,,2512.10696v2,,"Remember Me, Refine Me: A Dynamic Procedural Memory Framework for Experience-Driven Agent Evolution"
+W4399354028,included,W4399354028,2406.00057,10.48550/arxiv.2406.00057,Toward Conversational Agents with Context and Time Sensitive Long-term Memory
+W4399794739,included,W4399794739,2406.10996,10.48550/arxiv.2406.10996,Towards Lifelong Dialogue Agents via Timeline-based Memory Management
+W7119235607,included,W7119235607,2601.02845,,TiMem: Temporal-Hierarchical Memory Consolidation for Long-Horizon Conversational Agents
+W4416284202,included,W4416284202,2507.07306,10.48550/arxiv.2507.07306,ViDove: A Translation Agent System with Multimodal Context and Memory-Augmented Reasoning
+W4414691294,included,W4414691294,2509.11145,10.48550/arxiv.2509.11145,Text2Mem: A Unified Memory Operation Language for Memory Operating System
+W4403282600,included,W4403282600,,10.2478/ijanmc-2024-0029,Vector Storage Based Long-term Memory Research on LLM
+W4414213933,included,W4414213933,,10.3390/app15179775,Memory-Augmented Large Language Model for Enhanced Chatbot Services in University Learning Management Systems
+W4392222355,included,W4392222355,2402.16288,10.48550/arxiv.2402.16288,"PerLTQA: A Personal Long-Term Memory Dataset for Memory Classification, Retrieval, and Synthesis in Question Answering"
+W7130236441,included,W7130236441,2602.14293,,KernelBlaster: Continual Cross-Task CUDA Optimization via Memory-Augmented In-Context Reinforcement Learning
+W7138824721,included,W7138824721,2603.12631,,Collaborative Multi-Agent Optimization for Personalized Memory System
+W7160669945,included,W7160669945,2605.04811,,Tree-based Credit Assignment for Multi-Agent Memory System
+W7126282027,included,W7126282027,2601.21714,,E-mem: Multi-agent based Episodic Context Reconstruction for LLM Agent Memory
+W7156251348,included,W7156251348,,10.21203/rs.3.rs-9180420/v1,Cross-Agent Memory Architecture with Contextual Coherence and Factually Grounded Multi-Agent System
+W7162467516,included,W7162467516,,10.64388/irev9i11-1718160,M.A.K.S: Multidimensional Access Knowledge Scoring for Long-Horizon LLM Agent Memory Management
+W7166900699,included,W7166900699,2606.28349,,HMARS: A Hierarchical Multi-Agent Memory System for Long-Context Reasoning
+W7162700596,included,W7162700596,2605.26252,,Is Agent Memory a Database? Rethinking Data Foundations for Long-Term AI Agent Memory
+W7119233124,included,W7119233124,2601.01885,,Agentic Memory: Learning Unified Long-Term and Short-Term Memory Management for Large Language Model Agents
+W7166252915,included,W7166252915,2606.25161,,TRUSTMEM: Learning Trustworthy Memory Consolidation for LLM Agents with Long-Term Memory
+W7153671864,included,W7153671864,2604.07798,,Lightweight LLM Agent Memory with Small Language Models
+W7161452216,included,W7161452216,2605.14421,,MemLineage: Lineage-Guided Enforcement for LLM Agent Memory
+W7154655472,included,W7154655472,2604.12285,,GAM: Hierarchical Graph-based Agentic Memory for LLM Agents
+W7117174216,included,W7117174216,2512.18746,,MemEvolve: Meta-Evolution of Agent Memory Systems
+W7161452628,included,W7161452628,2605.14498,,GroupMemBench: Benchmarking LLM Agent Memory in Multi-Party Conversations
+W7133571000,included,W7133571000,2603.02473,,Diagnosing Retrieval vs. Utilization Bottlenecks in LLM Agent Memory
+W7131412454,included,W7131412454,,10.5281/zenodo.18770863,.ava: A Compressed Symbolic Notation for Persistent AI Agent Memory
+W7126123062,included,W7126123062,2601.20465,,BMAM: Brain-inspired Multi-Agent Memory Framework
+W4416368021,included,W4416368021,2510.02373,10.48550/arxiv.2510.02373,A-MemGuard: A Proactive Defense Framework for LLM-Based Agent Memory
+W7149873664,included,W7149873664,2604.01560,,DeltaMem: Towards Agentic Memory Management via Reinforcement Learning
+W7167749197,included,W7167749197,2607.04391,,Memory-Orchestrated Semantic System (MOSS): An Auditable Agentic Memory Architecture
+W4417539785,included,W4417539785,2506.17338,10.48550/arxiv.2506.17338,PBFT-Backed Semantic Voting for Multi-Agent Memory Pruning
+W7117632178,included,W7117632178,2512.21567,,Beyond Heuristics: A Decision-Theoretic Framework for Agent Memory Management
+W7162606553,included,W7162606553,2605.23986,,MemForest: An Efficient Agent Memory System with Hierarchical Temporal Indexing
+W7164447044,included,W7164447044,2606.10677,,Infini Memory: Maintainable Topic Documents for Long-Term LLM Agent Memory
+W7162045347,included,W7162045347,2605.19952,,Rethinking How to Remember: Beyond Atomic Facts in Lifelong LLM Agent Memory
+W7166901562,included,W7166901562,2606.29778,,Mandol: An Agglomerative Agent Memory System for Long-Term Conversations
+W4414977110,included,W4414977110,2510.05520,10.48550/arxiv.2510.05520,CAM: A Constructivist View of Agentic Memory for LLM-Based Reading Comprehension
+W7151068250,included,W7151068250,2604.04514,10.5281/zenodo.19435120,"SuperLocalMemory V3.3: The Living Brain — Biologically-Inspired Forgetting, Cognitive Quantization, and Multi-Channel Retrieval for Zero-LLM Agent Memory Systems"
+W7154651477,included,W7154651477,,10.5281/zenodo.19617134,Temporal-Stratified Retrieval for AI Agent Memory: A Structure-First Alternative to Vector Search
+W7161204348,included,W7161204348,2605.11032,,Portable Agent Memory: A Protocol for Cryptographically-Verified Memory Transfer Across Heterogeneous AI Agents
+W7161916163,included,W7161916163,2605.16746,,State Contamination in Memory-Augmented LLM Agents
+W7163720305,included,W7163720305,2606.04315,,Exploring Cross-Scenario Generality of Agentic Memory Systems: Diagnostics and a Strong Baseline
+W7167747356,included,W7167747356,2607.05029,,Your Agent's Memories Are Not Its Own: Forged Reasoning Attacks on LLM Agent Memory and Defenses
+W7164844219,included,W7164844219,,10.5281/zenodo.20698357,Present but Not Enforced: Benchmarking Governance-Marker Compliance in LLM Agent Memory Under Multi-Turn Pressure
+W7161092092,included,W7161092092,2605.08538,,Human-Inspired Memory Architecture for LLM Agents
+W7167607753,included,W7167607753,,10.21203/rs.3.rs-9801639/v1,From Organizational Knowledge to AI Agent Memory: Empirical Validation of the SECI Model on the LongMemEval Benchmark
+W7163287818,included,W7163287818,2605.30771,,Eywa: Provenance-Grounded Long-Term Memory for AI Agents
+W7133570866,included,W7133570866,2603.02240,,SuperLocalMemory: Privacy-Preserving Multi-Agent Memory with Bayesian Trust Defense Against Memory Poisoning
+W7124513093,included,W7124513093,2601.10702,,Grounding Agent Memory in Contextual Intent
+W7160727551,included,W7160727551,2605.05704,,SafeHarbor: Hierarchical Memory-Augmented Guardrail for LLM Agent Safety
+W7135013570,included,W7135013570,,10.5281/zenodo.18990083,mnemos: Biomimetic Memory Architectures for Large Language Model Agents
+W7138363530,included,W7138363530,,10.1609/aaai.v40i30.39773,ARTEM: Enhancing Large Language Model Agents with Spatial-Temporal Episodic Memory
+W7167380779,included,W7167380779,2607.01071,,MemSyco-Bench: Benchmarking Sycophancy in Agent Memory
+W7163778211,included,W7163778211,2606.04896,,Channel Fracture: Architectural Blind Spots in Scheduled Cross-Agent Memory Injection for Multi-Agent Orchestration Systems
+W7106782723,included,W7106782723,2511.18423,,General Agentic Memory Via Deep Research
+W7167642101,included,W7167642101,,10.5281/zenodo.21231158,Memory Is Not Live State — Cross-Agent Memory Governance by Transplanting the Reflective Context Governor onto Agent Memory (memgov v0.1.0)
+W7166901003,included,W7166901003,2606.29824,,Neural Procedural Memory: Empowering LLM Agents with Implicit Activation Steering
+W7124513504,included,W7124513504,2601.09913,,Continuum Memory Architectures for Long-Horizon LLM Agents
+W7161204645,included,W7161204645,2605.11814,,MedMemoryBench: Benchmarking Agent Memory in Personalized Healthcare
+W7161451659,included,W7161451659,2605.13880,,PREPING: Building Agent Memory without Tasks
+W7128706525,included,W7128706525,,10.64142/jeai.2.1.43,Mind-Tool: Domain Memory Architecture for AI Agents
+W4415924645,included,W4415924645,2510.27418,10.48550/arxiv.2510.27418,Dynamic Affective Memory Management for Personalized LLM Agents
+W7149873399,included,W7149873399,2603.29493,,MemFactory: Unified Inference & Training Framework for Agent Memory
+W7165816678,included,W7165816678,2606.22844,,RaMem: Contextual Reinstatement for Long-term Agentic Memory
+W7160726503,included,W7160726503,2605.05583,,Belief Memory: Agent Memory Under Partial Observability
+W7166901371,included,W7166901371,2606.30566,,Forensic Trajectory Signatures for Agent Memory Poisoning Detection
+W7126123574,included,W7126123574,2601.19935,,Mem2ActBench: A Benchmark for Evaluating Long-Term Memory Utilization in Task-Oriented Autonomous Agents
+W7166901088,included,W7166901088,2606.29788,,MemLeak: Diagnosing Information Leaks in Multimodal Agent Memory
+W7160565105,included,W7160565105,2605.01970,,Trojan Hippo: Weaponizing Agent Memory for Data Exfiltration
+W7154452086,included,W7154452086,,10.5281/zenodo.19598679,NLM: Neural Long Memory — Hybrid Long-Term Memory for AI Agents
+W4414448966,included,W4414448966,2508.20585,10.48550/arxiv.2508.20585,Persode: Personalized Visual Journaling with Episodic Memory-Aware AI Agent
+W7161451943,included,W7161451943,2605.13941,,EvolveMem:Self-Evolving Memory Architecture via AutoResearch for LLM Agents
+W7163528403,included,W7163528403,,10.5281/zenodo.20548774,Memoria: A Cognitive-Fidelity Memory Architecture for AI Agents
+W7163597062,included,W7163597062,2606.01528,,Joint Agent Memory and Exploration Learning via Novelty Signals
+W7154711690,included,W7154711690,,10.6084/m9.figshare.32041197.v1,Persistent Long-Term Memory in Conversational AI Agents: A Multi-Provider Benchmark Study
+W7161915937,included,W7161915937,2605.18421,,EvoMemBench: Benchmarking Agent Memory from a Self-Evolving Perspective
+W7161654763,included,W7161654763,2605.15710,,SMMBench: A Benchmark for Source-Distributed Multimodal Agent Memory
+W7160727329,included,W7160727329,2605.06132,,MemReranker: Reasoning-Aware Reranking for Agent Memory Retrieval
+W7155574291,included,W7155574291,2604.20117,,To Know is to Construct: Schema-Constrained Generation for Agent Memory
+W7160968162,included,W7160968162,2605.07242,,MEMOREPAIR: Barrier-First Cascade Repair in Agentic Memory
+W7166866500,included,W7166866500,,10.18653/v1/2026.acl-demo.27,"Hindsight: Structured Agent Memory that Retains, Recalls, and Reflects"
+W7127542495,included,W7127542495,2602.02007,,Beyond RAG for Agent Memory: Retrieval by Decoupling and Aggregation
+W7124117551,included,W7124117551,2601.07468,,Beyond Dialogue Time: Temporal Semantic Memory for Personalized LLM Agents
+W7155654911,included,W7155654911,2604.20300,,FSFM: A Biologically-Inspired Framework for Selective Forgetting of Agent Memory
+W7124227786,included,W7124227786,2601.08160,,SwiftMem: Fast Agentic Memory via Query-aware Indexing
+W7158423345,included,W7158423345,2604.23626,,GraphPlanner: Graph Memory-Augmented Agentic Routing for Multi-Agent LLMs
+W7161915834,included,W7161915834,2605.15759,,DimMem: Dimensional Structuring for Efficient Long-Term Agent Memory
+W7139112777,included,W7139112777,,10.22214/ijraset.2026.78270,ForgetAgent: Verifiable Deletion in Multi-Layer Memory Architectures for LLM Agents
+W7154891454,included,W7154891454,,10.5281/zenodo.19647089,ContextDB: A Unified Context Layer for AI Agents - Replacing the Patchwork with a Memory Operating System
+W7140760501,included,W7140760501,,10.5281/zenodo.19235746,"Omni Axis Tree (OAT): A Clustered Hierarchical Data Structure for Multi-Context Retrieval with O(1) Indexed Access, and Mnemo: An AI Agent Memory System Based Thereon"
+W7164700835,included,W7164700835,2606.13177,,MemRefine: LLM-Guided Compression for Long-Term Agent Memory
+W7162660316,included,W7162660316,,10.26565/2304-6201-2025-68-06,Reflective memory architecture for adaptive planning in hierarchical LLM agents in virtual environments
+W7130618007,included,W7130618007,2602.16313,,MemoryArena: Benchmarking Agent Memory in Interdependent Multi-Session Agentic Tasks
+W4417449945,included,W4417449945,2512.12686,10.48550/arxiv.2512.12686,Memoria: A Scalable Agentic Memory Framework for Personalized Conversational AI
+W7131909987,included,W7131909987,2602.21394,,MemoPhishAgent: Memory-Augmented Multi-Modal LLM Agent for Phishing URL Detection
+W7140001676,included,W7140001676,2603.18631,,D-Mem: A Dual-Process Memory System for LLM Agents
+W7117174225,included,W7117174225,2512.18950,,Learning Hierarchical Procedural Memory for LLM Agents through Bayesian Selection and Contrastive Refinement
+W7160610155,included,W7160610155,,10.5281/zenodo.20088750,Reminisce: A Cognitive Science-Inspired Memory Architecture for AI Agents
+W7119232865,included,W7119232865,2601.02744,,SYNAPSE: Empowering LLM Agents with Episodic-Semantic Memory via Spreading Activation
+W7164973318,included,W7164973318,2606.14571,,StreamMemBench: Streaming Evaluation of Agent Memory for Future-Oriented Assistance
+W7166901744,included,W7166901744,2606.29914,,MemDelta: Controlled Baselines and Hidden Confounds in Agent Memory Evaluation
+W7161452215,included,W7161452215,2605.15128,,MemEye: A Visual-Centric Evaluation Framework for Multimodal Agent Memory
+W7163720803,included,W7163720803,2606.01138,,memorywire: A Vendor-Neutral Wire Format for Agent Memory Operations
+W7165817650,included,W7165817650,2606.21649,,EvoEmbedding: Evolvable Representations for Long-Context Retrieval and Agentic Memory
+W7133363879,included,W7133363879,2603.01160,,Semantic XPath: Structured Agentic Memory Access for Conversational AI
+W7165816075,included,W7165816075,2606.22030,,Nous: A Predictive World Model for Long-Term Agent Memory
+W7124227911,included,W7124227911,2601.08323,,AtomMem : Learnable Dynamic Agentic Memory with Atomic Memory Operation
+W7161090292,included,W7161090292,2605.10870,,"Remember the Decision, Not the Description: A Rate-Distortion Framework for Agent Memory"
+W7162894027,included,W7162894027,2605.29960,,Hijacking Agent Memory: Stealthy Trojan Attacks Through Conversational Interaction
+W7161655395,included,W7161655395,2605.16045,,RecMem: Recurrence-based Memory Consolidation for Efficient and Effective Long-Running LLM Agents
+W4416437242,included,W4416437242,,10.18653/v1/2026.findings-acl.1835,LiCoMemory: Lightweight and Cognitive Agentic Memory for Efficient Long-Term Reasoning
+W7124117454,included,W7124117454,2601.06282,,Amory: Building Coherent Narrative-Driven Agent Memory through Agentic Reasoning
+W7163777381,included,W7163777381,2606.06448,,Agent Memory: Characterization and System Implications of Stateful Long-Horizon Workloads
+W7159734165,included,W7159734165,2604.26622,,OCR-Memory: Optical Context Retrieval for Long-Horizon Agent Memory
+W7163720264,included,W7163720264,2606.04555,,Temporal Order Matters for Agentic Memory: Segment Trees for Long-Horizon Agents
+W7128095809,included,W7128095809,2602.06025,,Learning Query-Aware Budget-Tier Routing for Runtime Agent Memory
+W7127541880,included,W7127541880,2602.02369,,Live-Evo: Online Evolution of Agentic Memory from Continuous Feedback
+W7161204479,included,W7161204479,2605.12493,,LongMemEval-V2: Evaluating Long-Term Agent Memory Toward Experienced Colleagues
+W7153670194,included,W7153670194,2604.07877,,MemReader: From Passive to Active Extraction for Long-Term Agent Memory
+W7127317028,included,W7127317028,,10.5281/zenodo.18471369,An evaluation framework for AI agents external memory systems.
+W4417452330,included,W4417452330,2512.12818,10.48550/arxiv.2512.12818,"Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects"
+W7163719942,included,W7163719942,2606.04628,,RAMPART: Registry-based Agentic Memory with Priority-Aware Runtime Transformation
+W7162218979,included,W7162218979,2605.21768,,Memory-R2: Fair Credit Assignment for Long-Horizon Memory-Augmented LLM Agents
+W7139145170,included,W7139145170,2603.14864,,Shopping Companion: A Memory-Augmented LLM Agent for Real-World E-Commerce Tasks
+2510.04851v1,included,,2510.04851v1,,LEGOMem: Modular Procedural Memory for Multi-agent LLM Systems for Workflow Automation
+W7149210455,included,W7149210455,2604.00131,,Oblivion: Self-Adaptive Agentic Memory Control through Decay-Driven Activation
+W7127739522,included,W7127739522,2602.03224,,TAME: A Trustworthy Test-Time Evolution of Agent Memory with Systematic Benchmarking
+W7161091084,included,W7161091084,2605.09330,,The Trap of Trajectory: Towards Understanding and Mitigating Spurious Correlations in Agentic Memory
+W7162893362,included,W7162893362,2605.29630,,Entity-Collision: A Stratified Protocol for Attributing Retrieval Lift in Agent Memory
+W7163680844,included,W7163680844,,10.5281/zenodo.20560138,Matrix Context: Mixture-of-Contexts RAG for Robust and Inspectable Agent Memory
+W7128555104,included,W7128555104,2602.07755,,Learning to Continually Learn via Meta-learning Agentic Memory Designs
+W7136089029,included,W7136089029,2603.14588,10.5281/zenodo.19038659,SuperLocalMemory V3: Information-Geometric Foundations for Zero-LLM Enterprise Agent Memory
+W7152330371,included,W7152330371,2604.04853,,MemMachine: A Ground-Truth-Preserving Memory System for Personalized AI Agents
+W7124227718,included,W7124227718,2601.07978,,Cost and Accuracy of Long-Term Memory in Distributed Multi-Agent Systems Based on Large Language Models
+W7160388841,included,W7160388841,,10.1016/j.eij.2026.100983,Cognitive Autonomous Memory Security (CAMS) against injection and extraction attacks in long-term memory of AI agents
+W7167380153,included,W7167380153,2607.01935,,A-TMA: Decoupling State-Aware Memory Failures in Long-Term Agent Memory
+W7165818182,included,W7165818182,2606.23195,,Memory Contagion: Cross-Temporal Propagation of Evaluator Bias via Agent Memory
+W7154538860,included,W7154538860,2604.11544,,Time is Not a Label: Continuous Phase Rotation for Temporal Knowledge Graphs and Agentic Memory
+W7152330883,included,W7152330883,2604.03588,,Rashomon Memory: Towards Argumentation-Driven Retrieval for Multi-Perspective Agent Memory
+2605.16233v1,included,W7161572729,2605.16233v1,10.1145/3786335.3813155,FORGE: Self-Evolving Agent Memory With No Weight Updates via Population Broadcast
+W7160564823,included,W7160564823,2605.03354,,What Happens Inside Agent Memory? Circuit Analysis from Emergence to Diagnosis
+W7125760092,included,W7125760092,2601.16872,,From Atom to Community: Structured and Evolving Agent Memory for User Behavior Modeling
+W7161090261,included,W7161090261,2605.09942,,HAGE: Harnessing Agentic Memory via RL-Driven Weighted Graph Evolution
+W7167290163,included,W7167290163,2607.00233,,From Signals to Structure: How Memory Architecture Drives Language Emergence in LLM Agents
+W7128449691,included,W7128449691,,10.21203/rs.3.rs-8746188/v1,FHIR-AgentEval: A Modular Sandbox for Benchmarking Clinical LLM Agents with an Evaluation of Memory-Augmented Configurations
+W7128555072,included,W7128555072,2602.07398,,AgentSys: Secure and Dynamic LLM Agents Through Explicit Hierarchical Memory Management
+W7127540822,included,W7127540822,2602.01869,,ProcMEM: Learning Reusable Procedural Memory from Experience via Non-Parametric PPO for LLM Agents
+W7167425781,included,W7167425781,,10.5281/zenodo.21210731,"Deterministic Long-Term Memory for LLM Agents: Hybrid Retrieval, Document Graph, and Write-Path Scalability in Air-Gapped Environments"
+W7140953560,included,W7140953560,2603.23013,,Knowledge Access Beats Model Size: Memory Augmented Routing for Persistent AI Agents
+W7160565313,included,W7160565313,2605.03804,,ScrapMem: A Bio-inspired Framework for On-device Personalized Agent Memory via Optical Forgetting
+W7164447675,included,W7164447675,2606.10299,,What Spatial Memory Must Store: Occlusion as the Test for Language-Agent Memory
+W4414489136,included,W4414489136,2508.12630,10.48550/arxiv.2508.12630,Semantic Anchoring in Agentic Memory: Leveraging Linguistic Structures for Persistent Conversational Context
+W7124117613,included,W7124117613,2601.07470,,Learning How to Remember: A Meta-Cognitive Management Method for Structured and Transferable Agent Memory
+W7168104949,included,W7168104949,,10.5281/zenodo.21323673,Experience to Competence Without Weight Updates: Pre-Registered Falsifiable Gates for Agent Memory
+W7139147942,included,W7139147942,2603.14597,,D-MEM: Dopamine-Gated Agentic Memory via Reward Prediction Error Routing
+W7165817398,included,W7165817398,2606.20954,,Learning What Not to Forget: Long-Horizon Agent Memory from a Few Kilobytes of Learning
+W7165972584,included,W7165972584,2606.24595,,MEMPROBE: Probing Long-Term Agent Memory via Hidden User-State Recovery
+W7164701073,included,W7164701073,2606.12945,,Learning What to Remember: A Cognitively Grounded Multi-Factor Value Model for Agentic Memory
+W7131731588,included,W7131731588,2602.21477,,Pancake: Hierarchical Memory System for Multi-Agent LLM Serving
+W7128555439,included,W7128555439,2602.08369,,MemAdapter: Fast Alignment across Agent Memory Paradigms via Generative Subgraph Retrieval
+W7148176199,included,W7148176199,2603.29194,,Multi-Layered Memory Architectures for LLM Agents: An Experimental Evaluation of Long-Term Context Retention
+W7165972610,included,W7165972610,2606.24322,,"Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees"
+W7125566704,included,W7125566704,2601.15311,,Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents
+2505.16067v2,included,,2505.16067v2,,How Memory Management Impacts LLM Agents: An Empirical Study of Experience-Following Behavior
+W7155180333,included,W7155180333,,10.66525/ijictt81,Communication Compression Memory Management and Cooperative Reasoning in Multi-Agent Systems
+W7151100596,included,W7151100596,,10.71465/ajainn3659,Self-Healing Memory Architectures for Large Language Model-Based Multi-Agent Collaboration
+W7139146802,included,W7139146802,2603.16171,,MemX: A Local-First Long-Term Memory System for AI Assistants
+W7160968832,included,W7160968832,2605.07313,,When Stored Evidence Stops Being Usable: Scale-Conditioned Evaluation of Agent Memory
+W7164974103,included,W7164974103,2606.14470,,"GitOfThoughts: Version-Controlled Reasoning and Agent Memory You Can Replay, Diff, and Merge"
+W7162149202,included,W7162149202,2605.20926,,MemConflict: Evaluating Long-Term Memory Systems Under Memory Conflicts
+W7155094105,included,W7155094105,,10.5281/zenodo.19673331,Agent Brain: A Biologically Inspired Memory System for Autonomous AI Agents — LongMemEval-M Evaluation
+W7165424292,included,W7165424292,2606.19847,,AtomMem: Building Simple and Effective Memory System for LLM Agents via Atomic Facts
+W7161655327,included,W7161655327,2605.15701,,H-Mem: A Novel Memory Mechanism for Evolving and Retrieving Agent Memory via a Hybrid Structure
+W7161916760,included,W7161916760,2605.17596,,"NeuSymMS: A Hybrid Neuro-Symbolic Memory System for Persistent, Self-Curating LLM Agents"
+W7166734525,included,W7166734525,,10.5281/zenodo.21050959,"Routing Memory A Tiered, Vector-Quantized Memory System for Long-Lived Language-Model Agents"
+W7162475038,included,W7162475038,2605.23723,,MemAudit: Post-hoc Auditing of Poisoned Agent Memory via Causal Attribution and Structural Anomaly Detection
+W7160565767,included,W7160565767,2605.03675,,MEMTIER: Tiered Memory Architecture and Retrieval Bottleneck Analysis for Long-Running Autonomous AI Agents
+W7123371195,included,W7123371195,2601.05890,,StackPlanner: A Centralized Hierarchical Multi-Agent System with Task-Experience Memory Management
+W7134094201,included,W7134094201,2603.04443,,AMV-L: Lifecycle-Managed Agent Memory for Tail-Latency Control in Long-Running LLM Systems
+W7113915997,included,W7113915997,2512.06688,,PersonaMem-v2: Towards Personalized Intelligence via Learning Implicit User Personas and Agentic Memory
+W7154540785,included,W7154540785,2604.10981,,"ATANT v1.1: Positioning Continuity Evaluation Against Memory, Long-Context, and Agentic-Memory Benchmarks"
+2508.06433v4,included,,2508.06433v4,,Memp: Exploring Agent Procedural Memory
+W7164234412,included,W7164234412,2606.09483,,Memory Beyond Recall: A Dual-Process Cognitive Memory System for Self-Evolving LLM Agents
+W7134993068,included,W7134993068,2603.09022,,MEMO: Memory-Augmented Model Context Optimization for Robust Multi-Turn Multi-Agent LLM Games
+W7139145380,included,W7139145380,2603.17244,,Graph-Native Cognitive Memory for AI Agents: Formal Belief Revision Semantics for Versioned Memory Architectures
+W7165219972,included,W7165219972,2606.15903,,Control-Plane Placement Shapes Forgetting: An Architectural Study of Agent Memory Across Thirteen System Configurations
+W7108247749,included,W7108247749,2511.21730,,A Benchmark for Procedural Memory Retrieval in Language Agents
+W7130236833,included,W7130236833,2602.13530,,REMem: Reasoning with Episodic Memory in Language Agent
+W7128408765,included,W7128408765,2602.06051,,CAST: Character-and-Scene Episodic Memory for Agents
+W7150223382,included,W7150223382,,10.5281/zenodo.19429105,Pyramid Memory: A Tetrahedron-Based Memory System with O(1) Retrieval Complexity for AI Agents
+W7125587830,included,W7125587830,,10.1109/metroxraine66377.2025.11340339,Development of a Human-inspired Long-Term Memory for Interactive Conversational Agents
+W7153671717,included,W7153671717,2604.08000,,PASK: Toward Intent-Aware Proactive Agents with Long-Term Memory
+W7124118058,included,W7124118058,2601.06377,,HiMem: Hierarchical Long-Term Memory for LLM Long-Horizon Agents
+W7125760203,included,W7125760203,2601.16690,,EMemBench: Interactive Benchmarking of Episodic Memory for VLM Agents
+W7106783701,included,W7106783701,2511.17775,,Episodic Memory in Agentic Frameworks: Suggesting Next Tasks
+W7166847668,included,W7166847668,,10.18653/v1/2026.findings-acl.250,EMA: An Episodic Memory Agent for Efficient and Selective Memory
+W7155574661,included,W7155574661,2604.20006,,From Recall to Forgetting: Benchmarking Long-Term Memory for Personalized Agents
+W7125566602,included,W7125566602,2601.15709,,AgentSM: Semantic Memory for Agentic Text-to-SQL
+W4405713893,included,W4405713893,2412.15274,10.48550/arxiv.2412.15274,Memory-Augmented Agent Training for Business Document Understanding
+W7165011140,included,W7165011140,,10.5281/zenodo.20730915,Anchor-Aware Memory Systems for AI Agents: Discovering and Preserving Latent Behavioral Signatures in Large Language Models
+W7131082765,included,W7131082765,,10.1109/iccvw69036.2025.00675,Temporal Multimodal Memory Banks for Agentic Reasoning
+W4414123223,included,W4414123223,,10.36227/techrxiv.175760292.25429267/v1,Multi-Agent Memento: A Theoretically Grounded Framework for Coordinated Memory-Augmented Continuous Learning with Formal Convergence Guarantees in High-Stakes Financial Applications
+W7124228094,included,W7124228094,2601.08816,,MemRec: Collaborative Memory-Augmented Agentic Recommender System
+W7163598354,included,W7163598354,2606.00547,,Learning to Retrieve: Dual-Level Long-Term Memory for Text-to-SQL Agents
+W7139148223,included,W7139148223,2603.16862,,Chronos: Temporal-Aware Conversational Agents with Structured Event Retrieval for Long-Term Memory
+W4402954144,included,W4402954144,2409.00872,10.48550/arxiv.2409.00872,Self-evolving Agents with reflective and memory-augmented abilities
+W7162696183,included,W7162696183,2604.26197,10.1145/3770855.3818432,Hierarchical Long-Term Semantic Memory for LinkedIn's Hiring Agent
+W7119234781,included,W7119234781,2601.03192,,MemRL: Self-Evolving Agents via Runtime Reinforcement Learning on Episodic Memory
+W7165219372,included,W7165219372,2606.18406,,CoreMem: Riemannian Retrieval and Fisher-Guided Distillation for Long-Term Memory in Dialogue Agents
+W4414586675,included,W4414586675,2505.19549,10.48550/arxiv.2505.19549,From Single to Multi-Granularity: Toward Long-Term Memory Association and Selection of Conversational Agents
+W7162149917,included,W7162149917,2605.20616,,Auto-Dreamer: Learning Offline Memory Consolidation for Language Agents
+W4416781468,included,W4416781468,2511.21678,10.48550/arxiv.2511.21678,Agentic Learner with Grow-and-Refine Multimodal Semantic Memory
+W7166974073,included,W7166974073,,,Beyond RAG: Long-Term Memory with Epistemic Coherence
+W7161916738,included,W7161916738,2605.16883,,SE-GA: Memory-Augmented Self-Evolution for GUI Agents
+2510.19897v3,included,,2510.19897v3,10.1145/3786335.3813154,Learning from Supervision with Semantic and Episodic Memory: A Reflective Approach to Agent Adaptation
+W7133550908,included,W7133550908,,10.5281/zenodo.18868515,Routing Memory: Lightweight Long-Term Memory for Agentic LLMs via Vector-Quantized Routing
+W4416050909,included,W4416050909,2508.15294,10.48550/arxiv.2508.15294,A Multi-Memory Segment System for Generating High-Quality Long-Term Memory Content in Agents
+W7164131937,included,W7164131937,,10.5281/zenodo.20626474,"COMA: Adaptive Context Budget Management for Memory-Augmented RAG via Query-Aware Zone Allocation, Memory-Conditioned Retrieval, and Cognitive Memory Consolidation"
+W7164901450,included,W7164901450,,10.3390/sym18061037,Verification-Gated Persona State Transitions for Memory-Augmented Language Agents
+W7124118240,included,W7124118240,2601.07023,,CloneMem: Benchmarking Long-Term Memory for AI Clones
+W7165973388,included,W7165973388,2606.24775,,Are We Ready For An Agent-Native Memory System?
+W7157506109,included,W7157506109,2604.22085,,Memanto: Typed Semantic Memory with Information-Theoretic Retrieval for Long-Horizon Agents
+W4416019921,included,W4416019921,2511.03506,10.48550/arxiv.2511.03506,HaluMem: Evaluating Hallucinations in Memory Systems of Agents
+W7113915684,included,W7113915684,2512.07287,,Experience-Evolving Multi-Turn Tool-Use Agent with Hybrid Episodic-Procedural Memory
+W7138847904,included,W7138847904,,10.1609/aaai.v40i48.42170,Value-Driven Memory-Augmented Generation for Agentic LLMs: Towards Structured and Adaptive Knowledge Utilization
+W7125352610,included,W7125352610,2601.13722,,OP-Bench: Benchmarking Over-Personalization for Memory-Augmented Personalized Conversational Agents
+W7165218878,included,W7165218878,2606.17328,,MemTrace: Probing What Final Accuracy Misses in Long-Term Memory
+W7133268024,included,W7133268024,2602.23944,,MemEmo: Evaluating Emotion in Memory Systems of Agents
+W7132856559,included,W7132856559,,10.5281/zenodo.18816614,Shodh-Memory: A Neuroscience-Grounded Cognitive Memory Architecture for Artificial Intelligence Agents
+W4414756463,included,W4414756463,2509.06269,10.48550/arxiv.2509.06269,REMI: A Novel Causal Schema Memory Architecture for Personalized Lifestyle Recommendation Agents
+W7133523620,included,W7133523620,,10.20944/preprints202603.0182.v1,Enhancing Search Efficiency through LLM-Based User Memory Systems for Query Matching and Intent Modeling
+W4414837843,included,W4414837843,2502.16090,10.48550/arxiv.2502.16090,Echo: A Large Language Model with Temporal Episodic Memory
+W7117277507,included,W7117277507,2512.20278,,Synthesizing Procedural Memory: Challenges and Architectures in Automated Workflow Generation
+W7127541121,included,W7127541121,2602.01558,,How Implicit Bias Accumulates and Propagates in LLM Long-term Memory
+W7163777345,included,W7163777345,2606.06055,,When Should Memory Stay Silent: Measuring Memory-Use Boundaries in Memory-Augmented Conversational Agents
+W4417452365,included,W4417452365,2512.12856,10.48550/arxiv.2512.12856,Forgetful but Faithful: A Cognitive Memory Architecture and Benchmark for Privacy-Aware Generative Agents
+W4416098630,included,W4416098630,2505.05177,10.48550/arxiv.2505.05177,MARK: Memory Augmented Refinement of Knowledge
+W7139145160,included,W7139145160,2603.15658,,Did You Check the Right Pocket? Cost-Sensitive Store Routing for Memory-Augmented Agents
+W7154655441,included,W7154655441,2604.12231,,"Thought-Retriever: Don't Just Retrieve Raw Data, Retrieve Thoughts for Memory-Augmented Agentic Systems"
+W7161452593,included,W7161452593,2605.14906,,MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models
+2409.01344v2,included,W4402954570,2409.01344v2,10.1007/978-981-96-8186-0_21,Pairing Analogy-Augmented Generation with Procedural Memory for Procedural Q&A
+W7154042131,included,W7154042131,,10.5281/zenodo.19498143,Evaluating the Long-Term Memory Capabilities of Widely Deployed Large Language Model APIs
+W7162474876,included,W7162474876,2605.23067,,What Training Data Teaches RL Memory Agents: An Empirical Study of Curriculum Effects in Memory-Augmented QA
+W7119233504,included,W7119233504,2601.02163,,EverMemOS: A Self-Organizing Memory Operating System for Structured Long-Horizon Reasoning
+W7161204020,included,W7161204020,2605.09530,,MemPrivacy: Privacy-Preserving Personalized Memory Management for Edge-Cloud Agents
+W7162218420,included,W7162218420,2605.22411,,DeferMem: Query-Time Evidence Distillation via Reinforcement Learning for Long-Term Memory QA
+W7162699913,included,W7162699913,2605.27366,,"MUSE-Autoskill: Self-Evolving Agents via Skill Creation, Memory, Management, and Evaluation"
+W7154865768,included,W7154865768,2604.14158,,MemGround: Long-Term Memory Evaluation Kit for Large Language Models in Gamified Scenarios
+W7162219247,included,W7162219247,2605.22142,,Short-Term-to-Long-Term Memory Transfer for Knowledge Graphs under Partial Observability
+W7161694351,included,W7161694351,,10.17613/bhr1b-p2m47,"Sharman, A. (2026). Orthogonal Retrieval: Why Vector Search and Graph Neural Networks Find Almost Nothing in Common. MADD Paper III: The ΔP Ratchet and Dual-System Retrieval for Non-Degrading Agentic Memory. SoulDriver Research."
+W7155245762,included,W7155245762,2604.18349,,HiGMem: A Hierarchical and LLM-Guided Memory System for Long-Term Conversational Agents
+W7166900110,included,W7166900110,2606.29279,,Manufactured Confidence: How Memory Consolidation Turns Hearsay into Confident Facts
+W4416189006,included,W4416189006,2511.07587,10.48550/arxiv.2511.07587,Beyond Fact Retrieval: Episodic Memory for RAG with Generative Semantic Workspaces
+W4402954570,included,W4402954570,2409.01344,10.48550/arxiv.2409.01344,Pairing Analogy-Augmented Generation with Procedural Memory for Procedural Q&amp;A
+W7154655972,included,W7154655972,2604.12179,,AgenticAI-DialogGen: Topic-Guided Conversation Generation for Fine-Tuning and Evaluating Short- and Long-Term Memories of LLMs
+W7130236920,included,W7130236920,2602.13933,,HyMem: Hybrid Memory Architecture with Dynamic Retrieval Scheduling
+W7164701712,included,W7164701712,2606.13115,,G-Long: Graph-Enhanced Memory Management for Efficient Long-Term Dialogue Agents
+W7155415310,included,W7155415310,,10.48448/yj02-kw50,H-Mem: Hybrid Multi-Dimensional Memory Management for Long-Context Conversational Agents
+W7167440653,included,W7167440653,,,A value-aware and conflict-sensitive memory management mechanism for agents in dynamic interaction scenarios
+W7128711358,included,W7128711358,,10.48448/7h2n-qh04,258 - Beyond Fact Retrieval: Episodic Memory for RAG with Generative Semantic Workspaces
+W4412887912,included,W4412887912,,10.18653/v1/2025.findings-acl.901,Bridging Intuitive Associations and Deliberate Recall: Empowering LLM Personal Assistant with Graph-Structured Long-term Memory
+W4416966516,included,W4416966516,2512.01710,10.48550/arxiv.2512.01710,MMAG: Mixed Memory-Augmented Generation for Large Language Models Applications
+W7127203378,included,W7127203378,2601.22528,,Darwinian Memory: A Training-Free Self-Regulating Memory System for GUI Agent Evolution
+W4416363982,included,W4416363982,2511.13593,10.48550/arxiv.2511.13593,"O-Mem: Omni Memory System for Personalized, Long Horizon, Self-Evolving Agents"
+W7131881308,included,W7131881308,,10.1109/ised67359.2025.11405305,"Enterprise Memory Architecture for Agentic AI (EMA <sub>2</sub> ): A Policy-Aware, Provenance-First, Multi-Tier Memory Stack for Long-Horizon Agents"
+W7134094385,included,W7134094385,2603.04740,,Memory as Ontology: A Constitutional Memory Architecture for Persistent Digital Citizens
+W7162607133,included,W7162607133,2605.25389,,Evo-Attacker: Memory-Augmented Reinforcement Learning for Long-Horizon Tool Attacks on LLM-MAS
+W7131884914,included,W7131884914,,10.5281/zenodo.18801533,Continuous Memory Consolidation Without Retraining: Solving the Edge Bloat Problem Through Computational Sleep
+W7125937303,included,W7125937303,,10.1109/smc58881.2025.11343701,DMA-MCTS: Dynamic Memory-Augmented Monte-Carlo Tree Search for LLM Task Planning
+W7160652332,included,W7160652332,,10.5281/zenodo.20078453,"Beyond RAG: LLM Wikis as Living Semantic Memory: Patterns, Empirical Findings, and Open Problems"
+W7141308334,included,W7141308334,,10.5281/zenodo.19258742,SNT-MEM: Operator-Structured Memory Management Framework
+W7138265814,included,W7138265814,,10.5281/zenodo.19059490,The Markdown Fallacy: Empirical Evidence That Format Is the Wrong Debate for LLM Memory Architecture
+W7162699678,included,W7162699678,2605.26394,,Memory Architectures for Multi-Turn Text-to-SQL: A Benchmark and Empirical Study
+W4417511816,included,W4417511816,2505.06328,10.48550/arxiv.2505.06328,A Grounded Memory System For Smart Personal Assistants
+W7168023581,included,W7168023581,,10.17605/osf.io/56fuj,Mnemonic State Graph (MSG): A Cue-Gated Human-in-the-Loop Memory Architecture for Conversational AI Systems
+W7162700146,included,W7162700146,2605.26667,,MemFail: Stress-Testing Failure Modes of LLM Memory Systems
+W7124228052,included,W7124228052,2601.08435,,Fine-Mem: Fine-Grained Feedback Alignment for Long-Horizon Memory Management
+W7129312784,included,W7129312784,,10.1109/punecon67554.2025.11377630,"Incremental Context Distillation: A Tiered Memory Architecture for Efficient, Long-Context Conversational AI"
+W4417086932,included,W4417086932,2512.04763,10.48550/arxiv.2512.04763,MemLoRA: Distilling Expert Adapters for On-Device Memory Systems
+W7124118253,included,W7124118253,2601.06152,,HiMeS: Hippocampus-inspired Memory System for Personalized AI Assistants
+W4415948512,included,W4415948512,2510.15966,10.48550/arxiv.2510.15966,PISA: A Pragmatic Psych-Inspired Unified Memory System for Enhanced AI Agency
+W7168091869,included,W7168091869,,10.5281/zenodo.21322414,Egress-Bounded Retrieval: A Privacy-Preserving Enterprise Memory Architecture with No External Model in the Retrieval Path
+W7147524247,included,W7147524247,,10.5281/zenodo.19366526,SNT-MEM: Operator-Structured Memory Management Framework For Self-Regulating AI Systems
+W7161915506,included,W7161915506,2605.17789,,SocialMemBench: Are AI Memory Systems Ready for Social Group Settings?
+W7162606985,included,W7162606985,2605.24579,,WhenLoss: Diagnosing Write and Retrieval Bottlenecks in Long-Context Memory Systems
+W7167037551,included,W7167037551,,10.5281/zenodo.21144417,"RPR-Memory: Decomposing Retrieval, Policy, and Reasoning in Persistent Memory Systems"
+2510.23730v2,included,,2510.23730v2,,Evaluating Long-Term Memory for Long-Context Question Answering
+2509.16189v3,included,,2509.16189v3,,Latent learning: episodic memory complements parametric learning by enabling flexible reuse of experiences
+2507.21953v1,included,,2507.21953v1,,MapAgent: Trajectory-Constructed Memory-Augmented Planning for Mobile Task Automation
+2503.21760v2,included,W4416549296,2503.21760v2,,MemInsight: Autonomous Memory Augmentation for LLM Agents
+135-735-001-903-854,included,,,10.48550/arxiv.2603.04390,A Dual-Helix Governance Approach Towards Reliable Agentic AI for WebGIS Development
+2310.08560,gold,W4387636003,2310.08560,,MemGPT
+2305.16291,gold,W4378505261,2305.16291,,Voyager
+2303.11366,gold,W4353112996,2303.11366,,Reflexion
+2308.10144,gold,W4386081135,2308.10144,,ExpeL
+2304.03442,gold,W4363671832,2304.03442,,Generative Agents
+2305.10250,gold,W4377163995,2305.10250,,MemoryBank
+2405.14831,gold,W4398886972,2405.14831,,HippoRAG
+2502.12110,gold,W4407759090,2502.12110,,A-Mem
+2504.19413,gold,W4416895257,2504.19413,,Mem0
+2409.07429,gold,W4403622204,2409.07429,,AWM
+2501.00663,gold,W4406032263,2501.00663,,Titans
+2504.13171,gold,W4416534952,2504.13171,,Sleep-time

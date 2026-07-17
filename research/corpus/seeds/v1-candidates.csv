@@ -1,0 +1,28 @@
+bibkey,title,year,arxiv_id,doi,url,in_corpus_key,v2_decision,status
+codememprocedural2025,CodeMem: Architecting Reproducible Agents via Dynamic MCP and Procedural Memory,2025,2512.15813,,https://arxiv.org/abs/2512.15813,W4417531516,INCLUIR,DECIDIDO-V2
+codifiedcontext2026,Codified Context: Infrastructure for AI Agents in a Complex Codebase,2026,2602.20478,,https://arxiv.org/abs/2602.20478,2602.20478v1,INCLUIR,DECIDIDO-V2
+experepair2026,EXPEREPAIR: Dual-Memory Enhanced LLM-based Repository-Level Program Repair,2026,2506.10484,,https://arxiv.org/abs/2506.10484,2506.10484v2,INCLUIR,DECIDIDO-V2
+feedbacknormalized2026,Feedback-Normalized Developer Memory for Reinforcement-Learning Coding Agents: A Safety-Gated MCP Architecture,2026,2605.01567,,https://arxiv.org/abs/2605.01567,W7160456681,INCLUIR,DECIDIDO-V2
+memanto2026,Memanto: Typed Semantic Memory with Information-Theoretic Retrieval for Long-Horizon Agents,2026,2604.22085,,https://arxiv.org/abs/2604.22085,W7157506109,INCLUIR,DECIDIDO-V2
+memcollab2026,MemCollab: Cross-Model Memory Collaboration via Contrastive Trajectory Distillation,2026,2603.23234,,https://arxiv.org/abs/2603.23234,W7140953617,INCLUIR,DECIDIDO-V2
+memorycircuits2026,What Happens Inside Agent Memory? Circuit Analysis from Emergence to Diagnosis,2026,2605.03354,,https://arxiv.org/abs/2605.03354,W7160564823,INCLUIR,DECIDIDO-V2
+memtrack2025,MEMTRACK: Evaluating Long-Term Memory and State Tracking in Multi-Platform Dynamic Agent Environments,2025,2510.01353,,https://arxiv.org/abs/2510.01353,W4414815971,INCLUIR,DECIDIDO-V2
+mirix2025,MIRIX: Multi-Agent Memory System for LLM-Based Agents,2025,2507.07957,,https://arxiv.org/abs/2507.07957,W4416106017,INCLUIR,DECIDIDO-V2
+parammem2026,ParamMem: Augmenting Language Agents with Parametric Reflective Memory,2026,2602.23320,,https://arxiv.org/abs/2602.23320,W7131909821,INCLUIR,DECIDIDO-V2
+prometheus2026,Prometheus: Towards Long-Horizon Codebase Navigation for Repository-Level Problem Solving,2026,2507.19942,,https://arxiv.org/abs/2507.19942,2507.19942v2,GRIS,DECIDIDO-V2
+pythalabmera2026,"PYTHALAB-MERA: Validation-Grounded Memory, Retrieval, and Acceptance Control for Frozen-LLM Coding Agents",2026,2605.08468,,https://arxiv.org/abs/2605.08468,W7161090935,INCLUIR,DECIDIDO-V2
+rscbmc2026,Learning When to Remember: Risk-Sensitive Contextual Bandits for Abstention-Aware Memory Retrieval in LLM-Based Coding Agents,2026,2604.27283,,https://arxiv.org/abs/2604.27283,W7159891359,INCLUIR,DECIDIDO-V2
+smith2025,Unifying Dynamic Tool Creation and Cross-Task Experience Sharing through Cognitive Memory Architecture,2025,2512.11303,,https://arxiv.org/abs/2512.11303,W7115608064,INCLUIR,DECIDIDO-V2
+sweexp2026,SWE-Exp: Experience-Driven Software Issue Resolution,2026,2507.23361,,https://arxiv.org/abs/2507.23361,W4414920525,INCLUIR,DECIDIDO-V2
+talm2025,TALM: Dynamic Tree-Structured Multi-Agent Framework with Long-Term Memory for Scalable Code Generation,2026,2510.23010,,https://arxiv.org/abs/2510.23010,2510.23010v2,INCLUIR,DECIDIDO-V2
+adaptive2026,Adaptive Memory Admission Control for LLM Agents,2026,2603.04549,,https://arxiv.org/abs/2603.04549,,,CANDIDATO
+aesp2026,AESP: A Local-First Persistent Context Engine for AI Coding Agents via the Model Context Protocol,2026,,10.2139/ssrn.6478861,https://ssrn.com/abstract=6478861,,,CANDIDATO
+clawvm2026,ClawVM: Harness-Managed Virtual Memory for Stateful Tool-Using LLM Agents,2026,,10.1145/3805621.3807648,https://doi.org/10.1145/3805621.3807648,,,CANDIDATO
+codememast2026,CodeMEM: AST-Guided Adaptive Memory for Repository-Level Iterative Code Generation,2026,2601.02868,,https://arxiv.org/abs/2601.02868,,,CANDIDATO
+contextweaver2026,ContextWeaver: Selective and Dependency-Structured Memory Construction for LLM Agents,2026,2604.23069,,https://arxiv.org/abs/2604.23069,,,CANDIDATO
+dualcluster2026,Dual-Cluster Memory Agent: Resolving Multi-Paradigm Ambiguity in Optimization Problem Solving,2026,2604.20183,,https://arxiv.org/abs/2604.20183,,,CANDIDATO
+lmeb2026,LMEB: Long-horizon Memory Embedding Benchmark,2026,2603.12572,,https://arxiv.org/abs/2603.12572,,,CANDIDATO
+maple2026,"MAPLE: A Sub-Agent Architecture for Memory, Learning, and Personalization in Agentic AI Systems",2026,2602.13258,,https://arxiv.org/abs/2602.13258,,,CANDIDATO
+memevolve2026,Mem$^2$Evolve: Towards Self-Evolving Agents via Co-Evolutionary Capability Expansion and Experience Distillation,2026,2604.10923,,https://arxiv.org/abs/2604.10923,,,CANDIDATO
+memorysurvey2026,"Memory for Autonomous LLM Agents: Mechanisms, Evaluation, and Emerging Frontiers",2026,2603.07670,,https://arxiv.org/abs/2603.07670,,,CANDIDATO
+springdrift2026,"Springdrift: An Auditable Persistent Runtime for LLM Agents with Case-Based Memory, Normative Safety, and Ambient Self-Perception",2026,2604.04660,,https://arxiv.org/abs/2604.04660,,,CANDIDATO

@@ -1,0 +1,1118 @@
+wid,doi,year,title,backward_n,forward_n,total,seeds_sample
+W7108342843,https://doi.org/10.1145/3767695.3769671,2025,Conversational Agents: From RAG to LTM,0,10,10,2310.08560;2405.14831;W4388748032;W4393147158;W4404344231
+W4406800520,https://doi.org/10.1007/s11432-024-4222-0,2025,The rise and potential of large language model based agents: a survey,0,6,6,2303.11366;2304.03442;2305.10250;2305.16291;2308.10144
+W7162650567,https://doi.org/10.1145/3774905.3795087,2026,Real-Time Procedural Learning From Experience for AI Agents,0,6,6,2303.11366;2305.10250;2308.10144;2409.07429;W4407759090
+W2998702515,,,,5,0,5,W4393147158;W4403282600;W7129312784;W7131881308;W7160388841
+W4405185373,https://doi.org/10.1039/d4sc03921a,2024,A review of large language models and autonomous agents in chemistry,0,5,5,2303.11366;2304.03442;2305.10250;2305.16291;2308.10144
+W4412203333,https://doi.org/10.1145/3748302,2025,A Survey on the Memory Mechanism of Large Language Model-based Agents,3,2,5,2409.07429;W4400434708;W4416088936;W7162660316;W7167607753
+W7166717668,https://doi.org/10.5281/zenodo.21067957,2026,Agent Knowledge Cycle (AKC),0,5,5,2304.03442;2305.16291;2310.08560;2409.07429;2605.13716v1
+W7167794263,https://doi.org/10.5281/zenodo.21279356,2026,Agent Knowledge Cycle (AKC),0,5,5,2304.03442;2305.16291;2310.08560;2409.07429;2605.13716v1
+W4399531538,https://doi.org/10.31219/osf.io/f75wz,2024,Intelligent Digital Agents in the Era of Large Language Models,0,4,4,2303.11366;2305.10250;2305.16291;2308.10144
+W4401702120,https://doi.org/10.1039/d4dd00178h,2024,Towards a science exocortex,0,4,4,2303.11366;2304.03442;2305.10250;2305.16291
+W4405432725,https://doi.org/10.1146/annurev-control-022823-033813,2024,Generative AI Agents for Knowledge Work Augmentation in Finance,0,4,4,2303.11366;2304.03442;2305.16291;2308.10144
+W4413014960,https://doi.org/10.1145/3759441.3759443,2025,Cloud Infrastructure Management in the Age of AI Agents,0,4,4,2303.11366;2304.03442;2305.16291;2310.08560
+W4414079353,https://doi.org/10.2139/ssrn.5459034,2025,Knowledge Intensive Agents,0,4,4,2310.08560;2405.14831;W4388748032;W4393147158
+W7140307500,https://doi.org/10.5281/zenodo.19200726,2026,Agent Knowledge Cycle (AKC),0,4,4,2304.03442;2305.16291;2310.08560;2409.07429
+W7164559105,https://doi.org/10.5281/zenodo.20652261,2026,Agent Knowledge Cycle (AKC),0,4,4,2304.03442;2305.16291;2310.08560;2409.07429
+W2530887700,https://doi.org/10.1038/nature20101,2016,Hybrid computing using a neural network with dynamic external memory,3,0,3,W4410629910;W7129312784;W7131082765
+W4386148439,https://doi.org/10.48550/arxiv.2308.12086,2023,Out of the Cage: How Stochastic Parrots Win in Cyber Security Environments,0,3,3,2303.11366;2304.03442;2305.16291
+W4389520122,https://doi.org/10.18653/v1/2023.findings-emnlp.309,2023,LDM2: A Large Decision Model Imitating Human Cognition with Dynamic Memory Enhancement: A Large Decision Model Imitating Human Cognition with Dynamic Memory Enhancement,0,3,3,2303.11366;2305.10250;2305.16291
+W4392305745,https://doi.org/10.5220/0012391800003636,2024,Out of the Cage: How Stochastic Parrots Win in Cyber Security Environments,0,3,3,2303.11366;2304.03442;2305.16291
+W4393160747,https://doi.org/10.1609/aaai.v38i17.29936,2024,ExpeL: LLM Agents Are Experiential Learners,1,2,3,2303.11366;2304.03442;W7162660316
+W4401719266,https://doi.org/10.1109/icsa-c63560.2024.00028,2024,Towards Responsible Generative AI: A Reference Architecture for Designing Foundation Model Based Agents,0,3,3,2305.16291;2308.10144;2310.08560
+W4402352495,https://doi.org/10.1109/ijcnn60899.2024.10650094,2024,RRdE: A Decision Making Framework for Language Agents in Interactive Environments,0,3,3,2303.11366;2305.16291;W4393147158
+W4404355908,https://doi.org/10.1016/j.jss.2024.112278,2024,Agent design pattern catalogue: A collection of architectural patterns for foundation model based agents,0,3,3,2305.16291;2308.10144;2310.08560
+W4406243629,https://doi.org/10.2139/ssrn.5017297,2025,Evaluating The Architecture Of Large Language Model-Based Agents,0,3,3,2304.03442;2305.16291;2310.08560
+W4407837005,https://doi.org/10.1016/j.inffus.2025.103033,2025,From screens to scenes: A survey of embodied AI in healthcare,0,3,3,2303.11366;W4388748032;W4393147158
+W4408721343,https://doi.org/10.3390/info16040251,2025,ILSTMA: Enhancing Accuracy and Speed of Long-Term and Short-Term Memory Architecture,0,3,3,2303.11366;2304.03442;W4393147158
+W4412517770,https://doi.org/10.3390/app15148059,2025,Beyond Manual Media Coding: Evaluating Large Language Models and Agents for News Content Analysis,0,3,3,2303.11366;2304.03442;W4393147158
+W4412670334,https://doi.org/10.1016/j.tics.2025.06.016,2025,Towards large language models with human-like episodic memory,0,3,3,2405.14831;2501.00663;W4404344231
+W4413402477,https://doi.org/10.3390/electronics14163320,2025,SCNOC-Agentic: A Network Operation and Control Agentic for Satellite Communication Systems,0,3,3,2303.11366;2304.03442;W4393147158
+W4413427262,https://doi.org/10.1016/j.inffus.2025.103599,2025,"AI Agents vs. Agentic AI: A Conceptual taxonomy, applications and challenges",0,3,3,2303.11366;2305.16291;W4407759090
+W7117916831,https://doi.org/10.3724/zdxbyxb-2025-0697,2026,Application and progress of artificial intelligence agents in drug development,0,3,3,2303.11366;2304.03442;2305.16291
+W7131288999,https://doi.org/10.1038/s41587-026-03035-1,2026,Agentic AI and the rise of in silico team science in biomedical research,0,3,3,2304.03442;W4393147158;W4406840428
+W7147028602,https://doi.org/10.3389/frai.2026.1749517,2026,From simulated empathy to structural attunement: Realtime Editable Memory Topology and the evolution of emotionally grounded AI,0,3,3,2303.11366;2304.03442;2310.08560
+W7164841116,https://doi.org/10.1007/s11831-026-10675-8,2026,"A Holistic Review of Agentic AI Frameworks, Applications, and Research Trajectories",0,3,3,2305.16291;2310.08560;W4414942676
+W2964110616,https://doi.org/10.18653/v1/p19-1285,2019,Transformer-XL: Attentive Language Models beyond a Fixed-Length Context,2,0,2,W7129312784;W7131881308
+W2970641574,https://doi.org/10.18653/v1/d19-1410,2019,Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks,2,0,2,W4414213933;W7167607753
+W4292779060,https://doi.org/10.4230/lipics.giscience.2023.43,2023,"Aion Framework: Dimensional Emergence of AI Consciousness, Observer-Induced Collapse, and Cosmological Portal Dynamics",2,0,2,W4393147158;W4410629910
+W4379389501,https://doi.org/10.26434/chemrxiv-2023-s1x5p,2023,Prompt engineering of GPT-4 for chemical research: what can/cannot be done?,0,2,2,2304.03442;2305.16291
+W4382536579,https://doi.org/10.48550/arxiv.2306.14915,2023,A GPT-4 Reticular Chemist for Guiding MOF Discovery,0,2,2,2304.03442;2305.16291
+W4385360966,https://doi.org/10.14293/pr2199.000220.v1,2023,Iterative improvements from feedback for language models,0,2,2,2303.11366;2305.16291
+W4387393188,https://doi.org/10.1002/anie.202311983,2023,A GPT‐4 Reticular Chemist for Guiding MOF Discovery**,0,2,2,2304.03442;2305.16291
+W4387406013,https://doi.org/10.1002/ange.202311983,2023,A GPT‐4 Reticular Chemist for Guiding MOF Discovery**,0,2,2,2304.03442;2305.16291
+W4387507766,https://doi.org/10.1039/d3dd00112a,2023,Domain-specific chatbots for science using embeddings,0,2,2,2303.11366;2305.16291
+W4388560379,https://doi.org/10.1021/acscentsci.3c01087,2023,ChatGPT Research Group for Optimizing the Crystallinity of MOFs and COFs,0,2,2,2304.03442;2305.16291
+W4389520297,https://doi.org/10.18653/v1/2023.findings-emnlp.748,2023,Long-Horizon Dialogue Understanding for Role Identification in the Game of Avalon with Large Language Models,0,2,2,2305.16291;2310.08560
+W4389520747,https://doi.org/10.18653/v1/2023.emnlp-main.507,2023,Reasoning with Language Model is Planning with World Model,1,1,2,2303.11366;W7125937303
+W4389524468,https://doi.org/10.18653/v1/2023.emnlp-main.109,2023,Failures Pave the Way: Enhancing Large Language Models through Tuning-free Rule Accumulation,0,2,2,2303.11366;2305.16291
+W4389727268,https://doi.org/10.1038/s41586-023-06924-6,2023,Mathematical discoveries from program search with large language models,0,2,2,2304.03442;2305.16291
+W4389764468,https://doi.org/10.31219/osf.io/ac4sp,2023,A Survey of Reasoning with Foundation Models,0,2,2,2303.11366;2305.16291
+W4390041257,https://doi.org/10.48550/arxiv.2312.11538,2023,Iterative Motion Editing with Natural Language,0,2,2,2303.11366;2305.16291
+W4392414327,https://doi.org/10.1109/icse-fose59343.2023.00008,2023,Large Language Models for Software Engineering: Survey and Open Problems,1,1,2,2303.11366;W7125587830
+W4393160302,https://doi.org/10.1609/aaai.v38i16.29720,2024,Graph of Thoughts: Solving Elaborate Problems with Large Language Models,1,1,2,2303.11366;W7125937303
+W4394595621,https://doi.org/10.1109/mits.2024.3381793,2024,"Receive, Reason, and React: Drive as You Say, With Large Language Models in Autonomous Vehicles",0,2,2,2303.11366;2305.16291
+W4394862768,https://doi.org/10.1109/wacvw60836.2024.00101,2024,Drive as You Speak: Enabling Human-Like Interaction with Large Language Models in Autonomous Vehicles,0,2,2,2303.11366;2305.16291
+W4396832601,https://doi.org/10.1145/3613905.3636293,2024,Challenges and Opportunities of LLM-Based Synthetic Personae and Data in HCI,0,2,2,2304.03442;2305.16291
+W4396905893,https://doi.org/10.17760/d20621578,2023,AgentSpeak: a framework for agent-based modeling with integrated large language models; Case study: analyzing policy interventions in electric vehicle adoption,0,2,2,2303.11366;2305.16291
+W4399377978,https://doi.org/10.1039/d4dd00074a,2024,Materials science in the era of large language models: a perspective,0,2,2,2303.11366;2310.08560
+W4399616922,https://doi.org/10.2139/ssrn.4863665,2024,Watergpt: Training a Large Language Model to Become a Hydrology Expert,0,2,2,2304.03442;2305.16291
+W4400700382,https://doi.org/10.2139/ssrn.4892998,2024,Large Language Model Agents for Improving Engagement with Behavior Change Interventions: Application to Digital Mindfulness,0,2,2,2304.03442;2305.10250
+W4402684150,https://doi.org/10.18653/v1/2024.acl-long.747,2024,Evaluating Very Long-Term Conversational Memory of LLM Agents,2,0,2,W7164901450;W7167607753
+W4402726973,https://doi.org/10.1109/cvpr52733.2024.02482,2024,Embodied Multi-Modal Agent trained by an LLM from a Parallel TextWorld,0,2,2,2303.11366;2305.16291
+W4402727291,https://doi.org/10.1109/cvpr52733.2024.00062,2024,Digital Life Project: Autonomous 3D Characters with Social Intelligence,0,2,2,2304.03442;2305.16291
+W4404317680,https://doi.org/10.1109/aiotc63215.2024.10748304,2024,"A Survey of LLM-based Agents: Theories, Technologies, Applications and Suggestions",0,2,2,2303.11366;2305.16291
+W4404739821,https://doi.org/10.1109/ispce-asia64773.2024.10756271,2024,Cooperative Scheduling and Hierarchical Memory Model for Multi-Agent Systems,1,1,2,W4393147158;W4416088936
+W4404986242,https://doi.org/10.1038/s41593-025-02169-w,2025,Leveraging insights from neuroscience to build adaptive artificial intelligence,0,2,2,2305.16291;2310.08560
+W4405355275,https://doi.org/10.1007/s11432-024-4485-0,2025,From intention to implementation: automating biomedical research via LLMs,0,2,2,2304.03442;2305.16291
+W4407922851,https://doi.org/10.1145/3719341,2025,Igniting Language Intelligence: The Hitchhiker’s Guide from Chain-of-Thought Reasoning to Language Agents,0,2,2,2303.11366;2305.16291
+W4409424751,https://doi.org/10.1016/j.ymssp.2025.112683,2025,"An outline of Prognostics and health management Large Model: Concepts, Paradigms, and challenges",0,2,2,2303.11366;2305.16291
+W4410182127,https://doi.org/10.3389/fpsyg.2025.1591618,2025,Enhancing memory retrieval in generative agents through LLM-trained cross attention networks,0,2,2,W4393147158;W4399354028
+W4410399040,https://doi.org/10.29327/9786527213314.1086647,2025,MODELOS DE RACIOCÍNIO E ARQUITETURA EXTENSÍVEL PARA PESQUISA INTELIGENTE,0,2,2,2303.11366;2304.03442
+W4410453424,https://doi.org/10.1007/s10462-025-11241-7,2025,"A review of LLMs and their applications in the architecture, engineering and construction industry",0,2,2,2303.11366;2305.16291
+W4410495238,https://doi.org/10.3390/app15105663,2025,CoReaAgents: A Collaboration and Reasoning Framework Based on LLM-Powered Agents for Complex Reasoning Tasks,0,2,2,2303.11366;2304.03442
+W4410949332,https://doi.org/10.2139/ssrn.5276004,2025,"Why Should Next-Gen LLM Multi-Agent Systems Move Beyond Fixed Architectures to Dynamic, Input-Driven Graphs?",0,2,2,2303.11366;2304.03442
+W4411949569,https://doi.org/10.1016/j.inffus.2025.103444,2025,MatchNav: LLM-based enhanced description and instruction matching in vision-and-language navigation,0,2,2,2303.11366;W4393147158
+W4412399079,https://doi.org/10.1109/aero63441.2025.11068478,2025,Enhancing Flight Deck Decision Support with Distributed GenAI: A Multi-Agent Approach,0,2,2,2303.11366;2305.16291
+W4412438205,https://doi.org/10.1016/j.nlp.2025.100173,2025,"WITHDRAWN: Ambiguity processing in Large Language Models: Detection, resolution, and the path to hallucination",0,2,2,2405.14831;W4399354028
+W4412929608,https://doi.org/10.3390/fi17080353,2025,"Transforming Data Annotation with AI Agents: A Review of Architectures, Reasoning, Applications, and Impact",0,2,2,2303.11366;2304.03442
+W4412945530,https://doi.org/10.18653/v1/2025.acl-long.413,2025,In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents,2,0,2,W4416088936;W7167607753
+W4413003042,https://doi.org/10.1007/978-3-032-00800-8_28,2025,Applying Cognitive Design Patterns to General LLM Agents,0,2,2,2305.16291;W4393147158
+W4413103613,https://doi.org/10.2139/ssrn.5386338,2025,"AI Pricing, Agent Heterogeneity, and Collusion",0,2,2,2304.03442;2305.16291
+W4413126267,https://doi.org/10.2139/ssrn.5365332,2025,&lt;p&gt;Large Language Models for Social Productivity&lt;/p&gt;,0,2,2,2303.11366;2304.03442
+W4413428452,https://doi.org/10.1007/s44204-025-00318-3,2025,"Aggregation, trade-offs, and uncertainties in AI wellbeing",0,2,2,2304.03442;2305.16291
+W4413780653,https://doi.org/10.1016/j.jai.2025.08.003,2025,Agentic AI: The age of reasoning—A review,0,2,2,2303.11366;2310.08560
+W4414133540,https://doi.org/10.12688/f1000research.169927.1,2025,"Trustworthy agentic AI systems: a cross-layer review of architectures, threat models, and governance strategies for real-world deployment",0,2,2,W4406840428;W4415156280
+W4414189842,https://doi.org/10.1016/j.jii.2025.100954,2025,Analysis of causes of welding defects in bridge weathering steel based on large language models,0,2,2,2405.14831;W4393147158
+W4414568512,https://doi.org/10.1016/j.autcon.2025.106563,2025,AI BIM coordinator for non-expert interaction in building design using LLM-driven multi-agent systems,0,2,2,2303.11366;2305.16291
+W4414851612,https://doi.org/10.1007/s42979-025-04369-4,2025,A Hormetic Approach to the Value-Loading Problem: Preventing the Paperclip Apocalypse,0,2,2,2304.03442;2305.16291
+W4415292077,https://doi.org/10.1016/j.jss.2025.112656,2025,AgentArcEval: An architecture evaluation method for foundation model based agents,0,2,2,2305.16291;2310.08560
+W4415428439,https://doi.org/10.3233/faia251160,2025,Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory,2,0,2,W4416088936;W7164901450
+W4416137592,https://doi.org/10.1093/bib/bbaf601,2025,The rise and potential opportunities of large language model agents in bioinformatics and biomedicine,0,2,2,W4393147158;W4407759090
+W7125806628,https://doi.org/10.1007/978-3-032-15632-7_11,2026,Evaluating Agentic AI Through a Geopolitical Simulation Sandbox,0,2,2,2303.11366;2304.03442
+W7129728849,https://doi.org/10.1007/s44163-026-00992-z,2026,A memory fabric for conversational AI agents enabling shared and persistent multiuser memory,0,2,2,W4410629910;W4416895257
+W7131083166,https://doi.org/10.1007/978-981-95-4632-9_5,2026,Agents and Workflows,0,2,2,2303.11366;2310.08560
+W7143351253,https://doi.org/10.1038/s41551-026-01634-6,2026,"Empowering AI data scientists using a multi-agent LLM framework with self-evolving capabilities for autonomous, tool-aware biomedical data analyses",0,2,2,W4388748032;W4404344231
+W7154037271,https://doi.org/10.1145/3772318.3791635,2026,"Relational Gains, Privacy Strains: Exploring Users' Perceptions and Experiences with ChatGPT's Memory Feature",0,2,2,W4388748032;W4393147158
+W7154084312,https://doi.org/10.1145/3772318.3791669,2026,From Conversation to Human-AI Common Ground: Extracting Cognitive Workflows for Reuse in Sense-making Tasks,0,2,2,2310.08560;W4416895257
+W7154713032,https://doi.org/10.1039/d6dd00043f,2026,Masgent: an AI-assisted materials simulation agent,0,2,2,2305.16291;2602.17902v1
+W7162126340,https://doi.org/10.1145/3786335.3813226,2026,Complex Knowledge Curation using Agentic Ontological Notebook Memory,0,2,2,2310.08560;W4406840428
+W7162253192,https://doi.org/10.1007/978-981-95-7750-7_5,2026,Self-evolving World Model,0,2,2,W4393147158;W4410629910
+W7164888123,https://doi.org/10.64898/2026.06.11.731775,2026,OmicOS: A Comprehensive Omics Ecosystem Infrastructure and Agent System for the AI Era,0,2,2,2303.11366;2305.16291
+W7167416774,https://doi.org/10.1145/3805760.3814925,2026,ClassEval-Pro: A Cross-Domain Benchmark for Class-Level Code Generation,0,2,2,2603.27850v1;W4414920525
+W7167954979,https://doi.org/10.1145/3805712.3809593,2026,NeurPIU: Neurobiologically Inspired Personalized Intent Understanding in Large Language Models,0,2,2,2310.08560;W4407759090
+W104958897,https://doi.org/10.21236/ada425779,2004,The Double R Theory of Language Comprehension,1,0,1,W7117967956
+W1967507142,https://doi.org/10.5898/jhri.2.2.fasola,2013,A Socially Assistive Robot Exercise Coach for the Elderly,1,0,1,W7125587830
+W1970701746,https://doi.org/10.1145/94574.94575,1990,Resource management in large distributed systems,1,0,1,W4416088936
+W1970965128,https://doi.org/10.1145/1516533.1516535,2009,On the use of memory and resources in minority games,1,0,1,W4416088936
+W2004451884,https://doi.org/10.1080/08993400802114508,2008,"Debugging: finding, fixing and flailing, a multi-institutional study of novice debuggers",1,0,1,W4414988413
+W2025348793,https://doi.org/10.1109/csnt.2014.90,2014,Educational Data Mining on Learning Management Systems Using Experience API,1,0,1,W4414213933
+W2028339102,https://doi.org/10.1007/s10732-009-9119-1,2009,Generating meta-heuristic optimization code using ADATE,1,0,1,W4413434847
+W2031065205,https://doi.org/10.4236/jsea.2011.412084,2011,A Knowledge Management Framework in Software Requirements Engineering Based on the SECI Model,1,0,1,W7167607753
+W2039179155,https://doi.org/10.1109/esem.2013.43,2013,Debugging Revisited: Toward Understanding the Debugging Needs of Contemporary Software Developers,1,0,1,W4414988413
+W2080543434,https://doi.org/10.1109/iros.2005.1545303,2005,Designing robots for long-term social interaction,1,0,1,W7125587830
+W2081693381,https://doi.org/10.1016/j.isprsjprs.2013.02.011,2013,Moving code – Sharing geoprocessing logic on the Web,1,0,1,W4413434847
+W2081881831,https://doi.org/10.1080/10095020.2013.774108,2013,Interdisciplinary urban GIS for smart cities: advancements and opportunities,1,0,1,W4413434847
+W2084878508,https://doi.org/10.7763/ijeeee.2013.v3.233,2013,Learning Management System (LMS) among University Students: Does It Work?,1,0,1,W4414213933
+W2090036533,https://doi.org/10.1109/ms.2002.1003450,2002,Knowledge management in software engineering,1,0,1,W7167607753
+W2093822404,https://doi.org/10.1145/1957656.1957669,2011,A conversational robot in an elderly care center,1,0,1,W7125587830
+W2096733369,https://doi.org/10.1109/cvpr.2015.7298682,2015,FaceNet: A unified embedding for face recognition and clustering,1,0,1,W7125587830
+W2098118776,https://doi.org/10.2307/3250961,2001,"<i>Review</i> : Knowledge Management and Knowledge Management Systems: Conceptual Foundations And Research Issues1,2",1,0,1,W7167607753
+W2099111195,https://doi.org/10.1002/0471200611,2001,Elements of Information Theory,1,0,1,W7131881308
+W2112025013,https://doi.org/10.1002/047001332x.ch11,2003,More Is Not Always Better: The Benefits of Cognitive Limits,1,0,1,W7117967956
+W2124153811,https://doi.org/10.1109/iros.2004.1389738,2005,Friendly social robot that understands human's ftiendly relationships,1,0,1,W7125587830
+W2126316555,https://doi.org/10.1109/tciaig.2012.2186810,2012,A Survey of Monte Carlo Tree Search Methods,1,0,1,W7125937303
+W2132454116,https://doi.org/10.1287/orsc.5.1.14,1994,A Dynamic Theory of Organizational Knowledge Creation,1,0,1,W7167607753
+W2136518234,https://doi.org/10.1037/0033-295x.111.4.1036,2004,An Integrated Theory of the Mind.,1,0,1,W7117967956
+W2145339207,https://doi.org/10.1038/nature14236,2015,Human-level control through deep reinforcement learning,1,0,1,W4410629910
+W2148972377,https://doi.org/10.1145/1571941.1572114,2009,Reciprocal rank fusion outperforms condorcet and individual rank learning methods,1,0,1,W7167607753
+W2151136084,https://doi.org/10.1177/1558689809344973,2009,CAQDAS-GIS Convergence,1,0,1,W4413434847
+W2159017129,https://doi.org/10.1016/j.infsof.2008.03.006,2008,"Knowledge management in software engineering: A systematic review of studied concepts, findings and research methods used",1,0,1,W7167607753
+W2159345153,https://doi.org/10.1111/j.1551-6709.2011.01214.x,2011,Complementary Learning Systems,1,0,1,W7125587830
+W2162455108,https://doi.org/10.1007/s002360050099,1997,Code generation based on formal BURS theory and heuristic search,1,0,1,W4413434847
+W2168359464,https://doi.org/10.1016/s0004-3702(98)00023-x,1998,Planning and acting in partially observable stochastic domains,1,0,1,W7125937303
+W2298283242,https://doi.org/10.1016/j.websem.2016.02.002,2016,A rule-based agent-oriented approach for supporting weakly-structured scientific workflows,1,0,1,W4413434847
+W2324473708,https://doi.org/10.14236/ewic/bcsiit2014.16,2014,Developing an IT Help Desk Troubleshooter Expert System for diagnosing and solving IT Problems,1,0,1,W4414213933
+W2327678559,https://doi.org/10.9734/bjast/2015/14975,2015,Likert Scale: Explored and Explained,1,0,1,W4414213933
+W2396881363,https://doi.org/10.1038/sdata.2016.35,2016,"MIMIC-III, a freely accessible critical care database",1,0,1,W7160388841
+W2521118911,,2016,Proceedings of the Tenth International Conference on Language Resources and Evaluation,1,0,1,W4410629910
+W2524168323,https://doi.org/10.1109/citsm.2016.7577578,2016,Cosine similarity to determine similarity measure: Study case in online essay assessment,1,0,1,W4414213933
+W2528951757,https://doi.org/10.1109/iros13647.2008,2008,2008 IEEE/RSJ International Conference on Intelligent Robots and Systems,1,0,1,W4410629910
+W2556093109,https://doi.org/10.1007/s12369-016-0385-4,2016,Personal Greetings: Personalizing Robot Utterances Based on Novelty of Observed Behavior,1,0,1,W7125587830
+W2560647685,https://doi.org/10.1073/pnas.1611835114,2017,Overcoming catastrophic forgetting in neural networks,1,0,1,W7117967956
+W2581010780,https://doi.org/10.1007/s10664-016-9497-6,2017,On the long-term use of visual gui testing in industrial practice: a case study,1,0,1,W4413434847
+W2607303097,https://doi.org/10.18653/v1/d18-1,2018,Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing,1,0,1,W4410629910
+W2625598969,https://doi.org/10.1080/10095020.2017.1325594,2017,Sustainable development and geospatial information: a strategic framework for integrating a global policy agenda into national geospatial capabilities,1,0,1,W4413434847
+W2737873451,https://doi.org/10.1057/s41275-017-0065-7,2017,"Explicit and tacit knowledge conversion effects, in software engineering undergraduate students",1,0,1,W7167607753
+W2772103329,https://doi.org/10.1109/icacci.2017.8126057,2017,Chatbot for university related FAQs,1,0,1,W4414213933
+W2782096898,https://doi.org/10.1007/978-3-319-73618-1_4,2018,Dialogue Intent Classification with Long Short-Term Memory Networks,1,0,1,W4393147158
+W2799002257,https://doi.org/10.1109/cvpr.2018.00886,2018,VirtualHome: Simulating Household Activities Via Programs,1,0,1,W7125937303
+W2799899844,https://doi.org/10.1109/access.2018.2831228,2018,Multi-Agent Systems: A Survey,1,0,1,W4413434847
+W2889787757,https://doi.org/10.18653/v1/d18-1259,2018,"HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering",1,0,1,W4403282600
+W2891778370,https://doi.org/10.21276/ijircst.2018.6.3.2,2018,Implementation of a Chat Bot System using AI and NLP,1,0,1,W4414213933
+W2897042519,https://doi.org/10.1145/3287560.3287596,2019,Model Cards for Model Reporting,1,0,1,W7131881308
+W2899575547,https://doi.org/10.18653/v1/p17-1,2017,Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers),1,0,1,W4410629910
+W2913322474,https://doi.org/10.3390/electronics8020154,2019,An Efficient LMS Platform and Its Test Bed,1,0,1,W4414213933
+W2941819978,https://doi.org/10.18653/v1/p19-1300,2019,Unsupervised Multilingual Word Embedding with Limited Resources using Neural Language Models,1,0,1,W4410629910
+W2945872583,https://doi.org/10.14400/jdc.2018.16.9.011,2018,Improving University Homepage FAQ Using Semantic Network Analysis,1,0,1,W4414213933
+W2949756005,https://doi.org/10.18653/v1/p19-1581,2019,Better OOV Translation with Bilingual Terminology Mining,1,0,1,W7129312784
+W2963023579,,,,1,0,1,W4414213933
+W2963469388,https://doi.org/10.1109/tpami.2018.2889473,2018,Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs,1,0,1,W7131881308
+W2963825865,https://doi.org/10.18653/v1/p18-1205,2018,"Personalizing Dialogue Agents: I have a dog, do you have pets too?",1,0,1,W7129312784
+W2978462138,https://doi.org/10.11919/j.issn.1002-0829.217070,2017,The Differences and Similarities Between Two-Sample <i>T</i>-Test and Paired <i>T</i>-Test.,1,0,1,W4414213933
+W2978597103,https://doi.org/10.1007/978-3-030-32686-9_5,2019,BM25 Beyond Query-Document Similarity,1,0,1,W4403282600
+W3005359275,https://doi.org/10.3390/ijgi9020095,2020,Geospatial Data Management Research: Progress and Future Directions,1,0,1,W4413434847
+W3008374555,https://doi.org/10.48550/arxiv.2002.10957,2020,MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers,1,0,1,W4393147158
+W3010477257,https://doi.org/10.1007/s00429-020-02052-3,2020,Dissociating the neural correlates of the sociality and plausibility effects in simple conceptual combination,1,0,1,W7164901450
+W3011574394,https://doi.org/10.1007/s11431-020-1647-3,2020,Pre-trained models for natural language processing: A survey,1,0,1,W4414213933
+W3016495922,https://doi.org/10.3390/rs12081253,2020,An Overview of Platforms for Big Earth Observation Data Management and Analysis,1,0,1,W4413434847
+W3016600190,https://doi.org/10.1016/j.procs.2020.02.195,2020,Use of chat bots in Learning Management Systems,1,0,1,W4414213933
+W3021397474,https://doi.org/10.1145/3397271.3401075,2020,ColBERT,1,0,1,W4403282600
+W3022038263,https://doi.org/10.3390/ijgi9050311,2020,"Geospatial Serverless Computing: Architectures, Tools and Future Directions",1,0,1,W4413434847
+W3023058341,https://doi.org/10.1016/j.isprsjprs.2020.04.001,2020,Google Earth Engine for geo-big data applications: A meta-analysis and systematic review,1,0,1,W4413434847
+W3034912332,https://doi.org/10.18653/v1/2020.acl-main.232,2020,Learning to execute instructions in a Minecraft dialogue,1,0,1,W7129312784
+W3039695075,https://doi.org/10.18653/v1/2022.acl-long.62,2022,Language-agnostic BERT Sentence Embedding,1,0,1,W4414213933
+W3044423116,https://doi.org/10.5626/jok.2020.47.7.682,2020,A Small-Scale Korean-Specific BERT Language Model,1,0,1,W4414213933
+W3048826825,https://doi.org/10.1007/s00778-023-00819-8,2023,A survey on the evolution of stream processing systems,1,0,1,W4416088936
+W3086404580,https://doi.org/10.1146/annurev-psych-072720-094140,2020,Active Forgetting: Adaptation of Memory by Prefrontal Control,1,0,1,W7117967956
+W3088409176,,,,1,0,1,W4414213933
+W3099700870,,,,1,0,1,W4393147158
+W3102927624,https://doi.org/10.18653/v1/2020.findings-emnlp.39,2020,KorNLI and KorSTS: New Benchmark Datasets for Korean Natural Language Understanding,1,0,1,W4414213933
+W3103680885,,,,1,0,1,W4414213933
+W3103891289,https://doi.org/10.1016/j.mlwa.2020.100006,2020,"Chatbots: History, technology, and applications",1,0,1,W4414213933
+W3106007100,https://doi.org/10.18653/v1/2020.emnlp-main.65,2020,Will I Sound Like Me? Improving Persona Consistency in Dialogues through Pragmatic Self-Consciousness,1,0,1,W7164901450
+W3116008906,https://doi.org/10.1109/access.2020.3045700,2020,Anonymization Techniques for Privacy Preserving Data Publishing: A Comprehensive Survey,1,0,1,W4414213933
+W3119882092,https://doi.org/10.1093/scan/nsab003,2021,The brain network in support of social semantic accumulation,1,0,1,W7164901450
+W3128387357,https://doi.org/10.1101/2021.02.01.21250929,2021,One Year of Evidence on Mental Health Disorders in China during the COVID-19 Crisis - A Systematic Review and Meta-Analysis,1,0,1,W7164901450
+W3154685255,,,,1,0,1,W7164901450
+W3156270226,https://doi.org/10.1109/tvcg.2021.3074023,2021,The Unmet Data Visualization Needs of Decision Makers Within Organizations,1,0,1,W4413434847
+W3168867926,https://doi.org/10.48550/arxiv.2106.09685,2021,LoRA: Low-Rank Adaptation of Large Language Models,1,0,1,W4393147158
+W3184431398,https://doi.org/10.1017/nlp.2024.41,2024,Thought flow nets: From single predictions to trains of model thought,0,1,1,2303.11366
+W3186804217,https://doi.org/10.18653/v1/2022.acl-long.356,2022,Beyond Goldfish Memory: Long-Term Open-Domain Conversation,1,0,1,W7164901450
+W3197209047,https://doi.org/10.1016/j.geosus.2021.08.004,2021,GIScience and remote sensing in natural resource and environmental research: Status quo and future perspectives,1,0,1,W4413434847
+W3201927424,https://doi.org/10.3390/su131910991,2021,Application of Learning Management System (LMS) during the COVID-19 Pandemic: A Sustainable Acceptance Model of the Expansion Technology Approach,1,0,1,W4414213933
+W3212368439,,,,1,0,1,W7131881308
+W3216414477,https://doi.org/10.1162/neco_a_01520,2022,A Model of Semantic Completion in Generative Episodic Memory,1,0,1,W7125587830
+W4220885687,https://doi.org/10.3389/fpsyt.2022.833865,2022,Meta-Regression on the Heterogenous Factors Contributing to the Prevalence of Mental Health Symptoms During the COVID-19 Crisis Among Healthcare Workers,1,0,1,W7164901450
+W4224308101,https://doi.org/10.48550/arxiv.2204.02311,2022,PaLM: Scaling Language Modeling with Pathways,1,0,1,W4393147158
+W4234465525,https://doi.org/10.1002/9781118354261,2012,Publish/Subscribe Systems,1,0,1,W4416088936
+W4244617853,https://doi.org/10.1201/9781439813737,2010,Overlay Networks,1,0,1,W4416088936
+W4281641068,https://doi.org/10.1007/s10489-022-03732-9,2022,The state of the art in open domain complex question answering: a survey,1,0,1,W4410629910
+W4281890281,https://doi.org/10.4018/978-1-6684-4706-2.ch003,2022,Learning Management Systems in Education,1,0,1,W4414213933
+W4282934543,https://doi.org/10.1080/13658816.2022.2087222,2022,A multi-source spatio-temporal data cube for large-scale geospatial analysis,1,0,1,W4413434847
+W4283828996,https://doi.org/10.48550/arxiv.2207.01206,2022,WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents,1,0,1,W4410629910
+W4285021577,https://doi.org/10.1093/jamia/ocac105,2022,HL7 FHIR-based tools and initiatives to support clinical research: a scoping review,1,0,1,W7128449691
+W4285300946,,,,1,0,1,W4393147158
+W4285315819,https://doi.org/10.2196/35724,2022,Fast Healthcare Interoperability Resources (FHIR) for Interoperability in Health Research: Systematic Review,1,0,1,W7128449691
+W4285540454,https://doi.org/10.52458/978-93-91842-08-6-38,2021,Web Scraping Techniques and Applications: A Literature Review,1,0,1,W4414988413
+W4288024261,,,,1,0,1,W4410629910
+W4288089799,https://doi.org/10.48550/arxiv.1910.10683,2019,Exploring the Limits of Transfer Learning with a Unified Text-to-Text\n Transformer,1,0,1,W4410629910
+W4293193852,https://doi.org/10.1016/j.procs.2022.03.055,2022,Chatbots in customer service: Their relevance and impact on service quality,1,0,1,W4414213933
+W4293320163,https://doi.org/10.48550/arxiv.2107.07567,2021,Beyond Goldfish Memory: Long-Term Open-Domain Conversation,1,0,1,W4393147158
+W4294685895,https://doi.org/10.14569/ijacsa.2022.0130823,2022,AI-based Academic Advising Framework: A Knowledge Management Perspective,1,0,1,W4414213933
+W4295857769,https://doi.org/10.1016/j.eng.2022.04.024,2022,Pre-Trained Language Models and Their Applications,1,0,1,W4414213933
+W4295946973,https://doi.org/10.1186/s13638-022-02170-y,2022,A dark and stormy night: Reallocation storms in edge computing,1,0,1,W4416088936
+W4301244238,https://doi.org/10.1037/e557102013-030,2012,Computationally Efficient Forgetting via Base-Level Activation,1,0,1,W7117967956
+W4303443398,https://doi.org/10.48550/arxiv.2210.02414,2022,GLM-130B: An Open Bilingual Pre-trained Model,1,0,1,W4393147158
+W4303633609,,,,1,0,1,W4393147158
+W4304195432,https://doi.org/10.48550/arxiv.2210.03629,2022,"Distributing Accountability, Not Capability: Phase Separation and the LLM Workflow Quadrant in Autonomous AI Agent Architectures",1,0,1,W7128449691
+W4307079201,https://doi.org/10.48550/arxiv.2210.11416,2022,Scaling Instruction-Finetuned Language Models,1,0,1,W4393147158
+W4312560592,https://doi.org/10.1109/cvpr52688.2022.00320,2022,Video Swin Transformer,1,0,1,W7131082765
+W4313129917,https://doi.org/10.1109/cvpr52688.2022.01903,2022,"Cerberus Transformer: Joint Semantic, Affordance and Attribute Parsing",1,0,1,W7164901450
+W4317748910,https://doi.org/10.6028/nist.ai.100-1,2023,Artificial Intelligence Risk Management Framework (AI RMF 1.0),1,0,1,W7131881308
+W4322718191,https://doi.org/10.48550/arxiv.2302.13971,2023,LLaMA: Open and Efficient Foundation Language Models,1,0,1,W4393147158
+W4323646050,https://doi.org/10.1109/fnwf55208.2022.00025,2022,A Streamlit-based Artificial Intelligence Trust Platform for Next-Generation Wireless Networks,1,0,1,W4414213933
+W4327810158,https://doi.org/10.4230/lipics.cosit.2024.11,2023,GPT-4 Technical Report,1,0,1,W4393147158
+W4353112996,https://doi.org/10.48550/arxiv.2303.11366,2023,Reflexion: Language Agents with Verbal Reinforcement Learning,1,0,1,W7128449691
+W4362515116,https://doi.org/10.1007/s11704-026-60308-3,2026,A Survey of Large Language Models,1,0,1,W4393147158
+W4362656036,https://doi.org/10.48550/arxiv.2304.01904,2023,REFINER: Reasoning Feedback on Intermediate Representations,0,1,1,2303.11366
+W4365448574,https://doi.org/10.21203/rs.3.rs-2808494/v1,2023,Assessing GPT-4’s Role as a Co-Collaborator in Scientific Research: A Case Study Analyzing Einstein’s Special Theory of Relativity,0,1,1,2305.16291
+W4366769994,https://doi.org/10.31219/osf.io/6uh8p,2023,Guidance for Researchers and Peer-reviewers on the Ethical Use of Large Language Models (LLM) in Scientific Research Workflows,0,1,1,2303.11366
+W4368370608,https://doi.org/10.20944/preprints202304.1074.v2,2023,Plan for Constructing DataDiscoveryLab: Creating DataBases for Well-Rounded Searches,0,1,1,2303.11366
+W4376504550,https://doi.org/10.31235/osf.io/rwtzs,2023,Can Generative AI Improve Social Science?,0,1,1,2304.03442
+W4377101387,https://doi.org/10.1016/j.ijedudev.2023.102814,2023,E-learning enhancement through educational data mining with Covid-19 outbreak period in backdrop: A review,1,0,1,W4414213933
+W4378071380,https://doi.org/10.2196/49323,2023,Open Science and Software Assistance: Commentary on “Artificial Intelligence Can Generate Fraudulent but Authentic-Looking Scientific Medical Articles: Pandora’s Box Has Been Opened”,0,1,1,2303.11366
+W4379548473,https://doi.org/10.48550/arxiv.2306.03091,2023,RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems,1,0,1,W4410629910
+W4380353763,https://doi.org/10.48550/arxiv.2306.05685,2023,Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena,1,0,1,W4414213933
+W4380374951,https://doi.org/10.48550/arxiv.2306.06070,2023,Mind2Web: Towards a Generalist Agent for the Web,1,0,1,W4410629910
+W4381192923,https://doi.org/10.1101/2023.06.16.545235,2023,Large language models are universal biomedical simulators,0,1,1,2303.11366
+W4382118204,https://doi.org/10.2139/ssrn.4490597,2023,The Opportunities and Costs of AI in Behavioural Science,0,1,1,2304.03442
+W4382334332,https://doi.org/10.48550/arxiv.2306.14893,2023,LongCoder: A Long-Range Pre-trained Language Model for Code Completion,1,0,1,W4410629910
+W4383097638,https://doi.org/10.1109/icra48891.2023.10160591,2023,Code as Policies: Language Model Programs for Embodied Control,1,0,1,W7125937303
+W4383109298,https://doi.org/10.1109/icra48891.2023.10160470,2023,Unsupervised Road Anomaly Detection with Language Anchors,1,0,1,W7164901450
+W4385157352,https://doi.org/10.1007/s10603-023-09547-6,2023,"AI, Behavioural Science, and Consumer Welfare",0,1,1,2304.03442
+W4385245566,https://doi.org/10.4230/lipics.itp.2023.19,2023,Inline Hardware KV-Cache Compression for Long-Context Transformer Inference: An Architectural Case for a Memory-Path Compression Engine,1,0,1,W7129312784
+W4385328089,https://doi.org/10.48550/arxiv.2307.14221,2023,How Committed Individuals Shape Social Dynamics: A Survey on Coordination Games and Social Dilemma Games,0,1,1,2304.03442
+W4385474047,https://doi.org/10.48550/arxiv.2307.16336,2023,Anatomy of an AI-powered malicious social botnet,0,1,1,2305.16291
+W4385567026,https://doi.org/10.18653/v1/2022.findings-emnlp.247,2022,History-Aware Hierarchical Transformer for Multi-session Open-domain Dialogue System,1,0,1,W7164901450
+W4385569771,https://doi.org/10.18653/v1/2023.acl-long.294,2023,Reasoning with Language Model Prompting: A Survey,0,1,1,2303.11366
+W4385571050,https://doi.org/10.18653/v1/2023.findings-acl.551,2023,Do Large Language Models Know What They Don’t Know?,0,1,1,2303.11366
+W4385572142,https://doi.org/10.18653/v1/2023.acl-long.411,2023,Large Language Models Meet NL2Code: A Survey,1,0,1,W4413434847
+W4385573343,https://doi.org/10.18653/v1/2022.findings-emnlp.276,2022,Keep Me Updated! Memory Management in Long-term Conversations,1,0,1,W7164901450
+W4385774908,https://doi.org/10.48550/arxiv.2308.05487,2023,A Quantitative and Qualitative Evaluation of LLM-Based Explainable Fault Localization,0,1,1,2303.11366
+W4385968025,https://doi.org/10.48550/arxiv.2308.01285,2023,Flows: Building Blocks of Reasoning and Collaborating AI,0,1,1,2303.11366
+W4386080721,https://doi.org/10.48550/arxiv.2308.09687,2023,Graph of Thoughts: Solving Elaborate Problems with Large Language Models,0,1,1,2303.11366
+W4386097785,https://doi.org/10.31234/osf.io/87fhx,2023,The Theory of Immersive Collaborative Learning (TICOL),0,1,1,2304.03442
+W4386184788,https://doi.org/10.48550/arxiv.2308.11432,2023,A Survey on Large Language Model based Autonomous Agents,1,0,1,W4413434847
+W4386492140,https://doi.org/10.1109/tcsvt.2023.3278131,2023,Multi-Scale Video Super-Resolution Transformer With Polynomial Approximation,1,0,1,W7164901450
+W4386651323,https://doi.org/10.48550/arxiv.2309.05163,2023,The Impact of AI in Physics Education: A Comprehensive Review from GCSE to University Levels,0,1,1,2303.11366
+W4386810494,https://doi.org/10.21203/rs.3.rs-3270331/v1,2023,Evaluation of large language models for discovery of gene set function,0,1,1,2303.11366
+W4386834071,https://doi.org/10.1787/fae2d1e6-en,2023,Initial policy considerations for generative artificial intelligence,0,1,1,2304.03442
+W4386947840,https://doi.org/10.1145/3565066.3608693,2023,RoboType: Realistic Mobile Text Entry Evaluations with Synthetic Users,0,1,1,2304.03442
+W4387139210,https://doi.org/10.3389/frai.2023.1252897,2023,Human-AI teams—Challenges for a team-centered AI at work,0,1,1,2304.03442
+W4387382354,https://doi.org/10.34293/education.v11i4.6360,2023,An Educational CRM Chatbot for Learning Management System,1,0,1,W4414213933
+W4387394600,https://doi.org/10.1609/aiide.v19i1.27539,2023,Language as Reality: A Co-Creative Storytelling Game Experience in 1001 Nights Using Generative AI,0,1,1,2305.16291
+W4387596487,https://doi.org/10.48550/arxiv.2310.07611,2023,Democratizing LLMs: An Exploration of Cost-Performance Trade-offs in Self-Refined Open-Source Models,0,1,1,2303.11366
+W4387625822,https://doi.org/10.2139/ssrn.4575923,2023,Deceptive Choice Architecture and Behavioural Audits,0,1,1,2304.03442
+W4387636003,https://doi.org/10.48550/arxiv.2310.08560,2023,MemGPT: Towards LLMs as Operating Systems,1,0,1,W4410629910
+W4387709037,https://doi.org/10.1016/j.heliyon.2023.e20648,2023,Personal data protection compliance assessment: A privacy policy scoring approach and empirical evidence from Thailand's SMEs,1,0,1,W4414213933
+W4387773384,https://doi.org/10.1115/1.4063843,2023,"MechGPT, a Language-Based Strategy for Mechanics and Materials Modeling That Connects Knowledge Across Scales, Disciplines, and Modalities",0,1,1,2304.03442
+W4387796547,https://doi.org/10.48550/arxiv.2310.10701,2023,Theory of Mind for Multi-Agent Collaboration via Large Language Models,0,1,1,2305.16291
+W4387835442,https://doi.org/10.1145/3586183.3606763,2023,Generative Agents: Interactive Simulacra of Human Behavior,1,0,1,W7162660316
+W4387839069,https://doi.org/10.48550/arxiv.2310.12821,2023,GestureGPT: Toward Zero-Shot Free-Form Hand Gesture Understanding with Large Language Model Agents,0,1,1,2303.11366
+W4387872901,https://doi.org/10.1109/secon58729.2023.10287519,2023,Semantic Slicing across the Distributed Intelligent 6G Wireless Networks,1,0,1,W4416088936
+W4387878813,https://doi.org/10.1177/10597123231206604,2023,Dual Process Theory for Large Language Models: An overview of using Psychology to address hallucination and reliability issues,0,1,1,2303.11366
+W4387975515,https://doi.org/10.1007/s10648-023-09822-5,2023,The Theory of Immersive Collaborative Learning (TICOL),0,1,1,2304.03442
+W4388019306,https://doi.org/10.1007/978-3-031-47658-7_26,2023,What Is Waiting for Us at the End? Inherent Biases of Game Story Endings in Large Language Models,0,1,1,2305.16291
+W4388095513,https://doi.org/10.1186/s41239-023-00426-1,2023,Role of AI chatbots in education: systematic literature review,1,0,1,W4414213933
+W4388147587,https://doi.org/10.1093/oso/9780195092691.001.0001,1995,The Knowledge-Creating Company,1,0,1,W7167607753
+W4388191405,https://doi.org/10.1162/99608f92.1d3cf75d,2023,Demonstrations of the Potential of AI-based Political Issue Polling,0,1,1,2305.16291
+W4388208052,https://doi.org/10.1109/tiv.2023.3327715,2023,DriveLLM: Charting the Path Toward Full Autonomous Driving With Large Language Models,0,1,1,2303.11366
+W4388235105,https://doi.org/10.52306/2578-3289.1172,2023,Harnessing Large Language Models to Simulate Realistic Human Responses to Social Engineering Attacks: A Case Study,0,1,1,2304.03442
+W4388267439,https://doi.org/10.31219/osf.io/9b35z,2023,Can Large Language Models Revolutionalize Open Government Data Portals? A Case of Using ChatGPT in statistics.gov.scot,0,1,1,2308.10144
+W4388305005,https://doi.org/10.51219/jaimld/jeremiah-ratican/17,2023,Synthesizing Sentience: Integrating Large Language Models and Autonomous Agents for Emulating Human Cognitive Complexity,0,1,1,2304.03442
+W4388430701,https://doi.org/10.2139/ssrn.4595896,2023,From Data Scarcity to Data Abundance: Crafting Synthetic Survey Data in Management Accounting using ChatGPT,0,1,1,2304.03442
+W4388483618,https://doi.org/10.1109/ase56229.2023.00148,2023,Towards Autonomous Testing Agents via Conversational Large Language Models,0,1,1,2305.16291
+W4388488609,https://doi.org/10.1038/s41586-023-06647-8,2023,Role play with large language models,0,1,1,2304.03442
+W4388497533,https://doi.org/10.54517/m.v4i2.2276,2023,Individuality and the collective in AI agents: Explorations of shared consciousness and digital homunculi in the metaverse for cultural heritage,0,1,1,2304.03442
+W4388499755,https://doi.org/10.1016/j.inffus.2023.102135,2023,"General Purpose Artificial Intelligence Systems (GPAIS): Properties, definition, taxonomy, societal implications and responsible governance",1,0,1,W4413434847
+W4388625574,https://doi.org/10.1145/3626111.3628176,2023,A Holistic View of AI-driven Network Incident Management,0,1,1,2303.11366
+W4388641006,https://doi.org/10.32782/eis/2023-104-2,2023,ВИКЛИКИ ШТУЧНОГО ІНТЕЛЕКТУ,0,1,1,2304.03442
+W4388685628,https://doi.org/10.48550/arxiv.2311.07387,2023,Assessing Logical Puzzle Solving in Large Language Models: Insights from a Minesweeper Case Study,0,1,1,2305.16291
+W4388708748,https://doi.org/10.1177/18344909231213958,2023,Emotional intelligence of Large Language Models,0,1,1,2303.11366
+W4388731715,https://doi.org/10.23856/5918,2023,MENTAL SIMULATION SELF-REFLECTION TASKS FOR INCREASED LEARNING OF ENGLISH,0,1,1,2303.11366
+W4388764341,https://doi.org/10.26434/chemrxiv-2023-gxmxr,2023,GPT-4-powered analysis and prediction of experiments through an effective chain-of-thought prompting strategy: a case study of selective catalytic reduction of NOx with NH3 by metal-oxide composites,0,1,1,2303.11366
+W4388931507,https://doi.org/10.31234/osf.io/dzvpy,2023,Toward the Emergence of Intelligent Control: Episodic Generalization and Optimization,0,1,1,2310.08560
+W4388944427,https://doi.org/10.1515/9783839467664-003,2023,Research with Subsymbolic AI,0,1,1,2303.11366
+W4388944546,https://doi.org/10.1515/9783839467664,2023,Beyond Quantity,0,1,1,2303.11366
+W4389009485,https://doi.org/10.18653/v1/2023.inlg-main.17,2023,Memories for Virtual AI Characters,0,1,1,2304.03442
+W4389040778,https://doi.org/10.2139/ssrn.4614907,2023,Detecting Dark Patterns Using Generative AI: Some Preliminary Results,0,1,1,2304.03442
+W4389059122,https://doi.org/10.14361/9783839467664-003,2023,Research with Subsymbolic AI,0,1,1,2303.11366
+W4389072990,https://doi.org/10.14361/9783839467664,2023,Beyond Quantity,0,1,1,2303.11366
+W4389450040,https://doi.org/10.5121/csit.2023.1322,2023,"Artificial Intelligence, Soft Computing and Applications",0,1,1,2304.03442
+W4389450207,https://doi.org/10.5121/csit.2023.132210,2023,Welcome to Ultaki: Exploring the Relevance of Large Language Models for Accurate Behavioral Simulation in Energy Transition,0,1,1,2304.03442
+W4389518606,https://doi.org/10.18653/v1/2023.emnlp-main.132,2023,CRT-QA: A Dataset of Complex Reasoning Question Answering over Tabular Data,0,1,1,2303.11366
+W4389518735,https://doi.org/10.18653/v1/2023.findings-emnlp.864,2023,From Words to Wires: Generating Functioning Electronic Devices from Natural Language Descriptions,0,1,1,2303.11366
+W4389518737,https://doi.org/10.18653/v1/2023.findings-emnlp.795,2023,Can ChatGPT Defend its Belief in Truth? Evaluating LLM Reasoning via Debate,0,1,1,2303.11366
+W4389518780,https://doi.org/10.18653/v1/2023.findings-emnlp.933,2023,BYOC: Personalized Few-Shot Classification with Co-Authored Class Descriptions,0,1,1,2303.11366
+W4389518842,https://doi.org/10.18653/v1/2023.findings-emnlp.229,2023,ASPIRO: Any-shot Structured Parsing-error-Induced ReprOmpting for Consistent Data-to-Text Generation,0,1,1,2303.11366
+W4389518895,https://doi.org/10.18653/v1/2023.findings-emnlp.691,2023,Self-Knowledge Guided Retrieval Augmentation for Large Language Models,1,0,1,W4403282600
+W4389518896,https://doi.org/10.18653/v1/2023.findings-emnlp.608,2023,Democratizing LLMs: An Exploration of Cost-Performance Trade-offs in Self-Refined Open-Source Models,0,1,1,2303.11366
+W4389518960,https://doi.org/10.18653/v1/2023.findings-emnlp.337,2023,CodeTransOcean: A Comprehensive Multilingual Benchmark for Code Translation,0,1,1,2303.11366
+W4389519108,https://doi.org/10.18653/v1/2023.emnlp-main.468,2023,Have LLMs Advanced Enough? A Challenging Problem Solving Benchmark For Large Language Models,0,1,1,2303.11366
+W4389519114,https://doi.org/10.18653/v1/2023.emnlp-main.517,2023,PreWoMe: Exploiting Presuppositions as Working Memory for Long Form Question Answering,0,1,1,2303.11366
+W4389519189,https://doi.org/10.18653/v1/2023.emnlp-main.885,2023,BRAINTEASER: Lateral Thinking Puzzles for Large Language Models,0,1,1,2305.16291
+W4389519250,https://doi.org/10.18653/v1/2023.emnlp-demo.20,2023,Gentopia.AI: A Collaborative Platform for Tool-Augmented LLMs,0,1,1,2305.16291
+W4389519260,https://doi.org/10.18653/v1/2023.emnlp-main.110,2023,Building Persona Consistent Dialogue Agents with Offline Reinforcement Learning,1,0,1,W7164901450
+W4389519442,https://doi.org/10.18653/v1/2023.emnlp-demo.15,2023,Humanoid Agents: Platform for Simulating Human-like Generative Agents,0,1,1,2305.16291
+W4389519465,https://doi.org/10.18653/v1/2023.emnlp-main.169,2023,"Plan, Verify and Switch: Integrated Reasoning with Diverse X-of-Thoughts",0,1,1,2303.11366
+W4389519488,https://doi.org/10.18653/v1/2023.emnlp-main.814,2023,Character-LLM: A Trainable Agent for Role-Playing,0,1,1,2305.16291
+W4389519896,https://doi.org/10.18653/v1/2023.findings-emnlp.205,2023,AutoPlan: Automatic Planning of Interactive Decision-Making Tasks With Large Language Models,0,1,1,2303.11366
+W4389520003,https://doi.org/10.18653/v1/2023.findings-emnlp.55,2023,Automatic Model Selection with Large Language Models for Reasoning,0,1,1,2303.11366
+W4389520177,https://doi.org/10.18653/v1/2023.findings-emnlp.461,2023,Towards large language model-based personal agents in the enterprise: Current trends and open problems,0,1,1,2305.16291
+W4389520250,https://doi.org/10.18653/v1/2023.findings-emnlp.753,2023,A Zero-Shot Language Agent for Computer Control with Structured Reflection,0,1,1,2303.11366
+W4389520333,https://doi.org/10.18653/v1/2023.emnlp-main.778,2023,LM vs LM: Detecting Factual Errors via Cross Examination,0,1,1,2303.11366
+W4389520334,https://doi.org/10.18653/v1/2023.emnlp-main.659,2023,Learning from Mistakes via Cooperative Study Assistant for Large Language Models,0,1,1,2303.11366
+W4389520676,https://doi.org/10.18653/v1/2023.emnlp-main.407,2023,MAF: Multi-Aspect Feedback for Improving Reasoning in Large Language Models,0,1,1,2303.11366
+W4389520695,https://doi.org/10.18653/v1/2023.emnlp-main.417,2023,Personalized Distillation: Empowering Open-Sourced LLMs with Adaptive Learning for Code Generation,0,1,1,2303.11366
+W4389523706,https://doi.org/10.18653/v1/2023.emnlp-main.67,2023,Large Language Models Can Self-Improve,1,0,1,W4410629910
+W4389523720,https://doi.org/10.18653/v1/2023.findings-emnlp.1034,2023,ExpNote: Black-box Large Language Models are better Task Solvers with Experience Notebook,0,1,1,2303.11366
+W4389523767,https://doi.org/10.18653/v1/2023.emnlp-main.13,2023,Theory of Mind for Multi-Agent Collaboration via Large Language Models,0,1,1,2305.16291
+W4389523807,https://doi.org/10.18653/v1/2023.emnlp-main.364,2023,Answering Questions by Meta-Reasoning over Multiple Chains of Thought,0,1,1,2303.11366
+W4389523833,https://doi.org/10.18653/v1/2023.emnlp-main.162,2023,BioPlanner: Automatic Evaluation of LLMs on Protocol Planning in Biology,0,1,1,2305.16291
+W4389523853,https://doi.org/10.18653/v1/2023.emnlp-main.163,2023,Cross-lingual Prompting: Improving Zero-shot Chain-of-Thought Reasoning across Languages,0,1,1,2303.11366
+W4389523910,https://doi.org/10.18653/v1/2023.findings-emnlp.999,2023,Aligning Predictive Uncertainty with Clarification Questions in Grounded Dialog,0,1,1,2305.16291
+W4389524025,https://doi.org/10.18653/v1/2023.emnlp-main.891,2023,Exploring the Boundaries of GPT-4 in Radiology,0,1,1,2303.11366
+W4389524052,https://doi.org/10.18653/v1/2023.emnlp-main.120,2023,Democratizing Reasoning Ability: Tailored Learning from Large Language Model,0,1,1,2303.11366
+W4389524065,https://doi.org/10.18653/v1/2023.findings-emnlp.828,2023,From Complex to Simple: Unraveling the Cognitive Tree for Reasoning with Small Language Models,0,1,1,2303.11366
+W4389524188,https://doi.org/10.18653/v1/2023.emnlp-main.830,2023,ByteSized32: A Corpus and Challenge Task for Generating Task-Specific World Models Expressed as Text Games,0,1,1,2303.11366
+W4389524256,https://doi.org/10.18653/v1/2023.emnlp-industry.73,2023,On Sample-Efficient Code Generation,0,1,1,2303.11366
+W4389524286,https://doi.org/10.18653/v1/2023.emnlp-main.57,2023,"Reading Books is Great, But Not if You Are Driving! Visually Grounded Reasoning about Defeasible Commonsense Norms",0,1,1,2303.11366
+W4389524566,https://doi.org/10.18653/v1/2023.emnlp-main.936,2023,Exchange-of-Thought: Enhancing Large Language Model Capabilities through Cross-Model Communication,0,1,1,2303.11366
+W4389677587,https://doi.org/10.1038/s41597-023-02793-w,2023,A comprehensive multimodal dataset for contactless lip reading and acoustic analysis,1,0,1,W7131082765
+W4389736340,https://doi.org/10.1145/3637493,2023,Generating Daily Activities with Need Dynamics,0,1,1,2304.03442
+W4389984160,https://doi.org/10.48550/arxiv.2312.11027,2023,Learning Top-k Subtask Planning Tree based on Discriminative Representation Pre-training for Decision Making,0,1,1,2305.16291
+W4390011017,https://doi.org/10.1039/d3dd00188a,2023,MaScQA: investigating materials science knowledge of large language models,0,1,1,2303.11366
+W4390035079,https://doi.org/10.1162/tacl_a_00626,2023,Bridging the Gap: A Survey on Integrating (Human) Feedback for Natural Language Generation,0,1,1,2303.11366
+W4390099597,https://doi.org/10.1109/robio58561.2023.10354952,2023,A Smart Interactive Camera Robot Based on Large Language Models,0,1,1,2305.16291
+W4390154668,https://doi.org/10.1101/2023.12.23.573201,2023,Iterative Prompt Refinement for Mining Gene Relationships from ChatGPT,0,1,1,2303.11366
+W4390188525,https://doi.org/10.1109/icdl55364.2023.10364374,2023,Developmental Scaffolding with Large Language Models,0,1,1,2305.16291
+W4390298466,https://doi.org/10.20944/preprints202312.1987.v1,2023,Enhancing Accuracy in Large Language Models Through Dynamic Real-Time Information Injection,0,1,1,2310.08560
+W4390659735,https://doi.org/10.36227/techrxiv.170473941.10097233/v1,2024,LADAC: Large Language Model-driven Auto-Designer for Analog Circuits,0,1,1,2305.16291
+W4390686485,https://doi.org/10.2139/ssrn.4673015,2024,Inductive Thematic Analysis of Healthcare Qualitative Interviews Using Open-Source Large Language Models: How Does it Compare to Traditional Methods?,0,1,1,2303.11366
+W4390692489,https://doi.org/10.1109/tkde.2024.3352100,2024,Unifying Large Language Models and Knowledge Graphs: A Roadmap,1,0,1,W7167607753
+W4390698662,https://doi.org/10.3389/fpsyg.2023.1323586,2024,Fluid teams in the metaverse: exploring the (un)familiar,0,1,1,2304.03442
+W4391031905,https://doi.org/10.20944/preprints202401.1424.v1,2024,A Causal Framework for AI Regulation and Auditing,0,1,1,2305.16291
+W4391071102,https://doi.org/10.1016/j.nlp.2024.100056,2024,LLMs in e-commerce: A comparative analysis of GPT and LLaMA models in product review evaluation,0,1,1,2308.10144
+W4391090806,https://doi.org/10.1162/artl_a_00423,2024,Emergent Resource Exchange and Tolerated Theft Behavior Using Multiagent Reinforcement Learning,0,1,1,2304.03442
+W4391116519,https://doi.org/10.1609/aaaiss.v2i1.27692,2024,Proposal for Cognitive Architecture and Transformer Integration: Online Learning from Agent Experience,0,1,1,2304.03442
+W4391116594,https://doi.org/10.1609/aaaiss.v2i1.27710,2024,Comparing LLMs for Prompt-Enhanced ACT-R and Soar Model Development: A Case Study in Cognitive Simulation,1,0,1,W7117967956
+W4391116688,https://doi.org/10.1609/aaaiss.v2i1.27706,2024,Synergistic Integration of Large Language Models and Cognitive Architectures for Robust AI: An Exploratory Analysis,0,1,1,2305.16291
+W4391117029,https://doi.org/10.1609/aaaiss.v2i1.27684,2024,On Using Generative Models in a Cognitive Architecture for Embodied Agents,0,1,1,2305.16291
+W4391117101,https://doi.org/10.1609/aaaiss.v2i1.27691,2024,A Proposal for a Language Model Based Cognitive Architecture,0,1,1,2305.16291
+W4391117111,https://doi.org/10.1609/aaaiss.v2i1.27708,2024,Integrating Cognitive Architectures with Foundation Models: Cognitively-Guided Few-Shot Learning to Support Trusted Artificial Intelligence,0,1,1,2305.16291
+W4391263493,https://doi.org/10.21203/rs.3.rs-3897706/v1,2024,Augmenting Large Language Models for Enhanced Interaction with Government Data Repositories,0,1,1,2305.16291
+W4391334942,https://doi.org/10.1145/3630106.3659037,2024,Black-Box Access is Insufficient for Rigorous AI Audits,0,1,1,2304.03442
+W4391569724,https://doi.org/10.31234/osf.io/tzr9a,2024,A rational model of innovation by recombination,0,1,1,2305.16291
+W4391572495,https://doi.org/10.54254/2755-2721/37/20230486,2024,A research of artificial intelligence game agent application,0,1,1,2305.16291
+W4391609325,https://doi.org/10.1613/jair.1.15278,2024,"Reinforcement Learning for Generative AI: State of the Art, Opportunities and Open Research Challenges",0,1,1,2303.11366
+W4391650123,https://doi.org/10.1007/s41095-023-0369-x,2024,CF-DAN: Facial-expression recognition based on cross-fusion dual-attention network,1,0,1,W7164901450
+W4391690790,https://doi.org/10.31234/osf.io/9cs23,2024,The Performance of Large Language Models on Quantitative and Verbal Ability Tests: Initial Evidence and Implications for Unproctored High-stakes Testing,0,1,1,2303.11366
+W4391693064,https://doi.org/10.1016/j.amjsurg.2024.02.016,2024,The Operating and Anesthetic Reference Assistant (OARA): A fine-tuned large language model for resident teaching,0,1,1,2310.08560
+W4391790940,https://doi.org/10.2139/ssrn.4705130,2024,Can LLMs Mimic Human-Like Mental Accounting and Behavioral Biases?,0,1,1,2304.03442
+W4391885762,https://doi.org/10.1109/icaic60265.2024.10433803,2024,"DataAgent: Evaluating Large Language Models’ Ability to Answer Zero-Shot, Natural Language Queries",0,1,1,2303.11366
+W4391985886,https://doi.org/10.1145/3643796.3648451,2024,Tool-augmented LLMs as a Universal Interface for IDEs,0,1,1,2305.16291
+W4392003809,https://doi.org/10.3390/app14051737,2024,Optimizing Chatbot Effectiveness through Advanced Syntactic Analysis: A Comprehensive Study in Natural Language Processing,1,0,1,W4414213933
+W4392271267,https://doi.org/10.1145/3613904.3642379,2024,A Piece of Theatre: Investigating How Teachers Design LLM Chatbots to Assist Adolescent Cyberbullying Education,0,1,1,2304.03442
+W4392397328,https://doi.org/10.1109/access.2024.3372853,2024,Code Detection for Hardware Acceleration Using Large Language Models,0,1,1,2303.11366
+W4392616472,https://doi.org/10.1162/tacl_a_00642,2024,Exploring Human-Like Translation Strategy with Large Language Models,0,1,1,2304.03442
+W4392707978,https://doi.org/10.5194/egusphere-2024-449,2024,Exploring the opportunities and challenges of using large language models to represent institutional agency in land system modelling,0,1,1,2304.03442
+W4392741230,https://doi.org/10.2139/ssrn.4726933,2024,Artificial Agents and Operations Management Decision-Making,0,1,1,2304.03442
+W4392764062,https://doi.org/10.1080/03075079.2024.2326956,2024,"When artificial intelligence substitutes humans in higher education: the cost of loneliness, student success, and retention",0,1,1,2304.03442
+W4392787617,https://doi.org/10.21203/rs.3.rs-3913272/v1,2024,LLMs can Design Sustainable Concrete – a Systematic Benchmark,0,1,1,2303.11366
+W4392798419,https://doi.org/10.1016/j.autcon.2024.105374,2024,Residential floor plans: Multi-conditional automatic generation using diffusion models,1,0,1,W4410629910
+W4392929750,https://doi.org/10.1109/icra57147.2024.10611377,2024,Language to Map: Topological map generation from natural language path instructions,0,1,1,W4393147158
+W4392956085,https://doi.org/10.1038/s41598-024-55903-y,2024,An evolutionary model of personality traits related to cooperative behavior using a large language model,0,1,1,2304.03442
+W4393065402,https://doi.org/10.1007/s11704-024-40231-1,2024,A survey on large language model based autonomous agents,1,0,1,W4413434847
+W4393147058,https://doi.org/10.1609/aaai.v38i17.29883,2024,Learning from Failure: Improving Meeting Summarization without Good Samples,0,1,1,2303.11366
+W4393147141,https://doi.org/10.1609/aaai.v38i16.29799,2024,Improving Knowledge Extraction from LLMs for Task Learning through Agent Analysis,0,1,1,2304.03442
+W4393147219,https://doi.org/10.1609/aaai.v38i16.29710,2024,ProAgent: Building Proactive Cooperative Agents with Large Language Models,0,1,1,2303.11366
+W4393147323,https://doi.org/10.1609/aaai.v38i13.29376,2024,"Hypothesis, Verification, and Induction: Grounding Large Language Models with Self-Driven Skill Learning",0,1,1,2305.16291
+W4393152450,https://doi.org/10.1609/aaai.v38i20.30218,2024,Where It Really Matters: Few-Shot Environmental Conservation Media Monitoring for Low-Resource Languages,0,1,1,2303.11366
+W4393158201,https://doi.org/10.1609/aaai.v38i1.27822,2024,Bootstrapping Cognitive Agents with a Large Language Model,0,1,1,2305.16291
+W4393160048,https://doi.org/10.1609/aaai.v38i16.29721,2024,When Do Program-of-Thought Works for Reasoning?,0,1,1,2305.16291
+W4393160097,https://doi.org/10.1609/aaai.v38i17.29858,2024,VELMA: Verbalization Embodiment of LLM Agents for Vision and Language Navigation in Street View,0,1,1,2305.16291
+W4393160113,https://doi.org/10.1609/aaai.v38i16.29759,2024,Confucius: Iterative Tool Learning from Introspection Feedback by Easy-to-Difficult Curriculum,0,1,1,2304.03442
+W4393160208,https://doi.org/10.1609/aaai.v38i16.29774,2024,Small Language Model Can Self-Correct,0,1,1,2303.11366
+W4393160365,https://doi.org/10.1609/aaai.v38i16.29754,2024,Large Language Models Are Neurosymbolic Reasoners,0,1,1,2303.11366
+W4393213364,https://doi.org/10.1145/3716846,2025,Hallucination Detection in Foundation Models for Decision-Making: A Flexible Definition and Review of the State of the Art,0,1,1,2305.16291
+W4393233496,https://doi.org/10.21428/e4baedd9.d562223c,2024,The Impact of Generative AI on Labor Market Matching,0,1,1,2305.16291
+W4393388987,https://doi.org/10.1038/s41598-024-58514-9,2024,GPT-agents based on medical guidelines can improve the responsiveness and explainability of outcomes for traumatic brain injury rehabilitation,0,1,1,2305.16291
+W4393905041,https://doi.org/10.1145/3613905.3650839,2024,"""My agent understands me better"": Integrating Dynamic Human-like Memory Recall and Consolidation in LLM-Based Agents",1,0,1,W7117967956
+W4394009458,https://doi.org/10.2139/ssrn.4754435,2024,Strategizing with AI: Insights from a Beauty Contest Experiment,0,1,1,2304.03442
+W4394564983,https://doi.org/10.1109/ic2pct60090.2024.10486273,2024,Evaluating Top-k RAG-based approach for Game Review Generation,0,1,1,2310.08560
+W4394567566,https://doi.org/10.1101/2024.04.07.24305462,2024,Risks from Language Models for Automated Mental Healthcare: Ethics and Structure for Implementation,0,1,1,2305.16291
+W4394714642,https://doi.org/10.5194/egusphere-2024-449-rc1,2024,Comment on egusphere-2024-449,0,1,1,2304.03442
+W4394768664,https://doi.org/10.3390/app14083257,2024,Translating Words to Worlds: Zero-Shot Synthesis of 3D Terrain from Textual Descriptions Using Large Language Models,0,1,1,2304.03442
+W4394786571,https://doi.org/10.5194/egusphere-2024-449-cc1,2024,Generalisability &amp; scalability,0,1,1,2304.03442
+W4394789406,https://doi.org/10.1016/j.cogsys.2024.101235,2024,Survival games for humans and machines,0,1,1,2305.16291
+W4394825480,https://doi.org/10.1109/vr58804.2024.00084,2024,On the Emergence of Symmetrical Reality,0,1,1,2305.16291
+W4394862623,https://doi.org/10.1109/wacvw60836.2024.00106,2024,A Survey on Multimodal Large Language Models for Autonomous Driving,0,1,1,2305.16291
+W4394862732,https://doi.org/10.1109/wacvw60836.2024.00102,2024,Drive Like a Human: Rethinking Autonomous Driving with Large Language Models,0,1,1,2305.16291
+W4394972065,https://doi.org/10.48550/arxiv.2404.12253,2024,"Toward Self-Improvement of LLMs via Imagination, Searching, and Criticizing",1,0,1,W4410629910
+W4394972221,https://doi.org/10.3390/su16135618,2024,Synthetic Participatory Planning of Shared Automated Electric Mobility Systems,0,1,1,2304.03442
+W4394993753,https://doi.org/10.31234/osf.io/ag7hy,2024,Evaluating Large Language Models in Psychological Research: A Guide for Reviewers,0,1,1,2304.03442
+W4395015967,https://doi.org/10.2139/ssrn.4802019,2024,Reduce Preference Disparity Between LLMs and Humans: Calibration to Compose Human-like Ensembles,0,1,1,2304.03442
+W4395055999,https://doi.org/10.2139/ssrn.4804307,2024,Improving Large Language Model Assisted Categorization and Classification of Highway Construction Accidents from Osha Databases,0,1,1,2303.11366
+W4395084323,https://doi.org/10.1016/j.cagd.2024.102308,2024,Computing nodes for plane data points by constructing cubic polynomial with constraints,1,0,1,W7164901450
+W4395101528,https://doi.org/10.18653/v1/2023.ijcnlp-tutorials.5,2023,Learning WHO Saying WHAT to WHOM in Multi-Party Conversations,0,1,1,2304.03442
+W4395447431,https://doi.org/10.1109/access.2024.3393485,2024,MemoryRepository for AI NPC,0,1,1,2310.08560
+W4395454638,https://doi.org/10.31235/osf.io/r2pnb,2024,How do Generative Language Models Answer Opinion Polls?,0,1,1,2304.03442
+W4395703652,https://doi.org/10.1101/2024.04.25.591003,2024,CRISPR-GPT for Agentic Automation of Gene Editing Experiments,0,1,1,2305.16291
+W4396225444,https://doi.org/10.21203/rs.3.rs-4328966/v1,2024,Cross-Domain Knowledge Transfer without Retraining to Facilitating Seamless Knowledge Application in Large Language Models,0,1,1,2305.10250
+W4396605295,https://doi.org/10.1109/tvcg.2024.3394053,2024,AgentLens: Visual Analysis for Agent Behaviors in LLM-Based Autonomous Systems,0,1,1,2303.11366
+W4396622699,https://doi.org/10.32657/10356/174809,2024,Building generalizable deep learning solutions for mobile sensing,0,1,1,2305.16291
+W4396665924,https://doi.org/10.1162/tacl_a_00660,2024,Automatically Correcting Large Language Models: <i>Surveying the Landscape of Diverse Automated Correction Strategies</i>,0,1,1,2303.11366
+W4396687307,https://doi.org/10.2139/ssrn.4818220,2024,Wit and Wisdom: Using Computational Humour to Communicate about Theoretical Economics,0,1,1,2303.11366
+W4396792601,https://doi.org/10.1016/j.envsoft.2024.106070,2024,"An interoperable software system to store, associate, visualize, and publish global open science data of earth surface system",1,0,1,W4413434847
+W4396832423,https://doi.org/10.1145/3613904.3642850,2024,Eternagram: Probing Player Attitudes Towards Climate Change Using a ChatGPT-driven Text-based Adventure,0,1,1,2305.10250
+W4396832474,https://doi.org/10.1145/3613905.3636301,2024,LLMs as Research Tools: Applications and Evaluations in HCI Data Work,0,1,1,2304.03442
+W4396832890,https://doi.org/10.1145/3613904.3642472,2024,"CloChat: Understanding How People Customize, Interact, and Experience Personas in Large Language Models",0,1,1,2304.03442
+W4396833393,https://doi.org/10.1145/3613905.3651026,2024,Building LLM-based AI Agents in Social Virtual Reality,0,1,1,2304.03442
+W4396833421,https://doi.org/10.1145/3613904.3642224,2024,C2Ideas: Supporting Creative Interior Color Design Ideation with a Large Language Model,0,1,1,2304.03442
+W4396833622,https://doi.org/10.1145/3613905.3650852,2024,User-Driven Adaptation: Tailoring Autonomous Driving Systems with Dynamic Preferences,1,0,1,W4416088936
+W4396892628,https://doi.org/10.3390/designs8030043,2024,Designing Home Automation Routines Using an LLM-Based Chatbot,0,1,1,2304.03442
+W4396918564,https://doi.org/10.1109/isdfs60797.2024.10527275,2024,LLM-Based Framework for Administrative Task Automation in Healthcare,0,1,1,2305.16291
+W4396919460,https://doi.org/10.1145/3659600,2024,Can Large Language Models Be Good Companions?,0,1,1,W4393147158
+W4396931103,https://doi.org/10.52783/jes.3096,2024,Optimization and Application of English Word Memory Algorithm Based on Reinforcement Learning,0,1,1,2303.11366
+W4396988223,https://doi.org/10.1162/opmi_a_00143,2024,Toward the Emergence of Intelligent Control: Episodic Generalization and Optimization,0,1,1,2310.08560
+W4396999789,https://doi.org/10.1016/j.medp.2024.100030,2024,Large language models illuminate a progressive pathway to artificial intelligent healthcare assistant,0,1,1,W4393147158
+W4397006720,https://doi.org/10.1111/ijsa.12479,2024,The performance of large language models on quantitative and verbal ability tests: Initial evidence and implications for unproctored high‐stakes testing,0,1,1,2303.11366
+W4397009082,https://doi.org/10.1038/s44220-024-00257-7,2024,The potential and perils of generative artificial intelligence in psychiatry and psychology,0,1,1,2304.03442
+W4398160894,https://doi.org/10.1609/aaaiss.v3i1.31191,2024,Can LLMs Answer Investment Banking Questions? Using Domain-Tuned Functions to Improve LLM Performance on Knowledge-Intensive Analytical Tasks,0,1,1,2310.08560
+W4398160902,https://doi.org/10.1609/aaaiss.v3i1.31292,2024,Constructing Deep Concepts through Shallow Search,0,1,1,2305.16291
+W4398160916,https://doi.org/10.1609/aaaiss.v3i1.31291,2024,Comparing Human Behavior to an Optimal Policy for Innovation,0,1,1,2305.16291
+W4398161918,https://doi.org/10.1101/2024.05.19.594895,2024,A Data-Intelligence-Intensive Bioinformatics Copilot System for Large-scale Omics Researches and Scientific Insights,0,1,1,2303.11366
+W4398184816,https://doi.org/10.1609/aaaiss.v3i1.31183,2024,Human-AI Interaction in the Age of Large Language Models,0,1,1,2304.03442
+W4398188474,https://doi.org/10.2139/ssrn.4836558,2024,Topic Modelling Case Law Using a Large Language Model and a New Taxonomy for UK Law: AI Insights into Summary Judgment,0,1,1,2303.11366
+W4398226217,https://doi.org/10.1109/tg.2024.3404133,2024,PyTAG: Tabletop Games for Multiagent Reinforcement Learning,0,1,1,2305.16291
+W4398251472,https://doi.org/10.1007/s44217-024-00143-5,2024,Learning management systems for higher education: a brief comparison,1,0,1,W4414213933
+W4399009725,https://doi.org/10.36227/techrxiv.171665607.76504195/v1,2024,Reducing LLM Hallucination Using Knowledge Distillation: A Case Study with Mistral Large and MMLU Benchmark,0,1,1,2305.10250
+W4399061921,https://doi.org/10.1145/3626772.3657828,2024,Let Me Do It For You: Towards LLM Empowered Recommendation via Tool Learning,0,1,1,W4393147158
+W4399120129,https://doi.org/10.1109/vrw62533.2024.00112,2024,Design and Implementation of Agent APIs for Large-Scale Social VR Platforms,0,1,1,2305.16291
+W4399121933,https://doi.org/10.51685/jqd.2024.icwsm.7,2024,Anatomy of an AI-powered malicious social botnet,0,1,1,2305.16291
+W4399146196,https://doi.org/10.2139/ssrn.4841493,2024,FinRobot: An Open-Source AI Agent Platform for Financial Applications using Large Language Models,0,1,1,2305.16291
+W4399199494,https://doi.org/10.31219/osf.io/exjqb,2024,Reducing Hallucinations in Large Language Models Through Contextual Position Encoding,0,1,1,2303.11366
+W4399205331,https://doi.org/10.1609/icwsm.v18i1.31360,2024,Stance Detection with Collaborative Role-Infused LLM-Based Agents,0,1,1,2303.11366
+W4399372400,https://doi.org/10.1109/icmcis61231.2024.10540749,2024,COA-GPT: Generative Pre-Trained Transformers for Accelerated Course of Action Development in Military Operations,0,1,1,2305.16291
+W4399372401,https://doi.org/10.1109/icmcis61231.2024.10540933,2024,Scalable Interactive Machine Learning for Future Command and Control,0,1,1,2305.16291
+W4399420817,https://doi.org/10.36227/techrxiv.171779386.67400654/v1,2024,Factored Cognition Models: Enhancing LLM Performance through Modular Decomposition,0,1,1,2305.10250
+W4399615345,https://doi.org/10.31219/osf.io/4f8hw,2024,Quantitative Analysis of the Relationship Between Optimal Learning Rate and Batch Size Scaling in Large Language Models,0,1,1,2305.10250
+W4399652644,https://doi.org/10.31219/osf.io/ew4hs,2024,Enhancing Inference Efficiency in Large Language Models through Rapid Feed-Forward Information Propagation,0,1,1,2305.10250
+W4399693026,https://doi.org/10.21203/rs.3.rs-4575587/v1,2024,Optimizing Large Language Model Scaling with Micro Batch Pipeline and Inference Parallelism,0,1,1,2305.10250
+W4399724596,https://doi.org/10.2139/ssrn.4862474,2024,Large Language Model Assisted Experiment Design with Generative Human-Behavior Agents,0,1,1,2304.03442
+W4399728923,https://doi.org/10.1109/icdew61823.2024.00045,2024,Relationalizing Tables with Large Language Models: The Promise and Challenges,0,1,1,2305.16291
+W4399729805,https://doi.org/10.1117/12.3018554,2024,Autonomous interactive agents for global telescope network orchestration,0,1,1,2305.16291
+W4399757107,https://doi.org/10.31219/osf.io/ua6j5,2024,Retrieval Augmented Generation via Context Compression Techniques for Large Language Models,0,1,1,2305.10250
+W4399779386,https://doi.org/10.3390/e26060524,2024,Effect of Private Deliberation: Deception of Large Language Models in Game Play,0,1,1,2303.11366
+W4399930601,https://doi.org/10.21203/rs.3.rs-4613568/v1,2024,LLM-A*: Large Language Model Enhanced Incremental Heuristic Search on Path Planning,0,1,1,2303.11366
+W4400033172,https://doi.org/10.1109/tcss.2024.3404039,2024,RAH! RecSys–Assistant–Human: A Human-Centered Recommendation Framework With LLM Agents,0,1,1,2305.16291
+W4400133565,https://doi.org/10.58443/ijrex.11.4.2023.132-143,2023,Enhanced Social Collie Optimization for Effective Face Recognition,1,0,1,W7129312784
+W4400141361,https://doi.org/10.18653/v1/2024.naacl-long.123,2024,ReTA: Recursively Thinking Ahead to Improve the Strategic Reasoning of Large Language Models,0,1,1,2303.11366
+W4400142593,https://doi.org/10.1145/3643834.3661579,2024,A Context-Aware Onboarding Agent for Metaverse Powered by Large Language Models,0,1,1,2305.16291
+W4400248316,https://doi.org/10.4324/9781032707211-12,2024,Digital deduction theatre,0,1,1,2304.03442
+W4400248658,https://doi.org/10.4324/9781032707211,2024,Intelligent Computing for Cultural Heritage,0,1,1,2304.03442
+W4400249931,https://doi.org/10.1016/j.nlp.2024.100088,2024,A comprehensive survey on answer generation methods using NLP,0,1,1,W4392222355
+W4400337461,https://doi.org/10.1016/j.eswa.2024.124653,2024,Prompting GPT –4 to support automatic safety case generation,0,1,1,2305.16291
+W4400446017,https://doi.org/10.1145/3632775.3662830,2024,Hybrid Heterogeneous Clusters Can Lower the Energy Consumption of LLM Inference Workloads,1,0,1,W4416088936
+W4400491795,https://doi.org/10.1109/aiiot61789.2024.10578990,2024,Enhancing AI Systems with Agentic Workflows Patterns in Large Language Model,0,1,1,2303.11366
+W4400529018,https://doi.org/10.1145/3626772.3657979,2024,Can Query Expansion Improve Generalization of Strong Cross-Encoder Rankers?,1,0,1,W4414988413
+W4400582623,https://doi.org/10.1145/3660771,2024,A Quantitative and Qualitative Evaluation of LLM-Based Explainable Fault Localization,0,1,1,2303.11366
+W4400582718,https://doi.org/10.1016/j.crsus.2024.100132,2024,Human-AI collaboration to identify literature for evidence synthesis,0,1,1,2303.11366
+W4400673859,https://doi.org/10.29197/cpu.v21i42.595,2024,Usos de la Inteligencia Artificial en la escritura académica: experiencias de estudiantes universitarios en 2023,0,1,1,2308.10144
+W4400680129,https://doi.org/10.1109/ids62739.2024.00008,2024,Understanding How ChatGPT Memorizes Chinese Tang Poetry,0,1,1,2303.11366
+W4400681109,https://doi.org/10.1109/ieeeconf61558.2024.10585387,2024,Simulating Life: The Application of Generative Agents in Virtual Environments,0,1,1,2305.16291
+W4400727248,https://doi.org/10.1109/mdm61037.2024.00061,2024,Mobility ChatBot: supporting decision making in mobility data with chatbots,0,1,1,2303.11366
+W4400746560,https://doi.org/10.1002/mgea.56,2024,Artificial intelligence enabled smart design and manufacturing of advanced materials: The endless Frontier in AI<sup>+</sup> era,0,1,1,2303.11366
+W4400811581,https://doi.org/10.1109/hpsc62738.2024.00012,2024,Studying the Knowledge and Behavior of ChatGPT via Journey to the West,0,1,1,2303.11366
+W4400909708,https://doi.org/10.1109/icde60146.2024.00440,2024,Personal Manifold: Management of Personal Data in the Age of Large Language Models,0,1,1,2303.11366
+W4400921850,https://doi.org/10.1007/s10758-024-09756-z,2024,"Generative Artificial Intelligence in Educational Game Design: Nuanced Challenges, Design Implications, and Future Research",0,1,1,2304.03442
+W4400976524,https://doi.org/10.1109/icca62789.2024.10591881,2024,From Simulation to Prediction: Enhancing Digital Twins with Advanced Generative AI Technologies,0,1,1,2305.16291
+W4401042387,https://doi.org/10.18653/v1/2024.naacl-long.4,2024,Assessing Logical Puzzle Solving in Large Language Models: Insights from a Minesweeper Case Study,0,1,1,2305.16291
+W4401110393,https://doi.org/10.1109/cai59869.2024.00149,2024,LLMs as a System of Multiple Expert Agents: An Approach to Solve the Abstraction and Reasoning Corpus (ARC) Challenge,0,1,1,2305.16291
+W4401119582,https://doi.org/10.26434/chemrxiv-2024-w953h-v2,2024,A multi-agent-driven robotic AI chemist enabling autonomous chemical research on demand,0,1,1,2303.11366
+W4401132497,https://doi.org/10.26434/chemrxiv-2024-w953h,2024,A multi-agent-driven robotic AI chemist enabling autonomous chemical research on demand,0,1,1,2303.11366
+W4401201613,https://doi.org/10.1145/3773080,2025,The Emerged Security and Privacy of LLM Agent: A Survey with Case Studies,0,1,1,W4393147158
+W4401213367,https://doi.org/10.1007/978-981-97-5678-0_3,2024,LegalGPT: Legal Chain of Thought for the Legal Large Language Model Multi-agent Framework,0,1,1,2303.11366
+W4401263465,https://doi.org/10.56726/irjmets60636,2024,Towards Truly Autonomous AI Agents: Bridging the Gap Between Reactive Responses and Proactive Behaviors,0,1,1,2303.11366
+W4401277224,https://doi.org/10.1007/s12555-024-0438-7,2024,Unlocking Robotic Autonomy: A Survey on the Applications of Foundation Models,0,1,1,2305.16291
+W4401352024,https://doi.org/10.14778/3675034.3675043,2024,D-Bot: Database Diagnosis System using Large Language Models,0,1,1,2304.03442
+W4401413701,https://doi.org/10.1109/icra57147.2024.10610566,2024,Gen2Sim: Scaling up Robot Learning in Simulation with Generative Models,0,1,1,2305.16291
+W4401413802,https://doi.org/10.1109/icra57147.2024.10611277,2024,Grasp-Anything: Large-scale Grasp Dataset from Foundation Models,0,1,1,2305.16291
+W4401414230,https://doi.org/10.1109/icra57147.2024.10610225,2024,Lifelong Robot Learning with Human Assisted Language Planners,0,1,1,2305.16291
+W4401414844,https://doi.org/10.1109/icra57147.2024.10611129,2024,LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery,0,1,1,2305.16291
+W4401414856,https://doi.org/10.1109/icra57147.2024.10610981,2024,Interactive Planning Using Large Language Models for Partially Observable Robotic Tasks,0,1,1,2305.16291
+W4401415119,https://doi.org/10.1109/icra57147.2024.10610784,2024,How to Prompt Your Robot: A PromptBook for Manipulation Skills with Code as Policies,0,1,1,2305.16291
+W4401415206,https://doi.org/10.1109/icra57147.2024.10610578,2024,An LLM-driven Framework for Multiple-Vehicle Dispatching and Navigation in Smart City Landscapes,0,1,1,2305.16291
+W4401415340,https://doi.org/10.1109/icra57147.2024.10611448,2024,Lifelong Robot Library Learning: Bootstrapping Composable and Generalizable Skills for Embodied Control with Language Models,0,1,1,2305.16291
+W4401415635,https://doi.org/10.1109/cec60901.2024.10612166,2024,ROIL: Rule Optimization via Large Language Model for Imitation Learning,0,1,1,2308.10144
+W4401416769,https://doi.org/10.1109/icra57147.2024.10611376,2024,CAPE: Corrective Actions from Precondition Errors using Large Language Models,0,1,1,2303.11366
+W4401416853,https://doi.org/10.1109/icra57147.2024.10610443,2024,LLM-Grounder: Open-Vocabulary 3D Visual Grounding with Large Language Model as an Agent,0,1,1,2303.11366
+W4401417251,https://doi.org/10.1109/icra57147.2024.10610455,2024,Distilling and Retrieving Generalizable Knowledge for Robot Manipulation via Language Corrections,0,1,1,2305.16291
+W4401459163,https://doi.org/10.1016/j.patter.2024.101028,2024,Concepts and applications of digital twins in healthcare and medicine,0,1,1,2304.03442
+W4401497789,https://doi.org/10.1002/aisy.202400429,2024,Large Language Model‐Based Chatbots in Higher Education,1,0,1,W4414213933
+W4401508613,https://doi.org/10.1109/iscv60512.2024.10620139,2024,SelfRewardRAG: Enhancing Medical Reasoning with Retrieval-Augmented Generation and Self-Evaluation in Large Language Models,0,1,1,2303.11366
+W4401657722,https://doi.org/10.2196/58445,2024,State-of-the-Art Fast Healthcare Interoperability Resources (FHIR)–Based Data Model and Structure Implementations: Systematic Scoping Review,1,0,1,W7128449691
+W4401720965,https://doi.org/10.1109/rew61692.2024.00010,2024,Exploring the Capabilities of Large Language Models for the Generation of Safety Cases: the Case of GPT-4,0,1,1,2305.16291
+W4401832622,https://doi.org/10.3724/2096-7004.di.2024.0013,2024,Effective Tool Augmented Multi-Agent Framework for Data Analysis,0,1,1,2304.03442
+W4401857375,https://doi.org/10.1145/3637528.3671470,2024,A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models,1,0,1,W7167607753
+W4401863300,https://doi.org/10.1145/3637528.3671679,2024,Enhancing On-Device LLM Inference with Historical Cloud-Based LLM Interactions,1,0,1,W4416088936
+W4401907288,https://doi.org/10.1109/icst60714.2024.00020,2024,Intent-Driven Mobile GUI Testing with Autonomous Large Language Model Agents,0,1,1,2305.16291
+W4401943451,https://doi.org/10.1109/cog60054.2024.10645621,2024,Reinforcement Learning for High-Level Strategic Control in Tower Defense Games,0,1,1,2305.16291
+W4401943697,https://doi.org/10.1109/cog60054.2024.10645557,2024,Missed Connections: Lateral Thinking Puzzles for Large Language Models,0,1,1,2305.16291
+W4401943744,https://doi.org/10.1109/cog60054.2024.10645607,2024,Player-Driven Emergence in LLM-Driven Game Narrative,0,1,1,2305.16291
+W4401943764,https://doi.org/10.1109/cog60054.2024.10645579,2024,LangBirds: An Agent for Angry Birds using a Large Language Model,0,1,1,2305.16291
+W4401943819,https://doi.org/10.1109/cog60054.2024.10645630,2024,Playing NetHack with LLMs: Potential &amp; Limitations as Zero-Shot Agents,0,1,1,2305.16291
+W4401975604,https://doi.org/10.1145/3686803,2024,Generative AI for Self-Adaptive Systems: State of the Art and Research Roadmap,1,0,1,W4416088936
+W4402270196,https://doi.org/10.1007/s44217-024-00229-0,2024,Enhancing knowledge transformation in digital education: an analysis of the SECI model’s application in course design and execution,1,0,1,W7167607753
+W4402350363,https://doi.org/10.1109/ojcoms.2024.3456549,2024,"LLM-Based Edge Intelligence: A Comprehensive Survey on Architectures, Applications, Security and Trustworthiness",0,1,1,2310.08560
+W4402352398,https://doi.org/10.1109/ijcnn60899.2024.10650358,2024,Epic-Level Text Generation with LLM through Auto-prompted Reinforcement Learning,0,1,1,2303.11366
+W4402352501,https://doi.org/10.1109/ijcnn60899.2024.10650538,2024,Real-time Integration of Fine-tuned Large Language Model for Improved Decision-Making in Reinforcement Learning,0,1,1,2305.16291
+W4402374698,https://doi.org/10.3390/su16177829,2024,Leveraging Generative AI for Sustainable Academic Advising: Enhancing Educational Practices through AI-Driven Recommendations,1,0,1,W4414213933
+W4402670423,https://doi.org/10.18653/v1/2024.findings-acl.267,2024,The Good and The Bad: Exploring Privacy Issues in Retrieval-Augmented Generation (RAG),1,0,1,W4414213933
+W4402671013,https://doi.org/10.18653/v1/2024.acl-long.737,2024,CodeAgent: Enhancing Code Generation with Tool-Integrated Agent Systems for Real-World Repo-level Coding Challenges,1,0,1,W4413434847
+W4402684113,https://doi.org/10.18653/v1/2024.findings-acl.247,2024,DebugBench: Evaluating Debugging Capability of Large Language Models,1,0,1,W4414988413
+W4402702989,https://doi.org/10.1109/cvpr52733.2024.01691,2024,FastMAC: Stochastic Spectral Sampling of Correspondence Graph,1,0,1,W7164901450
+W4402704519,https://doi.org/10.1109/cvpr52733.2024.01552,2024,Rapid Motor Adaptation for Robotic Manipulator Arms,0,1,1,2305.16291
+W4402716424,https://doi.org/10.1109/cvpr52733.2024.01554,2024,Auto MC-Reward: Automated Dense Reward Design with Large Language Models for Minecraft,0,1,1,2305.16291
+W4402727195,https://doi.org/10.1109/cis-ram61939.2024.10672715,2024,Multi-modal LLM-enabled Long-horizon Skill Learning for Robotic Manipulation,0,1,1,2305.16291
+W4402727451,https://doi.org/10.1109/cvpr52733.2024.01434,2024,LaMPilot: An Open Benchmark Dataset for Autonomous Driving with Language Model Programs,0,1,1,2305.16291
+W4402753604,https://doi.org/10.1109/cvpr52733.2024.01398,2024,VLP: Vision Language Planning for Autonomous Driving,0,1,1,2305.16291
+W4402753835,https://doi.org/10.1109/cvpr52733.2024.01543,2024,MP5: A Multi-modal Open-ended Embodied System in Minecraft via Active Perception,0,1,1,2305.16291
+W4402890475,https://doi.org/10.1177/02783649241281508,2024,"Foundation models in robotics: Applications, challenges, and the future",0,1,1,2305.16291
+W4402901320,https://doi.org/10.1057/s41599-024-03611-3,2024,Large language models empowered agent-based modeling and simulation: a survey and perspectives,0,1,1,2303.11366
+W4402951641,https://doi.org/10.1007/978-3-031-73232-4_2,2024,Octopus: Embodied Vision-Language Programmer from Environmental Feedback,0,1,1,2305.16291
+W4402961820,https://doi.org/10.1007/978-3-031-72775-7_13,2024,ShapeLLM: Universal 3D Object Understanding for Embodied Interaction,0,1,1,2305.16291
+W4403074774,https://doi.org/10.3390/app14198868,2024,A Survey of Robot Intelligence with Large Language Models,0,1,1,2303.11366
+W4403082842,https://doi.org/10.1002/for.3198,2024,A Multifrequency Data Fusion Deep Learning Model for Carbon Price Prediction,1,0,1,W7164901450
+W4403182266,https://doi.org/10.1109/tcsvt.2024.3475510,2024,Prompting Video-Language Foundation Models With Domain-Specific Fine-Grained Heuristics for Video Question Answering,0,1,1,2305.16291
+W4403203873,https://doi.org/10.1007/s44336-024-00009-2,2024,"A survey on LLM-based multi-agent systems: workflow, infrastructure, and challenges",0,1,1,W4393147158
+W4403275638,https://doi.org/10.3389/fnbot.2024.1396359,2024,The SocialAI school: a framework leveraging developmental psychology toward artificial socio-cultural agents,0,1,1,2304.03442
+W4403307161,https://doi.org/10.3389/frobt.2024.1455375,2024,Incremental learning of humanoid robot behavior from natural interaction and large language models,0,1,1,2305.16291
+W4403333958,https://doi.org/10.1145/3654777.3676336,2024,Memory Reviver: Supporting Photo-Collection Reminiscence for People with Visual Impairment via a Proactive Chatbot,0,1,1,W4393147158
+W4403342804,https://doi.org/10.1111/hiv.13720,2024,The first <scp>AI</scp>‐based <scp>Chatbot</scp> to promote <scp>HIV</scp> self‐management: A mixed methods usability study,0,1,1,W4393147158
+W4403390336,https://doi.org/10.1109/access.2024.3480250,2024,ADAGENT: Anomaly Detection Agent With Multimodal Large Models in Adverse Environments,1,0,1,W4410629910
+W4403439632,https://doi.org/10.3389/frai.2024.1460364,2024,Large language models for whole-learner support: opportunities and challenges,0,1,1,2304.03442
+W4403442446,https://doi.org/10.1109/icws62655.2024.00159,2024,LogGenius: An Unsupervised Log Parsing Framework with Zero-shot Prompt Engineering,0,1,1,2303.11366
+W4403447123,https://doi.org/10.1109/etfa61755.2024.10710789,2024,Engineering Data Funnel (WIP) – An Ontology-Enhanced LLM-Based Agent and MoE System for Engineering Data Processing,0,1,1,2303.11366
+W4403536437,https://doi.org/10.1145/3691620.3695054,2024,GraphCoder: Enhancing Repository-Level Code Completion via Coarse-to-fine Retrieval Based on Code Context Graph,1,0,1,W4414988413
+W4403577519,https://doi.org/10.1145/3627673.3679599,2024,MemoCRS: Memory-enhanced Sequential Conversational Recommender Systems with Large Language Models,0,1,1,W4393147158
+W4403585407,https://doi.org/10.48550/arxiv.2408.08862,2024,Visual Agents as Fast and Slow Thinkers,1,0,1,W4410629910
+W4403607434,https://doi.org/10.4274/dir.2024.242994,2024,Letter to the editor re: evaluating Microsoft Bing with ChatGPT-4 for the assessment of abdominal computed tomography and magnetic resonance imaging,0,1,1,W4393147158
+W4403628634,https://doi.org/10.1145/3701701.3701707,2024,An Introduction to Semantic Communication and Semantic-Aware Networking Standardization for 6G,1,0,1,W4416088936
+W4403637324,https://doi.org/10.1038/s41562-024-02004-5,2024,Promises and challenges of generative artificial intelligence for human learning,0,1,1,2304.03442
+W4403637376,https://doi.org/10.1038/s41562-024-01991-9,2024,Building machines that learn and think with people,0,1,1,2304.03442
+W4403750297,https://doi.org/10.1016/j.compbiomed.2024.109326,2024,"Comprehensive review of reinforcement learning in lung cancer diagnosis and treatment: Taxonomy, challenges and recommendations",0,1,1,2303.11366
+W4403791331,https://doi.org/10.1145/3664647.3684992,2024,MAF-ID: Multi-Agent Framework for Interactive Dubbing through Deep Video Understanding,0,1,1,W4393147158
+W4403810628,https://doi.org/10.1162/leon_a_02625,2024,Dialogues with the Future: AI Socratic Exploration of Christopher Alexander’s 15 Foundational Properties for Life,0,1,1,2303.11366
+W4403819970,https://doi.org/10.1016/j.inffus.2024.102755,2024,Natural language processing in finance: A survey,0,1,1,2310.08560
+W4403842350,https://doi.org/10.3390/w16213075,2024,WaterGPT: Training a Large Language Model to Become a Hydrology Expert,0,1,1,2304.03442
+W4403866530,https://doi.org/10.2118/223612-pa,2024,Comparative Analysis of Single and Multiagent Large Language Model Architectures for Domain-Specific Tasks in Well Construction,0,1,1,2303.11366
+W4403943257,https://doi.org/10.1007/978-981-97-9434-8_22,2024,TPE: Towards Better Compositional Reasoning over Cognitive Tools via Multi-persona Collaboration,0,1,1,2303.11366
+W4403943312,https://doi.org/10.1007/978-981-97-9434-8_19,2024,Editing Personality For Large Language Models,0,1,1,2304.03442
+W4403962195,https://doi.org/10.3389/fpsyt.2024.1444382,2024,Can AI replace psychotherapists? Exploring the future of mental health care,0,1,1,W4393147158
+W4403967533,https://doi.org/10.61643/c16259,2024,The Use of Generative Artificial Intelligence for Business Decision-Making,0,1,1,2303.11366
+W4403997208,https://doi.org/10.1007/s41809-024-00152-8,2024,Language as a cognitive and social tool at the time of large language models,0,1,1,2303.11366
+W4404034698,https://doi.org/10.1145/3666025.3699344,2024,MagicStream: Bandwidth-conserving Immersive Telepresence via Semantic Communication,1,0,1,W4416088936
+W4404047101,https://doi.org/10.3390/app142110048,2024,Comparative Analysis of Chatbots Using Large Language Models for Web Development Tasks,1,0,1,W4414213933
+W4404197005,https://doi.org/10.13169/prometheus.40.1.0020,2024,Wit and wisdom: using computational humor to communicate about economics,0,1,1,2303.11366
+W4404409655,https://doi.org/10.1016/j.eswa.2024.125723,2024,Mitigating reasoning hallucination through Multi-agent Collaborative Filtering,0,1,1,2303.11366
+W4404444335,https://doi.org/10.1007/s11747-024-01057-2,2024,There is business like show business! What marketing scholars and managers can learn from 40 years of entertainment science research,0,1,1,2304.03442
+W4404445025,https://doi.org/10.1609/aiide.v20i1.31861,2024,‘Journeys in the Dark’ - Towards Game Master AI in Complex Board Games,0,1,1,2304.03442
+W4404469447,https://doi.org/10.1109/access.2024.3501358,2024,Efficient LLMs Training and Inference: An Introduction,0,1,1,2310.08560
+W4404481617,https://doi.org/10.1145/3687123.3698286,2024,Evaluation of Code LLMs on Geospatial Code Generation,1,0,1,W4413434847
+W4404539115,https://doi.org/10.32388/ardyd9,2024,Instruction-Driven Game Engine: A Poker Case Study,0,1,1,2305.16291
+W4404594523,https://doi.org/10.1177/00375497241295765,2024,Creating artificial societies for policy decision support: a research agenda and call to action,0,1,1,2304.03442
+W4404700322,https://doi.org/10.1145/3705296,2024,AI-powered Fraud Detection in Decentralized Finance: A Project Life Cycle Perspective,0,1,1,2304.03442
+W4404708487,https://doi.org/10.1109/access.2024.3505298,2024,Leveraging Local LLMs for Secure In-System Task Automation With Prompt-Based Agent Classification,1,0,1,W7160388841
+W4404734517,https://doi.org/10.1016/j.enbuild.2024.115116,2024,Automatic building energy model development and debugging using large language models agentic workflow,0,1,1,2303.11366
+W4404739549,https://doi.org/10.1109/tits.2024.3498735,2024,The Crossroads of LLM and Traffic Control: A Study on Large Language Models in Adaptive Traffic Signal Control,0,1,1,2304.03442
+W4404781205,https://doi.org/10.18653/v1/2024.findings-emnlp.969,2024,Two Tales of Persona in LLMs: A Survey of Role-Playing and Personalization,1,0,1,W7164901450
+W4404782344,https://doi.org/10.18653/v1/2024.emnlp-main.927,2024,Explicit Memory Learning with Expectation Maximization,1,0,1,W4416088936
+W4404782797,https://doi.org/10.18653/v1/2024.emnlp-main.218,2024,M2PT: Multimodal Prompt Tuning for Zero-shot Instruction Learning,1,0,1,W4410629910
+W4404783875,https://doi.org/10.18653/v1/2024.emnlp-main.281,2024,Crafting Personalized Agents through Retrieval-Augmented Generation on Editable Memory Graphs,1,0,1,W7164901450
+W4404824622,https://doi.org/10.1038/s41592-024-02525-x,2024,Evaluation of large language models for discovery of gene set function,0,1,1,2303.11366
+W4404955232,https://doi.org/10.1109/humanoids58906.2024.10769803,2024,Robots Can Multitask Too: Integrating a Memory Architecture and LLMs for Enhanced Cross-Task Robot Action Generation,0,1,1,W4393147158
+W4404955314,https://doi.org/10.1109/issrew63542.2024.00104,2024,World Models: The Safety Perspective,0,1,1,2305.16291
+W4404983943,https://doi.org/10.17780/ksujes.1480838,2024,İSTEM MÜHENDİSLİĞİNİN BÜYÜK DİL MODELLERİNİN PERFORMANSINDAKİ ROLÜ: ANALİZ VE UYGULAMA ÖRNEKLERİ,0,1,1,2303.11366
+W4405055904,https://doi.org/10.1109/tkde.2024.3509715,2024,Unified Multi-Scenario Summarization Evaluation and Explanation,0,1,1,2310.08560
+W4405180437,https://doi.org/10.23919/iccas63016.2024.10773080,2024,Kolmogorov-Arnold Networks for Online Reinforcement Learning,0,1,1,2305.16291
+W4405202391,https://doi.org/10.1101/2024.12.06.24318575,2024,The AI Agent in the Room: Informing Objective Decision Making at the Transplant Selection Committee,0,1,1,2304.03442
+W4405263848,https://doi.org/10.32388/8vog0o,2024,ScribeAgent: Towards Specialized Web Agents Using Production-Scale Workflow Data,0,1,1,2303.11366
+W4405298817,https://doi.org/10.1038/s43588-024-00741-1,2024,Generative language models exhibit social identity biases,0,1,1,2304.03442
+W4405319102,https://doi.org/10.1103/physrevapplied.22.064043,2024,Optical trapping and manipulation of fluorescent polymer-based nanostructures: Measuring optical properties of materials in the nanoscale range,1,0,1,W7129312784
+W4405362975,https://doi.org/10.1109/edis63605.2024.10783321,2024,Transformer-Based Approach for Social Norms Learning in Open Multi-Agent Systems,0,1,1,2304.03442
+W4405366927,https://doi.org/10.3390/e26121092,2024,Spontaneous Emergence of Agent Individuality Through Social Interactions in Large Language Model-Based Communities,0,1,1,2304.03442
+W4405480396,https://doi.org/10.32388/kpa6vi,2024,Enhancing Long Context Performance in LLMs Through Inner Loop Query Mechanism,0,1,1,W4393147158
+W4405518282,https://doi.org/10.32388/93o2s3,2024,SiReRAG: Indexing Similar and Related Information for Multihop Reasoning,0,1,1,2405.14831
+W4405522384,https://doi.org/10.1109/iisa62523.2024.10786703,2024,Mathematical Representation of Memory and Schema for Improving Human-Generative AI Interactions,0,1,1,W4393147158
+W4405563851,https://doi.org/10.1145/3699431,2024,Multi-Agent Reinforcement Learning based Edge Content Caching for Connected Autonomous Vehicles in IoV,1,0,1,W4416088936
+W4405616956,https://doi.org/10.1039/d4cs00913d,2024,From text to insight: large language models for chemical data extraction,0,1,1,2303.11366
+W4405686240,https://doi.org/10.1016/j.buildenv.2024.112490,2024,Street microclimate prediction based on Transformer model and street view image in high-density urban areas,1,0,1,W4410629910
+W4405727027,https://doi.org/10.3233/faia241464,2024,LLM-AS: A Self-Improve LLM Reasoning Framework Integrated with A* Heuristics Algorithm,0,1,1,2303.11366
+W4405755975,https://doi.org/10.1109/eiecs63941.2024.10799986,2024,Improving Long-Term Conversational Abilities of Large Language Models Through Behavior Memory,0,1,1,W4393147158
+W4405821763,https://doi.org/10.1111/jcal.13100,2024,Automating Autograding: Large Language Models as Test Suite Generators for Introductory Programming,0,1,1,2303.11366
+W4405836446,https://doi.org/10.1016/j.aei.2024.103066,2024,"A survey of emerging applications of large language models for problems in mechanics, product design, and manufacturing",0,1,1,2308.10144
+W4405843397,https://doi.org/10.1038/s41598-024-81997-5,2024,Finding deceivers in social context with large language models and how to find them: the case of the Mafia game,0,1,1,2305.16291
+W4405908879,https://doi.org/10.1109/csrswtc64338.2024.10811590,2024,Remote Scene Image Classification Based on Vision-LSTM Model,0,1,1,W4393147158
+W4405925082,https://doi.org/10.1007/s10115-024-02310-4,2024,"Large language models: a survey of their development, capabilities, and applications",1,0,1,W7167607753
+W4405926581,https://doi.org/10.1016/j.neucom.2024.129272,2024,Large language model-based evolutionary optimizer: Reasoning with elitism,0,1,1,2305.16291
+W4405973511,https://doi.org/10.47134/emergent.v3i4.53,2024,Approach To Teaching Russian as A Foreign Language With The Use Of Fiction Text (Russian as A Foreign Language),0,1,1,2303.11366
+W4405995024,https://doi.org/10.3390/fi17010012,2025,FI-NL2PY2SQL: Financial Industry NL2SQL Innovation Model Based on Python and Large Language Model,0,1,1,2303.11366
+W4406023698,https://doi.org/10.2139/ssrn.5066794,2025,Enhanced Question Answering System through URL based Data Extraction,0,1,1,2305.10250
+W4406034570,https://doi.org/10.3390/systems13010029,2025,LLM-AIDSim: LLM-Enhanced Agent-Based Influence Diffusion Simulation in Social Networks,0,1,1,2304.03442
+W4406110044,https://doi.org/10.1007/978-3-031-74418-1_9,2024,GenAI: Unlocking Sustainability Insights and Driving Change in Fintech,0,1,1,2303.11366
+W4406140557,https://doi.org/10.1101/2025.01.01.25319863,2025,ENTAgents: AI Agents for Complex Knowledge Otolaryngology,0,1,1,2303.11366
+W4406147987,https://doi.org/10.5194/egusphere-2024-2661-rc2,2025,RC2 Comment on egusphere-2024-2661,0,1,1,W4393147158
+W4406171451,https://doi.org/10.2139/ssrn.5010694,2025,Implementing Financial Regulations Using Large Language Models,0,1,1,2303.11366
+W4406241919,https://doi.org/10.1016/j.patter.2024.101118,2025,A survey of multilingual large language models,1,0,1,W4414213933
+W4406269785,https://doi.org/10.1115/1.4067619,2025,Vision-Language Models for Design Concept Generation: An Actor–Critic Framework,0,1,1,2303.11366
+W4406277701,https://doi.org/10.1016/j.robot.2025.104915,2025,A knowledge-driven framework for Robotic Odor Source Localization using large language models,0,1,1,2305.16291
+W4406325768,https://doi.org/10.1145/3712003,2025,"LLM-Based Multi-Agent Systems for Software Engineering: Literature Review, Vision, and the Road Ahead",0,1,1,2303.11366
+W4406389368,https://doi.org/10.1002/stvr.1913,2025,DSKIPP: A Prompt Method to Enhance the Reliability in LLMs for Java API Recommendation Task,0,1,1,2303.11366
+W4406457901,https://doi.org/10.1109/bigdata62323.2024.10826103,2024,EduMAS: A Novel LLM-Powered Multi-Agent Framework for Educational Support,0,1,1,2305.16291
+W4406459274,https://doi.org/10.1109/bigdata62323.2024.10826114,2024,LLM Augmentations to support Analytical Reasoning over Multiple Documents,0,1,1,2305.16291
+W4406460001,https://doi.org/10.1109/bigdata62323.2024.10826108,2024,Code LLMs: A Taxonomy-based Survey,1,0,1,W4413434847
+W4406460929,https://doi.org/10.1109/bigdata62323.2024.10825007,2024,Generating Phishing Attacks and Novel Detection Algorithms in the Era of Large Language Models,0,1,1,2303.11366
+W4406495783,https://doi.org/10.1109/bigdata62323.2024.10825748,2024,SurgBox: Agent-Driven Operating Room Sandbox with Surgery Copilot,0,1,1,2303.11366
+W4406615128,https://doi.org/10.1016/j.neucom.2025.129510,2025,Minimizing learning experiences in embodied agents language and action learning,0,1,1,2305.16291
+W4406657140,https://doi.org/10.2139/ssrn.5106265,2025,"A Comprehensive Survey on Multi-Agent Cooperative Decision-Making: Scenarios, Approaches, Challenges and Perspectives",0,1,1,2304.03442
+W4406706905,https://doi.org/10.1038/s41587-024-02534-3,2025,A platform for the biomedical application of large language models,0,1,1,2303.11366
+W4406783181,https://doi.org/10.3390/app15031192,2025,Context Is King: Large Language Models’ Interpretability in Divergent Knowledge Scenarios,0,1,1,2303.11366
+W4406800170,https://doi.org/10.1145/3715097,2025,Proactive Conversational AI: A Comprehensive Survey of Advancements and Opportunities,0,1,1,2303.11366
+W4406841370,https://doi.org/10.48550/arxiv.2501.14654,2025,MedAgentBench: A Realistic Virtual EHR Environment to Benchmark Medical LLM Agents,1,0,1,W7128449691
+W4406894742,https://doi.org/10.1109/ictai62512.2024.00072,2024,Memory and Schema in Human-Generative Artificial Intelligence Interactions,0,1,1,W4393147158
+W4406899186,https://doi.org/10.1016/j.neucom.2025.129509,2025,TSCnet: A text-driven semantic-level controllable framework for customized low-light image enhancement,1,0,1,W4410629910
+W4406903024,https://doi.org/10.1016/j.neunet.2025.107200,2025,TDAG: A multi-agent framework based on dynamic Task Decomposition and Agent Generation,0,1,1,2303.11366
+W4406931660,https://doi.org/10.1038/s41559-024-02623-1,2025,Generative AI as a tool to accelerate the field of ecology,0,1,1,2304.03442
+W4406985968,https://doi.org/10.3390/su17031140,2025,Artificial Intelligence and the Energy Transition,0,1,1,2304.03442
+W4407099782,https://doi.org/10.1016/j.fsidi.2024.301859,2025,Exploring the potential of large language models for improving digital forensic investigation efficiency,0,1,1,2303.11366
+W4407105155,https://doi.org/10.3102/0013189x251314821,2025,The Feasibility and Comparability of Using Artificial Intelligence for Qualitative Data Analysis in Equity-Focused Research,0,1,1,2303.11366
+W4407236106,https://doi.org/10.1145/3716628,2025,AI Agents Under Threat: A Survey of Key Security Challenges and Future Pathways,1,0,1,W7160388841
+W4407264175,https://doi.org/10.1007/978-3-031-79059-1_14,2025,Scaling AI Adoption in Finance: Modelling Framework and Implementation Study,0,1,1,2304.03442
+W4407264220,https://doi.org/10.1016/j.neucom.2025.129572,2025,MDANet: A multi-stage domain adaptation framework for generalizable low-light image enhancement,1,0,1,W4410629910
+W4407325419,https://doi.org/10.1016/j.rcim.2025.102982,2025,"Integrating large language model and digital twins in the context of industry 5.0: Framework, challenges and opportunities",0,1,1,2303.11366
+W4407405968,https://doi.org/10.1016/j.aiopen.2025.01.001,2025,"ChatLLM network: More brains, more intelligence",0,1,1,2303.11366
+W4407638327,https://doi.org/10.1109/jiot.2025.3542473,2025,Resource Allocation for Task-Oriented Generative Artificial Intelligence in Internet of Things,1,0,1,W4416088936
+W4407668196,https://doi.org/10.1007/s11528-025-01058-0,2025,Defining and Classifying the Roles of Intelligent Learning Companion Systems: A Scoping Review of the Literature,0,1,1,W4393147158
+W4407719434,https://doi.org/10.1145/3706598.3713780,2025,Can you pass that tool?: Implications of Indirect Speech in Physical Human-Robot Collaboration,0,1,1,W4393147158
+W4407736938,https://doi.org/10.1109/ickg63256.2024.00023,2024,Emotional RAG: Enhancing Role-Playing Agents through Emotional Retrieval,0,1,1,W4393147158
+W4407762808,https://doi.org/10.1101/2025.02.17.25322388,2025,Collaborative intelligence in AI: Evaluating the performance of a council of AIs on the USMLE,0,1,1,2303.11366
+W4407832227,https://doi.org/10.1109/icdm59182.2024.00088,2024,Zero-Shot Link Prediction in Knowledge Graphs with Large Language Models,1,0,1,W7167607753
+W4407904831,https://doi.org/10.3390/robotics14030024,2025,Agentic Workflows for Improving Large Language Model Reasoning in Robotic Object-Centered Planning,0,1,1,2303.11366
+W4407961382,https://doi.org/10.1145/3719351,2025,Fully Autonomous Programming Using Iterative Multi-Agent Debugging with Large Language Models,0,1,1,2303.11366
+W4407990014,https://doi.org/10.1016/j.iswa.2025.200496,2025,Emulating fundamental analysts: Analytical stage-based multi-agent framework enhanced with expert guidance and Preference-Anchored Likelihood Adjustment,0,1,1,2303.11366
+W4408101837,https://doi.org/10.1016/j.simpa.2025.100742,2025,UsmleGPT: An AI application for developing MCQs via multi-agent system,0,1,1,2303.11366
+W4408102244,https://doi.org/10.12688/openreseurope.18551.1,2025,"SituationalLLM: Proactive Language Models with Scene Awareness for Dynamic, Contextual Task Guidance",0,1,1,2303.11366
+W4408126906,https://doi.org/10.3390/a18030144,2025,"Advancing AI in Higher Education: A Comparative Study of Large Language Model-Based Agents for Exam Question Generation, Improvement, and Evaluation",1,0,1,W7164901450
+W4408132625,https://doi.org/10.1007/978-981-96-2373-0_33,2025,MindMemory:Augmented LLM With Long-Term Memory And Mental Personality,0,1,1,W4393147158
+W4408167042,https://doi.org/10.1016/j.jag.2025.104456,2025,GeoCode-GPT: A large language model for geospatial code generation,1,0,1,W4413434847
+W4408175932,https://doi.org/10.1016/j.compind.2025.104275,2025,ArchiDiff: Interactive design of 3D architectural forms generated from a single image,1,0,1,W4410629910
+W4408190937,https://doi.org/10.1016/j.engappai.2025.110319,2025,Large language model-based planning agent with generative memory strengthens performance in textualized world,0,1,1,2305.16291
+W4408227041,https://doi.org/10.2139/ssrn.5097659,2025,Titans vs Transformers : The Mathematics,0,1,1,2501.00663
+W4408236454,https://doi.org/10.1007/s10458-025-09691-y,2025,Emergent language: a survey and taxonomy,0,1,1,2303.11366
+W4408247476,https://doi.org/10.1021/jacs.4c17738,2025,A Multiagent-Driven Robotic AI Chemist Enabling Autonomous Chemical Research On Demand,0,1,1,2304.03442
+W4408254315,https://doi.org/10.1109/ictech63197.2024.00026,2024,Algorithm for Gastrointestinal Tumor Detection based on Multimodal Large-scale Models in the Medical Domain,0,1,1,W4393147158
+W4408267896,https://doi.org/10.1007/s10514-025-10190-y,2025,Between reality and delusion: challenges of applying large language models to companion robots for open-domain dialogues with older adults,0,1,1,2305.16291
+W4408324891,https://doi.org/10.1109/icassp49660.2025.10889961,2025,WebSurfer: Enhancing LLM Agents with Web-Wise Feedback for Web Navigation,0,1,1,W4393147158
+W4408352269,https://doi.org/10.1109/icassp49660.2025.10889517,2025,A Self-Evolving Framework for Multi-Agent Medical Consultation Based on Large Language Models,0,1,1,W4393147158
+W4408378580,https://doi.org/10.1016/j.neunet.2025.107365,2025,"<mml:math xmlns:mml=""http://www.w3.org/1998/Math/MathML"" altimg=""si10.svg"" display=""inline"" id=""d1e1688""><mml:mrow><mml:msup><mml:mrow><mml:mi>S</mml:mi></mml:mrow><mml:mrow><mml:mn>2</mml:mn></mml:mrow></mml:msup><mml:mi>A</mml:mi><mml:mi>F</mml:mi></mml:mrow></mml:math>: An action framework to self-check the Understanding Self-Consistency of Large Language Models",0,1,1,2303.11366
+W4408399647,https://doi.org/10.1109/mprv.2025.3539421,2025,Follow-Me AI: Energy-Efficient User Interaction With Smart Environments,1,0,1,W4416088936
+W4408550901,https://doi.org/10.1145/3708557.3716342,2025,CAIM: A Cognitive AI Memory Framework for Long-term Interaction with LLMs,0,1,1,W4393147158
+W4408613244,https://doi.org/10.3389/fpsyt.2025.1473614,2025,"GPT-4 generated psychological reports in psychodynamic perspective: a pilot study on quality, risk of hallucination and client satisfaction",0,1,1,W4393147158
+W4408654786,https://doi.org/10.1016/j.autcon.2025.106133,2025,Automated residential layout generation and editing using natural language and images,1,0,1,W4410629910
+W4408816074,https://doi.org/10.1038/s41598-025-92337-6,2025,A fine-tuned large language model based molecular dynamics agent for code generation to obtain material thermodynamic parameters,0,1,1,2303.11366
+W4408853582,https://doi.org/10.1016/j.neucom.2025.129903,2025,RECoT: Relation-enhanced Chains-of-Thoughts for knowledge-intensive multi-hop questions answering,0,1,1,2405.14831
+W4408859268,https://doi.org/10.1002/smb2.12008,2025,A Comprehensive Review of Humanoid Robots,0,1,1,2303.11366
+W4408866859,https://doi.org/10.1016/j.compedu.2025.105306,2025,Development and implementation of a generative artificial intelligence-enhanced simulation to enhance problem-solving skills for pre-service teachers,0,1,1,2305.16291
+W4408891420,https://doi.org/10.1145/3689031.3717481,2025,SpInfer: Leveraging Low-Level Sparsity for Efficient Large Language Model Inference on GPUs,1,0,1,W4416088936
+W4408909454,https://doi.org/10.3991/ijim.v19i06.53805,2025,Privacy Protection in Learning Management Systems' Mobile Technology-Based Learning Analytics,1,0,1,W4414213933
+W4408922687,https://doi.org/10.1515/zwf-2025-0007,2025,AI-Driven ERP Systems,0,1,1,2303.11366
+W4408955119,https://doi.org/10.1109/vr59515.2025.00063,2025,Immersive Tailoring of Embodied Agents Using Large Language Models,0,1,1,2305.16291
+W4408973976,https://doi.org/10.1080/20964471.2025.2483541,2025,Enhancing geodatabases operability: advanced human-computer interaction through RAG and Multi-Agent Systems,0,1,1,2304.03442
+W4409010281,https://doi.org/10.3390/systems13040240,2025,Multi-Stage Simulation of Residents’ Disaster Risk Perception and Decision-Making Behavior: An Exploratory Study on Large Language Model-Driven Social–Cognitive Agent Framework,0,1,1,2304.03442
+W4409025678,https://doi.org/10.1093/biosci/biaf021,2025,A vision of human–AI collaboration for enhanced biological collection curation and research,0,1,1,2305.16291
+W4409128383,https://doi.org/10.1093/9780198945215.003.0002,2025,Degrees of AI Personhood,0,1,1,2305.16291
+W4409147637,https://doi.org/10.1038/s41586-025-08744-2,2025,Mastering diverse control tasks through world models,0,1,1,2305.16291
+W4409158105,https://doi.org/10.1145/3690624.3709321,2025,<scp>AgentGen:</scp> Enhancing Planning Abilities for Large Language Model based Agent via Environment and Task Generation,0,1,1,W4393147158
+W4409159778,https://doi.org/10.1002/jtr.70008,2025,Parallel Tourism System With Foundation Models and Decentralized Autonomous Organizations,0,1,1,2303.11366
+W4409200459,https://doi.org/10.31234/osf.io/nsdwm_v1,2025,WITHDRAWN,0,1,1,2304.03442
+W4409235391,https://doi.org/10.1038/s44222-025-00279-5,2025,Application of large language models in medicine,0,1,1,2305.16291
+W4409287175,https://doi.org/10.2139/ssrn.5134721,2025,Towards an AI Task Tensor: A Taxonomy for Organizing Work in the Age of Generative AI,0,1,1,2304.03442
+W4409346430,https://doi.org/10.1609/aaai.v39i2.32121,2025,CraftFactory: A Conditioned Control Policy Benchmark for Compositional Generalization,0,1,1,2305.16291
+W4409346437,https://doi.org/10.1609/aaai.v39i2.32125,2025,"Open Models, Closed Minds? On Agents Capabilities in Mimicking Human Personalities through Open Large Language Models",0,1,1,2304.03442
+W4409347900,https://doi.org/10.1609/aaai.v39i23.34602,2025,Importance Weighting Can Help Large Language Models Self-Improve,0,1,1,2303.11366
+W4409348123,https://doi.org/10.1609/aaai.v39i23.34692,2025,Automatically Generating Numerous Context-Driven SFT Data for LLMs Across Diverse Granularity,0,1,1,2303.11366
+W4409351777,https://doi.org/10.1016/j.neucom.2025.130193,2025,Recursively summarizing enables long-term dialogue memory in large language models,0,1,1,W4393147158
+W4409361194,https://doi.org/10.1609/aaai.v39i28.35350,2025,Agent Trajectory Explorer: Visualizing and Providing Feedback on Agent Trajectories,0,1,1,2303.11366
+W4409362613,https://doi.org/10.1609/aaai.v39i22.34575,2025,CriSPO: Multi-Aspect Critique-Suggestion-guided Automatic Prompt Optimization for Text Generation,0,1,1,2303.11366
+W4409368537,https://doi.org/10.1609/aaai.v39i4.32455,2025,Multi-Modal Grounded Planning and Efficient Replanning for Learning Embodied Agents with a Few Examples,0,1,1,2305.16291
+W4409536348,https://doi.org/10.36227/techrxiv.174494725.56070193/v1,2025,Retrieval-Native Language Models: Integrating Parametric and Vector Memory with Bayesian Attention,0,1,1,2310.08560
+W4409574281,https://doi.org/10.31219/osf.io/vhn2c_v1,2025,Web Agents and Benchmarks - A Survey Focusing on Algorithmic Strategies and Performance Ratings,0,1,1,2308.10144
+W4409603579,https://doi.org/10.1101/2025.04.17.25326033,2025,EmulatRx: Empowering Clinical Trial Design with Agentic Intelligence and Real World Data,0,1,1,W4390961916
+W4409607467,https://doi.org/10.1007/s11633-024-1531-3,2025,CRMR: A Collaborative Multistep Reasoning Framework for Solving Mathematical Problems,0,1,1,2303.11366
+W4409625809,https://doi.org/10.22214/ijraset.2025.69166,2025,AI-Forge - Your Coding Assistant,0,1,1,2304.03442
+W4409651727,https://doi.org/10.1007/s10115-025-02399-1,2025,LLM-KGMQA: large language model-augmented multi-hop question-answering system based on knowledge graph in medical field,1,0,1,W7167607753
+W4409722414,https://doi.org/10.2139/ssrn.5170182,2025,Beyond Stochastic Parroting: LLMs' Human-Like Behavioral Biases Emerge from Linear Neural Representations,0,1,1,2304.03442
+W4409736063,https://doi.org/10.1145/3706598.3714210,2025,Beyond Visual Perception: Insights from Smartphone Interaction of Visually Impaired Users with Large Multimodal Models,0,1,1,W4393147158
+W4409736197,https://doi.org/10.1145/3706598.3713661,2025,Can AI Prompt Humans? Multimodal Agents Prompt Players? Game Actions and Show Consequences to Raise Sustainability Awareness,0,1,1,W4393147158
+W4409747044,https://doi.org/10.1145/3706598.3713275,2025,Characterizing LLM-Empowered Personalized Story Reading and Interaction for Children: Insights From Multi-Stakeholder Perspectives,0,1,1,W4393147158
+W4409748318,https://doi.org/10.1145/3706598.3713310,2025,Development of an LLM-Based Chatbot to Support Learnability in Stardew Valley: A Diary Study Approach,0,1,1,W4393147158
+W4409750028,https://doi.org/10.1145/3706598.3713732,2025,"""I Don't Know Why I Should Use This App"": Holistic Analysis on User Engagement Challenges in Mobile Mental Health",0,1,1,W4393147158
+W4409762035,https://doi.org/10.1016/j.knosys.2025.113624,2025,Geo-FuB: A method for constructing an Operator-Function knowledge base for geospatial code generation with large language models,1,0,1,W4413434847
+W4409767054,https://doi.org/10.1145/3706598.3714069,2025,Emerging Data Practices: Data Work in the Era of Large Language Models,0,1,1,W4393147158
+W4409779994,https://doi.org/10.1145/3706598.3714113,2025,VeriPlan: Integrating Formal Verification and LLMs into End-User Planning,1,0,1,W7164901450
+W4409865968,https://doi.org/10.1007/978-3-031-87330-0_2,2025,Prompt. Exploit. Repeat: Automating Network Security Testing with LLMs,0,1,1,2305.16291
+W4409908207,https://doi.org/10.2139/ssrn.5159339,2025,ECCOS: Efficient Capability and Cost Coordinated Scheduling for Multi-LLM Serving,0,1,1,2310.08560
+W4409917583,https://doi.org/10.1109/tifs.2025.3565392,2025,CAMeL: Cross-Modality Adaptive Meta-Learning for Text-Based Person Retrieval,0,1,1,W4393147158
+W4409983264,https://doi.org/10.34133/icomputing.0124,2025,A Survey of Task Planning with Large Language Models,0,1,1,2305.16291
+W4409992471,https://doi.org/10.1109/iceit64364.2025.10975875,2025,Enhancing Contextual Understanding in AI-Powered Tutoring: Evaluating the Oliver System for Effective Learning Support,0,1,1,W4393147158
+W4409994212,https://doi.org/10.1016/j.infsof.2025.107763,2025,BERT4Anno: An annotation misuse detection method for Java,0,1,1,2303.11366
+W4410043030,https://doi.org/10.1007/979-8-8688-0989-7_5,2025,Simulation,0,1,1,2305.16291
+W4410087167,https://doi.org/10.1109/wi-iat62293.2024.00070,2024,LLM-Based Interoperable IoT Service Platform,0,1,1,2305.16291
+W4410092249,https://doi.org/10.30857/2786-5371.2025.1.3,2025,Optimising productivity and automating software development: Innovative memory system approaches in large language models,0,1,1,W4393147158
+W4410124776,https://doi.org/10.1177/25151274251337752,2025,"Upskilling Entrepreneurship Education: Deliberate Practice Standards, Cognitive Task Analysis, and Harnessing AI for Skill Development",0,1,1,2310.08560
+W4410140091,https://doi.org/10.1108/jal-12-2024-0357,2025,The impact of large language models on accounting and future application scenarios,0,1,1,2310.08560
+W4410153058,https://doi.org/10.1109/tccn.2025.3567613,2025,Generative AI Meets Wireless Networking: An Interactive Paradigm for Intent-Driven Communications,1,0,1,W4416088936
+W4410155471,https://doi.org/10.2139/ssrn.5235972,2025,Full automation or just a copilot? A comparison study of Large Language Models on spare parts demand forecasting,0,1,1,2303.11366
+W4410225695,https://doi.org/10.36227/techrxiv.174681425.54614303/v1,2025,KAQG: A Knowledge-Graph-Enhanced RAG for Difficulty-Controlled Question Generation,0,1,1,2405.14831
+W4410228863,https://doi.org/10.1109/iatmsi64286.2025.10985030,2025,Image Caption Generator with CLIP Interrogator,1,0,1,W7129312784
+W4410252291,https://doi.org/10.1111/phc3.70039,2025,Artificial Intelligence: Approaches to Safety,0,1,1,2304.03442
+W4410291832,https://doi.org/10.1016/j.comnet.2025.111379,2025,A comprehensive survey on large language models for multimedia data security: challenges and solutions,0,1,1,2305.16291
+W4410309753,https://doi.org/10.63503/j.ijaimd.2025.110,2025,Transforming AI Decision Support System with Knowledge Graphs &amp; CAG,0,1,1,W4400434708
+W4410315685,https://doi.org/10.1007/s10115-025-02465-8,2025,XLR-KGDD: leveraging LLM and RAG for knowledge graph-based explainable disease diagnosis using multimodal clinical information,1,0,1,W7167607753
+W4410337945,https://doi.org/10.2139/ssrn.5253231,2025,Decoding Greenwashing: Llm Insights into Corporate Narrative,0,1,1,2303.11366
+W4410355374,https://doi.org/10.2139/ssrn.5254660,2025,Kaqg: A Knowledge-Graph-Enhanced Rag for Difficulty-Controlled Question Generation,0,1,1,2405.14831
+W4410356132,https://doi.org/10.1021/acsnano.5c03454,2025,A Generative Artificial Intelligence Copilot for Biomedical Nanoengineering,0,1,1,2303.11366
+W4410362881,https://doi.org/10.1016/j.jacadv.2025.101780,2025,LLMonFHIR,1,0,1,W7128449691
+W4410419776,https://doi.org/10.2139/ssrn.5256592,2025,From Chat to Act: Large Language Model Agents and Agentic AI as the Next Frontier of Artificial Intelligence in Rheumatology,0,1,1,2303.11366
+W4410426219,https://doi.org/10.2139/ssrn.5257541,2025,The Information Channel of Monetary Policy - Insights from Text Analysis,0,1,1,2304.03442
+W4410440509,https://doi.org/10.31219/osf.io/36jm5_v1,2025,RedTeamAI: A Benchmark for Assessing Autonomous Cybersecurity Agents,0,1,1,2303.11366
+W4410457773,https://doi.org/10.1007/s10115-025-02462-x,2025,Chatbot development strategies: a review of current studies and applications,1,0,1,W7167607753
+W4410505200,https://doi.org/10.7759/cureus.84381,2025,Beyond Traditional Simulation: An Exploratory Study on the Effectiveness and Acceptability of ChatGPT‑4o Advanced Voice Mode for Communication Skills Practice Among Medical Students,0,1,1,2304.03442
+W4410513777,https://doi.org/10.1016/j.cosrev.2025.100762,2025,"Abstractive text summarization: A comprehensive survey of techniques, systems, and challenges",0,1,1,2303.11366
+W4410560172,https://doi.org/10.3390/app15105778,2025,Retrieving Memory Content from a Cognitive Architecture by Impressions from Language Models for Use in a Social Robot,1,0,1,W7117967956
+W4410596508,https://doi.org/10.1016/j.infsof.2025.107780,2025,An empirical study on capability of Large Language Models in understanding code semantics,0,1,1,2303.11366
+W4410607908,https://doi.org/10.1093/oso/9780198872085.003.0010,2025,Conversations with Chatbots,0,1,1,2304.03442
+W4410613953,https://doi.org/10.1109/tnse.2025.3572362,2025,"Rethinking Knowledge Distillation in Collaborative Machine Learning: Memory, Knowledge, and Their Interactions",0,1,1,W4393147158
+W4410637010,https://doi.org/10.1145/3701716.3715299,2025,MemEngine: A Unified and Modular Library for Developing Advanced Memory of LLM-based Agents,0,1,1,W4393147158
+W4410714727,https://doi.org/10.1016/j.neucom.2025.130415,2025,Enhancing intent understanding for ambiguous prompt: A human–machine co-adaption strategy,0,1,1,2303.11366
+W4410734195,https://doi.org/10.2139/ssrn.5269808,2025,Is Repeatedly Solving the Same Problem Necessary? Rethinking Task Reasoning Through Action Prototype Learning,0,1,1,2303.11366
+W4410760437,https://doi.org/10.2139/ssrn.5270094,2025,Aviationcopilot: Building a Reliable Llm-Based Aviation Copilot Inspired by Human Pilot Training,0,1,1,2405.14831
+W4410769477,https://doi.org/10.1080/17538947.2025.2509812,2025,Chain-of-programming (CoP): empowering large language models for geospatial code generation task,1,0,1,W4413434847
+W4410805833,https://doi.org/10.2139/ssrn.5272338,2025,Experimental Evidence That AI-Managed Workers Tolerate Lower Pay Without Demotivation,0,1,1,2305.16291
+W4410841478,https://doi.org/10.1016/j.neucom.2025.130521,2025,Informed Machine Learning: Excess risk and generalization,0,1,1,2501.00663
+W4410848666,https://doi.org/10.2139/ssrn.5274559,2025,Be.FM: Open Foundation Models for Human Behavior,0,1,1,2304.03442
+W4410855805,https://doi.org/10.1080/10095020.2025.2505556,2025,GEE-OPs: an operator knowledge base for geospatial code generation on the Google Earth Engine platform powered by large language models,1,0,1,W4413434847
+W4410857416,https://doi.org/10.1016/j.patcog.2025.111845,2025,MGRAG: MultiModal grid-aware retrieval augmentation generation framework for power grid work tickets,0,1,1,2405.14831
+W4410877227,https://doi.org/10.1007/978-3-031-94575-5_7,2025,Predicting the Road Ahead: A Knowledge Graph Based Foundation Model for Scene Understanding in Autonomous Driving,0,1,1,2305.16291
+W4410956361,https://doi.org/10.3390/info16060469,2025,"AI-Powered Educational Agents: Opportunities, Innovations, and Ethical Challenges",0,1,1,2304.03442
+W4410968567,https://doi.org/10.1007/s11518-025-5674-8,2025,Beyond Consumption-Relevant Outcomes: The Role of AI Customer Service Chatbots’ Communication Styles in Promoting Societal Welfare,0,1,1,2304.03442
+W4410986172,https://doi.org/10.1109/mic.2025.3575493,2025,"Smaller, Smarter, Closer: The Edge of Collaborative Generative Artificial Intelligence",1,0,1,W4416088936
+W4411012007,https://doi.org/10.1145/3701716.3715201,2025,TrajLLM: A Modular LLM-Enhanced Agent-Based Framework for Realistic Human Trajectory Simulation,0,1,1,2304.03442
+W4411013444,https://doi.org/10.1016/j.jnca.2025.104231,2025,Real-time tracking railway intruders using multiple-agent cooperated large language models with edge stream processing engine,0,1,1,2303.11366
+W4411057454,https://doi.org/10.1016/j.trc.2025.105187,2025,Automating traffic model enhancement with AI research agent,0,1,1,2303.11366
+W4411065702,https://doi.org/10.1145/3742891,2025,"Towards Message Brokers for Generative AI: Survey, Challenges, and Opportunities",1,0,1,W4416088936
+W4411091982,https://doi.org/10.1177/02783649251347307,2025,Prime the search: Using large language models for guiding geometric task and motion planning by warm-starting tree search,0,1,1,2303.11366
+W4411119304,https://doi.org/10.18653/v1/2025.naacl-long.410,2025,HMT: Hierarchical Memory Transformer for Efficient Long Context Language Processing,1,0,1,W7125587830
+W4411119391,https://doi.org/10.18653/v1/2025.naacl-long.499,2025,MADial-Bench: Towards Real-world Evaluation of Memory-Augmented Dialogue Generation,1,0,1,W4414213933
+W4411119539,https://doi.org/10.18653/v1/2025.naacl-long.272,2025,Hello Again! LLM-powered Personalized Agent for Long-term Dialogue,1,0,1,W7164901450
+W4411120380,https://doi.org/10.18653/v1/2025.naacl-long.435,2025,Towards Lifelong Dialogue Agents via Timeline-based Memory Management,1,0,1,W7164901450
+W4411133747,https://doi.org/10.1080/13574809.2025.2514574,2025,Is Generative AI a successor to human-in-the-loop perception and cognition experiments in urban design and planning?,0,1,1,2305.16291
+W4411161961,https://doi.org/10.1016/j.rcim.2025.103076,2025,AIGC-empowered smart manufacturing: Prospects and challenges,0,1,1,2303.11366
+W4411198605,https://doi.org/10.1145/3729511,2025,The Role of AI Agents for Online Information Disorders,0,1,1,2304.03442
+W4411211063,https://doi.org/10.1007/s12555-025-0127-1,2025,Reinforced Intelligence Through Active Interaction in Real World: A Survey on Embodied AI,0,1,1,2305.16291
+W4411233176,https://doi.org/10.1109/llm4code66737.2025.00024,2025,Code Summarization Beyond Function Level,0,1,1,W4400434708
+W4411268895,https://doi.org/10.22318/cscl2025.325936,2025,"Number of Players, Zero: Using Multi-Agent Collaboration to Evaluate Unsolvable Collaborative Items",0,1,1,2303.11366
+W4411271504,https://doi.org/10.1109/msr66628.2025.00082,2025,Prompt Engineering or Fine-Tuning: An Empirical Assessment of LLMs for Code,0,1,1,2303.11366
+W4411337909,https://doi.org/10.1109/pacificvis64226.2025.00005,2025,XGraphRAG: Interactive Visual Analysis for Graph-based Retrieval-Augmented Generation,0,1,1,2405.14831
+W4411371390,https://doi.org/10.1016/j.engmed.2025.100086,2025,Advancements and future directions of artificial intelligence in tumor imaging: A comprehensive review of techniques and applications,0,1,1,2304.03442
+W4411401605,https://doi.org/10.1016/j.chbah.2025.100170,2025,Evaluating the Intelligence of large language models: A comparative study using verbal and visual IQ tests,0,1,1,2303.11366
+W4411450081,https://doi.org/10.1145/3715727,2025,COFFE: A Code Efficiency Benchmark for Code Generation,0,1,1,W4387356199
+W4411659891,https://doi.org/10.1177/14727978251352156,2025,Multi-core design of cultural industry value chain based on multi-layer hybrid hypernetwork optimization,0,1,1,2303.11366
+W4411710269,https://doi.org/10.3390/app15137190,2025,Structured Summarization of League of Legends Match Data Optimized for Large Language Model Input,0,1,1,2304.03442
+W4411800160,https://doi.org/10.1109/biosmart66413.2025.11046123,2025,Agentic AI for Medicare Annual Wellness Visits: Improving Preventive Care,0,1,1,2303.11366
+W4411804834,https://doi.org/10.3390/ijgi14070256,2025,AutoGEEval: A Multimodal and Automated Evaluation Framework for Geospatial Code Generation on GEE with Large Language Models,1,0,1,W4413434847
+W4411835948,https://doi.org/10.1017/s0267190525000054,2025,How does interaction with LLM powered chatbots shape human understanding of culture? The need for Critical Interactional Competence (CritIC),0,1,1,2303.11366
+W4411870429,https://doi.org/10.1016/j.future.2025.107994,2025,SpAIware: Uncovering a novel artificial intelligence attack vector through persistent memory in LLM applications and agents,1,0,1,W7160388841
+W4411887300,https://doi.org/10.3390/app15137237,2025,LogRESP-Agent: A Recursive AI Framework for Context-Aware Log Anomaly Detection and TTP Analysis,0,1,1,2303.11366
+W4412008576,https://doi.org/10.26503/dl.v2025i2.2453,2025,"""Covertly Using"" Generative AI in China's GameIndustry",0,1,1,2304.03442
+W4412046151,https://doi.org/10.1145/3719160.3736610,2025,From Synthetic to Human: The Gap Between AI-Predicted and Actual Pro-Environmental Behavior Change After Chatbot Persuasion,0,1,1,W4393147158
+W4412046627,https://doi.org/10.1145/3719160.3737617,2025,"Remembering Things Makes Chatbots Sound Smarter, but Less Trustworthy - A Pilot Study",0,1,1,W4393147158
+W4412053454,https://doi.org/10.1016/j.neucom.2025.130931,2025,Leveraging inter-chunk interactions for enhanced retrieval in large language model-based question answering,0,1,1,2405.14831
+W4412082132,https://doi.org/10.1109/cai64502.2025.00094,2025,Medical Vision Language Models as Policies for Robotic Surgery,0,1,1,2305.16291
+W4412115806,https://doi.org/10.21248/jlcl.38.2025.289,2025,Political Bias in LLMs: Unaligned Moral Values in Agent-centric Simulations,0,1,1,2304.03442
+W4412116430,https://doi.org/10.1002/aaai.70011,2025,Artificial intelligent disobedience: Rethinking the agency of our artificial teammates,0,1,1,2303.11366
+W4412130820,https://doi.org/10.52248/eb.vol5iss1.196,2025,Chatbot basado en un Modelo Grande de Lenguaje para la atención al cliente,0,1,1,2310.08560
+W4412136563,https://doi.org/10.21203/rs.3.rs-7018899/v1,2025,"Generative Life Agents: A Novel Framework for Persistent, Evolving Personas with Traceable Personality Drift",0,1,1,2304.03442
+W4412169613,https://doi.org/10.1093/bib/bbaf312,2025,A data-intelligence-intensive bioinformatics copilot system for large-scale omics research and scientific insights,0,1,1,2303.11366
+W4412346117,https://doi.org/10.1109/ddcls66240.2025.11065482,2025,Soft Sensor Modeling Based on Gated Stacking of Extended Long Short-Term Memory Networks,0,1,1,W4393147158
+W4412354933,https://doi.org/10.32388/ws0vim,2025,AgentNet: Decentralized Evolutionary Coordination for LLM-based Multi-Agent Systems,1,0,1,W4416088936
+W4412377020,https://doi.org/10.1145/3726302.3730042,2025,Multi-Grained Patch Training for Efficient LLM-based Recommendation,0,1,1,W4393147158
+W4412394941,https://doi.org/10.1145/3726302.3731946,2025,PaRT: Enhancing Proactive Social Chatbots with Personalized Real-Time Retrieval,0,1,1,W4393147158
+W4412395141,https://doi.org/10.3390/robotics15040080,2026,LLM-Assisted Plan Execution for Robots in Dynamic Environments,0,1,1,2303.11366
+W4412402631,https://doi.org/10.1145/3749116.3749132,2025,LLM+KG@VLDB 24 Workshop Summary,0,1,1,2405.14831
+W4412403670,https://doi.org/10.2139/ssrn.5351223,2025,"Rk3e-Coder:Llm-Based Code Generation Framework with Code Knowledge, Algorithmic Knowledge, Third-Party Library Knowledge",0,1,1,2303.11366
+W4412407927,https://doi.org/10.1007/978-981-96-9946-9_10,2025,RB-RAG: Intelligent Question Answering System of Rock Burst Knowledge Based on Retrieval-Augmented Generation,0,1,1,2405.14831
+W4412431580,https://doi.org/10.1109/iccar64901.2025.11073044,2025,Camera Control at the Edge with Language Models for Scene Understanding,0,1,1,2303.11366
+W4412441638,https://doi.org/10.1016/j.aei.2025.103643,2025,A LLM-informed multi-agent AI system for drone-based visual inspection for infrastructure,0,1,1,2305.16291
+W4412444947,https://doi.org/10.1109/access.2025.3589503,2025,Synthetic Data Generation Using Large Language Models: Advances in Text and Code,0,1,1,2303.11366
+W4412445729,https://doi.org/10.1109/noms57970.2025.11073611,2025,Multi-Agent LLM System for Automatic Meeting Information Processing,0,1,1,2303.11366
+W4412453351,https://doi.org/10.1016/j.neucom.2025.131005,2025,Adaptive memory fusion for multi-frame optical flow estimation,0,1,1,2501.00663
+W4412489912,https://doi.org/10.1016/j.knosys.2025.114065,2025,A large language model-driven reward design framework via dynamic feedback for reinforcement learning,0,1,1,2305.16291
+W4412490202,https://doi.org/10.1016/j.jmsy.2025.06.011,2025,Industrial Foundation Models (IFMs) for intelligent manufacturing: A systematic review,0,1,1,W4393147158
+W4412509582,https://doi.org/10.1007/978-981-96-9994-0_2,2025,Self-Improvement: Large Language Models Can Self-Improve Generation with External Tools,0,1,1,2303.11366
+W4412529595,https://doi.org/10.1016/j.neucom.2025.131058,2025,Graph representation based reward shaping approach for addressing reward sparsity in task-oriented dialogue systems,0,1,1,W4410629910
+W4412538197,https://doi.org/10.2139/ssrn.5349484,2025,From Swords to Syntax: How LLM Agents Cooperate in the Commons With and Without Sanction Mechanisms,0,1,1,2304.03442
+W4412621261,https://doi.org/10.2139/ssrn.5362693,2025,Civitas: A Reflexive Cognitive Architecture for Ethically Governed Causal Inference,0,1,1,2303.11366
+W4412629990,https://doi.org/10.1016/j.patrec.2025.07.012,2025,Improving LLM-based opinion expression identification with dependency syntax,0,1,1,W4393147158
+W4412652926,https://doi.org/10.2139/ssrn.5365971,2025,Context is King: From Prompt Engineering to Context Engineering in Healthcare AI,0,1,1,2304.03442
+W4412657699,https://doi.org/10.2139/ssrn.5367076,2025,Making Adequate Use of Generative Language Models in Scientific Research,0,1,1,2501.00663
+W4412683160,https://doi.org/10.1093/bib/bbaf377,2025,A conceptual framework for human–AI collaborative genome annotation,0,1,1,2310.08560
+W4412704015,https://doi.org/10.1145/3696630.3728558,2025,TickIt: Leveraging Large Language Models for Automated Ticket Escalation,0,1,1,2303.11366
+W4412704313,https://doi.org/10.1145/3696630.3728714,2025,Towards the Versioning of LLM-Agent-Based Software,0,1,1,2303.11366
+W4412759774,https://doi.org/10.1038/s41551-025-01463-z,2025,CRISPR-GPT for agentic automation of gene-editing experiments,0,1,1,2305.16291
+W4412800793,https://doi.org/10.2139/ssrn.5374357,2025,Seeing and Acting as One: Embodied Perception Based on Fine-Grained Scene Reasoning and Triadic Prompt Engineering Under Visual Confusion and Occlusion,0,1,1,2305.16291
+W4412820939,https://doi.org/10.1111/bjet.70001,2025,Learning by teaching with <scp>ChatGPT</scp> : The effect of teachable <scp>ChatGPT</scp> agent on programming education,0,1,1,2310.08560
+W4412828904,https://doi.org/10.1080/10095020.2025.2535523,2025,Can large language models generate geospatial code?,1,0,1,W4413434847
+W4412834153,https://doi.org/10.2139/ssrn.5369767,2025,Dreameragent: Computational Simulation of the Lacanian Unconscious Using Memory-Driven Signifier Activation and Neurochemical Emotional Modeling,0,1,1,2304.03442
+W4412875490,https://doi.org/10.1145/3711896.3736557,2025,Retrieval And Structuring Augmented Generation with Large Language Models,1,0,1,W7167607753
+W4412875498,https://doi.org/10.1145/3711896.3736555,2025,A Survey of WebAgents: Towards Next-Generation AI Agents for Web Automation with Large Foundation Models,0,1,1,W4393147158
+W4412887804,https://doi.org/10.18653/v1/2025.findings-acl.972,2025,TReMu: Towards Neuro-Symbolic Temporal Reasoning for LLM-Agents with Memory in Multi-Session Dialogues,1,0,1,W7164901450
+W4412888934,https://doi.org/10.18653/v1/2025.findings-acl.5,2025,A Persona-Aware LLM-Enhanced Framework for Multi-Session Personalized Dialogue Generation,1,0,1,W7164901450
+W4412934874,https://doi.org/10.2139/ssrn.5376017,2025,Censorship by Perception: LLM Predictions of Social Media,0,1,1,2304.03442
+W4412944606,https://doi.org/10.18653/v1/2025.findings-acl.1291,2025,LLMs as Planning Formalizers: A Survey for Leveraging Large Language Models to Construct Automated Planning Models,1,0,1,W7164901450
+W4412945250,https://doi.org/10.18653/v1/2025.acl-long.663,2025,ReflecTool: Towards Reflection-Aware Tool-Augmented Clinical Agents,1,0,1,W7128449691
+W4412954214,https://doi.org/10.3390/systems13080641,2025,AgentsBench: A Multi-Agent LLM Simulation Framework for Legal Judgment Prediction,0,1,1,2304.03442
+W4412954363,https://doi.org/10.1038/s44387-025-00019-5,2025,Exploring the role of large language models in the scientific method: from hypothesis to discovery,0,1,1,2305.16291
+W4412980796,https://doi.org/10.1007/978-3-032-00686-8_21,2025,Agentic Correlates of Consciousness and the Pursuit of Artificial General Intelligence,0,1,1,W4400434708
+W4412995610,https://doi.org/10.3390/info16080652,2025,Diagnosing Bias and Instability in LLM Evaluation: A Scalable Pairwise Meta-Evaluator,0,1,1,2303.11366
+W4413002908,https://doi.org/10.1007/978-3-032-00800-8_11,2025,The Role of LLMs in AGI,0,1,1,W4393147158
+W4413002976,https://doi.org/10.1007/978-3-032-00800-8_18,2025,From Thought to Action: Bridging Cognitive Processes and Autonomous MORL Towards Intelligent Agents in a Virtual Environment,0,1,1,2305.16291
+W4413009563,https://doi.org/10.2139/ssrn.5359269,2025,A Comprehensive Review on Harnessing Large Language Models to Overcome Recommender System Challenges,0,1,1,W4404344231
+W4413020061,https://doi.org/10.2139/ssrn.5381574,2025,"What Is Your AI Agent Buying? Evaluation, Implications, and Emerging Questions for Agentic E-Commerce",0,1,1,2304.03442
+W4413033636,https://doi.org/10.1007/s10515-025-00544-2,2025,"Agents in software engineering: survey, landscape, and vision",0,1,1,W4393147158
+W4413044765,https://doi.org/10.2139/ssrn.5382315,2025,Navigating the Knowledge Problem in the Era of Open AI and Polycentric Governance,0,1,1,2304.03442
+W4413054926,https://doi.org/10.1038/s43588-025-00843-4,2025,Arti-‘fickle’ intelligence: using LLMs as a tool for inference in the political and social sciences,0,1,1,2304.03442
+W4413081720,https://doi.org/10.3390/ai6070159,2025,Local AI Governance: Addressing Model Safety and Policy Challenges Posed by Decentralized AI,0,1,1,2308.10144
+W4413122608,https://doi.org/10.1109/iseda65950.2025.11101698,2025,A Large Language Model-based Multi-Agent Framework for Analog Circuits’ Sizing Relationships Extraction,0,1,1,2305.16291
+W4413148405,https://doi.org/10.1016/j.engappai.2025.111909,2025,An approach to optimizing semantic consistency for text-to-digital human generation,0,1,1,2303.11366
+W4413169625,https://doi.org/10.3390/info16080688,2025,Ensemble Large Language Models: A Survey,0,1,1,2304.03442
+W4413206605,https://doi.org/10.1109/iccai66501.2025.00054,2025,Getting LLM to think and act like a human being: logical path reasoning and replanning,0,1,1,2305.16291
+W4413216520,https://doi.org/10.2139/ssrn.5387181,2025,Co-Direct: A Knowledge-Augmented Multi-Agent Framework for Interactive Drama Script Generation,0,1,1,2304.03442
+W4413274327,https://doi.org/10.2139/ssrn.5396508,2025,Large Language Model Guided Self-Debugging Code Generation,0,1,1,2303.11366
+W4413275402,https://doi.org/10.1016/j.engappai.2025.111874,2025,Robust memory-based graph neural networks for noisy and sparse graphs,1,0,1,W7164901450
+W4413299822,https://doi.org/10.64229/d8g06y36,2025,A Review of Fault Tolerance Techniques in Generative Multi-Agent Systems for Real-Time Applications,0,1,1,2304.03442
+W4413300552,https://doi.org/10.20944/preprints202508.1271.v1,2025,Autonomous Rescue Drone with Multi-Modal Vision and Cognitive Agentic Architecture,0,1,1,2304.03442
+W4413328536,https://doi.org/10.1007/978-3-031-99965-9_25,2025,NARS-GPT: An Integrated Reasoning System for Natural Language Interactions,0,1,1,W4393147158
+W4413330982,https://doi.org/10.3390/app15169095,2025,MDKAG: Retrieval-Augmented Educational QA Powered by a Multimodal Disciplinary Knowledge Graph,0,1,1,2405.14831
+W4413358181,https://doi.org/10.1007/978-3-032-02049-9_22,2025,Speech-Scenario Generation Based on the Philosophy of a Prominent Leader Within a Small Community,0,1,1,W4393147158
+W4413378512,https://doi.org/10.5194/gmd-18-4983-2025,2025,InsNet-CRAFTY v1.0: integrating institutional network dynamics powered by large language models with land use change simulation,0,1,1,W4393147158
+W4413384090,https://doi.org/10.1016/j.birob.2025.100258,2025,Humanoid dexterous hands from structure to gesture semantics for enhanced human–robot interaction: A review,0,1,1,2305.16291
+W4413406243,https://doi.org/10.1007/978-981-96-5833-6_1,2025,Large Language Models in Finance: An Overview,0,1,1,2304.03442
+W4413423775,https://doi.org/10.1007/s42979-025-04302-9,2025,Analyzing Retrieval Scaling in RAG Systems for Complex QA Benchmarks,0,1,1,2405.14831
+W4413439697,https://doi.org/10.1016/j.eswa.2025.129423,2025,TAPE: A multi-agent framework for task-adaptive planning and execution in resource-constrained environments,0,1,1,2303.11366
+W4413453485,https://doi.org/10.36930/40350412,2025,LLMAGENTNET: A COLLABORATIVE NETWORK OF AUTONOMOUS AI AGENTS FOR COMPLEX TASK EXECUTION,0,1,1,2303.11366
+W4413453507,https://doi.org/10.1016/j.apenergy.2025.126670,2025,A systematic review of transformers and large language models in the energy sector: towards agentic digital twins,0,1,1,2303.11366
+W4413453952,https://doi.org/10.2139/ssrn.5403116,2025,Reasoning Distillation and Structural Alignment for Improved Code Generation,0,1,1,2303.11366
+W4413462942,https://doi.org/10.1002/9781394287499.ch10,2025,From Prompts to Performance,0,1,1,2303.11366
+W4413580875,https://doi.org/10.1016/j.scs.2025.106761,2025,Leveraging LLM-based multi-agent simulations to boost participatory design education: An experimental exploration in residential area design,0,1,1,2303.11366
+W4413591978,https://doi.org/10.1145/3754340,2025,On Evaluating LLM Integration into Robotic Architectures,0,1,1,2305.16291
+W4413638854,https://doi.org/10.1101/2025.08.22.25334232,2025,AI Agents in Clinical Medicine: A Systematic Review,0,1,1,W4390961916
+W4413918432,https://doi.org/10.1109/mipro65660.2025.11131839,2025,"Analysis of the Content of ChatGPT's Memory: Types of Information, Security Implications, and User Perception",0,1,1,W4393147158
+W4413960042,https://doi.org/10.1016/j.dt.2025.09.004,2025,Command-agent: Reconstructing warfare simulation and command decision-making using large language models,0,1,1,W4403282600
+W4413967755,https://doi.org/10.1109/icarai67046.2025.11137913,2025,Machine Reasoning Framework for Large Language Models,0,1,1,2303.11366
+W4413986554,https://doi.org/10.1177/14727978251374350,2025,A dual-channel converter valve fault prediction model based on attention-LSTM and LLM agent,0,1,1,2308.10144
+W4414110509,https://doi.org/10.1109/comst.2025.3608174,2025,ComAI: The Convergence of Communication and Artificial Intelligence,0,1,1,W4393147158
+W4414121994,https://doi.org/10.1016/j.cose.2025.104646,2025,"A survey on Android dynamic evasive malware: Taxonomy, countermeasures and open challenges",0,1,1,2303.11366
+W4414241920,https://doi.org/10.1145/3768156,2025,"Large Language Models in Document Intelligence: A Comprehensive Survey, Recent Advances, Challenges, and Future Trends",0,1,1,W4388748032
+W4414259568,https://doi.org/10.3390/s25185688,2025,Cognitive Agents in Urban Mobility: Integrating LLM Reasoning into Multi-Agent Simulations,0,1,1,2308.10144
+W4414360988,https://doi.org/10.24963/ijcai.2025/2,2025,AriGraph: Learning Knowledge Graph World Models with Episodic Memory for LLM Agents,1,0,1,W4416088936
+W4414409048,https://doi.org/10.64560/19638015,2025,BeliefNest: A Joint Action Simulator for Embodied Agents with Theory of Mind,0,1,1,2305.16291
+W4414416643,https://doi.org/10.1016/j.icte.2025.09.003,2025,Reasoning beyond limits: Advances and open problems for LLMs,0,1,1,2303.11366
+W4414418378,https://doi.org/10.3390/math13193055,2025,Dynamic Scheduling for Security Protection Re-2 Sources in Cloud–Edge Collaboration Scenarios Using Deep Reinforcement Learning,0,1,1,2303.11366
+W4414434127,https://doi.org/10.21203/rs.3.rs-7663121/v1,2025,Detecting and Preventing Harmful Behaviors in AI Companions: Development and Evaluation of the SHIELD Supervisory System,0,1,1,2304.03442
+W4414475428,https://doi.org/10.1016/j.patter.2025.101372,2025,Automating quantum computing laboratory experiments with an agent-based AI framework,0,1,1,2305.16291
+W4414527496,https://doi.org/10.1177/10711813251376982,2025,Integrating Generative Artificial Intelligence into Interdisciplinary Research: Cognitive Requirements and Implications for Design,0,1,1,2405.14831
+W4414569445,https://doi.org/10.1016/j.knosys.2025.114526,2025,TreeQA: Enhanced LLM-RAG with logic tree reasoning for reliable and interpretable multi-hop question answering,0,1,1,2405.14831
+W4414571785,https://doi.org/10.1016/j.xcrm.2025.102374,2025,A foundational architecture for AI agents in healthcare,0,1,1,2305.16291
+W4414616326,https://doi.org/10.7717/peerj-cs.3235,2025,Chatbots integrated in the metaverse: a conceptual model based on interaction ritual chain theory,0,1,1,2303.11366
+W4414757965,https://doi.org/10.1109/tkde.2025.3609877,2025,"A Survey of Large Language Models on Generative Graph Analytics: Query, Learning, and Applications",1,0,1,W7167607753
+W4414836540,https://doi.org/10.1145/3748634,2025,"LLMs May Not Be Human-Level Players, But They Can Be Testers: Measuring Game Difficulty with LLM Agents",0,1,1,2305.16291
+W4414898386,https://doi.org/10.1109/icdcs63083.2025.00062,2025,MCaM : Efficient LLM Inference with Multi-tier KV Cache Management,1,0,1,W7164901450
+W4414934216,https://doi.org/10.1109/tvcg.2025.3616809,2025,When LLMs Recognize Your Space: Research on Experiences with Spatially Aware LLM Agents,0,1,1,W4393147158
+W4414977228,https://doi.org/10.36227/techrxiv.175994550.08962082/v1,2025,Countermind: A Multi-Layered Security Architecture for Large Language Models,1,0,1,W7160388841
+W4414988747,https://doi.org/10.1371/journal.pdig.0000787,2025,Collaborative intelligence in AI: Evaluating the performance of a council of AIs on the USMLE,0,1,1,2303.11366
+W4415008886,https://doi.org/10.1145/3759429.3762620,2025,Foundational Design Principles and Patterns for Building Robust and Adaptive GenAI-Native Systems,0,1,1,2303.11366
+W4415016480,https://doi.org/10.1007/s44204-025-00335-2,2025,Cognitive representation and AI wellbeing,0,1,1,2304.03442
+W4415078044,https://doi.org/10.1016/j.comnet.2025.111749,2025,Symbiotic agents: A novel paradigm for trustworthy AGI-driven networks,0,1,1,2303.11366
+W4415124086,https://doi.org/10.1109/tbdata.2025.3618474,2025,The Faiss Library,1,0,1,W7131881308
+W4415207856,https://doi.org/10.1007/978-3-032-07989-3_9,2025,Equipping a Conversational Agent with Business Expertise and Reasoning for Automated Requirements Specification and Application Development,0,1,1,2303.11366
+W4415250589,https://doi.org/10.1145/3757619,2025,Large Language Model Agents for Improving Engagement with Behavior Change Interventions: Application to Digital Mindfulness,0,1,1,W4393147158
+W4415261590,https://doi.org/10.1145/3771922,2025,Assessing the Latent Automated Program Repair Capabilities of Large Language Models Using Round-Trip Translation,0,1,1,2303.11366
+W4415273800,https://doi.org/10.3389/frai.2025.1660912,2025,Blueprint2Code: a multi-agent pipeline for reliable code generation via blueprint planning and repair,0,1,1,2303.11366
+W4415282087,https://doi.org/10.2139/ssrn.5617131,2025,COLLAB-RAG: Cognitive Orchestration of Latent Logic via Multi-Role Adversarial Rationalisation,0,1,1,2305.16291
+W4415407012,https://doi.org/10.1016/j.inffus.2025.103865,2025,LLM-Agent-UMF: LLM-based Agent Unified Modeling Framework for Seamless Design of Multi Active/Passive Core-Agent Architectures,0,1,1,W4393147158
+W4415428981,https://doi.org/10.1038/s41598-025-20708-0,2025,Service touchpoint assessment and optimization of online meeting platforms on the basis of an experiential memory model,0,1,1,W4410629910
+W4415560424,https://doi.org/10.3390/app152111399,2025,Training a Team of Language Models as Options to Build an SQL-Based Memory,0,1,1,W4393147158
+W4415757146,https://doi.org/10.1016/j.trc.2026.105754,2026,PA-LLMNeSy: Preference-Aware Neuro-Symbolic LLMs for robust Multi-Modal travel planning in MaaS,0,1,1,W4416010507
+W4415800582,https://doi.org/10.52202/079017-4368,2024,Confusion-Resistant Federated Learning via Diffusion-Based Data Harmonization on Non-IID Data,1,0,1,W7164901450
+W4415916995,https://doi.org/10.1186/s13040-025-00492-3,2025,CAUSALRLSTACK: adaptive balancing of deep representation and causal effect estimation with application to HIV-related health data,0,1,1,2501.00663
+W4415982642,https://doi.org/10.1080/17538947.2025.2569405,2025,GeoColab: an LLM-based multi-agent collaborative framework for geospatial code generation,0,1,1,W4413434847
+W4415987079,https://doi.org/10.3390/sym17111899,2025,From Invariance to Symmetry Breaking in FIM-Aware Cooperative Heterogeneous Agent Networks,1,0,1,W7164901450
+W4416003971,https://doi.org/10.1145/3731599.3767401,2025,Agentic AI vs ML-based Autotuning: A Comparative Study for Loop Reordering Optimization,0,1,1,W4393147158
+W4416004237,https://doi.org/10.1145/3731599.3767386,2025,"An Interactive Agentic HPC Tutor for Lesson Planning, Teaching, and Assessment",0,1,1,2303.11366
+W4416018096,https://doi.org/10.1145/3746252.3761605,2025,Pet-Bench: Benchmarking the Abilities of Large Language Models as E-Pets in Social Network Services,0,1,1,W4393147158
+W4416033933,https://doi.org/10.18653/v1/2025.findings-emnlp.1098,2025,Post Persona Alignment for Multi-Session Dialogue Generation,1,0,1,W7164901450
+W4416034422,https://doi.org/10.18653/v1/2025.findings-emnlp.1204,2025,Pre-Storage Reasoning for Episodic Memory: Shifting Inference Burden to Memory for Personalized Dialogue,1,0,1,W7164901450
+W4416035019,https://doi.org/10.18653/v1/2025.findings-emnlp.368,2025,PersonaGym: Evaluating Persona Agents and LLMs,1,0,1,W7164901450
+W4416035494,https://doi.org/10.18653/v1/2025.emnlp-main.1542,2025,VerIF: Verification Engineering for Reinforcement Learning in Instruction Following,1,0,1,W7164901450
+W4416035544,https://doi.org/10.18653/v1/2025.emnlp-main.1487,2025,Can LLM Agents Maintain a Persona in Discourse?,1,0,1,W7164901450
+W4416035609,https://doi.org/10.18653/v1/2025.emnlp-main.1318,2025,Memory OS of AI Agent,1,0,1,W7164901450
+W4416036002,https://doi.org/10.18653/v1/2025.emnlp-main.1069,2025,Flexibly Utilize Memory for Long-Term Conversation via a Fragment-then-Compose Framework,1,0,1,W7164901450
+W4416128005,https://doi.org/10.3389/frai.2025.1674927,2025,Accelerating earth science discovery via multi-agent LLM systems,0,1,1,2303.11366
+W4416183038,https://doi.org/10.1109/tetci.2025.3621221,2025,Efficient Medical Image Segmentation via Reinforcement Learning-Driven K-Space Sampling,1,0,1,W7164901450
+W4416237171,https://doi.org/10.48550/arxiv.2509.19319,2025,FHIR-AgentBench: Benchmarking LLM Agents for Realistic Interoperable EHR Question Answering,1,0,1,W7128449691
+W4416250867,https://doi.org/10.1109/ijcnn64981.2025.11228206,2025,Informative Memory Mechanism for Enhancing Crisis Response in Large Language Models,0,1,1,W4393147158
+W4416295444,https://doi.org/10.1007/s42486-025-00208-w,2025,A survey of foundation models for IoT: taxonomy and criteria-based analysis,0,1,1,W4393147158
+W4416304333,https://doi.org/10.1007/s44382-025-00019-8,2025,The end of experimental research as we know it? A perspective on generative artificial intelligence in communication science,0,1,1,2304.03442
+W4416725165,https://doi.org/10.1007/s11948-025-00567-8,2025,Addressing Autonomy Risks in Generative Chatbots with the Socratic Method,0,1,1,W4393147158
+W4416753964,https://doi.org/10.2139/ssrn.5819182,2025,Toward Evolutionary Intelligence: LLM-based Agentic Systems with Multi-Agent Reinforcement Learning,0,1,1,W4393147158
+W4416785415,https://doi.org/10.1007/s44217-025-00958-w,2025,Integrating chatbots with learning management systems for personalized learning: a comprehensive review and framework proposal—the CLIF,0,1,1,W4414213933
+W4416961865,https://doi.org/10.1109/pst65910.2025.11268824,2025,G-STAR: A Threat Modeling Framework for General-Purpose AI Systems,0,1,1,W4393147158
+W4416964045,https://doi.org/10.1109/embc58623.2025.11254888,2025,Leveraging the Long-Term Health Monitoring Dataset for Personalized Healthcare: A Large Language Model Approach,0,1,1,W4393147158
+W4416965635,https://doi.org/10.1109/tai.2025.3639527,2025,A Preference-Driven Methodology for Efficient Code Generation,1,0,1,W7164901450
+W4416984562,https://doi.org/10.1007/s00146-025-02661-8,2025,Undoing Gracia: queering the self in the algorithmic borderlands,0,1,1,2304.03442
+W4417216147,https://doi.org/10.1177/23328584251389621,2025,Enhancing Quantitative Analysis in Social Sciences With Large Language Models (LLMs): A Methodological Case Study in Educational Research,0,1,1,W4393147158
+W4417250680,https://doi.org/10.1109/bibe66822.2025.00123,2025,MemoryBERT: A Systematic Framework for Memory Identification,0,1,1,W4393147158
+W4417472522,https://doi.org/10.1109/aiahpc66801.2025.11290357,2025,Research on Efficient Deployment and Application of the Large Model in Distributed Systems,0,1,1,W4410629910
+W4417510439,https://doi.org/10.1109/ichci67614.2025.11291675,2025,Interactive System for Urban Landscape Design Based on VR,0,1,1,W4410629910
+W4417523633,https://doi.org/10.1016/j.jenvman.2025.128379,2025,Spatial distribution prediction and scale effect analysis of urban daytime noise based on remote sensing images: a case study of Chengdu,0,1,1,W4413434847
+W6732098531,,,,1,0,1,W4410629910
+W6734897383,,,,1,0,1,W4393147158
+W6737402491,,,,1,0,1,W4410629910
+W6754131332,,,,1,0,1,W4410629910
+W6769627184,,,,1,0,1,W4410629910
+W6782491052,,,,1,0,1,W4410629910
+W6784429693,,,,1,0,1,W4410629910
+W6853224863,,,,1,0,1,W4410629910
+W6873064844,,,,1,0,1,W4410629910
+W6877270012,,,,1,0,1,W4410629910
+W6877562475,,,,1,0,1,W4410629910
+W6945218771,,,,1,0,1,W4416088936
+W7078735353,,,,1,0,1,W7128449691
+W7106309460,https://doi.org/10.1007/978-981-95-3343-5_35,2025,H2HTalk: Evaluating Large Language Models as Emotional Companion,0,1,1,W4393147158
+W7106507704,https://doi.org/10.5281/zenodo.17696100,2025,Architecture of Self-Learning Artificial Intelligence,0,1,1,2305.16291
+W7116870827,https://doi.org/10.1080/10447318.2025.2586693,2025,Memorization Capability of Medical Large Language Models and User Privacy Data Disclosure Willingness,0,1,1,W4388748032
+W7117382329,https://doi.org/10.1007/978-3-658-47898-8_1-1,2025,KI-unterstützter Filmschnitt – Chancen und Herausforderungen,0,1,1,2303.11366
+W7117747724,https://doi.org/10.1145/3773274.3777421,2025,Agentic Edge Intelligence: A Research Agenda,0,1,1,W4416088936
+W7117888748,https://doi.org/10.1021/acs.est.5c09526,2026,Leveraging LLMs for Environmental Complexity: Structured Fine-Tuning Data Sets and Deployment Strategies,0,1,1,2303.11366
+W7117889623,https://doi.org/10.1016/j.sbr.2025.100046,2026,Economy of dependence in memory-augmented large language models,0,1,1,W4393147158
+W7117973404,https://doi.org/10.1007/978-3-032-10951-4_3,2026,Livia: An Emotion-Aware AR Companion Powered by Modular AI Agents and Progressive Memory Compression,0,1,1,2304.03442
+W7117975211,https://doi.org/10.1007/978-981-95-4158-4_12,2026,SCM: Enhancing Large Language Model with Self-Controlled Memory Framework,0,1,1,W4393147158
+W7117989555,https://doi.org/10.1007/978-3-032-13312-0_12,2026,Scenario-Controlled Synthetic Data Augmentation: In Application of Agitation Monitoring,0,1,1,2304.03442
+W7118119926,https://doi.org/10.1186/s40537-025-01339-8,2026,LongDocRank: graph-augmented large language models for unsupervised keyphrase extraction from long documents,0,1,1,W4393147158
+W7118121563,https://doi.org/10.1007/s00146-025-02809-6,2026,Minds of their own? Decoding free will in large language models,0,1,1,2305.16291
+W7118183780,https://doi.org/10.1007/s10207-025-01185-y,2026,From threat to trust: assessing security risks of agentic AI systems,0,1,1,W4407759090
+W7118190000,https://doi.org/10.1145/3765766.3787117,2000,10.1145/3765766.3787117,0,1,1,W7117967956
+W7118792438,https://doi.org/10.48550/arxiv.2601.03236,2026,MAGMA: A Multi-Graph based Agentic Memory Architecture for AI Agents,1,0,1,W7128449691
+W7119146658,https://doi.org/10.14801/jkiit.2025.23.12.89,2025,PRIME Evaluation Framework for Game NPC Dialogue Systems,0,1,1,2304.03442
+W7124139810,https://doi.org/10.1109/auteee67053.2025.11322063,2025,Research on Multi-node Cooperative Communication Optimization Algorithm for Vehicular Networking,0,1,1,W4410629910
+W7124145495,https://doi.org/10.1145/3788284,2026,"Function Calling in Large Language Models: Industrial Practices, Challenges, and Future Directions",0,1,1,W4393147158
+W7124146868,https://doi.org/10.1109/mlbdbi67855.2025.11331433,2025,Optimal Hovering Control Strategy for UAVs Using PPO,0,1,1,W4410629910
+W7124151991,https://doi.org/10.1109/auteee67053.2025.11322133,2025,Research on Optimization of Chemical Intelligent Robots Based on Fuzzy PID Controllers,0,1,1,W4410629910
+W7124161562,https://doi.org/10.1109/auteee67053.2025.11321930,2025,Research on Path Planning of Path-Finding Robot Based on a GA-ACO Hybrid Algorithm,0,1,1,W4410629910
+W7124808448,https://doi.org/10.1080/20964471.2026.2615511,2026,GeoJSON agents: a multi-agent LLM architecture for geospatial analysis—function calling vs. code generation,0,1,1,W4413434847
+W7125282181,https://doi.org/10.1038/s41598-026-36904-5,2026,Bridging the performance gap: systematic optimization of local LLMs for Japanese medical PHI extraction,0,1,1,2303.11366
+W7125588790,https://doi.org/10.1109/iccect64621.2025.11339813,2025,Research on the Artificial Intelligence Distribution Strategy for Facility Configuration Based on the Ant Colony Algorithm,0,1,1,W4410629910
+W7125646697,https://doi.org/10.1007/s10844-026-01022-1,2026,EMRDCM : An experience-enhanced multi-role debate method based on compromise mechanisms,0,1,1,2303.11366
+W7126035465,https://doi.org/10.1109/icdsca67083.2025.11350006,2025,Study on Scheduling and Path Optimization of Warehouse Logistics Mobile Robots in Supply Chain Task Allocation and Warehouse Logistics Control Systems,0,1,1,W4410629910
+W7126043133,https://doi.org/10.1109/icdsca67083.2025.11350223,2025,Real-Time Feature Extraction of Interactive Information for the Digital Economy: Design and Application of Artificial Intelligence Deep Learning Models,0,1,1,W4410629910
+W7126055080,https://doi.org/10.1109/iccasit66611.2025.11348927,2025,Design of Real-Time SLAM Algorithm for Quadruped Robots in Complex Terrains,0,1,1,W4410629910
+W7126069362,https://doi.org/10.1016/j.engappai.2026.113968,2026,Memory poisoning attacks on retrieval-augmented Large Language Model agents via deceptive semantic reasoning,0,1,1,W4393147158
+W7127166741,https://doi.org/10.1007/978-981-97-8440-0_118-1,2026,Designing Artificial Social Intelligence for Human–AI Team Effectiveness,0,1,1,2305.16291
+W7127569509,https://doi.org/10.3389/fcomp.2025.1639677,2026,"The consciousness spectrum: the emergent nature of purpose, memory, and adaptive response across organisms, humans, and technological beings",0,1,1,2303.11366
+W7127625689,https://doi.org/10.3389/fpsyg.2026.1715835,2026,Three frameworks for AI mentality,0,1,1,2304.03442
+W7128061190,https://doi.org/10.1016/j.aiopen.2026.02.002,2026,Knowledge intensive agents,0,1,1,W4393147158
+W7128507800,https://doi.org/10.1007/s43681-026-00995-7,2026,The legal &amp; data-architecture aspects of “digital duplicates”: extending Danaher &amp; Nyholm’s MVPP framework,0,1,1,2304.03442
+W7128904657,https://doi.org/10.64898/2026.02.12.705603,2026,BioVault: A privacy-first data visitation platform for equitable global collaboration in biomedicine,0,1,1,2512.05470v1
+W7129003166,https://doi.org/10.1080/13658816.2026.2624784,2026,GeoAgent: a hierarchical LLM-based multi-agent architecture for autonomous spatial analysis,0,1,1,W4413434847
+W7130931283,https://doi.org/10.1007/978-981-95-7081-2_9,2026,Explainable LLM-Guided Evidence Retrieval for Claim Verification Using Knowledge Graphs,0,1,1,2405.14831
+W7131095835,https://doi.org/10.1109/robio66223.2025.11378266,2025,Motivating Individuals with Autism Spectrum Disorder to Talk with an Conversational Android Robot System Changing Context Awareness,0,1,1,W4393147158
+W7131118361,https://doi.org/10.1109/aisp68263.2025.11396217,2025,Co-MAS: Towards Robust Multi-Agentic AI Assistant through Multi-Layered Reflection,0,1,1,W4393147158
+W7131185325,https://doi.org/10.1109/iccvw69036.2025.00249,2025,Sari Sandbox: A Virtual Retail Store Environment for Embodied AI Agents,0,1,1,W4393147158
+W7131372459,https://doi.org/10.1109/icamac67779.2025.11398712,2025,Security Risks and Privacy Challenges of Large Language Models in Enterprise Environments,0,1,1,W4393147158
+W7131434410,https://doi.org/10.1109/ccwc67433.2026.11393694,2026,Agentic Retrieval for Conversational Memory in LLM-Based Chatbots,0,1,1,W4393147158
+W7131667188,https://doi.org/10.1016/j.rsase.2026.101951,2026,Natural language-driven water quality inversion using LLMs and cloud platforms,0,1,1,W4413434847
+W7131799539,https://doi.org/10.1075/is.24052.ngu,2025,Exploratory models of human-AI teams,0,1,1,2304.03442
+W7133200563,https://doi.org/10.2139/ssrn.6329079,2026,Beyond Economic Growth: Decoding the Structural Drivers of Urban Civil Litigation in China via Big Data Analytics,0,1,1,W4413434847
+W7133345326,https://doi.org/10.1145/3742413.3789168,2026,Mind Mapper: Modeling and Predicting Behavioral Patterns from Everyday Conversations with Wearable AI Systems and LLMs,0,1,1,W4393147158
+W7133345812,https://doi.org/10.1145/3742413.3789218,2026,"Guiding, Not Railroading: Design and Evaluation of a Multi-Agent System for Narrative Redirection in Role-playing Games",0,1,1,2304.03442
+W7133361058,https://doi.org/10.1145/3742413.3789222,2026,CAIM: Development and Evaluation of a Cognitive AI Memory Framework for Long-Term Interaction with Intelligent Agents,0,1,1,W4393147158
+W7133488000,https://doi.org/10.5281/zenodo.18856845,2026,"Institutional Memory as Organizational Knowledge: AI Agents That Learn Their Jobs from Experience, Not Instructions",0,1,1,W7133519884
+W7133508550,https://doi.org/10.5281/zenodo.18856774,2026,Consensus-Validated Memory Improves Agent Performance on Complex Tasks,0,1,1,W7133519884
+W7133539473,https://doi.org/10.5281/zenodo.18856773,2026,Consensus-Validated Memory Improves Agent Performance on Complex Tasks,0,1,1,W7133519884
+W7133548618,https://doi.org/10.5281/zenodo.18856844,2026,"Institutional Memory as Organizational Knowledge: AI Agents That Learn Their Jobs from Experience, Not Instructions",0,1,1,W7133519884
+W7134196964,https://doi.org/10.1109/bigdata66926.2025.11402262,2025,Survey of Agents Methodologies in the Financial Domain,0,1,1,W4393147158
+W7134901123,https://doi.org/10.1080/13658816.2026.2639623,2026,Regional decision-making agent: enhancing geographic decision support through structured resource governance and multi-agent collaboration,0,1,1,W4413434847
+W7135012004,https://doi.org/10.3390/app16062707,2026,Temporal Modeling of LMS Logs and Zero-Shot LLM Prediction: A Multi-Course Study in Moodle,0,1,1,W4414213933
+W7136174785,https://doi.org/10.3390/electronics15061232,2026,Towards Self-Evolving Agents: A Dual-Process Framework for Continual Context Refinement,0,1,1,W4393147158
+W7137997230,https://doi.org/10.5281/zenodo.19059673,2026,"Prompt-Native Semantic Runtimes for Language Models: Inference-Time Semantic Governance, Provenance, Compression, and Document-Level Process Teaching",0,1,1,2310.08560
+W7138396142,https://doi.org/10.5281/zenodo.19059674,2026,"Prompt-Native Semantic Runtimes for Language Models: Inference-Time Semantic Governance, Provenance, Compression, and Document-Level Process Teaching",0,1,1,2310.08560
+W7139066239,https://doi.org/10.3389/frai.2026.1730018,2026,Generative AI-based approach for player behavior analysis and gray area identification,0,1,1,2304.03442
+W7139085419,https://doi.org/10.3390/mti10030031,2026,Navigating the Future: A Design Fiction Study on User Perceptions of Next-Gen LLM-Based Voice Interaction,0,1,1,W4393147158
+W7140122471,https://doi.org/10.18653/v1/2026.eacl-long.261,2026,Beyond Math: Stories as a Testbed for Memorization-Constrained Reasoning in LLMs,1,0,1,W7164901450
+W7140191772,https://doi.org/10.1109/iicspi66775.2025.11437637,2025,Research on End-to-End SLAM Framework Based on Deep Feature Learning,0,1,1,W4410629910
+W7140302762,https://doi.org/10.1109/iceace67491.2025.11439874,2025,Study on Financial Credit Default Risk Prediction Method Based on the Optuna-Lp-SVM Model,0,1,1,W4410629910
+W7140323620,https://doi.org/10.1109/iceace67491.2025.11439099,2025,Research on a Large Model for Children's Multimodal Emotion Recognition Based on Multi-Feature Cross-Fusion,0,1,1,W4410629910
+W7140324928,https://doi.org/10.21468/scipostphys.20.3.091,2026,Agents of discovery,0,1,1,W4407759090
+W7140368709,https://doi.org/10.1016/j.chbah.2026.100300,2026,Emergent symbolic cognition in Large Language Models via memory capsules,0,1,1,W4393147158
+W7141143665,https://doi.org/10.1109/icpege67691.2026.11451449,2026,Modeling and Simulation of User Survival Space in UGC Platforms Integrating Sentiment Analysis and Behavior Prediction,0,1,1,W4410629910
+W7141221356,https://doi.org/10.1109/icpege67691.2026.11451310,2026,Research on the Balance of Public Interests and Optimization of Energy Efficiency Governance in AI Collaborative Control of New Energy Microgrids in the Greater Bay Area,0,1,1,W4410629910
+W7141405712,https://doi.org/10.1109/icpege67691.2026.11451326,2026,Construction of Marketing Risk Early Warning Model Based on Improved ANN Algorithm,0,1,1,W4410629910
+W7141483639,https://doi.org/10.1109/icpege67691.2026.11451430,2026,Application of Multimodal Artificial Intelligence Fusion Model in Individualized Prediction of Depression,0,1,1,W4410629910
+W7141513849,https://doi.org/10.1109/icpege67691.2026.11451543,2026,Study on Inspection Path Planning of Warehouse Robots Based on Deep Learning,0,1,1,W4410629910
+W7146976549,https://doi.org/10.1007/978-3-658-50335-2_12,2026,Künstliche Superintelligenz und das Ende der Demokratie,0,1,1,2304.03442
+W7147225822,https://doi.org/10.1007/978-981-95-8420-8_22,2026,Multi-dimensional Prompt Expansion: Black-Box DoS Attacks on Multi-agent LLMs,0,1,1,W4393147158
+W7147280521,https://doi.org/10.1007/s41745-026-00501-2,2025,Enabling Large Language Models and Agentic Workflows on Legacy GPU Architectures for Building Scalable Farmer Advisory Systems in India,0,1,1,2303.11366
+W7147435254,https://doi.org/10.20935/acadai8229,2026,Meta-reasoning in autonomous agents: performance gains across benchmarks and models,0,1,1,2303.11366
+W7152557030,,,,1,0,1,W7164901450
+W7154036321,https://doi.org/10.1145/3772318.3791859,2026,Collaborative Upstanding: Exploring Conversational Strategies for Cyberbullying Upstanding Education,0,1,1,2304.03442
+W7154036965,https://doi.org/10.1145/3772318.3791402,2026,PCGEF: A Framework for Diagnosing Subjective Alignment in Human-Centered Persona-Conditioned Generation,0,1,1,2304.03442
+W7154043258,https://doi.org/10.1145/3772318.3793387,2026,Machine Eye: Designing Relational Engagement with Embodied Large Language Models,0,1,1,W4393147158
+W7154051292,https://doi.org/10.1145/3772318.3790997,2026,"""What Are You Doing?"": Effects of Intermediate Feedback from Agentic LLM In-Car Assistants During Multi-Step Processing",0,1,1,2310.08560
+W7154128414,https://doi.org/10.1145/3772318.3791239,2026,AI That Moves With You: A Review of Interactive Technologies Powered by Large Foundation Models for Mobility Impairment,0,1,1,W4393147158
+W7155053624,https://doi.org/10.1109/icassp55912.2026.11462579,2026,RAMTime: Retrieval-Augmented Memory for Time Series Forecasting,0,1,1,W4393147158
+W7155055081,https://doi.org/10.1016/j.patcog.2026.113731,2026,Dual-gated transformer with local context aggregation for weakly-supervised medical image anomaly detection,1,0,1,W7164901450
+W7155066021,https://doi.org/10.1007/s11263-026-02852-w,2026,Anatomy-Aware Text-Visual Fusion with Dual-Perspective Prompts for Fine-Grained Lumbar Spine Segmentation,1,0,1,W7164901450
+W7155434330,https://doi.org/10.2139/ssrn.6636733,2026,A Structured Reasoning Framework for Causally Consistent Narrative Generation via Iterative Hypothesis Pruning,0,1,1,W4393147158
+W7155789930,https://doi.org/10.1145/3774904.3792240,2026,Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows,0,1,1,2303.11366
+W7155918243,https://doi.org/10.1108/ijchm-08-2025-1237,2026,AI memory expression: mitigating AI aversion through perceived uniqueness,0,1,1,W4404344231
+W7156085214,https://doi.org/10.7232/jkiie.2026.52.2.116,2026,Efficient Memory Management in Multi-Session Dialogue Systems via LLM-Guided Summary Usefulness Prediction,0,1,1,W4393147158
+W7159965625,https://doi.org/10.20935/acadai8260,2026,"Towards trustworthy agentic AI: a comprehensive survey of safety, robustness, privacy, and system security",0,1,1,W4393147158
+W7160042099,https://doi.org/10.1109/jas.2026.125993,2026,Understanding Agentic AI: Algorithms and Infrastructure,0,1,1,W4393147158
+W7160151109,https://doi.org/10.3389/frai.2026.1754973,2026,AMULED: Addressing Moral Uncertainty using Large language models for Ethical Decision-making,0,1,1,2304.03442
+W7160434515,https://doi.org/10.1007/s00530-026-02288-9,2026,"A survey of large language models: techniques, applications, and challenges",0,1,1,2303.11366
+W7160767565,https://doi.org/10.14801/jkiit.2026.24.4.11,2026,Design of a Source Code Vulnerability Patch Verification Agent using an Iterative Self-Verifying Architecture with Large Language Models,0,1,1,2303.11366
+W7160774021,https://doi.org/10.1007/978-3-032-16157-4_1,2026,Large Language Models for Improving Speaking Proficiency in EFL Contexts: A Collocation-Centric Approach,0,1,1,2303.11366
+W7160828381,,,,1,0,1,W7164901450
+W7160832046,https://doi.org/10.1007/978-981-92-0375-8_36,2026,Private Memory Under the Spotlight: Diagnosing and Defending User-Level Leakage in LLM-Augmented Systems,0,1,1,W4393147158
+W7160857296,https://doi.org/10.3390/a19050383,2026,FictionRAG: A Stateful Metacognitive Framework for High-Fidelity Long-Narrative Role-Playing,0,1,1,W4393147158
+W7160988562,https://doi.org/10.3389/frai.2026.1820375,2026,Building MCP-native hierarchical AI scientist ecosystems: a perspective on scaling multi-agent scientific discovery,0,1,1,2305.16291
+W7161477987,https://doi.org/10.1007/978-981-95-3658-0_118,2026,Designing Artificial Social Intelligence for Human–AI Team Effectiveness,0,1,1,2305.16291
+W7161478699,https://doi.org/10.1007/978-3-032-20194-2_2,2026,Large Language Models in the Cloud Network,0,1,1,W4393147158
+W7161491021,https://doi.org/10.1007/978-3-032-16524-4_5,2026,Rehumanizer: Enhancing LLM Recommendations for Humanlike Engagement and Intriguing Interactions,0,1,1,W4393147158
+W7161643304,https://doi.org/10.3389/frvir.2026.1813331,2026,Trusted but not trustworthy: a conceptual analysis of AI agent risks in the metaverse and EU policy responses,0,1,1,2305.16291
+W7161980401,https://doi.org/10.1145/3786167.3788407,2026,ContReAct: A Feedback-Based Architecture for Continuous Agentic Operation,0,1,1,2310.08560
+W7161997792,https://doi.org/10.1145/3786335.3813135,2026,Generating Expressive and Customizable Evals for Timeseries Data Analysis Agents with AgentFuel,0,1,1,W4393147158
+W7162005537,https://doi.org/10.1360/sst-2025-0414,2026,An automatic modeling method for rough discrete fracture networks based on LLM Agent,0,1,1,W4416010507
+W7162009858,https://doi.org/10.1016/j.neucom.2026.134049,2026,"Agentic AI systems: A systematic survey of multi-agent architectures, cognitive foundations, interaction, explainability, security, and performance evaluation",0,1,1,W4416088936
+W7162088495,https://doi.org/10.1145/3786335.3813201,2026,Scaling Expert Feedback with Reflective Edit Propagation in Compositional Knowledge Bases,0,1,1,2310.08560
+W7162120814,https://doi.org/10.1145/3786335.3813148,2026,Vista: Verifier-in-the-Loop Agentic Reinforcement Learning for Quantum Program Synthesis,0,1,1,2303.11366
+W7162645031,https://doi.org/10.1080/0960085x.2026.2673990,2026,Me and my Replika: perceived affordances and the formation of psychological ownership of AI companions,0,1,1,W4393147158
+W7162678239,https://doi.org/10.5281/zenodo.20422258,2026,AI Co-Observation Protocol (AICP-2.0): Reflective Equilibrium Applied to Human–AI Co-Creation,1,0,1,W7167642101
+W7162989284,https://doi.org/10.64898/2026.05.28.719125,2026,Reproducible and shareable bioinformatics pipelines from natural-language prompts,0,1,1,2604.25850v4
+W7163549592,https://doi.org/10.2139/ssrn.6876275,2026,Human-Inspired Agentic Video Understanding via Coarse-to-Fine Spatiotemporal Exploration,0,1,1,W4410629910
+W7163872640,https://doi.org/10.1021/acs.jctc.6c00622,2026,Automating Computational Chemistry Workflows via OpenClaw and Domain-Specific Skills,0,1,1,2602.17902v1
+W7164039172,https://doi.org/10.1007/s44427-026-00033-8,2026,ECN AI Baseline Index 2024: A Stable and Accessible AI Performance Indicator Across Difficulty Shifts,0,1,1,2303.11366
+W7164390824,https://doi.org/10.21203/rs.3.rs-9875246/v1,2026,"Test-Time Improvement for Large Models: A Survey of Inference-Stage Mechanisms, Resource Control, and Research Opportunities",0,1,1,W4393147158
+W7164507293,https://doi.org/10.1145/3800645.3812956,2026,Compass vs Railway Tracks: Unpacking User Mental Models for Communicating Long-Horizon Work to Humans vs. AI,0,1,1,2305.16291
+W7164686920,https://doi.org/10.1145/3803291.3803294,2026,Ebbinghaus Forgetting Curve and Large Language Model Memory Management: A Cognitive Science-Driven Long-Context Enhancement Framework Design and Prospects,0,1,1,W4393147158
+W7164810621,https://doi.org/10.1007/s11831-026-10655-y,2026,From Reactive AI to Agentic Systems: A Review of Autonomous medical AI Agents in Healthcare,0,1,1,W4410629910
+W7164819792,https://doi.org/10.1007/978-3-032-28939-1_11,2026,A Supervised Modular LLM Architecture for Personalized Management of Non Communicable Diseases: A Proof of Concept Study,0,1,1,2303.11366
+W7165033483,https://doi.org/10.3390/info17060604,2026,The Semantic Layer as Contextual Foundation of Retrieval-Augmented Automated Assessment,0,1,1,W4414213933
+W7165142192,https://doi.org/10.1007/978-3-032-29372-5_13,2026,From Threat Intelligence to Firewall Rules: Semantic Relations in Hybrid AI Agent and Expert System Architectures,0,1,1,W4393147158
+W7165397009,https://doi.org/10.1007/s13164-026-00831-1,2026,The Story of Your Life: Large Language Models and Personal Memory,0,1,1,W4393147158
+W7165656707,https://doi.org/10.21203/rs.3.rs-10106384/v1,2026,LLM-Driven Diagnostic Reasoning for Distributed Hydrological Model Calibration,0,1,1,2303.11366
+W7165803186,https://doi.org/10.1109/aiita69518.2026.11567152,2026,Large Language Models for Ranking and Recommendation in Virtual and Augmented Reality,0,1,1,W4410629910
+W7166173081,https://doi.org/10.1007/s00521-026-12167-z,2026,Semantic context improvisational retrieval-augmented generation for empathic conversational AI,0,1,1,W4393147158
+W7166201135,https://doi.org/10.1007/978-3-032-29788-4_73,2026,"Teaching Step by Step: LLM-Generated Animations That Segment Mathematical Concepts, Not Just Render Answers",0,1,1,2303.11366
+W7166431648,https://doi.org/10.21203/rs.3.rs-10026525/v1,2026,PhenoAgent: agentic LLM framework for phenotyping electronic health records via structured query decomposition and self-correction,0,1,1,2303.11366
+W7166529178,https://doi.org/10.1007/s12599-026-01013-0,2026,Academic Publishing in the Age of Generative AI,0,1,1,2304.03442
+W7166644455,https://doi.org/10.1145/3797110,2026,Debugging Engine Enhanced by Prior Knowledge: Can We Teach LLM How to Debug?,0,1,1,W4414920525
+W7166681518,https://doi.org/10.1145/3797094,2026,In Line with Context: Repository-Level Code Generation via Context Inlining,0,1,1,W4414920525
+W7167229020,https://doi.org/10.1007/978-3-032-23493-3_35,2026,ADAPT: Adaptive Decision Analysis for Portfolio Trading: A GenAI Driven Approach,0,1,1,2304.03442
+W7167270728,https://doi.org/10.1016/j.cogsys.2026.101490,2026,What counts as memory? The jurisdiction of recall in biological memory and large language models,0,1,1,W4393147158
+W7167425739,https://doi.org/10.1145/3805760.3814887,2026,Configuring Agentic AI Coding Tools: An Exploratory Study,0,1,1,W4417326960
+W7167470181,https://doi.org/10.5281/zenodo.21222362,2026,"The Ledger and the Gate: A Reverse-Derived Möbius Cosmology — Five theses recovered bottom-up from validated engineering invariants — finite channels, relational existence, append-only time, structure as anti-regress guard, and the entitled observer",1,0,1,W7167642101
+W7167479635,https://doi.org/10.1007/978-3-032-22545-0_7,2026,"APT-Agent: A Training-Free, Unsupervised, LLM-Based Multi-agent Framework for Interpretable Advanced Persistent Threat Detection",0,1,1,W4393147158
+W7167518245,https://doi.org/10.5281/zenodo.21222314,2026,Keeping Self-Evolution Reversible — RGS/RHL Anti-Regress Governance for a Self-Evolving Secretary Add-on,1,0,1,W7167642101
+W7167526061,https://doi.org/10.5281/zenodo.21222324,2026,"From Unmeasured to Calibrated in Thirty Hours: A Case Study in Human-Governed, AI-Executed Empirical Research at Solo-Lab Scale — Working Paper — Workflow, Failure Catalog, and Governance Practices of an Autonomous Measurement Campaign",1,0,1,W7167642101
+W7167641772,https://doi.org/10.5281/zenodo.21231386,2026,"Context Has Temporal Strata — Authority Disagreement, Minimal Data Contracts, Friction Governance, Annales Historiography, and the Mobius Reflective Context Governor",1,0,1,W7167642101
+W7167728352,https://doi.org/10.1016/j.ipm.2026.105042,2026,PostGISer: The first end-to-end fine-tuned large language model for PostGIS GeoSQL query generation,0,1,1,W4413434847
+W7167924886,https://doi.org/10.1145/3805712.3809599,2026,ProEchoMem: Enhancing Long Video Understanding via Multi-Trace Probe-Echo Memory,0,1,1,W4393147158
+W7168031757,https://doi.org/10.1007/978-981-92-2856-0_31,2026,Cognitive Mycelium: A Federated Knowledge Management Architecture with Graph-Enhanced Retrieval,0,1,1,2405.14831
+W7168126414,https://doi.org/10.1049/sfw2/7118691,2026,FactCheck: Feasibility‐Aware Long‐Term Action Anticipation With Multi‐Agent Collaboration,0,1,1,W4393147158
+W7168166450,https://doi.org/10.1007/978-981-92-3441-7_50,2026,Reflection-Ranker: Efficient Reflection Selection via Hidden-State Utility for Mathematical Reasoning,0,1,1,2303.11366
+W7168364339,https://doi.org/10.1145/3805712.3809926,2026,Efficient Memory Alignment for Long-term Conversational Information Seeking,0,1,1,W4393147158
+W7168375704,https://doi.org/10.1145/3805712.3809931,2026,EvoMem: Timeline-Grounded Validity Adjudication for Non-Monotonic Multi-Agent Memory,0,1,1,W4393147158
+W7168399792,https://doi.org/10.1145/3805712.3809556,2026,Do Simulated Users Need to Remember? Analyzing the Impact of Memory Models in Conversational Search Evaluation,0,1,1,W4393147158
+W7168410330,https://doi.org/10.1145/3805712.3809646,2026,Dynamic Memory Forest: Constructing and Tracing Conversational Trajectories for Long-Term Conversation,0,1,1,W4393147158
+W7168430989,https://doi.org/10.1145/3805712.3808544,2026,LLM-Oriented Information Retrieval: A Denoising-First Perspective,0,1,1,W4393147158
+W4378505261,https://doi.org/10.48550/arxiv.2305.16291,2023,Voyager: An Open-Ended Embodied Agent with Large Language Models,0,0,0,gold-manual:2305.16291
+W4386081135,https://doi.org/10.48550/arxiv.2308.10144,2023,ExpeL: LLM Agents Are Experiential Learners,0,0,0,gold-manual:2308.10144
+W4363671832,https://doi.org/10.48550/arxiv.2304.03442,2023,Generative Agents: Interactive Simulacra of Human Behavior,0,0,0,gold-manual:2304.03442
+W4398886972,https://doi.org/10.48550/arxiv.2405.14831,2024,HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models,0,0,0,gold-manual:2405.14831
+W4403622204,https://doi.org/10.48550/arxiv.2409.07429,2024,Agent Workflow Memory,0,0,0,gold-manual:2409.07429
+W4406032263,https://doi.org/10.48550/arxiv.2501.00663,2024,Titans: Learning to Memorize at Test Time,0,0,0,gold-manual:2501.00663
+W4416534952,https://doi.org/10.48550/arxiv.2504.13171,2025,Sleep-time Compute: Beyond Inference Scaling at Test-time,0,0,0,gold-manual:2504.13171

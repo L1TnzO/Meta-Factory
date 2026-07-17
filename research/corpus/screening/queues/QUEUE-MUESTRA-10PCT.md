@@ -66,8 +66,8 @@ Verificación humana (contrato §7.5 congelado). Marcar en la HOJA, no aquí.
   nota: 'Library drift' en skills auto-evolutivas; receta de gobernanza (retiro guiado por resultados + tope acotado + prior de autoria de meta-skills) sube pass@1 de 0
 - `2603.27224v4` [GRIS] EXCLUIR-CE1 (M/T/E 0/2/1) — Finding Memory Leaks in C/C++ Programs via Neuro-Symbolic Augmented Static Analysis
   nota: 'Fugas de memoria' refiere a bugs de gestion de memoria en programas C/C++ (analisis estatico neuro-simbolico), no a mecanismo de memoria de un agente - M=0.
-- `2603.09134v1` [GRIS] EXCLUIR-CE1 (M/T/E 0/1/1) — AgenticCyOps: Securing Multi-Agentic AI Integration in Enterprise Cyber Operations
-  nota: AgenticCyOps es arquitectura de seguridad para MAS empresariales; identifica 'gestion de memoria' como superficie a proteger y define principio de integridad de
+- `2603.09134v1` [GRIS] GRIS (M/T/E 1/1/0) — AgenticCyOps: Securing Multi-Agentic AI Integration in Enterprise Cyber Operations
+  nota: [rescate-CE1] ADVERSARIAL: el PDF SI describe mecanismo (no solo 'caja de seguridad'): 'Memory Management Agent' que media escrituras, admision con verificacion
 - `2602.10479v1` [GRIS] CE3-SECUNDARIO (M/T/E //) — From Prompt-Response to Goal-Directed Systems: The Evolution of Agentic AI Software Archit
   nota: Arquitectura de referencia + taxonomia + analisis de plataformas industriales (Kore.ai, Salesforce Agentforce, etc.); revision/analisis del panorama, memoria-au
 - `2511.14794v1` [GRIS] EXCLUIR-CE1 (M/T/E 0/1/1) — irace-evo: Automatic Algorithm Configuration Extended With LLM-Based Code Evolution

@@ -1,0 +1,24 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W4417529989,,,,,0,0,0,CE3-SECUNDARIO,"Survey de adaptacion de agentes (post-training, memoria, skills); secundario, no se puntua"
+W7103894193,,,,,0,1,0,EXCLUIR-CE5,"Working paper Zenodo, propuesta filosofica sobre continuidad/memoria de largo plazo sin sistema ni evidencia (manifiesto)"
+W7104311125,0,2,1,,1,0,0,EXCLUIR-CE1,"ProjectGen: 'gestion de contexto basada en memoria' mencionada sin detalle, posible manejo intra-etapas de un pipeline de codegen (P1), no describe mecanismo persistente"
+W7106575433,,,,,0,1,1,EXCLUIR-CE5,"Changelog de version de software (cogx v2.5.0, Zenodo); ficha de release, no es estudio. artefacto: deposito de herramienta util (Cognition CLI)"
+W7106861322,3,1,1,MULTIAGENTE;COSTO,0,0,0,INCLUIR,"LatentMAS: memoria de trabajo latente compartida entre agentes (compartido cross-agente), medida en 9 benchmarks, -70-83% tokens"
+W7107873496,1,2,1,DOCS-VERSIONADO,1,1,0,GRIS,"Caso de estudio Zenodo (N=2, sin revision de pares): CLAUDE.md extenso como contexto persistente de proyecto (regla 9) habilita entrega full-stack; metricas medidas pero N=2 auto-publicado, borde real"
+W7108326980,,,,,0,1,0,EXCLUIR-CE5,"Playbook de configuracion practica (Kimi K2 + Roo Code) en Zenodo; guia/manual sin diseno de estudio, metricas informales de producto"
+W7110961249,1,1,1,,0,0,0,EXCLUIR-RUBRICA,Estudio piloto de co-construccion de memorias episodicas humano-agente (clasificar solapado/complementario/conflictivo); corte no pasa (3)
+W7111293947,0,0,1,,0,0,0,EXCLUIR-CE2,"Busqueda basada en valor en memoria semantica humana (paradigma cognitivo con participantes); sin agentes LLM, dominio totalmente divergente"
+W7112149706,,,,,0,1,0,EXCLUIR-CE5,Propuesta de tesis en etapa temprana (OSF preprint) para chatbot de memoria personalizada de largo plazo; sin sistema construido ni evidencia
+W7112860334,1,1,1,,0,0,0,EXCLUIR-RUBRICA,"Tesis KTH: agente LLM para analisis de datos interactivo con RAG+memoria corto/largo plazo entre varias herramientas; memoria es un componente, corte no pasa (3)"
+W7112905795,1,0,1,,0,0,0,EXCLUIR-CE2,"Tesis de RL con priors aprendidos (DART, STRIDE con codebook de skills persistente); RL clasico/robotica-locomocion, sin LLM, dominio divergente"
+W7113915684,3,1,1,PROCEDIMENTAL;RETRIEVAL-MEDIDO;WRITE,0,0,0,INCLUIR,"H-EPM: memoria hibrida episodica-procedural (grafo de herramientas acumulado de trayectorias) para agentes multi-turno; medido, +50% inferencia, +40% OOD RL"
+W7114802038,,,,,0,1,0,EXCLUIR-CE5,"Whitepaper CollectiveOS (Zenodo): 'memoria publica unificada' dentro de vision de meta-OS multi-modelo orientada a politica regulatoria; sin sistema evaluado, manifiesto"
+W7116335278,,,,,0,1,1,EXCLUIR-CE5,"Changelog de version de software (cogx v2.6.2, Zenodo); IDs de tarea persistentes cross-sesion, ficha de release no estudio. artefacto: deposito de herramienta util (Cognition CLI)"
+W7117166543,1,0,1,,0,0,0,EXCLUIR-CE2,"Modelo agente de busqueda en memoria semantica humana (fluidez verbal, ARS vs Levy/Random Walk) validado contra 50 participantes; ciencia cognitiva sin LLM, dominio divergente"
+W7117233390,3,1,0,FIDELIDAD;CONSOLIDACION,0,1,0,GRIS,"CSNM (Zenodo, investigador independiente): arquitectura de memoria narrativa cross-sesion; 'estudio de ablacion' sin metricas cuantitativas reportadas -> P3 (E=0 + solo-Zenodo) GRIS automatico"
+W7117249417,,,,,0,0,0,CE3-SECUNDARIO,"Survey exhaustivo de agentes LLM (taxonomia razonamiento/herramientas/multiagente/memoria); secundario, no se puntua"
+W7117287608,3,0,1,,0,0,0,EXCLUIR-CE2,Tesis: asistente egocentrico de por vida (EgoButler=EgoGPT+EgoRAG) con memoria personalizada de video/audio; dominio embodied/egocentrico divergente
+W7117292717,0,2,1,,1,1,0,EXCLUIR-CE1,"LLM-Agent+ (Zenodo): innovacion central es compresion de trazas de razonamiento (RTC), manejo de contexto intra-tarea de un solo agente (P1), no memoria persistente"
+W7117319370,3,1,0,DOCS-VERSIONADO,0,1,0,GRIS,"OV-Memory v1.1 (Zenodo): memoria de grafo con conectividad acotada, compara contra sistemas markdown (Claude.md/agents.md) pero solo analisis cualitativo -> P3 (E=0 + solo-Zenodo) GRIS automatico"
+W7117322456,,,,,0,1,0,CE-4p,RAE: motor de memoria externa para agentes LLM; abstract insuficiente (71 caracteres) y sin PDF disponible; titulo claramente pertinente -> rescate manual
+W7117632178,3,1,0,WRITE;CONSOLIDACION,0,0,0,INCLUIR,"DAM: framework decision-teorico para gestion de memoria de agentes (que leer/escribir, mantenimiento jerarquico); solo reframing conceptual sin evaluacion, pero arXiv no cuenta como selfpub"

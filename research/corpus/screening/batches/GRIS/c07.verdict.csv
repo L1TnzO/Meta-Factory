@@ -1,0 +1,24 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W4416020713,0,2,1,,1,0,0,EXCLUIR-CE1,"SDK de agentes (OpenHands) lista memory management entre varias features; caja negra, no describe mecanismo"
+W4416050909,3,1,1,WRITE;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"MMS genera contenido de memoria de largo plazo multi-segmento, medido en LoCoMo+ablation; sin SE, M=3 cubre"
+W4416067318,0,1,1,,0,0,0,EXCLUIR-CE1,"Patron de workflow agentico (planner/executor) con MCP; menciona gestion de historial como problema, no describe mecanismo de memoria"
+W4416184895,3,2,1,WRITE;MULTIAGENTE,1,0,0,INCLUIR,"Spark: memoria experiencial compartida y persistente entre agentes de codigo, mejora calidad de codigo generado, medido"
+W4416189006,3,1,1,RETRIEVAL-MEDIDO;FIDELIDAD,0,0,0,INCLUIR,"Generative Semantic Workspace: memoria episodica persistente para RAG, medida en EpBench; dominio general no-SE, M=3 cubre"
+W4416211701,,,,,0,1,0,EXCLUIR-CE4,"Sin abstract y sin PDF (has_pdf=0); titulo (Stata-MCP, investigacion empirica) no pertinente a memoria/contexto de agentes"
+W4416232557,1,0,1,,0,0,0,EXCLUIR-CE2,TS-Agent: bancos de conocimiento estructurado para modelado financiero de series temporales; dominio financiero divergente
+W4416363982,3,1,1,WRITE;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"O-Mem: perfilado activo de usuario con recuperacion jerarquica, medido en LoCoMo/PERSONAMEM; asistente general, M=3 cubre"
+W4416369111,0,2,1,,0,0,0,EXCLUIR-CE1,RedCodeAgent: 'modulo de memoria adaptativa' mencionado como caja negra; aporte central es red-teaming no la memoria
+W4416454642,3,0,1,,0,0,0,EXCLUIR-CE2,GCAgent: memoria episodica esquematica/narrativa para comprension de video largo; dominio video divergente
+W4416548137,3,2,1,DOCS-VERSIONADO;WRITE,1,0,0,INCLUIR,"Git Context Controller: memoria de contexto versionada estilo Git (COMMIT/BRANCH/MERGE), medida en SWE-Bench Verified (+13%). P12"
+W4416702618,1,0,1,,0,0,0,EXCLUIR-CE2,"Modelo de predictive coding de memoria semantica/episodica en neocorteza; neurociencia computacional, sin agentes LLM, dominio divergente"
+W4416830533,1,1,1,,0,0,0,EXCLUIR-RUBRICA,"UltraHorizon: benchmark de capacidades de horizonte largo (razonamiento/planificacion/memoria/herramientas); memoria es un eje entre varios, corte no pasa"
+W4416843709,3,2,1,CONSOLIDACION;RETRIEVAL-MEDIDO,1,0,0,INCLUIR,"SWE-Bench-CL: benchmark de aprendizaje continuo para agentes de codigo, memoria semantica FAISS, metricas de forgetting/transfer entre issues"
+W4416864652,3,0,0,,0,0,0,EXCLUIR-CE2,"Framework conceptual de agentes AR con memoria persistente espaciotemporal; solo propuesta sin evaluacion, dominio AR divergente"
+W4417081718,1,1,1,,0,0,0,EXCLUIR-RUBRICA,"AgentCompass: framework de evaluacion post-despliegue de workflows agenticos; memoria dual episodica/semantica es habilitador no aporte central, corte no pasa"
+W4417113956,0,0,1,,0,0,0,EXCLUIR-CE1,"M-CfC: red neuronal de tiempo continuo con memoria interna (estado oculto) para navegacion; manejo intra-agente de contexto, no persistente (P1)"
+W4417116115,1,0,1,,0,0,0,EXCLUIR-CE2,UniWM: memoria jerarquica que fusiona contexto perceptual en world model de navegacion; dominio embodied/robotica divergente
+W4417149567,0,2,1,,1,0,0,EXCLUIR-CE1,"Estudio de encuesta sobre asistentes de codigo conversacionales; 'retencion de contexto' es solo guia de diseno sugerida, no mecanismo"
+W4417295762,1,2,1,WRITE,1,0,0,INCLUIR,"Confucius Code Agent: sistema de notas persistente para aprendizaje continuo cross-sesion en el SDK, medido en SWE-Bench-Pro (59% Resolve@1). P12"
+W4417356857,3,0,0,,0,0,0,EXCLUIR-CE2,"eKG: grafo de conocimiento episodico como memoria simbolica de largo plazo para agentes embodied multimodales; dominio de sensores divergente, validacion cualitativa no benchmark"
+W4417452365,3,1,1,CONSOLIDACION,0,0,0,INCLUIR,"MaRS/FiFA: seis politicas de olvido para agentes generativos, benchmark de 300 corridas; dominio general no-SE, M=3 cubre"
+W4417452889,0,1,1,,0,0,0,EXCLUIR-CE1,"QwenLong-L1.5: 'memoria' es extension arquitectural de contexto (>4M tokens) intra-tarea de un solo modelo, no persistencia cross-sesion (P1)"

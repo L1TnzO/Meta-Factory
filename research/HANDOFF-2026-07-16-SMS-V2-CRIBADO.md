@@ -65,14 +65,15 @@ congelada, vocabularios cerrados, merge idempotente) + `corpus/screening/batches
 5. GATE previo (ya en marcha la 1ª vez): `compare` sobre PREFLIGHT (los 50 congelados, a
    ciegas) — acuerdo colapsado IN/OUT/HUMANO ≥90% o se escala modelo antes de tocar los 1.019.
 
-**CURSOR (2026-07-16, corte de límite 5h a las ~15:00 · reset 20:30 America/Santiago):**
-pre-flight ÁMBAR mitigado (90%/88%, ancla-M1 + regla 9 + vía rescue, commit 2403d68) ·
-PRE-OUT 73/73 ✅ · PRE-IN c00–c08 fusionados (219 aplicados, 0 rechazos; c09 se perdió a
-mitad de spawn — su input está re-rebanado). **Pendiente: PRE-IN c09–c18 (232) en 2 tandas
-(c09–c13, c14–c18) · GRIS c00–c20 (495) en 4–5 tandas · luego `rescue PRE-IN` + `rescue GRIS`
-(pasada adversarial CE1→GRIS, spawn con prompt de 5 líneas apuntando a PROMPT.md regla 9) ·
-colas finales + bitácora §8.** Ritmo medido: ~1.8–2.6k tok Sonnet/registro por spawn de
-~5 chunks. Los 11 INCLUIR de PRE-OUT y toda GRIS ya están en queues/ para Catalina.
+**CURSOR (2º corte 5h, 2026-07-17 · reset 03:00 America/Santiago):** pre-flight ÁMBAR
+mitigado (2403d68) · PRE-OUT ✅ 73/73 · PRE-IN ✅ COMPLETO 524/524 (97687ba) · rescate
+adversarial PRE-IN ✅ 36/36 CE1 confirmados, 0 flips (dc5bc45; residuo Mem4Nav revisado:
+exclusión robusta vía T=0) · GRIS parcial: c00–c02+c07–c10 fusionados (164, 0 rechazos).
+**Pendiente SOLO GRIS: 331 en 14 chunks (c03–c06, c11–c20) → 2–3 tandas paralelas
+disjuntas · luego `rescue GRIS` (CE1 del estrato, transición única CE1→GRIS) · `queues` ·
+bitácora §8 con: acuerdo pre-flight 90%/88% colapsado (exacto 63–68%, ruido de subtipos),
+0 rechazos del gate en 738 aplicados, ritmo ~1.8–2.6k tok/registro.** Total decididos
+738/1069 · INCLUIR acumulado 320 · GRIS+CE-4p para Catalina 94 (en queues/).
 
 ## 3. El árbol de trabajo (columna vertebral — estado de TODOS los nodos)
 

@@ -1,0 +1,24 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W7117931438,,,,,0,1,1,EXCLUIR-CE5,"Replication package (Zenodo) para SelfEvolve, sometido a SEAMS 2026; materiales suplementarios/datasets no es el estudio (P4). artefacto: codebase de arquitectura de auto-extension util para MF. P12"
+W7117976779,,,,,0,0,0,CE-4p,Sin abstract y sin PDF; titulo (memoria episodica para ML en entornos con aliasing perceptual) ambiguo pero no claramente no-pertinente -> rescate manual
+W7118457363,,,,,0,1,1,EXCLUIR-CE5,"Replication package (Zenodo) para SelfEvolve (variante de titulo), sometido a SEAMS 2026; materiales suplementarios/datasets no es el estudio (P4). artefacto: mismo codebase util. P12"
+W7119235080,0,2,1,,0,0,0,EXCLUIR-CE1,"Orchestral: framework Python de orquestacion multi-proveedor; 'memory management' listado entre varias features sin describir mecanismo, caja negra"
+W7119235462,0,2,1,,0,0,0,EXCLUIR-CE1,"CaveAgent: runtime Python persistente entre turnos de UNA interaccion (estado con objetos que persisten intra-tarea), no cross-tarea/sesion (P1)"
+W7119235607,3,1,1,CONSOLIDACION;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"TiMem: Temporal Memory Tree con consolidacion jerarquica y recall consciente de complejidad, SOTA en LoCoMo (75.30%) y LongMemEval-S (76.88%)"
+W7120782751,,,,,0,0,0,CE-4p,"Abstract insuficiente (33 caracteres, solo nombre de orientador de tesis) y sin PDF; titulo (sistema de memoria episodica para agentes inteligentes) pertinente -> rescate manual"
+W7121326819,,,,,0,1,0,EXCLUIR-CE5,"Changelog de release de Mesa (libreria ABM en Python, Zenodo); 'memory management' es fuga de RAM en simulacion, no memoria cognitiva de agente - senal espuria, ficha de version"
+W7123371678,1,0,1,,0,0,0,EXCLUIR-CE2,"Arquitectura de memoria distribuida auto-evolutiva para sistemas de IA a escala; gestion de memoria de infraestructura/hardware (RRAM, redes NAT), dominio de sistemas distribuidos divergente"
+W7123790472,0,2,1,,0,0,0,EXCLUIR-CE1,Framework arquitectonico de seis capas para pipelines RAG en produccion; describe ingenieria de contexto/recuperacion generica sin mecanismo de memoria explicito
+W7124117613,3,1,1,CONSOLIDACION;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,MCMA: copiloto de memoria entrenado por DPO que aprende a abstraer/estructurar/reusar memoria jerarquicamente; medido en ALFWorld/ScienceWorld/BabyAI
+W7124118240,3,1,1,RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"CloneMem: benchmark de memoria de largo plazo para clones de IA sobre trazas no-conversacionales (diarios/redes/emails); mecanismos actuales fallan, medido"
+W7124490413,,,,,0,1,1,EXCLUIR-CE5,"Changelog de version de software (cogx v2.6.4, Zenodo); protocolo de tareas y compresion multi-proveedor, ficha de release no estudio. artefacto: deposito de herramienta util (Cognition CLI)"
+W7124719622,1,0,1,,0,0,0,EXCLUIR-CE2,"Estudio de neurociencia humana (tDCS) sobre memoria episodica social (dmPFC/PPC); sin agentes LLM, dominio totalmente divergente"
+W7124960098,1,0,1,,0,0,0,EXCLUIR-CE2,MCP-SIM: memoria persistente es componente de apoyo dentro de framework de simulacion fisica multi-agente autocorrectivo; dominio de simulacion fisica/educativo divergente
+W7125351788,,,,,0,0,0,CE3-SECUNDARIO,"Survey/revision de eficiencia de agentes (memoria, tool learning, planificacion); secundario, no se puntua"
+W7125352610,3,1,1,RETRIEVAL-MEDIDO,0,0,0,INCLUIR,OP-Bench: benchmark de sobre-personalizacion en agentes con memoria (1700 instancias verificadas) + mecanismo de filtrado Self-ReCheck; medido
+W7125586162,0,0,1,,0,1,0,EXCLUIR-CE2,"Framework de RL para agentes en motores de juego ECS; 'arquitecturas de memoria' son LSTM/GRU/Transformer para observabilidad parcial (tecnica RL clasica), dominio de game AI divergente"
+W7125587830,3,1,1,WRITE;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"Memoria de largo plazo inspirada en estratificacion humana para agentes conversacionales; un LLM-agente decide que almacenar, resultados preliminares competitivos"
+W7125601958,3,2,1,SEGURIDAD,1,1,0,INCLUIR,Analisis forense de vulnerabilidad de inyeccion conductual en claude-flow/agentic-flow: envenenamiento de patrones de razonamiento en memoria persistente/compartida (bancos de conocimiento colectivo) via IPFS/IPNS sin verificacion criptografica real
+W7125710895,,,,,0,1,0,CE-4p,"Sin abstract (SSRN, 0 caracteres) y sin PDF; titulo (framework de orquestacion multi-agente para desarrollo de software asistido por IA) plausiblemente pertinente -> rescate manual"
+W7125759905,0,2,1,,0,0,0,EXCLUIR-CE1,"VibeTensor: stack de software de deep learning generado por agentes de codigo; valida capacidad de codegen de agentes, no describe mecanismo de memoria"
+W7125760203,3,1,1,RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"EMemBench: benchmark interactivo de memoria episodica para agentes VLM en juegos (recall, induccion, temporal, espacial, logico, adversarial); medido, induccion/espacial persisten como cuellos de botella"

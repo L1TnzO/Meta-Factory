@@ -1,4 +1,6 @@
 bibkey,title,year,arxiv_id,doi,url,in_corpus_key,v2_decision,status
+aesp2026,AESP: A Local-First Persistent Context Engine for AI Coding Agents via the Model Context Protocol,2026,,10.2139/ssrn.6478861,https://ssrn.com/abstract=6478861,W7141456824,EXCLUIR-CE4,DECIDIDO-V2
+clawvm2026,ClawVM: Harness-Managed Virtual Memory for Stateful Tool-Using LLM Agents,2026,,10.1145/3805621.3807648,https://doi.org/10.1145/3805621.3807648,2604.10352v1,INCLUIR,DECIDIDO-V2
 codememprocedural2025,CodeMem: Architecting Reproducible Agents via Dynamic MCP and Procedural Memory,2025,2512.15813,,https://arxiv.org/abs/2512.15813,W4417531516,INCLUIR,DECIDIDO-V2
 codifiedcontext2026,Codified Context: Infrastructure for AI Agents in a Complex Codebase,2026,2602.20478,,https://arxiv.org/abs/2602.20478,2602.20478v1,INCLUIR,DECIDIDO-V2
 experepair2026,EXPEREPAIR: Dual-Memory Enhanced LLM-based Repository-Level Program Repair,2026,2506.10484,,https://arxiv.org/abs/2506.10484,2506.10484v2,INCLUIR,DECIDIDO-V2
@@ -16,8 +18,6 @@ smith2025,Unifying Dynamic Tool Creation and Cross-Task Experience Sharing throu
 sweexp2026,SWE-Exp: Experience-Driven Software Issue Resolution,2026,2507.23361,,https://arxiv.org/abs/2507.23361,W4414920525,INCLUIR,DECIDIDO-V2
 talm2025,TALM: Dynamic Tree-Structured Multi-Agent Framework with Long-Term Memory for Scalable Code Generation,2026,2510.23010,,https://arxiv.org/abs/2510.23010,2510.23010v2,INCLUIR,DECIDIDO-V2
 adaptive2026,Adaptive Memory Admission Control for LLM Agents,2026,2603.04549,,https://arxiv.org/abs/2603.04549,,,CANDIDATO
-aesp2026,AESP: A Local-First Persistent Context Engine for AI Coding Agents via the Model Context Protocol,2026,,10.2139/ssrn.6478861,https://ssrn.com/abstract=6478861,,,CANDIDATO
-clawvm2026,ClawVM: Harness-Managed Virtual Memory for Stateful Tool-Using LLM Agents,2026,,10.1145/3805621.3807648,https://doi.org/10.1145/3805621.3807648,,,CANDIDATO
 codememast2026,CodeMEM: AST-Guided Adaptive Memory for Repository-Level Iterative Code Generation,2026,2601.02868,,https://arxiv.org/abs/2601.02868,,,CANDIDATO
 contextweaver2026,ContextWeaver: Selective and Dependency-Structured Memory Construction for LLM Agents,2026,2604.23069,,https://arxiv.org/abs/2604.23069,,,CANDIDATO
 dualcluster2026,Dual-Cluster Memory Agent: Resolving Multi-Paradigm Ambiguity in Optimization Problem Solving,2026,2604.20183,,https://arxiv.org/abs/2604.20183,,,CANDIDATO

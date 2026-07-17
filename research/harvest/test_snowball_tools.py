@@ -5,9 +5,9 @@ logic functions imported directly (never the network-fetching subcommands).
 
 Section (1) real-data invariants pin v1_candidates.py's join logic against
 the COMMITTED corpus/sheet/bib — these numbers are measured facts about that
-data, not assumptions (see the module docstrings for why DOI alone is not a
-match signal). Section (2) exercises snowball.py's pure logic against small
-synthetic fixtures.
+data, not assumptions (see v1_candidates.py's module docstring for the
+arXiv-id + GENERAL-DOI match rule). Section (2) exercises snowball.py's pure
+logic against small synthetic fixtures.
 
 All paths are computed relative to this file's own location (never cwd)."""
 
@@ -44,18 +44,26 @@ def _run_v1_candidates(tmp_path):
 
 
 def test_v1_candidates_counts(tmp_path):
+    # MEASURED against the real corpus: GENERAL DOI matching (not just
+    # clawvm2026) also flips aesp2026 CANDIDATO->DECIDIDO-V2 — its bib DOI
+    # 10.2139/ssrn.6478861 is an EXACT hit against corpus record
+    # W7141456824 (same AESP paper, sheet decision EXCLUIR-CE4). A general
+    # full-corpus doi index cannot special-case that away, so the true
+    # decidido/candidato split is 18/9, not 17/10.
     rows = _run_v1_candidates(tmp_path)
     assert len(rows) == 27
 
     decidido = [r for r in rows if r["status"] == "DECIDIDO-V2"]
     candidato = [r for r in rows if r["status"] == "CANDIDATO"]
-    assert len(decidido) == 16
-    assert len(candidato) == 11
+    assert len(decidido) == 18
+    assert len(candidato) == 9
 
     incluir = [r for r in decidido if r["v2_decision"] == "INCLUIR"]
     gris = [r for r in decidido if r["v2_decision"] == "GRIS"]
-    assert len(incluir) == 15
+    excluir_ce4 = [r for r in decidido if r["v2_decision"] == "EXCLUIR-CE4"]
+    assert len(incluir) == 16
     assert len(gris) == 1
+    assert len(excluir_ce4) == 1
 
 
 def test_v1_candidates_sort_order(tmp_path):
@@ -74,8 +82,17 @@ def test_v1_candidates_specific_rows(tmp_path):
     assert rows["prometheus2026"]["v2_decision"] == "GRIS"
     assert rows["prometheus2026"]["status"] == "DECIDIDO-V2"
     assert rows["contextweaver2026"]["status"] == "CANDIDATO"
-    assert rows["aesp2026"]["status"] == "CANDIDATO"
-    assert rows["clawvm2026"]["status"] == "CANDIDATO"
+    # clawvm2026 matches by GENERAL DOI: its corpus record is arXiv-keyed
+    # (2604.10352v1) but carries the identical ACM DOI 10.1145/3805621.3807648
+    assert rows["clawvm2026"]["status"] == "DECIDIDO-V2"
+    assert rows["clawvm2026"]["in_corpus_key"] == "2604.10352v1"
+    assert rows["clawvm2026"]["v2_decision"] == "INCLUIR"
+    # aesp2026 ALSO matches by GENERAL DOI (10.2139/ssrn.6478861 is an exact
+    # hit against corpus record W7141456824, same AESP paper); the sheet
+    # decision for that record is a provisional EXCLUIR-CE4, not INCLUIR
+    assert rows["aesp2026"]["status"] == "DECIDIDO-V2"
+    assert rows["aesp2026"]["in_corpus_key"] == "W7141456824"
+    assert rows["aesp2026"]["v2_decision"] == "EXCLUIR-CE4"
     # method-only entries are never in the output
     assert "petersen2008sms" not in rows
     assert "petersen2015sms" not in rows

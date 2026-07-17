@@ -65,15 +65,12 @@ congelada, vocabularios cerrados, merge idempotente) + `corpus/screening/batches
 5. GATE previo (ya en marcha la 1ª vez): `compare` sobre PREFLIGHT (los 50 congelados, a
    ciegas) — acuerdo colapsado IN/OUT/HUMANO ≥90% o se escala modelo antes de tocar los 1.019.
 
-**CURSOR (2º corte 5h, 2026-07-17 · reset 03:00 America/Santiago):** pre-flight ÁMBAR
-mitigado (2403d68) · PRE-OUT ✅ 73/73 · PRE-IN ✅ COMPLETO 524/524 (97687ba) · rescate
-adversarial PRE-IN ✅ 36/36 CE1 confirmados, 0 flips (dc5bc45; residuo Mem4Nav revisado:
-exclusión robusta vía T=0) · GRIS parcial: c00–c02+c07–c10 fusionados (164, 0 rechazos).
-**Pendiente SOLO GRIS: 331 en 14 chunks (c03–c06, c11–c20) → 2–3 tandas paralelas
-disjuntas · luego `rescue GRIS` (CE1 del estrato, transición única CE1→GRIS) · `queues` ·
-bitácora §8 con: acuerdo pre-flight 90%/88% colapsado (exacto 63–68%, ruido de subtipos),
-0 rechazos del gate en 738 aplicados, ritmo ~1.8–2.6k tok/registro.** Total decididos
-738/1069 · INCLUIR acumulado 320 · GRIS+CE-4p para Catalina 94 (en queues/).
+**PASADA COMPLETA ✅ 2026-07-17 — este handoff está CUMPLIDO.** Los 4 puntos del contrato
+de cierre (§1): (1) hoja 1.069/1.069 ✅ · (2) colas humanas emitidas para Catalina ✅
+(GRIS+CE-4p 131 · muestra-10% 110 · PRE-OUT→INCLUIR 11 — SU verificación sigue ABIERTA,
+es la vía humana del §7.5, no de esta sesión) · (3) artifacts.csv 4→31 ✅ · (4) bitácora
+§8 del protocolo actualizada con números, calidad medida y siguiente fase ✅. Los números
+y el método viven en §8 del protocolo (single-source); la procedencia por lote, en git.
 
 ## 3. El árbol de trabajo (columna vertebral — estado de TODOS los nodos)
 

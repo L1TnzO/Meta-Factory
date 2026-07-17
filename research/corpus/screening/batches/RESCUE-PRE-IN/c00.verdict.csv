@@ -1,0 +1,26 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+020-340-297-038-33X,0,0,1,,0,0,0,EXCLUIR-CE1,"Confirmado: control de vuelo multi-agente con observador de disturbios, sin agentes LLM ni memoria de conocimiento - dominio ajeno, M=0 firme."
+137-549-139-677-726,0,2,1,,1,0,0,EXCLUIR-CE1,"Adversarial: logs de memoria organizados solo dentro de conversaciones multi-turno de OpenDevin, sin artefacto de proyecto persistente cross-sesion - P1 confirmado."
+2503.05193v1,0,0,1,,0,0,0,EXCLUIR-CE1,"MemQ es memoria de trabajo de consultas dentro de una sola pregunta multi-hop de KGQA, sin persistencia cross-tarea; dominio ajeno a SE."
+2507.21428v1,0,1,1,,0,0,0,EXCLUIR-CE1,"MemTool es memoria de CORTO plazo explicita para gestion de herramientas dentro de una conversacion continua (100 interacciones), sin cruce de sesion - P1 confirmado."
+2601.06606v2,0,0,0,,0,0,0,EXCLUIR-CE1,"CEDAR gestiona historial/contexto dentro de una sola tarea de ciencia de datos (Kaggle), demostracion cualitativa sin persistencia cross-tarea."
+2603.11560v3,0,0,1,,0,0,0,EXCLUIR-CE1,"Modelo dinamico de coordinacion multi-agente sin LLM ni SE; 'memoria ambiental' es constructo teorico de sistemas dinamicos, no memoria de agente de software - false-positive confirmado."
+2605.04050v1,0,2,1,,1,0,0,EXCLUIR-CE1,"PDF revisado: el 'immutable store' de LCM persiste solo dentro de UNA sesion (aunque multi-dia), sin reuso declarado entre sesiones/tareas distintas - P1 confirmado pese a comparar con Claude Code."
+2605.24453v1,0,2,1,,1,0,0,EXCLUIR-CE1,"Capa de compactacion de IR determinista y no-LLM, por tarea de diagrama UML; sin mecanismo de memoria ni persistencia cross-tarea."
+2606.10209v1,0,0,1,,0,0,0,EXCLUIR-CE1,Poda/resumen de historial de tool-calls dentro de cada tarea de itemizacion de gastos (50 tareas independientes); sin memoria compartida entre tareas.
+2606.22263v1,0,2,1,,1,0,0,EXCLUIR-CE1,"'Memory safety' se refiere a vulnerabilidades de memoria de PROGRAMA (buffer overflow etc.), no memoria de conocimiento del agente - false-positive confirmado."
+W4386982868,0,0,1,,0,0,0,EXCLUIR-CE1,Estudio de psicologia humana sobre memoria episodica; no involucra agentes de IA en absoluto - fuera de CI-1 confirmado.
+W4394673564,0,0,1,,0,0,0,EXCLUIR-CE1,"Banco de memoria para UN video largo (comprension multimodal); sin evidencia de reuso cross-video/tarea, dominio no-SE."
+W4402502249,0,1,1,,0,0,0,EXCLUIR-CE1,"El propio paper distingue memoria cross-trial (relacionado, no su aporte) de memoria de TRABAJO intra-trial (su aporte real via subobjetivos) - M=0 confirmado sin ambiguedad."
+W4403787978,0,1,0,,1,0,0,EXCLUIR-CE1,"MOSS mantiene variables/contexto Python consistentes dentro de una sesion de evolucion de codigo; sin persistencia declarada entre sesiones, evidencia solo case-studies cualitativos."
+W4405346968,0,0,1,,0,0,0,EXCLUIR-CE1,"Arquitectura hardware Processing-In-Memory para acelerar LLMs; 'memoria' es DRAM de computo, no conocimiento de agente - false-positive confirmado."
+W4414683986,0,0,1,,0,0,0,EXCLUIR-CE1,LTM/STM de Mem4Nav compactan observaciones DENTRO de un mismo episodio de navegacion (octree/grafo del trayecto actual); sin PDF para confirmar reuso cross-episodio - duda razonable pero abstract sugiere intra-episodio (patron VLN estandar); dominio embodied ajeno a SE de todos modos.
+W4415990083,0,2,1,,1,0,0,EXCLUIR-CE1,Comparacion de enmascarado vs resumen LLM DENTRO de un mismo episodio de SWE-bench Verified; sin memoria que cruce instancias - coincide con el ancla CogniGent/LSS pese a senal SE fuerte.
+W4416056003,0,0,1,,0,0,0,EXCLUIR-CE1,"Modulo de memoria tactica preserva variables SOLO dentro de UNA partida de StarCraft II; sin cruce de partida/sesion, dominio RTS ajeno a SE."
+W4416855302,0,2,0,,1,0,0,EXCLUIR-CE1,"Workflow de context engineering (Elicit+NotebookLM+Claude Code) para UN proyecto/codebase; resultados explicitamente cualitativos, sin admision de conocimiento cross-proyecto/sesion."
+W7117632226,0,2,1,,1,0,0,EXCLUIR-CE1,"PDF revisado: 'long-term memory' de CAT es resumen comprimido DENTRO de la trayectoria de UN solo issue de SWE-Bench-Verified (Fig.1 scoped a un issue), sin reuso entre issues/sesiones - P1 confirmado."
+W7117994185,0,1,1,,0,0,0,EXCLUIR-CE1,Estudio HCI de percepciones de usuarios sobre memoria YA EXISTENTE en productos (ChatGPT/Claude); no propone ni evalua un mecanismo propio - CE-1 confirmado (memoria como caja negra).
+W7124118133,0,0,0,,0,0,0,EXCLUIR-CE1,"Duplicado de CEDAR (2601.06606v2): gestion de contexto intra-tarea de ciencia de datos, demostracion cualitativa sin persistencia cross-tarea."
+W7124118353,0,2,1,,1,0,0,EXCLUIR-CE1,"El bloque 'Knowledge' persistente de Focus sobrevive solo DENTRO de cada instancia individual de SWE-bench Lite (N=5, metricas por tarea); sin reuso declarado entre instancias - coincide con el ancla CogniGent."
+W7125978572,0,0,0,,0,0,0,EXCLUIR-CE1,Articulo de perspectiva sobre sinterizado que menciona 'modelos aumentados por memoria' sin describir mecanismo ni evidencia; dominio de materiales ajeno.
+W7126281598,0,0,1,,0,0,0,EXCLUIR-CE1,"Gestion de memoria GPU/VRAM (cache de estado, prefetch/eviction) para servir simulaciones; memoria de INFRAESTRUCTURA de computo, no conocimiento de agente - false-positive confirmado."

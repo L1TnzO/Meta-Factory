@@ -1,0 +1,12 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W7131067977,0,0,1,,0,0,0,EXCLUIR-CE1,"LSTM procesa informacion temporal DENTRO de un episodio de persecucion-evasion de swarms USV; memoria intra-episodio de RNN estandar, dominio naval ajeno a SE."
+W7134961495,0,1,0,,0,0,0,EXCLUIR-CE1,"Ensayo comparativo conceptual prompt-vs-context engineering, sin sistema ni mecanismo de memoria propio, sin evaluacion - CE-1 confirmado."
+W7139145033,0,0,1,,0,0,0,EXCLUIR-CE1,"'Memory-augmented' en MRPO es buffer de replay de entrenamiento RL para escritura creativa, no memoria de conocimiento persistente de agente; dominio ajeno a SE."
+W7149420936,0,1,0,,0,1,0,EXCLUIR-CE1,Sistema LangGraph/LangChain menciona 'memoria de largo plazo' como caja negra sin describir mecanismo write/retrieve/forget; Zenodo sin evaluacion reportada.
+W7152330653,0,1,1,,0,0,0,EXCLUIR-CE1,"PDF revisado: 'Explicit Adaptive Memory Management' de LightThinker++ gestiona trazas de razonamiento DENTRO de una misma tarea agentica larga (>80 rondas, Fig.1 scoped a una pregunta); sin persistencia cross-tarea/sesion."
+W7159892104,0,0,1,,0,0,0,EXCLUIR-CE1,"Gestion de cache KV es memoria de HARDWARE/GPU para servir inferencia a escala, no conocimiento persistente de agente - false-positive confirmado."
+W7160161457,0,0,0,,0,1,0,EXCLUIR-CE1,Manifiesto conceptual sin sistema (detalles bajo NDA/patente); 'memoria holografica' es pilar nominal sin mecanismo ni evidencia - CE-1 confirmado (Zenodo).
+W7162150221,0,0,1,,0,0,0,EXCLUIR-CE1,"'Memory management' es RAM/aislamiento de contenedores via MPK, no conocimiento de agente - false-positive confirmado."
+W7163694174,0,1,0,,0,0,0,EXCLUIR-CE1,AutoContext filtra/resume historial de dialogo dentro de la conversacion (Random Forest+T5); sin metricas reportadas ni persistencia cross-sesion declarada - P1 confirmado.
+W7166654329,0,2,1,,1,0,0,EXCLUIR-CE1,"'Memory management errors' son bugs de memoria de PROGRAMA en C (use-after-free, double-free) reparados por LLMs, no memoria de conocimiento del agente - false-positive de dominio SE distinto."
+W7166684005,0,2,1,,1,0,0,EXCLUIR-CE1,Estudio comparativo de 3 paradigmas de recuperacion de codigo (ICL/analisis-estatico/navegacion) de UN turno sobre un repo fijo; sin write/consolidate/forget ni persistencia evolutiva entre sesiones.

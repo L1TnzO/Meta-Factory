@@ -352,11 +352,17 @@ def test_normalize_title_and_abstract_400():
 # --------------------------------------------------------------------------
 
 def test_real_data_invariant_dry_run():
-    assert not snowball_screen.SHEET.exists()
+    # The sheet is COMMITTED since 2026-07-17 (screening complete) — the old
+    # `not SHEET.exists()` precondition rotted; the live invariants remain:
+    # build_rows is deterministic over committed data, and dry-run never writes.
     rows, v1_premerged = snowball_screen.build_rows()
     assert len(rows) == 1126  # 1117 candidates + 9 v1 (measured, committed data)
     assert v1_premerged == 9
 
+    existed_before = snowball_screen.SHEET.exists()
+    mtime_before = snowball_screen.SHEET.stat().st_mtime_ns if existed_before else None
     rc = snowball_screen.cmd_build(dry_run=True)
     assert rc == 0
-    assert not snowball_screen.SHEET.exists()  # dry-run must not write anything
+    assert snowball_screen.SHEET.exists() == existed_before  # dry-run must not create/delete
+    if existed_before:
+        assert snowball_screen.SHEET.stat().st_mtime_ns == mtime_before  # …nor rewrite

@@ -1,0 +1,26 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W4389524188,0,1,1,,0,0,0,EXCLUIR-CE1,"ByteSized32: GPT-4 genera mundos-texto en Python usando auto-reflexion sobre errores de programa para mejorar ejecutabilidad; reflexion intra-tarea (single-shot) sin persistencia (P1) - M=0, CE1."
+W4389524256,,,,,0,0,0,EXCLUIR-CE4,"Abstract es solo cita de autores/venue (EMNLP 2023 Industry Track), sin contenido; titulo ('On Sample-Efficient Code Generation') no indica mecanismo de memoria - CE-4."
+W4389524286,0,0,1,,0,0,0,EXCLUIR-CE1,NormLens: benchmark multimodal de razonamiento sobre normas de sentido comun anuladas por contexto visual; sin mecanismo de memoria - CE1.
+W4389524566,1,1,1,MULTIAGENTE,0,0,0,GRIS,"Exchange-of-Thought (EoT): comunicacion cross-modelo con 4 paradigmas incluyendo uno llamado 'Memory' (mecanismo potencialmente compartido entre agentes, rama compartida de P1) pero el abstract solo nombra el paradigma sin detallar su mecanismo de almacenamiento/recuperacion - DUDA real, GRIS."
+W4389677587,0,0,1,,0,0,0,EXCLUIR-CE1,"Dataset multimodal de lectura labial sin contacto (RF/visual/audio/laser) para reconocimiento de voz; no trata agentes LLM ni memoria - CE1, fuera de alcance."
+W4389736340,0,0,1,,0,0,0,EXCLUIR-CE1,Simulacion de actividades diarias humanas via aprendizaje por imitacion adversarial guiado por teoria de necesidades de Maslow; no involucra LLM ni mecanismo de memoria - CE1.
+W4389984160,0,0,1,,0,0,0,EXCLUIR-CE1,"Arbol de planificacion de subtareas top-k via representacion discriminativa preentrenada (RL/decision-making, no LLM); sin mecanismo de memoria - CE1."
+W4390011017,,,,,0,0,0,EXCLUIR-CE4,"Abstract insuficiente (solo fragmento de descripcion del dataset), sin PDF; titulo sobre conocimiento de ciencia de materiales en LLMs, no pertinente a memoria - CE-4."
+W4390035079,,,,,0,0,0,CE3-SECUNDARIO,Survey explicito sobre integracion de feedback humano/IA en generacion de lenguaje natural - CE3-SECUNDARIO.
+W4390099597,0,0,1,,0,0,0,EXCLUIR-CE1,"Robot camara interactivo guiado por LLM para planificar trayectorias; dominio robotico, sin mecanismo de memoria persistente - CE1."
+W4390154668,0,0,1,,0,0,0,EXCLUIR-CE1,"Refinamiento iterativo de prompts (por investigadores) para extraer relaciones genicas con ChatGPT; es ajuste manual de prompt, no memoria del agente - CE1."
+W4390188525,0,0,1,,0,0,0,EXCLUIR-CE1,"LLM como agente de andamiaje (scaffolding) para guiar aprendizaje de un robot manipulador; guia via descripciones generadas, sin mecanismo de memoria - CE1."
+W4390298466,0,0,1,,0,0,0,EXCLUIR-CE1,"Inyeccion de informacion en tiempo real desde fuentes externas al prompt para reducir alucinaciones; es recuperacion de datos externos en vivo, no memoria interna del agente - CE1 (M=0)."
+W4395101528,,,,,0,0,0,EXCLUIR-CE5,"Resumen de tutorial de conferencia (IJCNLP-AACL 2023, 'Tutorial Abstract'), no es articulo de investigacion; registro no-estudio - CE5."
+W4400133565,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF; titulo (optimizacion 'Social Collie' para reconocimiento facial) no pertinente a memoria - CE-4."
+W3039695075,0,0,1,,0,0,0,EXCLUIR-CE1,LaBSE: embeddings de oraciones multilingues agnosticos de idioma; sin mecanismo de memoria - CE1.
+W3186804217,3,1,1,RETRIEVAL-MEDIDO;CONSOLIDACION,0,0,0,INCLUIR,"'Beyond Goldfish Memory': dataset+benchmark de conversacion abierta de largo plazo multi-sesion; metodos retrieval-augmented y de resumen/recall de sesiones pasadas (CONSOLIDACION+RETRIEVAL-MEDIDO) superan baselines de codificador-decodificador - memoria persistente cross-sesion, objeto central de medicion (M=3 via P2), mecanismo general transferible (T=1) - INCLUIR (se=0, rama Q2)."
+W3216414477,3,0,1,,0,0,0,EXCLUIR-CE2,"Modelo computacional de memoria episodica generativa (hipocampo/neocortex, VQ-VAE+PixelCNN) evaluado sobre MNIST/Fashion-MNIST; mecanismo de memoria descrito y medido pero dominio es neurociencia computacional, no agentes LLM - CE2, T=0."
+W4220885687,0,0,0,,0,0,0,EXCLUIR-CE1,"Meta-regresion sobre prevalencia de sintomas de salud mental en trabajadores sanitarios durante COVID-19; sin relacion con agentes LLM/memoria - CE1, fuera de alcance."
+W4224308101,0,0,1,,0,0,0,EXCLUIR-CE1,"PaLM: modelo de lenguaje a escala (540B parametros); la 'memorizacion' analizada es memorizacion no intencional de datos de entrenamiento, no mecanismo de memoria agentica - CE1 (M=0)."
+W4281641068,,,,,0,0,0,CE3-SECUNDARIO,Titulo indica survey explicito sobre QA compleja de dominio abierto (area LLM/NLP); abstract vacio pero encuadre de survey claro por titulo - CE3-SECUNDARIO.
+W4281890281,0,0,0,,0,0,0,EXCLUIR-CE1,"Revision bibliometrica de sistemas de gestion de aprendizaje (LMS) en educacion; dominio de tecnologia educativa sin relacion con agentes LLM/memoria - CE1, fuera de alcance."
+W4282934543,0,0,1,,0,0,0,EXCLUIR-CE1,"GeoCube: infraestructura de cubos de datos geoespaciales para observacion terrestre; sin relacion con agentes LLM ni memoria - CE1, fuera de alcance."
+W4283828996,0,0,1,,0,0,0,EXCLUIR-CE1,WebShop: entorno de referencia para agentes de lenguaje en navegacion web de comercio electronico (RL/IL); sin mecanismo de memoria - CE1 (M=0).
+W4285021577,0,0,0,,0,0,0,EXCLUIR-CE1,"Scoping review de herramientas HL7 FHIR para investigacion clinica; dominio de interoperabilidad sanitaria sin relacion con agentes LLM/memoria - CE1, fuera de alcance."

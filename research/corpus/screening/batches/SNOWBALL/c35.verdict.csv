@@ -1,0 +1,26 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W4388430701,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF (has_pdf=0); titulo (datos sinteticos ChatGPT en contabilidad gerencial) claramente no pertinente a memoria/agentes SE - CE-4."
+W4388483618,0,2,0,,0,0,0,EXCLUIR-CE1,"Taxonomia de agentes de testing conversacionales por nivel de autonomia; sin mecanismo de memoria (M=0), solo ejemplo demostrativo no benchmark (E=0) - CE1."
+W4388488609,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF; titulo ('Role play with large language models') no indica claramente mecanismo de memoria persistente - CE-4."
+W4388497533,0,0,0,,0,0,0,EXCLUIR-CE1,Ensayo filosofico/cultural sobre homunculos digitales en metaverso (patrimonio cultural); sin mecanismo de memoria ni evaluacion - CE1.
+W4388499755,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF; titulo indica taxonomia general de sistemas de IA (gobernanza/sociedad), no memoria - CE-4."
+W4388625574,0,0,0,,0,0,0,EXCLUIR-CE1,"Framework propuesto (no implementado/medido) para gestion de incidentes de red asistida por LLM; discusion conceptual, sin mecanismo de memoria - CE1."
+W4388641006,0,0,0,,0,0,0,EXCLUIR-CE1,"Ensayo sobre desafios sociales de la IA (privacidad, sesgo racial, empleo, reconocimiento facial); sin mecanismo de memoria ni agente SE - CE1."
+W4388685628,0,0,1,,0,0,0,EXCLUIR-CE1,"Evaluacion de razonamiento/planificacion de LLMs via Buscaminas (Minesweeper); sin mecanismo de memoria, dominio de puzzles no SE - CE1."
+W4388708748,0,0,1,,0,0,0,EXCLUIR-CE1,Evaluacion psicometrica de inteligencia emocional en LLMs (EQ); sin mecanismo de memoria - CE1.
+W4388731715,0,0,0,,0,0,0,EXCLUIR-CE1,Pedagogia de aprendizaje de ingles (simulacion mental/autorreflexion); no trata IA agentica ni memoria - CE1.
+W4388764341,0,0,1,,0,0,0,EXCLUIR-CE1,"Prediccion de experimentos quimicos (catalisis) via chain-of-thought con GPT-4; sin mecanismo de memoria persistente, dominio quimico no SE - CE1."
+W4388931507,3,0,1,,0,0,0,EXCLUIR-CE2,"Framework EGO (memoria episodica + via semantica + modulo de contexto) para cognicion humana/aprendizaje por refuerzo; mecanismo descrito y medido pero dominio diverge (neurociencia computacional, no agentes LLM/SE) - CE2, T=0."
+W4388944427,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF; titulo ('Research with Subsymbolic AI') vago, no pertinente a memoria - CE-4."
+W4388944546,0,0,0,,0,0,0,EXCLUIR-CE1,Ensayo epistemologico sobre IA subsimbolica en las ciencias; sin mecanismo de memoria ni agente - CE1.
+W4389009485,3,1,1,WRITE;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"Pipeline de creacion de memorias (texto condensado, WRITE) + recuperacion (RETRIEVAL-MEDIDO) para personajes virtuales IA con memoria de largo plazo; fact-checking con GPT-4 mide fidelidad de las respuestas a la memoria recuperada; mecanismo general transferible (T=1) - INCLUIR (M=3 via Q2, se=0)."
+W4389040778,,,,,0,0,0,EXCLUIR-CE4,"Abstract vacio, sin PDF; titulo ('Detecting Dark Patterns Using Generative AI') no pertinente a memoria - CE-4."
+W4389450040,,,,,0,0,0,EXCLUIR-CE5,Front-matter/introduccion de actas de congreso (colocated con ICSS 2023); registro no-estudio - CE5.
+W4389450207,0,0,1,,0,0,0,EXCLUIR-CE1,"Simulacion de comportamiento energetico via personificacion de LLM (framework multiagente para transicion energetica); sin mecanismo de memoria, dominio energetico no SE - CE1."
+W4389518606,0,0,1,,0,0,0,EXCLUIR-CE1,Dataset CRT-QA de razonamiento complejo sobre tablas + metodo ARC; sin mecanismo de memoria - CE1.
+W4389518735,0,0,1,,0,0,0,EXCLUIR-CE1,Generacion de circuitos electronicos desde descripciones en lenguaje natural (benchmarks PINS100/MICRO25); sin mecanismo de memoria - CE1.
+W4389518737,0,0,1,,0,0,0,EXCLUIR-CE1,Evaluacion de razonamiento de LLMs via debate adversarial (defensa de creencias); sin mecanismo de memoria - CE1.
+W4389518780,0,0,1,,0,0,0,EXCLUIR-CE1,Clasificacion few-shot personalizada con descripciones de clase co-autoradas (BYOC); sin mecanismo de memoria - CE1.
+W4389518842,0,0,1,,0,0,0,EXCLUIR-CE1,ASPIRO: verbalizacion estructurada de datos con reprompting guiado por errores de parseo; sin mecanismo de memoria - CE1.
+W4389518895,0,0,1,,0,0,0,EXCLUIR-CE1,"SKR: decide cuando invocar recuperacion externa via autoconocimiento sobre corpus de preguntas fijo; no describe memoria persistente de proyecto (write/consolidate), es augmentacion de recuperacion estatica - CE1 (M=0)."
+W4389518960,0,2,1,,0,0,0,EXCLUIR-CE1,CodeTransOcean: benchmark multilingue de traduccion de codigo; sin mecanismo de memoria (dominio SE pero M=0) - CE1.

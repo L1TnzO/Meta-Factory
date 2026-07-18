@@ -1,0 +1,26 @@
+key,M,T,E,F,se,selfpub,artefacto,decision,notes
+W4389519108,0,0,1,,0,0,0,EXCLUIR-CE1,JEEBench: benchmark de resolucion de problemas STEM (examen IIT JEE-Advanced); sin mecanismo de memoria - CE1.
+W4389519114,0,0,1,,0,0,0,EXCLUIR-CE1,"PreWoMe: 'working memory' es en realidad un scratchpad intra-tarea (presuposiciones extraidas) para responder una sola pregunta de QA de formato largo, no persiste cross-tarea/sesion (P1) - M=0, CE1."
+W4389519189,0,0,1,,0,0,0,EXCLUIR-CE1,BRAINTEASER: benchmark de acertijos de pensamiento lateral; sin mecanismo de memoria - CE1.
+W4389519250,,,,,0,0,0,EXCLUIR-CE4,"Abstract es solo cita de autores/venue (EMNLP System Demonstrations), sin contenido; titulo ('plataforma colaborativa para LLMs aumentados con herramientas') no indica claramente mecanismo de memoria - CE-4."
+W4389519260,0,0,1,,0,0,0,EXCLUIR-CE1,"RL offline (VaRMI) para consistencia de persona en agentes de dialogo; es entrenamiento de politica de recompensas, no mecanismo de memoria (almacenamiento/recuperacion) - CE1."
+W4389519442,0,0,1,,0,0,0,EXCLUIR-CE1,Humanoid Agents: plataforma de simulacion sobre Generative Agents que anade necesidades basicas/emocion/cercania (System 1); el abstract no describe mecanismo de memoria explicito - CE1 (M=0).
+W4389519465,0,0,1,,0,0,0,EXCLUIR-CE1,XoT: framework de razonamiento matematico que alterna entre metodos de prompting (CoT/PoT); sin mecanismo de memoria - CE1.
+W4389519488,0,0,1,,0,0,0,EXCLUIR-CE1,"Character-LLM: entrena (fine-tuning) un agente con perfil/experiencia de un personaje especifico; es edicion parametrica de pesos, no memoria externa en tiempo de ejecucion - CE1 (M=0)."
+W4389519896,0,0,1,,0,0,0,EXCLUIR-CE1,"AutoPlan: refina el plan de la tarea de forma iterativa mediante recoleccion de experiencia y reflexion dentro de la MISMA tarea (ALFWorld/HotpotQA); reflexion intra-tarea sin persistencia cross-tarea (P1) - M=0, CE1."
+W4389520003,0,0,1,,0,0,0,EXCLUIR-CE1,Seleccion automatica de modelo de razonamiento (CoT vs PAL); sin mecanismo de memoria - CE1.
+W4389520177,,,,,0,0,0,CE3-SECUNDARIO,Vision paper que resena agentes LLM autonomos empresariales (composicion de herramientas) y desafios abiertos; caracter de survey/posicion explicito ('surveys some of the recent efforts') - CE3-SECUNDARIO.
+W4389520250,0,0,1,,0,0,0,EXCLUIR-CE1,"Agente zero-shot para control de computadora (MiniWoB++) via reflexion estructurada; auto-reflexion y gestion de pensamiento son intra-tarea (P1), sin memoria persistente cross-tarea - M=0, CE1."
+W4389520333,0,0,1,,0,0,0,EXCLUIR-CE1,Deteccion de errores factuales via contra-examen entre dos LMs (interaccion multi-turno dentro de una evaluacion); sin memoria persistente - CE1.
+W4389520334,3,1,1,WRITE;RETRIEVAL-MEDIDO;NEGATIVO,0,0,0,INCLUIR,"SALAM: agente auxiliar recolecta errores del LLM principal en 'mistake memory' (WRITE; NEGATIVO sentido-a: almacena fracasos) y recupera casos relevantes en fase de examen para evitar errores futuros (RETRIEVAL-MEDIDO); mecanismo general transferible (T=1), mejora medida hasta 12.6pp en BBQ - INCLUIR (M=3 via Q2, se=0)."
+W4389520676,0,0,1,,0,0,0,EXCLUIR-CE1,MAF: framework de refinamiento iterativo con multiples modulos de feedback por instancia; sin memoria persistente cross-tarea - CE1.
+W4389520695,0,2,1,,0,0,0,EXCLUIR-CE1,Destilacion personalizada maestro-alumno para generacion de codigo (HumanEval); sin mecanismo de memoria (dominio SE pero M=0) - CE1.
+W4389523706,0,0,1,,0,0,0,EXCLUIR-CE1,"LLMs se auto-mejoran via fine-tuning con racionalizaciones auto-generadas (CoT+self-consistency); ajuste parametrico, no memoria externa - CE1."
+W4389523720,3,1,1,WRITE;RETRIEVAL-MEDIDO,0,0,0,INCLUIR,"ExpNote: LLM de caja negra reflexiona y anota experiencias en 'experience notebook' (memoria externa, WRITE) durante entrenamiento, recuperadas en test (RETRIEVAL-MEDIDO) para adaptarse a tareas nuevas; mecanismo general transferible (T=1), mejora medida en multiples tareas - INCLUIR (M=3 via Q2, se=0)."
+W4389523807,0,0,1,,0,0,0,EXCLUIR-CE1,MCR: meta-razonamiento sobre multiples cadenas de pensamiento dentro de una sola pregunta multi-hop; sin memoria persistente - CE1.
+W4389523833,0,0,1,,0,0,0,EXCLUIR-CE1,"BioPlanner: evaluacion automatica de planificacion de protocolos biologicos por LLMs; sin mecanismo de memoria, dominio biologico no SE - CE1."
+W4389523853,0,0,1,,0,0,0,EXCLUIR-CE1,Cross-lingual prompting para CoT zero-shot multilingue; sin mecanismo de memoria - CE1.
+W4389523910,0,0,1,,0,0,0,EXCLUIR-CE1,Alineacion de incertidumbre predictiva con preguntas de clarificacion en dialogo fundamentado (Minecraft Collaborative Building); sin mecanismo de memoria persistente - CE1.
+W4389524025,,,,,0,0,0,EXCLUIR-CE4,"Abstract es solo cita de autores/venue (EMNLP 2023), sin contenido; titulo ('Exploring the Boundaries of GPT-4 in Radiology') no pertinente a memoria - CE-4."
+W4389524052,,,,,0,0,0,EXCLUIR-CE4,"Abstract es solo cita de autores/venue (EMNLP 2023), sin contenido; titulo ('Tailored Learning from Large Language Model') no indica claramente mecanismo de memoria - CE-4."
+W4389524065,0,0,1,,0,0,0,EXCLUIR-CE1,"CogTree: arbol cognitivo (sistema intuitivo+reflexivo) para razonamiento con LMs pequenos, busqueda en tiempo de inferencia por consulta; sin memoria persistente cross-tarea - CE1."

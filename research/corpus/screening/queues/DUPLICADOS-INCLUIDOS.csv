@@ -1,0 +1,8 @@
+key_a,key_b,similarity,kind,title_a,title_b,year_a,year_b,source_a,source_b
+W4400434708,W4414360988,1.0,IDENTICO,AriGraph: Learning Knowledge Graph World Models with Episodic Memory for LLM Agents,AriGraph: Learning Knowledge Graph World Models with Episodic Memory for LLM Agents,2024,2025,main,snowball
+W4415428439,W4416895257,1.0,IDENTICO,Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory,Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory,2025,2025,snowball,main
+W7118792438,W7119235481,1.0,IDENTICO,MAGMA: A Multi-Graph based Agentic Memory Architecture for AI Agents,MAGMA: A Multi-Graph based Agentic Memory Architecture for AI Agents,2026,2026,snowball,main
+2409.01344v2,W4402954570,0.975,PREFIJO,Pairing Analogy-Augmented Generation with Procedural Memory for Procedural Q&A,Pairing Analogy-Augmented Generation with Procedural Memory for Procedural Q&amp;A,2024,2024,main,main
+W7141308334,W7147524247,0.78,PREFIJO,SNT-MEM: Operator-Structured Memory Management Framework,SNT-MEM: Operator-Structured Memory Management Framework For Self-Regulating AI Systems,2026,2026,main,main
+W7143504131,W7161916763,0.205,PREFIJO,MemRepair,MemRepair: Hierarchical Memory for Agentic Repository-Level Vulnerability Repair,2026,2026,main,main
+W4417452330,W7166866500,0.851,SIMILAR,"Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects","Hindsight: Structured Agent Memory that Retains, Recalls, and Reflects",2025,2026,main,main

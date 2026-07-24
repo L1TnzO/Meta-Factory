@@ -18,6 +18,8 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
 
@@ -555,30 +557,38 @@ exactamente esos tres riesgos, y el corpus los cubre de forma desigual.
 \subsection{Facetas transversales y lente de decisión}
 \label{sec:res-facets}
 
-La tabla~\ref{tab:facetas} ordena las diez facetas por prevalencia confirmada contra el texto
+La figura~\ref{fig:facetas} ordena las diez facetas por prevalencia confirmada contra el texto
 completo. La lectura importante es el extremo inferior, no el superior.
 
-\begin{table}[!t]
-\caption{Prevalencia confirmada de las facetas ($n=\clCarAnalizados$)}
-\label{tab:facetas}
+\begin{figure}[!t]
 \centering
-\begin{tabularx}{\columnwidth}{Xr}
-\toprule
-\textbf{Faceta} & \textbf{n} \\
-\midrule
-Recuperación medida            & \clMFretrievalMedido \\
-Política de escritura          & \clMFwrite \\
-Fidelidad y procedencia        & \clMFfidelidad \\
-Costo y presupuesto de contexto& \clMFcosto \\
-Consolidación y olvido         & \clMFconsolidacion \\
-Conocimiento negativo          & \clMFnegativo \\
-Memoria compartida multi-agente& \clMFmultiagente \\
-Memoria procedimental          & \clMFprocedimental \\
-Seguridad de la memoria        & \clMFseguridadFaceta \\
-Documentos versionados         & \clMFdocsVersionado \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, width=0.80\columnwidth, height=6.2cm,
+  xlabel={estudios (de \clCarAnalizados)},
+  xmin=0, xmax=380,
+  bar width=6pt,
+  enlarge y limits=0.06,
+  ytick=data, yticklabel style={font=\scriptsize},
+  xticklabel style={font=\scriptsize}, xlabel style={font=\scriptsize},
+  nodes near coords, nodes near coords style={font=\tiny},
+  symbolic y coords={Doc. versionados,Seguridad,Procedimental,Multi-agente,
+                     Conoc. negativo,Consolidación,Costo,Fidelidad,Escritura,Recup. medida},
+  axis lines*=left, tick style={draw=none},
+]
+\addplot[fill=black!72, draw=none] coordinates {
+  (\clMFdocsVersionado,Doc. versionados) (\clMFseguridadFaceta,Seguridad)
+  (\clMFprocedimental,Procedimental) (\clMFmultiagente,Multi-agente)
+  (\clMFnegativo,Conoc. negativo) (\clMFconsolidacion,Consolidación)
+  (\clMFcosto,Costo) (\clMFfidelidad,Fidelidad)
+  (\clMFwrite,Escritura) (\clMFretrievalMedido,Recup. medida)};
+\end{axis}
+\end{tikzpicture}
+\caption{Prevalencia confirmada de las diez facetas contra el texto completo. Las barras se dibujan
+desde las mismas macros re-derivadas del corpus que usa el texto: la figura no puede discrepar de la
+prosa.}
+\label{fig:facetas}
+\end{figure}
 
 La síntesis produjo \clMFentradas{} mapeos entre un estudio y una decisión de diseño concreta:
 \clMFconfirma{} la confirman, \clMFextiende{} la extienden, \clMFneutral{} son neutrales y

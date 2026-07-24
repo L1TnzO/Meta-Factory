@@ -716,6 +716,52 @@ permite verificar que el documento analizado es el mismo sin redistribuirlo.
 \section{Conclusiones}
 \label{sec:conclusions}
 
+%%CLAIMS-STRICT
+Este mapeo caracterizó \clCarAnalizados{} estudios sobre memoria persistente en agentes basados en
+modelos de lenguaje, seleccionados de \clSelUnicos{} registros mediante una rúbrica congelada y
+analizados contra su texto completo. Cuatro conclusiones se sostienen sobre esa base.
+
+\textbf{El objeto de estudio se desplazó y el vocabulario no lo siguió.} El alcance dominante ya es
+el proyecto (\clRQcuatroProyecto{} estudios) y el traspaso explícito entre sesiones es norma
+(\clRQcuatroHandoffPct{}\,\%), pero la literatura sigue llamando «memoria» tanto a eso como al manejo
+de la ventana de contexto dentro de una tarea. La distinción persistente-o-compartido frente a
+intra-tarea no es purismo terminológico: separa mecanismos con propiedades de verificación y costo
+incompatibles.
+
+\textbf{El disparo de escritura ya se resolvió, y no como suele suponerse.} Entre los estudios que
+declaran qué dispara la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional.
+Un sistema que deje esa decisión al criterio del modelo está adoptando la posición minoritaria y
+debería justificarlo.
+
+\textbf{La recuperación medida es el frente abierto, y su evidencia está en disputa.} De las
+\clMFrefuta{} refutaciones que el corpus opone a decisiones de diseño concretas,
+\clMFrefutaGMdosPct{}\,\% apuntan aquí, y se reparten casi por igual entre las que miden que añadir
+una capa de recuperación no ayuda (\clGMdosMenos{}) y las que miden que la similitud pura es
+insuficiente (\clGMdosMas{}). La lectura útil no es cuál bando gana sino que la pregunta estaba mal
+planteada: decidir \emph{si} recuperar y decidir \emph{con qué mecanismo} son decisiones distintas,
+con condiciones de validez distintas y comprobables.
+
+\textbf{El campo mide si la memoria funciona, no si evita repetir errores.} La evidencia causal es
+sólida (\clRQcincoAblationPct{}\,\% con ablation), pero las métricas de iteración aparecen en
+\clRQcincoMetricaIteracionPct{}\,\% de los estudios y la seguridad de la memoria en
+\clRQseisSeguridadPct{}\,\%. Para un agente que opera durante meses, ésas son precisamente las dos
+dimensiones en las que fallará.
+
+El vacío más nítido del mapa es la memoria como \emph{documentos versionados}
+(\clMFdocsVersionado{} estudios, \clMFdocsVersionadoPct{}\,\%): el sustrato más barato de auditar, de
+versionar y de verificar es el menos estudiado. Junto con el conocimiento negativo con método y las
+métricas de iteración, define una agenda concreta de trabajo futuro.
+
+Como aporte metodológico, el estudio muestra que un corpus de este tamaño puede clasificarse con
+asistencia de modelos de lenguaje sin renunciar a la verificabilidad, siempre que cada decisión
+delegada esté acotada por una compuerta determinista, que se distinga explícitamente lo que decide
+la máquina de lo que decide un modelo y de lo que decide una persona, y que las cifras del informe
+se re-deriven del corpus en cada compilación en vez de copiarse. Queda como límite honesto —y como
+la línea de trabajo inmediata— que la verificación humana se aplicó sobre los bordes y no sobre el
+corpus completo, y que una réplica verdaderamente independiente exigiría revisores ajenos al equipo
+que tomó las decisiones bajo examen.
+%%CLAIMS-STRICT-END
+
 % =====================================================================================
 \bibliographystyle{IEEEtran}
 \bibliography{sms-v2}

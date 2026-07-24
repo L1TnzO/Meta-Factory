@@ -331,3 +331,108 @@ Para cada INCLUIDO, una fila (alimenta la digestión §7.4 y responde RQ1–RQ7)
 - **DIGESTIÓN §7.4 COMPLETA (2026-07-24, sesión S2 mecánica, Sonnet, `claude --model sonnet --agent orchestrator`).** Las 24 olas restantes (`sms-digest-wave2`→`wave25`, 2–3 chunks/12–18 papers cada una salvo la final `d71`=2 papers) ejecutadas por el mismo patrón verify-not-review de la extracción, un nivel abajo: manifest (`allow_globs`=los `d<NN>.verdict.jsonl` de la ola) → `generator` (Sonnet, PDFs vía `pdftotext … | head -c`, checkpoint gate por chunk ANTES de abrir el siguiente input) → gate de ola (`verify_digest_verdicts.py --require d<NN>,…`) → `slot_footprint --live` (footprint⊆contrato) → commit → `clear_slot`. **TRES cortes de límite de sesión atravesados sin pérdida** (waves 9, 15, 22 — el checkpoint por chunk es la unidad mínima recuperable; el reintento fresco retomó SOLO el/los chunk(s) faltante(s) del mismo slot, exactamente como en la extracción). **Resultado: 71/71 chunks, 422/422 papers digeridos** — gate completo `verify_digest_verdicts.py` (sin `--require`, barre todos los `d*.verdict.jsonl`) 71/71 PASS; `make_digest_sheet.py merge` → `corpus/digestion/digest.jsonl` (422 registros) escrito SIN rechazos (el merge aborta sin escribir si algún registro es inválido — cero lo fueron). **Agregados medidos sobre los 422 (nunca antes vistos hasta el merge):** `RECONSIDERAR` en `notes` **83** (19,7% — venues autopublicados/sin revisión, evidencia solo cualitativa, contradicciones internas abstract-vs-tablas, o meta-comentario de asistente-LLM colado en vez de resultados reales — cola humana de Catalina, no descarte automático); posturas `mf_aplicabilidad` (966 entradas totales): CONFIRMA 539 · EXTIENDE 482 · NEUTRAL 154 · **REFUTA 64** (la señal de más valor), por ancla: `G-M2` 23 · `NEGATIVO` 10 · `FIDELIDAD` 7 · `CONSOLIDACION` 6 · `TIER-INDICE` 6 · `COSTURAS` 3 · `COSTO` 3 · `TIER-DOCS` 3 · `G-M1` 2 · `PLAN-ESTADO` 1. **Lectura:** `G-M2` (retrieval medido) concentra más de un tercio de todo `REFUTA` — el corpus mide sistemáticamente casos donde retrieval por similitud/embeddings puro pierde contra retrieval híbrido, agéntico-multi-hop, o baselines de contexto largo/sin memoria; es la tensión más citada contra ADR-019 en todo el digest y probablemente el hallazgo central a escribir en el SMS. Costo medido: ≈7,5M tok Sonnet en 24 spawns (waves 2–25, incl. 3 resumes tras corte de sesión) para los 416 papers de esta sesión (~18k tok/paper, consistente con el ~20k/paper de la extracción) + ~152k tok de la ola 1 (sesión previa, 6 papers) → **≈7,66M tok Sonnet totales para los 422 papers digeridos**. Límite honesto idéntico a la extracción: un solo digestor-modelo por fila; el gate ata identidad/facetas/forma/vocabulario, NO la calidad de la prosa ni la corrección del número — groundedness verificada por muestreo SOLO en la ola 1 (3/3 CONFIRMED contra PDF), no censal; la verificación humana de prosa/números y la resolución de los 83 `RECONSIDERAR` quedan en las colas de Catalina.
 - **Siguiente fase:** `digest.jsonl` YA alimenta el prototipo (destino del corpus cumplido) → verificación humana de colas (Catalina: 131 GRIS/CE-4p + 110 muestra + 11 PRE-OUT + 61 SNOWBALL-GRIS + 98 SNOWBALL-SAMPLE10 + 33 RECONSIDERAR de extracción + 83 RECONSIDERAR de digestión + 7 DUPLICADOS-INCLUIDOS) · rescate manual de los 65 sin PDF · promover faceta `PLAN-ESTADO` (constante + anotación; capturada ya en la columna `plan_estado` del formulario) · cosecha gris (§6) · **escritura SMS v2** (con prioridad para los 64 `REFUTA`, concentrados en `G-M2`).
 
+
+---
+
+## 9. Ley de cierre (CONGELADA 2026-07-24) — colas, corpus y escritura
+
+> Qué cierra: las fases que quedaban tras la digestión (§7.4 COMPLETA) — verificación de colas, cierre de
+> corpus, literatura gris y **escritura del SMS v2**. Autoridad de vocabulario: `harvest/closure_law.py`
+> (ley single-source, importa `screening_pass` y `extraction_law`); contratos de delegación en
+> `corpus/spi/PROMPT.md` y `corpus/grey/PROMPT.md`.
+
+### 9.1 Segunda pasada independiente (SPI) — qué reemplaza y qué NO
+
+La regla congelada §7.5 («toda decisión de borde es SIEMPRE humana») **no se deroga: se antecede**. La SPI es
+un **segundo revisor-modelo INDEPENDIENTE y CIEGO** que aplica la MISMA rúbrica congelada sin ver la decisión
+de la pasada 1. Su producto no es «la decisión humana», sino dos cosas que hoy faltan:
+
+1. **Una medición de fiabilidad** — acuerdo bruto + Cohen κ sobre los estratos-muestra. Hoy el protocolo
+   declara «un solo cribador-modelo por registro» como límite honesto; la SPI lo convierte en número.
+2. **Una reducción del borde** — donde ambas pasadas COINCIDEN la decisión queda CONSOLIDADA; donde
+   DISCREPAN, la fila cae en `corpus/spi/queues/CONFLICTOS.csv`, y **ése**, mucho más chico, es el queue
+   humano real de la ingeniera.
+
+**Etiqueta honesta OBLIGATORIA en el SMS** (sin ella el número de acuerdo es fraude metodológico): *«dos
+revisores-MODELO independientes, no dos humanos; la adjudicación humana se aplicó sólo sobre los conflictos»*.
+
+**Ceguera con diente.** El input de la SPI lleva `key · title · abstract · (texto de PDF si existe)` y NUNCA
+`decision`/`M`/`T`/`E`/`notes`/`triage` de la pasada 1. No es una promesa del prompt: el builder no copia esas
+columnas y el gate verifica que el input no las contenga (test de ceguera; si aparecen → RED).
+
+**Alcance (534 filas):** GRIS 131 · SNOWBALL-GRIS 61 · MUESTRA-10PCT 110 · SNOWBALL-SAMPLE10 98 ·
+PRE-OUT-RESCATADOS 11 · RECONSIDERAR-extracción 33 · RECONSIDERAR-digestión 83 · DUPLICADOS 7.
+
+**Sub-ley por tipo de cola** (no todas hacen lo mismo, y confundirlas invalida κ):
+
+| Tipo | Estratos | Qué hace la SPI | ¿κ? |
+| --- | --- | --- | --- |
+| **VERIFICACIÓN** | MUESTRA-10PCT, SNOWBALL-SAMPLE10 | re-decide a ciegas filas que YA tienen decisión firme | **SÍ** — dos veredictos sobre la misma población |
+| **ADJUDICACIÓN** | GRIS, SNOWBALL-GRIS, PRE-OUT-RESCATADOS | decide filas SIN decisión firme (la pasada 1 se abstuvo) | NO — no hay dos decisiones que comparar |
+| **CALIDAD** | RECONSIDERAR (extracción, digestión) | juzga la CONFIANZA del registro, no su membresía | NO — vocabulario distinto (§9.2) |
+| **IDENTIDAD** | DUPLICADOS | decide si dos filas son el mismo estudio | NO |
+
+κ se computa **sólo sobre VERIFICACIÓN**. Reportar un κ que mezcle estratos donde la pasada 1 no emitió
+decisión es inflarlo por construcción.
+
+### 9.2 Vocabulario de la SPI (cerrado)
+
+- **Membresía** (VERIFICACIÓN, ADJUDICACIÓN): reutiliza `DECISIONS` de `screening_pass.py` — single-source,
+  sin vocabulario nuevo. `GRIS` sólo es emitible en el estrato ADJUDICACIÓN y significa `GRIS-PERSISTE`
+  («ni con el PDF a la vista se decide») → va directo a conflicto humano.
+- **Calidad** (RECONSIDERAR): `CONFIRMA-RECONSIDERAR` (la señal de baja confianza es real; el registro se
+  marca, no se borra) · `DESCARTA-RECONSIDERAR` (falsa alarma; registro sano) · `DEGRADAR` (bajo texto
+  completo el paper falla CI/CE y no debió incluirse → sale del digest CON procedencia).
+- **Identidad** (DUPLICADOS): `FUSIONAR` (mismo estudio; se declara la key canónica) · `DISTINTOS`
+  (companion papers legítimos).
+- Toda emisión distinta de `DESCARTA-RECONSIDERAR` exige `evidencia` con **ancla verificable** (sección,
+  tabla o línea del PDF). Sin ancla → RECHAZO del gate.
+
+### 9.3 Cierre de corpus
+
+- Los 65 `pdf_status=missing` se re-intentan **con red disponible** (residual §8 levantado en la sesión
+  2026-07-24). Lo rescatado entra a extracción + digestión por los MISMOS chunks y gates congelados
+  (§7.6/§7.4). Lo que siga sin PDF queda `missing` y se reporta como **cobertura MEDIDA**, no como silencio.
+- Filas que la SPI mueva a `INCLUIR` entran igual al pipeline; filas `DEGRADAR` salen del digest y quedan
+  registradas en `corpus/spi/queues/DEGRADADOS.csv`. **Nunca se borra una fila: la procedencia es corpus.**
+- **Regla de congelación:** ninguna corrección re-escribe un `e<NN>`/`d<NN>.verdict.jsonl` existente; los
+  añadidos van a chunks NUEVOS (`e72+`, `d72+`). `merge` es la única operación que re-escribe la hoja final.
+
+### 9.4 Literatura gris (RQ7) — hoy sin corpus
+
+RQ7 es la única pregunta **sin un solo registro**: la cosecha §6 nunca se ejecutó. Corpus propio en
+`corpus/grey/` con `manifest.csv` (`key · org · title · url · doc_type · retrieved_at · sha256 · path`) y
+**snapshot inmutable** del documento (los blogs mutan, §6.3). No entra al dedup académico ni a los
+denominadores del diagrama de selección — se digiere con la MISMA lente MF (`mf_aplicabilidad`) y responde
+SÓLO RQ7, declarado como tal. Gate: cada fila del manifest tiene archivo en disco cuyo sha256 coincide.
+
+### 9.5 Escritura con números-como-código (la ley anti-invención)
+
+**Ningún número del SMS v2 se escribe a mano.** Todo dato cuantitativo vive en `sms-v2/claims.yml`:
+`id · pregunta · derivacion` (expresión Python sobre los artefactos committeados) `· unidad · glosa`. El gate
+`verify_sms_claims.py` re-deriva TODAS las claims desde el corpus y emite `sms-v2/claims.tex`
+(`\newcommand{\clID}{valor}`); el `.tex` usa la macro, jamás el literal. **Un número del paper que ya no se
+deriva del corpus deja de compilar el paper.**
+
+Dientes (two-sided, cada uno con su prueba de sabotaje):
+
+1. derivación que no corre, o valor que cambió sin re-emitir `claims.tex` → RED;
+2. macro `\cl…` usada y no definida → RED;
+3. claim definida y jamás usada (claim muerta = número huérfano) → RED;
+4. **dígito literal** dentro de una sección marcada `%%CLAIMS-STRICT` (Resultados/Análisis) fuera de la
+   whitelist (años 19xx/20xx, «RQ<n>», «§<n>», nombres propios tipo GPT-4) → RED;
+5. `\cite{k}` cuya key no existe en `sms-v2.bib`, o cuya entrada no mapea a una key del corpus → RED.
+
+La **bibliografía se GENERA** del corpus (`make_bib.py` sobre `corpus/merged/corpus.jsonl` + snowball + grey),
+no se escribe: si la key no está en el corpus no hay entrada `.bib` y el gate cae. **Una cita alucinada es
+imposible por construcción** — que es exactamente lo que la guía del informe final exige («nunca inventes
+datos, métricas ni citas») convertido en máquina en vez de en promesa.
+
+**Límite honesto:** el gate ata NÚMEROS, CITAS y TRAZA; **no ata la interpretación en prosa**. La lectura de
+los resultados la revisa la ingeniera — ése es el residuo irreducible, y se declara como tal.
+
+### 9.6 Destino académico
+
+El SMS v2 sustituye la evidencia v1 (27 estudios) en `Anteproyecto_ID.tex` §2.4 «Evidencia del mapeo
+sistemático» y en el Anexo de trazabilidad. La propagación es un acto explícito y ÚLTIMO —después de que el
+gate de claims esté verde— y viaja con números re-derivados, no copiados a mano.

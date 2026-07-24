@@ -79,7 +79,30 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Rescate de PDFs | 🔄 en slot | ≥9 verificados, gate verde |
 | Paper: conclusiones + resumen estructurado + 24 citas ejemplares | ✅ | `sms-v2/sms-v2.pdf` compila con bibliografía IEEE |
 | **Propagación al anteproyecto** | ✅ | `../../Investigación/Anteproyecto_ID.tex` (§2.1, §2.4, §2.5, Anexo E, resumen y justificación) |
+| Rescate de PDFs | ✅ 9/65 + frontera medida | `harvest/rescue_pdfs.py`, gate verde, footprint OK |
 | SPI (ejecución) · gris · RQ7 · §4.7 | 🔄 slot `sms-spi-grey-toolkit` | — |
+
+### Correcciones que esta sesión hizo al leer en vez de contar
+
+Tres afirmaciones heredadas o propias no sobrevivieron a la verificación. Las tres se corrigieron en
+el paper Y en el anteproyecto, y las tres tienen la misma forma: **un agregado correcto leído como
+una afirmación que no se sigue de él.**
+
+1. **«El corpus refuta ADR-019»** (bitácora de la digestión). Falso. Las 23 refutaciones sobre G-M2
+   van en dos direcciones casi empatadas (10 «menos maquinaria» / 11 «más maquinaria» / 2 calidad).
+   El hallazgo es que la evidencia está en disputa y que eran DOS decisiones.
+2. **«La hibridación confirma a mayor escala el hallazgo del v1»** (escrito por mí). Falso: el v1
+   reportó 92,6\% sobre 27 estudios; medido sobre 422 da 51,9\% (60,5\% sobre el denominador
+   honesto). No replica, y la explicación plausible —efecto de selección de los corpus pequeños— es
+   un resultado metodológico propio.
+3. **«90,5\% usa disparador no discrecional frente a 84 que lo dejan al modelo»** (escrito por mí).
+   Impreciso: campos multi-etiqueta. Por exclusividad, sólo 34 (9,5\%) confían la escritura
+   únicamente al modelo, y 50 combinan ambos registros. La lectura correcta es más interesante: la
+   práctica mayoritaria no es prescindir de la discreción sino **acotarla**.
+
+> **Regla operativa que queda:** en campos multi-etiqueta, «cuántos mencionan X» y «cuántos usan
+> SÓLO X» son afirmaciones distintas; contar la primera y redactar la segunda es el error fácil.
+> Y ningún agregado sustituye a leer la muestra que lo sostiene.
 
 **Propagación (§9.6) — hecha con números VIVOS, no copiados.** `sms-v2/claims.tex` se copia a
 `Investigación/sms-v2-claims.tex` y el anteproyecto lo hace `\input`: las mismas macros `\cl…`, una

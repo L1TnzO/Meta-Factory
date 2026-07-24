@@ -74,11 +74,67 @@ def check_chunk(inp: Path, verdict: Path, kind: str, errors: list[str]) -> int:
     return len(rows)
 
 
+def check_inputs() -> int:
+    """Judge the built inputs on their own: every queue chunked, every row present exactly once, and
+    NO pass-1 output column anywhere. Blindness has to be checkable before the reading starts — after
+    the fact it is unfixable, because a contaminated verdict cannot be un-contaminated."""
+    errors: list[str] = []
+    if not BATCHES.exists():
+        print(f"RED: no batches directory at {BATCHES}")
+        return 1
+
+    from closure_law import queue_members  # local import: keeps the module cheap for the verdict path
+
+    for name in QUEUES:
+        qdir = BATCHES / name
+        expected = {r["key"] for r in queue_members(name) if "key" in r}
+        if not expected:                      # DUPLICADOS keys live in key_a/key_b
+            expected = {r["key_a"] for r in queue_members(name)}
+        if not qdir.exists():
+            errors.append(f"{name}: queue has no batches directory (all {len(expected)} rows unbuilt)")
+            continue
+        seen: list[str] = []
+        for inp in sorted(qdir.glob("*.input.jsonl")):
+            try:
+                rows = read_jsonl(inp)
+            except ValueError as exc:
+                errors.append(str(exc))
+                continue
+            leaked = sorted({c for r in rows for c in r if c in BLIND_FORBIDDEN})
+            if leaked:
+                errors.append(f"{inp.name}: BLINDNESS BROKEN — carries pass-1 column(s) {leaked}")
+            seen.extend(r.get("key", "?") for r in rows)
+        if len(seen) != len(set(seen)):
+            errors.append(f"{name}: a key appears in more than one chunk")
+        missing, extra = expected - set(seen), set(seen) - expected
+        if missing:
+            errors.append(f"{name}: {len(missing)} row(s) of the queue were never chunked "
+                          f"e.g. {sorted(missing)[:3]}")
+        if extra:
+            errors.append(f"{name}: {len(extra)} key(s) not in the queue were smuggled in "
+                          f"e.g. {sorted(extra)[:3]}")
+
+    for e in errors:
+        print(f"RED: {e}")
+    if errors:
+        print(f"SPI INPUTS: RED — {len(errors)} problem(s)")
+        return 1
+    total = sum(len(read_jsonl(p)) for q in QUEUES for p in (BATCHES / q).glob("*.input.jsonl"))
+    print(f"SPI INPUTS: PASS — {len(QUEUES)} queue(s) fully chunked, {total} row(s), no pass-1 leakage")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--require", default="", help="comma-separated chunk ids that MUST exist and pass")
+    ap.add_argument("--inputs-only", action="store_true",
+                    help="judge the BUILT INPUTS alone (blindness + full queue coverage), before any "
+                         "verdict exists — this is what makes the builder verifiable by blocking")
     args = ap.parse_args()
     required = {c.strip() for c in args.require.split(",") if c.strip()}
+
+    if args.inputs_only:
+        return check_inputs()
 
     errors: list[str] = []
     seen: set[str] = set()

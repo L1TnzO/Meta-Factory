@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -402,45 +402,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 48--49
 \T1/ptm/m/n/8 cryptographically-verified me-mory trans-fer across he-te-ro-ge-neo-us
  []
 
-
-! LaTeX Error: Unicode character 邓 (U+9093)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.90 邓
-        有旺, ``Entity-collision: A stratified protocol for attributing re...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-! LaTeX Error: Unicode character 有 (U+6709)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.90 邓有
-           旺, ``Entity-collision: A stratified protocol for attributing re...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-! LaTeX Error: Unicode character 旺 (U+65FA)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.90 邓有旺
-              , ``Entity-collision: A stratified protocol for attributing re...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
 )
 
 ** Conference Paper **
@@ -471,15 +432,15 @@ Package rerunfilecheck Info: File `sms-v2.out' has not changed.
 (rerunfilecheck)             Checksum: 1245C5CF8245BF60766B23F81206543A;8278.
  ) 
 Here is how much of TeX's memory you used:
- 12336 strings out of 469140
- 195100 string characters out of 5459681
+ 12333 strings out of 469140
+ 195082 string characters out of 5459681
  643779 words of memory out of 5000000
- 41119 multiletter control sequences out of 15000+600000
+ 41116 multiletter control sequences out of 15000+600000
  741832 words of font info for 155 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  74i,9n,79p,424b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sms-v2.pdf (8 pages, 151688 bytes).
+Output written on sms-v2.pdf (8 pages, 151689 bytes).
 PDF statistics:
  319 PDF objects out of 1000 (max. 8388607)
  288 compressed objects within 3 object streams

@@ -57,6 +57,26 @@ def escape(text: str) -> str:
     return " ".join(text.split())
 
 
+NON_LATIN = re.compile(r"[^\x00-\x7F\u00C0-\u024F\u2010-\u2019\s]")
+
+
+def digest_authors() -> dict[str, str]:
+    """corpus key -> el fragmento de autoría de la `cita` de la digestión ('Deng (2026). Titulo.').
+
+    Se usa SÓLO como respaldo cuando el nombre que devuelve el agregador viene en un sistema de
+    escritura que pdflatex no compone (CJK). No se translitera ni se inventa: se toma la forma
+    romanizada que ya consta en el corpus, y el respaldo queda documentado aquí para que se pueda
+    auditar por qué una entrada difiere del agregador.
+    """
+    out: dict[str, str] = {}
+    for rec in _jsonl(ROOT / "corpus/digestion/digest.jsonl"):
+        cita = (rec.get("cita") or "").strip()
+        head = re.split(r"\s*\(\d{4}", cita)[0].strip(" .")
+        if head:
+            out[rec["key"]] = head
+    return out
+
+
 def authors_field(raw) -> str:
     if isinstance(raw, list):
         names = [str(a) for a in raw if a]
@@ -103,6 +123,11 @@ def entry(meta: dict) -> str:
     title = escape(meta.get("title") or key)
     year = str(meta.get("year") or "").strip() or "s.f."
     auth = authors_field(meta.get("authors"))
+    if auth and NON_LATIN.search(auth):
+        fallback = meta.get("_digest_authors") or ""
+        print(f"[bib] {key}: autoría no componible por pdflatex "
+              f"({'sin respaldo en el digest' if not fallback else 'usando la forma del digest'})")
+        auth = escape(fallback)
     venue = escape(meta.get("venue") or "")
     # Normalización cosmética, no de contenido: OpenAlex etiqueta los preprints de arXiv como
     # "arXiv (Cornell University)", que en una bibliografía IEEE se lee como un journal inexistente.
@@ -205,6 +230,10 @@ def main() -> int:
 
     if args.enrich:
         enrich([by_bibkey[c] for c in cited if c in by_bibkey])
+    dauth = digest_authors()
+    for k, v in dauth.items():
+        if k in idx:
+            idx[k]["_digest_authors"] = v
     for row in _jsonl(CITE_CACHE):              # el caché manda sobre las hojas: trae autoría
         if row["key"] in idx:
             for field in ("authors", "venue", "year"):

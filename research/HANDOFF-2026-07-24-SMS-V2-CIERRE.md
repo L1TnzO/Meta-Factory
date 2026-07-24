@@ -80,7 +80,32 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Paper: conclusiones + resumen estructurado + 24 citas ejemplares | ✅ | `sms-v2/sms-v2.pdf` compila con bibliografía IEEE |
 | **Propagación al anteproyecto** | ✅ | `../../Investigación/Anteproyecto_ID.tex` (§2.1, §2.4, §2.5, Anexo E, resumen y justificación) |
 | Rescate de PDFs | ✅ 9/65 + frontera medida | `harvest/rescue_pdfs.py`, gate verde, footprint OK |
-| SPI (ejecución) · gris · RQ7 · §4.7 | 🔄 slot `sms-spi-grey-toolkit` | — |
+| Literatura gris (RQ7) | ✅ 11/11 semillas, sha256 verificado | `harvest/harvest_grey.py` · `corpus/grey/manifest.csv` · gate `verify_grey.py` |
+| **RQ7 escrita** | ✅ | §Resultados; 3 contrastes con la academia |
+| Toolkit SPI (inputs ciegos) | ✅ 534/534 en 31 chunks, 44 tests | `harvest/make_spi_sheet.py`, gate `--inputs-only` PASS |
+| SPI (lectura) | 🔄 ola 1 = `MUESTRA-10PCT` q01–q03 | quedan 28 chunks |
+| §4.7 cifras de acuerdo + κ | ⬜ depende de la SPI | `harvest/spi_agreement.py --write` |
+
+### Cómo seguir las olas de la SPI (mecánico, 28 chunks restantes)
+
+Orden por valor: **`MUESTRA-10PCT` q04–q06 + `SNOWBALL-SAMPLE10` q01–q05** (son los únicos que dan κ)
+→ `DUPLICADOS` q01 (1 chunk, 7 pares) → `PREOUT-RESCATADOS` q01 → `GRIS` (7 chunks) →
+`SNOWBALL-GRIS` (4) → `RECONSIDERAR-EXT` (2) → `RECONSIDERAR-DIG` (5).
+
+Por ola: manifest con `allow_globs` = los `q<NN>.verdict.jsonl` de ESA cola y ESA ola ·
+`acceptance_gate_cmd` = `verify_spi_verdicts.py --require q01,q02,q03` · 3 chunks por ola ·
+`token_budget` 260k. Spawn `generator` apuntando a `corpus/spi/PROMPT.md`. Verificar por bloqueo
+(gate + `slot_footprint --live`), commit, `clear_slot`. Al cerrar TODAS:
+`python3 harvest/spi_agreement.py --write` → `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, y de ahí
+salen las claims de §4.7.
+
+⚠️ **Dos avisos que cuestan tiempo si se ignoran:**
+- `GRIS` sólo es legal en las colas de ADJUDICACIÓN (`GRIS`, `SNOWBALL-GRIS`). En las de
+  verificación el gate lo rechaza: abstenerse ahí esquiva justamente la pregunta que se mide.
+- La SPI debe leer la MISMA superficie que la pasada 1 (título + resumen, PDF sólo en duda real).
+  Si lee todos los PDF, el acuerdo mide otra cosa.
+- Trabajar en el árbol mientras corre un slot pone el footprint en rojo por el cambio PROPIO:
+  committear lo propio antes de cerrar el slot ajeno.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

@@ -1,0 +1,145 @@
+% =====================================================================================
+% SMS v2 — Memoria persistente en agentes LLM para ingeniería de software
+% Protocolo: research/SMS-V2-PROTOCOL.md · Ley de cierre §9 · Ledger de números: claims.yml
+%
+% REGLA DURA (§9.5): ninguna cifra se escribe a mano. Todo número de resultados es una macro
+% \cl... definida en claims.tex, que verify_sms_claims.py re-deriva del corpus committeado.
+% Dentro de las regiones %%CLAIMS-STRICT el gate RECHAZA cualquier dígito literal.
+% =====================================================================================
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-noquoting]{babel}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+\input{claims}   % <- GENERADO. Todos los números del paper viven aquí.
+
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcommand{\facet}[1]{\textsc{\small #1}}
+
+\begin{document}
+
+\title{Memoria persistente en agentes LLM para ingeniería de software:\\
+un mapeo sistemático de \clCarAnalizados{} estudios con verificación automatizada}
+
+\author{\IEEEauthorblockN{Catalina Lazo Locky}
+\IEEEauthorblockA{Departamento de Ciencias de la Computación e Informática\\
+Universidad de La Frontera, Temuco, Chile\\
+catalinalazolocky@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+% ABSTRACT — se escribe AL FINAL, cuando los números están cerrados.
+\end{abstract}
+
+\begin{IEEEkeywords}
+mapeo sistemático, agentes LLM, memoria persistente, ingeniería de software, gestión de contexto,
+recuperación de información, evaluación de agentes
+\end{IEEEkeywords}
+
+% =====================================================================================
+\section{Introducción}
+\label{sec:intro}
+% [SECCIÓN DE JUICIO — la escribe la orquestadora]
+
+% =====================================================================================
+\section{Antecedentes}
+\label{sec:background}
+
+\subsection{Agentes LLM de larga vida en ingeniería de software}
+\subsection{Memoria, contexto y la distinción que este estudio sostiene}
+\subsection{Tipos de memoria heredados de la ciencia cognitiva}
+
+% =====================================================================================
+\section{Trabajos relacionados}
+\label{sec:related}
+
+% =====================================================================================
+\section{Metodología}
+\label{sec:method}
+
+\subsection{Diseño del estudio y preguntas de investigación}
+\label{sec:rqs}
+
+\subsection{Estrategia de búsqueda y fuentes}
+\label{sec:search}
+
+\subsection{Criterios de selección y rúbrica}
+\label{sec:criteria}
+
+\subsection{Proceso de selección}
+\label{sec:selection}
+
+\subsection{Snowballing y conjunto de control}
+\label{sec:snowball}
+
+\subsection{Extracción y síntesis tipada}
+\label{sec:extraction}
+
+\subsection{Fiabilidad: doble lectura independiente}
+\label{sec:reliability}
+
+\subsection{Automatización verificada: qué decidió la máquina, qué decidió un modelo, qué decidió una persona}
+\label{sec:automation}
+
+% =====================================================================================
+\section{Resultados}
+\label{sec:results}
+
+\subsection{Caracterización del corpus}
+\label{sec:res-corpus}
+
+\subsection{RQ1 · Tipos de memoria y sustratos de representación}
+\label{sec:rq1}
+
+\subsection{RQ2 · Ciclo de vida de escritura y qué lo dispara}
+\label{sec:rq2}
+
+\subsection{RQ3 · Recuperación e instrumentación}
+\label{sec:rq3}
+
+\subsection{RQ4 · Persistencia cross-sesión y multi-agente}
+\label{sec:rq4}
+
+\subsection{RQ5 · Evaluación y costo}
+\label{sec:rq5}
+
+\subsection{RQ6 · Riesgos y control}
+\label{sec:rq6}
+
+\subsection{RQ7 · Práctica industrial}
+\label{sec:rq7}
+
+% =====================================================================================
+\section{Discusión}
+\label{sec:discussion}
+% [SECCIÓN DE JUICIO — la escribe la orquestadora]
+
+\subsection{El mapa de vacíos y su inversión al medir}
+\subsection{Una posición minoritaria bajo escrutinio}
+\subsection{Implicaciones para el diseño de agentes de larga vida}
+
+% =====================================================================================
+\section{Amenazas a la validez}
+\label{sec:threats}
+% [SECCIÓN DE JUICIO — la escribe la orquestadora]
+
+% =====================================================================================
+\section{Conclusiones}
+\label{sec:conclusions}
+
+% =====================================================================================
+\bibliographystyle{IEEEtran}
+\bibliography{sms-v2}
+
+\end{document}

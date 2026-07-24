@@ -1,0 +1,91 @@
+# Taxonomía de las refutaciones sobre G-M2 (retrieval medido) — ACTO ANALÍTICO DECLARADO.
+#
+# Por qué existe este archivo: el agregado «REFUTA se concentra en G-M2» se leyó, en la bitácora de
+# la digestión, como «el corpus refuta ADR-019». Al LEER las 23 notas una por una esa lectura no se
+# sostiene: las refutaciones apuntan en DOS direcciones opuestas y casi se empatan. Contar sin leer
+# habría producido un hallazgo falso en el paper.
+#
+# Este archivo es la clasificación, hecha a mano, de cada refutación en su dirección. Es un juicio,
+# no una medición — por eso vive aparte, con su evidencia citada, y los conteos del paper se derivan
+# DE AQUÍ (claims.yml) en vez de afirmarse en prosa. Cualquiera puede abrir el digest y discutir una
+# asignación; eso es exactamente lo que debe poder hacerse con un juicio.
+#
+# Direcciones:
+#   MENOS-MAQUINARIA — mide que añadir una capa de retrieval NO ayuda (o perjudica): contexto largo,
+#                      documento completo o un scorer simple igualan o superan al índice.
+#   MAS-MAQUINARIA   — mide que la similitud PURA es insuficiente: hace falta híbrido, estructura,
+#                      grafo o recuperación agéntica multi-salto.
+#   CALIDAD          — no discute retrieval: señala que el número reportado no se sostiene contra la
+#                      propia tabla del trabajo (relevante para RQ6 y para la lectura del corpus).
+
+- key: W4414815971
+  direccion: MENOS-MAQUINARIA
+  evidencia: "Tabla 3: Mem0/Zep no dan ganancia significativa sobre NoMem (0,601→0,610→0,601)."
+- key: W7113915997
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§4.1.2: recortar contexto de 128k a 32k no mejora la exactitud."
+- key: W7138265814
+  direccion: MENOS-MAQUINARIA
+  evidencia: "Tablas II/III: vector-RAG y GraphRAG retienen 10–16% del corpus y puntúan 0,875–0,904 frente a 0,964 del markdown completo."
+- key: W7154651477
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§4.1: un scorer determinista de palabras clave y recencia, SIN embeddings, alcanza 100% de precisión top-1 sobre documentos con etiquetas."
+- key: W7161916960
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§VI-G2, n=200: sin diferencia detectable frente a un control sin recuperación."
+- key: W7161915937
+  direccion: MENOS-MAQUINARIA
+  evidencia: "Tabla 3: un baseline de contexto largo sin memoria explícita obtiene el mejor rango; Tabla 5: la memoria explícita empeora tareas fáciles."
+- key: W7125352610
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§4.2: los sistemas de memoria más elaborados sobre-personalizan MÁS que un RAG simple."
+- key: W7130618007
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§4.3: los sistemas con memoria externa no superan de forma consistente al agente de solo contexto largo."
+- key: W7157506109
+  direccion: MENOS-MAQUINARIA
+  evidencia: "Un retrieval vectorial sin índice, con una sola consulta, supera a los híbridos con grafo (89,8% / 87,1%)."
+- key: W7154540785
+  direccion: MENOS-MAQUINARIA
+  evidencia: "§2.2: una ventana suficientemente grande pasa LongMemEval sin arquitectura de memoria alguna."
+
+- key: W7124513504
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 1: 82/92 victorias decisivas (p<0,01) de grafo+activación sobre un RAG con peso por recencia."
+- key: W7133363879
+  direccion: MAS-MAQUINARIA
+  evidencia: "Fig. 5: RAG plano 27–38% frente a 79–83% con acceso estructurado, con el MISMO modelo de embeddings."
+- key: 2605.24050v2
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 1: la selección por similitud de descripciones falla al escalar; el solapamiento explica el 68% de la caída."
+- key: W7108247749
+  direccion: MAS-MAQUINARIA
+  evidencia: "Los embeddings tratan los procedimientos como bolsa de palabras y colapsan 25–40% ante vocabulario no visto."
+- key: W7133571000
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 1: BM25 puro (léxico, análogo a grep) es el más débil con 57,1%, frente a 73,4% del coseno y 77,2% del híbrido."
+- key: W7130236833
+  direccion: MAS-MAQUINARIA
+  evidencia: "§5.2: la recuperación agéntica multi-salto sobre grafo supera a la recuperación única por embeddings (+7,0 LLM-J, +20,6 EM)."
+- key: W7155574661
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 3: la recuperación se degrada fuertemente a medida que los hechos mutan y se consolidan."
+- key: W4406840428
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 2: el híbrido coseno+BM25+grafo supera al contexto completo en exactitud (+18,5%) y en costo (1,6k frente a 115k tokens)."
+- key: W7162893362
+  direccion: MAS-MAQUINARIA
+  evidencia: "§5.2–5.3: el embedding denso domina en 20 de 20 celdas frente a 5 de 20 de un método léxico."
+- key: W7155574291
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 1: la generación restringida por esquema supera ampliamente a la recuperación densa pura (+146,7% F1)."
+- key: W4399354028
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 1: la recuperación puramente semántica falla en consultas por metadato temporal (Recall<8) frente a ~90 del enrutamiento híbrido."
+
+- key: W7119605037
+  direccion: CALIDAD
+  evidencia: "Las cifras de titular se atribuyen a citas fuera de tema o sin revisión por pares, no a la tabla del experimento propio."
+- key: W4417452365
+  direccion: CALIDAD
+  evidencia: "La afirmación del resumen (0,911, mejor desempeño) contradice la Tabla 2 del propio trabajo (0,589, último lugar)."

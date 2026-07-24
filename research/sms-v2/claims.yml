@@ -459,3 +459,24 @@
   pregunta: "¿Cuántos registros resultaron ser herramientas o artefactos y no estudios?"
   derivacion: "len(artifacts)"
   unidad: int
+
+# ---------------------------------------------------------------- taxonomía G-M2 (§ discusión)
+# Los conteos salen de gmdos-taxonomy.yml, cuya cobertura el gate exige == al conjunto REFUTA∧G-M2.
+- id: clGMdosTotal
+  pregunta: "¿Cuántas refutaciones sobre retrieval medido se clasificaron por dirección?"
+  derivacion: "len(gmdos)"
+  unidad: int
+- id: clGMdosMenos
+  pregunta: "¿Cuántas miden que AÑADIR una capa de recuperación no ayuda o perjudica?"
+  derivacion: "sum(1 for t in gmdos if t['direccion'] == 'MENOS-MAQUINARIA')"
+  unidad: int
+  glosa: "contexto largo, documento completo o un scorer simple igualan o superan al índice"
+- id: clGMdosMas
+  pregunta: "¿Cuántas miden que la similitud PURA es insuficiente?"
+  derivacion: "sum(1 for t in gmdos if t['direccion'] == 'MAS-MAQUINARIA')"
+  unidad: int
+  glosa: "hace falta híbrido, estructura, grafo o recuperación agéntica multi-salto"
+- id: clGMdosCalidad
+  pregunta: "¿Cuántas no discuten recuperación sino la solidez del número reportado?"
+  derivacion: "sum(1 for t in gmdos if t['direccion'] == 'CALIDAD')"
+  unidad: int

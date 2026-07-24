@@ -92,6 +92,8 @@ def build_namespace() -> dict:
         "duplicados": _read_csv(ROOT / "corpus/screening/queues/DUPLICADOS-INCLUIDOS.csv"),
         "spi": spi,
         "conflicts": _read_csv(ROOT / "corpus/spi/CONFLICTOS.csv"),
+        "gmdos": (__import__("yaml").safe_load((ROOT / "sms-v2/gmdos-taxonomy.yml").read_text(encoding="utf-8"))
+                  if (ROOT / "sms-v2/gmdos-taxonomy.yml").exists() else []),
         # helpers
         "Counter": Counter, "defaultdict": defaultdict, "len": len, "set": set, "sorted": sorted,
         "sum": sum, "min": min, "max": max, "round": round, "abs": abs, "int": int, "float": float,
@@ -201,6 +203,9 @@ def strict_regions(tex: str) -> list[tuple[int, str]]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--emit", action="store_true", help="(re)write claims.tex from the derivations")
+    ap.add_argument("--draft", action="store_true",
+                    help="iteration mode: an unused claim is a WARNING, not RED (the acceptance gate "
+                         "never passes --draft, so an orphan number cannot survive to the final paper)")
     args = ap.parse_args()
 
     errors: list[str] = []
@@ -229,8 +234,13 @@ def main() -> int:
         for m in sorted(used - set(values)):
             errors.append(f"macro \\{m} used in the paper but no claim defines it")
         # ---- tooth 3: defined but unused
-        for m in sorted(set(values) - used):
-            errors.append(f"claim '{m}' is never used in the paper (orphan number — delete it or use it)")
+        orphans = sorted(set(values) - used)
+        if args.draft:
+            if orphans:
+                print(f"WARN (draft): {len(orphans)} claim(s) not yet used in the paper")
+        else:
+            for m in orphans:
+                errors.append(f"claim '{m}' is never used in the paper (orphan number — delete it or use it)")
 
         # ---- tooth 4: bare digits inside strict regions
         for n, line in strict_regions(tex):
@@ -269,6 +279,27 @@ def main() -> int:
     else:
         if not args.emit:
             errors.append(f"no paper at {TEX}")
+
+    # ---- tooth 6: the G-M2 taxonomy must cover EXACTLY the refutations, no more and no less.
+    # A hand-made classification of contested evidence is the easiest place in the whole paper to
+    # cherry-pick: drop three inconvenient rows and the headline flips. So it is gated like data.
+    tax_path = SMS_DIR / "gmdos-taxonomy.yml"
+    if tax_path.exists():
+        import yaml
+        tax = yaml.safe_load(tax_path.read_text(encoding="utf-8")) or []
+        classified = {str(t.get("key", "")).strip() for t in tax}
+        ns = build_namespace()
+        refuted = {r["key"] for r in ns["digest"]
+                   if any(a["postura"] == "REFUTA" and a["ancla"] == "G-M2"
+                          for a in r.get("mf_aplicabilidad", []))}
+        for k in sorted(refuted - classified):
+            errors.append(f"gmdos-taxonomy: {k} refutes G-M2 but is unclassified (silently dropping "
+                          f"contested evidence is how a taxonomy lies)")
+        for k in sorted(classified - refuted):
+            errors.append(f"gmdos-taxonomy: {k} is classified but does not refute G-M2 in the digest")
+        for t in tax:
+            if not str(t.get("evidencia", "")).strip():
+                errors.append(f"gmdos-taxonomy: {t.get('key')} has no cited evidence for its assignment")
 
     for e in errors:
         print(f"RED: {e}")

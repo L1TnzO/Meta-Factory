@@ -15,11 +15,6 @@
   derivacion: "len(sheet_full)"
   unidad: int
   glosa: "corpus principal: OpenAlex + Lens + arXiv, dedup DOI→arXiv→título normalizado"
-- id: clSelCribados
-  pregunta: "¿Cuántos de esos registros recibieron una decisión de cribado?"
-  derivacion: "sum(1 for r in sheet_full if r['decision'])"
-  unidad: int
-  glosa: "cobertura del cribado sobre el corpus principal"
 - id: clSelIncluidosPrincipal
   pregunta: "¿Cuántos incluyó la pasada principal?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'INCLUIR')"
@@ -462,10 +457,6 @@
 
 # ---------------------------------------------------------------- taxonomía G-M2 (§ discusión)
 # Los conteos salen de gmdos-taxonomy.yml, cuya cobertura el gate exige == al conjunto REFUTA∧G-M2.
-- id: clGMdosTotal
-  pregunta: "¿Cuántas refutaciones sobre retrieval medido se clasificaron por dirección?"
-  derivacion: "len(gmdos)"
-  unidad: int
 - id: clGMdosMenos
   pregunta: "¿Cuántas miden que AÑADIR una capa de recuperación no ayuda o perjudica?"
   derivacion: "sum(1 for t in gmdos if t['direccion'] == 'MENOS-MAQUINARIA')"
@@ -532,10 +523,6 @@
 - id: clRQcincoMetricaNinguna
   pregunta: "¿Cuántos no reportan métrica alguna?"
   derivacion: "sum(1 for r in extraction if 'NINGUNA' in toks(r,'metricas'))"
-  unidad: int
-- id: clRQunoTiposUno
-  pregunta: "¿Cuántos estudios declaran exactamente un tipo de memoria?"
-  derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) == 1)"
   unidad: int
 - id: clMFfidelidad
   pregunta: "Prevalencia confirmada de la faceta FIDELIDAD"

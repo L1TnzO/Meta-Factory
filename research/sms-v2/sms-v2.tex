@@ -331,7 +331,31 @@ silencio un estudio ya clasificado.
 \subsection{Fiabilidad: doble lectura independiente}
 \label{sec:reliability}
 
-% [PENDIENTE: se completa con los resultados de la segunda pasada independiente]
+La primera pasada asignó un solo lector por registro, lo que deja la consistencia de la
+clasificación sin medir. Para cuantificarla se ejecutó una \emph{segunda pasada independiente} sobre
+cuatro tipos de cola, con una regla que conviene explicitar porque de ella depende que el número
+signifique algo: el segundo lector recibe título, resumen y texto completo cuando existe, y
+\textbf{nunca} la decisión, la puntuación, las facetas, las notas ni el estrato de triaje que produjo
+el primero. La ceguera no se pide en la instrucción, se construye: el generador de lotes no emite
+esas columnas y una compuerta verifica su ausencia sobre los lotes ya construidos, antes de que
+comience la lectura. La comprobación se hace ahí a propósito, porque un veredicto contaminado no se
+puede descontaminar después ni se puede detectar mirándolo.
+
+Las colas no son homogéneas y tratarlas como si lo fueran inflaría el coeficiente. Sólo dos de ellas
+—las muestras aleatorias pre-registradas de cada vía de búsqueda— admiten un coeficiente de acuerdo,
+porque son las únicas donde ambos lectores emitieron una decisión firme sobre la misma población. Las
+demás cumplen otra función: adjudicar los registros en que la primera pasada se abstuvo, confirmar
+las inclusiones que el triaje determinista había descartado —un subconjunto dirigido, no aleatorio,
+que por eso se reporta aparte—, juzgar la confianza de los registros marcados durante la extracción y
+resolver identidad en los pares casi duplicados.
+
+Donde ambas lecturas coinciden, la decisión queda consolidada por dos lectores independientes. Donde
+discrepan, la fila pasa a una cola de conflictos que es la que recibe adjudicación humana. Ése es el
+propósito del procedimiento: no sustituir el juicio de la investigadora sino \emph{concentrarlo}
+donde hay desacuerdo real, en lugar de repartirlo uniformemente sobre un corpus en el que la mayoría
+de las decisiones no están en duda.
+
+% [PENDIENTE: cifras de acuerdo y κ — se completan al cerrar la segunda pasada]
 
 \subsection{Automatización verificada}
 \label{sec:automation}

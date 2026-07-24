@@ -51,6 +51,7 @@ STRICT_CLOSE = "%%CLAIMS-STRICT-END"
 # Digits that are legitimately literal even inside a strict region.
 DIGIT_WHITELIST = re.compile(
     r"(RQ\s?\d)|(§\s?\d[\d.]*)|(\b(19|20)\d\d\b)|(GPT-\d)|(Claude\s?\d)|(Gemini\s?\d)"
+    r"|(C[EI]-\s?\d)"          # identificadores de criterio: CE-1, CI-2 -- nombres, no cifras
     r"|(Llama\s?\d)|(\\cl[A-Za-z]+)|(\\ref\{[^}]*\})|(\\label\{[^}]*\})|(\\cite[tp]?\{[^}]*\})"
     r"|(\\includegraphics[^}]*\})"
     # LaTeX lengths are layout, not claims: 1.2em, 0.5\textwidth, 12pt...

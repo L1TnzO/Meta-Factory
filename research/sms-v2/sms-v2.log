@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -330,8 +330,12 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 ) (./claims.tex) (/home/enzo/.TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count312
+) (./sms-v2.aux
+LaTeX Info: Redefining \. on input line 8.
+LaTeX Info: Redefining \% on input line 8.
+Package babel Info: 'spanish' activates 'spanish' shorthands.
+(babel)             Reported on input line 8.
 )
-No file sms-v2.aux.
 \openout1 = `sms-v2.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
@@ -352,11 +356,10 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 29.
 LaTeX Font Info:    ... okay on input line 29.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 29.
 LaTeX Font Info:    ... okay on input line 29.
+
 -- Lines per column: 56 (exact).
 LaTeX Info: Redefining \. on input line 29.
 LaTeX Info: Redefining \% on input line 29.
-Package babel Info: 'spanish' activates 'spanish' shorthands.
-(babel)             Reported on input line 29.
 (/home/enzo/.TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
@@ -364,6 +367,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package hyperref Info: Link coloring OFF on input line 29.
+ (./sms-v2.out) (./sms-v2.out)
 \@outlinefile=\write3
 \openout3 = `sms-v2.out'.
 
@@ -382,33 +386,23 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 ]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 162.
+
+LaTeX Warning: Reference `tab:seleccion' on page 2 undefined on input line 199.
+
+[2]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 311.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 
 LaTeX Font Warning: Font shape `TS1/ptm/m/sc' undefined
 (Font)              using `TS1/ptm/m/n' instead
-(Font)              for symbol `textperiodcentered' on input line 172.
+(Font)              for symbol `textperiodcentered' on input line 321.
 
-[2]
-
-LaTeX Warning: Reference `tab:facetas' on page 3 undefined on input line 287.
-
-
-LaTeX Warning: Reference `sec:discussion' on page 3 undefined on input line 322.
-
-
-Underfull \vbox (badness 2119) has occurred while \output is active []
-
- [3]
+[3] [4]
 Underfull \vbox (badness 1540) has occurred while \output is active []
 
-
-
-LaTeX Warning: Reference `sec:reliability' on page 4 undefined on input line 451.
-
-[4]
+ [5]
 No file sms-v2.bbl.
 
 ** Conference Paper **
@@ -421,9 +415,7 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[5
-
-] (./sms-v2.aux
+[6] (./sms-v2.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 )
@@ -447,22 +439,22 @@ Package rerunfilecheck Warning: File `sms-v2.out' has changed.
 (rerunfilecheck)                or use package `bookmark'.
 
 Package rerunfilecheck Info: Checksums for `sms-v2.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  189BE3449BEB9C3D6A540881CEBA1B2C;8618.
+(rerunfilecheck)             Before: 189BE3449BEB9C3D6A540881CEBA1B2C;8618
+(rerunfilecheck)             After:  DB61CFA751E08424573740EC20D57C45;8201.
  ) 
 Here is how much of TeX's memory you used:
- 12192 strings out of 469140
- 192938 string characters out of 5459681
- 643737 words of memory out of 5000000
- 41014 multiletter control sequences out of 15000+600000
+ 12244 strings out of 469140
+ 193695 string characters out of 5459681
+ 648949 words of memory out of 5000000
+ 41058 multiletter control sequences out of 15000+600000
  740696 words of font info for 154 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 74i,9n,79p,256b,455s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sms-v2.pdf (5 pages, 98662 bytes).
+ 74i,9n,79p,652b,478s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on sms-v2.pdf (6 pages, 139175 bytes).
 PDF statistics:
- 111 PDF objects out of 1000 (max. 8388607)
- 91 compressed objects within 1 object stream
- 47 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 249 PDF objects out of 1000 (max. 8388607)
+ 220 compressed objects within 3 object streams
+ 49 named destinations out of 1000 (max. 500000)
+ 297 words of extra memory for PDF output out of 10000 (max. 10000000)
 

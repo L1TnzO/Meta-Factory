@@ -115,29 +115,178 @@ acompaña.
 \section{Metodología}
 \label{sec:method}
 
+El estudio sigue las guías de Petersen et al. y de Kitchenham y Charters para mapeos sistemáticos. El
+protocolo se redactó y se congeló antes de la clasificación, y se versionó junto con el corpus; los
+apartados siguientes describen lo que efectivamente se ejecutó, incluidas las desviaciones.
+
 \subsection{Diseño del estudio y preguntas de investigación}
 \label{sec:rqs}
+
+La población son agentes basados en modelos de lenguaje aplicados a tareas de ingeniería de software
+y a la operación continua sobre un proyecto; el concepto son los mecanismos de memoria y gestión de
+contexto persistente; el contexto es la operación multi-sesión y multi-agente sobre repositorios
+reales, incluida la práctica industrial de los proveedores de modelos. De ahí las siete preguntas:
+
+\begin{itemize}\itemsep2pt
+\item[\textbf{RQ1}] ¿Qué tipos de memoria y qué sustratos de representación se proponen?
+\item[\textbf{RQ2}] ¿Qué operaciones y políticas gobiernan la escritura, admisión, consolidación,
+      actualización y olvido, y qué las dispara?
+\item[\textbf{RQ3}] ¿Qué mecanismos de recuperación se usan y qué trabajos \emph{miden} la utilidad
+      de lo recuperado?
+\item[\textbf{RQ4}] ¿Cómo se persiste y comparte la memoria entre sesiones, agentes y niveles, y cómo
+      se mantiene consistente con el estado real del repositorio?
+\item[\textbf{RQ5}] ¿Con qué benchmarks y métricas se evalúa el aporte de la memoria, incluido su
+      costo, y qué evidencia causal existe?
+\item[\textbf{RQ6}] ¿Qué fallos de memoria están documentados y qué mitigaciones se proponen?
+\item[\textbf{RQ7}] ¿Qué mecanismos ofrecen y recomiendan los proveedores de modelos, y en qué
+      convergen o divergen respecto de la literatura académica?
+\end{itemize}
+
+Cada pregunta se eligió porque corresponde a una decisión de diseño ya tomada en un sistema real, de
+modo que el mapa resultante es utilizable como insumo de decisión y no sólo como inventario
+temático.
 
 \subsection{Estrategia de búsqueda y fuentes}
 \label{sec:search}
 
+La cadena mantiene la estructura de tres bloques unidos por conjunción —mecanismos de memoria,
+agentes basados en modelos de lenguaje, tareas de ingeniería de software— con sinónimos unidos por
+disyunción, y amplía cada bloque respecto de la iteración previa. Las fuentes son OpenAlex, Lens y
+arXiv nativo: las tres ofrecen exportación programática, condición que se impuso tras constatar que
+en la iteración anterior una fuente sin exportación dejó más de mil quinientos registros no
+procesables. El alcance temporal empieza en 2022, cuando aparece el régimen de agentes basados en
+modelos de lenguaje.
+
+Dos decisiones merecen registro. Primera, la cadena se \emph{auditó término a término contra el
+corpus ya cosechado}: cada término heredado de la iteración previa debía demostrar una contribución
+única de registros o se eliminaba, y dos se eliminaron con prueba de equivalencia. Segunda, el
+control de sanidad no usa el corpus previo como autoridad —eso habría hecho circular la validación—
+sino un conjunto de obras fundacionales validadas por la comunidad e independientes de aquel corpus,
+cuya recuperación total por búsqueda o snowballing se verificó.
+
 \subsection{Criterios de selección y rúbrica}
 \label{sec:criteria}
+
+Se incluye un estudio primario cuyo aporte incluya un \emph{mecanismo} de memoria o de gestión de
+contexto persistente, aplicable a agentes de desarrollo de larga vida por señal directa o por
+transferibilidad demostrable, publicado desde 2022 y en inglés. Se excluye el trabajo que usa la
+memoria como caja negra, el de dominio divergente sin mecanismo transferible, el secundario —que se
+aparta y se usa para vocabulario y snowballing, no se clasifica—, el que carece de texto suficiente y
+el registro que no es un estudio (depósitos de software, materiales suplementarios, portadas de
+actas, demos).
+
+La rúbrica es aditiva sobre tres ejes: mecanismo de memoria ($M \in \{0,1,3\}$), transferibilidad a
+agentes de larga vida ($T \in \{0,1,2\}$) y evidencia empírica ($E \in \{0,1\}$), con inclusión si
+$M+T+E \geq 4$ y $M \geq 1$, exigiendo $M = 3$ cuando no hay señal de ingeniería de software. Dos
+anclas se precisaron tras una calibración bloqueante sobre una muestra de cincuenta registros: el
+mecanismo debe ser \emph{persistente} entre tareas o sesiones, o \emph{compartido} entre agentes
+—el manejo intra-tarea de la ventana de contexto puntúa cero—, y una demostración o una validación
+por ejemplos no cuenta como evidencia. Se añadió además una regla de calidad: un trabajo sin
+evidencia empírica publicado únicamente en un repositorio sin revisión pasa automáticamente a zona
+gris en lugar de entrar por aritmética.
+
+Ortogonalmente a la decisión, cada incluido se etiqueta con un vocabulario cerrado de diez facetas
+que no puntúa y sirve para priorizar la lectura. El motivo de separar faceta y rúbrica es que la
+rúbrica es suficiente como compuerta pero ciega como lente: un trabajo sobre memoria conversacional
+y uno que gestiona el contexto como un repositorio versionado obtienen la misma nota.
 
 \subsection{Proceso de selección}
 \label{sec:selection}
 
+%%CLAIMS-STRICT
+Un triaje determinista, con reglas legibles en el propio script, ordenó los registros en tres
+estratos y proporcionó denominadores; el triaje no decide, sólo ordena la revisión. Sobre él se
+ejecutó la clasificación completa con la rúbrica congelada. La tabla~\ref{tab:seleccion} resume el
+flujo.
+
+\begin{table}[!t]
+\caption{Flujo de selección, de la búsqueda al corpus analizado}
+\label{tab:seleccion}
+\centering
+\begin{tabularx}{\columnwidth}{Xrr}
+\toprule
+\textbf{Etapa} & \textbf{Excluidos} & \textbf{Restantes} \\
+\midrule
+Búsqueda en tres agregadores, tras deduplicar & --- & \clSelUnicos \\
+Cribado con rúbrica congelada                 & --- & \clSelIncluidosPrincipal \\
+\quad sin mecanismo (CE-1)                    & \clSelExcCEuno & \\
+\quad dominio divergente (CE-2)               & \clSelExcCEdos & \\
+\quad registro no-estudio (CE-5)              & \clSelExcCEcinco & \\
+\quad secundarios, apartados (CE-3)           & \clSelSecundarios & \\
+Snowballing: candidatos únicos                & --- & \clSelSnowballCandidatos \\
+\quad cribados con la misma rúbrica           & --- & \clSelSnowballCribados \\
+\quad incorporados                            & --- & \clSelSnowballIncluidos \\
+\textbf{Corpus incluido}                      & --- & \textbf{\clSelIncluidosTotal} \\
+Sin texto completo accesible                  & \clSelSinTexto & \\
+\textbf{Analizados a texto completo}          & --- & \textbf{\clSelConTexto} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+%%CLAIMS-STRICT-END
+
 \subsection{Snowballing y conjunto de control}
 \label{sec:snowball}
+
+%%CLAIMS-STRICT
+El snowballing se ejecutó tras el cribado, en una sola ronda, tomando como semillas el conjunto
+incluido y el conjunto de control de la comunidad. La cosecha hacia atrás resultó \emph{delgada} por
+una limitación de la fuente y no del método: la mayoría de las semillas son preprints muy recientes
+cuyas referencias aún no están parseadas en el agregador, hecho que se verificó consultando la API
+en lugar de suponerlo. La cosecha hacia adelante compensó. En total se evaluaron
+\clSelSnowballCandidatos{} candidatos únicos, de los cuales \clSelSnowballCribados{} llegaron a la
+rúbrica —el resto quedó fuera por reglas deterministas de alcance, duplicación o falta de metadatos—
+e incorporaron \clSelSnowballIncluidos{} estudios. El conjunto de control quedó íntegramente dentro
+del corpus, y entró \emph{por rúbrica}, no por autoridad: ninguna obra se incluyó por ser conocida.
+%%CLAIMS-STRICT-END
 
 \subsection{Extracción y síntesis tipada}
 \label{sec:extraction}
 
+Cada estudio incluido con texto completo produjo primero una fila de extracción con campos de
+vocabulario cerrado que responden directamente a RQ1--RQ6, y después un \emph{digest} tipado que
+añade la síntesis: qué problema ataca, cómo funciona el mecanismo, qué números clave reporta y cómo
+se aplica a cada decisión de diseño bajo estudio. La separación no es cosmética. Los campos
+facetados no se re-derivan en la segunda fase: se arrastran idénticos desde la extracción congelada y
+una compuerta los liga por igualdad de conjuntos, de modo que cualquier deriva entre ambas fases es
+un rechazo automático. Así, la síntesis puede equivocarse en su prosa pero no puede reclasificar en
+silencio un estudio ya clasificado.
+
 \subsection{Fiabilidad: doble lectura independiente}
 \label{sec:reliability}
 
-\subsection{Automatización verificada: qué decidió la máquina, qué decidió un modelo, qué decidió una persona}
+% [PENDIENTE: se completa con los resultados de la segunda pasada independiente]
+
+\subsection{Automatización verificada}
 \label{sec:automation}
+
+Un corpus de este tamaño no se clasifica a mano en el marco de un trabajo de titulación, y la
+alternativa —delegarlo a un modelo de lenguaje sin restricciones— reproduce los modos de fallo que la
+propia literatura de este mapeo documenta. El procedimiento adoptado distingue explícitamente tres
+tipos de decisión, con tres regímenes de confianza distintos:
+
+\begin{itemize}\itemsep3pt
+\item \textbf{Lo que decide la máquina, de forma determinista.} El triaje por estrato, la
+      deduplicación, el muestreo del diez por ciento, la aritmética de la rúbrica, la validación de
+      vocabularios cerrados, la ligadura entre extracción y síntesis y el cómputo de todo agregado.
+      Nada de esto lo decide un modelo, y todo es re-ejecutable.
+\item \textbf{Lo que decide un modelo, bajo compuerta.} La lectura y clasificación de cada registro.
+      El modelo trabaja por lotes acotados y produce un veredicto estructurado; una compuerta
+      determinista verifica cobertura exacta del lote, pertenencia al vocabulario, coherencia entre
+      la puntuación y la decisión, y presencia de una evidencia con ancla verificable. Un lote que
+      falla se rehace entero. La compuerta no juzga si la lectura es buena: hace imposible que sea
+      \emph{mal formada}, que es una clase de error distinta y mucho más frecuente.
+\item \textbf{Lo que decide una persona.} Toda decisión de borde: la zona gris que sobrevive a la
+      segunda lectura, los desacuerdos entre lecturas, las degradaciones y las fusiones de
+      duplicados.
+\end{itemize}
+
+El mismo principio se aplica a la redacción de este artículo. Ninguna cifra del texto se escribió a
+mano: cada una es una macro definida en un registro de afirmaciones donde consta la pregunta que
+responde y la expresión que la deriva del corpus versionado, y una compuerta rechaza la compilación
+si una macro no está definida, si una afirmación quedó sin usar, si una cita no resuelve a un
+registro efectivamente cribado o si aparece un dígito literal dentro de las secciones de resultados.
+La consecuencia buscada es concreta: un número inventado no es improbable en este artículo, es
+imposible de compilar.
 
 % =====================================================================================
 \section{Resultados}

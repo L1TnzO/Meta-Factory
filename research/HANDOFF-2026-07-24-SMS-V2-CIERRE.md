@@ -65,6 +65,30 @@ El rescate de PDFs es I/O de red sin modelo → va en background mientras corren
 (keep-warm, runbook (b)). La escritura es lo ÚLTIMO porque sus números son derivados: cualquier flip de A o
 paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-emite solo.
 
+## 4bis. Avance de la sesión 2026-07-24 (actualizar aquí, no crear docs nuevos)
+
+| Pieza | Estado | Artefacto / gate |
+| --- | --- | --- |
+| Ley §9 congelada | ✅ | `SMS-V2-PROTOCOL.md §9` |
+| Ley SPI + derivación de las 8 colas | ✅ | `harvest/closure_law.py` (534 filas, idénticas a los artefactos renderizados) |
+| Gate rescate · SPI · gris · claims | ✅ | `verify_rescue.py` · `verify_spi_verdicts.py` (+`--inputs-only`) · `verify_grey.py` · `verify_sms_claims.py` |
+| Ledger de números | ✅ 127 claims verdes | `sms-v2/claims.yml` → `claims.tex` |
+| Taxonomía G-M2 | ✅ 23/23 clasificadas | `sms-v2/gmdos-taxonomy.yml` (gate de cobertura) |
+| Bibliografía generada | ✅ | `harvest/make_bib.py` + `sms-v2/CITEKEYS.md` |
+| Paper: intro · antecedentes · relacionados · método · resultados RQ1–6 · facetas · discusión · amenazas | ✅ compila | `sms-v2/sms-v2.pdf` |
+| Rescate de PDFs | 🔄 en slot | ≥9 verificados, gate verde |
+| SPI (ejecución) · gris · RQ7 · §4.7 · conclusiones · resumen | ⬜ | — |
+| Propagación al anteproyecto | ⬜ | `../../Investigación/Anteproyecto_ID.tex` |
+
+**Hallazgo que cambió el paper** (§3 del commit `b3afb5d`): leer las 23 refutaciones sobre G-M2 una
+por una desmiente el resumen heredado. No dicen «ADR-019 está mal»: **10 miden que añadir
+recuperación no ayuda, 11 que la similitud pura es insuficiente, 2 son problemas de calidad**. El
+hallazgo es que la evidencia está EN DISPUTA y que la decisión eran dos decisiones (si tener capa /
+con qué mecanismo). Contar sin leer habría publicado un hallazgo falso.
+
+**Orden recomendado si se retoma con poco tiempo**: SPI de estratos VERIFICACION primero (110+98 =
+la κ que necesita §4.7), luego IDENTIDAD (7), luego ADJUDICACION (192), luego CALIDAD (116).
+
 ## 5. Ciclo de ola (probado 25× en digestión, 24× en extracción — no reinventar)
 
 manifest `.gen/active_slot.json` (`allow_globs` = los verdicts de la ola, gate de aceptación `--require`) →

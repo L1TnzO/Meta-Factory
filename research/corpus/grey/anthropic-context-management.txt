@@ -1,0 +1,489 @@
+Meet Claude
+Products
+Claude
+Claude Code
+Claude Cowork
+@Claude
+Features
+Claude for Chrome
+Claude for Microsoft 365
+Skills
+Claude apps built for
+Design
+Science
+Security
+Models
+Mythos
+Fable
+Opus
+Sonnet
+Haiku
+Platform
+Build on Claude
+Overview
+Pricing
+Developer docs
+Console login
+Works with Claude
+Ecosystem
+Marketplace
+Connectors
+Plugins
+Solutions
+Use cases
+AI agents
+Coding
+Company size
+Enterprise
+Startups
+Departments
+Cybersecurity
+Legal
+Industries
+Customer support
+Financial services
+Government
+Healthcare
+Higher education
+K-12 teachers
+Life sciences
+Nonprofits
+Pricing
+Overview
+API
+Resources
+Insights
+Blog
+Customer stories
+Anthropic news
+Learn
+Anthropic Academy
+Courses
+Tutorials
+Use cases
+Connect
+Events
+Community
+Login
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Meet Claude
+Products
+Claude
+Claude Code
+Claude Cowork
+@Claude
+Features
+Claude for Chrome
+Claude for Microsoft 365
+Skills
+Claude apps built for
+Design
+Science
+Security
+Models
+Mythos
+Fable
+Opus
+Sonnet
+Haiku
+Platform
+Build on Claude
+Overview
+Pricing
+Developer docs
+Console login
+Works with Claude
+Ecosystem
+Marketplace
+Connectors
+Plugins
+Solutions
+Use cases
+AI agents
+Coding
+Company size
+Enterprise
+Startups
+Departments
+Cybersecurity
+Legal
+Industries
+Customer support
+Financial services
+Government
+Healthcare
+Higher education
+K-12 teachers
+Life sciences
+Nonprofits
+Pricing
+Overview
+API
+Resources
+Insights
+Blog
+Customer stories
+Anthropic news
+Learn
+Anthropic Academy
+Courses
+Tutorials
+Use cases
+Connect
+Events
+Community
+Login
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Contact sales
+Contact salesContact sales
+Try Claude
+Try ClaudeTry Claude
+Blog
+Blog
+/
+Managing context on the Claude Developer Platform
+Explore here
+Ask questions about this page
+Copy as markdown
+Managing context on the Claude Developer Platform
+Introducing context editing and the memory tool to help developers build more effective agents that handle long-running tasks.
+Category
+Product announcements
+Product
+Claude Platform
+Date
+September 29, 2025
+Reading time
+5
+min
+Share
+Copy link
+https://claude.com/blog/context-management
+Today, we’re introducing new capabilities for managing your agents’ context on the Claude Developer Platform: context editing and the memory tool.
+With our latest model, Claude Sonnet 4.5, these capabilities enable developers to build AI agents capable of handling long-running tasks at higher performance and without hitting context limits or losing critical information.
+Context windows have limits, but real work doesn’t
+As production agents handle more complex tasks and generate more tool results, they often exhaust their effective context windows—leaving developers stuck choosing between cutting agent transcripts or degrading performance. Context management solves this in two ways, helping developers ensure only relevant data stays in context and valuable insights get preserved across sessions.
+Context editing automatically clears stale tool calls and results from within the context window when approaching token limits. As your agent executes tasks and accumulates tool results, context editing removes stale content while preserving the conversation flow, effectively extending how long agents can run without manual intervention. This also increases the effective model performance as Claude focuses only on relevant context.
+The memory tool enables Claude to store and consult information outside the context window through a file-based system. Claude can create, read, update, and delete files in a dedicated memory directory stored in your infrastructure that persists across conversations. This allows agents to build up knowledge bases over time, maintain project state across sessions, and reference previous learnings without having to keep everything in context.
+The memory tool operates entirely client-side through tool calls. Developers manage the storage backend, giving them complete control over where the data is stored and how it’s persisted.
+Claude Sonnet 4.5 enhances both capabilities with built-in context awareness—tracking available tokens throughout conversations to manage context more effectively.
+Together, these updates create a system that improves agent performance:
+Enable longer conversations by automatically removing stale tool results from context
+Boost accuracy by saving critical information to memory—and bring that learning across successive agentic sessions
+Building long-running agents
+Claude Sonnet 4.5 is the best model in the world for building agents. These features unlock new possibilities for long-running agents—processing entire codebases, analyzing hundreds of documents, or maintaining extensive tool interaction histories. Context management builds on this foundation, ensuring agents can leverage this expanded capacity efficiently while still handling workflows that extend beyond any fixed limit. Use cases include:
+Coding: Context editing clears old file reads and test results while memory preserves debugging insights and architectural decisions, enabling agents to work on large codebases without losing progress.
+Research: Memory stores key findings while context editing removes old search results, building knowledge bases that improve performance over time.
+Data processing: Agents store intermediate results in memory while context editing clears raw data, handling workflows that would otherwise exceed token limits.
+Performance improvements with context management
+On an internal evaluation set for agentic search, we tested how context management improves agent performance on complex, multi-step tasks. The results demonstrate significant gains: combining the memory tool with context editing improved performance by 39% over baseline. Context editing alone delivered a 29% improvement.
+In a 100-turn web search evaluation, context editing enabled agents to complete workflows that would otherwise fail due to context exhaustion—while reducing token consumption by 84%.
+Getting started
+These capabilities are available today in public beta on the Claude Developer Platform, natively and in Amazon Bedrock and Google Cloud’s Vertex AI. Explore the documentation for context editing and the memory tool, or visit our cookbook to learn more.
+Anthropic is not affiliated with, endorsed by, or sponsored by CATAN GmbH or CATAN Studio. The CATAN trademark and game are the property of CATAN GmbH.
+No items found.
+PrevPrev
+0/5
+NextNext
+eBook
+FAQ
+No items found.
+Related posts
+Explore more product news and best practices for teams building with Claude.
+Jul 23, 2026
+Think through hard problems in voice mode
+Product announcements
+Think through hard problems in voice modeThink through hard problems in voice mode
+Think through hard problems in voice modeThink through hard problems in voice mode
+May 12, 2026
+Claude for the legal industry
+Product announcements
+Claude for the legal industryClaude for the legal industry
+Claude for the legal industryClaude for the legal industry
+Jul 7, 2026
+Claude Cowork is coming to mobile and web
+Product announcements
+Claude Cowork is coming to mobile and webClaude Cowork is coming to mobile and web
+Claude Cowork is coming to mobile and webClaude Cowork is coming to mobile and web
+Apr 9, 2026
+Making Claude Cowork ready for enterprise
+Product announcements
+Making Claude Cowork ready for enterpriseMaking Claude Cowork ready for enterprise
+Making Claude Cowork ready for enterpriseMaking Claude Cowork ready for enterprise
+Transform how your organization operates with Claude
+See pricing
+See pricingSee pricing
+Contact sales
+Contact salesContact sales
+Get the developer newsletter
+Product updates, how-tos, community spotlights, and more. Delivered monthly to your inbox.
+SubscribeSubscribe
+Please provide your email address if you'd like to receive our monthly developer newsletter. You can unsubscribe at any time.
+Thank you! You’re subscribed.
+Sorry, there was a problem with your submission, please try again later.
+HomepageHomepage
+NextNext
+Thank you! Your submission has been received!
+Oops! Something went wrong while submitting the form.
+Write
+Button TextButton Text
+Learn
+Button TextButton Text
+Code
+Button TextButton Text
+Write
+Help me develop a unique voice for an audience
+Hi Claude! Could you help me develop a unique voice for an audience? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Improve my writing style
+Hi Claude! Could you improve my writing style? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Brainstorm creative ideas
+Hi Claude! Could you brainstorm creative ideas? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Learn
+Explain a complex topic simply
+Hi Claude! Could you explain a complex topic simply? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Help me make sense of these ideas
+Hi Claude! Could you help me make sense of these ideas? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Prepare for an exam or interview
+Hi Claude! Could you prepare for an exam or interview? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Code
+Explain a programming concept
+Hi Claude! Could you explain a programming concept? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Look over my code and give me tips
+Hi Claude! Could you look over my code and give me tips? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Vibe code with me
+Hi Claude! Could you vibe code with me? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to— like Google Drive, web search, etc.—if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can—an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+More
+Write case studies
+This is another test
+Write grant proposals
+Hi Claude! Could you write grant proposals? If you need more information from me, ask me 1-2 key questions right away. If you think I should upload any documents that would help you do a better job, let me know. You can use the tools you have access to — like Google Drive, web search, etc. — if they’ll help you better accomplish this task. Do not use analysis tool. Please keep your responses friendly, brief and conversational.
+Please execute the task as soon as you can - an artifact would be great if it makes sense. If using an artifact, consider what kind of artifact (interactive, visual, checklist, etc.) might be most helpful for this specific task. Thanks for your help!
+Write video scripts
+this is a test
+AnthropicAnthropic
+© [year] Anthropic PBC
+Products
+Claude
+ClaudeClaude
+Claude Code
+Claude CodeClaude Code
+Claude Code for Enterprise
+Claude Code for EnterpriseClaude Code for Enterprise
+Claude Cowork
+Claude CoworkClaude Cowork
+@Claude
+@Claude@Claude
+Claude Design
+Claude DesignClaude Design
+Claude Science
+Claude ScienceClaude Science
+Claude Security
+Claude SecurityClaude Security
+Download app
+Download appDownload app
+Pricing
+PricingPricing
+Log in
+Log inLog in
+Features
+Claude for Chrome
+Claude for ChromeClaude for Chrome
+Claude for Microsoft 365
+Claude for Microsoft 365Claude for Microsoft 365
+Skills
+SkillsSkills
+Models
+Mythos
+MythosMythos
+Fable
+FableFable
+Opus
+OpusOpus
+Sonnet
+SonnetSonnet
+Haiku
+HaikuHaiku
+Solutions
+AI agents
+AI agentsAI agents
+Code modernization
+Code modernizationCode modernization
+Coding
+CodingCoding
+Customer support
+Customer supportCustomer support
+Cybersecurity
+CybersecurityCybersecurity
+Enterprise
+EnterpriseEnterprise
+Financial services
+Financial servicesFinancial services
+Government
+GovernmentGovernment
+Healthcare
+HealthcareHealthcare
+Higher education
+Higher educationHigher education
+K-12 teachers
+K-12 teachersK-12 teachers
+Legal
+LegalLegal
+Life sciences
+Life sciencesLife sciences
+Nonprofits
+NonprofitsNonprofits
+Small business
+Small businessSmall business
+Claude Platform
+Overview
+OverviewOverview
+Developer docs
+Developer docsDeveloper docs
+Pricing
+PricingPricing
+Ecosystem
+EcosystemEcosystem
+Marketplace
+MarketplaceMarketplace
+Claude on AWS
+Claude on AWSClaude on AWS
+Google Cloud
+Google CloudGoogle Cloud
+Microsoft Foundry
+Microsoft FoundryMicrosoft Foundry
+Regional compliance
+Regional complianceRegional compliance
+Console login
+Console loginConsole login
+Resources
+Blog
+BlogBlog
+Claude partner network
+Claude partner networkClaude partner network
+Community
+CommunityCommunity
+Connectors
+ConnectorsConnectors
+Courses
+CoursesCourses
+Customer stories
+Customer storiesCustomer stories
+Engineering at Anthropic
+Engineering at AnthropicEngineering at Anthropic
+Events
+EventsEvents
+Plugins
+PluginsPlugins
+Powered by Claude
+Powered by ClaudePowered by Claude
+Service partners
+Service partnersService partners
+Tutorials
+TutorialsTutorials
+Use cases
+Use casesUse cases
+Company
+Anthropic
+AnthropicAnthropic
+Careers
+CareersCareers
+Policy
+PolicyPolicy
+Economic Futures
+Economic FuturesEconomic Futures
+Research
+ResearchResearch
+News
+NewsNews
+Policy on the AI Exponential
+Policy on the AI ExponentialPolicy on the AI Exponential
+Responsible Scaling Policy
+Responsible Scaling PolicyResponsible Scaling Policy
+Security and compliance
+Security and complianceSecurity and compliance
+Transparency
+TransparencyTransparency
+Programs
+Startups
+StartupsStartups
+Research Labs
+Research LabsResearch Labs
+Help and security
+Availability
+AvailabilityAvailability
+Status
+StatusStatus
+Support center
+Support centerSupport center
+Terms and policies
+Privacy choices
+Cookie settings
+We use cookies to deliver and improve our services, analyze site usage, and if you agree, to customize or personalize your experience and market our services to you. You can read our Cookie Policy here.
+Customize cookie settings
+Reject all cookies
+Accept all cookies
+Necessary
+Enables security and basic functionality.
+Required
+Analytics
+Enables tracking of site performance.
+Off
+Marketing
+Enables ads personalization and tracking.
+Off
+Save preferences
+Privacy policy
+Privacy policyPrivacy policy
+Responsible disclosure policy
+Responsible disclosure policyResponsible disclosure policy
+Terms of service: Commercial
+Terms of service: CommercialTerms of service: Commercial
+Terms of service: Consumer
+Terms of service: ConsumerTerms of service: Consumer
+Terms of Service: US K-12
+Terms of Service: US K-12Terms of Service: US K-12
+Data Processing Agreement: US K-12
+Data Processing Agreement: US K-12Data Processing Agreement: US K-12
+Usage policy
+Usage policyUsage policy
+x.comx.com
+LinkedInLinkedIn
+YouTubeYouTube
+InstagramInstagram
+English (US)
+English (US)
+日本語 (Japan)
+Deutsch (Germany)
+Français (France)
+한국어 (South Korea)
+Italian (Italy)
+Claude Platform
+Agents
+Business

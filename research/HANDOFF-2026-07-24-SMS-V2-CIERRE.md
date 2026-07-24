@@ -86,6 +86,14 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | SPI (lectura) | 🔄 ola 1 = `MUESTRA-10PCT` q01–q03 | quedan 28 chunks |
 | §4.7 cifras de acuerdo + κ | ⬜ depende de la SPI | `harvest/spi_agreement.py --write` |
 
+### Reproducibilidad: VERIFICADA, no afirmada (2026-07-24)
+
+El artículo afirma en §Amenazas que un tercero puede recomputar cada cifra. Se comprobó por
+bloqueo, no por confianza: `git clone` del repo a `/tmp` → `verify_sms_claims.py` verde (140/140) →
+`claims.tex` **byte-idéntico** al del árbol de trabajo (sha256 igual) → `make_bib.py` regenera las 24
+entradas → `pdflatex+bibtex` compila el PDF. El corpus committeado basta; los PDF (gitignored) no
+hacen falta para re-derivar ningún número.
+
 ### Cómo seguir las olas de la SPI (mecánico, 28 chunks restantes)
 
 Orden por valor: **`MUESTRA-10PCT` q04–q06 + `SNOWBALL-SAMPLE10` q01–q05** (son los únicos que dan κ)

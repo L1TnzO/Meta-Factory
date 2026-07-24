@@ -143,26 +143,184 @@ acompaña.
 \section{Resultados}
 \label{sec:results}
 
+%%CLAIMS-STRICT
+Todos los resultados se computan sobre los \clCarAnalizados{} estudios analizados a texto completo.
+Los campos son multi-etiqueta: un estudio puede declarar varios tipos de memoria o varios mecanismos
+de recuperación, de modo que las columnas suman más que el total. Las proporciones se calculan
+siempre sobre \clCarAnalizados{}.
+
 \subsection{Caracterización del corpus}
 \label{sec:res-corpus}
+
+El corpus es notablemente joven: \clCarRecientes{} de los \clCarAnalizados{} estudios
+(\clCarRecientesPct{}\,\%) se publicaron en los dos últimos años. Del total incluido
+(\clSelIncluidosTotal{}), se obtuvo texto completo de \clSelConTexto{} (\clSelCobertura{}\,\%). El
+escaneo de integridad detectó \clCalDuplicados{} pares casi-duplicados entre los incluidos, y
+\clCalArtefactos{} registros resultaron ser herramientas o artefactos de software en lugar de
+estudios, catalogados aparte.
 
 \subsection{RQ1 · Tipos de memoria y sustratos de representación}
 \label{sec:rq1}
 
+La memoria episódica y la semántica dominan, y la combinación es la norma: \clRQunoHibridosTipos{}
+estudios (\clRQunoHibridosPct{}\,\%) declaran dos o más tipos, frente a \clRQunoTiposUno{} que
+declaran uno solo. El polo paramétrico —escribir la experiencia en los pesos del modelo— está
+prácticamente desierto, y \clRQunoSinMecanismo{} estudios no aportan mecanismo propio porque su
+contribución es un benchmark, un dataset o una medición.
+
+\begin{table}[!t]
+\caption{RQ1 · Tipos de memoria y sustrato de representación (multi-etiqueta, $n=\clCarAnalizados$)}
+\label{tab:rq1}
+\centering
+\begin{tabularx}{\columnwidth}{Xr@{\hskip 1.2em}Xr}
+\toprule
+\textbf{Tipo de memoria} & \textbf{n} & \textbf{Representación} & \textbf{n} \\
+\midrule
+Episódica      & \clRQunoEpisodica     & Híbrida          & \clRQunoRepHibrida \\
+Semántica      & \clRQunoSemantica     & Documentos/archivos & \clRQunoRepDocs \\
+Procedimental  & \clRQunoProcedimental & Vectorial        & \clRQunoRepVector \\
+De trabajo     & \clRQunoTrabajo       & Grafo            & \clRQunoRepGrafo \\
+Multimodal     & \clRQunoMultimodal    & Parámetros       & \clRQunoRepParametros \\
+Paramétrica    & \clRQunoParametrica   & (no declara)     & \clRQunoRepNa \\
+(sin mecanismo)& \clRQunoSinMecanismo  &                  & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{RQ2 · Ciclo de vida de escritura y qué lo dispara}
 \label{sec:rq2}
+
+La escritura es la operación universalmente presente (\clRQdosWrite{}), pero el ciclo de vida
+completo no lo es: la actualización de una memoria existente aparece en \clRQdosActualizacion{}, la
+consolidación en \clRQdosConsolidacion{}, la admisión —decidir qué merece entrar— en
+\clRQdosAdmision{} y el olvido en \clRQdosOlvido{}. El hallazgo con mayor consecuencia de diseño está
+en el disparador: entre los estudios que declaran uno, \clRQdosDeterministaPct{}\,\% usan un
+mecanismo no discrecional.
+
+\begin{table}[!t]
+\caption{RQ2 · Operaciones de ciclo de vida y disparador de escritura ($n=\clCarAnalizados$)}
+\label{tab:rq2}
+\centering
+\begin{tabularx}{\columnwidth}{Xr@{\hskip 1.2em}Xr}
+\toprule
+\textbf{Operación} & \textbf{n} & \textbf{Disparador} & \textbf{n} \\
+\midrule
+Escritura      & \clRQdosWrite          & Evento determinista & \clRQdosTriggerDeterminista \\
+Actualización  & \clRQdosActualizacion  & Discrecional del modelo & \clRQdosTriggerDiscrecional \\
+Consolidación  & \clRQdosConsolidacion  & Presupuesto        & \clRQdosTriggerPresupuesto \\
+Admisión       & \clRQdosAdmision       & Checkpoint         & \clRQdosTriggerCheckpoint \\
+Olvido         & \clRQdosOlvido         & (no declara)       & \clRQdosTriggerNa \\
+(no declara)   & \clRQdosOperNa         &                    & \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \subsection{RQ3 · Recuperación e instrumentación}
 \label{sec:rq3}
 
+Los embeddings son el mecanismo mayoritario (\clRQtresEmbeddings{}), seguidos del ranking léxico o
+reordenamiento (\clRQtresRanking{}) y del recorrido de grafo (\clRQtresGrafo{}). La lectura directa
+de archivos, sin índice, aparece en \clRQtresGrep{} estudios (\clRQtresGrepPct{}\,\%);
+\clRQtresRetrievalNa{} no declaran mecanismo. Sobre la instrumentación —el núcleo de la
+pregunta—, \clRQtresMide{} estudios (\clRQtresMidePct{}\,\%) miden de alguna forma qué se recuperó y
+con qué utilidad, y \clRQtresNoMide{} no lo hacen. Conviene leer esa cifra con cuidado: «medir» aquí
+abarca desde reportar la exactitud de recuperación hasta ablations por elemento, y la sección de
+discusión muestra que la evidencia acumulada bajo esa etiqueta apunta en direcciones opuestas.
+
 \subsection{RQ4 · Persistencia cross-sesión y multi-agente}
 \label{sec:rq4}
+
+El alcance dominante es el proyecto (\clRQcuatroProyecto{}), por delante de la sesión
+(\clRQcuatroSesion{}), la tarea (\clRQcuatroTarea{}) y la organización
+(\clRQcuatroOrganizacion{}): el objeto de estudio se desplazó efectivamente hacia la operación
+continua. La memoria compartida entre agentes aparece en \clRQcuatroMultiagente{} estudios y la
+verificación de fidelidad o procedencia en \clRQcuatroFidelidad{}. El traspaso explícito entre
+sesiones o agentes está definido en \clRQcuatroHandoff{} (\clRQcuatroHandoffPct{}\,\%) y ausente en
+\clRQcuatroHandoffNo{}; de los que lo definen, \clRQcuatroHandoffContenido{} traspasan contenido,
+\clRQcuatroHandoffContrato{} un contrato y \clRQcuatroHandoffPunteros{} punteros. El estado del plan
+de trabajo se trata como contenido de memoria en \clRQcuatroPlanEstado{} estudios, lo que confirma
+como fenómeno real una dimensión que el protocolo había registrado sólo como hipótesis.
 
 \subsection{RQ5 · Evaluación y costo}
 \label{sec:rq5}
 
+El corpus es empíricamente sólido en su dimensión principal: \clRQcincoBenchmark{} estudios evalúan
+con un benchmark end-to-end y \clRQcincoAblation{} (\clRQcincoAblationPct{}\,\%) incluyen ablation
+con y sin memoria, que es la evidencia causal que el mapeo buscaba. Sólo \clRQcincoCualitativa{}
+aportan evidencia exclusivamente cualitativa. El costo se mide en \clRQcincoCosto{} estudios
+(\clRQcincoCostoPct{}\,\%). El contraste está en el tipo de métrica: el éxito final se reporta en
+\clRQcincoMetricaExito{} casos y el costo en tokens en \clRQcincoMetricaTokens{}, pero las métricas
+de iteración aparecen sólo en \clRQcincoMetricaIteracion{} (\clRQcincoMetricaIteracionPct{}\,\%).
+
+\begin{table}[!t]
+\caption{RQ5 · Tipo de evidencia y métricas reportadas ($n=\clCarAnalizados$)}
+\label{tab:rq5}
+\centering
+\begin{tabularx}{\columnwidth}{Xr@{\hskip 1.2em}Xr}
+\toprule
+\textbf{Tipo de evidencia} & \textbf{n} & \textbf{Métrica} & \textbf{n} \\
+\midrule
+Benchmark end-to-end & \clRQcincoBenchmark   & Éxito final    & \clRQcincoMetricaExito \\
+Ablation con/sin     & \clRQcincoAblation    & Otra           & \clRQcincoMetricaOtra \\
+Medición de costo    & \clRQcincoCosto       & Costo en tokens& \clRQcincoMetricaTokens \\
+Sólo cualitativa     & \clRQcincoCualitativa & Latencia       & \clRQcincoMetricaLatencia \\
+                     &                       & Iteración      & \clRQcincoMetricaIteracion \\
+                     &                       & Ninguna        & \clRQcincoMetricaNinguna \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{RQ6 · Riesgos y control}
 \label{sec:rq6}
+
+La fidelidad —procedencia, obsolescencia, consistencia entre almacenes— es una preocupación
+extendida: \clRQseisFidelidadFaceta{} estudios la tocan. La seguridad \emph{de} la memoria, en
+cambio, es marginal: \clRQseisSeguridad{} estudios (\clRQseisSeguridadPct{}\,\%). Entre los modos de
+fallo nombrados explícitamente, la obsolescencia aparece en \clRQseisStaleness{} estudios, el
+envenenamiento o inyección en \clRQseisPoisoning{} y la sobre-retención o el crecimiento sin control
+en \clRQseisSobreRetencion{}. Un sistema que persiste conocimiento durante meses acumula
+exactamente esos tres riesgos, y el corpus los cubre de forma desigual.
+
+\subsection{Facetas transversales y lente de decisión}
+\label{sec:res-facets}
+
+La tabla~\ref{tab:facetas} ordena las diez facetas por prevalencia confirmada contra el texto
+completo. La lectura importante es el extremo inferior, no el superior.
+
+\begin{table}[!t]
+\caption{Prevalencia confirmada de las facetas ($n=\clCarAnalizados$)}
+\label{tab:facetas}
+\centering
+\begin{tabularx}{\columnwidth}{Xr}
+\toprule
+\textbf{Faceta} & \textbf{n} \\
+\midrule
+Recuperación medida            & \clMFretrievalMedido \\
+Política de escritura          & \clMFwrite \\
+Fidelidad y procedencia        & \clMFfidelidad \\
+Costo y presupuesto de contexto& \clMFcosto \\
+Consolidación y olvido         & \clMFconsolidacion \\
+Conocimiento negativo          & \clMFnegativo \\
+Memoria compartida multi-agente& \clMFmultiagente \\
+Memoria procedimental          & \clMFprocedimental \\
+Seguridad de la memoria        & \clMFseguridadFaceta \\
+Documentos versionados         & \clMFdocsVersionado \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La síntesis produjo \clMFentradas{} mapeos entre un estudio y una decisión de diseño concreta:
+\clMFconfirma{} la confirman, \clMFextiende{} la extienden, \clMFneutral{} son neutrales y
+\clMFrefuta{} la refutan, estos últimos repartidos en \clMFrefutaPapers{} estudios distintos. Por
+decisión, los mapeos se concentran en la economía de contexto (\clMFanclaCosto{}), la fidelidad
+(\clMFanclaFidelidad{}), la recuperación medida (\clMFanclaGMdos{}) y la consolidación
+(\clMFanclaConsolidacion{}), seguidas del conocimiento negativo (\clMFanclaNegativo{}), las costuras
+entre almacenes (\clMFanclaCosturas{}), el estado del plan (\clMFanclaPlanEstado{}), el disparador de
+escritura (\clMFanclaGMuno{}), el índice como caché (\clMFanclaTierIndice{}) y los documentos como
+fuente de verdad (\clMFanclaTierDocs{}). La refutación se concentra en la recuperación medida
+(\clMFrefutaGMdos{}, \clMFrefutaGMdosPct{}\,\% del total) y, en segundo lugar, en el conocimiento
+negativo (\clMFrefutaNegativo{}); ambas se analizan en la sección~\ref{sec:discussion}.
+%%CLAIMS-STRICT-END
 
 \subsection{RQ7 · Práctica industrial}
 \label{sec:rq7}

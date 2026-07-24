@@ -491,3 +491,85 @@
   pregunta: "¿Qué proporción de los analizados son preprints de arXiv?"
   derivacion: "pct(sum(1 for r in extraction if r['pdf_status']=='ok' and not r['key'].startswith('W')), sum(1 for r in extraction if r['pdf_status']=='ok'))"
   unidad: pct1
+
+# ---------------------------------------------------------------- celdas de tabla faltantes
+- id: clRQunoMultimodal
+  pregunta: "¿En cuántos aparece memoria multimodal?"
+  derivacion: "sum(1 for r in extraction if 'MULTIMODAL' in toks(r,'mem_tipos'))"
+  unidad: int
+- id: clRQunoRepNa
+  pregunta: "¿Cuántos no declaran un sustrato de representación propio?"
+  derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'representacion'))"
+  unidad: int
+- id: clRQdosOperNa
+  pregunta: "¿Cuántos no definen operaciones propias de ciclo de vida?"
+  derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosTriggerNa
+  pregunta: "¿Cuántos no declaran qué dispara la escritura?"
+  derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'trigger'))"
+  unidad: int
+- id: clRQtresRetrievalNa
+  pregunta: "¿Cuántos no declaran mecanismo de recuperación?"
+  derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'retrieval'))"
+  unidad: int
+- id: clRQcuatroTarea
+  pregunta: "¿Cuántos operan a escala de tarea?"
+  derivacion: "sum(1 for r in extraction if 'TAREA' in toks(r,'alcance'))"
+  unidad: int
+- id: clRQcuatroHandoffNo
+  pregunta: "¿Cuántos no definen traspaso alguno?"
+  derivacion: "sum(1 for r in extraction if (r['handoff'] or '').strip() == 'NO')"
+  unidad: int
+- id: clRQcincoMetricaLatencia
+  pregunta: "¿Cuántos reportan latencia?"
+  derivacion: "sum(1 for r in extraction if 'LATENCIA' in toks(r,'metricas'))"
+  unidad: int
+- id: clRQcincoMetricaOtra
+  pregunta: "¿Cuántos reportan otras métricas fuera del vocabulario cerrado?"
+  derivacion: "sum(1 for r in extraction if 'OTRA' in toks(r,'metricas'))"
+  unidad: int
+- id: clRQcincoMetricaNinguna
+  pregunta: "¿Cuántos no reportan métrica alguna?"
+  derivacion: "sum(1 for r in extraction if 'NINGUNA' in toks(r,'metricas'))"
+  unidad: int
+- id: clRQunoTiposUno
+  pregunta: "¿Cuántos estudios declaran exactamente un tipo de memoria?"
+  derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) == 1)"
+  unidad: int
+- id: clMFfidelidad
+  pregunta: "Prevalencia confirmada de la faceta FIDELIDAD"
+  derivacion: "sum(1 for r in extraction if 'FIDELIDAD' in facets(r,'F'))"
+  unidad: int
+- id: clMFseguridadFaceta
+  pregunta: "Prevalencia confirmada de la faceta SEGURIDAD"
+  derivacion: "sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F'))"
+  unidad: int
+- id: clMFanclaFidelidad
+  pregunta: "¿Cuántos mapeos tocan fidelidad y anti-drift?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'FIDELIDAD')"
+  unidad: int
+- id: clMFanclaConsolidacion
+  pregunta: "¿Cuántos mapeos tocan consolidación?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'CONSOLIDACION')"
+  unidad: int
+- id: clMFanclaNegativo
+  pregunta: "¿Cuántos mapeos tocan el conocimiento negativo?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'NEGATIVO')"
+  unidad: int
+- id: clMFanclaCosturas
+  pregunta: "¿Cuántos mapeos tocan las costuras entre almacenes de memoria?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'COSTURAS')"
+  unidad: int
+- id: clMFanclaPlanEstado
+  pregunta: "¿Cuántos mapeos tocan el estado del plan como memoria?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'PLAN-ESTADO')"
+  unidad: int
+- id: clMFanclaGMuno
+  pregunta: "¿Cuántos mapeos tocan el disparador de escritura?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'G-M1')"
+  unidad: int
+- id: clMFanclaTierIndice
+  pregunta: "¿Cuántos mapeos tocan el índice derivado como caché?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'TIER-INDICE')"
+  unidad: int

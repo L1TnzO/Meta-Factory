@@ -52,7 +52,10 @@ STRICT_CLOSE = "%%CLAIMS-STRICT-END"
 DIGIT_WHITELIST = re.compile(
     r"(RQ\s?\d)|(§\s?\d[\d.]*)|(\b(19|20)\d\d\b)|(GPT-\d)|(Claude\s?\d)|(Gemini\s?\d)"
     r"|(Llama\s?\d)|(\\cl[A-Za-z]+)|(\\ref\{[^}]*\})|(\\label\{[^}]*\})|(\\cite[tp]?\{[^}]*\})"
-    r"|(\\includegraphics[^}]*\})|(\d+cm)|(\d+pt)|(0\.\d+\\textwidth)"
+    r"|(\\includegraphics[^}]*\})"
+    # LaTeX lengths are layout, not claims: 1.2em, 0.5\textwidth, 12pt...
+    r"|(\d+(\.\d+)?\s*(em|ex|pt|cm|mm|in|bp|sp))"
+    r"|(\d*\.?\d+\s*\\(text|column|line|page)width)"
 )
 BARE_DIGIT = re.compile(r"\d")
 

@@ -423,7 +423,9 @@ Olvido         & \clRQdosOlvido         & (no declara)       & \clRQdosTriggerNa
 
 Los embeddings son el mecanismo mayoritario (\clRQtresEmbeddings{}), seguidos del ranking léxico o
 reordenamiento (\clRQtresRanking{}) y del recorrido de grafo (\clRQtresGrafo{}). La lectura directa
-de archivos, sin índice, aparece en \clRQtresGrep{} estudios (\clRQtresGrepPct{}\,\%);
+de archivos, sin índice, aparece en \clRQtresGrep{} estudios (\clRQtresGrepPct{}\,\%) —entre ellos
+propuestas que gestionan el contexto con las primitivas de un sistema de control de versiones
+\cite{cW4416548137,cW7164974103}—;
 \clRQtresRetrievalNa{} no declaran mecanismo. Sobre la instrumentación —el núcleo de la
 pregunta—, \clRQtresMide{} estudios (\clRQtresMidePct{}\,\%) miden de alguna forma qué se recuperó y
 con qué utilidad, y \clRQtresNoMide{} no lo hacen. Conviene leer esa cifra con cuidado: «medir» aquí
@@ -440,8 +442,9 @@ continua. La memoria compartida entre agentes aparece en \clRQcuatroMultiagente{
 verificación de fidelidad o procedencia en \clRQcuatroFidelidad{}. El traspaso explícito entre
 sesiones o agentes está definido en \clRQcuatroHandoff{} (\clRQcuatroHandoffPct{}\,\%) y ausente en
 \clRQcuatroHandoffNo{}; de los que lo definen, \clRQcuatroHandoffContenido{} traspasan contenido,
-\clRQcuatroHandoffContrato{} un contrato y \clRQcuatroHandoffPunteros{} punteros. El estado del plan
-de trabajo se trata como contenido de memoria en \clRQcuatroPlanEstado{} estudios, lo que confirma
+\clRQcuatroHandoffContrato{} un contrato y \clRQcuatroHandoffPunteros{} punteros. La forma de contrato, la más rara, aparece por ejemplo al refactorizar habilidades como
+pseudocódigo verificable \cite{cW7162818693}. El estado del plan de trabajo se trata como contenido
+de memoria en \clRQcuatroPlanEstado{} estudios \cite{cW7164703964,cW7161204348}, lo que confirma
 como fenómeno real una dimensión que el protocolo había registrado sólo como hipótesis.
 
 \subsection{RQ5 · Evaluación y costo}
@@ -453,7 +456,9 @@ con y sin memoria, que es la evidencia causal que el mapeo buscaba. Sólo \clRQc
 aportan evidencia exclusivamente cualitativa. El costo se mide en \clRQcincoCosto{} estudios
 (\clRQcincoCostoPct{}\,\%). El contraste está en el tipo de métrica: el éxito final se reporta en
 \clRQcincoMetricaExito{} casos y el costo en tokens en \clRQcincoMetricaTokens{}, pero las métricas
-de iteración aparecen sólo en \clRQcincoMetricaIteracion{} (\clRQcincoMetricaIteracionPct{}\,\%).
+de iteración aparecen sólo en \clRQcincoMetricaIteracion{} (\clRQcincoMetricaIteracionPct{}\,\%),
+como el trabajo que instrumenta el contexto codificado de un agente de desarrollo
+\cite{c260220478v1}.
 
 \begin{table}[!t]
 \caption{RQ5 · Tipo de evidencia y métricas reportadas ($n=\clCarAnalizados$)}
@@ -478,10 +483,11 @@ Sólo cualitativa     & \clRQcincoCualitativa & Latencia       & \clRQcincoMetri
 
 La fidelidad —procedencia, obsolescencia, consistencia entre almacenes— es una preocupación
 extendida: \clRQseisFidelidadFaceta{} estudios la tocan. La seguridad \emph{de} la memoria, en
-cambio, es marginal: \clRQseisSeguridad{} estudios (\clRQseisSeguridadPct{}\,\%). Entre los modos de
-fallo nombrados explícitamente, la obsolescencia aparece en \clRQseisStaleness{} estudios, el
-envenenamiento o inyección en \clRQseisPoisoning{} y la sobre-retención o el crecimiento sin control
-en \clRQseisSobreRetencion{}. Un sistema que persiste conocimiento durante meses acumula
+cambio, es marginal: \clRQseisSeguridad{} estudios (\clRQseisSeguridadPct{}\,\%). Los trabajos que sí la abordan proponen validación en tiempo de evolución de la memoria
+\cite{cW7127739522} o flujos de admisión con revisión explícita antes de escribir
+\cite{c260626721v1}. Entre los modos de fallo nombrados explícitamente, la obsolescencia aparece en
+\clRQseisStaleness{} estudios, el envenenamiento o inyección en \clRQseisPoisoning{} y la
+sobre-retención o el crecimiento sin control en \clRQseisSobreRetencion{}. Un sistema que persiste conocimiento durante meses acumula
 exactamente esos tres riesgos, y el corpus los cubre de forma desigual.
 
 \subsection{Facetas transversales y lente de decisión}
@@ -542,7 +548,7 @@ lo más escaso de la literatura, y de ahí se derivó una hipótesis de vacío. 
 completo de los \clCarAnalizados{} estudios, la estimación se invierte: la escritura está bien
 estudiada (\clMFwrite{} estudios) y la escasez real está en otra parte. La faceta menos representada
 del corpus es la memoria como \emph{documentos versionados} —archivos, control de versiones,
-texto plano como sustrato— con \clMFdocsVersionado{} estudios, apenas
+texto plano como sustrato \cite{cW4416548137,cW7160652332}— con \clMFdocsVersionado{} estudios, apenas
 \clMFdocsVersionadoPct{}\,\% del corpus; la sigue la seguridad de la memoria con \clRQseisSeguridad{}
 (\clRQseisSeguridadPct{}\,\%).
 %%CLAIMS-STRICT-END
@@ -569,11 +575,13 @@ De los \clMFrefuta{} mapeos que refutan alguna decisión del sistema, \clMFrefut
 (\clMFrefutaGMdosPct{}\,\% del total) apuntan a esta. Leídas una por una, no dicen lo mismo: se
 reparten en dos direcciones opuestas y casi empatadas. \clGMdosMenos{} miden que \emph{añadir} una
 capa de recuperación no ayuda o perjudica —sistemas de memoria comerciales sin ganancia significativa
-sobre no tener memoria, un baseline de contexto largo sin memoria explícita obteniendo el mejor
-rango, documentos completos en texto plano superando a recuperación vectorial y por grafo, un
-puntuador determinista sin embeddings alcanzando precisión perfecta en el primer resultado sobre
-documentos etiquetados—. Otras \clGMdosMas{} miden lo contrario: que la similitud \emph{pura} es
-insuficiente, y que hace falta híbrido, estructura o recuperación agéntica multi-salto. Las
+sobre no tener memoria \cite{cW4414815971}, un baseline de contexto largo sin memoria explícita
+obteniendo el mejor rango \cite{cW7161915937,cW7130618007}, documentos completos en texto plano
+superando a recuperación vectorial y por grafo \cite{cW7138265814}, un puntuador determinista sin
+embeddings alcanzando precisión perfecta en el primer resultado sobre documentos etiquetados
+\cite{cW7154651477}—. Otras \clGMdosMas{} miden lo contrario: que la similitud \emph{pura} es
+insuficiente, y que hace falta híbrido, estructura o recuperación agéntica multi-salto
+\cite{cW4406840428,cW7130236833,cW7133363879}. Las
 \clGMdosCalidad{} restantes no discuten recuperación sino que el número de titular del propio
 trabajo contradice su tabla de resultados.
 %%CLAIMS-STRICT-END
@@ -585,9 +593,9 @@ razonable es que la decisión que se discute son en realidad dos, habitualmente 
 favorece la abstención cuando el corpus cabe en la ventana y está curado —que es precisamente el
 caso de un proyecto único con documentación versionada—. Sobre (b), la evidencia es netamente
 desfavorable al \emph{léxico puro}: los trabajos que comparan mecanismos sobre la misma base miden
-que el emparejamiento léxico es el más débil de los tres y que el vector denso domina salvo en
-nichos de vocabulario cerrado, y que la similitud semántica sola falla en consultas por atributo
-temporal.
+que el emparejamiento léxico es el más débil de los tres \cite{cW7133571000} y que el vector denso
+domina salvo en nichos de vocabulario cerrado \cite{cW7162893362}, y que la similitud semántica sola
+falla en consultas por atributo temporal \cite{cW4399354028}.
 
 La consecuencia práctica para un sistema como el estudiado no es «agregar embeddings», sino
 reconocer que su decisión es defendible por el argumento (a) y no por el (b), y que su condición de

@@ -188,20 +188,48 @@ def render_tex(claims: list[dict], values: dict[str, str]) -> str:
 
 
 def strict_regions(tex: str) -> list[tuple[int, str]]:
-    """(line number, line) for every line inside a %%CLAIMS-STRICT ... %%CLAIMS-STRICT-END region."""
+    """(line number, line) for every line inside a %%CLAIMS-STRICT ... %%CLAIMS-STRICT-END region.
+
+    A `tikzpicture` body is EXEMPT, but not because it is inconvenient: axis bounds, bar widths and
+    colour levels are layout, and exempting them wholesale would be a hole only if the plotted DATA
+    were also exempt. It is not — `coordinates{...}` is checked separately and harder (see
+    `plot_data_problems`), so a figure still cannot state a number the corpus does not derive.
+    """
     out: list[tuple[int, str]] = []
     inside = False
+    in_tikz = False
     for n, line in enumerate(tex.splitlines(), 1):
         stripped = line.strip()
+        if "\\begin{tikzpicture}" in stripped:
+            in_tikz = True
+        if "\\end{tikzpicture}" in stripped:
+            in_tikz = False
+            continue
         if stripped.startswith(STRICT_CLOSE):
             inside = False
             continue
         if stripped.startswith(STRICT_OPEN):
             inside = True
             continue
-        if inside and not stripped.startswith("%"):
+        if inside and not in_tikz and not stripped.startswith("%"):
             out.append((n, line))
     return out
+
+
+COORDS_RE = re.compile(r"coordinates\s*\{(.*?)\}\s*;", re.S)
+
+
+def plot_data_problems(tex: str) -> list[str]:
+    """Every plotted coordinate must be a claim macro. A chart is an assertion like any sentence."""
+    problems: list[str] = []
+    for m in COORDS_RE.finditer(tex):
+        body = m.group(1)
+        scrubbed = re.sub(r"\\cl[A-Za-z]+", "", body)
+        digits = "".join(ch for ch in scrubbed if ch.isdigit())
+        if digits:
+            problems.append(f"plotted coordinate(s) with literal digit(s) '{digits[:20]}' — a chart "
+                            f"asserts numbers too; use \\cl macros")
+    return problems
 
 
 def main() -> int:
@@ -253,6 +281,9 @@ def main() -> int:
                 bad = "".join(ch for ch in scrubbed if ch.isdigit())
                 errors.append(f"{TEX.name}:{n}: literal digit(s) '{bad}' inside a CLAIMS-STRICT region "
                               f"— every result number must be a \\cl macro")
+
+        # ---- tooth 4b: plotted data must be macros too
+        errors.extend(f"{TEX.name}: {p}" for p in plot_data_problems(tex))
 
         # ---- tooth 5: citations must resolve to the corpus
         if BIB.exists():

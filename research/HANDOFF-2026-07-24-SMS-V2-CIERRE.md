@@ -77,8 +77,22 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Bibliografía generada | ✅ | `harvest/make_bib.py` + `sms-v2/CITEKEYS.md` |
 | Paper: intro · antecedentes · relacionados · método · resultados RQ1–6 · facetas · discusión · amenazas | ✅ compila | `sms-v2/sms-v2.pdf` |
 | Rescate de PDFs | 🔄 en slot | ≥9 verificados, gate verde |
-| SPI (ejecución) · gris · RQ7 · §4.7 · conclusiones · resumen | ⬜ | — |
-| Propagación al anteproyecto | ⬜ | `../../Investigación/Anteproyecto_ID.tex` |
+| Paper: conclusiones + resumen estructurado + 24 citas ejemplares | ✅ | `sms-v2/sms-v2.pdf` compila con bibliografía IEEE |
+| **Propagación al anteproyecto** | ✅ | `../../Investigación/Anteproyecto_ID.tex` (§2.1, §2.4, §2.5, Anexo E, resumen y justificación) |
+| SPI (ejecución) · gris · RQ7 · §4.7 | 🔄 slot `sms-spi-grey-toolkit` | — |
+
+**Propagación (§9.6) — hecha con números VIVOS, no copiados.** `sms-v2/claims.tex` se copia a
+`Investigación/sms-v2-claims.tex` y el anteproyecto lo hace `\input`: las mismas macros `\cl…`, una
+sola fuente. El anteproyecto y el artículo **no pueden discrepar**; si el corpus cambia, se re-emite
+y se re-copia. ⚠️ `Investigación/` **no es un repo git** — no hay commit ahí; existe respaldo
+`Anteproyecto_ID.tex.bak-2026-07-24`.
+
+El argumento de brecha se reescribió y quedó más fuerte que el del v1: (i) la brecha de evaluación
+pasa de observación a MEDICIÓN (métricas de iteración en \clRQcincoMetricaIteracionPct de 422
+estudios); (ii) la de integración se mantiene; (iii) **nueva brecha de SUSTRATO**, sólo visible al
+medir: la memoria como documentos versionados es la faceta menos estudiada (33 estudios, 7,8%) — es
+decir, el sustrato que el proyecto eligió es el que menos evidencia acumula, evaluado en la dimensión
+que menos se mide. Esa conjunción delimita el aporte con precisión.
 
 **Hallazgo que cambió el paper** (§3 del commit `b3afb5d`): leer las 23 refutaciones sobre G-M2 una
 por una desmiente el resumen heredado. No dicen «ADR-019 está mal»: **10 miden que añadir

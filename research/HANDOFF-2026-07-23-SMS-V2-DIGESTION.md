@@ -1,4 +1,4 @@
-# HANDOFF — Digestión §7.4 ARRANCADA (2026-07-23, contrato validado, 1/71)
+# HANDOFF — Digestión §7.4 COMPLETA (2026-07-23→24, fase CERRADA)
 
 > Para retomar con amnesia total: este doc + bitácora §8 del `SMS-V2-PROTOCOL.md` (single-source de
 > números). Ante duda, `git log --oneline -- research/` es la verdad. Ley §7.4, formulario §7.6 y
@@ -6,76 +6,77 @@
 
 ## 0. Estado en una línea
 
-Contrato + ley §7.4 CONGELADOS, toolkit COMMITTEADO (`fd8849f`), hoja de **71 chunks `d01–d71`**
-construida (orden prioridad→escasez), **ola 1 (`d01`) VALIDADA end-to-end** (gate + footprint +
-groundedness 3/3). Quedan **`d02–d71` (70 chunks) = ejecución mecánica S2** (Sonnet).
+Contrato + ley §7.4 CONGELADOS, toolkit COMMITTEADO. **DIGESTIÓN COMPLETA: 71/71 chunks, 422/422 papers
+digeridos** (`d01–d71`), gate `verify_digest_verdicts.py` verde sobre todos los chunks, `make_digest_sheet.py
+merge` escribió `corpus/digestion/digest.jsonl` (422 registros) sin rechazos. **`digest.jsonl` YA alimenta el
+prototipo — el destino real del corpus está cumplido. La fase de digestión cierra.**
 
-## 1. Qué es la digestión (§7.4) y qué la hace diferente de la extracción
+## 1. Qué quedó cerrado (25 olas: ola 1 en sesión de diseño S1 2026-07-23, olas 2–25 en sesión mecánica S2
+2026-07-23→24, commits fd8849f→f8bd67b)
 
-El digest es el **destino real del corpus**: un registro tipado por paper, directamente ingerible por
-la memoria del prototipo. NO es re-derivación de la extracción — es SÍNTESIS **encima** de la extracción
-congelada: los facetados medidos (`operaciones`/`representacion`/`F`) se **arrastran idénticos** de
-`extraction.csv` y el gate los liga por igualdad-de-conjunto (deriva → RECHAZO). Lo NUEVO (el juicio):
-`problema`/`mecanismo`/`evaluacion` (prosa), `numeros_clave`, y la **lente MF** `mf_aplicabilidad`.
+- Toolkit: `harvest/digestion_law.py` (ley single-source §7.4, trust-chain — escrito+revisado a mano) ·
+  `make_digest_sheet.py build|merge` · gate `verify_digest_verdicts.py` (JSONL; liga cada registro a su fila
+  de `extraction.csv` por igualdad-de-conjunto `operaciones`/`representacion`/`F`/`cita` — deriva → RECHAZO) ·
+  contrato `corpus/digestion/PROMPT.md`. Tests: 35/35.
+- `corpus/digestion/batches/d01–d71.verdict.jsonl` (71 chunks, 422 registros) + `corpus/digestion/digest.jsonl`
+  (el artefacto final ingerible, 422 registros, escrito por `merge`).
+- El merge NUNCA re-escribe sobre inválido: aborta sin tocar `digest.jsonl` si algún registro falla
+  `validate_digest` — 0 abortos en esta corrida (71/71 chunks ya verdes antes del merge).
 
-## 2. El toolkit (espejo de la extracción, un nivel abajo — NO tocar la ley)
+## 2. Hallazgos MEDIDOS (para la escritura del SMS — números completos en bitácora §8)
 
-- `harvest/digestion_law.py` — **tooth (trust-chain, escrito+revisado a mano; NO delegar cambios)**.
-  `validate_digest(rec, ext)` devuelve TODA violación. `DIGEST_FIELDS`, `MF_ANCLAS`, `POSTURAS`,
-  `FACET_REQUIRES_ANCLA` viven aquí, single-source.
-- `harvest/make_digest_sheet.py build|merge` — `build` ya ejecutado (71 chunks). `merge`: al final de
-  TODAS las olas, valida todos los `d*.verdict.jsonl` y escribe `corpus/digestion/digest.jsonl` (el
-  artefacto final ingerible). Falla si algún registro es inválido.
-- `harvest/verify_digest_verdicts.py [--require d02,…]` — gate determinista JSONL. Por chunk: claves ==
-  input, y cada registro pasa `validate_digest` contra su fila de `extraction.csv`. Read-only.
-- `corpus/digestion/PROMPT.md` — contrato de delegación AUTOSUFICIENTE para los generators.
-- `harvest/test_digestion_tools.py` — 35/35 (offline). NO leen el corpus real.
+- **`RECONSIDERAR` 83/422 (19,7%)**: venues autopublicados/sin revisión, evidencia solo cualitativa,
+  contradicciones internas abstract-vs-tablas, o meta-comentario de asistente-LLM colado en vez de
+  resultados reales. Más alto que el 7,8% de la extracción — la digestión LEE el PDF completo, no solo
+  extrae campos, así que atrapa más señales de calidad-de-corpus. Cola humana de Catalina.
+- **`mf_aplicabilidad` (966 entradas): CONFIRMA 539 · EXTIENDE 482 · NEUTRAL 154 · REFUTA 64.** `REFUTA`
+  es la señal de más valor (evidencia externa que desafía una decisión MF congelada) — por ancla: `G-M2`
+  23 · `NEGATIVO` 10 · `FIDELIDAD` 7 · `CONSOLIDACION` 6 · `TIER-INDICE` 6 · `COSTURAS` 3 · `COSTO` 3 ·
+  `TIER-DOCS` 3 · `G-M1` 2 · `PLAN-ESTADO` 1.
+- **`G-M2` (retrieval medido) concentra >1/3 de todo `REFUTA`**: el corpus mide sistemáticamente casos
+  donde retrieval por similitud/embeddings puro pierde contra retrieval híbrido, agéntico-multi-hop, o
+  baselines de contexto largo/sin memoria. Es la tensión más citada contra ADR-019 en todo el digest —
+  probablemente el hallazgo central a escribir en el SMS.
+- La lente MF NO es vacua (validado ya en ola 1: mapeos concretos paper→necesidad-MF con ancla de sección/
+  tabla, no genérico).
 
-## 3. Ciclo de ola (mecánico — copiar el de la extracción, un nivel abajo)
+## 3. Qué queda (máquina)
 
-1. **Manifest** `.gen/active_slot.json` (root = meta): `slot_id=sms-digest-waveN`,
-   `allow_globs=["research/corpus/digestion/batches/d<NN>.verdict.jsonl", …]` (los verdicts de la ola),
-   `iteration/acceptance_gate_cmd=["python3","research/harvest/verify_digest_verdicts.py","--require","d02,d03,d04"]`,
-   `baseline_dirty` = el `git status --porcelain --untracked-files=all` de ese momento (usa
-   `metafactory.delegation.write_slot(root, m, baseline_dirty=paths)`).
-2. **Spawn `generator`** (Sonnet), autoridad = `corpus/digestion/PROMPT.md`; lee cada PDF con
-   `pdftotext … | head -c 30000` (jamás entero); **escribe cada `d<NN>.verdict.jsonl` con `json.dumps`
-   y CORRE el gate `--require d<NN>` tras CADA chunk** (el checkpoint es DIENTE, no prosa — lección de
-   la extracción: un generator batcheó chunks en contexto y perdió ~351k tok).
-3. **Verificar por bloqueo ANTES del merge**: `verify_digest_verdicts.py --require d02,d03,d04` +
-   `PYTHONPATH=src python3 -m metafactory.verify.checks.slot_footprint . --live`. Verde + footprint⊆contrato → aceptar.
-4. **Commit** `git add research/corpus/digestion/batches/d*.verdict.jsonl` + `clear_slot`.
-5. Al terminar TODAS las olas: `make_digest_sheet.py merge` → `digest.jsonl` + commit.
+Nada pendiente de máquina en la digestión misma. Fases de máquina que siguen abiertas de handoffs previos:
+rescate manual de los 65 sin PDF (`extraction.csv` `pdf_status=missing`) · cosecha gris §6 (blogs de labs).
 
-- **Ola óptima medida (extracción)**: 2–3 chunks (12–18 papers). Chunk (6) = unidad mínima recuperable;
-  el reintento fresco retoma los chunks faltantes del MISMO slot. Costo ola 1 ≈ 152k tok Sonnet / 6 papers
-  (con PDFs; similar a la extracción, ~20k/paper).
-- **Orden** (`d01`→`d71`): prioridad `DOCS-VERSIONADO`→`SEGURIDAD`→`NEGATIVO`, luego escasez de faceta.
-  `d01–d06` ≈ DOCS-VERSIONADO (33 papers); las facetas escasas MF salen primero por diseño.
+## 4. Qué queda (humano — Catalina, borde por §7.5)
 
-## 4. Lo validado en la ola 1 (por qué el contrato está de-riesgado)
+Colas acumuladas de TODAS las fases (número completo en bitácora §8, línea "Siguiente fase"): 131
+GRIS/CE-4p · 110 muestra · 11 PRE-OUT · 61 SNOWBALL-GRIS · 98 SNOWBALL-SAMPLE10 · 33 RECONSIDERAR de
+extracción · **83 RECONSIDERAR de digestión (nuevo)** · 7 DUPLICADOS-INCLUIDOS · promover faceta
+`PLAN-ESTADO` (decisión que toca ley congelada). La decisión de borde y la fusión de duplicados es siempre
+humana. **Prioridad de lectura para Catalina: los 64 `REFUTA`, concentrados en `G-M2`.**
 
-- **Satisfacible**: un generator Sonnet real produjo `d01` verde contra los 6 PDFs.
-- **Bloqueante**: el gate ata `numeros_clave` (≠NINGUNO si evidencia numérica), los facetados vs
-  extracción, y las obligaciones faceta→ancla — pasó SOLO porque se satisfacen.
-- **Con valor semántico**: la lente MF NO es vacua (mapea papers a G-M2/TIER-DOCS/TIER-INDICE/… con
-  posturas ancladas a sección/tabla). `REFUTA` = la señal de más valor (0 en `d01`, esperado en DOCS).
-- **Grounded**: `verifier` (Haiku) cruzó 3 registros vs PDF → **3/3 CONFIRMED** con anclas por línea.
+## 5. Siguiente fase real: escritura del SMS v2
 
-## 5. Residuo honesto + colas humanas (Catalina)
+El corpus (búsqueda → cribado → snowball → extracción → digestión) está completo end-to-end. No queda
+fase de máquina nueva que produzca datos — queda ESCRIBIR, con `digest.jsonl` como fuente primaria y las
+colas humanas como filtro de calidad. Empezar por los `REFUTA` (la tensión ADR-019/G-M2) y las facetas
+escasas confirmadas (`DOCS-VERSIONADO`, `NEGATIVO`).
 
-- Un solo digestor-modelo por fila; el gate NO ata calidad de prosa ni corrección del número →
-  **groundedness muestreada** (verifier por ola, no censal) + verificación humana. `RECONSIDERAR` en
-  `notes` se arrastra (cola humana). Priorizar para la escritura del SMS: los `REFUTA` y las facetas escasas.
-- Colas previas SIGUEN abiertas (handoff 2026-07-18 §4): 131 GRIS/CE-4p · 110 muestra · 11 PRE-OUT ·
-  61 SNOWBALL-GRIS · 98 SNOWBALL-SAMPLE10 · 33 RECONSIDERAR extracción · 7 DUPLICADOS-INCLUIDOS.
-- Otras fases pendientes (máquina): rescate de los 65 sin PDF · cosecha gris §6 · promover faceta
-  `PLAN-ESTADO` (toca ley congelada §7.5 — decisión humana).
+## 6. Ciclo de ola probado (25×) + gotchas reusables
 
-## 6. Gotchas reusables (heredados + nuevos)
-
-- Manifest y verdicts de slot viven en `.gen/` del **meta root** (no en `research/.gen/`); `.gen/` es
-  gitignored. `git status --porcelain` desde el meta root SÍ reporta paths `research/…` (footprint OK).
-- Write-hook `CLAUDE_PROJECT_DIR` frágil en spawns → el generator escribe por Bash/heredoc; el
-  **footprint-tooth** (git-observed) + el gate cubren. Verifica por BLOQUEO, no por la prosa del verdict.
-- `digestion_law.py` es trust-chain: revísalo con tus ojos, NO lo delegues. Delega solo el plumbing.
+- **Ciclo** (idéntico a la extracción, un nivel abajo): manifest `.gen/active_slot.json` (slot
+  `sms-digest-waveN`, `allow_globs` = los `d<NN>.verdict.jsonl` de la ola, gate iteración+aceptación
+  `--require`) → spawn `generator` (Sonnet, autoridad = `corpus/digestion/PROMPT.md`, `pdftotext` acotado,
+  **checkpoint por chunk con gate `--require d<NN>` tras CADA chunk**) → verificar por bloqueo (gate
+  `--require` + `slot_footprint --live`) → commit → `clear_slot`.
+- **Resiliencia probada**: TRES cortes de límite de sesión (waves 9, 15, 22) absorbidos con pérdida cero.
+  El chunk (6 papers, o 2 en el último `d71`) es la unidad mínima recuperable; el reintento fresco (mismo
+  slot todavía activo en `.gen/active_slot.json`) retoma SOLO los chunks faltantes — verificado por
+  bloqueo antes de confiar en la prosa del resume.
+- **Ola óptima medida**: 3 chunks (18 papers, ~300–360k tok Sonnet por spawn). Costo total digestión
+  (waves 2–25 + resumes) ≈ 7,5M tok Sonnet + ~152k tok de la ola 1 ≈ **7,66M tok para 422 papers**
+  (~18k tok/paper, consistente con el ~20k/paper de la extracción).
+- El `.gen/write_digest_wave.py` (scratch del orquestador, gitignored, NO repo code) automatizó la
+  escritura del manifest por ola — `baseline_dirty` capturado vía `git status --porcelain
+  --untracked-files=all` en cada apertura de slot, para no ensuciar el footprint con la suciedad
+  pre-existente ajena (helpdesk frontend, `presentation/`, `snipeit/source_code.zip`).
+- Write-hook `CLAUDE_PROJECT_DIR` frágil en spawns → heredoc/Bash + footprint-tooth (`slot_footprint
+  --live`) cubren — verificar SIEMPRE por bloqueo, nunca confiar en el resumen del generator.

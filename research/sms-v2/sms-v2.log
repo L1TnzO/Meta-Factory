@@ -331,10 +331,10 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count312
 ) (./sms-v2.aux
-LaTeX Info: Redefining \. on input line 10.
-LaTeX Info: Redefining \% on input line 10.
+LaTeX Info: Redefining \. on input line 8.
+LaTeX Info: Redefining \% on input line 8.
 Package babel Info: 'spanish' activates 'spanish' shorthands.
-(babel)             Reported on input line 10.
+(babel)             Reported on input line 8.
 )
 \openout1 = `sms-v2.aux'.
 
@@ -372,27 +372,27 @@ Package hyperref Info: Link coloring OFF on input line 29.
 \openout3 = `sms-v2.out'.
 
 Package babel Info: Main language set to 'spanish'.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 77.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 55.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 77.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 55.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1{/home/enzo/.TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/home/enzo/.TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 ] [2] [3]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 365.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 388.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 
 LaTeX Font Warning: Font shape `TS1/ptm/m/sc' undefined
 (Font)              using `TS1/ptm/m/n' instead
-(Font)              for symbol `textperiodcentered' on input line 375.
+(Font)              for symbol `textperiodcentered' on input line 398.
 
-[4] [5] [6] (./sms-v2.bbl [7]
+[4] [5] [6] [7] (./sms-v2.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 48--49
 []\T1/ptm/m/n/8 S. K. Ra-vin-dran, ``Por-ta-ble agent me-mory: A pro-to-col for
  []
@@ -414,11 +414,9 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[8
-
-] (./sms-v2.aux
-LaTeX Info: Redefining \. on input line 10.
-LaTeX Info: Redefining \% on input line 10.
+[8] (./sms-v2.aux
+LaTeX Info: Redefining \. on input line 8.
+LaTeX Info: Redefining \% on input line 8.
 )
  ***********
 LaTeX2e <2026-06-01>
@@ -432,15 +430,15 @@ Package rerunfilecheck Info: File `sms-v2.out' has not changed.
 (rerunfilecheck)             Checksum: 1245C5CF8245BF60766B23F81206543A;8278.
  ) 
 Here is how much of TeX's memory you used:
- 12333 strings out of 469140
- 195082 string characters out of 5459681
+ 12344 strings out of 469140
+ 195188 string characters out of 5459681
  643779 words of memory out of 5000000
- 41116 multiletter control sequences out of 15000+600000
- 741832 words of font info for 155 fonts, out of 8000000 for 9000
+ 41123 multiletter control sequences out of 15000+600000
+ 743377 words of font info for 161 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 74i,9n,79p,424b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,9n,79p,424b,531s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sms-v2.pdf (8 pages, 151689 bytes).
+Output written on sms-v2.pdf (8 pages, 156765 bytes).
 PDF statistics:
  319 PDF objects out of 1000 (max. 8388607)
  288 compressed objects within 3 object streams

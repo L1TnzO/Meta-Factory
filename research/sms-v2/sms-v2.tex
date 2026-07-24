@@ -39,7 +39,30 @@ catalinalazolocky@gmail.com}}
 \maketitle
 
 \begin{abstract}
-% ABSTRACT — se escribe AL FINAL, cuando los números están cerrados.
+%%CLAIMS-STRICT
+\textbf{Contexto:} los agentes basados en modelos de lenguaje ya operan durante días sobre
+repositorios reales, y su limitación dominante dejó de ser generar código para pasar a ser sostener
+la continuidad entre sesiones. La literatura llama «memoria» tanto al manejo de la ventana de
+contexto dentro de una tarea como a los mecanismos que persisten entre sesiones, lo que dificulta
+decidir con evidencia. \textbf{Objetivo:} mapear qué mecanismos de memoria persistente se proponen
+para agentes de ingeniería de software de larga vida, qué se ha medido sobre ellos y qué vacíos
+quedan. \textbf{Método:} mapeo sistemático sobre tres agregadores con exportación programática,
+rúbrica congelada tras calibración, una ronda de snowballing y extracción tipada contra el texto
+completo; \clSelUnicos{} registros cribados, \clSelIncluidosTotal{} estudios incluidos y
+\clCarAnalizados{} analizados a texto completo. La clasificación se delegó a modelos de lenguaje
+bajo compuertas deterministas y con una segunda lectura ciega independiente; toda cifra del artículo
+se re-deriva del corpus versionado en cada compilación. \textbf{Resultados:} el alcance dominante ya
+es el proyecto y el traspaso explícito entre sesiones es la norma (\clRQcuatroHandoffPct{}\,\%),
+aunque casi siempre viaja contenido y no punteros ni contratos. Entre los estudios que declaran qué
+dispara la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional. La evidencia
+es sólida en ablation (\clRQcincoAblationPct{}\,\%) y escasa en métricas de iteración
+(\clRQcincoMetricaIteracionPct{}\,\%) y en seguridad de la memoria
+(\clRQseisSeguridadPct{}\,\%). La memoria como documentos versionados es la faceta menos estudiada
+(\clMFdocsVersionadoPct{}\,\%). \textbf{Conclusión:} sobre la recuperación medida la evidencia está
+en disputa —\clGMdosMenos{} estudios miden que añadir una capa no ayuda y \clGMdosMas{} que la
+similitud pura es insuficiente—, lo que indica que decidir \emph{si} recuperar y decidir \emph{con
+qué mecanismo} son decisiones distintas que la práctica suele confundir en una.
+%%CLAIMS-STRICT-END
 \end{abstract}
 
 \begin{IEEEkeywords}

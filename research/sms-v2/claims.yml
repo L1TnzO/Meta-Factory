@@ -573,3 +573,19 @@
   pregunta: "¿Cuántos mapeos tocan el índice derivado como caché?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'TIER-INDICE')"
   unidad: int
+
+# ---------------------------------------------------------------- réplica del hallazgo v1
+- id: clRQunoConMecanismo
+  pregunta: "¿Cuántos de los analizados aportan un mecanismo de memoria propio?"
+  derivacion: "sum(1 for r in extraction if [t for t in toks(r,'mem_tipos') if t != 'NA'])"
+  unidad: int
+  glosa: "denominador honesto para la tasa de hibridación: excluye benchmarks y datasets"
+- id: clRQunoHibridosSobreMec
+  pregunta: "Entre los que aportan mecanismo, ¿qué proporción combina dos o más tipos?"
+  derivacion: "pct(sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t!='NA'])>=2), sum(1 for r in extraction if [t for t in toks(r,'mem_tipos') if t != 'NA']))"
+  unidad: pct1
+  glosa: "60,5% frente al 92,6% que reportó el mapeo de 27 estudios: la estimación pequeña no replica"
+- id: clRQunoTipoUnico
+  pregunta: "¿Cuántos estudios declaran un solo tipo de memoria?"
+  derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) == 1)"
+  unidad: int

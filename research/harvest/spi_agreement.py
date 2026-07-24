@@ -32,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from closure_law import (  # noqa: E402
     QUEUES, SPI_DIR, KIND_VERIFICACION, KIND_CONFIRMACION, KIND_ADJUDICACION,
     KIND_CALIDAD, KIND_IDENTIDAD, collapse, cohen_kappa, interpret_kappa, queue_members,
+    HUMAN_LABELS,
 )
 
 BATCHES = SPI_DIR / "batches"
@@ -81,10 +82,20 @@ def main() -> int:
 
         if q.kind in (KIND_VERIFICACION, KIND_CONFIRMACION):
             exact_hit = coll_hit = 0
+            abstained = 0          # pass 1 declined to decide: NOT verifiable, see below
             confusion: dict[tuple[str, str], int] = defaultdict(int)
             for key, v in sorted(verdicts.items()):
                 a = (p1.get(key, {}).get("decision") or "").strip()
                 b = (v.get("decision") or "").strip()
+                # A row where pass 1 ABSTAINED (GRIS/CE-4p) cannot be verified: there is no firm
+                # decision to agree or disagree with, and the second reader is forbidden from
+                # abstaining in this stratum, so the pair is a guaranteed mismatch BY CONSTRUCTION.
+                # Counting it would depress the coefficient with an artefact of the design. It is
+                # excluded from the coefficient and reported separately — the second reader did
+                # resolve it, which is an adjudication result, just not a reliability one.
+                if a in HUMAN_LABELS:
+                    abstained += 1
+                    continue
                 confusion[(collapse(a), collapse(b))] += 1
                 if a == b:
                     exact_hit += 1
@@ -100,7 +111,14 @@ def main() -> int:
                 if q.kind == KIND_VERIFICACION:
                     kappa_pairs_exact.append((a, b))
                     kappa_pairs_collapsed.append((collapse(a), collapse(b)))
-            n = len(verdicts)
+            n = len(verdicts) - abstained
+            if n <= 0:
+                lines.append("- sin filas comparables (la pasada 1 se abstuvo en todas)")
+                lines.append("")
+                continue
+            lines.append(f"- filas comparables: {n} (se excluyen {abstained} donde la pasada 1 se "
+                         f"ABSTUVO: no son verificables y el segundo lector no puede abstenerse aquí, "
+                         f"así que contarlas sería penalizar el coeficiente con un artefacto del diseño)")
             lines.append(f"- acuerdo EXACTO: {exact_hit}/{n} = {100 * exact_hit / n:.1f}%")
             lines.append(f"- acuerdo COLAPSADO (IN/OUT/HUMANO): {coll_hit}/{n} = {100 * coll_hit / n:.1f}%")
             if q.kind == KIND_CONFIRMACION:

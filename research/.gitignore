@@ -2,3 +2,8 @@
 corpus/pdf/
 __pycache__/
 *.pyc
+sms-v2/*.aux
+sms-v2/*.bbl
+sms-v2/*.blg
+sms-v2/*.log
+sms-v2/*.out

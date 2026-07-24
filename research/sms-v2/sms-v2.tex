@@ -103,13 +103,67 @@ acompaña.
 \section{Antecedentes}
 \label{sec:background}
 
-\subsection{Agentes LLM de larga vida en ingeniería de software}
-\subsection{Memoria, contexto y la distinción que este estudio sostiene}
+\subsection{Agentes de larga vida en ingeniería de software}
+
+Un agente basado en un modelo de lenguaje que trabaja sobre un repositorio real no ejecuta una
+consulta sino un proceso: planifica, edita, ejecuta pruebas, lee resultados y reintenta, durante
+horas o días. Trabajos como Voyager \cite{cW4378505261} mostraron temprano que la acumulación de
+habilidades reutilizables cambia cualitativamente lo que un agente puede alcanzar en un entorno
+abierto, y Reflexion \cite{cW4353112996} que conservar una reflexión verbal sobre el intento fallido
+mejora el siguiente. Ambos comparten la observación de fondo: el desempeño depende menos de la
+capacidad puntual del modelo que de qué se conserva entre intentos.
+
+\subsection{Memoria y contexto: la distinción que este estudio sostiene}
+
+La ventana de contexto es memoria de trabajo, no memoria persistente: se llena, se compacta y se
+pierde al terminar la sesión. La literatura llama «memoria» a las dos cosas, y la ambigüedad tiene
+consecuencias prácticas porque los mecanismos que sirven a una no sirven a la otra. MemGPT
+\cite{cW4387636003} popularizó la analogía con la jerarquía de memoria de un sistema operativo
+—contexto como memoria principal, almacenamiento externo paginado bajo control del propio agente— y
+con ella la idea de que la gestión del contexto es un problema de diseño explícito. En el extremo
+opuesto del espectro, Titans \cite{cW4406032263} propone memorizar en tiempo de prueba dentro de los
+propios parámetros. Entre ambos polos se sitúa casi todo el corpus de este mapeo. Este estudio traza
+la frontera en la \emph{persistencia}: un mecanismo cuenta como memoria si sobrevive a la tarea o a
+la sesión, o si se comparte entre agentes.
+
 \subsection{Tipos de memoria heredados de la ciencia cognitiva}
+
+La taxonomía habitual —memoria de trabajo, episódica, semántica y procedimental— proviene de la
+psicología cognitiva y llegó al área a través de arquitecturas de agentes. Su uso es útil como
+vocabulario descriptivo y engañoso como afirmación de equivalencia: que un sistema guarde episodios
+en una base vectorial no lo dota de memoria episódica en sentido cognitivo. Este trabajo la emplea
+en el primer sentido, como etiqueta de lo que el sistema declara almacenar, y complementa esa
+dimensión con el \emph{sustrato} de representación —documentos, vectores, grafo, parámetros— que es
+lo que determina el costo y las propiedades de verificación.
 
 % =====================================================================================
 \section{Trabajos relacionados}
 \label{sec:related}
+
+%%CLAIMS-STRICT
+El área acumula ya una cantidad notable de revisiones: la búsqueda de este mapeo identificó
+\clSelSecundarios{} estudios secundarios, que se apartaron sin clasificar y se usaron para vocabulario
+y como fuente de semillas. Esa abundancia hace necesario explicitar qué agrega este trabajo.
+
+Las revisiones existentes se organizan mayoritariamente por \emph{mecanismo}: taxonomías de tipos de
+memoria, de arquitecturas de recuperación o de operaciones de ciclo de vida. Son útiles como mapa
+conceptual y comparten tres límites para quien debe decidir. Primero, su alcance suele ser el agente
+conversacional o el agente general, no el agente de ingeniería de software que opera sobre un
+repositorio durante meses. Segundo, clasifican propuestas sin separar sistemáticamente qué está
+\emph{medido} de qué está propuesto, distinción que aquí es un eje explícito de extracción. Tercero,
+y más importante para el uso que se le quiere dar: describen el espacio sin tomar posición, de modo
+que un ingeniero que debe elegir entre lectura directa de archivos e índice semántico sale de la
+lectura con un catálogo y sin un criterio.
+
+Este mapeo se separa en esas tres dimensiones. Restringe la población a mecanismos persistentes o
+compartidos aplicables a agentes de larga vida; registra por estudio el tipo de evidencia que
+sostiene cada afirmación, incluida la ablation y la medición de costo; y clasifica cada trabajo
+según si confirma o refuta decisiones de diseño concretas y previamente congeladas, lo que obliga a
+buscar la evidencia contraria en lugar de la conveniente. Respecto de la iteración previa del propio
+equipo —veintisiete estudios anclados en depuración— este trabajo re-ancla el objeto, multiplica el
+corpus por más de un orden de magnitud y añade la verificación automatizada descrita en la
+sección~\ref{sec:automation}.
+%%CLAIMS-STRICT-END
 
 % =====================================================================================
 \section{Metodología}

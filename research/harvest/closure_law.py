@@ -74,6 +74,19 @@ VERDICT_FIELDS[KIND_CONFIRMACION] = VERDICT_FIELDS[KIND_VERIFICACION]
 VERDICT_FIELDS[KIND_ADJUDICACION] = VERDICT_FIELDS[KIND_VERIFICACION]
 
 
+# --------------------------------------------------------------------------- citation keys (§9.5)
+def bibkey(corpus_key: str) -> str:
+    """corpus key -> BibTeX key, deterministically and reversibly enough to audit.
+
+    The point is not aesthetics: if the citation key is a pure function of the corpus key, then a
+    citation that does not correspond to a screened record cannot be written by accident, and the
+    gate can check the correspondence mechanically. `W4387636003` -> `cW4387636003`;
+    `2409.01344v2` -> `c240901344v2`.
+    """
+    import re as _re
+    return "c" + _re.sub(r"[^A-Za-z0-9]", "", corpus_key)
+
+
 # --------------------------------------------------------------------------- grey literature (§9.4 / §6.1)
 # MANDATORY Tier-1 seeds: first-party technical documentation from the model providers. They are law,
 # not a suggestion — RQ7 asks what the labs actually ship, and a grey corpus that quietly drops the

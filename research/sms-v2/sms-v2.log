@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**sms-v2.tex
+**sms-v2
 (./sms-v2.tex
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-06-18>
@@ -331,10 +331,10 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count312
 ) (./sms-v2.aux
-LaTeX Info: Redefining \. on input line 8.
-LaTeX Info: Redefining \% on input line 8.
+LaTeX Info: Redefining \. on input line 10.
+LaTeX Info: Redefining \% on input line 10.
 Package babel Info: 'spanish' activates 'spanish' shorthands.
-(babel)             Reported on input line 8.
+(babel)             Reported on input line 10.
 )
 \openout1 = `sms-v2.aux'.
 
@@ -379,31 +379,20 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 77.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [1{/home/enzo/.TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/home/enzo/.TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
+) [1{/home/enzo/.TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/home/enzo/.TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
-]
-
-LaTeX Warning: Reference `tab:seleccion' on page 2 undefined on input line 199.
-
-[2]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 311.
+] [2] [3]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 365.
  (/home/enzo/.TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 
 LaTeX Font Warning: Font shape `TS1/ptm/m/sc' undefined
 (Font)              using `TS1/ptm/m/n' instead
-(Font)              for symbol `textperiodcentered' on input line 321.
+(Font)              for symbol `textperiodcentered' on input line 375.
 
-[3] [4]
-Underfull \vbox (badness 1540) has occurred while \output is active []
-
- [5]
-No file sms-v2.bbl.
+[4] [5] [6] (./sms-v2.bbl)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -415,9 +404,9 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[6] (./sms-v2.aux
-LaTeX Info: Redefining \. on input line 8.
-LaTeX Info: Redefining \% on input line 8.
+[7] (./sms-v2.aux
+LaTeX Info: Redefining \. on input line 10.
+LaTeX Info: Redefining \% on input line 10.
 )
  ***********
 LaTeX2e <2026-06-01>
@@ -427,34 +416,22 @@ L3 programming layer <2026-06-18>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `sms-v2.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `sms-v2.out':
-(rerunfilecheck)             Before: 189BE3449BEB9C3D6A540881CEBA1B2C;8618
-(rerunfilecheck)             After:  DB61CFA751E08424573740EC20D57C45;8201.
+Package rerunfilecheck Info: File `sms-v2.out' has not changed.
+(rerunfilecheck)             Checksum: 1245C5CF8245BF60766B23F81206543A;8278.
  ) 
 Here is how much of TeX's memory you used:
- 12244 strings out of 469140
- 193695 string characters out of 5459681
- 648949 words of memory out of 5000000
- 41058 multiletter control sequences out of 15000+600000
- 740696 words of font info for 154 fonts, out of 8000000 for 9000
+ 12284 strings out of 469140
+ 194336 string characters out of 5459681
+ 642084 words of memory out of 5000000
+ 41088 multiletter control sequences out of 15000+600000
+ 741832 words of font info for 155 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 74i,9n,79p,652b,478s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,9n,79p,424b,455s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sms-v2.pdf (6 pages, 139175 bytes).
+Output written on sms-v2.pdf (7 pages, 144299 bytes).
 PDF statistics:
- 249 PDF objects out of 1000 (max. 8388607)
- 220 compressed objects within 3 object streams
- 49 named destinations out of 1000 (max. 500000)
- 297 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 270 PDF objects out of 1000 (max. 8388607)
+ 240 compressed objects within 3 object streams
+ 55 named destinations out of 1000 (max. 500000)
+ 305 words of extra memory for PDF output out of 10000 (max. 10000000)
 

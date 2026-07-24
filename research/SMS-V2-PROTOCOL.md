@@ -375,6 +375,15 @@ PRE-OUT-RESCATADOS 11 · RECONSIDERAR-extracción 33 · RECONSIDERAR-digestión 
 κ se computa **sólo sobre VERIFICACIÓN**. Reportar un κ que mezcle estratos donde la pasada 1 no emitió
 decisión es inflarlo por construcción.
 
+**Enmienda 2026-07-24 (descubierta al MEDIR el primer chunk, no al diseñar).** Dentro de los estratos
+de verificación hay filas donde la pasada 1 **se abstuvo** (`GRIS`/`CE-4p`): 9 de 110 en
+`MUESTRA-10PCT` y 7 de 98 en `SNOWBALL-SAMPLE10`. Esas filas **no son verificables** —no hay decisión
+firme con la cual acordar— y además el segundo lector tiene PROHIBIDO abstenerse en estos estratos,
+de modo que el par es un desacuerdo **garantizado por construcción**. Contarlas penalizaría el
+coeficiente con un artefacto del diseño, así que se **excluyen del κ y se reportan aparte** (el
+segundo lector sí las resuelve: eso es adjudicación, no fiabilidad). La exclusión aparece con su
+conteo en `AGREEMENT.md`, nunca en silencio.
+
 ### 9.2 Vocabulario de la SPI (cerrado)
 
 - **Membresía** (VERIFICACIÓN, ADJUDICACIÓN): reutiliza `DECISIONS` de `screening_pass.py` — single-source,

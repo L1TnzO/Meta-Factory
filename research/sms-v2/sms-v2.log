@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.24)  24 JUL 2026 12:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -432,15 +432,15 @@ Package rerunfilecheck Info: File `sms-v2.out' has not changed.
 (rerunfilecheck)             Checksum: 1245C5CF8245BF60766B23F81206543A;8278.
  ) 
 Here is how much of TeX's memory you used:
- 12348 strings out of 469140
- 195252 string characters out of 5459681
- 645795 words of memory out of 5000000
- 41126 multiletter control sequences out of 15000+600000
+ 12352 strings out of 469140
+ 195343 string characters out of 5459681
+ 645813 words of memory out of 5000000
+ 41130 multiletter control sequences out of 15000+600000
  743377 words of font info for 161 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  74i,9n,79p,424b,621s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></home/enzo/.TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sms-v2.pdf (9 pages, 159341 bytes).
+Output written on sms-v2.pdf (9 pages, 159996 bytes).
 PDF statistics:
  323 PDF objects out of 1000 (max. 8388607)
  291 compressed objects within 3 object streams

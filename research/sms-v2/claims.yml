@@ -589,3 +589,22 @@
   pregunta: "¿Cuántos estudios declaran un solo tipo de memoria?"
   derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) == 1)"
   unidad: int
+
+# ---------------------------------------------------------------- exclusividad del disparador
+- id: clRQdosSoloDiscrecional
+  pregunta: "¿Cuántos estudios confían la escritura EXCLUSIVAMENTE al criterio del modelo?"
+  derivacion: "sum(1 for r in extraction if set(toks(r,'trigger')) - {'NA'} == {'DISCRECIONAL-LLM'})"
+  unidad: int
+  glosa: "distinto de 'menciona el disparo discrecional': aquí es el único mecanismo declarado"
+- id: clRQdosSoloDiscrecionalPct
+  pregunta: "¿Qué proporción de los que declaran disparador confía sólo en la discreción del modelo?"
+  derivacion: "pct(sum(1 for r in extraction if set(toks(r,'trigger')) - {'NA'} == {'DISCRECIONAL-LLM'}), sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA']))"
+  unidad: pct1
+- id: clRQdosAmbosTriggers
+  pregunta: "¿Cuántos combinan disparo discrecional con alguno determinista?"
+  derivacion: "sum(1 for r in extraction if 'DISCRECIONAL-LLM' in toks(r,'trigger') and [t for t in toks(r,'trigger') if t in ('EVENTO-DETERMINISTA','CHECKPOINT','PRESUPUESTO')])"
+  unidad: int
+- id: clRQdosDeclaranTrigger
+  pregunta: "¿Cuántos estudios declaran qué dispara la escritura?"
+  derivacion: "sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA'])"
+  unidad: int

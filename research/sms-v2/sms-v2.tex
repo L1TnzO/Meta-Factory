@@ -53,8 +53,8 @@ completo; \clSelUnicos{} registros cribados, \clSelIncluidosTotal{} estudios inc
 bajo compuertas deterministas y con una segunda lectura ciega independiente; toda cifra del artículo
 se re-deriva del corpus versionado en cada compilación. \textbf{Resultados:} el alcance dominante ya
 es el proyecto y el traspaso explícito entre sesiones es la norma (\clRQcuatroHandoffPct{}\,\%),
-aunque casi siempre viaja contenido y no punteros ni contratos. Entre los estudios que declaran qué
-dispara la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional. La evidencia
+aunque casi siempre viaja contenido y no punteros ni contratos. Sólo \clRQdosSoloDiscrecionalPct{}\,\% de los estudios que
+declaran disparador de escritura lo dejan únicamente al criterio del modelo. La evidencia
 es sólida en ablation (\clRQcincoAblationPct{}\,\%) y escasa en métricas de iteración
 (\clRQcincoMetricaIteracionPct{}\,\%) y en seguridad de la memoria
 (\clRQseisSeguridadPct{}\,\%). La memoria como documentos versionados es la faceta menos estudiada
@@ -455,8 +455,12 @@ La escritura es la operación universalmente presente (\clRQdosWrite{}), pero el
 completo no lo es: la actualización de una memoria existente aparece en \clRQdosActualizacion{}, la
 consolidación en \clRQdosConsolidacion{}, la admisión —decidir qué merece entrar— en
 \clRQdosAdmision{} y el olvido en \clRQdosOlvido{}. El hallazgo con mayor consecuencia de diseño está
-en el disparador: entre los estudios que declaran uno, \clRQdosDeterministaPct{}\,\% usan un
-mecanismo no discrecional.
+en el disparador. De los \clRQdosDeclaranTrigger{} estudios que declaran uno,
+\clRQdosDeterministaPct{}\,\% emplean al menos un mecanismo no discrecional, y la lectura por
+exclusividad es aún más nítida: sólo \clRQdosSoloDiscrecional{} estudios
+(\clRQdosSoloDiscrecionalPct{}\,\%) confían la escritura \emph{únicamente} al criterio del modelo,
+mientras que \clRQdosAmbosTriggers{} lo combinan con un disparo determinista. Es decir, la práctica
+mayoritaria no es prescindir de la discreción del modelo sino \emph{acotarla}.
 
 \begin{table}[!t]
 \caption{RQ2 · Operaciones de ciclo de vida y disparador de escritura ($n=\clCarAnalizados$)}
@@ -668,12 +672,14 @@ instrumento con el que esa condición se vigila —la medición de utilidad por 
 %%CLAIMS-STRICT
 Tres asimetrías del corpus tienen consecuencia de diseño inmediata.
 
-\textbf{El disparo de escritura ya no es discrecional.} Entre los estudios que declaran qué dispara
-la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional: evento determinista
-(\clRQdosTriggerDeterminista{}), checkpoint (\clRQdosTriggerCheckpoint{}) o presupuesto
-(\clRQdosTriggerPresupuesto{}), frente a \clRQdosTriggerDiscrecional{} que dejan la decisión al
-criterio del modelo. La práctica de «el agente escribe cuando le parece relevante» es minoritaria en
-la literatura, y quien la conserve debería justificarla.
+\textbf{El disparo de escritura ya no es discrecional.} Sólo \clRQdosSoloDiscrecional{} estudios
+(\clRQdosSoloDiscrecionalPct{}\,\% de los que declaran disparador) confían la escritura únicamente
+al criterio del modelo; el resto la ancla en un evento determinista
+(\clRQdosTriggerDeterminista{}), un checkpoint (\clRQdosTriggerCheckpoint{}) o un presupuesto
+(\clRQdosTriggerPresupuesto{}), a menudo combinando ambos registros
+(\clRQdosAmbosTriggers{} estudios). «El agente escribe cuando le parece relevante», sin ninguna
+condición externa que lo obligue, es una práctica claramente minoritaria, y quien la conserve
+debería justificarla.
 
 \textbf{El traspaso entre sesiones es norma, pero viaja mal.} \clRQcuatroHandoff{} estudios
 (\clRQcuatroHandoffPct{}\,\%) definen un traspaso explícito entre sesiones o agentes, de modo que la
@@ -794,10 +800,11 @@ de la ventana de contexto dentro de una tarea. La distinción persistente-o-comp
 intra-tarea no es purismo terminológico: separa mecanismos con propiedades de verificación y costo
 incompatibles.
 
-\textbf{El disparo de escritura ya se resolvió, y no como suele suponerse.} Entre los estudios que
-declaran qué dispara la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional.
-Un sistema que deje esa decisión al criterio del modelo está adoptando la posición minoritaria y
-debería justificarlo.
+\textbf{El disparo de escritura ya se resolvió, y no como suele suponerse.} Sólo
+\clRQdosSoloDiscrecional{} estudios (\clRQdosSoloDiscrecionalPct{}\,\% de los que declaran
+disparador) confían la escritura únicamente al criterio del modelo. Un sistema que no ancle la
+escritura en alguna condición externa comprobable está adoptando la posición minoritaria y debería
+justificarlo.
 
 \textbf{La recuperación medida es el frente abierto, y su evidencia está en disputa.} De las
 \clMFrefuta{} refutaciones que el corpus opone a decisiones de diseño concretas,

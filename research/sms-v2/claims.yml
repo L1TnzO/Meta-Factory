@@ -608,3 +608,23 @@
   pregunta: "¿Cuántos estudios declaran qué dispara la escritura?"
   derivacion: "sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA'])"
   unidad: int
+
+# ---------------------------------------------------------------- RQ7 · literatura gris
+- id: clGrisDocs
+  pregunta: "¿Cuántos documentos de primera mano de los proveedores se analizaron?"
+  derivacion: "len(grey)"
+  unidad: int
+  glosa: "instantáneas inmutables con sha256; los blogs y las docs mutan"
+- id: clGrisAnthropic
+  pregunta: "¿Cuántos provienen de Anthropic?"
+  derivacion: "sum(1 for r in grey if r['org'] == 'Anthropic')"
+  unidad: int
+- id: clGrisOpenAI
+  pregunta: "¿Cuántos provienen de OpenAI?"
+  derivacion: "sum(1 for r in grey if r['org'] == 'OpenAI')"
+  unidad: int
+- id: clGrisGoogle
+  pregunta: "¿Cuántos provienen de Google DeepMind?"
+  derivacion: "sum(1 for r in grey if r['org'] == 'Google DeepMind')"
+  unidad: int
+  glosa: "la asimetría es en sí un hallazgo de RQ7"

@@ -1,12 +1,461 @@
-# Ledger de claims del SMS v2 (protocolo §9.5). NINGÚN número del paper se escribe a mano.
-# Cada entrada se re-deriva del corpus committeado y entra al .tex como macro \clID.
-- id: clCorpusUnicos
-  pregunta: "¿Cuántos registros únicos dejó la búsqueda académica tras dedup?"
+# Ledger de claims del SMS v2 — protocolo §9.5.
+#
+# NINGÚN número del paper se escribe a mano. Cada entrada se re-deriva del corpus committeado
+# (`verify_sms_claims.py --emit`) y entra al .tex como macro `\clID`. Si el corpus cambia, el paper
+# cambia; si una derivación deja de correr, el paper deja de compilar.
+#
+# Convención de id: sólo letras (se vuelve nombre de macro LaTeX). Prefijo temático:
+#   clSel* selección · clCar* caracterización · clRQuno..clRQseis · clMF* lente Meta-Factory ·
+#   clFia* fiabilidad · clCal* calidad de corpus · clGris* literatura gris.
+# Unidades: int (miles con punto) · pct1 (una decimal, coma) · pct0 · float2 · float3 · raw.
+
+# ---------------------------------------------------------------- selección (§4.4, tipo PRISMA)
+- id: clSelUnicos
+  pregunta: "¿Cuántos registros únicos dejó la búsqueda académica tras deduplicar?"
   derivacion: "len(sheet_full)"
   unidad: int
-  glosa: "corpus académico principal, tres agregadores, dedup DOI→arXiv→título"
-- id: clIncluidosPrincipal
-  pregunta: "¿Cuántos incluyó la pasada principal de cribado?"
+  glosa: "corpus principal: OpenAlex + Lens + arXiv, dedup DOI→arXiv→título normalizado"
+- id: clSelCribados
+  pregunta: "¿Cuántos de esos registros recibieron una decisión de cribado?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'])"
+  unidad: int
+  glosa: "cobertura del cribado sobre el corpus principal"
+- id: clSelIncluidosPrincipal
+  pregunta: "¿Cuántos incluyó la pasada principal?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'INCLUIR')"
   unidad: int
-  glosa: "INCLUIR sobre el corpus principal"
+  glosa: "INCLUIR del corpus principal"
+- id: clSelExcCEuno
+  pregunta: "¿Cuántos se excluyeron por CE-1 (usa memoria como caja negra, sin mecanismo)?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE1')"
+  unidad: int
+  glosa: "criterio de exclusión nacido de CI-1: sin mecanismo no hay estudio primario de memoria"
+- id: clSelExcCEdos
+  pregunta: "¿Cuántos se excluyeron por CE-2 (dominio divergente sin mecanismo transferible)?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE2')"
+  unidad: int
+- id: clSelExcCEcinco
+  pregunta: "¿Cuántos se excluyeron por CE-5 (registro no-estudio: dataset, demo, front-matter)?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE5')"
+  unidad: int
+  glosa: "criterio nuevo del v2, nacido de medir el corpus real"
+- id: clSelSecundarios
+  pregunta: "¿Cuántos secundarios (surveys) se apartaron sin clasificar?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'] == 'CE3-SECUNDARIO') + sum(1 for r in sheet_snowball if r['decision'] == 'CE3-SECUNDARIO')"
+  unidad: int
+  glosa: "CE-3: no se clasifican, alimentan vocabulario y snowball"
+- id: clSelSnowballCandidatos
+  pregunta: "¿Cuántos candidatos únicos trajo la ronda de snowballing?"
+  derivacion: "len(sheet_snowball)"
+  unidad: int
+  glosa: "backward + forward sobre los incluidos + gold set"
+- id: clSelSnowballCribados
+  pregunta: "¿Cuántos candidatos de snowball llegaron a cribado por rúbrica?"
+  derivacion: "sum(1 for r in sheet_snowball if r['decision'] in ('INCLUIR','EXCLUIR-CE1','EXCLUIR-CE2','EXCLUIR-RUBRICA','GRIS','EXCLUIR-CE5','CE3-SECUNDARIO','EXCLUIR-CE4','CE-4p'))"
+  unidad: int
+  glosa: "el resto son pre-decisiones deterministas (fuera de alcance, duplicado, sin metadatos)"
+- id: clSelSnowballIncluidos
+  pregunta: "¿Cuántos incorporó el snowballing al corpus?"
+  derivacion: "sum(1 for r in sheet_snowball if r['decision'] == 'INCLUIR')"
+  unidad: int
+- id: clSelIncluidosTotal
+  pregunta: "¿Cuál es el corpus final de estudios incluidos?"
+  derivacion: "len(extraction)"
+  unidad: int
+  glosa: "principal + snowball; una fila de extracción por incluido"
+- id: clSelConTexto
+  pregunta: "¿De cuántos incluidos se obtuvo el texto completo?"
+  derivacion: "sum(1 for r in extraction if r['pdf_status'] == 'ok')"
+  unidad: int
+  glosa: "los que fueron extraídos y digeridos contra el PDF"
+- id: clSelSinTexto
+  pregunta: "¿Cuántos incluidos quedaron sin texto completo accesible?"
+  derivacion: "sum(1 for r in extraction if r['pdf_status'] != 'ok')"
+  unidad: int
+  glosa: "frontera dura medida: bot-protection, sin OA, landings"
+- id: clSelCobertura
+  pregunta: "¿Qué porcentaje del corpus incluido se analizó a texto completo?"
+  derivacion: "pct(sum(1 for r in extraction if r['pdf_status'] == 'ok'), len(extraction))"
+  unidad: pct1
+
+# ---------------------------------------------------------------- caracterización
+- id: clCarAnalizados
+  pregunta: "¿Sobre cuántos estudios se computan los resultados?"
+  derivacion: "len(digest)"
+  unidad: int
+  glosa: "denominador de TODA la sección de resultados"
+- id: clCarRecientes
+  pregunta: "¿Cuántos de los analizados son de 2025 o 2026?"
+  derivacion: "sum(1 for r in extraction if r['pdf_status'] == 'ok' and r['year'] in ('2025','2026'))"
+  unidad: int
+- id: clCarRecientesPct
+  pregunta: "¿Qué proporción del campo se publicó en los últimos dos años?"
+  derivacion: "pct(sum(1 for r in extraction if r['pdf_status']=='ok' and r['year'] in ('2025','2026')), sum(1 for r in extraction if r['pdf_status']=='ok'))"
+  unidad: pct1
+  glosa: "la concentración temporal es en sí un hallazgo: el objeto de estudio es nuevo"
+
+# ---------------------------------------------------------------- RQ1 · tipos y representación
+- id: clRQunoEpisodica
+  pregunta: "¿En cuántos estudios aparece memoria episódica?"
+  derivacion: "sum(1 for r in extraction if 'EPISODICA' in toks(r,'mem_tipos'))"
+  unidad: int
+- id: clRQunoSemantica
+  pregunta: "¿En cuántos aparece memoria semántica?"
+  derivacion: "sum(1 for r in extraction if 'SEMANTICA' in toks(r,'mem_tipos'))"
+  unidad: int
+- id: clRQunoProcedimental
+  pregunta: "¿En cuántos aparece memoria procedimental?"
+  derivacion: "sum(1 for r in extraction if 'PROCEDIMENTAL' in toks(r,'mem_tipos'))"
+  unidad: int
+- id: clRQunoTrabajo
+  pregunta: "¿En cuántos aparece memoria de trabajo?"
+  derivacion: "sum(1 for r in extraction if 'TRABAJO' in toks(r,'mem_tipos'))"
+  unidad: int
+- id: clRQunoParametrica
+  pregunta: "¿En cuántos aparece memoria paramétrica (escribir en los pesos)?"
+  derivacion: "sum(1 for r in extraction if 'PARAMETRICA' in toks(r,'mem_tipos'))"
+  unidad: int
+  glosa: "el polo paramétrico está casi desierto — hallazgo"
+- id: clRQunoSinMecanismo
+  pregunta: "¿Cuántos estudios no aportan un mecanismo propio (son benchmark, dataset o medición)?"
+  derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'mem_tipos'))"
+  unidad: int
+  glosa: "madurez del campo: ya hay casi tantos protocolos de evaluación como sistemas"
+- id: clRQunoHibridosTipos
+  pregunta: "¿Cuántos estudios combinan dos o más tipos de memoria?"
+  derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) >= 2)"
+  unidad: int
+- id: clRQunoHibridosPct
+  pregunta: "¿Qué proporción del corpus es híbrida en tipos de memoria?"
+  derivacion: "pct(sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t!='NA'])>=2), len(digest))"
+  unidad: pct1
+- id: clRQunoRepHibrida
+  pregunta: "¿Cuántos declaran representación híbrida?"
+  derivacion: "sum(1 for r in extraction if 'HIBRIDA' in toks(r,'representacion'))"
+  unidad: int
+- id: clRQunoRepDocs
+  pregunta: "¿Cuántos representan la memoria como documentos/archivos?"
+  derivacion: "sum(1 for r in extraction if 'DOCS-ARCHIVOS' in toks(r,'representacion'))"
+  unidad: int
+  glosa: "el sustrato que usa Meta-Factory (Tier 1)"
+- id: clRQunoRepVector
+  pregunta: "¿Cuántos usan representación vectorial?"
+  derivacion: "sum(1 for r in extraction if 'VECTOR' in toks(r,'representacion'))"
+  unidad: int
+- id: clRQunoRepGrafo
+  pregunta: "¿Cuántos usan grafo?"
+  derivacion: "sum(1 for r in extraction if 'GRAFO' in toks(r,'representacion'))"
+  unidad: int
+- id: clRQunoRepParametros
+  pregunta: "¿Cuántos escriben la memoria en los parámetros del modelo?"
+  derivacion: "sum(1 for r in extraction if 'PARAMETROS' in toks(r,'representacion'))"
+  unidad: int
+
+# ---------------------------------------------------------------- RQ2 · ciclo de vida de escritura
+- id: clRQdosWrite
+  pregunta: "¿Cuántos estudios definen la operación de escritura?"
+  derivacion: "sum(1 for r in extraction if 'WRITE' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosAdmision
+  pregunta: "¿Cuántos definen admisión (qué merece entrar a la memoria)?"
+  derivacion: "sum(1 for r in extraction if 'ADMISION' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosConsolidacion
+  pregunta: "¿Cuántos definen consolidación?"
+  derivacion: "sum(1 for r in extraction if 'CONSOLIDACION' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosOlvido
+  pregunta: "¿Cuántos definen olvido o recolección de basura?"
+  derivacion: "sum(1 for r in extraction if 'OLVIDO' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosActualizacion
+  pregunta: "¿Cuántos definen actualización de una memoria existente?"
+  derivacion: "sum(1 for r in extraction if 'ACTUALIZACION' in toks(r,'operaciones'))"
+  unidad: int
+- id: clRQdosTriggerDeterminista
+  pregunta: "¿Cuántos disparan la escritura con un evento determinista?"
+  derivacion: "sum(1 for r in extraction if 'EVENTO-DETERMINISTA' in toks(r,'trigger'))"
+  unidad: int
+  glosa: "responde G-M1: el trigger discrecional NO es la norma de la literatura"
+- id: clRQdosTriggerDiscrecional
+  pregunta: "¿Cuántos dejan la escritura a discreción del modelo?"
+  derivacion: "sum(1 for r in extraction if 'DISCRECIONAL-LLM' in toks(r,'trigger'))"
+  unidad: int
+- id: clRQdosTriggerCheckpoint
+  pregunta: "¿Cuántos escriben en checkpoints?"
+  derivacion: "sum(1 for r in extraction if 'CHECKPOINT' in toks(r,'trigger'))"
+  unidad: int
+- id: clRQdosTriggerPresupuesto
+  pregunta: "¿Cuántos escriben por presupuesto de contexto o tokens?"
+  derivacion: "sum(1 for r in extraction if 'PRESUPUESTO' in toks(r,'trigger'))"
+  unidad: int
+- id: clRQdosDeterministaPct
+  pregunta: "Entre los que declaran trigger, ¿qué proporción usa un disparo no discrecional?"
+  derivacion: "pct(sum(1 for r in extraction if [t for t in toks(r,'trigger') if t in ('EVENTO-DETERMINISTA','CHECKPOINT','PRESUPUESTO')]), sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA']))"
+  unidad: pct1
+
+# ---------------------------------------------------------------- RQ3 · recuperación e instrumentación
+- id: clRQtresEmbeddings
+  pregunta: "¿Cuántos recuperan por embeddings?"
+  derivacion: "sum(1 for r in extraction if 'EMBEDDINGS' in toks(r,'retrieval'))"
+  unidad: int
+- id: clRQtresRanking
+  pregunta: "¿Cuántos recuperan por ranking léxico o reranking?"
+  derivacion: "sum(1 for r in extraction if 'RANKING' in toks(r,'retrieval'))"
+  unidad: int
+- id: clRQtresGrafo
+  pregunta: "¿Cuántos recuperan recorriendo un grafo?"
+  derivacion: "sum(1 for r in extraction if 'GRAFO' in toks(r,'retrieval'))"
+  unidad: int
+- id: clRQtresGrep
+  pregunta: "¿Cuántos recuperan leyendo archivos directamente?"
+  derivacion: "sum(1 for r in extraction if 'GREP-ARCHIVOS' in toks(r,'retrieval'))"
+  unidad: int
+  glosa: "el mecanismo que ADR-019 eligió para Meta-Factory"
+- id: clRQtresGrepPct
+  pregunta: "¿Qué proporción del corpus usa lectura directa de archivos?"
+  derivacion: "pct(sum(1 for r in extraction if 'GREP-ARCHIVOS' in toks(r,'retrieval')), len(digest))"
+  unidad: pct1
+- id: clRQtresMide
+  pregunta: "¿Cuántos MIDEN qué se leyó y con qué utilidad?"
+  derivacion: "sum(1 for r in extraction if r['mide_lectura'] == 'SI')"
+  unidad: int
+  glosa: "el corazón de G-M2"
+- id: clRQtresMidePct
+  pregunta: "¿Qué proporción instrumenta la recuperación?"
+  derivacion: "pct(sum(1 for r in extraction if r['mide_lectura']=='SI'), len(digest))"
+  unidad: pct1
+- id: clRQtresNoMide
+  pregunta: "¿Cuántos no miden la utilidad de lo recuperado?"
+  derivacion: "sum(1 for r in extraction if r['mide_lectura'] == 'NO')"
+  unidad: int
+
+# ---------------------------------------------------------------- RQ4 · persistencia y multi-agente
+- id: clRQcuatroProyecto
+  pregunta: "¿Cuántos operan a escala de proyecto?"
+  derivacion: "sum(1 for r in extraction if 'PROYECTO' in toks(r,'alcance'))"
+  unidad: int
+- id: clRQcuatroSesion
+  pregunta: "¿Cuántos operan a escala de sesión?"
+  derivacion: "sum(1 for r in extraction if 'SESION' in toks(r,'alcance'))"
+  unidad: int
+- id: clRQcuatroOrganizacion
+  pregunta: "¿Cuántos operan a escala de organización?"
+  derivacion: "sum(1 for r in extraction if 'ORGANIZACION' in toks(r,'alcance'))"
+  unidad: int
+- id: clRQcuatroMultiagente
+  pregunta: "¿Cuántos comparten memoria entre agentes?"
+  derivacion: "sum(1 for r in extraction if r['multiagente'] == 'SI')"
+  unidad: int
+- id: clRQcuatroHandoff
+  pregunta: "¿Cuántos definen un traspaso explícito entre sesiones o agentes?"
+  derivacion: "sum(1 for r in extraction if r['handoff'] and r['handoff'].strip() != 'NO')"
+  unidad: int
+- id: clRQcuatroHandoffPct
+  pregunta: "¿El traspaso es norma o excepción?"
+  derivacion: "pct(sum(1 for r in extraction if r['handoff'] and r['handoff'].strip()!='NO'), len(digest))"
+  unidad: pct1
+- id: clRQcuatroHandoffContenido
+  pregunta: "¿Cuántos traspasan CONTENIDO?"
+  derivacion: "sum(1 for r in extraction if 'CONTENIDO' in toks(r,'handoff'))"
+  unidad: int
+- id: clRQcuatroHandoffPunteros
+  pregunta: "¿Cuántos traspasan PUNTEROS en vez de contenido?"
+  derivacion: "sum(1 for r in extraction if 'PUNTEROS' in toks(r,'handoff'))"
+  unidad: int
+- id: clRQcuatroHandoffContrato
+  pregunta: "¿Cuántos traspasan un CONTRATO (qué debe cumplirse, no qué pasó)?"
+  derivacion: "sum(1 for r in extraction if 'CONTRATO' in toks(r,'handoff'))"
+  unidad: int
+- id: clRQcuatroFidelidad
+  pregunta: "¿Cuántos verifican fidelidad o procedencia de la memoria?"
+  derivacion: "sum(1 for r in extraction if r['fidelidad_procedencia'] == 'SI')"
+  unidad: int
+- id: clRQcuatroPlanEstado
+  pregunta: "¿Cuántos tratan el estado del plan de trabajo como contenido de memoria?"
+  derivacion: "sum(1 for r in extraction if r['plan_estado'] == 'SI')"
+  unidad: int
+  glosa: "evidencia que promueve la faceta PLAN-ESTADO (el umbral acordado era >=5)"
+
+# ---------------------------------------------------------------- RQ5 · evaluación y costo
+- id: clRQcincoBenchmark
+  pregunta: "¿Cuántos evalúan con benchmark end-to-end?"
+  derivacion: "sum(1 for r in extraction if 'BENCHMARK-E2E' in toks(r,'evidencia_tipo'))"
+  unidad: int
+- id: clRQcincoAblation
+  pregunta: "¿Cuántos aportan ablation con/sin memoria (evidencia causal)?"
+  derivacion: "sum(1 for r in extraction if 'ABLATION' in toks(r,'evidencia_tipo'))"
+  unidad: int
+- id: clRQcincoAblationPct
+  pregunta: "¿Qué proporción del corpus aísla causalmente el aporte de la memoria?"
+  derivacion: "pct(sum(1 for r in extraction if 'ABLATION' in toks(r,'evidencia_tipo')), len(digest))"
+  unidad: pct1
+- id: clRQcincoCosto
+  pregunta: "¿Cuántos miden costo (tokens, caché, latencia)?"
+  derivacion: "sum(1 for r in extraction if 'MEDICION-COSTO' in toks(r,'evidencia_tipo'))"
+  unidad: int
+- id: clRQcincoCostoPct
+  pregunta: "¿Qué proporción del corpus mide el costo de su memoria?"
+  derivacion: "pct(sum(1 for r in extraction if 'MEDICION-COSTO' in toks(r,'evidencia_tipo')), len(digest))"
+  unidad: pct1
+- id: clRQcincoCualitativa
+  pregunta: "¿Cuántos aportan sólo evidencia cualitativa?"
+  derivacion: "sum(1 for r in extraction if 'CUALITATIVA' in toks(r,'evidencia_tipo'))"
+  unidad: int
+- id: clRQcincoMetricaExito
+  pregunta: "¿Cuántos reportan métricas de éxito final?"
+  derivacion: "sum(1 for r in extraction if 'EXITO' in toks(r,'metricas'))"
+  unidad: int
+- id: clRQcincoMetricaTokens
+  pregunta: "¿Cuántos reportan costo en tokens?"
+  derivacion: "sum(1 for r in extraction if 'COSTO-TOKENS' in toks(r,'metricas'))"
+  unidad: int
+- id: clRQcincoMetricaIteracion
+  pregunta: "¿Cuántos reportan métricas de iteración (pasos, reintentos, error repetido)?"
+  derivacion: "sum(1 for r in extraction if 'ITERACION' in toks(r,'metricas'))"
+  unidad: int
+  glosa: "la brecha de evaluación que el v1 señaló con 27 papers, ahora medida a escala"
+- id: clRQcincoMetricaIteracionPct
+  pregunta: "¿Qué tan rara es la métrica de iteración?"
+  derivacion: "pct(sum(1 for r in extraction if 'ITERACION' in toks(r,'metricas')), len(digest))"
+  unidad: pct1
+
+# ---------------------------------------------------------------- RQ6 · riesgos y control
+- id: clRQseisSeguridad
+  pregunta: "¿Cuántos estudios tocan seguridad DE la memoria (envenenamiento, exfiltración)?"
+  derivacion: "sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F'))"
+  unidad: int
+- id: clRQseisSeguridadPct
+  pregunta: "¿Qué proporción del corpus estudia la seguridad de la memoria?"
+  derivacion: "pct(sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F')), len(digest))"
+  unidad: pct1
+- id: clRQseisFidelidadFaceta
+  pregunta: "¿Cuántos tocan fidelidad y anti-drift (procedencia, staleness, costuras)?"
+  derivacion: "sum(1 for r in extraction if 'FIDELIDAD' in facets(r,'F'))"
+  unidad: int
+- id: clRQseisStaleness
+  pregunta: "¿Cuántos nombran explícitamente obsolescencia entre sus modos de fallo?"
+  derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('stale','obsolet','desactualiz','outdated')))"
+  unidad: int
+- id: clRQseisPoisoning
+  pregunta: "¿Cuántos nombran envenenamiento o inyección de memoria?"
+  derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('poison','envenen','inject','inyecc')))"
+  unidad: int
+- id: clRQseisSobreRetencion
+  pregunta: "¿Cuántos nombran sobre-retención o crecimiento sin control de la memoria?"
+  derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('sobre-retenc','over-reten','bloat','crecimiento','unbounded','acumul')))"
+  unidad: int
+
+# ---------------------------------------------------------------- facetas MF (el mapa de vacíos)
+- id: clMFretrievalMedido
+  pregunta: "Prevalencia confirmada de la faceta RETRIEVAL-MEDIDO"
+  derivacion: "sum(1 for r in extraction if 'RETRIEVAL-MEDIDO' in facets(r,'F'))"
+  unidad: int
+- id: clMFwrite
+  pregunta: "Prevalencia confirmada de la faceta WRITE"
+  derivacion: "sum(1 for r in extraction if 'WRITE' in facets(r,'F'))"
+  unidad: int
+- id: clMFcosto
+  pregunta: "Prevalencia confirmada de la faceta COSTO"
+  derivacion: "sum(1 for r in extraction if 'COSTO' in facets(r,'F'))"
+  unidad: int
+- id: clMFconsolidacion
+  pregunta: "Prevalencia confirmada de la faceta CONSOLIDACION"
+  derivacion: "sum(1 for r in extraction if 'CONSOLIDACION' in facets(r,'F'))"
+  unidad: int
+- id: clMFnegativo
+  pregunta: "Prevalencia confirmada de la faceta NEGATIVO (conocimiento negativo)"
+  derivacion: "sum(1 for r in extraction if 'NEGATIVO' in facets(r,'F'))"
+  unidad: int
+- id: clMFmultiagente
+  pregunta: "Prevalencia confirmada de la faceta MULTIAGENTE"
+  derivacion: "sum(1 for r in extraction if 'MULTIAGENTE' in facets(r,'F'))"
+  unidad: int
+- id: clMFprocedimental
+  pregunta: "Prevalencia confirmada de la faceta PROCEDIMENTAL"
+  derivacion: "sum(1 for r in extraction if 'PROCEDIMENTAL' in facets(r,'F'))"
+  unidad: int
+- id: clMFdocsVersionado
+  pregunta: "Prevalencia confirmada de la faceta DOCS-VERSIONADO (memoria como archivos versionados)"
+  derivacion: "sum(1 for r in extraction if 'DOCS-VERSIONADO' in facets(r,'F'))"
+  unidad: int
+  glosa: "la faceta MÁS escasa — y es exactamente el Tier 1 de Meta-Factory"
+- id: clMFdocsVersionadoPct
+  pregunta: "¿Qué tan rara es la memoria como documentos versionados?"
+  derivacion: "pct(sum(1 for r in extraction if 'DOCS-VERSIONADO' in facets(r,'F')), len(digest))"
+  unidad: pct1
+
+# ---------------------------------------------------------------- lente Meta-Factory (§7.4)
+- id: clMFentradas
+  pregunta: "¿Cuántos mapeos paper→necesidad-de-Meta-Factory produjo la digestión?"
+  derivacion: "len([a for r in digest for a in r['mf_aplicabilidad']])"
+  unidad: int
+- id: clMFconfirma
+  pregunta: "¿Cuántos mapeos CONFIRMAN una decisión de Meta-Factory?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'CONFIRMA')"
+  unidad: int
+- id: clMFextiende
+  pregunta: "¿Cuántos la EXTIENDEN?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'EXTIENDE')"
+  unidad: int
+- id: clMFneutral
+  pregunta: "¿Cuántos son NEUTRALES?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'NEUTRAL')"
+  unidad: int
+- id: clMFrefuta
+  pregunta: "¿Cuántos mapeos REFUTAN una decisión congelada de Meta-Factory?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'REFUTA')"
+  unidad: int
+  glosa: "la señal de más valor del estudio: evidencia externa contra una decisión propia"
+- id: clMFrefutaPapers
+  pregunta: "¿Cuántos estudios distintos aportan al menos una refutación?"
+  derivacion: "len(set(r['key'] for r in digest if any(a['postura']=='REFUTA' for a in r['mf_aplicabilidad'])))"
+  unidad: int
+- id: clMFrefutaGMdos
+  pregunta: "¿Cuántas refutaciones apuntan a G-M2 (retrieval medido)?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='G-M2')"
+  unidad: int
+  glosa: "la tensión central del estudio contra ADR-019"
+- id: clMFrefutaGMdosPct
+  pregunta: "¿Qué proporción de toda la refutación se concentra en G-M2?"
+  derivacion: "pct(sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='G-M2'), sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA'))"
+  unidad: pct1
+- id: clMFrefutaNegativo
+  pregunta: "¿Cuántas refutaciones apuntan al conocimiento negativo?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='NEGATIVO')"
+  unidad: int
+- id: clMFanclaCosto
+  pregunta: "¿Cuántos mapeos tocan la economía de contexto?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'COSTO')"
+  unidad: int
+- id: clMFanclaGMdos
+  pregunta: "¿Cuántos mapeos tocan G-M2 en cualquier postura?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'G-M2')"
+  unidad: int
+- id: clMFanclaTierDocs
+  pregunta: "¿Cuántos mapeos tocan el Tier de documentos?"
+  derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'TIER-DOCS')"
+  unidad: int
+
+# ---------------------------------------------------------------- calidad del corpus
+- id: clCalReconsiderarExt
+  pregunta: "¿Cuántos registros marcó la extracción como de calidad dudosa?"
+  derivacion: "sum(1 for r in extraction if 'RECONSIDERAR' in (r['notes'] or ''))"
+  unidad: int
+- id: clCalReconsiderarDig
+  pregunta: "¿Cuántos marcó la digestión, ya con el texto completo a la vista?"
+  derivacion: "sum(1 for r in digest if 'RECONSIDERAR' in (r.get('notes') or ''))"
+  unidad: int
+- id: clCalReconsiderarDigPct
+  pregunta: "¿Qué proporción del corpus analizado levanta una señal de calidad?"
+  derivacion: "pct(sum(1 for r in digest if 'RECONSIDERAR' in (r.get('notes') or '')), len(digest))"
+  unidad: pct1
+  glosa: "leer el texto completo detecta más del doble de problemas que leer campos"
+- id: clCalDuplicados
+  pregunta: "¿Cuántos pares casi-duplicados detectó el escaneo de integridad?"
+  derivacion: "len(duplicados)"
+  unidad: int
+- id: clCalArtefactos
+  pregunta: "¿Cuántos registros resultaron ser herramientas o artefactos y no estudios?"
+  derivacion: "len(artifacts)"
+  unidad: int

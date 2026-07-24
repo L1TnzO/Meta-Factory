@@ -101,6 +101,7 @@ def build_namespace() -> dict:
         "toks": lambda row, field: [t for t in (row.get(field) or "").replace(",", ";").split(";") if t.strip()],
         "pct": lambda a, b: (100.0 * a / b) if b else 0.0,
     }
+    ns["__builtins__"] = {}  # no import, no open, no exec: a ledger derives, it does not act
     return ns
 
 
@@ -146,11 +147,15 @@ def derive_all(claims: list[dict], errors: list[str]) -> dict[str, str]:
         if cid in values:
             errors.append(f"claim id '{cid}' declared twice")
             continue
-        for field in ("pregunta", "derivacion", "unidad", "glosa"):
+        # `glosa` is optional context; `pregunta` is not — a number whose question nobody wrote down
+        # is trivia, and trivia is what pads a results section.
+        for field in ("pregunta", "derivacion", "unidad"):
             if not str(c.get(field, "")).strip():
                 errors.append(f"claim '{cid}': missing '{field}' (a number without its question is trivia)")
         try:
-            raw = eval(c["derivacion"], {"__builtins__": {}}, ns)  # noqa: S307 — committed, reviewed law
+            # The namespace goes in as GLOBALS, not locals: a comprehension body opens its own frame
+            # that can only see globals, so `sum(1 for r in extraction ...)` would otherwise NameError.
+            raw = eval(c["derivacion"], ns, {})  # noqa: S307 — committed, hand-reviewed ledger
         except Exception as exc:  # noqa: BLE001
             errors.append(f"claim '{cid}': derivation FAILED — {type(exc).__name__}: {exc}")
             continue

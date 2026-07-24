@@ -2,7 +2,205 @@
 % Every macro below is re-derived from the committed corpus (protocol §9.5).
 % If you want to change a number, change the corpus or the derivation, never this file.
 
-% clCorpusUnicos: ¿Cuántos registros únicos dejó la búsqueda académica tras dedup?
-\newcommand{\clCorpusUnicos}{1.069}
-% clIncluidosPrincipal: ¿Cuántos incluyó la pasada principal de cribado?
-\newcommand{\clIncluidosPrincipal}{422}
+% clSelUnicos: ¿Cuántos registros únicos dejó la búsqueda académica tras deduplicar?
+\newcommand{\clSelUnicos}{1.069}
+% clSelCribados: ¿Cuántos de esos registros recibieron una decisión de cribado?
+\newcommand{\clSelCribados}{1.069}
+% clSelIncluidosPrincipal: ¿Cuántos incluyó la pasada principal?
+\newcommand{\clSelIncluidosPrincipal}{422}
+% clSelExcCEuno: ¿Cuántos se excluyeron por CE-1 (usa memoria como caja negra, sin mecanismo)?
+\newcommand{\clSelExcCEuno}{115}
+% clSelExcCEdos: ¿Cuántos se excluyeron por CE-2 (dominio divergente sin mecanismo transferible)?
+\newcommand{\clSelExcCEdos}{161}
+% clSelExcCEcinco: ¿Cuántos se excluyeron por CE-5 (registro no-estudio: dataset, demo, front-matter)?
+\newcommand{\clSelExcCEcinco}{123}
+% clSelSecundarios: ¿Cuántos secundarios (surveys) se apartaron sin clasificar?
+\newcommand{\clSelSecundarios}{172}
+% clSelSnowballCandidatos: ¿Cuántos candidatos únicos trajo la ronda de snowballing?
+\newcommand{\clSelSnowballCandidatos}{1.126}
+% clSelSnowballCribados: ¿Cuántos candidatos de snowball llegaron a cribado por rúbrica?
+\newcommand{\clSelSnowballCribados}{977}
+% clSelSnowballIncluidos: ¿Cuántos incorporó el snowballing al corpus?
+\newcommand{\clSelSnowballIncluidos}{65}
+% clSelIncluidosTotal: ¿Cuál es el corpus final de estudios incluidos?
+\newcommand{\clSelIncluidosTotal}{487}
+% clSelConTexto: ¿De cuántos incluidos se obtuvo el texto completo?
+\newcommand{\clSelConTexto}{422}
+% clSelSinTexto: ¿Cuántos incluidos quedaron sin texto completo accesible?
+\newcommand{\clSelSinTexto}{65}
+% clSelCobertura: ¿Qué porcentaje del corpus incluido se analizó a texto completo?
+\newcommand{\clSelCobertura}{86,7}
+% clCarAnalizados: ¿Sobre cuántos estudios se computan los resultados?
+\newcommand{\clCarAnalizados}{422}
+% clCarRecientes: ¿Cuántos de los analizados son de 2025 o 2026?
+\newcommand{\clCarRecientes}{393}
+% clCarRecientesPct: ¿Qué proporción del campo se publicó en los últimos dos años?
+\newcommand{\clCarRecientesPct}{93,1}
+% clRQunoEpisodica: ¿En cuántos estudios aparece memoria episódica?
+\newcommand{\clRQunoEpisodica}{229}
+% clRQunoSemantica: ¿En cuántos aparece memoria semántica?
+\newcommand{\clRQunoSemantica}{208}
+% clRQunoProcedimental: ¿En cuántos aparece memoria procedimental?
+\newcommand{\clRQunoProcedimental}{118}
+% clRQunoTrabajo: ¿En cuántos aparece memoria de trabajo?
+\newcommand{\clRQunoTrabajo}{87}
+% clRQunoParametrica: ¿En cuántos aparece memoria paramétrica (escribir en los pesos)?
+\newcommand{\clRQunoParametrica}{9}
+% clRQunoSinMecanismo: ¿Cuántos estudios no aportan un mecanismo propio (son benchmark, dataset o medición)?
+\newcommand{\clRQunoSinMecanismo}{60}
+% clRQunoHibridosTipos: ¿Cuántos estudios combinan dos o más tipos de memoria?
+\newcommand{\clRQunoHibridosTipos}{219}
+% clRQunoHibridosPct: ¿Qué proporción del corpus es híbrida en tipos de memoria?
+\newcommand{\clRQunoHibridosPct}{51,9}
+% clRQunoRepHibrida: ¿Cuántos declaran representación híbrida?
+\newcommand{\clRQunoRepHibrida}{159}
+% clRQunoRepDocs: ¿Cuántos representan la memoria como documentos/archivos?
+\newcommand{\clRQunoRepDocs}{115}
+% clRQunoRepVector: ¿Cuántos usan representación vectorial?
+\newcommand{\clRQunoRepVector}{93}
+% clRQunoRepGrafo: ¿Cuántos usan grafo?
+\newcommand{\clRQunoRepGrafo}{49}
+% clRQunoRepParametros: ¿Cuántos escriben la memoria en los parámetros del modelo?
+\newcommand{\clRQunoRepParametros}{4}
+% clRQdosWrite: ¿Cuántos estudios definen la operación de escritura?
+\newcommand{\clRQdosWrite}{359}
+% clRQdosAdmision: ¿Cuántos definen admisión (qué merece entrar a la memoria)?
+\newcommand{\clRQdosAdmision}{151}
+% clRQdosConsolidacion: ¿Cuántos definen consolidación?
+\newcommand{\clRQdosConsolidacion}{201}
+% clRQdosOlvido: ¿Cuántos definen olvido o recolección de basura?
+\newcommand{\clRQdosOlvido}{143}
+% clRQdosActualizacion: ¿Cuántos definen actualización de una memoria existente?
+\newcommand{\clRQdosActualizacion}{209}
+% clRQdosTriggerDeterminista: ¿Cuántos disparan la escritura con un evento determinista?
+\newcommand{\clRQdosTriggerDeterminista}{293}
+% clRQdosTriggerDiscrecional: ¿Cuántos dejan la escritura a discreción del modelo?
+\newcommand{\clRQdosTriggerDiscrecional}{84}
+% clRQdosTriggerCheckpoint: ¿Cuántos escriben en checkpoints?
+\newcommand{\clRQdosTriggerCheckpoint}{52}
+% clRQdosTriggerPresupuesto: ¿Cuántos escriben por presupuesto de contexto o tokens?
+\newcommand{\clRQdosTriggerPresupuesto}{55}
+% clRQdosDeterministaPct: Entre los que declaran trigger, ¿qué proporción usa un disparo no discrecional?
+\newcommand{\clRQdosDeterministaPct}{90,5}
+% clRQtresEmbeddings: ¿Cuántos recuperan por embeddings?
+\newcommand{\clRQtresEmbeddings}{267}
+% clRQtresRanking: ¿Cuántos recuperan por ranking léxico o reranking?
+\newcommand{\clRQtresRanking}{202}
+% clRQtresGrafo: ¿Cuántos recuperan recorriendo un grafo?
+\newcommand{\clRQtresGrafo}{108}
+% clRQtresGrep: ¿Cuántos recuperan leyendo archivos directamente?
+\newcommand{\clRQtresGrep}{74}
+% clRQtresGrepPct: ¿Qué proporción del corpus usa lectura directa de archivos?
+\newcommand{\clRQtresGrepPct}{17,5}
+% clRQtresMide: ¿Cuántos MIDEN qué se leyó y con qué utilidad?
+\newcommand{\clRQtresMide}{336}
+% clRQtresMidePct: ¿Qué proporción instrumenta la recuperación?
+\newcommand{\clRQtresMidePct}{79,6}
+% clRQtresNoMide: ¿Cuántos no miden la utilidad de lo recuperado?
+\newcommand{\clRQtresNoMide}{86}
+% clRQcuatroProyecto: ¿Cuántos operan a escala de proyecto?
+\newcommand{\clRQcuatroProyecto}{201}
+% clRQcuatroSesion: ¿Cuántos operan a escala de sesión?
+\newcommand{\clRQcuatroSesion}{148}
+% clRQcuatroOrganizacion: ¿Cuántos operan a escala de organización?
+\newcommand{\clRQcuatroOrganizacion}{37}
+% clRQcuatroMultiagente: ¿Cuántos comparten memoria entre agentes?
+\newcommand{\clRQcuatroMultiagente}{94}
+% clRQcuatroHandoff: ¿Cuántos definen un traspaso explícito entre sesiones o agentes?
+\newcommand{\clRQcuatroHandoff}{292}
+% clRQcuatroHandoffPct: ¿El traspaso es norma o excepción?
+\newcommand{\clRQcuatroHandoffPct}{69,2}
+% clRQcuatroHandoffContenido: ¿Cuántos traspasan CONTENIDO?
+\newcommand{\clRQcuatroHandoffContenido}{287}
+% clRQcuatroHandoffPunteros: ¿Cuántos traspasan PUNTEROS en vez de contenido?
+\newcommand{\clRQcuatroHandoffPunteros}{20}
+% clRQcuatroHandoffContrato: ¿Cuántos traspasan un CONTRATO (qué debe cumplirse, no qué pasó)?
+\newcommand{\clRQcuatroHandoffContrato}{26}
+% clRQcuatroFidelidad: ¿Cuántos verifican fidelidad o procedencia de la memoria?
+\newcommand{\clRQcuatroFidelidad}{244}
+% clRQcuatroPlanEstado: ¿Cuántos tratan el estado del plan de trabajo como contenido de memoria?
+\newcommand{\clRQcuatroPlanEstado}{70}
+% clRQcincoBenchmark: ¿Cuántos evalúan con benchmark end-to-end?
+\newcommand{\clRQcincoBenchmark}{381}
+% clRQcincoAblation: ¿Cuántos aportan ablation con/sin memoria (evidencia causal)?
+\newcommand{\clRQcincoAblation}{349}
+% clRQcincoAblationPct: ¿Qué proporción del corpus aísla causalmente el aporte de la memoria?
+\newcommand{\clRQcincoAblationPct}{82,7}
+% clRQcincoCosto: ¿Cuántos miden costo (tokens, caché, latencia)?
+\newcommand{\clRQcincoCosto}{198}
+% clRQcincoCostoPct: ¿Qué proporción del corpus mide el costo de su memoria?
+\newcommand{\clRQcincoCostoPct}{46,9}
+% clRQcincoCualitativa: ¿Cuántos aportan sólo evidencia cualitativa?
+\newcommand{\clRQcincoCualitativa}{63}
+% clRQcincoMetricaExito: ¿Cuántos reportan métricas de éxito final?
+\newcommand{\clRQcincoMetricaExito}{359}
+% clRQcincoMetricaTokens: ¿Cuántos reportan costo en tokens?
+\newcommand{\clRQcincoMetricaTokens}{168}
+% clRQcincoMetricaIteracion: ¿Cuántos reportan métricas de iteración (pasos, reintentos, error repetido)?
+\newcommand{\clRQcincoMetricaIteracion}{50}
+% clRQcincoMetricaIteracionPct: ¿Qué tan rara es la métrica de iteración?
+\newcommand{\clRQcincoMetricaIteracionPct}{11,8}
+% clRQseisSeguridad: ¿Cuántos estudios tocan seguridad DE la memoria (envenenamiento, exfiltración)?
+\newcommand{\clRQseisSeguridad}{46}
+% clRQseisSeguridadPct: ¿Qué proporción del corpus estudia la seguridad de la memoria?
+\newcommand{\clRQseisSeguridadPct}{10,9}
+% clRQseisFidelidadFaceta: ¿Cuántos tocan fidelidad y anti-drift (procedencia, staleness, costuras)?
+\newcommand{\clRQseisFidelidadFaceta}{237}
+% clRQseisStaleness: ¿Cuántos nombran explícitamente obsolescencia entre sus modos de fallo?
+\newcommand{\clRQseisStaleness}{68}
+% clRQseisPoisoning: ¿Cuántos nombran envenenamiento o inyección de memoria?
+\newcommand{\clRQseisPoisoning}{45}
+% clRQseisSobreRetencion: ¿Cuántos nombran sobre-retención o crecimiento sin control de la memoria?
+\newcommand{\clRQseisSobreRetencion}{41}
+% clMFretrievalMedido: Prevalencia confirmada de la faceta RETRIEVAL-MEDIDO
+\newcommand{\clMFretrievalMedido}{336}
+% clMFwrite: Prevalencia confirmada de la faceta WRITE
+\newcommand{\clMFwrite}{296}
+% clMFcosto: Prevalencia confirmada de la faceta COSTO
+\newcommand{\clMFcosto}{226}
+% clMFconsolidacion: Prevalencia confirmada de la faceta CONSOLIDACION
+\newcommand{\clMFconsolidacion}{198}
+% clMFnegativo: Prevalencia confirmada de la faceta NEGATIVO (conocimiento negativo)
+\newcommand{\clMFnegativo}{107}
+% clMFmultiagente: Prevalencia confirmada de la faceta MULTIAGENTE
+\newcommand{\clMFmultiagente}{94}
+% clMFprocedimental: Prevalencia confirmada de la faceta PROCEDIMENTAL
+\newcommand{\clMFprocedimental}{79}
+% clMFdocsVersionado: Prevalencia confirmada de la faceta DOCS-VERSIONADO (memoria como archivos versionados)
+\newcommand{\clMFdocsVersionado}{33}
+% clMFdocsVersionadoPct: ¿Qué tan rara es la memoria como documentos versionados?
+\newcommand{\clMFdocsVersionadoPct}{7,8}
+% clMFentradas: ¿Cuántos mapeos paper→necesidad-de-Meta-Factory produjo la digestión?
+\newcommand{\clMFentradas}{1.239}
+% clMFconfirma: ¿Cuántos mapeos CONFIRMAN una decisión de Meta-Factory?
+\newcommand{\clMFconfirma}{539}
+% clMFextiende: ¿Cuántos la EXTIENDEN?
+\newcommand{\clMFextiende}{482}
+% clMFneutral: ¿Cuántos son NEUTRALES?
+\newcommand{\clMFneutral}{154}
+% clMFrefuta: ¿Cuántos mapeos REFUTAN una decisión congelada de Meta-Factory?
+\newcommand{\clMFrefuta}{64}
+% clMFrefutaPapers: ¿Cuántos estudios distintos aportan al menos una refutación?
+\newcommand{\clMFrefutaPapers}{58}
+% clMFrefutaGMdos: ¿Cuántas refutaciones apuntan a G-M2 (retrieval medido)?
+\newcommand{\clMFrefutaGMdos}{23}
+% clMFrefutaGMdosPct: ¿Qué proporción de toda la refutación se concentra en G-M2?
+\newcommand{\clMFrefutaGMdosPct}{35,9}
+% clMFrefutaNegativo: ¿Cuántas refutaciones apuntan al conocimiento negativo?
+\newcommand{\clMFrefutaNegativo}{10}
+% clMFanclaCosto: ¿Cuántos mapeos tocan la economía de contexto?
+\newcommand{\clMFanclaCosto}{253}
+% clMFanclaGMdos: ¿Cuántos mapeos tocan G-M2 en cualquier postura?
+\newcommand{\clMFanclaGMdos}{182}
+% clMFanclaTierDocs: ¿Cuántos mapeos tocan el Tier de documentos?
+\newcommand{\clMFanclaTierDocs}{53}
+% clCalReconsiderarExt: ¿Cuántos registros marcó la extracción como de calidad dudosa?
+\newcommand{\clCalReconsiderarExt}{33}
+% clCalReconsiderarDig: ¿Cuántos marcó la digestión, ya con el texto completo a la vista?
+\newcommand{\clCalReconsiderarDig}{83}
+% clCalReconsiderarDigPct: ¿Qué proporción del corpus analizado levanta una señal de calidad?
+\newcommand{\clCalReconsiderarDigPct}{19,7}
+% clCalDuplicados: ¿Cuántos pares casi-duplicados detectó el escaneo de integridad?
+\newcommand{\clCalDuplicados}{7}
+% clCalArtefactos: ¿Cuántos registros resultaron ser herramientas o artefactos y no estudios?
+\newcommand{\clCalArtefactos}{32}

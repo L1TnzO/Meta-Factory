@@ -480,3 +480,14 @@
   pregunta: "¿Cuántas no discuten recuperación sino la solidez del número reportado?"
   derivacion: "sum(1 for t in gmdos if t['direccion'] == 'CALIDAD')"
   unidad: int
+
+# ---------------------------------------------------------------- amenazas a la validez
+- id: clAmeSinTextoPreprint
+  pregunta: "De los incluidos sin texto completo, ¿cuántos son preprints de arXiv?"
+  derivacion: "sum(1 for r in extraction if r['pdf_status'] != 'ok' and not r['key'].startswith('W'))"
+  unidad: int
+  glosa: "cero: el material inaccesible es íntegramente de venues con DOI de editorial"
+- id: clAmeAnalizadosPreprint
+  pregunta: "¿Qué proporción de los analizados son preprints de arXiv?"
+  derivacion: "pct(sum(1 for r in extraction if r['pdf_status']=='ok' and not r['key'].startswith('W')), sum(1 for r in extraction if r['pdf_status']=='ok'))"
+  unidad: pct1

@@ -50,7 +50,54 @@ recuperación de información, evaluación de agentes
 % =====================================================================================
 \section{Introducción}
 \label{sec:intro}
-% [SECCIÓN DE JUICIO — la escribe la orquestadora]
+
+Los agentes basados en modelos de lenguaje dejaron de ser demostraciones de una sola respuesta para
+convertirse en procesos que operan durante días sobre un repositorio real. En ese régimen la
+restricción dominante ya no es generar código correcto en un intento, sino \emph{sostener la
+continuidad}: cada sesión nueva empieza sin recuerdo de la anterior, y lo que el agente sabe de un
+proyecto es exactamente lo que alguien decidió escribir en alguna parte antes de que la ventana de
+contexto se cerrara. El problema de ingeniería que sigue abierto no es cuánto sabe el modelo, sino
+qué se persiste, cuándo se escribe, qué se vuelve a leer y cómo se sabe que lo persistido todavía es
+verdad.
+
+La literatura responde a esa pregunta con una palabra sobrecargada. «Memoria» nombra a la vez el
+borrador intra-tarea que se descarta al terminar, el resumen que sobrevive a una compactación, el
+índice vectorial de conversaciones pasadas, el grafo de entidades de un proyecto y los pesos
+actualizados en tiempo de prueba. Bajo el mismo término conviven mecanismos con propiedades
+incompatibles, y las decisiones de diseño —¿índice semántico o lectura directa de archivos?,
+¿escritura discrecional del modelo o disparada por un evento?— se toman sin un mapa de qué se ha
+medido y con qué evidencia.
+
+%%CLAIMS-STRICT
+Un mapeo sistemático previo del equipo abordó esta área con un corpus de veintisiete estudios
+anclado en depuración y reparación automática de programas. Ese anclaje quedó estrecho: el objeto de
+estudio se desplazó desde la tarea puntual hacia la operación continua sobre un proyecto. Este
+trabajo rehace el mapeo desde cero con un ancla distinta —memoria de proyecto en agentes de larga
+vida— y a otra escala: \clSelUnicos{} registros únicos cribados, \clSelIncluidosTotal{} estudios
+incluidos y \clCarAnalizados{} analizados contra su texto completo, de los cuales \clCarRecientesPct{}\,\%
+se publicaron en los últimos dos años.
+%%CLAIMS-STRICT-END
+
+El estudio hace dos aportes. El primero es el mapa: siete preguntas de investigación que cubren
+tipos y representación, ciclo de vida de escritura, recuperación e instrumentación, persistencia
+cross-sesión y multi-agente, evaluación y costo, riesgos, y práctica industrial de los proveedores de
+modelos. El segundo es metodológico. Un corpus de este tamaño no se lee a mano en el marco de un
+trabajo de titulación, y delegarlo a un modelo de lenguaje sin más introduce exactamente los riesgos
+que la comunidad ya documentó: números que no existen, citas que no resuelven y clasificaciones que
+nadie puede auditar. La respuesta que aquí se propone no es confiar en el modelo ni renunciar a él,
+sino \emph{acotar cada decisión delegada con una compuerta determinista}: vocabularios cerrados que
+un validador rechaza, aritmética de rúbrica recomputada por máquina, una segunda lectura ciega que
+produce un coeficiente de acuerdo, y un registro de afirmaciones donde cada cifra del artículo se
+re-deriva del corpus versionado en cada compilación. Ninguna de esas compuertas juzga la calidad de
+la prosa; todas hacen imposible una clase concreta de error.
+
+Finalmente, el mapeo está \emph{instrumentado para una decisión}. Las preguntas no se eligieron por
+completitud temática sino porque cada una corresponde a una decisión de diseño ya tomada y
+congelada en un sistema real —el prototipo Meta-Factory, un agente de larga vida cuya memoria son
+documentos versionados—, y cada estudio analizado se clasificó según si la confirma, la extiende, es
+neutral o la refuta. Esa última categoría es la más valiosa y la que organiza la discusión: obliga a
+buscar activamente la evidencia que contradice las decisiones propias en vez de la que las
+acompaña.
 
 % =====================================================================================
 \section{Antecedentes}
@@ -123,16 +170,186 @@ recuperación de información, evaluación de agentes
 % =====================================================================================
 \section{Discusión}
 \label{sec:discussion}
-% [SECCIÓN DE JUICIO — la escribe la orquestadora]
 
-\subsection{El mapa de vacíos y su inversión al medir}
+\subsection{El mapa de vacíos se invierte al medirlo}
+\label{sec:disc-gaps}
+
+%%CLAIMS-STRICT
+Antes de cribar, el protocolo estimó la prevalencia de cada faceta con expresiones regulares sobre
+títulos y resúmenes. Esa estimación situaba la política de escritura y el conocimiento negativo como
+lo más escaso de la literatura, y de ahí se derivó una hipótesis de vacío. Medida contra el texto
+completo de los \clCarAnalizados{} estudios, la estimación se invierte: la escritura está bien
+estudiada (\clMFwrite{} estudios) y la escasez real está en otra parte. La faceta menos representada
+del corpus es la memoria como \emph{documentos versionados} —archivos, control de versiones,
+texto plano como sustrato— con \clMFdocsVersionado{} estudios, apenas
+\clMFdocsVersionadoPct{}\,\% del corpus; la sigue la seguridad de la memoria con \clRQseisSeguridad{}
+(\clRQseisSeguridadPct{}\,\%).
+%%CLAIMS-STRICT-END
+
+La lección metodológica es directa y aplica a cualquier mapeo que use pistas automáticas para
+priorizar: una expresión regular sobre resúmenes mide \emph{vocabulario}, no prevalencia. La
+calibración lo cuantificó antes de la pasada completa —de las coincidencias sugeridas para las dos
+facetas más escasas, ninguna sobrevivió a la lectura— y por eso las pistas se usaron sólo para
+ordenar la revisión, nunca para decidirla. Un mapeo que hubiera reportado los conteos de pista como
+prevalencias habría publicado el vacío exactamente invertido.
+
 \subsection{Una posición minoritaria bajo escrutinio}
-\subsection{Implicaciones para el diseño de agentes de larga vida}
+\label{sec:disc-gmdos}
+
+%%CLAIMS-STRICT
+El sistema que motiva este mapeo tomó una decisión deliberada y documentada: recuperar leyendo
+archivos directamente, sin índice semántico, tras medir que el índice no se pagaba en su escala. El
+corpus muestra que esa es una posición minoritaria: \clRQtresGrep{} estudios
+(\clRQtresGrepPct{}\,\%) recuperan por lectura directa, frente a \clRQtresEmbeddings{} que usan
+embeddings. La pregunta interesante no es si la posición es popular, sino qué dice la evidencia que
+la contradice.
+
+De los \clMFrefuta{} mapeos que refutan alguna decisión del sistema, \clMFrefutaGMdos{}
+(\clMFrefutaGMdosPct{}\,\% del total) apuntan a esta. Leídas una por una, no dicen lo mismo: se
+reparten en dos direcciones opuestas y casi empatadas. \clGMdosMenos{} miden que \emph{añadir} una
+capa de recuperación no ayuda o perjudica —sistemas de memoria comerciales sin ganancia significativa
+sobre no tener memoria, un baseline de contexto largo sin memoria explícita obteniendo el mejor
+rango, documentos completos en texto plano superando a recuperación vectorial y por grafo, un
+puntuador determinista sin embeddings alcanzando precisión perfecta en el primer resultado sobre
+documentos etiquetados—. Otras \clGMdosMas{} miden lo contrario: que la similitud \emph{pura} es
+insuficiente, y que hace falta híbrido, estructura o recuperación agéntica multi-salto. Las
+\clGMdosCalidad{} restantes no discuten recuperación sino que el número de titular del propio
+trabajo contradice su tabla de resultados.
+%%CLAIMS-STRICT-END
+
+El empate no es ruido: es el hallazgo. La evidencia sobre recuperación medida está \emph{en disputa},
+y cualquier revisión que cite sólo uno de los dos bloques está seleccionando. La reconciliación
+razonable es que la decisión que se discute son en realidad dos, habitualmente confundidas en una:
+(a)~si conviene tener una capa de recuperación, y (b)~con qué mecanismo. Sobre (a), la evidencia
+favorece la abstención cuando el corpus cabe en la ventana y está curado —que es precisamente el
+caso de un proyecto único con documentación versionada—. Sobre (b), la evidencia es netamente
+desfavorable al \emph{léxico puro}: los trabajos que comparan mecanismos sobre la misma base miden
+que el emparejamiento léxico es el más débil de los tres y que el vector denso domina salvo en
+nichos de vocabulario cerrado, y que la similitud semántica sola falla en consultas por atributo
+temporal.
+
+La consecuencia práctica para un sistema como el estudiado no es «agregar embeddings», sino
+reconocer que su decisión es defendible por el argumento (a) y no por el (b), y que su condición de
+validez es explícita y comprobable: que el corpus siga cabiendo en la ventana y que las consultas
+sigan siendo de recuperación estructurada y no de similitud abierta. El corpus también entrega el
+instrumento con el que esa condición se vigila —la medición de utilidad por lectura— y muestra que
+\clRQtresMide{} estudios (\clRQtresMidePct{}\,\%) ya la instrumentan de alguna forma.
+
+\subsection{Qué debería cambiar en el diseño de agentes de larga vida}
+\label{sec:disc-implications}
+
+%%CLAIMS-STRICT
+Tres asimetrías del corpus tienen consecuencia de diseño inmediata.
+
+\textbf{El disparo de escritura ya no es discrecional.} Entre los estudios que declaran qué dispara
+la escritura, \clRQdosDeterministaPct{}\,\% usan un mecanismo no discrecional: evento determinista
+(\clRQdosTriggerDeterminista{}), checkpoint (\clRQdosTriggerCheckpoint{}) o presupuesto
+(\clRQdosTriggerPresupuesto{}), frente a \clRQdosTriggerDiscrecional{} que dejan la decisión al
+criterio del modelo. La práctica de «el agente escribe cuando le parece relevante» es minoritaria en
+la literatura, y quien la conserve debería justificarla.
+
+\textbf{El traspaso entre sesiones es norma, pero viaja mal.} \clRQcuatroHandoff{} estudios
+(\clRQcuatroHandoffPct{}\,\%) definen un traspaso explícito entre sesiones o agentes, de modo que la
+discontinuidad ya se reconoce como el problema central. Ahora bien, casi todos traspasan
+\emph{contenido} (\clRQcuatroHandoffContenido{}); traspasar \emph{punteros}
+(\clRQcuatroHandoffPunteros{}) o un \emph{contrato} de lo que debe cumplirse
+(\clRQcuatroHandoffContrato{}) sigue siendo raro. Es un espacio de diseño casi vacío, y es
+justamente el que evita re-copiar contexto que envejece.
+
+\textbf{El campo mide si funciona, no si deja de repetir errores.} La evidencia causal es sólida:
+\clRQcincoAblation{} estudios (\clRQcincoAblationPct{}\,\%) incluyen ablation con y sin memoria. Pero
+las métricas de iteración —pasos, reintentos, errores repetidos, hipótesis recicladas— aparecen en
+\clRQcincoMetricaIteracion{} (\clRQcincoMetricaIteracionPct{}\,\%). El mapeo previo del equipo ya
+había señalado esta brecha con veintisiete estudios; se confirma sobre \clCarAnalizados{}. Un agente
+de larga vida falla repitiéndose, y ésa es exactamente la dimensión que casi nadie mide.
+
+Vale la pena registrar además dónde el corpus está desierto: sólo \clRQunoRepParametros{} estudios
+escriben la memoria en los parámetros del modelo, y \clRQunoSinMecanismo{} de los analizados no
+aportan mecanismo propio sino un benchmark, un dataset o una medición. Esto último es un signo de
+madurez incipiente: ya hay casi tantos protocolos de evaluación como sistemas que evaluar.
+%%CLAIMS-STRICT-END
 
 % =====================================================================================
 \section{Amenazas a la validez}
 \label{sec:threats}
-% [SECCIÓN DE JUICIO — la escribe la orquestadora]
+
+\subsection{Validez de constructo}
+
+«Memoria» es un término sobrecargado y el estudio depende de dónde se trace su borde. La rúbrica
+exige que el mecanismo sea \emph{persistente} —entre tareas o entre sesiones— o \emph{compartido}
+entre agentes; en consecuencia, el manejo intra-tarea de la ventana de contexto de un solo agente
+queda fuera aunque sus autores lo llamen memoria. Esa frontera es defendible dado el ancla del
+estudio, pero es una decisión, no un hecho: un lector interesado en compresión de contexto encontrará
+que trabajos relevantes para él fueron excluidos por diseño. El vocabulario de facetas es cerrado y
+se congeló antes de la pasada completa; una dimensión que ninguna faceta nombra es invisible para
+este mapa.
+
+\subsection{Fiabilidad de la clasificación}
+
+%%CLAIMS-STRICT
+Ésta es la amenaza principal y conviene enunciarla sin adornos. La clasificación la realizaron
+\emph{modelos de lenguaje} bajo una rúbrica congelada, con compuertas deterministas que verifican la
+aritmética, los vocabularios y la consistencia entre fases, pero que no pueden verificar el juicio.
+La segunda pasada descrita en la sección~\ref{sec:reliability} es un segundo lector \emph{modelo},
+ciego a la decisión del primero: mide consistencia entre lecturas independientes, no acuerdo entre
+dos personas expertas. Dos lectores que comparten arquitectura pueden compartir sesgos, y ese
+componente de error es invisible desde dentro del propio experimento; el coeficiente reportado debe
+leerse como una cota de consistencia interna del procedimiento, no como validación externa. La
+adjudicación humana se aplicó sobre los conflictos, no sobre el corpus completo.
+%%CLAIMS-STRICT-END
+
+\subsection{Cobertura y sesgo de accesibilidad}
+
+%%CLAIMS-STRICT
+La búsqueda usó tres agregadores con exportación programática y quedó fuera la literatura indexada
+únicamente en bases con licencia. Un control de sanidad con obras validadas por la comunidad y con
+el corpus del mapeo previo mostró que las ausencias corresponden a un hueco de \emph{fuente} —obras
+no indexadas en ninguno de los tres agregadores— y no de vocabulario, y esas obras se recuperaron por
+snowballing.
+
+Más importante, y menos habitual de reportar: la pérdida de texto completo \textbf{no es aleatoria}.
+De los \clSelIncluidosTotal{} incluidos se analizaron \clSelConTexto{} (\clSelCobertura{}\,\%); los
+\clSelSinTexto{} restantes quedaron sin PDF por protección anti-robots, ausencia de acceso abierto o
+páginas intermedias. De ellos, exactamente \clAmeSinTextoPreprint{} son preprints: el material
+inaccesible proviene íntegramente de venues con DOI de editorial, mientras que
+\clAmeAnalizadosPreprint{}\,\% de lo analizado son preprints. El corpus analizado está por tanto
+sesgado hacia lo libremente accesible, y ese sesgo apunta en la misma dirección que la señal de
+calidad de la próxima subsección.
+%%CLAIMS-STRICT-END
+
+\subsection{Calidad del corpus}
+
+%%CLAIMS-STRICT
+El corpus es muy reciente —\clCarRecientesPct{}\,\% de los últimos dos años— y por tanto contiene una
+proporción alta de preprints sin revisión por pares. La digestión marcó \clCalReconsiderarDig{}
+estudios (\clCalReconsiderarDigPct{}\,\%) con señales de calidad dudosa: venues autopublicados,
+evidencia sólo cualitativa presentada como medición, contradicciones entre el resumen y las tablas
+del propio trabajo y, en algunos casos, texto que parece generado por un asistente en lugar de
+resultados. La extracción, que leía campos en vez del texto completo, había marcado
+\clCalReconsiderarExt{}: leer el documento entero detecta más del doble de problemas. Ninguno de esos
+registros se descartó automáticamente —se marcaron y quedaron sujetos a revisión—, porque una señal
+de sospecha no es un criterio de exclusión. El lector debe saber que un corpus de esta cosecha
+incluye trabajo de calidad muy desigual, y ese hecho es en sí un resultado sobre el estado del área.
+%%CLAIMS-STRICT-END
+
+\subsection{Conflicto de interés analítico}
+
+La lente que clasifica cada estudio como confirmación o refutación de una decisión de diseño la
+aplica el mismo equipo que tomó esas decisiones. Es un riesgo evidente de complacencia. Se mitigó de
+tres formas comprobables: el vocabulario de posturas es cerrado y la refutación se declaró de
+antemano como la categoría de mayor valor; la clasificación por dirección de las refutaciones sobre
+la decisión más disputada vive en un archivo aparte, con la evidencia citada de cada asignación; y
+una compuerta exige que esa clasificación cubra \emph{exactamente} el conjunto de refutaciones del
+corpus, de modo que descartar en silencio una fila incómoda hace fallar la compilación. Aun así, la
+mitigación es procedimental: no sustituye a una réplica independiente.
+
+\subsection{Reproducibilidad}
+
+Protocolo, hojas de decisión, formularios, veredictos por lote y el registro de afirmaciones están
+versionados; cada cifra de este artículo se re-deriva de esos artefactos en cada compilación, de modo
+que un tercero puede recomputarlas o detectar que dejaron de seguirse del corpus. Los PDF no se
+distribuyen por razones de licencia: se publica su índice con identificador y hash criptográfico, que
+permite verificar que el documento analizado es el mismo sin redistribuirlo.
 
 % =====================================================================================
 \section{Conclusiones}

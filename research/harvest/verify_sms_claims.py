@@ -75,6 +75,27 @@ def _read_jsonl(path: Path) -> list[dict]:
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
+
+def _quoted(grey_key: str, needle: str) -> str:
+    """Devuelve `needle` sólo si aparece LITERALMENTE en la instantánea gris `grey_key`.
+
+    Extiende la ley anti-invención (§9.5) de los agregados a las CITAS. Un número tomado de un
+    documento de proveedor no se deriva del corpus: se copia de una fuente. Pero la fuente está
+    congelada con sha256, así que la copia SÍ es verificable — y aquí se verifica: si la cadena no
+    está en el snapshot, la derivación revienta y el paper no compila. Es la diferencia entre citar
+    y afirmar que se citó.
+    """
+    path = ROOT / f"corpus/grey/{grey_key}.txt"
+    if not path.exists():
+        raise FileNotFoundError(f"no hay instantánea gris '{grey_key}' (¿se cosechó?)")
+    text = path.read_text(encoding="utf-8", errors="replace")
+    flat = " ".join(text.split())
+    if needle not in flat and needle not in text:
+        raise ValueError(f"'{needle}' NO aparece en la instantánea '{grey_key}' — "
+                         f"una cita que la fuente no sostiene")
+    return needle
+
+
 def build_namespace() -> dict:
     """Every artifact a claim may derive from. Read-only by construction: plain lists of dicts."""
     spi: list[dict] = []
@@ -106,6 +127,7 @@ def build_namespace() -> dict:
         "facets": lambda row, field="F": [f for f in (row.get(field) or "").split(";") if f],
         "toks": lambda row, field: [t for t in (row.get(field) or "").replace(",", ";").split(";") if t.strip()],
         "pct": lambda a, b: (100.0 * a / b) if b else 0.0,
+        "quoted": _quoted,
     }
     ns["__builtins__"] = {}  # no import, no open, no exec: a ledger derives, it does not act
     return ns
@@ -125,7 +147,13 @@ def fmt(value, unidad: str) -> str:
     if unidad == "float3":
         return f"{float(value):.3f}".replace(".", ",")
     if unidad == "raw":
-        return str(value)
+        # Una cita literal puede traer caracteres que LaTeX interpreta ('%' abre comentario y se
+        # comería el resto de la línea). Se escapan al emitir, no al citar: el claims.yml conserva
+        # la cadena tal como aparece en la fuente, que es lo que `quoted()` verifica.
+        out = str(value)
+        for ch in ("\\", "&", "%", "$", "#", "_", "{", "}"):
+            out = out.replace(ch, "\\" + ch)
+        return out
     raise ValueError(f"unknown unidad '{unidad}' (int|pct0|pct1|float2|float3|raw)")
 
 

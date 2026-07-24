@@ -606,6 +606,53 @@ negativo (\clMFrefutaNegativo{}); ambas se analizan en la sección~\ref{sec:disc
 \subsection{RQ7 · Práctica industrial}
 \label{sec:rq7}
 
+%%CLAIMS-STRICT
+La literatura gris se cosechó como corpus aparte, con semillas obligatorias fijadas en el protocolo
+antes de cosechar y una instantánea inmutable por documento identificada por hash: los blogs y las
+documentaciones mutan, de modo que la evidencia es el snapshot y no el enlace. Se analizaron
+\clGrisDocs{} documentos técnicos de primera mano: \clGrisAnthropic{} de Anthropic,
+\clGrisOpenAI{} de OpenAI y \clGrisGoogle{} de Google DeepMind. Esa asimetría no es un sesgo de
+muestreo sino un hallazgo: la producción memoria-céntrica de Google llega por vía académica, mientras
+que Anthropic y OpenAI documentan mecanismo en su documentación de producto.
+
+Los proveedores \textbf{convergen} en tratar el contexto como recurso finito administrado en tiempo
+de inferencia, y en separar el estado almacenado de lo que el modelo efectivamente ve.
+\textbf{Divergen} en dónde ponen el mecanismo: Anthropic y OpenAI ofrecen operaciones explícitas
+—edición de contexto y compactación del lado del servidor, herramienta de memoria y sesiones del lado
+del cliente— mientras que Google apuesta por capacidad bruta más caché, documentando una ventana de
+\clGrisVentanaGemini{}.
+
+Tres contrastes con la literatura académica merecen registro.
+
+\textbf{El disparador determinista está en producción, con números.} La edición de contexto se activa
+por defecto al superar \clGrisUmbralEdicion{} tokens de entrada y la compactación al superar
+\clGrisUmbralCompactacion{}; ambos son umbrales, no juicios del modelo. Al mismo tiempo, la escritura
+de \emph{contenido} de memoria sí se deja al criterio del agente. Es exactamente el patrón mixto que
+la sección~\ref{sec:rq2} midió en la literatura: la discreción del modelo no se elimina, se acota con
+una condición externa comprobable.
+
+\textbf{La práctica usa el sustrato que la literatura casi no estudia.} La herramienta de memoria de
+Anthropic opera sobre archivos de texto bajo control de la aplicación, y su asistente de programación
+documenta la memoria de proyecto como archivos Markdown versionados junto al código. Es decir, el
+sustrato que aparece en \clMFdocsVersionado{} de \clCarAnalizados{} estudios académicos
+(\clMFdocsVersionadoPct{}\,\%) es el que dos de los tres proveedores eligieron para su producto. La
+divergencia entre práctica y literatura, en esta faceta, es la más marcada del mapeo.
+
+\textbf{Nadie mide la utilidad de lo recuperado.} Los proveedores reportan efecto agregado —una mejora
+de \clGrisMejoraCombinada{} al combinar memoria con edición de contexto, una reducción de
+\clGrisAhorroTokens{} en consumo de tokens para la edición sola— pero ninguno de los \clGrisDocs{}
+documentos reporta medir \emph{qué} se recuperó y si sirvió. La carencia que la
+sección~\ref{sec:rq3} identificó en la academia se repite, entonces, en la industria: se mide el
+resultado del sistema con memoria frente al sistema sin ella, no la utilidad de cada elemento
+recuperado. Para un agente de larga vida esa distinción no es académica, porque es la que permite
+decidir qué conservar.
+
+Nota sobre estas cifras: a diferencia del resto del artículo, no son agregados sobre el corpus sino
+\emph{citas}. Cada una se verifica automáticamente contra la instantánea congelada del documento que
+la sostiene, y si la cadena no aparece allí el artículo no compila. Es la misma disciplina aplicada a
+un tipo de afirmación distinto.
+%%CLAIMS-STRICT-END
+
 % =====================================================================================
 \section{Discusión}
 \label{sec:discussion}

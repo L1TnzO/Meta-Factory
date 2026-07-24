@@ -628,3 +628,25 @@
   derivacion: "sum(1 for r in grey if r['org'] == 'Google DeepMind')"
   unidad: int
   glosa: "la asimetría es en sí un hallazgo de RQ7"
+- id: clGrisMejoraCombinada
+  pregunta: "¿Qué mejora reporta Anthropic al combinar herramienta de memoria con edición de contexto?"
+  derivacion: "quoted('anthropic-context-management', '39%')"
+  unidad: raw
+  glosa: "CITA verificada contra la instantánea congelada, no agregado del corpus"
+- id: clGrisAhorroTokens
+  pregunta: "¿Qué reducción de tokens reporta la edición de contexto sola?"
+  derivacion: "quoted('anthropic-context-management', '84%')"
+  unidad: raw
+- id: clGrisUmbralEdicion
+  pregunta: "¿En qué umbral de tokens de entrada se dispara por defecto la edición de contexto?"
+  derivacion: "quoted('anthropic-context-editing', '100,000')"
+  unidad: raw
+  glosa: "un disparador determinista, en producción, con su número"
+- id: clGrisUmbralCompactacion
+  pregunta: "¿En qué umbral se dispara por defecto la compactación?"
+  derivacion: "quoted('anthropic-compaction', '150000')"
+  unidad: raw
+- id: clGrisVentanaGemini
+  pregunta: "¿Qué tamaño de ventana de contexto documenta Google?"
+  derivacion: "quoted('google-gemini-long-context', '1 million tokens')"
+  unidad: raw

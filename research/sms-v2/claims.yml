@@ -1,0 +1,12 @@
+# Ledger de claims del SMS v2 (protocolo §9.5). NINGÚN número del paper se escribe a mano.
+# Cada entrada se re-deriva del corpus committeado y entra al .tex como macro \clID.
+- id: clCorpusUnicos
+  pregunta: "¿Cuántos registros únicos dejó la búsqueda académica tras dedup?"
+  derivacion: "len(sheet_full)"
+  unidad: int
+  glosa: "corpus académico principal, tres agregadores, dedup DOI→arXiv→título"
+- id: clIncluidosPrincipal
+  pregunta: "¿Cuántos incluyó la pasada principal de cribado?"
+  derivacion: "sum(1 for r in sheet_full if r['decision'] == 'INCLUIR')"
+  unidad: int
+  glosa: "INCLUIR sobre el corpus principal"

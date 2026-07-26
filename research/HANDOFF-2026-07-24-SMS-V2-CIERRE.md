@@ -83,7 +83,7 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Literatura gris (RQ7) | ✅ 11/11 semillas, sha256 verificado | `harvest/harvest_grey.py` · `corpus/grey/manifest.csv` · gate `verify_grey.py` |
 | **RQ7 escrita** | ✅ | §Resultados; 3 contrastes con la academia |
 | Toolkit SPI (inputs ciegos) | ✅ 534/534 en 31 chunks, 44 tests | `harvest/make_spi_sheet.py`, gate `--inputs-only` PASS |
-| SPI (lectura) | 🔄 VERIFICACION+IDENTIDAD+CONFIRMACION completas | quedan 18 chunks: `GRIS`(7)·`SNOWBALL-GRIS`(4)·`RECONSIDERAR-EXT`(2)·`RECONSIDERAR-DIG`(5) |
+| SPI (lectura) | 🔄 + `GRIS` q01–q03/7 (60 abstenciones adjudicadas) | quedan 15 chunks: `GRIS` q04–q07(4)·`SNOWBALL-GRIS`(4)·`RECONSIDERAR-EXT`(2)·`RECONSIDERAR-DIG`(5) |
 | §4.7 cifras de acuerdo + κ | 🔢 ESTABLE (no escrito aún) — n=191 · κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial) | correr `harvest/spi_agreement.py --write` recién al cerrar las 20 colas restantes (CONFLICTOS.csv acumula de TODAS las colas) |
 
 ### Reproducibilidad: VERIFICADA, no afirmada (2026-07-24)

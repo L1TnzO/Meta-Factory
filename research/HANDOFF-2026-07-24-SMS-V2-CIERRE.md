@@ -83,7 +83,7 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Literatura gris (RQ7) | ✅ 11/11 semillas, sha256 verificado | `harvest/harvest_grey.py` · `corpus/grey/manifest.csv` · gate `verify_grey.py` |
 | **RQ7 escrita** | ✅ | §Resultados; 3 contrastes con la academia |
 | Toolkit SPI (inputs ciegos) | ✅ 534/534 en 31 chunks, 44 tests | `harvest/make_spi_sheet.py`, gate `--inputs-only` PASS |
-| SPI (lectura) | 🔄 ola 1 = `MUESTRA-10PCT` q01–q03 | quedan 28 chunks |
+| SPI (lectura) | 🔄 ola 1+2 = `MUESTRA-10PCT` q01–q06 COMPLETA (110/110) | quedan 25 chunks (`SNOWBALL-SAMPLE10` es la siguiente, la otra cola con κ) |
 | §4.7 cifras de acuerdo + κ | ⬜ depende de la SPI | `harvest/spi_agreement.py --write` |
 
 ### Reproducibilidad: VERIFICADA, no afirmada (2026-07-24)
@@ -94,11 +94,24 @@ bloqueo, no por confianza: `git clone` del repo a `/tmp` → `verify_sms_claims.
 entradas → `pdflatex+bibtex` compila el PDF. El corpus committeado basta; los PDF (gitignored) no
 hacen falta para re-derivar ningún número.
 
-### Cómo seguir las olas de la SPI (mecánico, 28 chunks restantes)
+### Cómo seguir las olas de la SPI (mecánico, 25 chunks restantes)
 
-Orden por valor: **`MUESTRA-10PCT` q04–q06 + `SNOWBALL-SAMPLE10` q01–q05** (son los únicos que dan κ)
-→ `DUPLICADOS` q01 (1 chunk, 7 pares) → `PREOUT-RESCATADOS` q01 → `GRIS` (7 chunks) →
-`SNOWBALL-GRIS` (4) → `RECONSIDERAR-EXT` (2) → `RECONSIDERAR-DIG` (5).
+`MUESTRA-10PCT` (q01–q06, 110/110) está COMPLETA — κ de ESA cola sola: colapsado 0,912 (casi
+perfecto), exacto 0,719 (sustancial), sobre 100 filas comparables (9 abstención pasada-1 + 1
+brecha de ceguera auto-reportada, ambas excluidas y documentadas en `closure_law.py` §9.1). No es
+la cifra global de §4.7 — falta la otra cola con κ.
+
+Orden por valor: **`SNOWBALL-SAMPLE10` q01–q05** (la única cola que falta para tener los DOS
+estratos VERIFICACION con κ) → `DUPLICADOS` q01 (1 chunk, 7 pares) → `PREOUT-RESCATADOS` q01 →
+`GRIS` (7 chunks) → `SNOWBALL-GRIS` (4) → `RECONSIDERAR-EXT` (2) → `RECONSIDERAR-DIG` (5).
+
+⚠️ **Tercer aviso, nuevo esta sesión:** si el segundo lector necesita revisar metadatos (venue,
+autores) y toca CUALQUIER hoja committeada que no sea el input del chunk (`screening_full.csv`,
+`screening_snowball.csv`, etc.), corre el riesgo real de ver de paso la columna `decision` de la
+pasada 1 — ya pasó una vez (`W7154711690`, ola 2, ver `closure_law.SPI_BLINDNESS_BREACHES`).
+Adviértele explícitamente al generator: verificar metadatos SOLO contra el PDF o fuentes externas
+(no contra las hojas de cribado), y si ocurre de todos modos, que lo AUTO-REPORTE (como hizo esta
+vez) en vez de tratar de disimularlo — un dato honesto sobre una brecha vale más que un silencio.
 
 Por ola: manifest con `allow_globs` = los `q<NN>.verdict.jsonl` de ESA cola y ESA ola ·
 `acceptance_gate_cmd` = `verify_spi_verdicts.py --require q01,q02,q03` · 3 chunks por ola ·

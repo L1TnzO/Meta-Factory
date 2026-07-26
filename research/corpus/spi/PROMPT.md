@@ -99,3 +99,10 @@ recuperable si la sesión se corta, y un chunk sin gate verde es trabajo que hay
   puntuación o tu decisión están mal — arregla el juicio, no el número.
 - **No cargues PDFs completos al contexto.** `head -c` acotado, siempre.
 - **No inventes evidencia.** Si no puedes anclarla, no la afirmes: baja la puntuación y dilo en `notes`.
+- **No toques las hojas de cribado committeadas** (`screening_full.csv`, `screening_snowball.csv`,
+  `extraction.csv`, etc.) para verificar metadatos (venue, autores, año). Esas hojas llevan la `decision`
+  de la pasada 1 — abrirlas, aunque sea con `grep` acotado a otra columna, rompe tu propia ceguera. Si
+  necesitas verificar algo, usa el PDF o una fuente externa. Si de todos modos ves algo que no debías,
+  **repórtalo en tu verdict y en tu mensaje final en vez de disimularlo**: una brecha auto-reportada se
+  excluye del κ para esa fila (ley `harvest/closure_law.SPI_BLINDNESS_BREACHES`) y no invalida el resto de
+  tu trabajo; una brecha escondida sí lo haría.

@@ -384,6 +384,17 @@ coeficiente con un artefacto del diseño, así que se **excluyen del κ y se rep
 segundo lector sí las resuelve: eso es adjudicación, no fiabilidad). La exclusión aparece con su
 conteo en `AGREEMENT.md`, nunca en silencio.
 
+**Enmienda 2026-07-26 (brecha de ceguera auto-reportada, no de diseño).** Distinta de la abstención:
+en la ola 2 de `MUESTRA-10PCT` (chunk q04), el segundo lector reportó por sí mismo haber visto de
+paso la decisión de la pasada 1 de una fila (`W7154711690`) al hacer `grep` sobre la hoja
+committeada mientras verificaba metadatos de venue — no un bug del builder (el INPUT nunca llevó la
+columna prohibida; el diente de ceguera sobre los inputs sigue verde). Ese par deja de medir algo:
+no es acuerdo ni desacuerdo, es una lectura que dejó de ser independiente. Se registra por
+`(cola, key)` con su motivo en `harvest/closure_law.SPI_BLINDNESS_BREACHES` (ley, escrita a mano) y
+se excluye del κ igual que una abstención — **visible en `AGREEMENT.md`, nunca en silencio**. El
+veredicto de esa fila NO se descarta (sigue siendo la lectura del segundo revisor y cuenta para la
+adjudicación de membresía), sólo se excluye de la medición de fiabilidad.
+
 ### 9.2 Vocabulario de la SPI (cerrado)
 
 - **Membresía** (VERIFICACIÓN, ADJUDICACIÓN): reutiliza `DECISIONS` de `screening_pass.py` — single-source,

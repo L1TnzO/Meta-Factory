@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from closure_law import (  # noqa: E402
     QUEUES, SPI_DIR, KIND_VERIFICACION, KIND_CONFIRMACION, KIND_ADJUDICACION,
     KIND_CALIDAD, KIND_IDENTIDAD, collapse, cohen_kappa, interpret_kappa, queue_members,
-    HUMAN_LABELS,
+    HUMAN_LABELS, SPI_BLINDNESS_BREACHES,
 )
 
 BATCHES = SPI_DIR / "batches"
@@ -83,6 +83,7 @@ def main() -> int:
         if q.kind in (KIND_VERIFICACION, KIND_CONFIRMACION):
             exact_hit = coll_hit = 0
             abstained = 0          # pass 1 declined to decide: NOT verifiable, see below
+            breached = 0           # second reader self-disclosed seeing pass-1's output: NOT independent
             confusion: dict[tuple[str, str], int] = defaultdict(int)
             for key, v in sorted(verdicts.items()):
                 a = (p1.get(key, {}).get("decision") or "").strip()
@@ -95,6 +96,14 @@ def main() -> int:
                 # resolve it, which is an adjudication result, just not a reliability one.
                 if a in HUMAN_LABELS:
                     abstained += 1
+                    continue
+                # A row named in SPI_BLINDNESS_BREACHES had its blindness broken IN PRACTICE (the second
+                # reader saw pass-1's output, self-disclosed, before writing their own verdict) even
+                # though the INPUT file never carried the forbidden column. It is not a disagreement
+                # signal either way — reliability was never measured on this pair — so it is excluded
+                # from κ the same way an abstention is: visibly, never in silence.
+                if (name, key) in SPI_BLINDNESS_BREACHES:
+                    breached += 1
                     continue
                 confusion[(collapse(a), collapse(b))] += 1
                 if a == b:
@@ -111,14 +120,21 @@ def main() -> int:
                 if q.kind == KIND_VERIFICACION:
                     kappa_pairs_exact.append((a, b))
                     kappa_pairs_collapsed.append((collapse(a), collapse(b)))
-            n = len(verdicts) - abstained
+            n = len(verdicts) - abstained - breached
             if n <= 0:
-                lines.append("- sin filas comparables (la pasada 1 se abstuvo en todas)")
+                lines.append("- sin filas comparables (la pasada 1 se abstuvo en todas, o brecha)")
                 lines.append("")
                 continue
             lines.append(f"- filas comparables: {n} (se excluyen {abstained} donde la pasada 1 se "
                          f"ABSTUVO: no son verificables y el segundo lector no puede abstenerse aquí, "
-                         f"así que contarlas sería penalizar el coeficiente con un artefacto del diseño)")
+                         f"así que contarlas sería penalizar el coeficiente con un artefacto del diseño)"
+                         + (f"; se excluyen {breached} por BRECHA DE CEGUERA auto-reportada por el "
+                            f"segundo lector (no es desacuerdo ni acuerdo: la medición de fiabilidad "
+                            f"nunca ocurrió en ese par)" if breached else ""))
+            if breached:
+                for (bq, bk), why in sorted(SPI_BLINDNESS_BREACHES.items()):
+                    if bq == name:
+                        lines.append(f"  - `{bk}`: {why}")
             lines.append(f"- acuerdo EXACTO: {exact_hit}/{n} = {100 * exact_hit / n:.1f}%")
             lines.append(f"- acuerdo COLAPSADO (IN/OUT/HUMANO): {coll_hit}/{n} = {100 * coll_hit / n:.1f}%")
             if q.kind == KIND_CONFIRMACION:

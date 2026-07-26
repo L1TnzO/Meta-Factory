@@ -298,6 +298,21 @@ def validate_verdict(row: dict, kind: str, errors: list[str]) -> bool:
 IN_LABELS = {"INCLUIR"}
 HUMAN_LABELS = {"GRIS", "CE-4p"}
 
+# A handful of SPI rows are excluded from κ not because pass 1 abstained, but because the SECOND reader
+# reported — unprompted, in the verdict's own words — that they glimpsed pass-1's output before writing
+# their independent verdict (e.g. a stray grep against a committed sheet while checking venue metadata).
+# This is not a builder bug (the INPUT file the gate checks never carried the forbidden column, so the
+# blindness gate stays green) and it is not silently dropped: it is named here, by (queue, key), with the
+# wave and the reason, so `spi_agreement.py` reports it exactly the way it reports abstentions — visibly,
+# never in silence (enmienda 2026-07-26, mirrors the 2026-07-24 abstention amendment).
+SPI_BLINDNESS_BREACHES: dict[tuple[str, str], str] = {
+    ("MUESTRA-10PCT", "W7154711690"): (
+        "reader self-disclosed seeing pass-1 M/T/E/decision via a stray grep on screening_full.csv "
+        "while checking venue metadata (wave 2, chunk q04, 2026-07-26); the recorded verdict is still "
+        "the reader's own PDF-grounded read, but the pair is not an independent measurement"
+    ),
+}
+
 
 def collapse(decision: str) -> str:
     """IN / OUT / HUMANO — the SAME collapse the 2026-07-16 pre-flight used, so the numbers compare.
@@ -349,6 +364,7 @@ __all__ = [
     "KINDS_MEMBERSHIP", "KINDS_KAPPA", "BLIND_FORBIDDEN", "VERDICT_FIELDS", "CHUNK_SIZE",
     "CALIDAD_VERDICTS", "IDENTIDAD_VERDICTS", "validate_verdict", "collapse", "cohen_kappa",
     "interpret_kappa", "DECISIONS", "DECISIONS_CATEGORICAL", "FACETS", "SPI_DIR",
+    "HUMAN_LABELS", "SPI_BLINDNESS_BREACHES",
 ]
 
 if __name__ == "__main__":  # tiny self-report: the queue map, re-derived

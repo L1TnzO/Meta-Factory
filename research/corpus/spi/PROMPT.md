@@ -99,10 +99,22 @@ recuperable si la sesión se corta, y un chunk sin gate verde es trabajo que hay
   puntuación o tu decisión están mal — arregla el juicio, no el número.
 - **No cargues PDFs completos al contexto.** `head -c` acotado, siempre.
 - **No inventes evidencia.** Si no puedes anclarla, no la afirmes: baja la puntuación y dilo en `notes`.
-- **No toques las hojas de cribado committeadas** (`screening_full.csv`, `screening_snowball.csv`,
-  `extraction.csv`, etc.) para verificar metadatos (venue, autores, año). Esas hojas llevan la `decision`
-  de la pasada 1 — abrirlas, aunque sea con `grep` acotado a otra columna, rompe tu propia ceguera. Si
-  necesitas verificar algo, usa el PDF o una fuente externa. Si de todos modos ves algo que no debías,
-  **repórtalo en tu verdict y en tu mensaje final en vez de disimularlo**: una brecha auto-reportada se
-  excluye del κ para esa fila (ley `harvest/closure_law.SPI_BLINDNESS_BREACHES`) y no invalida el resto de
-  tu trabajo; una brecha escondida sí lo haría.
+- **Lista BLANCA, no negra, para metadatos fuera del input.** El repo tiene MÁS de un archivo con la
+  `decision` de la pasada 1 (o su equivalente) de los que el nombre no lo delata —
+  `corpus/screening/calibration_sample_50_seed42.csv` la lleva en columna `decision`;
+  `corpus/seeds/v1-candidates.csv` la lleva en `v2_decision` (encontrado por auditoría 2026-07-26, ola 8:
+  cero filas de esa ola resultaron afectadas, pero el canal existía y nadie lo había nombrado). Por eso la
+  regla ya NO es "evita estos 3 archivos": es **usa SÓLO estas fuentes, nada más**:
+  - el propio input del chunk;
+  - el PDF vía `pdftotext corpus/pdf/<key>.pdf -` cuando el input trae `pdf`;
+  - `corpus/merged/corpus.jsonl` (metadata bibliográfica cruda: id/title/abstract/authors/venue/year, CERO
+    columnas de decisión) para un abstract completo si el del input viene truncado o vacío;
+  - `corpus/seeds/v1-manual-screen.jsonl` y `corpus/seeds/snowball-enriched.jsonl` (mismo tipo de metadata
+    cruda, verificadas sin columnas de decisión) como fuente alternativa de abstract completo.
+  **Cualquier otro archivo del repo — cualquier CSV/JSONL bajo `corpus/screening/`, `corpus/extraction/`,
+  `corpus/digestion/`, o `corpus/seeds/v1-candidates.csv` específicamente — está PROHIBIDO**, incluso con
+  `grep` acotado a una columna que "parece" inocua: no puedes saber si un archivo lleva una columna de
+  decisión sin abrirlo, y abrirlo para comprobarlo ya es la brecha. Si de todos modos ves algo que no
+  debías, **repórtalo en tu verdict y en tu mensaje final en vez de disimularlo**: una brecha auto-reportada
+  se excluye del κ para esa fila (ley `harvest/closure_law.SPI_BLINDNESS_BREACHES`) y no invalida el resto
+  de tu trabajo; una brecha escondida sí lo haría.

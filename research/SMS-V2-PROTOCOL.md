@@ -395,6 +395,19 @@ se excluye del κ igual que una abstención — **visible en `AGREEMENT.md`, nun
 veredicto de esa fila NO se descarta (sigue siendo la lectura del segundo revisor y cuenta para la
 adjudicación de membresía), sólo se excluye de la medición de fiabilidad.
 
+**Auditoría 2026-07-26 (ola 8) — un segundo canal de fuga, cero filas afectadas.** Al leer GRIS q07 +
+SNOWBALL-GRIS q01–q02, el lector auto-reportó un `grep` de más sobre `corpus/seeds/*.csv` que tocó
+`corpus/seeds/v1-candidates.csv` — archivo que resultó llevar una columna `v2_decision` (equivalente a
+`decision` de la pasada 1) para 18 de sus 27 filas, un canal de fuga que nadie había nombrado. Se auditó
+por bloqueo, no por confianza: (i) ninguna de las 51 filas de la ola 8 coincide con las 18 keys con
+`v2_decision`; (ii) sobre las 381 filas decididas hasta ese momento por TODAS las olas, 4 coinciden con
+esas keys, todas de olas 1–2 (que nunca auto-reportaron tocar `corpus/seeds/`) — 3/4 coinciden en la
+decisión y 1/4 discrepa (`v2_decision=GRIS` vs. SPI `INCLUIR`, un patrón incompatible con copiar). No se
+excluye ninguna fila del κ: la evidencia no sostiene una brecha real, sólo un canal que existía sin
+usarse. `corpus/spi/PROMPT.md` se endureció de lista NEGRA (3 archivos nombrados) a lista BLANCA (4
+fuentes permitidas, todo lo demás prohibido) para que el próximo canal no nombrado no dependa de que
+alguien lo nombre a tiempo.
+
 ### 9.2 Vocabulario de la SPI (cerrado)
 
 - **Membresía** (VERIFICACIÓN, ADJUDICACIÓN): reutiliza `DECISIONS` de `screening_pass.py` — single-source,

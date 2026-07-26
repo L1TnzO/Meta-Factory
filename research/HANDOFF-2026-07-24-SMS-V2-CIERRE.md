@@ -36,7 +36,7 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 
 | # | Fase | Qué es | Diente |
 | --- | --- | --- | --- |
-| **A** | **SPI — segunda pasada independiente** (§9.1) | 534 filas de cola en 4 tipos (verificación · adjudicación · calidad · identidad); mide acuerdo + κ y reduce el borde humano a los CONFLICTOS | `verify_spi_verdicts.py` (ley `closure_law.py`) + test de ceguera |
+| **A** | ✅ **SPI — segunda pasada independiente** (§9.1) CERRADA 2026-07-26 | 534/534 filas en 8 colas; κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial), n=191; cola humana 534→113 | `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, gate `verify_spi_verdicts.py` 534/534 |
 | **B** | **Cierre de corpus** (§9.3) | rescate de los 65 `pdf_status=missing` con red; extracción+digestión de lo rescatado y de los flips de A, en chunks NUEVOS (`e72+`, `d72+`) | gates congelados §7.6/§7.4 |
 | **C** | **Literatura gris RQ7** (§9.4) | RQ7 hoy tiene **cero** registros; snapshot inmutable de docs de Anthropic/OpenAI/DeepMind + digest con la lente MF | manifest con sha256 verificado |
 | **D** | **PLAN-ESTADO** | promover la faceta (evidencia `plan_estado=SI` = 70, 14× el umbral ≥5) por derivación, sin re-etiquetar 422 filas | derivada, no anotada a mano |
@@ -83,8 +83,8 @@ paper rescatado en B cambia los denominadores, y con claims-as-code eso se re-em
 | Literatura gris (RQ7) | ✅ 11/11 semillas, sha256 verificado | `harvest/harvest_grey.py` · `corpus/grey/manifest.csv` · gate `verify_grey.py` |
 | **RQ7 escrita** | ✅ | §Resultados; 3 contrastes con la academia |
 | Toolkit SPI (inputs ciegos) | ✅ 534/534 en 31 chunks, 44 tests | `harvest/make_spi_sheet.py`, gate `--inputs-only` PASS |
-| SPI (lectura) | 🔄 `RECONSIDERAR-EXT` COMPLETA (33/33) · `RECONSIDERAR-DIG` q01–q02/5 | quedan 3 chunks: `RECONSIDERAR-DIG` q03–q05 — ÚLTIMA cola, cierra la SPI en 534/534 |
-| §4.7 cifras de acuerdo + κ | 🔢 ESTABLE (no escrito aún) — n=191 · κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial) | correr `harvest/spi_agreement.py --write` recién al cerrar las 20 colas restantes (CONFLICTOS.csv acumula de TODAS las colas) |
+| SPI (lectura) | ✅ **COMPLETA — 534/534, las 8 colas, 11 olas** (2026-07-26) | `corpus/spi/batches/*/q*.verdict.jsonl`, gate 534/534 |
+| §4.7 cifras de acuerdo + κ | ✅ ESCRITAS | `corpus/spi/AGREEMENT.md` (κ colapsado 0,895 casi perfecto / κ exacto 0,745 sustancial, n=191) + `CONFLICTOS.csv` (113 filas, la cola humana real) |
 
 ### Reproducibilidad: VERIFICADA, no afirmada (2026-07-24)
 
@@ -94,39 +94,40 @@ bloqueo, no por confianza: `git clone` del repo a `/tmp` → `verify_sms_claims.
 entradas → `pdflatex+bibtex` compila el PDF. El corpus committeado basta; los PDF (gitignored) no
 hacen falta para re-derivar ningún número.
 
-### Cómo seguir las olas de la SPI (mecánico, 25 chunks restantes)
+### SPI CERRADA (2026-07-26) — las 11 olas, de memoria a `AGREEMENT.md`
 
-`MUESTRA-10PCT` (q01–q06, 110/110) está COMPLETA — κ de ESA cola sola: colapsado 0,912 (casi
-perfecto), exacto 0,719 (sustancial), sobre 100 filas comparables (9 abstención pasada-1 + 1
-brecha de ceguera auto-reportada, ambas excluidas y documentadas en `closure_law.py` §9.1). No es
-la cifra global de §4.7 — falta la otra cola con κ.
+Las 534 filas de las 8 colas están leídas, gateadas y committeadas (11 olas, `git log --oneline
+--grep='^SPI(SMS-V2)'`). `python3 harvest/spi_agreement.py --write` produjo el artefacto final:
+`corpus/spi/AGREEMENT.md` (números) + `corpus/spi/CONFLICTOS.csv` (113 filas, la cola humana real,
+de 534 revisadas). Resumen ejecutivo:
 
-Orden por valor: **`SNOWBALL-SAMPLE10` q01–q05** (la única cola que falta para tener los DOS
-estratos VERIFICACION con κ) → `DUPLICADOS` q01 (1 chunk, 7 pares) → `PREOUT-RESCATADOS` q01 →
-`GRIS` (7 chunks) → `SNOWBALL-GRIS` (4) → `RECONSIDERAR-EXT` (2) → `RECONSIDERAR-DIG` (5).
+- **κ (sólo VERIFICACION, n=191):** colapsado 0,895 (casi perfecto) · exacto 0,745 (sustancial).
+- **GRIS/SNOWBALL-GRIS (ADJUDICACION):** 192 abstenciones de la pasada 1 → 108 resueltas, 84 siguen
+  GRIS con texto completo (cola humana de adjudicación, no de desacuerdo).
+- **RECONSIDERAR-EXT/DIG (CALIDAD):** 9 DEGRADAR sobre 116 — 9 estudios salen del digest por
+  procedencia (todos con cita verbatim del PDF contra un criterio CI/CE específico, nunca borrados
+  en silencio: quedan registrados como DEGRADAR, no eliminados).
+- **DUPLICADOS (IDENTIDAD):** 6 FUSIONAR / 1 DISTINTOS.
 
-⚠️ **Tercer aviso, nuevo esta sesión:** si el segundo lector necesita revisar metadatos (venue,
-autores) y toca CUALQUIER hoja committeada que no sea el input del chunk (`screening_full.csv`,
-`screening_snowball.csv`, etc.), corre el riesgo real de ver de paso la columna `decision` de la
-pasada 1 — ya pasó una vez (`W7154711690`, ola 2, ver `closure_law.SPI_BLINDNESS_BREACHES`).
-Adviértele explícitamente al generator: verificar metadatos SOLO contra el PDF o fuentes externas
-(no contra las hojas de cribado), y si ocurre de todos modos, que lo AUTO-REPORTE (como hizo esta
-vez) en vez de tratar de disimularlo — un dato honesto sobre una brecha vale más que un silencio.
+Dos hallazgos de proceso que quedaron en la ley (`closure_law.py` §9.1), por si se repite el
+patrón en una fase futura:
+1. **Brecha de ceguera individual** (ola 2, `W7154711690`): el lector vio de paso la `decision` de
+   la pasada 1 vía `grep` sobre `screening_full.csv`. Excluida del κ, nunca en silencio —
+   `SPI_BLINDNESS_BREACHES`.
+2. **Canal de fuga sin nombrar** (ola 8, `corpus/seeds/v1-candidates.csv` con columna
+   `v2_decision`): auditado por bloqueo (cero filas afectadas), y `corpus/spi/PROMPT.md` pasó de
+   lista NEGRA (nombrar archivos prohibidos) a lista BLANCA (nombrar las ÚNICAS fuentes permitidas)
+   — la lección que vale para cualquier prompt de lectura ciega futuro: una lista negra sólo
+   protege contra el riesgo que alguien ya pensó en nombrar.
 
-Por ola: manifest con `allow_globs` = los `q<NN>.verdict.jsonl` de ESA cola y ESA ola ·
-`acceptance_gate_cmd` = `verify_spi_verdicts.py --require q01,q02,q03` · 3 chunks por ola ·
-`token_budget` 260k. Spawn `generator` apuntando a `corpus/spi/PROMPT.md`. Verificar por bloqueo
-(gate + `slot_footprint --live`), commit, `clear_slot`. Al cerrar TODAS:
-`python3 harvest/spi_agreement.py --write` → `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, y de ahí
-salen las claims de §4.7.
-
-⚠️ **Dos avisos que cuestan tiempo si se ignoran:**
-- `GRIS` sólo es legal en las colas de ADJUDICACIÓN (`GRIS`, `SNOWBALL-GRIS`). En las de
-  verificación el gate lo rechaza: abstenerse ahí esquiva justamente la pregunta que se mide.
-- La SPI debe leer la MISMA superficie que la pasada 1 (título + resumen, PDF sólo en duda real).
-  Si lee todos los PDF, el acuerdo mide otra cosa.
-- Trabajar en el árbol mientras corre un slot pone el footprint en rojo por el cambio PROPIO:
-  committear lo propio antes de cerrar el slot ajeno.
+Receta que valió las 11 olas y probablemente vale para la próxima fase con el mismo patrón
+(gate `--require` + slot ~2–3 chunks + verificar por bloqueo antes de aceptar, nunca la prosa del
+verdict sola): manifest `.gen/active_slot.json` (`allow_globs` = los `q<NN>.verdict.jsonl` de ESA
+ola · `acceptance_gate_cmd` = `verify_spi_verdicts.py --require <chunks>` · `token_budget` 260k) →
+`generator` apuntando a `corpus/spi/PROMPT.md` → verificar por bloqueo (gate + `slot_footprint
+--live` + LECTURA de cualquier fila consecuente como DEGRADAR/GRIS-alto, nunca sólo el resumen del
+verdict) → commit → `clear_slot`. Un corte de sesión (2 veces: error de API, límite de cuenta)
+costó, como máximo, el chunk en vuelo — nunca más, porque el chunk es la unidad atómica del gate.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 
@@ -169,8 +170,12 @@ recuperación no ayuda, 11 que la similitud pura es insuficiente, 2 son problema
 hallazgo es que la evidencia está EN DISPUTA y que la decisión eran dos decisiones (si tener capa /
 con qué mecanismo). Contar sin leer habría publicado un hallazgo falso.
 
-**Orden recomendado si se retoma con poco tiempo**: SPI de estratos VERIFICACION primero (110+98 =
-la κ que necesita §4.7), luego IDENTIDAD (7), luego ADJUDICACION (192), luego CALIDAD (116).
+~~**Orden recomendado si se retoma con poco tiempo**: SPI de estratos VERIFICACION primero (110+98 =
+la κ que necesita §4.7), luego IDENTIDAD (7), luego ADJUDICACION (192), luego CALIDAD (116).~~ —
+seguido y CERRADO 2026-07-26 (ver «SPI CERRADA» arriba). Lo que sigue ahora es B/C/D/E/F de la
+tabla §2: D (PLAN-ESTADO por derivación) es la pieza más rápida sin dependencias nuevas; E
+(escritura del §4.7 con las cifras de `AGREEMENT.md`) es la que convierte esta ola en evidencia
+citable — ver §2 para el orden completo y por qué.
 
 ## 5. Ciclo de ola (probado 25× en digestión, 24× en extracción — no reinventar)
 

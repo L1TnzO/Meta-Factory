@@ -21,7 +21,21 @@ Invariantes (cada uno falsable, probado de los dos lados antes de commitear):
 
 Falla CERRADO: si falta un artefacto de entrada, es rojo, no "no aplica".
 
-Uso:  python3 harvest/verify_spi_wave_b.py [--root DIR] [-v]
+Nota sobre `--base-ref` (defecto ROJO ENCONTRADO 2026-07-27, corregido el mismo día): W-3..W-7
+comparan contra un punto de referencia en git para detectar cambios AJENOS. La ola B es
+MULTI-COMMIT por diseño (slot de extracción committeado antes de abrir el de digestión, §5 del
+handoff: "commit → clear_slot" entre olas) — así que "HEAD" deja de significar "el estado antes
+de esta ola" en cuanto el primer slot se commitea; el segundo slot mediría su propio trabajo
+contra un HEAD que YA incluye el primero, y una comparación ajena-vs-HEAD que en realidad debía
+ser ajena-vs-antes-de-la-ola queda ciega a los cambios legítimos del slot anterior (falso rojo:
+"0 filas añadidas" cuando las 13 sí se añadieron, sólo que en un commit previo). Por eso
+`--base-ref` es explícito y NO por defecto "HEAD": para esta ola concreta es el commit del propio
+gate, `29104ec` (el estado justo antes de que arrancara el primer slot) — un valor FIJO a
+propósito, porque este gate mide UNA transición histórica concreta (§9.3 fase B), no es una
+herramienta genérica reusable entre olas futuras como sí lo son verify_spi_apply.py/
+verify_claims_spi.py.
+
+Uso:  python3 harvest/verify_spi_wave_b.py [--root DIR] [--base-ref REF] [-v]
 """
 from __future__ import annotations
 
@@ -36,6 +50,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import extraction_law  # noqa: E402
 import digestion_law  # noqa: E402
 
+# El estado justo ANTES de que arrancara el primer slot de la ola B (commit del propio gate).
+# Fijo a propósito -- ver la nota de módulo sobre por qué "HEAD" es la referencia equivocada una
+# vez que la ola cruza más de un commit.
+DEFAULT_BASE_REF = "29104ec"
+
 
 def _read_csv(path: Path) -> list[dict]:
     with path.open(encoding="utf-8", newline="") as fh:
@@ -46,13 +65,13 @@ def _read_jsonl(path: Path) -> list[dict]:
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
-def _git_show(root: Path, rel: str) -> str | None:
-    """Contenido de `rel` en HEAD, o None si el archivo no existía en HEAD (recién creado por la ola)."""
-    r = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=root, capture_output=True, text=True)
+def _git_show(root: Path, rel: str, base_ref: str) -> str | None:
+    """Contenido de `rel` en `base_ref`, o None si no existía ahí (recién creado por la ola)."""
+    r = subprocess.run(["git", "show", f"{base_ref}:{rel}"], cwd=root, capture_output=True, text=True)
     return r.stdout if r.returncode == 0 else None
 
 
-def check(root: Path, verbose: bool = False) -> list[str]:
+def check(root: Path, verbose: bool = False, base_ref: str = DEFAULT_BASE_REF) -> list[str]:
     bad: list[str] = []
 
     applied_path = root / "corpus/spi/APPLIED.json"
@@ -99,9 +118,9 @@ def check(root: Path, verbose: bool = False) -> list[str]:
                        (f" (+{len(derrs)-1} más)" if len(derrs) > 1 else ""))
 
     # --- W-3 / W-6: extraction.csv — ninguna fila AJENA cambió, sólo se AÑADE ------------------------
-    head_ext_text = _git_show(root, "research/corpus/extraction/extraction.csv")
+    head_ext_text = _git_show(root, "research/corpus/extraction/extraction.csv", base_ref)
     if head_ext_text is None:
-        bad.append("W-3 no se pudo leer extraction.csv en HEAD (git show falló) — gate falla CERRADO")
+        bad.append(f"W-3 no se pudo leer extraction.csv en {base_ref} (git show falló) — gate falla CERRADO")
     else:
         head_rows = {r["key"]: r for r in csv.DictReader(head_ext_text.splitlines())}
         changed_foreign = [k for k, r in ext_by_key.items()
@@ -111,8 +130,8 @@ def check(root: Path, verbose: bool = False) -> list[str]:
                        f"extraction.csv: {changed_foreign[:3]}")
         missing = [k for k in head_rows if k not in ext_by_key]
         if missing:
-            bad.append(f"W-3 {len(missing)} fila(s) que existían en HEAD desaparecieron de extraction.csv: "
-                       f"{missing[:3]}")
+            bad.append(f"W-3 {len(missing)} fila(s) que existían en {base_ref} desaparecieron de "
+                       f"extraction.csv: {missing[:3]}")
         added = set(ext_by_key) - set(head_rows)
         if added != elegibles:
             bad.append(f"W-6 filas añadidas a extraction.csv ({len(added)}) != elegibles declaradas "
@@ -120,9 +139,9 @@ def check(root: Path, verbose: bool = False) -> list[str]:
                        f"faltan {sorted(elegibles - added)[:3]}")
 
     # --- W-4 / W-6: digest.jsonl — misma garantía --------------------------------------------------
-    head_dig_text = _git_show(root, "research/corpus/digestion/digest.jsonl")
+    head_dig_text = _git_show(root, "research/corpus/digestion/digest.jsonl", base_ref)
     if head_dig_text is None:
-        bad.append("W-4 no se pudo leer digest.jsonl en HEAD (git show falló) — gate falla CERRADO")
+        bad.append(f"W-4 no se pudo leer digest.jsonl en {base_ref} (git show falló) — gate falla CERRADO")
     else:
         head_dig = {json.loads(l)["key"]: json.loads(l)
                     for l in head_dig_text.splitlines() if l.strip()}
@@ -133,35 +152,36 @@ def check(root: Path, verbose: bool = False) -> list[str]:
                        f"{changed_foreign[:3]}")
         missing = [k for k in head_dig if k not in dig_by_key]
         if missing:
-            bad.append(f"W-4 {len(missing)} registro(s) que existían en HEAD desaparecieron de digest.jsonl: "
-                       f"{missing[:3]}")
+            bad.append(f"W-4 {len(missing)} registro(s) que existían en {base_ref} desaparecieron de "
+                       f"digest.jsonl: {missing[:3]}")
         added = set(dig_by_key) - set(head_dig)
         if added != elegibles:
             bad.append(f"W-6 registros añadidos a digest.jsonl ({len(added)}) != elegibles declaradas "
                        f"({len(elegibles)}): sobran {sorted(added - elegibles)[:3]} · "
                        f"faltan {sorted(elegibles - added)[:3]}")
 
-    # --- W-5: los chunks previos a esta ola son byte-idénticos al HEAD -------------------------------
+    # --- W-5: los chunks previos a esta ola son byte-idénticos a base_ref ----------------------------
     for sub, prefix in (("extraction", "e"), ("digestion", "d")):
         bdir = root / f"corpus/{sub}/batches"
         for path in sorted(bdir.glob(f"{prefix}[0-9][0-9].*")):
             rel = f"research/corpus/{sub}/batches/{path.name}"
-            head_txt = _git_show(root, rel)
+            head_txt = _git_show(root, rel, base_ref)
             if head_txt is None:
-                continue  # chunk nuevo de esta ola (e72+/d72+), no existía en HEAD -- no aplica W-5
+                continue  # chunk nuevo de esta ola (e72+/d72+), no existía en base_ref -- no aplica W-5
             if path.read_text(encoding="utf-8") != head_txt:
-                bad.append(f"W-5 el chunk pre-existente '{path.name}' cambió respecto a HEAD "
+                bad.append(f"W-5 el chunk pre-existente '{path.name}' cambió respecto a {base_ref} "
                            f"(los chunks ya cerrados no se tocan)")
 
     # --- W-7: la SPI no se re-derivó --------------------------------------------------------------
-    # `git diff -- <path>` es relativo al CWD (a diferencia de `git show HEAD:<path>`, root-relative);
+    # `git diff -- <path>` es relativo al CWD (a diferencia de `git show REF:<path>`, root-relative);
     # se resuelve el toplevel real del repo para no depender de cómo se pasó --root.
     toplevel = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root,
                               capture_output=True, text=True).stdout.strip()
     if toplevel:
-        r = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", "research/corpus/spi/"], cwd=toplevel)
+        r = subprocess.run(["git", "diff", "--quiet", base_ref, "--", "research/corpus/spi/"], cwd=toplevel)
         if r.returncode != 0:
-            bad.append("W-7 corpus/spi/ cambió respecto a HEAD — esta ola consume la SPI, no la re-deriva")
+            bad.append(f"W-7 corpus/spi/ cambió respecto a {base_ref} — esta ola consume la SPI, "
+                       f"no la re-deriva")
 
     if verbose:
         print(f"[wave-b] elegibles={len(elegibles)} extraction_rows={len(ext_rows)} "
@@ -173,10 +193,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", default=str(Path(__file__).resolve().parents[1]),
                     help="raíz de research/ (por defecto, la del propio archivo)")
+    ap.add_argument("--base-ref", default=DEFAULT_BASE_REF,
+                    help=f"commit/ref anterior a la ola completa (defecto: {DEFAULT_BASE_REF}, "
+                         f"el commit del propio gate — ver nota de módulo)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
-    bad = check(Path(args.root), verbose=args.verbose)
+    bad = check(Path(args.root), verbose=args.verbose, base_ref=args.base_ref)
     if bad:
         print(f"RED: {len(bad)} invariante(s) rotos — la ola B no respeta el contrato de ensanche")
         for b in bad:

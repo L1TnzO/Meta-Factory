@@ -192,6 +192,38 @@ derivación desde `APPLIED.json`, nunca editando el digest.
 > archivos a medias). El diseño «el diente y el contrato primero, el bulk después» hace que la interrupción
 > caiga siempre en el hueco barato.
 
+### Sesión 2026-07-27 (b) — cerrado el CONTRATO de `claims.yml` (diseño, sin bulk)
+
+Se cerró la precondición de E antes de tocar B, para que la fase que mueve denominadores no quede
+bloqueada después: **`SMS-V2-CLAIMS-CONTRACT.md`** + el diente **`harvest/verify_claims_spi.py`** (I-1..I-8),
+escrito antes que la derivación y **fuera** del radio del slot que la implementará.
+
+| Pieza | Estado | Artefacto / gate |
+| --- | --- | --- |
+| Contrato del ledger post-SPI | ✅ | `SMS-V2-CLAIMS-CONTRACT.md` (álgebra normativa, ids de carga, radio del slot) |
+| Diente independiente | ✅ probado de los dos lados (verde sintético · 8 sabotajes rojos) | `harvest/verify_claims_spi.py` — **ROJO a propósito hoy** (19 invariantes: 140 claims sin `pasada`, 14 ids de carga inexistentes) |
+
+**Números medidos que fija el contrato** (recomputados, no estimados): `digest_v2` = **411** (422 − 8
+degradadas − 3 colapsos de fusión) · `corpus_v2` = **504** · pendientes de digerir = 13 · bloqueados = 18.
+Tres trampas de aritmética quedaron cerradas por derivación:
+
+1. **Filas ≠ estudios.** DEGRADAR es 9 filas / **8 claves**; HUMAN_QUEUE 130 / **125**; CONFLICTOS 113 / **111**.
+   Restar «9» al denominador habría sido un error impreso. Todo id que cuente filas lleva sufijo `Filas`.
+2. **La cola humana son DOS poblaciones**, no una: `CONFLICTOS.csv` (fase A) y el efecto `HUMAN_QUEUE`
+   (aplicación) **no coinciden** — 13 conflictos fuera del efecto, 27 del efecto fuera de conflictos. El
+   paper declara ambas con su pregunta, o no declara ninguna.
+3. **Fusionar colapsa identidad, no evidencia.** En `W4400434708 → W4414360988` el `from` está digerido y el
+   `into` no: la fila sobrevive bajo la identidad del `into`. Un merge nunca reduce lo *leído*.
+
+**Diseñado para que B mueva los números solo**: cuando los 13 elegibles entren al digest, `clPostDigest`
+sube y `clPostPendientesDigest` cae a 0 sin tocar una línea de `claims.yml`. Ése es el criterio de que el
+contrato está bien hecho.
+
+> Lección de gate, encontrada revisando lo propio: la primera versión de I-5 («toda clave no degradada
+> sobrevive en `digest_v2`») era **tautológica** — no podía ponerse roja jamás. Se reescribió sobre la
+> calidad del dato que sostiene el colapso. Un invariante indeleblemente verde es decoración, y en un gate
+> la decoración es peor que nada.
+
 ### Correcciones que esta sesión hizo al leer en vez de contar
 
 Tres afirmaciones heredadas o propias no sobrevivieron a la verificación. Las tres se corrigieron en

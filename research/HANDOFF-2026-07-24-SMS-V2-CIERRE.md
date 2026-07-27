@@ -39,7 +39,7 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 | **A** | ✅ **SPI — segunda pasada independiente** (§9.1) CERRADA 2026-07-26 | 534/534 filas en 8 colas; κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial), n=191; cola humana 534→113 | `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, gate `verify_spi_verdicts.py` 534/534 |
 | **B** | 🔄 **Cierre de corpus** (§9.3) — ABIERTA 2026-07-27 | rescate hecho (9+7=16 PDFs, procedencia committeada); falta la derivación `spi_apply.py` y luego extracción+digestión de los **14 elegibles** en chunks NUEVOS (`e72+`, `d72+`) | gates congelados §7.6/§7.4 + `verify_spi_apply.py` |
 | **C** | **Literatura gris RQ7** (§9.4) | RQ7 hoy tiene **cero** registros; snapshot inmutable de docs de Anthropic/OpenAI/DeepMind + digest con la lente MF | manifest con sha256 verificado |
-| **D** | **PLAN-ESTADO** | promover la faceta (evidencia `plan_estado=SI` = 70, 14× el umbral ≥5) por derivación, sin re-etiquetar 422 filas | derivada, no anotada a mano |
+| **D** | ✅ **PLAN-ESTADO** CERRADA 2026-07-27 | promover la faceta (evidencia `plan_estado=SI` = 71 post-SPI, 14,2× el umbral ≥5) por derivación, sin re-etiquetar las 500 filas | `harvest/derive_plan_estado.py` + `corpus/digestion/PLAN_ESTADO_PROMOTION.json`, gate `verify_plan_estado_promotion.py` GREEN |
 | **E** | **Escritura del SMS v2** (§9.5) | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) |
 | **F** | **Propagación** (§9.6) | `Anteproyecto_ID.tex` §2.4 + Anexo pasan de 27 estudios a la evidencia v2 | números re-derivados |
 
@@ -266,6 +266,37 @@ benchmarking formal") — llevado a extracción Y digestión, no silenciado.
 (`SMS-V2-CLAIMS-CONTRACT.md`, ya diseñado y con gate — `clPostDigest` debe recomputar **424**, no
 435) → E (§4.7 con κ + denominadores post-SPI) → F (re-propagar). La escritura sigue siendo LO
 ÚLTIMO.
+
+### Sesión 2026-07-27 (d) — fase D CERRADA: `PLAN-ESTADO` promovida por derivación
+
+Pieza autónoma, sin dependencias de B/E — hecha directamente por el orquestador (no delegada: es
+un cálculo de conjuntos sobre tres ficheros ya committeados, no bulk, del mismo tamaño que un
+diente, no de una generación). Mismo patrón "el diente antes que la derivación" que el resto de la
+fase, pero con derivación y gate escritos juntos por lo pequeño del alcance:
+
+| Pieza | Estado | Artefacto / gate |
+| --- | --- | --- |
+| Derivador (no decide, sólo calcula y escribe) | ✅ | `harvest/derive_plan_estado.py` → `corpus/digestion/PLAN_ESTADO_PROMOTION.json` |
+| Gate (recomputa independiente, no confía en el derivador) | ✅ probado de los dos lados (sabotaje de conteo R-2 y de la bandera `promoted` R-3 → RED; restaurado → GREEN) | `harvest/verify_plan_estado_promotion.py` — GREEN |
+| Anotación P12 resuelta | ✅ | `SMS-V2-PROTOCOL.md` §7.5 (nota P12) |
+
+**Por qué no fue "añadir un 11º facet".** El vocabulario F cerrado de 10 facetas
+(`screening_pass.FACETS`) es la rúbrica congelada v2.3 con la que se decidieron las 500 filas; darle
+una 11ª entrada habría exigido re-abrir cada una para preguntarse si aplica — exactamente lo que la
+fila D de §2 prohíbe ("sin re-etiquetar"). La promoción corre por la señal ORTOGONAL que ya existía
+de punta a punta desde P13 (calibración 2026-07-16): la columna `plan_estado` SI/NO del formulario
+de extracción (§7.6) más la ancla obligatoria `PLAN-ESTADO` en `mf_aplicabilidad` que la digestión
+exige desde el primer día de §7.4 (`digestion_law.py`, ya vigente antes de esta sesión). D no crea
+ese mecanismo — lo mide, con el denominador correcto.
+
+**Números (post-SPI, `digest_v2` — no el digest crudo).** `plan_estado=SI` en `extraction.csv`: 71
+filas/claves (subió de 70 a 71 con los 13 elegibles de la ola B). Ninguna de las 71 es una clave
+degradada por la SPI (intersección con `DEGRADED` = ∅), así que el conteo post-SPI es el mismo: **71
+estudios, 14,2× el umbral ≥5**. Integridad: las 71 filas digeridas con `plan_estado=SI` llevan las
+71 anclas `PLAN-ESTADO` correspondientes en `mf_aplicabilidad` — 0 huecos (si hubiera alguno, el
+derivador se niega a escribir el artefacto en vez de publicar un número silenciosamente incompleto).
+
+**Sigue:** el slot de `claims.yml` (E, ya diseñado en la sesión (b) de hoy) → escritura de §4.7 → F.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

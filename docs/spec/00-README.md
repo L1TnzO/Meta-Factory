@@ -1,0 +1,97 @@
+<!-- meta:doc sha=53f5f54ada09a07b2b587be6c21c3612654fdfc8 updated=2026-07-27T21:41Z -->
+# SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK
+
+> type: reference (stable) · authored 2026-07-27T21:28Z · language: English (new technical artifacts, ADR-026)
+> **AUTOCONTAINED ON PURPOSE.** Assume the session that wrote it is dead. Someone re-implements the
+> system from this folder alone. If it is not written here, it does not exist.
+
+## 0. What this document set is, and what it is not
+
+This is a **re-specification**: a description of the system that exists today, precise enough that a
+clean re-implementation can be judged EQUIVALENT to it, followed by the changes that a clean
+re-implementation should make and the target architecture on the **Claude Agent SDK**.
+
+It is written in the community's rewrite-from-spec idiom — *describe the running system, then build it
+again cleaner* — and it obeys the same discipline the system itself preaches:
+
+| Rule | How it is applied here |
+| --- | --- |
+| Facts are DERIVED, not remembered | Every structural claim carries a `path:line` anchor into this repo. Numbers come from shell measurement or from a re-derivable artifact (`.proof/`, `pinned_verdict.json`, `meta outcome`), never from prose. |
+| Claims are separated from judgment | Parts I (§01–§08) are DESCRIPTIVE and falsifiable against the repo. Parts II–IV (§09–§11) are DESIGN JUDGMENT and are labelled as such. |
+| The old system is the test oracle | The rebuild is not accepted because it looks nicer. It is accepted when it re-derives the pinned verdicts of the current factories (§11.4). |
+| Honest gaps are printed | What the machinery does NOT catch has its own section (§04.7). A spec that only lists strengths is marketing. |
+
+**It is not** a tutorial, a migration script, or an ADR. ADRs decide; this describes and proposes. The
+rebuild, when it starts, opens its own arc under `docs/work/` through `meta increment open`
+(ADR-028/029/030) and cites this folder as its input.
+
+## 1. Reading order
+
+| # | File | Type | Read it when |
+| --- | --- | --- | --- |
+| 00 | `00-README.md` | frame | always first |
+| 01 | `01-vocabulary.md` | descriptive | you do not know what "station", "gate", "slot", "pin" mean here |
+| 02 | `02-invariants.md` | **normative** | before changing ANYTHING — this is what must survive the rebuild |
+| 03 | `03-engine.md` | descriptive | you implement the spec→factory→product pipeline |
+| 04 | `04-verification.md` | descriptive | you implement gates, proofs, or the CI |
+| 05 | `05-column.md` | descriptive | you implement the hooks / agents / delegation harness |
+| 06 | `06-memory-and-docs.md` | descriptive | you implement memory, docs, sessions, handoff |
+| 07 | `07-economy.md` | descriptive | you implement metering, routing, budgets |
+| 08 | `08-factories.md` | descriptive | you migrate or re-create a factory |
+| 09 | `09-critique.md` | **judgment** | you decide what to keep, kill, and add |
+| 10 | `10-target-sdk.md` | **judgment** | you design the v3 control plane |
+| 11 | `11-build-plan.md` | **judgment** | you execute the rebuild |
+
+A reader with 10 minutes reads `02` and `09`. A reader with an hour reads `02`, `09`, `10`, `11`.
+
+## 2. The system in five sentences
+
+Meta-Factory (MF) is a **factory of software factories**. A *factory* is a reusable destination that
+turns a typed specification plus a product blueprint into a running, verified software product. The
+substrate does not generate the product by branching on its domain — the domain travels as DATA
+(a spec file), and the engine only orchestrates and verifies (ADR-012/ADR-013). Correctness is not
+asserted by a model or a human; it is **re-derived**: every station of every line writes a proof whose
+hash excludes timestamps and machine details, so re-running the whole line from a clean tree and
+comparing hashes to a pin is a real equivalence test (ADR-005). Everything else in the system —
+delegation to cheaper models, the documentary memory, the cost runbook — exists to make that
+re-derivation affordable to operate over months.
+
+## 3. Provenance of the facts in this folder
+
+| Source class | Examples | How to re-check |
+| --- | --- | --- |
+| Source code | `src/metafactory/**`, `seed/**`, `.claude/**` | open the cited `path:line` |
+| Re-derivable artifacts | `.proof/*.json`, `pinned_verdict.json`, `INDEX.md` | `meta ci --rederive`, `meta rtm`, `meta check` |
+| Measured outcomes | opus share, churn, delegation share, $/increment | `meta outcome`, `meta metrics`, `meta billing` |
+| Decisions | `docs/decisions/001..030` | immutable; cite by number |
+| External evidence | the systematic mapping study, `research/sms-v2/` | numbers re-derived at LaTeX compile time from `claims.yml` |
+| Target SDK | `claude-agent-sdk` **0.2.128** (wheel inspected 2026-07-27); CLI `claude` **2.1.220** | `pip download claude-agent-sdk`, read `claude_agent_sdk/types.py` |
+
+> ⚠️ **SDK version pin.** Every SDK symbol quoted in `10-target-sdk.md` was read from the 0.2.128 wheel
+> on 2026-07-27, not from memory. The SDK moves fast: the FIRST increment of the rebuild re-verifies the
+> symbol table against the installed version and fails loudly if a name moved (§11.2, INC-0).
+
+## 4. The one-paragraph thesis of the rebuild
+
+The current implementation is correct and is proven correct, but its **control plane** is made of
+subprocesses, copied files and text parsing: 12 hooks are separate Python processes wired by a JSON
+settings file; the agent drives the system by shelling out to a ~30-verb CLI and reading its stdout;
+the harness is physically copied into 5 factories and 4 gates exist only to detect drift between the
+copies; cost and delegation are measured by scraping a transcript. The Claude Agent SDK provides
+typed, in-process equivalents for every one of those mechanisms — hooks as callbacks, agents as
+dataclasses, CLI verbs as in-process MCP tools, usage as typed messages, the column as a composed
+options object or a plugin. The rebuild therefore **keeps the evidence layer exactly as it is** (proofs,
+pins, gates as subprocesses that exit 0) and **replaces the control layer**, which is where all the
+accidental complexity has accumulated. The dividing line is stated once and enforced everywhere:
+
+> **Keep the process boundary where it produces EVIDENCE. Remove it where it only moves CONTROL.**
+
+## 5. Status of this folder
+
+| Field | Value |
+| --- | --- |
+| Status | DRAFT — descriptive parts derived from the repo at commit `f426a85`; judgment parts unratified |
+| Ratification path | §09/§10/§11 become binding only through an ADR (`decisions/031+`) opened by the engineer |
+| Owner level | meta (ADR-016) |
+| Supersedes | nothing. `docs/reference/ARCHITECTURE.md` and `VISION.md` remain the authority until an ADR says otherwise |
+| Expiry | the descriptive parts expire when `meta check` gains or loses a gate, or when a factory is added; re-derive rather than patch from memory |

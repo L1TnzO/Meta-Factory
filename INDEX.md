@@ -56,6 +56,18 @@
 | `docs/reference/REGEN-AUDIT.md` | `a7b554af2685` | 2026-07-11T16:16Z | REGEN-AUDIT — what the Meta-Factory generates vs the original ASF (mine of increments) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
+| `docs/spec/00-README.md` | `53f5f54ada09` | 2026-07-27T21:41Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
+| `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
+| `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
+| `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
+| `docs/spec/04-verification.md` | `dcf563d49030` | 2026-07-27T21:41Z | 04 — The verification system (descriptive) |
+| `docs/spec/05-column.md` | `3a40e3401881` | 2026-07-27T21:41Z | 05 — The column: hooks, agents, delegation harness (descriptive) |
+| `docs/spec/06-memory-and-docs.md` | `072dd4e1b066` | 2026-07-27T21:41Z | 06 — Memory, documentation and handoff (descriptive) |
+| `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
+| `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
+| `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
+| `docs/spec/10-target-sdk.md` | `29ce9a014694` | 2026-07-27T21:41Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `d551863d58c3` | 2026-07-27T21:41Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

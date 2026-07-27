@@ -37,7 +37,7 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 | # | Fase | Qué es | Diente |
 | --- | --- | --- | --- |
 | **A** | ✅ **SPI — segunda pasada independiente** (§9.1) CERRADA 2026-07-26 | 534/534 filas en 8 colas; κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial), n=191; cola humana 534→113 | `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, gate `verify_spi_verdicts.py` 534/534 |
-| **B** | **Cierre de corpus** (§9.3) | rescate de los 65 `pdf_status=missing` con red; extracción+digestión de lo rescatado y de los flips de A, en chunks NUEVOS (`e72+`, `d72+`) | gates congelados §7.6/§7.4 |
+| **B** | 🔄 **Cierre de corpus** (§9.3) — ABIERTA 2026-07-27 | rescate hecho (9+7=16 PDFs, procedencia committeada); falta la derivación `spi_apply.py` y luego extracción+digestión de los **14 elegibles** en chunks NUEVOS (`e72+`, `d72+`) | gates congelados §7.6/§7.4 + `verify_spi_apply.py` |
 | **C** | **Literatura gris RQ7** (§9.4) | RQ7 hoy tiene **cero** registros; snapshot inmutable de docs de Anthropic/OpenAI/DeepMind + digest con la lente MF | manifest con sha256 verificado |
 | **D** | **PLAN-ESTADO** | promover la faceta (evidencia `plan_estado=SI` = 70, 14× el umbral ≥5) por derivación, sin re-etiquetar 422 filas | derivada, no anotada a mano |
 | **E** | **Escritura del SMS v2** (§9.5) | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) |
@@ -128,6 +128,50 @@ ola · `acceptance_gate_cmd` = `verify_spi_verdicts.py --require <chunks>` · `t
 --live` + LECTURA de cualquier fila consecuente como DEGRADAR/GRIS-alto, nunca sólo el resumen del
 verdict) → commit → `clear_slot`. Un corte de sesión (2 veces: error de API, límite de cuenta)
 costó, como máximo, el chunk en vuelo — nunca más, porque el chunk es la unidad atómica del gate.
+
+### Sesión 2026-07-27 — fase B abierta: el diente antes que la derivación (y un CUARTO sobreclaim)
+
+**El hallazgo, que es de la misma familia que los tres de abajo y hay que arreglar antes de escribir §4.7.**
+`AGREEMENT.md` dice de las colas de ADJUDICACION «la SPI decide **con el PDF a la vista**» y «61/23 siguen
+GRIS **con el texto completo a la vista**»; la rationale de la propia ley (`closure_law.QUEUES["GRIS"]`) dice
+lo mismo. **Es falso para 177 de las 192 filas**: sólo 15 tenían PDF en disco. Los lectores fueron HONESTOS
+fila a fila (`evidencia` dice literalmente «sin PDF local», «abstract (corpus.jsonl, full)», «titulo
+unicamente») — lo que sobreclama es el RESUMEN generado, no la lectura. Un caso extremo: `W7168031757` entró
+como INCLUIR decidido **sólo por el título**, con abstract vacío. Es el mismo error que ya se corrigió tres
+veces en esta fase: *un agregado correcto leído como una afirmación que no se sigue de él* — y esta vez iba
+camino de entrar al paper, porque §4.7 se escribe DESDE `AGREEMENT.md`.
+
+**Corolario metodológico que queda fijado:** admitir un estudio al *corpus* (nivel PRISMA) y admitirlo al
+*digest* (texto completo) son decisiones distintas. El corpus ya lo hacía sin decirlo (487 incluidos → 422
+digeridos, la diferencia es exactamente disponibilidad de PDF); ahora es una regla con diente.
+
+| Pieza (2026-07-27) | Estado | Artefacto / gate |
+| --- | --- | --- |
+| Gate de aplicación de la SPI | ✅ escrito ANTES de la derivación, fuera de su radio | `harvest/verify_spi_apply.py` (5 invariantes; falla cerrado sin `APPLIED.json`) |
+| Universo de rescate para INCLUIR de la SPI | ✅ two-sided (7 PASS · 9 viejos PASS · clave inventada RED) | `harvest/verify_rescue.py::spi_admitted()` |
+| Procedencia de rescates, committeada | ✅ 16 filas re-verificadas por sha256 | `corpus/pdf_rescued.csv` |
+| Rescate de PDFs de los 38 nuevos INCLUIR | ✅ 7 recuperados (de 31 sin texto) | `.gen/rescue/rescued-spi38.csv`, gate verde |
+| Derivación `spi_apply.py` + mezcla de evidencia en AGREEMENT.md | ⬜ **PENDIENTE — slot diseñado, contrato escrito, gate verde esperando** | `SMS-V2-SPI-APPLY-CONTRACT.md` |
+
+**Números medidos de B** (no estimados): de los **38** INCLUIR que la SPI admitió donde la pasada 1 se
+abstuvo, **0** estaban extraídos y **0** digeridos; 7 tenían texto completo, el rescate consiguió 7 más →
+**14 elegibles para digest, 24 sin texto completo**. Los 9 DEGRADAR (8 claves únicas) **siguen hoy dentro de
+`digest.jsonl`**: los denominadores del paper incluyen estudios que la segunda pasada dice que no deberían
+estar. Nada aguas abajo consume todavía la SPI (`claims.yml` deriva de la pasada 1) y el paper tiene
+literalmente `% [PENDIENTE: cifras de acuerdo y κ]` en `sms-v2.tex:360`.
+
+**Cómo se sigue (el slot está listo, no hay que rediseñarlo).** El contrato completo —esquema de
+`APPLIED.json`, las 4 reglas, los 6 tests exigidos— está en `SMS-V2-SPI-APPLY-CONTRACT.md`. Es trabajo de
+EJECUCIÓN (runbook S2): `claude --model sonnet --agent orchestrator`, re-emitir el manifiesto
+`.gen/active_slot.json` con `allow_globs` = `research/harvest/spi_apply.py` · `test_spi_apply.py` ·
+`spi_agreement.py` · `corpus/spi/APPLIED.json` · `corpus/spi/AGREEMENT.md`, gate rápido
+`verify_spi_apply.py --no-agreement`, gate de aceptación `verify_spi_apply.py && pytest -q harvest/`.
+Después: D (PLAN-ESTADO) → E (§4.7 con κ + denominadores post-SPI) → F (re-propagar). La escritura sigue
+siendo LO ÚLTIMO: B mueve los denominadores.
+
+> Un corte por límite de cuenta mató el spawn del generador con **cero** trabajo perdido (ni veredicto ni
+> archivos a medias). El diseño «el diente y el contrato primero, el bulk después» hace que la interrupción
+> caiga siempre en el hueco barato.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

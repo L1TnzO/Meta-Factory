@@ -23,6 +23,7 @@ import pytest
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import digestion_law  # noqa: E402
+import extraction_law  # noqa: E402
 import make_digest_sheet as mds  # noqa: E402
 import verify_digest_verdicts as vdv  # noqa: E402
 
@@ -409,6 +410,156 @@ def test_merge_no_verdicts_is_noop(tmp_path, monkeypatch):
     mds.main(["build"])
     assert mds.main(["merge"]) == 0
     assert not (digestion_dir / "digest.jsonl").exists()
+
+
+# --------------------------------------------------------------------------
+# (3b) make_digest_sheet.py -- add-external (SPI-rescued keys outside the
+#      original build pdf-ok universe -- additive, mirrors
+#      make_extraction_sheet.py's add-external one level up)
+# --------------------------------------------------------------------------
+
+def _full_verdict_extraction_row(key, pdf_status="ok", **overrides) -> dict:
+    """A fully-verdicted §7.6 extraction row (every VERDICT_COLUMNS[1:] cell non-empty) --
+    the ground truth add-external requires before it will chunk a key."""
+    row = {
+        "key": key, "pdf_status": pdf_status,
+        "mem_tipos": "EPISODICA", "representacion": "VECTOR",
+        "operaciones": "WRITE;ADMISION", "trigger": "EVENTO-DETERMINISTA",
+        "retrieval": "EMBEDDINGS", "mide_lectura": "SI", "alcance": "SESION",
+        "multiagente": "NO", "fidelidad_procedencia": "NO",
+        "benchmarks": "LoCoMo", "metricas": "EXITO;LATENCIA",
+        "fallos_mitigaciones": "staleness -> TTL de 7 dias",
+        "evidencia_tipo": "ABLATION;BENCHMARK-E2E",
+        "F": "RETRIEVAL-MEDIDO;WRITE", "handoff": "PUNTEROS;CONTENIDO",
+        "plan_estado": "NO", "cita": f"Cita {key}.",
+        "notes": "s3.2 tabla 2: +8pp con memoria.",
+    }
+    row.update(overrides)
+    return row
+
+
+def _write_extraction_csv_full(path: Path, rows: list[dict]) -> None:
+    cols = ["key", "pdf_status"] + extraction_law.VERDICT_COLUMNS[1:]
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols)
+        w.writeheader()
+        for row in rows:
+            w.writerow({c: row.get(c, "") for c in cols})
+
+
+def _setup_add_external_env(tmp_path, monkeypatch, extra_rows: list[dict] | None = None) -> Path:
+    """7 already-chunked pdf-ok rows (D1 + C1..C6, via a real `build` run; C7 has
+    pdf_status=missing so build never chunks it) plus whatever `extra_rows` the caller appends
+    AFTER build already ran -- mimicking a companion extraction-wave slot landing new
+    fully-verdicted rows that `build` never saw. add-external's whole reason to exist is
+    chunking exactly those keys, additively."""
+    digestion_dir = tmp_path / "digestion"
+    extraction_csv = tmp_path / "extraction.csv"
+    base_rows = [_full_verdict_extraction_row("D1", F="DOCS-VERSIONADO;WRITE")]
+    base_rows += [_full_verdict_extraction_row(f"C{i}", F="WRITE") for i in range(1, 7)]
+    base_rows.append(_full_verdict_extraction_row("C7", pdf_status="missing"))
+    _write_extraction_csv_full(extraction_csv, base_rows)
+
+    monkeypatch.setattr(mds, "EXTRACTION_CSV", extraction_csv)
+    monkeypatch.setattr(mds, "DIGESTION_DIR", digestion_dir)
+    monkeypatch.setattr(mds, "BATCHES", digestion_dir / "batches")
+    monkeypatch.setattr(mds, "DIGEST_JSONL", digestion_dir / "digest.jsonl")
+    assert mds.main(["build"]) == 0  # chunks D1+C1..C6 into d01/d02; C7 excluded (pdf missing)
+
+    if extra_rows:
+        _write_extraction_csv_full(extraction_csv, base_rows + extra_rows)
+    return digestion_dir
+
+
+def _keys_file(tmp_path: Path, keys: list[str]) -> Path:
+    path = tmp_path / "keys.json"
+    path.write_text(json.dumps(keys), encoding="utf-8")
+    return path
+
+
+def test_add_external_chunks_new_key(tmp_path, monkeypatch):
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch, extra_rows=[
+        _full_verdict_extraction_row("EXT1", F="WRITE"),
+    ])
+    batches = digestion_dir / "batches"
+    d01_before = (batches / "d01.input.jsonl").read_text(encoding="utf-8")
+    d02_before = (batches / "d02.input.jsonl").read_text(encoding="utf-8")
+    keys_path = _keys_file(tmp_path, ["EXT1"])
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 0
+
+    # existing d01/d02 are byte-for-byte untouched
+    assert (batches / "d01.input.jsonl").read_text(encoding="utf-8") == d01_before
+    assert (batches / "d02.input.jsonl").read_text(encoding="utf-8") == d02_before
+    # numbering continues from the existing max (d02 -> d03)
+    new_chunk = batches / "d03.input.jsonl"
+    assert new_chunk.exists()
+    lines = _read_jsonl_file(new_chunk)
+    assert [ln["key"] for ln in lines] == ["EXT1"]
+    rec = lines[0]
+    assert set(rec.keys()) == set(digestion_law.INPUT_FIELDS)
+    assert rec["F"] == ["WRITE"]
+    assert rec["operaciones"] == ["WRITE", "ADMISION"]
+    assert rec["pdf"] == "corpus/pdf/EXT1.pdf"
+
+
+def test_add_external_aborts_on_not_ready_key(tmp_path, monkeypatch):
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch, extra_rows=[
+        _full_verdict_extraction_row("EXT1", F="WRITE"),
+    ])
+    batches = digestion_dir / "batches"
+    keys_path = _keys_file(tmp_path, ["EXT1", "C7"])  # C7 has pdf_status=missing
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert not (batches / "d03.input.jsonl").exists()
+
+
+def test_add_external_aborts_on_incomplete_verdict(tmp_path, monkeypatch):
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch, extra_rows=[
+        _full_verdict_extraction_row("EXT2", F="WRITE", notes=""),  # incomplete: notes empty
+    ])
+    batches = digestion_dir / "batches"
+    keys_path = _keys_file(tmp_path, ["EXT2"])
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert not (batches / "d03.input.jsonl").exists()
+
+
+def test_add_external_aborts_on_key_collision(tmp_path, monkeypatch):
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch)
+    batches = digestion_dir / "batches"
+    keys_path = _keys_file(tmp_path, ["D1"])  # already chunked by build into d01.input.jsonl
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert not (batches / "d03.input.jsonl").exists()
+
+
+def test_add_external_all_or_nothing_on_partial_collision(tmp_path, monkeypatch):
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch, extra_rows=[
+        _full_verdict_extraction_row("EXT1", F="WRITE"),
+    ])
+    batches = digestion_dir / "batches"
+    keys_path = _keys_file(tmp_path, ["EXT1", "D1"])  # EXT1 valid, D1 already chunked
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert not (batches / "d03.input.jsonl").exists()
+
+
+def test_add_external_orders_priority_facet_first_scoped_to_new_keys_only(tmp_path, monkeypatch):
+    """Priority order among the NEW keys must be computed over just their own rows -- NOT
+    recomputed globally over the full corpus (that would silently change historical chunks)."""
+    digestion_dir = _setup_add_external_env(tmp_path, monkeypatch, extra_rows=[
+        _full_verdict_extraction_row("EXT-COMMON1", F="WRITE"),
+        _full_verdict_extraction_row("EXT-COMMON2", F="WRITE"),
+        _full_verdict_extraction_row("EXT-PRIORITY", F="NEGATIVO;WRITE"),
+    ])
+    batches = digestion_dir / "batches"
+    keys_path = _keys_file(tmp_path, ["EXT-COMMON1", "EXT-COMMON2", "EXT-PRIORITY"])
+
+    assert mds.main(["add-external", "--keys", str(keys_path)]) == 0
+    new_chunk = batches / "d03.input.jsonl"
+    lines = _read_jsonl_file(new_chunk)
+    assert lines[0]["key"] == "EXT-PRIORITY"  # NEGATIVO is a priority facet, sorts first
 
 
 # --------------------------------------------------------------------------

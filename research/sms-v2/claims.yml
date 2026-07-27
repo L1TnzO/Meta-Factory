@@ -855,6 +855,12 @@
   derivacion: "cohen_kappa(spi_pairs(spi))"
   unidad: float3
   glosa: "distinción de subtipo de exclusión que no cambia el corpus"
+- id: clFiaN
+  pasada: spi
+  pregunta: "¿Sobre cuántos pares con doble veredicto ciego se computa el acuerdo (κ)?"
+  derivacion: "len(spi_pairs(spi))"
+  unidad: int
+  glosa: "denominador de clFiaKappaColapsado/clFiaKappaExacto — sólo estratos VERIFICACION, muestra aleatoria pre-registrada (§9.1)"
 - id: clFiaColaHumanaFilas
   pasada: spi
   pregunta: "¿Cuántas filas quedaron marcadas HUMAN_QUEUE al aplicar la SPI?"

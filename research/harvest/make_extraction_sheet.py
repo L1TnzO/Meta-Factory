@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """make_extraction_sheet.py — build/merge the §7.6 EXTRACTION sheet (SMS-v2).
 
-Two subcommands:
+Three subcommands:
   build   read the INCLUIR rows of both screening sheets (main + snowball),
           write research/corpus/extraction/extraction.csv (identity columns
           filled, verdict columns empty) in a DETERMINISTIC priority order,
@@ -13,6 +13,13 @@ Two subcommands:
           silently overwrite an already-filled DIFFERING cell without
           --force. NEVER writes/deletes *.verdict.csv (those are the human/
           model deliverable, read-only from this tool's point of view).
+  add-external
+          ADDITIVELY append identity rows for keys admitted OUTSIDE the
+          original screening INCLUIR universe (e.g. an SPI second-pass
+          rescue) and chunk ONLY those new keys into NEW e<NN>.input.jsonl
+          files, continuing numbering from the existing max. Never rewrites
+          extraction.csv from scratch and never touches an existing
+          e<NN>.input.jsonl (that is `build`'s job, not this one).
 
 Priority order (build): pdf_status=ok rows before missing ones, then by
 SCARCITY_RANK (min rank over the row's F_screening facets — measured
@@ -133,6 +140,41 @@ def _load_seed_abstracts() -> dict[str, str]:
     return out
 
 
+def _load_corpus_identity() -> dict[str, dict]:
+    """key -> {'title', 'year'} from CORPUS_JSONL, keyed by record_key. Mirrors
+    _load_corpus_abstracts' loop (same file, same key), extended to identity
+    fields -- needed by add-external, whose keys have no screening row to
+    source title/year from (pass 1 abstained on them)."""
+    out: dict[str, dict] = {}
+    if not CORPUS_JSONL.exists():
+        return out
+    with CORPUS_JSONL.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            out[record_key(rec)] = {"title": rec.get("title") or "", "year": str(rec.get("year") or "")}
+    return out
+
+
+def _load_seed_identity() -> dict[str, dict]:
+    """Same as _load_corpus_identity, over SEEDS_JSONL (mirrors _load_seed_abstracts)."""
+    out: dict[str, dict] = {}
+    if not SEEDS_JSONL.exists():
+        return out
+    with SEEDS_JSONL.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            k = rec.get("key")
+            if k:
+                out[k] = {"title": rec.get("title") or "", "year": str(rec.get("year") or "")}
+    return out
+
+
 def _sort_key(row: dict):
     pdf_rank = 0 if row["pdf_status"] == "ok" else 1
     priority = _priority(row["F_screening"])
@@ -188,6 +230,125 @@ def cmd_build(force: bool = False) -> int:
 
     print(f"[build] {len(sheet_rows)} rows -> {EXTRACTION_CSV} "
           f"({len(ok_rows)} pdf-ok chunked into {n_chunks} batch(es))")
+    return 0
+
+
+def _existing_chunk_numbers() -> list[int]:
+    nums: list[int] = []
+    for p in BATCHES.glob("e*.input.jsonl"):
+        m = re.match(r"e(\d+)\.input\.jsonl$", p.name)
+        if m:
+            nums.append(int(m.group(1)))
+    return nums
+
+
+def cmd_add_external(keys_path: Path) -> int:
+    """Append identity rows for externally-admitted keys (e.g. SPI ADD_INCLUIR) that were
+    NOT part of the original screening INCLUIR universe.
+
+    keys_path: a JSON file holding a flat list of string keys.
+
+    For each key:
+      - its PDF MUST already exist at corpus/pdf/{key}.pdf -- else ABORT with ZERO writes,
+        print every key missing a PDF.
+      - it MUST NOT already be a row in extraction.csv -- else ABORT with ZERO writes, print
+        every colliding key.
+    All-or-nothing: either every key in keys_path is appended, or none are.
+
+    Resolve title/year/abstract exactly like cmd_build already does (reuse
+    _load_corpus_abstracts/_load_seed_abstracts/record_key -- do not re-implement). Identity
+    row: source="spi-wave-b", pdf_status="ok" (guaranteed by the precondition above),
+    F_screening="" (no pass-1 facet to inherit -- pass 1 abstained on these keys, that IS
+    why the SPI had to decide them). Append rows to the END of extraction.csv; the existing
+    rows and their order are UNTOUCHED (never rewrite the file from scratch the way
+    cmd_build does -- read, append, write back).
+
+    Chunk the NEW keys only (CHUNK_SIZE=6, same module constant, same priority-order
+    _sort_key reused) into NEW research/corpus/extraction/batches/e<NN>.input.jsonl files,
+    continuing numbering from max(existing e<NN>)+1. NEVER touches/deletes e01..e<max>
+    (cmd_build's existing per-run `old.unlink()` loop over `e*.input.jsonl` must NOT fire
+    for this path -- this is additive, not a rebuild).
+    """
+    if not EXTRACTION_CSV.exists():
+        print(f"[add-external] {EXTRACTION_CSV} does not exist -- run build first")
+        return 1
+
+    try:
+        keys = json.loads(keys_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"[add-external] cannot read {keys_path}: {exc}")
+        return 1
+    if not isinstance(keys, list) or not all(isinstance(k, str) and k for k in keys):
+        print(f"[add-external] {keys_path} must hold a flat JSON list of non-empty string keys")
+        return 1
+
+    missing_pdf = [k for k in keys if not (PDF_DIR / f"{k}.pdf").exists()]
+    if missing_pdf:
+        print(f"[add-external] ABORT: {len(missing_pdf)} key(s) missing a PDF under {PDF_DIR}, "
+              f"0 rows written: {missing_pdf}")
+        return 1
+
+    with EXTRACTION_CSV.open(newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        fieldnames = list(reader.fieldnames or [])
+        sheet_rows = list(reader)
+    existing_keys = {r["key"] for r in sheet_rows}
+    collisions = [k for k in keys if k in existing_keys]
+    if collisions:
+        print(f"[add-external] ABORT: {len(collisions)} key(s) already present in "
+              f"{EXTRACTION_CSV}, 0 rows written: {collisions}")
+        return 1
+
+    corpus_ident, seed_ident = _load_corpus_identity(), _load_seed_identity()
+    corpus_abs, seed_abs = _load_corpus_abstracts(), _load_seed_abstracts()
+
+    unresolved = [k for k in keys if k not in corpus_ident and k not in seed_ident]
+    if unresolved:
+        print(f"[add-external] ABORT: {len(unresolved)} key(s) have no title/year in "
+              f"corpus.jsonl or seeds.jsonl, 0 rows written: {unresolved}")
+        return 1
+
+    new_rows: list[dict] = []
+    for key in keys:
+        ident = corpus_ident.get(key) or seed_ident.get(key) or {}
+        row = {
+            "key": key, "source": "spi-wave-b", "year": ident.get("year", ""),
+            "title": ident.get("title", ""), "pdf_status": "ok", "F_screening": "",
+        }
+        for col in extraction_law.VERDICT_COLUMNS[1:]:
+            row[col] = ""
+        new_rows.append(row)
+
+    sheet_rows = sheet_rows + new_rows  # append to the END; existing rows/order untouched
+    with EXTRACTION_CSV.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=fieldnames)
+        w.writeheader()
+        w.writerows(sheet_rows)
+
+    BATCHES.mkdir(parents=True, exist_ok=True)
+    next_n = max(_existing_chunk_numbers(), default=0) + 1
+    sorted_new = sorted(new_rows, key=_sort_key)
+
+    n_chunks = 0
+    written: list[str] = []
+    for idx in range(0, len(sorted_new), CHUNK_SIZE):
+        chunk = sorted_new[idx:idx + CHUNK_SIZE]
+        n = next_n + n_chunks
+        n_chunks += 1
+        path = BATCHES / f"e{n:02d}.input.jsonl"
+        with path.open("w", encoding="utf-8") as fh:
+            for r in chunk:
+                key = r["key"]
+                abstract = corpus_abs.get(key) or seed_abs.get(key) or ""
+                fh.write(json.dumps({
+                    "key": key, "title": r["title"], "year": r["year"],
+                    "abstract": abstract, "F_screening": r["F_screening"],
+                    "pdf": f"corpus/pdf/{key}.pdf",
+                }, ensure_ascii=False) + "\n")
+        written.append(path.name)
+
+    print(f"[add-external] appended {len(new_rows)} row(s) to {EXTRACTION_CSV}; "
+          f"chunked into {n_chunks} new batch(es): {written}")
     return 0
 
 
@@ -267,9 +428,17 @@ def main(argv: list[str] | None = None) -> int:
     p_build.add_argument("--force", action="store_true", help="overwrite an existing extraction.csv")
     p_merge = sub.add_parser("merge", help="validate + apply e*.verdict.csv into extraction.csv")
     p_merge.add_argument("--force", action="store_true", help="overwrite an already-filled differing cell")
+    p_add_external = sub.add_parser(
+        "add-external",
+        help="append identity rows + chunk keys admitted outside the screening INCLUIR universe",
+    )
+    p_add_external.add_argument("--keys", required=True, type=Path,
+                                 help="JSON file holding a flat list of string keys")
     args = ap.parse_args(argv)
     if args.cmd == "build":
         return cmd_build(force=args.force)
+    if args.cmd == "add-external":
+        return cmd_add_external(args.keys)
     return cmd_merge(force=args.force)
 
 

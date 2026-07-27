@@ -287,6 +287,91 @@ def test_merge_refuses_differing_cell_without_force(tmp_path, monkeypatch):
 
 
 # --------------------------------------------------------------------------
+# (3b) make_extraction_sheet.py -- add-external (SPI-rescued keys outside the
+#      original screening INCLUIR universe)
+# --------------------------------------------------------------------------
+
+def _setup_add_external_env(tmp_path, monkeypatch):
+    """Reuses the build fixture (already has C1/A1/B1 + e01.input.jsonl from a real
+    `build` run), then wires a real corpus.jsonl carrying identity (title/year/abstract)
+    for an externally-admitted key EXT1 -- add-external's whole reason to exist is that
+    such a key has NO screening row to source title/year from."""
+    extraction_dir = _setup_build_env(tmp_path, monkeypatch)
+    assert mes.main(["build"]) == 0
+
+    corpus_path = tmp_path / "corpus.jsonl"
+    _write_jsonl(corpus_path, [{
+        "id": "https://openalex.org/EXT1", "title": "External Paper EXT1",
+        "year": 2026, "abstract": "abstract of EXT1",
+    }])
+    monkeypatch.setattr(mes, "CORPUS_JSONL", corpus_path)
+    (tmp_path / "pdf" / "EXT1.pdf").write_bytes(b"%PDF-fake")
+    return extraction_dir
+
+
+def _keys_file(tmp_path: Path, keys: list[str]) -> Path:
+    path = tmp_path / "keys.json"
+    path.write_text(json.dumps(keys), encoding="utf-8")
+    return path
+
+
+def test_add_external_appends_and_chunks(tmp_path, monkeypatch):
+    extraction_dir = _setup_add_external_env(tmp_path, monkeypatch)
+    e01_before = (extraction_dir / "batches" / "e01.input.jsonl").read_text(encoding="utf-8")
+    keys_path = _keys_file(tmp_path, ["EXT1"])
+
+    assert mes.main(["add-external", "--keys", str(keys_path)]) == 0
+
+    with (extraction_dir / "extraction.csv").open(newline="", encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh))
+    assert [r["key"] for r in rows] == ["C1", "A1", "B1", "EXT1"]  # appended at the END
+    ext_row = rows[-1]
+    assert ext_row["source"] == "spi-wave-b"
+    assert ext_row["pdf_status"] == "ok"
+    assert ext_row["F_screening"] == ""
+    assert ext_row["title"] == "External Paper EXT1"
+    assert ext_row["year"] == "2026"
+    assert all(ext_row[c] == "" for c in extraction_law.VERDICT_COLUMNS[1:])
+
+    # existing e01.input.jsonl is byte-for-byte untouched
+    assert (extraction_dir / "batches" / "e01.input.jsonl").read_text(encoding="utf-8") == e01_before
+    # numbering continues from the existing max
+    new_chunk = extraction_dir / "batches" / "e02.input.jsonl"
+    lines = [json.loads(ln) for ln in new_chunk.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    assert [ln["key"] for ln in lines] == ["EXT1"]
+    assert lines[0]["abstract"] == "abstract of EXT1"
+
+
+def test_add_external_aborts_on_missing_pdf(tmp_path, monkeypatch):
+    extraction_dir = _setup_add_external_env(tmp_path, monkeypatch)
+    before = (extraction_dir / "extraction.csv").read_text(encoding="utf-8")
+    keys_path = _keys_file(tmp_path, ["EXT1", "NOPDF1"])
+
+    assert mes.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert (extraction_dir / "extraction.csv").read_text(encoding="utf-8") == before
+    assert not (extraction_dir / "batches" / "e02.input.jsonl").exists()
+
+
+def test_add_external_aborts_on_key_collision(tmp_path, monkeypatch):
+    extraction_dir = _setup_add_external_env(tmp_path, monkeypatch)
+    before = (extraction_dir / "extraction.csv").read_text(encoding="utf-8")
+    keys_path = _keys_file(tmp_path, ["C1"])  # already a row from build
+
+    assert mes.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert (extraction_dir / "extraction.csv").read_text(encoding="utf-8") == before
+
+
+def test_add_external_all_or_nothing_on_partial_collision(tmp_path, monkeypatch):
+    extraction_dir = _setup_add_external_env(tmp_path, monkeypatch)
+    before = (extraction_dir / "extraction.csv").read_text(encoding="utf-8")
+    keys_path = _keys_file(tmp_path, ["EXT1", "C1"])  # EXT1 valid, C1 collides
+
+    assert mes.main(["add-external", "--keys", str(keys_path)]) == 1
+    assert (extraction_dir / "extraction.csv").read_text(encoding="utf-8") == before
+    assert not (extraction_dir / "batches" / "e02.input.jsonl").exists()
+
+
+# --------------------------------------------------------------------------
 # (4) no network access anywhere (belt-and-suspenders)
 # --------------------------------------------------------------------------
 

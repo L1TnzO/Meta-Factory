@@ -34,6 +34,10 @@ from closure_law import (  # noqa: E402
     KIND_CALIDAD, KIND_IDENTIDAD, collapse, cohen_kappa, interpret_kappa, queue_members,
     HUMAN_LABELS, SPI_BLINDNESS_BREACHES,
 )
+# Evidence-grade derivation is single-source in spi_apply.py -- imported, never copied (§9.2 closure
+# contract): this is the same {key: grade} dict `corpus/spi/APPLIED.json` publishes, so the mix reported
+# here can never drift from the one the gate re-derives.
+from spi_apply import evidence_grades, GRADE_FULL, GRADE_ABSTRACT, GRADE_TITLE  # noqa: E402
 
 BATCHES = SPI_DIR / "batches"
 
@@ -70,6 +74,7 @@ def main() -> int:
     kappa_pairs_exact: list[tuple[str, str]] = []
     kappa_pairs_collapsed: list[tuple[str, str]] = []
     covered = 0
+    grades = evidence_grades()  # single source (spi_apply.py) -- the mix below can't drift from APPLIED.json
 
     for name, q in QUEUES.items():
         verdicts = load_verdicts(name)
@@ -149,14 +154,21 @@ def main() -> int:
 
         elif q.kind == KIND_ADJUDICACION:
             dist = Counter((v.get("decision") or "").strip() for v in verdicts.values())
-            lines.append("La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. "
-                         "No hay κ: no hay dos decisiones que comparar.")
+            mix = Counter(grades[key] for key in verdicts)
+            lines.append("La pasada 1 se abstuvo en estas filas; la SPI decide con la evidencia "
+                         "efectivamente disponible en su input (mezcla medida abajo), no necesariamente "
+                         "con el PDF completo. No hay κ: no hay dos decisiones que comparar.")
+            lines.append("")
+            mix_str = " · ".join(f"{grade} {mix.get(grade, 0)}" for grade in (GRADE_FULL, GRADE_ABSTRACT, GRADE_TITLE)
+                                  if mix.get(grade, 0))
+            lines.append(f"- evidencia efectivamente a la vista: {mix_str}")
             lines.append("")
             for dec, cnt in dist.most_common():
                 lines.append(f"- `{dec}`: {cnt}")
             persist = dist.get("GRIS", 0)
             if persist:
-                lines.append(f"- **{persist} siguen GRIS con el texto completo a la vista → cola humana real.**")
+                lines.append(f"- **{persist} siguen GRIS con la evidencia disponible (no necesariamente el "
+                             "texto completo) → cola humana real.**")
                 for key, v in sorted(verdicts.items()):
                     if (v.get("decision") or "").strip() == "GRIS":
                         conflicts.append({
@@ -216,8 +228,9 @@ def main() -> int:
     lines.append("## Cola humana resultante")
     lines.append("")
     lines.append(f"- **{len(conflicts)} filas** en `CONFLICTOS.csv` (de {covered} revisadas por la SPI): "
-                 "desacuerdos de membresía, GRIS que persisten con texto completo, degradaciones y fusiones. "
-                 "Todo lo demás quedó CONSOLIDADO por coincidencia de dos lectores independientes.")
+                 "desacuerdos de membresía, GRIS que persisten con la evidencia disponible, degradaciones "
+                 "y fusiones. Todo lo demás quedó CONSOLIDADO por coincidencia de dos lectores "
+                 "independientes.")
 
     report = "\n".join(lines) + "\n"
     if args.write:

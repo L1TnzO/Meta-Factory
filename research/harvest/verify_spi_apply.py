@@ -191,6 +191,26 @@ def main() -> int:
 
     eligible = set(applied.get("digest_eligible", []))
     add_incluir = {d["key"] for d in deltas if d.get("effect") == "ADD_INCLUIR"}
+
+    # A TITLE IS NOT AN EVIDENCE ANCHOR. `closure_law.EVIDENCE_ANCHORS` requires a decision to be
+    # anchored in the study's own text; admitting a study whose title is all anyone ever saw puts a
+    # record in the mapping whose eligibility (mechanism / domain / evaluation) was never checked
+    # against any content. The conservative direction is allowed and the honest one is required:
+    # a title-only EXCLUSION may stand (it only ever shrinks the corpus) but must be COUNTED and
+    # published as a threat to validity; a title-only ADMISSION must go to the human instead.
+    for d in deltas:
+        if d.get("effect") == "ADD_INCLUIR" and recomputed.get(d["key"]) == GRADE_TITLE:
+            errors.append(
+                f"NO ANCHOR: {d['key']} ({d['queue']}) is ADMITTED to the corpus on its TITLE alone. "
+                "A title-only row must be HUMAN_QUEUE — an inclusion with no evidence anchor is not a decision.")
+    n_title_excl = sum(1 for d in deltas
+                       if d.get("effect") == "ADD_EXCLUIR" and recomputed.get(d["key"]) == GRADE_TITLE)
+    declared = (applied.get("counts", {}) or {}).get("title_only_exclusions")
+    if declared != n_title_excl:
+        errors.append(
+            f"counts.title_only_exclusions: declares {declared!r}, measured {n_title_excl}. "
+            "Studies excluded without anyone reading a word of them are a threat to validity and the "
+            "corpus must carry the number, not discover it later.")
     for key in sorted(eligible):
         if key not in add_incluir:
             errors.append(f"digest_eligible: {key} is not an ADD_INCLUIR")

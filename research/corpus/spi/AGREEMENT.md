@@ -50,7 +50,9 @@ El κ colapsado es el que responde «¿el paper entra al estudio?»; el exacto t
 
 ## GRIS (ADJUDICACION) — n=131/131
 
-La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. No hay κ: no hay dos decisiones que comparar.
+La pasada 1 se abstuvo en estas filas; la SPI decide con la evidencia efectivamente disponible en su input (mezcla medida abajo), no necesariamente con el PDF completo. No hay κ: no hay dos decisiones que comparar.
+
+- evidencia efectivamente a la vista: full-text 15 · abstract 69 · title-only 47
 
 - `GRIS`: 61
 - `INCLUIR`: 20
@@ -60,11 +62,13 @@ La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. No h
 - `EXCLUIR-CE5`: 7
 - `EXCLUIR-RUBRICA`: 5
 - `EXCLUIR-CE4`: 2
-- **61 siguen GRIS con el texto completo a la vista → cola humana real.**
+- **61 siguen GRIS con la evidencia disponible (no necesariamente el texto completo) → cola humana real.**
 
 ## SNOWBALL-GRIS (ADJUDICACION) — n=61/61
 
-La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. No hay κ: no hay dos decisiones que comparar.
+La pasada 1 se abstuvo en estas filas; la SPI decide con la evidencia efectivamente disponible en su input (mezcla medida abajo), no necesariamente con el PDF completo. No hay κ: no hay dos decisiones que comparar.
+
+- evidencia efectivamente a la vista: abstract 28 · title-only 33
 
 - `GRIS`: 23
 - `INCLUIR`: 18
@@ -73,7 +77,7 @@ La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. No h
 - `EXCLUIR-RUBRICA`: 3
 - `CE3-SECUNDARIO`: 2
 - `EXCLUIR-CE5`: 1
-- **23 siguen GRIS con el texto completo a la vista → cola humana real.**
+- **23 siguen GRIS con la evidencia disponible (no necesariamente el texto completo) → cola humana real.**
 
 ## RECONSIDERAR-EXT (CALIDAD) — n=33/33
 
@@ -94,4 +98,4 @@ La pasada 1 se abstuvo en estas filas; la SPI decide con el PDF a la vista. No h
 
 ## Cola humana resultante
 
-- **113 filas** en `CONFLICTOS.csv` (de 534 revisadas por la SPI): desacuerdos de membresía, GRIS que persisten con texto completo, degradaciones y fusiones. Todo lo demás quedó CONSOLIDADO por coincidencia de dos lectores independientes.
+- **113 filas** en `CONFLICTOS.csv` (de 534 revisadas por la SPI): desacuerdos de membresía, GRIS que persisten con la evidencia disponible, degradaciones y fusiones. Todo lo demás quedó CONSOLIDADO por coincidencia de dos lectores independientes.

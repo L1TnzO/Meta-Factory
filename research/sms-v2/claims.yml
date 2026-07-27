@@ -6,84 +6,106 @@
 #
 # Convención de id: sólo letras (se vuelve nombre de macro LaTeX). Prefijo temático:
 #   clSel* selección · clCar* caracterización · clRQuno..clRQseis · clMF* lente Meta-Factory ·
-#   clFia* fiabilidad · clCal* calidad de corpus · clGris* literatura gris.
+#   clFia* fiabilidad · clCal* calidad de corpus · clGris* literatura gris · clPost* post-SPI.
 # Unidades: int (miles con punto) · pct1 (una decimal, coma) · pct0 · float2 · float3 · raw.
+#
+# `pasada` (obligatorio, SMS-V2-CLAIMS-CONTRACT.md §3, diente `harvest/verify_claims_spi.py`):
+#   flujo1 (el flujo tal como ocurrió en la pasada 1 — usa sheet_full/sheet_snowball/extraction/digest,
+#   nunca las vistas _v2/applied) · post (la base de evidencia final, §5+ — usa digest_v2/corpus_v2/
+#   extraction_v2/applied, nunca el corpus crudo) · spi (la segunda pasada como objeto de estudio,
+#   §4.7 — usa spi/conflicts/applied). El aislamiento por pasada es estático y decidible (I-2).
 
 # ---------------------------------------------------------------- selección (§4.4, tipo PRISMA)
 - id: clSelUnicos
+  pasada: flujo1
   pregunta: "¿Cuántos registros únicos dejó la búsqueda académica tras deduplicar?"
   derivacion: "len(sheet_full)"
   unidad: int
   glosa: "corpus principal: OpenAlex + Lens + arXiv, dedup DOI→arXiv→título normalizado"
 - id: clSelIncluidosPrincipal
+  pasada: flujo1
   pregunta: "¿Cuántos incluyó la pasada principal?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'INCLUIR')"
   unidad: int
   glosa: "INCLUIR del corpus principal"
 - id: clSelExcCEuno
+  pasada: flujo1
   pregunta: "¿Cuántos se excluyeron por CE-1 (usa memoria como caja negra, sin mecanismo)?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE1')"
   unidad: int
   glosa: "criterio de exclusión nacido de CI-1: sin mecanismo no hay estudio primario de memoria"
 - id: clSelExcCEdos
+  pasada: flujo1
   pregunta: "¿Cuántos se excluyeron por CE-2 (dominio divergente sin mecanismo transferible)?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE2')"
   unidad: int
 - id: clSelExcCEcinco
+  pasada: flujo1
   pregunta: "¿Cuántos se excluyeron por CE-5 (registro no-estudio: dataset, demo, front-matter)?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'EXCLUIR-CE5')"
   unidad: int
   glosa: "criterio nuevo del v2, nacido de medir el corpus real"
 - id: clSelSecundarios
+  pasada: flujo1
   pregunta: "¿Cuántos secundarios (surveys) se apartaron sin clasificar?"
   derivacion: "sum(1 for r in sheet_full if r['decision'] == 'CE3-SECUNDARIO') + sum(1 for r in sheet_snowball if r['decision'] == 'CE3-SECUNDARIO')"
   unidad: int
   glosa: "CE-3: no se clasifican, alimentan vocabulario y snowball"
 - id: clSelSnowballCandidatos
+  pasada: flujo1
   pregunta: "¿Cuántos candidatos únicos trajo la ronda de snowballing?"
   derivacion: "len(sheet_snowball)"
   unidad: int
   glosa: "backward + forward sobre los incluidos + gold set"
 - id: clSelSnowballCribados
+  pasada: flujo1
   pregunta: "¿Cuántos candidatos de snowball llegaron a cribado por rúbrica?"
   derivacion: "sum(1 for r in sheet_snowball if r['decision'] in ('INCLUIR','EXCLUIR-CE1','EXCLUIR-CE2','EXCLUIR-RUBRICA','GRIS','EXCLUIR-CE5','CE3-SECUNDARIO','EXCLUIR-CE4','CE-4p'))"
   unidad: int
   glosa: "el resto son pre-decisiones deterministas (fuera de alcance, duplicado, sin metadatos)"
 - id: clSelSnowballIncluidos
+  pasada: flujo1
   pregunta: "¿Cuántos incorporó el snowballing al corpus?"
   derivacion: "sum(1 for r in sheet_snowball if r['decision'] == 'INCLUIR')"
   unidad: int
 - id: clSelIncluidosTotal
+  pasada: flujo1
   pregunta: "¿Cuál es el corpus final de estudios incluidos?"
   derivacion: "len(extraction)"
   unidad: int
   glosa: "principal + snowball; una fila de extracción por incluido"
 - id: clSelConTexto
+  pasada: flujo1
   pregunta: "¿De cuántos incluidos se obtuvo el texto completo?"
   derivacion: "sum(1 for r in extraction if r['pdf_status'] == 'ok')"
   unidad: int
   glosa: "los que fueron extraídos y digeridos contra el PDF"
 - id: clSelSinTexto
+  pasada: flujo1
   pregunta: "¿Cuántos incluidos quedaron sin texto completo accesible?"
   derivacion: "sum(1 for r in extraction if r['pdf_status'] != 'ok')"
   unidad: int
   glosa: "frontera dura medida: bot-protection, sin OA, landings"
 - id: clSelCobertura
+  pasada: flujo1
   pregunta: "¿Qué porcentaje del corpus incluido se analizó a texto completo?"
   derivacion: "pct(sum(1 for r in extraction if r['pdf_status'] == 'ok'), len(extraction))"
   unidad: pct1
 
 # ---------------------------------------------------------------- caracterización
 - id: clCarAnalizados
+  pasada: flujo1
   pregunta: "¿Sobre cuántos estudios se computan los resultados?"
   derivacion: "len(digest)"
   unidad: int
   glosa: "denominador de TODA la sección de resultados"
 - id: clCarRecientes
+  pasada: flujo1
   pregunta: "¿Cuántos de los analizados son de 2025 o 2026?"
   derivacion: "sum(1 for r in extraction if r['pdf_status'] == 'ok' and r['year'] in ('2025','2026'))"
   unidad: int
 - id: clCarRecientesPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del campo se publicó en los últimos dos años?"
   derivacion: "pct(sum(1 for r in extraction if r['pdf_status']=='ok' and r['year'] in ('2025','2026')), sum(1 for r in extraction if r['pdf_status']=='ok'))"
   unidad: pct1
@@ -91,182 +113,224 @@
 
 # ---------------------------------------------------------------- RQ1 · tipos y representación
 - id: clRQunoEpisodica
+  pasada: flujo1
   pregunta: "¿En cuántos estudios aparece memoria episódica?"
   derivacion: "sum(1 for r in extraction if 'EPISODICA' in toks(r,'mem_tipos'))"
   unidad: int
 - id: clRQunoSemantica
+  pasada: flujo1
   pregunta: "¿En cuántos aparece memoria semántica?"
   derivacion: "sum(1 for r in extraction if 'SEMANTICA' in toks(r,'mem_tipos'))"
   unidad: int
 - id: clRQunoProcedimental
+  pasada: flujo1
   pregunta: "¿En cuántos aparece memoria procedimental?"
   derivacion: "sum(1 for r in extraction if 'PROCEDIMENTAL' in toks(r,'mem_tipos'))"
   unidad: int
 - id: clRQunoTrabajo
+  pasada: flujo1
   pregunta: "¿En cuántos aparece memoria de trabajo?"
   derivacion: "sum(1 for r in extraction if 'TRABAJO' in toks(r,'mem_tipos'))"
   unidad: int
 - id: clRQunoParametrica
+  pasada: flujo1
   pregunta: "¿En cuántos aparece memoria paramétrica (escribir en los pesos)?"
   derivacion: "sum(1 for r in extraction if 'PARAMETRICA' in toks(r,'mem_tipos'))"
   unidad: int
   glosa: "el polo paramétrico está casi desierto — hallazgo"
 - id: clRQunoSinMecanismo
+  pasada: flujo1
   pregunta: "¿Cuántos estudios no aportan un mecanismo propio (son benchmark, dataset o medición)?"
   derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'mem_tipos'))"
   unidad: int
   glosa: "madurez del campo: ya hay casi tantos protocolos de evaluación como sistemas"
 - id: clRQunoHibridosTipos
+  pasada: flujo1
   pregunta: "¿Cuántos estudios combinan dos o más tipos de memoria?"
   derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) >= 2)"
   unidad: int
 - id: clRQunoHibridosPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus es híbrida en tipos de memoria?"
   derivacion: "pct(sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t!='NA'])>=2), len(digest))"
   unidad: pct1
 - id: clRQunoRepHibrida
+  pasada: flujo1
   pregunta: "¿Cuántos declaran representación híbrida?"
   derivacion: "sum(1 for r in extraction if 'HIBRIDA' in toks(r,'representacion'))"
   unidad: int
 - id: clRQunoRepDocs
+  pasada: flujo1
   pregunta: "¿Cuántos representan la memoria como documentos/archivos?"
   derivacion: "sum(1 for r in extraction if 'DOCS-ARCHIVOS' in toks(r,'representacion'))"
   unidad: int
   glosa: "el sustrato que usa Meta-Factory (Tier 1)"
 - id: clRQunoRepVector
+  pasada: flujo1
   pregunta: "¿Cuántos usan representación vectorial?"
   derivacion: "sum(1 for r in extraction if 'VECTOR' in toks(r,'representacion'))"
   unidad: int
 - id: clRQunoRepGrafo
+  pasada: flujo1
   pregunta: "¿Cuántos usan grafo?"
   derivacion: "sum(1 for r in extraction if 'GRAFO' in toks(r,'representacion'))"
   unidad: int
 - id: clRQunoRepParametros
+  pasada: flujo1
   pregunta: "¿Cuántos escriben la memoria en los parámetros del modelo?"
   derivacion: "sum(1 for r in extraction if 'PARAMETROS' in toks(r,'representacion'))"
   unidad: int
 
 # ---------------------------------------------------------------- RQ2 · ciclo de vida de escritura
 - id: clRQdosWrite
+  pasada: flujo1
   pregunta: "¿Cuántos estudios definen la operación de escritura?"
   derivacion: "sum(1 for r in extraction if 'WRITE' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosAdmision
+  pasada: flujo1
   pregunta: "¿Cuántos definen admisión (qué merece entrar a la memoria)?"
   derivacion: "sum(1 for r in extraction if 'ADMISION' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosConsolidacion
+  pasada: flujo1
   pregunta: "¿Cuántos definen consolidación?"
   derivacion: "sum(1 for r in extraction if 'CONSOLIDACION' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosOlvido
+  pasada: flujo1
   pregunta: "¿Cuántos definen olvido o recolección de basura?"
   derivacion: "sum(1 for r in extraction if 'OLVIDO' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosActualizacion
+  pasada: flujo1
   pregunta: "¿Cuántos definen actualización de una memoria existente?"
   derivacion: "sum(1 for r in extraction if 'ACTUALIZACION' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosTriggerDeterminista
+  pasada: flujo1
   pregunta: "¿Cuántos disparan la escritura con un evento determinista?"
   derivacion: "sum(1 for r in extraction if 'EVENTO-DETERMINISTA' in toks(r,'trigger'))"
   unidad: int
   glosa: "responde G-M1: el trigger discrecional NO es la norma de la literatura"
 - id: clRQdosTriggerDiscrecional
+  pasada: flujo1
   pregunta: "¿Cuántos dejan la escritura a discreción del modelo?"
   derivacion: "sum(1 for r in extraction if 'DISCRECIONAL-LLM' in toks(r,'trigger'))"
   unidad: int
 - id: clRQdosTriggerCheckpoint
+  pasada: flujo1
   pregunta: "¿Cuántos escriben en checkpoints?"
   derivacion: "sum(1 for r in extraction if 'CHECKPOINT' in toks(r,'trigger'))"
   unidad: int
 - id: clRQdosTriggerPresupuesto
+  pasada: flujo1
   pregunta: "¿Cuántos escriben por presupuesto de contexto o tokens?"
   derivacion: "sum(1 for r in extraction if 'PRESUPUESTO' in toks(r,'trigger'))"
   unidad: int
 - id: clRQdosDeterministaPct
+  pasada: flujo1
   pregunta: "Entre los que declaran trigger, ¿qué proporción usa un disparo no discrecional?"
   derivacion: "pct(sum(1 for r in extraction if [t for t in toks(r,'trigger') if t in ('EVENTO-DETERMINISTA','CHECKPOINT','PRESUPUESTO')]), sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA']))"
   unidad: pct1
 
 # ---------------------------------------------------------------- RQ3 · recuperación e instrumentación
 - id: clRQtresEmbeddings
+  pasada: flujo1
   pregunta: "¿Cuántos recuperan por embeddings?"
   derivacion: "sum(1 for r in extraction if 'EMBEDDINGS' in toks(r,'retrieval'))"
   unidad: int
 - id: clRQtresRanking
+  pasada: flujo1
   pregunta: "¿Cuántos recuperan por ranking léxico o reranking?"
   derivacion: "sum(1 for r in extraction if 'RANKING' in toks(r,'retrieval'))"
   unidad: int
 - id: clRQtresGrafo
+  pasada: flujo1
   pregunta: "¿Cuántos recuperan recorriendo un grafo?"
   derivacion: "sum(1 for r in extraction if 'GRAFO' in toks(r,'retrieval'))"
   unidad: int
 - id: clRQtresGrep
+  pasada: flujo1
   pregunta: "¿Cuántos recuperan leyendo archivos directamente?"
   derivacion: "sum(1 for r in extraction if 'GREP-ARCHIVOS' in toks(r,'retrieval'))"
   unidad: int
   glosa: "el mecanismo que ADR-019 eligió para Meta-Factory"
 - id: clRQtresGrepPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus usa lectura directa de archivos?"
   derivacion: "pct(sum(1 for r in extraction if 'GREP-ARCHIVOS' in toks(r,'retrieval')), len(digest))"
   unidad: pct1
 - id: clRQtresMide
+  pasada: flujo1
   pregunta: "¿Cuántos MIDEN qué se leyó y con qué utilidad?"
   derivacion: "sum(1 for r in extraction if r['mide_lectura'] == 'SI')"
   unidad: int
   glosa: "el corazón de G-M2"
 - id: clRQtresMidePct
+  pasada: flujo1
   pregunta: "¿Qué proporción instrumenta la recuperación?"
   derivacion: "pct(sum(1 for r in extraction if r['mide_lectura']=='SI'), len(digest))"
   unidad: pct1
 - id: clRQtresNoMide
+  pasada: flujo1
   pregunta: "¿Cuántos no miden la utilidad de lo recuperado?"
   derivacion: "sum(1 for r in extraction if r['mide_lectura'] == 'NO')"
   unidad: int
 
 # ---------------------------------------------------------------- RQ4 · persistencia y multi-agente
 - id: clRQcuatroProyecto
+  pasada: flujo1
   pregunta: "¿Cuántos operan a escala de proyecto?"
   derivacion: "sum(1 for r in extraction if 'PROYECTO' in toks(r,'alcance'))"
   unidad: int
 - id: clRQcuatroSesion
+  pasada: flujo1
   pregunta: "¿Cuántos operan a escala de sesión?"
   derivacion: "sum(1 for r in extraction if 'SESION' in toks(r,'alcance'))"
   unidad: int
 - id: clRQcuatroOrganizacion
+  pasada: flujo1
   pregunta: "¿Cuántos operan a escala de organización?"
   derivacion: "sum(1 for r in extraction if 'ORGANIZACION' in toks(r,'alcance'))"
   unidad: int
 - id: clRQcuatroMultiagente
+  pasada: flujo1
   pregunta: "¿Cuántos comparten memoria entre agentes?"
   derivacion: "sum(1 for r in extraction if r['multiagente'] == 'SI')"
   unidad: int
 - id: clRQcuatroHandoff
+  pasada: flujo1
   pregunta: "¿Cuántos definen un traspaso explícito entre sesiones o agentes?"
   derivacion: "sum(1 for r in extraction if r['handoff'] and r['handoff'].strip() != 'NO')"
   unidad: int
 - id: clRQcuatroHandoffPct
+  pasada: flujo1
   pregunta: "¿El traspaso es norma o excepción?"
   derivacion: "pct(sum(1 for r in extraction if r['handoff'] and r['handoff'].strip()!='NO'), len(digest))"
   unidad: pct1
 - id: clRQcuatroHandoffContenido
+  pasada: flujo1
   pregunta: "¿Cuántos traspasan CONTENIDO?"
   derivacion: "sum(1 for r in extraction if 'CONTENIDO' in toks(r,'handoff'))"
   unidad: int
 - id: clRQcuatroHandoffPunteros
+  pasada: flujo1
   pregunta: "¿Cuántos traspasan PUNTEROS en vez de contenido?"
   derivacion: "sum(1 for r in extraction if 'PUNTEROS' in toks(r,'handoff'))"
   unidad: int
 - id: clRQcuatroHandoffContrato
+  pasada: flujo1
   pregunta: "¿Cuántos traspasan un CONTRATO (qué debe cumplirse, no qué pasó)?"
   derivacion: "sum(1 for r in extraction if 'CONTRATO' in toks(r,'handoff'))"
   unidad: int
 - id: clRQcuatroFidelidad
+  pasada: flujo1
   pregunta: "¿Cuántos verifican fidelidad o procedencia de la memoria?"
   derivacion: "sum(1 for r in extraction if r['fidelidad_procedencia'] == 'SI')"
   unidad: int
 - id: clRQcuatroPlanEstado
+  pasada: flujo1
   pregunta: "¿Cuántos tratan el estado del plan de trabajo como contenido de memoria?"
   derivacion: "sum(1 for r in extraction if r['plan_estado'] == 'SI')"
   unidad: int
@@ -274,183 +338,225 @@
 
 # ---------------------------------------------------------------- RQ5 · evaluación y costo
 - id: clRQcincoBenchmark
+  pasada: flujo1
   pregunta: "¿Cuántos evalúan con benchmark end-to-end?"
   derivacion: "sum(1 for r in extraction if 'BENCHMARK-E2E' in toks(r,'evidencia_tipo'))"
   unidad: int
 - id: clRQcincoAblation
+  pasada: flujo1
   pregunta: "¿Cuántos aportan ablation con/sin memoria (evidencia causal)?"
   derivacion: "sum(1 for r in extraction if 'ABLATION' in toks(r,'evidencia_tipo'))"
   unidad: int
 - id: clRQcincoAblationPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus aísla causalmente el aporte de la memoria?"
   derivacion: "pct(sum(1 for r in extraction if 'ABLATION' in toks(r,'evidencia_tipo')), len(digest))"
   unidad: pct1
 - id: clRQcincoCosto
+  pasada: flujo1
   pregunta: "¿Cuántos miden costo (tokens, caché, latencia)?"
   derivacion: "sum(1 for r in extraction if 'MEDICION-COSTO' in toks(r,'evidencia_tipo'))"
   unidad: int
 - id: clRQcincoCostoPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus mide el costo de su memoria?"
   derivacion: "pct(sum(1 for r in extraction if 'MEDICION-COSTO' in toks(r,'evidencia_tipo')), len(digest))"
   unidad: pct1
 - id: clRQcincoCualitativa
+  pasada: flujo1
   pregunta: "¿Cuántos aportan sólo evidencia cualitativa?"
   derivacion: "sum(1 for r in extraction if 'CUALITATIVA' in toks(r,'evidencia_tipo'))"
   unidad: int
 - id: clRQcincoMetricaExito
+  pasada: flujo1
   pregunta: "¿Cuántos reportan métricas de éxito final?"
   derivacion: "sum(1 for r in extraction if 'EXITO' in toks(r,'metricas'))"
   unidad: int
 - id: clRQcincoMetricaTokens
+  pasada: flujo1
   pregunta: "¿Cuántos reportan costo en tokens?"
   derivacion: "sum(1 for r in extraction if 'COSTO-TOKENS' in toks(r,'metricas'))"
   unidad: int
 - id: clRQcincoMetricaIteracion
+  pasada: flujo1
   pregunta: "¿Cuántos reportan métricas de iteración (pasos, reintentos, error repetido)?"
   derivacion: "sum(1 for r in extraction if 'ITERACION' in toks(r,'metricas'))"
   unidad: int
   glosa: "la brecha de evaluación que el v1 señaló con 27 papers, ahora medida a escala"
 - id: clRQcincoMetricaIteracionPct
+  pasada: flujo1
   pregunta: "¿Qué tan rara es la métrica de iteración?"
   derivacion: "pct(sum(1 for r in extraction if 'ITERACION' in toks(r,'metricas')), len(digest))"
   unidad: pct1
 
 # ---------------------------------------------------------------- RQ6 · riesgos y control
 - id: clRQseisSeguridad
+  pasada: flujo1
   pregunta: "¿Cuántos estudios tocan seguridad DE la memoria (envenenamiento, exfiltración)?"
   derivacion: "sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F'))"
   unidad: int
 - id: clRQseisSeguridadPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus estudia la seguridad de la memoria?"
   derivacion: "pct(sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F')), len(digest))"
   unidad: pct1
 - id: clRQseisFidelidadFaceta
+  pasada: flujo1
   pregunta: "¿Cuántos tocan fidelidad y anti-drift (procedencia, staleness, costuras)?"
   derivacion: "sum(1 for r in extraction if 'FIDELIDAD' in facets(r,'F'))"
   unidad: int
 - id: clRQseisStaleness
+  pasada: flujo1
   pregunta: "¿Cuántos nombran explícitamente obsolescencia entre sus modos de fallo?"
   derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('stale','obsolet','desactualiz','outdated')))"
   unidad: int
 - id: clRQseisPoisoning
+  pasada: flujo1
   pregunta: "¿Cuántos nombran envenenamiento o inyección de memoria?"
   derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('poison','envenen','inject','inyecc')))"
   unidad: int
 - id: clRQseisSobreRetencion
+  pasada: flujo1
   pregunta: "¿Cuántos nombran sobre-retención o crecimiento sin control de la memoria?"
   derivacion: "sum(1 for r in extraction if any(w in (r['fallos_mitigaciones'] or '').lower() for w in ('sobre-retenc','over-reten','bloat','crecimiento','unbounded','acumul')))"
   unidad: int
 
 # ---------------------------------------------------------------- facetas MF (el mapa de vacíos)
 - id: clMFretrievalMedido
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta RETRIEVAL-MEDIDO"
   derivacion: "sum(1 for r in extraction if 'RETRIEVAL-MEDIDO' in facets(r,'F'))"
   unidad: int
 - id: clMFwrite
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta WRITE"
   derivacion: "sum(1 for r in extraction if 'WRITE' in facets(r,'F'))"
   unidad: int
 - id: clMFcosto
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta COSTO"
   derivacion: "sum(1 for r in extraction if 'COSTO' in facets(r,'F'))"
   unidad: int
 - id: clMFconsolidacion
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta CONSOLIDACION"
   derivacion: "sum(1 for r in extraction if 'CONSOLIDACION' in facets(r,'F'))"
   unidad: int
 - id: clMFnegativo
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta NEGATIVO (conocimiento negativo)"
   derivacion: "sum(1 for r in extraction if 'NEGATIVO' in facets(r,'F'))"
   unidad: int
 - id: clMFmultiagente
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta MULTIAGENTE"
   derivacion: "sum(1 for r in extraction if 'MULTIAGENTE' in facets(r,'F'))"
   unidad: int
 - id: clMFprocedimental
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta PROCEDIMENTAL"
   derivacion: "sum(1 for r in extraction if 'PROCEDIMENTAL' in facets(r,'F'))"
   unidad: int
 - id: clMFdocsVersionado
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta DOCS-VERSIONADO (memoria como archivos versionados)"
   derivacion: "sum(1 for r in extraction if 'DOCS-VERSIONADO' in facets(r,'F'))"
   unidad: int
   glosa: "la faceta MÁS escasa — y es exactamente el Tier 1 de Meta-Factory"
 - id: clMFdocsVersionadoPct
+  pasada: flujo1
   pregunta: "¿Qué tan rara es la memoria como documentos versionados?"
   derivacion: "pct(sum(1 for r in extraction if 'DOCS-VERSIONADO' in facets(r,'F')), len(digest))"
   unidad: pct1
 
 # ---------------------------------------------------------------- lente Meta-Factory (§7.4)
 - id: clMFentradas
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos paper→necesidad-de-Meta-Factory produjo la digestión?"
   derivacion: "len([a for r in digest for a in r['mf_aplicabilidad']])"
   unidad: int
 - id: clMFconfirma
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos CONFIRMAN una decisión de Meta-Factory?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'CONFIRMA')"
   unidad: int
 - id: clMFextiende
+  pasada: flujo1
   pregunta: "¿Cuántos la EXTIENDEN?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'EXTIENDE')"
   unidad: int
 - id: clMFneutral
+  pasada: flujo1
   pregunta: "¿Cuántos son NEUTRALES?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'NEUTRAL')"
   unidad: int
 - id: clMFrefuta
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos REFUTAN una decisión congelada de Meta-Factory?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura'] == 'REFUTA')"
   unidad: int
   glosa: "la señal de más valor del estudio: evidencia externa contra una decisión propia"
 - id: clMFrefutaPapers
+  pasada: flujo1
   pregunta: "¿Cuántos estudios distintos aportan al menos una refutación?"
   derivacion: "len(set(r['key'] for r in digest if any(a['postura']=='REFUTA' for a in r['mf_aplicabilidad'])))"
   unidad: int
 - id: clMFrefutaGMdos
+  pasada: flujo1
   pregunta: "¿Cuántas refutaciones apuntan a G-M2 (retrieval medido)?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='G-M2')"
   unidad: int
   glosa: "la tensión central del estudio contra ADR-019"
 - id: clMFrefutaGMdosPct
+  pasada: flujo1
   pregunta: "¿Qué proporción de toda la refutación se concentra en G-M2?"
   derivacion: "pct(sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='G-M2'), sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA'))"
   unidad: pct1
 - id: clMFrefutaNegativo
+  pasada: flujo1
   pregunta: "¿Cuántas refutaciones apuntan al conocimiento negativo?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['postura']=='REFUTA' and a['ancla']=='NEGATIVO')"
   unidad: int
 - id: clMFanclaCosto
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan la economía de contexto?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'COSTO')"
   unidad: int
 - id: clMFanclaGMdos
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan G-M2 en cualquier postura?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'G-M2')"
   unidad: int
 - id: clMFanclaTierDocs
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan el Tier de documentos?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'TIER-DOCS')"
   unidad: int
 
 # ---------------------------------------------------------------- calidad del corpus
 - id: clCalReconsiderarExt
+  pasada: flujo1
   pregunta: "¿Cuántos registros marcó la extracción como de calidad dudosa?"
   derivacion: "sum(1 for r in extraction if 'RECONSIDERAR' in (r['notes'] or ''))"
   unidad: int
 - id: clCalReconsiderarDig
+  pasada: flujo1
   pregunta: "¿Cuántos marcó la digestión, ya con el texto completo a la vista?"
   derivacion: "sum(1 for r in digest if 'RECONSIDERAR' in (r.get('notes') or ''))"
   unidad: int
 - id: clCalReconsiderarDigPct
+  pasada: flujo1
   pregunta: "¿Qué proporción del corpus analizado levanta una señal de calidad?"
   derivacion: "pct(sum(1 for r in digest if 'RECONSIDERAR' in (r.get('notes') or '')), len(digest))"
   unidad: pct1
   glosa: "leer el texto completo detecta más del doble de problemas que leer campos"
 - id: clCalDuplicados
+  pasada: flujo1
   pregunta: "¿Cuántos pares casi-duplicados detectó el escaneo de integridad?"
   derivacion: "len(duplicados)"
   unidad: int
 - id: clCalArtefactos
+  pasada: flujo1
   pregunta: "¿Cuántos registros resultaron ser herramientas o artefactos y no estudios?"
   derivacion: "len(artifacts)"
   unidad: int
@@ -458,182 +564,312 @@
 # ---------------------------------------------------------------- taxonomía G-M2 (§ discusión)
 # Los conteos salen de gmdos-taxonomy.yml, cuya cobertura el gate exige == al conjunto REFUTA∧G-M2.
 - id: clGMdosMenos
+  pasada: flujo1
   pregunta: "¿Cuántas miden que AÑADIR una capa de recuperación no ayuda o perjudica?"
   derivacion: "sum(1 for t in gmdos if t['direccion'] == 'MENOS-MAQUINARIA')"
   unidad: int
   glosa: "contexto largo, documento completo o un scorer simple igualan o superan al índice"
 - id: clGMdosMas
+  pasada: flujo1
   pregunta: "¿Cuántas miden que la similitud PURA es insuficiente?"
   derivacion: "sum(1 for t in gmdos if t['direccion'] == 'MAS-MAQUINARIA')"
   unidad: int
   glosa: "hace falta híbrido, estructura, grafo o recuperación agéntica multi-salto"
 - id: clGMdosCalidad
+  pasada: flujo1
   pregunta: "¿Cuántas no discuten recuperación sino la solidez del número reportado?"
   derivacion: "sum(1 for t in gmdos if t['direccion'] == 'CALIDAD')"
   unidad: int
 
 # ---------------------------------------------------------------- amenazas a la validez
 - id: clAmeSinTextoPreprint
+  pasada: flujo1
   pregunta: "De los incluidos sin texto completo, ¿cuántos son preprints de arXiv?"
   derivacion: "sum(1 for r in extraction if r['pdf_status'] != 'ok' and not r['key'].startswith('W'))"
   unidad: int
   glosa: "cero: el material inaccesible es íntegramente de venues con DOI de editorial"
 - id: clAmeAnalizadosPreprint
+  pasada: flujo1
   pregunta: "¿Qué proporción de los analizados son preprints de arXiv?"
   derivacion: "pct(sum(1 for r in extraction if r['pdf_status']=='ok' and not r['key'].startswith('W')), sum(1 for r in extraction if r['pdf_status']=='ok'))"
   unidad: pct1
 
 # ---------------------------------------------------------------- celdas de tabla faltantes
 - id: clRQunoMultimodal
+  pasada: flujo1
   pregunta: "¿En cuántos aparece memoria multimodal?"
   derivacion: "sum(1 for r in extraction if 'MULTIMODAL' in toks(r,'mem_tipos'))"
   unidad: int
 - id: clRQunoRepNa
+  pasada: flujo1
   pregunta: "¿Cuántos no declaran un sustrato de representación propio?"
   derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'representacion'))"
   unidad: int
 - id: clRQdosOperNa
+  pasada: flujo1
   pregunta: "¿Cuántos no definen operaciones propias de ciclo de vida?"
   derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'operaciones'))"
   unidad: int
 - id: clRQdosTriggerNa
+  pasada: flujo1
   pregunta: "¿Cuántos no declaran qué dispara la escritura?"
   derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'trigger'))"
   unidad: int
 - id: clRQtresRetrievalNa
+  pasada: flujo1
   pregunta: "¿Cuántos no declaran mecanismo de recuperación?"
   derivacion: "sum(1 for r in extraction if 'NA' in toks(r,'retrieval'))"
   unidad: int
 - id: clRQcuatroTarea
+  pasada: flujo1
   pregunta: "¿Cuántos operan a escala de tarea?"
   derivacion: "sum(1 for r in extraction if 'TAREA' in toks(r,'alcance'))"
   unidad: int
 - id: clRQcuatroHandoffNo
+  pasada: flujo1
   pregunta: "¿Cuántos no definen traspaso alguno?"
   derivacion: "sum(1 for r in extraction if (r['handoff'] or '').strip() == 'NO')"
   unidad: int
 - id: clRQcincoMetricaLatencia
+  pasada: flujo1
   pregunta: "¿Cuántos reportan latencia?"
   derivacion: "sum(1 for r in extraction if 'LATENCIA' in toks(r,'metricas'))"
   unidad: int
 - id: clRQcincoMetricaOtra
+  pasada: flujo1
   pregunta: "¿Cuántos reportan otras métricas fuera del vocabulario cerrado?"
   derivacion: "sum(1 for r in extraction if 'OTRA' in toks(r,'metricas'))"
   unidad: int
 - id: clRQcincoMetricaNinguna
+  pasada: flujo1
   pregunta: "¿Cuántos no reportan métrica alguna?"
   derivacion: "sum(1 for r in extraction if 'NINGUNA' in toks(r,'metricas'))"
   unidad: int
 - id: clMFfidelidad
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta FIDELIDAD"
   derivacion: "sum(1 for r in extraction if 'FIDELIDAD' in facets(r,'F'))"
   unidad: int
 - id: clMFseguridadFaceta
+  pasada: flujo1
   pregunta: "Prevalencia confirmada de la faceta SEGURIDAD"
   derivacion: "sum(1 for r in extraction if 'SEGURIDAD' in facets(r,'F'))"
   unidad: int
 - id: clMFanclaFidelidad
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan fidelidad y anti-drift?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'FIDELIDAD')"
   unidad: int
 - id: clMFanclaConsolidacion
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan consolidación?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'CONSOLIDACION')"
   unidad: int
 - id: clMFanclaNegativo
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan el conocimiento negativo?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'NEGATIVO')"
   unidad: int
 - id: clMFanclaCosturas
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan las costuras entre almacenes de memoria?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'COSTURAS')"
   unidad: int
 - id: clMFanclaPlanEstado
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan el estado del plan como memoria?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'PLAN-ESTADO')"
   unidad: int
 - id: clMFanclaGMuno
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan el disparador de escritura?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'G-M1')"
   unidad: int
 - id: clMFanclaTierIndice
+  pasada: flujo1
   pregunta: "¿Cuántos mapeos tocan el índice derivado como caché?"
   derivacion: "sum(1 for r in digest for a in r['mf_aplicabilidad'] if a['ancla'] == 'TIER-INDICE')"
   unidad: int
 
 # ---------------------------------------------------------------- réplica del hallazgo v1
 - id: clRQunoConMecanismo
+  pasada: flujo1
   pregunta: "¿Cuántos de los analizados aportan un mecanismo de memoria propio?"
   derivacion: "sum(1 for r in extraction if [t for t in toks(r,'mem_tipos') if t != 'NA'])"
   unidad: int
   glosa: "denominador honesto para la tasa de hibridación: excluye benchmarks y datasets"
 - id: clRQunoHibridosSobreMec
+  pasada: flujo1
   pregunta: "Entre los que aportan mecanismo, ¿qué proporción combina dos o más tipos?"
   derivacion: "pct(sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t!='NA'])>=2), sum(1 for r in extraction if [t for t in toks(r,'mem_tipos') if t != 'NA']))"
   unidad: pct1
   glosa: "60,5% frente al 92,6% que reportó el mapeo de 27 estudios: la estimación pequeña no replica"
 - id: clRQunoTipoUnico
+  pasada: flujo1
   pregunta: "¿Cuántos estudios declaran un solo tipo de memoria?"
   derivacion: "sum(1 for r in extraction if len([t for t in toks(r,'mem_tipos') if t != 'NA']) == 1)"
   unidad: int
 
 # ---------------------------------------------------------------- exclusividad del disparador
 - id: clRQdosSoloDiscrecional
+  pasada: flujo1
   pregunta: "¿Cuántos estudios confían la escritura EXCLUSIVAMENTE al criterio del modelo?"
   derivacion: "sum(1 for r in extraction if set(toks(r,'trigger')) - {'NA'} == {'DISCRECIONAL-LLM'})"
   unidad: int
   glosa: "distinto de 'menciona el disparo discrecional': aquí es el único mecanismo declarado"
 - id: clRQdosSoloDiscrecionalPct
+  pasada: flujo1
   pregunta: "¿Qué proporción de los que declaran disparador confía sólo en la discreción del modelo?"
   derivacion: "pct(sum(1 for r in extraction if set(toks(r,'trigger')) - {'NA'} == {'DISCRECIONAL-LLM'}), sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA']))"
   unidad: pct1
 - id: clRQdosAmbosTriggers
+  pasada: flujo1
   pregunta: "¿Cuántos combinan disparo discrecional con alguno determinista?"
   derivacion: "sum(1 for r in extraction if 'DISCRECIONAL-LLM' in toks(r,'trigger') and [t for t in toks(r,'trigger') if t in ('EVENTO-DETERMINISTA','CHECKPOINT','PRESUPUESTO')])"
   unidad: int
 - id: clRQdosDeclaranTrigger
+  pasada: flujo1
   pregunta: "¿Cuántos estudios declaran qué dispara la escritura?"
   derivacion: "sum(1 for r in extraction if [t for t in toks(r,'trigger') if t != 'NA'])"
   unidad: int
 
 # ---------------------------------------------------------------- RQ7 · literatura gris
 - id: clGrisDocs
+  pasada: flujo1
   pregunta: "¿Cuántos documentos de primera mano de los proveedores se analizaron?"
   derivacion: "len(grey)"
   unidad: int
   glosa: "instantáneas inmutables con sha256; los blogs y las docs mutan"
 - id: clGrisAnthropic
+  pasada: flujo1
   pregunta: "¿Cuántos provienen de Anthropic?"
   derivacion: "sum(1 for r in grey if r['org'] == 'Anthropic')"
   unidad: int
 - id: clGrisOpenAI
+  pasada: flujo1
   pregunta: "¿Cuántos provienen de OpenAI?"
   derivacion: "sum(1 for r in grey if r['org'] == 'OpenAI')"
   unidad: int
 - id: clGrisGoogle
+  pasada: flujo1
   pregunta: "¿Cuántos provienen de Google DeepMind?"
   derivacion: "sum(1 for r in grey if r['org'] == 'Google DeepMind')"
   unidad: int
   glosa: "la asimetría es en sí un hallazgo de RQ7"
 - id: clGrisMejoraCombinada
+  pasada: flujo1
   pregunta: "¿Qué mejora reporta Anthropic al combinar herramienta de memoria con edición de contexto?"
   derivacion: "quoted('anthropic-context-management', '39%')"
   unidad: raw
   glosa: "CITA verificada contra la instantánea congelada, no agregado del corpus"
 - id: clGrisAhorroTokens
+  pasada: flujo1
   pregunta: "¿Qué reducción de tokens reporta la edición de contexto sola?"
   derivacion: "quoted('anthropic-context-management', '84%')"
   unidad: raw
 - id: clGrisUmbralEdicion
+  pasada: flujo1
   pregunta: "¿En qué umbral de tokens de entrada se dispara por defecto la edición de contexto?"
   derivacion: "quoted('anthropic-context-editing', '100,000')"
   unidad: raw
   glosa: "un disparador determinista, en producción, con su número"
 - id: clGrisUmbralCompactacion
+  pasada: flujo1
   pregunta: "¿En qué umbral se dispara por defecto la compactación?"
   derivacion: "quoted('anthropic-compaction', '150000')"
   unidad: raw
 - id: clGrisVentanaGemini
+  pasada: flujo1
   pregunta: "¿Qué tamaño de ventana de contexto documenta Google?"
   derivacion: "quoted('google-gemini-long-context', '1 million tokens')"
   unidad: raw
+
+# ---------------------------------------------------------------- post-SPI (denominadores tras aplicar
+# la segunda pasada — SMS-V2-CLAIMS-CONTRACT.md §2/§4; corolario §9.3: corpus_v2 es el flujo, digest_v2
+# es el ÚNICO denominador de resultado, nunca intercambiables)
+- id: clPostDigest
+  pasada: post
+  pregunta: "¿Sobre cuántos estudios se computa todo resultado tras aplicar la SPI?"
+  derivacion: "len(digest_v2)"
+  unidad: int
+  glosa: "denominador de §5 en adelante (corolario §9.3) — nunca corpus_v2"
+- id: clPostCorpus
+  pasada: post
+  pregunta: "¿Cuál es el corpus admitido (nivel PRISMA) tras aplicar la SPI?"
+  derivacion: "len(corpus_v2)"
+  unidad: int
+  glosa: "denominador del flujo (§4.4); admite sin exigir texto completo — corolario §9.3"
+- id: clPostDegradados
+  pasada: post
+  pregunta: "¿Cuántos estudios degradó la SPI por fallo de procedencia?"
+  derivacion: "len({r['key'] for r in applied['membership_delta'] if r['effect'] == 'DEGRADED'} - corpus_v2)"
+  unidad: int
+  glosa: "siguen en digest.jsonl (nada se borra, §3.3); se restan por derivación, nunca por edición — amenaza declarada"
+- id: clPostFusiones
+  pasada: post
+  pregunta: "¿Cuántos pares de registros resultaron ser el mismo estudio?"
+  derivacion: "sum(1 for p in applied['merged_into'] if p['into'] in corpus_v2)"
+  unidad: int
+  glosa: "una fusión colapsa identidad, no evidencia (§2)"
+- id: clPostAdmitidosSpi
+  pasada: post
+  pregunta: "¿Cuántos estudios admitió la SPI que la pasada 1 no había incluido?"
+  derivacion: "len({r['key'] for r in applied['membership_delta'] if r['effect'] == 'ADD_INCLUIR'} & corpus_v2)"
+  unidad: int
+- id: clPostExcluidosSpi
+  pasada: post
+  pregunta: "¿Cuántos estudios excluyó la SPI que la pasada 1 había incluido?"
+  derivacion: "len({r['key'] for r in applied['membership_delta'] if r['effect'] == 'ADD_EXCLUIR'} - corpus_v2)"
+  unidad: int
+- id: clPostBloqueadosSinTexto
+  pasada: post
+  pregunta: "¿Cuántos estudios admitidos al corpus quedaron sin texto completo para digerir?"
+  derivacion: "len(set(applied['digest_blocked_no_fulltext']) - digest_v2)"
+  unidad: int
+  glosa: "admitir al corpus ≠ admitir al digest (§1) — amenaza declarada de cobertura/accesibilidad"
+- id: clPostPendientesDigest
+  pasada: post
+  pregunta: "¿Cuántos estudios elegibles siguen sin digerir?"
+  derivacion: "len({k for k in applied['digest_eligible'] if k not in digest_v2})"
+  unidad: int
+  glosa: "13 al cerrar la SPI, 0 al cerrar la ola B del digest — obligatoria de citar sólo mientras sea > 0 (I-7)"
+- id: clPostExclusionesSoloTitulo
+  pasada: post
+  pregunta: "¿Cuántas exclusiones de la SPI se decidieron con sólo el título a la vista?"
+  derivacion: "len({r['key'] for r in applied['membership_delta'] if r['effect'] == 'ADD_EXCLUIR' and r.get('evidence_grade') == 'title-only'} - corpus_v2)"
+  unidad: int
+  glosa: "amenaza declarada: la cobertura de accesibilidad no es uniforme"
+
+# ---------------------------------------------------------------- fiabilidad de la SPI (segunda pasada
+# como objeto de estudio, §4.7 — SMS-V2-CLAIMS-CONTRACT.md §4; κ se deriva de los veredictos crudos,
+# nunca se copia de AGREEMENT.md, §5.2)
+- id: clFiaKappaColapsado
+  pasada: spi
+  pregunta: "¿Cuál es el acuerdo entre la pasada 1 y la SPI, colapsado a IN/OUT/HUMANO?"
+  derivacion: "cohen_kappa([(collapse(a), collapse(b)) for a, b in spi_pairs(spi)])"
+  unidad: float3
+  glosa: "responde «¿el paper entra al estudio?»; sólo estratos VERIFICACION, muestra aleatoria pre-registrada"
+- id: clFiaKappaExacto
+  pasada: spi
+  pregunta: "¿Cuál es el acuerdo entre la pasada 1 y la SPI exigiendo coincidir también en el subtipo?"
+  derivacion: "cohen_kappa(spi_pairs(spi))"
+  unidad: float3
+  glosa: "distinción de subtipo de exclusión que no cambia el corpus"
+- id: clFiaColaHumanaFilas
+  pasada: spi
+  pregunta: "¿Cuántas filas quedaron marcadas HUMAN_QUEUE al aplicar la SPI?"
+  derivacion: "sum(1 for r in applied['membership_delta'] if r['effect'] == 'HUMAN_QUEUE')"
+  unidad: int
+  glosa: "filas, no estudios — incluye los re-enrutados por título (§2)"
+- id: clFiaColaHumana
+  pasada: spi
+  pregunta: "¿Cuántos estudios distintos componen la cola humana que derivó la SPI?"
+  derivacion: "len({r['key'] for r in applied['membership_delta'] if r['effect'] == 'HUMAN_QUEUE'})"
+  unidad: int
+  glosa: "claves únicas; no es el mismo conjunto que CONFLICTOS.csv (§2: dos poblaciones, no una)"
+- id: clFiaConflictosFilas
+  pasada: spi
+  pregunta: "¿Cuántas filas de desacuerdo registró el cierre de la fase A?"
+  derivacion: "len(conflicts)"
+  unidad: int
+  glosa: "CONFLICTOS.csv; no coincide 1:1 con la cola HUMAN_QUEUE (§2)"

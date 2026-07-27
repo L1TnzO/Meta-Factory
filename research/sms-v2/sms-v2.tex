@@ -786,6 +786,16 @@ dos personas expertas. Dos lectores que comparten arquitectura pueden compartir 
 componente de error es invisible desde dentro del propio experimento; el coeficiente reportado debe
 leerse como una cota de consistencia interna del procedimiento, no como validación externa. La
 adjudicación humana se aplicó sobre los conflictos, no sobre el corpus completo.
+
+Aplicada al corpus, la SPI degradó \clPostDegradados{} estudios por fallo de procedencia, fusionó
+\clPostFusiones{} pares de registros que resultaron ser el mismo estudio, admitió \clPostAdmitidosSpi{}
+estudios que la primera pasada no había incluido y excluyó \clPostExcluidosSpi{} que sí había incluido;
+el corpus post-SPI queda en \clPostCorpus{} estudios admitidos, de los cuales \clPostDigest{} se
+analizaron a texto completo (\clPostPendientesDigest{} elegibles aún pendientes de digerir). Sobre las
+muestras aleatorias pre-registradas el acuerdo colapsado fue \clFiaKappaColapsado{} y el exacto
+\clFiaKappaExacto{}; la aplicación derivó además una cola humana de \clFiaColaHumana{} estudios
+(\clFiaColaHumanaFilas{} filas con ese efecto), frente a las \clFiaConflictosFilas{} filas de desacuerdo
+registradas al cierre de la fase A.
 %%CLAIMS-STRICT-END
 
 \subsection{Cobertura y sesgo de accesibilidad}
@@ -805,6 +815,10 @@ inaccesible proviene íntegramente de venues con DOI de editorial, mientras que
 \clAmeAnalizadosPreprint{}\,\% de lo analizado son preprints. El corpus analizado está por tanto
 sesgado hacia lo libremente accesible, y ese sesgo apunta en la misma dirección que la señal de
 calidad de la próxima subsección.
+
+La SPI añade una arista más a ese sesgo: \clPostBloqueadosSinTexto{} de los estudios que admitió al
+corpus quedaron igualmente sin texto completo para digerir, y \clPostExclusionesSoloTitulo{} de sus
+exclusiones se decidieron con sólo el título a la vista.
 %%CLAIMS-STRICT-END
 
 \subsection{Calidad del corpus}

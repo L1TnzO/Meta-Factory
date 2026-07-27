@@ -34,7 +34,9 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from closure_law import ROOT, collapse, cohen_kappa  # noqa: E402
+from closure_law import (  # noqa: E402
+    ROOT, collapse, cohen_kappa, QUEUES, KINDS_KAPPA, queue_members, HUMAN_LABELS, SPI_BLINDNESS_BREACHES,
+)
 
 SMS_DIR = ROOT / "sms-v2"
 CLAIMS_YML = SMS_DIR / "claims.yml"
@@ -96,6 +98,36 @@ def _quoted(grey_key: str, needle: str) -> str:
     return needle
 
 
+def _spi_pairs(spi_rows: list[dict], queue_names: list[str] | None = None) -> list[tuple[str, str]]:
+    """Raw (pass1_decision, spi_decision) tuples, paired by `key`, for the given queues.
+
+    Mirrors `spi_agreement.py`'s pairing exactly, including its exclusions: a row where pass 1
+    ABSTAINED (`HUMAN_LABELS`, GRIS/CE-4p — not verifiable, the second reader cannot abstain there so
+    it would be a guaranteed mismatch by construction) and a row named in `SPI_BLINDNESS_BREACHES`
+    (the second reader self-disclosed seeing pass 1's output) are both excluded the same way: visibly,
+    never counted as either agreement or disagreement.
+
+    `queue_names` defaults to the kappa-eligible queues (`closure_law.KINDS_KAPPA`) — no new selection
+    rule is invented here, it comes straight from closure_law's own vocabulary (plumbing, not a magic
+    value: a random 10% pre-registered sample supports a reliability coefficient, a targeted or
+    abstention-only queue does not).
+    """
+    names = queue_names if queue_names is not None else [n for n, q in QUEUES.items() if q.kind in KINDS_KAPPA]
+    by_queue: dict[str, dict[str, dict]] = {}
+    for row in spi_rows:
+        by_queue.setdefault(row.get("_queue"), {})[row["key"]] = row
+    pairs: list[tuple[str, str]] = []
+    for name in names:
+        p1 = {r["key"]: r for r in queue_members(name) if "key" in r}
+        for key, v in sorted(by_queue.get(name, {}).items()):
+            a = (p1.get(key, {}).get("decision") or "").strip()
+            b = (v.get("decision") or "").strip()
+            if a in HUMAN_LABELS or (name, key) in SPI_BLINDNESS_BREACHES:
+                continue
+            pairs.append((a, b))
+    return pairs
+
+
 def build_namespace() -> dict:
     """Every artifact a claim may derive from. Read-only by construction: plain lists of dicts."""
     spi: list[dict] = []
@@ -106,11 +138,31 @@ def build_namespace() -> dict:
                 for row in _read_jsonl(path):
                     row["_queue"] = qdir.name
                     spi.append(row)
+
+    digest_rows = _read_jsonl(ROOT / "corpus/digestion/digest.jsonl")
+    extraction_rows = _read_csv(ROOT / "corpus/extraction/extraction.csv")
+    applied_path = ROOT / "corpus/spi/APPLIED.json"
+    applied = json.loads(applied_path.read_text(encoding="utf-8")) if applied_path.exists() else {}
+
+    # Post-SPI populations (SMS-V2-CLAIMS-CONTRACT.md §2) — recomputed here the same way
+    # `harvest/verify_claims_spi.py`'s `Universe` class recomputes them independently; the gate
+    # comparing the two is what makes a green mean something (contract §6, I-6).
+    _delta = applied.get("membership_delta", [])
+    _degradadas = {r["key"] for r in _delta if r.get("effect") == "DEGRADED"}
+    _admitidas = {r["key"] for r in _delta if r.get("effect") == "ADD_INCLUIR"}
+    _fusion = {p["from"]: p["into"] for p in applied.get("merged_into", [])}
+    _ident = lambda k: _fusion.get(k, k)  # noqa: E731 — fusionar colapsa identidad, no evidencia (§2)
+    digest_v2 = {_ident(r["key"]) for r in digest_rows
+                if r["key"] not in _degradadas and _ident(r["key"]) not in _degradadas}
+    corpus_v2 = {_ident(k) for k in ({r["key"] for r in extraction_rows} | _admitidas)
+                if k not in _degradadas and _ident(k) not in _degradadas}
+    extraction_v2 = [r for r in extraction_rows if _ident(r["key"]) in corpus_v2]
+
     ns = {
         "sheet_full": _read_csv(ROOT / "corpus/screening/screening_full.csv"),
         "sheet_snowball": _read_csv(ROOT / "corpus/screening/screening_snowball.csv"),
-        "extraction": _read_csv(ROOT / "corpus/extraction/extraction.csv"),
-        "digest": _read_jsonl(ROOT / "corpus/digestion/digest.jsonl"),
+        "extraction": extraction_rows,
+        "digest": digest_rows,
         "corpus": _read_jsonl(ROOT / "corpus/merged/corpus.jsonl"),
         "grey": _read_csv(ROOT / "corpus/grey/manifest.csv"),
         "artifacts": _read_csv(ROOT / "corpus/artifacts.csv"),
@@ -119,6 +171,12 @@ def build_namespace() -> dict:
         "conflicts": _read_csv(ROOT / "corpus/spi/CONFLICTOS.csv"),
         "gmdos": (__import__("yaml").safe_load((ROOT / "sms-v2/gmdos-taxonomy.yml").read_text(encoding="utf-8"))
                   if (ROOT / "sms-v2/gmdos-taxonomy.yml").exists() else []),
+        # post-SPI views (SMS-V2-CLAIMS-CONTRACT.md §2/§3) — `pasada: post` claims derive from these,
+        # never from the raw sheets above.
+        "applied": applied,
+        "digest_v2": digest_v2,
+        "corpus_v2": corpus_v2,
+        "extraction_v2": extraction_v2,
         # helpers
         "Counter": Counter, "defaultdict": defaultdict, "len": len, "set": set, "sorted": sorted,
         "sum": sum, "min": min, "max": max, "round": round, "abs": abs, "int": int, "float": float,
@@ -128,6 +186,7 @@ def build_namespace() -> dict:
         "toks": lambda row, field: [t for t in (row.get(field) or "").replace(",", ";").split(";") if t.strip()],
         "pct": lambda a, b: (100.0 * a / b) if b else 0.0,
         "quoted": _quoted,
+        "spi_pairs": _spi_pairs,
     }
     ns["__builtins__"] = {}  # no import, no open, no exec: a ledger derives, it does not act
     return ns

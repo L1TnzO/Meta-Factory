@@ -224,6 +224,49 @@ contrato está bien hecho.
 > calidad del dato que sostiene el colapso. Un invariante indeleblemente verde es decoración, y en un gate
 > la decoración es peor que nada.
 
+### Sesión 2026-07-27 (c) — fase B CERRADA: los 13 elegibles extraídos+digeridos, dos slots
+
+Dos slots delegados (`generator`), espejo del ciclo probado 49 veces antes ("no reinventar"), cada
+uno con su diente escrito ANTES que la derivación:
+
+| Pieza | Estado | Artefacto / gate |
+| --- | --- | --- |
+| Diente de la ola | ✅ escrito antes, probado de los dos lados (verde sintético · 8 sabotajes rojos vía `git worktree`) | `harvest/verify_spi_wave_b.py` (W-1..W-7) |
+| `make_extraction_sheet.py` extendido ADITIVAMENTE (`add-external`) | ✅ 24/24 tests (20 previos + 4 nuevos) | commit `2b26efe` — e72(6)/e73(6)/e74(1) |
+| `make_digest_sheet.py` extendido ADITIVAMENTE (`add-external`) — `cmd_merge` NO se tocó (ya reconstruye desde todo `d*.verdict.jsonl` en disco) | ✅ 41/41 tests (35 previos + 6 nuevos) | commit `2a84cb6` — d72(6)/d73(6)/d74(1) |
+| Fix del diente: medía contra `HEAD` literal, roto en cuanto la ola cruza más de un commit | ✅ `--base-ref` explícito (defecto `29104ec`, el commit del propio gate) | commit `7562c7c` |
+
+**El bug encontrado, y por qué es interesante.** La ola B es multi-commit por diseño (`commit →
+clear_slot` entre slots, §5). El slot de extracción se commiteó antes de abrir el de digestión —
+correcto, es la disciplina. Pero el diente comparaba contra `HEAD` literal para detectar cambios
+AJENOS: en cuanto el primer commit aterrizó, `HEAD` dejó de significar «el estado antes de la
+ola» para el segundo slot, y su propio veredicto quedó honestamente rojo (`W-6`: «0 filas
+añadidas» cuando las 13 sí estaban, sólo que ya committeadas). **Lo encontró el generator de la
+Slot B verificando POR BLOQUEO, no confiando en su propia prosa** — y el orquestador lo confirmó
+corriendo el gate a mano antes de aceptar nada. Se fijó el punto de referencia (`29104ec`,
+explícito, no "HEAD"): este gate mide UNA transición histórica concreta, no es una herramienta
+reusable entre olas futuras como sí lo son `verify_spi_apply.py`/`verify_claims_spi.py`.
+
+**Autocorrección, la misma trampa que el contrato de claims existe para prevenir.** El mensaje del
+commit `2a84cb6` predijo «`clPostDigest`/`clPostPendientesDigest` deberían recomputar 435/0» — 435
+es `len(digest.jsonl)` CRUDO (422+13), no `digest_v2` (el denominador que el contrato define,
+§2). Medido tras la ola: `digest_v2 = 435 − 8 degradadas − 3 colapsos de fusión = 424`,
+`pendientes = 0` (esto sí, correcto). Es exactamente «filas ≠ estudios» — la trampa #1 del
+`SMS-V2-CLAIMS-CONTRACT.md` §2 — reapareciendo en la prosa de un commit incluso después de
+haberla nombrado por escrito. Queda anotado aquí en vez de amendar el commit (git: nunca reescribir
+historia sin pedirlo).
+
+**Fase B CERRADA.** `verify_spi_wave_b.py -v` → GREEN, los 7 invariantes. `extraction.csv`
+487→500 filas, `digest.jsonl` 422→435 registros. `.gen/spi_wave_b_keys.json` (13/13) sin residuo.
+Dos papers con `RECONSIDERAR` (decisión humana, no re-decidida): `W7124968467` (dudas de
+venue/calidad) y `2511.06179v1` (el propio paper admite cifras "ilustrativas, no de
+benchmarking formal") — llevado a extracción Y digestión, no silenciado.
+
+**Sigue:** D (PLAN-ESTADO por derivación, sin dependencias nuevas) → el slot de `claims.yml`
+(`SMS-V2-CLAIMS-CONTRACT.md`, ya diseñado y con gate — `clPostDigest` debe recomputar **424**, no
+435) → E (§4.7 con κ + denominadores post-SPI) → F (re-propagar). La escritura sigue siendo LO
+ÚLTIMO.
+
 ### Correcciones que esta sesión hizo al leer en vez de contar
 
 Tres afirmaciones heredadas o propias no sobrevivieron a la verificación. Las tres se corrigieron en

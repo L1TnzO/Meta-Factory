@@ -16,9 +16,14 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import json
 import subprocess
 import sys
 from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import closure_law  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent  # research/
 PDF_DIR = ROOT / "corpus/pdf"
@@ -44,6 +49,33 @@ def missing_at_open() -> set[str]:
         for row in csv.DictReader(fh):
             if row.get("pdf_status") != "ok":
                 out.add(row["key"])
+    return out
+
+
+def spi_admitted() -> set[str]:
+    """Second universe (§9.2): studies the SPI ADMITTED where pass 1 had abstained.
+
+    These are INCLUIR rows that by construction never reached extraction.csv, so `missing_at_open()`
+    cannot see them — yet they are exactly the papers whose full text the corpus now needs. The set is
+    derived ONLY from committed verdicts in adjudication queues, never from what is on disk: a universe
+    that shrank as the rescue succeeded would make this gate vacuous on its own second run.
+    """
+    out: set[str] = set()
+    batches = ROOT / "corpus/spi/batches"
+    if not batches.exists():
+        return out
+    for qdir in sorted(p for p in batches.iterdir() if p.is_dir()):
+        if closure_law.QUEUES.get(qdir.name, None) is None:
+            continue
+        if closure_law.QUEUES[qdir.name].kind != closure_law.KIND_ADJUDICACION:
+            continue
+        for f in sorted(qdir.glob("q*.verdict.jsonl")):
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if (row.get("decision") or "").strip() in closure_law.IN_LABELS:
+                    out.add(row["key"])
     return out
 
 
@@ -81,7 +113,7 @@ def main() -> int:
             print(f"RED: {e}")
         return 1
 
-    universe = eligible_keys() & missing_at_open()
+    universe = (eligible_keys() & missing_at_open()) | spi_admitted()
     seen: set[str] = set()
     ok = 0
 

@@ -1,0 +1,17 @@
+key,universe,url,strategy,sha256,bytes,chars
+W4393147158,pass1-includes,https://ojs.aaai.org/index.php/AAAI/article/download/29946/31654,direct,663446cf3fbaef7f1b442e3d69f0191b2b54ec97b4e78ae6dfd3fb9afa3caaba,300791,44769
+W4393147323,pass1-includes,https://ojs.aaai.org/index.php/AAAI/article/download/29376/30598,direct,5e8ff806698a94339acc93f1b87f5216bc87cf237146f1eb525e1c0b14e887d5,1320259,39281
+W4393160747,pass1-includes,https://ojs.aaai.org/index.php/AAAI/article/download/29936/31635,direct,d7988ef3ec1123a66f90c7c510182597d5d960364713bc1703ab60c4b827614f,4330728,52225
+W4393905041,pass1-includes,https://arxiv.org/pdf/2404.00573,unpaywall,f2071f0bd33235d6b2b942d3cfcc27fa565ed7199508e8bee055957afb303ceb,992047,35430
+W4414360988,pass1-includes,https://doi.org/10.24963/ijcai.2025/2,doi_scrape,2a808b6cf0ef4fb3d7e7dd5248f4130119ca221d2ffa0221039ec6d03fa87a75,1508037,44855
+W4416050909,pass1-includes,https://arxiv.org/pdf/2508.15294v1,arxiv,8fe060bb565c19de0c256e2ed4e7dd8bb19875b4f9ec1b46be911822e34c2997,1206232,39610
+W7138363530,pass1-includes,https://ojs.aaai.org/index.php/AAAI/article/download/39773/43734,direct,e31237388325dd2487085f28708893a3da466182c4d3178266789908d9dafc47,1499603,39237
+W7138847904,pass1-includes,https://ojs.aaai.org/index.php/AAAI/article/download/42170/46131,direct,e74e51c6708a10f215ca2d1bd3110da5d356b522b29e0ef69944455fb2a0a893,57003,9790
+W7154711690,pass1-includes,https://ndownloader.figshare.com/files/63811794,figshare,3c365b192ca0784becc4ffc0f4e88131390d650365bf8198e4879b43e1908b31,494302,30269
+W4385573343,spi-admitted,https://doi.org/10.18653/v1/2022.findings-emnlp.276,doi_scrape,7fb427466df8e53236c90a222b13e2249db1dff1589b9d2e47940bab01f4f93b,1509107,67147
+W4402684150,spi-admitted,https://doi.org/10.18653/v1/2024.acl-long.747,doi_scrape,b258c5436f778e05686646a745f270f0b33e31eb7c8268d8c3c651b217667b3a,1498274,76962
+W4411119391,spi-admitted,https://doi.org/10.18653/v1/2025.naacl-long.499,doi_scrape,4defc5e19b3fe4a0f24f0bc633bf0ea2aff6b33c43da02aa2ec77a46ebe4ea21,1758955,68352
+W4411119539,spi-admitted,https://doi.org/10.18653/v1/2025.naacl-long.272,doi_scrape,146c2281257a7809cc64e1fe88fa4c395ac2b17ed02594b55b058e9e7730692a,5345066,72120
+W4411120380,spi-admitted,https://doi.org/10.18653/v1/2025.naacl-long.435,doi_scrape,c7644cc0163a1f9c50f414727e4da39c1fcf1931043adc228932f7a5cda1fc91,6170364,91971
+W4412945530,spi-admitted,https://doi.org/10.18653/v1/2025.acl-long.413,doi_scrape,a84e9c5c400566c24a51c5041a27123a66c03ddc8c286faefd3b5a457ab9a021,723842,77823
+W4416036002,spi-admitted,https://doi.org/10.18653/v1/2025.emnlp-main.1069,doi_scrape,c7fee0df674b671624ee9daab86585dedf4deddaf5119c06cb9f7696a0de3815,1232049,67492

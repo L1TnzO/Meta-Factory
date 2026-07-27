@@ -1,4 +1,4 @@
-# HANDOFF — Cierre del SMS v2: colas, corpus, gris y ESCRITURA (2026-07-24, fase ABIERTA)
+# HANDOFF — Cierre del SMS v2: colas, corpus, gris y ESCRITURA (2026-07-24, fase CERRADA 2026-07-27)
 
 > Para retomar con amnesia total: este doc + §9 del `SMS-V2-PROTOCOL.md` (la ley congelada de esta fase) +
 > bitácora §8 (single-source de números de las fases previas). Ante duda, `git log --oneline -- research/`.
@@ -41,7 +41,7 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 | **C** | ✅ **Literatura gris RQ7** (§9.4) CERRADA **2026-07-24** (checkbox nunca puesto en esta tabla — corregido 2026-07-27 (e), ver abajo) | 11 documentos snapshot (7 Anthropic · 3 OpenAI · 1 Google DeepMind), sha256 verificado, RQ7 ya escrita en `sms-v2.tex` con citas verificadas contra el snapshot | `corpus/grey/manifest.csv` (12 líneas = header+11), namespace `grey` en `verify_sms_claims.py` |
 | **D** | ✅ **PLAN-ESTADO** CERRADA 2026-07-27 | promover la faceta (evidencia `plan_estado=SI` = 71 post-SPI, 14,2× el umbral ≥5) por derivación, sin re-etiquetar las 500 filas | `harvest/derive_plan_estado.py` + `corpus/digestion/PLAN_ESTADO_PROMOTION.json`, gate `verify_plan_estado_promotion.py` GREEN |
 | **E** | 🔄 **Escritura del SMS v2** (§9.5) — capa post-SPI de `claims.yml` CERRADA 2026-07-27 (f); falta la PROSA de §4.7/κ | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) + `verify_claims_spi.py` (I-1..I-8) — ambos GREEN |
-| **F** | **Propagación** (§9.6) | `Anteproyecto_ID.tex` §2.4 + Anexo pasan de 27 estudios a la evidencia v2 | números re-derivados |
+| **F** | ✅ **Propagación** (§9.6) CERRADA 2026-07-27 (g) | `Anteproyecto_ID.tex` §2.4 + Anexo ya usaban macros `\cl...` desde el 24 (nada que reescribir); se copió `claims.tex` fresco y se recompiló | `Anteproyecto_ID.pdf` recompilado, pdftotext confirma 500/435 (no 487/422) en el PDF real |
 
 ## 3. Decisiones de diseño de esta sesión (las que hay que respetar)
 
@@ -356,6 +356,35 @@ degradadas=8 · fusiones=6 · pendientes=0 · bloqueados=18 · κ colapsado=0,89
 radio de este slot (contrato §8). Las cifras ya están citables como macros; falta escribir el
 análisis alrededor de ellas. Eso, y F (propagación al Anteproyecto — mecánica, sigue el mismo patrón
 `\input` ya cableado desde el 24), son lo único que queda de las 6 filas de §2.
+
+### Sesión 2026-07-27 (g) — la prosa de κ y F: las 6 filas de §2 quedan CERRADAS
+
+Dos piezas, ambas escritas/ejecutadas directamente por el orquestador (no delegadas: la primera es
+prosa académica corta con juicio editorial, no un slot de código; la segunda es mecánica sin
+ambigüedad, contract-free).
+
+**El párrafo de κ.** El placeholder `% [PENDIENTE: cifras de acuerdo y κ]` en Metodología
+(`sec:reliability`) se reemplazó por un párrafo que reporta el resultado del procedimiento ya
+descrito ahí mismo (no reargumenta validez — eso ya vive en Amenazas, escrito por el slot de la (f)):
+n=\clFiaN{} (191, nuevo claim — sin él no había cómo citar el denominador sin un dígito suelto), κ
+colapsado=\clFiaKappaColapsado{} (casi perfecto) y κ exacto=\clFiaKappaExacto{} (sustancial), bandas
+de Landis & Koch 1977 ya usadas en `AGREEMENT.md`. Verificado: ambos gates GREEN, recompilado con
+`pdflatex` (TinyTeX, exit 0, 9 páginas) y `pdftotext` sobre el PDF real confirma que los macros
+expandieron a 191/0,895/0,745, no sólo en el `.tex` fuente.
+
+**F — propagación.** Se verificó primero que `Anteproyecto_ID.tex` §2.4/Anexo YA usaba macros
+`\cl...` en vez de cifras a mano (cableado el 24 — "27 estudios" sólo aparece como comparación
+histórica deliberada contra el v1, nunca como cifra del v2). F se redujo entonces a lo mecánico que
+prometía el contrato: copiar `research/sms-v2/claims.tex` → `~/University/Investigación/sms-v2-claims.tex`
+y recompilar. `Anteproyecto_ID.pdf` (15 páginas, exit 0, sin refs indefinidas) ya muestra 500/435 en
+vez de 487/422. `Investigación/` no es repo git (nota heredada del 24) — no hay commit ahí; el
+`.bak-2026-07-24` preexistente sigue siendo el respaldo.
+
+**Las 6 filas de §2 quedan CERRADAS: A · B · C · D · E · F.** Lo que sigue, y que este handoff
+declaró residual desde el principio (§3.1, "lo humano no se falsifica"), son las colas de revisión
+humana de Catalina (131 GRIS/CE-4p + 110 muestra + 11 PRE-OUT + 61 SNOWBALL-GRIS + 98
+SNOWBALL-SAMPLE10 + 33+85 RECONSIDERAR + 7 DUPLICADOS-INCLUIDOS + 113 CONFLICTOS de la SPI) — trabajo
+humano declarado, no una fase de máquina pendiente.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

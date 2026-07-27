@@ -40,7 +40,7 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 | **B** | ✅ **Cierre de corpus** (§9.3) CERRADA 2026-07-27 | rescate + `spi_apply.py` + extracción/digestión de los 13 elegibles, chunks `e72–e74`/`d72–d74` | gates congelados §7.6/§7.4 + `verify_spi_apply.py` + `verify_spi_wave_b.py` — GREEN |
 | **C** | ✅ **Literatura gris RQ7** (§9.4) CERRADA **2026-07-24** (checkbox nunca puesto en esta tabla — corregido 2026-07-27 (e), ver abajo) | 11 documentos snapshot (7 Anthropic · 3 OpenAI · 1 Google DeepMind), sha256 verificado, RQ7 ya escrita en `sms-v2.tex` con citas verificadas contra el snapshot | `corpus/grey/manifest.csv` (12 líneas = header+11), namespace `grey` en `verify_sms_claims.py` |
 | **D** | ✅ **PLAN-ESTADO** CERRADA 2026-07-27 | promover la faceta (evidencia `plan_estado=SI` = 71 post-SPI, 14,2× el umbral ≥5) por derivación, sin re-etiquetar las 500 filas | `harvest/derive_plan_estado.py` + `corpus/digestion/PLAN_ESTADO_PROMOTION.json`, gate `verify_plan_estado_promotion.py` GREEN |
-| **E** | **Escritura del SMS v2** (§9.5) | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) |
+| **E** | 🔄 **Escritura del SMS v2** (§9.5) — capa post-SPI de `claims.yml` CERRADA 2026-07-27 (f); falta la PROSA de §4.7/κ | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) + `verify_claims_spi.py` (I-1..I-8) — ambos GREEN |
 | **F** | **Propagación** (§9.6) | `Anteproyecto_ID.tex` §2.4 + Anexo pasan de 27 estudios a la evidencia v2 | números re-derivados |
 
 ## 3. Decisiones de diseño de esta sesión (las que hay que respetar)
@@ -330,6 +330,32 @@ re-emita) siguen abiertas — y el `sms-v2.tex` de E no se escribe desde cero: y
 Discusión, Amenazas y RQ1–RQ7 en prosa completa desde el 24; lo que falta es la CAPA post-SPI
 (`pasada`, los 14 claims de carga, el placeholder `% [PENDIENTE: κ]` y 3 macros de amenaza), exactamente
 lo que `SMS-V2-CLAIMS-CONTRACT.md` ya acotó.
+
+### Sesión 2026-07-27 (f) — el slot de `claims.yml` (contrato de la (b)): GREEN
+
+Slot delegado (`generator`, `sms-claims-post-spi`), aceptado por verificación, no por prosa: veredicto
+verde → `slot_footprint --live` limpio → **re-corrida independiente de los dos gates por el
+orquestador** (`verify_sms_claims.py --emit` y `verify_claims_spi.py -v`, ambos GREEN de nuevo) →
+lectura del diff (154 claims, 4 archivos, exactamente el radio declarado) → 171/171 tests de
+`harvest/` sin regresión → recompilado `sms-v2.pdf` (9 páginas, exit 0) → commiteado (`205a11e` +
+`c537264`).
+
+| Pieza | Estado | Detalle |
+| --- | --- | --- |
+| `pasada` en los 140 claims preexistentes | ✅ | los 140 sólo tocaban vistas pre-SPI → `flujo1` uniforme, verificado antes de delegar que ninguno tocaba `spi`/`conflicts` |
+| 14 claims de carga nuevos | ✅ | 9 `clPost*` (post) + 5 `clFia*` (spi), aritmética exacta del contrato §2/§4 |
+| κ derivado, no copiado | ✅ | `spi_pairs()` nuevo en `build_namespace()`, espeja `spi_agreement.py` (mismas queues kappa-elegibles de `closure_law.KINDS_KAPPA`, mismas exclusiones de abstención/brecha-de-ceguera) — reproduce **exacto** 0,895/0,745 de `AGREEMENT.md`, sin ningún literal numérico (I-8) |
+| Namespace post-SPI | ✅ | `applied`/`digest_v2`/`corpus_v2`/`extraction_v2`, misma álgebra que la clase `Universe` del gate independiente |
+| Cita de amenazas en el `.tex` | ✅ | 2 párrafos breves dentro de regiones `%%CLAIMS-STRICT` ya existentes (Fiabilidad de la clasificación / Cobertura y sesgo), sólo macros `\cl...`; el placeholder `[PENDIENTE: κ]` de Metodología quedó intacto a propósito |
+
+**Universo post-SPI medido (ahora vivo en el paper):** `digest_v2`=424 · `corpus_v2`=504 ·
+degradadas=8 · fusiones=6 · pendientes=0 · bloqueados=18 · κ colapsado=0,895 · κ exacto=0,745.
+
+**Lo que E todavía NO tiene:** la prosa de verdad de §4.7 (el párrafo que hoy dice
+`% [PENDIENTE: cifras de acuerdo y κ]` en Metodología, `sec:reliability`) — deliberadamente fuera del
+radio de este slot (contrato §8). Las cifras ya están citables como macros; falta escribir el
+análisis alrededor de ellas. Eso, y F (propagación al Anteproyecto — mecánica, sigue el mismo patrón
+`\input` ya cableado desde el 24), son lo único que queda de las 6 filas de §2.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

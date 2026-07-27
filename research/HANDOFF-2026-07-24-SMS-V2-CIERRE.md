@@ -37,8 +37,8 @@ snowball → extracción → digestión, ~20M tokens medidos) no le llega a ning
 | # | Fase | Qué es | Diente |
 | --- | --- | --- | --- |
 | **A** | ✅ **SPI — segunda pasada independiente** (§9.1) CERRADA 2026-07-26 | 534/534 filas en 8 colas; κ colapsado 0,895 (casi perfecto) · κ exacto 0,745 (sustancial), n=191; cola humana 534→113 | `corpus/spi/AGREEMENT.md` + `CONFLICTOS.csv`, gate `verify_spi_verdicts.py` 534/534 |
-| **B** | 🔄 **Cierre de corpus** (§9.3) — ABIERTA 2026-07-27 | rescate hecho (9+7=16 PDFs, procedencia committeada); falta la derivación `spi_apply.py` y luego extracción+digestión de los **14 elegibles** en chunks NUEVOS (`e72+`, `d72+`) | gates congelados §7.6/§7.4 + `verify_spi_apply.py` |
-| **C** | **Literatura gris RQ7** (§9.4) | RQ7 hoy tiene **cero** registros; snapshot inmutable de docs de Anthropic/OpenAI/DeepMind + digest con la lente MF | manifest con sha256 verificado |
+| **B** | ✅ **Cierre de corpus** (§9.3) CERRADA 2026-07-27 | rescate + `spi_apply.py` + extracción/digestión de los 13 elegibles, chunks `e72–e74`/`d72–d74` | gates congelados §7.6/§7.4 + `verify_spi_apply.py` + `verify_spi_wave_b.py` — GREEN |
+| **C** | ✅ **Literatura gris RQ7** (§9.4) CERRADA **2026-07-24** (checkbox nunca puesto en esta tabla — corregido 2026-07-27 (e), ver abajo) | 11 documentos snapshot (7 Anthropic · 3 OpenAI · 1 Google DeepMind), sha256 verificado, RQ7 ya escrita en `sms-v2.tex` con citas verificadas contra el snapshot | `corpus/grey/manifest.csv` (12 líneas = header+11), namespace `grey` en `verify_sms_claims.py` |
 | **D** | ✅ **PLAN-ESTADO** CERRADA 2026-07-27 | promover la faceta (evidencia `plan_estado=SI` = 71 post-SPI, 14,2× el umbral ≥5) por derivación, sin re-etiquetar las 500 filas | `harvest/derive_plan_estado.py` + `corpus/digestion/PLAN_ESTADO_PROMOTION.json`, gate `verify_plan_estado_promotion.py` GREEN |
 | **E** | **Escritura del SMS v2** (§9.5) | `sms-v2/` — claims-as-code + bib generada del corpus + `.tex` + PDF | `verify_sms_claims.py` (5 dientes) |
 | **F** | **Propagación** (§9.6) | `Anteproyecto_ID.tex` §2.4 + Anexo pasan de 27 estudios a la evidencia v2 | números re-derivados |
@@ -297,6 +297,39 @@ estudios, 14,2× el umbral ≥5**. Integridad: las 71 filas digeridas con `plan_
 derivador se niega a escribir el artefacto en vez de publicar un número silenciosamente incompleto).
 
 **Sigue:** el slot de `claims.yml` (E, ya diseñado en la sesión (b) de hoy) → escritura de §4.7 → F.
+
+### Sesión 2026-07-27 (e) — la tabla §2 mentía sobre B y C; corregido leyendo el árbol, no la prosa
+
+Al preparar el slot de E, correr `verify_sms_claims.py --emit` sobre el árbol limpio dio **RED por una
+razón ajena** a todo lo de esta sesión: `gmdos-taxonomy.yml` (la clasificación a mano de las
+refutaciones sobre G-M2, §"Conflicto de interés analítico") no tenía entrada para `W4411119391` —
+uno de los 13 papers que la ola B digirió trae su propia REFUTA sobre G-M2 (Tabla 4: el mejor
+recuperador de embeddings no supera 60-62% Recall@1/@10) y nadie lo había clasificado. Se clasificó
+**MAS-MAQUINARIA** (mide que la similitud pura es insuficiente — la definición encaja sin ambigüedad)
+y se re-emitió: `clMFrefutaGMdos` 23→24, `clGMdosMas` 11→12, y el resto de `claims.tex` se refrescó
+contra los 435 registros de la ola B por primera vez (antes seguía calculado sobre los 422
+pre-ola-B) — ~190 líneas de diffs, todos incrementos pequeños y coherentes con 13 papers nuevos,
+ninguno tocó `pasada` ni las vistas `_v2` (eso es E). Commiteado aparte de E porque es una corrección
+de la ola B, no parte del contrato de claims post-SPI.
+
+**El hallazgo real, más caro que el bug:** al verificar por qué `claims.tex` ya tenía
+`\clGrisDocs{11}` con RQ7 escrita en prosa —cosa que la tabla §2 seguía llamando «no empezada»
+(«RQ7 hoy tiene cero registros»)— resultó que **la fase C (literatura gris) YA ESTABA CERRADA desde
+el 2026-07-24**, la misma sesión que produjo el primer PDF: `corpus/grey/manifest.csv` existe (11
+documentos, sha256), y `sms-v2.tex §RQ7` tiene prosa real con hallazgos, no un placeholder. Nadie le
+puso el ✅ a la fila C de la tabla cuando se cerró — y esta sesión, al leer la prosa vieja de §0/§2 en
+vez de mirar el árbol, heredó la mentira y **se la repitió al ingeniero en la respuesta anterior**
+(«C — Literatura gris RQ7 — NOT STARTED»). Es el mismo error que `verify-residuals-against-code`
+nombra en la memoria de largo plazo del proyecto: un residual/checklist rota si nadie lo re-verifica
+contra el artefacto. La fila B tampoco reflejaba el cierre de la sesión (c) de hoy mismo (seguía
+🔄 ABIERTA). Ambas corregidas arriba, leyendo `corpus/`/`sms-v2.tex` directamente, no la tabla.
+
+**Estado real, ahora sí verificado contra los artefactos:** de las 6 filas de §2, quedan cerradas A ·
+B · C · D. Sólo **E** (claims post-SPI + κ + amenazas) y **F** (propagación, mecánica una vez E
+re-emita) siguen abiertas — y el `sms-v2.tex` de E no se escribe desde cero: ya tiene Resultados,
+Discusión, Amenazas y RQ1–RQ7 en prosa completa desde el 24; lo que falta es la CAPA post-SPI
+(`pasada`, los 14 claims de carga, el placeholder `% [PENDIENTE: κ]` y 3 macros de amenaza), exactamente
+lo que `SMS-V2-CLAIMS-CONTRACT.md` ya acotó.
 
 ### Correcciones que esta sesión hizo al leer en vez de contar
 

@@ -82,6 +82,9 @@
 - key: W4399354028
   direccion: MAS-MAQUINARIA
   evidencia: "Tabla 1: la recuperación puramente semántica falla en consultas por metadato temporal (Recall<8) frente a ~90 del enrutamiento híbrido."
+- key: W4411119391
+  direccion: MAS-MAQUINARIA
+  evidencia: "Tabla 4: el mejor recuperador de embeddings disponible (OpenAI-large) no supera 60-62% Recall@1/@10 -- la similitud pura no es un problema resuelto."
 
 - key: W7119605037
   direccion: CALIDAD

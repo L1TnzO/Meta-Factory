@@ -151,7 +151,7 @@ digeridos, la diferencia es exactamente disponibilidad de PDF); ahora es una reg
 | Universo de rescate para INCLUIR de la SPI | ✅ two-sided (7 PASS · 9 viejos PASS · clave inventada RED) | `harvest/verify_rescue.py::spi_admitted()` |
 | Procedencia de rescates, committeada | ✅ 16 filas re-verificadas por sha256 | `corpus/pdf_rescued.csv` |
 | Rescate de PDFs de los 38 nuevos INCLUIR | ✅ 7 recuperados (de 31 sin texto) | `.gen/rescue/rescued-spi38.csv`, gate verde |
-| Derivación `spi_apply.py` + mezcla de evidencia en AGREEMENT.md | ⬜ **PENDIENTE — slot diseñado, contrato escrito, gate verde esperando** | `SMS-V2-SPI-APPLY-CONTRACT.md` |
+| Derivación `spi_apply.py` + mezcla de evidencia en AGREEMENT.md | ✅ **HECHA** (slot delegado, 2 vueltas) | `corpus/spi/APPLIED.json` · gate `verify_spi_apply.py` · 161/161 tests |
 
 **Números medidos de B** (no estimados): de los **38** INCLUIR que la SPI admitió donde la pasada 1 se
 abstuvo, **0** estaban extraídos y **0** digeridos; 7 tenían texto completo, el rescate consiguió 7 más →
@@ -160,14 +160,33 @@ abstuvo, **0** estaban extraídos y **0** digeridos; 7 tenían texto completo, e
 estar. Nada aguas abajo consume todavía la SPI (`claims.yml` deriva de la pasada 1) y el paper tiene
 literalmente `% [PENDIENTE: cifras de acuerdo y κ]` en `sms-v2.tex:360`.
 
-**Cómo se sigue (el slot está listo, no hay que rediseñarlo).** El contrato completo —esquema de
-`APPLIED.json`, las 4 reglas, los 6 tests exigidos— está en `SMS-V2-SPI-APPLY-CONTRACT.md`. Es trabajo de
-EJECUCIÓN (runbook S2): `claude --model sonnet --agent orchestrator`, re-emitir el manifiesto
-`.gen/active_slot.json` con `allow_globs` = `research/harvest/spi_apply.py` · `test_spi_apply.py` ·
-`spi_agreement.py` · `corpus/spi/APPLIED.json` · `corpus/spi/AGREEMENT.md`, gate rápido
-`verify_spi_apply.py --no-agreement`, gate de aceptación `verify_spi_apply.py && pytest -q harvest/`.
-Después: D (PLAN-ESTADO) → E (§4.7 con κ + denominadores post-SPI) → F (re-propagar). La escritura sigue
-siendo LO ÚLTIMO: B mueve los denominadores.
+**La SPI ya está APLICADA al corpus** (`corpus/spi/APPLIED.json`, una entrada por cada una de las 534 filas —
+el silencio sobre una fila es fallo, no defecto). Efectos: `ADD_INCLUIR` 31 · `ADD_EXCLUIR` 61 ·
+`HUMAN_QUEUE` 130 · `NO_CHANGE` 297 · `DEGRADED` 9 · `MERGED` 6. Mezcla de evidencia medida y publicada:
+**GRIS** full-text 15 · abstract 69 · title-only 47 || **SNOWBALL-GRIS** abstract 28 · title-only 33 (cero
+texto completo).
+
+**El QUINTO sobreclaim, que sólo apareció verificando por bloqueo un verdict VERDE.** La primera
+implementación pasó el gate y era fiel al contrato; al medir SU salida aparecieron **7 estudios ADMITIDOS al
+mapeo con sólo el título a la vista**. Se endureció el gate (RED contra el artefacto ya generado) y se
+corrigió la derivación: `ADD_INCLUIR` + `title-only` es ilegal → `HUMAN_QUEUE` (38 → 31); `ADD_EXCLUIR` +
+`title-only` se mantiene (dirección conservadora: sólo encoge el corpus) pero se PUBLICA
+(`counts.title_only_exclusions = 21`) como amenaza a la validez declarada. **Regla que queda:** admitir por
+título no es una decisión, es una conjetura; excluir por título es conservador pero hay que decirlo.
+
+> Lección de proceso para el harness: un verdict verde acota el riesgo al CONTRATO, no a la realidad. Las
+> dos veces que esta sesión encontró algo, fue midiendo la salida del gate verde, no leyendo el código.
+> Corolario operativo: `baseline_dirty` exime por RUTA, así que un archivo sucio al abrir el slot (aquí el
+> propio gate) queda fuera del diente de footprint mientras dure — se comprobó a mano (`git diff`) que el
+> gate contiene sólo las 20 líneas del orquestador. Mejor: abrir el slot con el árbol limpio.
+
+**Cómo se sigue.** Queda de B: extracción+digestión de los **13 elegibles** en chunks nuevos (`e72+`,
+`d72+`) con los gates congelados §7.6/§7.4 — 18 `ADD_INCLUIR` más quedan bloqueados por falta de texto
+completo y **no deben** entrar al digest. Luego D (PLAN-ESTADO por derivación) → E (§4.7 con κ +
+denominadores post-SPI, y `claims.yml` debe pasar a derivar de `APPLIED.json`, hoy deriva sólo de la pasada
+1) → F (re-propagar). La escritura sigue siendo LO ÚLTIMO: B mueve los denominadores. Los 9 DEGRADAR siguen
+dentro de `digest.jsonl` a propósito (§3.3, se registran, no se borran): quien escriba E debe restarlos por
+derivación desde `APPLIED.json`, nunca editando el digest.
 
 > Un corte por límite de cuenta mató el spawn del generador con **cero** trabajo perdido (ni veredicto ni
 > archivos a medias). El diseño «el diente y el contrato primero, el bulk después» hace que la interrupción

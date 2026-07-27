@@ -22,6 +22,17 @@ guessing; import `closure_law` for the vocabulary exactly as the gate does.
 
 A row whose SPI decision is in `closure_law.HUMAN_LABELS` is **always** `HUMAN_QUEUE`, never an `ADD_*`.
 
+**AMENDMENT 2026-07-27 (a title is not an evidence anchor).** Measuring the first implementation showed 7
+studies being ADMITTED to the mapping on their title alone (all from `SNOWBALL-GRIS`, the queue with zero
+full text) and 21 excluded the same way. `closure_law.EVIDENCE_ANCHORS` requires a decision to be anchored
+in the study's own text, so:
+
+- an `ADD_INCLUIR` whose `evidence_grade` is `title-only` is **illegal** → emit `HUMAN_QUEUE` instead
+  (reason must say so). An inclusion nobody could anchor is not a decision, it is a guess.
+- an `ADD_EXCLUIR` whose grade is `title-only` **stays** (it only ever shrinks the corpus, the conservative
+  direction) but must be counted: add `counts.title_only_exclusions` = that number (expect 21, derive it).
+  It becomes a declared threat to validity in the paper, not a silent one.
+
 ## 2. Evidence grade — MEASURED, never assumed
 
 For every one of the 534 rows, derive what the second reader actually had in front of it, from that row's

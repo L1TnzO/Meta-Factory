@@ -29,25 +29,35 @@
       "parent": "N-0002",
       "title": "Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/16-catalogs.md",
+        "spec_doc_check --mode catalogs:PASS",
+        "sabotage:red"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T03:56Z"
     },
     "N-0004": {
       "parent": "N-0002",
       "title": "Write 17-golden-example: the dummy factory end-to-end, spec to pin",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/17-golden-example.md",
+        "spec_doc_check --mode golden:PASS",
+        "dummy pin reproduces"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T03:56Z"
     },
     "N-0005": {
       "parent": "N-0002",
@@ -725,6 +735,32 @@
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
+      }
+    },
+    "N-0057": {
+      "parent": "N-0024",
+      "title": "The docs gate has NO red-side witness: no synthetic negative wired into docs_manifest.check() — the detector's own correctness is unproven",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "gate:docs:no-witness"
+      }
+    },
+    "N-0058": {
+      "parent": "N-0024",
+      "title": "The projection gate has NO red-side witness: no synthetic stale-block fixture; it only evaluates the real STATE.md",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "gate:projection:no-witness"
       }
     }
   }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f02896378a6323a437da8fc2f1b80519c412422d updated=2026-07-28T03:38Z -->
+<!-- meta:doc sha=2e72bd81a4d350da38f8cdc706fc5fc712a22493 updated=2026-07-28T03:56Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
@@ -42,8 +42,6 @@ sea DECIDIBLE por un gate, no por lectura.
 ```
 [ ] N-0001  v3: rebuild Meta-Factory on the Agent SDK — Claude Code as ENGINE, not container
   [ ] N-0002  Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)
-    [ ] N-0003  Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness
-    [ ] N-0004  Write 17-golden-example: the dummy factory end-to-end, spec to pin
     [ ] N-0006  spec-impl block: sequence/DAG ordering + transparent deferral + gate law
     [ ] N-0007  spec-impl block: slot footprint law + verdict_ok
     [ ] N-0008  spec-impl block: RTM derivation (requirement to capability to station to artifact)
@@ -72,6 +70,8 @@ sea DECIDIBLE por un gate, no por lectura.
     [ ] N-0029  Product trees are not hermetic: 47MB untracked zip, 804MB dataset inside generated trees
     [ ] N-0030  Vacuous-true (N/A) gate branches are not counted separately from real greens
     [ ] N-0031  activation: optional is dead vocabulary — declared in schema and a stale comment, never enforced
+    [ ] N-0057  The docs gate has NO red-side witness: no synthetic negative wired into docs_manifest.check() — the detector's own correctness is unproven
+    [ ] N-0058  The projection gate has NO red-side witness: no synthetic stale-block fixture; it only evaluates the real STATE.md
   [ ] N-0032  Post-cutover agenda (ADD items A-1..A-9)
     [ ] N-0033  A-1 context meter via get_context_usage — closes the ADR-019 section-6 escape threshold
     [ ] N-0034  A-2 iteration metrics: retries, red-to-green cycles, repeated failures (the 11.5 percent gap)
@@ -82,7 +82,7 @@ sea DECIDIBLE por un gate, no por lectura.
   [ ] N-0044  Leaked work found by the FIRST run of plan_capture (2026-07-28)
     [ ] N-0045  Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p
     [ ] N-0053  88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form
-TOTALS open=42 done=7 dropped=7 nodes=56
+TOTALS open=42 done=9 dropped=7 nodes=58
 ```
 <!-- /plan:handoff -->
 

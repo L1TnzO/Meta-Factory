@@ -72,6 +72,8 @@
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
+| `docs/spec/16-catalogs.md` | `482ea8a31415` | 2026-07-28T03:56Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
+| `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
 | `docs/spec/18-rationale.md` | `f5db690a55d2` | 2026-07-28T03:38Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
@@ -182,7 +184,7 @@
 | `docs/work/SLOT-FOOTPRINT-TOOTH-INCREMENT.md` | `e4ff08e4d5ae` | 2026-07-11T17:43Z | Incremento SLOT-FOOTPRINT-TOOTH |
 | `docs/work/SOTA-PARITY-DIRECTION-INCREMENT.md` | `f7fa25efe194` | 2026-07-11T14:48Z | Incremento SOTA-PARITY-DIRECTION |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
-| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `f02896378a63` | 2026-07-28T03:38Z | Incremento SPEC-RECONSTRUCTABLE |
+| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `2e72bd81a4d3` | 2026-07-28T03:56Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `3594db038423` | 2026-07-28T17:30Z | State — Meta-Factory |
+| `docs/STATE.md` | `6d6102691f12` | 2026-07-28T17:43Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -190,6 +190,6 @@
 | `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `727a16756e80` | 2026-07-28T16:16Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |
-| `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `f0f5beb5dd9c` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
+| `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

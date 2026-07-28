@@ -1,7 +1,7 @@
-<!-- meta:doc sha=f0f5beb5dd9c1df31aac458b9f9dfe94c44e4265 updated=2026-07-28T17:43Z -->
+<!-- meta:doc sha=ec8e517b6d99752b8cc9e19410f8f82c93c0c4ca updated=2026-07-28T17:43Z -->
 # Incremento V3-INC1-KERNEL-PORT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T17:30Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-28T17:43Z) (creado 2026-07-28T17:30Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031` (Approved) · spec `docs/spec/14-kernel-reference.md` (el kernel normativo) +

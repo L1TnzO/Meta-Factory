@@ -188,6 +188,37 @@ def run_plan_suite(ns: dict) -> list[str]:
         ns["structure_problems"](cyc)
     except RecursionError:
         fail.append("CONF-P7: a cyclic plan must be REPORTED, never hang or overflow")
+
+    # CONF-P8 — the handoff projection is pure, deterministic and pointer-shaped.
+    if not callable(ns.get("render_handoff")):
+        fail.append("CONF-P8: spec does not define a callable `render_handoff`")
+    else:
+        r1, r2 = ns["render_handoff"](t, "R"), ns["render_handoff"](t, "R")
+        if r1 != r2:
+            fail.append("CONF-P8: the projection must be deterministic (two renders differ)")
+        listed = [m.group(1) for m in
+                  (re.match(r"\[.\]\s+(\S+)", ln.strip()) for ln in r1.splitlines()) if m]
+        if "B1" not in listed or "B" not in listed:
+            fail.append(f"CONF-P8: the projection must list the arc's open nodes, listed={listed}")
+        if "A" in listed:
+            fail.append("CONF-P8: a DONE node must not appear in the open projection")
+        # tree order, not id order: a rendered child must FOLLOW its rendered parent immediately.
+        deep = {"R": {"parent": None, "title": "r", "kind": "direction", "state": "open",
+                      "origin": {"cause": "manual"}},
+                "Z": {"parent": "R", "title": "z", "kind": "task", "state": "open",
+                      "origin": {"cause": "manual"}},
+                "Y": {"parent": "Z", "title": "y", "kind": "task", "state": "open",
+                      "origin": {"cause": "manual"}},
+                "M": {"parent": "R", "title": "m", "kind": "task", "state": "open",
+                      "origin": {"cause": "manual"}}}
+        order = [m.group(1) for m in
+                 (re.match(r"\[.\]\s+(\S+)", ln.strip()) for ln in
+                  ns["render_handoff"](deep, "R").splitlines()) if m]
+        if order != ["R", "M", "Z", "Y"]:
+            fail.append(f"CONF-P8: projection must be DEPTH-FIRST in tree order, got {order}")
+        if ns["render_handoff"](t, "R") == ns["render_handoff"](
+                {**t, "B1": dict(t["B1"], state="done", evidence=["e"])}, "R"):
+            fail.append("CONF-P8: closing a node must change the projection")
     return fail
 
 
@@ -249,7 +280,7 @@ def main(argv: list[str]) -> int:
         return 1
     print("VERDICT    spec-conformance — PASS   (exit 0)")
     print(f"SUMMARY    kernel rebuilt from {len(files)} spec file(s); "
-          f"{len(vectors)} pin-anchored vector(s) reproduce; 13 conformance checks green (kernel + plan)")
+          f"{len(vectors)} pin-anchored vector(s) reproduce; 14 conformance checks green (kernel + plan)")
     print(f"ARTIFACT   {SPEC_DIR}/ (blocks: {', '.join(sorted(set(files)))})")
     return 0
 

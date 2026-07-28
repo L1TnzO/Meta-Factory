@@ -209,6 +209,17 @@ def cmd_metrics(a, ns, nodes) -> int:
     return 0
 
 
+def cmd_handoff(a, ns, nodes) -> int:
+    """Print the NORMATIVE handoff projection, ready to paste inside a `plan:handoff` block."""
+    root = a.root
+    print(f"<!-- plan:handoff{f' root={root}' if root else ''} -->")
+    print("```")
+    print(ns["render_handoff"](nodes, root))
+    print("```")
+    print("<!-- /plan:handoff -->")
+    return 0
+
+
 def cmd_check(a, ns, nodes) -> int:
     problems = ns["plan_problems"](nodes)
     if problems:
@@ -241,6 +252,7 @@ def main(argv: list[str]) -> int:
     s.set_defaults(func=cmd_block)
     s = sub.add_parser("reopen"); s.add_argument("id"); s.set_defaults(func=cmd_reopen)
     s = sub.add_parser("metrics"); s.add_argument("--root"); s.set_defaults(func=cmd_metrics)
+    s = sub.add_parser("handoff"); s.add_argument("--root"); s.set_defaults(func=cmd_handoff)
     sub.add_parser("check").set_defaults(func=cmd_check, root=None)
     a = p.parse_args(argv)
     return a.func(a, algebra(), load())

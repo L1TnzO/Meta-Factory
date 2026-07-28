@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b2c9374e6b86f6f2c4f15165516ff1978fba3971 updated=2026-07-28T03:32Z -->
+<!-- meta:doc sha=093d9ae9bc2add0d0fb054d52c87697c18882304 updated=2026-07-28T03:36Z -->
 # 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE)
 
 > The engineer's diagnosis, recorded verbatim because it is the requirement: *"a lo largo de los
@@ -210,6 +210,52 @@ def ancestry(plan: dict, nid: str) -> list[str]:
         chain.append(cur)
         cur = plan[cur].get("parent")
     return list(reversed(chain))
+
+
+def render_handoff(plan: dict, root: str | None = None) -> str:
+    """The NORMATIVE handoff projection (§7): what is open, with structure, derived from the tree.
+
+    Pure and deterministic — no clock, no counter, no ordering that depends on insertion. Both the
+    generator and the checker call THIS, so a handoff cannot disagree with the plan: if it does, the
+    `handoff_derived` gate goes red.
+
+    Deliberately POINTERS, not content: ids and one-line titles. A reader who needs the body opens
+    the node. Content-shaped handoff is what 296 of 301 studies do and is exactly what decayed
+    across sessions here (§2).
+    """
+    mark = {"open": "[ ]", "blocked": "[~]", "done": "[x]", "dropped": "[-]"}
+    lines: list[str] = []
+    if root is not None and root in plan:
+        lines.append(f"ROOT {root}  {plan[root].get('title', '')}")
+    shown = set(open_set(plan, root))
+
+    def walk(nid: str, depth: int) -> None:
+        """DEPTH-FIRST, in tree order — indentation must mean parentage and nothing else.
+
+        Rendering the open set sorted by id and indenting by ancestry depth LOOKS the same and is a
+        lie: a node appears under whichever node happens to precede it by id, implying a parent it
+        does not have. Found while reading the first real projection of this very increment.
+        """
+        nxt = depth
+        if nid in shown:
+            node = plan[nid]
+            line = f"{'  ' * depth}{mark.get(node.get('state'), '[?]')} {nid}  {node.get('title', '')}"
+            if node.get("state") == "blocked":
+                line += f"   (unblocks when: {node.get('trigger')})"
+            lines.append(line)
+            nxt = depth + 1
+        for child in children_of(plan, nid):
+            walk(child, nxt)
+
+    for r in ([root] if root is not None else
+              sorted(k for k, n in plan.items() if n.get("parent") is None)):
+        if r in plan:
+            walk(r, 0)
+    total = len(plan)
+    done = len([n for n in plan.values() if n.get("state") == "done"])
+    dropped = len([n for n in plan.values() if n.get("state") == "dropped"])
+    lines.append(f"TOTALS open={len(open_set(plan, root))} done={done} dropped={dropped} nodes={total}")
+    return "\n".join(lines)
 
 
 def capture_problems(plan: dict, declared: list[dict]) -> list[str]:

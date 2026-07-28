@@ -698,13 +698,18 @@
       "parent": "N-0038",
       "title": "handoff_derived tooth: a handoff's open-set section must equal the tree projection",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "tools/handoff_check.py",
+        "CONF-P8:green",
+        "sabotage:red"
+      ],
       "opened_at": "2026-07-28T03:31Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T03:36Z"
     }
   }
 }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=29ce9a01469477e0dff55ffc9dcd9c68c59a6382 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=717221b982d038020f03c05f05aa6d3aecdc5d4b updated=2026-07-28T02:47Z -->
 # 10 — Target architecture on the Claude Agent SDK (JUDGMENT)
 
 > **Version pin.** Every symbol below was read from the `claude-agent-sdk` **0.2.128** wheel on
@@ -10,6 +10,85 @@
 > (`_internal/transport/subprocess_cli.py`). "In-process" below therefore means *inside the Python host
 > process that owns the control plane* — hook callbacks, tool functions and permission callbacks are
 > Python functions in our process, not one fresh OS process per hook invocation as today.
+
+## 0. The inversion: Claude Code becomes an ENGINE, not the container
+
+This is the architectural decision that orders everything else in this file, and it is a change of
+*host*, not of library.
+
+**Today, Claude Code is the host.** The session IS the program. The loop belongs to someone else, and
+we inject determinism into it from the inside: hooks intercept tool calls, a `Stop` hook refuses to
+let the turn end, a settings file wires it all together. Everything the system knows how to do is
+expressed as a constraint on a conversation.
+
+**In v3, our program is the host.** A deterministic Python orchestrator owns the loop, the state
+machine, the gates and the persistence. It calls the model as a **bounded function** at the points
+where probabilism is actually needed — generate this artifact, evaluate this surface — and advances
+only when a gate exits 0. Claude Code is the engine behind that call.
+
+| | Today (Claude Code as host) | v3 (Claude Code as engine) |
+| --- | --- | --- |
+| Who owns the loop | the CLI's conversation loop | our state machine over stations and slots |
+| Unit of work | a session / a turn | a station, and inside it a slot |
+| Where state lives | the transcript (parsed) | our artifacts: `.proof/`, pins, ledger, session store |
+| Enforcement | interception (hooks deny) | **abstention**: the orchestrator simply does not call the model outside a defined point, and does not accept what a gate has not passed |
+| On failure | the agent decides what to do next | the state machine decides: retry ≤N, escalate, or abort — as code, identically every time |
+| What is deterministic | the checks | the checks **and the plan**: which calls happen, in what order, with what budget |
+| Reproducibility | a transcript you can read | a run you can re-execute, whose only non-deterministic parts are the leaves |
+| Headless / CI | awkward (a terminal wrapped in automation) | native (it is a Python program) |
+
+### 0.1 The shape of the loop
+
+```python
+# illustrative, not normative — the normative kernel is §14
+async def run_station(station, ctx) -> Proof:
+    for slot in station.slots:                       # deterministic: the plan is data
+        for attempt in range(slot.max_attempts):     # deterministic: the retry policy is code
+            await generate(slot, ctx)                # ← the ONLY probabilistic step
+            code = run(slot.iteration_gate_cmd)      # deterministic: a real process, a real exit code
+            if code == 0:
+                break
+            ctx.record_failure(slot, attempt, code)  # deterministic: iteration metrics, for free
+        else:
+            return ctx.abort(station, slot)          # deterministic: no "the agent gave up"
+    checks = [run(c) for c in station.checks]        # evidence: subprocesses, exit codes
+    return write_proof(station.id, checks)           # kernel: passed + proof_sha (§14)
+```
+
+Read what that buys, because it is not cosmetic:
+
+1. **Probabilism is confined to leaves.** Everything outside `generate()` is ordinary code with
+   ordinary tests. The system stops being "an agent that hopefully follows the rules" and becomes a
+   program that calls an agent.
+2. **I-3 finally sits at the right layer.** The invariant says determinism lives in the *process*,
+   the *verification* and the *contracts* — never in the generated content. Today that invariant is
+   implemented *inside* a loop we do not own. After the inversion, the process IS our program.
+3. **The retry policy stops being a suggestion.** "≤2 retries then escalate" is a `for` loop, not a
+   sentence in a Markdown file that a model may or may not honour.
+4. **Iteration metrics fall out for free** (§09.4 A-2): attempts, red→green transitions and repeated
+   failures are loop variables, not something to reconstruct from a transcript afterwards.
+5. **Budget and routing become arguments.** `model`, `effort`, `max_budget_usd`, `max_turns` are
+   parameters of the call the orchestrator is about to make — enforceable per slot, per station, per
+   run (§10.7).
+6. **Hooks are demoted, not deleted.** They stop being the primary enforcement and become
+   defence-in-depth *inside* a leaf: while the model is generating, the blast radius still constrains
+   what it may write. The primary enforcement moves to a stronger place — the orchestrator does not
+   accept an artifact that no gate has passed, regardless of what happened during generation.
+
+### 0.2 What the inversion does NOT give us
+
+Stated plainly, because overselling this would be the same sin the project outlaws elsewhere:
+
+- **It does not make generation deterministic.** The leaf is still a model. We get determinism of
+  *process*, not of *content* — which is exactly what I-3 asks for and all it asks for.
+- **It does not remove the subprocess.** The Python SDK still drives the `claude` CLI as a child
+  process. "In-process" always means *in our host process*, never "no process boundary at all".
+- **It does not make the human unnecessary.** The irreducible residue of §04.7 — semantic no-ops,
+  security bugs, hallucinated packages, ambiguous specs — is untouched by any of this.
+- **It removes an escape hatch we currently rely on.** Inside Claude Code an operator can improvise:
+  notice something odd and go look. A headless state machine cannot improvise. That capability must
+  be re-created deliberately — an interactive mode that attaches to the same orchestrator — or the
+  system becomes rigid. Do not discover this after the cutover.
 
 ## 1. The dividing line
 

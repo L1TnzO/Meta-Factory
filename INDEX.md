@@ -56,7 +56,7 @@
 | `docs/reference/REGEN-AUDIT.md` | `a7b554af2685` | 2026-07-11T16:16Z | REGEN-AUDIT — what the Meta-Factory generates vs the original ASF (mine of increments) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
-| `docs/spec/00-README.md` | `53f5f54ada09` | 2026-07-27T21:41Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
+| `docs/spec/00-README.md` | `91cd707da427` | 2026-07-28T02:47Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
 | `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
 | `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
@@ -66,8 +66,8 @@
 | `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
-| `docs/spec/10-target-sdk.md` | `29ce9a014694` | 2026-07-27T21:41Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
-| `docs/spec/11-build-plan.md` | `d551863d58c3` | 2026-07-27T21:41Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/10-target-sdk.md` | `717221b982d0` | 2026-07-28T02:47Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `be16c2a9884c` | 2026-07-28T02:47Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `3ae81d285866` | 2026-07-28T02:44Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/14-kernel-reference.md` | `9cb3a0e3c001` | 2026-07-28T02:44Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |

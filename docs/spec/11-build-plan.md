@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d551863d58c3c34e53c39ec20855572e642d5e88 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=be16c2a9884cc814ddce93c3b5fcebc62fddf3a0 updated=2026-07-28T02:47Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -83,6 +83,19 @@ gate is ported unchanged, so piercing them still requires a written waiver.
 | The rebuild becomes a second system that never lands | the plan has NO increment that improves anything before INC-11. New capability (A-1..A-9) lands only after cutover, except where it is free (the context meter rides INC-6) |
 | Parity accepted on a hollow re-implementation | P2 (§11.2): the red sides are re-run, never assumed |
 | Cost of the rebuild itself | INC-1, INC-4, INC-5, INC-7, INC-8 are gate-rich and delegable as slots (S2 sessions, Sonnet). INC-0, INC-2, INC-3 are COLUMN — trust-chain, written and reviewed with one's own eyes, never delegated |
+
+## 5bis. Two amendments from the inversion (§10.0)
+
+1. **INC-2 changes nature.** It is no longer "port the hooks to the SDK"; it is **write the host** —
+   the deterministic state machine that owns the loop and calls the model as a bounded function. The
+   hooks become defence-in-depth inside a generation leaf. Its gate is unchanged and is still the
+   go/no-go of the whole plan: a tampered proof must be refused by the wired enforcement.
+2. **A new increment is required, and it is not optional.** `INC-12 INTERACTIVE-MODE`: an attach mode
+   that drives the same orchestrator from a conversation. The inversion removes an escape hatch we
+   currently rely on — inside Claude Code an operator can notice something odd and go look; a headless
+   state machine cannot improvise. Rebuilding that capability deliberately is cheaper than discovering
+   its absence after cutover. Gate: the same station, run headless and run attached, produces the same
+   pin.
 
 ## 6. Definition of done
 

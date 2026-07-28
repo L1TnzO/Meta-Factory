@@ -1,4 +1,4 @@
-<!-- meta:doc sha=53f5f54ada09a07b2b587be6c21c3612654fdfc8 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=91cd707da427e6572d463a049a579b105cd2b96a updated=2026-07-28T02:47Z -->
 # SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK
 
 > type: reference (stable) · authored 2026-07-27T21:28Z · language: English (new technical artifacts, ADR-026)
@@ -41,8 +41,31 @@ rebuild, when it starts, opens its own arc under `docs/work/` through `meta incr
 | 09 | `09-critique.md` | **judgment** | you decide what to keep, kill, and add |
 | 10 | `10-target-sdk.md` | **judgment** | you design the v3 control plane |
 | 11 | `11-build-plan.md` | **judgment** | you execute the rebuild |
+| 12 | `12-conformance.md` | **normative** | you want to know whether this folder is SUFFICIENT, and how that is decided |
+| 13 | `13-schemas.md` | descriptive | you implement any artifact the system reads or writes |
+| 14 | `14-kernel-reference.md` | **normative, executable** | you implement the trust kernel — this file IS the kernel |
+| — | `fixtures/` | data | the golden vectors the conformance suite runs against |
 
 A reader with 10 minutes reads `02` and `09`. A reader with an hour reads `02`, `09`, `10`, `11`.
+A reader who intends to REBUILD reads `12` first, then `14`, `13`, `02`, then the rest.
+
+## 1bis. The sufficiency claim, and how it is decided
+
+The goal of this folder is not to describe the system well. It is to be **sufficient**: someone with
+these documents and nothing else — no `src/`, no factories, no conversation with the author — must be
+able to rebuild a provably equivalent system. `12-conformance.md` turns that normally unfalsifiable
+claim into a gate, on three levels:
+
+| Level | Claim | Status today |
+| --- | --- | --- |
+| **L1 kernel** | the trust kernel is rebuilt FROM `14-kernel-reference.md` and reproduces 84 pin-anchored golden vectors; it must also go RED under sabotage | ✅ green |
+| **L2 schemas** | every key of every real artifact is documented; a phantom key must fail the gate | 🟡 in progress |
+| **L3 system** | an implementation built without reading `src/` passes the whole suite and re-derives the committed pins | ⛔ open until v3 exists |
+
+```bash
+python3 tools/spec_conformance.py     # L1 — and its sabotage side
+python3 tools/spec_schema_cover.py    # L2 — and its phantom-key side
+```
 
 ## 2. The system in five sentences
 
@@ -72,6 +95,16 @@ re-derivation affordable to operate over months.
 > symbol table against the installed version and fails loudly if a name moved (§11.2, INC-0).
 
 ## 4. The one-paragraph thesis of the rebuild
+
+**The inversion first (§10.0).** Today Claude Code is the *host*: the session is the program, and we
+inject determinism into someone else's loop through hooks. In v3 our program is the host — a
+deterministic state machine owns the loop, the gates and the persistence, and calls the model as a
+bounded function at the points where probabilism is actually needed. **Claude Code becomes the engine
+behind that call, not the container of everything.** Probabilism is confined to the leaves; the plan,
+the retry policy, the budget and the acceptance become ordinary code with ordinary tests. That is
+invariant I-3 — *determinism in the process, never in the generated content* — finally implemented at
+the layer where it belongs.
+
 
 The current implementation is correct and is proven correct, but its **control plane** is made of
 subprocesses, copied files and text parsing: 12 hooks are separate Python processes wired by a JSON

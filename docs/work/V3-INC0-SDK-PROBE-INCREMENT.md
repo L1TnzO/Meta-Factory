@@ -1,7 +1,7 @@
-<!-- meta:doc sha=746a2bd811895d93b31afd6bd92f592f59f83162 updated=2026-07-28T17:28Z -->
+<!-- meta:doc sha=f51244342e6d5b504a0a1b217f7fd837e64ee0c7 updated=2026-07-28T17:28Z -->
 # Incremento V3-INC0-SDK-PROBE
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T16:27Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-28T17:28Z) (creado 2026-07-28T16:27Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031` (Approved 2026-07-28) · spec `docs/spec/10-target-sdk.md §11` + `11-build-plan.md`

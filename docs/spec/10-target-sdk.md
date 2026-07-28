@@ -1,4 +1,4 @@
-<!-- meta:doc sha=717221b982d038020f03c05f05aa6d3aecdc5d4b updated=2026-07-28T02:47Z -->
+<!-- meta:doc sha=c2ab9d5a89dd5cea6755ef620e0f5f5eb9bd2896 updated=2026-07-28T17:30Z -->
 # 10 — Target architecture on the Claude Agent SDK (JUDGMENT)
 
 > **Version pin.** Every symbol below was read from the `claude-agent-sdk` **0.2.128** wheel on
@@ -207,6 +207,24 @@ options object launches which agent*, plus the hook's own guard on the slot mani
 already behaves (`blast_radius` is inert without a manifest). Keep the inert-without-manifest property:
 it is what makes the hook safe to install globally.
 
+> **MEASURED 2026-07-28 (INC-0), and it amends this section.** Three facts this file did not record,
+> each with a live run behind it (`v3/behaviour_facts.json`, `v3/subagent_facts.json`):
+>
+> 1. **A parent hook DOES fire for a subagent's tool calls**, and the input carries `agent_type` plus a
+>    per-invocation `agent_id` — on *every* `PreToolUse`, not only at `SubagentStart`. It can also
+>    **deny** that subagent's write. This answers §11's blocking question and it is stronger than this
+>    section assumed: the slot binding can be re-checked at each write rather than trusted from spawn.
+> 2. **`can_use_tool` requires STREAMING mode.** A `str` prompt raises `ValueError`. The second layer
+>    therefore constrains the SHAPE of every call the host makes: prompts are `AsyncIterable[dict]`.
+> 3. **A broad `allowed_tools` entry SHADOWS `can_use_tool`** — the SDK warns about it — auto-approving
+>    a tool before the callback runs; settings-file allow rules shadow it too, and *are not visible to
+>    the warning*. The column must never combine a broad `allowed_tools` with the permission layer.
+>
+> And one NEGATIVE result that this section must not paper over: **`can_use_tool` was never invoked in
+> five configurations** (default · `acceptEdits` · `plan` · `allowed_tools=[]` · no mode), and the write
+> went through. Treat "two independent layers" as ONE measured layer plus an unproven one (`N-0070`)
+> until a configuration is found that fires it. The hook layer is the one demonstrated to enforce.
+
 ## 5. Roles become data
 
 ```python
@@ -260,7 +278,7 @@ then carries its own expiry meter — which is the honest form of "discarded by 
 | "thinking high only in S1" | `thinking: ThinkingConfig` / `max_thinking_tokens` per class |
 | "$/increment target" | **`max_budget_usd`** on the options; `TaskBudget{total:int}` makes the model aware of its remaining budget so it paces itself |
 | cost measured by transcript parsing | `ResultMessage.total_cost_usd · usage · model_usage · num_turns · permission_denials · terminal_reason`; per-subagent `TaskUsage{total_tokens, tool_uses, duration_ms}` |
-| delegation share scraped from tool names | `TaskStarted/TaskProgress/TaskNotification` messages + `list_subagents()` / `get_subagent_messages()` |
+| delegation share scraped from tool names | `TaskStarted/TaskProgress/TaskNotification` messages + `list_subagents()` / `get_subagent_messages()` — **module-level functions, NOT methods of `ClaudeSDKClient`** (measured 2026-07-28; the client carries no subagent accessor at all). There are also `list_subagents_from_store` / `get_subagent_messages_from_store`: subagent history is readable from a PERSISTED store, not only from a live session — which is what lets INC-6 derive the economy from typed usage after the fact instead of during it |
 | compaction incidents counted by hand | `PreCompact` hook + `include_hook_events=True` |
 
 The KPI that has been red for months (Opus share 86 % vs a ≤35 % target) becomes a runtime constraint

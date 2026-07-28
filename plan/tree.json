@@ -941,66 +941,77 @@
       "parent": "N-0012",
       "title": "§10.7 corregido por medición: list_subagents/get_subagent_messages son funciones de módulo, NO métodos de ClaudeSDKClient; y existen variantes _from_store (historia de subagentes desde almacén persistido) que §10 no registra",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/probe/claims.py C-21/C-21b/C-21c/C-21d ya corregidas y verdes"
+      ],
       "opened_at": "2026-07-28T16:42Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/probe/claims.py"
-      }
+      },
+      "closed_at": "2026-07-28T17:29Z"
     },
     "N-0070": {
       "parent": "N-0012",
       "title": "can_use_tool NUNCA se invocó en 5 configuraciones (default/acceptEdits/plan/allowed_tools vacío) y el write pasó: §10.4/§10.8 presentan 'dos capas independientes' pero medimos UNA. INC-2 no puede apoyarse en la segunda hasta hallar la configuración que la dispara",
       "kind": "question",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
-      }
+      },
+      "trigger": "INC-2 escribe control/permissions.py: ahi se busca la configuracion que dispara can_use_tool, o se acepta UNA capa y se documenta"
     },
     "N-0071": {
       "parent": "N-0012",
       "title": "can_use_tool exige modo STREAMING: un prompt str lanza ValueError. §10.4 no registra que la capa condiciona la FORMA de toda llamada del host",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 2 — can_use_tool exige streaming, el prompt es AsyncIterable[dict]"
+      ],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
-      }
+      },
+      "closed_at": "2026-07-28T17:29Z"
     },
     "N-0072": {
       "parent": "N-0012",
       "title": "allowed_tools que permite una herramienta entera la auto-aprueba ANTES de can_use_tool (aviso del propio SDK); reglas de settings también eclipsan y no son visibles. La columna v3 no debe combinar allowed_tools amplio con la capa de permiso",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 3 — allowed_tools amplio eclipsa la capa de permiso; la columna no debe combinarlos"
+      ],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
-      }
+      },
+      "closed_at": "2026-07-28T17:29Z"
     },
     "N-0073": {
       "parent": "N-0012",
       "title": "MEDIDO: un deny es por HERRAMIENTA, no por EFECTO — el modelo rodeó un deny de Write usando Bash y creó el archivo. El barrido de footprint por git se PORTA, no se retira (§10.8 confirmado por medición)",
       "kind": "task",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
-      }
+      },
+      "trigger": "INC-3 DELEGATION-V3 porta slot_footprint: el barrido git es el que cubre este agujero"
     },
     "N-0074": {
       "parent": "N-0011",
@@ -1048,14 +1059,15 @@
       "parent": "N-0012",
       "title": "Q3 semantica de kill: NO MEDIDA — necesita stop_task contra un task_id vivo (API de cliente, no query()). Lo observado: Start/Stop disparan en completion normal y TERMINAL_TASK_STATUSES={completed,failed,killed,stopped}",
       "kind": "question",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T17:17Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "v3/subagent_facts.json"
-      }
+      },
+      "trigger": "INC-2 monta ClaudeSDKClient: stop_task necesita la API de cliente, no query()"
     },
     "N-0078": {
       "parent": "N-0011",

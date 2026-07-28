@@ -135,9 +135,43 @@ def _gate_names(cli_py: Path) -> set[str]:
     return set()
 
 
+FLOOR_REL = "docs/spec/fixtures/vocabulary-floor.json"
+
+
+def merge_floor(root: Path, vocab: dict[str, set[str]], update: bool) -> dict[str, set[str]]:
+    """The requirement may never SHRINK.
+
+    Defect this closes (question node N-0010, measured 2026-07-28): the collected vocabulary depends
+    on what happens to be on disk, so the gate demanded 192 terms while a slot manifest was live and
+    only 183 once it was cleared. A gate whose bar drops when the tree goes quiet is weaker exactly
+    when nobody is watching. The floor is a COMMITTED record of every term ever observed; the
+    requirement is `live ∪ floor`, and `--update-floor` can only ever add.
+    """
+    path = root / FLOOR_REL
+    floor: dict[str, list[str]] = {}
+    if path.exists():
+        try:
+            floor = json.loads(path.read_text(encoding="utf-8")).get("terms", {})
+        except (OSError, json.JSONDecodeError):
+            floor = {}
+    merged = {b: set(vocab.get(b, set())) | set(floor.get(b, [])) for b in
+              set(vocab) | set(floor)}
+    if update:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({
+            "_doc": "Vocabulary FLOOR for spec_schema_cover: every term ever observed in a real "
+                    "artifact. The gate requires live ∪ floor so its bar cannot drop when a "
+                    "transient artifact (a live slot manifest) is absent. Append-only in practice: "
+                    "`--update-floor` merges, never removes.",
+            "terms": {b: sorted(v) for b, v in sorted(merged.items())},
+        }, indent=2) + "\n", encoding="utf-8")
+    return merged
+
+
 def main(argv: list[str]) -> int:
-    root = Path(argv[0]).resolve() if argv else Path(__file__).resolve().parents[1]
-    vocab = collect(root)
+    positional = [a for a in argv if not a.startswith("-")]
+    root = Path(positional[0]).resolve() if positional else Path(__file__).resolve().parents[1]
+    vocab = merge_floor(root, collect(root), "--update-floor" in argv)
     if os.environ.get("SPEC_SCHEMA_SABOTAGE") == "1":
         vocab["proof"].add(PHANTOM)
 

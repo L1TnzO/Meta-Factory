@@ -136,6 +136,49 @@ def check_golden(sabotage: bool) -> list[str]:
     return problems
 
 
+RATIONALE = ROOT / "docs" / "spec" / "18-rationale.md"
+ENTRY = re.compile(r"^###\s+(R-\d+)\s*·\s*(.+?)\s*$")
+
+
+def check_rationale(sabotage: bool) -> list[str]:
+    """§18.8 — a rejection without a reopening condition is dogma; with one it is engineering.
+
+    Every `R-N` entry must declare BOTH the measurement that refused it and the falsifiable
+    condition that puts it back on the table. "never" is permitted but must be written, so that
+    claiming permanence is a visible act rather than an omission.
+    """
+    if not RATIONALE.exists():
+        return [f"CONF-R1: {RATIONALE.relative_to(ROOT)} does not exist"]
+    lines = RATIONALE.read_text(encoding="utf-8").splitlines()
+    entries: dict[str, list[str]] = {}
+    current = None
+    for line in lines:
+        m = ENTRY.match(line)
+        if m:
+            current = m.group(1)
+            entries[current] = []
+        elif line.startswith("## "):
+            current = None
+        elif current:
+            entries[current].append(line)
+    if not entries:
+        return ["CONF-R1: no `### R-N · …` entries found — the register is empty"]
+    if sabotage and entries:
+        victim = sorted(entries)[0]
+        entries[victim] = [ln for ln in entries[victim] if "Reopens when" not in ln]
+
+    problems = []
+    for eid in sorted(entries):
+        body = "\n".join(entries[eid])
+        if "**Evidence:**" not in body:
+            problems.append(f"CONF-R2: {eid} declares no **Evidence:** — a rejection needs a "
+                            f"measurement, not a feeling")
+        if "**Reopens when:**" not in body:
+            problems.append(f"CONF-R3: {eid} declares no **Reopens when:** — a rejection without a "
+                            f"reopening condition is dogma (write `never` and argue it, if so)")
+    return problems
+
+
 def main(argv: list[str]) -> int:
     mode = "all"
     if "--mode" in argv:
@@ -147,6 +190,8 @@ def main(argv: list[str]) -> int:
         problems += check_catalogs(sabotage)
     if mode in ("golden", "all"):
         problems += check_golden(sabotage)
+    if mode in ("rationale", "all"):
+        problems += check_rationale(sabotage)
 
     if sabotage:
         if problems:

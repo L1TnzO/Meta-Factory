@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f5db690a55d24be7cc2ea8381856be749ba27add updated=2026-07-28T03:38Z -->
+<!-- meta:doc sha=de89fa7d4257748fd78b43a93b32d4abdb4273dd updated=2026-07-28T04:04Z -->
 # 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it
 
 > **Why this file cannot be derived and must be written.** The code records what the system does. The
@@ -115,6 +115,10 @@ is a strong claim and should be rare.
 - **Evidence:** it replaces the base system prompt in **every** session, including a casual one-line
   fix. Adopted instead: `--agent orchestrator` per session plus routing rules in `CLAUDE.md`.
 - **When:** 2026-06-27 (ADR-020).
+- **Reopens when:** never in this form. The underlying need — every session booting with the full
+  discipline — is satisfied in v3 by explicit composition rather than by implicit global state. If a
+  future host reintroduces implicit repo-wide configuration, this entry must be re-examined then,
+  because the failure mode returns with the mechanism.
 - **Status:** **moot in v3.** After the inversion (§10.0) nothing is implicit — the host composes the
   options object explicitly, and `setting_sources` controls whether filesystem settings load at all.
   Recorded so the rebuild does not re-litigate a problem it no longer has.
@@ -134,8 +138,12 @@ is a strong claim and should be rare.
 - **Evidence:** a gate that cannot go red proves nothing. Several gates print `GATE DECORATIVO` and
   exit 1 if their red side stops biting. Census: 14 of 23 carry an explicit witness.
 - **When:** standing house style; **tightened in v3** to a registration requirement (§11 INC-4).
-- **Surviving violation:** `generality` has no red-side witness found — node `N-0026`. It is listed
-  here rather than quietly tolerated.
+- **Reopens when:** never — a gate that cannot fail proves nothing, and that is an invariant rather
+  than a preference. The only admissible exception is an inherent test runner (`compile`,
+  `isolation`, `suite`), which must be declared `one-sided` in the catalogue rather than left blank.
+- **Surviving violation:** three gates have NO red-side witness — `generality`, `docs` and
+  `projection` (nodes `N-0026`, `N-0057`, `N-0058`), found by the catalogue's witness column, which
+  is precisely why that column may not be left blank. Listed here rather than quietly tolerated.
 
 ### R-11 · Declaring deferred work in PROSE — **REJECTED 2026-07-28 (this session)**
 - **Rejected:** writing "… = declared-deferred" inside a `tech:` string and considering the work

@@ -143,13 +143,18 @@
       "parent": "N-0002",
       "title": "L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)",
       "kind": "question",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "tools/spec_schema_cover.py:merge_floor",
+        "docs/spec/fixtures/vocabulary-floor.json",
+        "192/192 sin slot vivo"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red"
-      }
+      },
+      "closed_at": "2026-07-28T04:04Z"
     },
     "N-0011": {
       "parent": "N-0001",
@@ -745,13 +750,18 @@
       "parent": "N-0002",
       "title": "Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "tools/spec_doc_check.py --mode rationale",
+        "CONF-R2/R3",
+        "caught R-8 and R-10 missing triggers"
+      ],
       "opened_at": "2026-07-28T03:38Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T04:04Z"
     },
     "N-0057": {
       "parent": "N-0024",

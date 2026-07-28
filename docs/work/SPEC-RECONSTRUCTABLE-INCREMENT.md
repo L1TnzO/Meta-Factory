@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9ea456c6d7181ef0e211a6bdcbcf88e48a468d49 updated=2026-07-28T04:01Z -->
+<!-- meta:doc sha=391c2c018f7cc27fb08c3bea7e62a1df0e258b5d updated=2026-07-28T04:04Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
@@ -43,9 +43,7 @@ sea DECIDIBLE por un gate, no por lectura.
 [ ] N-0001  v3: rebuild Meta-Factory on the Agent SDK — Claude Code as ENGINE, not container
   [ ] N-0002  Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)
     [~] N-0008  spec-impl block: RTM derivation (requirement to capability to station to artifact)   (unblocks when: the RTM's I/O boundary is split so that a PURE core exists worth specifying — today nearly all its truth is filesystem+proof I/O, so a block would specify almost nothing and give false coverage (documented in 19-algorithms-reference.md section 4))
-    [ ] N-0010  L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)
     [~] N-0043  Declare L3 sufficiency   (unblocks when: an implementation built WITHOUT reading src/ passes CONF-X1..X8)
-    [ ] N-0056  Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry
   [ ] N-0011  v3 build line: INC-0..INC-12
     [ ] N-0012  INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table
     [ ] N-0013  INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs
@@ -79,7 +77,7 @@ sea DECIDIBLE por un gate, no por lectura.
   [ ] N-0044  Leaked work found by the FIRST run of plan_capture (2026-07-28)
     [ ] N-0045  Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p
     [ ] N-0053  88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form
-TOTALS open=39 done=12 dropped=7 nodes=58
+TOTALS open=37 done=14 dropped=7 nodes=58
 ```
 <!-- /plan:handoff -->
 

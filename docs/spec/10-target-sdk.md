@@ -1,4 +1,4 @@
-<!-- meta:doc sha=06e8a4eb135ff8aff59c5ce5310c291eff729eec updated=2026-07-28T18:10Z -->
+<!-- meta:doc sha=907f1092d83b714f6e0af4553839a30869e5873a updated=2026-07-28T19:28Z -->
 # 10 — Target architecture on the Claude Agent SDK (JUDGMENT)
 
 > **Version pin.** Every symbol below was read from the `claude-agent-sdk` **0.2.128** wheel on
@@ -300,7 +300,7 @@ rather than a habit: a session class that exceeds its budget stops.
 | write bound | `blast_radius` PreToolUse deny | the same hook **plus** `can_use_tool` returning `PermissionResultDeny` — two independent layers, as today |
 | bash-mediated writes | caught at SubagentStop by git status | unchanged (git observation is evidence — keep the subprocess) |
 | completion | `verdict_required` at SubagentStop | unchanged event, typed input (`SubagentStopHookInput`) |
-| rollback on red | manual | `enable_file_checkpointing=True` + `rewind_files(user_message_id)` |
+| rollback on red | manual | **NOT reproducible as written (measured 2026-07-28).** Checkpointing turns on and `rewind_files` exists, but no message id the stream exposes maps to a checkpoint: fourteen candidates were tried — every `UserMessage.uuid`, every `AssistantMessage.uuid`/`.message_id`, the `ResultMessage.uuid` — and all returned `No file checkpoint found for this message`. v3 therefore owns its rollback, on git: restore tracked files the slot modified, delete untracked ones it created, and LEAVE `baseline_dirty` alone. That is deterministic, auditable (it reports every path it touched) and does not depend on a feature we cannot drive (`v3/delegation/rollback.py`, node `N-0084`) |
 | sandbox policy | folklore (`dangerouslyDisableSandbox` for gradle) | `SandboxSettings` / `SandboxNetworkConfig` declared on the slot |
 | runaway slot | wall-clock budget in the manifest, enforced loosely | `stop_task(task_id)` / `interrupt()` + `max_wall_s` — **measured 2026-07-28: `stop_task` works and the stream reports `status` in `{killed, stopped}`, but `SubagentStop` does NOT fire on a killed task.** So the hook layer is blind to a kill, `verdict_required` never runs, and the post-hoc `slot_footprint --live` sweep is **NOT** retired (§10.8's hope was half right). What v3 gains instead is that the HOST sees the typed kill in its own loop, so the reaction moves from a later sweep to the moment it happens — a better answer than either, and available only because the host owns the loop (`v3/kill_facts.json`, node `N-0077`) |
 

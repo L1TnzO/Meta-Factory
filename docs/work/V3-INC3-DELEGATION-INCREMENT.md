@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b064d2ddc4c26c079a8844d79eee74c42f6549e5 updated=2026-07-28T19:20Z -->
+<!-- meta:doc sha=c966084f12eba82a8db1564098821d6bce3894cf updated=2026-07-28T19:28Z -->
 # Incremento V3-INC3-DELEGATION
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T19:19Z). Cerralo con `meta increment close`
@@ -14,9 +14,19 @@ con la propiedad de que **el modelo no vota**.
 
 ## Qué corrigió de la spec (ADR-032 A5)
 
-**Nada, hasta ahora.** Se declara explícitamente, que es lo que A5 exige: la regla no es sólo para
-las buenas noticias. §11.3 describía INC-3 con precisión y las tres piezas escritas hasta aquí
-—manifiesto, footprint, veredicto— aterrizaron como estaban especificadas.
+**Una, y es de las caras.** §10.8 daba el rollback por resuelto con
+`enable_file_checkpointing=True` + `rewind_files(user_message_id)`. **No es manejable desde el
+stream**: catorce ids candidatos —cada `UserMessage.uuid`, cada `AssistantMessage.uuid` y
+`.message_id`, el `ResultMessage.uuid`— y los catorce devolvieron
+`No file checkpoint found for this message`. El checkpoint vive en un sitio que el stream no nombra.
+
+Corregido en §10.8, y la respuesta resultó mejor que la propuesta: **v3 hace su propio rollback sobre
+git**. El host posee el bucle y el barrido ya sabe qué rutas cambiaron, así que deshacer es una
+operación determinista y **auditable** —reporta cada ruta que tocó— en vez de una funcionalidad
+sobre la que habría que seguir teniendo esperanza.
+
+Las tres piezas anteriores —manifiesto, footprint, veredicto— sí aterrizaron como §11.3 las
+especificaba.
 
 Lo que sí resolvió es una decisión que estaba **agendada**, no un error: R-14 / pydantic.
 
@@ -86,13 +96,40 @@ vez de recordarse.
 | 1 | `delegation/slot.py` — manifiesto en disco, fail-closed, vocabularios cerrados (R-14 resuelto) | ✅ |
 | 2 | `delegation/footprint.py` + gate `slot_footprint` — 5 casos herméticos + 1 slot VIVO | ✅ |
 | 3 | `delegation/verdict.py` — aceptación tipada donde el modelo no vota | ✅ |
-| 4 | Binding por `SubagentStart` (atar el slot al `agent_id`, que llega en CADA PreToolUse) | ⏳ |
-| 5 | Rollback con `enable_file_checkpointing` + `rewind_files` | ⏳ |
+| 4 | Binding por `SubagentStart` + gate `binding` — dos slots concurrentes no pueden aliasarse | ✅ |
+| 5 | Rollback: `rewind_files` NO es manejable; v3 hace el suyo sobre git | ✅ |
+
+### Fase 4 — el alias que un manifiesto compartido no puede ver
+
+v2 guarda un manifiesto en una ruta, así que dos delegados a la vez quedan acotados por el que esté
+en disco. Cada escritura le parece permitida **a alguien**, y nada lo reporta.
+
+Cinco casos herméticos, sin modelo: radio propio **permite** · radio ajeno **deniega** (el alias) ·
+delegado sin binding **deniega** · llamada del padre **no le incumbe** · id liberado tras
+`SubagentStop` **deniega**.
+
+La asimetría del tercero es la que vale discutir: sería más fácil dejar pasar a un delegado no
+ligado, pero «inerte sin manifiesto» y «inerte ante un delegado no identificado» son propiedades
+distintas. La primera significa que no hay delegación; la segunda, que **sí la hay y no sabemos bajo
+qué contrato**. Fail-closed es la única respuesta honesta a la segunda.
+
+El sabotaje responde «desde el único slot vivo», ignorando la identidad — que es literalmente el
+comportamiento de v2. Cae el caso cruzado, que es el que debe caer.
+
+### Fase 5 — el rollback que hacemos nosotros
+
+Medido: tracked modificado se **restaura**, untracked creado se **borra**, y lo que estaba en
+`baseline_dirty` se **respeta**. Un rollback que se come el trabajo sin commitear del operador es
+peor que no tener rollback.
+
+Y lo que aterriza FUERA del radio tampoco se deshace: el barrido ya lo llamó RED, y borrarlo acá
+sería destruir la evidencia de la violación antes de que nadie la viera.
 
 ## Criterio de cierre (demostrable, no narrable)
 
 1. `slot_footprint` verde en los tres estados. ✅
 2. El caso VIVO caza una escritura mediada por Bash. ✅
 3. R-14 decidido y escrito, con alcance y re-disparador. ✅
-4. Fases 4 y 5 cerradas, o diferidas con nodo y disparador.
+4. `binding` verde en cinco casos y su sabotaje rojo. ✅
+5. Rollback medido: §10.8 corregida y `v3/delegation/rollback.py` demostrado en los tres casos. ✅
 5. `meta check` sin regresión respecto a 2/23.

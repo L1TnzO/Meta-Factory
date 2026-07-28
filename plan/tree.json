@@ -1190,6 +1190,19 @@
         "cause": "gate_red",
         "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
       }
+    },
+    "N-0085": {
+      "parent": "N-0015",
+      "title": "MEDIDO: rewind_files NO es manejable desde el stream — 14 ids candidatos, los 14 'No file checkpoint found'. §10.8 corregida; v3 hace su propio rollback sobre git (determinista, auditable, respeta baseline_dirty)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T19:28Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/delegation/rollback.py"
+      }
     }
   }
 }

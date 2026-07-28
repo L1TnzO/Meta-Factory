@@ -1,0 +1,23 @@
+{
+  "model": "haiku",
+  "answers": {
+    "conclusive": true,
+    "checkpointing_available": true,
+    "rewind_undid_the_write": false,
+    "error": "Exception: No file checkpoint found for this message."
+  },
+  "cases": {
+    "A-NO-REWIND": {
+      "user_uuid_seen": true,
+      "existed_before_rewind": true,
+      "exists_after": true,
+      "error": null
+    },
+    "B-REWIND": {
+      "user_uuid_seen": true,
+      "existed_before_rewind": true,
+      "exists_after": true,
+      "error": "Exception: No file checkpoint found for this message."
+    }
+  }
+}

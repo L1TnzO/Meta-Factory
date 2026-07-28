@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ef6dd3cc8057ff1a09ed0a8e43cd8f8651c1346e updated=2026-07-28T02:38Z -->
+<!-- meta:doc sha=dd4e6920fb6d12936ac2b4a43089afa0d0bd429b updated=2026-07-28T15:58Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,6 +20,12 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
+- **🏗️ v3 REBUILD — spec corpus DONE, ratification PENDING (`ADR-031` Proposed, 2026-07-28).** `docs/spec/`
+  (20 docs · 26 conformance checks · 4 executable modules with oracles) specifies rebuilding the CONTROL plane
+  on the Claude Agent SDK, keeping the evidence layer: **our program becomes the host, Claude Code the engine**.
+  `ADR-031` ratifies §09/§10 and §11 **only as far as INC-2** (the go/no-go) and fixes that v3 is built **OUT
+  OF TREE** at `../Meta_Factory_v3` (own repo), with this tree pinned as `oracle_ref`. Awaiting the engineer's
+  signature. → `decisions/031` · `docs/spec/00-README.md` · plan arc `N-0011`.
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
   `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via

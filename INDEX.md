@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `ef6dd3cc8057` | 2026-07-28T02:38Z | State — Meta-Factory |
+| `docs/STATE.md` | `dd4e6920fb6d` | 2026-07-28T15:58Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -38,6 +38,7 @@
 | `docs/decisions/028-work-doc-lineage-as-data.md` | `22d3f393f6a3` | 2026-07-12T21:52Z | ADR-028 — Work-doc lineage as data: parent edges, derived reverse views, ancestry injection |
 | `docs/decisions/029-typed-work-docs-closed-vocabulary.md` | `41d21e1e69e2` | 2026-07-12T22:29Z | ADR-029 — Typed work-docs: plan vs implementation is a closed vocabulary, not a filename vibe |
 | `docs/decisions/030-work-doc-placement-derived-from-lineage.md` | `77bab8c1ee40` | 2026-07-12T22:48Z | ADR-030 — Physical placement derived from lineage: arc folders + open-sequence prefixes (forward-only) |
+| `docs/decisions/031-ratificacion-v3-inversion-y-construccion-fuera-de-arbol.md` | `a4d9f7d4d240` | 2026-07-28T15:55Z | ADR-031 — Ratify the v3 inversion, build it OUT OF TREE, and cut the ratification at the go/no-go |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |

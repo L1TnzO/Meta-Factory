@@ -76,7 +76,7 @@
 | `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/spec/16-catalogs.md` | `3cecab082c37` | 2026-07-28T19:08Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
-| `docs/spec/18-rationale.md` | `8659e1175d69` | 2026-07-28T17:08Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
+| `docs/spec/18-rationale.md` | `770cc4707ff0` | 2026-07-28T19:23Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
 | `docs/spec/19-algorithms-reference.md` | `87f584c6f514` | 2026-07-28T04:01Z | 19 — Reference implementations: seal, slot law, sequence (NORMATIVE, EXECUTABLE) |
 | `docs/spec/20-architecture-map.md` | `716f72998729` | 2026-07-28T17:20Z | 20 — The map: what the system looks like, for a human |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |

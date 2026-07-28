@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8659e1175d696fd7f522935b5dba3179ff13c938 updated=2026-07-28T17:08Z -->
+<!-- meta:doc sha=770cc4707ff014d154f456c5016234e9113ba573 updated=2026-07-28T19:23Z -->
 # 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it
 
 > **Why this file cannot be derived and must be written.** The code records what the system does. The
@@ -210,7 +210,7 @@ Not decisions, but facts about this environment that cost hours the first time.
   across machines, or fan-out that a measurement shows pays (R-6's trigger), or human-in-the-loop
   interrupts that INC-12 cannot serve with plain code. Any of the three, measured, not anticipated.
 
-### R-14 · `pydantic` for the typed boundary — **DEFERRED, not rejected**
+### R-14 · `pydantic` for the typed boundary — **RESOLVED 2026-07-28: SPLIT**
 - **Deferred:** replacing v2's hand-written validators (slot manifest, station YAML, factory spec,
   `sdk_facts`) with a community-validated schema library.
 - **Evidence:** §13 exists because these artifacts need types, and hand-rolled validation is exactly
@@ -218,8 +218,18 @@ Not decisions, but facts about this environment that cost hours the first time.
   only visible when the `Slot` dataclass is actually written, and adopting it now would be
   anticipation dressed as diligence.
 - **When:** 2026-07-28, same question. Node `N-0075`.
-- **Reopens when:** INC-2 writes `delegation/slot.py`. That is the moment the decision is cheap and
-  informed; deciding it earlier is guessing, and deciding it later is retrofitting.
+- **RESOLVED at the trigger, and the answer is SPLIT.** For the **slot manifest**: rejected.
+  Pydantic's default posture is COERCION — `"1"` becomes `1`, a scalar becomes a list of one, a
+  missing optional becomes its default — which is right for an API boundary and wrong for a SECURITY
+  boundary. The manifest is what makes `blast_radius` bounded, so a malformed one must DENY, never be
+  repaired into something plausible. Strict mode exists, but then one writes configuration to obtain
+  the behaviour one would otherwise have written directly, and the trust chain is what this project
+  writes with its own eyes. Illustrative case the hand-written validator catches: `max_wall_s: True`
+  — in Python `bool` IS an `int`, so "True seconds" passes any naive type check and a permissive
+  parser accepts it as 1.
+- **Still LIVE for the station YAML and the factory spec** — large schemas, no security frontier,
+  coercion harmless.
+- **Reopens when:** INC-4 (`CHECKS-PORT`) ports those two.
 
 ## 8. How this register is meant to be used
 

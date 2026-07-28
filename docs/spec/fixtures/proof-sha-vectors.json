@@ -1,0 +1,1250 @@
+{
+  "_doc": "Golden vectors for the kernel hash. Derived by tools/spec_fixture_gen.py; every vector is anchored to a committed pinned_verdict.json entry. Regenerate, never edit.",
+  "algorithm": "proof_sha = sha256(json.dumps({'station': id, 'checks': sorted[(name, exit)]}, sort_keys=True, separators=(',',':')).encode()).hexdigest()",
+  "vectors": [
+    {
+      "origin": "agent-systems-factory",
+      "station": "s1",
+      "checks": [
+        [
+          "span_tree_provenance",
+          0
+        ]
+      ],
+      "proof_sha": "fb541c2fd6a57cb53b2ede43094c87c7fa91613af953126324b43b7bae32873c"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s10",
+      "checks": [
+        [
+          "agent_re_live",
+          0
+        ]
+      ],
+      "proof_sha": "1d0173d2838217d916edf2509cd3ce5d3f1c8dfcc159dad53d14385b0130ed96"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s11",
+      "checks": [
+        [
+          "multi_topology_bfs",
+          0
+        ]
+      ],
+      "proof_sha": "928e6d879fe5d5e4a4e05324bb3753a1a6d35133bc3ce9e56b6e97b6204a0478"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s12",
+      "checks": [
+        [
+          "reqcouncil_eval_floor",
+          0
+        ]
+      ],
+      "proof_sha": "943d86973818b6c5d8e8d26c2aa0defb944a8c9897b7c5135a661c95c67fb12d"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s2",
+      "checks": [
+        [
+          "lineage_join_key",
+          0
+        ]
+      ],
+      "proof_sha": "ede861a9fd434e0f93b7966ff23ba43f4a86abbebcaa56a2e515e036111b10cf"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s3",
+      "checks": [
+        [
+          "resume_no_reexec",
+          0
+        ]
+      ],
+      "proof_sha": "fd7cd4e66c1b60f32b7bf6bd067d35a0822d902874f9b805c520fb7f5ee3e5fc"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s4",
+      "checks": [
+        [
+          "topology_compiles",
+          0
+        ],
+        [
+          "typed_blackboard",
+          0
+        ]
+      ],
+      "proof_sha": "5f3379cf03be5296bfe20fb194c66afe43857235a45ac1a2bdc8df9b9cd78de6"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s5",
+      "checks": [
+        [
+          "typed_retrieve",
+          0
+        ],
+        [
+          "grounding_requires_evidence",
+          0
+        ]
+      ],
+      "proof_sha": "e35dce0e6052d2bf6687ddb52079446ecc45856493182de7911871028b8bbc42"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s6",
+      "checks": [
+        [
+          "no_support_ungrounded",
+          0
+        ]
+      ],
+      "proof_sha": "f24585b5877f990785b8c2db09145b1aeec5c56cbdf74e8706a6c0f63151f540"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s7",
+      "checks": [
+        [
+          "interrupt_unbypassable",
+          0
+        ],
+        [
+          "hitl_review_package",
+          0
+        ]
+      ],
+      "proof_sha": "ec59764c2fb2144fc445678cde00e09644c3c3a16bbec4ae5cc658c582d8e425"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s8",
+      "checks": [
+        [
+          "eval_threshold_gate",
+          0
+        ]
+      ],
+      "proof_sha": "d754d21de530cfb17f464227b3a60cce833ed219c5c43590d90facb81328ae09"
+    },
+    {
+      "origin": "agent-systems-factory",
+      "station": "s9",
+      "checks": [
+        [
+          "domain_logic_contract_live",
+          0
+        ]
+      ],
+      "proof_sha": "eaeeff0f1e29085ad5cf132988ccfed7ffe2aa77cb622791fe28ec377485463b"
+    },
+    {
+      "origin": "dummy",
+      "station": "s00",
+      "checks": [
+        [
+          "compile",
+          0
+        ],
+        [
+          "runs",
+          0
+        ],
+        [
+          "invariant",
+          0
+        ]
+      ],
+      "proof_sha": "c84e1f26d64fdeb31c3d2727a6e682c532c1fec1dc3b381bcc79b2cc313cb477"
+    },
+    {
+      "origin": "dummy",
+      "station": "s01",
+      "checks": [
+        [
+          "release_tag",
+          0
+        ],
+        [
+          "chain_marker",
+          0
+        ]
+      ],
+      "proof_sha": "47361a92dcd14c6e3a704cca75ab279c1eb936537e70c0b32f6f4e7806f0b85a"
+    },
+    {
+      "origin": "dummy",
+      "station": "s02",
+      "checks": [
+        [
+          "product_unittest",
+          0
+        ]
+      ],
+      "proof_sha": "69df50461b853a231576111569904e131ece7e7de7a089eb470e7192bdb43643"
+    },
+    {
+      "origin": "dummy",
+      "station": "s03",
+      "checks": [
+        [
+          "infra_proof",
+          0
+        ]
+      ],
+      "proof_sha": "db577b19df14eeedf383d4161cb21047ac1627ea0e54142e8696852c1dacb345"
+    },
+    {
+      "origin": "dummy",
+      "station": "s04",
+      "checks": [
+        [
+          "mcp_proof",
+          0
+        ]
+      ],
+      "proof_sha": "6bd27228813f97fa516ffedf5692d944bff558ad9e349974c3c5c413d3399843"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s0",
+      "checks": [
+        [
+          "typed_contract",
+          0
+        ]
+      ],
+      "proof_sha": "8faf1e28a5d7204a663967b4e49949cf6ca1ee3418228ed118b8039f4a551070"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s1",
+      "checks": [
+        [
+          "backend_unit",
+          0
+        ]
+      ],
+      "proof_sha": "c8d706ef33c880cd57f7127f363edcb99952789bcfcec499a81d89c1eae91a15"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s2",
+      "checks": [
+        [
+          "db_round_trip",
+          0
+        ]
+      ],
+      "proof_sha": "7afd18dc31b3729c78571b7d4b53bb37449faab4869ebd973992d200ce850a0b"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s3",
+      "checks": [
+        [
+          "domain_logic_contract",
+          0
+        ]
+      ],
+      "proof_sha": "e84c21ae0343de3658effe0370f06e14cfbed2bf412a6bd5bdfe9e7f736f8c0b"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s4",
+      "checks": [
+        [
+          "eval_quality_gate",
+          0
+        ]
+      ],
+      "proof_sha": "3a94ae2ac83b522588018267f32ebe5e2ba5c13f7dc3f2914f8bbc6765dc2374"
+    },
+    {
+      "origin": "full-stack",
+      "station": "s5",
+      "checks": [
+        [
+          "webapp_live",
+          0
+        ]
+      ],
+      "proof_sha": "d738699e61e88e77de3e5882bd2bd105d0c45d280823dc2343cc51b5d1d0d566"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s0",
+      "checks": [
+        [
+          "contract_single_source",
+          0
+        ],
+        [
+          "contract_client_ts",
+          0
+        ],
+        [
+          "scaffold_idempotent",
+          0
+        ],
+        [
+          "isolation_boundary",
+          0
+        ]
+      ],
+      "proof_sha": "abd03250f3fadf932802b79082abebb94798c5ab1a71e76c9d1213f9ba23c825"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s1",
+      "checks": [
+        [
+          "schema_checked",
+          0
+        ],
+        [
+          "db_roundtrip_live",
+          0
+        ]
+      ],
+      "proof_sha": "7001df2ed85c8e802eed94ffa0954bffa667e7fc15d219cbe05d630edfab97ff"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s10",
+      "checks": [
+        [
+          "hermetic_build",
+          0
+        ]
+      ],
+      "proof_sha": "8b626db4eefc050dabd578c7ef06ad13f799a755d83eccfacd0bb69053361d5b"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s11",
+      "checks": [
+        [
+          "deploy_smoke",
+          0
+        ],
+        [
+          "deploy_appserver_live",
+          0
+        ]
+      ],
+      "proof_sha": "3e7e3587ebab02f552ff30b3aa914fa0759c16f9bb9888ac364424eddc67ec17"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s2",
+      "checks": [
+        [
+          "static_hardness_kotlin",
+          0
+        ],
+        [
+          "static_hardness_ts",
+          0
+        ]
+      ],
+      "proof_sha": "7b202006881703aa2f81a0479c0378fcead21cbef5bcefec93c3ab4a2dbf6d40"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s3",
+      "checks": [
+        [
+          "currency_gate",
+          0
+        ]
+      ],
+      "proof_sha": "103366e3eb6a16ddd123f32c9ae96af6ec8a17a93a780eb349069b54e107c5b7"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s4",
+      "checks": [
+        [
+          "supply_chain_gate",
+          0
+        ]
+      ],
+      "proof_sha": "5294ea066199a9cf85150e44a652eeff6116a9653f21b9c5c9771c7272f0b16a"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s5",
+      "checks": [
+        [
+          "auth_reachability",
+          0
+        ],
+        [
+          "route_topology",
+          0
+        ],
+        [
+          "rbac_enforced",
+          0
+        ],
+        [
+          "ownership_enforced",
+          0
+        ],
+        [
+          "mutability_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "bbb840ddcbbcfdf2557a8b0ca4e5c9493565bf3be9c78c527ee6df2a260adfea"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s6",
+      "checks": [
+        [
+          "domain_logic_contract",
+          0
+        ]
+      ],
+      "proof_sha": "e074ccc801147e6e3993d7793124a4cdbcb29fca4e40c970d8c5c585b87e46fb"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s7",
+      "checks": [
+        [
+          "pyramid_unit",
+          0
+        ],
+        [
+          "pyramid_integration",
+          0
+        ],
+        [
+          "pyramid_unit_ts",
+          0
+        ],
+        [
+          "workflow_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "87cfff5c2421f905d2bb73e6e8c0e39c9f1572d0f8d17f0c3e8d378d73056bf9"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s8",
+      "checks": [
+        [
+          "a11y_gate",
+          0
+        ],
+        [
+          "perf_budget_gate",
+          0
+        ]
+      ],
+      "proof_sha": "dbbfc79dd09c10e2ce23ece6be21ad751d692c64fb1df20db2fc8e9bd767992a"
+    },
+    {
+      "origin": "full-stack-kotlin",
+      "station": "s9",
+      "checks": [
+        [
+          "observability_live",
+          0
+        ],
+        [
+          "access_control_live",
+          0
+        ],
+        [
+          "frontend_consume_live",
+          0
+        ],
+        [
+          "frontend_browser_live",
+          0
+        ],
+        [
+          "coverage_live",
+          0
+        ]
+      ],
+      "proof_sha": "c5dbce820ecb05a626dc3aa6ad9eacca4385b9c12b258405a1d6464a6b7f3be6"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s0",
+      "checks": [
+        [
+          "contract_single_source",
+          0
+        ],
+        [
+          "contract_client_ts",
+          0
+        ],
+        [
+          "scaffold_idempotent",
+          0
+        ],
+        [
+          "isolation_boundary",
+          0
+        ]
+      ],
+      "proof_sha": "abd03250f3fadf932802b79082abebb94798c5ab1a71e76c9d1213f9ba23c825"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s1",
+      "checks": [
+        [
+          "schema_checked",
+          0
+        ],
+        [
+          "db_roundtrip_live",
+          0
+        ]
+      ],
+      "proof_sha": "7001df2ed85c8e802eed94ffa0954bffa667e7fc15d219cbe05d630edfab97ff"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s10",
+      "checks": [
+        [
+          "hermetic_build",
+          0
+        ]
+      ],
+      "proof_sha": "8b626db4eefc050dabd578c7ef06ad13f799a755d83eccfacd0bb69053361d5b"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s11",
+      "checks": [
+        [
+          "deploy_smoke",
+          0
+        ],
+        [
+          "deploy_appserver_live",
+          0
+        ]
+      ],
+      "proof_sha": "3e7e3587ebab02f552ff30b3aa914fa0759c16f9bb9888ac364424eddc67ec17"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s2",
+      "checks": [
+        [
+          "static_hardness_kotlin",
+          0
+        ],
+        [
+          "static_hardness_ts",
+          0
+        ]
+      ],
+      "proof_sha": "7b202006881703aa2f81a0479c0378fcead21cbef5bcefec93c3ab4a2dbf6d40"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s3",
+      "checks": [
+        [
+          "currency_gate",
+          0
+        ]
+      ],
+      "proof_sha": "103366e3eb6a16ddd123f32c9ae96af6ec8a17a93a780eb349069b54e107c5b7"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s4",
+      "checks": [
+        [
+          "supply_chain_gate",
+          0
+        ]
+      ],
+      "proof_sha": "5294ea066199a9cf85150e44a652eeff6116a9653f21b9c5c9771c7272f0b16a"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s5",
+      "checks": [
+        [
+          "auth_reachability",
+          0
+        ],
+        [
+          "route_topology",
+          0
+        ],
+        [
+          "rbac_enforced",
+          0
+        ],
+        [
+          "ownership_enforced",
+          0
+        ],
+        [
+          "mutability_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "bbb840ddcbbcfdf2557a8b0ca4e5c9493565bf3be9c78c527ee6df2a260adfea"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s7",
+      "checks": [
+        [
+          "pyramid_unit",
+          0
+        ],
+        [
+          "pyramid_integration",
+          0
+        ],
+        [
+          "pyramid_unit_ts",
+          0
+        ],
+        [
+          "workflow_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "87cfff5c2421f905d2bb73e6e8c0e39c9f1572d0f8d17f0c3e8d378d73056bf9"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s8",
+      "checks": [
+        [
+          "a11y_gate",
+          0
+        ],
+        [
+          "perf_budget_gate",
+          0
+        ]
+      ],
+      "proof_sha": "dbbfc79dd09c10e2ce23ece6be21ad751d692c64fb1df20db2fc8e9bd767992a"
+    },
+    {
+      "origin": "full-stack-kotlin/assets",
+      "station": "s9",
+      "checks": [
+        [
+          "observability_live",
+          0
+        ],
+        [
+          "access_control_live",
+          0
+        ],
+        [
+          "frontend_consume_live",
+          0
+        ],
+        [
+          "frontend_browser_live",
+          0
+        ],
+        [
+          "coverage_live",
+          0
+        ]
+      ],
+      "proof_sha": "c5dbce820ecb05a626dc3aa6ad9eacca4385b9c12b258405a1d6464a6b7f3be6"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s0",
+      "checks": [
+        [
+          "contract_single_source",
+          0
+        ],
+        [
+          "contract_client_ts",
+          0
+        ],
+        [
+          "scaffold_idempotent",
+          0
+        ],
+        [
+          "isolation_boundary",
+          0
+        ]
+      ],
+      "proof_sha": "abd03250f3fadf932802b79082abebb94798c5ab1a71e76c9d1213f9ba23c825"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s1",
+      "checks": [
+        [
+          "schema_checked",
+          0
+        ],
+        [
+          "db_roundtrip_live",
+          0
+        ]
+      ],
+      "proof_sha": "7001df2ed85c8e802eed94ffa0954bffa667e7fc15d219cbe05d630edfab97ff"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s10",
+      "checks": [
+        [
+          "hermetic_build",
+          0
+        ]
+      ],
+      "proof_sha": "8b626db4eefc050dabd578c7ef06ad13f799a755d83eccfacd0bb69053361d5b"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s11",
+      "checks": [
+        [
+          "deploy_smoke",
+          0
+        ],
+        [
+          "deploy_appserver_live",
+          0
+        ]
+      ],
+      "proof_sha": "3e7e3587ebab02f552ff30b3aa914fa0759c16f9bb9888ac364424eddc67ec17"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s2",
+      "checks": [
+        [
+          "static_hardness_kotlin",
+          0
+        ],
+        [
+          "static_hardness_ts",
+          0
+        ]
+      ],
+      "proof_sha": "7b202006881703aa2f81a0479c0378fcead21cbef5bcefec93c3ab4a2dbf6d40"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s3",
+      "checks": [
+        [
+          "currency_gate",
+          0
+        ]
+      ],
+      "proof_sha": "103366e3eb6a16ddd123f32c9ae96af6ec8a17a93a780eb349069b54e107c5b7"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s4",
+      "checks": [
+        [
+          "supply_chain_gate",
+          0
+        ]
+      ],
+      "proof_sha": "5294ea066199a9cf85150e44a652eeff6116a9653f21b9c5c9771c7272f0b16a"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s5",
+      "checks": [
+        [
+          "auth_reachability",
+          0
+        ],
+        [
+          "route_topology",
+          0
+        ],
+        [
+          "rbac_enforced",
+          0
+        ],
+        [
+          "ownership_enforced",
+          0
+        ],
+        [
+          "mutability_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "bbb840ddcbbcfdf2557a8b0ca4e5c9493565bf3be9c78c527ee6df2a260adfea"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s7",
+      "checks": [
+        [
+          "pyramid_unit",
+          0
+        ],
+        [
+          "pyramid_integration",
+          0
+        ],
+        [
+          "pyramid_unit_ts",
+          0
+        ],
+        [
+          "workflow_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "87cfff5c2421f905d2bb73e6e8c0e39c9f1572d0f8d17f0c3e8d378d73056bf9"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s8",
+      "checks": [
+        [
+          "a11y_gate",
+          0
+        ],
+        [
+          "perf_budget_gate",
+          0
+        ]
+      ],
+      "proof_sha": "dbbfc79dd09c10e2ce23ece6be21ad751d692c64fb1df20db2fc8e9bd767992a"
+    },
+    {
+      "origin": "full-stack-kotlin/helpdesk",
+      "station": "s9",
+      "checks": [
+        [
+          "observability_live",
+          0
+        ],
+        [
+          "access_control_live",
+          0
+        ],
+        [
+          "frontend_consume_live",
+          0
+        ],
+        [
+          "frontend_browser_live",
+          0
+        ],
+        [
+          "frontend_design_floor",
+          0
+        ],
+        [
+          "coverage_live",
+          0
+        ]
+      ],
+      "proof_sha": "83a895ff6968811185b5b997da4311d0f04c25514a107bd15024fa5511645354"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s0",
+      "checks": [
+        [
+          "contract_single_source",
+          0
+        ],
+        [
+          "contract_client_ts",
+          0
+        ],
+        [
+          "scaffold_idempotent",
+          0
+        ],
+        [
+          "isolation_boundary",
+          0
+        ]
+      ],
+      "proof_sha": "abd03250f3fadf932802b79082abebb94798c5ab1a71e76c9d1213f9ba23c825"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s1",
+      "checks": [
+        [
+          "schema_checked",
+          0
+        ],
+        [
+          "db_roundtrip_live",
+          0
+        ]
+      ],
+      "proof_sha": "7001df2ed85c8e802eed94ffa0954bffa667e7fc15d219cbe05d630edfab97ff"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s10",
+      "checks": [
+        [
+          "hermetic_build",
+          0
+        ]
+      ],
+      "proof_sha": "8b626db4eefc050dabd578c7ef06ad13f799a755d83eccfacd0bb69053361d5b"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s11",
+      "checks": [
+        [
+          "deploy_smoke",
+          0
+        ],
+        [
+          "deploy_appserver_live",
+          0
+        ]
+      ],
+      "proof_sha": "3e7e3587ebab02f552ff30b3aa914fa0759c16f9bb9888ac364424eddc67ec17"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s2",
+      "checks": [
+        [
+          "static_hardness_kotlin",
+          0
+        ],
+        [
+          "static_hardness_ts",
+          0
+        ]
+      ],
+      "proof_sha": "7b202006881703aa2f81a0479c0378fcead21cbef5bcefec93c3ab4a2dbf6d40"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s3",
+      "checks": [
+        [
+          "currency_gate",
+          0
+        ]
+      ],
+      "proof_sha": "103366e3eb6a16ddd123f32c9ae96af6ec8a17a93a780eb349069b54e107c5b7"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s4",
+      "checks": [
+        [
+          "supply_chain_gate",
+          0
+        ]
+      ],
+      "proof_sha": "5294ea066199a9cf85150e44a652eeff6116a9653f21b9c5c9771c7272f0b16a"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s5",
+      "checks": [
+        [
+          "auth_reachability",
+          0
+        ],
+        [
+          "route_topology",
+          0
+        ],
+        [
+          "rbac_enforced",
+          0
+        ],
+        [
+          "ownership_enforced",
+          0
+        ],
+        [
+          "mutability_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "bbb840ddcbbcfdf2557a8b0ca4e5c9493565bf3be9c78c527ee6df2a260adfea"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s6",
+      "checks": [
+        [
+          "domain_logic_contract",
+          0
+        ]
+      ],
+      "proof_sha": "e074ccc801147e6e3993d7793124a4cdbcb29fca4e40c970d8c5c585b87e46fb"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s7",
+      "checks": [
+        [
+          "pyramid_unit",
+          0
+        ],
+        [
+          "pyramid_integration",
+          0
+        ],
+        [
+          "pyramid_unit_ts",
+          0
+        ],
+        [
+          "workflow_enforced",
+          0
+        ]
+      ],
+      "proof_sha": "87cfff5c2421f905d2bb73e6e8c0e39c9f1572d0f8d17f0c3e8d378d73056bf9"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s8",
+      "checks": [
+        [
+          "a11y_gate",
+          0
+        ],
+        [
+          "perf_budget_gate",
+          0
+        ]
+      ],
+      "proof_sha": "dbbfc79dd09c10e2ce23ece6be21ad751d692c64fb1df20db2fc8e9bd767992a"
+    },
+    {
+      "origin": "full-stack-kotlin/snipeit",
+      "station": "s9",
+      "checks": [
+        [
+          "observability_live",
+          0
+        ],
+        [
+          "access_control_live",
+          0
+        ],
+        [
+          "frontend_consume_live",
+          0
+        ],
+        [
+          "frontend_browser_live",
+          0
+        ],
+        [
+          "frontend_design_floor",
+          0
+        ],
+        [
+          "coverage_live",
+          0
+        ]
+      ],
+      "proof_sha": "83a895ff6968811185b5b997da4311d0f04c25514a107bd15024fa5511645354"
+    },
+    {
+      "origin": "full-stack/tasks",
+      "station": "s0",
+      "checks": [
+        [
+          "typed_contract",
+          0
+        ]
+      ],
+      "proof_sha": "8faf1e28a5d7204a663967b4e49949cf6ca1ee3418228ed118b8039f4a551070"
+    },
+    {
+      "origin": "full-stack/tasks",
+      "station": "s1",
+      "checks": [
+        [
+          "backend_unit",
+          0
+        ]
+      ],
+      "proof_sha": "c8d706ef33c880cd57f7127f363edcb99952789bcfcec499a81d89c1eae91a15"
+    },
+    {
+      "origin": "full-stack/tasks",
+      "station": "s2",
+      "checks": [
+        [
+          "db_round_trip",
+          0
+        ]
+      ],
+      "proof_sha": "7afd18dc31b3729c78571b7d4b53bb37449faab4869ebd973992d200ce850a0b"
+    },
+    {
+      "origin": "full-stack/tasks",
+      "station": "s3",
+      "checks": [
+        [
+          "domain_logic_contract",
+          0
+        ]
+      ],
+      "proof_sha": "e84c21ae0343de3658effe0370f06e14cfbed2bf412a6bd5bdfe9e7f736f8c0b"
+    },
+    {
+      "origin": "full-stack/tasks",
+      "station": "s4",
+      "checks": [
+        [
+          "eval_quality_gate",
+          0
+        ]
+      ],
+      "proof_sha": "3a94ae2ac83b522588018267f32ebe5e2ba5c13f7dc3f2914f8bbc6765dc2374"
+    },
+    {
+      "origin": "iot",
+      "station": "s0",
+      "checks": [
+        [
+          "typed_message_contract",
+          0
+        ]
+      ],
+      "proof_sha": "59ed4b9252d542f498444689c008bdf0126b539ab2feca96e23c9cef312af4fd"
+    },
+    {
+      "origin": "iot",
+      "station": "s1",
+      "checks": [
+        [
+          "topology_reachable",
+          0
+        ]
+      ],
+      "proof_sha": "fe5fe8eb01b95ce0c7ec63427e32849cf8933757174199b3e9d98ab8cecf70dc"
+    },
+    {
+      "origin": "iot",
+      "station": "s2",
+      "checks": [
+        [
+          "ota_gate_and_provenance",
+          0
+        ]
+      ],
+      "proof_sha": "67f99f6f90563178bd6b37a6af4bb06460cba6dc8cd4795cc38178bccfa8f163"
+    },
+    {
+      "origin": "iot",
+      "station": "s3",
+      "checks": [
+        [
+          "durable_telemetry_live",
+          0
+        ]
+      ],
+      "proof_sha": "c249afe0f5d7aeb3f8bd187d1964b5e70bc3683549e82e8b2b6791d67cf9dfa1"
+    },
+    {
+      "origin": "iot",
+      "station": "s4",
+      "checks": [
+        [
+          "idempotent_ingestion",
+          0
+        ]
+      ],
+      "proof_sha": "daca46d3868b2901a3a2752a4c0517771315f8f752f859bf2016095fd1182cef"
+    },
+    {
+      "origin": "iot/fleet",
+      "station": "s0",
+      "checks": [
+        [
+          "typed_message_contract",
+          0
+        ]
+      ],
+      "proof_sha": "59ed4b9252d542f498444689c008bdf0126b539ab2feca96e23c9cef312af4fd"
+    },
+    {
+      "origin": "iot/fleet",
+      "station": "s1",
+      "checks": [
+        [
+          "topology_reachable",
+          0
+        ]
+      ],
+      "proof_sha": "fe5fe8eb01b95ce0c7ec63427e32849cf8933757174199b3e9d98ab8cecf70dc"
+    },
+    {
+      "origin": "iot/fleet",
+      "station": "s2",
+      "checks": [
+        [
+          "ota_gate_and_provenance",
+          0
+        ]
+      ],
+      "proof_sha": "67f99f6f90563178bd6b37a6af4bb06460cba6dc8cd4795cc38178bccfa8f163"
+    },
+    {
+      "origin": "iot/fleet",
+      "station": "s3",
+      "checks": [
+        [
+          "durable_telemetry_live",
+          0
+        ]
+      ],
+      "proof_sha": "c249afe0f5d7aeb3f8bd187d1964b5e70bc3683549e82e8b2b6791d67cf9dfa1"
+    },
+    {
+      "origin": "iot/fleet",
+      "station": "s4",
+      "checks": [
+        [
+          "idempotent_ingestion",
+          0
+        ]
+      ],
+      "proof_sha": "daca46d3868b2901a3a2752a4c0517771315f8f752f859bf2016095fd1182cef"
+    }
+  ]
+}

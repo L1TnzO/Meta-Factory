@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `1ab642b736ef` | 2026-07-13T13:27Z | State — Meta-Factory |
+| `docs/STATE.md` | `ef6dd3cc8057` | 2026-07-28T02:38Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -68,6 +68,8 @@
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `29ce9a014694` | 2026-07-27T21:41Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
 | `docs/spec/11-build-plan.md` | `d551863d58c3` | 2026-07-27T21:41Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/12-conformance.md` | `3ae81d285866` | 2026-07-28T02:44Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
+| `docs/spec/14-kernel-reference.md` | `9cb3a0e3c001` | 2026-07-28T02:44Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |
@@ -177,6 +179,7 @@
 | `docs/work/SLOT-FOOTPRINT-TOOTH-INCREMENT.md` | `e4ff08e4d5ae` | 2026-07-11T17:43Z | Incremento SLOT-FOOTPRINT-TOOTH |
 | `docs/work/SOTA-PARITY-DIRECTION-INCREMENT.md` | `f7fa25efe194` | 2026-07-11T14:48Z | Incremento SOTA-PARITY-DIRECTION |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
+| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `e3ad4a2984ee` | 2026-07-28T02:38Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

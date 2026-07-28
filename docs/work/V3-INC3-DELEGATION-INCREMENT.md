@@ -1,7 +1,7 @@
-<!-- meta:doc sha=c966084f12eba82a8db1564098821d6bce3894cf updated=2026-07-28T19:28Z -->
+<!-- meta:doc sha=02bce4d1bdc447196773c20dd54ca5c20d1ed57c updated=2026-07-28T19:30Z -->
 # Incremento V3-INC3-DELEGATION
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T19:19Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-28T19:30Z) (creado 2026-07-28T19:19Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-032` (línea completa ratificada) · spec `11-build-plan.md` INC-3 + `10-target-sdk.md §10.8`.

@@ -866,14 +866,17 @@
       "parent": "N-0012",
       "title": "Q7 (ADR-031 A2): does a hook callback deny ACTUALLY deny, un-bypassably from inside the session — decides the INC-2 gate",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "E3: el mismo deny sobre Write fue rodeado por Bash y el archivo se creo => el deny es por HERRAMIENTA, no por EFECTO"
+      ],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      }
+      },
+      "closed_at": "2026-07-28T16:57Z"
     },
     "N-0065": {
       "parent": "N-0012",
@@ -941,6 +944,58 @@
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/probe/claims.py"
+      }
+    },
+    "N-0070": {
+      "parent": "N-0012",
+      "title": "can_use_tool NUNCA se invocó en 5 configuraciones (default/acceptEdits/plan/allowed_tools vacío) y el write pasó: §10.4/§10.8 presentan 'dos capas independientes' pero medimos UNA. INC-2 no puede apoyarse en la segunda hasta hallar la configuración que la dispara",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/behaviour_facts.json"
+      }
+    },
+    "N-0071": {
+      "parent": "N-0012",
+      "title": "can_use_tool exige modo STREAMING: un prompt str lanza ValueError. §10.4 no registra que la capa condiciona la FORMA de toda llamada del host",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/behaviour_facts.json"
+      }
+    },
+    "N-0072": {
+      "parent": "N-0012",
+      "title": "allowed_tools que permite una herramienta entera la auto-aprueba ANTES de can_use_tool (aviso del propio SDK); reglas de settings también eclipsan y no son visibles. La columna v3 no debe combinar allowed_tools amplio con la capa de permiso",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/behaviour_facts.json"
+      }
+    },
+    "N-0073": {
+      "parent": "N-0012",
+      "title": "MEDIDO: un deny es por HERRAMIENTA, no por EFECTO — el modelo rodeó un deny de Write usando Bash y creó el archivo. El barrido de footprint por git se PORTA, no se retira (§10.8 confirmado por medición)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:56Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/behaviour_facts.json"
       }
     }
   }

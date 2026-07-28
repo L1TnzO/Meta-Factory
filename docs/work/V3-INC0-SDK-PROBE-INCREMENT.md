@@ -1,4 +1,4 @@
-<!-- meta:doc sha=feadbac9c5474cd8c2f7b4d881493236e395eaf1 updated=2026-07-28T16:44Z -->
+<!-- meta:doc sha=850837c9cc861b2534505c8d1985f3006d11f4cc updated=2026-07-28T16:59Z -->
 # Incremento V3-INC0-SDK-PROBE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T16:27Z). Cerralo con `meta increment close`
@@ -41,8 +41,54 @@ pero esperado ≠ medido, y el nodo sigue abierto hasta que haya un `ResultMessa
 | --- | --- | --- |
 | 1 | `v3/` nace: README que dice qué es y qué NO es, y el diente de frontera de importación (`N-0066`) | ✅ |
 | 2+3 | Las claims de §10 como DATOS (`v3/probe/claims.py`, 36) + el resolutor/gate (`v3/probe/symbols.py`) que las contrasta con el SDK instalado y escribe `v3/sdk_facts.json` | ✅ |
-| 4 | Q7 (`N-0064`), la pregunta que decide el gate de INC-2: ¿un `deny` de un callback deniega de verdad, de forma no evitable desde dentro de la sesión? | ⏳ |
-| 5 | Las 5 conductuales restantes (Q1·Q2·Q3·Q6·Q8b) con corrida viva, y sus respuestas al artefacto | ⏳ |
+| 4 | Q7 (`N-0064`) con corrida VIVA y el sistema de archivos como oráculo — más Q2, Q6 y Q8b de yapa | ✅ |
+| 5 | Q1 (hooks en subagentes) y Q3 (SubagentStop en tarea matada), que necesitan spawn real de subagente | ⏳ |
+
+### Fase 4 — lo medido, con el disco como oráculo
+
+`v3/probe/behaviour.py` corre 5 experimentos vivos y mira el **disco**, no el transcript. Un archivo
+existe o no existe.
+
+| Exp | Resultado | Qué decide |
+| --- | --- | --- |
+| **E0 control** | archivo **SÍ** | sin esto, todo «el deny funcionó» es indistinguible de «el modelo no lo intentó» |
+| **E1 hook deny** | archivo **NO**, hook invocado | **Q7 = SÍ**: el `deny` de un hook `PreToolUse` ENFORCE, y vence a `permission_mode=acceptEdits` |
+| **E2 can_use_tool deny** | archivo **SÍ**, callback **nunca invocado** | la «segunda capa» no se disparó |
+| **E3 rodeo por Bash** | archivo **SÍ** | el deny es por **HERRAMIENTA**, no por **EFECTO** |
+| **E4 presupuesto** | `terminal_reason: budget_exhausted` | **Q6 = SÍ puede ser un gate** |
+
+**Q7 está contestada y la respuesta es buena:** el hook deniega de verdad. Pero E1 es una afirmación
+más fuerte de lo que pedía la pregunta — la sesión estaba configurada para ACEPTAR ediciones y el
+hook igual la venció. Un deny que sólo funciona cuando todo lo demás ya dice que no, no sería
+enforcement.
+
+**Y tres hallazgos que §10 no registra**, los tres con consecuencia directa sobre INC-2:
+
+1. **`can_use_tool` no se invocó en NINGUNA de 5 configuraciones** (default · acceptEdits · plan ·
+   `allowed_tools=[]` · sin modo) y en E2 el write pasó igual. §10.4 y §10.8 la venden como «segunda
+   capa independiente, como hoy»: medimos **UNA**. No es «está rota» — es «no logramos que se
+   dispare», que es distinto y hay que decirlo así. INC-2 no puede apoyarse en ella hasta encontrar
+   la configuración que la activa (`N-0070`).
+2. **`can_use_tool` exige modo STREAMING**: un prompt `str` lanza `ValueError`. Condiciona la FORMA
+   de toda llamada que haga el host, y §10.4 no lo dice (`N-0071`).
+3. **`allowed_tools` ECLIPSA a `can_use_tool`** — lo avisa el propio SDK: una entrada que permite una
+   herramienta entera la auto-aprueba ANTES de consultar el callback, y las reglas de los ficheros de
+   settings también eclipsan «sin ser visibles aquí». La columna de v3 no debe combinar
+   `allowed_tools` amplio con la capa de permiso (`N-0072`).
+
+**El rodeo por Bash confirma por medición lo que el sistema actual ya sabía:** el barrido de
+footprint por git se **porta**, no se retira. La fila de §10.8 que lo daba por «unchanged» tenía
+razón, y ahora hay una corrida que lo prueba en el SDK (`N-0073`).
+
+### Dos errores míos que el diseño atrapó antes que yo
+
+- El control falló dos veces seguidas, y las dos por mi culpa, no del SDK. Primero: dejé que el
+  modelo eligiera la ruta y escribió en `/tmp` en vez del workdir — el oráculo tiene que ser una ruta
+  que el experimento POSEA. Segundo: usé `allowed_tools` amplio, que eclipsaba la capa que quería
+  medir. **El control estaba ahí exactamente para eso**: sin él, las dos veces habría cantado
+  «el deny funciona» sobre un experimento que no probaba nada.
+- Añadí contadores por capa después de la segunda corrida, porque «denegado» y «nunca consultado»
+  producen el mismo directorio vacío y sólo uno de los dos es una garantía.
 
 ### Lo que encontró la Fase 2+3 (el motivo de que INC-0 exista)
 

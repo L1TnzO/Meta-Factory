@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d338bb7640de768d0af131e113b931fedd76b84e updated=2026-07-28T04:05Z -->
+<!-- meta:doc sha=b5f6f711721fed374eae15be2ce50432f10ce297 updated=2026-07-28T04:06Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
@@ -92,11 +92,10 @@ inversión) y el arranque de la línea de build (**INC-0 SDK-PROBE**).
     [ ] N-0035  A-3 budget as an enforced parameter (max_budget_usd, TaskBudget) — opus share is 86 percent vs a 35 percent target
     [ ] N-0036  A-9 memory-risk map: staleness, over-retention have teeth; POISONING has none
   [ ] N-0037  ADR-031: ratify the critique, the inversion and the build plan (they are unratified judgment today)
-  [ ] N-0038  Implement the plan_capture and handoff_derived teeth (the tree has no enforcement yet)
   [ ] N-0044  Leaked work found by the FIRST run of plan_capture (2026-07-28)
     [ ] N-0045  Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p
     [ ] N-0053  88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form
-TOTALS open=37 done=14 dropped=7 nodes=58
+TOTALS open=36 done=15 dropped=7 nodes=58
 ```
 <!-- /plan:handoff -->
 

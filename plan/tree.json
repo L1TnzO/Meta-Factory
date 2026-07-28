@@ -533,6 +533,178 @@
         "cause": "manual"
       },
       "trigger": "an implementation built WITHOUT reading src/ passes CONF-X1..X8"
+    },
+    "N-0044": {
+      "parent": "N-0001",
+      "title": "Leaked work found by the FIRST run of plan_capture (2026-07-28)",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0045": {
+      "parent": "N-0044",
+      "title": "Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:cache-churn-observer"
+      }
+    },
+    "N-0046": {
+      "parent": "N-0044",
+      "title": "Red slot doc-graph-liveness: All 6 contract files implemented correctly (verified by inspection, not rewritten): model.py DOC/CITES/EVIDENCES, doc_gr",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:doc-graph-liveness"
+      },
+      "drop_reason": "Superseded: the evidence_liveness gate is LIVE and green today (283 docs, 2373 citations, red-side fixture alive) — the doc-graph work landed under another slot",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0047": {
+      "parent": "N-0044",
+      "title": "Red slot fsk-coverage-instrument: RED — genuine scope gap (hook-confirmed), not a defect in my 3 files. constants.py/buildcfg.py/stations/s9.yml implement",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:fsk-coverage-instrument"
+      },
+      "drop_reason": "Superseded by FSK-COVERAGE-FULL-100 (2026-07-10): snipeit reports REAL 100.0% line coverage, per STATE",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0048": {
+      "parent": "N-0044",
+      "title": "Red slot fsk-frontend-login: All 4 files implemented verbatim per work-doc §1.1-1.6 (base.py _proof_login_value, frontend.py data-feedback attr, brow",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:fsk-frontend-login"
+      },
+      "drop_reason": "Superseded by ADR-023: template-frontend evolution is FROZEN with pin; human surfaces are now model-native pinned overrides",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0049": {
+      "parent": "N-0044",
+      "title": "Red slot sms-extraction-toolkit: All 4 slot files implemented+green (20/20 new tests, iteration exit 0); acceptance gate as literally specified (pytest o",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:sms-extraction-toolkit"
+      },
+      "drop_reason": "Superseded: the SMS extraction phase COMPLETED (24 waves, 422/422 papers) — the literal acceptance gate was mis-specified, the work is done",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0050": {
+      "parent": "N-0044",
+      "title": "Red slot sms-spi-wave-b-digestion: All 4 STEPs of this slot's own work are done and correct. STEP1: cmd_add_external added to make_digest_sheet.py (all-or-",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:sms-spi-wave-b-digestion"
+      },
+      "drop_reason": "Superseded: SPI closed 2026-07-26 (11 waves to AGREEMENT.md); the digestion layer is complete",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0051": {
+      "parent": "N-0044",
+      "title": "Red slot sms-spi-wave-b-extraction: All 4 STEPs of the slot's own work are done and GREEN: cmd_add_external added (24/24 tests incl. 4 new, all-or-nothing m",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:sms-spi-wave-b-extraction"
+      },
+      "drop_reason": "Superseded: SPI closed 2026-07-26; the extraction layer is complete",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0052": {
+      "parent": "N-0044",
+      "title": "Red slot snipeit-frontend-table-expansion: Implemented all three mechanical edits exactly per contract (20 client.ts import triples, 20 DEF_ blocks appended after ",
+      "kind": "residual",
+      "state": "dropped",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:30Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "escalation",
+        "ref": "slot:snipeit-frontend-table-expansion"
+      },
+      "drop_reason": "Superseded by ADR-023: template-frontend evolution FROZEN; snipeit's surface is a model-native pinned override since 2026-07-08",
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0053": {
+      "parent": "N-0044",
+      "title": "88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:31Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "prose-deferrals"
+      }
+    },
+    "N-0054": {
+      "parent": "N-0038",
+      "title": "plan_capture tooth: harvest structured declarations and refuse work with no node",
+      "kind": "task",
+      "state": "done",
+      "evidence": [
+        "tools/plan_capture.py",
+        "first-run:8 leaks captured",
+        "sabotage:red"
+      ],
+      "opened_at": "2026-07-28T03:31Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "closed_at": "2026-07-28T03:31Z"
+    },
+    "N-0055": {
+      "parent": "N-0038",
+      "title": "handoff_derived tooth: a handoff's open-set section must equal the tree projection",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:31Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
     }
   }
 }

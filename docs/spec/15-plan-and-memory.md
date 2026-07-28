@@ -1,4 +1,4 @@
-<!-- meta:doc sha=85075f2db27dc8787c345e291608c17474f1981c updated=2026-07-28T03:26Z -->
+<!-- meta:doc sha=b2c9374e6b86f6f2c4f15165516ff1978fba3971 updated=2026-07-28T03:32Z -->
 # 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE)
 
 > The engineer's diagnosis, recorded verbatim because it is the requirement: *"a lo largo de los
@@ -320,6 +320,40 @@ python3 tools/plan.py check                # the gate over the live tree
 > because the tool *is* the document, running. It is the sharpest available demonstration of the
 > claim in §12: the first consumer of the spec is the system itself. The tradeoff is recorded in
 > `tools/plan.py`'s own docstring rather than hidden.
+
+### 10.1 The capture tooth, and what its first run found
+
+`tools/plan_capture.py` harvests STRUCTURED declarations and refuses work that has no node
+(`capture_problems`, the normative function above). Harvesting is I/O so it lives in the tool; the
+comparison is law so it lives here (§12 rule 2).
+
+Sources harvested: `deferral: {trigger, since}` mappings in specs and station YAMLs · slot verdicts
+with `status: red` or an explicit `defers` list · checks that exited non-zero inside a proof.
+
+```bash
+python3 tools/plan_capture.py                              # the GATE
+python3 tools/plan_capture.py --fix --parent N-XXXX        # capture as MACHINERY
+PLAN_CAPTURE_SABOTAGE=1 python3 tools/plan_capture.py      # red side — must also exit 0
+```
+
+**Its first run found real leaked work, which is the point.** Eight red slot verdicts sitting in
+`.gen/` with no node anywhere: `cache-churn-observer · doc-graph-liveness · fsk-coverage-instrument ·
+fsk-frontend-login · sms-extraction-toolkit · sms-spi-wave-b-{digestion,extraction} ·
+snipeit-frontend-table-expansion`. All eight are the same shape — *the work was done but the
+acceptance gate as literally specified failed* — and all eight had silently left the system's
+awareness. They were captured, then seven were **dropped with an explicit reason** tracing each to
+the outcome that superseded it, and one (`cache-churn-observer`) was left OPEN because its
+supersession could not be verified. That is the designed workflow: nothing disappears; abandonment
+is a decision with an author.
+
+**And it measured something worse, which prose could not have.** **88 deferrals are declared in
+PROSE**, inside `tech:` strings of the factory specs (`… = declared-deferred`). Prose has no stable
+ref, so no machine can track them, and no gate can notice when one is forgotten. That number is the
+argument for moving them to the structured form — measured, not asserted.
+
+> **Honest scope of the tooth:** it can only compare against what a run *declared*. Work a session
+> notices and never declares anywhere remains invisible. The tooth raises the floor; it does not
+> close the set (§11).
 
 **First real use, measured (2026-07-28).** Seeded with the backlog of the session that specified it —
 43 nodes: 39 open · 4 done · 1 blocked. Verified live: closing the spec arc while nine residuals were

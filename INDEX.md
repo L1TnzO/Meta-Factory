@@ -71,7 +71,7 @@
 | `docs/spec/12-conformance.md` | `d111e25248d5` | 2026-07-28T03:21Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
-| `docs/spec/15-plan-and-memory.md` | `85075f2db27d` | 2026-07-28T03:26Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
+| `docs/spec/15-plan-and-memory.md` | `b2c9374e6b86` | 2026-07-28T03:32Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

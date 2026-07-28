@@ -46,6 +46,14 @@ PLAN_SABOTAGE = ('\n\ndef effective_state(plan, nid):\n'
                  '    return (plan.get(nid) or {}).get("state", "missing")\n'
                  'def structure_problems(plan):\n'
                  '    return []\n')
+# Each §19 module gets a sabotage that reintroduces the exact defect its law exists to prevent.
+DOCSEAL_SABOTAGE = ('\n\ndef git_blob_sha(data):\n'
+                    '    import hashlib\n'
+                    '    return hashlib.sha1(data).hexdigest()\n')   # drops git's blob header
+SLOTLAW_SABOTAGE = ('\n\ndef footprint_problems(slot, changed_paths):\n'
+                    '    return []\n')                               # every write becomes "inside"
+SEQUENCE_SABOTAGE = ('\n\ndef natural_key(name):\n'
+                     '    return (str(name),)\n')                    # s10 sorts before s9 again
 
 
 def extract(root: Path, module: str) -> tuple[str, list[str]]:
@@ -222,6 +230,132 @@ def run_plan_suite(ns: dict) -> list[str]:
     return fail
 
 
+def run_docseal_suite(ns: dict, root: Path) -> list[str]:
+    """§19.1 — differential against the LIVE implementation over every real sealed document."""
+    fail: list[str] = []
+    for fn in ("git_blob_sha", "split_seal", "seal_ok", "render_seal"):
+        if not callable(ns.get(fn)):
+            fail.append(f"CONF-D1: spec does not define a callable `{fn}`")
+    if fail:
+        return fail
+    sys.path.insert(0, str(root / "src"))
+    try:
+        from metafactory import docs_manifest as live
+    except Exception as exc:                                      # noqa: BLE001
+        return [f"CONF-D1: cannot import the live implementation to differ against: {exc!r}"]
+
+    docs = sorted(root.glob("docs/**/*.md")) + sorted(root.glob("factories/*/docs/**/*.md"))
+    compared = valid = 0
+    for d in docs:
+        try:
+            text = d.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        compared += 1
+        # CONF-D2 — the two implementations must SPLIT the seal identically.
+        if ns["split_seal"](text) != live.split_seal(text):
+            fail.append(f"CONF-D2: seal split differs from the live implementation on {d.name}")
+            break
+        # CONF-D3 — and must compute the same blob address for the body.
+        body = ns["split_seal"](text)[1].encode("utf-8")
+        if ns["git_blob_sha"](body) != live.git_blob_sha(body):
+            fail.append(f"CONF-D3: blob address differs from the live implementation on {d.name}")
+            break
+        if ns["seal_ok"](text):
+            valid += 1
+    if compared < 50:
+        fail.append(f"CONF-D4: only {compared} document(s) compared — the oracle is too thin to mean anything")
+    if valid < 50:
+        fail.append(f"CONF-D4: only {valid} document(s) have a VALID seal — expected the corpus to be sealed")
+    # CONF-D5 — round-trip, and an unsealed document is NOT ok (silence is not freshness).
+    sealed = ns["render_seal"]("# t\n\nbody\n", "2026-01-01T00:00Z")
+    if not ns["seal_ok"](sealed):
+        fail.append("CONF-D5: a freshly rendered seal must validate")
+    if ns["seal_ok"]("# t\n\nbody\n"):
+        fail.append("CONF-D5: an UNSEALED document must not be considered ok (fail-closed)")
+    if ns["seal_ok"](sealed.replace("body", "tampered")):
+        fail.append("CONF-D5: tampering with the body must invalidate the seal")
+    return fail
+
+
+def run_slotlaw_suite(ns: dict, root: Path) -> list[str]:
+    """§19.2 — differential against `seed/delegation.py` on real-shaped cases."""
+    fail: list[str] = []
+    for fn in ("write_allowed", "footprint_problems", "verdict_problems"):
+        if not callable(ns.get(fn)):
+            fail.append(f"CONF-L1: spec does not define a callable `{fn}`")
+    if fail:
+        return fail
+    sys.path.insert(0, str(root))
+    try:
+        from seed import delegation as live
+    except Exception as exc:                                      # noqa: BLE001
+        return [f"CONF-L1: cannot import the live slot law to differ against: {exc!r}"]
+
+    slot = {"slot_id": "s", "verdict_path": ".gen/s.verdict.json",
+            "allow_globs": ["docs/spec/*.md", "tools/x.py"],
+            "baseline_dirty": ["already/dirty.txt"]}
+    cases = ["docs/spec/19-algorithms-reference.md", "tools/x.py", "src/metafactory/cli.py",
+             ".gen/scratch.txt", ".gen/s.verdict.json", "already/dirty.txt",
+             "docs/spec/sub/deep.md", "README.md", ".gen"]
+    # CONF-L2 — the footprint law must agree, path by path.
+    if ns["footprint_problems"](slot, cases) != live.footprint_problems(slot, cases):
+        fail.append("CONF-L2: footprint verdict differs from the live implementation")
+    # CONF-L3 — and so must the write predicate.
+    for rel in cases:
+        if rel == ".gen":
+            continue                                   # the live predicate resolves a real path
+        if ns["write_allowed"](slot, rel) != live.write_allowed(root, slot, str(root / rel)):
+            fail.append(f"CONF-L3: write permission differs from the live implementation on {rel}")
+            break
+    # CONF-L4 — a path escaping the repository is never writable (fail-closed).
+    if ns["write_allowed"](slot, None) is not False:
+        fail.append("CONF-L4: a path that escapes the repo must never be writable")
+    # CONF-L5 — the split-gate rule: green needs the HEAVY gate, not just the fast one.
+    g = {"slot_id": "s", "status": "green", "check": "c", "exit_code": 0}
+    if not ns["verdict_problems"]({**slot, "acceptance_gate_cmd": ["x"]}, g):
+        fail.append("CONF-L5: a green verdict without acceptance_exit_code==0 must be refused")
+    if ns["verdict_problems"]({**slot, "acceptance_gate_cmd": ["x"]},
+                              {**g, "acceptance_exit_code": 0}):
+        fail.append("CONF-L5: a green verdict WITH the acceptance gate passed must be accepted")
+    if not ns["verdict_problems"](slot, None):
+        fail.append("CONF-L5: a missing verdict must be a problem")
+    return fail
+
+
+def run_sequence_suite(ns: dict, root: Path) -> list[str]:
+    """§19.3 — ordering, the dial, and transparent deferral."""
+    fail: list[str] = []
+    for fn in ("natural_key", "order_stations", "active_in", "predecessors"):
+        if not callable(ns.get(fn)):
+            fail.append(f"CONF-Q1: spec does not define a callable `{fn}`")
+    if fail:
+        return fail
+    # CONF-Q2 — numeric-aware ordering: the defect that only appears past nine stations.
+    if ns["order_stations"](["s10.yml", "s9.yml", "s1.yml", "_partial.yml"]) != \
+            ["s1.yml", "s9.yml", "s10.yml"]:
+        fail.append("CONF-Q2: ordering must be numeric-aware and skip `_`-prefixed files")
+    # CONF-Q3 — the dial.
+    if ns["active_in"]({"id": "a", "tier": "harden"}, "draft") is not False:
+        fail.append("CONF-Q3: a harden-tier station must be deferred in draft mode")
+    if ns["active_in"]({"id": "a", "tier": "harden"}, "harden") is not True:
+        fail.append("CONF-Q3: a harden-tier station must be active in harden mode")
+    if ns["active_in"]({"id": "a", "activation": "off"}, "harden") is not False:
+        fail.append("CONF-Q3: `activation: off` must be inactive in every mode")
+    # CONF-Q4 — TRANSPARENT deferral: a skipped predecessor must not satisfy its successors.
+    line = [{"id": "s0"}, {"id": "s1", "tier": "harden"}, {"id": "s2"}]
+    if ns["predecessors"](line, "s2", "harden") != ["s1"]:
+        fail.append("CONF-Q4: in harden mode the predecessor of s2 is s1")
+    if ns["predecessors"](line, "s2", "draft") != ["s0"]:
+        fail.append("CONF-Q4: a DEFERRED predecessor must be transparent — the gate falls through "
+                    "to ITS predecessor, never treating the chain as satisfied")
+    # CONF-Q5 — explicit fan-in wins over file order.
+    fan = [{"id": "a"}, {"id": "b"}, {"id": "c", "depends_on": ["a", "b"]}]
+    if sorted(ns["predecessors"](fan, "c")) != ["a", "b"]:
+        fail.append("CONF-Q5: an explicit depends_on fan-in must require ALL of them")
+    return fail
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[0]).resolve() if argv else Path(__file__).resolve().parents[1]
     sabotage = os.environ.get("SPEC_CONFORMANCE_SABOTAGE") == "1"
@@ -262,6 +396,24 @@ def main(argv: list[str]) -> int:
         else:
             failures.extend(run_plan_suite(plan_ns))
 
+    # ── §19: seal, slot law, sequence — each with a real oracle ──────────────────
+    for mod, runner, sab in (("docseal", run_docseal_suite, DOCSEAL_SABOTAGE),
+                             ("slotlaw", run_slotlaw_suite, SLOTLAW_SABOTAGE),
+                             ("sequence", run_sequence_suite, SEQUENCE_SABOTAGE)):
+        src, mod_files = extract(root, mod)
+        if not src.strip():
+            failures.append(f"CONF: no `<!-- spec-impl: {mod} -->` block found in docs/spec/*.md")
+            continue
+        files = files + mod_files
+        try:
+            mod_ns = load_module(src, False)
+            if sabotage:
+                exec(compile(sab, f"<spec:{mod}-sabotage>", "exec"), mod_ns)
+        except Exception as exc:                                  # noqa: BLE001
+            failures.append(f"CONF: the extracted `{mod}` does not execute: {exc!r}")
+        else:
+            failures.extend(runner(mod_ns, root))
+
     if sabotage:
         if failures:
             print("VERDICT    spec-conformance (SABOTAGE) — PASS   (exit 0)")
@@ -280,7 +432,7 @@ def main(argv: list[str]) -> int:
         return 1
     print("VERDICT    spec-conformance — PASS   (exit 0)")
     print(f"SUMMARY    kernel rebuilt from {len(files)} spec file(s); "
-          f"{len(vectors)} pin-anchored vector(s) reproduce; 14 conformance checks green (kernel + plan)")
+          f"{len(vectors)} pin-anchored vector(s) reproduce; 26 conformance checks green (kernel + plan + seal + slot law + sequence)")
     print(f"ARTIFACT   {SPEC_DIR}/ (blocks: {', '.join(sorted(set(files)))})")
     return 0
 

@@ -79,49 +79,65 @@
       "parent": "N-0002",
       "title": "spec-impl block: sequence/DAG ordering + transparent deferral + gate law",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/19-algorithms-reference.md#sequence",
+        "CONF-Q2..Q5:green",
+        "sabotage bites in isolation"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T04:00Z"
     },
     "N-0007": {
       "parent": "N-0002",
       "title": "spec-impl block: slot footprint law + verdict_ok",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/19-algorithms-reference.md#slotlaw",
+        "CONF-L2..L5 differential vs seed/delegation.py",
+        "sabotage bites"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T04:00Z"
     },
     "N-0008": {
       "parent": "N-0002",
       "title": "spec-impl block: RTM derivation (requirement to capability to station to artifact)",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "trigger": "the RTM's I/O boundary is split so that a PURE core exists worth specifying — today nearly all its truth is filesystem+proof I/O, so a block would specify almost nothing and give false coverage (documented in 19-algorithms-reference.md section 4)"
     },
     "N-0009": {
       "parent": "N-0002",
       "title": "spec-impl block: doc seal + INDEX generation",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/19-algorithms-reference.md#docseal",
+        "CONF-D2..D5 differential over 280+ real docs",
+        "sabotage bites"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T04:00Z"
     },
     "N-0010": {
       "parent": "N-0002",

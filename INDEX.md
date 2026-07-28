@@ -56,7 +56,7 @@
 | `docs/reference/REGEN-AUDIT.md` | `a7b554af2685` | 2026-07-11T16:16Z | REGEN-AUDIT — what the Meta-Factory generates vs the original ASF (mine of increments) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
-| `docs/spec/00-README.md` | `a0dcb02ac982` | 2026-07-28T03:21Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
+| `docs/spec/00-README.md` | `910f0534c6b3` | 2026-07-28T04:01Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
 | `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
 | `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
@@ -68,13 +68,14 @@
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `717221b982d0` | 2026-07-28T02:47Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
 | `docs/spec/11-build-plan.md` | `be16c2a9884c` | 2026-07-28T02:47Z | 11 — Build plan for v3 (JUDGMENT) |
-| `docs/spec/12-conformance.md` | `d111e25248d5` | 2026-07-28T03:21Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
+| `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/spec/16-catalogs.md` | `482ea8a31415` | 2026-07-28T03:56Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
 | `docs/spec/18-rationale.md` | `f5db690a55d2` | 2026-07-28T03:38Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
+| `docs/spec/19-algorithms-reference.md` | `87f584c6f514` | 2026-07-28T04:01Z | 19 — Reference implementations: seal, slot law, sequence (NORMATIVE, EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |
@@ -184,7 +185,7 @@
 | `docs/work/SLOT-FOOTPRINT-TOOTH-INCREMENT.md` | `e4ff08e4d5ae` | 2026-07-11T17:43Z | Incremento SLOT-FOOTPRINT-TOOTH |
 | `docs/work/SOTA-PARITY-DIRECTION-INCREMENT.md` | `f7fa25efe194` | 2026-07-11T14:48Z | Incremento SOTA-PARITY-DIRECTION |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
-| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `2e72bd81a4d3` | 2026-07-28T03:56Z | Incremento SPEC-RECONSTRUCTABLE |
+| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `9ea456c6d718` | 2026-07-28T04:01Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

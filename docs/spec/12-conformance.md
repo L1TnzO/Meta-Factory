@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d111e25248d53aa7229c941213817e81560a2f0e updated=2026-07-28T03:21Z -->
+<!-- meta:doc sha=b44613239cb7d5d601e9a3a106334dbad42753f9 updated=2026-07-28T04:01Z -->
 # 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE)
 
 > The goal of this folder is unusual and worth stating without hedging: **`docs/spec/` must be
@@ -81,6 +81,25 @@ requires a reason, `blocked` requires a trigger, declared work without a node is
 
 Its sabotage removes derived closure — pathology D3 reintroduced on purpose — and the suite must
 notice. Measured today: **13 checks green (kernel + plan) · 5 failures under sabotage.**
+
+### 4.1ter Seal, slot law, sequence (L1, same runner) — implemented, green
+
+`19-algorithms-reference.md` carries three further normative modules, each with a **real** oracle
+rather than a synthetic one:
+
+| Module | Suite | Oracle |
+| --- | --- | --- |
+| `docseal` | **CONF-D1..D5** | differential against the live implementation over **every sealed document in the repository**, plus round-trip and tamper cases. Fail-closed: an unsealed document is not "ok" |
+| `slotlaw` | **CONF-L1..L5** | **differential against `seed/delegation.py`** on real-shaped paths — two independent implementations agreeing is what makes the green meaningful |
+| `sequence` | **CONF-Q1..Q5** | numeric-aware ordering (`s9` before `s10`), the draft→harden dial, explicit fan-in, and **transparent deferral**: a skipped predecessor must never silently satisfy its successors |
+
+Each module ships a sabotage that reintroduces **the exact defect its law exists to prevent** — the
+seal loses git's blob header, the footprint law accepts everything, the ordering goes lexicographic.
+
+> **Verified in isolation, not only in aggregate (2026-07-28).** An aggregate sabotage can hide a
+> decorative sub-suite: one module bites, the total is non-zero, and nobody notices the other two
+> proved nothing. Measured per module — `docseal` 0 → 3 failures · `slotlaw` 0 → 1 · `sequence`
+> 0 → 1. Totals today: **26 conformance checks green**, 10 failures under sabotage.
 
 ### 4.2 Schemas (L2) — specified, being filled in §13
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a0dcb02ac982b1bd2b4bc3cc5ac50a9db73614d4 updated=2026-07-28T03:21Z -->
+<!-- meta:doc sha=910f0534c6b39944e2ca559f26188f8b733e8e24 updated=2026-07-28T04:01Z -->
 # SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK
 
 > type: reference (stable) · authored 2026-07-27T21:28Z · language: English (new technical artifacts, ADR-026)
@@ -45,6 +45,10 @@ rebuild, when it starts, opens its own arc under `docs/work/` through `meta incr
 | 13 | `13-schemas.md` | descriptive | you implement any artifact the system reads or writes |
 | 14 | `14-kernel-reference.md` | **normative, executable** | you implement the trust kernel — this file IS the kernel |
 | 15 | `15-plan-and-memory.md` | **normative, executable** | you implement the plan tree, the handoff, or anything that must survive across sessions |
+| 16 | `16-catalogs.md` | descriptive | you implement a gate or a check kind — the COMPLETE catalogues, each gate with its red-side witness |
+| 17 | `17-golden-example.md` | descriptive + checked | you want one factory end to end; its declared outcomes reproduce the committed pin |
+| 18 | `18-rationale.md` | **normative** | before re-proposing anything — what was rejected, by what measurement, and what would reopen it |
+| 19 | `19-algorithms-reference.md` | **normative, executable** | you implement the doc seal, the slot law, or the sequence |
 | — | `fixtures/` | data | the golden vectors the conformance suite runs against |
 
 A reader with 10 minutes reads `02` and `09`. A reader with an hour reads `02`, `09`, `10`, `11`.

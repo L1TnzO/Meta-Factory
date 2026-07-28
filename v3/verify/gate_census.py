@@ -130,6 +130,22 @@ def _registered() -> tuple[set[str], str]:
     return set(build_registry(_ROOT).names()), ""
 
 
+def _ref_binding_problems() -> list[str]:
+    """The price of this module's rule-3 exemption in `import_boundary`: prove the read is a
+    function of the COMMIT, not of the tree.
+
+    A working-tree read would succeed whatever ref it was handed. This one must fail at a ref that
+    does not exist — which is also why it survives INC-11 deleting v2: history does not move.
+    """
+    bogus = "0" * 40
+    try:
+        _show(bogus, _V2_CLI)
+    except FileNotFoundError:
+        return []
+    return [f"{_V2_CLI} was readable at a nonexistent ref: the census is reading the working tree, "
+            f"so its exemption from the v2-import boundary is not earned"]
+
+
 def check(ref: str, *, sabotage: bool = False) -> tuple[list[str], dict]:
     problems: list[str] = []
     rows = dict(DISPOSITIONS)
@@ -153,6 +169,8 @@ def check(ref: str, *, sabotage: bool = False) -> tuple[list[str], dict]:
     for name in sorted(set(rows) - v2):
         problems.append(f"{name}: has a disposition but is not a v2 gate at {ref[:8]} — paperwork "
                         f"for something that does not exist")
+
+    problems.extend(_ref_binding_problems())
 
     registered, note = _registered()
     counts = {"v2": len(v2), "declared": len(rows), "landed": 0, "pending": 0}

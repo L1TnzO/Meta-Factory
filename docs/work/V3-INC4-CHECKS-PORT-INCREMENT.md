@@ -57,6 +57,24 @@ incremento los reclama. No hace falta un incremento: **la ley de registro lo vue
 gate sin testigo rojo no se registra, así que el fixture rojo viaja con el gate o el gate no entra.
 Lo que era una lista pendiente pasa a ser una precondición.
 
+**C-8 — la ley de frontera no distingue *ejecutar* v2 de *leer* su historia.** `import_boundary`
+regla 3 prohíbe strings que nombren el sustrato v2, como proxy de import dinámico o inyección de
+path. Pero ADR-031 §2.1 **exige** leer artefactos de v2 en un commit pineado —así se mide la
+paridad— y `git show <ref>:<path>` no es el peligro al que apunta la regla. Depender del CÓDIGO de
+v2 significa que v3 deja de funcionar cuando INC-11 lo borre; leer su HISTORIA sigue funcionando
+para siempre, porque el commit es inmutable. La regla no puede distinguirlas desde un string, y el
+censo fue el primer módulo en chocarla —dentro de la hora, igual que le pasó a la propia ley con la
+sonda del SDK.
+
+La salida barata habría sido mover la ruta a un archivo de datos. Es exactamente cómo la regla 3
+deja de proteger algo: por atrición, un lector de oráculo a la vez, sin que nadie lo decida. Así
+que la exención queda **enumerada con su razón** (misma forma que `ONE_SIDED`, `agent_roles`,
+`KINDS`) y **se gana**: las reglas 1 y 2 se siguen aplicando adentro del módulo exento, el censo
+prueba que su lectura está **ligada al ref** (leer en un ref inexistente tiene que fallar; una
+lectura del working tree tendría éxito con cualquier ref), y una exención que ya no se usa es ella
+misma una violación —un permiso huérfano es un permiso esperando que lo reusen para algo que nadie
+argumentó. Los tres dientes verificados por experimento negativo, no por afirmación.
+
 **C-7 — la aceptación de §11.6 cláusula 3 cuenta mal.** Dice «`meta check` corre 23 gates con cero
 skips». En v3 el número correcto no es 23 registros sino **23 disposiciones**: registrar seis gates
 que hoy no pueden ser verdad sería fabricar el verde que la cláusula existe para impedir. Lo que se

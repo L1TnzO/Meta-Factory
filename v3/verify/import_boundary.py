@@ -33,6 +33,20 @@ INC-1 recomputes the pins with the ported kernel over proofs read at `oracle_ref
 SELF-REFERENCE. This file necessarily spells the forbidden package name in order to look for it, so
 it is exempt from rule 3 ON ITSELF and only on itself. Rules 1 and 2 still apply to it: the checker
 may name the boundary, never cross it.
+
+ORACLE READERS (added by INC-4, and the reasoning is the point). Rule 3 is a PROXY: it bans a
+string because a string is how an import or a path injection hides. But ADR-031 §2.1 *requires*
+reading v2 artifacts at a pinned commit — that is how parity is measured at all — and `git show
+<ref>:<path>` is not the danger rule 3 is aiming at. Depending on v2 CODE means v3 stops working
+when INC-11 deletes it; reading v2 HISTORY keeps working forever, because the commit is immutable.
+Rule 3 cannot tell those apart from a string.
+
+Rather than let each new oracle reader quietly move its path into a data file until rule 3 protects
+nothing, the exemption is ENUMERATED here with its reason, and it is EARNED: rules 1 and 2 still
+apply, and each exempt module carries a case proving its read is REF-BOUND (reading at a bogus ref
+must fail — a working-tree read would succeed no matter what ref it was handed). An exemption that
+stops being needed is itself a violation: an orphaned carve-out is one inconvenient afternoon away
+from being used for something else.
 """
 
 from __future__ import annotations
@@ -45,6 +59,15 @@ from pathlib import Path
 _SELF = Path(__file__).resolve()
 _V3 = _SELF.parent.parent  # …/v3
 _PKG = "metafactory"
+
+#: Modules allowed to NAME a v2 path (rule 3 only) because they read it AT A COMMIT. Closed, with
+#: the reason, and each one must prove its read is ref-bound in its own gate. See ORACLE READERS.
+_ORACLE_READERS: dict[str, str] = {
+    "v3/verify/gate_census.py":
+        "derives v2's 23-gate list from `cmd_check` at oracle_ref via `git show`, so the census "
+        "cannot be a table someone forgot to update; ref-binding proven by its own case, and the "
+        "read survives INC-11 deleting v2 because a commit is immutable",
+}
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}
 
@@ -96,16 +119,32 @@ def analyze(source: str, label: str, *, check_strings: bool = True) -> list[str]
 
 
 def scan(v3_root: Path) -> tuple[list[str], int]:
-    """I/O at the edge: collect the modules, hand each to the law."""
+    """I/O at the edge: collect the modules, hand each to the law.
+
+    Each module is analysed TWICE — with and without rule 3 — so an exemption can drop the string
+    findings while keeping rules 1 and 2, without anyone parsing a message to tell them apart. The
+    difference between the two runs is also what reveals an exemption nobody uses any more.
+    """
     files = sorted(p for p in v3_root.rglob("*.py") if "__pycache__" not in p.parts)
     problems: list[str] = []
+    named_v2: set[str] = set()
     for path in files:
         label = path.relative_to(v3_root.parent).as_posix()
-        problems += analyze(
-            path.read_text(encoding="utf-8"),
-            label,
-            check_strings=(path.resolve() != _SELF),  # see SELF-REFERENCE in the module docstring
-        )
+        source = path.read_text(encoding="utf-8")
+        structural = analyze(source, label, check_strings=False)   # rules 1 and 2: never exempt
+        everything = analyze(source, label, check_strings=True)
+        if len(everything) > len(structural):
+            named_v2.add(label)
+        exempt = label in _ORACLE_READERS or path.resolve() == _SELF
+        problems += structural if exempt else everything
+
+    for label in sorted(_ORACLE_READERS):
+        if not (v3_root.parent / label).exists():
+            problems.append(f"{label}: enumerated as an oracle reader but is not in the tree")
+        elif label not in named_v2:
+            problems.append(f"{label}: holds an oracle-reader exemption it no longer uses — an "
+                            f"orphaned carve-out is a permission waiting to be reused for something "
+                            f"nobody argued for")
     return problems, len(files)
 
 

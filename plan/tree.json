@@ -848,6 +848,19 @@
         "ref": "tools/spec_doc_check.py"
       },
       "closed_at": "2026-07-28T15:46Z"
+    },
+    "N-0063": {
+      "parent": "N-0002",
+      "title": "docs gate red since 2026-07-12: FSK STATE.md (ce32b97, 07-11) older than a newer FSK doc (b50ade5, 07-12) — 16 days chronic, exactly the N-0060 pathology",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T15:59Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "factories/full-stack-kotlin/docs/STATE.md"
+      }
     }
   }
 }

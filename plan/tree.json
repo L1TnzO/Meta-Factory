@@ -793,6 +793,61 @@
         "cause": "gate_red",
         "ref": "gate:projection:no-witness"
       }
+    },
+    "N-0059": {
+      "parent": "N-0002",
+      "title": "S15: the plan tree is meta-only — S10.9 composes hooks/agents/tools to factories but not the plan",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T15:36Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/10-target-sdk.md:282"
+      }
+    },
+    "N-0060": {
+      "parent": "N-0002",
+      "title": "S15: no tooth against CHRONIC openness — age/staleness is a reported metric (S8), never red",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T15:36Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/15-plan-and-memory.md:318"
+      }
+    },
+    "N-0061": {
+      "parent": "N-0002",
+      "title": "S15: make 'trigger' referenceable to a node id so postponement-by-preemption is an EDGE that fires when the blocker closes",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T15:36Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/15-plan-and-memory.md:47"
+      }
+    },
+    "N-0062": {
+      "parent": "N-0002",
+      "title": "spec_doc_check: unknown --mode ran zero checks and printed PASS (Lock #1 violation) — fixed, keep the guard when the L1 runner is ported in INC-4",
+      "kind": "residual",
+      "state": "done",
+      "evidence": [
+        "verified: --mode ZZZNONSENSE exit 2 (was exit 0 PASS); --mode dangling exit 2; --mode rationale exit 0 with its own summary; SABOTAGE=1 still detects 3 problems"
+      ],
+      "opened_at": "2026-07-28T15:46Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "tools/spec_doc_check.py"
+      },
+      "closed_at": "2026-07-28T15:46Z"
     }
   }
 }

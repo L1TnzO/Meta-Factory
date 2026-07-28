@@ -179,19 +179,41 @@ def check_rationale(sabotage: bool) -> list[str]:
     return problems
 
 
+MODES = (("catalogs", check_catalogs), ("golden", check_golden), ("rationale", check_rationale))
+
+
 def main(argv: list[str]) -> int:
     mode = "all"
     if "--mode" in argv:
-        mode = argv[argv.index("--mode") + 1]
+        i = argv.index("--mode")
+        if i + 1 >= len(argv):
+            print("VERDICT    spec-doc-check — FAIL   (exit 2)")
+            print("SUMMARY    --mode requires a value")
+            return 2
+        mode = argv[i + 1]
+
+    # Lock #1 (I-1): a run that selects NO check must never be green. An unknown mode used to
+    # execute zero checks and print PASS — a typo in a CI wiring would have made this gate
+    # permanently decorative and silent. An empty check set is False, never vacuously true.
+    known = [name for name, _ in MODES]
+    if mode != "all" and mode not in known:
+        print("VERDICT    spec-doc-check — FAIL   (exit 2)")
+        print(f"SUMMARY    unknown --mode {mode!r}: expected one of {', '.join(known)}, all")
+        return 2
+
     sabotage = os.environ.get("SPEC_DOC_SABOTAGE") == "1"
 
     problems: list[str] = []
-    if mode in ("catalogs", "all"):
-        problems += check_catalogs(sabotage)
-    if mode in ("golden", "all"):
-        problems += check_golden(sabotage)
-    if mode in ("rationale", "all"):
-        problems += check_rationale(sabotage)
+    ran: list[str] = []
+    for name, fn in MODES:
+        if mode in (name, "all"):
+            ran.append(name)
+            problems += fn(sabotage)
+
+    if not ran:  # unreachable while MODES is non-empty — the guard is the point (Lock #1)
+        print("VERDICT    spec-doc-check — FAIL   (exit 2)")
+        print(f"SUMMARY    mode {mode!r} selected zero checks; a green would be vacuous")
+        return 2
 
     if sabotage:
         if problems:
@@ -210,9 +232,17 @@ def main(argv: list[str]) -> int:
         if len(problems) > 6:
             print(f"FAILURES   … and {len(problems) - 6} more")
         return 1
+    # The summary names what ACTUALLY ran. It used to print the catalogs+golden facts whatever
+    # the mode, so a mode that ran nothing still read like a full pass.
+    detail = [f"ran: {'+'.join(ran)}"]
+    if "catalogs" in ran:
+        detail.append(f"{len(gate_names())} gate(s) + {len(kind_names())} kind(s) catalogued")
+    if "golden" in ran:
+        detail.append("dummy's pin reproduces from the golden example")
+    if "rationale" in ran:
+        detail.append("every rejection carries a reopening condition")
     print(f"VERDICT    spec-doc-check [{mode}] — PASS   (exit 0)")
-    print(f"SUMMARY    {len(gate_names())} gate(s) + {len(kind_names())} kind(s) catalogued; "
-          f"dummy's pin reproduces from the golden example")
+    print(f"SUMMARY    {'; '.join(detail)}")
     return 0
 
 

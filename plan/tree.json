@@ -892,14 +892,17 @@
       "parent": "N-0012",
       "title": "import-boundary tooth: no module under v3/ imports metafactory, no sys.path into src/ (the price of building in tree)",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "meta check unchanged at 5/23 red — no sixth red added"
+      ],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      }
+      },
+      "closed_at": "2026-07-28T16:36Z"
     },
     "N-0067": {
       "parent": "N-0013",

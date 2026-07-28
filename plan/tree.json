@@ -53,13 +53,17 @@
       "parent": "N-0002",
       "title": "Write 18-rationale: negative knowledge, each with its reopening trigger",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/18-rationale.md",
+        "12 entries + 5 retracted claims + 8 operational lessons"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "handoff"
-      }
+      },
+      "closed_at": "2026-07-28T03:38Z"
     },
     "N-0006": {
       "parent": "N-0002",
@@ -710,6 +714,18 @@
         "cause": "manual"
       },
       "closed_at": "2026-07-28T03:36Z"
+    },
+    "N-0056": {
+      "parent": "N-0002",
+      "title": "Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:38Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
     }
   }
 }

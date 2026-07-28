@@ -1,4 +1,4 @@
-<!-- meta:doc sha=63168806cd45cce80c55ca6b5ac6ba31633e1f40 updated=2026-07-28T03:36Z -->
+<!-- meta:doc sha=f02896378a6323a437da8fc2f1b80519c412422d updated=2026-07-28T03:38Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
@@ -44,13 +44,13 @@ sea DECIDIBLE por un gate, no por lectura.
   [ ] N-0002  Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)
     [ ] N-0003  Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness
     [ ] N-0004  Write 17-golden-example: the dummy factory end-to-end, spec to pin
-    [ ] N-0005  Write 18-rationale: negative knowledge, each with its reopening trigger
     [ ] N-0006  spec-impl block: sequence/DAG ordering + transparent deferral + gate law
     [ ] N-0007  spec-impl block: slot footprint law + verdict_ok
     [ ] N-0008  spec-impl block: RTM derivation (requirement to capability to station to artifact)
     [ ] N-0009  spec-impl block: doc seal + INDEX generation
     [ ] N-0010  L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)
     [~] N-0043  Declare L3 sufficiency   (unblocks when: an implementation built WITHOUT reading src/ passes CONF-X1..X8)
+    [ ] N-0056  Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry
   [ ] N-0011  v3 build line: INC-0..INC-12
     [ ] N-0012  INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table
     [ ] N-0013  INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs
@@ -82,7 +82,7 @@ sea DECIDIBLE por un gate, no por lectura.
   [ ] N-0044  Leaked work found by the FIRST run of plan_capture (2026-07-28)
     [ ] N-0045  Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p
     [ ] N-0053  88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form
-TOTALS open=42 done=6 dropped=7 nodes=55
+TOTALS open=42 done=7 dropped=7 nodes=56
 ```
 <!-- /plan:handoff -->
 

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=55ebf7bdec05801f15bbd5771bb0a00f3d5dd74a updated=2026-07-28T18:10Z -->
+<!-- meta:doc sha=ffb4af2d2edb4915c3f8236024f3ac61a6a5ee2b updated=2026-07-28T18:19Z -->
 # Incremento V3-INC2-CONTROL-PLANE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T17:41Z). Cerralo con `meta increment close`
@@ -65,7 +65,35 @@ modela mejor la amenaza real — alguien editando `established()` con prisa.
 | 2 | `v3/verify/abstention.py` — cláusula (i), 5 casos, dos lados | ✅ |
 | 3 | `v3/control/hooks.py` + `v3/verify/column_live.py` — cláusula (ii), viva | ✅ |
 | 4 | `control/{column,agents}` + gate `composition` — la proyección por nivel | ✅ |
-| 4b | `control/tools.py` — los verbos como herramientas MCP en proceso | ⏳ |
+| 4b | `control/permissions.py` + `host/session.py` + gate `leaf_bounded` — la hoja acotada | ✅ |
+| 4c | `control/tools.py` — los verbos como herramientas MCP en proceso | ⏳ INC-3 |
+
+### La hoja acotada — a lo que se reduce todo el arnés de delegación
+
+Un modelo recibe la orden de escribir donde no puede, y el archivo no aparece. Todo lo demás
+—manifiestos, roles, veredictos— es contabilidad alrededor de esa propiedad.
+
+| Caso | Resultado |
+| --- | --- |
+| **A dentro** (`src/*.py`) | archivo **existe**, capa consultada: `src/ok.py matches src/*.py` |
+| **B fuera** (`docs/notes.txt`) | archivo **no existe**, denegado POR NOMBRE: `outside the blast radius ['src/*.py']` |
+| **C sin radio** (`allow_globs=()`) | rechazado **antes del spawn**, coste `null` — no llegó al modelo |
+
+**Dos errores míos, los dos cazados por el gate y no por releer.**
+
+1. Arrastré `permission_mode="acceptEdits"` desde las sondas de INC-0 a `session.py`. Eso **eclipsa**
+   `can_use_tool`: la CLI deja de preguntar y el radio se vuelve decorativo. Un archivo aterrizó
+   FUERA del radio con la capa nunca consultada. Generaliza `N-0072` más allá de `allowed_tools`:
+   **cualquier cosa que pre-apruebe apaga la capa de permiso; la columna sólo existe donde nada dijo
+   que sí antes.**
+2. El control negativo pedía escribir `secrets/leak.txt` con contenido `LEAK`, y el modelo se negó
+   **por su cuenta** — no hubo denegación registrada porque no hubo intento. Un control negativo
+   tiene que ser neutro en toda dimensión salvo la que se mide, o «no pasó» deja de significar
+   «lo paramos».
+
+**Lo que esto NO prueba, dicho porque el hueco está medido:** un deny es por HERRAMIENTA, no por
+EFECTO. El barrido de footprint por git es lo que cierra eso, después. Dos capas acá más un barrido
+allá — y la afirmación honesta es ese número, no «el slot está sellado».
 | 5 | Deudas `N-0070` y `N-0077` **CERRADAS por medición** — la causa común era el TRANSPORTE · `N-0075`/R-14 pendiente | ✅ |
 
 ### Fase 4 — la composición reemplaza cuatro gates por una afirmación de conjuntos
@@ -127,5 +155,19 @@ ocurre. Y sólo es posible porque el host posee el bucle — es la inversión pa
 
 1. `abstention` verde y su sabotaje rojo. ✅
 2. `column_live` verde con control que escribe. ✅
-3. Fase 4 y Fase 5 cerradas, o diferidas con nodo y disparador.
-4. `meta check` sin sexto rojo.
+3. `composition` verde y su sabotaje rojo (12 → 6, seis exclusiones con razón). ✅
+4. `leaf_bounded` verde: allow escribe · fuera se deniega por nombre · sin radio no llega al modelo. ✅
+5. Deudas `N-0070`/`N-0077` cerradas por medición; `N-0075` (pydantic) re-bloqueada con disparador
+   afilado — pertenece a INC-3, donde el manifiesto vive EN DISCO. ✅
+6. `meta check` sin sexto rojo. ✅
+
+## Lo que queda ABIERTO en el nodo, y por qué el incremento igual cierra
+
+`N-0014` no puede cerrarse: le cuelga `N-0075` (pydantic), que por R-14 se decide cuando INC-3
+escriba `delegation/slot.py`. El incremento entregó lo suyo; el nodo debe trabajo que pertenece a
+otro arco.
+
+Es la **segunda vez** que pasa —`N-0012` cargaba hallazgos que eran de INC-2— y dos veces ya no es
+anécdota. §15 dice que re-parentar está ANTICIPADO y queda registrado, pero **no hay verbo**, así que
+un padre queda abierto por trabajo ajeno. Capturado como nodo con la evidencia de las dos mordidas,
+no como preferencia.

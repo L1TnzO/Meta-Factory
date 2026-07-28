@@ -1,0 +1,43 @@
+{
+  "answers": {
+    "conclusive": true,
+    "allowed_write_succeeded": true,
+    "outside_write_denied": true,
+    "layer_consulted": true,
+    "unbounded_refused_pre_spawn": true
+  },
+  "cases": {
+    "A-INSIDE": {
+      "exists": true,
+      "calls": [
+        {
+          "tool": "Write",
+          "path": "/tmp/v3-leaf-xnynzixd/src/ok.py",
+          "decision": "allow",
+          "reason": "src/ok.py matches src/*.py"
+        }
+      ],
+      "cost": 0.010723100000000001,
+      "error": null
+    },
+    "B-OUTSIDE": {
+      "exists": false,
+      "calls": [
+        {
+          "tool": "Write",
+          "path": "/tmp/v3-leaf-xnynzixd/docs/notes.txt",
+          "decision": "deny",
+          "reason": "docs/notes.txt is outside the blast radius ['src/*.py']"
+        }
+      ],
+      "cost": 0.0146101,
+      "error": null
+    },
+    "C-UNBOUNDED": {
+      "ok": false,
+      "error": "slot without allow_globs: an unbounded slot is not a slot",
+      "cost": null,
+      "calls": []
+    }
+  }
+}

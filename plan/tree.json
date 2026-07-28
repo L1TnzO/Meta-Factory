@@ -934,14 +934,17 @@
       "parent": "N-0014",
       "title": "gate has TWO clauses (ADR-031 A1): abstention refuses = abort condition; hooks refuse = red-and-redesign",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/verify/abstention.py (clausula i, aborto) y v3/verify/column_live.py (clausula ii, rojo-y-rediseno) miden las dos por separado y con fuerzas distintas, como pedia A1"
+      ],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      }
+      },
+      "closed_at": "2026-07-28T18:19Z"
     },
     "N-0069": {
       "parent": "N-0012",
@@ -1039,14 +1042,15 @@
       "parent": "N-0014",
       "title": "R-14: decidir pydantic para el límite tipado cuando INC-2 escriba delegation/slot.py — diferido, no rechazado",
       "kind": "question",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T17:07Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/spec/18-rationale.md"
-      }
+      },
+      "trigger": "INC-3 escribe delegation/slot.py con el manifiesto EN DISCO: hoy el Slot es solo en proceso y nada se PARSEA desde entrada no confiable, asi que el coste de pydantic sigue sin ser visible. Cuando el manifiesto se lea de vuelta tras un crash y gane vocabulario cerrado, ahi se decide"
     },
     "N-0076": {
       "parent": "N-0012",
@@ -1125,6 +1129,35 @@
         "ref": "v3/verify/column_live.py"
       },
       "closed_at": "2026-07-28T18:09Z"
+    },
+    "N-0081": {
+      "parent": "N-0014",
+      "title": "GENERALIZAR N-0072: no es solo allowed_tools — permission_mode tambien ECLIPSA can_use_tool. Cualquier cosa que PRE-APRUEBE apaga la capa de permiso; la columna solo existe donde nada dijo que si antes. Lo caza leaf_bounded",
+      "kind": "residual",
+      "state": "done",
+      "evidence": [
+        "v3/host/session.py: sin permission_mode y sin allowed_tools amplio, con el porque escrito; leaf_bounded lo caza si vuelve"
+      ],
+      "opened_at": "2026-07-28T18:18Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/host/session.py"
+      },
+      "closed_at": "2026-07-28T18:19Z"
+    },
+    "N-0082": {
+      "parent": "N-0002",
+      "title": "El arbol necesita un verbo REPARENT: ya mordio dos veces (N-0012 con hallazgos que eran de INC-2, N-0014 con pydantic que es de INC-3). §15 dice que re-parentar esta ANTICIPADO y queda registrado, pero no hay verbo — asi que el nodo padre queda abierto por trabajo que pertenece a otro arco",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T18:19Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "docs/spec/15-plan-and-memory.md"
+      }
     }
   }
 }

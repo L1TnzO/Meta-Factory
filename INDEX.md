@@ -75,7 +75,7 @@
 | `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/spec/16-catalogs.md` | `482ea8a31415` | 2026-07-28T03:56Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
-| `docs/spec/18-rationale.md` | `de89fa7d4257` | 2026-07-28T04:04Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
+| `docs/spec/18-rationale.md` | `8659e1175d69` | 2026-07-28T17:08Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
 | `docs/spec/19-algorithms-reference.md` | `87f584c6f514` | 2026-07-28T04:01Z | 19 — Reference implementations: seal, slot law, sequence (NORMATIVE, EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |

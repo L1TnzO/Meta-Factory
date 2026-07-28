@@ -997,6 +997,32 @@
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
       }
+    },
+    "N-0074": {
+      "parent": "N-0011",
+      "title": "R-13: framework de workflow para la FSM v3 RECHAZADO (traería su propio almacén de estado, y el nuestro es la capa de evidencia); Python puro era HERENCIA, no decisión — la pregunta ADR-023 §2 se había saltado para este subsistema",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T17:07Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/18-rationale.md"
+      }
+    },
+    "N-0075": {
+      "parent": "N-0014",
+      "title": "R-14: decidir pydantic para el límite tipado cuando INC-2 escriba delegation/slot.py — diferido, no rechazado",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T17:07Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/18-rationale.md"
+      }
     }
   }
 }

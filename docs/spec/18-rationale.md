@@ -1,4 +1,4 @@
-<!-- meta:doc sha=de89fa7d4257748fd78b43a93b32d4abdb4273dd updated=2026-07-28T04:04Z -->
+<!-- meta:doc sha=8659e1175d696fd7f522935b5dba3179ff13c938 updated=2026-07-28T17:08Z -->
 # 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it
 
 > **Why this file cannot be derived and must be written.** The code records what the system does. The
@@ -189,6 +189,38 @@ Not decisions, but facts about this environment that cost hours the first time.
 | JDK 21 can vanish between sessions | `eval "$(bash tools/toolchain.sh ensure)"` |
 | A new on-disk agent is only registered at session start | restart before testing it |
 
+### R-13 · A workflow FRAMEWORK for the v3 state machine — **REJECTED**
+- **Rejected:** LangGraph, Temporal, Prefect or an equivalent as the engine of the station/slot loop.
+- **Evidence:** every one of them brings **its own durable state store** (graph checkpoints, event
+  history, run state), and ours is the EVIDENCE layer — `.proof/` plus the pins. Two state stores is
+  two truths, and the one that carries the moat is the one a clean clone can re-derive. INC-11's
+  definition of done is literally *one clean-clone run on another machine*: Temporal wants a server,
+  Prefect an agent, and each dependency is surface that must exist there. What such a framework
+  genuinely provides — durable exactly-once execution, distributed fan-out — we do not need:
+  re-derivation is idempotent by construction, and parallelism was already rejected by measurement
+  (R-6). Measured baseline: the v2 engine has **zero third-party imports** and drives five factories.
+- **When:** 2026-07-28, on the engineer's question «¿estamos usando algún framework para el FSM o es
+  python puro?» — which exposed that pure Python was INHERITED, never decided. §10 and §11 do not
+  mention a framework in any line, so the ADR-023 §2 question («which piece has the community already
+  validated?») had been skipped for this subsystem. Node `N-0074`.
+- **Not a rejection of community pieces — the opposite.** The community piece being adopted here is
+  the **SDK itself**: v3 does not write an agent loop, it calls a validated one. That is the largest
+  such adoption in the project.
+- **Reopens when:** the loop needs a property the evidence layer cannot give — durable execution
+  across machines, or fan-out that a measurement shows pays (R-6's trigger), or human-in-the-loop
+  interrupts that INC-12 cannot serve with plain code. Any of the three, measured, not anticipated.
+
+### R-14 · `pydantic` for the typed boundary — **DEFERRED, not rejected**
+- **Deferred:** replacing v2's hand-written validators (slot manifest, station YAML, factory spec,
+  `sdk_facts`) with a community-validated schema library.
+- **Evidence:** §13 exists because these artifacts need types, and hand-rolled validation is exactly
+  the code ADR-023 says to stop writing when the community has already solved it. But the cost is
+  only visible when the `Slot` dataclass is actually written, and adopting it now would be
+  anticipation dressed as diligence.
+- **When:** 2026-07-28, same question. Node `N-0075`.
+- **Reopens when:** INC-2 writes `delegation/slot.py`. That is the moment the decision is cheap and
+  informed; deciding it earlier is guessing, and deciding it later is retrofitting.
+
 ## 8. How this register is meant to be used
 
 1. **Before opening a plan node that re-proposes something here, read its entry.** If the reopening
@@ -197,7 +229,8 @@ Not decisions, but facts about this environment that cost hours the first time.
    origin, and the entry moves to `reopened` with the measurement that fired it.
 3. **An entry with no trigger is a bug in this file.** "Never" is allowed but must be argued.
 
-> **Tooth, specified and NOT yet wired (honest):** `rationale_triggers` — every entry carries a
-> `Reopens when`, and every plan node whose title matches a rejected item must cite the entry it
-> re-proposes. Until it exists, this section is discipline rather than enforcement, and discipline is
-> exactly what §15 exists to stop relying on. Recorded as such rather than presented as done.
+> **Tooth, WIRED (`tools/spec_doc_check.py --mode rationale`, 2026-07-28):** every entry must carry a
+> `Reopens when`. Its first run bit its own author — R-8 and R-10 had no reopening condition, two
+> omissions in a document written hours earlier — and they were fixed. The half that remains
+> discipline is the converse direction: a plan node re-proposing a rejected item is not yet forced to
+> cite the entry it re-opens. Recorded as such rather than presented as done.

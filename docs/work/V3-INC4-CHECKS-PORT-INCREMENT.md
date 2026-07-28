@@ -80,13 +80,37 @@ skips». En v3 el número correcto no es 23 registros sino **23 disposiciones**:
 que hoy no pueden ser verdad sería fabricar el verde que la cláusula existe para impedir. Lo que se
 cuenta es el censo.
 
-## R-14, segundo disparo: acá sí
+## R-14, segundo disparo: también **no**, y por razones distintas a las de INC-3
 
 §18 R-14 quedó decidido para `slot.py` (pydantic **no**: la coerción es la postura correcta para un
-borde de API y la equivocada para un borde de seguridad) y explícitamente **re-disparado en INC-4**,
+borde de API y la equivocada para un borde de seguridad) y explícitamente **re-disparado acá**,
 donde se portan el YAML de estación y el spec de fábrica. Ahí no hay frontera de seguridad y los
-esquemas son grandes. La decisión se toma en la Fase 4, escrita con alcance y re-disparador — no se
-hereda la de INC-3, que fue acotada a propósito.
+esquemas son grandes, así que la respuesta no se hereda: se vuelve a decidir. **Decidido: no.** Tres
+razones, y la segunda es la que importa.
+
+**1. Reemplazaría la parte chica.** De las 309 líneas de `validator.py`, la validación de FORMA es
+una minoría; el grueso son chequeos semánticos —`depends_on` apunta a estaciones reales y ACTIVAS,
+el grafo no tiene ciclos, la clausura RTM cierra— que no son trabajo de esquema y que habría que
+escribir igual. Se cambiaría ~80 líneas de stdlib por una dependencia nueva.
+
+**2. No es frontera de seguridad, pero SÍ es frontera de evidencia.** El YAML de estación decide
+**qué se chequea**. La postura por defecto de pydantic —coerción, y `extra` ignorado— ahí no es
+inocua: un campo mal tipeado que se descarta en silencio, o un escalar que se repara en
+lista-de-uno, fabrica exactamente el fallo contra el que trabaja todo este repositorio, un verde que
+midió menos de lo que dice. Lock #1 caza la lista vacía; no caza un `marker` mal escrito que se
+cayó y dejó al check mirando otra cosa. Existe el modo estricto — y entonces uno escribe
+configuración para obtener el comportamiento que habría escrito directo. Es el argumento de INC-3
+llegando por otra puerta: no porque haya un atacante, sino porque acá la reparación plausible
+degrada la evidencia.
+
+**3. La independencia cuesta.** ADR-005 pide una corrida en clon limpio en otra máquina. `PyYAML` ya
+es dependencia, así que esto no es un absoluto — es un precio, y por lo del punto 1 no compra lo
+suficiente.
+
+**Alcance y re-disparador**, para que la decisión no se vuelva dogma: esto cubre el YAML de estación
+y el spec de fábrica **portados acá**. Se re-abre si aparece un tercer parser cuyos errores sean de
+cara al usuario —un spec autoral escrito por alguien de afuera del proyecto—, donde el mensaje de
+error de una librería madura sí valdría más que la postura estricta.
 
 ## Fases
 
@@ -95,7 +119,7 @@ hereda la de INC-3, que fue acotada a propósito.
 | 1 | `verify/registry.py` — el registro como DATA + **la ley**: sin testigo rojo no se registra; `one_sided` exige razón escrita; N/A se cuenta aparte (R-12) | **COLUMNA** (ojos propios) | ✅ |
 | 2 | `verify/gate_census.py` — las 23 disposiciones, re-derivadas; la suma da 23 o rojo | **COLUMNA** (es la contabilidad) | ✅ |
 | 3 | Los 29 kinds + resolución de argv, contra vectores generados en `oracle_ref` | delegado | ✅ |
-| 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegable (R-14 no) | ⏳ |
+| 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegado (R-14 no) | ✅ |
 | 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegable | ⏳ |
 | 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegable | ⏳ |
 
@@ -132,6 +156,32 @@ el fixture con `git show` en el ref, pero el fixture **nace después** de ese co
 Lee de disco, lo dice en el docstring, y verifica que la provenance declare el ref esperado. La
 cadena de dos eslabones se mantiene igual: v3 reproduce los vectores · los vectores se re-derivan
 de v2 en el commit pineado.
+
+## Fase 4: el hueco que R-14 señaló ya estaba adentro
+
+El port se probó contra 5 specs válidos + **36 mutantes que v2 rechaza**, uno por regla (36/36
+cubiertas, ninguna sin mutante). Ese es el punto del oráculo: un validador permisivo pasa el lado
+de los aceptados sin despeinarse, y sólo los rechazos lo delatan — el sabotaje «acepta todo» cae
+con 36 desviaciones.
+
+Sondeando el port a mano apareció algo que no era el objetivo: **un campo desconocido —de primer
+nivel o dentro de un requirement— se ignora en silencio.** Y v2 hace exactamente lo mismo; las dos
+implementaciones coinciden hasta en el conteo de problemas (1 y 89 en los casos que sí rechazan).
+O sea que el agujero que yo describí al decidir R-14 —«un campo mal tipeado que se descarta en
+silencio fabrica un verde que midió menos»— **ya está en el sistema**, sin necesidad de pydantic:
+hoy un `chekcs:` mal escrito en un spec de fábrica no le duele a nadie.
+
+Dos consecuencias, y ninguna es «arreglarlo acá». §11.5 es explícito: ningún incremento mejora nada
+antes del cutover, y la tentación de arreglar las diez cosas que uno nota en el camino es cómo
+mueren las reconstrucciones. Queda como **hallazgo declarado con disparador: post-cutover**, en la
+agenda de §11.7. Y refuerza la decisión de R-14 en vez de contradecirla: adoptar pydantic con su
+`extra` por defecto habría **codificado** este hueco en una librería; en stdlib queda visible y se
+arregla en un solo lugar el día que toque.
+
+**Residuo declarado del slot:** `v3/spec/design.py` y `primitives.py` se portaron porque el `cli.py`
+que pedí despacha `design-review`, pero **no tienen vector de oráculo** — su prueba de paridad es el
+gate `design_eval`, que la fase 6 porta. No es un verde: el censo ya lo lleva como `design_eval`
+PENDING, así que la máquina lo cuenta aunque nadie se acuerde.
 
 ## Por qué la ley es columna y no se delega
 

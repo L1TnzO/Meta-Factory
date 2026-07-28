@@ -971,7 +971,7 @@
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
       },
-      "trigger": "INC-2 escribe control/permissions.py: ahi se busca la configuracion que dispara can_use_tool, o se acepta UNA capa y se documenta"
+      "trigger": "montar ClaudeSDKClient (bidireccional) y reintentar: 8 configuraciones con query() dan CERO invocaciones (default/acceptEdits/plan/allowed_tools=[]/sin modo/Bash-acceptEdits/Bash-default/Read-acceptEdits). HIPOTESIS: un permiso es protocolo bidireccional -- la CLI pregunta y espera -- y query() solo hace streaming de ENTRADA. Misma causa que N-0077 (stop_task tambien necesita el cliente)"
     },
     "N-0071": {
       "parent": "N-0012",
@@ -1086,6 +1086,32 @@
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/spec/20-architecture-map.md"
+      }
+    },
+    "N-0079": {
+      "parent": "N-0002",
+      "title": "CLAUDE.md repite el conteo rancio de la columna: dice 'column-roles(11⊋6)' cuando el real es 12⊋6 (verificado contra column_scope.py). Arreglar en un tramo dedicado — editar CLAUDE.md a mitad de sesion invalida el cache del prefijo (runbook e)",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T18:00Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "src/metafactory/column_scope.py"
+      }
+    },
+    "N-0080": {
+      "parent": "N-0014",
+      "title": "HALLAZGO ARQUITECTONICO: el host de v3 deberia usar ClaudeSDKClient, no query() — dos deudas (N-0070 permisos, N-0077 stop_task) apuntan a lo mismo: query() es unidireccional y no soporta el protocolo de pregunta-respuesta",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T18:02Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/verify/column_live.py"
       }
     }
   }

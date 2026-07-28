@@ -1,4 +1,4 @@
-<!-- meta:doc sha=71fae0509ec042e24cafe14169ebfcb9afa6ea75 updated=2026-07-28T17:52Z -->
+<!-- meta:doc sha=02600b3da79dc06b07cfbe89e5617a5bbd791378 updated=2026-07-28T18:04Z -->
 # Incremento V3-INC2-CONTROL-PLANE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T17:41Z). Cerralo con `meta increment close`
@@ -64,8 +64,47 @@ modela mejor la amenaza real — alguien editando `established()` con prisa.
 | 1 | `v3/host/runner.py` — el bucle, con `resume` y `established` estricto | ✅ |
 | 2 | `v3/verify/abstention.py` — cláusula (i), 5 casos, dos lados | ✅ |
 | 3 | `v3/control/hooks.py` + `v3/verify/column_live.py` — cláusula (ii), viva | ✅ |
-| 4 | `control/{options,agents,tools}` — la composición por nivel y las verbos como MCP | ⏳ |
-| 5 | Deudas con disparador cumplido: `N-0070` (configuración que dispara `can_use_tool`) · `N-0077` (`stop_task` con cliente) · `N-0075`/R-14 (decidir pydantic al escribir `Slot`) | ⏳ |
+| 4 | `control/{column,agents}` + gate `composition` — la proyección por nivel | ✅ |
+| 4b | `control/tools.py` — los verbos como herramientas MCP en proceso | ⏳ |
+| 5 | Deudas: `N-0070` y `N-0077` re-bloqueadas con causa COMÚN identificada (abajo) · `N-0075`/R-14 pendiente | ◐ |
+
+### Fase 4 — la composición reemplaza cuatro gates por una afirmación de conjuntos
+
+En v2 el arnés se COPIA en cinco fábricas y cuatro gates existen sólo para detectar deriva entre las
+copias (§09.3 K-1). Esos gates no están mal: son el precio de un diseño donde la misma ley vive en
+seis sitios. Bajo composición hay un registro y un nivel recibe una PROYECCIÓN, así que la pregunta
+entera colapsa a: ¿es el conjunto de fábrica un subconjunto PROPIO del de meta, y está argumentada
+cada exclusión?
+
+Medido: **12 → 6**, con las 6 exclusiones cada una con su razón escrita. Cuatro afirmaciones, y la
+tercera es la que lo mantiene honesto con el tiempo:
+
+1. subconjunto **propio** — la igualdad es un fallo, no una comodidad: si una fábrica recibe todo, la
+   proyección es decorativa y `least_priv` no prueba nada;
+2. toda exclusión lleva razón — una exclusión sin motivo escrito está a una tarde incómoda de que
+   alguien la borre;
+3. **ninguna razón queda huérfana** — un motivo para retirar algo que ya no está retirado significa
+   que el privilegio se ensanchó y el papeleo se quedó atrás, y se lee como si no hubiera pasado;
+4. vocabulario de roles cerrado, cada rol con contrato de verificación, y una fábrica no recibe el
+   orquestador.
+
+El sabotaje concede a la fábrica la columna completa: el gate lo caza con 7 problemas.
+
+**Un número rancio que apareció al transcribir:** §05 anotaba «11 roles» en la misma línea donde suma
+sus tres conjuntos, que dan **12**. Verificado contra `column_scope.py`: son 12. Corregido en §05;
+`CLAUDE.md` repite el mismo número rancio y queda como `N-0078` para un tramo dedicado, porque
+editarlo a mitad de sesión invalida el caché del prefijo (runbook e).
+
+### Fase 5 — las dos deudas tenían la misma causa, y no era la configuración
+
+`can_use_tool` no se invocó en **ocho** configuraciones distintas (default · acceptEdits · plan ·
+`allowed_tools=[]` · sin modo · Bash-acceptEdits · Bash-default · Read-acceptEdits). Dejé de buscar
+la configuración correcta cuando el patrón dijo otra cosa: **un permiso es un protocolo
+bidireccional** —la CLI pregunta y espera respuesta— y `query()` sólo hace streaming de ENTRADA.
+
+`N-0077` (`stop_task` contra un `task_id` vivo) apunta al mismo sitio. Dos deudas, una causa: **el
+host de v3 debería montarse sobre `ClaudeSDKClient`, no sobre `query()`**. Es un hallazgo
+arquitectónico, no una configuración que falte, y §10 no lo dice en ninguna línea.
 
 ## Criterio de cierre (demostrable, no narrable)
 

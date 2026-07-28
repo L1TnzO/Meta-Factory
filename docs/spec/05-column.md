@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3a40e3401881dfa583b417521e3f1dfa04ce47fb updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=4250ebf6058bea8c05e6ebd0cb5a7d93cd3ac0fd updated=2026-07-28T18:00Z -->
 # 05 — The column: hooks, agents, delegation harness (descriptive)
 
 > The COLUMN is the trust chain. By doctrine it is written and reviewed with one's own eyes and is
@@ -98,7 +98,10 @@ Column scope (`column_scope.py`):
 _ENFORCEMENT = {proof_protect, increment_guard, commit_guard, stop_proof, gate_guard}   # :23-29
 _DELEGATION  = {blast_radius, verdict_required}                                          # :32-35
 _MEMORY      = {doc_stamp, mem_capture, mem_rollup, session_start, pre_compact}          # :38-44
-META_COLUMN    = ENFORCEMENT ∪ DELEGATION ∪ MEMORY     # 11 roles  :49
+META_COLUMN    = ENFORCEMENT ∪ DELEGATION ∪ MEMORY     # 12 roles  :49   (5+2+5; the annotation
+                                                       #  said 11 until 2026-07-28 — its own three
+                                                       #  sets summed to 12. `CLAUDE.md` repeats the
+                                                       #  stale number: node N-0078)
 FACTORY_COLUMN = {proof_protect, increment_guard, commit_guard, stop_proof} ∪ DELEGATION # 6 roles  :60-62
 META_ONLY      = META_COLUMN − FACTORY_COLUMN          # each with a rationale string   :65-76
 ```

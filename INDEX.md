@@ -62,7 +62,7 @@
 | `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
 | `docs/spec/04-verification.md` | `dcf563d49030` | 2026-07-27T21:41Z | 04 — The verification system (descriptive) |
-| `docs/spec/05-column.md` | `3a40e3401881` | 2026-07-27T21:41Z | 05 — The column: hooks, agents, delegation harness (descriptive) |
+| `docs/spec/05-column.md` | `4250ebf6058b` | 2026-07-28T18:00Z | 05 — The column: hooks, agents, delegation harness (descriptive) |
 | `docs/spec/06-memory-and-docs.md` | `072dd4e1b066` | 2026-07-27T21:41Z | 06 — Memory, documentation and handoff (descriptive) |
 | `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
@@ -191,6 +191,6 @@
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
-| `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `71fae0509ec0` | 2026-07-28T17:52Z | Incremento V3-INC2-CONTROL-PLANE |
+| `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `02600b3da79d` | 2026-07-28T18:04Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=391c2c018f7cc27fb08c3bea7e62a1df0e258b5d updated=2026-07-28T04:04Z -->
+<!-- meta:doc sha=d338bb7640de768d0af131e113b931fedd76b84e updated=2026-07-28T04:05Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
@@ -18,8 +18,27 @@ sea DECIDIBLE por un gate, no por lectura.
 | 5 | Árbol del plan: álgebra ejecutable en la spec + `tools/plan.py` que la EJECUTA | ✅ |
 | 6 | Diente anti-fuga `plan_capture` (halló 8 fugas reales + 88 deferrals en prosa) | ✅ |
 | 7 | Diente `handoff_derived`: un handoff no puede contradecir al plan | ✅ |
-| 8 | `18-rationale`: conocimiento negativo con disparador de reapertura | ⏳ |
-| 9 | Catálogos (`16`) y ejemplo dorado (`17`) | ⏳ |
+| 8 | `18-rationale`: conocimiento negativo con disparador de reapertura | ✅ |
+| 9 | Catálogos (`16`) y ejemplo dorado (`17`), delegados con gate estructural | ✅ |
+| 10 | `19-algorithms-reference`: sello · ley de slot · secuencia, ejecutables (26 checks) | ✅ |
+| 11 | El gate L2 ya no puede encogerse (piso de vocabulario commiteado) | ✅ |
+| 12 | Diente `rationale_triggers` cableado (mordió a su autor: R-8 y R-10) | ✅ |
+
+## Dónde me detuve, y por qué (tramo autónomo, 2026-07-28)
+
+El arco de la spec (`N-0002`) quedó **sin nodos accionables**: 14 hechos, 2 bloqueados con su
+disparador (`N-0043` L3 · `N-0008` RTM). `plan next` apunta ahora al arco de **deuda del sustrato
+v2** (`N-0024`: schema muerto, tres gates sin testigo rojo, docstrings desactualizados, árboles de
+producto no herméticos…).
+
+**No seguí por ahí, a propósito.** `11-build-plan.md §5` fija como riesgo «la reconstrucción se
+vuelve un segundo sistema que nunca aterriza», y su respuesta es que **ningún incremento mejora nada
+antes del cutover**. Esa deuda vive en el sistema que v3 reemplaza: arreglarla ahora es trabajo sobre
+lo que vamos a tirar, y contradiría el plan recién escrito. Queda como nodos, que es donde debe estar
+— no se perdió, se encoló.
+
+Lo que sigue necesita una decisión del ingeniero, no mía: **ADR-031** (ratificar §09–§11 y la
+inversión) y el arranque de la línea de build (**INC-0 SDK-PROBE**).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 tools/spec_conformance.py` verde **y** su lado `SPEC_CONFORMANCE_SABOTAGE=1` verde.

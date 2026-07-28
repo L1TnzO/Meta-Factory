@@ -914,15 +914,18 @@
       "parent": "N-0013",
       "title": "oracle_ref pinned as DATA: proofs and pins read at a commit SHA, NEVER the working tree",
       "kind": "task",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/verify/parity.py lee todo con 'git show <ref>:<path>', nunca del working tree"
+      ],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
       },
-      "trigger": "INC-1 arranca: es donde oracle_ref se escribe como dato y se lee con git show"
+      "trigger": "INC-1 arranca: es donde oracle_ref se escribe como dato y se lee con git show",
+      "closed_at": "2026-07-28T17:35Z"
     },
     "N-0068": {
       "parent": "N-0014",

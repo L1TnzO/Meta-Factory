@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `6d6102691f12` | 2026-07-28T17:28Z | State — Meta-Factory |
+| `docs/STATE.md` | `3594db038423` | 2026-07-28T17:30Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -68,7 +68,7 @@
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `c2ab9d5a89dd` | 2026-07-28T17:30Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
-| `docs/spec/11-build-plan.md` | `be16c2a9884c` | 2026-07-28T02:47Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `442512c22802` | 2026-07-28T17:35Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
@@ -190,5 +190,6 @@
 | `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `727a16756e80` | 2026-07-28T16:16Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |
+| `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `8dacf412a281` | 2026-07-28T17:35Z | Incremento V3-INC1-KERNEL-PORT |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

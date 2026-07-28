@@ -1,4 +1,4 @@
-<!-- meta:doc sha=be16c2a9884cc814ddce93c3b5fcebc62fddf3a0 updated=2026-07-28T02:47Z -->
+<!-- meta:doc sha=442512c2280254a0e0d7ca9bc7f25096ae793707 updated=2026-07-28T17:35Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -38,7 +38,7 @@ are honest estimates, not commitments.
 | # | Increment | Delivers | Gate (the acceptance test) | Size |
 | --- | --- | --- | --- | --- |
 | **INC-0** | `SDK-PROBE` | answers to the six open questions of §10.11; a pinned `sdk_facts.json`; a symbol-table test | the test fails loudly if any quoted SDK symbol moves; the six answers are recorded as DATA, not prose | S |
-| **INC-1** | `KERNEL-PORT` | `mf/kernel/*` ported from `seed/verifier.py` + `engine/*` | **hermetic**: recompute `proof_sha` with the NEW code over the 5 factories' **already committed** `.proof/*.json` and compare to `pinned_verdict.json`. No toolchain, no builds, seconds to run | M |
+| **INC-1** | `KERNEL-PORT` | `v3/kernel/*` transcribed from §14 (the spec, not the v2 code) | **hermetic**: recompute `proof_sha` with the NEW code over the 84 committed **pin-anchored vectors** and compare to the TEN committed `pinned_verdict.json` (5 factory + 5 product lines). No toolchain, no builds, seconds to run | M |
 | **INC-2** | `CONTROL-PLANE` | `control/{options,agents,hooks,tools,permissions}` — the 12 hooks as callbacks, the 5 roles as `AgentDefinition`, the verbs as MCP tools | the `column_full` analogue: a **tampered proof** must be refused by the WIRED hooks running under the SDK host; two-sided (untampered ⇒ green) | L |
 | **INC-3** | `DELEGATION-V3` | `Slot` dataclass, `SubagentStart` binding, `can_use_tool` + hook double layer, typed verdict, `rewind_files` rollback | `slot_footprint` two-sided (GREEN / RED / FAIL-CLOSED) **plus** one real delegated slot end-to-end whose bash-mediated write is caught | M |
 | **INC-4** | `CHECKS-PORT` | the 29 kinds + the 23 gates on the new registry | all 23 run; **all two-sided witnesses re-bite**; the new rule lands: a gate without a red witness cannot register — which forces `generality` to finally get one | L |
@@ -49,6 +49,14 @@ are honest estimates, not commitments.
 | **INC-9** | `MIGRATE-FSK` | the real system: 12 stations, 3 products, live PG + Chromium | `ci --rederive --all-products` == pin (27/27) + `meta benchmark` 2/2 in the expected class | XL |
 | **INC-10** | `MIGRATE-FROZEN` | ASF + full-stack — **re-verification only, zero new generation** | `ci --rederive` == pin (11/11, 6/6) | S |
 | **INC-11** | `CUTOVER` | v2 substrate deleted; `meta` becomes the thin shell over v3 | all of P1 + P2 green in one clean-clone run on another machine (the ADR-005 independence layer) | M |
+
+> **CORRECTED 2026-07-28 by INC-1's first run.** This row used to say "the 5 factories' already
+> committed `.proof/*.json`". **`.proof/` is gitignored** — `git ls-files | grep .proof/` returns
+> zero, so that oracle does not exist. What is committed, and exists precisely because someone hit
+> this before, is `docs/spec/fixtures/proof-sha-vectors.json` (84 vectors of
+> `origin·station·checks·proof_sha`, each anchored to a pin). The hermetic chain is therefore two
+> independent links: **recompute the sha from the checks → it must equal the vector → the vector must
+> equal the committed pin.** Checking only the first link would be self-referential.
 
 **Dependency order is real:** INC-1 before everything (nothing is verifiable without the kernel);
 INC-0 before INC-2 (do not design against a guessed API); INC-4 before any migration (a factory cannot

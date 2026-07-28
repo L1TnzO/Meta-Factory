@@ -1,0 +1,6 @@
+{
+  "_doc": "The commit this rebuild is verified AGAINST. Read with 'git show <ref>:<path>', never from the working tree (ADR-031 §2.1) — v2 and v3 share a tree, so a parity claim measured against uncommitted state measures whatever happened to be lying around. Advancing this ref is a deliberate act with its own line in an increment.",
+  "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+  "why_this_commit": "HEAD at the opening of INC-1 (V3-INC1-KERNEL-PORT), tree clean, meta check at its known 5/23 baseline.",
+  "factories": ["agent-systems-factory", "dummy", "full-stack", "full-stack-kotlin", "iot"]
+}

@@ -1,0 +1,174 @@
+{
+  "model": "haiku",
+  "answers": {
+    "conclusive": true,
+    "control_wrote": true,
+    "proof_dir_write_blocked": true,
+    "hook_invoked_and_denied": true
+  },
+  "observations": [
+    {
+      "id": "A-CONTROL",
+      "target": "/tmp/v3-column-td81v0vr/ordinary.txt",
+      "hook_calls": [
+        {
+          "tool": "Write",
+          "path": "/tmp/v3-column-td81v0vr/ordinary.txt",
+          "denied": false,
+          "agent_type": null
+        }
+      ],
+      "file_exists_after": true,
+      "events": [
+        "SystemMessage",
+        "AssistantMessage",
+        "AssistantMessage",
+        "UserMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "AssistantMessage",
+        "AssistantMessage",
+        "ResultMessage"
+      ],
+      "captured": [],
+      "result": {
+        "total_cost_usd": 0.009677700000000001,
+        "num_turns": 2,
+        "permission_denials": [],
+        "terminal_reason": "completed",
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 575,
+            "outputTokens": 291,
+            "cacheReadInputTokens": 21077,
+            "cacheCreationInputTokens": 2770,
+            "webSearchRequests": 0,
+            "costUSD": 0.009677700000000001,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty"
+          }
+        },
+        "usage": {
+          "input_tokens": 18,
+          "cache_creation_input_tokens": 2770,
+          "cache_read_input_tokens": 21077,
+          "output_tokens": 277,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2770,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 8,
+              "output_tokens": 33,
+              "cache_read_input_tokens": 11772,
+              "cache_creation_input_tokens": 303,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 303
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "B-PROTECTED",
+      "target": "/tmp/v3-column-td81v0vr/.proof/s0.json",
+      "hook_calls": [
+        {
+          "tool": "Write",
+          "path": "/tmp/v3-column-td81v0vr/.proof/s0.json",
+          "denied": true,
+          "agent_type": null
+        }
+      ],
+      "file_exists_after": false,
+      "events": [
+        "RateLimitEvent",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "AssistantMessage",
+        "AssistantMessage",
+        "ResultMessage"
+      ],
+      "captured": [],
+      "result": {
+        "total_cost_usd": 0.009895000000000001,
+        "num_turns": 2,
+        "permission_denials": [
+          {
+            "tool_name": "Write",
+            "tool_use_id": "toolu_01PcWdS3jX8AW2zD9ew8SAkz",
+            "tool_input": {
+              "file_path": "/tmp/v3-column-td81v0vr/.proof/s0.json",
+              "content": "HELLO"
+            }
+          }
+        ],
+        "terminal_reason": "completed",
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 578,
+            "outputTokens": 351,
+            "cacheReadInputTokens": 21080,
+            "cacheCreationInputTokens": 2727,
+            "webSearchRequests": 0,
+            "costUSD": 0.009895000000000001,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty"
+          }
+        },
+        "usage": {
+          "input_tokens": 18,
+          "cache_creation_input_tokens": 2727,
+          "cache_read_input_tokens": 21080,
+          "output_tokens": 336,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2727,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 8,
+              "output_tokens": 130,
+              "cache_read_input_tokens": 11775,
+              "cache_creation_input_tokens": 257,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 257
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        }
+      },
+      "error": null
+    }
+  ]
+}

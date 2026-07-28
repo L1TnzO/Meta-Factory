@@ -1015,15 +1015,18 @@
       "parent": "N-0012",
       "title": "MEDIDO: un deny es por HERRAMIENTA, no por EFECTO — el modelo rodeó un deny de Write usando Bash y creó el archivo. El barrido de footprint por git se PORTA, no se retira (§10.8 confirmado por medición)",
       "kind": "task",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/delegation/footprint.py + gate slot_footprint: el barrido git se PORTA. Caso VIVO: la capa de permiso permitio Bash correctamente ('not a writer'), el archivo aterrizo fuera del radio, y el barrido lo cazo RED"
+      ],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
       },
-      "trigger": "INC-3 DELEGATION-V3 porta slot_footprint: el barrido git es el que cubre este agujero"
+      "trigger": "INC-3 DELEGATION-V3 porta slot_footprint: el barrido git es el que cubre este agujero",
+      "closed_at": "2026-07-28T19:22Z"
     },
     "N-0074": {
       "parent": "N-0011",
@@ -1042,15 +1045,18 @@
       "parent": "N-0014",
       "title": "R-14: decidir pydantic para el límite tipado cuando INC-2 escriba delegation/slot.py — diferido, no rechazado",
       "kind": "question",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "caso ilustrativo: el validador rechaza max_wall_s=True, que un parser permisivo aceptaria como 1 porque bool es int"
+      ],
       "opened_at": "2026-07-28T17:07Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/spec/18-rationale.md"
       },
-      "trigger": "INC-3 escribe delegation/slot.py con el manifiesto EN DISCO: hoy el Slot es solo en proceso y nada se PARSEA desde entrada no confiable, asi que el coste de pydantic sigue sin ser visible. Cuando el manifiesto se lea de vuelta tras un crash y gane vocabulario cerrado, ahi se decide"
+      "trigger": "INC-3 escribe delegation/slot.py con el manifiesto EN DISCO: hoy el Slot es solo en proceso y nada se PARSEA desde entrada no confiable, asi que el coste de pydantic sigue sin ser visible. Cuando el manifiesto se lea de vuelta tras un crash y gane vocabulario cerrado, ahi se decide",
+      "closed_at": "2026-07-28T19:22Z"
     },
     "N-0076": {
       "parent": "N-0012",

@@ -1,0 +1,23 @@
+{
+  "hermetic": {
+    "A_inside": "GREEN",
+    "B_scratch": "GREEN",
+    "C_baseline": "GREEN",
+    "D_outside": {
+      "status": "RED",
+      "why": [
+        "elsewhere.txt: outside the slot's footprint"
+      ]
+    },
+    "E_broken_manifest": {
+      "status": "FAIL-CLOSED",
+      "why": [
+        "missing required key `allow_globs`",
+        "missing required key `verdict_path`"
+      ]
+    }
+  },
+  "live": {
+    "ran": false
+  }
+}

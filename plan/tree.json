@@ -1158,6 +1158,32 @@
         "cause": "gate_red",
         "ref": "docs/spec/15-plan-and-memory.md"
       }
+    },
+    "N-0083": {
+      "parent": "N-0011",
+      "title": "A5 (ADR-032): cada incremento declara QUE corrigio de la spec, o dice explicitamente que no corrigio nada — cinco correcciones en tres incrementos no es mala suerte, es el rendimiento esperado de EJECUTAR una spec en vez de leerla",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T19:13Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
+      }
+    },
+    "N-0084": {
+      "parent": "N-0022",
+      "title": "A6 (ADR-032): los dos rojos que quedan son deuda de FSK (docs N-0063 + codegen_freeze waiver malformado). INC-11 los encuentra como deuda DECLARADA, no como sorpresa: o FSK los resuelve en su propio incremento, o el cutover se acepta con ellos declarados",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T19:13Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
+      }
     }
   }
 }

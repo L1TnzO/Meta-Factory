@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `6d6102691f12` | 2026-07-28T18:21Z | State — Meta-Factory |
+| `docs/STATE.md` | `e3d000f00109` | 2026-07-28T19:10Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -39,6 +39,7 @@
 | `docs/decisions/029-typed-work-docs-closed-vocabulary.md` | `41d21e1e69e2` | 2026-07-12T22:29Z | ADR-029 — Typed work-docs: plan vs implementation is a closed vocabulary, not a filename vibe |
 | `docs/decisions/030-work-doc-placement-derived-from-lineage.md` | `77bab8c1ee40` | 2026-07-12T22:48Z | ADR-030 — Physical placement derived from lineage: arc folders + open-sequence prefixes (forward-only) |
 | `docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md` | `0ce955fd0c2d` | 2026-07-28T16:27Z | ADR-031 — Ratify the v3 inversion, build it at `v3/` under the column, and cut the ratification at the go/no-go |
+| `docs/decisions/032-ratificacion-de-la-linea-completa-v3.md` | `dea9d67d161c` | 2026-07-28T19:13Z | ADR-032 — Ratify the rest of the v3 line (INC-3..INC-12), with two amendments the first three earned |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |
@@ -61,7 +62,7 @@
 | `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
 | `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
-| `docs/spec/04-verification.md` | `dcf563d49030` | 2026-07-27T21:41Z | 04 — The verification system (descriptive) |
+| `docs/spec/04-verification.md` | `cabbdac2afb9` | 2026-07-28T19:08Z | 04 — The verification system (descriptive) |
 | `docs/spec/05-column.md` | `4250ebf6058b` | 2026-07-28T18:00Z | 05 — The column: hooks, agents, delegation harness (descriptive) |
 | `docs/spec/06-memory-and-docs.md` | `072dd4e1b066` | 2026-07-27T21:41Z | 06 — Memory, documentation and handoff (descriptive) |
 | `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
@@ -73,7 +74,7 @@
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
-| `docs/spec/16-catalogs.md` | `482ea8a31415` | 2026-07-28T03:56Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
+| `docs/spec/16-catalogs.md` | `3cecab082c37` | 2026-07-28T19:08Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
 | `docs/spec/18-rationale.md` | `8659e1175d69` | 2026-07-28T17:08Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
 | `docs/spec/19-algorithms-reference.md` | `87f584c6f514` | 2026-07-28T04:01Z | 19 — Reference implementations: seal, slot law, sequence (NORMATIVE, EXECUTABLE) |

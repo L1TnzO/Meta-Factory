@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dcf563d49030f5fd1dd1255d56ef79fc2b448ea8 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=cabbdac2afb934781d17066f892cc8d5ba4f7357 updated=2026-07-28T19:08Z -->
 # 04 — The verification system (descriptive)
 
 ## 1. The two verifiers (ADR-005)
@@ -32,7 +32,7 @@ One implementation: all logic in `meta ci`; the hook and the YAML are transports
 | 12 | `dial` | an adopted draft→harden dial defers a non-empty PROPER subset | yes | opt-in per factory |
 | 13 | `column_parity` | a factory's inherited column is byte-identical to M1's real re-materialization | yes | per-factory sweep |
 | 14 | `least_priv` | the factory column is the exact least-privilege subset (no leak, no gap) ⊊ meta | yes | per-factory sweep |
-| 15 | `roles` | every `.claude/agents/*.md` role ∈ closed vocabulary | yes (embedded `kotlin-writer.md` self-test; prints `GATE DECORATIVO` if it fails to flip) | repo (meta + all factories) |
+| 15 | `roles` | every `.claude/agents/*.md` role ∈ closed vocabulary | yes (embedded self-test planting a synthetic domain-named agent `kotlin-writer`; prints `GATE DECORATIVO` if it fails to flip) | repo (meta + all factories) |
 | 16 | `kinds` | every check-kind in YAML ∈ frozen `registry.KINDS` | yes (via `tests/test_kind_hygiene.py`) | repo |
 | 17 | `codegen_freeze` | the ADR-023 §3 codegen freeze is not pierced without a written waiver | yes (3 synthetic scenarios) | repo, triggered by factories with `codegen/` |
 | 18 | `plan` | `.gen/plan.json` is well-formed if present; N/A-green if absent | yes | opt-in |

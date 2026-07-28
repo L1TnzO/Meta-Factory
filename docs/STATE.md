@@ -1,4 +1,4 @@
-<!-- meta:doc sha=6d6102691f12212226b53876e886ae9177db4944 updated=2026-07-28T18:21Z -->
+<!-- meta:doc sha=e3d000f0010982a2ce21c11592ee99ca06b24d04 updated=2026-07-28T19:10Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -37,39 +37,24 @@
   `frontend_surface: model-native`) verified by `design_floor` opt-in, WITHOUT re-pinning the template products.
   META ready: **`CHECK-WHEN-GUARD`·`FSK-MODELGEN-DURABLE`·`FSK-SNIPEIT-MODELGEN` ✅** (1st durable adoption) ·
   **`CODEGEN-FREEZE-TOOTH` ✅** (gate `codegen_freeze`: codegen diff without waiver → red; the living
-  `verificacion` boundary vs `superficie` requires an ADR). **`EVAL-FLOOR-GATE` ✅** (2026-07-10, `ADR-025`):
-  substrate kind `eval_floor` generalizes `design_floor` (re-verifies PINNED evidence of an adopted product vs
-  its floor, opt-in, 0-model, two-sided) → enables adopting ReqCouncil in ASF. **`EVALUATOR-ROLE` ✅
-  (2026-07-11, `ADR-027`):** 5th role `evaluator` (skeptical criteria-driven grader; sonnet, read-only)
-  inherited ×5 (`roles` 30 agents) + gate `design_eval` (23rd, 0-model: pinned critiques vs criteria-as-DATA,
-  template-witness must FAIL ≥1 axis; real two-sided proof → `FSK-EVALUATOR-ADOPT`, next). Next:
+  `verificacion` boundary vs `superficie` requires an ADR). `EVAL-FLOOR-GATE` and `EVALUATOR-ROLE` are
+  CLOSED (`ADR-025`/`ADR-027`; substrate kinds `eval_floor` + gate `design_eval`, detail in `LOG.md`). Next:
   `FSK-EVALUATOR-ADOPT` · ASF adoption (S2) · `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native.
   → `decisions/023`·`024`·`025`·`027` · LOG.
-- **⚖️ `COUNCIL-EXEC` — COUNCIL-360 §6.4 COMPLETE (2026-07-04).** LIVE = meta+FSK+iot · ASF+full-stack-TS
-  REGRESSION-FROZEN · dummy = fixture; residual D-2 demoted. Detail: `reference/COUNCIL-360-AUDIT.md §6` + `LOG.md`.
-- **🧭 `COST-DOWN` (2026-07-02, ADR-021) — FIXED N=7 plan COMPLETE (INC-0..6 ✅).** Routing by SESSION
-  (S1/S2/S3) + kill-don't-idle + dial; INC-5/6 N/A-by-measurement. Measured S2 run: $5.65/incr **shadow**
-  (−92%) · opus-share 49.7% (KPI ≤35% still red; now IS a CLI number — `OUTCOME-JUDGES`). Bible:
-  `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§5` + `factories/iot/docs/LOG.md` (2026-07-04).
+- **⚖️ `COUNCIL-EXEC` — CLOSED.** LIVE = meta+FSK+iot · ASF+full-stack-TS regression-frozen · dummy =
+  fixture. Detail: `reference/COUNCIL-360-AUDIT.md §6`; episode in `LOG.md`.
+- **🧭 `COST-DOWN` — CLOSED.** Doctrine + assumption ledger (first calendar trigger 2026-09-01) live in
+  `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§2.7`; episode in `LOG.md`. Still-open KPI: opus share.
 - **🧭 SOTA RE-DIRECTION (ADR-017→020) + 🧠 MEMORY v2 (ADR-019) — CLOSED** (pending §6 threshold; `reference/MEMORY-ARCHITECTURE.md §8.2`).
-- **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature (core backend +
-  access-control + Chromium CRUD frontend + **REAL 100.0% line coverage** in snipeit,
-  `FSK-COVERAGE-FULL-100`, 2026-07-10); `FSK-FRONTEND-SCREENS` arc COMPLETE (5/5) — and STILL the UI is ugly:
-  the templates' ceiling, not a lack of increments → ADR-023. Sweet-spot: **helpdesk** PASSES ·
-  **snipeit** regression ceiling. Plan: `work/ROADMAP.md`.
-- **Per-level self-governance (ADR-016 Phase 2) — COMPLETE (§1·§2·§3·§4 + `LEAST-PRIV-DECOUPLE`).**
-  `column_parity` + delegation teeth descend to the column with seed-canonical law (ADR-018) ·
-  content-addressed per-home seal · 16 `FSK-S0..S15` migrated byte-identical to the factory ·
-  `column_scope.py` + `least_priv` gate (factory ⊊ meta).
-  Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`; history in `LOG.md`.
-- **🌐 ADR-026 arc — F2 COMPLETE (a·b·c·d ✅) · F3 `DRIFT-AUDIT` CLOSED (2026-07-11, widened +INC-5/6).**
-  Parallel-by-default REJECTED by measurement (bible §2.6); corpus CLEAN (liveness green, orphans = expected
-  dormancy); economy targets still red (opus 86% · churn 776) → **assumption ledger, bible §2.7** (first
-  calendar trigger 2026-09-01). Verdict: `reference/HONEST-STATE.md §7bis`.
-- **🧬 `ADR-028/029/030` (2026-07-12) — work-doc lineage TRILOGY as DATA:** child→parent edges + closed type
-  vocab (`direction`|`increment`, immutable at open, drift=split) + DERIVED placement (arc folders + NN
-  open-sequence, path↔header gated) + SessionStart ancestry injection — one widened `lineage` gate, one
-  increment `DOC-LINEAGE`, queued after `FSK-EVALUATOR-ADOPT`.
+- **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature; the template UI
+  ceiling is what ADR-023 answers. Sweet-spot: **helpdesk** PASSES · **snipeit** regression ceiling.
+  Detail in `LOG.md`; plan in `work/ROADMAP.md`.
+- **Per-level self-governance (ADR-016 Phase 2) — COMPLETE.** Column narrows factory ⊊ meta
+  (`column_scope.py` + `least_priv`). Authority: `reference/GOVERNANCE-LAYERING.md §6/§7`.
+- **🌐 ADR-026 arc — CLOSED.** Parallel-by-default rejected by measurement; economy targets still red.
+  Verdict: `reference/HONEST-STATE.md §7bis`; episode in `LOG.md`.
+- **🧬 `ADR-028/029/030` — work-doc lineage as DATA (edges + closed types + DERIVED placement).**
+  Designed; increment `DOC-LINEAGE` still QUEUED — `docs/work/` is 113 flat files (`docs/spec/20 §6`).
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
   (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
   phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).

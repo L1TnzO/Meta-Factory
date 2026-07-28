@@ -1,0 +1,538 @@
+{
+  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by tools/plan.py. Ids are append-only and never renumbered.",
+  "nodes": {
+    "N-0001": {
+      "parent": null,
+      "title": "v3: rebuild Meta-Factory on the Agent SDK — Claude Code as ENGINE, not container",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0002": {
+      "parent": "N-0001",
+      "title": "Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0003": {
+      "parent": "N-0002",
+      "title": "Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0004": {
+      "parent": "N-0002",
+      "title": "Write 17-golden-example: the dummy factory end-to-end, spec to pin",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0005": {
+      "parent": "N-0002",
+      "title": "Write 18-rationale: negative knowledge, each with its reopening trigger",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0006": {
+      "parent": "N-0002",
+      "title": "spec-impl block: sequence/DAG ordering + transparent deferral + gate law",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0007": {
+      "parent": "N-0002",
+      "title": "spec-impl block: slot footprint law + verdict_ok",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0008": {
+      "parent": "N-0002",
+      "title": "spec-impl block: RTM derivation (requirement to capability to station to artifact)",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0009": {
+      "parent": "N-0002",
+      "title": "spec-impl block: doc seal + INDEX generation",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "handoff"
+      }
+    },
+    "N-0010": {
+      "parent": "N-0002",
+      "title": "L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0011": {
+      "parent": "N-0001",
+      "title": "v3 build line: INC-0..INC-12",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0012": {
+      "parent": "N-0011",
+      "title": "INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0013": {
+      "parent": "N-0011",
+      "title": "INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0014": {
+      "parent": "N-0011",
+      "title": "INC-2 CONTROL-PLANE: WRITE THE HOST — go/no-go of the whole plan (tampered proof must be refused)",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0015": {
+      "parent": "N-0011",
+      "title": "INC-3 DELEGATION-V3: slot dataclass, SubagentStart binding, double permission layer, rewind rollback",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0016": {
+      "parent": "N-0011",
+      "title": "INC-4 CHECKS-PORT: 29 kinds + 23 gates, no gate registers without a red witness",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0017": {
+      "parent": "N-0011",
+      "title": "INC-5 MEMORY-DOCS: manifest, seal, lineage, STATE teeth, SessionStore handoff",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0018": {
+      "parent": "N-0011",
+      "title": "INC-6 ECONOMY-TYPED: typed usage, context meter, iteration metrics; delete the transcript parser",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0019": {
+      "parent": "N-0011",
+      "title": "INC-7/8 migrate dummy then iot (ascending toolchain pain)",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0020": {
+      "parent": "N-0011",
+      "title": "INC-9 migrate FSK — the long pole: 12 stations, 3 products, live PG + Chromium",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0021": {
+      "parent": "N-0011",
+      "title": "INC-10 migrate frozen ASF + full-stack (re-verification only)",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0022": {
+      "parent": "N-0011",
+      "title": "INC-11 CUTOVER: delete v2 substrate, clean-clone run on another machine",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0023": {
+      "parent": "N-0011",
+      "title": "INC-12 INTERACTIVE-MODE: rebuild the escape hatch the inversion removes",
+      "kind": "increment",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0024": {
+      "parent": "N-0001",
+      "title": "Debt found while re-specifying (critique K-6)",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0025": {
+      "parent": "N-0024",
+      "title": "spec/factory.schema.json is DEAD: no code references it — delete it or wire it",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0026": {
+      "parent": "N-0024",
+      "title": "The generality gate has no red-side witness — its tooth is unproven",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0027": {
+      "parent": "N-0024",
+      "title": "Stale self-descriptions: registry says 72/130 (live 94/155), kind_hygiene says ~32 kinds (live 29)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0028": {
+      "parent": "N-0024",
+      "title": "evaluator agent has NO hooks wired while generator has two — invisible asymmetry in frontmatter",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0029": {
+      "parent": "N-0024",
+      "title": "Product trees are not hermetic: 47MB untracked zip, 804MB dataset inside generated trees",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0030": {
+      "parent": "N-0024",
+      "title": "Vacuous-true (N/A) gate branches are not counted separately from real greens",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red"
+      }
+    },
+    "N-0031": {
+      "parent": "N-0024",
+      "title": "activation: optional is dead vocabulary — declared in schema and a stale comment, never enforced",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "deferral"
+      }
+    },
+    "N-0032": {
+      "parent": "N-0001",
+      "title": "Post-cutover agenda (ADD items A-1..A-9)",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0033": {
+      "parent": "N-0032",
+      "title": "A-1 context meter via get_context_usage — closes the ADR-019 section-6 escape threshold",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0034": {
+      "parent": "N-0032",
+      "title": "A-2 iteration metrics: retries, red-to-green cycles, repeated failures (the 11.5 percent gap)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0035": {
+      "parent": "N-0032",
+      "title": "A-3 budget as an enforced parameter (max_budget_usd, TaskBudget) — opus share is 86 percent vs a 35 percent target",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0036": {
+      "parent": "N-0032",
+      "title": "A-9 memory-risk map: staleness, over-retention have teeth; POISONING has none",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0037": {
+      "parent": "N-0001",
+      "title": "ADR-031: ratify the critique, the inversion and the build plan (they are unratified judgment today)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0038": {
+      "parent": "N-0001",
+      "title": "Implement the plan_capture and handoff_derived teeth (the tree has no enforcement yet)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      }
+    },
+    "N-0039": {
+      "parent": "N-0002",
+      "title": "Spec corpus 00-15 written and committed",
+      "kind": "increment",
+      "state": "done",
+      "evidence": [
+        "commit:9229640",
+        "commit:70095de"
+      ],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "closed_at": "2026-07-28T03:25Z"
+    },
+    "N-0040": {
+      "parent": "N-0002",
+      "title": "L1 kernel sufficiency: algebra extracted from the document reproduces 84 pin-anchored vectors",
+      "kind": "increment",
+      "state": "done",
+      "evidence": [
+        "tools/spec_conformance.py:PASS",
+        "fixtures/proof-sha-vectors.json:84"
+      ],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "closed_at": "2026-07-28T03:25Z"
+    },
+    "N-0041": {
+      "parent": "N-0002",
+      "title": "L2 schema sufficiency: every real-artifact key documented, phantom-key red side bites",
+      "kind": "increment",
+      "state": "done",
+      "evidence": [
+        "tools/spec_schema_cover.py:PASS",
+        "commit:8bd75f2"
+      ],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "closed_at": "2026-07-28T03:25Z"
+    },
+    "N-0042": {
+      "parent": "N-0002",
+      "title": "Plan algebra specified, executable and operated by tools/plan.py",
+      "kind": "increment",
+      "state": "done",
+      "evidence": [
+        "commit:d037653",
+        "CONF-P1..P7:green"
+      ],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "closed_at": "2026-07-28T03:25Z"
+    },
+    "N-0043": {
+      "parent": "N-0002",
+      "title": "Declare L3 sufficiency",
+      "kind": "question",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-07-28T03:25Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual"
+      },
+      "trigger": "an implementation built WITHOUT reading src/ passes CONF-X1..X8"
+    }
+  }
+}

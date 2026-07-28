@@ -1,4 +1,4 @@
-<!-- meta:doc sha=bb811a9e3aa2752893ee3365f0e5fdd973a9adcb updated=2026-07-28T03:21Z -->
+<!-- meta:doc sha=85075f2db27dc8787c345e291608c17474f1981c updated=2026-07-28T03:26Z -->
 # 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE)
 
 > The engineer's diagnosis, recorded verbatim because it is the requirement: *"a lo largo de los
@@ -295,7 +295,40 @@ transcript. That is the difference between an instrument and an anecdote.
 | **CONF-P7** | `ancestry` returns root→leaf, and is cycle-safe |
 | **CONF-P-RED** | under sabotage the plan suite must fail; otherwise the gate prints `GATE DECORATIVO` |
 
-## 10. Honest limits
+## 10. Operation today (v2), and what changes in v3
+
+| Piece | Today | In v3 |
+| --- | --- | --- |
+| the algebra | `<!-- spec-impl: plan -->` above — the ONLY implementation | transcribed into a module; `tools/spec_conformance.py` keeps the two equal |
+| the tool | `tools/plan.py` — **extracts the block from this document and executes it** | an in-process MCP tool (§10.3) |
+| the storage | `plan/tree.json`, committed, diff-friendly (I-8: memory is a repo artifact) | unchanged |
+| capture | **manual** — the `plan_capture` tooth is not wired yet | a return value of the orchestrator loop (§4) |
+
+```bash
+python3 tools/plan.py show [--root ID]     # the column: open, done, blocked, with structure
+python3 tools/plan.py next                 # the next actionable leaf + WHY (ancestry) + what the arc still owes
+python3 tools/plan.py add --title T --parent ID [--kind K] [--cause C] [--ref R]
+python3 tools/plan.py done ID --evidence E [E …]   # refused if any descendant is open
+python3 tools/plan.py drop ID --reason R
+python3 tools/plan.py block ID --trigger T
+python3 tools/plan.py metrics
+python3 tools/plan.py check                # the gate over the live tree
+```
+
+> **Why the tool executes the document instead of importing a module.** There is then exactly one
+> implementation of the law, and it is the specification — the tool cannot drift from the document
+> because the tool *is* the document, running. It is the sharpest available demonstration of the
+> claim in §12: the first consumer of the spec is the system itself. The tradeoff is recorded in
+> `tools/plan.py`'s own docstring rather than hidden.
+
+**First real use, measured (2026-07-28).** Seeded with the backlog of the session that specified it —
+43 nodes: 39 open · 4 done · 1 blocked. Verified live: closing the spec arc while nine residuals were
+still open was **refused** (`N-0002: marked done with 9 open descendant(s)`), which is pathology D3
+blocked in practice, not in prose. `capture_ratio` reported **0.349** — honestly low, because
+automatic capture is exactly the node that is still open (§4's tooth is specified, not wired). The
+instrument's first act was to measure its own missing half.
+
+## 11. Honest limits
 
 - **A tree does not create judgment.** It guarantees that discovered work is *recorded* and that a
   parent cannot be closed over open children. Whether the work was the RIGHT work is not decidable

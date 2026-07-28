@@ -1,4 +1,4 @@
-<!-- meta:doc sha=91cd707da427e6572d463a049a579b105cd2b96a updated=2026-07-28T02:47Z -->
+<!-- meta:doc sha=a0dcb02ac982b1bd2b4bc3cc5ac50a9db73614d4 updated=2026-07-28T03:21Z -->
 # SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK
 
 > type: reference (stable) · authored 2026-07-27T21:28Z · language: English (new technical artifacts, ADR-026)
@@ -44,6 +44,7 @@ rebuild, when it starts, opens its own arc under `docs/work/` through `meta incr
 | 12 | `12-conformance.md` | **normative** | you want to know whether this folder is SUFFICIENT, and how that is decided |
 | 13 | `13-schemas.md` | descriptive | you implement any artifact the system reads or writes |
 | 14 | `14-kernel-reference.md` | **normative, executable** | you implement the trust kernel — this file IS the kernel |
+| 15 | `15-plan-and-memory.md` | **normative, executable** | you implement the plan tree, the handoff, or anything that must survive across sessions |
 | — | `fixtures/` | data | the golden vectors the conformance suite runs against |
 
 A reader with 10 minutes reads `02` and `09`. A reader with an hour reads `02`, `09`, `10`, `11`.

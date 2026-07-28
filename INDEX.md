@@ -56,7 +56,7 @@
 | `docs/reference/REGEN-AUDIT.md` | `a7b554af2685` | 2026-07-11T16:16Z | REGEN-AUDIT — what the Meta-Factory generates vs the original ASF (mine of increments) |
 | `docs/reference/SELF-IMPROVEMENT.md` | `37b3fae304f1` | 2026-07-11T15:42Z | Safe self-improvement — the trust hierarchy and the loop |
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
-| `docs/spec/00-README.md` | `91cd707da427` | 2026-07-28T02:47Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
+| `docs/spec/00-README.md` | `a0dcb02ac982` | 2026-07-28T03:21Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
 | `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
 | `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
@@ -68,9 +68,10 @@
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `717221b982d0` | 2026-07-28T02:47Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
 | `docs/spec/11-build-plan.md` | `be16c2a9884c` | 2026-07-28T02:47Z | 11 — Build plan for v3 (JUDGMENT) |
-| `docs/spec/12-conformance.md` | `3ae81d285866` | 2026-07-28T02:44Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
+| `docs/spec/12-conformance.md` | `d111e25248d5` | 2026-07-28T03:21Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
+| `docs/spec/15-plan-and-memory.md` | `bb811a9e3aa2` | 2026-07-28T03:21Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

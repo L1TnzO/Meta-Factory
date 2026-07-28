@@ -40,6 +40,12 @@ MARKER = re.compile(r"<!--\s*spec-impl:\s*([A-Za-z0-9_.-]+)\s*-->\s*\n```python\
 SABOTAGE = ('\n\n_orig_compute_proof_sha = compute_proof_sha\n'
             'def compute_proof_sha(station_id, checks):\n'
             '    return _orig_compute_proof_sha(station_id, list(checks) + [{"name": "_t", "exit": 1}])\n')
+# The plan sabotage removes DERIVED closure: a parent stops seeing its open descendants. That is
+# pathology D3 (silent completion) reintroduced on purpose — the suite must notice.
+PLAN_SABOTAGE = ('\n\ndef effective_state(plan, nid):\n'
+                 '    return (plan.get(nid) or {}).get("state", "missing")\n'
+                 'def structure_problems(plan):\n'
+                 '    return []\n')
 
 
 def extract(root: Path, module: str) -> tuple[str, list[str]]:
@@ -107,6 +113,84 @@ def run_suite(ns: dict, vectors: list[dict]) -> list[str]:
     return fail
 
 
+def _fixture_tree() -> dict:
+    """A minimal plan exercising every rule: a done leaf, an open branch, a captured residual."""
+    return {
+        "R": {"parent": None, "title": "root", "kind": "direction", "state": "open",
+              "origin": {"session": "s1", "cause": "manual"}},
+        "A": {"parent": "R", "title": "a", "kind": "increment", "state": "done",
+              "evidence": ["proof:abc"], "origin": {"session": "s1", "cause": "manual"}},
+        "B": {"parent": "R", "title": "b", "kind": "task", "state": "open",
+              "origin": {"session": "s2", "cause": "gate_red", "ref": "gate:quality"}},
+        "B1": {"parent": "B", "title": "b1", "kind": "residual", "state": "open",
+               "origin": {"session": "s2", "cause": "deferral", "ref": "slot:x"}},
+    }
+
+
+def run_plan_suite(ns: dict) -> list[str]:
+    """The conformance suite of docs/spec/15-plan-and-memory.md §9."""
+    fail: list[str] = []
+    need = ("effective_state", "structure_problems", "node_problems", "capture_problems",
+            "next_actionable", "ancestry", "open_set")
+    for fn in need:
+        if not callable(ns.get(fn)):
+            fail.append(f"CONF-P1: spec does not define a callable `{fn}`")
+    if fail:
+        return fail
+    t = _fixture_tree()
+
+    # CONF-P2 — derived closure: a parent is open while a descendant is open.
+    if ns["effective_state"](t, "R") != "open":
+        fail.append("CONF-P2: root must be effectively OPEN (descendants B/B1 are open)")
+    if ns["effective_state"](t, "A") != "done":
+        fail.append("CONF-P2: a childless done node must be effectively done")
+    if ns["effective_state"](t, "B") != "open":
+        fail.append("CONF-P2: a node with an open child must be effectively open")
+
+    # CONF-P3 — D3: done over an open descendant is a structural problem.
+    bad = dict(t)
+    bad["R"] = dict(t["R"], state="done", evidence=["x"])
+    if not ns["structure_problems"](bad):
+        fail.append("CONF-P3: marking a parent done over open descendants must be flagged")
+    if ns["structure_problems"](t):
+        fail.append("CONF-P3: the well-formed fixture must have NO structural problem")
+
+    # CONF-P4 — per-node law.
+    for nid, node, why in (
+        ("X", {"parent": None, "kind": "task", "state": "done",
+               "origin": {"cause": "manual"}}, "done without evidence"),
+        ("X", {"parent": None, "kind": "task", "state": "dropped",
+               "origin": {"cause": "manual"}}, "dropped without a reason"),
+        ("X", {"parent": None, "kind": "task", "state": "blocked",
+               "origin": {"cause": "manual"}}, "blocked without a trigger"),
+    ):
+        if not ns["node_problems"]({nid: node}, nid):
+            fail.append(f"CONF-P4: must flag a node {why}")
+
+    # CONF-P5 — D1: declared work with no node would leak.
+    if not ns["capture_problems"](t, [{"ref": "slot:y", "cause": "deferral"}]):
+        fail.append("CONF-P5: undeclared-as-node work must be flagged as a leak")
+    if ns["capture_problems"](t, [{"ref": "slot:x", "cause": "deferral"}]):
+        fail.append("CONF-P5: work that DOES have a node must not be flagged")
+
+    # CONF-P6 — deterministic leaf selection.
+    nxt = ns["next_actionable"](t)
+    if nxt != "B1":
+        fail.append(f"CONF-P6: next actionable must be the open leaf B1, got {nxt!r}")
+
+    # CONF-P7 — ancestry is root→leaf and cycle-safe.
+    if ns["ancestry"](t, "B1") != ["R", "B", "B1"]:
+        fail.append("CONF-P7: ancestry must read root → leaf")
+    cyc = {"P": {"parent": "Q", "kind": "task", "state": "open", "origin": {"cause": "manual"}},
+           "Q": {"parent": "P", "kind": "task", "state": "open", "origin": {"cause": "manual"}}}
+    try:
+        ns["ancestry"](cyc, "P")
+        ns["structure_problems"](cyc)
+    except RecursionError:
+        fail.append("CONF-P7: a cyclic plan must be REPORTED, never hang or overflow")
+    return fail
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[0]).resolve() if argv else Path(__file__).resolve().parents[1]
     sabotage = os.environ.get("SPEC_CONFORMANCE_SABOTAGE") == "1"
@@ -132,6 +216,21 @@ def main(argv: list[str]) -> int:
     else:
         failures = run_suite(ns, vectors)
 
+    # ── the plan algebra (§15) — a marked block is NORMATIVE, so it must be executed ──
+    plan_src, plan_files = extract(root, "plan")
+    if not plan_src.strip():
+        failures.append("CONF-P1: no `<!-- spec-impl: plan -->` block found in docs/spec/*.md")
+    else:
+        files = files + plan_files
+        try:
+            plan_ns = load_module(plan_src, False)
+            if sabotage:
+                exec(compile(PLAN_SABOTAGE, "<spec:plan-sabotage>", "exec"), plan_ns)
+        except Exception as exc:                                  # noqa: BLE001
+            failures.append(f"CONF-P1: the extracted plan algebra does not execute: {exc!r}")
+        else:
+            failures.extend(run_plan_suite(plan_ns))
+
     if sabotage:
         if failures:
             print("VERDICT    spec-conformance (SABOTAGE) — PASS   (exit 0)")
@@ -150,7 +249,7 @@ def main(argv: list[str]) -> int:
         return 1
     print("VERDICT    spec-conformance — PASS   (exit 0)")
     print(f"SUMMARY    kernel rebuilt from {len(files)} spec file(s); "
-          f"{len(vectors)} pin-anchored vector(s) reproduce; 6 conformance checks green")
+          f"{len(vectors)} pin-anchored vector(s) reproduce; 13 conformance checks green (kernel + plan)")
     print(f"ARTIFACT   {SPEC_DIR}/ (blocks: {', '.join(sorted(set(files)))})")
     return 0
 

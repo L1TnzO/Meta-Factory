@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3ae81d2858664853a417229e0da87e63a961512d updated=2026-07-28T02:44Z -->
+<!-- meta:doc sha=d111e25248d53aa7229c941213817e81560a2f0e updated=2026-07-28T03:21Z -->
 # 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE)
 
 > The goal of this folder is unusual and worth stating without hedging: **`docs/spec/` must be
@@ -69,6 +69,18 @@ Vectors failing (2) or (3) are skipped and counted, never written. Measured on g
 | **CONF-K5** | a different exit code produces a different sha |
 | **CONF-K6** | the station id participates in the digest |
 | **CONF-K-RED** | under `SPEC_CONFORMANCE_SABOTAGE=1` the suite MUST fail; if it passes, the gate prints `GATE DECORATIVO` and exits 1 |
+
+### 4.1bis Plan algebra (L1, same runner) — implemented, green
+
+The plan tree is not documentation about a process; it is an algebra with a normative reference
+implementation in **`15-plan-and-memory.md §5`**, executed by the same runner. Its suite is
+**CONF-P1..P7 + CONF-P-RED**, defined in `15-plan-and-memory.md §9`. Summary of what it pins:
+derived closure (a parent is open while any descendant is), `done` requires evidence, `dropped`
+requires a reason, `blocked` requires a trigger, declared work without a node is a leak,
+`next_actionable` is deterministic and returns a real leaf, and `ancestry` is cycle-safe.
+
+Its sabotage removes derived closure — pathology D3 reintroduced on purpose — and the suite must
+notice. Measured today: **13 checks green (kernel + plan) · 5 failures under sabotage.**
 
 ### 4.2 Schemas (L2) — specified, being filled in §13
 

@@ -172,13 +172,16 @@
       "parent": "N-0011",
       "title": "INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T19:47Z"
     },
     "N-0013": {
       "parent": "N-0011",
@@ -199,25 +202,31 @@
       "parent": "N-0011",
       "title": "INC-2 CONTROL-PLANE: WRITE THE HOST — go/no-go of the whole plan (tampered proof must be refused)",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T19:47Z"
     },
     "N-0015": {
       "parent": "N-0011",
       "title": "INC-3 DELEGATION-V3: slot dataclass, SubagentStart binding, double permission layer, rewind rollback",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T19:47Z"
     },
     "N-0016": {
       "parent": "N-0011",
@@ -1108,9 +1117,9 @@
       "parent": "N-0002",
       "title": "CLAUDE.md repite el conteo rancio de la columna: dice 'column-roles(11⊋6)' cuando el real es 12⊋6 (verificado contra column_scope.py). Arreglar en un tramo dedicado — editar CLAUDE.md a mitad de sesion invalida el cache del prefijo (runbook e)",
       "kind": "residual",
-      "state": "open",
+      "state": "done",
       "evidence": [
-        "docs/spec/10-target-sdk.md §10.4 y §10.8 actualizadas: el host se monta sobre el cliente"
+        "el conteo rancio NO estaba en CLAUDE.md — yo afirme la ubicacion de memoria en vez de leerla. Estaba en docs/spec/02-invariants.md:80 ('11 meta ⊋ 6') y en §05, ambas corregidas a 12 contra column_scope.py"
       ],
       "opened_at": "2026-07-28T18:00Z",
       "origin": {
@@ -1118,7 +1127,7 @@
         "cause": "gate_red",
         "ref": "src/metafactory/column_scope.py"
       },
-      "closed_at": "2026-07-28T18:09Z"
+      "closed_at": "2026-07-28T19:48Z"
     },
     "N-0080": {
       "parent": "N-0014",
@@ -1195,14 +1204,17 @@
       "parent": "N-0015",
       "title": "MEDIDO: rewind_files NO es manejable desde el stream — 14 ids candidatos, los 14 'No file checkpoint found'. §10.8 corregida; v3 hace su propio rollback sobre git (determinista, auditable, respeta baseline_dirty)",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.8 corregida con la medicion de los 14 ids"
+      ],
       "opened_at": "2026-07-28T19:28Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/delegation/rollback.py"
-      }
+      },
+      "closed_at": "2026-07-28T19:47Z"
     }
   }
 }

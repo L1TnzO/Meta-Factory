@@ -1,7 +1,77 @@
-<!-- meta:doc sha=7c0d22860459a23b2d5e9e8a876975a632c7cd6e updated=2026-07-11T21:55Z -->
+<!-- meta:doc sha=46aa40eb359cb9c2f14bc21baa25e696e9e78933 updated=2026-07-28T19:45Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-28T19:50Z — v3 ARRANCA: ADR-031/032 ratificados e INC-0..INC-3 entregados (4 correcciones a la spec)
+
+**Qué pasó.** La spec de reconstrucción (`docs/spec/`, 21 docs) dejó de ser prosa y empezó a
+ejecutarse. Dos ADR de ratificación y cuatro incrementos, todos con gate y lado rojo verificado.
+Coste total de las corridas vivas: **$0.19 en 16 llamadas** — el precio de decidir si un plan de
+trece incrementos era correcto.
+
+**ADR-031** (ratificación en dos tramos + ubicación). El corte deliberado: §09/§10 vinculantes, §11
+sólo hasta INC-2, porque ratificar diez incrementos de migración sobre una suposición no medida
+acerca de la semántica de hooks habría sido comprar a ciegas. Y v3 se construye **DENTRO** del árbol,
+en `v3/` — decisión del ingeniero que **revirtió mi borrador** por medición: los hooks alcanzan una
+carpeta nueva en la raíz (la resolución de nivel manda a `meta` todo lo que no cuelga de
+`factories/`), y los gates de juicio NO la ven (todos acotados a directorios nombrados). Enforcement
+adentro, juicio afuera, estructuralmente — lo que mi versión fuera-del-árbol iba a fabricar a mano
+con una lista de exclusiones.
+
+**ADR-032** (línea completa) llegó con el corte pagado y, de paso, bajó los rojos «pre-existentes» de
+`meta check` de **5 a 2**: uno era FALSO Y NUESTRO (§04/§16 describían el testigo sintético
+`kotlin-writer` que `role_hygiene` planta en memoria, y el gate de liveness leía la frase como un
+enlace roto), otro era poda de `STATE`, y `suite` quedó verde al quedar consistente el corpus. Los
+dos que quedan son deuda **de FSK** y se cargan declaradas: tocar el STATE de FSK para callar un
+check de frescura, o que meta se escriba un waiver para limpiar su propio tablero, serían exactamente
+las falsificaciones que esos gates existen para rechazar. **Regla que queda:** un rojo lo dispone el
+nivel que lo POSEE.
+
+**Lo entregado.** INC-0 `SDK-PROBE`: las 36 claims de §10 como DATOS contrastadas contra el SDK
+instalado, más siete experimentos vivos con el disco como oráculo. INC-1 `KERNEL-PORT`: el kernel
+transcrito **desde la spec** (§14/§19, no desde v2) reproduce 84/84 estaciones pineadas en 10 líneas,
+hermético. INC-2 `CONTROL-PLANE`: el go/no-go verde en sus dos cláusulas. INC-3 `DELEGATION-V3`:
+slot en disco fail-closed, barrido de footprint, veredicto donde el modelo no vota, binding contra
+el alias y rollback propio.
+
+**Las cuatro correcciones a la spec — el rendimiento real de ejecutarla.**
+1. §11.2 mandaba recomputar sobre los `.proof/*.json` «ya commiteados»: **están gitignored**, cero
+   commiteados. El oráculo real son los 84 vectores anclados a pin, en dos eslabones independientes.
+2. §10.7 daba `list_subagents`/`get_subagent_messages` por métodos del cliente: son funciones de
+   módulo, y existen variantes `_from_store` que nadie había registrado.
+3. §10.4 vendía `can_use_tool` como segunda capa sin decir que **exige `ClaudeSDKClient`**. Ocho
+   configuraciones de `query()` dieron cero invocaciones; el patrón de los fallos —no el noveno
+   intento— dijo dónde mirar: un permiso es un protocolo BIDIRECCIONAL y `query()` sólo hace
+   streaming de entrada. La misma causa alcanzaba a `stop_task`.
+4. §10.8 daba el rollback por resuelto con `rewind_files(user_message_id)`: **catorce ids candidatos,
+   los catorce rechazados**. v3 hace el suyo sobre git, que además es auditable.
+
+Ninguna de las cuatro era encontrable releyendo. Por eso **ADR-032 A5** las convierte en requisito:
+cada incremento declara qué corrigió, o dice explícitamente que no corrigió nada.
+
+**La medición que más pesa.** Un modelo real, con un slot que permitía `src/*.py`, al que se le pidió
+rodear `Write` con `Bash`: la capa de permiso respondió `allow` — y **tenía razón**, `Bash` no es una
+herramienta de escritura —, el archivo aterrizó fuera del radio, y sólo el barrido de git lo vio. Las
+capas ven LLAMADAS; git ve CONSECUENCIAS. Es el argumento entero para portar el barrido en vez de
+retirarlo, demostrado de punta a punta.
+
+**Lecciones que se repitieron hasta ser patrón.** Cinco veces el mismo error con ropa distinta: un
+`--mode` desconocido que corría cero checks y decía PASS · un control que no escribía y habría
+validado cualquier deny · un «NOT MEASURED» contado como respuesta · un `40/40` cierto sólo porque yo
+había definido el denominador excluyendo lo que faltaba · y un `permission_mode="acceptEdits"`
+arrastrado que eclipsaba la capa que quería medir. Siempre la misma forma: **algo parece verde porque
+nadie preguntó qué quedó fuera de la cuenta.** Y ninguno lo encontró una relectura: los encontró un
+número que no cuadraba o un gate que se negó.
+
+**Dos veces el árbol tuvo razón contra mí.** Se negó a cerrar `N-0012` y `N-0014` porque les colgaba
+trabajo de otro arco — el incremento mide TRABAJO ENTREGADO, el nodo mide INTENCIÓN SATISFECHA, y no
+coinciden. Falta un verbo `reparent` que §15 da por anticipado y no existe (nodo abierto con la
+evidencia de las dos mordidas).
+
+**Estado al cierre.** `meta check` 2/23 · 8 gates de v3 verdes con lado rojo · `docs/spec/20-architecture-map.md`
+es el mapa para humanos (dónde vive ReAct, las tres memorias, la separación por nivel, la herencia por
+composición). Sigue INC-4 `CHECKS-PORT`, el de mayor volumen.
 
 ## 2026-07-11T21:55Z — EVALUATOR-ROLE (SOTA-PARITY INC-3, meta half) CLOSED: 5th role + design_eval, the 23rd gate
 ADR-027 (3e21929) adds `evaluator` to the CLOSED role vocabulary — the deliberate act ADR-020 prescribes:

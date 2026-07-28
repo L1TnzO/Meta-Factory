@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `e3d000f00109` | 2026-07-28T19:30Z | State — Meta-Factory |
+| `docs/LOG.md` | `46aa40eb359c` | 2026-07-28T19:45Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `465f4b3728e4` | 2026-07-28T19:45Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -60,7 +60,7 @@
 | `docs/reference/VISION.md` | `b37fcce2887e` | 2026-07-11T15:46Z | Vision — Meta-Factory: the factory that builds factories |
 | `docs/spec/00-README.md` | `910f0534c6b3` | 2026-07-28T04:01Z | SPEC — Meta-Factory: as-is specification and the v3 rebuild on the Claude Agent SDK |
 | `docs/spec/01-vocabulary.md` | `163b3cbe08ea` | 2026-07-27T21:41Z | 01 — Vocabulary and domain model (descriptive) |
-| `docs/spec/02-invariants.md` | `e978400256d6` | 2026-07-27T21:41Z | 02 — Invariants (NORMATIVE) |
+| `docs/spec/02-invariants.md` | `812f827984c9` | 2026-07-28T19:48Z | 02 — Invariants (NORMATIVE) |
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
 | `docs/spec/04-verification.md` | `cabbdac2afb9` | 2026-07-28T19:08Z | 04 — The verification system (descriptive) |
 | `docs/spec/05-column.md` | `4250ebf6058b` | 2026-07-28T18:00Z | 05 — The column: hooks, agents, delegation harness (descriptive) |

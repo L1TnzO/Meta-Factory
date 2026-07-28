@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e978400256d6f13ce875fe442230537487d32742 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=812f827984c9a05aed7761b2adf77a3679ccfde3 updated=2026-07-28T19:48Z -->
 # 02 — Invariants (NORMATIVE)
 
 > This is the part of the system that must survive any rebuild. Everything else — the CLI shape, the
@@ -77,7 +77,7 @@ gate on it. This is the pattern that kept the system from sprawling and it must 
 | agent roles | `agent_roles.py:25-42` | `roles` (`role_hygiene`) | 5 canonical + 2 legacy |
 | work-doc types | ADR-029 | `lineage` | `direction` \| `increment` |
 | slot enums (`trust_level`, `cost_class`, `side_effects`, `model_policy` keys) | `seed/delegation.py:60-63` | manifest validation, pre-spawn | 3/3/3/3 |
-| column roles per level | `column_scope.py:23-65` | `least_priv` | 11 meta ⊋ 6 factory |
+| column roles per level | `column_scope.py:23-65` | `least_priv` | **12** meta ⊋ 6 factory (said 11 until 2026-07-28; verified against the constant) |
 | doc mutation semantics | I-9 | `docs_check` | 5 types |
 
 **Adding an entry to any of these is a deliberate governance act: edit the constant + write an ADR.**

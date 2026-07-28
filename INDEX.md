@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `75e6fc1b96d0` | 2026-07-28T16:16Z | State — Meta-Factory |
+| `docs/STATE.md` | `e18e87e90cfb` | 2026-07-28T16:27Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -38,7 +38,7 @@
 | `docs/decisions/028-work-doc-lineage-as-data.md` | `22d3f393f6a3` | 2026-07-12T21:52Z | ADR-028 — Work-doc lineage as data: parent edges, derived reverse views, ancestry injection |
 | `docs/decisions/029-typed-work-docs-closed-vocabulary.md` | `41d21e1e69e2` | 2026-07-12T22:29Z | ADR-029 — Typed work-docs: plan vs implementation is a closed vocabulary, not a filename vibe |
 | `docs/decisions/030-work-doc-placement-derived-from-lineage.md` | `77bab8c1ee40` | 2026-07-12T22:48Z | ADR-030 — Physical placement derived from lineage: arc folders + open-sequence prefixes (forward-only) |
-| `docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md` | `f7c94a7279d5` | 2026-07-28T16:15Z | ADR-031 — Ratify the v3 inversion, build it at `v3/` under the column, and cut the ratification at the go/no-go |
+| `docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md` | `0ce955fd0c2d` | 2026-07-28T16:27Z | ADR-031 — Ratify the v3 inversion, build it at `v3/` under the column, and cut the ratification at the go/no-go |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
 | `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |
@@ -188,5 +188,6 @@
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
 | `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `727a16756e80` | 2026-07-28T16:16Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
+| `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `e9e6ec07c1a4` | 2026-07-28T16:28Z | Incremento V3-INC0-SDK-PROBE |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

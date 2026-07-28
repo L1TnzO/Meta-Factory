@@ -1,9 +1,9 @@
-<!-- meta:doc sha=f7c94a7279d5fd61c7d472e4100046e9bac0a4a6 updated=2026-07-28T16:15Z -->
+<!-- meta:doc sha=0ce955fd0c2d655681a14ca456351066415c7dd3 updated=2026-07-28T16:27Z -->
 # ADR-031 — Ratify the v3 inversion, build it at `v3/` under the column, and cut the ratification at the go/no-go
 
 | Field | Value |
 | --- | --- |
-| Status | **Proposed — awaiting the engineer's ratification of §1** |
+| Status | **Approved** — ratified by the engineer 2026-07-28 («bien, demosle»); the §1 two-stage cut stands: INC-3..INC-12 stay mapped-but-not-binding until INC-2 is green |
 | Date | 2026-07-28T00:00Z |
 | Decides | the engineer (2026-07-28: «una carpeta aparte, no como un producto de MF… para que por sólo su ubicación se entiendan las jerarquías», then, on reading the cost of leaving the tree: «¿y qué pasaría si se hace dentro de la carpeta, para mantener la protección, pero una carpeta aparte, en el root?» — and «dale de a poco, medir, que falle rápido o que nos dé la razón los números»); the orchestrator measured both halves and reversed its own draft (§2) |
 | Ratifies | `docs/spec/09-critique.md`, `docs/spec/10-target-sdk.md`, and `docs/spec/11-build-plan.md` **only as far as INC-2** (§1) |

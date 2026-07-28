@@ -861,6 +861,71 @@
         "cause": "gate_red",
         "ref": "factories/full-stack-kotlin/docs/STATE.md"
       }
+    },
+    "N-0064": {
+      "parent": "N-0012",
+      "title": "Q7 (ADR-031 A2): does a hook callback deny ACTUALLY deny, un-bypassably from inside the session — decides the INC-2 gate",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:26Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+      }
+    },
+    "N-0065": {
+      "parent": "N-0012",
+      "title": "Q8: does the Python SDK inherit the CLI's stored OAuth credentials, or does it demand ANTHROPIC_API_KEY",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:26Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+      }
+    },
+    "N-0066": {
+      "parent": "N-0012",
+      "title": "import-boundary tooth: no module under v3/ imports metafactory, no sys.path into src/ (the price of building in tree)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:26Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+      }
+    },
+    "N-0067": {
+      "parent": "N-0013",
+      "title": "oracle_ref pinned as DATA: proofs and pins read at a commit SHA, NEVER the working tree",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:26Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+      }
+    },
+    "N-0068": {
+      "parent": "N-0014",
+      "title": "gate has TWO clauses (ADR-031 A1): abstention refuses = abort condition; hooks refuse = red-and-redesign",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:26Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+      }
     }
   }
 }

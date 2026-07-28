@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8dacf412a281973d26a1cc9e2afee7bb1aeffefe updated=2026-07-28T17:35Z -->
+<!-- meta:doc sha=f0f5beb5dd9c1df31aac458b9f9dfe94c44e4265 updated=2026-07-28T17:43Z -->
 # Incremento V3-INC1-KERNEL-PORT
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T17:30Z). Cerralo con `meta increment close`
@@ -54,7 +54,35 @@ anclar es rojo.
 | 1 | `oracle_ref` como DATO (`v3/oracle_ref.json`), leído con `git show`, nunca del working tree | ✅ |
 | 2 | `v3/kernel/{proof,pin}.py` transcritos de §14 | ✅ |
 | 3 | `v3/verify/parity.py` — la cadena de dos eslabones, dos lados | ✅ |
-| 4 | Portar `station`/`sequence`/`gate`/`report` (el resto de `kernel/` en §10.2) | ⏳ |
+| 4 | `station` · `sequence` · `gate` · `report` — `kernel/` completo (6 módulos de §10.2) | ✅ |
+
+### Fase 4 — el segundo oráculo hermético, y por qué vale
+
+`parity.py` prueba que el kernel calcula la misma IDENTIDAD de estación. `line_parity.py` prueba que
+calcula la misma LÍNEA: qué estaciones existen, cuáles están activas y en qué orden corren. Otra vez
+dos eslabones, porque uno solo sería auto-referencial:
+
+1. **Conjunto activo** — parsear los 41 YAML de estación commiteados, quedarse con los
+   `active_in(harden)`, y el resultado debe igualar el conjunto de claves del pin commiteado.
+   Ya se ganó el sueldo: `agent-systems-factory` tiene **13** archivos de estación y pinea **12**,
+   porque su `s0` lleva `activation: 'off'`. Un port que ignorara la activación daría 13 ≠ 12 acá.
+2. **Orden natural** — donde la línea llega a dos dígitos, `s9` debe preceder a `s10`. El orden
+   lexicográfico pone `s10` primero, y ese defecto sólo aparece en las líneas más largas: justo los
+   productos que más importan. Se afirma sobre nombres de archivo reales, no sobre un fixture.
+
+Medido: **41 estaciones · 40 activas · 1 apagada**, en 5 líneas, coincidiendo exacto con los pins.
+El sabotaje apaga una estación activa: el conjunto pierde una que el pin sigue cargando y el gate
+enrojece — que es el caso «una estación desapareció en silencio» que `pin_matches` llama desviación
+y no tolerancia.
+
+`report.py` deja de ser un formato de texto y pasa a ser un TIPO: `status` se deriva de `exit_code`,
+así que no pueden discrepar, y el render no puede pasar de 10 líneas — **y cuando trunca, lo dice**.
+Una truncación silenciosa es cómo un bus deja de ser evidencia y se vuelve un resumen de sí mismo.
+`line_parity` lo usa, que es la prueba de que sirve.
+
+`gate.py` compone los cerrojos **decidibles desde datos** (1 y 2) y dice en su docstring que el 3
+—el cierre de turno— es del host y vive en INC-2. Un archivo que dijera «los tres cerrojos»
+implementando dos sería exactamente la media verdad que los cerrojos existen para atrapar.
 
 ## Criterio de cierre (demostrable, no narrable)
 
@@ -64,7 +92,8 @@ anclar es rojo.
 3. El oráculo es un COMMIT, no el working tree. ✅
 4. Ningún módulo de v3 importa `metafactory` (`import_boundary` verde, 13 módulos). ✅
 5. `meta check` sin sexto rojo.
-6. Fase 4 cerrada, o diferida con nodo y disparador.
+6. Fase 4 cerrada: `kernel/` completo (`proof · pin · station · sequence · gate · report`) y
+   `line_parity` verde en ambos lados (41 estaciones · 40 activas · 5 líneas). ✅
 
 ## Fuera de alcance
 

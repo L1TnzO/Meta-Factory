@@ -184,13 +184,16 @@
       "parent": "N-0011",
       "title": "INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "oracle_ref f44dc22 leido con git show; import_boundary verde 18 modulos; meta check 5/23 sin sexto"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-28T17:43Z"
     },
     "N-0014": {
       "parent": "N-0011",

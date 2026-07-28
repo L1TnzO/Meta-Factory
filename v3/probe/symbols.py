@@ -42,6 +42,10 @@ from .claims import CLAIMS
 _ARTIFACT = Path(__file__).resolve().parent.parent / "sdk_facts.json"
 _PKG = "claude_agent_sdk"
 
+#: Sentinel a live probe writes when a question could not be exercised. Shared so the index and the
+#: probe cannot drift into disagreeing about what counts as an answer.
+_NOT_MEASURED = "NOT MEASURED"
+
 
 def _resolve(name: str):
     """Find a symbol in the package namespace, then in its `types` module. Returns (obj, where)."""
@@ -154,16 +158,57 @@ def _environment() -> dict:
     }
 
 
-#: The behavioural questions introspection CANNOT answer. Recorded as unanswered on purpose: a
-#: missing key would read as an oversight, whereas `unanswered` is a commitment (§10.11 + ADR-031 A2).
+#: The behavioural questions introspection CANNOT answer, each bound to the artifact that answers it
+#: and the key inside it. Recorded as a KEY that is present and empty rather than absent: a missing
+#: key reads as an oversight, `unanswered` is a commitment (§10.11 + ADR-031 A2).
 _BEHAVIOURAL = {
-    "Q1": "does a hook registered on the parent session fire for SUBAGENT tool calls, with subagent context populated?",
-    "Q2": "can_use_tool vs PreToolUse: which runs first, and does a deny in one short-circuit the other?",
-    "Q3": "SubagentStop semantics on a KILLED task — is TaskNotification(status=stopped) enough to retire the --live sweep?",
-    "Q6": "max_budget_usd on exceed: error, stop, or truncation? (decides whether it can be a gate)",
-    "Q7": "does a hook callback's DENY actually deny, un-bypassably from inside the session? (ADR-031 A2 — decides the INC-2 gate)",
-    "Q8b": "does the PYTHON client inherit the CLI's stored credentials? (answered for the CLI; not for the client)",
+    "Q1": ("does a parent hook fire for SUBAGENT tool calls, with subagent context populated?",
+           "subagent_facts.json", "Q1_parent_hook_fires_for_subagent_tool_calls"),
+    "Q2": ("can_use_tool vs PreToolUse: which runs first, and does one deny short-circuit the other?",
+           "behaviour_facts.json", "Q7_permission_was_invoked"),
+    "Q3": ("SubagentStop semantics on a KILLED task — enough to retire the --live sweep?",
+           "subagent_facts.json", "Q3_kill_semantics"),
+    "Q6": ("max_budget_usd on exceed: error, stop, or truncation?",
+           "behaviour_facts.json", "Q6_budget_terminal_reason"),
+    "Q7": ("does a hook callback's DENY actually deny, from inside the session? (decides INC-2)",
+           "behaviour_facts.json", "Q7_hook_deny_enforces"),
+    "Q8b": ("does the PYTHON client inherit the CLI's stored credentials?",
+            "behaviour_facts.json", "Q8b_python_client_inherits_credentials"),
 }
+
+
+def _behavioural_index() -> dict:
+    """ONE index of the behavioural answers, resolved from the live artifacts beside this one.
+
+    The close criterion of INC-0 asks for the answers in one place. They are PRODUCED by two live
+    probes and would otherwise be scattered across three files, so this reads them back and reports
+    per question: answered (with the value) or unanswered. Deterministic — it reads committed JSON,
+    adds no clock, and keeps `sdk_facts.json` byte-stable.
+    """
+    cache: dict[str, dict] = {}
+    out: dict[str, dict] = {}
+    for qid, (question, artifact, key) in _BEHAVIOURAL.items():
+        if artifact not in cache:
+            path = _ARTIFACT.parent / artifact
+            try:
+                cache[artifact] = json.loads(path.read_text(encoding="utf-8")).get("answers", {})
+            except (OSError, ValueError):
+                cache[artifact] = {}
+        answers = cache[artifact]
+        record = {"question": question, "source": artifact}
+        value = answers.get(key)
+        # A PRESENT key whose value says "NOT MEASURED" is not an answer. The first version of this
+        # index counted it as one, which would have let INC-0 close reporting 6/6 answered while one
+        # of them was a sentence admitting the opposite — a vacuous green wearing a value.
+        if key not in answers or value is None or (
+            isinstance(value, str) and value.startswith(_NOT_MEASURED)
+        ):
+            record["answer"] = value
+            record["status"] = "unanswered"
+        else:
+            record["answer"] = value
+        out[qid] = record
+    return out
 
 
 def run(claims: tuple[dict, ...]) -> tuple[dict, list[dict]]:
@@ -173,7 +218,7 @@ def run(claims: tuple[dict, ...]) -> tuple[dict, list[dict]]:
         "source": "docs/spec/10-target-sdk.md, resolved against the installed SDK",
         "environment": _environment(),
         "claims": results,
-        "behavioural_unanswered": _BEHAVIOURAL,
+        "behavioural": _behavioural_index(),
     }
     return facts, failures
 
@@ -219,7 +264,8 @@ def main(argv: list[str]) -> int:
     print("VERDICT    v3-sdk-symbols — PASS   (exit 0)")
     print(f"SUMMARY    {len(CLAIMS)}/{len(CLAIMS)} claims of §10 hold "
           f"(sdk {env['sdk_version']}, cli {env['cli_version']}); "
-          f"{len(_BEHAVIOURAL)} behavioural question(s) still unanswered")
+          f"{sum(1 for r in facts['behavioural'].values() if r.get('status') == 'unanswered')}"
+          f"/{len(_BEHAVIOURAL)} behavioural question(s) still unanswered")
     return 0
 
 

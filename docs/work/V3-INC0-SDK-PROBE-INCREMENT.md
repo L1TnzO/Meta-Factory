@@ -1,4 +1,4 @@
-<!-- meta:doc sha=850837c9cc861b2534505c8d1985f3006d11f4cc updated=2026-07-28T16:59Z -->
+<!-- meta:doc sha=746a2bd811895d93b31afd6bd92f592f59f83162 updated=2026-07-28T17:28Z -->
 # Incremento V3-INC0-SDK-PROBE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T16:27Z). Cerralo con `meta increment close`
@@ -42,7 +42,26 @@ pero esperado ≠ medido, y el nodo sigue abierto hasta que haya un `ResultMessa
 | 1 | `v3/` nace: README que dice qué es y qué NO es, y el diente de frontera de importación (`N-0066`) | ✅ |
 | 2+3 | Las claims de §10 como DATOS (`v3/probe/claims.py`, 36) + el resolutor/gate (`v3/probe/symbols.py`) que las contrasta con el SDK instalado y escribe `v3/sdk_facts.json` | ✅ |
 | 4 | Q7 (`N-0064`) con corrida VIVA y el sistema de archivos como oráculo — más Q2, Q6 y Q8b de yapa | ✅ |
-| 5 | Q1 (hooks en subagentes) y Q3 (SubagentStop en tarea matada), que necesitan spawn real de subagente | ⏳ |
+| 5 | Q1 (hooks en subagentes) ✅ con dos experimentos vivos · Q3 (kill) NO MEDIDA y dicho así | ✅ |
+
+### Evidencia de cierre
+
+| Criterio | Cómo se demuestra |
+| --- | --- |
+| 1 · respuestas como DATOS en un solo índice | `v3/sdk_facts.json` → `behavioural`: 6 preguntas, cada una con su artefacto de origen y su clave; **5 contestadas, 1 `unanswered`** (Q3) |
+| 2 · tabla de símbolos con lado rojo | `python3 -m v3.probe.symbols` → 36/36 · `V3_SDK_PROBE_SABOTAGE=1` detecta el símbolo movido |
+| 3 · frontera de importación con lado rojo | `python3 -m v3.verify.import_boundary` → 9 módulos verde · sabotaje detecta 4 · violador REAL cazado con `file:line` |
+| 4 · Q7 con evidencia ejecutable | `v3/behaviour_facts.json`: hook deny vence a `acceptEdits`, con control que escribe |
+| 5 · sin regresión | `meta check` 5/23 — los mismos cinco rojos pre-existentes del día de apertura, sin sexto |
+
+**Coste total del incremento: ~$0.11** en corridas vivas (`haiku`).
+
+**Un verde vacío atrapado al final, en el índice mismo.** La primera versión del índice contaba a Q3
+como *contestada* porque la clave existía — y su valor era la frase «NOT MEASURED». Una clave presente
+cuyo valor admite lo contrario no es una respuesta. El centinela ahora es compartido entre la sonda que
+lo escribe y el índice que lo lee, para que no puedan discrepar sobre qué cuenta como contestado.
+Es la tercera vez en el incremento que la trampa es la misma: algo que parece verde porque nadie
+preguntó si había mirado.
 
 ### Fase 4 — lo medido, con el disco como oráculo
 

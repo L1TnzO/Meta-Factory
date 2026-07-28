@@ -36,6 +36,7 @@ from pathlib import Path
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, HookMatcher
 
 from ._live import observe
+from .symbols import _NOT_MEASURED as NOT_MEASURED
 
 _ARTIFACT = Path(__file__).resolve().parent.parent / "subagent_facts.json"
 _MODEL = "haiku"
@@ -147,7 +148,7 @@ def verdict(records: list[dict]) -> tuple[list[str], dict]:
             None if enforce is None else not enforce["file_exists_after"]),
         "Q3_lifecycle_events_seen": sorted({c["event"] for r in records for c in r["hook_calls"]}),
         "Q3_terminal_task_statuses": sorted(_terminal_statuses()),
-        "Q3_kill_semantics": "NOT MEASURED — needs stop_task against a live task id (client API)",
+        "Q3_kill_semantics": f"{NOT_MEASURED} — needs stop_task against a live task id (client API)",
     }
 
 

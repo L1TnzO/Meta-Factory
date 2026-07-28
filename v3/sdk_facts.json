@@ -394,12 +394,37 @@
       "status": "ok"
     }
   ],
-  "behavioural_unanswered": {
-    "Q1": "does a hook registered on the parent session fire for SUBAGENT tool calls, with subagent context populated?",
-    "Q2": "can_use_tool vs PreToolUse: which runs first, and does a deny in one short-circuit the other?",
-    "Q3": "SubagentStop semantics on a KILLED task \u2014 is TaskNotification(status=stopped) enough to retire the --live sweep?",
-    "Q6": "max_budget_usd on exceed: error, stop, or truncation? (decides whether it can be a gate)",
-    "Q7": "does a hook callback's DENY actually deny, un-bypassably from inside the session? (ADR-031 A2 \u2014 decides the INC-2 gate)",
-    "Q8b": "does the PYTHON client inherit the CLI's stored credentials? (answered for the CLI; not for the client)"
+  "behavioural": {
+    "Q1": {
+      "question": "does a parent hook fire for SUBAGENT tool calls, with subagent context populated?",
+      "source": "subagent_facts.json",
+      "answer": true
+    },
+    "Q2": {
+      "question": "can_use_tool vs PreToolUse: which runs first, and does one deny short-circuit the other?",
+      "source": "behaviour_facts.json",
+      "answer": false
+    },
+    "Q3": {
+      "question": "SubagentStop semantics on a KILLED task \u2014 enough to retire the --live sweep?",
+      "source": "subagent_facts.json",
+      "answer": "NOT MEASURED \u2014 needs stop_task against a live task id (client API)",
+      "status": "unanswered"
+    },
+    "Q6": {
+      "question": "max_budget_usd on exceed: error, stop, or truncation?",
+      "source": "behaviour_facts.json",
+      "answer": "budget_exhausted"
+    },
+    "Q7": {
+      "question": "does a hook callback's DENY actually deny, from inside the session? (decides INC-2)",
+      "source": "behaviour_facts.json",
+      "answer": true
+    },
+    "Q8b": {
+      "question": "does the PYTHON client inherit the CLI's stored credentials?",
+      "source": "behaviour_facts.json",
+      "answer": true
+    }
   }
 }

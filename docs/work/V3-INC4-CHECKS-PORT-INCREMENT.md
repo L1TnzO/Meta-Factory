@@ -92,9 +92,9 @@ hereda la de INC-3, que fue acotada a propósito.
 
 | Fase | Contenido | Clase | Estado |
 | --- | --- | --- | --- |
-| 1 | `verify/registry.py` — el registro como DATA + **la ley**: sin testigo rojo no se registra; `one_sided` exige razón escrita; N/A se cuenta aparte (R-12) | **COLUMNA** (ojos propios) | ⏳ |
-| 2 | `verify/gate_census.py` — las 23 disposiciones, re-derivadas; la suma da 23 o rojo | **COLUMNA** (es la contabilidad) | ⏳ |
-| 3 | Los 29 kinds + resolución de argv, contra vectores commiteados generados en `oracle_ref` | delegable | ⏳ |
+| 1 | `verify/registry.py` — el registro como DATA + **la ley**: sin testigo rojo no se registra; `one_sided` exige razón escrita; N/A se cuenta aparte (R-12) | **COLUMNA** (ojos propios) | ✅ |
+| 2 | `verify/gate_census.py` — las 23 disposiciones, re-derivadas; la suma da 23 o rojo | **COLUMNA** (es la contabilidad) | ✅ |
+| 3 | Los 29 kinds + resolución de argv, contra vectores generados en `oracle_ref` | delegado | ✅ |
 | 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegable (R-14 no) | ⏳ |
 | 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegable | ⏳ |
 | 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegable | ⏳ |
@@ -102,6 +102,36 @@ hereda la de INC-3, que fue acotada a propósito.
 Volumen medido, no estimado: ~1.500 LOC de gates + 866 de grafo + ~700 de spec + ~400 de soporte +
 ~400 de registro y kinds ≈ **3.900 LOC**. §11.3 lo llamaba «L»; es XL y conviene decirlo antes y no
 después.
+
+## Fase 3: el gate que casi queda decorativo, y cómo se vio
+
+El slot delegado volvió **verde y honesto**: declaró que había enmascarado una posición del argv en
+24 de los 29 kinds. v2 escribe ahí `metafactory.verify.checks.<kind>`, y ese literal en `v3/` choca
+la regla 3 de la frontera; el generador lo trató como detalle de entorno, igual que `sys.executable`.
+
+El veredicto era verde y el razonamiento estaba escrito, pero la conclusión no se sostiene: **el
+ejecutor no es entorno, es EL mapeo.** El trabajo entero de `resolve_check` es kind → argv, y para
+24 kinds el elemento que carga el peso es qué módulo lo implementa. Con esa posición en blanco, el
+gate seguía verde si `column_full` ruteaba al ejecutor de `bus_bounded` — una región decorativa
+sobre 24/29, adentro justo del gate que existe para probar que el ruteo sobrevivió al port.
+
+La corrección salió más fuerte que el original: en v3 el ejecutor **no es el mismo string**, porque
+la regla del port es *«mismo argv, primer segmento del paquete cambiado a `v3`»*. Comparar con ese
+canje aplicado prueba el ruteo kind→módulo exactamente, no lo borra. Y el nombre del paquete v2 se
+LEE de la provenance del fixture: es un valor que se compara, nunca uno que se dereferencia, así que
+no hizo falta ninguna exención de frontera. Encima el argv resultante señala dónde tienen que
+aterrizar los cuerpos portados en la fase 6.
+
+Lo verificado con ojos y manos propias, no con la prosa del generador: footprint ⊆ contrato · la
+cadena de aceptación corrida acá · **el oráculo se re-deriva byte-idéntico** (mismo sha256 al
+regenerarlo desde v2 en el ref) · corromper un vector se caza · y el desvío de ejecutor
+`column_full → bus_bounded`, hecho por fuera del sabotaje del gate, cae con 5 desviaciones.
+
+Una instrucción mía estaba mal y el generador la corrigió en vez de fingir que la cumplía: pedí leer
+el fixture con `git show` en el ref, pero el fixture **nace después** de ese commit y ahí no existe.
+Lee de disco, lo dice en el docstring, y verifica que la provenance declare el ref esperado. La
+cadena de dos eslabones se mantiene igual: v3 reproduce los vectores · los vectores se re-derivan
+de v2 en el commit pineado.
 
 ## Por qué la ley es columna y no se delega
 

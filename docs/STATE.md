@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e18e87e90cfb8fcd752f47f7ccb73ab15b196330 updated=2026-07-28T16:27Z -->
+<!-- meta:doc sha=6a626686f98831b014459c9144a88e41bb8762be updated=2026-07-28T17:20Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,14 +20,17 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — spec corpus DONE, ratification PENDING (`ADR-031` Proposed, 2026-07-28).** `docs/spec/`
-  (20 docs · 26 conformance checks · 4 executable modules with oracles) specifies rebuilding the CONTROL plane
-  on the Claude Agent SDK, keeping the evidence layer: **our program becomes the host, Claude Code the engine**.
+- **🏗️ v3 REBUILD — `ADR-031` RATIFICADO 2026-07-28; INC-0 `SDK-PROBE` EN CURSO.** `docs/spec/` (21 docs ·
+  26 conformance checks · 4 executable modules with oracles) specifies rebuilding the CONTROL plane on the
+  Claude Agent SDK, keeping the evidence layer: **our program becomes the host, Claude Code the engine**.
   `ADR-031` ratifies §09/§10 and §11 **only as far as INC-2** (the go/no-go) and fixes that v3 is built **IN
   TREE at `v3/`** — measured: the hooks reach a new root folder (level→meta), the judgment gates do not (all
-  scoped to named dirs) ⇒ enforcement in, judgment out, structurally. The oracle is a pinned `oracle_ref`
-  commit, never the working tree. Awaiting the engineer's signature. → `decisions/031` ·
-  `docs/spec/00-README.md` · plan arc `N-0011`.
+  scoped to named dirs) ⇒ enforcement in, judgment out, structurally. Oracle = pinned `oracle_ref` commit,
+  never the working tree. INC-0 medido VIVO: símbolos 36/36 · hook deny ENFORCE (vence a `acceptEdits`) ·
+  el hook del padre alcanza y ACOTA a un subagente (`agent_type`+`agent_id`) · deny es por HERRAMIENTA no por
+  EFECTO (Bash lo rodea → el barrido git se porta) · `max_budget_usd` → `budget_exhausted` · `can_use_tool`
+  NO se reprodujo en 5 configuraciones (`N-0070`). **Mapa para humanos: `docs/spec/20-architecture-map.md`.**
+  → `decisions/031` · `docs/spec/00-README.md` · plan arc `N-0011`.
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
   `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via

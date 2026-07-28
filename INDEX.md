@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `e18e87e90cfb` | 2026-07-28T16:27Z | State — Meta-Factory |
+| `docs/STATE.md` | `6a626686f988` | 2026-07-28T17:20Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -77,6 +77,7 @@
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
 | `docs/spec/18-rationale.md` | `8659e1175d69` | 2026-07-28T17:08Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
 | `docs/spec/19-algorithms-reference.md` | `87f584c6f514` | 2026-07-28T04:01Z | 19 — Reference implementations: seal, slot law, sequence (NORMATIVE, EXECUTABLE) |
+| `docs/spec/20-architecture-map.md` | `716f72998729` | 2026-07-28T17:20Z | 20 — The map: what the system looks like, for a human |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

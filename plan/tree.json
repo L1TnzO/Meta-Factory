@@ -1056,6 +1056,19 @@
         "cause": "manual",
         "ref": "v3/subagent_facts.json"
       }
+    },
+    "N-0078": {
+      "parent": "N-0011",
+      "title": "v3: el nodo del plan lleva su NIVEL como campo y 'plan next --level <slug>' proyecta ese arco — hoy la separacion dentro del arbol es por ARCO y nada impide archivar un nodo de iot bajo un arco meta",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T17:20Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "docs/spec/20-architecture-map.md"
+      }
     }
   }
 }

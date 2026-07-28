@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `7c0d22860459` | 2026-07-11T21:55Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `2724c6c7205d` | 2026-07-28T16:16Z | State — Meta-Factory |
+| `docs/STATE.md` | `75e6fc1b96d0` | 2026-07-28T16:16Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -186,7 +186,7 @@
 | `docs/work/SLOT-FOOTPRINT-TOOTH-INCREMENT.md` | `e4ff08e4d5ae` | 2026-07-11T17:43Z | Incremento SLOT-FOOTPRINT-TOOTH |
 | `docs/work/SOTA-PARITY-DIRECTION-INCREMENT.md` | `f7fa25efe194` | 2026-07-11T14:48Z | Incremento SOTA-PARITY-DIRECTION |
 | `docs/work/SOTA-REDESIGN-DIRECTION-INCREMENT.md` | `f8eb9152e3d8` | 2026-06-25T21:42Z | Incremento SOTA-REDESIGN-DIRECTION |
-| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `b5f6f711721f` | 2026-07-28T04:06Z | Incremento SPEC-RECONSTRUCTABLE |
+| `docs/work/SPEC-RECONSTRUCTABLE-INCREMENT.md` | `727a16756e80` | 2026-07-28T16:16Z | Incremento SPEC-RECONSTRUCTABLE |
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

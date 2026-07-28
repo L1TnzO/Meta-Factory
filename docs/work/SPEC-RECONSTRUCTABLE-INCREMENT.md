@@ -1,7 +1,7 @@
-<!-- meta:doc sha=b5f6f711721fed374eae15be2ce50432f10ce297 updated=2026-07-28T04:06Z -->
+<!-- meta:doc sha=727a16756e80c0e1824c82d11710137f08e006ea updated=2026-07-28T16:16Z -->
 # Incremento SPEC-RECONSTRUCTABLE
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-28T16:16Z) (creado 2026-07-28T02:38Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -1,0 +1,236 @@
+{
+  "model": "haiku",
+  "answers": {
+    "conclusive": true,
+    "Q1_parent_hook_fires_for_subagent_tool_calls": true,
+    "Q1_subagent_identity_available": [
+      "agent_id",
+      "agent_type"
+    ],
+    "Q1_parent_hook_can_deny_a_subagent_write": true,
+    "Q3_lifecycle_events_seen": [
+      "PreToolUse",
+      "SubagentStart",
+      "SubagentStop"
+    ],
+    "Q3_terminal_task_statuses": [
+      "completed",
+      "failed",
+      "killed",
+      "stopped"
+    ],
+    "Q3_kill_semantics": "NOT MEASURED \u2014 needs stop_task against a live task id (client API)"
+  },
+  "observations": [
+    {
+      "id": "S1-OBSERVE",
+      "target": "/tmp/v3-subagent-wb60wgi3/s1-observe.txt",
+      "hook_calls": [
+        {
+          "event": "SubagentStart",
+          "agent_type": "filewriter",
+          "agent_id": "abc510ad5fad22cce"
+        },
+        {
+          "event": "PreToolUse",
+          "tool": "Write",
+          "agent_type": "filewriter",
+          "agent_id": "abc510ad5fad22cce"
+        },
+        {
+          "event": "SubagentStop",
+          "agent_type": "filewriter",
+          "agent_id": "abc510ad5fad22cce"
+        }
+      ],
+      "file_exists_after": true,
+      "events": [
+        "TaskUpdatedMessage",
+        "TaskNotificationMessage",
+        "UserMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "AssistantMessage",
+        "AssistantMessage",
+        "ResultMessage"
+      ],
+      "captured": [
+        {
+          "type": "TaskStartedMessage",
+          "task_id": "abc510ad5fad22cce",
+          "description": "Create file with specific content",
+          "task_type": "local_agent"
+        },
+        {
+          "type": "TaskNotificationMessage",
+          "task_id": "abc510ad5fad22cce",
+          "status": "completed",
+          "summary": "Done. I've created the file at `/tmp/v3-subagent-wb60wgi3/s1-observe.txt` with the content `HELLO`.",
+          "usage": {
+            "total_tokens": 1772,
+            "tool_uses": 1,
+            "duration_ms": 3523
+          }
+        }
+      ],
+      "result": {
+        "total_cost_usd": 0.015035,
+        "num_turns": 2,
+        "permission_denials": [],
+        "terminal_reason": "completed",
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 3874,
+            "outputTokens": 643,
+            "cacheReadInputTokens": 21120,
+            "cacheCreationInputTokens": 2917,
+            "webSearchRequests": 0,
+            "costUSD": 0.015035,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty"
+          }
+        },
+        "usage": {
+          "input_tokens": 18,
+          "cache_creation_input_tokens": 2917,
+          "cache_read_input_tokens": 21120,
+          "output_tokens": 377,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2917,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 8,
+              "output_tokens": 106,
+              "cache_read_input_tokens": 11815,
+              "cache_creation_input_tokens": 407,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 407
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "S2-ENFORCE",
+      "target": "/tmp/v3-subagent-wb60wgi3/s2-enforce.txt",
+      "hook_calls": [
+        {
+          "event": "SubagentStart",
+          "agent_type": "filewriter",
+          "agent_id": "abd082bfe149f30b5"
+        },
+        {
+          "event": "PreToolUse",
+          "tool": "Write",
+          "agent_type": "filewriter",
+          "agent_id": "abd082bfe149f30b5"
+        },
+        {
+          "event": "SubagentStop",
+          "agent_type": "filewriter",
+          "agent_id": "abd082bfe149f30b5"
+        }
+      ],
+      "file_exists_after": false,
+      "events": [
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "SystemMessage",
+        "AssistantMessage",
+        "AssistantMessage",
+        "ResultMessage"
+      ],
+      "captured": [
+        {
+          "type": "TaskStartedMessage",
+          "task_id": "abd082bfe149f30b5",
+          "description": "Create file with HELLO content",
+          "task_type": "local_agent"
+        },
+        {
+          "type": "TaskNotificationMessage",
+          "task_id": "abd082bfe149f30b5",
+          "status": "completed",
+          "summary": "I encountered a permission error when attempting to write the file. The parent agent's access control system has denied write access for subagents. This is a permission restriction at the parent level that prevents me from creating the file at this location.",
+          "usage": {
+            "total_tokens": 1800,
+            "tool_uses": 1,
+            "duration_ms": 4912
+          }
+        }
+      ],
+      "result": {
+        "total_cost_usd": 0.0194737,
+        "num_turns": 1,
+        "permission_denials": [],
+        "terminal_reason": "completed",
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 3914,
+            "outputTokens": 977,
+            "cacheReadInputTokens": 33507,
+            "cacheCreationInputTokens": 3662,
+            "webSearchRequests": 0,
+            "costUSD": 0.0194737,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty"
+          }
+        },
+        "usage": {
+          "input_tokens": 10,
+          "cache_creation_input_tokens": 580,
+          "cache_read_input_tokens": 12387,
+          "output_tokens": 170,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 580,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 10,
+              "output_tokens": 170,
+              "cache_read_input_tokens": 12387,
+              "cache_creation_input_tokens": 580,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 580
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        }
+      },
+      "error": null
+    }
+  ]
+}

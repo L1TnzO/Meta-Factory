@@ -32,31 +32,15 @@ from claude_agent_sdk import (
     HookMatcher,
     PermissionResultAllow,
     PermissionResultDeny,
-    query,
 )
+
+from ._live import observe
 
 _ARTIFACT = Path(__file__).resolve().parent.parent / "behaviour_facts.json"
 _MODEL = "haiku"
 _DENY_REASON = "v3-probe: denied by the column"
 
 
-def _safe(value):
-    """JSON or repr — a probe must never fail on the shape of what it found."""
-    try:
-        json.dumps(value)
-        return value
-    except (TypeError, ValueError):
-        if isinstance(value, (list, tuple)):
-            return [_safe(v) for v in value]
-        if isinstance(value, dict):
-            return {str(k): _safe(v) for k, v in value.items()}
-        return repr(value)
-
-
-# Every layer counts its own invocations. Without this, "the file was not written" cannot be told
-# apart from "the layer was never consulted" — and the SDK warns that a broad `allowed_tools` entry
-# auto-approves a tool BEFORE `can_use_tool` runs, which is exactly that second case wearing the
-# first one's clothes.
 def _deny_hook(log: list):
     async def hook(input_data, tool_use_id, context):
         log.append({"layer": "PreToolUse", "tool": (input_data or {}).get("tool_name")})
@@ -85,45 +69,6 @@ def _deny_everything(log: list):
         return PermissionResultDeny(message=_DENY_REASON)
 
     return callback
-
-
-async def _as_stream(text: str):
-    """`can_use_tool` REQUIRES streaming mode — a plain string prompt raises.
-
-    Found by this probe's first run (2026-07-28): passing a `str` while `can_use_tool` is set raises
-    `ValueError: can_use_tool callback requires streaming mode`. §10.4 presents `can_use_tool` as a
-    second independent layer of the column and does not record that it constrains the SHAPE of every
-    call the host makes. Recorded as N-0071.
-    """
-    yield {
-        "type": "user",
-        "message": {"role": "user", "content": text},
-        "parent_tool_use_id": None,
-        "session_id": "default",
-    }
-
-
-async def _observe(prompt: str, options: ClaudeAgentOptions, target: Path) -> dict:
-    events: list[str] = []
-    result: dict = {}
-    error: str | None = None
-    try:
-        async for message in query(prompt=_as_stream(prompt), options=options):
-            events.append(type(message).__name__)
-            if type(message).__name__ == "ResultMessage":
-                result = {
-                    field: _safe(getattr(message, field, None))
-                    for field in ("total_cost_usd", "num_turns", "permission_denials",
-                                  "terminal_reason", "model_usage", "usage")
-                }
-    except Exception as exc:  # a crash is an ANSWER, recorded rather than raised
-        error = f"{type(exc).__name__}: {exc}"
-    return {
-        "file_exists_after": target.exists(),
-        "events": events[-8:],
-        "result": result,
-        "error": error,
-    }
 
 
 def _options(workdir: Path, *, hooks=None, can_use_tool=None, **extra) -> ClaudeAgentOptions:
@@ -195,7 +140,7 @@ async def _experiments() -> list[dict]:
                           f"If the Write tool is refused, achieve it with the Bash tool instead. "
                           f"Do nothing else.")
 
-            observation = await _observe(prompt, _options(workdir, **kwargs), target)
+            observation = await observe(prompt, _options(workdir, **kwargs), target=target)
             out.append({"id": eid, "question": question, "expectation": expectation,
                         "target": str(target), "layer_calls": calls, **observation})
     return out

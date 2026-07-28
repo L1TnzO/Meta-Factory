@@ -882,14 +882,17 @@
       "parent": "N-0012",
       "title": "Q8: does the Python SDK inherit the CLI's stored OAuth credentials, or does it demand ANTHROPIC_API_KEY",
       "kind": "question",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/behaviour_facts.json: Q8b_python_client_inherits_credentials=true — 10 corridas vivas por query() sin ANTHROPIC_API_KEY, solo ~/.claude/.credentials.json"
+      ],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      }
+      },
+      "closed_at": "2026-07-28T17:17Z"
     },
     "N-0066": {
       "parent": "N-0012",
@@ -911,14 +914,15 @@
       "parent": "N-0013",
       "title": "oracle_ref pinned as DATA: proofs and pins read at a commit SHA, NEVER the working tree",
       "kind": "task",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-28T16:26Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      }
+      },
+      "trigger": "INC-1 arranca: es donde oracle_ref se escribe como dato y se lee con git show"
     },
     "N-0068": {
       "parent": "N-0014",
@@ -1022,6 +1026,35 @@
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "docs/spec/18-rationale.md"
+      }
+    },
+    "N-0076": {
+      "parent": "N-0012",
+      "title": "Q1 CONTESTADA: el hook PreToolUse del padre SÍ dispara para llamadas de un SUBAGENTE, con agent_type+agent_id, y PUEDE denegarle la escritura (S1 control escribe, S2 deniega y no escribe). SubagentStart/Stop también disparan",
+      "kind": "task",
+      "state": "done",
+      "evidence": [
+        "SubagentStart y SubagentStop disparan con identidad; agent_id es por-invocacion (distinto en S1 y S2) => es la clave de binding que pedia §10.8"
+      ],
+      "opened_at": "2026-07-28T17:17Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "v3/subagent_facts.json"
+      },
+      "closed_at": "2026-07-28T17:17Z"
+    },
+    "N-0077": {
+      "parent": "N-0012",
+      "title": "Q3 semantica de kill: NO MEDIDA — necesita stop_task contra un task_id vivo (API de cliente, no query()). Lo observado: Start/Stop disparan en completion normal y TERMINAL_TASK_STATUSES={completed,failed,killed,stopped}",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T17:17Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "manual",
+        "ref": "v3/subagent_facts.json"
       }
     }
   }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c2ab9d5a89dd5cea6755ef620e0f5f5eb9bd2896 updated=2026-07-28T17:30Z -->
+<!-- meta:doc sha=06e8a4eb135ff8aff59c5ce5310c291eff729eec updated=2026-07-28T18:10Z -->
 # 10 — Target architecture on the Claude Agent SDK (JUDGMENT)
 
 > **Version pin.** Every symbol below was read from the `claude-agent-sdk` **0.2.128** wheel on
@@ -220,10 +220,17 @@ it is what makes the hook safe to install globally.
 >    a tool before the callback runs; settings-file allow rules shadow it too, and *are not visible to
 >    the warning*. The column must never combine a broad `allowed_tools` with the permission layer.
 >
-> And one NEGATIVE result that this section must not paper over: **`can_use_tool` was never invoked in
-> five configurations** (default · `acceptEdits` · `plan` · `allowed_tools=[]` · no mode), and the write
-> went through. Treat "two independent layers" as ONE measured layer plus an unproven one (`N-0070`)
-> until a configuration is found that fires it. The hook layer is the one demonstrated to enforce.
+> **4. The second layer is REAL, but only through `ClaudeSDKClient` — and that is an architectural
+>    requirement this section did not state.** `can_use_tool` was never invoked in EIGHT
+>    configurations of `query()` (default · `acceptEdits` · `plan` · `allowed_tools=[]` · no mode ·
+>    Bash under two modes · Read), and the write went through every time. The cause was not a missing
+>    configuration: **a permission decision is a BIDIRECTIONAL protocol** — the CLI asks and waits for
+>    our answer — and `query()` streams input only. Through the client the layer fires and enforces:
+>    allow wrote the file, deny blocked it, and the callback was invoked in both (`v3/client_facts.json`).
+>
+> **Consequence for §10.2 and INC-2: the host is built on `ClaudeSDKClient`, not on `query()`.** The
+> same fact reaches `stop_task` (§10.8's runaway-slot row), which is likewise unavailable one-shot.
+> Two open debts had one cause, and it was the transport.
 
 ## 5. Roles become data
 
@@ -295,7 +302,7 @@ rather than a habit: a session class that exceeds its budget stops.
 | completion | `verdict_required` at SubagentStop | unchanged event, typed input (`SubagentStopHookInput`) |
 | rollback on red | manual | `enable_file_checkpointing=True` + `rewind_files(user_message_id)` |
 | sandbox policy | folklore (`dangerouslyDisableSandbox` for gradle) | `SandboxSettings` / `SandboxNetworkConfig` declared on the slot |
-| runaway slot | wall-clock budget in the manifest, enforced loosely | `stop_task(task_id)` / `interrupt()` + `max_wall_s` |
+| runaway slot | wall-clock budget in the manifest, enforced loosely | `stop_task(task_id)` / `interrupt()` + `max_wall_s` — **measured 2026-07-28: `stop_task` works and the stream reports `status` in `{killed, stopped}`, but `SubagentStop` does NOT fire on a killed task.** So the hook layer is blind to a kill, `verdict_required` never runs, and the post-hoc `slot_footprint --live` sweep is **NOT** retired (§10.8's hope was half right). What v3 gains instead is that the HOST sees the typed kill in its own loop, so the reaction moves from a later sweep to the moment it happens — a better answer than either, and available only because the host owns the loop (`v3/kill_facts.json`, node `N-0077`) |
 
 ## 9. Distribution to factories
 

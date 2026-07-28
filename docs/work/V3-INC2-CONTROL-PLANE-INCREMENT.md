@@ -1,4 +1,4 @@
-<!-- meta:doc sha=02600b3da79dc06b07cfbe89e5617a5bbd791378 updated=2026-07-28T18:04Z -->
+<!-- meta:doc sha=55ebf7bdec05801f15bbd5771bb0a00f3d5dd74a updated=2026-07-28T18:10Z -->
 # Incremento V3-INC2-CONTROL-PLANE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T17:41Z). Cerralo con `meta increment close`
@@ -66,7 +66,7 @@ modela mejor la amenaza real — alguien editando `established()` con prisa.
 | 3 | `v3/control/hooks.py` + `v3/verify/column_live.py` — cláusula (ii), viva | ✅ |
 | 4 | `control/{column,agents}` + gate `composition` — la proyección por nivel | ✅ |
 | 4b | `control/tools.py` — los verbos como herramientas MCP en proceso | ⏳ |
-| 5 | Deudas: `N-0070` y `N-0077` re-bloqueadas con causa COMÚN identificada (abajo) · `N-0075`/R-14 pendiente | ◐ |
+| 5 | Deudas `N-0070` y `N-0077` **CERRADAS por medición** — la causa común era el TRANSPORTE · `N-0075`/R-14 pendiente | ✅ |
 
 ### Fase 4 — la composición reemplaza cuatro gates por una afirmación de conjuntos
 
@@ -105,6 +105,23 @@ bidireccional** —la CLI pregunta y espera respuesta— y `query()` sólo hace 
 `N-0077` (`stop_task` contra un `task_id` vivo) apunta al mismo sitio. Dos deudas, una causa: **el
 host de v3 debería montarse sobre `ClaudeSDKClient`, no sobre `query()`**. Es un hallazgo
 arquitectónico, no una configuración que falte, y §10 no lo dice en ninguna línea.
+
+**La hipótesis se confirmó, y las dos deudas cerraron juntas.**
+
+`v3/probe/client.py` — la segunda capa es REAL a través del cliente: `allow` escribió el archivo,
+`deny` lo bloqueó, y el callback se invocó en AMBOS. O sea §10.4 tenía razón sobre «dos capas
+independientes» y estaba equivocada sobre cómo llegar a ellas. Ocho experimentos negativos valieron
+más que ocho intentos de acertar la configuración: el patrón de los fallos dijo dónde mirar.
+
+`v3/probe/kill.py` — y acá la respuesta es la mitad mala, que es la más útil. `stop_task` funciona y
+el stream reporta `status` en `{killed, stopped}`, **pero `SubagentStop` NO dispara en una tarea
+matada** (`lifecycle_events` trae sólo `SubagentStart`). La capa de hooks es **ciega al kill**:
+`verdict_required` nunca corre, así que el barrido post-hoc `slot_footprint --live` **no se retira**
+— §10.8 lo esperaba y se equivocaba a medias.
+
+Lo que v3 gana a cambio es mejor que cualquiera de las dos opciones anteriores: **el host ve el kill
+tipado en su propio bucle**, así que la reacción se mueve del barrido posterior al momento en que
+ocurre. Y sólo es posible porque el host posee el bucle — es la inversión pagando, no una API nueva.
 
 ## Criterio de cierre (demostrable, no narrable)
 

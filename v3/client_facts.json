@@ -1,0 +1,43 @@
+{
+  "model": "haiku",
+  "answers": {
+    "can_use_tool_fires_via_client": true,
+    "allow_wrote_the_file": true,
+    "deny_blocked_the_file": true,
+    "transport_hypothesis_confirmed": true
+  },
+  "cases": {
+    "A-ALLOW": {
+      "callback_calls": [
+        {
+          "tool": "Write",
+          "decision": "allow",
+          "agent_id": null
+        }
+      ],
+      "file_exists_after": true,
+      "result": {
+        "terminal_reason": "completed",
+        "num_turns": 2,
+        "total_cost_usd": 0.0121999
+      },
+      "error": null
+    },
+    "B-DENY": {
+      "callback_calls": [
+        {
+          "tool": "Write",
+          "decision": "deny",
+          "agent_id": null
+        }
+      ],
+      "file_exists_after": false,
+      "result": {
+        "terminal_reason": "completed",
+        "num_turns": 2,
+        "total_cost_usd": 0.0099209
+      },
+      "error": null
+    }
+  }
+}

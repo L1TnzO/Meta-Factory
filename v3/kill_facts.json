@@ -1,0 +1,61 @@
+{
+  "model": "haiku",
+  "facts": {
+    "kill_was_issued": true,
+    "task_id_seen": true,
+    "raced": false,
+    "task_statuses_after_kill": [
+      "killed",
+      "stopped"
+    ],
+    "lifecycle_events": [
+      "SubagentStart"
+    ],
+    "subagent_stop_fired": false,
+    "sweep_can_be_retired": false,
+    "error": null,
+    "messages": [
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "TaskUpdatedMessage",
+        "task_id": "abbf5ea2c502d2729",
+        "status": "killed"
+      },
+      {
+        "type": "TaskNotificationMessage",
+        "task_id": "abbf5ea2c502d2729",
+        "status": "stopped"
+      },
+      {
+        "type": "UserMessage"
+      },
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "SystemMessage"
+      },
+      {
+        "type": "AssistantMessage"
+      },
+      {
+        "type": "AssistantMessage"
+      },
+      {
+        "type": "ResultMessage",
+        "terminal_reason": "completed"
+      }
+    ]
+  }
+}

@@ -67,7 +67,7 @@
 | `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
-| `docs/spec/10-target-sdk.md` | `c2ab9d5a89dd` | 2026-07-28T17:30Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
+| `docs/spec/10-target-sdk.md` | `06e8a4eb135f` | 2026-07-28T18:10Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
 | `docs/spec/11-build-plan.md` | `442512c22802` | 2026-07-28T17:35Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
@@ -191,6 +191,6 @@
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
-| `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `02600b3da79d` | 2026-07-28T18:04Z | Incremento V3-INC2-CONTROL-PLANE |
+| `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `55ebf7bdec05` | 2026-07-28T18:10Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

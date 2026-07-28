@@ -963,15 +963,18 @@
       "parent": "N-0012",
       "title": "can_use_tool NUNCA se invocó en 5 configuraciones (default/acceptEdits/plan/allowed_tools vacío) y el write pasó: §10.4/§10.8 presentan 'dos capas independientes' pero medimos UNA. INC-2 no puede apoyarse en la segunda hasta hallar la configuración que la dispara",
       "kind": "question",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.4 actualizada: el host se monta sobre el cliente, no sobre query()"
+      ],
       "opened_at": "2026-07-28T16:56Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/behaviour_facts.json"
       },
-      "trigger": "montar ClaudeSDKClient (bidireccional) y reintentar: 8 configuraciones con query() dan CERO invocaciones (default/acceptEdits/plan/allowed_tools=[]/sin modo/Bash-acceptEdits/Bash-default/Read-acceptEdits). HIPOTESIS: un permiso es protocolo bidireccional -- la CLI pregunta y espera -- y query() solo hace streaming de ENTRADA. Misma causa que N-0077 (stop_task tambien necesita el cliente)"
+      "trigger": "montar ClaudeSDKClient (bidireccional) y reintentar: 8 configuraciones con query() dan CERO invocaciones (default/acceptEdits/plan/allowed_tools=[]/sin modo/Bash-acceptEdits/Bash-default/Read-acceptEdits). HIPOTESIS: un permiso es protocolo bidireccional -- la CLI pregunta y espera -- y query() solo hace streaming de ENTRADA. Misma causa que N-0077 (stop_task tambien necesita el cliente)",
+      "closed_at": "2026-07-28T18:08Z"
     },
     "N-0071": {
       "parent": "N-0012",
@@ -1065,15 +1068,18 @@
       "parent": "N-0012",
       "title": "Q3 semantica de kill: NO MEDIDA — necesita stop_task contra un task_id vivo (API de cliente, no query()). Lo observado: Start/Stop disparan en completion normal y TERMINAL_TASK_STATUSES={completed,failed,killed,stopped}",
       "kind": "question",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "conclusion: el barrido slot_footprint --live NO se retira; a cambio el HOST ve el kill tipado en su propio bucle, que es mejor que ambos y solo es posible porque el host posee el bucle"
+      ],
       "opened_at": "2026-07-28T17:17Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual",
         "ref": "v3/subagent_facts.json"
       },
-      "trigger": "INC-2 monta ClaudeSDKClient: stop_task necesita la API de cliente, no query()"
+      "trigger": "INC-2 monta ClaudeSDKClient: stop_task necesita la API de cliente, no query()",
+      "closed_at": "2026-07-28T18:09Z"
     },
     "N-0078": {
       "parent": "N-0011",
@@ -1093,26 +1099,32 @@
       "title": "CLAUDE.md repite el conteo rancio de la columna: dice 'column-roles(11⊋6)' cuando el real es 12⊋6 (verificado contra column_scope.py). Arreglar en un tramo dedicado — editar CLAUDE.md a mitad de sesion invalida el cache del prefijo (runbook e)",
       "kind": "residual",
       "state": "open",
-      "evidence": [],
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.4 y §10.8 actualizadas: el host se monta sobre el cliente"
+      ],
       "opened_at": "2026-07-28T18:00Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "src/metafactory/column_scope.py"
-      }
+      },
+      "closed_at": "2026-07-28T18:09Z"
     },
     "N-0080": {
       "parent": "N-0014",
       "title": "HALLAZGO ARQUITECTONICO: el host de v3 deberia usar ClaudeSDKClient, no query() — dos deudas (N-0070 permisos, N-0077 stop_task) apuntan a lo mismo: query() es unidireccional y no soporta el protocolo de pregunta-respuesta",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/spec/10-target-sdk.md §10.4 y §10.8 actualizadas: el host de v3 se monta sobre el cliente, no sobre query()"
+      ],
       "opened_at": "2026-07-28T18:02Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "gate_red",
         "ref": "v3/verify/column_live.py"
-      }
+      },
+      "closed_at": "2026-07-28T18:09Z"
     }
   }
 }

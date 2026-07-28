@@ -1,0 +1,405 @@
+{
+  "source": "docs/spec/10-target-sdk.md, resolved against the installed SDK",
+  "environment": {
+    "sdk_version": "0.2.128",
+    "cli_version": "2.1.220 (Claude Code)",
+    "python": "3.14.6",
+    "credentials_file_present": true,
+    "anthropic_api_key_in_env": false
+  },
+  "claims": [
+    {
+      "id": "C-01",
+      "ref": "\u00a710.3",
+      "kind": "export",
+      "target": "tool",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-02",
+      "ref": "\u00a710.3",
+      "kind": "export",
+      "target": "create_sdk_mcp_server",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-03",
+      "ref": "\u00a710.3",
+      "kind": "params",
+      "target": "tool",
+      "expect": [
+        "name",
+        "description",
+        "input_schema",
+        "annotations"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-04",
+      "ref": "\u00a710.3",
+      "kind": "params",
+      "target": "create_sdk_mcp_server",
+      "expect": [
+        "name",
+        "version",
+        "tools"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-05",
+      "ref": "\u00a710.4",
+      "kind": "export",
+      "target": "ClaudeAgentOptions",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-06",
+      "ref": "\u00a710.4",
+      "kind": "export",
+      "target": "HookMatcher",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-07",
+      "ref": "\u00a710.4",
+      "kind": "export",
+      "target": "PermissionResultDeny",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-08",
+      "ref": "\u00a710.4",
+      "kind": "fields",
+      "target": "HookMatcher",
+      "expect": [
+        "matcher",
+        "hooks"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-09",
+      "ref": "\u00a710.4",
+      "kind": "fields",
+      "target": "ClaudeAgentOptions",
+      "expect": [
+        "hooks",
+        "can_use_tool",
+        "agents",
+        "model",
+        "permission_mode",
+        "setting_sources"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-10",
+      "ref": "\u00a710.4",
+      "kind": "values",
+      "target": "HookEvent",
+      "expect": [
+        "PreToolUse",
+        "PostToolUse",
+        "PostToolUseFailure",
+        "UserPromptSubmit",
+        "Stop",
+        "SubagentStop",
+        "PreCompact",
+        "Notification",
+        "SubagentStart",
+        "PermissionRequest"
+      ],
+      "found_in": "claude_agent_sdk.types",
+      "status": "ok"
+    },
+    {
+      "id": "C-11",
+      "ref": "\u00a710.5",
+      "kind": "export",
+      "target": "AgentDefinition",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-12",
+      "ref": "\u00a710.5",
+      "kind": "fields",
+      "target": "AgentDefinition",
+      "expect": [
+        "description",
+        "prompt",
+        "tools",
+        "disallowedTools",
+        "model",
+        "skills",
+        "memory",
+        "mcpServers",
+        "initialPrompt",
+        "maxTurns",
+        "background",
+        "effort",
+        "permissionMode"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-13",
+      "ref": "\u00a710.6",
+      "kind": "export",
+      "target": "ClaudeSDKClient",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-14",
+      "ref": "\u00a710.6",
+      "kind": "methods",
+      "target": "ClaudeSDKClient",
+      "expect": [
+        "get_context_usage"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-15",
+      "ref": "\u00a710.6",
+      "kind": "fields",
+      "target": "ContextUsageResponse",
+      "expect": [
+        "categories",
+        "totalTokens"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-16",
+      "ref": "\u00a710.7",
+      "kind": "fields",
+      "target": "ClaudeAgentOptions",
+      "expect": [
+        "max_budget_usd"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-17",
+      "ref": "\u00a710.7",
+      "kind": "fields",
+      "target": "ClaudeAgentOptions",
+      "expect": [
+        "max_turns",
+        "resume",
+        "fork_session",
+        "include_hook_events"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-18",
+      "ref": "\u00a710.7",
+      "kind": "fields",
+      "target": "ResultMessage",
+      "expect": [
+        "total_cost_usd",
+        "usage",
+        "model_usage",
+        "num_turns",
+        "permission_denials",
+        "terminal_reason"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-19",
+      "ref": "\u00a710.7",
+      "kind": "fields",
+      "target": "TaskUsage",
+      "expect": [
+        "total_tokens",
+        "tool_uses",
+        "duration_ms"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-20",
+      "ref": "\u00a710.7",
+      "kind": "export",
+      "target": "TaskBudget",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-21",
+      "ref": "\u00a710.7",
+      "kind": "export",
+      "target": "list_subagents",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-21b",
+      "ref": "\u00a710.7",
+      "kind": "export",
+      "target": "get_subagent_messages",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-21c",
+      "ref": "found 2026-07-28",
+      "kind": "export",
+      "target": "list_subagents_from_store",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-21d",
+      "ref": "found 2026-07-28",
+      "kind": "export",
+      "target": "get_subagent_messages_from_store",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-22",
+      "ref": "\u00a710.7",
+      "kind": "export",
+      "target": "ThinkingConfig",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-23",
+      "ref": "\u00a710.8",
+      "kind": "methods",
+      "target": "ClaudeSDKClient",
+      "expect": [
+        "rewind_files",
+        "stop_task",
+        "interrupt"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-24",
+      "ref": "\u00a710.8",
+      "kind": "fields",
+      "target": "ClaudeAgentOptions",
+      "expect": [
+        "enable_file_checkpointing"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-25",
+      "ref": "\u00a710.8",
+      "kind": "export",
+      "target": "SandboxSettings",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-26",
+      "ref": "\u00a710.8",
+      "kind": "export",
+      "target": "SandboxNetworkConfig",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-27",
+      "ref": "\u00a710.8",
+      "kind": "export",
+      "target": "SubagentStopHookInput",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-27b",
+      "ref": "\u00a710.8",
+      "kind": "export",
+      "target": "TaskNotificationMessage",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-27c",
+      "ref": "\u00a710.8",
+      "kind": "export",
+      "target": "SubagentStartHookInput",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-28",
+      "ref": "\u00a710.9",
+      "kind": "export",
+      "target": "SdkPluginConfig",
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-29",
+      "ref": "\u00a710.9",
+      "kind": "fields",
+      "target": "SdkPluginConfig",
+      "expect": [
+        "type",
+        "path"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-30",
+      "ref": "\u00a710.9",
+      "kind": "fields",
+      "target": "ClaudeAgentOptions",
+      "expect": [
+        "plugins"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    },
+    {
+      "id": "C-31",
+      "ref": "\u00a710.10",
+      "kind": "values",
+      "target": "PermissionMode",
+      "expect": [
+        "bypassPermissions"
+      ],
+      "found_in": "claude_agent_sdk",
+      "status": "ok"
+    }
+  ],
+  "behavioural_unanswered": {
+    "Q1": "does a hook registered on the parent session fire for SUBAGENT tool calls, with subagent context populated?",
+    "Q2": "can_use_tool vs PreToolUse: which runs first, and does a deny in one short-circuit the other?",
+    "Q3": "SubagentStop semantics on a KILLED task \u2014 is TaskNotification(status=stopped) enough to retire the --live sweep?",
+    "Q6": "max_budget_usd on exceed: error, stop, or truncation? (decides whether it can be a gate)",
+    "Q7": "does a hook callback's DENY actually deny, un-bypassably from inside the session? (ADR-031 A2 \u2014 decides the INC-2 gate)",
+    "Q8b": "does the PYTHON client inherit the CLI's stored credentials? (answered for the CLI; not for the client)"
+  }
+}

@@ -42,9 +42,23 @@ exact shape of the hollow rebuild that acceptance clause P2 exists to catch. Out
 that boundary for free; in tree it has to be asserted, so it is a gate:
 
 ```bash
-python3 v3/verify/import_boundary.py                        # the gate
-V3_IMPORT_BOUNDARY_SABOTAGE=1 python3 v3/verify/import_boundary.py   # the red side; must also exit 0
+python3 -m v3.verify.import_boundary                                  # the gate
+V3_IMPORT_BOUNDARY_SABOTAGE=1 python3 -m v3.verify.import_boundary    # the red side; must also exit 0
 ```
+
+It bit its author within the hour: the SDK probe first reached its sibling module with a
+`sys.path.insert` and a comment explaining why that was fine. It was refused, and v3 became a real
+package instead. That is the intended behaviour — the rule has no "just this once".
+
+## Running everything
+
+```bash
+python3 -m v3.verify.import_boundary     # boundary: v3 never imports v2
+python3 -m v3.probe.symbols              # §10's claims vs the installed SDK; rewrites sdk_facts.json
+```
+
+Each takes no arguments and each has a `*_SABOTAGE=1` red side that must also exit 0. An unknown
+argument is exit 2, and a selection that would check nothing is red rather than vacuously green.
 
 **3. No increment lands without its own gate, run and green.** v3 inherits v2's *enforcement* (the
 hooks reach here: no writing into `.proof/`, no code outside an open increment, no closing a turn

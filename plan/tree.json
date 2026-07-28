@@ -929,6 +929,19 @@
         "cause": "manual",
         "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
       }
+    },
+    "N-0069": {
+      "parent": "N-0012",
+      "title": "§10.7 corregido por medición: list_subagents/get_subagent_messages son funciones de módulo, NO métodos de ClaudeSDKClient; y existen variantes _from_store (historia de subagentes desde almacén persistido) que §10 no registra",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-28T16:42Z",
+      "origin": {
+        "session": "2026-07-28",
+        "cause": "gate_red",
+        "ref": "v3/probe/claims.py"
+      }
     }
   }
 }

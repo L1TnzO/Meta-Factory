@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e9e6ec07c1a43d226bb35ece49227bddb2f8baf1 updated=2026-07-28T16:28Z -->
+<!-- meta:doc sha=feadbac9c5474cd8c2f7b4d881493236e395eaf1 updated=2026-07-28T16:44Z -->
 # Incremento V3-INC0-SDK-PROBE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T16:27Z). Cerralo con `meta increment close`
@@ -39,10 +39,39 @@ pero esperado ≠ medido, y el nodo sigue abierto hasta que haya un `ResultMessa
 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `v3/` nace: layout mínimo (§10.2), README que dice qué es y qué NO es, y el diente de frontera de importación (`N-0066`) | ⏳ |
-| 2 | Sonda ejecutable `v3/probe/` que contesta las 8 preguntas y escribe `v3/sdk_facts.json` (DATOS, no prosa) | ⏳ |
-| 3 | Test de tabla de símbolos: falla RUIDOSAMENTE si cualquier símbolo citado por §10 se movió | ⏳ |
+| 1 | `v3/` nace: README que dice qué es y qué NO es, y el diente de frontera de importación (`N-0066`) | ✅ |
+| 2+3 | Las claims de §10 como DATOS (`v3/probe/claims.py`, 36) + el resolutor/gate (`v3/probe/symbols.py`) que las contrasta con el SDK instalado y escribe `v3/sdk_facts.json` | ✅ |
 | 4 | Q7 (`N-0064`), la pregunta que decide el gate de INC-2: ¿un `deny` de un callback deniega de verdad, de forma no evitable desde dentro de la sesión? | ⏳ |
+| 5 | Las 5 conductuales restantes (Q1·Q2·Q3·Q6·Q8b) con corrida viva, y sus respuestas al artefacto | ⏳ |
+
+### Lo que encontró la Fase 2+3 (el motivo de que INC-0 exista)
+
+Primera corrida: **2 de 31 claims rojas**. Una era mía y la otra era real, y separarlas ES el trabajo.
+
+- **Mía.** `HookEvent` es una unión de `Literal['x']`, así que `typing.get_args` devuelve Literals
+  ANIDADOS, no cadenas. Mi resolutor los leyó como vacío y reportó los diez eventos como
+  desaparecidos. Un gate que culpa al SDK de su propio bug es peor que no tenerlo: aplanado un nivel,
+  y el caso quedó escrito en el docstring de `_admitted_values` para que nadie lo repita.
+- **Real.** `list_subagents()` y `get_subagent_messages()` **no son métodos de `ClaudeSDKClient`** —
+  son funciones de módulo. El cliente no tiene NINGÚN accesor de subagentes. §10.7 las cita junto a
+  métodos del cliente y así las transcribí; la corrida lo desmintió. Importa porque §10.7 apoya en
+  ellas el KPI de reparto de delegación.
+- **Hallazgo lateral, no buscado:** existen `list_subagents_from_store` y
+  `get_subagent_messages_from_store`. La historia de subagentes se puede leer de un almacén
+  PERSISTIDO, no sólo de una sesión viva. Eso es carga estructural para INC-6 (economía desde uso
+  tipado, no desde un transcript) y §10 no lo registra. Añadidas como C-21c/C-21d.
+
+Tras las correcciones: **36/36 verdes**. El artefacto no lleva reloj, así que es byte-estable
+(verificado: dos corridas, mismo sha) y `git diff` sobre él muestra exactamente qué cambió de la
+realidad cuando se suba de versión — es un detector de deriva, no un log.
+
+### El diente mordió a su autor, la misma hora
+
+`symbols.py` alcanzaba su módulo hermano con un `sys.path.insert` y un comentario explicando por qué
+estaba bien. `import_boundary`, escrito una hora antes, lo rechazó: prohíbe la cirugía de rutas
+CATEGÓRICAMENTE, porque «sólo esta vez, y hacia nuestro propio directorio» es exactamente cómo se
+erosiona una frontera. En vez de excusarlo, v3 pasó a ser un paquete de verdad (`python3 -m v3.…`),
+lo que **elimina** el insert. La regla no tiene «sólo esta vez».
 
 ## Criterio de cierre (demostrable, no narrable)
 

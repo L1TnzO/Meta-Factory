@@ -1,11 +1,11 @@
-<!-- meta:doc sha=a4d9f7d4d2407293edf394e9b8a20cd577df9013 updated=2026-07-28T15:55Z -->
-# ADR-031 — Ratify the v3 inversion, build it OUT OF TREE, and cut the ratification at the go/no-go
+<!-- meta:doc sha=f7c94a7279d5fd61c7d472e4100046e9bac0a4a6 updated=2026-07-28T16:15Z -->
+# ADR-031 — Ratify the v3 inversion, build it at `v3/` under the column, and cut the ratification at the go/no-go
 
 | Field | Value |
 | --- | --- |
 | Status | **Proposed — awaiting the engineer's ratification of §1** |
 | Date | 2026-07-28T00:00Z |
-| Decides | the engineer (2026-07-28: «si tenemos que re-build el sistema desde las specs, en claude agents sdk, yo prefiero hacerlo en una carpeta aparte, no como un producto de MF… para que por sólo su ubicación se entiendan las jerarquías» and «dale de a poco, como tú encuentras mejor, medir, que falle rápido o que nos dé la razón los números»); the orchestrator designs the lawful version and records what that decision costs |
+| Decides | the engineer (2026-07-28: «una carpeta aparte, no como un producto de MF… para que por sólo su ubicación se entiendan las jerarquías», then, on reading the cost of leaving the tree: «¿y qué pasaría si se hace dentro de la carpeta, para mantener la protección, pero una carpeta aparte, en el root?» — and «dale de a poco, medir, que falle rápido o que nos dé la razón los números»); the orchestrator measured both halves and reversed its own draft (§2) |
 | Ratifies | `docs/spec/09-critique.md`, `docs/spec/10-target-sdk.md`, and `docs/spec/11-build-plan.md` **only as far as INC-2** (§1) |
 | Amends | §11.3 (the go/no-go is defined on the demoted layer) · §10.11 (a seventh question) · §11.5 (the no-improvement rule needs a filed edge) · §10.2 + §11 (neither states WHERE v3 is built) |
 | Does not supersede | `docs/reference/ARCHITECTURE.md` and `VISION.md` remain the authority for v2 until INC-11 (CUTOVER) |
@@ -46,46 +46,75 @@ This is not hedging. INC-0 is S, INC-1 is hermetic (recompute `proof_sha` with t
 already-committed `.proof/*.json`; no toolchain, seconds), and INC-2 is where the answer arrives.
 Three increments buy the information that the other ten are priced on.
 
-### 2. v3 is built OUT OF TREE, as a sibling
+### 2. v3 is built IN TREE, at the root, in its own top-level folder
 
-v3 is **not** a product of Meta-Factory, not a factory, and not a subdirectory. It is a peer
-directory beside `Meta_Factory/`, with **its own git repository**, because it is a peer that will
-replace — not a child that is produced.
+v3 is **not** a product of Meta-Factory and **not** a factory: it is the successor, and it lives at
+`v3/` — a peer of `src/`, `seed/` and `factories/`, inside the same repository.
 
 ```
-APP/
-├── Agent_Systems_Factory/   # frozen reference (decisions/006)
-├── Meta_Factory/            # v2: the running system AND, during the rebuild, the ORACLE
-└── Meta_Factory_v3/         # NEW: the rebuild. Own repo, own docs home, own gates
+Meta_Factory/
+├── src/metafactory/   # v2 substrate — the system being replaced, and the ORACLE
+├── seed/ · factories/ · docs/ · plan/
+└── v3/                # NEW: the rebuild. Own docs home, own gates, same repo, same column
 ```
 
-Hierarchy is then readable from the path alone, which was the requirement. Three consequences
-follow, and they are the reason this needs to be a decision rather than a preference:
+> **This reverses the first draft of this ADR, which placed v3 out of tree as a sibling
+> (`../Meta_Factory_v3`, own repo). It was reversed by MEASUREMENT, on the engineer's objection
+> «¿y si se hace dentro, para mantener la protección?».** Measured 2026-07-28, both halves separately:
+>
+> - **The hooks DO reach a new root folder, for free.** Level resolution sends any path not under
+>   `factories/` to `meta`: `cadence.required_workdir_rel(root, "v3/kernel/proof.py")` → `docs/work`.
+>   So `increment_guard`, `proof_protect`, `commit_guard`, `gate_guard` and `stop_proof` govern v3
+>   from its first line, with nothing to wire.
+> - **The gates do NOT see it, also for free.** Every gate is scoped to explicitly named directories,
+>   verified one by one: `security_scan` → `src/metafactory · seed · .claude/hooks · .claude/agents`;
+>   `quality_gate` → `src/metafactory` + `factories/*/codegen`; `role_hygiene` → the `.claude/agents/*.md`
+>   of meta and of each factory; the graph builder → bounded bases. None globs the repository root.
+>
+> That combination — **enforcement in, judgment out** — is precisely what the out-of-tree draft was
+> reaching for, and it had to manufacture it with a hand-written exclusion list that could silently
+> widen. In tree it is structural. The out-of-tree draft's one advantage (isolation by construction)
+> turns out to be free here, and its concession (§2.2: no column on day one) disappears.
+>
+> The decisive worry against in-tree was that v3 would perturb the oracle: a gate that globs the root
+> would see v3's code, could flip an exit code, and would change a `proof_sha` — corrupting the very
+> pins INC-1 verifies against. The measurement above shows no gate globs the root, so the worry is
+> empirically false. It is recorded because it is the condition to re-check: **widening any gate's
+> scope to include `v3/` is a deliberate act that may force a re-pin** (§2.4).
 
-**2.1 The oracle must be pinned to a commit, never read from the working tree.** INC-1's entire
-verification rests on Meta_Factory's committed proofs and pins. If v3 reads
-`../Meta_Factory/factories/*/.proof/` live, the oracle moves whenever the v2 tree moves — and the v2
-tree is dirty right now. A parity claim against a moving oracle is not a claim.
+Three consequences follow, and they are the reason this needs to be a decision rather than a
+preference:
 
-> **Law:** v3 records `oracle_ref` — a Meta_Factory **commit SHA** — as data, and reads the proofs
-> and pins at that SHA (`git -C … show <sha>:path`, or a `git worktree` at that SHA). Advancing
-> `oracle_ref` is a deliberate act with its own line in the increment, never a side effect of
-> someone else's commit. This also settles the known trap that a dirty working tree fails what a
+**2.1 The oracle is pinned to a commit, never read from the working tree.** INC-1's entire
+verification rests on this repository's committed proofs and pins. Sharing a tree makes reading them
+live *more* tempting and no less wrong: v2 and v3 changes now interleave in one working tree, so a
+parity run would silently measure against whatever was uncommitted at that moment. A parity claim
+against a moving oracle is not a claim.
+
+> **Law:** v3 records `oracle_ref` — a **commit SHA** — as data, and reads proofs and pins at that
+> SHA (`git show <sha>:path`, or a `git worktree` at that SHA), never from the working tree.
+> Advancing `oracle_ref` is a deliberate act with its own line in the increment, never a side effect
+> of someone else's commit. This also settles the known trap that a dirty working tree fails what a
 > clean clone passes.
 
-**2.2 v3 has no column on day one, and that is stated rather than discovered.** None of the 12 hooks
-apply outside the Meta_Factory tree: for INC-0 and INC-1 there is no `proof_protect`, no
-`increment_guard`, no `stop_proof`. This is tolerable **only** because those two increments are small
-and gate-rich, and because INC-2 *is* the column. The compensating rule, in force from v3's first
-commit: **no increment lands without its own gate, run and green**, and the discipline is the
-orchestrator's own eyes until the enforcement it is building exists. Anything beyond INC-2 executed
-without a column would be unlawful under this ADR.
+**2.2 v3 inherits enforcement but not judgment, and must supply its own judgment.** The hooks reach
+`v3/` (measured, §2); the gates do not. So v3 cannot write into `.proof/`, cannot land code outside an
+open increment, and cannot close a turn without proofs — but nothing checks its file sizes, its
+secrets, or its role vocabulary. That is the correct division while v3 is building its own gates, and
+it is a real gap while it lasts. Compensating rule, in force from v3's first commit: **no increment
+lands without its own gate, run and green.**
 
-**2.3 Code moves out; governance stays.** The plan tree (`plan/tree.json`), the ADRs, and the spec
-corpus remain in Meta_Factory for the whole rebuild. The rebuild is tracked as nodes under the
-existing arc N-0011, not in a second tree. Splitting the instrument that exists to prevent leaked
-work, at the exact moment the work fragments across two directories, would be self-defeating. The
-plan migrates at INC-11 (CUTOVER), which is where N-0059 (the plan is meta-only) belongs.
+**2.3 Governance is shared, not duplicated.** One repository, one plan tree, one ADR series, one
+docs corpus, one commit stream. The rebuild is tracked as nodes under the existing arc N-0011. There
+is no second history to reconcile at cutover: INC-11 becomes deleting `src/metafactory/` and
+promoting `v3/`, rather than merging two repositories. N-0059 (the plan is meta-only) stays an
+INC-11 question.
+
+**2.4 Graduation is the exit, and it is a deliberate act.** When a v3 area is mature, it is added to
+a v2 gate's scope on purpose — `v3/` into `security_scan._GREEN_DIRS`, into `quality_gate`'s roots —
+so that invisibility is temporary rather than permanent. Each such widening changes what a check
+sees, may flip an exit code, and therefore **may force a re-pin**: it is its own increment with its
+own evidence, never a casual edit to a constant.
 
 ### 3. Four amendments to the ratified text
 
@@ -132,15 +161,21 @@ increments emits a number and carries a written stop condition:
 
 ## Consequences
 
-- **Accepted:** for the duration of INC-0/INC-1, work happens in a repository with no enforced
-  column. Bounded by §2.2 and by the size of those two increments.
-- **Accepted:** two repositories means two working trees to keep clean, and a cwd that leaks into the
-  sibling breaks Meta_Factory's turn-close (the known `stop_proof` trap). Persistent cwd stays at the
-  Meta_Factory root; v3 is driven with absolute paths or subshells.
-- **Gained:** v3 cannot accidentally import v2 — a path is a boundary no one has to remember.
-  Cutover becomes deleting a directory rather than performing surgery, and the clean-clone
-  independence INC-11 requires is the natural state rather than a special exercise.
+- **Gained:** v3 is under the enforcement column from its first line, at zero wiring cost — which is
+  the whole reason this ADR was reversed. One repository, one plan tree, one commit stream; no second
+  history to reconcile, no cwd that can leak into a sibling and break turn-close.
+- **Paid, and it needs a tooth:** in tree, nothing physically prevents v3 from importing v2. A
+  rebuild that quietly depends on the substrate it replaces would show green parity while proving
+  nothing — the exact shape of a hollow rebuild that P2 exists to catch. Out of tree, a path was that
+  boundary for free; in tree it must be asserted.
+
+  > **Required in INC-0's gate:** no module under `v3/` may import `metafactory`, and no `sys.path`
+  > entry may point into `src/`. A one-line static check, two-sided, running from the first commit.
+  > The kernel is *ported* — copied and re-verified against the pins — never *referenced*.
+
+- **Accepted:** v3 is invisible to v2's judgment gates (sizes, secrets, roles) until §2.4 graduation.
+  Bounded by the compensating rule in §2.2 and by the fact that INC-2 builds the replacement.
 - **Unchanged:** the five factories stay exactly where they are and are migrated one at a time. The
   frozen `codegen/` directories stay inside their factories as opaque artifacts (§11.4.1).
-- **Open, deliberately:** whether v3 ends as a separate repository forever or is re-merged at
-  cutover. Not decided here; it is an INC-11 question and nothing before INC-11 depends on it.
+- **Open, deliberately:** whether `v3/` is promoted in place at cutover or the repository is
+  restructured around it. An INC-11 question; nothing before INC-11 depends on it.

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=9cb3a0e3c0015a0ee624ac886316431e1d813eaa updated=2026-07-28T02:44Z -->
+<!-- meta:doc sha=ae723be6a023c371145a47faf4cb68479474339a updated=2026-07-28T03:05Z -->
 # 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE)
 
 > **This file is not a description of the kernel. It IS the kernel.**
@@ -122,7 +122,15 @@ the rest is provenance and is deliberately excluded from the digest.
 | `proof_sha` | hex string | no (it *is* the digest) | `compute_proof_sha(station, checks)` |
 | `computed_at` | ISO-8601 string | **no** | provenance only |
 | `writer` | string | **no** | which verifier wrote it |
-| `log_path` | string | **no** | pointer to the full log, never the log itself (I-7) |
+| `log_path` | string | **no** | pointer to the full log, never the log itself (I-7) — **in-memory only, see below** |
+
+> **Correction found by conformance, kept as a warning.** An earlier draft of this table listed
+> `log_path` as a field of the persisted record. It is not: the JSON is written to disk *before*
+> `log_path` is attached, so the returned in-memory dict carries it and the file on disk does not
+> (`seed/verifier.py:137` writes, `:142` attaches). A re-implementer who assumes the two are the same
+> object diverges from real behaviour without any gate noticing — the digest excludes `log_path`
+> either way. This is exactly the class of omission §12 exists to catch, and it was caught by
+> cross-checking the document against the artifacts rather than by re-reading the prose.
 
 Two rules that a re-implementer will get wrong if they are not stated:
 

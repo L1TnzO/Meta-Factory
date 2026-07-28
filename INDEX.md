@@ -69,7 +69,8 @@
 | `docs/spec/10-target-sdk.md` | `717221b982d0` | 2026-07-28T02:47Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
 | `docs/spec/11-build-plan.md` | `be16c2a9884c` | 2026-07-28T02:47Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `3ae81d285866` | 2026-07-28T02:44Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
-| `docs/spec/14-kernel-reference.md` | `9cb3a0e3c001` | 2026-07-28T02:44Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
+| `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
+| `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
 | `docs/work/A1-GRAMMAR-V2-INCREMENT.md` | `c4f146d0e123` | 2026-06-15T12:55Z | Incremento A1-GRAMMAR-V2 |
 | `docs/work/A2-ASF-SKELETONS-INCREMENT.md` | `c2f68a7229de` | 2026-06-15T13:20Z | Incremento A2-ASF-SKELETONS |
 | `docs/work/ASF-REGEN-INCREMENT.md` | `a240e822e8ec` | 2026-06-14T21:19Z | Incremento ASF-REGEN |

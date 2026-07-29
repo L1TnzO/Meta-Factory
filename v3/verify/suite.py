@@ -221,6 +221,22 @@ def build_registry(root: Path) -> Registry:
         witness=Witness("sabotage_env", "V3_CODEGEN_FREEZE_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="state_snapshot",
+        argv=(PY, "-m", "v3.verify.checks.state_snapshot"),
+        proves="STATE's «Ahora» is still a bounded SNAPSHOT and not a log: within the 45-line "
+               "budget and carrying no closure older than 14 days (ADR-019 §3)",
+        witness=Witness("sabotage_env", "V3_STATE_SNAPSHOT_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="state_fidelity",
+        argv=(PY, "-m", "v3.verify.checks.state_fidelity"),
+        proves="no «Ahora» line's COMPLETE/INCOMPLETE claim contradicts the RTM re-derived from "
+               "`.proof/` — faithfulness, not freshness (ADR-019 §4)",
+        witness=Witness("sabotage_env", "V3_STATE_FIDELITY_SABOTAGE"),
+        na_when="no factory carries a `.proof/` directory — the statuses it would compare the "
+                "prose against were never derived, so a PASS would be vacuous rather than true",
+    ))
+    registry.register(Gate(
         name="evidence_liveness",
         argv=(PY, "-m", "v3.verify.checks.evidence_liveness"),
         proves="every LIVING doc's CITES references resolve — `.md` paths and bare `ADR-NNN` — "

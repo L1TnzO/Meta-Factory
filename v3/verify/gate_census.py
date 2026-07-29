@@ -76,6 +76,7 @@ DISPOSITIONS: dict[str, Row] = {
     # that claims PORTED while its gate is unregistered is reported `pending` and turns this census
     # red, so the promise cannot be written before the landing.
     "docs": Row(PORTED, ""), "projection": Row(PORTED, ""), "evidence_liveness": Row(PORTED, ""),
+    "state_snapshot": Row(PORTED, ""), "state_fidelity": Row(PORTED, ""),
 
     # ── already in v3 under another shape (2) ───────────────────────────────
     "least_priv": Row(ALREADY, "v3/verify/composition.py",
@@ -88,11 +89,11 @@ DISPOSITIONS: dict[str, Row] = {
                          "§11.4 retires it: under composition the column exists once, so a "
                          "parity check between copies has nothing to compare"),
 
-    # ── deferred, with a trigger (2 left; the STATE teeth, INC-5 Fase 5) ────
-    "state_snapshot": Row(DEFERRED, "INC-5", "§11.3 assigns the STATE teeth to INC-5; its subject "
-                                             "is the doc corpus that is INC-5's fixture"),
-    "state_fidelity": Row(DEFERRED, "INC-5", "same subject, and it reads STATE through "
-                                             "state_snapshot"),
+    # ── deferred, with a trigger: NONE LEFT ─────────────────────────────────
+    # INC-4 deferred five rows to INC-5 and all five have now landed. The block is kept, empty and
+    # named, rather than deleted: `DEFERRED` stays a live disposition with a checked meaning (the
+    # target must be a real row in the build plan, and the reason must be non-empty), so the next
+    # increment that needs to defer something finds the shape here instead of inventing one.
 }
 
 

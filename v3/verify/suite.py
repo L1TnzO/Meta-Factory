@@ -221,6 +221,17 @@ def build_registry(root: Path) -> Registry:
         witness=Witness("sabotage_env", "V3_CODEGEN_FREEZE_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="projection",
+        argv=(PY, "-m", "v3.verify.checks.projection"),
+        proves="STATE's generated `meta:projection` block equals what the facts re-derive right now "
+               "— open increment + per-factory RTM recomputed from `.proof/`, never a stored "
+               "`passed: true` (ADR-007 §3)",
+        witness=Witness("sabotage_env", "V3_PROJECTION_SABOTAGE"),
+        na_when="no factory carries a `.proof/` directory — the facts have not been derived yet "
+                "(`.proof/` is gitignored, so a fresh clone has none until `ci --rederive` runs); "
+                "calling the projection stale there would be a false positive, not a finding",
+    ))
+    registry.register(Gate(
         name="docs",
         argv=(PY, "-m", "v3.verify.checks.docs_check"),
         proves="every authored doc in every level's home carries a current content-addressed seal, "

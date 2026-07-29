@@ -1299,6 +1299,19 @@
         "cause": "gate_red",
         "ref": "V3-INC5/telemetry-dead-since-0713"
       }
+    },
+    "N-0091": {
+      "parent": "N-0018",
+      "title": "COLUMNA NO CABLEADA desde 2026-07-18: las sesiones se lanzan desde research/, CLAUDE_PROJECT_DIR resuelve ahi, research/.claude NO existe -> ningun hook del column corre (proof_protect verificado EN VIVO: leyo .proof/ por shell sin ser denegado). CORRIGE la causa atribuida en N-0090: mem_capture escribe bien invocado a mano; no es el except:pass, es que el hook nunca se invoca. Slugs: root ultima sesion 07-13/07-24, research 07-18 -> hoy. Alcance: INC-0..INC-5 corrieron sin capa de hooks; sus gates explicitos siguen valiendo, la enforcement por bloqueo no. v3 es inmune por construccion (setting_sources=[] + hooks pasados como callbacks)",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T18:03Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "gate_red",
+        "ref": "V3-INC6/column-unwired-since-0718"
+      }
     }
   }
 }

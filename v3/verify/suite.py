@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""suite — the registry WIRED: `build_registry` registers 10 of v2's 23 ported gates (`compile`,
-`isolation`, `quality`, `pbt`, `security`, `roles`, `kinds`, `deferred`, `design_eval`, `suite`), and
-`main` is the runner that plays v2's `cmd_check` role — run every registered gate's declared argv
-once, fold the results through `v3.verify.registry.summarize` (green / red / N/A counted apart,
-R-12), and print ONE verdict.
+"""suite — the registry WIRED: `build_registry` registers all 15 of v2's 23 gates ported to v3
+(`compile`, `isolation`, `quality`, `pbt`, `security`, `roles`, `kinds`, `deferred`, `design_eval`,
+`generality`, `plan`, `dial`, `benchmark`, `codegen_freeze`, `suite`), and `main` is the runner that
+plays v2's `cmd_check` role — run every registered gate's declared argv once, fold the results through
+`v3.verify.registry.summarize` (green / red / N/A counted apart, R-12), and print ONE verdict.
 
     python3 -m v3.verify.suite
 
@@ -14,7 +14,7 @@ import-time safe: it only constructs `Gate` objects and calls `Registry.register
 against the filesystem, not a subprocess and not a tree scan), and it runs no process and reads no
 directory tree at IMPORT time. All subprocess/tree work happens inside `main`, called explicitly.
 
-THE TEN GATES, and why each is shaped the way it is:
+THE FIFTEEN GATES, and why each is shaped the way it is:
   `compile`     — `python3 -m compileall -q v3 seed`; no new check module (a syntax gate IS the
                   argv). One-sided: `ONE_SIDED["compile"]`.
   `isolation`   — `v3.verify.checks.isolation`; ports v2's "the platform never imports its products".
@@ -40,9 +40,38 @@ THE TEN GATES, and why each is shaped the way it is:
   `design_eval` — `v3.verify.checks.design_eval`; criteria-as-DATA + PINNED critiques (subject
                   unchanged: `factories/*/design/criteria.yml`), with an EMBEDDED `pinned_data`
                   witness — FSK's real, committed negative witness (all 4 axes below threshold).
+  `generality`  — `v3.verify.checks.generality`; ADR-014's tooth (no substrate mechanism promoted
+                  `general` on the strength of one domain), subject unchanged
+                  (`docs/reference/parity.yml` + each domain's `factory.spec.yml` + `.proof/`,
+                  recomputed through `v3.seed_loader`). The ONE gate v2 shipped with NO red witness at
+                  all — this port EARNS one: a `sabotage_env` witness (`V3_GENERALITY_SABOTAGE`) that
+                  calls the real, pure `audit_mechanism` law with two synthetic decorative claims
+                  (single-domain evidence; a green pair that is not radically distinct) and asserts
+                  both are caught.
+  `plan`        — `v3.verify.checks.plan`; plan-as-DATA (`.gen/plan.json`) well-formedness, reusing
+                  `v3.delegation.slot`'s already-ported manifest law for each WorkOrder, with a
+                  `sabotage_env` witness (`V3_PLAN_SABOTAGE`) — 4 synthetic malformed plans (one per
+                  defect class), NOT embedded (v2 had no committed fixture for this, only inline
+                  Python literals). N/A (`na_when`) when `.gen/plan.json` is absent — planning is
+                  opt-in.
+  `dial`        — `v3.verify.dial`; the draft→harden dial's two-sided tooth (an adopted dial must
+                  defer a non-empty PROPER subset of active stations), with a `sabotage_env` witness
+                  (`V3_DIAL_SABOTAGE`) — a synthetic all-harden `DialProfile` fed straight to the real
+                  law. N/A (`na_when`) when no factory has adopted (0 harden stations anywhere).
+  `benchmark`   — `v3.verify.benchmark`; the sweet-spot-CRUD product-class target, with an EMBEDDED
+                  `pinned_data` witness (`benchmarks/sweet-spot-crud.yml`) — real committed data: the
+                  ceiling product (`full-stack-kotlin/snipeit`) failing the target IS the red side,
+                  re-asserted on every green run. N/A (`na_when`) when no `benchmarks/*.yml` exists.
   `suite`       — `v3.verify.checks.suite_sweep`; v2's `pytest -q tests` translated to v3's actual
                   test corpus: re-run every OTHER registered gate's re-runnable red side (P2 itself).
                   One-sided: `ONE_SIDED["suite"]`.
+
+N/A COUNTED APART (R-12), NOT FOLDED INTO GREEN. `plan`, `dial`, and `benchmark` are each opt-in and
+can legitimately have nothing to check; a gate that says so must not look like an ordinary PASS. Each
+declares a non-empty `Gate.na_when` and, on its N/A branch, prints a `SUMMARY` line starting with
+`N/A` (`v3.kernel.report.Verdict`'s own bounded rendering). `_run_gate` below recognizes that shape —
+ONLY for a gate that declared `na_when` — and reports `Outcome(..., NA, ...)` instead of PASS, so
+`summarize` counts it apart and an all-N/A suite is never reported green.
 
 WHY THIS SUITE IS RED, and why that is the correct state. `codegen_freeze` IS registered and it
 FAILS — it reports two genuine, pre-existing violations owned by `full-stack-kotlin` (a malformed
@@ -62,17 +91,24 @@ verification suite that goes red on real debt is working, not broken.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 from ..kernel.report import Verdict
-from .registry import FAIL, PASS, Gate, Outcome, Registry, Witness, summarize
+from .registry import FAIL, NA, PASS, Gate, Outcome, Registry, Witness, summarize
 from .registry import ONE_SIDED
 
 _V3 = Path(__file__).resolve().parent.parent
 _ROOT = _V3.parent
 PY = sys.executable
+
+#: the marker a `na_when`-declaring gate's own `Verdict` prints on its vacuous-true branch
+#: (`SUMMARY    N/A: …` — see `v3.kernel.report.Verdict.render`). Recognized ONLY for a gate that
+#: declared `na_when`, so an unrelated gate whose message happens to contain the substring is never
+#: misread as opting out.
+_NA_MARKER = re.compile(r"^SUMMARY\s+N/A\b")
 
 
 def build_registry(root: Path) -> Registry:
@@ -143,6 +179,39 @@ def build_registry(root: Path) -> Registry:
         witness=Witness("pinned_data",
                         "factories/full-stack-kotlin/design/critiques/template-witness.json"),
     ))
+    registry.register(Gate(
+        name="generality",
+        argv=(PY, "-m", "v3.verify.checks.generality"),
+        proves="every substrate mechanism declared `general` in docs/reference/parity.yml is proven "
+               "green in >=2 domains with >=1 radically distinct pair (ADR-014) — never trusted from "
+               "prose alone",
+        witness=Witness("sabotage_env", "V3_GENERALITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="plan",
+        argv=(PY, "-m", "v3.verify.checks.plan"),
+        proves="`.gen/plan.json`, when present, is a well-formed set of WorkOrders (valid slot "
+               "manifests + an acyclic dependency DAG + honest deferrals) and every "
+               "`.gen/escalations/*.json` is a valid S2->S3 handoff",
+        witness=Witness("sabotage_env", "V3_PLAN_SABOTAGE"),
+        na_when="no `.gen/plan.json` in the tree — planning is opt-in (SAFE-7)",
+    ))
+    registry.register(Gate(
+        name="dial",
+        argv=(PY, "-m", "v3.verify.dial"),
+        proves="every factory that adopted the draft→harden dial (>=1 `tier: harden` active station) "
+               "keeps harden a non-empty PROPER subset of its active stations",
+        witness=Witness("sabotage_env", "V3_DIAL_SABOTAGE"),
+        na_when="no factory has adopted the dial — 0 harden stations anywhere (opt-in)",
+    ))
+    registry.register(Gate(
+        name="benchmark",
+        argv=(PY, "-m", "v3.verify.benchmark"),
+        proves="every benchmark's `sweet_spot` product(s) MEET its target and every `ceiling` "
+               "product does NOT — re-derived from each product's committed product.yml + pin",
+        witness=Witness("pinned_data", "benchmarks/sweet-spot-crud.yml"),
+        na_when="no `benchmarks/*.yml` in the tree (opt-in)",
+    ))
 
     registry.register(Gate(
         name="codegen_freeze",
@@ -163,12 +232,20 @@ def build_registry(root: Path) -> Registry:
 def _run_gate(gate: Gate, root: Path) -> Outcome:
     """Run ONE gate's declared argv as a subprocess (the green side only — the red side, when
     re-runnable, is `suite`'s own job, not every invocation's). Any sabotage-env handle this gate
-    itself carries is explicitly cleared, so a stray exported var can never masquerade as a clean run."""
+    itself carries is explicitly cleared, so a stray exported var can never masquerade as a clean run.
+
+    A gate that declared `na_when` may report N/A instead of PASS on an exit-0 run: it prints a
+    `SUMMARY N/A: …` line (`_NA_MARKER`) on its own vacuous-true branch. Only checked for gates that
+    declared `na_when` — an ordinary gate's message is never reinterpreted (R-12: N/A is counted
+    apart, never folded into green, but it must not be invented for a gate that never claimed one)."""
     env = dict(os.environ)
     if gate.witness is not None and gate.witness.kind == "sabotage_env":
         env.pop(gate.witness.handle, None)
     result = subprocess.run(gate.argv, cwd=root, env=env, capture_output=True, text=True)
-    tail = (result.stdout.strip().splitlines() or result.stderr.strip().splitlines() or [""])[-1]
+    lines = result.stdout.strip().splitlines()
+    tail = (lines or result.stderr.strip().splitlines() or [""])[-1]
+    if result.returncode == 0 and gate.na_when and any(_NA_MARKER.match(line) for line in lines):
+        return Outcome(gate.name, NA, detail=f"N/A ({gate.na_when}): {tail[:160]}")
     status = PASS if result.returncode == 0 else FAIL
     return Outcome(gate.name, status, detail=f"exit {result.returncode}: {tail[:160]}")
 

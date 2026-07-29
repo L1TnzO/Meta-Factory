@@ -1286,6 +1286,19 @@
         "ref": "V3-INC5/journal-defer"
       },
       "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation"
+    },
+    "N-0090": {
+      "parent": "N-0018",
+      "title": "TELEMETRIA MUERTA desde 2026-07-13: cero metricas kind=tool y cero eventos delegation en .metamem/ durante INC-0..INC-5. Serie: 07-09=1142, 07-10=1091, 07-11=1911, 07-12=751, 07-13=687, despues NADA. mem_capture (PostToolUse *) traga toda excepcion con 'except: pass'. El KPI de delegacion y el opus-share leen cero porque nadie mide, no porque no se delegue: esta sesion corrio 4 slots y registro 0",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T17:44Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "gate_red",
+        "ref": "V3-INC5/telemetry-dead-since-0713"
+      }
     }
   }
 }

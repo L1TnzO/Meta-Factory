@@ -1262,6 +1262,19 @@
         "cause": "gate_red",
         "ref": "V3-INC5/kinds-importability"
       }
+    },
+    "N-0089": {
+      "parent": "N-0017",
+      "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T17:29Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "deferral",
+        "ref": "V3-INC5/journal-defer"
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8411b37a401536dc062b772b4f9c2057f56ecf40 updated=2026-07-29T16:47Z -->
+<!-- meta:doc sha=34b8d233960c86003b0d10c3d6a952d542bd98d3 updated=2026-07-29T17:31Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
@@ -87,7 +87,7 @@ construirse**, y §11.5 dice que el plan no mejora nada antes de INC-11. Contra 
 
 | Pieza v2 | Disposición | Razón / disparador |
 | --- | --- | --- |
-| `memory/journal.py` (69) | **PORTADO** | JSONL append-only; su oráculo es él mismo (se reescribe, se relee, no pierde ni reordena). Sobrevive la inversión sin cambiar de forma. |
+| `memory/journal.py` (69) | ~~PORTADO~~ → **DIFERIDO → INC-6** (`N-0089`) | **Corregido en la Fase 6, ver abajo.** |
 | `memory/rehydrate.py` (74) | **DIFERIDO → INC-12** (`N-0086`) | bajo la inversión es «qué inyecta el host por hoja» (§15.6), y necesita el árbol de nodos que hoy no está en v3. Disparador: INC-12 `INTERACTIVE-MODE`, que es el que reconstruye el modo attach. |
 | `memory/precompact.py` (207) | **DIFERIDO → INC-6** (`N-0087`) | la compactación es del CLI, no del host; el SDK la expone como hook `PreCompact` con `include_hook_events=True` (§10). Disparador: INC-6, que es donde entra el metering tipado de la sesión. |
 | `handoff_derived` (gate) | **FUERA DE ALCANCE** | no existe en v2 (`grep` sobre `src/`, `seed/`, `.claude/`: cero). Es capacidad nueva, y §11.7 la ordena como **A-8, post-cutover**. Construirla acá sería exactamente el «segundo sistema» del que advierte §11.5. |
@@ -208,6 +208,28 @@ Los 2 rojos siguen siendo `codegen_freeze` y `docs`, ambos deuda de FSK y ambos 
 empezar. Faltan las Fases 4–7, y a esta altura son **ejecución con patrón establecido**, no diseño:
 cada una repite la misma forma —portar la ley · ganarse el testigo · fila en el oráculo · registrar ·
 dar vuelta la fila del censo—, y el censo impide prometer un port antes de aterrizarlo.
+
+## Fase 6: dos deferrals, y una es una corrección a mi propio plan
+
+**`journal` no se porta.** Al abrir el incremento lo puse como PORTADO con el argumento de que «su
+oráculo es él mismo». El argumento es cierto y no alcanza. Al ir a hacerlo: **cero callers en v3**, y
+el criterio que este repo ya aplica —`v3/seed_loader.py`: «a helper with no call site is dead weight,
+not future-proofing»— lo deja afuera. En v2 quien lo escribe es `engine/runner.py`, y su análogo v3
+es el runner del host: cablearlo es trabajo de host, no de corpus, y lo que registra (`station_run`,
+`delegation`) es economía. Disparador **INC-6**, nodo `N-0089`.
+
+Es la cuarta vez en este arco que ejecutar una fase corrige la spec en vez de leerla (ADR-032 A5).
+Lo anoto con la etiqueta puesta, no como si siempre hubiera dicho eso: el plan decía PORTADO y estaba
+mal, y el motivo por el que estaba mal —confundir «tiene oráculo» con «hace falta»— es reutilizable.
+
+**El hueco de `kinds` (`N-0088`) tampoco se cierra acá.** El gate compara el argv contra los vectores
+pero no la IMPORTABILIDAD del módulo destino, y por eso `kinds.py:134` apuntó durante todo INC-4 a un
+módulo inexistente sin que nada chistara. El arreglo natural vive en `v3/verify/kinds_parity.py`
+—cuyo sujeto ya ES el mapeo de argv— y sería una assertion chica más su clase de sabotaje. Pero **v2
+tampoco lo tiene**: es capacidad NUEVA, y §11.5 dice que el plan no mejora nada antes de INC-11.
+Cerrarlo acá sería el «segundo sistema» del que ese mismo párrafo advierte, y lo haría al final de un
+incremento que ya entregó lo suyo — el peor momento para agrandar el alcance. Queda con disparador y
+con el lugar del arreglo escrito, que es lo que distingue un diferido de un abandono.
 
 ## Qué se delega y qué no
 

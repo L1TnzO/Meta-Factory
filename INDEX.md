@@ -64,12 +64,12 @@
 | `docs/spec/03-engine.md` | `6698d42bc3fe` | 2026-07-27T21:41Z | 03 — The engine: spec → factory → product (descriptive) |
 | `docs/spec/04-verification.md` | `cabbdac2afb9` | 2026-07-28T19:08Z | 04 — The verification system (descriptive) |
 | `docs/spec/05-column.md` | `4250ebf6058b` | 2026-07-28T18:00Z | 05 — The column: hooks, agents, delegation harness (descriptive) |
-| `docs/spec/06-memory-and-docs.md` | `072dd4e1b066` | 2026-07-27T21:41Z | 06 — Memory, documentation and handoff (descriptive) |
+| `docs/spec/06-memory-and-docs.md` | `b2843b30edb1` | 2026-07-29T17:31Z | 06 — Memory, documentation and handoff (descriptive) |
 | `docs/spec/07-economy.md` | `67fc3cd35141` | 2026-07-27T21:41Z | 07 — Economy: metering, routing and budgets (descriptive) |
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `907f1092d83b` | 2026-07-28T19:28Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
-| `docs/spec/11-build-plan.md` | `442512c22802` | 2026-07-28T17:35Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `0fa460c269e9` | 2026-07-29T17:31Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
@@ -195,6 +195,6 @@
 | `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `b0965d2a3c66` | 2026-07-28T18:21Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/V3-INC3-DELEGATION-INCREMENT.md` | `02bce4d1bdc4` | 2026-07-28T19:30Z | Incremento V3-INC3-DELEGATION |
 | `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `1d8753ee45c5` | 2026-07-29T08:11Z | Incremento V3-INC4-CHECKS-PORT |
-| `docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md` | `8411b37a4015` | 2026-07-29T16:47Z | Incremento V3-INC5-MEMORY-DOCS |
+| `docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md` | `34b8d233960c` | 2026-07-29T17:31Z | Incremento V3-INC5-MEMORY-DOCS |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

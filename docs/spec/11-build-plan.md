@@ -1,4 +1,4 @@
-<!-- meta:doc sha=442512c2280254a0e0d7ca9bc7f25096ae793707 updated=2026-07-28T17:35Z -->
+<!-- meta:doc sha=0fa460c269e9769d06e76fdb48bf67028aa9ffa8 updated=2026-07-29T17:31Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -42,7 +42,7 @@ are honest estimates, not commitments.
 | **INC-2** | `CONTROL-PLANE` | `control/{options,agents,hooks,tools,permissions}` — the 12 hooks as callbacks, the 5 roles as `AgentDefinition`, the verbs as MCP tools | the `column_full` analogue: a **tampered proof** must be refused by the WIRED hooks running under the SDK host; two-sided (untampered ⇒ green) | L |
 | **INC-3** | `DELEGATION-V3` | `Slot` dataclass, `SubagentStart` binding, `can_use_tool` + hook double layer, typed verdict, `rewind_files` rollback | `slot_footprint` two-sided (GREEN / RED / FAIL-CLOSED) **plus** one real delegated slot end-to-end whose bash-mediated write is caught | M |
 | **INC-4** | `CHECKS-PORT` | the 29 kinds + the 23 gates on the new registry | all 23 run; **all two-sided witnesses re-bite**; the new rule lands: a gate without a red witness cannot register — which forces `generality` to finally get one | L |
-| **INC-5** | `MEMORY-DOCS` | docs manifest, seal, INDEX, lineage, STATE teeth, `SessionStore` handoff | `docs_check` green over the EXISTING doc corpus (283 docs, 2,373 citations) — the corpus is the fixture | M |
+| **INC-5** | `MEMORY-DOCS` | docs manifest, seal, INDEX, lineage, STATE teeth | the 5 corpus gates run over the EXISTING corpus (327 docs, 2,722 citations) and each has a re-runnable red side — the corpus is the fixture | M |
 | **INC-6** | `ECONOMY-TYPED` | ledger and outcome from typed usage; **the context meter** (§10.6); iteration metrics (§09.4 A-2) | two-sided ledger gate + the escape-threshold observer emits real numbers for (a) and (b); the transcript parser is DELETED | M |
 | **INC-7** | `MIGRATE-DUMMY` | the fixture factory on v3 | `ci --rederive` == pin (5/5 stations) | S |
 | **INC-8** | `MIGRATE-IOT` | a LIVE factory, hermetic Go, no external services | `ci --rederive` == pin (6/6) | S |
@@ -50,6 +50,18 @@ are honest estimates, not commitments.
 | **INC-10** | `MIGRATE-FROZEN` | ASF + full-stack — **re-verification only, zero new generation** | `ci --rederive` == pin (11/11, 6/6) | S |
 | **INC-11** | `CUTOVER` | v2 substrate deleted; `meta` becomes the thin shell over v3 | all of P1 + P2 green in one clean-clone run on another machine (the ADR-005 independence layer) | M |
 
+> **CORRECTED 2026-07-29 by INC-5's execution (three things).** (a) The corpus numbers were stale:
+> measured on the same instrument, it is **327 docs / 2,722 citations**, not 283 / 2,373 — the
+> corpus grew ~15 % while the row sat still, which is why the acceptance now names the instrument
+> rather than a frozen count. (b) `docs_check` alone was the wrong acceptance: it is ONE of the five
+> gates this row owns, and naming it invited the other four to land unmeasured. (c) **`SessionStore`
+> handoff is struck from this row.** It is not the corpus — it is the session loop, which §10.0's
+> inversion moved: `rehydrate` becomes "what the host injects per leaf" (§15.6, needs the node tree)
+> and belongs to **INC-12**; `precompact` becomes a `PreCompact` hook and belongs to **INC-6**; and
+> `journal`, examined during INC-5, has no v3 caller until the host runner journals its runs, so it
+> too goes to **INC-6** (nodes `N-0086`, `N-0087`, `N-0089`). Porting them here would have carried
+> the shape of a loop we deliberately stopped having.
+>
 > **CORRECTED 2026-07-28 by INC-1's first run.** This row used to say "the 5 factories' already
 > committed `.proof/*.json`". **`.proof/` is gitignored** — `git ls-files | grep .proof/` returns
 > zero, so that oracle does not exist. What is committed, and exists precisely because someone hit

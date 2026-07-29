@@ -1,4 +1,4 @@
-<!-- meta:doc sha=072dd4e1b066f1e809c5aaff792558bc1b1c36e1 updated=2026-07-27T21:41Z -->
+<!-- meta:doc sha=b2843b30edb175b55ac759da96f8997263b1314d updated=2026-07-29T17:31Z -->
 # 06 — Memory, documentation and handoff (descriptive)
 
 > This subsystem is the reason the project can be operated over months by agents that forget
@@ -44,6 +44,14 @@ A retrieval layer is built **only** when all three hold:
 - `INDEX.md` at the repo root is a GENERATED view: one row per doc with sha + date + summary.
 - Regeneration is automatic: `doc_stamp` (PostToolUse on any `.md` write) runs `meta doc-sync`.
 - The `docs` gate proves: every doc sealed and current · INDEX covers exactly the doc set · no dangling links · STATE not stale.
+- **v2 shipped this gate with NO red side at all** (measured at `oracle_ref`: zero sabotage handles
+  in any of the seven modules behind the five corpus gates). v3's registration law refuses that, so
+  the port EARNED one: four planted defect classes — seal absent · sha stale · INDEX gap · dangling
+  link — caught over a synthetic corpus (`V3-INC5`, 2026-07-29).
+- **The automatic re-stamp had a silent failure mode, now fixed.** `doc_stamp` resolved `doc-sync`
+  against the session's working directory, so from any subdirectory it failed, was swallowed by
+  `capture_output`, and returned 0 — seals quietly stopped being maintained. It is now anchored to
+  the tree via `__file__` and reports its own failure on stderr without blocking.
 - **The seal hashes CONTENT, not path** — so a byte-identical `git mv` churns nothing (proven when 16 docs were migrated between homes).
 - Per-level homes: each factory seals its own docs (ADR-016 §3); INDEX is meta-only.
 
@@ -85,6 +93,18 @@ must not be hand-edited: open increment + RTM per factory, re-derived.
 
 This is the concrete answer to "how do we stop the state document from becoming a diary": a size tooth
 plus a contradiction tooth plus a generated factual header.
+
+> **Both teeth were EMBEDDED until v3 (`V3-INC5`).** Each ran its synthetic fixtures inside its own
+> green run — so it could fail, but it could not be re-run on its own, and P2 (§11.2) requires the
+> red side to be re-run rather than assumed. Each now sits behind a `sabotage_env` handle with the
+> same cases, including the two NEGATIVE controls that prove `state_fidelity` discriminates:
+> truthful prose must not trip, and a status token outside the 60-character window must not either.
+>
+> **`projection` and `state_fidelity` read `.proof/`, which is gitignored**, so on a fresh clone the
+> RTM re-derives INCOMPLETE for every factory. v2 turns that into a red ("stale vs. the facts") and
+> a vacuous pass respectively; both are false. In v3 they report **N/A** — the facts have not been
+> derived yet — counted apart from green (R-12), with `ci --rederive` named as the remedy. The N/A
+> branch lives in the GATE, never in the law, so the law's answer stays comparable to v2's.
 
 ## 7. Session rehydration and compaction
 

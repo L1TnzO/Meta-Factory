@@ -64,6 +64,7 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 from typing import Callable
 
@@ -162,6 +163,40 @@ def _compare(pair: Pair, root: Path, *, sabotage: bool) -> list[str]:
     return []
 
 
+#: Pinned "today" for the STATE-snapshot comparison. See that pair's note.
+_PIN_DATE = date(2026, 7, 29)
+
+
+def _snapshot_probe(mod: object, root: Path) -> tuple:
+    """The «Ahora» line count AND the problems.
+
+    The count is here so the red side has something to perturb: on a healthy tree the problem list
+    is empty, and a sabotage that empties an already-empty list demonstrates nothing. It also makes
+    the comparison stronger — two implementations agreeing that there are no problems while
+    disagreeing about which lines «Ahora» even CONTAINS would be a hollow agreement.
+    """
+    text = (root / "docs" / "STATE.md").read_text(encoding="utf-8")
+    now_body = mod.extract_now_lines(text) or []                 # type: ignore[attr-defined]
+    problems = mod.snapshot_problems(root / "docs" / "STATE.md", _PIN_DATE)   # type: ignore[attr-defined]
+    return (len(now_body), sorted(problems))
+
+
+def _fidelity_probe(mod: object, root: Path, snapshot_mod: str, projection_mod: str,
+                    *, with_src: bool) -> tuple:
+    """Run one side's fidelity law on inputs derived by that SAME side's other two ports.
+
+    Returns the derived inputs alongside the verdict, for the reason given in `_snapshot_probe`:
+    the problem list is empty on a healthy tree, so the status map is what the red side perturbs.
+    """
+    snapshot = _import(snapshot_mod, with_src=with_src)
+    projection = _import(projection_mod, with_src=with_src)
+    text = (root / "docs" / "STATE.md").read_text(encoding="utf-8")
+    now_body = snapshot.extract_now_lines(text) or []            # type: ignore[attr-defined]
+    statuses = projection.rtm_statuses(root)                     # type: ignore[attr-defined]
+    problems = mod.fidelity_problems(now_body, statuses)         # type: ignore[attr-defined]
+    return (len(now_body), statuses, sorted(problems))
+
+
 def _doc_graph_probe(mod: object, root: Path) -> tuple:
     """Build the doc-lineage graph with THIS implementation's own `Graph` and return the facts.
 
@@ -238,6 +273,44 @@ PAIRS: tuple[Pair, ...] = (
         # Dropping the unresolved list is the failure that matters here: it is the ONLY part the
         # gate acts on, so a port that resolves everything would report a clean corpus forever.
         sabotage=lambda actual: (actual[0], actual[1], actual[2], []),
+    ),
+    Pair(
+        name="state_snapshot",
+        v2_sources=("src/metafactory/verify/checks/state_snapshot.py",),
+        v2_module="metafactory.verify.checks.state_snapshot",
+        v3_module="v3.verify.checks.state_snapshot",
+        # A FIXED date, not today's. The law takes `today` as a parameter precisely so it can be
+        # decided rather than observed; pinning it makes this comparison reproducible next month.
+        # Both sides get the same value, so the comparison would be sound either way — but a run
+        # whose result depends on the calendar is a bad oracle even when it is a correct one.
+        v2_call=lambda m, root: _snapshot_probe(m, root),
+        v3_call=lambda m, root: _snapshot_probe(m, root),
+        note="the «Ahora» budget and the stale-closure rule, over the real STATE",
+        # NOT "drop the problems". On a healthy tree this law returns [], so dropping [] is a no-op
+        # and the red side would prove nothing. It perturbs the «Ahora» LINE COUNT instead — a value
+        # that is never empty — which is why the pair compares that count in the first place.
+        sabotage=lambda actual: (actual[0] + 1, actual[1]),
+    ),
+    Pair(
+        name="state_fidelity",
+        v2_sources=("src/metafactory/verify/checks/state_fidelity.py",),
+        v2_module="metafactory.verify.checks.state_fidelity",
+        v3_module="v3.verify.checks.state_fidelity",
+        # END-TO-END on purpose: each side extracts «Ahora» with ITS OWN state_snapshot and derives
+        # the RTM with ITS OWN projection, then applies its own law. That composes all three ports,
+        # so agreement here is agreement about the whole chain rather than about one function fed
+        # someone else's inputs.
+        v2_call=lambda m, root: _fidelity_probe(
+            m, root, "metafactory.verify.checks.state_snapshot",
+            "metafactory.memory.projection", with_src=True),
+        v3_call=lambda m, root: _fidelity_probe(
+            m, root, "v3.verify.checks.state_snapshot",
+            "v3.memory.projection", with_src=False),
+        note="does STATE's prose contradict the RTM re-derived from `.proof/` (faithfulness, not "
+             "freshness)",
+        # Same reasoning as `state_snapshot`: the problem list is empty on a healthy tree, so the
+        # red side perturbs the derived STATUS MAP, which is not.
+        sabotage=lambda actual: (actual[0], {}, actual[2]),
     ),
 )
 

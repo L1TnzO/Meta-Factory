@@ -1,7 +1,7 @@
-<!-- meta:doc sha=660f3f7d94814c2d8311dfcdf3f729097201a298 updated=2026-07-29T08:09Z -->
+<!-- meta:doc sha=1d8753ee45c537f2dd283b6daefa50f7bbd462ed updated=2026-07-29T08:11Z -->
 # Incremento V3-INC4-CHECKS-PORT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T22:10Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-29T08:11Z) (creado 2026-07-28T22:10Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-4 + `04-verification.md §2` +

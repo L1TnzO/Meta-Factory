@@ -1,7 +1,56 @@
-<!-- meta:doc sha=e53512415777ee096fc6194b35c003cdff76de87 updated=2026-07-29T08:09Z -->
+<!-- meta:doc sha=25a98f42718dd580e60b988f257a482252e4b0aa updated=2026-07-29T08:13Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-29T08:1xZ — INC-4 CERRADO: los 15 cuerpos, y dos maneras de que un port mienta sin querer
+
+**Qué pasó.** Cerró el incremento más voluminoso de la línea. El episodio de abajo lo dejó en 5/6
+fases; esto narra la última, que fue la que más enseñó. Los 15 cuerpos de gate entraron en **tres
+lotes delegados**, y el censo pasó de `0/15` a **verde**: los 23 gates de v2 con disposición, ninguna
+en blanco, la suma da 23.
+
+**`generality` se ganó el testigo que nunca tuvo.** §04 lo llamaba «deuda, no una decisión de
+diseño»: el único de los 23 que v2 embarcó sin lado rojo. La ley de este incremento existe para que
+eso no pueda registrarse — y funcionó como **diente y no como recordatorio**: para entrar tuvo que
+ganarse uno. Planta dos formas de reclamo decorativo contra la función real (pura sobre datos): un
+mecanismo `general` con evidencia de UN dominio, y un par verde que no es radicalmente distinto
+(falso verde, ADR-014 §3). Caza las dos.
+
+**Dos hallazgos de la misma familia, y ninguno lo habría encontrado una revisión de código.**
+
+1. **El epoch que blanquea la historia.** `codegen_freeze` reportaba 1 problema donde v2 reporta 2.
+   No era el barrido de commits —estaba portado— sino que ambos derivaban el **epoch** del
+   add-commit de su PROPIO módulo: un archivo nuevo trae un epoch nuevo, así que **todo lo que el
+   gate ya había cazado queda perdonado en el momento en que alguien lo re-implementa**. Pineado
+   como dato: la entrada en vigor es propiedad de la LEY (ADR-023 §3), no del archivo que la
+   implementa.
+2. **El vocabulario renombrado en silencio.** El gate `plan` rechazaba un `.gen/plan.json` que v2
+   acepta, porque INC-3 había embarcado `slot.py` con vocabularios inventados y `side_effects` como
+   escalar. Nada lo anunció, así que se leía como port. Consecuencia: **todo WorkOrder escrito por
+   v2 queda rechazado por v3** por nombrar un valor que era legal cuando se escribió. Alineado al
+   seed y a la spec; equivalencia medida en 7 casos.
+
+Las dos dicen lo mismo: **portar algo no puede cambiarle el significado a los artefactos que ya
+existían.** Y las dos aparecieron porque un gate se topó con un archivo real, no porque alguien
+leyera el diff.
+
+**El generador volvió ROJO y estuvo bien.** Se negó a registrar `codegen_freeze` antes que fabricar
+el conteo que le habían pedido, porque su lado verde encuentra deuda REAL de FSK. Quedó registrado
+igual y la suite quedó en `green=13 · red=1 · n/a=1` con la causa nombrada: dejarlo afuera habría
+mantenido el módulo verde con un gate funcionando fuera del conteo —la forma exacta que el censo
+existe para cazar— y debilitarlo, o escribirle meta un waiver a la deuda de FSK, habría sido el verde
+fabricado. **Un rojo lo dispone el nivel que lo POSEE.**
+
+**Y una corrección a mí mismo, la tercera del arco.** Actualizando STATE lo dejé en 51 líneas contra
+un presupuesto de 45; `state_snapshot` y su test lo cazaron. Tenía razón: le había metido el detalle
+del incremento a un documento cuyo trabajo es apuntar. Antes ya había pisado una constante real con
+un `sed` y había invertido la convención del lado rojo en la propia ley. Las tres fueron mías y las
+tres las cazó una máquina, que es exactamente el reparto que este incremento defiende.
+
+**Cierre.** `meta check` vuelve a **2/23**, los dos de FSK, sin regresión. 28 gates con lado rojo
+corrido. 4 oráculos que se re-derivan byte-idénticos. 8 correcciones a la spec. Sigue **INC-5
+MEMORY-DOCS**, que ya tiene 5 gates esperándolo por disposición escrita, no por memoria.
 
 ## 2026-07-29T02:1xZ — INC-4: la ley de que un gate no se registra sin poder fallar (5/6 fases)
 

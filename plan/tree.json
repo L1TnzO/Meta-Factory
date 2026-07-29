@@ -232,13 +232,21 @@
       "parent": "N-0011",
       "title": "INC-4 CHECKS-PORT: 29 kinds + 23 gates, no gate registers without a red witness",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md",
+        "v3/verify/registry.py",
+        "v3/verify/gate_census.py",
+        "docs/spec/fixtures/check-argv-vectors.json",
+        "docs/spec/fixtures/spec-validation-vectors.json",
+        "docs/spec/fixtures/graph-metrics-vectors.json"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-29T08:12Z"
     },
     "N-0017": {
       "parent": "N-0011",

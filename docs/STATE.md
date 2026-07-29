@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e10505c9d83a1c3a132bd564bcdd0600a7538c3d updated=2026-07-29T16:48Z -->
+<!-- meta:doc sha=f4d3dd18cdc19af4dcbeb778e528ad208f689113 updated=2026-07-29T17:32Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,17 +20,17 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-4 ENTREGADOS**, **INC-5 EN CURSO**.**
+- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-5 ENTREGADOS**, sigue INC-6.**
   Reconstruye el plano de CONTROL sobre el Claude Agent SDK conservando la evidencia: **nuestro
   programa es el host, Claude Code el motor**. Se construye EN el árbol (`v3/`): los hooks lo
   alcanzan, los gates de juicio no. Oráculo = commit pineado en `v3/oracle_ref.json`, nunca el
-  working tree. **INC-4:** un gate **no se registra sin testigo rojo alcanzable**; el censo de los 23
-  da verde. **INC-5 EN CURSO** (corpus documental, **2 de 5 gates**: `docs`✅ `projection`✅): censo
-  **17 portados · 0 pendientes**; el oráculo compara la LEY, no el stdout (`tools/corpus_parity.py`,
-  fuera de `v3/` a propósito: v3 no depende de v2 y el instrumento que los COMPARA no es ninguno de
-  los dos). Ambos se ganaron el testigo que v2 nunca les dio; `projection` reporta **N/A** donde v2
-  daba un rojo falso. Suite v3 `green=14 · red=2 · n/a=1`, los 2 rojos deuda declarada de FSK.
-  Faltan Fases 4–7. **Mapa: `docs/spec/20-architecture-map.md`.**
+  working tree. **INC-4:** un gate **no se registra sin testigo rojo alcanzable**. **INC-5** (corpus
+  documental) cierra los 5 gates diferidos → censo **20 portados · 0 pendientes · 0 diferidos**; el
+  oráculo compara la LEY, no el stdout (`tools/corpus_parity.py`, fuera de `v3/`: el instrumento que
+  compara v2 con v3 no es ninguno de los dos) y su lado rojo sabotea los 5 pares **de a uno**; los 4
+  sin testigo se lo ganaron y `projection`/`state_fidelity` reportan **N/A** donde v2 daba un rojo
+  falso y un verde vacuo. Suite v3 `green=17 · red=2 · n/a=1`, los 2 rojos deuda declarada de FSK.
+  **Mapa: `docs/spec/20-architecture-map.md`.**
   → `decisions/031`·`032` · `LOG.md` (2026-07-28/29) · `work/V3-INC4-…` · plan `N-0011`/`N-0017`.
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.

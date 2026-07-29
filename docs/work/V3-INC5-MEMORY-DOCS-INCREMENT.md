@@ -1,4 +1,4 @@
-<!-- meta:doc sha=34b8d233960c86003b0d10c3d6a952d542bd98d3 updated=2026-07-29T17:31Z -->
+<!-- meta:doc sha=1807d81b659fb9a059deeb9fb43aec55ea53beb0 updated=2026-07-29T17:32Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
@@ -125,10 +125,10 @@ midiendo otra cosa. La comparación es parte del gate de cada slot, no un cheque
 | 1 | Andamio: `v3/memory/` + el oráculo `tools/corpus_parity.py` | ✅ |
 | 2 | `docs`: portar `docs_manifest` (290) + `docs_check`; **ganarse** un testigo `sabotage_env` (4 clases de defecto) | ✅ |
 | 3 | `projection`: portar `memory/projection` (150); **ganarse** testigo; rama `na_when` sin `.proof/` | ✅ |
-| 4 | `evidence_liveness`: portar `graph/doc_graph` (313) + check; testigo = el fixture ya comiteado | ⏳ |
-| 5 | `state_snapshot` + `state_fidelity`: portar ambos y convertir el diente embebido en handle re-corrible | ⏳ |
-| 6 | `journal` portado; los dos diferidos como nodos del plan; el hueco de `kinds` (importabilidad) dispuesto | ⏳ |
-| 7 | Censo: las 5 filas pasan a PORTED y la suma sigue dando 23; suite cableada; cierre | ⏳ |
+| 4 | `evidence_liveness`: portar `graph/doc_graph` (313) + check; testigo = el fixture ya comiteado | ✅ |
+| 5 | `state_snapshot` + `state_fidelity`: portar ambos y convertir el diente embebido en handle re-corrible | ✅ |
+| 6 | Deferrals decididos (`journal` corregido a diferido, `kinds`/N-0088); correcciones en la spec | ✅ |
+| 7 | Censo: las 5 filas en PORTED y la suma sigue dando 23; suite cableada; cierre | ✅ |
 
 El orden no es estético: el censo **obliga** a que la fila se dé vuelta último. Una fila declarada
 `PORTED` cuyo gate no está registrado sale `pending — declared ported, not registered` y el censo se
@@ -194,20 +194,36 @@ portada.** `is_stale()` sigue devolviendo exactamente lo de v2, porque el orácu
 las compara — meterla adentro de la ley habría roto la paridad y, peor, habría cambiado lo que la ley
 significa. La misma distinción que separa reportar de decidir.
 
-## Estado al cierre de esta sesión (2026-07-29)
+## Evidencia contra los 8 criterios de cierre
 
-| | |
-| --- | --- |
-| Gates del corpus portados | **2 de 5** — `docs` ✅ · `projection` ✅ |
-| Censo | **17/23 portados · 0 pendientes** (arranca en 15) |
-| Suite v3 | `green=14 · red=2 · n/a=1` |
-| Oráculo | 2 pares, lado rojo **2/2 atrapados** de a uno |
-| `meta check` | 2/23, sin regresión |
+| # | Criterio | Evidencia |
+| --- | --- | --- |
+| 1 | Los 5 registran con testigo o rechazo | `registry_law` verde; los 5 en `build_registry` con `Witness` declarado |
+| 2 | Censo **20 PORTED**, suma 23, nada apuntando a INC-5 | `gate_census` PASS: `v2=23 · declared=23 · landed=20 · pending=0`; bloque de diferidos VACÍO; 23 claves únicas verificado por AST |
+| 3 | Paridad por gate contra v2 en `oracle_ref` | `corpus_parity` PASS, **5 pares**, byte-identidad de las fuentes v2 re-derivada en cada corrida |
+| 4 | Cada testigo se re-corre y muerde (P2) | lado rojo del oráculo **5/5 atrapados de a uno**; `docs` 4/4 · `projection` 3/3 · `state_snapshot` 2/2 · `state_fidelity` 4/4 · `evidence_liveness` verificado borrando el fixture (exit 1, «disarmed, not green») |
+| 5 | `projection` y `state_fidelity` declaran `na_when` | verificado **clonando el repo** y corriendo los ports adentro: ambos N/A, contado aparte |
+| 6 | Los diferidos existen como NODOS | `N-0086` rehydrate→INC-12 · `N-0087` precompact→INC-6 · `N-0088` kinds→post-cutover · `N-0089` journal→INC-6 |
+| 7 | `meta check` sin regresión; suite v3 con causa nombrada | `meta check` **2/23** · suite v3 `green=17 · red=2 · n/a=1`, los 2 = `codegen_freeze` + `docs`, deuda de FSK |
+| 8 | Las correcciones aterrizan donde vive la spec | `docs/spec/11-build-plan.md` §3 (nota 2026-07-29) y `docs/spec/06-memory-and-docs.md` §3/§6 |
 
-Los 2 rojos siguen siendo `codegen_freeze` y `docs`, ambos deuda de FSK y ambos declarados antes de
-empezar. Faltan las Fases 4–7, y a esta altura son **ejecución con patrón establecido**, no diseño:
-cada una repite la misma forma —portar la ley · ganarse el testigo · fila en el oráculo · registrar ·
-dar vuelta la fila del censo—, y el censo impide prometer un port antes de aterrizarlo.
+## Lo que este incremento enseñó, y no es el conteo
+
+**Un port puede quedar mejor que su original sin agregar capacidad.** `projection` y `state_fidelity`
+ahora reportan N/A donde v2 daba un rojo falso y un verde vacuo. La mejora fue negarse a afirmar algo
+que no se sabía. Eso no cuesta código: cuesta preguntar qué significa el verde.
+
+**Un lado rojo puede ser decorativo de una manera nueva.** Los tres primeros sabotajes del oráculo
+tiran la lista de problemas del port, y funciona porque en esos tres v2 devuelve algo. En los dos
+dientes de STATE v2 devuelve `[]` sobre un árbol sano, así que vaciar una lista vacía no demuestra
+nada. Se vio sólo preguntando *qué perturba exactamente este lado rojo, y ese valor está vacío*. Es
+la misma pregunta del censo —qué quedó fuera del conteo— aplicada un nivel más abajo.
+
+**Las tres cosas que se me escaparon se me escaparon en el DISEÑO DEL GATE, no en el código.** El
+acceptance gate del primer slot no incluía `import_boundary`; el oráculo lo puse adentro de `v3/`
+donde no podía vivir; y al dar vuelta las últimas filas del censo dejé claves duplicadas que Python
+resuelve en silencio a favor de la última. Ninguna la habría encontrado leyendo el diff del
+generador. Todas las encontró una máquina a la que se le preguntó.
 
 ## Fase 6: dos deferrals, y una es una corrección a mi propio plan
 

@@ -1,7 +1,72 @@
-<!-- meta:doc sha=25a98f42718dd580e60b988f257a482252e4b0aa updated=2026-07-29T08:13Z -->
+<!-- meta:doc sha=e25a7e98f11932246defa207827cce8dc82c8cd7 updated=2026-07-29T17:34Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-29T17:3xZ — INC-5 CERRADO: el corpus queda gateado, y dos gates aprenden a decir «no sé»
+
+**Qué pasó.** Los 5 gates que INC-4 difirió —`docs`, `projection`, `evidence_liveness`,
+`state_snapshot`, `state_fidelity`— están portados, registrados y con lado rojo re-corrible. El censo
+llega a **20 portados / 2 ya-en-v3 / 1 retirado = 23**, con el bloque de diferidos **vacío por primera
+vez**. Suite v3: `green=17 · red=2 · n/a=1`. `meta check` sigue en su 2/23.
+
+**El replanteo salió de medir, no de leer la fila.** `grep -ci sabotage` sobre los siete módulos de v2
+en `oracle_ref`: **cero en los siete**. `evidence_liveness` traía un fixture comiteado; los dos dientes
+de STATE tenían tooth pero EMBEBIDO en su propia corrida verde, sin handle, así que P2 no podía
+re-correrlo; y `docs` y `projection` no tenían lado rojo de ninguna forma — el caso `generality` de
+INC-4, dos veces, sobre 327 documentos y 2.722 citas.
+
+**Dos gates aprendieron a decir «no sé», y eso fue la mejora real.** `.proof/` está gitignoreado, así
+que en un clone limpio el RTM re-deriva INCOMPLETE en las 5 fábricas: v2 convierte eso en un rojo
+(«stale vs. the facts») y en un verde vacuo respectivamente. Los dos son falsos. Ahora reportan **N/A**,
+contado aparte (R-12), con `ci --rederive` nombrado como remedio — verificado clonando el repo y
+corriendo los ports adentro. **Un port quedó mejor que su original sin agregar capacidad: sólo
+negándose a afirmar algo que no sabía.** Y la rama N/A vive en el GATE, nunca en la ley portada, porque
+el oráculo importa las dos leyes y las compara.
+
+**El oráculo compara la LEY, no el stdout** (`tools/corpus_parity.py`). Vive FUERA de `v3/` y ésa fue
+una decisión, no una ubicación: `import_boundary` lo rechazó adentro y tenía razón —leer historia de v2
+en un commit pineado es inocuo, depender de su código es romperse el día que INC-11 lo borre—. La
+salida no fue pedir una excepción, porque quedaría huérfana justo el día del cutover. **v3 no depende
+de v2; el instrumento que los COMPARA no es ninguno de los dos**, y muere con v2.
+
+**Un lado rojo puede ser decorativo de una manera nueva.** Los tres primeros sabotajes del oráculo
+tiran la lista de problemas del port — funciona porque ahí v2 devuelve algo. Los dos dientes de STATE
+devuelven `[]` sobre un árbol sano, así que vaciar una lista vacía no demuestra nada y el sabotaje
+habría pasado sin morder. Se vio preguntando *qué perturba exactamente este lado rojo, y ese valor está
+vacío*: la pregunta del censo, un nivel más abajo. Ahora cada par compara además un valor que nunca
+está vacío.
+
+**Un hook que mantenía los sellos era un no-op silencioso.** `doc_stamp` resolvía `doc-sync` contra el
+cwd de la sesión: desde cualquier subdirectorio fallaba, `capture_output` se comía el error y devolvía
+0. Lo destapó el propio doc de gobierno de este incremento, que quedó **comiteado sin sello** — y sólo
+lo vio una corrida en clone limpio. El arreglo ya existía al lado (`stop_proof.py`, be3805c); esta
+pasada se lo había salteado.
+
+**Tres cosas se me escaparon, y las tres en el DISEÑO DEL GATE, no en el código.** El acceptance gate
+del primer slot no incluía `import_boundary` (verdict verde conviviendo con una violación de
+frontera); puse el oráculo adentro de `v3/`; y al dar vuelta las últimas filas del censo dejé claves
+duplicadas, que Python resuelve en silencio a favor de la última —la misma forma que el registro de
+gates rechaza explícitamente, ahora en la tabla que audita al registro—. Ninguna la habría encontrado
+leyendo el diff del generador; todas las encontró una máquina a la que se le preguntó.
+
+**Correcciones a la spec (ADR-032 A5), cuatro.** Los números del corpus en §11.3 estaban vencidos
+(283/2.373 → 327/2.722); `docs_check` solo era una aceptación incompleta (1 de 5 gates, e invitaba a
+que los otros 4 aterrizaran sin medir); `SessionStore` handoff sale de la fila hacia INC-6/INC-12
+porque la inversión ya separó ese sujeto; y **`journal`, que yo mismo había puesto como PORTADO, pasa
+a diferido**: al ir a hacerlo tiene cero callers en v3, y «un helper sin call site es peso muerto» es
+criterio que este repo ya aplica. Cuarta vez en el arco que ejecutar una fase corrige la spec en vez
+de leerla.
+
+**Diferidos, todos como NODOS y no como prosa:** `N-0086` rehydrate→INC-12 · `N-0087`
+precompact→INC-6 · `N-0088` el hueco de `kinds` (compara argv, no importabilidad del módulo destino —
+capacidad nueva, §11.5 la manda post-cutover) · `N-0089` journal→INC-6.
+
+**Los 2 rojos de la suite son deuda de FSK, declarada antes de empezar** (`codegen_freeze` + `docs`).
+Un rojo lo dispone el nivel que lo posee; meta no le limpia el tablero a FSK.
+
+→ Detalle y evidencia contra los 8 criterios: `work/V3-INC5-MEMORY-DOCS-INCREMENT.md`. Sigue **INC-6
+ECONOMY-TYPED**.
 
 ## 2026-07-29T08:1xZ — INC-4 CERRADO: los 15 cuerpos, y dos maneras de que un port mienta sin querer
 

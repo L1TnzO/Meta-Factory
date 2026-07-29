@@ -1,3 +1,4 @@
+<!-- meta:doc sha=265da68cd0ebf21ecd04b691eed9af982dd9c620 updated=2026-07-29T16:20Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`

@@ -195,6 +195,6 @@
 | `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `b0965d2a3c66` | 2026-07-28T18:21Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/V3-INC3-DELEGATION-INCREMENT.md` | `02bce4d1bdc4` | 2026-07-28T19:30Z | Incremento V3-INC3-DELEGATION |
 | `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `1d8753ee45c5` | 2026-07-29T08:11Z | Incremento V3-INC4-CHECKS-PORT |
-| `docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md` | `1902b5a63caa` | 2026-07-29T16:11Z | Incremento V3-INC5-MEMORY-DOCS |
+| `docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md` | `265da68cd0eb` | 2026-07-29T16:20Z | Incremento V3-INC5-MEMORY-DOCS |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

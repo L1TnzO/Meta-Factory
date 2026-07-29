@@ -1,0 +1,808 @@
+{
+  "_doc": "Oracle for v3's code-graph port (V3-INC4-GRAPH-SLICE): structural + quality metrics v2's REAL graph code (model/python_index/build/quality) produces over its own graph package at oracle_ref, plus the RED cases (monolith fixture, a synthetic import cycle, and a synthetic deferred-import NON-cycle) that make the port falsifiable. Every real file's raw `source` is embedded so `v3.verify.graph_parity` never needs git or a v2 import to re-derive parity \u2014 it rebuilds the tree from this fixture and runs the PORTED code over it. Regenerate: python3 tools/gen_graph_metrics_vectors.py.",
+  "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+  "generated_by": "tools/gen_graph_metrics_vectors.py",
+  "input_root": "src/metafactory/graph",
+  "structural": {
+    "files": [
+      {
+        "relpath": "src/metafactory/graph/__init__.py",
+        "source": "\"\"\"graph \u2014 the project-spine (ADR-017, Fase 1 of the SOTA redesign).\n\nA SINGLE content-addressed knowledge graph of the project that unifies, in one queryable piece:\nnavigation (structural code graph) + the existing RTM/ADR/proof graphs + verification scope. Built\ndeterministically from the AST + the spec + `.proof/` (never narrated, I-3). Incremental by content\nhash (extends the sha-stamps of ADR-009; a Merkle-DAG over file fragments).\n\nTech is a PLAN choice (ADR-012): stdlib only \u2014 `ast` for the Python substrate graph, a JSON store, a\nhand-rolled PageRank. tree-sitter / SCIP / graph-DB are deferred upgrades. This layer ANALYZES our own\ncode; it does not GENERATE products, so the substrate's \"no baked tech\" guard is untouched.\n\nModule map (multi-file by responsibility, the 2026-06-25 rule):\n  model.py        \u2014 Node/Edge/Graph/FileFragment, content-addressed ids, JSON serde, traversal.\n  python_index.py \u2014 Fase 1: index one Python file \u2192 a FileFragment (File/Symbol + DEFINED_IN/IMPORTS/CALLS).\n  ingest.py       \u2014 Fase 2: ingest the RTM tree + ADR citations \u2192 Requirement/Capability/Station/Proof/\n                    Artifact/Decision nodes + IMPLEMENTS/VERIFIES/SATISFIES/GOVERNS edges.\n  incremental.py  \u2014 Fase 3: rebuild re-deriving ONLY the fragments whose file content hash changed.\n  quality.py      \u2014 Fase 4: deterministic SWE quality metrics (size/coupling/cycles) over the graph.\n  repomap.py      \u2014 Fase 6: PageRank over the graph \u2192 a ranked ~budget-token digest for navigation.\n  billing.py      \u2014 Fase 5: a per-run/station token+cost+time ledger (the PWF form) + the model split.\n  build.py        \u2014 orchestrates index + ingest + persist; the named 2-hop queries.\n\"\"\"\nfrom __future__ import annotations\n\nfrom .model import (\n    Edge,\n    EdgeKind,\n    FileFragment,\n    Graph,\n    Node,\n    NodeKind,\n)\n\n__all__ = [\n    \"Edge\",\n    \"EdgeKind\",\n    \"FileFragment\",\n    \"Graph\",\n    \"Node\",\n    \"NodeKind\",\n]\n",
+        "loc": 41,
+        "function_count": 0,
+        "class_count": 0,
+        "per_function_loc": [],
+        "imports": [
+          "__future__.annotations",
+          "metafactory.graph.model.Edge",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.FileFragment",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.Node",
+          "metafactory.graph.model.NodeKind"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/affected.py",
+        "source": "\"\"\"affected \u2014 precise change-impact analysis over the code graph (dogfood D25a).\n\n`metafactory.delegation.affected_tests(root, allow_globs)` is a NAME-MATCHING heuristic (it guesses which\ntests correspond to a changed glob by string convention). This module replaces that guess, for callers that\nwant it, with a graph-precise answer: build the SAME structural graph the Fase-1 spine already builds\n(`metafactory.graph.build.build_code_graph`), but ALSO discover `tests/` as a root so test modules become\nFile nodes with their own IMPORTS edges \u2014 then walk reverse-reachability over those edges to find every\nmodule that transitively imports a changed file, and report the ones that are tests.\n\nNo new parsing, no new edge kind: this composes the existing Fase-1 machinery (`python_index.index_file` +\n`build.resolve_cross_file_edges`), it does not duplicate it.\n\"\"\"\nfrom __future__ import annotations\n\nimport argparse\nimport os\nimport sys\nfrom pathlib import Path\n\nfrom .build import DEFAULT_ROOTS, build_code_graph\nfrom .model import EdgeKind, Graph, NodeKind\n\n#: the extra discovery root this module adds on top of the Fase-1 default (src/metafactory + seed), so\n#: test modules are graph nodes too (with their own IMPORTS edges to whatever they import).\nTEST_DISCOVERY_ROOT = \"tests\"\n\n\ndef discovery_roots() -> tuple[str, ...]:\n    \"\"\"DEFAULT_ROOTS plus tests/ \u2014 the roots `affected_tests` builds its graph over.\"\"\"\n    return tuple(DEFAULT_ROOTS) + (TEST_DISCOVERY_ROOT,)\n\n\ndef build_graph_with_tests(repo_root: Path | str) -> Graph:\n    \"\"\"Build the structural code graph rooted at `repo_root`, discovering BOTH the main source tree\n    (DEFAULT_ROOTS) AND tests/, so reverse-reachability can land on test modules.\"\"\"\n    graph, _fragments = build_code_graph(Path(repo_root), discovery_roots())\n    return graph\n\n\ndef _to_relpath(repo_root: Path, changed: str) -> str:\n    \"\"\"Normalize a changed path (relative or absolute) to a repo-relative POSIX path string, purely\n    lexically (no filesystem access, so a not-yet-existing new file still resolves cleanly).\"\"\"\n    p = Path(changed)\n    if p.is_absolute():\n        rel = os.path.relpath(p, repo_root)\n        return Path(rel).as_posix()\n    return p.as_posix()\n\n\ndef _is_test_module(relpath: str) -> bool:\n    \"\"\"True for `tests/test_*.py` (the convention the acceptance gate + pytest itself already assume).\"\"\"\n    parts = Path(relpath).parts\n    return (\n        bool(parts)\n        and parts[0] == TEST_DISCOVERY_ROOT\n        and relpath.endswith(\".py\")\n        and Path(relpath).name.startswith(\"test_\")\n    )\n\n\ndef _reverse_importers(graph: Graph, file_id: str) -> set[str]:\n    \"\"\"Every File node id that transitively imports `file_id`: BFS over reverse IMPORTS edges (who\n    imports this, directly or indirectly). Cycle-safe via `seen`.\"\"\"\n    seen: set[str] = set()\n    frontier = [file_id]\n    while frontier:\n        nxt: list[str] = []\n        for nid in frontier:\n            for importer in graph.step(nid, EdgeKind.IMPORTS, forward=False):\n                if importer not in seen:\n                    seen.add(importer)\n                    nxt.append(importer)\n        frontier = nxt\n    return seen\n\n\ndef affected_tests(repo_root: Path | str, changed_paths: list[str]) -> list[str]:\n    \"\"\"The `tests/test_*.py` files that (transitively) import any of `changed_paths`, via reverse\n    IMPORTS reachability over a code graph that discovers both the source tree and tests/.\n\n    - A changed path that does not resolve to a graph node (new file, non-Python file, typo) is skipped,\n      not an error.\n    - A changed path that IS ITSELF a test file is included directly in the result (it always affects\n      itself).\n    - The result is deduplicated and sorted, as repo-relative POSIX path strings.\n    \"\"\"\n    root = Path(repo_root)\n    graph = build_graph_with_tests(root)\n\n    result: set[str] = set()\n    for changed in changed_paths:\n        relpath = _to_relpath(root, changed)\n        file_id = f\"{NodeKind.FILE.value}:{relpath}\"\n        if graph.node(file_id) is None:\n            continue  # not a graph node: new file / non-Python file / stale path \u2014 skip gracefully\n        if _is_test_module(relpath):\n            result.add(relpath)\n        for importer_id in _reverse_importers(graph, file_id):\n            importer_rel = importer_id.split(\":\", 1)[1]\n            if _is_test_module(importer_rel):\n                result.add(importer_rel)\n\n    return sorted(result)\n\n\n# \u2500\u2500 CLI (debug/inspection entry point) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef main(argv: list[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(\n        prog=\"python3 -m metafactory.graph.affected\",\n        description=\"Print the tests/test_*.py files affected (via import-graph reachability) by the \"\n                    \"given changed paths, one per line.\",\n    )\n    parser.add_argument(\"--changed\", nargs=\"+\", required=True, metavar=\"PATH\",\n                        help=\"one or more changed file paths (relative to cwd, or absolute)\")\n    args = parser.parse_args(argv)\n\n    repo_root = Path.cwd()\n    for test_path in affected_tests(repo_root, args.changed):\n        print(test_path)\n    return 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n",
+        "loc": 124,
+        "function_count": 7,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_is_test_module",
+            "loc": 9
+          },
+          {
+            "qualname": "_reverse_importers",
+            "loc": 14
+          },
+          {
+            "qualname": "_to_relpath",
+            "loc": 8
+          },
+          {
+            "qualname": "affected_tests",
+            "loc": 27
+          },
+          {
+            "qualname": "build_graph_with_tests",
+            "loc": 5
+          },
+          {
+            "qualname": "discovery_roots",
+            "loc": 3
+          },
+          {
+            "qualname": "main",
+            "loc": 14
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "argparse",
+          "metafactory.graph.build.DEFAULT_ROOTS",
+          "metafactory.graph.build.build_code_graph",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.NodeKind",
+          "os",
+          "pathlib.Path",
+          "sys"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/affected_report.py",
+        "source": "\"\"\"affected_report \u2014 selection-ratio digest over `affected.affected_tests` (dogfood D25c).\n\n`affected_tests` answers \"which tests are affected\"; this module answers the decidable follow-up the S2\nloop / S3 review actually needs: \"how much of the whole suite did we SKIP?\" It composes `affected_tests`\n(no new graph logic) with a real filesystem glob over `tests/test_*.py` as the \"whole suite\" denominator,\nand exposes both a small dict API and a `python3 -m metafactory.graph.affected_report --changed <path>...`\nCLI entry point that prints a human-eyeballable count/ratio line.\n\"\"\"\nfrom __future__ import annotations\n\nimport argparse\nimport sys\nfrom pathlib import Path\n\nfrom .affected import TEST_DISCOVERY_ROOT, affected_tests\n\n\ndef discover_all_tests(repo_root: Path | str) -> list[str]:\n    \"\"\"Every `tests/test_*.py` file under `repo_root`, as sorted repo-relative POSIX path strings \u2014 the\n    \"whole suite\" denominator for the selection ratio. A real filesystem glob (not graph-derived), so it\n    counts test files even if they have no IMPORTS edges at all (e.g. no local imports).\"\"\"\n    root = Path(repo_root)\n    test_dir = root / TEST_DISCOVERY_ROOT\n    if not test_dir.is_dir():\n        return []\n    return sorted(\n        p.relative_to(root).as_posix()\n        for p in test_dir.rglob(\"test_*.py\")\n    )\n\n\ndef affected_report(repo_root: Path | str, changed_paths: list[str]) -> dict:\n    \"\"\"The selection-ratio report: which tests are affected, how many total tests exist, and what\n    fraction of the suite that is \u2014 so a caller can decide \"is it safe to skip the rest\".\n\n    Keys: `affected` (sorted list[str]), `total` (int, all discovered tests), `affected_count` (int),\n    `ratio` (float, `affected_count / total`, `0.0` if `total == 0` \u2014 no division by zero).\n    \"\"\"\n    affected = affected_tests(repo_root, changed_paths)\n    total = len(discover_all_tests(repo_root))\n    affected_count = len(affected)\n    ratio = (affected_count / total) if total else 0.0\n    return {\n        \"affected\": affected,\n        \"total\": total,\n        \"affected_count\": affected_count,\n        \"ratio\": ratio,\n    }\n\n\n# \u2500\u2500 CLI (S2/S3 eyeball entry point) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef main(argv: list[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(\n        prog=\"python3 -m metafactory.graph.affected_report\",\n        description=\"Print the tests/test_*.py files affected by the given changed paths, plus the \"\n                    \"selection ratio (how much of the whole suite that is).\",\n    )\n    parser.add_argument(\"--changed\", nargs=\"+\", required=True, metavar=\"PATH\",\n                        help=\"one or more changed file paths (relative to cwd, or absolute)\")\n    args = parser.parse_args(argv)\n\n    repo_root = Path.cwd()\n    report = affected_report(repo_root, args.changed)\n    for test_path in report[\"affected\"]:\n        print(test_path)\n    percent = report[\"ratio\"] * 100\n    print(f\"affected: {report['affected_count']}/{report['total']} ({percent:.1f}%)\")\n    return 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n",
+        "loc": 72,
+        "function_count": 3,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "affected_report",
+            "loc": 17
+          },
+          {
+            "qualname": "discover_all_tests",
+            "loc": 12
+          },
+          {
+            "qualname": "main",
+            "loc": 17
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "argparse",
+          "metafactory.graph.affected.TEST_DISCOVERY_ROOT",
+          "metafactory.graph.affected.affected_tests",
+          "pathlib.Path",
+          "sys"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/billing.py",
+        "source": "\"\"\"billing \u2014 Fase 5: a per-run / per-work-item token+cost+time ledger. The first instrument of REAL\noutcome (cost), and the dogfood of \"verificar-no-revisar\": it records WHICH model did WHICH work, so\nthe Opus(brain)/Sonnet(generate)/Haiku(read) split is a measured artifact, not a slogan (ADR-017, VISION \u00a74).\n\nFORM harvested from Professor-Web-Factory's `billing-ledger.json` (per-phase entries with model + token +\ncost + latency, plus run totals). We add `role` (brain|generate|read) \u2014 the delegation axis this project\ncares about \u2014 and `source` (harness|estimate) so the ledger is HONEST about which numbers are measured.\n\nPricing is DATA (ADR-012 spirit) but SINGLE-SOURCE (ADR-021, PRICING-LEDGER INC-1): `pricing.PRICING`, the\ndated 5-column table, not a 2-tuple passed in per-ledger. Every entry is cache-aware: `cache_creation` /\n`cache_read` / `cache_ttl` ride the same honest-modeling law as `pricing.price_tokens` (cache_creation\ndefaults to the 5-minute write price; 1-hour only on an explicit `cache_ttl=\"1h\"`).\n\"\"\"\nfrom __future__ import annotations\n\nimport json\nfrom dataclasses import asdict, dataclass\nfrom pathlib import Path\n\nfrom . import pricing\n\nROLES = (\"brain\", \"generate\", \"read\")\nCACHE_TTLS = (\"5m\", \"1h\")\n\n\n@dataclass\nclass LedgerEntry:\n    item: str                 # the work-item (cycle): which module/task\n    role: str                 # brain | generate | read\n    model: str                # opus | sonnet | haiku | <id>\n    input_tokens: int = 0\n    output_tokens: int = 0\n    cache_creation: int = 0   # cache-write tokens (untagged TTL in the OTLP stream \u2014 see pricing.py)\n    cache_read: int = 0       # cache-hit tokens (also refreshes the TTL)\n    cache_ttl: str = \"5m\"     # \"5m\" | \"1h\" \u2014 which write price applies to `cache_creation`\n    total_tokens: int = 0     # harness-reported total when available (else input+output+cache tokens)\n    est_cost_usd: float = 0.0\n    latency_ms: int = 0\n    source: str = \"estimate\"  # harness | estimate \u2014 provenance of the token numbers\n    status: str = \"complete\"\n\n    def __post_init__(self) -> None:\n        if self.role not in ROLES:\n            raise ValueError(f\"role must be one of {ROLES}, got {self.role!r}\")\n        if self.cache_ttl not in CACHE_TTLS:\n            raise ValueError(f\"cache_ttl must be one of {CACHE_TTLS}, got {self.cache_ttl!r}\")\n        if self.cache_creation < 0 or self.cache_read < 0:\n            raise ValueError(\"cache_creation and cache_read must be non-negative token counts\")\n        if not self.total_tokens:\n            self.total_tokens = self.input_tokens + self.output_tokens + self.cache_creation + self.cache_read\n\n\ndef _cost(entry: LedgerEntry) -> float:\n    \"\"\"The entry's cost via the single-source `pricing.price_tokens` \u2014 always priced (no TBD state):\n    an unrecognized model id honestly defaults to the sonnet tier, never a silent 0.\"\"\"\n    return pricing.price_tokens(\n        entry.model,\n        input_tokens=entry.input_tokens,\n        output_tokens=entry.output_tokens,\n        cache_creation=entry.cache_creation,\n        cache_read=entry.cache_read,\n        cache_ttl=entry.cache_ttl,\n    )\n\n\nclass BillingLedger:\n    def __init__(self, run_id: str, currency: str = \"USD\") -> None:\n        self.run_id = run_id\n        self.currency = currency\n        self.entries: list[LedgerEntry] = []\n\n    def record(self, entry: LedgerEntry) -> \"BillingLedger\":\n        entry.est_cost_usd = _cost(entry)\n        self.entries.append(entry)\n        return self\n\n    # \u2500\u2500 aggregation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def totals(self) -> dict:\n        return _sum(self.entries)\n\n    def split_by_model(self) -> dict[str, dict]:\n        out: dict[str, dict] = {}\n        for model in sorted({e.model for e in self.entries}):\n            sub = [e for e in self.entries if e.model == model]\n            agg = _sum(sub)\n            agg[\"items\"] = len(sub)\n            agg[\"roles\"] = sorted({e.role for e in sub})\n            out[model] = agg\n        return out\n\n    def split_by_role(self) -> dict[str, dict]:\n        out: dict[str, dict] = {}\n        for role in ROLES:\n            sub = [e for e in self.entries if e.role == role]\n            if sub:\n                out[role] = {**_sum(sub), \"items\": len(sub), \"models\": sorted({e.model for e in sub})}\n        return out\n\n    # \u2500\u2500 serde \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def to_dict(self) -> dict:\n        return {\n            \"run_id\": self.run_id,\n            \"currency\": self.currency,\n            \"pricing\": f\"single-source pricing.PRICING (AS_OF {pricing.AS_OF})\",\n            \"entries\": [asdict(e) for e in self.entries],\n            \"totals\": self.totals(),\n            \"split_by_model\": self.split_by_model(),\n            \"split_by_role\": self.split_by_role(),\n        }\n\n    def to_json(self) -> str:\n        return json.dumps(self.to_dict(), indent=2, ensure_ascii=False) + \"\\n\"\n\n    def save(self, path: Path) -> Path:\n        path = Path(path)\n        path.parent.mkdir(parents=True, exist_ok=True)\n        path.write_text(self.to_json(), encoding=\"utf-8\")\n        return path\n\n    @staticmethod\n    def load(path: Path) -> \"BillingLedger\":\n        d = json.loads(Path(path).read_text(encoding=\"utf-8\"))\n        led = BillingLedger(d.get(\"run_id\", \"?\"), d.get(\"currency\", \"USD\"))\n        for e in d.get(\"entries\", []):\n            led.entries.append(LedgerEntry(**{k: e[k] for k in e if k in LedgerEntry.__dataclass_fields__}))\n        return led\n\n\ndef _sum(entries: list[LedgerEntry]) -> dict:\n    return {\n        \"input_tokens\": sum(e.input_tokens for e in entries),\n        \"output_tokens\": sum(e.output_tokens for e in entries),\n        \"cache_creation\": sum(e.cache_creation for e in entries),\n        \"cache_read\": sum(e.cache_read for e in entries),\n        \"total_tokens\": sum(e.total_tokens for e in entries),\n        \"est_cost_usd\": round(sum(e.est_cost_usd for e in entries), 6),\n        \"latency_ms\": sum(e.latency_ms for e in entries),\n    }\n\n\ndef render_split(led: BillingLedger) -> str:\n    \"\"\"A bounded, human-readable digest of the delegation split (for `meta billing`).\"\"\"\n    t = led.totals()\n    lines = [f\"BILLING  run {led.run_id} ({led.currency}; pricing=single-source AS_OF {pricing.AS_OF})\"]\n    lines.append(f\"TOTAL    {t['total_tokens']} tok ({t['input_tokens']} in / {t['output_tokens']} out / \"\n                 f\"{t['cache_creation']} cache-write / {t['cache_read']} cache-read) \"\n                 f\"\u00b7 ${t['est_cost_usd']} \u00b7 {len(led.entries)} item(s)\")\n    for model, agg in led.split_by_model().items():\n        lines.append(f\"  {model:<8} {agg['total_tokens']:>8} tok \u00b7 {agg['items']} item(s) \u00b7 \"\n                     f\"roles={','.join(agg['roles'])} \u00b7 ${agg['est_cost_usd']}\")\n    for role, agg in led.split_by_role().items():\n        lines.append(f\"  [{role:<8}] {agg['total_tokens']:>8} tok \u00b7 models={','.join(agg['models'])}\")\n    return \"\\n\".join(lines)\n",
+        "loc": 153,
+        "function_count": 13,
+        "class_count": 2,
+        "per_function_loc": [
+          {
+            "qualname": "BillingLedger.__init__",
+            "loc": 4
+          },
+          {
+            "qualname": "BillingLedger.load",
+            "loc": 6
+          },
+          {
+            "qualname": "BillingLedger.record",
+            "loc": 4
+          },
+          {
+            "qualname": "BillingLedger.save",
+            "loc": 5
+          },
+          {
+            "qualname": "BillingLedger.split_by_model",
+            "loc": 9
+          },
+          {
+            "qualname": "BillingLedger.split_by_role",
+            "loc": 7
+          },
+          {
+            "qualname": "BillingLedger.to_dict",
+            "loc": 10
+          },
+          {
+            "qualname": "BillingLedger.to_json",
+            "loc": 2
+          },
+          {
+            "qualname": "BillingLedger.totals",
+            "loc": 2
+          },
+          {
+            "qualname": "LedgerEntry.__post_init__",
+            "loc": 9
+          },
+          {
+            "qualname": "_cost",
+            "loc": 11
+          },
+          {
+            "qualname": "_sum",
+            "loc": 10
+          },
+          {
+            "qualname": "render_split",
+            "loc": 13
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "dataclasses.asdict",
+          "dataclasses.dataclass",
+          "json",
+          "metafactory.graph.pricing",
+          "pathlib.Path"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/build.py",
+        "source": "\"\"\"build \u2014 orchestrate the structural graph: discover files, resolve the cross-file edges that the\nper-file index could not (IMPORTS/CALLS need the global symbol table), persist the store, and answer the\nnamed 2-hop queries WITHOUT an LLM.\n\n`index_file` (Fase 1) is purely LOCAL by design (so it is incremental-safe). The edges that span files\nare resolved HERE, deterministically, from the attrs the fragments carry: a File's `imports` (dotted names)\nand a Symbol's `calls` (bare names). Resolution is cheap (no AST re-parse) so it re-runs on every rebuild.\n\"\"\"\nfrom __future__ import annotations\n\nimport json\nfrom collections import defaultdict\nfrom pathlib import Path\n\nfrom .model import Edge, EdgeKind, FileFragment, Graph, NodeKind\nfrom .python_index import index_file\n\nDEFAULT_ROOTS = (\"src/metafactory\", \"seed\")\nSTORE_DIR = \".graph\"\n\n\n# \u2500\u2500 discovery \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef discover_python(repo_root: Path, roots=DEFAULT_ROOTS) -> list[str]:\n    \"\"\"Every .py under the given roots, as sorted POSIX relpaths (deterministic, no __pycache__).\"\"\"\n    repo_root = Path(repo_root)\n    found: list[str] = []\n    for root in roots:\n        base = repo_root / root\n        if not base.exists():\n            continue\n        for p in base.rglob(\"*.py\"):\n            if \"__pycache__\" in p.parts:\n                continue\n            found.append(p.relative_to(repo_root).as_posix())\n    return sorted(found)\n\n\n# \u2500\u2500 cross-file edge resolution \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef _module_map(file_ids: list[str], source_root: str = \"src\") -> dict[str, str]:\n    \"\"\"dotted module name -> File node id, for files under `source_root` (the dir on PYTHONPATH).\n    `src/metafactory/a/b.py` -> `metafactory.a.b`; `.../a/__init__.py` -> `metafactory.a`.\"\"\"\n    prefix = source_root.rstrip(\"/\") + \"/\"\n    out: dict[str, str] = {}\n    for fid in file_ids:\n        rel = fid.split(\":\", 1)[1]\n        if not rel.startswith(prefix) or not rel.endswith(\".py\"):\n            continue\n        mod = rel[len(prefix):-len(\".py\")]\n        if mod.endswith(\"/__init__\"):\n            mod = mod[: -len(\"/__init__\")]\n        out[mod.replace(\"/\", \".\")] = fid\n    return out\n\n\ndef _resolve_module(dotted: str, mod2file: dict[str, str]) -> str | None:\n    \"\"\"Map a dotted import to a File id by trying decreasing prefixes, so `from a.b import c`\n    (dotted `a.b.c`) resolves to the module `a.b` when `c` is a symbol, not a submodule.\"\"\"\n    parts = dotted.split(\".\")\n    for cut in range(len(parts), 0, -1):\n        cand = \".\".join(parts[:cut])\n        if cand in mod2file:\n            return mod2file[cand]\n    return None\n\n\ndef resolve_cross_file_edges(graph: Graph, source_root: str = \"src\") -> None:\n    \"\"\"Add File--IMPORTS-->File and Symbol--CALLS-->Symbol edges, derived from fragment attrs.\"\"\"\n    file_ids = [n.id for n in graph.nodes_of(NodeKind.FILE)]\n    mod2file = _module_map(file_ids, source_root)\n    for fn in graph.nodes_of(NodeKind.FILE):\n        for dotted in fn.attrs.get(\"imports\", []):\n            tgt = _resolve_module(dotted, mod2file)\n            if tgt and tgt != fn.id:\n                graph.add_edge(Edge(fn.id, tgt, EdgeKind.IMPORTS))\n\n    name2syms: dict[str, list[str]] = defaultdict(list)\n    for sn in graph.nodes_of(NodeKind.SYMBOL):\n        short = sn.name.rsplit(\".\", 1)[-1]\n        name2syms[short].append(sn.id)\n    for sn in graph.nodes_of(NodeKind.SYMBOL):\n        for called in sn.attrs.get(\"calls\", []):\n            for tgt in name2syms.get(called, []):\n                if tgt != sn.id:\n                    graph.add_edge(Edge(sn.id, tgt, EdgeKind.CALLS))\n\n\n# \u2500\u2500 full structural build \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef build_code_graph(repo_root: Path, roots=DEFAULT_ROOTS) -> tuple[Graph, dict[str, FileFragment]]:\n    \"\"\"Index every file (full, non-incremental) and resolve cross-file edges. Returns the graph and the\n    fragment map (the store the incremental rebuild diffs against).\"\"\"\n    repo_root = Path(repo_root)\n    fragments: dict[str, FileFragment] = {}\n    for rel in discover_python(repo_root, roots):\n        fragments[rel] = index_file(repo_root, rel)\n    graph = graph_from_fragments(fragments)\n    return graph, fragments\n\n\ndef graph_from_fragments(fragments: dict[str, FileFragment]) -> Graph:\n    graph = Graph()\n    for frag in fragments.values():\n        graph.add_fragment(frag)\n    resolve_cross_file_edges(graph)\n    return graph\n\n\n# \u2500\u2500 store (re-derivable cache; gitignored) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef store_path(repo_root: Path) -> Path:\n    return Path(repo_root) / STORE_DIR / \"fragments.json\"\n\n\ndef save_store(repo_root: Path, fragments: dict[str, FileFragment]) -> Path:\n    path = store_path(repo_root)\n    path.parent.mkdir(parents=True, exist_ok=True)\n    blob = {rel: frag.to_dict() for rel, frag in sorted(fragments.items())}\n    path.write_text(json.dumps(blob, indent=2, ensure_ascii=False) + \"\\n\", encoding=\"utf-8\")\n    return path\n\n\ndef load_store(repo_root: Path) -> dict[str, FileFragment]:\n    path = store_path(repo_root)\n    if not path.exists():\n        return {}\n    blob = json.loads(path.read_text(encoding=\"utf-8\"))\n    return {rel: FileFragment.from_dict(d) for rel, d in blob.items()}\n\n\ndef save_graph(repo_root: Path, graph: Graph) -> Path:\n    path = Path(repo_root) / STORE_DIR / \"graph.json\"\n    path.parent.mkdir(parents=True, exist_ok=True)\n    path.write_text(graph.to_json(), encoding=\"utf-8\")\n    return path\n\n\n# \u2500\u2500 named no-LLM queries (the spine IS the navigation) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef governing_adrs(graph: Graph, symbol_id: str) -> list[str]:\n    \"\"\"2-hop, no LLM: symbol --DEFINED_IN--> file <--GOVERNS-- ADR. \"Which ADR governs this symbol?\\\"\"\"\"\n    return graph.reachable(symbol_id, [(EdgeKind.DEFINED_IN, True), (EdgeKind.GOVERNS, False)])\n\n\ndef requirements_satisfied_by(graph: Graph, station_id: str) -> list[str]:\n    \"\"\"1-hop: station --SATISFIES--> requirement.\"\"\"\n    return graph.reachable(station_id, [(EdgeKind.SATISFIES, True)])\n\n\ndef requirements_for_proof(graph: Graph, proof_id: str) -> list[str]:\n    \"\"\"2-hop, no LLM: proof --VERIFIES--> station --SATISFIES--> requirement.\"\"\"\n    return graph.reachable(proof_id, [(EdgeKind.VERIFIES, True), (EdgeKind.SATISFIES, True)])\n",
+        "loc": 148,
+        "function_count": 13,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_module_map",
+            "loc": 14
+          },
+          {
+            "qualname": "_resolve_module",
+            "loc": 9
+          },
+          {
+            "qualname": "build_code_graph",
+            "loc": 9
+          },
+          {
+            "qualname": "discover_python",
+            "loc": 13
+          },
+          {
+            "qualname": "governing_adrs",
+            "loc": 3
+          },
+          {
+            "qualname": "graph_from_fragments",
+            "loc": 6
+          },
+          {
+            "qualname": "load_store",
+            "loc": 6
+          },
+          {
+            "qualname": "requirements_for_proof",
+            "loc": 3
+          },
+          {
+            "qualname": "requirements_satisfied_by",
+            "loc": 3
+          },
+          {
+            "qualname": "resolve_cross_file_edges",
+            "loc": 19
+          },
+          {
+            "qualname": "save_graph",
+            "loc": 5
+          },
+          {
+            "qualname": "save_store",
+            "loc": 6
+          },
+          {
+            "qualname": "store_path",
+            "loc": 2
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "collections.defaultdict",
+          "json",
+          "metafactory.graph.model.Edge",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.FileFragment",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.NodeKind",
+          "metafactory.graph.python_index.index_file",
+          "pathlib.Path"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/cli.py",
+        "source": "\"\"\"cli \u2014 the `meta graph \u2026` and `meta billing \u2026` command surface (kept in the package, multi-file rule).\n\n  meta graph build [--factory F ...]   build code-graph + ingest ADR/RTM, persist .graph/, print summary\n  meta graph query --symbol <id>       2-hop, no LLM: which ADR governs this symbol\n  meta graph repomap [--budget N]      PageRank digest for navigation\n  meta billing [ledger.json]           print the delegation split of a billing-ledger\n\"\"\"\nfrom __future__ import annotations\n\nfrom collections import Counter\nfrom pathlib import Path\n\nfrom .billing import BillingLedger, render_split\nfrom .build import (\n    build_code_graph,\n    governing_adrs,\n    save_graph,\n    save_store,\n)\nfrom .ingest import ingest_adrs, ingest_rtm\nfrom .model import Graph\nfrom .repomap import repo_map\n\n_DEFAULT_LEDGER = \"docs/work/GRAPH-SPINE-KEYSTONE-billing.json\"\n\n\ndef _factories(root: Path) -> list[str]:\n    fdir = root / \"factories\"\n    if not fdir.exists():\n        return []\n    return sorted(p.name for p in fdir.iterdir()\n                  if (p / \"factory.spec.yml\").exists())\n\n\ndef build_full(root: Path, factories: list[str] | None = None) -> tuple[Graph, dict]:\n    \"\"\"Code graph + ADR GOVERNS + each factory's RTM, the one queryable spine.\"\"\"\n    graph, fragments = build_code_graph(root)\n    ingest_adrs(graph, root)\n    for slug in (factories if factories is not None else _factories(root)):\n        ingest_rtm(graph, root, slug)\n    return graph, fragments\n\n\ndef run_graph(args, root: Path) -> int:\n    root = Path(root)\n    if args.graph_cmd == \"build\":\n        factories = args.factory or None\n        graph, fragments = build_full(root, factories)\n        save_store(root, fragments)\n        save_graph(root, graph)\n        kinds = Counter(n.kind.value for n in graph.nodes)\n        ekinds = Counter(e.kind.value for e in graph.edges)\n        print(f\"VERDICT    graph build \u2014 PASS   (exit 0)\")\n        print(f\"SUMMARY    {len(graph.nodes)} nodes / {len(graph.edges)} edges \u2192 .graph/graph.json\")\n        print(\"NODES      \" + \" \u00b7 \".join(f\"{k}:{v}\" for k, v in sorted(kinds.items())))\n        print(\"EDGES      \" + \" \u00b7 \".join(f\"{k}:{v}\" for k, v in sorted(ekinds.items())))\n        return 0\n    if args.graph_cmd == \"query\":\n        graph, _ = build_full(root)\n        adrs = governing_adrs(graph, args.symbol)\n        print(f\"VERDICT    graph query \u2014 PASS   (exit 0)\")\n        print(f\"SUMMARY    ADR(s) governing {args.symbol}: {', '.join(adrs) or '(none)'}\")\n        return 0\n    if args.graph_cmd == \"repomap\":\n        graph, _ = build_full(root)\n        print(repo_map(graph, budget_chars=args.budget))\n        return 0\n    print(f\"graph: unknown subcommand {args.graph_cmd!r}\")\n    return 2\n\n\ndef run_billing(args, root: Path) -> int:\n    root = Path(root)\n    path = Path(args.ledger) if args.ledger else root / _DEFAULT_LEDGER\n    if not path.exists():\n        print(f\"VERDICT    billing \u2014 FAIL   (exit 1)\\nSUMMARY    no such ledger {path}\")\n        return 1\n    led = BillingLedger.load(path)\n    print(render_split(led))\n    return 0\n",
+        "loc": 80,
+        "function_count": 4,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_factories",
+            "loc": 6
+          },
+          {
+            "qualname": "build_full",
+            "loc": 7
+          },
+          {
+            "qualname": "run_billing",
+            "loc": 9
+          },
+          {
+            "qualname": "run_graph",
+            "loc": 26
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "collections.Counter",
+          "metafactory.graph.billing.BillingLedger",
+          "metafactory.graph.billing.render_split",
+          "metafactory.graph.build.build_code_graph",
+          "metafactory.graph.build.governing_adrs",
+          "metafactory.graph.build.save_graph",
+          "metafactory.graph.build.save_store",
+          "metafactory.graph.ingest.ingest_adrs",
+          "metafactory.graph.ingest.ingest_rtm",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.repomap.repo_map",
+          "pathlib.Path"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/doc_graph.py",
+        "source": "\"\"\"doc_graph \u2014 ADR-026 Fase F1 (DOC-GRAPH-LIVENESS): fold the doc corpus into the project graph as Doc\nnodes + `CITES` (Doc -> Doc) / `EVIDENCES` (Doc -> File/Artifact) edges, so \"is this doc still\nreferenced?\" is a graph query, not a literal grep (a literal grep produced a FALSE orphan for\n`PLAN-EXECUTE-RUNBOOK.md`, cited bare \u2014 no `.md`, no backticks \u2014 from `cli.py:1104`).\n\nScope boundary (read before touching `evidence_liveness`): the MANDATORY tooth gates ONLY CITES-shaped\ntokens (`.md` paths and bare `ADR-NNN`) found in LIVING (non-exempt) docs. `EVIDENCES` targets (arbitrary\ncode/proof paths a doc mentions) are recorded when they happen to exist, but their ABSENCE is NEVER\ngated \u2014 many are legitimately ephemeral/gitignored (`.proof/`, `.gen/`, build output); gating them would\nmanufacture false reds unrelated to doc rot.\n\nRobust ID matching (`ingest_doc_edges`): a doc may be cited by its full path, path-minus-`.md`, bare\nbasename, or (for ADRs) `ADR-NNN` \u2014 resolution tries each in a deterministic order, falling back to\nfilesystem existence and a repo-wide basename search before giving up.\n\"\"\"\nfrom __future__ import annotations\n\nimport os\nimport posixpath\nimport re\nimport subprocess\nfrom pathlib import Path, PurePosixPath\n\nfrom .. import docs_manifest\nfrom .model import Edge, EdgeKind, Graph, Node, NodeKind\n\n_SKIP_DIRS = {\".git\", \"__pycache__\", \"node_modules\", \"dist\", \".proof\", \".gen\", \".graph\", \".pytest_cache\"}\n_ASF_DIRNAME = \"Agent_Systems_Factory\"\n\n# Same one-liner `ingest.py` uses for ADR filenames \u2014 duplicated locally (that name is private there).\n_ADR_FILE_RE = re.compile(r\"^(\\d{1,4})-\")\n\n_MD_LINK_RE = re.compile(r\"\\]\\(([^)\\s#]+\\.md)(?:#[^)]*)?\\)\")\n_MD_BACKTICK_RE = re.compile(r\"`([^`\\s]+\\.md)`\")\n_ADR_CITE_RE = re.compile(r\"(?<!ASF/)\\bADR-0*(\\d{1,4})\\b\")\n\n_CERRADO_RE = re.compile(r\"(?:Estado|Status):\\s*\\*\\*(?:CERRADO|CLOSED)\\*\\*\")\n_ABIERTO_RE = re.compile(r\"(?:Estado|Status):\\s*\\*\\*(?:ABIERTO|OPEN)\\*\\*\")\n\n_BAD_CHARS = \"*<>~\u2026\"\n_BAD_DOTDOT_RE = re.compile(r\"\\.\\.(?!/)\")\n\n\n# \u2500\u2500 Doc node ingestion \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef ingest_docs(graph: Graph, repo_root: Path) -> int:\n    \"\"\"One Doc node per doc in `docs_manifest.doc_homes()` x `doc_set()` (reuse, single source \u2014 do not\n    re-glob). attrs: relpath (POSIX, repo-relative), last_edit (`git log -1 --format=%cI -- <path>`,\n    cwd=repo_root; \"\" if the command fails or is empty \u2014 never raise), exempt (bool, see `is_exempt`).\n    Returns the count of Doc nodes added.\"\"\"\n    repo_root = Path(repo_root)\n    n = 0\n    for home in docs_manifest.doc_homes(repo_root):\n        is_meta = home == repo_root\n        for d in docs_manifest.doc_set(home, meta_extras=is_meta):\n            rel = d.relative_to(repo_root).as_posix()\n            text = d.read_text(encoding=\"utf-8\")\n            body = docs_manifest.split_seal(text)[1]\n            attrs = {\n                \"relpath\": rel,\n                \"last_edit\": _last_edit(repo_root, rel),\n                \"exempt\": is_exempt(rel, body),\n            }\n            graph.add_node(Node.make(NodeKind.DOC, rel, rel, attrs))\n            n += 1\n    return n\n\n\ndef _last_edit(repo_root: Path, rel: str) -> str:\n    try:\n        out = subprocess.run(\n            [\"git\", \"log\", \"-1\", \"--format=%cI\", \"--\", rel],\n            cwd=repo_root, capture_output=True, text=True,\n        )\n    except OSError:\n        return \"\"\n    if out.returncode != 0:\n        return \"\"\n    return out.stdout.strip()\n\n\ndef is_exempt(relpath: str, body: str) -> bool:\n    \"\"\"A doc is exempt from `evidence_liveness` (LIVING docs must resolve; these three classes don't):\n    (a) `\"decisions\"` is a path part (immutable ADRs), (b) basename == \"LOG.md\" (append-only), (c) a\n    `\"work\"` path part AND `body` matches the dual-accept closed grammar (English-forward\n    `Status: **CLOSED**` OR legacy Spanish `Estado: **CERRADO**`, ADR-026 \u2014 closed increment, frozen).\"\"\"\n    p = PurePosixPath(relpath)\n    if \"decisions\" in p.parts:\n        return True\n    if p.name == \"LOG.md\":\n        return True\n    if \"work\" in p.parts and _CERRADO_RE.search(body):\n        return True\n    return False\n\n\n# \u2500\u2500 extraction \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef _dropped(tok: str) -> bool:\n    if any(c in tok for c in _BAD_CHARS):\n        return True\n    if _BAD_DOTDOT_RE.search(tok):\n        return True\n    return False\n\n\ndef extract_refs(body: str) -> list[tuple[str, str]]:\n    \"\"\"Pure regex extraction, no filesystem access. Returns (kind, token) pairs, kind in {\"md\", \"adr\"}:\n    - \"md\": every markdown-link target ending `.md` AND every backtick-wrapped token ending `.md`.\n    - \"adr\": every bare `ADR-NNN` NOT preceded by `ASF/` (`ASF/ADR-NNN` cites the sibling\n      Agent_Systems_Factory repo's OWN decisions \u2014 out of scope, never extracted at all).\n    A token (either kind) is DROPPED (never yielded) if it contains any of `*`, `<`, `>`, `~`, the\n    unicode ellipsis `\u2026`, OR a mid-token `..` not immediately followed by `/` (glob/placeholder prose\n    like `docs/*.md`, `work/<incremento>.md`, `S0..S15-INCREMENT.md`; a genuine `../` parent-relative\n    path like `../INDEX.md` must still be YIELDED \u2014 only bare mid-token `..` ranges are placeholder noise).\"\"\"\n    refs: list[tuple[str, str]] = []\n    for m in _MD_LINK_RE.finditer(body):\n        tok = m.group(1)\n        if not _dropped(tok):\n            refs.append((\"md\", tok))\n    for m in _MD_BACKTICK_RE.finditer(body):\n        tok = m.group(1)\n        if not _dropped(tok):\n            refs.append((\"md\", tok))\n    for m in _ADR_CITE_RE.finditer(body):\n        tok = m.group(1)\n        if not _dropped(tok):\n            refs.append((\"adr\", tok))\n    return refs\n\n\n# \u2500\u2500 ADR decisions table \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef _decisions_table(repo_root: Path) -> dict[int, str]:\n    \"\"\"{adr_num: relpath} from `docs/decisions/*.md` filenames matching `^(\\\\d{1,4})-` (same regex\n    `ingest.py` uses for ADR ingestion \u2014 duplicated locally, `_ADR_FILE_RE`).\"\"\"\n    repo_root = Path(repo_root)\n    decisions_dir = repo_root / \"docs\" / \"decisions\"\n    table: dict[int, str] = {}\n    if not decisions_dir.is_dir():\n        return table\n    for md in sorted(decisions_dir.glob(\"*.md\")):\n        m = _ADR_FILE_RE.match(md.name)\n        if not m:\n            continue\n        table[int(m.group(1))] = md.relative_to(repo_root).as_posix()\n    return table\n\n\n# \u2500\u2500 edge resolution \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef _lookup_table(doc_nodes: list[Node]) -> dict[str, str]:\n    \"\"\"{relpath, relpath-minus-.md, basename, basename-minus-.md} -> doc node id, first (sorted-id) wins.\"\"\"\n    table: dict[str, str] = {}\n    for n in doc_nodes:\n        rel = n.attrs[\"relpath\"]\n        base = PurePosixPath(rel).name\n        for key in (rel, _strip_md(rel), base, _strip_md(base)):\n            table.setdefault(key, n.id)\n    return table\n\n\ndef _strip_md(s: str) -> str:\n    return s[:-3] if s.endswith(\".md\") else s\n\n\ndef _rel_str(path: Path, repo_root: Path) -> str:\n    \"\"\"A stable, repo-relative-ish POSIX label for a resolved filesystem path (works for the ASF\n    sibling too, via `os.path.relpath`, e.g. `../Agent_Systems_Factory/.claude/agents/x.md`).\"\"\"\n    try:\n        return path.resolve().relative_to(repo_root.resolve()).as_posix()\n    except ValueError:\n        return Path(os.path.relpath(path.resolve(), repo_root.resolve())).as_posix()\n\n\ndef _fs_hit(path: Path, repo_root: Path, graph: Graph) -> tuple[str, bool]:\n    rel = _rel_str(path, repo_root)\n    doc_id = f\"{NodeKind.DOC.value}:{rel}\"\n    if graph.node(doc_id) is not None:\n        return doc_id, True\n    return rel, False\n\n\ndef _resolve_md(tok: str, citing_dir: PurePosixPath, lookup: dict[str, str],\n                 repo_root: Path, asf_root: Path, graph: Graph) -> tuple[str, bool] | None:\n    joined = posixpath.normpath(posixpath.join(str(citing_dir), tok))\n    for candidate in (joined, tok, PurePosixPath(tok).name):\n        hit = lookup.get(candidate)\n        if hit:\n            return hit, True\n\n    fs_candidates = [repo_root / citing_dir / tok, repo_root / tok, asf_root / tok]\n    for c in fs_candidates:\n        if c.is_file():\n            return _fs_hit(c, repo_root, graph)\n\n    basename = PurePosixPath(tok).name\n    for root in (repo_root, asf_root):\n        if not root.is_dir():\n            continue\n        matches = sorted(\n            p for p in root.rglob(basename)\n            if not (set(p.relative_to(root).parts) & _SKIP_DIRS)\n        )\n        if matches:\n            return _fs_hit(matches[0], repo_root, graph)\n    return None\n\n\ndef ingest_doc_edges(graph: Graph, repo_root: Path) -> tuple[int, int, list[tuple[str, str]]]:\n    \"\"\"For every Doc node (sorted by id, deterministic), read its body (`docs_manifest.split_seal`), run\n    `extract_refs`, and resolve each token \u2014 see the module docstring for the resolution order. Returns\n    `(n_cites, n_evidences, unresolved)`. `unresolved` is the SOLE input `evidence_liveness` reads \u2014 the\n    gate must NOT re-implement extraction/resolution, it must call this function and filter by\n    `graph.node(f\"{NodeKind.DOC.value}:{rel}\").attrs[\"exempt\"]`.\"\"\"\n    repo_root = Path(repo_root)\n    asf_root = repo_root.parent / _ASF_DIRNAME\n    decisions = _decisions_table(repo_root)\n    doc_nodes = sorted(graph.nodes_of(NodeKind.DOC), key=lambda n: n.id)\n    lookup = _lookup_table(doc_nodes)\n\n    n_cites = 0\n    n_evidences = 0\n    unresolved: list[tuple[str, str]] = []\n\n    for doc in doc_nodes:\n        rel = doc.attrs[\"relpath\"]\n        path = repo_root / rel\n        if not path.is_file():\n            continue\n        text = path.read_text(encoding=\"utf-8\")\n        body = docs_manifest.split_seal(text)[1]\n        citing_dir = PurePosixPath(rel).parent\n\n        for kind, tok in extract_refs(body):\n            if kind == \"md\":\n                hit = _resolve_md(tok, citing_dir, lookup, repo_root, asf_root, graph)\n                if hit is None:\n                    unresolved.append((rel, tok))\n                    continue\n                hit_id, is_doc = hit\n                if is_doc:\n                    graph.add_edge(Edge(doc.id, hit_id, EdgeKind.CITES))\n                    n_cites += 1\n                else:\n                    file_id = f\"{NodeKind.FILE.value}:{hit_id}\"\n                    if graph.node(file_id) is not None:\n                        art_id = file_id\n                    else:\n                        art_node = Node.make(NodeKind.ARTIFACT, hit_id, hit_id, {\"exists\": True})\n                        graph.add_node(art_node)\n                        art_id = art_node.id\n                    graph.add_edge(Edge(doc.id, art_id, EdgeKind.EVIDENCES))\n                    n_evidences += 1\n            else:  # \"adr\"\n                num = int(tok)\n                dec_rel = decisions.get(num)\n                dec_doc_id = f\"{NodeKind.DOC.value}:{dec_rel}\" if dec_rel else None\n                if dec_doc_id and graph.node(dec_doc_id) is not None:\n                    graph.add_edge(Edge(doc.id, dec_doc_id, EdgeKind.CITES))\n                    n_cites += 1\n                else:\n                    unresolved.append((rel, f\"ADR-{tok}\"))\n    return n_cites, n_evidences, unresolved\n\n\n# \u2500\u2500 liveness (reachability) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef live_roots(graph: Graph, repo_root: Path) -> set[str]:\n    \"\"\"Doc node ids considered inherently live: `docs/STATE.md` of every `doc_homes()` home + `CLAUDE.md`\n    of every home that has one + any Doc whose body matches the dual-accept open grammar (English-forward\n    `Status: **OPEN**` OR legacy Spanish `Estado: **ABIERTO**`, ADR-026 \u2014 an open increment).\"\"\"\n    repo_root = Path(repo_root)\n    roots: set[str] = set()\n    for home in docs_manifest.doc_homes(repo_root):\n        state = home / \"docs\" / \"STATE.md\"\n        if state.is_file():\n            roots.add(f\"{NodeKind.DOC.value}:{state.relative_to(repo_root).as_posix()}\")\n        claude = home / \"CLAUDE.md\"\n        if claude.is_file():\n            roots.add(f\"{NodeKind.DOC.value}:{claude.relative_to(repo_root).as_posix()}\")\n    for doc in graph.nodes_of(NodeKind.DOC):\n        rel = doc.attrs.get(\"relpath\", \"\")\n        path = repo_root / rel\n        if not path.is_file():\n            continue\n        body = docs_manifest.split_seal(path.read_text(encoding=\"utf-8\"))[1]\n        if _ABIERTO_RE.search(body):\n            roots.add(doc.id)\n    return roots\n\n\ndef reachable_docs(graph: Graph, repo_root: Path) -> set[str]:\n    \"\"\"Forward BFS over CITES edges (Doc -> Doc only) from `live_roots()`, returns the closure INCLUDING\n    the roots themselves. Bounded fixed-point loop (a few hundred nodes, no external library needed).\"\"\"\n    seen = set(live_roots(graph, repo_root))\n    frontier = list(seen)\n    while frontier:\n        nxt: list[str] = []\n        for nid in frontier:\n            for e in graph.out_edges(nid, EdgeKind.CITES):\n                if e.dst not in seen:\n                    seen.add(e.dst)\n                    nxt.append(e.dst)\n        frontier = nxt\n    return seen\n\n\ndef orphan_docs(graph: Graph, repo_root: Path) -> list[dict]:\n    \"\"\"Every Doc node whose id is NOT in `reachable_docs()`, as `{\"relpath\": ..., \"last_edit\": ...}`,\n    sorted by `last_edit` ascending (oldest first; unknown/empty dates sort LAST).\"\"\"\n    reachable = reachable_docs(graph, repo_root)\n    orphans = [\n        {\"relpath\": d.attrs.get(\"relpath\", \"\"), \"last_edit\": d.attrs.get(\"last_edit\", \"\")}\n        for d in graph.nodes_of(NodeKind.DOC) if d.id not in reachable\n    ]\n    orphans.sort(key=lambda o: (o[\"last_edit\"] == \"\", o[\"last_edit\"]))\n    return orphans\n",
+        "loc": 313,
+        "function_count": 15,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_decisions_table",
+            "loc": 14
+          },
+          {
+            "qualname": "_dropped",
+            "loc": 6
+          },
+          {
+            "qualname": "_fs_hit",
+            "loc": 6
+          },
+          {
+            "qualname": "_last_edit",
+            "loc": 11
+          },
+          {
+            "qualname": "_lookup_table",
+            "loc": 9
+          },
+          {
+            "qualname": "_rel_str",
+            "loc": 7
+          },
+          {
+            "qualname": "_resolve_md",
+            "loc": 24
+          },
+          {
+            "qualname": "_strip_md",
+            "loc": 2
+          },
+          {
+            "qualname": "extract_refs",
+            "loc": 23
+          },
+          {
+            "qualname": "ingest_doc_edges",
+            "loc": 55
+          },
+          {
+            "qualname": "ingest_docs",
+            "loc": 21
+          },
+          {
+            "qualname": "is_exempt",
+            "loc": 13
+          },
+          {
+            "qualname": "live_roots",
+            "loc": 22
+          },
+          {
+            "qualname": "orphan_docs",
+            "loc": 10
+          },
+          {
+            "qualname": "reachable_docs",
+            "loc": 14
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "metafactory.docs_manifest",
+          "metafactory.graph.model.Edge",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.Node",
+          "metafactory.graph.model.NodeKind",
+          "os",
+          "pathlib.Path",
+          "pathlib.PurePosixPath",
+          "posixpath",
+          "re",
+          "subprocess"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/incremental.py",
+        "source": "\"\"\"incremental \u2014 Fase 3: re-derive ONLY the file fragments whose content hash changed.\n\nEach file is a Merkle leaf (its `content_hash`, the same hash `index_file` stamps, which extends the\nsha-stamp discipline of ADR-009). A rebuild compares current leaf hashes against the stored fragments:\nan unchanged leaf REUSES its stored fragment (no AST re-parse); a changed/new leaf is the only one\nre-indexed; a vanished file drops its fragment. The expensive step (ast.parse) runs strictly for the\ndirty set, never a full re-index. The cross-file edge resolution (cheap, no parse) re-runs globally.\n\"\"\"\nfrom __future__ import annotations\n\nfrom pathlib import Path\n\nfrom .build import (\n    DEFAULT_ROOTS,\n    discover_python,\n    graph_from_fragments,\n)\nfrom .model import FileFragment, Graph, content_hash\nfrom .python_index import index_file\n\n\ndef _leaf_hash(repo_root: Path, relpath: str) -> str:\n    return content_hash((repo_root / relpath).read_text(encoding=\"utf-8\"))\n\n\ndef incremental_rebuild(\n    repo_root: Path,\n    prev: dict[str, FileFragment],\n    roots=DEFAULT_ROOTS,\n) -> tuple[Graph, dict[str, FileFragment], list[str], list[str]]:\n    \"\"\"Rebuild against a previous fragment store. Returns (graph, new_store, dirty, reused).\n\n    `dirty` = files actually re-indexed (changed or new); `reused` = files whose stored fragment was\n    kept verbatim. `len(dirty) == 1` after touching exactly one file is the proof of Fase 3.\n    \"\"\"\n    repo_root = Path(repo_root)\n    current = set(discover_python(repo_root, roots))\n    new_store: dict[str, FileFragment] = {}\n    dirty: list[str] = []\n    reused: list[str] = []\n\n    for rel in sorted(current):\n        leaf = _leaf_hash(repo_root, rel)\n        cached = prev.get(rel)\n        if cached is not None and cached.content_hash == leaf:\n            new_store[rel] = cached          # unchanged leaf -> reuse, no parse\n            reused.append(rel)\n        else:\n            new_store[rel] = index_file(repo_root, rel)   # changed/new -> the ONLY re-parse\n            dirty.append(rel)\n    # files in prev but no longer on disk are simply not carried over (dropped subgraph)\n\n    graph = graph_from_fragments(new_store)\n    return graph, new_store, dirty, reused\n",
+        "loc": 54,
+        "function_count": 2,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_leaf_hash",
+            "loc": 2
+          },
+          {
+            "qualname": "incremental_rebuild",
+            "loc": 29
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "metafactory.graph.build.DEFAULT_ROOTS",
+          "metafactory.graph.build.discover_python",
+          "metafactory.graph.build.graph_from_fragments",
+          "metafactory.graph.model.FileFragment",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.content_hash",
+          "metafactory.graph.python_index.index_file",
+          "pathlib.Path"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/ingest.py",
+        "source": "\"\"\"ingest \u2014 Fase 2: fold the graphs we ALREADY have (RTM + ADR) into the structural graph, so one\nqueryable piece carries code + requirements + decisions. No LLM: every edge is re-derived from the\nspec, `.proof/`, and a deterministic ADR-citation regex over the source we indexed.\n\nWe start ahead of the SOTA \"code-only graph\": this is where the RTM (`req\u2192capability\u2192station\u2192proof\u2192\nartifact`) and the ADR decision graph get wired onto the File/Symbol nodes.\n\nEdge semantics (documented once, here):\n  Capability --IMPLEMENTS--> Requirement      (the capability implements the requirement)\n  Artifact   --IMPLEMENTS--> Capability       (the artifact implements the capability; UNIFIES with a\n                                               File node when the artifact path is an indexed file)\n  Station    --SATISFIES--> Requirement        (req.satisfied_by)\n  Station    --VERIFIES--> Capability          (the station verifies the capability)\n  Proof      --VERIFIES--> Station             (the recompute-OK proof certifies the station)\n  Decision   --GOVERNS--> File                 (an ADR cited in the file's source governs it)\n\"\"\"\nfrom __future__ import annotations\n\nimport re\nfrom pathlib import Path\n\nfrom .model import Edge, EdgeKind, Graph, Node, NodeKind\n\n_ADR_FILE = re.compile(r\"^(\\d{1,4})-\")\n_ADR_CITE = re.compile(r\"\\bADR-0*(\\d{1,4})\\b\")\n\n\n# \u2500\u2500 ADR / Decision ingestion \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef ingest_adrs(graph: Graph, repo_root: Path) -> int:\n    \"\"\"Create a Decision node per `docs/decisions/NNN-*.md`, then GOVERNS edges from every indexed File\n    whose source cites `ADR-NNN`. Returns the number of GOVERNS edges added.\"\"\"\n    repo_root = Path(repo_root)\n    decisions_dir = repo_root / \"docs\" / \"decisions\"\n    known: dict[int, str] = {}\n    if decisions_dir.exists():\n        for md in sorted(decisions_dir.glob(\"*.md\")):\n            m = _ADR_FILE.match(md.name)\n            if not m:\n                continue\n            num = int(m.group(1))\n            title = md.stem\n            nid = f\"{NodeKind.DECISION.value}:{num:03d}\"\n            graph.add_node(Node.make(NodeKind.DECISION, f\"{num:03d}\", title, {\"file\": md.name}))\n            known[num] = nid\n\n    added = 0\n    for fn in graph.nodes_of(NodeKind.FILE):\n        rel = fn.id.split(\":\", 1)[1]\n        src = repo_root / rel\n        if not src.exists():\n            continue\n        cited = {int(n) for n in _ADR_CITE.findall(src.read_text(encoding=\"utf-8\", errors=\"ignore\"))}\n        for num in sorted(cited):\n            dec = known.get(num)\n            if dec:\n                graph.add_edge(Edge(dec, fn.id, EdgeKind.GOVERNS))\n                added += 1\n    return added\n\n\n# \u2500\u2500 RTM (build evidence tree) ingestion \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef ingest_rtm(graph: Graph, repo_root: Path, factory_slug: str) -> int:\n    \"\"\"Ingest a factory's evidence tree (re-derived by `verify/rtm.build_tree`) as Requirement/\n    Capability/Station/Proof/Artifact nodes + edges. Returns the number of requirement nodes added.\n    An artifact whose path is an indexed File node REUSES that node (unifies code graph \u2194 RTM).\"\"\"\n    from ..engine import RunContext\n    from ..spec.loader import load_spec\n    from ..verify import rtm\n\n    repo_root = Path(repo_root)\n    factory_root = repo_root / \"factories\" / factory_slug\n    spec_path = factory_root / \"factory.spec.yml\"\n    if not spec_path.exists():\n        return 0\n    spec = load_spec(spec_path)\n    verifier = RunContext(root=factory_root, meta_root=repo_root, slug=spec.slug).verifier\n    nodes = rtm.build_tree(spec, verifier, factory_root)\n\n    factory_rel = f\"factories/{factory_slug}\"\n    n_added = 0\n    for rn in nodes:\n        req_id = _add(graph, NodeKind.REQUIREMENT, f\"{factory_slug}:{rn.rid}\", rn.rid,\n                      {\"satisfied\": rn.satisfied})\n        n_added += 1\n        cap_id = None\n        if rn.capability:\n            cap_id = _add(graph, NodeKind.CAPABILITY, f\"{factory_slug}:{rn.capability}\", rn.capability)\n            graph.add_edge(Edge(cap_id, req_id, EdgeKind.IMPLEMENTS))\n        for st in rn.stations:\n            sid = _add(graph, NodeKind.STATION, f\"{factory_slug}:{st.sid}\", st.sid)\n            graph.add_edge(Edge(sid, req_id, EdgeKind.SATISFIES))\n            if cap_id:\n                graph.add_edge(Edge(sid, cap_id, EdgeKind.VERIFIES))\n            if st.proof_open:\n                pid = _add(graph, NodeKind.PROOF, f\"{factory_slug}:{st.sid}\", f\"proof:{st.sid}\",\n                           {\"sha\": st.sha})\n                graph.add_edge(Edge(pid, sid, EdgeKind.VERIFIES))\n        for art in rn.artifacts:\n            file_id = f\"{NodeKind.FILE.value}:{factory_rel}/{art.path}\"\n            if graph.node(file_id) is not None:\n                art_id = file_id                              # UNIFY: reuse the indexed File node\n            else:\n                art_id = _add(graph, NodeKind.ARTIFACT, f\"{factory_slug}:{art.path}\", art.path,\n                              {\"exists\": art.exists})\n            if cap_id:\n                graph.add_edge(Edge(art_id, cap_id, EdgeKind.IMPLEMENTS))\n    return n_added\n\n\ndef _add(graph: Graph, kind: NodeKind, key: str, name: str, attrs: dict | None = None) -> str:\n    node = Node.make(kind, key, name, attrs)\n    graph.add_node(node)\n    return node.id\n",
+        "loc": 113,
+        "function_count": 3,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "_add",
+            "loc": 4
+          },
+          {
+            "qualname": "ingest_adrs",
+            "loc": 30
+          },
+          {
+            "qualname": "ingest_rtm",
+            "loc": 46
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "metafactory.graph.model.Edge",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.Node",
+          "metafactory.graph.model.NodeKind",
+          "pathlib.Path",
+          "re"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/model.py",
+        "source": "\"\"\"model \u2014 the content-addressed graph: Node/Edge/Graph + FileFragment + traversal + JSON serde.\n\nA node's id IS its content address: a deterministic string derived from its identity (kind + canonical\nkey), so re-deriving the same code/spec yields byte-identical ids (the property that lets the store be\ndiffed and the rebuild be incremental). A node ALSO carries `content_hash` \u2014 a hash of its semantic\npayload \u2014 so a changed node is detectable without re-reading the whole graph (the Merkle leaf, Fase 3).\n\nEdges are directed and typed (EdgeKind). `Graph` keeps forward + reverse adjacency so a traversal can\nstep along an edge in either direction (the 2-hop query mixes one forward + one reverse hop, e.g.\nsymbol --DEFINED_IN--> file <--GOVERNS-- ADR = \"which ADR governs this symbol\", no LLM).\n\"\"\"\nfrom __future__ import annotations\n\nimport hashlib\nimport json\nfrom collections import defaultdict\nfrom dataclasses import dataclass, field\nfrom enum import Enum\n\n\nclass NodeKind(str, Enum):\n    FILE = \"File\"\n    SYMBOL = \"Symbol\"\n    REQUIREMENT = \"Requirement\"\n    CAPABILITY = \"Capability\"\n    STATION = \"Station\"\n    PROOF = \"Proof\"\n    ARTIFACT = \"Artifact\"\n    DECISION = \"Decision\"   # an ADR\n    DOC = \"Doc\"              # a docs/**.md (or CLAUDE.md) node (ADR-026 F1, DOC-GRAPH-LIVENESS)\n\n\nclass EdgeKind(str, Enum):\n    DEFINED_IN = \"DEFINED_IN\"   # Symbol -> File\n    IMPORTS = \"IMPORTS\"         # File -> File\n    CALLS = \"CALLS\"             # Symbol -> Symbol\n    IMPLEMENTS = \"IMPLEMENTS\"   # Capability -> Requirement ; Artifact -> Capability\n    VERIFIES = \"VERIFIES\"       # Station -> Capability ; Proof -> Station\n    SATISFIES = \"SATISFIES\"     # Station -> Requirement\n    GOVERNS = \"GOVERNS\"         # Decision(ADR) -> File\n    SUPERSEDES = \"SUPERSEDES\"   # Decision -> Decision (reserved; ingested when declared)\n    GENERATES = \"GENERATES\"     # Station -> Artifact (reserved; the generate slot)\n    CITES = \"CITES\"             # Doc -> Doc (a doc references another doc; robust ID matching)\n    EVIDENCES = \"EVIDENCES\"     # Doc -> File/Artifact (a doc references a concrete non-doc artifact; best-effort)\n\n\ndef content_hash(payload: object) -> str:\n    \"\"\"A stable 16-hex content hash of any JSON-able payload (canonical, sorted keys).\"\"\"\n    blob = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(\",\", \":\"))\n    return hashlib.sha256(blob.encode(\"utf-8\")).hexdigest()[:16]\n\n\n@dataclass(frozen=True)\nclass Node:\n    id: str\n    kind: NodeKind\n    name: str\n    attrs: dict = field(default_factory=dict)\n    content_hash: str = \"\"\n\n    @staticmethod\n    def make(kind: NodeKind, key: str, name: str, attrs: dict | None = None) -> \"Node\":\n        \"\"\"Build a node whose id is content-addressed (`kind:key`) and whose content_hash covers\n        its semantic payload (name + attrs). Same identity + same payload => byte-identical node.\"\"\"\n        attrs = dict(attrs or {})\n        nid = f\"{kind.value}:{key}\"\n        ch = content_hash({\"id\": nid, \"name\": name, \"attrs\": attrs})\n        return Node(id=nid, kind=kind, name=name, attrs=attrs, content_hash=ch)\n\n    def to_dict(self) -> dict:\n        return {\"id\": self.id, \"kind\": self.kind.value, \"name\": self.name,\n                \"attrs\": self.attrs, \"content_hash\": self.content_hash}\n\n    @staticmethod\n    def from_dict(d: dict) -> \"Node\":\n        return Node(id=d[\"id\"], kind=NodeKind(d[\"kind\"]), name=d[\"name\"],\n                    attrs=dict(d.get(\"attrs\") or {}), content_hash=d.get(\"content_hash\", \"\"))\n\n\n@dataclass(frozen=True)\nclass Edge:\n    src: str\n    dst: str\n    kind: EdgeKind\n\n    def to_dict(self) -> dict:\n        return {\"src\": self.src, \"dst\": self.dst, \"kind\": self.kind.value}\n\n    @staticmethod\n    def from_dict(d: dict) -> \"Edge\":\n        return Edge(src=d[\"src\"], dst=d[\"dst\"], kind=EdgeKind(d[\"kind\"]))\n\n\n@dataclass\nclass FileFragment:\n    \"\"\"The structural subgraph derived from ONE source file: the unit of incrementality (Fase 3).\n    `content_hash` is the file's leaf hash; if it is unchanged the fragment is reused, not re-parsed.\"\"\"\n    relpath: str\n    content_hash: str\n    nodes: list[Node] = field(default_factory=list)\n    edges: list[Edge] = field(default_factory=list)\n\n    def to_dict(self) -> dict:\n        return {\"relpath\": self.relpath, \"content_hash\": self.content_hash,\n                \"nodes\": [n.to_dict() for n in self.nodes],\n                \"edges\": [e.to_dict() for e in self.edges]}\n\n    @staticmethod\n    def from_dict(d: dict) -> \"FileFragment\":\n        return FileFragment(relpath=d[\"relpath\"], content_hash=d[\"content_hash\"],\n                            nodes=[Node.from_dict(n) for n in d.get(\"nodes\", [])],\n                            edges=[Edge.from_dict(e) for e in d.get(\"edges\", [])])\n\n\nclass Graph:\n    \"\"\"A content-addressed multigraph. Nodes are keyed by id (last write wins on identical id, which\n    is fine: identical id => identical content by construction). Edges are de-duplicated on (src,dst,kind).\"\"\"\n\n    def __init__(self) -> None:\n        self._nodes: dict[str, Node] = {}\n        self._edges: set[tuple[str, str, str]] = set()\n        self._out: dict[str, list[Edge]] = defaultdict(list)\n        self._in: dict[str, list[Edge]] = defaultdict(list)\n\n    # \u2500\u2500 mutation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def add_node(self, node: Node) -> None:\n        self._nodes[node.id] = node\n\n    def add_edge(self, edge: Edge) -> None:\n        key = (edge.src, edge.dst, edge.kind.value)\n        if key in self._edges:\n            return\n        self._edges.add(key)\n        self._out[edge.src].append(edge)\n        self._in[edge.dst].append(edge)\n\n    def add_fragment(self, frag: FileFragment) -> None:\n        for n in frag.nodes:\n            self.add_node(n)\n        for e in frag.edges:\n            self.add_edge(e)\n\n    # \u2500\u2500 access \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def node(self, nid: str) -> Node | None:\n        return self._nodes.get(nid)\n\n    @property\n    def nodes(self) -> list[Node]:\n        return list(self._nodes.values())\n\n    @property\n    def edges(self) -> list[Edge]:\n        return [Edge(s, d, EdgeKind(k)) for (s, d, k) in sorted(self._edges)]\n\n    def nodes_of(self, kind: NodeKind) -> list[Node]:\n        return [n for n in self._nodes.values() if n.kind == kind]\n\n    def out_edges(self, nid: str, kind: EdgeKind | None = None) -> list[Edge]:\n        return [e for e in self._out.get(nid, []) if kind is None or e.kind == kind]\n\n    def in_edges(self, nid: str, kind: EdgeKind | None = None) -> list[Edge]:\n        return [e for e in self._in.get(nid, []) if kind is None or e.kind == kind]\n\n    # \u2500\u2500 traversal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def step(self, nid: str, kind: EdgeKind, *, forward: bool) -> list[str]:\n        \"\"\"One hop along `kind`. forward => follow src->dst from nid; reverse => dst->src into nid.\"\"\"\n        if forward:\n            return [e.dst for e in self.out_edges(nid, kind)]\n        return [e.src for e in self.in_edges(nid, kind)]\n\n    def reachable(self, start: str, steps: list[tuple[EdgeKind, bool]]) -> list[str]:\n        \"\"\"Follow an ordered list of (edge_kind, forward?) hops from `start`; return the node ids\n        reached after the LAST hop (deduped, sorted). This IS the no-LLM multi-hop query primitive.\"\"\"\n        frontier = [start]\n        for kind, forward in steps:\n            nxt: list[str] = []\n            for nid in frontier:\n                nxt.extend(self.step(nid, kind, forward=forward))\n            frontier = nxt\n        return sorted(set(frontier))\n\n    # \u2500\u2500 serde \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def to_dict(self) -> dict:\n        return {\"nodes\": [n.to_dict() for n in sorted(self._nodes.values(), key=lambda n: n.id)],\n                \"edges\": [e.to_dict() for e in self.edges]}\n\n    def to_json(self) -> str:\n        return json.dumps(self.to_dict(), indent=2, ensure_ascii=False) + \"\\n\"\n\n    @staticmethod\n    def from_dict(d: dict) -> \"Graph\":\n        g = Graph()\n        for nd in d.get(\"nodes\", []):\n            g.add_node(Node.from_dict(nd))\n        for ed in d.get(\"edges\", []):\n            g.add_edge(Edge.from_dict(ed))\n        return g\n\n    @staticmethod\n    def from_json(text: str) -> \"Graph\":\n        return Graph.from_dict(json.loads(text))\n",
+        "loc": 201,
+        "function_count": 24,
+        "class_count": 6,
+        "per_function_loc": [
+          {
+            "qualname": "Edge.from_dict",
+            "loc": 2
+          },
+          {
+            "qualname": "Edge.to_dict",
+            "loc": 2
+          },
+          {
+            "qualname": "FileFragment.from_dict",
+            "loc": 4
+          },
+          {
+            "qualname": "FileFragment.to_dict",
+            "loc": 4
+          },
+          {
+            "qualname": "Graph.__init__",
+            "loc": 5
+          },
+          {
+            "qualname": "Graph.add_edge",
+            "loc": 7
+          },
+          {
+            "qualname": "Graph.add_fragment",
+            "loc": 5
+          },
+          {
+            "qualname": "Graph.add_node",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.edges",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.from_dict",
+            "loc": 7
+          },
+          {
+            "qualname": "Graph.from_json",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.in_edges",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.node",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.nodes",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.nodes_of",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.out_edges",
+            "loc": 2
+          },
+          {
+            "qualname": "Graph.reachable",
+            "loc": 10
+          },
+          {
+            "qualname": "Graph.step",
+            "loc": 5
+          },
+          {
+            "qualname": "Graph.to_dict",
+            "loc": 3
+          },
+          {
+            "qualname": "Graph.to_json",
+            "loc": 2
+          },
+          {
+            "qualname": "Node.from_dict",
+            "loc": 3
+          },
+          {
+            "qualname": "Node.make",
+            "loc": 7
+          },
+          {
+            "qualname": "Node.to_dict",
+            "loc": 3
+          },
+          {
+            "qualname": "content_hash",
+            "loc": 4
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "collections.defaultdict",
+          "dataclasses.dataclass",
+          "dataclasses.field",
+          "enum.Enum",
+          "hashlib",
+          "json"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/pbt_properties.py",
+        "source": "\"\"\"pbt_properties \u2014 property-based tests over the project-spine graph (ADR-017 \u00a72, Fase 2 dogfood).\n\nCONTRACT (this is the slot's typed interface; bodies are delegated). A tiny stdlib property-based runner\n(0 deps, fixed seed \u2192 deterministic & re-derivable, I-3) asserts PROPERTIES of the Fase-1 graph over many\nrandomly generated small Python projects:\n\n  P1  incremental \u2261 full : after building a project's graph, touching one file and running\n                           `incremental_rebuild` yields a graph byte-identical (same `to_json`) to a fresh\n                           full `build_code_graph` of the new tree.\n  P2  serde round-trip   : `Graph.from_json(g.to_json()).to_json() == g.to_json()`.\n\nTwo-sided teeth: each property takes `sabotage: bool`. Under sabotage it perturbs the RESULT of the\ncode-under-test (drops one edge/node) BEFORE comparing, so a real regression in incrementality/serde would be\ncaught \u2192 the property MUST report a counterexample. `pbt_gate` runs the suite once clean (must pass) and once\nunder `METAFACTORY_PBT_SABOTAGE=1` (must fail), proving the property exercises the code, not just runs.\n\"\"\"\nfrom __future__ import annotations\n\nimport os\nimport random\nimport shutil\nimport sys\nimport tempfile\nfrom pathlib import Path\n\nSEED = 1729        # fixed \u2192 randomized exploration, reproducible verdict (I-3, re-derivable)\nTRIALS = 20\n\n\ndef random_project(rng: random.Random, root) -> list[str]:\n    \"\"\"Write a random but VALID small multi-file Python project under `root/src/pkg/` (a handful of modules\n    with a few functions, some importing/calling each other). Return the list of rel paths written.\"\"\"\n    root = Path(root)\n    pkg = root / \"src\" / \"pkg\"\n    pkg.mkdir(parents=True, exist_ok=True)\n\n    n_modules = rng.randint(2, 4)\n    rel_paths: list[str] = []\n\n    # __init__.py makes it a package (required for intra-package imports)\n    (pkg / \"__init__.py\").write_text(\"# pkg\\n\", encoding=\"utf-8\")\n    rel_paths.append(\"src/pkg/__init__.py\")\n\n    for i in range(n_modules):\n        lines: list[str] = []\n        if i > 0:\n            # Import the previous module \u2192 graph will have an IMPORTS edge\n            lines.append(f\"from pkg import mod{i - 1}\")\n            lines.append(\"\")\n\n        n_funcs = rng.randint(1, 3)\n        for j in range(n_funcs):\n            lines.append(f\"def func_{i}_{j}(x):\")\n            if i > 0 and j == 0:\n                # Call a function from the previous module \u2192 graph will have a CALLS edge\n                lines.append(f\"    return mod{i - 1}.func_{i - 1}_0(x) + 1\")\n            else:\n                lines.append(f\"    return x + {j}\")\n            lines.append(\"\")\n\n        (pkg / f\"mod{i}.py\").write_text(\"\\n\".join(lines), encoding=\"utf-8\")\n        rel_paths.append(f\"src/pkg/mod{i}.py\")\n\n    return rel_paths\n\n\ndef prop_incremental_equals_full(rng: random.Random, *, sabotage: bool = False) -> str | None:\n    \"\"\"P1. Build full, then touch one file and `incremental_rebuild`; the incremental graph's `to_json`\n    must equal a fresh full build's `to_json`. Return None if it holds, else a counterexample string.\n    Under `sabotage`, drop one edge from the incremental graph before comparing \u2192 must return a counterexample.\"\"\"\n    from metafactory.graph.build import build_code_graph\n    from metafactory.graph.incremental import incremental_rebuild\n\n    tmp = Path(tempfile.mkdtemp())\n    try:\n        random_project(rng, tmp)\n\n        # Full initial build to obtain the fragment store\n        _g_initial, store = build_code_graph(tmp, roots=(\"src\",))\n\n        # Touch one existing file (append a blank line so its content_hash changes)\n        rel_paths = sorted(store.keys())\n        touched = rng.choice(rel_paths)\n        with (tmp / touched).open(\"a\", encoding=\"utf-8\") as f:\n            f.write(\"\\n\")\n\n        # Incremental rebuild \u2014 should only re-parse the touched file\n        g_inc, _, _, _ = incremental_rebuild(tmp, store, roots=(\"src\",))\n\n        # Under sabotage: drop one edge from g_inc's internal set so the comparison fails\n        if sabotage and g_inc._edges:\n            g_inc._edges.pop()\n\n        # Fresh full build of the now-modified tree \u2014 ground truth\n        g_fresh, _ = build_code_graph(tmp, roots=(\"src\",))\n\n        if g_inc.to_json() != g_fresh.to_json():\n            return f\"incremental != full after touching {touched!r}\"\n        return None\n    finally:\n        shutil.rmtree(tmp, ignore_errors=True)\n\n\ndef prop_serde_roundtrip(rng: random.Random, *, sabotage: bool = False) -> str | None:\n    \"\"\"P2. `Graph.from_json(g.to_json()).to_json()` must equal `g.to_json()`. Return None if it holds, else a\n    counterexample. Under `sabotage`, drop one node from the reloaded graph before comparing \u2192 must return one.\"\"\"\n    from metafactory.graph.build import build_code_graph\n    from metafactory.graph.model import Graph\n\n    tmp = Path(tempfile.mkdtemp())\n    try:\n        random_project(rng, tmp)\n        g, _ = build_code_graph(tmp, roots=(\"src\",))\n\n        reloaded = Graph.from_json(g.to_json())\n\n        # Under sabotage: drop one node from the reloaded graph so the comparison fails\n        if sabotage and reloaded._nodes:\n            key = next(iter(reloaded._nodes))\n            del reloaded._nodes[key]\n\n        if reloaded.to_json() != g.to_json():\n            return \"reloaded.to_json() != original.to_json()\"\n        return None\n    finally:\n        shutil.rmtree(tmp, ignore_errors=True)\n\n\ndef run_property(name: str, prop, rng: random.Random, trials: int, *, sabotage: bool) -> str | None:\n    \"\"\"Run `prop(rng, sabotage=...)` up to `trials` times. Return None if it holds every trial, else the\n    first counterexample string (prefixed with `name`).\"\"\"\n    for _ in range(trials):\n        result = prop(rng, sabotage=sabotage)\n        if result is not None:\n            return f\"{name}: {result}\"\n    return None\n\n\ndef run_all(seed: int = SEED, trials: int = TRIALS, *, sabotage: bool | None = None) -> int:\n    \"\"\"Run every property `trials` times with a fresh `random.Random(seed)`. Return 0 iff all hold; on the\n    first counterexample print it and return 1. `sabotage` defaults to env `METAFACTORY_PBT_SABOTAGE` == '1'.\"\"\"\n    if sabotage is None:\n        sabotage = os.environ.get(\"METAFACTORY_PBT_SABOTAGE\") == \"1\"\n\n    rng = random.Random(seed)\n\n    for name, prop in [\n        (\"prop_incremental_equals_full\", prop_incremental_equals_full),\n        (\"prop_serde_roundtrip\", prop_serde_roundtrip),\n    ]:\n        result = run_property(name, prop, rng, trials, sabotage=sabotage)\n        if result is not None:\n            print(result)\n            return 1\n    return 0\n\n\ndef main(argv: list[str]) -> int:\n    return run_all()\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main(sys.argv[1:]))\n",
+        "loc": 163,
+        "function_count": 6,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "main",
+            "loc": 2
+          },
+          {
+            "qualname": "prop_incremental_equals_full",
+            "loc": 35
+          },
+          {
+            "qualname": "prop_serde_roundtrip",
+            "loc": 23
+          },
+          {
+            "qualname": "random_project",
+            "loc": 35
+          },
+          {
+            "qualname": "run_all",
+            "loc": 17
+          },
+          {
+            "qualname": "run_property",
+            "loc": 8
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "os",
+          "pathlib.Path",
+          "random",
+          "shutil",
+          "sys",
+          "tempfile"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/pricing.py",
+        "source": "\"\"\"pricing \u2014 the SINGLE-SOURCE, dated 5-column price table (ADR-021 \u00a71.2, PRICING-LEDGER INC-1).\n\nEvery other module that needs a USD number (the billing ledger, the metrics rollup, the cost report)\nderives from `PRICING` here \u2014 no second table, no drift. Previously `memory/metrics.py` carried its own\nstale 2-column table (opus 15/75, an Opus-4.1-era number, 3x over the real Opus price); this module is\nthe fix: one dated table, everything else derives.\n\nHonest modeling law: the OTLP usage stream reports ONE untagged `cache_creation_input_tokens` count per\nmessage \u2014 it does NOT tell us whether that write requested a 5-minute or 1-hour TTL. So `cache_creation`\nis priced at `write_5m` by DEFAULT; `write_1h` only applies when the caller explicitly says `cache_ttl=\n\"1h\"` (e.g. a known long-lived cache configuration). `write_1h` is DATA for the \u00a72.3 what-if analysis, not\na default inference \u2014 inferring it silently would fabricate a number the stream doesn't support.\n\"\"\"\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n# The date this table was priced (git is authority; bump on re-price). Sonnet's promo pricing (2/10 base/\n# output instead of the eventual list price) is time-boxed \u2014 SONNET_PROMO_UNTIL marks when to re-check.\nAS_OF = \"2026-07-02\"\nSONNET_PROMO_UNTIL = \"2026-08-31\"\n\n\n@dataclass(frozen=True)\nclass ModelPricing:\n    \"\"\"USD per MTok (million tokens), the 5 columns \u00a71.2 prices independently.\"\"\"\n    base_input: float   # a fresh (non-cached) input token\n    write_5m: float      # cache_creation, 5-minute TTL (the OTLP-stream default \u2014 untagged)\n    write_1h: float       # cache_creation, 1-hour TTL (only when explicitly requested)\n    hit_refresh: float    # cache_read (a cache hit also refreshes the TTL)\n    output: float          # a generated output token\n\n\n# \u00a71.2 DATA \u2014 the dated table. Do not hand-edit a derived number elsewhere; edit HERE and let it flow.\nPRICING: dict[str, ModelPricing] = {\n    \"opus\":   ModelPricing(base_input=5.0, write_5m=6.25, write_1h=10.0, hit_refresh=0.50, output=25.0),\n    \"sonnet\": ModelPricing(base_input=2.0, write_5m=2.50, write_1h=4.0, hit_refresh=0.20, output=10.0),\n    \"haiku\":  ModelPricing(base_input=1.0, write_5m=1.25, write_1h=2.0, hit_refresh=0.10, output=5.0),\n}\n\n# Tier-detection order matters: a model id may contain both substrings in synthetic/test ids (e.g.\n# \"haiku-sonnet\"); haiku is checked first so precedence is deterministic. Unknown ids default to sonnet\n# (the honest middle tier \u2014 never crashes on an unrecognized model id).\n_TIER_ORDER = (\"opus\", \"haiku\", \"sonnet\")\n\n\ndef tier_for(model_id: str) -> str:\n    \"\"\"Map a model-id (any casing, any vendor string) to a `PRICING` key by substring. Defaults to\n    'sonnet' when no known tier substring is present \u2014 an honest default, never a crash.\"\"\"\n    lowered = model_id.lower()\n    for tier in _TIER_ORDER:\n        if tier in lowered:\n            return tier\n    return \"sonnet\"\n\n\ndef price_tokens(\n    model_id: str,\n    *,\n    input_tokens: int = 0,\n    output_tokens: int = 0,\n    cache_creation: int = 0,\n    cache_read: int = 0,\n    cache_ttl: str = \"5m\",\n) -> float:\n    \"\"\"The EXACT USD cost of a token bundle, rounded to 6 decimal places (cent-fraction precision for\n    small per-item entries). `cache_creation` prices at `write_5m` unless `cache_ttl == \"1h\"`.\"\"\"\n    p = PRICING[tier_for(model_id)]\n    write_price = p.write_1h if cache_ttl == \"1h\" else p.write_5m\n    usd = (\n        input_tokens / 1e6 * p.base_input\n        + output_tokens / 1e6 * p.output\n        + cache_creation / 1e6 * write_price\n        + cache_read / 1e6 * p.hit_refresh\n    )\n    return round(usd, 6)\n",
+        "loc": 76,
+        "function_count": 2,
+        "class_count": 1,
+        "per_function_loc": [
+          {
+            "qualname": "price_tokens",
+            "loc": 20
+          },
+          {
+            "qualname": "tier_for",
+            "loc": 8
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "dataclasses.dataclass"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/python_index.py",
+        "source": "\"\"\"python_index \u2014 index a single Python source file into a FileFragment using stdlib ast.\n\nProduces a FileFragment: one File node + one Symbol node per function/class (any nesting depth),\nwith DEFINED_IN edges. Import targets and call names are recorded as attrs only (no cross-file\nedges) so this function is purely local and safe to use for incremental re-derivation.\n\"\"\"\nfrom __future__ import annotations\n\nimport ast\nfrom pathlib import Path\nfrom typing import Union\n\nfrom metafactory.graph.model import (\n    Node, NodeKind, Edge, EdgeKind, FileFragment, content_hash,\n)\n\n\n# \u2500\u2500 import collection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n_SOURCE_ROOT = \"src/\"   # the package root on PYTHONPATH (matches build.py's source_root)\n\n\ndef _package_parts(relpath: str) -> list[str] | None:\n    \"\"\"The dotted package of the module at `relpath`, as parts, IF it lives under the source root.\n    `src/metafactory/verify/checks/registry.py` -> ['metafactory','verify','checks'] (drop the module);\n    `.../checks/__init__.py` -> ['metafactory','verify','checks'] (the package IS the dir).\"\"\"\n    if not relpath.startswith(_SOURCE_ROOT) or not relpath.endswith(\".py\"):\n        return None\n    parts = relpath[len(_SOURCE_ROOT):-len(\".py\")].split(\"/\")\n    return parts[:-1] if parts[-1] != \"__init__\" else parts[:-1]\n\n\ndef _module_level_imports(tree: ast.Module):\n    \"\"\"Yield Import/ImportFrom statements at MODULE scope only \u2014 descend through control flow\n    (if/for/try/with) but NOT into function/class bodies. A deferred import inside a function is a\n    decoupling idiom (it breaks load-time cycles), so it must NOT count as a module dependency edge.\"\"\"\n    def walk(stmts):\n        for node in stmts:\n            if isinstance(node, (ast.Import, ast.ImportFrom)):\n                yield node\n            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):\n                continue  # a new scope \u2014 its imports are deferred, not module-level\n            else:\n                nested = [c for c in ast.iter_child_nodes(node) if isinstance(c, ast.stmt)]\n                yield from walk(nested)\n    yield from walk(tree.body)\n\n\ndef _collect_imports(tree: ast.Module, relpath: str) -> list[str]:\n    \"\"\"Return sorted, deduped absolute dotted MODULE-LEVEL import targets, resolving relative imports\n    against the file's own package (purely local \u2014 only needs `relpath`, so incrementality holds).\n\n    - ``import a.b.c`` / ``import a.b.c as x`` -> ``\"a.b.c\"``\n    - ``from a.b import c, d`` -> ``\"a.b.c\"``, ``\"a.b.d\"``\n    - ``from ...pkg import name`` (level N) -> resolved to the absolute dotted target via the package;\n      unresolvable relatives (file not under the source root) are skipped.\n    \"\"\"\n    pkg = _package_parts(relpath)\n    targets: set[str] = set()\n    for node in _module_level_imports(tree):\n        if isinstance(node, ast.Import):\n            for alias in node.names:\n                targets.add(alias.name)\n        else:  # ast.ImportFrom\n            level = node.level or 0\n            module = node.module or \"\"\n            if level > 0:\n                if pkg is None or level - 1 > len(pkg):\n                    continue  # cannot anchor a relative import (not under source root)\n                anchor = pkg[: len(pkg) - (level - 1)]\n                base = anchor + (module.split(\".\") if module else [])\n            else:\n                base = module.split(\".\") if module else []\n            for alias in node.names:\n                dotted = \".\".join([*base, alias.name]) if base or not module else alias.name\n                if dotted:\n                    targets.add(dotted)\n    return sorted(targets)\n\n\n# \u2500\u2500 call collection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\ndef _collect_calls(node: ast.AST) -> list[str]:\n    \"\"\"Return sorted, deduped call names reachable from *node*'s subtree.\n\n    Collects ``ast.Name.id`` (bare calls) and ``ast.Attribute.attr`` (method / dotted calls).\n    Includes calls inside nested defs \u2014 simple and deterministic per spec.\n    \"\"\"\n    names: set[str] = set()\n    for child in ast.walk(node):\n        if isinstance(child, ast.Call):\n            func = child.func\n            if isinstance(func, ast.Name):\n                names.add(func.id)\n            elif isinstance(func, ast.Attribute):\n                names.add(func.attr)\n    return sorted(names)\n\n\n# \u2500\u2500 symbol visitor \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\nclass _DefVisitor(ast.NodeVisitor):\n    \"\"\"Walk the AST, emit a Symbol node + DEFINED_IN edge for every def/class at any depth.\"\"\"\n\n    def __init__(self, file_node: Node, relpath: str) -> None:\n        self._file_node = file_node\n        self._relpath = relpath\n        self._stack: list[str] = []\n        self.sym_nodes: list[Node] = []\n        self.edges: list[Edge] = []\n\n    def _handle_def(self, node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,\n                    symtype: str) -> None:\n        qualname = \".\".join(self._stack + [node.name])\n        sym_node = Node.make(\n            NodeKind.SYMBOL,\n            key=f\"{self._relpath}::{qualname}\",\n            name=qualname,\n            attrs={\n                \"qualname\": qualname,\n                \"symtype\": symtype,\n                \"lineno\": node.lineno,\n                \"end_lineno\": node.end_lineno,\n                \"loc\": node.end_lineno - node.lineno + 1,\n                \"calls\": _collect_calls(node),\n            },\n        )\n        self.sym_nodes.append(sym_node)\n        self.edges.append(Edge(sym_node.id, self._file_node.id, EdgeKind.DEFINED_IN))\n\n        self._stack.append(node.name)\n        self.generic_visit(node)   # descend into children\n        self._stack.pop()\n\n    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:\n        self._handle_def(node, \"function\")\n\n    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:\n        self._handle_def(node, \"function\")\n\n    def visit_ClassDef(self, node: ast.ClassDef) -> None:\n        self._handle_def(node, \"class\")\n\n\n# \u2500\u2500 public API \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\ndef index_file(repo_root: Union[str, Path], relpath: str) -> FileFragment:\n    \"\"\"Index one Python source file into a :class:`~metafactory.graph.model.FileFragment`.\n\n    Args:\n        repo_root: Root directory of the repository (str or Path).\n        relpath:   POSIX-style path relative to *repo_root*.\n\n    Returns:\n        A :class:`FileFragment` containing a File node, Symbol nodes for every\n        function/class definition (any nesting depth), and DEFINED_IN edges.\n\n    Raises:\n        SyntaxError: Propagated from ``ast.parse`` for invalid Python.\n        FileNotFoundError: If the file does not exist.\n    \"\"\"\n    path = Path(repo_root) / relpath\n    text = path.read_text(encoding=\"utf-8\")\n    tree = ast.parse(text, filename=relpath)   # raises SyntaxError on bad syntax\n\n    imports = _collect_imports(tree, relpath)\n    lines = text.splitlines()\n\n    file_node = Node.make(\n        NodeKind.FILE,\n        key=relpath,\n        name=Path(relpath).name,\n        attrs={\"loc\": len(lines), \"imports\": imports},\n    )\n\n    visitor = _DefVisitor(file_node, relpath)\n    visitor.visit(tree)\n\n    return FileFragment(\n        relpath=relpath,\n        content_hash=content_hash(text),\n        nodes=[file_node, *visitor.sym_nodes],\n        edges=visitor.edges,\n    )\n",
+        "loc": 184,
+        "function_count": 11,
+        "class_count": 1,
+        "per_function_loc": [
+          {
+            "qualname": "_DefVisitor.__init__",
+            "loc": 6
+          },
+          {
+            "qualname": "_DefVisitor._handle_def",
+            "loc": 22
+          },
+          {
+            "qualname": "_DefVisitor.visit_AsyncFunctionDef",
+            "loc": 2
+          },
+          {
+            "qualname": "_DefVisitor.visit_ClassDef",
+            "loc": 2
+          },
+          {
+            "qualname": "_DefVisitor.visit_FunctionDef",
+            "loc": 2
+          },
+          {
+            "qualname": "_collect_calls",
+            "loc": 15
+          },
+          {
+            "qualname": "_collect_imports",
+            "loc": 30
+          },
+          {
+            "qualname": "_module_level_imports",
+            "loc": 14
+          },
+          {
+            "qualname": "_module_level_imports.walk",
+            "loc": 9
+          },
+          {
+            "qualname": "_package_parts",
+            "loc": 8
+          },
+          {
+            "qualname": "index_file",
+            "loc": 38
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "ast",
+          "metafactory.graph.model.Edge",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.FileFragment",
+          "metafactory.graph.model.Node",
+          "metafactory.graph.model.NodeKind",
+          "metafactory.graph.model.content_hash",
+          "pathlib.Path",
+          "typing.Union"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/quality.py",
+        "source": "\"\"\"quality \u2014 Fase 4: deterministic SWE quality metrics over the graph (size + coupling), the substrate\nof a `meta check` gate. NOT an LLM judge (I-3): every number is re-derived from the AST graph.\n\nThresholds are DATA (the plan's dial, ADR-012-style): file LOC, functions per file, longest function,\nand import cycles. The defaults are calibrated so the live substrate passes with margin while the known\n8.5k-line monolith fails decisively \u2014 the two-sided tooth the gate check exercises. Existing files near\nthe line (e.g. `cli.py`) are deferred debt (the monolith split is Fase 3 MONOLITH-REFACTOR), so the\nfile-LOC limit sits well above them; the gate's job here is to STOP a NEW monolith (the 2026-06-25 rule).\n\"\"\"\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\nfrom pathlib import Path\n\nfrom .model import EdgeKind, Graph, NodeKind\n\n\n@dataclass(frozen=True)\nclass Thresholds:\n    max_file_loc: int = 2000\n    max_funcs_per_file: int = 80\n    max_func_loc: int = 200\n\n    @staticmethod\n    def from_dict(d: dict | None) -> \"Thresholds\":\n        d = d or {}\n        base = Thresholds()\n        return Thresholds(\n            max_file_loc=int(d.get(\"max_file_loc\", base.max_file_loc)),\n            max_funcs_per_file=int(d.get(\"max_funcs_per_file\", base.max_funcs_per_file)),\n            max_func_loc=int(d.get(\"max_func_loc\", base.max_func_loc)),\n        )\n\n\n@dataclass(frozen=True)\nclass Violation:\n    relpath: str\n    metric: str\n    value: int | str\n    limit: int | str\n\n    def __str__(self) -> str:\n        return f\"{self.relpath}: {self.metric}={self.value} > limit {self.limit}\"\n\n\ndef _relpath(file_id: str) -> str:\n    return file_id.split(\":\", 1)[1] if \":\" in file_id else file_id\n\n\ndef file_violations(graph: Graph, th: Thresholds) -> list[Violation]:\n    \"\"\"Per-File size/coupling violations: file LOC, #functions, longest function.\"\"\"\n    out: list[Violation] = []\n    for fn in sorted(graph.nodes_of(NodeKind.FILE), key=lambda n: n.id):\n        rel = _relpath(fn.id)\n        loc = int(fn.attrs.get(\"loc\", 0))\n        if loc > th.max_file_loc:\n            out.append(Violation(rel, \"file_loc\", loc, th.max_file_loc))\n        syms = [graph.node(e.src) for e in graph.in_edges(fn.id, EdgeKind.DEFINED_IN)]\n        funcs = [s for s in syms if s and s.attrs.get(\"symtype\") == \"function\"]\n        if len(funcs) > th.max_funcs_per_file:\n            out.append(Violation(rel, \"funcs\", len(funcs), th.max_funcs_per_file))\n        longest = max((int(s.attrs.get(\"loc\", 0)) for s in funcs), default=0)\n        if longest > th.max_func_loc:\n            out.append(Violation(rel, \"func_loc\", longest, th.max_func_loc))\n    return out\n\n\ndef import_cycles(graph: Graph) -> list[list[str]]:\n    \"\"\"Strongly-connected components of size > 1 over File--IMPORTS-->File (i.e. import cycles).\n    Tarjan, iterative, deterministic (nodes visited in sorted order).\"\"\"\n    adj: dict[str, list[str]] = {}\n    for fn in graph.nodes_of(NodeKind.FILE):\n        adj[fn.id] = sorted(e.dst for e in graph.out_edges(fn.id, EdgeKind.IMPORTS))\n    index: dict[str, int] = {}\n    low: dict[str, int] = {}\n    on_stack: set[str] = set()\n    stack: list[str] = []\n    counter = [0]\n    sccs: list[list[str]] = []\n\n    def strongconnect(start: str) -> None:\n        work = [(start, 0)]\n        while work:\n            v, i = work[-1]\n            if i == 0:\n                index[v] = low[v] = counter[0]\n                counter[0] += 1\n                stack.append(v)\n                on_stack.add(v)\n            recursed = False\n            for j in range(i, len(adj.get(v, []))):\n                w = adj[v][j]\n                if w not in index:\n                    work[-1] = (v, j + 1)\n                    work.append((w, 0))\n                    recursed = True\n                    break\n                if w in on_stack:\n                    low[v] = min(low[v], index[w])\n            if recursed:\n                continue\n            if low[v] == index[v]:\n                comp: list[str] = []\n                while True:\n                    w = stack.pop()\n                    on_stack.discard(w)\n                    comp.append(w)\n                    if w == v:\n                        break\n                if len(comp) > 1:\n                    sccs.append(sorted(_relpath(x) for x in comp))\n            work.pop()\n            if work:\n                p, _ = work[-1]\n                low[p] = min(low[p], low[v])\n\n    for v in sorted(adj):\n        if v not in index:\n            strongconnect(v)\n    return sorted(sccs)\n\n\n@dataclass\nclass Report:\n    violations: list[Violation]\n    cycles: list[list[str]]\n\n    @property\n    def clean(self) -> bool:\n        return not self.violations and not self.cycles\n\n    def summary(self) -> str:\n        if self.clean:\n            return \"clean\"\n        parts = []\n        if self.violations:\n            parts.append(f\"{len(self.violations)} size/coupling violation(s)\")\n        if self.cycles:\n            parts.append(f\"{len(self.cycles)} import cycle(s)\")\n        return \"; \".join(parts)\n\n\ndef evaluate_graph(graph: Graph, th: Thresholds, *, check_cycles: bool = True) -> Report:\n    return Report(file_violations(graph, th), import_cycles(graph) if check_cycles else [])\n\n\ndef evaluate_file(repo_root: Path, relpath: str, th: Thresholds) -> list[Violation]:\n    \"\"\"Size violations for ONE file (no cross-file edges) \u2014 the two-sided-tooth probe: a monolith must\n    come back RED, a healthy module GREEN, regardless of whether it lives in the indexed substrate.\"\"\"\n    from .python_index import index_file\n    g = Graph()\n    g.add_fragment(index_file(repo_root, relpath))\n    return file_violations(g, th)\n\n\ndef discover_authored_codegen(repo_root: Path) -> list[str]:\n    \"\"\"Every AUTHORED factory-codegen .py (sorted POSIX relpaths), DATA-agnostic \u2014 a glob, no factory or\n    tech is named (anti-overfit; the `generality` gate sanctions this). Excludes derived/vendored trees:\n    `build/` (generated products) and `__pycache__`. The forward 'no monolith anywhere' frontier: a NEW\n    factory scaffolder that grows into a monolith must turn `meta check` RED (the 2026-06-25 rule).\"\"\"\n    repo_root = Path(repo_root)\n    base = repo_root / \"factories\"\n    if not base.exists():\n        return []\n    out: list[str] = []\n    for p in sorted(base.glob(\"*/codegen/**/*.py\")):\n        if \"__pycache__\" in p.parts or \"build\" in p.parts:\n            continue\n        out.append(p.relative_to(repo_root).as_posix())\n    return sorted(out)\n",
+        "loc": 170,
+        "function_count": 11,
+        "class_count": 3,
+        "per_function_loc": [
+          {
+            "qualname": "Report.clean",
+            "loc": 2
+          },
+          {
+            "qualname": "Report.summary",
+            "loc": 9
+          },
+          {
+            "qualname": "Thresholds.from_dict",
+            "loc": 8
+          },
+          {
+            "qualname": "Violation.__str__",
+            "loc": 2
+          },
+          {
+            "qualname": "_relpath",
+            "loc": 2
+          },
+          {
+            "qualname": "discover_authored_codegen",
+            "loc": 15
+          },
+          {
+            "qualname": "evaluate_file",
+            "loc": 7
+          },
+          {
+            "qualname": "evaluate_graph",
+            "loc": 2
+          },
+          {
+            "qualname": "file_violations",
+            "loc": 16
+          },
+          {
+            "qualname": "import_cycles",
+            "loc": 53
+          },
+          {
+            "qualname": "import_cycles.strongconnect",
+            "loc": 35
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "dataclasses.dataclass",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.NodeKind",
+          "pathlib.Path"
+        ]
+      },
+      {
+        "relpath": "src/metafactory/graph/repomap.py",
+        "source": "\"\"\"repomap \u2014 hand-rolled PageRank + ranked text digest for orchestrator navigation.\n\nStdlib only; no networkx. All functions are deterministic (sorted iteration order).\n\"\"\"\nfrom __future__ import annotations\n\nfrom metafactory.graph.model import EdgeKind, Graph, NodeKind\n\n\ndef pagerank(\n    graph: Graph,\n    *,\n    damping: float = 0.85,\n    iterations: int = 40,\n    tol: float = 1e-9,\n) -> dict[str, float]:\n    \"\"\"Classic PageRank power-iteration over ALL nodes.\n\n    Each edge src->dst is treated as a directed link. Dangling nodes (outdeg==0)\n    contribute their mass uniformly so ranks always sum to 1.0. Returns {node_id: rank}.\n    N==0 -> returns {}.\n    \"\"\"\n    node_ids = sorted(n.id for n in graph.nodes)\n    N = len(node_ids)\n    if N == 0:\n        return {}\n\n    # Build adjacency once: out_neighbors and out-degree per node.\n    out_neighbors: dict[str, list[str]] = {nid: [] for nid in node_ids}\n    for edge in graph.edges:\n        if edge.src in out_neighbors:\n            out_neighbors[edge.src].append(edge.dst)\n\n    outdeg: dict[str, int] = {nid: len(out_neighbors[nid]) for nid in node_ids}\n\n    rank: dict[str, float] = {nid: 1.0 / N for nid in node_ids}\n\n    for _ in range(iterations):\n        dangling_mass = sum(rank[nid] for nid in node_ids if outdeg[nid] == 0)\n        base = (1.0 - damping) / N + damping * dangling_mass / N\n\n        new_rank: dict[str, float] = {nid: base for nid in node_ids}\n        for src in node_ids:\n            od = outdeg[src]\n            if od == 0:\n                continue\n            contrib = damping * rank[src] / od\n            for dst in out_neighbors[src]:\n                if dst in new_rank:\n                    new_rank[dst] += contrib\n\n        # Early stop on L1 convergence.\n        delta = sum(abs(new_rank[nid] - rank[nid]) for nid in node_ids)\n        rank = new_rank\n        if delta < tol:\n            break\n\n    return rank\n\n\ndef rank_files(graph: Graph) -> list[tuple[str, float]]:\n    \"\"\"Score each File node: own pagerank + sum of pageranks of Symbols DEFINED_IN it.\n\n    Returns [(file_node_id, score)] sorted by score desc, then file_id asc for ties.\n    \"\"\"\n    pr = pagerank(graph)\n    scores: dict[str, float] = {}\n\n    for file_node in graph.nodes_of(NodeKind.FILE):\n        fid = file_node.id\n        score = pr.get(fid, 0.0)\n        # Symbols that have a DEFINED_IN edge pointing to this file.\n        for edge in graph.in_edges(fid, EdgeKind.DEFINED_IN):\n            score += pr.get(edge.src, 0.0)\n        scores[fid] = score\n\n    return sorted(scores.items(), key=lambda x: (-x[1], x[0]))\n\n\ndef repo_map(graph: Graph, *, budget_chars: int = 4000) -> str:\n    \"\"\"Ranked text digest for an orchestrator.\n\n    For each File (highest score first) emits:\n        path  (score=0.0123, loc=NN)\n            qualname  [symtype]   (top 5 symbols by pagerank)\n\n    Stops before exceeding budget_chars. Returns ''.\n    \"\"\"\n    if not graph.nodes:\n        return \"\"\n\n    pr = pagerank(graph)\n    ranked = rank_files(graph)\n\n    lines: list[str] = []\n    total_chars = 0\n\n    for fid, score in ranked:\n        file_node = graph.node(fid)\n        if file_node is None:\n            continue\n\n        # path is everything after the first ':'\n        path = fid.split(\":\", 1)[1] if \":\" in fid else fid\n        loc = file_node.attrs.get(\"loc\", 0)\n        header = f\"{path}  (score={score:.4f}, loc={loc})\"\n\n        # Gather symbols DEFINED_IN this file, sorted by pagerank desc then id asc.\n        sym_ids = [e.src for e in graph.in_edges(fid, EdgeKind.DEFINED_IN)]\n        sym_ids_sorted = sorted(sym_ids, key=lambda sid: (-pr.get(sid, 0.0), sid))\n        top_syms = sym_ids_sorted[:5]\n\n        sym_lines: list[str] = []\n        for sid in top_syms:\n            sym_node = graph.node(sid)\n            if sym_node is None:\n                continue\n            qualname = sym_node.attrs.get(\"qualname\", sym_node.name)\n            symtype = sym_node.attrs.get(\"symtype\", \"\")\n            sym_lines.append(f\"    {qualname}  [{symtype}]\")\n\n        block = \"\\n\".join([header] + sym_lines)\n        # +1 for the newline separator between blocks.\n        needed = len(block) + (1 if lines else 0)\n        if total_chars + needed > budget_chars and lines:\n            break\n\n        if lines:\n            lines.append(\"\")  # blank separator\n            total_chars += 1\n        lines.append(block)\n        total_chars += len(block)\n\n    return \"\\n\".join(lines)\n",
+        "loc": 134,
+        "function_count": 3,
+        "class_count": 0,
+        "per_function_loc": [
+          {
+            "qualname": "pagerank",
+            "loc": 49
+          },
+          {
+            "qualname": "rank_files",
+            "loc": 17
+          },
+          {
+            "qualname": "repo_map",
+            "loc": 55
+          }
+        ],
+        "imports": [
+          "__future__.annotations",
+          "metafactory.graph.model.EdgeKind",
+          "metafactory.graph.model.Graph",
+          "metafactory.graph.model.NodeKind"
+        ]
+      }
+    ],
+    "cycles": []
+  },
+  "quality": {
+    "thresholds": {
+      "max_file_loc": 2000,
+      "max_funcs_per_file": 80,
+      "max_func_loc": 200
+    },
+    "violations": []
+  },
+  "red": {
+    "monolith": {
+      "relpath": "tests/fixtures/quality/monolith_shaped.py",
+      "source": "\"\"\"monolith_shaped.py \u2014 the quality gate's PERMANENT RED witness (a negative test, SAFE-7).\n\nNOT production code. A deliberately monolith-shaped Python file that VIOLATES the default quality\nthresholds: it has >80 top-level functions AND one function longer than 200 LOC. It exists so\n`verify/checks/quality_gate.py` can prove its size/coupling metrics still have TEETH now that the real\n8.5k-line monolith (factories/full-stack-kotlin/codegen/scaffold_product.py) was split into a cohesive\npackage in Fase 3 (MONOLITH-REFACTOR). The gate also runs it under absurdly-lax thresholds and demands\nit pass \u2014 so the witness is honest: it fires on real limits and goes quiet on lax ones (decorative-guard).\n\nGenerated, deterministic, do not edit by hand. The gate names no factory/domain/tech; this fixture is\nthe agreed negative test, like tests/fixtures/security/planted_secrets.txt.\n\"\"\"\n\n\ndef _too_long():  # one function body > max_func_loc (200) \u2014 the func_loc tooth\n    return [\n        0,\n        1,\n        2,\n        3,\n        4,\n        5,\n        6,\n        7,\n        8,\n        9,\n        10,\n        11,\n        12,\n        13,\n        14,\n        15,\n        16,\n        17,\n        18,\n        19,\n        20,\n        21,\n        22,\n        23,\n        24,\n        25,\n        26,\n        27,\n        28,\n        29,\n        30,\n        31,\n        32,\n        33,\n        34,\n        35,\n        36,\n        37,\n        38,\n        39,\n        40,\n        41,\n        42,\n        43,\n        44,\n        45,\n        46,\n        47,\n        48,\n        49,\n        50,\n        51,\n        52,\n        53,\n        54,\n        55,\n        56,\n        57,\n        58,\n        59,\n        60,\n        61,\n        62,\n        63,\n        64,\n        65,\n        66,\n        67,\n        68,\n        69,\n        70,\n        71,\n        72,\n        73,\n        74,\n        75,\n        76,\n        77,\n        78,\n        79,\n        80,\n        81,\n        82,\n        83,\n        84,\n        85,\n        86,\n        87,\n        88,\n        89,\n        90,\n        91,\n        92,\n        93,\n        94,\n        95,\n        96,\n        97,\n        98,\n        99,\n        100,\n        101,\n        102,\n        103,\n        104,\n        105,\n        106,\n        107,\n        108,\n        109,\n        110,\n        111,\n        112,\n        113,\n        114,\n        115,\n        116,\n        117,\n        118,\n        119,\n        120,\n        121,\n        122,\n        123,\n        124,\n        125,\n        126,\n        127,\n        128,\n        129,\n        130,\n        131,\n        132,\n        133,\n        134,\n        135,\n        136,\n        137,\n        138,\n        139,\n        140,\n        141,\n        142,\n        143,\n        144,\n        145,\n        146,\n        147,\n        148,\n        149,\n        150,\n        151,\n        152,\n        153,\n        154,\n        155,\n        156,\n        157,\n        158,\n        159,\n        160,\n        161,\n        162,\n        163,\n        164,\n        165,\n        166,\n        167,\n        168,\n        169,\n        170,\n        171,\n        172,\n        173,\n        174,\n        175,\n        176,\n        177,\n        178,\n        179,\n        180,\n        181,\n        182,\n        183,\n        184,\n        185,\n        186,\n        187,\n        188,\n        189,\n        190,\n        191,\n        192,\n        193,\n        194,\n        195,\n        196,\n        197,\n        198,\n        199,\n        200,\n        201,\n        202,\n        203,\n        204,\n        205,\n        206,\n        207,\n        208,\n        209,\n    ]\n\n\ndef f0():\n    return 0\n\n\ndef f1():\n    return 1\n\n\ndef f2():\n    return 2\n\n\ndef f3():\n    return 3\n\n\ndef f4():\n    return 4\n\n\ndef f5():\n    return 5\n\n\ndef f6():\n    return 6\n\n\ndef f7():\n    return 7\n\n\ndef f8():\n    return 8\n\n\ndef f9():\n    return 9\n\n\ndef f10():\n    return 10\n\n\ndef f11():\n    return 11\n\n\ndef f12():\n    return 12\n\n\ndef f13():\n    return 13\n\n\ndef f14():\n    return 14\n\n\ndef f15():\n    return 15\n\n\ndef f16():\n    return 16\n\n\ndef f17():\n    return 17\n\n\ndef f18():\n    return 18\n\n\ndef f19():\n    return 19\n\n\ndef f20():\n    return 20\n\n\ndef f21():\n    return 21\n\n\ndef f22():\n    return 22\n\n\ndef f23():\n    return 23\n\n\ndef f24():\n    return 24\n\n\ndef f25():\n    return 25\n\n\ndef f26():\n    return 26\n\n\ndef f27():\n    return 27\n\n\ndef f28():\n    return 28\n\n\ndef f29():\n    return 29\n\n\ndef f30():\n    return 30\n\n\ndef f31():\n    return 31\n\n\ndef f32():\n    return 32\n\n\ndef f33():\n    return 33\n\n\ndef f34():\n    return 34\n\n\ndef f35():\n    return 35\n\n\ndef f36():\n    return 36\n\n\ndef f37():\n    return 37\n\n\ndef f38():\n    return 38\n\n\ndef f39():\n    return 39\n\n\ndef f40():\n    return 40\n\n\ndef f41():\n    return 41\n\n\ndef f42():\n    return 42\n\n\ndef f43():\n    return 43\n\n\ndef f44():\n    return 44\n\n\ndef f45():\n    return 45\n\n\ndef f46():\n    return 46\n\n\ndef f47():\n    return 47\n\n\ndef f48():\n    return 48\n\n\ndef f49():\n    return 49\n\n\ndef f50():\n    return 50\n\n\ndef f51():\n    return 51\n\n\ndef f52():\n    return 52\n\n\ndef f53():\n    return 53\n\n\ndef f54():\n    return 54\n\n\ndef f55():\n    return 55\n\n\ndef f56():\n    return 56\n\n\ndef f57():\n    return 57\n\n\ndef f58():\n    return 58\n\n\ndef f59():\n    return 59\n\n\ndef f60():\n    return 60\n\n\ndef f61():\n    return 61\n\n\ndef f62():\n    return 62\n\n\ndef f63():\n    return 63\n\n\ndef f64():\n    return 64\n\n\ndef f65():\n    return 65\n\n\ndef f66():\n    return 66\n\n\ndef f67():\n    return 67\n\n\ndef f68():\n    return 68\n\n\ndef f69():\n    return 69\n\n\ndef f70():\n    return 70\n\n\ndef f71():\n    return 71\n\n\ndef f72():\n    return 72\n\n\ndef f73():\n    return 73\n\n\ndef f74():\n    return 74\n\n\ndef f75():\n    return 75\n\n\ndef f76():\n    return 76\n\n\ndef f77():\n    return 77\n\n\ndef f78():\n    return 78\n\n\ndef f79():\n    return 79\n\n\ndef f80():\n    return 80\n",
+      "violations": [
+        {
+          "relpath": "tests/fixtures/quality/monolith_shaped.py",
+          "metric": "funcs",
+          "value": 82,
+          "limit": 80
+        },
+        {
+          "relpath": "tests/fixtures/quality/monolith_shaped.py",
+          "metric": "func_loc",
+          "value": 213,
+          "limit": 200
+        }
+      ]
+    },
+    "synthetic_cycle": {
+      "files": {
+        "src/synth_cycle_a.py": "import synth_cycle_b\n\n\ndef func_a(x):\n    return synth_cycle_b.func_b(x) + 1\n",
+        "src/synth_cycle_b.py": "import synth_cycle_a\n\n\ndef func_b(x):\n    return x + 1\n"
+      },
+      "expected_cycles": [
+        [
+          "src/synth_cycle_a.py",
+          "src/synth_cycle_b.py"
+        ]
+      ]
+    },
+    "deferred_import_not_cycle": {
+      "files": {
+        "src/synth_defer_a.py": "def func_a(x):\n    import synth_defer_b   # module-level would close the cycle; a deferred one must not\n    return synth_defer_b.func_b(x) + 1\n",
+        "src/synth_defer_b.py": "import synth_defer_a\n\n\ndef func_b(x):\n    return x + 1\n"
+      },
+      "expected_cycles": []
+    }
+  }
+}

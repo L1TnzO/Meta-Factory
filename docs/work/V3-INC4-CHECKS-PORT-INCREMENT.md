@@ -120,7 +120,7 @@ error de una librería madura sí valdría más que la postura estricta.
 | 2 | `verify/gate_census.py` — las 23 disposiciones, re-derivadas; la suma da 23 o rojo | **COLUMNA** (es la contabilidad) | ✅ |
 | 3 | Los 29 kinds + resolución de argv, contra vectores generados en `oracle_ref` | delegado | ✅ |
 | 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegado (R-14 no) | ✅ |
-| 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegable | ⏳ |
+| 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegado + rescatado | ✅ |
 | 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegable | ⏳ |
 
 Volumen medido, no estimado: ~1.500 LOC de gates + 866 de grafo + ~700 de spec + ~400 de soporte +
@@ -182,6 +182,46 @@ arregla en un solo lugar el día que toque.
 que pedí despacha `design-review`, pero **no tienen vector de oráculo** — su prueba de paridad es el
 gate `design_eval`, que la fase 6 porta. No es un verde: el censo ya lo lleva como `design_eval`
 PENDING, así que la máquina lo cuenta aunque nadie se acuerde.
+
+## Fase 5: el slot que murió antes de correr su propio gate
+
+El generador se cortó por límite de sesión **justo antes de la línea «ahora corramos el gate»**. Dejó
+los cuatro artefactos escritos y **ningún veredicto**. Eso no es una zona gris: la aceptación nunca
+fue el voto del generador —«el modelo no vota», INC-3— sino la conjunción gate-en-0 + footprint ⊆
+slot. Así que corrí los gates yo, y encontraron tres cosas.
+
+**1. El gate estaba rojo, y con razón.** `TypeError: '<' not supported between instances of 'dict'`
+en la comparación de los casos ROJOS: `sorted()` sobre dicts. El caso del monolito —el testigo más
+importante del port— **nunca se había ejecutado**. El gate no se lo tragó: lo reportó como
+desviación y salió 1, que es exactamente lo que tiene que hacer un gate cuando su propia
+comparación se rompe. Ordenar por JSON canónico y el monolito muerde: 2 violaciones en v3, 2
+registradas de v2.
+
+**2. Nueve violaciones de frontera, todas en DOCSTRINGS** que citaban la procedencia
+(`…/graph/build.py`). No es import ni inyección de path — es prosa. Pero acá la salida barata no
+cuesta nada: la procedencia se conserva entera nombrando el módulo sin la ruta. Queda como regla
+legible: **el código de v3 no escribe rutas de v2, ni siquiera en comentarios** — quien haga grep
+por una ruta de v2 debe encontrar sólo los lectores de oráculo enumerados en C-8.
+
+**3. Y ahí me equivoqué yo.** El `sed` con el que reescribí esas docstrings pisó una constante real:
+`DEFAULT_ROOTS = ("src/metafactory", "seed")` quedó como `("the v2 substrate", "seed")`. Un reemplazo
+mecánico sobre archivos que no había leído. Corregido a `("v3", "seed")`, que además es la semántica
+correcta del port: la barra de calidad tiene que medir **el paquete en el que vive**, o v3 crece sin
+medir. La lección es la de siempre y esta vez fue mía: un cambio mecánico se verifica igual que uno
+delegado.
+
+**Lo bueno del diseño que trajo el slot**, y que conviene no perder: el oráculo mide el paquete
+`graph/` ENTERO de v2 (15 archivos, ~2026 LOC) y no sólo los 5 módulos portados —así las métricas no
+quedan ajustadas a su propio port— y **embebe el texto de cada archivo** en el fixture, de modo que
+el gate no necesita `git` ni v2 en tiempo de verificación: sigue funcionando sobre un árbol que ya
+no contenga el sustrato viejo. Sobrevive al cutover por construcción.
+
+**Corte declarado:** `pbt_properties` P1 (`incremental ≡ full`) no se porta — depende de
+`incremental.py`, que C-5 asigna a INC-6. P2 (round-trip de serde) sí. Escrito en el módulo y acá,
+no dejado caer en silencio.
+
+Verificado: los tres casos rojos muerden · el oráculo se re-deriva **byte-idéntico** · `import_boundary`
+verde sobre 61 módulos · la cadena entera de gates verde y sus sabotajes también.
 
 ## Por qué la ley es columna y no se delega
 

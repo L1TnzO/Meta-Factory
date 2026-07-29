@@ -1,7 +1,7 @@
-<!-- meta:doc sha=1807d81b659fb9a059deeb9fb43aec55ea53beb0 updated=2026-07-29T17:32Z -->
+<!-- meta:doc sha=fd6c679b6a30cfabf7f672f338f8f34a398774e2 updated=2026-07-29T17:36Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-29T17:36Z) (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-5 + `06-memory-and-docs.md` +

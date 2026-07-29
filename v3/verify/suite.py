@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""suite — the registry WIRED: `build_registry` registers the first 5 of v2's 23 ported gates
-(`compile`, `isolation`, `quality`, `pbt`, `suite`), and `main` is the runner that plays v2's
-`cmd_check` role — run every registered gate's declared argv once, fold the results through
-`v3.verify.registry.summarize` (green / red / N/A counted apart, R-12), and print ONE verdict.
+"""suite — the registry WIRED: `build_registry` registers 10 of v2's 23 ported gates (`compile`,
+`isolation`, `quality`, `pbt`, `security`, `roles`, `kinds`, `deferred`, `design_eval`, `suite`), and
+`main` is the runner that plays v2's `cmd_check` role — run every registered gate's declared argv
+once, fold the results through `v3.verify.registry.summarize` (green / red / N/A counted apart,
+R-12), and print ONE verdict.
 
     python3 -m v3.verify.suite
 
@@ -13,19 +14,50 @@ import-time safe: it only constructs `Gate` objects and calls `Registry.register
 against the filesystem, not a subprocess and not a tree scan), and it runs no process and reads no
 directory tree at IMPORT time. All subprocess/tree work happens inside `main`, called explicitly.
 
-THE FIVE GATES, and why each is shaped the way it is:
-  `compile`   — `python3 -m compileall -q v3 seed`; no new check module (a syntax gate IS the argv).
-                One-sided: `ONE_SIDED["compile"]`.
-  `isolation` — `v3.verify.checks.isolation`; ports v2's "the platform never imports its products".
-                One-sided: `ONE_SIDED["isolation"]`.
-  `quality`   — `v3.verify.checks.quality`; the PORTED `v3.graph` (build+quality) over v3/+seed/, with
-                an EMBEDDED `fixture` witness (`tests/fixtures/quality/monolith_shaped.py`) asserted
-                inside its own green run.
-  `pbt`       — `v3.verify.checks.pbt`; the graph property suite (P2 serde round-trip), with a
-                `sabotage_env` witness (`V3_PBT_SABOTAGE`) — NOT embedded, re-run separately by `suite`.
-  `suite`     — `v3.verify.checks.suite_sweep`; v2's `pytest -q tests` translated to v3's actual test
-                corpus: re-run every OTHER registered gate's re-runnable red side (P2 itself). One-sided:
-                `ONE_SIDED["suite"]`.
+THE TEN GATES, and why each is shaped the way it is:
+  `compile`     — `python3 -m compileall -q v3 seed`; no new check module (a syntax gate IS the
+                  argv). One-sided: `ONE_SIDED["compile"]`.
+  `isolation`   — `v3.verify.checks.isolation`; ports v2's "the platform never imports its products".
+                  One-sided: `ONE_SIDED["isolation"]`.
+  `quality`     — `v3.verify.checks.quality`; the PORTED `v3.graph` (build+quality) over v3/+seed/,
+                  with an EMBEDDED `fixture` witness (`tests/fixtures/quality/monolith_shaped.py`)
+                  asserted inside its own green run.
+  `pbt`         — `v3.verify.checks.pbt`; the graph property suite (P2 serde round-trip), with a
+                  `sabotage_env` witness (`V3_PBT_SABOTAGE`) — NOT embedded, re-run by `suite`.
+  `security`    — `v3.verify.checks.security`; heritable secret/supply-chain scan over v3's own
+                  substrate (re-pointed from v2's own platform package), with an EMBEDDED `fixture`
+                  witness (`tests/fixtures/security/planted_secrets.txt`).
+  `roles`       — `v3.verify.checks.roles`; agents specialize by ROLE, never by domain (subject
+                  unchanged: `.claude/agents/*.md`, meta + every factory), with a `sabotage_env`
+                  witness (`V3_ROLES_SABOTAGE`) — a planted domain-named agent, NOT embedded.
+  `kinds`       — `v3.verify.checks.kind_hygiene`; freezes the check-kind vocabulary against
+                  `v3.verify.kinds.KINDS` (subject: factories' own station YAML + specs — v2's
+                  platform-side station YAMLs have no v3 analogue, see that module's own CUT note),
+                  with a `sabotage_env` witness (`V3_KIND_HYGIENE_SABOTAGE`) — a planted unknown kind.
+  `deferred`    — `v3.verify.checks.deferred`; `declared-deferred` with teeth + accumulation measured
+                  (subject unchanged: `factories/*/factory.spec.yml`), with an EMBEDDED `fixture`
+                  witness (`tests/fixtures/governance/strict_untracked.factory.spec.yml`).
+  `design_eval` — `v3.verify.checks.design_eval`; criteria-as-DATA + PINNED critiques (subject
+                  unchanged: `factories/*/design/criteria.yml`), with an EMBEDDED `pinned_data`
+                  witness — FSK's real, committed negative witness (all 4 axes below threshold).
+  `suite`       — `v3.verify.checks.suite_sweep`; v2's `pytest -q tests` translated to v3's actual
+                  test corpus: re-run every OTHER registered gate's re-runnable red side (P2 itself).
+                  One-sided: `ONE_SIDED["suite"]`.
+
+WHY THIS SUITE IS RED, and why that is the correct state. `codegen_freeze` IS registered and it
+FAILS — it reports two genuine, pre-existing violations owned by `full-stack-kotlin` (a malformed
+waiver in an FSK work-doc, and a commit that fed `codegen/` with no open waiver in its own tree).
+v2's own gate is independently confirmed red for the identical two reasons against the same tree, so
+this is parity, not a port defect.
+
+The alternatives were both worse. Leaving it unregistered would have kept this module green while a
+working gate sat outside the count — the exact shape of "green because nobody asked what was left
+out" that `gate_census` exists to catch. Weakening the detector, or writing meta a waiver for FSK's
+debt, would be the fabricated green this project refuses; the standing rule is that **a red is
+disposed of by the level that OWNS it** (LOG 2026-07-28), and meta does not clear FSK's board.
+
+So the suite reports `red=1` with the cause named, exactly as `meta check` carries its 2/23. A
+verification suite that goes red on real debt is working, not broken.
 """
 from __future__ import annotations
 
@@ -74,6 +106,50 @@ def build_registry(root: Path) -> Registry:
         argv=(PY, "-m", "v3.verify.checks.pbt"),
         proves="the graph property suite (P2 serde round-trip) holds under a fixed seed",
         witness=Witness("sabotage_env", "V3_PBT_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="security",
+        argv=(PY, "-m", "v3.verify.checks.security"),
+        proves="v3's own shipped substrate (v3/+seed/+.claude/hooks/+.claude/agents/) carries no "
+               "hardcoded credential and every declared factory dependency is allowlisted",
+        witness=Witness("fixture", "tests/fixtures/security/planted_secrets.txt"),
+    ))
+    registry.register(Gate(
+        name="roles",
+        argv=(PY, "-m", "v3.verify.checks.roles"),
+        proves="every `.claude/agents/*.md` (meta + each factory) names a role in the closed "
+               "vocabulary — agents specialize by ROLE, never by domain",
+        witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="kinds",
+        argv=(PY, "-m", "v3.verify.checks.kind_hygiene"),
+        proves="every check-kind declared in a factory's station YAML or factory.spec.yml is in "
+               "the frozen vocabulary `v3.verify.kinds.KINDS`",
+        witness=Witness("sabotage_env", "V3_KIND_HYGIENE_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="deferred",
+        argv=(PY, "-m", "v3.verify.checks.deferred"),
+        proves="every factory spec's declared-deferred entries are honest under its own "
+               "governance.deferral_tracking policy, with the accumulation measured",
+        witness=Witness("fixture", "tests/fixtures/governance/strict_untracked.factory.spec.yml"),
+    ))
+    registry.register(Gate(
+        name="design_eval",
+        argv=(PY, "-m", "v3.verify.checks.design_eval"),
+        proves="every factory that opted into design/criteria.yml re-verifies clean against its "
+               "standing witness (must fail >=1 axis) and its covered products' pinned critiques",
+        witness=Witness("pinned_data",
+                        "factories/full-stack-kotlin/design/critiques/template-witness.json"),
+    ))
+
+    registry.register(Gate(
+        name="codegen_freeze",
+        argv=(PY, "-m", "v3.verify.checks.codegen_freeze"),
+        proves="the ADR-023 §3 codegen freeze is not pierced without a written waiver — in the "
+               "working tree AND in every commit since the freeze came into force",
+        witness=Witness("sabotage_env", "V3_CODEGEN_FREEZE_SABOTAGE"),
     ))
     registry.register(Gate(
         name="suite",

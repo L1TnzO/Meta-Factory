@@ -1223,6 +1223,45 @@
         "ref": "v3/delegation/rollback.py"
       },
       "closed_at": "2026-07-28T19:47Z"
+    },
+    "N-0086": {
+      "parent": "N-0017",
+      "title": "rehydrate: bajo la inversion es 'que inyecta el host por hoja' (spec 15.6, ancestry+open_set); necesita el arbol de nodos en v3. Disparador: INC-12 INTERACTIVE-MODE",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T16:14Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "deferral",
+        "ref": "V3-INC5/rehydrate-defer"
+      }
+    },
+    "N-0087": {
+      "parent": "N-0017",
+      "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T16:14Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "deferral",
+        "ref": "V3-INC5/precompact-defer"
+      }
+    },
+    "N-0088": {
+      "parent": "N-0017",
+      "title": "gate 'kinds' compara el argv contra los vectores pero NO la importabilidad del modulo destino: kinds.py apunta a v3.verify.checks.docs_check, que no existia, y nada lo noto",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-29T16:14Z",
+      "origin": {
+        "session": "2026-07-29",
+        "cause": "gate_red",
+        "ref": "V3-INC5/kinds-importability"
+      }
     }
   }
 }

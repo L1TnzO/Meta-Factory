@@ -162,6 +162,19 @@ def _compare(pair: Pair, root: Path, *, sabotage: bool) -> list[str]:
     return []
 
 
+def _doc_graph_probe(mod: object, root: Path) -> tuple:
+    """Build the doc-lineage graph with THIS implementation's own `Graph` and return the facts.
+
+    `doc_graph` re-exports `Graph` by importing it, so each side constructs its own graph type and
+    neither borrows the other's — which is the point: if v3's graph model disagreed with v2's about
+    what a node or an edge IS, the counts below would diverge and say so.
+    """
+    graph = mod.Graph()                                          # type: ignore[attr-defined]
+    n_docs = mod.ingest_docs(graph, root)                        # type: ignore[attr-defined]
+    n_cites, n_evidences, unresolved = mod.ingest_doc_edges(graph, root)   # type: ignore[attr-defined]
+    return (n_docs, n_cites, n_evidences, sorted(unresolved))
+
+
 def _importable(module: str) -> bool:
     """Has this pair's port landed? Used ONLY to scope the red side; never to excuse a green."""
     try:
@@ -211,6 +224,20 @@ PAIRS: tuple[Pair, ...] = (
         note="v2 derives the RTM through its own engine/spec loader and v3 through its kernel + "
              "spec port, so agreeing here is a real result rather than a shared code path",
         sabotage=lambda actual: ({}, actual[1], actual[2]),
+    ),
+    Pair(
+        name="evidence_liveness",
+        v2_sources=("src/metafactory/graph/doc_graph.py",
+                    "src/metafactory/verify/checks/evidence_liveness.py"),
+        v2_module="metafactory.graph.doc_graph",
+        v3_module="v3.graph.doc_graph",
+        v2_call=lambda m, root: _doc_graph_probe(m, root),
+        v3_call=lambda m, root: _doc_graph_probe(m, root),
+        note="the doc-lineage graph over the whole corpus: node count, CITES and EVIDENCES edge "
+             "counts, and the exact set of unresolved references",
+        # Dropping the unresolved list is the failure that matters here: it is the ONLY part the
+        # gate acts on, so a port that resolves everything would report a clean corpus forever.
+        sabotage=lambda actual: (actual[0], actual[1], actual[2], []),
     ),
 )
 

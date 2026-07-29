@@ -65,12 +65,17 @@ class Row:
 
 # The 23 rows. The KEYS are checked against v2's source; the VALUES are this increment's judgement.
 DISPOSITIONS: dict[str, Row] = {
-    # ── ported here (15) ────────────────────────────────────────────────────
+    # ── ported: 15 by INC-4, plus INC-5's corpus gates as each one LANDS ─────
     "compile": Row(PORTED, ""), "isolation": Row(PORTED, ""), "generality": Row(PORTED, ""),
     "quality": Row(PORTED, ""), "pbt": Row(PORTED, ""), "security": Row(PORTED, ""),
     "deferred": Row(PORTED, ""), "benchmark": Row(PORTED, ""), "dial": Row(PORTED, ""),
     "roles": Row(PORTED, ""), "kinds": Row(PORTED, ""), "codegen_freeze": Row(PORTED, ""),
     "plan": Row(PORTED, ""), "design_eval": Row(PORTED, ""), "suite": Row(PORTED, ""),
+
+    # INC-5 Fase 2. This row moves out of the deferred block HERE and not a moment earlier: a row
+    # that claims PORTED while its gate is unregistered is reported `pending` and turns this census
+    # red, so the promise cannot be written before the landing.
+    "docs": Row(PORTED, ""),
 
     # ── already in v3 under another shape (2) ───────────────────────────────
     "least_priv": Row(ALREADY, "v3/verify/composition.py",
@@ -83,9 +88,7 @@ DISPOSITIONS: dict[str, Row] = {
                          "§11.4 retires it: under composition the column exists once, so a "
                          "parity check between copies has nothing to compare"),
 
-    # ── deferred, with a trigger (5) ────────────────────────────────────────
-    "docs": Row(DEFERRED, "INC-5", "needs docs_manifest (290 LOC), which INC-5 ports; and it is "
-                                   "one of R-10's three gates with no red witness"),
+    # ── deferred, with a trigger (4 left; `docs` landed in INC-5 Fase 2) ────
     "projection": Row(DEFERRED, "INC-5", "needs memory/projection (150 LOC), ported by INC-5"),
     "evidence_liveness": Row(DEFERRED, "INC-5", "needs graph/doc_graph (313 LOC) — doc lineage, "
                                                 "same subject as the corpus INC-5 owns (C-5)"),

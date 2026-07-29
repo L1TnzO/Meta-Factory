@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
 """The acceptance ORACLE for INC-5's five ports: does v3's law answer what v2's law answers?
 
-    python3 -m v3.verify.corpus_parity                  # all pairs declared below
-    python3 -m v3.verify.corpus_parity --only docs      # one slot's acceptance gate
-    V3_CORPUS_PARITY_SABOTAGE=1 python3 -m v3.verify.corpus_parity   # the red side; must ALSO exit 0
+    python3 tools/corpus_parity.py                  # all pairs declared below
+    python3 tools/corpus_parity.py --only docs      # one slot's acceptance gate
+    V3_CORPUS_PARITY_SABOTAGE=1 python3 tools/corpus_parity.py   # the red side; must ALSO exit 0
+
+WHY THIS LIVES IN `tools/` AND NOT UNDER `v3/`. It was written under `v3/verify/` and the boundary
+checker was right to reject it there. `v3.verify.import_boundary` bans importing the substrate v3
+replaces, and its reasoning draws a line this file sits on the wrong side of: reading v2 HISTORY at
+a pinned commit is fine (a commit is immutable, so it keeps working forever), but depending on v2
+CODE means v3 stops working the day INC-11 deletes it. This harness genuinely imports v2's live
+modules — that is the whole job — so under `v3/` it would have needed a carve-out.
+
+Taking the carve-out would have been the wrong trade, and that module's own docstring says why: "an
+exemption that stops being needed is itself a violation." A v2/v3 parity oracle is MEANINGLESS after
+cutover, so the exemption would be orphaned the moment it stopped being needed — one inconvenient
+afternoon away from being reused for something it was never argued for.
+
+So the resolution is structural instead of textual: **v3 must not depend on v2; the instrument that
+COMPARES them is neither.** It is migration scaffolding with a scheduled death — when v2 is deleted,
+this file goes with it, and nothing under `v3/` has to be edited or un-exempted for that to happen.
 
 WHY THIS IS NOT A REGISTERED GATE. It is a slot acceptance oracle, not a member of `meta check`'s
 23. Registering it would be adding capability before cutover (§11.5), and the census counts v2's
@@ -51,11 +67,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from ..kernel.report import Verdict
-
-_V3 = Path(__file__).resolve().parent.parent
-_ROOT = _V3.parent
+_ROOT = Path(__file__).resolve().parents[1]     # <root>/tools/corpus_parity.py
+_V3 = _ROOT / "v3"
 _SRC = _ROOT / "src"
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))              # so `import v3.…` resolves when run as a script
+
+from v3.kernel.report import Verdict            # noqa: E402 — must follow the path anchor above
 
 
 @dataclass(frozen=True)

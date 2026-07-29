@@ -221,6 +221,14 @@ def build_registry(root: Path) -> Registry:
         witness=Witness("sabotage_env", "V3_CODEGEN_FREEZE_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="docs",
+        argv=(PY, "-m", "v3.verify.checks.docs_check"),
+        proves="every authored doc in every level's home carries a current content-addressed seal, "
+               "INDEX covers exactly the meta doc set, no entry doc has a dangling link, and no "
+               "home's STATE is stale by last-commit time (ADR-009)",
+        witness=Witness("sabotage_env", "V3_DOCS_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="suite",
         argv=(PY, "-m", "v3.verify.checks.suite_sweep"),
         proves="every OTHER registered gate's re-runnable red side still goes red when re-run (P2)",

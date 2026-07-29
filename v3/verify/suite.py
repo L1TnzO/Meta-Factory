@@ -221,6 +221,14 @@ def build_registry(root: Path) -> Registry:
         witness=Witness("sabotage_env", "V3_CODEGEN_FREEZE_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="evidence_liveness",
+        argv=(PY, "-m", "v3.verify.checks.evidence_liveness"),
+        proves="every LIVING doc's CITES references resolve — `.md` paths and bare `ADR-NNN` — "
+               "over the whole corpus; history (`decisions/`, `LOG.md`, closed `work/`) is exempt "
+               "and EVIDENCES targets are recorded but never gated (ADR-026 F1)",
+        witness=Witness("fixture", "tests/fixtures/docs/dangling_reference.md"),
+    ))
+    registry.register(Gate(
         name="projection",
         argv=(PY, "-m", "v3.verify.checks.projection"),
         proves="STATE's generated `meta:projection` block equals what the facts re-derive right now "

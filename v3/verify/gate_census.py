@@ -75,7 +75,7 @@ DISPOSITIONS: dict[str, Row] = {
     # INC-5 Fase 2. This row moves out of the deferred block HERE and not a moment earlier: a row
     # that claims PORTED while its gate is unregistered is reported `pending` and turns this census
     # red, so the promise cannot be written before the landing.
-    "docs": Row(PORTED, ""), "projection": Row(PORTED, ""),
+    "docs": Row(PORTED, ""), "projection": Row(PORTED, ""), "evidence_liveness": Row(PORTED, ""),
 
     # ── already in v3 under another shape (2) ───────────────────────────────
     "least_priv": Row(ALREADY, "v3/verify/composition.py",
@@ -88,9 +88,7 @@ DISPOSITIONS: dict[str, Row] = {
                          "§11.4 retires it: under composition the column exists once, so a "
                          "parity check between copies has nothing to compare"),
 
-    # ── deferred, with a trigger (3 left; `docs`+`projection` landed in INC-5) ─
-    "evidence_liveness": Row(DEFERRED, "INC-5", "needs graph/doc_graph (313 LOC) — doc lineage, "
-                                                "same subject as the corpus INC-5 owns (C-5)"),
+    # ── deferred, with a trigger (2 left; the STATE teeth, INC-5 Fase 5) ────
     "state_snapshot": Row(DEFERRED, "INC-5", "§11.3 assigns the STATE teeth to INC-5; its subject "
                                              "is the doc corpus that is INC-5's fixture"),
     "state_fidelity": Row(DEFERRED, "INC-5", "same subject, and it reads STATE through "

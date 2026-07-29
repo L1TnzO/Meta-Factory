@@ -11,9 +11,15 @@ Module map — what THIS increment ports (866 LOC across 5 modules, the exact v2
   pbt_properties.py — property-based tests over the graph (P2 serde round-trip only — see its
                       docstring for the P1 cut and why).
 
-OUT of this increment's scope (named here so the gap is not silent): `doc_graph.py` (doc lineage,
-INC-5) and the navigation/economy surface — `ingest.py`, `incremental.py`, `repomap.py`, `billing.py`,
-`pricing.py`, `affected*.py`, `cli.py` (INC-6). None of those is imported from here.
+ADDED AFTER that map, by V3-INC5-MEMORY-DOCS Fase 4 — so the count above is INC-4's, not this
+package's:
+  doc_graph.py     — the DOC slice: docs as nodes, CITES/EVIDENCES as edges, exemption classes and
+                     the liveness of a living doc's references. It reads `v3.memory.docs_manifest`
+                     for the doc set, so the corpus it walks is the same one the `docs` gate seals.
+
+OUT of scope still (named here so the gap is not silent): the navigation/economy surface —
+`ingest.py`, `incremental.py`, `repomap.py`, `billing.py`, `pricing.py`, `affected*.py`, `cli.py`
+(INC-6). None of those is imported from here.
 """
 from __future__ import annotations
 

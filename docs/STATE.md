@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ac202b36bdf9dc2ca100bb2f7db83e7218eda436 updated=2026-07-29T16:11Z -->
+<!-- meta:doc sha=78c2dd671a63396446bff3b4a50113f44198dc4a updated=2026-07-29T16:32Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,15 +20,17 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-4 ENTREGADOS**, sigue INC-5.**
+- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-4 ENTREGADOS**, **INC-5 EN CURSO**.**
   Reconstruye el plano de CONTROL sobre el Claude Agent SDK conservando la evidencia: **nuestro
   programa es el host, Claude Code el motor**. Se construye EN el árbol (`v3/`): los hooks lo
   alcanzan, los gates de juicio no. Oráculo = commit pineado en `v3/oracle_ref.json`, nunca el
   working tree. **INC-4:** un gate **no se registra sin testigo rojo alcanzable**; el **censo de los
-  23** (derivado de v2 en el ref) cierra 15 portados / 2 ya-en-v3 / 1 retirado / 5 diferidos a INC-5
-  y **da verde**; `generality` se ganó el testigo que nunca tuvo. **28 gates con lado rojo corrido**
-  (13 en `v3/verify/` + los 15 del registro). 4 oráculos re-derivables byte-idénticos. R-14
-  re-decidido (pydantic NO). 8 correcciones a la spec. **Mapa: `docs/spec/20-architecture-map.md`.**
+  23** cierra 15 portados / 2 ya-en-v3 / 1 retirado / 5 diferidos y **da verde**. **INC-5** (corpus
+  documental, `docs`✅): censo **16 portados · 0 pendientes**; el oráculo compara la LEY, no el
+  stdout (`tools/corpus_parity.py`, fuera de `v3/` a propósito: v3 no depende de v2 y el instrumento
+  que los compara no es ninguno de los dos). `docs` se ganó el testigo que v2 nunca tuvo (4 clases
+  de defecto). Suite v3 `green=13 · red=2 · n/a=1` — los 2 rojos son deuda de FSK, declarada.
+  R-14 re-decidido (pydantic NO). **Mapa: `docs/spec/20-architecture-map.md`.**
   → `decisions/031`·`032` · `LOG.md` (2026-07-28/29) · `work/V3-INC4-…` · plan `N-0011`/`N-0017`.
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.

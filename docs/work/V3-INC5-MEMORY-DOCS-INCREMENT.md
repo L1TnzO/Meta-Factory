@@ -1,4 +1,4 @@
-<!-- meta:doc sha=265da68cd0ebf21ecd04b691eed9af982dd9c620 updated=2026-07-29T16:20Z -->
+<!-- meta:doc sha=370597087dec4844e78c2818b2a8f28e3f0a3e9f updated=2026-07-29T16:32Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
@@ -122,8 +122,8 @@ midiendo otra cosa. La comparación es parte del gate de cada slot, no un cheque
 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Andamio: `v3/memory/` + fixtures del corpus sintético; ninguna fila del censo se toca | ⏳ |
-| 2 | `docs`: portar `docs_manifest` (290) + `docs_check`; **ganarse** un testigo `sabotage_env` (4 clases de defecto) | ⏳ |
+| 1 | Andamio: `v3/memory/` + el oráculo `tools/corpus_parity.py` | ✅ |
+| 2 | `docs`: portar `docs_manifest` (290) + `docs_check`; **ganarse** un testigo `sabotage_env` (4 clases de defecto) | ✅ |
 | 3 | `projection`: portar `memory/projection` (150); **ganarse** testigo; rama `na_when` sin `.proof/` | ⏳ |
 | 4 | `evidence_liveness`: portar `graph/doc_graph` (313) + check; testigo = el fixture ya comiteado | ⏳ |
 | 5 | `state_snapshot` + `state_fidelity`: portar ambos y convertir el diente embebido en handle re-corrible | ⏳ |
@@ -133,6 +133,58 @@ midiendo otra cosa. La comparación es parte del gate de cada slot, no un cheque
 El orden no es estético: el censo **obliga** a que la fila se dé vuelta último. Una fila declarada
 `PORTED` cuyo gate no está registrado sale `pending — declared ported, not registered` y el censo se
 pone rojo (`gate_census.py:204`). No se puede prometer el port; hay que aterrizarlo.
+
+## Fase 2: tres cosas que el gate de mi propio slot no preguntó
+
+El slot volvió verde y el verdict era cierto: paridad con v2, testigo 4/4, footprint dentro del
+contrato. Y aun así quedaban tres cosas afuera del conteo — todas mías, ninguna del generador.
+
+1. **`import_boundary` estaba rojo con el verdict en verde.** No lo puse en el `acceptance_gate_cmd`
+   que yo diseñé. El generador cumplió el contrato que le di; el contrato no cubría una regla que el
+   repo sí enforcea. Es la misma forma de siempre, aplicada al diseño del gate en vez de al código.
+
+2. **El oráculo vivía adentro de `v3/` e importaba v2.** La regla lo rechazó y tenía razón. Su
+   docstring distingue algo que yo había pasado por alto: leer *historia* de v2 en un commit pineado
+   es inocuo —un commit es inmutable, sigue funcionando para siempre— pero depender del *código* de
+   v2 es romperse el día que INC-11 lo borre. La salida NO fue pedir una excepción: el propio módulo
+   avisa que «una excepción que deja de ser necesaria es en sí misma una violación», y un oráculo de
+   paridad v2/v3 queda huérfano exactamente el día del cutover. Se movió a `tools/`. **v3 no depende
+   de v2; el instrumento que los COMPARA no es ninguno de los dos**, y muere con v2.
+
+3. **El header de provenance de `INDEX.md` nombraba el módulo de v2.** Es DATO en un artefacto
+   generado, no ley: `check()` no lo lee, así que `corpus_parity` es ciego a él por construcción —
+   razón de más para escribirlo acá en vez de dejarlo para que alguien lo encuentre. El port firma
+   con su propio nombre; un port que mantuviera el viejo tendría a v3 firmando con el nombre de v2 un
+   archivo que generó v3. Hoy es inerte: `sync()` no tiene caller en v3.
+
+## El hook que mantenía los sellos era un no-op silencioso
+
+Aparte, y encontrado al medir el corpus en un clone limpio en vez de en el árbol de trabajo:
+`doc_stamp` lanzaba `doc-sync` sin `cwd=` y con `PYTHONPATH=src` **relativo**. Desde cualquier
+subdirectorio nada de eso resuelve, el subproceso falla, `capture_output=True` se come el mensaje y
+el hook devuelve 0. Los sellos dejan de mantenerse y nada lo dice.
+
+Lo destapó este mismo doc: lo escribí con `Write` desde una sesión cuyo cwd era un subdirectorio, el
+Write se llevó puesta la línea del sello, el hook no la repuso, y **el doc quedó comiteado sin
+sello**. En el árbol de trabajo `docs` seguía diciendo 1 problema porque yo había medido la línea
+base *antes* de crear el doc. El segundo problema sólo apareció en el clone limpio.
+
+El arreglo ya existía al lado —`stop_proof.py` se ancla con `Path(__file__).parents[2]` desde
+be3805c— y esta pasada se había salteado `doc_stamp`. Sigue sin bloquear, pero ya no falla invisible.
+
+## Tres mediciones en clone limpio que §11.6 va a encontrar
+
+`.proof/` está gitignoreado, así que un clone limpio no lo tiene. Medido, no razonado:
+
+| Gate | En el árbol | En clone limpio | Lectura |
+| --- | --- | --- | --- |
+| `projection` | verde | **rojo** («stale vs. the facts») | sin `.proof/` el RTM re-deriva INCOMPLETE ×5 y contradice el bloque comiteado |
+| `state_fidelity` | verde | verde **vacuo** | re-deriva INCOMPLETE ×5 y no encuentra contradicción porque la prosa no afirma por-fábrica en su ventana |
+| `docs` | 1 problema | 2 problemas | el segundo era mi doc sin sello |
+
+`projection` en rojo ahí sería **mentir**: no dice «la proyección está mal», dice «los hechos todavía
+no se derivaron» — se derivan corriendo `ci --rederive` primero. Eso es N/A contado aparte (R-12), no
+rojo, y es lo que la Fase 3 tiene que declarar como `na_when`.
 
 ## Qué se delega y qué no
 

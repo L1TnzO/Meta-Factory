@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `46aa40eb359c` | 2026-07-28T19:45Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `988a6e32bdcb` | 2026-07-28T22:10Z | State — Meta-Factory |
+| `docs/LOG.md` | `e53512415777` | 2026-07-29T08:09Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `2ce36918ef2c` | 2026-07-29T08:09Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -194,6 +194,6 @@
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
 | `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `b0965d2a3c66` | 2026-07-28T18:21Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/V3-INC3-DELEGATION-INCREMENT.md` | `02bce4d1bdc4` | 2026-07-28T19:30Z | Incremento V3-INC3-DELEGATION |
-| `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `0f06e669aadf` | 2026-07-28T22:10Z | Incremento V3-INC4-CHECKS-PORT |
+| `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `660f3f7d9481` | 2026-07-29T08:09Z | Incremento V3-INC4-CHECKS-PORT |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

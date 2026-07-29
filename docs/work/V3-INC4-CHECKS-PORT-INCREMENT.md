@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0f06e669aadf18f19924e2dd924e9f52977656ab updated=2026-07-28T22:10Z -->
+<!-- meta:doc sha=660f3f7d94814c2d8311dfcdf3f729097201a298 updated=2026-07-29T08:09Z -->
 # Incremento V3-INC4-CHECKS-PORT
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-28T22:10Z). Cerralo con `meta increment close`
@@ -121,7 +121,7 @@ error de una librería madura sí valdría más que la postura estricta.
 | 3 | Los 29 kinds + resolución de argv, contra vectores generados en `oracle_ref` | delegado | ✅ |
 | 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegado (R-14 no) | ✅ |
 | 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegado + rescatado | ✅ |
-| 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegado | 🔄 5/15 |
+| 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegado (3 lotes) | ✅ 15/15 |
 
 Volumen medido, no estimado: ~1.500 LOC de gates + 866 de grafo + ~700 de spec + ~400 de soporte +
 ~400 de registro y kinds ≈ **3.900 LOC**. §11.3 lo llamaba «L»; es XL y conviene decirlo antes y no
@@ -257,6 +257,37 @@ distinguir mi mano de la del generador. La regla que queda: **la columna se toca
 o la ruta se declara en `baseline_dirty` al abrirlo. El diff resultó ser exactamente el docstring
 (+14/−1) y nada más, pero eso lo confirmé leyendo, que es justo lo que un barrido existe para no
 tener que hacer.
+
+## Lotes B y C: dos maneras de que un port cambie el significado de lo que ya existía
+
+Los 15 cuerpos entraron en tres lotes. Los dos hallazgos que valen no son de volumen.
+
+**1. `codegen_freeze` y el epoch que blanquea la historia.** El generador se negó a registrarlo y
+volvió ROJO antes que fabricar el conteo que le pedí: su lado verde encuentra una violación REAL de
+FSK. Verificando ese rojo apareció algo más fino — v2 reporta **2** problemas y el port reportaba
+**1**. No era el barrido de commits (estaba portado) sino el **epoch**: ambos lo derivaban del
+add-commit de su PROPIO módulo, así que un archivo nuevo trae un epoch nuevo y **todo lo que el gate
+ya había cazado queda grandfathered en el momento en que alguien lo re-implementa**. Pineado como
+dato (`FREEZE_EPOCH`): la entrada en vigor es propiedad de la LEY (ADR-023 §3), no del archivo que la
+implementa. v3 vuelve a reportar los 2.
+
+Y queda **registrado igual, con la suite en rojo**. Dejarlo afuera mantenía este módulo verde con un
+gate que funciona fuera del conteo —la forma exacta que el censo existe para cazar—; debilitar el
+detector o escribirle meta un waiver a la deuda de FSK sería el verde fabricado. **Un rojo lo dispone
+el nivel que lo POSEE.** La suite dice `green=13 · red=1 · n/a=1` con la causa nombrada.
+
+**2. El vocabulario del slot, que sólo se destapó porque un gate se topó con un archivo real.** El
+gate `plan` rechazaba un `.gen/plan.json` que v2 acepta. La causa no era el gate: INC-3 embarcó
+`delegation/slot.py` con vocabularios **inventados** (`untrusted/bounded/trusted`, `…/expensive`,
+`none/workspace/…`) y `side_effects` como escalar en vez de lista. Nada lo anunció, así que se leía
+como port. El seed y la spec (§13:375-377, §05:43) dicen otra cosa, y la consecuencia era que **todo
+WorkOrder escrito por v2 queda rechazado por v3** por nombrar un valor que era legal cuando se
+escribió. Un vocabulario es formato de cable entre los dos sistemas mientras ambos existan. Alineado;
+equivalencia medida en 7 casos, coinciden en los 7.
+
+Las dos son la misma familia y conviene decirlo junto: **portar algo no puede cambiarle el
+significado a los artefactos que ya existían.** Ninguna la habría encontrado una revisión de código —
+las dos aparecieron porque un gate se encontró con un archivo real.
 
 ## Por qué la ley es columna y no se delega
 

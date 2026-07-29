@@ -90,7 +90,20 @@ class Gate:
     na_when: str = ""   # the vacuous-true branch, named. "" means the gate has none.
 
     def red_run(self) -> tuple[tuple[str, ...], dict[str, str]] | None:
-        """The command that must go RED, or None when the red side is embedded in the green run."""
+        """The command that RE-RUNS this gate's witness, or None when the red side is embedded in
+        the green run.
+
+        CONTRACT, and it is the opposite of the obvious one: the returned command must exit **0**,
+        reporting that it planted its problem and CAUGHT it. It is not "the command that must fail".
+
+        The obvious convention — a red side is anything non-zero — cannot tell a witness that bit
+        from a module with a syntax error, a bad import, or any crash. Under it, deleting the body
+        of a gate would certify its witness as working, which is precisely backwards. Requiring the
+        red side to exit 0 forces it to REPORT the catch, so the sweep is reading an assertion
+        rather than an absence. Every gate in `v3/verify/` already works this way (`*_SABOTAGE=1`
+        prints `GATE DECORATIVO` and exits 1 when the planted problem is NOT caught); this docstring
+        used to say the reverse, and `suite_sweep` faithfully implemented the reverse.
+        """
         if self.witness is None or self.witness.is_embedded:
             return None
         return self.argv, {self.witness.handle: "1"}

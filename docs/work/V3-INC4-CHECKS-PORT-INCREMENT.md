@@ -121,7 +121,7 @@ error de una librería madura sí valdría más que la postura estricta.
 | 3 | Los 29 kinds + resolución de argv, contra vectores generados en `oracle_ref` | delegado | ✅ |
 | 4 | `spec/{model,loader,validator}` portado + **R-14 decidido** | delegado (R-14 no) | ✅ |
 | 5 | Rebanada del grafo de CÓDIGO (866 LOC, C-5) | delegado + rescatado | ✅ |
-| 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegable | ⏳ |
+| 6 | Los 15 gates en lotes; cada uno llega **con su testigo rojo o no se registra**; `generality` gana el suyo | delegado | 🔄 5/15 |
 
 Volumen medido, no estimado: ~1.500 LOC de gates + 866 de grafo + ~700 de spec + ~400 de soporte +
 ~400 de registro y kinds ≈ **3.900 LOC**. §11.3 lo llamaba «L»; es XL y conviene decirlo antes y no
@@ -222,6 +222,41 @@ no dejado caer en silencio.
 
 Verificado: los tres casos rojos muerden · el oráculo se re-deriva **byte-idéntico** · `import_boundary`
 verde sobre 61 módulos · la cadena entera de gates verde y sus sabotajes también.
+
+## Fase 6 (en curso, 5/15): la convención del lado rojo estaba al revés — y era mía
+
+Aterrizaron el cableado del registro (`verify/suite.py`) y los 5 gates cuyas dependencias ya estaban
+portadas: `compile` · `isolation` · `quality` · `pbt` · `suite`. El censo pasó de `0/15` a `5/15`.
+
+Tres decisiones de traducción, porque no todos tienen destino 1:1:
+
+- **`isolation`** porta la PROPIEDAD, no el archivo: «la plataforma nunca importa sus productos»
+  (v2 lo probaba sobre el sustrato; acá el sujeto es `v3/`).
+- **`suite`** no tiene equivalente literal —v3 no tiene corpus de pytest— así que su traducción
+  honesta es el **barrido P2** de §11.2: re-correr el lado rojo de cada gate registrado. No es una
+  mejora, es el mismo reclamo en el idioma de v3, y es exactamente lo que pide la cláusula 2 de la
+  aceptación.
+- **`quality`** mide `v3` + `seed` con los umbrales de v2. Sin violaciones hoy (67 módulos), y el
+  fixture del monolito sigue mordiendo (82 funciones > 80).
+
+**El defecto que apareció, y era mío.** `red_run()` decía «el comando que tiene que dar ROJO», así
+que `suite_sweep` trataba **exit 0 como decorativo** y cualquier no-cero como éxito. Esa convención
+no puede distinguir un testigo que mordió de un módulo con un error de sintaxis, un import roto o
+cualquier crash: **borrar el cuerpo de un gate lo habría certificado como testigo funcionando.** Al
+revés de lo que se busca. Y además contradecía a los 9 gates que ya existían, donde `*_SABOTAGE=1`
+sale 0 para reportar «planté el problema y lo cacé».
+
+Corregido en la ley: **el lado rojo tiene que salir 0 e informar la captura.** Así el barrido lee una
+afirmación en vez de una ausencia. Verificado por sondeo propio e independiente, con gates sintéticos:
+exit 0 → pasa · exit 1 → señalado · exit 2 → señalado · cero lados rojos re-corribles → rojo por
+Lock #1, nunca verde vacío.
+
+**Lección operativa, también mía.** El barrido de footprint salió ROJO al final del slot — y tenía
+razón: editar `registry.py` (columna) *mientras el slot estaba abierto* deja al barrido sin manera de
+distinguir mi mano de la del generador. La regla que queda: **la columna se toca con el slot cerrado**,
+o la ruta se declara en `baseline_dirty` al abrirlo. El diff resultó ser exactamente el docstring
+(+14/−1) y nada más, pero eso lo confirmé leyendo, que es justo lo que un barrido existe para no
+tener que hacer.
 
 ## Por qué la ley es columna y no se delega
 

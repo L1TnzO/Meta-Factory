@@ -12,12 +12,12 @@
       "calls": [
         {
           "tool": "Write",
-          "path": "/tmp/v3-leaf-xnynzixd/src/ok.py",
+          "path": "/tmp/v3-leaf-z2ugpty6/src/ok.py",
           "decision": "allow",
           "reason": "src/ok.py matches src/*.py"
         }
       ],
-      "cost": 0.010723100000000001,
+      "cost": 0.009709,
       "error": null
     },
     "B-OUTSIDE": {
@@ -25,12 +25,12 @@
       "calls": [
         {
           "tool": "Write",
-          "path": "/tmp/v3-leaf-xnynzixd/docs/notes.txt",
+          "path": "/tmp/v3-leaf-z2ugpty6/docs/notes.txt",
           "decision": "deny",
           "reason": "docs/notes.txt is outside the blast radius ['src/*.py']"
         }
       ],
-      "cost": 0.0146101,
+      "cost": 0.010169000000000001,
       "error": null
     },
     "C-UNBOUNDED": {

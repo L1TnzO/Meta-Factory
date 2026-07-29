@@ -43,9 +43,22 @@ REQUIRED_KEYS = ("slot_id", "allow_globs", "verdict_path", "iteration_gate_cmd",
 
 #: Closed vocabularies (the PWF harvest, §Fase 4 of REAIM): a value outside them is a refusal, not a
 #: warning. Adding a member is a governance act.
-TRUST_LEVELS = ("untrusted", "bounded", "trusted")
-COST_CLASSES = ("cheap", "standard", "expensive")
-SIDE_EFFECTS = ("none", "workspace", "network", "external")
+#:
+#: THESE ARE THE SEED'S VALUES, DELIBERATELY, and the reason is worth the paragraph. INC-3 shipped
+#: this file with invented alternatives (`untrusted/bounded/trusted`, `.../expensive`,
+#: `none/workspace/...`) and `side_effects` as a scalar instead of a list. Nothing announced it, so
+#: it read as a port. It was not: `seed/delegation.py:60-62` and the spec (§13:375-377, §05:43) both
+#: say `low/medium/high`, `cheap/standard/premium`, and a LIST of `files/network/process`.
+#:
+#: The consequence was invisible until INC-4's `plan` gate met a real file: every WorkOrder written
+#: by v2 — every plan, every archived manifest — is REFUSED by v3 for naming a value that was legal
+#: when it was written. A vocabulary is a wire format between the two systems while both exist, and
+#: renaming one silently turns "this manifest is malformed" and "this manifest is old" into the same
+#: message. Aligned back, so the two systems refuse the same slots for the same reasons — which is
+#: what the `WALL_MAX_S` note below already promised on this file's behalf.
+TRUST_LEVELS = ("low", "medium", "high")
+COST_CLASSES = ("cheap", "standard", "premium")
+SIDE_EFFECTS = ("files", "network", "process")
 
 #: A slot that needs longer than this is too big and must be SPLIT — change-scope == verification
 #: scope. The number is v2's, kept so the two systems refuse the same slots.
@@ -59,9 +72,9 @@ class Slot:
     verdict_path: str
     iteration_gate_cmd: tuple[str, ...]
     acceptance_gate_cmd: tuple[str, ...]
-    trust_level: str = "bounded"
+    trust_level: str = "medium"
     cost_class: str = "standard"
-    side_effects: str = "workspace"
+    side_effects: tuple[str, ...] = ("files",)
     max_wall_s: int = 600
     #: Paths ALREADY dirty when the slot opened. Without this the footprint sweep would blame the
     #: generator for someone else's uncommitted work — and a sweep that cries wolf gets disabled.
@@ -104,10 +117,23 @@ def problems(data: object) -> list[str]:
     if "verdict_path" in data and (not isinstance(verdict, str) or not verdict.strip()):
         out.append("`verdict_path` must be a non-empty string")
 
-    for key, vocabulary in (("trust_level", TRUST_LEVELS), ("cost_class", COST_CLASSES),
-                            ("side_effects", SIDE_EFFECTS)):
+    for key, vocabulary in (("trust_level", TRUST_LEVELS), ("cost_class", COST_CLASSES)):
         if key in data and data[key] not in vocabulary:
             out.append(f"`{key}`={data[key]!r} is outside the closed vocabulary {vocabulary}")
+
+    # `side_effects` is a LIST of members, not one member (seed/delegation.py:44,50,144-150 and
+    # §13:377). A slot can both write files and spawn processes; a scalar cannot say so, and
+    # accepting a bare string here would quietly read "network" as the whole blast surface.
+    effects = data.get("side_effects")
+    if "side_effects" in data:
+        if not isinstance(effects, list) or not all(isinstance(e, str) for e in effects):
+            out.append("`side_effects` must be a LIST of strings — a slot's blast surface is a set, "
+                       "and a bare string would read as the whole of it")
+        else:
+            for effect in effects:
+                if effect not in SIDE_EFFECTS:
+                    out.append(f"`side_effects` member {effect!r} is outside the closed vocabulary "
+                               f"{SIDE_EFFECTS}")
 
     wall = data.get("max_wall_s")
     if "max_wall_s" in data:
@@ -150,7 +176,7 @@ def load(root: Path) -> tuple[Slot | None, list[str]]:
         acceptance_gate_cmd=tuple(data["acceptance_gate_cmd"]),
         trust_level=data.get("trust_level", "bounded"),
         cost_class=data.get("cost_class", "standard"),
-        side_effects=data.get("side_effects", "workspace"),
+        side_effects=tuple(data.get("side_effects", ("files",))),
         max_wall_s=data.get("max_wall_s", 600),
         baseline_dirty=tuple(sorted(data.get("baseline_dirty", []))),
         raw=data,

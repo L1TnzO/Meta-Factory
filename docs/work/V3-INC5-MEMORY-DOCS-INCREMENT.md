@@ -1,4 +1,4 @@
-<!-- meta:doc sha=370597087dec4844e78c2818b2a8f28e3f0a3e9f updated=2026-07-29T16:32Z -->
+<!-- meta:doc sha=8411b37a401536dc062b772b4f9c2057f56ecf40 updated=2026-07-29T16:47Z -->
 # Incremento V3-INC5-MEMORY-DOCS
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-29T16:11Z). Cerralo con `meta increment close`
@@ -124,7 +124,7 @@ midiendo otra cosa. La comparación es parte del gate de cada slot, no un cheque
 | --- | --- | --- |
 | 1 | Andamio: `v3/memory/` + el oráculo `tools/corpus_parity.py` | ✅ |
 | 2 | `docs`: portar `docs_manifest` (290) + `docs_check`; **ganarse** un testigo `sabotage_env` (4 clases de defecto) | ✅ |
-| 3 | `projection`: portar `memory/projection` (150); **ganarse** testigo; rama `na_when` sin `.proof/` | ⏳ |
+| 3 | `projection`: portar `memory/projection` (150); **ganarse** testigo; rama `na_when` sin `.proof/` | ✅ |
 | 4 | `evidence_liveness`: portar `graph/doc_graph` (313) + check; testigo = el fixture ya comiteado | ⏳ |
 | 5 | `state_snapshot` + `state_fidelity`: portar ambos y convertir el diente embebido en handle re-corrible | ⏳ |
 | 6 | `journal` portado; los dos diferidos como nodos del plan; el hueco de `kinds` (importabilidad) dispuesto | ⏳ |
@@ -184,7 +184,30 @@ be3805c— y esta pasada se había salteado `doc_stamp`. Sigue sin bloquear, per
 
 `projection` en rojo ahí sería **mentir**: no dice «la proyección está mal», dice «los hechos todavía
 no se derivaron» — se derivan corriendo `ci --rederive` primero. Eso es N/A contado aparte (R-12), no
-rojo, y es lo que la Fase 3 tiene que declarar como `na_when`.
+rojo. **La Fase 3 lo entregó**, y se verificó del único modo que vale: clonando el repo de nuevo,
+copiando el port adentro y corriendo el gate ahí — N/A, no rojo. Es la primera vez que un port de
+este incremento queda **mejor** que su original en vez de sólo igual, y la mejora no fue agregar
+capacidad: fue negarse a afirmar algo que no se sabía.
+
+Detalle de diseño que vale más que el resultado: **la rama N/A vive en el GATE, nunca en la ley
+portada.** `is_stale()` sigue devolviendo exactamente lo de v2, porque el oráculo importa las dos y
+las compara — meterla adentro de la ley habría roto la paridad y, peor, habría cambiado lo que la ley
+significa. La misma distinción que separa reportar de decidir.
+
+## Estado al cierre de esta sesión (2026-07-29)
+
+| | |
+| --- | --- |
+| Gates del corpus portados | **2 de 5** — `docs` ✅ · `projection` ✅ |
+| Censo | **17/23 portados · 0 pendientes** (arranca en 15) |
+| Suite v3 | `green=14 · red=2 · n/a=1` |
+| Oráculo | 2 pares, lado rojo **2/2 atrapados** de a uno |
+| `meta check` | 2/23, sin regresión |
+
+Los 2 rojos siguen siendo `codegen_freeze` y `docs`, ambos deuda de FSK y ambos declarados antes de
+empezar. Faltan las Fases 4–7, y a esta altura son **ejecución con patrón establecido**, no diseño:
+cada una repite la misma forma —portar la ley · ganarse el testigo · fila en el oráculo · registrar ·
+dar vuelta la fila del censo—, y el censo impide prometer un port antes de aterrizarlo.
 
 ## Qué se delega y qué no
 

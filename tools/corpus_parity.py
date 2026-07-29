@@ -162,6 +162,15 @@ def _compare(pair: Pair, root: Path, *, sabotage: bool) -> list[str]:
     return []
 
 
+def _importable(module: str) -> bool:
+    """Has this pair's port landed? Used ONLY to scope the red side; never to excuse a green."""
+    try:
+        _import(module, with_src=False)
+    except Exception:                                           # noqa: BLE001
+        return False
+    return True
+
+
 def _brief(value: object, limit: int = 240) -> str:
     text = repr(value)
     return text if len(text) <= limit else f"{text[:limit]}… ({len(text)} chars)"
@@ -187,6 +196,21 @@ PAIRS: tuple[Pair, ...] = (
         # than the oracle. Dropping v2's problems is the exact shape of a weakened check that still
         # exits 0 (§11.2's ⚠️), and it must not survive.
         sabotage=lambda actual: [],
+    ),
+    Pair(
+        name="projection",
+        v2_sources=("src/metafactory/memory/projection.py",),
+        v2_module="metafactory.memory.projection",
+        v3_module="v3.memory.projection",
+        # Compares the FACTS and the RENDERING, not just the verdict. `is_stale` alone would be a
+        # single bool: two implementations can agree on "not stale" while disagreeing about every
+        # factory's status, which is precisely the hollow agreement §11.2 warns about. The status
+        # map is the substantive claim; the block is what actually lands in STATE.
+        v2_call=lambda m, root: (m.rtm_statuses(root), m.build_block(root), m.is_stale(root)),
+        v3_call=lambda m, root: (m.rtm_statuses(root), m.build_block(root), m.is_stale(root)),
+        note="v2 derives the RTM through its own engine/spec loader and v3 through its kernel + "
+             "spec port, so agreeing here is a real result rather than a shared code path",
+        sabotage=lambda actual: ({}, actual[1], actual[2]),
     ),
 )
 
@@ -217,16 +241,30 @@ def main(argv: list[str]) -> int:
     selected = tuple(args.only)
 
     if os.environ.get("V3_CORPUS_PARITY_SABOTAGE") == "1":
-        # A port that answers [] where v2 answers a real problem must be caught. `docs` is the one
-        # pair guaranteed to have something to lose: v2 reports FSK's stale STATE on this tree.
-        problems, _ = check(("docs",), sabotage=True)
-        caught = [p for p in problems if "disagrees with v2" in p]
-        if caught:
-            return Verdict("v3-corpus-parity (SABOTAGE)", 0,
-                           "a port that silently dropped v2's problem was caught").emit()
-        return Verdict("v3-corpus-parity (SABOTAGE)", 1,
-                       "GATE DECORATIVO: a port answering [] where v2 answers a real problem went "
-                       "unnoticed — the harness compares nothing").emit()
+        # Every LANDED pair is sabotaged, one at a time, and each must be caught on its own. Doing
+        # them one at a time matters: sabotaging all of them at once would pass as long as ANY
+        # single pair noticed, which is how a harness ends up guarding one row and reporting for
+        # all of them. A pair whose port has not landed is skipped here — its absence is already
+        # RED on the green side, and failing it twice for the same reason says nothing new.
+        landed = [p for p in PAIRS if _importable(p.v3_module) and p.sabotage is not None]
+        if not landed:
+            return Verdict("v3-corpus-parity (SABOTAGE)", 1,
+                           "no landed pair to sabotage: a red side with nothing to plant proves "
+                           "nothing (Lock #1)").emit()
+        missed = []
+        for pair in landed:
+            problems, _ = check((pair.name,), sabotage=True)
+            if not [p for p in problems if "disagrees with v2" in p]:
+                missed.append(pair.name)
+        if missed:
+            return Verdict("v3-corpus-parity (SABOTAGE)", 1,
+                           f"GATE DECORATIVO: {len(missed)}/{len(landed)} sabotaged port(s) went "
+                           f"unnoticed — the harness compares nothing for them",
+                           failures=tuple(missed)).emit()
+        return Verdict("v3-corpus-parity (SABOTAGE)", 0,
+                       f"{len(landed)}/{len(landed)} sabotaged port(s) caught: a port that silently "
+                       f"drops what v2 reports does not survive",
+                       counts={"sabotaged": len(landed)}).emit()
 
     problems, counts = check(selected)
     if problems:

@@ -3,6 +3,70 @@
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
 
+## 2026-07-29T02:1xZ — INC-4: la ley de que un gate no se registra sin poder fallar (5/6 fases)
+
+**Qué pasó.** El incremento más voluminoso de la línea arrancó y quedó a una fase del final. Pero lo
+que lo definió no fue el volumen sino un **replanteo**: §11.3 dice «los 29 kinds + los 23 gates», y
+leído literal es falso — **v2 no tiene 23 gates que portar**. Dos ya viven en v3 con otra forma, uno
+lo retira la propia §11.4, y cinco dependen del corpus documental que INC-5 tiene asignado. Portar
+«los 23» habría obligado a fabricar seis registros que hoy no pueden ser verdad.
+
+**Por eso la primera entrega no fue código portado sino el CENSO.** El bug recurrente de este
+proyecto tiene una sola forma —algo parece verde porque nadie preguntó qué quedó fuera del conteo— y
+un port es el mejor suelo posible para él: entran 23, salen 19, la suite reporta 19 verdes y los 4
+que nadie volvió a nombrar son indistinguibles de 4 que nunca existieron. El censo **deriva** la
+lista de `cmd_check` leído en el ref (no la tipea), exige una disposición por gate en las dos
+direcciones, y suma 23 o es rojo. Hoy marca `0/15 landed`: es el test de aceptación del incremento y
+está rojo a propósito hasta que aterricen los cuerpos.
+
+**La ley (R-10 con dientes).** Un gate se registra sólo si declara un testigo rojo **alcanzable** o
+una exención `one_sided` que sale de una constante cerrada y hay que argumentar editándola. Cierra
+un hueco real de v2: allá, un fixture rojo borrado degrada a N/A y el gate sigue reportándose verde —
+desarmado en silencio. Acá no registra, así que un gate sin diente es ruidoso. El límite honesto
+quedó escrito y no descubierto después: el registro verifica la DECLARACIÓN, no que el testigo siga
+mordiendo; eso cuesta un proceso y es trabajo de P2.
+
+**Tres lecciones que se repitieron, y ninguna vino de la prosa de nadie.**
+
+1. **Un verde honesto puede tapar un hueco de 24/29.** El slot de los kinds volvió verde y
+   *declarando* que había enmascarado una posición del argv en 24 kinds, porque el literal
+   `metafactory.verify.checks.<kind>` choca la frontera de imports. La declaración estaba bien; la
+   conclusión no: el ejecutor no es entorno, **es el mapeo** — con esa posición en blanco el gate
+   seguía verde si `column_full` ruteaba al ejecutor de `bus_bounded`. La corrección salió más
+   fuerte que el original (comparar con el canje `metafactory.→v3.` aplicado prueba el ruteo en vez
+   de borrarlo) y el nombre del paquete se LEE del fixture: un valor que se compara, nunca uno que
+   se dereferencia.
+2. **Leer la historia de v2 no es depender de v2.** El censo chocó `import_boundary` dentro de la
+   hora. La salida barata —mover la ruta a un archivo de datos— es exactamente cómo esa regla deja
+   de proteger algo: por atrición, un lector a la vez, sin que nadie lo decida. La exención quedó
+   enumerada con su razón y **se gana**: reglas 1 y 2 siguen aplicando adentro, la lectura se prueba
+   ligada al ref, y una exención huérfana es ella misma una violación.
+3. **Un cambio mecánico se verifica igual que uno delegado, y esa fue mía.** Reescribiendo
+   docstrings con `sed` pisé una constante real (`DEFAULT_ROOTS`) en un archivo que no había leído.
+   La corrección además arregló la semántica del port: la barra de calidad mide `v3`, no el sustrato
+   viejo — o v3 crece sin medirse.
+
+**Delegación, y qué pasa cuando se muere a mitad.** Tres slots a Sonnet; el tercero se cortó por
+límite de sesión **justo antes de correr su propio gate**, dejando código y ningún veredicto. No hubo
+zona gris: la aceptación nunca fue el voto del generador (INC-3, «el modelo no vota») sino
+gate-en-0 + footprint ⊆ slot. Corrí los gates y encontraron un `TypeError` que hacía que el caso rojo
+del monolito **nunca se hubiera ejecutado** — y el gate, correctamente, estaba rojo por eso en vez de
+tragárselo.
+
+**R-14, segundo disparo: también no**, y por razones distintas a las de INC-3 — pydantic reemplazaría
+la parte chica (la forma, no la semántica), el YAML de estación no es frontera de seguridad pero **sí
+de evidencia**, y sondeando el port apareció que **v2 ya ignora campos desconocidos en silencio**: el
+agujero que yo describía como riesgo de adoptar la librería ya está adentro sin ella. No se arregla
+acá (§11.5: ningún incremento mejora nada antes del cutover); queda declarado con disparador.
+
+**Lo verificable.** 3 oráculos nuevos que se re-derivan **byte-idénticos** (155 vectores de argv · 5
+aceptados + 36 mutantes rechazados, 36/36 reglas · métricas de grafo con 3 casos rojos que muerden) ·
+13 gates en `v3/verify/` con lado rojo corrido · 8 correcciones a la spec acumuladas (ADR-032 A5) ·
+`meta check` sin tocar sus 2 rojos de FSK.
+
+**Sigue:** fase 6 — los 15 cuerpos de gate, cada uno *con* su testigo rojo o no registra. La ley
+convierte lo que era una lista de ~70 tests sin dueño (C-6) en una precondición.
+
 ## 2026-07-28T19:50Z — v3 ARRANCA: ADR-031/032 ratificados e INC-0..INC-3 entregados (4 correcciones a la spec)
 
 **Qué pasó.** La spec de reconstrucción (`docs/spec/`, 21 docs) dejó de ser prosa y empezó a

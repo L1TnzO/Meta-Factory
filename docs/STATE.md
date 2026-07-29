@@ -1,4 +1,4 @@
-<!-- meta:doc sha=465f4b3728e48cedb18459f1108743a92526f635 updated=2026-07-28T19:45Z -->
+<!-- meta:doc sha=988a6e32bdcbeedc3ce5ee3940e17424c7b8115f updated=2026-07-28T22:10Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -10,7 +10,7 @@
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
-- Open increment: none
+- Open increment: V3-INC4-CHECKS-PORT-INCREMENT.md
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -20,17 +20,25 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`+`ADR-032` ratificados; **INC-0..INC-3 ENTREGADOS**, sigue INC-4.**
+- **🏗️ v3 REBUILD — `ADR-031`+`ADR-032` ratificados; **INC-0..INC-3 ENTREGADOS**, **INC-4 ABIERTO (5/6 fases)**.**
   `docs/spec/` (21 docs) especifica reconstruir el plano de CONTROL sobre el Claude Agent SDK
   conservando la capa de evidencia: **nuestro programa es el host, Claude Code el motor**. Se
   construye EN el árbol, en `v3/` (los hooks lo alcanzan, los gates de juicio no ⇒ enforcement
   adentro, juicio afuera). Oráculo = commit pineado en `v3/oracle_ref.json`, nunca el working tree.
   **Entregado y con gate:** kernel que reproduce 84/84 estaciones pineadas · la abstención (el
   go/no-go) · la hoja acotada por dos capas + barrido git · slot en disco fail-closed · binding
-  contra el alias · rollback propio. **8 gates en `v3/verify/`, cada uno con lado rojo verificado.**
-  4 correcciones a la spec en 4 incrementos (ADR-032 A5 las hace requisito). Coste vivo: $0.19/16
-  llamadas. **Mapa para humanos: `docs/spec/20-architecture-map.md`.**
-  → `decisions/031`·`032` · `LOG.md` (episodio 2026-07-28) · plan arc `N-0011`.
+  contra el alias · rollback propio. **13 gates en `v3/verify/`, cada uno con lado rojo verificado.**
+  **INC-4 (`work/V3-INC4-CHECKS-PORT-INCREMENT.md`, abierto):** la **ley de registro** —un gate sin
+  testigo rojo alcanzable no se registra, y `one_sided` sale de una constante cerrada— · el **censo
+  de los 23**, derivado de `cmd_check` en el ref, que reconcilia 15 portados / 2 ya-en-v3 / 1
+  retirado / 5 diferidos a INC-5 y **suma 23 o es rojo** · los **29 kinds** contra 155 vectores ·
+  **spec model/loader/validator** contra 5 aceptados + **36 mutantes rechazados** (36/36 reglas) ·
+  la **rebanada de grafo de CÓDIGO**. Los tres oráculos se re-derivan **byte-idénticos**.
+  **Falta la fase 6:** los 15 cuerpos de gate, cada uno *con* su testigo rojo o no registra — el
+  censo está en `0/15 landed` y es el test de aceptación. **R-14 re-decidido: pydantic NO** (alcance
+  + re-disparador escritos). 8 correcciones a la spec (ADR-032 A5). Coste vivo: $0.19/16 llamadas.
+  **Mapa para humanos: `docs/spec/20-architecture-map.md`.**
+  → `decisions/031`·`032` · `LOG.md` (episodios 2026-07-28/29) · plan arc `N-0011`, nodo `N-0016`.
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
   `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via

@@ -252,13 +252,20 @@
       "parent": "N-0011",
       "title": "INC-5 MEMORY-DOCS: manifest, seal, lineage, STATE teeth, SessionStore handoff",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "censo 20/23 portados, 0 pendientes, 0 diferidos",
+        "corpus_parity 5 pares PASS + lado rojo 5/5 atrapados de a uno",
+        "suite v3 green=17 red=2 n/a=1",
+        "meta check 2/23 sin regresion",
+        "docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md"
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-29T17:37Z"
     },
     "N-0018": {
       "parent": "N-0011",
@@ -1225,56 +1232,60 @@
       "closed_at": "2026-07-28T19:47Z"
     },
     "N-0086": {
-      "parent": "N-0017",
+      "parent": "N-0023",
       "title": "rehydrate: bajo la inversion es 'que inyecta el host por hoja' (spec 15.6, ancestry+open_set); necesita el arbol de nodos en v3. Disparador: INC-12 INTERACTIVE-MODE",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/rehydrate-defer"
-      }
+      },
+      "trigger": "INC-12 INTERACTIVE-MODE abre: el host necesita inyectar ancestry+open_set por hoja (spec 15.6)"
     },
     "N-0087": {
-      "parent": "N-0017",
+      "parent": "N-0018",
       "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/precompact-defer"
-      }
+      },
+      "trigger": "INC-6 ECONOMY-TYPED abre: entra el metering tipado y el hook PreCompact"
     },
     "N-0088": {
-      "parent": "N-0017",
+      "parent": "N-0011",
       "title": "gate 'kinds' compara el argv contra los vectores pero NO la importabilidad del modulo destino: kinds.py apunta a v3.verify.checks.docs_check, que no existia, y nada lo noto",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "gate_red",
         "ref": "V3-INC5/kinds-importability"
-      }
+      },
+      "trigger": "post-cutover (spec 11.7): es capacidad nueva y v2 tampoco la tiene; arreglo en v3/verify/kinds_parity.py"
     },
     "N-0089": {
-      "parent": "N-0017",
+      "parent": "N-0018",
       "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-07-29T17:29Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/journal-defer"
-      }
+      },
+      "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation"
     }
   }
 }

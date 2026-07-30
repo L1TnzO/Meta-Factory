@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3101280e49505d857f31f11572d2ae8ad83d5f26 updated=2026-07-30T20:14Z -->
+<!-- meta:doc sha=26389e834dedb0c36bebe60b0c3ee3142f1bcc6f updated=2026-07-30T21:00Z -->
 # Incremento V3-INC6-ECONOMY-TYPED
 
 > **Doc de gobierno.** Status: **ABIERTO** (creado 2026-07-30T20:13Z). Cerralo con `meta increment close`
@@ -169,3 +169,112 @@ y `outcome.py`. Son módulos acotados con typecheck + tests + el gate del regist
    funciones de transcript en la columna que les toca.
 6. `N-0087`, `N-0089`, `N-0090`, `N-0091` cerrados con evidencia, o re-diferidos con disparador escrito.
 7. Árbol limpio y `meta increment close` en verde.
+
+---
+
+## Evidencia (2026-07-30)
+
+### Ruteo: por qué esto NO se delegó
+
+La fila de «qué se delega» proponía batchear `ledger`/`meter`/`iteration`/`journal`/`outcome` en un
+slot. No se hizo, y la razón es la excepción que CLAUDE.md ya nombra: **codegen secuencial con
+dependencias fuertes**. Acá los módulos y sus gates son *un solo diseño* — la ley «no se midió ≠ dio
+cero» vive dentro del agregado, y los cuatro lados rojos que la prueban son exactamente el trabajo
+que la propia fila reserva para la columna. Separar el productor del gate habría entregado un
+contrato al generador y guardado el criterio acá; el resultado sería el mismo diseño escrito dos
+veces. Escrito y revisado con mis ojos, y dicho acá para que no se lea como olvido.
+
+### Los seis gates, y lo que cada lado rojo perturba
+
+| Gate | Verde | Rojo (clases plantadas, todas sobre valores NO vacíos) |
+| --- | --- | --- |
+| `telemetry_liveness` | día activo ⇒ día registrado | 4/4 · `silent_instrument` (mudos 0→2) · `self_confirming` (solape 0→1) · `hook_written_oracle` (0→1) · `no_activity_is_not_green` (el STATUS debe ser N/A) |
+| `ledger` | 1 leaf real, $0.0294, atribuible | 6/6 · `unattributable_cost` · `zeroed_breakdown` · `unknown_class` · `reconcile_drift` · `empty_is_not_zero` · `outcome_refuses` |
+| `escape_threshold` | (a) y (b) con números reales | 3/3 · `silent_observer` (4 campos→0) · `empty_corpus_no_headroom` · `absent_is_not_zero` |
+| `iteration` | 2 estaciones reales, 1 red→green | 4/4 · `empty_attempts` · `count_outlives_list` · `no_records_is_not_zero` · `repetition_is_seen` (control POSITIVO) |
+| `compaction` | PreCompact cableado, 4 clases sanas | 3/3 · `hook_events_off` · `no_precompact` · `malformed_class` |
+| `economy_census` | 9 módulos + 30 funciones, 10 fuentes escaneadas | 3/3 · `dropped_row` (30→29) · `phantom_row` (30→31) · `transcript_leak` (0→3) |
+
+`suite_sweep` re-corre **17** lados rojos (eran 11) y los 17 reportan captura. Criterio 2: los lados
+rojos fueron **re-corridos**, no asumidos.
+
+### Los cuatro números que antes no existían
+
+1. **`telemetry_liveness` ROJO contra el estado real.** Ventana `2026-07-13..07-30`: **10 días mudos
+   sobre 13 con actividad demostrable**. Ventana por defecto (3 días): rojo por **2026-07-28 — 37
+   commits, cero registros económicos**. Criterio 4, demostrado.
+2. **El ledger mide.** Un leaf real (haiku): `$0.0293755`, 2 turnos, `terminal_reason=completed`,
+   `model_usage` poblado. Opus share **0,0 %** — medido y atribuible, no supuesto.
+3. **`escape_threshold` emite (a) y (b).** (a) set de entrada **4.087 / 200.000 tok** (headroom
+   97,96 %, `fits=True` → la cláusula (a) de ADR-019 §6 es FALSA, el escape **no** se dispara); al
+   lado, corpus completo **461.289 tok sobre 193 archivos, +71,5 %** contra la línea base de 269k del
+   2026-07-08. (b) leaf `v3-inc6-typed-usage-probe`: inyectado 10.635 tok, leído 2.460, **ratio
+   0,2313**, 4/4 campos. Criterio 3, con números de una corrida real del host.
+4. **La iteración persiste.** 2 estaciones por `run_line`, 3 intentos, **1 ciclo red→green**,
+   0 fallas repetidas — leídos del disco, no del proceso que ya salió.
+
+### Tres cosas que la ejecución corrigió (ADR-032 A5)
+
+1. **`model_usage` llega en camelCase.** `usage` viene snake_case (`input_tokens`) y `model_usage`
+   camelCase (`inputTokens`, `costUSD`). Mi primer `_tokens_in` habría plegado un desglose lleno a
+   cero tokens y lo habría denunciado como «leído y nunca poblado»: la queja correcta sobre el sujeto
+   equivocado. El fixture del gate quedó escrito en la grafía REAL, porque uno escrito en la prolija
+   habría mantenido el gate verde sobre una ley rota.
+2. **(a) medía el corpus equivocado.** Mi primera versión reportaba el corpus entero como si fuera la
+   cláusula (a) — y daba headroom **−130 %**, un anuncio de expiración que el ADR ya había pagado por
+   adelantado («ya se fetchea, no se inyecta entero», con docs/ ya medido en ~269k). La cláusula (a)
+   es sobre el corpus que una sesión carga **por construcción**. Corregido: se emite el set de
+   entrada como (a) y el corpus completo al lado, como señal de CRECIMIENTO.
+3. **INC-12 no tiene fila en §11.3.** Lo encontró `economy_census` en su primera corrida, al exigir
+   que un diferido apunte a una fila real del plan. No se repara editando la spec de hoy —el censo lee
+   AL COMMIT ORÁCULO—, así que la ley acepta las dos formas que el plan usa y el hueco queda como
+   `N-0095`.
+
+### Una reparación, no sólo un detector
+
+`.claude/hooks/mem_rollup.py` hacía `sys.path.insert(0, "src")`: **relativo al cwd**. Lanzada la
+sesión desde un subdirectorio, el import falla, el `except: pass` se lo traga y la serie se corta.
+Eso explica por qué `rollup` no escribía desde el 2026-07-13 mientras `mem_capture` —ya arreglado con
+path absoluto— seguía escribiendo. Ahora es absoluto: invocado **desde `/tmp`** escribió el primer
+rollup en 17 días (`claude-opus-5`, `$26,05`).
+
+Lo que **no** quedó explicado: por qué la capa entera de hooks no escribió nada entre el 07-14 y el
+07-27. Los hooks disparan hoy desde `research/` (45 eventos `kind=tool` el 07-30 desde una sesión con
+ese cwd), así que la causa atribuida en `N-0091` **no se sostiene**, y la evidencia post-hoc se
+agotó. Se deja sin causa a propósito y con disparador escrito (`N-0093`): lo que reemplaza a la causa
+es el detector, que nombra el día mudo dentro de un día en vez de dentro de diecisiete.
+
+### Estado del suite y el rojo que se deja en pie
+
+`python3 -m v3.verify.suite` → **green=22 · red=3 · n/a=1**.
+
+| Rojo | Dueño | Por qué se deja |
+| --- | --- | --- |
+| `codegen_freeze` | full-stack-kotlin | deuda preexistente y declarada; un rojo lo dispone el nivel que lo POSEE, y meta no limpia el tablero de FSK |
+| `docs` | meta | deriva de sellos por `doc_stamp` caído; §«lo que este incremento NO va a hacer» lo excluyó por escrito |
+| `telemetry_liveness` | meta | **es el hallazgo**. Rojo por el 2026-07-28, que ya pasó y no se puede des-silenciar. Sana solo cuando la ventana de 3 días deje atrás el apagón — que es el comportamiento correcto de un detector vivo, y lo contrario de un gate que se pone verde editándolo |
+
+### Censo: la superficie de economía de v2 (criterio 5)
+
+9 módulos y 30 funciones públicas, cada uno con UNA disposición verificada contra un artefacto,
+derivada del oráculo `f44dc22a` (no tipeada). Las seis funciones de transcript, en la columna que les
+toca — **DROPPED**, con la cláusula «the transcript parser» de §11.4 y su reemplazo tipado:
+
+| Función | Reemplazo |
+| --- | --- |
+| `rollup_from_transcript` | `ResultMessage.usage`/`model_usage`, que el host ya recibía y tiraba |
+| `cache_series` | los cache-reads llegan por resultado en `usage` |
+| `churn_cost_share` | `tool_uses` por leaf; el churn CROSS-leaf necesita el árbol de nodos (`N-0096`) |
+| `slot_residency_share` | el host tiene el wall-time de su propia hoja |
+| `transcript_model_split` | `model_usage`, campo por campo |
+| `wall_clock_hours` | el host cronometra sus hojas; el runner, sus estaciones |
+
+`detect_expirations` cae con su única entrada. Los 8 restantes de `precompact` (la mitad
+snapshot-para-rehydrate) van a INC-12 con `N-0086`; `record` —la mitad que CUENTA— entró acá.
+
+### Nodos
+
+Cerrados con evidencia: `N-0087` · `N-0089` · `N-0090` · `N-0092`. `N-0091` cerrado **parcialmente
+refutado**, dicho así en vez de darlo por bueno. Abiertos con disparador escrito: `N-0093` (apagón
+sin causa) · `N-0094` (corpus +71,5 %) · `N-0095` (INC-12 sin fila) · `N-0096` (churn/cache necesitan
+sesión, no hoja).

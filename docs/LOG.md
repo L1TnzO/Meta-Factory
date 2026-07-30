@@ -1,7 +1,77 @@
-<!-- meta:doc sha=e25a7e98f11932246defa207827cce8dc82c8cd7 updated=2026-07-29T17:34Z -->
+<!-- meta:doc sha=306fda5ab514c31fd47f8dd8c4ee92cef2ba553c updated=2026-07-30T21:01Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-30T21:0xZ — INC-6: el instrumento llevaba 17 días muerto y ningún número lo decía
+
+**Qué pasó.** La economía deja de derivarse parseando el transcript y pasa a derivarse de `usage`
+tipado. Pero el diente central no terminó siendo el ledger. La fila de §11.3 se escribió cuando «la
+economía es observada y roja» parecía el problema; medido, el problema era de otra clase: entre el
+**2026-07-13 y el 2026-07-28 la capa de captura no escribió NADA** mientras el proyecto entregaba
+INC-0..INC-5, y el KPI de delegación y el opus-share siguieron reportando un número. Un número
+equivocado es un hallazgo; esto era un silencio disfrazado de número.
+
+**La frase que ordena todo el incremento:** «no se midió» tiene que ser distinguible de «dio cero».
+Está en el TIPO, no en un comentario: todo agregado lleva `measured`, y un agregado sobre nada
+responde `measured=False` con la razón — `total_cost_usd` es `None`, nunca `0.0`.
+
+**Y su corolario, que decide dónde vive el detector: un hook no puede detectar que los hooks están
+apagados.** Así que `telemetry_liveness` es un gate, no un hook, y dos aserciones lo mantienen honesto
+en vez de aspiracional: los pares (serie, kind) del oráculo de actividad y del instrumento deben ser
+**disjuntos** —si no, el gate se compara consigo mismo y no puede dar rojo nunca— y **ninguna fuente
+de actividad puede declararse escrita por un hook**, porque se apagaría en el mismo evento que debe
+detectar. De las cinco señales de telemetría del proyecto, `station_run` es la única cuyo escritor
+vive en el MOTOR, y fue la única que sobrevivió al apagón. Eso no fue suerte: es la razón por la que
+hay un oráculo confiable, y es por lo que `journal` se portó **con su llamador dentro del runner**
+(`N-0089`) en vez de solo.
+
+**El gate sale rojo, y se deja rojo.** Ventana 07-13..07-30: **10 días mudos sobre 13 con actividad**.
+Ventana por defecto de 3 días: rojo por el **07-28 — 37 commits, cero registros económicos**. El 07-28
+ya pasó y no se puede des-silenciar; sana solo cuando la ventana lo deje atrás, que es el
+comportamiento correcto de un detector vivo y lo contrario de un gate que se pone verde editándolo.
+
+**Ejecutar la spec la corrigió tres veces (ADR-032 A5), y las tres valen más que el código.**
+(1) `model_usage` llega en **camelCase** (`inputTokens`, `costUSD`) mientras `usage` llega snake_case:
+mi primera ley habría plegado un desglose lleno a cero tokens y lo habría denunciado como «leído y
+nunca poblado» — la queja correcta sobre el sujeto equivocado. El fixture quedó escrito en la grafía
+REAL, porque uno escrito en la prolija habría mantenido el gate verde sobre una ley rota. El símbolo
+pineado prueba que un campo EXISTE; sólo una corrida prueba qué LLEGA. (2) La cláusula (a) de ADR-019
+§6 no es sobre el corpus entero: mi primera versión reportaba headroom **−130 %**, anunciando una
+expiración que el ADR ya había pagado por adelantado («ya se fetchea, no se inyecta entero»). Medido
+bien: set de entrada **4.087 tok, 97,96 % de headroom, cláusula (a) FALSA**; y al lado el número que
+sí importa y que no miraba nadie — corpus completo **461.289 tok, +71,5 % contra la línea base de
+269k del 08-07** (`N-0094`). (3) `economy_census` descubrió en su primera corrida que **INC-12 no
+tiene fila en §11.3** pese a ser un incremento argumentado y «no opcional» en §5bis (`N-0095`); no se
+repara editando la spec de hoy, porque el censo lee al commit oráculo.
+
+**El criterio vacuo se convirtió en dos leyes.** «El parser de transcript es BORRADO» se cumplía por
+construcción el día que se escribió: v3 no tenía economía con la cual leer un transcript. Verde porque
+nadie preguntó qué quedó fuera del conteo — la forma exacta que este proyecto persigue. Ahora son
+(1) ningún módulo con números económicos nombra un transcript en código EJECUTABLE (los docstrings
+quedan fuera a propósito: si la prosa que explica la decisión activara el gate, la reparación
+habitual sería dejar de escribir la prosa), y (2) los 9 módulos y las 30 funciones públicas de la
+superficie de v2 llevan UNA disposición verificada contra un artefacto, derivada del oráculo.
+
+**Una reparación, no sólo un detector.** `mem_rollup.py` seguía haciendo `sys.path.insert(0, "src")`,
+relativo al cwd: lanzada la sesión desde un subdirectorio el import falla, el `except: pass` se lo
+traga y la serie se corta. Por eso `rollup` no escribía desde el 07-13 mientras `mem_capture` —ya
+arreglado— seguía escribiendo. Ahora es absoluto; invocado desde `/tmp` escribió el primer rollup en
+17 días. Lo que **no** quedó explicado es por qué la capa entera calló del 07-14 al 07-27: los hooks
+disparan hoy desde `research/`, así que la causa atribuida en `N-0091` no se sostiene y la evidencia
+post-hoc se agotó. Se deja **sin causa a propósito**, con disparador escrito (`N-0093`): lo que
+reemplaza a la causa es el detector, que nombra el día mudo dentro de un día en vez de dentro de
+diecisiete.
+
+**Números.** Suite v3 **green=22 · red=3 · n/a=1** (26 gates registrados, +6). `suite_sweep` re-corre
+**17** lados rojos, antes 11, y los 17 reportan captura — criterio P2 mecánico, no asumido. Corrida
+real del host: 2 estaciones con 1 ciclo red→green persistido, y 1 leaf en vivo por **$0,0294** con
+`model_usage` poblado. Los tres rojos: `codegen_freeze` y `docs` son deuda declarada y preexistente
+(un rojo lo dispone el nivel que lo POSEE), `telemetry_liveness` es el hallazgo.
+
+**Lo que NO se hizo, dicho antes de empezar y sostenido:** no se enforcea presupuesto (las clases de
+sesión son DATO tipado; el diente es post-cutover, §11.5), no se porta `rehydrate` (`N-0086`), no se
+borra el parser de v2 (el `rm` es de INC-11) y no se arregla el corpus documental.
 
 ## 2026-07-29T17:3xZ — INC-5 CERRADO: el corpus queda gateado, y dos gates aprenden a decir «no sé»
 

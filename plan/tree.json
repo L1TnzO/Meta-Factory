@@ -1249,15 +1249,20 @@
       "parent": "N-0018",
       "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/control/hooks.py:compaction_counter (PreCompact, counts and never blocks)",
+        "v3/host/session.py:_build_options — include_hook_events=True + PreCompact wired into EVERY leaf",
+        "gate compaction: green 4 assertions; SABOTAGE 3/3 (hook_events_off, no_precompact, malformed_class)"
+      ],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/precompact-defer"
       },
-      "trigger": "INC-6 ECONOMY-TYPED abre: entra el metering tipado y el hook PreCompact"
+      "trigger": "INC-6 ECONOMY-TYPED abre: entra el metering tipado y el hook PreCompact",
+      "closed_at": "2026-07-30T21:05Z"
     },
     "N-0088": {
       "parent": "N-0011",
@@ -1277,54 +1282,129 @@
       "parent": "N-0018",
       "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/memory/journal.py ported with its caller: v3/host/runner.py:_journal, INSIDE the engine",
+        "live run: 2 stations through run_line -> 2 station_run events written (journal=True)",
+        "gate iteration green over the real records: 3 attempts, 1 red->green"
+      ],
       "opened_at": "2026-07-29T17:29Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/journal-defer"
       },
-      "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation"
+      "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation",
+      "closed_at": "2026-07-30T21:05Z"
     },
     "N-0090": {
       "parent": "N-0018",
       "title": "TELEMETRIA MUERTA desde 2026-07-13: cero metricas kind=tool y cero eventos delegation en .metamem/ durante INC-0..INC-5. Serie: 07-09=1142, 07-10=1091, 07-11=1911, 07-12=751, 07-13=687, despues NADA. mem_capture (PostToolUse *) traga toda excepcion con 'except: pass'. El KPI de delegacion y el opus-share leen cero porque nadie mide, no porque no se delegue: esta sesion corrio 4 slots y registro 0",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "the diagnosis was already corrected by N-0091/N-0092; the outage itself is confirmed by the day-series and is now DETECTED instead of narrated",
+        "gate telemetry_liveness: RED over 2026-07-13..07-30 (10 mute days of 13 active); RED over the default 3-day window because of 2026-07-28 (37 commits, zero economy records)",
+        "live repair: .claude/hooks/mem_rollup.py used a cwd-relative sys.path; absolute now, and invoked from /tmp it wrote the first rollup since 2026-07-13 (claude-opus-5, $26.05)"
+      ],
       "opened_at": "2026-07-29T17:44Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "gate_red",
         "ref": "V3-INC5/telemetry-dead-since-0713"
-      }
+      },
+      "closed_at": "2026-07-30T21:05Z"
     },
     "N-0091": {
       "parent": "N-0018",
       "title": "COLUMNA NO CABLEADA desde 2026-07-18: las sesiones se lanzan desde research/, CLAUDE_PROJECT_DIR resuelve ahi, research/.claude NO existe -> ningun hook del column corre (proof_protect verificado EN VIVO: leyo .proof/ por shell sin ser denegado). CORRIGE la causa atribuida en N-0090: mem_capture escribe bien invocado a mano; no es el except:pass, es que el hook nunca se invoca. Slugs: root ultima sesion 07-13/07-24, research 07-18 -> hoy. Alcance: INC-0..INC-5 corrieron sin capa de hooks; sus gates explicitos siguen valiendo, la enforcement por bloqueo no. v3 es inmune por construccion (setting_sources=[] + hooks pasados como callbacks)",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "PARTIALLY REFUTED, and said so rather than closed as stated: hooks DO fire from research/ today (45 kind=tool events on 2026-07-30 from a session whose cwd is research/), so 'research/.claude does not exist -> no hook runs' is not what kept the layer dark",
+        "what IS confirmed and repaired: mem_rollup's cwd-relative sys.path, which explains why rollup stayed silent even after tool capture resumed",
+        "what is NOT explained: why the whole hook layer wrote nothing 2026-07-14..07-27. Superseded by N-0093 — the cause is no longer required to be known, because the detector now exists"
+      ],
       "opened_at": "2026-07-29T18:03Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "gate_red",
         "ref": "V3-INC6/column-unwired-since-0718"
-      }
+      },
+      "closed_at": "2026-07-30T21:05Z"
     },
     "N-0092": {
       "parent": "N-0018",
       "title": "CORRIGE la EVIDENCIA de N-0091 (el hallazgo se sostiene, el test no): proof_protect deniega ESCRITURAS, no lecturas; mi prueba de lectura nunca fue valida. Test valido hoy: escritura por redireccion a .proof/ DENEGADA. La evidencia que si vale es de conteo: session_start 9-26/dia hasta 07-13, luego 0 el 07-28 y 1 el 07-29, y cero kind=tool desde 07-13; todo se reanuda al relanzar desde la raiz",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "its correction stands and was applied: the evidence that counts is the day-series, not a read test",
+        "the series is now what telemetry_liveness reads, so the same finding is re-derivable by a process"
+      ],
       "opened_at": "2026-07-30T20:10Z",
       "origin": {
         "session": "2026-07-30",
         "cause": "gate_red",
         "ref": "V3-INC6/n0091-evidence-correction"
-      }
+      },
+      "closed_at": "2026-07-30T21:05Z"
+    },
+    "N-0093": {
+      "parent": "N-0018",
+      "title": "El apagon de telemetria 2026-07-14..07-27 quedo SIN CAUSA determinada, y se deja asi a proposito: los hooks disparan hoy desde research/, asi que la causa atribuida en N-0091 no se sostiene, y la evidencia post-hoc se agoto. Lo que reemplaza a la causa es el detector: telemetry_liveness corre en el suite y nombra el dia mudo. Disparador de reapertura: que telemetry_liveness vuelva a dar rojo por un dia POSTERIOR al 2026-07-30 — ahi la causa es observable en vivo en vez de arqueologica",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:05Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC6/outage-cause-unknown"
+      },
+      "trigger": "telemetry_liveness rojo por un dia posterior a 2026-07-30"
+    },
+    "N-0094": {
+      "parent": "N-0018",
+      "title": "El corpus documental crecio +71,5% contra la linea base de ADR-019 (269k tok @ 2026-07-08 -> 461.289 tok sobre 193 archivos @ 2026-07-30) mientras la decision que descansa en el se quedo quieta. La clausula (a) de la regla de escape sigue FALSA (el set de entrada mide 4.087 tok, 97,96% de headroom): lo que se dispara no es el escape, es la mitigacion — 'se fetchea, no se inyecta' se paga por lectura y nadie mide ese costo. Disparador: que el corpus duplique la linea base (538k) o que la clausula (a) se vuelva verdadera, lo que ocurra primero; escape_threshold imprime ambos numeros en cada corrida",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:05Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC6/corpus-growth-71pct"
+      },
+      "trigger": "corpus > 538k tok (2x baseline) o clausula (a) verdadera (set de entrada > ventana)"
+    },
+    "N-0095": {
+      "parent": "N-0018",
+      "title": "INC-12 INTERACTIVE-MODE es un incremento real y argumentado (spec 11 §5bis, 'no es opcional') que nunca recibio fila en la tabla de §11.3. Lo encontro economy_census en su primera corrida al exigir que un diferido apunte a una fila real del plan. No se repara editando la spec de hoy: el censo lee AL COMMIT ORACULO, asi que la ley acepta las dos formas que el plan usa y el hueco queda registrado. Disparador: el proximo re-pin de v3/oracle_ref.json",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:05Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC6/inc12-has-no-plan-row"
+      },
+      "trigger": "proximo re-pin de v3/oracle_ref.json — ahi la fila de INC-12 puede entrar en §11.3"
+    },
+    "N-0096": {
+      "parent": "N-0018",
+      "title": "churn (776 re-lecturas acumuladas) y cache_series quedan NO PORTADAS: v3 registra tool_uses por leaf, pero el churn es CROSS-leaf y la expiracion de cache es a nivel de SESION, y el host corre hojas, no sesiones. Declarado en el censo como DROPPED con su reemplazo, no medio-portado en algo mas debil. Disparador: INC-12 INTERACTIVE-MODE, que es donde el host pasa a manejar una sesion multi-turno",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:05Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC6/churn-and-cache-need-sessions"
+      },
+      "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja"
     }
   }
 }

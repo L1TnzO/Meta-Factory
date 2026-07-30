@@ -1,7 +1,7 @@
-<!-- meta:doc sha=faf90b71424935d933df57bd9bf0a36c6d5fc527 updated=2026-07-30T21:26Z -->
+<!-- meta:doc sha=c94af058759fabf6e7869acc93a490f9fbcafde9 updated=2026-07-30T21:28Z -->
 # Incremento V3-INC7-MIGRATE-DUMMY
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-30T21:12Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-30T21:28Z) (creado 2026-07-30T21:12Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-7 + `§2` (P1/P2) + `03-engine.md` +

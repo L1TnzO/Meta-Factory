@@ -298,7 +298,8 @@ def _register_ported(registry: Registry) -> None:
     ))
 
 
-def _register_economy(registry: Registry) -> None:
+def _register_economy(registry: Registry) -> None:   # + INC-7's two migration gates
+
     """INC-6's six. NONE of these is a port: §07.5 states the structural problem in one line — the
     engine's targets are GATED and green, the economy's are OBSERVED and red — and a number with no
     tooth drifts. They are absent from `gate_census` by construction, because paperwork for a gate
@@ -348,6 +349,21 @@ def _register_economy(registry: Registry) -> None:
                "compaction is counted by the event rather than by whoever remembers (§07.2 c), and "
                "the session-class vocabulary is well-formed",
         witness=Witness("sabotage_env", "V3_COMPACTION_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="rederive",
+        argv=(PY, "-m", "v3.verify.rederive"),
+        proves="every MIGRATED factory, run end to end on v3 out of a copy staged from git's tracked "
+               "files, reproduces its committed `pinned_verdict.json` station for station (P1)",
+        witness=Witness("sabotage_env", "V3_REDERIVE_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="migration_census",
+        argv=(PY, "-m", "v3.verify.migration_census"),
+        proves="nothing a MIGRATED factory's line exercises is still owed to a later increment — "
+               "every check kind and build action is ported, needs no body, or is owed to the "
+               "increment that migrates the earliest factory declaring it",
+        witness=Witness("sabotage_env", "V3_MIGRATION_CENSUS_SABOTAGE"),
     ))
     registry.register(Gate(
         name="economy_census",

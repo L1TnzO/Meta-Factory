@@ -73,6 +73,11 @@ _ORACLE_READERS: dict[str, str] = {
         "reason and under the same terms as the gate census: a function nobody thought about has "
         "to show up as a hole rather than as an absence. Ref-binding proven by its own "
         "`ref_binding_problems` case; rules 1 and 2 still apply to it",
+    "v3/verify/migration_census.py":
+        "derives v2's BUILD-ACTION vocabulary from `apply_builds` at oracle_ref via `git show`, so "
+        "the set of actions v3 still owes cannot be a literal someone forgot to grow. Same technique "
+        "and same terms as the gate census; the read survives INC-11 deleting v2 because a commit "
+        "is immutable",
 }
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}

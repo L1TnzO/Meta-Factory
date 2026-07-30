@@ -24,6 +24,7 @@ afterwards (§09.4 A-2) — attempts, and which check turned a station red.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,6 +48,18 @@ class RunContext:
     #: Where the run's FACTS land (`.metamem/`). Defaults to the root; separable so a run over a
     #: scratch tree still journals to the level that commissioned it.
     home: Path | None = None
+    #: Prepended to a check subprocess's `PYTHONPATH`, so an argv of the form
+    #: `python -m v3.verify.checks.<kind>` resolves. It must point at the tree where the PLATFORM
+    #: lives, which is NOT necessarily `root`: a re-derivation runs the factory out of a copy, and
+    #: the copy contains the SUBJECT (its stations, its sources, its pin) — never v3 itself. Keeping
+    #: them apart is the point. If the platform were copied alongside the subject, a re-derivation
+    #: would be testing whatever version of v3 happened to be in that copy.
+    pythonpath: str = ""
+    #: What a station BUILDS before its checks decide (`v3.host.builds.apply_builds`, curried with
+    #: its context). `None` means this line builds nothing — which is the honest default for a line
+    #: of pure checks, and NOT the same as "builds failed silently": a station that declares `builds`
+    #: while the context carries no builder is refused below rather than run check-only.
+    builder: object = None
     #: Whether each station's journal + iteration write LANDED. Kept per station, because an
     #: instrument that cannot report its own write failure dies silently (INC-6's whole subject).
     journalled: dict = field(default_factory=dict)
@@ -83,9 +96,14 @@ class StationOutcome:
     attempts: int = 0
 
 
-def run_check(command: list[str], cwd: Path) -> int:
+def run_check(command: list[str], cwd: Path, pythonpath: str = "") -> int:
     """A check is an OS process and its exit code IS the evidence (I-1). No parsing of stdout."""
-    return subprocess.run(command, cwd=cwd, capture_output=True, text=True).returncode
+    env = None
+    if pythonpath:
+        env = dict(os.environ)
+        existing = env.get("PYTHONPATH")
+        env["PYTHONPATH"] = os.pathsep.join([pythonpath, existing]) if existing else pythonpath
+    return subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True).returncode
 
 
 def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int = 1) -> StationOutcome:
@@ -101,11 +119,21 @@ def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int
     if not ok:
         return StationOutcome(sid, ran=False, passed=False, proof_sha=None, blockers=tuple(blockers))
 
+    declared_builds = list(station.get("builds") or ())
+    if declared_builds:
+        if ctx.builder is None:
+            return StationOutcome(sid, ran=False, passed=False, proof_sha=None,
+                                  blockers=(f"{sid} declares {len(declared_builds)} build(s) and the "
+                                            f"run context carries no builder: running its checks "
+                                            f"anyway would grade whatever was already on disk",))
+        ctx.builder(station, ctx)
+
     checks_spec = list(station.get("checks") or ())
     results: list[dict] = []
     attempt = 0
     for attempt in range(1, max_attempts + 1):
-        results = [{"name": str(c["name"]), "exit": run_check(list(c["cmd"]), ctx.root)}
+        results = [{"name": str(c["name"]),
+                    "exit": run_check(list(c["cmd"]), ctx.root, ctx.pythonpath)}
                    for c in checks_spec]
         failed = [r["name"] for r in results if r["exit"] != 0]
         ctx.attempts.setdefault(sid, []).append({"attempt": attempt, "failed": failed})

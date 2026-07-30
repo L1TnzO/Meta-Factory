@@ -28,9 +28,11 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ..economy import iteration
 from ..kernel.gate import may_run
 from ..kernel.proof import compute_proof_sha, gate_recompute_ok, recompute_passed
 from ..kernel.sequence import active_in
+from ..memory import journal
 
 
 @dataclass
@@ -42,9 +44,18 @@ class RunContext:
     proof_dir: Path | None = None
     #: station id -> [{"attempt": n, "failed": [check names]}] — free, because it is a loop variable
     attempts: dict = field(default_factory=dict)
+    #: Where the run's FACTS land (`.metamem/`). Defaults to the root; separable so a run over a
+    #: scratch tree still journals to the level that commissioned it.
+    home: Path | None = None
+    #: Whether each station's journal + iteration write LANDED. Kept per station, because an
+    #: instrument that cannot report its own write failure dies silently (INC-6's whole subject).
+    journalled: dict = field(default_factory=dict)
 
     def proofs_path(self) -> Path:
         return self.proof_dir or (self.root / ".proof")
+
+    def home_path(self) -> Path:
+        return self.home or self.root
 
     def load_proofs(self) -> dict:
         """Read what is on disk. A proof that does not parse is ABSENT, never assumed good."""
@@ -108,7 +119,31 @@ def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int
     directory = ctx.proofs_path()
     directory.mkdir(parents=True, exist_ok=True)
     (directory / f"{sid}.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+
+    _journal(ctx, sid, results, passed, sha)
     return StationOutcome(sid, ran=True, passed=passed, proof_sha=sha, attempts=attempt)
+
+
+def _journal(ctx: RunContext, sid: str, results: list, passed: bool, sha: str) -> None:
+    """Write the two facts this run produced — that it happened, and how many tries it took.
+
+    THE CALLER `journal` WAS MISSING (`N-0089`), and this is it. Note WHERE it sits: inside the
+    engine, not in a hook. When the CLI hook layer went dark on 2026-07-13, four telemetry signals
+    went to zero and `station_run` — written from a spot exactly like this one — kept working. That
+    is not luck; it is the reason the liveness detector has an oracle it can trust at all.
+
+    The iteration record persists `ctx.attempts[sid]`, which until now existed only in memory: the
+    process exited and the retries went with it (§09.4 A-2 says the substrate exists and only the
+    derivation is missing — this is the half of that sentence that was not true yet).
+    """
+    home = ctx.home_path()
+    attempts = list(ctx.attempts.get(sid) or ())
+    _, run_ok = journal.append(home, "station_run", station=sid, passed=passed, proof_sha=sha,
+                               attempts=len(attempts),
+                               failed=[r["name"] for r in results if r["exit"] != 0])
+    _, iter_ok = iteration.record_station(home, station=sid, attempts=attempts, passed=passed,
+                                          proof_sha=sha)
+    ctx.journalled[sid] = {"journal": run_ok, "iteration": iter_ok}
 
 
 def established(proof: dict | None) -> bool:

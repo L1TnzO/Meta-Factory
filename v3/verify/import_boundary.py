@@ -67,6 +67,12 @@ _ORACLE_READERS: dict[str, str] = {
         "derives v2's 23-gate list from `cmd_check` at oracle_ref via `git show`, so the census "
         "cannot be a table someone forgot to update; ref-binding proven by its own case, and the "
         "read survives INC-11 deleting v2 because a commit is immutable",
+    "v3/economy/census.py":
+        "derives v2's economy SURFACE — the memory package's modules and the public functions of "
+        "its three economy modules — at oracle_ref via `git ls-tree`/`git show`, for the same "
+        "reason and under the same terms as the gate census: a function nobody thought about has "
+        "to show up as a hole rather than as an absence. Ref-binding proven by its own "
+        "`ref_binding_problems` case; rules 1 and 2 still apply to it",
 }
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}

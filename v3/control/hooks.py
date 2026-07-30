@@ -11,6 +11,16 @@ and INC-0 measured exactly how far they reach and where they stop:
 
 `proof_protect` is the sharpest of them: `.proof/` is the evidence layer, and a model that can write
 there can manufacture its own green.
+
+INC-6 ADDS ONE, and it is the only hook in v3 whose job is to COUNT rather than to refuse.
+`compaction_counter` rides `PreCompact`, which the SDK exposes and `include_hook_events=True` makes
+visible to the host (`C-10`, `C-17`). §07.2 rule (c) says compaction is an incident with a target of
+zero; v2 counted them BY HAND, and a target you count by hand is a wish. This one is written by the
+event itself, so a compaction that nobody was watching still leaves a record.
+
+Note what it does NOT do: it does not block. A `PreCompact` that could refuse would let telemetry
+break the session it is measuring, which is the failure mode this whole increment is about — read
+from the other end.
 """
 
 from __future__ import annotations
@@ -50,5 +60,30 @@ def proof_protect(log: list | None = None):
             log.append({"tool": data.get("tool_name"), "path": path, "denied": hit,
                         "agent_type": data.get("agent_type")})
         return _denied({"reason": DENY_REASON}) if hit else {}
+
+    return hook
+
+
+def compaction_counter(home, log: list | None = None):
+    """PreCompact callback factory: COUNT the compaction, never block it.
+
+    `home` is the level whose journal receives the event. Returns `{}` in every branch — including
+    the branch where the write failed — because a hook that refuses is a hook that can break a
+    session, and this one is an instrument.
+
+    The record carries `counted=True` to distinguish it from v2's series, whose `compact` events
+    were entered by hand after the fact. Same kind, same file, different provenance: a reader
+    joining the two series can tell which era a number came from instead of averaging over both.
+    """
+    from ..memory import journal  # local: the column must not import the economy at module scope
+
+    async def hook(input_data, tool_use_id, context):
+        data = input_data or {}
+        _, landed = journal.append(Path(home), "compact",
+                                   session=str(data.get("session_id", "")),
+                                   trigger=str(data.get("trigger", "")), counted=True)
+        if log is not None:
+            log.append({"event": "PreCompact", "trigger": data.get("trigger"), "written": landed})
+        return {}
 
     return hook

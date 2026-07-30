@@ -1,7 +1,7 @@
-<!-- meta:doc sha=26389e834dedb0c36bebe60b0c3ee3142f1bcc6f updated=2026-07-30T21:00Z -->
+<!-- meta:doc sha=77614c2f6871a759bed8d1f98c3814505003b645 updated=2026-07-30T21:05Z -->
 # Incremento V3-INC6-ECONOMY-TYPED
 
-> **Doc de gobierno.** Status: **ABIERTO** (creado 2026-07-30T20:13Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-30T21:05Z) (creado 2026-07-30T20:13Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-6 + `07-economy.md` + `09-critique.md §4

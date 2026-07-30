@@ -1249,7 +1249,7 @@
       "parent": "N-0018",
       "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "blocked",
+      "state": "open",
       "evidence": [],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
@@ -1277,7 +1277,7 @@
       "parent": "N-0018",
       "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
       "kind": "residual",
-      "state": "blocked",
+      "state": "open",
       "evidence": [],
       "opened_at": "2026-07-29T17:29Z",
       "origin": {

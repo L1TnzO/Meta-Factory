@@ -102,12 +102,21 @@ def _entry_problems(index: int, entry: dict) -> list[str]:
         problems.append(f"{label}: session_class {entry.get('session_class')!r} is not one of "
                         f"{sorted(CLASSES)} — an unattributable spend cannot be routed")
     if cost is not None and breakdown:
-        summed = sum(float(v.get("cost_usd") or 0.0) for v in breakdown.values()
-                     if isinstance(v, dict))
+        summed = sum(_cost_of(v) for v in breakdown.values() if isinstance(v, dict))
         if summed and abs(summed - float(cost)) > RECONCILE_TOLERANCE_USD:
             problems.append(f"{label}: per-model costs sum to {summed:.4f} but the result declared "
                             f"{float(cost):.4f} — the two disagree by more than a cent")
     return problems
+
+
+#: THE TWO SPELLINGS ARE NOT A STYLE CHOICE, they are measured. On a real leaf (2026-07-30, haiku)
+#: `ResultMessage.usage` comes back snake_case (`input_tokens`, `cache_read_input_tokens`) while
+#: `model_usage` comes back camelCase (`inputTokens`, `costUSD`). The first draft of this law read
+#: only snake_case and would have folded a fully populated breakdown to zero tokens — then flagged
+#: it as "read but never populated", which is the correct complaint about the wrong subject. This is
+#: exactly what the increment's own rule asks for: a pinned symbol proves the field EXISTS; only a
+#: real run proves what ARRIVES in it, and every field consumed here was checked against one.
+_COST_KEYS = ("cost_usd", "costUSD", "costUsd")
 
 
 def _tokens_in(breakdown: dict) -> int:
@@ -116,9 +125,16 @@ def _tokens_in(breakdown: dict) -> int:
         if not isinstance(value, dict):
             continue
         for key, number in value.items():
-            if key.endswith("tokens") and isinstance(number, (int, float)):
+            if key.lower().endswith("tokens") and isinstance(number, (int, float)):
                 total += int(number)
     return total
+
+
+def _cost_of(value: dict) -> float:
+    for key in _COST_KEYS:
+        if isinstance(value.get(key), (int, float)):
+            return float(value[key])
+    return 0.0
 
 
 def aggregate(entries: list[dict], *, exists: bool = True) -> Aggregate:
@@ -147,7 +163,7 @@ def aggregate(entries: list[dict], *, exists: bool = True) -> Aggregate:
             if not isinstance(value, dict):
                 continue
             slot = by_model.setdefault(name, {"cost_usd": 0.0, "tokens": 0, "calls": 0})
-            slot["cost_usd"] += float(value.get("cost_usd") or 0.0)
+            slot["cost_usd"] += _cost_of(value)
             slot["tokens"] += _tokens_in({name: value})
             slot["calls"] += 1
 

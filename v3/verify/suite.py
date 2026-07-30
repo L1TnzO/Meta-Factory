@@ -1,5 +1,20 @@
 #!/usr/bin/env python3
-"""suite — the registry WIRED: `build_registry` registers all 15 of v2's 23 gates ported to v3
+"""suite — the registry WIRED.
+
+INC-6 ADDS SIX GATES THAT ARE NOT PORTS. Everything below this paragraph describes the port of v2's
+23 gates; `telemetry_liveness`, `ledger`, `escape_threshold`, `iteration`, `compaction` and
+`economy_census` have no v2 original, which is why they are absent from `gate_census`'s dispositions
+(that census answers "where did each of v2's gates go", and paperwork for a gate that never existed
+in v2 is exactly what it refuses). They are the economy's teeth: §07.5 states the structural problem
+in one line — the engine's targets are GATED and green, the economy's are OBSERVED and red — and a
+number with no tooth drifts. `telemetry_liveness` is the central one and it is red on landing, on
+purpose and against measured fact: the capture layer wrote nothing between 2026-07-13 and
+2026-07-28 while the project ran five increments, and a gate that went green over that would be the
+fabricated green this repo refuses.
+
+    ORIGINAL DOCSTRING (the port), unchanged below:
+
+`build_registry` registers all 15 of v2's 23 gates ported to v3
 (`compile`, `isolation`, `quality`, `pbt`, `security`, `roles`, `kinds`, `deferred`, `design_eval`,
 `generality`, `plan`, `dial`, `benchmark`, `codegen_freeze`, `suite`), and `main` is the runner that
 plays v2's `cmd_check` role — run every registered gate's declared argv once, fold the results through
@@ -112,12 +127,24 @@ _NA_MARKER = re.compile(r"^SUMMARY\s+N/A\b")
 
 
 def build_registry(root: Path) -> Registry:
-    """Construct the `Registry` and register the 5 gates this increment lands. Pure, no I/O beyond
-    the witness existence checks `Registry.register` already performs — safe to call at any time,
-    including from `gate_census`, which is exactly why it must never run a subprocess or scan a tree."""
+    """Construct the `Registry` and register every gate. Pure, no I/O beyond the witness existence
+    checks `Registry.register` already performs — safe to call at any time, including from
+    `gate_census`, which is exactly why it must never run a subprocess or scan a tree.
+
+    Split in two by PROVENANCE, not by taste: `_register_ported` carries v2's gates, whose
+    dispositions `gate_census` audits; `_register_economy` carries the six INC-6 gates, which have
+    no v2 original and must therefore stay OUT of that census. A reader asking "is this a port or a
+    new tooth?" gets the answer from which function it is in.
+    """
     root = Path(root)
     registry = Registry(root)
+    _register_ported(registry)
+    _register_economy(registry)
+    return registry
 
+
+def _register_ported(registry: Registry) -> None:
+    """v2's gates, ported. Every name here appears in `gate_census.DISPOSITIONS`."""
     registry.register(Gate(
         name="compile",
         argv=(PY, "-m", "compileall", "-q", "v3", "seed"),
@@ -269,7 +296,68 @@ def build_registry(root: Path) -> Registry:
         proves="every OTHER registered gate's re-runnable red side still goes red when re-run (P2)",
         one_sided_because=ONE_SIDED["suite"],
     ))
-    return registry
+
+
+def _register_economy(registry: Registry) -> None:
+    """INC-6's six. NONE of these is a port: §07.5 states the structural problem in one line — the
+    engine's targets are GATED and green, the economy's are OBSERVED and red — and a number with no
+    tooth drifts. They are absent from `gate_census` by construction, because paperwork for a gate
+    that never existed in v2 is precisely what that census refuses."""
+    registry.register(Gate(
+        name="telemetry_liveness",
+        argv=(PY, "-m", "v3.verify.checks.telemetry_liveness"),
+        proves="every day with demonstrable activity (commits, `.proof/` writes, station_run) "
+               "also carries an economy record — «no se midió» is distinguishable from «dio cero», "
+               "and the detector is NOT a hook, because a hook cannot detect that hooks are off",
+        witness=Witness("sabotage_env", "V3_TELEMETRY_LIVENESS_SABOTAGE"),
+        na_when="no demonstrable activity in the window — the gate refuses to assert rather than "
+                "certifying the instrument on the strength of nothing having happened",
+    ))
+    registry.register(Gate(
+        name="ledger",
+        argv=(PY, "-m", "v3.verify.checks.ledger_check"),
+        proves="every recorded leaf carries a price attributable to a model AND a session class, "
+               "with per-model costs that reconcile — a cost with no owner is not a measurement",
+        witness=Witness("sabotage_env", "V3_LEDGER_SABOTAGE"),
+        na_when="the ledger holds no entry in the window — reported as unmeasured, never as $0.00 "
+                "(the whole defect this increment exists for, so it may not be a silent green)",
+    ))
+    registry.register(Gate(
+        name="escape_threshold",
+        argv=(PY, "-m", "v3.verify.checks.escape_threshold"),
+        proves="the ADR-019 §6 observer EMITS: (a) entry-set headroom against the window plus the "
+               "full corpus growth, and (b) the leaf relevance ratio — with real values or an "
+               "explicit N/A. The threshold itself is not gated; its silence is",
+        witness=Witness("sabotage_env", "V3_ESCAPE_THRESHOLD_SABOTAGE"),
+        na_when="no leaf has been metered yet, so (b) has no subject — (a) is still emitted, and "
+                "an observer with half its numbers says so instead of implying the other half",
+    ))
+    registry.register(Gate(
+        name="iteration",
+        argv=(PY, "-m", "v3.verify.checks.iteration_check"),
+        proves="the host's retry loop is persisted honestly — no station record with an empty "
+               "attempt list, no declared count outliving a truncated list — and the derivation "
+               "actually surfaces red→green cycles and repeated failures (§09.4 A-2)",
+        witness=Witness("sabotage_env", "V3_ITERATION_SABOTAGE"),
+        na_when="no station has been run through the host runner yet — nothing to under-report",
+    ))
+    registry.register(Gate(
+        name="compaction",
+        argv=(PY, "-m", "v3.verify.checks.compaction"),
+        proves="a PreCompact callback is wired into every leaf with `include_hook_events` on, so a "
+               "compaction is counted by the event rather than by whoever remembers (§07.2 c), and "
+               "the session-class vocabulary is well-formed",
+        witness=Witness("sabotage_env", "V3_COMPACTION_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="economy_census",
+        argv=(PY, "-m", "v3.verify.checks.economy_census"),
+        proves="no module producing an economic number references a transcript in executable code, "
+               "and every module + public function of v2's economy surface carries exactly ONE "
+               "disposition verified against an artifact at the oracle commit",
+        witness=Witness("sabotage_env", "V3_ECONOMY_CENSUS_SABOTAGE"),
+    ))
+
 
 
 def _run_gate(gate: Gate, root: Path) -> Outcome:

@@ -49,20 +49,35 @@ CONTEXT_WINDOW_TOKENS = 200_000
 #: It is used only for a HEADROOM ratio, where a consistent bias cancels — never for billing.
 CHARS_PER_TOKEN = 4
 
-#: What "the corpus" means for the escape rule: the documentary memory a session would actually
-#: carry. Not the whole tree — code is read on demand and is not injected.
+#: TWO corpora, and conflating them is how this meter over-claimed on its first run.
+#:
+#: ADR-019 §6 clause (a) is «el corpus RELEVANTE excede confiablemente la ventana USABLE». The ADR
+#: had already measured the whole of `docs/` at ~269k tokens on 2026-07-08 and said so in the same
+#: breath as its mitigation: it «ya se fetchea (Read/Grep), no se inyecta entero». So reporting the
+#: full tree as if it were clause (a) would announce an expiry the decision explicitly priced in.
+#:
+#: What clause (a) is actually about is what a session carries BY CONSTRUCTION — the entry set every
+#: session pays for whether it needs it or not. That is what must fit. The full corpus is reported
+#: beside it as the GROWTH signal, which is the number that decides whether fetching stays viable.
+ENTRY_GLOBS = ("CLAUDE.md", "docs/STATE.md")
 CORPUS_GLOBS = ("CLAUDE.md", "docs/**/*.md")
+
+#: The full-corpus measurement ADR-019 recorded, kept so growth is a delta rather than an
+#: impression. Assumption-ledger shape: value + when it was true + what re-opens it. RE-MEASURE
+#: TRIGGER: this gate, on every run — which is the point of building it.
+CORPUS_BASELINE_TOKENS = 269_000
+CORPUS_BASELINE_AS_OF = "2026-07-08"
 
 #: Tool names that READ. Used for `read_events`; write/execute tools are counted separately by the
 #: ledger's `tool_uses`, because a leaf that edits a lot and reads nothing is a different animal.
 READ_TOOLS = ("Read", "Grep", "Glob", "NotebookRead", "WebFetch", "WebSearch")
 
 
-def corpus_tokens(root: Path) -> tuple[int, int, int]:
-    """(estimated tokens, chars, files) over `CORPUS_GLOBS`. Pure file-IO."""
+def corpus_tokens(root: Path, globs=CORPUS_GLOBS) -> tuple[int, int, int]:
+    """(estimated tokens, chars, files) over `globs`. Pure file-IO."""
     chars = 0
     files = 0
-    for pattern in CORPUS_GLOBS:
+    for pattern in globs:
         for path in sorted(Path(root).glob(pattern)):
             if not path.is_file():
                 continue
@@ -75,18 +90,30 @@ def corpus_tokens(root: Path) -> tuple[int, int, int]:
 
 
 def headroom(root: Path) -> dict:
-    """(a) of the escape rule. `fits` is the clause ADR-019 §6 hangs on.
+    """(a) of the escape rule, decided on the ENTRY set and reported beside the growth signal.
 
-    `files == 0` is reported as such and never as infinite headroom — an empty measurement is the
-    Lock #1 shape, and the caller is expected to treat it as a failure rather than as good news.
+    `fits` answers clause (a) about the corpus a session carries by construction. `corpus_tokens`
+    and `corpus_growth_pct` answer the question clause (a) does NOT ask but that decides whether
+    the fetch-don't-inject mitigation stays viable: how fast the documentary memory is growing
+    against the number the decision was made on.
+
+    `entry_files == 0` or `corpus_files == 0` is reported as such and never as infinite headroom —
+    an empty measurement is the Lock #1 shape, and the caller must treat it as a failure rather
+    than as good news.
     """
-    tokens, chars, files = corpus_tokens(root)
+    entry, _, entry_files = corpus_tokens(root, ENTRY_GLOBS)
+    total, chars, files = corpus_tokens(root, CORPUS_GLOBS)
     return {
-        "corpus_tokens": tokens, "corpus_chars": chars, "corpus_files": files,
+        "entry_tokens": entry, "entry_files": entry_files,
+        "corpus_tokens": total, "corpus_chars": chars, "corpus_files": files,
         "window_tokens": CONTEXT_WINDOW_TOKENS,
-        "headroom_tokens": CONTEXT_WINDOW_TOKENS - tokens,
-        "headroom_pct": round(100.0 * (CONTEXT_WINDOW_TOKENS - tokens) / CONTEXT_WINDOW_TOKENS, 2),
-        "fits": tokens < CONTEXT_WINDOW_TOKENS,
+        "headroom_tokens": CONTEXT_WINDOW_TOKENS - entry,
+        "headroom_pct": round(100.0 * (CONTEXT_WINDOW_TOKENS - entry) / CONTEXT_WINDOW_TOKENS, 2),
+        "fits": entry < CONTEXT_WINDOW_TOKENS,
+        "corpus_baseline_tokens": CORPUS_BASELINE_TOKENS,
+        "corpus_baseline_as_of": CORPUS_BASELINE_AS_OF,
+        "corpus_growth_pct": round(100.0 * (total - CORPUS_BASELINE_TOKENS)
+                                   / CORPUS_BASELINE_TOKENS, 1),
     }
 
 

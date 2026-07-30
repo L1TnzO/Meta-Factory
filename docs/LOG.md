@@ -1,7 +1,68 @@
-<!-- meta:doc sha=306fda5ab514c31fd47f8dd8c4ee92cef2ba553c updated=2026-07-30T21:01Z -->
+<!-- meta:doc sha=435b809d096ec028f5c357cbdf204663aacfb0f0 updated=2026-07-30T21:27Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-30T21:3xZ — INC-7: v3 deja de verificarse a sí mismo y verifica un PRODUCTO
+
+**Qué pasó.** La fábrica `dummy` corre entera sobre v3 —5 estaciones, builds y checks como procesos
+reales— y re-deriva **5/5 == `pinned_verdict.json`** en 0,4 s. Es el primer incremento cuyo SUJETO no
+es v3.
+
+**«Migrar» resultó no ser la palabra.** No había nada que mover: INC-1 portó la identidad de una
+estación, INC-4 el vocabulario de kinds con su argv, INC-2 el loop que camina una línea. Cada mitad
+se verificó contra el oráculo por separado y **nada las conectaba**: `resolve_check` producía argv que
+nadie corría, y `run_line` consumía una línea que nadie construía. Lo que faltaba era el empalme, más
+los cuatro cuerpos de ejecutor que el argv de INC-4 ya nombraba y que no existían — su propio
+docstring lo decía con todas las letras («a later phase ports those executor BODIES, and this argv is
+what says where they must live»). INC-7 fue esa fase.
+
+**Dos decisiones de columna que cambian la AFIRMACIÓN, no la implementación.** (1) Se re-deriva desde
+una **copia de archivos trackeados**, no borrando la evidencia: v2 hace `rmtree(.proof)` +
+`rmtree(build)` sobre la fábrica real, lo que destruye la evidencia para comprobarla (una corrida que
+se corta no deja contra qué comparar) y limpia sólo dos directorios, así que cualquier residuo fuera
+de ellos puede estar sosteniendo el verde. «Desde fuente comiteada» es una afirmación más fuerte que
+«desde el working tree menos dos directorios». (2) **La fábrica se copia; v3 no.** El sujeto viaja a
+la copia, la plataforma se queda donde vive y la alcanza por `PYTHONPATH`. Copiar la plataforma junto
+al sujeto sería re-derivar contra la versión de v3 que quedó en esa copia. Esa frontera no estaba
+escrita en ningún lado hasta que el argv `python -m v3.verify.checks.<kind>` obligó a nombrarla; ahora
+vive en el campo `RunContext.pythonpath`.
+
+**El límite honesto, con su respuesta puesta al lado.** `proof_sha` hashea NOMBRES y EXIT CODES, así
+que `5/5 == pin` lo cumple cualquier port cuyos checks conserven el nombre y salgan 0 — **incluido uno
+hueco**. P1 sin P2 aceptaría exactamente la reconstrucción que este proyecto intenta no construir. Por
+eso el lado rojo rompe el PRODUCTO, no v3: `product_broken` deriva de los datos de la estación el
+marcador de un `artifact_contains` y lo saca de la fuente que lo renderiza. Y `check_renamed` es la
+clase que vale mirar: renombra un check sin tocar lo que corre, así que los cinco exit codes quedan
+idénticos y el sha igual cambia — es la única que ejerce la mitad «NOMBRES», que es justo la mitad que
+§11.2 llama su límite.
+
+**El censo de migración, y por qué no es una tabla.** «Portar lo que la línea migrada necesita» es una
+política correcta y un escondite perfecto: la línea da verde, el pin coincide, y lo que NO se portó es
+indistinguible de lo que no existe. `migration_census` no tipea ni una disposición — la población sale
+de `KINDS`, el ejecutor de resolver un check REAL de un YAML REAL, el vocabulario de acciones de
+`apply_builds` leído al commit oráculo, lo que v3 maneja del fuente de `v3/host/builds.py`, y el dueño
+de cada deuda de la fábrica que la declara. El diente es una frase: **nada que una fábrica MIGRADA
+ejerce puede estar debiéndose a un incremento posterior**, y se pondrá rojo el día que INC-8 agregue
+`iot` a `MIGRATED` antes de portar lo que `iot` usa.
+
+**Su lado rojo falló 0/3 en la primera corrida, y encontrar por qué fue el trabajo.** Tres bugs, tres
+formas de la misma lección de INC-5 —preguntar qué valor perturba el sabotaje y si ese valor ya estaba
+vacío—: `phantom_action` agregaba la acción inventada a los DOS conjuntos y se anulaba solo;
+`unported_but_migrated` usaba `iot`, cuya línea sólo necesita lo que INC-7 ya portó, así que no
+perturbaba nada (con `full-stack-kotlin` sí: `write` sin handler, `eval_gate` sin ejecutor); y
+`vocabulary_shrank` sacaba UNA kind, que simplemente pasa a `unexercised` — una disposición legítima.
+Lo que había que vaciar era la población entera.
+
+**Números.** Suite v3 **green=24 · red=3 · n/a=1** (28 gates, +2); `suite_sweep` re-corre **19** lados
+rojos (eran 17) y los 19 reportan captura. Los 3 rojos son exactamente los declarados en INC-6, sin
+ninguno nuevo. Censo: 4 kinds portadas · 3 sin cuerpo · 3 debidas (`eval_gate`→INC-9,
+`eval_floor`/`live_run`→INC-10) · 19 que ninguna línea de FÁBRICA declara porque son de la línea META,
+que no tiene análogo v3 (`N-0098`); 4 de las 5 acciones de build que las líneas de fábrica declaran.
+
+**Diferido con disparador escrito:** `N-0098` (línea META sin análogo → INC-11) · `N-0099` (un check
+con `when` se RECHAZA, no se ignora → la primera fábrica migrada que lo declare) · `N-0100` (`via` sin
+resolver contra el chasis → INC-9).
 
 ## 2026-07-30T21:0xZ — INC-6: el instrumento llevaba 17 días muerto y ningún número lo decía
 

@@ -1405,6 +1405,68 @@
         "ref": "V3-INC6/churn-and-cache-need-sessions"
       },
       "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja"
+    },
+    "N-0097": {
+      "parent": "N-0019",
+      "title": "INC-7 MIGRATE-DUMMY: la fabrica dummy corre entera sobre v3 (5 estaciones, builds + checks como procesos reales) y re-deriva 5/5 == pinned_verdict.json desde una copia de archivos trackeados. N-0019 sigue abierto: su intencion es dummy Y iot, y iot es INC-8",
+      "kind": "increment",
+      "state": "done",
+      "evidence": [
+        "gate rederive: dummy 5/5 == pin (37 tracked files, 0.4s); SABOTAGE 4/4 (product_broken, station_vanished, check_renamed, empty_line)",
+        "gate migration_census: 4 kinds ported / 3 no-body / 3 owed / 19 in no factory line; 4 of 5 declared build actions handled; SABOTAGE 3/3",
+        "v3/verify/checks/{artifact_contains,product_env,infra_up,mcp_tools}.py — the bodies INC-4's argv already named",
+        "v3/host/{builds,line}.py — the joint between resolve_check and run_line",
+        "suite v3 green=24 red=3 n/a=1 (28 gates); suite_sweep 19/19; the 3 reds are INC-6's declared ones"
+      ],
+      "opened_at": "2026-07-30T21:30Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "handoff",
+        "ref": "V3-INC7/dummy-on-v3"
+      },
+      "closed_at": "2026-07-30T21:30Z"
+    },
+    "N-0098": {
+      "parent": "N-0022",
+      "title": "La linea META de v2 (m00..m07) no tiene analogo en v3, asi que 19 de las 29 kinds del vocabulario no las declara NINGUNA linea de fabrica (column_full, docs_check, clean_runner, rtm_*, product_run, products_rederive...). migration_census las reporta APARTE de las debidas, para no mezclar «quien me debe un ejecutor» con «esto no es parte de una linea de producto». Disparador: INC-11 CUTOVER, donde `meta` pasa a ser la cascara fina sobre v3",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:30Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC7/meta-line-has-no-v3-analogue"
+      },
+      "trigger": "INC-11 CUTOVER: meta se vuelve la cascara fina sobre v3"
+    },
+    "N-0099": {
+      "parent": "N-0020",
+      "title": "Un check que declara `when` es RECHAZADO por v3/host/line.py, no portado. Ignorar la clave correria un check que debia saltearse (o al reves), y en cualquier caso moveria el proof_sha de una estacion sin que nadie lo decida. Ninguna linea migrada lo usa todavia. Disparador: la primera fabrica migrada cuya linea declare `when` — el loader revienta con el nombre del check",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:30Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC7/check-when-refused"
+      },
+      "trigger": "la primera fabrica migrada que declare `when` en un check (el loader revienta)"
+    },
+    "N-0100": {
+      "parent": "N-0020",
+      "title": "El `via` de un slot `generate` no se resuelve contra el chasis de la fabrica: v2 lo hace (_resolve_via_against_chassis) para que una INSTANCIA de producto pueda invocar un generador que vive en el chasis (R1, ADR-015). dummy no lo necesita (su via es `python -c`); los productos de FSK si. Disparador: INC-9 MIGRATE-FSK",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-07-30T21:30Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "deferral",
+        "ref": "V3-INC7/via-not-chassis-resolved"
+      },
+      "trigger": "INC-9 MIGRATE-FSK: entran las instancias de producto"
     }
   }
 }

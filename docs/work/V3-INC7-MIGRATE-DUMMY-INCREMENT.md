@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e30eb5e0b26d943f0e4e45739a41ef812c74e4c0 updated=2026-07-30T21:13Z -->
+<!-- meta:doc sha=faf90b71424935d933df57bd9bf0a36c6d5fc527 updated=2026-07-30T21:26Z -->
 # Incremento V3-INC7-MIGRATE-DUMMY
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-30T21:12Z). Cerralo con `meta increment close`
@@ -113,3 +113,82 @@ límite honesto.
 5. Censo: qué kinds y qué acciones de build quedan SIN portar, cada una con el incremento que las
    necesita — el conteo tiene que cerrar, no quedar implícito.
 6. Árbol limpio y `meta increment close` en verde.
+
+---
+
+## Evidencia (2026-07-30)
+
+### El resultado
+
+```
+VERDICT    v3-rederive — PASS   (exit 0)
+SUMMARY    dummy: 5/5 == pin (37 tracked file(s)) — re-derived on v3 from committed source, in a staged copy
+```
+
+0,4 s. Las 5 estaciones corren sus builds y sus checks como procesos reales —`render` ×3, el slot
+`generate`, un venv del producto, un socket server que levanta y se cae, un MCP que responde
+`tools/list`— y los cinco `proof_sha` salen idénticos a `pinned_verdict.json`.
+
+### Los dos gates nuevos, con su lado rojo re-corrido
+
+| Gate | Verde | Rojo (4/4 y 3/3, cada clase declarando qué valor NO VACÍO perturba) |
+| --- | --- | --- |
+| `rederive` | `dummy` 5/5 == pin, 37 archivos trackeados | `product_broken` (marcador presente → ausente en la FUENTE) · `station_vanished` (5 → 4) · `check_renamed` (mueve el sha sin tocar un exit) · `empty_line` (5 → 0, Lock #1) |
+| `migration_census` | 4 kinds portadas · 3 sin cuerpo · 3 debidas · 19 en ninguna línea de fábrica; 4/5 acciones | `phantom_action` (`handled - v2set` 0 → 1) · `unported_but_migrated` (contradicciones 0 → 2) · `empty_population` (10 kinds → 0) |
+
+`suite_sweep` re-corre **19** lados rojos (eran 17) y los 19 reportan captura. Suite v3
+**green=24 · red=3 · n/a=1** (28 gates) — los 3 rojos son exactamente los declarados en INC-6, sin
+ninguno nuevo.
+
+`check_renamed` es la clase que vale mirar: renombra un check sin tocar lo que corre, así que los
+cinco exit codes son idénticos y el `proof_sha` igual cambia. Es la única de las cuatro que ejerce la
+mitad «NOMBRES» de `proof_sha`, que es justo la mitad que §11.2 llama su límite honesto.
+
+### El censo, y por qué no es una tabla
+
+`migration_census` no tipea ni una disposición. La población de kinds sale de `KINDS`; el ejecutor de
+cada una, de **resolver un check REAL declarado en un YAML REAL** (así el argv bajo prueba es el argv
+que correría); el vocabulario de acciones, de `apply_builds` de v2 leído **al commit oráculo**; lo que
+v3 maneja, del fuente de `v3/host/builds.py`; y el dueño de cada deuda, de la fábrica que la declara
+mapeada a su incremento de migración. El diente es una sola frase: **nada que una fábrica MIGRADA
+ejerce puede estar debiéndose a un incremento posterior**, y se va a poner rojo el día que INC-8
+agregue `iot` a `MIGRATED` antes de portar lo que `iot` usa.
+
+Lo que el censo reporta hoy, con el conteo cerrado:
+
+| | |
+| --- | --- |
+| kinds portadas (4) | `artifact_contains` · `product_env` · `infra_up` · `mcp_tools` |
+| kinds sin cuerpo (3) | `py_compile` · `import_runs` · `command` — su argv apunta a la stdlib o no lleva módulo |
+| kinds debidas (3) | `eval_gate` → INC-9 · `eval_floor`, `live_run` → INC-10 |
+| kinds en ninguna línea de FÁBRICA (19) | son de la línea META (`m00`…`m07`), que no tiene análogo v3 — `N-0098` |
+| acciones de build | 4 de las 5 que las líneas de fábrica declaran; falta `write`, que usan ASF/full-stack/FSK → INC-9 |
+
+### Lo que la ejecución corrigió
+
+**El lado rojo del censo no mordía, y encontrar por qué fue el trabajo.** Las tres clases fallaron
+0/3 en su primera corrida, cada una por una razón distinta y todas la misma lección de INC-5:
+
+1. `phantom_action` agregaba la acción inventada a **los dos** conjuntos (`v2set` y `handled`), así
+   que la resta `handled - v2set` seguía vacía. El sabotaje se anulaba a sí mismo.
+2. `unported_but_migrated` declaraba `iot` como migrada — y la línea de `iot` sólo necesita
+   `infra_up`, `product_env` y `generate`, **todo ya portado por INC-7**. El plant no perturbaba
+   nada. Con `full-stack-kotlin` sí: declara `write` (sin handler) y `eval_gate` (sin ejecutor).
+3. `vocabulary_shrank` sacaba UNA kind de la población, y una kind que nadie declara simplemente pasa
+   a `unexercised` — que es una disposición legítima, no un problema. Lo que había que perturbar era
+   la población entera (Lock #1).
+
+**El `PYTHONPATH` obligó a nombrar una frontera.** El argv que INC-4 resolvió es
+`python -m v3.verify.checks.<kind>`, y la copia escenificada no contiene `v3/`. La salida no fue
+copiar la plataforma junto al sujeto —eso re-derivaría contra la versión de v3 que quedó en la
+copia— sino darle al `RunContext` un `pythonpath` explícito que apunta a donde vive la plataforma. La
+distinción quedó escrita en el campo: **el sujeto viaja, la plataforma no.**
+
+### Lo que queda debiendo, con disparador
+
+- `N-0098` — la línea META (`m00`…`m07`) no tiene análogo v3, así que 19 kinds del vocabulario no las
+  declara ninguna línea de fábrica. Disparador: INC-11 CUTOVER.
+- `N-0099` — un check con `when` se RECHAZA, no se porta. Disparador: la primera fábrica migrada que
+  lo declare.
+- `N-0100` — `via` de un slot no se resuelve contra el chasis (v2 lo hace para instancias de
+  producto). `dummy` no lo necesita; los productos de FSK sí. Disparador: INC-9.

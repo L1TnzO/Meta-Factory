@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b855b4ed4617d5342f07e7da699b18162c08603c updated=2026-07-30T21:12Z -->
+<!-- meta:doc sha=ba6202b2ca8f02d67243baa6a8d1233ef3d2843e updated=2026-07-30T21:27Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,17 +20,17 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-6 ENTREGADOS**, sigue INC-7.**
+- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-7 ENTREGADOS**, sigue INC-8 (`iot`).**
   Reconstruye el plano de CONTROL sobre el Claude Agent SDK conservando la evidencia: **nuestro
   programa es el host, Claude Code el motor**. Se construye EN el árbol (`v3/`); el oráculo es el
   commit pineado en `v3/oracle_ref.json`, nunca el working tree. Leyes vigentes: un gate **no se
   registra sin testigo rojo alcanzable** (INC-4) · un port puede **negarse a afirmar** (N/A aparte,
-  INC-5) · **«no se midió» ≠ «dio cero»**, en el TIPO (INC-6). La economía sale de `usage` TIPADO y su
-  diente central es la **liveness del instrumento**: `telemetry_liveness` vive FUERA de la capa de
-  hooks —un hook no puede detectar que los hooks están apagados— y **queda ROJO**, que es el hallazgo.
-  Suite v3 `green=22 · red=3 · n/a=1` (26 gates; `suite_sweep` re-corre 17 lados rojos; los otros 2
-  rojos son deuda declarada de FSK y de los sellos). **Mapa: `docs/spec/20-architecture-map.md`.**
-  → `decisions/031`·`032` · `LOG.md` (2026-07-28/29/30) · `work/V3-INC6-…` · plan `N-0018`.
+  INC-5) · **«no se midió» ≠ «dio cero»**, en el TIPO (INC-6). Con **INC-7 v3 deja de verificarse a sí
+  mismo y verifica un PRODUCTO**: `dummy` corre entero sobre v3 y re-deriva **5/5 == pin** desde una
+  copia de archivos TRACKEADOS (el sujeto viaja, la plataforma no). Suite v3 `green=24 · red=3 · n/a=1`
+  (28 gates; `suite_sweep` re-corre 19 lados rojos; los 3 rojos son deuda declarada de FSK, de los
+  sellos, y el hallazgo de liveness). **Mapa: `docs/spec/20-architecture-map.md`.**
+  → `decisions/031`·`032` · `LOG.md` (2026-07-28/29/30) · `work/V3-INC7-…` · plan `N-0019`.
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus documental **461.289 tok / 193 archivos,
   +71,5 %** contra la línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape
   sigue FALSA (set de entrada 4.087 tok, 97,96 % headroom) → lo que crece es el costo de la

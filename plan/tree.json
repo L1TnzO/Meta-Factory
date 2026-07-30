@@ -1312,6 +1312,19 @@
         "cause": "gate_red",
         "ref": "V3-INC6/column-unwired-since-0718"
       }
+    },
+    "N-0092": {
+      "parent": "N-0018",
+      "title": "CORRIGE la EVIDENCIA de N-0091 (el hallazgo se sostiene, el test no): proof_protect deniega ESCRITURAS, no lecturas; mi prueba de lectura nunca fue valida. Test valido hoy: escritura por redireccion a .proof/ DENEGADA. La evidencia que si vale es de conteo: session_start 9-26/dia hasta 07-13, luego 0 el 07-28 y 1 el 07-29, y cero kind=tool desde 07-13; todo se reanuda al relanzar desde la raiz",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-30T20:10Z",
+      "origin": {
+        "session": "2026-07-30",
+        "cause": "gate_red",
+        "ref": "V3-INC6/n0091-evidence-correction"
+      }
     }
   }
 }

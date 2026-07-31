@@ -1,4 +1,4 @@
-<!-- meta:doc sha=eb8da04add85c22431fbe6e92e50c227e23fa3f8 updated=2026-07-31T08:40Z -->
+<!-- meta:doc sha=c9d0763ff23fe46cbc5ff165134f6bcf9fe4275f updated=2026-07-31T17:08Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -211,8 +211,8 @@ prerrequisito de la Fase 4, no parte de este incremento meta.
 | 2 | Port de las dos negativas: `station_activation` (rederive) + `when` por-check (line) | ✅ §8 |
 | 3 | Port del ejecutor `eval_gate` + su gate de paridad de COMPORTAMIENTO (slot delegado) | ✅ §10 |
 | 4a | **Medir** qué falta para 46/46, con `N-0103` parcheado sólo en la copia staged | ✅ §11 |
-| 1b | **(nivel fábrica, prerrequisito)** revertir la regresión detekt — sin re-pin | ⛔ §9 |
-| 4b | La corrida verde de los 4 targets **en el repo** | ⛔ por 1b + `N-0107` |
+| 1b | **(nivel fábrica, prerrequisito)** ~~revertir~~ **arreglar** la regresión detekt — sin re-pin | ✅ `FSK-JSONVAL-DETEKT` (46/46, cero re-pin) |
+| 4b | La corrida verde de los 4 targets **en el repo** | ⛔ sólo por `N-0107` (defecto de v3, ya localizado) |
 | 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ por 4b |
 
 ### 10. Fase 3 ✅ — `eval_gate`, y el primer instrumento de paridad de COMPORTAMIENTO
@@ -245,13 +245,19 @@ Detrás de `s2` había **un defecto de v3 y una pregunta**:
   y su docstring ya prometía la propiedad, que es la peor versión del bug. `assets`/`helpdesk` apagan
   `s6`, `s7` declara `requires_prev: s6`, y la línea se clavaba esperando una prueba que nadie iba a
   escribir. **33/46 → 43/46.** v2 recursa acá y lo dice en su propio docstring.
-- **La pregunta (`N-0107`):** `s9` de `snipeit`, `observability_live` exit 127 — el `up` no lanza
-  porque `build/install/webapp/bin/webapp` no existe, tras un bootstrap que devolvió 0. Es el único
-  target que no cierra. **Hipótesis falsada, anotada para que nadie la repita:** creí que era el caché
-  global de gradle dando UP-TO-DATE sobre una salida borrada, porque mi sonda re-stageaba sobre una
-  RUTA FIJA; re-corrí con `mkdtemp` único (como hace el `rederive` real) y da exactamente lo mismo.
-  Tampoco es timeout: con el árbol tibio falla en 56 s. Lo que falta medir es si **v2** pasa ese `s9`
-  hoy — puede ser una SEGUNDA regresión de producto de la clase de `N-0103`. No se adivina.
+- **La pregunta (`N-0107`) — CONTESTADA 2026-07-31, y el defecto es NUESTRO:** `s9` de `snipeit`,
+  `observability_live` exit 127 — el `up` no lanza porque `build/install/webapp/bin/webapp` no existe,
+  tras un bootstrap que devolvió 0. Es el único target que no cierra. **Hipótesis falsada, anotada para
+  que nadie la repita:** creí que era el caché global de gradle dando UP-TO-DATE sobre una salida
+  borrada, porque mi sonda re-stageaba sobre una RUTA FIJA; re-corrí con `mkdtemp` único (como hace el
+  `rederive` real) y da exactamente lo mismo. Tampoco es timeout: con el árbol tibio falla en 56 s.
+  **La medición que faltaba ya está hecha: `v2` pasa ese `s9` hoy** — `ci --rederive
+  full-stack-kotlin/snipeit` da **12/12 == pin** sobre árbol limpio, con `s9` adentro (`FSK-JSONVAL-DETEKT`
+  §Evidencia 3). La hipótesis «segunda regresión de producto de la clase de `N-0103`» queda **FALSADA**:
+  el defecto es del **port de v3**, no del producto. Y no era contestable antes de arreglar `N-0103`,
+  porque la línea de v2 moría en `s2` y nadie llegaba a `s9` — por eso el disparador era una CONDICIÓN.
+  Queda como el residuo REAL de la fase 4b: qué hace distinto nuestro `bootstrap`/`up` portado para que
+  el `installDist` no deje el binario donde el `up` lo busca.
 
 Lo que esto ya prueba: **la plataforma v3 corre la línea real de FSK entera** —12 estaciones, Postgres
 vivo, Chromium, gradle, `eval_gate`— y re-deriva == pin en 3 de 4 targets, con las cuentas distintas

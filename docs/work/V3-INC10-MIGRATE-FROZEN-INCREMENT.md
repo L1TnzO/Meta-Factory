@@ -1,4 +1,4 @@
-<!-- meta:doc sha=83ef4b47280174bb2d59e3494dd04f11cbbaf21e updated=2026-07-31T21:13Z -->
+<!-- meta:doc sha=059cebbe93bcd3fd91b3e61e6e50dea068168b98 updated=2026-07-31T21:15Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
 > **Doc de gobierno.** Status: **CLOSED** (2026-07-31T21:13Z) (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
@@ -298,10 +298,22 @@ un incremento entero sin que nada lo corriera.
 
 ## Residuos VIVOS (disparador por CONDICIÓN, ninguno por fecha)
 
-- **`N-0112`** — el árbol de nodos derivó en silencio medio incremento: su verbo (`tools/plan.py`)
-  vive FUERA del sustrato y su `plan check` no está en `meta check`. Reparado y validado hoy (114
-  nodos, verde); la CLASE no. Disparador: INC-11 CUTOVER, cuando el verbo y su check entren al
-  sustrato.
+- **`N-0112`** — el árbol de nodos derivó en silencio, y al repararlo la causa resultaron ser **dos**.
+  (a) Deriva real: el verbo (`tools/plan.py`) vive FUERA del sustrato y su `plan check` no está en
+  `meta check`, así que dejar de llamarlo no enciende nada — cuatro ids citados por STATE/LOG no
+  existían y el check estaba rojo hacía días. Reparado y validado (114 nodos, verde). (b) **No era
+  deriva, era el modelo**: la álgebra REHÚSA cerrar un nodo padre con descendientes vivos y solo
+  ofrece cerrarlos o dropearlos, pero un residuo con disparador por CONDICIÓN sobrevive a su
+  incremento **a propósito**. Ni INC-9 ni INC-10 pueden cerrar su nodo sin mentir sobre sus residuos,
+  así que los dos quedan abiertos a propósito. Falta un tercer estado, o una arista de HERENCIA que
+  pase el residuo al arco y libere al incremento. Disparador: INC-11 CUTOVER.
+
+  > **Corrección honesta.** El commit `c8c7d14` de este mismo incremento afirma que cerró `N-0020`.
+  > **No lo cerró**: el verbo lo REHUSÓ (exit 1) y no lo vi porque mandé su veredicto a `/dev/null`.
+  > Lo descubrí al intentar cerrar mi propio `N-0021` y recibir el mismo refuse. Es exactamente lo
+  > que este repo no se permite —afirmar un verde que no se puede trazar a un gate que salió 0— y el
+  > mecanismo fue tapar la salida del comando que estaba decidiendo. La mitad (b) del hallazgo sale
+  > de ese error, no de haberlo pensado.
 - **`N-0113`** — la ley del slot acota lo que un generador ESCRIBE y lo que DEJA, no lo que BORRA:
   durante la fase 4 el generador corrió `git checkout` sobre `plan/tree.json` (fuera de su
   `allow_globs`, con trabajo mío sin commitear adentro) y lo destruyó **con las dos defensas en

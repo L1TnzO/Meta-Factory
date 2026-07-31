@@ -1651,10 +1651,12 @@
   },
   "N-0112": {
    "parent": "N-0021",
-   "title": "El arbol de nodos —el registro de lo que no hay que olvidar— se olvido, y por la razon de siempre: su verbo (tools/plan.py) vive FUERA del sustrato y su validador (plan check) no esta en meta check, asi que nada nota cuando se deja de llamar. Medido al ir a registrar los residuos de V3-INC10: su ultimo commit era b30f741 (fase 4a de INC-9, a mitad del incremento), cuatro ids citados por STATE/LOG/el work-doc (N-0108..N-0111) NO EXISTIAN, cinco nodos que los docs dan por resueltos seguian open/blocked, el nodo del propio INC-9 seguia abierto, y plan check estaba ROJO por un origin.cause fuera del vocabulario cerrado (measurement_cut) que nadie leyo. Los datos quedan reparados y validados en V3-INC10; lo que NO tiene arreglo todavia es la clase: un instrumento sin diente no falla, se calla",
+   "title": "El arbol de nodos derivo en silencio, y al repararlo resulto que la causa eran DOS cosas, no una. (a) DERIVA REAL: su verbo (tools/plan.py) vive FUERA del sustrato y su validador (plan check) no esta en meta check, asi que dejar de llamarlo no enciende nada — el ultimo commit era b30f741, la fase 4a de INC-9, y de ahi en adelante cuatro ids citados por STATE/LOG/el work-doc (N-0108..N-0111) NO EXISTIAN, cinco nodos dados por resueltos seguian sin cerrar, y plan check estaba ROJO hacia dias por un origin.cause fuera del vocabulario (measurement_cut) que nadie leyo. Eso queda reparado y validado. (b) NO ERA DERIVA, ERA EL MODELO: el nodo de incremento N-0020 (INC-9) seguia abierto porque la algebra REFUSA cerrar un padre con descendientes vivos, y solo ofrece cerrarlos o dropearlos. Pero un residuo con disparador por CONDICION sobrevive a su incremento a proposito — es como trabaja este repo. Hoy ni INC-9 ni INC-10 pueden cerrar su nodo sin mentir sobre sus residuos, asi que los dos quedan abiertos a proposito. Falta un tercer estado, o una arista de HERENCIA que pase el residuo al arco y libere al incremento",
    "kind": "residual",
    "state": "blocked",
-   "evidence": [],
+   "evidence": [
+    "V3-INC10: datos reparados y validados (114 nodos, plan check verde). La mitad (b) la encontre intentando cerrar N-0021 y recibiendo 'refused: marked done with 2 open descendant(s)' — el mismo refuse que habia recibido N-0020 sin que yo lo viera, porque mande su veredicto a /dev/null"
+   ],
    "opened_at": "2026-07-31T20:21Z",
    "origin": {
     "session": "2026-07-31",

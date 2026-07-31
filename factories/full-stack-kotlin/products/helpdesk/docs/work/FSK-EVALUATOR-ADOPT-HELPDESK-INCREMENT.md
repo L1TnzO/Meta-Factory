@@ -1,7 +1,7 @@
-<!-- meta:doc sha=2e639d68075b5f33911f6bc168e9f6c57196d8ef updated=2026-07-31T16:34Z -->
+<!-- meta:doc sha=408f7084c794895c66852e548a67a02d95b6c7cb updated=2026-07-31T16:34Z -->
 # Incremento FSK-EVALUATOR-ADOPT-HELPDESK
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T22:06Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T16:34Z) (creado 2026-07-11T22:06Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -78,6 +78,19 @@ _ORACLE_READERS: dict[str, str] = {
         "the set of actions v3 still owes cannot be a literal someone forgot to grow. Same technique "
         "and same terms as the gate census; the read survives INC-11 deleting v2 because a commit "
         "is immutable",
+    "v3/verify/eval_gate_parity.py":
+        "extracts v2's `eval_gate` BODY at oracle_ref via `git show` and RUNS it as a subprocess "
+        "beside the port, comparing exit codes over a case matrix. It differs in KIND from the three "
+        "above, which is why it gets its own line instead of riding theirs: they derive a v2 "
+        "VOCABULARY (a list of gates, of functions, of build actions) to prove a v3 table is not "
+        "stale; this one executes v2 BEHAVIOUR to prove a ported body still answers the same way. "
+        "That is a stronger claim than any of them makes, and it is the rebuild's first behavioural "
+        "parity instrument — `kinds_parity` compares argv only. Granted under the same terms all the "
+        "same: the ref comes from `v3/oracle_ref.json` and is never a hardcoded sha, the body is "
+        "never imported and never read from the working tree (v2 and v3 share a tree, so a parity "
+        "claim measured against uncommitted state measures whatever was lying around), an empty or "
+        "failed `git show` RAISES instead of silently comparing against nothing, and the read "
+        "survives INC-11 deleting v2 because a commit is immutable",
 }
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}

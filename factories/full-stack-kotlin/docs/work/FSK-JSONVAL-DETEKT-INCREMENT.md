@@ -1,7 +1,7 @@
-<!-- meta:doc sha=101dc33bdae288f81481e4da87bbd23bfef604bc updated=2026-07-31T17:07Z -->
+<!-- meta:doc sha=0dc7df6819b781a9f0a2b276d2ae766788dbdc1f updated=2026-07-31T17:08Z -->
 # Incremento FSK-JSONVAL-DETEKT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T16:35Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T17:08Z) (creado 2026-07-31T16:35Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

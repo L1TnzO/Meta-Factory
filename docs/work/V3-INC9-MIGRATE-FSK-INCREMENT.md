@@ -1,4 +1,4 @@
-<!-- meta:doc sha=affead8d629f9660cd0b3dfdea0f2f1f123a2897 updated=2026-07-31T18:14Z -->
+<!-- meta:doc sha=d1c41430d2676ff3b13f025ca45fd648ee3eef13 updated=2026-07-31T18:18Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -337,6 +337,29 @@ el default. No es una comodidad: para ese target, el artefacto comiteado **es el
 spec correría una línea que v2 nunca corrió. Reproducir al oráculo incluye reproducirlo donde lee algo
 viejo. El desfase se registra acá; **repararlo re-materializaría y re-pinearía FSK entera**, que es trabajo
 de nivel fábrica y no de esta migración.
+
+### 15. `N-0110` — el censo contestaba con verdad sobre la población equivocada
+
+El eslabón que más me interesa de los tres, porque el instrumento que falló es **el que existe justamente
+para que esto no pase**. `migration_census` responde «¿está portado todo lo que las líneas migradas
+ejercen?» y su población era `factories/*/stations/*.yml` — o sea, **sólo la línea del producto DEFAULT**.
+
+La línea de una instancia se re-materializa del `station_sequence` del spec. `write` vive en el `s6` del
+spec de FSK; en sus `stations/` comiteadas (más viejas, `N-0109`) ese mismo `s6` usa `render`. Los únicos
+otros declarantes de `write` eran `agent-systems-factory` y `full-stack`, **congeladas y NO migradas** →
+el censo lo contabilizó como «adeudado a INC-10» y siguió **verde**, mientras la línea de `snipeit` no
+podía correr en absoluto.
+
+Ninguna de sus aserciones era falsa. La pregunta estaba bien, la respuesta estaba bien, y la población
+excluía justo el caso. Es la misma forma que `N-0108`, dentro del detector: *el instrumento leía el mismo
+artefacto viejo que el bug que existe para cazar*. Y no lo descubrió el censo ni la lectura del spec: lo
+descubrió **ejecutar** (ADR-032 A5) — `apply_builds` negándose a gritos.
+
+Arreglado: `declared_actions` cuenta **las dos poblaciones** (las `stations/` comiteadas + el
+`station_sequence` del spec). Prueba de que el diente volvió: `write` ahora se le atribuye a
+`['agent-systems-factory', 'full-stack', 'full-stack-kotlin']` — con FSK adentro, una acción sin portar
+que una instancia ejerza dispara «exercised by MIGRATED … and `v3.host.builds` does not handle it». Sigue
+verde (5/5) porque `write` está portada.
 
 ### 8. Fase 2 ✅ — las dos negativas, y por qué el pin las juzga
 

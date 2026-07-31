@@ -113,17 +113,38 @@ def declared_checks(root: Path) -> dict:
 
 
 def declared_actions(root: Path) -> dict:
-    """action -> set of factory slugs whose lines declare it."""
+    """action -> set of factory slugs whose lines declare it.
+
+    TWO POPULATIONS, because a factory has two kinds of line and counting only one is how this census
+    missed a real gap (`N-0110`). The committed `stations/*.yml` are the DEFAULT product's line. An
+    INSTANCE's line is re-materialized from `domain.station_sequence` at run time (`N-0108`), so an action
+    only the spec declares is exercised by a real run while being absent from the committed YAML — which
+    is exactly what `write` did: `full-stack-kotlin`'s spec declares it in `s6`, its committed stations
+    (older — `N-0109`) use `render` there, and the only other declarers were the two FROZEN factories. So
+    the census booked it as "owed to INC-10" and stayed GREEN while `snipeit`'s line could not run at all.
+    The instrument built to answer «what did we leave out?» was reading the same stale artifact as the bug
+    it exists to catch, and returned a TRUE answer about the WRONG population.
+    """
     found: dict = {}
-    for path in sorted(root.glob("factories/*/stations/*.yml")):
-        slug = path.relative_to(root).parts[1]
+
+    def record(builds, slug: str) -> None:
+        for build in builds or ():
+            action = str(build.get("action", "")) if isinstance(build, dict) else ""
+            if action:
+                found.setdefault(action, set()).add(slug)
+
+    for path in sorted(root.glob("factories/*/stations/*.yml")):       # the DEFAULT product's line
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            record(data.get("builds"), path.relative_to(root).parts[1])
+    for path in sorted(root.glob("factories/*/factory.spec.yml")):     # what an INSTANCE materializes
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             continue
-        for build in data.get("builds") or ():
-            action = str(build.get("action", ""))
-            if action:
-                found.setdefault(action, set()).add(slug)
+        slug = path.relative_to(root).parts[1]
+        for station in (data.get("domain", {}) or {}).get("station_sequence", []) or []:
+            if isinstance(station, dict):
+                record(station.get("builds"), slug)
     return found
 
 

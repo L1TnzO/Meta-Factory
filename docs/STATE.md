@@ -1,4 +1,4 @@
-<!-- meta:doc sha=dfb7f99b1d76da2f7e297688b49bab79c91fdc3a updated=2026-07-31T19:03Z -->
+<!-- meta:doc sha=28af5cfd25922d0a7cbf13af563e1ecc06e9d562 updated=2026-07-31T19:08Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -10,7 +10,7 @@
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
-- Open increment: FREEZE-AUDIT-ANCHOR-INCREMENT.md
+- Open increment: none
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -32,9 +32,9 @@
   viejas que su spec (las dos mitades corren líneas distintas; el pin no lo ve) · `N-0111`
   `product_broken` N/A en los 4 targets de FSK (ahí el rojo perturba la LÍNEA, no el PRODUCTO: §11.2
   sigue destapado) · `N-0105` `increment_guard` prueba que hay incremento abierto, **no pertenencia**.
-  **Incremento META de gobernanza pendiente**: legislar `ba05918` en `WAIVED_COMMITS` (la auditoría lee
-  el árbol PROPIO de cada commit → ningún waiver de hoy lo cubre) + anclar el parser del waiver, que lee
-  una MENCIÓN en prosa como declaración. Hasta entonces `codegen_freeze` rojo — `meta check` **21/23**.
+  `FREEZE-AUDIT-ANCHOR` (07-31) cerró la gobernanza que faltaba: `ba05918` legislado en `WAIVED_COMMITS`
+  con la razón al lado del sha, y el parser ANCLADO (declarar ≠ mencionar, fail-closed, 6 escenarios
+  rojos). **`meta check` 23/23** — la suite entera en verde.
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
   línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape sigue FALSA (entrada 4.087
   tok, 97,96 % headroom) → crece el costo de la mitigación, no el disparador (`N-0094`). Apagón

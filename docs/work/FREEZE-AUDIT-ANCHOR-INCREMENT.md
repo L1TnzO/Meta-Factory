@@ -1,7 +1,7 @@
-<!-- meta:doc sha=07a38b296a0b422f9261125e915b4aa58f089997 updated=2026-07-31T19:08Z -->
+<!-- meta:doc sha=7511c572f1ba42e16fc4abe65bbefbfa2726940d updated=2026-07-31T19:08Z -->
 # Incremento FREEZE-AUDIT-ANCHOR
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:03Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T19:08Z) (creado 2026-07-31T19:03Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 
 ## Objetivo

@@ -3,6 +3,65 @@
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
 
+## 2026-07-31T21:1xZ — INC-10: las 5 fábricas sobre v3, y la lección es que el pin no alcanza
+
+**Qué queda cerrado.** Las dos fábricas congeladas —`agent-systems-factory` y `full-stack`— corren
+enteras sobre v3. `rederive` da **84/84 en 10 targets**, que no es un número nuevo: es la suma de los
+diez `pinned_verdict.json` comiteados del repositorio, así que **no queda estación pineada sin
+re-derivar**. Sabotaje **31 caught · 9 n/a · 0 missed**; el censo de migración pasa de 2 kinds
+diferidos a **0**. Sigue INC-11 (`CUTOVER`).
+
+**El delta era chico y la fila lo escondía.** «11/11, 6/6» son 23 estaciones en 3 targets (12·6·5).
+`11/11` es el RTM de ASF, no su pin —cuarta vez que la tabla se escribe leyendo la proyección— y
+`6/6` acierta el pin de `full-stack` **por coincidencia**, porque su RTM también es 6; y al acertar
+tapó a la instancia `tasks`, que tiene root, pin y cuenta propios. Medido antes de escribir código:
+`tasks` ya re-derivaba 5/5 sin tocar nada (su `station_activation` apaga justo la estación del
+ejecutor que faltaba). Una fábrica no se migra de a fábricas: se migra de a **targets**.
+
+**s11 y s12 de ASF no estaban rojas, estaban AUSENTES.** `requires_prev` cortaba la cadena en s10, así
+que su comportamiento sobre v3 no lo había medido nadie. Al slot se le prohibió explícitamente
+arreglarlas si aparecían rotas —reportar `blocked_outside_slot` contaba como éxito— y aparecieron
+sanas. Una estación que no corre no se puede leer ni como pasa ni como falla.
+
+**La lección que asciende: portar un ejecutor obliga a su testigo de PARIDAD.** P1 estaba verde y no
+alcanzaba. `proof_sha` hashea nombres y exit codes, y las cuatro clases de sabotaje perturban la LÍNEA
+o el PRODUCTO, nunca los insumos del ejecutor: un `live_run` reescrito como `return 0` reproduce el
+mismo pin y sobrevive las cuatro. Es el límite que `§11.2` enuncia, y la respuesta ya existía —
+`eval_gate_parity`, de INC-9. Ahora hay tres, sobre un arnés común, y **registrados en la suite**:
+`eval_gate_parity` llevaba un incremento entero sin que nada lo corriera. Lo verifiqué saboteando el
+`live_run` PORTADO (workdir ausente devolviendo 3 en vez de 2): el testigo salió rojo nombrando el
+caso y los dos códigos. El veredicto del slot, solo, no prueba eso.
+
+**Un detalle que sólo dice la ejecución** (ADR-032 A5): los dos ejecutores importan de su hermano
+`.eval_gate`, así que el oráculo no se puede extraer como archivo suelto — va como **paquete de dos
+cuerpos** al mismo ref. Sin eso el import relativo del oráculo cae en el port de v3 y el testigo
+compara el port **contra sí mismo**, coincidiendo perfectamente.
+
+**El barrido P2 encontró un MISSED, y era del propio lado rojo.** `station_vanished` hacía `line[:-1]`:
+sacaba el último elemento de la LISTA corriera o no. En `full-stack/tasks` el último es `s5`, apagado,
+así que la planta no quitaba nada que el pin viera y el barrido lo anotó MISSED. No es que no la
+cazaran: **es que no había plantado**. Cuarta instancia de la clase que este repo colecciona —el
+instrumento perturba algo que no está en la población medida (`N-0108`, `N-0110`, el censo de INC-9)—
+y la primera adentro del lado rojo. Ahora saca la última estación que **contribuye un `proof_sha`**, y
+levanta `CannotPlant` si no hay ninguna.
+
+**Y los N/A dicen algo más ancho.** Los nueve son `product_broken`, en **nueve de diez** targets: el
+único que puede plantarla es `dummy`, el fixture. INC-9 lo había anotado como «los cuatro de FSK»; la
+frase honesta es que en toda la superficie REAL el rojo perturba la LÍNEA y nunca el PRODUCTO
+(`N-0111`, re-medido). Los testigos tapan ese hueco para los **tres ejecutores portados**, no para los
+otros 26 kinds: mejora acotada, leída acotada.
+
+**Dos residuos nuevos, los dos de la misma familia — un instrumento sin diente no falla, se calla.**
+`N-0112`: el árbol de nodos había derivado medio incremento en silencio (cuatro ids citados por
+STATE/LOG/el work-doc de INC-9 no existían, cinco nodos dados por resueltos seguían abiertos, y
+`plan check` estaba rojo hacía días por un `origin.cause` fuera del vocabulario). Causa: su verbo vive
+FUERA del sustrato y su check no está en `meta check`. Datos reparados y validados (114 nodos); la
+clase, no. `N-0113`: la ley del slot acota lo que un generador **escribe** y lo que **deja**, no lo que
+**borra** — el slot de paridad corrió `git checkout` sobre `plan/tree.json`, fuera de su radio y con
+trabajo mío sin commitear adentro, y lo destruyó **con las dos defensas en verde**, porque revertir
+deja el árbol más limpio. Espejo exacto del bug para el que se construyó SLOT-FOOTPRINT. Mitigación de
+hoy: commitear antes de delegar. El arreglo es un diente, no prosa en la definición del agente.
+
 ## 2026-07-31T18:5xZ — INC-9: la fábrica real corre sobre v3, y 3 de 4 hallazgos eran de los INSTRUMENTOS
 
 **Qué queda cerrado.** `full-stack-kotlin` —12 estaciones, Postgres vivo, Chromium, gradle— re-deriva

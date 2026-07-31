@@ -1,4 +1,4 @@
-<!-- meta:doc sha=87a1d3b70bb6346c41d138763b0d4c660c305134 updated=2026-07-31T19:42Z -->
+<!-- meta:doc sha=f07523531660b326fc19533f5cd4882874435052 updated=2026-07-31T21:08Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,46 +20,46 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-9 ENTREGADOS**; siguiente **INC-10 `MIGRATE-FROZEN`**
-  (ASF + full-stack, re-verificación pura, S).** El plano de CONTROL sobre el Claude Agent SDK: **nuestro
-  programa es el host, Claude Code el motor** (`v3/`, contra el oráculo pineado en `v3/oracle_ref.json`).
-  Leyes: **sin testigo rojo no se registra** (INC-4) · **negarse a afirmar** es válido (INC-5) · **«no se
-  midió» ≠ «dio cero»** en el TIPO (INC-6) · **un disparador nombra la CONDICIÓN** (INC-8). **INC-9
-  (07-31): la fábrica real corre entera sobre v3** — `rederive` **61/61 en 7 targets** (FSK 12·11·11·12),
-  sabotaje **22·6 n/a·0 missed**, censo PASS, benchmark 2/2; 3 de sus 4 hallazgos fueron de INSTRUMENTOS,
-  no de código generado. → episodio en `LOG.md` · `work/V3-INC9-…`.
-- **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0109` las `stations/` comiteadas de FSK son más
-  viejas que su spec (las dos mitades corren líneas distintas; el pin no lo ve) · `N-0111`
-  `product_broken` N/A en los 4 targets de FSK (ahí el rojo perturba la LÍNEA, no el PRODUCTO: §11.2
-  sigue destapado) · `N-0105` `increment_guard` prueba que hay incremento abierto, **no pertenencia**.
-  `FREEZE-AUDIT-ANCHOR` (07-31) cerró la gobernanza que faltaba: `ba05918` legislado en `WAIVED_COMMITS`
-  con la razón al lado del sha, y el parser ANCLADO (declarar ≠ mencionar, fail-closed, 6 escenarios
-  rojos). **`meta check` 23/23** — la suite entera en verde.
+- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-10 ENTREGADOS**; siguiente **INC-11 `CUTOVER`** (borrar
+  el sustrato v2; `meta` = cáscara fina sobre v3; clean-clone en otra máquina, M).** El plano de CONTROL
+  sobre el Claude Agent SDK: **nuestro programa es el host, Claude Code el motor** (`v3/`, contra el
+  oráculo pineado en `v3/oracle_ref.json`). Leyes: **sin testigo rojo no se registra** (INC-4) ·
+  **negarse a afirmar** es válido (INC-5) · **«no se midió» ≠ «dio cero»** en el TIPO (INC-6) · **un
+  disparador nombra la CONDICIÓN** (INC-8) · **portar un ejecutor obliga a su testigo de PARIDAD** — el
+  pin no distingue un port fiel de uno hueco (INC-10). **INC-10 (07-31): las 5 fábricas corren sobre
+  v3** — `rederive` **84/84 en 10 targets** (= la suma de los 10 pines del repo: no queda estación
+  pineada sin re-derivar), sabotaje **31·9 n/a·0 missed**, censo **0 diferidos**, 3 testigos de
+  comportamiento registrados en la suite. → `LOG.md` · `work/V3-INC10-…`.
+- **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acota lo que un generador
+  ESCRIBE y lo que DEJA, **no lo que BORRA** (un `git checkout` fuera del radio pasa con las dos
+  defensas en verde) · `N-0112` el árbol de nodos derivó medio incremento en silencio: su verbo vive
+  fuera del sustrato (datos reparados, 114 nodos; la CLASE no) · `N-0111` `product_broken` N/A en **9 de
+  10** targets — solo el fixture la planta, así que §11.2 sigue destapado en toda la superficie real ·
+  `N-0109` las `stations/` comiteadas de FSK son más viejas que su spec · `N-0105` `increment_guard`
+  prueba que hay incremento abierto, **no pertenencia**. **`meta check` 23/23.**
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
   línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape sigue FALSA (entrada 4.087
   tok, 97,96 % headroom) → crece el costo de la mitigación, no el disparador (`N-0094`). Apagón
   07-14→07-27 sin causa determinada a propósito, con el detector como reemplazo (`N-0093`).
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
-  `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via
-  `frontend_surface: model-native`) verified by `design_floor` opt-in, WITHOUT re-pinning the template products.
-  La habilitación META está COMPLETA (`CHECK-WHEN-GUARD`·`FSK-MODELGEN-DURABLE`·`FSK-SNIPEIT-MODELGEN`·
-  `CODEGEN-FREEZE-TOOTH`·`EVAL-FLOOR-GATE`·`EVALUATOR-ROLE` ✅ — detalle en `LOG.md`). Next:
+  `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted vía
+  `frontend_surface: model-native`) verificado por `design_floor` opt-in, sin re-pinear los productos
+  template. La habilitación META está COMPLETA (6 incrementos ✅, detalle en `LOG.md`). Next:
   `FSK-EVALUATOR-ADOPT` · ASF adoption (S2) · `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native.
   → `decisions/023`·`024`·`025`·`027` · LOG.
 - **⚖️ `COUNCIL-EXEC` · 🧭 `COST-DOWN` · SOTA RE-DIRECTION (ADR-017→020) · 🧠 MEMORY v2 (ADR-019) ·
-  🌐 ADR-026 (paralelo-por-defecto RECHAZADO por medición, `HONEST-STATE.md §7bis`) — CLOSED.** LIVE = meta+FSK+iot · ASF+full-stack-TS regression-frozen · dummy = fixture
-  (`reference/COUNCIL-360-AUDIT.md §6`). Doctrina de costo + ledger de supuestos (primer disparador de
-  calendario 2026-09-01): `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§2.7`. El umbral §6 de ADR-019
-  dejó de ser una cláusula sin medidor: lo mide `escape_threshold` (viñeta de economía arriba).
-- **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature; the template UI
-  ceiling is what ADR-023 answers. Sweet-spot: **helpdesk** PASSES · **snipeit** ceiling (`work/ROADMAP.md`).
-  Per-level self-governance (ADR-016 F2) COMPLETE (`reference/GOVERNANCE-LAYERING.md §6/§7`).
-- **🧬 `ADR-028/029/030` — work-doc lineage as DATA (edges + closed types + DERIVED placement).**
-  Designed; increment `DOC-LINEAGE` still QUEUED — `docs/work/` is 113 flat files (`docs/spec/20 §6`).
-- **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`
-  (navigation without an LLM) · `meta rtm` / `meta outcome` (per-factory evidence). Living rules of the design
-  phase: `CLAUDE.md`. Inventory of ALL docs: `../INDEX.md` (GENERATED view, ADR-009).
+  🌐 ADR-026 (paralelo-por-defecto RECHAZADO por medición, `HONEST-STATE.md §7bis`) — CLOSED.** LIVE =
+  meta+FSK+iot · ASF+full-stack-TS regression-frozen · dummy = fixture (`COUNCIL-360-AUDIT.md §6`).
+  Doctrina de costo + ledger de supuestos (1er disparador 2026-09-01): `work/COST-DOWN-…-INCREMENT.md
+  §2/§2.7`; el umbral §6 de ADR-019 lo mide `escape_threshold`.
+- **Product / factories:** all 5 re-derive **== pin** (proyección arriba y, sobre v3, 84/84). FSK mature;
+  el techo de la UI template es lo que ADR-023 contesta. Sweet-spot: **helpdesk** PASSES · **snipeit**
+  techo (`work/ROADMAP.md`). Per-level self-governance (ADR-016 F2) COMPLETE (`GOVERNANCE-LAYERING §6/§7`).
+  **🧬 `ADR-028/029/030`** (work-doc lineage as DATA) diseñado; `DOC-LINEAGE` QUEUED — `docs/work/` son
+  114 archivos planos (`docs/spec/20 §6`).
+- **How to orient (re-verify > remember):** `meta check` · `meta graph query|repomap` (navegar sin LLM) ·
+  `meta rtm`/`meta outcome`. Reglas vivas: `CLAUDE.md`. Inventario de docs: `../INDEX.md` (ADR-009).
 
 ## Map
 - Log (history): `LOG.md` · Decisions: `decisions/` (001–030) · Increment plan: `work/ROADMAP.md` +

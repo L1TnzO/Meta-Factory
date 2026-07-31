@@ -1,4 +1,4 @@
-<!-- meta:doc sha=28647aab547550f09cfaaf5c7c33de1a3afe217c updated=2026-07-31T21:05Z -->
+<!-- meta:doc sha=2d54de693d7b2a8aab143d46d868fdcceb4a1823 updated=2026-07-31T21:06Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`

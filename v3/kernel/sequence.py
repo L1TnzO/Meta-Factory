@@ -66,15 +66,28 @@ def active_in(station: dict, dial: str = "harden") -> bool:
     return not (str(dial) == "draft" and str(station.get("tier", "core")) == "harden")
 
 
-def predecessors(line: list, station_id: str, dial: str = "harden") -> list:
+def predecessors(line: list, station_id: str, dial: str = "harden", _seen: frozenset = frozenset()) -> list:
     """Which stations must be GREEN before this one may run.
 
-    Explicit `depends_on` is a fan-in: ALL of them. Otherwise the predecessor is the previous ACTIVE
-    station in file order.
+    Explicit `depends_on` is a fan-in: ALL of them. Otherwise the predecessor is an explicit
+    `requires_prev`, else the previous ACTIVE station in file order.
 
-    The property that makes deferral safe: a deferred predecessor is TRANSPARENT — the gate falls
-    through to *its* predecessors instead of treating the chain as satisfied. Skipping a station must
-    never silently satisfy the ones that depended on it.
+    The property that makes deferral safe: an INACTIVE predecessor is TRANSPARENT — the gate falls
+    through to *its* predecessor instead of waiting on a proof that will never be written. Skipping a
+    station must never silently satisfy the ones that depended on it, and it must never wedge them
+    either.
+
+    THE EXPLICIT BRANCH USED TO CLAIM THAT AND NOT DO IT (fixed V3-INC9). `requires_prev` returned the
+    named id verbatim, with no transparency; only the file-order branch fell through. The docstring
+    above already promised the property, which is the worst version of the bug — prose that a reader
+    checks instead of the code. Measured on `full-stack-kotlin`: `assets` and `helpdesk` turn `s6` off
+    via `station_activation`, `s7` declares `requires_prev: s6`, and the line stopped dead at `s7` —
+    6/11 against a pin of 11, with `s7..s11` never run. v2 (`engine/sequence._linear_predecessor`)
+    recurses here and says so in its own docstring; this is that recursion, restored.
+
+    Recursive, because the fall-through may itself land on another inactive station. `_seen` makes a
+    malformed `requires_prev` cycle raise instead of recursing forever — v2 has the same exposure and
+    simply never met it; a kernel that hangs is worse than one that complains.
     """
     index = {str(s.get("id")): i for i, s in enumerate(line)}
     i = index.get(str(station_id))
@@ -84,7 +97,15 @@ def predecessors(line: list, station_id: str, dial: str = "harden") -> list:
     if node.get("depends_on"):
         return [str(d) for d in node["depends_on"]]
     if node.get("requires_prev"):
-        return [str(node["requires_prev"])]
+        prev_id = str(node["requires_prev"])
+        if prev_id in _seen:
+            raise ValueError(
+                f"`requires_prev` cycle through {sorted(_seen | {prev_id})}: a station cannot be its "
+                f"own predecessor, and resolving it would never terminate")
+        prev_i = index.get(prev_id)
+        if prev_i is not None and not active_in(line[prev_i], dial):
+            return predecessors(line, prev_id, dial, _seen | {str(station_id), prev_id})
+        return [prev_id]
     for j in range(i - 1, -1, -1):
         if active_in(line[j], dial):
             return [str(line[j].get("id"))]

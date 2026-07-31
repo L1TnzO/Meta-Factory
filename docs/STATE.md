@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b74b645d57fb10504b85469815dd5222e5ae0197 updated=2026-07-31T18:53Z -->
+<!-- meta:doc sha=28af5cfd25922d0a7cbf13af563e1ecc06e9d562 updated=2026-07-31T18:58Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,38 +20,25 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-8 ENTREGADOS**; **INC-9 (`FSK`) ABIERTO, fases 1-3
-  hechas, 4-5 BLOQUEADAS por el producto**.** Reconstruye el plano de CONTROL sobre el Claude Agent
-  SDK conservando la evidencia: **nuestro programa es el host, Claude Code el motor** (en `v3/`, contra
-  el oráculo pineado en `v3/oracle_ref.json`). Leyes: gate **sin testigo rojo no se registra** (INC-4) ·
-  un port puede **negarse a afirmar** (INC-5) · **«no se midió» ≠ «dio cero»** en el TIPO (INC-6) · **un
-  disparador nombra la CONDICIÓN** (INC-8, que re-deriva por **TARGET**, R1).
-  **INC-9 CERRADO 2026-07-31: la fábrica real corre entera sobre v3** — `rederive` **61/61 en 7 targets**
-  (dummy 5 · iot 5+5 · FSK **12·11·11·12**), sabotaje **22 caught · 6 n/a · 0 missed**, censo PASS,
-  `meta benchmark` 2/2. Portó las dos negativas (`station_activation` + `when` por-check), `eval_gate`
-  bajo **paridad de COMPORTAMIENTO**, y la acción `write`. **Tres de sus cuatro hallazgos eran de
-  INSTRUMENTOS, no de código generado:** la línea de una INSTANCIA se leía del chasis y 3/4 targets
-  pasaban por coincidencia de valor (`N-0108`); el censo contestaba con verdad sobre la población
-  equivocada (`N-0110`); y FSK llevaba **18 días roja** sin que nadie lo viera (`ba05918`, detekt en
-  codegen congelado — reparado por la fábrica en `FSK-JSONVAL-DETEKT`: 46/46 == pin **sin re-pin**).
-  Siguiente: **INC-10 `MIGRATE-FROZEN`** (ASF + full-stack, re-verificación pura, tamaño S).
-  → `spec/20` (mapa) · `decisions/031`·`032` · `LOG.md` · `work/V3-INC9-…`.
-- **⚠️ Residuos vivos de INC-9, todos con disparador por CONDICIÓN (no por fecha ni etiqueta):**
-  `N-0109` las `stations/` comiteadas de FSK son MÁS VIEJAS que su spec → las dos mitades de la misma
-  fábrica corren líneas distintas hoy y el pin no lo ve (`proof_sha` hashea nombres y exits) ·
-  `N-0111` `product_broken` es N/A en los 4 targets de FSK → ahí el lado rojo perturba la LÍNEA, nunca
-  el PRODUCTO, así que el límite del §11.2 sigue destapado para esa fábrica · `N-0105` `increment_guard`
-  prueba que HAY un incremento abierto del nivel, no que el cambio PERTENEZCA a él (**3 instancias** bajo
-  el mismo incremento). Pendiente de un incremento META de gobernanza: legislar `ba05918` en
-  `WAIVED_COMMITS` (la auditoría histórica lee el árbol PROPIO de cada commit, así que **ningún waiver
-  escrito hoy puede cubrirlo**) + anclar el parser del waiver, que hoy lee una MENCIÓN en prosa como
-  declaración malformada. Hasta entonces `codegen_freeze` sigue rojo por ese único commit.
-- **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus documental **461.289 tok / 193 archivos,
-  +71,5 %** contra la línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape
-  sigue FALSA (set de entrada 4.087 tok, 97,96 % headroom) → lo que crece es el costo de la
-  mitigación, no el disparador (`N-0094`). Apagón 07-14→07-27 **sin causa determinada a propósito**,
-  con el detector como reemplazo (`N-0093`). `mem_rollup` reparado (hacía `sys.path` relativo al
-  cwd): primer rollup en 17 días.
+- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-9 ENTREGADOS**; siguiente **INC-10 `MIGRATE-FROZEN`**
+  (ASF + full-stack, re-verificación pura, S).** El plano de CONTROL sobre el Claude Agent SDK: **nuestro
+  programa es el host, Claude Code el motor** (`v3/`, contra el oráculo pineado en `v3/oracle_ref.json`).
+  Leyes: **sin testigo rojo no se registra** (INC-4) · **negarse a afirmar** es válido (INC-5) · **«no se
+  midió» ≠ «dio cero»** en el TIPO (INC-6) · **un disparador nombra la CONDICIÓN** (INC-8). **INC-9
+  (07-31): la fábrica real corre entera sobre v3** — `rederive` **61/61 en 7 targets** (FSK 12·11·11·12),
+  sabotaje **22·6 n/a·0 missed**, censo PASS, benchmark 2/2; 3 de sus 4 hallazgos fueron de INSTRUMENTOS,
+  no de código generado. → episodio en `LOG.md` · `work/V3-INC9-…`.
+- **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0109` las `stations/` comiteadas de FSK son más
+  viejas que su spec (las dos mitades corren líneas distintas; el pin no lo ve) · `N-0111`
+  `product_broken` N/A en los 4 targets de FSK (ahí el rojo perturba la LÍNEA, no el PRODUCTO: §11.2
+  sigue destapado) · `N-0105` `increment_guard` prueba que hay incremento abierto, **no pertenencia**.
+  **Incremento META de gobernanza pendiente**: legislar `ba05918` en `WAIVED_COMMITS` (la auditoría lee
+  el árbol PROPIO de cada commit → ningún waiver de hoy lo cubre) + anclar el parser del waiver, que lee
+  una MENCIÓN en prosa como declaración. Hasta entonces `codegen_freeze` rojo — `meta check` **21/23**.
+- **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
+  línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape sigue FALSA (entrada 4.087
+  tok, 97,96 % headroom) → crece el costo de la mitigación, no el disparador (`N-0094`). Apagón
+  07-14→07-27 sin causa determinada a propósito, con el detector como reemplazo (`N-0093`).
 - **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
   VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
   `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted via
@@ -66,9 +53,8 @@
   calendario 2026-09-01): `work/COST-DOWN-DIRECTION-INCREMENT.md §2/§2.7`. El umbral §6 de ADR-019
   dejó de ser una cláusula sin medidor: lo mide `escape_threshold` (viñeta de economía arriba).
 - **Product / factories:** all 5 re-derive **== pin** (projection above). FSK mature; the template UI
-  ceiling is what ADR-023 answers. Sweet-spot: **helpdesk** PASSES · **snipeit** ceiling. Plan:
-  `work/ROADMAP.md`. Per-level self-governance (ADR-016 Phase 2) COMPLETE — the column narrows
-  factory ⊊ meta (`reference/GOVERNANCE-LAYERING.md §6/§7`).
+  ceiling is what ADR-023 answers. Sweet-spot: **helpdesk** PASSES · **snipeit** ceiling (`work/ROADMAP.md`).
+  Per-level self-governance (ADR-016 F2) COMPLETE (`reference/GOVERNANCE-LAYERING.md §6/§7`).
 - **🧬 `ADR-028/029/030` — work-doc lineage as DATA (edges + closed types + DERIVED placement).**
   Designed; increment `DOC-LINEAGE` still QUEUED — `docs/work/` is 113 flat files (`docs/spec/20 §6`).
 - **How to orient (re-verify > remember):** `meta check` (substrate truth) · `meta graph query|repomap`

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=29ee139d1ea886afdc8616e95a3c0399685403fb updated=2026-07-31T01:49Z -->
+<!-- meta:doc sha=86d32724745849b4a6c12b1338bd6f468f38fa06 updated=2026-07-31T01:57Z -->
 # Incremento V3-INC8-MIGRATE-IOT
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T01:31Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T01:57Z) (creado 2026-07-31T01:31Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-8 + `§2` (P1/P2) + `ADR-015` (R1,

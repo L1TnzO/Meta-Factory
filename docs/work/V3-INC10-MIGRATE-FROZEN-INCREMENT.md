@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8fbc4f7f1ac0fb09d18681fd2f3f0fc7fce0a5b4 updated=2026-07-31T19:43Z -->
+<!-- meta:doc sha=a1106cb32f59ebda9ba8f64db449f001c0769fd6 updated=2026-07-31T20:02Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
@@ -110,11 +110,67 @@ planta un defecto en el módulo portado y exige que la matriz se desvíe.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `MIGRATED` += las dos fábricas (define QUÉ se cuenta: lo escribo a mano) | ⏳ |
-| 2 | Portar `live_run` y `eval_floor` a `v3/verify/checks/` (slot delegado, gate = re-derivación) | ⏳ |
-| 3 | **Re-medir**: s11/s12 de ASF corren por primera vez; lo que aparezca se trata acá | ⏳ |
+| 1 | `MIGRATED` += las dos fábricas (define QUÉ se cuenta: lo escribo a mano) | ✅ |
+| 2 | Portar `live_run` y `eval_floor` a `v3/verify/checks/` (slot delegado, gate = re-derivación) | ✅ |
+| 3 | **Re-medir**: s11/s12 de ASF corren por primera vez; lo que aparezca se trata acá | ✅ |
 | 4 | Testigo de comportamiento: arnés compartido + `live_run_parity` + `eval_floor_parity` | ⏳ |
 | 5 | Sabotaje (P2) sobre los 10 targets + censo en 0 diferidos + cierre y nodos | ⏳ |
+
+## Evidencia por fase
+
+### Fases 1–3 — el port, y las dos estaciones que nunca habían corrido
+
+El slot `v3-port-live-run-eval-floor` (delegado, `trust_level: medium`) transcribió los dos
+ejecutores. Aceptado por VEREDICTO y por dos verificaciones propias, no por la prosa del generador:
+
+- **Huella**: `slot_footprint --live` → `footprint ⊆ contract (2 changed path(s) observed)`. No tocó
+  nada fuera del radio.
+- **Fidelidad al oráculo, medida mecánicamente**: `diff` de cada archivo nuevo contra su fuente v2 →
+  **4 líneas de diferencia por archivo**, y son la nota de port agregada al final del docstring. Cero
+  cambios de firma, de exit code, de mensaje (los castellanos incluidos: `GATE DECORATIVO`, `no pudo
+  lanzar`) o de aridad de `main(argv)` (9 en `live_run`, 6 en `eval_floor`).
+
+Y la medición que el contrato pedía como MEDICIÓN, no como gate:
+
+| target | antes | después |
+| --- | --- | --- |
+| `full-stack` (default) | 5/6 | **6/6 == pin** |
+| `full-stack/tasks` | 5/5 | **5/5 == pin** (no se movió, que era la condición) |
+| `agent-systems-factory` | 9/12, con s11 y s12 **sin correr** | **12/12 == pin** |
+
+`s11` y `s12` de ASF corrieron por primera vez sobre v3 y dieron == pin. El slot tenía **prohibido**
+arreglarlas si aparecían rotas (`blocked_outside_slot`, y eso contaba como éxito); apareció que no lo
+estaban. La distinción importa: su rojo de la fase de medición nunca fue un rojo, era una **ausencia**
+—`requires_prev` cortaba la cadena en s10— y una ausencia no se puede leer como «pasa» ni como «falla»
+hasta que algo la ejecuta.
+
+### Criterio 1 y 2 — 84/84 en 10 targets
+
+```
+python3 -m v3.verify.rederive
+VERDICT    v3-rederive — PASS   (exit 0)
+SUMMARY    dummy: 5/5; iot: 5/5; iot/fleet: 5/5; full-stack-kotlin: 12/12; .../assets: 11/11;
+           .../helpdesk: 11/11; .../snipeit: 12/12; agent-systems-factory: 12/12; full-stack: 6/6;
+           full-stack/tasks: 5/5 — 84/84 station(s) across 10 target(s)
+COUNTS     matched=84 · pinned=84 · targets=10          (9m44s, toolchain JDK 21)
+```
+
+Los 7 targets de INC-9 no se movieron (61/61 sigue adentro), y los tres nuevos se satisfacen con sus
+cuentas **distintas** (12 · 6 · 5). **No queda ninguna estación pineada del repositorio sin
+re-derivar sobre v3.**
+
+### Criterio 4 — el censo pasa a 0 diferidos
+
+```
+python3 -m v3.verify.migration_census
+SUMMARY    kinds 7 ported · 3 no-body · 0 owed to a later migration · 19 in no FACTORY line;
+           build actions 5 handled of 5; everything ['agent-systems-factory', 'dummy', 'full-stack',
+           'full-stack-kotlin', 'iot'] exercises is ported
+COUNTS     ported=7 (era 5) · deferred=0 (era 2) · unexercised=19
+```
+
+Los 19 «en ninguna línea de fábrica» siguen atribuidos a `N-0098` (la línea META de v2 no tiene
+análogo en v3, disparador INC-11), que es donde corresponde: no son deuda de este incremento.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 -m v3.verify.rederive` → **84/84 estaciones == pin en 10 targets**, y los 7 targets de

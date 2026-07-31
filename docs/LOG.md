@@ -1,7 +1,59 @@
-<!-- meta:doc sha=29d044b3846e40809be30539b12cb09ee999ca47 updated=2026-07-31T01:56Z -->
+<!-- meta:doc sha=4e3c0ad382c285af3bf616fe647cfb5bd2231e63 updated=2026-07-31T18:54Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-31T18:5xZ — INC-9: la fábrica real corre sobre v3, y 3 de 4 hallazgos eran de los INSTRUMENTOS
+
+**Qué queda cerrado.** `full-stack-kotlin` —12 estaciones, Postgres vivo, Chromium, gradle— re-deriva
+entera sobre v3: **61/61 en 7 targets** (dummy 5 · iot 5+5 · FSK 12·11·11·12), sabotaje **22 caught ·
+6 n/a · 0 missed**, censo PASS, `meta benchmark` 2/2. Portadas las dos negativas que v3 difería desde
+INC-7 (`station_activation`, `when` por-check), `eval_gate` bajo paridad de COMPORTAMIENTO, y la acción
+`write`. Sigue INC-10 (`MIGRATE-FROZEN`, re-verificación pura, S).
+
+**Lo que vale la pena recordar no es el 61/61.** De los cuatro defectos que aparecieron, **uno estaba en
+código de producto y tres estaban en instrumentos** — y los tres compartían forma: *contestaban con
+verdad sobre la población equivocada*.
+
+- **`N-0108`** — la línea de una INSTANCIA se leía del CHASIS. `stations/*.yml` no es la fuente de la
+  línea: es la estructura **ya renderizada** con el `subst` de un blueprint, y la copia del chasis es la
+  del producto default. FSK tiene 18 `{{package_name}}` y `snipeit` es el único que lo pisa → su `s9`
+  lanzaba un binario que ese producto no construye. **Lo grave no era el `exit 127` sino el 43/46:** los
+  otros tres targets pasaban porque `webapp == webapp`. La línea de las instancias nunca estuvo probada,
+  estuvo con suerte. Y el mecanismo estaba escrito como JUSTIFICACIÓN en un comentario («la línea es
+  siempre la del chasis, sólo difiere el blueprint») — prosa que un lector verifica en lugar del código.
+- **`N-0110`** — el CENSO, que existe justamente para contestar «¿qué quedó afuera?», leía sólo las
+  `stations/` comiteadas. La acción `write` la declara el spec de FSK; sus stations viejas usan `render`
+  ahí; los únicos otros declarantes eran las dos fábricas CONGELADAS → la contabilizó como «adeudada a
+  INC-10» y siguió **verde** mientras la línea de `snipeit` no podía correr. Ninguna aserción suya era
+  falsa. El detector leía el mismo artefacto viejo que el bug que existe para cazar.
+- **`N-0103`** (de la fábrica, no de v3) — FSK llevaba **18 días roja**. Un fix real de JSON metió de
+  paso un `if/else` sin llaves; `s2` es `tier: harden`, el lazo corre `--mode draft` y `.proof/` es
+  gitignored, así que el «27/27 COMPLETE» venía leyendo evidencia anterior a la rotura. v3 fue lo primero
+  en correr ese tier en 18 días. Se arregló con **llaves, no con un revert**: revertir habría recomprado
+  el verde reintroduciendo el bug de JSON en la app viva —cambiar corrección por conformidad— y el pin
+  nunca dijo «este helper es de una línea», dijo `s2` verde. **46/46 == pin sin re-pin.**
+
+**Lo que sí funcionó, y por qué.** El cuarto eslabón lo encontró **ejecutar, no leer** (ADR-032 A5):
+`apply_builds` se negó A GRITOS ante `write` en vez de saltearla. La negativa de INC-4/5 convirtió un
+artefacto faltante en un error con nombre; salteándola en silencio, los checks habrían corrido «contra lo
+que hubiera en disco». Y el port del materializador se aceptó por **paridad de COMPORTAMIENTO** contra el
+`_materialize_line` real de v2 (12/12 estaciones idénticas en los tres productos), no porque el pin
+coincidiera: si sólo tuviera el pin, no sabría si coincide por correcto o por suerte otra vez — que es
+exactamente el error que este mismo incremento acababa de encontrar.
+
+**Lo que NO se dejó pasar como verde.** `product_broken` es N/A en los **cuatro** targets de FSK: la clase
+necesita un par `artifact_contains`/`render` que esa línea no tiene. Es una negativa honesta, pero la
+consecuencia se escribe: en FSK el lado rojo perturba **la línea**, nunca **el producto**, así que el
+límite declarado en §11.2 (un ejecutor vaciado pasa P1) sigue destapado ahí. `N-0111`, con disparador por
+CONDICIÓN — cuando exista una clase que pueda plantar sobre una línea basada en compilación, ese N/A debe
+bajar a cero.
+
+**Y una de gobernanza, no de código.** `ba05918` aterrizó bajo un incremento cuyo sujeto era otro:
+`increment_guard` prueba que HAY un incremento abierto del nivel, **no que el cambio PERTENEZCA a él**
+(`N-0105`, ya con 3 instancias). El diente que sí mira el congelamiento es un gate de `meta check`, no un
+hook de commit, así que entre el 13-07 y el 31-07 nadie lo corrió sobre esto. Dos agujeros que se taparon
+uno al otro.
 
 ## 2026-07-31T01:5xZ — INC-8: la fila estaba hecha, y lo que escondía era la INSTANCIA
 

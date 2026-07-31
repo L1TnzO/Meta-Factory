@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ef034c1a992dc00c52feca40911fd5139c8e4264 updated=2026-07-31T02:42Z -->
+<!-- meta:doc sha=60503fd7bd32796b4ce98399032985e9b4cd5647 updated=2026-07-31T02:50Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -129,7 +129,7 @@ MÁS se rompe antes de escribir el port. Tres corridas, y las tres dicen algo:
 | --- | --- | --- |
 | 1 | `toolchain.sh ensure` + sandbox por defecto | **s0 ✅ · s1 ✅ · s2 sha DIFIERE** (51 s) |
 | 2 | **sin** `toolchain.sh` | **s0 ROJO**: `contract_single_source` (gradle `compileKotlin`) exit 1 |
-| 3 | `toolchain.sh` + **sandbox desactivado** | en curso; ya lleva >10 min contra los 51 s de (1) |
+| 3 | `toolchain.sh` + **sandbox desactivado** | **s0 ✅ · s1 ✅ · s2 sha DIFIERE** (30 s) — mismo veredicto que (1) |
 
 Tres cosas que llevarse:
 
@@ -143,12 +143,17 @@ Tres cosas que llevarse:
    verificador todavía muerde. Que la sha se mueva significa que uno de los dos salió != 0; el
    registro de proof guarda `(nombre, exit)` y NADA de salida, así que el detalle hay que sacarlo
    corriendo el argv a mano, no leyendo el `.proof/`.
-3. **El instrumento tiene dos modos de mentir, y los dos se dieron acá.** Sin `javac` en el `PATH`
-   la línea entera es roja por el entorno (corrida 2), y bajo el sandbox por defecto gradle no puede
-   bajar lo que le falta (nota conocida: «sandbox mata gradle → `dangerouslyDisableSandbox`»). La
-   diferencia de 51 s vs >10 min entre (1) y (3) es la medida de cuánto trabajo real el sandbox
-   estaba impidiendo. **Toda corrida de FSK va sin sandbox y con el toolchain eval'd**, o su color
-   no dice nada del commit.
+3. **El toolchain SÍ colorea el veredicto; el sandbox, acá, no** — y lo segundo hay que decirlo
+   porque la primera versión de esta sección afirmaba lo contrario. Sin `javac` en el `PATH` la línea
+   entera es roja por el entorno (corrida 2): eso está medido y es la razón por la que toda corrida de
+   FSK va con `eval "$(bash tools/toolchain.sh ensure)"`. Sobre el sandbox escribí que la diferencia
+   «51 s vs >10 min» medía el trabajo que estaba impidiendo — **falso, y lo falsó la corrida
+   siguiente**: sin sandbox tarda 30 s y da EXACTAMENTE el mismo veredicto que con sandbox. Los >10
+   min no eran trabajo, eran un proceso colgado que el harness mataba al reapear la tarea de fondo
+   (`nohup … &` adentro de un `run_in_background` muere con su grupo; exit 144). Se mantiene la
+   práctica de correr sin sandbox por la nota conocida «sandbox mata gradle», pero como precaución,
+   no como algo medido en este incremento. Una conclusión sacada de dos números sin controlar la
+   tercera variable es exactamente el error que este doc le cobra a la fila de §11.3.
 
 ### 7. Fase 1 CERRADA: `s2` no es un hueco de v3 — FSK está roja desde el 13-07 y nadie lo vio
 
@@ -203,11 +208,46 @@ prerrequisito de la Fase 4, no parte de este incremento meta.
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | Sonda: la línea default de FSK sobre v3 con el `when` parcheado inline — qué MÁS se rompe | ✅ §6/§7 |
-| 1b | **(fábrica, prerrequisito)** revertir la regresión detekt de `ba05918` con waiver — sin re-pin | ⏳ |
-| 2 | Port de las dos negativas: `station_activation` (rederive) + `when` por-check (line) | ⏳ |
-| 3 | Port del ejecutor `eval_gate` (~187 líneas, desde v2) | ⏳ |
-| 4 | `MIGRATED += "full-stack-kotlin"` y la corrida verde de los 4 targets | ⏳ |
-| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⏳ |
+| 2 | Port de las dos negativas: `station_activation` (rederive) + `when` por-check (line) | ✅ §8 |
+| 3 | Port del ejecutor `eval_gate` + su gate de paridad de COMPORTAMIENTO (slot delegado) | ⏳ |
+| 1b | **(nivel fábrica, prerrequisito de la 4)** revertir la regresión detekt — sin re-pin | 🚧 §9 |
+| 4 | La corrida verde de los 4 targets de FSK (`MIGRATED` ya los incluye) | ⛔ bloqueada por 1b |
+| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ bloqueada por 1b |
+
+### 8. Fase 2 ✅ — las dos negativas, y por qué el pin las juzga
+
+Portadas: `norm_activation` en `kernel/sequence.py` (al lado de `active_in`, para que las dos mitades
+del vocabulario se auditen juntas), `check_active` en `host/line.py`, y en `verify/rederive.py` un
+`materialize_instance` que hace `pop` del override y lo DEVUELVE + un `apply_activation` que lo
+estampa sobre la línea del chasis. Detalle de las tres decisiones no obvias, en los docstrings y en
+el mensaje del commit `9f2024d`.
+
+Verificado **sin correr gradle** — los 4 targets resuelven al conjunto EXACTO de su pin:
+
+| target | estaciones | pin | `s6` | `frontend_surface` | `design_floor` en s9 |
+| --- | --- | --- | --- | --- | --- |
+| default | 12 | 12 | on | – | no |
+| `assets` | 11 | 11 | **OFF** | – | no |
+| `helpdesk` | 11 | 11 | **OFF** | `model-native` | **sí** |
+| `snipeit` | 12 | 12 | on | `model-native` | **sí** |
+
+El `when` cae exactamente donde está comiteado el override de superficie de ADR-024. Y lo ya migrado
+no se mueve: `dummy` 5/5 == pin, `iot` 10/10 == pin en 2 targets.
+
+### 9. La fase 1b está SECUENCIADA, y eso también es un hallazgo
+
+El arreglo de `N-0103` es de nivel FÁBRICA y no se puede abrir: `full-stack-kotlin` ya tiene un
+incremento **ABIERTO en vuelo** — `FSK-EVALUATOR-ADOPT` (abierto 2026-07-11, F1–F2 aterrizadas,
+último commit 07-12) — y se admite uno por nivel. No se cierra el incremento de otro, y no se cuelga
+un fix de codegen de un incremento cuyo sujeto es la adopción del `evaluator` de ADR-027.
+
+Que es, exactamente, lo que pasó el 13-07: **`ba05918` aterrizó BAJO `FSK-EVALUATOR-ADOPT`.**
+`increment_guard` prueba que HAY un incremento abierto de ese nivel, no que el cambio PERTENEZCA a
+él. El diente que sí mira el congelamiento —`codegen_freeze`, que exige la línea
+`Codegen-freeze-waiver:` en el work-doc abierto del nivel (ADR-023 §3)— es un **gate de `meta
+check`, no un hook de commit**: sólo muerde cuando alguien lo corre, y entre el 13-07 y el 31-07
+nadie lo corrió sobre esto. Dos agujeros que se taparon uno al otro: la PERTENENCIA no se verifica,
+y el diente que sí verifica el congelamiento no está en el camino del commit (`N-0105`).
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 -m v3.verify.rederive` → **61/61 estaciones == pin en 7 targets** (dummy 5·1, iot 10·2,

@@ -1512,7 +1512,7 @@
     "cause": "gate_red",
     "ref": "V3-INC9/fsk-detekt-regression"
    },
-   "trigger": "BLOQUEANTE YA: la fase 4 de INC-9 (los 4 targets de FSK == pin) no puede cerrar hasta que el producto vuelva a su pin"
+   "trigger": "BLOQUEANTE YA: la fase 4 de INC-9 (los 4 targets de FSK == pin) no puede cerrar hasta que el producto vuelva a su pin. Y el arreglo esta a su vez SECUENCIADO: el nivel fabrica ya tiene un incremento ABIERTO en vuelo (FSK-EVALUATOR-ADOPT, abierto 2026-07-11, F1-F2 aterrizadas) y solo se admite uno por nivel, asi que el fix necesita que ese se cierre o se aparque primero. No se cierra el incremento de otro ni se cuelga el fix de un incremento cuyo sujeto es otro"
   },
   "N-0104": {
    "parent": "N-0020",
@@ -1527,6 +1527,20 @@
     "ref": "V3-INC9/line-stops-at-first-red"
    },
    "trigger": "la primera corrida de FSK sobre v3 que supere s2"
+  },
+  "N-0105": {
+   "parent": "N-0022",
+   "title": "increment_guard prueba que HAY un incremento abierto de ese nivel, no que EL CAMBIO PERTENEZCA a el. Medido: ba05918 (el fix de jsonVal que rompio s2, N-0103) aterrizo el 2026-07-13 bajo FSK-EVALUATOR-ADOPT, un incremento cuyo sujeto es la adopcion del evaluator de ADR-027 y que no tiene nada que ver con el codegen. El diente que deberia haber mordido es codegen_freeze (exige la linea Codegen-freeze-waiver: en el work-doc abierto del nivel, ADR-023 §3), pero es un GATE de meta check, no un hook de commit — o sea solo muerde cuando alguien lo corre, y entre el 13-07 y el 31-07 nadie lo corrio sobre esto. Dos agujeros distintos que se taparon uno al otro: la pertenencia no se verifica, y el diente que si verifica el congelamiento no esta en el camino del commit. DISPARADOR POR CONDICION: el diseno del cutover (INC-11), donde se decide que se hace hook y que se hace gate",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T03:20Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "gate_red",
+    "ref": "V3-INC9/guard-proves-open-not-belonging"
+   },
+   "trigger": "el diseno de INC-11 CUTOVER, cuando se decida que enforcement es hook y cual es gate"
   }
  }
 }

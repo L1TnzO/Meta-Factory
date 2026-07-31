@@ -1,1504 +1,1532 @@
 {
-  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by tools/plan.py. Ids are append-only and never renumbered.",
-  "nodes": {
-    "N-0001": {
-      "parent": null,
-      "title": "v3: rebuild Meta-Factory on the Agent SDK — Claude Code as ENGINE, not container",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0002": {
-      "parent": "N-0001",
-      "title": "Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0003": {
-      "parent": "N-0002",
-      "title": "Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/16-catalogs.md",
-        "spec_doc_check --mode catalogs:PASS",
-        "sabotage:red"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T03:56Z"
-    },
-    "N-0004": {
-      "parent": "N-0002",
-      "title": "Write 17-golden-example: the dummy factory end-to-end, spec to pin",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/17-golden-example.md",
-        "spec_doc_check --mode golden:PASS",
-        "dummy pin reproduces"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T03:56Z"
-    },
-    "N-0005": {
-      "parent": "N-0002",
-      "title": "Write 18-rationale: negative knowledge, each with its reopening trigger",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/18-rationale.md",
-        "12 entries + 5 retracted claims + 8 operational lessons"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T03:38Z"
-    },
-    "N-0006": {
-      "parent": "N-0002",
-      "title": "spec-impl block: sequence/DAG ordering + transparent deferral + gate law",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/19-algorithms-reference.md#sequence",
-        "CONF-Q2..Q5:green",
-        "sabotage bites in isolation"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T04:00Z"
-    },
-    "N-0007": {
-      "parent": "N-0002",
-      "title": "spec-impl block: slot footprint law + verdict_ok",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/19-algorithms-reference.md#slotlaw",
-        "CONF-L2..L5 differential vs seed/delegation.py",
-        "sabotage bites"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T04:00Z"
-    },
-    "N-0008": {
-      "parent": "N-0002",
-      "title": "spec-impl block: RTM derivation (requirement to capability to station to artifact)",
-      "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "trigger": "the RTM's I/O boundary is split so that a PURE core exists worth specifying — today nearly all its truth is filesystem+proof I/O, so a block would specify almost nothing and give false coverage (documented in 19-algorithms-reference.md section 4)"
-    },
-    "N-0009": {
-      "parent": "N-0002",
-      "title": "spec-impl block: doc seal + INDEX generation",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "docs/spec/19-algorithms-reference.md#docseal",
-        "CONF-D2..D5 differential over 280+ real docs",
-        "sabotage bites"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "handoff"
-      },
-      "closed_at": "2026-07-28T04:00Z"
-    },
-    "N-0010": {
-      "parent": "N-0002",
-      "title": "L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)",
-      "kind": "question",
-      "state": "done",
-      "evidence": [
-        "tools/spec_schema_cover.py:merge_floor",
-        "docs/spec/fixtures/vocabulary-floor.json",
-        "192/192 sin slot vivo"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      },
-      "closed_at": "2026-07-28T04:04Z"
-    },
-    "N-0011": {
-      "parent": "N-0001",
-      "title": "v3 build line: INC-0..INC-12",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0012": {
-      "parent": "N-0011",
-      "title": "INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T19:47Z"
-    },
-    "N-0013": {
-      "parent": "N-0011",
-      "title": "INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "oracle_ref f44dc22 leido con git show; import_boundary verde 18 modulos; meta check 5/23 sin sexto"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T17:43Z"
-    },
-    "N-0014": {
-      "parent": "N-0011",
-      "title": "INC-2 CONTROL-PLANE: WRITE THE HOST — go/no-go of the whole plan (tampered proof must be refused)",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T19:47Z"
-    },
-    "N-0015": {
-      "parent": "N-0011",
-      "title": "INC-3 DELEGATION-V3: slot dataclass, SubagentStart binding, double permission layer, rewind rollback",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T19:47Z"
-    },
-    "N-0016": {
-      "parent": "N-0011",
-      "title": "INC-4 CHECKS-PORT: 29 kinds + 23 gates, no gate registers without a red witness",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md",
-        "v3/verify/registry.py",
-        "v3/verify/gate_census.py",
-        "docs/spec/fixtures/check-argv-vectors.json",
-        "docs/spec/fixtures/spec-validation-vectors.json",
-        "docs/spec/fixtures/graph-metrics-vectors.json"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-29T08:12Z"
-    },
-    "N-0017": {
-      "parent": "N-0011",
-      "title": "INC-5 MEMORY-DOCS: manifest, seal, lineage, STATE teeth, SessionStore handoff",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "censo 20/23 portados, 0 pendientes, 0 diferidos",
-        "corpus_parity 5 pares PASS + lado rojo 5/5 atrapados de a uno",
-        "suite v3 green=17 red=2 n/a=1",
-        "meta check 2/23 sin regresion",
-        "docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-29T17:37Z"
-    },
-    "N-0018": {
-      "parent": "N-0011",
-      "title": "INC-6 ECONOMY-TYPED: typed usage, context meter, iteration metrics; delete the transcript parser",
-      "kind": "increment",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0019": {
-      "parent": "N-0011",
-      "title": "INC-7/8 migrate dummy then iot (ascending toolchain pain)",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "v3/verify/rederive.py MIGRATED=(dummy,iot) — 15/15 == pin en 3 targets (dummy, iot, iot/fleet) desde fuente comiteada; sabotage 10 caught / 2 n-a / 0 missed; migration_census verde con iot."
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-31T01:46Z"
-    },
-    "N-0020": {
-      "parent": "N-0011",
-      "title": "INC-9 migrate FSK — the long pole: 12 stations, 3 products, live PG + Chromium",
-      "kind": "increment",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0021": {
-      "parent": "N-0011",
-      "title": "INC-10 migrate frozen ASF + full-stack (re-verification only)",
-      "kind": "increment",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0022": {
-      "parent": "N-0011",
-      "title": "INC-11 CUTOVER: delete v2 substrate, clean-clone run on another machine",
-      "kind": "increment",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0023": {
-      "parent": "N-0011",
-      "title": "INC-12 INTERACTIVE-MODE: rebuild the escape hatch the inversion removes",
-      "kind": "increment",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0024": {
-      "parent": "N-0001",
-      "title": "Debt found while re-specifying (critique K-6)",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0025": {
-      "parent": "N-0024",
-      "title": "spec/factory.schema.json is DEAD: no code references it — delete it or wire it",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0026": {
-      "parent": "N-0024",
-      "title": "The generality gate has no red-side witness — its tooth is unproven",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0027": {
-      "parent": "N-0024",
-      "title": "Stale self-descriptions: registry says 72/130 (live 94/155), kind_hygiene says ~32 kinds (live 29)",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0028": {
-      "parent": "N-0024",
-      "title": "evaluator agent has NO hooks wired while generator has two — invisible asymmetry in frontmatter",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0029": {
-      "parent": "N-0024",
-      "title": "Product trees are not hermetic: 47MB untracked zip, 804MB dataset inside generated trees",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0030": {
-      "parent": "N-0024",
-      "title": "Vacuous-true (N/A) gate branches are not counted separately from real greens",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red"
-      }
-    },
-    "N-0031": {
-      "parent": "N-0024",
-      "title": "activation: optional is dead vocabulary — declared in schema and a stale comment, never enforced",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "deferral"
-      }
-    },
-    "N-0032": {
-      "parent": "N-0001",
-      "title": "Post-cutover agenda (ADD items A-1..A-9)",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0033": {
-      "parent": "N-0032",
-      "title": "A-1 context meter via get_context_usage — closes the ADR-019 section-6 escape threshold",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0034": {
-      "parent": "N-0032",
-      "title": "A-2 iteration metrics: retries, red-to-green cycles, repeated failures (the 11.5 percent gap)",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0035": {
-      "parent": "N-0032",
-      "title": "A-3 budget as an enforced parameter (max_budget_usd, TaskBudget) — opus share is 86 percent vs a 35 percent target",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0036": {
-      "parent": "N-0032",
-      "title": "A-9 memory-risk map: staleness, over-retention have teeth; POISONING has none",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0037": {
-      "parent": "N-0001",
-      "title": "ADR-031: ratify the critique, the inversion and the build plan (they are unratified judgment today)",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0038": {
-      "parent": "N-0001",
-      "title": "Implement the plan_capture and handoff_derived teeth (the tree has no enforcement yet)",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "tools/plan_capture.py",
-        "tools/handoff_check.py",
-        "N-0054+N-0055 closed"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T04:06Z"
-    },
-    "N-0039": {
-      "parent": "N-0002",
-      "title": "Spec corpus 00-15 written and committed",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "commit:9229640",
-        "commit:70095de"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:25Z"
-    },
-    "N-0040": {
-      "parent": "N-0002",
-      "title": "L1 kernel sufficiency: algebra extracted from the document reproduces 84 pin-anchored vectors",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "tools/spec_conformance.py:PASS",
-        "fixtures/proof-sha-vectors.json:84"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:25Z"
-    },
-    "N-0041": {
-      "parent": "N-0002",
-      "title": "L2 schema sufficiency: every real-artifact key documented, phantom-key red side bites",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "tools/spec_schema_cover.py:PASS",
-        "commit:8bd75f2"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:25Z"
-    },
-    "N-0042": {
-      "parent": "N-0002",
-      "title": "Plan algebra specified, executable and operated by tools/plan.py",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "commit:d037653",
-        "CONF-P1..P7:green"
-      ],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:25Z"
-    },
-    "N-0043": {
-      "parent": "N-0002",
-      "title": "Declare L3 sufficiency",
-      "kind": "question",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:25Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "trigger": "an implementation built WITHOUT reading src/ passes CONF-X1..X8"
-    },
-    "N-0044": {
-      "parent": "N-0001",
-      "title": "Leaked work found by the FIRST run of plan_capture (2026-07-28)",
-      "kind": "direction",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      }
-    },
-    "N-0045": {
-      "parent": "N-0044",
-      "title": "Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:cache-churn-observer"
-      }
-    },
-    "N-0046": {
-      "parent": "N-0044",
-      "title": "Red slot doc-graph-liveness: All 6 contract files implemented correctly (verified by inspection, not rewritten): model.py DOC/CITES/EVIDENCES, doc_gr",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:doc-graph-liveness"
-      },
-      "drop_reason": "Superseded: the evidence_liveness gate is LIVE and green today (283 docs, 2373 citations, red-side fixture alive) — the doc-graph work landed under another slot",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0047": {
-      "parent": "N-0044",
-      "title": "Red slot fsk-coverage-instrument: RED — genuine scope gap (hook-confirmed), not a defect in my 3 files. constants.py/buildcfg.py/stations/s9.yml implement",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:fsk-coverage-instrument"
-      },
-      "drop_reason": "Superseded by FSK-COVERAGE-FULL-100 (2026-07-10): snipeit reports REAL 100.0% line coverage, per STATE",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0048": {
-      "parent": "N-0044",
-      "title": "Red slot fsk-frontend-login: All 4 files implemented verbatim per work-doc §1.1-1.6 (base.py _proof_login_value, frontend.py data-feedback attr, brow",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:fsk-frontend-login"
-      },
-      "drop_reason": "Superseded by ADR-023: template-frontend evolution is FROZEN with pin; human surfaces are now model-native pinned overrides",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0049": {
-      "parent": "N-0044",
-      "title": "Red slot sms-extraction-toolkit: All 4 slot files implemented+green (20/20 new tests, iteration exit 0); acceptance gate as literally specified (pytest o",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:sms-extraction-toolkit"
-      },
-      "drop_reason": "Superseded: the SMS extraction phase COMPLETED (24 waves, 422/422 papers) — the literal acceptance gate was mis-specified, the work is done",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0050": {
-      "parent": "N-0044",
-      "title": "Red slot sms-spi-wave-b-digestion: All 4 STEPs of this slot's own work are done and correct. STEP1: cmd_add_external added to make_digest_sheet.py (all-or-",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:sms-spi-wave-b-digestion"
-      },
-      "drop_reason": "Superseded: SPI closed 2026-07-26 (11 waves to AGREEMENT.md); the digestion layer is complete",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0051": {
-      "parent": "N-0044",
-      "title": "Red slot sms-spi-wave-b-extraction: All 4 STEPs of the slot's own work are done and GREEN: cmd_add_external added (24/24 tests incl. 4 new, all-or-nothing m",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:sms-spi-wave-b-extraction"
-      },
-      "drop_reason": "Superseded: SPI closed 2026-07-26; the extraction layer is complete",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0052": {
-      "parent": "N-0044",
-      "title": "Red slot snipeit-frontend-table-expansion: Implemented all three mechanical edits exactly per contract (20 client.ts import triples, 20 DEF_ blocks appended after ",
-      "kind": "residual",
-      "state": "dropped",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:30Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "escalation",
-        "ref": "slot:snipeit-frontend-table-expansion"
-      },
-      "drop_reason": "Superseded by ADR-023: template-frontend evolution FROZEN; snipeit's surface is a model-native pinned override since 2026-07-08",
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0053": {
-      "parent": "N-0044",
-      "title": "88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:31Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "prose-deferrals"
-      }
-    },
-    "N-0054": {
-      "parent": "N-0038",
-      "title": "plan_capture tooth: harvest structured declarations and refuse work with no node",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "tools/plan_capture.py",
-        "first-run:8 leaks captured",
-        "sabotage:red"
-      ],
-      "opened_at": "2026-07-28T03:31Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:31Z"
-    },
-    "N-0055": {
-      "parent": "N-0038",
-      "title": "handoff_derived tooth: a handoff's open-set section must equal the tree projection",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "tools/handoff_check.py",
-        "CONF-P8:green",
-        "sabotage:red"
-      ],
-      "opened_at": "2026-07-28T03:31Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T03:36Z"
-    },
-    "N-0056": {
-      "parent": "N-0002",
-      "title": "Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "tools/spec_doc_check.py --mode rationale",
-        "CONF-R2/R3",
-        "caught R-8 and R-10 missing triggers"
-      ],
-      "opened_at": "2026-07-28T03:38Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual"
-      },
-      "closed_at": "2026-07-28T04:04Z"
-    },
-    "N-0057": {
-      "parent": "N-0024",
-      "title": "The docs gate has NO red-side witness: no synthetic negative wired into docs_manifest.check() — the detector's own correctness is unproven",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "gate:docs:no-witness"
-      }
-    },
-    "N-0058": {
-      "parent": "N-0024",
-      "title": "The projection gate has NO red-side witness: no synthetic stale-block fixture; it only evaluates the real STATE.md",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T03:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "gate:projection:no-witness"
-      }
-    },
-    "N-0059": {
-      "parent": "N-0002",
-      "title": "S15: the plan tree is meta-only — S10.9 composes hooks/agents/tools to factories but not the plan",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T15:36Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/10-target-sdk.md:282"
-      }
-    },
-    "N-0060": {
-      "parent": "N-0002",
-      "title": "S15: no tooth against CHRONIC openness — age/staleness is a reported metric (S8), never red",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T15:36Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/15-plan-and-memory.md:318"
-      }
-    },
-    "N-0061": {
-      "parent": "N-0002",
-      "title": "S15: make 'trigger' referenceable to a node id so postponement-by-preemption is an EDGE that fires when the blocker closes",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T15:36Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/15-plan-and-memory.md:47"
-      }
-    },
-    "N-0062": {
-      "parent": "N-0002",
-      "title": "spec_doc_check: unknown --mode ran zero checks and printed PASS (Lock #1 violation) — fixed, keep the guard when the L1 runner is ported in INC-4",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "verified: --mode ZZZNONSENSE exit 2 (was exit 0 PASS); --mode dangling exit 2; --mode rationale exit 0 with its own summary; SABOTAGE=1 still detects 3 problems"
-      ],
-      "opened_at": "2026-07-28T15:46Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "tools/spec_doc_check.py"
-      },
-      "closed_at": "2026-07-28T15:46Z"
-    },
-    "N-0063": {
-      "parent": "N-0002",
-      "title": "docs gate red since 2026-07-12: FSK STATE.md (ce32b97, 07-11) older than a newer FSK doc (b50ade5, 07-12) — 16 days chronic, exactly the N-0060 pathology",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T15:59Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "factories/full-stack-kotlin/docs/STATE.md"
-      }
-    },
-    "N-0064": {
-      "parent": "N-0012",
-      "title": "Q7 (ADR-031 A2): does a hook callback deny ACTUALLY deny, un-bypassably from inside the session — decides the INC-2 gate",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "E3: el mismo deny sobre Write fue rodeado por Bash y el archivo se creo => el deny es por HERRAMIENTA, no por EFECTO"
-      ],
-      "opened_at": "2026-07-28T16:26Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      },
-      "closed_at": "2026-07-28T16:57Z"
-    },
-    "N-0065": {
-      "parent": "N-0012",
-      "title": "Q8: does the Python SDK inherit the CLI's stored OAuth credentials, or does it demand ANTHROPIC_API_KEY",
-      "kind": "question",
-      "state": "done",
-      "evidence": [
-        "v3/behaviour_facts.json: Q8b_python_client_inherits_credentials=true — 10 corridas vivas por query() sin ANTHROPIC_API_KEY, solo ~/.claude/.credentials.json"
-      ],
-      "opened_at": "2026-07-28T16:26Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      },
-      "closed_at": "2026-07-28T17:17Z"
-    },
-    "N-0066": {
-      "parent": "N-0012",
-      "title": "import-boundary tooth: no module under v3/ imports metafactory, no sys.path into src/ (the price of building in tree)",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "meta check unchanged at 5/23 red — no sixth red added"
-      ],
-      "opened_at": "2026-07-28T16:26Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      },
-      "closed_at": "2026-07-28T16:36Z"
-    },
-    "N-0067": {
-      "parent": "N-0013",
-      "title": "oracle_ref pinned as DATA: proofs and pins read at a commit SHA, NEVER the working tree",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "v3/verify/parity.py lee todo con 'git show <ref>:<path>', nunca del working tree"
-      ],
-      "opened_at": "2026-07-28T16:26Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      },
-      "trigger": "INC-1 arranca: es donde oracle_ref se escribe como dato y se lee con git show",
-      "closed_at": "2026-07-28T17:35Z"
-    },
-    "N-0068": {
-      "parent": "N-0014",
-      "title": "gate has TWO clauses (ADR-031 A1): abstention refuses = abort condition; hooks refuse = red-and-redesign",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "v3/verify/abstention.py (clausula i, aborto) y v3/verify/column_live.py (clausula ii, rojo-y-rediseno) miden las dos por separado y con fuerzas distintas, como pedia A1"
-      ],
-      "opened_at": "2026-07-28T16:26Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
-      },
-      "closed_at": "2026-07-28T18:19Z"
-    },
-    "N-0069": {
-      "parent": "N-0012",
-      "title": "§10.7 corregido por medición: list_subagents/get_subagent_messages son funciones de módulo, NO métodos de ClaudeSDKClient; y existen variantes _from_store (historia de subagentes desde almacén persistido) que §10 no registra",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "v3/probe/claims.py C-21/C-21b/C-21c/C-21d ya corregidas y verdes"
-      ],
-      "opened_at": "2026-07-28T16:42Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/probe/claims.py"
-      },
-      "closed_at": "2026-07-28T17:29Z"
-    },
-    "N-0070": {
-      "parent": "N-0012",
-      "title": "can_use_tool NUNCA se invocó en 5 configuraciones (default/acceptEdits/plan/allowed_tools vacío) y el write pasó: §10.4/§10.8 presentan 'dos capas independientes' pero medimos UNA. INC-2 no puede apoyarse en la segunda hasta hallar la configuración que la dispara",
-      "kind": "question",
-      "state": "done",
-      "evidence": [
-        "docs/spec/10-target-sdk.md §10.4 actualizada: el host se monta sobre el cliente, no sobre query()"
-      ],
-      "opened_at": "2026-07-28T16:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/behaviour_facts.json"
-      },
-      "trigger": "montar ClaudeSDKClient (bidireccional) y reintentar: 8 configuraciones con query() dan CERO invocaciones (default/acceptEdits/plan/allowed_tools=[]/sin modo/Bash-acceptEdits/Bash-default/Read-acceptEdits). HIPOTESIS: un permiso es protocolo bidireccional -- la CLI pregunta y espera -- y query() solo hace streaming de ENTRADA. Misma causa que N-0077 (stop_task tambien necesita el cliente)",
-      "closed_at": "2026-07-28T18:08Z"
-    },
-    "N-0071": {
-      "parent": "N-0012",
-      "title": "can_use_tool exige modo STREAMING: un prompt str lanza ValueError. §10.4 no registra que la capa condiciona la FORMA de toda llamada del host",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 2 — can_use_tool exige streaming, el prompt es AsyncIterable[dict]"
-      ],
-      "opened_at": "2026-07-28T16:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/behaviour_facts.json"
-      },
-      "closed_at": "2026-07-28T17:29Z"
-    },
-    "N-0072": {
-      "parent": "N-0012",
-      "title": "allowed_tools que permite una herramienta entera la auto-aprueba ANTES de can_use_tool (aviso del propio SDK); reglas de settings también eclipsan y no son visibles. La columna v3 no debe combinar allowed_tools amplio con la capa de permiso",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 3 — allowed_tools amplio eclipsa la capa de permiso; la columna no debe combinarlos"
-      ],
-      "opened_at": "2026-07-28T16:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/behaviour_facts.json"
-      },
-      "closed_at": "2026-07-28T17:29Z"
-    },
-    "N-0073": {
-      "parent": "N-0012",
-      "title": "MEDIDO: un deny es por HERRAMIENTA, no por EFECTO — el modelo rodeó un deny de Write usando Bash y creó el archivo. El barrido de footprint por git se PORTA, no se retira (§10.8 confirmado por medición)",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "v3/delegation/footprint.py + gate slot_footprint: el barrido git se PORTA. Caso VIVO: la capa de permiso permitio Bash correctamente ('not a writer'), el archivo aterrizo fuera del radio, y el barrido lo cazo RED"
-      ],
-      "opened_at": "2026-07-28T16:56Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/behaviour_facts.json"
-      },
-      "trigger": "INC-3 DELEGATION-V3 porta slot_footprint: el barrido git es el que cubre este agujero",
-      "closed_at": "2026-07-28T19:22Z"
-    },
-    "N-0074": {
-      "parent": "N-0011",
-      "title": "R-13: framework de workflow para la FSM v3 RECHAZADO (traería su propio almacén de estado, y el nuestro es la capa de evidencia); Python puro era HERENCIA, no decisión — la pregunta ADR-023 §2 se había saltado para este subsistema",
-      "kind": "question",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T17:07Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/18-rationale.md"
-      }
-    },
-    "N-0075": {
-      "parent": "N-0014",
-      "title": "R-14: decidir pydantic para el límite tipado cuando INC-2 escriba delegation/slot.py — diferido, no rechazado",
-      "kind": "question",
-      "state": "done",
-      "evidence": [
-        "caso ilustrativo: el validador rechaza max_wall_s=True, que un parser permisivo aceptaria como 1 porque bool es int"
-      ],
-      "opened_at": "2026-07-28T17:07Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/18-rationale.md"
-      },
-      "trigger": "INC-3 escribe delegation/slot.py con el manifiesto EN DISCO: hoy el Slot es solo en proceso y nada se PARSEA desde entrada no confiable, asi que el coste de pydantic sigue sin ser visible. Cuando el manifiesto se lea de vuelta tras un crash y gane vocabulario cerrado, ahi se decide",
-      "closed_at": "2026-07-28T19:22Z"
-    },
-    "N-0076": {
-      "parent": "N-0012",
-      "title": "Q1 CONTESTADA: el hook PreToolUse del padre SÍ dispara para llamadas de un SUBAGENTE, con agent_type+agent_id, y PUEDE denegarle la escritura (S1 control escribe, S2 deniega y no escribe). SubagentStart/Stop también disparan",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "SubagentStart y SubagentStop disparan con identidad; agent_id es por-invocacion (distinto en S1 y S2) => es la clave de binding que pedia §10.8"
-      ],
-      "opened_at": "2026-07-28T17:17Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "v3/subagent_facts.json"
-      },
-      "closed_at": "2026-07-28T17:17Z"
-    },
-    "N-0077": {
-      "parent": "N-0012",
-      "title": "Q3 semantica de kill: NO MEDIDA — necesita stop_task contra un task_id vivo (API de cliente, no query()). Lo observado: Start/Stop disparan en completion normal y TERMINAL_TASK_STATUSES={completed,failed,killed,stopped}",
-      "kind": "question",
-      "state": "done",
-      "evidence": [
-        "conclusion: el barrido slot_footprint --live NO se retira; a cambio el HOST ve el kill tipado en su propio bucle, que es mejor que ambos y solo es posible porque el host posee el bucle"
-      ],
-      "opened_at": "2026-07-28T17:17Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "v3/subagent_facts.json"
-      },
-      "trigger": "INC-2 monta ClaudeSDKClient: stop_task necesita la API de cliente, no query()",
-      "closed_at": "2026-07-28T18:09Z"
-    },
-    "N-0078": {
-      "parent": "N-0011",
-      "title": "v3: el nodo del plan lleva su NIVEL como campo y 'plan next --level <slug>' proyecta ese arco — hoy la separacion dentro del arbol es por ARCO y nada impide archivar un nodo de iot bajo un arco meta",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T17:20Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/spec/20-architecture-map.md"
-      }
-    },
-    "N-0079": {
-      "parent": "N-0002",
-      "title": "CLAUDE.md repite el conteo rancio de la columna: dice 'column-roles(11⊋6)' cuando el real es 12⊋6 (verificado contra column_scope.py). Arreglar en un tramo dedicado — editar CLAUDE.md a mitad de sesion invalida el cache del prefijo (runbook e)",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "el conteo rancio NO estaba en CLAUDE.md — yo afirme la ubicacion de memoria en vez de leerla. Estaba en docs/spec/02-invariants.md:80 ('11 meta ⊋ 6') y en §05, ambas corregidas a 12 contra column_scope.py"
-      ],
-      "opened_at": "2026-07-28T18:00Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "src/metafactory/column_scope.py"
-      },
-      "closed_at": "2026-07-28T19:48Z"
-    },
-    "N-0080": {
-      "parent": "N-0014",
-      "title": "HALLAZGO ARQUITECTONICO: el host de v3 deberia usar ClaudeSDKClient, no query() — dos deudas (N-0070 permisos, N-0077 stop_task) apuntan a lo mismo: query() es unidireccional y no soporta el protocolo de pregunta-respuesta",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "docs/spec/10-target-sdk.md §10.4 y §10.8 actualizadas: el host de v3 se monta sobre el cliente, no sobre query()"
-      ],
-      "opened_at": "2026-07-28T18:02Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/verify/column_live.py"
-      },
-      "closed_at": "2026-07-28T18:09Z"
-    },
-    "N-0081": {
-      "parent": "N-0014",
-      "title": "GENERALIZAR N-0072: no es solo allowed_tools — permission_mode tambien ECLIPSA can_use_tool. Cualquier cosa que PRE-APRUEBE apaga la capa de permiso; la columna solo existe donde nada dijo que si antes. Lo caza leaf_bounded",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "v3/host/session.py: sin permission_mode y sin allowed_tools amplio, con el porque escrito; leaf_bounded lo caza si vuelve"
-      ],
-      "opened_at": "2026-07-28T18:18Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/host/session.py"
-      },
-      "closed_at": "2026-07-28T18:19Z"
-    },
-    "N-0082": {
-      "parent": "N-0002",
-      "title": "El arbol necesita un verbo REPARENT: ya mordio dos veces (N-0012 con hallazgos que eran de INC-2, N-0014 con pydantic que es de INC-3). §15 dice que re-parentar esta ANTICIPADO y queda registrado, pero no hay verbo — asi que el nodo padre queda abierto por trabajo que pertenece a otro arco",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T18:19Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "docs/spec/15-plan-and-memory.md"
-      }
-    },
-    "N-0083": {
-      "parent": "N-0011",
-      "title": "A5 (ADR-032): cada incremento declara QUE corrigio de la spec, o dice explicitamente que no corrigio nada — cinco correcciones en tres incrementos no es mala suerte, es el rendimiento esperado de EJECUTAR una spec en vez de leerla",
-      "kind": "task",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T19:13Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "manual",
-        "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
-      }
-    },
-    "N-0084": {
-      "parent": "N-0022",
-      "title": "A6 (ADR-032): los dos rojos que quedan son deuda de FSK (docs N-0063 + codegen_freeze waiver malformado). INC-11 los encuentra como deuda DECLARADA, no como sorpresa: o FSK los resuelve en su propio incremento, o el cutover se acepta con ellos declarados",
-      "kind": "question",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-28T19:13Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
-      }
-    },
-    "N-0085": {
-      "parent": "N-0015",
-      "title": "MEDIDO: rewind_files NO es manejable desde el stream — 14 ids candidatos, los 14 'No file checkpoint found'. §10.8 corregida; v3 hace su propio rollback sobre git (determinista, auditable, respeta baseline_dirty)",
-      "kind": "task",
-      "state": "done",
-      "evidence": [
-        "docs/spec/10-target-sdk.md §10.8 corregida con la medicion de los 14 ids"
-      ],
-      "opened_at": "2026-07-28T19:28Z",
-      "origin": {
-        "session": "2026-07-28",
-        "cause": "gate_red",
-        "ref": "v3/delegation/rollback.py"
-      },
-      "closed_at": "2026-07-28T19:47Z"
-    },
-    "N-0086": {
-      "parent": "N-0023",
-      "title": "rehydrate: bajo la inversion es 'que inyecta el host por hoja' (spec 15.6, ancestry+open_set); necesita el arbol de nodos en v3. Disparador: INC-12 INTERACTIVE-MODE",
-      "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-29T16:14Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "deferral",
-        "ref": "V3-INC5/rehydrate-defer"
-      },
-      "trigger": "INC-12 INTERACTIVE-MODE abre: el host necesita inyectar ancestry+open_set por hoja (spec 15.6)"
-    },
-    "N-0087": {
-      "parent": "N-0018",
-      "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "v3/control/hooks.py:compaction_counter (PreCompact, counts and never blocks)",
-        "v3/host/session.py:_build_options — include_hook_events=True + PreCompact wired into EVERY leaf",
-        "gate compaction: green 4 assertions; SABOTAGE 3/3 (hook_events_off, no_precompact, malformed_class)"
-      ],
-      "opened_at": "2026-07-29T16:14Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "deferral",
-        "ref": "V3-INC5/precompact-defer"
-      },
-      "trigger": "INC-6 ECONOMY-TYPED abre: entra el metering tipado y el hook PreCompact",
-      "closed_at": "2026-07-30T21:05Z"
-    },
-    "N-0088": {
-      "parent": "N-0011",
-      "title": "gate 'kinds' compara el argv contra los vectores pero NO la importabilidad del modulo destino: kinds.py apunta a v3.verify.checks.docs_check, que no existia, y nada lo noto",
-      "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-29T16:14Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "gate_red",
-        "ref": "V3-INC5/kinds-importability"
-      },
-      "trigger": "post-cutover (spec 11.7): es capacidad nueva y v2 tampoco la tiene; arreglo en v3/verify/kinds_parity.py"
-    },
-    "N-0089": {
-      "parent": "N-0018",
-      "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "v3/memory/journal.py ported with its caller: v3/host/runner.py:_journal, INSIDE the engine",
-        "live run: 2 stations through run_line -> 2 station_run events written (journal=True)",
-        "gate iteration green over the real records: 3 attempts, 1 red->green"
-      ],
-      "opened_at": "2026-07-29T17:29Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "deferral",
-        "ref": "V3-INC5/journal-defer"
-      },
-      "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation",
-      "closed_at": "2026-07-30T21:05Z"
-    },
-    "N-0090": {
-      "parent": "N-0018",
-      "title": "TELEMETRIA MUERTA desde 2026-07-13: cero metricas kind=tool y cero eventos delegation en .metamem/ durante INC-0..INC-5. Serie: 07-09=1142, 07-10=1091, 07-11=1911, 07-12=751, 07-13=687, despues NADA. mem_capture (PostToolUse *) traga toda excepcion con 'except: pass'. El KPI de delegacion y el opus-share leen cero porque nadie mide, no porque no se delegue: esta sesion corrio 4 slots y registro 0",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "the diagnosis was already corrected by N-0091/N-0092; the outage itself is confirmed by the day-series and is now DETECTED instead of narrated",
-        "gate telemetry_liveness: RED over 2026-07-13..07-30 (10 mute days of 13 active); RED over the default 3-day window because of 2026-07-28 (37 commits, zero economy records)",
-        "live repair: .claude/hooks/mem_rollup.py used a cwd-relative sys.path; absolute now, and invoked from /tmp it wrote the first rollup since 2026-07-13 (claude-opus-5, $26.05)"
-      ],
-      "opened_at": "2026-07-29T17:44Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "gate_red",
-        "ref": "V3-INC5/telemetry-dead-since-0713"
-      },
-      "closed_at": "2026-07-30T21:05Z"
-    },
-    "N-0091": {
-      "parent": "N-0018",
-      "title": "COLUMNA NO CABLEADA desde 2026-07-18: las sesiones se lanzan desde research/, CLAUDE_PROJECT_DIR resuelve ahi, research/.claude NO existe -> ningun hook del column corre (proof_protect verificado EN VIVO: leyo .proof/ por shell sin ser denegado). CORRIGE la causa atribuida en N-0090: mem_capture escribe bien invocado a mano; no es el except:pass, es que el hook nunca se invoca. Slugs: root ultima sesion 07-13/07-24, research 07-18 -> hoy. Alcance: INC-0..INC-5 corrieron sin capa de hooks; sus gates explicitos siguen valiendo, la enforcement por bloqueo no. v3 es inmune por construccion (setting_sources=[] + hooks pasados como callbacks)",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "PARTIALLY REFUTED, and said so rather than closed as stated: hooks DO fire from research/ today (45 kind=tool events on 2026-07-30 from a session whose cwd is research/), so 'research/.claude does not exist -> no hook runs' is not what kept the layer dark",
-        "what IS confirmed and repaired: mem_rollup's cwd-relative sys.path, which explains why rollup stayed silent even after tool capture resumed",
-        "what is NOT explained: why the whole hook layer wrote nothing 2026-07-14..07-27. Superseded by N-0093 — the cause is no longer required to be known, because the detector now exists"
-      ],
-      "opened_at": "2026-07-29T18:03Z",
-      "origin": {
-        "session": "2026-07-29",
-        "cause": "gate_red",
-        "ref": "V3-INC6/column-unwired-since-0718"
-      },
-      "closed_at": "2026-07-30T21:05Z"
-    },
-    "N-0092": {
-      "parent": "N-0018",
-      "title": "CORRIGE la EVIDENCIA de N-0091 (el hallazgo se sostiene, el test no): proof_protect deniega ESCRITURAS, no lecturas; mi prueba de lectura nunca fue valida. Test valido hoy: escritura por redireccion a .proof/ DENEGADA. La evidencia que si vale es de conteo: session_start 9-26/dia hasta 07-13, luego 0 el 07-28 y 1 el 07-29, y cero kind=tool desde 07-13; todo se reanuda al relanzar desde la raiz",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "its correction stands and was applied: the evidence that counts is the day-series, not a read test",
-        "the series is now what telemetry_liveness reads, so the same finding is re-derivable by a process"
-      ],
-      "opened_at": "2026-07-30T20:10Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "gate_red",
-        "ref": "V3-INC6/n0091-evidence-correction"
-      },
-      "closed_at": "2026-07-30T21:05Z"
-    },
-    "N-0093": {
-      "parent": "N-0018",
-      "title": "El apagon de telemetria 2026-07-14..07-27 quedo SIN CAUSA determinada, y se deja asi a proposito: los hooks disparan hoy desde research/, asi que la causa atribuida en N-0091 no se sostiene, y la evidencia post-hoc se agoto. Lo que reemplaza a la causa es el detector: telemetry_liveness corre en el suite y nombra el dia mudo. Disparador de reapertura: que telemetry_liveness vuelva a dar rojo por un dia POSTERIOR al 2026-07-30 — ahi la causa es observable en vivo en vez de arqueologica",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:05Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC6/outage-cause-unknown"
-      },
-      "trigger": "telemetry_liveness rojo por un dia posterior a 2026-07-30"
-    },
-    "N-0094": {
-      "parent": "N-0018",
-      "title": "El corpus documental crecio +71,5% contra la linea base de ADR-019 (269k tok @ 2026-07-08 -> 461.289 tok sobre 193 archivos @ 2026-07-30) mientras la decision que descansa en el se quedo quieta. La clausula (a) de la regla de escape sigue FALSA (el set de entrada mide 4.087 tok, 97,96% de headroom): lo que se dispara no es el escape, es la mitigacion — 'se fetchea, no se inyecta' se paga por lectura y nadie mide ese costo. Disparador: que el corpus duplique la linea base (538k) o que la clausula (a) se vuelva verdadera, lo que ocurra primero; escape_threshold imprime ambos numeros en cada corrida",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:05Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC6/corpus-growth-71pct"
-      },
-      "trigger": "corpus > 538k tok (2x baseline) o clausula (a) verdadera (set de entrada > ventana)"
-    },
-    "N-0095": {
-      "parent": "N-0018",
-      "title": "INC-12 INTERACTIVE-MODE es un incremento real y argumentado (spec 11 §5bis, 'no es opcional') que nunca recibio fila en la tabla de §11.3. Lo encontro economy_census en su primera corrida al exigir que un diferido apunte a una fila real del plan. No se repara editando la spec de hoy: el censo lee AL COMMIT ORACULO, asi que la ley acepta las dos formas que el plan usa y el hueco queda registrado. Disparador: el proximo re-pin de v3/oracle_ref.json",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:05Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC6/inc12-has-no-plan-row"
-      },
-      "trigger": "proximo re-pin de v3/oracle_ref.json — ahi la fila de INC-12 puede entrar en §11.3"
-    },
-    "N-0096": {
-      "parent": "N-0018",
-      "title": "churn (776 re-lecturas acumuladas) y cache_series quedan NO PORTADAS: v3 registra tool_uses por leaf, pero el churn es CROSS-leaf y la expiracion de cache es a nivel de SESION, y el host corre hojas, no sesiones. Declarado en el censo como DROPPED con su reemplazo, no medio-portado en algo mas debil. Disparador: INC-12 INTERACTIVE-MODE, que es donde el host pasa a manejar una sesion multi-turno",
-      "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:05Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC6/churn-and-cache-need-sessions"
-      },
-      "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja"
-    },
-    "N-0097": {
-      "parent": "N-0019",
-      "title": "INC-7 MIGRATE-DUMMY: la fabrica dummy corre entera sobre v3 (5 estaciones, builds + checks como procesos reales) y re-deriva 5/5 == pinned_verdict.json desde una copia de archivos trackeados. N-0019 sigue abierto: su intencion es dummy Y iot, y iot es INC-8",
-      "kind": "increment",
-      "state": "done",
-      "evidence": [
-        "gate rederive: dummy 5/5 == pin (37 tracked files, 0.4s); SABOTAGE 4/4 (product_broken, station_vanished, check_renamed, empty_line)",
-        "gate migration_census: 4 kinds ported / 3 no-body / 3 owed / 19 in no factory line; 4 of 5 declared build actions handled; SABOTAGE 3/3",
-        "v3/verify/checks/{artifact_contains,product_env,infra_up,mcp_tools}.py — the bodies INC-4's argv already named",
-        "v3/host/{builds,line}.py — the joint between resolve_check and run_line",
-        "suite v3 green=24 red=3 n/a=1 (28 gates); suite_sweep 19/19; the 3 reds are INC-6's declared ones"
-      ],
-      "opened_at": "2026-07-30T21:30Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "handoff",
-        "ref": "V3-INC7/dummy-on-v3"
-      },
-      "closed_at": "2026-07-30T21:30Z"
-    },
-    "N-0098": {
-      "parent": "N-0022",
-      "title": "La linea META de v2 (m00..m07) no tiene analogo en v3, asi que 19 de las 29 kinds del vocabulario no las declara NINGUNA linea de fabrica (column_full, docs_check, clean_runner, rtm_*, product_run, products_rederive...). migration_census las reporta APARTE de las debidas, para no mezclar «quien me debe un ejecutor» con «esto no es parte de una linea de producto». Disparador: INC-11 CUTOVER, donde `meta` pasa a ser la cascara fina sobre v3",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:30Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC7/meta-line-has-no-v3-analogue"
-      },
-      "trigger": "INC-11 CUTOVER: meta se vuelve la cascara fina sobre v3"
-    },
-    "N-0099": {
-      "parent": "N-0020",
-      "title": "Un check que declara `when` es RECHAZADO por v3/host/line.py, no portado. Ignorar la clave correria un check que debia saltearse (o al reves), y en cualquier caso moveria el proof_sha de una estacion sin que nadie lo decida. Ninguna linea migrada lo usa todavia. Disparador: la primera fabrica migrada cuya linea declare `when` — el loader revienta con el nombre del check",
-      "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
-      "opened_at": "2026-07-30T21:30Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC7/check-when-refused"
-      },
-      "trigger": "la primera fabrica migrada que declare `when` en un check (el loader revienta)"
-    },
-    "N-0100": {
-      "parent": "N-0020",
-      "title": "El `via` de un slot `generate` no se resuelve contra el chasis de la fabrica: v2 lo hace (_resolve_via_against_chassis) para que una INSTANCIA de producto pueda invocar un generador que vive en el chasis (R1, ADR-015). dummy no lo necesita (su via es `python -c`); los productos de FSK si. Disparador: INC-9 MIGRATE-FSK",
-      "kind": "residual",
-      "state": "done",
-      "evidence": [
-        "v3/host/builds.py::_resolve_via_against_chassis — via relativo que nombra un archivo bajo el chasis se resuelve a ruta absoluta; medido: iot/fleet pasa de rojo en s0 a 5/5 == pin. El disparador escrito decia INC-9 y se cumplio en INC-8: la CONDICION (entran las instancias de producto) era correcta, la ETIQUETA era una adivinanza."
-      ],
-      "opened_at": "2026-07-30T21:30Z",
-      "origin": {
-        "session": "2026-07-30",
-        "cause": "deferral",
-        "ref": "V3-INC7/via-not-chassis-resolved"
-      },
-      "trigger": "INC-9 MIGRATE-FSK: entran las instancias de producto",
-      "closed_at": "2026-07-31T01:46Z"
-    },
-    "N-0101": {
-      "parent": "N-0020",
-      "title": "station_activation en un product.yml es RECHAZADO por v3/verify/rederive.py::materialize_instance, no portado. Es el override por-instancia de que estaciones corren; ignorarlo correria una estacion que la instancia queria saltear (o al reves) y moveria un proof_sha sin que nadie lo decida — misma forma que N-0099 (when). Ninguna linea migrada lo declara: fleet no lo usa; SI lo usan los 4 productos de full-stack-kotlin (assets, helpdesk, snipeit) y full-stack (tasks). DISPARADOR POR CONDICION (leccion de N-0100, cuya etiqueta decia INC-9 y se cumplio en INC-8): el primer producto MIGRADO cuyo product.yml declare station_activation — materialize_instance revienta con el nombre del target",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-31T01:46Z",
-      "origin": {
-        "session": "2026-07-31",
-        "cause": "deferral",
-        "ref": "V3-INC8/station-activation-refused"
-      }
-    },
-    "N-0102": {
-      "parent": "N-0022",
-      "title": "El veredicto de evidence_liveness DEPENDE de un repo hermano externo que el gate no declara ni valida: v3/graph/doc_graph.py::_resolve_md (~206-229) resuelve una referencia .md contra ../Agent_Systems_Factory/ como fallback. Medido en INC-8: mismo commit 3037f96 da FAIL (4 refs sin resolver en ASF-LESSONS.md y CONTEXT-ECONOMY.md) en un worktree limpio SIN el hermano, y PASS en el arbol real CON el hermano — los 4 archivos citados no existen ni estan trackeados en Meta-Factory en ninguno de los dos. O sea: el gate audita fidelidad CRUZADA entre repos y su color lo fija el entorno de verificacion, no el commit. Choca de frente con ADR-005 (la custodia no es la raiz de confianza; lo es la replicabilidad). DISPARADOR POR CONDICION: la primera corrida de aceptacion en clean-clone en OTRA maquina, donde no hay hermano ASF — que es exactamente P1+P2 de INC-11 CUTOVER; ahi este gate sale rojo por el entorno y no por el codigo",
-      "kind": "residual",
-      "state": "open",
-      "evidence": [],
-      "opened_at": "2026-07-31T01:47Z",
-      "origin": {
-        "session": "2026-07-31",
-        "cause": "gate_red",
-        "ref": "V3-INC8/evidence-liveness-not-hermetic"
-      }
-    }
+ "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by tools/plan.py. Ids are append-only and never renumbered.",
+ "nodes": {
+  "N-0001": {
+   "parent": null,
+   "title": "v3: rebuild Meta-Factory on the Agent SDK — Claude Code as ENGINE, not container",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0002": {
+   "parent": "N-0001",
+   "title": "Spec corpus reaches L3 sufficiency (rebuildable from docs/spec alone)",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0003": {
+   "parent": "N-0002",
+   "title": "Write 16-catalogs: the 23 gates + 29 kinds, each with its red-side witness",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/16-catalogs.md",
+    "spec_doc_check --mode catalogs:PASS",
+    "sabotage:red"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T03:56Z"
+  },
+  "N-0004": {
+   "parent": "N-0002",
+   "title": "Write 17-golden-example: the dummy factory end-to-end, spec to pin",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/17-golden-example.md",
+    "spec_doc_check --mode golden:PASS",
+    "dummy pin reproduces"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T03:56Z"
+  },
+  "N-0005": {
+   "parent": "N-0002",
+   "title": "Write 18-rationale: negative knowledge, each with its reopening trigger",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/18-rationale.md",
+    "12 entries + 5 retracted claims + 8 operational lessons"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T03:38Z"
+  },
+  "N-0006": {
+   "parent": "N-0002",
+   "title": "spec-impl block: sequence/DAG ordering + transparent deferral + gate law",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/19-algorithms-reference.md#sequence",
+    "CONF-Q2..Q5:green",
+    "sabotage bites in isolation"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T04:00Z"
+  },
+  "N-0007": {
+   "parent": "N-0002",
+   "title": "spec-impl block: slot footprint law + verdict_ok",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/19-algorithms-reference.md#slotlaw",
+    "CONF-L2..L5 differential vs seed/delegation.py",
+    "sabotage bites"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T04:00Z"
+  },
+  "N-0008": {
+   "parent": "N-0002",
+   "title": "spec-impl block: RTM derivation (requirement to capability to station to artifact)",
+   "kind": "residual",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "trigger": "the RTM's I/O boundary is split so that a PURE core exists worth specifying — today nearly all its truth is filesystem+proof I/O, so a block would specify almost nothing and give false coverage (documented in 19-algorithms-reference.md section 4)"
+  },
+  "N-0009": {
+   "parent": "N-0002",
+   "title": "spec-impl block: doc seal + INDEX generation",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "docs/spec/19-algorithms-reference.md#docseal",
+    "CONF-D2..D5 differential over 280+ real docs",
+    "sabotage bites"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "handoff"
+   },
+   "closed_at": "2026-07-28T04:00Z"
+  },
+  "N-0010": {
+   "parent": "N-0002",
+   "title": "L2 requirement shrinks when a live artifact is absent (192 to 183 when the slot cleared)",
+   "kind": "question",
+   "state": "done",
+   "evidence": [
+    "tools/spec_schema_cover.py:merge_floor",
+    "docs/spec/fixtures/vocabulary-floor.json",
+    "192/192 sin slot vivo"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   },
+   "closed_at": "2026-07-28T04:04Z"
+  },
+  "N-0011": {
+   "parent": "N-0001",
+   "title": "v3 build line: INC-0..INC-12",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0012": {
+   "parent": "N-0011",
+   "title": "INC-0 SDK-PROBE: answer the six open SDK questions as DATA, pin the symbol table",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T19:47Z"
+  },
+  "N-0013": {
+   "parent": "N-0011",
+   "title": "INC-1 KERNEL-PORT: hermetic, recompute proof_sha over committed proofs",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "oracle_ref f44dc22 leido con git show; import_boundary verde 18 modulos; meta check 5/23 sin sexto"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T17:43Z"
+  },
+  "N-0014": {
+   "parent": "N-0011",
+   "title": "INC-2 CONTROL-PLANE: WRITE THE HOST — go/no-go of the whole plan (tampered proof must be refused)",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T19:47Z"
+  },
+  "N-0015": {
+   "parent": "N-0011",
+   "title": "INC-3 DELEGATION-V3: slot dataclass, SubagentStart binding, double permission layer, rewind rollback",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "incremento entregado y cerrado; ver docs/work/ y LOG 2026-07-28"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T19:47Z"
+  },
+  "N-0016": {
+   "parent": "N-0011",
+   "title": "INC-4 CHECKS-PORT: 29 kinds + 23 gates, no gate registers without a red witness",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md",
+    "v3/verify/registry.py",
+    "v3/verify/gate_census.py",
+    "docs/spec/fixtures/check-argv-vectors.json",
+    "docs/spec/fixtures/spec-validation-vectors.json",
+    "docs/spec/fixtures/graph-metrics-vectors.json"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-29T08:12Z"
+  },
+  "N-0017": {
+   "parent": "N-0011",
+   "title": "INC-5 MEMORY-DOCS: manifest, seal, lineage, STATE teeth, SessionStore handoff",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "censo 20/23 portados, 0 pendientes, 0 diferidos",
+    "corpus_parity 5 pares PASS + lado rojo 5/5 atrapados de a uno",
+    "suite v3 green=17 red=2 n/a=1",
+    "meta check 2/23 sin regresion",
+    "docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-29T17:37Z"
+  },
+  "N-0018": {
+   "parent": "N-0011",
+   "title": "INC-6 ECONOMY-TYPED: typed usage, context meter, iteration metrics; delete the transcript parser",
+   "kind": "increment",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0019": {
+   "parent": "N-0011",
+   "title": "INC-7/8 migrate dummy then iot (ascending toolchain pain)",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "v3/verify/rederive.py MIGRATED=(dummy,iot) — 15/15 == pin en 3 targets (dummy, iot, iot/fleet) desde fuente comiteada; sabotage 10 caught / 2 n-a / 0 missed; migration_census verde con iot."
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-31T01:46Z"
+  },
+  "N-0020": {
+   "parent": "N-0011",
+   "title": "INC-9 migrate FSK — the long pole: 12 stations, 3 products, live PG + Chromium",
+   "kind": "increment",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0021": {
+   "parent": "N-0011",
+   "title": "INC-10 migrate frozen ASF + full-stack (re-verification only)",
+   "kind": "increment",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0022": {
+   "parent": "N-0011",
+   "title": "INC-11 CUTOVER: delete v2 substrate, clean-clone run on another machine",
+   "kind": "increment",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0023": {
+   "parent": "N-0011",
+   "title": "INC-12 INTERACTIVE-MODE: rebuild the escape hatch the inversion removes",
+   "kind": "increment",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0024": {
+   "parent": "N-0001",
+   "title": "Debt found while re-specifying (critique K-6)",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0025": {
+   "parent": "N-0024",
+   "title": "spec/factory.schema.json is DEAD: no code references it — delete it or wire it",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0026": {
+   "parent": "N-0024",
+   "title": "The generality gate has no red-side witness — its tooth is unproven",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0027": {
+   "parent": "N-0024",
+   "title": "Stale self-descriptions: registry says 72/130 (live 94/155), kind_hygiene says ~32 kinds (live 29)",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0028": {
+   "parent": "N-0024",
+   "title": "evaluator agent has NO hooks wired while generator has two — invisible asymmetry in frontmatter",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0029": {
+   "parent": "N-0024",
+   "title": "Product trees are not hermetic: 47MB untracked zip, 804MB dataset inside generated trees",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0030": {
+   "parent": "N-0024",
+   "title": "Vacuous-true (N/A) gate branches are not counted separately from real greens",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red"
+   }
+  },
+  "N-0031": {
+   "parent": "N-0024",
+   "title": "activation: optional is dead vocabulary — declared in schema and a stale comment, never enforced",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "deferral"
+   }
+  },
+  "N-0032": {
+   "parent": "N-0001",
+   "title": "Post-cutover agenda (ADD items A-1..A-9)",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0033": {
+   "parent": "N-0032",
+   "title": "A-1 context meter via get_context_usage — closes the ADR-019 section-6 escape threshold",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0034": {
+   "parent": "N-0032",
+   "title": "A-2 iteration metrics: retries, red-to-green cycles, repeated failures (the 11.5 percent gap)",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0035": {
+   "parent": "N-0032",
+   "title": "A-3 budget as an enforced parameter (max_budget_usd, TaskBudget) — opus share is 86 percent vs a 35 percent target",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0036": {
+   "parent": "N-0032",
+   "title": "A-9 memory-risk map: staleness, over-retention have teeth; POISONING has none",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0037": {
+   "parent": "N-0001",
+   "title": "ADR-031: ratify the critique, the inversion and the build plan (they are unratified judgment today)",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0038": {
+   "parent": "N-0001",
+   "title": "Implement the plan_capture and handoff_derived teeth (the tree has no enforcement yet)",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "tools/plan_capture.py",
+    "tools/handoff_check.py",
+    "N-0054+N-0055 closed"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T04:06Z"
+  },
+  "N-0039": {
+   "parent": "N-0002",
+   "title": "Spec corpus 00-15 written and committed",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "commit:9229640",
+    "commit:70095de"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:25Z"
+  },
+  "N-0040": {
+   "parent": "N-0002",
+   "title": "L1 kernel sufficiency: algebra extracted from the document reproduces 84 pin-anchored vectors",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "tools/spec_conformance.py:PASS",
+    "fixtures/proof-sha-vectors.json:84"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:25Z"
+  },
+  "N-0041": {
+   "parent": "N-0002",
+   "title": "L2 schema sufficiency: every real-artifact key documented, phantom-key red side bites",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "tools/spec_schema_cover.py:PASS",
+    "commit:8bd75f2"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:25Z"
+  },
+  "N-0042": {
+   "parent": "N-0002",
+   "title": "Plan algebra specified, executable and operated by tools/plan.py",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "commit:d037653",
+    "CONF-P1..P7:green"
+   ],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:25Z"
+  },
+  "N-0043": {
+   "parent": "N-0002",
+   "title": "Declare L3 sufficiency",
+   "kind": "question",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:25Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "trigger": "an implementation built WITHOUT reading src/ passes CONF-X1..X8"
+  },
+  "N-0044": {
+   "parent": "N-0001",
+   "title": "Leaked work found by the FIRST run of plan_capture (2026-07-28)",
+   "kind": "direction",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   }
+  },
+  "N-0045": {
+   "parent": "N-0044",
+   "title": "Red slot cache-churn-observer: Iteration gate green (19/19 in tests/test_pricing_ledger.py) and the real scoped suite `pytest -q tests` is green (911 p",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:cache-churn-observer"
+   }
+  },
+  "N-0046": {
+   "parent": "N-0044",
+   "title": "Red slot doc-graph-liveness: All 6 contract files implemented correctly (verified by inspection, not rewritten): model.py DOC/CITES/EVIDENCES, doc_gr",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:doc-graph-liveness"
+   },
+   "drop_reason": "Superseded: the evidence_liveness gate is LIVE and green today (283 docs, 2373 citations, red-side fixture alive) — the doc-graph work landed under another slot",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0047": {
+   "parent": "N-0044",
+   "title": "Red slot fsk-coverage-instrument: RED — genuine scope gap (hook-confirmed), not a defect in my 3 files. constants.py/buildcfg.py/stations/s9.yml implement",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:fsk-coverage-instrument"
+   },
+   "drop_reason": "Superseded by FSK-COVERAGE-FULL-100 (2026-07-10): snipeit reports REAL 100.0% line coverage, per STATE",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0048": {
+   "parent": "N-0044",
+   "title": "Red slot fsk-frontend-login: All 4 files implemented verbatim per work-doc §1.1-1.6 (base.py _proof_login_value, frontend.py data-feedback attr, brow",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:fsk-frontend-login"
+   },
+   "drop_reason": "Superseded by ADR-023: template-frontend evolution is FROZEN with pin; human surfaces are now model-native pinned overrides",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0049": {
+   "parent": "N-0044",
+   "title": "Red slot sms-extraction-toolkit: All 4 slot files implemented+green (20/20 new tests, iteration exit 0); acceptance gate as literally specified (pytest o",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:sms-extraction-toolkit"
+   },
+   "drop_reason": "Superseded: the SMS extraction phase COMPLETED (24 waves, 422/422 papers) — the literal acceptance gate was mis-specified, the work is done",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0050": {
+   "parent": "N-0044",
+   "title": "Red slot sms-spi-wave-b-digestion: All 4 STEPs of this slot's own work are done and correct. STEP1: cmd_add_external added to make_digest_sheet.py (all-or-",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:sms-spi-wave-b-digestion"
+   },
+   "drop_reason": "Superseded: SPI closed 2026-07-26 (11 waves to AGREEMENT.md); the digestion layer is complete",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0051": {
+   "parent": "N-0044",
+   "title": "Red slot sms-spi-wave-b-extraction: All 4 STEPs of the slot's own work are done and GREEN: cmd_add_external added (24/24 tests incl. 4 new, all-or-nothing m",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:sms-spi-wave-b-extraction"
+   },
+   "drop_reason": "Superseded: SPI closed 2026-07-26; the extraction layer is complete",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0052": {
+   "parent": "N-0044",
+   "title": "Red slot snipeit-frontend-table-expansion: Implemented all three mechanical edits exactly per contract (20 client.ts import triples, 20 DEF_ blocks appended after ",
+   "kind": "residual",
+   "state": "dropped",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:30Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "escalation",
+    "ref": "slot:snipeit-frontend-table-expansion"
+   },
+   "drop_reason": "Superseded by ADR-023: template-frontend evolution FROZEN; snipeit's surface is a model-native pinned override since 2026-07-08",
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0053": {
+   "parent": "N-0044",
+   "title": "88 deferrals are declared in PROSE inside tech: strings — no stable ref, so no machine can track them; move to the structured deferral form",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:31Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "prose-deferrals"
+   }
+  },
+  "N-0054": {
+   "parent": "N-0038",
+   "title": "plan_capture tooth: harvest structured declarations and refuse work with no node",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "tools/plan_capture.py",
+    "first-run:8 leaks captured",
+    "sabotage:red"
+   ],
+   "opened_at": "2026-07-28T03:31Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:31Z"
+  },
+  "N-0055": {
+   "parent": "N-0038",
+   "title": "handoff_derived tooth: a handoff's open-set section must equal the tree projection",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "tools/handoff_check.py",
+    "CONF-P8:green",
+    "sabotage:red"
+   ],
+   "opened_at": "2026-07-28T03:31Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T03:36Z"
+  },
+  "N-0056": {
+   "parent": "N-0002",
+   "title": "Wire the rationale_triggers tooth: every entry needs a reopening condition, every re-proposing node must cite its entry",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "tools/spec_doc_check.py --mode rationale",
+    "CONF-R2/R3",
+    "caught R-8 and R-10 missing triggers"
+   ],
+   "opened_at": "2026-07-28T03:38Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual"
+   },
+   "closed_at": "2026-07-28T04:04Z"
+  },
+  "N-0057": {
+   "parent": "N-0024",
+   "title": "The docs gate has NO red-side witness: no synthetic negative wired into docs_manifest.check() — the detector's own correctness is unproven",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "gate:docs:no-witness"
+   }
+  },
+  "N-0058": {
+   "parent": "N-0024",
+   "title": "The projection gate has NO red-side witness: no synthetic stale-block fixture; it only evaluates the real STATE.md",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T03:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "gate:projection:no-witness"
+   }
+  },
+  "N-0059": {
+   "parent": "N-0002",
+   "title": "S15: the plan tree is meta-only — S10.9 composes hooks/agents/tools to factories but not the plan",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T15:36Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/10-target-sdk.md:282"
+   }
+  },
+  "N-0060": {
+   "parent": "N-0002",
+   "title": "S15: no tooth against CHRONIC openness — age/staleness is a reported metric (S8), never red",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T15:36Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/15-plan-and-memory.md:318"
+   }
+  },
+  "N-0061": {
+   "parent": "N-0002",
+   "title": "S15: make 'trigger' referenceable to a node id so postponement-by-preemption is an EDGE that fires when the blocker closes",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T15:36Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/15-plan-and-memory.md:47"
+   }
+  },
+  "N-0062": {
+   "parent": "N-0002",
+   "title": "spec_doc_check: unknown --mode ran zero checks and printed PASS (Lock #1 violation) — fixed, keep the guard when the L1 runner is ported in INC-4",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "verified: --mode ZZZNONSENSE exit 2 (was exit 0 PASS); --mode dangling exit 2; --mode rationale exit 0 with its own summary; SABOTAGE=1 still detects 3 problems"
+   ],
+   "opened_at": "2026-07-28T15:46Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "tools/spec_doc_check.py"
+   },
+   "closed_at": "2026-07-28T15:46Z"
+  },
+  "N-0063": {
+   "parent": "N-0002",
+   "title": "docs gate red since 2026-07-12: FSK STATE.md (ce32b97, 07-11) older than a newer FSK doc (b50ade5, 07-12) — 16 days chronic, exactly the N-0060 pathology",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T15:59Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "factories/full-stack-kotlin/docs/STATE.md"
+   }
+  },
+  "N-0064": {
+   "parent": "N-0012",
+   "title": "Q7 (ADR-031 A2): does a hook callback deny ACTUALLY deny, un-bypassably from inside the session — decides the INC-2 gate",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "E3: el mismo deny sobre Write fue rodeado por Bash y el archivo se creo => el deny es por HERRAMIENTA, no por EFECTO"
+   ],
+   "opened_at": "2026-07-28T16:26Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+   },
+   "closed_at": "2026-07-28T16:57Z"
+  },
+  "N-0065": {
+   "parent": "N-0012",
+   "title": "Q8: does the Python SDK inherit the CLI's stored OAuth credentials, or does it demand ANTHROPIC_API_KEY",
+   "kind": "question",
+   "state": "done",
+   "evidence": [
+    "v3/behaviour_facts.json: Q8b_python_client_inherits_credentials=true — 10 corridas vivas por query() sin ANTHROPIC_API_KEY, solo ~/.claude/.credentials.json"
+   ],
+   "opened_at": "2026-07-28T16:26Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+   },
+   "closed_at": "2026-07-28T17:17Z"
+  },
+  "N-0066": {
+   "parent": "N-0012",
+   "title": "import-boundary tooth: no module under v3/ imports metafactory, no sys.path into src/ (the price of building in tree)",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "meta check unchanged at 5/23 red — no sixth red added"
+   ],
+   "opened_at": "2026-07-28T16:26Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+   },
+   "closed_at": "2026-07-28T16:36Z"
+  },
+  "N-0067": {
+   "parent": "N-0013",
+   "title": "oracle_ref pinned as DATA: proofs and pins read at a commit SHA, NEVER the working tree",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "v3/verify/parity.py lee todo con 'git show <ref>:<path>', nunca del working tree"
+   ],
+   "opened_at": "2026-07-28T16:26Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+   },
+   "trigger": "INC-1 arranca: es donde oracle_ref se escribe como dato y se lee con git show",
+   "closed_at": "2026-07-28T17:35Z"
+  },
+  "N-0068": {
+   "parent": "N-0014",
+   "title": "gate has TWO clauses (ADR-031 A1): abstention refuses = abort condition; hooks refuse = red-and-redesign",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "v3/verify/abstention.py (clausula i, aborto) y v3/verify/column_live.py (clausula ii, rojo-y-rediseno) miden las dos por separado y con fuerzas distintas, como pedia A1"
+   ],
+   "opened_at": "2026-07-28T16:26Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/031-ratificacion-v3-inversion-y-ubicacion.md"
+   },
+   "closed_at": "2026-07-28T18:19Z"
+  },
+  "N-0069": {
+   "parent": "N-0012",
+   "title": "§10.7 corregido por medición: list_subagents/get_subagent_messages son funciones de módulo, NO métodos de ClaudeSDKClient; y existen variantes _from_store (historia de subagentes desde almacén persistido) que §10 no registra",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/probe/claims.py C-21/C-21b/C-21c/C-21d ya corregidas y verdes"
+   ],
+   "opened_at": "2026-07-28T16:42Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/probe/claims.py"
+   },
+   "closed_at": "2026-07-28T17:29Z"
+  },
+  "N-0070": {
+   "parent": "N-0012",
+   "title": "can_use_tool NUNCA se invocó en 5 configuraciones (default/acceptEdits/plan/allowed_tools vacío) y el write pasó: §10.4/§10.8 presentan 'dos capas independientes' pero medimos UNA. INC-2 no puede apoyarse en la segunda hasta hallar la configuración que la dispara",
+   "kind": "question",
+   "state": "done",
+   "evidence": [
+    "docs/spec/10-target-sdk.md §10.4 actualizada: el host se monta sobre el cliente, no sobre query()"
+   ],
+   "opened_at": "2026-07-28T16:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/behaviour_facts.json"
+   },
+   "trigger": "montar ClaudeSDKClient (bidireccional) y reintentar: 8 configuraciones con query() dan CERO invocaciones (default/acceptEdits/plan/allowed_tools=[]/sin modo/Bash-acceptEdits/Bash-default/Read-acceptEdits). HIPOTESIS: un permiso es protocolo bidireccional -- la CLI pregunta y espera -- y query() solo hace streaming de ENTRADA. Misma causa que N-0077 (stop_task tambien necesita el cliente)",
+   "closed_at": "2026-07-28T18:08Z"
+  },
+  "N-0071": {
+   "parent": "N-0012",
+   "title": "can_use_tool exige modo STREAMING: un prompt str lanza ValueError. §10.4 no registra que la capa condiciona la FORMA de toda llamada del host",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 2 — can_use_tool exige streaming, el prompt es AsyncIterable[dict]"
+   ],
+   "opened_at": "2026-07-28T16:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/behaviour_facts.json"
+   },
+   "closed_at": "2026-07-28T17:29Z"
+  },
+  "N-0072": {
+   "parent": "N-0012",
+   "title": "allowed_tools que permite una herramienta entera la auto-aprueba ANTES de can_use_tool (aviso del propio SDK); reglas de settings también eclipsan y no son visibles. La columna v3 no debe combinar allowed_tools amplio con la capa de permiso",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "docs/spec/10-target-sdk.md §10.4: nota MEASURED punto 3 — allowed_tools amplio eclipsa la capa de permiso; la columna no debe combinarlos"
+   ],
+   "opened_at": "2026-07-28T16:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/behaviour_facts.json"
+   },
+   "closed_at": "2026-07-28T17:29Z"
+  },
+  "N-0073": {
+   "parent": "N-0012",
+   "title": "MEDIDO: un deny es por HERRAMIENTA, no por EFECTO — el modelo rodeó un deny de Write usando Bash y creó el archivo. El barrido de footprint por git se PORTA, no se retira (§10.8 confirmado por medición)",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "v3/delegation/footprint.py + gate slot_footprint: el barrido git se PORTA. Caso VIVO: la capa de permiso permitio Bash correctamente ('not a writer'), el archivo aterrizo fuera del radio, y el barrido lo cazo RED"
+   ],
+   "opened_at": "2026-07-28T16:56Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/behaviour_facts.json"
+   },
+   "trigger": "INC-3 DELEGATION-V3 porta slot_footprint: el barrido git es el que cubre este agujero",
+   "closed_at": "2026-07-28T19:22Z"
+  },
+  "N-0074": {
+   "parent": "N-0011",
+   "title": "R-13: framework de workflow para la FSM v3 RECHAZADO (traería su propio almacén de estado, y el nuestro es la capa de evidencia); Python puro era HERENCIA, no decisión — la pregunta ADR-023 §2 se había saltado para este subsistema",
+   "kind": "question",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T17:07Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/18-rationale.md"
+   }
+  },
+  "N-0075": {
+   "parent": "N-0014",
+   "title": "R-14: decidir pydantic para el límite tipado cuando INC-2 escriba delegation/slot.py — diferido, no rechazado",
+   "kind": "question",
+   "state": "done",
+   "evidence": [
+    "caso ilustrativo: el validador rechaza max_wall_s=True, que un parser permisivo aceptaria como 1 porque bool es int"
+   ],
+   "opened_at": "2026-07-28T17:07Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/18-rationale.md"
+   },
+   "trigger": "INC-3 escribe delegation/slot.py con el manifiesto EN DISCO: hoy el Slot es solo en proceso y nada se PARSEA desde entrada no confiable, asi que el coste de pydantic sigue sin ser visible. Cuando el manifiesto se lea de vuelta tras un crash y gane vocabulario cerrado, ahi se decide",
+   "closed_at": "2026-07-28T19:22Z"
+  },
+  "N-0076": {
+   "parent": "N-0012",
+   "title": "Q1 CONTESTADA: el hook PreToolUse del padre SÍ dispara para llamadas de un SUBAGENTE, con agent_type+agent_id, y PUEDE denegarle la escritura (S1 control escribe, S2 deniega y no escribe). SubagentStart/Stop también disparan",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "SubagentStart y SubagentStop disparan con identidad; agent_id es por-invocacion (distinto en S1 y S2) => es la clave de binding que pedia §10.8"
+   ],
+   "opened_at": "2026-07-28T17:17Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "v3/subagent_facts.json"
+   },
+   "closed_at": "2026-07-28T17:17Z"
+  },
+  "N-0077": {
+   "parent": "N-0012",
+   "title": "Q3 semantica de kill: NO MEDIDA — necesita stop_task contra un task_id vivo (API de cliente, no query()). Lo observado: Start/Stop disparan en completion normal y TERMINAL_TASK_STATUSES={completed,failed,killed,stopped}",
+   "kind": "question",
+   "state": "done",
+   "evidence": [
+    "conclusion: el barrido slot_footprint --live NO se retira; a cambio el HOST ve el kill tipado en su propio bucle, que es mejor que ambos y solo es posible porque el host posee el bucle"
+   ],
+   "opened_at": "2026-07-28T17:17Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "v3/subagent_facts.json"
+   },
+   "trigger": "INC-2 monta ClaudeSDKClient: stop_task necesita la API de cliente, no query()",
+   "closed_at": "2026-07-28T18:09Z"
+  },
+  "N-0078": {
+   "parent": "N-0011",
+   "title": "v3: el nodo del plan lleva su NIVEL como campo y 'plan next --level <slug>' proyecta ese arco — hoy la separacion dentro del arbol es por ARCO y nada impide archivar un nodo de iot bajo un arco meta",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T17:20Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/spec/20-architecture-map.md"
+   }
+  },
+  "N-0079": {
+   "parent": "N-0002",
+   "title": "CLAUDE.md repite el conteo rancio de la columna: dice 'column-roles(11⊋6)' cuando el real es 12⊋6 (verificado contra column_scope.py). Arreglar en un tramo dedicado — editar CLAUDE.md a mitad de sesion invalida el cache del prefijo (runbook e)",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "el conteo rancio NO estaba en CLAUDE.md — yo afirme la ubicacion de memoria en vez de leerla. Estaba en docs/spec/02-invariants.md:80 ('11 meta ⊋ 6') y en §05, ambas corregidas a 12 contra column_scope.py"
+   ],
+   "opened_at": "2026-07-28T18:00Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "src/metafactory/column_scope.py"
+   },
+   "closed_at": "2026-07-28T19:48Z"
+  },
+  "N-0080": {
+   "parent": "N-0014",
+   "title": "HALLAZGO ARQUITECTONICO: el host de v3 deberia usar ClaudeSDKClient, no query() — dos deudas (N-0070 permisos, N-0077 stop_task) apuntan a lo mismo: query() es unidireccional y no soporta el protocolo de pregunta-respuesta",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "docs/spec/10-target-sdk.md §10.4 y §10.8 actualizadas: el host de v3 se monta sobre el cliente, no sobre query()"
+   ],
+   "opened_at": "2026-07-28T18:02Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/verify/column_live.py"
+   },
+   "closed_at": "2026-07-28T18:09Z"
+  },
+  "N-0081": {
+   "parent": "N-0014",
+   "title": "GENERALIZAR N-0072: no es solo allowed_tools — permission_mode tambien ECLIPSA can_use_tool. Cualquier cosa que PRE-APRUEBE apaga la capa de permiso; la columna solo existe donde nada dijo que si antes. Lo caza leaf_bounded",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/host/session.py: sin permission_mode y sin allowed_tools amplio, con el porque escrito; leaf_bounded lo caza si vuelve"
+   ],
+   "opened_at": "2026-07-28T18:18Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/host/session.py"
+   },
+   "closed_at": "2026-07-28T18:19Z"
+  },
+  "N-0082": {
+   "parent": "N-0002",
+   "title": "El arbol necesita un verbo REPARENT: ya mordio dos veces (N-0012 con hallazgos que eran de INC-2, N-0014 con pydantic que es de INC-3). §15 dice que re-parentar esta ANTICIPADO y queda registrado, pero no hay verbo — asi que el nodo padre queda abierto por trabajo que pertenece a otro arco",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T18:19Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "docs/spec/15-plan-and-memory.md"
+   }
+  },
+  "N-0083": {
+   "parent": "N-0011",
+   "title": "A5 (ADR-032): cada incremento declara QUE corrigio de la spec, o dice explicitamente que no corrigio nada — cinco correcciones en tres incrementos no es mala suerte, es el rendimiento esperado de EJECUTAR una spec en vez de leerla",
+   "kind": "task",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T19:13Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "manual",
+    "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
+   }
+  },
+  "N-0084": {
+   "parent": "N-0022",
+   "title": "A6 (ADR-032): los dos rojos que quedan son deuda de FSK (docs N-0063 + codegen_freeze waiver malformado). INC-11 los encuentra como deuda DECLARADA, no como sorpresa: o FSK los resuelve en su propio incremento, o el cutover se acepta con ellos declarados",
+   "kind": "question",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-28T19:13Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "docs/decisions/032-ratificacion-de-la-linea-completa-v3.md"
+   }
+  },
+  "N-0085": {
+   "parent": "N-0015",
+   "title": "MEDIDO: rewind_files NO es manejable desde el stream — 14 ids candidatos, los 14 'No file checkpoint found'. §10.8 corregida; v3 hace su propio rollback sobre git (determinista, auditable, respeta baseline_dirty)",
+   "kind": "task",
+   "state": "done",
+   "evidence": [
+    "docs/spec/10-target-sdk.md §10.8 corregida con la medicion de los 14 ids"
+   ],
+   "opened_at": "2026-07-28T19:28Z",
+   "origin": {
+    "session": "2026-07-28",
+    "cause": "gate_red",
+    "ref": "v3/delegation/rollback.py"
+   },
+   "closed_at": "2026-07-28T19:47Z"
+  },
+  "N-0086": {
+   "parent": "N-0023",
+   "title": "rehydrate: bajo la inversion es 'que inyecta el host por hoja' (spec 15.6, ancestry+open_set); necesita el arbol de nodos en v3. Disparador: INC-12 INTERACTIVE-MODE",
+   "kind": "residual",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-29T16:14Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "deferral",
+    "ref": "V3-INC5/rehydrate-defer"
+   },
+   "trigger": "INC-12 INTERACTIVE-MODE abre: el host necesita inyectar ancestry+open_set por hoja (spec 15.6)"
+  },
+  "N-0087": {
+   "parent": "N-0018",
+   "title": "precompact: la compactacion es del CLI, no del host; el SDK la expone como hook PreCompact con include_hook_events. Disparador: INC-6 ECONOMY-TYPED",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/control/hooks.py:compaction_counter (PreCompact, counts and never blocks)",
+    "v3/host/session.py:_build_options — include_hook_events=True + PreCompact wired into EVERY leaf",
+    "gate compaction: green 4 assertions; SABOTAGE 3/3 (hook_events_off, no_precompact, malformed_class)"
+   ],
+   "opened_at": "2026-07-29T16:14Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "deferral",
+    "ref": "V3-INC5/precompact-defer"
+   },
+   "trigger": "INC-6 ECONOMY-TYPED abre: entra el metering tipado y el hook PreCompact",
+   "closed_at": "2026-07-30T21:05Z"
+  },
+  "N-0088": {
+   "parent": "N-0011",
+   "title": "gate 'kinds' compara el argv contra los vectores pero NO la importabilidad del modulo destino: kinds.py apunta a v3.verify.checks.docs_check, que no existia, y nada lo noto",
+   "kind": "residual",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-29T16:14Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "gate_red",
+    "ref": "V3-INC5/kinds-importability"
+   },
+   "trigger": "post-cutover (spec 11.7): es capacidad nueva y v2 tampoco la tiene; arreglo en v3/verify/kinds_parity.py"
+  },
+  "N-0089": {
+   "parent": "N-0018",
+   "title": "journal: portarlo solo daria un modulo sin caller en v3 (dead weight). Su llamador natural es el runner del host, que registra station_run/delegation = economia. Disparador: INC-6 ECONOMY-TYPED",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/memory/journal.py ported with its caller: v3/host/runner.py:_journal, INSIDE the engine",
+    "live run: 2 stations through run_line -> 2 station_run events written (journal=True)",
+    "gate iteration green over the real records: 3 attempts, 1 red->green"
+   ],
+   "opened_at": "2026-07-29T17:29Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "deferral",
+    "ref": "V3-INC5/journal-defer"
+   },
+   "trigger": "INC-6 ECONOMY-TYPED abre: el runner del host pasa a registrar station_run/delegation",
+   "closed_at": "2026-07-30T21:05Z"
+  },
+  "N-0090": {
+   "parent": "N-0018",
+   "title": "TELEMETRIA MUERTA desde 2026-07-13: cero metricas kind=tool y cero eventos delegation en .metamem/ durante INC-0..INC-5. Serie: 07-09=1142, 07-10=1091, 07-11=1911, 07-12=751, 07-13=687, despues NADA. mem_capture (PostToolUse *) traga toda excepcion con 'except: pass'. El KPI de delegacion y el opus-share leen cero porque nadie mide, no porque no se delegue: esta sesion corrio 4 slots y registro 0",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "the diagnosis was already corrected by N-0091/N-0092; the outage itself is confirmed by the day-series and is now DETECTED instead of narrated",
+    "gate telemetry_liveness: RED over 2026-07-13..07-30 (10 mute days of 13 active); RED over the default 3-day window because of 2026-07-28 (37 commits, zero economy records)",
+    "live repair: .claude/hooks/mem_rollup.py used a cwd-relative sys.path; absolute now, and invoked from /tmp it wrote the first rollup since 2026-07-13 (claude-opus-5, $26.05)"
+   ],
+   "opened_at": "2026-07-29T17:44Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "gate_red",
+    "ref": "V3-INC5/telemetry-dead-since-0713"
+   },
+   "closed_at": "2026-07-30T21:05Z"
+  },
+  "N-0091": {
+   "parent": "N-0018",
+   "title": "COLUMNA NO CABLEADA desde 2026-07-18: las sesiones se lanzan desde research/, CLAUDE_PROJECT_DIR resuelve ahi, research/.claude NO existe -> ningun hook del column corre (proof_protect verificado EN VIVO: leyo .proof/ por shell sin ser denegado). CORRIGE la causa atribuida en N-0090: mem_capture escribe bien invocado a mano; no es el except:pass, es que el hook nunca se invoca. Slugs: root ultima sesion 07-13/07-24, research 07-18 -> hoy. Alcance: INC-0..INC-5 corrieron sin capa de hooks; sus gates explicitos siguen valiendo, la enforcement por bloqueo no. v3 es inmune por construccion (setting_sources=[] + hooks pasados como callbacks)",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "PARTIALLY REFUTED, and said so rather than closed as stated: hooks DO fire from research/ today (45 kind=tool events on 2026-07-30 from a session whose cwd is research/), so 'research/.claude does not exist -> no hook runs' is not what kept the layer dark",
+    "what IS confirmed and repaired: mem_rollup's cwd-relative sys.path, which explains why rollup stayed silent even after tool capture resumed",
+    "what is NOT explained: why the whole hook layer wrote nothing 2026-07-14..07-27. Superseded by N-0093 — the cause is no longer required to be known, because the detector now exists"
+   ],
+   "opened_at": "2026-07-29T18:03Z",
+   "origin": {
+    "session": "2026-07-29",
+    "cause": "gate_red",
+    "ref": "V3-INC6/column-unwired-since-0718"
+   },
+   "closed_at": "2026-07-30T21:05Z"
+  },
+  "N-0092": {
+   "parent": "N-0018",
+   "title": "CORRIGE la EVIDENCIA de N-0091 (el hallazgo se sostiene, el test no): proof_protect deniega ESCRITURAS, no lecturas; mi prueba de lectura nunca fue valida. Test valido hoy: escritura por redireccion a .proof/ DENEGADA. La evidencia que si vale es de conteo: session_start 9-26/dia hasta 07-13, luego 0 el 07-28 y 1 el 07-29, y cero kind=tool desde 07-13; todo se reanuda al relanzar desde la raiz",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "its correction stands and was applied: the evidence that counts is the day-series, not a read test",
+    "the series is now what telemetry_liveness reads, so the same finding is re-derivable by a process"
+   ],
+   "opened_at": "2026-07-30T20:10Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "gate_red",
+    "ref": "V3-INC6/n0091-evidence-correction"
+   },
+   "closed_at": "2026-07-30T21:05Z"
+  },
+  "N-0093": {
+   "parent": "N-0018",
+   "title": "El apagon de telemetria 2026-07-14..07-27 quedo SIN CAUSA determinada, y se deja asi a proposito: los hooks disparan hoy desde research/, asi que la causa atribuida en N-0091 no se sostiene, y la evidencia post-hoc se agoto. Lo que reemplaza a la causa es el detector: telemetry_liveness corre en el suite y nombra el dia mudo. Disparador de reapertura: que telemetry_liveness vuelva a dar rojo por un dia POSTERIOR al 2026-07-30 — ahi la causa es observable en vivo en vez de arqueologica",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:05Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC6/outage-cause-unknown"
+   },
+   "trigger": "telemetry_liveness rojo por un dia posterior a 2026-07-30"
+  },
+  "N-0094": {
+   "parent": "N-0018",
+   "title": "El corpus documental crecio +71,5% contra la linea base de ADR-019 (269k tok @ 2026-07-08 -> 461.289 tok sobre 193 archivos @ 2026-07-30) mientras la decision que descansa en el se quedo quieta. La clausula (a) de la regla de escape sigue FALSA (el set de entrada mide 4.087 tok, 97,96% de headroom): lo que se dispara no es el escape, es la mitigacion — 'se fetchea, no se inyecta' se paga por lectura y nadie mide ese costo. Disparador: que el corpus duplique la linea base (538k) o que la clausula (a) se vuelva verdadera, lo que ocurra primero; escape_threshold imprime ambos numeros en cada corrida",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:05Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC6/corpus-growth-71pct"
+   },
+   "trigger": "corpus > 538k tok (2x baseline) o clausula (a) verdadera (set de entrada > ventana)"
+  },
+  "N-0095": {
+   "parent": "N-0018",
+   "title": "INC-12 INTERACTIVE-MODE es un incremento real y argumentado (spec 11 §5bis, 'no es opcional') que nunca recibio fila en la tabla de §11.3. Lo encontro economy_census en su primera corrida al exigir que un diferido apunte a una fila real del plan. No se repara editando la spec de hoy: el censo lee AL COMMIT ORACULO, asi que la ley acepta las dos formas que el plan usa y el hueco queda registrado. Disparador: el proximo re-pin de v3/oracle_ref.json",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:05Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC6/inc12-has-no-plan-row"
+   },
+   "trigger": "proximo re-pin de v3/oracle_ref.json — ahi la fila de INC-12 puede entrar en §11.3"
+  },
+  "N-0096": {
+   "parent": "N-0018",
+   "title": "churn (776 re-lecturas acumuladas) y cache_series quedan NO PORTADAS: v3 registra tool_uses por leaf, pero el churn es CROSS-leaf y la expiracion de cache es a nivel de SESION, y el host corre hojas, no sesiones. Declarado en el censo como DROPPED con su reemplazo, no medio-portado en algo mas debil. Disparador: INC-12 INTERACTIVE-MODE, que es donde el host pasa a manejar una sesion multi-turno",
+   "kind": "residual",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:05Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC6/churn-and-cache-need-sessions"
+   },
+   "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja"
+  },
+  "N-0097": {
+   "parent": "N-0019",
+   "title": "INC-7 MIGRATE-DUMMY: la fabrica dummy corre entera sobre v3 (5 estaciones, builds + checks como procesos reales) y re-deriva 5/5 == pinned_verdict.json desde una copia de archivos trackeados. N-0019 sigue abierto: su intencion es dummy Y iot, y iot es INC-8",
+   "kind": "increment",
+   "state": "done",
+   "evidence": [
+    "gate rederive: dummy 5/5 == pin (37 tracked files, 0.4s); SABOTAGE 4/4 (product_broken, station_vanished, check_renamed, empty_line)",
+    "gate migration_census: 4 kinds ported / 3 no-body / 3 owed / 19 in no factory line; 4 of 5 declared build actions handled; SABOTAGE 3/3",
+    "v3/verify/checks/{artifact_contains,product_env,infra_up,mcp_tools}.py — the bodies INC-4's argv already named",
+    "v3/host/{builds,line}.py — the joint between resolve_check and run_line",
+    "suite v3 green=24 red=3 n/a=1 (28 gates); suite_sweep 19/19; the 3 reds are INC-6's declared ones"
+   ],
+   "opened_at": "2026-07-30T21:30Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "handoff",
+    "ref": "V3-INC7/dummy-on-v3"
+   },
+   "closed_at": "2026-07-30T21:30Z"
+  },
+  "N-0098": {
+   "parent": "N-0022",
+   "title": "La linea META de v2 (m00..m07) no tiene analogo en v3, asi que 19 de las 29 kinds del vocabulario no las declara NINGUNA linea de fabrica (column_full, docs_check, clean_runner, rtm_*, product_run, products_rederive...). migration_census las reporta APARTE de las debidas, para no mezclar «quien me debe un ejecutor» con «esto no es parte de una linea de producto». Disparador: INC-11 CUTOVER, donde `meta` pasa a ser la cascara fina sobre v3",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:30Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC7/meta-line-has-no-v3-analogue"
+   },
+   "trigger": "INC-11 CUTOVER: meta se vuelve la cascara fina sobre v3"
+  },
+  "N-0099": {
+   "parent": "N-0020",
+   "title": "Un check que declara `when` es RECHAZADO por v3/host/line.py, no portado. Ignorar la clave correria un check que debia saltearse (o al reves), y en cualquier caso moveria el proof_sha de una estacion sin que nadie lo decida. Ninguna linea migrada lo usa todavia. Disparador: la primera fabrica migrada cuya linea declare `when` — el loader revienta con el nombre del check",
+   "kind": "residual",
+   "state": "blocked",
+   "evidence": [],
+   "opened_at": "2026-07-30T21:30Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC7/check-when-refused"
+   },
+   "trigger": "la primera fabrica migrada que declare `when` en un check (el loader revienta)"
+  },
+  "N-0100": {
+   "parent": "N-0020",
+   "title": "El `via` de un slot `generate` no se resuelve contra el chasis de la fabrica: v2 lo hace (_resolve_via_against_chassis) para que una INSTANCIA de producto pueda invocar un generador que vive en el chasis (R1, ADR-015). dummy no lo necesita (su via es `python -c`); los productos de FSK si. Disparador: INC-9 MIGRATE-FSK",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/host/builds.py::_resolve_via_against_chassis — via relativo que nombra un archivo bajo el chasis se resuelve a ruta absoluta; medido: iot/fleet pasa de rojo en s0 a 5/5 == pin. El disparador escrito decia INC-9 y se cumplio en INC-8: la CONDICION (entran las instancias de producto) era correcta, la ETIQUETA era una adivinanza."
+   ],
+   "opened_at": "2026-07-30T21:30Z",
+   "origin": {
+    "session": "2026-07-30",
+    "cause": "deferral",
+    "ref": "V3-INC7/via-not-chassis-resolved"
+   },
+   "trigger": "INC-9 MIGRATE-FSK: entran las instancias de producto",
+   "closed_at": "2026-07-31T01:46Z"
+  },
+  "N-0101": {
+   "parent": "N-0020",
+   "title": "station_activation en un product.yml es RECHAZADO por v3/verify/rederive.py::materialize_instance, no portado. Es el override por-instancia de que estaciones corren; ignorarlo correria una estacion que la instancia queria saltear (o al reves) y moveria un proof_sha sin que nadie lo decida — misma forma que N-0099 (when). Ninguna linea migrada lo declara: fleet no lo usa; SI lo usan los 4 productos de full-stack-kotlin (assets, helpdesk, snipeit) y full-stack (tasks). DISPARADOR POR CONDICION (leccion de N-0100, cuya etiqueta decia INC-9 y se cumplio en INC-8): el primer producto MIGRADO cuyo product.yml declare station_activation — materialize_instance revienta con el nombre del target",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T01:46Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "deferral",
+    "ref": "V3-INC8/station-activation-refused"
+   }
+  },
+  "N-0102": {
+   "parent": "N-0022",
+   "title": "El veredicto de evidence_liveness DEPENDE de un repo hermano externo que el gate no declara ni valida: v3/graph/doc_graph.py::_resolve_md (~206-229) resuelve una referencia .md contra ../Agent_Systems_Factory/ como fallback. Medido en INC-8: mismo commit 3037f96 da FAIL (4 refs sin resolver en ASF-LESSONS.md y CONTEXT-ECONOMY.md) en un worktree limpio SIN el hermano, y PASS en el arbol real CON el hermano — los 4 archivos citados no existen ni estan trackeados en Meta-Factory en ninguno de los dos. O sea: el gate audita fidelidad CRUZADA entre repos y su color lo fija el entorno de verificacion, no el commit. Choca de frente con ADR-005 (la custodia no es la raiz de confianza; lo es la replicabilidad). DISPARADOR POR CONDICION: la primera corrida de aceptacion en clean-clone en OTRA maquina, donde no hay hermano ASF — que es exactamente P1+P2 de INC-11 CUTOVER; ahi este gate sale rojo por el entorno y no por el codigo",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T01:47Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "gate_red",
+    "ref": "V3-INC8/evidence-liveness-not-hermetic"
+   }
+  },
+  "N-0103": {
+   "parent": "N-0020",
+   "title": "REGRESION DE PRODUCTO en full-stack-kotlin, no de plataforma: el codegen genera Kotlin que detekt rechaza. ba05918 (2026-07-13, unico commit a factories/full-stack-kotlin/codegen/ desde que el pin se movio el 2026-07-09) convirtio jsonVal en un if/else multilinea sin llaves -> Repository.kt:39-40 MultiLineIfElse -> s2/static_hardness_kotlin exit 1 -> la sha de s2 se mueve. Medido por v3 en INC-9 fase 1, que es lo primero que corre el tier harden de FSK en 18 dias. Control: el build/product LOCAL que dejo la ultima corrida de v2 todavia tiene el jsonVal viejo de una linea, o sea nadie corrio la linea despues del 13-07. Invisible por TRES razones apiladas: s2 es tier:harden y el lazo interno corre --mode draft; .proof/ es gitignored y la proyeccion '27/27 COMPLETE' de STATE leia un .proof/ anterior a la rotura; y nadie re-corrio ci --rederive en harden. EL PIN NO SE TOCA: el pin dice s2 verde y tiene razon, lo que se fue del pin es el producto; arreglado el codegen vuelve a exit 0 -> misma sha -> sin re-pin. Ademas ba05918 perforo el codegen CONGELADO (ADR-023 §3) sin la linea Codegen-freeze-waiver: que exige el gate codegen_freeze, y no hay waiver en ningun work-doc de ninguna fabrica. NIVEL: fabrica (full-stack-kotlin), no meta",
+   "kind": "residual",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T03:05Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "gate_red",
+    "ref": "V3-INC9/fsk-detekt-regression"
+   },
+   "trigger": "BLOQUEANTE YA: la fase 4 de INC-9 (los 4 targets de FSK == pin) no puede cerrar hasta que el producto vuelva a su pin"
+  },
+  "N-0104": {
+   "parent": "N-0020",
+   "title": "s3..s11 de full-stack-kotlin estan SIN MEDIR sobre v3, no verdes: run_line corta en la primera estacion roja, asi que la sonda de INC-9 fase 1 solo pudo hablar de s0/s1/s2. Que el informe nombre una sola estacion es el CORTE, no un resultado sobre las otras nueve — leerlo al reves seria exactamente el error de contar que este repo colecciona. DISPARADOR POR CONDICION: la primera corrida de la linea de FSK que pase s2 (o sea, apenas se cierre N-0103) — ahi recien se sabe que mas falta, y eval_gate (s8) ya se sabe que falta",
+   "kind": "question",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T03:05Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "measurement_cut",
+    "ref": "V3-INC9/line-stops-at-first-red"
+   },
+   "trigger": "la primera corrida de FSK sobre v3 que supere s2"
   }
+ }
 }

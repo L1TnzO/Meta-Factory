@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c892b7df15885f98af2ff0c0376df78461f0a689 updated=2026-07-31T02:35Z -->
+<!-- meta:doc sha=ef034c1a992dc00c52feca40911fd5139c8e4264 updated=2026-07-31T02:42Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -150,10 +150,60 @@ Tres cosas que llevarse:
    estaba impidiendo. **Toda corrida de FSK va sin sandbox y con el toolchain eval'd**, o su color
    no dice nada del commit.
 
+### 7. Fase 1 CERRADA: `s2` no es un hueco de v3 — FSK está roja desde el 13-07 y nadie lo vio
+
+Corrida buena (sin sandbox, con toolchain): **`s0` ✅ · `s1` ✅ · `s2` mueve la sha**, y el detalle,
+sacado corriendo el argv a mano porque el `.proof/` sólo guarda `(nombre, exit)`:
+
+```
+static_hardness_kotlin  rc=1   Repository.kt:39:59 Missing { ... } [MultiLineIfElse]
+                               Repository.kt:40:9  Missing { ... } [MultiLineIfElse]
+                               > Analysis failed with 2 weighted issues.
+static_hardness_ts      rc=0   FSK_HARDNESS_OK_TS
+```
+
+El producto GENERADO viola una regla de detekt. La causalidad está fechada en git y es de una sola
+pieza:
+
+| fecha | hecho |
+| --- | --- |
+| 2026-07-09 | `b31c4ce` — último commit que toca `factories/full-stack-kotlin/pinned_verdict.json` |
+| 2026-07-13 | `ba05918` — **único** commit a `codegen/` de FSK desde el pin: `fix(FSK-CODEGEN): escape quotes/backslashes/newlines in jsonVal` |
+
+Ese fix convirtió un `jsonVal` de una línea en un `if/else` multilínea sin llaves. El control es
+limpio y estaba tirado en el árbol: el `build/product/` LOCAL —el que dejó la última corrida de v2—
+todavía tiene la versión vieja de una línea (`if (v == null) "null" else "\"$v\""`), que no viola
+nada. O sea **la última vez que alguien corrió la línea de FSK fue antes del 13-07**.
+
+**v3 no rompió FSK: v3 es lo primero que corre el tier `harden` de FSK en 18 días.** Y hay tres
+razones apiladas por las que nadie lo vio, que es lo que hace al hallazgo valioso:
+
+1. `s2` es `tier: harden`, y el lazo interno corre `--mode draft` (ADR-017 §4) — que la difiere;
+2. `.proof/` es gitignored, así que el `full-stack-kotlin: COMPLETE (27/27)` de la proyección de
+   `STATE.md` venía leyendo un `.proof/` local **anterior a la rotura**;
+3. nadie volvió a correr `ci --rederive` en harden.
+
+Es exactamente la forma de bug que este repo colecciona: *algo parece verde porque nadie preguntó
+qué quedó afuera de la cuenta*. Acá lo que quedó afuera fue **un tier entero**.
+
+Dos consecuencias más, que se registran sin arreglarse acá:
+
+- `ba05918` perforó el `codegen/` **CONGELADO** (ADR-023 §3) **sin la línea
+  `Codegen-freeze-waiver:`** que el gate `codegen_freeze` exige; no hay waiver en ningún work-doc de
+  ninguna fábrica.
+- **`s3..s11` no están verdes: están SIN MEDIR.** La línea se corta en la primera estación roja. Que
+  sólo aparezca `s2` en el informe es el corte, no un resultado sobre las otras nueve.
+
+**El pin NO se toca.** El pin dice `s2` verde y tiene razón; lo que se fue del pin es el producto.
+Arreglado el codegen, `s2` vuelve a exit 0 → mismo `(nombre, exit)` → **misma sha, sin re-pin**.
+El arreglo es de NIVEL FÁBRICA (`codegen/` de FSK) y necesita su propio incremento con waiver: es
+prerrequisito de la Fase 4, no parte de este incremento meta.
+
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | Sonda: la línea default de FSK sobre v3 con el `when` parcheado inline — qué MÁS se rompe | 🔎 en curso (§6) |
+| 1 | Sonda: la línea default de FSK sobre v3 con el `when` parcheado inline — qué MÁS se rompe | ✅ §6/§7 |
+| 1b | **(fábrica, prerrequisito)** revertir la regresión detekt de `ba05918` con waiver — sin re-pin | ⏳ |
 | 2 | Port de las dos negativas: `station_activation` (rederive) + `when` por-check (line) | ⏳ |
 | 3 | Port del ejecutor `eval_gate` (~187 líneas, desde v2) | ⏳ |
 | 4 | `MIGRATED += "full-stack-kotlin"` y la corrida verde de los 4 targets | ⏳ |

@@ -1,7 +1,7 @@
-<!-- meta:doc sha=2803e01f7a05618c42af25e817e61ea22fc277ad updated=2026-07-31T18:52Z -->
+<!-- meta:doc sha=dc0ba9ebc43837797471b6fbd542e1872f939410 updated=2026-07-31T18:52Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T18:52Z) (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-9 + `§2` (P1/P2) + `ADR-015` (R1,

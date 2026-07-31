@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a1106cb32f59ebda9ba8f64db449f001c0769fd6 updated=2026-07-31T20:02Z -->
+<!-- meta:doc sha=f6b63248f1e3650f35d5e95f66d3e63bb2528948 updated=2026-07-31T20:34Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
@@ -171,6 +171,61 @@ COUNTS     ported=7 (era 5) · deferred=0 (era 2) · unexercised=19
 
 Los 19 «en ninguna línea de fábrica» siguen atribuidos a `N-0098` (la línea META de v2 no tiene
 análogo en v3, disparador INC-11), que es donde corresponde: no son deuda de este incremento.
+
+### Fase 4 — el testigo de comportamiento, y la verificación que hice con mis propios ojos
+
+Tres módulos: el arnés genérico extraído (`oracle_parity.py`) y un testigo por ejecutor. El oráculo
+es el cuerpo real de v2 extraído con `git show` al ref pineado, corrido como subproceso al lado del
+port sobre una matriz compartida; se comparan **exit codes**.
+
+| testigo | casos | exit codes distintos | desvíos | plantas |
+| --- | --- | --- | --- | --- |
+| `eval_gate_parity` (refactor) | 13 | 5 | 0 | 2/2 cazadas |
+| `live_run_parity` | **16** | **6** (0,1,2,3,4,127) | 0 | 2/2 cazadas |
+| `eval_floor_parity` | **14** | **6** (0,1,2,3,5,127) | 0 | 2/2 cazadas |
+
+El refactor no cambió una coma de `eval_gate_parity`: su salida sale **byte-idéntica** a la línea
+base grabada ANTES de tocarlo (`diff` vacío, los dos lados). Grabar esa línea base antes del refactor
+fue lo que convirtió «no rompí nada» en algo decidible.
+
+**Un detalle que el contrato no anticipó y la ejecución sí** (ADR-032 A5, otra vez): los dos
+ejecutores importan de su hermano `.eval_gate`, así que el oráculo NO se puede extraer como un
+archivo suelto y correr como script. Se extrae como **paquete de dos cuerpos** al mismo ref. Sin eso,
+el import relativo del oráculo caería en el port de v3 y el testigo estaría comparando el port
+**contra sí mismo** — y coincidiría perfectamente. Esa cláusula quedó escrita en el permiso de
+`import_boundary`, que escribí a mano: un permiso no se delega.
+
+Y la verificación que no delegué: **saboteé el `live_run` PORTADO** (workdir ausente devolviendo 3 en
+vez de 2) y el testigo salió rojo nombrando el caso y los dos códigos —
+`workdir_absent: oracle exit 2 != ported exit 3`. Restaurado, verde. Eso es lo que prueba que el
+testigo muerde el archivo real y no una copia suya; el veredicto del slot, solo, no lo prueba.
+
+**Los tres quedan REGISTRADOS en la suite** (31 gates, `registry_law` verde). `eval_gate_parity`
+existía desde INC-9 y nunca lo estuvo: se corría a mano, en el incremento que lo escribió. Anotar
+`N-0112` («un instrumento sin diente no falla, se calla») y dejar dos instrumentos nuevos que solo
+corren si alguien se acuerda habría sido escribir la lección sin aplicarla.
+
+### Fase 5 — el barrido P2 encontró un MISSED, y era del propio lado rojo
+
+Primera corrida sobre los 10 targets: **`GATE DECORATIVO: 30 caught · 9 n/a · 1 MISSED`**
+(`full-stack/tasks:station_vanished`). El defecto no era de la plataforma ni del producto: era de la
+**clase de sabotaje**.
+
+`station_vanished` hacía `line[:-1]` — sacaba el último elemento de la LISTA, corriera o no. En
+`full-stack/tasks` el último es `s5`, que el `station_activation` de la instancia **apaga**. La planta
+quitó una estación que no producía nada, la re-derivación siguió == pin, y el barrido lo anotó como
+MISSED. No es que no la cazaran: **es que no había plantado**, y las dos cosas solo se confunden si
+uno no pregunta qué contiene el pin.
+
+Es la **cuarta** instancia de la misma clase (`N-0108`, `N-0110`, el censo de INC-9, y ahora esta), y
+la primera adentro del lado rojo. Solo se podía ver hoy: `tasks` es el primer target migrado cuya
+ÚLTIMA estación está apagada — en `assets`/`helpdesk` el apagado es `s6`, en el medio, así que
+`line[:-1]` seguía tocando una estación viva y cazaba.
+
+Arreglado en `_drop_pinned_station`: saca la última estación que **contribuye un `proof_sha`** (activa
+y con checks — `s0` de ASF no tiene checks, y por eso su pin tiene 12 entradas para 13 archivos), y
+levanta `CannotPlant` si no hay ninguna. Así el pin queda corto por uno con garantía y un verde
+después es un miss de verdad.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 -m v3.verify.rederive` → **84/84 estaciones == pin en 10 targets**, y los 7 targets de

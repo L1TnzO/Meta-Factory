@@ -1674,6 +1674,22 @@
         "ref": "V3-INC10/generator-reverted-outside-blast-radius"
       },
       "trigger": "el proximo incremento que toque la COLUMNA de delegacion (hooks, delegation.py, definicion de agentes): ahi el diente entra escrito y revisado a ojo, no antes"
+    },
+    "N-0114": {
+      "parent": "N-0021",
+      "title": "CUARTA instancia de la clase 'el instrumento perturba algo que no esta en la poblacion medida' (N-0108, N-0110, y el censo de INC-9), esta vez dentro del LADO ROJO: la clase de sabotaje station_vanished hacia line[:-1], o sea sacaba el ultimo elemento de la LISTA corriera o no. En full-stack/tasks el ultimo es s5, apagado por el station_activation de la instancia, asi que la planta no quitaba nada que el pin viera, la re-derivacion seguia == pin y el barrido lo anotaba MISSED. No es que no la cazaran: es que no habia plantado, y las dos cosas solo se confunden si no se pregunta que contiene el pin. Solo era visible ahora porque tasks es el primer target migrado cuya ULTIMA estacion esta apagada (en FSK assets/helpdesk el apagado es s6, en el medio, y line[:-1] seguia tocando una estacion viva)",
+      "kind": "residual",
+      "state": "done",
+      "evidence": [
+        "v3/verify/rederive.py::_drop_pinned_station saca la ultima estacion que contribuye un proof_sha (activa y con checks) y levanta CannotPlant si no hay ninguna; tasks pasa a CAUGHT dropeando s4, los otros cinco targets livianos sin cambio"
+      ],
+      "opened_at": "2026-07-31T20:34Z",
+      "origin": {
+        "session": "2026-07-31",
+        "cause": "gate_red",
+        "ref": "V3-INC10/station-vanished-planted-nothing"
+      },
+      "closed_at": "2026-07-31T20:34Z"
     }
   }
 }

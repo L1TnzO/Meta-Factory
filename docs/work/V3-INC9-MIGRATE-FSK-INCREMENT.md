@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d1c41430d2676ff3b13f025ca45fd648ee3eef13 updated=2026-07-31T18:18Z -->
+<!-- meta:doc sha=2803e01f7a05618c42af25e817e61ea22fc277ad updated=2026-07-31T18:52Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -213,7 +213,7 @@ prerrequisito de la Fase 4, no parte de este incremento meta.
 | 4a | **Medir** qué falta para 46/46, con `N-0103` parcheado sólo en la copia staged | ✅ §11 |
 | 1b | **(nivel fábrica, prerrequisito)** ~~revertir~~ **arreglar** la regresión detekt — sin re-pin | ✅ `FSK-JSONVAL-DETEKT` (46/46, cero re-pin) |
 | 4b | La corrida verde de los 4 targets **en el repo** | ✅ **61/61 en 7 targets** (§14) |
-| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ por 4b |
+| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ✅ **22 · 6 n/a · 0 missed** (§16) |
 
 ### 10. Fase 3 ✅ — `eval_gate`, y el primer instrumento de paridad de COMPORTAMIENTO
 
@@ -262,6 +262,37 @@ Detrás de `s2` había **un defecto de v3 y una pregunta**:
 Lo que esto ya prueba: **la plataforma v3 corre la línea real de FSK entera** —12 estaciones, Postgres
 vivo, Chromium, gradle, `eval_gate`— y re-deriva == pin en 3 de 4 targets, con las cuentas distintas
 (12·11·11) que sólo salen si `station_activation` y el `when` se aplicaron donde iban.
+
+### 16. Fase 5 ✅ — **22 caught · 6 n/a · 0 missed**, y el N/A que hay que mirar de frente
+
+```
+V3_REDERIVE_SABOTAGE=1 → 22 planted defect(s) caught across 7 target(s) · 6 n/a · 0 missed   (exit 0)
+n/a: product_broken en iot, iot/fleet, fsk, fsk/assets, fsk/helpdesk, fsk/snipeit
+```
+
+La ley que instaló INC-8 se cumple: los N/A van **contados aparte**, nunca adentro del verde, y ninguna
+clase es N/A en TODOS los targets (`product_broken` sí planta en `dummy`, así que no es decorativa).
+
+**Pero el N/A no es una formalidad y no lo voy a dejar pasar como verde:** `product_broken` es N/A en los
+**cuatro** targets de FSK. La clase necesita un `artifact_contains` emparejado con un `render` cuyo `dest`
+sea ese archivo (`_strip_marker`), y la línea de FSK no tiene ese par — sus checks corren contra un build
+de gradle. Es una negativa HONESTA (la ley de INC-5: la clase no puede plantar, y decirlo es mejor que
+inventar un catch), pero la consecuencia hay que escribirla:
+
+> En FSK, el lado rojo perturba **la LÍNEA** (`station_vanished`, `check_renamed`, `empty_line`), nunca
+> **el PRODUCTO**. Y el límite declarado en §11.2 es exactamente ése: `proof_sha` hashea nombres y exits,
+> así que un ejecutor vaciado pasa P1. Para FSK, ese hueco NO lo tapa el sabotaje.
+
+Lo que sí lo tapa hoy, parcialmente, son instrumentos de otra naturaleza, todos de este incremento: la
+paridad de COMPORTAMIENTO de `eval_gate` (fase 3), la paridad del materializador contra el
+`_materialize_line` real de v2 (§12), y la negativa a gritos de `apply_builds` que descubrió `write`. Son
+pruebas de que el ejecutor hace lo que el oráculo hace — que es la pregunta que el sabotaje no alcanza a
+hacer acá.
+
+**`N-0111`, disparador por CONDICIÓN:** cuando exista una clase de sabotaje que pueda plantar sobre una
+línea sin par `artifact_contains`/`render` —romper el PRODUCTO de un target basado en compilación—, se
+agrega y el N/A de FSK debe bajar a cero. No se cierra con una fecha ni con un incremento; se cierra
+cuando la clase existe. Mientras tanto, el 22/6/0 dice lo que dice y nada más.
 
 ### 14. Fase 4b ✅ — **61/61 en 7 targets**, en el repo
 
@@ -395,6 +426,20 @@ Que es, exactamente, lo que pasó el 13-07: **`ba05918` aterrizó BAJO `FSK-EVAL
 check`, no un hook de commit**: sólo muerde cuando alguien lo corre, y entre el 13-07 y el 31-07
 nadie lo corrió sobre esto. Dos agujeros que se taparon uno al otro: la PERTENENCIA no se verifica,
 y el diente que sí verifica el congelamiento no está en el camino del commit (`N-0105`).
+
+## Cierre — los cinco criterios, medidos (2026-07-31)
+| # | Criterio | Evidencia |
+| --- | --- | --- |
+| 1 | `rederive` 61/61 en 7 targets; `dummy`/`iot` no se mueven | ✅ 5·5·5 + 12·11·11·12 = **61/61**, exit 0 |
+| 2 | Los 4 pines de FSK con sus cuentas DISTINTAS | ✅ **12/11/11/12** |
+| 3 | Sabotaje `0 missed`, N/A aparte, ninguna clase N/A en todos | ✅ **22 · 6 n/a · 0 missed** (§16 + `N-0111`) |
+| 4 | El censo reporta `eval_gate` PORTADO, no diferido | ✅ PASS · y el censo mismo tenía un defecto (`N-0110`) |
+| 5 | `N-0101` cerrado con evidencia medida; residuo → nodo con disparador por CONDICIÓN | ✅ `N-0101` cerrado por 4b · abiertos `N-0109`/`N-0111` por condición |
+
+**Criterio extra que la fila INC-9 de `spec/11-build-plan.md` pedía y estos cinco no mencionaban:**
+`meta benchmark` → **2/2 en la clase esperada** (`helpdesk` sweet-spot 5 entidades · `snipeit` ceiling 39).
+Se corrió porque el desfase entre los dos documentos es justo la forma de agujero que este incremento
+estuvo cazando toda la sesión: un criterio que existe en un doc y no en el otro.
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 -m v3.verify.rederive` → **61/61 estaciones == pin en 7 targets** (dummy 5·1, iot 10·2,

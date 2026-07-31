@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f27949f8035e26b6ebea21993d82202643f02309 updated=2026-07-12T21:50Z -->
+<!-- meta:doc sha=74f2f93fef9dfa386d6850fce510e99c629da522 updated=2026-07-31T16:33Z -->
 # Incremento FSK-EVALUATOR-ADOPT
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T22:06Z). Cerralo con `meta increment close`
@@ -78,11 +78,11 @@ debate. Never a quality-loop side effect.
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `design/criteria.yml` (real DATA) + `design/examples/*.json` (few-shot calibration) | ⏳ |
-| 2 | Standing witness: evaluator scores live `assets` (frozen template) → `design/critiques/template-witness.json`, must fail ≥1 axis | ⏳ |
-| 3 | Loop: baseline critique of helpdesk v1 → generator slot (v2) → evaluator critique → feedback iterate (≤6) → terminal green | ⏳ |
-| 4 | Pin `products/helpdesk/frontend/critique.json` + `criteria.yml covered: [helpdesk]`; `ci --rederive helpdesk` (re-pin) + `ci --rederive assets` (non-regression) | ⏳ |
-| 5 | `meta check` green (real two-sided `design_eval`); close both increments (this + `FSK-EVALUATOR-ADOPT-HELPDESK`) | ⏳ |
+| 1 | `design/criteria.yml` (real DATA) + `design/examples/*.json` (few-shot calibration) | ✅ `b50ade5` |
+| 2 | Standing witness: evaluator scores live `assets` (frozen template) → `design/critiques/template-witness.json`, must fail ≥1 axis | ✅ `b50ade5` |
+| 3 | Loop: baseline critique of helpdesk v1 → generator slot (v2) → evaluator critique → feedback iterate (≤6) → terminal green | ⚠️ ran, converged r3 — **artifact in NO ref** (§Parking) |
+| 4 | Pin `products/helpdesk/frontend/critique.json` + `criteria.yml covered: [helpdesk]`; `ci --rederive helpdesk` (re-pin) + `ci --rederive assets` (non-regression) | ⛔ never started |
+| 5 | `meta check` green (real two-sided `design_eval`); close both increments (this + `FSK-EVALUATOR-ADOPT-HELPDESK`) | ⛔ |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. `design/criteria.yml` valid per the `design_eval` shape law (axes/weights/thresholds, non-empty
@@ -100,3 +100,59 @@ debate. Never a quality-loop side effect.
    factory/substrate drift, ADR-012).
 6. Both increments (this factory-level doc + the product-level `FSK-EVALUATOR-ADOPT-HELPDESK`) close
    together — the loop's real artifacts span both levels (ADR-016).
+
+## Cierre parcial (PARKING) — 2026-07-31T16:33Z
+**None of the six closure criteria above is met.** This closes as PARKED, not as delivered: the header
+flips so the factory level frees its one increment slot, and what is unfinished is written down here with
+a CONDITION trigger. Reading this doc's §Fases or §Decisión without this section overstates what exists.
+
+**Why now.** FSK's product line has been RED since 2026-07-13: `ba05918` put a detekt `MultiLineIfElse`
+violation into the FROZEN codegen, invisible for 18 days because `s2` is `tier: harden`, the inner loop
+runs `--mode draft` and `.proof/` is gitignored (measured and dated in `V3-INC9-MIGRATE-FSK` §9/§11).
+The repair is factory-level codegen. One increment per level, and this increment's subject is the
+ADR-027 evaluator — hanging an unrelated codegen fix on it is exactly the belonging failure documented
+below. So this one yields the slot instead of absorbing the fix.
+
+**Delivered (committed, re-derivable — `b50ade5`):**
+- **F1** — `design/criteria.yml` (4 axes, weights, thresholds, `slop_penalties`, `scale`) + three
+  `design/examples/*.json` few-shot anchors.
+- **F2** — `design/critiques/template-witness.json`: the frozen `assets` template UI scored LIVE by the
+  `evaluator` (URL, screenshots, per-axis evidence), failing multiple axes. The standing NEGATIVE witness
+  is real and on disk. This is the one closure criterion (2) that would pass on its own evidence.
+
+**NOT delivered — and the record needed correcting, which is the finding:**
+- §Decisión narrates a trajectory (`v1 5/2/5/4 → r1 6/7/7/6 → r2 7/7/8/7 → r3 7/7/9/7`). **The artifact
+  that earned those scores is in no ref.** `git log --all -- products/helpdesk/frontend/` returns exactly
+  ONE commit — `9a5d54e`, 2026-07-08T21:27, a WIP checkpoint from a DIFFERENT increment, predating this
+  one (opened 07-11T22:06) — and today's `products/helpdesk/frontend/app.css` is **byte-identical** to it.
+  The helpdesk surface at HEAD is the pre-loop v1. The re-score under revised criteria that §Decisión made
+  a precondition for F3 never ran.
+- **No `critique.json` exists anywhere in this factory** (`find factories/full-stack-kotlin -name
+  'critique*.json'` → empty). F4 never started, so `design_eval` is still green on a synthetic self-test
+  only, and **`EVALUATOR-ROLE`'s declared residual is still open — deferred a second time.** §Decisión
+  named that as the outcome NOT to choose; it happened anyway, by session end rather than by decision.
+  Written down here because the first deferral survived precisely by not being written down.
+- The `slop_penalties` entry `identical-reskin-across-products` therefore still describes helpdesk's
+  live surface exactly as it did on 07-11.
+
+**Deferral, trigger by CONDITION (not by label, lesson of `N-0100`):** F3–F5 resume in a successor
+factory increment + product sibling. **Trigger:** the FSK line re-derives green AND
+`find factories/full-stack-kotlin -name 'critique*.json'` is still empty AND `design_eval` still has no
+real two-sided proof. **First act of the successor: re-run the loop from the CURRENT tree surface.** The
+r1–r3 scores above are evidence of nothing that exists; treating them as a baseline would be building on
+a number whose artifact was never committed.
+
+**Finding — belonging, third instance (`N-0105`).** `ba05918` (frozen-codegen fix) and
+`e84125e`+`3774466` (`FSK-SNIPEIT-UI-QUALITY`: a snipeit v2 surface, its own slot-verdict docs and its own
+work-doc) all landed under THIS increment's open slot while its subject was helpdesk + the evaluator.
+`increment_guard` proves an increment of the level is OPEN, never that the change BELONGS to it. Three
+instances under one increment is not three accidents; it is the shape of the missing tooth.
+
+**Reproducer left INTACT on purpose (meta-level defect).** The `codegen_freeze` gate reads line 75 of this
+doc — prose that merely MENTIONS the freeze-waiver keyword inside a sentence — and reports it as a
+malformed waiver declaration, turning the whole factory red for discussing the vocabulary. The line is
+deliberately NOT reworded: rewording would erase the witness and leave the detector broken for the next
+doc. (The defect is strong enough that this paragraph must avoid spelling the keyword to describe it.)
+The parser should anchor to a declaration line; that fix is meta-level column work and belongs to its own
+meta increment, together with legislating `ba05918` in `WAIVED_COMMITS` — the historical audit reads each
+commit's OWN tree, so no waiver written today can ever cover it.

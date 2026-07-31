@@ -1,4 +1,4 @@
-<!-- meta:doc sha=80a2c5a8d015729e3d8a2da3cb20d5d6f35a2a89 updated=2026-07-11T22:07Z -->
+<!-- meta:doc sha=2e639d68075b5f33911f6bc168e9f6c57196d8ef updated=2026-07-31T16:34Z -->
 # Incremento FSK-EVALUATOR-ADOPT-HELPDESK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-11T22:06Z). Cerralo con `meta increment close`
@@ -24,10 +24,19 @@ Close this increment together with the factory doc once the loop lands a green c
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | Open the level (this doc) | ✅ |
-| 2 | Generator slot writes v2 `app.{ts,css}`; evaluator writes `critique.json` once green (see factory doc §Fases 3–4) | ⏳ |
-| 3 | Close together with the factory increment | ⏳ |
+| 2 | Generator slot writes v2 `app.{ts,css}`; evaluator writes `critique.json` once green (see factory doc §Fases 3–4) | ⛔ nothing landed (§Parking) |
+| 3 | Close together with the factory increment | ✅ parked together, 2026-07-31 |
 
 ## Criterio de cierre (demostrable, no narrable)
 1. Same as `FSK-EVALUATOR-ADOPT-INCREMENT.md` §Criterio de cierre (points 3–5) — not duplicated here.
 2. `git diff` inside this level bounded to `products/helpdesk/frontend/{app.ts,app.css,critique.json}` (no
    other product file touched).
+
+## Cierre parcial (PARKING) — 2026-07-31T16:33Z
+Parked with the factory doc (the real record + the CONDITION trigger live there: `factories/
+full-stack-kotlin/docs/work/FSK-EVALUATOR-ADOPT-INCREMENT.md` §Cierre parcial). **This level produced
+nothing.** `git log --all -- products/helpdesk/frontend/` has one commit, `9a5d54e` (2026-07-08), from a
+different increment and predating this one; `app.css` at HEAD is byte-identical to it and no
+`critique.json` was ever written. Criterion 2 above is vacuously true — the bounded diff is EMPTY, which
+is not the same as satisfied. The loop that this level was opened to permit ran and its output never
+reached the tree.

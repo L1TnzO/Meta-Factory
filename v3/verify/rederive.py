@@ -52,7 +52,7 @@ from ..host.line import load_stations, materialize_stations, resolve_line
 from ..host.runner import RunContext, run_line
 from ..kernel.pin import pin_matches
 from ..kernel.report import Verdict
-from ..kernel.sequence import norm_activation
+from ..kernel.sequence import active_in, norm_activation
 from ..spec.loader import load_spec
 
 _V3 = Path(__file__).resolve().parent.parent
@@ -231,6 +231,33 @@ def _strip_marker(fdir: Path, raw_stations: list) -> str:
                       "`render` build, so there is no marker to strip")
 
 
+def _drop_pinned_station(line: list[dict]) -> tuple[list[dict], str]:
+    """Remove the last station that actually CONTRIBUTES a `proof_sha`, not the last list element.
+
+    Found by measurement (V3-INC10), and it is the same shape this repo keeps catching: the class
+    used to do `line[:-1]`, which perturbs the last station *in the list* whether or not that
+    station was going to run. On `full-stack/tasks` the last one is `s5`, which the instance's
+    `station_activation` turns OFF — so the plant removed a station that produced nothing, the
+    re-derivation matched the pin anyway, and the sweep scored a **MISSED**: a decorative gate. The
+    plant had not failed to be caught, it had failed to PLANT, and the two are only
+    indistinguishable if you don't ask what the pin actually contains.
+
+    A station contributes to the pin when it is `active_in` the line AND declares checks — a station
+    with no checks emits no proof (`agent-systems-factory`'s `s0` is exactly that, which is why its
+    pin has 12 entries for 13 files). Removing one is therefore GUARANTEED to leave the pin short by
+    one, so a green afterwards is a real miss and nothing else. When no such station exists there is
+    nothing to plant, and the honest answer is `CannotPlant` — never a `False` that reads as a catch
+    (INC-5's law, applied one level in: the N/A goes beside the green, never inside it).
+    """
+    idx = next((i for i in range(len(line) - 1, -1, -1)
+                if active_in(line[i]) and (line[i].get("checks") or ())), None)
+    if idx is None:
+        raise CannotPlant("the line contains no ACTIVE station declaring checks, so no station "
+                          "contributes a proof_sha and dropping one perturbs nothing the pin sees")
+    return line[:idx] + line[idx + 1:], (f"dropped {line[idx]['id']} — the last station that "
+                                         f"contributes a proof_sha — from the line")
+
+
 # ── the law ──────────────────────────────────────────────────────────────────────────────────
 def rederive(root: Path, slug: str, *, product: str | None = None,
              sabotage: str = "") -> tuple[bool, list[str], dict]:
@@ -284,7 +311,7 @@ def rederive(root: Path, slug: str, *, product: str | None = None,
         if sabotage == "product_broken":
             note = _strip_marker(fdir, raw)
         elif sabotage == "station_vanished":
-            line, note = line[:-1], f"dropped {line[-1]['id']} from the line"
+            line, note = _drop_pinned_station(line)
         elif sabotage == "check_renamed":
             line = [dict(s) for s in line]
             first = next(s for s in line if s.get("checks"))

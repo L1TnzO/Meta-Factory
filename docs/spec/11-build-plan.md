@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c2e755e17ed4a02ede8564b86751c498bfd4df77 updated=2026-07-31T01:47Z -->
+<!-- meta:doc sha=4e15332d1bed4974058311f1aa6ea72d0bcd4e4e updated=2026-07-31T23:27Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -50,6 +50,30 @@ are honest estimates, not commitments.
 | **INC-10** | `MIGRATE-FROZEN` | ASF + full-stack — **re-verification only, zero new generation** | `ci --rederive` == pin (11/11, 6/6) | S |
 | **INC-11** | `CUTOVER` | v2 substrate deleted; `meta` becomes the thin shell over v3 | all of P1 + P2 green in one clean-clone run on another machine (the ADR-005 independence layer) | M |
 
+> **CORRECTED 2026-07-31 by INC-11's opening measurement (three things), before writing any code.**
+> (a) **The size is wrong: `M` → `XL`.** The row hides five distinct deliverables, none optional — the
+> verb surface (`v3/cli.py` + `control/tools.py`; `v3/verify/kinds.py` already *declares* `v3.cli`, and
+> it does not exist), the nine v2 symbols that ten meta hooks import, the META line `m00..m08` and its
+> 16 factory-line-less kinds (`N-0098`), 67 of 71 test modules, and the deletion itself. Same defect as
+> INC-8's row, one layer up: a row that hides a class. (b) **The acceptance vehicle re-derives 5 of the
+> 84 pinned stations.** The external CI runs `./meta ci --rederive` with no `--all-products` and no
+> `--factory`, so it re-derives **`dummy` only — 1 of 10 targets, 5 of 84 stations**, and it has been
+> **FAILING since 2026-07-11** (3 red: `evidence_liveness` = `N-0102`, `codegen_freeze` = `N-0084`,
+> `suite`) while local `master` ran **50 commits ahead** of what that second actor ever saw. §11.6
+> clause 1 is therefore **not executable as written**: it asks for 55 stations on a machine that can
+> produce 5 without JDK 21, PostgreSQL, Chromium and Go. Either the runner earns that toolchain, or the
+> clause splits into two actors with DECLARED and different scopes — what it may not do is let "P1
+> green on another machine" read as if it covered the 84. (c) **`55/55` across `5/5 factories` is the
+> wrong counter for the third time** — the unit is TARGETS, not factories (INC-8 fixed it for
+> `iot/fleet`, INC-10 for `full-stack/tasks`). The number is **84 across 10 targets**, and it is the
+> sum of the ten committed pins. Two ordering faults the row also hid, recorded here because they are
+> decisions and not discoveries: `rehydrate` was sent to **INC-12** by INC-5's correction while
+> `session_start` imports it TODAY (INC-11 would delete v2 one increment before its replacement
+> exists — it is pulled forward), and **deleting v2 disarms `import_boundary`'s red side**
+> (`v3/verify/import_boundary.py:193` plants `import metafactory`; with v2 gone the red is unplantable
+> and the gate falls to N/A forever — the `N-0111` class, applied to the very gate that guarded the
+> boundary). Full measurement: `docs/work/V3-INC11-CUTOVER-INCREMENT.md`.
+>
 > **CORRECTED 2026-07-31 by INC-8's execution (three things).** (a) **`6/6` was the wrong counter.**
 > `iot`'s pin has **5** stations (`s0..s4`); `6/6` is its **RTM** (6 requirements, the `STATE.md`
 > projection). Two different instruments got read as one. (b) **The row's stated deliverable was
@@ -134,7 +158,13 @@ gate is ported unchanged, so piercing them still requires a written waiver.
 v3 is done when **all** of these hold in a single clean-clone run on a machine that is not the
 development machine:
 
-1. `ci --rederive --all-products` == committed pins, 5/5 factories (55/55 stations).
+1. `ci --rederive --all-products` == committed pins, **84/84 stations across the 10 committed pin
+   targets** (5 factory lines + 5 product instances) — the unit is a TARGET, not a factory, and the
+   count is the sum of the ten `pinned_verdict.json`. ⚠️ **Scope is split by actor and both halves are
+   declared, never merged into one number** (INC-11 measurement): the development machine runs all 84;
+   the ADR-005 independence layer runs whatever its toolchain permits and **prints what it did not
+   run**. Today that is `dummy` 5/5 — 6 % — and calling it "P1 green on another machine" was the
+   thing this clause let happen.
 2. Every two-sided gate's RED side re-runs and goes red.
 3. `meta check` runs 23 gates with zero skips and the N/A branches counted separately.
 4. `meta benchmark` — `helpdesk` MEETS, `snipeit` EXCEEDS.

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4afd8b2217b45bdb4cb0918c64189af53f0e3eff updated=2026-07-31T01:31Z -->
+<!-- meta:doc sha=3fa8c5105f9cd3303185370ca539ee8b22e1b8df updated=2026-07-31T01:56Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,17 +20,17 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-7 ENTREGADOS**, sigue INC-8 (`iot`).**
+- **🏗️ v3 REBUILD — `ADR-031`/`032` ratificados; **INC-0..INC-8 ENTREGADOS**, sigue INC-9 (`FSK`).**
   Reconstruye el plano de CONTROL sobre el Claude Agent SDK conservando la evidencia: **nuestro
-  programa es el host, Claude Code el motor**. Se construye EN el árbol (`v3/`); el oráculo es el
-  commit pineado en `v3/oracle_ref.json`, nunca el working tree. Leyes vigentes: un gate **no se
-  registra sin testigo rojo alcanzable** (INC-4) · un port puede **negarse a afirmar** (N/A aparte,
-  INC-5) · **«no se midió» ≠ «dio cero»**, en el TIPO (INC-6). Con **INC-7 v3 deja de verificarse a sí
-  mismo y verifica un PRODUCTO**: `dummy` corre entero sobre v3 y re-deriva **5/5 == pin** desde una
-  copia de archivos TRACKEADOS (el sujeto viaja, la plataforma no). Suite v3 `green=24 · red=3 · n/a=1`
-  (28 gates; `suite_sweep` re-corre 19 lados rojos; los 3 rojos son deuda declarada de FSK, de los
-  sellos, y el hallazgo de liveness). **Mapa: `docs/spec/20-architecture-map.md`.**
-  → `decisions/031`·`032` · `LOG.md` (2026-07-28/29/30) · `work/V3-INC7-…` · plan `N-0019`.
+  programa es el host, Claude Code el motor**. Se construye EN `v3/`; el oráculo es el commit pineado
+  en `v3/oracle_ref.json`. Leyes: un gate **no se registra sin testigo rojo alcanzable** (INC-4) · un
+  port puede **negarse a afirmar** (INC-5) · **«no se midió» ≠ «dio cero»** en el TIPO (INC-6) · **un
+  disparador nombra la CONDICIÓN, no el incremento** (INC-8). Con **INC-8 v3 aprende la INSTANCIA de
+  producto** (R1, ADR-015): re-deriva por **TARGET** (default + cada `products/*/product.yml`, con su
+  pin y su spec DERIVADA de fuente comiteada) → **15/15 == pin en 3 targets**; y el lado rojo deja de
+  contar una NEGATIVA a plantar como captura → **10 caught · 2 n/a · 0 missed**. Suite `green=25 ·
+  red=2 · n/a=1` (⚠️ a `evidence_liveness` lo colorea el ENTORNO — `N-0102`). **Mapa: `spec/20`.**
+  → `decisions/031`·`032` · `LOG.md` (2026-07-28/29/30/31) · `work/V3-INC8-…` · plan `N-0101`/`N-0102`.
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus documental **461.289 tok / 193 archivos,
   +71,5 %** contra la línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape
   sigue FALSA (set de entrada 4.087 tok, 97,96 % headroom) → lo que crece es el costo de la

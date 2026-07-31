@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4812b54000fc0d9a449c4acf136af4ffe9aafacf updated=2026-07-31T01:33Z -->
+<!-- meta:doc sha=29ee139d1ea886afdc8616e95a3c0399685403fb updated=2026-07-31T01:49Z -->
 # Incremento V3-INC8-MIGRATE-IOT
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T01:31Z). Cerralo con `meta increment close`
@@ -80,11 +80,11 @@ ilustración más nítida que dio el proyecto del límite del §11.2, y refuerza
 ## Fases
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| 1 | `v3/host/builds.py` — `via` relativo que nombra un archivo existente bajo el chasis → ruta absoluta; interpretes/flags/código inline verbatim (port de `_resolve_via_against_chassis`). Gate: `fleet` deja de morir en `s0`; byte-idéntico cuando chasis == root | ⏳ |
-| 2 | `v3/verify/rederive.py` — **TARGETS, no fábricas**: default + cada `products/*/product.yml`, cada uno con su raíz, su pin y su spec efectiva materializada desde fuente comiteada. Gate: `iot` 2 targets / 10 shas; `dummy` sigue 1 target / 5 shas (su número NO se mueve) | ⏳ |
-| 3 | El lado rojo escala con el conjunto de targets (`_SLUG = MIGRATED[0]` muere) y **una negativa a plantar es N/A, nunca una captura**. Gate: 3 resultados CAUGHT / N-A / MISSED; una clase N/A en TODOS los targets = decorativa = rojo | ⏳ |
-| 4 | Refuso tipado: raíz no absoluta, y clave de instancia no implementada (`station_activation`) — ambos revientan con nombre, no se ignoran | ⏳ |
-| 5 | `MIGRATED += ("iot",)` · censo · docs · cierre | ⏳ |
+| 1 | `v3/host/builds.py` — `via` relativo que nombra un archivo existente bajo el chasis → ruta absoluta; interpretes/flags/código inline verbatim (port de `_resolve_via_against_chassis`). Gate: `fleet` deja de morir en `s0`; byte-idéntico cuando chasis == root | ✅ |
+| 2 | `v3/verify/rederive.py` — **TARGETS, no fábricas**: default + cada `products/*/product.yml`, cada uno con su raíz, su pin y su spec efectiva materializada desde fuente comiteada. Gate: `iot` 2 targets / 10 shas; `dummy` sigue 1 target / 5 shas (su número NO se mueve) | ✅ |
+| 3 | El lado rojo escala con el conjunto de targets (`_SLUG = MIGRATED[0]` muere) y **una negativa a plantar es N/A, nunca una captura**. Gate: 3 resultados CAUGHT / N-A / MISSED; una clase N/A en TODOS los targets = decorativa = rojo | ✅ |
+| 4 | Refuso tipado: raíz no absoluta, y clave de instancia no implementada (`station_activation`) — ambos revientan con nombre, no se ignoran | ✅ |
+| 5 | `MIGRATED += ("iot",)` · censo · docs · cierre | ✅ |
 
 ## El lado rojo, y el diente que INC-8 tiene que arreglar
 
@@ -133,3 +133,58 @@ es diseño de gate.
 4. Suite v3 sin rojos nuevos (los 3 declarados de INC-6 siguen siendo los mismos).
 5. `N-0100` cerrado con su corrección de disparador; `N-0019` cerrado (su intención era dummy **y**
    iot); `station_activation` diferido con disparador por CONDICIÓN.
+
+## Evidencia
+
+| Criterio | Dónde se demuestra | Resultado |
+| --- | --- | --- |
+| 1 — targets, no fábricas | `python3 -m v3.verify.rederive` | **PASS** · `dummy: 5/5; iot: 5/5; iot/fleet: 5/5` — **15/15 en 3 targets**, desde copia de archivos trackeados |
+| 2 — el lado rojo, con N/A aparte | `V3_REDERIVE_SABOTAGE=1 python3 -m v3.verify.rederive` | **PASS** · **10 caught · 2 n/a · 0 missed**; los 2 n/a son `iot:product_broken` y `iot/fleet:product_broken` |
+| 3 — el censo con `iot` adentro | `python3 -m v3.verify.migration_census` | **PASS** · «everything `['dummy', 'iot']` exercises is ported» |
+| 4 — sin rojos nuevos | `python3 -m v3.verify.suite`, con y sin el cambio (`git stash`) | **idéntico**: `green=25 · red=2 · n/a=1` antes y después; los 2 rojos son `codegen_freeze` (deuda declarada de FSK) y `docs` (sello) |
+| 5 — refusos tipados | raíz relativa y `station_activation` | ambos **revientan con nombre**, no se ignoran |
+| 6 — nodos | `N-0019` ✅ · `N-0100` ✅ (con corrección de disparador) · `N-0101`/`N-0102` abiertos | ver abajo |
+
+### Los dos números que importan, y por qué el segundo vale más
+
+`15/15 == pin` es P1. Por sí solo aceptaría un port hueco: `proof_sha` hashea nombres de check y
+códigos de salida, nada más — y la prueba más nítida de eso está en este mismo incremento, porque
+`fleet` y el default de `iot` tienen pines **byte-idénticos** siendo productos materialmente distintos
+(`fleetgw` vs `iotgw`, otro marker, otra topología, otro `join_key`).
+
+Lo que hace que el 15/15 signifique algo es el segundo número: **10 caught · 2 n/a · 0 missed**. Y ese
+número sólo es honesto por el arreglo de la Fase 3. Con el código anterior la misma corrida habría
+dicho **12/12**, inventando dos capturas: `product_broken` se niega a plantar en los dos targets de
+`iot`, y esa negativa devolvía el mismo `False` que una captura. El código ya sabía que no se la había
+ganado — lo decía en su propio mensaje («refusing to report a catch it did not earn») — pero el
+llamador no tenía cómo escucharlo. Un instrumento que falla en silencio por diseño, muere en silencio.
+
+### Lo que corrigió la ejecución (y no la lectura)
+
+1. **La fila estaba hecha, y escondía otra cosa.** Ver el bloque `CORRECTED 2026-07-31` en
+   `11-build-plan.md`: `6/6` era el RTM, no las estaciones; la línea de fábrica ya re-derivaba; lo que
+   faltaba era la INSTANCIA.
+2. **`N-0100` se cumplió un incremento antes que su etiqueta.** Su condición («entran las instancias
+   de producto») era correcta; su etiqueta («INC-9») era una adivinanza. **Lección adoptada:** un
+   disparador nombra la CONDICIÓN, no el incremento donde uno cree que va a pasar. `N-0101` y `N-0102`
+   se escribieron ya con esa regla.
+3. **Resolver el `via` contra el chasis NO alcanzaba.** Segundo escalón, visible sólo al correrlo: el
+   generador lee su blueprint de `root/factory.spec.yml`, que para una instancia está gitignoreado y
+   lo materializa el CLI de v2. v3 lo **deriva de fuente comiteada** (spec del chasis + `product.yml`),
+   que es un reclamo más fuerte, no una deuda.
+4. **Un hallazgo que no es de este incremento** (`N-0102`): `evidence_liveness` cambia de color según
+   el ENTORNO, no según el commit. Resuelve referencias `.md` contra el repo hermano
+   `../Agent_Systems_Factory/`; el mismo commit `3037f96` da FAIL en un worktree limpio sin el hermano
+   y PASS en el árbol real con él, y los 4 archivos citados no existen ni están trackeados acá en
+   ninguno de los dos casos. Choca con ADR-005 (la raíz de confianza es la replicabilidad, no la
+   custodia) y va a salir rojo por entorno —no por código— en la aceptación clean-clone de INC-11.
+   Se registra con disparador por condición; **no se arregla acá** (no es el sujeto de INC-8).
+
+### Residuales abiertos, con su disparador escrito por condición
+
+- **`N-0101`** — `station_activation` se RECHAZA, no se porta. `fleet` no lo declara; los 4 productos
+  de `full-stack-kotlin` y `full-stack` sí. Disparador: el primer producto MIGRADO que lo declare.
+- **`N-0102`** — `evidence_liveness` no es hermético (arriba). Disparador: la primera aceptación
+  clean-clone en otra máquina (P1+P2 de INC-11).
+- **`N-0098`** (sin cambios) — la línea META no tiene análogo en v3; sigue colgado de INC-11.
+- **`N-0099`** (sin cambios) — un check que declara `when` es rechazado; ninguna línea migrada lo usa.

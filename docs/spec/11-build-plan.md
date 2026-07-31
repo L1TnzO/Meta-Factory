@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0fa460c269e9769d06e76fdb48bf67028aa9ffa8 updated=2026-07-29T17:31Z -->
+<!-- meta:doc sha=c2e755e17ed4a02ede8564b86751c498bfd4df77 updated=2026-07-31T01:47Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -45,11 +45,23 @@ are honest estimates, not commitments.
 | **INC-5** | `MEMORY-DOCS` | docs manifest, seal, INDEX, lineage, STATE teeth | the 5 corpus gates run over the EXISTING corpus (327 docs, 2,722 citations) and each has a re-runnable red side — the corpus is the fixture | M |
 | **INC-6** | `ECONOMY-TYPED` | ledger and outcome from typed usage; **the context meter** (§10.6); iteration metrics (§09.4 A-2) | two-sided ledger gate + the escape-threshold observer emits real numbers for (a) and (b); the transcript parser is DELETED | M |
 | **INC-7** | `MIGRATE-DUMMY` | the fixture factory on v3 | `ci --rederive` == pin (5/5 stations) | S |
-| **INC-8** | `MIGRATE-IOT` | a LIVE factory, hermetic Go, no external services | `ci --rederive` == pin (6/6) | S |
+| **INC-8** | `MIGRATE-IOT` | a LIVE factory, hermetic Go, no external services — **and the product INSTANCE (R1)** | `ci --rederive` == pin for **every TARGET**: 15/15 stations across 3 (`dummy`, `iot`, `iot/fleet`) | S |
 | **INC-9** | `MIGRATE-FSK` | the real system: 12 stations, 3 products, live PG + Chromium | `ci --rederive --all-products` == pin (27/27) + `meta benchmark` 2/2 in the expected class | XL |
 | **INC-10** | `MIGRATE-FROZEN` | ASF + full-stack — **re-verification only, zero new generation** | `ci --rederive` == pin (11/11, 6/6) | S |
 | **INC-11** | `CUTOVER` | v2 substrate deleted; `meta` becomes the thin shell over v3 | all of P1 + P2 green in one clean-clone run on another machine (the ADR-005 independence layer) | M |
 
+> **CORRECTED 2026-07-31 by INC-8's execution (three things).** (a) **`6/6` was the wrong counter.**
+> `iot`'s pin has **5** stations (`s0..s4`); `6/6` is its **RTM** (6 requirements, the `STATE.md`
+> projection). Two different instruments got read as one. (b) **The row's stated deliverable was
+> already done.** `iot`'s factory line re-derived 5/5 == pin on v3 with ZERO platform change, measured
+> before writing code — INC-7's splice already covered it, since `iot` only exercises `product_env`,
+> `infra_up` and `generate`. What the row HID is the **product instance**: `iot` has `products/fleet/`,
+> `dummy` had no `products/` at all, and v2's acceptance is `--all-products` = the default PLUS every
+> instance, each with its own root and pin. Reporting "5/5" would have left `fleet` entirely unrun
+> while the number went up. Hence the acceptance now counts **targets**, not factories. (c) Hermetic Go
+> is TRUE and now measured rather than asserted: the generated `go.mod` carries **zero `require`**
+> (standard library only), which is why `GOPROXY=off` needs no module cache and no network.
+>
 > **CORRECTED 2026-07-29 by INC-5's execution (three things).** (a) The corpus numbers were stale:
 > measured on the same instrument, it is **327 docs / 2,722 citations**, not 283 / 2,373 — the
 > corpus grew ~15 % while the row sat still, which is why the acceptance now names the instrument

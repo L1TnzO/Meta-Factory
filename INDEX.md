@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `435b809d096e` | 2026-07-30T21:27Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `4afd8b2217b4` | 2026-07-31T01:31Z | State — Meta-Factory |
+| `docs/LOG.md` | `29d044b3846e` | 2026-07-31T01:56Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `3fa8c5105f9c` | 2026-07-31T01:56Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -69,7 +69,7 @@
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `907f1092d83b` | 2026-07-28T19:28Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
-| `docs/spec/11-build-plan.md` | `0fa460c269e9` | 2026-07-29T17:31Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `c2e755e17ed4` | 2026-07-31T01:47Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
@@ -198,6 +198,6 @@
 | `docs/work/V3-INC5-MEMORY-DOCS-INCREMENT.md` | `fd6c679b6a30` | 2026-07-29T17:36Z | Incremento V3-INC5-MEMORY-DOCS |
 | `docs/work/V3-INC6-ECONOMY-TYPED-INCREMENT.md` | `77614c2f6871` | 2026-07-30T21:05Z | Incremento V3-INC6-ECONOMY-TYPED |
 | `docs/work/V3-INC7-MIGRATE-DUMMY-INCREMENT.md` | `c94af058759f` | 2026-07-30T21:28Z | Incremento V3-INC7-MIGRATE-DUMMY |
-| `docs/work/V3-INC8-MIGRATE-IOT-INCREMENT.md` | `4812b54000fc` | 2026-07-31T01:33Z | Incremento V3-INC8-MIGRATE-IOT |
+| `docs/work/V3-INC8-MIGRATE-IOT-INCREMENT.md` | `29ee139d1ea8` | 2026-07-31T01:49Z | Incremento V3-INC8-MIGRATE-IOT |
 | `docs/work/VOCAB-FREEZE-INCREMENT.md` | `20df4200155c` | 2026-07-04T20:05Z | Incremento VOCAB-FREEZE |
 | `CLAUDE.md` | `c299c9357272` | 2026-07-11T20:53Z | Meta-Factory — orientation (design phase) |

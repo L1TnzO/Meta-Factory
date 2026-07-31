@@ -1,7 +1,56 @@
-<!-- meta:doc sha=435b809d096ec028f5c357cbdf204663aacfb0f0 updated=2026-07-30T21:27Z -->
+<!-- meta:doc sha=29d044b3846e40809be30539b12cb09ee999ca47 updated=2026-07-31T01:56Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-07-31T01:5xZ — INC-8: la fila estaba hecha, y lo que escondía era la INSTANCIA
+
+**Qué pasó.** `iot` corre sobre v3 y re-deriva **15/15 == pin en 3 targets** (`dummy`, `iot`,
+`iot/fleet`). Pero el trabajo de la fila no era el que la fila decía.
+
+**Medido antes de escribir código.** La línea de fábrica de `iot` ya re-derivaba **5/5 == pin sin
+tocar nada**: lo que INC-7 empalmó alcanzaba, porque `iot` sólo ejercita `product_env`, `infra_up` y
+`generate`. Dos correcciones más a la fila: **«6/6» era el RTM, no las estaciones** (el pin tiene 5) y
+el «hermetic Go» es cierto y ahora está MEDIDO — el `go.mod` generado no tiene ni un `require`, sólo
+biblioteca estándar, y por eso `GOPROXY=off` no necesita caché ni red.
+
+**Lo que escondía.** `iot` tiene `products/fleet/`; `dummy` no tenía `products/` en absoluto, así que
+INC-7 no podía haberlo encontrado. v2 acepta una fábrica como `--all-products` = el default **más cada
+instancia**, cada una con su raíz y su pin. v3 sólo conocía la raíz de la fábrica: sumar `iot` a
+`MIGRATED` y reportar «5/5» habría dejado `fleet` **sin correr** mientras el número subía. Otra vez la
+misma forma: *algo parece verde porque nadie preguntó qué quedó afuera de la cuenta*. Ahora se
+re-deriva por TARGET, y `dummy` sigue en 1 target / 5 shas — su número no se mueve.
+
+**El diente, que no es el 15/15.** `_run_sabotage` contaba `not planted_ok` como capturado, pero
+`rederive` devolvía `False` tanto al cazar como al **negarse a plantar**. `product_broken` se niega en
+`iot` (no hay `artifact_contains` alimentado por un `render`), así que la primera corrida habría dicho
+**12/12 inventando dos capturas**. El código ya sabía que no se las había ganado —lo decía en su
+mensaje— pero el llamador no tenía cómo escucharlo: un instrumento que falla en silencio por diseño,
+muere en silencio. Hoy `CannotPlant` es una excepción tipada y el resultado tiene tres valores:
+**10 caught · 2 n/a · 0 missed**, y una clase N/A en TODOS los targets sale roja por decorativa.
+
+**La lección que se lleva el proyecto.** `N-0100` difirió el `via`-contra-el-chasis con disparador
+**«INC-9»**. La *condición* («entran las instancias de producto») era correcta; la *etiqueta* era una
+adivinanza, y se cumplió acá. **Un disparador nombra la CONDICIÓN, no el incremento donde uno cree que
+va a pasar.** `N-0101` y `N-0102` ya se escribieron con esa regla.
+
+**Y ejecutar volvió a corregir lo que leer no había corregido.** Resolver el `via` contra el chasis no
+alcanzaba: el generador lee su blueprint de `root/factory.spec.yml`, que para una instancia está
+**gitignoreado** y lo materializa el CLI de v2. v3 lo **deriva de fuente comiteada** (spec del chasis +
+`product.yml`) — reclamo más fuerte, no deuda. Detalle que vale por sí solo: `fleet` y el default
+tienen pines **byte-idénticos** siendo productos distintos (`fleetgw` vs `iotgw`), que es la
+ilustración más nítida del límite del §11.2 que dio el proyecto.
+
+**Un hallazgo que no es de este incremento** (`N-0102`): `evidence_liveness` cambia de color según el
+ENTORNO y no según el commit — resuelve citas `.md` contra el repo hermano `../Agent_Systems_Factory/`,
+así que el mismo commit da FAIL en un worktree limpio sin el hermano y PASS en el árbol real con él,
+sin que los archivos citados existan en ninguno de los dos. Choca con ADR-005 y va a morder justo en
+la aceptación clean-clone-en-otra-máquina de INC-11. Se registra, no se arregla acá.
+
+**Números.** Suite v3 `green=25 · red=2 · n/a=1`, **idéntica antes y después** del cambio (comparación
+controlada con `git stash`): los 2 rojos son la deuda declarada de FSK y el sello de docs. De paso, el
+`state_snapshot` mordió al autor: la primera redacción de esta entrada infló «Ahora» a 53 líneas sobre
+un presupuesto de 45, y el gate la rechazó hasta que el detalle bajó acá — que es donde vive.
 
 ## 2026-07-30T21:3xZ — INC-7: v3 deja de verificarse a sí mismo y verifica un PRODUCTO
 

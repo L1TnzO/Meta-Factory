@@ -283,13 +283,16 @@
       "parent": "N-0011",
       "title": "INC-7/8 migrate dummy then iot (ascending toolchain pain)",
       "kind": "increment",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/verify/rederive.py MIGRATED=(dummy,iot) — 15/15 == pin en 3 targets (dummy, iot, iot/fleet) desde fuente comiteada; sabotage 10 caught / 2 n-a / 0 missed; migration_census verde con iot."
+      ],
       "opened_at": "2026-07-28T03:25Z",
       "origin": {
         "session": "2026-07-28",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-07-31T01:46Z"
     },
     "N-0020": {
       "parent": "N-0011",
@@ -1458,15 +1461,44 @@
       "parent": "N-0020",
       "title": "El `via` de un slot `generate` no se resuelve contra el chasis de la fabrica: v2 lo hace (_resolve_via_against_chassis) para que una INSTANCIA de producto pueda invocar un generador que vive en el chasis (R1, ADR-015). dummy no lo necesita (su via es `python -c`); los productos de FSK si. Disparador: INC-9 MIGRATE-FSK",
       "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/host/builds.py::_resolve_via_against_chassis — via relativo que nombra un archivo bajo el chasis se resuelve a ruta absoluta; medido: iot/fleet pasa de rojo en s0 a 5/5 == pin. El disparador escrito decia INC-9 y se cumplio en INC-8: la CONDICION (entran las instancias de producto) era correcta, la ETIQUETA era una adivinanza."
+      ],
       "opened_at": "2026-07-30T21:30Z",
       "origin": {
         "session": "2026-07-30",
         "cause": "deferral",
         "ref": "V3-INC7/via-not-chassis-resolved"
       },
-      "trigger": "INC-9 MIGRATE-FSK: entran las instancias de producto"
+      "trigger": "INC-9 MIGRATE-FSK: entran las instancias de producto",
+      "closed_at": "2026-07-31T01:46Z"
+    },
+    "N-0101": {
+      "parent": "N-0020",
+      "title": "station_activation en un product.yml es RECHAZADO por v3/verify/rederive.py::materialize_instance, no portado. Es el override por-instancia de que estaciones corren; ignorarlo correria una estacion que la instancia queria saltear (o al reves) y moveria un proof_sha sin que nadie lo decida — misma forma que N-0099 (when). Ninguna linea migrada lo declara: fleet no lo usa; SI lo usan los 4 productos de full-stack-kotlin (assets, helpdesk, snipeit) y full-stack (tasks). DISPARADOR POR CONDICION (leccion de N-0100, cuya etiqueta decia INC-9 y se cumplio en INC-8): el primer producto MIGRADO cuyo product.yml declare station_activation — materialize_instance revienta con el nombre del target",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-31T01:46Z",
+      "origin": {
+        "session": "2026-07-31",
+        "cause": "deferral",
+        "ref": "V3-INC8/station-activation-refused"
+      }
+    },
+    "N-0102": {
+      "parent": "N-0022",
+      "title": "El veredicto de evidence_liveness DEPENDE de un repo hermano externo que el gate no declara ni valida: v3/graph/doc_graph.py::_resolve_md (~206-229) resuelve una referencia .md contra ../Agent_Systems_Factory/ como fallback. Medido en INC-8: mismo commit 3037f96 da FAIL (4 refs sin resolver en ASF-LESSONS.md y CONTEXT-ECONOMY.md) en un worktree limpio SIN el hermano, y PASS en el arbol real CON el hermano — los 4 archivos citados no existen ni estan trackeados en Meta-Factory en ninguno de los dos. O sea: el gate audita fidelidad CRUZADA entre repos y su color lo fija el entorno de verificacion, no el commit. Choca de frente con ADR-005 (la custodia no es la raiz de confianza; lo es la replicabilidad). DISPARADOR POR CONDICION: la primera corrida de aceptacion en clean-clone en OTRA maquina, donde no hay hermano ASF — que es exactamente P1+P2 de INC-11 CUTOVER; ahi este gate sale rojo por el entorno y no por el codigo",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-07-31T01:47Z",
+      "origin": {
+        "session": "2026-07-31",
+        "cause": "gate_red",
+        "ref": "V3-INC8/evidence-liveness-not-hermetic"
+      }
     }
   }
 }

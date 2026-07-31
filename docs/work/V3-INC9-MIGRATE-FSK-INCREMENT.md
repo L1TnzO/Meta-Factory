@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c9d0763ff23fe46cbc5ff165134f6bcf9fe4275f updated=2026-07-31T17:08Z -->
+<!-- meta:doc sha=affead8d629f9660cd0b3dfdea0f2f1f123a2897 updated=2026-07-31T18:14Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -212,7 +212,7 @@ prerrequisito de la Fase 4, no parte de este incremento meta.
 | 3 | Port del ejecutor `eval_gate` + su gate de paridad de COMPORTAMIENTO (slot delegado) | ✅ §10 |
 | 4a | **Medir** qué falta para 46/46, con `N-0103` parcheado sólo en la copia staged | ✅ §11 |
 | 1b | **(nivel fábrica, prerrequisito)** ~~revertir~~ **arreglar** la regresión detekt — sin re-pin | ✅ `FSK-JSONVAL-DETEKT` (46/46, cero re-pin) |
-| 4b | La corrida verde de los 4 targets **en el repo** | ⛔ sólo por `N-0107` (defecto de v3, ya localizado) |
+| 4b | La corrida verde de los 4 targets **en el repo** | ✅ **61/61 en 7 targets** (§14) |
 | 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ por 4b |
 
 ### 10. Fase 3 ✅ — `eval_gate`, y el primer instrumento de paridad de COMPORTAMIENTO
@@ -262,6 +262,81 @@ Detrás de `s2` había **un defecto de v3 y una pregunta**:
 Lo que esto ya prueba: **la plataforma v3 corre la línea real de FSK entera** —12 estaciones, Postgres
 vivo, Chromium, gradle, `eval_gate`— y re-deriva == pin en 3 de 4 targets, con las cuentas distintas
 (12·11·11) que sólo salen si `station_activation` y el `when` se aplicaron donde iban.
+
+### 14. Fase 4b ✅ — **61/61 en 7 targets**, en el repo
+
+```
+dummy: 5/5 · iot: 5/5 · iot/fleet: 5/5 · full-stack-kotlin: 12/12
+full-stack-kotlin/assets: 11/11 · helpdesk: 11/11 · snipeit: 12/12   → 61/61, exit 0
+```
+
+Los dos criterios de cierre que dependían de esto quedan satisfechos a la vez: el número de `dummy` y de
+`iot` **no se movió** (5·5·5, lo que ya probaba INC-7/INC-8), y los cuatro pines de FSK se satisfacen con
+sus **cuentas distintas** 12/11/11/12 — que es la prueba de que `station_activation` y el `when` por-check
+siguen cayendo donde van, ahora con la línea derivada del spec correcto para cada instancia.
+
+### 12. `N-0108` — la línea de una INSTANCIA se leía del chasis, y tres de cuatro pasaban por coincidencia
+
+El `exit 127` de `s9` en `snipeit` no era del producto (eso ya lo falsó `FSK-JSONVAL-DETEKT`: v2 pasa ese
+mismo `s9` hoy, 12/12 == pin). Era **de v3**, y el mecanismo estaba escrito como justificación en un
+comentario del propio `rederive`:
+
+> «el spec es del TARGET; la LÍNEA es siempre la del chasis — la estructura de estaciones pertenece a la
+> fábrica, sólo difiere el blueprint».
+
+Verdadero de la ESTRUCTURA, falso de lo que la línea **corre**. `stations/*.yml` no es la fuente de la
+línea: es esa estructura **ya renderizada** con el `subst` de UN blueprint, y la copia comiteada bajo un
+chasis es la del producto DEFAULT. `full-stack-kotlin` tiene **18** `{{package_name}}` y `snipeit` es el
+único producto que lo pisa (`snipeit` vs el default `webapp`) → su `s9` lanzaba
+`build/install/webapp/bin/webapp`, un binario que ese producto no construye.
+
+**Lo que hace al hallazgo valioso no es el 127, es el 43/46.** Los otros tres targets pasaban porque
+`webapp == webapp`: el valor coincidía. La línea de las instancias nunca estuvo probada — estuvo con
+suerte. Es la firma exacta de esta casa: *algo parece verde porque nadie preguntó qué quedó afuera de la
+cuenta*; acá lo que quedó afuera fue **el único target cuyo valor difería**.
+
+Arreglo: `materialize_stations(spec)` en `host/line.py`, transcripción del `_materialize_line` de v2 (C2)
+sin el IO — incluido el cambio de vocabulario que hace que las dos fuentes NO sean intercambiables (un
+`depends_on` único materializa como `requires_prev`; un FAN-IN queda `depends_on`; `tier` no-default viaja).
+
+**Probado por PARIDAD DE COMPORTAMIENTO, no por el pin** (el estándar que fijó la fase 3): se corre el
+`_materialize_line` REAL de v2 sobre un temporal y se compara con la derivación en memoria de v3, para los
+tres productos → **`snipeit` · `helpdesk` · `assets`: 12/12 estaciones IDÉNTICAS** en los tres. El pin
+llegó después y coincidió; si sólo tuviera el pin, no sabría si coincide por correcto o por suerte otra vez.
+
+**Y la corrida hizo aparecer el tercer eslabón: la acción `write`.** Con la línea de la instancia derivada
+de SU spec, el `s6` de `snipeit` pidió una acción que v3 no había portado — y `apply_builds` **se negó a
+gritos** en vez de saltearla («silently skipping it would leave the checks running against whatever was
+already on disk»). La negativa de INC-4/5 hizo exactamente su trabajo: convirtió un artefacto faltante en
+un error con nombre, en lugar de un verde sobre lo que hubiera en disco. Portada (4 líneas, transcritas)
+con una divergencia declarada: **`skip_if_exists` NO se honra**, porque el `write` de v2 tampoco lo lee —
+mejorar sobre el oráculo también es divergir. Antes de portarla se enumeró el conjunto COMPLETO de acciones
+que las líneas de instancia necesitan (`generate`, `write`) para no descubrirlas de a una a 20 minutos por
+corrida; `write` era la única que faltaba.
+
+### 13. `N-0109` — las `stations/` comiteadas de FSK son MÁS VIEJAS que su spec
+
+Al portar apareció una segunda cosa, y obligó a que el arreglo fuera asimétrico en vez de uniforme:
+
+| artefacto | último commit |
+| --- | --- |
+| `factories/full-stack-kotlin/stations/` | **2026-07-09** (`b31c4ce` — el mismo que fijó los pines) |
+| `factories/full-stack-kotlin/factory.spec.yml` | **2026-07-11** (`d7ebc3f`) |
+
+No es cosmético: el `s6` del spec declara **seis** builds con acción `write`, el `s6` comiteado **cinco**
+con `render` (y `host.builds` de v3 no implementa `write`); el `up` de `s7` del spec copia el `.exec` de
+jacoco, el comiteado no.
+
+Y v2 tiene **dos caminos**, no uno: la instancia re-materializa sus `stations/` del spec efectivo antes de
+cada corrida (por eso su línea es la del spec de 07-11), mientras que el producto DEFAULT corre las
+`stations/` comiteadas (las de 07-09) porque nada las re-materializa. **Las dos mitades de la misma fábrica
+corren hoy líneas distintas.** Los pines no lo ven: `proof_sha` hashea NOMBRES y EXIT CODES, no comandos.
+
+Por eso `rederive` deriva del spec **sólo para instancias** y sigue leyendo las `stations/` comiteadas para
+el default. No es una comodidad: para ese target, el artefacto comiteado **es el oráculo**, y derivarlo del
+spec correría una línea que v2 nunca corrió. Reproducir al oráculo incluye reproducirlo donde lee algo
+viejo. El desfase se registra acá; **repararlo re-materializaría y re-pinearía FSK entera**, que es trabajo
+de nivel fábrica y no de esta migración.
 
 ### 8. Fase 2 ✅ — las dos negativas, y por qué el pin las juzga
 

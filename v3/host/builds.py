@@ -63,6 +63,8 @@ def apply_builds(station: dict, ctx: BuildContext) -> list[str]:
         action = build.get("action")
         if action == "render":
             messages.append(_render(build, ctx))
+        elif action == "write":
+            messages.append(_write(build, ctx))
         elif action == "generate":
             messages += _generate(build, ctx)
         elif action in ("emit_infra", "emit_mcp"):
@@ -89,6 +91,25 @@ def _render(build: dict, ctx: BuildContext) -> str:
         return f"skip(exists) {dest.relative_to(ctx.root)}"
     dest.write_text(render_text(src.read_text(encoding="utf-8"), ctx.subst), encoding="utf-8")
     return f"render {dest.relative_to(ctx.root)}"
+
+
+def _write(build: dict, ctx: BuildContext) -> str:
+    """One INLINE file: `content` from the build itself, `dest` relative to `root`, `{{var}}` filled.
+
+    The sibling of `render` for content small enough to live in the spec instead of a template file, so
+    it takes no `src` and no `meta_root`. PORTED when the line first exercised it (V3-INC9): the only
+    caller today is `snipeit`'s `s6`, and it only became reachable once instances started deriving their
+    line from their own spec (`N-0108`) — the chassis's older rendering of that station used `render`
+    instead (`N-0109`). Before that, `apply_builds` refused it loudly, which is how it was found.
+
+    `skip_if_exists` is deliberately NOT honoured: v2's `write` does not read that flag either (only its
+    `render` does). Adding it here would be an improvement over the oracle, and an improvement is a
+    divergence — the same discipline that keeps `resolve_check` passing `ctx=None`.
+    """
+    dest = ctx.root / render_text(str(build["dest"]), ctx.subst)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render_text(build.get("content", ""), ctx.subst), encoding="utf-8")
+    return f"write {dest.relative_to(ctx.root)}"
 
 
 def _resolve_via_against_chassis(arg: str, ctx: BuildContext) -> str:

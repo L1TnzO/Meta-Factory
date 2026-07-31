@@ -48,7 +48,7 @@ from pathlib import Path
 import yaml
 
 from ..host.builds import BuildContext, apply_builds
-from ..host.line import load_line
+from ..host.line import load_stations, materialize_stations, resolve_line
 from ..host.runner import RunContext, run_line
 from ..kernel.pin import pin_matches
 from ..kernel.report import Verdict
@@ -265,12 +265,17 @@ def rederive(root: Path, slug: str, *, product: str | None = None,
                            f"against)"], {"files": copied}
         pinned = json.loads(pin_path.read_text(encoding="utf-8"))
 
-        # The spec is the TARGET's (an instance's was just derived); the LINE is always the chassis's —
-        # the station structure belongs to the factory, only the blueprint differs (R1).
+        # The line comes from where THAT TARGET's line comes from in v2, and v2 has two places (`N-0108`).
+        # An INSTANCE's `stations/` is gitignored and re-materialized from the effective spec before every
+        # run, so it is derived here too — that is what makes `snipeit` launch its own binary instead of
+        # the default's (the old code read the chassis copy for everyone, which is only right when the
+        # substituted values coincide, and for three of four targets they did). The DEFAULT product's line
+        # IS the committed `stations/*.yml`: nothing re-materializes it per run, so reading it is not a
+        # shortcut, it is the oracle. The two are NOT interchangeable today — FSK's committed stations are
+        # older than its spec (`N-0109`), and v3 does not implement the `write` action the newer spec uses.
         spec = load_spec(target.root / "factory.spec.yml")
-        from ..host.line import load_stations   # noqa: PLC0415 — raw stations, for the red side only
-        raw = load_stations(target.chassis)
-        line = load_line(target.chassis, spec.subst)
+        raw = materialize_stations(spec) if target.product else load_stations(target.chassis)
+        line = resolve_line(raw, spec.subst)
         if overrides:
             line = apply_activation(line, overrides, target.label)
         note = ""

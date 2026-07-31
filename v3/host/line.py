@@ -40,7 +40,7 @@ import yaml
 
 from ..kernel.sequence import order_stations
 from ..kernel.station import Station
-from ..verify.kinds import resolve_check
+from ..verify.kinds import _render_text, resolve_check
 
 
 def load_stations(factory_dir: Path) -> list[dict]:
@@ -93,6 +93,48 @@ def resolve_line(stations: list[dict], subst: dict) -> list[dict]:
     return line
 
 
-def load_line(factory_dir: Path, subst: dict) -> list[dict]:
-    """The whole joint in one call: parse, order, resolve. Activation and the dial stay the runner's."""
-    return resolve_line(load_stations(factory_dir), subst)
+def materialize_stations(spec) -> list[dict]:
+    """The line a TARGET runs, derived from ITS OWN spec — v2's `_materialize_line` (C2) minus the file IO.
+
+    Why this exists instead of `load_stations(chassis)` (node `N-0108`). `stations/*.yml` is NOT the line's
+    source: it is a RENDERING of `domain.station_sequence` with one instance's `subst` already substituted to
+    literals, and the copy committed under a chassis is the DEFAULT product's rendering. v2 never reads
+    another instance's line from there — it re-materializes `stations/` from the effective spec before every
+    run — so an instance whose blueprint changes a substituted value gets a DIFFERENT line, not the same one.
+    `full-stack-kotlin` has 18 `{{package_name}}` placeholders, and `snipeit` is the one product that
+    overrides it (`snipeit` vs the default `webapp`): reading the chassis copy made its `s9` launch
+    `build/install/webapp/bin/webapp`, which that product never builds. The other three targets passed
+    because `webapp == webapp` — the value coincided, so the line was never proven, only lucky.
+
+    Transcribed from v2 (`codegen/renderer.py::_materialize_line`), INCLUDING the vocabulary the projection
+    changes, which is why the two sources are not interchangeable: a single `depends_on` materializes as the
+    engine's linear `requires_prev`, a FAN-IN (>1) stays `depends_on` so the engine gates the whole DAG, and a
+    non-default `tier` is carried while `core` emits nothing (the draft→harden dial — a non-adopting factory's
+    line stays byte-identical to its committed rendering). The dump→render→load round-trip is v2's too: it
+    substitutes the WHOLE node, not just the check argv, so a placeholder anywhere in a station resolves
+    exactly as the materialized file would have had it.
+
+    THIS IS FOR INSTANCES ONLY, and the asymmetry is v2's, not a convenience. A DEFAULT product has no
+    re-materialization step at run time: its `stations/*.yml` are committed, the meta line wrote them, and
+    they are what v2 executes — so for that target `load_stations` is the oracle and this function is not.
+    The two sources are provably NOT interchangeable right now: `full-stack-kotlin`'s committed stations are
+    OLDER than its spec (`N-0109`) — the spec's `s6` declares six builds using a `write` action that
+    `host.builds` does not implement, the committed `s6` five using `render` — so deriving the default's
+    line from the spec would run a line v2 never ran. `proof_sha` would not necessarily notice, because it
+    hashes check NAMES and EXIT CODES; that is exactly why the choice is made here rather than left to it.
+    """
+    nodes: list[tuple[str, dict]] = []
+    for station in spec.stations:
+        node: dict = {"id": station.id, "name": station.name, "activation": station.activation}
+        if len(station.depends_on) == 1:
+            node["requires_prev"] = station.depends_on[0]   # linear chain; the engine gates one predecessor
+        elif len(station.depends_on) > 1:
+            node["depends_on"] = list(station.depends_on)   # fan-in; the engine gates every upstream branch
+        if station.tier != "core":
+            node["tier"] = station.tier
+        node["builds"] = station.builds
+        node["checks"] = station.checks
+        text = _render_text(yaml.safe_dump(node, sort_keys=False, allow_unicode=True), spec.subst)
+        nodes.append((str(station.id), Station.from_dict(yaml.safe_load(text)).as_dict()))
+    # v2 writes one `<id>.yml` per station and the loader globs them SORTED — same order, without the files.
+    return order_stations([node for _, node in sorted(nodes, key=lambda kv: kv[0])])

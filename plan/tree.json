@@ -1541,6 +1541,22 @@
     "ref": "V3-INC9/guard-proves-open-not-belonging"
    },
    "trigger": "el diseno de INC-11 CUTOVER, cuando se decida que enforcement es hook y cual es gate"
+  },
+  "N-0106": {
+   "parent": "N-0022",
+   "title": "SEGUNDA instancia de la clase que N-0102 nombra (un gate cuyo color lo fija el ENTORNO y no el commit), esta vez encontrada y CERRADA: migration_census.declared_actions/declared_kinds barrian factories/*/**/stations/*.yml, glob recursivo que ademas de la linea del CHASIS se tragaba las stations/ MATERIALIZADAS de cada instancia de producto — gitignored, escritas por el CLI de v2 antes de cada corrida. Medido al agregar full-stack-kotlin a MIGRATED: el gate reporto que una fabrica migrada ejercita la accion `write` que apply_builds no maneja, leyendolo de products/*/stations/s6.yml (UNTRACKED) mientras el s6.yml del chasis (trackeado) declara `render` — las dos son la misma operacion con dos nombres. En un clean-clone el mismo commit habria dicho otra cosa. Arreglado: la poblacion es el CHASIS (factories/*/stations/*.yml), que es de donde v3 carga la linea de TODOS los targets, default o instancia (R1). Post-fix `write` queda atribuido solo a agent-systems-factory y full-stack, que no estan migradas, o sea diferido a INC-10 y no contradiccion",
+   "kind": "residual",
+   "state": "done",
+   "evidence": [
+    "v3/verify/migration_census.py::declared_actions — glob narrowed chassis-only; censo pasa de 2 contradicciones a 1 (eval_gate, real); dummy 5/5 e iot 10/10 == pin sin moverse"
+   ],
+   "opened_at": "2026-07-31T03:35Z",
+   "closed_at": "2026-07-31T03:40Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "gate_red",
+    "ref": "V3-INC9/census-reads-untracked"
+   }
   }
  }
 }

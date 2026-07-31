@@ -34,8 +34,23 @@ FOUR DISPOSITIONS, none of them assigned by hand:
   deferred     not ported, and owed to the increment that migrates the earliest factory declaring it
   unexercised  in the vocabulary and declared by no FACTORY line — reported, never hidden
 
-WHAT `unexercised` REALLY MEANS, because the word is doing a lot of work. The population scanned is
-`factories/*/**/stations/*.yml` — the FACTORY and PRODUCT lines. It is not the whole story: v2 also
+THE POPULATION IS THE CHASSIS, AND IT USED TO BE MORE THAN THAT (narrowed V3-INC9). The scan is
+`factories/*/stations/*.yml` — one line per factory. It was `factories/*/**/stations/*.yml`, which
+also swept each product instance's materialized `stations/`, and that was wrong twice over. It is
+wrong about v3: every target's line, default or instance, is loaded from the CHASSIS (R1 — the
+station structure belongs to the factory, only the blueprint differs), so the chassis stations are
+the complete and only source of what v3 can be asked to execute. And it is wrong about EVIDENCE:
+an instance's `stations/` is gitignored, written by v2's CLI before a run, so the recursive glob made
+this gate's verdict depend on what a previous local run happened to leave behind.
+
+That was not hypothetical. `full-stack-kotlin`'s chassis `s6.yml` declares `render`; the copy v2
+materialized under `products/*/stations/s6.yml` declares `write` (the two are the same operation —
+same `render_text` — under two names). With the recursive glob this gate reported that a MIGRATED
+factory exercises an action `apply_builds` does not handle, and it reported it from an UNTRACKED
+file, for a line v3 never loads. On a clean clone the same commit would have said something else —
+which is the defect `N-0102` names for `evidence_liveness`, in a second instrument.
+
+WHAT `unexercised` REALLY MEANS, because the word is doing a lot of work. It is not the whole story: v2 also
 runs a META line (`m00`…`m07`) whose stations declare `column_full`, `docs_check`, `clean_runner`,
 `rtm_*` and friends. That line has no v3 analogue yet (INC-4's `kind_hygiene` says the same thing
 about the same files), so those kinds are unexercised BY A FACTORY and very much exercised by v2.
@@ -85,7 +100,7 @@ def _git(*args: str) -> str:
 def declared_checks(root: Path) -> dict:
     """kind -> {factory slug -> one real check dict}. The population every resolution is made from."""
     found: dict = {}
-    for path in sorted(root.glob("factories/*/**/stations/*.yml")):
+    for path in sorted(root.glob("factories/*/stations/*.yml")):
         slug = path.relative_to(root).parts[1]
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
@@ -100,7 +115,7 @@ def declared_checks(root: Path) -> dict:
 def declared_actions(root: Path) -> dict:
     """action -> set of factory slugs whose lines declare it."""
     found: dict = {}
-    for path in sorted(root.glob("factories/*/**/stations/*.yml")):
+    for path in sorted(root.glob("factories/*/stations/*.yml")):
         slug = path.relative_to(root).parts[1]
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):

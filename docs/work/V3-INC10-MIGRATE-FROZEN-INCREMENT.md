@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f6b63248f1e3650f35d5e95f66d3e63bb2528948 updated=2026-07-31T20:34Z -->
+<!-- meta:doc sha=28647aab547550f09cfaaf5c7c33de1a3afe217c updated=2026-07-31T21:05Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
@@ -113,8 +113,8 @@ planta un defecto en el módulo portado y exige que la matriz se desvíe.
 | 1 | `MIGRATED` += las dos fábricas (define QUÉ se cuenta: lo escribo a mano) | ✅ |
 | 2 | Portar `live_run` y `eval_floor` a `v3/verify/checks/` (slot delegado, gate = re-derivación) | ✅ |
 | 3 | **Re-medir**: s11/s12 de ASF corren por primera vez; lo que aparezca se trata acá | ✅ |
-| 4 | Testigo de comportamiento: arnés compartido + `live_run_parity` + `eval_floor_parity` | ⏳ |
-| 5 | Sabotaje (P2) sobre los 10 targets + censo en 0 diferidos + cierre y nodos | ⏳ |
+| 4 | Testigo de comportamiento: arnés compartido + `live_run_parity` + `eval_floor_parity` | ✅ |
+| 5 | Sabotaje (P2) sobre los 10 targets + censo en 0 diferidos + cierre y nodos | ✅ |
 
 ## Evidencia por fase
 
@@ -227,6 +227,31 @@ y con checks — `s0` de ASF no tiene checks, y por eso su pin tiene 12 entradas
 levanta `CannotPlant` si no hay ninguna. Así el pin queda corto por uno con garantía y un verde
 después es un miss de verdad.
 
+Re-corrido el barrido entero:
+
+```
+V3_REDERIVE_SABOTAGE=1 python3 -m v3.verify.rederive
+VERDICT    v3-rederive (SABOTAGE) — PASS   (exit 0)
+SUMMARY    31 planted defect(s) caught across 10 target(s) · 9 n/a · 0 missed        (31 min)
+```
+
+### Y el N/A dice algo más ancho de lo que decía INC-9
+
+Los **nueve** N/A son todos `product_broken`, y ahora se puede nombrar el conjunto exacto: **nueve de
+diez targets**. El único que puede plantarla es `dummy`, la fábrica FIXTURE. Las cuatro fábricas
+REALES —`iot`, `full-stack-kotlin`, `agent-systems-factory`, `full-stack`— no declaran el par
+`artifact_contains`/`render` que la clase necesita.
+
+INC-9 anotó esto como «N/A en los cuatro targets de FSK». Medido sobre los diez, la frase honesta es
+otra: **en todo lo que no sea el fixture, el lado rojo perturba la LÍNEA y nunca el PRODUCTO**, así
+que el límite que enuncia `§11.2` —un ejecutor vaciado pasa P1— sigue destapado en toda la superficie
+real, no en un rincón de ella. `N-0111` queda re-escrito con esa medición y su disparador intacto.
+
+Vale la pena decir qué NO arregla el trabajo de hoy: los testigos de paridad tapan ese hueco para los
+**tres ejecutores portados** (`eval_gate`, `live_run`, `eval_floor`), que es donde INC-10 abrió riesgo
+nuevo. No lo tapan para los otros 26 kinds del vocabulario. Es una mejora acotada y conviene leerla
+acotada.
+
 ## Criterio de cierre (demostrable, no narrable)
 1. `python3 -m v3.verify.rederive` → **84/84 estaciones == pin en 10 targets**, y los 7 targets de
    INC-9 **no se mueven** (61/61 sigue adentro del total).
@@ -242,5 +267,54 @@ después es un miss de verdad.
    pineado, nunca importándolo, y su excepción está declarada.
 7. Los residuos que queden se registran como nodos con **disparador por CONDICIÓN**, no por fecha.
 
+## Cierre — los siete criterios, medidos
+
+| # | criterio | resultado |
+| --- | --- | --- |
+| 1 | `rederive` 84/84 en 10 targets; los 7 de INC-9 sin moverse | ✅ 84/84 · 10 targets · 61/61 adentro |
+| 2 | Los tres targets nuevos con sus cuentas DISTINTAS | ✅ 12 · 6 · 5 |
+| 3 | Sabotaje `0 missed`, N/A aparte, ninguna clase N/A en todos | ✅ 31 caught · 9 n/a · 0 missed — y el primer barrido encontró un MISSED real, que era del propio lado rojo |
+| 4 | Censo en 0 kinds diferidos y 0 acciones sin manejar | ✅ `deferred=0` (era 2) · `ported=7` (era 5) · las 5 fábricas en `MIGRATED` |
+| 5 | Paridad de comportamiento medida, con lado rojo que muerde | ✅ 16/6 y 14/6 casos/códigos · 0 desvíos · 4/4 plantas cazadas · `eval_gate_parity` byte-idéntico |
+| 6 | `import_boundary` verde con la excepción declarada | ✅ 119 módulos · lado rojo también verde (4 violaciones plantadas detectadas) |
+| 7 | Residuos como nodos con disparador por CONDICIÓN | ✅ `N-0112`, `N-0113` vivos con disparador; `N-0114` cerrado; `N-0111` re-medido |
+
+Y uno que la fila de `§11.3` no pedía y el trabajo sí necesitó: los tres testigos quedan
+**registrados en la suite** (31 gates, `registry_law` verde), `eval_gate_parity` incluido, que llevaba
+un incremento entero sin que nada lo corriera.
+
+## Lo que corrige de la spec (ADR-032 A5)
+
+1. **`§11.3`, fila INC-10: «`ci --rederive` == pin (11/11, 6/6)»** → son **23 estaciones en 3
+   targets** (12 · 6 · 5). `11/11` es el RTM de ASF, no su pin; `6/6` acierta el de `full-stack` por
+   coincidencia y, al hacerlo, deja fuera de la fila a la instancia `tasks`. Cuarta vez que la tabla
+   se escribe leyendo la proyección de `STATE.md` en vez de los pines.
+2. **«re-verificación pura, cero generación nueva»** es cierto del PRODUCTO y falso de la
+   PLATAFORMA: la fila esconde que faltaban dos ejecutores. Lo que no había que generar era código de
+   fábrica; código de v3 sí hubo, y con testigo.
+3. **`§11.2` (P1+P2) no cubre un ejecutor recién portado.** Las cuatro clases de sabotaje perturban
+   la línea o el producto, nunca los insumos del ejecutor. La regla que faltaba, y que este
+   incremento deja aplicada: **portar un ejecutor obliga a su testigo de paridad**.
+
+## Residuos VIVOS (disparador por CONDICIÓN, ninguno por fecha)
+
+- **`N-0112`** — el árbol de nodos derivó en silencio medio incremento: su verbo (`tools/plan.py`)
+  vive FUERA del sustrato y su `plan check` no está en `meta check`. Reparado y validado hoy (114
+  nodos, verde); la CLASE no. Disparador: INC-11 CUTOVER, cuando el verbo y su check entren al
+  sustrato.
+- **`N-0113`** — la ley del slot acota lo que un generador ESCRIBE y lo que DEJA, no lo que BORRA:
+  durante la fase 4 el generador corrió `git checkout` sobre `plan/tree.json` (fuera de su
+  `allow_globs`, con trabajo mío sin commitear adentro) y lo destruyó **con las dos defensas en
+  verde**, porque revertir deja el árbol más limpio. Espejo exacto del bug para el que se construyó
+  SLOT-FOOTPRINT. Mitigación aplicada: commitear antes de delegar. El arreglo no es prosa en la
+  definición del agente —un generador puede ignorarla— sino un diente. Disparador: el próximo
+  incremento que toque la columna de delegación.
+- **`N-0111`** (re-medido acá) — `product_broken` es N/A en **9 de 10** targets; solo el fixture la
+  planta.
+- **`N-0109`**, **`N-0105`**, **`N-0098`**, **`N-0102`** — sin cambios, cada uno con su condición.
+
 ## Evidencia
-<se llena con lo medido, fase por fase>
+Corridas grabadas en `.gen/baseline/` (no versionado, re-derivable): `eval_gate_parity.txt` (la línea
+base del refactor), `sabotage-10targets.txt` (el barrido con el MISSED) y
+`sabotage-10targets-v2.txt` (el barrido después del arreglo). Los veredictos de los dos slots, en
+`.gen/v3-port-live-run-eval-floor.verdict.json` y `.gen/v3-parity-live-run-eval-floor.verdict.json`.

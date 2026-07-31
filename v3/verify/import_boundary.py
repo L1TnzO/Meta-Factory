@@ -91,6 +91,21 @@ _ORACLE_READERS: dict[str, str] = {
         "claim measured against uncommitted state measures whatever was lying around), an empty or "
         "failed `git show` RAISES instead of silently comparing against nothing, and the read "
         "survives INC-11 deleting v2 because a commit is immutable",
+    "v3/verify/live_run_parity.py":
+        "same instrument, same terms and same ref source as `eval_gate_parity` above, for the "
+        "`live_run` executor ported in V3-INC10. Granted separately rather than by widening that "
+        "line because it reads a WIDER surface of v2 and the permission should say so: v2's "
+        "`live_run` opens with a relative import onto its sibling `eval_gate`, so the oracle cannot "
+        "be extracted as one file and run as a script — it is extracted as a throwaway PACKAGE of "
+        "two bodies (the executor and that sibling), both at the same ref, so the oracle's own "
+        "relative import resolves to v2's `eval_gate` and never to v3's port of it. That last "
+        "clause is the whole point of the read: an oracle that silently fell through to the ported "
+        "sibling would be comparing the port against itself and would agree perfectly",
+    "v3/verify/eval_floor_parity.py":
+        "identical grant, identical reasoning, for the `eval_floor` executor ported in the same "
+        "increment: it too imports from `eval_gate` (`_LEAKY_ENV`), so it too needs the two-body "
+        "package extraction rather than a single-file one, and the same anti-self-comparison clause "
+        "is what the second body is for",
 }
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}

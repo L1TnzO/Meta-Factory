@@ -27,8 +27,9 @@ a malformed `SCORE:` value. A thirteenth case, `boundary_equal_pass`, exists ONL
 `threshold_flip` sabotage (below) something to catch.
 
 LOCK #1: the matrix must exercise DISTINCT oracle exit codes, not merely distinct case names — a matrix
-where every case happened to return 2 would compare equal and prove nothing. `_diversity_problem` counts
-the distinct exit codes the ORACLE returned across the matrix and goes red under `_MIN_DISTINCT_CODES`.
+where every case happened to return 2 would compare equal and prove nothing. The shared harness's
+`diversity_problem` (extracted to `oracle_parity.py`, INC-9) counts the distinct exit codes the ORACLE
+returned across the matrix and goes red under `_MIN_DISTINCT_CODES`.
 
 SABOTAGE plants a defect in a COPY of the ported body read off disk — never the real file — and asserts
 the comparison catches it:
@@ -46,18 +47,16 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 import sys
 import tempfile
 from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 
+from . import oracle_parity as harness
 from ..kernel.report import Verdict
 
-_V3 = Path(__file__).resolve().parent.parent
-_ROOT = _V3.parent
-_ORACLE_REF = _V3 / "oracle_ref.json"
+_V3 = harness.V3_DIR
+_ROOT = harness.ROOT_DIR
 
 #: v2's path to the check body this gate judges, read at `oracle_ref` via `git show` — never imported,
 #: never executed in-process (ADR-031 §2.1: v2 and v3 share a tree, so this reads pinned HISTORY, not
@@ -74,20 +73,6 @@ _PORTED_PATH = _V3 / "verify" / "checks" / "eval_gate.py"
 #: fewer distinct oracle exit codes than this over the whole matrix means the matrix proves nothing
 #: (LOCK #1 in the module docstring).
 _MIN_DISTINCT_CODES = 4
-
-
-def _oracle() -> dict:
-    return json.loads(_ORACLE_REF.read_text(encoding="utf-8"))
-
-
-def _extract_oracle(ref: str, dest: Path) -> None:
-    """`git show <ref>:<v2 path>` into `dest`. Raises if the read fails or is empty — a silent empty
-    oracle body would make every case compare "equal" (nothing to run) instead of proving anything."""
-    proc = subprocess.run(["git", "show", f"{ref}:{_V2_PATH}"], cwd=_ROOT, capture_output=True, text=True)
-    if proc.returncode != 0 or not proc.stdout.strip():
-        raise RuntimeError(f"git show {ref}:{_V2_PATH} failed or returned nothing (exit {proc.returncode}): "
-                           f"{proc.stderr.strip()}")
-    dest.write_text(proc.stdout, encoding="utf-8")
 
 
 # ── the matrix: synthetic scorer / output / degraded fixtures, one case per exit-table row ─────────────
@@ -255,10 +240,7 @@ def _case_malformed_score_value(base: Path) -> list[str]:
             json.dumps({"quality": 0.5}), json.dumps([])]
 
 
-@dataclass(frozen=True)
-class Case:
-    name: str
-    build: Callable[[Path], list[str]]  # -> [workdir, scorer-json, output, degraded, thresholds-json, bootstrap-json]
+Case = harness.Case  # -> build returns [workdir, scorer-json, output, degraded, thresholds-json, bootstrap-json]
 
 
 MATRIX: tuple[Case, ...] = (
@@ -278,50 +260,19 @@ MATRIX: tuple[Case, ...] = (
 )
 
 
-# ── run both bodies, case by case, over IDENTICAL argv / cwd / env ─────────────────────────────────────
-def _run_case(prefix: list[str], argv6: list[str], cwd: Path, env: dict) -> int:
-    proc = subprocess.run([sys.executable, *prefix, *argv6], cwd=str(cwd), env=env,
-                          capture_output=True, text=True)
-    return proc.returncode
-
-
-def _run_matrix(oracle_prefix: list[str], ported_prefix: list[str], cwd: Path, env: dict,
-                base: Path) -> tuple[list[str], dict[str, int]]:
-    problems: list[str] = []
-    codes: dict[str, int] = {}
-    for case in MATRIX:
-        argv6 = case.build(base)
-        oracle_rc = _run_case(oracle_prefix, argv6, cwd, env)
-        ported_rc = _run_case(ported_prefix, argv6, cwd, env)
-        codes[case.name] = oracle_rc
-        if oracle_rc != ported_rc:
-            problems.append(f"{case.name}: oracle exit {oracle_rc} != ported exit {ported_rc}")
-    return problems, codes
-
-
-def _diversity_problem(codes: dict[str, int]) -> str | None:
-    """LOCK #1: a matrix that never exercises more than a handful of oracle exit codes proves nothing —
-    see module docstring."""
-    distinct = sorted(set(codes.values()))
-    if len(distinct) < _MIN_DISTINCT_CODES:
-        return (f"the matrix exercised only {len(distinct)} distinct oracle exit code(s) {distinct} "
-                f"across {len(codes)} case(s) — fewer than {_MIN_DISTINCT_CODES} means the comparison "
-                f"could pass by coincidence")
-    return None
-
-
 def check(ref: str) -> tuple[list[str], dict]:
     problems: list[str] = []
     with tempfile.TemporaryDirectory(prefix="v3-eval-gate-parity-") as tmp:
         base = Path(tmp)
         oracle_path = base / "oracle_eval_gate.py"
-        _extract_oracle(ref, oracle_path)
+        harness.extract_oracle(ref, _V2_PATH, oracle_path)
         env = dict(os.environ)
         cases_dir = base / "cases"
         cases_dir.mkdir()
-        mismatches, codes = _run_matrix([str(oracle_path)], ["-m", _PORTED_MODULE], _ROOT, env, cases_dir)
+        mismatches, codes = harness.run_matrix([str(oracle_path)], ["-m", _PORTED_MODULE], _ROOT, env,
+                                                cases_dir, MATRIX)
         problems.extend(mismatches)
-        diversity = _diversity_problem(codes)
+        diversity = harness.diversity_problem(codes, _MIN_DISTINCT_CODES)
         if diversity:
             problems.append(diversity)
         counts = {"cases": len(MATRIX), "distinct_exit_codes": len(set(codes.values())),
@@ -330,18 +281,12 @@ def check(ref: str) -> tuple[list[str], dict]:
 
 
 # ── the red side: plant a defect in a COPY of the port, never the real file ────────────────────────────
-class CannotPlant(Exception):
-    """A plant found nothing to perturb in the ON-DISK ported body. Raised rather than returning a bool,
-    so a refusal to plant can never be mistaken for a catch (INC-5's law, applied by INC-8 to a red
-    side)."""
-
-
 def _plant_threshold_flip(src: str) -> str:
     """`score < threshold` (fails under) becomes `score <= threshold` (fails AT OR under) — the "pass at
     >= threshold" rule silently becomes "pass at > threshold"."""
     target = "scores[metric] < float(threshold)"
     if target not in src:
-        raise CannotPlant("the `< threshold` comparison text was not found in the ported body on disk")
+        raise harness.CannotPlant("the `< threshold` comparison text was not found in the ported body on disk")
     return src.replace(target, "scores[metric] <= float(threshold)", 1)
 
 
@@ -353,8 +298,8 @@ def _plant_drop_negative(src: str) -> str:
     tail = "\ndef main("
     end = src.find(tail, start) if start != -1 else -1
     if start == -1 or end == -1:
-        raise CannotPlant("the negative-run block (or the `def main(` after it) was not found in the "
-                          "ported body on disk")
+        raise harness.CannotPlant("the negative-run block (or the `def main(` after it) was not found in "
+                                  "the ported body on disk")
     return src[:start] + "    return 0\n\n\n" + src[end + 1:]
 
 
@@ -372,19 +317,20 @@ def _run_sabotage(ref: str) -> int:
     with tempfile.TemporaryDirectory(prefix="v3-eval-gate-parity-sabotage-") as tmp:
         base = Path(tmp)
         oracle_path = base / "oracle_eval_gate.py"
-        _extract_oracle(ref, oracle_path)
+        harness.extract_oracle(ref, _V2_PATH, oracle_path)
         env = dict(os.environ)
         for name, plant in _PLANTS.items():
             try:
                 patched_src = plant(ported_src)
-            except CannotPlant as exc:
+            except harness.CannotPlant as exc:
                 na.append(f"{name}: {exc}")
                 continue
             patched_path = base / f"patched_{name}.py"
             patched_path.write_text(patched_src, encoding="utf-8")
             cases_dir = base / f"cases_{name}"
             cases_dir.mkdir()
-            mismatches, _ = _run_matrix([str(oracle_path)], [str(patched_path)], _ROOT, env, cases_dir)
+            mismatches, _ = harness.run_matrix([str(oracle_path)], [str(patched_path)], _ROOT, env,
+                                                cases_dir, MATRIX)
             (caught if mismatches else missed).append(name)
 
     if missed:
@@ -404,7 +350,7 @@ def main(argv: list[str]) -> int:
     if argv:
         return Verdict("v3-eval-gate-parity", 2, f"takes no arguments; got {argv!r}").emit()
 
-    ref = _oracle()["oracle_ref"]
+    ref = harness.oracle_ref()
 
     if os.environ.get("V3_EVAL_GATE_PARITY_SABOTAGE") == "1":
         return _run_sabotage(ref)

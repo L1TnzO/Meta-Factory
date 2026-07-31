@@ -44,6 +44,15 @@ class BuildContext:
     root: Path
     meta_root: Path
     subst: dict = field(default_factory=dict)
+    #: Where the factory's GENERATOR lives (`codegen/`, the `generate` slot's `via`). For the DEFAULT
+    #: product it IS `root`; for a product INSTANCE (R1, ADR-015) `root` is `products/<p>/` — its own
+    #: evidence and its own pin — while the chassis stays `factories/<slug>/`, the shared generator.
+    #: `None` means "same as root", which keeps the 1:1 line byte-identical.
+    chassis: Path | None = None
+
+    @property
+    def generator_home(self) -> Path:
+        return self.chassis if self.chassis is not None else self.root
 
 
 def apply_builds(station: dict, ctx: BuildContext) -> list[str]:
@@ -82,6 +91,27 @@ def _render(build: dict, ctx: BuildContext) -> str:
     return f"render {dest.relative_to(ctx.root)}"
 
 
+def _resolve_via_against_chassis(arg: str, ctx: BuildContext) -> str:
+    """Resolve a relative `via` file-arg (the generator script) against the CHASSIS.
+
+    A product INSTANCE runs with `cwd == root == products/<p>/`, but the factory's generator lives in
+    the chassis — so the argv `python codegen/scaffold_product.py`, taken literally from the instance's
+    workdir, names a file that does not exist. The generator then fails to launch, `dest` stays absent
+    and the station goes red for a reason that has nothing to do with the product (measured on
+    `iot/fleet` before this existed).
+
+    ONLY a relative arg that names an existing file under the chassis is rewritten, to its absolute
+    path. Interpreters, flags and inline code (`python`, `-c`, `…`) are left verbatim — the substrate
+    names no tech (ADR-012); `arg` is free DATA the plan chose. For the default product (chassis ==
+    root) this rewrites the same file to an absolute path, which is functionally identical: the
+    generate slot is build-time and argv never enters the exit-code-based `proof_sha`.
+    """
+    if os.path.isabs(arg):
+        return arg
+    cand = ctx.generator_home / arg
+    return str(cand.resolve()) if cand.is_file() else arg
+
+
 def _generate(build: dict, ctx: BuildContext) -> list[str]:
     """The creative slot (C1, ADR-013): orchestrate a generator declared in DATA; verify nothing.
 
@@ -108,7 +138,7 @@ def _generate(build: dict, ctx: BuildContext) -> list[str]:
         env["METAFACTORY_BRIEF"] = str(brief)
         messages.append(f"brief {brief.relative_to(ctx.root)}")
 
-    via = [render_text(str(a), ctx.subst) for a in build["via"]]
+    via = [_resolve_via_against_chassis(render_text(str(a), ctx.subst), ctx) for a in build["via"]]
     try:
         rc = subprocess.run(via, cwd=str(ctx.root), env=env, capture_output=True,
                             text=True).returncode

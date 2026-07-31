@@ -13,16 +13,19 @@ WHAT IT PRODUCES. The raw station mappings, in `order_stations` order, with `che
 dial, `predecessors` decides the gate. A loader that returned a trimmed shape would move those
 decisions here, where nothing checks them.
 
-TWO REFUSALS, both fail-closed, both because the silent alternative is a green that means nothing:
+ONE REFUSAL LEFT, fail-closed, because the silent alternative is a green that means nothing:
+**an empty station set is REFUSED by the caller** (Lock #1's shape). This module reports the count;
+`v3.verify.rederive` treats zero as red. A line of no stations re-derives to an empty verdict, and an
+empty verdict compares equal to nothing at all.
 
-  1. **A check declaring `when` is REFUSED.** Conditional activation is real (v2 has a
-     `check_when_guard` gate for it) and no line migrated so far uses it. Ignoring the key would run
-     a check that should have been skipped, or skip one that should have run — and either way the
-     station's `proof_sha` changes without anyone deciding it should. Refusing says so out loud; it
-     lands with the factory that first needs it.
-  2. **An empty station set is REFUSED by the caller** (Lock #1's shape). This module reports the
-     count; `v3.verify.rederive` treats zero as red. A line of no stations re-derives to an empty
-     verdict, and an empty verdict compares equal to nothing at all.
+THE OTHER REFUSAL CAME DUE (V3-INC9). A check declaring `when` used to raise: conditional activation
+was real but unexercised, and ignoring the key would have run a check that should have been skipped —
+moving a `proof_sha` with nobody deciding. `full-stack-kotlin` is the factory that first needs it
+(`s9/frontend_design_floor`, guarded on `frontend_surface: model-native`), so `check_active` below
+transcribes v2's rule instead of refusing it. What makes that transcription checkable rather than
+plausible: the guard CHANGES THE SET OF CHECK NAMES, and `proof_sha` hashes exactly that set — so
+getting it wrong in EITHER direction moves s9's sha away from a committed pin. `helpdesk`/`snipeit`
+pin s9 WITH the check; the default and `assets` pin it WITHOUT.
 
 `ctx` IS PASSED AS `None` to `resolve_check`. That is not laziness: v2's own `resolve_check` never
 reads it either (`v3.verify.kinds` documents the grep), so passing a fabricated context here would
@@ -53,6 +56,28 @@ def load_stations(factory_dir: Path) -> list[dict]:
     return order_stations(raw)
 
 
+def check_active(check: dict, subst: dict) -> bool:
+    """A check's DATA-only `when:` guard (PORTED, V3-INC9 — transcribed from v2's `runner._check_active`).
+
+    A flat map of substitution-key → required value (`when: {frontend_surface: model-native}`). The
+    check runs only when EVERY entry matches the effective substitution. A guarded check that does not
+    match is SKIPPED — it never enters `cmds`, so it contributes no `(name, exit)` pair and the station
+    re-derives a BYTE-IDENTICAL `proof_sha`. That is what lets a product opt in without touching the
+    pin of one that did not: it is the per-CHECK analogue of `station_activation`.
+
+    **An ABSENT key is `""`, never an error.** This is the load-bearing half of the transcription and
+    the easy one to "improve" wrongly. `full-stack-kotlin`'s default product does not declare
+    `frontend_surface` at all, so the guard on `s9/frontend_design_floor` must evaluate to False and
+    skip — a stricter port that raised on the missing key would refuse the very line it exists to run.
+
+    The guard names no domain and no tech; it is DATA (ADR-012).
+    """
+    when = check.get("when")
+    if not when:
+        return True
+    return all(str(subst.get(key, "")) == str(value) for key, value in when.items())
+
+
 def resolve_line(stations: list[dict], subst: dict) -> list[dict]:
     """Replace each station's declared checks with `{name, cmd}` — the shape the runner executes.
 
@@ -61,15 +86,9 @@ def resolve_line(stations: list[dict], subst: dict) -> list[dict]:
     """
     line: list[dict] = []
     for station in stations:
-        checks = []
-        for check in station.get("checks") or ():
-            if check.get("when"):
-                raise ValueError(
-                    f"station {station.get('id')!r} check {check.get('name')!r} declares `when`: "
-                    f"conditional check activation is not ported yet, and ignoring it would move a "
-                    f"station's proof_sha without anyone deciding it should")
-            checks.append({"name": str(check["name"]),
-                           "cmd": resolve_check(check, None, station, subst)})
+        checks = [{"name": str(check["name"]), "cmd": resolve_check(check, None, station, subst)}
+                  for check in station.get("checks") or ()
+                  if check_active(check, subst)]
         line.append({**station, "checks": checks})
     return line
 

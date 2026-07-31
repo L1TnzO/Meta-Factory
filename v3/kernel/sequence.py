@@ -38,6 +38,23 @@ def order_stations(names: list) -> list:
     return sorted([n for n in names if not str(n).startswith("_")], key=natural_key)
 
 
+def norm_activation(value) -> str:
+    """Canonicalize an activation OVERRIDE to the vocabulary `active_in` reads (PORTED, V3-INC9).
+
+    It lives beside `active_in` on purpose: the two halves of that vocabulary — who WRITES "off" and
+    who READS it — are then auditable in one file instead of two.
+
+    Why it is not `str(value)`: YAML 1.1 parses a bare `off`/`no` as the bool `False`, and a raw
+    `False` stringifies to `"False"` which, being `!= "off"`, reads as ACTIVE — the exact opposite of
+    what the product asked for, and silently. Transcribed from v2's `cli._norm_activation`.
+    """
+    if value is False or str(value).strip().lower() in ("off", "false", "no", "0"):
+        return "off"
+    if value is True or str(value).strip().lower() in ("on", "always", "true", "yes", "1"):
+        return "always"
+    return str(value)
+
+
 def active_in(station: dict, dial: str = "harden") -> bool:
     """Is the station active under the draft→harden dial?
 

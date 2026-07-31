@@ -52,6 +52,7 @@ from ..host.line import load_line
 from ..host.runner import RunContext, run_line
 from ..kernel.pin import pin_matches
 from ..kernel.report import Verdict
+from ..kernel.sequence import norm_activation
 from ..spec.loader import load_spec
 
 _V3 = Path(__file__).resolve().parent.parent
@@ -61,7 +62,7 @@ _ROOT = _V3.parent
 #: INC-8 adds `iot`, INC-9 `full-stack-kotlin`, INC-10 the two frozen ones. Keeping it a literal is
 #: what makes the count add up: a factory believed migrated but absent here is simply never run, and
 #: that is the shape of bug this repo keeps catching. Adding a name means running its line.
-MIGRATED: tuple[str, ...] = ("dummy", "iot")
+MIGRATED: tuple[str, ...] = ("dummy", "iot", "full-stack-kotlin")
 
 
 class CannotPlant(Exception):
@@ -113,8 +114,11 @@ def targets(fdir: Path, slug: str) -> list[Target]:
     return found
 
 
-def materialize_instance(target: Target) -> None:
+def materialize_instance(target: Target) -> dict[str, str]:
     """Derive an instance's effective `factory.spec.yml` from COMMITTED source, in the staged copy.
+
+    Returns the instance's per-station ACTIVATION overrides, canonicalized — see below for why they
+    are returned rather than only written.
 
     The factory's generator reads its blueprint from `root/factory.spec.yml`; an instance's copy of
     that file is **gitignored** in v2 (`factories/*/products/*/factory.spec.yml`) and re-written by the
@@ -123,23 +127,57 @@ def materialize_instance(target: Target) -> None:
     `product.yml`. That is a STRONGER claim than v2's, not a weaker one: the effective spec comes from
     two committed files rather than from whatever a working tree happens to be holding.
 
-    `station_activation` is REFUSED, not ignored. It is a per-instance override of which stations run;
-    silently dropping it would run a station this product meant to skip (or the reverse) and move a
-    `proof_sha` with nobody deciding — the same failure `when` is refused for. No migrated line
-    declares it today; the four `full-stack-kotlin`/`full-stack` products do, and they arrive with
-    INC-9/INC-10.
+    `station_activation` CAME DUE (V3-INC9, node `N-0101`). It used to raise. It is the per-instance
+    override of WHICH STATIONS RUN, and all three `full-stack-kotlin` products declare it: `assets` and
+    `helpdesk` turn `s6` off (they track no `domain_gen/`, so the station's live-LLM generate has
+    nothing to skip onto), `snipeit` turns it on. Three things about the transcription:
+
+    1. It is **popped** before the blueprint becomes `domain.product` — exactly as v2 does. It is
+       instance CONFIG, not domain data; leaving it in would push a substrate key into the scaffold's
+       blueprint and into `subst`.
+    2. It is returned as well as written, because v3 and v2 build the line from different places. v2
+       re-materializes the instance's own `stations/` from the effective spec, so writing `activation`
+       into `domain.station_sequence` is enough. v3 loads the line from the CHASSIS (the station
+       STRUCTURE belongs to the factory; only the blueprint differs) — so an override written only
+       into the spec would be a no-op with a docstring. The caller applies it to the line.
+    3. An override naming a station **that does not exist in the line is refused**. v2 tolerates it
+       silently, because there it is a dict lookup that simply never matches. Here that silence would
+       be the shape this repo keeps catching — a knob that reports success while perturbing nothing.
+       The pin would eventually catch it, but as a bare sha mismatch; this says which key is wrong.
     """
     blueprint = yaml.safe_load((target.root / "product.yml").read_text(encoding="utf-8")) or {}
-    if isinstance(blueprint, dict) and "station_activation" in blueprint:
-        raise ValueError(
-            f"{target.label}: product.yml declares `station_activation`, which v3 does not implement "
-            f"yet. It is REFUSED rather than ignored: ignoring it would run a station this instance "
-            f"meant to skip (or skip one it meant to run) and move a proof_sha with nobody deciding")
+    overrides: dict[str, str] = {}
+    if isinstance(blueprint, dict):
+        declared = blueprint.pop("station_activation", {}) or {}
+        overrides = {str(sid): norm_activation(value) for sid, value in declared.items()}
     base = yaml.safe_load((target.chassis / "factory.spec.yml").read_text(encoding="utf-8")) or {}
     effective = copy.deepcopy(base)
     effective.setdefault("domain", {})["product"] = blueprint
+    for station in (effective.get("domain", {}) or {}).get("station_sequence", []) or []:
+        if isinstance(station, dict) and str(station.get("id")) in overrides:
+            station["activation"] = overrides[str(station["id"])]
     (target.root / "factory.spec.yml").write_text(
         yaml.safe_dump(effective, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    return overrides
+
+
+def apply_activation(line: list[dict], overrides: dict[str, str], label: str) -> list[dict]:
+    """Stamp an instance's `station_activation` onto the chassis line it was loaded from.
+
+    The line is copied, never mutated: the caller may still hold the chassis's parsed stations, and
+    two targets of the same factory are re-derived from that same structure one after the other.
+    `v3.kernel.sequence.active_in` already skips `activation: off`, and `predecessors` is already
+    transparent to a skipped station, so this is the whole wire — nothing downstream changes.
+    """
+    unknown = sorted(set(overrides) - {str(station.get("id")) for station in line})
+    if unknown:
+        raise ValueError(
+            f"{label}: product.yml `station_activation` names {unknown}, which the factory's line does "
+            f"not contain. Refused rather than ignored: an override that matches no station perturbs "
+            f"nothing while looking like it decided something")
+    return [{**station, "activation": overrides.get(str(station.get("id")),
+                                                    station.get("activation", "always"))}
+            for station in line]
 
 
 def tracked(root: Path, rel: str) -> list[str]:
@@ -217,8 +255,9 @@ def rederive(root: Path, slug: str, *, product: str | None = None,
         if target is None:
             return False, [f"{slug}: no target {product!r} (git tracks no products/{product}/product.yml)"], \
                 {"files": copied}
+        overrides: dict[str, str] = {}
         if target.product:
-            materialize_instance(target)
+            overrides = materialize_instance(target)
 
         pin_path = target.root / "pinned_verdict.json"
         if not pin_path.exists():
@@ -232,6 +271,8 @@ def rederive(root: Path, slug: str, *, product: str | None = None,
         from ..host.line import load_stations   # noqa: PLC0415 — raw stations, for the red side only
         raw = load_stations(target.chassis)
         line = load_line(target.chassis, spec.subst)
+        if overrides:
+            line = apply_activation(line, overrides, target.label)
         note = ""
 
         if sabotage == "product_broken":

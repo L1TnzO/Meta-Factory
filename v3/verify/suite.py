@@ -373,6 +373,37 @@ def _register_economy(registry: Registry) -> None:   # + INC-7's two migration g
                "disposition verified against an artifact at the oracle commit",
         witness=Witness("sabotage_env", "V3_ECONOMY_CENSUS_SABOTAGE"),
     ))
+    # The three BEHAVIOURAL parity witnesses. Registered rather than left standalone because
+    # `rederive` above proves P1 only, and P1 cannot tell a faithful port from a hollowed one:
+    # `proof_sha` hashes check names and exit codes, so an executor rewritten to `return 0`
+    # reproduces the same pin AND survives every line-level sabotage class, which perturbs the LINE
+    # and never the executor's inputs (spec 11 §11.2, stated rather than discovered). These run v2's
+    # real body at the oracle commit beside the port over one case matrix and compare exit codes —
+    # the only instruments in the suite whose subject is a ported BODY. `eval_gate_parity` has
+    # existed since V3-INC9 and was never registered; leaving it out is how an instrument stops
+    # being run without anyone deciding to stop running it (node `N-0112`).
+    registry.register(Gate(
+        name="eval_gate_parity",
+        argv=(PY, "-m", "v3.verify.eval_gate_parity"),
+        proves="v3's ported `eval_gate` answers with the same exit code as v2's real body at the "
+               "oracle commit, over a matrix of scenarios reaching several distinct codes",
+        witness=Witness("sabotage_env", "V3_EVAL_GATE_PARITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="live_run_parity",
+        argv=(PY, "-m", "v3.verify.live_run_parity"),
+        proves="v3's ported `live_run` answers with the same exit code as v2's real body at the "
+               "oracle commit — including the codes it passes through from a bootstrap or a live "
+               "driver, and the DEFERRED path taken when there is neither a pin nor a provider",
+        witness=Witness("sabotage_env", "V3_LIVE_RUN_PARITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="eval_floor_parity",
+        argv=(PY, "-m", "v3.verify.eval_floor_parity"),
+        proves="v3's ported `eval_floor` answers with the same exit code as v2's real body at the "
+               "oracle commit, the degraded-evidence side included",
+        witness=Witness("sabotage_env", "V3_EVAL_FLOOR_PARITY_SABOTAGE"),
+    ))
 
 
 

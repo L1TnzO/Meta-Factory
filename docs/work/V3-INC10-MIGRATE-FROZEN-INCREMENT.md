@@ -1,7 +1,7 @@
-<!-- meta:doc sha=2d54de693d7b2a8aab143d46d868fdcceb4a1823 updated=2026-07-31T21:06Z -->
+<!-- meta:doc sha=83ef4b47280174bb2d59e3494dd04f11cbbaf21e updated=2026-07-31T21:13Z -->
 # Incremento V3-INC10-MIGRATE-FROZEN
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-07-31T21:13Z) (creado 2026-07-31T19:42Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-10 + `§2` (P1/P2) + `ADR-015` (R1,

@@ -62,7 +62,8 @@ _ROOT = _V3.parent
 #: INC-8 adds `iot`, INC-9 `full-stack-kotlin`, INC-10 the two frozen ones. Keeping it a literal is
 #: what makes the count add up: a factory believed migrated but absent here is simply never run, and
 #: that is the shape of bug this repo keeps catching. Adding a name means running its line.
-MIGRATED: tuple[str, ...] = ("dummy", "iot", "full-stack-kotlin")
+MIGRATED: tuple[str, ...] = ("dummy", "iot", "full-stack-kotlin", "agent-systems-factory",
+                             "full-stack")
 
 
 class CannotPlant(Exception):

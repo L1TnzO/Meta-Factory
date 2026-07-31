@@ -12,14 +12,20 @@ waiver (`FSK-COVERAGE-FULL[-100]`, commits 5b96696 · 43f295d). This check is th
                epoch — everything earlier is grandfathered, already legislated in HONEST-STATE §7)
                that touches a frozen path must carry, in its OWN tree, an ABIERTO work-doc of the
                owning factory with a valid waiver.
-  RED side   — three synthetic scenarios prove the law itself bites (diff-without-waiver MUST flag,
-               waiver-without-diff MUST flag, diff+valid-waiver MUST pass); if the detector goes
-               soft the check FAILS (two-sided, anti-decorative).
+  RED side   — six synthetic scenarios prove the law itself bites (diff-without-waiver MUST flag,
+               waiver-without-diff MUST flag, diff+valid-waiver MUST pass, a prose MENTION of the
+               vocabulary must NOT count as a declaration, a mention must NOT cover a diff, and a
+               declaration dressed in markdown must still count); if the detector goes soft the check
+               FAILS (two-sided, anti-decorative).
 
 THE BOUNDARY, legislated (closes the 2026-07-10 gray zone, HONEST-STATE §7). The waiver is ONE line
 in the open work-doc of the owning level (`factories/<f>/docs/work/*-INCREMENT.md`):
 
     Codegen-freeze-waiver: alcance=<verificacion|superficie> · motivo: <por qué> · cita: ADR-NNN
+
+The line must OPEN with the token (list/quote/bold markers are fine). DECLARING is not MENTIONING: a
+sentence that names the vocabulary in prose is not a waiver and is not a malformed one either — the
+narrower reading is fail-CLOSED, so its worst case is a false alarm, never a silent pass (`parse_waivers`).
 
   - alcance=verificacion — the diff feeds the EMITTED VERIFICATION (proofs/tests/coverage wiring:
     the verification profile, the part ADR-023 §1 keeps ALIVE). Cita `ADR-023` (§1) suffices.
@@ -42,7 +48,24 @@ from pathlib import Path
 
 # sha -> written reason. Editing this constant is a DELIBERATE governance act (like registry.KINDS):
 # it grandfathers a specific historical commit that cannot carry an in-tree waiver anymore.
-WAIVED_COMMITS: dict[str, str] = {}
+WAIVED_COMMITS: dict[str, str] = {
+    "ba05918d203f9ef7f4021c7320cb62c04673e714":
+        "2026-07-13 · full-stack-kotlin · `fix(FSK-CODEGEN): escape quotes/backslashes/newlines in "
+        "jsonVal`. Legislated 2026-07-31 by FREEZE-AUDIT-ANCHOR, with eyes, for a reason that is "
+        "structural and not a preference: the historical audit reads each commit's OWN tree, so a "
+        "waiver for this diff CANNOT be written after the fact — the only alternatives were to "
+        "legislate it here or to leave the gate permanently red on an unreachable condition, which is "
+        "how a red stops being read. What it fed the frozen codegen was a REAL correctness repair "
+        "(jsonVal quoted without escaping, so any value holding a `\"`, `\\` or newline produced "
+        "invalid JSON on every list/detail read of every product); reverting it to satisfy the freeze "
+        "would have traded correctness for conformance. It is grandfathered, NOT absolved: it landed "
+        "under an increment whose subject was the ADR-027 evaluator (`N-0105` — `increment_guard` "
+        "proves an increment is OPEN, never that a change BELONGS to it), and the detekt regression it "
+        "carried left the factory red for 18 days. The diff itself was brought into conformance by "
+        "`FSK-JSONVAL-DETEKT` (2026-07-31), which declared its waiver in-tree and re-derived 46/46 == "
+        "pin with zero re-pin. This entry closes the audit for the ONE commit; it does not widen the "
+        "law by a byte.",
+}
 
 _SELF_REL = "src/metafactory/verify/checks/codegen_freeze.py"
 _WAIVER_TOKEN = "codegen-freeze-waiver"
@@ -50,6 +73,11 @@ _OPEN_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*")  # mirro
 _ALCANCE_RE = re.compile(r"alcance\s*=\s*(verificacion|superficie)\b", re.IGNORECASE)
 _MOTIVO_RE = re.compile(r"motivo\s*:\s*\S", re.IGNORECASE)
 _CITA_RE = re.compile(r"cita\s*:.*?ADR-\d{3}", re.IGNORECASE)
+#: A DECLARATION is a line that OPENS with the token (after optional list/quote/bold markers), not a line
+#: that merely mentions it. Anchoring is fail-CLOSED by construction: it can only ever remove a line from
+#: consideration, never invent a waiver — a real declaration that failed to anchor stops counting and the
+#: diff goes red as `diff-sin-waiver`. See `parse_waivers` for the incident that forced it.
+_DECL_RE = re.compile(r"^\s*(?:[-*+>]\s+)*\*{0,2}" + _WAIVER_TOKEN + r"\*{0,2}\s*:", re.IGNORECASE)
 
 
 def _git(root: Path, *args: str) -> str:
@@ -61,11 +89,25 @@ def _git(root: Path, *args: str) -> str:
 
 # ── the pure LAW (unit-tested + exercised by the RED side) ───────────────────
 def parse_waivers(text: str) -> tuple[int, list[str]]:
-    """(count of WELL-FORMED waiver lines, problems for malformed ones). A line that names the
-    token but lacks alcance/motivo/cita is a malformed waiver — flagged, never silently ignored."""
+    """(count of WELL-FORMED waiver lines, problems for malformed ones). A line that DECLARES the waiver
+    but lacks alcance/motivo/cita is a malformed waiver — flagged, never silently ignored.
+
+    DECLARING is not MENTIONING (2026-07-31). This used to accept any line CONTAINING the token, and a
+    work-doc that merely discussed the vocabulary in prose — `… → its own increment + `Codegen-freeze-
+    waiver` debate`, a trigger-tagged residual in `FSK-EVALUATOR-ADOPT` — was reported as a MALFORMED
+    declaration, turning the whole factory red for writing a sentence about the law. The rule was
+    unwritable in its own governance docs; this very docstring has to break the token across a line to
+    describe it.
+
+    Anchoring is fail-CLOSED, which is the only reason it is safe to narrow a security check: `_DECL_RE`
+    can only ever REMOVE a line from consideration, never invent one. If a genuine declaration fails to
+    anchor it stops being counted, the diff it was covering has no waiver, and `evaluate` goes RED. The
+    failure mode of getting this wrong is a false ALARM, never a silent pass — the direction a freeze
+    check is allowed to be wrong in.
+    """
     valid, problems = 0, []
     for ln in text.splitlines():
-        if _WAIVER_TOKEN not in ln.lower():
+        if not _DECL_RE.match(ln):
             continue
         missing = [label for label, rx in
                    (("alcance=<verificacion|superficie>", _ALCANCE_RE),
@@ -148,6 +190,14 @@ def _audit_history(root: Path, factories: list[str]) -> tuple[list[str], str]:
 _SYN_DIFF = ["factories/x/codegen/emit.py"]
 _SYN_WAIVER = ("Codegen-freeze-waiver: alcance=verificacion · motivo: escenario sintético del diente · "
                "cita: ADR-023 §1")
+#: The REAL sentence that used to turn a factory red (`FSK-EVALUATOR-ADOPT`, trigger-tagged residual):
+#: prose that MENTIONS the vocabulary mid-line. It is a witness, not a hypothesis — kept verbatim.
+_SYN_MENTION = ("**Residual:** reference-entity update/delete = a spec-grammar decision; trigger = a real\n"
+                "product spec that REQUIRES editable reference entities → its own increment + "
+                "`Codegen-freeze-waiver` debate. Never a quality-loop side effect.")
+#: A DECLARATION dressed in markdown is still a declaration — the anchor must not be so tight that a
+#: bulleted or bolded waiver silently stops counting (that would be fail-closed, but noisily wrong).
+_SYN_ADORNED = f"- **Codegen-freeze-waiver**: {_SYN_WAIVER.split(':', 1)[1].strip()}"
 
 
 def _tooth_alive() -> list[str]:
@@ -158,6 +208,14 @@ def _tooth_alive() -> list[str]:
         dead.append("waiver-sin-diff NO se marcó")
     if evaluate(_SYN_DIFF, "X-INCREMENT.md", _SYN_WAIVER):
         dead.append("diff+waiver-válido NO pasó (bloquearía todo waiver legítimo)")
+    # DECLARAR no es MENCIONAR, en las dos direcciones — si una de estas se cae, el gate volvió a
+    # confundir prosa con ley (o dejó de leer una ley que está escrita con viñeta/negrita).
+    if evaluate([], "X-INCREMENT.md", _SYN_MENTION):
+        dead.append("una MENCIÓN en prosa se leyó como declaración (sin diff debería pasar)")
+    if not evaluate(_SYN_DIFF, "X-INCREMENT.md", _SYN_MENTION):
+        dead.append("mención+diff NO se marcó: mencionar el token no puede cubrir un diff")
+    if evaluate(_SYN_DIFF, "X-INCREMENT.md", _SYN_ADORNED):
+        dead.append("un waiver con viñeta/negrita dejó de contar (ancla demasiado estricta)")
     return dead
 
 
@@ -197,7 +255,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     print(f"OK codegen_freeze: {len(factories)} fábrica(s) con codegen/ congelado (ADR-023 §3) sin "
-          f"alimentación no-waivereada; {hist_note}; diente RED vivo (3 escenarios sintéticos)")
+          f"alimentación no-waivereada; {hist_note}; diente RED vivo (6 escenarios sintéticos)")
     for line in report:
         print(line)
     return 0

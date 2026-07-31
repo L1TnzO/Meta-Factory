@@ -1518,15 +1518,18 @@
    "parent": "N-0020",
    "title": "s3..s11 de full-stack-kotlin estan SIN MEDIR sobre v3, no verdes: run_line corta en la primera estacion roja, asi que la sonda de INC-9 fase 1 solo pudo hablar de s0/s1/s2. Que el informe nombre una sola estacion es el CORTE, no un resultado sobre las otras nueve — leerlo al reves seria exactamente el error de contar que este repo colecciona. DISPARADOR POR CONDICION: la primera corrida de la linea de FSK que pase s2 (o sea, apenas se cierre N-0103) — ahi recien se sabe que mas falta, y eval_gate (s8) ya se sabe que falta",
    "kind": "question",
-   "state": "open",
-   "evidence": [],
+   "state": "done",
+   "evidence": [
+    "Contestado ejecutando, con la regresion de N-0103 parcheada SOLO en la copia staged: detras de s2 habia UN defecto de v3 (predecessors no hacia transparente un requires_prev inactivo -> assets/helpdesk clavados en s7, 6/11) y UNA pregunta abierta (s9 de snipeit, N-0107). Arreglada la transparencia: 43/46 en 4 targets — default 12/12, assets 11/11, helpdesk 11/11, snipeit 9/12"
+   ],
    "opened_at": "2026-07-31T03:05Z",
    "origin": {
     "session": "2026-07-31",
     "cause": "measurement_cut",
     "ref": "V3-INC9/line-stops-at-first-red"
    },
-   "trigger": "la primera corrida de FSK sobre v3 que supere s2"
+   "trigger": "la primera corrida de FSK sobre v3 que supere s2",
+   "closed_at": "2026-07-31T05:05Z"
   },
   "N-0105": {
    "parent": "N-0022",
@@ -1557,6 +1560,20 @@
     "cause": "gate_red",
     "ref": "V3-INC9/census-reads-untracked"
    }
+  },
+  "N-0107": {
+   "parent": "N-0020",
+   "title": "s9 de full-stack-kotlin/snipeit no re-deriva == pin sobre v3: observability_live sale 127 (el `up` no pudo lanzar: build/install/webapp/bin/webapp no existe tras un bootstrap `gradlew installDist -q` que devolvio 0) y arrastra a los otros 4 checks vivos; coverage_live sale 0. Es el UNICO target de FSK que no cierra: default 12/12, assets 11/11, helpdesk 11/11 — o sea la plataforma corre la linea real entera (PG vivo, Chromium, gradle) y esto es especifico de snipeit, el producto de 39 entidades que ya es el techo declarado del benchmark. HIPOTESIS FALSADA, se registra para que nadie la repita: pense que era el cache global de gradle creyendo UP-TO-DATE una salida borrada, porque mi sonda re-staged sobre una RUTA FIJA; re-corri con mkdtemp unico (como hace el rederive real) y da EXACTAMENTE lo mismo, 43/46. Tampoco es timeout: con el arbol tibio falla en 56s. LO QUE FALTA MEDIR, y es la pregunta que decide de quien es el defecto: si v2 pasa s9 de snipeit HOY. Nadie corrio la linea de FSK desde el 13-07 y el pin de snipeit es del 09-07, asi que puede ser una SEGUNDA regresion de producto de la misma clase que N-0103 en otra estacion. No adivinar: medirlo. DISPARADOR POR CONDICION: la primera corrida de la linea de FSK sobre v2 despues de que N-0103 se arregle",
+   "kind": "question",
+   "state": "open",
+   "evidence": [],
+   "opened_at": "2026-07-31T05:05Z",
+   "origin": {
+    "session": "2026-07-31",
+    "cause": "gate_red",
+    "ref": "V3-INC9/snipeit-s9-observability-127"
+   },
+   "trigger": "la primera corrida de la linea de FSK sobre v2 posterior al arreglo de N-0103, que dice si s9 de snipeit ya estaba roto"
   }
  }
 }

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=60503fd7bd32796b4ce98399032985e9b4cd5647 updated=2026-07-31T02:50Z -->
+<!-- meta:doc sha=eb8da04add85c22431fbe6e92e50c227e23fa3f8 updated=2026-07-31T08:40Z -->
 # Incremento V3-INC9-MIGRATE-FSK
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T02:08Z). Cerralo con `meta increment close`
@@ -209,10 +209,53 @@ prerrequisito de la Fase 4, no parte de este incremento meta.
 | --- | --- | --- |
 | 1 | Sonda: la línea default de FSK sobre v3 con el `when` parcheado inline — qué MÁS se rompe | ✅ §6/§7 |
 | 2 | Port de las dos negativas: `station_activation` (rederive) + `when` por-check (line) | ✅ §8 |
-| 3 | Port del ejecutor `eval_gate` + su gate de paridad de COMPORTAMIENTO (slot delegado) | ⏳ |
-| 1b | **(nivel fábrica, prerrequisito de la 4)** revertir la regresión detekt — sin re-pin | 🚧 §9 |
-| 4 | La corrida verde de los 4 targets de FSK (`MIGRATED` ya los incluye) | ⛔ bloqueada por 1b |
-| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ bloqueada por 1b |
+| 3 | Port del ejecutor `eval_gate` + su gate de paridad de COMPORTAMIENTO (slot delegado) | ✅ §10 |
+| 4a | **Medir** qué falta para 46/46, con `N-0103` parcheado sólo en la copia staged | ✅ §11 |
+| 1b | **(nivel fábrica, prerrequisito)** revertir la regresión detekt — sin re-pin | ⛔ §9 |
+| 4b | La corrida verde de los 4 targets **en el repo** | ⛔ por 1b + `N-0107` |
+| 5 | Lado rojo (P2): el sabotaje contra los 4 targets nuevos, con su cuenta caught/n-a/missed | ⛔ por 4b |
+
+### 10. Fase 3 ✅ — `eval_gate`, y el primer instrumento de paridad de COMPORTAMIENTO
+
+Slot delegado, aceptado por VEREDICTO. Huella exacta: los dos archivos del `allow_globs`. El cuerpo se
+transcribe del oráculo leído con `git show` (nunca del árbol) y conserva la corrida NEGATIVA, que es
+todo su diente. El gate que lo juzga corre AMBOS cuerpos como subprocesos sobre 13 casos y compara
+códigos de salida: **13 casos · 5 exits distintos · 0 mismatches**, sabotaje **2/2 plantados cazados**.
+Es el primer instrumento del rebuild que compara COMPORTAMIENTO — `kinds_parity` compara argv nada más.
+
+El slot terminó rojo y tenía razón: `import_boundary` prohíbe nombrar una ruta de v2 y el módulo nuevo
+necesitaba su línea en `_ORACLE_READERS`, un archivo de COLUMNA fuera de su radio. No la tocó ni
+esquivó el check partiendo el string. La carve-out la escribí yo.
+
+### 11. Fase 4a — la línea REAL de FSK corre sobre v3: **43/46 en 4 targets**
+
+Medición con `N-0103` parcheado **sólo en la copia staged** (el repo no se toca): sirve para ver qué
+hay detrás de `s2`, que es lo que `N-0104` preguntaba.
+
+| target | resultado |
+| --- | --- |
+| default | **12/12 == pin** (310 s) |
+| `assets` | **11/11 == pin** (266 s) |
+| `helpdesk` | **11/11 == pin** (306 s) |
+| `snipeit` | 9/12 — `s9` difiere, `s10`/`s11` sin correr (264 s) |
+
+Detrás de `s2` había **un defecto de v3 y una pregunta**:
+
+- **El defecto (arreglado):** `predecessors` devolvía el `requires_prev` tal cual, sin transparencia —
+  y su docstring ya prometía la propiedad, que es la peor versión del bug. `assets`/`helpdesk` apagan
+  `s6`, `s7` declara `requires_prev: s6`, y la línea se clavaba esperando una prueba que nadie iba a
+  escribir. **33/46 → 43/46.** v2 recursa acá y lo dice en su propio docstring.
+- **La pregunta (`N-0107`):** `s9` de `snipeit`, `observability_live` exit 127 — el `up` no lanza
+  porque `build/install/webapp/bin/webapp` no existe, tras un bootstrap que devolvió 0. Es el único
+  target que no cierra. **Hipótesis falsada, anotada para que nadie la repita:** creí que era el caché
+  global de gradle dando UP-TO-DATE sobre una salida borrada, porque mi sonda re-stageaba sobre una
+  RUTA FIJA; re-corrí con `mkdtemp` único (como hace el `rederive` real) y da exactamente lo mismo.
+  Tampoco es timeout: con el árbol tibio falla en 56 s. Lo que falta medir es si **v2** pasa ese `s9`
+  hoy — puede ser una SEGUNDA regresión de producto de la clase de `N-0103`. No se adivina.
+
+Lo que esto ya prueba: **la plataforma v3 corre la línea real de FSK entera** —12 estaciones, Postgres
+vivo, Chromium, gradle, `eval_gate`— y re-deriva == pin en 3 de 4 targets, con las cuentas distintas
+(12·11·11) que sólo salen si `station_activation` y el `when` se aplicaron donde iban.
 
 ### 8. Fase 2 ✅ — las dos negativas, y por qué el pin las juzga
 

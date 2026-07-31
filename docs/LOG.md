@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4e3c0ad382c285af3bf616fe647cfb5bd2231e63 updated=2026-07-31T18:54Z -->
+<!-- meta:doc sha=63c0482dfde637030cd4f70dc81ee306ee46fb2b updated=2026-07-31T21:11Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).

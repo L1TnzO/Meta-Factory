@@ -45,6 +45,7 @@ from ..control.hooks import compaction_counter
 from ..control.permissions import blast_radius
 from ..economy import ledger, meter
 from ..memory import journal
+from ..memory.rehydrate import UnknownPlanNode, leaf_context
 
 
 @dataclass(frozen=True)
@@ -62,9 +63,19 @@ class Slot:
     #: Which §07.2 routing class this spend belongs to. DATA, not enforcement: it makes the cost
     #: attributable (`v3.control.budget`), it does not stop anything.
     session_class: str = "leaf"
+    #: V3-INC12 P3 (node `N-0086`): the plan node this leaf is working, or `None`. Set, it makes
+    #: `generate()` prepend `leaf_context(...).render()` to the prompt — ancestry + open siblings +
+    #: the derived acceptance condition, per `docs/spec/15-plan-and-memory.md §6` (D2, anti-drift).
+    #: `None` is the honest default: a leaf with no node in the plan gets no fabricated one.
+    plan_node: str | None = None
 
-    def problems(self) -> list[str]:
-        """Validated BEFORE the spawn, because an unbounded slot must never reach the model."""
+    def problems(self, root: Path | None = None) -> list[str]:
+        """Validated BEFORE the spawn, because an unbounded slot must never reach the model.
+
+        `root` is optional only because this method has a single call site (`generate`, which
+        always has one) — `plan_node` needs it to consult `plan/tree.json`. A caller with no `root`
+        skips that one check rather than guessing, and says so in the problem list if `plan_node` was
+        actually set — never a silent pass."""
         out = []
         if not self.id.strip():
             out.append("slot without an id")
@@ -75,6 +86,15 @@ class Slot:
         if self.session_class not in CLASSES:
             out.append(f"slot with session_class {self.session_class!r} outside the closed "
                        f"vocabulary {sorted(CLASSES)}: its spend would be unattributable")
+        if self.plan_node is not None:
+            if root is None:
+                out.append(f"plan_node {self.plan_node!r} set but no root given to validate it "
+                           f"against the plan tree before the spawn")
+            else:
+                try:
+                    leaf_context(Path(root), self.plan_node)
+                except UnknownPlanNode as exc:
+                    out.append(f"plan_node problem: {exc}")
         return out
 
 
@@ -95,6 +115,10 @@ class LeafResult:
     duration_ms: int | None = None
     context_before: dict | None = None
     context_after: dict | None = None
+    #: V3-INC12 P3: how many chars of `leaf_context(...).render()` were prepended to the prompt (0
+    #: when `Slot.plan_node` is `None`) — the anti-drift payload's COST, never its text (the text
+    #: itself does not belong on the bounded bus any more than a node body would).
+    context_injected_chars: int = 0
     #: Which telemetry series accepted this leaf's record. A caller that never looks at this has
     #: reintroduced the failure this increment was opened for.
     telemetry_written: dict = field(default_factory=dict)
@@ -199,22 +223,36 @@ async def generate(slot: Slot, root: Path, *, hooks: dict | None = None,
     `root` is the slot's WORKSPACE (the cwd the model gets and the base of its blast radius).
     `home` is where the accounting lands, defaulting to the workspace; they differ whenever the
     workspace is scratch — see `_record`.
+
+    V3-INC12 P3: when `slot.plan_node` is set, the prompt the model actually receives is
+    `leaf_context(root, slot.plan_node).render()` prepended to `slot.prompt` — its own heading names
+    what it is, so nothing further is added here. `root` is the tree's home for this purpose too:
+    a slot whose workspace is scratch (see `home` above) still reads the real `plan/tree.json`,
+    because the plan is project memory, never something a scratch workspace carries a copy of.
     """
-    problems = slot.problems()
+    problems = slot.problems(root)
     if problems:
         return LeafResult(slot.id, ok=False, error="; ".join(problems))
+
+    prompt = slot.prompt
+    injected_chars = 0
+    if slot.plan_node is not None:
+        context_text = leaf_context(Path(root), slot.plan_node).render()
+        prompt = f"{context_text}\n\n{slot.prompt}"
+        injected_chars = len(context_text)
 
     home = Path(home) if home is not None else Path(root)
     permission_log: list = []
     hook_log: list = []
     options = _build_options(slot, root, home, permission_log, hooks, hook_log)
 
-    result = LeafResult(slot.id, ok=True, permission_calls=permission_log, hook_calls=hook_log)
+    result = LeafResult(slot.id, ok=True, permission_calls=permission_log, hook_calls=hook_log,
+                        context_injected_chars=injected_chars)
     started = time.monotonic()
     try:
         async with ClaudeSDKClient(options=options) as client:
             result.context_before = await _context_usage(client)
-            await client.query(slot.prompt)
+            await client.query(prompt)
             async for message in client.receive_response():
                 _count_tool_uses(message, result.tool_uses)
                 if type(message).__name__ == "ResultMessage":

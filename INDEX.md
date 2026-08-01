@@ -73,7 +73,7 @@
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
-| `docs/spec/15-plan-and-memory.md` | `093d9ae9bc2a` | 2026-07-28T03:36Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
+| `docs/spec/15-plan-and-memory.md` | `077cee5f545f` | 2026-08-01T22:33Z | 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE) |
 | `docs/spec/16-catalogs.md` | `3cecab082c37` | 2026-07-28T19:08Z | 16 — Catalogues: the gates of `meta check` and the check-kind vocabulary (reference) |
 | `docs/spec/17-golden-example.md` | `1415fbb47dd2` | 2026-07-28T03:56Z | 17 — Golden example: the `dummy` factory, end to end |
 | `docs/spec/18-rationale.md` | `770cc4707ff0` | 2026-07-28T19:23Z | 18 — Negative knowledge: what was rejected, by what measurement, and what would reopen it |
@@ -195,7 +195,7 @@
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
 | `docs/work/V3-INC10-MIGRATE-FROZEN-INCREMENT.md` | `059cebbe93bc` | 2026-07-31T21:15Z | Incremento V3-INC10-MIGRATE-FROZEN |
 | `docs/work/V3-INC11-CUTOVER-INCREMENT.md` | `e812bc6e08eb` | 2026-08-01T19:32Z | Incremento V3-INC11-CUTOVER |
-| `docs/work/V3-INC12-INTERACTIVE-MODE-INCREMENT.md` | `8cd5312e30a9` | 2026-08-01T21:59Z | Incremento V3-INC12-INTERACTIVE-MODE |
+| `docs/work/V3-INC12-INTERACTIVE-MODE-INCREMENT.md` | `4b656f233d55` | 2026-08-01T22:00Z | Incremento V3-INC12-INTERACTIVE-MODE |
 | `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `b0965d2a3c66` | 2026-07-28T18:21Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/V3-INC3-DELEGATION-INCREMENT.md` | `02bce4d1bdc4` | 2026-07-28T19:30Z | Incremento V3-INC3-DELEGATION |
 | `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `1d8753ee45c5` | 2026-07-29T08:11Z | Incremento V3-INC4-CHECKS-PORT |

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=093d9ae9bc2add0d0fb054d52c87697c18882304 updated=2026-07-28T03:36Z -->
+<!-- meta:doc sha=077cee5f545f689799f0aa3db64e67bf00fabf4d updated=2026-08-01T22:33Z -->
 # 15 — The dynamic plan tree and the memory strategy (NORMATIVE + EXECUTABLE)
 
 > The engineer's diagnosis, recorded verbatim because it is the requirement: *"a lo largo de los
@@ -304,6 +304,15 @@ Bounded by construction (I-7): ids and one-line titles, never node bodies. A ses
 body opens the node; it does not receive it by default. This is the pointer-shaped handoff that
 20 of 301 studies use (§2) — chosen deliberately, because content-shaped handoff is precisely what
 decayed across sessions here.
+
+> **CORRECTED 2026-08-01 by INC-12's execution.** Clause 2 says `root_of_current`, and the tree has a
+> SINGLE root (`N-0001`): rendered literally, the first live payload listed **59 open nodes — the whole
+> project backlog** — as "what this arc still owes". Bounded, therefore harmless to the context, and
+> useless to the leaf: it is the drift this section exists to stop, wearing the section's own clothes.
+> The arc is therefore resolved to the **nearest enclosing `increment` or `direction` ancestor** (tree
+> root only as a fallback), which took the same payload from 59 nodes / 1888 chars to 1 node / 861.
+> The algebra did NOT change — `open_set(plan, root)` already takes any root, so choosing WHICH root
+> is the caller's decision. Enforced by `leaf_context`'s sixth planted defect (`arc-is-root`).
 
 ## 7. The handoff becomes a PROJECTION
 

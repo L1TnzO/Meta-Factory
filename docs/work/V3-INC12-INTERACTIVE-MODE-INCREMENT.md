@@ -1,4 +1,4 @@
-<!-- meta:doc sha=8cd5312e30a98d19cc7b60edc5831a3485994b57 updated=2026-08-01T21:59Z -->
+<!-- meta:doc sha=4b656f233d55711665fbc0be691f58f4807bec77 updated=2026-08-01T22:00Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -103,7 +103,7 @@ delega.
 | P0 | Baseline medido (los 5 hallazgos de arriba), antes de código | done |
 | P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | done |
 | P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | done |
-| P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | pending |
+| P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | done |
 | P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | pending |
 | P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | pending |
 | P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | pending |
@@ -174,3 +174,31 @@ habría creado una segunda ley que deriva en silencio — exactamente el defecto
 - Huella del slot: `GREEN`, 7 archivos observados, 0 fuera del `allow_globs`.
 - **Residuo que esta fase crea**: `v3/cli.py` quedó en **791 líneas**, contra el techo de ~800 de la
   regla multi-archivo. P5 agrega `meta attach` → la fase que lo toque tiene que partirlo primero.
+
+### P3 — qué inyecta el host por hoja (2026-08-01) · `N-0086`
+
+`rehydrate` deja de ser «lo que imprime una sesión al arrancar» y pasa a ser **lo que el host mete en
+cada hoja de generación** (`§15.6` D2). El álgebra no se copió: `ancestry`/`open_set` salen de
+`v3.memory.plan_tree.algebra`, que ejecuta el bloque de la spec.
+
+- Gate **`leaf_context`** → PASS sobre 3 fixtures sintéticos (desborde de 16 hermanos, ancestry de 30
+  niveles, árbol anidado `direction→increment→task`) + una aserción DINÁMICA contra el árbol vivo.
+- Lado rojo `V3_LEAF_CONTEXT_SABOTAGE=1` → **6/6 clases cazadas**: `sibling-dropped`, `body-leaked`,
+  `ancestry-truncated`, `fabricated-id`, `unknown-silent`, `arc-is-root`.
+- `session_memory_parity` sigue verde (13 casos / 4 funciones, 0 mismatches): la mitad portada con
+  testigo de paridad no se tocó, se construyó **al lado**.
+
+**Corrección a la spec que ganó la ejecución (`ADR-032` A5).** La cláusula 2 de `§15.6` dice
+`root_of_current`, y el árbol tiene **una sola raíz**: el primer payload vivo listó **59 nodos
+abiertos —todo el backlog del proyecto— como «lo que este arco debe»**. Acotado, así que inofensivo
+para el contexto, e inútil para la hoja: es la deriva que esa sección existe para frenar, vestida con
+la ropa de la sección. El arco pasa a resolverse al **`increment`/`direction` que lo encierra**, y el
+mismo payload bajó de 59 nodos / 1888 chars a **1 nodo / 861 chars**. El álgebra NO cambió
+(`open_set(plan, root)` ya toma cualquier raíz; elegir CUÁL es decisión de quien llama).
+`docs/spec/15-plan-and-memory.md §6` lleva la nota; `tools/spec_conformance.py` sigue verde
+(26 checks, 84 vectores) y la paridad de extracción del gate `plan_tree` también.
+
+**Lo que la fase NO pudo dar, dicho en vez de inventado**: el esquema de nodos **no tiene campo de
+aceptación**, así que la cláusula 3 de `§15.6` («cómo sabremos que el arco terminó») no se puede
+satisfacer con el dato. El payload lo declara y da la única condición que puede DERIVAR (cierre
+estructural). Inventar una condición de aceptación habría sido peor que no tenerla.

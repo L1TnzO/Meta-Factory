@@ -282,6 +282,13 @@ def _register_ported(registry: Registry) -> None:
         na_when="no `plan/tree.json` — the node tree is meta-only (N-0059)",
     ))
     registry.register(Gate(
+        name="leaf_context",
+        argv=(PY, "-m", "v3.verify.checks.leaf_context"),
+        proves="what the host injects into a generation leaf (§15.6 D2) is DERIVED from the node tree "
+               "and BOUNDED to ids + one-line titles — never node bodies, never a fabricated pointer",
+        witness=Witness("sabotage_env", "V3_LEAF_CONTEXT_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="dial",
         argv=(PY, "-m", "v3.verify.dial"),
         proves="every factory that adopted the draft→harden dial (>=1 `tier: harden` active station) "

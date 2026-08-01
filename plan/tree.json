@@ -1,5 +1,5 @@
 {
-  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by tools/plan.py. Ids are append-only and never renumbered.",
+  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by v3.memory.plan_tree (`v3 plan …` / `tools/plan.py`, a thin shim over it). Ids are append-only and never renumbered.",
   "nodes": {
     "N-0001": {
       "parent": null,
@@ -1238,15 +1238,21 @@
       "parent": "N-0023",
       "title": "rehydrate: bajo la inversion es 'que inyecta el host por hoja' (spec 15.6, ancestry+open_set); necesita el arbol de nodos en v3. Disparador: INC-12 INTERACTIVE-MODE",
       "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "v3/memory/rehydrate.py::leaf_context + v3/host/session.py Slot.plan_node",
+        "gate leaf_context PASS (3 fixtures + dynamic live assertion)",
+        "V3_LEAF_CONTEXT_SABOTAGE=1: 6/6 planted defects caught",
+        "spec 15.6 corrected: arc = nearest enclosing increment/direction (59 nodes/1888 chars -> 1/861)"
+      ],
       "opened_at": "2026-07-29T16:14Z",
       "origin": {
         "session": "2026-07-29",
         "cause": "deferral",
         "ref": "V3-INC5/rehydrate-defer"
       },
-      "trigger": "INC-12 INTERACTIVE-MODE abre: el host necesita inyectar ancestry+open_set por hoja (spec 15.6)"
+      "trigger": "INC-12 INTERACTIVE-MODE abre: el host necesita inyectar ancestry+open_set por hoja (spec 15.6)",
+      "closed_at": "2026-08-01T22:34Z"
     },
     "N-0087": {
       "parent": "N-0018",
@@ -1849,6 +1855,30 @@
         "session": "2026-08-01",
         "cause": "gate_red",
         "ref": "V3-INC11/P6/plant-died"
+      }
+    },
+    "N-0126": {
+      "parent": "N-0023",
+      "title": "v3/cli.py llego a 791 lineas contra el techo de ~800 de la regla multi-archivo; P5 agrega meta attach, asi que quien lo toque lo parte primero en modulos por responsabilidad",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-01T22:34Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "deferral"
+      }
+    },
+    "N-0127": {
+      "parent": "N-0023",
+      "title": "El esquema de nodos no tiene campo de aceptacion, asi que la clausula 3 de spec 15.6 (como sabremos que el arco termino) no se puede satisfacer con el dato: el payload por hoja la declara ausente y deriva el cierre estructural. Agregar el campo es un cambio de esquema + algebra, no de este incremento",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-01T22:34Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "deferral"
       }
     }
   }

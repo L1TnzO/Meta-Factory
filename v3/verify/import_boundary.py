@@ -106,6 +106,17 @@ _ORACLE_READERS: dict[str, str] = {
         "increment: it too imports from `eval_gate` (`_LEAKY_ENV`), so it too needs the two-body "
         "package extraction rather than a single-file one, and the same anti-self-comparison clause "
         "is what the second body is for",
+    "v3/verify/column_law_parity.py":
+        "the same behavioural grant as the three parity readers above, for the three law modules "
+        "INC-11 P2 ports out of v2's memory/verify packages (`cadence`, `instrument`, `hermetic`). "
+        "It names THREE v2 paths rather than one because the three are ported together and share a "
+        "single matrix; each is extracted at oracle_ref and run as a SUBPROCESS beside its port. "
+        "The grant is worth more scrutiny than its siblings' and gets it here: these bodies are not "
+        "a scorer or a report, they are the law the hooks branch on — `edit_allowed` decides whether "
+        "a write is denied, `stop_block`/`preflight` decide whether a turn may close. A hollow port "
+        "of any of them disables the column while every gate stays green, which is exactly the "
+        "failure P2 of the cutover is most exposed to and exactly what running v2's own answers "
+        "beside v3's is for",
 }
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}

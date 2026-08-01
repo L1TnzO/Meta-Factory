@@ -185,6 +185,15 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="column_law_parity",
+        argv=(PY, "-m", "v3.verify.column_law_parity"),
+        proves="the three law modules the hooks branch on (`cadence`, `instrument`, `hermetic`) "
+               "answer as v2's do over a matrix that exercises distinct answers per function — the "
+               "port of a body that decides whether a write is denied or a turn may close cannot be "
+               "accepted on a pin, because a hollow one disables the column while staying green",
+        witness=Witness("sabotage_env", "V3_COLUMN_LAW_PARITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="cli_parity",
         argv=(PY, "-m", "v3.verify.cli_parity"),
         proves="for every verb `v3.cli` DECLARES in its DISPATCH table, v3's flag surface matches "

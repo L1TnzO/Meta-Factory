@@ -106,6 +106,14 @@ _ORACLE_READERS: dict[str, str] = {
         "increment: it too imports from `eval_gate` (`_LEAKY_ENV`), so it too needs the two-body "
         "package extraction rather than a single-file one, and the same anti-self-comparison clause "
         "is what the second body is for",
+    "v3/verify/session_memory_parity.py":
+        "the same behavioural grant, for the two session-memory bodies INC-11 P2 ports "
+        "(`precompact`, `rehydrate`). It differs from its siblings in WHAT it compares and the "
+        "difference is the reason it is trustworthy: the ports are English where v2 is Spanish "
+        "(ADR-017), so comparing OUTPUT would go red on a correct port and green on a port that "
+        "merely echoed the oracle's words. It compares derived FACT-SETS instead — which increment "
+        "is open, which RTM verdicts, whether the bytes landed — so the claim it makes is about "
+        "what the body KNOWS, not how it says it",
     "v3/verify/column_law_parity.py":
         "the same behavioural grant as the three parity readers above, for the three law modules "
         "INC-11 P2 ports out of v2's memory/verify packages (`cadence`, `instrument`, `hermetic`). "

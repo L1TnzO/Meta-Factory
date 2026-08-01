@@ -185,6 +185,15 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="session_memory_parity",
+        argv=(PY, "-m", "v3.verify.session_memory_parity"),
+        proves="the ported `precompact` and `rehydrate` bodies derive the SAME FACTS v2's do — the "
+               "open increment, the RTM verdicts, whether the snapshot's bytes landed — compared as "
+               "fact-sets rather than as output, because the ports are English where v2 is Spanish "
+               "and a string comparison would redden a correct port and greenlight a parroting one",
+        witness=Witness("sabotage_env", "V3_SESSION_MEMORY_PARITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="column_law_parity",
         argv=(PY, "-m", "v3.verify.column_law_parity"),
         proves="the three law modules the hooks branch on (`cadence`, `instrument`, `hermetic`) "

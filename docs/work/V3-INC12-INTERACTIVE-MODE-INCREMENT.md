@@ -202,3 +202,23 @@ mismo payload bajó de 59 nodos / 1888 chars a **1 nodo / 861 chars**. El álgeb
 aceptación**, así que la cláusula 3 de `§15.6` («cómo sabremos que el arco terminó») no se puede
 satisfacer con el dato. El payload lo declara y da la única condición que puede DERIVAR (cierre
 estructural). Inventar una condición de aceptación habría sido peor que no tenerla.
+
+## Estado y traspaso (2026-08-01T22:2xZ)
+
+**Entregado y comiteado: P0 · P1 · P2 · P3.** Árbol limpio, incremento ABIERTO, `plan check` 128 nodos
+verdes. Falta **P4 · P5 · P6 · P7**, y el diseño de las cuatro ya está escrito arriba (la tabla de
+fases + la decisión de dónde vive lo probabilístico + el criterio de cierre).
+
+Lo que una sesión fría necesita saber y no está en ningún gate:
+
+1. **P4 tiene un prerequisito propio**: `v3/cli.py` está en 791 líneas contra el techo de ~800
+   (`N-0126`). `meta attach` no entra sin partirlo antes en módulos por responsabilidad.
+2. **No hay baseline de `meta check`.** Se lanzó con `timeout 900` y lo mató a los 15 minutos
+   dejando **cero salida** — Python bloquea el buffer cuando stdout no es una tty (`N-0128`, misma
+   familia que P1: la evidencia existe y se destruye, un nivel más arriba). El baseline hay que
+   tomarlo con `python3 -u` / `stdbuf` y sin timeout corto, **antes** de comparar al cierre.
+3. **Los tres gates nuevos** (`run_log`, `plan_tree`, `leaf_context`) están registrados y sus lados
+   rojos los corrió el orquestador, no el generador: 4/4, 5/5 y 6/6 clases plantadas cazadas.
+4. **`ci --rederive` sólo se corrió sobre `dummy`** (5/5 == pin). Los 84 sobre 10 targets son del
+   cierre, y no se corren dos re-derivaciones a la vez (`N-0124`).
+

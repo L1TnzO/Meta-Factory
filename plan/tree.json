@@ -1880,6 +1880,18 @@
         "session": "2026-08-01",
         "cause": "deferral"
       }
+    },
+    "N-0128": {
+      "parent": "N-0023",
+      "title": "meta check corrio >15 min y al matarlo dejo CERO salida: python bloquea el buffer cuando stdout no es tty, asi que un operador que interrumpe la suite no se lleva ni los gates que ya habian pasado. Misma familia que P1 (la evidencia existe y se destruye), un nivel mas arriba",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-01T22:34Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red"
+      }
     }
   }
 }

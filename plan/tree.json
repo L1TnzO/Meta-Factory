@@ -1775,6 +1775,20 @@
         "cause": "gate_red",
         "ref": "V3-INC11/P1/n0113-second"
       }
+    },
+    "N-0121": {
+      "parent": "N-0022",
+      "title": "La mitigacion de la clase 'el JDK 21 se evapora' (tools/toolchain.sh ensure) exige un eval POR SHELL, y el shell del hook nunca lo recibe: stop_proof corre 'verify --rerun' en su propio proceso con el JAVA_HOME heredado de la sesion, que apunta a un JRE sin javac. Resultado medido dos veces en una sesion: rederive rojo (41 fallos) y turn-close bloqueado por s11, ambos FALSOS y ambos por entorno. La estacion pasa verde con un JDK 21 real. Lo durable no es el eval sino un javac en ~/.local/bin (que ya esta en PATH): s11.yml deriva JAVA_HOME de 'command -v javac', asi que un symlink alcanza y sobrevive al hook",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-08-01T01:02Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red",
+        "ref": "V3-INC11/toolchain-hook"
+      },
+      "trigger": "cualquier incremento que toque tools/toolchain.sh o la columna de hooks: ahi 'ensure' tiene que dejar rastro persistente (symlink o wrapper) en vez de depender de que cada shell lo evalue"
     }
   }
 }

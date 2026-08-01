@@ -185,6 +185,15 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="cli_parity",
+        argv=(PY, "-m", "v3.verify.cli_parity"),
+        proves="for every verb `v3.cli` DECLARES in its DISPATCH table, v3's flag surface matches "
+               "v2's for that same verb, derived from `build_parser` at the oracle commit — so a "
+               "verb can be 'ported' only in the sense the CI and the hooks actually invoke it, "
+               "not merely present under the right name",
+        witness=Witness("sabotage_env", "V3_CLI_PARITY_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="verb_census",
         argv=(PY, "-m", "v3.verify.verb_census"),
         proves="v2's whole CLI verb surface is derived from `build_parser` at the oracle commit and "
@@ -438,11 +447,42 @@ def _run_gate(gate: Gate, root: Path) -> Outcome:
 
 
 def main(argv: list[str]) -> int:
-    if argv:
-        return Verdict("v3-suite", 2, f"takes no arguments; got {argv!r}").emit()
+    # `--skip a,b` / `--only a,b`: comma-separated gate names, PORTED from v2's `cmd_check` (same
+    # wording, same discipline — a skip is PRINTED and never counts as green). Needed because the
+    # external CI invokes `./meta check --skip projection,generality`; `--only` is new here (v2 never
+    # grew it — see `v3.cli`'s and `v3.verify.cli_parity`'s docstrings for why that asymmetry is
+    # deliberate, not a drift).
+    opts: dict[str, str] = {}
+    i = 0
+    while i < len(argv):
+        if argv[i] in ("--skip", "--only") and i + 1 < len(argv):
+            opts[argv[i][2:]] = argv[i + 1]
+            i += 2
+        else:
+            return Verdict("v3-suite", 2, f"unrecognized argument {argv[i]!r}; usage: "
+                           f"v3-suite [--skip a,b] [--only a,b]").emit()
 
     registry = build_registry(_ROOT)
-    outcomes = [_run_gate(gate, _ROOT) for gate in registry.gates()]
+    known = {g.name for g in registry.gates()}
+    skip = {s.strip() for s in opts.get("skip", "").split(",") if s.strip()}
+    only = {s.strip() for s in opts["only"].split(",") if s.strip()} if "only" in opts else None
+    unknown = sorted((skip | (only or set())) - known)
+    if unknown:
+        return Verdict("v3-suite", 2, f"unknown gate name(s) {unknown}; known: "
+                       f"{', '.join(sorted(known))}").emit()
+
+    gates = [g for g in registry.gates() if (only is None or g.name in only) and g.name not in skip]
+    excluded = sorted(known - {g.name for g in gates})
+    if excluded:
+        # Say only what the flag actually tells us. v2's wording ("evidence not re-derivable in this
+        # environment") was true of ITS single caller and is an assertion about a REASON this code
+        # cannot know: `--only compile` excludes 27 gates for no environmental reason at all. The
+        # invariant worth printing is the one that holds either way — they were not run, and they do
+        # not count as green.
+        print(f"SKIPPED    {', '.join(excluded)} — excluded by invocation (--skip/--only); "
+              f"not run, and they do NOT count as green")
+
+    outcomes = [_run_gate(gate, _ROOT) for gate in gates]
     return summarize(outcomes, verb="v3-suite").emit()
 
 

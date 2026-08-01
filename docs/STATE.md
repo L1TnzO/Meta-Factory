@@ -1,4 +1,4 @@
-<!-- meta:doc sha=83a7dbe58b2b220d8d16d58b53cb288d5b5d1f7f updated=2026-08-01T07:34Z -->
+<!-- meta:doc sha=e92db4d0141784cd4d784b01c18a529f8193528e updated=2026-08-01T07:34Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -25,16 +25,14 @@
   commits empujados y el 2º actor LEÍDO (2/21 rojos, misma raíz `N-0102`). P1: `v3/cli.py` + censo
   DERIVADO de 38 verbos + `cli_parity` → **`unported_line=0 · unported_column=0`**; quedan 31 verbos
   humanos. **P2..P6 abiertas**; P2 (columna: 9 símbolos + 10 hooks) es trust-chain y no se delega.
-  Aviso de aceptación: el CI externo re-deriva **5 de 84** estaciones (6 %), así que «P1 verde en otra
-  máquina» NO cubre las 84 (`N-0116`).** El plano de CONTROL
-  sobre el Claude Agent SDK: **nuestro programa es el host, Claude Code el motor** (`v3/`, contra el
-  oráculo pineado en `v3/oracle_ref.json`). Leyes: **sin testigo rojo no se registra** (INC-4) ·
-  **negarse a afirmar** es válido (INC-5) · **«no se midió» ≠ «dio cero»** en el TIPO (INC-6) · **un
-  disparador nombra la CONDICIÓN** (INC-8) · **portar un ejecutor obliga a su testigo de PARIDAD** — el
-  pin no distingue un port fiel de uno hueco (INC-10). **INC-10 (07-31): las 5 fábricas corren sobre
-  v3** — `rederive` **84/84 en 10 targets** (= la suma de los 10 pines del repo: no queda estación
-  pineada sin re-derivar), sabotaje **31·9 n/a·0 missed**, censo **0 diferidos**, 3 testigos de
-  comportamiento registrados en la suite. → `LOG.md` · `work/V3-INC10-…`.
+  El CI externo re-deriva **5 de 84** estaciones (6 %): «P1 verde en otra máquina» NO cubre las 84
+  (`N-0116`), y sacar `v3/` a su propio repo exige antes re-basar 19 gates que leen el oráculo por
+  `git show` (`N-0122`).** Plano de CONTROL sobre el Agent SDK: **nuestro programa es el host, Claude
+  Code el motor** (contra el oráculo pineado en `v3/oracle_ref.json`). Leyes: **sin testigo rojo no se
+  registra** (INC-4) · **negarse a afirmar** es válido (INC-5) · **«no se midió» ≠ «dio cero»** en el
+  TIPO (INC-6) · **un disparador nombra la CONDICIÓN** (INC-8) · **portar un ejecutor obliga a su
+  testigo de PARIDAD** — el pin no distingue un port fiel de uno hueco (INC-10). `rederive` **84/84 en
+  10 targets** sostenido. → `LOG.md` · `work/V3-INC10-…` · `work/V3-INC11-…`.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acota lo que un generador
   ESCRIBE y lo que DEJA, **no lo que BORRA** (un `git checkout` fuera del radio pasa con las dos
   defensas en verde) · `N-0112` el árbol de nodos derivó medio incremento en silencio: su verbo vive

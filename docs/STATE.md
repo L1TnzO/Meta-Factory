@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b17ce9a9d870f5e17a197298ad5f93e6031070ff updated=2026-08-01T07:35Z -->
+<!-- meta:doc sha=cff0a8c3e9b6e26057d39f1e694b45ebac73f57c updated=2026-08-01T19:31Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,26 +20,27 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-10 ENTREGADOS · INC-11 `CUTOVER` ABIERTO, P0+P1 de 7
-  fases ✅** (08-01). La fila decía `M`; medida, es **XL** y se corrigió en `spec/11 §11.3`. P0: los 51
-  commits empujados y el 2º actor LEÍDO (2/21 rojos, misma raíz `N-0102`). P1: `v3/cli.py` + censo
-  DERIVADO de 38 verbos + `cli_parity` → **`unported_line=0 · unported_column=0`**; quedan 31 verbos
-  humanos. **P2..P6 abiertas**; P2 (columna: 9 símbolos + 10 hooks) es trust-chain y no se delega.
-  El CI externo re-deriva **5 de 84** estaciones (6 %): «P1 verde en otra máquina» NO cubre las 84
-  (`N-0116`), y sacar `v3/` a su propio repo exige antes re-basar 19 gates que leen el oráculo por
-  `git show` (`N-0122`).** Plano de CONTROL sobre el Agent SDK: **nuestro programa es el host, Claude
-  Code el motor** (contra el oráculo pineado en `v3/oracle_ref.json`). Leyes: **sin testigo rojo no se
-  registra** (INC-4) · **negarse a afirmar** es válido (INC-5) · **«no se midió» ≠ «dio cero»** en el
-  TIPO (INC-6) · **un disparador nombra la CONDICIÓN** (INC-8) · **portar un ejecutor obliga a su
-  testigo de PARIDAD** — el pin no distingue un port fiel de uno hueco (INC-10). `rederive` **84/84 en
-  10 targets** sostenido. → `LOG.md` · `work/V3-INC10-…` · `work/V3-INC11-…`.
+- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-11 ENTREGADOS. EL CUTOVER OCURRIÓ (08-01):
+  `src/metafactory/` NO EXISTE** y `meta` despacha a `v3.cli`. La fila decía `M`; medida es **XL**
+  (7 fases, `spec/11 §11.3` corregido). **84/84 en 10 targets con v2 fuera del árbol** · los 10 hooks
+  sobre v3 con testigo de paridad de DECISIONES · manifiesto de borrado `unaccounted=0` (111 archivos
+  firmados) · 2º actor **25 verdes · 1 rojo · 4 N/A**, y ese rojo (`codegen_freeze`, deuda FSK
+  `N-0084`) **no se tapa**. Pérdidas DECLARADAS: 20 verbos humanos sin portar (ninguna máquina
+  depende de ellos), la **línea meta no corre** → emitir una fábrica nueva no está disponible
+  (`N-0098`), vectores no re-generables (`N-0118`). Siguiente: **INC-12 `INTERACTIVE-MODE`**.
+  El CI externo cubre **5 de 84** estaciones (6 %), escrito en el propio yaml (`N-0116`); extraer
+  `v3/` exige re-basar 19 gates que leen el oráculo por `git show` (`N-0122`).** Plano de CONTROL
+  sobre el Agent SDK: **el host es nuestro, Claude Code es el motor.** Leyes: **sin testigo rojo no se
+  registra** (INC-4) · **negarse a afirmar** vale (INC-5) · **«no se midió» ≠ «cero»** en el TIPO
+  (INC-6) · **un disparador nombra la CONDICIÓN** (INC-8) · **portar un ejecutor obliga a su testigo
+  de PARIDAD** (INC-10) · **un lado rojo muere cuando lo que planta se vuelve universalmente cierto,
+  y nada avisa** (INC-11, `N-0125`). → `LOG.md` · `work/V3-INC11-…`.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acota lo que un generador
-  ESCRIBE y lo que DEJA, **no lo que BORRA** (un `git checkout` fuera del radio pasa con las dos
-  defensas en verde) · `N-0112` el árbol de nodos derivó medio incremento en silencio: su verbo vive
-  fuera del sustrato (datos reparados, 114 nodos; la CLASE no) · `N-0111` `product_broken` N/A en **9 de
-  10** targets — solo el fixture la planta, así que §11.2 sigue destapado en toda la superficie real ·
-  `N-0109` las `stations/` comiteadas de FSK son más viejas que su spec · `N-0105` `increment_guard`
-  prueba que hay incremento abierto, **no pertenencia**. **`meta check` 23/23.**
+  ESCRIBE y DEJA, **no lo que BORRA** — 2ª instancia medida en INC-11 (`N-0120`): el generador
+  revierte por INICIATIVA PROPIA para pasar la huella, o sea que la huella lo INCENTIVA · `N-0112` el
+  verbo del árbol vive fuera del sustrato · `N-0111` `product_broken` N/A en **9 de 10** targets ·
+  `N-0123` el manifiesto audita `src/`, no `tools/`·`seed/`·`.claude/` · `N-0105` `increment_guard`
+  prueba que hay incremento abierto, **no pertenencia**. Suite v3 local: **33 verdes · 1 rojo (FSK)**.
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
   base de ADR-019; la cláusula (a) de la regla de escape sigue FALSA (4.087 tok, 97,96 % headroom) →
   crece el costo de la mitigación, no el disparador (`N-0094`). Apagón 07-14→07-27 sin causa
@@ -49,7 +50,6 @@
   Superficie = **pinned override** verificado por `design_floor` opt-in, sin re-pinear los productos
   template. Habilitación META COMPLETA (6 incrementos ✅). Next: `FSK-EVALUATOR-ADOPT` · ASF adoption ·
   `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025`·`027` · LOG.
-  → `decisions/023`·`024`·`025`·`027` · LOG.
 - **⚖️ `COUNCIL-EXEC` · 🧭 `COST-DOWN` · SOTA (ADR-017→020) · 🧠 MEMORY v2 (ADR-019) · 🌐 ADR-026
   (paralelo RECHAZADO por medición) — CLOSED.** LIVE = meta+FSK+iot · ASF+full-stack-TS
   regression-frozen · dummy = fixture. Doctrina de costo + ledger de supuestos (1er disparador

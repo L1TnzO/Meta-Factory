@@ -1823,6 +1823,20 @@
         "ref": "V3-INC11/P5/two-roles"
       },
       "trigger": "cualquier borrado futuro fuera de src/: el manifiesto solo audita el sustrato, asi que tools/, seed/ y .claude/ se borran sin firma. Si se vuelve a borrar ahi, primero se extiende la poblacion del manifiesto"
+    },
+    "N-0124": {
+      "parent": "N-0022",
+      "title": "Lance DOS rederive concurrentes sobre el mismo arbol y produje un rojo FALSO: full-stack-kotlin/assets s7 sha differs + s8/s9 'station vanished'. Corrido solo, el mismo target da 46/46 == pin. Los dos procesos estacionan copias en las mismas rutas temporales y se pisan. La nota de entorno ya decia «builds pesados van FOREGROUND porque el background compite por .proof/», pero esto es una instancia nueva: dos VERIFICADORES compitiendo entre si, no contra el cierre de turno. Un rojo que no se puede atribuir no es evidencia de nada, y este casi entra al registro como si lo fuera",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-08-01T18:27Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red",
+        "ref": "V3-INC11/P5/race"
+      },
+      "trigger": "la proxima vez que un gate pesado se lance en background: uno por vez, y si hay rojo se re-corre solo antes de creerle"
     }
   }
 }

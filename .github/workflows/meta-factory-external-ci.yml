@@ -39,10 +39,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4         # clean clone: .proof/ does not exist (gitignored)
+        with:
+          # fetch-depth: 0 — MEASURED, V3-INC11 P6. `checkout` defaults to a SHALLOW clone (depth 1),
+          # and v3 verifies itself against v2 read at a PINNED COMMIT (`v3/oracle_ref.json`) with
+          # `git show`/`git ls-tree`. On a shallow clone that commit is not in the history and
+          # nineteen modules die with "fatal: not a tree object" — cli_parity, column_law_parity,
+          # deletion_manifest, economy_census, every *_parity and every census.
+          # This is node N-0122 arriving on the independence layer before anyone tried to extract
+          # v3: after P5 deleted the substrate, THE HISTORY IS THE ORACLE, so an actor without the
+          # history cannot verify this repo at all. Locally it was invisible — a dev clone is deep.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - run: pip install pyyaml pytest hypothesis
+      # claude-agent-sdk: v3's control plane imports it (the host owns the loop, ADR-031); the
+      # `compaction` gate inspects the wired hooks through it. Importing needs no credentials.
+      - run: pip install pyyaml pytest hypothesis claude-agent-sdk
       - name: Re-derive the verdict and compare against the pinned one (dummy — 5 of 84 stations)
         # Rebuilds the dummy factory's line from its spec, recomputes every proof_sha and
         # requires the pinned one (factories/<slug>/pinned_verdict.json). Deviation in ANY

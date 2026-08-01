@@ -24,16 +24,15 @@ afterwards (§09.4 A-2) — attempts, and which check turned a station red.
 from __future__ import annotations
 
 import json
-import os
-import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
-from ..economy import iteration
+from ..economy import iteration, store
 from ..kernel.gate import may_run
 from ..kernel.proof import compute_proof_sha, gate_recompute_ok, recompute_passed
 from ..kernel.sequence import active_in
 from ..memory import journal
+from . import runlog
 
 
 @dataclass
@@ -94,16 +93,25 @@ class StationOutcome:
     proof_sha: str | None
     blockers: tuple[str, ...] = ()
     attempts: int = 0
+    #: The ONE bounded line a caller may surface on RED (`v3.host.runlog.summary`) — never a path
+    #: object, never the body. `""` when the station never ran, or ran and left nothing red.
+    log_summary: str = ""
+
+
+def _proof_entry(run: "runlog.CheckRun") -> dict:
+    """The ONLY two keys a proof's check entry may carry (I1 — `v3.host.runlog`'s docstring). Kept
+    as its own name, not inlined, so the run-log gate can substitute it and prove that I1 actually
+    catches a check entry that smuggles the captured output into the pin — never by editing this
+    module, only by swapping this one collaborator out from under `run_station`."""
+    return {"name": run.name, "exit": run.exit}
 
 
 def run_check(command: list[str], cwd: Path, pythonpath: str = "") -> int:
-    """A check is an OS process and its exit code IS the evidence (I-1). No parsing of stdout."""
-    env = None
-    if pythonpath:
-        env = dict(os.environ)
-        existing = env.get("PYTHONPATH")
-        env["PYTHONPATH"] = os.pathsep.join([pythonpath, existing]) if existing else pythonpath
-    return subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True).returncode
+    """A check is an OS process and its exit code IS the evidence (I-1). No parsing of stdout.
+
+    A thin wrapper over `runlog.run_captured` — same process semantics, minus the text a caller that
+    only wants the code never asked for."""
+    return runlog.run_captured(list(command), cwd, pythonpath).exit
 
 
 def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int = 1) -> StationOutcome:
@@ -130,11 +138,12 @@ def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int
 
     checks_spec = list(station.get("checks") or ())
     results: list[dict] = []
+    runs: list[runlog.CheckRun] = []
     attempt = 0
     for attempt in range(1, max_attempts + 1):
-        results = [{"name": str(c["name"]),
-                    "exit": run_check(list(c["cmd"]), ctx.root, ctx.pythonpath)}
-                   for c in checks_spec]
+        runs = [replace(runlog.run_captured(list(c["cmd"]), ctx.root, ctx.pythonpath), name=str(c["name"]))
+                for c in checks_spec]
+        results = [_proof_entry(r) for r in runs]
         failed = [r["name"] for r in results if r["exit"] != 0]
         ctx.attempts.setdefault(sid, []).append({"attempt": attempt, "failed": failed})
         if not failed:
@@ -149,7 +158,16 @@ def run_station(station: dict, line: list, ctx: RunContext, *, max_attempts: int
     (directory / f"{sid}.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
 
     _journal(ctx, sid, results, passed, sha)
-    return StationOutcome(sid, ran=True, passed=passed, proof_sha=sha, attempts=attempt)
+
+    # The run log persists what the proof (I1) never may: the LAST attempt's full text, only for
+    # whichever checks are still red. Landing goes beside `journal`/`iteration` (I5) — an instrument
+    # that cannot report its own write failure is how silence gets counted as zero (INC-6).
+    _, landed = runlog.write(ctx.home_path(), sid, runs, ts=store.now())
+    ctx.journalled[sid]["runlog"] = landed
+    log_summary = runlog.summary(ctx.home_path(), sid)
+
+    return StationOutcome(sid, ran=True, passed=passed, proof_sha=sha, attempts=attempt,
+                          log_summary=log_summary)
 
 
 def _journal(ctx: RunContext, sid: str, results: list, passed: bool, sha: str) -> None:

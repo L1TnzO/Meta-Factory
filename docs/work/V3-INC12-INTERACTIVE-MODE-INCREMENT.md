@@ -1,4 +1,4 @@
-<!-- meta:doc sha=27ffc29e354ee96ddc5820533bfe7e22bf47ee38 updated=2026-08-01T21:27Z -->
+<!-- meta:doc sha=11074349cbed6cdcde1b4ab8ee153fba6743206c updated=2026-08-01T21:44Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -101,7 +101,7 @@ delega.
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | P0 | Baseline medido (los 5 hallazgos de arriba), antes de código | done |
-| P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | pending |
+| P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | done |
 | P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | pending |
 | P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | pending |
 | P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | pending |
@@ -125,4 +125,31 @@ delega.
    dropeado con su reemplazo nombrado.
 
 ## Evidencia
-<!-- se llena por fase -->
+
+### P1 — el run log (2026-08-01)
+
+El mismo instrumento de P0, corrido después: una estación sintética en tmpdir, una check que falla
+imprimiendo a stdout y a stderr.
+
+| | antes (P0) | después (P1) |
+| --- | --- | --- |
+| lo que recibe el que llama | nada | `1 check(s) red (the_one_that_fails) — 76B logged at .metamem/runlog/sX/index.json` |
+| stdout de la check | destruido | `.metamem/runlog/sX/the_one_that_fails.log`, completo |
+| stderr de la check | destruido | mismo archivo, completo |
+| el proof en disco | `{"name","exit"}` + sha | **idéntico** |
+| `proof_sha` | `5cf28c3d…3195f` | **`5cf28c3d…3195f`** — el mismo, byte a byte |
+| `ctx.journalled` | `journal`, `iteration` | `journal`, `iteration`, **`runlog`** (el aterrizaje se reporta, I5) |
+
+La igualdad de `proof_sha` sobre el MISMO sujeto sintético es la forma más fuerte de la invariancia:
+no es que los pines no se movieron, es que la identidad de la estación no cambió.
+
+- Gate `run_log`: `python3 -m v3.verify.checks.run_log` → **PASS** (I1..I6).
+- Lado rojo (corrido por el orquestador, no reportado por el generador):
+  `V3_RUNLOG_SABOTAGE=1` → **PASS, 4/4 clases plantadas cazadas**
+  (`proof_carries_output`, `write_silently_skips`, `summary_leaks_body`, `write_fakes_landed`).
+- `v3.verify.suite --only run_log,compile,isolation` → 3 verdes / 0 rojos / 0 N/A.
+- `./meta ci --rederive` → `dummy: 5/5 == pin`. La escotilla no movió ningún `proof_sha`.
+- Huella del slot: `GREEN`, 5 archivos observados, 0 fuera de `allow_globs`.
+- Deuda que esto paga, y estaba DECLARADA: `deletion_manifest.py:329` dropeó `codegen/gate_wrap.py`
+  («preserva stdout+stderr completo en disco, una sola línea VERDICT al que llama») anotando que
+  «`v3.host.runner.run_check` captura la salida de una check pero nunca la loguea ni la acota».

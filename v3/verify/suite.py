@@ -338,6 +338,14 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_DOCS_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="run_log",
+        argv=(PY, "-m", "v3.verify.checks.run_log"),
+        proves="the host loop keeps a failing check's FULL text on disk under the level's home "
+               "(never `.proof/`), hands a caller exactly one bounded line, and honestly reports "
+               "when the write itself did not land (INC-12 P1)",
+        witness=Witness("sabotage_env", "V3_RUNLOG_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="suite",
         argv=(PY, "-m", "v3.verify.checks.suite_sweep"),
         proves="every OTHER registered gate's re-runnable red side still goes red when re-run (P2)",

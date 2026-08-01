@@ -258,9 +258,12 @@ def _cmd_station(ns: argparse.Namespace) -> int:
     if not outcome.ran:
         return Verdict(f"station {ns.id}", 1, f"{ns.id}: may not run — "
                        f"{'; '.join(outcome.blockers) or 'blocked'}").emit()
+    # On RED only: the run log's bounded line is the escape hatch (INC-12 P1) — a caller reads this
+    # one line, then goes to the log itself if it needs more; the full text never rides the verdict.
+    next_action = outcome.log_summary if not outcome.passed and outcome.log_summary else None
     return Verdict(f"station {ns.id}", 0 if outcome.passed else 1,
                    f"{ns.id}: {'green' if outcome.passed else 'RED'}",
-                   counts={"attempts": outcome.attempts}).emit()
+                   counts={"attempts": outcome.attempts}, next_action=next_action).emit()
 
 
 def _cmd_product_run(ns: argparse.Namespace) -> int:
@@ -303,7 +306,9 @@ def _cmd_product_run(ns: argparse.Namespace) -> int:
         return Verdict(label, 0, f"{last.station}: line green ({len(outcomes)} station(s) run)",
                        counts={"stations": len(outcomes)}).emit()
     reason = "; ".join(last.blockers) if last.blockers else f"{last.station} failed its checks"
-    return Verdict(label, 1, f"{last.station}: {reason}", counts={"stations": len(outcomes)}).emit()
+    # On RED only, same escape hatch as `_cmd_station` (INC-12 P1): "" when the station never ran.
+    return Verdict(label, 1, f"{last.station}: {reason}", counts={"stations": len(outcomes)},
+                   next_action=last.log_summary or None).emit()
 
 
 # ── increment lifecycle (ADR-010 + ADR-016) ─────────────────────────────────────────────────────────

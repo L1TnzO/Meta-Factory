@@ -1,4 +1,4 @@
-<!-- meta:doc sha=100e0ad4c2774627eadb572544369532d44c880a updated=2026-07-31T23:26Z -->
+<!-- meta:doc sha=1ad90343ce2b95363f9c4be618206aa85bc701aa updated=2026-08-01T00:59Z -->
 # Incremento V3-INC11-CUTOVER
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T23:23Z). Cerralo con `meta increment close`
@@ -149,8 +149,8 @@ de que exista su reemplazo**.
 
 | Fase | Contenido | Gate | Estado |
 | --- | --- | --- | --- |
-| **P0** | `BASELINE`: empujar los 50 commits y LEER el veredicto del segundo actor sobre el árbol de hoy; los 3 rojos quedan declarados con dueño y disparador | el run existe y su veredicto está transcrito acá — verde no se exige, **leído** sí | ⏳ |
-| **P1** | `VERB-SURFACE`: `v3/cli.py` (cáscara argparse) + `control/tools.py` (los mismos verbos como `@tool()`), una sola implementación | testigo de PARIDAD de verbos a dos lados (nombre·args·exit sobre un set fijo de casos) y `v3.cli` importable — que es lo que `kinds` no mira (`N-0088`) | ⏳ |
+| **P0** | `BASELINE`: empujar los 50 commits y LEER el veredicto del segundo actor sobre el árbol de hoy; los 3 rojos quedan declarados con dueño y disparador | el run existe y su veredicto está transcrito acá — verde no se exige, **leído** sí | ✅ |
+| **P1** | `VERB-SURFACE`: `v3/cli.py` (cáscara argparse) + el censo derivado + el testigo de paridad de flags. **`control/tools.py` (los verbos como `@tool()`) NO entró y se difiere a P2** | `cli_parity` a dos lados + `verb_census` con `unported_line=0` y `unported_column=0` | ✅ |
 | **P2** | `COLUMN-REWIRE`: los 9 símbolos de §4 portados + los 10 hooks + shim `meta` + `settings.json` apuntando a v3. **Incluye `rehydrate`, adelantado de INC-12** | `column_live` + los hooks muerden con v2 todavía presente (dos lados: manipular un proof sigue rechazado) | ⏳ |
 | **P3** | `META-LINE`: m00..m08 y sus 16 kinds al vocabulario de v3; `gate_guard` deja de leer `src/` | emitir una fábrica de prueba con la línea portada + el censo de kinds baja `unexercised` de 19 | ⏳ |
 | **P4** | `TESTS-MIGRATE`: 67 de 71 módulos de `tests/` importan v2 | el gate `suite` verde sin `src/` en el path | ⏳ |
@@ -178,4 +178,62 @@ días: no se puede afirmar «no perdimos nada» si no está escrito qué había.
 
 ## Evidencia
 
-_(se llena a medida que cada fase cierra)_
+### P0 · BASELINE ✅ (2026-07-31T23:38Z)
+
+Empujados los 51 commits (`bb11f81..d92c862`). Segundo actor LEÍDO sobre el árbol de hoy, run
+**`30673408120`**:
+
+| paso | veredicto |
+| --- | --- |
+| `./meta ci --rederive` | PASS — `dummy: 5/5 == pinned` (el 6 % de §2, sin cambio) |
+| `./meta check --skip projection,generality` | FAIL — **2/21 rojos**, no 3 |
+| rojos | `evidence_liveness` · `suite` — **misma raíz**, `N-0102` (el repo hermano ASF) |
+
+**Hallazgo que el baseline compró:** `codegen_freeze` salió **verde allá** y sigue **rojo acá**. Su
+color depende de qué work-doc esté abierto en el árbol, no del commit — es una **tercera instancia de
+«el entorno fija el color»**, y va en la dirección CONTRARIA a `N-0102` (allá verde, acá rojo). O sea
+que la deuda A6 de `ADR-032` (`N-0084`) no es reproducible a voluntad, que es peor que ser roja.
+
+### P1 · VERB-SURFACE ✅ (2026-08-01)
+
+**Alcance derivado, no adivinado** (`v3/verify/verb_census.py`, 38 verbos parseados de `build_parser`
+con `ast` en el commit oráculo):
+
+| disposición | n | verbos |
+| --- | --- | --- |
+| `line` | 1 | `product-run` |
+| `column` | 4 | `check`, `ci`, `doc-sync`, `verify` |
+| `tooling` | 0 | — |
+| `human` | 32 | `station`, `increment/*`, `plan/*`, `graph/*`, `outcome`, `checkpoint`, … |
+| `dead` | 1 | `product/list` |
+
+Entregado: `v3/cli.py` (6 verbos + `DISPATCH`), `v3/verify/cli_parity.py` (6 comparados, 0 desvíos,
+rojo plantado sacándole `--skip` a `check`), `--skip`/`--only` en `v3.verify.suite`, y ambos testigos
+**registrados en la suite**. Medido después: **`unported_line=0 · unported_column=0`**; quedan 31
+humanos. `rederive` **84/84 en 10 targets** (criterio 3 del cierre, ya sostenido).
+
+**Dos correcciones a ojo sobre lo que entregó el slot**, ninguna cazada por su gate:
+
+1. **`missing_<bucket>` medía otra cosa que su nombre.** Era `total - hit` («verbos sin llamador en
+   ese bucket») y se lee «faltan por portar». Con `claimed=0` las dos lecturas dan números grandes y
+   parecidos: el arreglo exacto en que una tapa a la otra. Ahora son dos números, `no_<bucket>`
+   (cobertura) y `unported_<bucket>` (progreso), y los buckets suman 38 — antes no sumaban nada.
+2. **El censo contaba MENCIONES como llamadas.** `graph`, `outcome`, `checkpoint` y `station` eran
+   `column` porque `context_nudge.py` los nombra dentro de un string que le imprime a un humano, y
+   `gate_guard.py` los nombra en su docstring y en su propia REGEX — que matchea el comando de una
+   persona, no emite ninguno. `column` pasó de 8 a **4**, `mention_only=32`. Tercera aparición de la
+   clase en la misma sesión, y ésta adentro del instrumento construido para terminarla.
+
+**`N-0113`, segunda instancia MEDIDA.** El generador corrió `git checkout` sobre `INDEX.md` —fuera de
+su radio— «para que la huella coincida con `allow_globs`», con las dos defensas en verde (el hook sólo
+ve Write/Edit; la huella pregunta «dejaste algo afuera», nunca «sacaste algo afuera»). Lo que deshizo
+era el **primer artefacto real del cutover**: la línea de procedencia de `INDEX.md` pasando de
+`metafactory.docs_manifest` a `v3.memory.docs_manifest`, porque `doc-sync` ya corre por v3. Queda
+revertido **a propósito** hasta P2: la procedencia se da vuelta junto con los hooks que la generan.
+
+### Lo que falta — P2..P6 ABIERTAS
+
+`control/tools.py` (los verbos como `@tool()` MCP) se difiere a P2, donde vive el resto del cableado
+de la columna. **P2 es trust-chain y no se delega**: los nueve símbolos de §4 (`_seed`,
+`engine.load_sequence`, `cadence`, `metrics`, `instrument`, `precompact`, `rehydrate`, `hermetic`) y
+los diez hooks se escriben y revisan a ojo. Los PORTS en sí (cada módulo con su gate) sí son slots.

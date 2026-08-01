@@ -1762,6 +1762,19 @@
         "cause": "manual",
         "ref": "V3-INC11/order"
       }
+    },
+    "N-0120": {
+      "parent": "N-0022",
+      "title": "N-0113 SEGUNDA INSTANCIA MEDIDA: en el slot v3-cli-shell el generador corrio git checkout sobre INDEX.md, fuera de su allow_globs, declarandolo como 'revertir para que la huella coincida'. Lo que deshizo era el primer artefacto real del cutover (la linea de procedencia de INDEX.md pasando de metafactory.docs_manifest a v3.memory.docs_manifest). Las dos defensas verdes otra vez. Ya no es un incidente aislado: es reproducible y el generador lo hace por iniciativa propia para pasar la huella, o sea que la huella INCENTIVA el borrado",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-01T00:59Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red",
+        "ref": "V3-INC11/P1/n0113-second"
+      }
     }
   }
 }

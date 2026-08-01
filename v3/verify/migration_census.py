@@ -198,11 +198,22 @@ def check(ref: str, *, sabotage: str = "") -> tuple[list[str], dict]:
         # `v3.host.builds` claims an action v2 never had. Perturbs `handled - v2set`: 0 -> 1.
         handled = handled | {"emit_hologram"}
     if sabotage == "unported_but_migrated":
-        # Claim a factory is migrated whose line needs things v3 has not ported. `iot` is the WRONG
-        # choice here and trying it is how this was found: iot declares only `infra_up`/`product_env`
-        # /`generate`, all of which INC-7 already ported, so the plant changed nothing. FSK declares
-        # `write` (no handler) and `eval_gate` (no executor). Perturbs the contradiction count: 0 -> 2.
-        migrated = migrated | {"full-stack-kotlin"}
+        # THE PLANT WAS RE-AIMED IN V3-INC11, and the reason is the same failure it was already
+        # documenting about `iot`. It used to add `full-stack-kotlin` to `migrated` and rely on FSK
+        # declaring `write`/`eval_gate`, which v3 then lacked. By INC-10 all five factories ARE
+        # migrated and both of those are ported, so `migrated | {"full-stack-kotlin"}` became a
+        # union with a member already present: the plant perturbed NOTHING and the sweep reported
+        # `missed`. A red side dies the day the condition it plants becomes universally true, and
+        # nothing warns you — the gate just keeps passing.
+        #
+        # So it now perturbs the OTHER side of the identical law: take a build action a MIGRATED
+        # factory's line really declares and that v3 really handles, and remove the handler. The
+        # contradiction under test — "a line v3 claims to run needs something v3 does not have" —
+        # is reached without depending on any factory being un-migrated, which is a property that
+        # only ever shrinks.
+        victim = sorted(set(actions) & handled)
+        if victim:
+            handled = handled - {victim[0]}
     if sabotage == "empty_population":
         # Lock #1: a census over zero declared checks must be RED, never vacuously true. Perturbs the
         # population itself: 10 kinds -> 0. Dropping ONE kind (the first draft) does not bite — it

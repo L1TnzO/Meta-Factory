@@ -1837,6 +1837,19 @@
         "ref": "V3-INC11/P5/race"
       },
       "trigger": "la proxima vez que un gate pesado se lance en background: uno por vez, y si hay rojo se re-corre solo antes de creerle"
+    },
+    "N-0125": {
+      "parent": "N-0022",
+      "title": "El lado rojo unported_but_migrated de migration_census MURIO en silencio y lo encontro el barrido, no yo. Plantaba 'full-stack-kotlin' dentro de MIGRATED contando con que FSK declarara write/eval_gate sin portar; para INC-10 las cinco fabricas estan migradas y los dos estan portados, asi que la union era con un miembro ya presente y el plant no perturbaba NADA. Un lado rojo muere el dia en que la condicion que planta se vuelve universalmente cierta, y nada avisa: el gate sigue pasando. Re-apuntado al OTRO lado de la misma ley (sacarle a v3 un handler que una linea migrada declara), que no depende de que alguna fabrica siga sin migrar — una propiedad que solo puede encoger. Es la cuarta o quinta instancia de la clase 'preguntale a tu lado rojo que perturba y si ese valor ya esta vacio'",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-01T19:30Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red",
+        "ref": "V3-INC11/P6/plant-died"
+      }
     }
   }
 }

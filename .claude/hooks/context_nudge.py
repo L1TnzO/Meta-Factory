@@ -44,10 +44,10 @@ def _target_of(tool_name: str, tool_input) -> str:
     """The re-readable target of a tool-use (file_path/path/pattern). Prefers the substrate's
     single-source `instrument.target_of` (so the nudge and the KPI agree); local fallback if import fails."""
     try:
-        src = os.path.join(_repo_root(), "src")
+        src = _repo_root()   # v3 is a package AT the root
         if src not in sys.path:
             sys.path.insert(0, src)
-        from metafactory.memory.instrument import target_of  # single source
+        from v3.control.instrument import target_of  # single source
         return target_of(tool_name, tool_input)
     except Exception:
         if isinstance(tool_input, dict):

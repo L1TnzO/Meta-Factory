@@ -10,7 +10,8 @@ from pathlib import Path
 
 # Root by script location (<root>/.claude/hooks/x.py -> parents[2] == <root>), NOT by cwd:
 # a leaked `cd` must NOT be able to silently disable the guard (it used to fail open).
-_SRC = str(Path(__file__).resolve().parents[2] / "src")
+# v3 is a package AT the root, so the root itself goes on the path (v2 needed `<root>/src`).
+_ROOT = str(Path(__file__).resolve().parents[2])
 
 
 def main() -> int:
@@ -23,10 +24,10 @@ def main() -> int:
     fp = (data.get("tool_input", {}) or {}).get("file_path", "")
     if not fp:
         return 0
-    sys.path.insert(0, _SRC)
+    sys.path.insert(0, _ROOT)
     try:
-        from metafactory._seed import repo_root
-        from metafactory.memory import cadence
+        from v3.seed_loader import repo_root
+        from v3.control import cadence
         root = repo_root()
         if cadence.edit_allowed(root, fp):
             return 0

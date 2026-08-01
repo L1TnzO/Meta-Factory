@@ -20,12 +20,12 @@ def main() -> int:
     try:
         hook_dir = os.path.dirname(os.path.abspath(__file__))
         repo_root_path = os.path.dirname(os.path.dirname(hook_dir))  # <root>/.claude/hooks → root
-        src_path = os.path.join(repo_root_path, "src")
+        src_path = repo_root_path   # v3 is a package AT the root
         if src_path not in sys.path:
             sys.path.insert(0, src_path)
 
-        from metafactory._seed import repo_root
-        from metafactory.memory import precompact
+        from v3.seed_loader import repo_root
+        from v3.memory import precompact
 
         root = repo_root()
         snap = precompact.build_snapshot(

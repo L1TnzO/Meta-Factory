@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]  # <root>/.claude/hooks/stop_proof.py
-SRC = str(ROOT / "src")
+SRC = str(ROOT)   # v3 is a package at the root (v2 lived under `src/`)
 
 
 def main() -> int:
@@ -34,8 +34,8 @@ def main() -> int:
         return 0  # anti-loop valve
     sys.path.insert(0, SRC)
     try:
-        from metafactory._seed import repo_root
-        from metafactory.verify import hermetic
+        from v3.seed_loader import repo_root
+        from v3.verify import hermetic
         decision, why = hermetic.preflight(repo_root())
     except Exception:
         decision, why = "rerun", "hermetic unavailable"
@@ -48,7 +48,7 @@ def main() -> int:
               file=sys.stderr)
     else:  # "rerun" — the live re-run is authority (capable toolchain, or no pin to reason about)
         env = {**os.environ, "PYTHONPATH": SRC}
-        r = subprocess.run([sys.executable, "-m", "metafactory.cli", "verify", "--rerun"],
+        r = subprocess.run([sys.executable, "-m", "v3.cli", "verify", "--rerun"],
                            cwd=str(ROOT), env=env, capture_output=True, text=True)
         if r.returncode != 0:
             print("stop_proof: the active station does NOT pass verify; the turn cannot close (Lock 3).", file=sys.stderr)
@@ -57,8 +57,8 @@ def main() -> int:
             return 2
     # Cadence (ADR-010): a green gate left un-committed does not close the turn either (backstop).
     try:
-        from metafactory._seed import repo_root
-        from metafactory.memory import cadence
+        from v3.seed_loader import repo_root
+        from v3.control import cadence
         blocked, reason = cadence.stop_block(repo_root())
     except Exception:
         blocked, reason = False, ""

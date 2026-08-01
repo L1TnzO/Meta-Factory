@@ -43,7 +43,7 @@ def main() -> int:
         return 0
     try:
         done = subprocess.run(
-            [sys.executable, "-m", "metafactory.cli", "doc-sync"],
+            [sys.executable, "-m", "v3.cli", "doc-sync"],
             cwd=str(ROOT), env={**os.environ, "PYTHONPATH": SRC},
             capture_output=True, text=True, timeout=120,
         )

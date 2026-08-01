@@ -22,13 +22,15 @@ def main() -> int:
         hook_dir = os.path.dirname(os.path.abspath(__file__))
         # hook lives in <root>/.claude/hooks/ → parents[1] == root
         repo_root_path = os.path.dirname(os.path.dirname(hook_dir))
-        src_path = os.path.join(repo_root_path, "src")
+        src_path = repo_root_path   # v3 is a package AT the root
         if src_path not in sys.path:
             sys.path.insert(0, src_path)
 
         from pathlib import Path
-        from metafactory._seed import repo_root
-        from metafactory.memory import metrics, journal, instrument
+        from v3.seed_loader import repo_root
+        from v3.memory import journal
+        from v3.control import instrument
+        from v3.economy import store
 
         root = repo_root()
 
@@ -37,8 +39,9 @@ def main() -> int:
         tool_input = data.get("tool_input") or {}
 
         # target = the tool-use's file/pattern; feeds the THRASHING series (ADR-019 §5, M5)
-        metrics.capture(root, kind="tool", tool=tool_name, session=session_id,
-                        target=instrument.target_of(tool_name, tool_input))
+        store.append(root, "metrics", dict(ts=store.now(), kind="tool", tool=tool_name,
+                                           session=session_id,
+                                           target=instrument.target_of(tool_name, tool_input)))
 
         # If it is the subagent, also record the delegation in the journal. The decision of WHICH tool
         # counts as a spawn lives in the substrate (`instrument.is_subagent_spawn`): `Agent` since Claude

@@ -3,9 +3,12 @@
 injected into context: open increment + projection of facts + STATE «Ahora» + latest facts
 + freshness. Closes the lived problem (restarting used to lose all context). Never blocks."""
 import json
+import pathlib
 import sys
 
-sys.path.insert(0, "src")
+# ABSOLUTE by script location, never cwd: a leaked `cd` used to make this import vanish
+# silently and the session start with no orientation at all (the cwd-leak residual).
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 
 
 def main() -> int:
@@ -14,8 +17,8 @@ def main() -> int:
     except Exception:
         data = {}
     try:
-        from metafactory._seed import repo_root
-        from metafactory.memory import rehydrate
+        from v3.seed_loader import repo_root
+        from v3.memory import rehydrate
         print(rehydrate.build_payload(repo_root(), session=data.get("session_id", ""),
                                       source=data.get("source", "")))
     except Exception as exc:  # best-effort: never break session start

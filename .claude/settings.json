@@ -1,5 +1,6 @@
 {
-  "$comment": "The Meta-Factory's build harness. Hooks are the column's deterministic SHADOWS (placement law: the forbidden -> hook). permissions.deny is defense-in-depth for Lock 1. The logic lives in src/metafactory + seed/; hooks are one-line transports. Script paths are ABSOLUTE via $CLAUDE_PROJECT_DIR: a `cd` that leaks the cwd canNOT leave the harness unable to find its hooks (that was the cd deadlock — the script would not resolve, exit 2, blocking every mutation, including the `cd` back).",
+  "$comment_mem_rollup_retired": "V3-INC11 P2 RETIRED `mem_rollup` (Stop hook). Its subject was `metrics.rollup_from_transcript` — the transcript parser, which `docs/spec/11-build-plan.md §4` lists as DROPPED and which INC-6 already deleted. A hook whose law no longer exists is not a hook, it is a process that runs and reports nothing. Checked before removing it: `telemetry_liveness` unions the days of ALL instrument sources, so losing the `rollup` series does not blind it while the `tool` captures `mem_capture` writes keep landing — that is the condition the rewire has to hold.",
+  "$comment": "The Meta-Factory's build harness. Hooks are the column's deterministic SHADOWS (placement law: the forbidden -> hook). permissions.deny is defense-in-depth for Lock 1. The logic lives in v3/ + seed/ (it lived in src/metafactory until V3-INC11 P2 rewired every hook); hooks are one-line transports. Script paths are ABSOLUTE via $CLAUDE_PROJECT_DIR: a `cd` that leaks the cwd canNOT leave the harness unable to find its hooks (that was the cd deadlock — the script would not resolve, exit 2, blocking every mutation, including the `cd` back).",
   "permissions": {
     "deny": [
       "Write(.proof/**)",
@@ -42,8 +43,7 @@
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_proof.py\"" },
-          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/mem_rollup.py\"" }
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_proof.py\"" }
         ]
       }
     ],

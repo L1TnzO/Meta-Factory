@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Root by script location (<root>/.claude/hooks/x.py -> parents[2] == <root>), NOT by cwd:
 # a leaked `cd` must NOT be able to silently disable the guard (it used to fail open).
-_SRC = str(Path(__file__).resolve().parents[2] / "src")
+_ROOT = str(Path(__file__).resolve().parents[2])
 
 
 def main() -> int:
@@ -21,9 +21,9 @@ def main() -> int:
     cmd = (data.get("tool_input", {}) or {}).get("command", "")
     if not re.search(r"\bgit\s+commit\b", cmd):
         return 0
-    sys.path.insert(0, _SRC)
+    sys.path.insert(0, _ROOT)
     try:
-        from metafactory._seed import load_seed_verifier, repo_root
+        from v3.seed_loader import load_seed_verifier, repo_root
     except Exception:
         return 0
     active = repo_root() / ".proof" / "active.json"

@@ -3,6 +3,62 @@
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
 
+## 2026-08-01T19:3xZ — INC-11 CUTOVER: v2 borrado, y casi todo lo que salió mal lo encontró un gate
+
+**Qué queda cerrado.** `src/metafactory/` **no existe**. `meta` despacha a `v3.cli`, los diez hooks
+corren sobre v3, y `rederive` sigue dando **84/84 en 10 targets** con el sustrato v2 fuera del árbol.
+El segundo actor (ADR-005, clean-clone) verifica v3: **25 verdes · 1 rojo · 4 N/A**. Siete fases; la
+fila decía `M` y medida era `XL`.
+
+**Lo que el incremento descubrió antes de escribir código.** El vehículo de aceptación llevaba **22
+días fallando** y el local corría **50 commits por delante** de lo que ese actor había visto: INC-8,
+INC-9 e INC-10 enteros nunca se verificaron. Y ese actor re-deriva **5 de 84 estaciones — el 6 %**,
+mientras `§11.6` pedía «55/55 en 5 fábricas» *en esa misma corrida*. Tres cifras que convivían sin
+contradecirse en voz alta porque cada una se leía en un instrumento distinto.
+
+**La forma del error, otra vez, y ahora también dentro de los instrumentos.** El censo de verbos
+contaba **menciones como llamadas**: `graph`, `outcome`, `checkpoint` y `station` figuraban como
+columna porque un hook los NOMBRA en un string que le imprime a un humano. `column` pasó de 8 a 4,
+`mention_only=32`. Y `cli_parity` comparaba nombres de flags pero no **defaults**, así que estuvo
+verde sobre un cambio que habría llevado el `./meta ci --rederive` del CI de 5 estaciones a 84 en un
+runner sin toolchains. Un default no es decoración: para quien omite el flag, ES el comportamiento.
+
+**Tres errores míos, los tres cazados por instrumentos y no por mi lectura.** Commitée P3 con
+`import_boundary` en rojo porque corrí el gate nuevo y no el invariante que el gate nuevo PERTURBA.
+Borré `tools/spec_conformance.py` juzgándolo por una de sus dos funciones y rompí el verbo del árbol
+de nodos. El pathspec `tests/*.py` cruza directorios en git y se llevó el fixture rojo de `quality`
+— **el registro se negó a registrarlo**: «correría con el diente sacado y seguiría reportando verde»,
+que es la ley de INC-4 aplicada a mí. Y fabriqué un rojo falso lanzando dos `rederive` concurrentes;
+corrido solo, el mismo target da 46/46. Un rojo que no se puede ATRIBUIR no es evidencia de nada.
+
+**Un residuo que yo mismo escribí y la medición desmintió.** `N-0117` sostenía que borrar v2
+desarmaba el lado rojo de `import_boundary`. Falso: el sabotaje planta una CADENA y la pasa por un
+analizador estático que nunca importa v2. Había razonado sobre el mecanismo en vez de ejercitarlo.
+
+**La lección nueva, y es la que asciende.** El lado rojo de `migration_census` **estaba muerto y
+nada avisaba**: plantaba `full-stack-kotlin` dentro de `MIGRATED` contando con que declarara kinds
+sin portar, y para INC-10 las cinco fábricas están migradas y esos kinds portados — la unión era con
+un miembro ya presente y el plant perturbaba un conjunto vacío. Su propio comentario ya documentaba
+esa falla para `iot` en INC-7; la trampa volvió a cerrarse sobre el víctima siguiente. **Un lado rojo
+muere el día en que la condición que planta se vuelve universalmente cierta, y el gate sigue
+pasando.** Re-apuntado al otro lado de la misma ley, que no depende de una propiedad que sólo encoge.
+
+**Lo que se pierde, declarado y no descubierto.** 20 verbos humanos sin portar (ninguna máquina
+depende de ellos: `unported_line=0 · unported_column=0`) · la **línea meta no corre sobre v3**, así
+que emitir una fábrica nueva no está disponible (`N-0098`) · `promote` y `rtm --product` **se niegan**
+nombrando lo que falta · los vectores del oráculo ya no son re-generables (`N-0118`). El manifiesto de
+borrado —población DERIVADA, disposiciones DECLARADAS— firmó los 111 archivos antes del `rm`, y el
+generador rechazó cinco `ported` míos por trampa de misma-palabra-otro-concepto.
+
+**Y `N-0122` llegó antes de que nadie intentara extraer v3.** `actions/checkout` clona shallow; v3 se
+verifica contra v2 leído en un commit pineado, y sin historia 19 módulos mueren. Después del borrado,
+**la historia ES el oráculo**. Localmente era invisible porque un clon de desarrollo es profundo.
+
+El único rojo del segundo actor es `codegen_freeze`, deuda declarada de FSK (`N-0084`), y **no se
+tapa**: un tilde verde comprado salteando un rojo verdadero vale menos que un rojo honesto — y la
+ceguera de 22 días empezó con un veredicto que nadie **leyó**, no con uno que a nadie le gustó.
+Sigue **INC-12 `INTERACTIVE-MODE`**.
+
 ## 2026-07-31T21:1xZ — INC-10: las 5 fábricas sobre v3, y la lección es que el pin no alcanza
 
 **Qué queda cerrado.** Las dos fábricas congeladas —`agent-systems-factory` y `full-stack`— corren

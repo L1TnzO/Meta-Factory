@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e92db4d0141784cd4d784b01c18a529f8193528e updated=2026-08-01T07:34Z -->
+<!-- meta:doc sha=c9cb29d793f2e7cfc48338e3559cfe5194b50235 updated=2026-08-01T07:35Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -41,21 +41,19 @@
   `N-0109` las `stations/` comiteadas de FSK son más viejas que su spec · `N-0105` `increment_guard`
   prueba que hay incremento abierto, **no pertenencia**. **`meta check` 23/23.**
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
-  línea base de ADR-019 (269k @ 07-08); la cláusula (a) de la regla de escape sigue FALSA (entrada 4.087
-  tok, 97,96 % headroom) → crece el costo de la mitigación, no el disparador (`N-0094`). Apagón
-  07-14→07-27 sin causa determinada a propósito, con el detector como reemplazo (`N-0093`).
-- **✅ model-native VALIDATED (A/B, `ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
-  VERIFICATION PROFILE; human surface GENERATED (LLM slots, gates decide); template codegen **FROZEN**.
-  `ADR-024`: surface = **pinned override** (`products/<p>/frontend/app.{ts,css}`, copied-not-emitted vía
-  `frontend_surface: model-native`) verificado por `design_floor` opt-in, sin re-pinear los productos
-  template. La habilitación META está COMPLETA (6 incrementos ✅, detalle en `LOG.md`). Next:
-  `FSK-EVALUATOR-ADOPT` · ASF adoption (S2) · `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native.
+  base de ADR-019; la cláusula (a) de la regla de escape sigue FALSA (4.087 tok, 97,96 % headroom) →
+  crece el costo de la mitigación, no el disparador (`N-0094`). Apagón 07-14→07-27 sin causa
+  determinada a propósito, con el detector como reemplazo (`N-0093`).
+- **✅ model-native VALIDATED (`ADR-023`) → durable IN PROGRESS (`ADR-024`).** Factory = spec +
+  VERIFICATION PROFILE; superficie humana GENERADA (slots, gates deciden); template codegen **FROZEN**.
+  Superficie = **pinned override** verificado por `design_floor` opt-in, sin re-pinear los productos
+  template. Habilitación META COMPLETA (6 incrementos ✅). Next: `FSK-EVALUATOR-ADOPT` · ASF adoption ·
+  `COMMUNITY-FRESHNESS` · `helpdesk` · F1/ASF model-native. → `decisions/023`·`024`·`025`·`027` · LOG.
   → `decisions/023`·`024`·`025`·`027` · LOG.
-- **⚖️ `COUNCIL-EXEC` · 🧭 `COST-DOWN` · SOTA RE-DIRECTION (ADR-017→020) · 🧠 MEMORY v2 (ADR-019) ·
-  🌐 ADR-026 (paralelo-por-defecto RECHAZADO por medición, `HONEST-STATE.md §7bis`) — CLOSED.** LIVE =
-  meta+FSK+iot · ASF+full-stack-TS regression-frozen · dummy = fixture (`COUNCIL-360-AUDIT.md §6`).
-  Doctrina de costo + ledger de supuestos (1er disparador 2026-09-01): `work/COST-DOWN-…-INCREMENT.md
-  §2/§2.7`; el umbral §6 de ADR-019 lo mide `escape_threshold`.
+- **⚖️ `COUNCIL-EXEC` · 🧭 `COST-DOWN` · SOTA (ADR-017→020) · 🧠 MEMORY v2 (ADR-019) · 🌐 ADR-026
+  (paralelo RECHAZADO por medición) — CLOSED.** LIVE = meta+FSK+iot · ASF+full-stack-TS
+  regression-frozen · dummy = fixture. Doctrina de costo + ledger de supuestos (1er disparador
+  2026-09-01): `work/COST-DOWN-…-INCREMENT.md §2/§2.7`; el umbral §6 lo mide `escape_threshold`.
 - **Product / factories:** all 5 re-derive **== pin** (proyección arriba y, sobre v3, 84/84). FSK mature;
   el techo de la UI template es lo que ADR-023 contesta. Sweet-spot: **helpdesk** PASSES · **snipeit**
   techo (`work/ROADMAP.md`). Per-level self-governance (ADR-016 F2) COMPLETE (`GOVERNANCE-LAYERING §6/§7`).

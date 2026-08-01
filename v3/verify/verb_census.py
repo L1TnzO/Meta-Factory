@@ -54,7 +54,27 @@ THE RED SIDE plants its perturbation in the SUBJECT, never the platform: it synt
 claimed verb pointing at a dotted target that cannot resolve, feeds it through the exact same `check`
 function the green run uses (so the law under test is the real one, not a stand-in), and asserts the
 result is rejected. It writes no file and shells out to nothing but `git show`/`git ls-files` — both
-read-only.
+read-only. A SECOND witness (same switch) plants an in-memory FILE instead of an in-memory claim: a
+synthetic column-path `.py` file whose only content is a docstring naming a verb, and asserts `classify`
+refuses to call that a `column` invocation.
+
+INVOCATION VS MENTION (this correction, N-0088-adjacent). `column`/`tooling` used to be ONE free-text
+regex over each bucket's whole file contents, so `graph`/`outcome`/`checkpoint` were `column` purely
+because `.claude/hooks/context_nudge.py` NAMES them inside a nudge STRING printed to a HUMAN, and
+`station` the same way via `.claude/hooks/gate_guard.py`'s docstring and its own regex PATTERN — none
+of the four is ever an argv a machine builds. Reading "the column breaks without this" off "somebody
+wrote this word" is the defect this file exists to end, so the search had to stop matching prose.
+
+An occurrence now counts as INVOCATION only with invocation SHAPE: in a `.py` file (`ast`, never
+regex, never imported) the verb sits inside a list/tuple literal that ALSO holds a launcher constant
+(`metafactory.cli`/`v3.cli`/`meta`/`./meta`) — e.g. `[sys.executable, "-m", "metafactory.cli",
+"verify"]` — or inside a `subprocess.run/check_call/Popen(...)` call whose argv carries one; in a
+`.sh`/`.yml`/`.yaml`/`.json` file the verb shares a non-comment LINE with a launcher — e.g.
+`run: ./meta ci --rederive`; a `.md` file is NEVER an invocation. Everything else — docstring, comment,
+prose f-string, a regex pattern's own source — is a MENTION, and a verb whose only evidence anywhere
+is a mention falls through to `human` ("a person types it", not "a machine runs it"). `classify`
+records the mention rather than discarding it; `check`'s `mention_only` count is how many verbs used
+to inflate `column`/`tooling` this way — the size of the illusion this correction removes.
 """
 from __future__ import annotations
 
@@ -81,6 +101,22 @@ _BUCKETS = ("line", "column", "tooling", "human")
 
 _SABOTAGE_VERB = "__sabotage_verb__"
 _SABOTAGE_TARGET = "v3.cli:verb_that_does_not_exist"
+_SABOTAGE_MENTION_VERB = "__sabotage_mention_verb__"
+_SABOTAGE_MENTION_PATH = ".claude/hooks/__sabotage_mention__.py"
+
+#: How a launcher names "run the CLI" at all; present is necessary but never sufficient on its own.
+#: Compiled (never a bare string constant): a launcher token appears verbatim in files OUTSIDE v3, and
+#: a literal `"metafactory.cli"` constant here would itself be a rule-3 boundary violation — this is
+#: the SAME escaped-dot-regex device `_list_pattern` already used, applied to exact-match too.
+_LAUNCHER_RES = tuple(re.compile(p + r"\Z") for p in (r"metafactory\.cli", r"v3\.cli", r"meta", r"\./meta"))
+#: File kinds with LINE-based invocation evidence; anything else (incl. `.md`) is a mention only.
+_LINE_EXTS = (".sh", ".yml", ".yaml", ".json")
+_SUBPROCESS_CALL_ATTRS = ("run", "check_call", "Popen")
+_LAUNCHER_LINE_RE = re.compile(r"(?<![\w-])(?:\./)?meta(?![\w-])|metafactory\.cli|v3\.cli")
+
+
+def _is_launcher(token: str) -> bool:
+    return any(p.match(token) for p in _LAUNCHER_RES)
 
 
 # ── (1) the v2 verb surface, derived at the oracle commit ──────────────────────────────────────────
@@ -181,27 +217,105 @@ def _git_ls_files(root: Path) -> list[str]:
     return [line for line in out.stdout.splitlines() if line]
 
 
-def _bucket_text(root: Path) -> dict[str, str]:
-    """One concatenated text blob per bucket, read ONCE from the tracked working tree (this is the
-    LIVE-CALLER question, not the oracle one — ADR-031 §2.1 governs part (1), not this)."""
-    blobs: dict[str, list[str]] = {"column": [], "tooling": [], "human": []}
-    for rel in _git_ls_files(root):
+def _str_consts(node: ast.AST) -> list[str]:
+    """Every string constant reachable under `node`, in walk order."""
+    return [n.value for n in ast.walk(node) if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+
+
+def _py_invocation_sequences(source: str, filename: str) -> list[list[str]]:
+    """Ordered string-constant sequences out of THIS `.py` file's list/tuple literals and
+    `subprocess.run`/`check_call`/`Popen` calls that ALSO carry a launcher constant — rule (a) and (b)
+    of the invocation law. `ast`-only, never regex, never imported; a syntax error yields no evidence
+    (a scanned file need not even be valid for THIS interpreter) rather than raising."""
+    try:
+        tree = ast.parse(source, filename=filename)
+    except SyntaxError:
+        return []
+    sequences: list[list[str]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.List, ast.Tuple)):
+            consts = [e.value for e in node.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+              and isinstance(node.func.value, ast.Name) and node.func.value.id == "subprocess"
+              and node.func.attr in _SUBPROCESS_CALL_ATTRS):
+            consts = [c for a in (*node.args, *(kw.value for kw in node.keywords)) for c in _str_consts(a)]
+        else:
+            continue
+        if any(_is_launcher(c) for c in consts):
+            sequences.append(consts)
+    return sequences
+
+
+def _qualifying_lines(text: str) -> list[str]:
+    """Non-comment lines (leading `#` after optional whitespace = comment, all four kinds) that ALSO
+    carry a launcher token — the `.sh`/`.yml`/`.yaml`/`.json` invocation rule."""
+    return [line for line in text.splitlines()
+            if not line.strip().startswith("#") and _LAUNCHER_LINE_RE.search(line)]
+
+
+def _bucket_evidence(root: Path, extra_files: list[tuple[str, str]] | None = None) -> dict:
+    """Everything `classify` needs, gathered ONCE per run (LIVE-CALLER question, not the oracle one —
+    ADR-031 §2.1 governs part (1), not this): `mentions` — the OLD free-text blob per bucket, evidence
+    a HUMAN could read the name, never proof a machine runs it; `py_sequences`/`qualifying_lines` —
+    column/tooling ONLY, the actual invocation evidence (`.py` via ast, `.sh`/`.yml`/`.yaml`/`.json` via
+    line). `.md` and any other extension feed `mentions` only. `extra_files` (relpath, text) fold in
+    exactly like a tracked file, bucketed by the same `_bucket()` — the sabotage's second witness plants
+    one this way to prove a mention in a column-class path still refuses to count as an invocation."""
+    mention_blobs: dict[str, list[str]] = {"column": [], "tooling": [], "human": []}
+    py_sequences: dict[str, list[list[str]]] = {"column": [], "tooling": []}
+    qualifying_lines: dict[str, list[str]] = {"column": [], "tooling": []}
+
+    def _absorb(rel: str, text: str) -> None:
         bucket = _bucket(rel)
         if bucket is None:
-            continue
+            return
+        mention_blobs[bucket].append(text)
+        if bucket not in ("column", "tooling"):
+            return
+        suffix = Path(rel).suffix.lower()
+        if suffix == ".py":
+            py_sequences[bucket].extend(_py_invocation_sequences(text, rel))
+        elif suffix in _LINE_EXTS:
+            qualifying_lines[bucket].extend(_qualifying_lines(text))
+
+    for rel in _git_ls_files(root):
         try:
-            blobs[bucket].append((root / rel).read_text(encoding="utf-8", errors="ignore"))
+            text = (root / rel).read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
+        _absorb(rel, text)
+    for rel, text in (extra_files or []):
+        _absorb(rel, text)
+
     fixture = root / _LINE_FIXTURE
     line_text = fixture.read_text(encoding="utf-8") if fixture.exists() else ""
-    return {"line": line_text, **{k: "\n".join(v) for k, v in blobs.items()}}
+    return {
+        "mentions": {"line": line_text, **{k: "\n".join(v) for k, v in mention_blobs.items()}},
+        "py_sequences": py_sequences,
+        "qualifying_lines": qualifying_lines,
+    }
 
 
 def _tok(token: str) -> str:
     """A token match with hyphen-aware boundaries: `\\b` alone treats `-` as a boundary, so a bare
     search for verb `product` would false-hit inside `product-run`."""
     return r"(?<![\w-])" + re.escape(token) + r"(?![\w-])"
+
+
+def _verb_seq(parent: str | None, name: str) -> str:
+    """The bare token-adjacency pattern (no launcher prefix): `parent\\s+name`, or just `name` for a
+    top-level verb. Shared by the free-text mention patterns and the line-based invocation check."""
+    tokens = [parent, name] if parent else [name]
+    return r"\s+".join(_tok(t) for t in tokens)
+
+
+def _seq_invoked(sequences: list[list[str]], parent: str | None, name: str) -> bool:
+    """True iff `[parent, name]` (or `[name]`) appears as a CONTIGUOUS run inside any evidence
+    sequence gathered by `_py_invocation_sequences` — each sequence already carries proof a launcher
+    was present somewhere in it, so contiguity of the verb tokens is the only thing left to check."""
+    tokens = [parent, name] if parent else [name]
+    n = len(tokens)
+    return any(seq[i:i + n] == tokens for seq in sequences for i in range(len(seq) - n + 1))
 
 
 def _list_pattern(tokens: list[str]) -> re.Pattern:
@@ -214,32 +328,47 @@ def _list_pattern(tokens: list[str]) -> re.Pattern:
 
 def _verb_patterns(parent: str | None, name: str) -> tuple[re.Pattern, ...]:
     tokens = [parent, name] if parent else [name]
-    seq = r"\s+".join(_tok(t) for t in tokens)
+    seq = _verb_seq(parent, name)
     meta_pat = re.compile(r"(?:^|[\s;&|`\"'(])(?:\./)?meta\s+" + seq)
     mod_pat = re.compile(r"metafactory\.cli\s+" + seq)
     return (meta_pat, mod_pat, _list_pattern(tokens))
 
 
-def classify(verbs: list[tuple[str, str | None]]) -> dict[str, dict]:
-    """full_verb -> {'membership': {bucket: bool, ...}, 'strongest': bucket}.
+def classify(verbs: list[tuple[str, str | None]], *,
+            extra_files: list[tuple[str, str]] | None = None) -> dict[str, dict]:
+    """full_verb -> {'membership': {bucket: bool, ...}, 'strongest': bucket, 'mentions': {bucket: bool}}.
 
-    `line` is checked with ONLY the quoted argv-list form: the fixture also carries big rendered
-    TEMPLATE prose (product domain files, docstrings) that can casually mention `meta station m04` as
-    an EXAMPLE without that being an argv at all — the loose `meta <verb>` / `metafactory.cli <verb>`
-    text forms belong to the other three buckets, which are real free text, not a "(check kind's
-    argv)" (the contract's own parenthetical)."""
-    blobs = _bucket_text(_ROOT)
+    `line` keeps the strict quoted argv-list form (already invocation-shaped — the fixture also carries
+    rendered TEMPLATE prose that can mention `meta station m04` as an EXAMPLE, never an argv). `column`
+    and `tooling` now require a genuine INVOCATION; a verb whose only evidence anywhere is a mention
+    falls through to `human`. `extra_files` lets the sabotage plant a synthetic file with no disk write;
+    production callers never pass it."""
+    ev = _bucket_evidence(_ROOT, extra_files)
+    mentions_blob = ev["mentions"]
     result: dict[str, dict] = {}
     for full, parent in verbs:
         name = full.rsplit("/", 1)[-1]
         tokens = [parent, name] if parent else [name]
         list_pat = _list_pattern(tokens)
-        membership = {"line": bool(list_pat.search(blobs["line"]))}
+        seq_re = re.compile(_verb_seq(parent, name))
         text_patterns = _verb_patterns(parent, name)
-        for bucket in ("column", "tooling", "human"):
-            membership[bucket] = any(p.search(blobs[bucket]) for p in text_patterns)
+
+        invoked_column = (_seq_invoked(ev["py_sequences"]["column"], parent, name)
+                          or any(seq_re.search(l) for l in ev["qualifying_lines"]["column"]))
+        invoked_tooling = (_seq_invoked(ev["py_sequences"]["tooling"], parent, name)
+                           or any(seq_re.search(l) for l in ev["qualifying_lines"]["tooling"]))
+        mentions = {b: any(p.search(mentions_blob[b]) for p in text_patterns)
+                    for b in ("column", "tooling", "human")}
+
+        membership = {
+            "line": bool(list_pat.search(mentions_blob["line"])),
+            "column": invoked_column,
+            "tooling": invoked_tooling,
+            "human": mentions["human"] or (mentions["column"] and not invoked_column)
+                     or (mentions["tooling"] and not invoked_tooling),
+        }
         strongest = next((b for b in _BUCKETS if membership[b]), "dead")
-        result[full] = {"membership": membership, "strongest": strongest}
+        result[full] = {"membership": membership, "strongest": strongest, "mentions": mentions}
     return result
 
 
@@ -330,6 +459,11 @@ def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list
         unported_total += unported
     counts["dead"] = sum(1 for c in classes.values() if c["strongest"] == "dead")
     counts["unported"] = unported_total
+    # Verbs that carry a mention but no genuine invocation anywhere — the size of the illusion the
+    # invocation-vs-mention correction removes; these used to inflate `column`/`tooling`.
+    counts["mention_only"] = sum(
+        1 for c in classes.values()
+        if any(c["mentions"].values()) and not any(c["membership"][b] for b in ("line", "column", "tooling")))
     return problems, counts
 
 
@@ -338,13 +472,33 @@ def _run_sabotage(ref: str) -> int:
     if control:
         return Verdict("v3-verb-census (SABOTAGE)", 1,
                        f"the census is not clean, so no catch is attributable: {control[0]}").emit()
+
+    witnesses: list[tuple[str, bool]] = []
+
+    # witness 1: a v3 claim pointing at a target that cannot resolve (N-0088's own shape).
     problems, _ = check(ref, extra_claims={_SABOTAGE_VERB: _SABOTAGE_TARGET})
-    caught = any(_SABOTAGE_VERB in p and "does not resolve" in p for p in problems)
-    if caught:
+    witnesses.append(("unresolvable dispatch claim caught",
+                      any(_SABOTAGE_VERB in p and "does not resolve" in p for p in problems)))
+
+    # witness 2: a verb named ONLY inside a docstring of a synthetic column-path `.py` file must stay a
+    # mention, never a `column` invocation. Non-vacuous on purpose: also demands the free-text search
+    # DID see the mention, so a broken `_verb_patterns` cannot pass this by accident.
+    synthetic_text = (f'"""prose only: someone might type `meta {_SABOTAGE_MENTION_VERB}` someday, '
+                      f'but nothing here runs it."""\n')
+    classes = classify([(_SABOTAGE_MENTION_VERB, None)],
+                       extra_files=[(_SABOTAGE_MENTION_PATH, synthetic_text)])
+    info = classes[_SABOTAGE_MENTION_VERB]
+    witnesses.append(("mention-in-column-path stayed a mention, not an invocation",
+                      info["mentions"]["column"] and not info["membership"]["column"]))
+
+    caught = sum(1 for _, ok in witnesses if ok)
+    if caught == len(witnesses):
         return Verdict("v3-verb-census (SABOTAGE)", 0,
-                       "the planted unresolvable dispatch claim was caught").emit()
+                       f"{caught}/{len(witnesses)} planted perturbations caught").emit()
+    missed = ", ".join(name for name, ok in witnesses if not ok)
     return Verdict("v3-verb-census (SABOTAGE)", 1,
-                   "GATE DECORATIVO: a v3 claim pointing at a target that cannot resolve passed unnoticed").emit()
+                   f"GATE DECORATIVO: only {caught}/{len(witnesses)} planted perturbations caught; "
+                   f"missed: {missed}").emit()
 
 
 def main(argv: list[str]) -> int:

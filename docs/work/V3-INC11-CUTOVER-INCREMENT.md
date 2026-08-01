@@ -1,7 +1,7 @@
-<!-- meta:doc sha=86878431b188f99d1bf53b764ed66bc1076654d9 updated=2026-08-01T19:30Z -->
+<!-- meta:doc sha=e812bc6e08eb0a91eded6af2d1c79135aba2cb5d updated=2026-08-01T19:32Z -->
 # Incremento V3-INC11-CUTOVER
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T23:23Z). Cerralo con `meta increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-08-01T19:32Z) (creado 2026-07-31T23:23Z). Cerralo con `meta increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md` INC-11 + `§11.6` (definición de hecho) +

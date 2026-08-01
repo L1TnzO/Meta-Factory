@@ -1,4 +1,4 @@
-<!-- meta:doc sha=cff0a8c3e9b6e26057d39f1e694b45ebac73f57c updated=2026-08-01T19:31Z -->
+<!-- meta:doc sha=ae84800d4f07471179de705770b7528910bc2768 updated=2026-08-01T19:32Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -10,7 +10,7 @@
 
 <!-- meta:projection (generated from facts; do NOT hand-edit, refreshed by `meta checkpoint`) -->
 > Fact projection (Tier 0 → STATE). Source: re-derivable artifacts; not narrative.
-- Open increment: V3-INC11-CUTOVER-INCREMENT.md
+- Open increment: none
 - RTM by factory (re-derived from `.proof/`): agent-systems-factory: COMPLETE (11/11) · dummy: COMPLETE (5/5) · full-stack: COMPLETE (6/6) · full-stack-kotlin: COMPLETE (27/27) · iot: COMPLETE (6/6)
 <!-- /meta:projection -->
 
@@ -70,7 +70,8 @@
 - Reference: `reference/` (philosophy: `PRIMITIVES.md` · honest state/residuals: `HONEST-STATE.md` ·
   living audit: `COUNCIL-360-AUDIT.md` §1–§6 (verdict §6.3 · resulting-repo §6.5) · as-built map:
   `ARCHITECTURE-MAP.md`) · GENERATED index: `../INDEX.md`.
-- Code: `../seed/` · `../src/metafactory/` (engine + `stations/` M0–M8 + `graph/` + `verify/` +
-  `delegation.py`) · `../template/` · `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` ·
-  CLI: `../meta`.
+- Code: `../seed/` · `../v3/` (kernel + control + delegation + memory + economy + graph + `verify/`;
+  el sustrato v2 `src/metafactory/` fue BORRADO en INC-11) · `../stations/` (línea META M0–M8, movida
+  ahí en el cutover) · `../template/` ·
+  `../factories/{dummy,agent-systems-factory,full-stack,full-stack-kotlin,iot}/` · CLI: `../meta` → `v3.cli`.
 - Harvested source (frozen): `../../Agent_Systems_Factory/` @ `b1fcb1f` (`reference/ASF-PROVENANCE.md`).

@@ -7,6 +7,13 @@ tree + the open increment:
 Plus the placement law the `increment_guard` hook transports (not decides):
   - is a (non-`.md`) file open for edit with an increment open AT ITS LEVEL?          -> edit_allowed()
   - which `docs/work/` would AUTHORIZE that edit?                                    -> required_workdir_rel()
+  - which increment (if any) is open in a GIVEN `docs/work/`?                        -> open_increment_in()
+
+`open_increment_in` (V3-CLI-WORKFLOW-SPINE) is the level-aware sibling of `debt`/`edit_allowed`/
+`required_workdir_rel`: `v3.cli`'s `increment open/close/status` addresses a LEVEL (meta / a factory /
+a product, via `--factory`/`--product`) the same way `edit_allowed` already does, and needs to ask
+"what is open THERE" — not just "what is open at the meta level", which is all the pre-existing
+`_open_increment` (private, `stop_block`'s own reader) can answer.
 
 THE LAW ITSELF (open_increment / dirty_code / edit_allowed / debt / required_workdir_rel) lives in
 `seed/lifecycle.py` — the single source the meta and every produced factory share (a produced
@@ -73,6 +80,16 @@ def required_workdir_rel(root: Path, file_path: str) -> str | None:
     (`.endswith("/docs/work")`) to name the owning level — the shape is load-bearing, which is why
     this stays a straight delegation to the seed rather than a re-derivation."""
     return load_seed_lifecycle().required_workdir_rel(Path(root), file_path)
+
+
+def open_increment_in(workdir: Path) -> str | None:
+    """The filename of the single open increment inside a GIVEN `docs/work/` directory, or None —
+    the level-aware sibling of `open_increment` (which is fixed to the meta level). `v3.cli`'s
+    `increment open/close/status` is the first v3 caller: it resolves `--factory`/`--product` to a
+    `docs/work/` directory itself (ADR-016 path arithmetic, same as `edit_allowed`'s own resolution)
+    and asks THIS what is open there. Straight pass-through to the seed law, same discipline as the
+    four functions above — the decision and its shape are computed there, never re-derived here."""
+    return load_seed_lifecycle().open_increment_in(Path(workdir))
 
 
 # -- private helpers `stop_block` needs, and nothing else -------------------------------------------

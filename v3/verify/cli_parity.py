@@ -194,6 +194,25 @@ def v2_surface(ref: str) -> Surface:
 
 
 # ── (2) v3's surface, read off the REAL parser (v3 is not read at a commit — this IS v3) ───────────
+def _hashable(default: object) -> object:
+    """A default that cannot go into a set becomes its `repr`, never an exception.
+
+    MEASURED 2026-08-01 (V3-INC12 P4). A new verb declared `--evidence nargs="+" default=[]`, this
+    function did not exist, and the gate died with `TypeError: cannot use 'tuple' as a set element`
+    — a STACK TRACE, which a reader files under "the tooling is broken" rather than "the surface
+    changed". A gate that crashes has stopped being a gate: it no longer distinguishes a violation
+    from an accident, and the only signal it emits is one nobody acts on. So an exotic default is
+    now a comparison DIFFERENCE (it will show up as missing/extra and be argued about) instead of a
+    crash. The mutable default itself was also fixed at the call site — both halves, because either
+    one alone leaves the trap armed for the next verb.
+    """
+    try:
+        hash(default)
+    except TypeError:
+        return repr(default)
+    return default
+
+
 def _walk_argparse(parser: argparse.ArgumentParser, parent: str | None,
                    surface: dict[str, list[tuple[str, bool]]]) -> None:
     own: list[tuple[str, bool]] = []
@@ -205,9 +224,9 @@ def _walk_argparse(parser: argparse.ArgumentParser, parent: str | None,
         if isinstance(action, argparse._HelpAction):  # noqa: SLF001 — auto-added, never an add_argument
             continue
         if action.option_strings:
-            own.append((action.option_strings[0], False, action.default))
+            own.append((action.option_strings[0], False, _hashable(action.default)))
         else:
-            own.append((action.dest, True, action.default))
+            own.append((action.dest, True, _hashable(action.default)))
     if parent is not None:
         surface[parent] = own
     if subactions is not None:

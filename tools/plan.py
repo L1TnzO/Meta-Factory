@@ -16,7 +16,7 @@ Two things keep working through this shim, on purpose:
    to `v3.memory.plan_tree`'s root-parameterized equivalents — no logic of its own, so no second law.
 
 Verbs (unchanged): show, next, add, done, drop, block, reopen, metrics, handoff, check.
-See `docs/spec/15-plan-and-memory.md §5` / `v3 plan --help` for arguments.
+See `docs/spec/15-plan-and-memory.md §5` / `v3 plan-tree --help` for arguments.
 """
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def _session() -> str:
 
 def main(argv: list[str]) -> int:
     from v3.cli import main as v3_main
-    return v3_main(["plan", *argv])
+    return v3_main(["plan-tree", *argv])
 
 
 if __name__ == "__main__":

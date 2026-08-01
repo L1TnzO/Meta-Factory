@@ -222,3 +222,32 @@ Lo que una sesión fría necesita saber y no está en ningún gate:
 4. **`ci --rederive` sólo se corrió sobre `dummy`** (5/5 == pin). Los 84 sobre 10 targets son del
    cierre, y no se corren dos re-derivaciones a la vez (`N-0124`).
 
+### P4.0 — el gate que dejé afuera de mi propio conjunto de aceptación (2026-08-01)
+
+Al empezar P4 corrí `cli_parity` y **no dio rojo: dio un stack trace.**
+`TypeError: cannot use 'tuple' as a set element (unhashable type: 'list')`.
+
+Lo rompí yo en P2. El verbo nuevo declaraba `--evidence nargs="+" default=[]`, y `cli_parity` mete
+el `default` de cada acción DENTRO de un `frozenset`. Mi conjunto de aceptación de P2 fue
+`plan_tree,plan,compile,isolation`: agregué un VERBO y no corrí el gate de la SUPERFICIE DE VERBOS.
+Es la ley del propio repo aplicada contra mí — *preguntá qué perturba de verdad lo que tocaste*.
+
+Dos mitades, porque cualquiera sola deja la trampa armada:
+- el `default` mutable se arregló en el call site (`default=()`);
+- `cli_parity` ya no puede *crashear*: un default no hasheable se convierte en su `repr`. Un gate que
+  tira excepción dejó de ser un gate — ya no distingue una violación de un accidente, y la única
+  señal que emite es una que nadie acciona.
+
+**Y apenas dejó de crashear, encontró algo real.** `plan/next: v3 declares [('--root', False, None)],
+which v2 does not have`: **v2 ya tenía el verbo `meta plan`** — la consola de WorkOrders sobre
+`.gen/plan.json` (ADR-021 PLAN-EXECUTE-SPLIT), todavía sin portar. P2 le puso el mismo nombre a un
+sujeto distinto. **Tercera instancia de la misma colisión en este incremento** (el gate `plan`, el
+verbo `plan` de v2, el verbo `plan` mío). El verbo del árbol pasa a llamarse **`meta plan-tree`**,
+igual que su gate; `plan` queda libre para lo que de verdad se llama así.
+
+- `cli_parity` → **PASS** (18 verbos comparados, superficie idéntica) · lado rojo 2/2.
+- `verb_census` → `claimed=29 · unported_human=20`: `plan` sigue contado como NO portado, que es la
+  verdad. (Que con el nombre squatteado el censo lo hubiera contado como portado es inferencia
+  razonada, no medición: lo medido es el rojo de `cli_parity`.)
+- `suite --only cli_parity,verb_census,plan_tree,leaf_context,run_log,compile,isolation` → 7 verdes.
+

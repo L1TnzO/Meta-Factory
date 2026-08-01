@@ -18,7 +18,7 @@ this file still only transports.
 
 `tools/plan.py` is now a thin compatibility shim over this module: it forwards CLI argv to `v3.cli`
 and re-exports the handful of zero-arg functions `tools/plan_capture.py` / `tools/handoff_check.py`
-still import directly (both out of this slot's scope). `v3/cli.py` dispatches `meta plan <verb>` here.
+still import directly (both out of this slot's scope). `v3/cli.py` dispatches `meta plan-tree <verb>` here.
 
 Bounded output (I-7): every `cmd_*` below returns a `Verdict` whose summary/counts stay short — a
 125-node tree must never ride in a Verdict. `render_tree_text` / `render_handoff_text` return the
@@ -81,7 +81,7 @@ def save(root: Path, nodes: dict) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps({
         "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). "
-                "Operated by v3.memory.plan_tree (`v3 plan …` / `tools/plan.py`, a thin shim over it). "
+                "Operated by v3.memory.plan_tree (`v3 plan-tree …` / `tools/plan.py`, a thin shim over it). "
                 "Ids are append-only and never renumbered.",
         "nodes": dict(sorted(nodes.items())),
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -76,17 +76,17 @@ DISPATCH = {
     "product": "v3.verify.rederive:targets",
     "product/new": "v3.verify.rederive:materialize_instance",
     "product/list": "v3.verify.rederive:targets",
-    "plan": "v3.memory.plan_tree:cmd_check",
-    "plan/show": "v3.memory.plan_tree:cmd_show",
-    "plan/next": "v3.memory.plan_tree:cmd_next",
-    "plan/add": "v3.memory.plan_tree:cmd_add",
-    "plan/done": "v3.memory.plan_tree:cmd_done",
-    "plan/drop": "v3.memory.plan_tree:cmd_drop",
-    "plan/block": "v3.memory.plan_tree:cmd_block",
-    "plan/reopen": "v3.memory.plan_tree:cmd_reopen",
-    "plan/metrics": "v3.memory.plan_tree:cmd_metrics",
-    "plan/handoff": "v3.memory.plan_tree:cmd_handoff",
-    "plan/check": "v3.memory.plan_tree:cmd_check",
+    "plan-tree": "v3.memory.plan_tree:cmd_check",
+    "plan-tree/show": "v3.memory.plan_tree:cmd_show",
+    "plan-tree/next": "v3.memory.plan_tree:cmd_next",
+    "plan-tree/add": "v3.memory.plan_tree:cmd_add",
+    "plan-tree/done": "v3.memory.plan_tree:cmd_done",
+    "plan-tree/drop": "v3.memory.plan_tree:cmd_drop",
+    "plan-tree/block": "v3.memory.plan_tree:cmd_block",
+    "plan-tree/reopen": "v3.memory.plan_tree:cmd_reopen",
+    "plan-tree/metrics": "v3.memory.plan_tree:cmd_metrics",
+    "plan-tree/handoff": "v3.memory.plan_tree:cmd_handoff",
+    "plan-tree/check": "v3.memory.plan_tree:cmd_check",
 }
 
 
@@ -173,8 +173,12 @@ def build_parser() -> argparse.ArgumentParser:
     # The project's node tree (docs/spec/15-plan-and-memory.md §5, v3.memory.plan_tree). Each
     # sub-verb takes its OWN flags (unlike `increment`'s uniform slug/factory/product), so it is
     # spelled out one call at a time rather than unrolled from a `for` loop.
-    p_plan = sub.add_parser("plan", help="the project's node tree (docs/spec/15-plan-and-memory.md "
-                            "§5, v3.memory.plan_tree)")
+    # NOT `plan`: v2 already owns that verb for the WorkOrder console over `.gen/plan.json`
+    # (ADR-021 PLAN-EXECUTE-SPLIT), which is still unported. Squatting the name made
+    # `cli_parity` red and would have let `verb_census` count `plan` as ported when the ported
+    # thing is a different subject entirely — the third instance of this collision in INC-12.
+    p_plan = sub.add_parser("plan-tree", help="the project's node tree "
+                            "(docs/spec/15-plan-and-memory.md §5, v3.memory.plan_tree)")
     sub_plan = p_plan.add_subparsers(dest="plan_cmd", required=True)
     pp = sub_plan.add_parser("show"); pp.add_argument("--root")
     pp = sub_plan.add_parser("next"); pp.add_argument("--root")
@@ -188,7 +192,10 @@ def build_parser() -> argparse.ArgumentParser:
     pp.add_argument("--ref")
     pp = sub_plan.add_parser("done")
     pp.add_argument("id")
-    pp.add_argument("--evidence", nargs="+", default=[])
+    # `default=()` and not `[]`: `cli_parity` reads every action's default INTO a frozenset, so a
+    # mutable default is not a style opinion here — it crashes the gate that guards the verb surface
+    # (measured 2026-08-01, V3-INC12 P4: "cannot use 'tuple' as a set element").
+    pp.add_argument("--evidence", nargs="+", default=())
     pp = sub_plan.add_parser("drop"); pp.add_argument("id"); pp.add_argument("--reason", required=True)
     pp = sub_plan.add_parser("block"); pp.add_argument("id"); pp.add_argument("--trigger", required=True)
     pp = sub_plan.add_parser("reopen"); pp.add_argument("id")
@@ -708,7 +715,7 @@ def _cmd_product(ns: argparse.Namespace) -> int:
 
 # ── the project's node tree (docs/spec/15-plan-and-memory.md §5) ───────────────────────────────────
 def _cmd_plan(ns: argparse.Namespace) -> int:
-    """Dispatches `v3 plan <verb>` to `v3.memory.plan_tree`'s command bodies. A DISPATCHER only — the
+    """Dispatches `v3 plan-tree <verb>` to `v3.memory.plan_tree`'s command bodies. A DISPATCHER only — the
     law those bodies call is the spec-extracted algebra, never reimplemented here. `show`/`handoff`
     print their FULL, unbounded rendering as this shell's own text (I-7: it never rides the Verdict
     bus) before emitting the bounded Verdict itself."""
@@ -782,7 +789,7 @@ def main(argv: list[str]) -> int:
         return _cmd_promote(ns)
     if verb == "product":
         return _cmd_product(ns)
-    if verb == "plan":
+    if verb == "plan-tree":
         return _cmd_plan(ns)
     return Verdict("v3", 2, f"{verb!r} is declared in DISPATCH with no handler here").emit()  # pragma: no cover
 

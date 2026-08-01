@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c9cb29d793f2e7cfc48338e3559cfe5194b50235 updated=2026-08-01T07:35Z -->
+<!-- meta:doc sha=b17ce9a9d870f5e17a197298ad5f93e6031070ff updated=2026-08-01T07:35Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -57,8 +57,7 @@
 - **Product / factories:** all 5 re-derive **== pin** (proyección arriba y, sobre v3, 84/84). FSK mature;
   el techo de la UI template es lo que ADR-023 contesta. Sweet-spot: **helpdesk** PASSES · **snipeit**
   techo (`work/ROADMAP.md`). Per-level self-governance (ADR-016 F2) COMPLETE (`GOVERNANCE-LAYERING §6/§7`).
-  **🧬 `ADR-028/029/030`** (work-doc lineage as DATA) diseñado; `DOC-LINEAGE` QUEUED — `docs/work/` son
-  114 archivos planos (`docs/spec/20 §6`).
+  **🧬 `ADR-028/029/030`** (lineage as DATA) diseñado; `DOC-LINEAGE` QUEUED — 114 archivos planos.
 - **How to orient (re-verify > remember):** `meta check` · `meta graph query|repomap` (navegar sin LLM) ·
   `meta rtm`/`meta outcome`. Reglas vivas: `CLAUDE.md`. Inventario de docs: `../INDEX.md` (ADR-009).
 

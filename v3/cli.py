@@ -92,7 +92,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_ci = sub.add_parser("ci", help="external re-derivation against the pin (v3.verify.rederive)")
     p_ci.add_argument("--rederive", action="store_true")
-    p_ci.add_argument("--factory", default=None)
+    # `default="dummy"` is v2's, and it is deliberately NOT "improved" here. A bare
+    # `./meta ci --rederive` is what the external CI runs; defaulting to every migrated target would
+    # have silently taken that job from 5 stations to 84 on a runner with no JDK/PG/Chromium/Go.
+    # Widening the second verifier's scope is a DECISION for INC-11 P6 (node N-0116), made in the
+    # workflow where it can be read — not smuggled in through a default nobody diffs.
+    p_ci.add_argument("--factory", default="dummy")
     p_ci.add_argument("--product", default=None)
     p_ci.add_argument("--all-products", action="store_true")
 
@@ -167,6 +172,11 @@ def _cmd_ci(ns: argparse.Namespace) -> int:
                        "product yet — it already re-derives every product of the named factory; drop "
                        "--product, or omit --factory to re-derive every migrated factory").emit()
     from .verify.rederive import main as rederive_main
+    # `--all-products` is what asks for EVERY migrated target; `--factory` names one. v2's default
+    # is a single factory, so an empty argv (rederive's "all targets" mode) is reachable only by
+    # asking for it explicitly.
+    if ns.all_products:
+        return rederive_main([])
     return rederive_main([ns.factory] if ns.factory else [])
 
 

@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
-# `meta` — thin shim over the Meta-Factory CLI. Puts src/ on PYTHONPATH and dispatches.
-# The external CI and the hooks invoke `python3 meta <verb>` (a one-line transport).
+# `meta` — thin shim over the Meta-Factory CLI. Puts the repo root on PYTHONPATH and dispatches to v3.
+# The external CI and the hooks invoke `./meta <verb>` (a one-line transport, ADR-005 §4).
+#
+# V3-INC11 P2 pointed this at `v3.cli` (it was `metafactory.cli`, with `src/` on the path). v3 is a
+# package AT the root, so the root is what goes on PYTHONPATH.
+#
+# A verb v3 has NOT ported yet fails LOUDLY here (exit 2, naming itself) rather than falling back to
+# v2. The fallback was considered and refused: it would have kept every workflow working while the
+# real coverage — `verb_census`'s `unported_human` — sat unread, which is the precise shape of bug
+# this cutover is instrumented against. `python3 -m v3.verify.verb_census` is the live count.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export PYTHONPATH="${HERE}/src${PYTHONPATH:+:${PYTHONPATH}}"
-exec python3 -m metafactory.cli "$@"
+export PYTHONPATH="${HERE}${PYTHONPATH:+:${PYTHONPATH}}"
+exec python3 -m v3.cli "$@"

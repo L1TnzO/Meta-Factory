@@ -143,11 +143,42 @@ def _walk_v2(stmts: list[ast.stmt], bindings: dict[str, str], groups: dict[str, 
                 name = _arg_name(node, bindings)
                 if name is None:
                     continue
-                surface.setdefault(full, []).append((name, not name.startswith("-")))
+                surface.setdefault(full, []).append(
+                    (name, not name.startswith("-"), _arg_default(node)))
+
+
+#: `default=` compared as well as the flag NAME — added V3-INC11 after a measured escape. `ci`'s
+#: `--factory` defaults to `"dummy"` in v2 and defaulted to `None` in the port, which silently turned
+#: the external CI's bare `./meta ci --rederive` from "re-derive dummy, 5 stations" into "re-derive
+#: every migrated target, 84 stations". Both parsers accept the identical option strings, so a gate
+#: that compares only names was green across a change in what the command DOES. A default is not
+#: decoration: for a flag the caller omits, it IS the behaviour.
+_UNREADABLE = "<expr>"   # a non-constant default; recorded, and compared only against itself
+
+
+def _arg_default(node: ast.Call) -> object:
+    """The `default=` an `add_argument` call declares, as a comparable value.
+
+    Absent + `action="store_true"` -> False (argparse's own rule); absent otherwise -> None. A
+    non-literal default is `_UNREADABLE` rather than a guess: this module refuses to invent a value
+    it cannot read, the same way the rest of the corpus refuses to assert what it did not measure.
+    """
+    action = None
+    for kw in node.keywords:
+        if kw.arg == "default":
+            return ast.literal_eval(kw.value) if isinstance(
+                kw.value, (ast.Constant, ast.Tuple, ast.List)) else _UNREADABLE
+        if kw.arg == "action" and isinstance(kw.value, ast.Constant):
+            action = kw.value.value
+    if action == "store_true":
+        return False
+    if action == "store_false":
+        return True
+    return None
 
 
 def v2_surface(ref: str) -> Surface:
-    """verb -> frozenset of `(name, is_positional)`, derived from `build_parser()` at `ref`."""
+    """verb -> frozenset of `(name, is_positional, default)`, derived from `build_parser()` at `ref`."""
     source = _show(ref, _V2_CLI)
     tree = ast.parse(source, filename=_V2_CLI)
     fn = next((n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "build_parser"),
@@ -174,9 +205,9 @@ def _walk_argparse(parser: argparse.ArgumentParser, parent: str | None,
         if isinstance(action, argparse._HelpAction):  # noqa: SLF001 — auto-added, never an add_argument
             continue
         if action.option_strings:
-            own.append((action.option_strings[0], False))
+            own.append((action.option_strings[0], False, action.default))
         else:
-            own.append((action.dest, True))
+            own.append((action.dest, True, action.default))
     if parent is not None:
         surface[parent] = own
     if subactions is not None:
@@ -259,12 +290,35 @@ def _run_sabotage(ref: str) -> int:
     tampered[target_verb] = frozenset(tampered.get(target_verb, frozenset())) - {victim}
 
     problems, _ = check(ref, claims=claims, v2_surf=v2, v3_surf=tampered)
-    caught = any(target_verb in p and victim[0] in p for p in problems)
-    if caught:
-        return Verdict("v3-cli-parity (SABOTAGE)", 0,
-                       f"removing {victim[0]!r} from {target_verb!r}'s v3 surface was detected").emit()
-    return Verdict("v3-cli-parity (SABOTAGE)", 1,
-                   f"GATE DECORATIVO: {target_verb!r} missing {victim[0]!r} still matched").emit()
+    caught = [p for p in problems if target_verb in p and victim[0] in p]
+    if not caught:
+        return Verdict("v3-cli-parity (SABOTAGE)", 1,
+                       f"GATE DECORATIVO: {target_verb!r} missing {victim[0]!r} still matched").emit()
+
+    # PLANT 2 — the DEFAULT rule needs its own red side. Plant 1 removes a flag, so it would still be
+    # caught by the name-only comparison this gate had before V3-INC11; it cannot witness the rule
+    # that was added. This one keeps every option string identical and changes only what the flag
+    # DEFAULTS to — precisely the escape that was measured (`ci --factory`: `"dummy"` in v2, `None`
+    # in the port, same surface, different behaviour for the caller who omits it).
+    opt = next((it for it in sorted(v2[target_verb]) if not it[1]), None)
+    if opt is None:
+        return Verdict("v3-cli-parity (SABOTAGE)", 1,
+                       f"{target_verb!r} declares no OPTIONAL argument, so the default rule has no "
+                       f"witness here — a rule with no red side does not register (INC-4)").emit()
+    name, is_pos, was = opt
+    flipped = (name, is_pos, "__sabotage_default__" if was != "__sabotage_default__" else "other")
+    tampered2 = dict(v3)
+    tampered2[target_verb] = (frozenset(tampered2.get(target_verb, frozenset())) - {opt}) | {flipped}
+
+    problems2, _ = check(ref, claims=claims, v2_surf=v2, v3_surf=tampered2)
+    if not any(target_verb in p and name in p for p in problems2):
+        return Verdict("v3-cli-parity (SABOTAGE)", 1,
+                       f"GATE DECORATIVO: {target_verb!r}'s {name!r} default changed and still "
+                       f"matched — the comparison is blind to what an omitted flag does").emit()
+
+    return Verdict("v3-cli-parity (SABOTAGE)", 0,
+                   f"2 planted defect(s) caught: removing {victim[0]!r} from {target_verb!r}, and "
+                   f"changing {name!r}'s DEFAULT while its surface stayed identical").emit()
 
 
 def main(argv: list[str]) -> int:

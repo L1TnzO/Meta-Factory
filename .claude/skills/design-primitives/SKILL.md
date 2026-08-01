@@ -5,7 +5,7 @@ description: >-
   primitives (DES-*) it requires, choose the technology that provides each, and declare them in the
   factory-spec. Use when designing/planning a new factory or filling a spec-stub's tech choices.
   Materializes reference/PRIMITIVES.md §3. The technology is a PLAN choice (ADR-012) — never hardcoded
-  in src/metafactory/. Output is verified by `spec.cli design-review` — the M0 design gate (B2): a tech
+  in v3/. Output is verified by `spec.cli design-review` — the M0 design gate (B2): a tech
   per required primitive (plan) AND a verifier per requirement (criterios). M0 refuses an incomplete design.
 ---
 
@@ -14,7 +14,7 @@ description: >-
 > You are the designer of a new factory. Your job is NOT to generate code: it is to produce the **design**
 > (a `factory.spec.yml` v2) that the build (M0–M8) will consume. The technology is chosen by **you, here,
 > by judgment** under the philosophy — and you **declare it in the spec as DATA**. The substrate
-> (`src/metafactory/`) knows no technology (ADR-012); if you feel like "adding a backend", that is a
+> (`v3/`) knows no technology (ADR-012); if you feel like "adding a backend", that is a
 > philosophy bug.
 
 ## When you use me
@@ -54,8 +54,8 @@ quarry and may grow.
 
 ## Verify your own output (the teeth — now in M0)
 ```
-PYTHONPATH=src python3 -m metafactory.spec.cli validate       <spec>   # well-formed v2 grammar (A1)
-PYTHONPATH=src python3 -m metafactory.spec.cli design-review   <spec>   # COMPLETE blueprint: plan + criteria (B2)
+python3 -m v3.spec.cli validate       <spec>   # well-formed v2 grammar (A1)
+python3 -m v3.spec.cli design-review   <spec>   # COMPLETE blueprint: plan + criteria (B2)
 ```
 - `design-review` is **the M0 gate** (B2): it runs inside meta-station m00. It is the SDD design
   flow with teeth, in two phases:
@@ -70,7 +70,7 @@ PYTHONPATH=src python3 -m metafactory.spec.cli design-review   <spec>   # COMPLE
   "it is complete": prove it. M0 refuses it anyway.
 
 ## The hard rules (non-negotiable)
-- **Tech in the spec, NEVER in the substrate** (ADR-012). `src/metafactory/` neither imports nor names technology.
+- **Tech in the spec, NEVER in the substrate** (ADR-012). `v3/` neither imports nor names technology.
 - **Status honesty** (SAFE-7): `planned` while it is design; `declared-deferred` if specified
   but its codegen is deferred; `built` ONLY with `proof`. Do not mark `built` what you did not build.
 - **Security is not designed**: the SAFE-* primitives (the column) are inherited by every factory; you only

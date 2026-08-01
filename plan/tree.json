@@ -1726,29 +1726,35 @@
       "parent": "N-0022",
       "title": "Borrar v2 desarma el lado rojo de import_boundary: v3/verify/import_boundary.py:193 planta el sabotaje con un 'import metafactory' literal, y sin v2 en el arbol el rojo deja de ser plantable y el gate cae a N/A para siempre. Clase de N-0111, aplicada al gate que custodiaba la frontera con v2. Decision requerida: lapida declarada, o re-basar el rojo en un fixture sintetico (patron que MONOLITH-REFACTOR ya uso para quality)",
       "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "PREMISA FALSA, medida tras el borrado: import_boundary NO pierde su lado rojo. Su sabotaje planta _SABOTAGE_SOURCE (una CADENA) y la pasa por analyze(), un analisis estatico que nunca importa v2 ni lo busca en disco. Con src/metafactory/ ya borrado: gate PASS (130 modulos) y SABOTAGE PASS (4 violaciones detectadas). El residuo lo escribi yo razonando sobre el mecanismo en vez de ejercitarlo"
+      ],
       "opened_at": "2026-07-31T23:27Z",
       "origin": {
         "session": "2026-07-31",
         "cause": "manual",
         "ref": "V3-INC11/disarm"
       },
-      "trigger": "la fase P5 de INC-11 (el borrado de src/metafactory/): ahi el gate se queda sin lado rojo plantable y hay que elegir lapida o fixture sintetico, escrito, antes de borrar"
+      "trigger": "la fase P5 de INC-11 (el borrado de src/metafactory/): ahi el gate se queda sin lado rojo plantable y hay que elegir lapida o fixture sintetico, escrito, antes de borrar",
+      "closed_at": "2026-08-01T17:47Z"
     },
     "N-0118": {
       "parent": "N-0022",
       "title": "Los tres generadores de vectores (tools/gen_check_argv_vectors.py, gen_graph_metrics_vectors.py, gen_spec_validation_vectors.py) importan v2 a proposito: son el lado-v2 del oraculo. Los vectores comiteados siguen siendo el oraculo, pero el GENERADOR muere con su fuente y los vectores dejan de ser regenerables. Se declara ahora, no el dia que alguien pida re-generar",
       "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "OCURRIO y queda declarado: tools/gen_{check_argv,graph_metrics,spec_validation}_vectors.py borrados con v2 en P5. Los vectores comiteados en docs/spec/fixtures/ siguen siendo el oraculo y los gates que los leen (kinds_parity, graph_parity, spec/model) siguen verdes; lo que se perdio es la capacidad de RE-GENERARLOS, y v3/verify/graph_parity.py:101 todavia le dice al lector que regenere con una herramienta que ya no existe"
+      ],
       "opened_at": "2026-07-31T23:28Z",
       "origin": {
         "session": "2026-07-31",
         "cause": "manual",
         "ref": "V3-INC11/oracle-gen"
       },
-      "trigger": "la fase P5 de INC-11 (el borrado de src/metafactory/): ahi los generadores pierden su fuente y la perdida se declara en el propio tools/, no en prosa"
+      "trigger": "la fase P5 de INC-11 (el borrado de src/metafactory/): ahi los generadores pierden su fuente y la perdida se declara en el propio tools/, no en prosa",
+      "closed_at": "2026-08-01T17:47Z"
     },
     "N-0119": {
       "parent": "N-0022",
@@ -1803,6 +1809,20 @@
         "ref": "V3-INC11/extraction"
       },
       "trigger": "el dia que se decida sacar v3/ a su propio repositorio (post-cutover): antes de mover un archivo, los gates dependientes del oraculo tienen que re-basarse sobre los fixtures comiteados, o declararse muertos por escrito"
+    },
+    "N-0123": {
+      "parent": "N-0022",
+      "title": "Borre tools/spec_conformance.py por UNA de sus dos funciones (importaba metafactory) y rompi la otra: era tambien el extractor de bloques <!-- spec-impl --> del que depende tools/plan.py, o sea el verbo del arbol de nodos. Sintoma: ModuleNotFoundError al intentar cerrar un residuo. El manifiesto de borrado no lo cubria porque su poblacion es src/metafactory/ y este vive en tools/. La leccion es la que el propio manifiesto advierte para los marcadores de paquete —un archivo que parece prescindible puede ser load-bearing por una razon distinta de la que mirabas— aplicada a un directorio que el manifiesto no audita. Reparado: restaurado y su comparacion apunta ahora a v3.memory.docs_manifest",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-08-01T17:46Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "gate_red",
+        "ref": "V3-INC11/P5/two-roles"
+      },
+      "trigger": "cualquier borrado futuro fuera de src/: el manifiesto solo audita el sustrato, asi que tools/, seed/ y .claude/ se borran sin firma. Si se vuelve a borrar ahi, primero se extiende la poblacion del manifiesto"
     }
   }
 }

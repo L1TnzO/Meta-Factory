@@ -238,9 +238,11 @@ def run_docseal_suite(ns: dict, root: Path) -> list[str]:
             fail.append(f"CONF-D1: spec does not define a callable `{fn}`")
     if fail:
         return fail
-    sys.path.insert(0, str(root / "src"))
+    # V3-INC11 P5: the live implementation is v3's (the v2 substrate this used to differ
+    # against no longer exists). The spec block is unchanged; only the counterpart moved.
+    sys.path.insert(0, str(root))
     try:
-        from metafactory import docs_manifest as live
+        from v3.memory import docs_manifest as live
     except Exception as exc:                                      # noqa: BLE001
         return [f"CONF-D1: cannot import the live implementation to differ against: {exc!r}"]
 

@@ -72,5 +72,19 @@ jobs:
         #   evidence_liveness     — node N-0102: it resolves `.md` references against the SIBLING
         #     repo `../Agent_Systems_Factory/`, which does not exist here. Its colour is set by the
         #     environment rather than by the commit, which is a defect in the gate, not in the tree.
+        #   telemetry_liveness    — audits `.metamem/`, which is gitignored and therefore absent on
+        #     every clean clone. It says so itself ("a zero nobody wrote is not a measurement") and
+        #     is right to; it is simply not this actor's instrument.
+        #   suite                 — re-runs every OTHER gate's red side, including `rederive`'s,
+        #     which needs the toolchains this runner does not have. The P2 sweep therefore runs on
+        #     the development machine and is recorded in the increment's §Evidencia.
+        #
+        # WHAT IS DELIBERATELY *NOT* SKIPPED: `codegen_freeze`. It is genuinely RED and it is right
+        # to be — commit `ba05918d2` fed `full-stack-kotlin`'s frozen `codegen/` with no waiver
+        # (nodes N-0084 / N-0105, and ADR-032 §A6 told INC-11 to expect exactly this as DECLARED
+        # debt). It belongs to the FSK level and must be resolved by an FSK increment, not laundered
+        # here. A green tick bought by skipping a true red is worth less than an honest red, and the
+        # 22-day blindness this job just came out of started with a verdict nobody read — not with
+        # a verdict nobody liked.
         # A skip is PRINTED as SKIPPED and never counts as green (`v3.verify.suite`).
-        run: ./meta check --skip projection,generality,rederive,evidence_liveness
+        run: ./meta check --skip projection,generality,rederive,evidence_liveness,telemetry_liveness,suite

@@ -11,6 +11,22 @@
 #
 # ALL the logic lives in `meta ci --rederive` (testable CLI). This yaml is one-line transport
 # (ADR-005 §4): zero duplicable logic that could diverge.
+#
+# ───────────────────────────────────────────────────────────────────────────────────────────────
+# V3-INC11 P6 — `./meta` now dispatches to v3 (`v3.cli`); the v2 substrate no longer exists.
+#
+# THE SCOPE OF THIS ACTOR, STATED, because for 22 days it was not (node N-0116). This job
+# re-derives ONE of the ten committed pin targets: `dummy`, 5 of 84 stations — SIX PER CENT of the
+# pinned surface. It is not, and has never been, "P1 green on another machine". It cannot be:
+# `iot` needs Go, `full-stack-kotlin` needs JDK 21 + PostgreSQL + Chromium, and this runner has
+# none of them. The remaining 79 stations are re-derived on the development machine and recorded in
+# `docs/work/V3-INC11-CUTOVER-INCREMENT.md`.
+#
+# The number is written here rather than in a doc because this file is where someone reads it while
+# deciding whether a green tick means what they think it means. Widening it is a deliberate act:
+# add the toolchains to this job and raise the count in the same commit — never one without the
+# other, or the scope silently drifts from the sentence again.
+# ───────────────────────────────────────────────────────────────────────────────────────────────
 
 name: meta-factory-external-ci
 on:
@@ -27,14 +43,22 @@ jobs:
         with:
           python-version: "3.x"
       - run: pip install pyyaml pytest hypothesis
-      - name: Re-derive the verdict and compare against the pinned one
+      - name: Re-derive the verdict and compare against the pinned one (dummy — 5 of 84 stations)
         # Rebuilds the dummy factory's line from its spec, recomputes every proof_sha and
         # requires the pinned one (factories/<slug>/pinned_verdict.json). Deviation in ANY
         # direction = red (a spontaneous PASS without proof is façade, not improvement).
+        # `--factory` defaults to `dummy` in v3 exactly as it did in v2 — see `v3/cli.py`, where
+        # that default is deliberately NOT "improved", because widening it here by accident is
+        # precisely how this job would start failing for reasons that are not about the code.
         run: ./meta ci --rederive
       - name: PF-6 isolation + docs consistency + suite
-        # --skip projection,generality: those TWO gates audit LOCAL evidence (the heavy factories'
-        # `.proof/`, gitignored) that this clean clone cannot re-derive without JDK/PG/Chromium.
-        # The skip is EXPLICIT and printed as SKIPPED (never silently green); the re-derivation that
-        # DOES belong to this actor is the previous step (the pin). EXTERNAL-CI-GREEN, COUNCIL-360 H-1.
-        run: ./meta check --skip projection,generality
+        # The skip list is MEASURED, not predicted, and every entry says why it is here:
+        #   projection, generality — audit LOCAL evidence (the heavy factories' `.proof/`,
+        #     gitignored); a clean clone cannot re-derive it without JDK/PG/Chromium.
+        #   rederive              — the suite's own full re-derivation over all 10 targets; the
+        #     step above is this actor's re-derivation, at the scope this runner can honestly do.
+        #   evidence_liveness     — node N-0102: it resolves `.md` references against the SIBLING
+        #     repo `../Agent_Systems_Factory/`, which does not exist here. Its colour is set by the
+        #     environment rather than by the commit, which is a defect in the gate, not in the tree.
+        # A skip is PRINTED as SKIPPED and never counts as green (`v3.verify.suite`).
+        run: ./meta check --skip projection,generality,rederive,evidence_liveness

@@ -1,0 +1,128 @@
+<!-- meta:doc sha=27ffc29e354ee96ddc5820533bfe7e22bf47ee38 updated=2026-08-01T21:27Z -->
+# Incremento V3-INC12-INTERACTIVE-MODE
+
+> **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
+> (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
+>
+> Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md §5bis.2` (la fila que nunca existió) +
+> `10-target-sdk.md §0.2` (la escotilla que la inversión saca) + `§10.3` (la superficie de verbos) +
+> `15-plan-and-memory.md §6` (qué inyecta el host por hoja). Nodo `N-0023`. Nivel: meta.
+
+## Objetivo
+Que un operador pueda **engancharse al mismo orquestador** —ver lo que la corrida headless hoy
+destruye, preguntarle y manejarlo— **sin ganar ninguna autoridad que los gates no le den**, y que la
+misma estación corrida headless y corrida attached produzca **el mismo pin**.
+
+## Lo que INC-12 mide ANTES de escribir código
+
+### 1. El agujero no es «falta un chat»: el host DESTRUYE la evidencia que un humano iría a mirar
+
+`v3/host/runner.py:106` corre cada check con `capture_output=True` y devuelve **sólo** el
+`returncode`. Medido hoy sobre una estación sintética en un tmpdir (una sola check que falla e
+imprime un diagnóstico a stdout y una traza a stderr):
+
+| lo que la check imprimió | lo que quedó |
+| --- | --- |
+| `DIAGNOSTIC: expected 19 rows, got 4 — see build/report.txt` (stdout) | nada |
+| `trace: line 88` (stderr) | nada |
+| — | `.proof/sX.json` = `{"name": "the_one_that_fails", "exit": 1}` + `proof_sha` |
+| — | `.metamem/journal.jsonl` + `iteration.jsonl` = el NOMBRE de la check que falló |
+
+Es el peor de los dos mundos: la salida se **captura** (así que tampoco aparece en la terminal) y
+después se tira al piso. Dentro de Claude Code el operador ve la salida de la herramienta y va a
+mirar; headless no hay nada que mirar. **Ésa es, literalmente, la escotilla que §10.0.2 dice que la
+inversión saca**, y no se arregla con una conversación: se arregla guardando lo que se destruye.
+
+### 2. La superficie de verbos de `§10.3` nunca se construyó
+
+`§10.3` la especifica (`@tool` + `create_sdk_mcp_server`, diez `mf_*`) y la fila de INC-2 la lista
+como entregable («the verbs as MCP tools»). En el árbol: `v3/control/` tiene `agents · budget ·
+cadence · column · hooks · instrument · permissions` y **no tiene `tools.py`**;
+`create_sdk_mcp_server` aparece en v3 en un solo lugar, `v3/probe/claims.py:26`, como símbolo
+*verificado del SDK* — nunca como superficie usada. Una conversación que maneje el orquestador no
+tiene hoy por dónde tocarlo salvo shelleando el CLI.
+
+### 3. El gate `plan` no gatea el plan — y el nombre tapa la ausencia
+
+Misma forma que el bug recurrente de este repo: *algo parece verde porque nadie preguntó qué quedó
+afuera de la cuenta.*
+
+| | |
+| --- | --- |
+| gate `plan` en `meta check` | `v3/verify/checks/plan` → valida **`.gen/plan.json`** (WorkOrders/slots) |
+| su estado en este árbol | **N/A** — «no `.gen/plan.json`; planning is opt-in» |
+| el árbol de nodos del proyecto | `plan/tree.json`, **125 nodos**, el plan de verdad |
+| su validador | `tools/plan.py check` — **fuera del sustrato**, invocado por nadie |
+| su gate | **no existe** |
+
+`N-0112` ya había escrito el disparador: «en INC-11, cuando se redibuje el sustrato, el verbo del
+árbol y su `plan check` tienen que quedar ADENTRO — única forma de que la deriva sea roja y no
+silenciosa». El disparador **se cumplió y nada se movió**, y un lector que recorre la lista de gates
+ve `plan` y da por cubierto lo que no lo está. Es prerequisito de la fase 3: el payload por hoja se
+deriva de ese árbol.
+
+### 4. Los 20 verbos sin portar son los verbos del HUMANO
+
+`verb_census` hoy: 38 verbos v2 · 18 reclamados por v3 · `unported_line=0` · `unported_column=0` ·
+**`unported_human=20`**. INC-11 los declaró pérdida con el argumento «ninguna máquina depende de
+ellos» — que es cierto y es exactamente el punto: **el humano es de quien se ocupa INC-12**. El censo
+se relee con el operador como sujeto y cada uno de los 20 recibe una decisión (portar / dropear con
+su reemplazo nombrado), como DATO.
+
+### 5. Disparadores que se encienden acá y hay que contestar, no arrastrar
+
+- `N-0086` (hijo de `N-0023`, **blocked**): rehydrate bajo la inversión = «qué inyecta el host por
+  hoja» (`§15.6`: ancestry + open_set + condición de aceptación del arco). Necesita el árbol adentro.
+- `N-0096` (**blocked**): `churn` (776 re-lecturas) y `cache_series` quedaron NO PORTADAS porque son
+  CROSS-leaf y el host corre hojas, no sesiones. Disparador textual: «INC-12, donde el host pasa a
+  manejar una sesión multi-turno». Se contesta con medición o se dropea con reemplazo; no se arrastra.
+- `N-0095`: INC-12 nunca recibió fila en la tabla de `§11.3`. Se escribe la fila — **sin declarar
+  cerrado el nodo**: el censo lee AL COMMIT ORÁCULO, así que el hueco sólo se cierra en el próximo
+  re-pin de `v3/oracle_ref.json`.
+
+## Decisión de diseño que ordena el resto: dónde vive lo probabilístico del attach
+
+El gate que pide la spec —«la misma estación, headless y attached, produce el mismo pin»— **no puede
+tener un modelo adentro**: sería un gate caro, lento y no determinista. Se parte en dos, que es el
+idioma que ya usa este repo (INC-0: comportamiento vivo → `*_facts.json` pineado; ley determinista →
+gate):
+
+| | quién lo ejerce | qué prueba |
+| --- | --- | --- |
+| **el DRIVER** (Python determinista: superficie de tools, máquina de estados de la sesión, contrato de autoridad) | el gate `attach_parity`, sin modelo, en segundos | que pasar por el attach produce el **mismo `proof_sha`** que el CLI headless, y que el attach no puede producir un proof por ninguna otra vía |
+| **la CONVERSACIÓN** (`ClaudeSDKClient` + la superficie MCP) | un probe vivo que **pinea hechos** (`v3/attach_facts.json`) | que un modelo enganchado alcanza de verdad las tools y puede interrumpir |
+
+Corolario de autoridad, y es la parte trust-chain de este incremento: **una escotilla es un agujero
+por definición**. El attach lee todo y no decide nada: no escribe proofs, no mueve pins, no cierra
+incrementos salvo por el mismo camino gateado que el CLI. Eso se escribe y se revisa a ojo, no se
+delega.
+
+## Fases
+| Fase | Contenido | Estado |
+| --- | --- | --- |
+| P0 | Baseline medido (los 5 hallazgos de arriba), antes de código | done |
+| P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | pending |
+| P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | pending |
+| P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | pending |
+| P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | pending |
+| P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | pending |
+| P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | pending |
+| P7 | Los 20 verbos humanos decididos como DATO · `N-0096` contestado · fila `§11.3` · docs/STATE/LOG/árbol · cierre | pending |
+
+## Criterio de cierre (demostrable, no narrado)
+1. `attach_parity` verde: `proof_sha` de una estación real corrida headless == corrida por el attach;
+   y su lado rojo (`V3_ATTACH_SABOTAGE=1`) **muerde**.
+2. `attach_authority` verde y con lado rojo: un intento de escribir proof/pin/increment desde la
+   superficie attached es rechazado.
+3. `ci --rederive --all-products` == pin (84/84 en 10 targets): el run log y el payload por hoja **no
+   mueven ningún `proof_sha`**.
+4. Un gate REAL sobre `plan/tree.json` corre dentro de `meta check` y su lado rojo muerde.
+5. El payload por hoja es DERIVADO del árbol (diente) y está ACOTADO (ids + títulos, nunca cuerpos).
+6. Una corrida viva del driver `model` deja `v3/attach_facts.json` pineado, con lo que NO pudo hacer
+   escrito adentro.
+7. `meta check` sin rojos nuevos respecto del baseline de P0, con N/A contados aparte.
+8. Cada uno de los 20 verbos humanos tiene decisión registrada; `N-0096` contestado con medición o
+   dropeado con su reemplazo nombrado.
+
+## Evidencia
+<!-- se llena por fase -->

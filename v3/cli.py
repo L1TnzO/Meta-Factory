@@ -76,6 +76,17 @@ DISPATCH = {
     "product": "v3.verify.rederive:targets",
     "product/new": "v3.verify.rederive:materialize_instance",
     "product/list": "v3.verify.rederive:targets",
+    "plan": "v3.memory.plan_tree:cmd_check",
+    "plan/show": "v3.memory.plan_tree:cmd_show",
+    "plan/next": "v3.memory.plan_tree:cmd_next",
+    "plan/add": "v3.memory.plan_tree:cmd_add",
+    "plan/done": "v3.memory.plan_tree:cmd_done",
+    "plan/drop": "v3.memory.plan_tree:cmd_drop",
+    "plan/block": "v3.memory.plan_tree:cmd_block",
+    "plan/reopen": "v3.memory.plan_tree:cmd_reopen",
+    "plan/metrics": "v3.memory.plan_tree:cmd_metrics",
+    "plan/handoff": "v3.memory.plan_tree:cmd_handoff",
+    "plan/check": "v3.memory.plan_tree:cmd_check",
 }
 
 
@@ -158,6 +169,32 @@ def build_parser() -> argparse.ArgumentParser:
     p_product_new.add_argument("blueprint")
     p_product_list = sub_product.add_parser("list")
     p_product_list.add_argument("--factory", required=True)
+
+    # The project's node tree (docs/spec/15-plan-and-memory.md §5, v3.memory.plan_tree). Each
+    # sub-verb takes its OWN flags (unlike `increment`'s uniform slug/factory/product), so it is
+    # spelled out one call at a time rather than unrolled from a `for` loop.
+    p_plan = sub.add_parser("plan", help="the project's node tree (docs/spec/15-plan-and-memory.md "
+                            "§5, v3.memory.plan_tree)")
+    sub_plan = p_plan.add_subparsers(dest="plan_cmd", required=True)
+    pp = sub_plan.add_parser("show"); pp.add_argument("--root")
+    pp = sub_plan.add_parser("next"); pp.add_argument("--root")
+    pp = sub_plan.add_parser("add")
+    pp.add_argument("--title", required=True)
+    pp.add_argument("--parent")
+    pp.add_argument("--kind", default="task",
+                    choices=["direction", "increment", "task", "residual", "question"])
+    pp.add_argument("--cause", default="manual",
+                    choices=["manual", "gate_red", "deferral", "escalation", "handoff"])
+    pp.add_argument("--ref")
+    pp = sub_plan.add_parser("done")
+    pp.add_argument("id")
+    pp.add_argument("--evidence", nargs="+", default=[])
+    pp = sub_plan.add_parser("drop"); pp.add_argument("id"); pp.add_argument("--reason", required=True)
+    pp = sub_plan.add_parser("block"); pp.add_argument("id"); pp.add_argument("--trigger", required=True)
+    pp = sub_plan.add_parser("reopen"); pp.add_argument("id")
+    pp = sub_plan.add_parser("metrics"); pp.add_argument("--root")
+    pp = sub_plan.add_parser("handoff"); pp.add_argument("--root")
+    sub_plan.add_parser("check")
 
     return p
 
@@ -669,6 +706,39 @@ def _cmd_product(ns: argparse.Namespace) -> int:
                    ).emit()
 
 
+# ── the project's node tree (docs/spec/15-plan-and-memory.md §5) ───────────────────────────────────
+def _cmd_plan(ns: argparse.Namespace) -> int:
+    """Dispatches `v3 plan <verb>` to `v3.memory.plan_tree`'s command bodies. A DISPATCHER only — the
+    law those bodies call is the spec-extracted algebra, never reimplemented here. `show`/`handoff`
+    print their FULL, unbounded rendering as this shell's own text (I-7: it never rides the Verdict
+    bus) before emitting the bounded Verdict itself."""
+    from .memory import plan_tree
+
+    cmd = ns.plan_cmd
+    if cmd == "show":
+        print(plan_tree.render_tree_text(_ROOT, ns.root))
+        return plan_tree.cmd_show(_ROOT, ns.root).emit()
+    if cmd == "next":
+        return plan_tree.cmd_next(_ROOT, ns.root).emit()
+    if cmd == "add":
+        return plan_tree.cmd_add(_ROOT, title=ns.title, parent=ns.parent, kind=ns.kind,
+                                 cause=ns.cause, ref=ns.ref).emit()
+    if cmd == "done":
+        return plan_tree.cmd_done(_ROOT, ns.id, ns.evidence).emit()
+    if cmd == "drop":
+        return plan_tree.cmd_drop(_ROOT, ns.id, ns.reason).emit()
+    if cmd == "block":
+        return plan_tree.cmd_block(_ROOT, ns.id, ns.trigger).emit()
+    if cmd == "reopen":
+        return plan_tree.cmd_reopen(_ROOT, ns.id).emit()
+    if cmd == "metrics":
+        return plan_tree.cmd_metrics(_ROOT, ns.root).emit()
+    if cmd == "handoff":
+        print(plan_tree.render_handoff_text(_ROOT, ns.root))
+        return plan_tree.cmd_handoff(_ROOT, ns.root).emit()
+    return plan_tree.cmd_check(_ROOT).emit()   # "check"
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         return Verdict("v3", 2, f"no verb given; known: {', '.join(sorted(DISPATCH))}").emit()
@@ -712,6 +782,8 @@ def main(argv: list[str]) -> int:
         return _cmd_promote(ns)
     if verb == "product":
         return _cmd_product(ns)
+    if verb == "plan":
+        return _cmd_plan(ns)
     return Verdict("v3", 2, f"{verb!r} is declared in DISPATCH with no handler here").emit()  # pragma: no cover
 
 

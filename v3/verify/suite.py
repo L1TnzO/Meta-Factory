@@ -271,6 +271,17 @@ def _register_ported(registry: Registry) -> None:
         na_when="no `.gen/plan.json` in the tree — planning is opt-in (SAFE-7)",
     ))
     registry.register(Gate(
+        name="plan_tree",
+        argv=(PY, "-m", "v3.verify.checks.plan_tree"),
+        proves="the PROJECT's node tree (`plan/tree.json`) obeys the algebra of "
+               "`docs/spec/15-plan-and-memory.md §5`, executed FROM the document rather than copied — "
+               "distinct from the `plan` gate, which validates `.gen/plan.json` WorkOrders and is N/A "
+               "in a tree with no active delegation planning (the name collision that let this law go "
+               "ungated until INC-12)",
+        witness=Witness("sabotage_env", "V3_PLAN_TREE_SABOTAGE"),
+        na_when="no `plan/tree.json` — the node tree is meta-only (N-0059)",
+    ))
+    registry.register(Gate(
         name="dial",
         argv=(PY, "-m", "v3.verify.dial"),
         proves="every factory that adopted the draft→harden dial (>=1 `tier: harden` active station) "

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=11074349cbed6cdcde1b4ab8ee153fba6743206c updated=2026-08-01T21:44Z -->
+<!-- meta:doc sha=8cd5312e30a98d19cc7b60edc5831a3485994b57 updated=2026-08-01T21:59Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -102,7 +102,7 @@ delega.
 | --- | --- | --- |
 | P0 | Baseline medido (los 5 hallazgos de arriba), antes de código | done |
 | P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | done |
-| P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | pending |
+| P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | done |
 | P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | pending |
 | P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | pending |
 | P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | pending |
@@ -153,3 +153,24 @@ no es que los pines no se movieron, es que la identidad de la estación no cambi
 - Deuda que esto paga, y estaba DECLARADA: `deletion_manifest.py:329` dropeó `codegen/gate_wrap.py`
   («preserva stdout+stderr completo en disco, una sola línea VERDICT al que llama») anotando que
   «`v3.host.runner.run_check` captura la salida de una check pero nunca la loguea ni la acota».
+
+### P2 — el plan adentro (2026-08-01)
+
+La regla que ordenó la fase: **el álgebra no se copia**. `§15.10` dice que el bloque
+`<!-- spec-impl: plan -->` de `docs/spec/15-plan-and-memory.md §5` es «the ONLY implementation», así
+que v3 lo **ejecuta desde el documento**, igual que hacía `tools/plan.py`. Transcribirlo a un módulo
+habría creado una segunda ley que deriva en silencio — exactamente el defecto que esta fase saca.
+
+- Gate **`plan_tree`** (el que faltaba): `125 node(s) obey the algebra … ; extraction parity with
+  tools/spec_conformance.py holds` → **PASS**, y su `na_when` sólo aplica si no hay árbol.
+- Lado rojo `V3_PLAN_TREE_SABOTAGE=1` (corrido por el orquestador): **5/5 clases cazadas** —
+  `done-over-open-descendant`, `done-without-evidence`, `blocked-without-trigger`,
+  `cause-outside-vocabulary`, `marker-removed`. La quinta es la que protege la regla de arriba: si
+  alguien saca el marcador del que se extrae el álgebra, el gate lo ve.
+- Testigo de PARIDAD del port (ley de INC-10): `./meta plan check` y `python3 tools/plan.py check`
+  dan **el mismo veredicto sobre los mismos 125 nodos**; `tools/plan.py` queda como shim de una sola
+  implementación (regla de `§10.3`: el CLI es transporte).
+- `git diff --quiet -- plan/tree.json` → **el dato no se tocó**: la fase cambia QUIÉN corre la ley.
+- Huella del slot: `GREEN`, 7 archivos observados, 0 fuera del `allow_globs`.
+- **Residuo que esta fase crea**: `v3/cli.py` quedó en **791 líneas**, contra el techo de ~800 de la
+  regla multi-archivo. P5 agrega `meta attach` → la fase que lo toque tiene que partirlo primero.

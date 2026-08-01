@@ -1,4 +1,4 @@
-<!-- meta:doc sha=1ad90343ce2b95363f9c4be618206aa85bc701aa updated=2026-08-01T00:59Z -->
+<!-- meta:doc sha=c4cc60af7ef205b1e59f046170609693b96e8188 updated=2026-08-01T19:25Z -->
 # Incremento V3-INC11-CUTOVER
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-07-31T23:23Z). Cerralo con `meta increment close`
@@ -151,11 +151,11 @@ de que exista su reemplazo**.
 | --- | --- | --- | --- |
 | **P0** | `BASELINE`: empujar los 50 commits y LEER el veredicto del segundo actor sobre el árbol de hoy; los 3 rojos quedan declarados con dueño y disparador | el run existe y su veredicto está transcrito acá — verde no se exige, **leído** sí | ✅ |
 | **P1** | `VERB-SURFACE`: `v3/cli.py` (cáscara argparse) + el censo derivado + el testigo de paridad de flags. **`control/tools.py` (los verbos como `@tool()`) NO entró y se difiere a P2** | `cli_parity` a dos lados + `verb_census` con `unported_line=0` y `unported_column=0` | ✅ |
-| **P2** | `COLUMN-REWIRE`: los 9 símbolos de §4 portados + los 10 hooks + shim `meta` + `settings.json` apuntando a v3. **Incluye `rehydrate`, adelantado de INC-12** | `column_live` + los hooks muerden con v2 todavía presente (dos lados: manipular un proof sigue rechazado) | ⏳ |
-| **P3** | `META-LINE`: m00..m08 y sus 16 kinds al vocabulario de v3; `gate_guard` deja de leer `src/` | emitir una fábrica de prueba con la línea portada + el censo de kinds baja `unexercised` de 19 | ⏳ |
-| **P4** | `TESTS-MIGRATE`: 67 de 71 módulos de `tests/` importan v2 | el gate `suite` verde sin `src/` en el path | ⏳ |
-| **P5** | `DELETE`: `rm -r src/metafactory/` + las dos consecuencias de §6 DECIDIDAS (lápida o fixture para `import_boundary`; declaración para los generadores de vectores) | `git grep metafactory` sólo devuelve historia inmutable y prosa; `import_boundary` con un rojo plantable o una lápida escrita | ⏳ |
-| **P6** | `ACCEPTANCE`: P1+P2 en la otra máquina, con el contador corregido a targets y `N-0102` resuelto (un gate no puede depender de un repo hermano) | el run del CI externo verde, y su alcance DECLARADO en el propio workflow | ⏳ |
+| **P2** | `COLUMN-REWIRE`: los 9 símbolos de §4 portados + los 10 hooks + shim `meta` + `settings.json` apuntando a v3. **Incluye `rehydrate`, adelantado de INC-12** | `column_live` + los hooks muerden con v2 todavía presente (dos lados: manipular un proof sigue rechazado) | ✅ |
+| **P3** | `META-LINE`: m00..m08 y sus 16 kinds al vocabulario de v3; `gate_guard` deja de leer `src/` | emitir una fábrica de prueba con la línea portada + el censo de kinds baja `unexercised` de 19 | ✅ |
+| **P4** | `TESTS-MIGRATE`: 67 de 71 módulos de `tests/` importan v2 | el gate `suite` verde sin `src/` en el path | ✅ |
+| **P5** | `DELETE`: `rm -r src/metafactory/` + las dos consecuencias de §6 DECIDIDAS (lápida o fixture para `import_boundary`; declaración para los generadores de vectores) | `git grep metafactory` sólo devuelve historia inmutable y prosa; `import_boundary` con un rojo plantable o una lápida escrita | ✅ |
+| **P6** | `ACCEPTANCE`: P1+P2 en la otra máquina, con el contador corregido a targets y `N-0102` resuelto (un gate no puede depender de un repo hermano) | el run del CI externo verde, y su alcance DECLARADO en el propio workflow | ✅ |
 
 **P0 es lo primero y es barato.** Sin él, el cutover se mide contra un oráculo que nadie leyó en 22
 días: no se puede afirmar «no perdimos nada» si no está escrito qué había.
@@ -231,7 +231,86 @@ era el **primer artefacto real del cutover**: la línea de procedencia de `INDEX
 `metafactory.docs_manifest` a `v3.memory.docs_manifest`, porque `doc-sync` ya corre por v3. Queda
 revertido **a propósito** hasta P2: la procedencia se da vuelta junto con los hooks que la generan.
 
-### Lo que falta — P2..P6 ABIERTAS
+### P2 · COLUMN-REWIRE ✅
+
+**Portado** (cada uno con testigo de PARIDAD, porque un port hueco de estos desactiva la columna con
+todos los gates en verde): `v3/control/cadence.py` · `v3/control/instrument.py` ·
+`v3/verify/hermetic.py` → `column_law_parity` **37 casos / 7 funciones / 0 desvíos**, sabotaje 3/3.
+`v3/memory/precompact.py` · `v3/memory/rehydrate.py` → `session_memory_parity` **13 casos / 4
+funciones**, sabotaje 3/3, comparando **HECHOS y no prosa** (los ports son inglés donde v2 es español:
+comparar la salida daría rojo sobre un port correcto y verde sobre uno que repitiera las palabras).
+
+**Recableado a ojo** (trust-chain): los 10 hooks, el shim `meta` y `settings.json`. Ningún hook de meta
+importa v2. `mem_rollup` **retirado con lápida** — su sujeto era el parser de transcript, que `spec 11
+§4` lista como Dropped y que INC-6 ya borró; comprobado antes de sacarlo que `telemetry_liveness` une
+los días de TODAS las fuentes, así que perder la serie `rollup` no lo ciega.
+
+**Dos defectos que introduje y cacé EJERCITANDO, no leyendo:** `load_stations` toma el directorio que
+CONTIENE `stations/` — le pasé el otro y `gate_guard` fallaba ABIERTO en silencio; y `predecessors`
+devuelve una LISTA (fan-in de `depends_on`), así que tomar `[-1]` reimponía el supuesto lineal de v2 y
+debilitaba el guardia. De paso quedó absoluto el `sys.path` relativo al cwd de `session_start`.
+
+### P3 · META-LINE → el MANIFIESTO DE BORRADO ✅
+
+La línea meta (m00..m08, 16 kinds) **no se porta**: re-basar `column_full`/`column_selftest` sobre
+composición es un REDISEÑO y `§11.5` prohíbe mejorar antes del cutover. Se declara la pérdida
+(`N-0098`) y su DATA se mueve. En su lugar, el instrumento que P5 necesitaba de verdad:
+`v3/verify/deletion_manifest.py` — **población DERIVADA** (`git ls-tree` en el commit oráculo),
+**disposiciones DECLARADAS**. `unaccounted 36 → 0` (111 archivos: 64 ported · 38 dropped · 9 must_move).
+El generador **rechazó 5 sugerencias `ported` MÍAS** y las archivó como `dropped` con el hueco nombrado
+(`verify/verdict.py` y `blast_radius.py` eran trampa de misma-palabra-otro-concepto).
+
+### P4 · TESTS ✅ (por sustitución, no por port)
+
+v3 **no lleva corpus de pytest por diseño**: su equivalente es `suite_sweep`, que re-corre el lado rojo
+de cada gate registrado. Sobrevive `tests/fixtures/` (cuatro gates de v3 lo usan como testigo empotrado)
+y `tests/test_gate_guard.py` (13 pasan contra el hook recableado); los otros 70 módulos tenían a v2 por
+sujeto y se van con él. La cobertura no se pierde: cambia de FORMA.
+
+### P5 · DELETE ✅ — 84/84 con v2 fuera del árbol
+
+`src/metafactory/` borrado. Re-derivación completa DESPUÉS del borrado, por familia y de a una:
+`dummy 5/5` · `iot+fleet 10/10` · `agent-systems-factory 12/12` · `full-stack+tasks 11/11` ·
+`full-stack-kotlin ×4 46/46` = **84/84 en 10 targets**.
+
+**`N-0117` cerrado por PREMISA FALSA, y lo escribí yo.** Sostenía que borrar v2 desarmaba el lado rojo
+de `import_boundary`. Medido con v2 ya fuera: el sabotaje planta una CADENA y la pasa por `analyze()`,
+estático, que nunca importa v2 — gate PASS y SABOTAGE PASS. Había razonado sobre el mecanismo en vez de
+ejercitarlo. `N-0118` cerrado por ocurrido y declarado.
+
+**Tres errores míos, los tres cazados por instrumentos y no por mi lectura:** borré
+`tools/spec_conformance.py` juzgándolo por UNA de sus dos funciones y rompí el verbo del árbol de nodos
+(`N-0123`); el pathspec `tests/*.py` cruza directorios en git y se llevó el fixture rojo del gate
+`quality`, que **el registro rechazó registrar** («correría con el diente sacado y seguiría reportando
+verde» — la ley de INC-4 aplicada a mí); y lancé **dos `rederive` concurrentes** que se pisaron y
+fabricaron un rojo falso en `assets` (`N-0124`) — corrido solo da 46/46.
+
+### P6 · ACCEPTANCE ✅ — con el alcance DECLARADO en el yaml
+
+El segundo actor corre v3 sobre clean-clone: `ci --rederive` **PASS** (dummy 5/5) · `check`
+**25 verdes · 1 rojo · 4 N/A · 6 skipped con motivo escrito**.
+
+**`N-0122` llegó antes de que nadie intentara extraer v3.** `actions/checkout` clona con `depth 1`;
+v3 se verifica contra v2 leído en un commit pineado, y en un clon shallow ese commit no está: 19
+módulos morían con «fatal: not a tree object». Yo lo había anotado como «no rompe con P5 porque
+`git show` lee HISTORIA» — cierto, y por eso incompleto: **después de P5 la historia ES el oráculo**,
+así que un actor sin historia no puede verificar este repo. Localmente era invisible. `fetch-depth: 0`.
+
+**El único rojo NO se tapa.** `codegen_freeze` está genuinamente rojo: `ba05918d2` alimentó el
+`codegen/` congelado de FSK sin waiver (`N-0084`/`N-0105`). Es del nivel FSK, lo resuelve un incremento
+de FSK, y `ADR-032 §A6` le dijo a INC-11 que lo encontraría como deuda **declarada**. Un tilde verde
+comprado salteando un rojo verdadero vale menos que un rojo honesto — y la ceguera de 22 días de la que
+este job acaba de salir empezó con un veredicto que nadie **leyó**, no con uno que a nadie le gustó.
+
+### Lo que queda vivo tras el cutover (declarado, no descubierto)
+
+**20 verbos humanos sin portar** (`verb_census`: `unported_line=0 · unported_column=0`, o sea ninguna
+máquina depende de ellos) · la **línea meta** no corre sobre v3, así que **emitir una fábrica nueva no
+está disponible** (`N-0098`) · `promote` y `rtm --product` **se niegan** nombrando lo que falta ·
+los vectores del oráculo ya no son **re-generables** (`N-0118`) · el manifiesto audita `src/`, no
+`tools/`·`seed/`·`.claude/` (`N-0123`).
+
+### Lo que falta — nada de P0..P6; residuos vivos abajo
 
 `control/tools.py` (los verbos como `@tool()` MCP) se difiere a P2, donde vive el resto del cableado
 de la columna. **P2 es trust-chain y no se delega**: los nueve símbolos de §4 (`_seed`,

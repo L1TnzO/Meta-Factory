@@ -185,6 +185,17 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="deletion_manifest",
+        argv=(PY, "-m", "v3.verify.deletion_manifest"),
+        proves="every module and station-YAML in v2's substrate carries a WRITTEN disposition — "
+               "ported (and the v3 target must import), dropped (with a reason), or must-move (with "
+               "a destination) — over a population DERIVED at the oracle commit, so a capability "
+               "nobody thought about surfaces as `unaccounted` instead of disappearing with the "
+               "directory. The pins cannot do this: `proof_sha` hashes names and exit codes, so "
+               "anything no pinned station exercises can vanish with every number unchanged",
+        witness=Witness("sabotage_env", "V3_DELETION_MANIFEST_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="session_memory_parity",
         argv=(PY, "-m", "v3.verify.session_memory_parity"),
         proves="the ported `precompact` and `rehydrate` bodies derive the SAME FACTS v2's do — the "

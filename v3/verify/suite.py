@@ -185,6 +185,15 @@ def _register_ported(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="verb_census",
+        argv=(PY, "-m", "v3.verify.verb_census"),
+        proves="v2's whole CLI verb surface is derived from `build_parser` at the oracle commit and "
+               "every verb carries a disposition, and — the tooth, node N-0088 — a verb v3 CLAIMS "
+               "to dispatch must actually resolve, so a declared-but-absent target (which is how "
+               "`v3.cli` came to be named by `v3.verify.kinds` while not existing) is red, not quiet",
+        witness=Witness("sabotage_env", "V3_VERB_CENSUS_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="kinds",
         argv=(PY, "-m", "v3.verify.checks.kind_hygiene"),
         proves="every check-kind declared in a factory's station YAML or factory.spec.yml is in "

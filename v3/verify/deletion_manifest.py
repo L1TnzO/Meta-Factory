@@ -197,6 +197,187 @@ DISPOSITIONS: dict[str, tuple[str, str]] = {
     # ── build actions: v2's `apply_builds` -> v3.host.builds; `v3.verify.migration_census` tracks
     # the per-action split (4 of 11 handled today) — this row is the FILE-level fact it rests on ──
     "codegen/renderer.py": (PORTED, "v3.host.builds"),   # PARTIAL: 4 of 11 build actions handled
+
+    # ── P5 GROUP A — package markers, CONTENT read at the oracle commit (not assumed empty). Each
+    # re-export was traced to its origin submodule; a `git grep` at the oracle ref confirms no v2 file
+    # ever imported these names via the PACKAGE (`from .<pkg> import <name>`) rather than the
+    # submodule directly — except `codegen/__init__.py`'s `apply_builds`, consumed that way by
+    # `engine/runner.py`, and covered by the `codegen/renderer.py` row above. So none of these eight
+    # was independently load-bearing; each is dropped as pure package-layout boilerplate ────────────
+    "__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: only `__all__ = [\"__version__\"]` plus a version string — no "
+        "functional symbol"),
+    "__main__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: `from .cli import main; raise SystemExit(main())` — v3.cli.py "
+        "carries this exact `if __name__ == \"__main__\":` block itself, so `python -m v3.cli` needs "
+        "no package-level forwarder"),
+    "codegen/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: re-exports `apply_builds`, `render_text` from `.renderer` — "
+        "both confirmed present in `v3.host.builds` (the codegen/renderer.py row above)"),
+    "engine/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: re-exports RunContext/Station/Sequence/load_sequence/"
+        "GateResult/open_gate/StationRun/run_station from its 5 submodules, each already PORTED above "
+        "(engine/gate.py, engine/sequence.py, engine/station.py, engine/runner.py, "
+        "engine/run_context.py). NOTED, not hidden: 5 of those 8 identifiers (Sequence, load_sequence, "
+        "GateResult, open_gate, StationRun) do not survive under those exact names anywhere in v3 — "
+        "`v3.kernel.gate.may_run` replaces `open_gate`/`GateResult` with a `(bool, blockers)` tuple, "
+        "`v3.kernel.sequence` replaces the `Sequence` class/`load_sequence` with bare functions "
+        "(`predecessors`/`active_in`/`order_stations`), `StationOutcome` replaces `StationRun` — a "
+        "redesign already recorded on the submodule rows above, not something this marker adds or "
+        "hides on its own"),
+    "graph/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: re-exports Edge/EdgeKind/FileFragment/Graph/Node/NodeKind from "
+        "`.model` — all 6 confirmed present in `v3.graph.model` (the graph/model.py row above)"),
+    "memory/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: `from . import journal; __all__ = [\"journal\"]` — covered by "
+        "the memory/journal.py row above"),
+    "verify/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: re-exports `Verdict`, `format_verdict` from `.report` — "
+        "`Verdict` is `v3.kernel.report.Verdict` (the verify/report.py row above); `format_verdict` "
+        "has no standalone v3 counterpart by that name, folded instead into `Verdict.render()`/"
+        "`.emit()` per that module's own docstring ('the rendering is kept ... the bound moves from "
+        "please-keep-it-short to a function that cannot emit more than MAX_LINES')"),
+    "verify/checks/__init__.py": (DROPPED,
+        "package marker / re-export shim for v2's own package layout; v3 has its own and needs no "
+        "counterpart. Content checked: re-exports `KINDS`, `resolve_check` from `.registry` — both "
+        "confirmed present in `v3.verify.kinds` (the verify/checks/registry.py row above)"),
+
+    # ── P5 GROUP B — executors for a check kind that ONLY the META line (m00..m08, factory emission
+    # M0-M8) declares; v3 does not run that line at cutover. The line's DATA is `must_move`; its
+    # executors are deliberately NOT ported — porting them would mean re-basing copy-comparison checks
+    # onto composition (spec 10 §9), which is a REDESIGN and spec 11 §5 forbids improving anything
+    # before cutover. Declared loss, node N-0098. Where named, the pointer names a v3 module over the
+    # same PROPERTY — NOT evidence the meta-line check itself survives (the name-similarity trap this
+    # table already refuses once for column_parity/column_selftest) ───────────────────────────────
+    "verify/checks/agent_shadow.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4)"),
+    "verify/checks/boundary_survives.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4) "
+        "-> v3.verify.import_boundary covers a SIMILAR boundary property, not evidence this check "
+        "survives"),
+    "verify/checks/bus_bounded.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4) "
+        "-> v3.kernel.report is the bounded verdict bus itself, not evidence this check survives"),
+    "verify/checks/clean_runner.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4)"),
+    "verify/checks/column_full.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4) "
+        "-> v3.verify.column_live covers a SIMILAR column property, not evidence this check survives"),
+    "verify/checks/command_runs.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4)"),
+    "verify/checks/products_rederive.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4) "
+        "-> v3.verify.rederive covers a SIMILAR re-derivation property, not evidence this check "
+        "survives"),
+    "verify/checks/rtm_rederive.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4) "
+        "-> v3.memory.projection covers a SIMILAR RTM-from-proofs property, not evidence this check "
+        "survives"),
+    "verify/checks/rtm_tree.py": (DROPPED,
+        "executor for a check kind that ONLY the META line (m00..m08, factory emission M0-M8) "
+        "declares; v3 does not run that line at cutover. Declared loss, node N-0098 (build-plan §4). "
+        "Reuses v2's own verify/rtm.py (dropped below, same group) as its single source "
+        "-> v3.memory.projection covers a SIMILAR RTM-from-proofs property, not evidence this check "
+        "survives"),
+
+    # ── P5 GROUP C — the code-graph navigation/economy corner: ADR-019 §5 put this out of scope for
+    # v3, and `v3/graph/__init__.py`'s OWN docstring names these files OUT of scope by filename ──────
+    "graph/affected.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+    "graph/affected_report.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names `affected*.py` OUT of "
+        "scope in its own module map ('the navigation/economy surface ... None of those is imported "
+        "from here')"),
+    "graph/billing.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+    "graph/cli.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here'). "
+        "Additionally backs `meta graph`, an unported HUMAN verb (verb_census)"),
+    "graph/incremental.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+    "graph/ingest.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+    "graph/pricing.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+    "graph/repomap.py": (DROPPED,
+        "ADR-019 §5 put this out of scope for v3; `v3/graph/__init__.py` names it OUT of scope in its "
+        "own module map ('the navigation/economy surface ... None of those is imported from here')"),
+
+    # ── P5 GROUP D — one decision each ──────────────────────────────────────────────────────────────
+    "doc_slice.py": (DROPPED, "backs `meta doc slice`, an unported human verb (verb_census)"),
+    "gate_wrap.py": (DROPPED,
+        "VERIFIED at the oracle commit: wraps a VERBOSE subprocess so a caller sees exactly ONE "
+        "VERDICT line, with the full combined stdout+stderr preserved on disk (CONTEXT-ECONOMY §2). "
+        "Its only caller in v2 was `toolchain_run.py` (dropped below, same group) — no other v2 file "
+        "imports it, and no v3 module wraps an ad-hoc verbose subprocess this way (`v3.host.runner."
+        "run_check` captures a check's output but never logs or bounds it into a VERDICT line; "
+        "grepped the whole v3 tree for `log_dir`/`gate_logs` — nothing)"),
+    "toolchain_run.py": (DROPPED,
+        "backs `meta jdk-run`; the JDK resolution that actually load-bears lives in "
+        "`tools/toolchain.sh`, which is NOT part of the substrate and survives (node N-0121)"),
+    "memory/overlap.py": (DROPPED,
+        "the three-memory overlap observer; explicitly an observer, never a gate"),
+    "codegen/delegation_brain.py": (DROPPED,
+        "dead: the delegation-brain swap it existed for was abandoned"),
+    "verify/cost_report.py": (DROPPED,
+        "superseded by v3's TYPED economy (`v3.economy.{ledger,meter,outcome}`), which INC-6 built "
+        "rather than ported"),
+    "verify/mutation.py": (DROPPED,
+        "VERIFIED at the oracle commit: a general-purpose stdlib mutation-testing instrument (E4/H-3, "
+        "COUNCIL-360 §6.4.5) — seeds one operator mutation at a time into a caller-named target file, "
+        "re-runs a caller-supplied gate command, classifies KILLED/ESCAPED by exit code, reports an "
+        "escape rate. No v3 module offers this as a reusable, general instrument: `v3.verify."
+        "spec_parity` has a SIMILARLY-NAMED 'mutant' concept, but only as a fixed CI fixture over the "
+        "spec validator's own rule inventory, not a callable campaign tool against an arbitrary file — "
+        "the same name-similarity trap this table already refuses once"),
+    "verify/rtm.py": (DROPPED,
+        "VERIFIED: `v3.memory.projection.rtm_statuses` re-derives only a SUMMARY — per-factory "
+        "(satisfied, total) counts, checking that each requirement's `satisfied_by` stations have a "
+        "recomputing-green proof. v2's `verify/rtm.py` builds the full evidence TREE (req -> "
+        "capability -> station -> proof -> artifact) and additionally checks (a) the requirement's "
+        "declared capability is a REAL capability (the L5->L1 edge) and (b) every artifact that "
+        "capability declares EXISTS on disk (the C4 'artifact leaf', which catches STALE EVIDENCE: a "
+        "proof that says passed while the artifact it certifies vanished). Neither (a) nor (b) is "
+        "reproduced anywhere in v3 today — a real gap, not a rename, so this stays dropped rather than "
+        "ported"),
+    "verify/verdict.py": (DROPPED,
+        "VERIFIED: NOT the same concept as `v3.kernel.report`'s bounded CLI verdict bus despite the "
+        "shared word — this is the Fase-G promotion-domination law (`SELF-IMPROVEMENT.md §4`): "
+        "re-derive a factory's (line_green, rtm_satisfied, rtm_total) on a throwaway clone and refuse "
+        "a `meta promote` that would lower any downstream factory's verdict. Confirmed unported by "
+        "v3.cli's OWN docstring: \"`promote` needs a blast-radius sweep + a scenario corpus + a "
+        "baseline store that v3 does not have, so it REFUSES rather than pretending\""),
+    "verify/checks/blast_radius.py": (DROPPED,
+        "VERIFIED: `v3.delegation.footprint` (the git-observed SLOT-FOOTPRINT sweep, allow_globs vs. "
+        "what git saw changed) and `v3.control.hooks` (in-process PreToolUse/PreCompact defensive "
+        "hooks) are a same-word-different-concept, not this gate — read both, neither implements "
+        "`meta promote`'s downstream-factory domination sweep. This is the gate wired to "
+        "`verify/verdict.py` (dropped above, same group; see its entry for the direct v3.cli "
+        "confirmation) via `from .. import verdict as V`; it is unported for the identical reason"),
+    "verify/checks/scenario_corpus.py": (DROPPED,
+        "FSK/ASF-only check kind that no MIGRATED factory line declares (migration_census); not "
+        "exercised by any pinned station"),
 }
 
 #: Real, currently-UNACCOUNTED population members, used only by the sabotage — see the module

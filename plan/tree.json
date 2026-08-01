@@ -1789,6 +1789,20 @@
         "ref": "V3-INC11/toolchain-hook"
       },
       "trigger": "cualquier incremento que toque tools/toolchain.sh o la columna de hooks: ahi 'ensure' tiene que dejar rastro persistente (symlink o wrapper) en vez de depender de que cada shell lo evalue"
+    },
+    "N-0122": {
+      "parent": "N-0022",
+      "title": "DIECINUEVE modulos de v3 leen a v2 en el commit oraculo con 'git show <sha>:src/metafactory/...' (parity.py, kinds*.py, *_parity.py, gate_census, verb_census, migration_census, economy_census, spec/model, graph/model). Eso NO rompe con el borrado de P5 —git show lee HISTORIA, no el arbol— pero SI rompe la extraccion: sacar v3/ a su propio repositorio lo deja sin oraculo y esos gates mueren o quedan vacuos. Es la misma clase que N-0117 y N-0118 pero mas ancha, y es la condicion real de 'v3 corre independiente'. El reemplazo existe y esta comiteado: docs/spec/fixtures/*.json (84 vectores pin-anchored, check-argv, spec-validation, graph-metrics); re-basar esos gates sobre los FIXTURES en vez de sobre git show es lo que hace la extraccion posible",
+      "kind": "residual",
+      "state": "blocked",
+      "evidence": [],
+      "opened_at": "2026-08-01T07:33Z",
+      "origin": {
+        "session": "2026-08-01",
+        "cause": "manual",
+        "ref": "V3-INC11/extraction"
+      },
+      "trigger": "el dia que se decida sacar v3/ a su propio repositorio (post-cutover): antes de mover un archivo, los gates dependientes del oraculo tienen que re-basarse sobre los fixtures comiteados, o declararse muertos por escrito"
     }
   }
 }

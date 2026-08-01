@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b61e2d973409b1d7ca1c0fe467719b2c7e28ae9f updated=2026-07-31T23:23Z -->
+<!-- meta:doc sha=83a7dbe58b2b220d8d16d58b53cb288d5b5d1f7f updated=2026-08-01T07:34Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -20,8 +20,13 @@
 > above; honest residuals, in `reference/HONEST-STATE.md`. This is NOT a log — if you want the detail of
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
-- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-10 ENTREGADOS**; siguiente **INC-11 `CUTOVER`** (borrar
-  el sustrato v2; `meta` = cáscara fina sobre v3; clean-clone en otra máquina, M).** El plano de CONTROL
+- **🏗️ v3 REBUILD — `ADR-031`/`032`; **INC-0..INC-10 ENTREGADOS · INC-11 `CUTOVER` ABIERTO, P0+P1 de 7
+  fases ✅** (08-01). La fila decía `M`; medida, es **XL** y se corrigió en `spec/11 §11.3`. P0: los 51
+  commits empujados y el 2º actor LEÍDO (2/21 rojos, misma raíz `N-0102`). P1: `v3/cli.py` + censo
+  DERIVADO de 38 verbos + `cli_parity` → **`unported_line=0 · unported_column=0`**; quedan 31 verbos
+  humanos. **P2..P6 abiertas**; P2 (columna: 9 símbolos + 10 hooks) es trust-chain y no se delega.
+  Aviso de aceptación: el CI externo re-deriva **5 de 84** estaciones (6 %), así que «P1 verde en otra
+  máquina» NO cubre las 84 (`N-0116`).** El plano de CONTROL
   sobre el Claude Agent SDK: **nuestro programa es el host, Claude Code el motor** (`v3/`, contra el
   oráculo pineado en `v3/oracle_ref.json`). Leyes: **sin testigo rojo no se registra** (INC-4) ·
   **negarse a afirmar** es válido (INC-5) · **«no se midió» ≠ «dio cero»** en el TIPO (INC-6) · **un

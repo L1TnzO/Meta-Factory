@@ -9,6 +9,8 @@
         "elsewhere.txt: outside the slot's footprint"
       ]
     },
+    "F_manifest_write_allowed": false,
+    "F_scratch_write_allowed": true,
     "E_broken_manifest": {
       "status": "FAIL-CLOSED",
       "why": [

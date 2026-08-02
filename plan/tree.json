@@ -1,5 +1,5 @@
 {
-  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by v3.memory.plan_tree (`v3 plan …` / `tools/plan.py`, a thin shim over it). Ids are append-only and never renumbered.",
+  "_doc": "The plan tree. Law and algebra: docs/spec/15-plan-and-memory.md (normative). Operated by v3.memory.plan_tree (`v3 plan-tree …` / `tools/plan.py`, a thin shim over it). Ids are append-only and never renumbered.",
   "nodes": {
     "N-0001": {
       "parent": null,
@@ -1891,6 +1891,30 @@
       "origin": {
         "session": "2026-08-01",
         "cause": "gate_red"
+      }
+    },
+    "N-0129": {
+      "parent": "N-0023",
+      "title": "El gate slot_footprint de INC-3 existia, pasaba, y meta check NUNCA lo corria: el modulo estaba escrito y sin registrar en la suite. Encontrado en V3-INC12 P5 al necesitar un diente para el cambio de ley del manifiesto. Registrado con testigo rojo propio",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-02T05:57Z",
+      "origin": {
+        "session": "2026-08-02",
+        "cause": "gate_red"
+      }
+    },
+    "N-0130": {
+      "parent": "N-0023",
+      "title": "La ley del slot ahora RECHAZA .gen/active_slot.json: un generador podia reescribir sus propios allow_globs y toda la cadena aguas abajo validaba contra limites que eligio el worker. Tercera instancia de la familia N-0113 — la ley acotaba lo que ESCRIBE y lo que DEJA, nunca lo que dice que son sus limites. Divergencia deliberada del oraculo v2, pineada por el caso F de slot_footprint",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-02T05:57Z",
+      "origin": {
+        "session": "2026-08-02",
+        "cause": "manual"
       }
     }
   }

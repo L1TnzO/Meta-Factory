@@ -42,14 +42,25 @@ and why that is filling a gap rather than extending the table it forbids touchin
     call — see that gate's own `_completeness_problems` docstring.
 
 THE SDK IMPORT IS LAZY, confined to `build_server`. Every other name here — the table, `registration_
-problems`, `callable_tools`, `check_bounded`, `invoke` — imports and runs on the standard library plus
+problems`, `callable_tools`, `check_bounded`, `_invoke` — imports and runs on the standard library plus
 ordinary v3 modules, so `v3.verify.checks.attach_authority` is hermetic and fast (no wheel needed), and
 `build_server` not being importable without the SDK is simply never exercised by that gate.
 
-BOUNDED RETURNS (I-7). `invoke` never hands back captured stdout or a `.render()`'d log — it returns a
-`Verdict`'s structured fields (`status`, `summary`, `counts`, `failures`) and nothing else, enforced by
-`check_bounded`. `run_log_read` is the SINGLE exception: it returns a bounded `text` slice, and only
-because its own REQUIRED `max_bytes` argument is what bounds it (`v3.host.runlog.read`'s own law).
+ONE CHOKE POINT (the `v3-attach` slot's correction). `_invoke` is PRIVATE — the module exposes no
+public `invoke` — and it has exactly ONE caller anywhere in v3: `v3.host.attach.AttachSession.invoke`.
+`build_server` does not call `_invoke` either; each wrapped `@tool` handler calls
+`session.invoke(spec.name, args)`, the SAME `AttachSession.invoke` a repl operator drives, so a
+model-driven conversation and a scripted repl reach `station`/every other tool through the identical
+dispatcher by construction, not by a gate re-proving two implementations agree. `v3.verify.checks.
+attach_authority` asserts both halves of this (no public `invoke`; `_invoke`'s one call site) by
+walking the real v3 tree with `ast`, the same technique `v3.verify.verb_census` uses.
+
+BOUNDED RETURNS (I-7). The invocation path never hands back captured stdout or a `.render()`'d log —
+`AttachSession.invoke` (and, through it, `build_server`'s wrapped handlers) returns a `Verdict`'s
+structured fields (`status`, `summary`, `counts`, `failures`) and nothing else, enforced by
+`check_bounded` on the raw handler result before it is ever wrapped. `run_log_read` is the SINGLE
+exception: it returns a bounded `text` slice, and only because its own REQUIRED `max_bytes` argument is
+what bounds it (`v3.host.runlog.read`'s own law).
 """
 from __future__ import annotations
 
@@ -153,6 +164,9 @@ SURFACE: tuple[ToolSpec, ...] = (
              "REFUSED — rewrites the plan of record; use `v3 plan-tree block` at the CLI.", {}),
     ToolSpec("plan_tree_reopen", "declare", "plan-tree/reopen", "",
              "REFUSED — rewrites the plan of record; use `v3 plan-tree reopen` at the CLI.", {}),
+    ToolSpec("attach", "declare", "attach", "",
+             "REFUSED — you cannot attach from inside an attach; run `v3 attach --factory F` at a "
+             "terminal instead.", {}),
 )
 
 
@@ -363,10 +377,20 @@ _HANDLERS = {
 }
 
 
-def invoke(spec: ToolSpec, args: dict, *, root: Path) -> dict:
+def _invoke(spec: ToolSpec, args: dict, *, root: Path) -> dict:
     """The runtime call a `read`/`run` tool handler makes — hermetic (no SDK), so
     `v3.verify.checks.attach_authority` can call it directly without a live server. NEVER called for a
-    `declare` tool: `build_server` only wires `callable_tools()`, which structurally excludes them."""
+    `declare` tool: `build_server` only wires `callable_tools()`, which structurally excludes them.
+
+    PRIVATE ON PURPOSE (the `v3-attach` slot's correction): this function has exactly ONE caller in
+    the whole tree, `v3.host.attach.AttachSession.invoke`. Before this correction `build_server`'s
+    wrapped handlers called it a second time, directly — a model-driven conversation would then reach
+    `station` (and every other tool) through a DIFFERENT implementation than the repl driver, which is
+    exactly the "second entry point into the orchestrator" `.gen/CONTRACT-v3-attach.md` forbids, one
+    layer up from where `AttachSession.invoke` itself already guards it. `build_server` now calls
+    `session.invoke(spec.name, args)` instead, so both drivers share this one choke point by
+    construction; `v3.verify.checks.attach_authority` proves the constraint holds by walking the real
+    v3 tree with `ast` (never by trusting this docstring)."""
     handler = _HANDLERS.get(spec.name)
     if handler is None:
         return {"status": "FAIL", "summary": f"{spec.name}: no runtime handler wired", "counts": {},
@@ -375,11 +399,18 @@ def invoke(spec: ToolSpec, args: dict, *, root: Path) -> dict:
     return result if isinstance(result, dict) else _bounded_result(result)
 
 
-def build_server(root: Path):
+def build_server(session):
     """Lazily imports the SDK — CONFINED here, per the contract, so importing this module never needs
     it. Wraps `callable_tools()` — never `SURFACE` directly — so a `declare` row could not reach
     `create_sdk_mcp_server` even by a future edit that forgot to re-check `registration_problems`
-    first."""
+    first.
+
+    `session` is a `v3.host.attach.AttachSession` (typed loosely, not imported at module load, to
+    avoid a cycle — `v3.host.attach` already imports THIS module). Each wrapped handler calls
+    `session.invoke(spec.name, args)`, never `_invoke` directly: that is what makes the live
+    conversation and the deterministic repl driver share the SAME choke point, and it is why this
+    function no longer takes a bare `root` — a session already carries one, plus the dial/product the
+    repl driver would otherwise have to be told twice."""
     import json as _json
 
     from claude_agent_sdk import create_sdk_mcp_server, tool
@@ -388,7 +419,7 @@ def build_server(root: Path):
     for spec in callable_tools():
         def _make(spec: ToolSpec = spec):
             async def _handler(args: dict) -> dict:
-                result = invoke(spec, args, root=root)
+                result = _bounded_result(session.invoke(spec.name, args))
                 return {"content": [{"type": "text", "text": _json.dumps(result, default=str)}]}
             return _handler
 

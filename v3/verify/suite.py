@@ -308,6 +308,25 @@ def _register_ported_more(registry: Registry) -> None:
         witness=Witness("sabotage_env", "V3_ATTACH_AUTHORITY_SABOTAGE"),
     ))
     registry.register(Gate(
+        name="attach_parity",
+        argv=(PY, "-m", "v3.verify.checks.attach_parity"),
+        proves="the same station, run headless (v3.host.runner.run_station) and run through the one "
+               "attach choke point (v3.host.attach.AttachSession.invoke), produces the IDENTICAL "
+               "proof_sha/checks/passed and run log — over a synthetic 2-station line and a staged "
+               "copy of factories/dummy — and invoke() refuses declare-tier and unknown tools",
+        witness=Witness("sabotage_env", "V3_ATTACH_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="slot_footprint",
+        argv=(PY, "-m", "v3.verify.slot_footprint"),
+        proves="the slot law decides the five states it claims (GREEN inside/scratch/baseline · RED "
+               "outside · FAIL-CLOSED on a broken manifest) and REFUSES the manifest itself, so a "
+               "generator cannot rewrite the allow_globs that every downstream check validates "
+               "against. `§11.3` named this gate as INC-3's deliverable and it was never registered: "
+               "the module existed, passed, and `meta check` never ran it (found V3-INC12 P5)",
+        witness=Witness("sabotage_env", "V3_SLOT_FOOTPRINT_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="dial",
         argv=(PY, "-m", "v3.verify.dial"),
         proves="every factory that adopted the draft→harden dial (>=1 `tier: harden` active station) "

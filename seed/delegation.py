@@ -176,6 +176,19 @@ def write_allowed(root: Path, slot: dict, file_path: str) -> bool:
     rel = _rel(root, file_path)
     if rel is None:
         return False  # escapes the repo → never
+    if rel == SLOT_MANIFEST:
+        # THE MANIFEST IS NOT THE WORKER'S TO WRITE. It is the orchestrator's instrument: it declares
+        # the contract, the blast radius and the split gate this very function enforces. `.gen/` is
+        # open scratch below, and the manifest lives in `.gen/`, so until now a generator could
+        # rewrite its own `allow_globs` and every downstream check — this hook and `footprint_problems`
+        # — would then validate against bounds the WORKER chose.
+        #
+        # MEASURED 2026-08-01 (V3-INC12 P5): a generator did exactly that, widening its own radius by
+        # two paths. In that instance the orchestrator had authorised those paths in prose, so nothing
+        # escaped; the defect is that the mechanism could not tell an authorised amendment from an
+        # unauthorised one. Third instance of the `N-0113` family — the law bounded what a generator
+        # WRITES and what it LEAVES, never what it says its bounds ARE.
+        return False
     if rel.startswith(".gen/"):
         return True  # the worker's own gitignored scratch + verdict area
     verdict = slot.get("verdict_path", "")

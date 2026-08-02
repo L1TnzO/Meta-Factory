@@ -69,6 +69,7 @@ DISPATCH = {
     "verify": "v3.host.runner:run_station",
     "station": "v3.host.runner:run_station",
     "product-run": "v3.host.runner:run_line",
+    "attach": "v3.host.attach:main",
     "increment": "v3.control.cadence:open_increment_in",
     "increment/open": "v3.control.cadence:open_increment_in",
     "increment/close": "v3.control.cadence:open_increment_in",
@@ -130,6 +131,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--factory", required=True)
     p_run.add_argument("--product", default=None)
     p_run.add_argument("--mode", choices=["draft", "harden"], default="harden")
+
+    # The attach escape hatch (V3-INC12 P5+P6, `.gen/CONTRACT-v3-attach.md`): the driver lives in
+    # `v3.host.attach`. `--driver model` is a REAL, declared choice — its body refuses rather than
+    # pretending the live conversation half exists (see `v3.host.attach.main`'s own docstring).
+    p_attach = sub.add_parser("attach", help="attach an operator to a target through the same "
+                              "orchestrator (v3.host.attach)")
+    p_attach.add_argument("--factory", required=True)
+    p_attach.add_argument("--product", default=None)
+    p_attach.add_argument("--dial", choices=["harden", "draft"], default="harden")
+    p_attach.add_argument("--driver", choices=["repl", "model"], default="repl")
 
     # NOTE on `slug` below: v2's own `build_parser()` declares it ONLY inside `if _name == "open":`,
     # but `cli_parity`'s oracle walker is AST-shaped and does not evaluate that condition — it treats
@@ -293,6 +304,9 @@ def main(argv: list[str]) -> int:
         return _cmd_doc_sync()
     if verb == "plan-tree":
         return _cmd_plan(ns)
+    if verb == "attach":
+        from .host import attach
+        return attach.main(ns)
 
     # The remaining verbs' BODIES live in `v3.host.verbs` / `v3.memory.verbs` (V3-INC12 P4) — the same
     # functions `v3.control.tools`'s §10.3 surface calls, so this shell's only job is to `.emit()` the

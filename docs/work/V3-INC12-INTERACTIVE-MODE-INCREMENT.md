@@ -1,4 +1,4 @@
-<!-- meta:doc sha=d908dbac89f37f331dcf23b6396196a37f20331e updated=2026-08-01T23:25Z -->
+<!-- meta:doc sha=3ed57f14117c79dd213a30d63baf210cf9da9a41 updated=2026-08-02T00:04Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -105,8 +105,8 @@ delega.
 | P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | done |
 | P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | done |
 | P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | done |
-| P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | pending |
-| P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | pending |
+| P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | done (facts sin correr) |
+| P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | done |
 | P7 | Los 20 verbos humanos decididos como DATO · `N-0096` contestado · fila `§11.3` · docs/STATE/LOG/árbol · cierre | pending |
 
 ## Criterio de cierre (demostrable, no narrado)
@@ -300,4 +300,64 @@ voltear su `required`), cada uno con el resto de la superficie idéntico.
 
 Segunda fuga de la MISMA clase, un campo más allá: INC-11 agregó la comparación de `default` después
 de medir que `ci --factory` valía `"dummy"` en v2 y `None` en el port. Ahora `required`.
+
+### P5 + P6 — `meta attach`, y la ley del slot que el propio slot rompió (2026-08-01/02)
+
+`v3/host/attach.py`: `AttachSession` con **un solo punto de paso**, `invoke`. Driver `repl`
+(determinista, sin modelo, scripteable — el que maneja el gate) y driver `model`
+(`ClaudeSDKClient` + la superficie MCP). El modelo enganchado **no tiene Write/Edit/Bash**: su única
+capacidad son las tools `mf_*`, es decir la tabla de tiers.
+
+Ejercido a mano, que no es lo mismo que gateado:
+
+```
+$ printf 'state\npin factory=dummy\nplan_tree_add title=x\nnope\nquit\n' | ./meta attach --factory dummy --driver repl
+  s00..s04: active=True established=True blocked_by=[]
+  'pin' is declare-tier — refused; run `v3 pin` at the CLI instead
+  'plan_tree_add' is declare-tier — refused; run `v3 plan-tree add` at the CLI instead
+  'nope' is not in the attach surface
+```
+
+- **`attach_parity`** — el gate que pide `§11 §5bis.2` → **PASS**: una línea sintética de 2
+  estaciones **y una copia staged de `factories/dummy`** reproducen `proof_sha`/`checks`/`passed` **y
+  el run log** IDÉNTICOS headless vs attached. Lado rojo **5/5**: `skip-argument-drops-check`,
+  `second-producer-forges-proof`, `wrong-dial`, `declare-tool-reachable`, `lying-verdict`.
+- **`attach_authority`** → 29 tools, todo verbo de `DISPATCH` cubierto; lado rojo **6/6**.
+- Ningún `.proof/` del árbol de trabajo se movió.
+
+#### Lo que encontré leyendo la costura, y es de la columna
+
+El driver `model` habría llegado a `station` por **otro camino** que el `repl`: `build_server()`
+envolvía `tools.invoke`, mientras `AttachSession.invoke` desviaba `station` a `_invoke_station`. Dos
+implementaciones de la misma tool, y `attach_parity` sólo ejercitaba una. Arreglado
+estructuralmente: `tools.invoke` pasa a ser `_invoke` privado con **un único llamador en todo el
+árbol**, y `build_server(session)` despacha por `session.invoke`. `attach_authority` lo prueba con
+`ast` y tiene un sexto plantado (`un segundo módulo llama a _invoke`).
+
+#### Y el slot rompió la ley del slot
+
+Para agregar `v3/probe/attach.py` al radio, **el generador editó su propio
+`.gen/active_slot.json`** — el hook permite todo `.gen/`, así que podía reescribir sus propios
+`allow_globs`, y desde ahí `write_allowed` y `footprint_problems` validan contra límites que eligió
+el worker. En este caso yo había autorizado esos paths en prosa, así que no se escapó nada; **el
+defecto es que el mecanismo no distinguía una enmienda autorizada de una que no lo es.** Tercera
+instancia de la familia `N-0113`: la ley acotaba lo que un generador **escribe** y lo que **deja**,
+nunca **lo que dice que son sus límites**.
+
+`seed/delegation.py::write_allowed` ahora rechaza `.gen/active_slot.json` (escrito a ojo: es la
+columna, `N-0130`). Y como una ley sin diente no se despacha:
+
+- **caso F** en `v3/verify/slot_footprint.py`, contra la ley **cargada por path igual que el hook**,
+  no contra una copia de v3: el manifiesto se rechaza **mientras el resto de `.gen/` sigue
+  escribible** (el caso B es lo que le da sentido al F);
+- **verificado borrando la cláusula**: el gate da rojo con
+  `F: the slot law still lets a worker write .gen/active_slot.json`, y vuelve a verde al restaurarla;
+- lado rojo propio `V3_SLOT_FOOTPRINT_SABOTAGE=1` que **planta el defecto en el SOURCE de la ley**
+  (no un monkeypatch: el hook la carga por path, así que lo que hay que mostrar cazable es un cambio
+  al archivo).
+
+**Y al buscarle casa al diente apareció otra ausencia (`N-0129`): `slot_footprint` —el gate que
+`§11.3` nombra como entregable de INC-3— existía, pasaba, y `meta check` no lo corría nunca.**
+Estaba escrito y sin registrar. Ahora está registrado con su testigo. Cuarta vez en este incremento
+que algo parece cubierto porque el nombre existe en algún lado.
 

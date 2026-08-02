@@ -21,24 +21,36 @@ GREEN asserts, over the REAL `v3.control.tools.SURFACE`:
     (for a bare-parent census artifact) by inheriting an identically-targeted sibling's tier, per
     `_completeness_problems`'s own docstring;
   * `check_bounded` accepts a genuinely bounded result and refuses one carrying a raw log body;
-  * `v3.control.tools` imports cleanly with `claude_agent_sdk` hidden.
+  * `v3.control.tools` imports cleanly with `claude_agent_sdk` hidden;
+  * ONE CHOKE POINT (the `v3-attach` slot's correction): `v3.control.tools` exposes no public
+    `invoke` attribute, and its private `_invoke` has EXACTLY ONE call site anywhere in the v3 tree —
+    `v3.host.attach` (`AttachSession.invoke`'s own body). Proved by walking every `.py` file under
+    `v3/` with `ast` (`_invoke_call_sites`, the same technique `v3.verify.verb_census` uses for its
+    own census — `ast.parse`, never `import`, never regex), not by trusting a docstring. This is what
+    makes `build_server` calling `session.invoke(...)` instead of `_invoke(...)` a provable fact
+    rather than a convention: a second caller anywhere in the tree turns this gate red.
 
-RED, `V3_ATTACH_AUTHORITY_SABOTAGE=1` — five planted defects, one per row of the contract's own
-authority table, each planted on an IN-MEMORY COPY of the real `SURFACE`/`DISPATCH` (the real modules
-are never mutated) and run through the SAME functions the green side calls:
+RED, `V3_ATTACH_AUTHORITY_SABOTAGE=1` — six planted defects, one per row of the contract's own
+authority table plus the choke-point correction, each planted on an IN-MEMORY COPY of the real
+`SURFACE`/`DISPATCH`/tree (the real modules and files are never mutated) and run through the SAME
+functions the green side calls:
 
   1. a `declare` tool (`pin`) is given a live target and appears in `callable_tools()`
   2. a tool's `target` diverges from the CLI's `DISPATCH` for the same verb (a second implementation)
   3. a new verb exists in `DISPATCH` with no row in `SURFACE` (silent default authority)
   4. a tier outside the closed `TIERS` vocabulary
   5. a tool returns a raw log body instead of bounded Verdict fields
+  6. a SECOND module calls `_invoke` directly (an in-memory synthetic file folded into the AST sweep
+     via `extra_files`, never written to disk) — the second entry point into the orchestrator the
+     whole `v3-attach` slot exists to forbid
 
 Per `v3.verify.registry.Gate.red_run`'s contract (the opposite of the obvious one): this sabotage run
-exits **0** when it caught all five, printing what it caught; it prints `GATE DECORATIVO` + exit **1**
+exits **0** when it caught all six, printing what it caught; it prints `GATE DECORATIVO` + exit **1**
 the moment one slips through.
 """
 from __future__ import annotations
 
+import ast
 import os
 import sys
 from dataclasses import replace
@@ -90,6 +102,71 @@ def _completeness_problems(surface, dispatch: dict) -> list[str]:
         elif len(tiers) > 1:
             problems.append(f"verb {verb!r} is covered under {sorted(tiers)} — more than one tier, "
                             f"which is not a classification")
+    return problems
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+# the choke-point proof — `v3.control.tools._invoke` has exactly one caller, `AttachSession.invoke`
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+def _invoke_call_sites(root: Path, *, extra_files: list[tuple[str, str]] | None = None) -> list[str]:
+    """Every root-relative `.py` path under `v3/` that contains an AST `Call` whose callee is the bare
+    name `_invoke` or an attribute `<something>._invoke` — i.e. `_invoke(...)` or `x._invoke(...)`,
+    however it was imported. `ast.parse`, never `import`, never regex: the exact technique
+    `v3.verify.verb_census` already uses to find invocation SHAPE rather than trust a mention. A file
+    that merely NAMES `_invoke` in a docstring or comment produces no `ast.Call` node and is correctly
+    silent here.
+
+    `extra_files` folds in (root-relative path, source) pairs exactly like a file already on disk —
+    no write ever happens — which is how the sabotage side plants a SECOND caller without mutating a
+    single real file (the same device `v3.verify.verb_census.classify`'s own `extra_files` parameter
+    uses for its mention-vs-invocation witness)."""
+    sites: list[str] = []
+
+    def _scan(rel: str, source: str) -> None:
+        try:
+            tree = ast.parse(source, filename=rel)
+        except SyntaxError:
+            return
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if ((isinstance(func, ast.Attribute) and func.attr == "_invoke")
+                    or (isinstance(func, ast.Name) and func.id == "_invoke")):
+                sites.append(rel)
+
+    v3_dir = Path(root) / "v3"
+    for path in sorted(v3_dir.rglob("*.py")):
+        try:
+            source = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        _scan(path.relative_to(root).as_posix(), source)
+    for rel, source in extra_files or ():
+        _scan(rel, source)
+    return sites
+
+
+def _choke_point_problems(root: Path, *, extra_files: list[tuple[str, str]] | None = None) -> list[str]:
+    """The `v3-attach` slot's structural correction, re-asserted here rather than trusted from a
+    docstring: `v3.control.tools` must expose no PUBLIC `invoke` (only the private `_invoke`), and
+    `_invoke` must have EXACTLY ONE call site anywhere in v3 — `v3/host/attach.py`
+    (`AttachSession.invoke`'s own body). A second call site — `build_server` calling it directly
+    again, or any other module reaching it — is the "second entry point into the orchestrator" the
+    whole slot's contract forbids, one layer below where `AttachSession.invoke` already refuses a
+    `declare` tool."""
+    from ...control import tools
+
+    problems: list[str] = []
+    if hasattr(tools, "invoke"):
+        problems.append("v3.control.tools exposes a public `invoke` attribute — the runtime call "
+                        "must stay private (`_invoke`) so AttachSession.invoke is provably its only "
+                        "caller")
+    sites = _invoke_call_sites(root, extra_files=extra_files)
+    if sites != ["v3/host/attach.py"]:
+        problems.append(f"_invoke has {len(sites)} call site(s) {sites} in v3 — expected EXACTLY one, "
+                        f"v3/host/attach.py (AttachSession.invoke); a second caller is a second entry "
+                        f"point into the orchestrator")
     return problems
 
 
@@ -148,6 +225,7 @@ def _green(root: Path) -> Verdict:
                         "this gate exists to prove has no teeth")
 
     problems += _assert_imports_without_sdk()
+    problems += [f"choke-point: {p}" for p in _choke_point_problems(root)]
 
     if problems:
         return Verdict("attach-authority", 1, f"{len(problems)} problem(s)", failures=tuple(problems))
@@ -156,7 +234,8 @@ def _green(root: Path) -> Verdict:
         counts[tier] = sum(1 for t in tools.SURFACE if t.tier == tier)
     return Verdict("attach-authority", 0,
                    f"{len(tools.SURFACE)} tool(s) over 3 closed tiers; every DISPATCH verb covered; "
-                   f"declare tier inert; the bounded-result law bites; imports without the SDK",
+                   f"declare tier inert; the bounded-result law bites; imports without the SDK; "
+                   f"_invoke has exactly one caller (v3.host.attach)",
                    counts=counts)
 
 
@@ -217,12 +296,26 @@ def _run_sabotage(root: Path) -> int:
     else:
         missed.append("raw-log-body-leak")
 
+    # 6. a SECOND module calls `_invoke` directly — an in-memory synthetic file folded into the AST
+    #    sweep via `extra_files` (never written to disk); the real tree (which has exactly one call
+    #    site, `v3/host/attach.py`) is untouched. This is the second-entry-point defect the whole
+    #    `v3-attach` slot's correction exists to forbid.
+    sabotage_source = ("from v3.control.tools import _invoke\n\n\n"
+                       "def sneaky_second_caller():\n"
+                       "    return _invoke(None, {}, root=None)\n")
+    problems6 = _choke_point_problems(
+        root, extra_files=[("v3/host/__sabotage_second_invoker__.py", sabotage_source)])
+    if any("call site" in p for p in problems6):
+        caught.append("second-invoke-call-site")
+    else:
+        missed.append("second-invoke-call-site")
+
     if missed:
         return Verdict("attach-authority (SABOTAGE)", 1,
                        f"GATE DECORATIVO: {len(caught)} caught · {len(missed)} MISSED "
                        f"{sorted(missed)}").emit()
     return Verdict("attach-authority (SABOTAGE)", 0,
-                   f"{len(caught)}/5 planted defect(s) caught: {sorted(caught)}",
+                   f"{len(caught)}/6 planted defect(s) caught: {sorted(caught)}",
                    counts={"caught": len(caught)}).emit()
 
 

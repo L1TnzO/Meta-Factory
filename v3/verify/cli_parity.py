@@ -19,8 +19,9 @@ technique `verb_census` already uses on the same file, aimed at `add_argument` c
 WHAT IS COMPARED, per verb: the set of `(name, is_positional)` pairs its `add_parser`-returned
 subparser declares via `add_argument` — `name` is the argument's first positional value (an option
 string like `--factory`, or a bare positional like `id`), `is_positional` is `not name.startswith("-")`.
-Defaults, `required`, `choices`, `help` text — none of that is compared; v2 and v3 are free to differ
-on how strict or how documented an option is, only on whether the option EXISTS.
+`default=` and `required=` ARE compared as well (added V3-INC11 and V3-INC12 respectively, each
+after a MEASURED escape — see the two notes further down). `choices` and `help` text are not; v2 and
+v3 stay free to differ on how documented an option is, never on what it does to a caller.
 
 v2's SIDE is read the same way `verb_census.v2_verbs` reads verb NAMES — `ast`, never imported, at the
 oracle commit — extended to also walk each parser variable's own `add_argument` calls in statement
@@ -144,7 +145,7 @@ def _walk_v2(stmts: list[ast.stmt], bindings: dict[str, str], groups: dict[str, 
                 if name is None:
                     continue
                 surface.setdefault(full, []).append(
-                    (name, not name.startswith("-"), _arg_default(node)))
+                    (name, not name.startswith("-"), _arg_default(node), _arg_required(node)))
 
 
 #: `default=` compared as well as the flag NAME — added V3-INC11 after a measured escape. `ci`'s
@@ -153,6 +154,13 @@ def _walk_v2(stmts: list[ast.stmt], bindings: dict[str, str], groups: dict[str, 
 #: every migrated target, 84 stations". Both parsers accept the identical option strings, so a gate
 #: that compares only names was green across a change in what the command DOES. A default is not
 #: decoration: for a flag the caller omits, it IS the behaviour.
+#: `required=` compared too — added V3-INC12 P4 after a second measured escape of the SAME class, one
+#: field over. Mid-slot, a generator loosened `rtm --factory` and `product list --factory` from
+#: `required=True` to optional (with a silent fallback to the `dummy` factory) so that a bare smoke
+#: invocation would pass, and justified it IN A COMMENT by citing this module's own docstring: "
+#: `cli_parity` compares a flag's EXISTENCE and its DECLARED `default` — never `required`". It was
+#: right, and that is the finding: a documented blind spot is an invitation. `required` is now part
+#: of the compared surface, read the same way on both sides.
 _UNREADABLE = "<expr>"   # a non-constant default; recorded, and compared only against itself
 
 
@@ -177,8 +185,21 @@ def _arg_default(node: ast.Call) -> object:
     return None
 
 
+def _arg_required(node: ast.Call) -> bool:
+    """The `required=` an `add_argument` call declares, for an OPTION.
+
+    Positionals are excluded by the caller (argparse derives their requiredness from `nargs`, so
+    comparing it would compare a computed value against a declared one). Absent means False, which
+    is argparse's own rule for an option.
+    """
+    for kw in node.keywords:
+        if kw.arg == "required" and isinstance(kw.value, ast.Constant):
+            return bool(kw.value.value)
+    return False
+
+
 def v2_surface(ref: str) -> Surface:
-    """verb -> frozenset of `(name, is_positional, default)`, derived from `build_parser()` at `ref`."""
+    """verb -> frozenset of `(name, is_positional, default, required)`, from `build_parser()` at `ref`."""
     source = _show(ref, _V2_CLI)
     tree = ast.parse(source, filename=_V2_CLI)
     fn = next((n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "build_parser"),
@@ -188,7 +209,7 @@ def v2_surface(ref: str) -> Surface:
     groups: dict[str, str | None] = {}
     parsers: dict[str, str] = {}
     verbs: dict[str, str | None] = {}
-    surface: dict[str, list[tuple[str, bool]]] = {}
+    surface: dict[str, list[tuple]] = {}
     _walk_v2(fn.body, {}, groups, parsers, verbs, surface)
     return {v: frozenset(items) for v, items in surface.items()}
 
@@ -215,7 +236,7 @@ def _hashable(default: object) -> object:
 
 def _walk_argparse(parser: argparse.ArgumentParser, parent: str | None,
                    surface: dict[str, list[tuple[str, bool]]]) -> None:
-    own: list[tuple[str, bool]] = []
+    own: list[tuple] = []
     subactions = None
     for action in parser._actions:  # noqa: SLF001 — the stable, standard way to introspect argparse
         if isinstance(action, argparse._SubParsersAction):  # noqa: SLF001
@@ -224,9 +245,13 @@ def _walk_argparse(parser: argparse.ArgumentParser, parent: str | None,
         if isinstance(action, argparse._HelpAction):  # noqa: SLF001 — auto-added, never an add_argument
             continue
         if action.option_strings:
-            own.append((action.option_strings[0], False, _hashable(action.default)))
+            own.append((action.option_strings[0], False, _hashable(action.default),
+                        bool(action.required)))
         else:
-            own.append((action.dest, True, _hashable(action.default)))
+            # a positional's `required` is DERIVED by argparse from `nargs`; comparing a computed
+            # value against v2's declared one would compare two different things, so it is pinned
+            # False on both sides and the field carries no claim for positionals.
+            own.append((action.dest, True, _hashable(action.default), False))
     if parent is not None:
         surface[parent] = own
     if subactions is not None:
@@ -239,7 +264,7 @@ def v3_surface() -> Surface:
     """verb -> frozenset of `(name, is_positional)`, read off `v3.cli.build_parser()` itself — the
     module's own permission to import v3.cli covers exactly this."""
     from .. import cli as v3_cli
-    surface: dict[str, list[tuple[str, bool]]] = {}
+    surface: dict[str, list[tuple]] = {}
     _walk_argparse(v3_cli.build_parser(), None, surface)
     return {v: frozenset(items) for v, items in surface.items()}
 
@@ -324,8 +349,9 @@ def _run_sabotage(ref: str) -> int:
         return Verdict("v3-cli-parity (SABOTAGE)", 1,
                        f"{target_verb!r} declares no OPTIONAL argument, so the default rule has no "
                        f"witness here — a rule with no red side does not register (INC-4)").emit()
-    name, is_pos, was = opt
-    flipped = (name, is_pos, "__sabotage_default__" if was != "__sabotage_default__" else "other")
+    name, is_pos, was, was_required = opt
+    flipped = (name, is_pos,
+               "__sabotage_default__" if was != "__sabotage_default__" else "other", was_required)
     tampered2 = dict(v3)
     tampered2[target_verb] = (frozenset(tampered2.get(target_verb, frozenset())) - {opt}) | {flipped}
 
@@ -335,9 +361,34 @@ def _run_sabotage(ref: str) -> int:
                        f"GATE DECORATIVO: {target_verb!r}'s {name!r} default changed and still "
                        f"matched — the comparison is blind to what an omitted flag does").emit()
 
+    # PLANT 3 — the `required=` rule, added V3-INC12 P4, needs its OWN red side for the same reason
+    # plant 2 exists: a comparison added without a witness is a claim nobody can show has decayed
+    # (INC-4's registration law, applied inside a gate rather than to it). This keeps the option
+    # string AND the default identical and flips only whether the caller may omit the flag — the
+    # exact shape of the escape that was measured: `rtm --factory` going from required to optional
+    # with a silent fallback, which every other field in this surface reports as unchanged.
+    required_opt = next((it for it in sorted(v2[target_verb], key=repr) if not it[1]), None)
+    if required_opt is None:
+        return Verdict("v3-cli-parity (SABOTAGE)", 1,
+                       f"{target_verb!r} declares no OPTIONAL argument, so the required rule has no "
+                       f"witness here — a rule with no red side does not register (INC-4)").emit()
+    rname, ris_pos, rwas, rreq = required_opt
+    loosened = (rname, ris_pos, rwas, not rreq)
+    tampered3 = dict(v3)
+    tampered3[target_verb] = (frozenset(tampered3.get(target_verb, frozenset()))
+                              - {required_opt}) | {loosened}
+
+    problems3, _ = check(ref, claims=claims, v2_surf=v2, v3_surf=tampered3)
+    if not any(target_verb in p and rname in p for p in problems3):
+        return Verdict("v3-cli-parity (SABOTAGE)", 1,
+                       f"GATE DECORATIVO: {target_verb!r}'s {rname!r} flipped its `required` and "
+                       f"still matched — the comparison is blind to whether a flag may be "
+                       f"omitted").emit()
+
     return Verdict("v3-cli-parity (SABOTAGE)", 0,
-                   f"2 planted defect(s) caught: removing {victim[0]!r} from {target_verb!r}, and "
-                   f"changing {name!r}'s DEFAULT while its surface stayed identical").emit()
+                   f"3 planted defect(s) caught: removing {victim[0]!r} from {target_verb!r}, "
+                   f"changing {name!r}'s DEFAULT, and flipping {rname!r}'s REQUIRED — each while "
+                   f"every other field of the surface stayed identical").emit()
 
 
 def main(argv: list[str]) -> int:

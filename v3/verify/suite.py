@@ -131,14 +131,18 @@ def build_registry(root: Path) -> Registry:
     checks `Registry.register` already performs — safe to call at any time, including from
     `gate_census`, which is exactly why it must never run a subprocess or scan a tree.
 
-    Split in two by PROVENANCE, not by taste: `_register_ported` carries v2's gates, whose
-    dispositions `gate_census` audits; `_register_economy` carries the six INC-6 gates, which have
-    no v2 original and must therefore stay OUT of that census. A reader asking "is this a port or a
-    new tooth?" gets the answer from which function it is in.
+    Split by PROVENANCE, not by taste: `_register_ported`/`_register_ported_more` carry v2's gates
+    (plus the handful of newer, non-v2 additions that live alongside them by precedent — `plan_tree`,
+    `leaf_context`, `attach_authority`), whose dispositions `gate_census` audits where they apply;
+    `_register_economy` carries the six INC-6 gates, which have no v2 original and must therefore stay
+    OUT of that census. `_register_ported` was itself split in two (V3-INC12 P4) purely because it
+    crossed the `quality` gate's own 200-line function ceiling — the multi-file rule applied to this
+    module's own registration list, not a second provenance category.
     """
     root = Path(root)
     registry = Registry(root)
     _register_ported(registry)
+    _register_ported_more(registry)
     _register_economy(registry)
     return registry
 
@@ -261,6 +265,12 @@ def _register_ported(registry: Registry) -> None:
                "prose alone",
         witness=Witness("sabotage_env", "V3_GENERALITY_SABOTAGE"),
     ))
+
+
+def _register_ported_more(registry: Registry) -> None:
+    """The rest of `_register_ported`'s list, split out purely on LOC (the `quality` gate's own
+    `max_func_loc=200`, V3-INC12 P4) — same provenance category, same census, one function that grew
+    past the ceiling the multi-file rule holds every OTHER module in v3 to."""
     registry.register(Gate(
         name="plan",
         argv=(PY, "-m", "v3.verify.checks.plan"),
@@ -287,6 +297,15 @@ def _register_ported(registry: Registry) -> None:
         proves="what the host injects into a generation leaf (§15.6 D2) is DERIVED from the node tree "
                "and BOUNDED to ids + one-line titles — never node bodies, never a fabricated pointer",
         witness=Witness("sabotage_env", "V3_LEAF_CONTEXT_SABOTAGE"),
+    ))
+    registry.register(Gate(
+        name="attach_authority",
+        argv=(PY, "-m", "v3.verify.checks.attach_authority"),
+        proves="the §10.3 MCP tool surface (`v3.control.tools`) obeys its closed 3-tier authority "
+               "law: every read/run tool whose verb v3.cli.DISPATCH also declares traces to the "
+               "SAME callable, no declare tool is ever callable, and every DISPATCH verb is "
+               "classified under exactly one tier",
+        witness=Witness("sabotage_env", "V3_ATTACH_AUTHORITY_SABOTAGE"),
     ))
     registry.register(Gate(
         name="dial",

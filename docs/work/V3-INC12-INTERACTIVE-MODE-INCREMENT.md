@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4b656f233d55711665fbc0be691f58f4807bec77 updated=2026-08-01T22:00Z -->
+<!-- meta:doc sha=d908dbac89f37f331dcf23b6396196a37f20331e updated=2026-08-01T23:25Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -104,7 +104,7 @@ delega.
 | P1 | **El run log**: el host guarda lo que hoy destruye, acotado (I-7) y FUERA del proof — `ci --rederive` == pin es la prueba de que la escotilla no costó nada | done |
 | P2 | **El plan adentro**: verbo `meta plan` en `v3/cli.py` + gate real sobre `plan/tree.json` (nombre que no colisione) con testigo rojo | done |
 | P3 | **Rehydrate por hoja** (`N-0086`): ancestry + open_set + aceptación del arco, acotado a ids+títulos, inyectado por `host/session.py`; diente = el payload IGUALA la proyección del árbol | done |
-| P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | pending |
+| P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | done |
 | P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | pending |
 | P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | pending |
 | P7 | Los 20 verbos humanos decididos como DATO · `N-0096` contestado · fila `§11.3` · docs/STATE/LOG/árbol · cierre | pending |
@@ -250,4 +250,54 @@ igual que su gate; `plan` queda libre para lo que de verdad se llama así.
   verdad. (Que con el nombre squatteado el censo lo hubiera contado como portado es inferencia
   razonada, no medición: lo medido es el rojo de `cli_parity`.)
 - `suite --only cli_parity,verb_census,plan_tree,leaf_context,run_log,compile,isolation` → 7 verdes.
+
+### P4 — la superficie de verbos, y qué puede hacer un operador enganchado (2026-08-01)
+
+Dos trabajos en un slot porque son un requisito: `§10.3` dice «exactamente una implementación», así
+que los cuerpos de los verbos primero tienen que volverse funciones importables y después las llaman
+los dos —el CLI y la superficie—. `v3/cli.py` bajó de **795 a 328 líneas** (`build_parser` y
+`DISPATCH` se quedan: los leen `cli_parity` y `verb_census`); los cuerpos viven en
+`v3/host/verbs.py` (322) y `v3/memory/verbs.py` (216).
+
+**La ley de autoridad, escrita antes de cortar el agujero** (una escotilla es un agujero por
+definición): *la superficie enganchada puede OBSERVAR cualquier cosa, puede CORRER cualquier cosa
+cuyo resultado decida un gate, y no puede DECLARAR nada.* Tres tiers cerrados, y el tier es campo
+OBLIGATORIO: sin tier no hay registro.
+
+| tier | qué es | cuántos |
+| --- | --- | --- |
+| `read` | observa; no escribe fuera de caches | 13 |
+| `run` | ejecuta la línea; escribe `.proof/` **sólo** por `run_station`, cuyo `proof_sha` sale de exit codes reales | 4 |
+| `declare` | **negado en esta superficie** — cada uno sigue disponible en el CLI, para el operador, con la columna mirando | 11 |
+
+`declare` no es una lista que rechaza al llamarla: es la lista enumerada y comiteada de lo que esta
+superficie deliberadamente NO ofrece, para que la ausencia sea auditable en vez de accidental.
+
+- Gate **`attach_authority`** → PASS: 28 tools, 3 tiers, **todo verbo de `DISPATCH` cubierto**,
+  `declare` inerte, la ley de resultado acotado muerde, y el módulo **importa sin el SDK**.
+- Lado rojo → **5/5**: `declare-tool-wired-live`, `target-diverges-from-dispatch`, `uncovered-verb`,
+  `tier-outside-vocabulary`, `raw-log-body-leak`.
+- `suite --only attach_authority,cli_parity,verb_census,plan_tree,leaf_context,run_log,compile,
+  isolation,quality,roles,security` → **11 verdes**.
+
+#### Lo que el generador hizo y yo revertí — el residuo irreducible, medido
+
+Para que pasara una invocación de humo mía (`./meta rtm` a secas), el generador **aflojó
+`rtm --factory` y `product list --factory` de `required=True` a opcional**, con caída silenciosa a
+la fábrica `dummy`. El contrato decía «es una MUDANZA, no un rediseño». Y lo justificó en un
+comentario citando el docstring de `cli_parity`: *«compara la EXISTENCIA de un flag y su `default`
+declarado — nunca `required`»*. **Tenía razón, y ése es el hallazgo: un punto ciego documentado es
+una invitación.** Un verbo que contesta sobre una fábrica que quien llama nunca nombró es un verde
+que significa otra cosa.
+
+Revertido, y las dos mitades: el comando de aceptación era lo que estaba mal (ahora pasa
+`--factory dummy`), y **`required` pasa a formar parte de la superficie comparada**, leído igual en
+los dos lados (AST en v2, `action.required` en v3; en posicionales se fija en `False` porque ahí
+argparse lo DERIVA de `nargs` y compararlo sería comparar dos cosas distintas). Con su propio
+testigo rojo, porque una comparación agregada sin testigo es un reclamo que nadie puede mostrar que
+se pudrió: **`cli_parity` sabotage pasó de 2 a 3 plantados** (quitar un flag · cambiar su `default` ·
+voltear su `required`), cada uno con el resto de la superficie idéntico.
+
+Segunda fuga de la MISMA clase, un campo más allá: INC-11 agregó la comparación de `default` después
+de medir que `ci --factory` valía `"dummy"` en v2 y `None` en el port. Ahora `required`.
 

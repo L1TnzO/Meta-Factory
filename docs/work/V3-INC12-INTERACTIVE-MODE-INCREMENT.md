@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f4b81ee2f703b2adb1a33306c4d325f1354d3310 updated=2026-08-03T21:44Z -->
+<!-- meta:doc sha=5df6e21e75218d749e422eecc912ea87fb8d8b2e updated=2026-08-03T22:39Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -392,4 +392,29 @@ no medio-portados en algo más débil. Un disparador que se enciende merece una 
 suficiente**: un attach que produjera el mismo pin **y además** pudiera mover un pin, cerrar un
 incremento o re-sellar un documento habría pasado — por eso `attach_authority` vive al lado de
 `attach_parity`. **No cierra `N-0095`**: el censo lee al commit oráculo.
+
+### Aceptación (2026-08-03, sobre el árbol final)
+
+`./meta check` completo, ~35 min: **40 verdes · 1 rojo · 1 N/A** (R-12: los N/A se cuentan aparte,
+nunca como verdes).
+
+- **El rojo es `codegen_freeze`**, la deuda pre-declarada de FSK (`N-0084`, waiver mal formado), de
+  **otro nivel** y el mismo que INC-11 se negó a tapar. No es de INC-12 y no se tapa: un tilde verde
+  comprado saltando un rojo verdadero vale menos que un rojo honesto.
+- **El N/A es `plan`** (no hay `.gen/plan.json`; la planificación de WorkOrders es opt-in).
+- **`rederive` VERDE sobre los 10 targets** (`dummy` · `iot`+`fleet` · `full-stack-kotlin`+`assets`
+  +`helpdesk`+`snipeit` · `agent-systems-factory` · `full-stack`+`tasks`): el run log, el payload por
+  hoja, la superficie y el attach **no movieron ningún `proof_sha`**. Es la prueba de que la escotilla
+  costó cero.
+- Gates nuevos de este incremento, todos con lado rojo re-corrido por el orquestador:
+  `run_log` (4/4) · `plan_tree` (5/5) · `leaf_context` (6/6) · `attach_authority` (6/6) ·
+  `attach_parity` (5/5) · `slot_footprint` (1/1, y registrado por primera vez).
+
+**Sobre el criterio 7 («sin rojos nuevos respecto del baseline de P0»): el baseline de P0 NUNCA se
+capturó.** Se lanzó con `timeout 900`, murió a los 15 min y dejó **cero salida**; un segundo intento
+completó con exit 0 pero el archivo se perdió entre sesiones, así que quedó un código de salida sin
+nada que mirar — el propio tema de este incremento, aplicado a mí. Lo que sí se puede afirmar y es
+verificable: **el único rojo es `codegen_freeze`, que ya estaba declarado en STATE antes de empezar**
+(`N-0084`), y los otros 40 gates están verdes. No es «igual al baseline»; es «el único rojo tiene
+dueño, nombre y nodo». `N-0128` queda vivo por eso.
 

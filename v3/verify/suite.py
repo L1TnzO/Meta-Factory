@@ -515,6 +515,17 @@ def _register_economy(registry: Registry) -> None:   # + INC-7's two migration g
                "oracle commit, the degraded-evidence side included",
         witness=Witness("sabotage_env", "V3_EVAL_FLOOR_PARITY_SABOTAGE"),
     ))
+    registry.register(Gate(
+        name="extract_package",
+        argv=(PY, "-m", "v3.verify.checks.extract_package"),
+        proves="`v3.extract_manifest` (PASO 1, V3-EXTRACT-MANIFEST) is COMPLETE and JUSTIFIED: "
+               "every PACKAGE row exists and is git-tracked, every PACKAGE/BORN_FRESH row carries "
+               "a written reason, `classify()`'s prefix tie-break agrees with the declaring list, "
+               "and every existing repo-relative path string literal in v3/+seed/+tools/ resolves "
+               "to package/born_fresh/ancestor — never None (the 24-path defect the increment's "
+               "own measurement found and that no port-in-progress may reintroduce silently)",
+        witness=Witness("sabotage_env", "V3_EXTRACT_PACKAGE_SABOTAGE"),
+    ))
 
 
 

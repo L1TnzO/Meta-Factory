@@ -1931,6 +1931,78 @@
         "cause": "manual"
       },
       "closed_at": "2026-08-03T21:44Z"
+    },
+    "N-0131": {
+      "parent": "N-0001",
+      "title": "V3-EXTRACT: sacar v3/ de este repo. Medido 2026-08-03: 130/130 modulos importan en repo vacio, paquete minimo = v3+seed+tools+docs/spec+tests/fixtures+benchmarks+factories+meta, 13 gates verdes en repo ajeno. Plan exacto en work/V3-EXTRACT-DIRECTION-INCREMENT.md",
+      "kind": "direction",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
+    },
+    "N-0132": {
+      "parent": "N-0131",
+      "title": "PASO 0 (nivel FSK): el waiver de codegen_freeze para ba05918d2 — recomendado WAIVED_COMMITS (acto de gobierno, commit ya en la historia); aceptacion = gate verde Y su lado rojo todavia mordiendo, luego push y leer el CI externo (esperado 32 verdes/0 rojos/4 N/A)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
+    },
+    "N-0133": {
+      "parent": "N-0131",
+      "title": "PASO 1 (meta): v3/extract_manifest.py con el paquete como DATO + gate extract_package: ningun modulo de clase A referencia un path fuera del manifiesto; 3 plantados en el lado rojo",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
+    },
+    "N-0134": {
+      "parent": "N-0131",
+      "title": "PASO 2 (meta): los 6 fixtures de clase B viajan CON su gate (git mv bajo un path del manifiesto); decidir aparte N-0102 (evidence_liveness depende de un repo hermano no declarado: declararlo y validarlo, o retirarlo con razon)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
+    },
+    "N-0135": {
+      "parent": "N-0131",
+      "title": "PASO 3 (meta): CENSO DE RETIRO de los 11 gates de clase C. Retirar esta permitido; retirar sin decidir no, y sin PRUEBA de que el sujeto desaparecio es sacar un diente disfrazado de limpieza. codegen_freeze es keep: su sujeto viaja con el paquete",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
+    },
+    "N-0136": {
+      "parent": "N-0131",
+      "title": "PASO 4 (meta): la extraccion. Aceptacion con las dos mitades declaradas por separado (maquina de desarrollo: 10 targets == pin; segunda maquina: lo que su toolchain permita, imprimiendo lo que NO corrio)",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T22:53Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "manual"
+      }
     }
   }
 }

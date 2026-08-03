@@ -1,7 +1,7 @@
-<!-- meta:doc sha=5df6e21e75218d749e422eecc912ea87fb8d8b2e updated=2026-08-03T22:39Z -->
+<!-- meta:doc sha=2864a94c75f9216343b820075afdb59c287fa360 updated=2026-08-03T22:39Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
-> **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
+> **Doc de gobierno.** Status: **CLOSED** (2026-08-03T22:39Z) (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
 > (gateado: árbol limpio + estación activa verde). Todo cambio de código vive acá (ADR-010).
 >
 > Autoridad: `ADR-031`/`ADR-032` · spec `11-build-plan.md §5bis.2` (la fila que nunca existió) +

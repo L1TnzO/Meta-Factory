@@ -1865,37 +1865,42 @@
       "parent": "N-0023",
       "title": "v3/cli.py llego a 791 lineas contra el techo de ~800 de la regla multi-archivo; P5 agrega meta attach, asi que quien lo toque lo parte primero en modulos por responsabilidad",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "P4 partio v3/cli.py: 795 -> 328 lineas; los cuerpos viven en v3/host/verbs.py (322) y v3/memory/verbs.py (216); build_parser y DISPATCH se quedaron porque los leen cli_parity y verb_census"
+      ],
       "opened_at": "2026-08-01T22:34Z",
       "origin": {
         "session": "2026-08-01",
         "cause": "deferral"
-      }
+      },
+      "closed_at": "2026-08-03T22:39Z"
     },
     "N-0127": {
       "parent": "N-0023",
       "title": "El esquema de nodos no tiene campo de aceptacion, asi que la clausula 3 de spec 15.6 (como sabremos que el arco termino) no se puede satisfacer con el dato: el payload por hoja la declara ausente y deriva el cierre estructural. Agregar el campo es un cambio de esquema + algebra, no de este incremento",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-08-01T22:34Z",
       "origin": {
         "session": "2026-08-01",
         "cause": "deferral"
-      }
+      },
+      "trigger": "cuando algun arco necesite una condicion de aceptacion DECLARADA y no derivada: ahi entra el campo en el esquema de nodos + el algebra de spec 15.5"
     },
     "N-0128": {
       "parent": "N-0023",
       "title": "meta check corrio >15 min y al matarlo dejo CERO salida: python bloquea el buffer cuando stdout no es tty, asi que un operador que interrumpe la suite no se lleva ni los gates que ya habian pasado. Misma familia que P1 (la evidencia existe y se destruye), un nivel mas arriba",
       "kind": "residual",
-      "state": "open",
+      "state": "blocked",
       "evidence": [],
       "opened_at": "2026-08-01T22:34Z",
       "origin": {
         "session": "2026-08-01",
         "cause": "gate_red"
-      }
+      },
+      "trigger": "cuando meta check vuelva a superar los 15 min o alguien lo interrumpa y pierda evidencia: la suite emite un solo veredicto al final por diseno (I-7), asi que el arreglo es progreso incremental, no des-bufferear"
     },
     "N-0129": {
       "parent": "N-0023",

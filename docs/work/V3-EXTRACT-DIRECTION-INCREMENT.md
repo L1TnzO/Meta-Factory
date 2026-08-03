@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0ab1ee86d5a075f0a76ed2ff766d18bbb1254421 updated=2026-08-03T22:53Z -->
+<!-- meta:doc sha=5656319e91a431cbcfb4e72f5d7a53b462a95658 updated=2026-08-03T23:18Z -->
 # Dirección — V3-EXTRACT: sacar `v3/` de este repo y usarlo en otro lado
 
 > **Doc de dirección** (no es un incremento abierto; cada PASO de abajo se abre con
@@ -7,6 +7,30 @@
 >
 > Autoridad: `ADR-031`/`ADR-032` · `spec/11-build-plan.md` · `ADR-016` (gobierno por nivel) ·
 > `ADR-005` (los dos verificadores). Nodos: ver §6.
+
+## 0.bis ESTADO DE EJECUCIÓN (2026-08-03T23:2xZ) — leé esto antes que nada
+
+| paso | estado | qué quedó |
+| --- | --- | --- |
+| **0** · waiver FSK | ✅ **CERRADO** | `WAIVED_COMMITS` con razón escrita + **la escotilla ahora se audita a sí misma**. **El segundo verificador VERDE por primera vez desde 2026-07-09**: run `30860740378`, **green=32 · red=0 · n/a=4** (exactamente lo predicho) |
+| **1** · manifiesto | ✅ **CERRADO** | `v3/extract_manifest.py` (15 PACKAGE + 10 BORN_FRESH) + gate `extract_package` registrado → **43 gates** |
+| **2** · fixtures clase B | 🟡 **casi vacío** — ver §4 | los 6 fixtures **YA viven bajo paths del manifiesto**: no hay `git mv` que hacer. Y `N-0102` está **vacío** (medido) |
+| **3** · censo de retiro | ⬜ pendiente | **el peligroso**. Sigue siendo el acto de gobierno de fondo |
+| **4** · cutover | ⬜ pendiente | |
+
+**Dos correcciones que la ejecución le hizo a este documento** (no las repitas, ya están pagadas):
+
+1. **El «paquete mínimo» de ocho entradas de §1 era INCOMPLETO** — le faltaban **24 paths**, entre
+   ellos **`.claude/`** (LA COLUMNA: sin ella el repo extraído no tiene ley de delegación) y
+   **`.github/workflows/`** (EL SEGUNDO VERIFICADOR). El «13 gates verdes» que lo respaldaba era el
+   bug recurrente del proyecto: **se veía verde porque los 29 gates que habrían notado la falta nunca
+   registraron**, y un gate que no corre no puede votar sobre lo que falta. Fuente única hoy:
+   `v3/extract_manifest.py`, con diente.
+2. **La receta literal del PASO 0 (`"ba05918d2": …`) no habría funcionado**: `_audit_history` compara
+   contra el `%H` de 40 chars, así que una clave abreviada era un **no-op silencioso**. Arreglado —
+   las claves ahora se resuelven por git.
+
+---
 
 ## 0. La conclusión, en una línea
 
@@ -145,13 +169,39 @@ Hoy 6 gates dependen de archivos dispersos. El ensayo lo demostró de la forma c
 de correr sin dientes. Ese comportamiento **no se toca**: es la ley de INC-4 y es lo que hace que la
 extracción sea honesta.
 
-Trabajo: para cada uno de `benchmark · deferred · design_eval · evidence_liveness · quality · security`,
-dejar su fixture bajo un path que el manifiesto del PASO 1 declare. Mover, no copiar; `git mv`.
+⚠️ **MEDIDO 2026-08-03: este paso está casi vacío. No hay ningún `git mv` que hacer.** Los seis
+fixtures **ya viven bajo paths que el manifiesto del PASO 1 declara**:
 
-⚠️ `evidence_liveness` tiene un problema APARTE y anterior (`N-0102`): resuelve referencias contra
-`../Agent_Systems_Factory/`, **un repo hermano que el gate no declara ni valida**, así que su color lo
-fija el ENTORNO y no el commit. Al extraer, eso se vuelve un rojo garantizado. **Decidilo acá**: o el
-gate declara y valida esa dependencia, o se retira con razón escrita. No lo arrastres.
+| gate | testigo | clasifica como |
+| --- | --- | --- |
+| `benchmark` | `benchmarks/sweet-spot-crud.yml` | `package` |
+| `deferred` | `tests/fixtures/governance/strict_untracked.factory.spec.yml` | `package` |
+| `design_eval` | `factories/full-stack-kotlin/design/critiques/template-witness.json` | `package` |
+| `evidence_liveness` | `tests/fixtures/docs/dangling_reference.md` | `package` |
+| `quality` | `tests/fixtures/quality/monolith_shaped.py` | `package` |
+| `security` | `tests/fixtures/security/planted_secrets.txt` | `package` |
+
+### `N-0102` está VACÍO — medido, no supuesto
+
+La advertencia decía que `evidence_liveness` resuelve contra `../Agent_Systems_Factory/`, un repo
+hermano no declarado, y que al extraer eso sería **un rojo garantizado**. **Se midió con un
+experimento negativo** (apuntar `_ASF_DIRNAME` a un directorio inexistente y re-resolver todo el
+grafo documental):
+
+```
+hermano PRESENTE (esta máquina)     cites=2817  evidences=128  UNRESOLVED=22
+hermano AUSENTE (cualquier otra)    cites=2817  evidences=128  UNRESOLVED=22
+referencias cuya resolución DEPENDE del hermano: 0
+```
+
+**Cero.** La dependencia existe en el código (`doc_graph.py:239`, `asf_root = repo_root.parent /
+_ASF_DIRNAME`) pero **no tiene sujeto**: ninguna referencia viva se resuelve por ahí. El color del
+gate NO lo fija el entorno, porque el camino del entorno no se usa. Eso es la lección de
+«preguntá qué PERTURBA tu lado rojo, y si ese valor ya está vacío».
+
+Así que el trabajo real del PASO 2 **no es mudar fixtures**: es **retirar `asf_root` con razón
+escrita** (código muerto con 0 sujeto) o dejarlo declarado como lo que es. Sea cual sea, **ya no
+bloquea la extracción**. ⚠️ Re-medí antes de borrar: el experimento de arriba es de 10 líneas.
 
 **Aceptación**: el ensayo de §1 con SOLO el manifiesto → los 31 gates de clase A+B registran y corren.
 

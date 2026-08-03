@@ -1,7 +1,7 @@
-<!-- meta:doc sha=564288e3a119c61f748ca4554237cd6233363897 updated=2026-08-03T23:17Z -->
+<!-- meta:doc sha=f6825cd4c7df92fba5dadd3d2974a6092e758823 updated=2026-08-03T23:17Z -->
 # Increment V3-EXTRACT-MANIFEST
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-03T23:05Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-03T23:17Z) (created 2026-08-03T23:05Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 >
 > PASO 1 de `work/V3-EXTRACT-DIRECTION-INCREMENT.md` · nodo `N-0133`.

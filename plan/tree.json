@@ -1980,13 +1980,18 @@
       "parent": "N-0131",
       "title": "PASO 2 (meta): los 6 fixtures de clase B viajan CON su gate (git mv bajo un path del manifiesto); decidir aparte N-0102 (evidence_liveness depende de un repo hermano no declarado: declararlo y validarlo, o retirarlo con razon)",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/work/V3-EXTRACT-RETIREMENT-INCREMENT.md §6",
+        "los 6 fixtures ya viven bajo paths del manifiesto (cero git mv, medido en PASO 1)",
+        "N-0102 re-medido: la dependencia del hermano NO estaba vacia, eran 5 refs — la muleta tapaba 4 citas rotas en docs VIVOS; asf_root eliminado y la convencion ASF/ extendida a paths; evidence_liveness verde con su diente rojo vivo (commit 4f79a7c)"
+      ],
       "opened_at": "2026-08-03T22:53Z",
       "origin": {
         "session": "2026-08-03",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-08-03T23:57Z"
     },
     "N-0135": {
       "parent": "N-0131",
@@ -2010,6 +2015,30 @@
       "origin": {
         "session": "2026-08-03",
         "cause": "manual"
+      }
+    },
+    "N-0137": {
+      "parent": "N-0135",
+      "title": "tools/corpus_parity.py es el DOCEavo miembro de la poblacion: viaja (tools/ es PACKAGE), lee el oraculo, y no lo corre ningun gate — 5 docstrings lo citan como «el oraculo de acuerdo v2/v3». La poblacion del censo debe ser de PAQUETE (classify()=='package' AND depende del oraculo), no solo v3/. Fila: retire",
+      "kind": "task",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T23:57Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "gate_red"
+      }
+    },
+    "N-0138": {
+      "parent": "N-0135",
+      "title": "meta check registra 42 gates; el ultimo CI reporto 33+0+4=37. SEIS gates no reportan en la segunda maquina y nadie imprime cuales. Es el sujeto real del criterio 6 (ADR-005: imprimir lo que NO corrio) y bloquea la aceptacion del PASO 4",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-03T23:57Z",
+      "origin": {
+        "session": "2026-08-03",
+        "cause": "gate_red"
       }
     }
   }

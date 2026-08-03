@@ -1,4 +1,4 @@
-<!-- meta:doc sha=a11e109c12eb5db1157a2a8f893f32b39222704b updated=2026-08-03T23:45Z -->
+<!-- meta:doc sha=c02017549c9f5659a723d6382fa5b1b0e88a8cec updated=2026-08-03T23:57Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
@@ -83,11 +83,23 @@ measured defect is §5.
 | Phase | Content | Status |
 | --- | --- | --- |
 | 2 | discharge the 3 retirements: deregister + delete `cli_parity`, `deletion_manifest`; drop their `_ORACLE_READERS` carve-outs (`gate_census` stays until its last consumer is cut — its row is decided, its discharge is counted open) | **done** — 43 → 41 gates |
-| 2.bis | **the boundary gate has never voted** — see §2.5. Register `import_boundary` and resolve its 5 standing violations | pending |
-| 1 | `v3/verify/checks/retirement_census.py`: the laws over the 11 rows + red side; gate `retirement` registered | pending |
+| 2.bis | **the boundary gate has never voted** — see §2.5. Register `import_boundary` and resolve its 5 standing violations | **done** — 0 violations / 144 modules, registered, 42 gates |
+| 4 | PASO 2 residue (`N-0134`): the undeclared sibling-repo fallback in `doc_graph` — see §6 | **done** — `N-0134` closed |
+| 1 | `v3/verify/checks/retirement_census.py`: the laws over the rows + red side; gate `retirement` registered | pending |
 | 3 | `codegen_freeze`: the missing empty-population Lock + its red plant | pending |
-| 4 | PASO 2 residue (`N-0134`): the undeclared sibling-repo fallback in `doc_graph` | pending |
 | 5 | acceptance | pending |
+
+**Population correction pending for Phase 1 (`N-0137`).** The derivation must be **package-scoped**, not
+`v3/`-scoped: `classify(path) == "package"` AND depends on the oracle. Scanning only `v3/` misses
+`tools/corpus_parity.py` — which TRAVELS (`tools/` is a PACKAGE row), reads the oracle, is cited by five
+gate docstrings as "the v2/v3 agreement oracle", and **is run by no gate at all**. It is the twelfth row,
+and it is a `retire`. Same lesson as §0a, one directory over: a population scoped to where you happened
+to look is not a population.
+
+**And the second verifier owes an answer (`N-0138`).** `meta check` registers 42 gates; the last CI run
+reported 33 green + 0 red + 4 N/A = **37**. Six gates do not report on the other machine and nothing
+prints which. Close criterion #6 is exactly that, and PASO 4's acceptance cannot be honest until it is
+answered — a package validated by a verifier that silently skips six gates is validated by nobody.
 
 ## 2.5 The find that Phase 2 fell over: the boundary gate has never voted
 

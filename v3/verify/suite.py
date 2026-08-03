@@ -260,6 +260,16 @@ def _register_ported_more(registry: Registry) -> None:
     `max_func_loc=200`, V3-INC12 P4) — same provenance category, same census, one function that grew
     past the ceiling the multi-file rule holds every OTHER module in v3 to."""
     registry.register(Gate(
+        name="import_boundary",
+        argv=(PY, "-m", "v3.verify.import_boundary"),
+        proves="no module under v3/ imports the dead v2 package, mutates sys.path, or names a v2 "
+               "path outside the two enumerated, teethed carve-out tables (`_ORACLE_READERS` for a "
+               "module that reads v2 at a pinned ref, `_NAMED_NOT_READ` for one that only disposes of "
+               "a v2 path) — ADR-031 §Consequences' premise for building v3 in tree, `v3.README.md`'s "
+               "own «the gate», found unregistered and 6-violations-red by V3-EXTRACT-RETIREMENT §2.5",
+        witness=Witness("sabotage_env", "V3_IMPORT_BOUNDARY_SABOTAGE"),
+    ))
+    registry.register(Gate(
         name="plan",
         argv=(PY, "-m", "v3.verify.checks.plan"),
         proves="`.gen/plan.json`, when present, is a well-formed set of WorkOrders (valid slot "

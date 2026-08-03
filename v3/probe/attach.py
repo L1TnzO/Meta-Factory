@@ -121,7 +121,7 @@ async def _run() -> dict:
             model=_MODEL,
             cwd=str(staged_root),
             setting_sources=[],          # nothing implicit (§10.9)
-            mcp_servers={"metafactory": server},
+            mcp_servers={control_tools.MCP_SERVER_NAME: server},
             # NO permission_mode, NO broad allowed_tools (INC-0 node N-0072): can_use_tool is the
             # ONLY thing deciding what the model may touch, exactly as `--driver model` composes it.
             can_use_tool=mf_only_can_use_tool(permission_log),

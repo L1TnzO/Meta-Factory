@@ -70,6 +70,16 @@ from pathlib import Path
 
 from ..verify.registry import RegistrationRefused
 
+#: The name THIS project's own MCP server registers itself under (`create_sdk_mcp_server(name=…)`).
+#: It happens to collide, byte-for-byte, with the dead v2 package's name — this project and that
+#: package were always going to share a name, since one is the successor of the other — but the
+#: collision is coincidental, not a reference: nothing here ever resolves it as an import, a path, or
+#: a lookup key into anything v2 owns. It is a single constant, not a string literal repeated at each
+#: `mcp_servers={...}` call site, precisely so `v3.verify.import_boundary`'s `_NAMED_NOT_READ` table
+#: can grant ONE exemption that the three call sites (`v3.control.tools`, `v3.host.attach`,
+#: `v3.probe.attach`) all inherit, rather than a rule 3 carve-out per site.
+MCP_SERVER_NAME = "metafactory"
+
 TIERS = ("read", "run", "declare")     # closed, like agent_roles and WITNESS_KINDS
 
 
@@ -424,7 +434,7 @@ def build_server(session):
             return _handler
 
         wrapped.append(tool(f"mf_{spec.name}", spec.summary, spec.schema)(_make()))
-    return create_sdk_mcp_server(name="metafactory", version="1.0.0", tools=wrapped)
+    return create_sdk_mcp_server(name=MCP_SERVER_NAME, version="1.0.0", tools=wrapped)
 
 
 _PROBLEMS = registration_problems()

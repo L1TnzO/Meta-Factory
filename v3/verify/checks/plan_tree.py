@@ -56,6 +56,7 @@ from pathlib import Path
 
 from ...kernel.report import Verdict
 from ...memory import plan_tree
+from ...spec.blocks import load_extract
 
 _ROOT = Path(__file__).resolve().parents[3]   # checks -> verify -> v3 -> repo root
 _SABOTAGE_VAR = "V3_PLAN_TREE_SABOTAGE"
@@ -86,13 +87,12 @@ _CLASSES: tuple[str, ...] = (*_FIXTURES, "marker-removed")
 
 
 def _oracle_extract(root: Path, module: str) -> tuple[str, list[str]]:
-    """A SEPARATE import of the SAME shared extractor `v3.memory.plan_tree.extracted_source` also
-    calls — an independent call site, so this witness does not depend on that module's own import
-    path staying correct (if it did, a broken import there would silently make this check vacuous)."""
-    tools_dir = str(root / "tools")
-    if tools_dir not in sys.path:
-        sys.path.insert(0, tools_dir)
-    from spec_conformance import extract
+    """A SEPARATE call to `v3.spec.blocks.load_extract` — the SAME shared helper
+    `v3.memory.plan_tree.extracted_source` also calls, but a fresh, independent module load of its
+    own, so this witness does not depend on that module's own import path staying correct (if it did,
+    a broken import there would silently make this check vacuous). No `sys.path` mutation either way
+    (`v3.verify.import_boundary` rule 2)."""
+    extract = load_extract(root)
     return extract(root, module)
 
 

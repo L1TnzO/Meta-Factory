@@ -28,11 +28,11 @@ never the bus.
 from __future__ import annotations
 
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from ..kernel.report import Verdict
+from ..spec.blocks import load_extract
 
 TREE_PATH = "plan/tree.json"
 SPEC_DOC = "docs/spec/15-plan-and-memory.md"
@@ -46,13 +46,12 @@ _MARK = {"open": "○", "blocked": "◍", "done": "●", "dropped": "⊘"}
 def extracted_source(root: Path) -> tuple[str, list[str]]:
     """The raw `<!-- spec-impl: plan -->` block(s), concatenated in filename/document order — exactly
     what `algebra()` execs, and exactly what `v3.verify.checks.plan_tree`'s extraction-parity witness
-    compares against a SEPARATE, freshly-imported call to `tools/spec_conformance.py::extract` (the
-    parity is true by construction today; the witness is what keeps it true after a later edit)."""
+    compares against a SEPARATE, freshly-loaded call to `tools/spec_conformance.py::extract` (the
+    parity is true by construction today; the witness is what keeps it true after a later edit).
+    `v3.spec.blocks.load_extract` loads that file BY PATH — no `sys.path` mutation, per
+    `v3.verify.import_boundary` rule 2, which carries no carve-out for this or any other module."""
     root = Path(root)
-    tools_dir = str(root / "tools")
-    if tools_dir not in sys.path:
-        sys.path.insert(0, tools_dir)
-    from spec_conformance import extract  # the ONE extractor, shared with the conformance gate
+    extract = load_extract(root)   # the ONE extractor, shared with the conformance gate
     return extract(root, "plan")
 
 

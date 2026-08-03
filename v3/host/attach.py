@@ -393,7 +393,7 @@ def _build_model_options(session: AttachSession, *, model: str, permission_log: 
         model=model,
         cwd=str(session.root),
         setting_sources=[],
-        mcp_servers={"metafactory": server},
+        mcp_servers={control_tools.MCP_SERVER_NAME: server},
         can_use_tool=mf_only_can_use_tool(permission_log),
     )
 

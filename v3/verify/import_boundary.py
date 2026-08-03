@@ -47,6 +47,25 @@ apply, and each exempt module carries a case proving its read is REF-BOUND (read
 must fail — a working-tree read would succeed no matter what ref it was handed). An exemption that
 stops being needed is itself a violation: an orphaned carve-out is one inconvenient afternoon away
 from being used for something else.
+
+NAMED, NOT READ (added by `import-boundary-arm`, V3-EXTRACT-RETIREMENT-INCREMENT §2.5). Every module
+in `_ORACLE_READERS` above names a v2 path in order to READ something out of it — a gate list, a
+function surface, a body to run. That is one shape of "needs the string". The other shape, and it is
+a DIFFERENT claim entirely, is a module that names a v2 path to DISPOSE of it: to state that it is
+gone, that it is the subject of a decision, that it collides with something of this project's own.
+`v3.verify.deletion_manifest`'s own grant, before it was retired, drew this line first: "every other
+reader here names v2 to READ it, while this one names v2 to enumerate what will stop existing" — the
+distinction survives its author. `_NAMED_NOT_READ` is that grant's successor table, kept SEPARATE
+from `_ORACLE_READERS` on purpose rather than folded into it, because the case for each is not "prove
+the read is ref-bound" (there is no read to bind) but "prove nothing is ever opened, imported, or
+shelled out to" — a different obligation deserves a different table, not a wider version of this one.
+Two members today: `v3/control/tools.py`, whose MCP server registers itself under this PROJECT's own
+name and that name happens to collide, byte-for-byte, with the dead package's; and
+`v3/verify/retirement.py`, whose disposition table names the dead root as the SUBJECT being decided
+about, never as something it reads. Same two-sided staleness teeth as `_ORACLE_READERS`, applied to
+this table too: an entry naming a module absent from the tree is a problem, and a module holding this
+grant without a string in it that needs it is a problem — a carve-out nobody is using is a permission
+sitting idle, ready to be reached for by the next change that actually wants to cross the boundary.
 """
 
 from __future__ import annotations
@@ -129,6 +148,27 @@ _ORACLE_READERS: dict[str, str] = {
         "failure P2 of the cutover is most exposed to and exactly what running v2's own answers "
         "beside v3's is for",
 }
+
+#: Modules allowed to NAME a v2 path (rule 3 only) because they DISPOSE of it rather than read it —
+#: the successor to `deletion_manifest`'s retired grant. See NAMED, NOT READ above. Closed, with the
+#: reason, and carrying the SAME two-sided staleness teeth as `_ORACLE_READERS`: entered below.
+_NAMED_NOT_READ: dict[str, str] = {
+    "v3/control/tools.py":
+        "its MCP server registers itself under `MCP_SERVER_NAME`, this PROJECT's own name — which "
+        "collides, byte-for-byte, with the dead package's, since one is the successor of the other. "
+        "The string never resolves as an import, a path, or a lookup key into anything v2 owns; it is "
+        "handed straight to `create_sdk_mcp_server(name=…)` and to nothing else. A single module-level "
+        "constant, not a literal repeated at each of the three `mcp_servers={...}` call sites "
+        "(`v3.control.tools` itself, `v3.host.attach`, `v3.probe.attach`), so this is the one place "
+        "the grant has to be argued rather than three",
+    "v3/verify/retirement.py":
+        "its disposition table names the dead root (`V2_ROOT = \"src/metafactory/\"`) as the SUBJECT "
+        "being decided about — every `Row.subject` entry states what a retired or kept gate's law used "
+        "to read out of v2, for the census built over this table to prove absence against. The module "
+        "itself, and its gate `v3.verify.checks.retirement_census`, never open a path under it, never "
+        "import it, and never shell out to git to read it — `V2_ROOT` is a label on a decision, not a "
+        "handle into a filesystem",
+}
 _PATH_FRAGMENTS = ("src/metafactory", "src\\metafactory")
 _SYS_PATH_MUTATORS = {"append", "insert", "extend", "remove", "pop"}
 
@@ -196,7 +236,7 @@ def scan(v3_root: Path) -> tuple[list[str], int]:
         everything = analyze(source, label, check_strings=True)
         if len(everything) > len(structural):
             named_v2.add(label)
-        exempt = label in _ORACLE_READERS or path.resolve() == _SELF
+        exempt = label in _ORACLE_READERS or label in _NAMED_NOT_READ or path.resolve() == _SELF
         problems += structural if exempt else everything
 
     for label in sorted(_ORACLE_READERS):
@@ -204,6 +244,14 @@ def scan(v3_root: Path) -> tuple[list[str], int]:
             problems.append(f"{label}: enumerated as an oracle reader but is not in the tree")
         elif label not in named_v2:
             problems.append(f"{label}: holds an oracle-reader exemption it no longer uses — an "
+                            f"orphaned carve-out is a permission waiting to be reused for something "
+                            f"nobody argued for")
+
+    for label in sorted(_NAMED_NOT_READ):
+        if not (v3_root.parent / label).exists():
+            problems.append(f"{label}: enumerated in _NAMED_NOT_READ but is not in the tree")
+        elif label not in named_v2:
+            problems.append(f"{label}: holds a _NAMED_NOT_READ exemption it no longer uses — an "
                             f"orphaned carve-out is a permission waiting to be reused for something "
                             f"nobody argued for")
     return problems, len(files)

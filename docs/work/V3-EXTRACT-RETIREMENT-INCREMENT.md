@@ -1,4 +1,4 @@
-<!-- meta:doc sha=2f0e2e635d8cae5a78f4f98864ca6eb93c92e1ed updated=2026-08-03T23:40Z -->
+<!-- meta:doc sha=a11e109c12eb5db1157a2a8f893f32b39222704b updated=2026-08-03T23:45Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
@@ -187,10 +187,24 @@ docs/work/DOC-GRAPH-LIVENESS-INCREMENT.md-> .claude/agents/factory-writer.md
 ```
 
 The lesson is the doc's own, turned on itself: **an empty subject does not stay empty.** It went from 0
-to 5 because docs were written in the meantime, and nothing was watching. The fallback means one
-artifact yields two different graphs on two machines — the gate's input depends on what happens to sit
-next to the repo. It is removed: both machines then agree at 22 unresolved, which is the number the
-second verifier is **already green on** (CI has no sibling), so this is measurement-backed, not hopeful.
+to 5 because docs were written in the meantime, and nothing was watching.
+
+**And removing it proved something worse than machine-dependence, which is why the first draft of this
+section was wrong.** I justified the removal with "both machines then agree at 22, and CI is already
+green on 22". Running the gate refutes it: the fallback was **hiding four genuinely broken citations in
+LIVING docs** (the fifth was in a closed work-doc, exempt), and `evidence_liveness` went **red the
+moment the crutch came off** — which also means the second verifier's last green did NOT include this
+gate's opinion. (`meta check` registers 43 gates; the last CI run reported 33 green + 0 red + 4 N/A =
+**37**. Six gates never reported at all. That gap is close criterion #6's real subject, not a rounding
+error.)
+
+The four are citations of the FROZEN sibling's own files, made from docs *about* that factory. The repo
+already had the right convention for exactly this — `ASF/ADR-NNN` is never extracted — but it existed
+only for ADRs, so a doc naming one of the sibling's FILES had no way to say "this is not mine". Now it
+does: `ASF/<path>` is dropped by `extract_refs` the same way `ASF/ADR-007` always was, and the four
+citations are rewritten. **The relationship is DECLARED instead of resolved** — a foreign citation is
+never pretended to resolve, on any machine, and the environment cannot change the answer because the
+path to the environment is gone.
 
 ## 7. Close criterion (demonstrable, not narrated)
 

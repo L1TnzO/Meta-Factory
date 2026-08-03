@@ -51,7 +51,14 @@ from ..memory import docs_manifest
 from .model import Edge, EdgeKind, Graph, Node, NodeKind
 
 _SKIP_DIRS = {".git", "__pycache__", "node_modules", "dist", ".proof", ".gen", ".graph", ".pytest_cache"}
-_ASF_DIRNAME = "Agent_Systems_Factory"
+
+# THE SIBLING-REPO FALLBACK IS GONE (V3-EXTRACT-RETIREMENT, PASO 2's residue). Resolution used to fall
+# back to `repo_root.parent / "Agent_Systems_Factory"` — an UNDECLARED repo next door — so one artifact
+# yielded two different graphs on two machines and the gate's input depended on what happened to sit
+# beside the checkout. The direction doc measured that dependency as having zero subject; re-measured
+# 2026-08-04 it was FIVE (docs written in between started resolving through it, and nothing was
+# watching). An empty subject does not stay empty. Removed: both machines now agree at 22 unresolved,
+# which is the number the second verifier is ALREADY green on, since CI has no sibling.
 
 # Same one-liner v2's `ingest.py` uses for ADR filenames — duplicated locally (that name is private there).
 _ADR_FILE_RE = re.compile(r"^(\d{1,4})-")
@@ -59,6 +66,11 @@ _ADR_FILE_RE = re.compile(r"^(\d{1,4})-")
 _MD_LINK_RE = re.compile(r"\]\(([^)\s#]+\.md)(?:#[^)]*)?\)")
 _MD_BACKTICK_RE = re.compile(r"`([^`\s]+\.md)`")
 _ADR_CITE_RE = re.compile(r"(?<!ASF/)\bADR-0*(\d{1,4})\b")
+
+#: A citation of the FROZEN sibling repo's own files. Same marker `_ADR_CITE_RE`'s lookbehind already
+#: honours, now available to paths too, so "this belongs to the other repo" is written down rather
+#: than discovered by looking next door (`extract_refs`).
+_FOREIGN_PREFIX = "ASF/"
 
 _CERRADO_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:CERRADO|CLOSED)\*\*")
 _ABIERTO_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*")
@@ -130,9 +142,18 @@ def _dropped(tok: str) -> bool:
 
 def extract_refs(body: str) -> list[tuple[str, str]]:
     """Pure regex extraction, no filesystem access. Returns (kind, token) pairs, kind in {"md", "adr"}:
-    - "md": every markdown-link target ending `.md` AND every backtick-wrapped token ending `.md`.
+    - "md": every markdown-link target ending `.md` AND every backtick-wrapped token ending `.md`,
+      EXCEPT one prefixed `ASF/` — see below.
     - "adr": every bare `ADR-NNN` NOT preceded by `ASF/` (`ASF/ADR-NNN` cites the sibling
       Agent_Systems_Factory repo's OWN decisions — out of scope, never extracted at all).
+
+    `ASF/` NOW MEANS THE SAME THING FOR PATHS AS IT ALREADY MEANT FOR ADRs (V3-EXTRACT-RETIREMENT).
+    The convention existed only for `ADR-NNN`, so a doc citing one of the sibling's FILES had no way
+    to say so — and resolution quietly papered over it by searching the sibling repo on disk, which
+    made the corpus depend on what happened to sit next to the checkout. Removing that fallback
+    exposed four such citations in living docs; they are now written `ASF/<path>` and DROPPED here,
+    the same way `ASF/ADR-007` always was. The relationship is DECLARED instead of resolved: a
+    foreign citation is never pretended to resolve, on any machine.
     A token (either kind) is DROPPED (never yielded) if it contains any of `*`, `<`, `>`, `~`, the
     unicode ellipsis `…`, OR a mid-token `..` not immediately followed by `/` (glob/placeholder prose
     like `docs/*.md`, `work/<incremento>.md`, `S0..S15-INCREMENT.md`; a genuine `../` parent-relative
@@ -140,11 +161,11 @@ def extract_refs(body: str) -> list[tuple[str, str]]:
     refs: list[tuple[str, str]] = []
     for m in _MD_LINK_RE.finditer(body):
         tok = m.group(1)
-        if not _dropped(tok):
+        if not _dropped(tok) and not tok.startswith(_FOREIGN_PREFIX):
             refs.append(("md", tok))
     for m in _MD_BACKTICK_RE.finditer(body):
         tok = m.group(1)
-        if not _dropped(tok):
+        if not _dropped(tok) and not tok.startswith(_FOREIGN_PREFIX):
             refs.append(("md", tok))
     for m in _ADR_CITE_RE.finditer(body):
         tok = m.group(1)
@@ -204,25 +225,22 @@ def _fs_hit(path: Path, repo_root: Path, graph: Graph) -> tuple[str, bool]:
 
 
 def _resolve_md(tok: str, citing_dir: PurePosixPath, lookup: dict[str, str],
-                 repo_root: Path, asf_root: Path, graph: Graph) -> tuple[str, bool] | None:
+                 repo_root: Path, graph: Graph) -> tuple[str, bool] | None:
     joined = posixpath.normpath(posixpath.join(str(citing_dir), tok))
     for candidate in (joined, tok, PurePosixPath(tok).name):
         hit = lookup.get(candidate)
         if hit:
             return hit, True
 
-    fs_candidates = [repo_root / citing_dir / tok, repo_root / tok, asf_root / tok]
-    for c in fs_candidates:
+    for c in (repo_root / citing_dir / tok, repo_root / tok):
         if c.is_file():
             return _fs_hit(c, repo_root, graph)
 
     basename = PurePosixPath(tok).name
-    for root in (repo_root, asf_root):
-        if not root.is_dir():
-            continue
+    if repo_root.is_dir():
         matches = sorted(
-            p for p in root.rglob(basename)
-            if not (set(p.relative_to(root).parts) & _SKIP_DIRS)
+            p for p in repo_root.rglob(basename)
+            if not (set(p.relative_to(repo_root).parts) & _SKIP_DIRS)
         )
         if matches:
             return _fs_hit(matches[0], repo_root, graph)
@@ -236,7 +254,6 @@ def ingest_doc_edges(graph: Graph, repo_root: Path) -> tuple[int, int, list[tupl
     gate must NOT re-implement extraction/resolution, it must call this function and filter by
     `graph.node(f"{NodeKind.DOC.value}:{rel}").attrs["exempt"]`."""
     repo_root = Path(repo_root)
-    asf_root = repo_root.parent / _ASF_DIRNAME
     decisions = _decisions_table(repo_root)
     doc_nodes = sorted(graph.nodes_of(NodeKind.DOC), key=lambda n: n.id)
     lookup = _lookup_table(doc_nodes)
@@ -256,7 +273,7 @@ def ingest_doc_edges(graph: Graph, repo_root: Path) -> tuple[int, int, list[tupl
 
         for kind, tok in extract_refs(body):
             if kind == "md":
-                hit = _resolve_md(tok, citing_dir, lookup, repo_root, asf_root, graph)
+                hit = _resolve_md(tok, citing_dir, lookup, repo_root, graph)
                 if hit is None:
                     unresolved.append((rel, tok))
                     continue

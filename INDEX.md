@@ -42,9 +42,9 @@
 | `docs/decisions/032-ratificacion-de-la-linea-completa-v3.md` | `dea9d67d161c` | 2026-07-28T19:13Z | ADR-032 — Ratify the rest of the v3 line (INC-3..INC-12), with two amendments the first three earned |
 | `docs/reference/ARCHITECTURE-MAP.md` | `3e214094f3e5` | 2026-07-11T15:41Z | ARCHITECTURE-MAP — as-built map of the system (2026-07-04) |
 | `docs/reference/ARCHITECTURE.md` | `690a9e8d0901` | 2026-07-11T15:46Z | Meta-Factory Architecture |
-| `docs/reference/ASF-LESSONS.md` | `07909b81d5fc` | 2026-07-11T16:02Z | ASF lessons — the good to keep, the bad to fix |
+| `docs/reference/ASF-LESSONS.md` | `89c1a701e9e3` | 2026-08-03T23:45Z | ASF lessons — the good to keep, the bad to fix |
 | `docs/reference/ASF-PROVENANCE.md` | `ecb890708027` | 2026-07-11T16:01Z | ASF — provenance pin of the frozen reference |
-| `docs/reference/CONTEXT-ECONOMY.md` | `72a0a2df2f8e` | 2026-07-11T15:43Z | Context economy — keeping the orchestrator clean |
+| `docs/reference/CONTEXT-ECONOMY.md` | `ca34734ee256` | 2026-08-03T23:45Z | Context economy — keeping the orchestrator clean |
 | `docs/reference/COUNCIL-360-AUDIT.md` | `e3280282296d` | 2026-07-11T17:05Z | COUNCIL-360-AUDIT — full view: 15 seats + execution topology |
 | `docs/reference/F1-AUDIT-REGEN-VS-LEGACY.md` | `bea8bc7eb7ad` | 2026-07-11T16:57Z | F1-AUDIT — regenerated ASF (Meta-Factory) vs legacy ASF, head-to-head |
 | `docs/reference/FOUNDATIONS-REAUDIT.md` | `2822f2726f3a` | 2026-07-11T16:11Z | FOUNDATIONS-REAUDIT — the foundations vs. measured behavior |
@@ -193,7 +193,7 @@
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-EXTRACT-DIRECTION-INCREMENT.md` | `5656319e91a4` | 2026-08-03T23:18Z | Dirección — V3-EXTRACT: sacar `v3/` de este repo y usarlo en otro lado |
 | `docs/work/V3-EXTRACT-MANIFEST-INCREMENT.md` | `f6825cd4c7df` | 2026-08-03T23:17Z | Increment V3-EXTRACT-MANIFEST |
-| `docs/work/V3-EXTRACT-RETIREMENT-INCREMENT.md` | `2f0e2e635d8c` | 2026-08-03T23:40Z | Increment V3-EXTRACT-RETIREMENT |
+| `docs/work/V3-EXTRACT-RETIREMENT-INCREMENT.md` | `a11e109c12eb` | 2026-08-03T23:45Z | Increment V3-EXTRACT-RETIREMENT |
 | `docs/work/V3-EXTRACT-STEP0-FREEZE-WAIVER-INCREMENT.md` | `7c95239b1d87` | 2026-08-03T23:05Z | Increment V3-EXTRACT-STEP0-FREEZE-WAIVER |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |

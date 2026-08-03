@@ -1,4 +1,4 @@
-<!-- meta:doc sha=07909b81d5fc9569c48295a74712f7e93865ab9c updated=2026-07-11T16:02Z -->
+<!-- meta:doc sha=89c1a701e9e3ccc716e0a5e9779f36a3dddb1f42 updated=2026-08-03T23:45Z -->
 # ASF lessons — the good to keep, the bad to fix
 
 | Field | Value |
@@ -23,7 +23,7 @@
 | **Determinism boundary** clear and honest: model for bounded slots, code for invariants; determinism in process/verification/contracts | §6, PF-1/PF-2, ASF/ADR-009 | I-3, PF-1/PF-2 |
 | **A/B/C automation ladder** (automatic / consent / honest-provisional) — avoids the "block or fabricate" binary | §7, ADR-010 | I-4 |
 | **Generated/domain boundary**: Copier owns `generated/`, the engineer owns `domain/`, connected by inheritance; an update never overwrites human code | §11.5, ADR-014, `template/` `_skip_if_exists` | I-5, M4 |
-| **Placement law / context economy**: every piece in the most deterministic substrate; verdicts to context, logs to disk | ADR-020, `docs/work/CONTEXT-INCREMENT.md`, `factory check` | I-6, I-7, `CONTEXT-ECONOMY.md` |
+| **Placement law / context economy**: every piece in the most deterministic substrate; verdicts to context, logs to disk | ADR-020, `ASF/docs/work/CONTEXT-INCREMENT.md`, `factory check` | I-6, I-7, `CONTEXT-ECONOMY.md` |
 | **Memory as a repo artifact** + narrative schema (doc types = mutation semantics) | ADR-019, ADR-021, `.claude/hooks/session_journal.py`, `docs/{STATE,LOG,decisions,work,reference}` | I-8, I-9, M5 — and this repo's own schema |
 | **RTM + evidence tree**: requirements with an id + `satisfied_by`; commits with trailers; matrix re-derived from artifacts | ADR-017/018, HONEST-STATE §"Trazabilidad de requisitos", `factory rtm`/`factory trace` | I-10, M5 |
 | **Two-verifier doctrine**: re-derivation over custody in external CI | ADR-022, `.githooks/pre-push`, `.github/workflows/factory-ci.yml` | I-11, M6 |
@@ -31,8 +31,8 @@
 | **Honesty about limits** as a first-class artifact | HONEST-STATE.md, AUDIT.md, PF-8 | I-13, this very doc |
 | **Generate→verify→promote loop** (the expensive half —verification— is the durable asset) | V2.md, V2.3, `pattern_request.json`, `/factory-promote` | base for the self-improvement loop (`SELF-IMPROVEMENT.md`) |
 | **Factory/product isolation** verified by test | PF-6, `test_factory_does_not_import_products` | PF-6, `test_metafactory_does_not_import_factories` |
-| **Subagent contracts as an API** (fixed report format = the only thing that enters the orchestrator) | `.claude/agents/factory-writer.md`, CONTEXT D2 | `CONTEXT-ECONOMY.md §delegation` |
-| **Governed-increment discipline** (`/incremento`: open/checkpoint/close; the doc IS the state) | `.claude/commands/incremento.md`, the 4 docs in `docs/work/` | inherited as-is; see `docs/work/BOOTSTRAP-INCREMENT.md` |
+| **Subagent contracts as an API** (fixed report format = the only thing that enters the orchestrator) | `ASF/.claude/agents/factory-writer.md`, CONTEXT D2 | `CONTEXT-ECONOMY.md §delegation` |
+| **Governed-increment discipline** (`/incremento`: open/checkpoint/close; the doc IS the state) | `ASF/.claude/commands/incremento.md`, the 4 docs in `docs/work/` | inherited as-is; see `docs/work/BOOTSTRAP-INCREMENT.md` |
 
 **ASF's most valuable meta-lesson** (AUDIT, closing): *"render+ast en verde NO prueba un
 producto que funcione. SEIS bugs invisibles a ese nivel aparecieron al scaffoldear+compilar de

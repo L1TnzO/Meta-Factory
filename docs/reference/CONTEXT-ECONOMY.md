@@ -1,4 +1,4 @@
-<!-- meta:doc sha=72a0a2df2f8e92c5b84dcf50db073c363417b013 updated=2026-07-11T15:43Z -->
+<!-- meta:doc sha=ca34734ee2563bbf6d8c4f8be67ee34d72be22ef updated=2026-08-03T23:45Z -->
 # Context economy — keeping the orchestrator clean
 
 | Field | Value |
@@ -94,7 +94,7 @@ the ergonomics so that **delegating is cheaper than not delegating**:
 
 ### 4.1 The delegation contract costs ~0 lines
 It lives in the agent definition (`.claude/agents/<role>.md`), not re-typed per delegation. ASF
-already had this (`factory-writer.md`); the Meta-Factory bakes it into `template/factory/` so that
+already had this (`ASF/.claude/agents/factory-writer.md`); the Meta-Factory bakes it into `template/factory/` so that
 every factory is born with its family of agents. The agent's report is the API (fixed format:
 FILES · COMMANDS+exit · EVIDENCE · CLAIMED-vs-VERIFIED · ISSUES).
 

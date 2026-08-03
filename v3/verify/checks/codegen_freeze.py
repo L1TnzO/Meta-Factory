@@ -61,7 +61,29 @@ _SABOTAGE_VAR = "V3_CODEGEN_FREEZE_SABOTAGE"
 
 # sha -> written reason. Editing this constant is a DELIBERATE governance act (like `registry.KINDS`):
 # it grandfathers a specific historical commit that cannot carry an in-tree waiver anymore.
-WAIVED_COMMITS: dict[str, str] = {}
+#
+# THE HATCH IS ITSELF AUDITED (`evaluate_waivers`, red-side-exercised). Before V3-EXTRACT-STEP0 this
+# constant was the one un-toothed surface in the module: any key with any value silently suppressed a
+# red, and — measured, not supposed — an ABBREVIATED key was a silent NO-OP, because `_audit_history`
+# matches the full 40-char `%H`. The first use of an escape hatch is exactly when it must start being
+# audited, so keys are now RESOLVED through git (abbreviations work) and every row must prove it names
+# a real, post-epoch commit that actually fed a frozen path, with a written reason.
+WAIVED_COMMITS: dict[str, str] = {
+    "ba05918d203f9ef7f4021c7320cb62c04673e714":
+        "FSK 2026-07-13 `fix(FSK-CODEGEN): escape quotes/backslashes/newlines in jsonVal`. ONE file "
+        "(codegen/scaffold/data_layer.py), ONE line: jsonVal wrapped strings in quotes with zero "
+        "escaping, so any field holding a raw quote/backslash/newline emitted INVALID JSON on every "
+        "list/detail read of every entity of every product this codegen builds. It is a CORRECTNESS "
+        "repair of already-frozen emission — it evolves no human surface (ADR-023 §3 alcance="
+        "superficie) and wires no new verification (§1 alcance=verificacion), so the two-value "
+        "alcance vocabulary has no honest slot for it and forcing one would demand a dedicated ADR "
+        "for a quote-escaping bug. Waived here with eyes, three weeks after the fact, because the "
+        "commit is already in history and cannot grow an in-tree waiver anymore. Cita: ADR-023 §3.",
+}
+
+#: A reason must be a written SENTENCE, not a token. Below this, a row is treated as unreasoned —
+#: the same law the in-tree waiver applies with `motivo:` (`_MOTIVO_RE`), expressed as a length.
+_MIN_REASON_CHARS = 40
 
 _WAIVER_TOKEN = "codegen-freeze-waiver"
 _OPEN_RE = re.compile(r"(?:Estado|Status):\s*\*\*(?:ABIERTO|OPEN)\*\*")
@@ -104,6 +126,34 @@ def parse_waivers(text: str) -> tuple[int, list[str]]:
         else:
             valid += 1
     return valid, problems
+
+
+def evaluate_waivers(facts: list[tuple[str, str, str | None, bool, bool]]) -> list[str]:
+    """The law over the ESCAPE HATCH itself. Pure: no git, no IO — so the red side can exercise it.
+
+    Each fact is (key, reason, resolved_sha_or_None, touches_frozen, post_epoch). A row earns its
+    suppression only by proving all four: it resolves to a real commit, that commit actually fed a
+    frozen path, it is post-epoch (pre-epoch is already grandfathered, so waiving it is decorative —
+    the same shape as this module's `waiver with NO diff`), and it carries a written reason.
+    """
+    problems = []
+    for key, reason, resolved, touches_frozen, post_epoch in facts:
+        if resolved is None:
+            problems.append(f"WAIVED_COMMITS[{key}] does not resolve to a commit in this clone — a "
+                            f"waiver that names nothing suppresses nothing (and an abbreviated key "
+                            f"that cannot be resolved would be a SILENT no-op)")
+            continue
+        if len(reason.strip()) < _MIN_REASON_CHARS:
+            problems.append(f"WAIVED_COMMITS[{key}] has no written reason ({len(reason.strip())} "
+                            f"chars < {_MIN_REASON_CHARS}): a governance act records WHY, or it is "
+                            f"just a suppressed red")
+        if not post_epoch:
+            problems.append(f"WAIVED_COMMITS[{key}] is PRE-epoch — already grandfathered, so the "
+                            f"row suppresses nothing and reads as if it did (decorative)")
+        elif not touches_frozen:
+            problems.append(f"WAIVED_COMMITS[{key}] names a commit that never fed "
+                            f"factories/*/codegen/** — decorative waiver")
+    return problems
 
 
 def evaluate(diff_paths: list[str], workdoc_name: str | None, workdoc_text: str | None) -> list[str]:
@@ -163,24 +213,52 @@ def _tree_has_waiver(root: Path, commit: str, factory: str) -> bool:
 FREEZE_EPOCH = "4bd9835c5e5099b16eec7f8e16ab78ee2194f7d8"   # 2026-07-10, CODEGEN-FREEZE-TOOTH
 
 
+def _resolve(root: Path, rev: str) -> str | None:
+    """Full 40-char sha for `rev`, or None if this clone cannot resolve it to a commit."""
+    sha = _git(root, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}").strip()
+    return sha or None
+
+
+def _waiver_facts(root: Path, epoch: str) -> tuple[dict[str, str], list[str]]:
+    """(resolved sha -> key, problems). Resolves every hatch row and audits it (`evaluate_waivers`)."""
+    facts, resolved_map = [], {}
+    for key, reason in WAIVED_COMMITS.items():
+        sha = _resolve(root, key)
+        touches, post = False, False
+        if sha:
+            resolved_map[sha] = key
+            touches = any(ln.startswith("factories/") and "/codegen/" in ln
+                          for ln in _git(root, "show", "--name-only", "--format=", sha).splitlines())
+            post = subprocess.run(["git", "merge-base", "--is-ancestor", epoch, sha],
+                                  cwd=root, capture_output=True).returncode == 0
+        facts.append((key, reason, sha, touches, post))
+    return resolved_map, evaluate_waivers(facts)
+
+
 def _audit_history(root: Path, factories: list[str]) -> tuple[list[str], str]:
     """Every post-epoch commit touching a frozen path must carry an in-tree open waiver."""
     epoch = FREEZE_EPOCH if _git(root, "cat-file", "-t", FREEZE_EPOCH).strip() == "commit" else ""
     if not epoch:
+        # N-0122: a shallow clone cannot audit history it does not have. Say what went UNMEASURED —
+        # an un-audited hatch row must never read as an audited-and-clean one (not measured != zero).
         return [], (f"historical audit N/A (pinned epoch {FREEZE_EPOCH[:9]} not in this clone — "
-                    f"a shallow clone cannot audit history it does not have)")
-    problems, audited = [], 0
+                    f"a shallow clone cannot audit history it does not have); "
+                    f"{len(WAIVED_COMMITS)} WAIVED_COMMITS row(s) also UNAUDITED here")
+    waived, problems = _waiver_facts(root, epoch)
+    audited, suppressed = 0, 0
     for f in factories:
         shas = [s for s in _git(root, "log", "--format=%H", f"{epoch}..HEAD",
                                 "--", f"factories/{f}/codegen").splitlines() if s.strip()]
         for sha in shas:
-            if sha in WAIVED_COMMITS:
+            if sha in waived:
+                suppressed += 1
                 continue
             audited += 1
             if not _tree_has_waiver(root, sha, f):
                 problems.append(f"{f}: commit {sha[:9]} fed codegen/ with NO open waiver in its own "
                                 f"tree (post-freeze; legislate in WAIVED_COMMITS only as a governance act)")
-    return problems, f"historical audit: {audited} post-epoch {epoch[:9]} commit(s) audited"
+    return problems, (f"historical audit: {audited} post-epoch {epoch[:9]} commit(s) audited, "
+                      f"{suppressed} suppressed by {len(WAIVED_COMMITS)} audited WAIVED_COMMITS row(s)")
 
 
 def _real_report(root: Path) -> tuple[list[str], list[str]]:
@@ -210,15 +288,40 @@ _SYN_WAIVER = ("Codegen-freeze-waiver: alcance=verificacion · motivo: synthetic
                "cita: ADR-023 §1")
 
 
-def _tooth_alive() -> list[str]:
-    dead = []
-    if not evaluate(_SYN_DIFF, "X-INCREMENT.md", "# doc without a waiver"):
-        dead.append("diff-without-waiver was NOT flagged")
-    if not evaluate([], "X-INCREMENT.md", _SYN_WAIVER):
-        dead.append("waiver-without-diff was NOT flagged")
-    if evaluate(_SYN_DIFF, "X-INCREMENT.md", _SYN_WAIVER):
-        dead.append("diff+valid-waiver did NOT pass (would block every legitimate waiver)")
-    return dead
+_SYN_SHA = "0" * 40
+_SYN_REASON = "synthetic tooth scenario: a written reason long enough to be a sentence, not a token"
+
+
+def _tooth_alive() -> tuple[list[str], int]:
+    """(dead scenarios, scenarios run). The hatch scenarios were added by V3-EXTRACT-STEP0: the moment
+    WAIVED_COMMITS stopped being empty is the moment its law had to start biting."""
+    dead, scenarios = [], 0
+
+    for name, condition in (
+        # the in-tree waiver law (unchanged since v2)
+        ("diff-without-waiver was NOT flagged",
+         not evaluate(_SYN_DIFF, "X-INCREMENT.md", "# doc without a waiver")),
+        ("waiver-without-diff was NOT flagged",
+         not evaluate([], "X-INCREMENT.md", _SYN_WAIVER)),
+        ("diff+valid-waiver did NOT pass (would block every legitimate waiver)",
+         bool(evaluate(_SYN_DIFF, "X-INCREMENT.md", _SYN_WAIVER))),
+        # the ESCAPE HATCH law
+        ("hatch: unresolvable key was NOT flagged (an abbreviation that git cannot resolve would be "
+         "a silent no-op)",
+         not evaluate_waivers([("deadbeef", _SYN_REASON, None, True, True)])),
+        ("hatch: row with no written reason was NOT flagged",
+         not evaluate_waivers([(_SYN_SHA, "ok", _SYN_SHA, True, True)])),
+        ("hatch: row naming a commit that never fed codegen/ was NOT flagged",
+         not evaluate_waivers([(_SYN_SHA, _SYN_REASON, _SYN_SHA, False, True)])),
+        ("hatch: PRE-epoch (already grandfathered) row was NOT flagged",
+         not evaluate_waivers([(_SYN_SHA, _SYN_REASON, _SYN_SHA, True, False)])),
+        ("hatch: a fully-justified row did NOT pass (would block every legitimate governance act)",
+         bool(evaluate_waivers([(_SYN_SHA, _SYN_REASON, _SYN_SHA, True, True)]))),
+    ):
+        scenarios += 1
+        if condition:
+            dead.append(name)
+    return dead, scenarios
 
 
 def main(argv: list[str]) -> int:
@@ -226,14 +329,15 @@ def main(argv: list[str]) -> int:
         return Verdict("v3-codegen-freeze", 2, f"takes no arguments; got {argv!r}").emit()
 
     if os.environ.get(_SABOTAGE_VAR) == "1":
-        dead = _tooth_alive()
+        dead, scenarios = _tooth_alive()
         if dead:
             return Verdict("v3-codegen-freeze (SABOTAGE)", 1,
-                           f"GATE DECORATIVO: the law does not bite in {len(dead)} synthetic "
-                           f"scenario(s)", failures=tuple(dead)).emit()
+                           f"GATE DECORATIVO: the law does not bite in {len(dead)}/{scenarios} "
+                           f"synthetic scenario(s)", failures=tuple(dead)).emit()
         return Verdict("v3-codegen-freeze (SABOTAGE)", 0,
-                       "all 3 synthetic scenarios (diff-without-waiver, waiver-without-diff, "
-                       "diff+valid-waiver) resolved as the law requires").emit()
+                       f"all {scenarios} synthetic scenarios (in-tree waiver law + the "
+                       f"WAIVED_COMMITS escape hatch) resolved as the law requires",
+                       counts={"scenarios": scenarios}).emit()
 
     problems, report = _real_report(_ROOT)
     if problems:

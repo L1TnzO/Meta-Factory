@@ -416,6 +416,65 @@ def resolve(target: str) -> tuple[bool, str]:
 
 
 # ── the law, shared by the green run and the sabotage ────────────────────────────────────────────
+# ── the human verbs, decided (V3-INC12 P7) ─────────────────────────────────────────────────────────
+#: INC-11 declared 20 unported verbs a LOSS with the argument "no machine depends on them". True, and
+#: exactly the point: the HUMAN is who INC-12 is about. So the census stops counting them and starts
+#: DECIDING them. `unported` is not a defect; **UNDECIDED is**, and that is what this table makes red.
+#:
+#: A decision is `("port"|"drop", reason)`. `drop` must name the REPLACEMENT — where the capability
+#: went, or why the operator no longer needs it — because a drop with no replacement is a capability
+#: leaving through a hole nobody wrote down (the `gate_wrap` lesson: it was dropped honestly, its
+#: absence WAS recorded, and that record is how INC-12 found the run-log hole in P1).
+HUMAN_VERB_DISPOSITION: dict[str, tuple[str, str]] = {
+    # --- navigation: the operator's "go and look" surface. The strongest port candidates, and the
+    # reason they are not ported HERE is scope, not doubt: four verbs over `v3.graph` is its own
+    # bounded increment, and INC-12 is already XL.
+    "graph":         ("port", "the no-LLM navigation surface CLAUDE.md itself routes to; deferred to "
+                              "its own increment with `v3/graph/` already ported and unwired"),
+    "graph/build":   ("port", "same arc as `graph`"),
+    "graph/query":   ("port", "same arc as `graph`"),
+    "graph/repomap": ("port", "same arc as `graph`"),
+    # --- economy: an attached operator asking "what did this cost" is a legitimate escape-hatch
+    # question, and the typed data exists (INC-6). Same deferral, same reason.
+    "outcome":       ("port", "per-increment ΔRTM + cost; `v3/economy/outcome.py` is ported and "
+                              "unwired — the verb is the missing half"),
+    "billing":       ("port", "the ledger console over `v3/economy/ledger.py`, likewise unwired"),
+    "metrics":       ("port", "the observability read over `v3/economy/`; likewise unwired"),
+    # --- superseded by a GATE. The capability did not leave: it stopped being something a human
+    # asks for and became something the suite decides every run, which is strictly stronger.
+    "benchmark":     ("drop", "replaced by the `benchmark` GATE in `meta check` — helpdesk MEETS / "
+                              "snipeit EXCEEDS is re-derived, not asked for"),
+    "dial":          ("drop", "replaced by the `dial` GATE in `meta check`"),
+    # --- the WorkOrder console. Its NAME was the third collision INC-12 found (P4): v2's `meta plan`
+    # is `.gen/plan.json`, not the node tree. Kept unported so the name stays honest and free.
+    "plan":          ("drop", "the `.gen/plan.json` WorkOrder console; its validator runs as the "
+                              "`plan` gate, and the project's node tree got its own verb "
+                              "(`meta plan-tree`) rather than squatting this name"),
+    "plan/check":    ("drop", "same; the gate re-runs exactly this validator"),
+    "plan/next":     ("drop", "same; `v3.plan.next_slot` exists and no line calls it"),
+    "plan/status":   ("drop", "same"),
+    # --- docs navigation: the operator has a better tool, and one of these is already gone.
+    "doc":           ("drop", "grep over `docs/` is the retrieval CLAUDE.md actually prescribes; the "
+                              "corpus itself is guarded by the `docs`/`projection` gates"),
+    "doc/orphans":   ("drop", "same; orphan detection lives in `v3/graph/doc_graph.py`"),
+    "doc/slice":     ("drop", "its module was DELETED at INC-11 with this named as the reason "
+                              "(`deletion_manifest`: 'backs `meta doc slice`, an unported human verb')"),
+    # --- each already answered elsewhere, and the answer is not "we forgot".
+    "jdk-run":       ("drop", "the JDK resolution that load-bears is `tools/toolchain.sh`, which is "
+                              "NOT the substrate and survives on purpose (node N-0121)"),
+    "new":           ("drop", "scaffolding a new factory needs the META line, which does not run on "
+                              "v3 (node N-0098) — a verb here would refuse, and the node is the "
+                              "honest place for that"),
+    "recall":        ("drop", "a tombstone before the rebuild began; `§11.4` lists it as dropped"),
+    "rehydrate":     ("drop", "the payload is INJECTED, not asked for: the `SessionStart` hook prints "
+                              "it and, since INC-12 P3, the host injects a per-leaf one "
+                              "(`v3.memory.rehydrate.leaf_context`). A human verb to print it by hand "
+                              "would be a third caller of a thing that already has two"),
+}
+
+_DECISIONS = ("port", "drop")
+
+
 def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list[str], dict]:
     problems: list[str] = []
     verbs = v2_verbs(ref)
@@ -459,6 +518,32 @@ def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list
         unported_total += unported
     counts["dead"] = sum(1 for c in classes.values() if c["strongest"] == "dead")
     counts["unported"] = unported_total
+
+    # THE TOOTH (V3-INC12 P7): unported is a fact; UNDECIDED is a defect. Every human verb v3 does
+    # not claim must carry a row above, and every row must name a decision from the closed set. A
+    # verb that falls off the port list without anyone saying so is how a capability leaves quietly.
+    undecided = sorted(v for v, c in classes.items()
+                       if c["strongest"] == "human" and v not in claims
+                       and v not in HUMAN_VERB_DISPOSITION)
+    for verb in undecided:
+        problems.append(f"{verb!r} is an unported human verb with NO recorded decision: unported is "
+                        f"allowed, undecided is not (add a row to HUMAN_VERB_DISPOSITION)")
+    for verb, row in sorted(HUMAN_VERB_DISPOSITION.items()):
+        decision = row[0] if isinstance(row, tuple) and row else None
+        if decision not in _DECISIONS:
+            problems.append(f"{verb!r}: decision {decision!r} is outside the closed set {_DECISIONS}")
+        elif decision == "drop" and not (len(row) > 1 and str(row[1]).strip()):
+            problems.append(f"{verb!r}: dropped with no replacement named — a drop with no "
+                            f"replacement is a capability leaving through a hole nobody wrote down")
+    # A row for a verb v3 DOES claim is stale bookkeeping, and stale bookkeeping is how a table
+    # stops being read. Caught here rather than discovered by someone trusting it.
+    for verb in sorted(HUMAN_VERB_DISPOSITION):
+        if verb in claims:
+            problems.append(f"{verb!r} carries a disposition row but v3 now claims to dispatch it — "
+                            f"the row is stale and must be removed")
+    counts["decided"] = len(HUMAN_VERB_DISPOSITION)
+    counts["undecided"] = len(undecided)
+    counts["to_port"] = sum(1 for r in HUMAN_VERB_DISPOSITION.values() if r[0] == "port")
     # Verbs that carry a mention but no genuine invocation anywhere — the size of the illusion the
     # invocation-vs-mention correction removes; these used to inflate `column`/`tooling`.
     counts["mention_only"] = sum(

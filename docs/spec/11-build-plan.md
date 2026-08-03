@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4e15332d1bed4974058311f1aa6ea72d0bcd4e4e updated=2026-07-31T23:27Z -->
+<!-- meta:doc sha=ed461e5f923e646ba62a91edda0b0d005f8e1dfb updated=2026-08-03T21:41Z -->
 # 11 — Build plan for v3 (JUDGMENT)
 
 ## 1. Strategy: rebuild the control plane, port the kernel, keep the oracle
@@ -49,6 +49,7 @@ are honest estimates, not commitments.
 | **INC-9** | `MIGRATE-FSK` | the real system: 12 stations, 3 products, live PG + Chromium | `ci --rederive --all-products` == pin (27/27) + `meta benchmark` 2/2 in the expected class | XL |
 | **INC-10** | `MIGRATE-FROZEN` | ASF + full-stack — **re-verification only, zero new generation** | `ci --rederive` == pin (11/11, 6/6) | S |
 | **INC-11** | `CUTOVER` | v2 substrate deleted; `meta` becomes the thin shell over v3 | all of P1 + P2 green in one clean-clone run on another machine (the ADR-005 independence layer) | M |
+| **INC-12** | `INTERACTIVE-MODE` | the escape hatch the inversion removes (§10.0.2): the run log the host used to destroy, the node tree inside the substrate, the per-leaf plan context (§15.6), the `§10.3` tool surface under a three-tier authority table, and `meta attach` | **the same station, run headless and run attached, produces the same pin** (`attach_parity`, two-sided) + `attach_authority` two-sided + `ci --rederive` unmoved | XL |
 
 > **CORRECTED 2026-07-31 by INC-11's opening measurement (three things), before writing any code.**
 > (a) **The size is wrong: `M` → `XL`.** The row hides five distinct deliverables, none optional — the
@@ -146,6 +147,8 @@ gate is ported unchanged, so piercing them still requires a written waiver.
    the deterministic state machine that owns the loop and calls the model as a bounded function. The
    hooks become defence-in-depth inside a generation leaf. Its gate is unchanged and is still the
    go/no-go of the whole plan: a tampered proof must be refused by the wired enforcement.
+> **CORRECTED 2026-08-02 by INC-12's execution.** This increment existed only in §5bis.2 prose and never had a ROW in the table above — `economy_census` found it on its first run, by demanding that a deferral point at a real plan row (`N-0095`). The row is written now. It does NOT close `N-0095`: the census reads at the ORACLE COMMIT, so the hole only closes at the next re-pin of `v3/oracle_ref.json`. Two further corrections the execution earned: the size is **XL**, not the unstated small thing an unrowed increment implies (seven phases, five of them gate-bearing); and the row's own gate was necessary but not sufficient — an attach that produced the same pin while being able to move a pin, close an increment or re-seal a document would have passed it, which is why `attach_authority` exists beside `attach_parity`.
+
 2. **A new increment is required, and it is not optional.** `INC-12 INTERACTIVE-MODE`: an attach mode
    that drives the same orchestrator from a conversation. The inversion removes an escape hatch we
    currently rely on — inside Claude Code an operator can notice something odd and go look; a headless

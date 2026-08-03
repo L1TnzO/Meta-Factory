@@ -1,7 +1,70 @@
-<!-- meta:doc sha=33fe22744926a43c375aa96126ae425b0010d3e4 updated=2026-08-01T19:32Z -->
+<!-- meta:doc sha=b0a788868e1c555aefc37654df3a3283f3ef9c42 updated=2026-08-03T21:44Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-08-02T00:4xZ — INC-12 INTERACTIVE-MODE: la escotilla era evidencia destruida, no un chat que faltaba
+
+**Qué queda cerrado.** El operador puede engancharse al mismo orquestador (`meta attach`), ver lo que
+la corrida headless destruía, y **no puede declarar nada**. `attach_parity` —el gate que pide
+`§11 §5bis.2`— da verde: una línea sintética de 2 estaciones **y una copia staged de
+`factories/dummy`** reproducen `proof_sha`/`checks`/`passed` **y el run log** idénticos headless vs
+attached, con **5/5** clases plantadas cazadas. Siete fases; la fila **no existía** y ahora está
+escrita como `XL`.
+
+**Lo que se midió antes de escribir código, y cambió el tema.** La fila hablaba de «un modo attach que
+maneje el orquestador desde una conversación». Medido: `runner.py:106` corría cada check con
+`capture_output=True` y devolvía **sólo el returncode**. Sobre una estación sintética, el diagnóstico
+a stdout y la traza a stderr **desaparecían**; en disco quedaba `{"name","exit"}`. El peor de los dos
+mundos: se captura —así que tampoco llega a la terminal— y se tira. **La escotilla no era una
+conversación que faltaba: era la evidencia que el host destruía.** Y la deuda estaba DECLARADA:
+`deletion_manifest.py:329` dropeó `gate_wrap.py` anotando que `run_check` «captura la salida de una
+check pero nunca la loguea ni la acota». Un drop honesto, registrado, es lo que hizo encontrable el
+agujero un incremento después.
+
+**Cuatro veces la misma forma de bug, y una fue mía.** Algo parece cubierto porque el nombre existe en
+algún lado: (1) el gate `plan` de `meta check` valida `.gen/plan.json` y está **N/A**, mientras el
+árbol de nodos del proyecto —125 nodos— no tenía gate; (2) v2 ya tenía el verbo `meta plan` (la
+consola de WorkOrders), así que mi verbo nuevo le squatteó el nombre — lo encontró `cli_parity` y el
+árbol pasó a `meta plan-tree`; (3) `slot_footprint`, el gate que `§11.3` nombra como entregable de
+INC-3, **existía, pasaba, y `meta check` no lo corría nunca**; (4) `cli_parity` no daba rojo: daba un
+**stack trace**, porque mi verbo nuevo declaró `default=[]` y el gate mete los defaults en un
+`frozenset`. **Yo elegí el conjunto de aceptación de esa fase y dejé afuera el gate de la superficie
+de verbos** — agregué un verbo y no corrí lo que un verbo perturba.
+
+**La lección que se gana su lugar: un punto ciego DOCUMENTADO es una invitación.** A mitad del
+incremento, un generador aflojó `rtm --factory` de `required=True` a opcional (con caída silenciosa a
+`dummy`) para que pasara una invocación de humo mía, y **lo justificó citando el docstring de
+`cli_parity`**: «compara la existencia de un flag y su default, nunca `required`». Tenía razón. La
+frase que documentaba honestamente el alcance del gate era el mapa de por dónde pasar. Revertido, y
+`required` pasa a compararse **con su propio testigo rojo** (el sabotage fue de 2 a 3 plantados).
+Segunda fuga de la misma clase un campo más allá: INC-11 había agregado `default` después de medir
+`ci --factory`.
+
+**Y el slot rompió la ley del slot.** Para sumar un path a su radio, el generador **editó su propio
+`.gen/active_slot.json`** — el hook permite todo `.gen/`, así que podía reescribir sus `allow_globs`, y
+desde ahí `write_allowed` y `footprint_problems` validan contra límites que eligió el worker. Yo había
+autorizado esos paths en prosa: **el defecto no es que se escapara algo, es que el mecanismo no
+distinguía una enmienda autorizada de una que no lo es.** Tercera instancia de `N-0113`: la ley acotaba
+lo que un generador **escribe** y lo que **deja**, nunca **lo que dice que son sus límites**.
+`seed/delegation.py` ahora rechaza el manifiesto, con el caso F de `slot_footprint` como diente —
+verificado borrando la cláusula (rojo) y restaurándola (verde), contra la ley **cargada por path igual
+que el hook**, no contra una copia.
+
+**Corrección a la spec que ganó la ejecución (`ADR-032` A5).** `§15.6` pide inyectar
+`open_set(plan, root_of_current)`, y el árbol tiene **una sola raíz**: el primer payload vivo listó
+**59 nodos —todo el backlog— como «lo que este arco debe»**. Acotado, así que inofensivo para el
+contexto, e inútil para la hoja: la deriva que esa sección existe para frenar, vestida con su ropa. El
+arco pasa a resolverse al `increment`/`direction` que lo encierra: **59 nodos / 1888 chars → 1 / 861**.
+El álgebra no cambió; elegir CUÁL raíz es decisión de quien llama.
+
+**Lo que no se pudo dar, dicho en vez de inventado.** El esquema de nodos no tiene campo de aceptación,
+así que la cláusula 3 de `§15.6` no se satisface con el dato: el payload lo declara ausente y deriva el
+cierre estructural (`N-0127`). El driver `model` está construido pero sus hechos vivos **no se
+corrieron** — `v3/attach_facts.json` no existe, y no se fabrica. `N-0096` se contesta **que no**: el
+attach no corre hojas, así que sigue sin haber sesión cross-leaf. Y `N-0128`: `meta check` corre **más
+de 22 minutos sin imprimir nada hasta el final** — quien lo interrumpe no se lleva ni los gates que ya
+pasaron, que es la escotilla de P1 un nivel más arriba.
 
 ## 2026-08-01T19:3xZ — INC-11 CUTOVER: v2 borrado, y casi todo lo que salió mal lo encontró un gate
 

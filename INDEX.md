@@ -6,8 +6,8 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `33fe22744926` | 2026-08-01T19:32Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `b2177a98006a` | 2026-08-01T21:26Z | State — Meta-Factory |
+| `docs/LOG.md` | `b0a788868e1c` | 2026-08-03T21:44Z | Bitácora — Meta-Factory |
+| `docs/STATE.md` | `e5cdebad283b` | 2026-08-03T21:44Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -69,7 +69,7 @@
 | `docs/spec/08-factories.md` | `ad9e4c3741f1` | 2026-07-27T21:41Z | 08 — The five factories and the template (descriptive) |
 | `docs/spec/09-critique.md` | `a4e319424b5c` | 2026-07-27T21:41Z | 09 — Critique: keep, kill, add (JUDGMENT) |
 | `docs/spec/10-target-sdk.md` | `907f1092d83b` | 2026-07-28T19:28Z | 10 — Target architecture on the Claude Agent SDK (JUDGMENT) |
-| `docs/spec/11-build-plan.md` | `4e15332d1bed` | 2026-07-31T23:27Z | 11 — Build plan for v3 (JUDGMENT) |
+| `docs/spec/11-build-plan.md` | `ed461e5f923e` | 2026-08-03T21:41Z | 11 — Build plan for v3 (JUDGMENT) |
 | `docs/spec/12-conformance.md` | `b44613239cb7` | 2026-07-28T04:01Z | 12 — Conformance: how "rebuild from the spec alone" is decided (NORMATIVE) |
 | `docs/spec/13-schemas.md` | `c03e7a44d804` | 2026-07-28T03:03Z | 13 — Schemas: the complete data-schema reference (NORMATIVE, closes L2) |
 | `docs/spec/14-kernel-reference.md` | `ae723be6a023` | 2026-07-28T03:05Z | 14 — Reference implementation: the trust kernel (NORMATIVE, EXECUTABLE) |
@@ -195,7 +195,7 @@
 | `docs/work/V3-INC1-KERNEL-PORT-INCREMENT.md` | `ec8e517b6d99` | 2026-07-28T17:43Z | Incremento V3-INC1-KERNEL-PORT |
 | `docs/work/V3-INC10-MIGRATE-FROZEN-INCREMENT.md` | `059cebbe93bc` | 2026-07-31T21:15Z | Incremento V3-INC10-MIGRATE-FROZEN |
 | `docs/work/V3-INC11-CUTOVER-INCREMENT.md` | `e812bc6e08eb` | 2026-08-01T19:32Z | Incremento V3-INC11-CUTOVER |
-| `docs/work/V3-INC12-INTERACTIVE-MODE-INCREMENT.md` | `3ed57f14117c` | 2026-08-02T00:04Z | Incremento V3-INC12-INTERACTIVE-MODE |
+| `docs/work/V3-INC12-INTERACTIVE-MODE-INCREMENT.md` | `f4b81ee2f703` | 2026-08-03T21:44Z | Incremento V3-INC12-INTERACTIVE-MODE |
 | `docs/work/V3-INC2-CONTROL-PLANE-INCREMENT.md` | `b0965d2a3c66` | 2026-07-28T18:21Z | Incremento V3-INC2-CONTROL-PLANE |
 | `docs/work/V3-INC3-DELEGATION-INCREMENT.md` | `02bce4d1bdc4` | 2026-07-28T19:30Z | Incremento V3-INC3-DELEGATION |
 | `docs/work/V3-INC4-CHECKS-PORT-INCREMENT.md` | `1d8753ee45c5` | 2026-07-29T08:11Z | Incremento V3-INC4-CHECKS-PORT |

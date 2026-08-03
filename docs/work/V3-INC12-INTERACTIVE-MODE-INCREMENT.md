@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3ed57f14117c79dd213a30d63baf210cf9da9a41 updated=2026-08-02T00:04Z -->
+<!-- meta:doc sha=f4b81ee2f703b2adb1a33306c4d325f1354d3310 updated=2026-08-03T21:44Z -->
 # Incremento V3-INC12-INTERACTIVE-MODE
 
 > **Doc de gobierno.** Status: **OPEN** (creado 2026-08-01T21:26Z). Cerralo con `v3 increment close`
@@ -107,7 +107,7 @@ delega.
 | P4 | **La superficie `§10.3`**: `v3/control/tools.py` sobre las MISMAS funciones que llama el CLI (una sola implementación), con su lista cerrada de autoridad | done |
 | P5 | **`meta attach`**: driver `repl` (determinista, sin modelo) + driver `model` (`ClaudeSDKClient`), hechos vivos pineados | done (facts sin correr) |
 | P6 | **Los gates**: `attach_parity` (mismo pin headless/attached) + `attach_authority`, ambos con lado rojo re-corrible | done |
-| P7 | Los 20 verbos humanos decididos como DATO · `N-0096` contestado · fila `§11.3` · docs/STATE/LOG/árbol · cierre | pending |
+| P7 | Los 20 verbos humanos decididos como DATO · `N-0096` contestado · fila `§11.3` · docs/STATE/LOG/árbol · cierre | done |
 
 ## Criterio de cierre (demostrable, no narrado)
 1. `attach_parity` verde: `proof_sha` de una estación real corrida headless == corrida por el attach;
@@ -360,4 +360,36 @@ columna, `N-0130`). Y como una ley sin diente no se despacha:
 `§11.3` nombra como entregable de INC-3— existía, pasaba, y `meta check` no lo corría nunca.**
 Estaba escrito y sin registrar. Ahora está registrado con su testigo. Cuarta vez en este incremento
 que algo parece cubierto porque el nombre existe en algún lado.
+
+### P7 — decidir en vez de contar (2026-08-02)
+
+**Los 20 verbos humanos.** INC-11 los declaró pérdida con «ninguna máquina depende de ellos». El censo
+deja de contarlos y pasa a **decidirlos**: `HUMAN_VERB_DISPOSITION` en `v3/verify/verb_census.py`, 20
+filas, `("port"|"drop", razón)`. **`unported` no es defecto; UNDECIDED sí**, y un `drop` sin reemplazo
+nombrado también — porque una capacidad que se va sin que nadie escriba a dónde fue es exactamente el
+agujero que P1 destapó un incremento después (y sólo fue encontrable porque el drop de `gate_wrap`
+**sí** había quedado escrito).
+
+- **7 a portar**: `graph{,/build,/query,/repomap}` (la superficie de navegación a la que el propio
+  CLAUDE.md rutea) · `outcome` · `billing` · `metrics`. Los módulos v3 existen y están **sin cablear**;
+  el verbo es la mitad que falta. No es duda, es alcance: son su propio incremento.
+- **13 dropeados con reemplazo**: `benchmark` y `dial` los reemplaza **su GATE** (dejaron de ser algo
+  que un humano pide y pasaron a ser algo que la suite decide cada corrida) · `plan{,/check,/next,/status}`
+  es la consola de WorkOrders, y se deja **sin portar para que el nombre siga siendo honesto** ·
+  `doc/slice` ya fue borrado en INC-11 **nombrando este verbo como la razón** · `jdk-run` → `tools/toolchain.sh`
+  (`N-0121`) · `new` → la línea meta no corre (`N-0098`) · `recall` es una lápida · `rehydrate` se
+  **inyecta**, no se pide (el hook lo imprime y desde P3 el host lo inyecta por hoja).
+- Diente verificado sacando una fila: `'recall' is an unported human verb with NO recorded decision`.
+  `verb_census`: `decided=20 · undecided=0 · to_port=7`, lado rojo 2/2 intacto.
+
+**`N-0096` contestado, y la respuesta es NO.** El disparador decía «INC-12, donde el host pasa a manejar
+una sesión multi-turno». La sesión existe — pero **el attach no corre hojas** (`generate` no está en la
+superficie, a propósito: es `read`/`run`, no `declare`). Así que sigue **sin haber sesión cross-leaf** y
+`churn`/`cache_series` quedan DROPPED con su reemplazo nombrado (`tool_uses` por leaf + `meter.record_leaf`),
+no medio-portados en algo más débil. Un disparador que se enciende merece una medición, no una promesa.
+
+**La fila de `§11.3`** está escrita, con la corrección de que el gate de la fila era **necesario y no
+suficiente**: un attach que produjera el mismo pin **y además** pudiera mover un pin, cerrar un
+incremento o re-sellar un documento habría pasado — por eso `attach_authority` vive al lado de
+`attach_parity`. **No cierra `N-0095`**: el censo lee al commit oráculo.
 

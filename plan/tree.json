@@ -1405,15 +1405,18 @@
       "parent": "N-0018",
       "title": "churn (776 re-lecturas acumuladas) y cache_series quedan NO PORTADAS: v3 registra tool_uses por leaf, pero el churn es CROSS-leaf y la expiracion de cache es a nivel de SESION, y el host corre hojas, no sesiones. Declarado en el censo como DROPPED con su reemplazo, no medio-portado en algo mas debil. Disparador: INC-12 INTERACTIVE-MODE, que es donde el host pasa a manejar una sesion multi-turno",
       "kind": "residual",
-      "state": "blocked",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "INC-12 P7: contestado que NO — el attach no corre hojas, asi que sigue sin haber sesion cross-leaf; churn/cache_series quedan DROPPED con su reemplazo (tool_uses por leaf + meter.record_leaf)"
+      ],
       "opened_at": "2026-07-30T21:05Z",
       "origin": {
         "session": "2026-07-30",
         "cause": "deferral",
         "ref": "V3-INC6/churn-and-cache-need-sessions"
       },
-      "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja"
+      "trigger": "INC-12 INTERACTIVE-MODE: el host maneja una sesion multi-turno, no una hoja",
+      "closed_at": "2026-08-03T21:44Z"
     },
     "N-0097": {
       "parent": "N-0019",
@@ -1659,9 +1662,9 @@
       "parent": "N-0021",
       "title": "El arbol de nodos derivo en silencio, y al repararlo resulto que la causa eran DOS cosas, no una. (a) DERIVA REAL: su verbo (tools/plan.py) vive FUERA del sustrato y su validador (plan check) no esta en meta check, asi que dejar de llamarlo no enciende nada — el ultimo commit era b30f741, la fase 4a de INC-9, y de ahi en adelante cuatro ids citados por STATE/LOG/el work-doc (N-0108..N-0111) NO EXISTIAN, cinco nodos dados por resueltos seguian sin cerrar, y plan check estaba ROJO hacia dias por un origin.cause fuera del vocabulario (measurement_cut) que nadie leyo. Eso queda reparado y validado. (b) NO ERA DERIVA, ERA EL MODELO: el nodo de incremento N-0020 (INC-9) seguia abierto porque la algebra REFUSA cerrar un padre con descendientes vivos, y solo ofrece cerrarlos o dropearlos. Pero un residuo con disparador por CONDICION sobrevive a su incremento a proposito — es como trabaja este repo. Hoy ni INC-9 ni INC-10 pueden cerrar su nodo sin mentir sobre sus residuos, asi que los dos quedan abiertos a proposito. Falta un tercer estado, o una arista de HERENCIA que pase el residuo al arco y libere al incremento",
       "kind": "residual",
-      "state": "blocked",
+      "state": "done",
       "evidence": [
-        "V3-INC10: datos reparados y validados (114 nodos, plan check verde). La mitad (b) la encontre intentando cerrar N-0021 y recibiendo 'refused: marked done with 2 open descendant(s)' — el mismo refuse que habia recibido N-0020 sin que yo lo viera, porque mande su veredicto a /dev/null"
+        "meta plan-tree en v3/cli.py + gate plan_tree registrado en meta check con 5/5 plantados"
       ],
       "opened_at": "2026-07-31T20:21Z",
       "origin": {
@@ -1669,7 +1672,8 @@
         "cause": "gate_red",
         "ref": "V3-INC10/node-tree-drifted-silently"
       },
-      "trigger": "INC-11 CUTOVER, cuando se redibuje el sustrato: ahi el verbo del arbol y su plan check tienen que quedar ADENTRO (meta check / la suite de v3), unica forma de que la deriva sea roja y no silenciosa. INC-5 ya lo habia anotado como 'portar'"
+      "trigger": "INC-11 CUTOVER, cuando se redibuje el sustrato: ahi el verbo del arbol y su plan check tienen que quedar ADENTRO (meta check / la suite de v3), unica forma de que la deriva sea roja y no silenciosa. INC-5 ya lo habia anotado como 'portar'",
+      "closed_at": "2026-08-03T21:44Z"
     },
     "N-0113": {
       "parent": "N-0021",
@@ -1897,25 +1901,31 @@
       "parent": "N-0023",
       "title": "El gate slot_footprint de INC-3 existia, pasaba, y meta check NUNCA lo corria: el modulo estaba escrito y sin registrar en la suite. Encontrado en V3-INC12 P5 al necesitar un diente para el cambio de ley del manifiesto. Registrado con testigo rojo propio",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "slot_footprint registrado en la suite con testigo sabotage_env propio"
+      ],
       "opened_at": "2026-08-02T05:57Z",
       "origin": {
         "session": "2026-08-02",
         "cause": "gate_red"
-      }
+      },
+      "closed_at": "2026-08-03T21:44Z"
     },
     "N-0130": {
       "parent": "N-0023",
       "title": "La ley del slot ahora RECHAZA .gen/active_slot.json: un generador podia reescribir sus propios allow_globs y toda la cadena aguas abajo validaba contra limites que eligio el worker. Tercera instancia de la familia N-0113 — la ley acotaba lo que ESCRIBE y lo que DEJA, nunca lo que dice que son sus limites. Divergencia deliberada del oraculo v2, pineada por el caso F de slot_footprint",
       "kind": "residual",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "seed/delegation.py rechaza .gen/active_slot.json; caso F de slot_footprint + lado rojo que planta en el SOURCE de la ley"
+      ],
       "opened_at": "2026-08-02T05:57Z",
       "origin": {
         "session": "2026-08-02",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-08-03T21:44Z"
     }
   }
 }

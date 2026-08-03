@@ -1948,25 +1948,33 @@
       "parent": "N-0131",
       "title": "PASO 0 (nivel FSK): el waiver de codegen_freeze para ba05918d2 — recomendado WAIVED_COMMITS (acto de gobierno, commit ya en la historia); aceptacion = gate verde Y su lado rojo todavia mordiendo, luego push y leer el CI externo (esperado 32 verdes/0 rojos/4 N/A)",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/work/V3-EXTRACT-STEP0-FREEZE-WAIVER-INCREMENT.md",
+        "CI 30860740378 green=32 red=0 n/a=4 — segundo verificador verde por primera vez desde 2026-07-09"
+      ],
       "opened_at": "2026-08-03T22:53Z",
       "origin": {
         "session": "2026-08-03",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-08-03T23:20Z"
     },
     "N-0133": {
       "parent": "N-0131",
       "title": "PASO 1 (meta): v3/extract_manifest.py con el paquete como DATO + gate extract_package: ningun modulo de clase A referencia un path fuera del manifiesto; 3 plantados en el lado rojo",
       "kind": "task",
-      "state": "open",
-      "evidence": [],
+      "state": "done",
+      "evidence": [
+        "docs/work/V3-EXTRACT-MANIFEST-INCREMENT.md",
+        "v3/extract_manifest.py + gate extract_package registrado (43 gates); CI 30861806843 green=33 red=0 n/a=4"
+      ],
       "opened_at": "2026-08-03T22:53Z",
       "origin": {
         "session": "2026-08-03",
         "cause": "manual"
-      }
+      },
+      "closed_at": "2026-08-03T23:20Z"
     },
     "N-0134": {
       "parent": "N-0131",

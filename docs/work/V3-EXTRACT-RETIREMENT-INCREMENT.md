@@ -1,4 +1,4 @@
-<!-- meta:doc sha=15977f39bacab1d185662634697ea8a956f9ca44 updated=2026-08-03T23:35Z -->
+<!-- meta:doc sha=2f0e2e635d8cae5a78f4f98864ca6eb93c92e1ed updated=2026-08-03T23:40Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
@@ -82,11 +82,44 @@ measured defect is §5.
 
 | Phase | Content | Status |
 | --- | --- | --- |
-| 1 | `v3/verify/retirement.py`: the 11 rows + the laws + red side; gate `retirement` registered | pending |
-| 2 | discharge the 3 retirements: deregister + delete `cli_parity`, `deletion_manifest`; drop their `_ORACLE_READERS` carve-outs (`gate_census` stays until its last consumer is cut — its row is decided, its discharge is counted open) | pending |
+| 2 | discharge the 3 retirements: deregister + delete `cli_parity`, `deletion_manifest`; drop their `_ORACLE_READERS` carve-outs (`gate_census` stays until its last consumer is cut — its row is decided, its discharge is counted open) | **done** — 43 → 41 gates |
+| 2.bis | **the boundary gate has never voted** — see §2.5. Register `import_boundary` and resolve its 5 standing violations | pending |
+| 1 | `v3/verify/checks/retirement_census.py`: the laws over the 11 rows + red side; gate `retirement` registered | pending |
 | 3 | `codegen_freeze`: the missing empty-population Lock + its red plant | pending |
 | 4 | PASO 2 residue (`N-0134`): the undeclared sibling-repo fallback in `doc_graph` | pending |
 | 5 | acceptance | pending |
+
+## 2.5 The find that Phase 2 fell over: the boundary gate has never voted
+
+Removing two carve-outs meant running `python3 -m v3.verify.import_boundary`. It came back **FAIL, 6
+violations across 143 modules** — and only ONE of the six was mine. Then the second question:
+`"import_boundary" in build_registry(root)` → **False**. `v3/README.md` calls it "the gate"; the suite
+has never registered it.
+
+**This is the recurring bug of this project for the third time in one arc**, and this time on the load-
+bearing claim: *the law that certifies "v3 never imports v2" — the entire premise of the extraction, the
+one §1 measured as "130/130 modules import in an empty repo, CERO imports a v2" — is not wired to
+anything.* It was written, it has a red side, and no run of `meta check` has ever asked it.
+
+Its five standing violations are all legitimate, and each names a real piece of design debt:
+
+| where | what | why it is not a v2 import |
+| --- | --- | --- |
+| `control/tools.py:427`, `host/attach.py:396`, `probe/attach.py:124` | the string `"metafactory"` | it is the **MCP server's name** (`create_sdk_mcp_server(name=…)`), i.e. the PROJECT's name — a collision with the dead package's, not a reference to it |
+| `memory/plan_tree.py:54`, `verify/checks/plan_tree.py:94` | `sys.path.insert(0, root/"tools")` | to import `spec_conformance`, the ONE sanctioned extractor of the executable blocks in `docs/spec/` — which is exactly why `tools/` is a PACKAGE row in the extract manifest |
+
+The law is NOT weakened to make them pass (a bare `"metafactory"` is enough for
+`importlib.import_module`, so tightening rule 3 to require a dot or a slash would trade a real tooth
+for tidiness). Instead each becomes ONE shared definition with ONE written carve-out: the server name
+becomes a single constant the three call sites import, the `tools/` insertion becomes a single helper
+the two `plan_tree` modules call. Five findings collapse to two grants, each with a reason, each under
+the same two-sided staleness teeth `_ORACLE_READERS` already carries (missing from the tree → red;
+carve-out nobody uses → red).
+
+`v3/verify/retirement.py` needs the sixth grant, and it is a DIFFERENT kind: it names the dead path to
+**dispose** of it, never to read it. `deletion_manifest`'s own grant already drew that line ("every
+other reader here names v2 to READ it, while this one names v2 to enumerate what will stop existing")
+— so the successor to that grant is a separate table, `_NAMED_NOT_READ`, not a widening of the readers'.
 
 ## 4. The census contract (Phase 1) — what `v3/verify/retirement.py` must be
 

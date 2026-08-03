@@ -106,14 +106,9 @@ _ORACLE_READERS: dict[str, str] = {
         "increment: it too imports from `eval_gate` (`_LEAKY_ENV`), so it too needs the two-body "
         "package extraction rather than a single-file one, and the same anti-self-comparison clause "
         "is what the second body is for",
-    "v3/verify/deletion_manifest.py":
-        "enumerates the v2 substrate's ENTIRE file population at oracle_ref via `git ls-tree` and "
-        "keys its disposition table on paths relative to it, so naming `src/metafactory/` is not "
-        "incidental to this module — it IS its subject. The grant is the narrowest of the set in one "
-        "respect worth stating: every other reader here names v2 to READ it, while this one names v2 "
-        "to enumerate what will stop existing. It is also the shortest-lived: once P5 deletes the "
-        "directory the population comes from a commit that no longer matches the tree, and this "
-        "exemption should be re-argued rather than inherited",
+    # `v3/verify/deletion_manifest.py` held a grant here and it is GONE (V3-EXTRACT-RETIREMENT). Its
+    # own text called it "the shortest-lived… this exemption should be re-argued rather than
+    # inherited". It was re-argued, and the answer was retirement — `v3.verify.retirement`.
     "v3/verify/session_memory_parity.py":
         "the same behavioural grant, for the two session-memory bodies INC-11 P2 ports "
         "(`precompact`, `rehydrate`). It differs from its siblings in WHAT it compares and the "

@@ -188,17 +188,10 @@ def _register_ported(registry: Registry) -> None:
                "vocabulary — agents specialize by ROLE, never by domain",
         witness=Witness("sabotage_env", "V3_ROLES_SABOTAGE"),
     ))
-    registry.register(Gate(
-        name="deletion_manifest",
-        argv=(PY, "-m", "v3.verify.deletion_manifest"),
-        proves="every module and station-YAML in v2's substrate carries a WRITTEN disposition — "
-               "ported (and the v3 target must import), dropped (with a reason), or must-move (with "
-               "a destination) — over a population DERIVED at the oracle commit, so a capability "
-               "nobody thought about surfaces as `unaccounted` instead of disappearing with the "
-               "directory. The pins cannot do this: `proof_sha` hashes names and exit codes, so "
-               "anything no pinned station exercises can vanish with every number unchanged",
-        witness=Witness("sabotage_env", "V3_DELETION_MANIFEST_SABOTAGE"),
-    ))
+    # `deletion_manifest` was registered here until V3-EXTRACT-RETIREMENT retired it: its whole law is
+    # about a file population that no longer exists, so the question is not false, it is unanswerable
+    # — and it was answered. The decision, with its written reason and its proof of absence, is a row
+    # in `v3.verify.retirement`; `retirement_census` is what keeps that from being a comment.
     registry.register(Gate(
         name="session_memory_parity",
         argv=(PY, "-m", "v3.verify.session_memory_parity"),
@@ -217,15 +210,10 @@ def _register_ported(registry: Registry) -> None:
                "accepted on a pin, because a hollow one disables the column while staying green",
         witness=Witness("sabotage_env", "V3_COLUMN_LAW_PARITY_SABOTAGE"),
     ))
-    registry.register(Gate(
-        name="cli_parity",
-        argv=(PY, "-m", "v3.verify.cli_parity"),
-        proves="for every verb `v3.cli` DECLARES in its DISPATCH table, v3's flag surface matches "
-               "v2's for that same verb, derived from `build_parser` at the oracle commit — so a "
-               "verb can be 'ported' only in the sense the CI and the hooks actually invoke it, "
-               "not merely present under the right name",
-        witness=Witness("sabotage_env", "V3_CLI_PARITY_SABOTAGE"),
-    ))
+    # `cli_parity` was registered here until V3-EXTRACT-RETIREMENT retired it. Unlike the five parity
+    # matrices, fossilising its expectations would be ACTIVELY harmful — it would freeze this CLI to
+    # the shape of a version that governs nothing. What was worth keeping is `verb_census` C2..C6,
+    # below, which outlives its own cut. Reason and proof: `v3.verify.retirement`.
     registry.register(Gate(
         name="verb_census",
         argv=(PY, "-m", "v3.verify.verb_census"),

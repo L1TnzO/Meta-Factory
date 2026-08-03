@@ -1,7 +1,7 @@
-<!-- meta:doc sha=a7f567afe9694d1365fc74fc7dad42f946a62809 updated=2026-08-03T22:59Z -->
+<!-- meta:doc sha=7c95239b1d87fda217d69bfccce9809696886d60 updated=2026-08-03T23:05Z -->
 # Increment V3-EXTRACT-STEP0-FREEZE-WAIVER
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-03T22:57Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-03T23:05Z) (created 2026-08-03T22:57Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 >
 > PASO 0 de `work/V3-EXTRACT-DIRECTION-INCREMENT.md` · nodo `N-0132` · autoridad `ADR-023 §3`.

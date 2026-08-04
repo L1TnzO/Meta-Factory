@@ -1,4 +1,4 @@
-<!-- meta:doc sha=414d0209fa4c45f86e83500c8192770ecd7779d7 updated=2026-08-04T03:54Z -->
+<!-- meta:doc sha=add9917f725dae51443cedf70d1380838faf4a45 updated=2026-08-04T04:43Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
@@ -47,14 +47,15 @@ Three teeth, one per way this can be faked:
 
 | module | gate | cases | comparison unit |
 | --- | --- | --- | --- |
-| `v3/verify/column_law_parity.py` | `column_law_parity` | 25 | decision component of 7 column-law functions (JSON scalars/dicts) |
+| `v3/verify/column_law_parity.py` | `column_law_parity` | 37 | decision component of 7 column-law functions (JSON scalars/dicts) |
 | `v3/verify/session_memory_parity.py` | `session_memory_parity` | 13 | derived FACT dicts of 4 session-memory functions |
 | `v3/verify/eval_gate_parity.py` | `eval_gate_parity` | 13 | process exit code |
 | `v3/verify/eval_floor_parity.py` | `eval_floor_parity` | 14 | process exit code |
 | `v3/verify/live_run_parity.py` | `live_run_parity` | 16 | process exit code |
 
-**81 answers.** The MATRIX is the value being preserved (RETIREMENT §0c): the oracle only ever supplied
-the expected answers, and those are exactly what a pin holds.
+**93 answers**, and that number is DERIVED, not counted by hand — see §2.6, where the first two counts
+of it were both wrong. The MATRIX is the value being preserved (RETIREMENT §0c): the oracle only ever
+supplied the expected answers, and those are exactly what a pin holds.
 
 ## 2. The pin contract
 
@@ -96,10 +97,36 @@ record of where an answer came from must name its source, and a JSON is never im
 * Refuses to write if `git show` returns empty at the ref (`extract_oracle` already raises).
 * Writes `oracle_sha256` from the extracted bodies, so the fossil records WHICH source produced it.
 
-### 2.4 The verification between phase 1 and phase 2 (by hand, orchestrator's own shell)
-Independent re-derivation that does not call any code written in phase 1: extract each oracle body at
-`oracle_ref`, run each module's own `MATRIX`, and diff the answers against the committed pin. Recorded
-in §Evidencia. **Phase 2 does not start until this is green** — after phase 2 it is unrepeatable.
+### 2.4 The verification between phase 1 and phase 2 — and the argument it actually rests on
+The first draft of this section asked for an "independent re-derivation of the pin" between the phases.
+Measuring the pre-slot tree showed that is the wrong instrument, and that a cheaper one is strictly
+stronger. **All five gates are green today, and each one compares the oracle's answer to v3's, case by
+case, going red on any difference. A green run is therefore already a proof that oracle == v3 for all 93
+cases at this commit** — so a pin recorded from either side is the same fossil, and re-deriving would be
+re-proving what the green already says.
+
+What that argument does NOT cover is what must be verified instead, and it is exactly the shape this
+project keeps meeting: a case that quietly leaves the matrix, or a pin taken while a gate was red. Both
+are answered by PRE-REGISTERING, from the pristine pre-slot tree, before the slot exists to influence it:
+
+* every gate GREEN at the pin commit, with its verdict line, and
+* the case count each instrument PRINTS for itself — never a count derived by looking at the module.
+
+Captured at `47d9ad11` against `oracle_ref f44dc22a1a0d` → `/tmp/pin-baseline.json`, copied into
+§Evidencia. Acceptance then requires each pin to hold EXACTLY that many answers. **Phase 2 does not start
+until that holds** — after the amputation it is unrepeatable.
+
+### 2.6 The count of the count (a finding, recorded because it is the whole point)
+Three independent counts of `column_law_parity`'s matrix were taken and the first two were wrong: a
+sub-agent's full read of the file said **25** (it enumerated the five case groups and missed that seven
+functions run over them), and an orchestrator script that introspected module-level tuples said **9** (three
+groups are not module-level at all). The instrument itself prints **37**. Nobody was lying and both methods
+looked thorough; they were counting a proxy for the population instead of the population.
+
+This is the recurring bug of this arc — *something looks green because nobody asked what was left out of
+the count* — landing inside the very increment written to make that impossible, and on the number that
+decides whether a pin is complete. It is the reason law 2 (§2.2) is a BIJECTION against the module's own
+case list and not a count written in this document.
 
 ### 2.5 Canonicalisation
 `tuple` → `list` recursively (`session_memory_parity`'s facts carry tuples), then compare
@@ -139,4 +166,23 @@ Order is FORCED: 1 before 1.bis before 2 (provenance is unprovable after the amp
 7. The second verifier (ADR-005) green on the pushed commit.
 
 ## Evidencia
-(pending)
+
+### Pre-registered pin baseline (§2.4) — taken 2026-08-04, commit `47d9ad11`, from a pristine worktree
+```
+oracle_ref f44dc22a1a0d
+column_law_parity      green=True  cases=37
+session_memory_parity  green=True  cases=13
+eval_gate_parity       green=True  cases=13
+eval_floor_parity      green=True  cases=14
+live_run_parity        green=True  cases=16
+TOTAL 93
+```
+Green on all five ⇒ oracle == v3 for all 93 cases at the pin commit. Each pin must hold exactly the
+count above; a pin with fewer answers is a case that left the matrix while nobody was counting.
+
+### Phase 1, attempt 1 — ABORTED, no work lost
+The generator was killed by a provider session limit while still reading the two non-exit-code modules,
+before its first write. `git status --porcelain --untracked-files=all` empty, no verdict file: the tree
+was left exactly at `47d9ad11`. Recorded rather than silently retried, because "the slot produced
+nothing" and "the slot produced nothing verifiable" are different states and only one of them is safe to
+re-run from scratch. This one is the safe one.

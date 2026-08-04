@@ -1,7 +1,44 @@
-<!-- meta:doc sha=c7478a4b4b98d9e19428f720dd3188cb08749cb0 updated=2026-08-04T02:31Z -->
+<!-- meta:doc sha=1aa5bb1385da2b63b8566082a79f2a5ee532d739 updated=2026-08-04T18:22Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-08-04T17:0xZ — V3-EXTRACT-OBLIGATIONS: cortar el cordón, y tres veces que el instrumento erró
+
+**Qué queda cerrado.** PASO 3.bis: nueve de las diez obligaciones descargadas. Cinco matrices de
+paridad fosilizadas (**93 respuestas** del oráculo, commiteadas), tres censos cortados, `gate_census`
+borrado. `_ORACLE_READERS` quedó **VACÍA**, `open_obligations` **10 → 1** — y la que queda,
+`tools/corpus_parity.py`, queda por decisión: son catorce docstrings de cirugía de prosa.
+
+**El modo de fallar que dictó todo el diseño.** Un pin es lo más fácil de falsificar del repo: si las
+respuestas salen de v3 en vez del oráculo, los cinco gates quedan verdes para siempre comparándose
+consigo mismos, y es indetectable una vez que el ancestro no está. De ahí el **orden como ley**:
+derivar → verificar → recién ahí amputar, en fases separadas. Dos veces resultó portante y no prolijo.
+
+**Y medir corrigió el instrumento tres veces.**
+1. *El conteo.* Tres conteos de la matriz de `column_law_parity`: un subagente leyendo el archivo dijo
+   25, un script introspeccionando tuplas dijo 9, el instrumento imprime **37**. Ninguno mentía; los dos
+   primeros contaban un proxy de la población. Por eso la ley es una BIYECCIÓN contra la lista del
+   módulo, no un número escrito en un doc.
+2. *La sonda de viaje.* «Corre sin el oráculo» se verificó tres veces. Romper `git` con un stub rompe la
+   PLATAFORMA (varios casos fabrican fixtures con `git init`); copiar `v3/`+`tools/` mide la suposición
+   del paquete; armar el entorno con `extract_manifest.classify()` —sin `.git`, con el binario intacto—
+   es el repo que efectivamente se va. **Y encontró un rojo latente**: 2 de 37 casos pineaban el estado
+   de git de ESTA máquina. Al hacerlos herméticos la matriz volvió MÁS filosa — el repo vivo no era sólo
+   dependiente de la máquina, era más débil: varias respuestas estaban bien por casualidad.
+3. *El propio gate de aceptación.* LAW C preguntaba «¿alguien importa `gate_census`?» con un grep de
+   texto y matcheaba un docstring que CITA la línea vieja. Prosa que NOMBRA un módulo muerto es un
+   registro; un import es una dependencia. Ahora se mide con `ast`.
+
+**La trampa del corte.** C7 era el Lock de población no vacía de `verb_census`, pero escrito contra la
+población del ORÁCULO — sacarlo sin reemplazo dejaba un gate que puede pasar sobre nada, el defecto que
+`codegen_freeze` tenía. Cada módulo cortado quedó con su propio Lock #1 sobre lo que todavía mide.
+
+**Delegación.** Cuatro slots (dos abortados por límite del proveedor **leyendo**, sin escribir nada:
+árbol limpio, nada que deshacer). El radio de explosión aguantó bajo presión: ante un arreglo necesario
+fuera de sus `allow_globs`, el generador **reportó el bloqueo en vez de estirarse**. La residua que
+gasté con mis propios ojos fue la correcta: procedencia recalculada con mi propio `sha256`, el diente
+probado corrompiendo pins EN DISCO, y los fixtures leídos cuando dos respuestas se dieron vuelta.
 
 ## 2026-08-04T02:3xZ — V3-EXTRACT-RETIREMENT: el censo que decide, y seis leyes que no votan
 

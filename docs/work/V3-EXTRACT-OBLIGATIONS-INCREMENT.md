@@ -1,4 +1,4 @@
-<!-- meta:doc sha=4b367fa7bc793e1b3a5b0f72f0a85b2c12082a35 updated=2026-08-04T17:11Z -->
+<!-- meta:doc sha=fab915547b70229b12b947432a3d08b414753a9c updated=2026-08-04T18:22Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
@@ -142,7 +142,7 @@ case list and not a count written in this document.
 | 2 | amputate: delete `_V2_*` constants, `extract_oracle` calls and the `--repin` path from the 5; drop their 5 `_ORACLE_READERS` carve-outs; new gate `pin_integrity` (bijection census over pins + the no-git travel probe) registered | **done** — 44 gates, `open_obligations` 10 → 5, pins byte-identical |
 | 3 | cut: `economy_census` A2·A3·A5·A6·A7 · `migration_census` B1·B3·B4 · `verb_census` C1·C7 — keep A1·A4, B2·B5, C2–C6; drop the three `_ORACLE_READERS` carve-outs | **done** — each cut module re-armed with its OWN Lock #1 |
 | 4 | retire `gate_census`: with `verb_census`'s C1/C7 cut it has no consumer left; delete the module, drop its carve-out, mark its row discharged | **done** — deleted; `_ORACLE_READERS` now EMPTY; `open_obligations=1` |
-| 5 | acceptance | pending |
+| 5 | acceptance | **done** — `meta check` **43 green · 0 red · 1 N/A = 44**, the number this doc predicted |
 
 Order is FORCED: 1 before 1.bis before 2 (provenance is unprovable after the amputation), 3 before 4
 (`verb_census:91` is `gate_census`'s last importer).
@@ -294,6 +294,23 @@ comment.
 Worth recording that the generator **refused to fix it**: the reword lived outside its `allow_globs`, and
 it reported the blocker instead of reaching for the file. The blast radius held under pressure, which is
 the whole reason the radius is machine-enforced rather than requested.
+
+### Phase 5 — acceptance, measured on the final committed state
+```
+VERDICT  v3-suite — PASS (exit 0)
+SUMMARY  43 gate(s) green, 1 N/A (counted apart, R-12)
+COUNTS   green=43 · red=0 · n/a=1        → 44 registered gates
+```
+Nothing skipped. **44 is the number §4.6 predicted before the work started** (43 + `pin_integrity`, with
+`gate_census` backing no gate and therefore moving nothing), so the prediction was checked rather than
+absorbed. The run was deliberately re-started against the CLEAN committed tree after an earlier one was
+killed: the suite buffers its whole output to the end (`N-0128`), and a run over a dirty tree produces
+reds that are about the working copy rather than about the code.
+
+**Close criteria, each against its measurement:** 1 ✅ (accept LAW A/D) · 2 ✅ (baseline pre-registered,
+above) · 3 ✅ — stronger than written: `_ORACLE_READERS` is not down to a few entries, it is EMPTY ·
+4 ✅ (`pin_integrity` green, 5 plants caught, `na=[] missed=[]`) · 5 ✅ `open_obligations=1` naming
+`tools/corpus_parity.py` · 6 ✅ 44, as predicted · 7 = the second verifier, on push.
 
 ### Phase 1, attempt 1 — ABORTED, no work lost
 The generator was killed by a provider session limit while still reading the two non-exit-code modules,

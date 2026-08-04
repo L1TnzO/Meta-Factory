@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f9e7dabdb148f4383e8267f94c3eab6c4eda7049 updated=2026-08-04T01:08Z -->
+<!-- meta:doc sha=e4cb5c5c4a6bcb2d1e47e53a2f28409f79128f60 updated=2026-08-04T02:28Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
@@ -87,7 +87,7 @@ measured defect is §5.
 | 4 | PASO 2 residue (`N-0134`): the undeclared sibling-repo fallback in `doc_graph` — see §6 | **done** — `N-0134` closed |
 | 1 | `v3/verify/checks/retirement_census.py`: the laws over the rows + red side; gate `retirement` registered | **done** — 43 gates, 24 red scenarios, `open_obligations=10` |
 | 3 | `codegen_freeze`: the missing empty-population Lock + its red plant | **done** — 8 → 10 red scenarios |
-| 5 | acceptance | pending — the full `meta check` + the second verifier |
+| 5 | acceptance | **done** — `meta check` = 41 green · 1 red · 1 N/A = **43**; the one red was this level's own `docs/STATE.md`, stale by last commit (ADR-007's obligation), not a gate defect. Evidence and the two findings: §8 |
 
 **Rows are twelve, not eleven** (`N-0137`): the population had to be PACKAGE-scoped, and
 `tools/corpus_parity.py` — which travels, reads the ancestor, is cited by fourteen docstrings as "the
@@ -105,10 +105,22 @@ gate docstrings as "the v2/v3 agreement oracle", and **is run by no gate at all*
 and it is a `retire`. Same lesson as §0a, one directory over: a population scoped to where you happened
 to look is not a population.
 
-**And the second verifier owes an answer (`N-0138`).** `meta check` registers 42 gates; the last CI run
-reported 33 green + 0 red + 4 N/A = **37**. Six gates do not report on the other machine and nothing
-prints which. Close criterion #6 is exactly that, and PASO 4's acceptance cannot be honest until it is
-answered — a package validated by a verifier that silently skips six gates is validated by nobody.
+**`N-0138` is CLOSED and its premise was WRONG (measured 2026-08-04).** The claim written here was: "six
+gates do not report on the other machine and nothing prints which". The actor's own output says otherwise.
+Run `30861941620` printed, immediately above its verdict:
+
+```
+SKIPPED    evidence_liveness, generality, projection, rederive, suite, telemetry_liveness — excluded by
+           invocation (--skip/--only); not run, and they do NOT count as green
+SUMMARY    33 gate(s) green, 4 N/A (counted apart, R-12)
+```
+
+Building the registry in a detached worktree **at that commit** gives **43**, and `33 green + 0 red + 4 N/A
++ 6 not run = 43`: the books close exactly. Nor can that list drift — `suite.main` derives it as
+`known - ran`, so it is exhaustive by construction rather than a hand-maintained table that could rot.
+Close criterion #6 was already satisfied before this increment opened. The defect was mine: I asserted what
+the second verifier does not print without reading what it prints — the same shape as §2.5 and §0a, one
+layer further out, and the reason to keep answering these by measurement instead of by memory.
 
 ## 2.5 The find that Phase 2 fell over: the boundary gate has never voted
 
@@ -231,12 +243,66 @@ path to the environment is gone.
 
 1. `python3 -m v3.verify.retirement` green, and `V3_RETIREMENT_SABOTAGE=1 …` exits 0 having caught **≥6**
    planted problems — each law that can be gamed has its own plant.
-2. `meta check` with **no red**, gate count **43 → 42** (`cli_parity` and `deletion_manifest` out,
-   `retirement` in), and the drop equals exactly the number of `retire` rows whose gate was registered.
+2. `meta check` with **no red**, gate count **43 → 43** — *not* the 42 written when this criterion was
+   drafted. That prediction counted `cli_parity` and `deletion_manifest` out and `retirement` in (−2 +1)
+   and could not know that Phase 2.bis would find `import_boundary` written-but-never-registered (§2.5)
+   and register it (+1). What the criterion was really asking still holds and is what was checked: the
+   drop from deregistration equals exactly the number of `retire` rows whose gate was registered (2).
 3. `python3 -m v3.verify.import_boundary` green with the two carve-outs removed — proving the deletions
    were accounted for by the instrument that already owns that accounting, not by hand.
 4. `V3_CODEGEN_FREEZE_SABOTAGE=1` catches the new empty-population plant as well as its existing ones.
 5. The sibling-fallback removal re-measured: `UNRESOLVED` identical with and without the sibling
    present, and `evidence_liveness` green.
 6. The second verifier (ADR-005) green on the pushed commit, printing what it did not run.
-7. `open_obligations=8` printed by the census, with the eight named — the count that PASO 4 must face.
+7. `open_obligations=10` printed by the census, with the ten named — *not* the 8 written when this
+   criterion was drafted. The count moved because `N-0137` added the twelfth row (`tools/corpus_parity.py`)
+   and the population was re-derived PACKAGE-scoped. The census recomputed it instead of accommodating the
+   number already written in this document, which is the behaviour worth having in an instrument: the
+   count that PASO 4 must face is the one the derivation produces, not the one its author expected.
+
+## 8. Evidence (Phase 5) — and the question no instrument asks (`N-0139`)
+
+| # | command | result |
+| --- | --- | --- |
+| 1 | `python3 -m v3.verify.checks.retirement_census` | PASS · population=10 · rows=12 · `open_obligations=10`, all ten named |
+| 2 | `python3 -m v3.cli check` (nothing skipped) | **41 green · 1 red · 1 N/A = 43 registered**; ~55 min |
+| 2b | the one red: `docs` | `docs/STATE.md is older (by last commit) than a newer doc in its level` — this level's STATE had not been brought forward after Phases 1–4. Fixed in the same commit as this section; `_state_fresh_problem` compares strictly (`newest > state_t`), so committing both together is green |
+| 3 | `python3 -m v3.verify.registry_law` / with `V3_REGISTRY_LAW_SABOTAGE=1` | PASS, 16 cases / the permissive registry caught by 12 cases — **and neither side is reached by `meta check`** (see below) |
+| 4 | `python3 -m v3.verify.line_parity` | PASS, 40 active stations across 5 lines @ `f44dc22a` — **same** |
+
+**The finding (`N-0139`): six executable laws in `v3/verify/` are run by nobody.** Derived, not listed —
+every `v3/verify/**/*.py` carrying a `main()` and a `__main__` block, asked whether its dotted module name
+appears in any registered gate's `argv`: **62 executable, 42 named by a gate, 20 orphaned.** Fourteen of the
+twenty are explicable (seven are STATION checks a factory line invokes per station — `infra_up`,
+`live_run`, `product_env`, `artifact_contains`, `eval_floor`, `eval_gate`, `mcp_tools`; `suite` is the
+runner itself; the rest are named somewhere in code). **Six are named by nothing at all** in any `.py`,
+`.json` or `.yml` under `v3/`, `seed/`, `factories/` or `tools/`:
+
+`registry_law` · `line_parity` · `abstention` · `binding` · `leaf_bounded` · `column_live`
+
+They are mentioned only in the increment docs that built them, each recorded there as "verde" — a
+point-in-time measurement wearing the grammar of a standing tooth. `import_boundary` (§2.5) was the seventh
+and was found by accident, while removing a carve-out; it came back **red**. These two came back green — but
+nothing would report the day they stop being, which is the whole difference between a law and a memory.
+
+`registry_law` is the sharpest of the six: it is the law that refuses to register a gate with no reachable
+red witness ("a gate that cannot fail proves nothing, and this is the moment that is supposed to hurt").
+That law is itself not a gate.
+
+**Why this census cannot see them, and why that is correct.** The population law here is *names
+`src/metafactory/` at module level, or transitively imports from something that does*. `line_parity` reads
+the oracle **ref** and the factory YAMLs at that commit; it never names the dead package's root. It is
+outside the population exactly as §0a puts `codegen_freeze` outside it — dependence on the **history** is a
+different dependence from dependence on the dead **package**. So three questions exist and this increment
+answers one:
+
+| question | instrument |
+| --- | --- |
+| which gates depend on the dead PACKAGE? | `retirement` — built here, 12 rows, 10 open |
+| which gates depend on the HISTORY (and so cannot travel)? | none — §0a names the class, nothing derives it |
+| which laws VOTE at all? | none — `N-0139`; `gate_census` is the module that would have, and it is itself unregistered *and* a `retire` row |
+
+`N-0139` is NOT taken into this increment: it is a different population, its fix is a decision per module
+(register · declare LIVE-and-manual with a stated cadence · delete), and folding it in here would repeat
+the mistake §0 was written to stop. It is recorded with its derivation so the next pass starts from a
+measurement rather than from this paragraph.

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f54ecf66746ace1ac7122aaa55a181346415284a updated=2026-08-03T23:31Z -->
+<!-- meta:doc sha=cbac145c1002a672363590f00b521e76effce15e updated=2026-08-04T02:26Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -30,17 +30,17 @@
   `§10.3` bajo **3 tiers de autoridad** (13 read · 4 run · **11 declare negados por construcción**), y
   `meta attach` con `attach_parity` verde (**5/5** plantados). Los 20 verbos humanos ya no se cuentan:
   se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
-  **El host es nuestro, Claude Code es el motor.** Las leyes que dejó cada incremento (INC-4..INC-12,
-  la última: **un punto ciego DOCUMENTADO es una invitación**) viven en `LOG.md`, no acá. CI externo:
-  **5 de 84** (`N-0116`); extraer `v3/` exige re-basar 19 gates (`N-0122`). → `work/V3-INC12-…`.
+  **El host es nuestro, Claude Code es el motor.** Las leyes de cada incremento viven en `LOG.md`. CI externo
+  **5 de 84** (`N-0116`). **EXTRACCIÓN en curso** (`work/V3-EXTRACT-…`): PASO 3 dejó el censo de retiro
+  DERIVADO (12 filas · **10 obligaciones abiertas, nombradas**) y registró `import_boundary`, que nunca votó.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el
   manifiesto, con el caso F de `slot_footprint` como diente) · `N-0111` `product_broken` N/A en **9 de
   10** targets · `N-0123` el manifiesto audita `src/`, no `tools/`·`seed/`·`.claude/` · `N-0105`
   `increment_guard` prueba que hay incremento abierto, **no pertenencia** · `N-0128` `meta check` corre
-  **>22 min y no imprime NADA hasta el final**: quien lo interrumpe no se lleva ni los gates que ya
-  pasaron — la escotilla de P1, un nivel más arriba, sin arreglar.
+  **>50 min sin imprimir NADA** (re-medido 08-04) · **`N-0139`**: seis leyes ejecutables de `v3/verify/` no
+  las corre NADIE (`registry_law`, `line_parity`, `abstention`, `binding`, `leaf_bounded`, `column_live`).
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
   base de ADR-019; la cláusula (a) de la regla de escape sigue FALSA (4.087 tok, 97,96 % headroom) →
   crece el costo de la mitigación, no el disparador (`N-0094`). Apagón 07-14→07-27 sin causa

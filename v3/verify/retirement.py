@@ -108,10 +108,12 @@ RETIREMENT: dict[str, Row] = {
                "dispositions. It backs no registered gate; it exists so the other readers do not each "
                "grow their own `git show`. It dies when its last consumer is cut — and it is listed "
                "here precisely because a module that only ever appears as somebody else's import is "
-               "how a dependency survives a cleanup nobody aimed at it.",
-        obligation="its last two consumers (`cli_parity`, deleted here, and `verb_census`, whose C1/C7 "
-                   "cut is still owed) must stop importing it before the file can go",
-        discharged=False,
+               "how a dependency survives a cleanup nobody aimed at it. DISCHARGED "
+               "(V3-EXTRACT-OBLIGATIONS phase 4): both consumers named below are gone (`cli_parity` "
+               "deleted at V3-EXTRACT-RETIREMENT, `verb_census`'s C1/C7 cut at phase 3), so the file "
+               "itself is deleted — no other module imports it.",
+        obligation=None,
+        discharged=True,
     ),
 
     "tools/corpus_parity.py": Row(
@@ -213,24 +215,28 @@ RETIREMENT: dict[str, Row] = {
                  V2_ROOT + "memory/precompact.py"),
         reason="Mixed, measured assertion by assertion. Its oracle half (every v2 memory module and "
                "economy function carries exactly one disposition; REPLACED/DROPPED/DEFERRED rows name "
-               "real phrases at the oracle) dies with the ancestor. Its live half does not: A1 — no "
+               "real phrases at the oracle) died with the ancestor. Its live half did not: A1 — no "
                "metered source reads a raw transcript, over `v3/economy/*.py`, `v3/memory/journal.py`, "
                "`v3/host/session.py`, `v3/host/runner.py`, `v3/control/budget.py` — is a standing law "
                "over the CURRENT tree, and A4 checks that declared PORTED/ALREADY paths exist on disk. "
-               "Retiring the module drops both without a word.",
-        obligation="cut A2·A3·A5·A6·A7 (the oracle half), keep A1 and A4 armed with their own red side",
-        discharged=False,
+               "DISCHARGED (V3-EXTRACT-OBLIGATIONS phase 3): A2·A3·A5·A6·A7 are cut — `check()` no "
+               "longer takes a `ref` or shells to `git` at all — and A1/A4 are armed with their own "
+               "red side plus a re-armed Lock #1 (an empty metered-source scan).",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/migration_census.py": Row(
         gate="migration_census",
         decision=KEEP,
         subject=(V2_ROOT + "codegen/renderer.py",),
-        reason="Mixed. The v2 build-action vocabulary it derives (B1·B3·B4) dies; B2 — when a MIGRATED "
+        reason="Mixed. The v2 build-action vocabulary it derived (B1·B3·B4) died; B2 — when a MIGRATED "
                "factory declares a check kind, its executor module must exist — is a live law over "
                "`factories/*/stations/*.yml` and `v3/host/builds.py`, and B5 is the Lock #1 that keeps "
-               "an empty YAML population from passing as agreement. Both travel with the package.",
-        obligation="cut B1·B3·B4, keep B2 and B5 armed",
-        discharged=False,
+               "an empty YAML population from passing as agreement. DISCHARGED (V3-EXTRACT-OBLIGATIONS "
+               "phase 3): B1·B3·B4 are cut — `check()` no longer takes a `ref` or shells to `git` — "
+               "and B2/B5 are armed with their own red side.",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/verb_census.py": Row(
         gate="verb_census",
@@ -241,10 +247,13 @@ RETIREMENT: dict[str, Row] = {
                "that dropped verbs name a replacement, and that every v3 claim resolves to an "
                "importable module and attribute. That is also where the seven unported human verbs are "
                "still owed — the disposition table is the only place that fact is written down. Only "
-               "C1 (derive v2's verb surface) and C7 (its Lock on zero verbs parsed) need the "
-               "ancestor.",
-        obligation="cut C1·C7 and the `gate_census` import with them — which is also what discharges "
-                   "`gate_census`'s own row",
-        discharged=False,
+               "C1 (derive v2's verb surface) and C7 (its Lock on zero verbs parsed) needed the "
+               "ancestor. DISCHARGED (V3-EXTRACT-OBLIGATIONS phase 3): C1·C7 are cut, along with the "
+               "dependency that pulled `_V2_CLI`/`_oracle`/`_show` in from the now-deleted "
+               "`gate_census` module — which is also what discharges that module's own row (phase 4) "
+               "— and Lock #1 is re-armed over the surviving population (v3's own claims union'd with "
+               "`HUMAN_VERB_DISPOSITION`).",
+        obligation=None,
+        discharged=True,
     ),
 }

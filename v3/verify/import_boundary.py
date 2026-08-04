@@ -81,32 +81,20 @@ _PKG = "metafactory"
 
 #: Modules allowed to NAME a v2 path (rule 3 only) because they read it AT A COMMIT. Closed, with
 #: the reason, and each one must prove its read is ref-bound in its own gate. See ORACLE READERS.
-_ORACLE_READERS: dict[str, str] = {
-    "v3/verify/gate_census.py":
-        "derives v2's 23-gate list from `cmd_check` at oracle_ref via `git show`, so the census "
-        "cannot be a table someone forgot to update; ref-binding proven by its own case, and the "
-        "read survives INC-11 deleting v2 because a commit is immutable",
-    "v3/economy/census.py":
-        "derives v2's economy SURFACE — the memory package's modules and the public functions of "
-        "its three economy modules — at oracle_ref via `git ls-tree`/`git show`, for the same "
-        "reason and under the same terms as the gate census: a function nobody thought about has "
-        "to show up as a hole rather than as an absence. Ref-binding proven by its own "
-        "`ref_binding_problems` case; rules 1 and 2 still apply to it",
-    "v3/verify/migration_census.py":
-        "derives v2's BUILD-ACTION vocabulary from `apply_builds` at oracle_ref via `git show`, so "
-        "the set of actions v3 still owes cannot be a literal someone forgot to grow. Same technique "
-        "and same terms as the gate census; the read survives INC-11 deleting v2 because a commit "
-        "is immutable",
-    # The five behavioural-parity readers — `eval_gate_parity.py`, `live_run_parity.py`,
-    # `eval_floor_parity.py`, `session_memory_parity.py`, `column_law_parity.py` — held grants here
-    # through V3-EXTRACT-OBLIGATIONS phase 1. All five are GONE (phase 2, the amputation): the
-    # oracle's answers are now a COMMITTED pin (`v3/verify/pins/*.json`) each module compares its live
-    # body against, and none of the five names a v2 path or shells to `git` any more —
-    # `v3.verify.checks.pin_integrity`'s travel probe is what now certifies that.
-    # `v3/verify/deletion_manifest.py` held a grant here too and it is GONE (V3-EXTRACT-RETIREMENT). Its
-    # own text called it "the shortest-lived… this exemption should be re-argued rather than
-    # inherited". It was re-argued, and the answer was retirement — `v3.verify.retirement`.
-}
+#:
+#: EMPTY (V3-EXTRACT-OBLIGATIONS phase 3-4). Every module that ever held a grant here is gone or cut:
+#: the five behavioural-parity readers (`eval_gate_parity.py`, `live_run_parity.py`,
+#: `eval_floor_parity.py`, `session_memory_parity.py`, `column_law_parity.py`) at phase 2 — their
+#: oracle answers are now a COMMITTED pin, and `v3.verify.checks.pin_integrity`'s travel probe
+#: certifies none of the five shells to `git` any more; `v3/verify/deletion_manifest.py` at
+#: V3-EXTRACT-RETIREMENT; and, at phase 3-4, the last three — `v3/verify/gate_census.py` (DELETED,
+#: its dispositions and `_V2_CLI`/`_oracle`/`_show` façade had no consumer left once `verb_census`'s
+#: C1/C7 were cut), `v3/economy/census.py` (its oracle-diffed dispositions A2·A3·A5·A6·A7 cut; A1/A4
+#: are live-tree-only) and `v3/verify/migration_census.py` (its oracle-derived build-action vocabulary
+#: B1·B3·B4 cut; B2/B5 are live-tree-only). Left as a dict, not deleted, because the exemption
+#: mechanism itself still stands — the next module that genuinely needs a ref-bound read earns a
+#: grant here, argued the same way these nine were.
+_ORACLE_READERS: dict[str, str] = {}
 
 #: Modules allowed to NAME a v2 path (rule 3 only) because they DISPOSE of it rather than read it —
 #: the successor to `deletion_manifest`'s retired grant. See NAMED, NOT READ above. Closed, with the

@@ -13,41 +13,35 @@ LAW 1 — THE ECONOMY NEVER READS A TRANSCRIPT. A static scan over the modules t
 numbers, refusing any reference to a session transcript: the word itself, a path under the CLI's own
 project store, or the `transcript_path` payload key. This is a proxy and it is stated as one — it
 cannot see an assembled path — but it converts "we decided not to" into "it does not, and a process
-says so on every run".
+says so on every run". LOCK #1: an empty scan is never vacuously true — `scanned == 0` is RED.
 
-LAW 2 — EVERY PIECE OF v2's ECONOMY CARRIES EXACTLY ONE DISPOSITION. The list is DERIVED from v2's
-own source read at the oracle commit (ADR-031 §2.1: the oracle is a commit, never the working tree),
-so a function nobody thought about shows up as a hole rather than as an absence. Both directions are
-checked: a v2 function with no disposition is a silent drop, and a disposition naming a function
-that does not exist is paperwork for something imaginary.
-
-FIVE DISPOSITIONS, each verified against something re-derivable:
+LAW 2 — EVERY DECLARED `ported`/`already-in-v3` ROW POINTS AT A REAL v3 FILE. `MODULES`/`FUNCTIONS`
+below are the AUTHORED historical record of what happened to v2's memory package and its three
+economy modules — no longer diffed against a freshly-derived v2 population (V3-EXTRACT-OBLIGATIONS
+phase 3 cut that half: comparing the list against v2's own source, read at the oracle commit, plus
+the `replaced-by-typed`/`dropped`/`deferred` phrase checks against §10/§11 of the spec at the same
+ref). Two directions used to be checked; one remains, and it needs nothing from the ancestor:
 
   PORTED    → the named v3 module is on disk and carries the behaviour.
   ALREADY   → the named v3 module is on disk; the thing exists here under another shape.
-  REPLACED  → a TYPED SDK surface does the job, and the phrase naming it is found in §10 at the ref
-              — so "the SDK gives us this" cannot be asserted by whoever is doing the removing.
-  DROPPED   → the retirement clause is found in §11 at the ref. The six transcript readers land
-              here, on the strength of §11.4's own "the transcript parser" entry.
-  DEFERRED  → the target increment is a real row in §11.3 at the ref, and the reason is non-empty.
 
-WHAT THIS DOES NOT CLAIM. It counts dispositions and checks each one against an artifact; it does
-not judge whether a port is faithful. That is what the two-sided gates over `ledger`, `meter` and
-`iteration` are for, and conflating the two would be the same over-claim this file exists to catch.
+`replaced-by-typed`/`dropped`/`deferred` rows are kept as data — the record of what happened — but
+verified by nothing now: the artifact each one pointed at (a phrase in the target-SDK or build-plan
+prose, at a pinned commit) is exactly the ancestor-facing half this file no longer reads.
+
+WHAT THIS DOES NOT CLAIM. It checks a PORTED/ALREADY row against the tree; it does not judge whether
+a port is faithful. That is what the two-sided gates over `ledger`, `meter` and `iteration` are for,
+and conflating the two would be the same over-claim this file exists to catch.
 """
 
 from __future__ import annotations
 
 import ast
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
 _V3 = Path(__file__).resolve().parent.parent
 _ROOT = _V3.parent
-_V2_MEMORY = "src/metafactory/memory"
-_TARGET_SDK = "docs/spec/10-target-sdk.md"
-_BUILD_PLAN = "docs/spec/11-build-plan.md"
 
 PORTED, ALREADY, REPLACED, DROPPED, DEFERRED = ("ported", "already-in-v3", "replaced-by-typed",
                                                 "dropped", "deferred")
@@ -71,8 +65,9 @@ class Row:
     why: str = ""
 
 
-#: The nine modules of v2's memory package. Every one carries a disposition, including the four that
-#: are not economy — naming them OUT is what keeps the scope from being chosen after the fact.
+#: The nine modules of v2's memory package, as an AUTHORED historical record — no longer diffed
+#: against a freshly-derived v2 population (that half retired with V3-EXTRACT-OBLIGATIONS phase 3).
+#: Only `ported`/`already-in-v3` rows carry a live check below (law 2).
 MODULES: dict[str, Row] = {
     "__init__.py": Row(ALREADY, "v3/economy/__init__.py"),
     "metrics.py": Row(PORTED, "v3/economy/ledger.py"),
@@ -162,46 +157,6 @@ FUNCTIONS: dict[str, Row] = {
     "precompact.surface_for_rehydrate": Row(DEFERRED, "INC-12", "the rehydrate surface (N-0086)"),
 }
 
-ECONOMY_MODULES = ("metrics", "journal", "precompact")
-
-
-# ── the oracle: v2's surface, read AT A COMMIT ──────────────────────────────────────────────
-def _show(ref: str, path: str) -> str:
-    out = subprocess.run(["git", "show", f"{ref}:{path}"], capture_output=True, text=True, cwd=_ROOT)
-    if out.returncode != 0:
-        raise FileNotFoundError(f"{path} @ {ref}: {out.stderr.strip()}")
-    return out.stdout
-
-
-def v2_modules(ref: str) -> list[str]:
-    out = subprocess.run(["git", "ls-tree", "-r", "--name-only", ref, _V2_MEMORY],
-                         capture_output=True, text=True, cwd=_ROOT)
-    return sorted(Path(line).name for line in out.stdout.splitlines()
-                  if line.strip().endswith(".py"))
-
-
-def v2_functions(ref: str) -> list[str]:
-    """`module.function` for every PUBLIC top-level function of the three economy modules."""
-    names: list[str] = []
-    for module in ECONOMY_MODULES:
-        tree = ast.parse(_show(ref, f"{_V2_MEMORY}/{module}.py"))
-        names += [f"{module}.{node.name}" for node in tree.body
-                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-                  and not node.name.startswith("_")]
-    return sorted(names)
-
-
-def ref_binding_problems(ref_reader=_show) -> list[str]:
-    """The price of this module's rule-3 exemption in `import_boundary`: prove the read is a
-    function of the COMMIT, not of the tree. A working-tree read would succeed at any ref."""
-    try:
-        ref_reader("0" * 40, f"{_V2_MEMORY}/metrics.py")
-    except FileNotFoundError:
-        return []
-    return [f"{_V2_MEMORY}/metrics.py was readable at a nonexistent ref: the census is reading the "
-            f"working tree, so its exemption from the v2-import boundary is not earned"]
-
-
 # ── law 1: the economy never reads a transcript ─────────────────────────────────────────────
 def _docstring_nodes(tree: ast.AST) -> set:
     """The id()s of the string Constants that ARE docstrings.
@@ -272,64 +227,17 @@ def transcript_problems(root: Path, sources=METERED_SOURCES) -> tuple[list[str],
     return problems, scanned
 
 
-# ── law 2: every piece carries exactly one verified disposition ─────────────────────────────
-def _plan_names(plan: str, target: str) -> bool:
-    """Does the build plan name `target` as an increment, in either form it actually uses?
-
-    §11.3's table writes a row as `**INC-n**`; §11.5bis introduces INC-12 in prose as
-    `` `INC-12 INTERACTIVE-MODE` `` — a real, argued, non-optional increment that simply never got a
-    table row. This law was written expecting only the first form and it caught that on its first
-    run, which is the useful outcome and also the awkward one: the plan is read AT THE ORACLE
-    COMMIT, so the gap cannot be repaired by editing today's spec. Accepting both forms is the
-    honest resolution, not a weakening — an invented `INC-99` still appears in neither, and the
-    missing row is recorded as a finding rather than papered over by a laxer substring test.
-    """
-    return f"**{target}**" in plan or f"`{target} " in plan
-
-
-def _verify_row(label: str, row: Row, root: Path, sdk: str, plan: str, ref: str) -> list[str]:
-    if row.disposition in (PORTED, ALREADY):
-        if not (root / row.evidence).exists():
-            return [f"{label}: declared {row.disposition} at {row.evidence}, which is not there"]
-    elif row.disposition == REPLACED:
-        if row.evidence not in sdk:
-            return [f"{label}: declared replaced by «{row.evidence}», a phrase absent from "
-                    f"{_TARGET_SDK} @ {ref[:8]} — the SDK cannot be said to cover it by whoever "
-                    f"is removing it"]
-        if not row.why.strip():
-            return [f"{label}: replaced with no reason — a typed field is not self-explanatory"]
-    elif row.disposition == DROPPED:
-        if row.evidence not in plan:
-            return [f"{label}: declared dropped on «{row.evidence}», a phrase absent from "
-                    f"{_BUILD_PLAN} @ {ref[:8]}"]
-        if not row.why.strip():
-            return [f"{label}: dropped with no reason"]
-    elif row.disposition == DEFERRED:
-        if not _plan_names(plan, row.evidence):
-            return [f"{label}: deferred to {row.evidence}, which the build plan @ {ref[:8]} does "
-                    f"not name as an increment"]
-        if not row.why.strip():
-            return [f"{label}: deferred with no reason — a deferral with no trigger is a drop that "
-                    f"has not admitted it yet"]
-    else:
-        return [f"{label}: unknown disposition {row.disposition!r}"]
-    return []
-
-
-def _census(kind: str, declared: dict, actual: list, root: Path, sdk: str, plan: str,
-            ref: str) -> list[str]:
+# ── law 2: every declared PORTED/ALREADY row points at a real file ──────────────────────────
+def _evidence_problems(kind: str, declared: dict, root: Path) -> list[str]:
+    """Only `ported`/`already-in-v3` rows are checked — the other three dispositions used to be
+    verified against a phrase at the oracle commit, and that reading died with the ancestor
+    (V3-EXTRACT-OBLIGATIONS phase 3). They are still DATA (the record of what happened), just no
+    longer independently proven each run."""
     problems: list[str] = []
-    if not actual:
-        problems.append(f"derived ZERO {kind} from the oracle @ {ref[:8]}: an empty oracle is never "
-                        f"vacuously true (Lock #1)")
-    for name in sorted(set(actual) - set(declared)):
-        problems.append(f"{kind[:-1]} {name}: exists in v2 and carries NO disposition — this is the "
-                        f"shape of the bug this census exists to catch")
-    for name in sorted(set(declared) - set(actual)):
-        problems.append(f"{kind[:-1]} {name}: has a disposition but does not exist at {ref[:8]} — "
-                        f"paperwork for something imaginary")
-    for name in sorted(set(declared) & set(actual)):
-        problems.extend(_verify_row(f"{kind[:-1]} {name}", declared[name], root, sdk, plan, ref))
+    for name, row in sorted(declared.items()):
+        if row.disposition in (PORTED, ALREADY) and not (root / row.evidence).exists():
+            problems.append(f"{kind} {name}: declared {row.disposition} at {row.evidence}, which "
+                            f"is not there")
     return problems
 
 
@@ -349,23 +257,22 @@ def rollup(payload):
 '''
 
 
-def check(ref: str, root: Path = _ROOT, *, sabotage: str = "") -> tuple[list[str], dict]:
+def check(root: Path = _ROOT, *, sabotage: str = "") -> tuple[list[str], dict]:
     """Both laws. `sabotage` plants one named defect class and is used only by the red side."""
     modules, functions = dict(MODULES), dict(FUNCTIONS)
-    if sabotage == "dropped_row":
-        functions.pop("metrics.wall_clock_hours", None)
-    elif sabotage == "phantom_row":
-        functions["metrics.imaginary_helper"] = Row(PORTED, "v3/economy/ledger.py")
+    if sabotage == "missing_evidence":
+        functions = dict(functions)
+        functions["metrics.metrics_path"] = Row(PORTED, "v3/economy/__sabotage_missing__.py")
 
     if sabotage == "transcript_leak":
         problems, scanned = analyze(SABOTAGE_SOURCE, "<sabotage>"), 1
+    elif sabotage == "empty_scan":
+        problems, scanned = [], 0
     else:
         problems, scanned = transcript_problems(root, METERED_SOURCES)
     if scanned == 0:
         problems.append("law 1 scanned ZERO metered sources; a green would be vacuous (Lock #1)")
-    problems.extend(ref_binding_problems())
 
-    sdk, plan = _show(ref, _TARGET_SDK), _show(ref, _BUILD_PLAN)
-    problems += _census("modules", modules, v2_modules(ref), root, sdk, plan, ref)
-    problems += _census("functions", functions, v2_functions(ref), root, sdk, plan, ref)
+    problems += _evidence_problems("module", modules, root)
+    problems += _evidence_problems("function", functions, root)
     return problems, {"modules": len(modules), "functions": len(functions), "scanned": scanned}

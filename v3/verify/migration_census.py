@@ -5,33 +5,32 @@
     V3_MIGRATION_CENSUS_SABOTAGE=1 python3 -m v3.verify.migration_census   # red side; exits 0
 
 THE FAILURE THIS PREVENTS is the one INC-7 is most exposed to. "Port what the migrated line needs"
-is a correct policy and a perfect hiding place: the line goes green, the pin matches, and the twelve
-kinds and seven build actions that were NOT ported are indistinguishable from kinds and actions that
-do not exist. `gate_census` asks that question about v2's gates and `v3.economy.census` about v2's
-economy; this one asks it about the migration itself.
+is a correct policy and a perfect hiding place: the line goes green, the pin matches, and a kind that
+was NOT ported is indistinguishable from a kind that does not exist. This census asks that question
+about the migration itself.
 
-NOTHING HERE IS A TYPED TABLE, and that is the design. Every fact is derived:
+THE KIND POPULATION IS DERIVED, never a typed table:
 
   * the KIND population  — `v3.verify.kinds.KINDS`, the frozen vocabulary itself;
   * a kind's EXECUTOR    — by resolving a REAL check declared in a REAL station YAML through
-                           `resolve_check`, so the argv under test is the argv that would run;
-  * the ACTION population— v2's own `apply_builds` read at the oracle commit (ADR-031 §2.1), the
-                           same technique and the same reason as `gate_census`;
-  * what v3 HANDLES      — parsed out of `v3.host.builds`'s own source, so a claim here cannot
-                           outlive the `elif` it describes;
-  * who OWES it          — the factories whose lines declare it, mapped to their migration
-                           increment, so the answer re-computes itself as `MIGRATED` grows.
+                           `resolve_check`, so the argv under test is the argv that would run.
 
 THE TOOTH, in one sentence: **anything a MIGRATED factory's line exercises must be ported.** A kind
-or an action that a line v3 claims to run is still owed to a later increment is a contradiction, not
-a deferral — the line either does not really run, or the census is fiction. That check is what turns
-"we ported what dummy needed" from an assertion into a re-derivable fact, and it is what will go red
-the moment INC-8 adds `iot` to `MIGRATED` before porting what `iot` uses.
+that a line v3 claims to run is still owed to a later increment is a contradiction, not a deferral —
+the line either does not really run, or the census is fiction. That check is what turns "we ported
+what dummy needed" from an assertion into a re-derivable fact, and it is what will go red the moment
+a future factory is added to `MIGRATED` before porting what it uses.
+
+RETIRED (V3-EXTRACT-OBLIGATIONS phase 3): the ACTION side — v2's own `apply_builds` build-action
+vocabulary, read at the oracle commit (ADR-031 §2.1) and diffed against what `v3.host.builds`
+handles and what factory lines declare, plus the "owed to an increment that is a real build-plan
+row" check that leaned on the same oracle read. `check()` no longer takes a `ref` or shells to `git`
+at all, and this module's `_ORACLE_READERS` exemption in `import_boundary` is gone with it.
 
 FOUR DISPOSITIONS, none of them assigned by hand:
-  ported       the executor module is on disk / the action appears in `apply_builds`
+  ported       the executor module is on disk
   no_body      the argv targets stdlib or carries no module at all (`py_compile`, `-c`, pass-through)
-  deferred     not ported, and owed to the increment that migrates the earliest factory declaring it
+  deferred     not ported
   unexercised  in the vocabulary and declared by no FACTORY line — reported, never hidden
 
 THE POPULATION IS THE CHASSIS, AND IT USED TO BE MORE THAN THAT (narrowed V3-INC9). The scan is
@@ -43,12 +42,11 @@ the complete and only source of what v3 can be asked to execute. And it is wrong
 an instance's `stations/` is gitignored, written by v2's CLI before a run, so the recursive glob made
 this gate's verdict depend on what a previous local run happened to leave behind.
 
-That was not hypothetical. `full-stack-kotlin`'s chassis `s6.yml` declares `render`; the copy v2
-materialized under `products/*/stations/s6.yml` declares `write` (the two are the same operation —
-same `render_text` — under two names). With the recursive glob this gate reported that a MIGRATED
-factory exercises an action `apply_builds` does not handle, and it reported it from an UNTRACKED
-file, for a line v3 never loads. On a clean clone the same commit would have said something else —
-which is the defect `N-0102` names for `evidence_liveness`, in a second instrument.
+That was not hypothetical: an earlier draft of this census also scanned the ACTION side this way
+(the recursive glob picking up an UNTRACKED materialized `stations/` from a previous local run) and
+reported a false contradiction from a file no line v3 loads — the defect `N-0102` names for
+`evidence_liveness`, in a second instrument. The action side itself retired with V3-EXTRACT-OBLIGATIONS
+phase 3 (see above); the scan-root lesson stays, because `declared_checks` below still uses it.
 
 WHAT `unexercised` REALLY MEANS, because the word is doing a lot of work. It is not the whole story: v2 also
 runs a META line (`m00`…`m07`) whose stations declare `column_full`, `docs_check`, `clean_runner`,
@@ -60,8 +58,6 @@ still owes me an executor" and "what is not part of a product line at all".
 from __future__ import annotations
 
 import os
-import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -73,28 +69,8 @@ from .rederive import MIGRATED
 
 _V3 = Path(__file__).resolve().parent.parent
 _ROOT = _V3.parent
-_ORACLE_REF = _V3 / "oracle_ref.json"
-_V2_RENDERER = "src/metafactory/codegen/renderer.py"
-_BUILD_PLAN = "docs/spec/11-build-plan.md"
-_V3_BUILDS = _V3 / "host" / "builds.py"
 
 PORTED, NO_BODY, DEFERRED, UNEXERCISED = "ported", "no_body", "deferred", "unexercised"
-
-#: Which increment migrates which factory — §11.3's own assignment, and the only literal here. Each
-#: target is verified to be a real row in the build plan at the oracle ref, so a typo becomes a red
-#: rather than a deferral pointing at nothing.
-OWNER: dict[str, str] = {
-    "dummy": "INC-7", "iot": "INC-8", "full-stack-kotlin": "INC-9",
-    "agent-systems-factory": "INC-10", "full-stack": "INC-10",
-}
-_ORDER = {"INC-7": 7, "INC-8": 8, "INC-9": 9, "INC-10": 10}
-
-
-def _git(*args: str) -> str:
-    out = subprocess.run(["git", *args], cwd=_ROOT, capture_output=True, text=True)
-    if out.returncode != 0:
-        raise FileNotFoundError(f"git {' '.join(args)}: {out.stderr.strip()}")
-    return out.stdout
 
 
 def declared_checks(root: Path) -> dict:
@@ -112,62 +88,6 @@ def declared_checks(root: Path) -> dict:
     return found
 
 
-def declared_actions(root: Path) -> dict:
-    """action -> set of factory slugs whose lines declare it.
-
-    TWO POPULATIONS, because a factory has two kinds of line and counting only one is how this census
-    missed a real gap (`N-0110`). The committed `stations/*.yml` are the DEFAULT product's line. An
-    INSTANCE's line is re-materialized from `domain.station_sequence` at run time (`N-0108`), so an action
-    only the spec declares is exercised by a real run while being absent from the committed YAML — which
-    is exactly what `write` did: `full-stack-kotlin`'s spec declares it in `s6`, its committed stations
-    (older — `N-0109`) use `render` there, and the only other declarers were the two FROZEN factories. So
-    the census booked it as "owed to INC-10" and stayed GREEN while `snipeit`'s line could not run at all.
-    The instrument built to answer «what did we leave out?» was reading the same stale artifact as the bug
-    it exists to catch, and returned a TRUE answer about the WRONG population.
-    """
-    found: dict = {}
-
-    def record(builds, slug: str) -> None:
-        for build in builds or ():
-            action = str(build.get("action", "")) if isinstance(build, dict) else ""
-            if action:
-                found.setdefault(action, set()).add(slug)
-
-    for path in sorted(root.glob("factories/*/stations/*.yml")):       # the DEFAULT product's line
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-        if isinstance(data, dict):
-            record(data.get("builds"), path.relative_to(root).parts[1])
-    for path in sorted(root.glob("factories/*/factory.spec.yml")):     # what an INSTANCE materializes
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            continue
-        slug = path.relative_to(root).parts[1]
-        for station in (data.get("domain", {}) or {}).get("station_sequence", []) or []:
-            if isinstance(station, dict):
-                record(station.get("builds"), slug)
-    return found
-
-
-def v2_actions(ref: str) -> set:
-    """v2's build-action vocabulary, read out of `apply_builds` at the oracle commit."""
-    src = _git("show", f"{ref}:{_V2_RENDERER}")
-    start = src.index("def apply_builds(")
-    body = src[start + 1:]
-    body = body[:body.index("\ndef ")] if "\ndef " in body else body
-    return set(re.findall(r'action == "([a-z_]+)"', body))
-
-
-def v3_actions() -> set:
-    """What `v3.host.builds` really handles — parsed from its own source, so the census cannot
-    describe an `elif` that is not there."""
-    src = _V3_BUILDS.read_text(encoding="utf-8")
-    single = set(re.findall(r'action == "([a-z_]+)"', src))
-    tupled = re.findall(r'action in \(([^)]*)\)', src)
-    for group in tupled:
-        single |= set(re.findall(r'"([a-z_]+)"', group))
-    return single
-
-
 def _executor(kind: str, sample) -> tuple[str, str]:
     """(disposition, evidence) for one kind, from the argv its REAL declared check resolves to."""
     check, station = sample
@@ -179,141 +99,86 @@ def _executor(kind: str, sample) -> tuple[str, str]:
     return (PORTED if (_ROOT / module).exists() else DEFERRED), module.as_posix()
 
 
-def _owed_to(slugs) -> str:
-    """The increment that owes this: the EARLIEST migration among the factories that declare it."""
-    targets = [OWNER[s] for s in slugs if s in OWNER]
-    return min(targets, key=lambda t: _ORDER.get(t, 99)) if targets else ""
-
-
-def check(ref: str, *, sabotage: str = "") -> tuple[list[str], dict]:
+def check(*, sabotage: str = "") -> tuple[list[str], dict]:
+    """B2 (a kind a MIGRATED factory's line really exercises must have a real executor) and B5
+    (Lock #1 over the kind population). `sabotage` plants one named defect class, used only by the
+    red side — every plant moves a value that is NON-EMPTY in the clean run (INC-5)."""
     problems: list[str] = []
-    plan = _git("show", f"{ref}:{_BUILD_PLAN}")
-    checks, actions = declared_checks(_ROOT), declared_actions(_ROOT)
-    handled, v2set = v3_actions(), v2_actions(ref)
+    checks = declared_checks(_ROOT)
     migrated = set(MIGRATED)
 
-    # The three plants, and what each perturbs — every one moves a value that is NON-EMPTY in the
-    # clean run, because a sabotage that empties something already empty proves nothing (INC-5).
-    if sabotage == "phantom_action":
-        # `v3.host.builds` claims an action v2 never had. Perturbs `handled - v2set`: 0 -> 1.
-        handled = handled | {"emit_hologram"}
-    if sabotage == "unported_but_migrated":
-        # THE PLANT WAS RE-AIMED IN V3-INC11, and the reason is the same failure it was already
-        # documenting about `iot`. It used to add `full-stack-kotlin` to `migrated` and rely on FSK
-        # declaring `write`/`eval_gate`, which v3 then lacked. By INC-10 all five factories ARE
-        # migrated and both of those are ported, so `migrated | {"full-stack-kotlin"}` became a
-        # union with a member already present: the plant perturbed NOTHING and the sweep reported
-        # `missed`. A red side dies the day the condition it plants becomes universally true, and
-        # nothing warns you — the gate just keeps passing.
-        #
-        # So it now perturbs the OTHER side of the identical law: take a build action a MIGRATED
-        # factory's line really declares and that v3 really handles, and remove the handler. The
-        # contradiction under test — "a line v3 claims to run needs something v3 does not have" —
-        # is reached without depending on any factory being un-migrated, which is a property that
-        # only ever shrinks.
-        victim = sorted(set(actions) & handled)
-        if victim:
-            handled = handled - {victim[0]}
     if sabotage == "empty_population":
         # Lock #1: a census over zero declared checks must be RED, never vacuously true. Perturbs the
-        # population itself: 10 kinds -> 0. Dropping ONE kind (the first draft) does not bite — it
+        # population itself: N kinds -> 0. Dropping ONE kind (the first draft) does not bite — it
         # just moves that kind to `unexercised`, which is a legitimate disposition.
         checks = {}
 
-    counts = {"kinds": len(KINDS), "actions": len(v2set), PORTED: 0, NO_BODY: 0,
-              DEFERRED: 0, UNEXERCISED: 0}
+    counts = {"kinds": len(KINDS), PORTED: 0, NO_BODY: 0, DEFERRED: 0, UNEXERCISED: 0}
     for kind in sorted(KINDS):
         where = checks.get(kind) or {}
         if not where:
             counts[UNEXERCISED] += 1
             continue
         disposition, evidence = _executor(kind, next(iter(where.values())))
-        counts[disposition] += 1
         exercised_by_migrated = sorted(migrated & set(where))
-        if disposition == DEFERRED:
-            owed = _owed_to(where)
-            if not owed:
-                problems.append(f"kind {kind}: not ported ({evidence} absent) and declared by no "
-                                f"factory with a migration increment — owed to nobody")
-            elif f"**{owed}**" not in plan:
-                problems.append(f"kind {kind}: owed to {owed}, which is not a row in the build plan")
-            if exercised_by_migrated:
-                problems.append(f"kind {kind}: exercised by MIGRATED factory/factories "
-                                f"{exercised_by_migrated} and its executor {evidence} does not "
-                                f"exist — the line cannot really be running")
-
-    for action in sorted(v2set):
-        where = actions.get(action) or set()
-        if action in handled:
-            continue
-        exercised_by_migrated = sorted(migrated & where)
-        if exercised_by_migrated:
-            problems.append(f"build action {action!r}: exercised by MIGRATED factory/factories "
-                            f"{exercised_by_migrated} and `v3.host.builds` does not handle it")
-        owed = _owed_to(where)
-        if where and not owed:
-            problems.append(f"build action {action!r}: declared by {sorted(where)} and owed to nobody")
-        if owed and f"**{owed}**" not in plan:
-            problems.append(f"build action {action!r}: owed to {owed}, not a row in the build plan")
-
-    for action in sorted(handled - v2set):
-        problems.append(f"build action {action!r}: handled by `v3.host.builds` but absent from v2's "
-                        f"vocabulary at {ref[:8]} — paperwork for something that never existed")
+        if sabotage == "kind_executor_missing" and exercised_by_migrated and disposition == PORTED:
+            # THE MISSING-EXECUTOR PLANT: take a kind a MIGRATED factory's line really declares and
+            # whose executor really exists, and force its computed disposition to `deferred` — the
+            # contradiction under test is "a line v3 claims to run needs something v3 does not have",
+            # reached in-memory, never by touching a file on disk.
+            disposition = DEFERRED
+        counts[disposition] += 1
+        if disposition == DEFERRED and exercised_by_migrated:
+            problems.append(f"kind {kind}: exercised by MIGRATED factory/factories "
+                            f"{exercised_by_migrated} and its executor {evidence} does not "
+                            f"exist — the line cannot really be running")
 
     if not checks:
         problems.append("ZERO checks declared across the repo's station YAMLs: an empty population "
                         "is never vacuously true (Lock #1)")
-    counts["handled_actions"] = len(handled)
-    counts["factory_actions"] = len(set(actions) & v2set)
     return problems, counts
 
 
-_CLASSES = ("phantom_action", "unported_but_migrated", "empty_population")
-_SIGNATURE = {"phantom_action": "never existed",
-              "unported_but_migrated": "does not handle it",
-              "empty_population": "Lock #1"}
+_CLASSES = ("kind_executor_missing", "empty_population")
+_SIGNATURE = {"kind_executor_missing": "does not exist", "empty_population": "Lock #1"}
 
 
-def _run_sabotage(ref: str) -> int:
-    control, _ = check(ref)
+def _run_sabotage() -> int:
+    control, _ = check()
     if control:
         return Verdict("v3-migration-census (SABOTAGE)", 1,
                        f"the census is not clean, so no catch is attributable: {control[0]}").emit()
-    caught = []
+    caught: list[str] = []
+    missed: list[str] = []
     for name in _CLASSES:
-        problems, _ = check(ref, sabotage=name)
-        if any(_SIGNATURE[name] in p for p in problems):
-            caught.append(name)
-    if len(caught) == len(_CLASSES):
-        return Verdict("v3-migration-census (SABOTAGE)", 0,
-                       f"{len(caught)}/{len(_CLASSES)} planted defect(s) caught "
-                       f"({', '.join(caught)})").emit()
-    missed = [c for c in _CLASSES if c not in caught]
-    return Verdict("v3-migration-census (SABOTAGE)", 1,
-                   f"GATE DECORATIVO: {len(caught)}/{len(_CLASSES)} caught "
-                   f"({', '.join(caught) or 'none'}) — missed {missed}").emit()
+        problems, _ = check(sabotage=name)
+        (caught if any(_SIGNATURE[name] in p for p in problems) else missed).append(name)
+
+    print(f"PLANTS caught={caught} na=[] missed={missed}")
+    if missed:
+        return Verdict("v3-migration-census (SABOTAGE)", 1,
+                       f"GATE DECORATIVO: {len(caught)}/{len(_CLASSES)} caught "
+                       f"({', '.join(caught) or 'none'}) — missed {missed}").emit()
+    return Verdict("v3-migration-census (SABOTAGE)", 0,
+                   f"{len(caught)}/{len(_CLASSES)} planted defect(s) caught "
+                   f"({', '.join(caught)})").emit()
 
 
 def main(argv: list[str]) -> int:
     if argv:
         return Verdict("v3-migration-census", 2, f"takes no arguments; got {argv!r}").emit()
-    import json
-    ref = json.loads(_ORACLE_REF.read_text(encoding="utf-8"))["oracle_ref"]
 
     if os.environ.get("V3_MIGRATION_CENSUS_SABOTAGE") == "1":
-        return _run_sabotage(ref)
+        return _run_sabotage()
 
-    problems, counts = check(ref)
+    problems, counts = check()
     if problems:
         return Verdict("v3-migration-census", 1,
                        f"{len(problems)} contradiction(s) between what v3 claims to run and what it "
                        f"has ported", counts=counts, failures=tuple(problems)).emit()
     return Verdict("v3-migration-census", 0,
                    f"kinds {counts[PORTED]} ported · {counts[NO_BODY]} no-body · {counts[DEFERRED]} "
-                   f"owed to a later migration · {counts[UNEXERCISED]} in no FACTORY line; build "
-                   f"actions {counts['handled_actions']} handled of {counts['factory_actions']} that "
-                   f"factory lines declare ({counts['actions']} in v2's vocabulary); everything "
-                   f"{sorted(MIGRATED)} exercises is ported", counts=counts).emit()
+                   f"deferred · {counts[UNEXERCISED]} in no FACTORY line", counts=counts).emit()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""verb_census — every verb v2 registers, who still calls it, and does v3's dispatch claim RESOLVE?
+"""verb_census — who still calls a human verb, is every disposition well-formed, and does v3's dispatch claim RESOLVE?
 
     python3 -m v3.verify.verb_census                              # the gate
     V3_VERB_CENSUS_SABOTAGE=1 python3 -m v3.verify.verb_census    # the red side; must ALSO exit 0
@@ -12,51 +12,46 @@ real as a verb it does not: both produce the same argv, both look ported, and on
 imported. That gap is this census's whole reason to exist, and it is also why the population here is
 not a hand-typed table: a table someone forgot to grow is precisely the shape of bug `N-0088` names.
 
-THREE THINGS ARE DERIVED, nothing typed by hand:
+TWO THINGS ARE DERIVED, nothing typed by hand — a THIRD used to be (v2's own `build_parser()` verb
+surface, read via `git show` at the oracle commit) and it is GONE (V3-EXTRACT-OBLIGATIONS phase 3):
+that half compared a derived v2 vocabulary against this file's own dispositions, and it died with the
+ancestor along with its Lock (a census that parsed zero v2 verbs was RED). What is left does not need
+v2 to be askable at all:
 
-  * THE V2 SURFACE  — every verb and sub-verb `build_parser()` registers, read via `git show` at
-    `v3/oracle_ref.json`'s pinned commit (ADR-031 §2.1: the oracle is a commit, never the working
-    tree — v2 and v3 share a tree, so reading the working copy would count whatever happened to be
-    lying around). Parsed with the stdlib `ast` module, never imported and never regex-scraped: the
-    same technique `gate_census` uses on `cmd_check`, aimed at `build_parser`'s `sub.add_parser(...)`
-    calls instead, including the two verbs (`increment`, `plan`) whose sub-verbs are registered by a
-    `for` loop over a literal tuple rather than spelled out one call at a time.
   * WHO CALLS EACH ONE — the tracked working tree (`git ls-files`), bucketed by the CLASS of file
     that invokes it (the enforcement column, tooling, human docs, or the one committed check-argv
-    fixture), so an unported verb is visibly `dead` rather than silently absent from the report.
+    fixture), so a verb's LIVE evidence is visibly `dead` rather than silently absent from the report.
   * WHAT v3 CLAIMS — `v3.cli`'s own declared verb -> dotted-target mapping, parsed the same
     ast-not-executed way. This lands BEFORE `v3/cli.py` exists (V3-INC11 P1 is what writes it), and an
     empty claimed set is the correct, honest state of that fact — not an error.
+
+Alongside them, `HUMAN_VERB_DISPOSITION` below is an AUTHORED, closed record — not re-derived every
+run — of the human verbs INC-12 P7 decided about; it no longer needs a freshly-parsed v2 surface to
+justify its own existence, because deciding is a one-time act and its DECISIONS are what this file
+still enforces the shape of.
 
 THE TOOTH, in one sentence: **every target v3 claims to dispatch a verb to must actually resolve** —
 importable via `importlib.util.find_spec`, and if the claim names an attribute, that attribute must
 exist on the imported module. A verb that is declared but cannot dispatch is `N-0088` in one row, and
 it turns the gate red — this is the check `kinds_parity` does not perform.
 
-THE GREEN LAW: exit 0 iff (a) the oracle parse found at least one v2 verb — a census that classifies
-nothing is RED, never vacuously green (Lock #1); AND (b) every verb the parse found carries a
-disposition; AND (c) every verb v3 CLAIMS resolves. A verb v2 has and v3 has not yet ported is NEVER
-red for that reason alone — "not yet built" is later work, and a gate that reddens for work not yet
-done is a progress bar wearing a gate's clothes. Those verbs are counted, not hidden, and by TWO
-numbers that must not be confused because they answer different questions:
+THE GREEN LAW: exit 0 iff (a) v3 claims at least one verb OR `HUMAN_VERB_DISPOSITION` decides at
+least one — a census watching nothing is RED, never vacuously green (Lock #1, re-armed over the
+SURVIVING population now that the oracle-derived one is gone); AND (b) every row of
+`HUMAN_VERB_DISPOSITION` carries a well-formed decision; AND (c) every verb v3 CLAIMS resolves.
+`decided`/`to_port` count the disposition table; `claimed`/`unresolved` count v3's own dispatch map.
 
-  `no_<bucket>`       COVERAGE — how many verbs that bucket's search never turned up, independent of
-                      any OTHER bucket that did, so a verb the docs mention cannot quietly stand in
-                      for the column never having been asked about it.
-  `unported_<bucket>` PORT PROGRESS — verbs whose STRONGEST disposition is that bucket and which v3
-                      does not yet claim to dispatch. This is the number INC-11 reads, and the one
-                      phase P5 tightens to zero for `line` and `column` before v2 may be deleted.
-
-They coincide only while `claimed` is 0 — i.e. exactly at the moment when letting one stand for the
-other would go unnoticed. Naming them apart is the whole reason this census exists.
-
-THE RED SIDE plants its perturbation in the SUBJECT, never the platform: it synthesizes an in-memory
-claimed verb pointing at a dotted target that cannot resolve, feeds it through the exact same `check`
-function the green run uses (so the law under test is the real one, not a stand-in), and asserts the
-result is rejected. It writes no file and shells out to nothing but `git show`/`git ls-files` — both
-read-only. A SECOND witness (same switch) plants an in-memory FILE instead of an in-memory claim: a
-synthetic column-path `.py` file whose only content is a docstring naming a verb, and asserts `classify`
-refuses to call that a `column` invocation.
+THE RED SIDE plants three perturbations, each in the SUBJECT, never the platform. Witness 1
+synthesizes an in-memory claimed verb pointing at a dotted target that cannot resolve, feeds it
+through the exact same `check` function the green run uses (so the law under test is the real one,
+not a stand-in), and asserts the result is rejected. Witness 2 (same switch) plants an in-memory FILE
+instead of an in-memory claim: a synthetic column-path `.py` file whose only content is a docstring
+naming a verb, and asserts `classify` refuses to call that a `column` invocation — proof that the
+LIVE-tree classification machinery still tells a mention from a real invocation even though `check`
+no longer calls it directly (that consumer was the oracle-derived population, and it is gone with it).
+Witness 3 is LOCK #1 re-armed: zero v3 claims AND zero disposition rows must be RED. None of the three
+shells out to anything but `git ls-files` (read-only, and only witness 2 touches the tree at all —
+witnesses 1 and 3 are pure in-memory).
 
 INVOCATION VS MENTION (this correction, N-0088-adjacent). `column`/`tooling` used to be ONE free-text
 regex over each bucket's whole file contents, so `graph`/`outcome`/`checkpoint` were `column` purely
@@ -88,7 +83,6 @@ import sys
 from pathlib import Path
 
 from ..kernel.report import Verdict
-from .gate_census import _V2_CLI, _oracle, _show
 
 _V3 = Path(__file__).resolve().parent.parent
 _ROOT = _V3.parent
@@ -119,84 +113,12 @@ def _is_launcher(token: str) -> bool:
     return any(p.match(token) for p in _LAUNCHER_RES)
 
 
-# ── (1) the v2 verb surface, derived at the oracle commit ──────────────────────────────────────────
-def _const_str(node: ast.expr, bindings: dict[str, str]) -> str | None:
-    """A verb-name argument: a literal, or a `for`-loop variable bound to one (see `_walk`)."""
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        return node.value
-    if isinstance(node, ast.Name) and node.id in bindings:
-        return bindings[node.id]
-    return None
-
-
-def _assign_target(stmt: ast.stmt, node: ast.Call) -> str | None:
-    """The variable name a call is assigned to, iff `node` IS that assignment's whole RHS —
-    never a call buried deeper (`X.add_parser("y").set_defaults(...)` assigns nothing trackable)."""
-    if (isinstance(stmt, ast.Assign) and stmt.value is node
-            and len(stmt.targets) == 1 and isinstance(stmt.targets[0], ast.Name)):
-        return stmt.targets[0].id
-    return None
-
-
-def _walk(stmts: list[ast.stmt], bindings: dict[str, str],
-          groups: dict[str, str | None], parsers: dict[str, str], verbs: dict[str, str | None]) -> None:
-    """Statement-order AST walk of `build_parser()`'s body. `groups` maps a local variable holding a
-    subparsers ACTION (`.add_subparsers()`'s result) to its parent verb (`None` = the root parser).
-    `parsers` maps a variable holding one PARSER (`.add_parser()`'s result) to the full verb path it
-    was registered under. A `for name in (lit, ...)` loop is unrolled (not executed) so its body is
-    walked once per literal value, which is how `increment/{open,close,status}` and
-    `plan/{check,next,status}` are found without being spelled out as nine separate calls in v2."""
-    for stmt in stmts:
-        if isinstance(stmt, ast.For) and isinstance(stmt.target, ast.Name) \
-                and isinstance(stmt.iter, (ast.Tuple, ast.List)):
-            for elt in stmt.iter.elts:
-                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
-                    child = dict(bindings)
-                    child[stmt.target.id] = elt.value
-                    _walk(stmt.body, child, groups, parsers, verbs)
-            continue
-        for node in ast.walk(stmt):
-            if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
-                continue
-            base = node.func.value
-            if not isinstance(base, ast.Name):
-                continue
-            base_name, attr = base.id, node.func.attr
-            if attr == "add_subparsers":
-                target = _assign_target(stmt, node)
-                if target:
-                    groups[target] = parsers.get(base_name)
-            elif attr == "add_parser":
-                if base_name not in groups:
-                    continue
-                arg = node.args[0] if node.args else next(
-                    (kw.value for kw in node.keywords if kw.arg == "name"), None)
-                name = _const_str(arg, bindings) if arg is not None else None
-                if name is None:
-                    continue
-                parent = groups[base_name]
-                full = f"{parent}/{name}" if parent else name
-                verbs[full] = parent
-                target = _assign_target(stmt, node)
-                if target:
-                    parsers[target] = full
-
-
-def v2_verbs(ref: str) -> list[tuple[str, str | None]]:
-    """(full_verb, parent) pairs, `parent` is `None` for a top-level verb — derived from v2's own
-    `build_parser()` at `ref`, never from the working tree."""
-    source = _show(ref, _V2_CLI)
-    tree = ast.parse(source, filename=_V2_CLI)
-    fn = next((n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "build_parser"), None)
-    if fn is None:
-        return []
-    groups: dict[str, str | None] = {}
-    verbs: dict[str, str | None] = {}
-    _walk(fn.body, {}, groups, {}, verbs)
-    return sorted(verbs.items())
-
-
-# ── (2) each verb's live callers, bucketed by the searched tree ────────────────────────────────────
+# ── each verb's live callers, bucketed by the searched tree ────────────────────────────────────────
+# (what used to be section "(1)" — deriving v2's verb surface from `build_parser()` at the oracle
+# commit — retired with V3-EXTRACT-OBLIGATIONS phase 3: `_const_str`/`_assign_target`/`_walk`/
+# `v2_verbs` are gone, along with the population-diff they fed. `classify` below is unchanged and
+# stays exercised — proven by the red side's witness 2 — because it never depended on the oracle in
+# the first place: its evidence was always the tracked working tree.
 def _bucket(relpath: str) -> str | None:
     if (relpath.startswith(".claude/hooks/") or relpath == ".claude/settings.json"
             or relpath.startswith(".github/workflows/") or relpath.startswith("seed/")):
@@ -475,22 +397,24 @@ HUMAN_VERB_DISPOSITION: dict[str, tuple[str, str]] = {
 _DECISIONS = ("port", "drop")
 
 
-def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list[str], dict]:
+def check(*, extra_claims: dict[str, str] | None = None, sabotage: str = "") -> tuple[list[str], dict]:
+    """The two live laws: every v3 dispatch claim resolves, and every row of the AUTHORED
+    `HUMAN_VERB_DISPOSITION` table is well-formed. `sabotage="empty_population"` empties BOTH v3's
+    claims and the disposition table for LOCK #1's red-side witness — the population `check` still
+    watches once the oracle-derived one (v2's own verb surface) is gone."""
     problems: list[str] = []
-    verbs = v2_verbs(ref)
-    if not verbs:
-        problems.append(f"derived ZERO verbs from build_parser @ {ref[:8]}: an empty census is "
-                        f"never vacuously true (Lock #1)")
+    if sabotage == "empty_population":
+        claims: dict[str, str] = {}
+        disposition_table: dict[str, tuple[str, str]] = {}
+    else:
+        claims = dict(v3_claims())
+        if extra_claims:
+            claims.update(extra_claims)
+        disposition_table = HUMAN_VERB_DISPOSITION
 
-    classes = classify(verbs)
-    for full, _parent in verbs:
-        if full not in classes:
-            problems.append(f"{full}: found in the oracle parse but carries no disposition — the "
-                            f"shape of the bug this gate exists to catch")
-
-    claims = dict(v3_claims())
-    if extra_claims:
-        claims.update(extra_claims)
+    if not claims and not disposition_table:
+        problems.append("v3 claims ZERO verbs and HUMAN_VERB_DISPOSITION decides ZERO more: the "
+                        "census watches nothing — never vacuously true (Lock #1)")
 
     unresolved = 0
     for verb, target in sorted(claims.items()):
@@ -499,36 +423,10 @@ def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list
             unresolved += 1
             problems.append(f"v3 claims to dispatch {verb!r} -> {target!r}, which does not resolve: {why}")
 
-    total = len(verbs)
-    counts = {"verbs": total, "claimed": len(claims), "unresolved": unresolved}
-    # TWO different questions, and they were one name until it was measured. `no_<bucket>` is
-    # COVERAGE — how many verbs that bucket's search never turned up, independent of any other
-    # bucket that did. `unported_<bucket>` is PORT PROGRESS — verbs whose strongest disposition is
-    # that bucket and which v3 does not yet claim to dispatch; it is the number INC-11 P5 tightens
-    # to zero for `line` and `column`. They coincide today only because `claimed` is 0, which is
-    # exactly the arrangement in which one could stand in for the other unnoticed.
-    unported_total = 0
-    for bucket in _BUCKETS:
-        hit = sum(1 for c in classes.values() if c["membership"][bucket])
-        counts[bucket] = sum(1 for c in classes.values() if c["strongest"] == bucket)
-        counts[f"no_{bucket}"] = total - hit
-        unported = sum(1 for v, c in classes.items()
-                       if c["strongest"] == bucket and v not in claims)
-        counts[f"unported_{bucket}"] = unported
-        unported_total += unported
-    counts["dead"] = sum(1 for c in classes.values() if c["strongest"] == "dead")
-    counts["unported"] = unported_total
-
-    # THE TOOTH (V3-INC12 P7): unported is a fact; UNDECIDED is a defect. Every human verb v3 does
-    # not claim must carry a row above, and every row must name a decision from the closed set. A
-    # verb that falls off the port list without anyone saying so is how a capability leaves quietly.
-    undecided = sorted(v for v, c in classes.items()
-                       if c["strongest"] == "human" and v not in claims
-                       and v not in HUMAN_VERB_DISPOSITION)
-    for verb in undecided:
-        problems.append(f"{verb!r} is an unported human verb with NO recorded decision: unported is "
-                        f"allowed, undecided is not (add a row to HUMAN_VERB_DISPOSITION)")
-    for verb, row in sorted(HUMAN_VERB_DISPOSITION.items()):
+    # THE TOOTH (V3-INC12 P7): every row of the closed, authored decision table must name a decision
+    # from the closed set, and a `drop` must name where the capability went — a drop with no
+    # replacement is a capability leaving through a hole nobody wrote down.
+    for verb, row in sorted(disposition_table.items()):
         decision = row[0] if isinstance(row, tuple) and row else None
         if decision not in _DECISIONS:
             problems.append(f"{verb!r}: decision {decision!r} is outside the closed set {_DECISIONS}")
@@ -537,33 +435,29 @@ def check(ref: str, *, extra_claims: dict[str, str] | None = None) -> tuple[list
                             f"replacement is a capability leaving through a hole nobody wrote down")
     # A row for a verb v3 DOES claim is stale bookkeeping, and stale bookkeeping is how a table
     # stops being read. Caught here rather than discovered by someone trusting it.
-    for verb in sorted(HUMAN_VERB_DISPOSITION):
+    for verb in sorted(disposition_table):
         if verb in claims:
             problems.append(f"{verb!r} carries a disposition row but v3 now claims to dispatch it — "
                             f"the row is stale and must be removed")
-    counts["decided"] = len(HUMAN_VERB_DISPOSITION)
-    counts["undecided"] = len(undecided)
-    counts["to_port"] = sum(1 for r in HUMAN_VERB_DISPOSITION.values() if r[0] == "port")
-    # Verbs that carry a mention but no genuine invocation anywhere — the size of the illusion the
-    # invocation-vs-mention correction removes; these used to inflate `column`/`tooling`.
-    counts["mention_only"] = sum(
-        1 for c in classes.values()
-        if any(c["mentions"].values()) and not any(c["membership"][b] for b in ("line", "column", "tooling")))
+
+    counts = {"claimed": len(claims), "unresolved": unresolved, "decided": len(disposition_table),
+              "to_port": sum(1 for r in disposition_table.values() if r[0] == "port")}
     return problems, counts
 
 
-def _run_sabotage(ref: str) -> int:
-    control, _ = check(ref)
+def _run_sabotage() -> int:
+    control, _ = check()
     if control:
         return Verdict("v3-verb-census (SABOTAGE)", 1,
                        f"the census is not clean, so no catch is attributable: {control[0]}").emit()
 
-    witnesses: list[tuple[str, bool]] = []
+    caught: list[str] = []
+    missed: list[str] = []
 
     # witness 1: a v3 claim pointing at a target that cannot resolve (N-0088's own shape).
-    problems, _ = check(ref, extra_claims={_SABOTAGE_VERB: _SABOTAGE_TARGET})
-    witnesses.append(("unresolvable dispatch claim caught",
-                      any(_SABOTAGE_VERB in p and "does not resolve" in p for p in problems)))
+    problems, _ = check(extra_claims={_SABOTAGE_VERB: _SABOTAGE_TARGET})
+    ok = any(_SABOTAGE_VERB in p and "does not resolve" in p for p in problems)
+    (caught if ok else missed).append("unresolvable_dispatch_claim")
 
     # witness 2: a verb named ONLY inside a docstring of a synthetic column-path `.py` file must stay a
     # mention, never a `column` invocation. Non-vacuous on purpose: also demands the free-text search
@@ -573,41 +467,43 @@ def _run_sabotage(ref: str) -> int:
     classes = classify([(_SABOTAGE_MENTION_VERB, None)],
                        extra_files=[(_SABOTAGE_MENTION_PATH, synthetic_text)])
     info = classes[_SABOTAGE_MENTION_VERB]
-    witnesses.append(("mention-in-column-path stayed a mention, not an invocation",
-                      info["mentions"]["column"] and not info["membership"]["column"]))
+    ok = bool(info["mentions"]["column"] and not info["membership"]["column"])
+    (caught if ok else missed).append("mention_stays_mention")
 
-    caught = sum(1 for _, ok in witnesses if ok)
-    if caught == len(witnesses):
-        return Verdict("v3-verb-census (SABOTAGE)", 0,
-                       f"{caught}/{len(witnesses)} planted perturbations caught").emit()
-    missed = ", ".join(name for name, ok in witnesses if not ok)
-    return Verdict("v3-verb-census (SABOTAGE)", 1,
-                   f"GATE DECORATIVO: only {caught}/{len(witnesses)} planted perturbations caught; "
-                   f"missed: {missed}").emit()
+    # witness 3: LOCK #1, re-armed over the population `check` still watches now that v2's own verb
+    # surface is gone — v3 claiming zero verbs AND the disposition table deciding zero must be RED,
+    # never vacuously green (perturbs BOTH from genuinely non-empty, per INC-5).
+    problems, _ = check(sabotage="empty_population")
+    ok = any("Lock #1" in p for p in problems)
+    (caught if ok else missed).append("empty_disposition_lock")
+
+    print(f"PLANTS caught={caught} na=[] missed={missed}")
+    if missed:
+        return Verdict("v3-verb-census (SABOTAGE)", 1,
+                       f"GATE DECORATIVO: {len(caught)}/3 caught ({', '.join(caught) or 'none'}) — "
+                       f"missed {missed}").emit()
+    return Verdict("v3-verb-census (SABOTAGE)", 0,
+                   f"{len(caught)}/3 planted perturbations caught ({', '.join(caught)})").emit()
 
 
 def main(argv: list[str]) -> int:
     if argv:
         return Verdict("v3-verb-census", 2, f"takes no arguments; got {argv!r}").emit()
-    ref = _oracle()["oracle_ref"]
 
     if os.environ.get("V3_VERB_CENSUS_SABOTAGE") == "1":
-        return _run_sabotage(ref)
+        return _run_sabotage()
 
-    problems, counts = check(ref)
+    problems, counts = check()
     if problems:
         return Verdict("v3-verb-census", 1,
-                       f"{len(problems)} problem(s): a verb with no disposition, or a v3 claim that "
-                       f"does not resolve", counts=counts, failures=tuple(problems),
-                       next_action="an unresolved v3 claim is N-0088; no_* is coverage and "
-                                   "unported_* is port progress — neither is a defect on its own"
+                       f"{len(problems)} problem(s): a malformed/undecided disposition row, or a v3 "
+                       f"claim that does not resolve", counts=counts, failures=tuple(problems),
+                       next_action="an unresolved v3 claim is N-0088; a malformed row is a decision "
+                                   "outside the closed set or a drop with no replacement named"
                        ).emit()
     return Verdict("v3-verb-census", 0,
-                   f"{counts['verbs']} v2 verbs derived from build_parser @ {ref[:8]}: "
-                   f"{counts['line']} line · {counts['column']} column · {counts['tooling']} tooling · "
-                   f"{counts['human']} human · {counts['dead']} dead; {counts['claimed']} claimed by "
-                   f"v3, {counts['unresolved']} unresolved; still unported: {counts['unported']} "
-                   f"({counts['unported_line']} line, {counts['unported_column']} column)",
+                   f"{counts['claimed']} verb(s) claimed by v3, {counts['unresolved']} unresolved; "
+                   f"{counts['decided']} human verb(s) decided ({counts['to_port']} to port)",
                    counts=counts).emit()
 
 

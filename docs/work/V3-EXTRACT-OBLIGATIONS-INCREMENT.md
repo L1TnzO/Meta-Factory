@@ -1,4 +1,4 @@
-<!-- meta:doc sha=f5b968e9646325de26fe99129f1aadddb8e687cc updated=2026-08-04T07:16Z -->
+<!-- meta:doc sha=ac7703aa07ce3c1e1bc1ec72b16d4b79620eddbc updated=2026-08-04T07:52Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
@@ -139,7 +139,7 @@ case list and not a count written in this document.
 | 1 | pin: harness pin primitives + `--repin`/pinned mode in the 5 modules + the 5 committed pins + a pin-corruption plant per red side. **The oracle-reading half stays in place.** | pending |
 | 1.bis | §2.4 pre-registered baseline + the pin tooth exercised BY HAND on disk | **done** — §Evidencia |
 | 1.ter | the travel probe (acceptance LAW G) found 2 of 37 `column_law_parity` cases pinning a fact about THIS machine's git state. Make the 7 `_REAL_REPO_CASES` hermetic and re-derive their pin FROM THE ORACLE — must happen before the amputation, because after it a re-pin is impossible | **done** — LAW G green; the matrix came back SHARPER, §Evidencia |
-| 2 | amputate: delete `_V2_*` constants, `extract_oracle` calls and the `--repin` path from the 5; drop their 5 `_ORACLE_READERS` carve-outs; new gate `pin_integrity` (bijection census over pins + the no-git travel probe) registered | pending |
+| 2 | amputate: delete `_V2_*` constants, `extract_oracle` calls and the `--repin` path from the 5; drop their 5 `_ORACLE_READERS` carve-outs; new gate `pin_integrity` (bijection census over pins + the no-git travel probe) registered | **done** — 44 gates, `open_obligations` 10 → 5, pins byte-identical |
 | 3 | cut: `economy_census` A2·A3·A5·A6·A7 · `migration_census` B1·B3·B4 · `verb_census` C1·C7 — keep A1·A4, B2·B5, C2–C6; drop the three `_ORACLE_READERS` carve-outs | pending |
 | 4 | retire `gate_census`: with `verb_census`'s C1/C7 cut it has no consumer left; delete the module, drop its carve-out, mark its row discharged | pending |
 | 5 | acceptance | pending |
@@ -237,6 +237,27 @@ The lesson is the increment's own, arriving from the other side: the live repo w
 machine-dependent, it was **weaker**, because several answers were right by accident of what happened to
 be open that day. A fixture has to state what it is testing, and stating it is what made the coverage
 visible.
+
+### Phase 2 — the cord is cut, and the instrument that owns the accounting is what says so
+The five modules no longer carry a `_V2_*` constant, an `extract_oracle` call, or a `--repin` path, and
+`oracle_parity` lost the four helpers that had no caller left. What certifies the amputation is complete
+is not a hand count: `import_boundary` goes red BOTH ways — an enumerated reader missing from the tree,
+and a carve-out nobody uses — so dropping five carve-outs and staying green is the proof.
+
+**LAW B is the one that mattered: the pins came out byte-identical.** An amputation that changes a single
+fossilised answer is a re-pin performed without the oracle, and after this phase nothing could ever tell.
+Making it a blocking law rather than a habit is the difference between the two.
+
+New registered gate `pin_integrity` (43 → **44**), owning what no single parity module can speak for:
+bijection module ↔ pin · Lock #1 on an empty population · provenance · and the travel probe, promoted
+from the orchestrator's shell into the suite. It reports `population=5 · pins=5 · probe_files=1254`, and
+its red side catches all five plants —`orphan_pin`, `pin_hidden`, `empty_population`, `bad_provenance`,
+`reaches_for_ancestor`— with `na=[] missed=[]`. The last of those is the one worth naming: it plants a
+`git show` at the pinned ref into a copy of a module inside the probe tree and requires the probe to go
+red, so "it travels" stays a measurement rather than a belief.
+
+`open_obligations` 10 → **5**, counted by the census against the derived population rather than declared
+by the rows.
 
 ### Phase 1, attempt 1 — ABORTED, no work lost
 The generator was killed by a provider session limit while still reading the two non-exit-code modules,

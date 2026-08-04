@@ -1,7 +1,71 @@
-<!-- meta:doc sha=1aa5bb1385da2b63b8566082a79f2a5ee532d739 updated=2026-08-04T18:22Z -->
+<!-- meta:doc sha=668eedecd8f3ebb2b203e462dad674fe2dbd85c7 updated=2026-08-04T19:09Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-08-04T19:1xZ — V3-EXTRACT-CORPUS-PARITY: un módulo retirado puede tener nombre, no dirección
+
+**Qué queda cerrado.** La décima obligación, y con ella el PASO 3.bis entero. `tools/corpus_parity.py`
+—el oráculo de acuerdo v2/v3 de la reconstrucción, cinco PARES contra un commit que en el repo destino
+no existe— borrado. `open_obligations` **1 → 0**; la población derivada del censo, **1 → 0**. Esa
+segunda cifra es la frase «nada en este árbol depende ya del ancestro muerto», derivada en vez de
+afirmada. Queda sólo el PASO 4.
+
+**El agujero que la obligación decía en voz alta y ningún gate escuchaba.** La fila lo tenía escrito
+desde el principio: *«un docstring que apunta a una herramienta borrada es peor que uno que apunta a
+una viva-pero-no-corrida»*. Pero la ley 5 del censo —DISCHARGE IS NOT PROSE— sólo preguntaba si el
+ARCHIVO se había ido y si su gate seguía registrado. **Nunca preguntaba si algo seguía apuntándolo.**
+La mitad «reescribí las citas» de TODO retiro se venía descargando con prosa, y los tres retiros
+anteriores ya habían pasado por ahí.
+
+**Medir tres predicados antes de escribir uno.** 301 candidatos (cuenta símbolos, fixtures sintéticos
+y paths de v2: un desastre, no una ley) · 37 (el stem en cualquier parte — y rompe **lápidas
+honestas**: `suite.py:191` dice «`deletion_manifest` estuvo registrado acá hasta que
+V3-EXTRACT-RETIREMENT lo retiró», y eso hay que poder decirlo) · **20** (el stem alcanzado por punto o
+barra, o con `.py`). La línea decidible no es el tiempo verbal ni el archivo: es **DIRECCIÓN contra
+NOMBRE**. Una dirección es lo que un lector sigue o corre; un nombre pelado en prosa es un nombre.
+El predicado adoptado cuenta `corpus_parity` **catorce** veces — el número exacto que la fila había
+escrito a mano semanas antes, derivado de nuevo por otro camino. Dos métodos independientes que dan el
+mismo número convierten una opinión en un hecho.
+
+**Y encontró seis que nadie había contado.** `cli_parity` ×3, `gate_census` ×2, `deletion_manifest` ×1:
+direcciones colgadas de retiros **ya aceptados**. `v3/cli.py:37` mandaba a leer *«el docstring de
+`v3.verify.cli_parity` para la ley mecánica que esto contesta»*. Ese docstring no existe. Es el bug
+recurrente del proyecto con la letra del proyecto: **se veía verde porque nadie preguntó qué había
+quedado afuera del conteo.**
+
+**El orden de los dos slots fue el diente, no la comodidad.** La ley se validó contra un árbol que
+todavía tenía sus 20 sujetos. En un solo slot el generador habría escrito la ley Y borrado sus
+sujetos: una expresión regular inerte habría dado 0 al final, verde y decorativa, y nadie se habría
+enterado. **Un detector se valida mientras su población existe.**
+
+**La vacuidad que viene, y su Lock.** Con población 0 las leyes 1 y 7 y la de cobertura del oráculo
+quedan vacías (`_ORACLE_READERS` ya estaba vacía desde la fase anterior). Acá el Lock #1 de la casa
+—«población vacía es roja»— sería **falso por diseño**, porque el vacío es el objetivo. Así que el Lock
+es un **control POSITIVO**: la derivación tiene que seguir ENCONTRANDO un dependiente sintético
+(namer directo · importador transitivo · limpio · exceptuado). Es lo único que impide leer «la
+derivación se rompió» como «no queda nada».
+
+**Las dos veces que el instrumento falló fueron mías.** El `acceptance_gate_cmd` del primer slot
+invocaba `v3.verify.checks.import_boundary`, un módulo que nunca existió. El generador **no se estiró
+hasta el manifiesto para arreglarlo**: corrió el gate literal, dio rojo y reportó el bloqueo — el radio
+de explosión aguantando bajo presión real por segunda vez. Para el segundo slot verifiqué que **cada
+módulo del gate importara antes de gastar un spawn**, y ahí saltó `v3.verify.checks.docs` (es
+`docs_check`). Lección barata: **un gate que no resuelve no es un gate rojo, es un gate ausente**, y
+cuesta un slot entero descubrirlo tarde.
+
+**El diente que la prosa no puede tener.** `.gen/prose_only.py` —escrito por el orquestador, no por el
+slot que juzga, y probado en los dos lados antes de juzgar nada— compara el AST de cada archivo contra
+HEAD con las constantes de texto normalizadas: prueba que **no se movió código** mientras se reescribía
+prosa. Lo que no prueba, y se dice: que la prosa quedó bien. Eso se leyó con ojos (`trust_level: low`
+en el manifiesto por eso mismo). El caso que importaba salió bien: donde un docstring mandaba a leer
+otro docstring borrado, la reescritura **escribe la ley ahí mismo** en vez de inventar un puntero
+nuevo — que habría sido el mismo bug con otro abrigo.
+
+**Aceptación.** Censo PASS (`population=0 · rows=12 · citations=0 · open_obligations=0`) · lado rojo
+**28/28** · `prose_only` 12/12 · **44 gates** (ley nueva en gate existente: el número no se mueve) ·
+`import_boundary` · `extract_package`+rojo · `docs_check` · `evidence_liveness` · `quality`.
+Detalle: `work/V3-EXTRACT-CORPUS-PARITY-INCREMENT.md`.
 
 ## 2026-08-04T17:0xZ — V3-EXTRACT-OBLIGATIONS: cortar el cordón, y tres veces que el instrumento erró
 

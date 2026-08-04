@@ -1,4 +1,4 @@
-<!-- meta:doc sha=88963ce451f626f759480c80c44530091d31c2cf updated=2026-08-04T18:41Z -->
+<!-- meta:doc sha=24b447695b6b09a521044e13b61bf30a697d5b33 updated=2026-08-04T19:06Z -->
 # Increment V3-EXTRACT-CORPUS-PARITY
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T18:41Z). Close it with `v3 increment close`
@@ -50,10 +50,10 @@ Two other things the measurement decided, so they are not re-litigated:
 ## Phases
 | Phase | Content | Status |
 | --- | --- | --- |
-| 1 | **Law 9 — NO STANDING ADDRESS.** A `retire` row's module may be NAMED in prose but never carry an address (`[./]<stem>` or `<stem>.py`) in any scan-root `.py`, outside the three disposition records that keep the retirement RECORD (`retirement.py` keys by relpath · `retirement_census.py` documents the population correction · `import_boundary.py` holds the past-tense readers table). Red side: hole + healthy, per the house discipline | pending |
-| 2 | **The derivation Lock.** A positive control over `derive_population` on the GREEN side: a synthetic candidate set (direct namer · transitive importer · clean module · excluded module) must return exactly the two dependents. An empty real population can then never be confused with a derivation that stopped working | pending |
-| 3 | **The surgery.** Delete `tools/corpus_parity.py`; rewrite the 20 addresses in 12 files as past-tense tombstones that keep the paragraph's claim (the agreement WAS verified during the rebuild) and drop the instruction (never a live «run this») | pending |
-| 4 | **The row.** `tools/corpus_parity.py` → `obligation=None`, `discharged=True`, with the DISCHARGED clause naming what proves it. `open_obligations` 1 → 0 | pending |
+| 1 | **Law 9 — NO STANDING ADDRESS.** A `retire` row's module may be NAMED in prose but never carry an address (`[./]<stem>` or `<stem>.py`) in any scan-root `.py`, outside the three disposition records that keep the retirement RECORD (`retirement.py` keys by relpath · `retirement_census.py` documents the population correction · `import_boundary.py` holds the past-tense readers table). Red side: hole + healthy, per the house discipline | ✅ `1df8344` |
+| 2 | **The derivation Lock.** A positive control over `derive_population` on the GREEN side: a synthetic candidate set (direct namer · transitive importer · clean module · excluded module) must return exactly the two dependents. An empty real population can then never be confused with a derivation that stopped working | ✅ `1df8344` |
+| 3 | **The surgery.** Delete `tools/corpus_parity.py`; rewrite the 20 addresses in 12 files as past-tense tombstones that keep the paragraph's claim (the agreement WAS verified during the rebuild) and drop the instruction (never a live «run this») | ✅ `31b531b` |
+| 4 | **The row.** `tools/corpus_parity.py` → `obligation=None`, `discharged=True`, with the DISCHARGED clause naming what proves it. `open_obligations` 1 → 0 | ✅ `31b531b` |
 
 ## Close criterion (demonstrable, not narrated)
 1. `python3 -m v3.verify.checks.retirement_census` → PASS with **`population=0 · rows=12 ·
@@ -70,4 +70,54 @@ Two other things the measurement decided, so they are not re-litigated:
 6. The second verifier (ADR-005) on push, with what it did not run printed.
 
 ## Evidencia
-<!-- filled at close -->
+
+**Los números, re-derivables** (`1df8344` la ley, `31b531b` la cirugía):
+
+| medida | antes | después |
+| --- | --- | --- |
+| `citations` (direcciones en pie) | **20** en 12 archivos | **0** |
+| población derivada del censo | 1 | **0** |
+| `open_obligations` | 1 | **0** |
+| escenarios del lado rojo | 23 | **28** |
+| gates registrados | 44 | **44** (ley nueva en gate existente, no gate nuevo) |
+
+`prose_only` 12/12 idénticos en AST a HEAD una vez normalizadas las constantes de texto ·
+`import_boundary` · `extract_package` + su lado rojo · `docs_check` · `evidence_liveness` · `quality`.
+
+**Las tres cosas que el instrumento decidió, y yo no.**
+
+1. **El predicado, elegido por medición y no por gusto.** Tres candidatos corridos sobre el árbol real
+   ANTES de escribir una línea: 301 (cuenta símbolos y fixtures sintéticos), 37 (rompe lápidas
+   honestas: `suite.py:191` dice «`deletion_manifest` estuvo registrado acá hasta que
+   V3-EXTRACT-RETIREMENT lo retiró», y eso hay que poder decirlo), 20 (la DIRECCIÓN). El adoptado
+   cuenta `corpus_parity` **catorce** veces — el mismo número que la fila había escrito a mano,
+   derivado de nuevo por otro camino. Cuando dos métodos independientes dan el mismo número, el número
+   deja de ser una opinión.
+2. **El orden de los dos slots no fue comodidad: fue el diente.** La ley se probó contra un árbol que
+   todavía tenía sus 20 sujetos. En un solo slot, el generador habría escrito la ley Y borrado sus
+   sujetos, y una expresión regular inerte habría dado 0 al final — verde, decorativa, invisible. Un
+   detector se valida mientras su población existe.
+3. **La vacuidad que viene.** Con población 0, las leyes 1 y 7 y la de cobertura del oráculo quedan
+   vacías (`_ORACLE_READERS` ya estaba vacía). El Lock que viajó con la ley 9 es un control POSITIVO —
+   la derivación tiene que seguir ENCONTRANDO un dependiente sintético — porque acá el Lock #1 de la
+   casa («población vacía es roja») sería falso por diseño. Es la trampa de la fase 3 del incremento
+   anterior, vista antes de que mordiera.
+
+**Dos veces falló el instrumento, y las dos fueron mías, no del generador.**
+
+- El `acceptance_gate_cmd` del primer slot invocaba `v3.verify.checks.import_boundary`, que nunca
+  existió (el módulo vive en `v3.verify.import_boundary`). El generador **no se estiró hasta el
+  archivo del manifiesto para arreglarlo**: corrió el gate literal, dio rojo y reportó el bloqueo. El
+  radio de explosión aguantó bajo presión real por segunda vez. Para el segundo slot verifiqué que
+  **cada módulo del gate importara antes de gastar un spawn** — y ahí saltó `v3.verify.checks.docs`,
+  que tampoco existe (`docs_check`). Un gate que no resuelve no es un gate rojo: es un gate ausente.
+- El único cambio fuera del slot en toda la corrida fue `v3/slot_footprint_facts.json`, que dejó **mi
+  propia** corrida del gate de footprint (guarda un `cost` que cambia en cada ejecución). Revertido.
+  Queda anotado como observación, no como deuda de este incremento: un artefacto **trackeado** que
+  cambia en cada corrida ensucia el árbol y el cierre de incremento exige árbol limpio.
+
+**Residuo honesto.** `prose_only` prueba que no se movió código, nunca que la prosa quedó bien. Eso lo
+leí con mis propios ojos (los 20 sitios, `trust_level: low` en el manifiesto por eso mismo). El caso
+que importaba: `v3/cli.py:37` mandaba a leer el docstring de un módulo borrado — la reescritura
+**escribe la ley ahí mismo** en vez de inventar un puntero nuevo, que habría sido el mismo bug con
+otro abrigo.

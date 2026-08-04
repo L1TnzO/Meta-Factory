@@ -1,4 +1,4 @@
-<!-- meta:doc sha=e102d2db079dae65508298a6d5c5e5a5f9cd0074 updated=2026-08-04T18:41Z -->
+<!-- meta:doc sha=0eec977cb2e286b51d57ab2ac31ad8e937caa777 updated=2026-08-04T19:08Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -21,18 +21,16 @@
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
 - **🏗️ v3 REBUILD — `ADR-031`/`032`; INC-0..INC-12 ENTREGADOS.** Cutover 08-01:
-  `src/metafactory/` NO EXISTE, `meta` despacha a `v3.cli`, **84/84 en 10 targets**. **INC-12
-  `INTERACTIVE-MODE` (08-02) reconstruyó la escotilla que la inversión sacó**, y medir antes de
-  escribir mostró que el agujero no era «falta un chat»: el host corría cada check con
-  `capture_output=True` y **tiraba stdout y stderr al piso**. Hoy el texto completo va a disco y **una
-  línea acotada** al que llama, sin tocar el proof. Con eso: árbol de nodos DENTRO del sustrato
-  (`meta plan-tree` + gate), **inyección por hoja** de ancestry+open_set (`§15.6`), la superficie
-  `§10.3` bajo **3 tiers de autoridad** (13 read · 4 run · **11 declare negados por construcción**), y
-  `meta attach` con `attach_parity` verde (**5/5** plantados). Los 20 verbos humanos ya no se cuentan:
-  se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
-  **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84** (`N-0116`). **EXTRACCIÓN en curso**
-  (`work/V3-EXTRACT-…`): **3.bis CERRADO** — 93 respuestas del oráculo fosilizadas, `gate_census` muerto,
-  `_ORACLE_READERS` VACÍA, obligaciones 10→1, **43 verdes · 1 N/A = 44**. Queda `corpus_parity` y PASO 4.
+  `src/metafactory/` NO EXISTE, `meta` despacha a `v3.cli`, **84/84 en 10 targets**. Árbol de nodos
+  DENTRO del sustrato (`meta plan-tree`), **inyección por hoja** (`§15.6`), superficie `§10.3` en **3
+  tiers de autoridad** (13 read · 4 run · 11 declare negados), `meta attach` con `attach_parity` **5/5**;
+  los 20 verbos humanos se **DECIDEN**, y no decidir es rojo (INC-12 y su hallazgo —el host tiraba
+  stdout al piso— en LOG 08-02). **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84**
+  (`N-0116`). **EXTRACCIÓN (`work/V3-EXTRACT-…`): sólo queda el PASO 4 (cutover)** — 3.bis CERRADO
+  ENTERO: 93 respuestas del oráculo fosilizadas, `gate_census` y el oráculo de paridad muertos,
+  `_ORACLE_READERS` vacía, **obligaciones 10→0 y población derivada 0** (nada depende ya del ancestro).
+  La décima trajo la **ley 9** —un módulo retirado puede tener NOMBRE, no DIRECCIÓN—, que encontró
+  **6 direcciones colgadas** de retiros ya aceptados.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

@@ -1,0 +1,62 @@
+{
+  "answers": {
+    "debt:no_increment": false,
+    "debt:open_clean": false,
+    "debt:open_dirty_gate_after_commit": true,
+    "debt:open_dirty_gate_before_commit": true,
+    "debt:open_dirty_no_gate": true,
+    "edit_allowed:docs_md": true,
+    "edit_allowed:factory_path": false,
+    "edit_allowed:meta_path": true,
+    "edit_allowed:no_open_increment": false,
+    "edit_allowed:product_path": false,
+    "edit_allowed:proof_path": false,
+    "edit_allowed:seed_column_path": true,
+    "is_subagent_spawn:agent": true,
+    "is_subagent_spawn:bash": false,
+    "is_subagent_spawn:task_alias": true,
+    "preflight:block": "block",
+    "preflight:no_pin": "rerun",
+    "preflight:rerun_capable": "rerun",
+    "preflight:trust": "trust",
+    "required_workdir_rel:docs_md": null,
+    "required_workdir_rel:factory_path": "factories/full-stack-kotlin/docs/work",
+    "required_workdir_rel:meta_path": "docs/work",
+    "required_workdir_rel:no_open_increment": "factories/definitely-not-a-real-factory-xyz/docs/work",
+    "required_workdir_rel:product_path": "factories/full-stack-kotlin/products/snipeit/docs/work",
+    "required_workdir_rel:proof_path": "factories/full-stack-kotlin/products/snipeit/docs/work",
+    "required_workdir_rel:seed_column_path": "docs/work",
+    "stop_block:no_increment": false,
+    "stop_block:open_clean": false,
+    "stop_block:open_dirty_gate_after_commit": true,
+    "stop_block:open_dirty_gate_before_commit": false,
+    "stop_block:open_dirty_no_gate": false,
+    "target_of:agent": null,
+    "target_of:bash": null,
+    "target_of:edit": "/a/edit.py",
+    "target_of:malformed": null,
+    "target_of:read": "/a/read.py",
+    "target_of:write": "/a/write.py"
+  },
+  "pinned_gate": "column_law_parity",
+  "provenance": {
+    "derived_at": "2026-08-04T06:56:22Z",
+    "derived_by": "v3.verify.column_law_parity.--repin",
+    "harness": "v3.verify.oracle_parity",
+    "oracle_paths": {
+      "_V2_CADENCE": "src/metafactory/memory/cadence.py",
+      "_V2_HERMETIC": "src/metafactory/verify/hermetic.py",
+      "_V2_INSTRUMENT": "src/metafactory/memory/instrument.py",
+      "_V2_JOURNAL": "src/metafactory/memory/journal.py",
+      "_V2_SEED_BRIDGE": "src/metafactory/_seed.py"
+    },
+    "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+    "oracle_sha256": {
+      "src/metafactory/_seed.py": "458f2cfcec6d4420afbccdb4bea6097396e1375de678e6ea108cd7ed199c5b92",
+      "src/metafactory/memory/cadence.py": "b531a8a88774519cd8b03a6d1fa7e4d051880661552aa95ecae581fe90735591",
+      "src/metafactory/memory/instrument.py": "416a73d78d57f66d9c923dc0d001eba818474b853b38ff158d723f4ba2cfd0f4",
+      "src/metafactory/memory/journal.py": "bbafc4fea3d22853f82a8b4ea0082afeb0b4d33608cef6332dd079afd699bb2b",
+      "src/metafactory/verify/hermetic.py": "15f77fc58112c483115ddaad46c3824deda12b5512368111d77bd84d492912ff"
+    }
+  }
+}

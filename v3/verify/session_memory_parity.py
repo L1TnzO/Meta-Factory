@@ -5,6 +5,17 @@ v2's did, at the pinned oracle commit?
 
     python3 -m v3.verify.session_memory_parity                                    # the gate
     V3_SESSION_MEMORY_PARITY_SABOTAGE=1 python3 -m v3.verify.session_memory_parity  # red side; must ALSO exit 0
+    python3 -m v3.verify.session_memory_parity --repin        # (phase 1 only) re-derive+write the pin
+    python3 -m v3.verify.session_memory_parity --verify-pin   # re-derive and diff against the committed pin
+
+PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). `_build_oracle_tree` still lives here, but ONLY
+`--repin`/`--verify-pin` (`_oracle_answers`) call it now. The gate itself (`check()`) never shells to
+`git`: it loads the pin (`v3/verify/pins/session_memory_parity.json`), checks its five laws
+(`oracle_parity.pin_problems`), and compares v3's LIVE fact-sets (`_live_answers`, driven the same
+`--drive` way) against it (`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST NOT HAPPEN: the
+pinned answers must be the ORACLE's. `--repin` derives them TWICE from the extracted oracle package and
+refuses to write if the two derivations disagree (`oracle_parity.write_pin`) — never from this port's
+own output. The KEY SPACE is per FUNCTION×CASE (e.g. `build_snapshot:open_increment`), 13 entries.
 
 COMPARE FACTS, NOT PROSE. The port is English where v2 is Spanish (ADR-017) — `precompact.py` carries
 no user-facing prose at all (it is pure structured data), but `rehydrate.build_payload` RETURNS a
@@ -93,29 +104,36 @@ value is discarded by its only caller, exactly the shape `column_law_parity.py`'
 already established this precedent under (an unused-effect sibling import, not a law this witness needs
 to observe).
 
-LOCK (same discipline as `column_law_parity`/`oracle_parity.diversity_problem`, generalised from exit
-codes / decisions to FACT-SETS): a matrix where the oracle answered with the same fact-set every time
-would compare equal and prove nothing. `_MIN_DISTINCT` declares a floor per function; `check()` goes
-red under it.
+LOCK: the PIN must hold at least `_MIN_DISTINCT_ANSWERS` distinct canonical fact-sets — the count
+MEASURED at pin time — across its 13 answers; fewer would mean the comparison could pass by
+coincidence. Enforced by `oracle_parity.pin_problems` (law 4), over the fossil rather than a live
+oracle run.
 
 SABOTAGE plants ONE defect per function targeted, in a COPY of the ported body read off disk — never
-the real file:
+the real file — and asserts its LIVE fact-set, over the SAME real matrix case that function's plant
+targets, no longer matches the PIN:
   * `build_payload_drop_increment` (rehydrate) — the `lines.append(f"Open increment: ...")` line
-    becomes a no-op. Caught by any case with an open increment present (the fact goes from "found" to
+    becomes a no-op. Caught by `build_payload:open_increment_no_state` (the fact goes from "found" to
     "not found").
   * `write_snapshot_fake_success` (precompact) — an unconditional `return p` is inserted right after
     `p = snapshot_path(root)`, before the actual write — "report success without writing", per the
-    slot contract. Caught because `landed` (checked against the filesystem, never the return value)
-    stays False while the return value claims success.
+    slot contract. Caught by `write_snapshot:valid_writable` because `landed` (checked against the
+    filesystem, never the return value) stays False while the return value claims success.
   * `build_snapshot_drop_increment` (precompact) — `inc = open_increment(root)` becomes `inc = None`
-    unconditionally. Caught by a case with an open increment on disk.
+    unconditionally. Caught by `build_snapshot:open_increment`.
+  * `pin_answer_corrupted` — an in-memory COPY of the pin gets ONE answer perturbed; `compare_to_pin`
+    against v3's real (unpatched) live answers must report it.
+  * `pin_case_dropped` — an in-memory COPY of the pin has ONE case's answer removed; `pin_problems` must
+    report the bijection break.
 A plant that finds nothing to perturb in the on-disk source raises `CannotPlant`, reported N/A beside
 the caught/missed count, never folded into a catch (INC-5's law, INC-8's fix, re-used unchanged). The
 sabotage side runs the PATCHED module inside a SHADOW copy of the small `v3/` subtree these two files
 depend on, copied from the WORKING TREE (never git) — `v3/spec/` is deliberately excluded from that
 subtree for the identical reason it is excluded from the oracle package (the SCOPE note above): every
 sabotage fixture also has no `factories/` directory, so `_gates()`'s try/except degrades `rtm` to `[]`
-on the shadow copy exactly as it does on the real one.
+on the shadow copy exactly as it does on the real one. No oracle is built for SABOTAGE any more: each
+plant reuses the SAME case builder the real matrix (and therefore the pin) was measured over, so its
+fixture's content genuinely matches the key `compare_to_pin` looks up.
 """
 from __future__ import annotations
 
@@ -127,7 +145,6 @@ import subprocess
 import sys
 import tempfile
 from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 
 from . import oracle_parity as harness
@@ -156,14 +173,12 @@ _PORTED_REHYDRATE_PATH = _V3 / "memory" / "rehydrate.py"
 #: `v3/memory/precompact.py`'s own docstring).
 _SNAP_REL = Path(".metamem") / "precompact.json"
 
-#: fewer distinct fact-sets than this, for a given function, over the whole matrix means that
-#: function's rows prove nothing (LOCK above).
-_MIN_DISTINCT: dict[str, int] = {
-    "build_snapshot": 3,
-    "write_snapshot": 2,
-    "record": 2,
-    "build_payload": 3,
-}
+#: this gate's registered name — the pin file is `v3/verify/pins/<_PIN_GATE>.json`.
+_PIN_GATE = "session_memory_parity"
+
+#: distinct canonical fact-sets the pin's 13 answers hold, MEASURED at pin time
+#: (V3-EXTRACT-OBLIGATIONS §2.2 law 4) — fewer would mean the comparison could pass by coincidence.
+_MIN_DISTINCT_ANSWERS = 12
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
@@ -530,26 +545,22 @@ _BP_CASES: tuple[tuple[str, Callable[[Path], None]], ...] = (
 )
 
 
-def _sabotage_fixture(fn: str, base: Path) -> tuple[str, list, list, Path | None, Path | None]:
-    """One representative fixture per plant-targeted function, built TWICE into separate physical
-    roots (oracle / ported) so the two sides' writes never collide. Returns
-    (case_name, oracle_args, ported_args, oracle_root_for_landed_check, ported_root_for_landed_check)."""
+def _sabotage_fixture(fn: str, base: Path) -> tuple[str, list, Path | None]:
+    """One REAL matrix case per plant-targeted function, built with the SAME case builder the pin
+    itself was measured over (never a one-off reimplementation) — so the fixture's content, and
+    therefore its pinned answer, genuinely matches the key `compare_to_pin` looks up. Returns
+    (case_name, args, root_for_landed_check)."""
     if fn == "build_payload":
-        o_root, p_root = base / "oracle", base / "ported"
-        _open_increment_doc(o_root)
-        _open_increment_doc(p_root)
-        return "open_increment", [str(o_root), "s1", ""], [str(p_root), "s1", ""], None, None
+        root = base / "root"
+        _bp_case_open_increment(root)
+        return "open_increment_no_state", [str(root), "s1", ""], None
     if fn == "write_snapshot":
-        o_root, p_root = base / "oracle", base / "ported"
-        o_root.mkdir(parents=True, exist_ok=True)
-        p_root.mkdir(parents=True, exist_ok=True)
-        snap = _fixture_snap()
-        return "valid_writable", [str(o_root), snap], [str(p_root), snap], o_root, p_root
+        root = base / "root"
+        root.mkdir(parents=True, exist_ok=True)
+        return "valid_writable", [str(root), _fixture_snap()], root
     if fn == "build_snapshot":
-        o_root, p_root = base / "oracle", base / "ported"
-        _open_increment_doc(o_root)
-        _open_increment_doc(p_root)
-        return "open_increment", [str(o_root), "s1", "manual"], [str(p_root), "s1", "manual"], None, None
+        root = _case_bs_open_increment(base)
+        return "open_increment", [str(root), "s1", "manual"], None
     raise AssertionError(f"no fixture wired for {fn!r}")
 
 
@@ -641,110 +652,111 @@ def _read_last_journal_record(root: Path) -> dict | None:
     return rec
 
 
-@dataclass
-class _Row:
-    function: str
-    name: str
-    oracle_fact: object
-    ported_fact: object
-    oracle_raw: object = None
-    ported_raw: object = None
+def _all_case_names() -> list[str]:
+    """The 13 `function:case` keys this module's matrix drives — the case-name space `pin_problems`'s
+    bijection law (§2.2 law 2) checks the pin against."""
+    return (
+        [f"build_snapshot:{name}" for name, _ in _BS_CASES]
+        + [f"write_snapshot:{name}" for name, _, _ in _WRITE_SNAPSHOT_CASES]
+        + [f"record:{name}" for name, _, _ in _RECORD_CASES]
+        + [f"build_payload:{name}" for name, _ in _BP_CASES]
+    )
 
 
-def _run_build_snapshot_group(rows: list[_Row], oracle_prefix, oracle_cwd, oracle_env,
-                              ported_prefix, ported_env, base: Path) -> None:
+def _run_answers(prefix: list[str], cwd: Path, env: dict, base: Path) -> dict[str, object]:
+    """Run the whole 13-case matrix through ONE side (`prefix`/`cwd`/`env`) and return
+    `{f"{function}:{case}": fact}`. Shared by `_live_answers` (the port) and `_oracle_answers` (the
+    extracted v2 body) so their 13 keys always align with `_all_case_names`."""
+    answers: dict[str, object] = {}
+
+    bs_dir = base / "bs"
     for name, build in _BS_CASES:
-        root = build(base)
-        o = _call(oracle_prefix, "build_snapshot", [str(root), "s1", "manual"], oracle_cwd, oracle_env)
-        p = _call(ported_prefix, "build_snapshot", [str(root), "s1", "manual"], _ROOT, ported_env)
-        rows.append(_Row("build_snapshot", name, _facts_snapshot(o), _facts_snapshot(p), o, p))
+        root = build(bs_dir)
+        resp = _call(prefix, "build_snapshot", [str(root), "s1", "manual"], cwd, env)
+        answers[f"build_snapshot:{name}"] = _facts_snapshot(resp)
 
-
-def _run_write_snapshot_group(rows: list[_Row], oracle_prefix, oracle_cwd, oracle_env,
-                              ported_prefix, ported_env, base: Path) -> None:
+    ws_dir = base / "ws"
     for name, snap, unwritable in _WRITE_SNAPSHOT_CASES:
-        o_root, p_root = base / f"{name}_oracle", base / f"{name}_ported"
-        o_root.mkdir(parents=True, exist_ok=True)
-        p_root.mkdir(parents=True, exist_ok=True)
+        root = ws_dir / name
+        root.mkdir(parents=True, exist_ok=True)
         try:
             if unwritable:
-                os.chmod(o_root, 0o555)
-                os.chmod(p_root, 0o555)
-            o = _call(oracle_prefix, "write_snapshot", [str(o_root), snap], oracle_cwd, oracle_env)
-            p = _call(ported_prefix, "write_snapshot", [str(p_root), snap], _ROOT, ported_env)
+                os.chmod(root, 0o555)
+            resp = _call(prefix, "write_snapshot", [str(root), snap], cwd, env)
         finally:
             if unwritable:
-                os.chmod(o_root, 0o755)
-                os.chmod(p_root, 0o755)
-        o_landed = (o_root / _SNAP_REL).exists()
-        p_landed = (p_root / _SNAP_REL).exists()
-        rows.append(_Row("write_snapshot", name, _facts_write(o, o_landed), _facts_write(p, p_landed), o, p))
+                os.chmod(root, 0o755)
+        landed = (root / _SNAP_REL).exists()
+        answers[f"write_snapshot:{name}"] = _facts_write(resp, landed)
 
-
-def _run_record_group(rows: list[_Row], oracle_prefix, oracle_cwd, oracle_env,
-                      ported_prefix, ported_env, base: Path) -> None:
+    rec_dir = base / "rec"
     for name, snap, written in _RECORD_CASES:
-        o_root, p_root = base / f"{name}_oracle", base / f"{name}_ported"
-        o_root.mkdir(parents=True, exist_ok=True)
-        p_root.mkdir(parents=True, exist_ok=True)
-        o = _call(oracle_prefix, "record", [str(o_root), snap, written], oracle_cwd, oracle_env)
-        p = _call(ported_prefix, "record", [str(p_root), snap, written], _ROOT, ported_env)
-        o_fact = _facts_record(o, _read_last_journal_record(o_root))
-        p_fact = _facts_record(p, _read_last_journal_record(p_root))
-        rows.append(_Row("record", name, o_fact, p_fact, o, p))
+        root = rec_dir / name
+        root.mkdir(parents=True, exist_ok=True)
+        resp = _call(prefix, "record", [str(root), snap, written], cwd, env)
+        answers[f"record:{name}"] = _facts_record(resp, _read_last_journal_record(root))
 
-
-def _run_build_payload_group(rows: list[_Row], oracle_prefix, oracle_cwd, oracle_env,
-                             ported_prefix, ported_env, base: Path) -> None:
+    bp_dir = base / "bp"
     for name, build in _BP_CASES:
-        o_root, p_root = base / f"{name}_oracle", base / f"{name}_ported"
-        build(o_root)
-        build(p_root)
-        o = _call(oracle_prefix, "build_payload", [str(o_root), "s1", ""], oracle_cwd, oracle_env)
-        p = _call(ported_prefix, "build_payload", [str(p_root), "s1", ""], _ROOT, ported_env)
-        rows.append(_Row("build_payload", name, _facts_payload(o), _facts_payload(p), o, p))
+        root = bp_dir / name
+        build(root)
+        resp = _call(prefix, "build_payload", [str(root), "s1", ""], cwd, env)
+        answers[f"build_payload:{name}"] = _facts_payload(resp)
+
+    return answers
 
 
-def check(ref: str) -> tuple[list[str], dict]:
-    problems: list[str] = []
-    rows: list[_Row] = []
-    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-") as tmp:
+def _live_answers() -> dict[str, object]:
+    """v3's port, driven alone (via `--drive`) over the whole matrix — the LIVE side of law 6's
+    comparison against the pin. Never touches the oracle."""
+    ported_prefix = ["-m", "v3.verify.session_memory_parity", "--drive"]
+    ported_env = dict(os.environ)
+    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-live-") as tmp:
+        return _run_answers(ported_prefix, _ROOT, ported_env, Path(tmp))
+
+
+def _oracle_answers(ref: str) -> dict[str, object]:
+    """v2's oracle — precompact/rehydrate + their `_seed`/docs_manifest/journal/projection/lifecycle/
+    verifier siblings, extracted at `ref` via `git show` and RUN as a throwaway PACKAGE — the module's
+    EXISTING oracle code path, unchanged. Used ONLY by `--repin`/`--verify-pin`
+    (V3-EXTRACT-OBLIGATIONS phase 1; amputated in phase 2, once the pin's provenance is proven and the
+    ancestor is gone)."""
+    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-oracle-") as tmp:
         base = Path(tmp)
         oracle_cwd = _build_oracle_tree(ref, base / "oracle")
         oracle_prefix = ["-m", "oraclepkg.driver"]
         oracle_env = dict(os.environ)
-        ported_prefix = ["-m", "v3.verify.session_memory_parity", "--drive"]
-        ported_env = dict(os.environ)
+        return _run_answers(oracle_prefix, oracle_cwd, oracle_env, base / "fixtures")
 
-        _run_build_snapshot_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix,
-                                  ported_env, base / "bs")
-        _run_write_snapshot_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix,
-                                  ported_env, base / "ws")
-        _run_record_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix,
-                          ported_env, base / "rec")
-        _run_build_payload_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix,
-                                 ported_env, base / "bp")
 
-    per_function: dict[str, list] = {}
-    for row in rows:
-        per_function.setdefault(row.function, []).append(row.oracle_fact)
-        if row.oracle_fact != row.ported_fact:
-            problems.append(f"{row.function}/{row.name}: oracle {row.oracle_fact!r} != "
-                            f"ported {row.ported_fact!r} (oracle raw {row.oracle_raw!r}, "
-                            f"ported raw {row.ported_raw!r})")
+def _oracle_sha256(ref: str) -> dict[str, str]:
+    """sha256 of the six extracted oracle bodies, keyed by their v2 paths — `--repin`'s
+    `provenance.oracle_sha256`."""
+    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-sha-") as tmp:
+        oracle_cwd = _build_oracle_tree(ref, Path(tmp) / "oracle")
+        pkg = oracle_cwd / "oraclepkg"
+        return {
+            _V2_SEED_BRIDGE: hashlib.sha256((pkg / "_seed.py").read_bytes()).hexdigest(),
+            _V2_DOCS_MANIFEST: hashlib.sha256((pkg / "docs_manifest.py").read_bytes()).hexdigest(),
+            _V2_JOURNAL: hashlib.sha256((pkg / "memory" / "journal.py").read_bytes()).hexdigest(),
+            _V2_PROJECTION: hashlib.sha256((pkg / "memory" / "projection.py").read_bytes()).hexdigest(),
+            _V2_PRECOMPACT: hashlib.sha256((pkg / "memory" / "precompact.py").read_bytes()).hexdigest(),
+            _V2_REHYDRATE: hashlib.sha256((pkg / "memory" / "rehydrate.py").read_bytes()).hexdigest(),
+        }
 
-    for fn, floor in _MIN_DISTINCT.items():
-        vals = per_function.get(fn, [])
-        distinct = len(set(map(repr, vals)))
-        if distinct < floor:
-            problems.append(f"{fn}: only {distinct} distinct oracle fact-set(s) across {len(vals)} "
-                            f"case(s) — fewer than {floor} means the comparison could pass by "
-                            f"coincidence")
 
-    counts = {"cases": len(rows), "functions": len(per_function),
-             "distinct_by_function": {fn: len(set(map(repr, v))) for fn, v in per_function.items()},
-             "mismatches": sum(1 for p in problems if ": oracle " in p)}
-    return problems, counts
+def check() -> tuple[list[str], dict]:
+    """The gate: v3's LIVE fact-sets against the COMMITTED pin. Never shells to `git` — that only
+    happens under `--repin`/`--verify-pin`."""
+    ref = harness.oracle_ref()
+    case_names = _all_case_names()
+    problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                         oracle_ref=ref)
+    if problems:
+        return problems, {"cases": len(case_names)}
+    mismatches = harness.compare_to_pin(_live_answers(), pin)
+    counts = {"cases": len(case_names), "mismatches": len(mismatches)}
+    return mismatches, counts
 
 
 # ── the red side ──────────────────────────────────────────────────────────────────────────────────
@@ -758,16 +770,24 @@ def _fact_for(fn: str, resp: dict, root: Path | None) -> object:
     raise AssertionError(f"no fact extractor wired for {fn!r}")
 
 
-def _run_sabotage(ref: str) -> int:
+def _run_sabotage() -> int:
+    """Retargeted (V3-EXTRACT-OBLIGATIONS phase 1): every plant's LIVE fact (over the REAL matrix case
+    its function targets) is compared against the PIN, never against a live oracle run — no oracle is
+    built here at all any more. The two NEW plants (`pin_answer_corrupted`/`pin_case_dropped`) perturb
+    an in-memory COPY of the pin itself and never touch a real pin file on disk."""
+    ref = harness.oracle_ref()
+    case_names = _all_case_names()
     caught: list[str] = []
     na: list[str] = []
     missed: list[str] = []
+
+    try:
+        pin = harness.load_pin(_PIN_GATE)
+    except RuntimeError as exc:
+        return Verdict("v3-session-memory-parity (SABOTAGE)", 1, f"cannot run: {exc}").emit()
+
     with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-sabotage-") as tmp:
         base = Path(tmp)
-        oracle_cwd = _build_oracle_tree(ref, base / "oracle")
-        oracle_prefix = ["-m", "oraclepkg.driver"]
-        oracle_env = dict(os.environ)
-
         for plant_name, (rel, real_path, plant_fn, fn) in _PLANTS.items():
             real_src = real_path.read_text(encoding="utf-8")
             try:
@@ -780,13 +800,21 @@ def _run_sabotage(ref: str) -> int:
             ported_prefix = ["-m", "v3.verify._driver"]
             ported_env = dict(os.environ)
 
-            name, o_args, p_args, o_landed_root, p_landed_root = _sabotage_fixture(
-                fn, base / f"fixtures_{plant_name}")
-            o = _call(oracle_prefix, fn, o_args, oracle_cwd, oracle_env)
-            p = _call(ported_prefix, fn, p_args, shadow_cwd, ported_env)
-            o_fact = _fact_for(fn, o, o_landed_root)
-            p_fact = _fact_for(fn, p, p_landed_root)
-            (caught if o_fact != p_fact else missed).append(plant_name)
+            name, args, landed_root = _sabotage_fixture(fn, base / f"fixtures_{plant_name}")
+            resp = _call(ported_prefix, fn, args, shadow_cwd, ported_env)
+            answers = {f"{fn}:{name}": _fact_for(fn, resp, landed_root)}
+            (caught if harness.compare_to_pin(answers, pin) else missed).append(plant_name)
+
+    live = _live_answers()
+    corrupted = harness.pin_answer_corrupted(pin)
+    (caught if harness.compare_to_pin(live, corrupted) else missed).append("pin_answer_corrupted")
+
+    dropped = harness.pin_case_dropped(pin)
+    drop_problems, _ = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                            oracle_ref=ref, pin=dropped)
+    (caught if drop_problems else missed).append("pin_case_dropped")
+
+    print(f"PLANTS caught={caught} na={na} missed={missed}")
 
     if missed:
         return Verdict("v3-session-memory-parity (SABOTAGE)", 1,
@@ -801,27 +829,52 @@ def _run_sabotage(ref: str) -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
+def _repin_or_verify(*, check_only: bool) -> int:
+    verb = "--verify-pin" if check_only else "--repin"
+    ref = harness.oracle_ref()
+    first = _oracle_answers(ref)
+    second = _oracle_answers(ref)
+    oracle_paths = {"_V2_SEED_BRIDGE": _V2_SEED_BRIDGE, "_V2_DOCS_MANIFEST": _V2_DOCS_MANIFEST,
+                    "_V2_JOURNAL": _V2_JOURNAL, "_V2_PROJECTION": _V2_PROJECTION,
+                    "_V2_PRECOMPACT": _V2_PRECOMPACT, "_V2_REHYDRATE": _V2_REHYDRATE}
+    oracle_sha256 = _oracle_sha256(ref)
+    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
+                                 oracle_sha256=oracle_sha256,
+                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
+                                 first=first, second=second, check_only=check_only)
+    if problems:
+        return Verdict(f"v3-session-memory-parity {verb}", 1,
+                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
+    if check_only:
+        return Verdict(f"v3-session-memory-parity {verb}", 0,
+                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
+                       f"exactly ({len(first)} answer(s))").emit()
+    return Verdict(f"v3-session-memory-parity {verb}", 0,
+                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
+
+
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "--drive":
         return _drive(argv[1:])
+    if argv == ["--repin"]:
+        return _repin_or_verify(check_only=False)
+    if argv == ["--verify-pin"]:
+        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-session-memory-parity", 2, f"takes no arguments; got {argv!r}").emit()
 
-    ref = harness.oracle_ref()
-
     if os.environ.get("V3_SESSION_MEMORY_PARITY_SABOTAGE") == "1":
-        return _run_sabotage(ref)
+        return _run_sabotage()
 
-    problems, counts = check(ref)
+    problems, counts = check()
     if problems:
         return Verdict("v3-session-memory-parity", 1,
-                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) across "
-                       f"{counts['functions']} function(s) @ {ref[:12]}",
+                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) against the "
+                       f"committed pin",
                        counts=counts, failures=tuple(problems)).emit()
     return Verdict("v3-session-memory-parity", 0,
-                   f"{counts['cases']} case(s) across {counts['functions']} function(s) match between "
-                   f"oracle and ported session memory @ {ref[:12]} — fact parity only (module docstring: "
-                   f"prose is never compared)",
+                   f"{counts['cases']} case(s) match between the committed pin and the ported session "
+                   f"memory — fact parity only (module docstring: prose is never compared)",
                    counts=counts).emit()
 
 

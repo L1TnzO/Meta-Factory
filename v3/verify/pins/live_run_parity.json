@@ -1,0 +1,35 @@
+{
+  "answers": {
+    "bootstrap_cannot_launch": 127,
+    "bootstrap_fails": 3,
+    "decorative": 1,
+    "deferred": 2,
+    "degraded_absent": 2,
+    "driver_cannot_launch": 127,
+    "driver_fails": 4,
+    "driver_no_output": 1,
+    "green": 0,
+    "neither_property_nor_threshold": 2,
+    "output_or_degraded_empty": 2,
+    "property_cannot_launch": 1,
+    "property_fails": 1,
+    "proposing": 0,
+    "score_below_threshold": 1,
+    "workdir_absent": 2
+  },
+  "pinned_gate": "live_run_parity",
+  "provenance": {
+    "derived_at": "2026-08-04T06:52:36Z",
+    "derived_by": "v3.verify.live_run_parity.--repin",
+    "harness": "v3.verify.oracle_parity",
+    "oracle_paths": {
+      "_V2_EVAL_GATE_PATH": "src/metafactory/verify/checks/eval_gate.py",
+      "_V2_PATH": "src/metafactory/verify/checks/live_run.py"
+    },
+    "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+    "oracle_sha256": {
+      "src/metafactory/verify/checks/eval_gate.py": "ac960037a95387752f8a1da4b6ae3e8e2f8f89a0a0b2d2e17309aa63342a8a6a",
+      "src/metafactory/verify/checks/live_run.py": "2ab72d947ff37fa80a884ae8d443e64751d1186eecfd7194bd5bf0696c0a7ed2"
+    }
+  }
+}

@@ -2,11 +2,13 @@
 """eval_floor_parity — does the PORTED `eval_floor` check body (`v3.verify.checks.eval_floor`) behave
 like v2's, at the pinned oracle commit? Built on the shared harness `eval_gate_parity` first proved out
 (`oracle_parity.py`, INC-9): a MATRIX of synthetic workdir/evidence/degraded/thresholds/command/bootstrap
-fixtures, RUN through both bodies — v2's oracle (extracted at `oracle_ref` via `git show`) and v3's port —
-against IDENTICAL argv, cwd and env, comparing EXIT CODES case by case.
+fixtures, and v3's port's answers over that matrix compared against a COMMITTED PIN of the oracle's
+answers (`v3/verify/pins/eval_floor_parity.json`, V3-EXTRACT-OBLIGATIONS §2) — case by case.
 
     python3 -m v3.verify.eval_floor_parity                                 # the gate
     V3_EVAL_FLOOR_PARITY_SABOTAGE=1 python3 -m v3.verify.eval_floor_parity  # the red side; ALSO exit 0
+    python3 -m v3.verify.eval_floor_parity --repin        # (phase 1 only) re-derive+write the pin
+    python3 -m v3.verify.eval_floor_parity --verify-pin   # re-derive and diff against the committed pin
 
 `eval_floor.py` has the SAME wrinkle `live_run.py` does: `from .eval_gate import _LEAKY_ENV`, a relative
 import that only resolves inside a package. So, like `live_run_parity`, the oracle is extracted as a
@@ -14,6 +16,14 @@ throwaway PACKAGE (`oraclepkg/`, `__init__.py` + v2's `eval_gate.py` + v2's `eva
 from the SAME `oracle_ref` so the sibling is the oracle's own, never v3's port) and run via
 `-m oraclepkg.eval_floor` with that package's parent directory added to `PYTHONPATH` — never a `sys.path`
 mutation in THIS interpreter (the path addition lives in an env var handed to a child process).
+
+PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). This extraction — `_extract_oracle_package` — still
+lives here, but ONLY `--repin`/`--verify-pin` (`_oracle_answers`) call it now. The gate itself (`check()`)
+never shells to `git`: it loads the pin, checks its five laws (`oracle_parity.pin_problems`), and compares
+v3's LIVE answers (`_live_answers`) against it (`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST
+NOT HAPPEN: the pinned answers must be the ORACLE's. `--repin` derives them TWICE from the extracted
+oracle package and refuses to write if the two derivations disagree (`oracle_parity.write_pin`) — never
+from this port's own output.
 
 WHAT THIS PROVES, AND WHAT IT DOES NOT — same limits as `eval_gate_parity`/`live_run_parity`: exit-code
 equality over a matrix that demonstrably exercises several DISTINCT codes is strong evidence the control
@@ -31,10 +41,12 @@ thresholds file missing · a command that cannot launch · the real evidence fai
 the harness command itself exiting a THIRD distinct nonzero code (proving the passthrough isn't confused
 with the bootstrap's own).
 
-LOCK #1 (shared with `eval_gate_parity`/`live_run_parity`): `oracle_parity.diversity_problem` requires at
-least `_MIN_DISTINCT_CODES` distinct ORACLE exit codes over the whole matrix.
+LOCK #1: the PIN must hold at least `_MIN_DISTINCT_ANSWERS` distinct exit codes — the count MEASURED at
+pin time — over its 14 cases; fewer would mean the comparison could pass by coincidence. Enforced by
+`oracle_parity.pin_problems` (law 4), over the fossil rather than a live oracle run.
 
-SABOTAGE plants a defect in a COPY of the ported body read off disk — never the real file:
+SABOTAGE plants a defect in a COPY of the ported body read off disk — never the real file — and asserts
+its LIVE answers, run through the same matrix, no longer match the PIN:
   * `drop_negative` — the embedded negative re-run (§3 of `run()`) is deleted; the function returns 0
     right after the positive harness run passes. Caught by `decorative` (whose whole point is that the
     degraded evidence must still be re-gated and must fail); invisible to cases whose real exit was
@@ -44,11 +56,16 @@ SABOTAGE plants a defect in a COPY of the ported body read off disk — never th
     fixture reads that variable directly and has no fallback, so it raises instead of silently comparing
     the same input twice; caught by `green` (whose oracle exit is 0, and the patched run can no longer
     reach it).
+  * `pin_answer_corrupted` — an in-memory COPY of the pin gets ONE answer perturbed; `compare_to_pin`
+    against v3's real (unpatched) live answers must report it.
+  * `pin_case_dropped` — an in-memory COPY of the pin has ONE case's answer removed; `pin_problems` must
+    report the bijection break.
 A plant that finds nothing to perturb in the on-disk source raises `CannotPlant` and is reported N/A
 BESIDE the caught/missed count, never folded into a catch (INC-5's law, INC-8's fix, re-used unchanged).
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -66,6 +83,8 @@ _ROOT = harness.ROOT_DIR
 #: (ADR-031 §2.1). `_V2_EVAL_GATE_PATH` is the sibling `eval_floor.py` imports from; both are extracted at
 #: the SAME ref so the oracle's own sibling is used, never v3's port. Needs its own line in
 #: `v3/verify/import_boundary.py`'s `_ORACLE_READERS` (the orchestrator's to add — see the slot contract).
+#: Read ONLY by `--repin`/`--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1); the gate itself compares
+#: against the committed pin.
 _V2_PATH = "src/metafactory/verify/checks/eval_floor.py"
 _V2_EVAL_GATE_PATH = "src/metafactory/verify/checks/eval_gate.py"
 
@@ -73,9 +92,16 @@ _V2_EVAL_GATE_PATH = "src/metafactory/verify/checks/eval_gate.py"
 #: read from for the sabotage plants.
 _PORTED_MODULE = "v3.verify.checks.eval_floor"
 _PORTED_PATH = _V3 / "verify" / "checks" / "eval_floor.py"
+#: the port's own `eval_gate.py` sibling — SABOTAGE's patched package uses this untouched copy, never
+#: the oracle's, since a genuine defect in `eval_floor.py` alone runs beside the real ported `eval_gate`.
+_PORTED_EVAL_GATE_PATH = _V3 / "verify" / "checks" / "eval_gate.py"
 
-#: fewer distinct oracle exit codes than this over the whole matrix means the matrix proves nothing.
-_MIN_DISTINCT_CODES = 4
+#: this gate's registered name — the pin file is `v3/verify/pins/<_PIN_GATE>.json`.
+_PIN_GATE = "eval_floor_parity"
+
+#: distinct exit codes the pin's 14 answers hold, MEASURED at pin time (V3-EXTRACT-OBLIGATIONS §2.2 law
+#: 4) — fewer would mean the comparison could pass by coincidence.
+_MIN_DISTINCT_ANSWERS = 6
 
 #: the marker file inside an evidence/degraded DIR the harness command reads.
 _RUN_FILE = "run.txt"
@@ -305,23 +331,55 @@ def _oracle_env(base: Path, env: dict) -> dict:
     return env
 
 
-def check(ref: str) -> tuple[list[str], dict]:
-    problems: list[str] = []
-    with tempfile.TemporaryDirectory(prefix="v3-eval-floor-parity-") as tmp:
+def _live_answers() -> dict[str, int]:
+    """v3's port, run alone over the whole matrix — the LIVE side of law 6's comparison against the
+    pin. `eval_floor.py`'s relative import already resolves inside the real `v3.verify.checks` package,
+    so this needs no package wrapping (unlike `_oracle_answers`). Never touches the oracle."""
+    env = dict(os.environ)
+    with tempfile.TemporaryDirectory(prefix="v3-eval-floor-parity-live-") as tmp:
+        cases_dir = Path(tmp) / "cases"
+        cases_dir.mkdir()
+        return {case.name: harness.run_case(["-m", _PORTED_MODULE], case.build(cases_dir), _ROOT, env)
+                for case in MATRIX}
+
+
+def _oracle_answers(ref: str) -> dict[str, int]:
+    """v2's oracle — `eval_floor.py` + its `eval_gate.py` sibling, extracted at `ref` via `git show` and
+    RUN as a throwaway PACKAGE — the module's EXISTING oracle code path, unchanged. Used ONLY by
+    `--repin`/`--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1; amputated in phase 2)."""
+    with tempfile.TemporaryDirectory(prefix="v3-eval-floor-parity-oracle-") as tmp:
         base = Path(tmp)
         pkg_root = _extract_oracle_package(ref, base)
         env = _oracle_env(pkg_root, dict(os.environ))
         cases_dir = base / "cases"
         cases_dir.mkdir()
-        mismatches, codes = harness.run_matrix(["-m", "oraclepkg.eval_floor"], ["-m", _PORTED_MODULE],
-                                                _ROOT, env, cases_dir, MATRIX)
-        problems.extend(mismatches)
-        diversity = harness.diversity_problem(codes, _MIN_DISTINCT_CODES)
-        if diversity:
-            problems.append(diversity)
-        counts = {"cases": len(MATRIX), "distinct_exit_codes": len(set(codes.values())),
-                  "mismatches": len(mismatches)}
-    return problems, counts
+        return {case.name: harness.run_case(["-m", "oraclepkg.eval_floor"], case.build(cases_dir),
+                                             _ROOT, env)
+                for case in MATRIX}
+
+
+def _oracle_sha256(ref: str) -> dict[str, str]:
+    """sha256 of the two extracted oracle bodies, keyed by their v2 paths — `--repin`'s
+    `provenance.oracle_sha256`."""
+    with tempfile.TemporaryDirectory(prefix="v3-eval-floor-parity-sha-") as tmp:
+        pkg_root = _extract_oracle_package(ref, Path(tmp))
+        pkg = pkg_root / "oraclepkg"
+        return {_V2_PATH: hashlib.sha256((pkg / "eval_floor.py").read_bytes()).hexdigest(),
+                _V2_EVAL_GATE_PATH: hashlib.sha256((pkg / "eval_gate.py").read_bytes()).hexdigest()}
+
+
+def check() -> tuple[list[str], dict]:
+    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — that only
+    happens under `--repin`/`--verify-pin`."""
+    ref = harness.oracle_ref()
+    case_names = [case.name for case in MATRIX]
+    problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                         oracle_ref=ref)
+    if problems:
+        return problems, {"cases": len(MATRIX)}
+    mismatches = harness.compare_to_pin(_live_answers(), pin)
+    counts = {"cases": len(MATRIX), "mismatches": len(mismatches)}
+    return mismatches, counts
 
 
 # ── the red side: plant a defect in a COPY of the port, never the real file ──────────────────────────────
@@ -354,36 +412,60 @@ _PLANTS: dict[str, Callable[[str], str]] = {
 }
 
 
-def _run_sabotage(ref: str) -> int:
+def _run_sabotage() -> int:
+    """Retargeted (V3-EXTRACT-OBLIGATIONS phase 1): every plant's LIVE answers are compared against the
+    PIN, never against a live oracle run — the oracle is no longer one side of any plant here, and the
+    patched package's sibling `eval_gate.py` is now v3's own REAL ported file (never the oracle's), since
+    the port's own `eval_gate.py` sibling is what a genuine sabotage of `eval_floor.py` alone would run
+    beside. The two NEW plants (`pin_answer_corrupted`/`pin_case_dropped`) perturb an in-memory COPY of
+    the pin itself and never touch a real pin file on disk."""
     ported_src = _PORTED_PATH.read_text(encoding="utf-8")
+    ported_eval_gate_src = _PORTED_EVAL_GATE_PATH.read_text(encoding="utf-8")
+    ref = harness.oracle_ref()
+    case_names = [case.name for case in MATRIX]
     caught: list[str] = []
     na: list[str] = []
     missed: list[str] = []
+
+    try:
+        pin = harness.load_pin(_PIN_GATE)
+    except RuntimeError as exc:
+        return Verdict("v3-eval-floor-parity (SABOTAGE)", 1, f"cannot run: {exc}").emit()
+
     with tempfile.TemporaryDirectory(prefix="v3-eval-floor-parity-sabotage-") as tmp:
         base = Path(tmp)
-        pkg_root = _extract_oracle_package(ref, base)
-        env = _oracle_env(pkg_root, dict(os.environ))
-        oracle_eval_gate_src = (pkg_root / "oraclepkg" / "eval_gate.py").read_text(encoding="utf-8")
+        env = _oracle_env(base, dict(os.environ))
         for name, plant in _PLANTS.items():
             try:
                 patched_src = plant(ported_src)
             except harness.CannotPlant as exc:
                 na.append(f"{name}: {exc}")
                 continue
-            # A fresh package (never `oraclepkg`, so the two never collide on PYTHONPATH): the patched
-            # `eval_floor.py` PLUS the oracle's own untouched `eval_gate.py` sibling (the plant only ever
-            # touches `eval_floor.py`), so its relative import resolves to a real, unmodified `eval_gate`.
+            # The patched `eval_floor.py` PLUS the port's own untouched `eval_gate.py` sibling (the
+            # plant only ever touches `eval_floor.py`), so its relative import resolves to a real,
+            # unmodified `eval_gate`.
             patched_dir = base / f"patched_{name}"
             patched_dir.mkdir()
             (patched_dir / "__init__.py").write_text("", encoding="utf-8")
-            (patched_dir / "eval_gate.py").write_text(oracle_eval_gate_src, encoding="utf-8")
+            (patched_dir / "eval_gate.py").write_text(ported_eval_gate_src, encoding="utf-8")
             (patched_dir / "eval_floor.py").write_text(patched_src, encoding="utf-8")
             cases_dir = base / f"cases_{name}"
             cases_dir.mkdir()
-            mismatches, _ = harness.run_matrix(["-m", "oraclepkg.eval_floor"],
-                                                ["-m", f"patched_{name}.eval_floor"], _ROOT, env,
-                                                cases_dir, MATRIX)
-            (caught if mismatches else missed).append(name)
+            answers = {case.name: harness.run_case(["-m", f"patched_{name}.eval_floor"],
+                                                    case.build(cases_dir), _ROOT, env)
+                      for case in MATRIX}
+            (caught if harness.compare_to_pin(answers, pin) else missed).append(name)
+
+    live = _live_answers()
+    corrupted = harness.pin_answer_corrupted(pin)
+    (caught if harness.compare_to_pin(live, corrupted) else missed).append("pin_answer_corrupted")
+
+    dropped = harness.pin_case_dropped(pin)
+    drop_problems, _ = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                            oracle_ref=ref, pin=dropped)
+    (caught if drop_problems else missed).append("pin_case_dropped")
+
+    print(f"PLANTS caught={caught} na={na} missed={missed}")
 
     if missed:
         return Verdict("v3-eval-floor-parity (SABOTAGE)", 1,
@@ -398,24 +480,49 @@ def _run_sabotage(ref: str) -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
+def _repin_or_verify(*, check_only: bool) -> int:
+    verb = "--verify-pin" if check_only else "--repin"
+    ref = harness.oracle_ref()
+    first = _oracle_answers(ref)
+    second = _oracle_answers(ref)
+    oracle_paths = {"_V2_PATH": _V2_PATH, "_V2_EVAL_GATE_PATH": _V2_EVAL_GATE_PATH}
+    oracle_sha256 = _oracle_sha256(ref)
+    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
+                                 oracle_sha256=oracle_sha256,
+                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
+                                 first=first, second=second, check_only=check_only)
+    if problems:
+        return Verdict(f"v3-eval-floor-parity {verb}", 1,
+                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
+    if check_only:
+        return Verdict(f"v3-eval-floor-parity {verb}", 0,
+                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
+                       f"exactly ({len(first)} answer(s))").emit()
+    return Verdict(f"v3-eval-floor-parity {verb}", 0,
+                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
+
+
 def main(argv: list[str]) -> int:
+    if argv == ["--repin"]:
+        return _repin_or_verify(check_only=False)
+    if argv == ["--verify-pin"]:
+        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-eval-floor-parity", 2, f"takes no arguments; got {argv!r}").emit()
 
-    ref = harness.oracle_ref()
-
     if os.environ.get("V3_EVAL_FLOOR_PARITY_SABOTAGE") == "1":
-        return _run_sabotage(ref)
+        return _run_sabotage()
 
-    problems, counts = check(ref)
+    problems, counts = check()
     if problems:
         return Verdict("v3-eval-floor-parity", 1,
-                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) @ {ref[:12]}",
+                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) against the "
+                       f"committed pin",
                        counts=counts, failures=tuple(problems)).emit()
     return Verdict("v3-eval-floor-parity", 0,
-                   f"{counts['cases']} case(s) ({counts['distinct_exit_codes']} distinct oracle exit "
-                   f"code(s)) match between oracle and ported `eval_floor` @ {ref[:12]} — exit-code "
-                   f"parity only, NOT identical stdout or timing, and NEVER a real evaluable product",
+                   f"{counts['cases']} case(s) match between the committed pin and the ported "
+                   f"`eval_floor` — exit-code parity only, NOT identical stdout or timing, and NEVER a "
+                   f"real evaluable product",
                    counts=counts).emit()
 
 

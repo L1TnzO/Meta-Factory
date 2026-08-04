@@ -1,0 +1,30 @@
+{
+  "answers": {
+    "below_threshold": 1,
+    "boundary_equal_pass": 0,
+    "decorative": 1,
+    "degraded_absent": 2,
+    "green": 0,
+    "malformed_score_value": 1,
+    "output_absent": 2,
+    "scorer_cannot_launch": 127,
+    "scorer_empty": 2,
+    "scorer_exits_nonzero": 5,
+    "threshold_metric_missing": 1,
+    "thresholds_empty": 2,
+    "workdir_absent": 2
+  },
+  "pinned_gate": "eval_gate_parity",
+  "provenance": {
+    "derived_at": "2026-08-04T06:47:31Z",
+    "derived_by": "v3.verify.eval_gate_parity.--repin",
+    "harness": "v3.verify.oracle_parity",
+    "oracle_paths": {
+      "_V2_PATH": "src/metafactory/verify/checks/eval_gate.py"
+    },
+    "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+    "oracle_sha256": {
+      "src/metafactory/verify/checks/eval_gate.py": "ac960037a95387752f8a1da4b6ae3e8e2f8f89a0a0b2d2e17309aa63342a8a6a"
+    }
+  }
+}

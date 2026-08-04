@@ -1,0 +1,196 @@
+{
+  "answers": {
+    "build_payload:journal_entries_tail_truncated": {
+      "journal_tail_count": 5,
+      "open_increment": null,
+      "open_increment_found": false,
+      "orientation_markers_present": true,
+      "projection_lines": [],
+      "state_ahora_present": false
+    },
+    "build_payload:minimal_no_state_no_journal": {
+      "journal_tail_count": 0,
+      "open_increment": null,
+      "open_increment_found": false,
+      "orientation_markers_present": true,
+      "projection_lines": [],
+      "state_ahora_present": false
+    },
+    "build_payload:open_increment_no_state": {
+      "journal_tail_count": 0,
+      "open_increment": "OPEN.md",
+      "open_increment_found": true,
+      "orientation_markers_present": true,
+      "projection_lines": [],
+      "state_ahora_present": false
+    },
+    "build_payload:state_present_with_projection": {
+      "journal_tail_count": 0,
+      "open_increment": "OPEN.md",
+      "open_increment_found": true,
+      "orientation_markers_present": true,
+      "projection_lines": [
+        "- Open increment: OPEN.md",
+        "- RTM by factory (re-derived from `.proof/`): fakefac: COMPLETE (1/1) \u00b7 otherfac: INCOMPLETE (0/2)"
+      ],
+      "state_ahora_present": true
+    },
+    "build_snapshot:active_block": {
+      "<keys>": [
+        "gates",
+        "increment",
+        "plan",
+        "schema",
+        "session",
+        "trigger",
+        "ts"
+      ],
+      "gates": {
+        "active_station": "s0",
+        "recompute_green": false,
+        "rtm": []
+      },
+      "increment": "OPEN.md",
+      "plan": {
+        "doc": "docs/work/OPEN.md",
+        "objective": "Do the fixture thing.",
+        "phases_done": 0,
+        "phases_total": 1
+      },
+      "schema": "precompact/1",
+      "session": "s1",
+      "trigger": "manual"
+    },
+    "build_snapshot:active_trust": {
+      "<keys>": [
+        "gates",
+        "increment",
+        "plan",
+        "schema",
+        "session",
+        "trigger",
+        "ts"
+      ],
+      "gates": {
+        "active_station": "s0",
+        "recompute_green": true,
+        "rtm": []
+      },
+      "increment": "OPEN.md",
+      "plan": {
+        "doc": "docs/work/OPEN.md",
+        "objective": "Do the fixture thing.",
+        "phases_done": 2,
+        "phases_total": 2
+      },
+      "schema": "precompact/1",
+      "session": "s1",
+      "trigger": "manual"
+    },
+    "build_snapshot:empty": {
+      "<keys>": [
+        "gates",
+        "increment",
+        "plan",
+        "schema",
+        "session",
+        "trigger",
+        "ts"
+      ],
+      "gates": {
+        "active_station": null,
+        "recompute_green": null,
+        "rtm": []
+      },
+      "increment": null,
+      "plan": {
+        "doc": null,
+        "objective": "",
+        "phases_done": 0,
+        "phases_total": 0
+      },
+      "schema": "precompact/1",
+      "session": "s1",
+      "trigger": "manual"
+    },
+    "build_snapshot:open_increment": {
+      "<keys>": [
+        "gates",
+        "increment",
+        "plan",
+        "schema",
+        "session",
+        "trigger",
+        "ts"
+      ],
+      "gates": {
+        "active_station": null,
+        "recompute_green": null,
+        "rtm": []
+      },
+      "increment": "OPEN.md",
+      "plan": {
+        "doc": "docs/work/OPEN.md",
+        "objective": "Do the fixture thing.",
+        "phases_done": 1,
+        "phases_total": 3
+      },
+      "schema": "precompact/1",
+      "session": "s1",
+      "trigger": "manual"
+    },
+    "record:written_false": {
+      "called_ok": true,
+      "journal": {
+        "increment": null,
+        "kind": "compact",
+        "session": "rs2",
+        "trigger": "compact"
+      }
+    },
+    "record:written_true": {
+      "called_ok": true,
+      "journal": {
+        "increment": "OPEN.md",
+        "kind": "compact",
+        "session": "rs1",
+        "trigger": "manual"
+      }
+    },
+    "write_snapshot:malformed_snap": {
+      "is_none": true,
+      "landed": false
+    },
+    "write_snapshot:unwritable_root": {
+      "is_none": true,
+      "landed": false
+    },
+    "write_snapshot:valid_writable": {
+      "is_none": false,
+      "landed": true
+    }
+  },
+  "pinned_gate": "session_memory_parity",
+  "provenance": {
+    "derived_at": "2026-08-04T07:00:59Z",
+    "derived_by": "v3.verify.session_memory_parity.--repin",
+    "harness": "v3.verify.oracle_parity",
+    "oracle_paths": {
+      "_V2_DOCS_MANIFEST": "src/metafactory/docs_manifest.py",
+      "_V2_JOURNAL": "src/metafactory/memory/journal.py",
+      "_V2_PRECOMPACT": "src/metafactory/memory/precompact.py",
+      "_V2_PROJECTION": "src/metafactory/memory/projection.py",
+      "_V2_REHYDRATE": "src/metafactory/memory/rehydrate.py",
+      "_V2_SEED_BRIDGE": "src/metafactory/_seed.py"
+    },
+    "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+    "oracle_sha256": {
+      "src/metafactory/_seed.py": "458f2cfcec6d4420afbccdb4bea6097396e1375de678e6ea108cd7ed199c5b92",
+      "src/metafactory/docs_manifest.py": "e9d14ebc807c22b2d11a5867a489130093eaed7a8591777d543b6a199b2ef081",
+      "src/metafactory/memory/journal.py": "bbafc4fea3d22853f82a8b4ea0082afeb0b4d33608cef6332dd079afd699bb2b",
+      "src/metafactory/memory/precompact.py": "ad00afdba039dcdc0903234c2ea1ef03a810133f8f92aead3be88e4267c3bf70",
+      "src/metafactory/memory/projection.py": "0a7aed4e28c3c0de8f6040b29b01357b3f8f08166b51fd7c06706a92d009d274",
+      "src/metafactory/memory/rehydrate.py": "382e883616abf756d903846382a9577092d27ca427a06feaa5530b6574719d27"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "answers": {
+    "argv_string_empty": 2,
+    "bootstrap_cannot_launch": 127,
+    "bootstrap_fails": 3,
+    "command_cannot_launch": 127,
+    "command_empty": 2,
+    "decorative": 1,
+    "degraded_missing": 2,
+    "evidence_empty": 2,
+    "evidence_missing": 2,
+    "green": 0,
+    "harness_exits_distinct_code": 5,
+    "real_evidence_fails": 1,
+    "thresholds_missing": 2,
+    "workdir_absent": 2
+  },
+  "pinned_gate": "eval_floor_parity",
+  "provenance": {
+    "derived_at": "2026-08-04T06:50:30Z",
+    "derived_by": "v3.verify.eval_floor_parity.--repin",
+    "harness": "v3.verify.oracle_parity",
+    "oracle_paths": {
+      "_V2_EVAL_GATE_PATH": "src/metafactory/verify/checks/eval_gate.py",
+      "_V2_PATH": "src/metafactory/verify/checks/eval_floor.py"
+    },
+    "oracle_ref": "f44dc22a1a0d0f834aad50b8049c1869e07dcb60",
+    "oracle_sha256": {
+      "src/metafactory/verify/checks/eval_floor.py": "e7d3b50cfecfc4c7b57d4f98d778870606428c28b1b2ae833c390fbeff63cd87",
+      "src/metafactory/verify/checks/eval_gate.py": "ac960037a95387752f8a1da4b6ae3e8e2f8f89a0a0b2d2e17309aa63342a8a6a"
+    }
+  }
+}

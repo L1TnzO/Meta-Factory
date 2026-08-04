@@ -4,6 +4,8 @@
 
     python3 -m v3.verify.column_law_parity                                    # the gate
     V3_COLUMN_LAW_PARITY_SABOTAGE=1 python3 -m v3.verify.column_law_parity   # the red side; must ALSO exit 0
+    python3 -m v3.verify.column_law_parity --repin        # (phase 1 only) re-derive+write the pin
+    python3 -m v3.verify.column_law_parity --verify-pin   # re-derive and diff against the committed pin
 
 WHY THIS ONE IS DIFFERENT FROM `eval_gate_parity`/`live_run_parity`. Those judge a CHECK BODY the
 substrate spawns as its own subprocess — comparing EXIT CODES is the right instrument because that is
@@ -12,7 +14,17 @@ required_workdir_rel`, `hermetic.preflight` and `instrument.target_of` are never
 imported and their RETURN VALUES are branched on in-process by `.claude/hooks/*.py` (`gate_guard`,
 `stop_proof`, `increment_guard`). So this module drives both sides through a tiny JSON-printing CLI
 (`--drive <function> <json-args>`, itself embedded in this file's own `main`) and compares the printed
-RESULT, not an exit code — the contract this slot was handed asks for exactly that.
+RESULT, not an exit code — the contract this slot was handed asks for exactly that. The KEY SPACE this
+module pins is per FUNCTION×CASE (e.g. `edit_allowed:docs_md`), 37 entries across the 7 functions below
+— never one entry per case-group, since seven functions run over five case groups.
+
+PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). `_build_oracle_tree` still lives here, but ONLY
+`--repin`/`--verify-pin` (`_oracle_answers`) call it now. The gate itself (`check()`) never shells to
+`git`: it loads the pin, checks its five laws (`oracle_parity.pin_problems`), and compares v3's LIVE
+answers (`_live_answers`, driven the same `--drive` way, over the real working tree) against it
+(`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST NOT HAPPEN: the pinned answers must be the
+ORACLE's. `--repin` derives them TWICE from the extracted oracle package and refuses to write if the two
+derivations disagree (`oracle_parity.write_pin`) — never from this port's own output.
 
 THE RELATIVE-IMPORT WRINKLE, twice. v2's `cadence.py` opens with `from .._seed import
 load_seed_lifecycle` and `from .journal import read as journal_read`; `hermetic.py` opens
@@ -54,12 +66,13 @@ an oracle `""` is normalized to `None` before comparing (every known caller alre
 check, so the two are behaviourally identical at every call site — see `v3/control/instrument.py`'s own
 docstring).
 
-LOCK (copy `oracle_parity.diversity_problem`'s discipline, generalised from exit codes to DECISIONS):
-a matrix where the oracle returned the same decision every time would compare equal and prove nothing.
-`_MIN_DISTINCT` declares a floor PER FUNCTION; `check()` goes red under it.
+LOCK: the PIN must hold at least `_MIN_DISTINCT_ANSWERS` distinct canonical decisions — the count
+MEASURED at pin time — across its 37 answers; fewer would mean the comparison could pass by
+coincidence. Enforced by `oracle_parity.pin_problems` (law 4), over the fossil rather than a live
+oracle run.
 
 SABOTAGE plants ONE defect per module, in a COPY of the ported body read off disk — never the real
-file:
+file — and asserts its LIVE answers, run through that function's cases, no longer match the PIN:
   * `edit_allowed_invert` (cadence) — the delegation `return load_seed_lifecycle().edit_allowed(...)`
     becomes `return not load_seed_lifecycle().edit_allowed(...)`. This module's `edit_allowed` is a
     thin delegate to the shared seed law (never re-derived — see `v3/control/cadence.py`'s own
@@ -69,6 +82,10 @@ file:
     `return "trust", "SABOTAGE: forced"`, unconditionally — "always return the trusting branch",
     per the slot contract.
   * `target_of_always_none` (instrument) — forces the first line of `target_of` to `return None`.
+  * `pin_answer_corrupted` — an in-memory COPY of the pin gets ONE answer perturbed; `compare_to_pin`
+    against v3's real (unpatched) live answers must report it.
+  * `pin_case_dropped` — an in-memory COPY of the pin has ONE case's answer removed; `pin_problems` must
+    report the bijection break.
 A plant that finds nothing to perturb in the on-disk source raises `CannotPlant`, reported N/A beside
 the caught/missed count, never folded into a catch (INC-5's law, INC-8's fix, re-used unchanged). The
 sabotage side runs the PATCHED module inside a SHADOW copy of the small `v3/` subtree these three files
@@ -76,7 +93,8 @@ actually depend on (`control/{cadence,instrument}.py`, `memory/journal.py`, `eco
 `seed_loader.py`, `verify/hermetic.py`, their `__init__.py`s) — copied from the WORKING TREE (never
 git), exactly the "read off disk" convention every parity module in this package uses for the side
 under test — plus a driver twin of this file's own `--drive` mode, since the patched copy has the same
-relative-import wrinkle the real port does and cannot run as a bare script either.
+relative-import wrinkle the real port does and cannot run as a bare script either. No oracle is built
+for SABOTAGE any more: every plant's answers are compared against the committed pin.
 """
 from __future__ import annotations
 
@@ -87,7 +105,6 @@ import subprocess
 import sys
 import tempfile
 from collections.abc import Callable
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -112,17 +129,12 @@ _PORTED_CADENCE_PATH = _V3 / "control" / "cadence.py"
 _PORTED_INSTRUMENT_PATH = _V3 / "control" / "instrument.py"
 _PORTED_HERMETIC_PATH = _V3 / "verify" / "hermetic.py"
 
-#: fewer distinct ORACLE decisions than this, for a given function, over the whole matrix means that
-#: function's rows prove nothing (LOCK above).
-_MIN_DISTINCT: dict[str, int] = {
-    "edit_allowed": 2,
-    "required_workdir_rel": 3,
-    "debt": 2,
-    "stop_block": 2,
-    "target_of": 4,
-    "is_subagent_spawn": 2,
-    "preflight": 3,
-}
+#: this gate's registered name — the pin file is `v3/verify/pins/<_PIN_GATE>.json`.
+_PIN_GATE = "column_law_parity"
+
+#: distinct canonical decisions the pin's 37 answers hold, MEASURED at pin time (V3-EXTRACT-OBLIGATIONS
+#: §2.2 law 4) — fewer would mean the comparison could pass by coincidence.
+_MIN_DISTINCT_ANSWERS = 13
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
@@ -533,77 +545,96 @@ def _comparable(fn: str, resp: dict) -> object:
     return result
 
 
-@dataclass
-class _Row:
-    function: str
-    name: str
-    args: list
-    oracle: dict
-    ported: dict
+def _all_case_names() -> list[str]:
+    """The 37 `function:case` keys this module's matrix drives — the case-name space `pin_problems`'s
+    bijection law (§2.2 law 2) checks the pin against."""
+    return (
+        [f"edit_allowed:{name}" for name, _ in _real_repo_cases()]
+        + [f"required_workdir_rel:{name}" for name, _ in _real_repo_cases()]
+        + [f"debt:{name}" for name, _ in _DEBT_CASES]
+        + [f"stop_block:{name}" for name, _ in _DEBT_CASES]
+        + [f"target_of:{name}" for name, _ in _target_cases()]
+        + [f"is_subagent_spawn:{name}" for name, _ in _spawn_cases()]
+        + [f"preflight:{name}" for name, _ in _PREFLIGHT_CASES]
+    )
 
 
-def _run_group(rows: list[_Row], oracle_prefix, oracle_cwd, oracle_env,
-               ported_prefix, ported_cwd, ported_env, fn: str, cases: list[tuple[str, list]]) -> None:
-    for name, args in cases:
-        o = _call(oracle_prefix, fn, args, oracle_cwd, oracle_env)
-        p = _call(ported_prefix, fn, args, ported_cwd, ported_env)
-        rows.append(_Row(fn, name, args, o, p))
+def _run_answers(prefix: list[str], cwd: Path, env: dict, synth: Path) -> dict[str, object]:
+    """Run the whole 37-case matrix through ONE side (`prefix`/`cwd`/`env`) and return
+    `{f"{function}:{case}": comparable_value}`. Shared by `_live_answers` (the port) and
+    `_oracle_answers` (the extracted v2 body) so their 37 keys always align with `_all_case_names`."""
+    answers: dict[str, object] = {}
+
+    def run_group(fn: str, cases: list[tuple[str, list]]) -> None:
+        for name, args in cases:
+            resp = _call(prefix, fn, args, cwd, env)
+            answers[f"{fn}:{name}"] = _comparable(fn, resp)
+
+    run_group("edit_allowed", _real_repo_cases())
+    run_group("required_workdir_rel", _real_repo_cases())
+    debt_cases = [(name, build(synth)) for name, build in _DEBT_CASES]
+    run_group("debt", debt_cases)
+    run_group("stop_block", debt_cases)
+    run_group("target_of", _target_cases())
+    run_group("is_subagent_spawn", _spawn_cases())
+    preflight_cases = [(name, build(synth / "preflight")) for name, build in _PREFLIGHT_CASES]
+    run_group("preflight", preflight_cases)
+    return answers
 
 
-def check(ref: str) -> tuple[list[str], dict]:
-    problems: list[str] = []
-    rows: list[_Row] = []
-    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-") as tmp:
+def _live_answers() -> dict[str, object]:
+    """v3's port, driven alone (via `--drive`) over the whole matrix — the LIVE side of law 6's
+    comparison against the pin. Never touches the oracle."""
+    ported_prefix = ["-m", "v3.verify.column_law_parity", "--drive"]
+    ported_env = dict(os.environ)
+    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-live-") as tmp:
+        synth = Path(tmp) / "synth"
+        synth.mkdir()
+        return _run_answers(ported_prefix, _ROOT, ported_env, synth)
+
+
+def _oracle_answers(ref: str) -> dict[str, object]:
+    """v2's oracle — cadence/instrument/hermetic + their `_seed`/journal/lifecycle/verifier siblings,
+    extracted at `ref` via `git show` and RUN as a throwaway PACKAGE — the module's EXISTING oracle
+    code path, unchanged. Used ONLY by `--repin`/`--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1;
+    amputated in phase 2, once the pin's provenance is proven and the ancestor is gone)."""
+    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-oracle-") as tmp:
         base = Path(tmp)
         oracle_cwd = _build_oracle_tree(ref, base / "oracle")
         oracle_prefix = ["-m", "oraclepkg.driver"]
         oracle_env = dict(os.environ)
-        ported_prefix = ["-m", "v3.verify.column_law_parity", "--drive"]
-        ported_env = dict(os.environ)
-
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "edit_allowed", _real_repo_cases())
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "required_workdir_rel", _real_repo_cases())
-
         synth = base / "synth"
         synth.mkdir()
-        debt_cases = [(name, build(synth)) for name, build in _DEBT_CASES]
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "debt", debt_cases)
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "stop_block", debt_cases)
+        return _run_answers(oracle_prefix, oracle_cwd, oracle_env, synth)
 
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "target_of", _target_cases())
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "is_subagent_spawn", _spawn_cases())
 
-        preflight_cases = [(name, build(synth / "preflight")) for name, build in _PREFLIGHT_CASES]
-        _run_group(rows, oracle_prefix, oracle_cwd, oracle_env, ported_prefix, _ROOT, ported_env,
-                  "preflight", preflight_cases)
+def _oracle_sha256(ref: str) -> dict[str, str]:
+    """sha256 of the five extracted oracle bodies, keyed by their v2 paths — `--repin`'s
+    `provenance.oracle_sha256`."""
+    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-sha-") as tmp:
+        oracle_cwd = _build_oracle_tree(ref, Path(tmp) / "oracle")
+        pkg = oracle_cwd / "oraclepkg"
+        return {
+            _V2_SEED_BRIDGE: hashlib.sha256((pkg / "_seed.py").read_bytes()).hexdigest(),
+            _V2_CADENCE: hashlib.sha256((pkg / "memory" / "cadence.py").read_bytes()).hexdigest(),
+            _V2_JOURNAL: hashlib.sha256((pkg / "memory" / "journal.py").read_bytes()).hexdigest(),
+            _V2_INSTRUMENT: hashlib.sha256((pkg / "memory" / "instrument.py").read_bytes()).hexdigest(),
+            _V2_HERMETIC: hashlib.sha256((pkg / "verify" / "hermetic.py").read_bytes()).hexdigest(),
+        }
 
-    per_function: dict[str, list] = {}
-    for row in rows:
-        o_val = _comparable(row.function, row.oracle)
-        p_val = _comparable(row.function, row.ported)
-        per_function.setdefault(row.function, []).append(o_val)
-        if o_val != p_val:
-            problems.append(f"{row.function}/{row.name}: oracle {row.oracle!r} (~{o_val!r}) != "
-                            f"ported {row.ported!r} (~{p_val!r}) over args {row.args!r}")
 
-    for fn, floor in _MIN_DISTINCT.items():
-        vals = per_function.get(fn, [])
-        distinct = len(set(map(repr, vals)))
-        if distinct < floor:
-            problems.append(f"{fn}: only {distinct} distinct oracle decision(s) {vals} across "
-                            f"{len(vals)} case(s) — fewer than {floor} means the comparison could "
-                            f"pass by coincidence")
-
-    counts = {"cases": len(rows), "functions": len(per_function),
-             "distinct_by_function": {fn: len(set(map(repr, v))) for fn, v in per_function.items()},
-             "mismatches": sum(1 for p in problems if ": oracle " in p)}
-    return problems, counts
+def check() -> tuple[list[str], dict]:
+    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — that only
+    happens under `--repin`/`--verify-pin`."""
+    ref = harness.oracle_ref()
+    case_names = _all_case_names()
+    problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                         oracle_ref=ref)
+    if problems:
+        return problems, {"cases": len(case_names)}
+    mismatches = harness.compare_to_pin(_live_answers(), pin)
+    counts = {"cases": len(case_names), "mismatches": len(mismatches)}
+    return mismatches, counts
 
 
 # ── the red side ──────────────────────────────────────────────────────────────────────────────────
@@ -627,16 +658,24 @@ def _plant_cases(fn: str, base: Path) -> list[tuple[str, list]]:
     raise AssertionError(f"no case builder wired for {fn!r}")
 
 
-def _run_sabotage(ref: str) -> int:
+def _run_sabotage() -> int:
+    """Retargeted (V3-EXTRACT-OBLIGATIONS phase 1): every plant's LIVE answers (over its own function's
+    cases) are compared against the PIN, never against a live oracle run — no oracle is built here at
+    all any more. The two NEW plants (`pin_answer_corrupted`/`pin_case_dropped`) perturb an in-memory
+    COPY of the pin itself and never touch a real pin file on disk."""
+    ref = harness.oracle_ref()
+    case_names = _all_case_names()
     caught: list[str] = []
     na: list[str] = []
     missed: list[str] = []
+
+    try:
+        pin = harness.load_pin(_PIN_GATE)
+    except RuntimeError as exc:
+        return Verdict("v3-column-law-parity (SABOTAGE)", 1, f"cannot run: {exc}").emit()
+
     with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-sabotage-") as tmp:
         base = Path(tmp)
-        oracle_cwd = _build_oracle_tree(ref, base / "oracle")
-        oracle_prefix = ["-m", "oraclepkg.driver"]
-        oracle_env = dict(os.environ)
-
         for plant_name, (rel, real_path, plant_fn, fn) in _PLANTS.items():
             real_src = real_path.read_text(encoding="utf-8")
             try:
@@ -650,14 +689,21 @@ def _run_sabotage(ref: str) -> int:
             ported_env = dict(os.environ)
 
             cases = _plant_cases(fn, base / f"fixtures_{plant_name}")
-            mismatch = False
-            for name, args in cases:
-                o = _call(oracle_prefix, fn, args, oracle_cwd, oracle_env)
-                p = _call(ported_prefix, fn, args, shadow_cwd, ported_env)
-                if _comparable(fn, o) != _comparable(fn, p):
-                    mismatch = True
-                    break
-            (caught if mismatch else missed).append(plant_name)
+            answers = {f"{fn}:{name}": _comparable(fn, _call(ported_prefix, fn, args, shadow_cwd,
+                                                              ported_env))
+                      for name, args in cases}
+            (caught if harness.compare_to_pin(answers, pin) else missed).append(plant_name)
+
+    live = _live_answers()
+    corrupted = harness.pin_answer_corrupted(pin)
+    (caught if harness.compare_to_pin(live, corrupted) else missed).append("pin_answer_corrupted")
+
+    dropped = harness.pin_case_dropped(pin)
+    drop_problems, _ = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
+                                            oracle_ref=ref, pin=dropped)
+    (caught if drop_problems else missed).append("pin_case_dropped")
+
+    print(f"PLANTS caught={caught} na={na} missed={missed}")
 
     if missed:
         return Verdict("v3-column-law-parity (SABOTAGE)", 1,
@@ -672,27 +718,52 @@ def _run_sabotage(ref: str) -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
+def _repin_or_verify(*, check_only: bool) -> int:
+    verb = "--verify-pin" if check_only else "--repin"
+    ref = harness.oracle_ref()
+    first = _oracle_answers(ref)
+    second = _oracle_answers(ref)
+    oracle_paths = {"_V2_CADENCE": _V2_CADENCE, "_V2_INSTRUMENT": _V2_INSTRUMENT,
+                    "_V2_HERMETIC": _V2_HERMETIC, "_V2_SEED_BRIDGE": _V2_SEED_BRIDGE,
+                    "_V2_JOURNAL": _V2_JOURNAL}
+    oracle_sha256 = _oracle_sha256(ref)
+    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
+                                 oracle_sha256=oracle_sha256,
+                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
+                                 first=first, second=second, check_only=check_only)
+    if problems:
+        return Verdict(f"v3-column-law-parity {verb}", 1,
+                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
+    if check_only:
+        return Verdict(f"v3-column-law-parity {verb}", 0,
+                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
+                       f"exactly ({len(first)} answer(s))").emit()
+    return Verdict(f"v3-column-law-parity {verb}", 0,
+                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
+
+
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "--drive":
         return _drive(argv[1:])
+    if argv == ["--repin"]:
+        return _repin_or_verify(check_only=False)
+    if argv == ["--verify-pin"]:
+        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-column-law-parity", 2, f"takes no arguments; got {argv!r}").emit()
 
-    ref = harness.oracle_ref()
-
     if os.environ.get("V3_COLUMN_LAW_PARITY_SABOTAGE") == "1":
-        return _run_sabotage(ref)
+        return _run_sabotage()
 
-    problems, counts = check(ref)
+    problems, counts = check()
     if problems:
         return Verdict("v3-column-law-parity", 1,
-                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) across "
-                       f"{counts['functions']} function(s) @ {ref[:12]}",
+                       f"{len(problems)} deviation(s) over {counts['cases']} case(s) against the "
+                       f"committed pin",
                        counts=counts, failures=tuple(problems)).emit()
     return Verdict("v3-column-law-parity", 0,
-                   f"{counts['cases']} case(s) across {counts['functions']} function(s) match between "
-                   f"oracle and ported column law @ {ref[:12]} — decision parity only (LAW #3: reason "
-                   f"prose is never compared)",
+                   f"{counts['cases']} case(s) match between the committed pin and the ported column "
+                   f"law — decision parity only (LAW #3: reason prose is never compared)",
                    counts=counts).emit()
 
 

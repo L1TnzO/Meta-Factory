@@ -1,7 +1,7 @@
-<!-- meta:doc sha=e4cb5c5c4a6bcb2d1e47e53a2f28409f79128f60 updated=2026-08-04T02:28Z -->
+<!-- meta:doc sha=84604d2b2b4be662e598c772232b57e9d59c5a9d updated=2026-08-04T02:30Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-04T02:30Z) (created 2026-08-03T23:31Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 >
 > PASO 3 of `docs/work/V3-EXTRACT-DIRECTION-INCREMENT.md` (`N-0135`), plus the residue of PASO 2

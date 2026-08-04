@@ -1,7 +1,52 @@
-<!-- meta:doc sha=b0a788868e1c555aefc37654df3a3283f3ef9c42 updated=2026-08-03T21:44Z -->
+<!-- meta:doc sha=c7478a4b4b98d9e19428f720dd3188cb08749cb0 updated=2026-08-04T02:31Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-08-04T02:3xZ — V3-EXTRACT-RETIREMENT: el censo que decide, y seis leyes que no votan
+
+**Qué queda cerrado.** PASO 3 de la extracción. Ningún gate registrado puede depender del ancestro
+muerto **sin una fila decidida**: el gate `retirement` deriva su población (no la lista) y hoy da
+**10 módulos · 12 filas · `open_obligations=10`, con los diez nombrados**. Ocho leyes con lado rojo
+propio (24 escenarios), más la novena de cordura: si una clave de `_ORACLE_READERS` se cae de la
+población derivada, es rojo — un estrechamiento silencioso no pasa por verde. Verde **con**
+obligaciones abiertas es el estado diseñado; verde **callado** sobre ellas era el bug.
+
+**Lo que la ejecución corrigió del plan.** El doc de dirección pedía reusar `deletion_manifest.population`
+como motor de prueba: se rechazó, porque haría que el censo que certifica «este repo puede irse» fuera el
+único gate incapaz de viajar — fallando su propia ley en su primera corrida. No usa git en ningún lado.
+Y la población tenía que ser de PAQUETE, no de `v3/`: `tools/corpus_parity.py` viaja, lee el oráculo, lo
+citan catorce docstrings como «el oráculo de acuerdo v2/v3» y no lo corre ningún gate — la fila doce.
+Una población acotada a donde uno miró no es una población.
+
+**La medición de aceptación.** `meta check` completo (nada saltado): **41 verdes · 1 rojo · 1 N/A = 43
+registrados**, ~55 min. El único rojo era **este** `docs/STATE.md`, viejo por último commit: obligación
+de ADR-007, no defecto de gate. Segundo verificador verde sobre el commit empujado (`dummy 5/5 == pin`).
+
+**`N-0138` cerrado, y su premisa era FALSA.** Estaba escrito que «seis gates no reportan del otro lado y
+nadie imprime cuáles». La salida del propio actor dice lo contrario: imprime los seis **por nombre**,
+justo encima del veredicto, y los deriva como `known - ran` — exhaustivo por construcción, no una tabla
+a mano que pueda pudrirse. Con el registry construido en un worktree **al commit del CI**: `33 + 0 + 4 +
+6 = 43`, los libros cierran. **El defecto era mío: afirmé lo que el verificador no imprime sin leer lo
+que imprime.** Tercera vez en el arco que la misma forma aparece — algo parece verde (o roto) porque
+nadie preguntó qué quedó fuera de la cuenta — y la única defensa que funcionó las tres veces fue correr
+el instrumento en vez de recordarlo.
+
+**`N-0139`, medido y NO tomado acá.** Preguntando la conversa que ningún instrumento pregunta —¿qué leyes
+VOTAN?—: de **62** módulos ejecutables en `v3/verify/`, **42** los nombra un gate registrado y **seis no
+los nombra nadie** en ningún `.py`/`.json`/`.yml`: `registry_law`, `line_parity`, `abstention`, `binding`,
+`leaf_bounded`, `column_live`. Aparecen sólo en los docs de incremento que los construyeron, anotados como
+«verde» — una medición puntual con la gramática de un diente permanente. `import_boundary` era la séptima,
+se encontró **por accidente** al sacarle un carve-out, y salió **roja**. Estas dos que corrí salieron
+verdes; lo que no existe es quien avise el día que dejen de estarlo. La más filosa es `registry_law`: es la
+ley que se niega a registrar un gate sin testigo rojo alcanzable («un gate que no puede fallar no prueba
+nada, y este es el momento que se supone que duele»). Esa ley no es un gate.
+
+**Lección de alcance.** Iba a agregarle a `registry_law` una ley nueva (que el veredicto imprima su
+denominador). Medir primero mostró que habría sido agregarle una ley a un módulo que nadie corre, y
+«verificarla» corriéndola a mano: exactamente el bug que estaba describiendo. `N-0139` es otra población,
+su arreglo es una decisión por módulo (registrar · declarar LIVE-y-manual con cadencia · borrar), y queda
+escrito con su derivación para que la próxima pasada arranque de una medición y no de este párrafo.
 
 ## 2026-08-02T00:4xZ — INC-12 INTERACTIVE-MODE: la escotilla era evidencia destruida, no un chat que faltaba
 

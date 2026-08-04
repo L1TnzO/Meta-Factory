@@ -261,10 +261,31 @@ def _audit_history(root: Path, factories: list[str]) -> tuple[list[str], str]:
                       f"{suppressed} suppressed by {len(WAIVED_COMMITS)} audited WAIVED_COMMITS row(s)")
 
 
+def population_problems(factories: list[str]) -> list[str]:
+    """LOCK #1 — an EMPTY population is RED, never a vacuous green.
+
+    Measured 2026-08-04 (V3-EXTRACT-RETIREMENT §5): with no `factories/*/codegen/` in the tree this
+    gate's loop never ran, `_audit_history` was handed nothing, and it exited 0 printing "0 factory/ies
+    with frozen codegen/". Every other census in this repo carries this lock — `migration_census` and
+    `verb_census` each refuse an empty population by name — and this one did not, which mattered
+    exactly nowhere HERE (the subject is non-empty, so the green is earned) and mattered a great deal
+    THERE: `factories/` travels with the extraction package, and this is the one ancestor-independent
+    gate that keeps its teeth on the other side. A gate whose green means "I found nothing to check"
+    is indistinguishable from one that means "I checked and it was clean" — and the second is what
+    anybody reading the verdict will assume."""
+    if not factories:
+        return ["no factory with a frozen `codegen/` was found — this gate would be passing by never "
+                "being asked anything (LOCK #1). Either the population moved, or the tree this ran "
+                "against is not the one that owns the frozen codegen"]
+    return []
+
+
 def _real_report(root: Path) -> tuple[list[str], list[str]]:
     """The GREEN side over the real repo. Returns (problems, human-readable report lines)."""
     lifecycle = _load_lifecycle()
     factories = sorted(p.parent.name for p in root.glob("factories/*/codegen") if p.is_dir())
+    if lock := population_problems(factories):
+        return lock, ["0 factory/ies with frozen codegen/ — refused as vacuous (LOCK #1)"]
     problems, report = [], []
     for f in factories:
         workdir = root / "factories" / f / "docs" / "work"
@@ -317,6 +338,12 @@ def _tooth_alive() -> tuple[list[str], int]:
          not evaluate_waivers([(_SYN_SHA, _SYN_REASON, _SYN_SHA, True, False)])),
         ("hatch: a fully-justified row did NOT pass (would block every legitimate governance act)",
          bool(evaluate_waivers([(_SYN_SHA, _SYN_REASON, _SYN_SHA, True, True)]))),
+        # LOCK #1 — the empty population must be refused, not celebrated
+        ("lock1: an EMPTY factory population was NOT flagged — the gate would pass by never being "
+         "asked anything",
+         not population_problems([])),
+        ("lock1: a NON-empty population was flagged (would redden every honest tree)",
+         bool(population_problems(["full-stack-kotlin"]))),
     ):
         scenarios += 1
         if condition:
@@ -336,7 +363,7 @@ def main(argv: list[str]) -> int:
                            f"synthetic scenario(s)", failures=tuple(dead)).emit()
         return Verdict("v3-codegen-freeze (SABOTAGE)", 0,
                        f"all {scenarios} synthetic scenarios (in-tree waiver law + the "
-                       f"WAIVED_COMMITS escape hatch) resolved as the law requires",
+                       f"WAIVED_COMMITS escape hatch + LOCK #1) resolved as the law requires",
                        counts={"scenarios": scenarios}).emit()
 
     problems, report = _real_report(_ROOT)

@@ -535,6 +535,17 @@ def _register_economy(registry: Registry) -> None:   # + INC-7's two migration g
                "row claims a discharge the derived population contradicts",
         witness=Witness("sabotage_env", "V3_RETIREMENT_SABOTAGE"),
     ))
+    registry.register(Gate(
+        name="pin_integrity",
+        argv=(PY, "-m", "v3.verify.checks.pin_integrity"),
+        proves="v3/verify/pins/*.json bijection-match the modules that declare a `_PIN_GATE`, every "
+               "pin's provenance block is complete and ref-bound to `v3/oracle_ref.json`, and every "
+               "pinned gate exits 0 run inside a probe tree of every git-tracked 'package'-classified "
+               "file with NO `.git` — the repo that will actually be extracted (V3-EXTRACT-OBLIGATIONS "
+               "phase 2, the accounting the five amputated parity modules can no longer speak to "
+               "individually)",
+        witness=Witness("sabotage_env", "V3_PIN_INTEGRITY_SABOTAGE"),
+    ))
 
 
 

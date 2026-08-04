@@ -4,8 +4,6 @@ v2's, at the pinned oracle commit?
 
     python3 -m v3.verify.eval_gate_parity                                 # the gate
     V3_EVAL_GATE_PARITY_SABOTAGE=1 python3 -m v3.verify.eval_gate_parity  # the red side; must ALSO exit 0
-    python3 -m v3.verify.eval_gate_parity --repin        # (phase 1 only) re-derive+write the pin
-    python3 -m v3.verify.eval_gate_parity --verify-pin   # re-derive and diff against the committed pin
 
 THE FIRST BEHAVIOURAL PARITY INSTRUMENT OVER A CHECK BODY. `kinds_parity` compares ARGV ONLY — it proves
 "the right module gets invoked with the right arguments", never that the invoked module DOES the right
@@ -15,13 +13,14 @@ does: it builds a MATRIX of synthetic scorer/output/degraded fixtures and assert
 case IDENTICALLY to a COMMITTED PIN of the oracle's answers (`v3/verify/pins/eval_gate_parity.json`,
 V3-EXTRACT-OBLIGATIONS §2) — case by case, exit code by exit code.
 
-PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). v2's `eval_gate.py`, extracted at `oracle_ref` via
-`git show` and RUN, still lives in this file (`_oracle_answers`) — but ONLY `--repin`/`--verify-pin` call
-it now. The gate itself (`check()`) never shells to `git`: it loads the pin, checks its five laws
-(`oracle_parity.pin_problems`), and compares v3's LIVE answers (`_live_answers`) against it
-(`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST NOT HAPPEN: the pinned answers must be the
-ORACLE's. `--repin` derives them TWICE from the extracted oracle body and refuses to write if the two
-derivations disagree (`oracle_parity.write_pin`) — never from this port's own output.
+PINNED, AND THE ORACLE HALF IS GONE (V3-EXTRACT-OBLIGATIONS phase 2). Phase 1 fossilised the oracle's 13
+exit codes into the committed pin, with the provenance proved WHILE the ancestor still existed (see the
+increment doc's §Evidencia). This module never shells to `git`, and after this phase it carries no code
+path that could any more: it loads the pin, checks its five laws (`oracle_parity.pin_problems`), and
+compares v3's LIVE answers (`_live_answers`) against it (`oracle_parity.compare_to_pin`). There is no
+re-derivation flag left — a re-pin performed without the oracle would be exactly the undetectable
+failure this increment exists to prevent. The accounting for the pin AS A SET now lives in
+`v3.verify.checks.pin_integrity`, not here — this module speaks only for its own 13 cases.
 
 WHAT THIS PROVES, AND WHAT IT DOES NOT. Exit-code equality over a matrix that demonstrably exercises
 several DISTINCT codes (LOCK below) is strong evidence the control flow — thresholds, the two-sided
@@ -58,7 +57,6 @@ BESIDE the caught/missed count, never folded into a catch — INC-5's law, and I
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import sys
@@ -71,14 +69,6 @@ from ..kernel.report import Verdict
 
 _V3 = harness.V3_DIR
 _ROOT = harness.ROOT_DIR
-
-#: v2's path to the check body this gate judges, read at `oracle_ref` via `git show` — never imported,
-#: never executed in-process (ADR-031 §2.1: v2 and v3 share a tree, so this reads pinned HISTORY, not
-#: live v2 code). Needs its own line in `v3/verify/import_boundary.py`'s `_ORACLE_READERS`, the same as
-#: `migration_census.py`'s `_V2_RENDERER` and `gate_census.py`'s equivalent — see that module's ORACLE
-#: READERS section for why the exemption is enumerated rather than avoided. Read ONLY by `--repin`/
-#: `--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1); the gate itself compares against the committed pin.
-_V2_PATH = "src/metafactory/verify/checks/eval_gate.py"
 
 #: the module the ACCEPTANCE gate runs the port through (`python3 -m ...`), and the file its source is
 #: read from for the sabotage plants.
@@ -289,32 +279,9 @@ def _live_answers() -> dict[str, int]:
                 for case in MATRIX}
 
 
-def _oracle_answers(ref: str) -> dict[str, int]:
-    """v2's oracle, extracted at `ref` via `git show` and RUN — the module's EXISTING oracle code
-    path, unchanged. Used ONLY by `--repin`/`--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1; this call
-    site is amputated in phase 2, once the pin's provenance is proven and the ancestor is gone)."""
-    env = dict(os.environ)
-    with tempfile.TemporaryDirectory(prefix="v3-eval-gate-parity-oracle-") as tmp:
-        base = Path(tmp)
-        oracle_path = base / "oracle_eval_gate.py"
-        harness.extract_oracle(ref, _V2_PATH, oracle_path)
-        cases_dir = base / "cases"
-        cases_dir.mkdir()
-        return {case.name: harness.run_case([str(oracle_path)], case.build(cases_dir), _ROOT, env)
-                for case in MATRIX}
-
-
-def _oracle_sha256(ref: str) -> dict[str, str]:
-    """sha256 of the extracted oracle body, keyed by its v2 path — `--repin`'s `provenance.oracle_sha256`."""
-    with tempfile.TemporaryDirectory(prefix="v3-eval-gate-parity-sha-") as tmp:
-        dest = Path(tmp) / "oracle_eval_gate.py"
-        harness.extract_oracle(ref, _V2_PATH, dest)
-        return {_V2_PATH: hashlib.sha256(dest.read_bytes()).hexdigest()}
-
-
 def check() -> tuple[list[str], dict]:
-    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — that only
-    happens under `--repin`/`--verify-pin`."""
+    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — this module
+    carries no code path that could any more (V3-EXTRACT-OBLIGATIONS phase 2)."""
     ref = harness.oracle_ref()
     case_names = [case.name for case in MATRIX]
     problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
@@ -413,33 +380,7 @@ def _run_sabotage() -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
-def _repin_or_verify(*, check_only: bool) -> int:
-    verb = "--verify-pin" if check_only else "--repin"
-    ref = harness.oracle_ref()
-    first = _oracle_answers(ref)
-    second = _oracle_answers(ref)
-    oracle_paths = {"_V2_PATH": _V2_PATH}
-    oracle_sha256 = _oracle_sha256(ref)
-    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
-                                 oracle_sha256=oracle_sha256,
-                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
-                                 first=first, second=second, check_only=check_only)
-    if problems:
-        return Verdict(f"v3-eval-gate-parity {verb}", 1,
-                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
-    if check_only:
-        return Verdict(f"v3-eval-gate-parity {verb}", 0,
-                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
-                       f"exactly ({len(first)} answer(s))").emit()
-    return Verdict(f"v3-eval-gate-parity {verb}", 0,
-                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
-
-
 def main(argv: list[str]) -> int:
-    if argv == ["--repin"]:
-        return _repin_or_verify(check_only=False)
-    if argv == ["--verify-pin"]:
-        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-eval-gate-parity", 2, f"takes no arguments; got {argv!r}").emit()
 

@@ -97,56 +97,15 @@ _ORACLE_READERS: dict[str, str] = {
         "the set of actions v3 still owes cannot be a literal someone forgot to grow. Same technique "
         "and same terms as the gate census; the read survives INC-11 deleting v2 because a commit "
         "is immutable",
-    "v3/verify/eval_gate_parity.py":
-        "extracts v2's `eval_gate` BODY at oracle_ref via `git show` and RUNS it as a subprocess "
-        "beside the port, comparing exit codes over a case matrix. It differs in KIND from the three "
-        "above, which is why it gets its own line instead of riding theirs: they derive a v2 "
-        "VOCABULARY (a list of gates, of functions, of build actions) to prove a v3 table is not "
-        "stale; this one executes v2 BEHAVIOUR to prove a ported body still answers the same way. "
-        "That is a stronger claim than any of them makes, and it is the rebuild's first behavioural "
-        "parity instrument — `kinds_parity` compares argv only. Granted under the same terms all the "
-        "same: the ref comes from `v3/oracle_ref.json` and is never a hardcoded sha, the body is "
-        "never imported and never read from the working tree (v2 and v3 share a tree, so a parity "
-        "claim measured against uncommitted state measures whatever was lying around), an empty or "
-        "failed `git show` RAISES instead of silently comparing against nothing, and the read "
-        "survives INC-11 deleting v2 because a commit is immutable",
-    "v3/verify/live_run_parity.py":
-        "same instrument, same terms and same ref source as `eval_gate_parity` above, for the "
-        "`live_run` executor ported in V3-INC10. Granted separately rather than by widening that "
-        "line because it reads a WIDER surface of v2 and the permission should say so: v2's "
-        "`live_run` opens with a relative import onto its sibling `eval_gate`, so the oracle cannot "
-        "be extracted as one file and run as a script — it is extracted as a throwaway PACKAGE of "
-        "two bodies (the executor and that sibling), both at the same ref, so the oracle's own "
-        "relative import resolves to v2's `eval_gate` and never to v3's port of it. That last "
-        "clause is the whole point of the read: an oracle that silently fell through to the ported "
-        "sibling would be comparing the port against itself and would agree perfectly",
-    "v3/verify/eval_floor_parity.py":
-        "identical grant, identical reasoning, for the `eval_floor` executor ported in the same "
-        "increment: it too imports from `eval_gate` (`_LEAKY_ENV`), so it too needs the two-body "
-        "package extraction rather than a single-file one, and the same anti-self-comparison clause "
-        "is what the second body is for",
-    # `v3/verify/deletion_manifest.py` held a grant here and it is GONE (V3-EXTRACT-RETIREMENT). Its
+    # The five behavioural-parity readers — `eval_gate_parity.py`, `live_run_parity.py`,
+    # `eval_floor_parity.py`, `session_memory_parity.py`, `column_law_parity.py` — held grants here
+    # through V3-EXTRACT-OBLIGATIONS phase 1. All five are GONE (phase 2, the amputation): the
+    # oracle's answers are now a COMMITTED pin (`v3/verify/pins/*.json`) each module compares its live
+    # body against, and none of the five names a v2 path or shells to `git` any more —
+    # `v3.verify.checks.pin_integrity`'s travel probe is what now certifies that.
+    # `v3/verify/deletion_manifest.py` held a grant here too and it is GONE (V3-EXTRACT-RETIREMENT). Its
     # own text called it "the shortest-lived… this exemption should be re-argued rather than
     # inherited". It was re-argued, and the answer was retirement — `v3.verify.retirement`.
-    "v3/verify/session_memory_parity.py":
-        "the same behavioural grant, for the two session-memory bodies INC-11 P2 ports "
-        "(`precompact`, `rehydrate`). It differs from its siblings in WHAT it compares and the "
-        "difference is the reason it is trustworthy: the ports are English where v2 is Spanish "
-        "(ADR-017), so comparing OUTPUT would go red on a correct port and green on a port that "
-        "merely echoed the oracle's words. It compares derived FACT-SETS instead — which increment "
-        "is open, which RTM verdicts, whether the bytes landed — so the claim it makes is about "
-        "what the body KNOWS, not how it says it",
-    "v3/verify/column_law_parity.py":
-        "the same behavioural grant as the three parity readers above, for the three law modules "
-        "INC-11 P2 ports out of v2's memory/verify packages (`cadence`, `instrument`, `hermetic`). "
-        "It names THREE v2 paths rather than one because the three are ported together and share a "
-        "single matrix; each is extracted at oracle_ref and run as a SUBPROCESS beside its port. "
-        "The grant is worth more scrutiny than its siblings' and gets it here: these bodies are not "
-        "a scorer or a report, they are the law the hooks branch on — `edit_allowed` decides whether "
-        "a write is denied, `stop_block`/`preflight` decide whether a turn may close. A hollow port "
-        "of any of them disables the column while every gate stays green, which is exactly the "
-        "failure P2 of the cutover is most exposed to and exactly what running v2's own answers "
-        "beside v3's is for",
 }
 
 #: Modules allowed to NAME a v2 path (rule 3 only) because they DISPOSE of it rather than read it —

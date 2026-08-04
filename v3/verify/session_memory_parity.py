@@ -5,17 +5,17 @@ v2's did, at the pinned oracle commit?
 
     python3 -m v3.verify.session_memory_parity                                    # the gate
     V3_SESSION_MEMORY_PARITY_SABOTAGE=1 python3 -m v3.verify.session_memory_parity  # red side; must ALSO exit 0
-    python3 -m v3.verify.session_memory_parity --repin        # (phase 1 only) re-derive+write the pin
-    python3 -m v3.verify.session_memory_parity --verify-pin   # re-derive and diff against the committed pin
 
-PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). `_build_oracle_tree` still lives here, but ONLY
-`--repin`/`--verify-pin` (`_oracle_answers`) call it now. The gate itself (`check()`) never shells to
-`git`: it loads the pin (`v3/verify/pins/session_memory_parity.json`), checks its five laws
-(`oracle_parity.pin_problems`), and compares v3's LIVE fact-sets (`_live_answers`, driven the same
-`--drive` way) against it (`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST NOT HAPPEN: the
-pinned answers must be the ORACLE's. `--repin` derives them TWICE from the extracted oracle package and
-refuses to write if the two derivations disagree (`oracle_parity.write_pin`) — never from this port's
-own output. The KEY SPACE is per FUNCTION×CASE (e.g. `build_snapshot:open_increment`), 13 entries.
+PINNED, AND THE ORACLE HALF IS GONE (V3-EXTRACT-OBLIGATIONS phase 2). Phase 1 fossilised the oracle's 13
+fact-sets into the committed `v3/verify/pins/session_memory_parity.json`, with the provenance proved
+WHILE the ancestor still existed (see the increment doc's §Evidencia). This module never shells to
+`git`, and after this phase it carries no code path that could any more: it loads the pin, checks its
+five laws (`oracle_parity.pin_problems`), and compares v3's LIVE fact-sets (`_live_answers`, driven the
+same `--drive` way) against it (`oracle_parity.compare_to_pin`). There is no re-derivation flag left — a
+re-pin performed without the oracle would be exactly the undetectable failure this increment exists to
+prevent. The accounting for the pin AS A SET now lives in `v3.verify.checks.pin_integrity`, not here —
+this module speaks only for its own 13 cases. The KEY SPACE is per FUNCTION×CASE (e.g.
+`build_snapshot:open_increment`), 13 entries.
 
 COMPARE FACTS, NOT PROSE. The port is English where v2 is Spanish (ADR-017) — `precompact.py` carries
 no user-facing prose at all (it is pure structured data), but `rehydrate.build_payload` RETURNS a
@@ -46,7 +46,7 @@ every function this module derives a FACT-SET from each side's own answer and co
                      (`` `meta check` ``, `` `meta checkpoint` ``, `grep -rn`) present — command names,
                      never translated, so this one fact IS safe to string-match directly.
 
-SCOPE, and why the oracle package built below is much smaller than it looks like it should be.
+SCOPE, and why the phase-1 oracle package was much smaller than it looked like it should be.
 `precompact._gates()`'s `rtm` sub-field and `rehydrate.build_payload`'s projection lines BOTH ultimately
 trace back to RTM, but through two DIFFERENT mechanisms with two different costs:
   - `rehydrate.current_block` only ever READS the projection block ALREADY PERSISTED in `docs/STATE.md`
@@ -82,27 +82,10 @@ trace back to RTM, but through two DIFFERENT mechanisms with two different costs
   DISPOSABLE temp directory, never the live working tree — this module never risks writing a stray
   `session_start` journal event into this repo's own `.metamem/`.
 
-ORACLE READERS. `_V2_SEED_BRIDGE`/`_V2_DOCS_MANIFEST`/`_V2_JOURNAL`/`_V2_PROJECTION`/`_V2_PRECOMPACT`/
-`_V2_REHYDRATE` name v2 substrate paths read at `oracle_ref` via `git show` — never imported, never
-read from the working tree. This module needs its own line in `v3/verify/import_boundary.py`'s
-`_ORACLE_READERS`, the same as `column_law_parity.py`'s and `eval_gate_parity.py`'s before it — that
-file is outside this slot's `allow_globs`; the orchestrator adds the line (`live_run_parity.py`'s own
-`_V2_PATH` comment documents the identical hand-off, and `column_law_parity.py`'s module docstring
-records the same open item for the increment this slot lands inside). `_SEED_LIFECYCLE`
-("seed/lifecycle.py") and `_SEED_VERIFIER` ("seed/verifier.py") name no v2 substrate — the column's own
-shared trust root at the repo ROOT — so they need no exemption, same distinction `column_law_parity.py`
-already draws.
-
-STUBS, and why they are honest. `oraclepkg/memory/instrument.py` is a NO-OP stand-in for v2's real
-`instrument.py` (which itself needs `metafactory.graph.pricing` — the exact cascade the SCOPE note
-above already refuses for `engine`, for the identical reason: nothing this witness compares depends on
-what that module does). It exists ONLY because `rehydrate.build_payload`'s trailing
-`instrument.record_session_footprint(...)` call is UNGUARDED (no try/except) in v2's own source — an
-oracle package without SOME `instrument` module would crash `build_payload` on every single case, which
-would prove nothing about the FUNCTION and everything about an incomplete extraction. The stub's return
-value is discarded by its only caller, exactly the shape `column_law_parity.py`'s own `_METRICS_STUB_SRC`
-already established this precedent under (an unused-effect sibling import, not a law this witness needs
-to observe).
+ORACLE READERS, RETIRED. This module used to name six v2 substrate paths, read at `oracle_ref` via
+`git show` inside an `_ORACLE_READERS` carve-out — that reading code, the carve-out, and the throwaway
+package it built are gone (V3-EXTRACT-OBLIGATIONS phase 2). `v3.verify.checks.pin_integrity`'s travel
+probe is what now certifies no path back to the ancestor survives anywhere in this file.
 
 LOCK: the PIN must hold at least `_MIN_DISTINCT_ANSWERS` distinct canonical fact-sets — the count
 MEASURED at pin time — across its 13 answers; fewer would mean the comparison could pass by
@@ -129,7 +112,7 @@ A plant that finds nothing to perturb in the on-disk source raises `CannotPlant`
 the caught/missed count, never folded into a catch (INC-5's law, INC-8's fix, re-used unchanged). The
 sabotage side runs the PATCHED module inside a SHADOW copy of the small `v3/` subtree these two files
 depend on, copied from the WORKING TREE (never git) — `v3/spec/` is deliberately excluded from that
-subtree for the identical reason it is excluded from the oracle package (the SCOPE note above): every
+subtree for the identical reason the phase-1 oracle package excluded it (the SCOPE note above): every
 sabotage fixture also has no `factories/` directory, so `_gates()`'s try/except degrades `rtm` to `[]`
 on the shadow copy exactly as it does on the real one. No oracle is built for SABOTAGE any more: each
 plant reuses the SAME case builder the real matrix (and therefore the pin) was measured over, so its
@@ -154,17 +137,6 @@ from ..memory.precompact import SCHEMA as _SCHEMA
 _V3 = harness.V3_DIR
 _ROOT = harness.ROOT_DIR
 
-# ── v2 paths read at `oracle_ref` via `git show` (never imported, never the working tree) ───────────
-_V2_SEED_BRIDGE = "src/metafactory/_seed.py"
-_V2_DOCS_MANIFEST = "src/metafactory/docs_manifest.py"
-_V2_JOURNAL = "src/metafactory/memory/journal.py"
-_V2_PROJECTION = "src/metafactory/memory/projection.py"
-_V2_PRECOMPACT = "src/metafactory/memory/precompact.py"
-_V2_REHYDRATE = "src/metafactory/memory/rehydrate.py"
-#: the column's OWN shared trust root, at the repo ROOT — not v2 substrate, needs no exemption.
-_SEED_LIFECYCLE = "seed/lifecycle.py"
-_SEED_VERIFIER = "seed/verifier.py"
-
 #: the ported bodies this gate judges, and the files their source is read from for the sabotage plants.
 _PORTED_PRECOMPACT_PATH = _V3 / "memory" / "precompact.py"
 _PORTED_REHYDRATE_PATH = _V3 / "memory" / "rehydrate.py"
@@ -182,7 +154,8 @@ _MIN_DISTINCT_ANSWERS = 12
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
-# THE ORACLE SIDE: a throwaway package mirroring v2's own runtime shape
+# THE DRIVER TEMPLATE — shared source for the SABOTAGE shadow's `_driver.py` (`_PORTED_DRIVER_SRC`
+# below); there is no oracle side left to build any more (V3-EXTRACT-OBLIGATIONS phase 2)
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
 _ORACLE_DRIVER_SRC = '''\
 import json, sys
@@ -220,44 +193,6 @@ def main(argv):
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
 '''
-
-_INSTRUMENT_STUB_SRC = (
-    '"""Stub sibling (module docstring above, section STUBS): '
-    '`rehydrate.build_payload`\'s trailing `instrument.record_session_footprint(...)` call discards '
-    'its return value and has no effect on any fact this witness compares — an unused-effect import, '
-    'satisfied here without dragging in `graph.pricing`\'s cascade for a call nothing observes."""\n'
-    "\n\n"
-    "def record_session_footprint(root, session, payload, *, lines, now_lines):\n"
-    "    return None\n"
-    "\n\n"
-    "def record_compaction(root, *, session, trigger, increment, written):\n"
-    "    return None\n"
-)
-
-
-def _build_oracle_tree(ref: str, base: Path) -> Path:
-    """Reconstructs the throwaway package (module docstring, SCOPE + STUBS). Returns the `cwd` to run
-    `-m oraclepkg.driver` from (`fsroot/src`)."""
-    fsroot = base / "fsroot"
-    pkg = fsroot / "src" / "oraclepkg"
-    (pkg / "memory").mkdir(parents=True, exist_ok=True)
-    (fsroot / "seed").mkdir(parents=True, exist_ok=True)
-
-    (pkg / "__init__.py").write_text("", encoding="utf-8")
-    (pkg / "memory" / "__init__.py").write_text("", encoding="utf-8")
-
-    harness.extract_oracle(ref, _V2_SEED_BRIDGE, pkg / "_seed.py")
-    harness.extract_oracle(ref, _V2_DOCS_MANIFEST, pkg / "docs_manifest.py")
-    harness.extract_oracle(ref, _V2_JOURNAL, pkg / "memory" / "journal.py")
-    harness.extract_oracle(ref, _V2_PROJECTION, pkg / "memory" / "projection.py")
-    harness.extract_oracle(ref, _V2_PRECOMPACT, pkg / "memory" / "precompact.py")
-    harness.extract_oracle(ref, _V2_REHYDRATE, pkg / "memory" / "rehydrate.py")
-    harness.extract_oracle(ref, _SEED_LIFECYCLE, fsroot / "seed" / "lifecycle.py")
-    harness.extract_oracle(ref, _SEED_VERIFIER, fsroot / "seed" / "verifier.py")
-    (pkg / "memory" / "instrument.py").write_text(_INSTRUMENT_STUB_SRC, encoding="utf-8")
-    (pkg / "driver.py").write_text(_ORACLE_DRIVER_SRC, encoding="utf-8")
-    return fsroot / "src"
-
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
 # THE PORTED SIDE, NORMAL RUN: this file's own `--drive` mode, over the REAL working tree
@@ -665,8 +600,9 @@ def _all_case_names() -> list[str]:
 
 def _run_answers(prefix: list[str], cwd: Path, env: dict, base: Path) -> dict[str, object]:
     """Run the whole 13-case matrix through ONE side (`prefix`/`cwd`/`env`) and return
-    `{f"{function}:{case}": fact}`. Shared by `_live_answers` (the port) and `_oracle_answers` (the
-    extracted v2 body) so their 13 keys always align with `_all_case_names`."""
+    `{f"{function}:{case}": fact}`. Only `_live_answers` (the port) calls this any more, but the
+    `prefix`/`cwd`/`env` parameterization stays: it is what let the pin's provenance be proven by
+    running the SAME matrix over the oracle in phase 1, before that call site was amputated here."""
     answers: dict[str, object] = {}
 
     bs_dir = base / "bs"
@@ -715,39 +651,9 @@ def _live_answers() -> dict[str, object]:
         return _run_answers(ported_prefix, _ROOT, ported_env, Path(tmp))
 
 
-def _oracle_answers(ref: str) -> dict[str, object]:
-    """v2's oracle — precompact/rehydrate + their `_seed`/docs_manifest/journal/projection/lifecycle/
-    verifier siblings, extracted at `ref` via `git show` and RUN as a throwaway PACKAGE — the module's
-    EXISTING oracle code path, unchanged. Used ONLY by `--repin`/`--verify-pin`
-    (V3-EXTRACT-OBLIGATIONS phase 1; amputated in phase 2, once the pin's provenance is proven and the
-    ancestor is gone)."""
-    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-oracle-") as tmp:
-        base = Path(tmp)
-        oracle_cwd = _build_oracle_tree(ref, base / "oracle")
-        oracle_prefix = ["-m", "oraclepkg.driver"]
-        oracle_env = dict(os.environ)
-        return _run_answers(oracle_prefix, oracle_cwd, oracle_env, base / "fixtures")
-
-
-def _oracle_sha256(ref: str) -> dict[str, str]:
-    """sha256 of the six extracted oracle bodies, keyed by their v2 paths — `--repin`'s
-    `provenance.oracle_sha256`."""
-    with tempfile.TemporaryDirectory(prefix="v3-session-memory-parity-sha-") as tmp:
-        oracle_cwd = _build_oracle_tree(ref, Path(tmp) / "oracle")
-        pkg = oracle_cwd / "oraclepkg"
-        return {
-            _V2_SEED_BRIDGE: hashlib.sha256((pkg / "_seed.py").read_bytes()).hexdigest(),
-            _V2_DOCS_MANIFEST: hashlib.sha256((pkg / "docs_manifest.py").read_bytes()).hexdigest(),
-            _V2_JOURNAL: hashlib.sha256((pkg / "memory" / "journal.py").read_bytes()).hexdigest(),
-            _V2_PROJECTION: hashlib.sha256((pkg / "memory" / "projection.py").read_bytes()).hexdigest(),
-            _V2_PRECOMPACT: hashlib.sha256((pkg / "memory" / "precompact.py").read_bytes()).hexdigest(),
-            _V2_REHYDRATE: hashlib.sha256((pkg / "memory" / "rehydrate.py").read_bytes()).hexdigest(),
-        }
-
-
 def check() -> tuple[list[str], dict]:
-    """The gate: v3's LIVE fact-sets against the COMMITTED pin. Never shells to `git` — that only
-    happens under `--repin`/`--verify-pin`."""
+    """The gate: v3's LIVE fact-sets against the COMMITTED pin. Never shells to `git` — this module
+    carries no code path that could any more (V3-EXTRACT-OBLIGATIONS phase 2)."""
     ref = harness.oracle_ref()
     case_names = _all_case_names()
     problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
@@ -829,37 +735,9 @@ def _run_sabotage() -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
-def _repin_or_verify(*, check_only: bool) -> int:
-    verb = "--verify-pin" if check_only else "--repin"
-    ref = harness.oracle_ref()
-    first = _oracle_answers(ref)
-    second = _oracle_answers(ref)
-    oracle_paths = {"_V2_SEED_BRIDGE": _V2_SEED_BRIDGE, "_V2_DOCS_MANIFEST": _V2_DOCS_MANIFEST,
-                    "_V2_JOURNAL": _V2_JOURNAL, "_V2_PROJECTION": _V2_PROJECTION,
-                    "_V2_PRECOMPACT": _V2_PRECOMPACT, "_V2_REHYDRATE": _V2_REHYDRATE}
-    oracle_sha256 = _oracle_sha256(ref)
-    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
-                                 oracle_sha256=oracle_sha256,
-                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
-                                 first=first, second=second, check_only=check_only)
-    if problems:
-        return Verdict(f"v3-session-memory-parity {verb}", 1,
-                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
-    if check_only:
-        return Verdict(f"v3-session-memory-parity {verb}", 0,
-                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
-                       f"exactly ({len(first)} answer(s))").emit()
-    return Verdict(f"v3-session-memory-parity {verb}", 0,
-                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
-
-
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "--drive":
         return _drive(argv[1:])
-    if argv == ["--repin"]:
-        return _repin_or_verify(check_only=False)
-    if argv == ["--verify-pin"]:
-        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-session-memory-parity", 2, f"takes no arguments; got {argv!r}").emit()
 

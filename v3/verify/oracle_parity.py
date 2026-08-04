@@ -2,37 +2,28 @@
 instrument of this shape) so the two check bodies ported after it — `live_run` and `eval_floor` — get the
 same witness without re-deriving its plumbing.
 
-WHAT LIVES HERE VS WHAT DOESN'T (the split the extracting increment had to get right). Generic: reading
-the pinned ref (`oracle_ref`), extracting a v2 body at that ref via `git show` (`extract_oracle` — the v2
-path is a PARAMETER, never a module constant, so this file itself never names the v2 substrate — see
-`v3/verify/import_boundary.py`'s rule 3), running one case as a subprocess (`run_case`), running a whole
-case matrix and collecting deviations (`run_matrix`), and the distinct-exit-code diversity guard
-(`diversity_problem`) plus the `CannotPlant` exception the sabotage side of every parity module raises when
-a plant finds nothing to perturb. Specific, and left in each parity module: the `_case_*` fixture builders
-(they encode ONE check body's own input contract — scorer/property/evidence fixtures, argv shape), the
-`_plant_*` functions (they encode that body's own source text), and the `main()`/Verdict prose (the message
-differs per module by name).
+WHAT LIVES HERE VS WHAT DOESN'T (the split the extracting increment had to get right). Generic: running
+one case as a subprocess (`run_case`) and the `CannotPlant` exception the sabotage side of every parity
+module raises when a plant finds nothing to perturb. Specific, and left in each parity module: the
+`_case_*` fixture builders (they encode ONE check body's own input contract — scorer/property/evidence
+fixtures, argv shape), the `_plant_*` functions (they encode that body's own source text), and the
+`main()`/Verdict prose (the message differs per module by name).
 
-Each module using this harness keeps its own `_V2_PATH` / `_PORTED_MODULE` / `_PORTED_PATH` constants —
-this file is invoked BY them, parameterized, and never hardcodes which check it is judging.
+Each module using this harness keeps its own `_PORTED_MODULE` / `_PORTED_PATH` constants — this file is
+invoked BY them, parameterized, and never hardcodes which check it is judging.
 
-PIN PRIMITIVES (V3-EXTRACT-OBLIGATIONS phase 1, §2 of the slot contract). The functions below are the
-SECOND thing every parity module needs, added once here rather than five times: a `<gate>.json` fossil
-of the oracle's answers, committed at `PINS_DIR`, so a gate can compare v3's live body against a
-COMMITTED value instead of asking the dead ancestor at every run. `pin_problems` carries laws 1–5 of
-§2.2 (well-formed · bijection with the matrix · LOCK #1 (an empty pin is never vacuously true) ·
-diversity over the PINNED answers · ref binding); `compare_to_pin` carries law 6 (live vs pinned, per
-case, canonicalised); `write_pin` is the `--repin`/`--verify-pin` body (§2.3/§2.4): it REFUSES to write
-when two independent oracle derivations disagree (naming the unstable cases) or when the first is
-empty, and `check_only=True` re-derives and diffs against the committed pin ignoring only
-`provenance.derived_at` — the tooth that only means anything while the oracle still exists.
-
-THE ONE THING THAT MUST NOT HAPPEN, restated here because this is where it would happen: every value
-`write_pin` ever fossilises must come from `first`/`second`, and every caller of `write_pin` builds
-those from a code path that RUNS the extracted oracle body — never from v3's own live answers. This
-file cannot enforce that (it has no way to tell which side its caller measured); it is each module's
-`--repin`/`--verify-pin` argv branch that must get it right, and it is `check_only=True` — re-deriving
-independently and byte-comparing against the committed fossil — that is the check on that claim.
+PIN PRIMITIVES (V3-EXTRACT-OBLIGATIONS §2 of the slot contract). The functions below are the SECOND
+thing every parity module needs: a `<gate>.json` fossil of the oracle's answers, committed at
+`PINS_DIR`, so a gate can compare v3's live body against a COMMITTED value instead of asking the dead
+ancestor at every run. `pin_problems` carries laws 1–5 of §2.2 (well-formed · bijection with the matrix ·
+LOCK #1 (an empty pin is never vacuously true) · diversity over the PINNED answers · ref binding);
+`compare_to_pin` carries law 6 (live vs pinned, per case, canonicalised). The pin derivation itself —
+extracting the oracle, running it TWICE, refusing to fossilise a disagreement, writing the committed
+JSON — lived here too through phase 1; it is GONE now (V3-EXTRACT-OBLIGATIONS phase 2), along with
+every module's re-derivation argv branch that called it. The five committed pins under
+`PINS_DIR` are the only trace that derivation ever ran, and they are proven byte-identical to what phase
+1 wrote (the increment's LAW B) — this file, after the amputation, carries no path back to the ancestor
+for `v3.verify.checks.pin_integrity`'s travel probe to catch.
 """
 from __future__ import annotations
 
@@ -41,7 +32,6 @@ import subprocess
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 
 #: this module lives at `v3/verify/oracle_parity.py`; `V3_DIR` is `v3/`, `ROOT_DIR` the repo root — the
@@ -56,20 +46,10 @@ ORACLE_REF_PATH = V3_DIR / "oracle_ref.json"
 
 
 def oracle_ref() -> str:
-    """The ref every parity module diffs against, from `v3/oracle_ref.json` — NEVER a hardcoded sha."""
+    """The ref every parity module diffs against, from `v3/oracle_ref.json` — NEVER a hardcoded sha.
+    Still read: `pin_problems`' REF BINDING law (§2.2 law 5) checks a pin's provenance against it, and
+    `v3.verify.checks.pin_integrity` checks a pin's `oracle_ref` against it too."""
     return json.loads(ORACLE_REF_PATH.read_text(encoding="utf-8"))["oracle_ref"]
-
-
-def extract_oracle(ref: str, v2_path: str, dest: Path) -> None:
-    """`git show <ref>:<v2_path>` into `dest`. Raises if the read fails or is empty — a silent empty
-    oracle body would make every case compare "equal" (nothing to run) instead of proving anything.
-    `v2_path` is a PARAMETER: this harness must stay free of any string naming the v2 substrate (a gate
-    AST-scans `v3/` for exactly that — the caller's module carries the exemption, not this one)."""
-    proc = subprocess.run(["git", "show", f"{ref}:{v2_path}"], cwd=ROOT_DIR, capture_output=True, text=True)
-    if proc.returncode != 0 or not proc.stdout.strip():
-        raise RuntimeError(f"git show {ref}:{v2_path} failed or returned nothing (exit {proc.returncode}): "
-                           f"{proc.stderr.strip()}")
-    dest.write_text(proc.stdout, encoding="utf-8")
 
 
 @dataclass(frozen=True)
@@ -81,40 +61,12 @@ class Case:
 
 
 def run_case(prefix: list[str], argv: list[str], cwd: Path, env: dict) -> int:
-    """Run one case as a subprocess: `prefix` is the argv PREFIX that selects which body runs — a path to
-    an extracted oracle script, `["-m", "dotted.module"]` for a package member, or a path to a patched
-    copy for the sabotage side. Same argv, cwd and env for both sides of any one comparison."""
+    """Run one case as a subprocess: `prefix` is the argv PREFIX that selects which body runs —
+    `["-m", "dotted.module"]` for a package member, or a path to a patched copy for the sabotage side.
+    Same argv, cwd and env for both sides of any one comparison."""
     proc = subprocess.run([sys.executable, *prefix, *argv], cwd=str(cwd), env=env,
                           capture_output=True, text=True)
     return proc.returncode
-
-
-def run_matrix(oracle_prefix: list[str], ported_prefix: list[str], cwd: Path, env: dict, base: Path,
-                matrix: tuple[Case, ...]) -> tuple[list[str], dict[str, int]]:
-    """Run every case in `matrix` against both bodies over IDENTICAL argv/cwd/env; return (deviations,
-    {case_name: oracle_exit_code})."""
-    problems: list[str] = []
-    codes: dict[str, int] = {}
-    for case in matrix:
-        argv = case.build(base)
-        oracle_rc = run_case(oracle_prefix, argv, cwd, env)
-        ported_rc = run_case(ported_prefix, argv, cwd, env)
-        codes[case.name] = oracle_rc
-        if oracle_rc != ported_rc:
-            problems.append(f"{case.name}: oracle exit {oracle_rc} != ported exit {ported_rc}")
-    return problems, codes
-
-
-def diversity_problem(codes: dict[str, int], min_distinct: int) -> str | None:
-    """LOCK #1 (see `eval_gate_parity` module docstring, the law this guard was born under): a matrix
-    that never exercises more than a handful of oracle exit codes proves nothing — a matrix where every
-    case happened to return the same code would compare equal without exercising any control flow."""
-    distinct = sorted(set(codes.values()))
-    if len(distinct) < min_distinct:
-        return (f"the matrix exercised only {len(distinct)} distinct oracle exit code(s) {distinct} "
-                f"across {len(codes)} case(s) — fewer than {min_distinct} means the comparison could "
-                f"pass by coincidence")
-    return None
 
 
 class CannotPlant(Exception):
@@ -164,8 +116,9 @@ def load_pin(gate_name: str) -> dict:
     unparsable — never a silent `{}` (law 1, §2.2: an unloadable pin is red, not vacuously green)."""
     path = pin_path(gate_name)
     if not path.exists():
-        raise RuntimeError(f"no pin file at {path} — run `python3 -m v3.verify.{gate_name} --repin` "
-                           f"while the oracle still exists (V3-EXTRACT-OBLIGATIONS §2.3)")
+        raise RuntimeError(f"no pin file at {path} — {gate_name} was amputated in "
+                           f"V3-EXTRACT-OBLIGATIONS phase 2; a missing pin can no longer be re-derived, "
+                           f"only restored from git history")
     try:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:
@@ -264,63 +217,6 @@ def compare_to_pin(answers: dict, pin: dict) -> list[str]:
             problems.append(f"{case}: live {_truncate(answers[case])} != pinned "
                             f"{_truncate(pin_answers[case])}")
     return problems
-
-
-def write_pin(gate_name: str, *, oracle_ref: str, oracle_paths: dict, oracle_sha256: dict,
-              derived_by: str, first: dict, second: dict, check_only: bool = False) -> list[str]:
-    """The `--repin`/`--verify-pin` shared body (§2.3/§2.4). `first`/`second` are two INDEPENDENT
-    derivations of the ORACLE's answers over the same matrix (never v3's live side — see this module's
-    docstring). REFUSES to write — returns problems, writes nothing — when `first` is empty or when
-    `first != second`, naming the unstable cases: a non-deterministic answer must never become a
-    fossil. `check_only=True` builds the SAME payload and diffs it against the committed pin, ignoring
-    ONLY `provenance.derived_at`; this is the provenance tooth, alive only while the ancestor still
-    exists to re-derive from."""
-    if not first:
-        return [f"{gate_name}: the oracle derivation produced zero answers — refusing to write an "
-               f"empty pin (LOCK #1)"]
-    unstable = sorted(k for k in set(first) | set(second)
-                      if canonical_key(first.get(k, "<absent-in-first-derivation>"))
-                      != canonical_key(second.get(k, "<absent-in-second-derivation>")))
-    if unstable:
-        return [f"{gate_name}: two independent derivations of the oracle disagree on {len(unstable)} "
-               f"case(s) — refusing to fossilise an unstable answer: {unstable}"]
-
-    payload = {
-        "pinned_gate": gate_name,
-        "provenance": {
-            "oracle_ref": oracle_ref,
-            "oracle_paths": oracle_paths,
-            "oracle_sha256": oracle_sha256,
-            "derived_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "derived_by": derived_by,
-            "harness": "v3.verify.oracle_parity",
-        },
-        "answers": {k: canonical(v) for k, v in first.items()},
-    }
-
-    if check_only:
-        try:
-            committed = load_pin(gate_name)
-        except RuntimeError as exc:
-            return [str(exc)]
-        problems: list[str] = []
-        for key in ("pinned_gate", "answers"):
-            if payload[key] != committed.get(key):
-                problems.append(f"{gate_name}: --verify-pin: {key!r} does not reproduce the committed "
-                                f"pin")
-        committed_provenance = committed.get("provenance") or {}
-        for field_name in payload["provenance"]:
-            if field_name == "derived_at":
-                continue
-            if payload["provenance"][field_name] != committed_provenance.get(field_name):
-                problems.append(f"{gate_name}: --verify-pin: provenance.{field_name} does not "
-                                f"reproduce the committed pin")
-        return problems
-
-    path = pin_path(gate_name)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    return []
 
 
 #: a JSON-string value no real answer this harness's modules ever pin (exit codes, decision scalars,

@@ -149,11 +149,11 @@ RETIREMENT: dict[str, Row] = {
                "functions have, and a hollow port of any of them disables the column while every gate "
                "stays green. Retiring it would remove the single test standing between this repo and "
                "that failure — the most dangerous act available in this increment, and the direction "
-               "doc's plan contained it.",
-        obligation="pin the oracle's DECISIONS over the 7-function matrix as module data (captured "
-                   "while the ancestor is still reachable, from a run that was green at capture "
-                   "time), then delete the extraction and compare v3 against the pin",
-        discharged=False,
+               "doc's plan contained it. DISCHARGED (V3-EXTRACT-OBLIGATIONS phase 2): the oracle's 37 "
+               "DECISIONS are now a committed pin (`v3/verify/pins/column_law_parity.json`), and the "
+               "extraction is deleted — `check()` compares v3 against the pin, never against `git`.",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/session_memory_parity.py": Row(
         gate="session_memory_parity",
@@ -163,9 +163,11 @@ RETIREMENT: dict[str, Row] = {
                "derived FACT-SETS rather than output — which is exactly why the matrix survives "
                "translation and is worth pinning: the facts (which increment is open, which RTM "
                "verdicts, whether the bytes landed) are language-independent, so the pin stays "
-               "meaningful in a repo where the ancestor's Spanish prose is not even a memory.",
-        obligation="pin the oracle's fact-sets over the 4-function matrix, then delete the extraction",
-        discharged=False,
+               "meaningful in a repo where the ancestor's Spanish prose is not even a memory. "
+               "DISCHARGED (V3-EXTRACT-OBLIGATIONS phase 2): the oracle's 13 fact-sets are now a "
+               "committed pin, and the extraction is deleted.",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/eval_gate_parity.py": Row(
         gate="eval_gate_parity",
@@ -174,27 +176,33 @@ RETIREMENT: dict[str, Row] = {
         reason="`eval_gate` is a check KIND, not a registered gate — measured: it is absent from "
                "`build_registry`. This 13-case exit-code matrix is its ONLY suite-level coverage, so "
                "retiring the harness would leave a kind that products' lines execute with no test at "
-               "all, and nothing would report the loss.",
-        obligation="pin the 13 expected exit codes, then delete the two-body oracle extraction",
-        discharged=False,
+               "all, and nothing would report the loss. DISCHARGED (V3-EXTRACT-OBLIGATIONS phase 2): "
+               "the 13 expected exit codes are now a committed pin, and the two-body oracle extraction "
+               "is deleted.",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/eval_floor_parity.py": Row(
         gate="eval_floor_parity",
         decision=KEEP,
         subject=(V2_ROOT + "verify/checks/eval_floor.py", V2_ROOT + "verify/checks/eval_gate.py"),
         reason="Same shape and same reason as `eval_gate_parity`: `eval_floor` is a kind with no "
-               "registered gate, and this 14-case matrix is its only coverage.",
-        obligation="pin the 14 expected exit codes, then delete the two-body oracle extraction",
-        discharged=False,
+               "registered gate, and this 14-case matrix is its only coverage. DISCHARGED "
+               "(V3-EXTRACT-OBLIGATIONS phase 2): the 14 expected exit codes are now a committed pin, "
+               "and the two-body oracle extraction is deleted.",
+        obligation=None,
+        discharged=True,
     ),
     "v3/verify/live_run_parity.py": Row(
         gate="live_run_parity",
         decision=KEEP,
         subject=(V2_ROOT + "verify/checks/live_run.py", V2_ROOT + "verify/checks/eval_gate.py"),
         reason="Same shape and same reason again, for `live_run`: 16 cases (pin / DEFERRED / "
-               "PROPOSING), and no other exercise of the kind exists.",
-        obligation="pin the 16 expected exit codes, then delete the two-body oracle extraction",
-        discharged=False,
+               "PROPOSING), and no other exercise of the kind exists. DISCHARGED "
+               "(V3-EXTRACT-OBLIGATIONS phase 2): the 16 expected exit codes are now a committed pin, "
+               "and the two-body oracle extraction is deleted.",
+        obligation=None,
+        discharged=True,
     ),
 
     # ---- keep · CUT: half the law is about the ancestor, half about the tree in front of us -------

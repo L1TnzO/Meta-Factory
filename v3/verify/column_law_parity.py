@@ -4,8 +4,6 @@
 
     python3 -m v3.verify.column_law_parity                                    # the gate
     V3_COLUMN_LAW_PARITY_SABOTAGE=1 python3 -m v3.verify.column_law_parity   # the red side; must ALSO exit 0
-    python3 -m v3.verify.column_law_parity --repin        # (phase 1 only) re-derive+write the pin
-    python3 -m v3.verify.column_law_parity --verify-pin   # re-derive and diff against the committed pin
 
 WHY THIS ONE IS DIFFERENT FROM `eval_gate_parity`/`live_run_parity`. Those judge a CHECK BODY the
 substrate spawns as its own subprocess — comparing EXIT CODES is the right instrument because that is
@@ -18,40 +16,23 @@ RESULT, not an exit code — the contract this slot was handed asks for exactly 
 module pins is per FUNCTION×CASE (e.g. `edit_allowed:docs_md`), 37 entries across the 7 functions below
 — never one entry per case-group, since seven functions run over five case groups.
 
-PIN, NOT LIVE ORACLE (V3-EXTRACT-OBLIGATIONS phase 1). `_build_oracle_tree` still lives here, but ONLY
-`--repin`/`--verify-pin` (`_oracle_answers`) call it now. The gate itself (`check()`) never shells to
-`git`: it loads the pin, checks its five laws (`oracle_parity.pin_problems`), and compares v3's LIVE
-answers (`_live_answers`, driven the same `--drive` way, over the real working tree) against it
-(`oracle_parity.compare_to_pin`). THE ONE THING THAT MUST NOT HAPPEN: the pinned answers must be the
-ORACLE's. `--repin` derives them TWICE from the extracted oracle package and refuses to write if the two
-derivations disagree (`oracle_parity.write_pin`) — never from this port's own output.
+PINNED, AND THE ORACLE HALF IS GONE (V3-EXTRACT-OBLIGATIONS phase 2). Phase 1 fossilised the oracle's 37
+answers into the committed `v3/verify/pins/column_law_parity.json`, with the provenance proved WHILE the
+ancestor still existed (see the increment doc's §Evidencia). This module never shells to `git`, and after
+this phase it carries no code path that could any more: it loads the pin, checks its five laws
+(`oracle_parity.pin_problems`), and compares v3's LIVE answers (`_live_answers`, driven the same
+`--drive` way, over the real working tree) against it (`oracle_parity.compare_to_pin`). There is no
+re-derivation flag left — a re-pin performed without the oracle would be exactly the undetectable
+failure this increment exists to prevent. The accounting for the pin AS A SET (bijection with
+`import_boundary._ORACLE_READERS`, provenance, the empty-population lock, and the travel probe that
+proves no path back to the ancestor survives anywhere in this file) now lives in
+`v3.verify.checks.pin_integrity`, not here — this module speaks only for its own 37 cases.
 
-THE RELATIVE-IMPORT WRINKLE, twice. v2's `cadence.py` opens with `from .._seed import
-load_seed_lifecycle` and `from .journal import read as journal_read`; `hermetic.py` opens
-`_seed_verifier()` with a deferred `from .._seed import load_seed_verifier`; `instrument.py` opens with
-`from . import metrics`. None of these resolve when a file is run as a bare script (no package
-context), so the oracle side is extracted as a throwaway PACKAGE (`oraclepkg/`) mirroring v2's own
-shape closely enough for those imports to resolve: `_seed.py` and `journal.py` are extracted VERBATIM
-(both are pure stdlib, no further cascade); `metrics.py` is a STUB (`target_of`/`is_subagent_spawn`
-never read `metrics.*` — an unused sibling changes nothing observable about the two functions this
-port carries, and the alternative, extracting the real one, drags in the legacy graph-pricing module,
-a cascade with nothing to do with either function). `_seed.py`'s own `repo_root()` walks `parents[2]`
-from its file location, so the extracted copy is placed at the SAME depth v2's real bridge module
-sits at, two directories below the package root (`fsroot/src/oraclepkg/_seed.py`), and
-`fsroot/seed/{lifecycle,verifier}.py` — read at the SAME `oracle_ref`, never the working tree — sit
-where that `repo_root()` then looks for them. The ported side has the identical wrinkle in reverse for the SABOTAGE run only
-(see below): `v3.control.cadence` cannot be run as a bare script either, and a defect must be planted
-in a COPY, never the real file.
-
-ORACLE READERS. `_V2_CADENCE`/`_V2_INSTRUMENT`/`_V2_HERMETIC`/`_V2_SEED_BRIDGE`/`_V2_JOURNAL` name v2
-substrate paths read at `oracle_ref` via `git show` — never imported, never read from the working tree.
-Needs its own line in `v3/verify/import_boundary.py`'s `_ORACLE_READERS`, the same as
-`eval_gate_parity.py`'s and `live_run_parity.py`'s (the orchestrator's to add — see the slot contract;
-`live_run_parity.py`'s own `_V2_PATH` comment documents the identical hand-off). `_SEED_LIFECYCLE`
-("seed/lifecycle.py") and `_SEED_VERIFIER` ("seed/verifier.py") name no v2 substrate — they are the
-column's OWN shared trust root, at the repo's ROOT, not inside the legacy package — so they need no
-exemption (`v3.seed_loader`'s own docstring makes the same distinction for the working-tree read this
-module's PORTED side takes via `..seed_loader`).
+THE RELATIVE-IMPORT WRINKLE, SABOTAGE SIDE ONLY. `v3.control.cadence`/`v3.control.instrument`/
+`v3.verify.hermetic` cannot be run as bare scripts (each opens with a package-relative import), so a
+planted defect runs inside a SHADOW copy of the small `v3/` subtree those three depend on
+(`_build_shadow_v3` below) rather than as a standalone file — a defect must be planted in a COPY, never
+the real file.
 
 WHAT THIS PROVES, AND WHAT IT DOES NOT. Result-equality over a matrix that demonstrably exercises
 several DISTINCT oracle answers PER FUNCTION (LOCK below) is strong evidence the DECISION was
@@ -114,16 +95,6 @@ from ..kernel.report import Verdict
 _V3 = harness.V3_DIR
 _ROOT = harness.ROOT_DIR
 
-# ── v2 paths read at `oracle_ref` via `git show` (never imported, never the working tree) ───────────
-_V2_CADENCE = "src/metafactory/memory/cadence.py"
-_V2_INSTRUMENT = "src/metafactory/memory/instrument.py"
-_V2_HERMETIC = "src/metafactory/verify/hermetic.py"
-_V2_SEED_BRIDGE = "src/metafactory/_seed.py"
-_V2_JOURNAL = "src/metafactory/memory/journal.py"
-#: the column's OWN shared trust root, at the repo ROOT — not v2 substrate, needs no exemption.
-_SEED_LIFECYCLE = "seed/lifecycle.py"
-_SEED_VERIFIER = "seed/verifier.py"
-
 #: the ported bodies this gate judges, and the files their source is read from for the sabotage plants.
 _PORTED_CADENCE_PATH = _V3 / "control" / "cadence.py"
 _PORTED_INSTRUMENT_PATH = _V3 / "control" / "instrument.py"
@@ -138,7 +109,8 @@ _MIN_DISTINCT_ANSWERS = 13
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
-# THE ORACLE SIDE: a throwaway package mirroring v2's own runtime shape
+# THE DRIVER TEMPLATE — shared source for the SABOTAGE shadow's `_driver.py` (`_PORTED_DRIVER_SRC`
+# below); there is no oracle side left to build any more (V3-EXTRACT-OBLIGATIONS phase 2)
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
 _ORACLE_DRIVER_SRC = '''\
 import json, sys
@@ -183,38 +155,6 @@ def main(argv):
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
 '''
-
-_METRICS_STUB_SRC = ('"""Stub sibling: `target_of`/`is_subagent_spawn` never reference `metrics.*` — '
-                     'an unused sibling satisfies `instrument.py`\'s `from . import metrics` without '
-                     'dragging in the pricing cascade the real module needs for its OTHER functions, '
-                     'none of which this port carries."""\n')
-
-
-def _build_oracle_tree(ref: str, base: Path) -> Path:
-    """Reconstructs the throwaway package (module docstring). Returns the `cwd` to run
-    `-m oraclepkg.driver` from (`fsroot/src`, so `import oraclepkg` resolves via cwd-on-sys.path,
-    exactly as `-m v3....` resolves `v3` from the repo root elsewhere in this harness)."""
-    fsroot = base / "fsroot"
-    pkg = fsroot / "src" / "oraclepkg"
-    (pkg / "memory").mkdir(parents=True, exist_ok=True)
-    (pkg / "verify").mkdir(parents=True, exist_ok=True)
-    (fsroot / "seed").mkdir(parents=True, exist_ok=True)
-
-    (pkg / "__init__.py").write_text("", encoding="utf-8")
-    (pkg / "memory" / "__init__.py").write_text("", encoding="utf-8")
-    (pkg / "verify" / "__init__.py").write_text("", encoding="utf-8")
-
-    harness.extract_oracle(ref, _V2_SEED_BRIDGE, pkg / "_seed.py")
-    harness.extract_oracle(ref, _V2_CADENCE, pkg / "memory" / "cadence.py")
-    harness.extract_oracle(ref, _V2_JOURNAL, pkg / "memory" / "journal.py")
-    harness.extract_oracle(ref, _V2_INSTRUMENT, pkg / "memory" / "instrument.py")
-    harness.extract_oracle(ref, _V2_HERMETIC, pkg / "verify" / "hermetic.py")
-    harness.extract_oracle(ref, _SEED_LIFECYCLE, fsroot / "seed" / "lifecycle.py")
-    harness.extract_oracle(ref, _SEED_VERIFIER, fsroot / "seed" / "verifier.py")
-    (pkg / "memory" / "metrics.py").write_text(_METRICS_STUB_SRC, encoding="utf-8")
-    (pkg / "driver.py").write_text(_ORACLE_DRIVER_SRC, encoding="utf-8")
-    return fsroot / "src"
-
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
 # THE PORTED SIDE, NORMAL RUN: this file's own `--drive` mode, over the REAL working tree
@@ -663,8 +603,9 @@ def _all_case_names() -> list[str]:
 
 def _run_answers(prefix: list[str], cwd: Path, env: dict, synth: Path) -> dict[str, object]:
     """Run the whole 37-case matrix through ONE side (`prefix`/`cwd`/`env`) and return
-    `{f"{function}:{case}": comparable_value}`. Shared by `_live_answers` (the port) and
-    `_oracle_answers` (the extracted v2 body) so their 37 keys always align with `_all_case_names`."""
+    `{f"{function}:{case}": comparable_value}`. Only `_live_answers` (the port) calls this any more, but
+    the `prefix`/`cwd`/`env` parameterization stays: it is what let the pin's provenance be proven by
+    running the SAME matrix over the oracle in phase 1, before that call site was amputated here."""
     answers: dict[str, object] = {}
 
     def run_group(fn: str, cases: list[tuple[str, list]]) -> None:
@@ -696,39 +637,9 @@ def _live_answers() -> dict[str, object]:
         return _run_answers(ported_prefix, _ROOT, ported_env, synth)
 
 
-def _oracle_answers(ref: str) -> dict[str, object]:
-    """v2's oracle — cadence/instrument/hermetic + their `_seed`/journal/lifecycle/verifier siblings,
-    extracted at `ref` via `git show` and RUN as a throwaway PACKAGE — the module's EXISTING oracle
-    code path, unchanged. Used ONLY by `--repin`/`--verify-pin` (V3-EXTRACT-OBLIGATIONS phase 1;
-    amputated in phase 2, once the pin's provenance is proven and the ancestor is gone)."""
-    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-oracle-") as tmp:
-        base = Path(tmp)
-        oracle_cwd = _build_oracle_tree(ref, base / "oracle")
-        oracle_prefix = ["-m", "oraclepkg.driver"]
-        oracle_env = dict(os.environ)
-        synth = base / "synth"
-        synth.mkdir()
-        return _run_answers(oracle_prefix, oracle_cwd, oracle_env, synth)
-
-
-def _oracle_sha256(ref: str) -> dict[str, str]:
-    """sha256 of the five extracted oracle bodies, keyed by their v2 paths — `--repin`'s
-    `provenance.oracle_sha256`."""
-    with tempfile.TemporaryDirectory(prefix="v3-column-law-parity-sha-") as tmp:
-        oracle_cwd = _build_oracle_tree(ref, Path(tmp) / "oracle")
-        pkg = oracle_cwd / "oraclepkg"
-        return {
-            _V2_SEED_BRIDGE: hashlib.sha256((pkg / "_seed.py").read_bytes()).hexdigest(),
-            _V2_CADENCE: hashlib.sha256((pkg / "memory" / "cadence.py").read_bytes()).hexdigest(),
-            _V2_JOURNAL: hashlib.sha256((pkg / "memory" / "journal.py").read_bytes()).hexdigest(),
-            _V2_INSTRUMENT: hashlib.sha256((pkg / "memory" / "instrument.py").read_bytes()).hexdigest(),
-            _V2_HERMETIC: hashlib.sha256((pkg / "verify" / "hermetic.py").read_bytes()).hexdigest(),
-        }
-
-
 def check() -> tuple[list[str], dict]:
-    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — that only
-    happens under `--repin`/`--verify-pin`."""
+    """The gate: v3's LIVE answers against the COMMITTED pin. Never shells to `git` — this module carries
+    no code path that could any more (V3-EXTRACT-OBLIGATIONS phase 2)."""
     ref = harness.oracle_ref()
     case_names = _all_case_names()
     problems, pin = harness.pin_problems(_PIN_GATE, case_names, min_distinct=_MIN_DISTINCT_ANSWERS,
@@ -821,37 +732,9 @@ def _run_sabotage() -> int:
                    counts={"caught": len(caught), "na": len(na)}).emit()
 
 
-def _repin_or_verify(*, check_only: bool) -> int:
-    verb = "--verify-pin" if check_only else "--repin"
-    ref = harness.oracle_ref()
-    first = _oracle_answers(ref)
-    second = _oracle_answers(ref)
-    oracle_paths = {"_V2_CADENCE": _V2_CADENCE, "_V2_INSTRUMENT": _V2_INSTRUMENT,
-                    "_V2_HERMETIC": _V2_HERMETIC, "_V2_SEED_BRIDGE": _V2_SEED_BRIDGE,
-                    "_V2_JOURNAL": _V2_JOURNAL}
-    oracle_sha256 = _oracle_sha256(ref)
-    problems = harness.write_pin(_PIN_GATE, oracle_ref=ref, oracle_paths=oracle_paths,
-                                 oracle_sha256=oracle_sha256,
-                                 derived_by=f"v3.verify.{_PIN_GATE}.--repin",
-                                 first=first, second=second, check_only=check_only)
-    if problems:
-        return Verdict(f"v3-column-law-parity {verb}", 1,
-                       f"{len(problems)} problem(s)", failures=tuple(problems)).emit()
-    if check_only:
-        return Verdict(f"v3-column-law-parity {verb}", 0,
-                       f"re-derivation from the oracle @ {ref[:12]} reproduces the committed pin "
-                       f"exactly ({len(first)} answer(s))").emit()
-    return Verdict(f"v3-column-law-parity {verb}", 0,
-                   f"wrote {harness.pin_path(_PIN_GATE)} with {len(first)} answer(s) @ {ref[:12]}").emit()
-
-
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "--drive":
         return _drive(argv[1:])
-    if argv == ["--repin"]:
-        return _repin_or_verify(check_only=False)
-    if argv == ["--verify-pin"]:
-        return _repin_or_verify(check_only=True)
     if argv:
         return Verdict("v3-column-law-parity", 2, f"takes no arguments; got {argv!r}").emit()
 

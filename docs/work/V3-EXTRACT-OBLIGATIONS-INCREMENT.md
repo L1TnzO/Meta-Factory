@@ -1,4 +1,4 @@
-<!-- meta:doc sha=ac7703aa07ce3c1e1bc1ec72b16d4b79620eddbc updated=2026-08-04T07:52Z -->
+<!-- meta:doc sha=4b367fa7bc793e1b3a5b0f72f0a85b2c12082a35 updated=2026-08-04T17:11Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
@@ -140,8 +140,8 @@ case list and not a count written in this document.
 | 1.bis | §2.4 pre-registered baseline + the pin tooth exercised BY HAND on disk | **done** — §Evidencia |
 | 1.ter | the travel probe (acceptance LAW G) found 2 of 37 `column_law_parity` cases pinning a fact about THIS machine's git state. Make the 7 `_REAL_REPO_CASES` hermetic and re-derive their pin FROM THE ORACLE — must happen before the amputation, because after it a re-pin is impossible | **done** — LAW G green; the matrix came back SHARPER, §Evidencia |
 | 2 | amputate: delete `_V2_*` constants, `extract_oracle` calls and the `--repin` path from the 5; drop their 5 `_ORACLE_READERS` carve-outs; new gate `pin_integrity` (bijection census over pins + the no-git travel probe) registered | **done** — 44 gates, `open_obligations` 10 → 5, pins byte-identical |
-| 3 | cut: `economy_census` A2·A3·A5·A6·A7 · `migration_census` B1·B3·B4 · `verb_census` C1·C7 — keep A1·A4, B2·B5, C2–C6; drop the three `_ORACLE_READERS` carve-outs | pending |
-| 4 | retire `gate_census`: with `verb_census`'s C1/C7 cut it has no consumer left; delete the module, drop its carve-out, mark its row discharged | pending |
+| 3 | cut: `economy_census` A2·A3·A5·A6·A7 · `migration_census` B1·B3·B4 · `verb_census` C1·C7 — keep A1·A4, B2·B5, C2–C6; drop the three `_ORACLE_READERS` carve-outs | **done** — each cut module re-armed with its OWN Lock #1 |
+| 4 | retire `gate_census`: with `verb_census`'s C1/C7 cut it has no consumer left; delete the module, drop its carve-out, mark its row discharged | **done** — deleted; `_ORACLE_READERS` now EMPTY; `open_obligations=1` |
 | 5 | acceptance | pending |
 
 Order is FORCED: 1 before 1.bis before 2 (provenance is unprovable after the amputation), 3 before 4
@@ -258,6 +258,42 @@ red, so "it travels" stays a measurement rather than a belief.
 
 `open_obligations` 10 → **5**, counted by the census against the derived population rather than declared
 by the rows.
+
+### Phases 3 and 4 — the cuts, and the Lock that the cut was about to take with it
+Each census kept what it asks of the LIVE tree and lost what it asked of the ancestor. The surviving
+assertions are not vacuous, which is the only way to tell a cut from a gutting — the instruments print
+their own subjects: `economy_census` 9 modules · 30 functions · 10 metered sources scanned ·
+`migration_census` 29 kinds, 7 ported · `verb_census` 30 verbs claimed, 20 decided · `import_boundary`
+145 modules under `v3/`, none importing the substrate.
+
+**The trap was the Lock, and it is worth stating because it nearly went the other way.** `verb_census`'s
+C7 was its guarantee that an empty population is never vacuously true — but it was written against the
+ORACLE's population, so it was on the cut list. Removing it without a replacement leaves a gate that can
+pass over nothing: precisely the defect `codegen_freeze` was carrying (RETIREMENT §5). Every cut module
+came out with its own Lock #1 over the population it still measures, each with its own plant, and
+acceptance LAW E.bis requires a caught plant whose name says so.
+
+`gate_census` is deleted. It backed no registered gate and existed only as somebody else's import, which
+is exactly how a dependency survives a cleanup nobody aimed at it — so the law is not "delete the file"
+but "nothing imports it", and its row STAYS in the retirement table: a retirement record is meant to
+outlive its module. `_ORACLE_READERS` is now **EMPTY**, and that emptiness is the goal rather than a
+switched-off tooth — `import_boundary`'s red side still catches its 4 planted violations with the table
+empty, because the tooth was always rule 3 (no module may name a v2 path), not the table.
+
+`open_obligations` **5 → 1**. The one left is `tools/corpus_parity.py`, by decision, not by oversight.
+
+### The acceptance gate's own defect (LAW C) — measured, and fixed in the instrument
+The slot came back RED on one law, and it was mine. LAW C asked "is `gate_census` still imported?" with a
+text `grep`, which matched `checks/retirement_census.py`'s DOCSTRING — prose quoting the old import line
+to explain the transitive population it used to derive. **Prose that NAMES a dead module is a record; an
+import is a dependency, and a text matcher cannot tell them apart.** The law is now measured with `ast`
+(the same instrument `import_boundary` uses), covering `ImportFrom`, `Import` and a dynamic
+`import_module` call, so a historical citation stays legal forever and a real dependency cannot hide in a
+comment.
+
+Worth recording that the generator **refused to fix it**: the reword lived outside its `allow_globs`, and
+it reported the blocker instead of reaching for the file. The blast radius held under pressure, which is
+the whole reason the radius is machine-enforced rather than requested.
 
 ### Phase 1, attempt 1 — ABORTED, no work lost
 The generator was killed by a provider session limit while still reading the two non-exit-code modules,

@@ -1,4 +1,4 @@
-<!-- meta:doc sha=c02017549c9f5659a723d6382fa5b1b0e88a8cec updated=2026-08-03T23:57Z -->
+<!-- meta:doc sha=f9e7dabdb148f4383e8267f94c3eab6c4eda7049 updated=2026-08-04T01:08Z -->
 # Increment V3-EXTRACT-RETIREMENT
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-03T23:31Z). Close it with `v3 increment close`
@@ -85,9 +85,18 @@ measured defect is §5.
 | 2 | discharge the 3 retirements: deregister + delete `cli_parity`, `deletion_manifest`; drop their `_ORACLE_READERS` carve-outs (`gate_census` stays until its last consumer is cut — its row is decided, its discharge is counted open) | **done** — 43 → 41 gates |
 | 2.bis | **the boundary gate has never voted** — see §2.5. Register `import_boundary` and resolve its 5 standing violations | **done** — 0 violations / 144 modules, registered, 42 gates |
 | 4 | PASO 2 residue (`N-0134`): the undeclared sibling-repo fallback in `doc_graph` — see §6 | **done** — `N-0134` closed |
-| 1 | `v3/verify/checks/retirement_census.py`: the laws over the rows + red side; gate `retirement` registered | pending |
-| 3 | `codegen_freeze`: the missing empty-population Lock + its red plant | pending |
-| 5 | acceptance | pending |
+| 1 | `v3/verify/checks/retirement_census.py`: the laws over the rows + red side; gate `retirement` registered | **done** — 43 gates, 24 red scenarios, `open_obligations=10` |
+| 3 | `codegen_freeze`: the missing empty-population Lock + its red plant | **done** — 8 → 10 red scenarios |
+| 5 | acceptance | pending — the full `meta check` + the second verifier |
+
+**Rows are twelve, not eleven** (`N-0137`): the population had to be PACKAGE-scoped, and
+`tools/corpus_parity.py` — which travels, reads the ancestor, is cited by fourteen docstrings as "the
+v2/v3 agreement oracle" and is run by no gate at all — is the twelfth. Its physical deletion is an open
+obligation, not a discharge: rewriting those fourteen citations is prose surgery worth its own pass.
+
+**`open_obligations=10`, printed with all ten names.** Two rows are discharged (`cli_parity`,
+`deletion_manifest` — deregistered, deleted, subject proven absent); ten carry an obligation that PASO 4
+must face. Green with open obligations is the designed state. Green **silent** about them is the bug.
 
 **Population correction pending for Phase 1 (`N-0137`).** The derivation must be **package-scoped**, not
 `v3/`-scoped: `classify(path) == "package"` AND depends on the oracle. Scanning only `v3/` misses

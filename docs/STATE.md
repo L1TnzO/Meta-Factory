@@ -1,4 +1,4 @@
-<!-- meta:doc sha=19070e14e1040a31cb24bd36efb2557f1fafb3c9 updated=2026-08-04T02:30Z -->
+<!-- meta:doc sha=9e05cde41d6c0aa97183cb3ae3424d823e1574aa updated=2026-08-04T02:39Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -30,9 +30,9 @@
   `§10.3` bajo **3 tiers de autoridad** (13 read · 4 run · **11 declare negados por construcción**), y
   `meta attach` con `attach_parity` verde (**5/5** plantados). Los 20 verbos humanos ya no se cuentan:
   se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
-  **El host es nuestro, Claude Code es el motor.** Las leyes de cada incremento viven en `LOG.md`. CI externo
-  **5 de 84** (`N-0116`). **EXTRACCIÓN en curso** (`work/V3-EXTRACT-…`): PASO 3 dejó el censo de retiro
-  DERIVADO (12 filas · **10 obligaciones abiertas, nombradas**) y registró `import_boundary`, que nunca votó.
+  **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84** (`N-0116`). **EXTRACCIÓN en curso**
+  (`work/V3-EXTRACT-…`): el PASO 3 cerró el censo de retiro DERIVADO (12 filas; y `import_boundary`, que
+  nunca había votado, registrado). **Siguiente = 3.bis: descargar las 10** (5 pin · 3 cut · 2 retire).
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

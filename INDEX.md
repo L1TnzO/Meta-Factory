@@ -7,7 +7,7 @@
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
 | `docs/LOG.md` | `c7478a4b4b98` | 2026-08-04T02:31Z | Bitácora — Meta-Factory |
-| `docs/STATE.md` | `9e05cde41d6c` | 2026-08-04T02:39Z | State — Meta-Factory |
+| `docs/STATE.md` | `0b25199619bf` | 2026-08-04T03:53Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |
 | `docs/decisions/003-espina-sdd-spec-driven.md` | `3712dcc63fef` | 2026-06-13T14:57Z | ADR-003 — Espina SDD (Spec-Driven Development) de primera clase, enforced |
@@ -193,6 +193,7 @@
 | `docs/work/STOP-PROOF-PRERUN-TRUST-INCREMENT.md` | `a48460077e4c` | 2026-07-07T21:52Z | Incremento STOP-PROOF-PRERUN-TRUST |
 | `docs/work/V3-EXTRACT-DIRECTION-INCREMENT.md` | `729f8911256d` | 2026-08-04T02:39Z | Dirección — V3-EXTRACT: sacar `v3/` de este repo y usarlo en otro lado |
 | `docs/work/V3-EXTRACT-MANIFEST-INCREMENT.md` | `f6825cd4c7df` | 2026-08-03T23:17Z | Increment V3-EXTRACT-MANIFEST |
+| `docs/work/V3-EXTRACT-OBLIGATIONS-INCREMENT.md` | `414d0209fa4c` | 2026-08-04T03:54Z | Increment V3-EXTRACT-OBLIGATIONS |
 | `docs/work/V3-EXTRACT-RETIREMENT-INCREMENT.md` | `84604d2b2b4b` | 2026-08-04T02:30Z | Increment V3-EXTRACT-RETIREMENT |
 | `docs/work/V3-EXTRACT-STEP0-FREEZE-WAIVER-INCREMENT.md` | `7c95239b1d87` | 2026-08-03T23:05Z | Increment V3-EXTRACT-STEP0-FREEZE-WAIVER |
 | `docs/work/V3-INC0-SDK-PROBE-INCREMENT.md` | `f51244342e6d` | 2026-07-28T17:28Z | Incremento V3-INC0-SDK-PROBE |

@@ -114,6 +114,30 @@ RETIREMENT: dict[str, Row] = {
         discharged=False,
     ),
 
+    "tools/corpus_parity.py": Row(
+        gate=None,
+        decision=RETIRE,
+        subject=(V2_ROOT + "docs_manifest.py", V2_ROOT + "verify/checks/docs_check.py",
+                 V2_ROOT + "memory/projection.py", V2_ROOT + "graph/doc_graph.py",
+                 V2_ROOT + "verify/checks/evidence_liveness.py",
+                 V2_ROOT + "verify/checks/state_snapshot.py",
+                 V2_ROOT + "verify/checks/state_fidelity.py"),
+        reason="Five PAIRS, each sha-checking a v2 source against the oracle and running both bodies "
+               "over this tree. It ran as an individual slot's acceptance gate during the rebuild and "
+               "NO registered gate runs it now — five gate docstrings still cite it as 'the v2/v3 "
+               "agreement oracle', which is how a tool keeps its authority long after it stopped "
+               "being asked anything. It is also the row that corrects this table's own scope: it "
+               "lives in `tools/`, so a population scanned under `v3/` would never have seen it, and "
+               "`tools/` is a PACKAGE row — it would have TRAVELLED, broken, into the destination. A "
+               "population scoped to where you happened to look is not a population.",
+        obligation="delete the file and rewrite the FOURTEEN citations of it across eight modules "
+                   "(`docs_manifest`, `projection`, `doc_graph`, `docs_check`, `projection` check, "
+                   "`evidence_liveness`, `state_fidelity`, `state_snapshot`) — each currently names it "
+                   "in the present tense as the standing agreement oracle, and a docstring that "
+                   "points at a deleted tool is worse than one that points at a live-but-unrun one",
+        discharged=False,
+    ),
+
     # ---- keep · PIN: the oracle's last act is to leave its answers behind as data -----------------
     "v3/verify/column_law_parity.py": Row(
         gate="column_law_parity",

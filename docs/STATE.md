@@ -1,4 +1,4 @@
-<!-- meta:doc sha=b8b09281973dc9246a4cb5668566c1416f63b2ea updated=2026-08-04T04:44Z -->
+<!-- meta:doc sha=ee600dcd3d1b5ee6c6ab26460782e2f84ac04e51 updated=2026-08-04T04:44Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -31,10 +31,8 @@
   `meta attach` con `attach_parity` verde (**5/5** plantados). Los 20 verbos humanos ya no se cuentan:
   se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
   **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84** (`N-0116`). **EXTRACCIÓN en curso**
-  (`work/V3-EXTRACT-…`): el PASO 3 cerró el censo de retiro DERIVADO (12 filas; y `import_boundary`, que
-  nunca había votado, registrado). **3.bis ABIERTO** (`work/V3-EXTRACT-OBLIGATIONS-…`): contrato del pin
-  escrito y baseline PRE-REGISTRADO (5/5 verdes, **93 casos**) — el orden es ley: derivar → verificar →
-  recién ahí amputar, porque después la procedencia no se puede probar. Falta EJECUTAR las 5 fases.
+  (`work/V3-EXTRACT-…`): PASO 3 cerró el censo DERIVADO (12 filas; `import_boundary` registrado). **3.bis
+  ABIERTO**: contrato del pin + baseline (5/5 verdes, **93 casos**); orden ley —derivar, verificar, amputar—.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

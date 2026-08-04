@@ -1,7 +1,7 @@
-<!-- meta:doc sha=fab915547b70229b12b947432a3d08b414753a9c updated=2026-08-04T18:22Z -->
+<!-- meta:doc sha=e23d5c8747690129749516411f77addd64223cce updated=2026-08-04T18:23Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-04T18:23Z) (created 2026-08-04T03:53Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 >
 > PASO 3.bis of `docs/work/V3-EXTRACT-DIRECTION-INCREMENT.md`. The decision each row carries is

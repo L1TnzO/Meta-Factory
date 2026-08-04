@@ -1,4 +1,4 @@
-<!-- meta:doc sha=5656319e91a431cbcfb4e72f5d7a53b462a95658 updated=2026-08-03T23:18Z -->
+<!-- meta:doc sha=631a58188d4219a07262f19b42ff809c80f9b08f updated=2026-08-04T02:37Z -->
 # Dirección — V3-EXTRACT: sacar `v3/` de este repo y usarlo en otro lado
 
 > **Doc de dirección** (no es un incremento abierto; cada PASO de abajo se abre con
@@ -14,9 +14,10 @@
 | --- | --- | --- |
 | **0** · waiver FSK | ✅ **CERRADO** | `WAIVED_COMMITS` con razón escrita + **la escotilla ahora se audita a sí misma**. **El segundo verificador VERDE por primera vez desde 2026-07-09**: run `30860740378`, **green=32 · red=0 · n/a=4** (exactamente lo predicho) |
 | **1** · manifiesto | ✅ **CERRADO** | `v3/extract_manifest.py` (15 PACKAGE + 10 BORN_FRESH) + gate `extract_package` registrado → **43 gates** |
-| **2** · fixtures clase B | 🟡 **casi vacío** — ver §4 | los 6 fixtures **YA viven bajo paths del manifiesto**: no hay `git mv` que hacer. Y `N-0102` está **vacío** (medido) |
-| **3** · censo de retiro | ⬜ pendiente | **el peligroso**. Sigue siendo el acto de gobierno de fondo |
-| **4** · cutover | ⬜ pendiente | |
+| **2** · fixtures clase B | ✅ **CERRADO** | los 6 fixtures **YA vivían bajo paths del manifiesto**: no hubo `git mv`. `N-0102` vacío (medido) y `N-0134` —el fallback al repo hermano en `doc_graph`— cerrado en la fase 4 del PASO 3 |
+| **3** · censo de retiro | ✅ **CERRADO** 2026-08-04 | `work/V3-EXTRACT-RETIREMENT-INCREMENT.md`. Gate `retirement` (**43 gates**): población DERIVADA, **12 filas · `open_obligations=10` nombradas**, 24 escenarios rojos. De paso: `import_boundary` **nunca había votado** y quedó registrado; `codegen_freeze` ganó su Lock de población vacía. `N-0138` cerrado con **premisa falsa** (la suite SÍ imprime lo que no corrió); `N-0139` abierto |
+| **3.bis** · las 10 obligaciones | ⬜ **pendiente — esto es lo que falta antes del 4** | 5 `keep · pin` (fosilizar la matriz del oráculo como dato) · 3 `keep · cut` (sacar las aserciones al oráculo, conservar las vivas) · 2 `retire` (`gate_census` muere con su último consumidor; `tools/corpus_parity.py` arrastra 14 citas en docstrings). Sin descargarlas, el repo extraído arranca con gates que leen un commit de v2 que allá no existe |
+| **4** · cutover | ⬜ pendiente | destrabado por 3.bis, no por el 3 |
 
 **Dos correcciones que la ejecución le hizo a este documento** (no las repitas, ya están pagadas):
 

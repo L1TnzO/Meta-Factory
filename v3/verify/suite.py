@@ -524,6 +524,17 @@ def _register_economy(registry: Registry) -> None:   # + INC-7's two migration g
                "own measurement found and that no port-in-progress may reintroduce silently)",
         witness=Witness("sabotage_env", "V3_EXTRACT_PACKAGE_SABOTAGE"),
     ))
+    registry.register(Gate(
+        name="retirement",
+        argv=(PY, "-m", "v3.verify.checks.retirement_census"),
+        proves="every gate that depends on the dead ancestor (the derived, transitive-closure "
+               "population of `import_boundary._ORACLE_READERS`, plus `tools/corpus_parity.py` — "
+               "V3-EXTRACT-RETIREMENT's own twelfth row) carries exactly one decided row in "
+               "`v3.verify.retirement.RETIREMENT`: a `retire` with PROOF its subject is gone (no git, "
+               "existence + `classify()` alone), or a `keep` whose gate is still armed — and that no "
+               "row claims a discharge the derived population contradicts",
+        witness=Witness("sabotage_env", "V3_RETIREMENT_SABOTAGE"),
+    ))
 
 
 

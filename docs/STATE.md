@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0b25199619bf537374eedc2dc248a638a6d0859a updated=2026-08-04T03:53Z -->
+<!-- meta:doc sha=b8b09281973dc9246a4cb5668566c1416f63b2ea updated=2026-08-04T04:44Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -32,7 +32,9 @@
   se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
   **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84** (`N-0116`). **EXTRACCIÓN en curso**
   (`work/V3-EXTRACT-…`): el PASO 3 cerró el censo de retiro DERIVADO (12 filas; y `import_boundary`, que
-  nunca había votado, registrado). **Siguiente = 3.bis: descargar las 10** (5 pin · 3 cut · 2 retire).
+  nunca había votado, registrado). **3.bis ABIERTO** (`work/V3-EXTRACT-OBLIGATIONS-…`): contrato del pin
+  escrito y baseline PRE-REGISTRADO (5/5 verdes, **93 casos**) — el orden es ley: derivar → verificar →
+  recién ahí amputar, porque después la procedencia no se puede probar. Falta EJECUTAR las 5 fases.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

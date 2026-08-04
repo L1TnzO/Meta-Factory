@@ -1,4 +1,4 @@
-<!-- meta:doc sha=add9917f725dae51443cedf70d1380838faf4a45 updated=2026-08-04T04:43Z -->
+<!-- meta:doc sha=07b5f3f5484b2b695588f482ffdf990774b7ee82 updated=2026-08-04T07:07Z -->
 # Increment V3-EXTRACT-OBLIGATIONS
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T03:53Z). Close it with `v3 increment close`
@@ -137,7 +137,8 @@ case list and not a count written in this document.
 | Phase | Content | Status |
 | --- | --- | --- |
 | 1 | pin: harness pin primitives + `--repin`/pinned mode in the 5 modules + the 5 committed pins + a pin-corruption plant per red side. **The oracle-reading half stays in place.** | pending |
-| 1.bis | §2.4 independent re-derivation, by hand, recorded | pending |
+| 1.bis | §2.4 pre-registered baseline + the pin tooth exercised BY HAND on disk | **done** — §Evidencia |
+| 1.ter | the travel probe (acceptance LAW G) found 2 of 37 `column_law_parity` cases pinning a fact about THIS machine's git state. Make the 7 `_REAL_REPO_CASES` hermetic and re-derive their pin FROM THE ORACLE — must happen before the amputation, because after it a re-pin is impossible | pending |
 | 2 | amputate: delete `_V2_*` constants, `extract_oracle` calls and the `--repin` path from the 5; drop their 5 `_ORACLE_READERS` carve-outs; new gate `pin_integrity` (bijection census over pins + the no-git travel probe) registered | pending |
 | 3 | cut: `economy_census` A2·A3·A5·A6·A7 · `migration_census` B1·B3·B4 · `verb_census` C1·C7 — keep A1·A4, B2·B5, C2–C6; drop the three `_ORACLE_READERS` carve-outs | pending |
 | 4 | retire `gate_census`: with `verb_census`'s C1/C7 cut it has no consumer left; delete the module, drop its carve-out, mark its row discharged | pending |
@@ -179,6 +180,41 @@ TOTAL 93
 ```
 Green on all five ⇒ oracle == v3 for all 93 cases at the pin commit. Each pin must hold exactly the
 count above; a pin with fewer answers is a case that left the matrix while nobody was counting.
+
+### Phase 1 — GREEN, and the tooth exercised by hand rather than believed
+Slot `v3-extract-obligations-phase1-pins`, verdict green, acceptance re-run by the orchestrator. Beyond
+the gate, three checks the orchestrator ran with its own hands, because a pin's failure mode is exactly
+the kind a green verdict cannot see:
+
+* **counts and diversity** — 37·13·13·14·16 = 93 answers, matching the pre-registered baseline, with
+  13·12·5·6·6 DISTINCT values: no matrix compares equal by coincidence.
+* **provenance** — all 16 `oracle_sha256` entries recomputed independently with
+  `git show <ref>:<path> | sha256sum`. They match, so the pins record the ancestor's real bodies.
+* **the tooth bites ON DISK** — corrupting one answer in a real pin file turns the gate red; removing one
+  case turns it red; restoring returns it to green. Verified on three modules. The red side's plants
+  perturb in-memory copies, which is the right design but proves nothing about the file that ships.
+
+### The travel probe: the instrument was wrong twice before it was right (LAW G)
+"It runs without the oracle" was checked three times, and only the third check asked the right question.
+
+1. **Break `git` itself** (a PATH stub exiting 127). `column_law_parity` went red — but it uses `git init`
+   to BUILD its fixtures, so this broke the PLATFORM, not the SUBJECT. A gate that needs git is not a
+   gate that reaches for the ancestor.
+2. **Copy `v3/` + `tools/` without `.git`.** Red again, now with `FileNotFoundError: seed lifecycle not
+   found`: the copy was missing files that DO travel. The probe was measuring my guess about the
+   package, not the package.
+3. **Build the environment from `extract_manifest.classify()` itself** — every `package` file, no `.git`,
+   git binary intact. That is the repo that actually leaves, and it is decisive.
+
+**And the third one found a real defect.** `edit_allowed:meta_path` and `edit_allowed:seed_column_path`
+(2 of 37) run against the LIVE repo, so their pinned answer is a fact about this machine's git state at
+pin time, not about v3's behaviour. Fossilised as-is they are a latent red in the destination, for a
+reason that has nothing to do with the port. Phase 1.ter makes those cases hermetic and re-derives their
+answers FROM THE ORACLE — which is only possible before the amputation, and is the second time in this
+increment that the phase ORDER turned out to be load-bearing rather than tidy.
+
+The probe is now acceptance **LAW G**, not a thing the orchestrator remembers to run. It is currently
+RED, which is the correct state for a finding that has not been fixed yet.
 
 ### Phase 1, attempt 1 — ABORTED, no work lost
 The generator was killed by a provider session limit while still reading the two non-exit-code modules,

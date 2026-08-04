@@ -20,6 +20,20 @@
     }
   },
   "live": {
-    "ran": false
+    "bash_write_happened": true,
+    "sweep_status": "RED",
+    "sweep_why": [
+      ".metamem/journal.jsonl: outside the slot's footprint",
+      ".metamem/ledger.jsonl: outside the slot's footprint"
+    ],
+    "permission_calls": [
+      {
+        "tool": "Bash",
+        "decision": "allow",
+        "reason": "not a writer"
+      }
+    ],
+    "cost": 0.030119599999999996,
+    "ran": true
   }
 }

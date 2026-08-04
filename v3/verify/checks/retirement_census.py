@@ -70,7 +70,7 @@ answers a related question — that population is built by reading v2's populati
 reusing it would make this census read the one thing it cannot depend on, failing its own law on its
 first run in the destination.)
 
-EIGHT LAWS (each a pure `*_problems` function, each able to go red alone):
+NINE LAWS (each a pure `*_problems` function, each able to go red alone):
   1 DECIDED           — every population member has a row.
   2 NO STALE ROW       — a row whose module is gone from BOTH the population and the tree is legal only
                           when `decision == RETIRE` (a retirement record outlives its module; a keep may
@@ -89,18 +89,68 @@ EIGHT LAWS (each a pure `*_problems` function, each able to go red alone):
                           red, regardless of decision.
   8 DECISION VOCABULARY — `decision` is closed; a present `obligation` is a real (non-blank) string; a
                           discharged row carries no obligation.
+  9 NO STANDING ADDRESS — a `retire` row's module may be NAMED in prose forever, but nothing in any
+                          scan-root `.py` file may still hold its ADDRESS: the stem reached through a
+                          dot or a slash (`v3.verify.cli_parity`, `./cli_parity`), or carrying the
+                          `.py` extension (`cli_parity.py`). A bare NAME with neither form present —
+                          "cli_parity was retired" — is legal; that is the whole point of the
+                          distinction, and it is why this is not the same law as "the word does not
+                          appear".
+
+                          THE MEASUREMENT THAT CHOSE THE PREDICATE (2026-08-04): three candidates were
+                          run against the real tree. Naive substring-of-the-stem-anywhere matched 301
+                          times — it flags the stem inside unrelated identifiers and prose sentences
+                          that merely discuss the retirement, drowning the 20 real citations in noise.
+                          Bare-stem-word-boundary-anywhere matched 37 — an improvement, but it still
+                          flags every HONEST TOMBSTONE ("`corpus_parity` was registered here until
+                          V3-EXTRACT-RETIREMENT retired it"), which is legal prose and must stay legal
+                          or nobody could ever again explain what a retired module used to do.
+                          Address-form (this law's predicate) matched exactly 20 — every one of them a
+                          real address (an import path, a `.py` reference, a relative path segment),
+                          none of them a tombstone. Adopted.
+
+                          THE GRANT SET IS EXACTLY THREE FILES, closed (`_ADDRESS_GRANT`), because
+                          exactly three files are the retirement RECORD itself and have to be able to
+                          say what died: `retirement.py` KEYS every row by the retired module's own
+                          relpath (an address, by construction — the table cannot exist without one),
+                          `retirement_census.py` documents the population correction that FOUND
+                          `tools/corpus_parity.py` (this very module docstring, a few lines up), and
+                          `import_boundary.py` keeps the past-tense readers table
+                          (`_NAMED_NOT_READ`/`_ORACLE_READERS`) that names retired modules as former
+                          consumers. No fourth file earns the grant by argument alone — a citing site
+                          that is not one of these three RECORDS the death; it does not still hold the
+                          address, which is exactly the thing this law refuses.
+
+                          EXPECTED ON THE CURRENT TREE: exactly 20 citations across 12 files
+                          (`corpus_parity` 14, `cli_parity` 3, `gate_census` 2, `deletion_manifest` 1)
+                          — the 20 subjects are DELIBERATELY still there; rewriting them into tombstones
+                          is a separate, later slot. A law proven against a tree with no standing
+                          addresses would prove nothing about whether the law can find one.
 PLUS the population's own sanity law (direction doc §4): every `import_boundary._ORACLE_READERS` key
 must land in the derived population, or the DERIVATION itself narrowed silently.
 
-SUMMARY always prints population size, row count, and `open_obligations=N` with the undischarged rows'
-names. **A green with `N > 0` is the DESIGNED state, not a defect** — eight of the twelve rows carry a
-deliberate, counted obligation (§0 of the increment doc); what this gate refuses is SILENCE about them,
-never their existence.
+THE DERIVATION LOCK — a POSITIVE control, not the usual "empty population is red" Lock #1. After the
+next slot's rewrite the real derived population is 0 BY DESIGN (nothing depends on the dead ancestor
+anymore), which would make Lock #1 fire on the intended, correct outcome — false by construction here.
+So instead `derivation_control_problems` re-runs `derive_population` over a FIXED synthetic candidate
+set (`_CONTROL_CANDIDATES`: a direct namer, a one-hop transitive importer, a clean module importing a
+non-member, and an excluded module that names the ancestor) with a KNOWN non-empty answer
+(`_CONTROL_EXPECTED`), and checks the derivation still finds exactly it. A mismatch means the
+derivation itself narrowed silently — the one failure mode an always-empty real population could never
+by itself reveal.
 
-RED SIDE (`V3_RETIREMENT_SABOTAGE=1`, exits 0 reporting caught) — one plant per law (nine, the eight
-above plus the population sanity law) fed straight to the REAL pure law over synthetic facts, each
-paired with a healthy-side case so a law is never trusted to reject without also being shown NOT to
-reject a clean row — the same discipline `extract_package`'s own red side uses.
+SUMMARY always prints population size, row count, `citations=N` (law 9's standing-address count), and
+`open_obligations=N` with the undischarged rows' names (omitted, parentheses and all, when N is 0).
+**A green with `open_obligations > 0` is the DESIGNED state, not a defect** — eight of the twelve rows
+carry a deliberate, counted obligation (§0 of the increment doc); what this gate refuses is SILENCE
+about them, never their existence.
+
+RED SIDE (`V3_RETIREMENT_SABOTAGE=1`, exits 0 reporting caught) — one plant per law (nine, plus the
+population sanity law, plus the derivation Lock) fed straight to the REAL pure law over synthetic
+facts, each paired with a healthy-side case so a law is never trusted to reject without also being
+shown NOT to reject a clean row — the same discipline `extract_package`'s own red side uses. The Lock's
+own pair is the mirror image of every other law's: it must FLAG the empty control population and stay
+QUIET on the correct one, because here "empty" is the failure, not the success.
 
 Zero model; every fact is re-derived from the tree (I-3). Names no domain (ADR-012).
 """
@@ -108,6 +158,7 @@ from __future__ import annotations
 
 import ast
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -131,6 +182,16 @@ _SCAN_ROOTS: tuple[str, ...] = ("v3", "seed", "tools")
 #: table plus its own module, per the contract this census is built to (they dispose of the path or
 #: search for it, never read it).
 _EXCLUDE: frozenset[str] = frozenset(_NAMED_NOT_READ) | {"v3/verify/import_boundary.py"}
+
+#: files allowed to hold a retired module's ADDRESS: the retirement RECORD itself. `retirement.py`
+#: KEYS its rows by relpath, `retirement_census.py` documents the population correction that found
+#: `tools/corpus_parity.py`, and `import_boundary.py` keeps the past-tense readers table. A record of
+#: a death has to be able to say what died; nothing else does.
+_ADDRESS_GRANT: frozenset[str] = frozenset({
+    "v3/verify/retirement.py",
+    "v3/verify/checks/retirement_census.py",
+    "v3/verify/import_boundary.py",
+})
 
 _V2_NONTRAILING = V2_ROOT.rstrip("/")
 
@@ -229,6 +290,28 @@ def vocabulary_problems(facts: tuple[tuple[str, str, str | None, bool], ...]) ->
     return problems
 
 
+def address_pattern(stem: str) -> re.Pattern[str]:
+    """Pure: the ADDRESS predicate for a retired module's `stem`, measured against three alternatives
+    (module docstring §ADDRESS vs NAME) — the stem reached through a dot or a slash (`v3.verify.
+    cli_parity`, `./cli_parity`), or carrying the `.py` extension (`cli_parity.py`). A bare stem with
+    neither — the module's NAME alone, in prose — is deliberately NOT matched: that is the one legal
+    way to still talk about a retired module."""
+    return re.compile(r'(?:[./]' + re.escape(stem) + r'\b)|(?:\b' + re.escape(stem) + r'\.py\b)')
+
+
+def standing_address_problems(facts: tuple[tuple[str, int, str, str], ...]) -> list[str]:
+    """Law 9: NO STANDING ADDRESS. Pure over precomputed (citing_file, line_no, retired_module,
+    line_excerpt) facts — one problem per fact, no filtering left to do here (every exemption, grant
+    and self-citation, is already applied by `_address_facts` before a fact ever reaches this law)."""
+    return [
+        f"{citing_file}:{line_no}: still holds an ADDRESS for retired module {retired_module!r} "
+        f"({line_excerpt.strip()!r}) — rewrite it as a past-tense tombstone that keeps the module's "
+        f"NAME and drops the address; only retirement.py, retirement_census.py and import_boundary.py "
+        f"may keep one"
+        for citing_file, line_no, retired_module, line_excerpt in facts
+    ]
+
+
 def oracle_coverage_problems(oracle_reader_keys: frozenset[str], population: frozenset[str]) -> list[str]:
     """The population derivation's own sanity law (direction doc §4): every enumerated
     `import_boundary._ORACLE_READERS` key must land in the derived population. If one does not, the
@@ -319,6 +402,35 @@ def derive_population(candidates: dict[str, tuple[bool, tuple[tuple[str | None, 
     return frozenset(population)
 
 
+#: the synthetic candidate set the derivation control runs over: a direct namer, a transitive
+#: importer one hop away, a clean module importing a non-member, and an excluded module that names
+#: the ancestor (a grant may never seed the population, nor leak it to whoever imports it).
+_CONTROL_CANDIDATES: dict[str, tuple[bool, tuple[tuple[str | None, int], ...]]] = {
+    "ctl/namer.py":    (True,  ()),
+    "ctl/importer.py": (False, (("ctl.namer", 0),)),
+    "ctl/clean.py":    (False, (("ctl.absent", 0),)),
+    "ctl/granted.py":  (True,  ()),
+}
+_CONTROL_EXCLUDED: frozenset[str] = frozenset({"ctl/granted.py"})
+_CONTROL_EXPECTED: frozenset[str] = frozenset({"ctl/namer.py", "ctl/importer.py"})
+
+
+def derivation_control_problems(derived: frozenset[str]) -> list[str]:
+    """THE LOCK, a POSITIVE control (module docstring §THE DERIVATION LOCK): after the next slot the
+    real derived population is 0 BY DESIGN, so the usual "empty population is red" Lock is false here —
+    it would fire on the intended, correct outcome. This Lock instead re-runs `derive_population` over
+    a FIXED synthetic candidate set with a known non-empty answer and checks the derivation still finds
+    it: a direct namer and a one-hop transitive importer must both enter, and the excluded grant must
+    neither seed nor leak population-hood to its own importer. A mismatch means the derivation itself
+    narrowed silently, and a real population of 0 can no longer be read as 'nothing depends on the dead
+    ancestor' — it could just as well mean nobody is looking anymore."""
+    if derived == _CONTROL_EXPECTED:
+        return []
+    return [f"the population derivation's synthetic control produced {sorted(derived)!r}, expected "
+           f"{sorted(_CONTROL_EXPECTED)!r} — the derivation itself stopped working, so a real "
+           f"population of 0 can no longer be read as 'nothing depends on the dead ancestor'"]
+
+
 # -- IO gatherers: every filesystem/AST touch lives here, never inside a `*_problems` law or the fixpoint
 def _candidate_facts(root: Path, scan_roots: tuple[str, ...]
                      ) -> dict[str, tuple[bool, tuple[tuple[str | None, int], ...]]]:
@@ -342,6 +454,42 @@ def _candidate_facts(root: Path, scan_roots: tuple[str, ...]
                 continue
             facts[rel] = (_module_level_literal_match(tree), _import_edges(tree))
     return facts
+
+
+def _address_facts(root: Path, scan_roots: tuple[str, ...], retired_modules: dict[str, str],
+                   grants: frozenset[str]) -> tuple[tuple[str, int, str, str], ...]:
+    """Every filesystem/text touch for law 9 lives here. Same `scan_roots` and `classify(rel) ==
+    'package'` filter the population derivation already uses, `__pycache__` skipped; a file in `grants`
+    is skipped whole (it may hold ANY retired module's address). The scan is over RAW TEXT, line by
+    line — NOT the AST — because a comment carries an address too ("# see v3.verify.cli_parity's
+    docstring"), and the AST would never see it. `retired_modules` maps each retired module's `stem` to
+    its OWN relpath, so that relpath is exempt from matching its own stem (an undischarged row's module
+    may still exist on disk and legitimately name itself) while still being scanned for every OTHER
+    retired module's address."""
+    patterns = {stem: address_pattern(stem) for stem in retired_modules}
+    facts: list[tuple[str, int, str, str]] = []
+    for scan_root in scan_roots:
+        base = root / scan_root
+        if not base.is_dir():
+            continue
+        for path in sorted(base.rglob("*.py")):
+            if "__pycache__" in path.parts:
+                continue
+            rel = path.relative_to(root).as_posix()
+            if classify(rel) != "package" or rel in grants:
+                continue
+            try:
+                lines = path.read_text(encoding="utf-8").splitlines()
+            except UnicodeDecodeError:
+                continue
+            for stem, own_module in sorted(retired_modules.items()):
+                if rel == own_module:
+                    continue
+                pattern = patterns[stem]
+                for line_no, line in enumerate(lines, start=1):
+                    if pattern.search(line):
+                        facts.append((rel, line_no, stem, line))
+    return tuple(facts)
 
 
 def _real_report(root: Path) -> tuple[list[str], dict[str, int], list[str]]:
@@ -370,6 +518,9 @@ def _real_report(root: Path) -> tuple[list[str], dict[str, int], list[str]]:
     lie_facts = tuple((module, row.discharged, module in population) for module, row in sorted(rows.items()))
     vocab_facts = tuple((module, row.decision, row.obligation, row.discharged)
                         for module, row in sorted(rows.items()))
+    retired_modules = {Path(module).stem: module for module, row in rows.items() if row.decision == RETIRE}
+    address_facts = _address_facts(root, _SCAN_ROOTS, retired_modules, _ADDRESS_GRANT)
+    control_population = derive_population(_CONTROL_CANDIDATES, _CONTROL_EXCLUDED)
 
     problems = sorted(
         decided_problems(population, decided_names)
@@ -380,11 +531,14 @@ def _real_report(root: Path) -> tuple[list[str], dict[str, int], list[str]]:
         + keep_armed_problems(keep_facts)
         + discharge_lie_problems(lie_facts)
         + vocabulary_problems(vocab_facts)
+        + standing_address_problems(address_facts)
         + oracle_coverage_problems(frozenset(_ORACLE_READERS), population)
+        + derivation_control_problems(control_population)
     )
 
     open_rows = sorted(module for module, row in rows.items() if not row.discharged)
-    counts = {"population": len(population), "rows": len(rows), "open_obligations": len(open_rows)}
+    counts = {"population": len(population), "rows": len(rows), "open_obligations": len(open_rows),
+              "citations": len(address_facts)}
     return problems, counts, open_rows
 
 
@@ -393,10 +547,12 @@ _SYN_REASON = "synthetic tooth scenario: a written reason long enough to be trea
 
 
 def _tooth_alive() -> tuple[list[str], int]:
-    """(dead scenarios, scenarios run). One plant per law that can be gamed (the eight of the census's
+    """(dead scenarios, scenarios run). One plant per law that can be gamed (the nine of the census's
     own contract plus the population's oracle-coverage sanity law), each paired with a healthy-side case
     — the same discipline `extract_package`'s red side uses: a law is never trusted to reject without
-    also being shown it does not reject a clean row."""
+    also being shown it does not reject a clean row. Plus the derivation Lock's own pair (a positive
+    control, so it is proven both to flag an empty derived population AND to stay quiet on the correct
+    one — see `derivation_control_problems`)."""
     dead, scenarios = [], 0
 
     for name, condition in (
@@ -450,11 +606,24 @@ def _tooth_alive() -> tuple[list[str], int]:
          not vocabulary_problems((("x/mod.py", RETIRE, "   ", False),))),
         ("law8: a discharged row STILL CARRYING AN OBLIGATION was NOT flagged",
          not vocabulary_problems((("x/mod.py", RETIRE, "still owed", True),))),
+        # law 9 — NO STANDING ADDRESS
+        ("law9: a standing-address citation in a non-granted file was NOT flagged",
+         not standing_address_problems(
+             (("x/citer.py", 1, "cli_parity", "see v3.verify.cli_parity's docstring"),))),
+        ("law9: a clean (empty) fact tuple WAS flagged (a law that rejects everything blocks every "
+         "file)",
+         bool(standing_address_problems(()))),
         # the population derivation's own sanity assertion
         ("oracle-coverage: a missing oracle-reader key was NOT flagged",
          not oracle_coverage_problems(frozenset({"x/mod.py"}), frozenset())),
         ("oracle-coverage: a covered oracle-reader key WAS flagged",
          bool(oracle_coverage_problems(frozenset({"x/mod.py"}), frozenset({"x/mod.py"})))),
+        # the derivation Lock — a POSITIVE control, so it must fire on empty and stay quiet on correct
+        ("lock: an EMPTY control-derived population was NOT flagged (an empty real population would "
+         "then be unreadable as evidence of anything)",
+         not derivation_control_problems(frozenset())),
+        ("lock: the CORRECT control-derived population WAS flagged (blocks every real run)",
+         bool(derivation_control_problems(_CONTROL_EXPECTED))),
         # the increment's own close criterion, combined: a fully sane row is never marked by anything
         ("healthy: a fully sane row was flagged by SOMETHING (blocks every legitimate census)",
          bool(decided_problems(frozenset({"x/mod.py"}), frozenset({"x/mod.py"}))
@@ -464,7 +633,9 @@ def _tooth_alive() -> tuple[list[str], int]:
              + discharge_problems((("x/mod.py", "some_gate", False, False),))
              + keep_armed_problems((("x/mod.py", "some_gate", True),))
              + discharge_lie_problems((("x/mod.py", True, False),))
-             + vocabulary_problems((("x/mod.py", RETIRE, None, True),)))),
+             + vocabulary_problems((("x/mod.py", RETIRE, None, True),))
+             + standing_address_problems(())
+             + derivation_control_problems(_CONTROL_EXPECTED))),
     ):
         scenarios += 1
         if condition:
@@ -494,12 +665,18 @@ def main(argv: list[str]) -> int:
                        f"population module(s) and {counts['rows']} decided row(s)",
                        failures=tuple(problems[:_MAX_SHOWN]), counts=counts,
                        next_action="decide the undecided module in v3/verify/retirement.py — retire "
-                                   "it with proof of absence, or keep it with an armed gate; never "
-                                   "loosen a law to make an undecided dependency disappear").emit()
+                                   "it with proof of absence, or keep it with an armed gate; and for "
+                                   "any standing-address citation, rewrite the citing site as a "
+                                   "past-tense tombstone that keeps the retired module's NAME and "
+                                   "drops its address — never loosen a law, and never widen the grant "
+                                   "set, to make either kind of problem disappear").emit()
 
+    open_obligations = f"open_obligations={counts['open_obligations']}"
+    if open_rows:
+        open_obligations += f" ({', '.join(open_rows)})"
     return Verdict("v3-retirement-census", 0,
                    f"{counts['population']} population module(s), {counts['rows']} decided row(s), "
-                   f"open_obligations={counts['open_obligations']} ({', '.join(open_rows)})",
+                   f"citations={counts['citations']}, {open_obligations}",
                    counts=counts).emit()
 
 

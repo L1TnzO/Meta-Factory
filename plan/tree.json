@@ -2040,6 +2040,30 @@
         "session": "2026-08-03",
         "cause": "gate_red"
       }
+    },
+    "N-0139": {
+      "parent": "N-0135",
+      "title": "Seis leyes ejecutables de v3/verify/ (registry_law, line_parity, abstention, binding, leaf_bounded, column_live) no las corre NADIE: no estan registradas como gate ni las invoca otro modulo. STATE ya las citaba como N-0139 ANTES de que este nodo existiera — el id apuntaba a nada, la misma forma del bug que cerro V3-EXTRACT-CORPUS-PARITY una capa mas arriba (una cita cuya direccion no resuelve)",
+      "kind": "question",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-04T19:12Z",
+      "origin": {
+        "session": "2026-08-04",
+        "cause": "gate_red"
+      }
+    },
+    "N-0140": {
+      "parent": "N-0135",
+      "title": "v3/slot_footprint_facts.json esta TRACKEADO pero es salida pura del gate slot_footprint (nadie lo lee) y trae un campo cost que cambia en cada corrida: correr el verificador ensucia el repo. Consecuencias medidas: meta check nunca deja el arbol limpio (y increment close exige arbol limpio), y git add -A lo barre a commits ajenos — paso en 9336f90, 0dff438 y 1df8344. Decision pendiente: gitignorear la salida (git rm --cached) o justificar por que se versiona",
+      "kind": "residual",
+      "state": "open",
+      "evidence": [],
+      "opened_at": "2026-08-04T19:12Z",
+      "origin": {
+        "session": "2026-08-04",
+        "cause": "manual"
+      }
     }
   }
 }

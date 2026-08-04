@@ -1,4 +1,4 @@
-<!-- meta:doc sha=0eec977cb2e286b51d57ab2ac31ad8e937caa777 updated=2026-08-04T19:08Z -->
+<!-- meta:doc sha=836d4b8f91e09dd9e1030d4576a4647ddc2c451d updated=2026-08-04T19:13Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -38,7 +38,9 @@
   10** targets · `N-0123` el manifiesto audita `src/`, no `tools/`·`seed/`·`.claude/` · `N-0105`
   `increment_guard` prueba que hay incremento abierto, **no pertenencia** · `N-0128` `meta check` corre
   **>50 min sin imprimir NADA** (re-medido 08-04) · **`N-0139`**: seis leyes ejecutables de `v3/verify/` no
-  las corre NADIE (`registry_law`, `line_parity`, `abstention`, `binding`, `leaf_bounded`, `column_live`).
+  las corre NADIE (`registry_law`, `line_parity`, `abstention`, `binding`, `leaf_bounded`, `column_live`)
+  — y su id se citaba acá **antes de que el nodo existiera** · **`N-0140`** `slot_footprint` versiona su
+  propia salida: correr el verificador ensucia el árbol y `git add -A` lo barre a commits ajenos.
 - **📉 Economía: MEDIDA, ya no narrada (INC-6).** Corpus **461.289 tok / 193 archivos, +71,5 %** vs la
   base de ADR-019; la cláusula (a) de la regla de escape sigue FALSA (4.087 tok, 97,96 % headroom) →
   crece el costo de la mitigación, no el disparador (`N-0094`). Apagón 07-14→07-27 sin causa

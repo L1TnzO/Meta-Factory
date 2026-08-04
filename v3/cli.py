@@ -34,13 +34,13 @@ module thicker to satisfy a table rather than to do the work. Sub-verbs are keye
 options of its own (`"increment"`, `"product"`) is claimed too, mirroring v2's own parser shape where
 the parent registers as a verb even though `inc_cmd`/`prod_cmd` is `required=True`.
 
-WHY `check` IS SPECIAL (read `v3.verify.cli_parity`'s docstring for the mechanical law this answers
-to). v2's `check` verb never grew a `--only` flag — only `--skip`. `v3.verify.suite.main` now answers
-to both (this slot teaches it `--only` too, so the external CI's `--skip` invocation keeps working
-and a caller can ALSO run one gate in isolation). If this module's own `check` subparser formally
-DECLARED `--only`, `cli_parity`'s flag-surface law — v3 accepts every option v2 has and declares none
-v2 does not — would call that a lie: v2 never had it. So the `check` subparser below mirrors v2
-BYTE-for-byte (`--skip` only, for `--help` and for the parity gate to compare against), and `main`
+WHY `check` IS SPECIAL. v2's `check` verb never grew a `--only` flag — only `--skip`.
+`v3.verify.suite.main` now answers to both (this slot teaches it `--only` too, so the external CI's
+`--skip` invocation keeps working and a caller can ALSO run one gate in isolation). If this module's
+own `check` subparser formally DECLARED `--only`, it would misrepresent v2: the retired `cli_parity`
+oracle (retired at V3-EXTRACT-RETIREMENT) proved, during the rebuild, that v3 accepted every option
+v2 had and declared none v2 did not, and v2 never had `--only`. So the `check` subparser below still
+mirrors v2 BYTE-for-byte (`--skip` only, for `--help`, and as the record of that agreement), and `main`
 never calls `.parse_args()` on `check`'s payload: it forwards the raw remaining tokens straight to
 `suite.main`, which parses `--skip`/`--only` itself (the same "manual argv, not argparse" shape every
 other v3 verb-level `main(argv)` already uses — `rederive`, `verb_census`, `gate_census`,
@@ -97,9 +97,9 @@ DISPATCH = {
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """The six verbs' flag surface, kept byte-parity with v2's `build_parser()` at the oracle commit
-    for every option `v3.verify.cli_parity` compares (see the module docstring for `check`'s one
-    deliberate exception)."""
+    """The six verbs' flag surface was kept byte-parity with v2's `build_parser()` at the oracle
+    commit, per option, as `cli_parity` (retired at V3-EXTRACT-RETIREMENT) proved (see the module
+    docstring for `check`'s one deliberate exception)."""
     p = argparse.ArgumentParser(prog="v3", description="v3 — the host-owns-the-loop rebuild's CLI")
     sub = p.add_subparsers(dest="cmd", required=True)
 

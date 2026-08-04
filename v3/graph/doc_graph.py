@@ -5,7 +5,6 @@ referenced?" is a graph query, not a literal grep (a literal grep produced a FAL
 `graph/doc_graph.py` (V3-INC5-MEMORY-DOCS, Fase 4).
 
     python3 -m v3.verify.checks.evidence_liveness      # the gate; see that module's docstring
-    python3 tools/corpus_parity.py --only evidence_liveness   # the v2/v3 agreement oracle
 
 This docstring does not spell the legacy package's path, on purpose: `v3.verify.import_boundary`
 rule 3 bans naming the v2 substrate under `v3/`, because a string is how a dynamic import or a path
@@ -28,16 +27,16 @@ WHAT CHANGED FROM v2, and why:
     `NodeKind.DOC` and `EdgeKind.CITES`/`EVIDENCES` (added ahead of this port, annotated "doc lineage,
     INC-5 scope" — that earlier port anticipated exactly this one), so `Graph` is re-exported via the
     SAME `from .model import ... Graph ...` line v2 uses. That is deliberate, not incidental: the
-    parity oracle (`tools/corpus_parity.py`'s `evidence_liveness` pair) constructs the graph as
-    `mod.Graph()` on BOTH sides, so each side must build its OWN graph type through its own module's
-    namespace rather than either one borrowing the other's.
+    retired parity oracle's (`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY) `evidence_liveness`
+    pair constructed the graph as `mod.Graph()` on BOTH sides, so each side had to build its OWN graph
+    type through its own module's namespace rather than either one borrowing the other's.
   - nothing else. Every policy constant (`_SKIP_DIRS`, the ASF dirname, the MD/ADR reference regexes,
     the three exemption classes) and every function body is unchanged — a one-character change to any
-    of them moves what the corpus even IS. `tools/corpus_parity.py --only evidence_liveness`
-    re-derives that this port answers exactly what v2 answers on this tree, comparing doc count, CITES
-    count, EVIDENCES count AND the exact unresolved-reference set together (not just a bool), every
-    run — the hollow-agreement shape two laws could otherwise share while disagreeing about everything
-    the gate actually acts on.
+    of them moves what the corpus even IS. The retired parity oracle (`corpus_parity`, retired at
+    V3-EXTRACT-CORPUS-PARITY) re-derived, every run during the rebuild, that this port answered exactly
+    what v2 answered on this tree, comparing doc count, CITES count, EVIDENCES count AND the exact
+    unresolved-reference set together (not just a bool) — the hollow-agreement shape two laws could
+    otherwise share while disagreeing about everything the gate actually acts on.
 """
 from __future__ import annotations
 

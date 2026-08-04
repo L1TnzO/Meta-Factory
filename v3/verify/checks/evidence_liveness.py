@@ -4,7 +4,10 @@ paths and bare `ADR-NNN`) must resolve to something real. PORTED from v2's
 `verify/checks/evidence_liveness.py` (V3-INC5-MEMORY-DOCS, Fase 4). Two-sided, like `docs_check`:
 
     python3 -m v3.verify.checks.evidence_liveness
-    python3 tools/corpus_parity.py --only evidence_liveness   # the v2/v3 agreement oracle
+
+The retired parity oracle (`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY) re-derived, every run
+during the rebuild, that this port answered exactly what v2 answered on this tree — the agreement this
+port was accepted on.
 
 This docstring does not spell the legacy package's path, on purpose: `v3.verify.import_boundary`
 rule 3 bans naming the v2 substrate under `v3/`, because a string is how a dynamic import or a path

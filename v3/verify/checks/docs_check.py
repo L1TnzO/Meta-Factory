@@ -8,8 +8,9 @@ PORTED from v2's `verify/checks/docs_check.py`.
 GREEN — `check(root)` returns `[]`: every doc sealed & current, INDEX covers the set, no dangling
 link, per-home STATE not stale. On THIS tree it does NOT return `[]`: full-stack-kotlin's
 `docs/STATE.md` is older (by last commit) than a newer doc in its own level — real, pre-existing
-debt this gate exists to surface, not launder. `v3.verify.corpus_parity --only docs` re-derives that
-this answer matches v2's exactly, on this same tree, every run.
+debt this gate exists to surface, not launder. The retired parity oracle (`corpus_parity`, retired
+at V3-EXTRACT-CORPUS-PARITY) re-derived that this answer matched v2's exactly, on this same tree,
+every run during the rebuild.
 
 ROOT RESOLUTION mirrors every other v3 gate: default to the repo root
 (`Path(__file__).resolve().parents[3]`), overridable by an optional positional path. v2 defaulted to

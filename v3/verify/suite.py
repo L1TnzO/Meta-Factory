@@ -23,9 +23,10 @@ plays v2's `cmd_check` role — run every registered gate's declared argv once, 
     python3 -m v3.verify.suite
 
 Exit 0 iff no gate is red AND at least one is green (`summarize`'s own law — an all-N/A or empty
-suite is never green, R-12 / Lock #1's shape one level up). This module is what `v3.verify.gate_census`
-imports to answer "which gates has the registry actually accepted" — so `build_registry` MUST be
-import-time safe: it only constructs `Gate` objects and calls `Registry.register` (a witness check
+suite is never green, R-12 / Lock #1's shape one level up). This module is what `gate_census` (deleted
+at V3-EXTRACT-OBLIGATIONS) used to import to answer "which gates has the registry actually accepted"
+— so `build_registry` MUST be import-time safe: it only constructs `Gate` objects and calls
+`Registry.register` (a witness check
 against the filesystem, not a subprocess and not a tree scan), and it runs no process and reads no
 directory tree at IMPORT time. All subprocess/tree work happens inside `main`, called explicitly.
 
@@ -528,11 +529,11 @@ def _register_economy(registry: Registry) -> None:   # + INC-7's two migration g
         name="retirement",
         argv=(PY, "-m", "v3.verify.checks.retirement_census"),
         proves="every gate that depends on the dead ancestor (the derived, transitive-closure "
-               "population of `import_boundary._ORACLE_READERS`, plus `tools/corpus_parity.py` — "
-               "V3-EXTRACT-RETIREMENT's own twelfth row) carries exactly one decided row in "
-               "`v3.verify.retirement.RETIREMENT`: a `retire` with PROOF its subject is gone (no git, "
-               "existence + `classify()` alone), or a `keep` whose gate is still armed — and that no "
-               "row claims a discharge the derived population contradicts",
+               "population of `import_boundary._ORACLE_READERS`, plus `corpus_parity` — retired at "
+               "V3-EXTRACT-CORPUS-PARITY, V3-EXTRACT-RETIREMENT's own twelfth row) carries exactly "
+               "one decided row in `v3.verify.retirement.RETIREMENT`: a `retire` with PROOF its "
+               "subject is gone (no git, existence + `classify()` alone), or a `keep` whose gate is "
+               "still armed — and that no row claims a discharge the derived population contradicts",
         witness=Witness("sabotage_env", "V3_RETIREMENT_SABOTAGE"),
     ))
     registry.register(Gate(
@@ -574,8 +575,8 @@ def main(argv: list[str]) -> int:
     # `--skip a,b` / `--only a,b`: comma-separated gate names, PORTED from v2's `cmd_check` (same
     # wording, same discipline — a skip is PRINTED and never counts as green). Needed because the
     # external CI invokes `./meta check --skip projection,generality`; `--only` is new here (v2 never
-    # grew it — see `v3.cli`'s and `v3.verify.cli_parity`'s docstrings for why that asymmetry is
-    # deliberate, not a drift).
+    # grew it — see `v3.cli`'s docstring for why that asymmetry is deliberate, not a drift; the retired
+    # `cli_parity` (retired at V3-EXTRACT-RETIREMENT) was the flag-surface oracle that proved it).
     opts: dict[str, str] = {}
     i = 0
     while i < len(argv):

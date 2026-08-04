@@ -2,7 +2,6 @@
 `memory/projection.py` (V3-INC5-MEMORY-DOCS, Fase 3).
 
     python3 -m v3.verify.checks.projection            # the gate; see that module's docstring
-    python3 tools/corpus_parity.py --only projection  # the v2/v3 agreement oracle
 
 This docstring does not spell the legacy package's path, on purpose: `v3.verify.import_boundary`
 rule 3 bans naming the v2 substrate under `v3/`, because a string is how a dynamic import or a path
@@ -50,11 +49,12 @@ WHAT CHANGED FROM v2, and why — this port moves the WIRING, never the law:
     have not been derived yet, not wrongly projected) lives in the GATE, `v3.verify.checks.projection`
     — NOT here. Moving that decision into `is_stale` would change what the law means, and the parity
     oracle below would stop comparing what v2 actually computes.
-  - nothing else. `is_stale` / `build_block` / `rtm_statuses` answer byte-for-byte what v2 answers
-    on this tree; `tools/corpus_parity.py --only projection` re-derives that every run, comparing the
-    RTM map AND the rendered block AND the staleness verdict together — not just the bool, since two
-    laws could agree "not stale" while disagreeing about every factory's status, which is exactly the
-    hollow-agreement shape that oracle exists to catch.
+  - nothing else. `is_stale` / `build_block` / `rtm_statuses` answer byte-for-byte what v2 answered
+    on this tree; the retired parity oracle (`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY)
+    re-derived that every run during the rebuild, comparing the RTM map AND the rendered block AND the
+    staleness verdict together — not just the bool, since two laws could agree "not stale" while
+    disagreeing about every factory's status, which was exactly the hollow-agreement shape that oracle
+    existed to catch.
 """
 from __future__ import annotations
 

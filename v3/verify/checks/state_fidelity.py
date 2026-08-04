@@ -46,9 +46,10 @@ vacuously, because the prose never makes a per-factory claim inside the window o
 derived. A PASS there would assert "the prose does not contradict the facts" when the facts were
 never derived at all. So: when NO factory in this tree carries a `.proof/` directory, this gate
 reports N/A (`SUMMARY N/A: …`, exit 0, never a shade of green or red) and names the remedy. `fidelity_
-problems` itself keeps answering exactly what the oracle answers — `tools/corpus_parity.py --only
-state_fidelity` imports both and compares them, so folding this branch into the law would break that
-comparison and quietly change what the law MEANS.
+problems` itself kept answering exactly what the oracle answered — the retired parity oracle
+(`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY) imported both and compared them every run
+during the rebuild, which is why this branch still lives in the gate and not the ported law: folding
+it into the law would have broken that comparison and quietly changed what the law MEANT.
 
 `state_snapshot` gets no such branch: it reads only `docs/STATE.md` and needs no `.proof/` to answer.
 

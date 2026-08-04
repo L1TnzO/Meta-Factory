@@ -2,8 +2,9 @@
 
 `v3.host.runner.run_check` captures every check's stdout+stderr and drops it on the floor: a red
 station leaves `{"name": …, "exit": 1}` and nothing else. v2 had a capability v3 dropped with its
-eyes open (`v3.verify.deletion_manifest:329`, `codegen/gate_wrap.py` — DROPPED, no v3 replacement).
-This module pays that debt at the layer where it belongs: the host loop, not a hook.
+eyes open — `deletion_manifest` (retired at V3-EXTRACT-RETIREMENT) recorded it: `codegen/gate_wrap.py`
+— DROPPED, no v3 replacement. This module pays that debt at the layer where it belongs: the host loop,
+not a hook.
 
 THE LAW, one line: the FULL output goes to disk; exactly ONE bounded line goes to a caller's
 context; and NOTHING of it goes into the proof. Three refusals follow directly from it, each one a

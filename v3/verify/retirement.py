@@ -131,13 +131,15 @@ RETIREMENT: dict[str, Row] = {
                "being asked anything. It is also the row that corrects this table's own scope: it "
                "lives in `tools/`, so a population scanned under `v3/` would never have seen it, and "
                "`tools/` is a PACKAGE row — it would have TRAVELLED, broken, into the destination. A "
-               "population scoped to where you happened to look is not a population.",
-        obligation="delete the file and rewrite the FOURTEEN citations of it across eight modules "
-                   "(`docs_manifest`, `projection`, `doc_graph`, `docs_check`, `projection` check, "
-                   "`evidence_liveness`, `state_fidelity`, `state_snapshot`) — each currently names it "
-                   "in the present tense as the standing agreement oracle, and a docstring that "
-                   "points at a deleted tool is worse than one that points at a live-but-unrun one",
-        discharged=False,
+               "population scoped to where you happened to look is not a population. DISCHARGED "
+               "(V3-EXTRACT-CORPUS-PARITY, phases 3-4): the file is deleted (`git rm "
+               "tools/corpus_parity.py`), and law 9 (NO STANDING ADDRESS, `v3.verify.checks."
+               "retirement_census`) re-derives that no module under any scan root still holds its "
+               "address — the twenty standing citations this table's own population correction found "
+               "are now past-tense tombstones that keep each retired module's NAME and drop its "
+               "address.",
+        obligation=None,
+        discharged=True,
     ),
 
     # ---- keep · PIN: the oracle's last act is to leave its answers behind as data -----------------

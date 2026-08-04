@@ -2,7 +2,6 @@
 seal + a generated INDEX, PORTED from v2's `docs_manifest.py` (V3-INC5-MEMORY-DOCS, Fase 2).
 
     python3 -m v3.verify.checks.docs_check          # the gate; see that module's docstring
-    python3 tools/corpus_parity.py --only docs      # the v2/v3 agreement oracle
 
 This docstring does not spell the legacy package's path, on purpose: `v3.verify.import_boundary`
 rule 3 bans naming the v2 substrate under `v3/`, because a string is how a dynamic import or a path
@@ -35,17 +34,19 @@ WHAT CHANGED FROM v2, and why:
   - PROVENANCE, and it is a deliberate divergence rather than an oversight: the first line
     `build_index` writes into `INDEX.md` names the generator. v2's copy names v2's module; this one
     names this one. It is not part of the law — nothing in `check()` parses that line (it reads
-    titles and link targets), so `tools/corpus_parity.py` is blind to it by construction, which is
-    why it is called out HERE instead of being left for someone to find. A port that kept the old
+    titles and link targets), so `corpus_parity` (retired at V3-EXTRACT-CORPUS-PARITY) was blind to
+    it by construction, which is why it is called out HERE instead of being left for someone to find.
+    A port that kept the old
     name would have v3 signing v2's name to a file v3 generated. Inert today: the `_main` wrapper is
     CUT, so `sync()`/`build_index()` have no v3 caller at all, and the only thing regenerating
     `INDEX.md` is still the v2 CLI behind the `doc_stamp` hook. The day v3 owns `doc-sync` the line
     flips once, which is the correct moment for it to flip.
   - nothing else. `check(root)` is the same law byte for byte: same seal regex, same H-5
     residual-seal handling (grandfathered under `decisions/`), same per-home freshness check, same
-    meta-only INDEX-coverage and dangling-link checks. `v3.verify.corpus_parity --only docs`
-    re-derives that this port answers exactly what v2 answers on this tree — that is not asserted by
-    inspection here, it is RE-RUN every time the oracle runs.
+    meta-only INDEX-coverage and dangling-link checks. The retired parity oracle (`corpus_parity`,
+    retired at V3-EXTRACT-CORPUS-PARITY) re-derived that this port answered exactly what v2 answered
+    on this tree — that was not asserted by inspection here, it was RE-RUN every time the oracle ran,
+    during the rebuild.
 """
 from __future__ import annotations
 

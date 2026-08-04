@@ -15,8 +15,9 @@ the ref-binding law is enforced the same way `kinds_parity`/`spec_parity` do it:
 (40 zeros) must FAIL (LOCK #2, exercised every run) — a read that merely opened whatever file happens
 to be on disk would succeed no matter which ref it was asked for.
 
-SELF-CONTAINED, NO GIT AT VERIFY TIME (contract point 7). Unlike `gate_census.py`, this module holds
-NO oracle-reader exemption and does not materialise the ref itself: the fixture generator already did
+SELF-CONTAINED, NO GIT AT VERIFY TIME (contract point 7). Unlike `gate_census` (deleted at
+V3-EXTRACT-OBLIGATIONS), this module holds NO oracle-reader exemption and does not materialise the
+ref itself: the fixture generator already did
 that once, and embeds every real file's raw `source` text in the fixture (the same move
 `spec-validation-vectors.json` makes with `spec_yaml`). This gate rebuilds the declared input tree from
 that embedded text into a throwaway directory and runs the PORTED `v3.graph.build`/`v3.graph.quality`

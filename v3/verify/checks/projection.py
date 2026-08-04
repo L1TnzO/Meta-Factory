@@ -7,10 +7,11 @@ PORTED from v2's `verify/checks/projection.py` (V3-INC5-MEMORY-DOCS, Fase 3).
 
 GREEN — `is_stale(root)` returns `(False, "ok")`: the projection block committed in `docs/STATE.md`
 agrees, byte for byte, with what `build_block(root)` re-derives from the open increment + the
-per-factory RTM. `tools/corpus_parity.py --only projection` re-derives that this answer matches v2's
-exactly, on this same tree, every run — comparing the RTM map AND the rendered block AND the
-staleness verdict together, not just the bool (two laws could agree "not stale" while disagreeing
-about every factory's status, which is the hollow-agreement shape that oracle exists to catch).
+per-factory RTM. The retired parity oracle (`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY)
+re-derived that this answer matched v2's exactly, on this same tree, every run during the rebuild —
+comparing the RTM map AND the rendered block AND the staleness verdict together, not just the bool
+(two laws could agree "not stale" while disagreeing about every factory's status, which was the
+hollow-agreement shape that oracle existed to catch).
 
 ROOT RESOLUTION mirrors every other v3 gate: default to the repo root
 (`Path(__file__).resolve().parents[3]`), overridable by an optional positional path.

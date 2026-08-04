@@ -19,10 +19,11 @@ policy constants `NOW_BUDGET_LINES` / `STALE_CLOSURE_DAYS` / `_CLOSURE_RE`): «A
 
 It does NOT auto-rewrite (auto-rewriting is what causes drift): it FAILS and SIGNALS. The generated
 fact-projection block (`meta:projection`, governed by the `projection` gate) is NOT «Ahora» and is out
-of scope here — only the editable PROSE under the `## Ahora` heading is measured. `tools/corpus_parity.py
---only state_snapshot` re-derives that this answer matches the oracle's, on this same tree, every run
-— comparing the «Ahora» LINE COUNT together with the problem list, not just the list (two laws could
-agree "no problems" while disagreeing about which lines «Ahora» even contains, a hollow agreement).
+of scope here — only the editable PROSE under the `## Ahora` heading is measured. The retired parity
+oracle (`corpus_parity`, retired at V3-EXTRACT-CORPUS-PARITY) re-derived that this answer matched
+v2's, on this same tree, every run during the rebuild — comparing the «Ahora» LINE COUNT together with
+the problem list, not just the list (two laws could agree "no problems" while disagreeing about which
+lines «Ahora» even contains, a hollow agreement).
 
 WHY THE WITNESS IS BEHIND A `sabotage_env` HANDLE, and not embedded in the green run (v2's shape: a
 private `_tooth_bites()` runs synthetic fixtures INSIDE the same process, so it can fail but cannot be

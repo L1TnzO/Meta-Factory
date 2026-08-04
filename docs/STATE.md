@@ -1,4 +1,4 @@
-<!-- meta:doc sha=71f6b99e434ad0ec001ca36300f9b72065f68edc updated=2026-08-04T17:15Z -->
+<!-- meta:doc sha=f19b25d0048d6fe164369eec4c766cccf229b21c updated=2026-08-04T18:23Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -31,8 +31,8 @@
   `meta attach` con `attach_parity` verde (**5/5** plantados). Los 20 verbos humanos ya no se cuentan:
   se **DECIDEN** (7 a portar · 13 dropeados con reemplazo), y **no decidir es rojo**.
   **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84** (`N-0116`). **EXTRACCIÓN en curso**
-  (`work/V3-EXTRACT-…`): PASO 3 cerró el censo DERIVADO (12 filas). **3.bis: fases 1..4 HECHAS** — 93
-  respuestas del oráculo fosilizadas, `gate_census` muerto, `_ORACLE_READERS` VACÍA, obligaciones 10→1.
+  (`work/V3-EXTRACT-…`): **3.bis CERRADO** — 93 respuestas del oráculo fosilizadas, `gate_census` muerto,
+  `_ORACLE_READERS` VACÍA, obligaciones 10→1, **43 verdes · 1 N/A = 44**. Queda `corpus_parity` y PASO 4.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

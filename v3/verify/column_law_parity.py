@@ -324,23 +324,125 @@ def _plant_target_of_always_none(src: str) -> str:
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
 # THE MATRIX: fixture builders per function group
 # ══════════════════════════════════════════════════════════════════════════════════════════════════
-def _real_repo_cases() -> list[tuple[str, list]]:
-    """`edit_allowed`/`required_workdir_rel` over REAL repo paths — every branch the level-aware
-    placement law has. Both functions are driven over the SAME set on purpose: they answer the SAME
-    question (does this path need an increment, and where)."""
-    root = str(_ROOT)
-    return [
-        ("docs_md", [root, str(_ROOT / "docs" / "STATE.md")]),
-        ("meta_path", [root, str(_ROOT / "v3" / "control" / "cadence.py")]),
-        ("factory_path", [root, str(_ROOT / "factories" / "full-stack-kotlin" / "codegen" / "__init__.py")]),
-        ("product_path", [root, str(_ROOT / "factories" / "full-stack-kotlin" / "products" / "snipeit"
-                                    / "src" / "Placeholder.kt")]),
-        ("no_open_increment", [root, str(_ROOT / "factories" / "definitely-not-a-real-factory-xyz"
-                                         / "file.py")]),
-        ("proof_path", [root, str(_ROOT / "factories" / "full-stack-kotlin" / "products" / "snipeit"
-                                  / ".proof" / "s0.json")]),
-        ("seed_column_path", [root, str(_ROOT / "seed" / "lifecycle.py")]),
-    ]
+def _write_increment_doc(workdir: Path, *, status: str) -> None:
+    """The level-aware sibling of `_open_increment_doc` (root-only, below): writes
+    `<workdir>/<STATUS>.md` with a `Status: **OPEN**`/`Status: **CLOSED**` header. Lets a
+    `_REAL_REPO_CASES` fixture control the open-increment state of a NON-root level's own
+    `docs/work/` — the same header grammar `seed/lifecycle.py`'s `_OPEN_RE` parses."""
+    workdir.mkdir(parents=True, exist_ok=True)
+    (workdir / f"{status}.md").write_text(f"# Test increment\n\nStatus: **{status}**\n", encoding="utf-8")
+
+
+def _case_real_docs_md(base: Path) -> list:
+    """`.md` is always editable, independent of any increment state (`edit_allowed`'s own first check,
+    before the level lookup even runs) — a bare fixture repo with no open increment anywhere proves
+    this branch is taken on its own, not by accident of an open increment elsewhere."""
+    d = base / "real_docs_md"
+    _init_repo(d)
+    target = d / "docs" / "STATE.md"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# fixture state doc\n", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+def _case_real_meta_path(base: Path) -> list:
+    """A path OUTSIDE `factories/` (meta level) with the root `docs/work/` OPEN — the level lookup must
+    resolve to the root, and the open increment there must permit the edit."""
+    d = base / "real_meta_path"
+    _init_repo(d)
+    _write_increment_doc(d / "docs" / "work", status="OPEN")
+    target = d / "v3" / "control" / "cadence.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# fixture meta-level source\n", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+def _case_real_factory_path(base: Path) -> list:
+    """A path under `factories/<f>/` but not `products/` (factory level), with that factory's own
+    `docs/work/` present but CLOSED — the level lookup must resolve to the factory (not the root), and
+    a present-but-closed increment there must still block the edit."""
+    d = base / "real_factory_path"
+    _init_repo(d)
+    _write_increment_doc(d / "factories" / "demo-factory" / "docs" / "work", status="CLOSED")
+    target = d / "factories" / "demo-factory" / "codegen" / "__init__.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+def _case_real_product_path(base: Path) -> list:
+    """A path under `factories/<f>/products/<p>/` (product level, the deepest resolution), with that
+    product's own `docs/work/` OPEN — the level lookup must resolve past the factory to the product."""
+    d = base / "real_product_path"
+    _init_repo(d)
+    _write_increment_doc(
+        d / "factories" / "demo-factory" / "products" / "demo-product" / "docs" / "work", status="OPEN")
+    target = d / "factories" / "demo-factory" / "products" / "demo-product" / "src" / "Placeholder.kt"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("// fixture product source\n", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+def _case_real_no_open_increment(base: Path) -> list:
+    """A factory that NEVER EXISTS in this fixture at all — its `docs/work/` dir is never created, so
+    `open_increment_in` hits the "workdir does not exist" branch unconditionally. Guaranteed False by
+    construction, not by luck of what happens to be open elsewhere."""
+    d = base / "real_no_open_increment"
+    _init_repo(d)
+    (d / "README.md").write_text("no such factory in this fixture\n", encoding="utf-8")
+    _commit_all(d, "init")
+    target = d / "factories" / "definitely-not-a-real-factory-xyz" / "file.py"
+    return [str(d), str(target)]
+
+
+def _case_real_proof_path(base: Path) -> list:
+    """A `.proof/` path — not `src/` — still under `factories/<f>/products/<p>/` (product level), paired
+    with `product_path` on purpose: both must resolve to the SAME level, proving a `.proof/` path isn't
+    misclassified just because it isn't source."""
+    d = base / "real_proof_path"
+    _init_repo(d)
+    _write_increment_doc(
+        d / "factories" / "demo-factory" / "products" / "demo-product" / "docs" / "work", status="OPEN")
+    target = d / "factories" / "demo-factory" / "products" / "demo-product" / ".proof" / "s0.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("{}\n", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+def _case_real_seed_column_path(base: Path) -> list:
+    """A `seed/` path — not `v3/` — still outside `factories/` (meta level), paired with `meta_path` on
+    purpose: both must resolve to the root, proving the column's own path isn't misclassified either."""
+    d = base / "real_seed_column_path"
+    _init_repo(d)
+    _write_increment_doc(d / "docs" / "work", status="OPEN")
+    target = d / "seed" / "lifecycle.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# fixture seed column source\n", encoding="utf-8")
+    _commit_all(d, "init")
+    return [str(d), str(target)]
+
+
+#: `edit_allowed`/`required_workdir_rel` over every branch the level-aware placement law has — HERMETIC
+#: (V3-EXTRACT-OBLIGATIONS phase 1.ter): each case builds its OWN fixture repo, the same
+#: `_init_repo`/`_commit_all` pattern `_DEBT_CASES` uses below, rather than reading this repo's actual
+#: `docs/work/` — whose open/closed state drifts as real increments open and close, which is exactly
+#: what made two of these seven cases pin a fact about THIS machine's git state instead of about v3
+#: (found by the acceptance gate's LAW G travel probe). Both functions are driven over the SAME set on
+#: purpose: they answer the SAME question (does this path need an increment, and where).
+_REAL_REPO_CASES: tuple[tuple[str, Callable[[Path], list]], ...] = (
+    ("docs_md", _case_real_docs_md),
+    ("meta_path", _case_real_meta_path),
+    ("factory_path", _case_real_factory_path),
+    ("product_path", _case_real_product_path),
+    ("no_open_increment", _case_real_no_open_increment),
+    ("proof_path", _case_real_proof_path),
+    ("seed_column_path", _case_real_seed_column_path),
+)
 
 
 def _target_cases() -> list[tuple[str, list]]:
@@ -549,8 +651,8 @@ def _all_case_names() -> list[str]:
     """The 37 `function:case` keys this module's matrix drives — the case-name space `pin_problems`'s
     bijection law (§2.2 law 2) checks the pin against."""
     return (
-        [f"edit_allowed:{name}" for name, _ in _real_repo_cases()]
-        + [f"required_workdir_rel:{name}" for name, _ in _real_repo_cases()]
+        [f"edit_allowed:{name}" for name, _ in _REAL_REPO_CASES]
+        + [f"required_workdir_rel:{name}" for name, _ in _REAL_REPO_CASES]
         + [f"debt:{name}" for name, _ in _DEBT_CASES]
         + [f"stop_block:{name}" for name, _ in _DEBT_CASES]
         + [f"target_of:{name}" for name, _ in _target_cases()]
@@ -570,8 +672,9 @@ def _run_answers(prefix: list[str], cwd: Path, env: dict, synth: Path) -> dict[s
             resp = _call(prefix, fn, args, cwd, env)
             answers[f"{fn}:{name}"] = _comparable(fn, resp)
 
-    run_group("edit_allowed", _real_repo_cases())
-    run_group("required_workdir_rel", _real_repo_cases())
+    real_cases = [(name, build(synth)) for name, build in _REAL_REPO_CASES]
+    run_group("edit_allowed", real_cases)
+    run_group("required_workdir_rel", real_cases)
     debt_cases = [(name, build(synth)) for name, build in _DEBT_CASES]
     run_group("debt", debt_cases)
     run_group("stop_block", debt_cases)
@@ -650,7 +753,7 @@ _PLANTS: dict[str, tuple[str, Path, Callable[[str], str], str]] = {
 
 def _plant_cases(fn: str, base: Path) -> list[tuple[str, list]]:
     if fn == "edit_allowed":
-        return _real_repo_cases()
+        return [(name, build(base)) for name, build in _REAL_REPO_CASES]
     if fn == "target_of":
         return _target_cases()
     if fn == "preflight":

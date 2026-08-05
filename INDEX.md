@@ -6,7 +6,7 @@
 
 | Doc | sha (git blob, body) | updated | resumen |
 | --- | --- | --- | --- |
-| `docs/LOG.md` | `668eedecd8f3` | 2026-08-04T19:09Z | Bitácora — Meta-Factory |
+| `docs/LOG.md` | `49084d377a2f` | 2026-08-05T04:17Z | Bitácora — Meta-Factory |
 | `docs/STATE.md` | `bafb46717ba8` | 2026-08-05T04:16Z | State — Meta-Factory |
 | `docs/decisions/001-meta-factory-punto-fijo-legitimidad.md` | `0dc41c936bde` | 2026-06-13T14:57Z | ADR-001 — El Meta-Factory como punto fijo legítimo del auto-mejoramiento |
 | `docs/decisions/002-adoptar-la-columna-anti-sello.md` | `86179b97fabc` | 2026-06-13T14:57Z | ADR-002 — La columna anti-sello-de-goma como invariante I-1 de toda fábrica |

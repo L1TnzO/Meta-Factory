@@ -1,7 +1,54 @@
-<!-- meta:doc sha=668eedecd8f3ebb2b203e462dad674fe2dbd85c7 updated=2026-08-04T19:09Z -->
+<!-- meta:doc sha=49084d377a2facfe018cf698bddb727b4c8a6a08 updated=2026-08-05T04:17Z -->
 # Bitácora — Meta-Factory
 > tipo: log · append-only, MÁS NUEVO ARRIBA · inmutable una vez escrito.
 > Episodios del ciclo de desarrollo. Las lecciones que se repiten ascienden a un ADR (decisions/).
+
+## 2026-08-05T03:0xZ — V3-EXTRACT-CUTOVER: la plataforma se va de casa, y el manifiesto se corrige tres veces al ejecutarse
+
+**Qué queda cerrado.** La plataforma vive en `~/University/Integración/APP/Claude_Agents/v3`
+(`github.com/L1TnzO/MF-v3`). **44 gates registran sin ancestría de v2** — antes del 3.bis, once ni
+siquiera habrían podido registrar. Mitad A (esta máquina): **40·1·3**. Mitad B (ADR-005): **34·0·4 +
+6 impresos como NO corridos**. `rederive` **== pin en los 10 targets** allá. Y después de correr las
+**10 líneas en su propia casa** (10/10 PASS), el repo tiene `.proof/` **ganado** y su proyección dice
+**RTM COMPLETE 5/5**. `meta attach --factory dummy --driver repl` levanta y contesta.
+
+**El manifiesto se corrigió TRES veces, y siempre por EJECUTARLO** (ADR-032 A5). Ninguna de las tres
+la habría encontrado leyéndolo:
+
+1. **`.gitignore` no estaba en ninguna tabla.** Trackeado, load-bearing —es lo que mantiene `.proof/`
+   y `.gen/` fuera de git— e **invisible por construcción**: la ley de suficiencia deriva su población
+   de literales en módulos `.py`, y a `.gitignore` no lo nombra ningún módulo. Sin él, el repo nuevo
+   habría commiteado su propia evidencia: un verde que nadie volvió a ganarse. La respuesta no fue
+   agregar la fila y seguir, sino la **ley 4 (ROOT DISPOSITION)**: un manifiesto con forma de
+   DIRECTORIO es ciego a los archivos de la raíz, que son justo los que configuran un repo. Tres
+   respuestas legales (viaja · nace de nuevo · se queda con razón escrita); la cuarta, el silencio, es
+   la que se rechaza.
+2. **`docs/reference/` cargaba 18 documentos de prosa** bajo una razón que decía «runtime DATA, not
+   prose». Medido: sólo tres los lee el código. *Una fila tiene que cargar lo que su razón justifica,
+   o la razón es decoración.*
+3. **`docs/decisions/` no podía nacer de nuevo.** Su razón se contradecía sola: `docs/spec/` **ES
+   código** y las cita 170 veces. Una justificación que no resuelve es una autoridad colgada, y
+   reescribir 170 citas para dejar prolija una tabla sería quemar el rastro del razonamiento.
+
+**La lección que atravesó las tres, y que ya conocíamos de la mañana.** Un número de ADR, como un
+path, es una **DIRECCIÓN**. Reusar el `001` en el destino no habría dejado citas colgadas: habría
+dejado citas que **resuelven al documento equivocado** — verdes y falsas. Por eso el primer ADR propio
+del repo nuevo es el **033**, y por eso `PRIMITIVES.md` se quedó acá. Es la ley 9 de
+`V3-EXTRACT-CORPUS-PARITY` reapareciendo un nivel más arriba, el mismo día.
+
+**El rojo que se dejó rojo, que es lo que más importa del episodio.** `telemetry_liveness` en el
+destino dice: trabajó, y la economía no registró nada. **Tiene razón.** Había dos formas de cobrarlo
+verde y las dos son la misma trampa: fabricar un registro —pero *un registro que nadie observó tampoco
+es una medición*, el mismo error del gate dado vuelta— o hacer que el host anote cada corrida de
+estación en el ledger, que es **exactamente** lo que la aserción 1 del propio gate prohíbe (el
+instrumento comparándose contra la actividad, incapaz de ponerse rojo). Se eligió el rojo con motivo
+escrito (`N-0003` del destino): el cableado viajó intacto, la ventana de nacimiento está sin medir
+**por construcción** —el repo se ensambló desde la sesión del ancestro—, y la ventana rueda a 3 días:
+queda N/A si nadie trabaja, verde el primer día que alguien lo haga ahí. **Debilitar el diente para
+cobrar el verde es lo único que este proyecto no hace.**
+
+**Este repo**: «por ahora nada», por decisión del ingeniero. Sigue entero y verificando.
+Detalle: `work/V3-EXTRACT-CUTOVER-INCREMENT.md`.
 
 ## 2026-08-04T19:1xZ — V3-EXTRACT-CORPUS-PARITY: un módulo retirado puede tener nombre, no dirección
 

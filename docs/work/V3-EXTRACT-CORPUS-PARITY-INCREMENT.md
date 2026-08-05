@@ -1,7 +1,7 @@
-<!-- meta:doc sha=ffe79e416233b758a08e470d2bb39d1055926496 updated=2026-08-05T00:04Z -->
+<!-- meta:doc sha=dd2ec8958e4c7e74e723003953b4ea88a178cd3c updated=2026-08-05T00:05Z -->
 # Increment V3-EXTRACT-CORPUS-PARITY
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-04T18:41Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-05T00:05Z) (created 2026-08-04T18:41Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 
 ## Goal

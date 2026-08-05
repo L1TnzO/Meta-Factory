@@ -1,4 +1,4 @@
-<!-- meta:doc sha=24b447695b6b09a521044e13b61bf30a697d5b33 updated=2026-08-04T19:06Z -->
+<!-- meta:doc sha=ffe79e416233b758a08e470d2bb39d1055926496 updated=2026-08-05T00:04Z -->
 # Increment V3-EXTRACT-CORPUS-PARITY
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-04T18:41Z). Close it with `v3 increment close`
@@ -115,6 +115,20 @@ Two other things the measurement decided, so they are not re-litigated:
   propia** corrida del gate de footprint (guarda un `cost` que cambia en cada ejecución). Revertido.
   Queda anotado como observación, no como deuda de este incremento: un artefacto **trackeado** que
   cambia en cada corrida ensucia el árbol y el cierre de incremento exige árbol limpio.
+
+**La aceptación, sobre el estado final commiteado.** `meta check`: **43 verdes · 0 rojos · 1 N/A =
+44**. Es el número que el criterio de cierre predijo antes de empezar, así que se **verificó** en vez
+de absorberse: la ley 9 viaja dentro de un gate que ya existía, y por eso el total no se mueve.
+
+**El rojo que no era.** La primera corrida completa dio **42 · 1 · 1**, con `rederive` rojo en
+`full-stack-kotlin/snipeit: s9: pinned but not re-derived (station vanished?)`. Tres hechos lo
+desarmaron, en orden: (1) ninguno de mis commits toca `factories/`, `template/` ni `seed/` —
+`git diff --stat` sobre el rango, vacío; (2) `rederive full-stack-kotlin` acotado: **46/46 == pin en 4
+targets**, snipeit 12/12 **incluido s9**; (3) la corrida completa siguiente, sobre el mismo commit y sin
+nada más corriendo: **43 · 0 · 1**. El rojo era mío y de mi apuro: **maté la primera corrida a mitad**
+para medir sobre un árbol quieto, y esa muerte es exactamente `N-0124` (dos re-derivaciones que se
+pisan producen un rojo FALSO). La lección no es «ignorá el rojo»: es que un rojo se contesta
+**reproduciéndolo acotado**, y que matar una corrida no es gratis.
 
 **Residuo honesto.** `prose_only` prueba que no se movió código, nunca que la prosa quedó bien. Eso lo
 leí con mis propios ojos (los 20 sitios, `trust_level: low` en el manifiesto por eso mismo). El caso

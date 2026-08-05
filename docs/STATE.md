@@ -1,4 +1,4 @@
-<!-- meta:doc sha=cd23435249e8368dc3f689221256af80e16f2c4c updated=2026-08-05T00:38Z -->
+<!-- meta:doc sha=bafb46717ba810af2cda51cca8bd34634c9e0b8d updated=2026-08-05T04:16Z -->
 # State — Meta-Factory
 > type: state · bounded snapshot (ADR-019 §3 · `state_snapshot` tooth) · closed history lives in `LOG.md`.
 > This doc POINTS; verifiable truth LIVES in artifacts (`.proof/`, ledger, re-derived RTM, INDEX, logs).
@@ -21,16 +21,16 @@
 > a milestone, open its episode in LOG or its `work/<NAME>-INCREMENT.md §Evidencia`.
 
 - **🏗️ v3 REBUILD — `ADR-031`/`032`; INC-0..INC-12 ENTREGADOS.** Cutover 08-01:
-  `src/metafactory/` NO EXISTE, `meta` despacha a `v3.cli`, **84/84 en 10 targets**. Árbol de nodos
-  DENTRO del sustrato (`meta plan-tree`), **inyección por hoja** (`§15.6`), superficie `§10.3` en **3
-  tiers de autoridad** (13 read · 4 run · 11 declare negados), `meta attach` con `attach_parity` **5/5**;
-  los 20 verbos humanos se **DECIDEN**, y no decidir es rojo (INC-12 y su hallazgo —el host tiraba
-  stdout al piso— en LOG 08-02). **El host es nuestro, Claude Code es el motor.** CI externo **5 de 84**
-  (`N-0116`). **EXTRACCIÓN (`work/V3-EXTRACT-…`): sólo queda el PASO 4 (cutover)** — 3.bis CERRADO
-  ENTERO: 93 respuestas del oráculo fosilizadas, `gate_census` y el oráculo de paridad muertos,
-  `_ORACLE_READERS` vacía, **obligaciones 10→0 y población derivada 0** (nada depende ya del ancestro).
-  La décima trajo la **ley 9** —un módulo retirado puede tener NOMBRE, no DIRECCIÓN—, que encontró
-  **6 direcciones colgadas** de retiros ya aceptados.
+  `src/metafactory/` NO EXISTE, `meta` despacha a `v3.cli`, **84/84 en 10 targets**; árbol de nodos en
+  el sustrato, inyección por hoja, superficie en 3 tiers de autoridad, `attach_parity` 5/5, y los 20
+  verbos humanos se **DECIDEN** (detalle de INC-0..12 en LOG 07-28→08-02). **El host es nuestro, Claude
+  Code es el motor.** CI externo **5 de 84** (`N-0116`). **🚚 EXTRACCIÓN COMPLETA (2026-08-05): la plataforma YA NO VIVE SÓLO ACÁ.** Nació en
+  `~/University/Integración/APP/Claude_Agents/v3` (`github.com/L1TnzO/MF-v3`): **44 gates registran sin
+  ancestría de v2 · 40·1·3 acá · 34·0·4 +6 no-corridos en la otra máquina · `rederive` == pin en los 10
+  targets · las 10 líneas corridas en casa propia → RTM COMPLETE 5/5 GANADO**. El único rojo allá,
+  `telemetry_liveness`, se dejó rojo A PROPÓSITO: ponerlo verde exigía fabricar un registro o debilitar
+  la aserción 1 del propio gate. **Este repo: «por ahora nada»** (decisión del ingeniero) — sigue
+  entero y verificando. Detalle: `work/V3-EXTRACT-CUTOVER-INCREMENT.md`.
 - **⚠️ Residuos VIVOS (disparador por CONDICIÓN):** `N-0113` la ley del slot acotaba lo que un
   generador ESCRIBE y DEJA, **no lo que BORRA** (`N-0120`) ni **lo que dice que son sus límites**
   (`N-0130`, 3ª instancia: el generador editó su propio `allow_globs`; la ley ahora rechaza el

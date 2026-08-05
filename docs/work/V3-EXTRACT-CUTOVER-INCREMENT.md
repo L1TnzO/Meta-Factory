@@ -1,4 +1,4 @@
-<!-- meta:doc sha=3b454d91f81cb40a5992131c0cd382df4378e142 updated=2026-08-05T02:22Z -->
+<!-- meta:doc sha=5cb3f5e6733286ea1f3cfb2617d668421bc4eba9 updated=2026-08-05T03:30Z -->
 # Increment V3-EXTRACT-CUTOVER
 
 > **Governance doc.** Status: **OPEN** (created 2026-08-05T00:38Z). Close it with `v3 increment close`
@@ -52,31 +52,58 @@ Lo que sí deja este incremento es el **sujeto medido**, anotado en el nodo.
 ## Phases
 | Phase | Content | Status |
 | --- | --- | --- |
-| 1 | **Nacer el repo**: 15 filas `PACKAGE` copiadas con paths preservados (`tar`, nunca `cp -r` por fila) + las 10 filas `BORN_FRESH` **generadas**: `docs/STATE.md`·`LOG.md`·`work/`·`decisions/` propios, `plan/tree.json` propio, `INDEX.md` derivado, `.proof/` ganado corriendo | pending |
-| 2 | **Aceptación mitad A (esta máquina)**: `meta check` sin rojos en el destino — los 7 de `§0` verdes por nacimiento — y `rederive` == pin sobre los 10 targets | pending |
-| 3 | **Aceptación mitad B**: `meta attach --factory dummy --driver repl` levanta y contesta en el destino; y el segundo verificador (ADR-005) queda armado, imprimiendo lo que NO corrió | pending |
-| 4 | **El origen**: qué pasa acá cuando la plataforma ya vive allá (este repo NO se toca en el 1–3; su disposición se decide con el resultado en la mano) | pending |
+| 1 | **Nacer el repo**: 15 filas `PACKAGE` copiadas con paths preservados (`tar`, nunca `cp -r` por fila) + las 10 filas `BORN_FRESH` **generadas**: `docs/STATE.md`·`LOG.md`·`work/`·`decisions/` propios, `plan/tree.json` propio, `INDEX.md` derivado, `.proof/` ganado corriendo | ✅ |
+| 2 | **Aceptación mitad A (esta máquina)**: `meta check` sin rojos en el destino — los 7 de `§0` verdes por nacimiento — y `rederive` == pin sobre los 10 targets | ✅ **40·1·3**, el rojo DECIDIDO |
+| 3 | **Aceptación mitad B**: `meta attach --factory dummy --driver repl` levanta y contesta en el destino; y el segundo verificador (ADR-005) queda armado, imprimiendo lo que NO corrió | ✅ **34·0·4 + 6 no corridos** |
+| 4 | **El origen**: qué pasa acá cuando la plataforma ya vive allá (este repo NO se toca en el 1–3; su disposición se decide con el resultado en la mano) | ⬜ **«por ahora nada»** — decisión del ingeniero 2026-08-05 |
 
 ## Close criterion (demonstrable, not narrated)
 1. En `~/University/Integración/APP/Claude_Agents/v3`: **44 gates registran** y `meta check` **sin
    rojos**, con los 7 de `§0` verdes **por haber nacido** (STATE/LOG/INDEX/plan propios), no copiados.
+   ⚠️ **NO se cumplió como está escrito, y se cierra igual, con el motivo escrito**: 6 de los 7
+   nacieron verdes, pero `telemetry_liveness` queda ROJO. Ponerlo verde hoy exigía fabricar un
+   registro o debilitar la aserción 1 del propio gate (§Evidencia). Se prefirió el rojo decidido
+   (`N-0003` del destino) antes que un verde comprado. Un criterio que se cumple aflojando el diente
+   no se cumplió.
 2. `rederive` == pin sobre los **10 targets** en el destino.
 3. `meta attach --factory dummy --driver repl` levanta y contesta allá.
 4. Este repo (`Meta_Factory`) sigue en **43·0·1 = 44**: el cutover no lo degrada mientras se decide su
    disposición.
 5. Las dos mitades declaradas **por separado** (§11.6 de INC-11: nunca fundir dos actores en un número).
 
-## Evidencia (parcial — fases 1 y 2 medidas; el incremento sigue ABIERTO)
+## Evidencia
 
-**El repo existe y vota**: `~/University/Integración/APP/Claude_Agents/v3`, tres commits propios,
-cero ancestría de v2.
+**El repo existe, vota y se gana lo suyo**: `~/University/Integración/APP/Claude_Agents/v3`,
+`https://github.com/L1TnzO/MF-v3.git`, cero ancestría de v2.
 
 | medida en el destino | resultado |
 | --- | --- |
 | gates que REGISTRAN | **44 / 44** |
-| `meta check` completo | **36 verdes · 3 rojos · 5 N/A = 44** |
-| **`rederive`** | **VERDE — los 10 targets == pin**, re-derivados en el repo nuevo |
-| rojos restantes | `generality` · `telemetry_liveness` (y `plan_tree`, ya cerrado) |
+| `meta check` — **mitad A, esta máquina** | **40 verdes · 1 rojo · 3 N/A = 44** |
+| **`rederive`** | **VERDE — los 10 targets == pin**, re-derivados allá |
+| **las 10 líneas corridas en casa propia** | **10/10 PASS** → `.proof/` GANADO en las 5 fábricas |
+| proyección RTM (derivada de ese `.proof/`) | **COMPLETE 5/5** (11/11 · 5/5 · 6/6 · 27/27 · 6/6) |
+| `generality` | **VERDE** una vez ganada la evidencia (5 mecanismos con paridad de 2 dominios) |
+| `meta attach --factory dummy --driver repl` | **levanta y contesta** (28 tools por tier + estado de estaciones) |
+| **mitad B, la otra máquina** (ADR-005) | **34 verdes · 0 rojos · 4 N/A**, + **6 impresos como NO corridos** |
+
+Las dos mitades se declaran **por separado**, y la segunda imprime lo que no corrió: 34+4+6 = 44.
+
+**El único rojo, y por qué se cierra ROJO en vez de verde.** `telemetry_liveness` dice
+`active_days=2 · recorded_days=0`: el repo trabajó (commits, 752 eventos de estación) y la economía no
+registró nada. **Tiene razón, y no lo puse verde a propósito.** Había dos caminos y los dos son la
+misma trampa: (a) fabricar un registro — pero *un registro que nadie observó tampoco es una medición*,
+que es el mismo error que el gate persigue, dado vuelta; (b) hacer que el host anote en el ledger cada
+corrida de estación — y eso es EXACTAMENTE lo que la aserción 1 del propio gate prohíbe: el
+instrumento comparándose contra la actividad, un gate que ya no podría ponerse rojo. **Debilitar el
+diente para cobrar el verde es el único pecado que este proyecto no comete.**
+
+Lo verdadero es lo que quedó escrito en `N-0003` del destino: **el cableado VIAJÓ intacto**
+(`mem_capture` en PostToolUse escribe las métricas), y la ventana de nacimiento (08-04/05) está sin
+medir **por construcción** — el repo se ensambló desde la sesión del ancestro, así que ningún hook
+suyo pudo observar el trabajo. La ventana rueda a 3 días: queda en N/A si el repo está quieto, y en
+verde el primer día que alguien trabaje ahí con los hooks corriendo. **El rojo se apaga solo, o es
+verdad.**
 
 **Los tres rojos, y por qué dos de ellos son la verdad y no un defecto.** `plan_tree` decía «un árbol
 vacío no es un plan» — Lock #1 en su forma más pura, y tenía razón: el repo nació sin plan. Se cerró

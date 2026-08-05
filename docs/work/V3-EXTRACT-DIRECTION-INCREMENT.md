@@ -1,4 +1,4 @@
-<!-- meta:doc sha=39a9adfb980e08b21f8db64ea7073dc4ee34267f updated=2026-08-04T19:07Z -->
+<!-- meta:doc sha=043149edced3b9679725956925b99e98f8d60ecf updated=2026-08-05T00:10Z -->
 # Dirección — V3-EXTRACT: sacar `v3/` de este repo y usarlo en otro lado
 
 > **Doc de dirección** (no es un incremento abierto; cada PASO de abajo se abre con
@@ -239,6 +239,40 @@ de retirados coincide exactamente con las filas `retire`**. Un gate que desapare
 ## 6. PASO 4 — la extracción y su aceptación (nivel meta)
 
 `meta increment open V3-EXTRACT-CUTOVER`
+
+### 6.0 ENSAYO MEDIDO 2026-08-05, después de cerrar el 3.bis — no lo repitas, arrancá de acá
+
+Repo nuevo construido SÓLO con las 15 filas `PACKAGE`, `git init`, **un commit, cero ancestría de v2**:
+
+```bash
+R="$PWD"; rm -rf /tmp/v3-extract-rehearsal && mkdir -p /tmp/v3-extract-rehearsal
+python3 -c "import sys;sys.path.insert(0,'$R');from v3.extract_manifest import PACKAGE;print('\n'.join(p for p,_ in PACKAGE))" > /tmp/pkg.txt
+tar -C "$R" -cf - $(tr '\n' ' ' < /tmp/pkg.txt) | tar -C /tmp/v3-extract-rehearsal -xf -
+cd /tmp/v3-extract-rehearsal && git init -q . && git add -A && git -c user.email=x@y -c user.name=x commit -qm x
+./meta check --skip rederive
+```
+
+| medida | resultado |
+| --- | --- |
+| gates que **REGISTRAN** sin ancestro | **44 / 44** |
+| `meta check --skip rederive` | **31 verdes · 7 rojos · 5 N/A** |
+| los 7 rojos | `docs` · `evidence_liveness` · `projection` · `state_fidelity` · `state_snapshot` · `telemetry_liveness` · `ledger` |
+
+**44/44 es el titular.** Antes del 3.bis, once de esos gates no podían siquiera registrar en un repo sin
+el commit oráculo. Hoy registran todos: **el repo puede irse.**
+
+**Y los 7 rojos NO son deuda: son la definición de «nacer».** Cada uno depende de una fila `BORN_FRESH`
+—`docs/STATE.md`, `docs/LOG.md`, `INDEX.md`, `docs/work/`, `docs/decisions/`, `plan/tree.json`,
+`.proof/`, `baseline_verdicts.json`, `.metamem/`— que la extracción tiene que **GENERAR, no copiar**.
+El ensayo copió sólo la mitad `PACKAGE`, así que el repo quedó **copiado pero no nacido**. Esos 7
+rojos son, entonces, la **lista de aceptación del PASO 4**: se ponen verdes naciendo, y si alguno se
+pusiera verde *copiando*, eso sería el error que `BORN_FRESH` existe para impedir (importar un verde
+que nadie volvió a ganarse — la razón escrita de la fila `.proof/`).
+
+⚠️ Al copiar, preservá los paths (`tar`, no `cp -r` por fila): con `tests/fixtures/` aplanado a
+`tests/`, la suite **se negó a registrar** (`RegistrationRefused: quality: red-side fixture … is not in
+the tree`) en vez de correr sin dientes. Es la ley de INC-4 haciendo exactamente su trabajo, y es la
+señal de que el paquete está mal armado, no de que el gate esté roto.
 
 1. Repo nuevo con el manifiesto del PASO 1. `v3/oracle_ref.json` **se retira o se re-apunta**: en el
    repo nuevo no hay commit de v2.

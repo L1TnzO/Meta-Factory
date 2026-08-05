@@ -46,7 +46,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ...extract_manifest import BORN_FRESH, PACKAGE, classify
+from ...extract_manifest import BORN_FRESH, PACKAGE, STAYS, classify, root_disposition
 from ...kernel.report import Verdict
 
 _ROOT = Path(__file__).resolve().parents[3]   # checks -> verify -> v3 -> repo root
@@ -106,6 +106,22 @@ def sufficiency_problems(facts: tuple[tuple[str, str, str | None], ...]) -> list
             problems.append(f"{source}: {literal!r} exists in the tree and is referenced by a "
                             f"platform module, but classify() answers None (packing hole)")
     return problems
+
+
+def root_disposition_problems(facts: tuple[tuple[str, str | None], ...]) -> list[str]:
+    """Law 4 over precomputed (root-level tracked file, `root_disposition()`'s answer) facts — pure.
+
+    WHY THIS LAW EXISTS, measured: the sufficiency law (law 3) derives its population from string
+    literals in platform `.py` files, so it can only see a path some module NAMES. `.gitignore` is
+    named by nobody, tracked by git, and load-bearing — it is what keeps `.proof/` and `.gen/` out of
+    the repo — and it sat in NEITHER table until the extraction was actually executed
+    (V3-EXTRACT-CUTOVER). A directory-shaped manifest is structurally blind to the files at the root,
+    which are exactly the ones that configure the repo. Three answers are legal here (travel, be born
+    fresh, stay behind); the fourth — silence — is what this refuses."""
+    return sorted(f"{path!r} is a ROOT-LEVEL tracked file with no disposition: it is in neither "
+                 f"PACKAGE nor BORN_FRESH nor STAYS. A file at the root cannot be seen by a "
+                 f"directory-shaped row — decide it, in writing"
+                 for path, disposition in facts if disposition is None)
 
 
 def looks_like_path(literal: str) -> bool:
@@ -178,8 +194,20 @@ def _sweep_literals(root: Path, scan_roots: tuple[str, ...]) -> tuple[tuple[str,
 
 def _sufficiency_facts(root: Path, scan_roots: tuple[str, ...]
                        ) -> tuple[tuple[str, str, str | None], ...]:
-    return tuple((literal, source, classify(literal))
+    """`root_disposition`, not `classify`: a path DECLARED to stay behind is decided, not a hole.
+    Measured (V3-EXTRACT-CUTOVER): writing the `STAYS` row made the literal sweep see the very path
+    the row exists to dispose of, and law 3 called it a packing hole — a law reporting a defect
+    created by the act of deciding. The two laws ask different questions ("does it travel" vs "was it
+    decided"); this one asks the second."""
+    return tuple((literal, source, root_disposition(literal))
                 for literal, source in _sweep_literals(root, scan_roots))
+
+
+def _root_facts(root: Path) -> tuple[tuple[str, str | None], ...]:
+    """(root-level tracked file, its disposition). `git ls-files` is the population: a file git does
+    not track cannot travel, be born or stay — it is not part of the repo in the sense that matters."""
+    out = subprocess.run(["git", "ls-files"], cwd=root, capture_output=True, text=True).stdout
+    return tuple((f, root_disposition(f)) for f in sorted(out.split()) if "/" not in f)
 
 
 def _real_report(root: Path) -> tuple[list[str], int]:
@@ -187,9 +215,11 @@ def _real_report(root: Path) -> tuple[list[str], int]:
     suff_facts = _sufficiency_facts(root, _SCAN_ROOTS)
     problems = (reason_problems(PACKAGE, "PACKAGE")
                + reason_problems(BORN_FRESH, "BORN_FRESH")
+               + reason_problems(STAYS, "STAYS")
                + existence_problems(_package_facts(root, PACKAGE))
                + overlap_problems(_overlap_facts(PACKAGE, BORN_FRESH))
-               + sufficiency_problems(suff_facts))
+               + sufficiency_problems(suff_facts)
+               + root_disposition_problems(_root_facts(root)))
     return sorted(problems), len(suff_facts)
 
 
@@ -204,6 +234,13 @@ def _tooth_alive() -> tuple[list[str], int]:
     dead, scenarios = [], 0
 
     for name, condition in (
+        # law 4 — root disposition (the law the extraction's own execution demanded)
+        ("root: an UNDECIDED root-level tracked file was NOT flagged",
+         not root_disposition_problems(((".synthetic-rc", None),))),
+        ("root: a root file declared STAYS WAS flagged (staying behind is a legal answer)",
+         bool(root_disposition_problems(((".synthetic-rc", "stays"),)))),
+        ("root: a root file that TRAVELS was flagged",
+         bool(root_disposition_problems((("meta", "package"),)))),
         # law 3 — sufficiency
         ("sufficiency: an existing path outside the manifest was NOT flagged",
          not sufficiency_problems((("spec_examples/foo.yml", "synthetic_module.py", None),))),
@@ -253,7 +290,7 @@ def main(argv: list[str]) -> int:
                            f"synthetic scenario(s)", failures=tuple(dead)).emit()
         return Verdict("v3-extract-package (SABOTAGE)", 0,
                        f"all {scenarios} synthetic scenarios (reason + existence + overlap + "
-                       f"sufficiency laws, hole side and healthy side) resolved as the law requires",
+                       f"sufficiency + root-disposition laws, hole side and healthy side) resolved as the law requires",
                        counts={"scenarios": scenarios}).emit()
 
     problems, nliterals = _real_report(_ROOT)

@@ -67,6 +67,11 @@ PACKAGE: tuple[tuple[str, str], ...] = (
     ("CLAUDE.md", "the routing law. `doc_stamp`, `docs_manifest`, `meter`, `doc_graph` and the "
                   "column-law parity all resolve it by name; the destination EDITS it in place "
                   "rather than inventing one."),
+    (".gitignore", "what keeps `.proof/`, `.gen/` and every build tree OUT of git. Found by "
+                   "EXECUTING this manifest (V3-EXTRACT-CUTOVER), not by reading it: no module "
+                   "names it, so the sufficiency law — which derives from code literals — could "
+                   "never have seen it. Without it the destination COMMITS its own evidence, and a "
+                   "green nobody re-earned is exactly what `BORN_FRESH`'s `.proof/` row forbids."),
 )
 
 #: (repo-relative path, WHY the destination grows its own instead of inheriting ours). A row here is
@@ -86,6 +91,31 @@ BORN_FRESH: tuple[tuple[str, str], ...] = (
     (".proof/", "re-derivable evidence. Copying it would import a green nobody re-earned."),
     (".metamem/", "cross-session auto-memory — a relationship with one engineer in one repo."),
 )
+
+
+#: (repo-relative ROOT-LEVEL file, WHY it stays behind). The third answer a root file can give.
+#: The manifest is DIRECTORY-shaped, so a file sitting at the root is precisely what it cannot see:
+#: `.gitignore` was tracked, load-bearing and in NEITHER table, and nothing noticed until someone
+#: ran the extraction (V3-EXTRACT-CUTOVER). `root_disposition_problems` is the law; this is the only
+#: legal way to be absent from both tables — by SAYING SO, with a reason.
+STAYS: tuple[tuple[str, str], ...] = (
+    ("compass_artifact_wf-132dbce3-4e7a-4e00-86d1-6d0011e22a13_text_markdown.md",
+     "a research artifact of THIS repo's own investigation. The platform never reads it, no gate "
+     "resolves it, and it is not part of what makes a factory run."),
+)
+
+
+def root_disposition(relpath: str) -> str | None:
+    """'package' | 'born_fresh' | 'stays' | None (an UNDECIDED root file) — for root-level files only.
+
+    Kept separate from `classify` on purpose: `classify` answers "does this path travel", which is a
+    question about the PACKAGE, while this answers "was this root file DECIDED", which is a question
+    about the manifest's own completeness. Folding them would let a `STAYS` row make a path look
+    classified when what it really is, is deliberately absent.
+    """
+    if any(relpath == path for path, _reason in STAYS):
+        return "stays"
+    return classify(relpath)
 
 
 def classify(relpath: str) -> str | None:

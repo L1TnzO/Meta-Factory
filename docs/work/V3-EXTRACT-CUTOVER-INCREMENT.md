@@ -1,7 +1,7 @@
-<!-- meta:doc sha=5cb3f5e6733286ea1f3cfb2617d668421bc4eba9 updated=2026-08-05T03:30Z -->
+<!-- meta:doc sha=9925a254ea805d75d7b6f4c8edbffde98efede6d updated=2026-08-05T04:17Z -->
 # Increment V3-EXTRACT-CUTOVER
 
-> **Governance doc.** Status: **OPEN** (created 2026-08-05T00:38Z). Close it with `v3 increment close`
+> **Governance doc.** Status: **CLOSED** (2026-08-05T04:17Z) (created 2026-08-05T00:38Z). Close it with `v3 increment close`
 > (gated: clean tree + active station green). Every code change lives here (ADR-010).
 
 ## Goal
